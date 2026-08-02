@@ -453,6 +453,95 @@ def test_a_corrupt_tree_raises_instead_of_listing_nothing(repo: Path):
         _read(repo)
 
 
+# ---- the post-push local-ref rewind (spec 025 slice 2, Task 2) ----
+
+
+def _empty_commit_on(repo: Path, parent: str, message: str) -> str:
+    """A commit with the SAME tree as `parent`, so history shape is the only variable.
+
+    `message` is REQUIRED because `commit-tree` is deterministic: two calls with the same
+    tree, parent, message and identity inside one second produce the SAME object id, and
+    a test that meant to build two sibling commits would silently build one.
+    """
+    return _git(repo, "commit-tree", f"{parent}^{{tree}}", "-p", parent, "-m", message)
+
+
+def test_a_successful_push_never_rewinds_a_local_ref_that_moved(
+    tmp_path: Path, bare_remote: Path
+):
+    """The defect at the seam where it actually occurs: between OUR push and OUR local
+    ref update.
+
+    Before the push a competing writer simply loses the fast-forward and we retry, so no
+    rewind is possible there. The window is AFTER the push, which is why the second writer
+    completes its entire cycle — fetch, build, push, update local — inside `_after_push`.
+    A bare `update-ref <ref> <new>` then sets our clone's ref back to OUR commit, and the
+    other writer's event vanishes from every local read until the next fetch. In this lane
+    the read that matters is a claim decision, so the visible consequence is two runners
+    believing the lane is free.
+    """
+    clone = _clone(bare_remote, tmp_path / "c")
+    bootstrap_log(clone, log=_log(remote="origin"), message=_MSG, remote="origin")
+    log = _log(remote="origin")
+    ahead: dict[str, str] = {}
+
+    def a_second_writer_finishes_first() -> None:
+        ahead["commit"] = _append(clone, {"event_id": "other", "kind": "b"}, log=log).commit
+
+    ours = _append(clone, {"event_id": "ours", "kind": "a"}, log=log,
+                   _after_push=a_second_writer_finishes_first)
+
+    tip = _git(clone, "rev-parse", log.ref)
+    assert tip == ahead["commit"], "the local ref was rewound past a newer commit"
+    assert _git(clone, "merge-base", "--is-ancestor", ours.commit, tip) == "", (
+        "our commit is not reachable from the local tip"
+    )
+    # The decisive assertion: a LOCAL read, with no intervening fetch, sees both events.
+    assert sorted(e["event_id"] for e in _read(clone, log=_log())) == ["other", "ours"]
+
+
+def test_sync_local_ref_leaves_a_newer_tip_alone_but_fails_on_divergence(repo: Path):
+    """The two outcomes that are NOT the same.
+
+    A moved ref that CONTAINS our commit is another writer in this clone getting ahead of
+    us: leave their tip alone. One that does not contain it is a divergence: fail closed.
+    Collapsing them either way is a bug — ignoring every failure hides the divergence,
+    and raising on every failure turns an ordinary race into an error.
+    """
+    from llmxive.git_event_log import _sync_local_ref
+
+    _append(repo, {"event_id": "e0", "kind": "a"})
+    log = _log()
+    parent = _git(repo, "rev-parse", log.ref)
+    ours = _empty_commit_on(repo, parent, "ours")
+    newer = _empty_commit_on(repo, ours, "newer")     # contains `ours`
+
+    _git(repo, "update-ref", log.ref, newer)
+    _sync_local_ref(repo, log, ours, parent)         # no rewind, no raise
+    assert _git(repo, "rev-parse", log.ref) == newer
+
+    unrelated = _empty_commit_on(repo, parent, "unrelated")   # does NOT contain `ours`
+    assert unrelated != ours, "the divergence case needs two DISTINCT sibling commits"
+    _git(repo, "update-ref", log.ref, unrelated)
+    with pytest.raises(GitLogError, match="diverged"):
+        _sync_local_ref(repo, log, ours, parent)
+    assert _git(repo, "rev-parse", log.ref) == unrelated, "a failed sync must not mutate"
+
+
+def test_sync_local_ref_sets_the_ref_when_it_has_not_moved(repo: Path):
+    """The ordinary case, which the two-outcome test above does not cover: nobody raced
+    us, the CAS succeeds, and the ref advances to what we pushed."""
+    from llmxive.git_event_log import _sync_local_ref
+
+    _append(repo, {"event_id": "e0", "kind": "a"})
+    log = _log()
+    parent = _git(repo, "rev-parse", log.ref)
+    ours = _empty_commit_on(repo, parent, "ours")
+
+    _sync_local_ref(repo, log, ours, parent)
+    assert _git(repo, "rev-parse", log.ref) == ours
+
+
 # ---- exception compatibility with the credit ledger's names (round-2 F8) ----
 
 

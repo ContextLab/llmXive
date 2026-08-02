@@ -42,6 +42,12 @@ from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from pathlib import Path
 
+#: A TEST-ONLY crash seam: a zero-argument callback a test raises from (or blocks in) to
+#: stop the process at a named point in the commit sequence. Named once so that every
+#: entry point which forwards the seams reads as one contract rather than as a dozen
+#: incidental parameters. Production callers never pass one.
+Seam = Callable[[], None] | None
+
 #: git's "ref must not currently exist" sentinel for ``update-ref``.
 _ZERO_OID = "0" * 40
 
@@ -574,6 +580,34 @@ def bootstrap_log(
     return commit
 
 
+def _sync_local_ref(repo: Path, log: LogRef, commit: str, parent: str | None) -> None:
+    """Point the local ref at what we just pushed, WITHOUT rewinding it.
+
+    The CAS is the same one the local-only path uses. Failure is not an error here: the
+    push already made ``commit`` durable, so a moved local ref means another writer in
+    this clone got ahead of us, and the correct action is to leave their newer tip alone.
+    What is NOT acceptable is a local ref that does not contain our commit at all — that
+    is a divergence, not a race, and it fails closed.
+
+    This replaced a bare ``update-ref <ref> <new>``, which SET the ref regardless of where
+    it pointed. Two writers in one clone reach that: A pushes and stalls before its local
+    update; B syncs, builds on A's pushed tip, pushes and updates local; A resumes and
+    rewinds the ref past B's commit, hiding B's event from every local read until the next
+    fetch."""
+    proc = _git(
+        ["update-ref", log.ref, commit, parent or _ZERO_OID],
+        cwd=repo, identity=log.git_identity, check=False,
+    )
+    if proc.returncode == 0:
+        return
+    current = _rev(repo, log.ref, identity=log.git_identity)
+    if current is None or not _is_ancestor(repo, log, commit, current):
+        raise GitLogError(
+            f"pushed {commit} but the local {log.ref} is {current} and does not contain "
+            "it — local and remote have diverged"
+        )
+
+
 def append_to_log(
     repo: Path,
     *,
@@ -586,7 +620,8 @@ def append_to_log(
     now_field: str | None = None,
     finalize: Callable[[dict, int], dict] | None = None,
     identity_exclude: frozenset[str] = frozenset(),
-    _after_parent: Callable[[], None] | None = None,
+    _after_parent: Seam = None,
+    _after_push: Seam = None,
     max_retries: int = _DEFAULT_MAX_RETRIES,
 ) -> AppendResult:
     """Append ONE event to the authoritative log under strict CAS.
@@ -682,8 +717,9 @@ def append_to_log(
         new_commit = _append_commit(repo, log, parent, built, message_fn(built))
         if log.remote is not None:
             if _push_fast_forward(repo, log, log.remote, new_commit):
-                # Sync the local ref to what we successfully pushed.
-                _git(["update-ref", log.ref, new_commit], cwd=repo, identity=log.git_identity)
+                if _after_push is not None:
+                    _after_push()  # TEST-ONLY: durable on the remote, local ref not yet moved
+                _sync_local_ref(repo, log, new_commit, parent)
                 return AppendResult(new_commit, seq, created=True)
             continue  # concurrent event won — refetch + recompute
         # Local-only CAS: set the ref iff it still equals the observed parent.
@@ -706,6 +742,7 @@ __all__ = [
     "GitLogDenied",
     "GitLogError",
     "LogRef",
+    "Seam",
     "append_to_log",
     "bootstrap_log",
     "read_log",
