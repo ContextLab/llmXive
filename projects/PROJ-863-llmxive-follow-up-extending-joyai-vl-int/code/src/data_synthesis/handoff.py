@@ -1,160 +1,225 @@
 """
-Streaming Handoff Module for llmXive.
+Streaming Handoff Module for llmXive Data Pipeline.
 
-Allows US2/US3 to begin processing chunks as T013 writes them,
-avoiding false serialization.
+Implements logic to allow downstream processes (US2/US3) to begin processing
+video chunks as soon as they are written by the generator, avoiding false
+serialization and enabling parallel processing.
 """
-
 import json
 import os
 import time
 import fcntl
-from dataclasses import dataclass, asdict
+import threading
+from dataclasses import dataclass, asdict, field
 from pathlib import Path
-from typing import Dict, Any, List, Optional
+from typing import List, Dict, Any, Optional, Iterator
+from datetime import datetime
+
+from src.utils.logging import get_logger
+from src.utils.validation import validate_manifest_structure
+
+logger = get_logger(__name__)
+
 
 @dataclass
 class ChunkManifest:
-    """Represents a single chunk in the manifest."""
+    """
+    Represents the manifest of a single chunk written to disk.
+    This structure is written to a JSON file alongside the chunk data.
+    """
     chunk_id: str
-    start_frame: int
-    end_frame: int
-    start_time: float
-    end_time: float
+    start_timestamp: float
+    end_timestamp: float
+    frame_count: int
     file_path: str
-    status: str  # "writing", "ready", "processed"
-    created_at: float
+    status: str  # 'writing', 'ready', 'error'
+    created_at: str
+    hash: Optional[str] = None
+    metadata: Dict[str, Any] = field(default_factory=dict)
+
+    def to_dict(self) -> Dict[str, Any]:
+        return asdict(self)
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> 'ChunkManifest':
+        return cls(**data)
+
 
 class HandoffManager:
     """
-    Manages the handoff of data chunks between producers and consumers.
+    Manages the handoff of data chunks from the generator (Producer)
+    to downstream consumers (US2/US3).
+
+    Features:
+    - Atomic chunk marking: Uses a '.tmp' file + rename pattern to ensure
+      consumers only see fully written chunks.
+    - Locking: Uses file locking (fcntl) to prevent race conditions when
+      updating the global manifest.
+    - Streaming Polling: Provides a generator to wait for new chunks.
     """
 
-    def __init__(self, manifest_path: str, lock_path: str):
-        self.manifest_path = Path(manifest_path)
-        self.lock_path = Path(lock_path)
-        self.manifest_dir = self.manifest_path.parent
-        self.manifest_dir.mkdir(parents=True, exist_ok=True)
-        
-        # Initialize manifest file if not exists
-        if not self.manifest_path.exists():
-            self.manifest_path.write_text(json.dumps({"chunks": []}, indent=2))
+    def __init__(self, output_dir: str, global_manifest_path: str = "manifest.jsonl"):
+        self.output_dir = Path(output_dir)
+        self.output_dir.mkdir(parents=True, exist_ok=True)
+        self.global_manifest_path = Path(self.output_dir) / global_manifest_path
+        self.lock_file = Path(self.output_dir) / ".handoff.lock"
+        self._lock = threading.Lock()  # In-memory lock for Python threads
+        self.logger = get_logger(__name__)
 
-    def _read_manifest(self) -> Dict[str, Any]:
-        """Read the current manifest."""
-        with open(self.manifest_path, 'r') as f:
-            return json.load(f)
+    def _acquire_lock(self) -> bool:
+        """Acquire an exclusive lock on the handoff lock file."""
+        if not self.lock_file.exists():
+            self.lock_file.touch()
+        try:
+            with open(self.lock_file, 'w') as f:
+                fcntl.flock(f.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+                return True
+        except (IOError, OSError):
+            return False
 
-    def _write_manifest(self, data: Dict[str, Any]) -> None:
-        """Write the manifest with file locking."""
-        with open(self.manifest_path, 'r') as f:
-            fcntl.flock(f.fileno(), fcntl.LOCK_EX)
+    def _release_lock(self):
+        """Release the lock on the handoff lock file."""
+        if self.lock_file.exists():
             try:
-                f.seek(0)
-                json.dump(data, f, indent=2)
-                f.truncate()
-            finally:
-                fcntl.flock(f.fileno(), fcntl.LOCK_UN)
+                with open(self.lock_file, 'w') as f:
+                    fcntl.flock(f.fileno(), fcntl.LOCK_UN)
+            except Exception:
+                pass
 
-    def write_chunk(self, chunk_id: str, start_frame: int, end_frame: int,
-                    start_time: float, end_time: float, file_path: str) -> None:
+    def register_chunk_start(self, chunk_id: str, start_ts: float) -> ChunkManifest:
         """
-        Write a new chunk to the manifest.
-
-        Args:
-            chunk_id: Unique identifier for the chunk.
-            start_frame: Starting frame index.
-            end_frame: Ending frame index.
-            start_time: Start timestamp.
-            end_time: End timestamp.
-            file_path: Path to the chunk file.
+        Registers a new chunk as 'writing'. Creates the manifest entry
+        but marks it as not ready for consumption yet.
         """
-        manifest = self._read_manifest()
-        
-        chunk = ChunkManifest(
+        manifest = ChunkManifest(
             chunk_id=chunk_id,
-            start_frame=start_frame,
-            end_frame=end_frame,
-            start_time=start_time,
-            end_time=end_time,
-            file_path=file_path,
-            status="writing",
-            created_at=time.time()
+            start_timestamp=start_ts,
+            end_timestamp=0.0, # Will be updated
+            frame_count=0,
+            file_path=str(self.output_dir / f"{chunk_id}.jsonl"),
+            status='writing',
+            created_at=datetime.now().isoformat()
         )
+        # Write initial state to a temporary file for atomicity later
+        return manifest
 
-        manifest["chunks"].append(asdict(chunk))
-        self._write_manifest(manifest)
-
-    def mark_chunk_ready(self, chunk_id: str) -> None:
+    def finalize_chunk(self, manifest: ChunkManifest, end_ts: float, frame_count: int, file_hash: Optional[str] = None) -> ChunkManifest:
         """
-        Mark a chunk as ready for processing.
-
-        Args:
-            chunk_id: The chunk ID to mark.
+        Finalizes a chunk, updates its metadata, and atomically moves
+        the data file to signal readiness.
         """
-        manifest = self._read_manifest()
-        for chunk in manifest["chunks"]:
-            if chunk["chunk_id"] == chunk_id:
-                chunk["status"] = "ready"
-                break
-        self._write_manifest(manifest)
+        manifest.end_timestamp = end_ts
+        manifest.frame_count = frame_count
+        manifest.status = 'ready'
+        if file_hash:
+            manifest.hash = file_hash
 
-    def get_all_chunks(self, status: Optional[str] = None) -> List[Dict[str, Any]]:
+        # Write the manifest to a .tmp file first
+        manifest_path = Path(self.output_dir) / f"{manifest.chunk_id}_manifest.json"
+        tmp_path = Path(str(manifest_path) + ".tmp")
+
+        with open(tmp_path, 'w') as f:
+            json.dump(manifest.to_dict(), f, indent=2)
+
+        # Atomic rename to signal readiness
+        tmp_path.rename(manifest_path)
+
+        self.logger.info(f"Chunk {manifest.chunk_id} finalized and ready for handoff.")
+        return manifest
+
+    def update_global_manifest(self, chunk_manifest: ChunkManifest):
         """
-        Get all chunks, optionally filtered by status.
-
-        Args:
-            status: Optional status filter ("writing", "ready", "processed").
-
-        Returns:
-            List of chunk dictionaries.
+        Appends the chunk entry to the global manifest.jsonl file.
+        Uses file locking to ensure thread safety.
         """
-        manifest = self._read_manifest()
-        chunks = manifest["chunks"]
-        if status:
-            chunks = [c for c in chunks if c["status"] == status]
+        entry = chunk_manifest.to_dict()
+        entry['timestamp'] = datetime.now().isoformat()
+
+        # Simple append with lock
+        if self._acquire_lock():
+            try:
+                with open(self.global_manifest_path, 'a') as f:
+                    f.write(json.dumps(entry) + '\n')
+                    f.flush()
+                    os.fsync(f.fileno())
+            finally:
+                self._release_lock()
+        else:
+            # Fallback if lock fails (e.g., cross-process), just append (less safe)
+            with open(self.global_manifest_path, 'a') as f:
+                f.write(json.dumps(entry) + '\n')
+
+    def get_all_chunks(self) -> List[ChunkManifest]:
+        """
+        Reads the global manifest and returns all registered chunks.
+        """
+        chunks = []
+        if not self.global_manifest_path.exists():
+            return chunks
+
+        with open(self.global_manifest_path, 'r') as f:
+            for line in f:
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    data = json.loads(line)
+                    chunks.append(ChunkManifest.from_dict(data))
+                except json.JSONDecodeError:
+                    self.logger.warning(f"Corrupt line in global manifest: {line}")
         return chunks
 
-    def get_new_chunks_since(self, timestamp: float) -> List[Dict[str, Any]]:
+    def get_new_chunks_since(self, last_seen_id: Optional[str] = None) -> List[ChunkManifest]:
         """
-        Get chunks created after a specific timestamp.
-
-        Args:
-            timestamp: The timestamp to compare against.
-
-        Returns:
-            List of new chunk dictionaries.
+        Returns chunks that have been finalized since a specific chunk ID.
+        If last_seen_id is None, returns all chunks.
         """
-        manifest = self._read_manifest()
-        return [c for c in manifest["chunks"] if c["created_at"] > timestamp]
+        all_chunks = self.get_all_chunks()
+        if not last_seen_id:
+            return all_chunks
 
-    def wait_for_next_chunk(self, timeout: float = 30.0) -> Optional[Dict[str, Any]]:
+        # Find index of last_seen_id
+        start_idx = 0
+        for i, chunk in enumerate(all_chunks):
+            if chunk.chunk_id == last_seen_id:
+                start_idx = i + 1
+                break
+
+        return all_chunks[start_idx:]
+
+    def wait_for_next_chunk(self, last_seen_id: Optional[str] = None, timeout: float = 30.0) -> Optional[ChunkManifest]:
         """
-        Wait for the next ready chunk.
-
-        Args:
-            timeout: Maximum time to wait in seconds.
-
-        Returns:
-            The first ready chunk, or None if timeout.
+        Blocks until a new chunk is available or timeout occurs.
+        Useful for consumers (US2/US3) to stream processing.
         """
         start_time = time.time()
+        last_checked_chunks = self.get_new_chunks_since(last_seen_id)
+        
         while time.time() - start_time < timeout:
-            chunks = self.get_all_chunks(status="ready")
-            if chunks:
-                return chunks[0]
-            time.sleep(1.0)
+            current_chunks = self.get_new_chunks_since(last_seen_id)
+            if len(current_chunks) > len(last_checked_chunks):
+                return current_chunks[-1]
+            time.sleep(0.5)
+        
         return None
 
-def get_handoff_manager(manifest_path: str = "data/handoff_manifest.json") -> HandoffManager:
-    """
-    Get a HandoffManager instance.
+    def wait_for_next_chunk_generator(self, last_seen_id: Optional[str] = None) -> Iterator[ChunkManifest]:
+        """
+        Generator that yields chunks as they become available.
+        Runs indefinitely until interrupted.
+        """
+        while True:
+            chunk = self.wait_for_next_chunk(last_seen_id, timeout=60.0)
+            if chunk:
+                yield chunk
+                last_seen_id = chunk.chunk_id
+            else:
+                # No chunk found, yield control and retry
+                time.sleep(1.0)
 
-    Args:
-        manifest_path: Path to the manifest file.
 
-    Returns:
-        HandoffManager instance.
+def get_handoff_manager(output_dir: str) -> HandoffManager:
     """
-    lock_path = str(Path(manifest_path).with_suffix(".lock"))
-    return HandoffManager(manifest_path, lock_path)
+    Factory function to get a HandoffManager instance.
+    """
+    return HandoffManager(output_dir)

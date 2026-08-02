@@ -3,53 +3,64 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "quantifying-compression-gw"
+name = "quantifying-compression-impact-gw"
 version = "0.1.0"
 description = "Quantifying the Impact of Data Compression on Gravitational Wave Event Reconstruction"
-requires-python = ">=3.11"
+readme = "README.md"
+requires-python = ">=3.9"
 dependencies = [
-    "numpy>=1.24.0",
-    "scipy>=1.10.0",
-    "pandas>=2.0.0",
-    "h5py>=3.8.0",
-    "bilby>=2.0.0",
-    "dynesty>=2.1.0",
-    "gwosc>=0.7.0",
-    "lz4>=4.3.0",
-    "pywavelets>=1.4.0",
-    "astropy>=5.2.0",
-    "pillow>=9.5.0",
-    "pytest>=7.3.0",
-    "pytest-cov>=4.1.0",
-    "pytest-timeout>=2.2.0",
-    "lalsuite>=7.0.0",
+    "numpy",
+    "scipy",
+    "pandas",
+    "h5py",
+    "lalsimulation",
+    "bilby",
+    "dynesty",
+    "gwosc",
+    "lz4",
+    "pywavelets",
+    "astropy",
+    "pillow",
+    "statsmodels",
 ]
 
 [project.optional-dependencies]
 dev = [
-    "ruff>=0.1.0",
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "pytest-timeout>=2.0.0",
     "black>=23.0.0",
-    "pre-commit>=3.3.0",
+    "ruff>=0.1.0",
+    "pre-commit>=3.0.0",
 ]
 
 [tool.setuptools.packages.find]
-where = ["code"]
-
-[tool.ruff]
-line-length = 100
-select = ["E", "F", "I", "W"]
-ignore = ["E501"]
+where = ["."]
+include = ["src*"]
 
 [tool.black]
-line-length = 100
-target-version = ['py311']
+line-length = 88
+target-version = ['py39']
+include = '\.pyi?$'
+
+[tool.ruff]
+line-length = 88
+target-version = "py39"
+select = ["E", "F", "W", "I", "N", "UP", "B", "C4", "SIM"]
+ignore = ["E501", "B008"]
 
 [tool.pytest.ini_options]
-testpaths = ["code/tests"]
-timeout = 300
-addopts = "--cov=code/src --cov-report=term-missing --strict-markers"
+testpaths = ["tests"]
+python_files = "test_*.py"
+addopts = "-v --strict-markers --tb=short --timeout=300 --cov=src --cov-report=term-missing --cov-fail-under=60"
 markers = [
-    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
-    "integration: marks tests as integration tests",
-    "unit: marks tests as unit tests"
+    "unit: Unit tests",
+    "integration: Integration tests",
+    "contract: Contract tests",
+    "slow: Slow running tests",
+]
+timeout = 300
+filterwarnings = [
+    "ignore::DeprecationWarning",
+    "ignore::PendingDeprecationWarning",
 ]

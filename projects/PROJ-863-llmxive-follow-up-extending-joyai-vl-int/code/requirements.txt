@@ -1,14 +1,17 @@
-# Core dependencies for llmXive
-# CPU-only PyTorch
-torch --index-url https://download.pytorch.org/whl/cpu
-transformers
-scikit-learn
-opencv-python
-datasets
-ultralytics
-pytest
-ruff
-black
-numpy
-jsonschema
-pandas
+# Core Dependencies
+torch>=2.0.0,<=2.3.0
+transformers>=4.40.0
+scikit-learn>=1.4.0
+opencv-python>=4.9.0
+datasets>=2.18.0
+numpy>=1.26.0
+pandas>=2.2.0
+
+# Testing
+pytest>=8.0.0
+pytest-timeout>=2.3.0
+
+# Linting and Formatting
+ruff>=0.3.0
+black>=24.3.0
+pre-commit>=3.7.0

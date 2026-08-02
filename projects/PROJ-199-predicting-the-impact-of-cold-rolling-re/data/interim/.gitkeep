@@ -1,1 +1,3 @@
-# Placeholder for interim processing artifacts
+# This directory stores intermediate data files used during multi-step processing.
+# These files are typically generated during data transformation but are not final outputs.
+# Example: temporary filtered datasets before final aggregation.

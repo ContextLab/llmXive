@@ -56,7 +56,7 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T004 Create `code/utils/timeout_wrapper.py` to enforce a strict runtime limit (FR-006)
-- [ ] T005 Create `code/utils/update_state.py` to compute SHA-256 hashes and update `state/...yaml` (Principle V)
+- [X] T005 Create `code/utils/update_state.py` to compute SHA-256 hashes and update `state/...yaml` (Principle V)
 - [X] T006 Create `code/utils/seed_utils.py` to pin random seeds for reproducibility (Principle I)
 - [ ] T007 Setup `data/` directory structure (`raw/`, `preprocessed/`, `external/`)
 - [ ] T008 Create `contracts/` schema files (`dataset.schema.yaml`, `model_output.schema.yaml`, `evaluation_results.schema.yaml`)
@@ -77,7 +77,7 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [~] T010 [P] [US1] Contract test for data alignment in `tests/test_data_alignment.py` (verifies InChIKey match)
+- [ ] T010 [P] [US1] Contract test for data alignment in `tests/test_data_alignment.py` (verifies InChIKey match)
 - [X] T011 [P] [US1] Unit test for preprocessing artifacts in `tests/test_preprocessing.py` (verifies grid fidelity, smoothing, normalization)
 - [X] T012 [P] [US1] Unit test for error handling in `tests/test_data_errors.py` (verifies fast fail on corrupted data/missing properties)
 
@@ -91,7 +91,7 @@
 - [X] T015 [US1] Implement `code/data/preprocess.py` (Part 5): Check metadata for DFT functional/basis set; flag mismatches as 'Domain Shift' candidates per Plan Phase 1
 - [X] T019 [US1] Implement `code/data/preprocess.py` (Part 6): Perform Coverage Audit (KS-test) comparing property distributions between full QM9 and aligned subset to detect selection bias (Log warning if p < 0.05)
 - [X] T016 [US1] Add `code/main.py` subcommand logic to orchestrate download -> alignment -> preprocess -> save `.npz`
-- [~] T017 [US1] Add logging for data ingestion steps and mismatch counts
+- [ ] T017 [US1] Add logging for data ingestion steps and mismatch counts
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently. **Note**: T019 must run after T014d to audit the filtered subset.
 
@@ -140,9 +140,9 @@
 
 - [X] T029 [US3] Implement `code/evaluation/metrics.py` to compute MAE and R² for each of the target properties
 - [X] T032 [US3] Implement `code/evaluation/metrics.py` to perform paired-sample t-tests (Primary Validation per SC-003, null hypothesis: mean error = 0)
-- [ ] T033 [US3] Implement `code/evaluation/metrics.py` to perform TOST (equivalence) and Hotelling's T² tests (Secondary/Exploratory per Plan Phase 3)
+- [X] T033 [US3] Implement `code/evaluation/metrics.py` to perform TOST (equivalence) and Hotelling's T² tests (Secondary/Exploratory per Plan Phase 3)
 - [ ] T030 [US3] Implement `code/evaluation/evaluate.py` to load `model_best.pt` and test set, run inference, and generate `results/evaluation_metrics.json`
-- [ ] T031 [US3] Integrate `code/evaluation/evaluate.py` with `code/main.py` subcommand to run after training
+- [X] T031 [US3] Integrate `code/evaluation/evaluate.py` with `code/main.py` subcommand to run after training
 - [ ] T034 [US3] Add logic to `code/utils/update_state.py` to hash `results/evaluation_metrics.json`
 
 **Checkpoint**: All user stories should now be independently functional
@@ -158,17 +158,17 @@
 
 ### Tests for User Story 4
 
-- [ ] T035 [P] [US4] Integration test for independent validation in `tests/test_independent_validation.py` (verifies separate metric reporting)
+- [X] T035 [P] [US4] Integration test for independent validation in `tests/test_independent_validation.py` (verifies separate metric reporting)
 
 ### Implementation for User Story 4
 
-- [ ] T038 [US4] Implement `code/evaluation/validate.py` to:
+- [X] T038 [US4] Implement `code/evaluation/validate.py` to:
  - Load external validation dataset (experimental or different DFT method)
  - If external data is unavailable, generate synthetic noise (Domain Shift Simulation) to test robustness (per Plan Phase 3 fallback)
  - Compute MAE/R² and compare against test set (tolerance ≤ 20% increase)
-- [ ] T039 [US4] Generate `results/validation_results.json` with separate metrics
-- [ ] T040 [US4] Integrate `code/evaluation/validate.py` with `code/main.py` subcommand as the final step
-- [ ] T041 [US4] Add logic to flag if independent MAE exceeds tolerance in `results/validation_results.json`
+- [X] T039 [US4] Generate `results/validation_results.json` with separate metrics
+- [X] T040 [US4] Integrate `code/evaluation/validate.py` with `code/main.py` subcommand as the final step
+- [X] T041 [US4] Add logic to flag if independent MAE exceeds tolerance in `results/validation_results.json`
 
 **Checkpoint**: All user stories should now be independently functional
 

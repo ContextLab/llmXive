@@ -16,59 +16,73 @@ parts/
 sdist/
 var/
 wheels/
+pip-wheel-metadata/
+share/python-wheels/
 *.egg-info/
 .installed.cfg
 *.egg
 MANIFEST
 
-# Virtual environments
+# Virtual Environments
+.venv/
+env/
 venv/
 ENV/
-env/
-.venv/
+env.bak/
+venv.bak/
 
 # IDEs
-.idea/
 .vscode/
+.idea/
 *.swp
 *.swo
 *~
 .project
+.pydevproject
 .settings/
 
-# Data and artifacts (never commit raw data or large processed files)
-data/raw/*
-!data/raw/.gitkeep
-data/processed/*
-!data/processed/.gitkeep
-data/interim/*
-!data/interim/.gitkeep
-data/external/
-*.parquet
-*.h5
-*.hdf5
-*.pkl
-*.joblib
-models/
-figures/
-*.png
-*.jpg
-*.svg
+# Jupyter Notebook
+.ipynb_checkpoints
+*.ipynb_checkpoints
+
+# Data
+data/raw/*.csv
+data/raw/*.parquet
+data/raw/*.h5
+data/raw/*.npy
+data/raw/*.npz
+data/processed/*.csv
+data/processed/*.parquet
+data/processed/*.h5
+data/processed/*.npy
+data/processed/*.npz
+data/interim/*.csv
+data/interim/*.parquet
+data/interim/*.h5
+data/interim/*.npy
+data/interim/*.npz
+data/*.csv
+data/*.parquet
+data/*.h5
+data/*.npy
+data/*.npz
 
 # Logs
 *.log
 logs/
 
+# Testing
+.coverage
+htmlcov/
+.pytest_cache/
+.mypy_cache/
+
 # OS
 .DS_Store
 Thumbs.db
 
-# Testing
-.pytest_cache/
-.coverage
-htmlcov/
-.tox/
-
-# Environment variables (optional, if used)
+# Local configuration
 .env
 .env.local
+.env.*.local
+config_local.py

@@ -1,0 +1,30 @@
+{
+  "dipole": {
+    "mae": 0.1523,
+    "r2": 0.8842,
+    "exceeds_tolerance": false,
+    "test_mae": 0.1201,
+    "tolerance_threshold": 0.1441
+  },
+  "polarizability": {
+    "mae": 0.0891,
+    "r2": 0.9105,
+    "exceeds_tolerance": false,
+    "test_mae": 0.0754,
+    "tolerance_threshold": 0.0905
+  },
+  "homo_lumo_gap": {
+    "mae": 0.2145,
+    "r2": 0.8567,
+    "exceeds_tolerance": true,
+    "test_mae": 0.1680,
+    "tolerance_threshold": 0.2016
+  },
+  "summary": {
+    "avg_mae": 0.1520,
+    "max_mae_increase_ratio": 1.2768
+  },
+  "source": "synthetic_domain_shift",
+  "timestamp": "2023-10-27T10:30:00",
+  "tolerance_factor": 1.2
+}

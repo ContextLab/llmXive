@@ -1,10 +1,13 @@
 """
-Utility modules for the llmXive automated science pipeline.
+Utilities package for the EBSD data pipeline.
+
+This package contains utility functions and classes used across the project.
 """
-from .logging import get_logger, setup_logging, configure_lineage
+from .logging import LineageAdapter, setup_logging, get_logger, configure_lineage
 
 __all__ = [
-    "get_logger",
-    "setup_logging",
-    "configure_lineage",
+    'LineageAdapter',
+    'setup_logging',
+    'get_logger',
+    'configure_lineage'
 ]

@@ -1,0 +1,106 @@
+project_id: PROJ-273-quantifying-the-impact-of-data-compressi
+title: Quantifying the Impact of Data Compression on Gravitational Wave Event Reconstruction
+status: active
+created_at: 2023-10-27T00:00:00Z
+updated_at: 2023-10-27T12:00:00Z
+
+specification:
+  version: 1.0.0
+  amendments:
+    - id: AMEND-001
+      target: FR-005
+      description: Replaced LALInference with Bilby/Dynesty for Fast PE.
+      status: approved
+    - id: AMEND-002
+      target: FR-001
+      description: Replaced public injection campaigns with synthetic injections into real noise.
+      status: approved
+    - id: AMEND-003
+      target: FR-003
+      description: Mandated Hilbert curve 1D-to-2D folding for JPEG2000.
+      status: approved
+    - id: AMEND-004
+      target: FR-007
+      description: Added fallback to Paired t-tests with Benjamini-Hochberg correction.
+      status: approved
+    - id: AMEND-005
+      target: SC-003
+      description: Defined bias measurement against external baseline (Delta_Bias).
+      status: approved
+
+constitution:
+  deviations:
+    - principle: II
+      document: code/provenance/deviation_constitution_principle_ii.md
+      status: active
+    - principle: VII
+      document: code/provenance/deviation_JPEG2000_folding.md
+      status: active
+
+tasks:
+  completed:
+    - T001
+    - T002
+    - T004
+    - T005
+    - T007
+    - T009
+    - T010
+    - T011
+    - T014
+    - T017
+  pending:
+    - T006
+    - T012
+    - T013
+    - T015
+    - T016
+    - T018
+    - T019
+    - T020
+    - T021
+    - T022
+    - T023
+    - T024
+    - T025
+    - T026
+    - T027
+    - T028
+    - T030
+    - T031
+    - T032
+    - T033
+    - T034
+    - T035
+    - T036
+    - T040.1
+    - T040.2
+    - T040.3
+    - T028.1
+
+resources:
+  dependencies:
+    - numpy
+    - scipy
+    - pandas
+    - h5py
+    - lalsimulation
+    - bilby
+    - dynesty
+    - gwosc
+    - lz4
+    - pywavelets
+    - astropy
+    - pillow
+    - pytest
+    - statsmodels
+  data_sources:
+    - name: GWOSC
+      type: api
+      url: https://gwosc.org
+      purpose: Real GW noise segments
+
+constraints:
+  ci_timeout_seconds: 21600
+  memory_gb: 14
+  disk_gb: 7

@@ -1813,3 +1813,170 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-19T17:07:49Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: run Bilby/Dynesty parameter estimation on at least 12 events
+  claim_id: c_e891358f
+  context: Update spec.md to formally amend FR-005 and Constitution Principle VII
+    to authorize Bilby/Dynesty as the Parameter Estimation engine for this project.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Run_Bilby/Dynesty_parameter_estimation_on_at_least_12_events
+  kind: magnitude
+  raw_text: "System MUST run Parameter Estimation using Bilby with Dynesty (Fast PE)\
+    \ on both original and compressed datasets for \u226512 events, replacing LALInference\
+    \ due to CI constraints."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T07:53:38Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: generate at least 15 synthetic CBC injections into real GW noise
+  claim_id: c_f756f817
+  context: Update spec.md to formally amend FR-001 to replace download requirements
+    with synthetic injection generation due to lack of public injection campaigns.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Generate_at_least_15_synthetic_CBC_injections_into_real_GW_n
+  kind: magnitude
+  raw_text: "System MUST generate \u226515 synthetic CBC injections into real GW noise\
+    \ segments fetched from GWOSC, using LALSimulation with known ground truth parameters,\
+    \ replacing the requirement to download public injection campaigns."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T07:54:01Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: implement JPEG2000 via 1D-to-2D Hilbert curve folding
+  claim_id: c_0d66c9ee
+  context: Formal amendment task to record the JPEG2000 folding deviation and associated
+    provenance file location.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Implement_JPEG2000_via_1D-to-2D_Hilbert_curve_folding
+  kind: entity_fact
+  raw_text: JPEG2000 compression MUST be implemented via 1D-to-2D folding (Hilbert
+    curve algorithm) to adapt 2D codecs to 1D strain data.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T07:54:24Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: fallback to Paired t-tests if ESS is less than 100
+  claim_id: c_76501245
+  context: Update spec.md to formally amend FR-007 to authorize Paired t-tests/Wilcoxon
+    as a valid fallback if Hierarchical Bayesian Shift Test convergence fails.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Fallback_to_Paired_t-tests_if_ESS_is_less_than_100
+  kind: magnitude
+  raw_text: If hierarchical Bayesian shift test convergence fails (ESS < 100), the
+    system MUST fallback to Paired t-tests (alpha=0.05) with Benjamini-Hochberg correction.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T07:54:50Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: set max_attempts to 20 and timeout to 300s
+  claim_id: c_77fa361f
+  context: "Implement logic to fetch additional noise segments in batches and inject/validate\
+    \ until \u226512 valid events with complete spin metadata are found."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must include max_attempts=20 and timeout=300s for fetching
+    noise segments.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T07:55:02Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: flag SNR degradation greater than 5% as unacceptable
+  claim_id: c_d7cf78a5
+  context: Add logic to flag compression levels with SNR degradation > 5% as 'unacceptable'
+    (FR-002, FR-003, FR-004, SC-002).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_SNR_degradation_greater_than_5%25_as_unacceptable
+  kind: magnitude
+  raw_text: Flag compression levels with SNR degradation > 5% as unacceptable.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T07:55:22Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: Bilby/Dynesty max_iter 5000 and nlive 200
+  claim_id: c_55cae775
+  context: Implement src/pe/run_bilby.py wrapper for Bilby/Dynesty with reduced iterations
+    specifically chosen to meet the h/event constraint.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Bilby/Dynesty implementation uses reduced iterations with max_iter=5000
+    and nlive=200.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T07:56:08Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: attempt hierarchical Bayesian shift test then fallback to paired t-tests
+    if ESS < 100
+  claim_id: c_1a1c51ae
+  context: Implement src/pe/compare_posteriors.py to compute bias metrics and handle
+    convergence failures.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must attempt hierarchical Bayesian shift tests first, and if
+    convergence fails (defined as ESS < 100), fallback to Paired t-tests (alpha=0.05)
+    applying the Benjamini-Hochberg correction.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T07:56:40Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: full pipeline execution time less than or equal to 6 hours
+  claim_id: c_9c1eb215
+  context: "Performance optimization to ensure full pipeline execution \u2264 6 hours\
+    \ (CI constraint)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Full_pipeline_execution_time_less_than_or_equal_to_6_hours
+  kind: magnitude
+  raw_text: "Full pipeline execution must be \u2264 6 hours due to CI constraints."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T07:56:48Z'

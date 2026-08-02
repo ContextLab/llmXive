@@ -3,43 +3,67 @@ requires = ["setuptools>=45", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "llmxive"
+name = "llmxive-joyai-vl"
 version = "0.1.0"
-description = "LLM-driven automated science pipeline"
+description = "JoyAI-VL-Interaction Follow-up: Automated Science Pipeline"
 requires-python = ">=3.9"
 dependencies = [
-    "torch --index-url https://download.pytorch.org/whl/cpu",
-    "transformers",
-    "scikit-learn",
-    "opencv-python",
-    "datasets",
-    "ultralytics",
-    "pytest",
-    "ruff",
-    "black",
-    "numpy",
-    "jsonschema",
-    "pandas"
+    "torch>=2.0.0,<=2.3.0",
+    "transformers>=4.40.0",
+    "scikit-learn>=1.4.0",
+    "opencv-python>=4.9.0",
+    "datasets>=2.18.0",
+    "numpy>=1.26.0",
+    "pandas>=2.2.0",
+    "pytest>=8.0.0",
+    "pytest-timeout>=2.3.0",
 ]
 
-[tool.setuptools.packages.find]
-where = ["code"]
-
-[tool.ruff]
-line-length = 100
-target-version = "py39"
-select = ["E", "F", "W", "I", "N", "UP", "B", "C4", "SIM"]
-ignore = ["E501"]
+[project.optional-dependencies]
+dev = [
+    "ruff>=0.3.0",
+    "black>=24.3.0",
+    "pre-commit>=3.7.0",
+]
 
 [tool.black]
-line-length = 100
+line-length = 88
 target-version = ['py39']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''
 
-[tool.pytest.ini_options]
-testpaths = ["code/tests"]
-python_files = ["test_*.py"]
-python_functions = ["test_*"]
-markers = [
-    "cpu_only: marks tests as CPU-only (deselect with '-m \"not cpu_only\"')",
-    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+[tool.ruff]
+line-length = 88
+target-version = "py39"
+src = ["code/src", "code/tests"]
+
+[tool.ruff.lint]
+select = [
+  "E", "W", "F", "I", "C", "B", "N", "UP", "YTT", "ANN", "S", "BLE", "A", "COM", "C4", "DTZ", "T10", "EM", "EXE", "FA", "ISC", "ICN", "G", "INP", "PIE", "T20", "PT", "Q", "RSE", "RET", "SLF", "SIM", "ARG", "PTH", "ERA", "PD", "PGH", "TRY", "FLY", "NPY", "PERF", "RUF"
 ]
+ignore = [
+  "E501", # Line too long (handled by black)
+  "ANN001", # Missing type annotation for function argument (too strict for now)
+  "ANN201", # Missing return type annotation for public function
+  "ANN202", # Missing return type annotation for private function
+  "S101", # Use of assert (allowed in tests)
+  "PTH123", # open() should be replaced by Path.open()
+  "RUF012", # Mutable class attributes should be annotated with typing.ClassVar
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["ANN", "S101"]
+"code/src/utils/logging.py" = ["ANN"]
+"code/src/utils/validation.py" = ["ANN"]

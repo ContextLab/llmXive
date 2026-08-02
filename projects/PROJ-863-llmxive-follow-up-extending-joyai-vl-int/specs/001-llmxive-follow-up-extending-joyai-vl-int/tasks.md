@@ -44,7 +44,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project structure per implementation plan (`src/data_synthesis`, `src/feature_extraction`, `src/baseline`, `src/scheduler`, `tests/`)
-- [ ] T002 Initialize Python project with `requirements.txt` (CPU-only `torch`, `transformers`, `scikit-learn`, `opencv-python`, `datasets`)
+- [X] T002 Initialize Python project with `requirements.txt` (CPU-only `torch`, `transformers`, `scikit-learn`, `opencv-python`, `datasets`)
 - [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
 - [ ] T004 [P] Setup `pytest` configuration with CPU resource limit markers
 
@@ -56,11 +56,11 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T005 Implement `src/utils/logging.py` for execution logging (FR-001.1)
-- [ ] T006 Implement `src/utils/validation.py` for schema validation (FR-002, Edge Cases)
+- [X] T005 Implement `src/utils/logging.py` for execution logging (FR-001.1)
+- [X] T006 Implement `src/utils/validation.py` for schema validation (FR-002, Edge Cases)
 - [X] T007 [P] Create base data models: `SyntheticVideoFrame`, `InternalStateVector`, `SchedulerDecision` in `src/data_synthesis/models.py` (aligned with plan.md structure)
 - [X] T008 Setup streaming/batching utilities in `src/feature_extraction/streaming.py` to enforce <6GB RAM limit
-- [~] T009 Configure environment variables for `JOYAI_VL_MODEL_PATH` and `DATA_SEED`
+- [ ] T009 Configure environment variables for `JOYAI_VL_MODEL_PATH` and `DATA_SEED`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -78,7 +78,7 @@
 > **[P] Clarification**: T010-T012 are "Test Code Writing" tasks. They can be written in parallel with T013-T017 "Implementation" tasks because they depend on the interface definition, not the implementation completion.
 
 - [X] T010 [P] [US1] Write contract test code: Verify labeling logic uses only visual events in `tests/unit/test_visual_labeler.py`
-- [ ] T011 [P] [US1] Write integration test code: Verify execution log contains zero VLM calls in `tests/integration/test_data_pipeline.py`
+- [X] T011 [P] [US1] Write integration test code: Verify execution log contains zero VLM calls in `tests/integration/test_data_pipeline.py`
 - [X] T012 [P] [US1] Write test code: Verify deterministic rule application for ambiguous events (sitting vs. falling) in `tests/unit/test_visual_labeler.py`
 
 ### Implementation for User Story 1
@@ -88,7 +88,7 @@
 - [ ] T013b [US1] **NEW**: Implement "Streaming Handoff" logic in `src/data_synthesis/handoff.py` to allow US2/US3 to begin processing chunks as T013 writes them, avoiding false serialization.
 - [ ] T014 [US1] Implement `src/data_synthesis/visual_labeler.py` using object detection (e.g., YOLO/COCO classes) to label "critical" vs "silence"
 - [ ] T015 [US1] Implement logic to handle ambiguous events with deterministic rules (velocity thresholds) as per Edge Cases
-- [ ] T016 [US1] Integrate `src/utils/logging.py` to record data sources and verify zero VLM API calls during labeling
+- [X] T016 [US1] Integrate `src/utils/logging.py` to record data sources and verify zero VLM API calls during labeling
 - [ ] T017 [US1] Implement data export to `data/raw/` and `data/manifest.jsonl`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently

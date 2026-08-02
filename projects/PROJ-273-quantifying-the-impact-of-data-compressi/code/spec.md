@@ -1,75 +1,88 @@
-# Specification: Quantifying the Impact of Data Compression on Gravitational Wave Event Reconstruction
+# Project Specification: Quantifying the Impact of Data Compression on Gravitational Wave Event Reconstruction
 
 ## 1. Introduction
 
-This document outlines the requirements for a system designed to quantify how data compression affects the reconstruction of gravitational wave (GW) events. The system will process real GW noise segments, inject synthetic CBC signals, apply various compression techniques, and perform Parameter Estimation (PE) to measure biases.
+This project investigates how data compression techniques affect the accuracy of gravitational wave (GW) event parameter estimation. The goal is to determine the maximum compression ratio achievable without significantly biasing the inferred physical parameters (masses, spins, distance, etc.) of compact binary coalescences.
 
 ## 2. Functional Requirements
 
-### 2.1 Data Acquisition and Injection (Amended FR-001)
-**FR-001**: System MUST generate ≥15 synthetic CBC injections into real GW noise segments fetched from GWOSC, using `LALSimulation` with known ground truth parameters, replacing the requirement to download public injection campaigns.
-*Note: This amendment is authorized by Plan Complexity Tracking due to the lack of public injection campaigns.*
+### FR-001: Data Acquisition
+System MUST generate ≥15 synthetic CBC injections into real GW noise segments fetched from GWOSC, using `LALSimulation` with known ground truth parameters, replacing the requirement to download public injection campaigns.
+*Note: This requirement is amended to reflect the lack of public injection campaigns. See T004.0 for formal deviation record.*
 
-### 2.2 Compression Techniques (Amended FR-003)
-**FR-003**: JPEG2000 compression MUST be implemented via 1D-to-2D folding (Hilbert curve algorithm) to adapt 2D codecs to 1D strain data. The resulting artifacts are tagged as 'Transformation+Compression'.
-*Note: This amendment is authorized by Constitution Principle VII (Modified) regarding the 1D-to-2D folding deviation.*
+### FR-002: Compression Implementation
+System MUST implement at least three compression methods:
+- Lossless: gzip, LZ4, bzip2 at multiple levels
+- Lossy: Quantized floating-point, Wavelet Thresholding
+- Transformation+Compression: JPEG2000 via 1D-to-2D folding (Hilbert curve)
 
-### 2.3 Parameter Estimation Engine (Amended FR-005)
-**FR-005**: System MUST run Parameter Estimation using `Bilby` with `Dynesty` (Fast PE) on both original and compressed datasets for ≥12 events, replacing LALInference due to CI constraints.
-*Note: Constitution Principle VII is amended to allow this deviation for the pilot phase.*
+### FR-003: JPEG2000 Folding
+JPEG2000 compression MUST be implemented via 1D-to-2D folding (Hilbert curve algorithm) to adapt 2D codecs to 1D strain data. The resulting artifacts are tagged as 'Transformation+Compression'.
+*Note: This requirement is amended per T007 and T006 (JPEG2000 deviation record).*
 
-### 2.4 Statistical Testing (Amended FR-007)
-**FR-007**: System MUST attempt hierarchical Bayesian shift tests. If convergence fails (ESS < 100), the system MUST fallback to Paired t-tests (alpha=0.05) with Benjamini-Hochberg correction. This deviation is authorized by Plan Complexity Tracking.
+### FR-004: Error Metrics
+System MUST compute Mean Squared Error (MSE) and Signal-to-Noise Ratio (SNR) degradation for all compression methods.
 
-### 2.5 Bias Measurement (Amended FR-010 & SC-003)
-**FR-010**: System MUST execute injection recovery tests with known true parameters to establish an independent baseline for bias detection.
-**SC-003**: Parameter estimation bias is measured against this external baseline (`Bias_Original`) using `Delta_Bias` (Posterior Mean - True Value).
+### FR-005: Parameter Estimation Engine
+System MUST run Parameter Estimation using `Bilby` with `Dynesty` (Fast PE) on both original and compressed datasets for ≥12 events, replacing LALInference due to CI constraints.
+*Note: This requirement is amended per T001#1 and Constitution Principle VII (Modified).*
 
-### 2.6 Event Selection Loop (Amended T015/T016)
-The system MUST fetch noise segments and inject signals in batches until **≥12 valid events** with complete spin metadata are found.
-* **Loop Condition**: `while valid_count < 12 and attempts < 20`.
-* **Error Handling**: If `max_attempts` (20) is reached and `valid_count` is still < 12, the system MUST raise a critical error and halt execution.
-* **Target**: The initial target for the pipeline is 15 events (per Amended FR-001), but the validation loop must strictly enforce the minimum of 12 valid events before proceeding.
+### FR-006: Posterior Comparison
+System MUST compute credible interval overlap between original and compressed posteriors.
 
-## 3. Non-Functional Requirements
+### FR-007: Statistical Significance Testing
+System MUST attempt hierarchical Bayesian shift tests. If convergence fails (ESS < 100), the system MUST fallback to Paired t-tests (alpha=0.05) with Benjamini-Hochberg correction. This deviation is authorized by Plan Complexity Tracking.
+*Note: This requirement is amended per T012.0.*
 
-### 3.1 Performance
-The full pipeline execution must complete within 6 hours on standard CI infrastructure (CPU-only).
+### FR-008: Spin Metadata
+System MUST include spin metadata (tilt angles) in all injection metadata.
 
-### 3.2 Data Integrity
-All synthetic injections must use `LALSimulation` with known ground truth parameters stored in metadata.
+### FR-009: Minimum Event Count
+System MUST process ≥12 valid events with complete spin metadata for final analysis.
 
-### 3.3 Reproducibility
-Random seeds MUST be pinned via `src/utils/config.py`.
+### FR-010: Baseline Bias Calculation
+System MUST execute injection recovery tests with known true parameters to establish an independent baseline for bias detection. System MUST measure bias against this external baseline (`Bias_Original`) using `Delta_Bias` (Posterior Mean - True Value).
+*Note: This requirement is amended per T027.0 to measure Delta_Bias against an external baseline.*
 
-## 4. Data Model
+## 3. Success Criteria
 
-### 4.1 Input
-- Real GW strain data (H1, L1) from GWOSC.
+### SC-001: Compression Threshold
+Identify the maximum compression ratio where SNR degradation remains < 5%.
 
-### 4.2 Intermediate
-- Injected strain data (`.h5` or `.npy`).
-- Compressed artifacts (`.gz`, `.lz4`, `.jpg2000`, etc.).
+### SC-002: Reconstruction Validity
+Ensure transformation artifacts (e.g., JPEG2000 folding) do not invalidate MSE/SNR comparisons.
 
-### 4.3 Output
-- Posterior samples (`.json` or `.h5`).
-- Bias metrics (`Delta_Bias`).
-- Final summary report.
+### SC-003: Bias Measurement
+Parameter estimation bias is measured against this external baseline (`Bias_Original`) using `Delta_Bias` (Posterior Mean - True Value).
+*Note: This criterion is amended per T027.0.*
 
-## 5. Provenance and Deviations
+## 4. Constitution Amendments
 
-- **Deviation Constitution Principle II**: Use of synthetic injections due to lack of public campaigns. See `code/provenance/deviation_constitution_principle_ii.md`.
-- **Deviation JPEG2000 Folding**: Use of Hilbert curve for 1D-to-2D folding. See `code/provenance/deviation_JPEG2000_folding.md`.
-- **Deviation PE Engine**: Use of Bilby/Dynesty instead of LALInference. Amended Constitution Principle VII.
+### Principle VII (Modified)
+The original requirement for LALInference is replaced by `Bilby` with `Dynesty` for the pilot phase due to CI constraints. This deviation is authorized under Plan Complexity Tracking.
 
-## 6. Execution Flow
+## 5. Data Pipeline Overview
 
-1. **Data Phase (US1)**: Fetch noise, inject signals, validate metadata (≥12 valid events).
-2. **Compression Phase (US2)**: Apply lossless/lossy compression.
-3. **PE Phase (US3)**: Run Bilby/Dynesty, compute biases.
-4. **Analysis Phase**: Compare `Delta_Bias`, generate reports.
+1. **Acquisition**: Fetch real GW noise from GWOSC.
+2. **Injection**: Generate synthetic CBC signals with known ground truth using LALSimulation.
+3. **Validation**: Ensure metadata completeness (mass, spin, distance) and SNR > 8.
+4. **Compression**: Apply lossless/lossy methods to validated events.
+5. **Parameter Estimation**: Run Bilby/Dynesty on original and compressed data.
+6. **Analysis**: Compare posteriors, compute Delta_Bias, and determine compression thresholds.
 
-## 7. Appendix
+## 6. Implementation Plan
 
-- **Amended T015 Description**: "Implement logic to fetch additional noise segments in batches and inject/validate until **≥12 valid events** with complete spin metadata are found. *Note: Implements a loop to ensure the final analysis set meets FR-009. **MUST include max_attempts=20 and timeout=300s**. **Loop Condition:** `while valid_count < 12 and attempts < 20`. If max attempts reached and valid_count < 12, raise a critical error.*"
-- **Amended T016 Description**: "Create `src/data/main.py` to orchestrate the **download-inject-validate** pipeline for **≥15 target events** (per **Amended FR-001**) and produce the validated dataset. The pipeline MUST enforce the stop condition of 12 valid events as defined in T015. *Note: Calls T015 logic.*"
+The project is divided into phases:
+- Phase 0.1: Spec & Constitution Amendments
+- Phase 1: Setup
+- Phase 2: Foundational
+- Phase 3: User Story 1 (Acquire & Validate)
+- Phase 4.5: Baseline Generation
+- Phase 5: User Story 2 (Compression)
+- Phase 6: User Story 3 (Parameter Estimation)
+- Phase 7: Polish & Cross-Cutting Concerns
+
+## 7. Task Reference
+
+- **T015**: Implement logic to fetch additional noise segments in batches and inject/validate until ≥12 valid events with complete spin metadata are found. **MUST include max_attempts=20 and timeout=300s**. **Loop Condition:** `while valid_count < 12 and attempts < 20`. If max attempts reached and valid_count < 12, raise a critical error.
+- **T016**: Create `src/data/main.py` to orchestrate the download-inject-validate pipeline for ≥15 target events (per Amended FR-001) and produce the validated dataset. *Note: Calls T015 logic.*

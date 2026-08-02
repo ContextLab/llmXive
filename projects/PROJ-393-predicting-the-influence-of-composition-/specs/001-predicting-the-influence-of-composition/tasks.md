@@ -273,7 +273,7 @@ properties:
 ### Implementation for User Story 2
 
 - [X] T031 [P] [US2] Implement `code/src/features/descriptor_calculator.py` to compute: Average Electronegativity, VEC, Atomic Radii Variance, Avg d-electrons, Atomic Size Mismatch (FR-003).
-- [ ] T032 [US2] Implement `code/src/features/feature_engineering_pipeline.py` to apply descriptors to `data/processed/alloys_raw.csv` (consumes output of T027) and save to `data/processed/alloys_features.csv`. **Logic**: 1. Check if `data/processed/alloys_raw.csv` exists; if not, raise `FileNotFoundError`. 2. Load the CSV. 3. Apply `descriptor_calculator` (T031) to each row. 4. Save the result to `data/processed/alloys_features.csv`. **Dependency**: T027, T028b-3. **If input file is empty or missing, raise a clear error.**
+- [ ] T032 [US2] Implement `code/src/features/feature_engineering_pipeline.py` to apply descriptors to `data/processed/alloys_raw.csv` (consumes output of T027) and save to `data/processed/alloys_features.csv`. **Logic**: 1. Check if `data/processed/alloys_raw.csv` exists; if not, raise `FileNotFoundError`. 2. Load the CSV. 3. Apply `descriptor_calculator` (T031) to each row. 4. Save the result to `data/processed/alloys_features.csv`. **Dependency**: T027, T028b-3. **If input file is empty or missing, raise a clear error.** <!-- ATOMIZE: requested -->
 - [X] T033 [US2] Implement `code/src/models/linear_regressor.py` for baseline linear regression with hyperparameter tuning.
 - [X] T034 [US2] Implement `code/src/models/random_forest_regressor.py` for Random Forest with hyperparameter tuning.
 - [X] T035 [US2] Implement `code/src/models/training_pipeline.py` to orchestrate k-fold cross-validation, GridSearchCV, and save models to `code/models/`.
@@ -293,7 +293,7 @@ properties:
 
 ### Implementation for User Story 3
 
-- [X] T059 [P] [US3] **Bootstrapping Resample Count Verification**: Implement `code/src/validation/bootstrap_validation.py` (T042) to include a runtime check that `n_resamples` is set to at least 1000. **Logic**: If `n_resamples < 1000`, raise a `ValueError` with the message "Bootstrapping requires at least 1000 resamples for robust CI estimation. " **Rationale**: Ensures SC-002 (95% CI via 1000 resamples) is strictly enforced and not accidentally reduced during debugging. **Dependency**: None (Independent check).
+- [X] T059 [P] [US3] **Bootstrapping Resample Count Verification**: Implement `code/src/validation/bootstrap_validation.py` (T042) to include a runtime check that `n_resamples` is set to at least 1000. **Logic**: If `n_resamples < 1000`, raise a `ValueError` with the message "Bootstrapping requires at least 1000 resamples for robust CI estimation. [UNRESOLVED-CLAIM: c_424c01ad — status=not_enough_info] " **Rationale**: Ensures SC-002 (95% CI via 1000 resamples) is strictly enforced and not accidentally reduced during debugging. **Dependency**: None (Independent check).
 - [X] T041 [P] [US3] Implement `code/src/validation/null_model_comparison.py` to perform F-test against mean prediction (SC-001).
 - [X] T042 [US3] Implement `code/src/validation/bootstrap_validation.py` to compute a confidence interval for R² with **a sufficient number of resamples** (SC-002). **Logic**: Perform a sufficient number of bootstrap resamples to ensure robust statistical inference. Set `n_resamples=1000` explicitly. **Dependency**: T059.
 - [X] T043 [US3] Implement `code/src/validation/pdp_generator.py` to generate Partial Dependence Plots for top features (SC-003).

@@ -78,7 +78,7 @@
 
 ### Implementation for User Story 1
 
-- [ ] T012 [P] [US1] Implement `src/data/download.py` to fetch real GW noise segments from GWOSC API (e.g., O data) **only**. *Note: Operates under **Amended FR-001**. Fetches noise only; injection is handled in T013.*
+- [X] T012 [P] [US1] Implement `src/data/download.py` to fetch real GW noise segments from GWOSC API (e.g., O data) **only**. *Note: Operates under **Amended FR-001**. Fetches noise only; injection is handled in T013.*
 - [ ] T013 [P] [US1] Implement `src/data/inject.py` using `LALSimulation` to generate CBC waveforms with **known true parameters** (Mass, Spin, Distance) injected into the fetched noise for **a set of target events**. *Note: Operates under **Amended FR-001**. Generates metadata with 'true_parameters', not posteriors.*
 - [X] T014 [US1] Implement `src/data/validate.py` to check for: strain time series, detector names, event timestamps, **known true parameters** (ground truth), and **spin metadata (tilt angles)** (FR-008, FR-009). *Note: Validates 'known true parameters' from synthetic injections, not posteriors.*
 - [ ] T015 [US1] Implement logic to fetch additional noise segments in batches and inject/validate until **≥12 valid events** with complete spin metadata are found. *Note: Implements a loop to ensure the final analysis set meets FR-009. **MUST include max_attempts=20 and timeout=300s**. **Loop Condition:** `while valid_count < 12 and attempts < 20`. If max attempts reached and valid_count < 12, raise a critical error.*

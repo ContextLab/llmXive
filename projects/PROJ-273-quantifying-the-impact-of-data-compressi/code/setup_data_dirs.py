@@ -1,39 +1,38 @@
 import os
 from pathlib import Path
 
-def setup_data_directories():
+def setup_data_directories(project_root: Path) -> None:
     """
     Create the required data directory structure for the project.
     
-    Creates:
-      - data/raw/
-      - data/interim/
-      - data/processed/
-      - data/external/
+    This implements Task T006: Create data/raw/, data/interim/, data/processed/, 
+    and data/external/ directory structures.
     
-    These directories are used to store:
-      - raw: Original downloaded GW noise segments
-      - interim: Intermediate data products (e.g., injected waveforms)
-      - processed: Final validated datasets ready for analysis
-      - external: External baseline artifacts and reference data
-    
-    Returns:
-      dict: Mapping of directory names to their absolute paths
+    Args:
+        project_root: The root path of the project (e.g., PROJ-273-...)
     """
-    base_dir = Path(__file__).resolve().parent.parent / "data"
+    # Define the required data directories relative to project root
+    data_dirs = [
+        project_root / "data" / "raw",
+        project_root / "data" / "interim",
+        project_root / "data" / "processed",
+        project_root / "data" / "external",
+    ]
     
-    directories = {
-        "raw": base_dir / "raw",
-        "interim": base_dir / "interim",
-        "processed": base_dir / "processed",
-        "external": base_dir / "external",
-    }
+    # Create each directory (parents=True ensures intermediate dirs are created)
+    for dir_path in data_dirs:
+        dir_path.mkdir(parents=True, exist_ok=True)
+        print(f"Created directory: {dir_path}")
     
-    for name, path in directories.items():
-        path.mkdir(parents=True, exist_ok=True)
-        print(f"Created directory: {path}")
+    # Create a .gitkeep file in each directory to ensure they are tracked by git
+    for dir_path in data_dirs:
+        gitkeep_path = dir_path / ".gitkeep"
+        gitkeep_path.touch()
+        print(f"Created .gitkeep in: {dir_path}")
     
-    return {name: str(path) for name, path in directories.items()}
+    print("Data directory structure setup complete.")
 
 if __name__ == "__main__":
-    setup_data_directories()
+    # When run directly, create directories in the current working directory
+    project_root = Path.cwd()
+    setup_data_directories(project_root)

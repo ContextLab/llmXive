@@ -1,100 +1,82 @@
-%YAML 1.2
----
-$schema: http://json-schema.org/draft-07/schema#
-title: Aligned Molecular Dataset Schema
-description: >
-  Schema for the preprocessed, aligned molecular dataset containing
-  vibrational spectra and quantum mechanical properties.
-type: object
-required:
-  - metadata
-  - molecules
-properties:
-  metadata:
-    type: object
-    required:
-      - source
-      - alignment_key
-      - preprocessing_steps
-      - created_at
-      - molecule_count
-    properties:
-      source:
-        type: string
-        description: Origin of the data (e.g., "QM9 + IR-Spectra")
-      alignment_key:
-        type: string
-        description: Key used for alignment (e.g., "InChIKey")
-      preprocessing_steps:
-        type: array
-        items:
-          type: string
-        description: List of applied preprocessing steps
-      created_at:
-        type: string
-        format: date-time
-        description: ISO 8601 timestamp of creation
-      molecule_count:
-        type: integer
-        minimum: 1
-        description: Total number of aligned molecules
-      dft_functional:
-        type: string
-        description: DFT functional used (e.g., "B3LYP")
-      dft_basis_set:
-        type: string
-        description: Basis set used (e.g., "6-31G*")
-      domain_shift_flags:
-        type: array
-        items:
-          type: object
-          properties:
-            molecule_id:
-              type: string
-            reason:
-              type: string
-        description: Molecules flagged for domain shift
-  molecules:
-    type: array
-    description: Array of molecular records
-    items:
-      type: object
-      required:
-        - inchi_key
-        - spectra
-        - properties
-      properties:
-        inchi_key:
-          type: string
-          description: Unique molecular identifier
-        spectra:
-          type: array
-          items:
-            type: number
-          description: Normalized absorbance values on fixed wavenumber grid
-        wavenumbers:
-          type: array
-          items:
-            type: number
-          description: Wavenumber grid values (cm^-1)
-        properties:
-          type: object
-          required:
-            - dipole_moment
-            - polarizability
-            - homo_lumo_gap
-          properties:
-            dipole_moment:
-              type: number
-              description: Dipole moment in Debye
-            polarizability:
-              type: number
-              description: Polarizability in Angstrom^3
-            homo_lumo_gap:
-              type: number
-              description: HOMO-LUMO gap in eV
-        flags:
-          type: array
-          items:
-            type: string
-          description: Any flags associated with this molecule
+# Contract Schema: Preprocessed Dataset
+# Defines the expected structure of data/preprocessed/aligned_data.npz and associated metadata
+schema_version: "1.0"
+artifact_type: "dataset"
+source_tasks: ["T013", "T014a", "T014b", "T014c", "T014d", "T015", "T019"]
+
+file_format: "numpy.npz"
+location: "data/preprocessed/aligned_data.npz"
+
+required_arrays:
+  - name: "ir_spectra"
+    shape: "(n_samples, n_wavenumbers)"
+    dtype: "float32"
+    description: "Normalized IR spectra interpolated to fixed grid (400-4000 cm^-1, unit spacing)"
+    constraints:
+      - "Sum of values per sample approx 1.0 (unit area normalization)"
+      - "Values >= 0.0"
+      
+  - name: "wavenumbers"
+    shape: "(n_wavenumbers,)"
+    dtype: "float32"
+    description: "Fixed wavenumber grid (e.g., 400 to 4000 cm^-1)"
+    constraints:
+      - "Monotonically increasing"
+      - "Spacing = 1.0 cm^-1"
+      
+  - name: "dipole_moment"
+    shape: "(n_samples, 3)"
+    dtype: "float32"
+    description: "Dipole moment vector (Debye)"
+    constraints:
+      - "Real values"
+      
+  - name: "polarizability"
+    shape: "(n_samples,)"
+    dtype: "float32"
+    description: "Mean polarizability (Angstrom^3)"
+    constraints:
+      - "Positive values"
+      
+  - name: "homo_lumo_gap"
+    shape: "(n_samples,)"
+    dtype: "float32"
+    description: "HOMO-LUMO gap (eV)"
+    constraints:
+      - "Positive values"
+      
+  - name: "inchi_keys"
+    shape: "(n_samples,)"
+    dtype: "object" or "string"
+    description: "Unique InChIKeys for molecule identification"
+    constraints:
+      - "Unique per sample"
+      
+  - name: "molecule_ids"
+    shape: "(n_samples,)"
+    dtype: "int64"
+    description: "Original QM9 molecule indices"
+
+required_metadata:
+  dft_functional: "string"
+    description: "DFT functional used (e.g., B3LYP)"
+  basis_set: "string"
+    description: "Basis set used (e.g., 6-31G(2df,p))"
+  total_samples: "int"
+    description: "Total number of aligned molecules"
+  discarded_count: "int"
+    description: "Number of molecules discarded during alignment/filtering"
+  coverage_audit_passed: "bool"
+    description: "Result of KS-test for property distribution coverage"
+  creation_timestamp: "string (ISO8601)"
+    description: "Timestamp of dataset generation"
+  qm9_version: "string"
+    description: "Version or source of QM9 data used"
+  ir_source: "string"
+    description: "Source of IR spectra data"
+
+validation_rules:
+  - "All arrays must have consistent first dimension (n_samples)"
+  - "No NaN or Inf values in numerical arrays"
+  - "Metadata must contain all required keys"
+  - "File size must be < 10 GB"

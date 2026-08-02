@@ -1,83 +1,100 @@
 """
-Script to generate and validate contract schema files.
-This script ensures that the YAML schema files in contracts/ are valid
-and can be loaded by Python libraries for runtime validation.
+Script to validate and generate contract schemas for the project.
+This script ensures that the schema files in contracts/ are valid YAML
+and contain required keys.
 """
 import os
 import sys
 import yaml
+import json
 from pathlib import Path
+from typing import List, Dict, Any
 
-# Define the project root
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+# Add project root to path
+PROJECT_ROOT = Path(__file__).parent.parent.parent
 CONTRACTS_DIR = PROJECT_ROOT / "contracts"
 
-SCHEMA_FILES = [
+REQUIRED_SCHEMAS = [
     "dataset.schema.yaml",
     "model_output.schema.yaml",
     "evaluation_results.schema.yaml"
 ]
 
 def validate_yaml_syntax(file_path: Path) -> bool:
-    """Check if the YAML file has valid syntax."""
+    """Validate that a YAML file has correct syntax."""
     try:
-        with open(file_path, 'r', encoding='utf-8') as f:
+        with open(file_path, 'r') as f:
             yaml.safe_load(f)
         return True
     except yaml.YAMLError as e:
         print(f"YAML Error in {file_path}: {e}")
         return False
+
+def check_required_keys(file_path: Path, required_keys: List[str]) -> bool:
+    """Check if a YAML file contains all required top-level keys."""
+    try:
+        with open(file_path, 'r') as f:
+            data = yaml.safe_load(f)
+        
+        missing_keys = []
+        for key in required_keys:
+            if key not in data:
+                missing_keys.append(key)
+        
+        if missing_keys:
+            print(f"Missing keys in {file_path}: {missing_keys}")
+            return False
+        return True
     except Exception as e:
         print(f"Error reading {file_path}: {e}")
         return False
 
-def check_required_keys(file_path: Path) -> bool:
-    """Basic check for required top-level keys."""
-    with open(file_path, 'r', encoding='utf-8') as f:
-        data = yaml.safe_load(f)
-
-    if not isinstance(data, dict):
-        print(f"Error: {file_path} is not a YAML object.")
+def validate_schema_integrity(schema_path: Path) -> bool:
+    """Perform basic integrity checks on a schema file."""
+    if not schema_path.exists():
+        print(f"Schema file missing: {schema_path}")
         return False
-
-    if "$schema" not in data:
-        print(f"Warning: {file_path} missing $schema key.")
-
-    if "title" not in data:
-        print(f"Warning: {file_path} missing title key.")
-
+    
+    if not validate_yaml_syntax(schema_path):
+        return False
+    
+    # Load and check for basic structure
+    with open(schema_path, 'r') as f:
+        data = yaml.safe_load(f)
+    
+    # Check for schema version
+    if 'schema_version' not in data:
+        print(f"Missing schema_version in {schema_path}")
+        return False
+    
+    # Check for artifact type
+    if 'artifact_type' not in data:
+        print(f"Missing artifact_type in {schema_path}")
+        return False
+    
     return True
 
 def main():
-    print(f"Validating contract schemas in {CONTRACTS_DIR}...")
+    """Main entry point for schema validation."""
+    print("Validating contract schemas...")
+    
     all_valid = True
-
-    for schema_file in SCHEMA_FILES:
-        file_path = CONTRACTS_DIR / schema_file
-        if not file_path.exists():
-            print(f"Error: {file_path} does not exist.")
+    
+    for schema_name in REQUIRED_SCHEMAS:
+        schema_path = CONTRACTS_DIR / schema_name
+        print(f"\nChecking {schema_name}...")
+        
+        if not validate_schema_integrity(schema_path):
             all_valid = False
             continue
-
-        print(f"Checking {schema_file}...")
-
-        # 1. Syntax Check
-        if not validate_yaml_syntax(file_path):
-            all_valid = False
-            continue
-
-        # 2. Structure Check
-        if not check_required_keys(file_path):
-            all_valid = False
-            continue
-
-        print(f"  -> {schema_file} is valid.")
-
+        
+        print(f"  ✓ {schema_name} is valid")
+    
     if all_valid:
-        print("\nAll contract schemas are valid.")
+        print("\n✓ All contract schemas are valid.")
         return 0
     else:
-        print("\nSome contract schemas are invalid.")
+        print("\n✗ Some contract schemas are invalid.")
         return 1
 
 if __name__ == "__main__":

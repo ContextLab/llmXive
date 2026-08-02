@@ -82,7 +82,7 @@
 
 ### Implementation for User Story 1
 
-- [ ] T011 [P] [US1] Implement `code/data/download.py` to fetch EBSD data from HuggingFace (dataset ID specified in research.md Section 2.1) OR fallback to local synthetic generation (FR-001). **Priority**: Real data ingestion first. <!-- FAILED: unspecified -->
+- [ ] T011 [P] [US1] Implement `code/data/download.py` to fetch EBSD data from HuggingFace (dataset ID specified in research.md Section 2.1) OR fallback to local synthetic generation (FR-001). **Priority**: Real data ingestion first. <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
 - [X] T011b [US1] Implement `code/data/generate_synthetic.py` as a **FALLBACK ONLY** mechanism, triggered strictly if T011 (real data download) fails. Generate synthetic EBSD data with pinned seeds. Reduction levels MUST be read from `code/config.py`; if values are missing, raise a `ConfigurationError` immediately. (Plan: Dataset Fit Note)
 - [X] T012 [US1] Implement `code/data/preprocess.py` to filter confidence index < 0.1 and re-index orientations to FCC symmetry using `orix`. Reduction levels MUST be read from `code/config.py`; if values are missing, raise a `ConfigurationError` immediately. (FR-002)
 - [ ] T013 [US1] Add error handling for missing reduction levels or corrupted files, logging warnings and proceeding (US-1 Scenario 3)
@@ -107,10 +107,10 @@
 ### Implementation for User Story 2
 
 - [X] T018 [US2] Implement `code/features/descriptors.py` to calculate Texture Index and volume fractions using MTEX-style search algorithms (Euler ranges: Brass [,45,35,45], Copper [35,45,35,45], S [35,45,35,45], Goss [35,45,35,45]) (FR-003)
-- [~] T019 [US2] Implement mass balance check: ensure sum of major components + "random" = 1.0 ± 0.01 (US-2 Scenario 2)
-- [~] T020 [US2] Integrate `orix` symmetry handling to ensure correct component identification for FCC crystals (FR-002)
-- [ ] T021 [US2] Output descriptors to `data/processed/descriptors.csv` linked to original sample IDs
-- [~] T022 [US2] Add validation to flag samples where texture evolution deviates from standard FCC trends (Edge Case)
+- [ ] T019 [US2] Implement mass balance check: ensure sum of major components + "random" = 1.0 ± 0.01 (US-2 Scenario 2)
+- [ ] T020 [US2] Integrate `orix` symmetry handling to ensure correct component identification for FCC crystals (FR-002)
+- [X] T021 [US2] Output descriptors to `data/processed/descriptors.csv` linked to original sample IDs
+- [ ] T022 [US2] Add validation to flag samples where texture evolution deviates from standard FCC trends (Edge Case)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -124,16 +124,16 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T023 [P] [US3] Contract test for model output schema in `tests/contract/test_model_output.py`
+- [X] T023 [P] [US3] Contract test for model output schema in `tests/contract/test_model_output.py`
 - [X] T024 [P] [US3] Integration test for 5-fold CV pipeline in `tests/integration/test_model_training.py`
 
 ### Implementation for User Story 3
 
 - [X] T025 [US3] Implement `code/models/train.py` to fit separate polynomial (degree=2) and joint Gaussian Process (RBF kernel) models (FR-004)
-- [~] T026 [US3] Include 'Material Type' as a categorical feature in the joint model (FR-008)
+- [ ] T026 [US3] Include 'Material Type' as a categorical feature in the joint model (FR-008)
 - [X] T027 [US3] Implement k-fold cross-validation in `code/models/validate.py` to output RMSE and R² metrics (FR-005)
 - [ ] T028 [US3] Implement extrapolation flagging: flag predictions outside a plausible reduction range and apply a confidence penalty (FR-009)
-- [ ] T029 [US3] Implement "Hold-out Physics Check" in `code/analysis/physics_check.py` to validate that trends (e.g., Brass increase) match known physics AND ensure all output reports explicitly frame findings as associational relationships (FR-006). **Note**: This task focuses on trend validation, not symmetry constraints (which are handled in T012).
+- [X] T029 [US3] Implement "Hold-out Physics Check" in `code/analysis/physics_check.py` to validate that trends (e.g., Brass increase) match known physics AND ensure all output reports explicitly frame findings as associational relationships (FR-006). **Note**: This task focuses on trend validation, not symmetry constraints (which are handled in T012).
 - [ ] T030 [DEPRECATED - Merged into T029]
 
 **Checkpoint**: All user stories should now be independently functional
@@ -148,7 +148,7 @@
 
 ### Tests for User Story 4 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T031 [P] [US4] Unit test for sensitivity analysis logic in `tests/unit/test_robustness.py`
+- [~] T031 [P] [US4] Unit test for sensitivity analysis logic in `tests/unit/test_robustness.py`
 - [ ] T032 [P] [US4] Integration test for variance decomposition in `tests/integration/test_variance_decomposition.py`
 
 ### Implementation for User Story 4

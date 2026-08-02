@@ -14,13 +14,12 @@ T018:
     \ required artifact is present and implements the specified behavior."
 T027:
   c: false
-  h: 327714e325fb0ea7461d7158e7a1f5de2991bba386a5f945e2563dc43a71c4df
-  r: "The repository contains `preprocess_pipeline.py`, but the required output file\
-    \ `data/processed/alloys_raw.csv` does not exist, and the visible portion of the\
-    \ script does not show any code that writes a CSV to that location. Without the\
-    \ generated CSV, the task\u2019s guarantee is not fulfilled. The missing artifact\
-    \ must be created (or the script must be completed to ensure it always writes\
-    \ the file, even for an empty dataset)."
+  h: 6bed187daabe286301abfb0592fa2ccc7f4c7bc6deb002ae859c052f4975b542
+  r: "The repository contains `code/src/preprocessing/preprocess_pipeline.py`, but\
+    \ the shown code is truncated before any step that writes a CSV, and the required\
+    \ output file `data/processed/alloys_raw.csv` is absent from the file system.\
+    \ Consequently the task\u2019s core requirement\u2014to generate and save that\
+    \ CSV\u2014is not satisfied."
 T028b:
   c: false
   h: 13ceee65977a9b32efa09f441387de6d20f154aed21f3c5444fb8f7cf0a7cde8

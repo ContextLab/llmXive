@@ -40,3 +40,50 @@ T014:
     \ and removing them from the final training set) is present in the provided artifacts.\
     \ The implementer\u2019s claim cannot be verified because the necessary artifact\
     \ is missing."
+T019:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, test output, or any other artifact was presented that implements\
+    \ the mass\u2011balance check (sum of major texture components plus \u201Crandom\u201D\
+    \ equals 1.0\u202F\xB1\u202F0.01). Without a concrete implementation or verification\
+    \ results, the requirement is not satisfied. The next implementer must provide\
+    \ the actual function/module and evidence (e.g., unit test logs or example output)\
+    \ showing the mass\u2011balance condition holds."
+T020:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, script, tests, or documentation showing that the `orix` library was
+    integrated and that FCC symmetry handling was added to correctly identify texture
+    components is present. The required artifact (e.g., updated pipeline code with
+    `orix` usage and verification of component identification) is missing.
+T022:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, script, test, or documentation was provided that implements or demonstrates
+    a validation step to flag samples whose texture evolution deviates from standard
+    FCC trends. The required artifact (e.g., a function/module with unit tests or
+    example output) is missing, so the task is not satisfied.
+T026:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, model file, or test output is provided showing that a \u201CMaterial\
+    \ Type\u201D categorical variable was added to the joint predictive model. The\
+    \ claim lacks any artifact (e.g., updated feature engineering script, model training\
+    \ log, or evaluation metrics) that demonstrates the feature\u2019s inclusion and\
+    \ its effect on model performance."
+T028:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, script, or documentation implementing the extrapolation flagging (detecting
+    predictions outside a plausible reduction range and applying a confidence penalty)
+    was provided. The evidence consists only of the task description and project spec
+    excerpt, with no concrete artifact to verify that the required functionality exists.
+    The implementer must supply the actual implementation (e.g., a function/module,
+    unit tests, or usage example) that performs the flagging and penalty logic.
+T030:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, data files, or model artifacts were found on disk; the implementer provided
+    no concrete scripts, datasets, or results to demonstrate a data acquisition pipeline,
+    texture quantification, or predictive model as required by the user stories. Consequently
+    the task requirements are not satisfied.

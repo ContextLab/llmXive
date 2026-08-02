@@ -3750,3 +3750,474 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-24T23:09:14Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Elemental properties source Pyykko 1988
+  claim_id: c_e5824557
+  context: 'Create data/raw/elemental_properties.csv with fixed periodic table data...
+    Source: Pyykko and standard references.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Pyykko 1988 is the source reference for the electronegativity and atomic
+    radii values for Mn, Co, Fe, Ga, Al, Ni, Cu, Sn, In, Ti, V, Zn, Si, Ge, Sb, Pb,
+    Mg, Cr, Nb, and Ta.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T07:40:55Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Manganese electronegativity 1.55 atomic radii 127 valence 7
+  claim_id: c_33f8cf72
+  context: Mn,1.55,127,7,Pyykko 1988
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Manganese has an electronegativity of 1.55, atomic radii of 127, and 7
+    valence electrons.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T07:41:12Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Cobalt electronegativity 1.88 atomic radii 125 valence 9
+  claim_id: c_3ddce315
+  context: Co,1.88,125,9,Pyykko 1988
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Cobalt has an electronegativity of 1.88, atomic radii of 125, and 9 valence
+    electrons.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T07:41:30Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Iron electronegativity 1.83 atomic radii 126 valence 8
+  claim_id: c_a9ed94ae
+  context: Fe,1.83,126,8,Pyykko 1988
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Iron has an electronegativity of 1.83, atomic radii of 126, and 8 valence
+    electrons.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T07:41:53Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Gallium electronegativity 1.81 atomic radii 135 valence 3
+  claim_id: c_07b24a8c
+  context: Ga,1.81,135,3,Pyykko 1988
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Gallium has an electronegativity of 1.81, atomic radii of 135, and 3 valence
+    electrons.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T07:42:08Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Aluminum electronegativity 1.61 atomic radii 143 valence 3
+  claim_id: c_f4b1d7a6
+  context: Al,1.61,143,3,Pyykko 1988
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Aluminum has an electronegativity of 1.61, atomic radii of 143, and 3
+    valence electrons.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T07:42:46Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Nickel electronegativity 1.91 atomic radii 124 valence 10
+  claim_id: c_d8c5dd4b
+  context: Ni,1.91,124,10,Pyykko 1988
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Nickel has an electronegativity of 1.91, atomic radii of 124, and 10 valence
+    electrons.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T07:43:09Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Copper electronegativity 1.90 atomic radii 128 valence 11
+  claim_id: c_a52bf26e
+  context: Cu,1.90,128,11,Pyykko 1988
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Copper has an electronegativity of 1.90, atomic radii of 128, and 11 valence
+    electrons.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T07:43:26Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Tin electronegativity 1.96 atomic radii 145 valence 4
+  claim_id: c_5dd1b433
+  context: Sn,1.96,145,4,Pyykko 1988
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Tin has an electronegativity of 1.96, atomic radii of 145, and 4 valence
+    electrons.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T07:43:43Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Indium electronegativity 1.78 atomic radii 167 valence 3
+  claim_id: c_50f63fd1
+  context: In,1.78,167,3,Pyykko 1988
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Indium has an electronegativity of 1.78, atomic radii of 167, and 3 valence
+    electrons.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T07:44:05Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Titanium electronegativity 1.54 atomic radii 147 valence 4
+  claim_id: c_8a106aa1
+  context: Ti,1.54,147,4,Pyykko 1988
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Titanium has an electronegativity of 1.54, atomic radii of 147, and 4
+    valence electrons.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T07:44:20Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Vanadium electronegativity 1.63 atomic radii 134 valence 5
+  claim_id: c_7ad18a50
+  context: V,1.63,134,5,Pyykko 1988
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Vanadium has an electronegativity of 1.63, atomic radii of 134, and 5
+    valence electrons.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T07:44:34Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Zinc electronegativity 1.65 atomic radii 134 valence 12
+  claim_id: c_117202cd
+  context: Zn,1.65,134,12,Pyykko 1988
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Zinc has an electronegativity of 1.65, atomic radii of 134, and 12 valence
+    electrons.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T07:44:48Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Silicon electronegativity 1.90 atomic radii 111 valence 4
+  claim_id: c_248671d4
+  context: Si,1.90,111,4,Pyykko 1988
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Silicon has an electronegativity of 1.90, atomic radii of 111, and 4 valence
+    electrons.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T07:45:10Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Germanium electronegativity 2.01 atomic radii 122 valence 4
+  claim_id: c_a753964a
+  context: Ge,2.01,122,4,Pyykko 1988
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Germanium has an electronegativity of 2.01, atomic radii of 122, and 4
+    valence electrons.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T07:45:34Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Antimony electronegativity 2.05 atomic radii 140 valence 5
+  claim_id: c_62c4c24d
+  context: Sb,2.05,140,5,Pyykko 1988
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Antimony has an electronegativity of 2.05, atomic radii of 140, and 5
+    valence electrons.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T07:45:53Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Lead electronegativity 2.33 atomic radii 175 valence 4
+  claim_id: c_2ec03bf0
+  context: Pb,2.33,175,4,Pyykko 1988
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Lead has an electronegativity of 2.33, atomic radii of 175, and 4 valence
+    electrons.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T07:46:08Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Magnesium electronegativity 1.31 atomic radii 160 valence 2
+  claim_id: c_5b4f9ee0
+  context: Mg,1.31,160,2,Pyykko 1988
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Magnesium has an electronegativity of 1.31, atomic radii of 160, and 2
+    valence electrons.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T07:46:21Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Chromium electronegativity 1.66 atomic radii 128 valence 6
+  claim_id: c_9e0b661b
+  context: Cr,1.66,128,6,Pyykko 1988
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Chromium has an electronegativity of 1.66, atomic radii of 128, and 6
+    valence electrons.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T07:46:36Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Niobium electronegativity 1.60 atomic radii 146 valence 5
+  claim_id: c_e3944e33
+  context: Nb,1.60,146,5,Pyykko 1988
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Niobium has an electronegativity of 1.60, atomic radii of 146, and 5 valence
+    electrons.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T07:46:50Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Tantalum electronegativity 1.50 atomic radii 146 valence 5
+  claim_id: c_40e0a0a8
+  context: Ta,1.50,146,5,Pyykko 1988
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Tantalum has an electronegativity of 1.50, atomic radii of 146, and 5
+    valence electrons.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T07:47:05Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Imputation threshold 15 percent
+  claim_id: c_2175ed20
+  context: "if >15%, perform listwise deletion of rows; if \u226415%, perform mean\
+    \ imputation"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Imputation logic switches from mean imputation to listwise deletion if
+    the missing rate exceeds 15%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T07:47:06Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Data scarcity threshold 50
+  claim_id: c_ffd57b1e
+  context: If N < 50, write data/.scarcity_warning
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Data_scarcity_threshold_50
+  kind: magnitude
+  raw_text: A scarcity warning is triggered if the dataset contains fewer than 50
+    rows.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T07:47:54Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Bootstrap resamples minimum 1000
+  claim_id: c_424c01ad
+  context: If n_resamples < 1000, raise a ValueError with the message 'Bootstrapping
+    requires at least 1000 resamples for robust CI estimation.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Bootstrap_resamples_minimum_1000
+  kind: magnitude
+  raw_text: Bootstrapping requires at least 1000 resamples for robust CI estimation.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T07:48:24Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Co2MnGa coercivity 150 Oe saturation 80 emu/g
+  claim_id: c_e5d5855e
+  context: Co2MnGa,150,80,Manual,Arc Melting
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The manual curation template includes example data for Co2MnGa with coercivity
+    150 Oe and saturation magnetization 80 emu/g.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T07:48:47Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: NiMnSn coercivity 150 Oe saturation 80 emu/g
+  claim_id: c_9e7b964b
+  context: NiMnSn,150,80,Manual,Sputtering
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The manual curation template includes example data for NiMnSn with coercivity
+    150 Oe and saturation magnetization 80 emu/g.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T07:49:08Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Co2FeAl coercivity 200 Oe saturation 90 emu/g
+  claim_id: c_58cb5749
+  context: Co2FeAl,200,90,Manual,Evaporation
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The manual curation template includes example data for Co2FeAl with coercivity
+    200 Oe and saturation magnetization 90 emu/g.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T07:49:28Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: FeMnAl coercivity 200 Oe saturation 90 emu/g
+  claim_id: c_fc71d53d
+  context: FeMnAl,200,90,Manual,Arc Melting
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The manual curation template includes example data for FeMnAl with coercivity
+    200 Oe and saturation magnetization 90 emu/g.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T07:49:51Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Co2MnSi coercivity 180 Oe saturation 85 emu/g
+  claim_id: c_f488bfe5
+  context: Co2MnSi,180,85,Manual,Sputtering
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The manual curation template includes example data for Co2MnSi with coercivity
+    180 Oe and saturation magnetization 85 emu/g.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T07:50:08Z'

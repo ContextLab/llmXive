@@ -1,3 +1,32 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmxive-cold-rolling-texture"
+version = "0.1.0"
+description = "Predicting the impact of cold rolling reduction on texture evolution in FCC metals"
+requires-python = ">=3.11"
+dependencies = [
+    "orix",
+    "scikit-learn",
+    "shap",
+    "pandas",
+    "numpy",
+    "pyyaml",
+    "requests",
+    "pytest",
+    "pydantic"
+]
+
+[project.optional-dependencies]
+dev = [
+    "flake8",
+    "black",
+    "isort",
+    "pre-commit"
+]
+
 [tool.black]
 line-length = 88
 target-version = ['py311']
@@ -5,15 +34,11 @@ include = '\.pyi?$'
 exclude = '''
 /(
     \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | venv
-  | _build
-  | buck-out
-  | build
-  | dist
+    | \.venv
+    | venv
+    | data
+    | build
+    | dist
 )/
 '''
 
@@ -21,7 +46,7 @@ exclude = '''
 profile = "black"
 line_length = 88
 known_first_party = ["code"]
-skip = [".git", ".venv", "venv", "build", "dist"]
+skip = [".git", ".venv", "venv", "data", "build", "dist"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
