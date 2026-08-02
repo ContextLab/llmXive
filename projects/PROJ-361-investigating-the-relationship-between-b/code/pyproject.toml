@@ -3,12 +3,21 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "llmxive-proj-361"
+name = "llmxive-brain-topology"
 version = "0.1.0"
-description = "Investigating the relationship between brain network topology and susceptibility to visual illusions"
-readme = "README.md"
+description = "Investigating the relationship between brain network topology and visual illusions"
 requires-python = ">=3.11"
-dependencies = []
+dependencies = [
+    "numpy>=1.24.0",
+    "pandas>=2.0.0",
+    "scipy>=1.10.0",
+    "nibabel>=5.0.0",
+    "bctpy>=0.6.0",
+    "matplotlib>=3.7.0",
+    "seaborn>=0.12.0",
+    "requests>=2.28.0",
+    "tqdm>=4.65.0",
+]
 
 [tool.black]
 line-length = 88
@@ -17,23 +26,21 @@ include = '\.pyi?$'
 exclude = '''
 /(
     \.git
-  | \.mypy_cache
-  | \.pytest_cache
-  | \.eggs
-  | build
-  | dist
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
 )/
 '''
 
 [tool.isort]
 profile = "black"
 line_length = 88
-known_first_party = ["utils", "models", "preprocessing", "topology", "behavioral", "analysis"]
-skip = [".git", ".mypy_cache", ".pytest_cache", "build", "dist", "venv", ".venv"]
+known_first_party = ["utils", "preprocessing", "topology", "behavioral", "analysis", "models", "setup_linting"]
 
-[tool.pytest.ini_options]
-testpaths = ["tests"]
-python_files = ["test_*.py"]
-python_classes = ["Test*"]
-python_functions = ["test_*"]
-addopts = "-v --tb=short"
+[tool.setuptools]
+packages = ["utils", "preprocessing", "topology", "behavioral", "analysis", "models"]

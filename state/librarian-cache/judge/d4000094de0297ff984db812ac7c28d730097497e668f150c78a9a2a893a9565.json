@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2406.10819",
+  "judged_at": "2026-08-02T21:27:18Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"memgui-agent: an end-to-end long-horizon mobile gui agent with proacti\" computer science",
+  "rationale": "This paper belongs in the literature review because it provides an empirical baseline and canonical dataset (GUI-World) for evaluating Multimodal Large Language Models (MLLMs) on GUI agents, directly addressing the \"GUI Agent\" and \"Long-Horizon\" (dynamic/sequential) components of the user's question under acceptance criteria (b) and (c). While it does not implement the specific \"MemGUI\" architecture, it establishes the current state-of-the-art performance and challenges for the exact domain (GUI",
+  "relevant": true
+}

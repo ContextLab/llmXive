@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2606.19926",
+  "judged_at": "2026-08-02T21:27:24Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"memgui-agent: an end-to-end long-horizon mobile gui agent with proacti\" computer science",
+  "rationale": "The candidate paper is the foundational work that the user's question explicitly references as the subject of a \"follow-up\" study, making it the canonical prior work required for any literature review on this specific topic (Category d). Additionally, the paper establishes the empirical baseline (MemGUI-Bench, MemGUI-3K dataset) and the specific mechanism (ConAct) that the user intends to extend (Category c).",
+  "relevant": true
+}

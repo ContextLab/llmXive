@@ -1,4 +1,4 @@
-- artifact_hash: 99f96e5e92f3429b29bba0f829a46b84901841b7a4163c813f2a5ad0c03b383d
+- artifact_hash: 043b24986ac4c55653a80de87201c60928c2413d0ff08080c1c987f106afd921
   artifact_path: projects/PROJ-361-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -9,8 +9,8 @@
   value: https://arxiv.org/abs/1705.04312
   verification_status: pending
   verified_against_url: https://arxiv.org/abs/1705.04312
-  verified_at: '2026-08-02T15:42:02.063811Z'
-- artifact_hash: 99f96e5e92f3429b29bba0f829a46b84901841b7a4163c813f2a5ad0c03b383d
+  verified_at: '2026-08-02T21:42:33.748323Z'
+- artifact_hash: 043b24986ac4c55653a80de87201c60928c2413d0ff08080c1c987f106afd921
   artifact_path: projects/PROJ-361-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -20,8 +20,8 @@
   value: https://openneuro.org/datasets/ds004285
   verification_status: pending
   verified_against_url: https://openneuro.org/datasets/ds004285
-  verified_at: '2026-08-02T15:42:02.063811Z'
-- artifact_hash: 99f96e5e92f3429b29bba0f829a46b84901841b7a4163c813f2a5ad0c03b383d
+  verified_at: '2026-08-02T21:42:33.748323Z'
+- artifact_hash: 043b24986ac4c55653a80de87201c60928c2413d0ff08080c1c987f106afd921
   artifact_path: projects/PROJ-361-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
   cite_id: c-003
   cited_authors: []
@@ -31,4 +31,4 @@
   value: https://www.wikidata.org/wiki/Q113106917
   verification_status: pending
   verified_against_url: https://www.wikidata.org/wiki/Q113106917
-  verified_at: '2026-08-02T15:42:02.063811Z'
+  verified_at: '2026-08-02T21:42:33.748323Z'

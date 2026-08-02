@@ -1,0 +1,32 @@
+{
+  "analysis_type": "sensitivity_analysis",
+  "window_sizes_analyzed": [20, 30, 40],
+  "stability_metrics": {
+    "global_efficiency": {
+      "mean": 0.45,
+      "std": 0.00816496580927726,
+      "cv": 0.018144368465060577,
+      "values": [0.45, 0.46, 0.44],
+      "window_sizes": [20, 30, 40]
+    },
+    "modularity": {
+      "mean": 0.32,
+      "std": 0.00816496580927726,
+      "cv": 0.025515518153991437,
+      "values": [0.32, 0.31, 0.33],
+      "window_sizes": [20, 30, 40]
+    }
+  },
+  "icc_results": [
+    {
+      "metric": "global_efficiency",
+      "icc": 0.82,
+      "stability_category": "stable"
+    },
+    {
+      "metric": "modularity",
+      "icc": 0.65,
+      "stability_category": "moderate"
+    }
+  ]
+}

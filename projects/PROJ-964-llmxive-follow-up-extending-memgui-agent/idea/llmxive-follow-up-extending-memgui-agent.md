@@ -5,27 +5,85 @@ submitter: llmxive-preprint-followup
 
 # llmXive follow-up: extending "MemGUI-Agent: An End-to-End Long-Horizon Mobile GUI Agent with Proacti"
 
-## Summary of the prior work
-The paper introduces MemGUI-Agent, a mobile GUI agent that addresses the "prompt explosion" issue in long-horizon tasks by replacing passive history accumulation with Context-as-Action (ConAct), where context management is an explicit policy output. By maintaining structured, folded context fields (action history, UI state, recent steps) and training on the new MemGUI-3K dataset, the 8B model achieves state-of-the-art performance on long-horizon benchmarks while significantly reducing context bloat.
+**Field**: computer science
 
-## Proposed extension
-**Research Question:** Does the proactive context management strategy (ConAct) exhibit "information decay" in ultra-long horizons (50+ steps) where the folded history loses critical cross-app dependencies, and can a lightweight, CPU-tractable "selective recall" mechanism—triggered by semantic similarity between the current goal and historical states—restore success rates without retraining the base policy? This matters because while ConAct solves prompt explosion, it may inadvertently discard low-frequency but high-impact facts needed for multi-app workflows, and a retrieval-based extension could bridge the gap between compactness and completeness without GPU-intensive fine-tuning.
+## Research question
+
+Does the "Context-as-Action" (ConAct) mechanism in mobile GUI agents suffer from information decay in ultra-long horizons (50+ steps) where folded history discards critical cross-app dependencies, and can a lightweight, CPU-tractable semantic recall module restore success rates without retraining the base policy?
+
+## Motivation
+
+While ConAct solves the "prompt explosion" problem for moderate-length tasks, it may inadvertently discard low-frequency but high-impact facts required for complex multi-app workflows, creating a new bottleneck for ultra-long horizons. Addressing this gap is critical for deploying autonomous agents in real-world productivity scenarios where tasks span dozens of steps and multiple applications, ensuring that context management strategies scale effectively without requiring GPU-intensive retraining.
+
+## Related work
+
+- [MemGUI-Agent: An End-to-End Long-Horizon Mobile GUI Agent with Proactive Context Management](https://arxiv.org/abs/2606.19926) — Establishes the baseline ConAct mechanism and the MemGUI-3K dataset, demonstrating state-of-the-art performance on standard long-horizon benchmarks by folding history into structured fields.
+- [GUIOdyssey: A Comprehensive Dataset for Cross-App GUI Navigation on Mobile Devices](https://arxiv.org/abs/2406.08451) — Provides a comprehensive benchmark for cross-app navigation, highlighting the specific challenges of maintaining state across application boundaries which this project aims to address in ultra-long horizons.
+- [LongCoT: Benchmarking Long-Horizon Chain-of-Thought Reasoning](https://arxiv.org/abs/2604.14140) — Analyzes the degradation of reasoning accuracy as task horizons extend, offering methodological precedents for measuring the specific "information decay" phenomenon hypothesized in this study.
+- [MobileUse: A GUI Agent with Hierarchical Reflection for Autonomous Mobile Operation](https://arxiv.org/abs/2507.16853) — Introduces hierarchical reflection mechanisms for mobile agents, serving as a conceptual reference for how external memory or recall modules can be integrated without modifying the core policy.
+
+## Expected results
+
+We expect the baseline ConAct agent to exhibit a sharp decline in task success rates after 30 steps due to the loss of critical cross-app context, whereas the proposed selective recall extension will maintain or improve success rates by 15–20% in the 50–100 step range. The level of evidence required is a statistically significant difference (p < 0.05) in success rates between the baseline and the recall-enhanced agent on the synthetic ultra-long-horizon subset, measured via automated execution traces.
 
 ## Methodology sketch
-We will construct an ultra-long-horizon subset of the MemGUI-3K dataset (synthetically extended to 50-100 steps via scriptable app chaining) and evaluate the frozen MemGUI-8B-SFT model using a CPU-only inference pipeline. The procedure involves injecting a "selective recall" module that computes cosine similarity between the current task goal and the semantic embeddings of the folded history (using a small, CPU-friendly sentence transformer like `all-MiniLM-L6-v2`); if similarity exceeds a threshold, the module temporarily injects the relevant historical snippet back into the prompt as a "memory flash." We expect the baseline ConAct agent to show a sharp performance drop after 30 steps due to information dilution, while the selective recall extension will maintain or improve success rates by 15-20% with negligible latency overhead on standard CPUs.
 
-## Motivated by (source preprint — reviewed, not authored, by llmXive)
+- Download the MemGUI-3K dataset and the pre-trained MemGUI-8B-SFT model weights from the official repository.
+- Programmatically synthesize an ultra-long-horizon test subset (50–100 steps) by chaining scriptable mobile app workflows from the existing dataset to enforce cross-app dependencies.
+- Implement a CPU-only inference pipeline using the `transformers` library with quantized weights (e.g., 4-bit) to ensure execution within 7GB RAM constraints.
+- Integrate a lightweight "selective recall" module using the `all-MiniLM-L6-v2` sentence transformer to compute cosine similarity between the current task goal and the semantic embeddings of the folded history.
+- Define a dynamic threshold mechanism: when similarity exceeds a set value, inject the corresponding historical snippet back into the prompt as a "memory flash" for the current step.
+- Execute the baseline agent and the recall-enhanced agent on the synthetic dataset, recording success/failure for each trajectory and the number of steps completed before failure.
+- Apply a paired t-test or Wilcoxon signed-rank test to compare the success rates of the baseline vs. the recall-enhanced agent across the 50+ step trajectories.
+- Measure inference latency and memory footprint to verify that the recall module adds negligible overhead on standard CPU hardware.
 
-- **MemGUI-Agent: An End-to-End Long-Horizon Mobile GUI Agent with Proactive Context Management** — Guangyi Liu, Gao Wu, Congxiao Liu, Pengxiang Zhao, Liang Liu, Mading Li, Qi Zhang, Mengyan Wang, Liang Guo, Yong Liu. https://arxiv.org/abs/2606.19926.
+## Duplicate-check
 
-```bibtex
-@article{orig_arxiv_2606_19926,
-  title = {MemGUI-Agent: An End-to-End Long-Horizon Mobile GUI Agent with Proactive Context Management},
-  author = {Guangyi Liu and Gao Wu and Congxiao Liu and Pengxiang Zhao and Liang Liu and Mading Li and Qi Zhang and Mengyan Wang and Liang Guo and Yong Liu},
-  year = {2026},
-  eprint = {2606.19926},
-  archivePrefix = {arXiv},
-  journal = {arXiv preprint arXiv:2606.19926},
-  url = {https://arxiv.org/abs/2606.19926}
-}
-```
+- Reviewed existing ideas: (None in the provided corpus).
+- Closest match: None.
+- Verdict: NOT a duplicate
+
+
+## Search trail
+
+**Generated by**: librarian (prompt v1.6.0) on 2026-08-02T21:27:33Z
+**Outcome**: success_after_expansion
+**Original term**: llmXive follow-up: extending "MemGUI-Agent: An End-to-End Long-Horizon Mobile GUI Agent with Proacti" computer science
+**Verified citation count**: 8
+
+### Search terms used
+
+| Rank | Term | Hit count |
+|-|-|-|
+| 0 (initial) | llmXive follow-up: extending "MemGUI-Agent: An End-to-End Long-Horizon Mobile GUI Agent with Proacti" computer science | 0 |
+| 1 | Long-horizon mobile GUI agents with proactive behavior | 4 |
+| 2 | End-to-end mobile agent frameworks for GUI navigation | 0 |
+| 3 | Proactive mobile automation using large language models | 0 |
+| 4 | Long-term memory in mobile GUI agents | 0 |
+| 5 | Autonomous mobile application interaction with LLMs | 0 |
+| 6 | Sequential decision making in mobile user interfaces | 0 |
+| 7 | Mobile GUI understanding and planning with transformers | 0 |
+| 8 | Proactive task execution in mobile environments | 0 |
+| 9 | LLM-based mobile agents with persistent memory | 0 |
+| 10 | End-to-end mobile automation for complex workflows | 0 |
+| 11 | Multi-step mobile GUI reasoning with language models | 0 |
+| 12 | Context-aware mobile agents with long-term memory | 0 |
+| 13 | Mobile UI navigation via large language model planning | 0 |
+| 14 | Proactive mobile assistant agents for long-horizon tasks | 0 |
+| 15 | Memory-augmented mobile GUI interaction systems | 0 |
+| 16 | Autonomous mobile app control using generative AI | 0 |
+| 17 | Long-horizon planning for mobile user interface agents | 0 |
+| 18 | Mobile GUI agent architectures with proactive capabilities | 0 |
+| 19 | End-to-end mobile task automation with memory modules | 0 |
+| 20 | Large language models for proactive mobile device control | 0 |
+
+### Verified citations
+
+1. **GUIOdyssey: A Comprehensive Dataset for Cross-App GUI Navigation on Mobile Devices** (2024). Quanfeng Lu, Wenqi Shao, Zitao Liu, Lingxiao Du, Fanqing Meng, et al.. arXiv. [2406.08451](https://arxiv.org/abs/2406.08451). PDF-sampled: No.
+2. **GUI-World: A Video Benchmark and Dataset for Multimodal GUI-oriented Understanding** (2024). Dongping Chen, Yue Huang, Siyuan Wu, Jingyu Tang, Liuyi Chen, et al.. arXiv. [2406.10819](https://arxiv.org/abs/2406.10819). PDF-sampled: No.
+3. **Large Language Model-Brained GUI Agents: A Survey** (2024). Chaoyun Zhang, Shilin He, Jiaxu Qian, Bowen Li, Liqun Li, et al.. arXiv. [2411.18279](https://arxiv.org/abs/2411.18279). PDF-sampled: No.
+4. **LongCoT: Benchmarking Long-Horizon Chain-of-Thought Reasoning** (2026). Sumeet Ramesh Motwani, Daniel Nichols, Charles London, Peggy Li, Fabio Pizzati, et al.. arXiv. [2604.14140](https://arxiv.org/abs/2604.14140). PDF-sampled: No.
+5. **MemGUI-Agent: An End-to-End Long-Horizon Mobile GUI Agent with Proactive Context Management** (2026). Guangyi Liu, Gao Wu, Congxiao Liu, Pengxiang Zhao, Liang Liu, et al.. arXiv. [2606.19926](https://arxiv.org/abs/2606.19926). PDF-sampled: No.
+6. **Advancing Mobile GUI Agents: A Verifier-Driven Approach to Practical Deployment** (2025). Gaole Dai, Shiqi Jiang, Ting Cao, Yuanchun Li, Yuqing Yang, et al.. arXiv. [2503.15937](https://arxiv.org/abs/2503.15937). PDF-sampled: No.
+7. **GUI Agents with Reinforcement Learning: Toward Digital Inhabitants** (2026). Junan Hu, Jian Liu, Jingxiang Lai, Jiarui Hu, Yiwei Sheng, et al.. arXiv. [2604.27955](https://arxiv.org/abs/2604.27955). PDF-sampled: No.
+8. **MobileUse: A GUI Agent with Hierarchical Reflection for Autonomous Mobile Operation** (2025). Ning Li, Xiangmou Qu, Jiamu Zhou, Jun Wang, Muning Wen, et al.. arXiv. [2507.16853](https://arxiv.org/abs/2507.16853). PDF-sampled: No.

@@ -1,175 +1,152 @@
 """
-Generate SensitivityReport JSON/Parquet with stability metrics and ICC values.
-Saves to data/derived/sensitivity_report.json.
+Sensitivity Report Generation for US2.
+
+Generates a SensitivityReport JSON/Parquet containing stability metrics and ICC values
+derived from the sensitivity analysis run across different window sizes.
+
+Output: data/derived/sensitivity_report.json
 """
 import json
 import logging
 from pathlib import Path
 from typing import List, Dict, Any, Optional
-
 import numpy as np
 import pandas as pd
 
 from config import get_derived_path
-from data.models import SensitivityReport
 from utils.io import save_json, save_parquet, ensure_dir
-from analysis.metrics import run_sensitivity_analysis, compute_icc
+from data.models import SensitivityReport as SensitivityReportModel
 
+# Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-
 def generate_sensitivity_report(
-    time_series: np.ndarray,
-    confounds: Optional[np.ndarray] = None,
-    window_sizes: List[int] = None,
+    metrics_by_window: Dict[int, Dict[str, float]],
+    icc_values: Dict[str, float],
     output_path: Optional[Path] = None
-) -> SensitivityReport:
+) -> Dict[str, Any]:
     """
-    Run sensitivity analysis on dynamic connectivity metrics across window sizes
-    and generate a SensitivityReport.
-
+    Generate a SensitivityReport dictionary and save it to disk.
+    
     Args:
-        time_series: 2D array of shape (timepoints, roi_count)
-        confounds: Optional 2D array of confounds to regress out
-        window_sizes: List of window sizes (in TRs) to test
-        output_path: Path to save the report (defaults to data/derived/sensitivity_report.json)
-
+        metrics_by_window: Dictionary mapping window_size (int) to a dict of metric values.
+        icc_values: Dictionary mapping metric_name to ICC score.
+        output_path: Optional path to save the report. Defaults to config derived path.
+        
     Returns:
-        SensitivityReport object containing stability metrics and ICC values
+        The generated report dictionary.
     """
-    if window_sizes is None:
-        window_sizes = [20, 30, 40]
-
     if output_path is None:
         output_path = get_derived_path("sensitivity_report.json")
-
+    
     ensure_dir(output_path.parent)
-
-    logger.info(f"Running sensitivity analysis with window sizes: {window_sizes}")
-
-    # Regress confounds if provided
-    if confounds is not None:
-        from analysis.metrics import regress_confounds
-        time_series = regress_confounds(time_series, confounds)
-
-    # Run sensitivity analysis to get metrics for each window size
-    analysis_results = run_sensitivity_analysis(time_series, window_sizes)
-
-    # analysis_results is a dict: {window_size: {metric_name: value, ...}}
-    # We need to compute ICC for each metric across window sizes
-
-    metrics_data = []
-    icc_results = {}
-
-    # Collect all metric names across window sizes
-    all_metric_names = set()
-    for wsize, metrics in analysis_results.items():
-        all_metric_names.update(metrics.keys())
-
-    # For each metric, collect values across window sizes and compute ICC
-    for metric_name in sorted(all_metric_names):
-        values_by_window = {}
-        for wsize in window_sizes:
-            if wsize in analysis_results and metric_name in analysis_results[wsize]:
-                values_by_window[wsize] = analysis_results[wsize][metric_name]
-
-        if len(values_by_window) >= 2:
-            # Compute ICC across window sizes for this metric
-            values = [values_by_window[w] for w in sorted(values_by_window.keys())]
-            icc_value = compute_icc(values)
-            icc_results[metric_name] = icc_value
-
-            metrics_data.append({
-                "metric_name": metric_name,
-                "window_sizes": list(values_by_window.keys()),
-                "values": [float(values_by_window[w]) for w in sorted(values_by_window.keys())],
-                "icc": float(icc_value) if not np.isnan(icc_value) else None
-            })
-
-    # Build the report
+    
+    # Structure the report according to the SensitivityReport model expectations
+    # The model defines: window_size, icc, and potentially other stability metrics
     report_data = {
-        "window_sizes_tested": window_sizes,
-        "metrics": metrics_data,
-        "icc_results": {k: (v if not np.isnan(v) else None) for k, v in icc_results.items()}
+        "analysis_type": "sensitivity_analysis",
+        "window_sizes_analyzed": sorted(metrics_by_window.keys()),
+        "icc_results": []
     }
-
-    # Create Pydantic model instance
-    report = SensitivityReport(
-        window_size=window_sizes[0],  # Primary window size
-        icc=icc_results.get("global_efficiency", 0.0) if icc_results else 0.0
-    )
-
+    
+    # Convert ICC values into the list of SensitivityReport objects structure
+    # Assuming the 'icc_values' dict contains per-metric ICCs, we aggregate or list them.
+    # If the model expects a list of objects per window, we structure accordingly.
+    # Based on T027, compute_icc returns a value. Here we aggregate across metrics or per metric.
+    # We will structure it as a list of sensitivity entries per metric.
+    
+    # Flatten metrics to compute stability (e.g., std dev across windows)
+    all_metrics = set()
+    for w_metrics in metrics_by_window.values():
+        all_metrics.update(w_metrics.keys())
+        
+    stability_metrics = {}
+    for metric_name in all_metrics:
+        values = []
+        for w in sorted(metrics_by_window.keys()):
+            if metric_name in metrics_by_window[w]:
+                values.append(metrics_by_window[w][metric_name])
+        if len(values) > 1:
+            stability_metrics[metric_name] = {
+                "mean": float(np.mean(values)),
+                "std": float(np.std(values)),
+                "cv": float(np.std(values) / np.mean(values)) if np.mean(values) != 0 else 0.0,
+                "values": values,
+                "window_sizes": sorted(metrics_by_window.keys())
+            }
+    
+    report_data["stability_metrics"] = stability_metrics
+    
+    # Add ICC results
+    for metric_name, icc_val in icc_values.items():
+        report_data["icc_results"].append({
+            "metric": metric_name,
+            "icc": float(icc_val),
+            "stability_category": "stable" if icc_val > 0.75 else "moderate" if icc_val > 0.5 else "unstable"
+        })
+    
     # Save as JSON
     save_json(report_data, output_path)
     logger.info(f"Sensitivity report saved to {output_path}")
-
-    # Also save as Parquet for the metrics table
+    
+    # Also save a Parquet version if needed for downstream analysis (optional but good practice)
     parquet_path = output_path.with_suffix(".parquet")
-    if metrics_data:
-        df = pd.DataFrame(metrics_data)
-        save_parquet(df, parquet_path)
-        logger.info(f"Sensitivity metrics saved to {parquet_path}")
-
-    return report
-
+    # Flatten for parquet: one row per metric per window
+    rows = []
+    for w, w_metrics in metrics_by_window.items():
+        for m, v in w_metrics.items():
+            rows.append({
+                "window_size": w,
+                "metric_name": m,
+                "value": v,
+                "icc": icc_values.get(m, None)
+            })
+    df = pd.DataFrame(rows)
+    save_parquet(df, parquet_path)
+    logger.info(f"Sensitivity data saved to {parquet_path}")
+    
+    return report_data
 
 def main():
     """
-    Main entry point for generating sensitivity report.
-    This script expects to be run after metrics have been computed.
-    For demonstration, it will load example time series from data/processed/
-    if available, or raise an error if no data is found.
+    Entry point to generate the sensitivity report.
+    
+    This function assumes that the sensitivity analysis (T026) and ICC calculation (T027)
+    have already been performed and the results are available in the state or
+    passed via arguments. For this task, we simulate the retrieval of these results
+    from the expected output of T026/T027 if they were run, or we construct the
+    report structure to be filled by the pipeline orchestrator.
+    
+    However, per the task requirement to "Generate ... with stability metrics and ICC values",
+    and assuming the pipeline has run T026/T026 previously, we need to load those intermediate
+    results. Since T026/T027 outputs are not explicitly defined as files in the prompt,
+    we assume the data is passed or we re-run the analysis logic if inputs are available.
+    
+    In a real pipeline, T026 would save `data/derived/sensitivity_metrics.json` and T027
+    would save `data/derived/icc_results.json`. We will attempt to load these.
+    If they don't exist, we raise an error as we cannot fabricate data.
     """
-    import sys
-    from data.preprocess import extract_time_series
-    from config import get_processed_path, DatasetConfig
-
-    # Try to find processed time series data
-    processed_dir = get_processed_path("")
-    if not processed_dir.exists():
-        logger.error(f"Processed directory not found: {processed_dir}")
-        logger.error("Please run preprocessing first (T015) to generate time series data.")
-        sys.exit(1)
-
-    # Look for time series files
-    ts_files = list(processed_dir.glob("*_time_series.parquet"))
-    if not ts_files:
-        logger.error(f"No time series files found in {processed_dir}")
-        logger.error("Please ensure preprocessing has been completed.")
-        sys.exit(1)
-
-    logger.info(f"Found {len(ts_files)} time series file(s)")
-
-    # For the report, we'll aggregate across subjects or pick one for demonstration
-    # In a full pipeline, we might compute per-subject reports and then aggregate
-    all_metrics = []
-    subject_ids = []
-
-    for ts_file in ts_files[:5]:  # Limit to first 5 subjects for efficiency
-        try:
-            df = pd.read_parquet(ts_file)
-            # Assume columns are ROI IDs, index is timepoints
-            time_series = df.values
-            subject_id = ts_file.stem.replace("_time_series", "")
-            subject_ids.append(subject_id)
-
-            # Compute report for this subject
-            report = generate_sensitivity_report(time_series)
-            all_metrics.append(report)
-
-            logger.info(f"Processed subject {subject_id}")
-        except Exception as e:
-            logger.warning(f"Failed to process {ts_file}: {e}")
-            continue
-
-    if not all_metrics:
-        logger.error("No subjects successfully processed for sensitivity report")
-        sys.exit(1)
-
-    logger.info(f"Successfully generated sensitivity reports for {len(all_metrics)} subjects")
-    logger.info(f"Reports saved to {get_derived_path('sensitivity_report.json')}")
-
+    # Expected intermediate file paths (convention based on project structure)
+    metrics_path = get_derived_path("sensitivity_metrics.json")
+    icc_path = get_derived_path("icc_results.json")
+    
+    if not metrics_path.exists():
+        raise FileNotFoundError(f"Required intermediate file not found: {metrics_path}. "
+                                "Please ensure T026 (Sensitivity Analysis) has been run.")
+    if not icc_path.exists():
+        raise FileNotFoundError(f"Required intermediate file not found: {icc_path}. "
+                                "Please ensure T027 (ICC Calculation) has been run.")
+    
+    # Load intermediate results
+    metrics_by_window = load_json(metrics_path)
+    icc_values = load_json(icc_path)
+    
+    # Generate and save final report
+    report = generate_sensitivity_report(metrics_by_window, icc_values)
+    
+    logger.info("Sensitivity report generation completed successfully.")
+    return report
 
 if __name__ == "__main__":
     main()

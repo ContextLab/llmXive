@@ -89,8 +89,8 @@
  3. Verify the dataset source matches the Constitution's Verified Accuracy principle (check against a verified list of datasets).
  Define `check_data_integrity()`.
 - [X] T016 [P] [US1] Implement `code/data/validate.py` to check for 'musical_genre' or 'STOMP-R' in `participants.tsv`; halt with `DataValidationError` (code `ERR_DATA_MISSING`) if missing. Log specific missing field name. (Integrated into T012c logic, but kept as separate task for testability of specific validation step).
-- [ ] T017 [P] [US1] Add validation logic to exclude subjects with >10% missing behavioral data or >10% corrupted fMRI volumes. Define `exclude_subjects_by_missing_data()`.
-- [ ] T018 [P] [US1] Add logic to flag/exclude subjects with excessive head motion (>0.5mm FD). Define `exclude_subjects_by_motion()`.
+- [ ] T017 [P] [US1] Add validation logic to exclude subjects with >10% missing behavioral data or >10% corrupted fMRI volumes. [UNRESOLVED-CLAIM: c_65b09211 — status=not_enough_info] Define `exclude_subjects_by_missing_data()`.
+- [ ] T018 [P] [US1] Add logic to flag/exclude subjects with excessive head motion (>0.5mm FD). [UNRESOLVED-CLAIM: c_8d4b8e9f — status=refuted] Define `exclude_subjects_by_motion()`.
 - [X] T014 [US1] Depends: T008, T012c, T012e. Implement `code/data/preprocess.py` to run fMRIPrep (Docker) with memory limits and generate standardized BOLD/confounds. Command args: `--output-space MNI152NLin2009cAsym --confounds trans_x,trans_y,trans_z,rot_x,rot_y,rot_z,framewise_displacement,dvars`. Define `run_fmriprep(subject_id: str)`.
 - [X] T015 [US1] Depends: T005, T014. Implement `code/data/preprocess.py` to extract regional time courses using Schaefer-400 atlas (400 ROIs × timepoints). Define `extract_time_series(subject_id: str)`.
 
@@ -118,7 +118,7 @@
 - [X] T025 [US2] Depends: T015. Implement `code/analysis/metrics.py` to regress out FD/DVARS from time series before dynamic analysis using `sklearn.linear_model.LinearRegression`. Output format: CSV with timepoints and residuals. Define `regress_confounds(time_series: np.array, confounds: np.array)`.
 - [X] T026 [US2] Implement `code/analysis/metrics.py` to run sensitivity analysis with window sizes 30, 40 TRs. Define `run_sensitivity_analysis(time_series: np.array, window_sizes: list[int])`.
 - [X] T027 [US2] Implement `code/analysis/metrics.py` to calculate Intraclass Correlation Coefficient (ICC) for dynamic metrics across window sizes. Define `compute_icc(metrics: list[float])`.
-- [ ] T028 [US2] Generate `SensitivityReport` JSON/Parquet with stability metrics and ICC values. Save to `data/derived/sensitivity_report.json`.
+- [X] T028 [US2] Generate `SensitivityReport` JSON/Parquet with stability metrics and ICC values. Save to `data/derived/sensitivity_report.json`.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -133,7 +133,7 @@
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
 - [X] T029 [P] [US3] Contract test for statistical output schema in `tests/contract/test_stats_schema.py`. Implement `test_stats_schema_has_required_columns()` and `test_bh_correction_applied()`.
-- [ ] T030 [P] [US3] Integration test for null distribution validation in `tests/integration/test_null_distribution.py`. Implement `test_null_distribution_false_positive_rate()`.
+- [X] T030 [P] [US3] Integration test for null distribution validation in `tests/integration/test_null_distribution.py`. Implement `test_null_distribution_false_positive_rate()`.
 
 ### Implementation for User Story 3
 

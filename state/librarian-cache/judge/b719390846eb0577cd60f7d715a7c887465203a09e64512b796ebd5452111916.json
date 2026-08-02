@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2503.15937",
+  "judged_at": "2026-08-02T21:27:27Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"memgui-agent: an end-to-end long-horizon mobile gui agent with proacti\" computer science",
+  "rationale": "This paper belongs in the literature review as it represents a canonical alternative-vocabulary cluster (category f) and a foundational methodology (category d) for the domain of \"mobile GUI agents,\" which is the specific system the user is extending. Although the user's question references a specific prior work (\"MemGUI-Agent\"), a literature review for a follow-up study must include other state-of-the-art agents (like V-Droid) that address the same mechanism (LLM-driven mobile automation) to es",
+  "relevant": true
+}

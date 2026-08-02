@@ -1,8 +1,8 @@
 """
-Script to generate provenance metadata for datasets in data/raw/.
+Script to generate provenance metadata for all raw data files.
 
-This script verifies that real data files exist in data/raw/ and generates
-corresponding _meta.json files with hash, timestamp, and source keys.
+This script scans `data/raw/` for data files (csv, json, tsv) and
+generates corresponding `_meta.json` files using `utils.provenance`.
 """
 import os
 import sys
@@ -11,68 +11,63 @@ import argparse
 from pathlib import Path
 import json
 
-# Add parent directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent))
+# Add project root to path to import utils
+project_root = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(project_root))
 
-from utils.provenance import write_meta, hash_file
+from utils.provenance import generate_provenance_for_dataset, write_meta
 
 def main():
-    parser = argparse.ArgumentParser(
-        description="Generate provenance metadata for datasets in data/raw/"
-    )
-    parser.add_argument(
-        "--source",
-        type=str,
-        default="verified_dataset",
-        help="Source identifier for the metadata"
-    )
+    parser = argparse.ArgumentParser(description="Generate provenance metadata for raw data.")
     parser.add_argument(
         "--data-dir",
         type=str,
         default="data/raw",
-        help="Directory containing dataset files"
+        help="Directory containing raw data files."
+    )
+    parser.add_argument(
+        "--source-id",
+        type=str,
+        default="openneuro_verified",
+        help="Source identifier to embed in metadata."
     )
     args = parser.parse_args()
 
     data_dir = Path(args.data_dir)
     if not data_dir.exists():
-        print(f"ERROR: Data directory not found: {data_dir}")
+        print(f"Error: Data directory '{data_dir}' does not exist.")
         sys.exit(1)
 
-    # Find all non-meta files in the data directory
-    # Exclude .json files (metadata files) and common non-data extensions
-    extensions_to_process = {".csv", ".tsv", ".edf", ".asc", ".txt"}
-    files_processed = 0
+    # Find all data files (csv, tsv, json, parquet)
+    extensions = ["*.csv", "*.tsv", "*.json", "*.parquet"]
+    files = []
+    for ext in extensions:
+        files.extend(data_dir.glob(ext))
     
-    for file_path in data_dir.iterdir():
-        if file_path.is_file() and file_path.suffix.lower() in extensions_to_process:
-            # Skip if it's already a meta file
-            if file_path.name.endswith("_meta.json"):
-                continue
-            
-            print(f"Processing: {file_path.name}")
-            
-            # Create metadata dictionary
-            meta_dict = {
-                "dataset_id": file_path.name,
-                "file_size_bytes": file_path.stat().st_size
-            }
-            
-            # Generate metadata file
-            try:
-                write_meta(str(file_path), meta_dict, source=args.source)
-                meta_file = str(file_path).replace(file_path.suffix, "") + "_meta.json"
-                print(f"  -> Generated: {os.path.basename(meta_file)}")
-                files_processed += 1
-            except Exception as e:
-                print(f"  -> ERROR: {e}")
-    
-    print(f"\nCompleted: {files_processed} provenance files generated.")
-    
-    if files_processed == 0:
-        print("WARNING: No data files found to process.")
-        print("Ensure real data files exist in data/raw/ (e.g., .csv, .tsv, .edf)")
-        sys.exit(1)
+    if not files:
+        print(f"No data files found in {data_dir}. Skipping provenance generation.")
+        return
+
+    print(f"Found {len(files)} data files.")
+    processed_count = 0
+
+    for file_path in files:
+        # Skip if already has a meta file (optional, but good practice)
+        meta_path = str(file_path).rsplit(".", 1)[0] + "_meta.json"
+        if os.path.exists(meta_path):
+            print(f"Skipping {file_path.name} (meta already exists).")
+            continue
+
+        try:
+            result_path = generate_provenance_for_dataset(str(file_path), args.source_id)
+            print(f"Generated: {result_path}")
+            processed_count += 1
+        except FileNotFoundError as e:
+            print(f"Error processing {file_path}: {e}")
+        except Exception as e:
+            print(f"Unexpected error processing {file_path}: {e}")
+
+    print(f"Provenance generation complete. Processed {processed_count} files.")
 
 if __name__ == "__main__":
     main()

@@ -1,64 +1,44 @@
 #!/bin/bash
-# Pre-commit hook for llmXive pipeline: triggers state updates on artifact changes
-# This hook ensures that any modified code, data, or configuration files are
-# registered in the SQLite metadata registry with their current checksums.
+# Pre-commit hook for PROJ-361
+# Triggers state updates on artifact changes to ensure versioning and hash tracking
+# per Constitution Principle V (T006 implementation)
 
 set -e
 
-# Determine project root (assuming this hook is at repo root in git_hooks/)
-PROJECT_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-cd "$PROJECT_ROOT"
+# Determine project root (assuming this script is at git_hooks/pre-commit)
+PROJECT_ROOT="$(git rev-parse --show-toplevel)"
+HOOK_SCRIPT="${PROJECT_ROOT}/code/utils/update_state.py"
 
-# Get list of staged files
-STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACM)
-
-if [ -z "$STAGED_FILES" ]; then
-    echo "No staged files to process."
-    exit 0
+# Verify the update_state script exists
+if [ ! -f "$HOOK_SCRIPT" ]; then
+    echo "ERROR: State update script not found at $HOOK_SCRIPT"
+    echo "Please ensure T006 has been completed."
+    exit 1
 fi
 
-echo "Processing staged artifacts for state update..."
+# Check if Python is available
+if ! command -v python3 &> /dev/null; then
+    echo "ERROR: python3 is required but not found in PATH"
+    exit 1
+fi
 
-# Run the state update script for each staged file that matches our artifact patterns
-# We filter to only process files under code/, data/, tests/, specs/, and root config files
-for file in $STAGED_FILES; do
-    # Skip if file is not in our tracked directories
-    case "$file" in
-        code/*|data/*|tests/*|specs/*|requirements.txt|pyproject.toml|setup.cfg|*.md)
-            echo "  Updating state for: $file"
-            # Call the update_state.py main function for this file
-            # We pass the file path as an argument to the script
-            python -c "
-import sys
-sys.path.insert(0, '$PROJECT_ROOT/code')
-from utils.update_state import register_artifact, update_artifact_status, calculate_file_hash, get_file_metadata
-from pathlib import Path
-import json
+# Run the state update script
+# This will:
+# 1. Scan staged artifacts in code/, data/, tests/, specs/
+# 2. Calculate hashes for changed files
+# 3. Register/update artifacts in the SQLite metadata registry
+# 4. Update pipeline state tracking
+echo "Running artifact state update..."
+python3 "$HOOK_SCRIPT" --mode pre-commit
 
-file_path = Path('$file')
-if not file_path.exists():
-    print(f'  Skipping non-existent file: $file')
-    sys.exit(0)
+# Capture exit status
+STATUS=$?
 
-try:
-    metadata = get_file_metadata(file_path)
-    file_hash = calculate_file_hash(file_path)
-    
-    # Register or update the artifact in the database
-    register_artifact(file_path, file_hash, metadata)
-    update_artifact_status(file_path, 'staged')
-    
-    print(f'  Registered: $file (hash: {file_hash[:12]}...)')
-except Exception as e:
-    print(f'  ERROR updating state for $file: {e}')
-    sys.exit(1)
-"
-            ;;
-        *)
-            echo "  Skipping non-artifact file: $file"
-            ;;
-    esac
-done
+if [ $STATUS -eq 0 ]; then
+    echo "State update completed successfully."
+else
+    echo "ERROR: State update failed with exit code $STATUS"
+    echo "Commit blocked. Please fix the state tracking issue."
+fi
 
-echo "State update complete. Ready to commit."
-exit 0
+exit $STATUS

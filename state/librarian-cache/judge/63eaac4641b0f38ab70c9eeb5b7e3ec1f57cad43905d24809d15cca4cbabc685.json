@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2507.16853",
+  "judged_at": "2026-08-02T21:27:32Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"memgui-agent: an end-to-end long-horizon mobile gui agent with proacti\" computer science",
+  "rationale": "This paper belongs in the literature review because it is a foundational or canonical study on the specific mechanism (long-horizon mobile GUI agents with proactive exploration and reflection) that the user's question explicitly references as a follow-up to \"MemGUI-Agent.\" It satisfies criteria (d) as a key methodological reference for this emerging subfield and (a) by measuring the same biological/algorithmic construct (autonomous mobile GUI operation) using the same core variables (proactive e",
+  "relevant": true
+}

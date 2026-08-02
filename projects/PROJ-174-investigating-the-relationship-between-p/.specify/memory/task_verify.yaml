@@ -1,18 +1,13 @@
-? 'T005 Setup logging infrastructure: Initialize `code/logging_config.py` to write
-  to `code/logs/preprocess.log` and initialize `results/quality_report.csv` with headers
-  `[exclusion_type, count]`; verify by asserting file creation and column presence.
-  **Note: This task must complete before T002c and T017.**'
-: 2
-? 'T006 [P] Create `code/data_model.py` defining classes: `Dataset(subject_id, trial_id,
-  timestamp, pupil_diameter, x, y, search_time, target_salience, fixation_count)`
-  and `ModelResult(coefficients, std_errors, p_values, log_likelihood)`'
-: 2
-? T007 [P] Implement `code/utils/provenance.py` with functions `hash_file(path)` and
-  `write_meta(path, meta_dict)`; verify by generating `data/raw/*_meta.json` with
-  keys `[hash, timestamp, source]`
-: 2
-? 'T008 [P] Configure environment variables: Create `code/.env.example` with keys:
-  `DATA_PATH`, `OPENNEURO_API_KEY`, `LOG_LEVEL`; update `code/main.py` (created in
-  T018) to load these keys via `python-dotenv`; verify script fails gracefully with
-  error message if keys are missing.'
-: 2
+T002d: 1
+T005: 1
+T010: 1
+T013: 1
+T016: 1
+T017: 1
+T023: 1
+T024: 1
+T025: 1
+T029: 1
+T031: 1
+T032: 1
+T035a: 1
