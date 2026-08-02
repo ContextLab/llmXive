@@ -1,16 +1,62 @@
-T020a:
+T003b:
   c: false
-  h: 4fc386cdc19da2aba9e4ebc1844fdf8dab6a4fa2e2aae1c18f3a431cd91132f6
-  r: "The repository contains `code/analysis.py` with a `validate_data_structure`\
-    \ function, but the required output file `data/processed/structure_config.json`\
-    \ is missing, and the JSON written by the function includes an extra `n_observations`\
-    \ field that does not match the specified schema of only `\"type\"` and `\"n_subjects\"\
-    `. The task\u2019s output artifact is therefore absent or incorrect."
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `.gitignore` file was presented, nor any excerpt showing the required exclusion\
+    \ patterns (`__pycache__`, `*.pyc`, `.env`, `data/raw/*.csv`). Without the artifact,\
+    \ we cannot confirm the task was fulfilled. The implementer must provide a non\u2011\
+    empty `.gitignore` containing those entries."
+T010a:
+  c: false
+  h: 8b238362df212e1c2b7564562f08c8809081ced34ba648c439560eac728a2406
+  r: The required `code/simulation_parameters.json` file does not exist, and `code/config.py`
+    contains only placeholder constant values (e.g., `effect_size_high_low = 0.5`)
+    rather than values read from `research.md` or a JSON file. Consequently, the task
+    of extracting verified effect sizes and N and defining them as constants is not
+    fulfilled.
+T012e:
+  c: false
+  h: 5b1ba9587bd3b833b9cf68534ae8633e7bad2fac16ab788d315ffb8fa06000df
+  r: "The provided `code/simulate.py` generates data for the two designs but contains\
+    \ no post\u2011generation validation that the output strictly follows the selected\
+    \ design (e.g., checking that each participant appears exactly once for between\u2011\
+    subjects or appears in all four condition rows for within\u2011subjects). Moreover,\
+    \ the required `code/meta_analysis.py` file is absent entirely. A proper implementation\
+    \ must add a validation step (or implement it in the missing meta\u2011analysis\
+    \ script) that verifies the dataset\u2019s structure matches the chosen design\
+    \ before proceeding."
+T021a:
+  c: false
+  h: d5485f6bfc47dbb00dec85a28f1803c73d52165be1b1f28adc8300dbd0726fd9
+  r: The repository lacks the required `data/processed/structure_config.json` file,
+    so the function cannot read the design type. Moreover, the provided `code/analysis.py`
+    excerpt does not show a `fit_adaptive_model` implementation (the file is truncated
+    before such a function appears). Both the essential input file and the specified
+    function are missing, so the task is not fulfilled.
 T025:
   c: false
-  h: d6bd87abc9657f1c25ad5c32ee0fb268306cd5c4d4958eeaee2f1d2813d46a07
-  r: The provided `tests/contract/test_model_output.py` is truncated and contains
-    a syntax error (unterminated string in the last assert), and it does not actually
-    load or validate against the required `contracts/model_output.schema.yaml` which
-    is missing from the repository. Both the test file and the referenced schema are
-    incomplete, so the task is not satisfied.
+  h: d4301140234e343de7844be48dd61aa1007d8b5c76716f25a4be72da8a49689e
+  r: "The `tests/contract/test_model_output.py` file is truncated (the `ci_width`\
+    \ test ends mid\u2011string) and does not include explicit checks for the `model_type`\
+    \ key. Moreover, the required schema file `contracts/model_output.schema.yaml`\
+    \ is absent, so the test cannot even load the schema it is supposed to validate\
+    \ against."
+T033:
+  c: false
+  h: 25cb82685ad7159641edb73dde04e4f5464b62a3f245447b2aff0269a1f9dd8b
+  r: The required output file `reports/analysis_report.html` does not exist, and the
+    provided `code/report.py` snippet shows no rendering of the Jinja2 template nor
+    any use of WeasyPrint to create a PDF. Consequently the script does not fulfill
+    the specification of generating and saving the HTML (and PDF) report.
+T035:
+  c: false
+  h: 762ad4a5a96985029ed19473830b4f5e8d010a73d6bb566251b27f28a0e2565e
+  r: The test file `tests/contract/test_report_schema.py` exists, but the required
+    schema file `contracts/model_output.schema.yaml` is missing, so the test cannot
+    truly validate the report against the contract. Add the `model_output.schema.yaml`
+    file (with the expected keys) and ensure the test uses it without fallback.
+T040a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `quickstart.md` file or updated content was presented; the implementer did
+    not supply the required markdown with specific execution steps and dependencies,
+    so the task is not satisfied.

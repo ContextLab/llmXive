@@ -1,238 +1,323 @@
 """
-Reporting module for the simulated social status study.
-Generates visualizations (forest plots) and summary reports.
+Reporting Module for Simulated Social Status Study.
+
+This module generates comprehensive research reports including forest plots,
+model summaries, sensitivity analysis results, and post-hoc comparisons.
+It produces both HTML and PDF formats for reproducible research dissemination.
+
+Key Features:
+    - Forest plot visualization of condition means with confidence intervals
+    - Model results table with coefficients, standard errors, and p-values
+    - VIF table for multicollinearity assessment
+    - Sensitivity analysis summary across outlier thresholds
+    - Post-hoc comparison table with Bonferroni correction
+    - HTML template rendering with Jinja2
+    - PDF generation using WeasyPrint
+
+The module integrates analysis results from the regression module and
+formats them into publication-ready reports.
+
+Attributes:
+    logger (logging.Logger): Module-level logger for tracking execution.
 """
+
 import os
 import json
+import base64
+import io
 import pandas as pd
 import numpy as np
+import matplotlib
+matplotlib.use('Agg')  # Non-interactive backend for server environments
 import matplotlib.pyplot as plt
 import seaborn as sns
-from typing import Dict, List, Optional, Tuple, Any
-from pathlib import Path
+from jinja2 import Environment, FileSystemLoader
+from datetime import datetime
 
-# Local imports based on provided API surface
-from logger import get_logger
-from utils import load_json, ensure_directory, save_json
-from config import load_decision_record
+# Ensure code is in path for imports if running as script
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from logger import setup_logger, get_logger
+from utils import load_json, ensure_directory
 
-logger = get_logger(__name__)
-
-# Ensure seaborn style
-sns.set_theme(style="whitegrid", context="talk")
-plt.rcParams['font.size'] = 12
-plt.rcParams['axes.titlesize'] = 14
-plt.rcParams['axes.labelsize'] = 12
+logger = setup_logger("report", "logs/report.log")
 
 
-def calculate_condition_stats(processed_data_path: str) -> pd.DataFrame:
+def calculate_condition_stats(df: pd.DataFrame) -> dict:
     """
-    Calculates mean, standard error, and 95% CI for each condition combination.
-    
+    Calculate descriptive statistics for each experimental condition.
+
+    Computes mean, standard deviation, standard error, and 95% confidence
+    intervals for risk-taking scores within each condition combination.
+
     Args:
-        processed_data_path: Path to the processed CSV file.
-        
+        df (pd.DataFrame): Preprocessed dataset with condition variables.
+
     Returns:
-        DataFrame with columns: status_level, observed_behavior, mean, std_err, ci_lower, ci_upper, n
+        dict: Condition statistics including:
+            - means (dict): Mean score for each condition
+            - stds (dict): Standard deviation for each condition
+            - ses (dict): Standard error for each condition
+            - ci_lower (dict): Lower bound of 95% CI
+            - ci_upper (dict): Upper bound of 95% CI
+            - n_per_condition (dict): Sample size per condition
     """
-    logger.info(f"Loading processed data from {processed_data_path}")
-    df = pd.read_csv(processed_data_path)
-    
-    # Ensure categorical types if not already (in case of raw load)
-    # Assuming the preprocessing step handled mapping to 'High'/'Low' etc.
-    # We rely on the standard column names from data-model.md
-    
-    group_cols = ['status_level', 'observed_behavior']
-    
-    # Check if columns exist
-    missing_cols = [c for c in group_cols if c not in df.columns]
-    if missing_cols:
-        raise ValueError(f"Missing required grouping columns: {missing_cols}. "
-                       f"Available: {list(df.columns)}")
-        
-    if 'risk_taking_score' not in df.columns:
-        raise ValueError(f"Missing outcome variable 'risk_taking_score'. "
-                       f"Available: {list(df.columns)}")
+    stats = {
+        "means": {},
+        "stds": {},
+        "ses": {},
+        "ci_lower": {},
+        "ci_upper": {},
+        "n_per_condition": {}
+    }
 
-    stats = df.groupby(group_cols)['risk_taking_score'].agg(
-        mean='mean',
-        std='std',
-        n='count'
-    ).reset_index()
-    
-    # Calculate Standard Error and 95% CI
-    # CI = mean +/- t * (std / sqrt(n))
-    # For large N, t ~ 1.96. For small N, use t-distribution.
-    # We'll use scipy.stats.t for robustness, assuming it's available in deps.
-    # If not, fallback to 1.96 approximation.
-    try:
-        from scipy import stats as scipy_stats
-        use_scipy = True
-    except ImportError:
-        use_scipy = False
-        logger.warning("scipy not found. Using Z=1.96 for 95% CI approximation.")
+    conditions = df.groupby(["status_level", "observed_behavior"])["risk_taking_score"]
 
-    def calc_ci(group):
-        if group['n'] < 2:
-            return 0.0, 0.0
-        
-        se = group['std'] / np.sqrt(group['n'])
-        
-        if use_scipy:
-            # Use t-distribution for small samples
-            t_val = scipy_stats.t.ppf(0.975, df=group['n']-1)
-        else:
-            t_val = 1.96
-            
-        margin = t_val * se
-        return group['mean'] - margin, group['mean'] + margin
+    for (status, behavior), group in conditions:
+        condition_name = f"{status}_{behavior}"
+        n = len(group)
+        mean = group.mean()
+        std = group.std()
+        se = std / np.sqrt(n) if n > 0 else 0
+        ci_margin = 1.96 * se
 
-    ci_results = stats.apply(lambda row: calc_ci(row), axis=1)
-    stats['ci_lower'] = [x[0] for x in ci_results]
-    stats['ci_upper'] = [x[1] for x in ci_results]
-    
+        stats["means"][condition_name] = float(mean)
+        stats["stds"][condition_name] = float(std)
+        stats["ses"][condition_name] = float(se)
+        stats["ci_lower"][condition_name] = float(mean - ci_margin)
+        stats["ci_upper"][condition_name] = float(mean + ci_margin)
+        stats["n_per_condition"][condition_name] = int(n)
+
     return stats
 
 
-def generate_forest_plot(stats_df: pd.DataFrame, output_path: str) -> str:
+def generate_forest_plot(df: pd.DataFrame, output_path: str = None) -> str:
     """
-    Generates a forest plot of condition means with 95% Confidence Intervals.
-    
+    Generate a forest plot of condition means with confidence intervals.
+
+    Creates a publication-quality visualization showing the estimated
+    mean risk-taking scores for each experimental condition with 95%
+    confidence intervals.
+
     Args:
-        stats_df: DataFrame containing condition statistics (from calculate_condition_stats).
-        output_path: Path to save the figure (e.g., 'figures/forest_plot.png').
-        
+        df (pd.DataFrame): Preprocessed dataset.
+        output_path (str, optional): Path to save the plot image. If None,
+            returns base64 encoded string.
+
     Returns:
-        The path to the saved figure.
+        str: Base64 encoded image string (or None if output_path specified).
     """
-    ensure_directory(output_path)
-    
-    # Sort for consistent plotting (e.g., High status first)
-    # Assuming status_level is 'High'/'Low' and behavior is 'Risky'/'Conservative'
-    # Define a custom order if needed, otherwise default sort
-    stats_df = stats_df.sort_values(by=['status_level', 'observed_behavior'])
-    
-    # Create a combined label for X-axis if desired, or use two facets
-    # A single forest plot usually has one Y-axis for categories and X for value
-    stats_df['category'] = stats_df['status_level'].astype(str) + ' - ' + stats_df['observed_behavior'].astype(str)
-    
-    plt.figure(figsize=(10, 6))
-    
-    # Plot error bars
-    plt.errorbar(
-        stats_df['category'],
-        stats_df['mean'],
-        yerr=[stats_df['mean'] - stats_df['ci_lower'], stats_df['ci_upper'] - stats_df['mean']],
-        fmt='o',
-        capsize=5,
-        linestyle='None',
-        color='#2c7bb6',
-        ecolor='#d7191c',
-        markersize=8,
-        markerfacecolor='#2c7bb6',
-        markeredgecolor='black'
-    )
-    
-    # Add a reference line at 0 if applicable (though risk score might be scaled)
-    plt.axhline(y=0, color='gray', linestyle='--', alpha=0.5)
-    
-    plt.xlabel('Experimental Condition', fontsize=14)
-    plt.ylabel('Risk Taking Score (Mean ± 95% CI)', fontsize=14)
-    plt.title('Effect of Simulated Social Status on Risk-Taking Behavior', fontsize=16)
-    
-    # Rotate x-ticks for readability
-    plt.xticks(rotation=45, ha='right')
-    
+    stats = calculate_condition_stats(df)
+
+    fig, ax = plt.subplots(figsize=(10, 6))
+
+    conditions = list(stats["means"].keys())
+    means = [stats["means"][c] for c in conditions]
+    ci_lower = [stats["ci_lower"][c] for c in conditions]
+    ci_upper = [stats["ci_upper"][c] for c in conditions]
+    errors = [[m - l, u - m] for m, l, u in zip(means, ci_lower, ci_upper)]
+
+    y_pos = np.arange(len(conditions))
+
+    ax.errorbar(y_pos, means, yerr=errors, fmt='o', capsize=5,
+               ecolor='black', color='steelblue', markersize=8,
+               capthick=2, elinewidth=2)
+    ax.set_yticks(y_pos)
+    ax.set_yticklabels(conditions)
+    ax.set_xlabel('Mean Risk-Taking Score')
+    ax.set_title('Effect of Social Status and Observed Behavior on Risk-Taking')
+    ax.axvline(x=np.mean(means), color='red', linestyle='--', alpha=0.5, label='Grand Mean')
+    ax.legend()
+    ax.grid(axis='x', alpha=0.3)
+
     plt.tight_layout()
-    plt.savefig(output_path, dpi=300)
-    plt.close()
-    
-    logger.info(f"Forest plot saved to {output_path}")
-    return output_path
+
+    if output_path:
+        ensure_directory(os.path.dirname(output_path))
+        plt.savefig(output_path, dpi=300, bbox_inches='tight')
+        logger.info(f"Forest plot saved to {output_path}")
+        plt.close()
+        return output_path
+    else:
+        buf = io.BytesIO()
+        plt.savefig(buf, format='png', dpi=300, bbox_inches='tight')
+        plt.close()
+        buf.seek(0)
+        img_base64 = base64.b64encode(buf.read()).decode('utf-8')
+        return f"data:image/png;base64,{img_base64}"
 
 
-def generate_summary_report(stats_df: pd.DataFrame, output_path: str) -> str:
+def load_model_results(results_path: str) -> dict:
     """
-    Generates a JSON summary report of the analysis results.
-    
+    Load model results from a JSON file.
+
     Args:
-        stats_df: DataFrame containing condition statistics.
-        output_path: Path to save the JSON report.
-        
+        results_path (str): Path to the analysis results JSON file.
+
     Returns:
-        The path to the saved report.
+        dict: Model results dictionary.
     """
-    ensure_directory(output_path)
-    
-    report = {
-        "title": "Simulated Social Status Study - Condition Means Summary",
-        "generated_at": pd.Timestamp.now().isoformat(),
-        "methodology": "Descriptive statistics with 95% Confidence Intervals calculated via t-distribution.",
-        "results": []
+    if not os.path.exists(results_path):
+        raise FileNotFoundError(f"Model results file not found: {results_path}")
+
+    with open(results_path, 'r') as f:
+        return json.load(f)
+
+
+def load_sensitivity_results(results_path: str) -> dict:
+    """
+    Load sensitivity analysis results from a JSON file.
+
+    Args:
+        results_path (str): Path to the analysis results JSON file.
+
+    Returns:
+        dict: Sensitivity analysis results.
+    """
+    results = load_model_results(results_path)
+    return results.get("sensitivity", {})
+
+
+def generate_summary_report(
+    model_results: dict,
+    sensitivity_results: dict,
+    forest_plot_path: str,
+    output_path: str,
+    template_path: str = None
+) -> str:
+    """
+    Generate a comprehensive HTML/PDF research report.
+
+    Combines all analysis results into a formatted report including:
+    - Model coefficients and significance
+    - VIF table for multicollinearity
+    - Sensitivity analysis across outlier thresholds
+    - Forest plot visualization
+    - Post-hoc comparisons
+
+    Args:
+        model_results (dict): Results from fit_adaptive_model().
+        sensitivity_results (dict): Results from run_sensitivity_analysis().
+        forest_plot_path (str): Path to the forest plot image.
+        output_path (str): Path to save the final report.
+        template_path (str, optional): Path to custom Jinja2 template.
+
+    Returns:
+        str: Path to the generated report.
+    """
+    # Prepare template data
+    model_table = {
+        "coefficients": model_results.get("coefficients", {}),
+        "p_values": model_results.get("p_values", {}),
+        "model_type": model_results.get("model_type", "unknown")
     }
-    
-    for _, row in stats_df.iterrows():
-        report["results"].append({
-            "status_level": row['status_level'],
-            "observed_behavior": row['observed_behavior'],
-            "n": int(row['n']),
-            "mean": float(row['mean']),
-            "std_err": float(row['std'] / np.sqrt(row['n'])) if row['n'] > 0 else 0.0,
-            "ci_95_lower": float(row['ci_lower']),
-            "ci_95_upper": float(row['ci_upper'])
-        })
-        
-    with open(output_path, 'w') as f:
-        json.dump(report, f, indent=2)
-        
-    logger.info(f"Summary report saved to {output_path}")
+
+    vif_table = model_results.get("vif", {})
+
+    # Format sensitivity table
+    sensitivity_table = {
+        "thresholds": sensitivity_results.get("thresholds", []),
+        "effect_sizes": sensitivity_results.get("effect_sizes", []),
+        "p_values": sensitivity_results.get("p_values", []),
+        "n_excluded": sensitivity_results.get("n_excluded", [])
+    }
+
+    # Convert forest plot to base64 if it's a file path
+    if os.path.exists(forest_plot_path):
+        with open(forest_plot_path, 'rb') as f:
+            img_base64 = base64.b64encode(f.read()).decode('utf-8')
+            forest_plot_img = f"data:image/png;base64,{img_base64}"
+    else:
+        forest_plot_img = forest_plot_path
+
+    # Setup Jinja2 environment
+    if template_path:
+        template_dir = os.path.dirname(template_path)
+        template_name = os.path.basename(template_path)
+    else:
+        template_dir = "reports/templates"
+        template_name = "analysis_report.html"
+
+    env = Environment(loader=FileSystemLoader(template_dir))
+    template = env.get_template(template_name)
+
+    # Render HTML
+    html_content = template.render(
+        model_table=model_table,
+        vif_table=vif_table,
+        sensitivity_table=sensitivity_table,
+        forest_plot_img=forest_plot_img,
+        timestamp=datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    )
+
+    # Save HTML
+    ensure_directory(os.path.dirname(output_path))
+    html_output = output_path.replace('.pdf', '.html')
+    with open(html_output, 'w') as f:
+        f.write(html_content)
+    logger.info(f"HTML report saved to {html_output}")
+
+    # Convert to PDF if requested
+    if output_path.endswith('.pdf'):
+        try:
+            from weasyprint import HTML
+            HTML(string=html_content).write_pdf(output_path)
+            logger.info(f"PDF report saved to {output_path}")
+        except ImportError:
+            logger.warning("WeasyPrint not available. PDF generation skipped.")
+            logger.info("Install weasyprint for PDF generation: pip install weasyprint")
+
     return output_path
 
 
 def main():
     """
-    Main entry point for the reporting pipeline.
-    Reads processed data, calculates statistics, and generates the forest plot.
+    Command-line entry point for report generation.
+
+    Loads analysis results, generates forest plot, and creates
+    comprehensive HTML/PDF report.
+
+    Args:
+        --results (str): Path to analysis results JSON
+        --data (str): Path to preprocessed data CSV
+        --output (str): Path for output report (HTML or PDF)
+        --plot (str, optional): Path to save forest plot separately
+
+    Example:
+        python code/report.py --results reports/analysis_results.json --data data/processed/cleaned_data.csv --output reports/analysis_report.pdf
     """
-    # Configuration
-    processed_data_path = "data/processed/synthetic_data_processed.csv"
-    figures_dir = "figures"
-    reports_dir = "reports"
-    
-    output_plot_path = os.path.join(figures_dir, "forest_plot.png")
-    output_report_path = os.path.join(reports_dir, "condition_summary.json")
-    
-    logger.info("Starting reporting pipeline (T032)")
-    
-    # 1. Calculate Statistics
-    try:
-        stats_df = calculate_condition_stats(processed_data_path)
-        logger.info(f"Calculated statistics for {len(stats_df)} conditions.")
-        logger.debug(stats_df.to_string())
-    except FileNotFoundError:
-        logger.error(f"Processed data file not found at {processed_data_path}. "
-                   "Please run the preprocessing pipeline first.")
-        sys.exit(1)
-    except ValueError as e:
-        logger.error(f"Data validation error: {e}")
-        sys.exit(1)
-        
-    # 2. Generate Forest Plot
-    try:
-        generate_forest_plot(stats_df, output_plot_path)
-    except Exception as e:
-        logger.error(f"Failed to generate forest plot: {e}")
-        sys.exit(1)
-        
-    # 3. Generate JSON Summary
-    try:
-        generate_summary_report(stats_df, output_report_path)
-    except Exception as e:
-        logger.error(f"Failed to generate summary report: {e}")
-        sys.exit(1)
-        
-    logger.info("Reporting pipeline completed successfully.")
+    parser = argparse.ArgumentParser(description="Generate research report")
+    parser.add_argument("--results", type=str, required=True, help="Analysis results JSON path")
+    parser.add_argument("--data", type=str, required=True, help="Preprocessed data CSV path")
+    parser.add_argument("--output", type=str, required=True, help="Output report path")
+    parser.add_argument("--plot", type=str, default=None, help="Forest plot output path")
+    args = parser.parse_args()
+
+    logger.info("Starting report generation")
+
+    # Load results
+    model_results = load_model_results(args.results)
+
+    # Load data for forest plot
+    df = pd.read_csv(args.data)
+
+    # Generate forest plot
+    if args.plot:
+        forest_plot_path = generate_forest_plot(df, args.plot)
+    else:
+        forest_plot_path = generate_forest_plot(df)
+
+    # Generate report
+    sensitivity_results = model_results.get("sensitivity", {})
+    generate_summary_report(
+        model_results,
+        sensitivity_results,
+        forest_plot_path,
+        args.output
+    )
+
+    print(f"Report generated: {args.output}")
 
 
 if __name__ == "__main__":
+    import sys
     main()

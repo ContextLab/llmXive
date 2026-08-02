@@ -103,7 +103,7 @@ The `tests/contract/` directory contains test files that explicitly validate aga
 
 ### Phase 0: Power Analysis & Verification
 1. **Verify Citations**: Reference-Validator Agent verifies meta-analytic sources for effect sizes.
-2. **Calculate N**: Run `power_analysis.py` to determine the minimum N required to detect the hypothesized interaction with adequate statistical power (alpha 0.05).
+2. **Calculate N**: Run `power_analysis.py` to determine the minimum N required to detect the hypothesized interaction with adequate statistical power (standard alpha level).
 3. **Update Config**: Write the calculated N to `code/config.py`.
 
 ### Phase 1: Data Simulation & Preprocessing
@@ -116,7 +116,7 @@ The `tests/contract/` directory contains test files that explicitly validate aga
    - If **Between-Subjects**: Fit OLS/ANOVA (`risk_taking ~ status_level * observed_behavior`).
    - If **Within-Subjects**: Fit LMM (`risk_taking ~ status_level * observed_behavior + (1|participant_id)`).
 2. **Generate Config**: `analysis.py` dynamically computes `type` and `n_subjects` from the data and writes `data/processed/structure_config.json`.
-3. **VIF & Sensitivity**: Calculate VIF and run sensitivity sweep (2.5, 3.0, 3.5 SD).
+3. **VIF & Sensitivity**: Calculate VIF and run sensitivity sweep (, 3.0, 3.5 SD).
 
 ### Phase 3: Reporting
 1. **Plot**: Generate forest plot and sensitivity tables.

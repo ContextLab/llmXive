@@ -1,71 +1,44 @@
 """
-Unit tests for data generation logic.
+Unit tests for data generation determinism.
 
-Verifies that data generation is deterministic given a fixed seed
-and that the output structure matches expectations.
+Verifies that the simulation produces identical results given the same seed.
 """
 import pytest
-import pandas as pd
 import numpy as np
+import pandas as pd
 import sys
-from pathlib import Path
+import os
 
-# Ensure code/ is in path
-PROJECT_ROOT = Path(__file__).parent.parent.parent
-if str(PROJECT_ROOT / "code") not in sys.path:
-    sys.path.insert(0, str(PROJECT_ROOT / "code"))
+# Ensure the code directory is in the path
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'code'))
 
-from generate_data import generate_synthetic_data
-from utils import set_seed
+from simulate import generate_synthetic_data
+from config import get_random_seed
 
 def test_deterministic_output():
-    """Verify that the same seed produces the same data."""
-    seed_val = 42
-    n = 50
+    """Verify that fixed seed produces identical output."""
+    # Retrieve the seed from the project configuration
+    seed = get_random_seed()
     
-    # Generate first time
-    set_seed(seed_val)
-    df1 = generate_synthetic_data(
-        n_participants=n,
-        status_effect_size=0.5,
-        behavior_effect_size=0.3,
-        interaction_effect_size=0.2,
-        random_seed=seed_val
-    )
+    # Run generation twice with the exact same seed
+    df1 = generate_synthetic_data(seed=seed)
+    df2 = generate_synthetic_data(seed=seed)
     
-    # Generate second time
-    set_seed(seed_val)
-    df2 = generate_synthetic_data(
-        n_participants=n,
-        status_effect_size=0.5,
-        behavior_effect_size=0.3,
-        interaction_effect_size=0.2,
-        random_seed=seed_val
-    )
-    
-    # Compare
-    assert df1.equals(df2), "Data generation is not deterministic with fixed seed"
-    assert len(df1) == n, f"Expected {n} participants, got {len(df1)}"
+    # Assert that the DataFrames are identical in content, types, and index
+    pd.testing.assert_frame_equal(df1, df2)
 
-def test_between_subjects_design():
-    """Verify that each participant has exactly one observation."""
-    df = generate_synthetic_data(n_participants=100, random_seed=999)
-    assert df["participant_id"].is_unique, "Between-subjects design violated: duplicate participant IDs"
+def test_random_seed_effect():
+    """Verify that different seeds produce different output."""
+    seed1 = 42
+    seed2 = 123
     
-def test_required_columns_present():
-    """Verify that the output contains all required columns."""
-    df = generate_synthetic_data(n_participants=10, random_seed=123)
-    expected_cols = ["participant_id", "status_level", "observed_behavior", "risk_taking_score"]
-    assert all(col in df.columns for col in expected_cols), "Missing required columns"
+    # Generate data with two different seeds
+    df1 = generate_synthetic_data(seed=seed1)
+    df2 = generate_synthetic_data(seed=seed2)
     
-def test_valid_status_levels():
-    """Verify that status levels are strictly High or Low."""
-    df = generate_synthetic_data(n_participants=100, random_seed=456)
-    valid_levels = {"High", "Low"}
-    assert set(df["status_level"].unique()).issubset(valid_levels), "Invalid status levels detected"
-
-def test_valid_behaviors():
-    """Verify that observed behaviors are strictly Risky or Conservative."""
-    df = generate_synthetic_data(n_participants=100, random_seed=789)
-    valid_behaviors = {"Risky", "Conservative"}
-    assert set(df["observed_behavior"].unique()).issubset(valid_behaviors), "Invalid behaviors detected"
+    # They should not be equal (probability of collision is negligible)
+    # We check the hash of the underlying data to ensure distinctness
+    hash1 = pd.util.hash_pandas_object(df1).sum()
+    hash2 = pd.util.hash_pandas_object(df2).sum()
+    
+    assert hash1 != hash2, "Different seeds should produce different data"

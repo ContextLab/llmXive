@@ -8,4 +8,8 @@ pyyaml==6.0.1
 pytest==7.4.0
 ruff==0.0.285
 black==23.7.0
-patsy==0.5.3
+jinja2==3.1.2
+weasyprint==60.1
+datasets==2.14.4
+radon==6.0.1
+pydantic==2.3.0

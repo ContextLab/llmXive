@@ -6,17 +6,11 @@ __pycache__/
 # Environment variables
 .env
 
-# Raw data (checksummed only)
+# Raw data files (checksummed only in data/checksums.json)
 data/raw/*.csv
-
-# Generated data and processed files
-data/processed/*.csv
-data/processed/*.json
-data/figures/
 
 # Logs
 *.log
-logs/
 
 # IDE and editor files
 .idea/
@@ -25,7 +19,7 @@ logs/
 *.swo
 *~
 
-# OS files
+# OS generated files
 .DS_Store
 Thumbs.db
 
@@ -33,3 +27,14 @@ Thumbs.db
 htmlcov/
 .coverage
 coverage.xml
+
+# Build artifacts
+dist/
+build/
+*.egg-info/
+
+# Reports (optional, can be committed if desired)
+# reports/
+
+# Figures (optional, can be committed if desired)
+# figures/

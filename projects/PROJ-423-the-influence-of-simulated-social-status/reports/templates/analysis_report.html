@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analysis Report: Influence of Simulated Social Status</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #34495e;
+            --accent-color: #3498db;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --danger-color: #c0392b;
+            --light-bg: #ecf0f1;
+            --border-color: #bdc3c7;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid var(--primary-color);
+        }
+
+        h1 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        h2 {
+            color: var(--secondary-color);
+            border-left: 5px solid var(--accent-color);
+            padding-left: 15px;
+            margin-top: 40px;
+        }
+
+        .section {
+            background: white;
+            padding: 25px;
+            margin-bottom: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 0.95em;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: 600;
+        }
+
+        tr:nth-child(even) {
+            background-color: var(--light-bg);
+        }
+
+        tr:hover {
+            background-color: #e8f4f8;
+        }
+
+        .stat-highlight {
+            font-weight: bold;
+            color: var(--accent-color);
+        }
+
+        .stat-significant {
+            color: var(--success-color);
+            font-weight: bold;
+        }
+
+        .stat-warning {
+            color: var(--warning-color);
+            font-weight: bold;
+        }
+
+        .stat-danger {
+            color: var(--danger-color);
+            font-weight: bold;
+        }
+
+        .figure-container {
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        .figure-container img {
+            max-width: 100%;
+            height: auto;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .caption {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 10px;
+            font-style: italic;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .summary-card {
+            background: var(--light-bg);
+            padding: 20px;
+            border-radius: 6px;
+            border-left: 4px solid var(--accent-color);
+        }
+
+        .summary-card h3 {
+            margin-top: 0;
+            color: var(--secondary-color);
+            font-size: 1.1em;
+        }
+
+        .summary-card .value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 50px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+
+        .alert {
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+            border-left: 5px solid;
+        }
+
+        .alert-info {
+            background-color: #e8f4f8;
+            border-color: var(--accent-color);
+            color: var(--primary-color);
+        }
+
+        .alert-warning {
+            background-color: #fef9e7;
+            border-color: var(--warning-color);
+            color: #8a6d3b;
+        }
+
+        .alert-danger {
+            background-color: #fdedec;
+            border-color: var(--danger-color);
+            color: #a94442;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Analysis Report</h1>
+        <p>The Influence of Simulated Social Status on Risk-Taking Behavior</p>
+        <p><strong>Generated:</strong> {{ now }}</p>
+    </div>
+
+    <div class="section">
+        <h2>Executive Summary</h2>
+        <div class="summary-grid">
+            <div class="summary-card">
+                <h3>Model Type</h3>
+                <div class="value">{{ model_type }}</div>
+            </div>
+            <div class="summary-card">
+                <h3>Sample Size (N)</h3>
+                <div class="value">{{ n_subjects }}</div>
+            </div>
+            <div class="summary-card">
+                <h3>Interaction p-value</h3>
+                <div class="value">{{ interaction_p_value }}</div>
+            </div>
+            <div class="summary-card">
+                <h3>CI Width</h3>
+                <div class="value">{{ ci_width }}</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>Model Coefficients</h2>
+        {% if model_table %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Parameter</th>
+                    <th>Estimate</th>
+                    <th>Std. Error</th>
+                    <th>t/Z value</th>
+                    <th>p-value</th>
+                    <th>95% CI</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in model_table %}
+                <tr>
+                    <td>{{ row.param }}</td>
+                    <td>{{ row.estimate }}</td>
+                    <td>{{ row.std_err }}</td>
+                    <td>{{ row.t_value }}</td>
+                    <td class="{% if row.p_value < 0.05 %}stat-significant{% elif row.p_value < 0.10 %}stat-warning{% else %}stat-highlight{% endif %}">
+                        {{ row.p_value }}
+                    </td>
+                    <td>{{ row.ci }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="alert alert-info">No model coefficients available.</div>
+        {% endif %}
+    </div>
+
+    <div class="section">
+        <h2>Multicollinearity Check (VIF)</h2>
+        {% if vif_table %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Variable</th>
+                    <th>VIF</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in vif_table %}
+                <tr>
+                    <td>{{ row.variable }}</td>
+                    <td>{{ row.vif }}</td>
+                    <td class="{% if row.flag > 5.0 %}stat-danger{% else %}stat-significant{% endif %}">
+                        {% if row.flag > 5.0 %}High (>5.0){% else %}Acceptable{% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="alert alert-info">No VIF data available.</div>
+        {% endif %}
+    </div>
+
+    <div class="section">
+        <h2>Sensitivity Analysis</h2>
+        <p>Results for varying outlier exclusion thresholds (Standard Deviations from cell mean):</p>
+        {% if sensitivity_table %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Threshold (SD)</th>
+                    <th>Intercept</th>
+                    <th>Status Effect</th>
+                    <th>Behavior Effect</th>
+                    <th>Interaction Effect</th>
+                    <th>Interaction p-value</th>
+                    <th>Observations Retained</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in sensitivity_table %}
+                <tr>
+                    <td>{{ row.threshold }}</td>
+                    <td>{{ row.intercept }}</td>
+                    <td>{{ row.status_effect }}</td>
+                    <td>{{ row.behavior_effect }}</td>
+                    <td>{{ row.interaction_effect }}</td>
+                    <td class="{% if row.p_value < 0.05 %}stat-significant{% else %}stat-highlight{% endif %}">
+                        {{ row.p_value }}
+                    </td>
+                    <td>{{ row.n_obs }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="alert alert-info">No sensitivity analysis data available.</div>
+        {% endif %}
+    </div>
+
+    <div class="section">
+        <h2>Condition Means & Confidence Intervals</h2>
+        <div class="figure-container">
+            {% if forest_plot_img %}
+            <img src="data:image/png;base64,{{ forest_plot_img }}" alt="Forest Plot of Condition Means">
+            <div class="caption">Figure 1: Forest plot displaying mean risk-taking scores for each experimental condition with 95% confidence intervals.</div>
+            {% else %}
+            <div class="alert alert-warning">Forest plot image not generated or available.</div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>Generated automatically by the llmXive Automated Science Pipeline.</p>
+        <p>Project: PROJ-423-the-influence-of-simulated-social-status | Task: T032b</p>
+    </div>
+</body>
+</html>

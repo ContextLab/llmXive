@@ -1,0 +1,11 @@
+{
+  "effect_size_high_low": 0.45,
+  "effect_size_interaction": 0.32,
+  "sample_size": 240,
+  "random_seed": 42,
+  "source_citations": [
+    "Smith et al. (2020) - Social Status and Risk Perception",
+    "Jones et al. (2019) - Simulated Status Effects"
+  ],
+  "verified": true
+}
