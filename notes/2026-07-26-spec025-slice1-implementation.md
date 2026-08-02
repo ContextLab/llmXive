@@ -558,3 +558,61 @@ work that was untracked at session start; `8097c5b183` swept it in and `git rm -
 put it back to untracked (contents never inspected or altered). It is still in that
 commit's history — if the branch is squashed or rebased at PR time, confirm it does not
 reappear in the tree.
+
+## Slice 2, Task 1 — spec rev 23 (2026-08-02)
+
+Rev 23 lands before any Slice-2 code, as every prior round has. Its cause is different from
+the last one: **rev 22's text was largely sound; the Slice-2 PLAN was drafted on a false
+premise about the store.** The draft assumed the coordinator stream and each Problem stream
+lived on separate refs. They are subtrees of ONE ref (`lane_log._log_ref`), which means a
+commit can touch several streams at once under a single ref compare-and-swap. Two things
+the draft was about to write into the spec were therefore simply untrue — an "honest limit"
+that the generation check is advisory, and a compensating `ClaimReleasedByReclaimer`
+transition to repair a terminal-without-release wedge. The first became BINDING; the second
+was deleted, because the state it repaired is unreachable once terminal and release are one
+transaction.
+
+**What was a plan defect, and what was a spec defect.** Worth separating, because the two
+have different lessons.
+
+Plan defects: the false premise above; writing `PromotionObserved` as a coordinator-only
+append *after* the transaction mechanism already existed; and an invariant claiming "a crash
+at ANY seam leaves no events", which is false after a successful push and contradicted the
+plan's own `_after_push` test.
+
+Spec defects, all four genuine and all found by reading the spec against the plan:
+1. The `PromotionObserved` row described "one coordinator CAS" and a `merged+monitoring`
+   state. It is a three-event cross-stream transaction. Now `†◇`, `To` = `monitoring`, with
+   an explicit `MonitorStarted` ownership precondition — which is also what makes the two
+   coordinator events' ORDER semantically required rather than conventional.
+2. The `†` paragraph tied claim release to pre-merge off-ramps and to terminals. Both false:
+   `PromotionObserved` releases without being terminal, and several `†` rows are reachable
+   from pre-claim states where there is nothing to release. Effects are CONDITIONAL, and the
+   condition is read from the Attempt's own state, never from the coordinator.
+3. `last_autonomous_merge_at` was a bare field name in three places with no definition.
+4. FR-036 bounded no clock regression at all.
+
+**Two things the plan asked for that the spec did not contain.** Recorded because a plan
+step whose premise is wrong is worth catching at execution rather than propagating:
+- Step 2 said to put the terminal-and-release note "under the transition table" while Step
+  2b said to put the matrix "into FR-035, immediately after the note above". Both are in
+  FR-035 (normative content belongs with the requirement), with the marker legend under the
+  table pointing there.
+- Step 2c said to REPLACE a sentence claiming `last_autonomous_merge_at` advances
+  monotonically. No such sentence existed — the claim was in the review discussion, not in
+  the spec. The definition was ADDED to FR-007 instead, which is what the step was for.
+
+**Also corrected while making the table machine-comparable.** The plan's Step 2b edit 2 says
+to delete "the trailing sentence" describing `PromotionObserved` as a single coordinator
+CAS. That sentence had two clauses joined by a semicolon, and the first — that the
+intent/observed split closes the crash gap between the side effect and the recorded state —
+is still true. It was restored as its own sentence, with a parenthetical recording what was
+removed and why.
+
+The half-open interval `[N, N+1)` in the new FR-036 sampling text was rewritten as prose:
+correct notation, but its unbalanced `)` defeats the paren-balance check the plan's Step 6
+runs, and a check that has to be special-cased stops being a check.
+
+**Deferred, not skipped.** Step 6's second command runs `parse_spec_transitions()` against
+the amended table. That helper is written in Task 4, so the command runs at Task 4 Step 5.
+The first command passed here: 28 rows, every row exactly 6 fields, parens balanced.
