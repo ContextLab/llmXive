@@ -1,11 +1,11 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: Cleaned Experimental Data Schema
-description: Schema for the processed data file used in the Fixed-Effects Linear Model analysis.
+description: Schema for the processed data file used in the analysis.
 type: object
 properties:
   participant_id:
-    type: string
-    description: "Unique identifier for the participant (UUID)."
+    type: integer
+    description: "Unique identifier for the participant."
   status_level:
     type: string
     description: "Experimental status cue."
@@ -30,4 +30,5 @@ required:
   - status_level
   - observed_behavior
   - risk_taking_score
+  - is_outlier
 additionalProperties: false

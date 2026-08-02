@@ -1,99 +1,73 @@
-# Quickstart: The Influence of Simulated Social Status on Risk-Taking Behavior
+# Quickstart: Simulated Social Status & Risk-Taking
 
 ## Prerequisites
 - Python 3.11+
 - Git
-- Access to a terminal (Linux/macOS/WSL)
+- Access to a GitHub Actions runner (or local environment with same dependencies).
 
 ## Installation
+1. **Clone the repository**:
+   ```bash
+   git clone <repo-url>
+   cd projects/PROJ-423-the-influence-of-simulated-social-status
+   ```
 
-1.  **Clone the repository**:
-    ```bash
-    git clone <repository-url>
-    cd projects/PROJ-423-the-influence-of-simulated-social-status
-    ```
+2. **Create a virtual environment**:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
 
-2.  **Create a virtual environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
-
-3.  **Install dependencies**:
-    ```bash
-    pip install -r code/requirements.txt
-    ```
+3. **Install dependencies**:
+   ```bash
+   pip install -r code/requirements.txt
+   ```
 
 ## Running the Pipeline
 
-The pipeline consists of three main steps: Data Generation, Analysis, and Reporting.
-
-### Step 1: Generate Synthetic Data
-This step creates the experimental dataset based on pre-registered meta-analytic effect sizes (N=800).
+### 1. Run Power Analysis
+Calculates the required sample size for [deferred] power.
 ```bash
-python code/generate_data.py
+python code/power_analysis.py
 ```
-- **Output**: `data/raw/synthetic_data.csv`
-- **Note**: This script uses a fixed random seed for reproducibility.
+*Output*: Updates `code/config.py` with the calculated `N_PARTICIPANTS`.
 
-### Step 2: Preprocess Data
-This step cleans the data, handles missing values, and prepares it for analysis.
+### 2. Generate Data
+Simulates the dataset based on the calculated N and hypothesized effect sizes.
+```bash
+python code/simulate.py
+```
+*Output*: `data/raw/simulation_output.csv`
+
+### 3. Preprocess Data
+Cleans data, handles missing values, and validates structure.
 ```bash
 python code/preprocess.py
 ```
-- **Input**: `data/raw/synthetic_data.csv`
-- **Output**: `data/processed/cleaned_data.csv`
+*Output*: `data/processed/cleaned_data.csv`
 
-### Step 3: Run Analysis & Sensitivity Check
-This step fits the **Fixed-Effects Linear Model (ANOVA)**, calculates VIF, and runs the sensitivity sweep.
+### 4. Run Analysis
+Fits the appropriate model (OLS or LMM based on data structure), calculates VIF, and runs sensitivity analysis. **This step also dynamically generates `structure_config.json`.**
 ```bash
 python code/analysis.py
 ```
-- **Input**: `data/processed/cleaned_data.csv`
-- **Output**:
-  - `data/results/model_summary.json`
-  - `data/results/sensitivity_analysis.csv`
-  - `data/results/vif_report.json`
+*Output*: Model summaries, VIF report, sensitivity tables, `data/processed/structure_config.json`.
 
-### Step 4: Generate Report
-This step creates the forest plot and final HTML report.
+### 5. Generate Report
+Creates the forest plot and final summary.
 ```bash
 python code/report.py
 ```
-- **Input**: Model results from Step 3.
-- **Output**:
-  - `data/results/forest_plot.png`
-  - `data/results/report.html`
+*Output*: `data/processed/report.html`, `data/processed/forest_plot.png`
 
 ## Verification
-
-To verify the pipeline runs correctly on a fresh environment:
-
-1.  **Check Data Integrity**:
-    ```bash
-    python -c "import json; print(json.load(open('data/checksums.json')))"
-    ```
-    Ensure checksums match the files in `data/raw/` and `data/processed/`.
-
-2.  **Run Unit Tests**:
-    ```bash
-    pytest tests/unit/
-    ```
-
-3.  **Run Contract Tests**:
-    ```bash
-    pytest tests/contract/
-    ```
-    This validates that the output data matches the schemas defined in `contracts/`.
+Run the test suite to ensure all contracts are met:
+```bash
+pytest tests/ -v
+```
+*Expected*: All contract tests pass, specifically `test_model_output.py` which validates `structure_config.json` against `contracts/model_output.schema.yaml`.
 
 ## Troubleshooting
-
-- **Memory Error**: If the analysis fails due to memory constraints, reduce the `N` parameter in `code/generate_data.py` (e.g., `N=500`).
-- **Missing Dependencies**: Ensure `statsmodels` and `scikit-learn` are installed.
-- **Schema Validation Failure**: Check that `data/processed/cleaned_data.csv` has the correct column names and types as defined in `contracts/data.schema.yaml`.
-
-## Next Steps
-- Review the generated `report.html` for the forest plot and statistical summary.
-- Examine `data/results/sensitivity_analysis.csv` to verify the stability of the interaction effect.
-- Verify that the **Recovered Estimate** is within the 95% CI of the **Injected Parameter** (Parameter Recovery Study).
-- Submit results for `research_review` stage.
+- **Missing `structure_config.json`**: Ensure `code/analysis.py` runs successfully. The file is generated dynamically from the data, not hardcoded.
+- **Model Convergence Warning**: Check `data/processed/cleaned_data.csv` for collinearity. The script should automatically switch to a fixed-effects model if random effects cause singular fit.
+- **Outlier Threshold Error**: Verify that `code/analysis.py` sweeps the thresholds {2.5, 3.0, 3.5} correctly.

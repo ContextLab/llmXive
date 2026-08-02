@@ -1,0 +1,13 @@
+status: none
+intent: social status risk taking meta analysis dataset download csv site:osf.io python
+  package dataset
+required_fields:
+- participant_id
+- status_level
+- risk_behavior
+- risk_score
+- subject_type
+- missing_indicator
+cache_key: ee62f70fe26e7058f52904a7103186c0b3864f365fe1a5d8582b9f483b94b100
+searched_at: '2026-08-02T12:37:44.406911+00:00'
+retry_count: 1

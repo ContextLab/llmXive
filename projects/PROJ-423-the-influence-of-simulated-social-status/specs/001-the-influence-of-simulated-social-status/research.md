@@ -1,83 +1,75 @@
-# Research: The Influence of Simulated Social Status on Risk-Taking Behavior
+# Research: Simulated Social Status & Risk-Taking
 
 ## Research Question
-Does observing higher-status agents engaging in risky behavior increase an individual's subsequent risk-taking, and does observing lower-status agents engaging in risky behavior decrease it?
+**Primary Question**: Does the experimental design (Status × Behavior) have sufficient statistical power to detect a hypothesized interaction effect on risk-taking?
+**Context**: While the ultimate scientific question is "Does observing higher-status agents engaging in risky behavior increase an individual's subsequent risk-taking?", this project uses simulation to **validate the methodology and determine sample size requirements** for a future empirical study. The simulation results confirm the *pipeline's capability* to detect the effect, not the *existence* of the effect in the real world.
 
-## Methodology Overview
-Given the lack of a single public dataset with a fully crossed factorial design (Status × Observed Behavior), this project adopts **Method A**: Simulation of a synthetic dataset based on meta-analytic effect sizes. This approach allows for strict control over experimental conditions (randomization) and ensures the causal hypothesis can be tested without the confounding variables present in observational data.
+## Theoretical Background
+Social status cues significantly influence risk perception and decision-making. High-status individuals are often perceived as more competent, potentially leading to "status-contagion" where their risky behavior is interpreted as calculated and safe. Conversely, low-status individuals engaging in risk may be viewed as desperate or reckless, leading observers to adopt conservative strategies. This study aims to quantify the interaction effect between `status_level` (High/Low) and `observed_behavior` (Risky/Conservative) on `risk_taking_score`.
 
-**Study Type**: Parameter Recovery Study (Methodological Validation).
-**Goal**: To validate that the statistical analysis pipeline can accurately recover known, injected effect sizes. The "ground truth" is the injected parameter; success is measured by **Recovery Accuracy**, not statistical significance against zero.
-
-### Why Simulation?
-1. **Experimental Control**: Allows for perfect randomization of `status_level` and `observed_behavior`, satisfying **Constitution Principle VI**.
-2. **Data Availability**: No verified public dataset exists with the specific interaction of interest (see "Dataset Strategy" below).
-3. **Reproducibility**: Synthetic data generation is deterministic when seeds are pinned, satisfying **Constitution Principle I**.
+**Limitations**: The findings from this simulation are strictly methodological. They demonstrate that *if* the hypothesized effect size exists in the population, the proposed experimental design and statistical pipeline are capable of detecting it. They do not provide empirical evidence for the existence of the effect itself.
 
 ## Dataset Strategy
 
+### Primary Strategy: Simulation (FR-001)
+Given the unavailability of a single public dataset with a fully crossed factorial design (Status × Behavior), this project will **simulate a synthetic dataset**.
+- **Methodology**: Data will be generated using `numpy` and `pandas` based on *hypothesized* effect sizes derived from meta-analyses of social status and risk-taking literature.
+- **Variables**:
+  - `participant_id`: Unique identifier.
+  - `status_level`: Categorical (High, Low). Randomly assigned.
+  - `observed_behavior`: Categorical (Risky, Conservative). Randomly assigned.
+  - `risk_taking_score`: Continuous or Binary, depending on the simulated instrument (e.g., BART pumps or binary choice).
+- **Validity**: The simulation parameters (means, standard deviations, interaction effect sizes) will be set to reflect plausible effect sizes found in psychological literature (e.g., Cohen's d ~ 0.5 for main effects, smaller for interactions). **These parameters are treated as hypothetical for the purpose of power analysis and pipeline testing.**
+- **Feasibility**: Simulation requires negligible compute resources and fits entirely within the GitHub Actions memory limits. It avoids the "fatal feasibility flaw" of attempting to scrape gated datasets.
+
+### Alternative Strategy: Meta-Analysis (FR-001b)
+If simulation is deemed insufficient for a specific sub-question, the project will aggregate data from separate randomized trials. However, this requires identifying multiple open-access studies with compatible variables. Given the specificity of the interaction, **Simulation is the primary and preferred strategy**.
+
 ### Verified Datasets
-The following datasets were reviewed for potential use but **rejected** for this specific factorial design:
-- **VIF (parquet)**: ` - Contains fact-checking data, not social status/risk experiments.
-- **NOT (zip)**: ` - Contains code graph data, irrelevant.
-- **Liber Primus**: ` - Decoded text, irrelevant.
-- **Food/Not Food**: ` - Image classification, irrelevant.
+No open, directly-downloadable dataset exists that contains the specific fully crossed design required (Status × Behavior × Risk Outcome).
+- **Note**: The "Verified datasets" block provided in the system prompt lists datasets (VIF, NOT) that are unrelated to social psychology or risk-taking. These are **not** used for this project.
+- **Decision**: Proceed with **Simulation** as the only scientifically valid and computationally feasible approach for this methodology validation study.
 
-**Conclusion**: No verified dataset contains the required variables (`status_level`, `observed_behavior`, `risk_taking_score`) in a crossed factorial design. Therefore, the project proceeds with **synthetic data generation** as per **FR-001(a)**.
-
-### Simulation Parameters (Pre-Registered)
-The synthetic data will be generated using parameters derived from meta-analytic effect sizes in social psychology literature. These parameters are **fixed** before code generation to avoid fishing expeditions.
-
-1. **Status Influence**: Effect size of status cues on risk perception (Cohen's d = 0.45). Source: [Smith et al., Meta-Analysis of Social Status].
-2. **Social Contagion**: Effect size of observed behavior on subsequent action (Cohen's d = 0.35). Source: [Jones & Lee,, Risk Contagion Review].
-3. **Interaction**: Anticipated interaction effect (Status × Behavior) based on theoretical models of social learning (Cohen's d = 0.30). Source: [Brown et al.,, Interaction Effects in Social Learning].
-4. **Variance**: Residual variance set to 1.0 (standardized).
-5. **Design**: **Between-Subjects** (one observation per participant).
-
-*Note: These specific values are recorded in `research.md` and will be used as the "ground truth" for the Parameter Recovery Study.*
-
-## Statistical Approach
+## Statistical Methodology
 
 ### Model Specification
-The primary analysis will use a **Fixed-Effects Linear Model (ANOVA)**.
-$$ \text{RiskScore} \sim \text{Status} \times \text{Behavior} $$
+- **Model Type**: 
+  - **Between-Subjects**: Ordinary Least Squares (OLS) / Fixed-Effects ANOVA. Formula: `risk_taking ~ status_level * observed_behavior`.
+  - **Within-Subjects**: Linear Mixed Model (LMM). Formula: `risk_taking ~ status_level * observed_behavior + (1|participant_id)`.
+- **Automatic Detection**: The code will inspect the data structure (unique `participant_id` count vs. total rows) to select the appropriate model.
+- **Family**:
+  - `gaussian` (Linear) if `risk_taking_score` is continuous.
+  - `binomial` (Logistic) if `risk_taking_score` is binary.
+- **Rationale**: Using LMM for purely between-subjects data (one observation per participant) leads to singular fit errors and meaningless variance estimates. OLS is the statistically correct choice for the default between-subjects simulation.
 
-- **Fixed Effects**: `status_level` (High/Low), `observed_behavior` (Risky/Conservative), and their interaction.
-- **Random Effects**: **None**. The design is Between-Subjects (one row per participant). Adding a random intercept for `participant_id` would result in a singular fit and is mathematically invalid.
-- **Family**: `gaussian` (Linear Model) as `risk_taking_score` is continuous.
+### Power & Sample Size (Addressing Methodology Concern)
+- **Procedure**: Before main data generation, `power_analysis.py` will perform a power analysis using `statsmodels.stats.power`.
+- **Target**: [deferred] power (0.80) to detect the hypothesized interaction effect size (e.g., Cohen's f = 0.25) at alpha = 0.05.
+- **Output**: The calculated sample size (N) will be written to `code/config.py` and used as the seed for the main simulation. This ensures the study is neither underpowered nor overpowered.
 
-### Handling Multicollinearity
-- **VIF Calculation**: Variance Inflation Factors will be calculated for all fixed effects. A threshold of VIF > 5.0 will flag potential multicollinearity (**FR-004**).
-- **Design**: The simulation will ensure orthogonality between `status_level` and `observed_behavior` to minimize inherent collinearity.
+### Handling Multicollinearity (FR-004)
+- **VIF Calculation**: Variance Inflation Factors will be calculated for all fixed effects.
+- **Threshold**: VIF > 5.0 will trigger a warning.
+- **Design Control**: Since the simulation uses random assignment, predictors are expected to be orthogonal, minimizing VIF naturally.
 
-### Sensitivity Analysis
-- **Outlier Threshold**: The analysis will sweep outlier exclusion thresholds at 2.5, 3.0, and 3.5 standard deviations from the cell mean (**FR-005**).
-- **Metric**: Stability of the interaction term estimate across thresholds.
+### Sensitivity Analysis (FR-005)
+- **Procedure**: The outlier exclusion threshold will be swept across {2.5, 3.0, 3.5} standard deviations from the cell mean.
+- **Output**: A table reporting the interaction coefficient and p-value for each threshold.
+- **Robustness**: If the interaction remains significant (p < 0.05) across all thresholds, the *pipeline* is considered robust to outlier definitions.
 
-### Post-Hoc Analysis
-- **Correction**: Bonferroni correction applied to all pairwise comparisons to control family-wise error rate (**FR-006**).
+### Post-Hoc Analysis (FR-006)
+- **Correction**: Bonferroni correction will be applied to all pairwise comparisons of the four condition combinations.
+- **Reporting**: Adjusted p-values will be reported regardless of the primary interaction significance.
 
-## Power Analysis & Sample Size
-- **Goal**: Achieve [deferred] power to detect the pre-defined interaction effect (Cohen's d = 0.30).
-- **Method**: Power analysis conducted using `statsmodels.stats.power` for a 2x2 ANOVA.
-- **Result**: **N = 800** (200 participants per cell) is required.
-- **Constraint**: Must run within 6 hours on 2 CPU cores. N=800 is computationally trivial for a linear model.
+## Compute Feasibility & Escape Hatch
+- **CPU-First**: All steps (simulation, cleaning, regression, plotting) are computationally lightweight and will run on the GitHub Actions CPU runner.
+- **GPU Escape Hatch**: Not required. No deep learning or transformer models are used.
+- **Memory**: The simulated dataset will be kept in memory (RAM < 1GB). No streaming is required for the simulated data.
 
-## Statistical Rigor Checklist
-- [x] **Multiple Comparison Correction**: Bonferroni applied for post-hoc tests (**FR-006**).
-- [x] **Sample Size**: Power analysis conducted; N=800 fixed.
-- [x] **Causal Inference**: Claims framed as causal due to randomized simulation design.
-- [x] **Measurement Validity**: Synthetic data parameterized based on validated instruments (e.g., BART).
-- [x] **Collinearity**: VIF calculated and reported; design ensures orthogonality.
-- [x] **Parameter Recovery**: Success criteria defined as "Recovered estimate within 95% CI of injected parameter".
-
-## Decision Rationale
-**Decision**: Use synthetic data generation (Parameter Recovery Study) instead of meta-analysis of existing studies.
-**Rationale**:
-1. **Data Gap**: No verified dataset exists with the specific crossed design required.
-2. **Feasibility**: Meta-analysis of separate studies would require aggregating heterogeneous datasets with different measures, introducing noise and potential bias.
-3. **Control**: Simulation allows for a "clean" test of the statistical pipeline, isolating the interaction effect without confounding variables.
-4. **Compute**: Simulation is computationally lightweight and fits within the free-tier runner constraints.
-5. **Scientific Validity**: This is a **Methodological Validation** study. We are testing if our *pipeline* works, not the psychological theory itself. The "truth" is known (injected parameter), so we can measure recovery accuracy.
-
-**Constraint**: The validity of the results depends entirely on the accuracy of the effect sizes used in the simulation. This limitation is acknowledged and mitigated by citing the literature used for parameterization.
+## Risk Management
+- **Risk**: Simulation parameters may not reflect reality.
+  - **Mitigation**: Parameters will be explicitly documented as *hypothesized* values for power analysis. Sensitivity analysis will test the robustness of the findings to parameter variations.
+- **Risk**: Model convergence issues.
+  - **Mitigation**: Use of `statsmodels` with robust standard errors. Fallback to fixed-effects model if random effects cause singular fit (though OLS is preferred for between-subjects).
+- **Risk**: Fabrication concerns.
+  - **Mitigation**: The `structure_config.json` will be generated dynamically by the `validate_data_structure` function based on the actual data loaded, **not** hardcoded. The file will contain `type` and `n_subjects` only, derived from the dataset.
