@@ -9,78 +9,56 @@ submitter: llmxive-preprint-followup
 
 ## Research question
 
-Does a lightweight, CPU-tractable model trained on static visual features and metadata of egocentric video segments predict the step-level noise magnitude of pseudo-actions with sufficient accuracy to replace complex, GPU-intensive reliability estimation during Vision-Language-Action (VLA) pretraining?
+What is the intrinsic information-theoretic limit of static visual cues in predicting human action reliability in egocentric video, and at what point does temporal context provide strictly non-redundant information that static features cannot capture?
 
 ## Motivation
 
-Current VLA pretraining frameworks like ACE-Ego-0 rely on computationally expensive, often GPU-bound heuristics to estimate the reliability of human pseudo-actions in real-time, creating a bottleneck for resource-constrained researchers scaling datasets. A lightweight "Reliability Proxy" that accurately predicts noise magnitude using only static visual cues would democratize the generation of high-fidelity, pre-filtered training data, enabling rapid dataset curation on standard hardware without sacrificing model performance.
+Current VLA pretraining frameworks like ACE-Ego-0 rely on computationally expensive, GPU-bound dynamic heuristics to estimate pseudo-action reliability, creating a bottleneck for scaling datasets on resource-constrained hardware. If static visual features (e.g., scene clutter, hand visibility) can predict the *upper bound* of achievable reliability, researchers could implement lightweight, CPU-only pre-filtering pipelines. This would democratize high-fidelity dataset curation, allowing rapid iteration without sacrificing the downstream model performance typically achieved by dynamic sequence estimators.
 
 ## Related work
 
-- [ACE-Ego-0: Unifying Egocentric Human and Robotic Data for VLA Pretraining](https://arxiv.org/abs/2606.17200) — Establishes the baseline for unifying human and robot data via camera-space actions and reliability-aware loss, providing the specific "ground truth" noise metrics and pseudo-action labels required to train our proposed proxy.
-- [HumanScale: Egocentric Human Video Can Outperform Real-Robot Data for Embodied Pretraining](https://arxiv.org/abs/2606.20521) — Demonstrates the critical value of large-scale egocentric data for embodied models, supporting the necessity of efficient filtering mechanisms to maximize the utility of such massive, noisy datasets.
-- [BLURR: A Boosted Low-Resource Inference for Vision-Language-Action Models](https://arxiv.org/abs/2512.11769) — Highlights the broader community need for low-resource inference and training strategies in VLA systems, validating the motivation to shift heavy computational burdens (like reliability estimation) to lightweight CPU-based alternatives.
+- [ACE-Ego-0: Unifying Egocentric Human and Robotic Data for VLA Pretraining](https://arxiv.org/abs/2606.17200) — Establishes the baseline for unifying human and robot data via camera-space actions and reliability-aware loss, providing the ground-truth noise metrics and pseudo-action labels required to train our proposed static proxy.
+- [Scalable Vision-Language-Action Model Pretraining for Robotic Manipulation with Real-Life Human Activity Videos](https://arxiv.org/abs/2510.21571) — Demonstrates the efficacy of using large-scale unscripted human activity videos for VLA pretraining, highlighting the critical need for robust, scalable filtering mechanisms to handle the inherent noise in such datasets.
+- [Robot Learning from Human Videos: A Survey](https://arxiv.org/abs/2604.27621) — Reviews the state-of-the-art in learning robot skills from human video, identifying data reliability and alignment as primary challenges that motivate the search for efficient, static-feature-based reliability estimators.
 
 ## Expected results
 
-We expect the CPU-based reliability proxy to achieve a correlation coefficient of >0.85 with the original GPU-derived noise estimates, allowing the resulting "hard-thresholded" dataset to yield VLA models within 2-3% performance of the full reliability-aware baseline on RoboCasa and RoboTwin benchmarks. Success would be confirmed if the proxy-based curation reduces data preparation time by an order of magnitude while maintaining comparable downstream task success rates, whereas failure would manifest as a significant performance drop (>5%) indicating that static features cannot capture dynamic reliability cues.
+We expect the static visual proxy to explain a significant proportion (>70%) of the variance in pseudo-action reliability scores, identifying a saturation point where dynamic context adds negligible predictive value for high-noise segments. Success would be confirmed if a CPU-only filter based on these static cues yields VLA models within 2-3% performance of the full dynamic baseline on RoboCasa and RoboTwin benchmarks, while failure would manifest as a significant drop (>5%) indicating that temporal dynamics are essential for distinguishing subtle reliability cues in complex scenes.
 
 ## Methodology sketch
 
 - **Data Acquisition**: Download the 1.48K hours of egocentric video segments with associated pseudo-action labels and ground-truth reliability scores (derived from the ACE-Ego-0 pipeline) from the public repository linked to the original preprint.
-- **Feature Extraction**: Compute static visual features (scene complexity via entropy, hand visibility via YOLOv8 detection scores, lighting conditions) and metadata (camera motion magnitude, frame rate) for each video segment using CPU-only libraries (OpenCV, PyTorch CPU).
-- **Proxy Training**: Train a lightweight regression model (Random Forest or shallow MLP) on a CPU to predict the Mean Squared Error (MSE) of the pseudo-actions using only the extracted static features as input, treating the ACE-Ego-0 reliability scores as the target variable.
-- **Data Filtering**: Apply the trained proxy to the full dataset to generate a "reliability mask," binning segments into high, medium, and low reliability, and create a filtered dataset excluding the bottom 20% of predicted reliability.
-- **VLA Pretraining**: Train three distinct VLA models (small OpenVLA variant) on: (A) the original dataset with ACE-Ego-0 reliability loss, (B) the full dataset with uniform weighting, and (C) the proxy-filtered dataset with hard thresholding.
-- **Independent Evaluation**: Evaluate all three models on the RoboCasa and RoboTwin benchmarks using the standard success rate metrics provided by these benchmarks, ensuring the evaluation target (task success) is independent of the training data's noise estimates.
-- **Statistical Analysis**: Perform paired t-tests on the benchmark success rates to determine if the performance difference between Strategy A (full reliability) and Strategy C (proxy filter) is statistically significant (p < 0.05).
+- **Static Feature Extraction**: Compute static visual features (scene complexity via image entropy, hand visibility via YOLOv8 detection confidence, lighting conditions, and camera metadata like frame rate) for each segment using CPU-only libraries (OpenCV, PyTorch CPU).
+- **Upper-Bound Modeling**: Train a lightweight regression model (Random Forest or shallow MLP) on a CPU to predict the ground-truth reliability score using *only* the extracted static features, treating the ACE-Ego-0 reliability scores as the target variable.
+- **Residual Analysis**: Calculate the residuals between the static model's predictions and the actual dynamic reliability scores; analyze the distribution of these residuals to identify specific visual conditions where static cues fail (i.e., where dynamic context becomes strictly necessary).
+- **Data Filtering Strategy**: Apply a hard threshold based on the static model's confidence to create a "high-reliability" subset, excluding segments predicted to be low-fidelity or where the static model's uncertainty is high.
+- **VLA Pretraining**: Train three distinct VLA models (small OpenVLA variant) on: (A) the original dataset with ACE-Ego-0 dynamic reliability loss, (B) the full dataset with uniform weighting, and (C) the static-proxy-filtered dataset.
+- **Independent Evaluation**: Evaluate all three models on the RoboCasa and RoboTwin benchmarks using standard success rate metrics, ensuring the evaluation target (task success) is independent of the training data's noise estimates.
+- **Statistical Analysis**: Perform paired t-tests on the benchmark success rates to determine if the performance difference between Strategy A (full dynamic) and Strategy C (static proxy) is statistically significant (p < 0.05), quantifying the cost of removing dynamic context.
 
 ## Duplicate-check
 
 - Reviewed existing ideas: ACE-Ego-0 extension, HumanScale analysis, BLURR low-resource inference, VLA reliability proxy.
-- Closest match: ACE-Ego-0 extension (similarity sketch: shares the core premise of improving VLA pretraining with human data, but the specific focus on a *CPU-tractable static visual proxy* to replace *dynamic reliability loss* is a novel methodological contribution not covered in the original paper or the HumanScale/BLURR works).
+- Closest match: ACE-Ego-0 extension (similarity sketch: shares the core premise of improving VLA pretraining with human data, but the specific focus on a *CPU-tractable static visual proxy* to determine the *information-theoretic limit* of dynamic context is a novel methodological contribution not covered in the original paper or the HumanScale/BLURR works).
 - Verdict: NOT a duplicate
 
 
 ## Search trail
 
-**Generated by**: librarian (prompt v1.6.0) on 2026-07-10T10:24:40Z
-**Outcome**: success_after_expansion
+**Generated by**: librarian (prompt v1.6.0) on 2026-08-02T11:34:08Z
+**Outcome**: exhausted
 **Original term**: llmXive follow-up: extending "ACE-Ego-0: Unifying Egocentric Human and Robotic Data for VLA Pretrain" computer science
-**Verified citation count**: 7
+**Verified citation count**: 4
 
 ### Search terms used
 
 | Rank | Term | Hit count |
 |-|-|-|
-| 0 (initial) | llmXive follow-up: extending "ACE-Ego-0: Unifying Egocentric Human and Robotic Data for VLA Pretrain" computer science | 0 |
-| 1 | unifying egocentric human and robotic data for VLA pretraining | 2 |
-| 2 | egocentric vision-language-action models | 5 |
-| 3 | cross-modal pretraining for embodied AI | 0 |
-| 4 | human-robot data unification for VLA | 0 |
-| 5 | egocentric video-language-action learning | 0 |
-| 6 | VLA pretraining with human demonstration data | 0 |
-| 7 | robotic policy learning from egocentric observations | 0 |
-| 8 | unified datasets for vision-language-action agents | 0 |
-| 9 | sim-to-real transfer in egocentric robotic learning | 0 |
-| 10 | first-person perspective data for robot manipulation | 0 |
-| 11 | large language models for robotic control with human data | 0 |
-| 12 | multimodal pretraining for embodied agents | 0 |
-| 13 | joint representation learning for human and robot actions | 0 |
-| 14 | egocentric action recognition for robotic imitation | 0 |
-| 15 | scaling VLA models with human-robot paired data | 0 |
-| 16 | embodied foundation models using egocentric streams | 0 |
-| 17 | human-robot interaction data for language-guided robots | 0 |
-| 18 | cross-embodiment transfer in vision-language-action models | 0 |
-| 19 | egocentric dataset construction for robot learning | 0 |
-| 20 | multimodal alignment of human and robotic trajectories | 0 |
+| 0 (initial) | llmXive follow-up: extending "ACE-Ego-0: Unifying Egocentric Human and Robotic Data for VLA Pretrain" computer science | 4 |
 
 ### Verified citations
 
 1. **ACE-Ego-0: Unifying Egocentric Human and Robotic Data for VLA Pretraining** (2026). Hao Li, Ganlong Zhao, Yufei Liu, Haotian Hou, Guoquan Ye, et al.. arXiv. [2606.17200](https://arxiv.org/abs/2606.17200). PDF-sampled: No.
-2. **HumanScale: Egocentric Human Video Can Outperform Real-Robot Data for Embodied Pretraining** (2026). Juncheng Ma, Jianxin Bi, Yufan Deng, Xuanran Zhai, Kewei Zhang, et al.. arXiv. [2606.20521](https://arxiv.org/abs/2606.20521). PDF-sampled: No.
-3. **Enhancing Transformer Backbone for Egocentric Video Action Segmentation** (2023). Sakib Reza, Balaji Sundareshan, Mohsen Moghaddam, Octavia Camps. arXiv. [2305.11365](https://arxiv.org/abs/2305.11365). PDF-sampled: No.
-4. **Your Vision-Language-Action Model Already Has Attention Heads For Path Deviation Detection** (2026). Jaehwan Jeong, Evelyn Zhu, Jinying Lin, Emmanuel Jaimes, Tuan-Anh Vu, et al.. arXiv. [2603.13782](https://arxiv.org/abs/2603.13782). PDF-sampled: No.
-5. **BLURR: A Boosted Low-Resource Inference for Vision-Language-Action Models** (2025). Xiaoyu Ma, Zhengqing Yuan, Zheyuan Zhang, Kaiwen Shi, Lichao Sun, et al.. arXiv. [2512.11769](https://arxiv.org/abs/2512.11769). PDF-sampled: No.
-6. **VLA-Thinker: Boosting Vision-Language-Action Models through Thinking-with-Image Reasoning** (2026). Chaoyang Wang, Wenrui Bao, Sicheng Gao, Bingxin Xu, Yu Tian, et al.. arXiv. [2603.14523](https://arxiv.org/abs/2603.14523). PDF-sampled: No.
-7. **ACoT-VLA: Action Chain-of-Thought for Vision-Language-Action Models** (2026). Linqing Zhong, Yi Liu, Yifei Wei, Ziyu Xiong, Maoqing Yao, et al.. arXiv. [2601.11404](https://arxiv.org/abs/2601.11404). PDF-sampled: No.
+2. **Enhancing Transformer Backbone for Egocentric Video Action Segmentation** (2023). Sakib Reza, Balaji Sundareshan, Mohsen Moghaddam, Octavia Camps. arXiv. [2305.11365](https://arxiv.org/abs/2305.11365). PDF-sampled: No.
+3. **Scalable Vision-Language-Action Model Pretraining for Robotic Manipulation with Real-Life Human Activity Videos** (2025). Qixiu Li, Yu Deng, Yaobo Liang, Lin Luo, Lei Zhou, et al.. arXiv. [2510.21571](https://arxiv.org/abs/2510.21571). PDF-sampled: No.
+4. **Robot Learning from Human Videos: A Survey** (2026). Junyi Ma, Erhang Zhang, Haoran Yang, Ditao Li, Chenyang Xu, et al.. arXiv. [2604.27621](https://arxiv.org/abs/2604.27621). PDF-sampled: No.
