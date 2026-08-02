@@ -24,23 +24,23 @@ description: "Task list template for feature implementation"
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 **Note on Spec vs Plan Conflict**: The Spec (FR-004, FR-005) mandates Benjamini-Hochberg (BH) FDR correction. The Plan's "Complexity Tracking" section argues for Bonferroni. As per the Constitution, the Spec is the governing requirement for implementation. Tasks T020-T023 implement BH as required by the Spec. The Plan is flagged for revision to align with the Spec.
@@ -81,16 +81,16 @@ biopython
  1. Calculate power using non-central chi-squared distribution.
  2. If n < 80: HALT with error code `ERR_SAMPLE_SIZE_INSUFFICIENT`.
  3. If n >= 80: Calculate power.
- 4. **CRITICAL**: If Power < 0.20: REPORT the power value but DO NOT HALT. The Spec requires reporting power if n >= 80 regardless of the value.
- 5. If Power >= 0.20: Report the calculated power for detecting large effect sizes (OR >= 2.5) at alpha=0.05.
+ 4. **CRITICAL**: If Power < 0.20: REPORT the power value but DO NOT HALT. [UNRESOLVED-CLAIM: c_9976ef5b — status=not_enough_info] The Spec requires reporting power if n >= 80 regardless of the value.
+ 5. If Power >= 0.20: Report the calculated power for detecting large effect sizes (OR >= 2.5) at alpha=0.05. [UNRESOLVED-CLAIM: c_b26125cd — status=not_enough_info]
  6. Output: Write power value and status to `data/processed/power_analysis.txt`.
 - [X] T006 [P] Implement `code/utils/collinearity_diag.py` for FR-010 (VIF calculation, correlation matrix)
 - [X] T007 [P] Create base data schema validators for `Colony` and `SNP` entities: create `code/utils/validators/colony_schema.py` and `code/utils/validators/snp_schema.py` based on `specs/001-gene-regulation/contracts/dataset.schema.yaml` and `specs/001-gene-regulation/contracts/gwas_output.schema.yaml`
 - [X] T008 [P] Create `.env.example` with keys `NCBI_API_KEY`, `ENSEMBL_API_KEY` and default values for SSL CA bundle paths
-- [X] T009 [P] Implement `code/00_generate_synthetic_data.py` to create deterministic synthetic VCF + Phenotypes for validation. MUST implement CCD diagnosis validation logic that explicitly checks:
+- [X] T009 [P] Implement `code/00_generate_synthetic_data.py` to create deterministic synthetic VCF + Phenotypes for validation. MUST implement CCD diagnosis validation logic that explicitly checks: <!-- FAILED: unspecified -->
  1. Presence of dead adult bees in the hive.
  2. Absence of dead pupae.
- 3. Live bee population < 10% relative to peak season.
+ 3. Live bee population < 10% relative to peak season. [UNRESOLVED-CLAIM: c_e43c4ead — status=not_enough_info]
  Logic MUST fail validation if any of these criteria are not met in the synthetic data generation process (FR-011).
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -126,10 +126,10 @@ biopython
  - **MUST NOT** use random noise or synthetic generation as a fallback for large datasets.
  6. **Output Artifacts**:
  - `data/raw/ncbi_metadata.json`: A JSON file containing:
-   - `total_samples`: integer
-   - `samples_with_varroa`: integer
-   - `fetch_status`: "success"
-   - `checksum`: string
+ - `total_samples`: integer
+ - `samples_with_varroa`: integer
+ - `fetch_status`: "success"
+ - `checksum`: string
  - `data/raw/real_data.vcf`: The downloaded VCF file.
  - **Depends on**: None.
 - [X] T012b [P] [US1] Implement `code/01_varroa_check.py` to validate Varroa data coverage (FR-001, Assumption 1).
@@ -186,7 +186,7 @@ biopython
  - Logic: Calculate VIF using `code/utils/collinearity_diag.py` (T006).
  - **Condition**: If VIF >= 5 (inclusive boundary):
  - Log "High collinearity detected (VIF >= 5). Documenting as per Spec FR-010."
- - Identify specific pairs with correlation > 0.8.
+ - Identify specific pairs with correlation > 0.8. [UNRESOLVED-CLAIM: c_533b6886 — status=not_enough_info]
  - **Output**: Generate `data/processed/model_config.yaml` containing:
  - `strategy`: "Covariates" (Default, but flexible)
  - `covariate_columns`: ["geographic_region", "sampling_year", "Varroa_mite_count"]
@@ -227,7 +227,7 @@ biopython
  - **Output**: Write q-values to `data/interim/gwas_raw_fdr.tsv` (appending column).
  - **Verification**: Verify `data/interim/gwas_raw_fdr.tsv` exists and contains the `q_value` column.
  - **Depends on**: T017, T052.
-- [X] T022 [US1] Create `code/04_apply_fdr.sh` to merge PLINK raw results (T017) with FDR-corrected results (T020) into the final artifact `data/processed/gwas_results_fdr.tsv`.
+- [ ] T022 [US1] Create `code/04_apply_fdr.sh` to merge PLINK raw results (T017) with FDR-corrected results (T020) into the final artifact `data/processed/gwas_results_fdr.tsv`.
  - **Implementation**:
  1. Read `data/interim/gwas_raw.tsv` (Output of T017).
  2. Read `data/interim/gwas_raw_fdr.tsv` (Output of T020).
@@ -359,7 +359,7 @@ biopython
 - [X] T044 [P] Implement `code/06_edge_case_handler.py` to explicitly handle missing Varroa metadata (Assumption 1):
  - Read metadata from T009/T012a.
  - **Mandatory**: If < 80% of the total cohort has Varroa data (i.e., > 20% missing), raise `ERR_VARROA_COVARIATE_MISSING` and halt.
- - **Mandatory**: If missing for <= 20%, exclude those samples from the covariate model but retain for genotype-only analysis.
+ - **Mandatory**: If missing for <= 20%, exclude those samples from the covariate model but retain for genotype-only analysis. [UNRESOLVED-CLAIM: c_c82592fb — status=not_enough_info]
  - Log all exclusions to `data/processed/exclusion_log.txt`.
  - **Output Schema**: `exclusion_log.txt` must be a CSV with columns: `sample_id`, `reason`.
 - [X] T047 [P] [Polish] Implement `code/07_runbook_generator.py` to generate a deterministic execution runbook for GitHub Actions (FR-004, US-1 AC3).
@@ -527,7 +527,7 @@ With multiple developers:
 - **Note**: T055 is superseded by T012a. Logic integrated.
 - **Note**: T056 is superseded by T012a. Logic integrated.
 - **Note**: T057 is superseded by T043. Logic integrated.
-- [ ] T059 [P] [Review Fix] Update `code/01_download.py` (T012a) to explicitly log the exact number of samples with Varroa data vs total samples before the `ERR_VARROA_COVARIATE_MISSING` check.
+- [X] T059 [P] [Review Fix] Update `code/01_download.py` (T012a) to explicitly log the exact number of samples with Varroa data vs total samples before the `ERR_VARROA_COVARIATE_MISSING` check.
  - **Rationale**: Address reviewer concern about transparency in data filtering. The current task checks the percentage but doesn't log the raw counts (e.g., "85/100 samples have Varroa data").
  - **Implementation**:
  1. In `code/01_download.py`, after parsing metadata, calculate `total_samples` and `samples_with_varroa`.
@@ -535,7 +535,7 @@ With multiple developers:
  3. If the percentage is < 80%, the error message `ERR_VARROA_COVARIATE_MISSING` MUST include these exact counts.
  - **Verification**: Verify the log output contains the raw counts and the error message includes them if the check fails.
  - **Depends on**: T012a.
-- [ ] T060 [P] [Review Fix] Update `code/04_ml_validation.py` (T027) to explicitly report the number of SNPs used in the LASSO model.
+- [X] T060 [P] [Review Fix] Update `code/04_ml_validation.py` (T027) to explicitly report the number of SNPs used in the LASSO model.
  - **Rationale**: Address reviewer concern about model transparency. The current task reports AUC but not the feature count (which is critical for interpreting the model in a high-dimensional setting).
  - **Implementation**:
  1. In `code/04_ml_validation.py`, after fitting the LASSO model, count the number of non-zero coefficients.
@@ -543,7 +543,7 @@ With multiple developers:
  3. Log "LASSO selected {num_features_selected} SNPs out of {total_snps} candidates."
  - **Verification**: Verify the JSON output contains the `num_features_selected` key and the log message is present.
  - **Depends on**: T022, T027.
-- [ ] T061 [P] [Review Fix] Update `code/05_annotation.py` (T032) to handle "no gene found" cases explicitly.
+- [X] T061 [P] [Review Fix] Update `code/05_annotation.py` (T032) to handle "no gene found" cases explicitly. <!-- ATOMIZE: requested -->
  - **Rationale**: Address reviewer concern about edge cases in annotation. The current task sets `go_terms` to "UNAVAILABLE" on API failure, but doesn't handle cases where the API succeeds but no gene is found for a specific SNP.
  - **Implementation**:
  1. In `code/05_annotation.py`, after querying the API, check if a gene symbol is returned.
@@ -552,3 +552,15 @@ With multiple developers:
  4. Ensure the output file `data/processed/annotated_snps.tsv` contains these rows with the correct markers.
  - **Verification**: Verify the TSV contains rows with `gene_symbol` = "INTERGENIC" and `go_terms` = "N/A".
  - **Depends on**: T022, T032.
+
+<!-- auto-added by the execution fix loop: run-book / implementation path mismatch (a quickstart command names a script no task created) -->
+- [X] T062 Reconcile run-book vs implementation for `code/02_harmonize_phenotypes.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/02_harmonize_phenotypes.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
+- [ ] T063 Reconcile run-book vs implementation for `code/04_filter_snps.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/04_filter_snps.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
+- [ ] T064 Reconcile run-book vs implementation for `code/05_collinearity_diag.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/05_collinearity_diag.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
+- [ ] T065 Reconcile run-book vs implementation for `code/06_power_analysis.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/06_power_analysis.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
+- [ ] T066 Reconcile run-book vs implementation for `code/08_apply_fdr.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/08_apply_fdr.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
+- [ ] T067 Reconcile run-book vs implementation for `code/09_threshold_sensitivity.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/09_threshold_sensitivity.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
+- [ ] T068 Reconcile run-book vs implementation for `code/10_lasso_validation.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/10_lasso_validation.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
+- [ ] T069 Reconcile run-book vs implementation for `code/11_prs_and_lr_test.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/11_prs_and_lr_test.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
+- [ ] T070 Reconcile run-book vs implementation for `code/12_annotate_genes.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/12_annotate_genes.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
+- [ ] T071 Reconcile run-book vs implementation for `code/13_format_results.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/13_format_results.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.

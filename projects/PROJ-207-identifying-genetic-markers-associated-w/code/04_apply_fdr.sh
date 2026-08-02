@@ -1,59 +1,65 @@
-#!/bin/bash
-# T022: Apply FDR Correction to GWAS Results
-# This script post-processes the raw GWAS output using the Benjamini-Hochberg
-# procedure implemented in code/utils/fdr_correction.py.
+#!/usr/bin/env bash
 #
-# Input:  data/interim/gwas_raw.tsv (produced by T017/code/03_gwas.py)
-# Output: data/processed/gwas_results_fdr.tsv
+# T022 – Merge PLINK raw GWAS results with FDR‑corrected results.
 #
-# Dependencies:
-#   - code/utils/fdr_correction.py (T020)
-#   - data/interim/gwas_raw.tsv (T017)
+# This script reads:
+#   data/interim/gwas_raw.tsv          – raw PLINK output (columns: SNP, CHR, POS, P, Odds_Ratio, …)
+#   data/interim/gwas_raw_fdr.tsv      – same rows with an added q_value column (produced by T020)
+#
+# It merges on the SNP identifier and writes the final artifact:
+#   data/processed/gwas_results_fdr.tsv
+#
+# Required columns in the final file:
+#   SNP, CHR, POS, P, Odds_Ratio, q_value
+#
+# The script aborts with a non‑zero exit code if inputs are missing or the merge fails.
 
-set -e
+set -euo pipefail
 
-# Define paths relative to project root
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
+RAW="data/interim/gwas_raw.tsv"
+FDR="data/interim/gwas_raw_fdr.tsv"
+OUT="data/processed/gwas_results_fdr.tsv"
 
-INPUT_FILE="$PROJECT_ROOT/data/interim/gwas_raw.tsv"
-OUTPUT_FILE="$PROJECT_ROOT/data/processed/gwas_results_fdr.tsv"
-FDR_SCRIPT="$PROJECT_ROOT/code/utils/fdr_correction.py"
-
-echo "=== T022: Applying FDR Correction ==="
-echo "Input:  $INPUT_FILE"
-echo "Output: $OUTPUT_FILE"
-
-# Check if input file exists
-if [ ! -f "$INPUT_FILE" ]; then
-    echo "ERROR: Input file not found: $INPUT_FILE"
-    echo "Please ensure T017 (GWAS execution) has completed successfully."
+# Verify input files exist
+if [[ ! -f "$RAW" ]]; then
+    echo "Error: Raw GWAS results not found at $RAW" >&2
     exit 1
 fi
 
-# Check if FDR script exists
-if [ ! -f "$FDR_SCRIPT" ]; then
-    echo "ERROR: FDR correction script not found: $FDR_SCRIPT"
-    echo "Please ensure T020 has been implemented."
+if [[ ! -f "$FDR" ]]; then
+    echo "Error: FDR‑corrected results not found at $FDR" >&2
     exit 1
 fi
 
-# Ensure output directory exists
-mkdir -p "$(dirname "$OUTPUT_FILE")"
+# Ensure the output directory exists
+mkdir -p "$(dirname "$OUT")"
 
-# Execute FDR correction
-# The Python script handles the BH calculation and writes the final TSV
-python "$FDR_SCRIPT" \
-    --input "$INPUT_FILE" \
-    --output "$OUTPUT_FILE"
+# Perform the merge using a short Python snippet (pandas is a project dependency)
+python - <<'PY' "$RAW" "$FDR" "$OUT"
+import sys
+import pandas as pd
 
-# Verify output was created
-if [ -f "$OUTPUT_FILE" ]; then
-    echo "SUCCESS: FDR correction complete."
-    echo "Output written to: $OUTPUT_FILE"
-    echo "Preview (first 5 lines):"
-    head -n 5 "$OUTPUT_FILE"
-else
-    echo "ERROR: Output file was not created."
-    exit 1
-fi
+raw_path, fdr_path, out_path = sys.argv[1:4]
+
+# Load input tables
+raw = pd.read_csv(raw_path, sep='\t')
+fdr = pd.read_csv(fdr_path, sep='\t')
+
+# Merge on SNP, retaining the q_value from the FDR file
+merged = pd.merge(raw, fdr[['SNP', 'q_value']], on='SNP', how='inner')
+
+# Verify required columns are present
+required = ['SNP', 'CHR', 'POS', 'P', 'Odds_Ratio', 'q_value']
+missing = set(required) - set(merged.columns)
+if missing:
+    raise ValueError(f"Missing required columns after merge: {missing}")
+
+# Order columns as specified
+merged = merged[required]
+
+# Write final TSV
+merged.to_csv(out_path, sep='\t', index=False)
+PY
+
+echo "Successfully merged GWAS results with FDR correction."
+echo "Output written to $OUT"

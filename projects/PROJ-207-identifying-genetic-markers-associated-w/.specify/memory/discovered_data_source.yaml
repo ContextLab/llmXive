@@ -1,5 +1,5 @@
 status: none
-intent: ncbi-genome-download pip package for BioProject PRJNA639195 and PRJNA566029
+intent: honeybee whole genome sequencing dataset PRJNA639195 PRJNA566029 Hugging Face
   python package dataset
 required_fields:
 - sample_id
@@ -7,13 +7,11 @@ required_fields:
 - position
 - reference_allele
 - alternate_allele
-- QUAL
-- DP
-- AF
-- genotype_calls_per_sample
-- phenotype_status
+- genotype
+- health_status
 - geographic_region
 - sampling_year
-cache_key: 4d04df80fc315563de2233dc4d04247df48509ee2ba2379cb581b0df75956e4d
-searched_at: '2026-08-01T12:37:25.997236+00:00'
+- varroa_mite_count
+cache_key: fb8c32b1b22ba1f97fe58b7618e2b511d2fc3d9a49d57139c7f1a9b23fd98b60
+searched_at: '2026-08-02T01:43:37.658309+00:00'
 retry_count: 1

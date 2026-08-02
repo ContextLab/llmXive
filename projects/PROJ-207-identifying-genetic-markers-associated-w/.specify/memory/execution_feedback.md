@@ -17,55 +17,52 @@ The gate detected that your reported numbers are NOT real measurements: they are
 - code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…"""Main entry point for synthetic data generation."""     parse…”
 - code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…umentParser(description="Generate synthetic VCF and Phenotype data f…”
 
-## ⚠ RUN-BOOK / CLI MISMATCH — the quickstart calls the script with the wrong arguments
+## ⚠ REGRESSIONS — your last fix BROKE these (they passed before)
 
-These commands did not crash on a code bug — the script's own argparse REJECTED the arguments the quickstart passed (it required flags the quickstart omitted, or the quickstart passed flags the script never declared). Re-running the identical command can NEVER pass, and editing the script's logic will NOT help: the run-book command and the script's CLI have DRIFTED. Reconcile them — either change the quickstart command to match the script's real usage, OR change the script's argparse to accept the quickstart's arguments (whichever is correct for the analysis). The script's REAL usage is shown so you can see the exact gap:
+These commands were NOT failing in the previous round and ARE failing now — your last edit broke previously-working code. REVERT or correct whatever change broke each one BEFORE touching anything else; do not trade one passing script for another (that oscillation is what burns the fix-round budget toward escalation):
 
-- run-book command: `python code/04_ml_validation.py`
-  - script usage: `04_ml_validation.py [-h] --gwas GWAS --pheno PHENO --geno GENO`
-  - argparse error: `04_ml_validation.py: error: the following arguments are required: --gwas, --pheno, --geno`
-- run-book command: `python code/05_annotation.py`
-  - script usage: `05_annotation.py [-h] --gwas GWAS [--output OUTPUT]`
-  - argparse error: `05_annotation.py: error: the following arguments are required: --gwas`
+- `python code/02_harmonize_phenotypes.py`
+- `python code/04_filter_snps.py`
+- `python code/05_collinearity_diag.py`
+- `python code/06_power_analysis.py`
+- `python code/08_apply_fdr.py`
+- `python code/09_threshold_sensitivity.py`
+- `python code/10_lasso_validation.py`
+- `python code/11_prs_and_lr_test.py`
+- `python code/12_annotate_genes.py`
+- `python code/13_format_results.py`
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 19 fabricated/simulated-result signal(s) — results are not real measurements: code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…""" Synthetic Data Generator for Honeybee C…”; code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…Validation.  This module generates deterministic synthetic VCF and Phenotype data f…”; code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…[str, Any]]:     """     Generate synthetic colony data with CCD dia…”; 3 command(s) failed: python code/01_download.py (rc=1); python code/04_ml_validation.py (rc=2); python code/05_annotation.py (rc=2); 5 declared deliverable(s) absent: data/interim/gwas_raw.tsv; data/processed/annotated_snps.tsv; data/processed/collinearity_report.tsv
+**Summary**: 15 fabricated/simulated-result signal(s) — results are not real measurements: code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…""" Synthetic Data Generator for Honeybee C…”; code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…Validation.  This module generates deterministic synthetic VCF and Phenotype data f…”; code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…[str, Any]]:     """     Generate synthetic colony data with CCD dia…”; 10 run-book script(s) missing (plan/impl path mismatch): python code/02_harmonize_phenotypes.py; python code/04_filter_snps.py; python code/05_collinearity_diag.py; 4 declared deliverable(s) absent: data/interim/gwas_raw.tsv; data/processed/annotated_snps.tsv; data/processed/gwas_results_fdr.tsv
 
 ## Failing / missing run-book commands
 
-- python code/01_download.py -> rc=1
-    Verifying SSL connection to NCBI...
-
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-207-identifying-genetic-markers-associated-w/code/01_download.py", line 262, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-207-identifying-genetic-markers-associated-w/code/01_download.py", line 213, in main
-    if not check_ssl_verification():
-           ^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-207-identifying-genetic-markers-associated-w/code/01_download.py", line 42, in check_ssl_verification
-    with context.wrap_socket(requests.get, server_hostname="www.ncbi.nlm.nih.gov") as sock:
-         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/ssl.py", line 517, in wrap_socket
-    return self.sslsocket_class._create(
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/ssl.py", line 1022, in _create
-    if sock.getsockopt(SOL_SOCKET, SO_TYPE) != SOCK_STREAM:
-       ^^^^^^^^^^^^^^^
-AttributeError: 'function' object has no attribute 'getsockopt'
-- python code/04_ml_validation.py -> rc=2
-    usage: 04_ml_validation.py [-h] --gwas GWAS --pheno PHENO --geno GENO
-                           [--output-dir OUTPUT_DIR]
-04_ml_validation.py: error: the following arguments are required: --gwas, --pheno, --geno
-- python code/05_annotation.py -> rc=2
-    usage: 05_annotation.py [-h] --gwas GWAS [--output OUTPUT]
-05_annotation.py: error: the following arguments are required: --gwas
+- python code/02_harmonize_phenotypes.py -> rc=2 [script missing]
+    /home/runner/work/llmXive/llmXive/projects/PROJ-207-identifying-genetic-markers-associated-w/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-207-identifying-genetic-markers-associated-w/code/02_harmonize_phenotypes.py': [Errno 2] No such file or directory
+- python code/04_filter_snps.py -> rc=2 [script missing]
+    /home/runner/work/llmXive/llmXive/projects/PROJ-207-identifying-genetic-markers-associated-w/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-207-identifying-genetic-markers-associated-w/code/04_filter_snps.py': [Errno 2] No such file or directory
+- python code/05_collinearity_diag.py -> rc=2 [script missing]
+    /home/runner/work/llmXive/llmXive/projects/PROJ-207-identifying-genetic-markers-associated-w/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-207-identifying-genetic-markers-associated-w/code/05_collinearity_diag.py': [Errno 2] No such file or directory
+- python code/06_power_analysis.py -> rc=2 [script missing]
+    /home/runner/work/llmXive/llmXive/projects/PROJ-207-identifying-genetic-markers-associated-w/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-207-identifying-genetic-markers-associated-w/code/06_power_analysis.py': [Errno 2] No such file or directory
+- python code/08_apply_fdr.py -> rc=2 [script missing]
+    /home/runner/work/llmXive/llmXive/projects/PROJ-207-identifying-genetic-markers-associated-w/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-207-identifying-genetic-markers-associated-w/code/08_apply_fdr.py': [Errno 2] No such file or directory
+- python code/09_threshold_sensitivity.py -> rc=2 [script missing]
+    /home/runner/work/llmXive/llmXive/projects/PROJ-207-identifying-genetic-markers-associated-w/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-207-identifying-genetic-markers-associated-w/code/09_threshold_sensitivity.py': [Errno 2] No such file or directory
+- python code/10_lasso_validation.py -> rc=2 [script missing]
+    /home/runner/work/llmXive/llmXive/projects/PROJ-207-identifying-genetic-markers-associated-w/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-207-identifying-genetic-markers-associated-w/code/10_lasso_validation.py': [Errno 2] No such file or directory
+- python code/11_prs_and_lr_test.py -> rc=2 [script missing]
+    /home/runner/work/llmXive/llmXive/projects/PROJ-207-identifying-genetic-markers-associated-w/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-207-identifying-genetic-markers-associated-w/code/11_prs_and_lr_test.py': [Errno 2] No such file or directory
+- python code/12_annotate_genes.py -> rc=2 [script missing]
+    /home/runner/work/llmXive/llmXive/projects/PROJ-207-identifying-genetic-markers-associated-w/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-207-identifying-genetic-markers-associated-w/code/12_annotate_genes.py': [Errno 2] No such file or directory
+- python code/13_format_results.py -> rc=2 [script missing]
+    /home/runner/work/llmXive/llmXive/projects/PROJ-207-identifying-genetic-markers-associated-w/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-207-identifying-genetic-markers-associated-w/code/13_format_results.py': [Errno 2] No such file or directory
 
 ## Declared deliverables still missing
 
 - data/interim/gwas_raw.tsv
 - data/processed/annotated_snps.tsv
-- data/processed/collinearity_report.tsv
 - data/processed/gwas_results_fdr.tsv
 - data/processed/threshold_sensitivity_report.tsv
 
@@ -78,12 +75,10 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/utils/fdr_correction.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/interim/gwas_raw.tsv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/annotated_snps.tsv` is declared but was NOT written. Scripts referencing it:
-    - `code/05_annotation.py` — IS a run-book command
+    - `code/05_annotation.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/annotated_snps.tsv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
-- `data/processed/collinearity_report.tsv` is declared but was NOT written. Scripts referencing it:
-    - `code/04_ml_validation.py` — IS a run-book command
-  Make ONE of these WRITE `data/processed/collinearity_report.tsv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/gwas_results_fdr.tsv` is declared but was NOT written. Scripts referencing it:
+    - `code/05_annotation.py` — NOT invoked by the run-book
     - `code/utils/threshold_sensitivity.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/gwas_results_fdr.tsv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/threshold_sensitivity_report.tsv` is declared but was NOT written. Scripts referencing it:
@@ -98,5 +93,5 @@ One or more failures are DATA-SCHEMA mismatches BETWEEN scripts that exchange a 
 
 ### `data/processed/gwas_results_fdr.tsv`
 
-This file is MISSING — it was never written, so every consumer of it fails as a CASCADE. Its producer is `code/utils/threshold_sensitivity.py`; that script failed earlier this run (fix ITS failure first) or is not in the run-book. Make the producer run cleanly and WRITE `data/processed/gwas_results_fdr.tsv`; do NOT edit the cascade-victim consumers in isolation — they clear once the producer writes the file.
-Consumers waiting on it: `code/utils/threshold_sensitivity.py`.
+This file is MISSING — it was never written, so every consumer of it fails as a CASCADE. Its producer is `code/05_annotation.py`, `code/utils/threshold_sensitivity.py`; that script failed earlier this run (fix ITS failure first) or is not in the run-book. Make the producer run cleanly and WRITE `data/processed/gwas_results_fdr.tsv`; do NOT edit the cascade-victim consumers in isolation — they clear once the producer writes the file.
+Consumers waiting on it: `code/05_annotation.py`, `code/utils/threshold_sensitivity.py`.

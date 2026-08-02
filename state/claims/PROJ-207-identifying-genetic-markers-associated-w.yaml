@@ -1568,3 +1568,906 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-24T06:27:36Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Power analysis halts if sample size n is less than 80
+  claim_id: c_d1414780
+  context: 'T005 [P] Implement code/utils/power_analysis.py for FR-012. MUST: 2. If
+    n < 80: HALT with error code ERR_SAMPLE_SIZE_INSUFFICIENT.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Power_analysis_halts_if_sample_size_n_is_less_than_80
+  kind: magnitude
+  raw_text: The system MUST halt with error code ERR_SAMPLE_SIZE_INSUFFICIENT if n
+    < 80.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T01:46:23Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Power analysis reports but does not halt if power is less than 0.20
+  claim_id: c_a46e14d6
+  context: '4. CRITICAL: If Power < 0.20: REPORT the power value but DO NOT HALT.
+    The Spec requires reporting power if n >= 80 regardless of the value.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Power_analysis_reports_but_does_not_halt_if_power_is_less_th
+  kind: magnitude
+  raw_text: The system MUST report the power value but not halt if Power < 0.20.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T01:47:33Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Power analysis detects effect sizes with odds ratio greater than or equal
+    to 2.5 at alpha 0.05
+  claim_id: c_3c9579b5
+  context: '5. If Power >= 0.20: Report the calculated power for detecting large effect
+    sizes (OR >= 2.5) at alpha=0.05.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Power_analysis_detects_effect_sizes_with_odds_ratio_greater
+  kind: magnitude
+  raw_text: The system must report power for detecting large effect sizes (OR >= 2.5)
+    at alpha=0.05.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T01:48:00Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Pipeline halts if Varroa data coverage is less than 80 percent
+  claim_id: c_5e89d058
+  context: '2. If samples_with_varroa / total_samples < 0.80: Raise ERR_VARROA_COVARIATE_MISSING
+    and HALT with message: "Varroa data coverage < 80% ({samples_with_varroa}/{total_samples}).
+    Pipeline halted."'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_halts_if_Varroa_data_coverage_is_less_than_80_perce
+  kind: magnitude
+  raw_text: The system must halt if Varroa data coverage is less than 80%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T01:48:36Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: dwgsim simulation uses fixed random seed 42
+  claim_id: c_f80d8fc2
+  context: 2. Use dwgsim with a fixed random seed (SEED=42) to ensure reproducibility.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must use a fixed random seed of 42 for dwgsim to ensure reproducibility.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T01:49:12Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Pipeline halts before preprocessing if sample size n is less than 80
+  claim_id: c_9935109f
+  context: 'Mandatory Behavior: If n < 80, halt the pipeline with error code ERR_SAMPLE_SIZE_INSUFFICIENT
+    BEFORE any preprocessing (T016) or GWAS execution (T017) runs.'
+  evidence:
+    asserted: '80.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: The pipeline must halt before preprocessing if sample size n is less than
+    80.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-08-02T01:49:12Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: LD pruning uses r squared threshold less than 0.2
+  claim_id: c_2ed9287d
+  context: "Implement code/utils/preprocess_phenotype.py for LD pruning (r\xB2 < 0.2)\
+    \ and covariate encoding"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/LD_pruning_uses_r_squared_threshold_less_than_0.2
+  kind: magnitude
+  raw_text: "LD pruning must use an r\xB2 threshold of less than 0.2."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T01:49:56Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Collinearity flagged if VIF is greater than or equal to 5
+  claim_id: c_a6c9bb05
+  context: 'Condition: If VIF >= 5 (inclusive boundary): Log "High collinearity detected
+    (VIF >= 5). Documenting as per Spec FR-010."'
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: arXiv:2306.06751v1 [stat.ME] 11 Jun 2023
+      source_id: '2306.06751'
+      url: https://arxiv.org/abs/2306.06751
+      value: '5'
+    filled: true
+  kind: magnitude
+  raw_text: Collinearity is flagged if VIF is greater than or equal to 5.
+  resolved_value: '5'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-02T01:51:04Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: High collinearity pairs identified if correlation is greater than 0.8
+  claim_id: c_edf03f31
+  context: Identify specific pairs with correlation > 0.8.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/High_collinearity_pairs_identified_if_correlation_is_greater
+  kind: magnitude
+  raw_text: High collinearity pairs are identified if correlation is greater than
+    0.8.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T01:51:58Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: LASSO model uses 5-fold cross-validation
+  claim_id: c_b780553d
+  context: Implement LASSO logistic regression with 5-fold cross-validation in code/04_ml_validation.py
+    (FR-006)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The LASSO model must use 5-fold cross-validation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T01:52:54Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Low predictive power flagged if AUC is less than 0.75
+  claim_id: c_d62d119d
+  context: 'low_predictive_power: boolean (True if auc < 0.75, False otherwise)'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Low_predictive_power_flagged_if_AUC_is_less_than_0.75
+  kind: magnitude
+  raw_text: Low predictive power is flagged if AUC is less than 0.75.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T01:53:43Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Samples excluded from covariate model if Varroa data missing for more
+    than 20 percent of cohort
+  claim_id: c_87b9bc8d
+  context: 'Mandatory: If < 80% of the total cohort has Varroa data (i.e., > 20% missing),
+    raise ERR_VARROA_COVARIATE_MISSING and halt. Mandatory: If missing for <= 20%,
+    exclude those samples from the covariate model but retain for genotype-only analysis.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Samples_excluded_from_covariate_model_if_Varroa_data_missing
+  kind: magnitude
+  raw_text: Samples must be excluded from the covariate model if Varroa data is missing
+    for more than 20% of the cohort.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T01:54:32Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Threshold sensitivity sweep tests thresholds at 10 to the power of -7,
+    10 to the power of -8, and 1 times 10 to the power of -8
+  claim_id: c_a0f27b86
+  context: "Implement threshold sensitivity sweep across the specific set of thresholds\
+    \ {\xD7\u207B\u2077, \xD710\u207B\u2078, 1\xD710\u207B\u2078} in code/utils/threshold_sensitivity.py\
+    \ (FR-005)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The threshold sensitivity sweep must test thresholds at 10^-7, 10^-8,
+    and 1x10^-8.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T01:55:47Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Study design metadata states findings are associational not causal
+  claim_id: c_9c2b18be
+  context: 'MANDATORY: MUST create data/processed/gwas_results_metadata.json containing:
+    disclaimer: "Findings are associational, not causal. This is an observational
+    study without randomization."'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Study_design_metadata_states_findings_are_associational_not
+  kind: entity_fact
+  raw_text: The study design metadata must state that findings are associational,
+    not causal.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T01:56:29Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Ensembl API retry logic includes exponential backoff
+  claim_id: c_501d9b52
+  context: 'Retry Logic: Implement retry logic with a configurable maximum number
+    of attempts and exponential backoff with increasing intervals.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Ensembl_API_retry_logic_includes_exponential_backoff
+  kind: entity_fact
+  raw_text: The Ensembl API retry logic must include exponential backoff.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T01:57:12Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Power analysis halts if sample size is less than 80
+  claim_id: c_48a31987
+  context: 'Implement `code/utils/power_analysis.py` for FR-012. MUST: 1. Calculate
+    power using non-central chi-squared distribution. 2. If n < 80: HALT with error
+    code `ERR_SAMPLE_SIZE_INSUFFICIENT`.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Power_analysis_halts_if_sample_size_is_less_than_80
+  kind: magnitude
+  raw_text: 'If n < 80: HALT with error code `ERR_SAMPLE_SIZE_INSUFFICIENT`.'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T02:02:23Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Power analysis reports but does not halt if power is less than 0.20
+  claim_id: c_1e568a71
+  context: '4. **CRITICAL**: If Power < 0.20: REPORT the power value but DO NOT HALT.
+    The Spec requires reporting power if n >= 80 regardless of the value.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Power_analysis_reports_but_does_not_halt_if_power_is_less_th
+  kind: magnitude
+  raw_text: 'If Power < 0.20: REPORT the power value but DO NOT HALT.'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T02:02:50Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Power analysis reports power for OR >= 2.5 at alpha=0.05 if power is
+    at least 0.20
+  claim_id: c_150a90a3
+  context: '5. If Power >= 0.20: Report the calculated power for detecting large effect
+    sizes (OR >= 2.5) at alpha=0.05.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Power_analysis_reports_power_for_OR_%3E=_2.5_at_alpha=0.05_if_
+  kind: magnitude
+  raw_text: 'If Power >= 0.20: Report the calculated power for detecting large effect
+    sizes (OR >= 2.5) at alpha=0.05.'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T02:03:13Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: CCD diagnosis validation fails if live bee population is less than 10%
+    of peak
+  claim_id: c_cbc89939
+  context: 'MUST implement CCD diagnosis validation logic that explicitly checks:
+    3. Live bee population < 10% relative to peak season.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/CCD_diagnosis_validation_fails_if_live_bee_population_is_les
+  kind: magnitude
+  raw_text: Logic MUST fail validation if live bee population is less than 10% relative
+    to peak season.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T02:04:35Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Streaming logic implemented for datasets larger than 14GB
+  claim_id: c_5f4c4c33
+  context: '5. Large Dataset Handling: - If the real dataset size > 14GB (estimated),
+    implement streaming logic using `datasets.load_dataset(..., streaming=True)`.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Streaming_logic_implemented_for_datasets_larger_than_14GB
+  kind: entity_fact
+  raw_text: If the real dataset size > 14GB (estimated), implement streaming logic.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T02:04:45Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Fixed-seed sample of 5000 rows used for large datasets without streaming
+    support
+  claim_id: c_07a403c3
+  context: 'If streaming is not supported by the specific source, implement a ''Fixed-Seed
+    Sample'' strategy: Use `itertools.islice` to take the first N rows (e.g., N=5000)
+    or a random sample with a fixed seed.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use `itertools.islice` to take the first N rows (e.g., N=5000) or a random
+    sample with a fixed seed.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T02:04:47Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Pipeline halts if Varroa data coverage is less than 80%
+  claim_id: c_26cfbd27
+  context: '2. If `samples_with_varroa` / `total_samples` < 0.80: - Raise `ERR_VARROA_COVARIATE_MISSING`
+    and HALT with message: ''Varroa data coverage < 80% ({samples_with_varroa}/{total_samples}).
+    Pipeline halted.'''
+  evidence:
+    asserted: '0.8'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: 'If `samples_with_varroa` / `total_samples` < 0.80: Raise `ERR_VARROA_COVARIATE_MISSING`
+    and HALT.'
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-02T02:04:48Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: DWGSIM simulation uses random seed 42
+  claim_id: c_26bc20d9
+  context: '2. Use `dwgsim` with a fixed random seed (SEED=42) to ensure reproducibility.
+    Command: `dwgsim -e -d [variable_insertion_distance] -s 42 -N [large_sample_size]
+    data/interim/synthetic.vcf data/interim/synthetic`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use `dwgsim` with a fixed random seed (SEED=42) to ensure reproducibility.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T02:04:54Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: PLINK LD pruning uses threshold 0.2
+  claim_id: c_c7ce20eb
+  context: 1. Run PLINK `--indep-pairwise <window_size> 0.2` on the genotype data
+    to generate the prune list.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run PLINK `--indep-pairwise <window_size> 0.2` on the genotype data to
+    generate the prune list.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T02:04:54Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: High collinearity detected if VIF is 5 or greater
+  claim_id: c_d0b211dc
+  context: '**Condition**: If VIF >= 5 (inclusive boundary): - Log ''High collinearity
+    detected (VIF >= 5). Documenting as per Spec FR-010.'''
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'If VIF >= 5 (inclusive boundary): Log ''High collinearity detected (VIF
+    >= 5).'''
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T02:05:05Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Correlated pairs identified if correlation exceeds 0.8
+  claim_id: c_e98a54ee
+  context: '- Identify specific pairs with correlation > 0.8.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Identify specific pairs with correlation > 0.8.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T02:05:05Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: PLINK2 logistic regression uses 95% confidence interval
+  claim_id: c_c2a8ff52
+  context: 5. Run PLINK2 `--logistic hide-covar --ci 0.95 --out data/interim/gwas_raw`
+    with the determined covariates.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run PLINK2 `--logistic hide-covar --ci 0.95`.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T02:05:15Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Threshold sensitivity sweep uses values 10^-7, 10^-8
+  claim_id: c_e2255fc9
+  context: "Implement threshold sensitivity sweep across the specific set of thresholds\
+    \ {\xD7\u207B\u2077, \xD710\u207B\u2078, 1\xD710\u207B\u2078} in `code/utils/threshold_sensitivity.py`\
+    \ (FR-005)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Explicitly sweep the thresholds across a set of orders of magnitude {\xD7\
+    \u207B\u2077, \xD710\u207B\u2078, 1\xD710\u207B\u2078}."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T02:05:31Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Low predictive power flag set if AUC is less than 0.75
+  claim_id: c_d0d0f85d
+  context: 'Write `data/processed/lasso_auc_report.json` containing: - `auc`: float
+    (4 decimal places) - `low_predictive_power`: boolean (True if auc < 0.75, False
+    otherwise)'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Low_predictive_power_flag_set_if_AUC_is_less_than_0.75
+  kind: magnitude
+  raw_text: 'Write `data/processed/lasso_auc_report.json` containing `low_predictive_power`:
+    boolean (True if auc < 0.75, False otherwise).'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T02:07:50Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: LASSO model uses 5-fold cross-validation
+  claim_id: c_9e434636
+  context: Use `sklearn.linear_model.LogisticRegressionCV` with `penalty='l1'`, `solver='liblinear'`,
+    and `cv=5`.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use `sklearn.linear_model.LogisticRegressionCV` with `penalty='l1'`, `solver='liblinear'`,
+    and `cv=5`.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T02:07:58Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Pipeline halts if more than 20% of cohort lacks Varroa data
+  claim_id: c_7db7fff0
+  context: '**Mandatory**: If < 80% of the total cohort has Varroa data (i.e., > 20%
+    missing), raise `ERR_VARROA_COVARIATE_MISSING` and halt.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_halts_if_more_than_20%25_of_cohort_lacks_Varroa_data
+  kind: magnitude
+  raw_text: If < 80% of the total cohort has Varroa data (i.e., > 20% missing), raise
+    `ERR_VARROA_COVARIATE_MISSING` and halt.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T02:08:19Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 0
+  canonical: Pipeline halts if Varroa data coverage is less than 80%
+  claim_id: c_b40cc033
+  context: 'Task T012b Logic: 2. If samples_with_varroa / total_samples < 0.80: Raise
+    ERR_VARROA_COVARIATE_MISSING and HALT with message: ''Varroa data coverage < 80%...'''
+  evidence:
+    asserted: '0.8'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: 'If samples_with_varroa / total_samples < 0.80: Raise ERR_VARROA_COVARIATE_MISSING
+    and HALT.'
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-02T02:11:29Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Power analysis halts pipeline if sample size n is less than 80
+  claim_id: c_d4fdee11
+  context: 'Task T005 implements power analysis. MUST: 1. Calculate power using non-central
+    chi-squared distribution. 2. If n < 80: HALT with error code ERR_SAMPLE_SIZE_INSUFFICIENT.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Power_analysis_halts_pipeline_if_sample_size_n_is_less_than
+  kind: magnitude
+  raw_text: 'If n < 80: HALT with error code ERR_SAMPLE_SIZE_INSUFFICIENT.'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T02:11:37Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Power analysis reports power value without halting if power is less than
+    0.20
+  claim_id: c_9976ef5b
+  context: 'Task T005 implementation details: 4. CRITICAL: If Power < 0.20: REPORT
+    the power value but DO NOT HALT. The Spec requires reporting power if n >= 80
+    regardless of the value.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Power_analysis_reports_power_value_without_halting_if_power
+  kind: magnitude
+  raw_text: 'If Power < 0.20: REPORT the power value but DO NOT HALT.'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T02:11:40Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Power analysis calculates power for effect size OR >= 2.5 at alpha 0.05
+  claim_id: c_b26125cd
+  context: 'Task T005 implementation details: 5. If Power >= 0.20: Report the calculated
+    power for detecting large effect sizes (OR >= 2.5) at alpha=0.05.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Report the calculated power for detecting large effect sizes (OR >= 2.5)
+    at alpha=0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T02:13:46Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: CCD diagnosis validation logic checks for live bee population less than
+    10% relative to peak season
+  claim_id: c_e43c4ead
+  context: 'Task T009 MUST implement CCD diagnosis validation logic that explicitly
+    checks: 3. Live bee population < 10% relative to peak season.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/CCD_diagnosis_validation_logic_checks_for_live_bee_populatio
+  kind: magnitude
+  raw_text: Live bee population < 10% relative to peak season.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T02:13:57Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Real dataset processing switches to streaming logic if size exceeds 14
+    GB
+  claim_id: c_2df6a488
+  context: 'Task T012a Large Dataset Handling: If the real dataset size > 14GB (estimated),
+    implement streaming logic using datasets.load_dataset(..., streaming=True).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If the real dataset size > 14GB (estimated), implement streaming logic.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T02:13:57Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Fixed-seed sample strategy uses N=5000 rows for large datasets
+  claim_id: c_1e8fd564
+  context: 'Task T012a Large Dataset Handling: If streaming is not supported by the
+    specific source, implement a ''Fixed-Seed Sample'' strategy: Use itertools.islice
+    to take the first N rows (e.g., N=5000) or a random sample with a fixed seed.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use itertools.islice to take the first N rows (e.g., N=5000) or a random
+    sample with a fixed seed.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T02:13:58Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Synthetic FASTQ generation uses random seed 42
+  claim_id: c_ba07a86f
+  context: 'Task T013c Implementation: 2. Use dwgsim with a fixed random seed (SEED=42)
+    to ensure reproducibility.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use dwgsim with a fixed random seed (SEED=42) to ensure reproducibility.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T02:13:58Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: LD pruning uses PLINK with r-squared threshold of 0.2
+  claim_id: c_b809e185
+  context: 'Task T016 Implementation: 1. Run PLINK --indep-pairwise <window_size>
+    0.2 on the genotype data to generate the prune list.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run PLINK --indep-pairwise <window_size> 0.2 on the genotype data to generate
+    the prune list.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T02:13:59Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Collinearity guard flags VIF >= 5 and correlations > 0.8
+  claim_id: c_745aa98a
+  context: 'Task T046 Logic: Condition: If VIF >= 5 (inclusive boundary): Log ''High
+    collinearity detected (VIF >= 5). Documenting as per Spec FR-010.'' Identify specific
+    pairs with correlation > 0.8.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'If VIF >= 5 (inclusive boundary): Log ''High collinearity detected (VIF
+    >= 5).'' and identify specific pairs with correlation > 0.8.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T02:14:02Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Collinearity diagnostics identify pairs with correlation greater than
+    0.8
+  claim_id: c_533b6886
+  context: 'Task T046 Logic: Identify specific pairs with correlation > 0.8.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Collinearity_diagnostics_identify_pairs_with_correlation_gre
+  kind: magnitude
+  raw_text: Identify specific pairs with correlation > 0.8.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T02:17:48Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: GWAS execution uses PLINK2 logistic regression with 0.95 confidence interval
+  claim_id: c_f1c40a13
+  context: 'Task T017 Implementation: 5. Run PLINK2 --logistic hide-covar --ci 0.95
+    --out data/interim/gwas_raw with the determined covariates.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: PLINK2 --logistic hide-covar --ci 0.95 --out data/interim/gwas_raw.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T02:20:43Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Threshold sensitivity sweep uses thresholds 10^-7, 10^-8, and 1x10^-8
+  claim_id: c_0a7af247
+  context: "Task T021 Implementation: Explicitly sweep the thresholds across a set\
+    \ of orders of magnitude. MANDATORY: MUST apply Benjamini-Hochberg (BH) correction\
+    \ as required by Spec FR-004 and FR-005. ... thresholds {\xD7\u207B\u2077, \xD7\
+    10\u207B\u2078, 1\xD710\u207B\u2078}."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Threshold sensitivity sweep across the specific set of thresholds {\xD7\
+    \u207B\u2077, \xD710\u207B\u2078, 1\xD710\u207B\u2078}."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T02:20:49Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: LASSO logistic regression uses 5-fold cross-validation with liblinear
+    solver
+  claim_id: c_90684997
+  context: 'Task T027 Implementation: Use sklearn.linear_model.LogisticRegressionCV
+    with penalty=''l1'', solver=''liblinear'', and cv=5.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use sklearn.linear_model.LogisticRegressionCV with penalty='l1', solver='liblinear',
+    and cv=5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T02:20:49Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: LASSO AUC report uses 4 decimal places
+  claim_id: c_53e83396
+  context: 'Task T027 Output: Write data/processed/lasso_auc_report.json containing:
+    auc: float (4 decimal places).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Report out-of-sample AUC value with 4 decimal places.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T02:20:56Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: LASSO model flags low predictive power if AUC is less than 0.75
+  claim_id: c_baf4042f
+  context: 'Task T027 Output: low_predictive_power: boolean (True if auc < 0.75, False
+    otherwise).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/LASSO_model_flags_low_predictive_power_if_AUC_is_less_than_0
+  kind: magnitude
+  raw_text: Flag low predictive power if auc < 0.75.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T02:21:19Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Pipeline halts if more than 20% of cohort is missing Varroa data
+  claim_id: c_56fa6ddf
+  context: 'Task T044 Implementation: Mandatory: If < 80% of the total cohort has
+    Varroa data (i.e., > 20% missing), raise ERR_VARROA_COVARIATE_MISSING and halt.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_halts_if_more_than_20%25_of_cohort_is_missing_Varroa
+  kind: magnitude
+  raw_text: If < 80% of the total cohort has Varroa data (i.e., > 20% missing), raise
+    ERR_VARROA_COVARIATE_MISSING and halt.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T02:21:22Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Samples with missing Varroa data (<=20%) are excluded from covariate
+    model
+  claim_id: c_c82592fb
+  context: 'Task T044 Implementation: Mandatory: If missing for <= 20%, exclude those
+    samples from the covariate model but retain for genotype-only analysis.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If missing for <= 20%, exclude those samples from the covariate model
+    but retain for genotype-only analysis.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T02:21:23Z'

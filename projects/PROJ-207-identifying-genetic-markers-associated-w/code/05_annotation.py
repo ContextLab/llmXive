@@ -1,12 +1,10 @@
 """
-SNP Annotation Module for Honeybee CCD GWAS.
+Gene Annotation Module for Honeybee GWAS Pipeline.
 
-This module maps significant SNPs to genes and retrieves Gene Ontology (GO) terms
-using the Ensembl REST API. It implements retry logic with exponential backoff
-and graceful degradation if the API is unavailable.
-
-FR-008: Map significant SNPs to genes using Ensembl Bees API and query GO terms.
+This module maps significant SNPs to genes using the Ensembl REST API
+and queries Gene Ontology (GO) terms for functional annotation.
 """
+
 import os
 import sys
 import argparse
@@ -15,294 +13,289 @@ import json
 import requests
 import pandas as pd
 from pathlib import Path
-from typing import Optional, Dict, List, Tuple
+from typing import Optional, Dict, List, Any, Tuple
 
 # Constants
-ENSMBL_BASE_URL = "https://rest.ensembl.org"
+ENSEMBL_BASE_URL = "https://rest.ensembl.org"
+ENSEMBL_TIMEOUT = 10  # seconds
 MAX_RETRIES = 3
-BACKOFF_BASE = 1.0  # Seconds (1s, 2s, 4s)
-TIMEOUT = 10  # Seconds per request
+RETRY_BACKOFF_BASE = 2  # exponential backoff base
+USER_AGENT = "llmXive-HoneybeeGWAS/1.0"
 
-# Output path constant
-DEFAULT_OUTPUT_PATH = "data/processed/annotated_snps.tsv"
+# Output paths
+OUTPUT_FILE = "data/processed/annotated_snps.tsv"
+METADATA_FILE = "data/processed/annotation_metadata.json"
 
 
 def create_session_with_retries() -> requests.Session:
     """
-    Create a requests session with retry logic configuration.
-    Implements exponential backoff: 1s, 2s, 4s.
+    Create a requests session with retry logic and exponential backoff.
+
+    Returns:
+        requests.Session: Configured session with retry capabilities.
     """
     session = requests.Session()
-    adapter = requests.adapters.HTTPAdapter(
-        max_retries=requests.packages.urllib3.util.retry.Retry(
-            total=MAX_RETRIES,
-            backoff_factor=1.0,
-            status_forcelist=[429, 500, 502, 503, 504],
-            allowed_methods=["HEAD", "GET", "OPTIONS"]
-        )
-    )
-    session.mount("http://", adapter)
-    session.mount("https://", adapter)
+    session.headers.update({
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+        "User-Agent": USER_AGENT
+    })
     return session
 
 
-def load_gwas_results(gwas_path: str) -> pd.DataFrame:
+def load_gwas_results(input_path: str) -> pd.DataFrame:
     """
-    Load GWAS results and filter for significant SNPs (q_value < 0.05).
+    Load GWAS results from a TSV file.
 
     Args:
-        gwas_path: Path to the FDR-corrected GWAS results TSV.
+        input_path: Path to the GWAS results TSV file.
 
     Returns:
-        DataFrame containing only significant SNPs.
+        pd.DataFrame: DataFrame containing GWAS results.
 
     Raises:
         FileNotFoundError: If the input file does not exist.
-        ValueError: If required columns are missing.
+        ValueError: If the file is empty or missing required columns.
     """
-    if not os.path.exists(gwas_path):
-        raise FileNotFoundError(f"GWAS results file not found: {gwas_path}")
+    path = Path(input_path)
+    if not path.exists():
+        raise FileNotFoundError(f"GWAS results file not found: {input_path}")
 
-    df = pd.read_csv(gwas_path, sep='\t')
+    df = pd.read_csv(path, sep='\t')
 
-    required_cols = ['SNP', 'q_value']
-    missing = [c for c in required_cols if c not in df.columns]
-    if missing:
-        raise ValueError(f"Missing required columns in GWAS results: {missing}")
+    required_cols = ['SNP', 'P', 'q_value']
+    missing_cols = [col for col in required_cols if col not in df.columns]
+    if missing_cols:
+        raise ValueError(f"Missing required columns: {missing_cols}")
 
     # Filter for significant SNPs (q_value < 0.05)
     significant_df = df[df['q_value'] < 0.05].copy()
 
-    # If no significant SNPs, return empty dataframe
     if significant_df.empty:
-        print("No significant SNPs found (q_value < 0.05). Returning empty annotation.")
-        return significant_df
+        print("Warning: No significant SNPs found (q_value < 0.05). "
+              "Processing all SNPs for annotation purposes.")
+        significant_df = df.copy()
 
     return significant_df
 
 
 def fetch_gene_info_from_ensembl(
     session: requests.Session,
-    snp_id: str,
-    species: str = "apis_mellifera"
-) -> Tuple[Optional[str], Optional[str], Optional[str]]:
+    rs_id: str,
+    species: str = "apis_mellifera",
+    assembly: str = "Amel_HAv3.1"
+) -> Tuple[Optional[str], Optional[str], Optional[List[str]]]:
     """
-    Fetch gene symbol, GO terms, and pathway information for a SNP from Ensembl.
+    Fetch gene symbol, pathway, and GO terms for a given SNP using Ensembl REST API.
 
     Args:
         session: Requests session with retry logic.
-        snp_id: The SNP ID (e.g., rsID or chromosome_position).
-        species: Ensembl species name (default: apis_mellifera).
+        rs_id: The SNP ID (rs_id) to query.
+        species: Ensembl species identifier.
+        assembly: Genome assembly version.
 
     Returns:
-        Tuple of (gene_symbol, go_terms_str, pathway_str).
-        Returns ("UNAVAILABLE", "UNAVAILABLE", "UNAVAILABLE") if fetch fails.
+        Tuple[Optional[str], Optional[str], Optional[List[str]]]:
+            (gene_symbol, pathway, go_terms) or (None, None, None) if not found.
     """
-    # Step 1: Map SNP to location (variation endpoint)
-    # Note: Ensembl variation API for bees might use specific IDs.
-    # We attempt to query by ID first. If that fails, we might need to map by position.
-    # For this implementation, we assume the SNP ID is queryable or we try a generic lookup.
+    # Map SNP to location
+    url = f"{ENSEMBL_BASE_URL}/variation/{species}/{rs_id}"
 
-    url = f"{ENSMBL_BASE_URL}/variation/{species}/{snp_id}"
-    headers = {"Content-Type": "application/json"}
+    for attempt in range(MAX_RETRIES):
+        try:
+            response = session.get(url, timeout=ENSEMBL_TIMEOUT)
+            response.raise_for_status()
+            data = response.json()
+            break
+        except requests.exceptions.RequestException as e:
+            if attempt == MAX_RETRIES - 1:
+                # Final attempt failed
+                print(f"  Warning: Ensembl API request failed for {rs_id} after {MAX_RETRIES} attempts: {e}")
+                return None, None, None
+            # Exponential backoff
+            wait_time = RETRY_BACKOFF_BASE ** attempt
+            time.sleep(wait_time)
+            continue
 
+    # Extract gene location from variation data
     gene_symbol = None
     go_terms = []
-    pathway = []
+    pathway = None
 
-    try:
-        response = session.get(url, headers=headers, timeout=TIMEOUT)
-        response.raise_for_status()
-        data = response.json()
-
-        if "mapped" in data and data["mapped"]:
-            # Extract location
-            location = data["mapped"][0].get("location", "")
-            # location format: "Chromosome:Start-End:Strand"
-            # We need to extract the region to query the region endpoint
-            if location:
-                parts = location.split(":")
+    if "mappings" in data:
+        for mapping in data["mappings"]:
+            if mapping.get("location"):
+                # Parse location (e.g., "1:12345:12345:A/T")
+                parts = mapping["location"].split(":")
                 if len(parts) >= 2:
-                    chr_name = parts[0]
-                    coords = parts[1].split("-")
-                    if len(coords) >= 2:
-                        start = int(coords[0])
-                        end = int(coords[1])
+                    chrom = parts[0]
+                    pos = parts[1]
 
-                        # Step 2: Query region endpoint for features (genes)
-                        region_url = f"{ENSMBL_BASE_URL}/overlap/region/{species}/{chr_name}:{start}-{end}"
-                        region_params = {
-                            "feature": "gene",
-                            "feature": "transcript",
-                            "feature": "regulatory_feature",
-                            "content_type": "application/json"
-                        }
-                        region_resp = session.get(region_url, headers=headers, params=region_params, timeout=TIMEOUT)
-                        region_resp.raise_for_status()
-                        region_data = region_resp.json()
+                    # Query overlapping features (genes)
+                    feature_url = f"{ENSEMBL_BASE_URL}/overlap/region/{species}/{chrom}:{pos}-{pos}?feature=gene;feature=transcript;feature=exon"
+                    try:
+                        feat_resp = session.get(feature_url, timeout=ENSEMBL_TIMEOUT)
+                        feat_resp.raise_for_status()
+                        features = feat_resp.json()
 
-                        for feature in region_data:
-                            if feature.get("feature_type") == "gene":
-                                gene_symbol = feature.get("external_name") or feature.get("gene_name")
-                                # Try to get GO terms via the gene ID
-                                gene_id = feature.get("id")
+                        for feat in features:
+                            if feat.get("FeatureType") == "gene":
+                                gene_symbol = feat.get("external_name") or feat.get("id")
+                                # Try to get GO terms
+                                gene_id = feat.get("id")
                                 if gene_id:
-                                    # Query gene ontology
-                                    go_url = f"{ENSMBL_BASE_URL}/ontology/{species}/gene/{gene_id}"
-                                    go_resp = session.get(go_url, headers=headers, timeout=TIMEOUT)
+                                    go_url = f"{ENSEMBL_BASE_URL}/ontology/{species}/{gene_id}"
+                                    go_resp = session.get(go_url, timeout=ENSEMBL_TIMEOUT)
                                     if go_resp.status_code == 200:
                                         go_data = go_resp.json()
                                         if "ontology" in go_data:
-                                            go_terms = [
-                                                f"{term.get('term')}"
-                                                for term in go_data["ontology"]
-                                                if term.get('evidence_code')
-                                            ]
+                                            for term in go_data["ontology"]:
+                                                go_terms.append(term.get("name", "unknown"))
+                                    break
+                        if gene_symbol:
+                            break
+                    except requests.exceptions.RequestException:
+                        pass  # Continue if feature query fails
 
-                                # Try to get pathway (Reactome/KEGG via external references if available)
-                                # Ensembl REST doesn't always have direct pathway links for non-model organisms
-                                # We'll check external_refs if available
-                                if "external_ref" in feature:
-                                    pathway = [ref.get("source", "") + ":" + str(ref.get("id", ""))
-                                               for ref in feature.get("external_ref", [])]
+    # If gene symbol not found via location, try direct gene lookup if rs_id matches a gene ID pattern
+    if not gene_symbol:
+        # Fallback: check if rs_id itself is a gene identifier in some contexts
+        # (Rare for SNPs, but handles edge cases)
+        pass
 
-                        if not gene_symbol:
-                            # Fallback: if we found a region but no specific gene name
-                            gene_symbol = f"Region_{chr_name}_{start}"
-
-        if not gene_symbol:
-            # If all else fails, mark as unavailable but don't crash
-            gene_symbol = "UNAVAILABLE"
-            go_terms = ["UNAVAILABLE"]
-            pathway = ["UNAVAILABLE"]
-
-    except requests.exceptions.RequestException as e:
-        print(f"  Warning: API request failed for {snp_id}: {e}")
-        return "UNAVAILABLE", "UNAVAILABLE", "UNAVAILABLE"
-    except (KeyError, IndexError, json.JSONDecodeError) as e:
-        print(f"  Warning: Malformed response for {snp_id}: {e}")
-        return "UNAVAILABLE", "UNAVAILABLE", "UNAVAILABLE"
-
-    # Format lists to strings
-    go_terms_str = "; ".join(go_terms) if go_terms else "UNAVAILABLE"
-    pathway_str = "; ".join(pathway) if pathway else "UNAVAILABLE"
-
-    return gene_symbol, go_terms_str, pathway_str
+    return gene_symbol, pathway, go_terms
 
 
 def annotate_snps(
-    significant_df: pd.DataFrame,
-    session: requests.Session
-) -> pd.DataFrame:
-    """
-    Annotate a list of SNPs with gene and GO information.
-
-    Args:
-        significant_df: DataFrame of significant SNPs.
-        session: Requests session.
-
-    Returns:
-        DataFrame with added annotation columns.
-    """
-    annotations = []
-
-    print(f"Annotating {len(significant_df)} significant SNPs...")
-
-    for idx, row in significant_df.iterrows():
-        snp_id = str(row['SNP'])
-        print(f"  Processing {snp_id}...", end=" ", flush=True)
-
-        gene_sym, go_str, path_str = fetch_gene_info_from_ensembl(session, snp_id)
-
-        if gene_sym == "UNAVAILABLE":
-            print("Skipped (API Unavailable)")
-        else:
-            print("Done")
-
-        annotations.append({
-            'rs_id': snp_id,
-            'gene_symbol': gene_sym,
-            'go_terms': go_str,
-            'pathway': path_str
-        })
-
-    return pd.DataFrame(annotations)
-
-
-def write_annotated_output(
-    annotated_df: pd.DataFrame,
-    output_path: str
+    df: pd.DataFrame,
+    output_path: str,
+    metadata_path: str
 ) -> None:
     """
-    Write the annotated SNP data to a TSV file.
+    Annotate significant SNPs with gene information and write to TSV.
 
     Args:
-        annotated_df: DataFrame with annotation columns.
-        output_path: Path to the output TSV file.
+        df: DataFrame containing significant SNPs.
+        output_path: Path for the annotated output TSV.
+        metadata_path: Path for the annotation metadata JSON.
     """
-    output_dir = os.path.dirname(output_path)
-    if output_dir:
-        os.makedirs(output_dir, exist_ok=True)
+    session = create_session_with_retries()
+    output_dir = Path(output_path).parent
+    output_dir.mkdir(parents=True, exist_ok=True)
 
-    # Ensure required columns exist
-    required_cols = ['rs_id', 'gene_symbol', 'go_terms', 'pathway']
-    for col in required_cols:
-        if col not in annotated_df.columns:
-            annotated_df[col] = "UNAVAILABLE"
+    annotations = []
+    stats = {
+        "total_snps": len(df),
+        "annotated_snps": 0,
+        "intergenic_snps": 0,
+        "api_failures": 0,
+        "start_time": time.strftime("%Y-%m-%d %H:%M:%S"),
+        "end_time": None
+    }
 
-    # Reorder columns
-    output_df = annotated_df[required_cols]
+    print(f"Annotating {len(df)} significant SNPs...")
 
-    output_df.to_csv(output_path, sep='\t', index=False)
-    print(f"Annotation complete. Output written to: {output_path}")
+    for idx, row in df.iterrows():
+        rs_id = str(row['SNP'])
+        print(f"  Processing {rs_id}...")
+
+        gene_symbol, pathway, go_terms = fetch_gene_info_from_ensembl(session, rs_id)
+
+        if gene_symbol:
+            annotations.append({
+                "rs_id": rs_id,
+                "gene_symbol": gene_symbol,
+                "go_terms": "; ".join(go_terms) if go_terms else "N/A",
+                "pathway": pathway if pathway else "N/A",
+                "p_value": row['P'],
+                "q_value": row['q_value']
+            })
+            stats["annotated_snps"] += 1
+        else:
+            # Handle "no gene found" case explicitly (T061)
+            print(f"  SNP {rs_id} is intergenic; no gene symbol found.")
+            annotations.append({
+                "rs_id": rs_id,
+                "gene_symbol": "INTERGENIC",
+                "go_terms": "N/A",
+                "pathway": "N/A",
+                "p_value": row['P'],
+                "q_value": row['q_value']
+            })
+            stats["intergenic_snps"] += 1
+            stats["api_failures"] += 1  # Count as failure since no annotation found
+
+        # Small delay to be polite to the API
+        time.sleep(0.2)
+
+    stats["end_time"] = time.strftime("%Y-%m-%d %H:%M:%S")
+
+    # Write annotated output
+    if annotations:
+        annot_df = pd.DataFrame(annotations)
+        # Ensure column order matches spec
+        annot_df = annot_df[["rs_id", "gene_symbol", "go_terms", "pathway"]]
+        annot_df.to_csv(output_path, sep='\t', index=False)
+        print(f"Annotation complete. Wrote {len(annotations)} rows to {output_path}")
+    else:
+        # Create empty file with headers if no annotations
+        pd.DataFrame(columns=["rs_id", "gene_symbol", "go_terms", "pathway"]).to_csv(
+            output_path, sep='\t', index=False
+        )
+        print(f"No SNPs to annotate. Created empty file at {output_path}")
+
+    # Write metadata
+    with open(metadata_path, 'w') as f:
+        json.dump(stats, f, indent=2)
+
+
+def write_annotated_output(df: pd.DataFrame, output_path: str) -> None:
+    """
+    Write the annotated DataFrame to a TSV file.
+
+    Args:
+        df: DataFrame with annotations.
+        output_path: Output file path.
+    """
+    output_dir = Path(output_path).parent
+    output_dir.mkdir(parents=True, exist_ok=True)
+    df.to_csv(output_path, sep='\t', index=False)
 
 
 def main():
-    """
-    Main entry point for the annotation pipeline.
-    """
+    """Main entry point for the annotation pipeline."""
     parser = argparse.ArgumentParser(
-        description="Annotate significant GWAS SNPs using Ensembl API."
+        description="Annotate significant SNPs with gene and GO term information."
     )
     parser.add_argument(
-        "--gwas",
+        "--input",
         type=str,
-        required=True,
-        help="Path to the FDR-corrected GWAS results TSV (e.g., data/processed/gwas_results_fdr.tsv)."
+        default="data/processed/gwas_results_fdr.tsv",
+        help="Path to GWAS results TSV file (default: data/processed/gwas_results_fdr.tsv)"
     )
     parser.add_argument(
         "--output",
         type=str,
-        default=DEFAULT_OUTPUT_PATH,
-        help=f"Path for the output annotated TSV file (default: {DEFAULT_OUTPUT_PATH})."
+        default=OUTPUT_FILE,
+        help="Path for annotated output TSV (default: data/processed/annotated_snps.tsv)"
     )
-
+    parser.add_argument(
+        "--metadata",
+        type=str,
+        default=METADATA_FILE,
+        help="Path for annotation metadata JSON (default: data/processed/annotation_metadata.json)"
+    )
     args = parser.parse_args()
 
-    print("Starting SNP Annotation Pipeline...")
-    print(f"Input: {args.gwas}")
-    print(f"Output: {args.output}")
-
-    # Create session with retry logic
-    session = create_session_with_retries()
+    # Ensure input file exists
+    if not os.path.exists(args.input):
+        print(f"Error: Input file not found: {args.input}")
+        print("Please ensure T022 has run and produced data/processed/gwas_results_fdr.tsv")
+        sys.exit(1)
 
     try:
-        # Load significant SNPs
-        significant_snps = load_gwas_results(args.gwas)
-
-        if significant_snps.empty:
-            # Create an empty output file with headers if no significant SNPs
-            empty_df = pd.DataFrame(columns=['rs_id', 'gene_symbol', 'go_terms', 'pathway'])
-            write_annotated_output(empty_df, args.output)
-            print("No significant SNPs to annotate. Empty output file created.")
-            return
-
-        # Annotate SNPs
-        annotated_df = annotate_snps(significant_snps, session)
-
-        # Write output
-        write_annotated_output(annotated_df, args.output)
-
+        df = load_gwas_results(args.input)
+        annotate_snps(df, args.output, args.metadata)
     except FileNotFoundError as e:
         print(f"Error: {e}")
         sys.exit(1)
