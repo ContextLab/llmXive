@@ -9,7 +9,7 @@ submitter: google.gemma-3-27b-it
 
 ## Research question
 
-Can machine learning models integrating single nucleotide polymorphisms (SNPs) and mobile genetic element (MGE) context predict phenotypic antibiotic resistance more accurately than gene-presence-only models using public genomic data?
+Which SNPs and mobile genetic element contexts provide additional predictive information for phenotypic antibiotic resistance beyond the presence of known resistance genes in bacterial genomes?
 
 ## Motivation
 
@@ -17,28 +17,68 @@ Current genomic surveillance relies heavily on the presence of known resistance 
 
 ## Related work
 
-- [CARD 2023: expanded curation, support for machine learning, and resistome prediction at the Comprehensive Antibiotic Resistance Database (2022)](https://doi.org/10.1093/nar/gkac920) — Provides the curated ontology and machine learning support infrastructure for identifying resistance determinants.
-- [ResFinder 4.0 for predictions of phenotypes from genotypes (2020)](https://doi.org/10.1093/jac/dkaa345) — Establishes baseline methods for predicting phenotypes from genotypes using known resistance genes.
-- [Sequence-based modelling of bacterial genomes enables accurate antibiotic resistance prediction (2024)](https://www.semanticscholar.org/paper/006a51ffa223a24606007ac6e9b96dfabadc4efe) — Demonstrates the potential of sequence-based deep learning approaches for resistance detection.
-- [Using genomic data and machine learning to predict antibiotic resistance: A tutorial paper (2024)](https://www.semanticscholar.org/paper/13344dac2ada27398f972c16bf0af089c8c2fc6c) — Outlines standard workflows and challenges in applying ML to genomic resistance data.
-- [Predicting Antimicrobial Resistance (AMR) in Campylobacter, a Foodborne Pathogen, and Cost Burden Analysis Using Machine Learning (2025)](https://www.semanticscholar.org/paper/0e25fc54e15d4292deb764e60725004b83dac551) — Applies machine learning to specific foodborne pathogens to link genomic features with resistance costs.
-- [Zoonomix: A Pipeline for Assessing Zoonotic Potential and Antibiotic Resistance in Bacterial Genomes (2025)](https://www.semanticscholar.org/paper/6ba6d63655872953c468e117a37bf2b821e87c66) — Offers a pipeline framework for assessing resistance potential in bacterial genomes alongside zoonotic risk.
+- [Fusing Sequence Motifs and Pan-Genomic Features: Antimicrobial Resistance Prediction using an Explainable Lightweight 1D CNN-XGBoost Ensemble (2025)](https://arxiv.org/abs/2509.23552) — Demonstrates that combining sequence motifs with pan-genomic features in an ensemble model improves prediction accuracy over gene-presence-only baselines.
+- [Cross-Species Antimicrobial Resistance Prediction from Genomic Foundation Models (2026)](https://arxiv.org/abs/2603.11141) — Highlights the out-of-distribution generalization challenges in AMR prediction, suggesting that models must account for phylogenetic diversity beyond specific gene markers.
+- [Small antimicrobial resistance proteins (SARPs): Small proteins conferring antimicrobial resistance (2023)](https://arxiv.org/abs/2310.17905) — Provides evidence that small open reading frames (often missed by standard annotation) can confer resistance, supporting the need for sequence-level analysis beyond standard gene catalogs.
+- [AMR-MoEGA: Antimicrobial Resistance Prediction using Mixture of Experts and Genetic Algorithms (2025)](https://arxiv.org/abs/2511.12223) — Proposes evolutionary-aware modeling frameworks that capture complex dynamics not fully explained by static gene presence lists.
 
 ## Expected results
 
-The model will achieve higher F1-scores (target >0.85) for resistance prediction compared to baseline gene-presence models on held-out test sets. Specific SNPs in housekeeping genes and MGE proximity scores will be identified as significant predictors of phenotypic resistance where gene presence alone is insufficient.
+Specific non-coding SNPs and proximity metrics to mobile genetic elements will be identified as statistically significant predictors of resistance in isolates where known resistance genes are absent or insufficient. The integrated model will demonstrate a measurable increase in AUC-ROC and F1-score compared to a baseline model using only gene presence/absence, confirming that these additional features capture distinct biological signals.
 
 ## Methodology sketch
 
-- **Data Acquisition**: Download pre-assembled *E. coli* and *S. aureus* genomes with associated phenotypic AST data from the NCBI Pathogen Genome Browser (https://www.ncbi.nlm.nih.gov/pathogens/) and CARD (https://card.mcmaster.ca/). Limit dataset to 1,000 isolates to fit within 7 GB RAM.
-- **Feature Extraction**: Use `snp-sites` to call SNPs against a core genome reference (low memory footprint). Extract ARG presence/absence using CARD's API. Calculate distance of ARGs to known transposon insertion sites using annotation files.
-- **Data Encoding**: Convert genomic features into a binary/numeric matrix (ARG presence, SNP counts per gene, MGE distance bins). Normalize numerical features using scikit-learn `StandardScaler`.
-- **Model Training**: Train a Random Forest classifier (scikit-learn) and an XGBoost model on CPU. Perform 5-fold cross-validation to prevent overfitting within the 6-hour job limit.
-- **Statistical Testing**: Apply Mann-Whitney U tests to compare feature distributions between resistant and sensitive phenotypes to validate significance of novel markers.
-- **Evaluation**: Compute Precision, Recall, F1-score, and AUC-ROC. Compare performance against a baseline model using only ARG presence features.
+- **Data Acquisition**: Download pre-assembled *E. coli* and *S. aureus* genomes with associated phenotypic AST data from the NCBI Pathogen Genome Browser and CARD. Limit dataset to ~1,000 isolates to ensure fit within 7 GB RAM and 6-hour runtime.
+- **Feature Extraction**: Use `snp-sites` to call SNPs against a core genome reference. Extract ARG presence/absence using CARD's API. Calculate the genomic distance of each ARG to the nearest transposon insertion site or plasmid origin of replication.
+- **Data Encoding**: Construct a feature matrix containing binary ARG presence, SNP counts per gene/intergenic region, and binned MGE distance metrics. Normalize numerical features using scikit-learn `StandardScaler`.
+- **Model Training**: Train a Random Forest classifier and an XGBoost model on CPU using 5-fold cross-validation. Use the baseline model (ARG presence only) as a negative control.
+- **Statistical Validation**: Perform Mann-Whitney U tests to compare the distribution of identified SNPs and MGE distances between resistant and sensitive phenotypes, ensuring the validation target (phenotype) is independent of the genomic predictors.
+- **Evaluation**: Compute Precision, Recall, F1-score, and AUC-ROC. Compare the performance of the integrated model against the baseline to quantify the added predictive value of SNPs and MGE context.
 
 ## Duplicate-check
 
 - Reviewed existing ideas: None provided in current context.
 - Closest match: None (similarity sketch: N/A).
 - Verdict: NOT a duplicate
+
+
+## Search trail
+
+**Generated by**: librarian (prompt v1.6.0) on 2026-08-02T12:54:48Z
+**Outcome**: success_after_expansion
+**Original term**: Predicting Bacterial Antibiotic Resistance from Public Genomic Databases biology
+**Verified citation count**: 5
+
+### Search terms used
+
+| Rank | Term | Hit count |
+|-|-|-|
+| 0 (initial) | Predicting Bacterial Antibiotic Resistance from Public Genomic Databases biology | 0 |
+| 1 | genomic prediction of antimicrobial resistance | 5 |
+| 2 | machine learning for antibiotic resistance detection | 0 |
+| 3 | antimicrobial resistance gene identification from sequencing data | 0 |
+| 4 | whole-genome sequencing based resistance profiling | 0 |
+| 5 | bioinformatics tools for bacterial resistance prediction | 0 |
+| 6 | resistance phenotype prediction from bacterial genomes | 0 |
+| 7 | public database mining for antibiotic resistance markers | 0 |
+| 8 | deep learning models for bacterial AMR classification | 0 |
+| 9 | correlation between genomic variants and antibiotic resistance | 0 |
+| 10 | pan-genome analysis for resistance trait discovery | 0 |
+| 11 | k-mer based approaches to predict drug resistance | 0 |
+| 12 | automated detection of resistance genes in metagenomic data | 0 |
+| 13 | computational prediction of multidrug resistance in bacteria | 0 |
+| 14 | sequence-based antimicrobial susceptibility testing | 0 |
+| 15 | phylogenetic analysis of antibiotic resistance evolution | 0 |
+| 16 | functional annotation of resistance determinants in genomic databases | 0 |
+| 17 | variant calling for antibiotic resistance prediction | 0 |
+| 18 | in silico antimicrobial susceptibility testing | 0 |
+| 19 | comparative genomics of resistant and susceptible bacterial strains | 0 |
+| 20 | natural language processing of genomic literature for resistance insights | 0 |
+
+### Verified citations
+
+1. **Cross-Species Antimicrobial Resistance Prediction from Genomic Foundation Models** (2026). Huilin Tai. arXiv. [2603.11141](https://arxiv.org/abs/2603.11141). PDF-sampled: No.
+2. **AMR-MoEGA: Antimicrobial Resistance Prediction using Mixture of Experts and Genetic Algorithms** (2025). Anshul Bagaria. arXiv. [2511.12223](https://arxiv.org/abs/2511.12223). PDF-sampled: No.
+3. **Small antimicrobial resistance proteins (SARPs): Small proteins conferring antimicrobial resistance** (2023). Rianne C. Prins, Sonja Billerbeck. arXiv. [2310.17905](https://arxiv.org/abs/2310.17905). PDF-sampled: No.
+4. **Predicting Antimicrobial Resistance in the Intensive Care Unit** (2021). Taiyao Wang, Kyle R. Hansen, Joshua Loving, Ioannis Ch. Paschalidis, Helen van Aggelen, et al.. arXiv. [2111.03575](https://arxiv.org/abs/2111.03575). PDF-sampled: No.
+5. **Fusing Sequence Motifs and Pan-Genomic Features: Antimicrobial Resistance Prediction using an Explainable Lightweight 1D CNN-XGBoost Ensemble** (2025). Md. Saiful Bari Siddiqui, Nowshin Tarannum. arXiv. [2509.23552](https://arxiv.org/abs/2509.23552). PDF-sampled: No.

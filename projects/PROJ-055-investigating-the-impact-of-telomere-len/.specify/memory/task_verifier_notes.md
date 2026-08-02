@@ -1,0 +1,11 @@
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T010** — No configuration files, scripts, or documentation for managing Dryad/AnAge API keys or setting random seeds were provided; the claim lacks any tangible artifact demonstrating that environment configuration management has been implemented.
+- **T011** — The required artifact `tests/test_ingest.py` does not exist on disk, so no unit test for Dryad URL parsing and CSV loading is present. The task cannot be considered completed until this file is created with appropriate test code.
+- **T017** — The repository contains a partially implemented `code/03_clean_merge.py` (truncated and lacking any merge, logging, or validation logic) and the required output file `data/processed/merged_data.csv` does not exist. Consequently, the script does not perform the species‑name join, does not write a missing‑data log, and does not verify the schema or the wild‑caught filter as specified. The task therefore remains unfinished.
+- **T022** — The required input file `data/processed/merged_data.csv` is missing, and the provided `code/04_model_pglS.py` contains no logic to extract unique species or query the `rotl` API to download a Newick tree into `data/phylogeny/`. Consequently the task’s core requirements are not satisfied.
+- **T025** — The provided `code/04_model_pglS.py` does not contain any logic that writes the model results to `results/model_summary.csv`, and the expected output file is absent from the repository. Consequently, the task of saving results and logging the phylogenetic signal (lambda) is not fulfilled.
+- **T026** — The `code/R/02_sensitivity.R` script exists but is truncated before the model‑fitting and CSV‑writing sections, so we cannot confirm it produces the required columns. Moreover, the expected output file `results/sensitivity_log.csv` is absent. The task therefore lacks a complete, verifiable implementation and the required result file.
+- **T036** — declared artifact(s) missing/empty/invalid: results/moderator_plot.png

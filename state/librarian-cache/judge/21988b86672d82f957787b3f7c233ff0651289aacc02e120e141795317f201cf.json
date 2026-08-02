@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2511.12223",
+  "judged_at": "2026-08-02T12:54:39Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting bacterial antibiotic resistance from public genomic databases biology",
+  "rationale": "This paper directly addresses the user's question by proposing a computational framework to predict bacterial antibiotic resistance using genomic data, satisfying criteria (a) for measuring the same biological mechanism (AMR evolution) and (b) for utilizing the same independent variable (genomic sequences) and dependent variable (resistance prediction) on the specified domain.",
+  "relevant": true
+}

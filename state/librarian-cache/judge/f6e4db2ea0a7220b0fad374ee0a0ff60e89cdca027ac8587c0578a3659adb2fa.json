@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2603.11141",
+  "judged_at": "2026-08-02T12:54:36Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting bacterial antibiotic resistance from public genomic databases biology",
+  "rationale": "This paper directly addresses the user's question by providing a canonical study on predicting bacterial antibiotic resistance using genomic data from public databases (implied by the use of foundation models like Evo-1 trained on large-scale genomic corpora). It satisfies criteria (a) and (b) as it measures the same biological mechanism (antibiotic resistance) and dependent variable (prediction accuracy) on the same domain (bacterial genomes), while also establishing an empirical baseline for c",
+  "relevant": true
+}

@@ -1,11 +1,3 @@
-"""
-Divergence Model for Semantic Divergence Diagnostic.
-
-Implements DistilBERT-based encoding and cosine similarity calculation
-to compute the Semantic Divergence Score between thinking processes
-and tool descriptions.
-"""
-
 import os
 import torch
 import numpy as np
@@ -13,228 +5,218 @@ from typing import List, Dict, Any, Optional, Tuple
 from dataclasses import dataclass, asdict
 from transformers import DistilBertTokenizer, DistilBertModel
 import logging
-
 from lib.metrics import cosine_similarity_safe, compute_centroid
 
 logger = logging.getLogger(__name__)
-
 
 class DivergenceModelError(Exception):
     """Custom exception for divergence model errors."""
     pass
 
-
 @dataclass
 class DivergenceResult:
-    """Result container for a single problem's divergence calculation."""
+    """Data class to hold divergence calculation results."""
     problem_id: str
     thinking_embedding: List[float]
     tool_centroid_embedding: List[float]
     cosine_similarity: float
     semantic_divergence_score: float
-    retrieved_tool_count: int
-
-    def to_dict(self) -> Dict[str, Any]:
-        """Convert to dictionary for JSON serialization."""
-        return asdict(self)
-
+    retrieval_stats: Dict[str, Any]  # Added to store retrieval stats (num tools, embedding dim)
 
 class DivergenceModel:
     """
-    Handles loading DistilBERT, encoding text, and computing
-    semantic divergence scores.
+    Model to compute semantic divergence scores using DistilBERT embeddings and BM25 retrieval.
     """
+    def __init__(self, tokenizer: DistilBertTokenizer, model: DistilBertModel):
+        self.tokenizer = tokenizer
+        self.model = model
+        self.device = torch.device("cpu")  # CPU-first as per spec
+        self.model.to(self.device)
+        self.model.eval()
+        logger.info(f"DivergenceModel initialized on {self.device}")
 
-    def __init__(self, device: Optional[str] = None):
+    def encode_text(self, text: str) -> np.ndarray:
         """
-        Initialize the model and tokenizer.
-
+        Encode text into embeddings using DistilBERT.
+        
         Args:
-            device: Device to run inference on ('cpu', 'cuda', or None for auto).
-        """
-        self.device = device or ('cuda' if torch.cuda.is_available() else 'cpu')
-        logger.info(f"Initializing DivergenceModel on device: {self.device}")
-
-        try:
-            self.tokenizer = DistilBertTokenizer.from_pretrained(
-                "distilbert-base-uncased"
-            )
-            self.model = DistilBertModel.from_pretrained(
-                "distilbert-base-uncased"
-            )
-            self.model.to(self.device)
-            self.model.eval()
-            logger.info("DistilBERT model and tokenizer loaded successfully.")
-        except Exception as e:
-            raise DivergenceModelError(f"Failed to load DistilBERT: {e}")
-
-        self.embedding_dim = self.model.config.hidden_size
-
-    def encode_text(self, text: str, prefix: str = "") -> np.ndarray:
-        """
-        Encode a text string into a dense embedding vector.
-
-        Args:
-            text: The text to encode.
-            prefix: Optional prefix to prepend (e.g., "Thinking: ").
-
+            text: Input text string.
+            
         Returns:
-            numpy array of shape (embedding_dim,) representing the mean-pooled embedding.
+            Numpy array of embeddings (mean pooling over tokens).
         """
-        if not text or not text.strip():
-            logger.warning("Empty text provided for encoding, returning zero vector.")
-            return np.zeros(self.embedding_dim, dtype=np.float32)
-
-        full_text = f"{prefix} {text}".strip() if prefix else text
-
+        if not text:
+            raise DivergenceModelError("Input text cannot be empty")
+        
         inputs = self.tokenizer(
-            full_text,
-            return_tensors="pt",
-            padding=True,
-            truncation=True,
+            text, 
+            return_tensors="pt", 
+            padding=True, 
+            truncation=True, 
             max_length=512
-        )
-        inputs = {k: v.to(self.device) for k, v in inputs.items()}
-
+        ).to(self.device)
+        
         with torch.no_grad():
             outputs = self.model(**inputs)
-
+        
         # Mean pooling over the last hidden state
-        # attention_mask shape: (batch, seq_len)
-        # last_hidden_state shape: (batch, seq_len, hidden_dim)
+        last_hidden_states = outputs.last_hidden_state
         attention_mask = inputs['attention_mask']
-        last_hidden_state = outputs.last_hidden_state
+        input_mask_expanded = attention_mask.unsqueeze(-1).expand(last_hidden_states.size()).float()
+        embeddings = torch.sum(last_hidden_states * input_mask_expanded, 1) / torch.clamp(input_mask_expanded.sum(1), min=1e-9)
+        
+        return embeddings.cpu().numpy().flatten()
 
-        # Expand attention_mask to match hidden state dimensions for broadcasting
-        input_mask_expanded = attention_mask.unsqueeze(-1).expand(
-            last_hidden_state.size()
-        ).float()
-
-        sum_embeddings = torch.sum(last_hidden_state * input_mask_expanded, 1)
-        sum_mask = torch.clamp(input_mask_expanded.sum(1), min=1e-9)
-
-        embedding = sum_embeddings / sum_mask
-        embedding = embedding.squeeze(0).cpu().numpy()
-
-        if embedding.shape[0] != self.embedding_dim:
-            raise DivergenceModelError(
-                f"Unexpected embedding dimension: {embedding.shape[0]}, expected {self.embedding_dim}"
-            )
-
-        return embedding
-
-    def compute_thinking_embedding(self, thinking_text: str) -> np.ndarray:
+    def compute_thinking_embedding(self, thinking_prefix: str) -> np.ndarray:
         """
-        Compute the embedding for the 'thinking' prefix of a problem.
-
+        Compute embedding for the thinking prefix.
+        
         Args:
-            thinking_text: The raw thinking text from the dataset.
-
+            thinking_prefix: The thinking prefix string.
+            
         Returns:
-            Embedding vector.
+            Embedding vector as numpy array.
         """
-        # The task specifies encoding the "thinking prefix".
-        # We prepend a semantic tag to ensure the model understands context.
-        return self.encode_text(thinking_text, prefix="Thinking Process:")
+        return self.encode_text(thinking_prefix)
 
-    def compute_tool_centroid_embedding(
-        self,
-        retrieved_tool_descriptions: List[str]
-    ) -> np.ndarray:
+    def compute_tool_centroid_embedding(self, tool_embeddings: List[np.ndarray]) -> np.ndarray:
         """
-        Compute the centroid embedding of a list of tool descriptions.
-
+        Compute centroid of tool embeddings.
+        
         Args:
-            retrieved_tool_descriptions: List of tool description strings.
-
+            tool_embeddings: List of tool embedding vectors.
+            
         Returns:
-            Centroid embedding vector (mean of all tool embeddings).
+            Centroid embedding vector.
         """
-        if not retrieved_tool_descriptions:
-            logger.warning("No tool descriptions provided, returning zero vector.")
-            return np.zeros(self.embedding_dim, dtype=np.float32)
-
-        embeddings = []
-        for i, desc in enumerate(retrieved_tool_descriptions):
-            if not desc or not desc.strip():
-                continue
-            emb = self.encode_text(desc, prefix="Tool Description:")
-            embeddings.append(emb)
-
-        if not embeddings:
-            logger.warning("All tool descriptions were empty, returning zero vector.")
-            return np.zeros(self.embedding_dim, dtype=np.float32)
-
-        # Compute centroid (mean)
-        stacked = np.stack(embeddings, axis=0)
-        centroid = np.mean(stacked, axis=0)
-        return centroid
+        if not tool_embeddings:
+            # Return zero vector if no tools retrieved
+            return np.zeros(768)  # DistilBERT dimension
+        
+        return compute_centroid(tool_embeddings)
 
     def calculate_divergence_score(
-        self,
-        thinking_embedding: np.ndarray,
+        self, 
+        thinking_embedding: np.ndarray, 
         tool_centroid_embedding: np.ndarray
     ) -> float:
         """
-        Calculate the Semantic Divergence Score.
-
-        Score = 1 - CosineSimilarity(thinking, tool_centroid)
-
+        Calculate semantic divergence score as 1 - cosine_similarity.
+        
         Args:
-            thinking_embedding: Thinking process embedding.
-            tool_centroid_embedding: Tool centroid embedding.
-
+            thinking_embedding: Embedding of the thinking prefix.
+            tool_centroid_embedding: Centroid embedding of retrieved tools.
+            
         Returns:
-            Divergence score (0.0 = identical, 1.0 = orthogonal/opposite).
+            Divergence score (1 - cosine_similarity).
         """
-        # Handle zero vectors safely
-        if np.allclose(thinking_embedding, 0) or np.allclose(tool_centroid_embedding, 0):
-            # If one is zero, similarity is 0, so divergence is 1.0
-            return 1.0
-
-        similarity = cosine_similarity_safe(thinking_embedding, tool_centroid_embedding)
-        divergence = 1.0 - similarity
-        return float(divergence)
+        sim = cosine_similarity_safe(thinking_embedding, tool_centroid_embedding)
+        return 1.0 - sim
 
     def process_problem(
         self,
         problem_id: str,
-        thinking_text: str,
-        retrieved_tool_descriptions: List[str]
+        thinking_prefix: str,
+        tool_embeddings: List[np.ndarray],
+        retrieval_stats: Dict[str, Any]
     ) -> DivergenceResult:
         """
-        Process a single problem to compute its divergence score.
-
+        Process a single problem to compute divergence metrics.
+        
         Args:
-            problem_id: Unique identifier for the problem.
-            thinking_text: The thinking trace text.
-            retrieved_tool_descriptions: List of tool descriptions retrieved by BM25.
-
+            problem_id: Problem identifier.
+            thinking_prefix: Thinking prefix string.
+            tool_embeddings: List of embeddings for retrieved tools.
+            retrieval_stats: Dictionary containing retrieval statistics (e.g., num_tools, embedding_dim).
+            
         Returns:
-            DivergenceResult object containing embeddings and score.
+            DivergenceResult object with all computed metrics.
         """
-        logger.debug(f"Processing problem {problem_id}")
+        try:
+            thinking_emb = self.compute_thinking_embedding(thinking_prefix)
+            tool_centroid = self.compute_tool_centroid_embedding(tool_embeddings)
+            divergence = self.calculate_divergence_score(thinking_emb, tool_centroid)
+            
+            logger.info(
+                f"Processed problem {problem_id}: "
+                f"retrieved {retrieval_stats.get('num_tools', 0)} tools, "
+                f"embedding_dim={retrieval_stats.get('embedding_dim', 768)}, "
+                f"divergence_score={divergence:.4f}"
+            )
+            
+            return DivergenceResult(
+                problem_id=problem_id,
+                thinking_embedding=thinking_emb.tolist(),
+                tool_centroid_embedding=tool_centroid.tolist(),
+                cosine_similarity=1.0 - divergence,
+                semantic_divergence_score=divergence,
+                retrieval_stats=retrieval_stats
+            )
+        except Exception as e:
+            logger.error(f"Error processing problem {problem_id}: {e}")
+            raise DivergenceModelError(f"Failed to process problem {problem_id}: {e}")
 
-        # 1. Compute Thinking Embedding
-        thinking_emb = self.compute_thinking_embedding(thinking_text)
+def get_model_and_tokenizer() -> Tuple[DistilBertTokenizer, DistilBertModel]:
+    """
+    Load DistilBERT tokenizer and model.
+    
+    Returns:
+        Tuple of (tokenizer, model).
+    """
+    model_name = "distilbert-base-uncased"
+    logger.info(f"Loading {model_name}...")
+    tokenizer = DistilBertTokenizer.from_pretrained(model_name)
+    model = DistilBertModel.from_pretrained(model_name)
+    return tokenizer, model
 
-        # 2. Compute Tool Centroid Embedding
-        tool_centroid_emb = self.compute_tool_centroid_embedding(retrieved_tool_descriptions)
+def encode_text(text: str, tokenizer: DistilBertTokenizer, model: DistilBertModel) -> np.ndarray:
+    """
+    Convenience function to encode text.
+    
+    Args:
+        text: Input text.
+        tokenizer: DistilBertTokenizer.
+        model: DistilBertModel.
+        
+    Returns:
+        Embedding vector.
+    """
+    # Create a temporary model instance for this call if needed, 
+    # or assume model is already on correct device. 
+    # For simplicity in this utility, we re-use the logic from the class.
+    device = torch.device("cpu")
+    model.to(device)
+    model.eval()
+    
+    inputs = tokenizer(text, return_tensors="pt", padding=True, truncation=True, max_length=512).to(device)
+    with torch.no_grad():
+        outputs = model(**inputs)
+    last_hidden_states = outputs.last_hidden_state
+    attention_mask = inputs['attention_mask']
+    input_mask_expanded = attention_mask.unsqueeze(-1).expand(last_hidden_states.size()).float()
+    embeddings = torch.sum(last_hidden_states * input_mask_expanded, 1) / torch.clamp(input_mask_expanded.sum(1), min=1e-9)
+    return embeddings.cpu().numpy().flatten()
 
-        # 3. Calculate Divergence Score
-        score = self.calculate_divergence_score(thinking_emb, tool_centroid_emb)
+def compute_thinking_embedding(thinking_prefix: str, tokenizer: DistilBertTokenizer, model: DistilBertModel) -> np.ndarray:
+    return encode_text(thinking_prefix, tokenizer, model)
 
-        # 4. Return Result
-        return DivergenceResult(
-            problem_id=problem_id,
-            thinking_embedding=thinking_emb.tolist(),
-            tool_centroid_embedding=tool_centroid_emb.tolist(),
-            cosine_similarity=1.0 - score,
-            semantic_divergence_score=score,
-            retrieved_tool_count=len(retrieved_tool_descriptions)
-        )
+def compute_tool_centroid_embedding(tool_embeddings: List[np.ndarray]) -> np.ndarray:
+    return compute_centroid(tool_embeddings)
 
+def calculate_divergence_score(thinking_embedding: np.ndarray, tool_centroid_embedding: np.ndarray) -> float:
+    sim = cosine_similarity_safe(thinking_embedding, tool_centroid_embedding)
+    return 1.0 - sim
 
-def create_divergence_model(device: Optional[str] = None) -> DivergenceModel:
-    """Factory function to create a DivergenceModel instance."""
-    return DivergenceModel(device=device)
+def process_problem(
+    problem_id: str,
+    thinking_prefix: str,
+    tool_embeddings: List[np.ndarray],
+    retrieval_stats: Dict[str, Any],
+    tokenizer: DistilBertTokenizer,
+    model: DistilBertModel
+) -> DivergenceResult:
+    """
+    Process a problem using standalone functions.
+    """
+    model_instance = DivergenceModel(tokenizer, model)
+    return model_instance.process_problem(problem_id, thinking_prefix, tool_embeddings, retrieval_stats)

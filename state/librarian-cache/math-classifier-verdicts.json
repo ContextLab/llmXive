@@ -467,6 +467,10 @@
     "classified_at": "2026-06-24T22:47:38Z",
     "verdict": false
   },
+  "PROJ-313-predicting-bacterial-antibiotic-resistan::1.6.0": {
+    "classified_at": "2026-08-02T12:54:24Z",
+    "verdict": false
+  },
   "PROJ-314-predicting-the-impact-of-composition-on-::1.6.0": {
     "classified_at": "2026-07-13T15:52:16Z",
     "verdict": false

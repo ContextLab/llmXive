@@ -1,53 +1,74 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: StyleVariant
-description: Schema for a style-transformed variant of a base function (8-way factorial).
+$schema: http://json-schema.org/draft-07/schema#
+title: Style Variant Schema
+description: Schema for a generated style variant of a base function.
 type: object
 required:
-  - id
-  - base_function_id
-  - source_code
-  - transformation_flags
-  - created_at
+  variant_id
+  base_function_id
+  style_config
+  source_code
+  is_generic_naming
+  is_stripped_comments
+  is_minified
+  is_semantic_opacity
+  transform_seed
+  transform_seed_hash
+  created_at
 properties:
-  id:
+  variant_id:
     type: string
     description: Unique identifier for this specific variant.
   base_function_id:
     type: string
-    description: Reference to the base function ID.
+    description: Reference to the base function this variant was generated from.
+  style_config:
+    type: object
+    description: Configuration used to generate this variant.
+    required:
+      - formatter
+      - renamer
+      - stripper
+    properties:
+      formatter:
+        type: string
+        enum: [black, minified]
+      renamer:
+        type: string
+        enum: [original, generic]
+      stripper:
+        type: string
+        enum: [original, stripped]
   source_code:
     type: string
-    description: The transformed Python source code.
-  transformation_flags:
-    type: object
-    description: Boolean flags defining the 2x2x2 factorial design.
-    required:
-      - is_minified
-      - is_generic_naming
-      - is_stripped_comments
-    properties:
-      is_minified:
-        type: boolean
-        description: True if minified formatting was applied.
-      is_generic_naming:
-        type: boolean
-        description: True if generic naming (var1, func2) was applied.
-      is_stripped_comments:
-        type: boolean
-        description: True if comments and docstrings were removed.
+    description: The transformed source code.
+  is_generic_naming:
+    type: boolean
+    description: True if identifiers were replaced with generic tokens.
+  is_stripped_comments:
+    type: boolean
+    description: True if comments and docstrings were removed.
+  is_minified:
+    type: boolean
+    description: True if code was minified (compact whitespace).
   is_semantic_opacity:
     type: boolean
-    description: Derived flag: true if is_generic_naming AND is_stripped_comments are both true.
-  seed_info:
-    type: object
-    description: Reproducibility metadata.
-    properties:
-      transform_seed:
-        type: integer
-      identifier_mapping_hash:
-        type: string
-        description: SHA256 hash of the identifier mapping dictionary.
+    description: True if both generic naming AND stripped comments are applied.
+  transform_seed:
+    type: integer
+    description: Random seed used for this transformation.
+  transform_seed_hash:
+    type: string
+    description: SHA256 hash of the identifier mapping dictionary for reproducibility.
   created_at:
     type: string
     format: date-time
-    description: ISO 8601 timestamp of generation.
+    description: Timestamp of generation.
+  validation_status:
+    type: string
+    enum: [valid, invalid, pending]
+    description: Result of syntax validation.
+  validation_error:
+    type: string
+    nullable: true
+    description: Error message if validation failed.
+additionalProperties: false

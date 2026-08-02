@@ -2,11 +2,5 @@
 ruff>=0.1.0
 black>=23.0.0
 pytest>=7.0.0
-pre-commit>=3.0.0
-# Core dependencies (ensure consistency)
-transformers
-rank_bm25
-scikit-learn
-pandas
-datasets
-pyyaml
+pytest-cov>=4.0.0
+tomli>=2.0.0; python_version < "3.11"

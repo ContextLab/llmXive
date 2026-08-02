@@ -1,17 +1,9 @@
-"""
-Retrieval Service for LLMXive.
-
-Implements BM25-based retrieval of tool descriptions based on thinking traces.
-"""
 import os
 import re
 from typing import List, Dict, Any, Optional, Tuple
 from rank_bm25 import BM25Okapi
 import logging
 import numpy as np
-
-from src.lib.tool_mapper import extract_tool_descriptions, ToolMapperError
-from lib.config import DATA_ROOT
 
 logger = logging.getLogger(__name__)
 
@@ -21,225 +13,144 @@ class RetrievalServiceError(Exception):
 
 class RetrievalService:
     """
-    Service for building and querying BM25 index of tool descriptions.
+    Service for retrieving relevant tool descriptions based on a query using BM25.
     """
-    
-    def __init__(self, tool_map_path: Optional[str] = None):
+    def __init__(self, tool_descriptions: List[str], problem_ids: List[str]):
         """
-        Initialize the retrieval service.
+        Initialize the retrieval service with tool descriptions and problem IDs.
         
         Args:
-            tool_map_path: Optional path to the tool mapping JSON.
+            tool_descriptions: List of tool description strings.
+            problem_ids: List of problem IDs corresponding to the tool descriptions.
         """
-        self.bm25_index: Optional[BM25Okapi] = None
-        self.tool_descriptions: List[str] = []
-        self.tokenized_corpus: List[List[str]] = []
-        self.tool_map_path = tool_map_path
-        self._built = False
+        if len(tool_descriptions) != len(problem_ids):
+            raise RetrievalServiceError(
+                f"Length mismatch: {len(tool_descriptions)} descriptions vs {len(problem_ids)} IDs"
+            )
         
-        logger.info("RetrievalService initialized")
-    
+        self.tool_descriptions = tool_descriptions
+        self.problem_ids = problem_ids
+        
+        # Pre-process tool descriptions for BM25
+        self.tokenized_corpus = [
+          self._tokenize(doc) for doc in tool_descriptions
+        ]
+        
+        # Build BM25 index
+        self.bm25 = BM25Okapi(self.tokenized_corpus)
+        
+        logger.info(f"RetrievalService initialized with {len(self.tool_descriptions)} tools")
+
     def _tokenize(self, text: str) -> List[str]:
         """
-        Simple tokenizer: lowercases and splits on non-alphanumeric characters.
+        Tokenize text into lowercase words, removing non-alphanumeric characters.
         
         Args:
-            text: Input text to tokenize.
+            text: Input text string.
             
         Returns:
-            List of token strings.
+            List of tokenized words.
         """
-        if not text or not isinstance(text, str):
-            return []
-        
-        # Convert to lowercase and split on non-alphanumeric
-        tokens = re.findall(r'\b\w+\b', text.lower())
+        text = text.lower()
+        # Remove non-alphanumeric characters except spaces
+        text = re.sub(r'[^a-z0-9\s]', ' ', text)
+        # Split into words and filter empty strings
+        tokens = [word for word in text.split() if word]
         return tokens
-    
-    def build_index(self, problems: List[Dict[str, Any]]) -> None:
-        """
-        Build the BM25 index from a list of problems.
-        
-        Args:
-            problems: List of problem dictionaries, each expected to have
-                     'tool_descriptions' key.
-                     
-        Raises:
-            RetrievalServiceError: If building the index fails.
-        """
-        if not problems:
-            raise RetrievalServiceError("Cannot build index with empty problems list")
-        
-        self.tool_descriptions = []
-        self.tokenized_corpus = []
-        
-        for i, problem in enumerate(problems):
-            try:
-                descs = extract_tool_descriptions(problem)
-                if not descs:
-                    continue
-                
-                # Store all descriptions for this problem
-                for desc in descs:
-                    self.tool_descriptions.append(desc)
-                    tokenized = self._tokenize(desc)
-                    if tokenized:
-                        self.tokenized_corpus.append(tokenized)
-                    else:
-                        logger.warning(f"Empty tokenization for description {len(self.tool_descriptions)}")
-                        
-            except ToolMapperError as e:
-                logger.warning(f"Skipping problem {i} due to tool mapping error: {e}")
-        
-        if not self.tokenized_corpus:
-            raise RetrievalServiceError(
-                "Failed to build index: No valid tool descriptions found in problems"
-            )
-        
-        try:
-            self.bm25_index = BM25Okapi(self.tokenized_corpus)
-            self._built = True
-            logger.info(f"BM25 index built successfully with {len(self.tokenized_corpus)} documents")
-        except Exception as e:
-            raise RetrievalServiceError(f"Failed to create BM25 index: {e}")
-    
-    def retrieve_top_k(
-        self,
-        thinking_trace: str,
-        k: int = 3
-    ) -> Tuple[List[str], List[float]]:
-        """
-        Retrieve top-k tool descriptions based on thinking trace.
-        
-        Args:
-            thinking_trace: The thinking trace text to search against.
-            k: Number of results to return.
-            
-        Returns:
-            Tuple of (list of tool descriptions, list of scores).
-            
-        Raises:
-            RetrievalServiceError: If the index is not built or retrieval fails.
-        """
-        if not self._built or self.bm25_index is None:
-            raise RetrievalServiceError(
-                "BM25 index not built. Call build_index() first."
-            )
-        
-        if not thinking_trace or not isinstance(thinking_trace, str):
-            # Handle empty or invalid thinking trace
-            logger.warning("Empty or invalid thinking trace provided")
-            return [], []
-        
-        try:
-            query_tokens = self._tokenize(thinking_trace)
-            
-            if not query_tokens:
-                logger.warning("Query tokenization resulted in empty list")
-                return [], []
-            
-            # Get BM25 scores
-            doc_scores = self.bm25_index.get_scores(query_tokens)
-            
-            # Handle edge case where scores might be NaN or inf
-            doc_scores = np.nan_to_num(doc_scores, nan=0.0, posinf=0.0, neginf=0.0)
-            
-            # Get top-k indices
-            if len(doc_scores) == 0:
-                return [], []
-            
-            top_k_indices = np.argsort(doc_scores)[::-1][:k]
-            
-            results = []
-            scores = []
-            
-            for idx in top_k_indices:
-                if doc_scores[idx] > 0:  # Only include if score is positive
-                    results.append(self.tool_descriptions[idx])
-                    scores.append(float(doc_scores[idx]))
-            
-            logger.debug(f"Retrieved {len(results)} tools for query")
-            return results, scores
-            
-        except Exception as e:
-            raise RetrievalServiceError(f"Retrieval failed: {e}")
-    
-    def get_index_stats(self) -> Dict[str, Any]:
-        """
-        Get statistics about the built index.
-        
-        Returns:
-            Dictionary with index statistics.
-        """
-        return {
-            "built": self._built,
-            "num_documents": len(self.tool_descriptions),
-            "num_tokens_corpus": len(self.tokenized_corpus),
-            "avg_doc_length": (
-                np.mean([len(t) for t in self.tokenized_corpus])
-                if self.tokenized_corpus else 0.0
-            )
-        }
 
-def create_retrieval_service(tool_map_path: Optional[str] = None) -> RetrievalService:
+    def retrieve_top_tools(
+        self, 
+        query: str, 
+        top_k: int = 5
+    ) -> Tuple[List[str], List[float], int]:
+        """
+        Retrieve top-k most relevant tool descriptions for a given query.
+        
+        Args:
+            query: The query string (e.g., thinking prefix).
+            top_k: Number of top results to return.
+            
+        Returns:
+            Tuple of (retrieved_tool_ids, scores, embedding_dimension)
+            - retrieved_tool_ids: List of problem IDs for the top-k tools.
+            - scores: List of BM25 scores for the top-k tools.
+            - embedding_dimension: Dimension of the embedding vector used for downstream scoring (fixed at 768 for DistilBERT).
+            
+        Raises:
+            RetrievalServiceError: If retrieval fails or input is invalid.
+        """
+        if not query or not isinstance(query, str):
+            raise RetrievalServiceError("Query must be a non-empty string")
+        
+        if top_k <= 0:
+            raise RetrievalServiceError("top_k must be a positive integer")
+        
+        # Tokenize query
+        query_tokens = self._tokenize(query)
+        
+        if not query_tokens:
+            # Handle zero-retrieval edge case: return empty lists and zero score
+            logger.warning(f"Query '{query}' resulted in no tokens. Returning empty retrieval.")
+            return [], [], 768  # DistilBERT base model dimension is 768
+        
+        # Compute BM25 scores
+        doc_scores = self.bm25.get_scores(query_tokens)
+        
+        # Get top-k indices
+        top_k_indices = np.argsort(doc_scores)[::-1][:top_k]
+        
+        # Filter out zero scores (no match) if necessary, but keep top_k regardless for consistency
+        retrieved_ids = []
+        retrieved_scores = []
+        
+        for idx in top_k_indices:
+            if doc_scores[idx] > 0:  # Only include if there's a match
+                retrieved_ids.append(self.problem_ids[idx])
+                retrieved_scores.append(float(doc_scores[idx]))
+            else:
+                # If we hit a zero score, we can stop or continue with zeros depending on requirement
+                # Here we stop to avoid returning irrelevant tools
+                break
+        
+        # Log retrieval stats
+        logger.info(
+            f"Retrieval stats for query '{query[:50]}...': "
+            f"retrieved {len(retrieved_ids)} tools, "
+            f"embedding dimension = 768"
+        )
+        
+        return retrieved_ids, retrieved_scores, 768
+
+def create_retrieval_service(
+    tool_descriptions: List[str], 
+    problem_ids: List[str]
+) -> RetrievalService:
     """
     Factory function to create a RetrievalService instance.
     
     Args:
-        tool_map_path: Optional path to the tool mapping JSON.
+        tool_descriptions: List of tool description strings.
+        problem_ids: List of problem IDs.
         
     Returns:
-        Configured RetrievalService instance.
+        Configured RetrieualService instance.
     """
-    return RetrievalService(tool_map_path=tool_map_path)
+    return RetrievalService(tool_descriptions, problem_ids)
 
 def retrieve_top_tools(
-    problems: List[Dict[str, Any]],
-    thinking_traces: List[str],
-    k: int = 3
-) -> List[Dict[str, Any]]:
+    service: RetrievalService,
+    query: str,
+    top_k: int = 5
+) -> Tuple[List[str], List[float], int]:
     """
-    Convenience function to retrieve top-k tools for multiple problems.
+    Convenience function to retrieve tools using a service instance.
     
     Args:
-        problems: List of problem dictionaries.
-        thinking_traces: List of thinking traces corresponding to each problem.
-        k: Number of results per query.
+        service: RetrievalService instance.
+        query: Query string.
+        top_k: Number of top results.
         
     Returns:
-        List of dictionaries with problem_id, retrieved_tools, and scores.
-        
-    Raises:
-        RetrievalServiceError: If retrieval fails.
+        Tuple of (retrieved_tool_ids, scores, embedding_dimension).
     """
-    if len(problems) != len(thinking_traces):
-        raise RetrievalServiceError(
-            "problems and thinking_traces must have the same length"
-        )
-    
-    service = RetrievalService()
-    service.build_index(problems)
-    
-    results = []
-    for i, trace in enumerate(thinking_traces):
-        problem_id = problems[i].get('problem_id', f'problem_{i}')
-        
-        try:
-            tools, scores = service.retrieve_top_k(trace, k=k)
-            results.append({
-                'problem_id': problem_id,
-                'retrieved_tools': tools,
-                'tool_scores': scores,
-                'num_tools_retrieved': len(tools)
-            })
-        except RetrievalServiceError as e:
-            logger.error(f"Retrieval failed for problem {problem_id}: {e}")
-            results.append({
-                'problem_id': problem_id,
-                'retrieved_tools': [],
-                'tool_scores': [],
-                'num_tools_retrieved': 0,
-                'error': str(e)
-            })
-    
-    return results
+    return service.retrieve_top_tools(query, top_k)

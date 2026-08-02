@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2509.23552",
+  "judged_at": "2026-08-02T12:54:45Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting bacterial antibiotic resistance from public genomic databases biology",
+  "rationale": "This paper directly addresses the user's question by providing a canonical method for predicting bacterial antibiotic resistance using genomic data (specifically SNPs and pan-genomic features), satisfying criteria (a) for measuring the same biological mechanism and (b) for operating on the same domain and variables. It serves as essential prior work for anyone researching computational prediction of resistance from public genomic databases.",
+  "relevant": true
+}

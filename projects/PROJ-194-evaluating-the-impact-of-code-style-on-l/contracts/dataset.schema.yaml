@@ -1,32 +1,36 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: BaseFunction
-description: Schema for the base Python function before any style transformation.
+$schema: http://json-schema.org/draft-07/schema#
+title: Base Function Dataset Schema
+description: Schema for the base Python function dataset used in the study.
 type: object
 required:
-  - id
+  - function_id
   - source_code
-  - original_language
-  - dataset_source
-  - created_at
+  - docstring
+  - language
+  - source
 properties:
-  id:
+  function_id:
     type: string
-    description: Unique identifier for the base function.
+    description: Unique identifier for the function (e.g., hash or UUID).
+    minLength: 1
   source_code:
     type: string
-    description: The original Python source code.
-  original_language:
+    description: The original Python source code of the function.
+    minLength: 1
+  docstring:
     type: string
-    enum: ["python"]
-    description: Programming language of the source.
-  dataset_source:
+    description: The original docstring of the function.
+    minLength: 0
+  language:
     type: string
-    description: URL or name of the dataset this function originated from.
-  created_at:
+    description: Programming language of the function.
+    const: python
+  source:
     type: string
-    format: date-time
-    description: ISO 8601 timestamp of ingestion.
+    description: Original source of the function (e.g., "HumanEval", "MBPP").
+    minLength: 1
   metadata:
     type: object
-    description: Optional additional metadata (e.g., difficulty, topic).
+    description: Optional metadata such as difficulty, tags, or original file path.
     additionalProperties: true
+additionalProperties: false

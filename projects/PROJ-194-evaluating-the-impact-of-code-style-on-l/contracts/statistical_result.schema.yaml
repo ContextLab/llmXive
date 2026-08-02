@@ -1,40 +1,105 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: StatisticalResult
-description: Schema for the output of the statistical analysis phase.
+$schema: http://json-schema.org/draft-07/schema#
+title: Statistical Result Schema
+description: Schema for the output of statistical analysis (LMM/GLMM/Permutation).
 type: object
 required:
-  - analysis_id
-  - metric_name
-  - model_type
-  - fixed_effects
-  - random_effects
-  - p_values
-  - effect_sizes
-  - normality_check
+  analysis_id
+  metric_name
+  model_type
+  fixed_effects
+  random_effects
+  p_values
+  effect_sizes
+  normality_test
+  correction_method
 properties:
   analysis_id:
     type: string
-    description: Unique identifier for the analysis run.
+    description: Unique identifier for this analysis run.
   metric_name:
     type: string
-    description: The dependent variable being analyzed (e.g., codebleu).
+    description: Name of the dependent variable (e.g., "codebleu", "exact_match").
   model_type:
     type: string
-    enum: ["LMM", "GLMM", "Permutation"]
+    enum: [lmm, glmm, permutation]
     description: Type of statistical model used.
   fixed_effects:
-    type: array
-    items:
-      type: string
-    description: List of fixed effect factors (e.g., formatting, naming).
-  random_effects:
-    type: array
-    items:
-      type: string
-    description: List of random effect factors (e.g., function_id).
-  normality_check:
     type: object
-    description: Results of the Shapiro-Wilk test on residuals.
+    description: Estimates for fixed effects (formatting, naming, commenting).
+    properties:
+      formatting:
+        type: object
+        properties:
+          estimate:
+            type: number
+          std_error:
+            type: number
+          t_value:
+            type: number
+          p_value:
+            type: number
+      naming:
+        type: object
+        properties:
+          estimate:
+            type: number
+          std_error:
+            type: number
+          t_value:
+            type: number
+          p_value:
+            type: number
+      commenting:
+        type: object
+        properties:
+          estimate:
+            type: number
+          std_error:
+            type: number
+          t_value:
+            type: number
+          p_value:
+            type: number
+      semantic_opacity:
+        type: object
+        properties:
+          estimate:
+            type: number
+          std_error:
+            type: number
+          t_value:
+            type: number
+          p_value:
+            type: number
+    additionalProperties: true
+  random_effects:
+    type: object
+    description: Variance components for random effects.
+    properties:
+      function_id:
+        type: number
+        description: Variance attributed to the random intercept for function ID.
+  p_values:
+    type: object
+    description: Raw and corrected p-values.
+    properties:
+      raw:
+        type: object
+        additionalProperties:
+          type: number
+      corrected:
+        type: object
+        additionalProperties:
+          type: number
+        description: P-values after Bonferroni or other correction.
+  effect_sizes:
+    type: object
+    description: Effect size metrics (e.g., Cohen's d).
+    additionalProperties:
+      type: number
+  normality_test:
+    type: object
+    description: Result of Shapiro-Wilk test on residuals.
     properties:
       statistic:
         type: number
@@ -42,32 +107,19 @@ properties:
         type: number
       is_normal:
         type: boolean
-  p_values:
+  correction_method:
+    type: string
+    enum: [bonferroni, holm, none]
+    description: Method used for multiple comparison correction.
+  permutation_details:
     type: object
-    description: Dictionary of factor names to corrected p-values.
-    additionalProperties:
-      type: number
-  effect_sizes:
-    type: object
-    description: Dictionary of factor names to effect size estimates.
-    additionalProperties:
-      type: number
-  confidence_intervals:
-    type: object
-    description: 95% confidence intervals for estimates.
-    additionalProperties:
-      type: array
-      items:
-        type: number
-      minItems: 2
-      maxItems: 2
-  method_details:
-    type: object
-    description: Additional details about the method (e.g., correction method).
+    nullable: true
+    description: Details if permutation test was used.
     properties:
-      correction_method:
-        type: string
-        description: e.g., "Bonferroni".
       iterations:
         type: integer
-        description: Number of iterations for permutation tests.
+      observed_statistic:
+        type: number
+      p_value:
+        type: number
+additionalProperties: false

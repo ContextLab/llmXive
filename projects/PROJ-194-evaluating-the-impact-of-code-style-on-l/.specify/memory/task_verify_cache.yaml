@@ -1,0 +1,41 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the required directories (`code/`, `data/`, `results/`, `tests/`,\
+    \ `contracts/`) is provided; the response contains no file\u2011system listing\
+    \ or screenshots showing that the project structure was created. The implementer\
+    \ must create and show these directories (and optionally placeholder files) to\
+    \ satisfy the task."
+T004:
+  c: false
+  h: a171dffefa1639578c25955eede05a554655c7128e206e9072477adfaba5187e
+  r: The required contract files under the `contracts/` directory are missing; the
+    only listed artifact (`schema.yaml`) does not exist, so none of the specified
+    YAML schema definitions are present. The task therefore is not satisfied.
+T009:
+  c: false
+  h: 1cab3391a71c89ffb674f6664f72f39849b40b4188a9740d281bd7724f514c8d
+  r: "The required unit test file `tests/unit/test_transform_generator.py` does not\
+    \ exist in the repository, so no test verifies the 8\u2011way factorial output.\
+    \ Without this artifact, the task\u2019s requirement is not satisfied."
+T010:
+  c: false
+  h: 75fd1832ca90d5dfe3043a1eb8cdd9398fe76b2f8004b9b027cf871581bab583
+  r: The required unit test file `tests/unit/test_transform_comments.py` does not
+    exist in the repository (it is listed as missing). Without this test file, the
+    claim of having a unit test that verifies comment stripping cannot be satisfied.
+    The implementer must add the missing test file with appropriate test cases.
+T011:
+  c: false
+  h: 6b5cfebd02c420b8904558c147dd6480cd005e17ec35857d6d4df443ca529fde
+  r: "The required unit\u2011test file `tests/unit/test_transform_naming.py` does\
+    \ not exist in the repository, so no test verifies that the generic naming transformation\
+    \ replaces identifiers with `var1`, `func2` and preserves syntax correctness.\
+    \ The task\u2019s core artifact is missing."
+T022:
+  c: false
+  h: 0505d6f06d640c9616d59577f48a388fb18cf9d8e348f18c2241d8b7f9339faa
+  r: The required `code/mutation/generator.py` file does not exist, and the input
+    data file `data/derived/variants.json` as well as the expected output `data/derived/mutated.json`
+    are missing. Consequently no code is present to load, clone, mutate, and save
+    the variants as specified.

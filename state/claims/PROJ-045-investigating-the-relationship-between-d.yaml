@@ -3251,3 +3251,409 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-31T21:48:53Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: data download success rate is at least 93%
+  claim_id: c_8e082882
+  context: 'Phase 3: User Story 1 - Data Pipeline and Validation. Tests for User Story
+    1 include a contract test for data download success rate.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Data_download_success_rate_is_at_least_93%25
+  kind: magnitude
+  raw_text: "Contract test for data download success rate (\u226593%) in tests/test_download.py"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T13:12:49Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: NEB convergence criteria force is less than or equal to 0.05 eV per Angstrom
+  claim_id: c_08e65cc9
+  context: 'Phase 4: User Story 2 - Defect Energy and Barrier Calculations. Tests
+    for User Story 2 include an integration test for NEB convergence criteria.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/NEB_convergence_criteria_force_is_less_than_or_equal_to_0.05
+  kind: magnitude
+  raw_text: "Integration test for NEB convergence criteria (force \u22640.05 eV/\xC5\
+    ) in tests/test_dft_runner.py"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T13:13:11Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: regression outputs p-values and correlation plots are generated
+  claim_id: c_fb82774c
+  context: 'Phase 5: User Story 3 - Statistical Analysis and Correlation. Independent
+    Test verifies that running the analysis module on a cached dataset produces these
+    outputs.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Regression_outputs_p-values_and_correlation_plots_are_genera
+  kind: entity_fact
+  raw_text: Verify regression outputs, p-values, and correlation plots are generated
+    on a cached dataset
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T13:13:37Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: vectorized regression loop achieves less than 50% runtime reduction on
+    1000 synthetic data points
+  claim_id: c_4284d465
+  context: 'Phase 6: Polish & Cross-Cutting Concerns. Performance optimization task
+    requires vectorizing the regression loop and verifying the runtime reduction.'
+  evidence:
+    candidates:
+    - - ''
+      - 50.0
+    - - ''
+      - 25.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Vectorized_regression_loop_achieves_less_than_50%25_runtime_re
+  kind: magnitude
+  raw_text: Unit test tests/test_analysis_vectorized.py must verify identical results
+    with <50% runtime reduction on n=1000 synthetic data
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-08-02T13:14:07Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: quickstart.md file is less than 500 lines
+  claim_id: c_a707d267
+  context: 'Phase 6: Polish & Cross-Cutting Concerns. Documentation task requires
+    generating a quickstart.md file with a specific line limit.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Quickstart.md_file_is_less_than_500_lines
+  kind: magnitude
+  raw_text: File must be <500 lines
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T13:14:35Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: GitHub Actions workflow uses 7GB RAM and 6 hour timeout
+  claim_id: c_1935d18a
+  context: 'Phase 2: Foundational (Blocking Prerequisites). Task to setup GitHub Actions
+    workflow template with specific resource constraints.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Setup GitHub Actions workflow template for CPU-only execution with a limited
+    core count and 7GB RAM with 6h timeout in .github/workflows/ci.yml
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T13:15:00Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: Tests are optional and only included if explicitly requested in the feature
+    specification
+  claim_id: c_ce5105d8
+  context: 'Tests: The examples below include test tasks. Tests are OPTIONAL - only
+    include them if explicitly requested in the feature specification.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Tests_are_optional_and_only_included_if_explicitly_requested
+  kind: entity_fact
+  raw_text: The examples below include test tasks. Tests are OPTIONAL - only include
+    them if explicitly requested in the feature specification.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T13:17:36Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: Citation verification implemented for external references like Linus
+    Pauling works against primary sources
+  claim_id: c_f728c151
+  context: 'T001 [P] VERIFY: Implement citation verification for any external references
+    (e.g., Linus Pauling works) against primary sources using the Reference-Validator
+    Agent logic.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Citation_verification_implemented_for_external_references_li
+  kind: entity_fact
+  raw_text: Implement citation verification for any external references (e.g., Linus
+    Pauling works) against primary sources using the Reference-Validator Agent logic.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T13:18:01Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: Python 3.11 project initialized with specific package list in requirements.txt
+  claim_id: c_805c2589
+  context: T003 Initialize Python 3.11 project with pymatgen, ase, scikit-learn, pandas,
+    numpy, matplotlib, seaborn, pydantic, statsmodels in requirements.txt
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Initialize Python 3.11 project with pymatgen, ase, scikit-learn, pandas,
+    numpy, matplotlib, seaborn, pydantic, statsmodels in requirements.txt
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T13:18:20Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: GitHub Actions workflow configured for CPU-only execution with 7GB RAM
+    and 6h timeout
+  claim_id: c_e72c0aee
+  context: T010 Setup GitHub Actions workflow template for CPU-only execution with
+    a limited core count and 7GB RAM with 6h timeout in .github/workflows/ci.yml
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/GitHub_Actions_workflow_configured_for_CPU-only_execution_wi
+  kind: entity_fact
+  raw_text: Setup GitHub Actions workflow template for CPU-only execution with a limited
+    core count and 7GB RAM with 6h timeout in .github/workflows/ci.yml
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T13:18:22Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: Data download success rate contract test set to at least 93%
+  claim_id: c_8fac1b65
+  context: "T011 [P] [US1] Contract test for data download success rate (\u226593%)\
+    \ in tests/test_download.py"
+  evidence:
+    candidates:
+    - - ''
+      - 93.0
+    - - ''
+      - 25.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Data_download_success_rate_contract_test_set_to_at_least_93%25
+  kind: magnitude
+  raw_text: "Contract test for data download success rate (\u226593%) in tests/test_download.py"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-08-02T13:18:24Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: Bond-Valence Sum validation filters structures with deviation greater
+    than 10% from ideal oxidation states
+  claim_id: c_2e07e752
+  context: 'T019 [US1] IMPLEMENT: Implement Bond-Valence Sum (BVS) validation in code/validate.py
+    to filter out structures where calculated BVS deviates >10% from ideal oxidation
+    states'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Bond-Valence_Sum_validation_filters_structures_with_deviatio
+  kind: magnitude
+  raw_text: Implement logic to filter out structures where calculated BVS deviates
+    >10% from ideal oxidation states
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T13:18:49Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: Defect energy values verified against literature within 0.5 eV tolerance
+  claim_id: c_b6a71963
+  context: 'Independent Test: Can be fully tested by running the calculation module
+    on 2-3 pre-selected test systems and verifying output energy values match expected
+    ranges from literature (within 0.5 eV tolerance for defect energies).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify output energy values match expected ranges from literature (within
+    0.5 eV tolerance for defect energies)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T13:19:15Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: NEB convergence criteria test set to force less than or equal to 0.05
+    eV per Angstrom
+  claim_id: c_21956633
+  context: "T022 [P] [US2] Integration test for NEB convergence criteria (force \u2264\
+    0.05 eV/\xC5) in tests/test_dft_runner.py"
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/NEB_convergence_criteria_test_set_to_force_less_than_or_equa
+  kind: magnitude
+  raw_text: "Integration test for NEB convergence criteria (force \u22640.05 eV/\xC5\
+    ) in tests/test_dft_runner.py"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T13:19:17Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: Semi-empirical Bond-Valence Sum model implemented to achieve sample size
+    of at least 12
+  claim_id: c_1420fbed
+  context: "T023 [US2] Define and implement semi-empirical approximation method (Bond-Valence\
+    \ Sum model using parameters defined in Section 3.2 of spec.md) for remaining\
+    \ compositions to achieve n\u226512 in code/semi_empirical.py."
+  evidence:
+    asserted: '3.2'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: "Define and implement semi-empirical approximation method (Bond-Valence\
+    \ Sum model using parameters defined in Section 3.2 of spec.md) for remaining\
+    \ compositions to achieve n\u226512"
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-02T13:19:18Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: NEB method implemented for several representative defect configurations
+    per system
+  claim_id: c_9e8f6a1c
+  context: T029 [US2] Implement NEB method for several representative defect configurations
+    PER SYSTEM with force convergence checks in code/dft_runner.py
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/NEB_method_implemented_for_several_representative_defect_con
+  kind: entity_fact
+  raw_text: Implement NEB method for several representative defect configurations
+    PER SYSTEM with force convergence checks in code/dft_runner.py
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T13:19:49Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: Defect density quantified as 1 divided by supercell volume for every
+    configuration
+  claim_id: c_5a63e472
+  context: 'T033 [US2] IMPLEMENT: Implement defect density quantification method in
+    code/dft_runner.py to explicitly calculate and log defect concentration (defects/volume
+    = 1 / supercell_volume) for every configuration, ensuring reproducibility of the
+    ''quantitative effect'' claim (addressing Marie Curie review).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement defect density quantification method in code/dft_runner.py to
+    explicitly calculate and log defect concentration (defects/volume = 1 / supercell_volume)
+    for every configuration
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T13:20:29Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: Documentation file quickstart.md must be less than 500 lines
+  claim_id: c_7ab50e9c
+  context: 'T047 [P] Documentation: Generate quickstart.md in docs/ containing EXACTLY:
+    1) pip install -r requirements.txt command, 2) python code/download.py example,
+    3) python code/validate.py verification output sample, 4) python code/analysis.py
+    example. File must be <500 lines.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Documentation_file_quickstart.md_must_be_less_than_500_lines
+  kind: magnitude
+  raw_text: File must be <500 lines
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T13:20:31Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: Download script refactored to use streaming for files larger than 100MB
+  claim_id: c_660114cc
+  context: 'T048 [P] Code cleanup: Refactor code/download.py to use requests streaming
+    for files >100MB.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Download_script_refactored_to_use_streaming_for_files_larger
+  kind: entity_fact
+  raw_text: Refactor code/download.py to use requests streaming for files >100MB
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T13:20:55Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: Vectorized analysis unit test verifies less than 50% runtime reduction
+    on 1000 synthetic data points
+  claim_id: c_0da50ed5
+  context: 'T049 [P] Performance optimization: Vectorize the regression loop in code/analysis.py
+    using numpy broadcasting. Pass/Fail: Replace explicit for loops over compositions
+    with numpy matrix operations; unit test tests/test_analysis_vectorized.py must
+    verify identical results with <50% runtime reduction on n=1000 synthetic data.'
+  evidence:
+    candidates:
+    - - ''
+      - 50.0
+    - - ''
+      - 25.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Vectorized_analysis_unit_test_verifies_less_than_50%25_runtime
+  kind: magnitude
+  raw_text: unit test tests/test_analysis_vectorized.py must verify identical results
+    with <50% runtime reduction on n=1000 synthetic data
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-08-02T13:20:57Z'

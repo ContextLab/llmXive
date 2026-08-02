@@ -45,6 +45,13 @@ T012:
   r: "The required file `tests/unit/test_retrieval.py` does not exist, so no unit\
     \ test for the BM25 zero\u2011results edge case is present. The implementer must\
     \ add the missing test file with appropriate test code."
+T017:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, test, or log artifact was provided showing that records lacking a \u201C\
+    thinking\u201D prefix are now skipped and that the error `ERR_MISSING_THINKING`\
+    \ is logged. The implementer\u2019s claim cannot be verified without such implementation\
+    \ evidence."
 T018:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

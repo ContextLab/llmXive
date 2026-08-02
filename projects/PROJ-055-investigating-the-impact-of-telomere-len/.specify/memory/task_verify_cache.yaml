@@ -1,0 +1,43 @@
+T010:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No configuration files, scripts, or documentation for managing Dryad/AnAge API
+    keys or setting random seeds were provided; the claim lacks any tangible artifact
+    demonstrating that environment configuration management has been implemented.
+T011:
+  c: false
+  h: 277f05bb1a172bd7f8dfd941686fc36813969f75a15723204ed142c79b921c56
+  r: The required artifact `tests/test_ingest.py` does not exist on disk, so no unit
+    test for Dryad URL parsing and CSV loading is present. The task cannot be considered
+    completed until this file is created with appropriate test code.
+T017:
+  c: false
+  h: 492b1d5099a04545dbab7242e3d32220d3ad3fa2f1e4e1d98a359023cf792855
+  r: "The repository contains a partially implemented `code/03_clean_merge.py` (truncated\
+    \ and lacking any merge, logging, or validation logic) and the required output\
+    \ file `data/processed/merged_data.csv` does not exist. Consequently, the script\
+    \ does not perform the species\u2011name join, does not write a missing\u2011\
+    data log, and does not verify the schema or the wild\u2011caught filter as specified.\
+    \ The task therefore remains unfinished."
+T022:
+  c: false
+  h: 6cc93ccd6b45f2f7e779346926b7fbda85fb91afb97457394329cebe9ddc693e
+  r: "The required input file `data/processed/merged_data.csv` is missing, and the\
+    \ provided `code/04_model_pglS.py` contains no logic to extract unique species\
+    \ or query the `rotl` API to download a Newick tree into `data/phylogeny/`. Consequently\
+    \ the task\u2019s core requirements are not satisfied."
+T025:
+  c: false
+  h: f16cf2300b76a609f5b76c5aac6b7f852bf5842bd2bcfc76e5749afa6c29fdd5
+  r: The provided `code/04_model_pglS.py` does not contain any logic that writes the
+    model results to `results/model_summary.csv`, and the expected output file is
+    absent from the repository. Consequently, the task of saving results and logging
+    the phylogenetic signal (lambda) is not fulfilled.
+T026:
+  c: false
+  h: 1c22ce922905ea7bfc8f706b4592c203eb11d5eeda8ad40d6e4032ac70b11b63
+  r: "The `code/R/02_sensitivity.R` script exists but is truncated before the model\u2011\
+    fitting and CSV\u2011writing sections, so we cannot confirm it produces the required\
+    \ columns. Moreover, the expected output file `results/sensitivity_log.csv` is\
+    \ absent. The task therefore lacks a complete, verifiable implementation and the\
+    \ required result file."
