@@ -1,9 +1,13 @@
 """
-Validation utilities for llmXive data schemas.
+Schema validation utilities for llmXive entropy-guided validity prediction.
 
-This module provides dataclasses for schema definition and validation functions
-for TokenSequence, ValidityLabel, LayerEntropy, and EntropyProfile entities.
+Provides dataclasses and validation functions for:
+- TokenSequence: Raw token generation data
+- ValidityLabel: Ground truth matching results
+- LayerEntropy: Entropy values per layer
+- EntropyProfile: Combined entropy metadata
 """
+
 import json
 import re
 from dataclasses import dataclass, field, asdict
@@ -11,419 +15,386 @@ from typing import List, Optional, Dict, Any, Union, Tuple
 from pathlib import Path
 import logging
 
-# Configure logger
+# Configure logging for this module
 logger = logging.getLogger(__name__)
 
 @dataclass
 class TokenSequence:
     """Represents a generated token sequence with metadata."""
-    sequence_id: str
     prompt_id: str
-    task_type: str  # 'gsm8k' or 'minigrid'
-    tokens: List[str]
-    token_ids: Optional[List[int]] = None
-    generation_time_ms: Optional[float] = None
-    model_name: Optional[str] = None
-    temperature: Optional[float] = None
-    seed: Optional[int] = None
-
-    def to_dict(self) -> Dict[str, Any]:
-        return asdict(self)
-
-    @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> 'TokenSequence':
-        return cls(
-            sequence_id=data['sequence_id'],
-            prompt_id=data['prompt_id'],
-            task_type=data['task_type'],
-            tokens=data['tokens'],
-            token_ids=data.get('token_ids'),
-            generation_time_ms=data.get('generation_time_ms'),
-            model_name=data.get('model_name'),
-            temperature=data.get('temperature'),
-            seed=data.get('seed')
-        )
-
-
-@dataclass
-class ValidityLabel:
-    """Represents validity labels for a token sequence."""
-    sequence_id: str
-    prompt_id: str
-    labels: List[bool]  # True = valid, False = invalid
-    validity_scores: Optional[List[float]] = None  # Optional confidence scores
-    matching_path_id: Optional[str] = None  # ID of matched ground truth path
-    is_ambiguous: bool = False
-
-    def to_dict(self) -> Dict[str, Any]:
-        return asdict(self)
-
-    @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> 'ValidityLabel':
-        return cls(
-            sequence_id=data['sequence_id'],
-            prompt_id=data['prompt_id'],
-            labels=data['labels'],
-            validity_scores=data.get('validity_scores'),
-            matching_path_id=data.get('matching_path_id'),
-            is_ambiguous=data.get('is_ambiguous', False)
-        )
-
-
-@dataclass
-class LayerEntropy:
-    """Entropy values for a single layer at a specific token position."""
-    layer_index: int
-    entropy_value: float
-    layer_name: Optional[str] = None
-
-    def to_dict(self) -> Dict[str, Any]:
-        return asdict(self)
-
-    @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> 'LayerEntropy':
-        return cls(
-            layer_index=data['layer_index'],
-            entropy_value=data['entropy_value'],
-            layer_name=data.get('layer_name')
-        )
-
-
-@dataclass
-class EntropyProfile:
-    """Complete entropy profile for a token sequence across all layers."""
-    sequence_id: str
-    prompt_id: str
-    task_type: str
     token_index: int
     token_id: int
     token_text: str
-    layer_entropies: List[LayerEntropy]
-    mean_entropy: float
-    max_entropy: float
-    min_entropy: float
-    entropy_std: float
-    validity_label: Optional[bool] = None
-
+    sequence_length: int
+    task_type: str  # 'gsm8k' or 'minigrid'
+    
     def to_dict(self) -> Dict[str, Any]:
-        data = asdict(self)
-        data['layer_entropies'] = [le.to_dict() for le in self.layer_entropies]
-        return data
+        return asdict(self)
+    
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> 'TokenSequence':
+        required_fields = ['prompt_id', 'token_index', 'token_id', 'token_text', 'sequence_length', 'task_type']
+        for field in required_fields:
+            if field not in data:
+                raise ValueError(f"Missing required field: {field}")
+        return cls(**data)
 
+@dataclass
+class ValidityLabel:
+    """Represents a validity label for a token sequence."""
+    prompt_id: str
+    token_index: int
+    validity: bool
+    matched_path: Optional[str] = None  # Ground truth path that matched
+    reason: Optional[str] = None  # Explanation for the label
+    
+    def to_dict(self) -> Dict[str, Any]:
+        return asdict(self)
+    
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> 'ValidityLabel':
+        required_fields = ['prompt_id', 'token_index', 'validity']
+        for field in required_fields:
+            if field not in data:
+                raise ValueError(f"Missing required field: {field}")
+        return cls(**data)
+
+@dataclass
+class LayerEntropy:
+    """Represents entropy values for a single layer."""
+    layer_id: int
+    entropy_value: float
+    
+    def to_dict(self) -> Dict[str, Any]:
+        return asdict(self)
+    
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> 'LayerEntropy':
+        required_fields = ['layer_id', 'entropy_value']
+        for field in required_fields:
+            if field not in data:
+                raise ValueError(f"Missing required field: {field}")
+        return cls(**data)
+
+@dataclass
+class EntropyProfile:
+    """Complete entropy profile for a token across all layers."""
+    prompt_id: str
+    token_index: int
+    layer_entropy_map: Dict[int, float]  # layer_id -> entropy_value
+    task_type: str
+    sequence_length: int
+    
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            'prompt_id': self.prompt_id,
+            'token_index': self.token_index,
+            'layer_entropy_map': self.layer_entropy_map,
+            'task_type': self.task_type,
+            'sequence_length': self.sequence_length
+        }
+    
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> 'EntropyProfile':
-        layer_entropies = [
-            LayerEntropy.from_dict(le) for le in data['layer_entropies']
-        ]
-        return cls(
-            sequence_id=data['sequence_id'],
-            prompt_id=data['prompt_id'],
-            task_type=data['task_type'],
-            token_index=data['token_index'],
-            token_id=data['token_id'],
-            token_text=data['token_text'],
-            layer_entropies=layer_entropies,
-            mean_entropy=data['mean_entropy'],
-            max_entropy=data['max_entropy'],
-            min_entropy=data['min_entropy'],
-            entropy_std=data['entropy_std'],
-            validity_label=data.get('validity_label')
-        )
+        required_fields = ['prompt_id', 'token_index', 'layer_entropy_map', 'task_type', 'sequence_length']
+        for field in required_fields:
+            if field not in data:
+                raise ValueError(f"Missing required field: {field}")
+        
+        # Validate layer_entropy_map structure
+        if not isinstance(data['layer_entropy_map'], dict):
+            raise ValueError("layer_entropy_map must be a dictionary")
+        
+        for layer_id, entropy_val in data['layer_entropy_map'].items():
+            if not isinstance(layer_id, int):
+                raise ValueError(f"layer_id must be int, got {type(layer_id)}")
+            if not isinstance(entropy_val, (int, float)):
+                raise ValueError(f"entropy_value must be numeric, got {type(entropy_val)}")
+            if entropy_val is None or (isinstance(entropy_val, float) and (entropy_val != entropy_val)):  # NaN check
+                raise ValueError(f"entropy_value cannot be None or NaN at layer {layer_id}")
+        
+        return cls(**data)
 
-
-def validate_token_sequence(seq: TokenSequence) -> Tuple[bool, List[str]]:
+def validate_token_sequence(record: Dict[str, Any]) -> Tuple[bool, Optional[str]]:
     """
-    Validate a TokenSequence instance.
-
-    Returns:
-        Tuple of (is_valid, list_of_errors)
-    """
-    errors = []
-
-    if not seq.sequence_id or not isinstance(seq.sequence_id, str):
-        errors.append("sequence_id must be a non-empty string")
-
-    if not seq.prompt_id or not isinstance(seq.prompt_id, str):
-        errors.append("prompt_id must be a non-empty string")
-
-    if seq.task_type not in ['gsm8k', 'minigrid']:
-        errors.append(f"task_type must be 'gsm8k' or 'minigrid', got '{seq.task_type}'")
-
-    if not seq.tokens or not isinstance(seq.tokens, list):
-        errors.append("tokens must be a non-empty list")
-
-    if seq.token_ids is not None:
-        if not isinstance(seq.token_ids, list):
-            errors.append("token_ids must be a list or None")
-        elif len(seq.token_ids) != len(seq.tokens):
-            errors.append(f"token_ids length ({len(seq.token_ids)}) must match tokens length ({len(seq.tokens)})")
-
-    if seq.generation_time_ms is not None and seq.generation_time_ms < 0:
-        errors.append("generation_time_ms must be non-negative")
-
-    if seq.temperature is not None and (seq.temperature < 0 or seq.temperature > 2.0):
-        errors.append("temperature must be between 0.0 and 2.0")
-
-    return len(errors) == 0, errors
-
-
-def validate_validity_label(label: ValidityLabel) -> Tuple[bool, List[str]]:
-    """
-    Validate a ValidityLabel instance.
-
-    Returns:
-        Tuple of (is_valid, list_of_errors)
-    """
-    errors = []
-
-    if not label.sequence_id or not isinstance(label.sequence_id, str):
-        errors.append("sequence_id must be a non-empty string")
-
-    if not label.prompt_id or not isinstance(label.prompt_id, str):
-        errors.append("prompt_id must be a non-empty string")
-
-    if not label.labels or not isinstance(label.labels, list):
-        errors.append("labels must be a non-empty list")
-
-    if not all(isinstance(l, bool) for l in label.labels):
-        errors.append("All labels must be boolean")
-
-    if label.validity_scores is not None:
-        if not isinstance(label.validity_scores, list):
-            errors.append("validity_scores must be a list or None")
-        elif len(label.validity_scores) != len(label.labels):
-            errors.append(f"validity_scores length must match labels length")
-        elif not all(isinstance(s, (int, float)) for s in label.validity_scores):
-            errors.append("All validity_scores must be numeric")
-
-    return len(errors) == 0, errors
-
-
-def validate_entropy_profile(profile: EntropyProfile) -> Tuple[bool, List[str]]:
-    """
-    Validate an EntropyProfile instance.
-
-    Returns:
-        Tuple of (is_valid, list_of_errors)
-    """
-    errors = []
-
-    if not profile.sequence_id or not isinstance(profile.sequence_id, str):
-        errors.append("sequence_id must be a non-empty string")
-
-    if not profile.prompt_id or not isinstance(profile.prompt_id, str):
-        errors.append("prompt_id must be a non-empty string")
-
-    if profile.task_type not in ['gsm8k', 'minigrid']:
-        errors.append(f"task_type must be 'gsm8k' or 'minigrid', got '{profile.task_type}'")
-
-    if profile.token_index < 0:
-        errors.append("token_index must be non-negative")
-
-    if not isinstance(profile.token_id, int):
-        errors.append("token_id must be an integer")
-
-    if not profile.token_text or not isinstance(profile.token_text, str):
-        errors.append("token_text must be a non-empty string")
-
-    if not profile.layer_entropies or not isinstance(profile.layer_entropies, list):
-        errors.append("layer_entropies must be a non-empty list")
-
-    for i, le in enumerate(profile.layer_entropies):
-        if not isinstance(le, LayerEntropy):
-            errors.append(f"layer_entropies[{i}] must be a LayerEntropy instance")
-            continue
-
-        if le.layer_index < 0:
-            errors.append(f"layer_entropies[{i}].layer_index must be non-negative")
-
-        if not isinstance(le.entropy_value, (int, float)):
-            errors.append(f"layer_entropies[{i}].entropy_value must be numeric")
-        elif le.entropy_value < 0:
-            errors.append(f"layer_entropies[{i}].entropy_value must be non-negative")
-
-    # Validate aggregate statistics
-    if not isinstance(profile.mean_entropy, (int, float)) or profile.mean_entropy < 0:
-        errors.append("mean_entropy must be a non-negative number")
-
-    if not isinstance(profile.max_entropy, (int, float)) or profile.max_entropy < 0:
-        errors.append("max_entropy must be a non-negative number")
-
-    if not isinstance(profile.min_entropy, (int, float)) or profile.min_entropy < 0:
-        errors.append("min_entropy must be a non-negative number")
-
-    if not isinstance(profile.entropy_std, (int, float)) or profile.entropy_std < 0:
-        errors.append("entropy_std must be a non-negative number")
-
-    return len(errors) == 0, errors
-
-
-def validate_merged_record(record: Dict[str, Any]) -> Tuple[bool, List[str]]:
-    """
-    Validate a merged record containing TokenSequence, ValidityLabel, and EntropyProfile data.
-
-    Expected keys:
-      - sequence_id (str)
-      - prompt_id (str)
-      - task_type (str)
-      - tokens (List[str])
-      - labels (List[bool])
-      - layer_entropies (List[Dict]) or per-token entropy data
-
-    Returns:
-        Tuple of (is_valid, list_of_errors)
-    """
-    errors = []
-
-    required_fields = ['sequence_id', 'prompt_id', 'task_type', 'tokens', 'labels']
-    for field_name in required_fields:
-        if field_name not in record:
-            errors.append(f"Missing required field: {field_name}")
-
-    if 'sequence_id' in record and not isinstance(record['sequence_id'], str):
-        errors.append("sequence_id must be a string")
-
-    if 'prompt_id' in record and not isinstance(record['prompt_id'], str):
-        errors.append("prompt_id must be a string")
-
-    if 'task_type' in record and record['task_type'] not in ['gsm8k', 'minigrid']:
-        errors.append(f"task_type must be 'gsm8k' or 'minigrid', got '{record['task_type']}'")
-
-    if 'tokens' in record:
-        if not isinstance(record['tokens'], list):
-            errors.append("tokens must be a list")
-        elif len(record['tokens']) == 0:
-            errors.append("tokens cannot be empty")
-
-    if 'labels' in record:
-        if not isinstance(record['labels'], list):
-            errors.append("labels must be a list")
-        elif len(record['labels']) == 0:
-            errors.append("labels cannot be empty")
-        elif len(record['tokens']) > 0 and len(record['labels']) != len(record['tokens']):
-            errors.append(f"labels length ({len(record['labels'])}) must match tokens length ({len(record['tokens'])})")
-
-    return len(errors) == 0, errors
-
-
-def validate_json_schema(data: Dict[str, Any], schema: Dict[str, Any]) -> Tuple[bool, List[str]]:
-    """
-    Validate a dictionary against a simple JSON schema definition.
-
+    Validate a TokenSequence record.
+    
     Args:
-        data: The dictionary to validate
-        schema: Schema definition with 'type' and 'properties' keys
-
+        record: Dictionary containing token sequence data
+        
     Returns:
-        Tuple of (is_valid, list_of_errors)
+        Tuple of (is_valid, error_message)
     """
-    errors = []
+    try:
+        required_fields = ['prompt_id', 'token_index', 'token_id', 'token_text', 'sequence_length', 'task_type']
+        
+        for field in required_fields:
+            if field not in record:
+                return False, f"Missing required field: {field}"
+        
+        # Type checks
+        if not isinstance(record['prompt_id'], str):
+            return False, "prompt_id must be a string"
+        if not isinstance(record['token_index'], int):
+            return False, "token_index must be an integer"
+        if not isinstance(record['token_id'], int):
+            return False, "token_id must be an integer"
+        if not isinstance(record['token_text'], str):
+            return False, "token_text must be a string"
+        if not isinstance(record['sequence_length'], int):
+            return False, "sequence_length must be an integer"
+        if record['task_type'] not in ['gsm8k', 'minigrid']:
+            return False, "task_type must be 'gsm8k' or 'minigrid'"
+        
+        # Value constraints
+        if record['token_index'] < 0:
+            return False, "token_index must be non-negative"
+        if record['sequence_length'] <= 0:
+            return False, "sequence_length must be positive"
+        
+        # Try to instantiate the dataclass
+        TokenSequence.from_dict(record)
+        
+        return True, None
+        
+    except Exception as e:
+        return False, str(e)
 
-    if not isinstance(data, dict):
-        if schema.get('type') == 'object':
-            errors.append("Expected a dictionary/object")
-        return len(errors) == 0, errors
+def validate_validity_label(record: Dict[str, Any]) -> Tuple[bool, Optional[str]]:
+    """
+    Validate a ValidityLabel record.
+    
+    Args:
+        record: Dictionary containing validity label data
+        
+    Returns:
+        Tuple of (is_valid, error_message)
+    """
+    try:
+        required_fields = ['prompt_id', 'token_index', 'validity']
+        
+        for field in required_fields:
+            if field not in record:
+                return False, f"Missing required field: {field}"
+        
+        # Type checks
+        if not isinstance(record['prompt_id'], str):
+            return False, "prompt_id must be a string"
+        if not isinstance(record['token_index'], int):
+            return False, "token_index must be an integer"
+        if not isinstance(record['validity'], bool):
+            return False, "validity must be a boolean"
+        
+        # Value constraints
+        if record['token_index'] < 0:
+            return False, "token_index must be non-negative"
+        
+        # Try to instantiate the dataclass
+        ValidityLabel.from_dict(record)
+        
+        return True, None
+        
+    except Exception as e:
+        return False, str(e)
 
-    properties = schema.get('properties', {})
-    required = schema.get('required', [])
+def validate_entropy_profile(record: Dict[str, Any]) -> Tuple[bool, Optional[str]]:
+    """
+    Validate an EntropyProfile record.
+    
+    Args:
+        record: Dictionary containing entropy profile data
+        
+    Returns:
+        Tuple of (is_valid, error_message)
+    """
+    try:
+        required_fields = ['prompt_id', 'token_index', 'layer_entropy_map', 'task_type', 'sequence_length']
+        
+        for field in required_fields:
+            if field not in record:
+                return False, f"Missing required field: {field}"
+        
+        # Type checks
+        if not isinstance(record['prompt_id'], str):
+            return False, "prompt_id must be a string"
+        if not isinstance(record['token_index'], int):
+            return False, "token_index must be an integer"
+        if not isinstance(record['layer_entropy_map'], dict):
+            return False, "layer_entropy_map must be a dictionary"
+        if record['task_type'] not in ['gsm8k', 'minigrid']:
+            return False, "task_type must be 'gsm8k' or 'minigrid'"
+        if not isinstance(record['sequence_length'], int):
+            return False, "sequence_length must be an integer"
+        
+        # Value constraints
+        if record['token_index'] < 0:
+            return False, "token_index must be non-negative"
+        if record['sequence_length'] <= 0:
+            return False, "sequence_length must be positive"
+        if len(record['layer_entropy_map']) == 0:
+            return False, "layer_entropy_map cannot be empty"
+        
+        # Validate each layer entry
+        for layer_id, entropy_val in record['layer_entropy_map'].items():
+            if not isinstance(layer_id, int):
+                return False, f"layer_id must be int, got {type(layer_id)}"
+            if entropy_val is None:
+                return False, f"entropy_value cannot be None at layer {layer_id}"
+            if isinstance(entropy_val, float) and (entropy_val != entropy_val):  # NaN check
+                return False, f"entropy_value cannot be NaN at layer {layer_id}"
+            if entropy_val < 0:
+                return False, f"entropy_value cannot be negative at layer {layer_id}"
+        
+        # Try to instantiate the dataclass
+        EntropyProfile.from_dict(record)
+        
+        return True, None
+        
+    except Exception as e:
+        return False, str(e)
 
-    # Check required fields
-    for field in required:
-        if field not in data:
-            errors.append(f"Missing required field: {field}")
-
-    # Check field types
-    for field_name, field_schema in properties.items():
-        if field_name not in data:
-            continue
-
-        value = data[field_name]
-        expected_type = field_schema.get('type')
-
-        type_map = {
-            'string': str,
-            'integer': int,
-            'number': (int, float),
-            'boolean': bool,
-            'array': list,
-            'object': dict
+def validate_merged_record(record: Dict[str, Any]) -> Tuple[bool, Optional[str]]:
+    """
+    Validate a merged record containing both sequence and profile data.
+    
+    Args:
+        record: Dictionary containing merged data
+        
+    Returns:
+        Tuple of (is_valid, error_message)
+    """
+    try:
+        # Check for required fields from both TokenSequence and EntropyProfile
+        required_fields = [
+            'prompt_id', 'token_index', 'token_id', 'token_text', 
+            'sequence_length', 'task_type', 'layer_entropy_map', 'validity'
+        ]
+        
+        for field in required_fields:
+            if field not in record:
+                return False, f"Missing required field: {field}"
+        
+        # Validate as TokenSequence
+        is_valid_seq, error_seq = validate_token_sequence(record)
+        if not is_valid_seq:
+            return False, f"TokenSequence validation failed: {error_seq}"
+        
+        # Validate as EntropyProfile (subset of fields)
+        profile_fields = {
+            'prompt_id': record['prompt_id'],
+            'token_index': record['token_index'],
+            'layer_entropy_map': record['layer_entropy_map'],
+            'task_type': record['task_type'],
+            'sequence_length': record['sequence_length']
         }
+        is_valid_profile, error_profile = validate_entropy_profile(profile_fields)
+        if not is_valid_profile:
+            return False, f"EntropyProfile validation failed: {error_profile}"
+        
+        # Validate validity label
+        validity_fields = {
+            'prompt_id': record['prompt_id'],
+            'token_index': record['token_index'],
+            'validity': record['validity']
+        }
+        is_valid_label, error_label = validate_validity_label(validity_fields)
+        if not is_valid_label:
+            return False, f"ValidityLabel validation failed: {error_label}"
+        
+        return True, None
+        
+    except Exception as e:
+        return False, str(e)
 
-        if expected_type in type_map:
-          expected_python_type = type_map[expected_type]
-          if not isinstance(value, expected_python_type):
-              errors.append(f"Field '{field_name}' must be of type {expected_type}, got {type(value).__name__}")
-
-          # Special handling for arrays
-          if expected_type == 'array' and 'items' in field_schema:
-              item_schema = field_schema['items']
-              item_type = item_schema.get('type')
-              if item_type in type_map:
-                  expected_item_type = type_map[item_type]
-                  for i, item in enumerate(value):
-                      if not isinstance(item, expected_item_type):
-                          errors.append(f"Item {i} in '{field_name}' must be of type {item_type}")
-
-    return len(errors) == 0, errors
-
-
-def load_and_validate_jsonl(
-    file_path: Union[str, Path],
-    validator_func,
-    schema: Optional[Dict[str, Any]] = None
-) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
+def validate_json_schema(record: Dict[str, Any], schema: Dict[str, Any]) -> Tuple[bool, Optional[str]]:
     """
-    Load and validate a JSONL file.
+    Validate a record against a JSON schema definition.
+    
+    Args:
+        record: Dictionary to validate
+        schema: Schema definition with 'required' and 'properties' keys
+        
+    Returns:
+        Tuple of (is_valid, error_message)
+    """
+    try:
+        required = schema.get('required', [])
+        properties = schema.get('properties', {})
+        
+        # Check required fields
+        for field in required:
+            if field not in record:
+                return False, f"Missing required field: {field}"
+        
+        # Check field types
+        for field, value in record.items():
+            if field in properties:
+                expected_type = properties[field].get('type')
+                if expected_type:
+                    type_map = {
+                        'string': str,
+                        'integer': int,
+                        'number': (int, float),
+                        'boolean': bool,
+                        'array': list,
+                        'object': dict
+                    }
+                    expected_python_type = type_map.get(expected_type)
+                    if expected_python_type and not isinstance(value, expected_python_type):
+                        return False, f"Field '{field}' should be {expected_type}, got {type(value).__name__}"
+        
+        return True, None
+        
+    except Exception as e:
+        return False, str(e)
 
+def load_and_validate_jsonl(file_path: Union[str, Path], validator_func) -> List[Dict[str, Any]]:
+    """
+    Load and validate a JSONL file using a specific validator function.
+    
     Args:
         file_path: Path to the JSONL file
-        validator_func: A function that takes a dict and returns (is_valid, errors)
-        schema: Optional JSON schema for additional validation
-
+        validator_func: Function that takes a record and returns (is_valid, error)
+        
     Returns:
-        Tuple of (valid_records, invalid_records_with_errors)
+        List of valid records
+        
+    Raises:
+        ValueError: If validation fails for any record
+        FileNotFoundError: If file doesn't exist
     """
-    valid_records = []
-    invalid_records = []
-
-    path = Path(file_path)
-    if not path.exists():
+    file_path = Path(file_path)
+    
+    if not file_path.exists():
         raise FileNotFoundError(f"File not found: {file_path}")
-
-    with open(path, 'r', encoding='utf-8') as f:
+    
+    records = []
+    errors = []
+    
+    with open(file_path, 'r', encoding='utf-8') as f:
         for line_num, line in enumerate(f, 1):
             line = line.strip()
             if not line:
                 continue
-
+            
             try:
                 record = json.loads(line)
+                is_valid, error = validator_func(record)
+                
+                if is_valid:
+                    records.append(record)
+                else:
+                    error_msg = f"Line {line_num}: {error}"
+                    errors.append(error_msg)
+                    logger.warning(error_msg)
+                    
             except json.JSONDecodeError as e:
-                invalid_records.append({
-                    'line': line_num,
-                    'error': f"JSON decode error: {str(e)}",
-                    'content': line
-                })
-                continue
-
-            # Validate using the provided validator
-            is_valid, errors = validator_func(record)
-
-            if is_valid:
-                # Additional schema validation if provided
-                if schema:
-                    schema_valid, schema_errors = validate_json_schema(record, schema)
-                    if not schema_valid:
-                        is_valid = False
-                        errors.extend(schema_errors)
-
-            if is_valid:
-                valid_records.append(record)
-            else:
-                invalid_records.append({
-                    'line': line_num,
-                    'errors': errors,
-                    'record': record
-                })
-
-    return valid_records, invalid_records
+                error_msg = f"Line {line_num}: Invalid JSON - {str(e)}"
+                errors.append(error_msg)
+                logger.error(error_msg)
+    
+    if errors:
+        raise ValueError(f"Validation failed for {len(errors)} records:\n" + "\n".join(errors[:10]))
+    
+    logger.info(f"Successfully validated {len(records)} records from {file_path}")
+    return records

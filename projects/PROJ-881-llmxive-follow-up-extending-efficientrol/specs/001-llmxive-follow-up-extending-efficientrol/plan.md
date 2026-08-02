@@ -13,9 +13,9 @@ This project implements a computational study to determine if intermediate-layer
 **Primary Dependencies**: `torch` (CPU-optimized), `transformers`, `datasets` (streaming), `scikit-learn`, `pandas`, `numpy`, `pyyaml`, `pytest`, `statsmodels` (for GLMM)  
 **Storage**: Local file system (JSONL for intermediate states, Parquet for datasets)  
 **Testing**: `pytest` (unit, integration, contract)  
-**Target Platform**: Linux (GitHub Actions Free Tier: CPU, 7GB RAM)  
+**Target Platform**: Linux (GitHub Actions Free Tier: CPU, GB RAM)  
 **Project Type**: Research/Computational Study  
-**Performance Goals**: Process 500 examples with 512-token sequences within 6 hours; memory usage < 7GB via single-sequence streaming.  
+**Performance Goals**: Process 500 examples with -token sequences within 6 hours; memory usage < 7GB via single-sequence streaming.  
 **Constraints**: No local GPU; CPU-first execution; strict adherence to single-sequence processing for entropy extraction to prevent OOM.  
 **Scale/Scope**: A representative set of GSM8K problems and MiniGrid episodes; a substantial volume of token-level observations.
 

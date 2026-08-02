@@ -1,75 +1,42 @@
 #!/bin/bash
-# Setup script for llmXive Follow-up project
-# Creates required directory structure and verifies existence
+# Setup script for llmXive Follow-up: Entropy-Guided Validity Prediction in RL Rollouts
+# Project: PROJ-881-llmxive-follow-up-extending-efficientrol
+#
+# This script creates the complete directory structure required for the project.
+# Run from the project root directory.
 
-set -e
+set -e  # Exit immediately if a command exits with a non-zero status
 
-# Project root relative to script execution
 PROJECT_ROOT="projects/PROJ-881-llmxive-follow-up-extending-efficientrol"
-CODE_DIR="${PROJECT_ROOT}/code"
-LOG_FILE="${CODE_DIR}/project_structure.log"
 
-# Define all required directories
-DIRS=(
-  "${CODE_DIR}"
-  "${CODE_DIR}/tests"
-  "${CODE_DIR}/data"
-  "${CODE_DIR}/docs"
-  "${CODE_DIR}/scripts"
-  "${CODE_DIR}/results"
-  "${PROJECT_ROOT}/specs/001-entropy-validity-prediction/contracts"
-  "${CODE_DIR}/src"
-  "${CODE_DIR}/data/raw"
-  "${CODE_DIR}/data/processed"
-  "${CODE_DIR}/artifacts"
-  "${CODE_DIR}/state"
-)
+echo "Creating directory structure for $PROJECT_ROOT..."
 
-# Create directories
-echo "Creating directory structure..."
-for dir in "${DIRS[@]}"; do
-  mkdir -p "$dir"
-  echo "Created: $dir"
-done
+# Create root project directories
+mkdir -p "$PROJECT_ROOT/code"
+mkdir -p "$PROJECT_ROOT/tests"
+mkdir -p "$PROJECT_ROOT/data"
+mkdir -p "$PROJECT_ROOT/docs"
+mkdir -p "$PROJECT_ROOT/scripts"
+mkdir -p "$PROJECT_ROOT/results"
+mkdir -p "$PROJECT_ROOT/specs/001-entropy-validity-prediction/contracts"
 
-# Verify all paths exist and collect absolute paths
-echo "Verifying directory structure..."
-ABS_PATHS=()
-MISSING=0
+# Create subdirectories under code/
+mkdir -p "$PROJECT_ROOT/code/src"
+mkdir -p "$PROJECT_ROOT/code/data/raw"
+mkdir -p "$PROJECT_ROOT/code/data/processed"
+mkdir -p "$PROJECT_ROOT/code/artifacts"
+mkdir -p "$PROJECT_ROOT/code/state"
 
-for dir in "${DIRS[@]}"; do
-  if [ ! -d "$dir" ]; then
-    echo "ERROR: Missing directory $dir"
-    MISSING=1
-  else
-    # Get absolute path
-    ABS_PATH=$(cd "$dir" && pwd)
-    ABS_PATHS+=("$ABS_PATH")
-  fi
-done
+# Create additional standard subdirectories
+mkdir -p "$PROJECT_ROOT/code/src/utils"
+mkdir -p "$PROJECT_ROOT/code/src/data"
+mkdir -p "$PROJECT_ROOT/code/src/generation"
+mkdir -p "$PROJECT_ROOT/code/src/analysis"
+mkdir -p "$PROJECT_ROOT/code/tests/unit"
+mkdir -p "$PROJECT_ROOT/code/tests/integration"
+mkdir -p "$PROJECT_ROOT/code/tests/contract"
+mkdir -p "$PROJECT_ROOT/code/logs"
 
-# Exit with error if any directories are missing
-if [ $MISSING -eq 1 ]; then
-  echo "ERROR: Some directories are missing. Exiting with code 1."
-  exit 1
-fi
-
-# Generate JSON log of absolute paths
-echo "Generating project structure log..."
-{
-  echo "["
-  first=true
-  for path in "${ABS_PATHS[@]}"; do
-    if [ "$first" = true ]; then
-      first=false
-    else
-      echo ","
-    fi
-    printf '  "%s"' "$path"
-  done
-  echo ""
-  echo "]"
-} > "$LOG_FILE"
-
-echo "Setup complete. Log written to: $LOG_FILE"
-echo "Total directories created: ${#DIRS[@]}"
+echo "Directory structure created successfully."
+echo "All paths:"
+find "$PROJECT_ROOT" -type d | sort

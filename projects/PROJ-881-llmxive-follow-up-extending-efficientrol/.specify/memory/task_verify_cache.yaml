@@ -1,41 +1,21 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `setup.sh` script or `project_structure.log` file was provided; without these\
-    \ artifacts we cannot verify that the required directory\u2011creation commands,\
-    \ existence checks, exit behavior, and JSON log of absolute paths were implemented.\
-    \ The implementer must supply both files with the specified functionality."
-T006:
-  c: false
-  h: 2cc722d658f4b941206041cc1dd82dbd28a0078cb49a16d77c7cd83a5493e187
-  r: "The repository contains a `code/src/data/preprocessing.py` but the required\
-    \ path `projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/src/data/preprocessing.py`\
-    \ is missing, and the shown portion of `stream_batch` is truncated so we cannot\
-    \ verify the 500\u2011example batching, MemoryError backoff, or RuntimeError on\
-    \ minimal size. The integration test file does not include the specific `test_memory_backoff`\
-    \ verification (or it is not visible). These gaps must be filled for the task\
-    \ to be considered complete."
-T007:
-  c: false
-  h: d9af6e56b0a50b747645870fc3e18e10660a31bae0922ad61094af8c1cd04f19
-  r: "The provided `code/src/data/download.py` is truncated and does not show a complete\
-    \ implementation (e.g., the MiniGrid download function is absent, and the end\
-    \ of the GSM8K function is cut off). Additionally, the expected `src/data/download.py`\
-    \ file is reported as missing. Consequently, the required script with full 500\u2011\
-    example capping and no synthetic fallbacks is not present."
 T008:
   c: false
-  h: e57439f3958f64399d94995af86904689415106276846877c76559198d3ec0ed
-  r: The required `.env.example` file does not exist, and the provided `src/config.py`
-    is truncated (ends abruptly at `if model_path_s`), so it does not fully implement
-    loading of the three environment variables. Both artifacts need to be present
-    and complete.
-T009:
+  h: ae07c7cac189aec6ea7ce1ab5fca4d085674a0898b27495ec4fa64524ff76d66
+  r: "The provided artifact is a `code/src/utils/validators.py` file that only defines\
+    \ dataclasses and minimal `from_dict` checks; it lacks explicit schema\u2011validation\
+    \ functions for the three required types and is truncated. Moreover, the exact\
+    \ required path `src/utils/validators.py` (under the project root) is reported\
+    \ as missing. The deliverable is therefore not present in the correct location\
+    \ nor does it fully implement the requested validation logic."
+T010:
   c: false
-  h: 8233450ba8cbd420a5cbf7ee6b1e2a43523fb6668409b7c7926a266325cf8f2b
-  r: "The required file `code/tests/contract/test_dataset_schema.py` is missing from\
-    \ the repository, so no contract test for the dataset schema exists. Without this\
-    \ artifact, the task\u2019s deliverable is not satisfied."
+  h: 24953131f071bf893ef4709fdd52894d835a1b418550847fd0105172b3216631
+  r: "The provided `code/src/data/download.py` is truncated and does not show a MiniGrid\
+    \ download function, nor does it demonstrably raise `ConnectionError`/`FileNotFoundError`\
+    \ on load failures. Moreover, the required path `projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/src/data/download.py`\
+    \ is not present (the file exists only as `code/src/data/download.py`), and the\
+    \ sibling `src/data/download.py` is missing entirely. The task\u2019s deliverable\
+    \ is therefore not fully satisfied."
 T012:
   c: false
   h: 1ae59ba635939140c514693d1e107b6b32bc71fe95c614c6fa8c2109237c2254
@@ -73,13 +53,6 @@ T023:
   r: "The provided `preprocessing.py` does not contain a `validate_entropy_profile()`\
     \ implementation (the file excerpt shows no such function), so the required validation\
     \ logic is missing. Consequently the task\u2019s core requirement is not satisfied."
-T024:
-  c: false
-  h: b868373ebfe2844181e3b1a4d6e3d47b0119af36e4326e8cee8a517f0a6cbc73
-  r: The required file `projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/tests/contract/test_analysis_result_schema.py`
-    does not exist in the repository, so no contract test for the analysis result
-    schema is present. The task cannot be considered completed until this test file
-    is added with appropriate content.
 T031:
   c: false
   h: 6739b45cd9711a2147dc8383a90798d159f7c791682f81f0be709f784ffcb16b

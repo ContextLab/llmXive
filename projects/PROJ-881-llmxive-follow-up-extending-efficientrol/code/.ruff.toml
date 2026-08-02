@@ -1,23 +1,50 @@
-# Ruff configuration file
-# This file extends the settings defined in pyproject.toml
-# Specific overrides for the project can be added here
+# Ruff configuration file for llmXive project
+# This file extends the settings in pyproject.toml with specific overrides
+# for the linter rules used in this project.
+
+# Extend the main configuration
+extend = "pyproject.toml"
 
 [lint]
-# Enable specific rules that might be too verbose in pyproject.toml
+# Additional rules to enforce for this project
 select = [
+    "E",   # pycodestyle errors
+    "F",   # Pyflakes
+    "I",   # isort
+    "W",   # pycodestyle warnings
+    "N",   # pep8-naming
+    "UP",  # pyupgrade
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
     "SIM", # flake8-simplify
-    "PT",  # flake8-pytest-style
-    "RUF", # Ruff-specific rules
+    "ARG", # flake8-unused-arguments
+    "PTH"  # flake8-use-pathlib
 ]
+
+# Ignore specific rules that conflict with the codebase style or are too noisy
 ignore = [
-    "SIM102", # collapsible-if (sometimes reduces readability)
+    "E501",  # Line too long (handled by Black)
+    "B008",  # Do not perform function call in argument defaults (common in dataclasses)
+    "SIM105", # Use contextlib.suppress (sometimes less readable)
+    "ARG002", # Unused method argument (sometimes needed for interface compliance)
+    "PTH123"  # open() should be replaced by Path.open() (sometimes less clear)
 ]
 
-[lint.pydocstyle]
-convention = "google"
+[lint.per-file-ignores]
+# Tests can use assert and don't need strict naming conventions
+"tests/*" = [
+    "S101", # Use of assert detected
+    "N802", # Function name should be lowercase
+    "N806", # Variable in function should be lowercase
+    "ARG001" # Unused function argument
+]
+# Scripts often have unused arguments from CLI parsing
+"scripts/*" = [
+    "ARG001"
+]
 
-[format]
-quote-style = "double"
-indent-style = "space"
-skip-magic-trailing-comma = false
-line-ending = "auto"
+[lint.isort]
+# Force single line for imports in specific files if needed, but default is multi-line
+force-single-line = false
+lines-after-imports = 2
+known-first-party = ["src", "scripts", "tests"]

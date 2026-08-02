@@ -1,18 +1,25 @@
+# Core ML & Transformers
+# Qwen1.5-1.5B compatibility requires transformers >= 4.37.0 and torch >= 2.0.0
+# Pinning to specific stable versions for reproducibility and GPU/CPU compatibility
 transformers==4.40.0
-torch==2.3.0
-datasets==2.19.0
+torch==2.2.1
+datasets==2.18.0
+accelerate==0.27.2
+
+# Data Processing & Analysis
 scikit-learn==1.4.2
-pandas==2.2.2
+pandas==2.2.1
 numpy==1.26.4
-h5py==3.11.0
-pytest==8.2.0
+h5py==3.10.0
 statsmodels==0.14.2
+
+# System & Utilities
 psutil==5.9.8
-huggingface_hub==0.23.0
+huggingface_hub==0.22.2
 pyyaml==6.0.1
-black==24.4.2
-ruff==0.4.4
-# CPU-compatible 1.5B parameter model (Qwen1.5-1.5B)
-# Note: The model itself is not a pip package; it is downloaded via HuggingFace
-# at runtime using the `transformers` library. This comment documents the
-# required model specification for FR-002.
+
+# Development & Testing
+pytest==8.1.1
+black==24.3.0
+ruff==0.3.5
+python-dotenv==1.0.1

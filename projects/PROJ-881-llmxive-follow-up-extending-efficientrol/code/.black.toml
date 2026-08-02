@@ -1,7 +1,6 @@
-# Black configuration file
-# This file is read by Black as a fallback if pyproject.toml is not found
-# or for specific tooling that prefers dedicated config files.
-# Note: Black primarily reads from [tool.black] in pyproject.toml.
+# Black configuration file for llmXive project
+# This file extends settings from pyproject.toml but can be used for
+# specific overrides if needed by the editor or CI.
 
 [tool.black]
 line-length = 88
@@ -9,17 +8,22 @@ target-version = ['py39', 'py310', 'py311']
 include = '\.pyi?$'
 exclude = '''
 /(
-    \.eggs
-    | \.git
-    | \.hg
-    | \.mypy_cache
-    | \.tox
-    | \.venv
-    | _build
-    | buck-out
-    | build
-    | dist
+    \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+  | data
+  | results
+  | logs
+  | state
 )/
 '''
-# Force the configuration to match pyproject.toml exactly for consistency
-# in case a tool loads this file specifically.
+# Force the use of stable formatting
+skip-string-normalization = false
+# Preview style for future-proofing (optional, currently stable is default)
+preview = false

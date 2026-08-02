@@ -1,10 +1,11 @@
 """
 Unit tests for the download module.
 
-Tests verify that:
-1. Functions exist and have correct signatures
-2. Error handling works correctly (fail loudly)
-3. No synthetic fallbacks are used
+These tests verify that the download functions correctly handle:
+- Sample size limits (500 examples)
+- Streaming mode
+- Error handling for unavailable datasets
+- No synthetic fallbacks
 """
 
 import pytest
@@ -15,205 +16,241 @@ import json
 import tempfile
 import os
 
+# Add the code directory to the path
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent / "code"))
+
 from src.data.download import (
     download_gsm8k_subset,
     download_minigrid_subset,
     download_all_datasets,
-    GSM8K_MAX_EXAMPLES,
-    MINIGRID_MAX_EXAMPLES
+    DEFAULT_SAMPLE_SIZE,
+    RAW_DATA_DIR
 )
 
+from itertools import islice
+
+
 class TestDownloadModule:
-    """Test suite for download module functions."""
+    """Test suite for the download module."""
     
-    def test_download_gsm8k_subset_signature(self):
-        """Test that download_gsm8k_subset has the correct signature."""
-        import inspect
-        sig = inspect.signature(download_gsm8k_subset)
-        params = list(sig.parameters.keys())
-        assert "output_dir" in params
-        assert "max_examples" in params
-    
-    def test_download_minigrid_subset_signature(self):
-        """Test that download_minigrid_subset has the correct signature."""
-        import inspect
-        sig = inspect.signature(download_minigrid_subset)
-        params = list(sig.parameters.keys())
-        assert "output_dir" in params
-        assert "max_examples" in params
-        assert "environment" in params
-    
-    def test_constants_defined(self):
-        """Test that max example constants are defined."""
-        assert GSM8K_MAX_EXAMPLES == 500
-        assert MINIGRID_MAX_EXAMPLES == 500
-    
-    @patch('src.data.download.load_dataset')
-    def test_download_gsm8k_creates_output(self, mock_load_dataset):
-        """Test that GSM8K download creates output files."""
-        # Mock the dataset iterator
-        mock_dataset = MagicMock()
-        mock_dataset.__iter__ = MagicMock(return_value=iter([
-            {"question": "Test question 1", "answer": "Test answer 1"},
-            {"question": "Test question 2", "answer": "Test answer 2"},
-        ]))
-        mock_load_dataset.return_value = mock_dataset
-        
+    @pytest.fixture
+    def temp_dir(self):
+        """Create a temporary directory for test outputs."""
         with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = download_gsm8k_subset(output_dir=tmpdir, max_examples=2)
-            
-            # Check that output directory exists
-            assert Path(output_path).exists()
-            
-            # Check that JSONL file was created
-            jsonl_file = Path(output_path) / "gsm8k_subset.jsonl"
-            assert jsonl_file.exists()
-            
-            # Check that metadata file was created
-            metadata_file = Path(output_path) / "metadata.json"
-            assert metadata_file.exists()
-            
-            # Verify metadata content
-            with open(metadata_file, 'r') as f:
-                metadata = json.load(f)
-            assert metadata["dataset"] == "gsm8k"
-            assert metadata["total_examples"] == 2
+            yield Path(tmpdir)
     
     @patch('src.data.download.load_dataset')
-    def test_download_minigrid_creates_output(self, mock_load_dataset):
-        """Test that MiniGrid download creates output files."""
-        # Mock the dataset iterator
-        mock_dataset = MagicMock()
-        mock_dataset.__iter__ = MagicMock(return_value=iter([
-            {"grid": [[0, 1, 2]], "goal": "reach goal"},
-            {"grid": [[3, 4, 5]], "goal": "reach goal"},
-        ]))
-        mock_load_dataset.return_value = mock_dataset
-        
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = download_minigrid_subset(output_dir=tmpdir, max_examples=2)
-            
-            # Check that output directory exists
-            assert Path(output_path).exists()
-            
-            # Check that JSONL file was created
-            jsonl_file = Path(output_path) / "minigrid_subset.jsonl"
-            assert jsonl_file.exists()
-            
-            # Check that metadata file was created
-            metadata_file = Path(output_path) / "metadata.json"
-            assert metadata_file.exists()
-    
-    @patch('src.data.download.load_dataset')
-    def test_download_gsm8k_respects_max_examples(self, mock_load_dataset):
-        """Test that GSM8K download respects max_examples limit."""
-        # Create more mock examples than requested
-        mock_examples = [{"question": f"Q{i}", "answer": f"A{i}"} for i in range(100)]
+    def test_download_gsm8k_sample_limit(self, mock_load_dataset, temp_dir):
+        """Test that GSM8K download respects the 500-example limit."""
+        # Create mock dataset with more than 500 examples
+        mock_examples = [{"id": i, "question": f"Question {i}", "answer": f"Answer {i}"} for i in range(1000)]
         mock_dataset = MagicMock()
         mock_dataset.__iter__ = MagicMock(return_value=iter(mock_examples))
         mock_load_dataset.return_value = mock_dataset
         
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = download_gsm8k_subset(output_dir=tmpdir, max_examples=10)
-            
-            # Read the output file
-            jsonl_file = Path(output_path) / "gsm8k_subset.jsonl"
-            with open(jsonl_file, 'r') as f:
-                lines = f.readlines()
-            
-            # Verify only max_examples were written
-            assert len(lines) == 10
-    
-    def test_fail_loudly_on_network_error(self):
-        """Test that network errors raise ConnectionError (fail loudly)."""
-        with patch('src.data.download.load_dataset') as mock_load:
-            mock_load.side_effect = ConnectionError("Network error")
-            
-            with tempfile.TemporaryDirectory() as tmpdir:
-                with pytest.raises(ConnectionError) as exc_info:
-                    download_gsm8k_subset(output_dir=tmpdir, max_examples=10)
-                
-                assert "Network error" in str(exc_info.value)
-    
-    def test_fail_loudly_on_dataset_not_found(self):
-        """Test that missing dataset raises FileNotFoundError (fail loudly)."""
-        with patch('src.data.download.load_dataset') as mock_load:
-            mock_load.side_effect = FileNotFoundError("Dataset not found")
-            
-            with tempfile.TemporaryDirectory() as tmpdir:
-                with pytest.raises(FileNotFoundError) as exc_info:
-                    download_minigrid_subset(output_dir=tmpdir, max_examples=10)
-                
-                assert "Dataset not found" in str(exc_info.value)
-    
-    def test_no_synthetic_fallback(self):
-        """Test that no synthetic data generation functions are called."""
-        # Check that the module does not contain synthetic generation functions
-        import src.data.download as download_module
+        output_path = temp_dir / "test_gsm8k.jsonl"
+        result_path = download_gsm8k_subset(output_path, sample_size=500, streaming=True)
         
-        # These should NOT exist in the module
-        assert not hasattr(download_module, 'generate_synthetic_gsm8k')
-        assert not hasattr(download_module, 'generate_synthetic_minigrid')
-        assert not hasattr(download_module, 'mock_gsm8k_data')
-        assert not hasattr(download_module, 'mock_minigrid_data')
+        # Verify the file was created
+        assert result_path.exists()
+        
+        # Verify only 500 examples were written
+        with open(result_path, 'r') as f:
+            lines = f.readlines()
+        
+        assert len(lines) == 500, f"Expected 500 examples, got {len(lines)}"
+        
+        # Verify the content matches the first 500 examples
+        for i, line in enumerate(lines):
+            data = json.loads(line)
+            assert data["id"] == i
     
     @patch('src.data.download.load_dataset')
-    def test_download_all_datasets(self, mock_load_dataset):
-        """Test download_all_datasets function."""
-        # Mock both datasets
-        mock_gsm8k = MagicMock()
-        mock_gsm8k.__iter__ = MagicMock(return_value=iter([
-            {"question": "Q1", "answer": "A1"},
-        ]))
+    def test_download_minigrid_sample_limit(self, mock_load_dataset, temp_dir):
+        """Test that MiniGrid download respects the 500-example limit."""
+        # Create mock dataset with more than 500 examples
+        mock_examples = [{"id": i, "grid": f"Grid {i}", "action": f"Action {i}"} for i in range(1000)]
+        mock_dataset = MagicMock()
+        mock_dataset.__iter__ = MagicMock(return_value=iter(mock_examples))
+        mock_load_dataset.return_value = mock_dataset
         
-        mock_minigrid = MagicMock()
-        mock_minigrid.__iter__ = MagicMock(return_value=iter([
-            {"grid": [[1, 2]], "goal": "goal"},
-        ]))
+        output_path = temp_dir / "test_minigrid.jsonl"
+        result_path = download_minigrid_subset(output_path, sample_size=500, streaming=True)
         
-        # Set up side effect to return different datasets based on name
-        def dataset_side_effect(name, *args, **kwargs):
-            if name == "gsm8k":
-                return mock_gsm8k
-            elif name == "minigrid":
-                return mock_minigrid
-            else:
-                raise ValueError(f"Unknown dataset: {name}")
+        # Verify the file was created
+        assert result_path.exists()
         
-        mock_load_dataset.side_effect = dataset_side_effect
+        # Verify only 500 examples were written
+        with open(result_path, 'r') as f:
+            lines = f.readlines()
         
-        with tempfile.TemporaryDirectory() as tmpdir:
-            results = download_all_datasets(output_base_dir=tmpdir)
-            
-            assert "gsm8k" in results
-            assert "minigrid" in results
-            assert Path(results["gsm8k"]).exists()
-            assert Path(results["minigrid"]).exists()
+        assert len(lines) == 500, f"Expected 500 examples, got {len(lines)}"
     
-    def test_download_gsm8k_empty_dataset_raises(self):
-        """Test that empty dataset raises RuntimeError."""
-        with patch('src.data.download.load_dataset') as mock_load:
-            # Return an empty iterator
-            mock_dataset = MagicMock()
-            mock_dataset.__iter__ = MagicMock(return_value=iter([]))
-            mock_load.return_value = mock_dataset
-            
-            with tempfile.TemporaryDirectory() as tmpdir:
-                with pytest.raises(RuntimeError) as exc_info:
-                    download_gsm8k_subset(output_dir=tmpdir, max_examples=10)
-                
-                assert "No examples were fetched" in str(exc_info.value)
+    @patch('src.data.download.load_dataset')
+    def test_download_gsm8k_streaming_mode(self, mock_load_dataset, temp_dir):
+        """Test that GSM8K download uses streaming mode correctly."""
+        mock_examples = [{"id": i} for i in range(500)]
+        mock_dataset = MagicMock()
+        mock_dataset.__iter__ = MagicMock(return_value=iter(mock_examples))
+        mock_load_dataset.return_value = mock_dataset
+        
+        output_path = temp_dir / "test_gsm8k_stream.jsonl"
+        download_gsm8k_subset(output_path, sample_size=500, streaming=True)
+        
+        # Verify load_dataset was called with streaming=True
+        mock_load_dataset.assert_called_once()
+        call_args = mock_load_dataset.call_args
+        assert call_args.kwargs.get('streaming') == True
     
-    def test_download_minigrid_empty_dataset_raises(self):
-        """Test that empty MiniGrid dataset raises RuntimeError."""
-        with patch('src.data.download.load_dataset') as mock_load:
-            # Return an empty iterator
-            mock_dataset = MagicMock()
-            mock_dataset.__iter__ = MagicMock(return_value=iter([]))
-            mock_load.return_value = mock_dataset
+    @patch('src.data.download.load_dataset')
+    def test_download_minigrid_streaming_mode(self, mock_load_dataset, temp_dir):
+        """Test that MiniGrid download uses streaming mode correctly."""
+        mock_examples = [{"id": i} for i in range(500)]
+        mock_dataset = MagicMock()
+        mock_dataset.__iter__ = MagicMock(return_value=iter(mock_examples))
+        mock_load_dataset.return_value = mock_dataset
+        
+        output_path = temp_dir / "test_minigrid_stream.jsonl"
+        download_minigrid_subset(output_path, sample_size=500, streaming=True)
+        
+        # Verify load_dataset was called with streaming=True
+        mock_load_dataset.assert_called_once()
+        call_args = mock_load_dataset.call_args
+        assert call_args.kwargs.get('streaming') == True
+    
+    def test_download_gsm8k_connection_error(self):
+        """Test that GSM8K download raises ConnectionError on failure."""
+        with patch('src.data.download.load_dataset') as mock_load_dataset:
+            mock_load_dataset.side_effect = ConnectionError("Network error")
             
-            with tempfile.TemporaryDirectory() as tmpdir:
-                with pytest.raises(RuntimeError) as exc_info:
-                    download_minigrid_subset(output_dir=tmpdir, max_examples=10)
-                
-                assert "No examples were fetched" in str(exc_info.value)
+            with pytest.raises(ConnectionError, match="Network error"):
+                download_gsm8k_subset()
+    
+    def test_download_minigrid_connection_error(self):
+        """Test that MiniGrid download raises ConnectionError on failure."""
+        with patch('src.data.download.load_dataset') as mock_load_dataset:
+            mock_load_dataset.side_effect = ConnectionError("Network error")
+            
+            with pytest.raises(ConnectionError, match="Network error"):
+                download_minigrid_subset()
+    
+    def test_download_gsm8k_file_not_found(self):
+        """Test that GSM8K download raises FileNotFoundError when dataset not found."""
+        with patch('src.data.download.load_dataset') as mock_load_dataset:
+            mock_load_dataset.side_effect = FileNotFoundError("Dataset not found")
+            
+            with pytest.raises(FileNotFoundError, match="Dataset not found"):
+                download_gsm8k_subset()
+    
+    def test_download_minigrid_file_not_found(self):
+        """Test that MiniGrid download raises FileNotFoundError when dataset not found."""
+        with patch('src.data.download.load_dataset') as mock_load_dataset:
+            mock_load_dataset.side_effect = FileNotFoundError("Dataset not found")
+            
+            with pytest.raises(FileNotFoundError, match="Dataset not found"):
+                download_minigrid_subset()
+    
+    @patch('src.data.download.download_gsm8k_subset')
+    @patch('src.data.download.download_minigrid_subset')
+    def test_download_all_datasets_success(
+        self, mock_minigrid, mock_gsm8k, temp_dir
+    ):
+        """Test that download_all_datasets correctly downloads both datasets."""
+        mock_gsm8k.return_value = temp_dir / "gsm8k.jsonl"
+        mock_minigrid.return_value = temp_dir / "minigrid.jsonl"
+        
+        results = download_all_datasets(
+            gsm8k_output=mock_gsm8k.return_value,
+            minigrid_output=mock_minigrid.return_value,
+            sample_size=500
+        )
+        
+        assert "gsm8k" in results
+        assert "minigrid" in results
+        assert results["gsm8k"] == temp_dir / "gsm8k.jsonl"
+        assert results["minigrid"] == temp_dir / "minigrid.jsonl"
+        
+        # Verify both download functions were called
+        mock_gsm8k.assert_called_once()
+        mock_minigrid.assert_called_once()
+    
+    @patch('src.data.download.download_gsm8k_subset')
+    def test_download_all_datasets_gsm8k_failure(self, mock_gsm8k, temp_dir):
+        """Test that download_all_datasets raises when GSM8K fails."""
+        mock_gsm8k.side_effect = ConnectionError("GSM8K download failed")
+        
+        with pytest.raises(ConnectionError, match="GSM8K download failed"):
+            download_all_datasets()
+    
+    @patch('src.data.download.download_gsm8k_subset')
+    @patch('src.data.download.download_minigrid_subset')
+    def test_download_all_datasets_minigrid_failure(
+        self, mock_minigrid, mock_gsm8k, temp_dir
+    ):
+        """Test that download_all_datasets raises when MiniGrid fails."""
+        mock_gsm8k.return_value = temp_dir / "gsm8k.jsonl"
+        mock_minigrid.side_effect = ConnectionError("MiniGrid download failed")
+        
+        with pytest.raises(ConnectionError, match="MiniGrid download failed"):
+            download_all_datasets()
+    
+    def test_no_synthetic_fallback(self):
+        """
+        Test that there is no synthetic fallback in the download functions.
+        
+        This test verifies that the code does not contain any calls to
+        generate_synthetic_* or mock_* functions as fallbacks.
+        """
+        import inspect
+        from src.data.download import download_gsm8k_subset, download_minigrid_subset
+        
+        # Get the source code of both functions
+        gsm8k_source = inspect.getsource(download_gsm8k_subset)
+        minigrid_source = inspect.getsource(download_minigrid_subset)
+        
+        # Check for synthetic fallback patterns
+        synthetic_patterns = [
+            "generate_synthetic",
+            "mock_",
+            "np.random",
+            "synthetic",
+            "fake_"
+        ]
+        
+        for pattern in synthetic_patterns:
+            assert pattern not in gsm8k_source, f"Found synthetic fallback in GSM8K: {pattern}"
+            assert pattern not in minigrid_source, f"Found synthetic fallback in MiniGrid: {pattern}"
+    
+    @patch('src.data.download.load_dataset')
+    def test_default_sample_size(self, mock_load_dataset, temp_dir):
+        """Test that the default sample size is 500."""
+        mock_examples = [{"id": i} for i in range(1000)]
+        mock_dataset = MagicMock()
+        mock_dataset.__iter__ = MagicMock(return_value=iter(mock_examples))
+        mock_load_dataset.return_value = mock_dataset
+        
+        output_path = temp_dir / "test_default.jsonl"
+        download_gsm8k_subset(output_path)  # Use default sample_size
+        
+        with open(output_path, 'r') as f:
+            lines = f.readlines()
+        
+        assert len(lines) == DEFAULT_SAMPLE_SIZE
+        assert DEFAULT_SAMPLE_SIZE == 500
+    
+    @patch('src.data.download.load_dataset')
+    def test_custom_sample_size(self, mock_load_dataset, temp_dir):
+        """Test that a custom sample size is respected."""
+        custom_size = 100
+        mock_examples = [{"id": i} for i in range(1000)]
+        mock_dataset = MagicMock()
+        mock_dataset.__iter__ = MagicMock(return_value=iter(mock_examples))
+        mock_load_dataset.return_value = mock_dataset
+        
+        output_path = temp_dir / "test_custom.jsonl"
+        download_gsm8k_subset(output_path, sample_size=custom_size)
+        
+        with open(output_path, 'r') as f:
+            lines = f.readlines()
+        
+        assert len(lines) == custom_size
