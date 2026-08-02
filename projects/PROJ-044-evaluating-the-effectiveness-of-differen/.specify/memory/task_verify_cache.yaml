@@ -1,0 +1,12 @@
+T028:
+  c: false
+  h: e10705754bbf7e7fa31e20705c5ebca2046e84261380fbd1a08da78613b90922
+  r: The required `results/summary.csv` file does not exist, so the specified columns
+    and data are missing. While a `validation_report.md` is present, the overall task
+    is incomplete without the summary CSV.
+T029:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No updated `README.md` or files under `docs/` were provided or referenced; the
+    evidence contains only the feature specification and no documentation artifacts,
+    so the required documentation updates are missing.

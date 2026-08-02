@@ -27,7 +27,7 @@ This feature implements a computational study evaluating how data heterogeneity 
 **Target Platform**: Linux (GitHub Actions free-tier: 2 vCPU, 7GB RAM).  
 **Performance Goals**: Complete 3 seeds × 5 ε values × 4 α values (0.05, 0.1, 0.5, 1.0) for FEMNIST within 6 hours on CPU.  
 **Constraints**: Must run on CPU-first; no PII in data; checksums mandatory; Shakespeare excluded.  
-**Scale/Scope**: ~200k samples (FEMNIST subset), 50 clients, 50 training rounds per seed (reduced to 20 if timeout risk detected).  
+**Scale/Scope**: A large-scale sample set (FEMNIST subset), A cohort of clients, A fixed number of training rounds per seed (reduced to a lower threshold if timeout risk detected).  
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase.
 
@@ -105,5 +105,5 @@ projects/PROJ-044-evaluating-the-effectiveness-of-differen/
 - **Total Runs**: 60 runs.
 - **Time Budget**: 6 hours on GitHub Actions CPU.
 - **Convergence Check**: Each run monitors loss. If loss plateaus before a predefined maximum number of rounds, training stops early.
-- **Timeout Handling**: If a predefined time limit is approached (e.g., 5.5 hours), remaining rounds are reduced to 20 and the run is flagged as `is_time_limited=True` in the results CSV.
+- **Timeout Handling**: If a predefined time limit is approached (e.g., several hours), remaining rounds are reduced to 20 and the run is flagged as `is_time_limited=True` in the results CSV.
 - **Metric Exclusion**: Runs flagged as `is_time_limited=True` are **excluded** from SC-001 (Convergence Speed) analysis because the "rounds to reach target" cannot be accurately measured for incomplete runs. The analysis script will explicitly filter these rows.
