@@ -16,35 +16,35 @@ def interpolate_missing_timesteps(
 ) -> Tuple[np.ndarray, np.ndarray]:
     """
     Interpolate missing timesteps in a time series using linear interpolation.
-    
+
     Args:
         times: Array of timesteps (may have gaps).
         values: Array of values corresponding to times.
         method: Interpolation method ('linear', 'nearest', etc.).
-        
+
     Returns:
         Tuple of (filled_times, filled_values) with no gaps.
     """
     if len(times) != len(values):
         raise ValueError("times and values must have the same length")
-    
+
     if len(times) < 2:
         return times, values
-    
+
     # Create a continuous range of timesteps
     full_times = np.arange(times.min(), times.max() + 1)
-    
+
     # Perform interpolation
     f = interpolate.interp1d(
-        times, 
-        values, 
-        kind=method, 
-        bounds_error=False, 
+        times,
+        values,
+        kind=method,
+        bounds_error=False,
         fill_value='extrapolate'
     )
-    
+
     filled_values = f(full_times)
-    
+
     return full_times, filled_values
 
 
@@ -56,40 +56,84 @@ def safe_z_score(
 ) -> np.ndarray:
     """
     Calculate z-score with safety checks for zero variance.
-    
+
     Args:
         values: Array of values to compute z-scores for.
         window_size: Size of the sliding window.
         min_samples: Minimum number of samples required to compute z-score.
         epsilon: Small positive value to prevent division by zero.
-        
+
     Returns:
         Array of z-scores with neutral baseline (0) for zero variance cases.
     """
     if len(values) < min_samples:
         return np.zeros_like(values)
-    
+
     z_scores = np.zeros(len(values))
-    
+
     for i in range(len(values)):
         # Define window bounds
         start = max(0, i - window_size + 1)
         window = values[start:i+1]
-        
+
         if len(window) < min_samples:
             z_scores[i] = 0.0
             continue
-        
+
         mean = np.mean(window)
         std = np.std(window)
-        
-        # Prevent division by zero
+
+        # Prevent division by zero using epsilon floor
         if std < epsilon:
             z_scores[i] = 0.0
         else:
             z_scores[i] = (values[i] - mean) / std
-    
+
     return z_scores
+
+
+def handle_nan(
+    values: np.ndarray,
+    strategy: str = 'forward_fill'
+) -> np.ndarray:
+    """
+    Gracefully handle NaN values in time-series data.
+
+    Args:
+        values: Array of values that may contain NaNs.
+        strategy: Handling strategy ('forward_fill', 'backward_fill', 'mean', 'zero').
+
+    Returns:
+        Array with NaNs replaced according to the strategy.
+    """
+    values = np.asarray(values, dtype=float)
+    result = values.copy()
+
+    nan_mask = np.isnan(result)
+
+    if not np.any(nan_mask):
+        return result
+
+    if strategy == 'forward_fill':
+        # Forward fill: propagate last valid observation
+        result = pd.Series(result).ffill().bfill().values
+    elif strategy == 'backward_fill':
+        # Backward fill: propagate next valid observation
+        result = pd.Series(result).bfill().ffill().values
+    elif strategy == 'mean':
+        # Replace with mean of non-NaN values
+        mean_val = np.nanmean(result)
+        result[nan_mask] = mean_val
+    elif strategy == 'zero':
+        # Replace with zero
+        result[nan_mask] = 0.0
+    else:
+        raise ValueError(f"Unknown strategy: {strategy}")
+
+    # Final check: if any NaNs remain (e.g., all values were NaN), set to 0
+    result = np.nan_to_num(result, nan=0.0)
+
+    return result
 
 
 def rolling_std_dev(
@@ -100,35 +144,35 @@ def rolling_std_dev(
 ) -> np.ndarray:
     """
     Calculate rolling standard deviation with optional masking.
-    
+
     Args:
         values: Array of values.
         window_size: Size of the sliding window.
         min_samples: Minimum samples required for calculation.
         mask: Boolean array to exclude certain indices from baseline calculation.
-        
+
     Returns:
         Array of rolling standard deviations.
     """
     if mask is None:
         mask = np.zeros(len(values), dtype=bool)
-    
+
     std_devs = np.zeros(len(values))
-    
+
     for i in range(len(values)):
         start = max(0, i - window_size + 1)
         window_indices = np.arange(start, i + 1)
-        
+
         # Apply mask to exclude contaminated indices
         valid_indices = window_indices[~mask[window_indices]]
-        
+
         if len(valid_indices) < min_samples:
             std_devs[i] = 0.0
             continue
-        
+
         window_values = values[valid_indices]
         std_devs[i] = np.std(window_values)
-    
+
     return std_devs
 
 
@@ -138,36 +182,36 @@ def calculate_pearson_correlation(
 ) -> float:
     """
     Calculate Pearson correlation coefficient between two arrays.
-    
+
     Args:
         x: First array of values.
         y: Second array of values.
-        
+
     Returns:
         Pearson correlation coefficient (float between -1 and 1).
     """
     x = np.asarray(x)
     y = np.asarray(y)
-    
+
     if len(x) != len(y):
         raise ValueError("Arrays must have the same length")
-    
+
     if len(x) < 2:
         return 0.0
-    
+
     # Remove NaN values
     valid_mask = ~(np.isnan(x) | np.isnan(y))
     x_valid = x[valid_mask]
     y_valid = y[valid_mask]
-    
+
     if len(x_valid) < 2:
         return 0.0
-    
+
     # Calculate Pearson correlation
     correlation = np.corrcoef(x_valid, y_valid)[0, 1]
-    
+
     # Handle potential NaN from constant arrays
     if np.isnan(correlation):
         return 0.0
-    
+
     return float(correlation)

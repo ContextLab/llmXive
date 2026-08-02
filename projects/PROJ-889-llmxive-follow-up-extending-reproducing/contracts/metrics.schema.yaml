@@ -1,0 +1,52 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Metrics Schema"
+description: >
+  Schema for evaluation metrics including Precision, Recall, F1-score,
+  p-value, and effect_size as defined in FR-005, SC-001, and SC-002.
+  This schema validates the structure of `data/processed/metrics.csv`
+  or aggregated metric JSON reports.
+type: object
+required:
+  - metric_name
+  - value
+properties:
+  metric_name:
+    type: string
+    description: "Name of the metric (e.g., 'Precision', 'Recall', 'F1-score', 'p-value', 'effect_size')"
+    enum:
+      - Precision
+      - Recall
+      - F1-score
+      - p-value
+      - effect_size
+      - Accuracy
+      - Specificity
+      - Sensitivity
+  value:
+    type: number
+    description: "The numeric value of the metric"
+    minimum: -1
+    maximum: 1
+  p_value:
+    type: number
+    description: "Associated p-value if the metric is a statistical test result"
+    minimum: 0
+    maximum: 1
+    nullable: true
+  effect_size:
+    type: number
+    description: "Associated effect size (e.g., Cohen's d) if applicable"
+    nullable: true
+  rubric_type:
+    type: string
+    description: "The rubric type this metric applies to (e.g., 'Lexical', 'Format', 'Tone', 'Self-praise')"
+    nullable: true
+  seed_id:
+    type: string
+    description: "The seed ID if this metric is specific to a single trajectory seed"
+    nullable: true
+  method:
+    type: string
+    description: "The method used to calculate the metric (e.g., 'Wilcoxon', 'Stratified Random Baseline')"
+    nullable: true
+additionalProperties: false

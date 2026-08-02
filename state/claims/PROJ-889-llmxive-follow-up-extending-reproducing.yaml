@@ -2384,3 +2384,171 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-30T21:40:38Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: python dependencies pandas numpy scipy requests pyyaml jsonschema pytest
+  claim_id: c_504f3177
+  context: 'Initialize Python 3.11 project with dependencies: `pandas`, `numpy`, `scipy`,
+    `requests`, `pyyaml`, `jsonschema`, `pytest` in `requirements.txt`'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Initialize Python 3.11 project with dependencies: `pandas`, `numpy`,
+    `scipy`, `requests`, `pyyaml`, `jsonschema`, `pytest` in `requirements.txt`'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T09:20:55Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: trajectory schema defines seed_id bias_type timestep J_biased J_unbiased
+    J_gold
+  claim_id: c_9512a7fc
+  context: 'Create trajectory schema: Create `contracts/trajectory.schema.yaml` defining
+    the schema for `seed_id`, `bias_type`, `timestep`, `J_biased`, `J_unbiased`, `J_gold`.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Trajectory_schema_defines_seed_id_bias_type_timestep_J_biase
+  kind: entity_fact
+  raw_text: 'Create trajectory schema: Create `contracts/trajectory.schema.yaml` defining
+    the schema for `seed_id`, `bias_type`, `timestep`, `J_biased`, `J_unbiased`, `J_gold`.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T09:21:13Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: metrics schema defines precision recall f1-score p-value effect size
+  claim_id: c_02ae7bd1
+  context: 'Create metrics schema: Create `contracts/metrics.schema.yaml` defining
+    the schema for Precision, Recall, F1-score, p-value, effect_size.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Metrics_schema_defines_precision_recall_f1-score_p-value_eff
+  kind: entity_fact
+  raw_text: 'Create metrics schema: Create `contracts/metrics.schema.yaml` defining
+    the schema for Precision, Recall, F1-score, p-value, effect_size.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T09:21:33Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: rolling z-score window size 20 samples minimum 5
+  claim_id: c_56fec793
+  context: Calculate rolling z-score with a sliding window of W=20 timesteps, requiring
+    a minimum of 5 samples to compute the standard deviation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate rolling z-score with a sliding window of W=20 timesteps, requiring
+    a minimum of 5 samples to compute the standard deviation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T09:21:58Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: correlation threshold 0.8
+  claim_id: c_592cc9ed
+  context: 'If correlation is strictly greater than `CORRELATION_THRESHOLD` (default
+    0.8), raise `RuntimeError` with message "CIRCULAR_VALIDATION: Correlation > threshold"
+    and exit with code 1 immediately.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Correlation_threshold_0.8
+  kind: magnitude
+  raw_text: 'If correlation is strictly greater than `CORRELATION_THRESHOLD` (default
+    0.8), raise `RuntimeError` with message "CIRCULAR_VALIDATION: Correlation > threshold"
+    and exit with code 1 immediately.'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T09:22:30Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: standard deviation threshold halts pipeline
+  claim_id: c_97695cc6
+  context: If the standard deviation exceeds a pre-defined threshold, halt the pipeline
+    immediately and report this as a research failure (do not attempt tuning).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Standard_deviation_threshold_halts_pipeline
+  kind: entity_fact
+  raw_text: If the standard deviation exceeds a pre-defined threshold, halt the pipeline
+    immediately and report this as a research failure (do not attempt tuning).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T09:22:56Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: baseline sampling fraction
+  claim_id: c_9d1275ec
+  context: Sample timesteps uniformly stratified by rubric type (Lexical, Format,
+    Tone, Self-praise) using the value defined in `code/config.py` as `BASELINE_SAMPLE_FRACTION`.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Baseline_sampling_fraction
+  kind: entity_fact
+  raw_text: Sample timesteps uniformly stratified by rubric type (Lexical, Format,
+    Tone, Self-praise) using the value defined in `code/config.py` as `BASELINE_SAMPLE_FRACTION`.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T09:23:15Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: CHERRL data source cited as arXiv:2606.04923
+  claim_id: c_c41e057e
+  context: 'Task T013 logic: Fetch data from the verified CHERRL repository artifacts
+    as cited in the spec (arXiv:2606.04923).'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: citation
+  raw_text: Fetch data from the verified CHERRL repository artifacts as cited in the
+    spec (arXiv:2606.04923).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T09:24:25Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: CHERRL repository artifacts cited in arXiv:2606.04923
+  claim_id: c_26d60c47
+  context: 'Implement download_cherrl_logs.py to fetch real data. Logic: 1. Fetch
+    data from the verified CHERRL repository artifacts as cited in the spec (arXiv:2606.04923).'
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: Fetch data from the verified CHERRL repository artifacts as cited in the
+    spec (arXiv:2606.04923).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-02T09:26:12Z'

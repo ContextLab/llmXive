@@ -4,7 +4,8 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T003a` (rejected 1x): declared artifact(s) missing/empty/invalid: ruff.toml
+- `T013` (rejected 1x): No `download_cherrl_logs.py` script or fetched log files in `data/raw/cherrl_logs/` are present; the claim lacks any concrete artifact demonstrating real data download, error handling, or saved output. The required code and data are missing.
+- `T025` (rejected 1x): declared artifact(s) missing/empty/invalid: data/processed/baseline_mask.json
 
 ## Required change
 

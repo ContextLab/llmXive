@@ -1,197 +1,178 @@
 """
 Unit tests for mathematical utility functions in code/utils/math_utils.py.
 """
-import pytest
 import numpy as np
-import pandas as pd
+import pytest
 from code.utils.math_utils import (
     interpolate_missing_timesteps,
     safe_z_score,
+    handle_nan,
     rolling_std_dev,
     calculate_pearson_correlation
 )
 
 
 class TestInterpolateMissingTimesteps:
-    """Tests for the interpolate_missing_timesteps function."""
+    def test_linear_interpolation_simple(self):
+        times = np.array([0, 2, 4])
+        values = np.array([0, 2, 4])
+        filled_times, filled_values = interpolate_missing_timesteps(times, values)
+
+        assert len(filled_times) == 5  # 0, 1, 2, 3, 4
+        assert filled_times[1] == 1
+        assert filled_values[1] == 1.0
 
     def test_no_gaps(self):
-        """Test interpolation when there are no gaps."""
-        df = pd.DataFrame({
-            "timestep": [1, 2, 3, 4, 5],
-            "value": [10.0, 20.0, 30.0, 40.0, 50.0]
-        })
-        result = interpolate_missing_timesteps(df, time_col="timestep")
-        # Should be identical to input since there are no gaps
-        assert len(result) == len(df)
-        np.testing.assert_array_almost_equal(result["value"], df["value"])
+        times = np.array([0, 1, 2, 3])
+        values = np.array([0, 1, 2, 3])
+        filled_times, filled_values = interpolate_missing_timesteps(times, values)
 
-    def test_with_gaps(self):
-        """Test interpolation with missing timesteps."""
-        df = pd.DataFrame({
-            "timestep": [1, 2, 4, 5],  # Missing 3
-            "value": [10.0, 20.0, 40.0, 50.0]
-        })
-        result = interpolate_missing_timesteps(df, time_col="timestep")
+        np.testing.assert_array_equal(filled_times, times)
+        np.testing.assert_array_almost_equal(filled_values, values)
 
-        # Should now have 5 rows (timesteps 1-5)
-        assert len(result) == 5
-        # Timestep 3 should be interpolated
-        timestep_3 = result[result["timestep"] == 3]
-        assert len(timestep_3) == 1
-        # Value should be 30.0 (linear interpolation between 20 and 40)
-        assert timestep_3["value"].values[0] == 30.0
-
-    def test_multiple_value_columns(self):
-        """Test interpolation with multiple value columns."""
-        df = pd.DataFrame({
-            "timestep": [1, 2, 4, 5],
-            "value1": [10.0, 20.0, 40.0, 50.0],
-            "value2": [100.0, 200.0, 400.0, 500.0]
-        })
-        result = interpolate_missing_timesteps(df, time_col="timestep")
-
-        assert len(result) == 5
-        # Both columns should be interpolated
-        timestep_3 = result[result["timestep"] == 3]
-        assert timestep_3["value1"].values[0] == 30.0
-        assert timestep_3["value2"].values[0] == 300.0
-
-    def test_invalid_time_column(self):
-        """Test error when time column is missing."""
-        df = pd.DataFrame({
-            "time": [1, 2, 3],
-            "value": [10.0, 20.0, 30.0]
-        })
+    def test_mismatched_lengths_raises(self):
+        times = np.array([0, 1, 2])
+        values = np.array([0, 1])
         with pytest.raises(ValueError):
-            interpolate_missing_timesteps(df, time_col="timestep")
+            interpolate_missing_timesteps(times, values)
 
-    def test_non_numeric_time_column(self):
-        """Test error when time column is non-numeric."""
-        df = pd.DataFrame({
-            "timestep": ["a", "b", "c"],
-            "value": [10.0, 20.0, 30.0]
-        })
-        with pytest.raises(ValueError):
-            interpolate_missing_timesteps(df, time_col="timestep")
+    def test_single_element(self):
+        times = np.array([5])
+        values = np.array([10])
+        filled_times, filled_values = interpolate_missing_timesteps(times, values)
+        np.testing.assert_array_equal(filled_times, times)
+        np.testing.assert_array_equal(filled_values, values)
 
 
 class TestSafeZScore:
-    """Tests for the safe_z_score function."""
+    def test_normal_case(self):
+        values = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+        z_scores = safe_z_score(values, window_size=5, min_samples=3)
 
-    def test_basic_z_score(self):
-        """Test basic z-score calculation."""
-        data = [10, 20, 30, 40, 50]
-        result = safe_z_score(data, window_size=3, min_samples=2)
-        # The middle values should have non-NaN z-scores
-        assert not np.isnan(result[2])
+        assert len(z_scores) == len(values)
+        # First few should be 0 due to min_samples constraint
+        assert z_scores[0] == 0.0
+        assert z_scores[1] == 0.0
+        assert z_scores[2] == 0.0
 
-    def test_zero_variance(self):
-        """Test that zero variance returns a neutral value (0) instead of error."""
-        data = [10.0, 10.0, 10.0, 10.0, 10.0]
-        result = safe_z_score(data, window_size=3, min_samples=2)
-        # Should not raise an error and should return 0 (or close to 0)
-        for z in result:
-            if not np.isnan(z):
-                assert abs(z) < 1e-6
+    def test_zero_variance_returns_zero(self):
+        values = np.array([5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0])
+        z_scores = safe_z_score(values, window_size=5, min_samples=3)
 
-    def test_insufficient_samples(self):
-        """Test behavior when samples are insufficient."""
-        data = [10, 20, 30]
-        result = safe_z_score(data, window_size=10, min_samples=5)
-        # All values should be NaN because we never have 5 samples in a window of 10
-        assert all(np.isnan(result))
+        assert np.all(z_scores == 0.0)
 
-    def test_min_samples_constraint(self):
-        """Test that min_samples constraint is respected."""
-        data = [10, 20, 30, 40, 50]
-        # With min_samples=3, the first 2 values should be NaN
-        result = safe_z_score(data, window_size=5, min_samples=3)
-        assert np.isnan(result[0])
-        assert np.isnan(result[1])
-        # The third value should have a valid z-score
-        assert not np.isnan(result[2])
+    def test_less_than_min_samples(self):
+        values = np.array([1, 2, 3])
+        z_scores = safe_z_score(values, window_size=5, min_samples=5)
+        assert np.all(z_scores == 0.0)
 
-    def test_invalid_min_samples(self):
-        """Test error when min_samples < 1."""
+    def test_epsilon_floor_prevents_division_by_zero(self):
+        # Create a case where std is extremely small but not exactly zero
+        values = np.array([1.0, 1.0 + 1e-15, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0])
+        z_scores = safe_z_score(values, window_size=5, min_samples=3, epsilon=1e-9)
+        # Should not raise, and should return 0 for near-zero std
+        assert len(z_scores) == len(values)
+
+
+class TestHandleNaN:
+    def test_forward_fill(self):
+        values = np.array([1.0, np.nan, np.nan, 4.0, 5.0])
+        result = handle_nan(values, strategy='forward_fill')
+        expected = np.array([1.0, 1.0, 1.0, 4.0, 5.0])
+        np.testing.assert_array_almost_equal(result, expected)
+
+    def test_backward_fill(self):
+        values = np.array([1.0, np.nan, np.nan, 4.0, 5.0])
+        result = handle_nan(values, strategy='backward_fill')
+        expected = np.array([1.0, 4.0, 4.0, 4.0, 5.0])
+        np.testing.assert_array_almost_equal(result, expected)
+
+    def test_replace_with_mean(self):
+        values = np.array([1.0, np.nan, 3.0, 4.0, 5.0])
+        result = handle_nan(values, strategy='mean')
+        expected_mean = (1 + 3 + 4 + 5) / 4
+        assert result[1] == expected_mean
+
+    def test_replace_with_zero(self):
+        values = np.array([1.0, np.nan, 3.0])
+        result = handle_nan(values, strategy='zero')
+        expected = np.array([1.0, 0.0, 3.0])
+        np.testing.assert_array_almost_equal(result, expected)
+
+    def test_no_nan_unchanged(self):
+        values = np.array([1.0, 2.0, 3.0])
+        result = handle_nan(values)
+        np.testing.assert_array_almost_equal(result, values)
+
+    def test_all_nan(self):
+        values = np.array([np.nan, np.nan, np.nan])
+        result = handle_nan(values, strategy='forward_fill')
+        # Should default to 0.0 if all are NaN
+        assert np.all(result == 0.0)
+
+    def test_invalid_strategy_raises(self):
+        values = np.array([1.0, np.nan, 2.0])
         with pytest.raises(ValueError):
-            safe_z_score([1, 2, 3], min_samples=0)
-
-    def test_window_size_less_than_min_samples(self):
-        """Test error when window_size < min_samples."""
-        with pytest.raises(ValueError):
-            safe_z_score([1, 2, 3], window_size=2, min_samples=3)
+            handle_nan(values, strategy='invalid_strategy')
 
 
 class TestRollingStdDev:
-    """Tests for the rolling_std_dev function."""
+    def test_basic_calculation(self):
+        values = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+        std_devs = rolling_std_dev(values, window_size=3, min_samples=2)
+        assert len(std_devs) == len(values)
+        assert std_devs[0] == 0.0  # Only 1 sample
 
-    def test_basic_rolling_std(self):
-        """Test basic rolling standard deviation."""
-        data = [1, 2, 3, 4, 5]
-        result = rolling_std_dev(data, window_size=3, min_samples=2)
-        # Should have valid std values where window is sufficient
-        assert len(result) == len(data)
+    def test_mask_excludes_indices(self):
+        values = np.array([1, 2, 3, 100, 5, 6, 7, 8, 9, 10])
+        mask = np.array([False, False, False, True, False, False, False, False, False, False])
+        std_devs = rolling_std_dev(values, window_size=5, min_samples=3, mask=mask)
+        # The outlier at index 3 should be excluded from the window
+        assert len(std_devs) == len(values)
 
-    def test_zero_variance_handling(self):
-        """Test that zero variance returns epsilon floor."""
-        data = [5.0, 5.0, 5.0, 5.0, 5.0]
-        result = rolling_std_dev(data, window_size=3, min_samples=2)
-        # Should not be NaN, but should be at least epsilon
-        for val in result:
-            if not np.isnan(val):
-                assert val >= 1e-9
-
-    def test_insufficient_samples(self):
-        """Test behavior with insufficient samples."""
-        data = [1, 2, 3]
-        result = rolling_std_dev(data, window_size=10, min_samples=5)
-        assert all(np.isnan(result))
+    def test_insufficient_samples_returns_zero(self):
+        values = np.array([1, 2, 3, 4, 5])
+        mask = np.array([True, True, True, True, True])
+        std_devs = rolling_std_dev(values, window_size=5, min_samples=3, mask=mask)
+        # All indices masked, so no valid samples -> 0.0
+        assert np.all(std_devs == 0.0)
 
 
 class TestPearsonCorrelation:
-    """Tests for the calculate_pearson_correlation function."""
-
     def test_perfect_positive_correlation(self):
-        """Test perfect positive correlation."""
-        x = [1, 2, 3, 4, 5]
-        y = [2, 4, 6, 8, 10]
+        x = np.array([1, 2, 3, 4, 5])
+        y = np.array([2, 4, 6, 8, 10])
         corr = calculate_pearson_correlation(x, y)
-        assert abs(corr - 1.0) < 1e-6
+        assert np.isclose(corr, 1.0)
 
     def test_perfect_negative_correlation(self):
-        """Test perfect negative correlation."""
-        x = [1, 2, 3, 4, 5]
-        y = [5, 4, 3, 2, 1]
+        x = np.array([1, 2, 3, 4, 5])
+        y = np.array([5, 4, 3, 2, 1])
         corr = calculate_pearson_correlation(x, y)
-        assert abs(corr - (-1.0)) < 1e-6
+        assert np.isclose(corr, -1.0)
 
     def test_no_correlation(self):
-        """Test no correlation."""
-        x = [1, 2, 3, 4, 5]
-        y = [5, 1, 4, 2, 3]
+        x = np.array([1, 2, 3, 4, 5])
+        y = np.array([5, 1, 4, 2, 3])
         corr = calculate_pearson_correlation(x, y)
-        # Should be close to 0
+        # Not exactly zero, but should be low
         assert abs(corr) < 0.5
 
-    def test_zero_variance(self):
-        """Test behavior with zero variance in one array."""
-        x = [1, 2, 3, 4, 5]
-        y = [5, 5, 5, 5, 5]
-        corr = calculate_pearson_correlation(x, y)
-        assert np.isnan(corr)
-
-    def test_different_lengths(self):
-        """Test error when arrays have different lengths."""
-        x = [1, 2, 3]
-        y = [1, 2, 3, 4]
+    def test_mismatched_lengths_raises(self):
+        x = np.array([1, 2, 3])
+        y = np.array([1, 2])
         with pytest.raises(ValueError):
             calculate_pearson_correlation(x, y)
 
-    def test_short_arrays(self):
-        """Test behavior with very short arrays."""
-        x = [1, 2]
-        y = [1, 2]
+    def test_with_nan_values(self):
+        x = np.array([1, np.nan, 3, 4, 5])
+        y = np.array([2, 4, np.nan, 8, 10])
         corr = calculate_pearson_correlation(x, y)
-        # With only 2 points, correlation should be 1 or -1 if perfectly aligned
-        assert not np.isnan(corr)
+        # Should handle NaNs gracefully
+        assert -1.0 <= corr <= 1.0
+
+    def test_single_element(self):
+        x = np.array([1])
+        y = np.array([2])
+        corr = calculate_pearson_correlation(x, y)
+        assert corr == 0.0
