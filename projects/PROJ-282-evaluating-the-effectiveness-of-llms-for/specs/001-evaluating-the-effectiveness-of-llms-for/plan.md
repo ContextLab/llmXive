@@ -109,7 +109,7 @@ data/
 To address the risk of timeout due to variable LLM inference times (Methodology Concern):
 1.  **Monitoring**: `main.py` tracks cumulative runtime.
 2.  **Circuit Breaker**: If runtime > 90% of 6 hours, the pipeline:
-    *   Reduces batch size to 1.
+    *   Reduces batch size to a minimal value..
     *   Switches to "fast-fail" mode (skips complex features for remaining samples).
     *   Logs `timeout_risk: true` in the final report.
 3.  **Data Loss Handling**: Samples processed after the circuit breaker trigger are flagged as "partial" and excluded from the primary regression but included in descriptive stats.

@@ -1,44 +1,61 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmxive-proj-282"
+version = "0.1.0"
+description = "Evaluating the Effectiveness of LLMs for Identifying Security Vulnerabilities"
+requires-python = ">=3.9"
+dependencies = [
+    "transformers",
+    "scikit-learn",
+    "pandas",
+    "tree-sitter",
+    "networkx",
+    "requests",
+    "pyyaml",
+    "bitsandbytes",
+    "sentence-transformers",
+    "pytest",
+    "radon",
+    "statsmodels",
+    "pydantic",
+    "pre-commit"
+]
+
+[project.optional-dependencies]
+dev = [
+    "black",
+    "ruff",
+    "pre-commit",
+    "pytest-cov"
+]
+
 [tool.black]
-line-length = 100
-target-version = ['py311']
-include = '\.pyi?$'
-exclude = '''
-/(
-    \.eggs
-  | \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | _build
-  | buck-out
-  | build
-  | dist
-)/
-'''
+line-length = 88
+target-version = ['py39', 'py310', 'py311']
 
 [tool.ruff]
-line-length = 100
-target-version = "py311"
+line-length = 88
+target-version = "py39"
 select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # pyflakes
-    "I",  # isort
-    "B",  # flake8-bugbear
-    "C4", # flake8-comprehensions
-    "UP", # pyupgrade
+    "E", "W", "F", "I", "B", "C4", "UP", "ARG", "SIM"
 ]
 ignore = [
-    "E501", # line too long, handled by black
-    "B008", # do not perform function calls in argument defaults
-    "C901", # too complex
+    "E501", "B008", "ARG001", "SIM102"
+]
+exclude = [
+    ".git",
+    "__pycache__",
+    "build",
+    "dist",
+    ".eggs"
 ]
 
-[tool.ruff.isort]
-known-first-party = ["src", "tests"]
-
 [tool.pytest.ini_options]
-testpaths = ["tests"]
-pythonpath = ["code"]
-addopts = "-v"
+testpaths = ["code/tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short"

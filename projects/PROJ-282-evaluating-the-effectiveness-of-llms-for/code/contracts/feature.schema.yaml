@@ -1,9 +1,21 @@
 type: object
 properties:
-  ast_depth: {type: integer}
-  cyclomatic_complexity: {type: integer}
-  node_count: {type: integer}
-  taint_api_count: {type: integer}
-  sanitization_present: {type: boolean}
-  embedding_similarity_score: {type: number}
-required: [ast_depth, cyclomatic_complexity, node_count, taint_api_count, sanitization_present, embedding_similarity_score]
+  ast_depth:
+    type: integer
+  cyclomatic_complexity:
+    type: integer
+  node_count:
+    type: integer
+  taint_api_count:
+    type: integer
+  sanitization_present:
+    type: boolean
+  embedding_similarity_score:
+    type: number
+required:
+  - ast_depth
+  - cyclomatic_complexity
+  - node_count
+  - taint_api_count
+  - sanitization_present
+  - embedding_similarity_score

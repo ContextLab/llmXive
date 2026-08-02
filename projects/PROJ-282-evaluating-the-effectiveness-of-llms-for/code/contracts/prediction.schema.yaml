@@ -1,8 +1,18 @@
 type: object
 properties:
-  snippet_id: {type: string}
-  predicted_label: {type: string}
-  predicted_category: {type: string}
-  is_correct: {type: boolean}
-  inference_time_ms: {type: number}
-required: [snippet_id, predicted_label, predicted_category, is_correct, inference_time_ms]
+  snippet_id:
+    type: string
+  predicted_label:
+    type: string
+  predicted_category:
+    type: string
+  is_correct:
+    type: boolean
+  inference_time_ms:
+    type: number
+required:
+  - snippet_id
+  - predicted_label
+  - predicted_category
+  - is_correct
+  - inference_time_ms

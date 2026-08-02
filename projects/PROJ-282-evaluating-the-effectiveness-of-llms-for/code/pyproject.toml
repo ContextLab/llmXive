@@ -1,11 +1,11 @@
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
+requires = ["setuptools>=45", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "llm-security-evaluation"
+name = "llmxive-proj-282"
 version = "0.1.0"
-description = "Evaluating the effectiveness of LLMs for identifying security vulnerabilities"
+description = "Evaluating the Effectiveness of LLMs for Identifying Security Vulnerabilities in Open-Source Code"
 requires-python = ">=3.10"
 dependencies = [
     "transformers",
@@ -21,13 +21,23 @@ dependencies = [
     "radon",
     "statsmodels",
     "pydantic",
-    "ruff",
     "black",
+    "ruff",
+    "pre-commit",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "pytest-cov",
+    "black",
+    "ruff",
+    "pre-commit",
 ]
 
 [tool.black]
-line-length = 100
-target-version = ['py310']
+line-length = 88
+target-version = ["py310"]
 include = '\.pyi?$'
 exclude = '''
 /(
@@ -40,16 +50,29 @@ exclude = '''
     | buck-out
     | build
     | dist
+    | data
+    | state
 )/
 '''
 
+[tool.ruff]
+# This is a duplicate for convenience if running ruff directly
+line-length = 88
+target-version = "py310"
+select = ["E", "F", "W", "I", "B", "C4", "SIM"]
+ignore = ["D100", "D101", "D102", "D103"]
+exclude = [
+    ".git",
+    "data",
+    "state",
+    "__pycache__",
+    "build",
+    "dist",
+]
+
 [tool.pytest.ini_options]
-testpaths = ["tests"]
+testpaths = ["code/tests"]
 python_files = ["test_*.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
 addopts = "-v --tb=short"
-
-[tool.ruff]
-line-length = 100
-target-version = "py310"

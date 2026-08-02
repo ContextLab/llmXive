@@ -1,34 +1,42 @@
-T001:
+T007b:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory structure was presented in the evidence; the required folders (`src/`,
-    `tests/`, `data/`, `data/raw/`, `data/processed/`, `data/results/`, `state/`)
-    are not shown to exist or contain any files. The implementer must create and provide
-    this project hierarchy.
-T003:
+  h: ef729a03e7e24ae0b154897db1de2a63e30534c75e9c31687b22c760a75e0a30
+  r: "The required contract file `contracts/dataset.schema.yaml` is missing, so the\
+    \ generator cannot have derived the fields from it, and the `src/models/code_snippet.py`\
+    \ contains manually\u2011written field definitions (and is truncated). Consequently\
+    \ the artifact does not demonstrably satisfy the \u201Cgenerate from contract\u201D\
+    \ requirement."
+T007c:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No linting or formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`,
-    `.pre-commit-config.yaml`) or any evidence of ruff/black setup were provided;
-    the claim lacks the required artifacts.
-T009d:
+  h: ef729a03e7e24ae0b154897db1de2a63e30534c75e9c31687b22c760a75e0a30
+  r: "The `src/models/code_snippet.py` file is present but is truncated and cannot\
+    \ be verified against the required schema because the referenced `contracts/dataset.schema.yaml`\
+    \ (or `schema.yaml`) is missing entirely. Without the schema file and a complete\
+    \ generated model, the task\u2019s requirement of \u201Crun the generator and\
+    \ verify the output matches the schema\u201D is not satisfied. The missing schema\
+    \ file and incomplete code need to be provided."
+T008b:
+  c: false
+  h: e5e24d993ba4ac4bb19063b7086554ccd764e20b146f7906e65a0f4d239ed2b9
+  r: "The file `src/models/feature_vector.py` exists, but the required source contract\
+    \ `contracts/feature.schema.yaml` is missing, so we cannot verify that the model\
+    \ was generated from it or that the fields match the schema. The task\u2019s core\
+    \ requirement (generation from the contract) is therefore not satisfied."
+T009b:
+  c: false
+  h: c4354f84a4526d2015b7cb0f184bce8c7761d3dea58fb457bd42854e2fec93dc
+  r: "The required contract file `contracts/prediction.schema.yaml` is missing, so\
+    \ the generated `PredictionResult` cannot be verified against the source schema.\
+    \ Moreover, the fields in `src/models/prediction_result.py` are manually written\
+    \ rather than auto\u2011generated from the contract, violating the \u201Cno manual\
+    \ implementation\u201D constraint. The task therefore remains unfinished."
+T009e:
   c: false
   h: c7c5fe08d75e1a6b63d6a964d935e7d43659ca6fc8229fff390f0b6f0901e668
-  r: "The required contract file `contracts/analysis_metric.schema.yaml` is missing,\
-    \ so the model could not be generated from it, and the fields in `src/models/analysis_metric.py`\
-    \ appear manually written rather than auto\u2011generated. The task\u2019s core\
-    \ requirement\u2014producing a dataclass derived from the schema to prevent drift\u2014\
-    is therefore not met."
-T011:
-  c: false
-  h: fd6e526b7cb520a271b9db33f868e84729b8098ba2b58e3f55bce8cb66e608d7
-  r: "The provided `src/data/download.py` is truncated and does not show any implementation\
-    \ of the required fetch\u2011and\u2011fallback logic, URL validation, checksum\
-    \ handling, or raising a non\u2011zero exit on double failure. Moreover, the NIST\
-    \ Juliet URL is a placeholder rather than a real download link, and there is no\
-    \ evidence that the script logs errors to `data/logs/error.log` or exits with\
-    \ a non\u2011zero code. The artifact therefore does not satisfy the task\u2019\
-    s specifications."
+  r: The `src/models/analysis_metric.py` file exists, but the required source schema
+    `contracts/analysis_metric.schema.yaml` is missing, so we cannot confirm that
+    the generated code matches the schema or that the generation script was actually
+    run. Additionally, there is no evidence that the task was executed after T009d.
 T015:
   c: false
   h: ba9e8abba09e732308e52ceded9a0431f505e62e03e37e30fea302e9dfebacf7

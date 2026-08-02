@@ -1,133 +1,196 @@
+"""
+Unit tests for the PredictionResult model generated from the contract.
+"""
 import pytest
-from src.models.prediction_result import PredictionResult, create_prediction_result
-from src.models.code_snippet import CodeSnippet
+import json
+from src.models.prediction_result import (
+    PredictionResult,
+    PredictionResultSchema,
+    create_prediction_result,
+    prediction_result_to_dict,
+    dict_to_prediction_result
+)
 
 
 class TestPredictionResultCreation:
-    def test_prediction_result_required_fields(self):
-        """Test that a PredictionResult can be created with required fields."""
-        snippet = CodeSnippet(
+    """Tests for creating PredictionResult instances."""
+
+    def test_create_valid_prediction(self):
+        """Test creating a valid prediction result."""
+        result = create_prediction_result(
             snippet_id="test-123",
-            code="int x = 0;",
-            language="C",
-            ground_truth_label="buffer_overflow",
-            source_file="test.c",
-            line_number=10
-        )
-
-        result = create_prediction_result(
-            snippet=snippet,
-            predicted_label="Buffer Overflow",
-            confidence=0.95,
-            model_id="test-model-v1"
-        )
-
-        assert result.snippet_id == "test-123"
-        assert result.predicted_label == "Buffer Overflow"
-        assert result.confidence == 0.95
-        assert result.model_id == "test-model-v1"
-        assert result.is_correct is None
-        assert result.inference_time_ms == 0.0
-        assert result.raw_response is None
-        assert result.error_message is None
-
-    def test_prediction_result_with_optional_fields(self):
-        """Test that a PredictionResult handles optional fields correctly."""
-        snippet = CodeSnippet(
-            snippet_id="test-456",
-            code="sql_query = 'SELECT * FROM users'",
-            language="Python",
-            ground_truth_label="sqli",
-            source_file="app.py",
-            line_number=5
-        )
-
-        result = create_prediction_result(
-            snippet=snippet,
             predicted_label="SQLi",
-            confidence=0.88,
-            model_id="llama-3-8b",
+            predicted_category="SQL Injection",
             is_correct=True,
-            raw_response="This code is vulnerable to SQL injection.",
-            error_message=None
+            inference_time_ms=150.5
         )
-
+        
+        assert result.snippet_id == "test-123"
+        assert result.predicted_label == "SQLi"
+        assert result.predicted_category == "SQL Injection"
         assert result.is_correct is True
-        assert result.raw_response == "This code is vulnerable to SQL injection."
-        assert result.error_message is None
+        assert result.inference_time_ms == 150.5
 
-    def test_prediction_result_with_error(self):
-        """Test that a PredictionResult can store error information."""
-        snippet = CodeSnippet(
+    def test_create_with_none_label(self):
+        """Test creating a prediction with 'none' label."""
+        result = create_prediction_result(
+            snippet_id="test-456",
+            predicted_label="none",
+            predicted_category="Safe",
+            is_correct=True,
+            inference_time_ms=100.0
+        )
+        
+        assert result.predicted_label == "none"
+        assert result.is_correct is True
+
+    def test_create_with_uncertain_label(self):
+        """Test creating a prediction with uncertain label."""
+        result = create_prediction_result(
             snippet_id="test-789",
-            code="invalid code",
-            language="Python",
-            ground_truth_label="none",
-            source_file="err.py",
-            line_number=1
-        )
-
-        result = create_prediction_result(
-            snippet=snippet,
             predicted_label="uncertain",
-            confidence=0.0,
-            model_id="failed-model",
-            error_message="Inference timeout"
+            predicted_category="Unknown",
+            is_correct=False,
+            inference_time_ms=200.25
         )
-
-        assert result.error_message == "Inference timeout"
+        
         assert result.predicted_label == "uncertain"
+        assert result.is_correct is False
 
 
-class TestCreatePredictionResultFactory:
-    def test_factory_generates_unique_timestamps(self):
-        """Test that the factory generates unique timestamps for multiple results."""
-        snippet = CodeSnippet(
-            snippet_id="test-multi",
-            code="x = 1",
-            language="Python",
-            ground_truth_label="none",
-            source_file="multi.py",
-            line_number=1
-        )
+class TestPredictionResultValidation:
+    """Tests for PredictionResult validation."""
 
-        result1 = create_prediction_result(
-            snippet=snippet,
-            predicted_label="none",
-            confidence=1.0,
-            model_id="model-a"
-        )
+    def test_missing_required_field(self):
+        """Test that missing required fields raise validation error."""
+        with pytest.raises(Exception):
+            create_prediction_result(
+                snippet_id="test-123",
+                # predicted_label missing
+                predicted_category="SQL Injection",
+                is_correct=True,
+                inference_time_ms=150.5
+            )
 
-        # Small delay to ensure different timestamp
-        import time
-        time.sleep(0.01)
+    def test_invalid_type(self):
+        """Test that invalid types are caught."""
+        with pytest.raises(Exception):
+            create_prediction_result(
+                snippet_id="test-123",
+                predicted_label=123,  # Should be string
+                predicted_category="SQL Injection",
+                is_correct=True,
+                inference_time_ms=150.5
+            )
 
-        result2 = create_prediction_result(
-            snippet=snippet,
-            predicted_label="none",
-            confidence=1.0,
-            model_id="model-b"
-        )
-
-        assert result1.timestamp != result2.timestamp
-
-    def test_factory_inherits_snippet_id(self):
-        """Test that the factory correctly inherits the snippet_id from the input."""
-        test_id = "factory-test-id-999"
-        snippet = CodeSnippet(
-            snippet_id=test_id,
-            code="y = 2",
-            language="C",
-            ground_truth_label="none",
-            source_file="factory.c",
-            line_number=1
-        )
-
+    def test_negative_inference_time(self):
+        """Test that negative inference time is allowed but unusual (schema doesn't forbid)."""
+        # Pydantic allows negative numbers unless constrained
         result = create_prediction_result(
-            snippet=snippet,
-            predicted_label="none",
-            confidence=0.5,
-            model_id="test"
+            snippet_id="test-123",
+            predicted_label="SQLi",
+            predicted_category="SQL Injection",
+            is_correct=True,
+            inference_time_ms=-1.0
         )
+        assert result.inference_time_ms == -1.0
 
-        assert result.snippet_id == test_id
+
+class TestPredictionResultSerialization:
+    """Tests for serialization and deserialization."""
+
+    def test_to_dict(self):
+        """Test converting prediction result to dictionary."""
+        result = create_prediction_result(
+            snippet_id="test-123",
+            predicted_label="SQLi",
+            predicted_category="SQL Injection",
+            is_correct=True,
+            inference_time_ms=150.5
+        )
+        
+        data = prediction_result_to_dict(result)
+        
+        assert data["snippet_id"] == "test-123"
+        assert data["predicted_label"] == "SQLi"
+        assert data["predicted_category"] == "SQL Injection"
+        assert data["is_correct"] is True
+        assert data["inference_time_ms"] == 150.5
+
+    def test_from_dict(self):
+        """Test creating prediction result from dictionary."""
+        data = {
+            "snippet_id": "test-456",
+            "predicted_label": "Buffer Overflow",
+            "predicted_category": "Memory Safety",
+            "is_correct": False,
+            "inference_time_ms": 175.0
+        }
+        
+        result = dict_to_prediction_result(data)
+        
+        assert result.snippet_id == "test-456"
+        assert result.predicted_label == "Buffer Overflow"
+        assert result.predicted_category == "Memory Safety"
+        assert result.is_correct is False
+        assert result.inference_time_ms == 175.0
+
+    def test_json_roundtrip(self):
+        """Test JSON serialization and deserialization."""
+        result = create_prediction_result(
+            snippet_id="test-789",
+            predicted_label="XSS",
+            predicted_category="Cross-Site Scripting",
+            is_correct=True,
+            inference_time_ms=120.0
+        )
+        
+        # Serialize to JSON
+        json_str = result.model_dump_json()
+        data = json.loads(json_str)
+        
+        # Deserialize from JSON
+        result2 = PredictionResult.model_validate(data)
+        
+        assert result.snippet_id == result2.snippet_id
+        assert result.predicted_label == result2.predicted_label
+        assert result.predicted_category == result2.predicted_category
+        assert result.is_correct == result2.is_correct
+        assert result.inference_time_ms == result2.inference_time_ms
+
+
+class TestPredictionResultFactory:
+    """Tests for the factory function."""
+
+    def test_factory_creates_instance(self):
+        """Test that factory function creates a PredictionResult instance."""
+        result = create_prediction_result(
+            snippet_id="factory-test",
+            predicted_label="RCE",
+            predicted_category="Remote Code Execution",
+            is_correct=True,
+            inference_time_ms=300.0
+        )
+        
+        assert isinstance(result, PredictionResult)
+
+    def test_factory_with_all_categories(self):
+        """Test factory with various vulnerability categories."""
+        categories = [
+            ("SQLi", "SQL Injection"),
+            ("Buffer Overflow", "Memory Safety"),
+            ("XSS", "Cross-Site Scripting"),
+            ("RCE", "Remote Code Execution"),
+            ("none", "Safe")
+        ]
+        
+        for label, category in categories:
+            result = create_prediction_result(
+                snippet_id=f"test-{label}",
+                predicted_label=label,
+                predicted_category=category,
+                is_correct=True,
+                inference_time_ms=100.0
+            )
+            assert result.predicted_label == label
+            assert result.predicted_category == category

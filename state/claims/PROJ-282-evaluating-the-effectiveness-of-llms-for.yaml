@@ -258,22 +258,6 @@
   updated_at: '2026-07-31T14:18:56Z'
 - artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
   attempts: 1
-  canonical: Pipeline execution time limit is 6 hours
-  claim_id: c_ab493034
-  context: 'Time Constraint: The entire pipeline must complete within 6 hours; optimize
-    batch sizes and parallelization where possible.'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The pipeline must complete within 6 hours.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-31T14:19:14Z'
-- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
-  attempts: 1
   canonical: Human review sample size is 100
   claim_id: c_7f82412c
   context: T035 [P] Implement src/analysis/sensitivity.py to select a random subset
@@ -497,3 +481,675 @@
   source_type: external
   status: verified
   updated_at: '2026-07-31T14:24:02Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: select up to 5000 samples via stratified sampling
+  claim_id: c_f4633b07
+  context: Implement stratified sampling by language and ground_truth_category to
+    select up to 5,000 samples, ensuring proportional representation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement stratified sampling by language and ground_truth_category to
+    select up to 5,000 samples
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T03:25:56Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: inject deterministic noise flipping 10% of labels with seed 42
+  claim_id: c_f1e6033e
+  context: Instead, it MUST inject deterministic noise (flip [deferred] of labels
+    randomly with seed=42) into a copy of the original labels to simulate noise, then
+    re-calculate metrics.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Inject deterministic noise by flipping 10% of labels randomly with seed=42
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T03:27:11Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: pipeline completion time limit of 6 hours
+  claim_id: c_80ee8dad
+  context: 'Time Constraint: The entire pipeline must complete within 6 hours; optimize
+    batch sizes and parallelization where possible.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The entire pipeline must complete within 6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T03:27:45Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: halt execution if runtime exceeds 90% of 6 hours
+  claim_id: c_df3480dc
+  context: 'Circuit Breaker: If runtime > 90% of 6 hours, HALT EXECUTION immediately.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If runtime exceeds 90% of 6 hours, halt execution immediately
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T03:27:45Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: Stratified sampling selects up to 5,000 samples by language and ground
+    truth category
+  claim_id: c_35133387
+  context: Implement stratified sampling by language and ground_truth_category to
+    select up to 5,000 samples, ensuring proportional representation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement stratified sampling by language and ground_truth_category to
+    select up to 5,000 samples.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T03:28:18Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: Random subset of 100 samples selected for human review
+  claim_id: c_8f666644
+  context: Implement src/analysis/sensitivity.py to select a random subset of n=100
+    samples and export them to data/human_review/export.csv for manual review.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Select a random subset of n=100 samples and export them to data/human_review/export.csv
+    for manual review.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T03:28:18Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: Deterministic noise injection uses seed 42 to flip labels
+  claim_id: c_cb332417
+  context: If data/human_review/verified_labels.csv is missing, the system MUST NOT
+    generate synthetic labels. Instead, it MUST inject deterministic noise (flip [deferred]
+    of labels randomly with seed=42) into a copy of the original labels to simulate
+    noise.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Inject deterministic noise (flip [deferred] of labels randomly with seed=42)
+    into a copy of the original labels.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T03:28:52Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: Pipeline completion time limit is 6 hours
+  claim_id: c_3dfc00ab
+  context: 'Time Constraint: The entire pipeline must complete within 6 hours; optimize
+    batch sizes and parallelization where possible.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The entire pipeline must complete within 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T03:28:52Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: Execution halts at 90% of 6 hour limit
+  claim_id: c_7741fea1
+  context: 'Circuit Breaker: If runtime > 90% of 6 hours, HALT EXECUTION immediately.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If runtime exceeds 90% of 6 hours, halt execution immediately.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T03:28:52Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: NVD JSON Feed fetched from fixed versioned snapshot
+  claim_id: c_1e304550
+  context: 'Download: Fetch the NVD JSON Feed (fixed, versioned snapshot) from the
+    URL... to data/raw/nvd_corpus.json.gz.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/NVD_JSON_Feed_fetched_from_fixed_versioned_snapshot
+  kind: entity_fact
+  raw_text: The NVD JSON Feed is fetched from a fixed, versioned snapshot.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T03:29:28Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: sentence-transformers/all-MiniLM-L6-v2 used for code embeddings
+  claim_id: c_610651c1
+  context: 'Embed: Initialize the pre-trained code encoder sentence-transformers/all-MiniLM-L6-v2,
+    load data/canonical_patterns.json, and compute embedding vectors for these patterns.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sentence-transformers/all-MiniLM-L6-v2_used_for_code_embeddi
+  kind: entity_fact
+  raw_text: The pre-trained code encoder sentence-transformers/all-MiniLM-L6-v2 is
+    used for embedding vulnerability patterns.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T03:29:54Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: Bandit and cppcheck used as static analysis baselines
+  claim_id: c_aa12b16a
+  context: Execute static analysis tools (Bandit, cppcheck) on the dataset to establish
+    a baseline for comparison.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Bandit_and_cppcheck_used_as_static_analysis_baselines
+  kind: entity_fact
+  raw_text: Static analysis tools Bandit and cppcheck are used to establish a baseline
+    for comparison.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T03:30:32Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: NIST Juliet is primary dataset for C/C++
+  claim_id: c_c85f4420
+  context: 'CRITICAL: Primary Mandate: NIST Juliet for C/C++.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/NIST_Juliet_is_primary_dataset_for_C/C++
+  kind: entity_fact
+  raw_text: The primary dataset mandate for C/C++ is the NIST Juliet repository.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T03:31:11Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: BigVul fallback for C and JavaScript if NIST Juliet fails
+  claim_id: c_377ae475
+  context: 'Fallback Logic: If NIST Juliet fetch fails... the script MUST automatically
+    fallback to fetching BigVul for C/C++ analysis...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/BigVul_fallback_for_C_and_JavaScript_if_NIST_Juliet_fails
+  kind: entity_fact
+  raw_text: BigVul is used as a fallback for C and JavaScript if NIST Juliet fetch
+    fails.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T03:33:07Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: VulDeePecker dataset used for Python
+  claim_id: c_ff621f8f
+  context: Implement src/data/download.py to fetch VulDeePecker (Python), BigVul (C
+    and JavaScript), and official NIST Juliet repository for C/C++.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/VulDeePecker_dataset_used_for_Python
+  kind: entity_fact
+  raw_text: VulDeePecker is the designated dataset for Python.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T03:33:30Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: BigVul dataset used for C and JavaScript
+  claim_id: c_969cb606
+  context: Implement src/data/download.py to fetch VulDeePecker (Python), BigVul (C
+    and JavaScript), and official NIST Juliet repository for C/C++.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/BigVul_dataset_used_for_C_and_JavaScript
+  kind: entity_fact
+  raw_text: BigVul is the designated dataset for C and JavaScript.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T03:35:29Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: Stratified sampling selects up to 5000 samples by language and ground_truth_category
+  claim_id: c_5b611c5a
+  context: 'Stratified Sampling: Implement stratified sampling by language and ground_truth_category
+    to select up to 5,000 samples, ensuring proportional representation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement stratified sampling by language and ground_truth_category to
+    select up to 5,000 samples
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T03:35:59Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: Random subset of 100 samples selected for manual review
+  claim_id: c_699098cb
+  context: Implement src/analysis/sensitivity.py to select a random subset of n=100
+    samples and export them to data/human_review/export.csv for manual review.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Select a random subset of n=100 samples for manual review
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T03:36:29Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: Deterministic noise injection uses seed 42 to flip labels
+  claim_id: c_4a30f798
+  context: Instead, it MUST inject deterministic noise (flip [deferred] of labels
+    randomly with seed=42) into a copy of the original labels to simulate noise, then
+    re-calculate metrics.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Inject deterministic noise by flipping labels randomly with seed=42
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T03:37:01Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 2
+  canonical: Pipeline execution time limit is 6 hours
+  claim_id: c_ab493034
+  context: 'Time Constraint: The entire pipeline must complete within 6 hours; optimize
+    batch sizes and parallelization where possible.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline must complete within 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T03:37:27Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: Circuit breaker triggers at 90% of 6 hour limit
+  claim_id: c_b9a072ee
+  context: 'Circuit Breaker: If runtime > 90% of 6 hours, HALT EXECUTION immediately.
+    Log timeout_risk: true.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Circuit breaker halts execution if runtime exceeds 90% of 6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T03:37:27Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: random subset of 100 samples selected for manual review
+  claim_id: c_bae89932
+  context: Implement src/analysis/sensitivity.py to select a random subset of n=100
+    samples and export them to data/human_review/export.csv for manual review.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Select a random subset of n=100 samples for manual review.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T03:38:12Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: deterministic noise injection flips labels with seed 42
+  claim_id: c_632615df
+  context: 'Logic: If data/human_review/verified_labels.csv is missing, the system
+    MUST NOT generate synthetic labels. Instead, it MUST inject deterministic noise
+    (flip [deferred] of labels randomly with seed=42) into a copy of the original
+    labels to simulate noise.'
+  evidence:
+    asserted: '42.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Inject deterministic noise by flipping labels randomly with seed=42.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-08-02T03:38:12Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: halt execution if runtime exceeds 90% of 6 hours
+  claim_id: c_615fa015
+  context: 'Circuit Breaker: If runtime > 90% of 6 hours, HALT EXECUTION immediately.
+    Log timeout_risk: true.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If runtime exceeds 90% of the 6-hour limit, halt execution immediately.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T03:38:13Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 0
+  canonical: inject deterministic noise flipping labels with seed 42
+  claim_id: c_042a5758
+  context: 'Logic: If data/human_review/verified_labels.csv is missing, the system
+    MUST NOT generate synthetic labels. Instead, it MUST inject deterministic noise
+    (flip [deferred] of labels randomly with seed=42) into a copy of the original
+    labels to simulate noise.'
+  evidence:
+    asserted: '42.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Inject deterministic noise by flipping labels randomly with seed=42.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-08-02T03:38:59Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: pipeline must complete within 6 hours
+  claim_id: c_9e5626c5
+  context: 'Time Constraint: The pipeline must complete within 6 hours.; optimize
+    batch sizes and parallelization where possible.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline must complete within 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T03:39:00Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: use sentence-transformers/all-MiniLM-L6-v2 as code encoder
+  claim_id: c_42482b92
+  context: 'Embed: Initialize the pre-trained code encoder sentence-transformers/all-MiniLM-L6-v2,
+    load data/canonical_patterns.json, and compute embedding vectors for these patterns.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_sentence-transformers/all-MiniLM-L6-v2_as_code_encoder
+  kind: entity_fact
+  raw_text: Use sentence-transformers/all-MiniLM-L6-v2 as the pre-trained code encoder.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T03:39:15Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: inject deterministic noise with seed 42 flipping labels
+  claim_id: c_ce910538
+  context: If data/human_review/verified_labels.csv is missing, the system MUST inject
+    deterministic noise (flip [deferred] of labels randomly with seed=42) into a copy
+    of the original labels to simulate noise.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Inject deterministic noise by flipping labels randomly with seed=42 if
+    human review is missing
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T03:40:51Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 2
+  canonical: pipeline completion time limit is 6 hours
+  claim_id: c_db0de8a4
+  context: 'Time Constraint: The pipeline must complete within 6 hours.; optimize
+    batch sizes and parallelization where possible.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline must complete within 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T03:40:51Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: circuit breaker halts execution at 90% of 6 hour limit
+  claim_id: c_59576b44
+  context: 'Circuit Breaker: If runtime > 90% of 6 hours, HALT EXECUTION immediately.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Circuit breaker halts execution if runtime exceeds 90% of 6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T03:40:51Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 0
+  canonical: inject deterministic noise flipping labels with seed 42
+  claim_id: c_9526b89e
+  context: If data/human_review/verified_labels.csv is missing, the system MUST inject
+    deterministic noise (flip [deferred] of labels randomly with seed=42) into a copy
+    of the original labels to simulate noise.
+  evidence:
+    asserted: '42.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Inject deterministic noise by flipping labels randomly with seed=42.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-08-02T03:42:43Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 4
+  canonical: stratified sampling selects up to 5000 samples by language and ground
+    truth category
+  claim_id: c_a44250fa
+  context: 'Stratified Sampling: Implement stratified sampling by language and ground_truth_category
+    to select up to 5,000 samples, ensuring proportional representation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement stratified sampling by language and ground_truth_category to
+    select up to 5,000 samples.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T03:42:44Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 4
+  canonical: select random subset of 100 samples for manual review
+  claim_id: c_d61e1130
+  context: Implement src/analysis/sensitivity.py to select a random subset of n=100
+    samples and export them to data/human_review/export.csv for manual review.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Select a random subset of n=100 samples and export them to data/human_review/export.csv
+    for manual review
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T03:42:44Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: use sentence-transformers/all-MiniLM-L6-v2 encoder
+  claim_id: c_41d4f421
+  context: Initialize the pre-trained code encoder sentence-transformers/all-MiniLM-L6-v2,
+    load data/canonical_patterns.json, and compute embedding vectors for these patterns.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_sentence-transformers/all-MiniLM-L6-v2_encoder
+  kind: entity_fact
+  raw_text: Use the pre-trained code encoder sentence-transformers/all-MiniLM-L6-v2.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T03:42:49Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 0
+  canonical: inject deterministic noise with seed 42
+  claim_id: c_7cec24af
+  context: Instead, it MUST inject deterministic noise (flip [deferred] of labels
+    randomly with seed=42) into a copy of the original labels to simulate noise, then
+    re-calculate metrics.
+  evidence:
+    asserted: '42.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Inject deterministic noise by flipping labels randomly with seed=42
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-08-02T03:43:44Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: stratified sampling selects up to 5000 samples
+  claim_id: c_4b64168a
+  context: 'Stratified Sampling: Implement stratified sampling by language and ground_truth_category
+    to select up to 5,000 samples, ensuring proportional representation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement stratified sampling by language and ground_truth_category to
+    select up to 5,000 samples
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T03:43:44Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: select random subset of 100 samples for human review
+  claim_id: c_9086ed61
+  context: Implement src/analysis/sensitivity.py to select a random subset of n=100
+    samples and export them to data/human_review/export.csv for manual review.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Select a random subset of n=100 samples and export them to data/human_review/export.csv
+    for manual review
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T03:43:44Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 2
+  canonical: pipeline must complete within 6 hours
+  claim_id: c_16aae105
+  context: 'Time Constraint: The pipeline must complete within 6 hours..; optimize
+    batch sizes and parallelization where possible.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline must complete within 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T03:43:45Z'

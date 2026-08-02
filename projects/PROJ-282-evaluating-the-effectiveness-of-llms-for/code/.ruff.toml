@@ -1,26 +1,39 @@
+# Ruff configuration for llmXive project
+# Linting rules to ensure code quality and consistency
+
 [lint]
-select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # Pyflakes
-    "I",  # isort
-    "B",  # flake8-bugbear
-    "C4", # flake8-comprehensions
-    "UP", # pyupgrade
-    "S",  # flake8-bandit (security)
-]
-ignore = [
-    "E501", # line too long (handled by black)
-    "B008", # do not perform function calls in argument defaults (common in dataclasses)
-    "S101", # use of assert (allowed in tests/scripts)
+# Enable pycodestyle (`E`), Pyflakes (`F`), and isort (`I`)
+select = ["E", "F", "W", "I", "D", "UP", "B", "C4", "SIM"]
+
+# Ignore specific rules that might be too strict for research code
+# D100: Missing docstring in public module
+# D101: Missing docstring in public class
+# D102: Missing docstring in public method
+# D103: Missing docstring in public function
+ignore = ["D100", "D101", "D102", "D103", "D203", "D213"]
+
+# Allow autofix for all enabled rules
+fixable = ["ALL"]
+unfixable = []
+
+# Exclude a few generated files
+exclude = [
+    "data/raw/*",
+    "data/processed/*",
+    "data/results/*",
+    "state/*",
+    "__pycache__",
+    "build",
+    "dist",
+    "*.egg-info",
 ]
 
-[lint.isort]
-known-first-party = ["src", "tests", "setup_project_structure"]
-force-sort-within-sections = true
+# Same as Black
+line-length = 88
+target-version = "py310"
 
-[format]
-quote-style = "double"
-indent-style = "space"
-skip-magic-trailing-comma = false
-line-ending = "auto"
+[lint.per-file-ignores]
+# Tests can have shorter names and less strict docstrings
+"tests/*" = ["D", "S101"]
+# Scripts can have simpler structure
+"code/scripts/*" = ["D"]

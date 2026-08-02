@@ -1,72 +1,82 @@
+"""
+Project Structure Setup Script for llmXive Research Pipeline.
+Creates the required directory hierarchy for the research project.
+"""
 import os
 import sys
 from pathlib import Path
 
-def create_structure():
+
+def create_structure(project_root: Path = None) -> None:
     """
-    Creates the project directory structure as defined in tasks.md T001.
-    Directories created:
-    - src/
-    - tests/
-    - data/
-    - data/raw/
-    - data/processed/
-    - data/results/
-    - state/
+    Creates the standard project directory structure.
     
-    Also creates __init__.py files to ensure Python package recognition.
+    Args:
+        project_root: Optional path to project root. Defaults to current working directory.
     """
-    # Define the project root (current working directory or explicit path)
-    # Assuming this script runs from the project root
-    project_root = Path.cwd()
+    if project_root is None:
+        project_root = Path.cwd()
     
-    # Define the relative paths to create
+    # Define the required directory structure
     directories = [
+        # Source code directories
         "src",
+        "src/utils",
+        "src/data",
+        "src/models",
+        "src/services",
+        "src/analysis",
+        
+        # Test directories
         "tests",
+        "tests/unit",
+        "tests/integration",
+        
+        # Data directories
         "data",
         "data/raw",
         "data/processed",
         "data/results",
-        "data/logs",  # Added based on usage in download.py and T013
+        "data/logs",
+        "data/human_review",
+        "data/canonical_patterns",
+        
+        # State and configuration
         "state",
-        "contracts",  # Required for schema contracts (T007a, T008a, etc.)
-        "figures",    # Required for output plots (T032)
+        "state/projects",
+        
+        # Contracts and specs
+        "contracts",
+        
+        # Scripts
+        "scripts",
+        
+        # Figures and visualizations
+        "figures",
     ]
     
-    created_dirs = []
-    skipped_dirs = []
+    created_count = 0
+    skipped_count = 0
     
     for dir_path in directories:
         full_path = project_root / dir_path
-        try:
+        if not full_path.exists():
             full_path.mkdir(parents=True, exist_ok=True)
-            created_dirs.append(str(full_path))
-            
-            # Create __init__.py for Python packages
-            if dir_path.startswith("src") or dir_path.startswith("tests"):
-                init_file = full_path / "__init__.py"
-                if not init_file.exists():
-                    init_file.write_text("# Auto-generated init file\n")
-        except Exception as e:
-            print(f"Error creating directory {dir_path}: {e}", file=sys.stderr)
+            created_count += 1
+            print(f"Created directory: {full_path}")
+        else:
+            skipped_count += 1
+            print(f"Directory already exists: {full_path}")
     
-    # Create .gitkeep files for empty data directories to ensure they are tracked by git
-    data_dirs = ["data/raw", "data/processed", "data/results", "data/logs"]
-    for dir_path in data_dirs:
-        full_path = project_root / dir_path
-        keep_file = full_path / ".gitkeep"
-        if not keep_file.exists():
-            keep_file.write_text("")
-            if str(full_path) not in created_dirs:
-                created_dirs.append(str(full_path))
-    
-    print(f"Project structure created successfully at: {project_root}")
-    print(f"Directories created: {len(created_dirs)}")
-    for d in created_dirs:
-        print(f"  - {d}")
-        
-    return True
+    print(f"\nSetup complete. Created {created_count} directories, skipped {skipped_count} existing.")
+
+
+def main() -> None:
+    """Main entry point for the script."""
+    print("Initializing project structure for llmXive research pipeline...")
+    create_structure()
+    print("Project structure initialization complete.")
+
 
 if __name__ == "__main__":
-    create_structure()
+    main()

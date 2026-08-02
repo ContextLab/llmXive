@@ -1,0 +1,33 @@
+import pytest
+import yaml
+from pathlib import Path
+from pydantic import ValidationError
+
+def test_feature_schema_exists_and_valid():
+    """Verify that the feature schema file exists and is valid YAML."""
+    schema_path = Path("contracts/feature.schema.yaml")
+    assert schema_path.exists(), "contracts/feature.schema.yaml must exist"
+    
+    with open(schema_path, 'r') as f:
+        schema = yaml.safe_load(f)
+    
+    assert schema is not None, "Schema file must not be empty"
+    assert schema['type'] == 'object', "Schema type must be 'object'"
+    assert 'properties' in schema, "Schema must define properties"
+    assert 'required' in schema, "Schema must define required fields"
+    
+    # Verify specific required fields from task description
+    required_fields = ['ast_depth', 'cyclomatic_complexity', 'node_count', 
+                     'taint_api_count', 'sanitization_present', 'embedding_similarity_score']
+    
+    for field in required_fields:
+        assert field in schema['properties'], f"Missing required property: {field}"
+        assert field in schema['required'], f"Missing from required list: {field}"
+    
+    # Verify data types
+    assert schema['properties']['ast_depth']['type'] == 'integer'
+    assert schema['properties']['cyclomatic_complexity']['type'] == 'integer'
+    assert schema['properties']['node_count']['type'] == 'integer'
+    assert schema['properties']['taint_api_count']['type'] == 'integer'
+    assert schema['properties']['sanitization_present']['type'] == 'boolean'
+    assert schema['properties']['embedding_similarity_score']['type'] == 'number'

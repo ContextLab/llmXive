@@ -6,24 +6,10 @@ import shutil
 from setup_project_structure import create_structure
 
 class TestProjectStructure:
-    """Tests for the project structure creation task T001."""
+    """Tests for the project structure creation script."""
 
-    @pytest.fixture
-    def temp_project_dir(self):
-        """Create a temporary directory to simulate the project root."""
-        temp_dir = tempfile.mkdtemp()
-        original_cwd = os.getcwd()
-        os.chdir(temp_dir)
-        yield Path(temp_dir)
-        os.chdir(original_cwd)
-        shutil.rmtree(temp_dir)
-
-    def test_directory_structure_exists(self, temp_project_dir):
-        """Verify that create_structure() creates all required directories."""
-        # Run the structure creation
-        result = create_structure()
-        assert result is True
-
+    def test_directory_structure_exists(self, tmp_path):
+        """Verify that create_structure creates all required directories."""
         required_dirs = [
             "src",
             "tests",
@@ -31,33 +17,44 @@ class TestProjectStructure:
             "data/raw",
             "data/processed",
             "data/results",
+            "data/logs",
             "state",
             "contracts",
             "figures",
-            "data/logs"
         ]
-
+        
+        # Create structure in temp directory
+        create_structure(str(tmp_path))
+        
+        # Verify all directories exist
         for dir_name in required_dirs:
-            full_path = temp_project_dir / dir_name
-            assert full_path.exists(), f"Directory {dir_name} was not created"
-            assert full_path.is_dir(), f"{dir_name} exists but is not a directory"
+            dir_path = tmp_path / dir_name
+            assert dir_path.exists(), f"Directory {dir_name} was not created"
+            assert dir_path.is_dir(), f"{dir_name} is not a directory"
 
-    def test_init_files_created(self, temp_project_dir):
-        """Verify that __init__.py files are created for Python packages."""
-        create_structure()
+    def test_nested_directories_created(self, tmp_path):
+        """Verify that nested directories (e.g., data/raw) are created correctly."""
+        create_structure(str(tmp_path))
+        
+        nested_dirs = [
+            "data/raw",
+            "data/processed",
+            "data/results",
+            "data/logs",
+        ]
+        
+        for dir_name in nested_dirs:
+            dir_path = tmp_path / dir_name
+            assert dir_path.exists(), f"Nested directory {dir_name} was not created"
 
-        package_dirs = ["src", "tests"]
-        for dir_name in package_dirs:
-            full_path = temp_project_dir / dir_name
-            init_file = full_path / "__init__.py"
-            assert init_file.exists(), f"__init__.py missing in {dir_name}"
-
-    def test_gitkeep_files_created(self, temp_project_dir):
-        """Verify that .gitkeep files are created in empty data directories."""
-        create_structure()
-
-        data_dirs = ["data/raw", "data/processed", "data/results", "data/logs"]
-        for dir_name in data_dirs:
-            full_path = temp_project_dir / dir_name
-            keep_file = full_path / ".gitkeep"
-            assert keep_file.exists(), f".gitkeep missing in {dir_name}"
+    def test_idempotent_creation(self, tmp_path):
+        """Verify that running create_structure twice doesn't cause errors."""
+        # First run
+        create_structure(str(tmp_path))
+        
+        # Second run should not raise errors
+        create_structure(str(tmp_path))
+        
+        # Verify directories still exist
+        assert (tmp_path / "src").exists()
+        assert (tmp_path / "data/raw").exists()

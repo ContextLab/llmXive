@@ -1,8 +1,14 @@
 type: object
 properties:
-  id: {type: string}
-  language: {type: string, enum: [C, Python, JavaScript]}
-  source_code: {type: string}
-  ground_truth_label: {type: string}
-  ground_truth_category: {type: string}
+  id: 
+    type: string
+  language: 
+    type: string
+    enum: [C, Python, JavaScript]
+  source_code: 
+    type: string
+  ground_truth_label: 
+    type: string
+  ground_truth_category: 
+    type: string
 required: [id, language, source_code, ground_truth_label, ground_truth_category]
