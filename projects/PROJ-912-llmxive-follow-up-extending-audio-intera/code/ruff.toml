@@ -1,0 +1,23 @@
+# Ruff configuration for llmXive project
+# This file mirrors settings in pyproject.toml for standalone ruff usage
+line-length = 100
+target-version = "py311"
+
+[lint]
+select = [
+    "E",
+    "W",
+    "F",
+    "I",
+    "B",
+    "C4",
+    "UP",
+]
+ignore = [
+    "E501",
+    "B008",
+]
+
+[lint.isort]
+known-first-party = ["config", "data", "models", "utils", "inference", "analysis"]
+force-sort-within-sections = true

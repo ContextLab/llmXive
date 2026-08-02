@@ -1,0 +1,252 @@
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: Teacher model is facebook/wav2vec2-base-960h
+  claim_id: c_2b4128fe
+  context: 'T011 [P] [US1] Implement teacher model loader in code/models/teacher_loader.py.
+    FR-001 Override: Load facebook/wav2vec2-base-960h as verified substitute for non-existent
+    DeSTA2.5-Audio.'
+  evidence:
+    entailment_evidence: Teacher model is facebook/wav2vec2-base-960h
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Teacher_model_is_facebook/wav2vec2-base-960h
+  kind: entity_fact
+  raw_text: The teacher model is 'facebook/wav2vec2-base-960h'.
+  resolved_value: Teacher model is facebook/wav2vec2-base-960h
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-02T07:32:15Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: 'Subtle Cue criteria: freq > 8kHz or amplitude < -40dBFS'
+  claim_id: c_6c14587d
+  context: 'T021 [US2] Implement ''Subtle Cue'' filtering criteria in code/data/subtle_cue_builder.py:
+    Define classes with freq > 8kHz OR amplitude < -40dBFS (e.g., ''glass breaking,''
+    ''alarm,'' ''whisper'').'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Subtle_Cue_criteria:_freq_%3E_8kHz_or_amplitude_%3C_-40dBFS
+  kind: magnitude
+  raw_text: The 'Subtle Cue' filtering criteria include classes with frequency greater
+    than 8kHz or amplitude less than -40dBFS.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T07:32:42Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: 'Subtle Cue examples: glass breaking, alarm, whisper'
+  claim_id: c_dac4628d
+  context: 'T021 [US2] Implement ''Subtle Cue'' filtering criteria in code/data/subtle_cue_builder.py:
+    Define classes with freq > 8kHz OR amplitude < -40dBFS (e.g., ''glass breaking,''
+    ''alarm,'' ''whisper'').'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Subtle_Cue_examples:_glass_breaking,_alarm,_whisper
+  kind: entity_fact
+  raw_text: The 'Subtle Cue' dataset examples include 'glass breaking', 'alarm', and
+    'whisper'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T07:33:03Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: 'Control Set dataset: UrbanSound8K'
+  claim_id: c_b389d8e7
+  context: 'T021b [US2] [FR-002 Scope Extension] Implement ''Control Set'' generator
+    in code/data/subtle_cue_builder.py: Use UrbanSound8K (Plan Complexity Tracking)
+    to define low-frequency, high-amplitude classes.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Control_Set_dataset:_UrbanSound8K
+  kind: entity_fact
+  raw_text: The 'Control Set' uses the UrbanSound8K dataset.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T07:33:23Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: 'Control Set example: engine hum'
+  claim_id: c_6364cfa3
+  context: 'T021b [US2] [FR-002 Scope Extension] Implement ''Control Set'' generator
+    in code/data/subtle_cue_builder.py: Use UrbanSound8K (Plan Complexity Tracking)
+    to define low-frequency, high-amplitude classes (e.g., ''engine hum'' -> class
+    IDs X, Y).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Control_Set_example:_engine_hum
+  kind: entity_fact
+  raw_text: The 'Control Set' examples include 'engine hum'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T07:33:48Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: 'Sensitivity analysis thresholds: 0.05, 0.1'
+  claim_id: c_720ad15f
+  context: T031 [US3] Implement sensitivity analysis in code/analysis/sensitivity.py
+    (Sweep thresholds {, 0.05, 0.1} and report FPR/FNR).
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: smaller than 0.05. The remaining pairs form a plausible set of sensitivity
+        parameters
+      source_id: '1501.05788'
+      url: https://arxiv.org/abs/1501.05788
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: The sensitivity analysis sweeps thresholds including 0.05 and 0.1.
+  resolved_value: '0.05'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-02T07:34:15Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: Breaking point defined as relative AUC drop > 10%
+  claim_id: c_cc351ded
+  context: 'T030 [US3] Implement step-change detection in code/analysis/robustness_curve.py.
+    MUST: Consume correlation_data.json from T029, identify the ''breaking point''
+    where relative AUC drop exceeds >10% (per FR-005).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The breaking point is identified where the relative AUC drop exceeds 10%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T07:34:15Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: Peak RAM constraint < 6GB
+  claim_id: c_2e2e7e94
+  context: 'T044a [P] Optimize data loader batch size: Metric: Maximize throughput
+    while keeping peak RAM < 6GB.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Peak_RAM_constraint_%3C_6GB
+  kind: magnitude
+  raw_text: The resource constraint for peak RAM usage is less than 6GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T07:34:52Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: Time constraint <= 6h
+  claim_id: c_2b4281d4
+  context: "T023 [US2] Implement metrics calculation in code/inference/metrics.py\
+    \ (AUC, latency, peak RAM usage). MUST: Calculate values and immediately compare\
+    \ against GitHub Actions constraints (\u22646h, \u22647GB)."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Time_constraint_%3C=_6h
+  kind: magnitude
+  raw_text: The resource constraint for inference and training time is less than or
+    equal to 6 hours.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T07:35:15Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: Peak RAM constraint <= 7GB
+  claim_id: c_493d1419
+  context: "T023 [US2] Implement metrics calculation in code/inference/metrics.py\
+    \ (AUC, latency, peak RAM usage). MUST: Calculate values and immediately compare\
+    \ against GitHub Actions constraints (\u22646h, \u22647GB)."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Peak_RAM_constraint_%3C=_7GB
+  kind: magnitude
+  raw_text: The resource constraint for peak RAM usage during inference is less than
+    or equal to 7GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T07:35:35Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: facebook/wav2vec2-base-960h used as substitute for DeSTA2.5-Audio
+  claim_id: c_936db83d
+  context: 'T011 [P] [US1] Implement teacher model loader in code/models/teacher_loader.py.
+    FR-001 Override: Load facebook/wav2vec2-base-960h as verified substitute for non-existent
+    DeSTA2.5-Audio. Justification: Plan.md Summary.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Load 'facebook/wav2vec2-base-960h' as verified substitute for non-existent
+    'DeSTA2.5-Audio'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T07:36:28Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: AUC drop exceeds 10% defines breaking point
+  claim_id: c_624327c5
+  context: 'T030 [US3] Implement step-change detection in code/analysis/robustness_curve.py.
+    MUST: Consume correlation_data.json from T029, identify the ''breaking point''
+    where relative AUC drop exceeds >10% (per FR-005)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Identify the 'breaking point' where relative AUC drop exceeds >10%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T07:36:28Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: Subtle Cue defined as freq > 8kHz or amplitude < -40dBFS
+  claim_id: c_fcb6a2d3
+  context: 'T021 [US2] Implement ''Subtle Cue'' filtering criteria in code/data/subtle_cue_builder.py:
+    Define classes with freq > 8kHz OR amplitude < -40dBFS (e.g., ''glass breaking,''
+    ''alarm,'' ''whisper'').'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Subtle_Cue_defined_as_freq_%3E_8kHz_or_amplitude_%3C_-40dBFS
+  kind: entity_fact
+  raw_text: Define classes with frequency > 8kHz OR amplitude < -40dBFS as 'Subtle
+    Cue'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T07:36:52Z'

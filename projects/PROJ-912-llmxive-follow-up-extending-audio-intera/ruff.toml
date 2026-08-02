@@ -1,0 +1,12 @@
+[lint]
+select = ["E", "F", "I", "W"]
+ignore = []
+
+[format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "auto"
+
+[target]
+line-length = 88
+target-version = "py311"
