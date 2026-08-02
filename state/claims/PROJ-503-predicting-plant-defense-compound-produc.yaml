@@ -904,3 +904,515 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-01T01:42:18Z'
+- artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/specs/001-predicting-plant-defense-compound-produc/tasks.md
+  attempts: 1
+  canonical: Hypothesis is considered underpowered if sample size N is less than 40
+  claim_id: c_b64f3d3d
+  context: Task T008 describes the power analysis criteria where a sample size below
+    40 triggers an abort.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Hypothesis_is_considered_underpowered_if_sample_size_N_is_le
+  kind: magnitude
+  raw_text: If N < 40, this indicates the hypothesis is underpowered.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T21:02:11Z'
+- artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/specs/001-predicting-plant-defense-compound-produc/tasks.md
+  attempts: 1
+  canonical: Max-T permutation test must use 1000 iterations
+  claim_id: c_7455f390
+  context: Task T047 specifies the implementation of a permutation test with exactly
+    1000 iterations.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement max-T permutation test with 1 000 iterations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T21:02:27Z'
+- artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/specs/001-predicting-plant-defense-compound-produc/tasks.md
+  attempts: 1
+  canonical: Two-sided p-value must be less than or equal to 0.05 for predictive signal
+  claim_id: c_9032d3f3
+  context: Task T048 requires reporting a p-value of 0.05 or lower to indicate true
+    predictive signal.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Two-sided_p-value_must_be_less_than_or_equal_to_0.05_for_pre
+  kind: magnitude
+  raw_text: "Report two\u2011sided p\u2011value \u2264 0.05 for metabolites showing\
+    \ true predictive signal."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T21:03:15Z'
+- artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/specs/001-predicting-plant-defense-compound-produc/tasks.md
+  attempts: 1
+  canonical: Bonferroni-corrected p-value must be less than or equal to 0.05 for the
+    highest correlation metabolite
+  claim_id: c_fc0276f0
+  context: Task T051 sets the threshold for the Bonferroni-corrected p-value at 0.05.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Bonferroni-corrected_p-value_must_be_less_than_or_equal_to_0
+  kind: magnitude
+  raw_text: "Verify **Bonferroni-corrected** p\u2011value \u2264 0.05 for metabolite\
+    \ with highest correlation."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T21:03:29Z'
+- artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/specs/001-predicting-plant-defense-compound-produc/tasks.md
+  attempts: 1
+  canonical: End-to-end runtime must be less than 4 hours
+  claim_id: c_7315bde9
+  context: Task T060c requires verifying that the total runtime of the pipeline is
+    under 4 hours.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/End-to-end_runtime_must_be_less_than_4_hours
+  kind: magnitude
+  raw_text: Verify E2E runtime <4h.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T21:03:44Z'
+- artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/specs/001-predicting-plant-defense-compound-produc/tasks.md
+  attempts: 1
+  canonical: Unit tests must achieve at least 80% line coverage
+  claim_id: c_b61d7ebc
+  context: Task T061 specifies a minimum line coverage requirement of 80% for unit
+    tests.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Unit_tests_must_achieve_at_least_80%25_line_coverage
+  kind: magnitude
+  raw_text: "Create unit tests with \u226580% line coverage."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T21:04:09Z'
+- artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/specs/001-predicting-plant-defense-compound-produc/tasks.md
+  attempts: 1
+  canonical: Data loaders must fail loudly with no synthetic fallback on download
+    failure
+  claim_id: c_4e0f5fba
+  context: Critical note in the document stating that synthetic data is not permitted
+    as a fallback for failed downloads.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Data_loaders_must_fail_loudly_with_no_synthetic_fallback_on
+  kind: entity_fact
+  raw_text: Data loaders MUST fail loudly; NO synthetic fallback allowed on download
+    failure.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T21:04:35Z'
+- artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/specs/001-predicting-plant-defense-compound-produc/tasks.md
+  attempts: 1
+  canonical: Tasks must run on free CPU-only CI with 2 CPU cores, 7 GB RAM, 14 GB
+    disk, and 4 hour limit
+  claim_id: c_895e702d
+  context: Critical note specifying the hardware constraints and time limit for the
+    CI environment.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "All tasks must run on free CPU-only CI (2 CPU cores, ~7 GB RAM, ~14 GB\
+    \ disk, \u22644 hours)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T21:04:54Z'
+- artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/specs/001-predicting-plant-defense-compound-produc/tasks.md
+  attempts: 1
+  canonical: Log warning if Variance Inflation Factor exceeds 5.0
+  claim_id: c_2066bf12
+  context: Task T054 sets the Variance Inflation Factor threshold at 5.0 for logging
+    warnings.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Log warning if VIF > 5.0, do not drop features (Ridge handles collinearity).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T21:04:54Z'
+- artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/specs/001-predicting-plant-defense-compound-produc/tasks.md
+  attempts: 1
+  canonical: Ridge Regression model training must use nested 5-fold cross-validation
+  claim_id: c_08243b6d
+  context: Task T045 specifies the use of 5-fold cross-validation for model training.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement species-specific Ridge Regression model training with nested
+    5-fold cross-validation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T21:05:15Z'
+- artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/specs/001-predicting-plant-defense-compound-produc/tasks.md
+  attempts: 1
+  canonical: Datasets GSE21857, GSE167633, and ST002565 must be verified for availability
+  claim_id: c_f8577255
+  context: Task T000 lists the specific dataset accession IDs that must be verified
+    before proceeding.
+  evidence:
+    entailment_evidence: Datasets GSE21857, GSE167633, and ST002565 must be verified
+      - Wikipedia Jump to content Main menu
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Datasets_GSE21857,_GSE167633,_and_ST002565_must_be_verified
+  kind: entity_fact
+  raw_text: 'Verify availability of specific datasets: GSE21857 (Arabidopsis), GSE167633
+    (Solanum), ST002565 (Metabolomics Workbench).'
+  resolved_value: Datasets GSE21857, GSE167633, and ST002565 must be verified for
+    availability
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-02T21:05:17Z'
+- artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/docs/dataset_availability_report.md
+  attempts: 1
+  canonical: 3 datasets checked
+  claim_id: c_2afe4276
+  context: Summary section listing total datasets checked.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Total datasets checked: 3'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T21:08:26Z'
+- artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/docs/dataset_availability_report.md
+  attempts: 1
+  canonical: 3 datasets available
+  claim_id: c_530b93a3
+  context: Summary section listing available datasets.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Available datasets: 3'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T21:08:32Z'
+- artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/docs/dataset_availability_report.md
+  attempts: 1
+  canonical: 0 datasets unavailable
+  claim_id: c_01f62140
+  context: Summary section listing unavailable datasets.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Unavailable datasets: 0'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T21:08:37Z'
+- artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/docs/dataset_availability_report.md
+  attempts: 1
+  canonical: GEO GSE21857 has 24 samples
+  claim_id: c_82e80f9d
+  context: 'Detailed Results for GEO: GSE21857 showing sample count.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Sample Count: 24'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T21:08:44Z'
+- artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/docs/dataset_availability_report.md
+  attempts: 1
+  canonical: GEO GSE167633 has 36 samples
+  claim_id: c_cde9360a
+  context: 'Detailed Results for GEO: GSE167633 showing sample count.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Sample Count: 36'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T21:08:44Z'
+- artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/docs/dataset_availability_report.md
+  attempts: 1
+  canonical: Metabolomics Workbench ST002565 has 48 samples
+  claim_id: c_87a4f876
+  context: 'Detailed Results for Metabolomics Workbench: ST002565 showing sample count.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Sample Count: 48'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T21:08:44Z'
+- artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/docs/dataset_availability_report.md
+  attempts: 1
+  canonical: Total datasets checked is 3
+  claim_id: c_a4f8c42b
+  context: Summary section listing dataset verification statistics.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Total datasets checked: 3'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T21:10:16Z'
+- artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/docs/dataset_availability_report.md
+  attempts: 1
+  canonical: Number of found and valid datasets is 3
+  claim_id: c_745bda52
+  context: Summary section listing dataset verification statistics.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Found and valid: 3'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T21:11:46Z'
+- artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/docs/dataset_availability_report.md
+  attempts: 1
+  canonical: Number of context valid datasets for Stress/Defense is 3
+  claim_id: c_99fbdb81
+  context: Summary section listing dataset verification statistics.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Context valid (Stress/Defense): 3'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T21:12:05Z'
+- artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/docs/dataset_availability_report.md
+  attempts: 1
+  canonical: GSE21857 sample count is 12
+  claim_id: c_9098f12d
+  context: GSE21857 (GEO) details including status, title, organism, and sample count.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Sample Count: 12'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T21:12:05Z'
+- artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/docs/dataset_availability_report.md
+  attempts: 1
+  canonical: GSE167633 sample count is 8
+  claim_id: c_d8c9fa4a
+  context: GSE167633 (GEO) details including status, title, organism, and sample count.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Sample Count: 8'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T21:12:05Z'
+- artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/docs/dataset_availability_report.md
+  attempts: 1
+  canonical: ST002565 sample count is 10
+  claim_id: c_a9dfe26a
+  context: ST002565 (Metabolomics Workbench) details including status, title, organism,
+    and sample count.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Sample Count: 10'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T21:12:05Z'
+- artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/specs/001-predicting-plant-defense-compound-produc/tasks.md
+  attempts: 1
+  canonical: Project halts with E-DATASET or E-PAIRING if no verified datasets found
+    or pairing rate < 95%
+  claim_id: c_cec6573e
+  context: 'Phase 0.0: Data Discovery, Acquisition & Foundation (MANDATORY BLOCKER)
+    purpose and abort criteria.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If no verified plant omics datasets are found or pairing < 95%, project
+    halts with E-DATASET or E-PAIRING.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T21:16:11Z'
+- artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/specs/001-predicting-plant-defense-compound-produc/tasks.md
+  attempts: 1
+  canonical: Power analysis uses effect size 0.5, alpha 0.05, and power 0.8
+  claim_id: c_a62c7750
+  context: Task T008 description regarding power analysis parameters.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform power analysis on the final paired set using statsmodels.stats.power.tt_solve_power
+    (F-test, effect size 0.5, alpha 0.05, power 0.8).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T21:16:40Z'
+- artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/specs/001-predicting-plant-defense-compound-produc/tasks.md
+  attempts: 1
+  canonical: Hypothesis is underpowered if sample size N < 40
+  claim_id: c_9767ead5
+  context: Task T008 description regarding power analysis sample size constraints.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If N < 40, this indicates the hypothesis is underpowered.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T21:16:40Z'
+- artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/specs/001-predicting-plant-defense-compound-produc/tasks.md
+  attempts: 1
+  canonical: Raise E-TIMEOUT if runtime exceeds 4 hours
+  claim_id: c_2696db7d
+  context: Task T021-INIT description regarding CI resource monitoring and timeout
+    thresholds.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Raise E-TIMEOUT if >4h.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T21:16:41Z'
+- artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/specs/001-predicting-plant-defense-compound-produc/tasks.md
+  attempts: 1
+  canonical: Unit tests must have >= 80% line coverage
+  claim_id: c_7c4d9909
+  context: Task T061 description regarding code coverage requirements.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Create unit tests with \u226580% line coverage."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T21:16:41Z'
+- artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/specs/001-predicting-plant-defense-compound-produc/tasks.md
+  attempts: 1
+  canonical: Modeling must use scikit-learn Ridge Regression only; no quantization,
+    CUDA, or LLMs
+  claim_id: c_15fc2fbb
+  context: Notes section detailing forbidden technologies and required algorithms.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Do NOT use 8-bit/4-bit quantization, CUDA, or large LLMs - use scikit-learn
+    Ridge Regression only.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T21:17:14Z'
+- artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/specs/001-predicting-plant-defense-compound-produc/tasks.md
+  attempts: 1
+  canonical: Datasets used are GSE21857, GSE167633, and ST002565
+  claim_id: c_d1654f2a
+  context: Task T000 description regarding specific dataset identifiers.
+  evidence:
+    entailment_evidence: Datasets used are GSE21857, GSE167633, and ST002565
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Datasets_used_are_GSE21857,_GSE167633,_and_ST002565
+  kind: entity_fact
+  raw_text: 'Specific datasets: GSE21857 (Arabidopsis), GSE167633 (Solanum), ST002565
+    (Metabolomics Workbench).'
+  resolved_value: Datasets used are GSE21857, GSE167633, and ST002565
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-02T21:17:16Z'
+- artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/specs/001-predicting-plant-defense-compound-produc/tasks.md
+  attempts: 1
+  canonical: Data types are numpy.float64 for values and str for IDs
+  claim_id: c_a7112c9c
+  context: Task T019 description regarding data model type definitions.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Data_types_are_numpy.float64_for_values_and_str_for_IDs
+  kind: entity_fact
+  raw_text: 'Data types: numpy.float64 for values, str for IDs.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T21:17:42Z'

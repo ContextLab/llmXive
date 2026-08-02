@@ -1,19 +1,46 @@
+"""
+Project Structure Setup Script for PROJ-503-predicting-plant-defense-compound-produc
+
+This script creates the mandatory directory structure for the plant defense 
+compound prediction pipeline. All directories are created relative to the 
+project root.
+
+Directories created:
+- code/
+- data/raw/
+- data/processed/
+- logs/
+- outputs/models/
+- docs/
+- tests/contract/
+- tests/integration/
+- tests/unit/
+"""
+
 import os
 import sys
 from pathlib import Path
 
+
 def setup_project_structure():
     """
-    Creates the required directory structure for the plant defense compound prediction project.
-    Implements T001: Create project structure with exact directories.
-    """
-    base_path = Path("projects/PROJ-503-predicting-plant-defense-compound-produc")
+    Create the required project directory structure.
     
-    directories = [
+    Returns:
+        bool: True if all directories were created successfully, False otherwise.
+    """
+    # Define the project root relative to this script's location
+    # The script is at: code/setup_project.py
+    # Project root is: two levels up
+    current_file = Path(__file__).resolve()
+    code_dir = current_file.parent
+    project_root = code_dir.parent
+    
+    # Define all required directories relative to project root
+    required_dirs = [
         "code",
         "data/raw",
         "data/processed",
-        "data/paired",
         "logs",
         "outputs/models",
         "docs",
@@ -23,81 +50,43 @@ def setup_project_structure():
     ]
     
     created_dirs = []
-    for dir_name in directories:
-        full_path = base_path / dir_name
-        if not full_path.exists():
+    failed_dirs = []
+    
+    print(f"Setting up project structure at: {project_root}")
+    print("-" * 60)
+    
+    for dir_path in required_dirs:
+        full_path = project_root / dir_path
+        try:
             full_path.mkdir(parents=True, exist_ok=True)
-            created_dirs.append(str(full_path))
-        else:
-            # Ensure it's actually a directory
-            if not full_path.is_dir():
-                raise RuntimeError(f"Path exists but is not a directory: {full_path}")
+            created_dirs.append(str(full_path.relative_to(project_root)))
+            print(f"✓ Created: {full_path.relative_to(project_root)}")
+        except OSError as e:
+            failed_dirs.append(str(full_path.relative_to(project_root)))
+            print(f"✗ Failed to create: {full_path.relative_to(project_root)} - {e}")
     
-    # Create placeholder files to ensure directories are non-empty (for verification)
-    # This helps satisfy the "non-empty" verification requirement mentioned in T001 rejection
-    placeholders = [
-        ("logs/.gitkeep", "Log directory placeholder"),
-        ("docs/.gitkeep", "Documentation directory placeholder"),
-        ("data/raw/.gitkeep", "Raw data directory placeholder"),
-        ("data/processed/.gitkeep", "Processed data directory placeholder"),
-        ("data/paired/.gitkeep", "Paired data directory placeholder"),
-        ("outputs/models/.gitkeep", "Model outputs directory placeholder"),
-        ("tests/contract/.gitkeep", "Contract tests placeholder"),
-        ("tests/integration/.gitkeep", "Integration tests placeholder"),
-        ("tests/unit/.gitkeep", "Unit tests placeholder"),
-    ]
+    print("-" * 60)
+    print(f"Summary: {len(created_dirs)} directories created, {len(failed_dirs)} failed")
     
-    for file_path, content in placeholders:
-        full_file_path = base_path / file_path
-        if not full_file_path.exists():
-            full_file_path.parent.mkdir(parents=True, exist_ok=True)
-            with open(full_file_path, 'w') as f:
-                f.write(f"# {content}\n")
+    if failed_dirs:
+        print("\nFailed directories:")
+        for d in failed_dirs:
+            print(f"  - {d}")
+        return False
     
-    return {
-        "status": "success",
-        "base_path": str(base_path),
-        "created_directories": created_dirs,
-        "total_directories": len(directories),
-        "message": f"Project structure created successfully at {base_path}"
-    }
+    return True
+
 
 def main():
-    """Main entry point for project setup."""
-    print("Setting up project structure for PROJ-503...")
-    try:
-        result = setup_project_structure()
-        print(f"✓ {result['message']}")
-        print(f"  Created {len(result['created_directories'])} new directories")
-        print(f"  Total directories: {result['total_directories']}")
-        
-        # Verify structure exists
-        base_path = Path("projects/PROJ-503-predicting-plant-defense-compound-produc")
-        required_dirs = [
-            "code", "data/raw", "data/processed", "data/paired",
-            "logs", "outputs/models", "docs",
-            "tests/contract", "tests/integration", "tests/unit"
-        ]
-        
-        all_exist = True
-        for dir_name in required_dirs:
-            dir_path = base_path / dir_name
-            if not dir_path.exists() or not dir_path.is_dir():
-                print(f"✗ Missing or invalid: {dir_path}")
-                all_exist = False
-            else:
-                print(f"✓ {dir_path}/")
-        
-        if all_exist:
-            print("\n✓ All required directories verified successfully")
-            return 0
-        else:
-            print("\n✗ Some directories are missing or invalid")
-            return 1
-            
-    except Exception as e:
-        print(f"✗ Error during setup: {e}")
-        return 1
+    """Main entry point for the setup script."""
+    success = setup_project_structure()
+    if success:
+        print("\n✓ Project structure setup completed successfully.")
+        sys.exit(0)
+    else:
+        print("\n✗ Project structure setup failed.")
+        sys.exit(1)
+
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

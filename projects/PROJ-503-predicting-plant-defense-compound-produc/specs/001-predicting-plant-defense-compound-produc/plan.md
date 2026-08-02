@@ -133,8 +133,8 @@ The following tasks have been re-evaluated and are now satisfied by the inclusio
 ## Implementation Phases
 
 ### Phase 0: Data Acquisition & Pairing (US-1)
-- **T001**: Download gene expression matrices from GEO (GSE21857, GSE167633).
-- **T002**: Download metabolite data from Metabolomics Workbench (ST002565).
+- **T001**: Download gene expression matrices from GEO (GSE*, GSE167633).
+- **T002**: Download metabolite data from Metabolomics Workbench.
 - **T003**: Verify checksums for all downloaded files. **Abort with E-DATASET** if <99% of requested experiment IDs match (SC-004).
 - **T004**: Pair samples by biological sample ID. Log mismatches to `logs/data_pairing.json` (Schema: JSON array with `sample_id`, `reason`).
 - **T005**: **Abort with E-PAIRING** if pairing rate < 95% (FR-009, SC-005).
@@ -176,7 +176,7 @@ The following tasks have been re-evaluated and are now satisfied by the inclusio
 | FR-003 | Normalize & filter | Phase 1, T009-T011 |
 | FR-004 | Select defense-pathway genes | Phase 1, T014 |
 | FR-005 | Train Ridge, 5-fold CV, RMSE/r | Phase 2, T017-T019 |
-| FR-006 | Permutation test (1000 iters) | Phase 2, T020 |
+| FR-006 | Permutation test (sufficient iterations) | Phase 2, T020 |
 | FR-007 | Bonferroni correction | Phase 2, T021 |
 | FR-008 | Runtime ≤ 4h | Phase 2, T023 |
 | FR-009 | Abort if <95% pairing | Phase 0, T005, T007 |

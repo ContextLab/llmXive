@@ -1,10 +1,15 @@
 """
-ExpressionMatrix data model class.
+ExpressionMatrix data model.
 
-Represents a gene expression matrix with explicit attributes:
-- gene_id: Identifier for the gene
-- sample_id: Identifier for the biological sample
-- value: Expression value (e.g., TPM, FPKM, or counts)
+Represents gene expression data in WIDE FORMAT:
+- Rows = genes
+- Columns = samples
+- Values = TPM (transcripts per million)
+
+Attributes:
+    gene_ids: List of unique gene identifiers (str)
+    sample_ids: List of sample identifiers (str)
+    values: 2D numpy array of expression values (numpy.float64)
 """
 import pandas as pd
 import numpy as np
@@ -15,124 +20,185 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-
 class ExpressionMatrix:
     """
-    Container for gene expression data.
-
-    Attributes:
-        data (pd.DataFrame): DataFrame with columns ['gene_id', 'sample_id', 'value']
+    Data model for gene expression matrices in wide format.
+    
+    Format: Rows=genes, Columns=samples, values=TPM
     """
-
-    REQUIRED_COLUMNS = ['gene_id', 'sample_id', 'value']
-
-    def __init__(self, data: Optional[pd.DataFrame] = None):
+    
+    def __init__(
+        self,
+        gene_ids: List[str],
+        sample_ids: List[str],
+        values: np.ndarray
+    ):
         """
-        Initialize ExpressionMatrix.
-
+        Initialize an ExpressionMatrix.
+        
         Args:
-            data: DataFrame with columns gene_id, sample_id, value.
-                  If None, creates an empty DataFrame with required columns.
+            gene_ids: List of unique gene identifiers.
+            sample_ids: List of sample identifiers.
+            values: 2D numpy array of shape (len(gene_ids), len(sample_ids)) 
+                    with dtype numpy.float64.
+        
+        Raises:
+            ValueError: If dimensions don't match, values aren't float64,
+                        or gene_ids are not unique.
         """
-        if data is None:
-            self.data = pd.DataFrame(columns=self.REQUIRED_COLUMNS)
-        else:
-            self._validate_data(data)
-            self.data = data.copy()
+        # Validate dimensions
+        if len(gene_ids) != values.shape[0]:
+            raise ValueError(
+                f"gene_ids length ({len(gene_ids)}) must match values rows ({values.shape[0]})"
+            )
+        if len(sample_ids) != values.shape[1]:
+            raise ValueError(
+                f"sample_ids length ({len(sample_ids)}) must match values columns ({values.shape[1]})"
+            )
+        
+        # Validate data types
+        if values.dtype != np.float64:
+            raise ValueError(f"values must be numpy.float64, got {values.dtype}")
+        
+        # Validate uniqueness
+        if len(gene_ids) != len(set(gene_ids)):
+            raise ValueError("gene_ids must be unique")
+        
+        if len(sample_ids) != len(set(sample_ids)):
+            raise ValueError("sample_ids must be unique")
+        
+        self.gene_ids = gene_ids
+        self.sample_ids = sample_ids
+        self.values = values.astype(np.float64)
+        
+        logger.info(f"Created ExpressionMatrix with {len(gene_ids)} genes, {len(sample_ids)} samples")
 
-    def _validate_data(self, df: pd.DataFrame) -> None:
-        """Validate that the DataFrame has the required columns."""
-        missing = set(self.REQUIRED_COLUMNS) - set(df.columns)
-        if missing:
-            raise ValueError(f"ExpressionMatrix requires columns {self.REQUIRED_COLUMNS}, missing: {missing}")
+    def to_csv(self, filepath: str, delimiter: str = ',') -> None:
+        """
+        Save the matrix to a CSV file.
+        
+        Format: WIDE FORMAT with column order: gene_id, sample_1, sample_2, ...
+        NA handling: empty string for NaN values.
+        
+        Args:
+            filepath: Path to output CSV file.
+            delimiter: CSV delimiter (default ',').
+        """
+        # Create DataFrame
+        df = pd.DataFrame(
+            self.values,
+            index=self.gene_ids,
+            columns=self.sample_ids
+        )
+        
+        # Insert gene_id as first column
+        df.insert(0, 'gene_id', df.index)
+        
+        # Reset index to make it a column
+        df = df.reset_index(drop=True)
+        
+        # Replace NaN with empty string
+        df = df.fillna('')
+        
+        # Ensure numeric columns are formatted correctly (except gene_id)
+        for col in df.columns[1:]:
+            if df[col].dtype == object:
+                # It's the gene_id column or mixed, skip
+                continue
+            # Format floats to avoid scientific notation for small numbers
+            df[col] = df[col].apply(lambda x: f"{x:.10f}" if isinstance(x, (int, float)) else x)
+        
+        # Write to CSV
+        df.to_csv(filepath, index=False, sep=delimiter, na_rep='')
+        logger.info(f"Saved ExpressionMatrix to {filepath}")
 
     @classmethod
-    def load(cls, file_path: str) -> 'ExpressionMatrix':
+    def from_csv(cls, filepath: str, delimiter: str = ',') -> 'ExpressionMatrix':
         """
-        Load expression matrix from a CSV file.
-
+        Load an ExpressionMatrix from a CSV file.
+        
         Args:
-            file_path: Path to the CSV file.
-
+            filepath: Path to input CSV file.
+            delimiter: CSV delimiter (default ',').
+        
         Returns:
             ExpressionMatrix instance.
+        
+        Raises:
+            FileNotFoundError: If file doesn't exist.
+            ValueError: If CSV format is invalid.
         """
-        logger.info(f"Loading expression matrix from {file_path}")
-        df = pd.read_csv(file_path)
-        return cls(df)
+        if not Path(filepath).exists():
+            raise FileNotFoundError(f"File not found: {filepath}")
+        
+        df = pd.read_csv(filepath, delimiter=delimiter)
+        
+        # Validate structure
+        if 'gene_id' not in df.columns:
+            raise ValueError("CSV must contain 'gene_id' column")
+        
+        gene_ids = df['gene_id'].astype(str).tolist()
+        sample_ids = [str(col) for col in df.columns if col != 'gene_id']
+        
+        # Extract values
+        values_df = df.drop(columns=['gene_id'])
+        
+        # Convert to numpy array with float64
+        values = values_df.to_numpy(dtype=np.float64)
+        
+        # Handle empty strings that might have been read as NaN
+        values = np.where(values_df.isna().to_numpy(), np.nan, values)
+        
+        return cls(gene_ids=gene_ids, sample_ids=sample_ids, values=values)
 
-    def save(self, file_path: str) -> None:
+    def get_shape(self) -> tuple:
+        """Return (n_genes, n_samples)."""
+        return self.values.shape
+
+    def get_gene_ids(self) -> List[str]:
+        """Return list of gene IDs."""
+        return self.gene_ids.copy()
+
+    def get_sample_ids(self) -> List[str]:
+        """Return list of sample IDs."""
+        return self.sample_ids.copy()
+
+    def subset_by_genes(self, gene_ids: List[str]) -> 'ExpressionMatrix':
         """
-        Save expression matrix to a CSV file.
-
-        Args:
-            file_path: Path to save the CSV file.
-        """
-        Path(file_path).parent.mkdir(parents=True, exist_ok=True)
-        self.data.to_csv(file_path, index=False)
-        logger.info(f"Saved expression matrix to {file_path}")
-
-    def filter_by_samples(self, sample_ids: List[str]) -> 'ExpressionMatrix':
-        """
-        Filter the matrix to keep only specified sample IDs.
-
-        Args:
-            sample_ids: List of sample IDs to keep.
-
-        Returns:
-            New ExpressionMatrix instance with filtered data.
-        """
-        filtered = self.data[self.data['sample_id'].isin(sample_ids)]
-        return ExpressionMatrix(filtered)
-
-    def filter_by_genes(self, gene_ids: List[str]) -> 'ExpressionMatrix':
-        """
-        Filter the matrix to keep only specified gene IDs.
-
+        Create a new matrix with only the specified genes.
+        
         Args:
             gene_ids: List of gene IDs to keep.
-
+        
         Returns:
-            New ExpressionMatrix instance with filtered data.
+            New ExpressionMatrix with subset of genes.
         """
-        filtered = self.data[self.data['gene_id'].isin(gene_ids)]
-        return ExpressionMatrix(filtered)
+        indices = [self.gene_ids.index(gid) for gid in gene_ids if gid in self.gene_ids]
+        if len(indices) != len(gene_ids):
+            logger.warning(f"Some gene IDs not found: {set(gene_ids) - set(self.gene_ids)}")
+        
+        return ExpressionMatrix(
+            gene_ids=[gid for gid in gene_ids if gid in self.gene_ids],
+            sample_ids=self.sample_ids,
+            values=self.values[indices, :]
+        )
 
-    def to_pivot(self) -> pd.DataFrame:
+    def subset_by_samples(self, sample_ids: List[str]) -> 'ExpressionMatrix':
         """
-        Convert long-form data to a wide pivot table (genes x samples).
-
-        Returns:
-            DataFrame with gene_id as index and sample_id as columns.
-        """
-        return self.data.pivot(index='gene_id', columns='sample_id', values='value')
-
-    @classmethod
-    def from_pivot(cls, pivot_df: pd.DataFrame) -> 'ExpressionMatrix':
-        """
-        Create an ExpressionMatrix from a wide pivot DataFrame.
-
+        Create a new matrix with only the specified samples.
+        
         Args:
-            pivot_df: DataFrame with genes as index and samples as columns.
-
+            sample_ids: List of sample IDs to keep.
+        
         Returns:
-            ExpressionMatrix instance in long format.
+            New ExpressionMatrix with subset of samples.
         """
-        df = pivot_df.reset_index()
-        df_long = df.melt(id_vars=['gene_id'], var_name='sample_id', value_name='value')
-        return cls(df_long)
-
-    def get_unique_genes(self) -> List[str]:
-        """Return a list of unique gene IDs."""
-        return self.data['gene_id'].unique().tolist()
-
-    def get_unique_samples(self) -> List[str]:
-        """Return a list of unique sample IDs."""
-        return self.data['sample_id'].unique().tolist()
-
-    def __len__(self) -> int:
-        """Return the number of rows in the matrix."""
-        return len(self.data)
-
-    def __repr__(self) -> str:
-        return f"ExpressionMatrix(n_genes={len(self.get_unique_genes())}, n_samples={len(self.get_unique_samples())}, n_rows={len(self)})"
+        indices = [self.sample_ids.index(sid) for sid in sample_ids if sid in self.sample_ids]
+        if len(indices) != len(sample_ids):
+            logger.warning(f"Some sample IDs not found: {set(sample_ids) - set(self.sample_ids)}")
+        
+        return ExpressionMatrix(
+            gene_ids=self.gene_ids,
+            sample_ids=[sid for sid in sample_ids if sid in self.sample_ids],
+            values=self.values[:, indices]
+        )

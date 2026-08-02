@@ -1,3 +1,33 @@
+T000:
+  c: false
+  h: b72007e21ada8f92ccd0344e62162ab4322ac0813cfeb3e8ee868860e0b6ddb1
+  r: "The required `projects/PROJ-503-predicting-plant-defense-compound-produc/code/data/verify_availability.py`\
+    \ script is missing, so the verification logic (including aborting with\u202F\
+    E\u2011DATASET) cannot be demonstrated. The existing `docs/dataset_availability_report.md`\
+    \ alone does not satisfy the full task."
+T001:
+  c: false
+  h: 6a37472dd637e07e1c0a8ac2646b37e2da856fc4dff780a33a79833f1f73eb6a
+  r: "The required output file `data/raw/geo_expression_matrix.csv` does not exist,\
+    \ and the provided `download.py` is incomplete (truncated before the actual download,\
+    \ parsing, and CSV\u2011writing logic). Consequently the task of downloading the\
+    \ two GEO series, parsing the matrix, and producing the specified CSV file has\
+    \ not been fulfilled. The missing CSV and incomplete script must be added for\
+    \ the task to be considered complete."
+T003:
+  c: false
+  h: e395f5cfc11cd0149a80cd7cbc91a7e58ce3ed381ef1ba8514879f44abb0ea83
+  r: "The required `data/raw/checksums.json` file is absent, and the provided `verify_checksums.py`\
+    \ script is truncated before it can compute the pass\u2011rate or abort when <99\u202F\
+    % of files match, so the checksum verification requirement is not fulfilled."
+T004:
+  c: false
+  h: 7c90e429f6d9a204e696d11a2fa8365642f2352599f0e31dd705abab867352b2
+  r: The required output file `data/processed/paired_index.csv` is absent, and the
+    provided `code/data/pairing.py` is incomplete (truncated and contains only placeholder
+    comments without the actual pairing implementation or logging of mismatches).
+    Additionally, no `logs/data_pairing.json` file is present. These missing artifacts
+    mean the pairing task has not been genuinely fulfilled.
 T005:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -20,6 +50,19 @@ T010:
     defense prediction pipeline, which does not satisfy the required checksum utility\
     \ task. The missing deliverable is a functional SHA\u2011256 checksum validation\
     \ tool (e.g., a script or module) with usage instructions or tests."
+T014:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The response contains no shell script, command output, or directory listing\
+    \ showing that the required folders under `projects/PROJ-503-predicting-plant-defense-compound-produc/`\
+    \ were created. Without concrete evidence of the filesystem structure, the task\u2019\
+    s deliverable is missing."
+T018:
+  c: false
+  h: 70d7d389da6eb49f92230f2a3c8b6554ad4fd1f9c90f890a13ce50b16d2a5c74
+  r: "The required file `projects/PROJ-503-predicting-plant-defense-compound-produc/data/sources.yaml`\
+    \ does not exist; only a `data/sources.yaml` at a different location is present,\
+    \ so the task\u2019s specified artifact is missing."
 T023:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
