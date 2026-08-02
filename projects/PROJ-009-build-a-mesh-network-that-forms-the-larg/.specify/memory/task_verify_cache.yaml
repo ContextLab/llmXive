@@ -1,0 +1,7 @@
+T016:
+  c: false
+  h: 2159c8f233c9e3eb14f03ef4bbf82933f482cd4482734a0da72f1eae85f14fb1
+  r: "The required `data/raw/execution_logs.csv` file does not exist, and the provided\
+    \ `data_aggregator.py` is truncated before any logic that parses T019 logs, verifies\
+    \ T043, or writes the CSV is shown. Consequently the implementation does not demonstrably\
+    \ fulfill the task\u2019s specifications."

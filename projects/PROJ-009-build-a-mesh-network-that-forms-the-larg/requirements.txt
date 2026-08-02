@@ -1,0 +1,19 @@
+# Core dependencies (pinned from T002)
+paramiko==3.4.0
+scikit-learn==1.4.2
+pandas==2.2.2
+pygam==0.9.1
+statsmodels==0.14.2
+pyyaml==6.0.1
+numpy==1.26.4
+simpy==4.1.1
+
+# Development & Linting (added for T003)
+black==24.4.2
+ruff==0.4.8
+pre-commit==3.7.1
+pytest==8.2.2
+
+# Testing utilities
+pytest-cov==5.0.0
+pytest-mock==3.14.0

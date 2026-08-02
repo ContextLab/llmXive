@@ -5,7 +5,7 @@
 
 ## Summary
 
-This project implements a physical testbed for a mesh network supercomputer that pools idle computing resources from heterogeneous consumer devices (laptops, Raspberry Pis, mobile devices) over a local Wi-Fi network. The system orchestrates Monte Carlo integration benchmarks, instruments nodes to capture wall-clock time, packet counts, and CPU utilization, and performs statistical regression analysis to validate scaling laws against the Ong & Motani (2007) theoretical capacity bounds. The implementation prioritizes reproducibility, data hygiene, and strict adherence to a time-constrained CI limit on free-tier runners.
+This project implements a physical testbed for a mesh network supercomputer that pools idle computing resources from heterogeneous consumer devices (laptops, Raspberry Pis, mobile devices) over a local Wi-Fi network. The system orchestrates Monte Carlo integration benchmarks, instruments nodes to capture wall-clock time, packet counts, and CPU utilization, and performs statistical regression analysis to validate scaling laws against the Ong & Motani theoretical capacity bounds. The implementation prioritizes reproducibility, data hygiene, and strict adherence to a time-constrained CI limit on free-tier runners.
 
 **Key Methodological Update**: The project now includes a **Discrete-Event Simulation (DES)** phase. The physical testbed data will be used to calibrate and validate the simulation model, satisfying Constitution Principle VI. The statistical analysis uses Generalized Additive Models (GAMs) to capture non-linear interactions and redefines the outcome metric to avoid tautological regression.
 
