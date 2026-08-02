@@ -1,0 +1,91 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "SpatialClaw Synthetic Task Schema"
+type: "object"
+description: "Schema for the synthetic proxy of the SpatialClaw benchmark dataset."
+properties:
+  task_id:
+    type: "string"
+    description: "Unique identifier for the task instance."
+  task_type:
+    type: "string"
+    enum:
+      - "occlusion"
+      - "depth"
+      - "relative_position"
+    description: "Category of the spatial reasoning task."
+  scene_3d:
+    type: "object"
+    description: "3D representation of the scene."
+    properties:
+      points:
+        type: "array"
+        items:
+          type: "array"
+          items:
+            type: "number"
+          minItems: 3
+          maxItems: 3
+        description: "List of 3D coordinates [x, y, z]."
+      objects:
+        type: "array"
+        items:
+          type: "object"
+          properties:
+            id:
+              type: "string"
+            bbox:
+              type: "array"
+              items:
+                type: "number"
+              minItems: 6
+              maxItems: 6
+              description: "Min/Max [x, y, z] for bounding box."
+  ground_truth:
+    type: "object"
+    description: "Correct answer for the task."
+    properties:
+      label:
+        type: "string"
+        description: "The ground truth spatial relationship."
+      confidence:
+        type: "number"
+        minimum: 0
+        maximum: 1
+  query_text:
+    type: "string"
+    description: "Natural language query for the agent."
+  projection_2d:
+    type: "object"
+    description: "Derived 2D representation."
+    properties:
+      bounding_boxes_2d:
+        type: "array"
+        items:
+          type: "object"
+          properties:
+            id:
+              type: "string"
+            min_xy:
+              type: "array"
+              items:
+                type: "number"
+              minItems: 2
+              maxItems: 2
+            max_xy:
+              type: "array"
+              items:
+                type: "number"
+              minItems: 2
+              maxItems: 2
+      depth_histogram:
+        type: "array"
+        items:
+          type: "number"
+        description: "Binned depth values for the 2D projection."
+required:
+  - "task_id"
+  - "task_type"
+  - "scene_3d"
+  - "ground_truth"
+  - "query_text"
+  - "projection_2d"

@@ -1,0 +1,43 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Experiment Results Schema"
+type: "object"
+description: "Schema for the aggregated performance metrics and statistical results."
+properties:
+  run_id:
+    type: "string"
+    description: "Unique identifier for the experiment run."
+  task_id:
+    type: "string"
+    description: "Reference to the task instance."
+  task_type:
+    type: "string"
+    enum:
+      - "occlusion"
+      - "depth"
+      - "relative_position"
+  agent_type:
+    type: "string"
+    enum:
+      - "2D_restricted"
+      - "3D_baseline"
+  success_flag:
+    type: "boolean"
+    description: "Whether the task was completed successfully."
+  latency_ms:
+    type: "number"
+    description: "Wall-clock inference time in milliseconds."
+  seed_used:
+    type: "integer"
+    description: "Random seed used for this run."
+  error_type:
+    type: "string"
+    nullable: true
+    description: "Type of error if failed (e.g., 'RestrictedActionError')."
+required:
+  - "run_id"
+  - "task_id"
+  - "task_type"
+  - "agent_type"
+  - "success_flag"
+  - "latency_ms"
+  - "seed_used"

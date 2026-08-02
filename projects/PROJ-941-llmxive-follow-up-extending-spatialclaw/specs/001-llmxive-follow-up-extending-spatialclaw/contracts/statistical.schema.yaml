@@ -1,0 +1,50 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Statistical Analysis Schema"
+type: "object"
+description: "Schema for statistical test results and sensitivity analysis."
+properties:
+  task_type:
+    type: "string"
+    enum:
+      - "occlusion"
+      - "depth"
+      - "relative_position"
+  test_name:
+    type: "string"
+    description: "Name of the statistical test (e.g., 'Wilcoxon', 't-test')."
+  p_value_raw:
+    type: "number"
+    description: "Raw p-value from the test."
+  p_value_corrected:
+    type: "number"
+    description: "P-value after Bonferroni correction."
+  significance_level:
+    type: "number"
+    default: 0.05
+    description: "Significance threshold (alpha)."
+  is_significant:
+    type: "boolean"
+    description: "Whether the result is statistically significant."
+  sensitivity_analysis:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        threshold_value:
+          type: "number"
+          description: "The depth-estimation threshold value."
+        false_positive_rate:
+          type: "number"
+          minimum: 0
+          maximum: 1
+        false_negative_rate:
+          type: "number"
+          minimum: 0
+          maximum: 1
+    description: "Results of the threshold sensitivity sweep."
+required:
+  - "task_type"
+  - "test_name"
+  - "p_value_raw"
+  - "p_value_corrected"
+  - "is_significant"
