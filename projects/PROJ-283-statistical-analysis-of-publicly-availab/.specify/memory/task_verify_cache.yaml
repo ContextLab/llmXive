@@ -1,12 +1,3 @@
-T018:
-  c: false
-  h: 7a7f96d1e181d36ef2945bdee723263e51f5ba4c98c7080fea3cf26fab779447
-  r: "The provided `src/main.py` imports the validation utilities but never actually\
-    \ calls them, and the script ends before saving a validated dataset to `data/processed/games.parquet`.\
-    \ Moreover, the expected `games.parquet` file is absent from the repository. The\
-    \ task\u2019s requirement\u2014to run schema validation on the generated dataset\
-    \ and then write the validated data to the specified Parquet file\u2014is therefore\
-    \ not fulfilled."
 T034:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

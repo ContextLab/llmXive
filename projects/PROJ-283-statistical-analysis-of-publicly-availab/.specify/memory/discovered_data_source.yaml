@@ -1,0 +1,17 @@
+status: none
+intent: download Lichess Games Database PGN with move times and ratings from HuggingFace
+  python package dataset
+required_fields:
+- game_id
+- white_rating
+- black_rating
+- eco_code
+- move_times
+- avg_move_time
+- material_imbalance_move10
+- elo_expected_prob
+- outcome
+- outcome_deviation
+cache_key: 7d8d230a0642cff459eca3eadff74bd0ae956604aca1b83339025f4a80458840
+searched_at: '2026-08-02T01:51:57.709411+00:00'
+retry_count: 1

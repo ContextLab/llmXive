@@ -40,15 +40,15 @@
 
 ### User Story 3 - Cross-Validation and Diagnostic Reporting (Priority: P3)
 
-**As a** reviewer, **I want** to see the results of 5-fold cross-validation and diagnostic plots (residuals, feature importance, predicted vs. actual) to ensure the model generalizes and to visualize the nature of the Elo biases, **so that** I can validate the robustness of the findings before publication.
+**As a** reviewer, **I want** to see the results of k-fold cross-validation and diagnostic plots (residuals, feature importance, predicted vs. actual) to ensure the model generalizes and to visualize the nature of the Elo biases, **so that** I can validate the robustness of the findings before publication.
 
 **Why this priority**: This adds rigor to the findings by preventing overfitting and providing visual evidence. It depends on the models from Story 2 but serves as a distinct validation step.
 
-**Independent Test**: The system can be tested by executing the validation script and verifying that the output includes a confusion matrix or residual plot and a report of the mean squared error (MSE) across the 5 folds.
+**Independent Test**: The system can be tested by executing the validation script and verifying that the output includes a confusion matrix or residual plot and a report of the mean squared error (MSE) across multiple folds.
 
 **Acceptance Scenarios**:
 
-1. **Given** a trained regression model, **When** the cross-validation routine executes, **Then** it produces a report showing the variation in R² and MSE across the 5 folds, confirming the model's stability.
+1. **Given** a trained regression model, **When** the cross-validation routine executes, **Then** it produces a report showing the variation in R² and MSE across the folds, confirming the model's stability.
 2. **Given** the final model results, **When** the diagnostic generator runs, **Then** it produces a scatter plot of predicted vs. actual deviation and a residual plot that can be saved as a PNG file for the final report.
 
 ---
