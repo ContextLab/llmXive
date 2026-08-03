@@ -2,6 +2,6 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T031b** — The required schema file `contracts/session.schema.yaml` is missing, so there is nothing for the simulator to validate against. Moreover, the provided `simulator.py` snippet only imports validation utilities but does not show any actual call to `load_schema` or `validate_session` on the generated sessions. Both the schema artifact and concrete validation implementation are absent.
-- **T021a** — The repository contains `code/analysis/data_cleaner.py`, but the file is truncated and does not show the full implementation (e.g., the cleaning, imputation, and CSV export logic). Moreover, the required output file `data/processed/cleaned_sessions.csv` is absent. Without a generated cleaned CSV, the task’s deliverable is not met.
-- **T036b** — declared artifact(s) missing/empty/invalid: data/processed/power_report.md
+- **T023a** — declared artifact(s) missing/empty/invalid: data/processed/metrics_summary.csv
+- **T036** — The repository contains a partially implemented `PowerCalculator` class, but there is no `data/processed/power_flags.json` file present, and the provided code excerpt shows no logic that writes the required JSON output. Consequently, the task’s output artifact is missing.
+- **T025d** — The required output files `metrics_summary.csv` and `report_summary.txt` are not present in the provided evidence, and no content is shown that cites Constitution Principle VII or the amended Spec FR‑002. Without these artifacts, the task cannot be considered completed.

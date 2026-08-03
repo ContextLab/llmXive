@@ -16,3 +16,157 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-23T20:40:27Z'
+- artifact_path: projects/PROJ-015-improving-accessibility-and-usability-of/specs/001-improving-accessibility-and-usability-of/tasks.md
+  attempts: 1
+  canonical: Pinned dependencies in requirements.txt
+  claim_id: c_69f47497
+  context: 'Initialize Python project with pinned dependencies in `requirements.txt`.
+    **Deliverable**: `requirements.txt` containing pinned versions of `scipy`, `matplotlib`,
+    `pandas`, `jupyter`, `streamlit`, `statsmodels`, `pyyaml`, `numpy`.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pinned_dependencies_in_requirements.txt
+  kind: entity_fact
+  raw_text: 'Deliverable: `requirements.txt` containing pinned versions of `scipy`,
+    `matplotlib`, `pandas`, `jupyter`, `streamlit`, `statsmodels`, `pyyaml`, `numpy`.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T02:21:36Z'
+- artifact_path: projects/PROJ-015-improving-accessibility-and-usability-of/specs/001-improving-accessibility-and-usability-of/tasks.md
+  attempts: 1
+  canonical: FR-004 completion prerequisite
+  claim_id: c_75058500
+  context: "Implement Latin Square counterbalancing in `code/simulator/counterbalance.py`\
+    \ to assign the order of interface presentation (Traditional\u2192Explainable\
+    \ or Explainable\u2192Traditional). **Dependencies**: None. **Note**: This satisfies\
+    \ FR\u2011004 and must be completed before any UI tasks."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "This satisfies FR\u2011004 and must be completed before any UI tasks."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T02:21:45Z'
+- artifact_path: projects/PROJ-015-improving-accessibility-and-usability-of/specs/001-improving-accessibility-and-usability-of/tasks.md
+  attempts: 1
+  canonical: Contributing.md file creation
+  claim_id: c_625ea721
+  context: 'Create `CONTRIBUTING.md` with the mandatory "no synthetic data" clause
+    and schema compliance guidelines. **Deliverable**: `CONTRIBUTING.md`. **Content**:
+    *(see original description)*.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Contributing.md_file_creation
+  kind: entity_fact
+  raw_text: 'Deliverable: `CONTRIBUTING.md`.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T02:22:09Z'
+- artifact_path: projects/PROJ-015-improving-accessibility-and-usability-of/specs/001-improving-accessibility-and-usability-of/tasks.md
+  attempts: 1
+  canonical: Session schema definition
+  claim_id: c_e26082a4
+  context: 'Create `contracts/session.schema.yaml`. **Deliverable**: `contracts/session.schema.yaml`
+    defining the JSON schema for session data (participant_id, interface_type, metrics,
+    status, etc.). **Dependencies**: None.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Session_schema_definition
+  kind: entity_fact
+  raw_text: 'Deliverable: `contracts/session.schema.yaml` defining the JSON schema
+    for session data (participant_id, interface_type, metrics, status, etc.).'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T02:22:28Z'
+- artifact_path: projects/PROJ-015-improving-accessibility-and-usability-of/specs/001-improving-accessibility-and-usability-of/tasks.md
+  attempts: 1
+  canonical: Session validation function
+  claim_id: c_1c189449
+  context: 'Implement runtime schema validation logic in `code/simulator/validator.py`.
+    **Deliverable**: `code/simulator/validator.py` with a function `validate_session(data:
+    dict) -> bool`. **Dependencies**: T019b.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Session_validation_function
+  kind: entity_fact
+  raw_text: 'Deliverable: `code/simulator/validator.py` with a function `validate_session(data:
+    dict) -> bool`.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T02:26:03Z'
+- artifact_path: projects/PROJ-015-improving-accessibility-and-usability-of/specs/001-improving-accessibility-and-usability-of/tasks.md
+  attempts: 1
+  canonical: Simulated session data file
+  claim_id: c_9d13d499
+  context: 'Implement `generate_sessions(n, seed)` in `code/simulator/simulator.py`.
+    **Output Artifact**: `data/raw/simulated_sessions.json`. **Logic**: Synthetic
+    sessions as previously described; includes `metadata: { source: "simulated" }`.'
+  evidence:
+    entailment_evidence: Simulated session data file - Wikipedia
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Simulated_session_data_file
+  kind: entity_fact
+  raw_text: 'Output Artifact: `data/raw/simulated_sessions.json`.'
+  resolved_value: Simulated session data file
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-03T02:35:07Z'
+- artifact_path: projects/PROJ-015-improving-accessibility-and-usability-of/specs/001-improving-accessibility-and-usability-of/tasks.md
+  attempts: 1
+  canonical: Simulator CLI command
+  claim_id: c_2f1ec4e6
+  context: 'Implement CLI wrapper for `DeterministicDataSimulator` in `code/simulator/simulator.py`.
+    **Deliverable**: CLI command `python -m code.simulator.simulator --n <N> --seed
+    42 --output data/raw/simulated_sessions.json`. **Dependencies**: T031-gen.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Deliverable: CLI command `python -m code.simulator.simulator --n <N>
+    --seed 42 --output data/raw/simulated_sessions.json`.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T02:47:01Z'
+- artifact_path: projects/PROJ-015-improving-accessibility-and-usability-of/specs/001-improving-accessibility-and-usability-of/tasks.md
+  attempts: 1
+  canonical: SHA-256 checksum generation
+  claim_id: c_07bc67c7
+  context: "Raw Data Checksumming \u2013 Compute SHA\u2011256 checksums for every\
+    \ file under `data/raw/` **and** for all schema files in `contracts/` during the\
+    \ cleaning phase. Record each checksum in `state/projects/PROJ-015-improving-accessibility-and-usability-of.yaml`\
+    \ under `artifact_hashes`. **Dependencies**: Runs after raw data is materialized\
+    \ (i.e., after T031-gen or real data collection). Should be invoked before T021a."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Compute SHA\u2011256 checksums for every file under `data/raw/` and for\
+    \ all schema files in `contracts/` during the cleaning phase."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T02:47:14Z'
