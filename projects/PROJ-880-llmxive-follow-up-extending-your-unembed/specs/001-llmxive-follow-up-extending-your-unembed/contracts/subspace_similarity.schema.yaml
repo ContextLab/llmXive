@@ -1,37 +1,41 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Subspace Similarity Report"
-description: "Schema for the cosine similarity results between model edge spectrum subspaces."
+description: "Schema for the cosine similarity matrix between edge spectrum subspaces of different models."
 type: object
-required:
-  - model_pair
-  - cosine_similarity
-  - k
-  - method
 properties:
-  model_pair:
-    type: string
-    description: "Identifier for the pair of models compared (e.g., 'Llama3-BLOOM')."
-  cosine_similarity:
-    type: number
-    description: "The computed cosine similarity between the two subspace bases."
-    minimum: -1.0
-    maximum: 1.0
-  k:
-    type: integer
-    description: "The number of top singular vectors used (subspace dimension)."
-    minimum: 1
-  method:
-    type: string
-    description: "The method used for alignment (e.g., 'procrustes', 'direct')."
-    enum:
-      - "procrustes"
-      - "direct"
-      - "canonical"
+  models:
+    type: array
+    items:
+      type: string
+      description: "List of model names (e.g., 'llama-3', 'bloom')"
+  similarities:
+    type: array
+    items:
+      type: object
+      properties:
+        model_a:
+          type: string
+        model_b:
+          type: string
+        cosine_similarity:
+          type: number
+          description: "Cosine similarity between top-k subspaces"
+        language_pair:
+          type: string
+          description: "e.g., 'EN-FR', 'EN-EN'"
+      required:
+        - model_a
+        - model_b
+        - cosine_similarity
+        - language_pair
   timestamp:
     type: string
     format: date-time
-    description: "ISO 8601 timestamp of when the computation was performed."
-  seed:
+  k_value:
     type: integer
-    description: "Random seed used for reproducibility."
+    description: "Number of singular vectors used"
+required:
+  - models
+  - similarities
+  - k_value
 additionalProperties: false
