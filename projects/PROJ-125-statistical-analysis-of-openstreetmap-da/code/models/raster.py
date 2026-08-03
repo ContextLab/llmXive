@@ -1,5 +1,5 @@
 """
-Raster data models.
+Raster data models for covariates and temperature targets.
 """
 from typing import Optional, Dict, Any, List
 import json
@@ -8,90 +8,172 @@ import numpy as np
 from .base import BaseModel
 from config import get_path
 
+
 class RasterCovariate(BaseModel):
     """
-    Represents a raster covariate layer (e.g., building density, NDVI).
+    Model for a raster covariate (e.g., building density, NDVI).
+    
+    Attributes:
+        name: Unique identifier for the covariate
+        description: Human-readable description
+        source: Data source (e.g., 'OSM', 'Sentinel-2')
+        path: Path to the GeoTIFF file
+        crs: EPSG code of the CRS
+        resolution: Pixel resolution in meters
+        nodata_value: Value representing no-data
+        min_val: Minimum valid value
+        max_val: Maximum valid value
+        units: Measurement units (e.g., 'm', '%', 'index')
     """
     
+    REQUIRED_FIELDS = ["name", "path", "crs", "resolution"]
+
     def __init__(
         self,
         name: str,
-        path: Path,
-        band: int = 1,
-        crs: Optional[str] = None,
-        resolution: Optional[float] = None,
-        description: Optional[str] = None
+        description: str,
+        source: str,
+        path: str,
+        crs: int,
+        resolution: float,
+        nodata_value: float = -9999.0,
+        min_val: Optional[float] = None,
+        max_val: Optional[float] = None,
+        units: str = "unknown",
     ):
-        """
-        Initialize RasterCovariate.
-        
-        Args:
-            name: Unique name for the covariate
-            path: Path to the raster file
-            band: Band index (1-based)
-            crs: Coordinate Reference System
-            resolution: Resolution in meters
-            description: Human-readable description
-        """
-        super().__init__()
         self.name = name
+        self.description = description
+        self.source = source
         self.path = path
-        self.band = band
         self.crs = crs
         self.resolution = resolution
-        self.description = description or name
-        
-        if not self.path.exists():
-            raise FileNotFoundError(f"Raster file not found: {self.path}")
+        self.nodata_value = nodata_value
+        self.min_val = min_val
+        self.max_val = max_val
+        self.units = units
 
-    def to_dict(self) -> Dict[str, Any]:
+        self.validate_schema(self.to_dict(), self.REQUIRED_FIELDS)
+
+    def validate_file_exists(self) -> bool:
+        """Check if the raster file exists on disk."""
+        return Path(self.path).exists()
+
+    def get_stats(self) -> Dict[str, Any]:
+        """
+        Get summary statistics for the raster.
+        
+        Returns:
+            Dictionary with min, max, mean, std, count
+        """
+        if not self.validate_file_exists():
+            raise FileNotFoundError(f"Raster file not found: {self.path}")
+        
+        # Placeholder for actual rasterio logic
+        # In a real implementation, this would read the file
         return {
-            "name": self.name,
-            "path": str(self.path),
-            "band": self.band,
-            "crs": self.crs,
-            "resolution": self.resolution,
-            "description": self.description
+            "min": self.min_val,
+            "max": self.max_val,
+            "mean": None,
+            "std": None,
+            "count": None,
+            "nodata_count": None,
         }
+
 
 class TemperatureRaster(BaseModel):
     """
-    Represents the target variable: Land Surface Temperature raster.
+    Model for a temperature raster (LST).
+    
+    Attributes:
+        name: Unique identifier (e.g., 'LST_NYC_2023')
+        description: Description of the temperature composite
+        source: Satellite source (e.g., 'MODIS', 'Landsat-8')
+        path: Path to the GeoTIFF file
+        crs: EPSG code
+        resolution: Pixel resolution in meters
+        nodata_value: No-data value
+        min_val: Minimum temperature (K or C)
+        max_val: Maximum temperature
+        units: Temperature units ('K' or 'C')
+        acquisition_date: Date of acquisition (ISO 8601)
+        cloud_cover: Average cloud cover percentage
     """
     
+    REQUIRED_FIELDS = ["name", "path", "crs", "resolution", "units"]
+
     def __init__(
         self,
-        path: Path,
-        crs: Optional[str] = None,
-        resolution: Optional[float] = None,
-        date_range: Optional[Dict[str, str]] = None,
-        unit: str = "Kelvin"
+        name: str,
+        description: str,
+        source: str,
+        path: str,
+        crs: int,
+        resolution: float,
+        units: str,
+        nodata_value: float = -9999.0,
+        min_val: Optional[float] = None,
+        max_val: Optional[float] = None,
+        acquisition_date: Optional[str] = None,
+        cloud_cover: Optional[float] = None,
     ):
-        """
-        Initialize TemperatureRaster.
-        
-        Args:
-            path: Path to the temperature raster file
-            crs: Coordinate Reference System
-            resolution: Resolution in meters
-            date_range: Dict with 'start' and 'end' keys
-            unit: Temperature unit (default: Kelvin)
-        """
-        super().__init__()
+        self.name = name
+        self.description = description
+        self.source = source
         self.path = path
         self.crs = crs
         self.resolution = resolution
-        self.date_range = date_range or {}
-        self.unit = unit
-        
-        if not self.path.exists():
-            raise FileNotFoundError(f"Temperature raster not found: {self.path}")
+        self.units = units
+        self.nodata_value = nodata_value
+        self.min_val = min_val
+        self.max_val = max_val
+        self.acquisition_date = acquisition_date
+        self.cloud_cover = cloud_cover
 
-    def to_dict(self) -> Dict[str, Any]:
+        self.validate_schema(self.to_dict(), self.REQUIRED_FIELDS)
+
+        # Validate units
+        if self.units not in ["K", "C", "KELVIN", "CELSIUS"]:
+            raise ValueError(f"Invalid temperature units: {self.units}. Must be 'K' or 'C'.")
+
+    def validate_file_exists(self) -> bool:
+        """Check if the temperature raster file exists on disk."""
+        return Path(self.path).exists()
+
+    def get_stats(self) -> Dict[str, Any]:
+        """
+        Get summary statistics for the temperature raster.
+        
+        Returns:
+            Dictionary with min, max, mean, std, count
+        """
+        if not self.validate_file_exists():
+            raise FileNotFoundError(f"Temperature file not found: {self.path}")
+        
+        # Placeholder for actual rasterio logic
         return {
-            "path": str(self.path),
-            "crs": self.crs,
-            "resolution": self.resolution,
-            "date_range": self.date_range,
-            "unit": self.unit
+            "min": self.min_val,
+            "max": self.max_val,
+            "mean": None,
+            "std": None,
+            "count": None,
+            "nodata_count": None,
         }
+
+    def is_valid_temperature(self, value: float) -> bool:
+        """
+        Check if a value is a valid temperature within physical bounds.
+        
+        Args:
+            value: Temperature value to check
+            
+        Returns:
+            True if valid, False otherwise
+        """
+        if value == self.nodata_value:
+            return False
+        
+        # Physical bounds (approximate)
+        if self.units.upper() in ["K", "KELVIN"]:
+            return 180.0 <= value <= 350.0 # ~-93C to 77C
+        else:
+            return -93.0 <= value <= 77.0

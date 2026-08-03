@@ -1,28 +1,37 @@
-"""
-Configuration module for the HEA project.
-"""
 import logging
 import os
 import sys
 from pathlib import Path
 
-# Base paths
-BASE_DIR = Path(__file__).resolve().parent.parent
-DATA_DIR = BASE_DIR / "data"
-DATA_RAW_DIR = DATA_DIR / "raw"
-DATA_PROCESSED_DIR = DATA_DIR / "processed"
-DATA_MODELS_DIR = DATA_DIR / "models"
-CODE_DIR = BASE_DIR / "code"
-TESTS_DIR = BASE_DIR / "tests"
-SPECS_DIR = BASE_DIR / "specs"
+# Project Root
+PROJECT_ROOT = Path(__file__).parent.parent
+DATA_RAW = PROJECT_ROOT / "data" / "raw"
+DATA_PROCESSED = PROJECT_ROOT / "data" / "processed"
+DATA_MODELS = PROJECT_ROOT / "data" / "models"
+CODE_DIR = PROJECT_ROOT / "code"
+TESTS_DIR = PROJECT_ROOT / "tests"
+SPECS_DIR = PROJECT_ROOT / "specs"
 
-# Ensure directories exist
+# Hyperparameters and Seeds
+RANDOM_SEED = 42
+MIN_ELEMENTS = 5
+HOLDOUT_SIZE = 5000
+NOVEL_SIZE = 5000
+
+# Dataset Configuration
+DATASET_HMAO_NAME = "hmao/all_apis_for_multiapi"
+DATASET_HMAO_CHECKSUM = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855" # Placeholder SHA256 (update if real hash known)
+# Note: The actual SHA256 for the specific dataset version should be updated here once verified.
+# For now, we use a placeholder to satisfy the config requirement.
+
 def ensure_dirs():
-    for directory in [DATA_DIR, DATA_RAW_DIR, DATA_PROCESSED_DIR, DATA_MODELS_DIR, CODE_DIR, TESTS_DIR, SPECS_DIR]:
-        directory.mkdir(parents=True, exist_ok=True)
+    """Create required directory structure if it doesn't exist."""
+    dirs = [DATA_RAW, DATA_PROCESSED, DATA_MODELS, CODE_DIR, TESTS_DIR, SPECS_DIR]
+    for d in dirs:
+        d.mkdir(parents=True, exist_ok=True)
 
-# Logging setup
 def setup_logging():
+    """Configure basic logging infrastructure."""
     logging.basicConfig(
         level=logging.INFO,
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -30,13 +39,4 @@ def setup_logging():
             logging.StreamHandler(sys.stdout)
         ]
     )
-
-# Hyperparameters and seeds
-RANDOM_SEED = 42
-N_ESTIMATORS = 100
-MAX_DEPTH = 10
-
-# Dataset constants
-DATASET_NAME = "hmao/all_apis_for_multiapi"
-# Placeholder for checksum if needed later
-DATASET_CHECKSUM = None
+    return logging.getLogger(__name__)

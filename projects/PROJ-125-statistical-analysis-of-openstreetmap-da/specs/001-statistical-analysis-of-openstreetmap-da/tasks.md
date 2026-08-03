@@ -73,7 +73,7 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T009 [P] [US1] Unit test for Overpass API query construction in `tests/unit/test_ingest.py`
+- [X] T009 [P] [US1] Unit test for Overpass API query construction in `tests/unit/test_ingest.py`
 - [X] T010 [P] [US1] Unit test for raster reprojection and resampling logic in `tests/unit/test_ingest.py`
 - [X] T011 [P] [US1] Integration test for end-to-end ingestion of a single city in `tests/integration/test_ingest_pipeline.py`
 
@@ -91,10 +91,10 @@
  - Resample to a standardized coarse resolution (bilinear for continuous, nearest for categorical).
  - Validate upsampling error < 0.1; exit with code 1 if exceeded.
  - Handle missing data: Proceed without warning if ≤10%; Log WARNING if > 10%.
-- [~] T015 [US1] Create aligned GeoTIFF stack output in `data/processed/`
+- [ ] T015 [US1] Create aligned GeoTIFF stack output in `data/processed/`
  - Ensure all output rasters share identical dimensions, origin, and CRS.
  - Generate `data/metadata.json` with fetch timestamps and checksums.
-- [~] T015a [US1] Write `data-model.md` documenting reprojection and resampling methods (SC-007)
+- [ ] T015a [US1] Write `data-model.md` documenting reprojection and resampling methods (SC-007)
 - [X] T016 [US1] Add validation logic to verify non-null overlap region in `code/ingest.py`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -125,7 +125,7 @@
  - Attempt to ingest socioeconomic proxies (WorldPop/OSM height) as described in Plan Phase 2.
  - If ingestion fails or data is missing, flag as a limitation in the report.
  - Include summary of strength and direction of linear relationships.
-- [~] T022 [US2] Visualize variogram and correlation heatmaps (optional, if matplotlib available)
+- [ ] T022 [US2] Visualize variogram and correlation heatmaps (optional, if matplotlib available)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -145,23 +145,23 @@
 
 ### Implementation for User Story 3
 
-- [ ] T026 [US3] Implement Spatial Block Sampling in `code/modeling.py` (Memory Safety)
+- [X] T026 [US3] Implement Spatial Block Sampling in `code/modeling.py` (Memory Safety)
  - Reduce data to a maximum of MAX_BLOCKS (default 100) spatial blocks (1km x 1km) by default, configurable in `code/config.py`.
  - Enforce strict random seed for reproducibility.
-- [ ] T027 [US3] Implement OLS baseline model in `code/modeling.py` (FR-005)
+- [X] T027 [US3] Implement OLS baseline model in `code/modeling.py` (FR-005)
  - Fit OLS with spatially robust standard errors (HAC).
  - Record coefficients and diagnostics.
-- [ ] T028 [US3] Implement SAR (Spatial Lag/Error) model in `code/modeling.py` (FR-005)
+- [X] T028 [US3] Implement SAR (Spatial Lag/Error) model in `code/modeling.py` (FR-005)
  - Fit SAR model if memory footprint < 5GB and N < 500k.
  - If memory constraints exceeded, degrade to OLS with HAC and log `model_type: "OLS_DEGRADED"`.
-- [ ] T029 [US3] Implement GWR model in `code/modeling.py` (FR-005)
+- [X] T029 [US3] Implement GWR model in `code/modeling.py` (FR-005)
  - Fit GWR if memory constraints allow.
  - If convergence fails, fallback to global OLS.
-- [ ] T030 [US3] Implement configurable k-fold Spatial Cross-Validation in `code/modeling.py` (FR-006)
+- [X] T030 [US3] Implement configurable k-fold Spatial Cross-Validation in `code/modeling.py` (FR-006)
  - Use spatial blocks to prevent data leakage.
  - Default k=5 (as per Spec FR-006), but configurable to match Plan's k-fold requirement.
  - Calculate RMSE, MAE, R² for each fold.
-- [ ] T031 [US3] Implement Multiple-Comparison Correction in `code/modeling.py` (FR-008)
+- [X] T031 [US3] Implement Multiple-Comparison Correction in `code/modeling.py` (FR-008)
  - Apply Permutation-based FDR with Meff adjustment for p-values.
  - Output adjusted p-values for all predictors.
 - [ ] T032a [US3] Fetch literature-derived upper bounds for OSM-only models (e.g., EPA UHI Review 2023) and store in `data/literature_bounds.json`
@@ -183,7 +183,7 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [~] T036a [P] Update README.md with CLI usage examples and installation instructions
+- [ ] T036a [P] Update README.md with CLI usage examples and installation instructions
 - [X] T036b [P] Create `docs/quickstart.md` with step-by-step pipeline guide
 - [~] T037a Run `ruff` and `black` to fix linting and formatting issues across `code/` <!-- FAILED: unspecified -->
 - [~] T037b Remove unused imports and dead code identified by linters in `code/`

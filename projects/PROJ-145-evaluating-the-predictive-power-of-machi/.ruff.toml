@@ -1,0 +1,3 @@
+# Standalone ruff configuration (used if pyproject.toml is not found)
+# Inherits settings from pyproject.toml if available, but explicitly defines here for clarity.
+extend = "pyproject.toml"

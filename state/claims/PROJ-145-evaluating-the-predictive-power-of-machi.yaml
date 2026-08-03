@@ -267,3 +267,159 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-31T09:53:00Z'
+- artifact_path: projects/PROJ-145-evaluating-the-predictive-power-of-machi/specs/001-evaluating-the-predictive-power-of-machi/tasks.md
+  attempts: 1
+  canonical: 5000 unique 5-element combinations sampled with random seed 42
+  claim_id: c_0ce67614
+  context: Task T014 and T015 describe sampling 5000 unique 5-element combinations
+    from the periodic table using a fixed random seed (42) for holdout and novel sets.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sample 5000 unique 5-element combinations from the periodic table using
+    a fixed random seed (42).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T16:50:14Z'
+- artifact_path: projects/PROJ-145-evaluating-the-predictive-power-of-machi/specs/001-evaluating-the-predictive-power-of-machi/tasks.md
+  attempts: 1
+  canonical: Holdout known set filtered from hmao proxy excluding training set
+  claim_id: c_f4962974
+  context: Task T014 specifies filtering 5000 combinations to find those present in
+    the hmao proxy index but not in the training data.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Holdout_known_set_filtered_from_hmao_proxy_excluding_trainin
+  kind: entity_fact
+  raw_text: Filter for those present in the hmao proxy index but NOT in heas_train.csv.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T16:50:59Z'
+- artifact_path: projects/PROJ-145-evaluating-the-predictive-power-of-machi/specs/001-evaluating-the-predictive-power-of-machi/tasks.md
+  attempts: 1
+  canonical: True novel set filtered from hmao proxy excluding training set
+  claim_id: c_fbc920bd
+  context: Task T015 specifies filtering 5000 combinations to find those absent from
+    both the training data and the hmao proxy index.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/True_novel_set_filtered_from_hmao_proxy_excluding_training_s
+  kind: entity_fact
+  raw_text: Filter for those NOT present in heas_train.csv AND NOT present in the
+    hmao proxy index.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T16:51:41Z'
+- artifact_path: projects/PROJ-145-evaluating-the-predictive-power-of-machi/specs/001-evaluating-the-predictive-power-of-machi/tasks.md
+  attempts: 1
+  canonical: Model training execution completes within 6 hours on CPU
+  claim_id: c_5a9cde80
+  context: The Independent Test for User Story 2 requires verifying execution completes
+    within 6 hours on CPU.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execute within 6 hours on CPU without GPU errors.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T16:51:55Z'
+- artifact_path: projects/PROJ-145-evaluating-the-predictive-power-of-machi/specs/001-evaluating-the-predictive-power-of-machi/tasks.md
+  attempts: 1
+  canonical: Numerical values clamped to 1e-6
+  claim_id: c_58f41825
+  context: Task T020 and Notes specify clamping near-zero values to 1e-6 to prevent
+    division errors and ensure numerical stability.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Clamp near-zero values to 1e-6 to prevent numerical instability.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T16:52:33Z'
+- artifact_path: projects/PROJ-145-evaluating-the-predictive-power-of-machi/specs/001-evaluating-the-predictive-power-of-machi/tasks.md
+  attempts: 1
+  canonical: Streaming logic optimized for less than 7GB RAM usage
+  claim_id: c_a5b948bb
+  context: Task T038 requires profiling and optimizing data ingestion to ensure RAM
+    usage remains under 7GB.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Streaming_logic_optimized_for_less_than_7GB_RAM_usage
+  kind: magnitude
+  raw_text: Optimize streaming logic to ensure <7GB RAM usage.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T16:52:57Z'
+- artifact_path: projects/PROJ-145-evaluating-the-predictive-power-of-machi/specs/001-evaluating-the-predictive-power-of-machi/tasks.md
+  attempts: 1
+  canonical: Novel candidates filtered by 10th percentile variance threshold
+  claim_id: c_721394e7
+  context: Task T034 logic requires filtering candidates where variance is less than
+    or equal to the 10th percentile threshold before ranking.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Novel_candidates_filtered_by_10th_percentile_variance_thresh
+  kind: entity_fact
+  raw_text: Filter candidates where variance <= 10th percentile threshold.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T16:53:24Z'
+- artifact_path: projects/PROJ-145-evaluating-the-predictive-power-of-machi/specs/001-evaluating-the-predictive-power-of-machi/tasks.md
+  attempts: 1
+  canonical: Top 100 novel candidates exported to CSV
+  claim_id: c_d42f0b8e
+  context: Task T034 specifies the output file as data/processed/top_100_novel_candidates.csv
+    containing the top ranked candidates.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Output data/processed/top_100_novel_candidates.csv.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T16:54:02Z'
+- artifact_path: projects/PROJ-145-evaluating-the-predictive-power-of-machi/specs/001-evaluating-the-predictive-power-of-machi/tasks.md
+  attempts: 1
+  canonical: Dataset checksum validated against SHA256 hash
+  claim_id: c_97c5c3b1
+  context: Task T016 requires implementing a streaming integrity check to validate
+    the dataset checksum against a known SHA256 hash.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset_checksum_validated_against_SHA256_hash
+  kind: entity_fact
+  raw_text: Validate the dataset checksum against the known SHA256 hash.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T16:54:20Z'

@@ -4,6 +4,14 @@ T001:
   r: No directory tree, `plan.md`, or any files under `projects/PROJ-837-llmxive-follow-up-extending-moebius-0-2b/`
     were presented. The response only contains feature specifications and user stories,
     not the required project structure. The required artifact is missing.
+T009:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The implementer only supplied high\u2011level user story specifications and\
+    \ no concrete artifacts such as configuration files, scripts, or documentation\
+    \ that define dataset paths or store artifact hashes. Consequently, the required\
+    \ environment configuration management for dataset locations and hash tracking\
+    \ is missing."
 T011:
   c: false
   h: 5528347e4d66eec9a586fef5fc4bcbb84fb5a0cd2d218eced670c50878f6cdf9

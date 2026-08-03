@@ -1,3 +1,1 @@
-"""
-Integration tests for multi-component workflows.
-"""
+# Integration tests package initialization

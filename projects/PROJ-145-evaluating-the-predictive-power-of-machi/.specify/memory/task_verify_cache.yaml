@@ -27,9 +27,9 @@ T006:
     the required artifact is missing, so the task is not satisfied.
 T013:
   c: false
-  h: 6d3180055800319a27c81c77e5e3865429ab1b1a366c534f3f34e86109845024
-  r: The repository contains `code/data_ingestion.py` with functions for loading,
-    filtering, and processing data, but the script never invokes them to produce an
-    output file, and the required `data/processed/heas_train.csv` is absent from the
-    project. Consequently the filtering logic is not demonstrated to have been executed
-    and the expected CSV export does not exist.
+  h: 0decac31cd5c7d1717fa588225df5144457e3726c6846e2d67991d81edb57bd7
+  r: "The repository contains a partially shown `code/data_ingestion.py` but the implementation\
+    \ of `process_and_save_heas_train` is truncated and does not demonstrate that\
+    \ it writes a CSV file. Moreover, the required output file `data/processed/heas_train.csv`\
+    \ is absent from the project. The task\u2019s core deliverable\u2014filtering\
+    \ for 5\u2011element+ systems and exporting the result\u2014is therefore not verified."

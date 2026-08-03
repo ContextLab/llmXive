@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2604.14140",
+  "judged_at": "2026-08-03T16:27:01Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"long-horizon-terminal-bench: testing the limits of agents on long-hori\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it directly measures the same core mechanism (long-horizon reasoning capabilities) and dependent variable (accuracy on long-horizon tasks) that the user's question targets, serving as a canonical benchmark for the specific domain of long-horizon agent testing.",
+  "relevant": true
+}

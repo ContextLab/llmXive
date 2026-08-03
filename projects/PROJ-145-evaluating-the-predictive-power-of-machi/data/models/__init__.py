@@ -1,3 +1,1 @@
-"""
-llmXive Automated Science Pipeline - Models Module
-"""
+# data.models package
