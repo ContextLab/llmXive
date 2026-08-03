@@ -1,0 +1,35 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "StatisticalReport"
+description: "The output of the statistical analysis script."
+type: object
+properties:
+  comparison_type:
+    type: string
+    description: "Type of comparison (e.g., 'Full Loop vs. Single-Pass')."
+  test_method:
+    type: string
+    description: "Statistical test used (e.g., 'Wilcoxon signed-rank')."
+  p_value:
+    type: number
+    description: "Calculated p-value."
+  confidence_interval:
+    type: array
+    items:
+      type: number
+    description: "95% CI for the difference (lower, upper)."
+  effect_size:
+    type: number
+    description: "Cohen's d effect size."
+  significance:
+    type: boolean
+    description: "Whether the difference is significant at α=0.05."
+  sample_size:
+    type: integer
+    description: "Number of samples used in the test."
+required:
+  - comparison_type
+  - test_method
+  - p_value
+  - confidence_interval
+  - effect_size
+  - significance

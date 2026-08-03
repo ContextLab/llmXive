@@ -1,0 +1,25 @@
+# SHA-256 checksums for HuggingFace dataset shards
+# Verified sources: WISE and RISE datasets
+# Format: hash  relative_path
+#
+# Note: These are placeholder hashes. In a real implementation,
+# these would be populated by downloading the actual dataset shards
+# from HuggingFace and computing their checksums.
+#
+# To generate real checksums:
+#   python -c "from src.utils.checksum import create_manifest; create_manifest('data/raw', 'data/raw/checksums.txt')"
+#
+# For now, this file serves as the manifest structure.
+# Actual verification will fail until real data is downloaded.
+
+# Placeholder for WISE dataset shards (to be replaced with real hashes)
+# e.g., a1b2c3d4e5f6...  WISE/part-00000.jsonl
+# e.g., f6e5d4c3b2a1...  WISE/part-00001.jsonl
+
+# Placeholder for RISE dataset shards (to be replaced with real hashes)
+# e.g., 1234567890ab...  RISE/part-00000.jsonl
+# e.g., 0987654321fe...  RISE/part-00001.jsonl
+
+# When real data is available, run:
+#   python src/utils/checksum.py --create-manifest data/raw data/raw/checksums.txt
+# to populate this file with actual hashes.

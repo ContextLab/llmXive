@@ -1,0 +1,41 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No directory listing or file tree was provided showing the existence of the\
+    \ required `src/` folder and its sub\u2011directories (`simulator`, `agents`,\
+    \ `pipeline`, `benchmarks`, `stats`, `utils`). Without concrete evidence that\
+    \ these directories were actually created, the task requirement is not satisfied.\
+    \ The implementer must supply a file\u2011system snapshot (e.g., `tree src/` output)\
+    \ confirming the presence of all six subfolders."
+T001b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The provided information contains no evidence of a `tests/` directory or the
+    required subdirectories (`unit`, `integration`, `contract`). Without visible file
+    system artifacts confirming their creation, the task requirement is not satisfied.
+T001c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory listing or proof that `data/raw`, `data/intermediate`, and `data/simulator_validation`
+    exist was provided; without concrete evidence the required folder structure cannot
+    be confirmed.
+T001d:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `docs/` directory or any file hierarchy was presented in the provided evidence,
+    so the required artifact does not exist or is empty. The implementer must add
+    the `docs/` folder with the appropriate documentation files to satisfy the task.
+T001e:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `contracts/` directory or its subdirectories (`scene`, `trajectory`,
+    `stats`) is provided; the only artifact is a textual feature specification, which
+    does not demonstrate that the required directory structure exists or contains
+    any files. The implementer must create the specified directories (and optionally
+    populate them) and show their presence.
+T013:
+  c: false
+  h: b774c492bbe34a814dd0a71291720ca19d13536a2885bd80a40e30613517206f
+  r: The required file `src/simulator/noise_injector.py` does not exist in the repository,
+    so no implementation of the noise injection functionality is present. The task
+    cannot be considered fulfilled until this module is added with the specified behavior.
