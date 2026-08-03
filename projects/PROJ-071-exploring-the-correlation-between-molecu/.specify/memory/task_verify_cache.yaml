@@ -1,19 +1,26 @@
-T015b:
+T011:
   c: false
-  h: 8092fb88ba96747751719619056732aedc26805d1cd09487cc1c79b0302e4f74
-  r: The `tests/test_descriptors.py` file ends abruptly (`def `) and does not contain
-    a completed test that checks for the existence of `data/processed/excluded_molecules.csv`
-    or validates its columns. Additionally, the required `data/processed/excluded_molecules.csv`
-    file is absent from the repository. Both the test implementation and the data
-    artifact are missing, so the task is not satisfied.
-T021d:
+  h: 803d3b92d60ef0705afc779a12ef6f1895f5024b24c78c82a30c187d1dedbdcd
+  r: "The required output file `data/raw/fda_structures.parquet` does not exist, and\
+    \ the provided `code/ingest.py` snippet is truncated (no visible CLI handling\
+    \ for `--fetch`). Without the saved parquet file, the task\u2019s core requirement\
+    \ is unmet."
+T012:
   c: false
-  h: 95b2d046fb4ab76cbe070d63494c390eaf63726a52aa46d31cc2b7f11057a5e9
-  r: "The repository lacks the required input file `data/stat_gate_status.json` and\
-    \ the three output artifacts (`statistical_insufficiency_report.md`, `full_processed_state.csv`,\
-    \ `analysis_log.txt`). Moreover, the provided `code/insufficiency.py` is truncated\
-    \ and does not contain logic that reads the status and conditionally creates those\
-    \ files, so the task\u2019s functional requirement is not met."
+  h: 0ce3e9f77f9692178a7dde4a148d56d9575ff9aa4b415acfc2bd7bf8f4000f5a
+  r: "The repository lacks the required `data_insufficiency_report.md` that should\
+    \ be generated when `gate_status.json` is `\"FAIL\"`. Moreover, the provided excerpt\
+    \ of `code/ingest.py` does not show any implementation of the gate\u2011status\
+    \ check, report generation, or the merge logic required by the task. These essential\
+    \ artifacts and behaviors are missing."
+T015:
+  c: false
+  h: 6a25c12c03c38c5918e6fc414197acdeecf788773f26750e7c68746f84309da7
+  r: "The `descriptors.py` file does not catch `rdkit.Chem.rdchem.AtomValenceException`\
+    \ specifically, nor does it call `log_error_to_file` when such an exception occurs,\
+    \ and there is no code that generates or passes a `source_hash`. Consequently\
+    \ no `data/processed/excluded_molecules.csv` was created, so the required error\u2011\
+    logging artifact is missing."
 T033:
   c: false
   h: 2b13c68f134c741fead75b43ec95ff865248c5e79992fd122d9e123d08d54d04

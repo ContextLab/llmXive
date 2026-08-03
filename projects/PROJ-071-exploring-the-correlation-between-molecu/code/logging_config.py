@@ -3,10 +3,9 @@ from __future__ import annotations
 
 import functools
 import json
-import logging as stdlib_logging
 from dataclasses import asdict, dataclass, field
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any
 
 
 @dataclass
@@ -74,113 +73,42 @@ def log_operation(*args: Any, **kwargs: Any) -> Any:
     return get_logger().log(op, **kwargs)
 
 
-def log_error(
-    message: str,
-    operation: str = "error",
-    error_type: Optional[str] = None,
-    **kwargs: Any,
-) -> LogEntry:
-    """Log an error message with optional error type."""
-    return get_logger().log(
-        operation,
-        message=message,
-        error_type=error_type,
-        **kwargs,
-    )
+def log_error(error_message: str, context: Optional[Dict[str, Any]] = None) -> None:
+    """Log an error message with optional context."""
+    logger = get_logger()
+    logger.log("error", message=error_message, context=context or {})
 
 
-def handle_pipeline_exception(
-    exception: Exception,
-    operation: str = "pipeline",
-    **kwargs: Any,
-) -> LogEntry:
+def handle_pipeline_exception(exception: Exception, context: Optional[Dict[str, Any]] = None) -> None:
     """Handle a pipeline exception by logging it."""
-    return get_logger().log(
-        operation,
-        message=str(exception),
-        error_type=type(exception).__name__,
-        traceback=traceback.format_exc(),
-        **kwargs,
-    )
+    logger = get_logger()
+    logger.log("exception", 
+               operation="pipeline", 
+               error_type=type(exception).__name__, 
+               message=str(exception),
+               context=context or {})
 
 
-def log_pipeline_start(operation: str = "pipeline_start", **kwargs: Any) -> LogEntry:
+def log_pipeline_start(operation: str, metadata: Optional[Dict[str, Any]] = None) -> LogEntry:
     """Log the start of a pipeline operation."""
-    return get_logger().log(operation, **kwargs)
+    logger = get_logger()
+    return logger.log("pipeline_start", operation=operation, metadata=metadata or {})
 
 
-def log_pipeline_complete(
-    operation: str = "pipeline_complete",
-    status: str = "success",
-    **kwargs: Any,
-) -> LogEntry:
+def log_pipeline_complete(operation: str, metadata: Optional[Dict[str, Any]] = None) -> LogEntry:
     """Log the completion of a pipeline operation."""
-    return get_logger().log(operation, status=status, **kwargs)
+    logger = get_logger()
+    return logger.log("pipeline_complete", operation=operation, metadata=metadata or {})
 
 
-def log_pipeline_failure(
-    *args: Any,
-    reason: Optional[str] = None,
-    operation: str = "pipeline_failure",
-    **kwargs: Any,
-) -> LogEntry:
-    """Log a pipeline failure.
-
-    Accepts multiple call shapes:
-    - log_pipeline_failure("operation_name", "reason")
-    - log_pipeline_failure(reason="reason")
-    - log_pipeline_failure(str(e))
-    - log_pipeline_failure(logger, "op", "reason")
-    """
-    # Handle call shape: log_pipeline_failure(logger, "op", "reason")
-    if len(args) >= 2:
-        first_arg = args[0]
-        second_arg = args[1]
-        if hasattr(first_arg, 'log') and callable(getattr(first_arg, 'log')):
-            # First arg is a logger
-            op = second_arg if len(args) > 2 else operation
-            msg = args[2] if len(args) > 2 else str(reason) if reason else "Pipeline failed"
-            return first_arg.log(op, message=msg, **kwargs)
-
-    # Handle call shape: log_pipeline_failure("op", "reason") or log_pipeline_failure(reason)
-    if len(args) == 2:
-        op = args[0]
-        msg = args[1]
-        return get_logger().log(op, message=msg, reason=reason, **kwargs)
-    elif len(args) == 1:
-        # Could be reason or operation
-        if reason is not None:
-            # Called with keyword reason
-            return get_logger().log(operation, message=args[0], reason=reason, **kwargs)
-        else:
-            # Called with single positional arg as operation
-            return get_logger().log(args[0], **kwargs)
-    else:
-        # Fallback
-        return get_logger().log(operation, reason=reason, **kwargs)
-
-
-def log_error_to_file(
-    file_path: str,
-    message: str,
-    error_type: Optional[str] = None,
-    **kwargs: Any,
-) -> None:
-    """Log an error to a file."""
-    import os
-    from datetime import datetime
-
-    os.makedirs(os.path.dirname(file_path) if os.path.dirname(file_path) else ".", exist_ok=True)
-
-    timestamp = datetime.utcnow().isoformat()
-    entry = {
-        "timestamp": timestamp,
-        "message": message,
-        "error_type": error_type,
-        **kwargs,
-    }
-
-    with open(file_path, "a") as f:
-        f.write(json.dumps(entry) + "\n")
-
-import traceback
+def log_pipeline_failure(operation: str, reason: Optional[str] = None, **kwargs: Any) -> LogEntry:
+    """Log a pipeline failure. Accepts multiple call shapes for compatibility."""
+    logger = get_logger()
+    
+    # Handle different call shapes
+    if reason is None and len(kwargs) == 0:
+        # Called as log_pipeline_failure("operation")
+        reason = operation
+        operation = kwargs.get("operation", "unknown")
+    
+    return logger.log("pipeline_failure", operation=operation, reason=reason, **kwargs)

@@ -1,8 +1,9 @@
 status: none
-intent: download real open-source HuggingFace datasets library python package dataset
+intent: search huggingface datasets repository for python package dataset
 required_fields:
+- id
 - text
 - label
-cache_key: 0887ae6240e5f696c44331d991a59bace43a47ef1498d72c5fa4a5fceb188e85
-searched_at: '2026-07-27T18:16:01.334016+00:00'
+cache_key: 59be2f5b17f217a5f030ec3ea9ed47175bcd008248dd5e049b2a6ed3c13ef1ee
+searched_at: '2026-08-03T04:26:28.815004+00:00'
 retry_count: 1

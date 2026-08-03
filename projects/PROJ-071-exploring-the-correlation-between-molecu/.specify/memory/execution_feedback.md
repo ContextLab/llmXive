@@ -1,40 +1,46 @@
 # Execution failures — fix these before the analysis can run
 
+## ⛔ HOLLOW RESULTS — the analysis RAN but MEASURED NOTHING
+
+Every command exited 0 and the files were written — but the numbers in them are missing. A result that is `null`, `NaN`, an empty `[]`, a header-only CSV, or a column left blank in every row is NOT a measurement. Writing an empty result file is not 'done' — it is the same failure as fabrication, just quieter. You MUST:
+
+1. Find WHY the value is missing. A `null`/`NaN` correlation almost always means the inputs were empty, misaligned, or the wrong column was read — fix the computation, do NOT paper over it with a default.
+2. Verify you loaded the REAL dataset the spec names. If the study is about behavioural confidence ratings, a stand-in dataset (a bundled sklearn toy set, a random frame) is NOT the data — it will produce exactly these null/NaN results.
+3. Make sure the key measure is actually POPULATED before you compute on it: if the column the study depends on is blank in every row, the extraction step is broken and that is the real bug.
+4. NEVER self-certify. A `{"status": "PASS"}` written by your own code proves nothing; the numbers must be there.
+
+- data/processed/analysis_results.json: metric is null/NaN (R2, p_values, coefficients) — not a real measurement
+- every produced artifact is gitignored (data/processed/analysis_results.json) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.
+
+## ⚠ REGRESSIONS — your last fix BROKE these (they passed before)
+
+These commands were NOT failing in the previous round and ARE failing now — your last edit broke previously-working code. REVERT or correct whatever change broke each one BEFORE touching anything else; do not trade one passing script for another (that oscillation is what burns the fix-round budget toward escalation):
+
+- `python code/report.py`
+
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 1 command(s) failed: python code/ingest.py (rc=1); 4 declared deliverable(s) absent: data/gate_status.json; data/processed/analysis_results.json; data/processed/merged_drugs.csv
+**Summary**: 1 hollow-result signal(s) — the analysis ran but computed nothing: data/processed/analysis_results.json: metric is null/NaN (R2, p_values, coefficients) — not a real measurement; every produced artifact is gitignored (data/processed/analysis_results.json) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 2 command(s) failed: python code/ingest.py (rc=1); python code/report.py (rc=1); 1 declared deliverable(s) absent: data/stat_gate_status.json
 
 ## Failing / missing run-book commands
 
 - python code/ingest.py -> rc=1
-    Drugs
-2026-07-27 18:15:02 - llmXive_pipeline.__main__ - ERROR - Failed to fetch dataset: 'train'
-
-Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-071-exploring-the-correlation-between-molecu/code/ingest.py", line 145, in main
-    df = fetch_fda_drugs()
-         ^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-071-exploring-the-correlation-between-molecu/code/ingest.py", line 35, in fetch_fda_drugs
-    data = list(dataset['train'])
-                ~~~~~~~^^^^^^^^^
-KeyError: 'train'
-
-During handling of the above exception, another exception occurred:
-
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-071-exploring-the-correlation-between-molecu/code/ingest.py", line 179, in <module>
+    Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-071-exploring-the-correlation-between-molecu/code/ingest.py", line 421, in <module>
     main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-071-exploring-the-correlation-between-molecu/code/ingest.py", line 175, in main
-    log_pipeline_failure(str(e))
-TypeError: log_pipeline_failure() missing 1 required positional argument: 'reason'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-071-exploring-the-correlation-between-molecu/code/ingest.py", line 350, in main
+    log_pipeline_start("T012_Ingest_And_Gate", {"task": "T012"})
+TypeError: log_pipeline_start() takes from 0 to 1 positional arguments but 2 were given
+- python code/report.py -> rc=1
+    Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-071-exploring-the-correlation-between-molecu/code/report.py", line 33, in <module>
+    def collect_reproducibility_metadata() -> Dict[str, Any]:
+                                              ^^^^
+NameError: name 'Dict' is not defined. Did you mean: 'dict'?
 
 ## Declared deliverables still missing
 
-- data/gate_status.json
-- data/processed/analysis_results.json
-- data/processed/merged_drugs.csv
-- data/processed/structural_subset.csv
+- data/stat_gate_status.json
 
 ## ⚠ SHARED-MODULE CONTRACT — fix the DEFINITION, tolerant of ALL callers
 
@@ -44,13 +50,24 @@ One or more failures are API-CONTRACT errors on a symbol YOUR OWN code defines a
 
 **This list is CUMULATIVE across every fix round** — it includes contracts you may have ALREADY satisfied in an earlier round. Keep satisfying them while you fix the rest. Do NOT remove a method or parameter merely because it is absent from this round's traceback; if it is listed here, some script still depends on it.
 
-### `log_pipeline_failure` — defined in `code/logging_config.py`; called 5 way(s):
+### `log_pipeline_failure` — defined in `code/logging_config.py`; called 16 way(s):
 
+- code/logging_config.py: - log_pipeline_failure("operation_name", "reason")
+- code/logging_config.py: - log_pipeline_failure(reason="reason")
+- code/logging_config.py: - log_pipeline_failure(str(e))
+- code/logging_config.py: - log_pipeline_failure(logger, "op", "reason")
+- code/logging_config.py: # Handle call shape: log_pipeline_failure(logger, "op", "reason")
+- code/logging_config.py: # Handle call shape: log_pipeline_failure("op", "reason") or log_pipeline_failure(reason)
 - code/validate_performance.py: log_pipeline_failure("performance_validation", str(e))
-- code/ingest.py: log_pipeline_failure("Missing degradation columns")
-- code/ingest.py: log_pipeline_failure(reason)
-- code/ingest.py: log_pipeline_failure(str(e))
-- code/run_pipeline.py: log_pipeline_failure(logger, "T055_Full_Pipeline_Smoke_Test", str(e))
+- code/ingest.py: log_pipeline_failure("T012_Ingest_And_Gate", str(e))
+- code/run_pipeline.py: log_pipeline_failure("Ingest", str(e))
+- code/run_pipeline.py: log_pipeline_failure("Descriptors", str(e))
+- code/run_pipeline.py: log_pipeline_failure("Standardize", str(e))
+- code/run_pipeline.py: log_pipeline_failure("Analysis", str(e))
+- code/run_pipeline.py: log_pipeline_failure("Visualization", str(e))
+- code/run_pipeline.py: log_pipeline_failure("Report", str(e))
+- code/run_pipeline.py: log_pipeline_failure("Verification", str(e))
+- code/run_pipeline.py: log_pipeline_failure("Pipeline", str(e))
 
 Make `log_pipeline_failure` in `code/logging_config.py` accept ALL of the above.
 
@@ -138,34 +155,12 @@ def log_operation(*args: Any, **kwargs: Any) -> Any:
 
 Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
 
-- `data/gate_status.json` is declared but was NOT written. Scripts referencing it:
-    - `code/fresh_env_smoke_test.py` — NOT invoked by the run-book
-    - `code/generate_performance_failure_report.py` — NOT invoked by the run-book
-    - `code/final_gate_check.py` — NOT invoked by the run-book
-    - `code/run_pipeline.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/gate_status.json` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
-- `data/processed/analysis_results.json` is declared but was NOT written. Scripts referencing it:
-    - `code/fresh_env_smoke_test.py` — NOT invoked by the run-book
+- `data/stat_gate_status.json` is declared but was NOT written. Scripts referencing it:
     - `code/analysis.py` — IS a run-book command
-    - `code/sensitivity_analysis.py` — NOT invoked by the run-book
-    - `code/report.py` — IS a run-book command
-    - `code/viz.py` — NOT invoked by the run-book
-    - `code/run_pipeline.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/processed/analysis_results.json` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
-- `data/processed/merged_drugs.csv` is declared but was NOT written. Scripts referencing it:
-    - `code/fresh_env_smoke_test.py` — NOT invoked by the run-book
-    - `code/descriptors.py` — NOT invoked by the run-book
-    - `code/report.py` — IS a run-book command
-    - `code/viz.py` — NOT invoked by the run-book
-    - `code/ingest.py` — IS a run-book command
+    - `code/statistical_insufficiency_report.py` — NOT invoked by the run-book
     - `code/standardize.py` — NOT invoked by the run-book
-    - `code/run_pipeline.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/processed/merged_drugs.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
-- `data/processed/structural_subset.csv` is declared but was NOT written. Scripts referencing it:
-    - `code/memory_profiler.py` — NOT invoked by the run-book
-    - `code/edge_case_stress_test.py` — NOT invoked by the run-book
-    - `code/robustness_test.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/processed/structural_subset.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
+    - `code/insufficiency.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/stat_gate_status.json` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
 
 ## ⚠ CROSS-SCRIPT DATA CONTRACT — make the PRODUCER write what consumers read
 
@@ -177,6 +172,6 @@ One or more failures are DATA-SCHEMA mismatches BETWEEN scripts that exchange a 
 
 - ACTUAL columns/keys the producer wrote: `(file not on disk this run)`
 - REQUIRED by the consumer(s): `[train]`
-- PRODUCER(s) to edit: `code/fresh_env_smoke_test.py`, `code/descriptors.py`, `code/report.py`, `code/ingest.py`, `code/standardize.py`, `code/run_pipeline.py`
-- CONSUMER(s) that read it: `code/fresh_env_smoke_test.py`, `code/descriptors.py`, `code/report.py`, `code/viz.py`, `code/ingest.py`, `code/standardize.py`, `code/run_pipeline.py`
+- PRODUCER(s) to edit: `code/fresh_env_smoke_test.py`, `code/descriptors.py`, `code/report.py`, `code/ingest.py`, `code/standardize.py`, `code/insufficiency.py`
+- CONSUMER(s) that read it: `code/fresh_env_smoke_test.py`, `code/descriptors.py`, `code/report.py`, `code/viz.py`, `code/ingest.py`, `code/standardize.py`, `code/insufficiency.py`
   → Edit the producer so every required name [train] is in `merged_drugs.csv`'s header (renaming, not dropping, the columns it already writes); do not change the consumers (they already agree).
