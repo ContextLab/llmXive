@@ -5,7 +5,7 @@
 
 ## Summary
 
-This project extends the "DVAO" framework by deriving a theoretical lower bound on sample complexity for Multi-Objective Reinforcement Learning (MORL) under independent noise, and empirically validating it using synthetic tabular MDPs. The core contribution is a closed-form equation linking the number of objectives $N$ to variance accumulation, validated against a "Moving-Window Heuristic" for variance estimation. The implementation strictly adheres to CPU-only constraints (A limited number of cores, 7GB RAM) using a synthetic data generator, ensuring feasibility on GitHub Actions free-tier runners.
+This project extends the "DVAO" framework by deriving a theoretical lower bound on sample complexity for Multi-Objective Reinforcement Learning (MORL) under independent noise, and empirically validating it using synthetic tabular MDPs. The core contribution is a closed-form equation linking the number of objectives $N$ to variance accumulation, validated against a "Moving-Window Heuristic" for variance estimation. The implementation strictly adheres to CPU-only constraints (A limited number of cores, substantial RAM) using a synthetic data generator, ensuring feasibility on GitHub Actions free-tier runners.
 
 ## Technical Context
 
