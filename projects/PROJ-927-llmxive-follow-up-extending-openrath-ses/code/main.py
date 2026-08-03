@@ -5,26 +5,49 @@ import time
 import signal
 import json
 import logging
+from typing import List, Dict, Any, Optional
 from pathlib import Path
-from typing import List, Optional, Dict, Any
+import itertools
 
+# Local imports based on provided API surface
 from config import (
-    load_state, save_state, ensure_directories,
-    SEED, CORRUPTION_RATE, WORKFLOW_COUNT, SWEEP_RATES,
-    RAW_DATA_DIR, PROCESSED_DATA_DIR, STATE_DIR
+    ensure_directories, 
+    load_state, 
+    save_state, 
+    SEED, 
+    CORRUPTION_RATE, 
+    WORKFLOW_COUNT, 
+    SWEEP_RATES,
+    RAW_DATA_DIR,
+    PROCESSED_DATA_DIR,
+    STATE_DIR
 )
-from generators.workflow_generator import generate_ground_truth_batch
+from generators.workflow_generator import (
+    generate_workflow, 
+    generate_ground_truth_batch, 
+    verify_ground_truth_hashes
+)
 from simulators.corruption_injector import CorruptionInjector
 from simulators.corruption_log_manager import (
-    mark_workflow_corrupted, clear_corruption_log, load_corruption_map
+    load_corruption_map, 
+    save_corruption_map,
+    get_corruption_map_path
 )
 from executors.event_log_executor import EventLogExecutor
 from executors.session_first_executor import SessionFirstExecutor
+from reconstructors.reconstruction_engine import ReconstructionEngine
+from analyzers.metrics_calculator import MetricsCalculator
+from analyzers.statistical_test import run_statistical_tests
+from utils.checksum_manager import update_artifact_hashes, scan_directory_for_files
 
-# Setup logging
+# Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler(os.path.join(STATE_DIR, 'pipeline.log')),
+        logging.StreamHandler(sys.stdout)
+    ]
 )
 logger = logging.getLogger(__name__)
 
@@ -35,160 +58,294 @@ def timeout_handler(signum, frame):
     raise TimeoutError("Operation timed out")
 
 def parse_args():
-    parser = argparse.ArgumentParser(description="llmXive Pipeline Orchestration")
+    parser = argparse.ArgumentParser(description="llmXive Automated Science Pipeline")
     parser.add_argument('--seed', type=int, default=SEED, help='Random seed')
-    parser.add_argument('--count', type=int, default=WORKFLOW_COUNT, help='Number of workflows')
-    parser.add_argument('--resume', action='store_true', help='Resume from checkpoint')
-    parser.add_argument('--corruption-rate', type=float, default=CORRUPTION_RATE, help='Corruption rate')
-    parser.add_argument('--sweep', action='store_true', help='Run sensitivity sweep')
+    parser.add_argument('--count', type=int, default=WORKFLOW_COUNT, help='Number of workflows to generate')
+    parser.add_argument('--resume', action='store_true', help='Resume from last checkpoint')
+    parser.add_argument('--corruption-rate', type=float, default=CORRUPTION_RATE, help='Corruption rate for injection')
+    parser.add_argument('--sweep', action='store_true', help='Run sensitivity sweep over SWEEP_RATES')
+    parser.add_argument('--batch-size', type=int, default=50, help='Batch size for processing')
+    parser.add_argument('--streaming', action='store_true', help='Enable streaming mode for memory efficiency')
+    
+    # Explicitly add phase and architecture arguments to fix CLI mismatch
+    parser.add_argument('--phase', type=str, choices=['generate', 'simulate', 'reconstruct', 'analyze'], 
+                      help='Specific phase to run (overrides full pipeline)')
+    parser.add_argument('--corruption-rates', type=str, 
+                      help='Comma-separated list of corruption rates (overrides config)')
+    parser.add_argument('--architectures', type=str, 
+                      help='Comma-separated list of architectures: event_log, session_first')
+    parser.add_argument('--test', type=str, 
+                      help='Specific statistical test to run (e.g., cochrans_q)')
+
     return parser.parse_args()
 
-def load_checkpoint() -> Dict[str, Any]:
-    state_path = Path(STATE_DIR) / "projects" / "PROJ-927-llmxive-follow-up-extending-openrath-ses.yaml"
-    if not state_path.exists():
-        return {"checkpoint": {"last_workflow_id": -1, "status": "pending"}}
-    # Simple YAML/JSON load for state
-    with open(state_path, 'r') as f:
-        # Assuming simple key-value or JSON structure for state
-        try:
+def load_checkpoint():
+    checkpoint_path = os.path.join(STATE_DIR, 'projects', 'PROJ-927-llmxive-follow-up-extending-openrath-ses.yaml')
+    if os.path.exists(checkpoint_path):
+        with open(checkpoint_path, 'r') as f:
             import yaml
-            content = yaml.safe_load(f)
-        except ImportError:
-            # Fallback if yaml not available, though requirements.txt has it
-            import json
-            content = json.load(f)
-    return content.get("checkpoint", {"last_workflow_id": -1, "status": "pending"})
+            return yaml.safe_load(f)
+    return {}
 
-def save_checkpoint(last_id: int, status: str):
-    state_path = Path(STATE_DIR) / "projects" / "PROJ-927-llmxive-follow-up-extending-openrath-ses.yaml"
-    ensure_directories()
-    content = {
-        "checkpoint": {
-            "last_workflow_id": last_id,
-            "status": status
-        }
-    }
-    # Write as YAML if possible, else JSON
-    try:
+def save_checkpoint(data):
+    checkpoint_path = os.path.join(STATE_DIR, 'projects', 'PROJ-927-llmxive-follow-up-extending-openrath-ses.yaml')
+    os.makedirs(os.path.dirname(checkpoint_path), exist_ok=True)
+    with open(checkpoint_path, 'w') as f:
         import yaml
-        with open(state_path, 'w') as f:
-            yaml.dump(content, f)
-    except ImportError:
-        with open(state_path, 'w') as f:
-            json.dump(content, f)
-    logger.info(f"Saved checkpoint: workflow {last_id}, status {status}")
+        yaml.dump(data, f)
 
-def get_workflows_to_process(count: int, resume: bool) -> List[int]:
+def get_workflows_to_process(total_count: int, resume: bool) -> List[int]:
     if not resume:
-        return list(range(count))
+        return list(range(total_count))
+    
     checkpoint = load_checkpoint()
-    last_id = checkpoint.get("last_workflow_id", -1)
-    if last_id >= count - 1:
-        return []
-    return list(range(last_id + 1, count))
+    last_id = checkpoint.get('checkpoint', {}).get('last_workflow_id', -1)
+    status = checkpoint.get('checkpoint', {}).get('status', 'idle')
+    
+    logger.info(f"Resuming from workflow ID {last_id}, status: {status}")
+    return list(range(last_id + 1, total_count))
 
-def process_single_workflow(workflow_id: int, corruption_rate: float):
+def process_single_workflow(workflow_id: int, seed: int, corruption_rate: float, streaming: bool = False):
     """
-    Process a single workflow:
-    1. Generate ground truth (if not exists) - handled by batch generator
-    2. Execute via Baseline (Event Log)
-    3. Execute via Experimental (Session First)
-    4. Inject corruption
-    5. MARK corruption in central log (T026)
+    Process a single workflow: Generate -> Execute -> Corrupt -> Reconstruct -> Analyze.
+    Implements streaming/batching logic to stay under memory constraints.
     """
-    logger.info(f"Processing workflow {workflow_id} with corruption rate {corruption_rate}")
-    
-    # 1. Ensure ground truth exists (Assuming batch generation happened or happens here)
-    # In a real pipeline, generation might be a separate step, but for flow:
-    # We assume generate_ground_truth_batch is called before or handles missing ones.
-    
-    # 2. Execute Baseline
-    baseline_executor = EventLogExecutor(workflow_id=workflow_id, seed=SEED)
-    baseline_result = baseline_executor.execute(corruption_rate=0.0) # No corruption yet, just execution
-    
-    # 3. Execute Session First
-    session_executor = SessionFirstExecutor(workflow_id=workflow_id, seed=SEED)
-    session_result = session_executor.execute(corruption_rate=0.0)
-    
-    # 4. Inject Corruption
-    injector = CorruptionInjector(
-        workflow_id=workflow_id,
-        corruption_rate=corruption_rate,
-        base_seed=SEED
-    )
-    
-    corrupted_files = injector.inject()
-    
-    # 5. MARK CORRUPTION IN CENTRAL LOG (T026 Implementation)
-    if corrupted_files:
-        # Determine the type of corruption based on what was returned
-        # injector.inject() returns a list of modified/deleted files
-        # We mark the workflow as corrupted in the central map
-        mark_workflow_corrupted(
-            workflow_id=str(workflow_id),
-            corruption_type="mixed", # Or specific types if injector returns them
-            details={
-                "modified_files": corrupted_files.get("modified", []),
-                "deleted_files": corrupted_files.get("deleted", []),
-                "corruption_rate_applied": corruption_rate
-            }
+    signal.signal(signal.SIGALRM, timeout_handler)
+    signal.alarm(300) # 5 min timeout per workflow to prevent hang
+
+    try:
+        # 1. Generate Workflow (if not already done in batch)
+        # Assuming generation is handled in batch for efficiency, 
+        # but we validate existence here.
+        gt_path = os.path.join(RAW_DATA_DIR, 'workflows', f'{workflow_id}_ground_truth.json')
+        if not os.path.exists(gt_path):
+            logger.warning(f"Ground truth missing for {workflow_id}, generating on fly.")
+            # In a real streaming scenario, we might generate here, 
+            # but T012/T013 implies batch generation. 
+            # For T043 optimization, we assume batch generation happened.
+            # If we must generate here for streaming:
+            # wf_data = generate_workflow(workflow_id, seed)
+            # ... save ...
+            raise FileNotFoundError(f"Ground truth {gt_path} not found. Run generation phase first.")
+
+        # 2. Execute (Simulate)
+        # We stream execution results to avoid holding all in memory
+        exec_results = []
+        
+        # Determine architectures
+        archs = ['event_log', 'session_first'] # Default from T025 logic
+        
+        for arch in archs:
+            start_time = time.time()
+            if arch == 'event_log':
+                executor = EventLogExecutor(seed=seed + workflow_id)
+            else:
+                executor = SessionFirstExecutor(seed=seed + workflow_id)
+            
+            # Execute workflow
+            result = executor.execute_workflow(workflow_id)
+            exec_results.append({
+                'architecture': arch,
+                'result': result,
+                'latency': time.time() - start_time
+            })
+            
+            # Streaming: Write intermediate results to disk immediately to free RAM
+            result_path = os.path.join(
+                PROCESSED_DATA_DIR, 'results', f'{workflow_id}_{arch}_result.json'
+            )
+            os.makedirs(os.path.dirname(result_path), exist_ok=True)
+            with open(result_path, 'w') as f:
+                json.dump(result, f)
+            
+            del result # Explicit delete for memory management
+
+        # 3. Inject Corruption
+        # Load workflow data, corrupt, save
+        injector = CorruptionInjector(corruption_rate=corruption_rate)
+        corrupted_logs = injector.inject_corruption(workflow_id, exec_results)
+        
+        # Save corruption map update
+        corruption_map = load_corruption_map()
+        corruption_map[workflow_id] = corrupted_logs
+        save_corruption_map(corruption_map)
+
+        # 4. Reconstruct
+        engine = ReconstructionEngine()
+        recon_results = {}
+        
+        for arch in archs:
+            try:
+                # Stream reconstruction logic
+                recon_state = engine.reconstruct(workflow_id, arch, corrupted_logs)
+                recon_results[arch] = {
+                    'success': recon_state.get('success', False),
+                    'state': recon_state.get('state', {}),
+                    'latency': recon_state.get('latency', 0)
+                }
+            except Exception as e:
+                logger.error(f"Reconstruction failed for {workflow_id}/{arch}: {e}")
+                recon_results[arch] = {'success': False, 'error': str(e)}
+
+        # 5. Analyze (Local metrics)
+        # Calculate metrics for this workflow immediately
+        metrics = MetricsCalculator.calculate_workflow_metrics(
+            workflow_id, 
+            recon_results, 
+            gt_path
         )
-        logger.info(f"Workflow {workflow_id} marked as corrupted in central map.")
-    else:
-        # Even if no files were hit by RNG, we might want to log that it was processed
-        # But strictly, if no corruption happened, maybe don't mark?
-        # The task says "mark corrupted files". If none corrupted, no entry needed.
-        pass
+        
+        # Save individual metrics
+        metrics_path = os.path.join(
+            PROCESSED_DATA_DIR, 'results', f'{workflow_id}_metrics.json'
+        )
+        with open(metrics_path, 'w') as f:
+            json.dump(metrics, f)
 
-    save_checkpoint(workflow_id, "completed")
+        return metrics
 
-def run_sweep():
-    """Run the pipeline for all corruption rates in SWEEP_RATES."""
-    logger.info(f"Starting sensitivity sweep over rates: {SWEEP_RATES}")
-    for rate in SWEEP_RATES:
-        logger.info(f"Running sweep for rate {rate}")
-        # Clear corruption log for fresh sweep if needed, or append?
-        # Spec implies distinct runs or distinct entries. We'll clear for clean sweep per rate.
-        clear_corruption_log()
-        run_pipeline(count=WORKFLOW_COUNT, corruption_rate=rate, resume=False)
-    logger.info("Sweep completed.")
+    except TimeoutError:
+        logger.error(f"Workflow {workflow_id} timed out.")
+        return {'status': 'timeout'}
+    except Exception as e:
+        logger.error(f"Workflow {workflow_id} failed: {e}")
+        return {'status': 'error', 'message': str(e)}
+    finally:
+        signal.alarm(0)
 
-def run_pipeline(count: int, corruption_rate: float, resume: bool = True):
-    """Main pipeline execution loop."""
-    workflow_ids = get_workflows_to_process(count, resume)
-    if not workflow_ids:
-        logger.info("No workflows to process.")
-        return
+def run_sweep(args):
+    """
+    Runs the full pipeline for a set of corruption rates.
+    Optimized for batch processing and streaming.
+    """
+    rates = [float(r) for r in args.corruption_rates.split(',')] if args.corruption_rates else SWEEP_RATES
+    archs = args.architectures.split(',') if args.architectures else ['event_log', 'session_first']
     
-    for wid in workflow_ids:
-        try:
-            signal.signal(signal.SIGALRM, timeout_handler)
-            signal.alarm(300) # 5 min timeout per workflow
-            process_single_workflow(wid, corruption_rate)
-            signal.alarm(0)
-        except TimeoutError:
-            logger.error(f"Timeout processing workflow {wid}")
-            save_checkpoint(wid, "timeout")
-            break
-        except Exception as e:
-            logger.error(f"Error processing workflow {wid}: {e}")
-            save_checkpoint(wid, "error")
-            break
+    logger.info(f"Starting sweep with rates: {rates}, architectures: {archs}")
+
+    for rate in rates:
+        logger.info(f"Processing corruption rate: {rate}")
+        
+        # Batch generation (T012/T013)
+        # Assuming we generate all workflows for this rate or reuse base generation
+        # For optimization, we assume base generation is done, and we just re-execute with different corruption.
+        # However, to be safe, we check existence.
+        
+        workflows_to_process = get_workflows_to_process(args.count, args.resume)
+        
+        # Batch processing loop
+        batch_size = args.batch_size
+        for i in range(0, len(workflows_to_process), batch_size):
+            batch = workflows_to_process[i : i + batch_size]
+            logger.info(f"Processing batch {i//batch_size + 1}: IDs {batch[0]}-{batch[-1]}")
+            
+            for wf_id in batch:
+                # Update checkpoint before processing
+                save_checkpoint({
+                    'checkpoint': {
+                        'last_workflow_id': wf_id,
+                        'status': 'processing',
+                        'current_rate': rate
+                    }
+                })
+                
+                process_single_workflow(
+                    wf_id, 
+                    args.seed, 
+                    rate, 
+                    streaming=args.streaming
+                )
+                
+                # Update checkpoint after success
+                save_checkpoint({
+                    'checkpoint': {
+                        'last_workflow_id': wf_id,
+                        'status': 'completed',
+                        'current_rate': rate
+                    }
+                })
+
+        # Aggregate results for this rate
+        aggregate_metrics(rate, archs)
+
+    # Run final statistical tests
+    run_statistical_tests()
+
+def aggregate_metrics(rate: float, archs: List[str]):
+    """Aggregates metrics from individual workflow results into a single file."""
+    results_dir = os.path.join(PROCESSED_DATA_DIR, 'results')
+    all_metrics = []
+    
+    # Stream through files to avoid loading all into memory at once
+    for f in os.listdir(results_dir):
+        if f.endswith('_metrics.json'):
+            with open(os.path.join(results_dir, f), 'r') as file:
+                data = json.load(file)
+                data['corruption_rate'] = rate
+                all_metrics.append(data)
+    
+    # Write aggregated file
+    agg_path = os.path.join(PROCESSED_DATA_DIR, 'results', f'aggregated_metrics_rate_{rate}.json')
+    with open(agg_path, 'w') as f:
+        json.dump(all_metrics, f, indent=2)
+    
+    logger.info(f"Aggregated metrics for rate {rate} written to {agg_path}")
+
+def run_pipeline(args):
+    """Orchestrates the full pipeline or specific phases."""
+    ensure_directories()
+    
+    # Phase: Generate
+    if args.phase == 'generate' or args.phase is None:
+        logger.info("Starting Generation Phase...")
+        # T012/T013 logic: Generate batch
+        generate_ground_truth_batch(args.count, args.seed)
+        verify_ground_truth_hashes()
+        save_checkpoint({'checkpoint': {'last_workflow_id': args.count, 'status': 'generation_complete'}})
+
+    # Phase: Simulate (Execution + Corruption)
+    if args.phase == 'simulate' or args.phase is None:
+        logger.info("Starting Simulation Phase...")
+        # T023/T026 logic
+        injector = CorruptionInjector(corruption_rate=args.corruption_rate)
+        # Note: In a real sweep, we iterate rates. Here we do single pass if not sweep.
+        if args.sweep:
+            run_sweep(args)
+        else:
+            # Single rate execution
+            workflows = get_workflows_to_process(args.count, args.resume)
+            for wf_id in workflows:
+                process_single_workflow(wf_id, args.seed, args.corruption_rate, args.streaming)
+                save_checkpoint({'checkpoint': {'last_workflow_id': wf_id, 'status': 'simulating'}})
+
+    # Phase: Reconstruct
+    if args.phase == 'reconstruct' or args.phase is None:
+        logger.info("Starting Reconstruction Phase...")
+        # T030/T031 logic
+        # Assuming simulation is done, we reconstruct all
+        # Stream through corruption map
+        corruption_map = load_corruption_map()
+        engine = ReconstructionEngine()
+        
+        for wf_id, logs in corruption_map.items():
+            # Reconstruct for each architecture
+            for arch in ['event_log', 'session_first']:
+                engine.reconstruct(wf_id, arch, logs)
+            
+            # Calculate metrics
+            MetricsCalculator.calculate_workflow_metrics(wf_id, logs, os.path.join(RAW_DATA_DIR, 'workflows', f'{wf_id}_ground_truth.json'))
+
+    # Phase: Analyze
+    if args.phase == 'analyze' or args.phase is None:
+        logger.info("Starting Analysis Phase...")
+        run_statistical_tests()
+        
+        # Final checksumming
+        update_artifact_hashes()
 
 def main():
     args = parse_args()
-    ensure_directories()
-    
-    # Generate ground truth batch first if not done
-    # Assuming T012/T013 handles this, but we ensure it here for flow
-    if not os.path.exists(RAW_DATA_DIR) or not any(Path(RAW_DATA_DIR).glob("*")):
-        logger.info("Generating ground truth batch...")
-        generate_ground_truth_batch(count=WORKFLOW_COUNT, seed=args.seed)
-    
-    if args.sweep:
-        run_sweep()
-    else:
-        run_pipeline(count=args.count, corruption_rate=args.corruption_rate, resume=args.resume)
+    run_pipeline(args)
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

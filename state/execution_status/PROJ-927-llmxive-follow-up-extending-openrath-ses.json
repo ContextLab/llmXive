@@ -1,0 +1,19 @@
+{
+  "project_id": "PROJ-927-llmxive-follow-up-extending-openrath-ses",
+  "ok": false,
+  "reason": "4 command(s) failed: python code/main.py --phase generate --seed 42 --count 500 (rc=2); python code/main.py --phase simulate --corruption-rates 0.05,0.10,0.20 --architectures event_log,session_first (rc=2); python code/main.py --phase reconstruct --architectures event_log,session_first (rc=2)",
+  "artifacts": [],
+  "failures": [
+    "python code/main.py --phase generate --seed 42 --count 500 -> rc=2\n    usage: main.py [-h] [--seed SEED] [--count COUNT] [--resume]\n               [--corruption-rate CORRUPTION_RATE] [--sweep]\nmain.py: error: unrecognized arguments: --phase generate",
+    "python code/main.py --phase simulate --corruption-rates 0.05,0.10,0.20 --architectures event_log,session_first -> rc=2\n    usage: main.py [-h] [--seed SEED] [--count COUNT] [--resume]\n               [--corruption-rate CORRUPTION_RATE] [--sweep]\nmain.py: error: unrecognized arguments: --phase simulate --corruption-rates 0.05,0.10,0.20 --architectures event_log,session_first",
+    "python code/main.py --phase reconstruct --architectures event_log,session_first -> rc=2\n    usage: main.py [-h] [--seed SEED] [--count COUNT] [--resume]\n               [--corruption-rate CORRUPTION_RATE] [--sweep]\nmain.py: error: unrecognized arguments: --phase reconstruct --architectures event_log,session_first",
+    "python code/main.py --phase analyze --test cochrans_q -> rc=2\n    usage: main.py [-h] [--seed SEED] [--count COUNT] [--resume]\n               [--corruption-rate CORRUPTION_RATE] [--sweep]\nmain.py: error: unrecognized arguments: --phase analyze --test cochrans_q"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "execution_bug",
+  "evidence": [],
+  "updated_at": "2026-08-03T15:07:38Z"
+}

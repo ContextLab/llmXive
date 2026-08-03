@@ -769,3 +769,145 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-03T03:38:13Z'
+- artifact_path: projects/PROJ-927-llmxive-follow-up-extending-openrath-ses/specs/001-llmxive-follow-up-extending-openrath-ses/tasks.md
+  attempts: 1
+  canonical: Initialize Python 3.11 project with pytest 7.4.0, scipy 1.11.0, pyyaml
+    6.0.1, jsonschema 4.19.0, ruff 0.1.0
+  claim_id: c_88f863c7
+  context: 'Phase 1: Setup (Shared Infrastructure) - Task T002 Initialize Python 3.11
+    project with requirements.txt at projects/PROJ-927-llmxive-follow-up-extending-openrath-ses/
+    pinning exact versions.'
+  evidence:
+    asserted: '3.11'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'Initialize Python 3.11 project with requirements.txt pinning exact versions:
+    pytest==7.4.0, scipy==1.11.0, pyyaml==6.0.1, jsonschema==4.19.0, ruff==0.1.0.'
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-03T15:09:50Z'
+- artifact_path: projects/PROJ-927-llmxive-follow-up-extending-openrath-ses/specs/001-llmxive-follow-up-extending-openrath-ses/tasks.md
+  attempts: 1
+  canonical: Implement Cochran's Q test on Architecture x Outcome x Corruption Rate
+  claim_id: c_f4f282a1
+  context: 'Phase 5: User Story 3 - Task T034a Implement primary statistical test
+    in code/analyzers/statistical_test.py: Cochran''s Q test on a multi-factor design
+    (Architecture x Outcome x Corruption Rate) as defined in Plan T013.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Implement_Cochran's_Q_test_on_Architecture_x_Outcome_x_Corru
+  kind: entity_fact
+  raw_text: Implement primary statistical test using Cochran's Q test on a multi-factor
+    design (Architecture x Outcome x Corruption Rate).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T15:10:26Z'
+- artifact_path: projects/PROJ-927-llmxive-follow-up-extending-openrath-ses/specs/001-llmxive-follow-up-extending-openrath-ses/tasks.md
+  attempts: 1
+  canonical: Implement McNemar's test with Holm-Bonferroni correction for pairwise
+    comparisons
+  claim_id: c_c24129f0
+  context: 'Phase 5: User Story 3 - Task T034b Implement post-hoc statistical analysis
+    in code/analyzers/statistical_test.py: McNemar''s test with Holm-Bonferroni correction
+    for pairwise comparisons as defined in Plan T014.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Implement_McNemar's_test_with_Holm-Bonferroni_correction_for
+  kind: entity_fact
+  raw_text: Implement post-hoc statistical analysis using McNemar's test with Holm-Bonferroni
+    correction for pairwise comparisons.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T15:10:49Z'
+- artifact_path: projects/PROJ-927-llmxive-follow-up-extending-openrath-ses/specs/001-llmxive-follow-up-extending-openrath-ses/tasks.md
+  attempts: 1
+  canonical: Implement Paired t-test or Wilcoxon Signed-Rank for latency comparison
+    between architectures
+  claim_id: c_a79f102d
+  context: 'Phase 5: User Story 3 - Task T034c Implement latency statistical comparison
+    in code/analyzers/statistical_test.py: Implement Paired t-test (or Wilcoxon Signed-Rank)
+    for latency comparison between architectures as defined in Plan T015.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Implement_Paired_t-test_or_Wilcoxon_Signed-Rank_for_latency
+  kind: entity_fact
+  raw_text: Implement latency statistical comparison using Paired t-test or Wilcoxon
+    Signed-Rank for latency comparison between architectures.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T15:11:09Z'
+- artifact_path: projects/PROJ-927-llmxive-follow-up-extending-openrath-ses/specs/001-llmxive-follow-up-extending-openrath-ses/tasks.md
+  attempts: 1
+  canonical: Switch to Monte Carlo 10000 reps or Exact McNemar if Cochran's Q assumptions
+    violated
+  claim_id: c_dedca032
+  context: 'Phase 5: User Story 3 - Task T034a: CRITICAL: If assumptions are violated
+    (e.g., N < 25, empty cells), automatically switch to Monte Carlo (10k reps) or
+    Exact McNemar as defined in T016.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If assumptions for Cochran's Q are violated, automatically switch to Monte
+    Carlo with 10,000 reps or Exact McNemar.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T15:11:34Z'
+- artifact_path: projects/PROJ-927-llmxive-follow-up-extending-openrath-ses/specs/001-llmxive-follow-up-extending-openrath-ses/tasks.md
+  attempts: 1
+  canonical: Iterate corruption rates over 0.05, 0.10, 0.20
+  claim_id: c_b2d21b96
+  context: 'Phase 5: User Story 3 - Task T035 Implement sensitivity sweep logic in
+    code/main.py to iterate over the SWEEP_RATES list defined in code/config.py (T004)
+    and run the full pipeline for each rate in the concrete set {0.05, 0.10, 0.20}
+    (SC-004).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Corruption rates must be explicitly iterated over the set {0.05, 0.10,
+    0.20}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T15:12:06Z'
+- artifact_path: projects/PROJ-927-llmxive-follow-up-extending-openrath-ses/specs/001-llmxive-follow-up-extending-openrath-ses/tasks.md
+  attempts: 1
+  canonical: Black line-length configured to 88
+  claim_id: c_00c483c1
+  context: 'Phase 1: Setup (Shared Infrastructure) - Task T003 Configure linting and
+    formatting: Create .ruff.toml with [lint] rules (E501, F401, W293) and pyproject.toml
+    with [tool.black] section (line-length=88).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Black line-length is configured to 88.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T15:12:29Z'
