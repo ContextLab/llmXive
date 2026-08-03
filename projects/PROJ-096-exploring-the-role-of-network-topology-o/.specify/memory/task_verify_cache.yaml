@@ -19,3 +19,9 @@ T025:
     step parameters cannot be read, and there is no evidence of a simulation batch\
     \ having been executed or results saved. The task\u2019s core requirement is therefore\
     \ not satisfied."
+T041:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `quickstart.md` validation run (e.g., log file, validation report,
+    or updated documentation) is present; the implementer provided no artifact demonstrating
+    that the quickstart guide was executed and validated. The required output is missing.
