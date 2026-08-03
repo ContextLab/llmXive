@@ -1,68 +1,67 @@
 """
-Data Directory Structure Setup Module
+Setup data directory structure for the llmXive project.
 
-This module provides utilities to ensure the required data directory structure
-exists and contains .gitkeep files to preserve directory structure in Git.
+This module creates the required directory hierarchy under `data/`
+and places `.gitkeep` files to ensure they are tracked by git.
 """
-
 import os
 import sys
 from typing import List, Optional
 
-# Define the required data subdirectories relative to the project root
-REQUIRED_DATA_DIRS = [
-    "data/raw",
-    "data/generated",
-    "data/results"
-]
-
-def ensure_gitkeep(dir_path: str) -> bool:
+def ensure_gitkeep(directory: str) -> None:
     """
-    Ensure a .gitkeep file exists in the specified directory.
-
-    Args:
-        dir_path: Path to the directory
-
-    Returns:
-        True if the file was created or already existed, False on error
-    """
-    gitkeep_path = os.path.join(dir_path, ".gitkeep")
+    Ensure a directory exists and contains a .gitkeep file.
     
-    try:
-        # Ensure the directory exists first
-        os.makedirs(dir_path, exist_ok=True)
-        
-        # Create .gitkeep if it doesn't exist
-        if not os.path.exists(gitkeep_path):
-            with open(gitkeep_path, 'w') as f:
-                f.write("# Keep this directory in version control\n")
-            return True
-        return True
-    except Exception as e:
-        print(f"Error ensuring .gitkeep in {dir_path}: {e}", file=sys.stderr)
-        return False
-
+    Args:
+        directory: Path to the directory to ensure.
+    
+    Raises:
+        OSError: If the directory cannot be created or written to.
+    """
+    os.makedirs(directory, exist_ok=True)
+    gitkeep_path = os.path.join(directory, ".gitkeep")
+    
+    if not os.path.exists(gitkeep_path):
+        with open(gitkeep_path, 'w') as f:
+            f.write("# This file ensures the directory is tracked by git.\n")
+        print(f"Created: {gitkeep_path}")
+    else:
+        print(f"Already exists: {gitkeep_path}")
 
 def main() -> int:
     """
-    Main entry point for setting up data directory structure.
-
+    Main entry point to set up the data directory structure.
+    
+    Creates the following directories under the project root:
+    - data/raw
+    - data/generated
+    - data/results
+    
     Returns:
-        0 on success, 1 on failure
+        int: Exit code (0 for success, 1 for failure).
     """
-    # Get project root (assuming this script is in code/ directory)
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    project_root = os.path.dirname(script_dir)
+    # Define the required data directories relative to the project root
+    data_dirs = [
+        "data/raw",
+        "data/generated",
+        "data/results"
+    ]
+    
+    # Determine project root (assuming this script is in code/)
+    # We traverse up one level to get the root
+    current_file_dir = os.path.dirname(os.path.abspath(__file__))
+    project_root = os.path.dirname(current_file_dir)
+    
+    print(f"Setting up data directories in: {project_root}")
     
     success = True
-    
-    for data_dir in REQUIRED_DATA_DIRS:
-        full_path = os.path.join(project_root, data_dir)
-        
-        print(f"Ensuring directory: {full_path}")
-        if not ensure_gitkeep(full_path):
+    for rel_dir in data_dirs:
+        full_path = os.path.join(project_root, rel_dir)
+        try:
+            ensure_gitkeep(full_path)
+        except OSError as e:
+            print(f"Error creating directory {full_path}: {e}", file=sys.stderr)
             success = False
-            print(f"Failed to create .gitkeep in {full_path}")
     
     if success:
         print("Data directory structure setup complete.")
@@ -70,7 +69,6 @@ def main() -> int:
     else:
         print("Data directory structure setup failed.", file=sys.stderr)
         return 1
-
 
 if __name__ == "__main__":
     sys.exit(main())

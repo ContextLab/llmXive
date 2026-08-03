@@ -347,3 +347,248 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-21T07:31:39Z'
+- artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/tasks.md
+  attempts: 1
+  canonical: 'requirements.txt contains pinned dependencies: pybullet, torch (cpu),
+    cvxpy, diffcp, scipy, pandas, numpy, pytest'
+  claim_id: c_17b3560e
+  context: 'Phase 1: Setup (Shared Infrastructure) - T001a-reqs task description.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Requirements.txt_contains_pinned_dependencies:_pybullet,_tor
+  kind: entity_fact
+  raw_text: Create requirements.txt with pinned dependencies (pybullet, torch (cpu),
+    cvxpy, diffcp, scipy, pandas, numpy, pytest)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T06:21:43Z'
+- artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/tasks.md
+  attempts: 1
+  canonical: Project initialized with Python 3.11
+  claim_id: c_cc049a3d
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - T002 task description.'
+  evidence:
+    asserted: '3.11'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Initialize Python 3.11 project with pinned dependencies
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-03T06:21:44Z'
+- artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/tasks.md
+  attempts: 1
+  canonical: Experiment trial count is 50
+  claim_id: c_c9fd08c3
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - T007a task description
+    defining config parameters.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: trial_count (50)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T06:21:58Z'
+- artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/tasks.md
+  attempts: 1
+  canonical: Simulation frames per second default is 60
+  claim_id: c_993c5c1a
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - T007a task description
+    defining config parameters.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: sim_fps (default 60)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T06:22:16Z'
+- artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/tasks.md
+  attempts: 1
+  canonical: Reference stats fetched from HuggingFace URL https://huggingface.co/datasets/llmXive/gam-baseline-stats/resolve/main/gam_reference_stats.json
+  claim_id: c_fe20efd5
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - T009a-gen task description.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Reference_stats_fetched_from_HuggingFace_URL_https://hugging
+  kind: entity_fact
+  raw_text: Fetch data/raw/gam_reference_stats.json from the verified external URL
+    https://huggingface.co/datasets/llmXive/gam-baseline-stats/resolve/main/gam_reference_stats.json
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T06:23:08Z'
+- artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/tasks.md
+  attempts: 1
+  canonical: Mahalanobis drift threshold calculated as 99th percentile of Chi-squared
+    distribution
+  claim_id: c_099c3ee1
+  context: 'Phase 3: User Story 1 - T010b-rev task description.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Mahalanobis_drift_threshold_calculated_as_99th_percentile_of
+  kind: entity_fact
+  raw_text: Compute the Mahalanobis drift threshold from latent_stats (99th percentile
+    of Chi-squared distribution)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T06:23:40Z'
+- artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/tasks.md
+  attempts: 1
+  canonical: Generated kinematic chains have hinge counts between 3 and 10
+  claim_id: c_4dc685f9
+  context: 'Phase 3: User Story 1 - T009-gen-chains task description.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: hinge counts 3-10 as defined by config.topology_counts (default range(3,
+    11))
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T06:23:42Z'
+- artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/tasks.md
+  attempts: 1
+  canonical: 'Simulation failure retry policy: initial 1s, multiplier 2, max 5 retries'
+  claim_id: c_bcfe8b48
+  context: 'Phase 3: User Story 1 - T011 task description regarding error handling.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'retry with exponential backoff: initial=1s, multiplier=2, max=5 retries'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T06:23:44Z'
+- artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/tasks.md
+  attempts: 1
+  canonical: Mean solver step time must be less than 300 seconds
+  claim_id: c_2d848ab6
+  context: 'Phase 3: User Story 1 - T008-validate-timing task description.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Mean_solver_step_time_must_be_less_than_300_seconds
+  kind: magnitude
+  raw_text: mean_step_time_ms < 300000 (300s)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T06:23:46Z'
+- artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/tasks.md
+  attempts: 1
+  canonical: Success defined as collision_flag 0 and distance to target < 5cm for
+    duration of approximately 1 second
+  claim_id: c_f817c68e
+  context: 'Phase 4: User Story 2 - T021b task description regarding success metric
+    definition.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: assert collision_flag == 0 AND distance to target object center < 5cm
+    for success_frames >= int(sim_fps) (approx 1 second)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T06:23:50Z'
+- artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/tasks.md
+  attempts: 1
+  canonical: CI pipeline exits with code 2 if total time exceeds 6 hours
+  claim_id: c_b65450fc
+  context: 'Phase 4: User Story 2 - T020-timeout-check task description.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: if > 6 hours, EXIT WITH CODE 2
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T06:23:50Z'
+- artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/tasks.md
+  attempts: 1
+  canonical: Statistical analysis includes Fisher's Exact Test for success rates
+  claim_id: c_9968f6b4
+  context: 'Phase 5: User Story 3 - T024a-stat task description.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Statistical_analysis_includes_Fisher's_Exact_Test_for_succes
+  kind: entity_fact
+  raw_text: Perform Fisher's Exact Test for success rates and report p-value, Odds
+    Ratio, and a confidence interval for the Odds Ratio
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T06:23:59Z'
+- artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/tasks.md
+  attempts: 1
+  canonical: Conditional latency test uses Stratified Log-Rank test with trial_id
+    stratification
+  claim_id: c_e0ca2184
+  context: 'Phase 5: User Story 3 - T024a-stat task description for censored data.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Conditional_latency_test_uses_Stratified_Log-Rank_test_with
+  kind: entity_fact
+  raw_text: Perform Stratified Log-Rank test (using lifelines.statistics.logrank_test
+    with stratify='trial_id')
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T06:24:03Z'
+- artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/tasks.md
+  attempts: 1
+  canonical: Conditional latency test uses Paired t-test with Cohen's d effect size
+  claim_id: c_331cec1b
+  context: 'Phase 5: User Story 3 - T024a-stat task description for uncensored data.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Conditional_latency_test_uses_Paired_t-test_with_Cohen's_d_e
+  kind: entity_fact
+  raw_text: Perform Paired t-test (using scipy.stats.ttest_rel) and report mean difference,
+    p-value, and effect size (Cohen's d) with a confidence interval
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T06:24:08Z'

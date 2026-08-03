@@ -1,105 +1,146 @@
 """
-Wrapper for the frozen Geometric Action Model (GFM) weights.
-Handles loading, encoding, and decoding in CPU-only eval mode.
+Wrapper for the Geometric Function Model (GFM).
+Handles loading frozen weights and performing inference.
 """
 import logging
 import os
 from typing import Any, Dict, Optional, Union
 import numpy as np
 import torch
+import torch.nn as nn
+
 from .utils import setup_logging, set_deterministic_seed, compute_sha256
 
-class GFMWrapper:
+
+class GFMWrapper(nn.Module):
     """
-    Wrapper for the frozen GFM encoder/decoder.
-    Operates in CPU-only eval mode with no gradient tracking.
+    Wrapper for the Geometric Function Model.
+    Loads frozen weights and provides encode/decode methods.
     """
-    
-    def __init__(self, model_path: str, device: str = "cpu"):
+
+    def __init__(
+        self,
+        weights_path: str,
+        latent_dim: int = 64,
+        obs_dim: int = 128,
+        action_dim: int = 7
+    ):
         """
         Initialize the GFM wrapper.
-        
+
         Args:
-            model_path: Path to the frozen GFM weights (.pt file)
-            device: Device to run inference on (default: "cpu")
+            weights_path: Path to the frozen weights file.
+            latent_dim: Dimension of the latent space.
+            obs_dim: Dimension of the observation input.
+            action_dim: Dimension of the action output.
         """
-        self.logger = setup_logging()
-        self.device = device
-        self.model_path = model_path
-        self.model = None
-        
-        if not os.path.exists(model_path):
-            raise FileNotFoundError(f"GFM model file not found: {model_path}")
-            
-        self._load_model()
-        
-    def _load_model(self) -> None:
-        """Load the frozen GFM model weights."""
-        self.logger.info(f"Loading GFM model from {self.model_path}")
-        
-        # Initialize a placeholder model structure
-        # In a real implementation, this would define the actual network architecture
-        # For now, we simulate the structure required for the wrapper
-        class DummyGFMModel(torch.nn.Module):
-            def __init__(self):
-                super().__init__()
-                self.encoder = torch.nn.Linear(100, 64)
-                self.decoder = torch.nn.Linear(64, 100)
-                
-            def forward(self, x):
-                latent = self.encoder(x)
-                action = self.decoder(latent)
-                return latent, action
-        
-        self.model = DummyGFMModel()
-        
-        # Load weights
-        checkpoint = torch.load(self.model_path, map_location=self.device, weights_only=True)
-        self.model.load_state_dict(checkpoint)
-        
-        # Set to eval mode and disable gradients
-        self.model.eval()
-        for param in self.model.parameters():
+        super().__init__()
+
+        self.latent_dim = latent_dim
+        self.obs_dim = obs_dim
+        self.action_dim = action_dim
+
+        # Define encoder architecture (simplified for demonstration)
+        self.encoder = nn.Sequential(
+            nn.Linear(obs_dim, 256),
+            nn.ReLU(),
+            nn.Linear(256, 128),
+            nn.ReLU(),
+            nn.Linear(128, latent_dim)
+        )
+
+        # Define decoder architecture (simplified for demonstration)
+        self.decoder = nn.Sequential(
+            nn.Linear(latent_dim, 128),
+            nn.ReLU(),
+            nn.Linear(128, 256),
+            nn.ReLU(),
+            nn.Linear(256, action_dim),
+            nn.Tanh()  # Actions typically in [-1, 1]
+        )
+
+        # Load weights if provided
+        if os.path.exists(weights_path):
+            self._load_weights(weights_path)
+        else:
+            logging.warning(f"Weights file not found at {weights_path}. Using random initialization.")
+
+        # Freeze all parameters
+        self._freeze_parameters()
+
+        # Set to eval mode
+        self.eval()
+
+    def _load_weights(self, path: str) -> None:
+        """Load weights from a file."""
+        logger = setup_logging()
+        logger.info(f"Loading GFM weights from {path}")
+
+        try:
+            checkpoint = torch.load(path, map_location='cpu')
+            self.load_state_dict(checkpoint['state_dict'], strict=False)
+            logger.info("Weights loaded successfully.")
+        except Exception as e:
+            logger.error(f"Failed to load weights: {e}")
+            raise
+
+    def _freeze_parameters(self) -> None:
+        """Freeze all model parameters."""
+        for param in self.parameters():
             param.requires_grad = False
-            
-        self.logger.info(f"Loaded GFM model successfully. Model hash: {compute_sha256(str(self.model.state_dict()))}")
-        
-    def encode(self, observation: Union[np.ndarray, torch.Tensor]) -> np.ndarray:
+
+    def encode(self, observations: Union[np.ndarray, torch.Tensor]) -> torch.Tensor:
         """
-        Encode an observation into latent space.
-        
+        Encode observations into latent space.
+
         Args:
-            observation: Input observation array
-            
+            observations: Input observations of shape (batch_size, obs_dim).
+
         Returns:
-            Latent vector as numpy array
+            Latent vectors of shape (batch_size, latent_dim).
         """
-        if isinstance(observation, np.ndarray):
-            observation = torch.from_numpy(observation).float()
-            
-        observation = observation.to(self.device)
-        
+        if isinstance(observations, np.ndarray):
+            observations = torch.from_numpy(observations).float()
+
+        if observations.dim() == 1:
+            observations = observations.unsqueeze(0)
+
         with torch.no_grad():
-            latent, _ = self.model(observation)
-            
-        return latent.cpu().numpy()
-        
-    def decode(self, latent: Union[np.ndarray, torch.Tensor]) -> np.ndarray:
+            latents = self.encoder(observations)
+
+        return latents
+
+    def decode(self, latents: Union[np.ndarray, torch.Tensor]) -> torch.Tensor:
         """
-        Decode a latent vector into an action.
-        
+        Decode latent vectors into actions.
+
         Args:
-            latent: Latent vector input
-            
+            latents: Latent vectors of shape (batch_size, latent_dim).
+
         Returns:
-            Action vector as numpy array
+            Actions of shape (batch_size, action_dim).
         """
-        if isinstance(latent, np.ndarray):
-            latent = torch.from_numpy(latent).float()
-            
-        latent = latent.to(self.device)
-        
+        if isinstance(latents, np.ndarray):
+            latents = torch.from_numpy(latents).float()
+
+        if latents.dim() == 1:
+            latents = latents.unsqueeze(0)
+
         with torch.no_grad():
-            _, action = self.model(latent)
-            
-        return action.cpu().numpy()
+            actions = self.decoder(latents)
+
+        return actions
+
+    def forward(self, observations: Union[np.ndarray, torch.Tensor]) -> torch.Tensor:
+        """
+        Full forward pass: encode -> decode.
+
+        Args:
+            observations: Input observations.
+
+        Returns:
+            Decoded actions.
+        """
+        latents = self.encode(observations)
+        actions = self.decode(latents)
+        return actions

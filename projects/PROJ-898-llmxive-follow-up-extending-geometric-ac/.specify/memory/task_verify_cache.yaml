@@ -5,32 +5,6 @@ T001a:
     any of its contents were presented; the claim provides no tangible artifact to
     confirm the required project root structure exists. The task therefore remains
     unverified and incomplete.
-T001b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence was provided that the required `code/`, `data/`, and `tests/` directories
-    actually exist or contain any files; the claim cannot be verified from the given
-    artifacts. The implementer must supply a directory listing or screenshots showing
-    those three directories present in the repository.
-T001c:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence was provided that `.gitkeep` files exist in `data/raw`, `data/generated`,
-    or `data/results`; the artifact list is empty, so the required files are missing.
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "I looked for the required linting and formatting configuration artifacts (e.g.,\
-    \ a `ruff.toml`, `pyproject.toml` entries for Black, or a `.pre-commit-config.yaml`\
-    \ referencing these tools) but none were presented or referenced. Without concrete,\
-    \ non\u2011empty configuration files, the task of configuring ruff and Black is\
-    \ not demonstrated as completed."
-T004:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of the required `data/raw`, `data/generated`, `data/results` directories\
-    \ or accompanying `.gitkeep` files is provided; without these artifacts the task\u2019\
-    s requirement cannot be confirmed as satisfied."
 T008a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -54,3 +28,31 @@ T019:
     \ relate to dataset generation and symbolic planning, which do not satisfy the\
     \ required latent drift detection feature. The task therefore lacks the necessary\
     \ implementation artifact."
+T029:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `README.md` file was presented, nor any excerpt showing CLI
+    usage instructions or a description of the project structure. Without the actual
+    file content, we cannot confirm that the documentation was updated as required.
+    The implementer must provide the updated `README.md` showing the requested sections.
+T030:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code files, diff, or documentation showing that the `code/` modules have been
+    cleaned up or refactored are present. The only artifacts described relate to dataset
+    generation and symbolic planning, not to any code cleanup work, so the required
+    deliverable is missing.
+T032:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of any new unit test files under `tests/unit/` was provided; the\
+    \ claim lacks the required artifacts (e.g., test modules exercising solver constraints\
+    \ and latent drift detection). Without those files, the task\u2019s requirement\
+    \ is not satisfied."
+T033:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifacts (e.g., execution logs, output files, or screenshots) showing that\
+    \ `quickstart.md` was actually run and validated are present; the implementer\
+    \ provided no evidence that the end\u2011to\u2011end reproducibility check was\
+    \ performed. The required validation output is missing."

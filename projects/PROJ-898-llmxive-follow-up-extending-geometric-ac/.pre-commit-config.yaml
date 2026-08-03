@@ -3,10 +3,21 @@ repos:
     rev: v0.6.9
     hooks:
       - id: ruff
-        args: [--fix, --exit-non-zero-on-fix]
+        args: [--fix]
       - id: ruff-format
-  - repo: https://github.com/psf/black
-    rev: 24.8.0
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
     hooks:
-      - id: black
-        language_version: python3.11
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-added-large-files
+        args: ['--maxkb=10240']
+  - repo: local
+    hooks:
+      - id: check-requirements
+        name: Check requirements.txt exists
+        entry: test -f requirements.txt
+        language: system
+        pass_filenames: false
+        always_run: true

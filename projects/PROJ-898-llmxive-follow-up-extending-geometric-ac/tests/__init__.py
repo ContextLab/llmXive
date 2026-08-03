@@ -1,1 +1,1 @@
-# llmXive Tests Package
+"""Unit tests package for llmXive project."""

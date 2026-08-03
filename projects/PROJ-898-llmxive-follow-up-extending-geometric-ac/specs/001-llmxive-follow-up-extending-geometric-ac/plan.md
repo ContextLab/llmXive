@@ -126,7 +126,7 @@ projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/
     *   **Metric 3 (Latent)**: Compute Mahalanobis distance of latent representation from training centroid. Must be **> 2.0 sigma**.
     *   **Action**: If ANY metric fails, **HALT** and generate `data/results/generation_failure_report.json` (Phase 1.4).
 4.  **Simulation**: For each topology, generate a sequence of manipulation tasks. Record latent inputs and ground-truth actions.
-5.  **Uniqueness Failure Reporting (Phase 1.4)**: If <50 unique topologies are found, log specific reasons (e.g., "collision with training set topology 004") and generate `data/results/generation_failure_report.json`.
+5.  **Uniqueness Failure Reporting (Phase 1.4)**: If <unique topologies are found, log specific reasons (e.g., "collision with training set topology 004") and generate `data/results/generation_failure_report.json`.
 6.  **Reference Stats Generation (Phase 1.4 - New)**:
     *   Compute mean and covariance of latent vectors from the training set (or a representative subset).
     *   Save to `data/raw/gam_reference_stats.json` for use in Phase 2 (Drift Detection) and Phase 1.3 (Latent Overlap).

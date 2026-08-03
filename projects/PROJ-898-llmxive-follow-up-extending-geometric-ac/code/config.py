@@ -1,143 +1,164 @@
 """
-Configuration management for llmXive experiments.
-Defines typed configuration objects and YAML loading utilities.
+Configuration management for the llmXive project.
+Loads and validates experiment parameters from YAML.
 """
 import json
 import logging
 import os
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional
+import yaml
+
 from .utils import setup_logging
+
 
 @dataclass
 class TopologyConfig:
-    """Configuration for topology generation parameters."""
-    min_hinge_count: int = 3
-    max_hinge_count: int = 10
-    object_types: List[str] = field(default_factory=lambda: ["rigid", "deformable"])
-    deformable_stiffness_range: tuple = (0.1, 1.0)
-    
+    """Configuration for topology generation."""
+    min_hinges: int = 3
+    max_hinges: int = 10
+    stiffness_range: tuple = field(default_factory=lambda: (0.1, 1.0))
+
+
 @dataclass
 class SolverConfig:
-    """Configuration for symbolic solver parameters."""
-    timeout_seconds: float = 300.0
-    max_iterations: int = 1000
-    constraint_tolerance: float = 1e-6
-    
+    """Configuration for the symbolic solver."""
+    timeout_per_step_ms: float = 300000.0
+    max_retries: int = 5
+    retry_backoff_multiplier: float = 2.0
+    initial_retry_delay_s: float = 1.0
+
+
 @dataclass
 class ExperimentConfig:
-    """Configuration for experiment execution parameters."""
+    """Configuration for the overall experiment."""
     seed: int = 42
     trial_count: int = 50
-    topology_counts: Dict[str, int] = field(default_factory=lambda: {"hinge_3": 10, "hinge_5": 10, "hinge_7": 10, "hinge_10": 10})
-    timeout_limits: Dict[str, float] = field(default_factory=lambda: {"step": 300.0})
-    
+    sim_fps: int = 60
+    timeout_limits: float = 3600.0  # Global timeout in seconds
+    topology_counts: List[int] = field(default_factory=lambda: list(range(3, 11)))
+
+
+@dataclass
 class Config:
-    """Container for all configuration sections."""
-    def __init__(self, topology: TopologyConfig, solver: SolverConfig, experiment: ExperimentConfig):
-        self.topology = topology
-        self.solver = solver
-        self.experiment = experiment
+    """Master configuration container."""
+    topology: TopologyConfig = field(default_factory=TopologyConfig)
+    solver: SolverConfig = field(default_factory=SolverConfig)
+    experiment: ExperimentConfig = field(default_factory=ExperimentConfig)
 
-def load_config(config_path: str) -> Config:
-    """
-    Load configuration from a YAML or JSON file.
-    
-    Args:
-        config_path: Path to configuration file
-        
-    Returns:
-        Config object with loaded parameters
-    """
-    logger = setup_logging()
-    logger.info(f"Loading configuration from {config_path}")
-    
-    if not os.path.exists(config_path):
-        raise FileNotFoundError(f"Configuration file not found: {config_path}")
-        
-    with open(config_path, 'r') as f:
-        if config_path.endswith('.yaml') or config_path.endswith('.yml'):
-            try:
-                import yaml
-                config_data = yaml.safe_load(f)
-            except ImportError:
-                raise ImportError("PyYAML is required to load YAML config files. Install with: pip install pyyaml")
-        else:
-            config_data = json.load(f)
-    
-    # Extract sections with defaults
-    topology_data = config_data.get('topology', {})
-    solver_data = config_data.get('solver', {})
-    experiment_data = config_data.get('experiment', {})
-    
-    topology = TopologyConfig(**topology_data)
-    solver = SolverConfig(**solver_data)
-    experiment = ExperimentConfig(**experiment_data)
-    
-    return Config(topology, solver, experiment)
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> 'Config':
+        """Create Config from a dictionary."""
+        topology_data = data.get('topology', {})
+        solver_data = data.get('solver', {})
+        experiment_data = data.get('experiment', {})
 
-def save_config(config: Config, config_path: str) -> None:
-    """
-    Save configuration to a JSON file.
-    
-    Args:
-        config: Config object to save
-        config_path: Path to save configuration file
-    """
-    logger = setup_logging()
-    logger.info(f"Saving configuration to {config_path}")
-    
-    config_dict = {
-        'topology': {
-            'min_hinge_count': config.topology.min_hinge_count,
-            'max_hinge_count': config.topology.max_hinge_count,
-            'object_types': config.topology.object_types,
-            'deformable_stiffness_range': config.topology.deformable_stiffness_range
-        },
-        'solver': {
-            'timeout_seconds': config.solver.timeout_seconds,
-            'max_iterations': config.solver.max_iterations,
-            'constraint_tolerance': config.solver.constraint_tolerance
-        },
-        'experiment': {
-            'seed': config.experiment.seed,
-            'trial_count': config.experiment.trial_count,
-            'topology_counts': config.experiment.topology_counts,
-            'timeout_limits': config.experiment.timeout_limits
+        return cls(
+            topology=TopologyConfig(
+                min_hinges=topology_data.get('min_hinges', 3),
+                max_hinges=topology_data.get('max_hinges', 10),
+                stiffness_range=tuple(topology_data.get('stiffness_range', [0.1, 1.0]))
+            ),
+            solver=SolverConfig(
+                timeout_per_step_ms=solver_data.get('timeout_per_step_ms', 300000.0),
+                max_retries=solver_data.get('max_retries', 5),
+                retry_backoff_multiplier=solver_data.get('retry_backoff_multiplier', 2.0),
+                initial_retry_delay_s=solver_data.get('initial_retry_delay_s', 1.0)
+            ),
+            experiment=ExperimentConfig(
+                seed=experiment_data.get('seed', 42),
+                trial_count=experiment_data.get('trial_count', 50),
+                sim_fps=experiment_data.get('sim_fps', 60),
+                timeout_limits=experiment_data.get('timeout_limits', 3600.0),
+                topology_counts=experiment_data.get('topology_counts', list(range(3, 11)))
+            )
+        )
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert Config to dictionary."""
+        return {
+            'topology': {
+                'min_hinges': self.topology.min_hinges,
+                'max_hinges': self.topology.max_hinges,
+                'stiffness_range': list(self.topology.stiffness_range)
+            },
+            'solver': {
+                'timeout_per_step_ms': self.solver.timeout_per_step_ms,
+                'max_retries': self.solver.max_retries,
+                'retry_backoff_multiplier': self.solver.retry_backoff_multiplier,
+                'initial_retry_delay_s': self.solver.initial_retry_delay_s
+            },
+            'experiment': {
+                'seed': self.experiment.seed,
+                'trial_count': self.experiment.trial_count,
+                'sim_fps': self.experiment.sim_fps,
+                'timeout_limits': self.experiment.timeout_limits,
+                'topology_counts': self.experiment.topology_counts
+            }
         }
-    }
-    
-    os.makedirs(os.path.dirname(config_path) if os.path.dirname(config_path) else '.', exist_ok=True)
-    with open(config_path, 'w') as f:
-        json.dump(config_dict, f, indent=2)
 
-def create_default_config_file(output_path: Optional[str] = None) -> str:
+
+def load_config(config_path: Optional[str] = None) -> Config:
     """
-    Create a default configuration file with standard parameters.
-    
+    Load configuration from a YAML file.
+
     Args:
-        output_path: Optional path to save the config. Defaults to 'code/config.yaml'
-        
+        config_path: Path to config file. If None, uses default path.
+
     Returns:
-        Path to the created configuration file
+        Config object.
     """
-    if output_path is None:
-        output_path = "code/config.yaml"
-        
-    default_config = Config(
-        topology=TopologyConfig(),
-        solver=SolverConfig(),
-        experiment=ExperimentConfig()
-    )
-    
-    save_config(default_config, output_path)
-    return output_path
+    if config_path is None:
+        config_path = get_default_config_path()
+
+    logger = setup_logging()
+    logger.info(f"Loading config from {config_path}")
+
+    if not os.path.exists(config_path):
+        logger.warning(f"Config file {config_path} not found. Creating default.")
+        create_default_config_file(config_path)
+
+    with open(config_path, 'r') as f:
+        data = yaml.safe_load(f)
+
+    return Config.from_dict(data)
+
+
+def save_config(config: Config, config_path: Optional[str] = None) -> None:
+    """
+    Save configuration to a YAML file.
+
+    Args:
+        config: Config object to save.
+        config_path: Path to save to. If None, uses default path.
+    """
+    if config_path is None:
+        config_path = get_default_config_path()
+
+    os.makedirs(os.path.dirname(config_path) or '.', exist_ok=True)
+
+    with open(config_path, 'w') as f:
+        yaml.dump(config.to_dict(), f, default_flow_style=False)
+
+
+def create_default_config_file(config_path: Optional[str] = None) -> str:
+    """
+    Create a default configuration file.
+
+    Args:
+        config_path: Path to create. If None, uses default path.
+
+    Returns:
+        Path to the created file.
+    """
+    if config_path is None:
+        config_path = get_default_config_path()
+
+    default_config = Config()
+    save_config(default_config, config_path)
+    return config_path
+
 
 def get_default_config_path() -> str:
-    """
-    Get the default path for the configuration file.
-    
-    Returns:
-        Default configuration file path
-    """
-    return "code/config.yaml"
+    """Get the default path for the config file."""
+    return os.path.join(os.path.dirname(__file__), 'config.yaml')
