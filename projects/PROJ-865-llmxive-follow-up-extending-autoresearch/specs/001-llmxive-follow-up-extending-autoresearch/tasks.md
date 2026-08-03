@@ -226,7 +226,7 @@ EXPECTED_EFFECT_SIZE = 0.5
  7. **Checksum**: Immediately compute the SHA-256 hash of the generated file and record it in `data/artifacts/annotator_hashes.json`.
  **Output**: `data/derived/annotator_1.json` and `data/derived/annotator_2.json`. **Dependency**: T036 (or synthetic fallback).
 
-- [X] T054 [US1] **Implement Annotation Inter‑Rater Reliability Check**: Create `code/02_annotation_distillation/check_inter_rater.py` that computes Cohen’s Kappa between the two annotator files. If Kappa < 0.6, log a warning but do **not** abort (per plan). **Output**: `data/derived/inter_rater_reliability.json`. **Dependency**: T005a.
+- [X] T054 [US1] **Implement Annotation Inter‑Rater Reliability Check**: Create `code/02_annotation_distillation/check_inter_rater.py` that computes Cohen's Kappa between the two annotator files. If Kappa < 0.6, log a warning but do **not** abort (per plan). **Output**: `data/derived/inter_rater_reliability.json`. **Dependency**: T005a.
 
 - [X] T005b [US1] **Implement Consensus Generation**: Create `code/02_annotation_distillation/generate_consensus.py` that merges two annotator files `annotation_annotator1.jsonl` and `annotation_annotator2.jsonl`. If the `annotated_structural_feature` values match, write the merged record to `data/derived/consensus_labels.json`; otherwise flag for manual resolution. **Output**: `data/derived/consensus_labels.json`. **Dependency**: T005a.
 
@@ -475,9 +475,9 @@ The research question, method, and references remain unchanged as required, with
 
 - [X] T065 [US3] **Baseline Failure Mode Analysis**: Implement `code/04_analysis/baseline_failure_analysis.py` to aggregate baseline failures by `failure_type` from `baseline_results.json` and write `data/derived/baseline_failure_analysis.json`. **Dependency**: T021, T011b, T011c.
 
-- [X] T067 [US3] **Effect Size Verification**: Implement `code/04_analysis/effect_size_verification.py` to compute Cohen’s d for paired `time_to_pivot` differences (rule_engine vs baseline) and write `data/derived/effect_size_results.json` with `cohen_d`, `ci_lower`, `ci_upper`, `interpretation`. **Dependency**: T022, T011b, T011c.
+- [X] T067 [US3] **Effect Size Verification**: Implement `code/04_analysis/effect_size_verification.py` to compute Cohen's d for paired `time_to_pivot` differences (rule_engine vs baseline) and write `data/derived/effect_size_results.json` with `cohen_d`, `ci_lower`, `ci_upper`, `interpretation`. **Dependency**: T022, T011b, T011c.
 
-- [X] T068 [US3] **Resource Correlation Analysis**: Implement `code/04_analysis/resource_correlation.py` to compute Spearman’s ρ between `peak_memory_mb` (from `local_resource_log.json`) and `time_to_pivot` (from `results.csv`). Output `data/derived/resource_correlation_report.json` with `rho`, `p_value`, `significant`, `interpretation`. **Dependency**: T030a, T022, T011b, T011c.
+- [X] T068 [US3] **Resource Correlation Analysis**: Implement `code/04_analysis/resource_correlation.py` to compute Spearman's ρ between `peak_memory_mb` (from `local_resource_log.json`) and `time_to_pivot` (from `results.csv`). Output `data/derived/resource_correlation_report.json` with `rho`, `p_value`, `significant`, `interpretation`. **Dependency**: T030a, T022, T011b, T011c.
 
 - [X] T066 [US3] **Rule Coverage Chart**: Implement `code/04_analysis/visualize_rule_coverage.py` to produce `rule_coverage_chart.png` showing count of rules per structural feature. **Dependency**: T013.
 
@@ -555,3 +555,29 @@ The research question, method, and references remain unchanged as required, with
 - [X] T070 [US2] **Implement Baseline Resource Verification in Merge**: Add a validation step in `code/03_execution/merge_results.py` to verify that the baseline resource metrics (from T021) match the expected constraints (`BASELINE_CPU_CORES=4`, `BASELINE_MEMORY_GB=16`). **Rationale**: Ensures the baseline comparison is valid and that the baseline agent actually ran on the specified standard resources. **Action**: Check `data/derived/baseline_resource_metrics.json` and raise an error if constraints are violated. **Dependency**: T021, T022.
 
 - [X] T071 [US3] **Implement Interaction Term Visualization**: Create `code/04_analysis/visualize_interaction.py` to generate a plot of the interaction effect between Failure Type and Method on Success Rate. **Rationale**: Provides a visual confirmation of the statistical interaction term significance (SC-003). **Action**: Use `seaborn` or `matplotlib` to plot the interaction, with error bars representing confidence intervals. **Output**: `data/derived/interaction_plot.png`. **Dependency**: T026b, T029b.
+
+## Phase 6: Revision & Analysis Resolution (Pending Review)
+
+**Purpose**: Address specific concerns raised by the `/speckit.analyze` phase regarding data flow, resource constraints, and rule distillation logic.
+
+- [ ] T072 [US1] **Refine Distillation Logic for Syntactic vs. Semantic**: Update `code/02_annotation_distillation/distill_rules.py` to explicitly differentiate rule generation strategies based on the `annotated_structural_feature`. **Logic**:
+ 1. For "Syntactic Error": Generate rules using strict regex patterns and exact string matching.
+ 2. For "Semantic Ambiguity": Generate rules that flag the case for probabilistic retrieval or "Unstructured" fallback, explicitly avoiding deterministic pattern matching for semantic issues.
+ 3. Add a validation step to ensure no semantic ambiguity cases are forced into deterministic regex rules.
+ **Dependency**: T011b, T013. **Rationale**: Addresses the concern that the current distillation pipeline may incorrectly apply deterministic rules to ambiguous semantic failures, violating the core hypothesis of the study.
+
+- [ ] T073 [US2] **Enforce Resource Constraints in Baseline Execution**: Update `workflows/baseline_runner.yml` (generated by T021b) to explicitly set `runs-on: [self-hosted, resource-limited]` or equivalent CI configuration that enforces the 4 CPU / 16 GB RAM limit, and add a pre-flight check in `code/03_execution/run_baseline.py` to verify the runner's actual resource allocation before dispatch. **Rationale**: Ensures the "Standard Resources" constraint for the baseline is strictly enforced and not just a theoretical target, preventing invalid comparisons.
+
+- [ ] T074 [US3] **Implement Robust Censored Data Handling in Tobit**: Refactor `code/04_analysis/time_diff_tobit.py` to explicitly handle cases where the `time_to_pivot` is exactly equal to `TIMEOUT_SECONDS` (censored) vs. `> TIMEOUT_SECONDS` (failed). Ensure the model correctly interprets these as censored observations and does not treat them as exact values. **Rationale**: Addresses the risk of survivorship bias and incorrect statistical inference if censored data is mishandled.
+
+- [ ] T075 [US1] **Add Rule Coverage Validation for "Unstructured" Category**: Update `code/02_annotation_distillation/validate_rules.py` to explicitly check for the presence of an "Unstructured" or "Manual Review" fallback rule in the `rules_library.json`. **Logic**: If no such rule exists, the validation MUST fail, as all failure cases must have a prescribed action (even if it's "Manual Review"). **Rationale**: Ensures the rule engine never encounters an error log without a defined action, preventing silent failures during execution.
+
+- [ ] T076 [US2] **Verify Paired Data Integrity for Statistical Tests**: Add a pre-check in `code/04_analysis/time_diff_tobit.py` and `code/04_analysis/statistical_model.py` to ensure that the `task_id` pairs in `results.csv` are complete and that no task is missing a baseline or rule-engine result. **Logic**: If any pair is incomplete, the analysis MUST abort with a clear error message. **Rationale**: Prevents invalid statistical comparisons due to missing data points in the paired design.
+
+- [ ] T077 [US1] **Implement Explicit Logging for Distillation Thresholds**: Update `code/02_annotation_distillation/distill_rules.py` to log the specific confidence thresholds and coverage metrics used during rule generation, including any rules that were pruned due to low confidence. **Rationale**: Provides traceability for the rule distillation process and ensures reproducibility of the rule set.
+
+- [ ] T078 [US3] **Add Sensitivity Analysis for Interaction Term Significance**: Implement `code/04_analysis/sensitivity_interaction.py` to re-run the mixed-effects model with varying random seeds and bootstrap iterations to verify the stability of the interaction term's significance. **Rationale**: Ensures the conclusion regarding "failure structure dictates method viability" is robust and not an artifact of random sampling.
+
+- [ ] T079 [US2] **Enforce Time-to-Pivot Censoring in Baseline Results**: Update `code/03_execution/run_baseline.py` to explicitly set `time_to_pivot = TIMEOUT_SECONDS` for any task that fails to pivot within the time limit, and ensure this value is correctly propagated to `baseline_results.json`. **Rationale**: Ensures the censored data handling in the statistical analysis is based on accurate and consistent data from the baseline execution.
+
+- [ ] T080 [US1] **Validate Rule Library Schema Compliance**: Add a strict schema validation step in `code/02_annotation_distillation/distill_rules.py` to ensure that every generated rule conforms to the `distilled_rule.schema.yaml` (T006b) before writing to `rules_library.json`. **Rationale**: Prevents malformed rules from entering the rule library and causing errors during execution.

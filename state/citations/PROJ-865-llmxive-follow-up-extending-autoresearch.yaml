@@ -20,7 +20,7 @@
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/claw-ai-lab/arc-bench/resolve/main/data/arc_bench_25_topics.parquet
   verified_at: '2026-07-25T00:25:36.269226Z'
-- artifact_hash: 608ddfba3ef486135beda423bb60b11ea1f3f428b6db6b1255f4f5f15c0124eb
+- artifact_hash: b84b807a628a966815bf92348788b5befa14f9ffc8e93d8c64aabec1b23af0a1
   artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -30,27 +30,4 @@
   value: http://json-schema.org/draft-07/schema#
   verification_status: pending
   verified_against_url: https://json-schema.org/draft-07/schema
-  verified_at: '2026-08-01T23:55:24.366103Z'
-- artifact_hash: 608ddfba3ef486135beda423bb60b11ea1f3f428b6db6b1255f4f5f15c0124eb
-  artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: '[1809.02623] A reproducible effect size is more useful than an irreproducible
-    hypothesis test to analyze high throughput sequencing datasets'
-  kind: url
-  value: https://arxiv.org/abs/1809.02623
-  verification_status: pending
-  verified_against_url: https://arxiv.org/abs/1809.02623
-  verified_at: '2026-08-01T23:55:24.366103Z'
-- artifact_hash: 608ddfba3ef486135beda423bb60b11ea1f3f428b6db6b1255f4f5f15c0124eb
-  artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
-  cite_id: c-003
-  cited_authors: []
-  cited_title: null
-  fetched_title: p-value - Wikipedia
-  kind: url
-  value: https://en.wikipedia.org/wiki/P-value
-  verification_status: pending
-  verified_against_url: https://en.wikipedia.org/wiki/P-value
-  verified_at: '2026-08-01T23:55:24.366103Z'
+  verified_at: '2026-08-03T14:45:04.880999Z'
