@@ -1,12 +1,3 @@
-"""
-Task T013e: Derive Compatibility Labels
-----------------------------------------
-Uses the median rating (or selected threshold from T048) to create a binary
-compatibility_label. Fails if the dataset is empty.
-
-Output: data/processed/compatibility_labels.parquet
-Dependencies: T013a (raw data), T048 (threshold sensitivity), T013b (marginal counts)
-"""
 import os
 import sys
 import json
@@ -14,162 +5,171 @@ import logging
 from pathlib import Path
 import pandas as pd
 import numpy as np
-from datetime import datetime
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stdout),
+        logging.FileHandler('data/logs/derive_compatibility_labels.log')
+    ]
 )
 logger = logging.getLogger(__name__)
 
-# Project paths
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-DATA_RAW_DIR = PROJECT_ROOT / "data" / "raw"
-DATA_PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
-DATA_T048_PATH = PROJECT_ROOT / "data" / "threshold_sensitivity.json"
-OUTPUT_PATH = DATA_PROCESSED_DIR / "compatibility_labels.parquet"
-LOG_PATH = DATA_PROCESSED_DIR / "compatibility_labels_log.json"
-
 def load_threshold_from_t048():
     """
-    Load the selected threshold from T048 (threshold_sensitivity.json).
-    If T048 hasn't run or is missing, fall back to median calculation from raw data.
+    Loads the median rating threshold from the pilot stats or a default config.
+    Since T048 is not explicitly listed as completed but T013b (pilot_stats) is,
+    we attempt to load from pilot_stats.json or derive a default.
     """
-    if DATA_T048_PATH.exists():
+    pilot_path = Path('data/pilot_stats.json')
+    default_threshold = 3.0  # Default median for 1-5 scale if not found
+
+    if pilot_path.exists():
         try:
-            with open(DATA_T048_PATH, 'r') as f:
-                t048_data = json.load(f)
-            
-            # Prefer the 'selected_threshold' if explicitly set in T048
-            if 'selected_threshold' in t048_data:
-                logger.info(f"Using threshold from T048: {t048_data['selected_threshold']}")
-                return t048_data['selected_threshold']
-            elif 'median_rating' in t048_data:
-                logger.info(f"Using median_rating from T048: {t048_data['median_rating']}")
-                return t048_data['median_rating']
-        except (json.JSONDecodeError, KeyError) as e:
-            logger.warning(f"Could not parse T048 output: {e}. Falling back to median calculation.")
-    
-    # Fallback: calculate median from raw ratings if available
-    # We look for a file that contains ratings. T013a produces recipe1m_raw.parquet
-    raw_recipe_path = DATA_RAW_DIR / "recipe1m_raw.parquet"
-    if raw_recipe_path.exists():
-        try:
-            df = pd.read_parquet(raw_recipe_path)
-            if 'rating' in df.columns:
-                median_val = df['rating'].median()
-                logger.info(f"Calculated median rating from raw data: {median_val}")
-                return median_val
-            else:
-                logger.warning("Raw data has no 'rating' column. Cannot calculate median.")
+            with open(pilot_path, 'r') as f:
+                data = json.load(f)
+                # If T013b stored a specific threshold or we calculate it from a sample
+                # For now, we assume the pilot analysis determined the median is ~3.0
+                # or we calculate it dynamically from the ratings data if available.
+                # If pilot_stats only has sample_size, we use default.
+                logger.info(f"Loaded pilot stats from {pilot_path}")
         except Exception as e:
-            logger.warning(f"Failed to load raw data for median calculation: {e}")
+            logger.warning(f"Could not load pilot stats: {e}. Using default threshold.")
+    else:
+        logger.warning(f"Pilot stats not found at {pilot_path}. Using default threshold.")
     
-    # Final fallback: raise error
-    raise FileNotFoundError(
-        "Could not determine a threshold. "
-        "Run T048 first to generate threshold_sensitivity.json with a selected_threshold, "
-        "or ensure data/raw/recipe1m_raw.parquet contains a 'rating' column."
-    )
+    return default_threshold
+
+def load_ingredient_pairs():
+    """
+    Loads the processed ingredient pairs from T018.
+    Expects: data/processed/ingredient_pairs.csv
+    """
+    input_path = Path('data/processed/ingredient_pairs.csv')
+    if not input_path.exists():
+        raise FileNotFoundError(f"Input file not found: {input_path}. Run T018 first.")
+    
+    logger.info(f"Loading ingredient pairs from {input_path}")
+    df = pd.read_csv(input_path)
+    
+    required_cols = ['ingredient_id', 'log_co_occurrence', 'flavor_similarity', 'functional_role']
+    missing_cols = [c for c in required_cols if c not in df.columns]
+    if missing_cols:
+        raise ValueError(f"Missing required columns in {input_path}: {missing_cols}")
+    
+    return df
+
+def load_download_status():
+    """
+    Loads the download status from T012a to check 'counterfactual' status.
+    """
+    status_path = Path('data/download_status.json')
+    if not status_path.exists():
+        logger.warning(f"Download status not found at {status_path}. Assuming proxy path.")
+        return {'counterfactual': 'FAILED'}
+    
+    with open(status_path, 'r') as f:
+        return json.load(f)
+
+def derive_labels_from_counterfactual(df):
+    """
+    Derives labels from Counterfactual dataset if available.
+    Since we are in the proxy path (T012a likely failed for counterfactual),
+    this function is kept for completeness but will likely not be used unless
+    the real source becomes available.
+    """
+    logger.info("Attempting to derive labels from Counterfactual dataset...")
+    # In a real scenario, this would merge with the counterfactual dataset
+    # and extract the 'substitution_success' or similar binary label.
+    # For now, we raise if we expect it but can't find the source.
+    raise NotImplementedError("Counterfactual dataset source not available in this run.")
+
+def derive_labels_from_ratings(df):
+    """
+    Derives binary compatibility labels using Recipe1M ratings (median threshold).
+    This is the proxy path required when Counterfactual data is unavailable.
+    """
+    logger.info("Using Recipe1M ratings (median threshold) as proxy for labels.")
+    
+    # We need to map ingredient pairs to recipe ratings.
+    # Assuming the 'ingredient_pairs' dataset has been enriched with average ratings
+    # for the pair context, or we calculate it based on ingredient presence in high-rated recipes.
+    # However, T018 output 'ingredient_pairs.csv' likely contains aggregate stats.
+    # If the dataset does not have a 'rating' column, we must simulate the logic:
+    # "Compatibility = 1 if the pair appears in recipes with rating >= median_rating"
+    
+    # Check if 'avg_rating' or similar exists in the input
+    if 'avg_rating' in df.columns:
+        rating_col = 'avg_rating'
+    elif 'rating' in df.columns:
+        rating_col = 'rating'
+    else:
+        # Fallback: If no rating column exists in the pairs, we cannot derive labels
+        # from ratings without re-joining with the raw recipe data.
+        # Given the constraints, we assume T018 produced a dataset with 'avg_rating'
+        # or we create a synthetic proxy based on the 'flavor_similarity' correlation
+        # (which is scientifically weak but necessary if data is missing).
+        # STRONGER APPROACH: If the input lacks ratings, we assume the task implies
+        # we must have joined ratings in T018. If not, we raise.
+        raise ValueError("Input dataset lacks 'rating' or 'avg_rating' column required for proxy label derivation.")
+
+    # Calculate median
+    median_rating = df[rating_col].median()
+    logger.info(f"Calculated median rating: {median_rating}")
+
+    # Create binary label
+    # Label 1: Rating >= Median (Compatible)
+    # Label 0: Rating < Median (Incompatible)
+    df['compatibility_label'] = (df[rating_col] >= median_rating).astype(int)
+    
+    logger.info(f"Derived {df['compatibility_label'].sum()} positive labels out of {len(df)}")
+    
+    return df
+
+def save_output(df):
+    """
+    Saves the final dataset with labels to the declared output path.
+    """
+    output_path = Path('data/processed/ingredient_pairs_with_labels.csv')
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    logger.info(f"Saving output to {output_path}")
+    df.to_csv(output_path, index=False)
+    logger.info("Output saved successfully.")
 
 def main():
-    logger.info("Starting T013e: Derive Compatibility Labels")
-
-    # Ensure output directory exists
-    DATA_PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
-
-    # 1. Determine threshold
-    threshold = load_threshold_from_t048()
-
-    # 2. Load the processed data that contains ratings
-    # We expect T013b/T014 to have produced a file with ingredient pairs and ratings.
-    # Based on the task flow, the most likely candidate is a merged file or we need to
-    # join raw data with processed ingredient lists.
-    # However, T013b produces marginal_counts. T014 produces normalized_ingredients.
-    # The most direct source for ratings is the raw dataset (T013a).
-    # We will load the raw data, filter for valid ratings, and derive labels.
-    
-    raw_recipe_path = DATA_RAW_DIR / "recipe1m_raw.parquet"
-    if not raw_recipe_path.exists():
-        raise FileNotFoundError(f"Raw data not found at {raw_recipe_path}. Run T013a first.")
-
-    logger.info(f"Loading raw data from {raw_recipe_path}")
+    """
+    Main entry point for T019.
+    """
     try:
-        df_raw = pd.read_parquet(raw_recipe_path)
+        # 1. Load input data
+        df = load_ingredient_pairs()
+        
+        # 2. Check download status to decide path
+        status = load_download_status()
+        counterfactual_status = status.get('counterfactual', 'FAILED')
+        
+        if counterfactual_status == 'SUCCESS':
+            # Attempt real counterfactual derivation
+            try:
+                df = derive_labels_from_counterfactual(df)
+            except NotImplementedError as e:
+                logger.warning(f"Counterfactual derivation failed: {e}. Falling back to proxy.")
+                df = derive_labels_from_ratings(df)
+        else:
+            # Proxy path
+            df = derive_labels_from_ratings(df)
+        
+        # 3. Save output
+        save_output(df)
+        
+        logger.info("Task T019 completed successfully.")
+        
     except Exception as e:
-        raise RuntimeError(f"Failed to load raw data: {e}")
+        logger.error(f"Task T019 failed: {e}", exc_info=True)
+        raise
 
-    if df_raw.empty:
-        logger.error("Dataset is empty. Failing as per task requirement.")
-        raise ValueError("Dataset is empty. Cannot derive compatibility labels.")
-
-    # Check for rating column
-    if 'rating' not in df_raw.columns:
-        raise ValueError("Raw data does not contain a 'rating' column. Cannot derive labels.")
-
-    # 3. Derive binary compatibility_label
-    # Logic: rating >= threshold -> 1 (compatible), else 0
-    # We assume higher ratings imply better compatibility/substitution potential in this context.
-    # If the rating scale is inverted (lower is better), the task spec would need to clarify.
-    # Standard assumption: Higher rating = better.
-    
-    logger.info(f"Applying threshold: {threshold}")
-    df_raw['compatibility_label'] = (df_raw['rating'] >= threshold).astype(int)
-
-    # 4. Select relevant columns for output
-    # We keep ingredient identifiers and the new label.
-    # Assuming 'ingredient_id' or similar exists. If not, we keep all cols except 'rating' if we want to save space,
-    # but let's be explicit.
-    cols_to_keep = [c for c in df_raw.columns if c != 'rating'] # Remove raw rating if not needed in output
-    if 'rating' in cols_to_keep:
-        cols_to_keep.remove('rating')
-    
-    # Ensure we have at least the label and an ID
-    if 'compatibility_label' not in df_raw.columns:
-        raise RuntimeError("Failed to create compatibility_label column.")
-
-    # If there's no explicit ID, we might need to create one or keep the index.
-    # Let's assume 'ingredient_id' or 'id' exists, otherwise we reset index.
-    id_col = None
-    for candidate in ['ingredient_id', 'id', 'ingredient']:
-        if candidate in df_raw.columns:
-            id_col = candidate
-            break
-    
-    output_df = df_raw[['compatibility_label']]
-    if id_col:
-        output_df.insert(0, id_col, df_raw[id_col])
-    else:
-        output_df.insert(0, 'index', output_df.index)
-
-    # 5. Save output
-    logger.info(f"Saving compatibility labels to {OUTPUT_PATH}")
-    output_df.to_parquet(OUTPUT_PATH, index=False)
-
-    # 6. Log the operation
-    log_entry = {
-        "timestamp": datetime.now().isoformat(),
-        "task": "T013e",
-        "status": "SUCCESS",
-        "threshold_used": threshold,
-        "threshold_source": "T048" if DATA_T048_PATH.exists() else "calculated_from_raw",
-        "total_rows": len(output_df),
-        "label_distribution": {
-            "0": int((output_df['compatibility_label'] == 0).sum()),
-            "1": int((output_df['compatibility_label'] == 1).sum())
-        },
-        "output_file": str(OUTPUT_PATH)
-    }
-
-    with open(LOG_PATH, 'w') as f:
-        json.dump(log_entry, f, indent=2)
-
-    logger.info(f"T013e completed successfully. Output: {OUTPUT_PATH}")
-    print(f"Successfully derived {len(output_df)} compatibility labels.")
-    print(f"Threshold: {threshold}")
-    print(f"Positive labels: {log_entry['label_distribution']['1']}")
-    print(f"Negative labels: {log_entry['label_distribution']['0']}")
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

@@ -5,135 +5,137 @@ import math
 from pathlib import Path
 import pandas as pd
 import numpy as np
+from datasets import load_dataset
 
-try:
-    from statsmodels.stats.power import tt_ind_solve_power
-except ImportError:
-    print("ERROR: statsmodels is required for power analysis. Install via: pip install statsmodels")
-    sys.exit(1)
+# Ensure directories exist
+def ensure_directories():
+    data_dir = Path("data")
+    data_dir.mkdir(exist_ok=True)
+    (data_dir / "raw").mkdir(exist_ok=True)
+    (data_dir / "processed").mkdir(exist_ok=True)
 
-def load_pilot_stats(pilot_path: str) -> float:
+def download_pilot_sample(output_path: Path, max_recipes: int = 5000):
     """
-    Load pilot data variance from marginal_counts.parquet or similar.
-    Returns the variance estimate. If file is missing or empty, returns None.
+    Streams a small pilot sample from Recipe1M to estimate variance.
+    Uses Recipe1M-Ratings as the proxy source for ingredient/rating data
+    as per the Plan's Critical Reframe (T012a logic).
     """
-    if not os.path.exists(pilot_path):
-        return None
+    print(f"Downloading pilot sample (max {max_recipes} recipes)...")
     
-    try:
-        df = pd.read_parquet(pilot_path)
-        if df.empty:
-            return None
+    # Use the verified source: Recipe1M-Ratings from HuggingFace
+    # This is the real, programmatically accessible source.
+    dataset = load_dataset("thiagob/recipe1m-ratings", split="train", streaming=True)
+    
+    samples = []
+    count = 0
+    
+    for row in dataset:
+        if count >= max_recipes:
+            break
         
-        # Look for a variance column or compute it from a numeric column
-        numeric_cols = df.select_dtypes(include=[np.number]).columns
-        if len(numeric_cols) == 0:
-            return None
+        # Extract relevant fields for pilot analysis
+        # The dataset typically has 'ingredients' (list) and 'rating' (float)
+        if 'ingredients' in row and 'rating' in row:
+            samples.append({
+                'recipe_id': count,
+                'num_ingredients': len(row['ingredients']),
+                'rating': float(row['rating']) if row['rating'] is not None else 0.0
+            })
+            count += 1
         
-        # Use the first numeric column's variance (assuming it represents counts/frequencies)
-        var_col = numeric_cols[0]
-        variance = df[var_col].var()
-        
-        if pd.isna(variance) or variance == 0:
-            return None
-        
-        return variance
-    except Exception as e:
-        print(f"Warning: Could not load pilot stats from {pilot_path}: {e}")
-        return None
+        if count % 1000 == 0:
+            print(f"  Fetched {count} recipes...")
+
+    if not samples:
+        raise RuntimeError("Failed to fetch any pilot samples from Recipe1M-Ratings.")
+    
+    df = pd.DataFrame(samples)
+    df.to_parquet(output_path, index=False)
+    print(f"Pilot sample saved to {output_path} ({len(df)} recipes).")
+    return df
+
+def calculate_variance_estimate(df: pd.DataFrame, target_column: str = 'num_ingredients') -> float:
+    """
+    Calculates the variance of the target column from the pilot sample.
+    """
+    if target_column not in df.columns:
+        raise ValueError(f"Target column '{target_column}' not found in pilot data.")
+    
+    var = df[target_column].var()
+    if pd.isna(var):
+        return 0.0
+    return float(var)
 
 def calculate_sample_size(variance: float, effect_size: float = 0.1, power: float = 0.8, alpha: float = 0.05) -> int:
     """
-    Calculate unified sample size N_unified using t-test power analysis.
-    Uses statsmodels.stats.power.tt_ind_solve_power.
+    Calculates the required sample size for a statistical test (t-test approximation).
+    
+    Formula: n = 2 * ((Z_alpha + Z_beta)^2 * sigma^2) / delta^2
+    Where:
+      sigma^2 = variance
+      delta = effect_size * sigma (Cohen's d logic, but here we assume effect_size is absolute difference if provided, 
+      or we treat effect_size as the standardized difference. 
+      The task specifies "effect size >= 0.1". In power analysis contexts, 'effect size' usually refers to Cohen's d.
+      If effect_size is Cohen's d, then delta = d * sigma.
+      Then n = 2 * ((Z_alpha + Z_beta)^2 * sigma^2) / (d^2 * sigma^2) = 2 * (Z_alpha + Z_beta)^2 / d^2.
+      
+      Let's assume effect_size = 0.1 is the standardized difference (Cohen's d).
     """
-    # Standard deviation
-    std_dev = math.sqrt(variance)
+    # Z values for normal distribution
+    # Z_alpha for two-tailed 0.05 is approx 1.96
+    # Z_beta for power 0.8 (beta=0.2) is approx 0.84
+    from scipy.stats import norm
     
-    # Cohen's d calculation: effect_size = delta / std_dev
-    # We want to detect an effect of 'effect_size' units.
-    # Cohen's d = effect_size / std_dev
-    cohens_d = effect_size / std_dev
+    z_alpha = norm.ppf(1 - alpha / 2)
+    z_beta = norm.ppf(power)
     
-    # If Cohen's d is too small (close to 0), sample size will be huge.
-    # Clamp to a reasonable minimum to avoid overflow, though this indicates a very hard effect to detect.
-    if cohens_d < 1e-6:
-        cohens_d = 1e-6
+    # If effect_size is Cohen's d (standardized), the sigma cancels out in the numerator/denominator
+    # n = 2 * (z_alpha + z_beta)^2 / d^2
+    if effect_size <= 0:
+        raise ValueError("Effect size must be positive.")
     
-    # Calculate sample size per group
-    n_per_group = tt_ind_solve_power(
-        effect_size=cohens_d,
-        alpha=alpha,
-        power=power,
-        ratio=1.0,  # equal group sizes
-        alternative='two-sided'
-    )
-    
-    # Total sample size
-    n_total = int(math.ceil(n_per_group * 2))
-    
-    return max(n_total, 100)  # Minimum 100 samples to ensure stability
+    n = 2 * ((z_alpha + z_beta) ** 2) / (effect_size ** 2)
+    return int(math.ceil(n))
 
 def main():
-    """
-    Main entry point for T008: Power Analysis.
-    Reads pilot data variance, computes N_unified, and writes outputs.
-    Falls back to hardcoded variance if pilot data is missing/insufficient.
-    """
-    # Paths relative to project root
-    project_root = Path(__file__).resolve().parent.parent.parent
-    pilot_path = project_root / "data" / "raw" / "pilot_data.parquet"
-    output_power_path = project_root / "data" / "power_analysis.json"
-    output_split_config_path = project_root / "data" / "split_config.json"
+    ensure_directories()
     
-    # Ensure output directory exists
-    output_power_path.parent.mkdir(parents=True, exist_ok=True)
+    pilot_path = Path("data/pilot_sample.parquet")
+    output_path = Path("data/pilot_stats.json")
     
-    variance = load_pilot_stats(str(pilot_path))
-    is_fallback = False
-    
-    if variance is None:
-        print("Pilot data missing or insufficient. Using fallback variance estimate.")
-        variance = 1.0
-        is_fallback = True
-    
-    # Calculate sample size
-    n_unified = calculate_sample_size(variance)
-    
-    # Prepare output data
-    power_analysis_data = {
-        "N_unified": n_unified,
-        "effect_size": 0.1,
-        "power": 0.8,
-        "alpha": 0.05,
-        "variance_used": variance,
-        "source": "pilot_data.parquet" if not is_fallback else "FALLBACK_CONSTANT",
-        "timestamp": pd.Timestamp.now().isoformat()
-    }
-    
-    # Write power analysis JSON
-    with open(output_power_path, 'w') as f:
-        json.dump(power_analysis_data, f, indent=2)
-    print(f"Power analysis written to {output_power_path}")
-    
-    # Prepare split config
-    # Use N_unified as the total sample size for the split
-    # Default 80/20 split
-    train_size = int(n_unified * 0.8)
-    test_size = n_unified - train_size
-    
-    split_config_data = {
-        "N_unified": n_unified,
-        "train_size": train_size,
-        "test_size": test_size,
-        "seed": 42,
-        "timestamp": pd.Timestamp.now().isoformat()
-    }
-    
-    # Write split config JSON
-    with open(output_split_config_path, 'w') as f:
-        json.dump(split_config_data, f, indent=2)
-    print(f"Split config written to {output_split_config_path}")
+    try:
+        # 1. Download pilot sample
+        df = download_pilot_sample(pilot_path)
+        
+        # 2. Estimate variance (using number of ingredients as a proxy for complexity/size)
+        variance = calculate_variance_estimate(df, 'num_ingredients')
+        print(f"Estimated variance (num_ingredients): {variance}")
+        
+        # 3. Calculate required sample size
+        # Parameters from task: effect_size >= 0.1, power >= 0.8
+        required_n = calculate_sample_size(variance, effect_size=0.1, power=0.8)
+        
+        # 4. Save results
+        stats = {
+            "pilot_sample_size": len(df),
+            "variance_estimate": variance,
+            "effect_size_target": 0.1,
+            "power_target": 0.8,
+            "sample_size_required": required_n,
+            "pilot_file": str(pilot_path),
+            "timestamp": pd.Timestamp.now().isoformat()
+        }
+        
+        with open(output_path, 'w') as f:
+            json.dump(stats, f, indent=2)
+        
+        print(f"Power analysis complete. Required sample size: {required_n}")
+        print(f"Results saved to {output_path}")
+        
+    except Exception as e:
+        # Fail loudly as per constraints
+        print(f"ERROR: Pilot download or analysis failed: {e}")
+        raise
 
 if __name__ == "__main__":
     main()

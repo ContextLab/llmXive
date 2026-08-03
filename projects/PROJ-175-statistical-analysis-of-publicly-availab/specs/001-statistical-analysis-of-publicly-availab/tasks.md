@@ -3,7 +3,7 @@
 **Input**: Design documents from `/specs/001-statistical-analysis-of-recipe-data/`
 **Prerequisites**: plan.md (required), spec.md (required for user stories)
 
-> **⚠️ CRITICAL GOVERNANCE NOTE**: This `tasks.md` implements the **Plan's Critical Reframe** (Recipe1M embeddings/ratings, Partial Correlation) ONLY **IF AND ONLY IF** the Spec-mandated datasets (FlavorDB, Counterfactual) are verified as unavailable. The pipeline MUST first attempt to fulfill the original Spec requirements. If they fail, a formal `RatifiedAmendment` log MUST be generated before proceeding with proxies. The project explicitly acknowledges the **Circularity** of using Recipe1M ratings as a proxy for independent sensory scores (US-2) and documents this in `data/circularity_warning.json`.
+> **⚠️ CRITICAL GOVERNANCE NOTE**: This `tasks.md` implements the **Plan's Critical Reframe** (Recipe1M embeddings/ratings, Partial Correlation) ONLY **IF AND ONLY IF** the original Spec requirements (FlavorDB, Counterfactual datasets) are unavailable. The pipeline MUST first attempt to fulfill the original Spec requirements. If they fail, a formal `RatifiedAmendment` log MUST be generated before proceeding with proxies. The project transitions to correlating factors within Recipe1M corpus instead of causal independence.
 
 **Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
 
@@ -27,10 +27,9 @@
 **Purpose**: Project initialization, governance, and spec alignment.
 
 - [ ] T001a Create project directory structure: `projects/PROJ-175-statistical-analysis-of-publicly-availab/code/`, `projects/PROJ-175-statistical-analysis-of-publicly-availab/data/`, `projects/PROJ-175-statistical-analysis-of-publicly-availab/tests/`. **Verification**: Verify existence of directories via `os.path.isdir` and log to `data/setup_log.json`. **Schema**: `{"status": "SUCCESS"|"FAILED", "timestamp": "ISO8601", "paths_verified": ["path1", "path2"]}`. **Implementation**: Use `json.dump` with `indent=2` to write the log.
-- [ ] T001b **Implement Data Download (Plan Reframe)**: Implement `code/data/download.py` to stream Recipe1M (with embeddings) and Ratings. **Action**: **Step 1**: Verify `dataset_name="recipe1m-full"` against the verified sources list in `plan.md`. **Step 2**: Use `datasets.load_dataset(..., streaming=True)` with `split="train"`. **Output**: `data/raw/recipe1m_counts.parquet` (frequency counts only). **Verification**: Ensure file exists and schema matches T007. **Output**: `data/plan_verification.json` with schema `{"status": "SUCCESS"|"FAILED", "timestamp": "ISO8601", "verified_datasets": ["recipe1m-full"]}`. **DEPENDS ON**: T001a, T012_ratify_amendment, T012_flavordb, T012_counterfactual.
-- [X] T001f **Document Spec Amendment Rationale**: Create `data/amendment_rationale.json` documenting the switch from FlavorDB/Counterfactual to Recipe1M proxies, citing Plan's "Critical Reframe". **Action**: Include references to FR-001, FR-004, FR-008, SC-001, US-2. **Output**: `data/amendment_rationale.json`. **DEPENDS ON**: T001a.
 - [X] T001c Create empty `code/__init__.py`, `tests/__init__.py`, and `code/data/__init__.py`
 - [X] T001d Create `code/requirements.txt` placeholder and `tests/conftest.py` placeholder
+- [ ] T012a Dataset Availability Check: Attempt to download Recipe1M, FlavorDB, and Counterfactual datasets from verified URLs. **Action**: Use `datasets.load_dataset` for HuggingFace sources and `requests` for direct URLs. Log success/failure for EACH dataset in `data/download_status.json`. **Output**: `data/download_status.json` with keys `recipe1m`, `flavordb`, `counterfactual` and status "SUCCESS" or "FAILED". **Constraint**: If `flavordb` or `counterfactual` fails, set `use_proxy` flag to true. **DEPENDS ON**: T001a.
 
 ---
 
@@ -40,40 +39,33 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T002 Initialize Python project with `code/requirements.txt` (pandas, numpy, scikit-learn, pyarrow, statsmodels, pymc, scipy, requests, tqdm, huggingface_hub, sentence-transformers)
-- [X] T033a [P] Configure linting: Create `ruff.toml` at repository root with specific rules (select = ["E", "F"]) to enforce a subset of error and warning categories as outlined in the project's coding standards. (Constitution I, FR‑001)
-- [X] T033b [P] Configure formatting: Create `pyproject.toml` at repository root with black configuration (line‑length=88, target-version=py) to ensure consistent code style. (Constitution I, FR‑001)
+- [X] T002 Initialize Python project with `code/requirements.txt` (pandas, numpy, scikit-learn, pyarrow, statsmodels, pymc>=5.0.0, scipy, matplotlib, seaborn, pyyaml, pytest, python-Levenshtein)
+- [X] T033a Configure linting: Create `ruff.toml` at repository root with specific rules (select = ["E", "F"]) to enforce a subset of error and warning categories as outlined in the project's coding standards. (Constitution I, FR‑001)
+- [X] T033b Configure formatting: Create `pyproject.toml` at repository root with black configuration (line‑length=88, target-version=py) to ensure consistent code style. (Constitution I, FR‑001)
 - [X] T004 [P] Setup `data/` directory structure (`raw/`, `processed/`, `final/`) and `code/` module structure
 - [X] T005 [P] Implement global random seed pinning. **Deliverable**: Create `code/__init__.py` with `seed = 42` and `tests/conftest.py` with `@pytest.fixture(autouse=True) def set_seed()`.
 - [X] T006 [P] Setup memory profiling utility in `code/utils/memory_monitor.py` to enforce a predefined RAM limit. **Deliverable**: Create `check_limit(limit_mb=7168)` function that raises `MemoryError` if exceeded, and log to `data/memory_profile.json`. **Schema**: `{"peak_ram_mb": float, "timestamp": "ISO8601", "limit_mb": 7168, "downsampled": bool, "downsample_ratio": float}`. **Constraint**: If RAM > 80% limit, trigger dynamic downsampling logic and log the calculated `downsample_ratio`. (US-1 Edge Cases)
-- [X] T007 [P] Create base data schema definitions in `specs/001-statistical-analysis-of-recipe-data/contracts/`: specifically `dataset.schema.yaml` and `model_output.schema.yaml`. **Deliverable**: Schemas defining fields `ingredient_id`, `log_co_occurrence`, `flavor_similarity` (defined as Recipe1M embedding cosine similarity per Plan's Critical Reframe), `functional_role` (defined as positional rank derived), `compatibility_label`, etc., plus a validator script `code/utils/validate_schema.py`. (Constitution II) **NOTE**: Schema reflects Plan's Critical Reframe; **Constitution Exception**: Explicitly flag that `flavor_similarity` uses Recipe1M embeddings instead of FlavorDB chemical vectors (FR-004). **DEPENDS ON**: T002. **Verification**: Ensure schema explicitly states "AMENDED: Uses Recipe1M embeddings per Plan Critical Reframe".
-- [X] T038 [P] Implement `code/data/verify.py` robust error handling: Replace any generic `try/except` blocks with specific HTTP error handling that **raises** on failure (no synthetic fallback) and logs the exact URL and error code to `data/download_errors.log`. (Constitution II) **DEPENDS ON**: T002.
-- [X] T042 [P] Extend `code/data/verify.py` with schema validation for the **Recipe1M Ratings** dataset: enforce presence and type of the `rating` column; fail the pipeline on mismatch. (FR‑001b amendment) **DEPENDS ON**: T002.
-- [ ] T012_flavordb [P] **Attempt FlavorDB Fetch**: Attempt to download and verify the FlavorDB chemical matrix as mandated by Spec FR-001. **Action**: Use the verified URL from `plan.md`. **Output**: `data/raw/flavordb_matrix.parquet`. **Failure**: If unavailable, raise `DataUnavailableError` and log to `data/flavordb_availability.json` with status "UNAVAILABLE". **DEPENDS ON**: T002, T001a.
-- [ ] T012_counterfactual [P] **Attempt Counterfactual Fetch**: Attempt to download and verify the Counterfactual Recipe Generation dataset as mandated by Spec US-2. **Action**: Use the verified URL from `plan.md`. **Output**: `data/raw/counterfactual_labels.parquet`. **Failure**: If unavailable, raise `DataUnavailableError` and log to `data/counterfactual_availability.json` with status "UNAVAILABLE". **DEPENDS ON**: T002, T001a.
-- [ ] T012_ratify_amendment **Spec Amendment Ratification (Hard Gate)**: **Action**: If T012_flavordb OR T012_counterfactual failed, create `data/amendment_ratification_log.json` with status "RATIFIED". **Schema**: `{"status": "RATIFIED", "amended_requirements": ["FR-001", "FR-004", "FR-008", "US-2"], "rationale": "Original datasets unavailable; switching to Recipe1M proxies per Plan Critical Reframe", "timestamp": "ISO8601"}`. **Block**: If neither failed, this task does nothing. **Output**: `data/amendment_ratification_log.json`. **DEPENDS ON**: T002, T001a, T012_flavordb, T012_counterfactual.
-- [X] T012 [P] **Data Source Verification**: Implement verification of **Recipe1M** and **Ratings** URLs, and **explicitly verify the ABSENCE** of the Counterfactual Recipe Generation dataset. Generate `data/verification_report.json` with status PASS/FAIL. **Action**: If Counterfactual is found, raise `DataUnavailableError`. If Recipe1M is missing, raise `DataUnavailableError`. **Output**: `data/verification_report.json`. **DEPENDS ON**: T002, T001a, T012_flavordb, T012_counterfactual, T012_ratify_amendment.
-- [ ] T051 [P] **Data Source Verification**: Implement `code/data/download.py` to verify the **exact** Recipe1M subset (with embeddings) and Ratings dataset from the URLs listed in `data/verification_report.json`. **Hard‑fail** on any download error. **Clarification**: This task performs URL verification and subset manifest generation only, NOT full download. **DEPENDS ON**: T012, T046, T012_ratify_amendment.
-- [ ] T013b [P] **Atomic Pilot Download**: Implement `code/data/download.py` to stream a small representative subset of Recipe1M and Ratings using `datasets.load_dataset(..., streaming=True)`. **Action**: Use `dataset_name="recipe1m-full"` (verified in T051). **Output**: `data/raw/pilot_data.parquet` and `data/raw/pilot_stats.json`. **DEPENDS ON**: T051, T012_ratify_amendment.
-- [X] T008 [P] **Power Analysis**: Using variance from pilot data (T013b), compute unified sample size `N_unified` for effect size ≥ 0.1, power 0.8. **Action**: **If** T013b fails or yields insufficient data, **USE** a hardcoded variance estimate of `1.0`, log "FALLBACK" in `data/power_analysis.json`, and produce `data/split_config.json` with `sample_size` set to a conservative default. **Output**: `data/power_analysis.json` and `data/split_config.json`. **DEPENDS ON**: T013b.
-- [X] T049 [P] **Zero‑Occurrence Handling**: Define epsilon for log‑transform, log zero‑pair count to `data/zero_handling_log.json`. **DEPENDS ON**: T013b.
-- [ ] T013a_stream [P] **Atomic Full Download (Stream)**: Implement `code/data/download.py` to stream the full Recipe1M and Ratings dataset. **Action**: Use `dataset_name="recipe1m-full"`. **Output**: `data/raw/recipe1m_full_streamed.parquet` (intermediate). **DEPENDS ON**: T008, T012_ratify_amendment.
-- [ ] T013a_schema [P] **Atomic Full Download (Schema)**: Validate schema of `data/raw/recipe1m_full_streamed.parquet`. **Action**: Ensure columns match `dataset.schema.yaml`. **Output**: `data/raw/recipe1m_full_validated.parquet`. **DEPENDS ON**: T013a_stream.
-- [ ] T013a_write [P] **Atomic Full Download (Write)**: Finalize `data/raw/recipe1m_full.parquet` from validated stream. **DEPENDS ON**: T013a_schema.
-- [ ] T014_flavordb_norm [P] **Attempt FlavorDB Normalization**: Attempt to normalize ingredient names using mapping to the FlavorDB canonical list (Spec US-1 Scenario 2). **Action**: Use Levenshtein distance ≤ 2. **Output**: `data/processed/normalized_flavordb.parquet`. **Failure**: If FlavorDB missing, log "UNAVAILABLE" to `data/flavordb_norm_status.json`. **DEPENDS ON**: T014c_flavordb, T013a_write.
-- [ ] T014 [P] **Normalization**: Implement `code/data/preprocess.py` step 1‑2: normalize ingredient names. **Action**: If T014_flavordb_norm succeeded, use FlavorDB list. Else, use Recipe1M ingredient list and log deviation. **Output**: `data/processed/normalized_ingredients.parquet`. **Verification**: Ensure file exists and schema matches T007. **Output**: `data/normalization_report.json` with schema `{"total_ingredients": int, "normalized_count": int, "excluded_count": int, "excluded_ids": [str], "deviation_log": "..."}`. **DEPENDS ON**: T007, T012, T051, T013a_write, T014_flavordb_norm. **Note**: Requires full data stream from T013a_write. <!-- ATOMIZE: requested -->
-- [ ] T014c_flavordb [P] **Attempt FlavorDB Embeddings Fetch**: Implement `code/data/embeddings.py` to fetch FlavorDB chemical vectors for all unique ingredients (Spec FR-004). **Action**: Use FlavorDB vectors. **Output**: `data/processed/flavordb_embeddings.parquet`. **Failure**: If missing, log "UNAVAILABLE" to `data/flavordb_embeddings_status.json`. **DEPENDS ON**: T013a_write.
-- [ ] T014c [P] **Fetch Recipe1M Embeddings (FR-004-AMEND)**: Implement `code/data/embeddings.py` to fetch Recipe1M visual/text embeddings for all unique ingredients. **Action**: Use Recipe1M embeddings as proxy for FlavorDB vectors (Deviation from Spec FR-004). **Output**: `data/processed/ingredient_embeddings.parquet`. **Verification**: Ensure file exists and schema matches T007. **AMENDMENT**: Implements amended FR-004 requirement. **DEPENDS ON**: T013a_write, T007, T014c_flavordb.
-- [ ] T016 [P] **Semantic Similarity**: Compute cosine similarity between embeddings for ingredient pairs. **Input**: `data/processed/ingredient_embeddings.parquet` from T014c (or `flavordb_embeddings.parquet` if available). **Output**: `data/processed/similarity_scores.parquet`. **Schema**: Columns `ingredient_id_1`, `ingredient_id_2`, `similarity_score`. **Verification**: Ensure file exists and schema matches. **DEPENDS ON**: T013a_write, T014, T014c, T014c_flavordb.
-- [X] T048 [P] **Sensitivity Analysis of Compatibility Threshold**: Before final label creation, evaluate how varying the median‑based threshold affects label distribution. Output `data/threshold_sensitivity.json`. **DEPENDS ON**: T013b.
-- [ ] T013d_counterfactual [P] **Attempt Counterfactual Labels Fetch**: Attempt to derive binary compatibility labels from Counterfactual Recipe Generation dataset (Spec US-2). **Action**: Use independent sensory scores. **Output**: `data/processed/counterfactual_labels.parquet`. **Failure**: If missing, log "UNAVAILABLE" to `data/counterfactual_labels_status.json`. **DEPENDS ON**: T013a_write.
-- [ ] T013d [P] **Derive Compatibility Labels**: Using the median rating (or selected threshold from T048), create binary `compatibility_label`. **Action**: If T013d_counterfactual succeeded, use Counterfactual labels. Else, use Recipe1M ratings as proxy (Deviation from Spec US-2). **Output**: `data/processed/compatibility_labels.parquet`. **DEPENDS ON**: T013a_write, T048, T013d_counterfactual.
-- [ ] T013e [P] **Document Proxy Rationale**: Create `data/proxy_rationale.json` documenting the use of Recipe1M ratings as a proxy for independent sensory scores (US-2) and Recipe1M embeddings for FlavorDB vectors (FR-004). **DEPENDS ON**: T013d.
-- [ ] T017 [P] **Functional Role Derivation**: Derive functional role using 'positional rank' and 'marginal frequency' (frequency of single ingredient) only. **Explicitly exclude** 'co-occurrence frequency' from the **input variables** of the derivation logic (Pre-hoc constraint) as a code constraint (FR-005). **Output**: `data/processed/ingredient_roles_residuals.parquet`. **Verification**: Compute Pearson correlation between derived role and co-occurrence frequency; **must log this value to `data/role_cooccurrence_correlation.json`** with schema `{"correlation_coefficient": float, "p_value": float, "threshold": 0.1}`. The log must confirm the coefficient is < 0.1. **DEPENDS ON**: T013a_write, T014.
-- [ ] T017c [P] **Constitution VI Compliance Check**: Verify that derived functional role is statistically independent of co-occurrence frequency. **Action**: Read `data/role_cooccurrence_correlation.json` from T017. If correlation > 0.1, raise `CircularityError`, write `data/circularity_error_log.json` with details, and halt pipeline. **Output**: `data/circularity_check.json`. **DEPENDS ON**: T017.
-- [X] T017b [P] **Discretize Functional Role**: Use `pandas.qcut` with `duplicates='drop'` to create tertiles (or quantile fallback if < 3 unique values). Log method and cutpoints (high precision) to `data/role_cutpoints.json`. **DEPENDS ON**: T017c.
-- [X] T018 [P] **Imputation & Bias Check**: Impute missing categorical role with 'Unknown' and missing similarity with median; create missing‑flag columns. Compute Pearson correlation between imputed similarity and role residuals; log to `data/missing_data_bias_log.json`. **DEPENDS ON**: T013a_write, T017b, T016, T013d.
-- [ ] T019 [P] **Train/Test Split**: Downsample to `N_unified` (from T008) with fixed seed; write splits and update `data/split_config.json`. **DEPENDS ON**: T008, T018.
+- [X] T007 [P] Create base data schema definitions in `specs/001-statistical-analysis-of-recipe-data/contracts/`: specifically `dataset.schema.yaml` and `model_output.schema.yaml`. **Deliverable**: Schemas defining fields `ingredient_id`, `log_co_occurrence`, `flavor_similarity` (defined as Recipe1M embedding cosine similarity per Plan's Critical Reframe if proxy used), `functional_role`, `compatibility_label`, etc., plus a validator script `code/utils/validate_schema.py`. (Constitution II) **NOTE**: Schema reflects Plan's Critical Reframe; **Constitution Exception**: Explicitly flag that `flavor_similarity` uses Recipe1M embeddings instead of FlavorDB chemical vectors (FR-004) if proxy is active.
+- [X] T038 [P] Implement `code/data/verify.py` robust error handling: Replace any generic `try/except` blocks with specific HTTP error handling that **raises** on failure (no synthetic fallback) and logs the exact URL and error code to `data/download_errors.log`. (Constitution II)
+- [X] T042 [P] Extend `code/data/verify.py` with schema validation for the Recipe1M Ratings dataset: enforce presence and type of the `rating` column; fail the pipeline on mismatch.
+- [ ] T013a Stream & Validate Recipe1M: Stream the full Recipe1M dataset (or downsampled subset if T012a failed and proxy is active). **DEPENDS ON**: T012a. **Action**: Use `datasets.load_dataset(..., streaming=True)`. **Output**: `data/raw/recipe1m_raw.parquet`. **Verification**: Ensure file exists and schema matches T007. **Constraint**: If T012a failed for Recipe1M, fail the pipeline (no proxy for Recipe1M itself).
+- [ ] T013b Pilot Download & Power Analysis: Download a small pilot sample (e.g., a subset of recipes) to estimate dataset size and variance. **DEPENDS ON**: T013a. **Action**: Calculate required sample size for power analysis (effect size ≥ 0.1, power ≥ 0.8). **Output**: `data/pilot_stats.json` with `sample_size_required`.
+- [ ] T014 Normalization: Normalize ingredient names and derive functional roles. **DEPENDS ON**: T013a, T012a. **Action**:
+ 1. If `flavordb` status in T012a is SUCCESS: Use FlavorDB canonical list with Levenshtein distance ≤ 2.
+ 2. If `flavordb` status is FAILED: Use Recipe1M ingredient list. Normalize using Levenshtein distance ≤ 2. For ties, select the canonical form with the highest marginal frequency (count(ingredient) / total_recipes). If still tied, use alphabetical order.
+ 3. Derive functional role using 'positional rank' and 'marginal frequency' (count(ingredient) / total_recipes), excluding co-occurrence frequency to prevent multicollinearity.
+ **Output**: `data/processed/normalized_ingredients.csv`.
+- [ ] T015 Co-occurrence Matrix: Construct global co-occurrence matrix $C$. **DEPENDS ON**: T014. **Action**: Count pairs $(i, j)$ in recipes. Apply log-transform with epsilon smoothing for zero counts. **Output**: `data/processed/co_occurrence_matrix.parquet`.
+- [ ] T016 Semantic Similarity: Compute cosine similarity between ingredient embeddings. **DEPENDS ON**: T014, T012a. **Action**:
+ 1. If `flavordb` status is SUCCESS: Use FlavorDB chemical vectors.
+ 2. If `flavordb` status is FAILED: Use Recipe1M visual/text embeddings.
+ **Output**: `data/processed/similarity_scores.parquet`.
+- [ ] T017 Functional Role Derivation & Validation: Derive functional role (primary, secondary, garnish) and validate against multicollinearity with semantic similarity. **DEPENDS ON**: T014, T015. **Action**: Ensure functional role is not correlated with co-occurrence frequency. **Output**: `data/processed/functional_roles.parquet`.
+- [ ] T018 Imputation & Bias Check: Handle missing values in embeddings, similarity scores, and functional roles. **DEPENDS ON**: T016, T017. **Action**: Impute missing similarity scores with 0. Log exclusion counts. **Output**: `data/processed/ingredient_pairs.csv` (final dataset for modeling).
+- [ ] T019 Compatibility Labels: Create binary compatibility labels. **DEPENDS ON**: T018, T012a. **Action**:
+ 1. If `counterfactual` status is SUCCESS: Use Counterfactual Recipe Generation dataset labels.
+ 2. If `counterfactual` status is FAILED: Use Recipe1M ratings (median threshold) as proxy.
+ **Output**: `data/processed/ingredient_pairs_with_labels.csv`.
 
 **Checkpoint**: User Story 1 pipeline ready.
 
@@ -83,141 +75,40 @@
 
 **Goal**: Fit regularized logistic regression and hierarchical Bayesian models, controlling for co‑occurrence while isolating semantic similarity and functional role effects.
 
-- [X] T023 [P] **VIF Calculation**: Compute VIF for all predictors; write `data/vif_scores_initial.json`. Always output `data/final_predictors.json` (original or reduced list). **DEPENDS ON**: T019.
-- [X] T024a [P] **Data Leakage Audit**: Quantify mutual information between predictors and outcome; raise `CircularityError` if MI > 0.5. Output `data/data_leakage_audit.json`. **DEPENDS ON**: T023, T019.
-- [ ] T024b_likelihood [P] **Attempt Likelihood-Ratio Test**: Perform the Spec-mandated Likelihood-Ratio Test (FR-008) comparing full model vs null. **Action**: If data circularity prevents valid test (MI > threshold), raise `CircularityError`. **Output**: `data/likelihood_test_results.json`. **Failure**: Log "UNAVAILABLE" to `data/likelihood_test_status.json`. **DEPENDS ON**: T024a, T019.
-- [ ] T024b_partial [P] **Partial Correlation Analysis (Replaces Likelihood‑RATIO Test FR‑008)**: Compute partial correlation of flavor similarity and functional role controlling for co-occurrence. **Output**: `data/partial_correlation_results.json`. **Documentation**: Explicitly state that the original "independent explanatory power" metric (SC-001) is unmeasurable due to data circularity and this is the proxy. **DEPENDS ON**: T024a, T019, T024c_ratify_amendment, T024b_likelihood.
-- [ ] T024c_ratify_amendment **Document Amendment Ratification (FR-008)**: **Action**: If T024b_likelihood failed, create `data/amendment_ratification_log_FR008.json` with status "RATIFIED". **Schema**: `{"status": "RATIFIED", "amended_requirements": ["FR-008", "SC-001"], "rationale": "Likelihood-ratio test invalid due to data circularity; using partial correlation proxy", "timestamp": "ISO8601"}`. **Block**: If T024b_likelihood succeeded, this task does nothing. **Output**: `data/amendment_ratification_log_FR008.json`. **DEPENDS ON**: T002, T001a, T024b_likelihood.
-- [ ] T024d_metric [P] **Attempt Independent Explanatory Power Measurement**: Attempt to measure SC-001 "independent explanatory power" using the Likelihood-Ratio Test results. **Output**: `data/sc001_metric.json`. **Failure**: If T024b_likelihood failed, log "UNAVAILABLE". **DEPENDS ON**: T024b_likelihood.
-- [ ] T024d_proxy [P] **Define Amended Success Criterion**: Create `data/amended_success_criterion.json` defining the project's success metric as "Partial Correlation P-Value < 0.05" (replacing SC-001). **Action**: This artifact serves as the ratified definition for the pipeline's success, overriding the unamended spec text. **DEPENDS ON**: T024d_metric, T024c_ratify_amendment.
-- [X] T040 [P] **Multicollinearity Resolution**: If VIF > 5 for any predictor (esp. functional role), attempt orthogonalization; if still > 5, drop predictor as last resort. **Action**: **Always** write `data/final_predictors.json` (either full or reduced list) to ensure downstream tasks have a valid input. **Output**: `data/model_comparison.json` and `data/final_predictors.json`. **DEPENDS ON**: T023.
-- [X] T022 **Logistic Regression Fit**: Fit Null (frequency only) and Full (frequency + similarity + categorical role) models with L2 regularization using predictor list from `data/final_predictors.json` (produced by T040). **Logic**: Read `data/final_predictors.json`. **Verification**: Confirm model converged and `data/final/logistic_results.json` contains required fields (coefficients, p-values). **DEPENDS ON**: T018, T023, T019, T040, T024a.
-- [X] T050 [P] **CPU‑only Enforcement for Bayesian Fit**: Detect CUDA; if present, log warning and force CPU execution. Write `data/gpu_detection_log.json`. **DEPENDS ON**: T019.
-- [ ] T025 [P] **Hierarchical Bayesian Model Fit (CPU‑only)**: Fit model on downsampled data (from T019); enforce ‑hour timeout. **Verification**: Verify R̂ <= 1.01 in output log. Fail if R̂ > 1.01. Output `data/final/bayesian_results.json` and on failure write `data/bayesian_convergence_log.json`. **DEPENDS ON**: T019, T050.
-- [X] T026 [P] **Post‑Hoc Power Validation**: Verify achieved power for effect size ≥ 0.1 given actual sample size and convergence metrics. **DEPENDS ON**: T025.
-- [X] T047 [P] **VIF Robustness on Test Set**: Compute VIF on test split; flag if any > 5. Log to `data/vif_test_set.json`. **DEPENDS ON**: T019, T023.
+- [ ] T023 VIF Calculation: Compute Variance Inflation Factors (VIF) for all predictors. **DEPENDS ON**: T019. **Action**: Calculate VIF for `log_co_occurrence`, `flavor_similarity`, `functional_role`. **Output**: `data/logs/vif_scores.json`.
+- [ ] T024a Data Leakage Audit: Quantify mutual information between predictors and outcome. **DEPENDS ON**: T019. **Action**: Calculate MI. Raise error if MI > 0.5 indicating significant data leakage (if using proxy). **Output**: `data/logs/leakage_audit.json`.
+- [ ] T024b_likelihood Attempt Likelihood-Ratio Test: Perform the Likelihood Ratio test. **DEPENDS ON**: T023, T024a. **Action**: Compare full model vs. null model (co-occurrence only). **Output**: `data/logs/lrt_results.json`. **Condition**: Only valid if `counterfactual` status is SUCCESS.
+- [ ] T024b_partial Partial Correlation Analysis: Compute partial correlation. **DEPENDS ON**: T023, T024a. **Action**: Compute partial correlation between `flavor_similarity` and `functional_role` controlling for `log_co_occurrence`. **Output**: `data/logs/partial_corr.json`. **Condition**: Only valid if `counterfactual` status is FAILED (proxy path).
+- [ ] T024c_ratify_amendment Document Amendment Ratification (FR-008): **DEPENDS ON**: T024b_likelihood (if failed) OR T024b_partial (if used). **Action**: If proxy path used, document ratification of partial correlation as substitute for LRT. **Output**: `data/amendment_log.json`.
+- [ ] T024d_metric Model Comparison Metric: **DEPENDS ON**: T024b_likelihood (if success) OR T024b_partial (if success). **Action**: Extract the key metric (LRT p-value or partial correlation coefficient) for the report. **Output**: `data/logs/model_metric.json`.
+- [ ] T025 Hierarchical Bayesian Model Fit: Fit a hierarchical Bayesian model on downsampled data. **DEPENDS ON**: T024d_metric. **Action**: Use PyMC with NUTS on stratified subset. **Output**: `data/logs/bayesian_results.json`.
 
-**Checkpoint**: User Stories 1 & 2 functional.
+**Checkpoint**: User Story 1 & 2 functional.
 
 ---
 
 ## Phase 4: User Story 3 – Evaluation and Reporting (Priority: P3)
 
-**Goal**: Evaluate models using cross‑validation within the corpus, compute metrics, and generate a report comparing full model vs baseline.
-
-- [ ] T029 [P] **Metrics Calculation**: Compute AUC, precision, recall, calibration plot for Full and Baseline models; output `data/evaluation_metrics.json`. **Schema**: Keys `auc`, `precision`, `recall`, `calibration_curve`. **Verification**: Ensure file exists and schema matches. **DEPENDS ON**: T022, T025.
-- [X] T030b [P] **Cross‑Validation Evaluation**: Perform k‑fold CV, bootstrap multiple resamples to obtain delta AUC, p‑value, confidence interval. Output `data/cv_delta_metrics.json`. **DEPENDS ON**: T029.
-- [X] T030 [P] **Bootstrap Hypothesis Test**: Alternative bootstrap/permutation test for AUC delta; output `data/auc_delta_metrics.json`. **DEPENDS ON**: T029.
-- [X] T031 [P] **Map Diagnostics to Report**: Incorporate VIF scores (T023), partial correlation results (T024b_partial), and Bayesian outcomes (T025) into summary. **DEPENDS ON**: T023, T024b_partial, T025.
-- [X] T041 [P] **Gate Verification**: Ensure `data/verification_report.json` PASS and Bayesian convergence SUCCESS before report generation. **DEPENDS ON**: T038, T025.
-- [ ] T032 [P] **Draft Final Report**: Generate `docs/draft_final_report.md` stating hypothesis support with partial correlation p‑values, AUC delta, CI, and note any multicollinearity or leakage warnings. **DEPENDS ON**: T041, T030b, T025, T047.
-- [X] T054 [P] **Calibration Verification**: Bin predicted probabilities, compare to observed frequencies; fail if max deviation > 0.1. Write `data/calibration_test_results.json`. **DEPENDS ON**: T029.
-- [X] T055 [P] **Final Report Generation**: Aggregate all JSON artifacts (VIF, partial correlation, AUC delta, calibration, power analysis) into `docs/final_report.md`. If Bayesian convergence failed (from T025) and T025b was used, automatically insert a "Limitations" subsection flagging this. **DEPENDS ON**: T030b, T031, T040, T047, T025, T025b.
-
-**Checkpoint**: All user stories independently functional.
+- [ ] T029 Evaluation Metrics: Calculate AUC, precision, recall. **DEPENDS ON**: T025. **Action**: Evaluate on held-out test set. **Output**: `data/logs/evaluation_metrics.csv`.
+- [ ] T030 Calibration Plot: Generate calibration plot. **DEPENDS ON**: T029. **Action**: Plot predicted vs. actual probabilities. **Output**: `docs/calibration_plot.png`.
+- [ ] T031 Final Report Generation: Generate final report. **DEPENDS ON**: T024d_metric, T029, T030. **Action**: Compare full model vs. baseline. Test hypothesis. **Output**: `docs/final_report.md`.
+- [ ] T032 Sensitivity Analysis: Evaluate robustness of results. **DEPENDS ON**: T031. **Action**: Vary thresholds and re-run. **Output**: `docs/sensitivity_analysis.md`.
 
 ---
 
-## Phase N: Polish & Cross‑Cutting Concerns
+## Phase 5: Orchestration & Governance
 
-**Purpose**: Improvements affecting multiple stories.
-
-- [X] T033a [P] Documentation updates: Update `docs/research.md` with Methodology section (include power analysis N values). **DEPENDS ON**: T025, T025b, T019.
-- [X] T033d [P] Documentation updates: Add Environment Setup to `docs/quickstart.md`. **DEPENDS ON**: T002, T034.
-- [X] T034 [P] Code cleanup: Implement streaming for Recipe1M and chunked processing in `code/data/download.py` and `code/data/preprocess.py` to keep peak RAM < 7 GB. **DEPENDS ON**: T002.
-- [X] T035a [P] Additional unit tests for normalization and VIF. **DEPENDS ON**: T014, T023.
+- [ ] T099a_graph Orchestration Graph Definition: **DEPENDS ON**: T001a. **Action**: Define the logical execution graph for the pipeline (dependencies between tasks). **Output**: `docs/pipeline_graph.yaml`. **Constraint**: Does NOT depend on task *execution* results.
+- [ ] T099a_impl Orchestration Implementation: **DEPENDS ON**: T099a_graph. **Action**: Implement `run_full_pipeline.py` to execute tasks in order. **Output**: `code/run_full_pipeline.py`.
+- [ ] T099b Execute Pipeline: **DEPENDS ON**: T099a_impl. **Action**: Run the full pipeline. **Output**: All artifacts in `data/` and `docs/`.
 
 ---
 
-## Phase N+1: Revision & Gap Resolution
+## Phase 6: Concrete Code Implementation (Specific Functions)
 
-- [X] T037 [P] **Explicit Streaming Logic**: Refactor Ta to use `datasets.load_dataset(..., streaming=True)` and `itertools.islice` for controlled down‑sampling; log `peak_ram_mb`, `sampling_ratio`, `seed` to `data/memory_profile.json`. **DEPENDS ON**: T034, T013b.
-- [X] T048 (already placed earlier) **Sensitivity analysis of compatibility threshold** (see Phase 2).
-
----
-
-## Phase N+2: Execution Validation & Draft Report
-
-- [ ] T099a_graph [P] **Orchestration Graph Definition**: Define the dependency graph for the full pipeline in `data/pipeline_graph.json`. **Action**: List all tasks and their dependencies. **DEPENDS ON**: T051, T013a_write-T019, T022, T025, T029-T032.
-- [ ] T099a_impl [P] **Orchestration Script Implementation**: Implement `code/run_full_pipeline.py` based on `data/pipeline_graph.json`. **Action**: Write the script to execute tasks in order. **Output**: `code/run_full_pipeline.py`. **DEPENDS ON**: T099a_graph, T051, T013a_write-T019, T022, T025, T029-T032.
-- [ ] T099b [P] **Execute Pipeline**: Run `code/run_full_pipeline.py`. **Action**: Execute the script. **DEPENDS ON**: T099a_impl.
-- [X] T043d [P] **Capture Metrics**: Consolidate logs into `data/final_validation_report.json`. **DEPENDS ON**: T099b, T099a_impl.
-- [X] T044 [P] **Generate Final Report**: Assemble `docs/final_report.md` using all intermediate artifacts and `docs/draft_final_report.md`. **DEPENDS ON**: T043d, T100, T048, T047, T025, T025b, T030b, T023, T024b_partial.
-- [X] T036 [P] **Runtime Validation**: Run `code/validate_runtime.py` to ensure full pipeline ≤ 6 h; generate `data/ci_validation_report.json`. **DEPENDS ON**: T099b, T099a_impl.
-- [X] T033e [P] Documentation updates: Add Data Pipeline section to `docs/quickstart.md` (depends on successful pipeline execution). **DEPENDS ON**: T099b, T099a_impl.
-
----
-
-## Phase N+3: Critical Data Integrity & Reproducibility Fixes
-
-- [X] T054 (already defined) **Calibration Verification** (see Phase 4).
-- [X] T055 (already defined) **Final Report Generation** (see Phase 4).
-
----
-
-## Phase N+4: Execution Gate Hardening & Data Source Verification
-
-- [X] T056 [P] **Execution Gate Pre‑Check**: Verify verification PASS, Bayesian SUCCESS (or Fallback SUCCESS), calibration PASS, VIF computed. Exit non‑zero on failure; write `data/gate_validation_report.json`. **DEPENDS ON**: T051, T025, T025b, T054, T023.
-- [X] T101 [P] **Verify Normalization Config**: Ensure `data/normalization_config.json` exists; generate default if missing. **DEPENDS ON**: T014.
-- [X] T057 [P] **Final Report Compilation**: Aggregate all validated artifacts (VIF, partial correlation, AUC delta, calibration, power analysis) into `docs/final_report.md` with a "Constitution Compliance" section. **DEPENDS ON**: T056, T044, T048, T047, T025, T025b, T030b, T023, T024b_partial.
-- [X] T058 [P] **Artifact Hashing**: Compute content hashes for all final artifacts. **DEPENDS ON**: T057.
-- [X] T059 [P] **Reproducibility Audit**: Run reproducibility audit (T058); if PASS, update `docs/research.md` with "Final Sign‑off". **DEPENDS ON**: T058, T019, T101.
-- [X] T060 [P] **Final Sign‑off**: Update project state. **DEPENDS ON**: T059.
-
----
-
-## Phase N+5: Atomic Script Creation (Consolidated)
-
-**Purpose**: Create atomic scripts required for Phase N+6 execution.
-
-- [X] T102 [P] **Create Atomic Download Scripts**: Implement `download_recipe1m.py` and `download_ratings.py` with checksum verification. **DEPENDS ON**: T012, T046, T051.
-- [ ] T103 [P] **Create Atomic Preprocessing Scripts**: Implement `preprocess.py` with streaming and schema validation. **Action**: Define `normalize_ingredients()`, `build_co_occurrence()`, `compute_similarity()`, `derive_roles()` functions with specific input/output paths. **DEPENDS ON**: T007, T034, T013a_write.
-- [X] T104 [P] **Create Atomic Model Scripts**: Implement `model_fit.py` for Null, Full, and Bayesian models. **Action**: Define `fit_logistic()`, `fit_bayesian()` functions with specific input/output paths. **DEPENDS ON**: T022, T025, T040.
-- [X] T105 [P] **Create Atomic Evaluation Scripts**: Implement `evaluate.py` for metrics and hypothesis testing. **DEPENDS ON**: T029, T030.
-- [X] T106 [P] **Create Atomic Report Scripts**: Implement `report_gen.py` for section aggregation. **DEPENDS ON**: T055.
-
----
-
-## Phase N+7: Documentation Finalization
-
-- [X] T033b [P] **Update Research Doc**: Populate `docs/research.md` Results section with model coefficients, VIF, Partial Correlation, AUC delta. **DEPENDS ON**: T044.
-- [X] T033c [P] **Update Research Doc Limitations**: Add Limitations section citing sampling constraints, VIF instability, sensitivity analysis, circularity warning. **DEPENDS ON**: T048, T047.
-
----
-
-## Phase N+8: Execution Gate Hardening & Data Source Verification
-
-- [X] T066 [P] **Enforce Strict Data Source Fallback Policy**: Remove any fallback to synthetic data; raise `DataUnavailableError` on any download failure. **DEPENDS ON**: T012, T038.
-- [X] T067 [P] **Verified Data Source Injection**: If `VERIFIED_REAL_DATA_SOURCE` env var or config present, use that exact source; ignore hard‑coded URLs. **DEPENDS ON**: T066, T051.
-
----
-
-## Phase N+9: Final Execution & Reporting
-
-- [X] T068 [P] **Execute Atomic Download**: Run atomic download scripts with strict verification. **DEPENDS ON**: T066, T067, T012, T046.
-- [ ] T069 [P] **Execute Atomic Preprocessing**: Run atomic preprocessing steps with schema validation. **Action**: Execute `preprocess.py` with `--input=data/raw/recipe1m_counts.parquet --output=data/processed/normalized_ingredients.parquet`. **DEPENDS ON**: T068, T007, T103.
-- [X] T070 [P] **Execute Atomic Model Fitting**: Run atomic model fitting (Null, Full, Bayesian) with convergence checks. **Action**: Execute `model_fit.py` with `--input=data/processed/ingredient_pairs.parquet --output=data/final/model_results.json`. **DEPENDS ON**: T069, T104.
-- [X] T071 [P] **Execute Atomic Evaluation**: Run atomic evaluation (metrics, hypothesis testing). **Action**: Execute `evaluate.py` with `--input=data/final/model_results.json --output=data/evaluation_metrics.json`. **DEPENDS ON**: T070, T105.
-- [X] T072 [P] **Execute Atomic Report Generation**: Assemble final report sections atomically. **Action**: Execute `report_gen.py` with `--input=data/evaluation_metrics.json --output=docs/final_report.md`. **DEPENDS ON**: T071, T106.
-- [X] T073 [P] **Generate Final Report**: Aggregate atomic logs and results into `docs/final_report.md`, include Constitution Compliance and Limitations. **DEPENDS ON**: T072, T057, T058.
-- [X] T074 [P] **Final Validation & Sign‑off**: Run reproducibility audit (T059); if PASS, update `docs/research.md` with "Final Sign‑off". **DEPENDS ON**: T073, T058, T059.
-
----
-
-## Concrete Implementation Tasks (Formerly Review Actions)
-
-**Purpose**: Convert meta-instructions into executable code changes.
-
-- **Review Action: Task Ordering (Data Flow)**: Audit `tasks.md` to ensure any task consuming `data/results/foo.json` (e.g., verification scripts) is scheduled strictly AFTER the task producing `data/results/foo.json` (e.g., evaluation scripts). **Action**: Re-order tasks T029, T030, T032 to ensure they follow T022/T025 completion in the execution graph. **Output**: Updated `tasks.md` with corrected dependency arrows in descriptions. **DEPENDS ON**: T022, T025, T029.
-- **Review Action: Dataset Download Specificity**: Verify that T013b and T102 explicitly name the **exact** HuggingFace dataset IDs and split names (e.g., `recipe1m-full`, `ratings`) and include the Python code snippet for `load_dataset` in the task description. **Action**: Update T013b and T102 to include specific `dataset_name` and `split` arguments. **DEPENDS ON**: T012, T051.
-- **Review Action: Streaming Implementation**: Verify T034 and T103 explicitly mandate `streaming=True` and `itertools.islice` for large datasets. **Action**: Add a "Streaming Implementation" subsection to T013b and T034 descriptions detailing the chunk size and accumulation logic. **DEPENDS ON**: T034, T013b.
-- **Review Action: Spec Ratification**: Ensure T012_ratify_amendment and T024c_ratify_amendment are the **only** gates for Spec Amendments. **Action**: Add a final validation task to T060 to confirm both `amendment_ratification_log.json` and `amendment_ratification_log_FR008.json` exist and contain "RATIFIED". **DEPENDS ON**: T012_ratify_amendment, T024c_ratify_amendment, T060.
-- **Review Action: Leakage Audit Integration**: Verify T024a (Data Leakage Audit) is a hard gate before T022 (Model Fit). **Action**: Update T022 description to explicitly state "Fails if `data/data_leakage_audit.json` indicates MI > 0.5". **DEPENDS ON**: T024a, T022.
-- **Review Action: VIF Resolution Logic**: Verify T040 and T040b correctly handle the "drop predictor" case. **Action**: Add a conditional check in T022 description: "If `data/final_predictors.json` was modified by T040, use the reduced set; otherwise use the full set." **DEPENDS ON**: T040, T022.
-
-- [ ] T201 [P] [US1] **Dataset Specificity Fix**: Update `code/data/download.py` (T013b/T102) to explicitly reference `dataset_name="recipe1m-full"` and `split="train"` in the `datasets.load_dataset` call, removing any generic URL guessing. **Action**: Modify the function `download_recipe1m` to use `load_dataset("recipe1m-full", split="train", streaming=True)`. **DEPENDS ON**: T051.
-- [ ] T202 [P] [US1] **Streaming Logic Enforcement**: Refactor `code/data/preprocess.py` (T103) to strictly use `datasets.load_dataset(..., streaming=True)` and `itertools.islice` for all large data iterations, ensuring no full-load in memory. **DEPENDS ON**: T034, T013a_write.
-- [ ] T203 [P] [US2] **Leakage Audit Hard Gate**: Modify `code/run_full_pipeline.py` (T099b) to enforce a hard dependency: T022 (Model Fit) cannot start until `data/data_leakage_audit.json` exists and contains `{"mi_score": < 0.5}`. **Action**: Add check: `if not os.path.exists('data/data_leakage_audit.json') or json.load(open('data/data_leakage_audit.json'))['mi_score'] >= 0.5: raise SystemExit("Leakage detected")`. **DEPENDS ON**: T024a, T022.
-- [ ] T204 [P] [US2] **VIF Conditional Logic**: Update `code/models/logistic.py` to check `data/final_predictors.json` before fitting; if T040 marked a predictor for removal, the script must re-fit without it. **DEPENDS ON**: T040, T040b.
-- [ ] T205 [P] [US3] **Spec Ratification Check**: Add a final validation step in `code/run_full_pipeline.py` (T099b) to verify `data/amendment_ratification_log.json` and `data/amendment_ratification_log_FR008.json` exist and contain "RATIFIED" before generating the final report. **DEPENDS ON**: T012_ratify_amendment, T024c_ratify_amendment, T060.
-- [ ] T206 [P] **Execution Order Correction**: Re-verify the dependency graph in `code/run_full_pipeline.py` to ensure T029 (Metrics) and T030 (Hypothesis Test) are strictly downstream of T022 (Logistic Fit) and T025 (Bayesian Fit), preventing race conditions. **DEPENDS ON**: T022, T025, T029.
+- [ ] T201 Implement Data Loader: **Action**: Create `code/data/download.py` with function `download_dataset(url, output_path, checksum)`. **Logic**: Validate URL, download, verify checksum, raise on failure (no synthetic fallback). **Output**: `code/data/download.py`.
+- [ ] T202 Implement Schema Validator: **Action**: Create `code/utils/validate_schema.py` with function `validate_schema(dataframe, schema_path)`. **Logic**: Check columns, types, and required fields against `schema.yaml`. **Output**: `code/utils/validate_schema.py`.
+- [ ] T203 Implement Normalization: **Action**: Create `code/data/preprocess.py` with function `normalize_ingredients(ingredients, canonical_list, threshold=2)`. **Logic**: Levenshtein distance ≤ 2, frequency-weighted tie-breaking. **Output**: `code/data/preprocess.py`.
+- [ ] T204 Implement Co-occurrence: **Action**: Create `code/data/preprocess.py` with function `compute_co_occurrence(recipes)`. **Logic**: Count pairs, log-transform. **Output**: `code/data/preprocess.py`.
+- [ ] T205 Implement Model Fitting: **Action**: Create `code/models/logistic.py` with function `fit_logistic_regression(X, y)`. **Logic**: L2 regularization, VIF check. **Output**: `code/models/logistic.py`.
+- [ ] T206 Implement Evaluation: **Action**: Create `code/evaluation/report.py` with function `generate_report(metrics, plot_path)`. **Logic**: AUC, precision, recall, calibration plot. **Output**: `code/evaluation/report.py`.

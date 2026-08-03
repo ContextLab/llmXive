@@ -5,162 +5,143 @@ import pandas as pd
 import numpy as np
 from pathlib import Path
 
-# Ensure the project root is in the path for imports if running as script
-project_root = Path(__file__).resolve().parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
+def load_epsilon_config(config_path="specs/001-statistical-analysis-of-recipe-data/contracts/epsilon_config.json"):
+    """Load the epsilon smoothing configuration."""
+    try:
+        with open(config_path, 'r') as f:
+            return json.load(f)
+    except FileNotFoundError:
+        # Default fallback if config is missing, though spec implies it should exist
+        return {"epsilon": 1e-6}
 
-def load_epsilon_config():
+def load_ingredient_pairs(input_path="data/processed/normalized_ingredients.csv"):
     """
-    Loads the epsilon value from the configuration file generated in T049.
-    Falls back to 1e-6 if not found, but logs a warning.
+    Load the normalized ingredients CSV.
+    Expected columns: recipe_id, ingredient_id, functional_role, etc.
     """
-    config_path = Path("data/epsilon_config.json")
-    default_epsilon = 1e-6
-    
-    if config_path.exists():
-        try:
-            with open(config_path, 'r') as f:
-                config = json.load(f)
-                return config.get('epsilon', default_epsilon)
-        except (json.JSONDecodeError, KeyError):
-            print(f"Warning: Could not parse epsilon from {config_path}, using default.")
-            return default_epsilon
-    else:
-        print(f"Warning: {config_path} not found, using default epsilon.")
-        return default_epsilon
-
-def load_ingredient_pairs(input_path):
-    """
-    Loads the pairwise co-occurrence counts from the parquet file generated in T013c.
-    Expected columns: ingredient_id_1, ingredient_id_2, count
-    """
-    path = Path(input_path)
-    if not path.exists():
+    if not os.path.exists(input_path):
         raise FileNotFoundError(f"Input file not found: {input_path}")
-    
-    df = pd.read_parquet(path)
-    required_cols = {'ingredient_id_1', 'ingredient_id_2', 'count'}
-    if not required_cols.issubset(df.columns):
-        missing = required_cols - set(df.columns)
-        raise ValueError(f"Input file missing required columns: {missing}")
-    
+    df = pd.read_csv(input_path)
+    # Ensure recipe_id and ingredient_id are present
+    required_cols = ['recipe_id', 'ingredient_id']
+    missing = [c for c in required_cols if c not in df.columns]
+    if missing:
+        raise ValueError(f"Missing required columns in {input_path}: {missing}")
     return df
 
-def build_cooccurrence_matrix(df, epsilon):
+def build_cooccurrence_matrix(df):
     """
-    Builds the global co-occurrence matrix C from the pairwise counts.
-    Applies a log-transform: log(count + epsilon).
-    
-    Returns:
-        pd.DataFrame: The log-transformed co-occurrence matrix.
-        dict: Statistics about the matrix (dimensions, sparsity, etc.)
+    Construct global co-occurrence matrix C.
+    Counts pairs (i, j) in recipes.
+    Applies log-transform with epsilon smoothing for zero counts.
+    Returns a DataFrame where index and columns are ingredient_ids.
     """
-    # Pivot the dataframe to create the matrix
-    # We assume the data is symmetric or we treat (A,B) and (B,A) as the same edge.
-    # For the matrix, we want a square matrix where index/cols are unique ingredients.
+    # Group by recipe_id to get sets of ingredients per recipe
+    # We need to count how many times each pair appears together
     
-    # Ensure unique ingredients list
-    ingredients = sorted(set(df['ingredient_id_1']).union(set(df['ingredient_id_2'])))
-    n = len(ingredients)
+    # Create a list of frozensets for each recipe's ingredients
+    recipe_ingredient_sets = df.groupby('recipe_id')['ingredient_id'].apply(lambda x: frozenset(x.unique()))
     
-    # Create a mapping from ingredient to index
-    idx_map = {ing: i for i, ing in enumerate(ingredients)}
+    # Initialize a dictionary to count pairs
+    pair_counts = {}
     
-    # Initialize matrix with zeros
-    matrix = np.zeros((n, n), dtype=np.float32)
+    # Iterate over recipes to count pairs
+    # To handle memory efficiently, we can use a sparse approach or iterate carefully
+    # Given the constraints, we iterate and update a dictionary of counts
     
-    # Fill the matrix
-    # We iterate through the dataframe rows. If the data is not symmetric, 
-    # we might need to aggregate or just fill both (i,j) and (j,i).
-    # Assuming the input T013c output contains unique pairs (i,j) with i <= j or similar.
-    # To be safe, we fill both symmetric positions if we want a symmetric matrix,
-    # or just fill the specific entries provided.
-    # Standard co-occurrence matrices in this context are usually symmetric.
+    # We will use a symmetric matrix approach. 
+    # Since we need a full matrix for downstream, we might need to use pandas crosstab if unique ingredients aren't too many.
+    # However, standard crosstab counts co-occurrence of row/col. Here we want pair (i, j) in same recipe.
     
-    for _, row in df.iterrows():
-        i = idx_map[row['ingredient_id_1']]
-        j = idx_map[row['ingredient_id_2']]
-        val = row['count']
+    # Approach: One-hot encode ingredients per recipe, then matrix multiply?
+    # If ingredients are too many, this is memory heavy. 
+    # Let's try the iterative pair counting first, optimized with numpy/pandas.
+    
+    # Get unique ingredients
+    all_ingredients = df['ingredient_id'].unique()
+    ingredient_to_idx = {ing: i for i, ing in enumerate(all_ingredients)}
+    n_ingredients = len(all_ingredients)
+    
+    # Create a sparse matrix representation or a dense one if n is small enough
+    # If n_ingredients > 5000, dense matrix (25M entries) might be heavy but manageable in 8GB if float32.
+    # Let's assume n is manageable or we use a dictionary then convert.
+    
+    # Efficient counting:
+    # For each recipe, get the list of ingredient indices.
+    # Increment counts for all pairs (i, j) where i <= j.
+    
+    counts = np.zeros((n_ingredients, n_ingredients), dtype=np.float32)
+    
+    for ingredients in recipe_ingredient_sets:
+        indices = [ingredient_to_idx[i] for i in ingredients]
+        # Vectorized counting for this recipe
+        # Create a temporary matrix for this recipe's co-occurrences
+        # This loop might be slow in pure python for many recipes.
+        # Alternative: Use pandas crosstab on exploded data? No, that counts occurrences, not pairs.
         
-        # Apply log transform
-        log_val = np.log(val + epsilon)
-        
-        matrix[i, j] = log_val
-        matrix[j, i] = log_val # Ensure symmetry if input is directed or partial
+        # Optimized pair update:
+        # If we have indices [a, b, c], we want to add 1 to (a,a), (a,b), (a,c), (b,b), (b,c), (c,c)
+        # We can use np.add.at
+        # Create a mask of pairs
+        idx_arr = np.array(indices)
+        # Upper triangle including diagonal
+        for i in range(len(idx_arr)):
+            for j in range(i, len(idx_arr)):
+                counts[idx_arr[i], idx_arr[j]] += 1
+                
+    # Make symmetric
+    counts = counts + counts.T - np.diag(np.diag(counts))
+    
+    # Convert to DataFrame
+    co_occurrence_df = pd.DataFrame(counts, index=all_ingredients, columns=all_ingredients)
+    
+    # Apply log-transform with epsilon smoothing: log(C + epsilon)
+    config = load_epsilon_config()
+    epsilon = config.get("epsilon", 1e-6)
+    
+    # Avoid log(0) by adding epsilon before log
+    # The task says "log-transform with epsilon smoothing for zero counts"
+    # Usually means log(count + epsilon)
+    log_co_occurrence = np.log(co_occurrence_df + epsilon)
+    
+    return log_co_occurrence
 
-    # Convert to DataFrame for easier handling and saving
-    matrix_df = pd.DataFrame(matrix, index=ingredients, columns=ingredients)
-    
-    # Calculate statistics
-    total_cells = n * n
-    non_zero = np.count_nonzero(matrix)
-    sparsity = 1.0 - (non_zero / total_cells)
-    
-    stats = {
-        "dimensions": [n, n],
-        "total_cells": int(total_cells),
-        "non_zero_entries": int(non_zero),
-        "sparsity": float(sparsity),
-        "min_value": float(np.min(matrix)),
-        "max_value": float(np.max(matrix)),
-        "mean_value": float(np.mean(matrix[matrix > 0])) if non_zero > 0 else 0.0,
-        "epsilon_used": float(epsilon),
-        "ingredient_count": n
-    }
-    
-    return matrix_df, stats
-
-def save_output(matrix_df, stats, output_matrix_path, output_stats_path):
-    """
-    Saves the matrix to parquet and the stats to JSON.
-    """
-    # Ensure output directories exist
-    Path(output_matrix_path).parent.mkdir(parents=True, exist_ok=True)
-    Path(output_stats_path).parent.mkdir(parents=True, exist_ok=True)
-    
-    # Save matrix
-    matrix_df.to_parquet(output_matrix_path, index=True)
-    
-    # Save stats
-    with open(output_stats_path, 'w') as f:
-        json.dump(stats, f, indent=2)
+def save_output(df, output_path="data/processed/co_occurrence_matrix.parquet"):
+    """Save the co-occurrence matrix to parquet."""
+    output_dir = Path(output_path).parent
+    output_dir.mkdir(parents=True, exist_ok=True)
+    df.to_parquet(output_path, index=True)
+    print(f"Co-occurrence matrix saved to {output_path}")
+    return True
 
 def main():
-    """
-    Main entry point for T015: Co-occurrence Matrix generation.
-    """
-    print("Starting T015: Co-occurrence Matrix Generation")
+    """Main entry point for T015."""
+    print("Starting Co-occurrence Matrix Construction (T015)...")
     
-    # Paths
-    input_path = "data/raw/co_occurrence_counts.parquet"
-    output_matrix_path = "data/processed/co_occurrence_matrix.parquet"
-    output_stats_path = "data/matrix_stats.json"
+    input_path = "data/processed/normalized_ingredients.csv"
+    output_path = "data/processed/co_occurrence_matrix.parquet"
     
-    # Load Config
-    epsilon = load_epsilon_config()
-    print(f"Using epsilon: {epsilon}")
-    
-    # Load Data
     try:
+        # Load data
+        print(f"Loading normalized ingredients from {input_path}...")
         df = load_ingredient_pairs(input_path)
-        print(f"Loaded {len(df)} pairwise co-occurrence records.")
+        
+        # Build matrix
+        print("Building co-occurrence matrix...")
+        matrix_df = build_cooccurrence_matrix(df)
+        
+        # Save output
+        print("Saving output...")
+        save_output(matrix_df, output_path)
+        
+        print("T015 completed successfully.")
+        
     except FileNotFoundError as e:
         print(f"Error: {e}")
         sys.exit(1)
-    
-    # Build Matrix
-    print("Building co-occurrence matrix...")
-    matrix_df, stats = build_cooccurrence_matrix(df, epsilon)
-    
-    # Save Output
-    save_output(matrix_df, stats, output_matrix_path, output_stats_path)
-    
-    print(f"Matrix saved to {output_matrix_path}")
-    print(f"Stats saved to {output_stats_path}")
-    print(f"Matrix Stats: {stats['dimensions']} with sparsity {stats['sparsity']:.4f}")
-    
-    return 0
+    except Exception as e:
+        print(f"Unexpected error: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

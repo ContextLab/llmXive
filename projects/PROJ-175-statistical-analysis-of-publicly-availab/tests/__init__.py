@@ -1,1 +1,1 @@
-"""Initialization for the test package."""
+"""Tests for the recipe analysis pipeline."""

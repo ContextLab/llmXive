@@ -1,7 +1,3 @@
-"""
-Task T099: Execute Full Pipeline
-Orchestrates all tasks from data download to final report generation.
-"""
 import os
 import sys
 import json
@@ -11,161 +7,130 @@ import subprocess
 from pathlib import Path
 from datetime import datetime
 
-# Ensure project root is in path
-ROOT_DIR = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(ROOT_DIR))
+# Ensure code directory is in path
+code_dir = Path(__file__).parent
+sys.path.insert(0, str(code_dir))
 
-DATA_DIR = ROOT_DIR / "data"
-LOGS_DIR = DATA_DIR / "logs"
-LOGS_DIR.mkdir(parents=True, exist_ok=True)
-
-def log_step(step_name, status, details=None):
-    """Log a pipeline step to the execution log."""
+def log_step(step_name, status, duration=None, message=""):
     log_entry = {
+        "timestamp": datetime.now().isoformat(),
         "step": step_name,
         "status": status,
-        "timestamp": datetime.now().isoformat(),
-        "details": details or {}
+        "duration_seconds": duration,
+        "message": message
     }
+    log_path = Path('data/pipeline_execution_log.json')
+    log_path.parent.mkdir(parents=True, exist_ok=True)
     
-    log_file = DATA_DIR / "pipeline_execution_log.json"
+    logs = []
+    if log_path.exists():
+        try:
+            with open(log_path, 'r') as f:
+                logs = json.load(f)
+        except json.JSONDecodeError:
+            logs = []
     
-    # Load existing log or create new
-    if log_file.exists():
-        with open(log_file, 'r') as f:
-            log_data = json.load(f)
-    else:
-        log_data = {"pipeline_runs": []}
+    logs.append(log_entry)
+    with open(log_path, 'w') as f:
+        json.dump(logs, f, indent=2)
     
-    log_data["pipeline_runs"].append(log_entry)
-    
-    with open(log_file, 'w') as f:
-        json.dump(log_data, f, indent=2)
-    
-    return log_entry
+    print(f"[{status}] {step_name}: {message}")
 
 def ensure_directories():
-    """Ensure all required directories exist."""
     dirs = [
-        DATA_DIR / "raw",
-        DATA_DIR / "processed",
-        DATA_DIR / "final",
-        ROOT_DIR / "docs",
-        LOGS_DIR
+        'data/raw', 'data/processed', 'data/final', 'data/logs',
+        'code/data', 'code/models', 'code/evaluation', 'code/validation'
     ]
     for d in dirs:
-        d.mkdir(parents=True, exist_ok=True)
+        Path(d).mkdir(parents=True, exist_ok=True)
 
-def run_command(cmd, description):
-    """Run a shell command and return success/failure."""
-    print(f"\n--- {description} ---")
+def run_command(cmd, step_name):
     print(f"Running: {' '.join(cmd)}")
-    
+    start_time = time.time()
     try:
-        result = subprocess.run(
-            cmd,
-            cwd=ROOT_DIR,
-            check=True,
-            capture_output=True,
-            text=True
-        )
-        print(result.stdout)
-        return True, result.stdout
+        result = subprocess.run(cmd, check=True, capture_output=True, text=True)
+        duration = time.time() - start_time
+        log_step(step_name, "SUCCESS", duration, "Completed successfully")
+        return True
     except subprocess.CalledProcessError as e:
-        print(f"Error: {e}")
-        print(f"stderr: {e.stderr}")
-        return False, e.stderr
+        duration = time.time() - start_time
+        log_step(step_name, "FAILED", duration, f"Exit code: {e.returncode}, stderr: {e.stderr}")
+        print(f"Error in {step_name}: {e.stderr}")
+        return False
 
 def run_data_pipeline():
-    """Run the data preparation pipeline (T051, T013a-T019)."""
+    ensure_directories()
     steps = [
-        (["python", str(ROOT_DIR / "code" / "data" / "download.py")], "Download datasets (T051)"),
-        (["python", str(ROOT_DIR / "code" / "data" / "preprocess.py")], "Preprocess data (T013a-T018)"),
-        (["python", str(ROOT_DIR / "code" / "data" / "split.py")], "Train/Test Split (T019)"),
+        (["python", "code/data/download.py", "--dataset", "recipe1m", "--output", "data/raw/"], "T013a_Recipe1M_Download"),
+        (["python", "code/data/preprocess.py", "--input", "data/raw/", "--output", "data/processed/"], "T014_Normalization"),
+        (["python", "code/data/split.py", "--input", "data/processed/ingredient_pairs.csv", "--output", "data/processed/"], "T018_Split"),
+        # T019 is the current task
+        (["python", "code/data/derive_compatibility_labels.py"], "T019_Compatibility_Labels")
     ]
     
-    for cmd, desc in steps:
-        success, output = run_command(cmd, desc)
-        if not success:
-            log_step(desc, "FAILED", {"error": output})
-            raise RuntimeError(f"Pipeline step failed: {desc}")
-        log_step(desc, "SUCCESS")
-    
+    for cmd, name in steps:
+        if not run_command(cmd, name):
+            log_step("Pipeline_Data", "FAILED", message=f"Step {name} failed")
+            return False
+    log_step("Pipeline_Data", "SUCCESS", message="Data pipeline completed")
     return True
 
 def run_model_fitting():
-    """Run model fitting (T022, T025)."""
+    ensure_directories()
     steps = [
-        (["python", str(ROOT_DIR / "code" / "models" / "fit_logistic.py")], "Fit Logistic Regression (T022)"),
-        (["python", str(ROOT_DIR / "code" / "models" / "fit_bayesian.py")], "Fit Bayesian Model (T025)"),
+        (["python", "code/models/fit_logistic.py", "--input", "data/processed/train.csv", "--output", "data/logs/"], "T023_Logistic_Fit"),
+        (["python", "code/models/fit_bayesian.py", "--input", "data/processed/train.csv", "--output", "data/logs/"], "T025_Bayesian_Fit")
     ]
     
-    for cmd, desc in steps:
-        success, output = run_command(cmd, desc)
-        if not success:
-            log_step(desc, "FAILED", {"error": output})
-            # Note: Bayesian may fail gracefully with fallback
-            if "bayesian" in desc.lower():
-                log_step(desc, "FAILED_WITH_FALLBACK", {"error": output})
-            else:
-                raise RuntimeError(f"Model fitting step failed: {desc}")
-        log_step(desc, "SUCCESS")
-    
+    for cmd, name in steps:
+        if not run_command(cmd, name):
+            log_step("Pipeline_Models", "FAILED", message=f"Step {name} failed")
+            return False
+    log_step("Pipeline_Models", "SUCCESS", message="Model fitting completed")
     return True
 
 def run_evaluation():
-    """Run evaluation and reporting (T029-T032, T055)."""
+    ensure_directories()
     steps = [
-        (["python", str(ROOT_DIR / "code" / "evaluation" / "metrics.py")], "Calculate Metrics (T029)"),
-        (["python", str(ROOT_DIR / "code" / "evaluation" / "capture_metrics.py")], "Capture Metrics (T043d)"),
-        (["python", str(ROOT_DIR / "code" / "evaluation" / "generate_final_report.py")], "Generate Final Report (T055)"),
+        (["python", "code/evaluation/metrics.py"], "T029_Evaluation"),
+        (["python", "code/evaluation/capture_metrics.py"], "T029_Capture_Metrics")
     ]
     
-    for cmd, desc in steps:
-        success, output = run_command(cmd, desc)
-        if not success:
-            log_step(desc, "FAILED", {"error": output})
-            raise RuntimeError(f"Evaluation step failed: {desc}")
-        log_step(desc, "SUCCESS")
-    
+    for cmd, name in steps:
+        if not run_command(cmd, name):
+            log_step("Pipeline_Evaluation", "FAILED", message=f"Step {name} failed")
+            return False
+    log_step("Pipeline_Evaluation", "SUCCESS", message="Evaluation completed")
     return True
 
 def main():
-    """Main entry point for the full pipeline."""
-    parser = argparse.ArgumentParser(description="Run the full research pipeline")
-    parser.add_argument("--skip-data", action="store_true", help="Skip data preparation")
-    parser.add_argument("--skip-models", action="store_true", help="Skip model fitting")
-    parser.add_argument("--skip-eval", action="store_true", help="Skip evaluation")
+    parser = argparse.ArgumentParser(description="Run the full statistical analysis pipeline.")
+    parser.add_argument("--full", action="store_true", help="Run all stages")
+    parser.add_argument("--data", action="store_true", help="Run only data pipeline")
+    parser.add_argument("--models", action="store_true", help="Run only model fitting")
+    parser.add_argument("--eval", action="store_true", help="Run only evaluation")
     args = parser.parse_args()
-    
-    start_time = time.time()
-    
-    try:
-        ensure_directories()
-        log_step("Pipeline Start", "RUNNING", {"args": vars(args)})
-        
-        if not args.skip_data:
-            run_data_pipeline()
-        
-        if not args.skip_models:
-            run_model_fitting()
-        
-        if not args.skip_eval:
-            run_evaluation()
-        
-        end_time = time.time()
-        duration = end_time - start_time
-        
-        log_step("Pipeline Complete", "SUCCESS", {"duration_seconds": duration})
-        print(f"\nPipeline completed successfully in {duration:.2f} seconds.")
-        return 0
-        
-    except Exception as e:
-        end_time = time.time()
-        duration = end_time - start_time
-        log_step("Pipeline Failed", "FAILED", {"error": str(e), "duration_seconds": duration})
-        print(f"\nPipeline failed after {duration:.2f} seconds: {e}")
-        return 1
 
-if __name__ == "__main__":
-    sys.exit(main())
+    success = True
+    if args.full or (not args.data and not args.models and not args.eval):
+        success = run_data_pipeline() and success
+        if success:
+            success = run_model_fitting() and success
+        if success:
+            success = run_evaluation() and success
+    else:
+        if args.data:
+            success = run_data_pipeline() and success
+        if args.models:
+            success = run_model_fitting() and success
+        if args.eval:
+            success = run_evaluation() and success
+
+    if success:
+        print("Pipeline execution completed successfully.")
+    else:
+        print("Pipeline execution failed.")
+        sys.exit(1)
+
+if __name__ == '__main__':
+    main()

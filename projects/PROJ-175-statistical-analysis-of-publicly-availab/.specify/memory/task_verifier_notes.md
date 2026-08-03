@@ -2,11 +2,13 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T001a** — declared artifact(s) missing/empty/invalid: data/setup_log.json
-- **T001b** — The `data/raw/recipe1m_counts.parquet` file is absent, and the provided `code/data/download.py` does not contain logic to verify `dataset_name="recipe1m-full"`, stream the Recipe1M dataset with `datasets.load_dataset(..., streaming=True)`, compute frequency counts, or write the required Parquet file. Consequently the task’s core output is missing.
-- **T012c** — declared artifact(s) missing/empty/invalid: data/amendment_ratification_log.json
-- **T046** — No code, tests, or documentation were presented showing that a pre‑flight `HEAD` request is performed on the verified URLs and that a `DataUnavailableError` is raised for non‑200 responses. The required artifact (implementation of the HEAD checks and error handling) is missing.
-- **T013b** — The repository contains `code/data/download.py`, but the file is truncated and does not show any implementation that streams the Recipe1M dataset or writes the required `data/raw/pilot_data.parquet` and `data/raw/pilot_stats.json`. Moreover, both expected output files are absent from the `data/raw` directory. The task’s core deliverables are therefore missing.
-- **T014** — The required `data/processed/normalized_ingredients.parquet` file is missing, and the `data/normalization_report.json` contains placeholder values (“NO_DATA”, zero counts) rather than a real report of excluded ingredients. Consequently the normalization output and reporting are not actually produced.
-- **T014c** — The repository contains `code/data/embeddings.py`, but the required output file `data/processed/ingredient_embeddings.parquet` is missing, so the core deliverable of the task is not present. The implementation also appears incomplete (truncated) and does not demonstrate that the embeddings have been fetched and saved. The next implementer must ensure the script runs successfully and creates the parquet file with the correct schema.
-- **T016** — The required input file `data/processed/ingredient_embeddings.parquet` is missing, and the provided `similarity_scores.parquet` is only a placeholder text file (296 bytes) rather than a real Parquet file with computed similarity values. Both the necessary input and a genuine output with the correct schema are absent.
+- **T012a** — declared artifact(s) missing/empty/invalid: data/download_status.json
+- **T013a** — declared artifact(s) missing/empty/invalid: data/raw/recipe1m_raw.parquet
+- **T013b** — declared artifact(s) missing/empty/invalid: data/pilot_stats.json
+- **T014** — The submission contains only the task description and specification; no actual pipeline code, no normalized ingredient CSV, and no generated co‑occurrence matrix or similarity scores are provided. The required artifact—a validated CSV file (or equivalent) produced by the preprocessing pipeline—is missing, so the task is not satisfied.
+- **T015** — declared artifact(s) missing/empty/invalid: data/processed/co_occurrence_matrix.parquet
+- **T017** — declared artifact(s) missing/empty/invalid: data/processed/functional_roles.parquet
+- **T018** — declared artifact(s) missing/empty/invalid: data/processed/ingredient_pairs.csv
+- **T019** — No concrete artifact (e.g., a CSV file, dataset column, or code output) containing the required binary compatibility labels is present; the response only repeats the task description without providing the actual labels or any generated data. The required output is missing.
+- **T023** — declared artifact(s) missing/empty/invalid: data/logs/vif_scores.json
+- **T024a** — declared artifact(s) missing/empty/invalid: data/logs/leakage_audit.json

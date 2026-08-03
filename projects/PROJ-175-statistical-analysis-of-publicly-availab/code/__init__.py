@@ -1,2 +1,2 @@
-"""Initialization for the statistical analysis code package."""
+"""llmXive Project: Statistical Analysis of Publicly Available Recipe Data"""
 seed = 42

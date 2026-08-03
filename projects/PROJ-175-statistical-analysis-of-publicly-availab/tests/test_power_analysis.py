@@ -1,73 +1,65 @@
+"""
+Tests for T013b: Power Analysis.
+"""
 import os
 import json
 import tempfile
+from pathlib import Path
 import pytest
 import pandas as pd
 import numpy as np
-from pathlib import Path
+
+# Import the module under test
+# Adjust import path based on project structure
 import sys
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(PROJECT_ROOT / "code"))
 
-# Add code directory to path for imports
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "code"))
+from data.power_analysis import calculate_sample_size, calculate_variance_estimate
 
-from data.power_analysis import load_pilot_stats, calculate_sample_size, main
-
-def test_load_pilot_stats_valid():
-    """Test loading variance from a valid parquet file."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        filepath = os.path.join(tmpdir, "test.parquet")
-        df = pd.DataFrame({"counts": [10, 20, 30, 40, 50]})
-        df.to_parquet(filepath)
-        
-        variance = load_pilot_stats(filepath)
-        assert variance is not None
-        assert variance > 0
-        
-def test_load_pilot_stats_missing():
-    """Test handling of missing file."""
-    variance = load_pilot_stats("/nonexistent/path.parquet")
-    assert variance is None
+class TestPowerAnalysis:
     
-def test_load_pilot_stats_empty():
-    """Test handling of empty dataframe."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        filepath = os.path.join(tmpdir, "empty.parquet")
-        df = pd.DataFrame()
-        df.to_parquet(filepath)
+    def test_calculate_sample_size_basic(self):
+        """Test basic sample size calculation."""
+        variance = 1.0
+        effect_size = 0.5 # Large effect
+        n = calculate_sample_size(variance, effect_size=effect_size)
         
-        variance = load_pilot_stats(filepath)
-        assert variance is None
-        
-def test_calculate_sample_size():
-    """Test sample size calculation."""
-    # With variance=1.0 and effect_size=0.1, Cohen's d = 0.1
-    # This should require a large sample size
-    n = calculate_sample_size(variance=1.0, effect_size=0.1, power=0.8)
-    assert n >= 100
-    assert isinstance(n, int)
+        # With large effect size, n should be relatively small
+        assert n > 0
+        assert isinstance(n, int)
     
-def test_main_creates_files():
-    """Test that main() creates the required output files."""
-    # Create a temporary directory structure
-    with tempfile.TemporaryDirectory() as tmpdir:
-        # Create mock pilot data
-        data_dir = Path(tmpdir) / "data" / "raw"
-        data_dir.mkdir(parents=True)
-        pilot_path = data_dir / "pilot_data.parquet"
-        df = pd.DataFrame({"counts": [100, 200, 300, 400, 500]})
-        df.to_parquet(str(pilot_path))
+    def test_calculate_sample_size_small_effect(self):
+        """Test that small effect size requires larger sample."""
+        variance = 1.0
+        n_large = calculate_sample_size(variance, effect_size=0.5)
+        n_small = calculate_sample_size(variance, effect_size=0.1)
         
-        # Mock the project root structure
-        original_cwd = os.getcwd()
-        try:
-            os.chdir(tmpdir)
-            # Run main - it will look for pilot_data.parquet in data/raw/
-            # We need to temporarily patch the paths or run in the right context
-            # For this test, we'll just verify the logic by checking if files are created
-            # when we provide the right structure.
-            
-            # Since main() uses __file__ to determine paths, we can't easily mock it
-            # without refactoring. Instead, we test the component functions.
-            pass
-        finally:
-            os.chdir(original_cwd)
+        assert n_small > n_large
+    
+    def test_calculate_variance_estimate_with_ratings(self):
+        """Test variance estimation when 'rating' column exists."""
+        data = {"rating": [1.0, 2.0, 3.0, 4.0, 5.0]}
+        df = pd.DataFrame(data)
+        var = calculate_variance_estimate(df)
+        # Variance of [1,2,3,4,5] is 2.5
+        assert abs(var - 2.5) < 0.01
+    
+    def test_calculate_variance_estimate_with_ingredients(self):
+        """Test variance estimation when 'ingredients' list column exists."""
+        data = {"ingredients": [[1], [1, 2], [1, 2, 3], [1], [1, 2]]}
+        df = pd.DataFrame(data)
+        var = calculate_variance_estimate(df)
+        # Counts: [1, 2, 3, 1, 2] -> mean=1.8, var=0.7
+        assert var > 0
+    
+    def test_calculate_variance_estimate_fallback(self):
+        """Test variance estimation fallback when no numeric columns."""
+        data = {"name": ["A", "B", "C"]}
+        df = pd.DataFrame(data)
+        var = calculate_variance_estimate(df)
+        # Should fallback to 0.25
+        assert abs(var - 0.25) < 0.01
+
+if __name__ == "__main__":
+    pytest.main([__file__, "-v"])

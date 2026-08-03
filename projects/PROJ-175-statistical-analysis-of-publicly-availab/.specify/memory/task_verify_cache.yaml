@@ -1,70 +1,21 @@
-T001b:
+T014:
   c: false
-  h: 919934cb5172cb2926ba86cafab6ccd4f53121e7e747d6151256f20e2165781e
-  r: "The `data/raw/recipe1m_counts.parquet` file is absent, and the provided `code/data/download.py`\
-    \ does not contain logic to verify `dataset_name=\"recipe1m-full\"`, stream the\
-    \ Recipe1M dataset with `datasets.load_dataset(..., streaming=True)`, compute\
-    \ frequency counts, or write the required Parquet file. Consequently the task\u2019\
-    s core output is missing."
-T008:
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The submission contains only the task description and specification; no actual\
+    \ pipeline code, no normalized ingredient CSV, and no generated co\u2011occurrence\
+    \ matrix or similarity scores are provided. The required artifact\u2014a validated\
+    \ CSV file (or equivalent) produced by the preprocessing pipeline\u2014is missing,\
+    \ so the task is not satisfied."
+T019:
   c: false
-  h: 62d421a91d3a45bd686d12b14335912a9a4a1bc0caf81b096c1b81a5d5548484
-  r: "The required input `data/raw/marginal_counts.parquet` is missing, yet the fallback\
-    \ rule specifies using a placeholder/conservative estimate for `N_unified` when\
-    \ variance cannot be estimated. The provided `data/power_analysis.json` contains\
-    \ a concrete value (15000) with no evidence that `statsmodels.stats.power.tt_ind_solve_power`\
-    \ was used, nor that the fallback placeholder was applied. The task\u2019s core\
-    \ requirement is therefore not satisfied."
-T014c:
-  c: false
-  h: 753bd3ecc2f8be703a683e2c6d458db12f8ec54dd1a34e03f79ba7531c929623
-  r: The repository contains `code/data/embeddings.py`, but the required output file
-    `data/processed/ingredient_embeddings.parquet` is missing, so the core deliverable
-    of the task is not present. The implementation also appears incomplete (truncated)
-    and does not demonstrate that the embeddings have been fetched and saved. The
-    next implementer must ensure the script runs successfully and creates the parquet
-    file with the correct schema.
-T016:
-  c: false
-  h: 482804c334e9d3cd7516815b3e502666636b82c009fdb2f592fd306578246684
-  r: "The required input file `data/processed/ingredient_embeddings.parquet` is missing,\
-    \ and the provided `similarity_scores.parquet` is only a placeholder text file\
-    \ (296\u202Fbytes) rather than a real Parquet file with computed similarity values.\
-    \ Both the necessary input and a genuine output with the correct schema are absent."
-T022:
-  c: false
-  h: 05ba5842e9e07e069c2587cbb2900003bc3b9ad42e01cdd3f13da667f4a537fc
-  r: "The required output file `data/final/logistic_results.json` is missing, and\
-    \ the provided `data/final_predictors.json` contains only placeholder predictor\
-    \ names rather than the expected list (frequency, similarity, categorical role).\
-    \ Without the results file containing coefficients and p\u2011values, the task\
-    \ is not satisfied."
-T033b#1:
-  c: true
-  h: 07750d5014bd1db1b87d75cbbf5e4251ba4f5c96597302416e69698c4110834c
-  r: "The `docs/quickstart.md` file exists, contains the required \u201CEnvironment\
-    \ Setup\u201D section with a `pip install -r code/requirements.txt` command, a\
-    \ \u201CData Pipeline\u201D section describing streaming instructions, and a \u201C\
-    Model Execution\u201D section that outlines the runtime\u2011estimation formula\
-    \ and includes placeholder entries for the estimated times."
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No concrete artifact (e.g., a CSV file, dataset column, or code output) containing
+    the required binary compatibility labels is present; the response only repeats
+    the task description without providing the actual labels or any generated data.
+    The required output is missing.
 T038:
   c: false
   h: b33fed31ef935bed54cf471b740f02c09ae2a8f56ed2c2c4ed05e8ec02f52fa5
   r: The `download.py` still uses a generic `except Exception` block and does not
     show specific HTTP error handling or logging of the URL and error code to `data/download_errors.log`.
     Moreover, the required `data/download_errors.log` file is missing.
-T046:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, tests, or documentation were presented showing that a pre\u2011flight\
-    \ `HEAD` request is performed on the verified URLs and that a `DataUnavailableError`\
-    \ is raised for non\u2011200 responses. The required artifact (implementation\
-    \ of the HEAD checks and error handling) is missing."
-T056:
-  c: false
-  h: b4a2b5ef912feea603d78716ad5319afd77920c72a50ecf66da11315548d0f72
-  r: The `code/validate_execution_gate.py` script is truncated and never writes `data/gate_validation_report.json`.
-    Moreover, three of the required input files (`bayesian_convergence_log.json`,
-    `calibration_test_results.json`, `vif_scores_initial.json`) are absent, so the
-    validation cannot succeed. The deliverable report is missing and the gate checks
-    cannot be performed as specified.

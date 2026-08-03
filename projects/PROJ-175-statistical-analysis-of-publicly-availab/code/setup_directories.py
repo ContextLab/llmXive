@@ -1,97 +1,127 @@
-"""
-Setup and verification of project directory structure for PROJ-175.
-Implements T001a: Create project directory structure and log verification.
-"""
 import os
 import json
 from datetime import datetime
 from pathlib import Path
 
-# Define the project root relative to the code directory
-# The script is expected to be run from the project root or code directory
-# We assume the project root is the parent of 'code'
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-PROJECT_NAME = "PROJ-175-statistical-analysis-of-publicly-availab"
+def ensure_directories(base_path: str) -> list:
+    """
+    Create the required project directory structure.
+    
+    Args:
+        base_path: The root directory for the project (e.g., 'projects/PROJ-175-...')
+        
+    Returns:
+        A list of full paths to the created directories.
+    """
+    required_dirs = [
+        "code",
+        "data",
+        "tests",
+        "data/raw",
+        "data/processed",
+        "data/final",
+        "data/logs",
+        "docs"
+    ]
+    
+    created_paths = []
+    for dir_name in required_dirs:
+        full_path = os.path.join(base_path, dir_name)
+        os.makedirs(full_path, exist_ok=True)
+        created_paths.append(full_path)
+        
+    return created_paths
 
-# Define the required directories relative to the project root
-REQUIRED_DIRS = [
-    PROJECT_ROOT / PROJECT_NAME / "code",
-    PROJECT_ROOT / PROJECT_NAME / "data",
-    PROJECT_ROOT / PROJECT_NAME / "tests",
-    PROJECT_ROOT / PROJECT_NAME / "data" / "raw",
-    PROJECT_ROOT / PROJECT_NAME / "data" / "processed",
-    PROJECT_ROOT / PROJECT_NAME / "data" / "final",
-]
-
-def ensure_directories():
-    """Create all required directories if they do not exist."""
-    for dir_path in REQUIRED_DIRS:
-        dir_path.mkdir(parents=True, exist_ok=True)
-
-def verify_directories():
-    """Verify existence of directories and return a list of verified paths."""
-    verified_paths = []
-    for dir_path in REQUIRED_DIRS:
-        if dir_path.is_dir():
-            verified_paths.append(str(dir_path))
+def verify_directories(paths: list) -> dict:
+    """
+    Verify that all required directories exist.
+    
+    Args:
+        paths: List of directory paths to verify.
+        
+    Returns:
+        A dictionary with verification status and details.
+    """
+    verified = []
+    failed = []
+    
+    for path in paths:
+        if os.path.isdir(path):
+            verified.append(path)
         else:
-            # Attempt to create if missing (should have been done by ensure_directories)
-            try:
-                dir_path.mkdir(parents=True, exist_ok=True)
-                if dir_path.is_dir():
-                    verified_paths.append(str(dir_path))
-            except OSError:
-                pass
-    return verified_paths
+            failed.append(path)
+            
+    return {
+        "verified": verified,
+        "failed": failed,
+        "all_passed": len(failed) == 0
+    }
 
-def log_setup_status(verified_paths, output_path):
+def log_setup_status(base_path: str, status: str, paths: list, failed_paths: list = None) -> str:
     """
     Log the setup status to a JSON file.
-    Schema: {"status": "SUCCESS"|"FAILED", "timestamp": "ISO8601", "paths_verified": ["path1", "path2"]}
-    """
-    all_verified = len(verified_paths) == len(REQUIRED_DIRS)
-    status = "SUCCESS" if all_verified else "FAILED"
     
+    Args:
+        base_path: The root directory for the project.
+        status: "SUCCESS" or "FAILED".
+        paths: List of paths that were verified/created.
+        failed_paths: List of paths that failed verification (if any).
+        
+    Returns:
+        The path to the log file.
+    """
     log_data = {
         "status": status,
         "timestamp": datetime.utcnow().isoformat() + "Z",
-        "paths_verified": verified_paths
+        "paths_verified": paths
     }
     
-    output_dir = output_path.parent
-    output_dir.mkdir(parents=True, exist_ok=True)
+    if failed_paths:
+        log_data["paths_failed"] = failed_paths
+        
+    log_path = os.path.join(base_path, "data", "setup_log.json")
     
-    with open(output_path, 'w', encoding='utf-8') as f:
+    with open(log_path, "w") as f:
         json.dump(log_data, f, indent=2)
-    
-    return log_data
+        
+    return log_path
 
 def main():
-    """Main entry point for the setup script."""
-    # Ensure all directories exist
-    ensure_directories()
+    """
+    Main entry point for task T001a: Create project directory structure.
+    """
+    # Define the project root based on the task description
+    project_root = "projects/PROJ-175-statistical-analysis-of-publicly-availab"
     
-    # Verify directories
-    verified_paths = verify_directories()
+    # Ensure the base project directory exists first
+    os.makedirs(project_root, exist_ok=True)
     
-    # Define output path
-    # The log should be in data/setup_log.json relative to the project root
-    # Note: The task description says "projects/PROJ-175.../data/setup_log.json"
-    # We map this to PROJECT_ROOT / PROJECT_NAME / "data" / "setup_log.json"
-    output_path = PROJECT_ROOT / PROJECT_NAME / "data" / "setup_log.json"
+    # Create the required subdirectories
+    created_paths = ensure_directories(project_root)
     
-    # Log the status
-    log_data = log_setup_status(verified_paths, output_path)
+    # Verify the directories were created successfully
+    verification = verify_directories(created_paths)
     
-    # Print result for immediate feedback
-    if log_data["status"] == "SUCCESS":
-        print(f"Setup successful. Verified {len(verified_paths)} directories.")
-        print(f"Log written to: {output_path}")
+    # Determine final status
+    if verification["all_passed"]:
+        status = "SUCCESS"
+        paths_to_log = verification["verified"]
+        failed_paths = None
     else:
-        print(f"Setup failed. Some directories could not be created/verified.")
-        print(f"Log written to: {output_path}")
+        status = "FAILED"
+        paths_to_log = verification["verified"]
+        failed_paths = verification["failed"]
+        
+    # Log the result
+    log_path = log_setup_status(project_root, status, paths_to_log, failed_paths)
     
-    return log_data
+    print(f"Setup completed with status: {status}")
+    print(f"Log written to: {log_path}")
+    
+    if status == "FAILED":
+        print(f"Failed paths: {failed_paths}")
+        sys.exit(1)
 
 if __name__ == "__main__":
+    import sys
     main()
