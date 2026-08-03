@@ -1,3 +1,7 @@
+"""
+Unit tests for setup_data_directories.py.
+Verifies that the data directories are created and exist as expected.
+"""
 import os
 import sys
 import pytest
@@ -5,84 +9,82 @@ from pathlib import Path
 import tempfile
 import shutil
 
-# Add parent to path to allow imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+# Add the code directory to the path to import the module
+# Assuming this test file is in code/tests/unit/
+code_dir = Path(__file__).resolve().parent.parent.parent / "code"
+if str(code_dir) not in sys.path:
+    sys.path.insert(0, str(code_dir))
 
-from setup_data_directories import setup_data_directories
+from setup_data_directories import setup_data_directories, PROJECT_ROOT
+
 
 class TestDataDirectories:
-    @pytest.fixture(autouse=True)
-    def setup_and_teardown(self, tmp_path):
-        """
-        Setup: Create a temporary directory structure mimicking the project root.
-        Teardown: Cleanup handled by pytest's tmp_path.
-        """
-        self.original_cwd = os.getcwd()
-        # Create a fake project root
-        self.fake_project_root = tmp_path / "project_root"
-        self.fake_project_root.mkdir()
-        self.fake_code_dir = self.fake_project_root / "code"
-        self.fake_code_dir.mkdir()
-        
-        # Change to the fake code directory so relative paths work as expected
-        os.chdir(self.fake_code_dir)
-        
-        yield
-        
-        os.chdir(self.original_cwd)
+    """Test suite for data directory setup functionality."""
 
-    def test_creation_of_data_directories(self, tmp_path):
+    @pytest.fixture(autouse=True)
+    def setup_and_teardown(self):
         """
-        Verify that setup_data_directories creates:
-        - data/raw/
-        - data/processed/
-        - data/models/
+        Setup: Ensure we are in a clean state (optional, usually handled by CI).
+        Teardown: Not strictly needed as we don't delete system dirs, 
+        but we ensure the fixture runs.
         """
-        # The function uses __file__ to determine project root,
-        # but since we are testing in a temp dir, we need to ensure
-        # the logic works relative to the script location.
-        # However, the actual script relies on __file__ which is fixed.
-        # To properly test, we will run the logic directly against the tmp_path
-        # by mocking the Path resolution or simply running the script logic.
+        # Save original PROJECT_ROOT if needed for complex mocking
+        self.original_root = PROJECT_ROOT
+        yield
+        # Restore if modified
+        # (In this simple implementation, PROJECT_ROOT is a constant, so no restore needed)
+
+    def test_directory_creation(self):
+        """
+        Test that setup_data_directories creates the required directories.
+        """
+        # The function creates directories relative to PROJECT_ROOT
+        # We assume PROJECT_ROOT is set correctly in the environment.
+        # In a real test, we might mock PROJECT_ROOT to a temp dir,
+        # but the requirement is to verify os.path.isdir on the real paths.
         
-        # Re-implement the logic here for the test to be independent of __file__
-        # or run the actual function if we can manipulate the environment.
-        # Given the constraint of the script using __file__, we will assert
-        # that the function runs without error and check the resulting structure
-        # if the script was placed correctly.
+        # Run the setup
+        result = setup_data_directories()
         
-        # For this unit test, we verify the logic by running the script 
-        # in the temporary environment or checking the function's side effects
-        # if we can isolate them.
+        assert result is True, "setup_data_directories should return True on success"
+
+    def test_data_raw_exists(self):
+        """
+        Verify that data/raw/ directory exists after setup.
+        """
+        setup_data_directories()
+        raw_path = PROJECT_ROOT / "data" / "raw"
+        assert os.path.isdir(raw_path), f"Directory {raw_path} should exist and be a directory"
+
+    def test_data_processed_exists(self):
+        """
+        Verify that data/processed/ directory exists after setup.
+        """
+        setup_data_directories()
+        processed_path = PROJECT_ROOT / "data" / "processed"
+        assert os.path.isdir(processed_path), f"Directory {processed_path} should exist and be a directory"
+
+    def test_data_models_exists(self):
+        """
+        Verify that data/models/ directory exists after setup.
+        """
+        setup_data_directories()
+        models_path = PROJECT_ROOT / "data" / "models"
+        assert os.path.isdir(models_path), f"Directory {models_path} should exist and be a directory"
+
+    def test_all_directories_verified(self):
+        """
+        Comprehensive check that all required data directories exist.
+        """
+        setup_data_directories()
         
-        # Let's create the directories manually to verify the structure
-        # and then run the function to ensure it doesn't fail on existing dirs.
-        
-        data_root = self.fake_project_root / "data"
-        dirs = [
-            data_root / "raw",
-            data_root / "processed",
-            data_root / "models"
+        required_dirs = [
+            "raw",
+            "processed",
+            "models"
         ]
         
-        for d in dirs:
-            d.mkdir(parents=True, exist_ok=True)
-        
-        # Now run the function (which should handle existing dirs gracefully)
-        # We need to patch the Path resolution in the module if we want to test
-        # strictly. Instead, we'll just assert the directories exist after
-        # ensuring the environment is set up.
-        
-        for d in dirs:
-            assert d.is_dir(), f"Directory {d} should exist"
-
-    def test_directories_are_writable(self, tmp_path):
-        """Verify that the created directories are writable."""
-        data_root = self.fake_project_root / "data"
-        raw_dir = data_root / "raw"
-        raw_dir.mkdir(parents=True, exist_ok=True)
-        
-        test_file = raw_dir / "test_write.txt"
-        test_file.write_text("test")
-        assert test_file.exists()
-        test_file.unlink()
+        for dir_name in required_dirs:
+            dir_path = PROJECT_ROOT / "data" / dir_name
+            assert os.path.isdir(dir_path), f"Directory {dir_path} must exist"
+            assert dir_path.exists(), f"Directory {dir_path} must exist"

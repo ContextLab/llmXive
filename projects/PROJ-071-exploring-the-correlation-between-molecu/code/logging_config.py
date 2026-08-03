@@ -73,42 +73,55 @@ def log_operation(*args: Any, **kwargs: Any) -> Any:
     return get_logger().log(op, **kwargs)
 
 
-def log_error(error_message: str, context: Optional[Dict[str, Any]] = None) -> None:
-    """Log an error message with optional context."""
-    logger = get_logger()
-    logger.log("error", message=error_message, context=context or {})
+def log_error(error_message: str, operation: str = "unknown") -> None:
+    """Log an error message to the global logger."""
+    get_logger().log(operation, error=error_message)
 
 
-def handle_pipeline_exception(exception: Exception, context: Optional[Dict[str, Any]] = None) -> None:
+def handle_pipeline_exception(operation: str, exception: Exception) -> None:
     """Handle a pipeline exception by logging it."""
-    logger = get_logger()
-    logger.log("exception", 
-               operation="pipeline", 
-               error_type=type(exception).__name__, 
-               message=str(exception),
-               context=context or {})
+    get_logger().log(operation, exception=str(exception))
 
 
-def log_pipeline_start(operation: str, metadata: Optional[Dict[str, Any]] = None) -> LogEntry:
+def log_pipeline_start(operation: str, parameters: dict = None) -> None:
     """Log the start of a pipeline operation."""
-    logger = get_logger()
-    return logger.log("pipeline_start", operation=operation, metadata=metadata or {})
+    get_logger().log(operation, parameters=parameters or {})
 
 
-def log_pipeline_complete(operation: str, metadata: Optional[Dict[str, Any]] = None) -> LogEntry:
+def log_pipeline_complete(operation: str, parameters: dict = None) -> None:
     """Log the completion of a pipeline operation."""
-    logger = get_logger()
-    return logger.log("pipeline_complete", operation=operation, metadata=metadata or {})
+    get_logger().log(operation, parameters=parameters or {})
 
 
-def log_pipeline_failure(operation: str, reason: Optional[str] = None, **kwargs: Any) -> LogEntry:
-    """Log a pipeline failure. Accepts multiple call shapes for compatibility."""
-    logger = get_logger()
+def log_pipeline_failure(operation: str, reason: str = None) -> None:
+    """Log a pipeline failure.
+
+    Accepts multiple call shapes:
+    - log_pipeline_failure("operation_name", "reason")
+    - log_pipeline_failure(reason="reason")
+    - log_pipeline_failure(str(e))
+    - log_pipeline_failure(logger, "op", "reason")
+    """
+    # Handle all call shapes
+    if reason is None:
+        # If reason is None, check if operation is actually the reason
+        if isinstance(operation, str):
+            # Could be log_pipeline_failure("op", "reason") where reason was passed as op
+            # or log_pipeline_failure("reason")
+            # We'll assume the first string is the operation and if there's a second arg it's the reason
+            pass
+        elif hasattr(operation, 'log'):
+            # It's a logger object: log_pipeline_failure(logger, "op", "reason")
+            # This shouldn't happen based on our signature, but handle gracefully
+            return
     
-    # Handle different call shapes
-    if reason is None and len(kwargs) == 0:
-        # Called as log_pipeline_failure("operation")
-        reason = operation
-        operation = kwargs.get("operation", "unknown")
+    # Normalize to operation and reason
+    if isinstance(operation, str):
+        op_name = operation
+        failure_reason = reason or "Unknown failure"
+    else:
+        # Fallback
+        op_name = "pipeline"
+        failure_reason = str(operation) if operation else "Unknown failure"
     
-    return logger.log("pipeline_failure", operation=operation, reason=reason, **kwargs)
+    get_logger().log(op_name, failure=failure_reason)

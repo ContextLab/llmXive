@@ -147,14 +147,14 @@
  1. Read `data/gate_status.json` and `data/stat_gate_status.json`.
  2. **IF** Gate Failed (either file is "FAIL"), generate `data_insufficiency_report.md` instead of `results_report.md`.
  3. **IF** Gate Passed, generate `results_report.md`. **Dependency**: T026.
-- [ ] T035 [US3] Implement reproducibility check in `code/report.py`: Log RDKit/scikit-learn versions, dataset URLs, retrieval dates, and **SHA256 hash values of raw and processed files directly in the report**. **Dependency**: T034.
-- [ ] T035b [US3] Implement machine-readable reproducibility log in `code/report.py`: Generate `reproducibility_log.json` containing versions, URLs, and SHA256 hashes of all data files (raw and processed). **Schema**: `{"artifacts": [{"path": str, "hash": str, "lineage": {"source_path": str, "transformation": str}}]}`. **Action**: Explicitly link derived file hashes to their source files and transformation steps. **Dependency**: T034.
+- [X] T035 [US3] Implement reproducibility check in `code/report.py`: Log RDKit/scikit-learn versions, dataset URLs, retrieval dates, and **SHA256 hash values of raw and processed files directly in the report**. **Dependency**: T034.
+- [X] T035b [US3] Implement machine-readable reproducibility log in `code/report.py`: Generate `reproducibility_log.json` containing versions, URLs, and SHA256 hashes of all data files (raw and processed). **Schema**: `{"artifacts": [{"path": str, "hash": str, "lineage": {"source_path": str, "transformation": str}}]}`. **Action**: Explicitly link derived file hashes to their source files and transformation steps. **Dependency**: T034.
 - [ ] T035c [US3] **Artifact Verification Fix**: Implement a final validation step in `code/report.py` to check the file size of `data/processed/analysis_results.json` (if Gate Pass) or `data/data_insufficiency_report.md` (if Gate Fail). **Logic**: If Gate Pass, the file must be non-empty and contain valid data (no nulls in key fields). If Gate Fail, the file `data_insufficiency_report.md` must exist and contain the "Insufficient" text. If `analysis_results.json` is empty (0 bytes) in a PASS state, **FAIL** the task. **Dependency**: T034, T026.
 - [ ] T036 [US3] Save all plots to `data/outputs/` and final report to `results_report.md`; verify the existence of the required plot files (`scatter_tpsa_vs_half_life.png`, `residuals.png`, `qq_plot.png`) and the report file. **Logic**: **IF** gate passed, verify each plot file has a non-zero size. **IF** gate failed, verify no plot files are generated (as per T032/T033) and only the report exists. **Dependency**: T032, T033, T034, T035.
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T031 [US3] Integration test for report generation in `tests/test_pipeline.py`. Function: `test_report_generation_and_plots`. **Assertion**: Verify `results_report.md` contains `dataset_hash` field, code version, and all expected sections; verify `data/outputs/` contains `scatter_tpsa_vs_half_life.png`, `residuals.png`, `qq_plot.png` with non-zero size **IF** N >= 30 (Gate Pass), or verify **no** plot files exist **IF** N < 30 (Gate Fail). **Dependency**: T034, T035, T035c, T036.
+- [X] T031 [US3] Integration test for report generation in `tests/test_pipeline.py`. Function: `test_report_generation_and_plots`. **Assertion**: Verify `results_report.md` contains `dataset_hash` field, code version, and all expected sections; verify `data/outputs/` contains `scatter_tpsa_vs_half_life.png`, `residuals.png`, `qq_plot.png` with non-zero size **IF** N >= 30 (Gate Pass), or verify **no** plot files exist **IF** N < 30 (Gate Fail). **Dependency**: T034, T035, T035c, T036.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -166,7 +166,7 @@
 
 - [X] T037 [P] Documentation updates in `quickstart.md` and `README.md`
 - [X] T038 Code cleanup and refactoring (ensure no hardcoded paths)
-- [ ] T041a [P] Create `code/run_pipeline.py`: A master script that imports and executes the full pipeline (US1 -> US2 -> US3) in sequence. **Entry Point**: `if __name__ == '__main__':`. **Action**:
+- [X] T041a [P] Create `code/run_pipeline.py`: A master script that imports and executes the full pipeline (US1 -> US2 -> US3) in sequence. **Entry Point**: `if __name__ == '__main__':`. **Action**:
  1. Check `data/gate_status.json` and `data/stat_gate_status.json` for "FAIL" status. If "FAIL", exit cleanly with status code 1 and log "Pipeline halted due to data insufficiency".
  2. **Implement deterministic sampling logic**: If the dataset size exceeds available system memory or storage capacity, implement a well-defined real sample: `df.sample(n=1000, random_state=42)` and state the sample size and limitation in the log.
  3. **Do NOT** catch `DataInsufficiencyError`.
@@ -181,11 +181,11 @@
 
 **Goal**: Ensure the entire pipeline runs end-to-end without manual intervention and produces all required artifacts.
 
-- [ ] T054b [P] [All] **Real Data Robustness Test (Dry Run)**: Execute `code/analysis.py` in a "Dry Run" mode using the **real data path** (or empty path if Gate Failed). **Action**: Verify that the pipeline imports correctly, handles missing data gracefully (if Gate Failed), and does not crash. **Explicitly exclude** any results from being logged to `reproducibility_log.json` or `results_report.md` (this is a structural test only). **Logic**: The script must read `data/gate_status.json` to determine if it should run in 'Dry Run' mode or exit. **Dependency**: T024, T023.
+- [X] T054b [P] [All] **Real Data Robustness Test (Dry Run)**: Execute `code/analysis.py` in a "Dry Run" mode using the **real data path** (or empty path if Gate Failed). **Action**: Verify that the pipeline imports correctly, handles missing data gracefully (if Gate Failed), and does not crash. **Explicitly exclude** any results from being logged to `reproducibility_log.json` or `results_report.md` (this is a structural test only). **Logic**: The script must read `data/gate_status.json` to determine if it should run in 'Dry Run' mode or exit. **Dependency**: T024, T023.
 - [ ] T055 [P] [All] **Full Pipeline Smoke Test**: Execute `code/run_pipeline.py` end-to-end. **Success Criteria**: `data/processed/merged_drugs.csv` (if Gate Pass), `data/processed/analysis_results.json`, `results_report.md` (or `data_insufficiency_report.md`), and `reproducibility_log.json` are all created and non-empty. **Dependency**: T041a, T012, T020, T026, T034.
 - [X] T055a [P] [All] **Fresh Environment Smoke Test**: Simulate a fresh environment by clearing all caches and temporary files, then re-running `code/run_pipeline.py`. **Success Criteria**: Pipeline completes successfully and produces identical hashes to T055. **Action**: Use `code/verify_hashes.py` to compare SHA256 hashes. **Dependency**: T055.
 - [X] T056a [P] [All] **Automated Reproducibility Audit**: Execute a script that programmatically compares the SHA256 hashes in `reproducibility_log.json` against the actual `data/` files. **Action**: If hashes mismatch, **FAIL** the task and block `research_accepted` transition. **Dependency**: T035c, T055.
-- [ ] T057 [P] [All] **Final Gate Check**: Confirm that `data/gate_status.json` accurately reflects the outcome of the Data Availability Gate (Pass/Fail) and that the pipeline logic correctly branched to either `results_report.md` or `data_insufficiency_report.md`. **Dependency**: T012, T055.
+- [X] T057 [P] [All] **Final Gate Check**: Confirm that `data/gate_status.json` accurately reflects the outcome of the Data Availability Gate (Pass/Fail) and that the pipeline logic correctly branched to either `results_report.md` or `data_insufficiency_report.md`. **Dependency**: T012, T055.
 
 ---
 

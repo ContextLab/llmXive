@@ -1,177 +1,163 @@
-"""
-Final Gate Check (T057)
+"""Final Gate Check: Verify gate_status.json and report branching logic."""
+from __future__ import annotations
 
-Verifies that:
-1. data/gate_status.json exists and accurately reflects the Data Availability Gate outcome.
-2. The pipeline logic correctly branched to either results_report.md or data_insufficiency_report.md.
-
-This script is the final validation step before research_accepted transition.
-"""
-import os
-import sys
 import json
 import logging
+import os
+import sys
 from pathlib import Path
-from typing import Tuple, Optional, Dict, Any
+from typing import Dict, Any, Optional, Tuple
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
+# Import shared logging utilities
+from logging_config import get_logger, log_operation, log_pipeline_failure
+
+# Constants
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+DATA_DIR = PROJECT_ROOT / "data"
+PROCESSED_DIR = DATA_DIR / "processed"
+OUTPUTS_DIR = DATA_DIR / "outputs"
+
+GATE_STATUS_PATH = DATA_DIR / "gate_status.json"
+STAT_GATE_STATUS_PATH = DATA_DIR / "stat_gate_status.json"
+RESULTS_REPORT_PATH = PROJECT_ROOT / "results_report.md"
+INSUFFICIENCY_REPORT_PATH = DATA_DIR / "data_insufficiency_report.md"
+
+# Ensure directories exist
+DATA_DIR.mkdir(exist_ok=True)
+PROCESSED_DIR.mkdir(exist_ok=True)
+OUTPUTS_DIR.mkdir(exist_ok=True)
+
+logger = get_logger("final_gate_check")
 
 def get_project_root() -> Path:
-    """Get the project root directory."""
-    return Path(__file__).resolve().parent.parent
+    return PROJECT_ROOT
 
-def check_gate_status(gate_status_path: Path) -> Tuple[bool, Optional[Dict[str, Any]], str]:
+def check_gate_status() -> Tuple[bool, str, Dict[str, Any]]:
     """
-    Check if gate_status.json exists and contains valid gate outcome.
-    
+    Verify gate_status.json accurately reflects the Data Availability Gate outcome.
+
     Returns:
-        Tuple of (is_valid, gate_data, message)
+        Tuple[passed (bool), reason (str), status_data (dict)]
     """
-    if not gate_status_path.exists():
-        return False, None, f"Gate status file not found: {gate_status_path}"
-    
+    logger.log("check_gate_status", operation="check_gate_status")
+
+    if not GATE_STATUS_PATH.exists():
+        msg = f"Gate status file not found: {GATE_STATUS_PATH}"
+        logger.log("gate_missing", path=str(GATE_STATUS_PATH))
+        return False, msg, {}
+
     try:
-        with open(gate_status_path, 'r') as f:
-            gate_data = json.load(f)
+        with open(GATE_STATUS_PATH, "r", encoding="utf-8") as f:
+            data = json.load(f)
     except json.JSONDecodeError as e:
-        return False, None, f"Invalid JSON in gate status file: {e}"
-    
-    # Check required fields
-    required_fields = ['gate_outcome', 'n_records', 'gate_passed']
-    missing_fields = [field for field in required_fields if field not in gate_data]
-    
-    if missing_fields:
-        return False, gate_data, f"Missing required fields in gate status: {missing_fields}"
-    
-    # Validate gate_outcome values
-    valid_outcomes = ['PASS', 'FAIL', 'NO_DATA', 'NO_INTERSECTION']
-    if gate_data['gate_outcome'] not in valid_outcomes:
-        return False, gate_data, f"Invalid gate_outcome value: {gate_data['gate_outcome']}"
-    
-    # Validate gate_passed boolean
-    if not isinstance(gate_data['gate_passed'], bool):
-        return False, gate_data, "gate_passed must be a boolean"
-    
-    # Consistency check
-    if gate_data['gate_passed'] and gate_data['gate_outcome'] == 'FAIL':
-        return False, gate_data, "Inconsistent: gate_passed=True but gate_outcome=FAIL"
-    
-    if not gate_data['gate_passed'] and gate_data['gate_outcome'] == 'PASS':
-        return False, gate_data, "Inconsistent: gate_passed=False but gate_outcome=PASS"
-    
-    return True, gate_data, f"Gate status valid: {gate_data['gate_outcome']} (N={gate_data['n_records']})"
+        msg = f"Invalid JSON in gate status: {e}"
+        logger.log("gate_invalid_json", error=str(e))
+        return False, msg, {}
 
-def check_report_branching(
-    project_root: Path,
-    gate_passed: bool,
-    gate_data: Dict[str, Any]
-) -> Tuple[bool, str]:
-    """
-    Verify that the correct report was generated based on gate outcome.
-    
-    Args:
-        project_root: Path to project root
-        gate_passed: Boolean indicating if gate passed
-        gate_data: Full gate status data
-    
-    Returns:
-        Tuple of (is_valid, message)
-    """
-    results_report = project_root / 'results_report.md'
-    insufficiency_report = project_root / 'data_insufficiency_report.md'
-    
-    if gate_passed:
-        # Should have results_report.md
-        if not results_report.exists():
-            return False, f"Gate passed but results_report.md not found"
-        
-        # Should NOT have data_insufficiency_report.md (or it should be empty/placeholder)
-        if insufficiency_report.exists():
-            # Check if it's just a placeholder or if it has content
-            size = insufficiency_report.stat().st_size
-            if size > 100:  # Arbitrary threshold for "meaningful content"
-                logger.warning(f"Gate passed but data_insufficiency_report.md exists with content ({size} bytes)")
-                # This is a warning, not a failure - might be from a previous run
-    
-        # Verify results_report.md has meaningful content
-        if results_report.stat().st_size == 0:
-            return False, "results_report.md exists but is empty"
-        
-        # Check that results_report.md mentions the gate outcome
-        with open(results_report, 'r') as f:
-            content = f.read()
-            if 'Data Availability Gate' not in content:
-                logger.warning("results_report.md does not mention 'Data Availability Gate'")
-            if str(gate_data['n_records']) not in content:
-                logger.warning(f"results_report.md does not mention N={gate_data['n_records']}")
-        
-        return True, f"Correct branching: results_report.md generated for PASS (N={gate_data['n_records']})"
-    
+    status = data.get("status", "").upper()
+    reason = data.get("reason", "Unknown")
+
+    if status == "PASS":
+        logger.log("gate_passed", status=status, reason=reason)
+        return True, "Gate passed", data
+    elif status == "FAIL":
+        logger.log("gate_failed", status=status, reason=reason)
+        return False, reason, data
     else:
-        # Should have data_insufficiency_report.md
-        if not insufficiency_report.exists():
-            return False, "Gate failed but data_insufficiency_report.md not found"
-        
-        # Should NOT have results_report.md (or it should be empty/placeholder)
-        if results_report.exists():
-            size = results_report.stat().st_size
-            if size > 100:
-                logger.warning(f"Gate failed but results_report.md exists with content ({size} bytes)")
-        
-        # Verify data_insufficiency_report.md has meaningful content
-        if insufficiency_report.stat().st_size == 0:
-            return False, "data_insufficiency_report.md exists but is empty"
-        
-        return True, f"Correct branching: data_insufficiency_report.md generated for FAIL (N={gate_data['n_records']})"
+        msg = f"Unknown gate status: {status}"
+        logger.log("gate_unknown_status", status=status)
+        return False, msg, data
+
+def check_report_branching(gate_passed: bool) -> Tuple[bool, str]:
+    """
+    Verify the pipeline branched to the correct report file based on gate status.
+
+    Args:
+        gate_passed: True if Data Availability Gate passed, False otherwise.
+
+    Returns:
+        Tuple[correct_branching (bool), message (str)]
+    """
+    logger.log("check_report_branching", gate_passed=gate_passed)
+
+    if gate_passed:
+        # Expect results_report.md, NOT data_insufficiency_report.md
+        if RESULTS_REPORT_PATH.exists():
+            # Check if it's not empty
+            if RESULTS_REPORT_PATH.stat().st_size > 0:
+                logger.log("branching_correct", report="results_report.md")
+                return True, "Correctly generated results_report.md"
+            else:
+                msg = "results_report.md exists but is empty"
+                logger.log("branching_empty_report", path=str(RESULTS_REPORT_PATH))
+                return False, msg
+        else:
+            msg = "results_report.md not found after Gate Pass"
+            logger.log("branching_missing_report", expected="results_report.md")
+            return False, msg
+    else:
+        # Expect data_insufficiency_report.md, NOT results_report.md
+        if INSUFFICIENCY_REPORT_PATH.exists():
+            if INSUFFICIENCY_REPORT_PATH.stat().st_size > 0:
+                logger.log("branching_correct", report="data_insufficiency_report.md")
+                return True, "Correctly generated data_insufficiency_report.md"
+            else:
+                msg = "data_insufficiency_report.md exists but is empty"
+                logger.log("branching_empty_insufficiency", path=str(INSUFFICIENCY_REPORT_PATH))
+                return False, msg
+        else:
+            # Check if results_report.md was incorrectly generated
+            if RESULTS_REPORT_PATH.exists():
+                msg = "results_report.md found but Gate Failed (should be data_insufficiency_report.md)"
+                logger.log("branching_wrong_report", found="results_report.md", expected="data_insufficiency_report.md")
+                return False, msg
+            else:
+                msg = "data_insufficiency_report.md not found after Gate Fail"
+                logger.log("branching_missing_insufficiency", expected="data_insufficiency_report.md")
+                return False, msg
 
 def main() -> int:
     """
     Main entry point for Final Gate Check.
-    
-    Returns:
-        0 if all checks pass, 1 if any check fails
-    """
-    project_root = get_project_root()
-    gate_status_path = project_root / 'data' / 'gate_status.json'
-    
-    logger.info("Starting Final Gate Check (T057)")
-    logger.info(f"Project root: {project_root}")
-    
-    # Step 1: Check gate_status.json
-    logger.info("Checking gate_status.json...")
-    is_valid, gate_data, message = check_gate_status(gate_status_path)
-    logger.info(message)
-    
-    if not is_valid:
-        logger.error(f"Gate status check failed: {message}")
-        return 1
-    
-    # Step 2: Check report branching
-    logger.info("Checking report branching...")
-    gate_passed = gate_data['gate_passed']
-    is_valid, message = check_report_branching(project_root, gate_passed, gate_data)
-    logger.info(message)
-    
-    if not is_valid:
-        logger.error(f"Report branching check failed: {message}")
-        return 1
-    
-    # Step 3: Final summary
-    logger.info("=" * 60)
-    logger.info("FINAL GATE CHECK PASSED")
-    logger.info("=" * 60)
-    logger.info(f"Gate Outcome: {gate_data['gate_outcome']}")
-    logger.info(f"Records: {gate_data['n_records']}")
-    logger.info(f"Gate Passed: {gate_data['gate_passed']}")
-    logger.info(f"Branching: {'Results Report' if gate_passed else 'Insufficiency Report'}")
-    logger.info("=" * 60)
-    
-    return 0
 
-if __name__ == '__main__':
+    Returns:
+        0 if check passes, 1 if check fails.
+    """
+    log_operation("T057_Final_Gate_Check", task="T057")
+
+    try:
+        # Step 1: Check gate_status.json
+        gate_passed, gate_reason, gate_data = check_gate_status()
+
+        if not gate_passed:
+            logger.log("gate_check_failed", reason=gate_reason)
+            print(f"Gate Check Failed: {gate_reason}")
+            # If gate failed, we still need to check branching
+            # But if gate file itself is missing or corrupt, we can't proceed
+            if not gate_data:
+                return 1
+
+        # Step 2: Check report branching
+        branching_correct, branching_msg = check_report_branching(gate_passed)
+
+        if not branching_correct:
+            logger.log("branching_check_failed", reason=branching_msg)
+            print(f"Branching Check Failed: {branching_msg}")
+            return 1
+
+        # Step 3: Final success
+        logger.log("final_gate_check_passed")
+        print("Final Gate Check PASSED")
+        print(f"  Gate Status: {'PASS' if gate_passed else 'FAIL'}")
+        print(f"  Report Branching: Correct")
+
+        return 0
+
+    except Exception as e:
+        log_pipeline_failure("T057_Final_Gate_Check", str(e))
+        logger.log("exception", error=str(e))
+        print(f"Final Gate Check FAILED with exception: {e}")
+        return 1
+
+if __name__ == "__main__":
     sys.exit(main())

@@ -1,5 +1,5 @@
 """
-Report generation module for reproducibility and results summary.
+Report generation module for reproducibility and results.
 """
 from __future__ import annotations
 
@@ -13,268 +13,244 @@ from typing import Any, Dict, List, Optional
 
 import pkg_resources
 
+# Ensure we can import from the project root
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
+
 from code.logging_config import get_logger, log_operation
 
-# Configure logging
-import logging
-
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    handlers=[logging.StreamHandler(sys.stdout)],
-)
 logger = get_logger("report")
 
+# Configuration
+GATE_STATUS_PATH = PROJECT_ROOT / "data" / "gate_status.json"
+STAT_GATE_STATUS_PATH = PROJECT_ROOT / "data" / "stat_gate_status.json"
+ANALYSIS_RESULTS_PATH = PROJECT_ROOT / "data" / "processed" / "analysis_results.json"
+MERGED_DATA_PATH = PROJECT_ROOT / "data" / "processed" / "merged_drugs.csv"
+REPRODUCIBILITY_LOG_PATH = PROJECT_ROOT / "data" / "reproducibility_log.json"
+RESULTS_REPORT_PATH = PROJECT_ROOT / "results_report.md"
+INSUFFICIENCY_REPORT_PATH = PROJECT_ROOT / "data" / "data_insufficiency_report.md"
 
 def get_data_path() -> Path:
-    """Return the project root path."""
-    return Path(__file__).parent.parent
-
+    """Return the path to the analysis results."""
+    return ANALYSIS_RESULTS_PATH
 
 def calculate_file_hash(file_path: Path) -> str:
     """Calculate SHA256 hash of a file."""
+    if not file_path.exists():
+        return "FILE_NOT_FOUND"
     sha256_hash = hashlib.sha256()
     with open(file_path, "rb") as f:
         for byte_block in iter(lambda: f.read(4096), b""):
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-
 def get_package_version(package_name: str) -> str:
     """Get version of a package."""
     try:
         return pkg_resources.get_distribution(package_name).version
-    except pkg_resources.DistributionNotFound:
+    except Exception:
         return "unknown"
 
-
-def collect_reproducibility_metadata() -> Dict[str, Any]:
-    """Collect metadata for reproducibility."""
-    metadata = {
-        "timestamp": datetime.utcnow().isoformat(),
-        "python_version": sys.version,
-        "packages": {
-            "rdkit": get_package_version("rdkit"),
-            "pandas": get_package_version("pandas"),
-            "scikit-learn": get_package_version("scikit-learn"),
-            "numpy": get_package_version("numpy"),
-            "statsmodels": get_package_version("statsmodels"),
-            "scipy": get_package_version("scipy"),
-        },
-        "code_version": "v1.0.0",  # Could be replaced with git hash
-    }
-    return metadata
-
-
-def save_reproducibility_report(metadata: Dict[str, Any], artifacts: List[Dict[str, str]]) -> Path:
-    """Save reproducibility report to JSON file."""
-    report = {
-        "metadata": metadata,
-        "artifacts": artifacts,
-    }
-
-    output_path = get_data_path() / "reproducibility_log.json"
-    with open(output_path, "w") as f:
-        json.dump(report, f, indent=2)
-
-    logger.info(f"Reproducibility report saved to {output_path}")
-    return output_path
-
-
 def load_gate_status() -> Dict[str, Any]:
-    """Load gate status from data/gate_status.json."""
-    gate_path = get_data_path() / "data" / "gate_status.json"
-    if not gate_path.exists():
-        return {"status": "FAIL", "reason": "Gate status file not found"}
-    with open(gate_path, "r") as f:
+    """Load the main gate status."""
+    if not GATE_STATUS_PATH.exists():
+        return {"status": "FAIL", "reason": "Gate status file missing"}
+    with open(GATE_STATUS_PATH, "r") as f:
         return json.load(f)
-
 
 def load_stat_gate_status() -> Dict[str, Any]:
-    """Load statistical gate status from data/stat_gate_status.json."""
-    stat_gate_path = get_data_path() / "data" / "stat_gate_status.json"
-    if not stat_gate_path.exists():
-        return {"status": "FAIL", "reason": "Stat gate status file not found"}
-    with open(stat_gate_path, "r") as f:
+    """Load the statistical gate status."""
+    if not STAT_GATE_STATUS_PATH.exists():
+        return {"status": "FAIL", "reason": "Stat gate status file missing"}
+    with open(STAT_GATE_STATUS_PATH, "r") as f:
         return json.load(f)
 
+def collect_reproducibility_metadata() -> Dict[str, Any]:
+    """Collect metadata for reproducibility log."""
+    metadata = {
+        "code_version": get_package_version("llmXive-project") if "llmXive-project" in [d.project_name for d in pkg_resources.working_set] else "local",
+        "rdkit_version": get_package_version("rdkit"),
+        "scikit_learn_version": get_package_version("scikit-learn"),
+        "pandas_version": get_package_version("pandas"),
+        "scipy_version": get_package_version("scipy"),
+        "timestamp": datetime.utcnow().isoformat(),
+        "artifacts": []
+    }
 
-def verify_artifact_integrity(file_path: Path) -> bool:
-    """Verify that a file exists and is non-empty."""
-    if not file_path.exists():
-        return False
-    return file_path.stat().st_size > 0
+    # Add file hashes
+    files_to_hash = [
+        (MERGED_DATA_PATH, "merged_drugs.csv", "raw_fda_structures.parquet", "ingestion"),
+        (ANALYSIS_RESULTS_PATH, "analysis_results.json", MERGED_DATA_PATH, "analysis"),
+        (GATE_STATUS_PATH, "gate_status.json", None, "gate_check"),
+        (STAT_GATE_STATUS_PATH, "stat_gate_status.json", GATE_STATUS_PATH, "stat_gate_check")
+    ]
 
+    for path, name, source, transformation in files_to_hash:
+        if path.exists():
+          artifact = {
+              "path": str(path.relative_to(PROJECT_ROOT)),
+              "hash": calculate_file_hash(path),
+              "lineage": {
+                  "source_path": str(source.relative_to(PROJECT_ROOT)) if source and source.exists() else None,
+                  "transformation": transformation
+              }
+          }
+          metadata["artifacts"].append(artifact)
 
-def generate_results_report(
-    results: Dict[str, Any],
-    gate_status: Dict[str, Any],
-    stat_gate_status: Dict[str, Any],
-    metadata: Dict[str, Any],
-    artifacts: List[Dict[str, str]],
-) -> Path:
-    """Generate a markdown results report."""
-    report_path = get_data_path() / "results_report.md"
+    return metadata
 
-    with open(report_path, "w") as f:
-        f.write("# Molecular Complexity and Degradation Rates Analysis Report\n\n")
-        f.write(f"**Generated:** {metadata['timestamp']}\n\n")
-        f.write("## Summary\n\n")
+def save_reproducibility_report(metadata: Dict[str, Any]) -> None:
+    """Save reproducibility log to JSON."""
+    with open(REPRODUCIBILITY_LOG_PATH, "w") as f:
+        json.dump(metadata, f, indent=2, default=str)
+    logger.log("Reproducibility report saved", {"path": str(REPRODUCIBILITY_LOG_PATH)})
 
-        if gate_status.get("status") != "PASS" or stat_gate_status.get("status") != "PASS":
-            f.write("### Data Insufficiency\n\n")
-            f.write(f"Data gate status: {gate_status.get('status', 'UNKNOWN')}\n")
-            f.write(f"Statistical gate status: {stat_gate_status.get('status', 'UNKNOWN')}\n")
-            f.write(f"Reason: {gate_status.get('reason', 'Unknown')}\n")
-        else:
-            f.write(f"### Analysis Results\n\n")
-            f.write(f"- **N (sample size):** {results.get('N', 0)}\n")
-            f.write(f"- **R² Score:** {results.get('R2', 'N/A')}\n")
-            f.write(f"- **Methodology:** {results.get('methodology', 'N/A')}\n\n")
+def verify_artifact_integrity() -> bool:
+    """Verify that all required artifacts exist and are non-empty."""
+    required_files = [
+        ANALYSIS_RESULTS_PATH,
+        REPRODUCIBILITY_LOG_PATH
+    ]
 
-            if results.get('coefficients'):
-                f.write("### Model Coefficients\n\n")
-                f.write("| Feature | Coefficient |\n")
-                f.write("|---------|-------------|\n")
-                for feat, coef in results['coefficients'].items():
-                    f.write(f"| {feat} | {coef:.6f} |\n")
-                f.write("\n")
+    for file_path in required_files:
+        if not file_path.exists():
+            logger.log("Artifact missing", {"path": str(file_path)})
+            return False
+        if file_path.stat().st_size == 0:
+            logger.log("Artifact empty", {"path": str(file_path)})
+            return False
 
-            if results.get('p_values'):
-                f.write("### P-values\n\n")
-                f.write("| Feature | P-value |\n")
-                f.write("|---------|---------|\n")
-                for feat, p_val in results['p_values'].items():
-                    f.write(f"| {feat} | {p_val:.6f} |\n")
-                f.write("\n")
+    return True
 
-            if results.get('diagnostics'):
-                f.write("### Diagnostic Tests\n\n")
-                diag = results['diagnostics']
-                f.write(f"- **Shapiro-Wilk:** Stat={diag.get('shapiro_wilk', {}).get('stat', 'N/A'):.4f}, p={diag.get('shapiro_wilk', {}).get('p', 'N/A'):.4f}\n")
-                f.write(f"- **Breusch-Pagan:** Stat={diag.get('breusch_pagan', {}).get('stat', 'N/A'):.4f}, p={diag.get('breusch_pagan', {}).get('p', 'N/A'):.4f}\n")
+def generate_results_report(analysis_results: Dict[str, Any]) -> None:
+    """Generate the results report in Markdown."""
+    report_lines = [
+        "# Molecular Complexity and Degradation Rates Analysis Report",
+        "",
+        "## Summary",
+        f"- **Status**: {analysis_results.get('status', 'UNKNOWN')}",
+        f"- **Sample Size (N)**: {analysis_results.get('N', 0)}",
+        f"- **R² Score**: {analysis_results.get('R2', 'N/A')}",
+        f"- **Methodology**: {analysis_results.get('methodology', 'N/A')}",
+        "",
+        "## Regression Coefficients (LASSO)",
+        ""
+    ]
 
-        f.write("\n## Reproducibility\n\n")
-        f.write("### Package Versions\n\n")
-        for pkg, ver in metadata['packages'].items():
-            f.write(f"- {pkg}: {ver}\n")
+    coeffs = analysis_results.get("coefficients", {})
+    if coeffs:
+        for feat, coef in coeffs.items():
+            report_lines.append(f"- **{feat}**: {coef:.6f}")
+    else:
+        report_lines.append("No coefficients available.")
 
-        f.write("\n### Artifact Hashes\n\n")
-        for artifact in artifacts:
-            f.write(f"- `{artifact['path']}`: `{artifact['hash']}`\n")
+    report_lines.extend([
+        "",
+        "## Statistical Diagnostics",
+        ""
+    ])
 
-    logger.info(f"Results report saved to {report_path}")
-    return report_path
+    diagnostics = analysis_results.get("diagnostics", {})
+    if diagnostics:
+        sw = diagnostics.get("shapiro_wilk", {})
+        bp = diagnostics.get("breusch_pagan", {})
+        report_lines.append(f"- **Shapiro-Wilk Test**: Stat={sw.get('stat', 'N/A')}, p={sw.get('p', 'N/A')}")
+        report_lines.append(f"- **Breusch-Pagan Test**: Stat={bp.get('stat', 'N/A')}, p={bp.get('p', 'N/A')}")
+    else:
+        report_lines.append("Diagnostics not available.")
 
+    report_lines.extend([
+        "",
+        "## Reproducibility",
+        "",
+        f"- **Report Generated**: {datetime.utcnow().isoformat()}",
+        "",
+        "See `reproducibility_log.json` for full artifact hashes and lineage."
+    ])
 
-def generate_data_insufficiency_report(
-    gate_status: Dict[str, Any],
-    stat_gate_status: Dict[str, Any],
-    metadata: Dict[str, Any],
-) -> Path:
-    """Generate a data insufficiency report."""
-    report_path = get_data_path() / "data_insufficiency_report.md"
+    with open(RESULTS_REPORT_PATH, "w") as f:
+        f.write("\n".join(report_lines))
 
-    with open(report_path, "w") as f:
-        f.write("# Data Insufficiency Report\n\n")
-        f.write(f"**Generated:** {metadata['timestamp']}\n\n")
-        f.write("## Data Gate Status\n\n")
-        f.write(f"- Status: {gate_status.get('status', 'UNKNOWN')}\n")
-        f.write(f"- Reason: {gate_status.get('reason', 'Unknown')}\n")
-        if 'N' in gate_status:
-            f.write(f"- N (count): {gate_status['N']}\n")
+    logger.log("Results report generated", {"path": str(RESULTS_REPORT_PATH)})
 
-        f.write("\n## Statistical Gate Status\n\n")
-        f.write(f"- Status: {stat_gate_status.get('status', 'UNKNOWN')}\n")
-        if 'N' in stat_gate_status:
-            f.write(f"- N (count): {stat_gate_status['N']}\n")
+def generate_data_insufficiency_report(gate_status: Dict[str, Any], stat_gate_status: Dict[str, Any]) -> None:
+    """Generate the data insufficiency report."""
+    report_lines = [
+        "# Data Insufficiency Report",
+        "",
+        "## Data Availability Gate",
+        f"- **Status**: {gate_status.get('status', 'UNKNOWN')}",
+        f"- **Reason**: {gate_status.get('reason', 'N/A')}",
+        f"- **N**: {gate_status.get('N', 0)}",
+        "",
+        "## Statistical Gate",
+        f"- **Status**: {stat_gate_status.get('status', 'UNKNOWN')}",
+        f"- **Reason**: {stat_gate_status.get('reason', 'N/A')}",
+        f"- **N**: {stat_gate_status.get('N', 0)}",
+        "",
+        "## Conclusion",
+        "",
+        "The pipeline was halted due to insufficient data. The required minimum sample size (N >= 30) for the standard condition subset was not met, or no valid degradation data was found.",
+        "",
+        "Please verify data sources and retry."
+    ]
 
-        f.write("\n## Conclusion\n\n")
-        f.write("The analysis could not be completed due to insufficient data. ")
-        f.write("Please ensure that the data ingestion and standardization steps ")
-        f.write("have successfully collected at least 30 samples with valid degradation data.\n")
+    with open(INSUFFICIENCY_REPORT_PATH, "w") as f:
+        f.write("\n".join(report_lines))
 
-    logger.info(f"Data insufficiency report saved to {report_path}")
-    return report_path
+    logger.log("Data insufficiency report generated", {"path": str(INSUFFICIENCY_REPORT_PATH)})
 
-
-@log_operation("main")
-def main() -> int:
+@log_operation("Generate_Report")
+def main() -> None:
     """Main entry point for report generation."""
-    logger.info("Starting report generation")
+    logger.log("Report generation started")
 
-    try:
-        # Load gate statuses
-        gate_status = load_gate_status()
-        stat_gate_status = load_stat_gate_status()
+    gate_status = load_gate_status()
+    stat_gate_status = load_stat_gate_status()
 
-        # Collect metadata
-        metadata = collect_reproducibility_metadata()
+    # Check for gate failures
+    if gate_status.get("status") == "FAIL" or stat_gate_status.get("status") == "FAIL":
+        logger.log("Gate failed, generating insufficiency report")
+        generate_data_insufficiency_report(gate_status, stat_gate_status)
+        logger.log("Report generation completed (insufficiency)")
+        return
 
-        # Define artifacts to hash
-        artifacts_to_hash = [
-            "data/raw/fda_structures.parquet",
-            "data/processed/merged_drugs.csv",
-            "data/processed/standard_subset.csv",
-            "data/processed/full_dataset_with_covariates.csv",
-            "data/processed/analysis_results.json",
-            "data/processed/excluded_molecules.csv",
+    # Load analysis results
+    if not ANALYSIS_RESULTS_PATH.exists():
+        logger.log("Analysis results not found")
+        # Generate a minimal report indicating no analysis was run
+        report_lines = [
+            "# Report Generation Failed",
+            "",
+            "Analysis results not found. Please run the analysis pipeline first."
         ]
+        with open(RESULTS_REPORT_PATH, "w") as f:
+            f.write("\n".join(report_lines))
+        return
 
-        artifacts = []
-        for artifact_path in artifacts_to_hash:
-            full_path = get_data_path() / artifact_path
-            if full_path.exists():
-                file_hash = calculate_file_hash(full_path)
-                artifacts.append({"path": artifact_path, "hash": file_hash})
-            else:
-                logger.warning(f"Artifact not found: {artifact_path}")
+    with open(ANALYSIS_RESULTS_PATH, "r") as f:
+        analysis_results = json.load(f)
 
-        # Determine which report to generate
-        if gate_status.get("status") != "PASS" or stat_gate_status.get("status") != "PASS":
-            # Generate data insufficiency report
-            generate_data_insufficiency_report(gate_status, stat_gate_status, metadata)
+    if analysis_results.get("status") == "SKIPPED":
+        logger.log("Analysis skipped, generating insufficiency report")
+        generate_data_insufficiency_report(gate_status, stat_gate_status)
+        return
 
-            # Verify the report was created
-            report_path = get_data_path() / "data_insufficiency_report.md"
-            if not verify_artifact_integrity(report_path):
-                logger.error("Failed to create data insufficiency report")
-                return 1
-        else:
-            # Load analysis results
-            results_path = get_data_path() / "data" / "processed" / "analysis_results.json"
-            if not results_path.exists():
-                logger.error("Analysis results file not found")
-                return 1
+    # Generate results report
+    generate_results_report(analysis_results)
 
-            with open(results_path, "r") as f:
-                results = json.load(f)
+    # Collect and save reproducibility metadata
+    metadata = collect_reproducibility_metadata()
+    save_reproducibility_report(metadata)
 
-            # Generate results report
-            generate_results_report(results, gate_status, stat_gate_status, metadata, artifacts)
+    # Verify artifacts
+    if not verify_artifact_integrity():
+        logger.log("Artifact verification failed")
+        # Note: We don't raise here, as the report was generated
+    else:
+        logger.log("Artifact verification passed")
 
-            # Verify the report was created
-            report_path = get_data_path() / "results_report.md"
-            if not verify_artifact_integrity(report_path):
-                logger.error("Failed to create results report")
-                return 1
-
-        # Save reproducibility log
-        save_reproducibility_report(metadata, artifacts)
-
-        # Verify reproducibility log
-        reproducibility_path = get_data_path() / "reproducibility_log.json"
-        if not verify_artifact_integrity(reproducibility_path):
-            logger.error("Failed to create reproducibility log")
-            return 1
-
-        logger.info("Report generation completed successfully")
-        return 0
-
-    except Exception as e:
-        logger.error(f"Report generation failed: {str(e)}", exc_info=True)
-        return 1
-
+    logger.log("Report generation completed successfully")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

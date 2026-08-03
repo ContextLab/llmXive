@@ -1,6 +1,3 @@
-"""
-Unit tests for HEA sample filtering logic.
-"""
 import pytest
 import pandas as pd
 import numpy as np
@@ -8,187 +5,84 @@ from pathlib import Path
 import sys
 import os
 
-# Add project root to path for imports
-project_root = Path(__file__).parent.parent.parent
-sys.path.insert(0, str(project_root))
+# Ensure imports work relative to the project root if run from tests/
+# Assuming standard structure: code/tests/unit/test_filter.py
+# imports from code.src.data.filter
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from src.data.filter import filter_hea_samples, count_principal_elements
+from src.data.filter import count_principal_elements, filter_hea_samples
+
 
 class TestCountPrincipalElements:
-    """Tests for count_principal_elements function."""
-    
-    def test_dict_composition(self):
-        """Test counting elements from dictionary composition."""
-        composition = {'Fe': 0.25, 'Ni': 0.25, 'Co': 0.25, 'Mn': 0.25}
-        assert count_principal_elements(composition) == 4
-        
-        composition = {'Fe': 0.2, 'Ni': 0.2, 'Co': 0.2, 'Mn': 0.2, 'Cr': 0.2}
-        assert count_principal_elements(composition) == 5
-        
-        composition = {'Fe': 0.33, 'Ni': 0.33, 'Co': 0.34}
-        assert count_principal_elements(composition) == 3
-    
-    def test_string_composition_comma_separated(self):
-        """Test counting elements from comma-separated string."""
-        composition = 'Fe,Ni,Co,Mn'
-        assert count_principal_elements(composition) == 4
-        
-        composition = 'Fe,Ni,Co,Mn,Cr'
-        assert count_principal_elements(composition) == 5
-    
-    def test_string_composition_formula(self):
-        """Test counting elements from formula string."""
-        composition = 'FeNiCoMn'
-        assert count_principal_elements(composition) == 4
-        
-        composition = 'FeNiCoMnCr'
-        assert count_principal_elements(composition) == 5
-    
-    def test_list_composition(self):
-        """Test counting elements from list."""
-        composition = ['Fe', 'Ni', 'Co', 'Mn']
-        assert count_principal_elements(composition) == 4
-        
-        composition = ['Fe', 'Ni', 'Co', 'Mn', 'Cr']
-        assert count_principal_elements(composition) == 5
-    
+    def test_simple_hea_composition(self):
+        """Test counting elements in a standard 5-element HEA."""
+        comp = {"Fe": 0.2, "Co": 0.2, "Ni": 0.2, "Cr": 0.2, "Mn": 0.2}
+        assert count_principal_elements(comp, threshold=0.05) == 5
+
+    def test_below_threshold(self):
+        """Test that elements below threshold are not counted."""
+        comp = {"Fe": 0.5, "Co": 0.04, "Ni": 0.04, "Cr": 0.04, "Mn": 0.04}
+        assert count_principal_elements(comp, threshold=0.05) == 1
+
     def test_empty_composition(self):
-        """Test handling of empty compositions."""
-        assert count_principal_elements({}) == 0
-        assert count_principal_elements('') == 0
-        assert count_principal_elements([]) == 0
-        assert count_principal_elements(None) == 0
+        """Test handling of empty composition."""
+        assert count_principal_elements({}, threshold=0.05) == 0
+
+    def test_invalid_types(self):
+        """Test handling of non-dict input."""
+        assert count_principal_elements("Fe0.5Co0.5", threshold=0.05) == 0
+        assert count_principal_elements(None, threshold=0.05) == 0
+
 
 class TestFilterHEASamples:
-    """Tests for filter_hea_samples function."""
-    
     @pytest.fixture
-    def sample_data(self):
-        """Create sample data for testing."""
+    def sample_df(self):
+        """Create a sample dataframe with mixed valid/invalid HEA samples."""
         data = {
-            'id': [1, 2, 3, 4, 5, 6],
-            'composition': [
-                {'Fe': 0.25, 'Ni': 0.25, 'Co': 0.25, 'Mn': 0.25},  # 4 elements
-                {'Fe': 0.2, 'Ni': 0.2, 'Co': 0.2, 'Mn': 0.2, 'Cr': 0.2},  # 5 elements
-                {'Fe': 0.166, 'Ni': 0.166, 'Co': 0.166, 'Mn': 0.166, 'Cr': 0.166, 'Al': 0.166},  # 6 elements
-                {'Fe': 0.5, 'Ni': 0.5},  # 2 elements
-                {'Fe': 0.2, 'Ni': 0.2, 'Co': 0.2, 'Mn': 0.2, 'Cr': 0.2},  # 5 elements
-                {'Fe': 0.2, 'Ni': 0.2, 'Co': 0.2, 'Mn': 0.2, 'Cr': 0.2},  # 5 elements
-            ],
-            'bulk_modulus': [150.0, 160.0, 170.0, 140.0, np.nan, 155.0],
-            'other_col': ['a', 'b', 'c', 'd', 'e', 'f']
+            "Fe": [0.2, 0.5, 0.1, 0.2, 0.1],
+            "Co": [0.2, 0.2, 0.1, 0.2, 0.1],
+            "Ni": [0.2, 0.1, 0.1, 0.2, 0.1],
+            "Cr": [0.2, 0.1, 0.1, 0.2, 0.1],
+            "Mn": [0.2, 0.1, 0.1, 0.2, 0.1],
+            "Bulk_Modulus": [150.0, 160.0, 140.0, np.nan, 155.0],
+            "Material_ID": [1, 2, 3, 4, 5]
         }
         return pd.DataFrame(data)
-    
-    def test_filter_by_element_count(self, sample_data):
-        """Test filtering by minimum element count."""
-        filtered_df, stats = filter_hea_samples(
-            sample_data,
-            min_elements=5,
-            bulk_modulus_col='bulk_modulus',
-            composition_col='composition'
-        )
-        
-        # Should keep samples with >= 5 elements and valid bulk modulus
-        # Sample 2 (5 elements, valid BM), Sample 3 (6 elements, valid BM), Sample 6 (5 elements, valid BM)
-        assert len(filtered_df) == 3
-        assert list(filtered_df['id']) == [2, 3, 6]
-        
-        assert stats['initial_count'] == 6
-        assert stats['element_filtered_count'] == 4  # Samples 2, 3, 5, 6
-        assert stats['final_count'] == 3
-    
-    def test_filter_by_bulk_modulus(self, sample_data):
-        """Test filtering by valid bulk modulus."""
-        filtered_df, stats = filter_hea_samples(
-            sample_data,
-            min_elements=5,
-            bulk_modulus_col='bulk_modulus',
-            composition_col='composition'
-        )
-        
-        # Sample 5 has NaN bulk modulus, should be removed
-        assert 5 not in filtered_df['id'].values
-        assert 6 in filtered_df['id'].values
-    
-    def test_filter_by_both_criteria(self, sample_data):
-        """Test filtering by both element count and bulk modulus."""
-        filtered_df, stats = filter_hea_samples(
-            sample_data,
-            min_elements=5,
-            bulk_modulus_col='bulk_modulus',
-            composition_col='composition'
-        )
-        
-        # Only samples with >= 5 elements AND valid bulk modulus
-        assert len(filtered_df) == 3
-        assert list(filtered_df['id']) == [2, 3, 6]
-    
-    def test_missing_columns(self, sample_data):
-        """Test that missing columns raise ValueError."""
-        with pytest.raises(ValueError):
-            filter_hea_samples(
-                sample_data,
-                bulk_modulus_col='nonexistent_col',
-                composition_col='composition'
-            )
-        
-        with pytest.raises(ValueError):
-            filter_hea_samples(
-                sample_data,
-                bulk_modulus_col='bulk_modulus',
-                composition_col='nonexistent_col'
-            )
-    
-    def test_empty_dataframe(self):
-        """Test filtering empty DataFrame."""
-        df = pd.DataFrame(columns=['id', 'composition', 'bulk_modulus'])
-        filtered_df, stats = filter_hea_samples(
-            df,
-            min_elements=5,
-            bulk_modulus_col='bulk_modulus',
-            composition_col='composition'
-        )
-        
-        assert len(filtered_df) == 0
-        assert stats['initial_count'] == 0
-        assert stats['final_count'] == 0
-    
-    def test_negative_bulk_modulus(self):
-        """Test that negative bulk modulus values are filtered out."""
-        data = {
-            'id': [1, 2, 3],
-            'composition': [
-                {'Fe': 0.2, 'Ni': 0.2, 'Co': 0.2, 'Mn': 0.2, 'Cr': 0.2},
-                {'Fe': 0.2, 'Ni': 0.2, 'Co': 0.2, 'Mn': 0.2, 'Cr': 0.2},
-                {'Fe': 0.2, 'Ni': 0.2, 'Co': 0.2, 'Mn': 0.2, 'Cr': 0.2}
-            ],
-            'bulk_modulus': [150.0, -10.0, 0.0]
-        }
-        df = pd.DataFrame(data)
-        
-        filtered_df, stats = filter_hea_samples(
-            df,
-            min_elements=5,
-            bulk_modulus_col='bulk_modulus',
-            composition_col='composition'
-        )
-        
-        # Only sample 1 should remain (positive bulk modulus)
-        assert len(filtered_df) == 1
-        assert filtered_df['id'].iloc[0] == 1
-    
-    def test_retention_rate_calculation(self, sample_data):
-        """Test that retention rate is calculated correctly."""
-        filtered_df, stats = filter_hea_samples(
-            sample_data,
-            min_elements=5,
-            bulk_modulus_col='bulk_modulus',
-            composition_col='composition'
-        )
-        
-        expected_rate = stats['final_count'] / stats['initial_count'] * 100
-        assert abs(stats['final_count'] / stats['initial_count'] * 100 - expected_rate) < 0.001
 
-if __name__ == '__main__':
-    pytest.main([__file__, '-v'])
+    def test_filter_keeps_valid_hea(self, sample_df):
+        """Test that valid HEAs (>=5 elements, valid target) are kept."""
+        # Row 0: 5 elements, valid BM -> Keep
+        # Row 1: 1 element (Fe), valid BM -> Drop
+        # Row 2: 5 elements (0.1 each), valid BM -> Keep (0.1 >= 0.05)
+        # Row 3: 5 elements, NaN BM -> Drop
+        # Row 4: 5 elements (0.1 each), valid BM -> Keep
+        
+        filtered_df, stats = filter_hea_samples(sample_df, min_principal_elements=5, composition_threshold=0.05)
+        
+        assert len(filtered_df) == 3
+        assert list(filtered_df["Material_ID"]) == [1, 3, 5]
+
+    def test_filter_removes_invalid_target(self, sample_df):
+        """Test that samples with NaN Bulk Modulus are removed."""
+        filtered_df, _ = filter_hea_samples(sample_df)
+        assert not filtered_df["Bulk_Modulus"].isna().any()
+
+    def test_filter_removes_insufficient_elements(self, sample_df):
+        """Test that samples with <5 principal elements are removed."""
+        filtered_df, _ = filter_hea_samples(sample_df)
+        # Row 1 had only 1 principal element
+        assert 2 not in filtered_df["Material_ID"].values
+
+    def test_stats_accuracy(self, sample_df):
+        """Test that stats dictionary is accurate."""
+        filtered_df, stats = filter_hea_samples(sample_df)
+        assert stats["total"] == 5
+        assert stats["filtered"] == 3
+        assert stats["final_valid"] == 3
+
+    def test_min_valid_samples_threshold(self, sample_df):
+        """Test behavior when result is below min_valid_samples."""
+        # Request min 10, get 3. Should return the 3 rows (pipeline handles the error).
+        filtered_df, stats = filter_hea_samples(sample_df, min_valid_samples=10)
+        assert len(filtered_df) == 3
+        assert stats["final_valid"] == 3

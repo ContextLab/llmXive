@@ -59,7 +59,7 @@
 - [X] T005 [P] Create `contracts/dataset.schema.yaml`, `contracts/evaluation.schema.yaml`, and `contracts/prediction.schema.yaml` defining column types, units, and constraints
 - [X] T006 Implement `code/lib/anomaly_injector.py` to inject synthetic anomalies (mean shift, variance spike, gradual drift) with configurable parameters via a YAML/JSON config file; ensure near-threshold values are supported; NO hardcoded parameter values; ensure no look-ahead bias
 - [ ] T007 Implement `code/lib/metrics.py` for Precision, Recall, F1, AUC-ROC, and Bootstrap Confidence Interval calculations; include Bonferroni correction logic
-- [ ] T008 Implement `code/lib/utils.py` for normalization, missing-value handling (interpolation policy), and seed pinning for reproducibility
+- [X] T008 Implement `code/lib/utils.py` for normalization, missing-value handling (interpolation policy), and seed pinning for reproducibility
 - [X] T009 Create `data/VERSION.txt` and `paper/README.md` to document pipeline version and structure
 - [X] T010 [P] Write unit tests in `code/tests/test_data_injection.py` and `code/tests/test_metrics.py` to validate schema and metric calculations
 
@@ -82,9 +82,9 @@
 
 ### Implementation for User Story 1
 
-- [~] T014 [US1] Implement `code/scripts/inject_anomalies.py` to invoke `code/lib/anomaly_injector.py` (T006) with research parameters; save `data/processed/series_with_anomalies.csv` and `data/processed/ground_truth.csv`
+- [ ] T014 [US1] Implement `code/scripts/inject_anomalies.py` to invoke `code/lib/anomaly_injector.py` (T006) with research parameters; save `data/processed/series_with_anomalies.csv` and `data/processed/ground_truth.csv`
 - [X] T015 [US1] Implement `code/scripts/bayesian_gp.py` using `pymc` or `numpyro` with Sparse Variational Inference (SVI); ensure CPU-only execution; implement convergence checks for ELBO stability and Effective Sample Size (ESS); include R-hat check ONLY if MCMC fallback is used (per Plan.md Constitution Check); **limit to a sufficient number of steps** and **log enforcement** of this limit; output `data/results/bayesian_predictions.csv`
-- [~] T017 [US1] Implement memory profiling wrapper in `code/scripts/bayesian_gp.py` AND `code/lib/utils.py` that monitors peak usage across ALL inference scripts using `tracemalloc`; **raise SystemExit(1)** if limit > 7GB is exceeded to satisfy SC-003 system-wide
+- [X] T017 [US1] Implement memory profiling wrapper in `code/scripts/bayesian_gp.py` AND `code/lib/utils.py` that monitors peak usage across ALL inference scripts using `tracemalloc`; **raise SystemExit(1)** if limit > 7GB is exceeded to satisfy SC-003 system-wide
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -100,15 +100,15 @@
 
 > **NOTE**: IF `plan.md` has `TESTS_ENABLED: true`, then write these tests FIRST, ensure they FAIL before implementation.
 
-- [ ] T018 [P] [US2] IF `plan.md` TESTS_ENABLED is true, create `code/tests/contract/test_baseline_schema.py` <!-- FAILED: unspecified -->
+- [X] T018 [P] [US2] IF `plan.md` TESTS_ENABLED is true, create `code/tests/contract/test_baseline_schema.py` <!-- FAILED: unspecified -->
 - [X] T019 [P] [US2] IF `plan.md` TESTS_ENABLED is true, create `code/tests/integration/test_baseline_comparison.py`
 
 ### Implementation for User Story 2
 
 - [X] T020 [P] [US2] Implement `code/scripts/baseline_shewhart.py` with -sigma control limits; output `data/results/shewhart_predictions.csv`
-- [~] T021 [P] [US2] Implement `code/scripts/baseline_cusum.py` for change point detection; output `data/results/cusum_predictions.csv`
-- [~] T022 [P] [US2] Implement `code/scripts/baseline_vae.py` (CPU mode, lightweight architecture) using `scikit-learn` or `pytorch-lightning` (CPU only); output reconstruction errors and binary flags in `data/results/vae_predictions.csv`
-- [~] T023 [US2] Integrate baseline scripts with the shared data loader and anomaly injection pipeline from US1
+- [ ] T021 [P] [US2] Implement `code/scripts/baseline_cusum.py` for change point detection; output `data/results/cusum_predictions.csv`
+- [ ] T022 [P] [US2] Implement `code/scripts/baseline_vae.py` (CPU mode, lightweight architecture) using `scikit-learn` or `pytorch-lightning` (CPU only); output reconstruction errors and binary flags in `data/results/vae_predictions.csv`
+- [ ] T023 [US2] Integrate baseline scripts with the shared data loader and anomaly injection pipeline from US1
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -133,10 +133,10 @@
 - [X] T026b [US3] Implement **Wilcoxon signed-rank test** (or paired t-test) in `code/scripts/evaluate.py` to compare Bayesian vs. Baseline F1-scores as mandated by FR-006 and SC-001; output p-value to `data/results/evaluation.json`
 - [X] T026c [US3] Implement **Bonferroni correction** (or Benjamini-Hochberg) in `code/scripts/evaluate.py` for multiple hypothesis tests as mandated by FR-009; output adjusted p-values to `data/results/evaluation.json`
 - [X] T026d [US3] Implement **fixed thresholding strategy** (e.g., % specificity) in `code/scripts/evaluate.py` and enforce it before correlation analysis as mandated by FR-012; output threshold parameters to `data/results/evaluation.json`
-- [~] T027 [US3] Implement `code/scripts/sensitivity_analysis.py` to sweep decision thresholds (High specificity, F1-opt) and report false-positive/negative rates; output `data/results/sensitivity_analysis.json`
+- [ ] T027 [US3] Implement `code/scripts/sensitivity_analysis.py` to sweep decision thresholds (High specificity, F1-opt) and report false-positive/negative rates; output `data/results/sensitivity_analysis.json`
 - [ ] T028 [US3] Implement `code/scripts/render_fig1.py` to plot time series with injected anomalies and detection scores; save `paper/figures/fig1_timeseries.png`
-- [ ] T029 [US3] Implement `code/scripts/render_fig2.py` to plot method comparison (F1 vs. shift magnitude) and correlation matrices; save `paper/figures/fig2_method_comparison.png`
-- [ ] T030 [US3] Create `paper/results.md` summarizing findings, p-values, and associational claims (avoiding causal language per FR-008)
+- [~] T029 [US3] Implement `code/scripts/render_fig2.py` to plot method comparison (F1 vs. shift magnitude) and correlation matrices; save `paper/figures/fig2_method_comparison.png`
+- [~] T030 [US3] Create `paper/results.md` summarizing findings, p-values, and associational claims (avoiding causal language per FR-008)
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -146,7 +146,7 @@
 
 **Purpose**: Improvements that affect multiple user stories and address prior review concerns.
 
-- [ ] T031 [P] [Review] Generate `docs/research_config.md` documenting the configurable parameter ranges used for the study (deferred in spec) and the Bootstrap CI methodology (Plan.md override); do NOT edit spec.md or plan.md
+- [X] T031 [P] [Review] Generate `docs/research_config.md` documenting the configurable parameter ranges used for the study (deferred in spec) and the Bootstrap CI methodology (Plan.md override); do NOT edit spec.md or plan.md
 - [ ] T032 [P] [Review] Verify all file paths in code match `tasks.md` specifications (e.g., `code/scripts/` not `scripts/`)
 - [ ] T033 [P] [Review] Add `requirements-dev.txt` with test dependencies and pin all versions in `requirements.txt`
 - [ ] T034 [P] [Review] Ensure all scripts include type hints and docstrings for reproducibility

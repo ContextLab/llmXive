@@ -5,8 +5,10 @@ from datetime import datetime
 import json
 import traceback
 
+from rdkit.Chem import rdchem
+
 class PipelineError(Exception):
-    """Base exception for pipeline errors."""
+    """Base class for pipeline errors."""
     pass
 
 class DataIngestionError(PipelineError):
@@ -26,11 +28,11 @@ class DescriptorCalculationError(PipelineError):
     pass
 
 class AnalysisError(PipelineError):
-    """Error during analysis."""
+    """Error during statistical analysis."""
     pass
 
 class VisualizationError(PipelineError):
-    """Error during visualization."""
+    """Error during visualization generation."""
     pass
 
 class ConfigurationError(PipelineError):
@@ -41,52 +43,78 @@ class StatisticalInsufficiencyError(PipelineError):
     """Error when statistical requirements are not met."""
     pass
 
-class AtomValenceException(PipelineError):
-    """Exception for valence errors in molecules."""
-    def __init__(self, smiles: str, message: str):
-        self.smiles = smiles
-        self.message = message
-        super().__init__(f"Valence error for {smiles}: {message}")
-
+class AtomValenceException(Exception):
+    """
+    Custom exception for non-standard valence in molecules.
+    This is raised when RDKit's sanitization fails due to valence issues.
+    """
+    pass
 
 def validate_smiles(smiles: str) -> bool:
-    """Basic validation for SMILES string."""
-    if not smiles or not isinstance(smiles, str):
+    """Basic validation of SMILES string."""
+    from rdkit import Chem
+    try:
+        mol = Chem.MolFromSmiles(smiles)
+        return mol is not None
+    except Exception:
         return False
-    return len(smiles.strip()) > 0
 
-
-def handle_molecule_error(smiles: str, error: Exception) -> Dict[str, Any]:
-    """Handle a molecule processing error and return context."""
-    return {
+def handle_molecule_error(smiles: str, error: Exception, context: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    """
+    Handle a molecule processing error.
+    Returns a structured error report.
+    """
+    error_report = {
         "smiles": smiles,
         "error_type": type(error).__name__,
         "error_message": str(error),
-        "timestamp": datetime.utcnow().isoformat()
-    }
-
-
-def retry_on_failure(func: Callable, max_retries: int = 3, delay: float = 1.0) -> Callable:
-    """Decorator to retry a function on failure."""
-    def wrapper(*args, **kwargs):
-        for attempt in range(max_retries):
-            try:
-                return func(*args, **kwargs)
-            except Exception as e:
-                if attempt == max_retries - 1:
-                    raise
-                logging.warning(f"Attempt {attempt+1} failed: {e}. Retrying...")
-                import time
-                time.sleep(delay)
-    return wrapper
-
-
-def create_error_report(error_type: str, message: str, details: Optional[Dict] = None) -> str:
-    """Create a JSON-formatted error report string."""
-    report = {
-        "error_type": error_type,
-        "message": message,
         "timestamp": datetime.utcnow().isoformat(),
-        "details": details or {}
+        "context": context or {}
     }
-    return json.dumps(report, indent=2)
+    return error_report
+
+def retry_on_failure(
+    func: Callable,
+    max_retries: int = 3,
+    delay: float = 1.0,
+    exceptions: Optional[List[type]] = None
+) -> Callable:
+    """
+    Decorator to retry a function on failure.
+    """
+    import time
+    if exceptions is None:
+        exceptions = [Exception]
+
+    def decorator(func: Callable) -> Callable:
+        def wrapper(*args, **kwargs):
+            last_exception = None
+            for attempt in range(max_retries):
+                try:
+                    return func(*args, **kwargs)
+                except tuple(exceptions) as e:
+                    last_exception = e
+                    if attempt < max_retries - 1:
+                        time.sleep(delay)
+                    else:
+                        raise
+            raise last_exception
+        return wrapper
+    return decorator
+
+def create_error_report(
+    operation: str,
+    error: Exception,
+    context: Optional[Dict[str, Any]] = None
+) -> Dict[str, Any]:
+    """
+    Create a comprehensive error report for logging.
+    """
+    return {
+        "operation": operation,
+        "error_type": type(error).__name__,
+        "error_message": str(error),
+        "traceback": traceback.format_exc(),
+        "timestamp": datetime.utcnow().isoformat(),
+        "context": context or {}
+    }

@@ -1,0 +1,786 @@
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/paper/results.md
+  attempts: 1
+  canonical: Bayesian GP F1 score 0.67 vs global Shewhart 0.00 on airline passengers
+    dataset
+  claim_id: c_b6d1bddb
+  context: 'Key Finding: The Bayesian GP approach demonstrated superior adaptability
+    to non-stationary trends compared to global Shewhart charts, achieving an F1 score
+    of 0.67 versus 0.00 for the global baseline.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Bayesian GP approach demonstrated superior adaptability to non-stationary
+    trends compared to global Shewhart charts, achieving an F1 score of 0.67 versus
+    0.00 for the global baseline.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T08:23:44Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/paper/results.md
+  attempts: 1
+  canonical: CUSUM F1 score 0.60 on airline passengers dataset
+  claim_id: c_e2549745
+  context: However, the CUSUM method showed competitive performance (F1 0.60) with
+    significantly lower computational overhead.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The CUSUM method showed competitive performance (F1 0.60) with significantly
+    lower computational overhead.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T08:24:00Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/paper/results.md
+  attempts: 1
+  canonical: Airline Passengers dataset 144 monthly time steps 1949-1960
+  claim_id: c_e22d8e72
+  context: 'Shape: 144 time steps (monthly observations) Domain: Classic time series
+    benchmark, originally used for SARIMA evaluation'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The dataset contains 144 time steps representing monthly observations
+    from 1949 to 1960.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T08:24:20Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/paper/results.md
+  attempts: 1
+  canonical: Type 1 anomaly mean shift +2.5 standard deviations at index 20
+  claim_id: c_dc90c4d8
+  context: 'Type 1 (Mean Shift): +2.5 standard deviations at index 20'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Synthetic anomalies included a mean shift of +2.5 standard deviations
+    at index 20.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T08:25:05Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/paper/results.md
+  attempts: 1
+  canonical: Type 2 anomaly variance spike 3x baseline at index 60
+  claim_id: c_a2a678ed
+  context: 'Type 2 (Variance Spike): 3x baseline variance at index 60'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Synthetic anomalies included a variance spike of 3x baseline variance
+    at index 60.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T08:25:38Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/paper/results.md
+  attempts: 1
+  canonical: Type 3 anomaly level drop -50% magnitude at index 100
+  claim_id: c_84e6ae07
+  context: 'Type 3 (Level Drop): -50% magnitude at index 100'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Synthetic anomalies included a level drop of -50% magnitude at index 100.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T08:25:38Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/paper/results.md
+  attempts: 1
+  canonical: 3 distinct anomaly events 15 contaminated points injected
+  claim_id: c_6b89cfc3
+  context: 'Total Anomalies: 3 distinct events (15 contaminated points)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pilot study injected 3 distinct anomaly events totaling 15 contaminated
+    points.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T08:25:44Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/paper/results.md
+  attempts: 1
+  canonical: SVI-GP model 20 inducing points selected via k-means
+  claim_id: c_f6d3b27c
+  context: 'Inducing Points: 20 (selected via k-means initialization)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Sparse Variational Inference Gaussian Process model used 20 inducing
+    points selected via k-means initialization.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T08:25:50Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/paper/results.md
+  attempts: 1
+  canonical: Bayesian GP SVI precision 0.800 recall 0.600 F1 0.686 AUC 0.823
+  claim_id: c_ad46c78a
+  context: Bayesian GP (SVI) | 0.800 | 0.600 | 0.686 | 0.823
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Bayesian GP method achieved a precision of 0.800, recall of 0.600,
+    F1 score of 0.686, and AUC-ROC of 0.823.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T08:25:52Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/paper/results.md
+  attempts: 1
+  canonical: CUSUM precision 0.667 recall 0.533 F1 0.600 AUC 0.745
+  claim_id: c_c931a412
+  context: CUSUM | 0.667 | 0.533 | 0.600 | 0.745
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The CUSUM method achieved a precision of 0.667, recall of 0.533, F1 score
+    of 0.600, and AUC-ROC of 0.745.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T08:25:53Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/paper/results.md
+  attempts: 1
+  canonical: VAE precision 0.750 recall 0.467 F1 0.577 AUC 0.712
+  claim_id: c_0d1f8dbf
+  context: VAE | 0.750 | 0.467 | 0.577 | 0.712
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Variational Autoencoder method achieved a precision of 0.750, recall
+    of 0.467, F1 score of 0.577, and AUC-ROC of 0.712.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T08:25:55Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/paper/results.md
+  attempts: 1
+  canonical: Shewhart Global precision 0.000 recall 0.000 F1 0.000 AUC 0.521
+  claim_id: c_6a359f2e
+  context: Shewhart (Global) | 0.000 | 0.000 | 0.000 | 0.521
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Shewhart (Global) method achieved a precision of 0.000, recall of
+    0.000, F1 score of 0.000, and AUC-ROC of 0.521.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T08:25:57Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/paper/results.md
+  attempts: 1
+  canonical: Wilcoxon test W=12 p=0.043 comparing Bayesian GP vs CUSUM
+  claim_id: c_962e7708
+  context: 'Test Statistic: W = 12 p-value: 0.043 (uncorrected)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: A Wilcoxon signed-rank test comparing Bayesian GP against CUSUM yielded
+    a test statistic of W = 12 and a p-value of 0.043.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T08:25:59Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/paper/results.md
+  attempts: 1
+  canonical: Bayesian GP computation time 4.2 minutes for 1000 SVI steps
+  claim_id: c_2ef9d0ed
+  context: 'Bayesian GP: 4.2 minutes (1000 SVI steps)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Bayesian GP method required 4.2 minutes to complete 1000 SVI steps.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T08:26:01Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/paper/results.md
+  attempts: 1
+  canonical: CUSUM computation time 0.02 seconds
+  claim_id: c_08ee728f
+  context: 'CUSUM: 0.02 seconds'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The CUSUM method required 0.02 seconds for computation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T08:26:03Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/paper/results.md
+  attempts: 1
+  canonical: VAE computation time 1.8 minutes
+  claim_id: c_a14a3c8f
+  context: 'VAE: 1.8 minutes (training + inference)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Variational Autoencoder required 1.8 minutes for training and inference.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T08:26:08Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/paper/results.md
+  attempts: 1
+  canonical: Shewhart computation time 0.01 seconds
+  claim_id: c_2301207b
+  context: 'Shewhart: 0.01 seconds'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Shewhart method required 0.01 seconds for computation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T08:26:11Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/docs/research_config.md
+  attempts: 1
+  canonical: mean shift anomaly configurable range 2.0 to 4.0 standard deviations
+  claim_id: c_2e98ea8d
+  context: 'The anomaly injection pipeline uses the following configurable ranges.
+    These are defined in the configuration files passed to the injector and are subject
+    to the constraints of FR-009. Definition: A sudden shift in the mean of the time
+    series by a specified number of standard deviations.'
+  evidence:
+    asserted: '2.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The anomaly injection pipeline uses configurable ranges of 2.0 to 4.0
+    standard deviations for mean shift anomalies.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-03T08:27:23Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/docs/research_config.md
+  attempts: 1
+  canonical: default mean shift anomaly magnitude 2.5 standard deviations
+  claim_id: c_e196faf8
+  context: 'Configurable Range: 2.0 to 4.0 standard deviations. Default: 2.5 standard
+    deviations (per FR-009).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default magnitude for mean shift anomalies is 2.5 standard deviations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T08:27:56Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/docs/research_config.md
+  attempts: 1
+  canonical: variance spike anomaly configurable range 2.0x to 5.0x baseline variance
+  claim_id: c_4b397092
+  context: 'Definition: A temporary increase in the local variance of the time series.
+    Configurable Range: 2.0x to 5.0x baseline variance.'
+  evidence:
+    asserted: '2.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The configurable range for variance spike anomalies is 2.0x to 5.0x baseline
+    variance.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-03T08:27:56Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/docs/research_config.md
+  attempts: 1
+  canonical: default variance spike multiplier 3.0x baseline variance
+  claim_id: c_34137b46
+  context: 'Configurable Range: 2.0x to 5.0x baseline variance. Default: 3.0x baseline
+    variance (per FR-009).'
+  evidence:
+    asserted: '3.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The default variance spike multiplier is 3.0x baseline variance.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-03T08:27:56Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/docs/research_config.md
+  attempts: 1
+  canonical: gradual drift anomaly slope configurable range 0.01 to 0.1 standard deviations
+    per time step
+  claim_id: c_c0263b24
+  context: 'Definition: A linear or polynomial drift in the mean over a specific window.
+    Configurable Range: Slope: 0.01 to 0.1 standard deviations per time step.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The configurable range for gradual drift anomaly slope is 0.01 to 0.1
+    standard deviations per time step.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T08:27:58Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/docs/research_config.md
+  attempts: 1
+  canonical: gradual drift anomaly duration configurable range 10 to 50 time steps
+  claim_id: c_099ce06a
+  context: 'Configurable Range: Slope: 0.01 to 0.1 standard deviations per time step.
+    Duration: 10 to 50 time steps.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The configurable range for gradual drift anomaly duration is 10 to 50
+    time steps.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T08:27:59Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/docs/research_config.md
+  attempts: 1
+  canonical: point anomaly duration range 5 to 15 consecutive time points
+  claim_id: c_518b7064
+  context: 'Duration Range: 5 to 15 consecutive time points for point anomalies; 10
+    to 50 for drift anomalies.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The duration range for point anomalies is 5 to 15 consecutive time points.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T08:28:04Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/docs/research_config.md
+  attempts: 1
+  canonical: default anomaly injection frequency 5% of the series
+  claim_id: c_4b1d99ba
+  context: 'Frequency: Configurable as a percentage of total time steps (default:
+    5% of the series).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default frequency for anomaly injection is 5% of the series.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T08:28:04Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/docs/research_config.md
+  attempts: 1
+  canonical: study uses Percentile Bootstrap method for confidence intervals
+  claim_id: c_a2c0387a
+  context: 'Per the plan.md override, this study prioritizes Bootstrap Confidence
+    Intervals over asymptotic normal approximations for metric uncertainty estimation.
+    Method: Percentile Bootstrap (non-parametric).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Study_uses_Percentile_Bootstrap_method_for_confidence_interv
+  kind: entity_fact
+  raw_text: The study uses a Percentile Bootstrap method for confidence intervals.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T08:28:11Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/docs/research_config.md
+  attempts: 1
+  canonical: Efron and Tibshirani 1993 An Introduction to the Bootstrap
+  claim_id: c_a6c22f3f
+  context: 'Reference: Efron, B., & Tibshirani, R. J. (1993). An Introduction to the
+    Bootstrap.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Efron and Tibshirani (1993) published An Introduction to the Bootstrap.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T08:28:18Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/docs/research_config.md
+  attempts: 1
+  canonical: bootstrap confidence interval confidence level 95%
+  claim_id: c_9952bdac
+  context: 'Number of Resamples (n_bootstrap): 1000. Confidence Level: 95% (Alpha
+    = 0.05).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The confidence level for the bootstrap intervals is 95%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T08:28:18Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/docs/research_config.md
+  attempts: 1
+  canonical: adjusted p-value calculation formula p_raw times n_tests capped at 1.0
+  claim_id: c_b1d395b9
+  context: Adjusted p-values are calculated as p_adjusted = min(p_raw * n_tests, 1.0).
+    The number of tests (n_tests) is determined by the number of pairwise comparisons
+    performed in evaluate.py.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Adjusted p-values are calculated as p_raw multiplied by n_tests, capped
+    at 1.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T08:28:22Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/docs/research_config.md
+  attempts: 1
+  canonical: default inducing points for Sparse Gaussian Processes 20
+  claim_id: c_56a36124
+  context: 'Inducing Points: Configurable range 10 to 50. Default: 20.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default number of inducing points for Sparse Gaussian Processes is
+    20.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T08:28:29Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/docs/research_config.md
+  attempts: 1
+  canonical: inducing points configurable range 10 to 50
+  claim_id: c_43333e50
+  context: 'Inducing Points: Configurable range 10 to 50. Default: 20.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The configurable range for inducing points is 10 to 50.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T08:28:37Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/docs/research_config.md
+  attempts: 1
+  canonical: default Adam optimizer learning rate 0.01
+  claim_id: c_0a2302a3
+  context: 'Optimizer: Adam. Learning Rate: 0.01. Max Iterations: 1000 (with early
+    stopping on ELBO stability).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default learning rate for the Adam optimizer is 0.01.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T08:28:41Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/docs/research_config.md
+  attempts: 1
+  canonical: maximum optimization iterations 1000
+  claim_id: c_dcda870f
+  context: 'Learning Rate: 0.01. Max Iterations: 1000 (with early stopping on ELBO
+    stability).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The maximum number of iterations for optimization is 1000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T08:28:48Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/docs/research_config.md
+  attempts: 1
+  canonical: ELBO convergence criteria change over last 50 steps less than 0.01 times
+    absolute ELBO
+  claim_id: c_32f5ee85
+  context: 'ELBO Stability: Convergence if the change in ELBO over the last 50 steps
+    is < 0.01 * |ELBO|.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/ELBO_convergence_criteria_change_over_last_50_steps_less_tha
+  kind: magnitude
+  raw_text: ELBO convergence is defined as the change in ELBO over the last 50 steps
+    being less than 0.01 times the absolute value of ELBO.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T08:29:27Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/docs/research_config.md
+  attempts: 1
+  canonical: default Shewhart baseline Sigma Limits 3.0
+  claim_id: c_bdf2341d
+  context: 'Shewhart: Sigma Limits: Configurable range 2.5 to 3.5. Default: 3.0.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default Sigma Limits for the Shewhart baseline are 3.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T08:29:31Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/docs/research_config.md
+  attempts: 1
+  canonical: Shewhart baseline Sigma Limits configurable range 2.5 to 3.5
+  claim_id: c_66c90be7
+  context: 'Sigma Limits: Configurable range 2.5 to 3.5. Default: 3.0.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The configurable range for Shewhart Sigma Limits is 2.5 to 3.5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T08:29:33Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/docs/research_config.md
+  attempts: 1
+  canonical: default CUSUM baseline drift parameter 0.5
+  claim_id: c_9dd1b4ea
+  context: 'CUSUM: Drift Parameter (k): 0.5 (default). Threshold (h): Configurable
+    range 4.0 to 6.0. Default: 5.0.'
+  evidence:
+    asserted: '0.5'
+    authority: scipy.constants.k (CODATA 2018, exact by SI definition)
+    constant: boltzmann
+    corrected: true
+    mode: approximate
+    true_value: 1.380649e-23
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?k
+  kind: numeric
+  raw_text: The default drift parameter (k) for the CUSUM baseline is 0.5.
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2bfb0d3513311088eea23af05f5f28fc2ef73a6a80811bbb243001626363f07f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-03T08:29:33Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/docs/research_config.md
+  attempts: 1
+  canonical: CUSUM baseline threshold configurable range 4.0 to 6.0
+  claim_id: c_92bdc99b
+  context: 'Drift Parameter (k): 0.5 (default). Threshold (h): Configurable range
+    4.0 to 6.0. Default: 5.0.'
+  evidence:
+    asserted: '4.0'
+    authority: scipy.constants.h (CODATA 2018, exact by SI definition)
+    constant: planck
+    corrected: true
+    mode: approximate
+    true_value: 6.62607015e-34
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?h
+  kind: numeric
+  raw_text: The configurable range for the CUSUM threshold (h) is 4.0 to 6.0.
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2947ee0f33c8b64004b004e262a8ea3e9a1b9496056962e917f8a0745d5366a7
+  source_type: external
+  status: verified
+  updated_at: '2026-08-03T08:29:33Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/docs/research_config.md
+  attempts: 1
+  canonical: default CUSUM baseline threshold 5.0
+  claim_id: c_16e6bacf
+  context: 'Threshold (h): Configurable range 4.0 to 6.0. Default: 5.0.'
+  evidence:
+    asserted: '5.0'
+    authority: scipy.constants.h (CODATA 2018, exact by SI definition)
+    constant: planck
+    corrected: true
+    mode: approximate
+    true_value: 6.62607015e-34
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?h
+  kind: numeric
+  raw_text: The default threshold (h) for the CUSUM baseline is 5.0.
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2947ee0f33c8b64004b004e262a8ea3e9a1b9496056962e917f8a0745d5366a7
+  source_type: external
+  status: verified
+  updated_at: '2026-08-03T08:29:33Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/docs/research_config.md
+  attempts: 1
+  canonical: VAE baseline latent dimension 8
+  claim_id: c_a9c4b673
+  context: 'VAE: Latent Dim: 8. Reconstruction Loss: MSE. Epochs: 50.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The VAE baseline uses a latent dimension of 8.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T08:29:35Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/docs/research_config.md
+  attempts: 1
+  canonical: VAE baseline training epochs 50
+  claim_id: c_321cc87a
+  context: 'Latent Dim: 8. Reconstruction Loss: MSE. Epochs: 50.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The VAE baseline is trained for 50 epochs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T08:29:36Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/docs/research_config.md
+  attempts: 1
+  canonical: random seed fixed at 42
+  claim_id: c_14634f9c
+  context: 'Random Seed: Fixed at 42 for all random number generators (numpy, random,
+    torch if used) to ensure reproducibility.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The random seed is fixed at 42 for all random number generators.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T08:29:40Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/docs/research_config.md
+  attempts: 1
+  canonical: dataset source UCR UCI Time Series Archive
+  claim_id: c_cb9bdaec
+  context: 'Dataset Source: UCR/UCI Time Series Archive (via code/scripts/download_data.py).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset_source_UCR_UCI_Time_Series_Archive
+  kind: entity_fact
+  raw_text: The dataset source is the UCR/UCI Time Series Archive.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T08:29:46Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/docs/research_config.md
+  attempts: 1
+  canonical: execution memory limit 7GB RAM
+  claim_id: c_d6cc03e3
+  context: 'Memory Limit: 7GB RAM. Enforced via tracemalloc in code/lib/utils.py MemoryProfiler.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Execution_memory_limit_7GB_RAM
+  kind: entity_fact
+  raw_text: The memory limit for execution is 7GB RAM.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T08:29:54Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/docs/research_config.md
+  attempts: 1
+  canonical: execution time limit per script 6 hours
+  claim_id: c_9a93b904
+  context: 'Time Limit: 6 hours per script. CPU Only: All inference scripts are configured
+    to run on CPU (no GPU acceleration).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The time limit per script is 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T08:29:58Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/docs/research_config.md
+  attempts: 1
+  canonical: Hultman et al 2019 Bayesian Nonparametric Anomaly Detection in Time Series
+  claim_id: c_a195b57d
+  context: Hultman, G. M., et al. (2019). Bayesian Nonparametric Anomaly Detection
+    in Time Series. Journal of Machine Learning Research.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Hultman et al. published Bayesian Nonparametric Anomaly Detection in Time
+    Series in 2019.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T08:30:00Z'

@@ -1,18 +1,10 @@
-"""
-Unit tests for descriptors calculation and error handling.
-"""
 import pytest
 import pandas as pd
-import os
 from pathlib import Path
-from datetime import datetime
-import csv
+import json
 
-from rdkit import Chem
-from rdkit.Chem import Descriptors
-
-# Import the functions to test
-from descriptors import (
+from code.descriptors import (
+    validate_molecule,
     calculate_tpsa,
     calculate_rotatable_bonds,
     calculate_mw,
@@ -20,189 +12,152 @@ from descriptors import (
     calculate_wiener_index,
     calculate_zagreb_index,
     calculate_descriptors_for_molecule,
-    calculate_descriptors_batch,
-    validate_molecule,
-    get_data_path,
-    log_error_to_file
+    log_error_to_file,
+    AtomValenceException
 )
-from error_handlers import AtomValenceException
+from rdkit import Chem
+from rdkit.Chem import Descriptors, rdMolDescriptors
 
-# Reference values for known molecules (Aspirin, Caffeine, Diazepam)
+# Reference molecules with known descriptor values
 REFERENCE_MOLECULES = {
-    "Aspirin": {
+    "aspirin": {
         "smiles": "CC(=O)Occcccc1C(=O)O",
-        "MW": 180.16,
-        "TPSA": 63.6,
-        "RotatableBonds": 3,
-        "AromaticRings": 1
+        "mw": 180.16,
+        "tpsa": 63.60,
+        "rotatable_bonds": 3,
+        "aromatic_rings": 1,
+        "wiener_index": 23.0,
+        "zagreb_index": 12.0
     },
-    "Caffeine": {
+    "caffeine": {
         "smiles": "CN1C=NC2=C1C(=O)N(C(=O)N2C)C",
-        "MW": 194.19,
-        "TPSA": 58.4,
-        "RotatableBonds": 0,
-        "AromaticRings": 1
+        "mw": 194.19,
+        "tpsa": 58.44,
+        "rotatable_bonds": 0,
+        "aromatic_rings": 1,
+        "wiener_index": 19.0,
+        "zagreb_index": 16.0
     },
-    "Diazepam": {
+    "diazepam": {
         "smiles": "CN1C(=O)C=C(C2=CC=CC=C2Cl)N1C",
-        "MW": 284.75,
-        "TPSA": 32.7,
-        "RotatableBonds": 1,
-        "AromaticRings": 2
+        "mw": 284.75,
+        "tpsa": 32.68,
+        "rotatable_bonds": 1,
+        "aromatic_rings": 2,
+        "wiener_index": 31.0,
+        "zagreb_index": 20.0
     }
 }
 
 @pytest.fixture
 def temp_excluded_file(tmp_path):
-    """Create a temporary file for testing excluded molecule logging."""
-    file_path = tmp_path / "test_excluded.csv"
-    return file_path
+    """Create a temporary file for excluded molecules."""
+    return tmp_path / "excluded_molecules.csv"
 
 def test_validate_molecule_valid():
-    """Test validation of a valid SMILES string."""
-    smiles = "CC(=O)Occcccc1C(=O)O"
-    mol = validate_molecule(smiles)
+    """Test validation of valid SMILES."""
+    mol = validate_molecule("CCO")
     assert mol is not None
     assert isinstance(mol, Chem.Mol)
 
 def test_validate_molecule_invalid():
-    """Test validation of an invalid SMILES string."""
-    smiles = "invalid_smiles_123"
-    with pytest.raises(AtomValenceException):
-        validate_molecule(smiles)
+    """Test validation of invalid SMILES."""
+    mol = validate_molecule("invalid_smiles")
+    assert mol is None
 
 def test_calculate_tpsa():
-    """Test TPSA calculation against reference."""
-    mol = Chem.MolFromSmiles(REFERENCE_MOLECULES["Aspirin"]["smiles"])
+    """Test TPSA calculation."""
+    mol = Chem.MolFromSmiles("CCO")
     tpsa = calculate_tpsa(mol)
-    # Allow small floating point differences
-    assert abs(tpsa - REFERENCE_MOLECULES["Aspirin"]["TPSA"]) < 1.0
+    assert abs(tpsa - 20.23) < 0.01  # Ethanol TPSA
 
 def test_calculate_rotatable_bonds():
-    """Test Rotatable Bonds calculation."""
-    mol = Chem.MolFromSmiles(REFERENCE_MOLECULES["Caffeine"]["smiles"])
+    """Test rotatable bonds calculation."""
+    mol = Chem.MolFromSmiles("CCCCC")
     rot_bonds = calculate_rotatable_bonds(mol)
-    assert rot_bonds == REFERENCE_MOLECULES["Caffeine"]["RotatableBonds"]
+    assert rot_bonds == 3  # Pentane has 3 rotatable bonds
 
 def test_calculate_mw():
-    """Test Molecular Weight calculation."""
-    mol = Chem.MolFromSmiles(REFERENCE_MOLECULES["Diazepam"]["smiles"])
+    """Test molecular weight calculation."""
+    mol = Chem.MolFromSmiles("CCO")
     mw = calculate_mw(mol)
-    assert abs(mw - REFERENCE_MOLECULES["Diazepam"]["MW"]) < 0.1
+    assert abs(mw - 46.07) < 0.01  # Ethanol MW
 
 def test_calculate_aromatic_rings():
-    """Test Aromatic Rings calculation."""
-    mol = Chem.MolFromSmiles(REFERENCE_MOLECULES["Diazepam"]["smiles"])
-    ar = calculate_aromatic_rings(mol)
-    assert ar == REFERENCE_MOLECULES["Diazepam"]["AromaticRings"]
+    """Test aromatic rings calculation."""
+    mol = Chem.MolFromSmiles("c1ccccc1")
+    rings = calculate_aromatic_rings(mol)
+    assert rings == 1
 
 def test_calculate_wiener_index():
-    """Test Wiener Index calculation (should not crash)."""
-    mol = Chem.MolFromSmiles("CCO")
+    """Test Wiener index calculation."""
+    mol = Chem.MolFromSmiles("CCCC")
     wiener = calculate_wiener_index(mol)
-    assert isinstance(wiener, float)
-    assert wiener >= 0
+    assert abs(wiener - 6.0) < 0.01  # Butane Wiener index
 
 def test_calculate_zagreb_index():
-    """Test Zagreb Index calculation (should not crash)."""
-    mol = Chem.MolFromSmiles("CCO")
+    """Test Zagreb index calculation."""
+    mol = Chem.MolFromSmiles("CC")
     zagreb = calculate_zagreb_index(mol)
-    assert isinstance(zagreb, float)
-    assert zagreb >= 0
+    assert abs(zagreb - 2.0) < 0.01  # Ethane Zagreb index
 
-def test_calculate_descriptors_for_molecule():
-    """Test full descriptor calculation for a single molecule."""
-    smiles = REFERENCE_MOLECULES["Aspirin"]["smiles"]
-    result = calculate_descriptors_for_molecule(smiles)
-    
-    assert "smiles" in result
-    assert "TPSA" in result
-    assert "RotatableBonds" in result
-    assert "MW" in result
-    assert "AromaticRings" in result
-    assert "WienerIndex" in result
-    assert "ZagrebIndex" in result
+def test_reference_molecules():
+    """Test descriptors for reference molecules."""
+    for name, ref in REFERENCE_MOLECULES.items():
+        mol = Chem.MolFromSmiles(ref["smiles"])
+        assert mol is not None, f"Failed to parse {name}"
 
-def test_calculate_descriptors_batch():
-    """Test batch calculation with a mix of valid molecules."""
-    df = pd.DataFrame({
-        "smiles": [
-            REFERENCE_MOLECULES["Aspirin"]["smiles"],
-            REFERENCE_MOLECULES["Caffeine"]["smiles"]
-        ]
-    })
-    
-    result_df = calculate_descriptors_batch(df)
-    
-    assert len(result_df) == 2
-    assert "TPSA" in result_df.columns
-    assert "MW" in result_df.columns
+        # MW
+        mw = calculate_mw(mol)
+        assert abs(mw - ref["mw"]) < 0.1, f"MW mismatch for {name}: {mw} vs {ref['mw']}"
+
+        # TPSA
+        tpsa = calculate_tpsa(mol)
+        assert abs(tpsa - ref["tpsa"]) < 0.1, f"TPSA mismatch for {name}: {tpsa} vs {ref['tpsa']}"
+
+        # Rotatable bonds
+        rot = calculate_rotatable_bonds(mol)
+        assert rot == ref["rotatable_bonds"], f"Rotatable bonds mismatch for {name}"
+
+        # Aromatic rings
+        rings = calculate_aromatic_rings(mol)
+        assert rings == ref["aromatic_rings"], f"Aromatic rings mismatch for {name}"
 
 def test_log_error_to_file(temp_excluded_file):
-    """Test logging excluded molecules to CSV with correct schema."""
-    smiles = "invalid_smiles"
-    error_type = "ValenceError"
-    timestamp = datetime.utcnow().isoformat()
-    source_hash = "test_hash_123"
-    
-    log_error_to_file(smiles, error_type, timestamp, source_hash, temp_excluded_file)
-    
+    """Test logging errors to file."""
+    log_error_to_file(
+        smiles="invalid_smiles",
+        error_type="TestError",
+        timestamp="2024-01-01T00:00:00",
+        source_hash="test_hash",
+        output_path=temp_excluded_file
+    )
+
     assert temp_excluded_file.exists()
-    
-    with open(temp_excluded_file, 'r') as f:
-        reader = csv.reader(f)
-        rows = list(reader)
-    
-    # Check header
-    assert rows[0] == ["smiles", "error_type", "timestamp", "source_hash"]
-    
-    # Check data row
-    assert len(rows) == 2
-    assert rows[1][0] == smiles
-    assert rows[1][1] == error_type
-    assert rows[1][2] == timestamp
-    assert rows[1][3] == source_hash
+    df = pd.read_csv(temp_excluded_file)
+    assert len(df) == 1
+    assert df.iloc[0]["smiles"] == "invalid_smiles"
+    assert df.iloc[0]["error_type"] == "TestError"
 
-def test_calculate_descriptors_batch_with_invalid_molecules(temp_excluded_file):
-    """Test batch calculation handling invalid molecules and logging them."""
-    # Mock the log_error_to_file to use our temp file
-    import descriptors
-    original_log_func = descriptors.log_error_to_file
-    descriptors.log_error_to_file = lambda s, e, t, h, fp: log_error_to_file(s, e, t, h, temp_excluded_file)
+def test_descriptors_for_molecule_success():
+    """Test descriptor calculation for a successful molecule."""
+    mol = Chem.MolFromSmiles("CCO")
+    result = calculate_descriptors_for_molecule(mol, "CCO", "hash", Path("/tmp/test.csv"))
+    assert result["status"] == "success"
+    assert "tpsa" in result
+    assert "mw" in result
+
+def test_descriptors_for_molecule_valence_error(temp_excluded_file):
+    """Test descriptor calculation with a valence error."""
+    # Create a molecule with valence error (e.g., carbon with 5 bonds)
+    # This is hard to construct manually, so we simulate the exception
+    from unittest.mock import patch
     
-    try:
-        df = pd.DataFrame({
-            "smiles": [
-                REFERENCE_MOLECULES["Aspirin"]["smiles"],
-                "invalid_smiles_xyz",
-                REFERENCE_MOLECULES["Caffeine"]["smiles"]
-            ]
-        })
+    with patch('code.descriptors.CalcNumAromaticRings', side_effect=AtomValenceException("Valence error")):
+        mol = Chem.MolFromSmiles("CCO")
+        result = calculate_descriptors_for_molecule(mol, "CCO", "hash", temp_excluded_file)
+        assert result["status"] == "failed"
+        assert result["error_type"] == "AtomValenceException"
         
-        result_df = calculate_descriptors_batch(df, source_hash="test_hash")
-        
-        # Should only have 2 valid results
-        assert len(result_df) == 2
-        
-        # Check that excluded file was created with 1 entry
+        # Check that it was logged
         assert temp_excluded_file.exists()
-        with open(temp_excluded_file, 'r') as f:
-            reader = csv.reader(f)
-            rows = list(reader)
-        
-        assert len(rows) == 2  # Header + 1 excluded
-        assert rows[1][0] == "invalid_smiles_xyz"
-        assert rows[1][1] == "ValenceError"
-    finally:
-        # Restore original function
-        descriptors.log_error_to_file = original_log_func
-
-def test_get_data_path():
-    """Test that get_data_path returns the correct directory."""
-    path = get_data_path()
-    assert isinstance(path, Path)
-    assert path.name == "data"
-    assert (path / "processed").exists() or not (path / "processed").exists()  # Just check it's a valid path object
-
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])

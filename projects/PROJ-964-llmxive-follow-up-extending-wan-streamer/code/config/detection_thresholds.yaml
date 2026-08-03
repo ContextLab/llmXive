@@ -1,0 +1,19 @@
+# T012a: Detection Thresholds for Event Classification
+# These thresholds are used by extract_latents.py (T013) to classify interruptions and pauses.
+# FR-018: Explicitly define the detection algorithm and thresholds.
+
+# Audio energy threshold (in dB) below which a frame is considered silent.
+# Frames with energy < this value are candidates for pause detection.
+audio_energy_db: -30.0
+
+# Latent delta magnitude threshold.
+# If the L2 norm of the difference between consecutive latent vectors exceeds this,
+# it is flagged as a potential interruption event.
+latent_delta_magnitude: 0.5
+
+# Minimum number of consecutive silent frames required to classify a segment as a 'pause'.
+pause_duration_frames: 10
+
+# Minimum gap (in frames) between speech segments to consider an interruption.
+# (Used in more advanced logic, currently simplified to delta magnitude).
+interruption_gap_frames: 5

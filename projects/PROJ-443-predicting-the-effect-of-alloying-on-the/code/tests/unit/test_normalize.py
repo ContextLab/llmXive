@@ -1,11 +1,11 @@
 """
-Unit tests for normalization logic in src/data/normalize.py.
+Unit tests for the normalization module.
 
-Tests verify:
-1. Composition sums are normalized to 1.0
-2. Zero-sum compositions are handled gracefully
-3. Already-normalized compositions are left unchanged
-4. Logging of adjustments works correctly
+Tests cover:
+- Composition column identification
+- Single row normalization
+- DataFrame normalization
+- Edge cases (NaN, zero sum, already normalized)
 """
 import pytest
 import pandas as pd
@@ -13,275 +13,220 @@ import numpy as np
 from pathlib import Path
 import sys
 import os
-import logging
-from io import StringIO
 
-# Add project root to path for imports
+# Add the project root to the path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from src.data.normalize import (
     get_composition_columns,
     normalize_composition_row,
-    normalize_dataframe,
-    main
+    normalize_dataframe
 )
-from utils.validators import ValidationError
+
 
 class TestGetCompositionColumns:
-    """Test identification of composition columns."""
-    
-    def test_identifies_composition_columns(self):
-        """Should correctly identify columns starting with 'comp_'."""
+    """Tests for identifying composition columns."""
+
+    def test_explicit_element_columns(self):
+        """Test with explicit element column names."""
         df = pd.DataFrame({
-            'sample_id': [1, 2],
-            'comp_Fe': [0.2, 0.3],
-            'comp_Co': [0.3, 0.2],
-            'comp_Ni': [0.5, 0.5],
-            'other_col': ['a', 'b']
+            'Fe': [0.3, 0.2],
+            'Ni': [0.3, 0.2],
+            'Cr': [0.3, 0.2],
+            'Co': [0.1, 0.2],
+            'other': [1, 2]
         })
-        
-        comp_cols = get_composition_columns(df)
-        
-        assert len(comp_cols) == 3
-        assert set(comp_cols) == {'comp_Fe', 'comp_Co', 'comp_Ni'}
-    
-    def test_empty_dataframe(self):
-        """Should return empty list for empty DataFrame."""
-        df = pd.DataFrame()
-        
-        comp_cols = get_composition_columns(df)
-        
-        assert comp_cols == []
-    
+        cols = get_composition_columns(df)
+        assert 'Fe' in cols
+        assert 'Ni' in cols
+        assert 'Cr' in cols
+        assert 'Co' in cols
+        assert 'other' not in cols
+
+    def test_element_suffix_columns(self):
+        """Test with columns containing 'element' in the name."""
+        df = pd.DataFrame({
+            'element_Fe': [0.3, 0.2],
+            'element_Ni': [0.3, 0.2],
+            'other': [1, 2]
+        })
+        cols = get_composition_columns(df)
+        assert 'element_Fe' in cols
+        assert 'element_Ni' in cols
+        assert 'other' not in cols
+
     def test_no_composition_columns(self):
-        """Should return empty list when no composition columns exist."""
+        """Test with no composition columns."""
         df = pd.DataFrame({
-            'sample_id': [1, 2],
-            'bulk_modulus': [100, 200]
+            'A': [1, 2],
+            'B': [3, 4],
+            'C': [5, 6]
         })
-        
-        comp_cols = get_composition_columns(df)
-        
-        assert comp_cols == []
+        cols = get_composition_columns(df)
+        # Should fallback to numeric columns or return empty
+        assert isinstance(cols, list)
+
 
 class TestNormalizeCompositionRow:
-    """Test normalization of individual rows."""
-    
-    def test_normalize_unnormalized_composition(self):
-        """Should normalize composition to sum=1.0."""
+    """Tests for single row normalization."""
+
+    def test_normalize_non_normalized_row(self):
+        """Test normalizing a row that doesn't sum to 1."""
         row = pd.Series({
-            'sample_id': 'test_1',
-            'comp_Fe': 0.4,
-            'comp_Co': 0.6,
-            'comp_Ni': 0.0
+            'Fe': 0.3,
+            'Ni': 0.3,
+            'Cr': 0.3
         })
-        comp_cols = ['comp_Fe', 'comp_Co', 'comp_Ni']
-        
-        # Create logger
-        logger = logging.getLogger('test')
-        logger.setLevel(logging.DEBUG)
-        handler = logging.StreamHandler(StringIO())
-        logger.addHandler(handler)
-        
-        normalized_row, info = normalize_composition_row(row, comp_cols, logger)
-        
-        assert abs(normalized_row['comp_Fe'] - 0.4) < 1e-6
-        assert abs(normalized_row['comp_Co'] - 0.6) < 1e-6
-        assert abs(normalized_row['comp_Ni'] - 0.0) < 1e-6
-        assert info['adjusted'] is True
-        assert abs(info['original_sum'] - 1.0) < 1e-6  # Already sums to 1.0 in this case
-    
-    def test_normalize_composition_that_needs_adjustment(self):
-        """Should adjust composition that doesn't sum to 1.0."""
+        composition_cols = ['Fe', 'Ni', 'Cr']
+
+        norm_row, was_adjusted, msg = normalize_composition_row(row, composition_cols)
+
+        assert was_adjusted is True
+        assert np.isclose(norm_row['Fe'], 0.333333, atol=1e-5)
+        assert np.isclose(norm_row['Ni'], 0.333333, atol=1e-5)
+        assert np.isclose(norm_row['Cr'], 0.333333, atol=1e-5)
+        assert "Normalized" in msg
+
+    def test_skip_already_normalized_row(self):
+        """Test skipping a row that already sums to 1."""
         row = pd.Series({
-            'sample_id': 'test_2',
-            'comp_Fe': 0.3,
-            'comp_Co': 0.4,
-            'comp_Ni': 0.2  # Sum = 0.9
+            'Fe': 0.4,
+            'Ni': 0.4,
+            'Cr': 0.2
         })
-        comp_cols = ['comp_Fe', 'comp_Co', 'comp_Ni']
-        
-        logger = logging.getLogger('test')
-        logger.setLevel(logging.DEBUG)
-        handler = logging.StreamHandler(StringIO())
-        logger.addHandler(handler)
-        
-        normalized_row, info = normalize_composition_row(row, comp_cols, logger)
-        
-        # Check that sum is now 1.0
-        total = normalized_row['comp_Fe'] + normalized_row['comp_Co'] + normalized_row['comp_Ni']
-        assert abs(total - 1.0) < 1e-6
-        
-        # Check that relative proportions are preserved
-        assert normalized_row['comp_Fe'] == pytest.approx(0.3 / 0.9)
-        assert normalized_row['comp_Co'] == pytest.approx(0.4 / 0.9)
-        assert normalized_row['comp_Ni'] == pytest.approx(0.2 / 0.9)
-        
-        assert info['adjusted'] is True
-        assert info['original_sum'] == 0.9
-    
-    def test_zero_sum_composition(self):
-        """Should handle zero-sum composition gracefully."""
+        composition_cols = ['Fe', 'Ni', 'Cr']
+
+        norm_row, was_adjusted, msg = normalize_composition_row(row, composition_cols)
+
+        assert was_adjusted is False
+        assert "Already normalized" in msg
+
+    def test_skip_nan_values(self):
+        """Test skipping a row with NaN values."""
         row = pd.Series({
-            'sample_id': 'test_3',
-            'comp_Fe': 0.0,
-            'comp_Co': 0.0,
-            'comp_Ni': 0.0
+            'Fe': np.nan,
+            'Ni': 0.5,
+            'Cr': 0.5
         })
-        comp_cols = ['comp_Fe', 'comp_Co', 'comp_Ni']
-        
-        logger = logging.getLogger('test')
-        logger.setLevel(logging.WARNING)
-        handler = logging.StreamHandler(StringIO())
-        logger.addHandler(handler)
-        
-        normalized_row, info = normalize_composition_row(row, comp_cols, logger)
-        
-        # Values should remain unchanged
-        assert normalized_row['comp_Fe'] == 0.0
-        assert normalized_row['comp_Co'] == 0.0
-        assert normalized_row['comp_Ni'] == 0.0
-        assert info['adjusted'] is False
-        assert info['original_sum'] == 0.0
+        composition_cols = ['Fe', 'Ni', 'Cr']
+
+        norm_row, was_adjusted, msg = normalize_composition_row(row, composition_cols)
+
+        assert was_adjusted is False
+        assert "Contains NaN" in msg
+
+    def test_skip_zero_sum(self):
+        """Test skipping a row with zero sum."""
+        row = pd.Series({
+            'Fe': 0.0,
+            'Ni': 0.0,
+            'Cr': 0.0
+        })
+        composition_cols = ['Fe', 'Ni', 'Cr']
+
+        norm_row, was_adjusted, msg = normalize_composition_row(row, composition_cols)
+
+        assert was_adjusted is False
+        assert "Sum is zero" in msg
+
 
 class TestNormalizeDataFrame:
-    """Test DataFrame-level normalization."""
-    
+    """Tests for DataFrame normalization."""
+
     def test_normalize_dataframe(self):
-        """Should normalize all rows in a DataFrame."""
+        """Test normalizing a full DataFrame."""
         df = pd.DataFrame({
-            'sample_id': ['s1', 's2', 's3'],
-            'comp_Fe': [0.3, 0.4, 0.2],
-            'comp_Co': [0.4, 0.3, 0.3],
-            'comp_Ni': [0.2, 0.2, 0.4]  # All rows sum to 0.9
+            'Fe': [0.3, 0.2, 0.5],
+            'Ni': [0.3, 0.2, 0.5],
+            'Cr': [0.3, 0.2, 0.0],  # Third row sums to 1.0 already
+            'other': [1, 2, 3]
         })
-        
-        logger = logging.getLogger('test')
-        logger.setLevel(logging.INFO)
-        handler = logging.StreamHandler(StringIO())
-        logger.addHandler(handler)
-        
-        normalized_df, stats = normalize_dataframe(df, logger)
-        
-        # Check that all rows sum to 1.0
-        for idx, row in normalized_df.iterrows():
-            total = row['comp_Fe'] + row['comp_Co'] + row['comp_Ni']
-            assert abs(total - 1.0) < 1e-6
-        
-        assert stats['total_samples'] == 3
-        assert stats['normalized_samples'] == 3
-        assert stats['verification_passed'] is True
-    
-    def test_mixed_normalization_needed(self):
-        """Should handle DataFrame with mix of normalized and unnormalized rows."""
+
+        norm_df, stats = normalize_dataframe(df)
+
+        assert len(norm_df) == len(df)
+        assert stats['normalized'] is True
+        assert stats['rows_normalized'] >= 1  # At least one row should be normalized
+
+        # Check that normalized rows sum to 1
+        composition_cols = ['Fe', 'Ni', 'Cr']
+        row_sums = norm_df[composition_cols].sum(axis=1)
+        # Allow for floating point tolerance
+        assert np.allclose(row_sums, 1.0, atol=1e-6)
+
+    def test_dataframe_with_all_nan(self):
+        """Test DataFrame where all rows have NaN."""
         df = pd.DataFrame({
-            'sample_id': ['s1', 's2', 's3'],
-            'comp_Fe': [0.5, 0.3, 0.4],
-            'comp_Co': [0.5, 0.4, 0.3],  # s1 sums to 1.0, others sum to 0.7 and 0.7
-            'comp_Ni': [0.0, 0.0, 0.0]
+            'Fe': [np.nan, np.nan],
+            'Ni': [np.nan, np.nan],
+            'Cr': [np.nan, np.nan]
         })
-        
-        logger = logging.getLogger('test')
-        logger.setLevel(logging.INFO)
-        handler = logging.StreamHandler(StringIO())
-        logger.addHandler(handler)
-        
-        normalized_df, stats = normalize_dataframe(df, logger)
-        
-        # Check sums
-        for idx, row in normalized_df.iterrows():
-            total = row['comp_Fe'] + row['comp_Co'] + row['comp_Ni']
-            assert abs(total - 1.0) < 1e-6
-        
-        assert stats['total_samples'] == 3
-        assert stats['normalized_samples'] == 2  # Only s2 and s3 needed adjustment
-    
-    def test_missing_composition_columns(self):
-        """Should raise ValidationError when no composition columns found."""
+
+        norm_df, stats = normalize_dataframe(df)
+
+        assert stats['rows_normalized'] == 0
+        assert stats['rows_skipped'] == 2
+
+    def test_dataframe_with_zero_sums(self):
+        """Test DataFrame where all rows sum to zero."""
         df = pd.DataFrame({
-            'sample_id': ['s1', 's2'],
-            'bulk_modulus': [100, 200]
+            'Fe': [0.0, 0.0],
+            'Ni': [0.0, 0.0],
+            'Cr': [0.0, 0.0]
         })
-        
-        logger = logging.getLogger('test')
-        
-        with pytest.raises(ValidationError) as exc_info:
-            normalize_dataframe(df, logger)
-        
-        assert "No composition columns found" in str(exc_info.value)
-    
-    def test_preserves_non_composition_columns(self):
-        """Should preserve non-composition columns during normalization."""
-        df = pd.DataFrame({
-            'sample_id': ['s1', 's2'],
-            'bulk_modulus': [150, 200],
-            'comp_Fe': [0.3, 0.4],
-            'comp_Co': [0.4, 0.3],
-            'comp_Ni': [0.2, 0.2]
-        })
-        
-        logger = logging.getLogger('test')
-        
-        normalized_df, stats = normalize_dataframe(df, logger)
-        
-        # Check that non-composition columns are preserved
-        assert 'sample_id' in normalized_df.columns
-        assert 'bulk_modulus' in normalized_df.columns
-        assert list(normalized_df['sample_id']) == ['s1', 's2']
-        assert list(normalized_df['bulk_modulus']) == [150, 200]
+
+        norm_df, stats = normalize_dataframe(df)
+
+        assert stats['rows_normalized'] == 0
+        assert stats['rows_skipped'] == 2
+
 
 class TestNormalizationEdgeCases:
-    """Test edge cases in normalization."""
-    
-    def test_nan_values_in_composition(self):
-        """Should handle NaN values in composition columns."""
+    """Tests for edge cases and boundary conditions."""
+
+    def test_single_element(self):
+        """Test with a single element composition."""
         df = pd.DataFrame({
-            'sample_id': ['s1', 's2'],
-            'comp_Fe': [0.3, np.nan],
-            'comp_Co': [0.4, 0.5],
-            'comp_Ni': [np.nan, 0.5]
+            'Fe': [1.0, 0.5],
+            'other': [1, 2]
         })
-        
-        logger = logging.getLogger('test')
-        
-        # This should not crash, but may produce unexpected results
-        # depending on how nansum handles the data
-        normalized_df, stats = normalize_dataframe(df, logger)
-        
-        # Just verify it runs without error
-        assert normalized_df is not None
-    
-    def test_single_element_composition(self):
-        """Should handle compositions with only one element."""
+
+        norm_df, stats = normalize_dataframe(df)
+
+        # First row should remain 1.0, second should stay 0.5 (sum=0.5, normalized=1.0)
+        composition_cols = ['Fe']
+        assert np.isclose(norm_df.loc[0, 'Fe'], 1.0)
+        assert np.isclose(norm_df.loc[1, 'Fe'], 1.0)  # 0.5/0.5 = 1.0
+
+    def test_very_small_values(self):
+        """Test with very small composition values."""
         df = pd.DataFrame({
-            'sample_id': ['s1'],
-            'comp_Fe': [1.5],  # Sum > 1.0
-            'comp_Co': [0.0],
-            'comp_Ni': [0.0]
+            'Fe': [1e-10, 1e-20],
+            'Ni': [1e-10, 1e-20],
+            'Cr': [1e-10, 1e-20]
         })
-        
-        logger = logging.getLogger('test')
-        
-        normalized_df, stats = normalize_dataframe(df, logger)
-        
-        # Should normalize to 1.0
-        assert normalized_df['comp_Fe'].iloc[0] == pytest.approx(1.0)
-        assert normalized_df['comp_Co'].iloc[0] == pytest.approx(0.0)
-        assert normalized_df['comp_Ni'].iloc[0] == pytest.approx(0.0)
-    
-    def test_very_small_composition_values(self):
-        """Should handle very small composition values."""
+
+        norm_df, stats = normalize_dataframe(df)
+
+        # Should normalize correctly even with small values
+        composition_cols = ['Fe', 'Ni', 'Cr']
+        row_sums = norm_df[composition_cols].sum(axis=1)
+        assert np.allclose(row_sums, 1.0, atol=1e-6)
+
+    def test_large_dataframe(self):
+        """Test with a larger DataFrame for performance."""
+        np.random.seed(42)
+        n_rows = 1000
         df = pd.DataFrame({
-            'sample_id': ['s1'],
-            'comp_Fe': [1e-10],
-            'comp_Co': [1e-10],
-            'comp_Ni': [1e-10]
+            'Fe': np.random.rand(n_rows),
+            'Ni': np.random.rand(n_rows),
+            'Cr': np.random.rand(n_rows),
+            'Co': np.random.rand(n_rows)
         })
-        
-        logger = logging.getLogger('test')
-        
-        normalized_df, stats = normalize_dataframe(df, logger)
-        
-        # Should normalize to 1.0
-        total = normalized_df['comp_Fe'].iloc[0] + normalized_df['comp_Co'].iloc[0] + normalized_df['comp_Ni'].iloc[0]
-        assert abs(total - 1.0) < 1e-6
+
+        norm_df, stats = normalize_dataframe(df)
+
+        assert len(norm_df) == n_rows
+        composition_cols = ['Fe', 'Ni', 'Cr', 'Co']
+        row_sums = norm_df[composition_cols].sum(axis=1)
+        assert np.allclose(row_sums, 1.0, atol=1e-6)

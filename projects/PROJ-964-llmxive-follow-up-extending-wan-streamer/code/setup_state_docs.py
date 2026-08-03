@@ -4,48 +4,56 @@ from pathlib import Path
 
 def setup_state_docs_directories():
     """
-    Creates the required 'state/' and 'docs/' directories at the project root.
-    This satisfies the requirement for T004.
+    Creates the 'state/' and 'docs/' directories at the project root.
+    These directories are required for Constitution Principle V (state tracking)
+    and for storing research documentation.
+
+    Returns:
+        bool: True if all directories were created successfully, False otherwise.
     """
-    # Determine project root (assuming code/ is at root or one level down)
-    # We look for the .git directory or just assume the parent of this file's directory
-    # is the project root if 'code' is a subdirectory.
-    current_file = Path(__file__).resolve()
-    project_root = current_file.parent
+    # Determine project root (assuming script is run from project root or code/ subdirectory)
+    # If running from code/, go up one level
+    current_dir = Path.cwd()
+    if current_dir.name == "code":
+        project_root = current_dir.parent
+    else:
+        project_root = current_dir
 
-    state_dir = project_root / "state"
-    docs_dir = project_root / "docs"
+    # Define the directories to create
+    directories = [
+        project_root / "state",
+        project_root / "docs"
+    ]
 
-    # Create directories if they don't exist
-    state_dir.mkdir(exist_ok=True)
-    docs_dir.mkdir(exist_ok=True)
+    success = True
+    for directory in directories:
+        try:
+            directory.mkdir(parents=True, exist_ok=True)
+            # Verification step: assert existence
+            if not directory.is_dir():
+                print(f"ERROR: Failed to create or verify directory: {directory}")
+                success = False
+            else:
+                print(f"SUCCESS: Directory created/verified: {directory}")
+        except OSError as e:
+            print(f"ERROR: Could not create directory {directory}: {e}")
+            success = False
 
-    # Create a placeholder README in docs to ensure the directory is not empty
-    # (Some systems treat empty dirs as non-existent in certain checks)
-    docs_readme = docs_dir / "README.md"
-    if not docs_readme.exists():
-        docs_readme.write_text(
-            "# Project Documentation\n\n"
-            "This directory contains project documentation, research notes, and design documents.\n"
-        )
-
-    # Create a placeholder state file to ensure the directory is valid
-    state_init = state_dir / ".gitkeep"
-    if not state_init.exists():
-        state_init.write_text("")
-
-    return state_dir, docs_dir
+    return success
 
 def main():
-    """Entry point for script execution."""
-    state_dir, docs_dir = setup_state_docs_directories()
-    print(f"Created directories: {state_dir}, {docs_dir}")
+    """
+    Entry point for the script.
+    """
+    print("Starting setup of 'state/' and 'docs/' directories...")
+    success = setup_state_docs_directories()
     
-    # Verification step as per T004 requirements
-    assert os.path.isdir(state_dir), f"Failed to create or verify state directory: {state_dir}"
-    assert os.path.isdir(docs_dir), f"Failed to create or verify docs directory: {docs_dir}"
-    
-    print("Verification passed: state/ and docs/ directories exist and are valid.")
+    if success:
+        print("All directories created and verified successfully.")
+        sys.exit(0)
+    else:
+        print("Failed to create one or more directories.")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

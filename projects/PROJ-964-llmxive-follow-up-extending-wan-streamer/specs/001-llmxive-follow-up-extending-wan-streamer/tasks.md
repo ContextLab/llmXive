@@ -81,17 +81,17 @@
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
 - [X] T011 [P] [US1] Contract test for dataset schema in `projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/tests/contract/test_dataset_schema.py`
-- [ ] T012 [P] [US1] Integration test for data extraction pipeline in `projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/tests/integration/test_data_extraction.py` (US-1, FR-001)
+- [X] T012 [P] [US1] Integration test for data extraction pipeline in `projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/tests/integration/test_data_extraction.py` (US-1, FR-001)
 
 ### Implementation for User Story 1
 
-- [ ] T012a [P] [US1] [FR-018] **Define Thresholds**: Create `code/config.py` entries or a dedicated `code/config/detection_thresholds.yaml` to explicitly define the detection algorithm and thresholds for classifying 'interruption' and 'pause' events (e.g., audio energy > X dB). **Verification**: Run a schema check to ensure thresholds are present and non-null before T013 runs.
-- [ ] T013 [P] [US1] [FR-001] Implement `code/data/extract_latents.py` to parse Wan-Streamer v0.1 logs (or fetched VoxCeleb2) and output raw Parquet; use thresholds defined in T012a to classify events (FR-018, FR-001, US-1). **Dependency**: T012a.
-- [ ] T014a [US1] Implement `code/data/preprocess.py` filtering logic to filter for interruption/pause events using the configured thresholds (FR-001, US-1).
-- [ ] T014b [US1] Implement `code/data/preprocess.py` stratified sampling logic to reduce dataset to ≤ 1 GB while preserving distribution, using parameters from T029b (FR-015, US-1). **Dependency**: T029b.
-- [ ] T014c [US1] Implement `code/data/preprocess.py` event labeling logic to label events as "high-priority" or "low-priority" with counts logged (FR-001, US-1).
-- [ ] T014d [US1] Implement `code/data/preprocess.py` validation logic to ensure all required columns are non-null and correctly typed (FR-001, US-1).
-- [ ] T015 [US1] Implement `code/data/validate_sampling.py` to explicitly validate that the stratified sampling process preserves the distribution of turn-taking events (FR-015) and log the distribution comparison results (US-1). **Dependency**: T014b.
+- [X] T012a [P] [US1] [FR-018] **Define Thresholds**: Create `code/config.py` entries or a dedicated `code/config/detection_thresholds.yaml` to explicitly define the detection algorithm and thresholds for classifying 'interruption' and 'pause' events (e.g., audio energy > X dB). **Verification**: Run a schema check to ensure thresholds are present and non-null before T013 runs.
+- [X] T013 [P] [US1] [FR-001] Implement `code/data/extract_latents.py` to parse Wan-Streamer v0.1 logs (or fetched VoxCeleb2) and output raw Parquet; use thresholds defined in T012a to classify events (FR-018, FR-001, US-1). **Dependency**: T012a.
+- [X] T014a [US1] Implement `code/data/preprocess.py` filtering logic to filter for interruption/pause events using the configured thresholds (FR-001, US-1).
+- [X] T014b [US1] Implement `code/data/preprocess.py` stratified sampling logic to reduce dataset to ≤ 1 GB while preserving distribution, using parameters from T029b (FR-015, US-1). **Dependency**: T029b. <!-- FAILED: unspecified -->
+- [X] T014c [US1] Implement `code/data/preprocess.py` event labeling logic to label events as "high-priority" or "low-priority" with counts logged (FR-001, US-1).
+- [X] T014d [US1] Implement `code/data/preprocess.py` validation logic to ensure all required columns are non-null and correctly typed (FR-001, US-1).
+- [X] T015 [US1] Implement `code/data/validate_sampling.py` to explicitly validate that the stratified sampling process preserves the distribution of turn-taking events (FR-015) and log the distribution comparison results (US-1). **Dependency**: T014b.
 - [ ] T016 [P] [US1] Implement `code/tasks/reduce_sample_size.py` module to reduce dataset sample size by [deferred] amount on power limit exceedance, or fail with "Power Limitation" error if minimum sample size is reached (FR-014, FR-023). **Note**: This module must be importable by Phase 4 tasks; define `MIN_SAMPLE_SIZE` constant explicitly.
 - [ ] T015b [US1] **Critical Validation**: Implement logic to validate sampling distribution preservation (FR-015) and log results. **Dependency**: T014b.
 - [ ] T029b [US1] **Critical Statistical Prep**: Perform 'a priori' power analysis to specify expected variance and minimum detectable effect size for the TOST test; log calculated parameters (variance, effect size) to `data/metrics/power_analysis.json` to justify sample size (FR-016, US-3); **must run after T013 (Extraction) to use pilot data for variance estimation, but before T014b (Sampling)**. **Dependency**: T013.

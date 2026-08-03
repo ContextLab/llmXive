@@ -33,6 +33,14 @@ T025:
     \ of logic to detect p\u202F<\u202F0.05 and flag statistical significance in the\
     \ output report, as required by US\u20112 Acceptance\u202F3. The implementer\u2019\
     s claim cannot be verified without such evidence."
+T031:
+  c: false
+  h: bbd9895c4a794f82110eb956130c96865739031749c51f3b2817207bcf90c897
+  r: "The `src/cli/generate_report.py` script exists, but the provided excerpt ends\
+    \ abruptly and shows no code that writes a markdown file to `docs/report.md`.\
+    \ Moreover, the expected output file `docs/report.md` is missing from the repository.\
+    \ Without a concrete implementation that creates the report, the task\u2019s requirement\
+    \ is not satisfied."
 T033:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -40,3 +48,38 @@ T033:
     updates cannot be verified because the required artifacts are missing. The task
     specifically requires a `quickstart.md` in `docs/` describing how to run the pipeline,
     which is absent.
+T034:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or documentation related to \u201Ccode cleanup and refactoring\
+    \ of API client error handling\u201D is present; the only material shown concerns\
+    \ a different feature (data collection and analysis of NPM dependencies). Consequently,\
+    \ the required artifact for the cleanup task is missing."
+T035:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No timing logs, benchmark reports, or optimized pipeline code were provided\
+    \ to demonstrate that the entire data\u2011collection, analysis, and reporting\
+    \ pipeline completes in \u2264\u202F6\u202Fhours on a 2\u202FvCPU machine. Without\
+    \ concrete performance measurements or evidence of the optimizations applied,\
+    \ the requirement cannot be verified."
+T036:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `tests/unit/` files containing additional unit tests for the specified edge\
+    \ cases (private packages, rate\u2011limit handling) are present in the repository;\
+    \ the claim cannot be verified because the required test artifacts are missing."
+T037:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, logs, test results, or documentation were provided to demonstrate that\
+    \ secrets are not logged and that API keys are sourced from environment variables.\
+    \ The only material present relates to a different research feature (NPM dependency\
+    \ analysis), not to the security\u2011hardening task. Consequently, the required\
+    \ evidence is missing."
+T038:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No validation artifact (e.g., a log, report, or script output) confirming that
+    the quickstart.md steps were executed and reproduced successfully is present;
+    the claim lacks any concrete evidence of the required validation.

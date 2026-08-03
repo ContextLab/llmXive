@@ -13,14 +13,6 @@ T012:
     \ of `code/ingest.py` does not show any implementation of the gate\u2011status\
     \ check, report generation, or the merge logic required by the task. These essential\
     \ artifacts and behaviors are missing."
-T015:
-  c: false
-  h: 6a25c12c03c38c5918e6fc414197acdeecf788773f26750e7c68746f84309da7
-  r: "The `descriptors.py` file does not catch `rdkit.Chem.rdchem.AtomValenceException`\
-    \ specifically, nor does it call `log_error_to_file` when such an exception occurs,\
-    \ and there is no code that generates or passes a `source_hash`. Consequently\
-    \ no `data/processed/excluded_molecules.csv` was created, so the required error\u2011\
-    logging artifact is missing."
 T033:
   c: false
   h: 2b13c68f134c741fead75b43ec95ff865248c5e79992fd122d9e123d08d54d04
@@ -28,6 +20,13 @@ T033:
     and the required output files (`data/outputs/residuals.png`, `qq_plot.png`) as
     well as the input `data/processed/analysis_results.json` are missing, so the implementation
     does not meet the specification.
+T035c:
+  c: false
+  h: 8253a03839ff02103f1f75417d83fd0a5194dbc77025870ec91cd14dbf7033b0
+  r: The `code/report.py` file shown does not contain any logic that checks the size
+    or contents of `analysis_results.json` or `data_insufficiency_report.md`, and
+    both required files are absent from the repository. Consequently, the final validation
+    step described in the task is not implemented.
 T036:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -58,13 +57,6 @@ T042:
     \ time, defines the operational threshold, or demonstrates validation against\
     \ that threshold. Consequently the requirement to \u201CValidate pipeline execution\
     \ time against a defined operational threshold\u201D is not satisfied."
-T055:
-  c: false
-  h: 43192eae1b413abc276636617cb3d8bae13acd468ac5142feb60c2cca153241e
-  r: "The evidence shows that `data/processed/merged_drugs.csv` and `data/processed/analysis_results.json`\
-    \ do not exist, and there is no indication that `results_report.md` or `reproducibility_log.json`\
-    \ were created. Therefore the required output files are missing, so the smoke\u2011\
-    test success criteria are not met."
 T056a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

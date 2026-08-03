@@ -1,59 +1,64 @@
+"""
+Setup script to create and verify data directories for the project.
+Creates: data/raw/, data/processed/, data/models/
+Verifies existence using os.path.isdir.
+"""
 import os
 import sys
 from pathlib import Path
 
+# Project root is the directory containing this script's parent
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+
 def setup_data_directories():
     """
-    Create the required data subdirectories:
-    - data/raw/
-    - data/processed/
-    - data/models/
+    Create the required data subdirectories and verify their existence.
     
-    Returns True if all directories were created or already exist.
+    Returns:
+        bool: True if all directories were created and verified successfully.
+        
+    Raises:
+        RuntimeError: If any directory creation fails or verification fails.
     """
-    project_root = Path(__file__).resolve().parent.parent
-    data_root = project_root / "data"
+    base_path = PROJECT_ROOT / "data"
     
-    required_dirs = [
-        data_root / "raw",
-        data_root / "processed",
-        data_root / "models",
+    directories = [
+        base_path / "raw",
+        base_path / "processed",
+        base_path / "models"
     ]
     
-    for dir_path in required_dirs:
-        dir_path.mkdir(parents=True, exist_ok=True)
-        if not dir_path.is_dir():
-            raise RuntimeError(f"Failed to create directory: {dir_path}")
+    created_dirs = []
     
+    for dir_path in directories:
+        try:
+            # Create directory with parents if needed, no error if exists
+            dir_path.mkdir(parents=True, exist_ok=True)
+            created_dirs.append(dir_path)
+            print(f"Created/Verified: {dir_path}")
+        except OSError as e:
+            raise RuntimeError(f"Failed to create directory {dir_path}: {e}")
+    
+    # Verification step: assert os.path.isdir returns True for each
+    for dir_path in created_dirs:
+        if not os.path.isdir(dir_path):
+            raise RuntimeError(f"Verification failed: {dir_path} is not a valid directory.")
+        
+    print(f"Successfully created and verified {len(created_dirs)} data directories.")
     return True
 
 def main():
-    """Entry point for script execution."""
+    """Entry point for the script."""
     try:
-        setup_data_directories()
-        print("Data directories created successfully.")
-        # Verification step as per task requirements
-        project_root = Path(__file__).resolve().parent.parent
-        data_root = project_root / "data"
-        
-        dirs_to_check = [
-            data_root / "raw",
-            data_root / "processed",
-            data_root / "models",
-        ]
-        
-        all_exist = True
-        for d in dirs_to_check:
-            exists = d.is_dir()
-            print(f"Checking {d}: {'EXISTS' if exists else 'MISSING'}")
-            if not exists:
-                all_exist = False
-        
-        assert all_exist, "One or more required directories are missing."
-        print("Verification passed: All required data directories exist.")
-        
+        success = setup_data_directories()
+        if success:
+            print("Setup completed successfully.")
+            sys.exit(0)
+    except RuntimeError as e:
+        print(f"Setup failed: {e}", file=sys.stderr)
+        sys.exit(1)
     except Exception as e:
-        print(f"Error during setup: {e}", file=sys.stderr)
+        print(f"Unexpected error: {e}", file=sys.stderr)
         sys.exit(1)
 
 if __name__ == "__main__":

@@ -1,11 +1,18 @@
+# Core Data Processing
 pandas>=2.0
-scikit-learn>=1.3
 numpy>=1.24
+
+# Machine Learning & Statistics
+scikit-learn>=1.3
+scipy>=1.11
+shap>=0.44
+
+# Materials Science
+pymatgen>=2023
+
+# Utilities & Networking
 requests>=2.31
 pyyaml>=6.0
-shap>=0.44
-scipy>=1.11
-pymatgen>=2023.10.10
+
+# Testing
 pytest>=7.4
-# Optional but recommended for environment management
-pip>=23.0
