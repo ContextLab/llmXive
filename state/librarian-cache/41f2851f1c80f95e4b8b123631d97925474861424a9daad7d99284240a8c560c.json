@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-07-04T15:37:00Z",
+  "fetched_at": "2026-08-03T18:02:10Z",
   "field": "linguistics",
   "prompt_version": "1.6.0",
   "result": {
@@ -9,104 +9,105 @@
       "idea_body_excerpt": "llmXive follow-up: extending \"TransitLM: A Large-Scale Dataset and Benchmark for Map-Free Transit Ro\"",
       "target_n": 5
     },
-    "duration_seconds": 51.174,
-    "ended_at": "2026-07-04T15:37:00Z",
+    "duration_seconds": 61.02,
+    "ended_at": "2026-08-03T18:02:10Z",
     "expansion": {
       "expanded_terms_ranked": [
         [
           1,
-          "map-free transit route planning with large language models"
+          "map-free transit route planning datasets"
         ],
         [
           2,
-          "natural language processing for public transportation navigation"
+          "large language models for public transportation"
         ],
         [
           3,
-          "LLM-based transit itinerary generation without maps"
+          "multimodal transit information retrieval"
         ],
         [
           4,
-          "spoken language understanding for transit directions"
+          "natural language processing for urban mobility"
         ],
         [
           5,
-          "large-scale dataset for map-free transit routing"
+          "speech-to-transit-route generation"
         ],
         [
           6,
-          "multimodal transit planning using language models"
+          "conversational AI for public transit navigation"
         ],
         [
           7,
-          "zero-shot transit route recommendation via LLMs"
+          "zero-shot transit route inference"
         ],
         [
           8,
-          "semantic parsing for public transport queries"
+          "LLM-based journey planning benchmarks"
         ],
         [
           9,
-          "language model benchmarks for navigation tasks"
+          "geographic language understanding for transit"
         ],
         [
           10,
-          "conversational AI for transit wayfinding"
+          "text-to-transit-path reasoning"
         ],
         [
           11,
-          "geospatial reasoning in large language models for transit"
+          "multimodal fusion for transit navigation"
         ],
         [
           12,
-          "text-to-route generation for public transportation"
+          "large-scale transit dialogue datasets"
         ],
         [
           13,
-          "LLM evaluation for map-independent navigation"
+          "AI agents for map-free navigation"
         ],
         [
           14,
-          "contextual understanding of transit instructions"
+          "semantic parsing of transit queries"
         ],
         [
           15,
-          "dataset construction for transit language understanding"
+          "cross-modal alignment for transportation"
         ],
         [
           16,
-          "reasoning over transit networks using natural language"
+          "generative models for transit itineraries"
         ],
         [
           17,
-          "generative AI for public transport route optimization"
+          "natural language interfaces for transit systems"
         ],
         [
           18,
-          "linguistic analysis of transit navigation instructions"
+          "benchmarking LLMs on geographic tasks"
         ],
         [
           19,
-          "large language models for urban mobility planning"
+          "contextual route recommendation via NLP"
         ],
         [
           20,
-          "benchmarking LLMs on transit route prediction tasks"
+          "unsupervised transit route discovery"
         ]
       ],
       "original_term": "",
       "per_term_hit_count": {
+        "large language models for public transportation": 5,
         "llmXive follow-up: extending \"TransitLM: A Large-Scale Dataset and Benchmark for Map-Free Transit Ro\" linguistics": 0,
-        "map-free transit route planning with large language models": 5
+        "map-free transit route planning datasets": 2
       },
-      "total_queries_issued": 1
+      "total_queries_issued": 2
     },
     "extracted_queries": [
-      "map-free navigation language model multimodal grounding",
-      "transit route description natural language generation",
-      "spatial language reasoning embodied AI",
-      "navigation instruction dataset benchmark evaluation",
-      "grounding linguistic representations in non-linguistic context"
+      "language model transit dataset benchmark",
+      "map-free navigation multimodal instruction following",
+      "spatial language reasoning LLM evaluation",
+      "route planning natural language generation",
+      "geographic information extraction language understanding"
     ],
     "failure_reason": null,
     "librarian_prompt_version": "1.6.0",
@@ -115,36 +116,36 @@
       "invoked": true,
       "verdict": false
     },
-    "outcome": "success_after_expansion",
+    "outcome": "exhausted",
     "pdf_sample": {
       "sample_size_target": 1,
       "sampled_count": 1,
       "sampled_pointers": [
-        "2405.11357"
+        "2605.22355"
       ]
     },
     "per_query_hit_count": {
-      "grounding linguistic representations in non-linguistic context": 3,
+      "geographic information extraction language understanding": 3,
+      "language model transit dataset benchmark": 3,
       "llmXive follow-up: extending \"TransitLM: A Large-Scale Dataset and Benchmark for Map-Free Transit Ro\" linguistics": 3,
-      "map-free navigation language model multimodal grounding": 3,
-      "navigation instruction dataset benchmark evaluation": 3,
-      "spatial language reasoning embodied AI": 3,
-      "transit route description natural language generation": 3
+      "map-free navigation multimodal instruction following": 3,
+      "route planning natural language generation": 3,
+      "spatial language reasoning LLM evaluation": 3
     },
     "relevance_judge": {
       "enabled": true,
-      "marginal_fallback_used": true,
-      "rejected_count": 6,
+      "marginal_fallback_used": false,
+      "rejected_count": 7,
       "rejections": [
         {
-          "primary_pointer": "2411.17237",
-          "rationale": "The paper focuses on image quality assessment and visual grounding in multimodal models, which is an off-domain topic entirely unrelated to the user's question about map-free transit routing, dataset construction for transportation, or linguistics. It shares no measurable connection to the user's mechanism, domain, variables, or empirical setting, failing all inclusion criteria (a-f).",
-          "title": "Grounding-IQA: Grounding Multimodal Language Model for Image Quality Assessment"
+          "primary_pointer": "2408.09720",
+          "rationale": "The paper focuses on computer vision and pedestrian attribute recognition using LLMs for visual feature augmentation, which is an off-domain application of LLMs compared to the user's question about extending a transit mapping dataset and benchmark. While both involve LLMs and benchmarks, the paper does not address the specific mechanism (map-free transit routing), the domain (transit/transportation), or the linguistic aspects of the user's proposed \"llmXive\" follow-up, failing to meet any of th",
+          "title": "Pedestrian Attribute Recognition: A New Benchmark Dataset and A Large Language Model Augmented Framework"
         },
         {
-          "primary_pointer": "2304.10464",
-          "rationale": "The paper focuses on general reasoning tasks and planning strategies for LLMs using natural language, which is a distinct construct from the user's specific question about extending a map-free transit dataset and benchmark. It does not measure transit-specific variables, address the \"linguistics\" aspect of transit navigation, or provide foundational methodology for the specific domain of map-free transit systems.",
-          "title": "Learning to Plan with Natural Language"
+          "primary_pointer": "1211.2495",
+          "rationale": "The paper focuses on a specific GIS-based route planning system for Sri Lanka and does not address the user's question regarding Large Language Models (LLMs), map-free transit datasets, or linguistic benchmarks. It falls under the \"Off-domain entirely\" rejection rule as it deals with traditional geographic information systems rather than the machine learning and NLP mechanisms central to the user's query.",
+          "title": "Route Planning Made Easy - An Automated System for Sri Lanka"
         },
         {
           "primary_pointer": "2501.05032",
@@ -165,11 +166,16 @@
           "primary_pointer": "2403.09676",
           "rationale": "The paper focuses on AI deception, safety governance, and behavioral categorization, which is a distinct construct from the user's question regarding map-free transit routing datasets and benchmarks. It fails to address the specific domain (transit navigation), the mechanism (map-free routing algorithms), or the empirical population (transit datasets) required by the user's query, falling under the \"Distinct construct\" and \"Off-domain entirely\" rejection rules.",
           "title": "Unmasking the Shadows of AI: Investigating Deceptive Capabilities in Large Language Models"
+        },
+        {
+          "primary_pointer": "2503.21411",
+          "rationale": "The paper is a broad survey on applying LLMs to general transportation systems (traffic prediction, autonomous driving) and does not address the specific \"linguistics\" aspect or the \"map-free transit routing\" mechanism central to the user's question about extending the TransitLM dataset. It fails to meet criteria (a) or (b) as it does not measure the same biological/algorithmic mechanism or variables (linguistic properties of transit data) but rather discusses high-level application categories.",
+          "title": "Exploring the Roles of Large Language Models in Reshaping Transportation Systems: A Survey, Framework, and Roadmap"
         }
       ]
     },
     "schema_version": "1.0.0",
-    "started_at": "2026-07-04T15:36:09Z",
+    "started_at": "2026-08-03T18:01:09Z",
     "term_input": {
       "normalized": "llmxive follow-up: extending \"transitlm: a large-scale dataset and benchmark for map-free transit ro\" linguistics",
       "raw": "llmXive follow-up: extending \"TransitLM: A Large-Scale Dataset and Benchmark for Map-Free Transit Ro\" linguistics"
@@ -189,7 +195,7 @@
           "primary_pointer": "1602.00245"
         },
         "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"TransitLM: A Large-Scale Dataset and Benchmark for', candidate_title='Statistical methods for linguistic research: Foundational Ideas - Part II')",
-        "failed_at": "2026-07-04T15:36:37Z",
+        "failed_at": "2026-08-03T18:01:38Z",
         "reason": "query_irrelevant"
       },
       {
@@ -206,7 +212,7 @@
           "primary_pointer": "1601.01126"
         },
         "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"TransitLM: A Large-Scale Dataset and Benchmark for', candidate_title='Statistical methods for linguistic research: Foundational Ideas - Part I')",
-        "failed_at": "2026-07-04T15:36:37Z",
+        "failed_at": "2026-08-03T18:01:38Z",
         "reason": "query_irrelevant"
       },
       {
@@ -222,154 +228,7 @@
           "primary_pointer": "2606.14257"
         },
         "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"TransitLM: A Large-Scale Dataset and Benchmark for', candidate_title='The Linguistics Olympiads: Towards a New Corpus for Linguistics Research?')",
-        "failed_at": "2026-07-04T15:36:37Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Recently, Multimodal Large Language Model (MLLM) represented by GPT-4V has been a new rising research hotspot, which uses powerful Large Language Models (LLMs) as a brain to perform multimodal tasks. The surprising emergent capabilities of MLLM, such as writing stories based on images and OCR-free math reasoning, are rare in traditional multimodal methods, suggesting a potential path to artificial general intelligence. To this end, both academia and industry have endeavored to develop MLLMs that can compete with or even better than GPT-4V, pushing the limit of research at a surprising speed. In this paper, we aim to trace and summarize the recent progress of MLLMs. First of all, we present the basic formulation of MLLM and delineate its related concepts, including architecture, training strategy and data, as well as evaluation. Then, we introduce research topics about how MLLMs can be extended to support more granularity, modalities, languages, and scenarios. We continue with multimodal hallucination and extended techniques, including Multimodal ICL (M-ICL), Multimodal CoT (M-CoT), and LLM-Aided Visual Reasoning (LAVR). To conclude the paper, we discuss existing challenges and point out promising research directions. In light of the fact that the era of MLLM has only just begun, we will keep updating this survey and hope it can inspire more research. An associated GitHub link collecting the latest papers is available at https://github.com/BradyFU/Awesome-Multimodal-Large-Language-Models.",
-          "claimed_authors": [
-            "Shukang Yin",
-            "Chaoyou Fu",
-            "Sirui Zhao",
-            "Ke Li",
-            "Xing Sun",
-            "Tong Xu",
-            "Enhong Chen"
-          ],
-          "claimed_title": "A Survey on Multimodal Large Language Models",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2023,
-          "primary_pointer": "2306.13549"
-        },
-        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"TransitLM: A Large-Scale Dataset and Benchmark for', candidate_title='A Survey on Multimodal Large Language Models')",
-        "failed_at": "2026-07-04T15:36:37Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Multimodal LLMs are evolving from vision-language to tri-modality that see, hear, and read, yet pipelines and benchmarks remain English-centric and compute-heavy. The tutorial offers an overview of this emerging research area for multilingual multimodality across text, speech, and vision under limited data/compute budgets, synthesizing foundations, recent multilingual models (PALO, Maya), speech-text LLMs. We cover low-cost data creation/curation; adapter stacks for tri-modal alignment; culture-aware evaluation beyond English and hands on resources for fine-tuning a compact multilingual VLM and wiring a speech->text->LLM pipeline. The content will be delivered as an interactive half-day tutorial, designed for researchers and practitioners working on multilingual, multimodal AI in low-resource language settings.",
-          "claimed_authors": [
-            "Firoj Alam",
-            "Shammur Absar Chowdhury",
-            "Enamul Hoque Prince"
-          ],
-          "claimed_title": "Multilingual and Multimodal LLMs in the Wild: Building for Low-Resource Languages",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2026,
-          "primary_pointer": "2605.17152"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"TransitLM: A Large-Scale Dataset and Benchmark for', candidate_title='Multilingual and Multimodal LLMs in the Wild: Building for Low-Resource Languages')",
-        "failed_at": "2026-07-04T15:36:37Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Java Code Generation consists in generating automatically Java code from a Natural Language Text. This NLP task helps in increasing programmers' productivity by providing them with immediate solutions to the simplest and most repetitive tasks. Code generation is a challenging task because of the hard syntactic rules and the necessity of a deep understanding of the semantic aspect of the programming language. Many works tried to tackle this task using either RNN-based, or Transformer-based models. The latter achieved remarkable advancement in the domain and they can be divided into three groups: (1) encoder-only models, (2) decoder-only models, and (3) encoder-decoder models. In this paper, we provide a comprehensive review of the evolution and progress of deep learning models in Java code generation task. We focus on the most important methods and present their merits and limitations, as well as the objective functions used by the community. In addition, we provide a detailed description of datasets and evaluation metrics used in the literature. Finally, we discuss results of different models on CONCODE dataset, then propose some future directions.",
-          "claimed_authors": [
-            "Jessica López Espejel",
-            "Mahaman Sanoussi Yahaya Alassan",
-            "El Mehdi Chouham",
-            "Walid Dahhane",
-            "El Hassane Ettifouri"
-          ],
-          "claimed_title": "A Comprehensive Review of State-of-The-Art Methods for Java Code Generation from Natural Language Text",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2023,
-          "primary_pointer": "2306.06371"
-        },
-        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"TransitLM: A Large-Scale Dataset and Benchmark for', candidate_title='A Comprehensive Review of State-of-The-Art Methods for Java Code Generation from Natural Language Text')",
-        "failed_at": "2026-07-04T15:36:38Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Automatic multiple-choice question generation (MCQG) is a useful yet challenging task in Natural Language Processing (NLP). It is the task of automatic generation of correct and relevant questions from textual data. Despite its usefulness, manually creating sizeable, meaningful and relevant questions is a time-consuming and challenging task for teachers. In this paper, we present an NLP-based system for automatic MCQG for Computer-Based Testing Examination (CBTE).We used NLP technique to extract keywords that are important words in a given lesson material. To validate that the system is not perverse, five lesson materials were used to check the effectiveness and efficiency of the system. The manually extracted keywords by the teacher were compared to the auto-generated keywords and the result shows that the system was capable of extracting keywords from lesson materials in setting examinable questions. This outcome is presented in a user-friendly interface for easy accessibility.",
-          "claimed_authors": [
-            "Chidinma A. Nwafor",
-            "Ikechukwu E. Onyenwe"
-          ],
-          "claimed_title": "An Automated Multiple-Choice Question Generation Using Natural Language Processing Techniques",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2021,
-          "primary_pointer": "2103.14757"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"TransitLM: A Large-Scale Dataset and Benchmark for', candidate_title='An Automated Multiple-Choice Question Generation Using Natural Language Processing Techniques')",
-        "failed_at": "2026-07-04T15:36:38Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Most existing natural language database interfaces (NLDBs) were designed to be used with database systems that provide very limited facilities for manipulating time-dependent data, and they do not support adequately temporal linguistic mechanisms (verb tenses, temporal adverbials, temporal subordinate clauses, etc.). The database community is becoming increasingly interested in temporal database systems, that are intended to store and manipulate in a principled manner information not only about the present, but also about the past and future. When interfacing to temporal databases, supporting temporal linguistic mechanisms becomes crucial.\n  We present a framework for constructing natural language interfaces for temporal databases (NLTDBs), that draws on research in tense and aspect theories, temporal logics, and temporal databases. The framework consists of a temporal intermediate representation language, called TOP, an HPSG grammar that maps a wide range of questions involving temporal mechanisms to appropriate TOP expressions, and a provably correct method for translating from TOP to TSQL2, TSQL2 being a recently proposed temporal extension of the SQL database language. This framework was employed to implement a prototype NLTDB using ALE and Prolog.",
-          "claimed_authors": [
-            "I. Androutsopoulos",
-            "G. D. Ritchie",
-            "P. Thanisch"
-          ],
-          "claimed_title": "Time, Tense and Aspect in Natural Language Database Interfaces",
-          "claimed_venue": "arXiv",
-          "claimed_year": 1998,
-          "primary_pointer": "cmp-lg/9803002"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"TransitLM: A Large-Scale Dataset and Benchmark for', candidate_title='Time, Tense and Aspect in Natural Language Database Interfaces')",
-        "failed_at": "2026-07-04T15:36:38Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Flow theory describes an optimal cognitive state where individuals experience deep focus and intrinsic motivation when a task's difficulty aligns with their skill level. In AI-augmented reasoning, interventions that disrupt the state of cognitive flow can hinder rather than enhance decision-making. This paper proposes a context-aware cognitive augmentation framework that adapts interventions based on three key contextual factors: type, timing, and scale. By leveraging multimodal behavioral cues (e.g., gaze behavior, typing hesitation, interaction speed), AI can dynamically adjust cognitive support to maintain or restore flow. We introduce the concept of cognitive flow, an extension of flow theory in AI-augmented reasoning, where interventions are personalized, adaptive, and minimally intrusive. By shifting from static interventions to context-aware augmentation, our approach ensures that AI systems support deep engagement in complex decision-making and reasoning without disrupting cognitive immersion.",
-          "claimed_authors": [
-            "Dinithi Dissanayake",
-            "Suranga Nanayakkara"
-          ],
-          "claimed_title": "Navigating the State of Cognitive Flow: Context-Aware AI Interventions for Effective Reasoning Support",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2504.16021"
-        },
-        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"TransitLM: A Large-Scale Dataset and Benchmark for', candidate_title='Navigating the State of Cognitive Flow: Context-Aware AI Interventions for Effective Reasoning Support')",
-        "failed_at": "2026-07-04T15:36:38Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "AI-augmented systems are traditionally designed to streamline human decision-making by minimizing cognitive load, clarifying arguments, and optimizing efficiency. However, in a world where algorithmic certainty risks becoming an Orwellian tool of epistemic control, true intellectual growth demands not passive acceptance but active struggle. Drawing on the dystopian visions of George Orwell and Philip K. Dick - where reality is unstable, perception malleable, and truth contested - this paper introduces Cognitive Dissonance AI (CD-AI): a novel framework that deliberately sustains uncertainty rather than resolving it. CD-AI does not offer closure, but compels users to navigate contradictions, challenge biases, and wrestle with competing truths. By delaying resolution and promoting dialectical engagement, CD-AI enhances reflective reasoning, epistemic humility, critical thinking, and adaptability in complex decision-making. This paper examines the theoretical foundations of the approach, presents an implementation model, explores its application in domains such as ethics, law, politics, and science, and addresses key ethical concerns - including decision paralysis, erosion of user autonomy, cognitive manipulation, and bias in AI reasoning. In reimagining AI as an engine of doubt rather than a deliverer of certainty, CD-AI challenges dominant paradigms of AI-augmented reasoning and offers a new vision - one in which AI sharpens the mind not by resolving conflict, but by sustaining it. Rather than reinforcing Huxleyan complacency or pacifying the user into intellectual conformity, CD-AI echoes Nietzsche's vision of the Uebermensch - urging users to transcend passive cognition through active epistemic struggle.",
-          "claimed_authors": [
-            "Delia Deliu"
-          ],
-          "claimed_title": "Cognitive Dissonance Artificial Intelligence (CD-AI): The Mind at War with Itself. Harnessing Discomfort to Sharpen Critical Thinking",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2507.08804"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"TransitLM: A Large-Scale Dataset and Benchmark for', candidate_title='Cognitive Dissonance Artificial Intelligence (CD-AI): The Mind at War with Itself. Harnessing Discomfort to Sharpen Critical Thinking')",
-        "failed_at": "2026-07-04T15:36:38Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "This paper investigates the impact of artificial intelligence integration on remote operations, emphasising its influence on both distributed and team cognition. As remote operations increasingly rely on digital interfaces, sensors, and networked communication, AI-driven systems transform decision-making processes across domains such as air traffic control, industrial automation, and intelligent ports. However, the integration of AI introduces significant challenges, including the reconfiguration of human-AI team cognition, the need for adaptive AI memory that aligns with human distributed cognition, and the design of AI fallback operators to maintain continuity during communication disruptions. Drawing on theories of distributed and team cognition, we analyse how cognitive overload, loss of situational awareness, and impaired team coordination may arise in AI-supported environments. Based on real-world intelligent port scenarios, we propose research directions that aim to safeguard human reasoning and enhance collaborative decision-making in AI-augmented remote operations.",
-          "claimed_authors": [
-            "Rune Møberg Jacobsen",
-            "Joel Wester",
-            "Helena Bøjer Djernæs",
-            "Niels van Berkel"
-          ],
-          "claimed_title": "Distributed Cognition for AI-supported Remote Operations: Challenges and Research Directions",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2504.14996"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"TransitLM: A Large-Scale Dataset and Benchmark for', candidate_title='Distributed Cognition for AI-supported Remote Operations: Challenges and Research Directions')",
-        "failed_at": "2026-07-04T15:36:38Z",
+        "failed_at": "2026-08-03T18:01:38Z",
         "reason": "query_irrelevant"
       },
       {
@@ -424,100 +283,262 @@
           "primary_pointer": "2405.19595"
         },
         "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"TransitLM: A Large-Scale Dataset and Benchmark for', candidate_title='The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset')",
-        "failed_at": "2026-07-04T15:36:38Z",
+        "failed_at": "2026-08-03T18:01:41Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Large language models excel at instruction-following in English, but their performance in low-resource languages like Thai remains underexplored. Existing benchmarks often rely on translations, missing cultural and domain-specific nuances needed for real-world use. We present WangchanThaiInstruct, a human-authored Thai dataset for evaluation and instruction tuning, covering four professional domains and seven task types. Created through a multi-stage quality control process with annotators, domain experts, and AI researchers, WangchanThaiInstruct supports two studies: (1) a zero-shot evaluation showing performance gaps on culturally and professionally specific tasks, and (2) an instruction tuning study with ablations isolating the effect of native supervision. Models fine-tuned on WangchanThaiInstruct outperform those using translated data in both in-domain and out-of-domain benchmarks. These findings underscore the need for culturally and professionally grounded instruction data to improve LLM alignment in low-resource, linguistically diverse settings.",
+          "claimed_abstract": "We propose a new benchmark corpus to be used for measuring progress in statistical language modeling. With almost one billion words of training data, we hope this benchmark will be useful to quickly evaluate novel language modeling techniques, and to compare their contribution when combined with other advanced techniques. We show performance of several well-known types of language models, with the best results achieved with a recurrent neural network based language model. The baseline unpruned Kneser-Ney 5-gram model achieves perplexity 67.6; a combination of techniques leads to 35% reduction in perplexity, or 10% reduction in cross-entropy (bits), over that baseline.\n  The benchmark is available as a code.google.com project; besides the scripts needed to rebuild the training/held-out data, it also makes available log-probability values for each word in each of ten held-out data sets, for each of the baseline n-gram models.",
           "claimed_authors": [
-            "Peerat Limkonchotiwat",
-            "Pume Tuchinda",
-            "Lalita Lowphansirikul",
-            "Surapon Nonesung",
-            "Panuthep Tasawong",
-            "Alham Fikri Aji",
-            "Can Udomcharoenchaikit",
-            "Sarana Nutanong"
+            "Ciprian Chelba",
+            "Tomas Mikolov",
+            "Mike Schuster",
+            "Qi Ge",
+            "Thorsten Brants",
+            "Phillipp Koehn",
+            "Tony Robinson"
           ],
-          "claimed_title": "WangchanThaiInstruct: An instruction-following Dataset for Culture-Aware, Multitask, and Multi-domain Evaluation in Thai",
+          "claimed_title": "One Billion Word Benchmark for Measuring Progress in Statistical Language Modeling",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1312.3005"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"TransitLM: A Large-Scale Dataset and Benchmark for', candidate_title='One Billion Word Benchmark for Measuring Progress in Statistical Language Modeling')",
+        "failed_at": "2026-08-03T18:01:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Instruction-following language models demand robust methodologies for information retrieval to augment instructions for question-answering applications. A primary challenge is the resolution of coreferences in the context of chunking strategies for long documents. The critical barrier to experimentation of handling coreferences is a lack of open source datasets, specifically in question-answering tasks that require coreference resolution. In this work we present our Coreference Resolution in Question-Answering (CRaQAn) dataset, an open-source dataset that caters to the nuanced information retrieval requirements of coreference resolution in question-answering tasks by providing over 250 question-answer pairs containing coreferences. To develop this dataset, we developed a novel approach for creating high-quality datasets using an instruction-following model (GPT-4) and a Recursive Criticism and Improvement Loop.",
+          "claimed_authors": [
+            "Rob Grzywinski",
+            "Joshua D'Arcy",
+            "Rob Naidoff",
+            "Ashish Shukla",
+            "Alex Browne",
+            "Ren Gibbons",
+            "Brinnae Bent"
+          ],
+          "claimed_title": "Releasing the CRaQAn (Coreference Resolution in Question-Answering): An open-source dataset and dataset creation methodology using instruction-following models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2311.16338"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"TransitLM: A Large-Scale Dataset and Benchmark for', candidate_title='Releasing the CRaQAn (Coreference Resolution in Question-Answering): An open-source dataset and dataset creation methodology using instruction-following models')",
+        "failed_at": "2026-08-03T18:01:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "With the advent of Large Language Models, single-task and token-based multi-task models have evolved into instruction-based systems that infer task and target language implicitly from natural language prompts. This trend is reflected in IWSLT's Instruction Following Track, which this year introduced new tasks including an unknown surprise task, posing a genuine challenge against overfitting to known tasks. We present KIT's submission to the Long and Short Instruction Following tracks in the unconstrained setting. Our approach combines a general data augmentation pipeline that converts short-form corpora into long-form training data through segment concatenation, LLM-based label generation, and cross-lingual translation, yielding over 1M instances across six tasks and four languages. We further show that likelihood-based re-ranking, while highly effective for ASR, systematically degrades semantic tasks by spuriously selecting candidates generated from segmented audio processing rather than holistic long-form inference, a failure mode resolved by combining likelihood with Minimum Bayes Risk decoding.",
+          "claimed_authors": [
+            "Enes Yavuz Ugan",
+            "Maike Züfle",
+            "Yuka Ko",
+            "Supriti Sinhamahapatra",
+            "Fabian Retkowski",
+            "Seymanur Akti",
+            "Jan Niehues",
+            "Alexander Waibel"
+          ],
+          "claimed_title": "Multilingual Long-Form Speech Instruction Following: KIT's Submission to IWSLT 2026",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.04730"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"TransitLM: A Large-Scale Dataset and Benchmark for', candidate_title=\"Multilingual Long-Form Speech Instruction Following: KIT's Submission to IWSLT 2026\")",
+        "failed_at": "2026-08-03T18:01:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Despite widespread deployment of Large Language Models, systematic evaluation of instruction-following capabilities remains challenging. While comprehensive benchmarks exist, focused assessments that quickly diagnose specific instruction adherence patterns are valuable. As newer models may be trained on existing benchmarks, novel evaluation approaches are needed to assess genuine capabilities rather than memorized performance. This paper presents a streamlined evaluation framework using twenty carefully designed prompts to assess LLM instruction-following across diverse task categories. We demonstrate this framework through a large-scale empirical study conducted on October 14, 2025, testing 256 verified working models from 331 available via OpenRouter. To ensure methodological rigor and prevent selection bias, we first verified each model's basic functionality before inclusion. Unlike large-scale benchmarks requiring extensive computational resources, our approach offers a practical diagnostic tool researchers and practitioners can readily apply. Our methodology builds upon verifiable instructions while introducing a compact test suite balancing comprehensiveness with efficiency. Each prompt targets distinct aspects of instruction following, including format compliance, content constraints, logical sequencing, and multi-step task execution. We evaluate models from major providers (OpenAI, Anthropic, Google, Meta, Mistral) and emerging implementations (Qwen, DeepSeek, community models), providing comparative performance analysis. Our findings reveal consistent failure modes and identify specific instruction types posing particular challenges. This work contributes both a practical evaluation tool and one of the most comprehensive empirical analyses of instruction-following capabilities across the contemporary LLM landscape.",
+          "claimed_authors": [
+            "Richard J. Young",
+            "Brandon Gillins",
+            "Alice M. Matthews"
+          ],
+          "claimed_title": "When Models Can't Follow: Testing Instruction Adherence Across 256 LLMs",
           "claimed_venue": "arXiv",
           "claimed_year": 2025,
-          "primary_pointer": "2508.15239"
+          "primary_pointer": "2510.18892"
         },
-        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"TransitLM: A Large-Scale Dataset and Benchmark for', candidate_title='WangchanThaiInstruct: An instruction-following Dataset for Culture-Aware, Multitask, and Multi-domain Evaluation in Thai')",
-        "failed_at": "2026-07-04T15:36:38Z",
+        "details": "query-relevance 0.250 < 0.3 (query='llmXive follow-up: extending \"TransitLM: A Large-Scale Dataset and Benchmark for', candidate_title=\"When Models Can't Follow: Testing Instruction Adherence Across 256 LLMs\")",
+        "failed_at": "2026-08-03T18:01:41Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "In the swiftly expanding domain of Natural Language Processing (NLP), the potential of GPT-based models for the financial sector is increasingly evident. However, the integration of these models with financial datasets presents challenges, notably in determining their adeptness and relevance. This paper introduces a distinctive approach anchored in the Instruction Tuning paradigm for open-source large language models, specifically adapted for financial contexts. Through this methodology, we capitalize on the interoperability of open-source models, ensuring a seamless and transparent integration. We begin by explaining the Instruction Tuning paradigm, highlighting its effectiveness for immediate integration. The paper presents a benchmarking scheme designed for end-to-end training and testing, employing a cost-effective progression. Firstly, we assess basic competencies and fundamental tasks, such as Named Entity Recognition (NER) and sentiment analysis to enhance specialization. Next, we delve into a comprehensive model, executing multi-task operations by amalgamating all instructional tunings to examine versatility. Finally, we explore the zero-shot capabilities by earmarking unseen tasks and incorporating novel datasets to understand adaptability in uncharted terrains. Such a paradigm fortifies the principles of openness and reproducibility, laying a robust foundation for future investigations in open-source financial large language models (FinLLMs).",
+          "claimed_abstract": "We present an analysis of the performance of machine learning classifiers on discriminating between similar languages and language varieties. We carried out a number of experiments using the results of the two editions of the Discriminating between Similar Languages (DSL) shared task. We investigate the progress made between the two tasks, estimate an upper bound on possible performance using ensemble and oracle combination, and provide learning curves to help us understand which languages are more challenging. A number of difficult sentences are identified and investigated further with human annotation.",
           "claimed_authors": [
-            "Neng Wang",
-            "Hongyang Yang",
-            "Christina Dan Wang"
+            "Cyril Goutte",
+            "Serge Léger",
+            "Shervin Malmasi",
+            "Marcos Zampieri"
           ],
-          "claimed_title": "FinGPT: Instruction Tuning Benchmark for Open-Source Large Language Models in Financial Datasets",
+          "claimed_title": "Discriminating Similar Languages: Evaluations and Explorations",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1610.00031"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"TransitLM: A Large-Scale Dataset and Benchmark for', candidate_title='Discriminating Similar Languages: Evaluations and Explorations')",
+        "failed_at": "2026-08-03T18:01:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Flow theory describes an optimal cognitive state where individuals experience deep focus and intrinsic motivation when a task's difficulty aligns with their skill level. In AI-augmented reasoning, interventions that disrupt the state of cognitive flow can hinder rather than enhance decision-making. This paper proposes a context-aware cognitive augmentation framework that adapts interventions based on three key contextual factors: type, timing, and scale. By leveraging multimodal behavioral cues (e.g., gaze behavior, typing hesitation, interaction speed), AI can dynamically adjust cognitive support to maintain or restore flow. We introduce the concept of cognitive flow, an extension of flow theory in AI-augmented reasoning, where interventions are personalized, adaptive, and minimally intrusive. By shifting from static interventions to context-aware augmentation, our approach ensures that AI systems support deep engagement in complex decision-making and reasoning without disrupting cognitive immersion.",
+          "claimed_authors": [
+            "Dinithi Dissanayake",
+            "Suranga Nanayakkara"
+          ],
+          "claimed_title": "Navigating the State of Cognitive Flow: Context-Aware AI Interventions for Effective Reasoning Support",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2504.16021"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"TransitLM: A Large-Scale Dataset and Benchmark for', candidate_title='Navigating the State of Cognitive Flow: Context-Aware AI Interventions for Effective Reasoning Support')",
+        "failed_at": "2026-08-03T18:01:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large language models (LLMs) and vision language models (VLMs), such as DeepSeek R1,OpenAI o3, and Gemini 2.5 Pro, have demonstrated remarkable reasoning capabilities across logical inference, problem solving, and decision making. However, spatial reasoning:a fundamental component of human cognition that includes mental rotation, navigation, and spatial relationship comprehension remains a significant challenge for current advanced VLMs. We hypothesize that imagination, the internal simulation of spatial states, is the dominant reasoning mechanism within a spatial world model. To test this hypothesis and systematically probe current VLM spatial reasoning mechanisms, we introduce SpatiaLite, a fully synthetic benchmark that jointly measures spatial reasoning accuracy and reasoning efficiency. Comprehensive experiments reveal three key findings. First, advanced VLMs predominantly rely on linguistic representations for reasoning and imagination, resulting in significant deficiencies on visual centric tasks that demand perceptual spatial relations and 3D geometry transformations such as mental rotation or projection prediction. Second, advanced VLMs exhibit severe inefficiency in their current spatial reasoning mechanisms, with token usage growing rapidly as transformation complexity increases. Third, we propose an Imagery Driven Framework (IDF) for data synthesis and training, which can implicitly construct an internal world model that is critical for spatial reasoning in VLMs. Building on SpatiaLite, this work delineates the spatial reasoning limits and patterns of advanced VLMs, identifies key shortcomings, and informs future advances",
+          "claimed_authors": [
+            "Xiaoxing Lian",
+            "Aidong Yang",
+            "Jun Zhu",
+            "Peng Wang",
+            "Yue Zhang"
+          ],
+          "claimed_title": "Imagine in Space: Exploring the Frontier of Spatial Intelligence and Reasoning Efficiency in Vision Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2511.13782"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"TransitLM: A Large-Scale Dataset and Benchmark for', candidate_title='Imagine in Space: Exploring the Frontier of Spatial Intelligence and Reasoning Efficiency in Vision Language Models')",
+        "failed_at": "2026-08-03T18:01:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Java Code Generation consists in generating automatically Java code from a Natural Language Text. This NLP task helps in increasing programmers' productivity by providing them with immediate solutions to the simplest and most repetitive tasks. Code generation is a challenging task because of the hard syntactic rules and the necessity of a deep understanding of the semantic aspect of the programming language. Many works tried to tackle this task using either RNN-based, or Transformer-based models. The latter achieved remarkable advancement in the domain and they can be divided into three groups: (1) encoder-only models, (2) decoder-only models, and (3) encoder-decoder models. In this paper, we provide a comprehensive review of the evolution and progress of deep learning models in Java code generation task. We focus on the most important methods and present their merits and limitations, as well as the objective functions used by the community. In addition, we provide a detailed description of datasets and evaluation metrics used in the literature. Finally, we discuss results of different models on CONCODE dataset, then propose some future directions.",
+          "claimed_authors": [
+            "Jessica López Espejel",
+            "Mahaman Sanoussi Yahaya Alassan",
+            "El Mehdi Chouham",
+            "Walid Dahhane",
+            "El Hassane Ettifouri"
+          ],
+          "claimed_title": "A Comprehensive Review of State-of-The-Art Methods for Java Code Generation from Natural Language Text",
           "claimed_venue": "arXiv",
           "claimed_year": 2023,
-          "primary_pointer": "2310.04793"
+          "primary_pointer": "2306.06371"
         },
-        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"TransitLM: A Large-Scale Dataset and Benchmark for', candidate_title='FinGPT: Instruction Tuning Benchmark for Open-Source Large Language Models in Financial Datasets')",
-        "failed_at": "2026-07-04T15:36:38Z",
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"TransitLM: A Large-Scale Dataset and Benchmark for', candidate_title='A Comprehensive Review of State-of-The-Art Methods for Java Code Generation from Natural Language Text')",
+        "failed_at": "2026-08-03T18:01:41Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Interpretation of natural language is inherently context-sensitive. Most words in natural language are ambiguous and their meanings are heavily dependent on the linguistic context in which they are used. The study of lexical semantics can not be separated from the notion of context. This paper takes a contextual approach to lexical semantics and studies the linguistic context of lexical atoms, or \"sticky\" phrases such as \"hot dog\". Since such lexical atoms may occur frequently in unrestricted natural language text, recognizing them is crucial for understanding naturally-occurring text. The paper proposes several heuristic approaches to exploiting the linguistic context to identify lexical atoms from arbitrary natural language text.",
+          "claimed_abstract": "Automatic multiple-choice question generation (MCQG) is a useful yet challenging task in Natural Language Processing (NLP). It is the task of automatic generation of correct and relevant questions from textual data. Despite its usefulness, manually creating sizeable, meaningful and relevant questions is a time-consuming and challenging task for teachers. In this paper, we present an NLP-based system for automatic MCQG for Computer-Based Testing Examination (CBTE).We used NLP technique to extract keywords that are important words in a given lesson material. To validate that the system is not perverse, five lesson materials were used to check the effectiveness and efficiency of the system. The manually extracted keywords by the teacher were compared to the auto-generated keywords and the result shows that the system was capable of extracting keywords from lesson materials in setting examinable questions. This outcome is presented in a user-friendly interface for easy accessibility.",
           "claimed_authors": [
-            "Chengxiang Zhai"
+            "Chidinma A. Nwafor",
+            "Ikechukwu E. Onyenwe"
           ],
-          "claimed_title": "Exploiting Context to Identify Lexical Atoms -- A Statistical View of Linguistic Context",
+          "claimed_title": "An Automated Multiple-Choice Question Generation Using Natural Language Processing Techniques",
           "claimed_venue": "arXiv",
-          "claimed_year": 1997,
-          "primary_pointer": "cmp-lg/9701001"
+          "claimed_year": 2021,
+          "primary_pointer": "2103.14757"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"TransitLM: A Large-Scale Dataset and Benchmark for', candidate_title='Exploiting Context to Identify Lexical Atoms -- A Statistical View of Linguistic Context')",
-        "failed_at": "2026-07-04T15:36:38Z",
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"TransitLM: A Large-Scale Dataset and Benchmark for', candidate_title='An Automated Multiple-Choice Question Generation Using Natural Language Processing Techniques')",
+        "failed_at": "2026-08-03T18:01:41Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "The field of Math-NLP has witnessed significant growth in recent years, motivated by the desire to expand LLM performance to the learning of non-linguistic notions (numerals, and subsequently, arithmetic reasoning). However, non-linguistic skill injection typically comes at a cost for LLMs: it leads to catastrophic forgetting of core linguistic skills, a consequence that often remains unaddressed in the literature. As Math-NLP has been able to create LLMs that can closely approximate the mathematical skills of a grade-schooler or the arithmetic reasoning skills of a calculator, the practicality of these models fail if they concomitantly shed their linguistic capabilities. In this work, we take a closer look into the phenomena of catastrophic forgetting as it pertains to LLMs and subsequently offer a novel framework for non-linguistic skill injection for LLMs based on information theoretic interventions and skill-specific losses that enable the learning of strict arithmetic reasoning. Our model outperforms the state-of-the-art both on injected non-linguistic skills and on linguistic knowledge retention, and does so with a fraction of the non-linguistic training data (1/4) and zero additional synthetic linguistic training data.",
+          "claimed_abstract": "This paper presents a machine learning approach to discourse planning in natural language generation. More specifically, we address the problem of learning the most natural ordering of facts in discourse plans for a specific domain. We discuss our methodology and how it was instantiated using two different machine learning algorithms. A quantitative evaluation performed in the domain of museum exhibit descriptions indicates that our approach performs significantly better than manually constructed ordering rules. Being retrainable, the resulting planners can be ported easily to other similar domains, without requiring language technology expertise.",
           "claimed_authors": [
-            "Mandar Sharma",
-            "Nikhil Muralidhar",
-            "Naren Ramakrishnan"
+            "Aggeliki Dimitromanolaki",
+            "Ion Androutsopoulos"
           ],
-          "claimed_title": "Learning Non-linguistic Skills without Sacrificing Linguistic Proficiency",
+          "claimed_title": "Learning to Order Facts for Discourse Planning in Natural Language Generation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2003,
+          "primary_pointer": "cs/0306062"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"TransitLM: A Large-Scale Dataset and Benchmark for', candidate_title='Learning to Order Facts for Discourse Planning in Natural Language Generation')",
+        "failed_at": "2026-08-03T18:01:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Spoken Language Understanding (SLU) is a core task in most human-machine interaction systems. With the emergence of smart homes, smart phones and smart speakers, SLU has become a key technology for the industry. In a classical SLU approach, an Automatic Speech Recognition (ASR) module transcribes the speech signal into a textual representation from which a Natural Language Understanding (NLU) module extracts semantic information. Recently End-to-End SLU (E2E SLU) based on Deep Neural Networks has gained momentum since it benefits from the joint optimization of the ASR and the NLU parts, hence limiting the cascade of error effect of the pipeline architecture. However, little is known about the actual linguistic properties used by E2E models to predict concepts and intents from speech input. In this paper, we present a study identifying the signal features and other linguistic properties used by an E2E model to perform the SLU task. The study is carried out in the application domain of a smart home that has to handle non-English (here French) voice commands. The results show that a good E2E SLU performance does not always require a perfect ASR capability. Furthermore, the results show the superior capabilities of the E2E model in handling background noise and syntactic variation compared to the pipeline model. Finally, a finer-grained analysis suggests that the E2E model uses the pitch information of the input signal to identify voice command concepts. The results and methodology outlined in this paper provide a springboard for further analyses of E2E models in speech processing.",
+          "claimed_authors": [
+            "Thierry Desot",
+            "François Portet",
+            "Michel Vacher"
+          ],
+          "claimed_title": "End-to-End Spoken Language Understanding: Performance analyses of a voice command task in a low resource setting",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2207.08179"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"TransitLM: A Large-Scale Dataset and Benchmark for', candidate_title='End-to-End Spoken Language Understanding: Performance analyses of a voice command task in a low resource setting')",
+        "failed_at": "2026-08-03T18:01:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Language understanding is a key scientific issue in the fields of cognitive and computer science. However, the two disciplines differ substantially in the specific research questions. Cognitive science focuses on analyzing the specific mechanism of the brain and investigating the brain's response to language; few studies have examined the brain's language system as a whole. By contrast, computer scientists focus on the efficiency of practical applications when choosing research questions but may ignore the most essential laws of language. Given these differences, can a combination of the disciplines offer new insights for building intelligent language models and studying language cognitive mechanisms? In the following text, we first review the research questions, history, and methods of language understanding in cognitive and computer science, focusing on the current progress and challenges. We then compare and contrast the research of language understanding in cognitive and computer sciences. Finally, we review existing work that combines insights from language cognition and language computation and offer prospects for future development trends.",
+          "claimed_authors": [
+            "Shaonan Wang",
+            "Nai Ding",
+            "Nan Lin",
+            "Jiajun Zhang",
+            "Chengqing Zong"
+          ],
+          "claimed_title": "Language Cognition and Language Computation -- Human and Machine Language Understanding",
           "claimed_venue": "arXiv",
           "claimed_year": 2023,
-          "primary_pointer": "2305.08246"
+          "primary_pointer": "2301.04788"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"TransitLM: A Large-Scale Dataset and Benchmark for', candidate_title='Learning Non-linguistic Skills without Sacrificing Linguistic Proficiency')",
-        "failed_at": "2026-07-04T15:36:38Z",
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"TransitLM: A Large-Scale Dataset and Benchmark for', candidate_title='Language Cognition and Language Computation -- Human and Machine Language Understanding')",
+        "failed_at": "2026-08-03T18:01:41Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "This paper presents a method of sequence-to-sequence (seq2seq) voice conversion using non-parallel training data. In this method, disentangled linguistic and speaker representations are extracted from acoustic features, and voice conversion is achieved by preserving the linguistic representations of source utterances while replacing the speaker representations with the target ones. Our model is built under the framework of encoder-decoder neural networks. A recognition encoder is designed to learn the disentangled linguistic representations with two strategies. First, phoneme transcriptions of training data are introduced to provide the references for leaning linguistic representations of audio signals. Second, an adversarial training strategy is employed to further wipe out speaker information from the linguistic representations. Meanwhile, speaker representations are extracted from audio signals by a speaker encoder. The model parameters are estimated by two-stage training, including a pretraining stage using a multi-speaker dataset and a fine-tuning stage using the dataset of a specific conversion pair. Since both the recognition encoder and the decoder for recovering acoustic features are seq2seq neural networks, there are no constrains of frame alignment and frame-by-frame conversion in our proposed method. Experimental results showed that our method obtained higher similarity and naturalness than the best non-parallel voice conversion method in Voice Conversion Challenge 2018. Besides, the performance of our proposed method was closed to the state-of-the-art parallel seq2seq voice conversion method.",
+          "claimed_abstract": "Automatic extraction of medical information from clinical documents poses several challenges: high costs of required clinical expertise, limited interpretability of model predictions, restricted computational resources and privacy regulations. Recent advances in domain-adaptation and prompting methods showed promising results with minimal training data using lightweight masked language models, which are suited for well-established interpretability methods. We are first to present a systematic evaluation of these methods in a low-resource setting, by performing multi-class section classification on German doctor's letters. We conduct extensive class-wise evaluations supported by Shapley values, to validate the quality of our small training data set and to ensure the interpretability of model predictions. We demonstrate that a lightweight, domain-adapted pretrained model, prompted with just 20 shots, outperforms a traditional classification model by 30.5% accuracy. Our results serve as a process-oriented guideline for clinical information extraction projects working with low-resource.",
           "claimed_authors": [
-            "Jing-Xuan Zhang",
-            "Zhen-Hua Ling",
-            "Li-Rong Dai"
+            "Phillip Richter-Pechanski",
+            "Philipp Wiesenbach",
+            "Dominic M. Schwab",
+            "Christina Kiriakou",
+            "Nicolas Geis",
+            "Christoph Dieterich",
+            "Anette Frank"
           ],
-          "claimed_title": "Non-Parallel Sequence-to-Sequence Voice Conversion with Disentangled Linguistic and Speaker Representations",
+          "claimed_title": "Clinical information extraction for Low-resource languages with Few-shot learning using Pre-trained language models and Prompting",
           "claimed_venue": "arXiv",
-          "claimed_year": 2019,
-          "primary_pointer": "1906.10508"
+          "claimed_year": 2024,
+          "primary_pointer": "2403.13369"
         },
-        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"TransitLM: A Large-Scale Dataset and Benchmark for', candidate_title='Non-Parallel Sequence-to-Sequence Voice Conversion with Disentangled Linguistic and Speaker Representations')",
-        "failed_at": "2026-07-04T15:36:38Z",
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"TransitLM: A Large-Scale Dataset and Benchmark for', candidate_title='Clinical information extraction for Low-resource languages with Few-shot learning using Pre-trained language models and Prompting')",
+        "failed_at": "2026-08-03T18:01:41Z",
         "reason": "query_irrelevant"
       }
     ],
@@ -525,180 +546,31 @@
       {
         "bibliographic_info": {
           "authors": [
-            "Zheng Chen",
-            "Xun Zhang",
-            "Wenbo Li",
-            "Renjing Pei",
-            "Fenglong Song",
-            "Xiongkuo Min",
-            "Xiaohong Liu",
-            "Xin Yuan",
-            "Yong Guo",
-            "Yulun Zhang"
+            "Hanyu Guo",
+            "Jiedong Yang",
+            "Chao Chen",
+            "Longfei Xu",
+            "Kaikui Liu",
+            "Xiangxiang Chu"
           ],
-          "title": "Grounding-IQA: Grounding Multimodal Language Model for Image Quality Assessment",
-          "topically_marginal": true,
+          "title": "TransitLM: A Large-Scale Dataset and Benchmark for Map-Free Transit Route Generation",
           "venue": "arXiv",
-          "year": 2024
+          "year": 2026
         },
-        "primary_pointer": "2411.17237",
-        "summary": "The development of multimodal large language models (MLLMs) enables the evaluation of image quality through natural language descriptions. This advancement allows for more detailed assessments. However, these MLLM-based IQA methods primarily rely on general contextual descriptions, sometimes limiting fine-grained quality assessment. To address this limitation, we introduce a new image quality assessment (IQA) task paradigm, **grounding-IQA**. This paradigm integrates multimodal referring and grounding with IQA to realize more fine-grained quality perception, thereby extending existing IQA. Specifically, grounding-IQA comprises two subtasks: grounding-IQA-description (GIQA-DES) and visual question answering (GIQA-VQA). GIQA-DES involves detailed descriptions with precise locations (e.g., bounding boxes), while GIQA-VQA focuses on quality QA for local regions. To realize grounding-IQA, we construct a corresponding dataset, GIQA-160K, through our proposed automated annotation pipeline. Furthermore, we develop a well-designed benchmark, GIQA-Bench. The benchmark evaluates the grounding-IQA performance from three perspectives: description quality, VQA accuracy, and grounding precision. Experiments demonstrate that our proposed method facilitates the more fine-grained IQA application. Code: https://github.com/zhengchen1999/Grounding-IQA.",
+        "primary_pointer": "2605.22355",
+        "summary": "Public transit route planning traditionally depends on structured map infrastructure and complex routing engines, and no existing dataset supports training models to bypass this dependency. We present TransitLM, a large-scale dataset of over 13 million transit route planning records from four Chinese cities covering 120,845 stations and 13,666 lines, released as a continual pre-training corpus and benchmark data for three evaluation tasks with complementary metrics. Experiments show that an LLM trained on TransitLM produces structurally valid routes at high accuracy and implicitly grounds arbitrary GPS coordinates to appropriate stations without any explicit mapping. These results demonstrate that transit route planning can be learned entirely from data, enabling end-to-end, map-free route generation directly from origin-destination information. The dataset and benchmark are available at https://huggingface.co/datasets/GD-ML/TransitLM, with evaluation code at https://github.com/HotTricker/TransitLM.",
         "summary_grounded_pdf": false,
         "verification_log": {
           "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2411.17237",
+          "final_url": "https://arxiv.org/abs/2605.22355",
           "http_status": 200,
-          "pdf_sample_score": null,
-          "query_relevance_score": 0.3333,
+          "pdf_sample_score": 0.2189,
+          "query_relevance_score": 1.0,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-07-04T15:36:37Z"
-        }
-      },
-      {
-        "bibliographic_info": {
-          "authors": [
-            "Yiduo Guo",
-            "Yaobo Liang",
-            "Chenfei Wu",
-            "Wenshan Wu",
-            "Dongyan Zhao",
-            "Nan Duan"
-          ],
-          "title": "Learning to Plan with Natural Language",
-          "topically_marginal": true,
-          "venue": "arXiv",
-          "year": 2023
-        },
-        "primary_pointer": "2304.10464",
-        "summary": "Large Language Models (LLMs) have shown remarkable performance in various basic natural language tasks. For completing the complex task, we still need a plan for the task to guide LLMs to generate the specific solutions step by step. LLMs can directly generate task plans, but these plans may still contain factual errors or are incomplete. A high-quality task plan contains correct step-by-step solutions for solving all situations and behavioral instructions for avoiding mistakes. To obtain it, we propose the Learning to Plan method, which involves two phases: (1) In the first learning task plan phase, it iteratively updates the task plan with new step-by-step solutions and behavioral instructions, which are obtained by prompting LLMs to derive from training error feedback. (2) In the subsequent test phase, the LLM uses the learned task plan to guide the inference of LLM on the test set. We demonstrate the effectiveness of our method on the five different reasoning type tasks (8 datasets). Further, our analysis experiment shows that the task plan learned by one LLM can directly guide another LLM to improve its performance, which reveals a new transfer learning paradigm. We release the code at \\url{https://github.com/Eureka6174/LearnNLPlan}",
-        "summary_grounded_pdf": false,
-        "verification_log": {
-          "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2304.10464",
-          "http_status": 200,
-          "pdf_sample_score": null,
-          "query_relevance_score": 0.375,
-          "redirect_chain": [],
-          "summary_grounding_score": 1.0,
-          "title_token_overlap_score": 1.0,
-          "url_resolves": true,
-          "verified_at": "2026-07-04T15:36:43Z"
-        }
-      },
-      {
-        "bibliographic_info": {
-          "authors": [
-            "Ethem Yağız Çalık",
-            "Talha Rüzgar Akkuş"
-          ],
-          "title": "Enhancing Human-Like Responses in Large Language Models",
-          "topically_marginal": true,
-          "venue": "arXiv",
-          "year": 2025
-        },
-        "primary_pointer": "2501.05032",
-        "summary": "This paper explores the advancements in making large language models (LLMs) more human-like. We focus on techniques that enhance natural language understanding, conversational coherence, and emotional intelligence in AI systems. The study evaluates various approaches, including fine-tuning with diverse datasets, incorporating psychological principles, and designing models that better mimic human reasoning patterns. Our findings demonstrate that these enhancements not only improve user interactions but also open new possibilities for AI applications across different domains. Future work will address the ethical implications and potential biases introduced by these human-like attributes.",
-        "summary_grounded_pdf": false,
-        "verification_log": {
-          "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2501.05032",
-          "http_status": 200,
-          "pdf_sample_score": null,
-          "query_relevance_score": 0.375,
-          "redirect_chain": [],
-          "summary_grounding_score": 1.0,
-          "title_token_overlap_score": 1.0,
-          "url_resolves": true,
-          "verified_at": "2026-07-04T15:36:44Z"
-        }
-      },
-      {
-        "bibliographic_info": {
-          "authors": [
-            "Yiming Ai",
-            "Zhiwei He",
-            "Ziyin Zhang",
-            "Wenhong Zhu",
-            "Hongkun Hao",
-            "Kai Yu",
-            "Lingjun Chen",
-            "Rui Wang"
-          ],
-          "title": "Is Self-knowledge and Action Consistent or Not: Investigating Large Language Model's Personality",
-          "topically_marginal": true,
-          "venue": "arXiv",
-          "year": 2024
-        },
-        "primary_pointer": "2402.14679",
-        "summary": "In this study, we delve into the validity of conventional personality questionnaires in capturing the human-like personality traits of Large Language Models (LLMs). Our objective is to assess the congruence between the personality traits LLMs claim to possess and their demonstrated tendencies in real-world scenarios. By conducting an extensive examination of LLM outputs against observed human response patterns, we aim to understand the disjunction between self-knowledge and action in LLMs.",
-        "summary_grounded_pdf": false,
-        "verification_log": {
-          "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2402.14679",
-          "http_status": 200,
-          "pdf_sample_score": null,
-          "query_relevance_score": 0.375,
-          "redirect_chain": [],
-          "summary_grounding_score": 1.0,
-          "title_token_overlap_score": 1.0,
-          "url_resolves": true,
-          "verified_at": "2026-07-04T15:36:44Z"
-        }
-      },
-      {
-        "bibliographic_info": {
-          "authors": [
-            "Andrew Shin",
-            "Kunitake Kaneko"
-          ],
-          "title": "Large Language Models Lack Understanding of Character Composition of Words",
-          "topically_marginal": true,
-          "venue": "arXiv",
-          "year": 2024
-        },
-        "primary_pointer": "2405.11357",
-        "summary": "Large language models (LLMs) have demonstrated remarkable performances on a wide range of natural language tasks. Yet, LLMs' successes have been largely restricted to tasks concerning words, sentences, or documents, and it remains questionable how much they understand the minimal units of text, namely characters. In this paper, we examine contemporary LLMs regarding their ability to understand character composition of words, and show that most of them fail to reliably carry out even the simple tasks that can be handled by humans with perfection. We analyze their behaviors with comparison to token level performances, and discuss the potential directions for future research.",
-        "summary_grounded_pdf": false,
-        "verification_log": {
-          "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2405.11357",
-          "http_status": 200,
-          "pdf_sample_score": 0.1612,
-          "query_relevance_score": 0.375,
-          "redirect_chain": [],
-          "summary_grounding_score": 1.0,
-          "title_token_overlap_score": 1.0,
-          "url_resolves": true,
-          "verified_at": "2026-07-04T15:36:44Z"
-        }
-      },
-      {
-        "bibliographic_info": {
-          "authors": [
-            "Linge Guo"
-          ],
-          "title": "Unmasking the Shadows of AI: Investigating Deceptive Capabilities in Large Language Models",
-          "topically_marginal": true,
-          "venue": "arXiv",
-          "year": 2024
-        },
-        "primary_pointer": "2403.09676",
-        "summary": "This research critically navigates the intricate landscape of AI deception, concentrating on deceptive behaviours of Large Language Models (LLMs). My objective is to elucidate this issue, examine the discourse surrounding it, and subsequently delve into its categorization and ramifications. The essay initiates with an evaluation of the AI Safety Summit 2023 (ASS) and introduction of LLMs, emphasising multidimensional biases that underlie their deceptive behaviours.The literature review covers four types of deception categorised: Strategic deception, Imitation, Sycophancy, and Unfaithful Reasoning, along with the social implications and risks they entail. Lastly, I take an evaluative stance on various aspects related to navigating the persistent challenges of the deceptive AI. This encompasses considerations of international collaborative governance, the reconfigured engagement of individuals with AI, proposal of practical adjustments, and specific elements of digital education.",
-        "summary_grounded_pdf": false,
-        "verification_log": {
-          "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2403.09676",
-          "http_status": 200,
-          "pdf_sample_score": null,
-          "query_relevance_score": 0.375,
-          "redirect_chain": [],
-          "summary_grounding_score": 1.0,
-          "title_token_overlap_score": 1.0,
-          "url_resolves": true,
-          "verified_at": "2026-07-04T15:36:45Z"
+          "verified_at": "2026-08-03T18:01:46Z"
         }
       }
     ]
