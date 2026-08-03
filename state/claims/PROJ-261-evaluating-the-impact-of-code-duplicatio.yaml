@@ -16762,22 +16762,6 @@
   status: not_enough_info
   updated_at: '2026-07-14T06:32:47Z'
 - artifact_path: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/001-evaluating-the-impact-of-code-duplicatio/tasks.md
-  attempts: 6
-  canonical: 2409.08555 claim from arXiv 2409.08555
-  claim_id: c_bfc4a254
-  context: "T026 [US1] SC\u2011003 claim of 2409.08555 from arXiv 2409.08555 (`projects/PROJ-261-evaluating-the-impact-of-code-duplication/tests/integration/test_segment_count_validation.py`)\
-    \ using pytest"
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: "SC\u2011003 claim of 2409.08555 from arXiv 2409.08555"
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T06:33:29Z'
-- artifact_path: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/001-evaluating-the-impact-of-code-duplicatio/tasks.md
   attempts: 3
   canonical: memory monitoring validates 7 GB limit during model inference
   claim_id: c_3ace423a
@@ -16793,23 +16777,6 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-14T06:33:32Z'
-- artifact_path: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/001-evaluating-the-impact-of-code-duplicatio/tasks.md
-  attempts: 2
-  canonical: SC-001 validation includes 500 MB corpus requirement
-  claim_id: c_dc9970fa
-  context: "T024 [US1] SC\u2011001 validation includes a 500\u202FMB corpus requirement\
-    \ (`projects/PROJ-261-evaluating-the-impact-of-code-duplication/tests/integration/test_performance.py`)\
-    \ using pytest"
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: "SC\u2011001 validation includes a 500\u202FMB corpus requirement"
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T06:33:36Z'
 - artifact_path: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/001-evaluating-the-impact-of-code-duplicatio/tasks.md
   attempts: 1
   canonical: 2409.08555 claim from arXiv 2409.08555
@@ -17219,22 +17186,6 @@
   status: not_enough_info
   updated_at: '2026-07-14T06:42:22Z'
 - artifact_path: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/001-evaluating-the-impact-of-code-duplicatio/tasks.md
-  attempts: 8
-  canonical: memory monitoring validates 7 GB limit
-  claim_id: c_29d12ceb
-  context: "T023 [US1] Memory\u2011monitoring validates a 7\u202FGB limit throughout\
-    \ model inference"
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: "Memory\u2011monitoring validates a 7\u202FGB limit throughout model inference"
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T06:42:26Z'
-- artifact_path: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/001-evaluating-the-impact-of-code-duplicatio/tasks.md
   attempts: 1
   canonical: 50 problem HumanEval subset
   claim_id: c_b6465fb3
@@ -17559,3 +17510,52 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-14T06:48:53Z'
+- artifact_path: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/001-evaluating-the-impact-of-code-duplicatio/tasks.md
+  attempts: 7
+  canonical: 2409.08555 claim from arXiv 2409.08555
+  claim_id: c_bfc4a254
+  context: "T026 [US1] SC\u2011003 claim of 2409.08555 from arXiv 2409.08555 (`projects/PROJ-261-evaluating-the-impact-of-code-duplication/tests/integration/test_segment_count_validation.py`)\
+    \ using pytest"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "SC\u2011003 claim of 2409.08555 from arXiv 2409.08555"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T13:44:33Z'
+- artifact_path: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/001-evaluating-the-impact-of-code-duplicatio/tasks.md
+  attempts: 9
+  canonical: memory monitoring validates 7 GB limit
+  claim_id: c_29d12ceb
+  context: "T023 [US1] Memory\u2011monitoring validates a 7\u202FGB limit throughout\
+    \ model inference"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Memory\u2011monitoring validates a 7\u202FGB limit throughout model inference"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T13:46:54Z'
+- artifact_path: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/001-evaluating-the-impact-of-code-duplicatio/tasks.md
+  attempts: 3
+  canonical: SC-001 validation includes 500 MB corpus requirement
+  claim_id: c_dc9970fa
+  context: "T024 [US1] SC\u2011001 validation includes a 500\u202FMB corpus requirement\
+    \ (`projects/PROJ-261-evaluating-the-impact-of-code-duplication/tests/integration/test_performance.py`)\
+    \ using pytest"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "SC\u2011001 validation includes a 500\u202FMB corpus requirement"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T13:48:30Z'

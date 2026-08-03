@@ -1,0 +1,43 @@
+# .pre-commit-config.yaml
+# Pre-commit configuration for linting and formatting tools:
+# - black: code formatter
+# - isort: import sorting
+# - flake8: style and lint checks
+#
+# This file is placed under the `code/` directory to satisfy project‑level
+# artifact location constraints.
+#
+# To activate:
+#   pip install pre-commit
+#   pre-commit install
+#   pre-commit run --all-files
+#
+# The versions are pinned to ensure reproducibility.
+repos:
+  - repo: https://github.com/psf/black
+    rev: 24.3.0  # use a recent stable release
+    hooks:
+      - id: black
+        language_version: python3.11
+        additional_dependencies: [black==24.3.0]
+
+  - repo: https://github.com/PyCQA/isort
+    rev: 5.13.2
+    hooks:
+      - id: isort
+        name: isort (Python import sorting)
+        language_version: python3.11
+        additional_dependencies: [isort==5.13.2]
+
+  - repo: https://github.com/pycqa/flake8
+    rev: 7.0.0
+    hooks:
+      - id: flake8
+        name: flake8 (Python linting)
+        language_version: python3.11
+        additional_dependencies:
+          - flake8==7.0.0
+          - pyflakes==3.2.0
+          - pycodestyle==2.11.1
+          - mccabe==0.7.0
+# End of .pre-commit-config.yaml

@@ -1,0 +1,7 @@
+T021:
+  c: false
+  h: 65a20ca1e7f2b7d7c2191721be1b246550515d13be2fe68b86d968c7d5ff3f65
+  r: "The provided `main.py` orchestrates the pipeline but the required output file\
+    \ `data/processed/clone_metrics.csv` does not exist (and there is no evidence\
+    \ that `perplexity_scores.csv` was created). Since the core CSV artifacts are\
+    \ missing, the task\u2019s requirement is not satisfied."

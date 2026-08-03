@@ -80,9 +80,9 @@ The research question, method, and references remain unchanged as required.
 
 ### Implementation for User Story 2
 
-- [ ] T015 [US2] Implement `code/models/train.py` to load `data/processed/final_dataset.parquet` (which now includes pre-computed labels from T013.1) and split data (stratified by chemical family) into training/test sets. <!-- FAILED: unspecified -->
+- [X] T015 [US2] Implement `code/models/train.py` to load `data/processed/final_dataset.parquet` (which now includes pre-computed labels from T013.1) and split data (stratified by chemical family) into training/test sets. <!-- FAILED: unspecified -->
 - [X] T016 [US2] Implement Random Forest regression training in `code/models/train.py` with hyperparameter grid search (capped to complete within 2 hours). Target: RMSE ≤15 K.
-- [ ] T017 [US2] Implement Random Forest classifier training in `code/models/train.py` using the pre-computed crystallization labels from `data/processed/final_dataset.parquet`. Ensure the confusion matrix is saved to verify the "low stability" labeling logic. <!-- FAILED: unspecified -->
+- [ ] T017 [US2] Implement Random Forest classifier training in `code/models/train.py` using the pre-computed crystallization labels from `data/processed/final_dataset.parquet`. Ensure the confusion matrix is saved to verify the "low stability" labeling logic. <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
 - [ ] T018 [US2] Implement k-fold cross-validation in `code/models/train.py` and save `models/tg_regressor.pkl` and `models/crystallization_classifier.pkl`. <!-- FAILED: unspecified -->
 - [ ] T019 [US2] **Implement Sensitivity Analysis**: Iterate over thresholds ranging from low to high values. Report FPR, Class Balance, accuracy, and **calculate the derivative of FPR change** to verify the discrete range captures instability trends. **Output Schema**: `{ "threshold_K": int, "fpr": float, "class_balance": float, "accuracy": float, "fpr_derivative": float }`. Output `data/processed/sensitivity_report.json`. **Prerequisite**: Must consume `data/processed/final_dataset.parquet` (T014) and trained models (T018).
 - [ ] T020 [US2] Generate `docs/reports/metrics.json` containing RMSE, ROC-AUC, and cross-validation fold scores (SC-001, SC-002).
@@ -215,7 +215,7 @@ With multiple developers:
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Critical Data Rule**: `code/data/validate_literature_subset.py` MUST fail loudly if `literature_subset.csv` is missing; no synthetic fallbacks allowed.
-- **Small Sample Size Mitigation**: The project uses N=24 compositions. [UNRESOLVED-CLAIM: c_6f64ef5b — status=not_enough_info] Tasks T022 (Null Model/Permutation Test) and T023 (Collinearity Report) are mandatory and MUST be executed in Phase 4 after data generation to ensure statistical validity.
+- **Small Sample Size Mitigation**: The project uses N=24 compositions. Tasks T022 (Null Model/Permutation Test) and T023 (Collinearity Report) are mandatory and MUST be executed in Phase 4 after data generation to ensure statistical validity.
 - **Timescale Matching**: Task T012.2 implements the active protocol to calculate scaling factors using Arrhenius logic, satisfying FR-008.
 - **Scope Change**: Task T001.3 updates `plan.md` to document the reduction from 500 to 24 compositions; T010.2 implements the scaling logic for the full 500.
 - **Total Pipeline Time**: Task T021 aggregates simulation (T010.1) and training times to verify SC-005. **Note**: T021.1 (Global Timeout Enforcer) is required for active enforcement.

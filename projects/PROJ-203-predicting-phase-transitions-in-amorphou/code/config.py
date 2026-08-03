@@ -1,217 +1,122 @@
 """
-Configuration management for the Phase Transitions in Amorphous Solids pipeline.
+Configuration management for the phase transition prediction pipeline.
 
-This module handles environment variables, path resolution, and simulation parameters
-required for the research pipeline.
+This module defines configuration classes and provides access to configuration
+settings via environment variables and default values.
 """
+
 import os
 from pathlib import Path
 from typing import Dict, Any, Optional
 from dataclasses import dataclass, field
 from dotenv import load_dotenv
 
-# Load .env file if it exists in the project root
+# Load environment variables from .env file if it exists
 load_dotenv()
 
 @dataclass
 class PathConfig:
-    """Configuration for all project directory paths."""
+    """Configuration for file paths."""
     project_root: Path = field(default_factory=lambda: Path(__file__).resolve().parent.parent)
     code_dir: Path = field(default_factory=lambda: Path(__file__).resolve().parent)
-    data_raw: Path = None
-    data_processed: Path = None
-    data_logs: Path = None
-    artifacts_dir: Path = None
-    models_dir: Path = None
-    docs_reports: Path = None
-    figures_dir: Path = None
-
+    data_raw_dir: Path = field(default_factory=lambda: Path(__file__).resolve().parent.parent / "data" / "raw")
+    data_processed_dir: Path = field(default_factory=lambda: Path(__file__).resolve().parent.parent / "data" / "processed")
+    data_logs_dir: Path = field(default_factory=lambda: Path(__file__).resolve().parent.parent / "data" / "logs")
+    models_dir: Path = field(default_factory=lambda: Path(__file__).resolve().parent.parent / "artifacts" / "models")
+    figures_dir: Path = field(default_factory=lambda: Path(__file__).resolve().parent.parent / "artifacts" / "figures")
+    reports_dir: Path = field(default_factory=lambda: Path(__file__).resolve().parent.parent / "docs" / "reports")
+    
     def __post_init__(self):
-        """Initialize derived paths based on project_root."""
-        self.data_raw = self.project_root / "data" / "raw"
-        self.data_processed = self.project_root / "data" / "processed"
-        self.data_logs = self.project_root / "data" / "logs"
-        self.artifacts_dir = self.project_root / "artifacts"
-        self.models_dir = self.project_root / "models"
-        self.docs_reports = self.project_root / "docs" / "reports"
-        self.figures_dir = self.project_root / "figures"
-
-        # Ensure directories exist
-        for path in [
-            self.data_raw,
-            self.data_processed,
-            self.data_logs,
-            self.artifacts_dir,
-            self.models_dir,
-            self.docs_reports,
-            self.figures_dir
-        ]:
-            path.mkdir(parents=True, exist_ok=True)
+        # Ensure paths are Path objects
+        self.project_root = Path(self.project_root)
+        self.code_dir = Path(self.code_dir)
+        self.data_raw_dir = Path(self.data_raw_dir)
+        self.data_processed_dir = Path(self.data_processed_dir)
+        self.data_logs_dir = Path(self.data_logs_dir)
+        self.models_dir = Path(self.models_dir)
+        self.figures_dir = Path(self.figures_dir)
+        self.reports_dir = Path(self.reports_dir)
 
 @dataclass
 class SimulationConfig:
-    """Configuration for MD simulation parameters."""
-    cooling_rate: float = 1.0e10  # K/s - default fast cooling
-    time_step: float = 1.0e-15    # seconds (1 fs)
-    total_steps: int = 100000
-    cutoff_distance: float = 10.0  # Angstroms
-    temperature_start: float = 3000.0  # K
-    temperature_end: float = 100.0   # K
-    pressure: float = 1.0  # atm
+    """Configuration for MD simulations."""
+    cooling_rate: float = float(os.getenv("COOLING_RATE", "1e10"))  # K/s
+    experimental_cooling_rate: float = float(os.getenv("EXPERIMENTAL_COOLING_RATE", "1e2"))  # K/s
+    time_steps: int = int(os.getenv("TIME_STEPS", "100000"))
+    time_step_size: float = float(os.getenv("TIME_STEP_SIZE", "1e-15"))  # seconds
+    max_simulation_time: float = float(os.getenv("MAX_SIMULATION_TIME", "1e-7"))  # seconds
+    truncation_threshold: int = int(os.getenv("TRUNCATION_THRESHOLD", "500"))  # steps to keep
+    
+    # OpenKIM potentials
+    openkim_potential: str = os.getenv("OPENKIM_POTENTIAL", "MEAM.LAMMPS.Mishin2001.CuAl")
     
     # CPU time cap per composition (seconds)
-    cpu_time_cap: int = 3600  # 1 hour default
-    
-    # OpenKIM potential identifiers
-    kim_potential_oxide: str = "MO_9876543210"  # Placeholder, to be replaced with real KIM ID
-    kim_potential_sulfide: str = "MO_1234567890"
-    kim_potential_organic: str = "MO_5555555555"
+    cpu_time_cap: float = float(os.getenv("CPU_TIME_CAP", "3600"))
 
 @dataclass
 class ModelConfig:
-    """Configuration for ML model training parameters."""
+    """Configuration for ML models."""
     # Random Forest parameters
-    rf_n_estimators: int = 100
-    rf_max_depth: int = 10
-    rf_min_samples_split: int = 2
-    rf_min_samples_leaf: int = 1
+    rf_n_estimators: int = int(os.getenv("RF_N_ESTIMATORS", "100"))
+    rf_max_depth: Optional[int] = int(os.getenv("RF_MAX_DEPTH", "10")) if os.getenv("RF_MAX_DEPTH") else None
+    rf_min_samples_split: int = int(os.getenv("RF_MIN_SAMPLES_SPLIT", "2"))
+    rf_min_samples_leaf: int = int(os.getenv("RF_MIN_SAMPLES_LEAF", "1"))
     
     # Cross-validation
-    cv_folds: int = 5
+    cv_folds: int = int(os.getenv("CV_FOLDS", "5"))
     
-    # Hyperparameter grid search limits (to ensure completion within time budget)
-    grid_search_max_iter: int = 50
-    
-    # Performance targets
-    target_rmse: float = 15.0  # K
-    target_roc_auc: float = 0.7
-    
-    # Crystallization threshold (K)
-    crystallization_threshold: float = 50.0
+    # Random seed for reproducibility
+    random_seed: int = int(os.getenv("RANDOM_SEED", "42"))
 
 @dataclass
 class DataConfig:
-    """Configuration for data processing parameters."""
-    # Pilot study sample size
-    pilot_sample_size: int = 24
+    """Configuration for data processing."""
+    # Data quality thresholds
+    nan_threshold: float = float(os.getenv("NAN_THRESHOLD", "0.1"))  # fraction of NaN allowed
+    outlier_std_threshold: float = float(os.getenv("OUTLIER_STD_THRESHOLD", "3.0"))
     
-    # Stratification by chemical family
-    chemical_families: list = field(default_factory=lambda: ["oxide", "sulfide", "organic"])
+    # Feature selection
+    feature_selection_method: str = os.getenv("FEATURE_SELECTION_METHOD", "correlation")
+    max_features: int = int(os.getenv("MAX_FEATURES", "20"))
     
-    # Missing data handling
-    exclude_missing_labels: bool = True
-    
-    # File formats
-    input_csv: str = "literature_subset.csv"
-    output_parquet: str = "merged_dataset.parquet"
-    
-    # Validation thresholds
-    nan_tolerance: float = 0.0  # Fail if any NaN in required columns
-    physical_bound_tolerance: float = 1e-6
+    # Labeling
+    crystallization_threshold: int = int(os.getenv("CRYSTALLIZATION_THRESHOLD", "50"))  # K
 
+@dataclass
 class Config:
-    """Main configuration container."""
-    
-    def __init__(self):
-        self.paths = PathConfig()
-        self.simulation = SimulationConfig()
-        self.model = ModelConfig()
-        self.data = DataConfig()
-        
-        # Override with environment variables if present
-        self._load_env_overrides()
-    
-    def _load_env_overrides(self):
-        """Load configuration overrides from environment variables."""
-        # Simulation overrides
-        if os.getenv("COOLING_RATE"):
-            self.simulation.cooling_rate = float(os.getenv("COOLING_RATE"))
-        if os.getenv("TIME_STEP"):
-            self.simulation.time_step = float(os.getenv("TIME_STEP"))
-        if os.getenv("CPU_TIME_CAP"):
-            self.simulation.cpu_time_cap = int(os.getenv("CPU_TIME_CAP"))
-        
-        # Model overrides
-        if os.getenv("RF_N_ESTIMATORS"):
-            self.model.rf_n_estimators = int(os.getenv("RF_N_ESTIMATORS"))
-        if os.getenv("TARGET_RMSE"):
-            self.model.target_rmse = float(os.getenv("TARGET_RMSE"))
-        
-        # Data overrides
-        if os.getenv("PILOT_SAMPLE_SIZE"):
-            self.data.pilot_sample_size = int(os.getenv("PILOT_SAMPLE_SIZE"))
-        
-        # Path overrides
-        if os.getenv("PROJECT_ROOT"):
-            self.paths.project_root = Path(os.getenv("PROJECT_ROOT"))
-            # Re-initialize derived paths
-            self.paths.__post_init__()
-
-    def get_simulation_params(self) -> Dict[str, Any]:
-        """Get simulation parameters as a dictionary."""
-        return {
-            "cooling_rate": self.simulation.cooling_rate,
-            "time_step": self.simulation.time_step,
-            "total_steps": self.simulation.total_steps,
-            "cutoff_distance": self.simulation.cutoff_distance,
-            "temperature_start": self.simulation.temperature_start,
-            "temperature_end": self.simulation.temperature_end,
-            "pressure": self.simulation.pressure,
-            "cpu_time_cap": self.simulation.cpu_time_cap
-        }
-
-    def get_model_params(self) -> Dict[str, Any]:
-        """Get model training parameters as a dictionary."""
-        return {
-            "n_estimators": self.model.rf_n_estimators,
-            "max_depth": self.model.rf_max_depth,
-            "min_samples_split": self.model.rf_min_samples_split,
-            "min_samples_leaf": self.model.rf_min_samples_leaf,
-            "cv_folds": self.model.cv_folds,
-            "target_rmse": self.model.target_rmse,
-            "target_roc_auc": self.model.target_roc_auc
-        }
-
-    def get_data_paths(self) -> Dict[str, Path]:
-        """Get all data-related paths."""
-        return {
-            "raw": self.paths.data_raw,
-            "processed": self.paths.data_processed,
-            "logs": self.paths.data_logs,
-            "artifacts": self.paths.artifacts_dir,
-            "models": self.paths.models_dir,
-            "reports": self.paths.docs_reports,
-            "figures": self.paths.figures_dir
-        }
-
-    def validate_paths(self) -> bool:
-        """Validate that all required directories exist."""
-        paths = self.get_data_paths()
-        for name, path in paths.items():
-            if not path.exists():
-                raise FileNotFoundError(f"Required directory missing: {name} -> {path}")
-        return True
+    """Main configuration class."""
+    paths: PathConfig = field(default_factory=PathConfig)
+    simulation: SimulationConfig = field(default_factory=SimulationConfig)
+    model: ModelConfig = field(default_factory=ModelConfig)
+    data: DataConfig = field(default_factory=DataConfig)
 
 # Global configuration instance
-config = Config()
+_config: Optional[Config] = None
 
-# Convenience functions for accessing configuration
 def get_config() -> Config:
-    """Return the global configuration instance."""
-    return config
+    """Get the global configuration instance."""
+    global _config
+    if _config is None:
+        _config = Config()
+    return _config
 
 def get_simulation_config() -> SimulationConfig:
-    """Return simulation configuration."""
-    return config.simulation
+    """Get simulation configuration."""
+    return get_config().simulation
 
 def get_model_config() -> ModelConfig:
-    """Return model configuration."""
-    return config.model
+    """Get model configuration."""
+    return get_config().model
 
 def get_data_config() -> DataConfig:
-    """Return data configuration."""
-    return config.data
+    """Get data configuration."""
+    return get_config().data
 
 def get_paths() -> PathConfig:
-    """Return path configuration."""
-    return config.paths
+    """Get path configuration."""
+    return get_config().paths
+
+def reset_config():
+    """Reset the global configuration (useful for testing)."""
+    global _config
+    _config = None

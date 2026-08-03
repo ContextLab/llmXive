@@ -1,27 +1,13 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: CloneMetrics
-description: Schema for the per‑file clone‑density metrics produced by the AST cloner.
 type: object
+description: Schema for clone density metrics per file.
 properties:
   file_path:
     type: string
-    description: Relative path to the source file inside the dataset.
-  total_lines:
-    type: integer
-    minimum: 0
-    description: Total number of lines in the source file.
-  clone_lines:
-    type: integer
-    minimum: 0
-    description: Number of lines that belong to detected clones.
+    description: Relative path to the source file within the dataset.
   clone_density:
     type: number
-    minimum: 0
-    maximum: 1
-    description: Ratio of clone_lines to total_lines (value between 0 and 1).
+    description: Proportion of code that participates in clones (0.0 – 1.0).
 required:
   - file_path
-  - total_lines
-  - clone_lines
   - clone_density
 additionalProperties: false
