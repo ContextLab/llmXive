@@ -1,0 +1,31 @@
+T015:
+  c: false
+  h: c210281fdafaa4b767b3cb1a29a630ba4a7a9247127d19d810d391511a1ff115
+  r: "The required file `code/labeling/classify.py` does not exist, so the classification\
+    \ implementation is missing despite the presence of `keywords.yaml`. No code was\
+    \ provided to load the YAML, perform keyword matching, or apply the \u22652 threshold\
+    \ rule."
+T017:
+  c: false
+  h: 4a2ce5f09eee5a52b35ed09d67455f221cd550519e8ecd3c8932f2702ff10e78
+  r: The `code/data/preprocess.py` file stops after a partially shown `compute_basic_stats`
+    function and contains no code that creates a random sample of classified PRs or
+    writes it to `docs/reports/audit_sample.csv`. Moreover, the required `docs/reports/audit_sample.csv`
+    file is absent from the repository. Both the implementation and the output artifact
+    are missing.
+T017b:
+  c: false
+  h: 61da9cdb0d6a5b64eeda465d6820e5bc351d21454c8661ec194629074107d96c
+  r: "The required output file `docs/reports/audit_sample_labeled.csv` does not exist,\
+    \ so the script\u2019s result cannot be verified. Additionally, the provided `preprocess.py`\
+    \ is truncated and does not show code that writes a CSV with the required columns\
+    \ (PR ID, commit message, code snippet). The missing CSV (and likely missing implementation)\
+    \ must be added to satisfy the task."
+T017c:
+  c: false
+  h: b12476e5884329ac9a8a90353d900a41508fbf1f38c3f9fcd3c92385ee6240d8
+  r: "The required `docs/reports/audit_sample_labeled.csv` file is missing, and the\
+    \ provided `code/data/preprocess.py` does not contain any logic that reads this\
+    \ CSV, compares it to heuristic classifications, computes an accuracy rate, or\
+    \ writes `docs/reports/audit_accuracy.json`. Consequently the task\u2019s core\
+    \ requirements are not met."

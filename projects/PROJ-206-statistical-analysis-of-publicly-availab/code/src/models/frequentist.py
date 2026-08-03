@@ -7,177 +7,157 @@ from src.utils.config import get_data_root, resolve_path
 
 logger = logging.getLogger(__name__)
 
-def simple_average(df: pd.DataFrame, date_col: str = 'date', value_col: str = 'vote_share') -> pd.DataFrame:
+
+def simple_average(polls: pd.DataFrame) -> pd.DataFrame:
     """
-    Calculate arithmetic mean of vote shares per weekly bin.
-    
+    Calculate arithmetic mean of vote shares per weekly bin (FR-003).
+
     Args:
-        df: DataFrame with columns including date_col and value_col.
-        date_col: Name of the date column.
-        value_col: Name of the vote share column.
-        
+        polls: DataFrame containing 'date', 'vote_share', and 'week_bin' columns.
+
     Returns:
-        DataFrame with weekly bins and simple average forecast.
+        DataFrame with 'week_bin' and 'simple_avg_forecast' columns.
     """
-    if df.empty:
-        logger.warning("Input DataFrame is empty. Returning empty result.")
-        return pd.DataFrame(columns=['week_start', 'simple_avg_forecast'])
+    if polls.empty:
+        logger.warning("Input polls DataFrame is empty. Returning empty forecast.")
+        return pd.DataFrame(columns=['week_bin', 'simple_avg_forecast'])
 
-    # Ensure date column is datetime
-    df = df.copy()
-    df[date_col] = pd.to_datetime(df[date_col], errors='coerce')
-    
-    # Drop rows with invalid dates
-    valid_df = df.dropna(subset=[date_col])
-    
-    if valid_df.empty:
-        logger.warning("No valid dates found after conversion. Returning empty result.")
-        return pd.DataFrame(columns=['week_start', 'simple_avg_forecast'])
+    if 'week_bin' not in polls.columns or 'vote_share' not in polls.columns:
+        raise ValueError("Input DataFrame must contain 'week_bin' and 'vote_share' columns.")
 
-    # Bin to weekly intervals (Monday start)
-    valid_df['week_start'] = valid_df[date_col].dt.to_period('W').dt.start_time
-    
-    # Group by week and calculate simple average
-    result = valid_df.groupby('week_start')[value_col].mean().reset_index()
-    result.columns = ['week_start', 'simple_avg_forecast']
-    
-    logger.info(f"Simple average calculated for {len(result)} weekly bins.")
+    # Group by week_bin and calculate the mean
+    result = polls.groupby('week_bin')['vote_share'].mean().reset_index()
+    result.rename(columns={'vote_share': 'simple_avg_forecast'}, inplace=True)
+
+    logger.info(f"Calculated simple average for {len(result)} weekly bins.")
     return result
 
-def weighted_average(df: pd.DataFrame, value_col: str = 'vote_share', weight_col: str = 'historical_rmse') -> pd.DataFrame:
+
+def weighted_average(polls: pd.DataFrame) -> pd.DataFrame:
     """
-    Calculate inverse-RMSE weighted mean, normalizing weights to sum to 1.0.
-    
-    This implements FR-004: Accuracy-Weighted Averaging.
-    The weight for each poll is calculated as 1 / RMSE.
-    These weights are then normalized so they sum to 1.0.
-    The forecast is the weighted sum of vote shares.
-    
+    Calculate inverse-RMSE weighted mean, normalizing weights to sum to 1.0 (FR-004).
+
+    The weight for each poll is calculated as:
+        w_i = (1 / rmse_i) / sum(1 / rmse_j for all j)
+
+    If RMSE is 0 or NaN, the weight is treated as 0 (effectively excluding the poll).
+    If all weights are 0, a uniform average is returned as a fallback.
+
     Args:
-        df: DataFrame containing vote shares and historical RMSE weights.
-        value_col: Name of the vote share column.
-        weight_col: Name of the historical RMSE column.
-        
+        polls: DataFrame containing 'date', 'vote_share', 'week_bin', and 'historical_rmse' columns.
+
     Returns:
-        DataFrame with weekly bins and weighted average forecast.
-        
-    Raises:
-        ValueError: If weights are invalid (all zero or negative).
+        DataFrame with 'week_bin' and 'weighted_avg_forecast' columns.
     """
-    if df.empty:
-        logger.warning("Input DataFrame is empty. Returning empty result.")
-        return pd.DataFrame(columns=['week_start', 'weighted_avg_forecast'])
+    if polls.empty:
+        logger.warning("Input polls DataFrame is empty. Returning empty forecast.")
+        return pd.DataFrame(columns=['week_bin', 'weighted_avg_forecast'])
 
-    df = df.copy()
-    df['date'] = pd.to_datetime(df['date'], errors='coerce')
+    required_cols = ['week_bin', 'vote_share', 'historical_rmse']
+    if not all(col in polls.columns for col in required_cols):
+        missing = [col for col in required_cols if col not in polls.columns]
+        raise ValueError(f"Input DataFrame missing required columns: {missing}")
+
+    # Prepare a copy to avoid SettingWithCopyWarning
+    df = polls.copy()
+
+    # Handle RMSE: replace 0 and NaN with a large number so inverse is 0 (or handle explicitly)
+    # Strategy: If RMSE is 0 or NaN, the weight should be 0.
+    # We calculate raw weights = 1 / rmse. If rmse is 0 or NaN, raw_weight becomes inf or NaN.
+    # We set inf/NaN raw_weights to 0.
+    df['raw_weight'] = 1.0 / df['historical_rmse']
     
-    # Drop rows with invalid dates or missing values
-    valid_df = df.dropna(subset=['date', value_col, weight_col])
+    # Replace inf and NaN with 0
+    df['raw_weight'] = df['raw_weight'].replace([np.inf, -np.inf], np.nan).fillna(0)
+
+    # Check for the edge case where all raw_weights in a group are 0
+    # In that case, we fallback to simple average (equal weights)
     
-    if valid_df.empty:
-        logger.warning("No valid data found after filtering. Returning empty result.")
-        return pd.DataFrame(columns=['week_start', 'weighted_avg_forecast'])
-
-    # Bin to weekly intervals
-    valid_df['week_start'] = valid_df['date'].dt.to_period('W').dt.start_time
-
-    # Calculate inverse RMSE weights and normalize per group
-    def calculate_weighted_mean(group):
-        rmse = group[weight_col].values
-        votes = group[value_col].values
+    def calc_weighted_mean(group):
+        weights = group['raw_weight'].values
+        votes = group['vote_share'].values
         
-        # Handle edge case: zero or negative RMSE
-        # Replace zero/negative RMSE with a large value to minimize their weight
-        # or handle as specified in weights.py (default median weight logic)
-        # For this implementation, we'll use a small epsilon to avoid division by zero
-        epsilon = 1e-10
-        inv_rmse = 1.0 / (np.maximum(rmse, epsilon))
+        weight_sum = np.sum(weights)
+        
+        if weight_sum == 0:
+            # Fallback to simple average if all weights are 0
+            return np.mean(votes)
         
         # Normalize weights to sum to 1.0
-        weight_sum = np.sum(inv_rmse)
-        if weight_sum == 0:
-            # If all weights are effectively zero, fall back to simple average
-            logger.warning(f"Zero weight sum for week {group.name}. Using simple average.")
-            return np.nanmean(votes)
-        
-        normalized_weights = inv_rmse / weight_sum
+        normalized_weights = weights / weight_sum
         
         # Calculate weighted mean
-        weighted_mean = np.sum(votes * normalized_weights)
-        return weighted_mean
+        return np.sum(votes * normalized_weights)
 
-    result = valid_df.groupby('week_start').apply(calculate_weighted_mean).reset_index()
-    result.columns = ['week_start', 'weighted_avg_forecast']
-    
-    # Handle any NaN results (e.g., from groups with all invalid data)
-    result['weighted_avg_forecast'] = result['weighted_avg_forecast'].fillna(np.nan)
-    
-    logger.info(f"Weighted average calculated for {len(result)} weekly bins.")
+    result = df.groupby('week_bin').apply(calc_weighted_mean).reset_index()
+    result.rename(columns={0: 'weighted_avg_forecast'}, inplace=True)
+
+    logger.info(f"Calculated weighted average for {len(result)} weekly bins.")
     return result
 
-def run_frequentist_analysis(input_path: Optional[str] = None, output_path: Optional[str] = None) -> pd.DataFrame:
+
+def run_frequentist_analysis(cleaned_data_path: Optional[Path] = None, output_path: Optional[Path] = None) -> pd.DataFrame:
     """
-    Run the full frequentist analysis pipeline:
-    1. Load cleaned poll data
-    2. Calculate simple average forecasts
-    3. Calculate weighted average forecasts
-    4. Merge results into a single output file
-    
+    Orchestrates the frequentist analysis: loads data, computes simple and weighted averages,
+    and saves the results.
+
     Args:
-        input_path: Path to input cleaned poll data CSV. If None, uses default path.
-        output_path: Path to output forecasts CSV. If None, uses default path.
-        
+        cleaned_data_path: Path to the cleaned poll data CSV. If None, uses default config.
+        output_path: Path for the output forecasts CSV. If None, uses default config.
+
     Returns:
-        DataFrame containing both simple and weighted average forecasts.
+        DataFrame containing both simple and weighted forecasts.
     """
-    data_root = get_data_root()
+    if cleaned_data_path is None:
+        data_root = get_data_root()
+        cleaned_data_path = data_root / "processed" / "poll_data_cleaned.csv"
     
-    if input_path is None:
-        input_path = resolve_path("data/processed/poll_data_cleaned.csv", root=data_root)
-    else:
-        input_path = resolve_path(input_path, root=data_root)
-        
     if output_path is None:
-        output_path = resolve_path("data/processed/frequentist_forecasts.csv", root=data_root)
-    else:
-        output_path = resolve_path(output_path, root=data_root)
-    
-    logger.info(f"Loading data from {input_path}")
-    
-    if not Path(input_path).exists():
-        raise FileNotFoundError(f"Input file not found: {input_path}")
-    
-    df = pd.read_csv(input_path)
-    
+        data_root = get_data_root()
+        output_path = data_root / "processed" / "frequentist_forecasts.csv"
+
+    logger.info(f"Loading cleaned data from {cleaned_data_path}")
+    if not cleaned_data_path.exists():
+        raise FileNotFoundError(f"Cleaned data file not found: {cleaned_data_path}")
+
+    polls = pd.read_csv(cleaned_data_path)
+
+    # Ensure numeric types
+    polls['vote_share'] = pd.to_numeric(polls['vote_share'], errors='coerce')
+    polls['historical_rmse'] = pd.to_numeric(polls['historical_rmse'], errors='coerce')
+
     # Calculate simple average
-    simple_df = simple_average(df)
-    
+    simple_forecasts = simple_average(polls)
+
     # Calculate weighted average
-    weighted_df = weighted_average(df)
+    weighted_forecasts = weighted_average(polls)
+
+    # Merge results
+    final_forecasts = pd.merge(simple_forecasts, weighted_forecasts, on='week_bin', how='outer')
     
-    # Merge results on week_start
-    result = simple_df.merge(weighted_df, on='week_start', how='outer')
-    
+    # Sort by week_bin
+    final_forecasts = final_forecasts.sort_values('week_bin').reset_index(drop=True)
+
     # Ensure output directory exists
-    output_dir = Path(output_path).parent
-    output_dir.mkdir(parents=True, exist_ok=True)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     
-    # Save to CSV
-    result.to_csv(output_path, index=False)
-    logger.info(f"Frequentist forecasts saved to {output_path}")
-    
-    return result
+    logger.info(f"Saving frequentist forecasts to {output_path}")
+    final_forecasts.to_csv(output_path, index=False)
+
+    logger.info("Frequentist analysis complete.")
+    return final_forecasts
+
 
 def main():
-    """Main entry point for the frequentist analysis script."""
-    logging.basicConfig(level=logging.INFO)
+    """Entry point for running frequentist analysis."""
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
     try:
-        result = run_frequentist_analysis()
-        print(f"Analysis complete. Processed {len(result)} weekly bins.")
-        print(result.head())
+        run_frequentist_analysis()
+        logger.info("Task T018 (weighted_average) execution successful.")
     except Exception as e:
-        logger.error(f"Error during frequentist analysis: {e}")
+        logger.error(f"Task T018 failed: {e}", exc_info=True)
         raise
+
 
 if __name__ == "__main__":
     main()

@@ -1,1 +1,2 @@
-# Raw data directory for downloaded datasets (e.g., SMILES, PDB files).
+# This directory stores raw, unprocessed data downloaded from external sources (e.g., AlphaFold PDBs, FlavorDB/ChEMBL SMILES).
+# Files here are immutable and must not be modified directly.

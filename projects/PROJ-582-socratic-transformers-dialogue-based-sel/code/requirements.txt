@@ -1,11 +1,12 @@
 transformers>=4.40.0
 peft>=0.10.0
-bitsandbytes>=0.43.0
+bitsandbytes>=0.42.0
 datasets>=2.18.0
 scikit-learn>=1.4.0
 pandas>=2.2.0
 pytest>=8.0.0
-ruff>=0.3.0
-black>=24.0.0
+tiktoken>=0.6.0
 torch>=2.2.0
-accelerate>=0.29.0
+accelerate>=0.27.0
+ruff>=0.3.0
+black>=24.2.0

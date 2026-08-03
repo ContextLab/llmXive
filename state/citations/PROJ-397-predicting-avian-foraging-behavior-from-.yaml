@@ -31,7 +31,7 @@
   verification_status: mismatch
   verified_against_url: https://www.usgs.gov/centers/eros/science/usgs-eros-archive-land-cover-nlcd-2019-land-cover-l48
   verified_at: '2026-07-03T16:04:27.994854Z'
-- artifact_hash: 1248835bbf4f2047f73d92bd94d05fa774adf7ba24d4f33270582d9dd0fb15e0
+- artifact_hash: 2e80fe094c4a4a71339e104592526177f3ba7ff187a35beb45be80991bb12672
   artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -41,4 +41,4 @@
   value: https://arxiv.org/abs/1411.7565
   verification_status: pending
   verified_against_url: https://arxiv.org/abs/1411.7565
-  verified_at: '2026-07-18T07:38:09.356646Z'
+  verified_at: '2026-08-03T10:37:46.713417Z'

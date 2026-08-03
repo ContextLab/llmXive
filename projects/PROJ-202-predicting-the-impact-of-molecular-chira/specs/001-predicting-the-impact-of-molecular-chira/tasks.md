@@ -46,7 +46,7 @@
 - [ ] T001a Create project directory structure per implementation plan (`projects/PROJ-202-predicting-the-impact-of-molecular-chira/`)
 - [X] T001b Create `code/requirements.txt` with pinned dependencies (rdkit, openmm, mdanalysis, scikit-learn, pandas, numpy, pymc, vina, requests, chembl-webresource-client)
 - [ ] T001c Create `.gitkeep` files in `data/raw`, `data/processed`, `data/interim`, `code`, `tests`
-- [ ] T002 [P] Initialize Python 3.11 virtualenv and install dependencies from `code/requirements.txt`
+- [X] T002 [P] Initialize Python 3.11 virtualenv and install dependencies from `code/requirements.txt`
 - [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
 
 ---
@@ -59,7 +59,7 @@
 
 - [ ] T004 [P] Setup data directory structure (`data/raw`, `data/processed`, `data/interim`) with `.gitkeep`
 - [X] T005 [P] Create `code/00_setup_env.py` to verify environment constraints (CPU-only, RAM < 7GB check)
-- [ ] T006 [P] Implement random seed pinning utility (`code/utils/seeding.py`) for reproducibility
+- [X] T006 [P] Implement random seed pinning utility (`code/utils/seeding.py`) for reproducibility
 - [ ] T007 [P] [FR-001/Key Entities/Constitution VI] Create base data models for Enantiomeric Pair, Receptor Complex, and Sensory Rating (`code/models/data_models.py`) per `data-model.md`. **CRITICAL**: Implement receptor preparation logic to fetch raw AlphaFold PDB structures and process them using **RDKit/OpenMM** for CPU-tractability. **Do not** use Modeller; the pipeline MUST use raw AlphaFold models directly as authorized by the Plan.md "Constitution Deviation" to meet CPU time constraints.
 - [ ] T008 [P] Configure logging infrastructure to `data/logs/pipeline.log`
 - [ ] T009 [P] Setup environment configuration management (`.env` for API keys if needed, default paths)
@@ -72,18 +72,18 @@
 
 **Goal**: Download aroma molecule data and olfactory receptor structures, perform CPU-only molecular docking to generate binding affinity predictions for enantiomeric pairs.
 
-**Independent Test**: The pipeline downloads a fixed subset of molecules (10 enantiomeric pairs) and receptors (5), runs AutoDock Vina, and outputs a CSV of binding affinities within 2 hours on a CPU-only runner. [UNRESOLVED-CLAIM: c_6a489f2b — status=not_enough_info]
+**Independent Test**: The pipeline downloads a fixed subset of molecules (10 enantiomeric pairs) and receptors (5), runs AutoDock Vina, and outputs a CSV of binding affinities within 2 hours on a CPU-only runner.
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
 - [ ] T010 [P] [US1] Contract test for data download validity in `tests/contract/test_data_download.py`
-- [ ] T011 [P] [US1] Integration test for docking execution time limit in `tests/integration/test_docking_time.py`
+- [~] T011 [P] [US1] Integration test for docking execution time limit in `tests/integration/test_docking_time.py`
 
 ### Implementation for User Story 1
 
-- [ ] T012 [P] [US1] Implement `code/01_download_data.py`: Fetch ≤20 enantiomeric SMILES from FlavorDB/ChEMBL and ≤5 AlphaFold PDBs. Ensure real URLs are used.
+- [X] T012 [P] [US1] Implement `code/01_download_data.py`: Fetch ≤20 enantiomeric SMILES from FlavorDB/ChEMBL and ≤5 AlphaFold PDBs. Ensure real URLs are used.
 - [ ] T013 [P] [US1] Implement `code/02_prepare_receptors.py`: Filter receptors based on pLDDT ≥ 70 in the binding pocket region (residues within 6.0 Å of ligand COM). **Dependency**: Must use **raw AlphaFold PDBs processed in T007**. Do not use Modeller.
 - [ ] T014 [US1] Implement `code/03_dock_enantiomers.py`: Run AutoDock Vina in CPU-only mode (no CUDA) for all ligand-receptor combinations. Output raw scores and RMSD. **Logging**: Log the baseline threshold (0.5 kcal/mol) and note the sensitivity analysis range {0.4, 0.5, 0.6} from FR-007.
 - [ ] T015a [P] [US1] [FR-009] Rank and select top 5 ligand-receptor pairs by docking score and save to `data/processed/top_5_pairs.csv` to produce the artifact required for T016 (validation).
@@ -124,7 +124,7 @@
 
 **Goal**: Statistically compare enantiomeric binding differences and correlate them with human sensory ratings to determine if stereoselectivity predicts flavor perception nuances.
 
-**Independent Test**: The analysis script performs paired Wilcoxon tests on docking scores and Spearman correlations with sensory ratings, outputting p-values and effect sizes. [UNRESOLVED-CLAIM: c_04dbe0e0 — status=not_enough_info]
+**Independent Test**: The analysis script performs paired Wilcoxon tests on docking scores and Spearman correlations with sensory ratings, outputting p-values and effect sizes.
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 

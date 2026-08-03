@@ -83,5 +83,6 @@ def load_config_from_env() -> Dict[str, Any]:
         "data_path": os.getenv("DATA_PATH", "data/raw"),
         "output_path": os.getenv("OUTPUT_PATH", "data/processed"),
         "min_group_size": int(os.getenv("MIN_GROUP_SIZE", "500")),
-        "completeness_threshold": float(os.getenv("COMPLETENESS_THRESHOLD", "0.95"))
+        "completeness_threshold": float(os.getenv("COMPLETENESS_THRESHOLD", "0.95")),
+        "multiple_comparison_method": os.getenv("MULTIPLE_COMPARISON_METHOD", "bonferroni")
     }

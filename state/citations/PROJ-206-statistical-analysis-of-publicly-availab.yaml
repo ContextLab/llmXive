@@ -68,7 +68,7 @@
   verification_status: verified
   verified_against_url: https://abcnews.com/politics
   verified_at: '2026-07-04T18:28:11.812036Z'
-- artifact_hash: 75ed516bf7d029221aaf894a4372d6ef6a65e9db022550dbf337c8fad074d4ae
+- artifact_hash: 70a36c0c46d9aa205a791d4a2ba99e932a2cab5b833e5351962c51b26684b1f8
   artifact_path: projects/PROJ-206-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -77,10 +77,10 @@
     News - ABC News
   kind: url
   value: https://projects.fivethirtyeight.com/polls/`
-  verification_status: verified
+  verification_status: pending
   verified_against_url: https://abcnews.com/politics
-  verified_at: '2026-07-04T19:05:08.227242Z'
-- artifact_hash: 75ed516bf7d029221aaf894a4372d6ef6a65e9db022550dbf337c8fad074d4ae
+  verified_at: '2026-08-03T10:49:13.710722Z'
+- artifact_hash: 70a36c0c46d9aa205a791d4a2ba99e932a2cab5b833e5351962c51b26684b1f8
   artifact_path: projects/PROJ-206-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -88,6 +88,6 @@
   fetched_title: One- and two-tailed tests - Wikipedia
   kind: url
   value: https://en.wikipedia.org/wiki/One-_and_two-tailed_tests
-  verification_status: verified
+  verification_status: pending
   verified_against_url: https://en.wikipedia.org/wiki/One-_and_two-tailed_tests
-  verified_at: '2026-07-04T19:05:08.227242Z'
+  verified_at: '2026-08-03T10:49:13.710722Z'

@@ -1,4 +1,3 @@
 """
-Socratic Transformers: Dialogue-Based Selection on Belief
-Test package.
+Socratic Transformers Project Tests Package.
 """

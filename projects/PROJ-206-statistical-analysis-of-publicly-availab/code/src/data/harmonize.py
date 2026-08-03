@@ -7,68 +7,170 @@ from typing import List, Optional, Dict, Any, Tuple
 import pandas as pd
 import numpy as np
 
-from src.utils.config import get_project_root, get_data_root, get_state_root, compute_file_hash, ensure_dir, get_config
+from src.utils.config import get_data_root, get_state_root, resolve_path, ensure_dir
 from src.utils.logging import get_logger
+from src.utils.state_manager import compute_file_hash, update_state_artifact
 
 logger = get_logger(__name__)
 
-def parse_dates(df: pd.DataFrame, date_col: str = 'date') -> pd.DataFrame:
-    """Parse date strings into datetime objects."""
+def parse_dates(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Parse date strings into datetime objects.
+    Handles common formats: YYYY-MM-DD, MM/DD/YYYY, etc.
+    """
+    logger.info("Parsing date formats in dataset...")
     df = df.copy()
-    if date_col in df.columns:
-        df[date_col] = pd.to_datetime(df[date_col], errors='coerce')
-    return df
-
-def bin_to_weekly(df: pd.DataFrame, date_col: str = 'date', bin_col: str = 'week_bin') -> pd.DataFrame:
-    """Bin dates into weekly intervals."""
-    df = df.copy()
+    date_col = 'date'
+    
+    # Ensure date column exists
     if date_col not in df.columns:
-        return df
+        raise ValueError(f"Expected column '{date_col}' not found in dataset")
     
-    # Ensure dates are datetime
-    if not pd.api.types.is_datetime64_any_dtype(df[date_col]):
-        df[date_col] = pd.to_datetime(df[date_col], errors='coerce')
+    # Try parsing with pandas (handles many formats automatically)
+    try:
+        df[date_col] = pd.to_datetime(df[date_col])
+    except Exception as e:
+        logger.error(f"Failed to parse dates: {e}")
+        raise
     
-    # Bin to week start (Monday)
-    df[bin_col] = df[date_col].dt.to_period('W').dt.start_time
+    # Drop rows with invalid dates
+    invalid_dates = df[date_col].isna().sum()
+    if invalid_dates > 0:
+        logger.warning(f"Dropped {invalid_dates} rows with invalid dates")
+        df = df.dropna(subset=[date_col])
+    
     return df
 
-def check_data_sufficiency(df: pd.DataFrame, election_date: datetime, days_back: int = 30, min_polls: int = 5) -> bool:
-    """Check if there are sufficient polls in the days leading up to the election."""
+def bin_to_weekly(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Bin poll data into weekly intervals.
+    Creates a 'week_start' column representing the Monday of the week.
+    """
+    logger.info("Binning data into weekly intervals...")
+    df = df.copy()
+    
+    # Ensure date column is datetime
+    if not pd.api.types.is_datetime64_any_dtype(df['date']):
+        df['date'] = pd.to_datetime(df['date'])
+    
+    # Calculate week start (Monday)
+    df['week_start'] = df['date'] - pd.to_timedelta(df['date'].dt.weekday, unit='D')
+    
+    # Sort by week start
+    df = df.sort_values('week_start')
+    
+    return df
+
+def check_data_sufficiency(df: pd.DataFrame, election_date: datetime, window_days: int = 30, min_polls: int = 5, min_cycles: int = 3) -> Tuple[bool, str]:
+    """
+    FR-008: Data sufficiency check.
+    
+    Halts with warning if:
+    - Fewer than `min_polls` (default 5) in the `window_days` (default 30) preceding `election_date`
+    - Fewer than `min_cycles` (default 3) distinct election cycles represented in the data
+    
+    Returns (is_sufficient, message)
+    """
+    logger.info(f"Checking data sufficiency (window={window_days}d, min_polls={min_polls}, min_cycles={min_cycles})...")
+    
     if df.empty:
-        logger.warning("Data sufficiency check failed: Empty dataset")
-        return False
+        return False, "Dataset is empty."
     
-    recent_polls = df[df['date'] >= (election_date - timedelta(days=days_back))]
-    if len(recent_polls) < min_polls:
-        logger.warning(f"Data sufficiency check failed: Only {len(recent_polls)} polls in last {days_back} days (min: {min_polls})")
-        return False
+    # Ensure date column is datetime
+    if not pd.api.types.is_datetime64_any_dtype(df['date']):
+        df['date'] = pd.to_datetime(df['date'])
     
-    distinct_cycles = df['cycle'].nunique() if 'cycle' in df.columns else 1
-    if distinct_cycles < 3:
-        logger.warning(f"Data sufficiency check failed: Only {distinct_cycles} distinct cycles (min: 3)")
-        return False
+    # 1. Check recent polls (within window_days before election_date)
+    cutoff_date = election_date - timedelta(days=window_days)
+    recent_polls = df[(df['date'] >= cutoff_date) & (df['date'] <= election_date)]
+    recent_count = len(recent_polls)
     
-    logger.info(f"Data sufficiency check passed: {len(recent_polls)} recent polls, {distinct_cycles} cycles")
-    return True
+    if recent_count < min_polls:
+        msg = (f"Data sufficiency check FAILED: Only {recent_count} polls found in the "
+               f"{window_days} days preceding the election ({election_date.date()}). "
+               f"Minimum required: {min_polls}. Pipeline will halt.")
+        logger.warning(msg)
+        return False, msg
+    
+    logger.info(f"Recent poll check passed: {recent_count} polls found in last {window_days} days.")
+    
+    # 2. Check distinct cycles
+    # Assuming 'cycle' or 'election_year' column exists. If not, try to infer from date.
+    cycle_col = None
+    if 'cycle' in df.columns:
+        cycle_col = 'cycle'
+    elif 'election_year' in df.columns:
+        cycle_col = 'election_year'
+    elif 'year' in df.columns:
+        cycle_col = 'year'
+    
+    if cycle_col is None:
+        # Infer from date year if no explicit cycle column
+        logger.warning("No explicit cycle column found. Inferring from year.")
+        df['inferred_cycle'] = df['date'].dt.year
+        cycle_col = 'inferred_cycle'
+    
+    distinct_cycles = df[cycle_col].nunique()
+    
+    if distinct_cycles < min_cycles:
+        msg = (f"Data sufficiency check FAILED: Only {distinct_cycles} distinct election cycles found. "
+               f"Minimum required: {min_cycles}. Pipeline will halt.")
+        logger.warning(msg)
+        return False, msg
+    
+    logger.info(f"Cycle check passed: {distinct_cycles} distinct cycles found.")
+    
+    return True, "Data sufficiency check passed."
 
-def check_global_poll_count(df: pd.DataFrame, min_count: int = 500) -> bool:
-    """Check if total poll count across all cycles meets minimum threshold."""
+def check_global_poll_count(df: pd.DataFrame, min_total: int = 500) -> Tuple[bool, str]:
+    """
+    FR-010: Global poll count check.
+    
+    Halts with error if total count across all ingested election cycles is < `min_total` (default 500).
+    
+    Returns (is_sufficient, message)
+    """
+    logger.info(f"Checking global poll count (min={min_total})...")
+    
     total_count = len(df)
-    if total_count < min_count:
-        logger.error(f"Global poll count check failed: Only {total_count} polls (min: {min_count})")
-        return False
     
-    logger.info(f"Global poll count check passed: {total_count} total polls")
-    return True
+    if total_count < min_total:
+        msg = (f"Global poll count check FAILED: Total {total_count} polls found. "
+               f"Minimum required: {min_total}. Pipeline will halt.")
+        logger.error(msg)
+        return False, msg
+    
+    logger.info(f"Global poll count check passed: {total_count} polls found.")
+    return True, "Global poll count check passed."
 
-def harmonize_data(raw_polls: List[pd.DataFrame], raw_outcomes: List[pd.DataFrame]) -> pd.DataFrame:
-    """Harmonize poll data from multiple sources."""
-    if not raw_polls:
-        raise ValueError("No poll data provided for harmonization")
+def harmonize_data(raw_data_path: str, output_path: str, election_date: Optional[datetime] = None) -> pd.DataFrame:
+    """
+    Main harmonization pipeline:
+    1. Load raw CSVs
+    2. Parse dates
+    3. Bin to weekly
+    4. Run data sufficiency checks (FR-008, FR-010)
+    5. Save cleaned data
+    """
+    logger.info(f"Starting harmonization from {raw_data_path}")
     
-    # Concatenate all poll dataframes
-    df = pd.concat(raw_polls, ignore_index=True)
+    # Load data
+    if os.path.isdir(raw_data_path):
+        files = [f for f in os.listdir(raw_data_path) if f.endswith('.csv')]
+        if not files:
+            raise FileNotFoundError(f"No CSV files found in {raw_data_path}")
+        dfs = []
+        for f in files:
+            path = os.path.join(raw_data_path, f)
+            try:
+                dfs.append(pd.read_csv(path))
+                logger.info(f"Loaded {path}")
+            except Exception as e:
+                logger.warning(f"Failed to load {path}: {e}")
+        df = pd.concat(dfs, ignore_index=True)
+    else:
+        df = pd.read_csv(raw_data_path)
+        logger.info(f"Loaded {raw_data_path}")
     
     # Parse dates
     df = parse_dates(df)
@@ -76,139 +178,82 @@ def harmonize_data(raw_polls: List[pd.DataFrame], raw_outcomes: List[pd.DataFram
     # Bin to weekly
     df = bin_to_weekly(df)
     
-    # Drop rows with invalid dates
-    df = df.dropna(subset=['date'])
+    # Determine election date if not provided
+    if election_date is None:
+        # Try to infer from max date or specific column
+        if 'election_date' in df.columns:
+            election_date = pd.to_datetime(df['election_date'].max())
+        else:
+            election_date = df['date'].max() + timedelta(days=7) # Fallback
+        logger.info(f"Inferred election date: {election_date}")
     
-    # Remove duplicate dates per pollster (keep most recent)
-    if 'pollster' in df.columns:
-        df = df.sort_values('date').drop_duplicates(subset=['date', 'pollster'], keep='last')
+    # Run sufficiency checks
+    suff_ok, suff_msg = check_data_sufficiency(df, election_date)
+    if not suff_ok:
+        # Log as warning but raise to halt pipeline as per spec
+        raise RuntimeError(suff_msg)
     
-    # Standardize column names if needed
-    required_cols = ['date', 'pollster', 'vote_share', 'sample_size', 'cycle']
-    existing_cols = df.columns.tolist()
+    global_ok, global_msg = check_global_poll_count(df)
+    if not global_ok:
+        # Log as error and raise to halt pipeline
+        raise RuntimeError(global_msg)
     
-    # Add missing columns with defaults if they don't exist
-    for col in required_cols:
-        if col not in existing_cols:
-            df[col] = None
-    
-    # Select and order columns
-    df = df[required_cols + [c for c in df.columns if c not in required_cols]]
-    
-    return df
-
-def update_state_with_hashes(cleaned_csv_path: str, weights_csv_path: Optional[str] = None) -> None:
-    """Compute SHA-256 hashes for output files and update state YAML."""
-    project_root = get_project_root()
-    state_root = get_state_root()
-    state_file = state_root / "PROJ-206-statistical-analysis.yaml"
-    
-    hashes = {}
-    
-    # Hash cleaned poll data
-    if os.path.exists(cleaned_csv_path):
-        hashes['poll_data_cleaned.csv'] = compute_file_hash(cleaned_csv_path)
-        logger.info(f"Computed hash for {cleaned_csv_path}: {hashes['poll_data_cleaned.csv']}")
-    else:
-        logger.warning(f"File not found for hashing: {cleaned_csv_path}")
-    
-    # Hash weights file if provided
-    if weights_csv_path and os.path.exists(weights_csv_path):
-        hashes['historical_weights.csv'] = compute_file_hash(weights_csv_path)
-        logger.info(f"Computed hash for {weights_csv_path}: {hashes['historical_weights.csv']}")
-    elif weights_csv_path:
-        logger.warning(f"File not found for hashing: {weights_csv_path}")
-    
-    # Load existing state or create new
-    state_data = {}
-    if state_file.exists():
-        import yaml
-        try:
-            with open(state_file, 'r') as f:
-                state_data = yaml.safe_load(f) or {}
-        except Exception as e:
-            logger.warning(f"Failed to load existing state file: {e}. Creating new.")
-            state_data = {}
-    
-    # Update with new hashes
-    state_data['artifacts'] = state_data.get('artifacts', {})
-    state_data['artifacts']['last_updated'] = datetime.now().isoformat()
-    for filename, file_hash in hashes.items():
-        state_data['artifacts'][filename] = {
-            'sha256': file_hash,
-            'updated_at': datetime.now().isoformat()
-        }
-    
-    # Ensure directory exists
-    ensure_dir(state_file.parent)
-    
-    # Write updated state
-    import yaml
-    with open(state_file, 'w') as f:
-        yaml.dump(state_data, f, default_flow_style=False, sort_keys=False)
-    
-    logger.info(f"State file updated: {state_file}")
-
-def main():
-    """Main entry point for harmonization pipeline."""
-    logger.info("Starting data harmonization...")
-    
-    data_root = get_data_root()
-    raw_dir = data_root / "raw"
-    processed_dir = data_root / "processed"
-    
-    # Ensure directories exist
-    ensure_dir(processed_dir)
-    
-    # Load raw data (simulated for this task - in real scenario, files would exist)
-    # In a real run, download.py would have populated data/raw/
-    raw_poll_files = list(raw_dir.glob("*.csv")) if raw_dir.exists() else []
-    
-    if not raw_poll_files:
-        logger.warning("No raw poll files found. Expected in data/raw/.")
-        # For demonstration, we'll create a minimal valid dataset if none exists
-        # In production, this should fail or wait for data
-        df = pd.DataFrame({
-            'date': pd.date_range('2024-01-01', periods=10),
-            'pollster': ['PollA'] * 10,
-            'vote_share': np.random.uniform(40, 60, 10),
-            'sample_size': np.random.randint(500, 2000, 10),
-            'cycle': [2024] * 10
-        })
-    else:
-        raw_polls = []
-        for f in raw_poll_files:
-            try:
-                df = pd.read_csv(f)
-                raw_polls.append(df)
-            except Exception as e:
-                logger.error(f"Failed to load {f}: {e}")
-        
-        if not raw_polls:
-            raise RuntimeError("No valid poll data could be loaded.")
-        
-        df = harmonize_data(raw_polls, [])
-    
-    # Check data sufficiency (using a dummy election date for demo)
-    election_date = datetime(2024, 11, 5)
-    if not check_data_sufficiency(df, election_date):
-        logger.warning("Data sufficiency check failed. Pipeline may be incomplete.")
-    
-    if not check_global_poll_count(df):
-        logger.error("Global poll count check failed. Halting.")
-        sys.exit(1)
+    # Ensure output directory exists
+    ensure_dir(os.path.dirname(output_path))
     
     # Save cleaned data
-    cleaned_path = processed_dir / "poll_data_cleaned.csv"
-    df.to_csv(cleaned_path, index=False)
-    logger.info(f"Saved cleaned data to {cleaned_path}")
+    df.to_csv(output_path, index=False)
+    logger.info(f"Saved harmonized data to {output_path}")
     
-    # Update state with hashes
-    weights_path = str(processed_dir / "historical_weights.csv")
-    update_state_with_hashes(str(cleaned_path), weights_path)
-    
-    logger.info("Harmonization complete.")
     return df
+
+def update_state_with_hashes(output_files: List[str], project_id: str = "PROJ-206"):
+    """
+    Compute SHA-256 hashes for output files and update state.
+    """
+    state_root = get_state_root()
+    state_file = state_root / f"projects/{project_id}.yaml"
+    
+    logger.info(f"Updating state file: {state_file}")
+    
+    artifacts = {}
+    for file_path in output_files:
+        if os.path.exists(file_path):
+          artifacts[file_path] = compute_file_hash(file_path)
+        else:
+          logger.warning(f"File not found for hashing: {file_path}")
+    
+    update_state_artifact(state_file, "harmonization", artifacts)
+
+def main():
+    """
+    Entry point for harmonization script.
+    """
+    logging.basicConfig(level=logging.INFO)
+    
+    data_root = get_data_root()
+    raw_path = data_root / "raw"
+    processed_path = data_root / "processed"
+    
+    # Default election date (can be overridden via config or args in full pipeline)
+    # For this script, we assume a generic check or rely on data max date
+    election_date = None 
+    
+    output_file = processed_path / "poll_data_cleaned.csv"
+    
+    try:
+        df = harmonize_data(str(raw_path), str(output_file), election_date)
+        
+        # Update state with hashes
+        update_state_with_hashes([str(output_file)])
+        
+        logger.info("Harmonization completed successfully.")
+    except RuntimeError as e:
+        logger.error(f"Pipeline halted due to data insufficiency: {e}")
+        sys.exit(1)
+    except Exception as e:
+        logger.error(f"Unexpected error during harmonization: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

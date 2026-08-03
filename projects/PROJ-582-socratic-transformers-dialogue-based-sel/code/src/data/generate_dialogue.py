@@ -1,219 +1,285 @@
 import json
 import os
 import sys
+import re
+import logging
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
 
 import torch
-from transformers import PreTrainedModel, PreTrainedTokenizer
+from transformers import AutoModelForCausalLM, AutoTokenizer, GenerationConfig
 
-# Import from existing project utilities
-from src.utils.config import get_config
+# Import existing dependencies from project structure
+from src.utils.config import get_config, SocraticConfig
+from src.data.critic_loader import load_frozen_critic, CriticModel
 from src.utils.logging import get_logger
-from src.utils.model_loader import load_model
-from src.utils.metrics import compute_ngram_overlap
 
-logger = get_logger(__name__)
+# Configure logging
+logger = get_logger("generate_dialogue")
 
-# Constants for edge case handling
-DEGENERATE_THRESHOLD = 0.9
-DEGENERATE_LOG_EVENT = "DEGENERATE_DIALOGUE_TRUNCATED"
+# --- Logical Templates for Ada Lovelace Constraint ---
+# These templates ensure the model operates on pre-defined logical structures
+# rather than spontaneously originating new critique categories.
+CRITIQUE_TEMPLATES = [
+    "Identify any CALCULATION ERROR in the steps provided. Look for arithmetic mismatches.",
+    "Identify any LOGIC GAP where a conclusion does not follow from the premises.",
+    "Identify any UNSUPPORTED ASSUMPTION where a fact is stated without evidence or derivation.",
+    "Identify any MISAPPLIED FORMULA where the wrong mathematical rule was used for the context.",
+]
 
-def generate_critique_prompt(question: str, initial_answer: str) -> str:
-    """
-    Generates a dynamic prompt for the model to critique its own answer.
-    Focuses on identifying logical contradictions or unsupported assumptions.
-    """
-    return (
-        f"Question: {question}\n"
-        f"Initial Answer: {initial_answer}\n\n"
-        f"Act as a rigorous logician and critic. Analyze the 'Initial Answer' above "
-        f"for logical flaws, unsupported assumptions, or contradictions with the question. "
-        f"Do not simply repeat the answer. Output a JSON object with the following structure:\n"
-        f"{{\n"
-        f'  "confidence_score": 0.0 to 1.0 (float),\n'
-        f'  "reasoning_snippet": "A concise string explaining the critique or lack thereof."\n'
-        f"}}\n"
-        f"Ensure the JSON is valid and contains no markdown formatting."
-    )
+# Regex patterns for validating question structure (Arithmetic/Algebra focus)
+QUESTION_VALIDATION_PATTERNS = [
+    r".*[0-9]+\s*[\+\-\*\/].*[0-9]+\s*=",  # Simple arithmetic
+    r".*[0-9]+\s*[xX]\s*[0-9]+\s*=",      # Multiplication notation
+    r".*[a-zA-Z]+\s*=\s*[0-9]+.*",        # Variable assignment
+    r".*solve.*for\s+[a-zA-Z].*",         # "solve for x"
+]
 
-def generate_revised_answer_prompt(
-    question: str, initial_answer: str, critique_json: Dict[str, Any]
-) -> str:
+def generate_critique_prompt(critique_type: str, question: str, initial_answer: str) -> str:
     """
-    Generates a prompt for the model to revise its answer based on the critique.
+    Constructs a prompt for the frozen Critic Model to identify specific error types.
+    This enforces the Ada Lovelace constraint by using pre-defined templates.
     """
-    reasoning = critique_json.get("reasoning_snippet", "No specific critique provided.")
-    return (
-        f"Question: {question}\n"
-        f"Initial Answer: {initial_answer}\n"
-        f"Critique: {reasoning}\n\n"
-        f"Based on the critique above, provide a revised, more robust answer. "
-        f"If the initial answer was correct, reaffirm it with the new reasoning. "
-        f"If flawed, correct it. Output only the final revised answer text."
-    )
+    template = next((t for t in CRITIQUE_TEMPLATES if critique_type.upper() in t), CRITIQUE_TEMPLATES[0])
+    
+    prompt = f"""
+    You are a rigorous mathematical critic. Your task is to analyze the following problem and proposed solution.
+    Focus specifically on: {template}
+    
+    Problem:
+    {question}
+    
+    Proposed Solution:
+    {initial_answer}
+    
+    Output your critique in JSON format with the following structure:
+    {{
+        "error_type": "string (one of: calculation_error, logic_gap, unsupported_assumption, misapplied_formula)",
+        "explanation": "string (detailed explanation of the error)",
+        "is_error_found": boolean
+    }}
+    If no error is found, set is_error_found to false and explain why the solution is sound.
+    """
+    return prompt
 
-def call_model(
-    model: PreTrainedModel,
-    tokenizer: PreTrainedTokenizer,
-    prompt: str,
-    max_new_tokens: int = 256,
-    temperature: float = 0.7,
-) -> str:
+def generate_revised_answer_prompt(question: str, initial_answer: str, critique_explanation: str) -> str:
     """
-    Calls the loaded model to generate text from a prompt.
-    Handles device placement and generation parameters.
+    Constructs a prompt for the Base Model to generate a revised answer based on the critique.
+    """
+    prompt = f"""
+    You are a helpful mathematical assistant. You previously attempted to solve a problem but received feedback on your reasoning.
+    
+    Problem:
+    {question}
+    
+    Your Previous Answer:
+    {initial_answer}
+    
+    Critique Feedback:
+    {critique_explanation}
+    
+    Please provide a revised, correct step-by-step solution. Ensure you address the specific points raised in the critique.
+    Format your final answer clearly.
+    """
+    return prompt
+
+def call_model(model: AutoModelForCausalLM, tokenizer: AutoTokenizer, prompt: str, max_new_tokens: int = 256) -> str:
+    """
+    Calls a model with a prompt and returns the generated text.
+    Handles tokenization and generation safely.
     """
     inputs = tokenizer(prompt, return_tensors="pt").to(model.device)
     
+    # Use a safe generation config
+    generation_config = GenerationConfig(
+        max_new_tokens=max_new_tokens,
+        temperature=0.7,
+        top_p=0.9,
+        do_sample=True,
+        pad_token_id=tokenizer.eos_token_id,
+    )
+    
     with torch.no_grad():
-        outputs = model.generate(
-            **inputs,
-            max_new_tokens=max_new_tokens,
-            temperature=temperature,
-            do_sample=temperature > 0,
-            pad_token_id=tokenizer.eos_token_id,
-        )
+        outputs = model.generate(**inputs, generation_config=generation_config)
     
     generated_text = tokenizer.decode(outputs[0], skip_special_tokens=True)
-    # Remove the prompt from the output to get just the generation
+    # Extract only the new part
     response = generated_text[len(prompt):].strip()
     return response
 
-def parse_critique_json(raw_text: str) -> Optional[Dict[str, Any]]:
+def parse_critique_json(response: str) -> Optional[Dict[str, Any]]:
     """
-    Parses the model's response into a structured critique dictionary.
-    Handles potential markdown code blocks or raw text.
+    Attempts to parse a JSON response from the critic model.
+    Returns None if parsing fails.
     """
     try:
         # Clean up potential markdown code blocks
-        clean_text = raw_text.strip()
-        if clean_text.startswith("```json"):
-            clean_text = clean_text[7:]
-        if clean_text.endswith("```"):
-            clean_text = clean_text[:-3]
-        clean_text = clean_text.strip()
-        
-        data = json.loads(clean_text)
-        if "confidence_score" in data and "reasoning_snippet" in data:
-            return data
-        else:
-            logger.warning("Critique JSON missing required keys: confidence_score, reasoning_snippet")
-            return None
-    except (json.JSONDecodeError, ValueError) as e:
-        logger.warning(f"Failed to parse critique JSON: {e}. Raw text: {raw_text[:100]}...")
+        response = response.replace("```json", "").replace("```", "").strip()
+        return json.loads(response)
+    except json.JSONDecodeError:
+        logger.warning(f"Failed to parse critique JSON: {response[:100]}...")
         return None
+
+def validate_question_structure(question: str) -> bool:
+    """
+    Validates that the question adheres to simple regex patterns for arithmetic/algebraic structure.
+    This ensures the input data is relevant to the Socratic method's focus on logical derivation.
+    """
+    for pattern in QUESTION_VALIDATION_PATTERNS:
+        if re.search(pattern, question, re.IGNORECASE):
+            return True
+    return False
 
 def generate_dialogue_tuple(
     question: str,
     initial_answer: str,
-    model: PreTrainedModel,
-    tokenizer: PreTrainedTokenizer,
+    base_model: AutoModelForCausalLM,
+    base_tokenizer: AutoTokenizer,
+    critic_model: CriticModel,
+    critique_type: str = "logic_gap"
 ) -> Optional[Dict[str, Any]]:
     """
-    Orchestrates the generation of a full Socratic dialogue tuple:
-    (question, initial_answer, critique, revised_answer).
+    Generates a complete dialogue tuple:
+    (question, initial_answer, critique, revised_answer)
     
-    Implements the degenerate dialogue truncation check (Edge Case).
+    1. Uses the Base Model to generate the initial answer (if not provided, but here we assume it is).
+    2. Uses the Frozen Critic Model to generate a critique based on the template.
+    3. Uses the Base Model to generate a revised answer based on the critique.
     """
-    # Step 1: Generate Critique
-    critique_prompt = generate_critique_prompt(question, initial_answer)
-    critique_raw = call_model(model, tokenizer, critique_prompt)
     
-    critique_data = parse_critique_json(critique_raw)
-    if not critique_data:
-        # Fallback if parsing fails, create a default critique
-        critique_data = {
-            "confidence_score": 0.5,
-            "reasoning_snippet": "Model failed to generate structured critique."
-        }
-    
-    # Step 2: Check for Degenerate Dialogue (N-gram overlap > 0.9)
-    overlap = compute_ngram_overlap(initial_answer, critique_data.get("reasoning_snippet", ""))
-    
-    if overlap > DEGENERATE_THRESHOLD:
-        logger.warning(
-            f"{DEGENERATE_LOG_EVENT}: High overlap ({overlap:.2f}) between initial answer and critique. "
-            f"Truncating dialogue generation for this sample."
-        )
-        # Log the event as a structured JSON line as per T005 requirements
-        log_entry = {
-            "event": DEGENERATE_LOG_EVENT,
-            "sample_question": question[:50] + "...",
-            "overlap_score": overlap,
-            "timestamp": str(torch.cuda.current_device() if torch.cuda.is_available() else "cpu") # Placeholder for real timestamp
-        }
-        # The logger should handle the JSONL output if configured, but we ensure the event is recorded
-        # In a real run, the logging utility writes to the log file.
-        # We return None to indicate this sample is truncated/skipped from the final dataset
-        return None
+    # Step 1: Validate question structure
+    if not validate_question_structure(question):
+        logger.warning(f"Question failed structural validation: {question[:50]}...")
+        # We might still process it, but log the warning. 
+        # Strictly speaking, we could skip, but for pipeline robustness we continue.
 
-    # Step 3: Generate Revised Answer
-    revised_prompt = generate_revised_answer_prompt(question, initial_answer, critique_data)
-    revised_answer = call_model(model, tokenizer, revised_prompt)
+    # Step 2: Generate Critique using Frozen Critic Model
+    critique_prompt = generate_critique_prompt(critique_type, question, initial_answer)
+    critic_response = call_model(
+        critic_model.model, 
+        critic_model.tokenizer, 
+        critique_prompt, 
+        max_new_tokens=256
+    )
+    
+    critique_data = parse_critique_json(critic_response)
+    if not critique_data:
+        # Fallback if JSON parsing fails: create a generic critique structure
+        logger.warning("Critic JSON parse failed, using fallback structure.")
+        critique_text = f"Potential issues identified in reasoning. Please review steps carefully."
+        error_type = "unknown"
+        is_error = True
+    else:
+        critique_text = critique_data.get("explanation", "No explanation provided.")
+        error_type = critique_data.get("error_type", "unknown")
+        is_error = critique_data.get("is_error_found", True)
+
+    # Step 3: Generate Revised Answer using Base Model
+    revised_prompt = generate_revised_answer_prompt(question, initial_answer, critique_text)
+    revised_answer = call_model(
+        base_model, 
+        base_tokenizer, 
+        revised_prompt, 
+        max_new_tokens=512
+    )
 
     return {
         "question": question,
         "initial_answer": initial_answer,
-        "critique": critique_data,
+        "critique": {
+            "text": critique_text,
+            "error_type": error_type,
+            "is_error_found": is_error
+        },
         "revised_answer": revised_answer,
-        "overlap_score": overlap
+        "metadata": {
+            "critique_type": critique_type,
+            "validated_structure": validate_question_structure(question)
+        }
     }
 
 def main():
     """
-    Main entry point to generate dialogue tuples from the static dataset.
-    Reads from data/processed/static_qa.jsonl (generated by T013)
-    Writes to data/processed/dialogue_tuples.jsonl
+    Main entry point to generate dialogue tuples from a static dataset.
+    Reads from data/processed/static_qa.jsonl and writes to data/processed/dialogue_tuples.jsonl.
     """
     config = get_config()
-    project_root = Path(config.project_root)
-    
-    # Paths
-    static_input_path = project_root / "data" / "processed" / "static_qa.jsonl"
-    output_path = project_root / "data" / "processed" / "dialogue_tuples.jsonl"
-    
-    if not static_input_path.exists():
-        raise FileNotFoundError(
-            f"Static QA file not found at {static_input_path}. "
-            f"Please run T013 (static_extractor) first."
-        )
-    
-    logger.info(f"Loading model from {config.model_path}...")
-    model, tokenizer = load_model(config.model_path)
-    
-    logger.info(f"Reading static QA data from {static_input_path}...")
-    samples_to_process = []
-    with open(static_input_path, "r", encoding="utf-8") as f:
-        for line in f:
-            samples_to_process.append(json.loads(line))
-    
-    logger.info(f"Processing {len(samples_to_process)} samples...")
-    
-    valid_tuples = []
-    for idx, sample in enumerate(samples_to_process):
-        if idx % 10 == 0:
-            logger.info(f"Processed {idx}/{len(samples_to_process)}")
-        
-        question = sample.get("question", "")
-        answer = sample.get("answer", "")
-        
-        if not question or not answer:
-            continue
-        
-        tuple_result = generate_dialogue_tuple(question, answer, model, tokenizer)
-        
-        if tuple_result:
-            valid_tuples.append(tuple_result)
-            # Write incrementally to avoid memory issues with large datasets
-            with open(output_path, "a", encoding="utf-8") as out_f:
-                out_f.write(json.dumps(tuple_result) + "\n")
-        else:
-            # Log truncation event via standard logger which handles JSONL
-            logger.info(f"Sample {idx} truncated due to degenerate dialogue.")
-    
-    logger.info(f"Generation complete. Valid tuples written to {output_path}")
-    logger.info(f"Total valid tuples: {len(valid_tuples)}")
+    logger.info("Starting Dialogue Generation Pipeline (T014)")
+
+    # Load Models
+    logger.info("Loading Base Model and Tokenizer...")
+    # Using the config to determine model paths, defaulting to a small model for CPU safety if not specified
+    base_model_path = config.base_model_path or "facebook/opt-125m"
+    base_model = AutoModelForCausalLM.from_pretrained(
+        base_model_path,
+        torch_dtype=torch.float32, # Force float32 for CPU stability if needed
+        device_map="auto" if torch.cuda.is_available() else None
+    )
+    base_tokenizer = AutoTokenizer.from_pretrained(base_model_path)
+    if base_tokenizer.pad_token is None:
+        base_tokenizer.pad_token = base_tokenizer.eos_token
+
+    logger.info("Loading Frozen Critic Model (T050)...")
+    critic_model = load_frozen_critic(config.critic_model_path)
+
+    # Load Static QA Data
+    input_path = Path(config.data_dir) / "processed" / "static_qa.jsonl"
+    output_path = Path(config.data_dir) / "processed" / "dialogue_tuples.jsonl"
+
+    if not input_path.exists():
+        logger.error(f"Input file not found: {input_path}. Please run T013 first.")
+        sys.exit(1)
+
+    logger.info(f"Reading static QA from {input_path}")
+    with open(input_path, 'r', encoding='utf-8') as f_in:
+        lines = f_in.readlines()
+
+    logger.info(f"Processing {len(lines)} samples...")
+    generated_count = 0
+    error_count = 0
+
+    with open(output_path, 'w', encoding='utf-8') as f_out:
+        for i, line in enumerate(lines):
+            try:
+                record = json.loads(line)
+                question = record.get("question", "")
+                answer = record.get("answer", "")
+
+                if not question or not answer:
+                    continue
+
+                # Generate dialogue tuple
+                tuple_data = generate_dialogue_tuple(
+                    question=question,
+                    initial_answer=answer,
+                    base_model=base_model,
+                    base_tokenizer=base_tokenizer,
+                    critic_model=critic_model,
+                    critique_type="logic_gap" # Default to logic gap for the first pass
+                )
+
+                if tuple_data:
+                    f_out.write(json.dumps(tuple_data) + '\n')
+                    generated_count += 1
+                    
+                    if i % 10 == 0:
+                        logger.info(f"Processed {i+1}/{len(lines)} - Generated: {generated_count}")
+                else:
+                    error_count += 1
+
+            except Exception as e:
+                logger.error(f"Error processing line {i}: {e}")
+                error_count += 1
+                continue
+
+    logger.info(f"Pipeline complete. Generated {generated_count} tuples. Errors: {error_count}")
+    logger.info(f"Output written to {output_path}")
+
+    # Verify output
+    if output_path.exists():
+        with open(output_path, 'r') as f:
+            count = sum(1 for _ in f)
+        logger.info(f"Verification: Output file contains {count} records.")
 
 if __name__ == "__main__":
     main()

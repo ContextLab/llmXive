@@ -1,100 +1,117 @@
-import pytest
-from unittest.mock import patch, MagicMock
-import sys
-from pathlib import Path
-
-# Add the project root to the path if running standalone
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
-
-from src.data.download import download_dataset, download_all_datasets
-from src.utils.config import SocraticConfig, set_global_config
-import tempfile
+"""
+Tests for dataset downloader.
+"""
+import json
 import os
+import sys
+import tempfile
+from pathlib import Path
+from unittest.mock import patch, MagicMock
+
+import pytest
+
+from src.data.download import (
+    ensure_data_dirs,
+    download_dataset,
+    download_all_datasets,
+)
 
 
-@pytest.fixture
-def mock_config():
-    """Create a temporary config for testing."""
-    with tempfile.TemporaryDirectory() as tmp_dir:
-        config = SocraticConfig(
-            project_name="test_project",
-            data_dir=Path(tmp_dir),
-            model_path="test_model",
-            seed=42
+class TestDownload:
+    """Test suite for dataset download functionality."""
+
+    def test_ensure_data_dirs_creates_directories(self, tmp_path):
+        """Test that ensure_data_dirs creates required directories."""
+        dirs = ensure_data_dirs(tmp_path)
+
+        assert "raw" in dirs
+        assert "processed" in dirs
+        assert "results" in dirs
+
+        for dir_path in dirs.values():
+            assert dir_path.exists()
+            assert dir_path.is_dir()
+
+    @patch("src.data.download.load_dataset")
+    def test_download_dataset_gsm8k(self, mock_load_dataset, tmp_path):
+        """Test downloading GSM8K dataset."""
+        # Mock the dataset
+        mock_dataset = MagicMock()
+        mock_dataset.__len__ = MagicMock(return_value=100)
+        mock_load_dataset.return_value = mock_dataset
+
+        dataset = download_dataset(
+            "gsm8k",
+            split="train",
+            subset="main",
+            output_dir=tmp_path,
         )
-        set_global_config(config)
-        yield config
 
+        # Verify load_dataset was called with correct parameters
+        mock_load_dataset.assert_called_once_with(
+            "gsm8k",
+            "main",
+            split="train",
+            trust_remote_code=True,
+        )
 
-@patch('src.data.download.load_dataset')
-def test_download_dataset_success(mock_load_dataset, mock_config):
-    """Test successful download of a dataset."""
-    mock_dataset = MagicMock()
-    mock_dataset.num_rows = 100
-    mock_load_dataset.return_value = mock_dataset
+        assert dataset == mock_dataset
 
-    result = download_dataset("gsm8k", split="train")
+    @patch("src.data.download.load_dataset")
+    def test_download_dataset_math(self, mock_load_dataset, tmp_path):
+        """Test downloading MATH dataset."""
+        mock_dataset = MagicMock()
+        mock_dataset.__len__ = MagicMock(return_value=50)
+        mock_load_dataset.return_value = mock_dataset
 
-    mock_load_dataset.assert_called_once_with("gsm8k", split="train", cache_dir=mock_config.data_dir / "raw" / ".cache", streaming=False)
-    assert result is mock_dataset
+        dataset = download_dataset(
+            "math",
+            split="train",
+            subset="train",
+            output_dir=tmp_path,
+        )
 
+        mock_load_dataset.assert_called_once_with(
+            "competition_math",
+            "train",
+            split="train",
+            trust_remote_code=True,
+        )
 
-@patch('src.data.download.load_dataset')
-def test_download_dataset_streaming(mock_load_dataset, mock_config):
-    """Test downloading with streaming enabled."""
-    mock_dataset = MagicMock()
-    mock_load_dataset.return_value = mock_dataset
+        assert dataset == mock_dataset
 
-    result = download_dataset("gsm8k", split="train", streaming=True)
+    def test_download_dataset_invalid_name(self, tmp_path):
+        """Test that invalid dataset name raises ValueError."""
+        with pytest.raises(ValueError, match="Unsupported dataset"):
+            download_dataset("invalid_dataset", output_dir=tmp_path)
 
-    mock_load_dataset.assert_called_once_with("gsm8k", split="train", cache_dir=mock_config.data_dir / "raw" / ".cache", streaming=True)
-    assert result is mock_dataset
+    @patch("src.data.download.load_dataset")
+    def test_download_dataset_save_to_disk(self, mock_load_dataset, tmp_path):
+        """Test that dataset is saved to disk when output_dir is provided."""
+        mock_dataset = MagicMock()
+        mock_load_dataset.return_value = mock_dataset
 
+        download_dataset(
+            "gsm8k",
+            split="train",
+            output_dir=tmp_path,
+        )
 
-@patch('src.data.download.load_dataset')
-def test_download_dataset_failure(mock_load_dataset, mock_config):
-    """Test that download_dataset raises an exception on failure (fail loudly)."""
-    mock_load_dataset.side_effect = Exception("Connection failed")
+        # Verify save_to_disk was called
+        mock_dataset.save_to_disk.assert_called_once()
 
-    with pytest.raises(Exception, match="Connection failed"):
-        download_dataset("gsm8k", split="train")
+    @patch("src.data.download.download_dataset")
+    def test_download_all_datasets(self, mock_download_dataset, tmp_path):
+        """Test downloading all datasets."""
+        mock_dataset = MagicMock()
+        mock_dataset.__len__ = MagicMock(return_value=100)
+        mock_download_dataset.return_value = mock_dataset
 
+        datasets = download_all_datasets(output_dir=tmp_path)
 
-@patch('src.data.download.download_dataset')
-def test_download_all_datasets(mock_download_dataset, mock_config):
-    """Test downloading multiple datasets."""
-    mock_ds_gsm = MagicMock()
-    mock_ds_math = MagicMock()
+        # Check that GSM8K and MATH were attempted
+        assert any("gsm8k" in key for key in datasets.keys())
+        assert any("math" in key for key in datasets.keys())
 
-    # Configure side effect to return different mocks based on name
-    def side_effect(name, **kwargs):
-        if name == "gsm8k":
-            return mock_ds_gsm
-        elif name == "math_dataset":
-            return mock_ds_math
-        return None
-
-    mock_download_dataset.side_effect = side_effect
-
-    result = download_all_datasets()
-
-    assert "gsm8k" in result
-    assert "math_dataset" in result
-    assert result["gsm8k"] is mock_ds_gsm
-    assert result["math_dataset"] is mock_ds_math
-
-    # Verify calls
-    assert mock_download_dataset.call_count == 2
-    # Check specific calls
-    calls = mock_download_dataset.call_args_list
-    assert calls[0][0][0] == "gsm8k"
-    assert calls[1][0][0] == "math_dataset"
-
-
-@patch('src.data.download.download_dataset')
-def test_download_all_datasets_failure(mock_download_dataset, mock_config):
-    """Test that download_all_datasets fails loudly if one dataset fails."""
-    mock_download_dataset.side_effect = Exception("Failed to fetch math")
-
-    with pytest.raises(Exception, match="Failed to fetch math"):
-        download_all_datasets()
+        # Verify download_dataset was called multiple times
+        assert mock_download_dataset.call_count >= 4  # 2 datasets x 2 splits

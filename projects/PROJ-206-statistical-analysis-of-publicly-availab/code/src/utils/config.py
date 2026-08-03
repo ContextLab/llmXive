@@ -1,10 +1,10 @@
 """
-Configuration management for the statistical analysis pipeline.
+Configuration management module for the llmXive statistical analysis pipeline.
 
-Handles:
-- Seed pinning for reproducibility
-- Path resolution relative to project root
-- Environment variable overrides
+Provides utilities for:
+- Path resolution relative to the project root
+- Global random seed pinning for reproducibility
+- Directory creation and validation
 """
 import os
 import random
@@ -12,173 +12,148 @@ import hashlib
 from pathlib import Path
 from typing import Any, Dict, Optional, Union
 
-# Project root is assumed to be the parent of 'code' directory
-# Adjust if project structure differs
-_PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-_DATA_ROOT = _PROJECT_ROOT / "data"
-_STATE_ROOT = _PROJECT_ROOT / "state"
-_CODE_ROOT = _PROJECT_ROOT / "code"
-_FIGURES_ROOT = _PROJECT_ROOT / "figures"
-_SPEC_ROOT = _PROJECT_ROOT / "specs"
-
-# Default seed for reproducibility
-DEFAULT_SEED = 42
-
+# Global seed state
+_SEED: Optional[int] = None
+_PROJECT_ROOT: Optional[Path] = None
 
 def get_project_root() -> Path:
-    """Return the absolute path to the project root directory."""
+    """
+    Returns the root directory of the project.
+    Assumes the project root is the directory containing the 'code' folder.
+    """
+    global _PROJECT_ROOT
+    if _PROJECT_ROOT is not None:
+        return _PROJECT_ROOT
+
+    # Try to detect from __file__ (code/src/utils/config.py -> code -> root)
+    current_file = Path(__file__).resolve()
+    # Navigate up: config.py -> utils -> src -> code -> root
+    # We assume the structure is: <root>/code/src/utils/config.py
+    # So root is 4 levels up from this file
+    potential_root = current_file.parent.parent.parent.parent
+    
+    # Fallback: check if 'data' and 'state' exist at this level
+    if (potential_root / 'data').exists() and (potential_root / 'state').exists():
+        _PROJECT_ROOT = potential_root
+        return _PROJECT_ROOT
+
+    # If detection fails, assume current working directory
+    # This is a fallback for interactive usage
+    _PROJECT_ROOT = Path.cwd()
     return _PROJECT_ROOT
 
-
 def get_data_root() -> Path:
-    """Return the absolute path to the data directory."""
-    return _DATA_ROOT
-
+    """Returns the path to the data directory."""
+    return get_project_root() / 'data'
 
 def get_state_root() -> Path:
-    """Return the absolute path to the state directory."""
-    return _STATE_ROOT
-
+    """Returns the path to the state directory."""
+    return get_project_root() / 'state'
 
 def get_code_root() -> Path:
-    """Return the absolute path to the code directory."""
-    return _CODE_ROOT
-
+    """Returns the path to the code directory."""
+    return get_project_root() / 'code'
 
 def get_figures_root() -> Path:
-    """Return the absolute path to the figures directory."""
-    return _FIGURES_ROOT
-
+    """Returns the path to the figures directory (created if needed)."""
+    figures_path = get_project_root() / 'figures'
+    ensure_dir(figures_path)
+    return figures_path
 
 def get_spec_root() -> Path:
-    """Return the absolute path to the specs directory."""
-    return _SPEC_ROOT
+    """Returns the path to the specs directory."""
+    return get_project_root() / 'specs'
 
-
-def resolve_path(base: str, relative: str) -> Path:
+def resolve_path(path: Union[str, Path], base: Optional[Path] = None) -> Path:
     """
-    Resolve a relative path against a base directory.
+    Resolves a relative or absolute path.
     
     Args:
-        base: Base directory name (e.g., 'data', 'state', 'code')
-        relative: Relative path within that base directory
-        
-    Returns:
-        Absolute Path object
-        
-    Raises:
-        ValueError: If base directory is not recognized
-    """
-    base_paths = {
-        'data': get_data_root(),
-        'state': get_state_root(),
-        'code': get_code_root(),
-        'figures': get_figures_root(),
-        'specs': get_spec_root(),
-    }
+        path: The path to resolve.
+        base: The base directory. Defaults to project root if None.
     
-    if base not in base_paths:
-        raise ValueError(f"Unknown base directory: {base}. Must be one of {list(base_paths.keys())}")
-        
-    return base_paths[base] / relative
-
-
-def set_seed(seed: Optional[int] = None) -> int:
+    Returns:
+        A resolved Path object.
     """
-    Set random seeds for reproducibility.
+    if isinstance(path, str):
+        path = Path(path)
+    
+    if path.is_absolute():
+        return path.resolve()
+    
+    if base is None:
+        base = get_project_root()
+    
+    return (base / path).resolve()
+
+def set_seed(seed: int) -> None:
+    """
+    Sets the global random seed for reproducibility.
+    
+    This function seeds:
+    - Python's random module
+    - NumPy's random module (if available)
     
     Args:
-        seed: Random seed value. If None, uses DEFAULT_SEED.
-            
-    Returns:
-        The seed value that was set
+        seed: The integer seed value.
     """
-    if seed is None:
-        seed = DEFAULT_SEED
-        
-    # Set seeds for standard libraries
+    global _SEED
+    _SEED = seed
     random.seed(seed)
     
-    # Try to set numpy seed if available
     try:
         import numpy as np
         np.random.seed(seed)
     except ImportError:
         pass
-        
-    # Try to set torch seed if available
-    try:
-        import torch
-        torch.manual_seed(seed)
-        if torch.cuda.is_available():
-            torch.cuda.manual_seed_all(seed)
-    except ImportError:
-        pass
-        
-    return seed
 
-
-def get_seed() -> int:
-    """
-    Get the current seed value from environment or default.
-    
-    Returns:
-        Seed value as integer
-    """
-    env_seed = os.environ.get("LLMXIVE_SEED")
-    if env_seed is not None:
-        try:
-            return int(env_seed)
-        except ValueError:
-            pass
-    return DEFAULT_SEED
-
+def get_seed() -> Optional[int]:
+    """Returns the currently set global seed, or None if not set."""
+    return _SEED
 
 def compute_file_hash(file_path: Union[str, Path]) -> str:
     """
-    Compute SHA-256 hash of a file for integrity verification.
+    Computes the SHA-256 hash of a file's contents.
     
     Args:
-        file_path: Path to the file
-        
+        file_path: Path to the file to hash.
+    
     Returns:
-        Hexadecimal hash string
-        
+        Hexadecimal string representation of the SHA-256 hash.
+    
     Raises:
-        FileNotFoundError: If file does not exist
+        FileNotFoundError: If the file does not exist.
     """
-    file_path = Path(file_path)
+    file_path = resolve_path(file_path)
     if not file_path.exists():
         raise FileNotFoundError(f"File not found: {file_path}")
-        
+    
     sha256_hash = hashlib.sha256()
     with open(file_path, "rb") as f:
         for byte_block in iter(lambda: f.read(4096), b""):
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-
 def ensure_dir(dir_path: Union[str, Path]) -> Path:
     """
-    Ensure a directory exists, creating it if necessary.
+    Ensures a directory exists, creating it if necessary.
     
     Args:
-        dir_path: Path to the directory
-        
+        dir_path: The directory path to ensure.
+    
     Returns:
-        The absolute Path object
+        The resolved Path object for the directory.
     """
-    path = Path(dir_path)
+    path = resolve_path(dir_path)
     path.mkdir(parents=True, exist_ok=True)
     return path
 
-
 def get_config() -> Dict[str, Any]:
     """
-    Get the full configuration dictionary.
+    Returns a dictionary of key configuration paths and settings.
     
     Returns:
-        Dictionary containing all configuration values
+        Dictionary containing root paths and seed status.
     """
     return {
         "project_root": str(get_project_root()),
@@ -187,6 +162,43 @@ def get_config() -> Dict[str, Any]:
         "code_root": str(get_code_root()),
         "figures_root": str(get_figures_root()),
         "spec_root": str(get_spec_root()),
-        "seed": get_seed(),
-        "default_seed": DEFAULT_SEED,
+        "seed_set": _SEED is not None,
+        "seed_value": _SEED
     }
+
+# Convenience function to initialize standard directories
+def initialize_project_structure() -> None:
+    """
+    Ensures all standard project directories exist.
+    """
+    ensure_dir(get_data_root() / 'raw')
+    ensure_dir(get_data_root() / 'processed')
+    ensure_dir(get_state_root() / 'projects')
+    ensure_dir(get_figures_root())
+    # Ensure src/utils exists if running from root
+    ensure_dir(get_code_root() / 'src' / 'utils')
+    ensure_dir(get_code_root() / 'src' / 'data')
+    ensure_dir(get_code_root() / 'src' / 'models')
+    ensure_dir(get_code_root() / 'src' / 'evaluation')
+
+if __name__ == "__main__":
+    # Simple self-test to verify path resolution
+    print("Project Root:", get_project_root())
+    print("Data Root:", get_data_root())
+    print("State Root:", get_state_root())
+    print("Config:", get_config())
+    
+    # Test seed setting
+    set_seed(42)
+    print("Seed set to:", get_seed())
+    
+    # Test directory creation
+    test_dir = get_data_root() / 'test_temp'
+    ensure_dir(test_dir)
+    print("Test directory created/verified:", test_dir.exists())
+    
+    # Cleanup
+    import shutil
+    if test_dir.exists():
+        shutil.rmtree(test_dir)
+        print("Test directory cleaned up.")

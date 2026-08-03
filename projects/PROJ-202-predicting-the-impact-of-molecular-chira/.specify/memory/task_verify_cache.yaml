@@ -1,0 +1,38 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory structure was presented or listed; the claim that `projects/PROJ-202-predicting-the-impact-of-molecular-chira/`
+    exists is unsupported by any provided artifact. The required folder hierarchy
+    is missing from the evidence.
+T001c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of `.gitkeep` files being present in `data/raw`, `data/processed`,
+    `data/interim`, `code`, or `tests` was provided; the artifact list is empty, so
+    the requirement is not satisfied. The implementer must add a `.gitkeep` file to
+    each of those directories.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., .ruff.toml, .flake8, pyproject.toml
+    with black settings) are present in the provided evidence, so the requirement
+    to configure ruff/flake8 and black is not satisfied.
+T004:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required `data/raw`, `data/processed`, and `data/interim`
+    directories (or accompanying `.gitkeep` files) was provided; the implementer did
+    not supply any artifact showing the directory structure.
+T009:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `.env` file, configuration-loading script, or documentation of default paths
+    is present in the provided artifacts; therefore the required environment configuration
+    management has not been delivered.
+T010:
+  c: false
+  h: beddbbb2c024bba1c9397d0a951c6fc3b3895bef3a86cdb1ccf1e987cee2f41d
+  r: The required artifact `tests/contract/test_data_download.py` does not exist in
+    the repository, so the contract test for data download validity is missing. The
+    task cannot be considered completed until this file is added with appropriate
+    test code.
