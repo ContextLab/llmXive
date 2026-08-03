@@ -1,7 +1,34 @@
-T016:
+T001:
   c: false
-  h: 2159c8f233c9e3eb14f03ef4bbf82933f482cd4482734a0da72f1eae85f14fb1
-  r: "The required `data/raw/execution_logs.csv` file does not exist, and the provided\
-    \ `data_aggregator.py` is truncated before any logic that parses T019 logs, verifies\
-    \ T043, or writes the CSV is shown. Consequently the implementation does not demonstrably\
-    \ fulfill the task\u2019s specifications."
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the required directory tree (`code/orchestrator`, `code/analysis`,\
+    \ `code/simulation`, `code/data`, `code/tests`) is presented; without a listing\
+    \ or screenshots of these folders, we cannot confirm the project structure was\
+    \ created. The implementer must provide proof that these directories exist and\
+    \ are non\u2011empty."
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The implementer supplied no configuration files (e.g., `pyproject.toml`, `.ruff.toml`,
+    `.flake8`, or `black` settings) or documentation showing that ruff/flake8 linting
+    and black formatting have been set up. Without these artifacts, the task of configuring
+    the linting and formatting tools is not satisfied.
+T007:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No files or code were presented in `code/tests/contract/` that implement a schema\u2011\
+    validation framework using\u202Fpyyaml, nor any definitions for `ExecutionRun`\
+    \ or `RegressionModel`. The required artifact is missing, so the task is not satisfied."
+T013:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `node_manager.py` file (or any non\u2011empty implementation) was presented\
+    \ in the evidence, and therefore there is no code handling SSH connections, heartbeat\
+    \ pings, or device discovery as required. The task remains undone."
+T014a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `instrumentor_remote.py` file (or its contents) was presented in the evidence,\
+    \ and there is no indication that the required remote\u2011execution logic for\
+    \ `tcpdump` and `mpstat` via SSH has been added to `code/orchestrator/`. The task\u2019\
+    s core artifact is therefore missing."

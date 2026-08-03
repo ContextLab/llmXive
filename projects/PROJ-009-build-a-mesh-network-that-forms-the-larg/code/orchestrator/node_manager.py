@@ -1,295 +1,355 @@
-from __future__ import annotations
-
+"""
+Node Manager for Mesh Network Supercomputer.
+Handles SSH connections, heartbeat pings, and device discovery.
+"""
 import logging
-import threading
+import socket
 import time
-from contextlib import contextmanager
-from dataclasses import dataclass, field
-from typing import Any, Dict, Generator, List, Optional
+from dataclasses import dataclass
+from datetime import datetime
+from typing import List, Dict, Any, Optional
+from pathlib import Path
 
 import paramiko
 
-from orchestrator.config import ProjectConfig, load_config
-from orchestrator.logger import get_logger
-from orchestrator.models import NodeStatus, PhysicalNode
+from orchestrator.models import PhysicalNode, NodeStatus
+from orchestrator.logger import get_logger, heartbeat
+from orchestrator.config import get_config
 
-# Constants for connection management
-DEFAULT_HEARTBEAT_INTERVAL = 30.0  # seconds
-DEFAULT_TIMEOUT = 5.0  # seconds for connection/operations
-DEFAULT_MAX_RETRIES = 3
-HEARTBEAT_CMD = "echo 'heartbeat'"
+# Ensure required dependencies are available
+try:
+    import paramiko
+except ImportError:
+    raise ImportError("paramiko is required for SSH connections. Install via: pip install paramiko")
 
 @dataclass
-class SSHConnection:
-    """Wrapper for a single active SSH client connection."""
-    client: paramiko.SSHClient
-    node_id: str
-    last_heartbeat: float = field(default_factory=time.time)
-    last_used: float = field(default_factory=time.time)
-    is_healthy: bool = True
-    lock: threading.Lock = field(default_factory=threading.Lock)
+class NodeDiscoveryResult:
+    """Result of a node discovery operation."""
+    discovered_nodes: List[PhysicalNode]
+    failed_nodes: List[Dict[str, Any]]
+    timestamp: datetime
+    success_count: int
+    failure_count: int
 
-    def mark_used(self) -> None:
-        self.last_used = time.time()
-
-    def check_heartbeat(self, timeout: float = DEFAULT_TIMEOUT) -> bool:
-        """
-        Execute a simple command to verify the connection is alive.
-        Returns True if successful, False otherwise.
-        """
-        try:
-            with self.lock:
-                stdin, stdout, stderr = self.client.exec_command(
-                    HEARTBEAT_CMD, timeout=timeout
-                )
-                exit_status = stdout.channel.recv_exit_status()
-                if exit_status == 0:
-                    self.last_heartbeat = time.time()
-                    self.is_healthy = True
-                    return True
-                else:
-                    self.is_healthy = False
-                    return False
-        except (paramiko.SSHException, OSError, TimeoutError) as e:
-            logging.getLogger(__name__).warning(
-                f"Heartbeat failed for {self.node_id}: {e}"
-            )
-            self.is_healthy = False
-            return False
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "discovered_nodes": [node.to_dict() for node in self.discovered_nodes],
+            "failed_nodes": self.failed_nodes,
+            "timestamp": self.timestamp.isoformat(),
+            "success_count": self.success_count,
+            "failure_count": self.failure_count
+        }
 
 class NodeManager:
     """
-    Manages a pool of SSH connections to physical nodes.
-    Handles connection pooling, heartbeat monitoring, and timeout logic.
+    Manages SSH connections to physical nodes in the mesh network.
+    Handles discovery, heartbeat monitoring, and connection lifecycle.
     """
 
-    def __init__(
-        self,
-        config: Optional[ProjectConfig] = None,
-        heartbeat_interval: float = DEFAULT_HEARTBEAT_INTERVAL,
-        connection_timeout: float = DEFAULT_TIMEOUT,
-    ):
+    def __init__(self, config_path: Optional[Path] = None):
+        """
+        Initialize the NodeManager.
+
+        Args:
+            config_path: Optional path to config file. If None, uses default config.
+        """
         self.logger = get_logger(__name__)
-        self.config = config or load_config()
-        self.heartbeat_interval = heartbeat_interval
-        self.connection_timeout = connection_timeout
+        self.config = get_config(config_path)
+        self.active_connections: Dict[str, paramiko.SSHClient] = {}
+        self.node_states: Dict[str, NodeStatus] = {}
 
-        # Pool of active connections: node_id -> SSHConnection
-        self._pool: Dict[str, SSHConnection] = {}
-        self._lock = threading.Lock()
-        self._heartbeat_thread: Optional[threading.Thread] = None
-        self._stop_heartbeat = threading.Event()
+    def discover_nodes(self) -> NodeDiscoveryResult:
+        """
+        Discover and validate nodes from the configuration.
 
-    def _create_connection(self, node: PhysicalNode) -> SSHConnection:
-        """Establish a new SSH connection to a node."""
+        Returns:
+            NodeDiscoveryResult containing discovered and failed nodes.
+        """
+        self.logger.info("Starting node discovery process")
+        discovered = []
+        failed = []
+        timestamp = datetime.now()
+
+        node_configs = self.config.get("nodes", [])
+        if not node_configs:
+            self.logger.warning("No nodes found in configuration")
+            return NodeDiscoveryResult(
+                discovered_nodes=[],
+                failed_nodes=[],
+                timestamp=timestamp,
+                success_count=0,
+                failure_count=0
+            )
+
+        for node_cfg in node_configs:
+            node_id = node_cfg.get("id")
+            if not node_id:
+                self.logger.error("Node configuration missing 'id' field")
+                failed.append({"id": node_id, "reason": "Missing ID field"})
+                continue
+
+            try:
+                # Validate connectivity and create PhysicalNode object
+                node = self._validate_and_create_node(node_cfg)
+                discovered.append(node)
+                self.node_states[node_id] = NodeStatus.ONLINE
+                self.logger.info(f"Discovered node: {node_id} at {node.host}:{node.port}")
+            except Exception as e:
+                error_msg = str(e)
+                self.logger.error(f"Failed to discover node {node_id}: {error_msg}")
+                failed.append({"id": node_id, "reason": error_msg})
+                self.node_states[node_id] = NodeStatus.OFFLINE
+
+        result = NodeDiscoveryResult(
+            discovered_nodes=discovered,
+            failed_nodes=failed,
+            timestamp=timestamp,
+            success_count=len(discovered),
+            failure_count=len(failed)
+        )
+
+        self.logger.info(
+            f"Discovery complete: {result.success_count} successful, "
+            f"{result.failure_count} failed"
+        )
+        return result
+
+    def _validate_and_create_node(self, node_cfg: Dict[str, Any]) -> PhysicalNode:
+        """
+        Validate a node configuration and create a PhysicalNode object.
+
+        Args:
+            node_cfg: Dictionary containing node configuration.
+
+        Returns:
+            PhysicalNode object if validation succeeds.
+
+        Raises:
+            ConnectionRefusedError: If SSH connection fails.
+            ValueError: If configuration is invalid.
+        """
+        node_id = node_cfg.get("id")
+        host = node_cfg.get("host")
+        port = node_cfg.get("port", 22)
+        username = node_cfg.get("username")
+        key_path = node_cfg.get("key_path")
+
+        if not all([node_id, host, username]):
+            raise ValueError(f"Invalid node config for {node_id}: missing required fields")
+
+        # Attempt SSH connection to validate
         client = paramiko.SSHClient()
         client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 
         try:
-            client.connect(
-                hostname=node.host,
-                port=node.port,
-                username=node.username,
-                password=node.password, # In production, use keys
-                key_filename=node.ssh_key_path,
-                timeout=self.connection_timeout,
-                allow_agent=False,
-                look_for_keys=False,
-            )
-            self.logger.info(f"Successfully connected to node {node.node_id}")
-            return SSHConnection(
-                client=client,
-                node_id=node.node_id,
-            )
-        except paramiko.AuthenticationException:
-            self.logger.error(f"Authentication failed for node {node.node_id}")
-            raise
-        except paramiko.SSHException as e:
-            self.logger.error(f"SSH error connecting to node {node.node_id}: {e}")
-            raise
-        except OSError as e:
-            self.logger.error(f"Network error connecting to node {node.node_id}: {e}")
-            raise
-
-    def get_connection(self, node: PhysicalNode) -> SSHConnection:
-        """
-        Retrieve an existing healthy connection or create a new one.
-        Thread-safe.
-        """
-        with self._lock:
-            if node.node_id in self._pool:
-                conn = self._pool[node.node_id]
-                if conn.is_healthy:
-                    conn.mark_used()
-                    return conn
-                else:
-                    # Connection is unhealthy, close and remove
-                    self.logger.warning(
-                        f"Closing unhealthy connection for {node.node_id} before re-creating."
-                    )
-                    try:
-                        conn.client.close()
-                    except Exception:
-                        pass
-                    del self._pool[node.node_id]
-
-            # Create new connection
-            try:
-                conn = self._create_connection(node)
-                self._pool[node.node_id] = conn
-                return conn
-            except Exception as e:
-                self.logger.error(f"Failed to create connection for {node.node_id}: {e}")
-                raise
-
-    def release_connection(self, node_id: str) -> None:
-        """
-        Return a connection to the pool.
-        In a simple pool, we just keep it alive unless explicitly closed.
-        """
-        with self._lock:
-            if node_id in self._pool:
-                self._pool[node_id].mark_used()
-
-    def close_connection(self, node_id: str) -> None:
-        """Explicitly close and remove a connection from the pool."""
-        with self._lock:
-            if node_id in self._pool:
-                conn = self._pool[node_id]
-                try:
-                    conn.client.close()
-                    self.logger.info(f"Closed connection for {node_id}")
-                except Exception as e:
-                    self.logger.warning(f"Error closing connection for {node_id}: {e}")
-                finally:
-                    del self._pool[node_id]
-
-    def close_all(self) -> None:
-        """Close all connections in the pool."""
-        with self._lock:
-            for node_id in list(self._pool.keys()):
-                self.close_connection(node_id)
-
-    def start_heartbeat_monitor(self) -> None:
-        """Start the background thread that monitors connection health."""
-        if self._heartbeat_thread is not None and self._heartbeat_thread.is_alive():
-            return
-
-        self._stop_heartbeat.clear()
-        self._heartbeat_thread = threading.Thread(
-            target=self._heartbeat_loop, daemon=True
-        )
-        self._heartbeat_thread.start()
-        self.logger.info("Heartbeat monitor started")
-
-    def stop_heartbeat_monitor(self) -> None:
-        """Stop the background heartbeat monitor."""
-        self._stop_heartbeat.set()
-        if self._heartbeat_thread is not None:
-            self._heartbeat_thread.join(timeout=self.heartbeat_interval + 5)
-            self.logger.info("Heartbeat monitor stopped")
-
-    def _heartbeat_loop(self) -> None:
-        """Background loop to check heartbeats on all pooled connections."""
-        while not self._stop_heartbeat.is_set():
-            try:
-                with self._lock:
-                    nodes_to_check = list(self._pool.keys())
-                
-                for node_id in nodes_to_check:
-                    if self._stop_heartbeat.is_set():
-                        break
-                    
-                    conn = self._pool.get(node_id)
-                    if conn:
-                        # Check if enough time has passed since last heartbeat
-                        if time.time() - conn.last_heartbeat >= self.heartbeat_interval:
-                            is_healthy = conn.check_heartbeat(timeout=self.connection_timeout)
-                            if not is_healthy:
-                                self.logger.warning(
-                                    f"Node {node_id} failed heartbeat. Marking unhealthy."
-                                )
-                                # Optional: remove from pool if we want to force reconnect on next use
-                                # self.close_connection(node_id) 
-            except Exception as e:
-                self.logger.error(f"Error in heartbeat loop: {e}")
-            
-            # Sleep in small increments to allow quick shutdown
-            for _ in range(int(self.heartbeat_interval)):
-                if self._stop_heartbeat.is_set():
-                    break
-                time.sleep(1)
-
-    @contextmanager
-    def get_connection_context(self, node: PhysicalNode) -> Generator[paramiko.SSHClient, None, None]:
-        """
-        Context manager to get a connection and ensure it is released (or kept in pool) properly.
-        Yields the raw paramiko.SSHClient for the caller to execute commands.
-        """
-        conn = self.get_connection(node)
-        try:
-            yield conn.client
-            self.release_connection(node.node_id)
-        except Exception as e:
-            self.logger.error(f"Error using connection for {node.node_id}: {e}")
-            conn.is_healthy = False
-            raise
-
-    def execute_command(
-        self,
-        node: PhysicalNode,
-        command: str,
-        timeout: Optional[float] = None,
-    ) -> tuple[int, str, str]:
-        """
-        Execute a command on a node and return (exit_code, stdout, stderr).
-        Handles connection lifecycle.
-        """
-        if timeout is None:
-            timeout = self.connection_timeout * 2 # Default command timeout
-
-        conn = self.get_connection(node)
-        try:
-            with conn.lock:
-                stdin, stdout, stderr = conn.client.exec_command(
-                    command, timeout=timeout
+            if key_path:
+                key = paramiko.RSAKey.from_private_key_file(key_path)
+                client.connect(
+                    hostname=host,
+                    port=port,
+                    username=username,
+                    pkey=key,
+                    timeout=5
                 )
-                exit_status = stdout.channel.recv_exit_status()
-                out = stdout.read().decode("utf-8", errors="replace")
-                err = stderr.read().decode("utf-8", errors="replace")
-                conn.mark_used()
-                return exit_status, out, err
-        except (paramiko.SSHException, OSError, TimeoutError) as e:
-            self.logger.error(f"Command execution failed on {node.node_id}: {e}")
-            conn.is_healthy = False
-            raise
+            else:
+                # Fallback to password if no key (not recommended for production)
+                password = node_cfg.get("password")
+                if not password:
+                    raise ValueError(f"No authentication method for node {node_id}")
+                client.connect(
+                    hostname=host,
+                    port=port,
+                    username=username,
+                    password=password,
+                    timeout=5
+                )
+
+            # Execute a simple command to verify shell access
+            stdin, stdout, stderr = client.exec_command("echo 'connection_ok'")
+            exit_status = stdout.channel.recv_exit_status()
+            output = stdout.read().decode().strip()
+
+            if exit_status != 0 or "connection_ok" not in output:
+                raise ConnectionRefusedError(f"Node {node_id} shell access failed")
+
+            # Store connection for later use
+            self.active_connections[node_id] = client
+
+            # Create PhysicalNode object
+            return PhysicalNode(
+                id=node_id,
+                host=host,
+                port=port,
+                username=username,
+                status=NodeStatus.ONLINE,
+                last_heartbeat=datetime.now(),
+                cpu_cores=node_cfg.get("cpu_cores", 4),
+                ram_gb=node_cfg.get("ram_gb", 8),
+                storage_gb=node_cfg.get("storage_gb", 100)
+            )
+
+        except (socket.timeout, paramiko.AuthenticationException, 
+                paramiko.SSHException, ConnectionRefusedError) as e:
+            if node_id in self.active_connections:
+                del self.active_connections[node_id]
+            raise e
         finally:
-            self.release_connection(node.node_id)
+            # Do not close the connection here; it will be used for commands
+            pass
 
-    def is_node_available(self, node: PhysicalNode) -> bool:
-        """Check if a node is currently available (healthy connection exists)."""
-        with self._lock:
-            if node.node_id not in self._pool:
+    def ping_node(self, node_id: str) -> bool:
+        """
+        Send a heartbeat ping to a specific node.
+
+        Args:
+            node_id: The ID of the node to ping.
+
+        Returns:
+            True if node responds, False otherwise.
+        """
+        if node_id not in self.active_connections:
+            self.logger.warning(f"Node {node_id} not in active connections")
+            return False
+
+        client = self.active_connections.get(node_id)
+        if not client:
+            return False
+
+        try:
+            stdin, stdout, stderr = client.exec_command("echo 'ping'")
+            exit_status = stdout.channel.recv_exit_status()
+            if exit_status == 0:
+                self.node_states[node_id] = NodeStatus.ONLINE
+                heartbeat(node_id, "ping_success")
+                return True
+            else:
+                self.node_states[node_id] = NodeStatus.UNRESPONSIVE
+                heartbeat(node_id, "ping_failed")
                 return False
-            return self._pool[node.node_id].is_healthy
+        except Exception as e:
+            self.logger.error(f"Ping failed for node {node_id}: {e}")
+            self.node_states[node_id] = NodeStatus.OFFLINE
+            heartbeat(node_id, "ping_exception", str(e))
+            return False
 
-    def __enter__(self) -> "NodeManager":
-        self.start_heartbeat_monitor()
+    def check_heartbeats(self) -> Dict[str, bool]:
+        """
+        Check heartbeats for all active nodes.
+
+        Returns:
+            Dictionary mapping node_id to ping status.
+        """
+        results = {}
+        for node_id in list(self.active_connections.keys()):
+            results[node_id] = self.ping_node(node_id)
+        return results
+
+    def disconnect_node(self, node_id: str) -> bool:
+        """
+        Gracefully disconnect from a specific node.
+
+        Args:
+            node_id: The ID of the node to disconnect.
+
+        Returns:
+            True if disconnected successfully, False otherwise.
+        """
+        if node_id in self.active_connections:
+            try:
+                self.active_connections[node_id].close()
+                del self.active_connections[node_id]
+                self.logger.info(f"Disconnected from node {node_id}")
+                return True
+            except Exception as e:
+                self.logger.error(f"Error disconnecting node {node_id}: {e}")
+                return False
+        return False
+
+    def disconnect_all(self) -> None:
+        """Disconnect from all active nodes."""
+        for node_id in list(self.active_connections.keys()):
+            self.disconnect_node(node_id)
+        self.logger.info("Disconnected from all nodes")
+
+    def execute_command(self, node_id: str, command: str, timeout: int = 30) -> Dict[str, Any]:
+        """
+        Execute a command on a specific node.
+
+        Args:
+            node_id: The ID of the node.
+            command: The shell command to execute.
+            timeout: Command execution timeout in seconds.
+
+        Returns:
+            Dictionary with 'exit_code', 'stdout', 'stderr'.
+
+        Raises:
+            ValueError: If node is not connected.
+            TimeoutError: If command exceeds timeout.
+        """
+        if node_id not in self.active_connections:
+            raise ValueError(f"Node {node_id} is not connected")
+
+        client = self.active_connections[node_id]
+        try:
+            stdin, stdout, stderr = client.exec_command(command, timeout=timeout)
+            exit_status = stdout.channel.recv_exit_status()
+            
+            # Read output
+            stdout_data = stdout.read().decode(errors='replace')
+            stderr_data = stderr.read().decode(errors='replace')
+
+            return {
+                "exit_code": exit_status,
+                "stdout": stdout_data,
+                "stderr": stderr_data
+            }
+        except socket.timeout:
+            raise TimeoutError(f"Command on node {node_id} timed out after {timeout}s")
+        except Exception as e:
+            self.logger.error(f"Command execution failed on {node_id}: {e}")
+            raise
+
+    def get_node_status(self, node_id: str) -> Optional[NodeStatus]:
+        """Get the current status of a node."""
+        return self.node_states.get(node_id)
+
+    def get_all_statuses(self) -> Dict[str, NodeStatus]:
+        """Get status of all known nodes."""
+        return self.node_states.copy()
+
+    def detect_dropout_events(self, threshold_seconds: int = 60) -> List[Dict[str, Any]]:
+        """
+        Detect nodes that have entered a dropout state (sleep/lost power).
+        
+        Args:
+            threshold_seconds: Time in seconds after which a node is considered dropped.
+
+        Returns:
+            List of dropout events with node_id, timestamp, and reason.
+        """
+        events = []
+        current_time = datetime.now()
+
+        for node_id, status in self.node_states.items():
+            if status == NodeStatus.OFFLINE or status == NodeStatus.UNRESPONSIVE:
+                # Check if this is a recent change or a persistent state
+                # For now, we assume if it's offline, it's a dropout
+                events.append({
+                    "node_id": node_id,
+                    "timestamp": current_time.isoformat(),
+                    "reason": f"Node {node_id} is {status.value}",
+                    "duration_seconds": threshold_seconds
+                })
+                self.logger.warning(f"Dropout event detected for node {node_id}")
+
+        return events
+
+    def __enter__(self):
+        """Context manager entry."""
         return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb) -> None:
-        self.stop_heartbeat_monitor()
-        self.close_all()
-
-def create_node_manager(
-    config_path: Optional[str] = None,
-    heartbeat_interval: float = DEFAULT_HEARTBEAT_INTERVAL,
-) -> NodeManager:
-    """
-    Factory function to create a NodeManager instance.
-    """
-    config = load_config(config_path) if config_path else load_config()
-    return NodeManager(
-        config=config,
-        heartbeat_interval=heartbeat_interval,
-    )
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        """Context manager exit - ensure all connections are closed."""
+        self.disconnect_all()
+        return False

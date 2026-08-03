@@ -1,0 +1,78 @@
+# Mesh Network Supercomputer Configuration
+# This file defines the base configuration for the project
+
+# Node definitions for the physical testbed
+nodes:
+  - id: node_001
+    host: 192.168.1.101
+    cpu_cores: 4
+    ram_gb: 8
+    role: worker
+  - id: node_002
+    host: 192.168.1.102
+    cpu_cores: 8
+    ram_gb: 16
+    role: worker
+  - id: node_003
+    host: 192.168.1.103
+    cpu_cores: 4
+    ram_gb: 8
+    role: worker
+  - id: orchestrator
+    host: 192.168.1.100
+    cpu_cores: 8
+    ram_gb: 32
+    role: master
+
+# Granularity settings for task chunk sizes (in number of Monte Carlo iterations)
+granularity:
+  fine: 1000      # 1,000 iterations per chunk
+  medium: 10000   # 10,000 iterations per chunk
+  coarse: 100000  # 100,000 iterations per chunk
+
+# CI and pipeline timeouts (in seconds)
+ci_timeout:
+  seconds: 21600  # 6 hours for the full CI run
+
+pipeline_timeout:
+  seconds: 18000  # 5 hours for the execution + analysis + simulation pipeline
+
+# Parameter sweep configuration
+node_count_range:
+  min: 3
+  max: 10
+  step: 1
+
+# SSH connection settings
+ssh:
+  timeout: 30
+  retry_attempts: 3
+  retry_delay: 5
+  port: 22
+  username: "runner"
+
+# Network impairment settings for experiments
+network_impairments:
+  enabled: true
+  default_latency_ms: 10
+  default_packet_loss_pct: 0.1
+  max_packet_loss_threshold: 20  # Abort if packet loss exceeds this percentage
+
+# Simulation model configuration
+simulation:
+  calibration_tolerance: 0.05  # 5% tolerance for calibration
+  max_iterations: 1000
+  random_seed: 42
+
+# Experiment metadata
+experiment:
+  name: "mesh_supercomputer_baseline"
+  version: "1.0.0"
+  description: "Baseline experiment for mesh network supercomputer performance analysis"
+
+# Data output paths
+paths:
+  raw_data: "code/data/raw"
+  processed_data: "code/data/processed"
+  figures: "figures"
+  logs: "code/logs"
