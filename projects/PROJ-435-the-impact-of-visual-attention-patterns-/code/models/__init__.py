@@ -1,15 +1,9 @@
 """
-Data models for the visual attention and misinformation study.
-
-This module provides dataclasses for Participant, Stimulus, and GazeEvent
-to represent the core entities in the eye-tracking experiment.
+Data models for the visual attention study.
+Exports Participant, Stimulus, and GazeEvent classes.
 """
 from .participant import Participant
 from .stimulus import Stimulus
 from .gaze_event import GazeEvent
 
-__all__ = [
-    "Participant",
-    "Stimulus",
-    "GazeEvent"
-]
+__all__ = ["Participant", "Stimulus", "GazeEvent"]

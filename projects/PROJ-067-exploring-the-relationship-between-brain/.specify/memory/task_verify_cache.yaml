@@ -1,0 +1,45 @@
+T015:
+  c: false
+  h: 0422610cd8eaffbd427f1c602ad64874af548f1f9776a4aecb479ecbc87c9b63
+  r: "The `filter_subjects.py` file is present but the shown code is truncated and\
+    \ does not demonstrate sorting, selection, writing `data/raw/valid_subjects.json`,\
+    \ or raising a `FatalError` with the exact required message. Moreover, the required\
+    \ output file `data/raw/valid_subjects.json` is missing. The task\u2019s core\
+    \ requirement\u2014producing a JSON file with exactly 50 valid subjects or raising\
+    \ the specified error\u2014is not satisfied."
+T016:
+  c: false
+  h: d1820720f36e87daf36b4e9a5c5b777bc1bf14a9ece1ee6a667c23d0d9c9e3d9
+  r: "The repository contains a `code/data/download.py` file, but it is incomplete\
+    \ (truncated) and cannot be verified as a working implementation. Moreover, the\
+    \ required `data/raw/valid_subjects.json` file does not exist, so the script has\
+    \ no subject list to operate on. Both required artifacts are missing or non\u2011\
+    functional."
+T018:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a modified `preprocess.py` that imports and uses `memory_monitor.py`,\
+    \ nor any code showing an RSS\u2011monitoring check that aborts when usage exceeds\
+    \ 7\u202FGB, was provided. The required integration artifact is missing."
+T019:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `preprocess.py` file or code changes were provided showing a Framewise Displacement\
+    \ calculation or the logic to drop subjects with FD\u202F>\u202F0.5\u202Fmm, so\
+    \ the required artifact is missing. The implementer must add the FD computation\
+    \ and exclusion code to the preprocessing script."
+T020:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, configuration, or log files were provided showing that logging for excluded
+    subjects (due to missing metadata or high motion) and a total processing count
+    have been added. The artifact required to demonstrate the new logging behavior
+    is missing.
+T021:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact (script, log, or size report) was provided to demonstrate that intermediate\
+    \ files are cleaned up or compressed and that the total directory size stays \u2264\
+    \u202F7\u202FGB as required by US1 Acceptance Scenario\u202F1. The implementer\
+    \ must supply the preprocessing code and evidence (e.g., directory size check,\
+    \ logs) showing the size constraint is met."

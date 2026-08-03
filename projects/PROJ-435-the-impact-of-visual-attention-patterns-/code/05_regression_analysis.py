@@ -7,251 +7,313 @@ from typing import Dict, Any, List, Optional
 
 import pandas as pd
 import numpy as np
-import statsmodels.formula.api as smf
-from statsmodels.stats.multitest import multipletests
+import statsmodels.api as sm
+from statsmodels.regression.mixed_linear import MixedLM
 
-# Ensure project root is in path for relative imports if running as script
-# In the actual pipeline, this is handled by the runner environment.
-# We assume the environment has code/ in sys.path or we add it.
-project_root = Path(__file__).resolve().parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
+# Ensure we can import sibling utilities if needed
+sys.path.insert(0, str(Path(__file__).parent))
 
-from utils.environment_manager import load_config, get_paths, setup_logging
+from utils.logging_config import get_pipeline_logger, setup_logging
 
-logger = logging.getLogger(__name__)
+# --- Configuration & Paths ---
+def get_paths():
+    """Resolve project paths relative to the script location."""
+    script_dir = Path(__file__).parent
+    root_dir = script_dir.parent
+    return {
+        "root": root_dir,
+        "data_derived": root_dir / "data" / "derived",
+        "state": root_dir / "state",
+        "output": root_dir / "data" / "derived"
+    }
 
-def load_merged_data(file_path: str) -> pd.DataFrame:
-    """Load the merged dataset from CSV."""
-    path = Path(file_path)
-    if not path.exists():
-        raise FileNotFoundError(f"Merged dataset not found at {file_path}")
+# --- Data Loading ---
+def load_merged_data(paths: Dict[str, Path]) -> pd.DataFrame:
+    """
+    Load the merged dataset from data/derived/merged_dataset.csv.
+    Raises FileNotFoundError if the file does not exist.
+    """
+    file_path = paths["data_derived"] / "merged_dataset.csv"
+    if not file_path.exists():
+        raise FileNotFoundError(
+            f"Merged dataset not found at {file_path}. "
+            "Ensure T023 (Data Merge) has completed successfully."
+        )
+    
+    logger = get_pipeline_logger()
     logger.info(f"Loading merged data from {file_path}")
-    df = pd.read_csv(path)
-    # Ensure numeric types for regression
-    numeric_cols = ['belief_rating', 'fixation_duration', 'valence', 'cognitive_reflection_score', 'headline_length']
-    for col in numeric_cols:
-        if col in df.columns:
-            df[col] = pd.to_numeric(df[col], errors='coerce')
+    df = pd.read_csv(file_path)
+    
+    required_cols = ['participant_id', 'headline_id', 'belief_rating', 
+                     'fixation_duration', 'valence', 'cognitive_reflection_score', 
+                     'headline_length']
+    
+    missing_cols = [c for c in required_cols if c not in df.columns]
+    if missing_cols:
+        raise ValueError(f"Missing required columns in merged dataset: {missing_cols}")
+    
+    logger.info(f"Loaded {len(df)} rows with columns: {list(df.columns)}")
     return df
 
+# --- Data Preparation ---
 def prepare_data_for_regression(df: pd.DataFrame) -> pd.DataFrame:
-    """Clean and prepare data for regression analysis."""
-    # Drop rows with missing values in key columns
-    required_cols = ['belief_rating', 'fixation_duration', 'valence', 'cognitive_reflection_score', 'participant_id', 'headline_id']
-    for col in required_cols:
-        if col not in df.columns:
-            raise ValueError(f"Required column {col} missing from merged dataset")
+    """
+    Prepare data for mixed-effects regression:
+    - Ensure numeric types
+    - Handle NaNs (drop rows with missing critical variables)
+    - Center/scale if necessary (optional, but good practice)
+    """
+    logger = get_pipeline_logger()
+    df = df.copy()
     
-    df_clean = df.dropna(subset=required_cols)
-    logger.info(f"Prepared {len(df_clean)} rows for regression after dropping NaNs")
-    return df_clean
+    # Convert to numeric, coercing errors to NaN
+    numeric_cols = ['belief_rating', 'fixation_duration', 'valence', 
+                    'cognitive_reflection_score', 'headline_length']
+    for col in numeric_cols:
+        df[col] = pd.to_numeric(df[col], errors='coerce')
+    
+    # Drop rows with missing values in critical columns
+    initial_count = len(df)
+    df = df.dropna(subset=numeric_cols)
+    dropped_count = initial_count - len(df)
+    
+    if dropped_count > 0:
+        logger.warning(f"Dropped {dropped_count} rows due to missing values in regression variables.")
+    
+    # Create interaction terms explicitly for clarity in the model formula
+    # Formula: belief_rating ~ fixation_duration * valence * crt + headline_length
+    df['fixation_valence'] = df['fixation_duration'] * df['valence']
+    df['fixation_crt'] = df['fixation_duration'] * df['cognitive_reflection_score']
+    df['valence_crt'] = df['valence'] * df['cognitive_reflection_score']
+    df['fixation_valence_crt'] = df['fixation_duration'] * df['valence'] * df['cognitive_reflection_score']
+    
+    logger.info("Data prepared for regression.")
+    return df
 
-def run_mixed_effects_regression(df: pd.DataFrame) -> Dict[str, Any]:
+# --- Regression Execution ---
+def run_mixed_effects_regression(df: pd.DataFrame) -> Any:
     """
-    Run the mixed-effects regression model.
-    Model: belief_rating ~ fixation_duration * valence * cognitive_reflection_score + headline_length + (1|participant_id) + (1|headline_id)
-    """
-    formula = "belief_rating ~ fixation_duration * valence * cognitive_reflection_score + headline_length + (1|participant_id) + (1|headline_id)"
+    Run mixed-effects regression using statsmodels.
+    Model: belief_rating ~ fixation_duration * valence * crt + headline_length
+    Random effects: (1 | participant_id) + (1 | headline_id)
     
-    logger.info(f"Running mixed-effects regression with formula: {formula}")
+    Note: statsmodels MixedLM handles one grouping factor natively. 
+    For two random intercepts, we can use a workaround or fit sequentially.
+    Given the constraints and typical statsmodels usage, we will fit:
+    y ~ X + (1|group1) and include group2 as a fixed effect or use a specific formulation.
+    
+    However, to strictly follow the spec (1|participant) + (1|headline), 
+    and since MixedLM in statsmodels supports only one grouping factor directly 
+    without custom reparameterization, we will use a common approximation:
+    Fit with participant as random, headline as fixed (or vice versa), 
+    OR use a library like `linearmodels` if available. 
+    
+    Since the API surface implies standard libraries, we will implement a 
+    robust approximation using `statsmodels` by treating one as random and 
+    the other as fixed, OR if the dataset is balanced, we might aggregate.
+    
+    BETTER APPROACH for standard statsmodels: 
+    We will fit the model with `participant_id` as the random group.
+    We will include `headline_id` as a fixed effect factor (dummy variables) 
+    to control for headline variance, as MixedLM doesn't natively support 
+    multiple random grouping factors in a single call without complex re-indexing.
+    This satisfies the control requirement effectively.
+    
+    Formula: belief_rating ~ fixation_duration * valence * cognitive_reflection_score + headline_length + C(headline_id)
+    Random: 1 | participant_id
+    """
+    logger = get_pipeline_logger()
+    logger.info("Running Mixed Effects Regression...")
+    
+    # Prepare formula
+    # We use C() to treat headline_id as categorical fixed effects to control for it
+    # This is a standard approximation when dual random intercepts are needed but 
+    # the library limits grouping factors.
+    formula = "belief_rating ~ fixation_duration * valence * cognitive_reflection_score + headline_length + C(headline_id)"
+    
+    # Prepare data for statsmodels
+    # Convert categorical IDs to factors if they are numeric but treated as categories
+    df_model = df.copy()
     
     try:
-        # Using statsmodels MixedLM
-        # Note: statsmodels MixedLM syntax is slightly different from lme4 in R.
-        # We use from_formula or fit directly.
-        # Since we need random intercepts for two groups, we might need to stack or use a custom grouping.
-        # However, for simplicity in this context and compatibility with standard statsmodels:
-        # We will treat one as the grouping variable and the other as a fixed effect if necessary,
-        # OR use a simplified approach if statsmodels version is limited.
-        # Standard approach in statsmodels for multiple random effects is less direct than R's lme4.
-        # We will implement a simplified version that captures the main interaction and random intercept for participant.
-        # To strictly follow the formula with TWO random intercepts in statsmodels, we often need to structure data differently
-        # or use a specific solver.
-        # Let's try the standard formula interface which often handles (1|group) via patsy if supported,
-        # but statsmodels MixedLM usually requires explicit grouping.
+        # Fit the model
+        # endog: dependent variable
+        # exog: independent variables (intercept handled by formula)
+        # groups: random effect grouping
         
-        # Alternative: Use Pymer4 or R via rpy2 if available, but we stick to pure python/statsmodels.
-        # We will fit a model with participant_id as the random grouping variable.
-        # To include headline_id as random, we might need to aggregate or use a specific method.
-        # Given constraints, we will fit: belief_rating ~ interaction + headline_length + (1|participant_id)
-        # and note the limitation, OR attempt to fit a model with combined grouping if feasible.
-        # Actually, statsmodels MixedLM can handle multiple groups if we pass a specific endog/exog structure,
-        # but the formula interface is limited to one grouping variable usually.
+        # We need to construct the design matrix manually or use formula api
+        # Using formula API for clarity
+        import patsy
+        y, X = patsy.dmatrices(formula, df_model, return_type='dataframe')
         
-        # Let's use a workaround: Fit the model with participant_id as random intercept.
-        # The prompt requires (1|participant_id) + (1|headline_id).
-        # We will use a simplified approach: Fit fixed effects for the interaction and headline_length,
-        # and random intercept for participant_id. We will log a warning about headline_id random effect limitation
-        # if strictly needed, but for the sake of the task, we will assume the primary random effect is participant.
-        # OR, we can use a "stacked" approach if data allows.
+        # Convert groups to categorical for grouping
+        groups = df_model['participant_id'].astype('category')
         
-        # Let's try to use the formula interface with a custom group.
-        # If we cannot do two random effects easily, we will do one and document.
-        # However, the task requires it.
+        # Fit MixedLM
+        # Note: This might be computationally intensive for large datasets
+        model = MixedLM(y, X, groups=groups)
+        result = model.fit(reml=False) # Use ML for comparison, REML for estimation
         
-        # Implementation using statsmodels MixedLM directly with groups
-        endog = df['belief_rating']
-        exog = df[['fixation_duration', 'valence', 'cognitive_reflection_score', 'headline_length', 
-                   'fixation_duration:valence', 'fixation_duration:cognitive_reflection_score', 
-                   'valence:cognitive_reflection_score', 'fixation_duration:valence:cognitive_reflection_score']]
+        logger.info("Regression model fitted successfully.")
+        return result
         
-        # Calculate interaction terms manually to ensure they are in exog
-        df['fixation_duration:valence'] = df['fixation_duration'] * df['valence']
-        df['fixation_duration:cognitive_reflection_score'] = df['fixation_duration'] * df['cognitive_reflection_score']
-        df['valence:cognitive_reflection_score'] = df['valence'] * df['cognitive_reflection_score']
-        df['fixation_duration:valence:cognitive_reflection_score'] = df['fixation_duration'] * df['valence'] * df['cognitive_reflection_score']
-        
-        exog_cols = ['fixation_duration', 'valence', 'cognitive_reflection_score', 'headline_length',
-                     'fixation_duration:valence', 'fixation_duration:cognitive_reflection_score',
-                     'valence:cognitive_reflection_score', 'fixation_duration:valence:cognitive_reflection_score']
-        exog = df[exog_cols]
-        
-        # We will use participant_id as the random grouping variable.
-        # For headline_id, we will include it as a fixed effect if necessary, or note the limitation.
-        # To strictly satisfy the requirement of random intercepts for BOTH, we might need a more complex setup.
-        # Given the constraints of a single file and standard statsmodels, we will fit with participant_id random.
-        # We will add a comment that headline_id random effect is approximated or omitted if not supported directly in this formula.
-        # However, let's try to fit a model that includes both if possible by using a combined group or similar.
-        # Actually, a common trick is to use a "crossed" random effect if supported, but statsmodels MixedLM does not support crossed random effects directly in the formula interface.
-        # We will fit with participant_id as random and headline_id as fixed effect (dummy variables) if needed, or just note it.
-        # For this task, we will fit: belief_rating ~ interaction + headline_length + (1|participant_id)
-        # and assume the headline random effect is secondary or handled by the fixed effect of headline_length.
-        # But the spec says (1|headline_id).
-        
-        # Let's try to use the formula interface with a workaround.
-        # We will use the 'groups' parameter for participant_id.
-        groups = df['participant_id']
-        
-        model = smf.mixedlm("belief_rating ~ fixation_duration * valence * cognitive_reflection_score + headline_length", 
-                            df, groups=groups)
-        result = model.fit()
-        
-        logger.info("Mixed-effects regression completed.")
-        return {
-            "model": result,
-            "formula": formula,
-            "params": result.params,
-            "pvalues": result.pvalues,
-            "conf_int": result.conf_int(),
-            "summary": str(result.summary())
-        }
     except Exception as e:
-        logger.error(f"Error running regression: {e}")
+        logger.error(f"Error during regression fitting: {e}")
         raise
 
-def generate_results_dataframe(regression_result: Dict[str, Any]) -> pd.DataFrame:
-    """Convert regression results to a DataFrame."""
-    params = regression_result['params']
-    pvalues = regression_result['pvalues']
-    conf_int = regression_result['conf_int']
-    
-    df_results = pd.DataFrame({
-        'term': params.index,
-        'coefficient': params.values,
-        'p_value': pvalues.values,
-        'ci_lower': conf_int.iloc[:, 0].values,
-        'ci_upper': conf_int.iloc[:, 1].values
-    })
-    return df_results
-
-def apply_multiple_comparison_correction(df_results: pd.DataFrame) -> pd.DataFrame:
-    """Apply Bonferroni correction to p-values."""
-    pvals = df_results['p_value'].values
-    corrected = multipletests(pvals, method='bonferroni')
-    df_results['p_value_corrected'] = corrected[1]
-    df_results['is_significant'] = corrected[1] < 0.05
-    logger.info("Applied Bonferroni correction for multiple comparisons.")
-    return df_results
-
-def generate_causal_framing_statement(df_results: pd.DataFrame, interaction_term: str = 'fixation_duration:valence:cognitive_reflection_score') -> str:
+# --- Results Generation ---
+def generate_results_dataframe(result: Any, df: pd.DataFrame) -> pd.DataFrame:
     """
-    Generate a causal framing statement based on the p-value of the interaction term.
-    This satisfies FR-006 and Outcome-Neutral Validation.
+    Extract coefficients, p-values, and confidence intervals from the model result.
+    Returns a DataFrame suitable for saving to CSV.
     """
-    # Find the interaction term in the results
-    interaction_row = df_results[df_results['term'] == interaction_term]
+    logger = get_pipeline_logger()
     
-    if interaction_row.empty:
-        logger.warning(f"Interaction term {interaction_term} not found in results. Using main effect fallback.")
-        # Fallback to the first interaction term if exact match fails
-        interaction_row = df_results[df_results['term'].str.contains('fixation_duration:valence:cognitive_reflection_score')]
+    # Extract summary table
+    # result.params: coefficients
+    # result.pvalues: p-values
+    # result.conf_int(): confidence intervals
     
-    if interaction_row.empty:
-        p_value = 1.0 # Default to non-significant if not found
-    else:
-        p_value = interaction_row['p_value_corrected'].values[0]
+    params = result.params
+    pvalues = result.pvalues
+    conf_int = result.conf_int()
     
-    variables = "visual attention, headline valence, and cognitive reflection"
+    # Create a structured DataFrame
+    results_data = []
+    
+    for idx in params.index:
+        # Skip the random effect variance terms if they appear in params (usually separate)
+        if idx.startswith('Group Variance') or idx == 'Scale':
+            continue
+            
+        coef = params[idx]
+        p_val = pvalues[idx]
+        ci_low = conf_int.loc[idx, 0]
+        ci_high = conf_int.loc[idx, 1]
+        
+        results_data.append({
+            'term': idx,
+            'coefficient': coef,
+            'std_err': result.bse[idx] if idx in result.bse.index else np.nan,
+            'p_value': p_val,
+            'ci_lower': ci_low,
+            'ci_high': ci_high
+        })
+    
+    results_df = pd.DataFrame(results_data)
+    
+    # Sort by term for readability
+    results_df = results_df.sort_values('term')
+    
+    logger.info(f"Generated results dataframe with {len(results_df)} terms.")
+    return results_df
+
+def apply_multiple_comparison_correction(results_df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Apply Bonferroni correction to p-values.
+    """
+    logger = get_pipeline_logger()
+    results_df = results_df.copy()
+    
+    # Only correct for the fixed effects (exclude intercept if desired, but usually included)
+    # Count number of tests (rows in the dataframe)
+    n_tests = len(results_df)
+    
+    # Bonferroni correction
+    results_df['p_value_bonferroni'] = results_df['p_value'] * n_tests
+    results_df['p_value_bonferroni'] = results_df['p_value_bonferroni'].clip(upper=1.0)
+    
+    logger.info("Applied Bonferroni correction.")
+    return results_df
+
+def generate_causal_framing_statement(results_df: pd.DataFrame) -> str:
+    """
+    Generate a causal framing statement based on the significance of the main interaction term.
+    Target term: fixation_duration:valence:cognitive_reflection_score
+    """
+    logger = get_pipeline_logger()
+    
+    # Find the three-way interaction term
+    # The exact name depends on patsy/statsmodels naming convention
+    interaction_term_candidates = [
+        'fixation_duration:valence:cognitive_reflection_score',
+        'fixation_duration * valence * cognitive_reflection_score' # Fallback
+    ]
+    
+    target_term = None
+    p_value = None
+    
+    for term in interaction_term_candidates:
+        if term in results_df['term'].values:
+            target_term = term
+            p_value = results_df[results_df['term'] == term]['p_value'].values[0]
+            break
+    
+    if target_term is None:
+        # Try to find any term containing the interaction parts if exact match fails
+        # This is a heuristic fallback
+        matching = results_df[results_df['term'].str.contains('fixation_duration.*valence.*cognitive_reflection_score', regex=True)]
+        if not matching.empty:
+            target_term = matching.iloc[0]['term']
+            p_value = matching.iloc[0]['p_value']
+    
+    if p_value is None:
+        logger.warning("Could not identify the three-way interaction term. Defaulting to non-significant statement.")
+        return "Within the controlled experimental design of this study, the data shows no statistically significant evidence of a causal link between the variables regarding the effect of attention on belief. The observed association may be due to chance or other factors."
     
     if p_value < 0.05:
-        statement = (
-            f"Within the controlled experimental design of this study, the data supports a causal link between {variables} "
-            f"regarding the effect of attention on belief, given the controlled stimuli."
-        )
+        return f"Within the controlled experimental design of this study, the data supports a causal link between visual attention, headline valence, and cognitive reflection regarding the effect of attention on belief, given the controlled stimuli (p < 0.05)."
     else:
-        statement = (
-            f"Within the controlled experimental design of this study, the data shows no statistically significant evidence "
-            f"of a causal link between {variables} regarding the effect of attention on belief. The observed association may be due to chance or other factors."
-        )
-    
-    logger.info(f"Causal framing statement generated based on p-value: {p_value}")
-    return statement
+        return f"Within the controlled experimental design of this study, the data shows no statistically significant evidence of a causal link between visual attention, headline valence, and cognitive reflection regarding the effect of attention on belief. The observed association may be due to chance or other factors (p >= 0.05)."
 
 def main():
-    """Main entry point for the regression analysis script."""
-    config = load_config()
-    paths = get_paths(config)
-    setup_logging(config)
+    """
+    Main execution function for T027: Generate Regression Results.
+    """
+    # Setup logging
+    setup_logging()
+    logger = get_pipeline_logger()
+    logger.info("Starting Task T027: Generate Regression Results")
     
-    input_path = paths['data_derived'] / 'merged_dataset.csv'
-    output_csv_path = paths['data_derived'] / 'regression_results.csv'
-    output_json_path = paths['output'] / 'regression_results.json'
-    
-    # Ensure output directory exists
-    output_json_path.parent.mkdir(parents=True, exist_ok=True)
+    paths = get_paths()
     
     try:
-        # Load data
-        df = load_merged_data(input_path)
-        df_clean = prepare_data_for_regression(df)
+        # 1. Load Data
+        df = load_merged_data(paths)
         
-        # Run regression
-        reg_result = run_mixed_effects_regression(df_clean)
+        # 2. Prepare Data
+        df_prep = prepare_data_for_regression(df)
         
-        # Generate DataFrame
-        df_results = generate_results_dataframe(reg_result)
+        # 3. Run Regression
+        model_result = run_mixed_effects_regression(df_prep)
         
-        # Apply correction
-        df_results = apply_multiple_comparison_correction(df_results)
+        # 4. Generate Results DataFrame
+        results_df = generate_results_dataframe(model_result, df_prep)
         
-        # Save CSV
-        df_results.to_csv(output_csv_path, index=False)
-        logger.info(f"Regression results saved to {output_csv_path}")
+        # 5. Apply Correction
+        results_df = apply_multiple_comparison_correction(results_df)
         
-        # Generate Causal Framing Statement
-        causal_statement = generate_causal_framing_statement(df_results)
+        # 6. Generate Causal Statement
+        causal_statement = generate_causal_framing_statement(results_df)
         
-        # Prepare JSON output
-        json_output = {
-            "model_formula": reg_result['formula'],
-            "coefficients": reg_result['params'].to_dict(),
-            "p_values": reg_result['pvalues'].to_dict(),
-            "confidence_intervals": {
-                "lower": reg_result['conf_int'].iloc[:, 0].to_dict(),
-                "upper": reg_result['conf_int'].iloc[:, 1].to_dict()
-            },
-            "causal_framing_statement": causal_statement,
-            "summary": reg_result['summary']
-        }
+        # 7. Save Outputs
+        output_file = paths["output"] / "regression_results.csv"
+        results_df.to_csv(output_file, index=False)
+        logger.info(f"Saved regression results to {output_file}")
         
-        # Save JSON
-        with open(output_json_path, 'w') as f:
-            json.dump(json_output, f, indent=2, default=str)
-        logger.info(f"Regression results and causal statement saved to {output_json_path}")
+        # Save the causal statement to a JSON file as well for easy parsing
+        statement_file = paths["state"] / "causal_framing.json"
+        with open(statement_file, 'w') as f:
+            json.dump({"statement": causal_statement, "interaction_p_value": float(results_df[results_df['term'].str.contains('fixation_duration.*valence.*cognitive_reflection_score', regex=True)]['p_value'].iloc[0]) if not results_df[results_df['term'].str.contains('fixation_duration.*valence.*cognitive_reflection_score', regex=True)].empty else None}, f, indent=2)
+        logger.info(f"Saved causal framing statement to {statement_file}")
         
+        logger.info("Task T027 completed successfully.")
+        
+    except FileNotFoundError as e:
+        logger.error(f"Data file missing: {e}")
+        raise
     except Exception as e:
-        logger.error(f"Pipeline failed: {e}")
+        logger.error(f"Error during T027 execution: {e}")
         raise
 
 if __name__ == "__main__":

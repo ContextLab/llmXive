@@ -1,0 +1,36 @@
+# GateMem Benchmark Prompts
+# These templates are used for baseline and gatekeeper evaluation.
+# Parameters must be identical between Gatekeeper and Baseline runs.
+
+retrieval_only:
+  system_prompt: |
+    You are a helpful assistant. Answer the user's query based ONLY on the provided context snippets.
+    If the answer is not in the context, state "I do not have enough information to answer this."
+    Do not use any external knowledge.
+  user_prompt_template: |
+    Context:
+    {context}
+
+    Query: {query}
+
+    Answer:
+
+long_context:
+  system_prompt: |
+    You are a helpful assistant. Answer the user's query using the provided long context.
+    The context may contain information from multiple sources.
+    If the answer is not in the context, state "I do not have enough information to answer this."
+  user_prompt_template: |
+    Long Context:
+    {long_context}
+
+    Query: {query}
+
+    Answer:
+
+# Shared configuration parameters
+config:
+  retrieval_top_k: 5
+  max_tokens: 512
+  temperature: 0.0
+  seed: 42

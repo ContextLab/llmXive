@@ -7,19 +7,21 @@ T006b:
     module and include the schema file to perform the required checks.
 T010:
   c: false
-  h: 3f26e5be8660c82f24a4eee31c19bb76358840668add7a137482df21ddc51e84
-  r: "The test file `tests/contract/test_dataset_schema.py` exists, but it references\
-    \ a non\u2011existent schema file (`contracts/dataset.schema.yaml`) and the required\
-    \ `dataset.schema.yaml` is missing entirely. Consequently the test cannot actually\
-    \ validate raw data against the real schema as the task demands. The missing schema\
-    \ file (and incorrect path) must be added/fixed for the task to be complete."
+  h: b55a5d9331b8976434d526f16521805b2d86dcca33503d2b0cce51b8db4a94d4
+  r: "The `tests/contract/test_dataset_schema.py` file is present, but it relies on\
+    \ `contracts/dataset.schema.yaml`, which does not exist in the repository, so\
+    \ the tests cannot actually load or validate against the schema. Without the schema\
+    \ file, the test suite cannot run successfully, meaning the task\u2019s requirement\
+    \ is not genuinely satisfied."
 T011:
   c: false
-  h: 8f880cb10aebdcb0af8ba8c3cc17b552c8c6ba20c6016f165613cd3e03831293
-  r: The `tests/contract/test_results_schema.py` file is present, but the referenced
-    schema file `contracts/results.schema.yaml` does not exist, so the test cannot
-    actually validate any output against the required schema. The missing schema file
-    must be added for the task to be fulfilled.
+  h: 9942ba1de8f8a953a26b32e310b8dc2fccbef2cc790aeced66810b0cde1b6cb2
+  r: "The provided `tests/contract/test_results_schema.py` attempts to load `contracts/results.schema.yaml`,\
+    \ but that schema file is missing from the repository, so the test cannot actually\
+    \ validate any output. Additionally, the displayed contents of the test file are\
+    \ truncated, indicating the implementation may be incomplete. The task\u2019s\
+    \ requirement of having a functional contract test against an existing `results.schema.yaml`\
+    \ is not met."
 T012:
   c: false
   h: f3d13f490452c4b5612d374ce4417af72d029a3078df2891689d5ad9991c8420
@@ -27,6 +29,14 @@ T012:
     (or `schema.yaml`) are missing from the repository, so no verification can be
     performed. The task cannot be considered done until both files exist and are validated
     against each other.
+T013:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The implementer provided only the task description and specification but no\
+    \ actual artifact\u2014no test script, execution logs, or Access Control score\
+    \ output for the \u201Cmedical\u201D domain subset. Consequently, there is no\
+    \ evidence that the pipeline was run or that the required score was calculated.\
+    \ The missing concrete test results must be supplied."
 T015a:
   c: false
   h: 66ec931846c0c159e5a95041f7cb8f22403fb9b7b88f49538d956b6454bdd150
@@ -39,3 +49,22 @@ T015b:
   r: "The required file `src/gatekeeper/rules.py` does not exist, so no code handling\
     \ malformed deletion log entries or logging to `logs/deletion_errors.log` is present.\
     \ The task\u2019s core artifact is missing."
+T017:
+  c: false
+  h: 1f36fa567bc11643a99f64309ae470e31a509492465ed8adfba8eda90fa09e55
+  r: The required source file `src/gatekeeper/pipeline.py` does not exist, and the
+    expected output `data/processed/baseline_results.json` is also missing, so the
+    implementation and result generation cannot be verified.
+T020:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration, or test artifacts showing the added validation\u2011\
+    error logging, exclusion logic, or model\u2011load retry handling are present.\
+    \ The implementer provided no files or diff that demonstrate the required error\u2011\
+    handling changes, so the task\u2019s requirement cannot be verified as satisfied."
+T021:
+  c: false
+  h: ce1215ea96bb0f6c7328c4c6081b59cb0d26486570fc96534b960b2ec1fe05d2
+  r: The required file `data/processed/utility_results.json` does not exist, so there
+    is no evidence that it contains the `conditional_utility` and `overall_success`
+    fields. The implementer must create the JSON file with those fields populated.

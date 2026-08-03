@@ -1,10 +1,10 @@
 T005a:
   c: false
-  h: 655937bd9c82393390f8cf7def40985a372ee7f4704866e8d96b040c4089ae57
-  r: "The repository contains an updated `generator.py` that defines a warm\u2011\
-    up set path, but the required output file `data/derived/synthetic_queries_warmup.json`\
-    \ is absent, so the warm\u2011up queries have not actually been generated. The\
-    \ task\u2019s deliverable is missing."
+  h: c05101ce8274d55ad6ce70b6639be6d1eed28f48762d1261c82a9e92c485d515
+  r: "The required file `data/derived/synthetic_queries_warmup.json` does not exist,\
+    \ and there is no evidence in `code/data/generator.py` that it has been extended\
+    \ to produce a 100\u2011query warm\u2011up set. The deliverable is missing, so\
+    \ the task is not satisfied."
 T010:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

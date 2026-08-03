@@ -60,7 +60,7 @@
 ### Tests for User Story 1
 
 - [ ] T012 [P] [US1] Contract test: Verify `data/processed/access_control_results.json` matches `results.schema.yaml`
-- [~] T013 [P] [US1] Integration test: Run full pipeline on "medical" domain subset and assert Access Control score is calculated <!-- FAILED: unspecified -->
+- [ ] T013 [P] [US1] Integration test: Run full pipeline on "medical" domain subset and assert Access Control score is calculated <!-- FAILED: unspecified -->
 
 ### Implementation for User Story 1
 
@@ -69,7 +69,7 @@
 - [ ] T017 [US1] Implement `src/gatekeeper/pipeline.py` logic: "Retrieval-only" and "Long-Context" baseline execution paths using `templates/prompts.yaml`; output `data/processed/baseline_results.json`. **Acceptance Criteria**: Verify that prompt templates and retrieval parameters are IDENTICAL to the Gatekeeper run.
 - [ ] T018 [US1] Implement `src/gatekeeper/metrics.py` function: Calculate Access Control score (unauthorized exposure rate) against ground truth
 - [ ] T019 [US1] Implement `src/cli/run_evaluation.py` logic: Execute US1 pipeline with `--domain medical,office` using existing CLI skeleton
-- [~] T020 [US1] Add error handling: Log "validation error" for ambiguous `leak-target` and exclude from calculation; handle model load retry logic
+- [ ] T020 [US1] Add error handling: Log "validation error" for ambiguous `leak-target` and exclude from calculation; handle model load retry logic
 - [ ] T029 [US1/US2] Implement unified sampling logic for failure cases: Select 50 cases (stratified by domain, seed=42) from the combined pool of Access Control and Utility failures. Output to `data/samples/failure_cases.json`. **If a small number of failures exist, output all available. If zero failures exist, create an empty file and log a warning.**
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -84,7 +84,7 @@
 
 ### Tests for User Story 2
 
-- [~] T021 [P] [US2] Contract test: Verify `data/processed/utility_results.json` contains `conditional_utility` and `overall_success` fields
+- [ ] T021 [P] [US2] Contract test: Verify `data/processed/utility_results.json` contains `conditional_utility` and `overall_success` fields
 - [~] T022 [P] [US2] Integration test: Run pipeline on "education" domain and assert Utility score matches expected range against ground truth
 
 ### Implementation for User Story 2

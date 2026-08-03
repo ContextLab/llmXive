@@ -1,45 +1,33 @@
-# Environment Configuration and Reproducibility Settings
-# This file controls global random seeds and runtime parameters for the pipeline.
-# All scripts in code/ should load this file to ensure deterministic execution.
+# Project Configuration for Visual Attention Study
+# This file controls random seeds and environment parameters for reproducibility.
 
-# Reproducibility: Random Seeds
-# Setting these ensures that all random operations (numpy, python random, torch if used)
-# produce identical results across runs.
-random_seeds:
-  python: 42
-  numpy: 42
-  global: 42
+# Reproducibility Settings
+random_seed: 42
+numpy_seed: 42
+python_seed: 42
 
 # Data Paths (relative to project root)
 paths:
-  raw_data: "data/raw"
-  derived_data: "data/derived"
-  processed_data: "data/processed"
-  state: "state"
-  figures: "figures"
-  config: "code/config.yaml"
+  raw_data_dir: "data/raw"
+  derived_data_dir: "data/derived"
+  processed_data_dir: "data/processed"
+  state_dir: "state"
+  figures_dir: "figures"
+
+# Fixation Detection Parameters (I-VT / I-DT)
+fixation_detection:
+  ivt_duration_threshold: 60  # ms, minimum duration for a fixation
+  idt_dispersion_threshold: 30  # pixels
+  velocity_threshold: 30  # deg/s (secondary check)
+
+# Analysis Parameters
+analysis:
+  outlier_cap_percentile_low: 1
+  outlier_cap_percentile_high: 99
+  regression_confidence_level: 0.95
 
 # Logging Configuration
 logging:
   level: "INFO"
   format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
   file: "state/pipeline.log"
-
-# Analysis Parameters
-analysis:
-  # Fixation detection thresholds (used by utils/fixation_detection.py)
-  ivt_duration_threshold: 60  # milliseconds
-  idt_dispersion_threshold: 35  # pixels
-  idt_duration_threshold: 100  # milliseconds
-
-  # Data quality thresholds
-  max_data_loss_percent: 20  # Exclude participants with >20% data loss
-
-  # Regression settings
-  outlier_cap_percentiles: [1, 99]  # Percentiles for outlier capping
-
-# Lexicon Settings (used by utils/valence_calculation.py)
-valence:
-  primary_lexicon: "NRC"
-  fallback_lexicon: "VADER"
-  coverage_threshold: 0.50  # Switch if coverage < 50%

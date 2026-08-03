@@ -1,3 +1,10 @@
-T011 [P] [US1] Contract test for downloaded metadata schema in `tests/contract/test_metadata_schema.py`: 2
-T012 [P] [US1] Unit test for memory monitor threshold violation in `tests/unit/test_memory_monitor.py`: 2
-T013 [P] [US1] Unit test for FD calculation and exclusion logic in `tests/unit/test_preprocess.py`: 2
+T015: 1
+T016: 1
+T018: 1
+T019: 1
+T020: 1
+T021: 1
+T031: 1
+T042: 1
+T049: 1
+T050: 1

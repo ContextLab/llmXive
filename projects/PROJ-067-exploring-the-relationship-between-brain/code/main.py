@@ -5,169 +5,188 @@ import logging
 import time
 import traceback
 from pathlib import Path
-from typing import Dict, Any, Optional
+from datetime import datetime
 
 # Import pipeline phases from existing modules
 from data.validate_metadata import main as validate_metadata_main
 from data.filter_subjects import main as filter_subjects_main
 from data.download import main as download_main
 from data.preprocess import main as preprocess_main
+from data.cleanup import main as cleanup_main
+from analysis.verify_atlas_labels import main as verify_atlas_labels_main
 from analysis.metrics import main as metrics_main
-from analysis.output_metrics import main as output_metrics_main
 from analysis.stats import main as stats_main
+from analysis.generate_stats_json import main as generate_stats_json_main
+from analysis.permutation_test import main as permutation_test_main
+from analysis.power_analysis import main as power_analysis_main
 from analysis.plot_results import main as plot_results_main
 from analysis.ensure_null_reporting import main as ensure_null_reporting_main
-from utils.memory_monitor import MemoryMonitor, check_memory_limit
+from analysis.validate_results_schema import main as validate_results_schema_main
+from utils.config import get_config_summary
+from utils.memory_monitor import MemoryMonitor
 
-# Configuration constants
-MAX_RUNTIME_SECONDS = 4 * 3600  # 4 hours in seconds
-RESULTS_DIR = Path("results")
-RUNTIME_LOG_PATH = RESULTS_DIR / "runtime_log.json"
-
-# Setup logging
+# Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     handlers=[
         logging.StreamHandler(sys.stdout),
-        logging.FileHandler('pipeline_execution.log')
+        logging.FileHandler('results/pipeline.log')
     ]
 )
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('main')
+
+# Runtime constraints
+MAX_RUNTIME_SECONDS = 4 * 60 * 60  # 4 hours
+START_TIME = None
+PHASE_TIMERS = {}
 
 def get_phase_timer(phase_name: str):
-    """Context manager to time a specific phase."""
-    class PhaseTimer:
-        def __init__(self, name):
-            self.name = name
-            self.start_time = None
-            self.end_time = None
-            self.duration = None
+    """Get a timer function for a specific phase."""
+    def timer():
+        return time.time() - START_TIME
+    return timer
 
-        def __enter__(self):
-            self.start_time = time.time()
-            logger.info(f"Starting phase: {self.name}")
-            return self
-
-        def __exit__(self, exc_type, exc_val, exc_tb):
-            self.end_time = time.time()
-            self.duration = self.end_time - self.start_time
-            logger.info(f"Completed phase: {self.name} in {self.duration:.2f} seconds")
-            if exc_type:
-                logger.error(f"Phase {self.name} failed with error: {exc_val}")
-            return False
-
-    return PhaseTimer(phase_name)
+def log_runtime_results():
+    """Log runtime results to results/runtime_log.json."""
+    end_time = time.time()
+    total_runtime = end_time - START_TIME
+    
+    runtime_data = {
+        "start_time": datetime.fromtimestamp(START_TIME).isoformat(),
+        "end_time": datetime.fromtimestamp(end_time).isoformat(),
+        "total_runtime_seconds": total_runtime,
+        "total_runtime_formatted": f"{total_runtime/3600:.2f} hours",
+        "phase_timings": {}
+    }
+    
+    # Add phase timings
+    for phase, timings in PHASE_TIMERS.items():
+        duration = timings['end'] - timings['start']
+        runtime_data["phase_timings"][phase] = {
+            "duration_seconds": duration,
+            "start_time": datetime.fromtimestamp(timings['start']).isoformat(),
+            "end_time": datetime.fromtimestamp(timings['end']).isoformat()
+        }
+    
+    # Ensure results directory exists
+    results_dir = Path('results')
+    results_dir.mkdir(exist_ok=True)
+    
+    # Write runtime log
+    runtime_log_path = results_dir / 'runtime_log.json'
+    with open(runtime_log_path, 'w') as f:
+        json.dump(runtime_data, f, indent=2)
+    
+    logger.info(f"Runtime log written to {runtime_log_path}")
+    logger.info(f"Total runtime: {total_runtime/3600:.2f} hours")
+    
+    return total_runtime
 
 def run_pipeline():
-    """
-    Execute the full research pipeline with runtime verification.
-    Raises RuntimeError if total runtime exceeds 4 hours.
-    """
-    start_time = time.time()
-    phases = []
-    success = True
-    error_message = None
-
-    # Ensure results directory exists
-    RESULTS_DIR.mkdir(parents=True, exist_ok=True)
-
+    """Run the full pipeline with runtime verification."""
+    global START_TIME
+    START_TIME = time.time()
+    
+    logger.info("Starting pipeline execution")
+    logger.info(f"Maximum allowed runtime: {MAX_RUNTIME_SECONDS} seconds (4 hours)")
+    
+    # Initialize memory monitor
+    memory_monitor = MemoryMonitor(interval=10)  # Check every 10 seconds
+    memory_monitor.start()
+    
+    phases = [
+        ("validate_metadata", validate_metadata_main),
+        ("filter_subjects", filter_subjects_main),
+        ("download", download_main),
+        ("preprocess", preprocess_main),
+        ("cleanup_intermediates", cleanup_main),
+        ("verify_atlas_labels", verify_atlas_labels_main),
+        ("metrics", metrics_main),
+        ("stats", stats_main),
+        ("generate_stats_json", generate_stats_json_main),
+        ("permutation_test", permutation_test_main),
+        ("power_analysis", power_analysis_main),
+        ("plot_results", plot_results_main),
+        ("ensure_null_reporting", ensure_null_reporting_main),
+        ("validate_results_schema", validate_results_schema_main)
+    ]
+    
     try:
-        # Phase 1: Metadata Validation
-        with get_phase_timer("Metadata Validation") as timer:
-            validate_metadata_main()
-        phases.append({"phase": "Metadata Validation", "duration_seconds": timer.duration, "status": "success"})
-
-        # Phase 2: Subject Filtering
-        with get_phase_timer("Subject Filtering") as timer:
-            filter_subjects_main()
-        phases.append({"phase": "Subject Filtering", "duration_seconds": timer.duration, "status": "success"})
-
-        # Phase 3: Data Download
-        with get_phase_timer("Data Download") as timer:
-            download_main()
-        phases.append({"phase": "Data Download", "duration_seconds": timer.duration, "status": "success"})
-
-        # Phase 4: Preprocessing
-        with get_phase_timer("Preprocessing") as timer:
-            preprocess_main()
-        phases.append({"phase": "Preprocessing", "duration_seconds": timer.duration, "status": "success"})
-
-        # Phase 5: Metric Extraction
-        with get_phase_timer("Metric Extraction") as timer:
-            metrics_main()
-        phases.append({"phase": "Metric Extraction", "duration_seconds": timer.duration, "status": "success"})
-
-        # Phase 6: Output Metrics
-        with get_phase_timer("Output Metrics") as timer:
-            output_metrics_main()
-        phases.append({"phase": "Output Metrics", "duration_seconds": timer.duration, "status": "success"})
-
-        # Phase 7: Statistical Analysis
-        with get_phase_timer("Statistical Analysis") as timer:
-            stats_main()
-        phases.append({"phase": "Statistical Analysis", "duration_seconds": timer.duration, "status": "success"})
-
-        # Phase 8: Plot Generation
-        with get_phase_timer("Plot Generation") as timer:
-            plot_results_main()
-        phases.append({"phase": "Plot Generation", "duration_seconds": timer.duration, "status": "success"})
-
-        # Phase 9: Null Result Reporting
-        with get_phase_timer("Null Result Reporting") as timer:
-            ensure_null_reporting_main()
-        phases.append({"phase": "Null Result Reporting", "duration_seconds": timer.duration, "status": "success"})
-
-    except Exception as e:
-        success = False
-        error_message = str(e)
-        logger.error(f"Pipeline failed at phase: {e}")
-        traceback.print_exc()
-
-    end_time = time.time()
-    total_duration = end_time - start_time
-
-    # Runtime Verification (T049)
-    runtime_log = {
-        "start_time": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(start_time)),
-        "end_time": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(end_time)),
-        "total_duration_seconds": total_duration,
-        "max_allowed_seconds": MAX_RUNTIME_SECONDS,
-        "status": "success" if success else "failed",
-        "error": error_message,
-        "phases": phases
-    }
-
-    # Write runtime log
-    with open(RUNTIME_LOG_PATH, 'w') as f:
-        json.dump(runtime_log, f, indent=2)
-
-    logger.info(f"Total pipeline runtime: {total_duration:.2f} seconds")
-
-    # Raise RuntimeError if limit exceeded
-    if total_duration > MAX_RUNTIME_SECONDS:
-        error_msg = f"Pipeline execution exceeded the 4-hour limit. Total runtime: {total_duration:.2f} seconds (Limit: {MAX_RUNTIME_SECONDS} seconds)."
-        logger.error(error_msg)
-        raise RuntimeError(error_msg)
-
-    if not success:
-        raise RuntimeError(f"Pipeline execution failed: {error_message}")
-
-    return runtime_log
+        for phase_name, phase_func in phases:
+            logger.info(f"Starting phase: {phase_name}")
+            
+            # Check runtime before each phase
+            current_runtime = time.time() - START_TIME
+            if current_runtime > MAX_RUNTIME_SECONDS:
+                error_msg = f"Pipeline exceeded maximum runtime of {MAX_RUNTIME_SECONDS} seconds ({MAX_RUNTIME_SECONDS/3600} hours) at phase {phase_name}"
+                logger.error(error_msg)
+                raise RuntimeError(error_msg)
+            
+            # Record phase start
+            PHASE_TIMERS[phase_name] = {'start': time.time()}
+            
+            try:
+                # Execute phase
+                phase_func()
+                
+                # Record phase end
+                PHASE_TIMERS[phase_name]['end'] = time.time()
+                logger.info(f"Phase {phase_name} completed successfully")
+                
+            except Exception as e:
+                logger.error(f"Phase {phase_name} failed with error: {str(e)}")
+                logger.error(traceback.format_exc())
+                raise
+            
+            # Check runtime after each phase
+            current_runtime = time.time() - START_TIME
+            if current_runtime > MAX_RUNTIME_SECONDS:
+                error_msg = f"Pipeline exceeded maximum runtime of {MAX_RUNTIME_SECONDS} seconds ({MAX_RUNTIME_SECONDS/3600} hours) after phase {phase_name}"
+                logger.error(error_msg)
+                raise RuntimeError(error_msg)
+        
+        logger.info("All phases completed successfully")
+        
+    finally:
+        # Stop memory monitor
+        memory_monitor.stop()
+        
+        # Log final runtime results
+        total_runtime = log_runtime_results()
+        
+        # Final runtime check
+        if total_runtime > MAX_RUNTIME_SECONDS:
+            error_msg = f"Pipeline exceeded maximum runtime of {MAX_RUNTIME_SECONDS} seconds ({MAX_RUNTIME_SECONDS/3600} hours)"
+            logger.error(error_msg)
+            raise RuntimeError(error_msg)
+        
+        logger.info("Pipeline execution completed within time limit")
+    
+    return True
 
 def main():
-    """Entry point for the pipeline."""
+    """Main entry point for the pipeline."""
     try:
-        result = run_pipeline()
-        print(f"Pipeline completed successfully. Results logged to {RUNTIME_LOG_PATH}")
+        # Get configuration summary
+        config_summary = get_config_summary()
+        logger.info(f"Configuration: {config_summary}")
+        
+        # Run the pipeline
+        run_pipeline()
+        
+        logger.info("Pipeline completed successfully")
         return 0
+        
     except RuntimeError as e:
-        print(f"Runtime Error: {e}")
-        return 1
+        logger.error(f"Runtime error: {str(e)}")
+        # Re-raise to ensure CI failure
+        raise
+        
     except Exception as e:
-        print(f"Unexpected Error: {e}")
-        traceback.print_exc()
-        return 2
+        logger.error(f"Unexpected error: {str(e)}")
+        logger.error(traceback.format_exc())
+        return 1
 
 if __name__ == "__main__":
     sys.exit(main())

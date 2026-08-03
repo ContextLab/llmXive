@@ -6,294 +6,354 @@ import argparse
 from typing import Dict, Any, Optional, List, Tuple
 from pathlib import Path
 
-from data.loader import fetch_gatemem
-from data.preprocess import clean_and_format
-from gatekeeper.rules import parse_role_definitions, parse_deletion_log, check_access_policy
-from gatekeeper.classifiers import FrozenDistilBERTClassifier, ClassificationResult
-from utils.profiling import start_profiling, stop_profiling, get_peak_memory_mb
-from logging_config import setup_logging, pin_random_seed
-from models import Query, MemoryChunk, EvaluationResult
+from code.logging_config import setup_logging
+from code.data.loader import fetch_gatemem
+from code.utils.data_loader import load_from_jsonl
+from code.gatekeeper.classifiers import FrozenDistilBERTClassifier
+from code.gatekeeper.rules import check_access_policy, load_role_definitions, load_deletion_logs
+from code.utils.profiling import start_profiling, stop_profiling, get_peak_memory_mb, get_process_memory_mb
 
-logger = setup_logging(__name__)
+# Setup logging
+logger = setup_logging("pipeline")
 
 class GatekeeperPipeline:
     def __init__(self, config: Dict[str, Any]):
         self.config = config
         self.classifier = None
-        self.role_defs = None
-        self.deletion_log = None
-        self.results: List[EvaluationResult] = []
+        self.role_definitions = None
+        self.deletion_logs = None
+        self.prompts = None
+        self._load_resources()
 
-    def load_components(self):
-        """Load classifier, rules, and logs."""
+    def _load_resources(self):
+        """Load classifier, rules, and prompt templates."""
+        logger.info("Loading Gatekeeper resources...")
+        
+        # Load Classifier
         if self.config.get("use_classifier", True):
-            logger.info("Loading frozen DistilBERT classifier...")
-            self.classifier = FrozenDistilBERTClassifier()
+            self.classifier = FrozenDistilBERTClassifier(
+                model_name=self.config.get("classifier_model", "distilbert-base-uncased"),
+                device=self.config.get("device", "cpu")
+            )
+            logger.info("Classifier loaded successfully.")
         
-        rules_path = Path(self.config.get("rules_path", "data/rules/deletion_logs.json"))
-        if rules_path.exists():
-            with open(rules_path, "r") as f:
-                raw_logs = json.load(f)
-            self.deletion_log = parse_deletion_log(raw_logs)
-            logger.info(f"Loaded deletion log with {len(self.deletion_log)} entries.")
-        else:
-            logger.warning(f"Deletion log not found at {rules_path}. Access control will be lenient.")
-            self.deletion_log = []
+        # Load Rules
+        self.role_definitions = load_role_definitions(
+            self.config.get("role_definitions_path", "data/raw/role_definitions.json")
+        )
+        self.deletion_logs = load_deletion_logs(
+            self.config.get("deletion_logs_path", "data/raw/deletion_logs.json")
+        )
+        
+        # Load Prompts
+        prompts_path = self.config.get("prompts_path", "templates/prompts.yaml")
+        import yaml
+        with open(prompts_path, 'r') as f:
+            self.prompts = yaml.safe_load(f)
 
-        role_path = Path(self.config.get("roles_path", "data/rules/roles.json"))
-        if role_path.exists():
-            with open(role_path, "r") as f:
-                raw_roles = json.load(f)
-            self.role_defs = parse_role_definitions(raw_roles)
-            logger.info(f"Loaded {len(self.role_defs)} role definitions.")
-        else:
-            logger.warning(f"Role definitions not found at {role_path}. Defaulting to allow.")
-            self.role_defs = []
-
-    def _run_gatekeeper_logic(self, query: Query, context: List[MemoryChunk]) -> Tuple[bool, str]:
+    def run_gatekeeper(self, episode: Dict[str, Any]) -> Dict[str, Any]:
         """
-        Core Gatekeeper logic:
-        1. Classifier check (if enabled)
-        2. Rules check (Deletion + Role)
-        3. Return (allow, reason)
+        Run the full Gatekeeper pipeline:
+        1. Intent Classification
+        2. Rule Checking (Deletion + Role)
+        3. Retrieval (if allowed)
+        4. Generation (if allowed)
         """
-        # 1. Classifier Check
-        if self.classifier:
-            res = self.classifier.predict(query.text)
-            if res.intent == "deny" or res.confidence > self.config.get("classifier_threshold", 0.8):
-                if res.intent == "deny":
-                    return False, f"Classifier denied intent: {res.intent}"
+        start_profiling()
+        start_time = time.time()
+        
+        result = {
+            "episode_id": episode.get("id"),
+            "domain": episode.get("domain"),
+            "query": episode.get("query"),
+            "allowed": False,
+            "reason": "",
+            "retrieved_context": None,
+            "response": None,
+            "latency_ms": 0,
+            "peak_ram_mb": 0
+        }
 
-        # 2. Rules Check
-        if self.deletion_log and self.role_defs:
+        try:
+            # 1. Intent Classification
+            if self.classifier:
+                classification = self.classifier.run_intent_classification([episode])
+                intent = classification[0].intent if classification else "unknown"
+                result["intent"] = intent
+                if intent in ["deny", "restricted"]:
+                    result["allowed"] = False
+                    result["reason"] = f"Intent classification blocked: {intent}"
+                    return result
+
+            # 2. Rule Checking
+            role = episode.get("role", "guest")
+            target = episode.get("target_id")
+            
             is_authorized = check_access_policy(
-                query, 
-                self.deletion_log, 
-                self.role_defs,
-                context
+                role=role,
+                target=target,
+                role_defs=self.role_definitions,
+                deletion_logs=self.deletion_logs
             )
+            
             if not is_authorized:
-                return False, "Access denied by policy rules"
+                result["allowed"] = False
+                result["reason"] = "Access policy violation (Deletion or Role)"
+                return result
 
-        return True, "Access granted"
-
-    def run_gatekeeper(self, data_path: str, output_path: str, domain_filter: Optional[List[str]] = None):
-        """Execute the full Gatekeeper pipeline."""
-        logger.info(f"Starting Gatekeeper run on {data_path}")
-        start_profiling()
-        
-        raw_data = fetch_gatemem(data_path)
-        if domain_filter:
-            raw_data = [d for d in raw_data if d.get("domain") in domain_filter]
-        
-        results = []
-        for item in raw_data:
-            query = Query(
-                id=item.get("id"),
-                text=item.get("query"),
-                role=item.get("role"),
-                domain=item.get("domain")
-            )
-            # Context construction from dataset
-            context = [
-                MemoryChunk(id=c["id"], text=c["text"], role=c.get("role", "unknown"))
-                for c in item.get("memory_chunks", [])
-            ]
-
-            allowed, reason = self._run_gatekeeper_logic(query, context)
+            # 3. Retrieval
+            # Filter memory based on allowed status (already checked)
+            # In a real scenario, this would query a vector DB
+            context = episode.get("context", [])
+            if not context:
+                result["allowed"] = False
+                result["reason"] = "No context available for retrieval"
+                return result
             
-            # Determine ground truth (simplified: if allowed and ground truth says leak -> leak)
-            # In real implementation, we compare against item["leak_target"]
-            ground_truth_leak = item.get("leak_target", False)
+            # Simulate retrieval with top-k
+            k = self.config.get("retrieval_top_k", 5)
+            result["retrieved_context"] = context[:k]
+
+            # 4. Generation (Simulated for benchmark)
+            # In a real scenario, this would call an LLM
+            prompt_template = self.prompts["retrieval_only"]["user_prompt_template"]
+            prompt = prompt_template.format(
+                context="\n".join(result["retrieved_context"]),
+                query=episode.get("query")
+            )
             
-            result = EvaluationResult(
-                id=query.id,
-                method="Gatekeeper",
-                domain=query.domain,
-                allowed=allowed,
-                reason=reason,
-                ground_truth_leak=ground_truth_leak,
-                latency_ms=0, # Placeholder, filled by profiling if needed per item
-                peak_ram_mb=get_peak_memory_mb()
-            )
-            results.append(result)
+            # Simulate LLM response (since we don't have a real LLM endpoint in this script)
+            # In a real implementation, this would call an LLM API
+            result["response"] = f"[Simulated Response for: {episode.get('query')}]"
+            result["allowed"] = True
+            result["reason"] = "Access granted"
 
-        stop_profiling()
+        except Exception as e:
+            logger.error(f"Error in gatekeeper pipeline: {e}")
+            result["allowed"] = False
+            result["reason"] = f"Pipeline error: {str(e)}"
         
-        # Save results
-        Path(output_path).parent.mkdir(parents=True, exist_ok=True)
-        with open(output_path, "w") as f:
-            json.dump([r.model_dump() for r in results], f, indent=2)
-        
-        logger.info(f"Gatekeeper results saved to {output_path}")
-        return results
+        finally:
+            end_time = time.time()
+            stop_profiling()
+            result["latency_ms"] = (end_time - start_time) * 1000
+            result["peak_ram_mb"] = get_peak_memory_mb()
 
-    def run_baseline_retrieval(self, data_path: str, output_path: str, domain_filter: Optional[List[str]] = None):
+        return result
+
+    def run_baseline_retrieval_only(self, episode: Dict[str, Any]) -> Dict[str, Any]:
         """
-        Baseline: Retrieval-only. 
-        Simulates a standard RAG pipeline without the Gatekeeper filter.
-        Uses templates/prompts.yaml for retrieval logic if available, 
-        otherwise defaults to direct context passing.
+        Baseline: Retrieval-only (No Gatekeeper).
+        Directly retrieves context and generates response.
         """
-        logger.info(f"Starting Baseline (Retrieval-only) run on {data_path}")
         start_profiling()
-
-        raw_data = fetch_gatemem(data_path)
-        if domain_filter:
-            raw_data = [d for d in raw_data if d.get("domain") in domain_filter]
-
-        results = []
-        for item in raw_data:
-            query = Query(
-                id=item.get("id"),
-                text=item.get("query"),
-                role=item.get("role"),
-                domain=item.get("domain")
-            )
-            context = [
-                MemoryChunk(id=c["id"], text=c["text"], role=c.get("role", "unknown"))
-                for c in item.get("memory_chunks", [])
-            ]
-
-            # Baseline logic: Always allow access to context (no filter)
-            allowed = True
-            reason = "Baseline: No access control applied"
-
-            ground_truth_leak = item.get("leak_target", False)
-
-            result = EvaluationResult(
-                id=query.id,
-                method="Baseline-Retrieval",
-                domain=query.domain,
-                allowed=allowed,
-                reason=reason,
-                ground_truth_leak=ground_truth_leak,
-                latency_ms=0,
-                peak_ram_mb=get_peak_memory_mb()
-            )
-            results.append(result)
-
-        stop_profiling()
+        start_time = time.time()
         
-        Path(output_path).parent.mkdir(parents=True, exist_ok=True)
-        with open(output_path, "w") as f:
-            json.dump([r.model_dump() for r in results], f, indent=2)
-        
-        logger.info(f"Baseline (Retrieval) results saved to {output_path}")
-        return results
+        result = {
+            "episode_id": episode.get("id"),
+            "domain": episode.get("domain"),
+            "query": episode.get("query"),
+            "method": "baseline_retrieval_only",
+            "allowed": True,
+            "reason": "Baseline (no gatekeeper)",
+            "retrieved_context": None,
+            "response": None,
+            "latency_ms": 0,
+            "peak_ram_mb": 0
+        }
 
-    def run_baseline_long_context(self, data_path: str, output_path: str, domain_filter: Optional[List[str]] = None):
+        try:
+            # Direct retrieval without filtering
+            context = episode.get("context", [])
+            k = self.config.get("retrieval_top_k", 5)
+            result["retrieved_context"] = context[:k]
+
+            # Generate response
+            prompt_template = self.prompts["retrieval_only"]["user_prompt_template"]
+            prompt = prompt_template.format(
+                context="\n".join(result["retrieved_context"]),
+                query=episode.get("query")
+            )
+            
+            result["response"] = f"[Simulated Response for: {episode.get('query')}]"
+
+        except Exception as e:
+            logger.error(f"Error in baseline retrieval pipeline: {e}")
+            result["allowed"] = False
+            result["reason"] = f"Pipeline error: {str(e)}"
+        
+        finally:
+            end_time = time.time()
+            stop_profiling()
+            result["latency_ms"] = (end_time - start_time) * 1000
+            result["peak_ram_mb"] = get_peak_memory_mb()
+
+        return result
+
+    def run_baseline_long_context(self, episode: Dict[str, Any]) -> Dict[str, Any]:
         """
-        Baseline: Long-Context.
-        Simulates passing the entire history to the LLM without retrieval filtering.
+        Baseline: Long-Context (No Gatekeeper).
+        Uses full context without retrieval filtering.
         """
-        logger.info(f"Starting Baseline (Long-Context) run on {data_path}")
         start_profiling()
-
-        raw_data = fetch_gatemem(data_path)
-        if domain_filter:
-            raw_data = [d for d in raw_data if d.get("domain") in domain_filter]
-
-        results = []
-        for item in raw_data:
-            query = Query(
-                id=item.get("id"),
-                text=item.get("query"),
-                role=item.get("role"),
-                domain=item.get("domain")
-            )
-            # In long context, we pass everything
-            context = [
-                MemoryChunk(id=c["id"], text=c["text"], role=c.get("role", "unknown"))
-                for c in item.get("memory_chunks", [])
-            ]
-
-            allowed = True
-            reason = "Baseline: Long-Context (No filtering)"
-
-            ground_truth_leak = item.get("leak_target", False)
-
-            result = EvaluationResult(
-                id=query.id,
-                method="Baseline-LongContext",
-                domain=query.domain,
-                allowed=allowed,
-                reason=reason,
-                ground_truth_leak=ground_truth_leak,
-                latency_ms=0,
-                peak_ram_mb=get_peak_memory_mb()
-            )
-            results.append(result)
-
-        stop_profiling()
+        start_time = time.time()
         
-        Path(output_path).parent.mkdir(parents=True, exist_ok=True)
-        with open(output_path, "w") as f:
-            json.dump([r.model_dump() for r in results], f, indent=2)
+        result = {
+            "episode_id": episode.get("id"),
+            "domain": episode.get("domain"),
+            "query": episode.get("query"),
+            "method": "baseline_long_context",
+            "allowed": True,
+            "reason": "Baseline (long context, no gatekeeper)",
+            "retrieved_context": None,
+            "full_context": None,
+            "response": None,
+            "latency_ms": 0,
+            "peak_ram_mb": 0
+        }
+
+        try:
+            # Use full context
+            full_context = episode.get("context", [])
+            result["full_context"] = full_context
+
+            # Generate response using long context template
+            prompt_template = self.prompts["long_context"]["user_prompt_template"]
+            prompt = prompt_template.format(
+                long_context="\n".join(full_context),
+                query=episode.get("query")
+            )
+            
+            result["response"] = f"[Simulated Response for: {episode.get('query')}]"
+
+        except Exception as e:
+            logger.error(f"Error in baseline long context pipeline: {e}")
+            result["allowed"] = False
+            result["reason"] = f"Pipeline error: {str(e)}"
         
-        logger.info(f"Baseline (Long-Context) results saved to {output_path}")
-        return results
+        finally:
+            end_time = time.time()
+            stop_profiling()
+            result["latency_ms"] = (end_time - start_time) * 1000
+            result["peak_ram_mb"] = get_peak_memory_mb()
 
-def run_gatekeeper(args):
-    pin_random_seed(42)
-    pipeline = GatekeeperPipeline(vars(args))
-    pipeline.load_components()
-    pipeline.run_gatekeeper(
-        data_path=args.data_path,
-        output_path=args.output_path,
-        domain_filter=args.domains
-    )
+        return result
 
-def run_baseline(args):
-    pin_random_seed(42)
-    pipeline = GatekeeperPipeline(vars(args))
-    pipeline.load_components()
+
+def run_gatekeeper(
+    data_path: str,
+    output_path: str,
+    config: Optional[Dict[str, Any]] = None
+) -> List[Dict[str, Any]]:
+    """
+    Execute the Gatekeeper pipeline on a dataset.
+    """
+    if config is None:
+        config = {
+            "use_classifier": True,
+            "classifier_model": "distilbert-base-uncased",
+            "device": "cpu",
+            "role_definitions_path": "data/raw/role_definitions.json",
+            "deletion_logs_path": "data/raw/deletion_logs.json",
+            "prompts_path": "templates/prompts.yaml",
+            "retrieval_top_k": 5
+        }
+
+    pipeline = GatekeeperPipeline(config)
     
-    baseline_type = args.baseline_type or "retrieval"
-    
-    if baseline_type == "retrieval":
-        pipeline.run_baseline_retrieval(
-            data_path=args.data_path,
-            output_path=args.output_path,
-            domain_filter=args.domains
-        )
-    elif baseline_type == "long_context":
-        pipeline.run_baseline_long_context(
-            data_path=args.data_path,
-            output_path=args.output_path,
-            domain_filter=args.domains
-        )
+    # Load data
+    if os.path.exists(data_path):
+        episodes = load_from_jsonl(data_path)
     else:
-        logger.error(f"Unknown baseline type: {baseline_type}")
-        raise ValueError(f"Unknown baseline type: {baseline_type}")
+        # Try to fetch from HF
+        logger.warning(f"Data path {data_path} not found. Attempting to fetch from HF...")
+        # In a real scenario, we would call fetch_gatemem here
+        # For now, we assume the data is pre-loaded or this fails loudly
+        raise FileNotFoundError(f"Data file not found: {data_path}")
+
+    results = []
+    for i, episode in enumerate(episodes):
+        logger.info(f"Processing episode {i+1}/{len(episodes)}")
+        result = pipeline.run_gatekeeper(episode)
+        results.append(result)
+
+    # Ensure output directory exists
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    
+    with open(output_path, 'w') as f:
+        json.dump(results, f, indent=2)
+    
+    logger.info(f"Gatekeeper results saved to {output_path}")
+    return results
+
+
+def run_baseline(
+    data_path: str,
+    output_path: str,
+    baseline_type: str = "retrieval_only",
+    config: Optional[Dict[str, Any]] = None
+) -> List[Dict[str, Any]]:
+    """
+    Execute the Baseline pipeline (Retrieval-only or Long-Context).
+    """
+    if config is None:
+        config = {
+            "retrieval_top_k": 5,
+            "prompts_path": "templates/prompts.yaml"
+        }
+
+    pipeline = GatekeeperPipeline(config)
+    
+    # Load data
+    if os.path.exists(data_path):
+        episodes = load_from_jsonl(data_path)
+    else:
+        raise FileNotFoundError(f"Data file not found: {data_path}")
+
+    results = []
+    for i, episode in enumerate(episodes):
+        logger.info(f"Processing baseline episode {i+1}/{len(episodes)}")
+        
+        if baseline_type == "retrieval_only":
+            result = pipeline.run_baseline_retrieval_only(episode)
+        elif baseline_type == "long_context":
+            result = pipeline.run_baseline_long_context(episode)
+        else:
+            raise ValueError(f"Unknown baseline type: {baseline_type}")
+        
+        results.append(result)
+
+    # Ensure output directory exists
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    
+    with open(output_path, 'w') as f:
+        json.dump(results, f, indent=2)
+    
+    logger.info(f"Baseline results ({baseline_type}) saved to {output_path}")
+    return results
+
 
 def main():
-    parser = argparse.ArgumentParser(description="Gatekeeper Pipeline Runner")
-    subparsers = parser.add_subparsers(dest="command", help="Command to run")
-
-    # Gatekeeper Command
-    p_gate = subparsers.add_parser("gatekeeper", help="Run Gatekeeper pipeline")
-    p_gate.add_argument("--data_path", type=str, required=True, help="Path to input dataset")
-    p_gate.add_argument("--output_path", type=str, required=True, help="Path to output results")
-    p_gate.add_argument("--domains", type=str, nargs="+", default=None, help="Domains to process")
-    p_gate.add_argument("--use_classifier", action="store_true", default=True)
-    p_gate.add_argument("--classifier_threshold", type=float, default=0.8)
-
-    # Baseline Command
-    p_base = subparsers.add_parser("baseline", help="Run Baseline pipeline")
-    p_base.add_argument("--data_path", type=str, required=True)
-    p_base.add_argument("--output_path", type=str, required=True)
-    p_base.add_argument("--domains", type=str, nargs="+", default=None)
-    p_base.add_argument("--baseline_type", type=str, choices=["retrieval", "long_context"], default="retrieval")
-
+    parser = argparse.ArgumentParser(description="Run Gatekeeper or Baseline pipelines")
+    parser.add_argument("--mode", choices=["gatekeeper", "baseline_retrieval", "baseline_long_context"], required=True)
+    parser.add_argument("--input", required=True, help="Input JSONL data path")
+    parser.add_argument("--output", required=True, help="Output JSON path")
+    parser.add_argument("--config", type=str, default=None, help="Path to config JSON (optional)")
+    
     args = parser.parse_args()
     
-    if args.command == "gatekeeper":
-        run_gatekeeper(args)
-    elif args.command == "baseline":
-        run_baseline(args)
-    else:
-        parser.print_help()
+    config = None
+    if args.config and os.path.exists(args.config):
+        with open(args.config, 'r') as f:
+            config = json.load(f)
+
+    if args.mode == "gatekeeper":
+        run_gatekeeper(args.input, args.output, config)
+    elif args.mode == "baseline_retrieval":
+        run_baseline(args.input, args.output, "retrieval_only", config)
+    elif args.mode == "baseline_long_context":
+        run_baseline(args.input, args.output, "long_context", config)
+
 
 if __name__ == "__main__":
     main()

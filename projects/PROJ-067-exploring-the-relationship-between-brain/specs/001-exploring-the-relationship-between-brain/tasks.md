@@ -76,20 +76,20 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T011 [P] [US1] Contract test for downloaded metadata schema in `tests/contract/test_metadata_schema.py`
-- [ ] T012 [P] [US1] Unit test for memory monitor threshold violation in `tests/unit/test_memory_monitor.py`
-- [ ] T013 [P] [US1] Unit test for FD calculation and exclusion logic in `tests/unit/test_preprocess.py`
+- [X] T011 [P] [US1] Contract test for downloaded metadata schema in `tests/contract/test_metadata_schema.py`
+- [X] T012 [P] [US1] Unit test for memory monitor threshold violation in `tests/unit/test_memory_monitor.py`
+- [X] T013 [P] [US1] Unit test for FD calculation and exclusion logic in `tests/unit/test_preprocess.py`
 
 ### Implementation for User Story 1
 
 - [X] T014 [US1] **Metadata Validation (Phase 0 Gate)**: Implement `code/data/validate_metadata.py` to fetch ds000228 metadata, verify existence of "dream recall frequency" field, and **HALT** execution if missing (FR-001, Plan Phase 0).
-- [~] T015 [US1] **Subject Filtering & N=50 Enforcement**: Implement `code/data/filter_subjects.py` to load validated metadata, filter for subjects with "dream recall frequency", **sort by subject ID ascending, select the first valid subjects, and truncate the list to a fixed number of entries**, then generate `data/raw/valid_subjects.json`. **If fewer than 50 valid subjects are found, raise a FatalError with message "Insufficient subjects for N=50 target"**. The output file MUST contain exactly 50 entries before T016 executes (FR-001, US1 Acceptance Scenario 2).
-- [~] T016 [US1] Implement `code/data/download.py` to fetch ds000228 NIfTI files for subjects listed in `data/raw/valid_subjects.json` (T015 output) (FR-001).
+- [ ] T015 [US1] **Subject Filtering & N=50 Enforcement**: Implement `code/data/filter_subjects.py` to load validated metadata, filter for subjects with "dream recall frequency", **sort by subject ID ascending, select the first valid subjects, and truncate the list to a fixed number of entries**, then generate `data/raw/valid_subjects.json`. **If fewer than 50 valid subjects are found, raise a FatalError with message "Insufficient subjects for N=50 target"**. The output file MUST contain exactly 50 entries before T016 executes (FR-001, US1 Acceptance Scenario 2).
+- [ ] T016 [US1] Implement `code/data/download.py` to fetch ds000228 NIfTI files for subjects listed in `data/raw/valid_subjects.json` (T015 output) (FR-001).
 - [X] T017 [US1] Implement `code/data/preprocess.py` to run ICA-AROMA denoising and spatial normalization to **MNI152NLin2009cAsym** template. **Use specific ICA-AROMA flags: --afni, --no-reports**. Ensure the pipeline accepts preprocessed NIfTI inputs and outputs normalized, denoised files (FR-002).
-- [~] T018 [US1] Integrate `memory_monitor.py` into `preprocess.py` to abort if RSS >7GB (FR-002, SC-004).
-- [~] T019 [US1] Implement Framewise Displacement (FD) calculation in `preprocess.py` and exclude subjects with FD >0.5mm (Edge Case).
-- [~] T020 [US1] Add logging for excluded subjects (missing metadata or high motion) and total processing count.
-- [~] T021 [US1] Ensure intermediate files are cleaned up or compressed to stay within 7GB total directory size (US1 Acceptance Scenario 1).
+- [ ] T018 [US1] Integrate `memory_monitor.py` into `preprocess.py` to abort if RSS >7GB (FR-002, SC-004).
+- [ ] T019 [US1] Implement Framewise Displacement (FD) calculation in `preprocess.py` and exclude subjects with FD >0.5mm (Edge Case).
+- [ ] T020 [US1] Add logging for excluded subjects (missing metadata or high motion) and total processing count.
+- [ ] T021 [US1] Ensure intermediate files are cleaned up or compressed to stay within 7GB total directory size (US1 Acceptance Scenario 1).
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
