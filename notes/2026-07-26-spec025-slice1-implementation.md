@@ -723,3 +723,52 @@ exists. The credit ledger reaches the shared transport through
 `tests/integration/test_credit_ledger_transport.py`. `grep -rl append_to_log src/` also
 turned up a THIRD consumer the plan never mentioned — `self_improvement/audit_sink.py` —
 now included in the gate. Its tests are `tests/integration/test_self_improvement_audit_sink.py`.
+
+**Task 5 — the transition table as data.** `lifecycle.py` (22 transitions, `walk_attempt`
+as the ONE fold, `project_attempt` on top of it, `TransitionOutcome`, `Step`,
+`NonTransition`) + `tests/helpers/lane_lifecycle.py` + 51 model tests. The deferred Task 1
+Step 6 drift check is discharged here and reports what it was specified to: **22**
+attempt-transition rows parsed from the spec, `PromotionObserved` effects
+`('MonitorStarted', 'ClaimReleased')`, attempt-scoped non-transitions
+`['ClaimHeartbeat', 'PublishRequested→Published']`.
+
+*One helper knew a rule the other did not.* The plan's `_history` stamped
+`claim_generation` on `ClaimGranted`/`ClaimHeartbeat`; its `drive` did not. But
+`walk_attempt` reads that field on every grant, so every `drive()`-built history that
+reaches `claimed` — which is most of the exhaustive grid — would have died on a missing
+payload, and died as a bare `ValueError` that `pytest.raises(IllegalTransition)` does not
+catch. Two helpers, one rule, only one of them holding it. The rule now lives in
+`attempt_event` (`_GENERATION_DEFAULT`), where both get it and an explicit `payload=`
+still overrides — which is what the stale-generation test needs.
+
+*The fold had two refusal types.* `payload_field` raises a bare `ValueError`, and every
+caller of this fold catches `IllegalTransition`; a `ClaimGranted` with no
+`claim_generation` is a record no writer can produce, so refusing it as a different
+exception type means `cas_attempt_transition` does not recognise it as "this history is
+untrustworthy" and does not handle it. Added `_required_field` (one wrapper, both call
+sites) plus a parameterized test for the grant and the beat.
+
+*A docstring that claimed a branch it does not reach.* `project_attempt`'s "only
+non-transition events" guard is unreachable through the current vocabulary — every declared
+non-transition is legal only in a claim-holding state, so a beats-only stream already fails
+inside `walk_attempt`. The guard is kept (the alternative failure mode is an
+`AttributeError` on `last`), but the test now says it asserts the OUTCOME, not that line.
+
+Smaller corrections to the plan's code, all found by running it: missing `deque`/`Iterator`
+imports in `lifecycle.py` and five missing imports in the test module; `__all__` omitting 9
+of the names the Produces block promises; `TransitionOutcome` promised by Task 5 but only
+written in Task 7's prose (now declared once, in Task 5); and `_SPEC` as a bare relative
+path — anchored on the test tree's own location instead, deliberately NOT on
+`config.repo_root()`, which `LLMXIVE_REPO_ROOT` redirects to a synthetic DATA root with no
+`specs/` in it.
+
+Eight mutations run, each killing at least one test (Step 6 table in the plan). `git diff`
+proves nothing about restoration for a file that is still untracked, so the harness
+compares a sha256 against the pre-mutation digest and refuses to run a mutation whose
+anchor did not match.
+
+Two tests the plan did not have, added because the names they cover were otherwise
+unasserted: `holds_claim` (declared as "the ONE reading" with three callers, but nothing
+called it — including its `None` case) and `counts_against_operational` (the random walk
+pinned the quality counter only, so the FR-034 split between the two ledgers went
+unchecked). 52 model tests total.

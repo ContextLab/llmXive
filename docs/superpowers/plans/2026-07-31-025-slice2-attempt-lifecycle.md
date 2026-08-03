@@ -2175,7 +2175,7 @@ PRE_COMMIT_ALLOW_NO_CONFIG=1 git commit -o src/llmxive/self_improvement/clock.py
 
 **Interfaces:**
 - Consumes: `Event`, `payload_field`, `COORDINATOR_STREAM` (Slice 1A).
-- Produces: `AttemptState`, `ProblemDisposition`, `Transition`, `TRANSITIONS`, `TERMINAL_STATES`, `COUNTED_TERMINALS`, `OPERATIONAL_TERMINALS`, `CLAIM_HOLDING_STATES`, `holds_claim`, `NON_TRANSITION_EVENTS`, `walk_attempt`, `Step`, `project_attempt`, `TransitionOutcome`, `NonTransition`, `NON_TRANSITIONS`, `holds_claim`, `IllegalTransition`, `legal_events_from`; `tests/helpers/lane_lifecycle.py` with `attempt_event`, `drive`, `parse_spec_transitions` (which returns `(rows, attempt_scoped_non_transitions)`).
+- Produces: `AttemptState`, `ProblemDisposition`, `Transition`, `TRANSITIONS`, `TERMINAL_STATES`, `COUNTED_TERMINALS`, `OPERATIONAL_TERMINALS`, `CLAIM_HOLDING_STATES`, `holds_claim`, `NonTransition`, `NON_TRANSITIONS`, `NON_TRANSITION_EVENTS`, `ATTEMPT_EVENT_TYPES`, `walk_attempt`, `Step`, `AttemptProjection`, `project_attempt`, `TransitionOutcome`, `IllegalTransition`, `legal_events_from`; `tests/helpers/lane_lifecycle.py` with `attempt_event`, `drive`, `parse_spec_transitions` (which returns `(rows, attempt_scoped_non_transitions)`).
 
 - [ ] **Step 1: Write the failing model tests**
 
@@ -2188,20 +2188,27 @@ fully deterministic, and the seed is printed on failure so any counterexample re
 from __future__ import annotations
 
 import random
+from dataclasses import replace
 
 import pytest
 
+from llmxive.self_improvement.events import Event
 from llmxive.self_improvement.lifecycle import (
+    _BY_EVENT,
+    CLAIM_HOLDING_STATES,
     COUNTED_TERMINALS,
+    NON_TRANSITION_EVENTS,
+    OPERATIONAL_TERMINALS,
     TERMINAL_STATES,
     TRANSITIONS,
     AttemptState,
     IllegalTransition,
+    holds_claim,
     legal_events_from,
     project_attempt,
+    walk_attempt,
 )
-
-from tests.helpers.lane_lifecycle import attempt_event, drive  # Task 5 Step 3 helper
+from tests.helpers.lane_lifecycle import attempt_event, drive
 
 
 def test_every_transition_names_states_that_exist():
@@ -2248,7 +2255,7 @@ def test_every_illegal_event_from_every_state_is_refused(state):
         if t.event in legal:
             continue
         with pytest.raises(IllegalTransition):
-            project_attempt(drive(state) + [attempt_event(t.event)])
+            project_attempt([*drive(state), attempt_event(t.event)])
 
 
 def test_a_second_terminal_is_refused_whichever_two_they_are():
@@ -2258,7 +2265,7 @@ def test_a_second_terminal_is_refused_whichever_two_they_are():
             if t.to_state not in TERMINAL_STATES:
                 continue
             with pytest.raises(IllegalTransition):
-                project_attempt(history + [attempt_event(t.event)])
+                project_attempt([*history, attempt_event(t.event)])
 
 
 def test_a_NON_CONTIGUOUS_seq_line_is_legal_because_streams_interleave():
@@ -2299,6 +2306,9 @@ def test_random_walks_never_violate_the_invariants():
         assert result.state is state, f"trial {trial}: fold disagreed with the walk"
         assert result.is_terminal == (state in TERMINAL_STATES)
         assert result.counts_against_quality == (state in COUNTED_TERMINALS)
+        # The two counters are separate ledgers (FR-034): an Attempt may feed at most one.
+        assert result.counts_against_operational == (state in OPERATIONAL_TERMINALS)
+        assert not (result.counts_against_quality and result.counts_against_operational)
 
 
 def test_the_code_table_matches_the_spec_table():
@@ -2345,13 +2355,12 @@ def test_the_code_table_matches_the_spec_table():
 def _history(*event_types: str) -> list[Event]:
     """A committed-looking Attempt history: `attempt_event` per type, `seq` 0..n.
 
-    `ClaimGranted` and `ClaimHeartbeat` are stamped with generation 1, so a history built
-    here is one the writers could actually have produced. A helper that emitted beats with
-    no generation would make every heartbeat test fail for the wrong reason."""
-    return [attempt_event(t, seq=i, payload=({"claim_generation": 1, "tick": i}
-                                             if t == "ClaimHeartbeat" else
-                                             {"claim_generation": 1}
-                                             if t == "ClaimGranted" else {}))
+    The claim generation the beat rule compares against is stamped by `attempt_event`
+    itself, for every event type that carries one — so a history built here is one the
+    writers could actually have produced, and there is ONE place that knows which types
+    those are. A helper that emitted beats or grants with no generation would make every
+    claim-reaching test fail for the wrong reason."""
+    return [attempt_event(t, seq=i, payload={"tick": i} if t == "ClaimHeartbeat" else None)
             for i, t in enumerate(event_types)]
 
 
@@ -2394,6 +2403,23 @@ def test_a_heartbeat_at_a_stale_generation_is_refused():
     history.append(attempt_event("ClaimHeartbeat", seq=3,
                                  payload={"claim_generation": 2, "tick": 1}))
     with pytest.raises(IllegalTransition, match="no longer holds"):
+        project_attempt(history)
+
+
+@pytest.mark.parametrize("event_type", ["ClaimGranted", "ClaimHeartbeat"])
+def test_a_MISSING_generation_is_refused_as_an_IllegalTransition(event_type):
+    """`payload_field` raises a bare `ValueError`, and every caller of this fold catches
+    `IllegalTransition`. A grant or beat with no `claim_generation` is a record the writers
+    cannot produce, so it must be refused the SAME WAY every other impossible history is —
+    not escape as a type `cas_attempt_transition` does not recognise as "untrustworthy
+    history" and therefore does not handle."""
+    history = _history("Proposed", "ProposalVerified", "ClaimGranted")
+    if event_type == "ClaimHeartbeat":
+        history.append(attempt_event("ClaimHeartbeat", seq=3, payload={"tick": 1}))
+    # Stripped rather than never-stamped: `attempt_event` supplies the generation for every
+    # type that carries one, which is exactly the property this test has to defeat.
+    history[-1] = replace(history[-1], payload={"problem_id": "P1", "attempt_id": "A1"})
+    with pytest.raises(IllegalTransition, match="lacks 'claim_generation'"):
         project_attempt(history)
 
 
@@ -2456,7 +2482,13 @@ def test_non_transition_events_are_declared_and_disjoint():
 
 def test_an_attempt_of_only_non_transition_events_is_refused():
     """Fail closed: a stream of beats and nothing else has no state, and returning some
-    default state for it would invent a lifecycle that never happened."""
+    default state for it would invent a lifecycle that never happened.
+
+    It is refused by the heartbeat's own `legal_states` rule (a beat is legal only in a
+    claim-holding state, and a beats-only stream never reaches one), which is why
+    `project_attempt`'s "no state to project" branch is unreachable through the current
+    vocabulary. That branch is kept as a guard, not as a covered path — the honest claim
+    this test makes is about the OUTCOME, not about which line produces it."""
     with pytest.raises(IllegalTransition):
         project_attempt(_history("ClaimHeartbeat"))
 
@@ -2467,6 +2499,17 @@ def test_claim_holding_states_are_what_the_table_says():
         AttemptState.CLAIMED, AttemptState.IMPLEMENTING,
         AttemptState.PROMOTING, AttemptState.PROMOTION_REQUESTED,
     }
+
+
+def test_holds_claim_is_the_ONE_reading_of_the_question():
+    """Three callers ask "does this Attempt hold the lane?" and must never disagree, so the
+    predicate is asserted against the set it is defined from — including the `None` case,
+    which is the one a caller is most likely to get wrong: an Attempt with no events yet
+    holds nothing, and `None in CLAIM_HOLDING_STATES` is the only reason that is already
+    true rather than a crash."""
+    assert holds_claim(None) is False
+    for state in AttemptState:
+        assert holds_claim(state) == (state in CLAIM_HOLDING_STATES), state
 
 
 def test_no_claim_holding_state_is_TERMINAL():
@@ -2491,11 +2534,113 @@ def test_terminal_and_release_are_independent_predicates():
         assert t.releases_claim == ("ClaimReleased" in t.coordinator_effects)
 ```
 
-`parse_spec_transitions()` lives in the test helper (Step 3) so the parser has ONE
-implementation — Task 1 writes the spec rows, this reads them, and nothing else may
-re-derive the table's shape:
+`parse_spec_transitions()` lives in the SAME test helper as `drive` (Step 3 below), so
+the parser has ONE implementation — Task 1 writes the spec rows, this reads them, and
+nothing else may re-derive the table's shape. Its code is shown with the rest of the
+helper in Step 3 rather than twice here.
+
+- [ ] **Step 2: Run to verify they fail**
+
+Run: `python -m pytest tests/unit/test_self_improvement_lifecycle_model.py -q`
+Expected: collection error, `ModuleNotFoundError: llmxive.self_improvement.lifecycle`.
+
+- [ ] **Step 3: Write the test helper**
+
+`tests/` is a package (`tests/__init__.py`) and cross-test imports in this repo use the
+`from tests.<pkg>.<mod> import ...` form, so `tests/helpers/` needs an `__init__.py` — an
+empty file, created in this step. (`tests/fixtures/` is DATA and deliberately not a
+package; do not put the helper there.)
+
+```bash
+touch tests/helpers/__init__.py
+```
 
 ```python
+# tests/helpers/lane_lifecycle.py
+"""Shared drivers for the lifecycle model tests: build a synthetic history that REACHES a
+given state, using only the declared table — so the helper cannot encode a path the machine
+does not actually allow."""
+from __future__ import annotations
+
+import re
+from collections import deque
+from itertools import count
+from pathlib import Path
+from typing import Any
+
+from llmxive.self_improvement.events import Event, derive_event_id
+from llmxive.self_improvement.lifecycle import (
+    TRANSITIONS,
+    AttemptState,
+    legal_events_from,
+)
+
+TS = "2026-07-31T12:00:00+00:00"
+
+#: Distinguishes "caller said nothing" from "caller said None", which is itself a case the
+#: invariant tests must be able to build.
+_UNSET: Any = object()
+
+_SEQ = count()
+
+#: Every event type whose payload the fold reads a claim generation out of. Supplied by
+#: default so a history built here is one the writers could actually have produced: a
+#: `ClaimGranted` with no generation is refused by `walk_attempt`, and a helper that emitted
+#: one would make every claim-reaching test fail for a reason unrelated to what it asserts.
+_GENERATION_DEFAULT = {"ClaimGranted": 1, "ClaimExpired": 1, "ClaimHeartbeat": 1}
+
+
+def attempt_event(event_type: str, *, attempt_id: str = "A1", problem_id: str = "P1",
+                  payload: dict | None = None, seq: int | None = _UNSET) -> Event:
+    """One Attempt event, sequenced the way the store sequences one.
+
+    ``seq`` defaults to the next value from a monotonic counter, so histories built by
+    repeated calls satisfy the strictly-increasing invariant `project_attempt` enforces
+    without every caller threading positions. Pass ``seq=`` explicitly to build the
+    out-of-order and gapped histories the invariant tests need — including ``seq=None``,
+    which is why the default is a sentinel rather than ``None``.
+
+    An explicit ``payload`` OVERRIDES the generation default, which is what lets a test
+    build the stale-generation beat the fencing token exists to detect."""
+    body: dict[str, Any] = {"problem_id": problem_id, "attempt_id": attempt_id}
+    if event_type in _GENERATION_DEFAULT:
+        body["claim_generation"] = _GENERATION_DEFAULT[event_type]
+    body.update(payload or {})
+    return Event(
+        event_id=derive_event_id(problem_id, f"{event_type}\x00{attempt_id}"),
+        event_type=event_type, problem_id=problem_id, actor="test",
+        payload=body, timestamp=TS, attempt_id=attempt_id,
+        seq=next(_SEQ) if seq is _UNSET else seq,
+    )
+
+
+def _shortest_paths() -> dict[AttemptState, list[str]]:
+    """BFS over the declared table. Derived, never hand-written: a hand-written path would
+    silently stop testing a transition the table later changes."""
+    start = AttemptState.PROPOSED
+    paths: dict[AttemptState, list[str]] = {start: ["Proposed"]}
+    queue = deque([start])
+    while queue:
+        state = queue.popleft()
+        for event in sorted(legal_events_from(state)):
+            nxt = next(t.to_state for t in TRANSITIONS
+                       if t.event == event and state in t.from_states)
+            if nxt not in paths:
+                paths[nxt] = paths[state] + [event]
+                queue.append(nxt)
+    return paths
+
+
+_PATHS = _shortest_paths()
+
+
+def drive(state: AttemptState) -> list[Event]:
+    """A minimal legal history ending in ``state``."""
+    if state not in _PATHS:
+        raise AssertionError(f"{state} is unreachable from PROPOSED — the table is wrong")
+    return [attempt_event(e) for e in _PATHS[state]]
+
+
 _MARKER_EFFECTS = {"†": "ClaimReleased", "◇": "MonitorStarted"}
 
 #: Marks a row that is a real lane transition but does NOT move an Attempt through
@@ -2508,7 +2653,12 @@ _NOT_AN_ATTEMPT_TRANSITION = "‡"
 #: not have to encode.
 _EFFECT_ORDER = ("MonitorStarted", "ClaimReleased")
 
-_SPEC = Path("specs/025-self-improvement-lane/spec.md")
+#: Anchored on THIS FILE, deliberately not on `llmxive.config.repo_root()`: that resolver
+#: honours `LLMXIVE_REPO_ROOT`, which hermetic runs point at a synthetic DATA root with no
+#: `specs/` in it. The spec being compared here is a source artifact of the same checkout as
+#: the code, so the test tree's own location is the only anchor that cannot be redirected
+#: out from under it — and a relative path would depend on the working directory instead.
+_SPEC = Path(__file__).resolve().parents[2] / "specs/025-self-improvement-lane/spec.md"
 
 SpecRow = tuple[frozenset[str], str, str, tuple[str, ...]]
 
@@ -2528,8 +2678,6 @@ def parse_spec_transitions() -> tuple[dict[str, SpecRow], frozenset[str]]:
 
     A row that does not parse is an ERROR, never a skip. Silently dropping unparseable rows
     is how a drift test ends up comparing an empty set with an empty set and passing."""
-    import re
-
     rows: dict[str, SpecRow] = {}
     non_transitions: set[str] = set()
     inside = False
@@ -2585,95 +2733,6 @@ def _clean(cell: str) -> str:
     return out.strip()
 ```
 
-- [ ] **Step 2: Run to verify they fail**
-
-Run: `python -m pytest tests/unit/test_self_improvement_lifecycle_model.py -q`
-Expected: collection error, `ModuleNotFoundError: llmxive.self_improvement.lifecycle`.
-
-- [ ] **Step 3: Write the test helper**
-
-`tests/` is a package (`tests/__init__.py`) and cross-test imports in this repo use the
-`from tests.<pkg>.<mod> import ...` form, so `tests/helpers/` needs an `__init__.py` — an
-empty file, created in this step. (`tests/fixtures/` is DATA and deliberately not a
-package; do not put the helper there.)
-
-```bash
-touch tests/helpers/__init__.py
-```
-
-```python
-# tests/helpers/lane_lifecycle.py
-"""Shared drivers for the lifecycle model tests: build a synthetic history that REACHES a
-given state, using only the declared table — so the helper cannot encode a path the machine
-does not actually allow."""
-from __future__ import annotations
-
-from collections import deque
-from itertools import count
-from pathlib import Path
-from typing import Any
-
-from llmxive.self_improvement.events import Event, derive_event_id
-from llmxive.self_improvement.lifecycle import (
-    TRANSITIONS,
-    AttemptState,
-    legal_events_from,
-)
-
-TS = "2026-07-31T12:00:00+00:00"
-
-#: Distinguishes "caller said nothing" from "caller said None", which is itself a case the
-#: invariant tests must be able to build.
-_UNSET: Any = object()
-
-_SEQ = count()
-
-
-def attempt_event(event_type: str, *, attempt_id: str = "A1", problem_id: str = "P1",
-                  payload: dict | None = None, seq: int | None = _UNSET) -> Event:
-    """One Attempt event, sequenced the way the store sequences one.
-
-    ``seq`` defaults to the next value from a monotonic counter, so histories built by
-    repeated calls satisfy the strictly-increasing invariant `project_attempt` enforces
-    without every caller threading positions. Pass ``seq=`` explicitly to build the
-    out-of-order and gapped histories the invariant tests need — including ``seq=None``,
-    which is why the default is a sentinel rather than ``None``."""
-    body = {"problem_id": problem_id, "attempt_id": attempt_id, **(payload or {})}
-    return Event(
-        event_id=derive_event_id(problem_id, f"{event_type}\x00{attempt_id}"),
-        event_type=event_type, problem_id=problem_id, actor="test",
-        payload=body, timestamp=TS, attempt_id=attempt_id,
-        seq=next(_SEQ) if seq is _UNSET else seq,
-    )
-
-
-def _shortest_paths() -> dict[AttemptState, list[str]]:
-    """BFS over the declared table. Derived, never hand-written: a hand-written path would
-    silently stop testing a transition the table later changes."""
-    start = AttemptState.PROPOSED
-    paths: dict[AttemptState, list[str]] = {start: ["Proposed"]}
-    queue = deque([start])
-    while queue:
-        state = queue.popleft()
-        for event in sorted(legal_events_from(state)):
-            nxt = next(t.to_state for t in TRANSITIONS
-                       if t.event == event and state in t.from_states)
-            if nxt not in paths:
-                paths[nxt] = paths[state] + [event]
-                queue.append(nxt)
-    return paths
-
-
-_PATHS = _shortest_paths()
-
-
-def drive(state: AttemptState) -> list[Event]:
-    """A minimal legal history ending in ``state``."""
-    if state not in _PATHS:
-        raise AssertionError(f"{state} is unreachable from PROPOSED — the table is wrong")
-    return [attempt_event(e) for e in _PATHS[state]]
-```
-
 - [ ] **Step 4: Implement the table + fold**
 
 ```python
@@ -2691,6 +2750,8 @@ Attempt's outcome."""
 from __future__ import annotations
 
 import enum
+from collections import deque
+from collections.abc import Iterator
 from dataclasses import dataclass
 
 from llmxive.self_improvement.events import Event, payload_field
@@ -2860,6 +2921,7 @@ def holds_claim(state: AttemptState | None) -> bool:
     `None` — an Attempt with no events yet — holds nothing."""
     return state in CLAIM_HOLDING_STATES
 
+
 @dataclass(frozen=True)
 class NonTransition:
     """An event that lives on an Attempt's stream, carries its ``attempt_id``, and moves NO
@@ -2906,6 +2968,11 @@ _BY_NON_TRANSITION: dict[str, NonTransition] = {n.event: n for n in NON_TRANSITI
 _BY_EVENT: dict[str, Transition] = {t.event: t for t in TRANSITIONS}
 ATTEMPT_EVENT_TYPES: frozenset[str] = frozenset(_BY_EVENT) | NON_TRANSITION_EVENTS
 
+#: The transitions that carry the claim generation forward. Both write it because a grant
+#: opens a generation and an expiry closes the one it names (FR-035); no other row changes
+#: which generation is in force.
+_GENERATION_EVENTS = ("ClaimGranted", "ClaimExpired")
+
 
 def legal_events_from(state: AttemptState) -> frozenset[str]:
     return frozenset(t.event for t in TRANSITIONS if state in t.from_states)
@@ -2933,6 +3000,24 @@ class AttemptProjection:
 
 
 @dataclass(frozen=True)
+class TransitionOutcome:
+    """What a cross-stream write returns: the resulting projection, and whether THIS call
+    wrote it.
+
+    `created` exists on all four matrix rows for one reason — the lost-acknowledgement
+    contract. A durable transaction whose caller never learned it landed is
+    indistinguishable, to that caller, from one that never ran, so the recovery path is the
+    ordinary retry and the retry must report "already yours" rather than either raising or
+    claiming fresh work. `ClaimOutcome.created` (row 1) answers it for the claim grant;
+    this answers it for rows 2, 3 and 4. One question, one shape, four rows — which is also
+    what lets the lost-ack suite be parameterized over the matrix instead of written four
+    times with four different assertions."""
+
+    projection: AttemptProjection
+    created: bool
+
+
+@dataclass(frozen=True)
 class Step:
     """One state-moving event, with everything a consumer needs about its position in the
     history. A record rather than a tuple because it has grown twice already, and each
@@ -2944,6 +3029,20 @@ class Step:
     state_after: AttemptState
     #: The claim generation in force AFTER this event, or `None` before any grant.
     claim_generation: int | None
+
+
+def _required_field(event: Event, key: str) -> object:
+    """`payload_field`, but the refusal is an :class:`IllegalTransition`.
+
+    `payload_field` raises a bare `ValueError`, and every caller of this fold catches
+    `IllegalTransition` — a `ClaimGranted` with no `claim_generation` is a record the
+    writers cannot produce, so it must be refused the same way every other impossible
+    history is, not escape as a different exception type that `cas_attempt_transition`
+    does not recognise as "this history is untrustworthy"."""
+    try:
+        return payload_field(event, key)
+    except ValueError as exc:
+        raise IllegalTransition(str(exc)) from exc
 
 
 def walk_attempt(events: list[Event]) -> Iterator[Step]:
@@ -2968,8 +3067,9 @@ def walk_attempt(events: list[Event]) -> Iterator[Step]:
     INCREASES: a Problem's stream carries every Attempt on that Problem plus Problem-level
     events, so one Attempt's events are legitimately non-contiguous, and re-checking
     contiguity on the subset would reject every healthy interleaved history. Strictly
-    increasing is the real invariant — it catches a caller that concatenated two reads, sorted
-    by timestamp, or fed events from a stream whose continuity was never established."""
+    increasing is the real invariant — it catches a caller that concatenated two reads,
+    sorted by timestamp, or fed events from a stream whose continuity was never
+    established."""
     if not events:
         raise IllegalTransition("an Attempt projection needs at least its Proposed event")
     state: AttemptState | None = None
@@ -2992,10 +3092,10 @@ def walk_attempt(events: list[Event]) -> Iterator[Step]:
             # beat anywhere else is a record no writer could have produced.
             if state not in rule.legal_states:
                 raise IllegalTransition(
-                    f"{e.event_type!r} at {state.value if state else None!r}: legal only "
-                    f"in {sorted(s.value for s in rule.legal_states)}")
+                    f"{e.event_type!r} at {state.value if state is not None else None!r}: "
+                    f"legal only in {sorted(s.value for s in rule.legal_states)}")
             if rule.generation_field is not None:
-                stamped = payload_field(e, rule.generation_field)
+                stamped = _required_field(e, rule.generation_field)
                 if stamped != generation:
                     raise IllegalTransition(
                         f"{e.event_type!r} stamps {rule.generation_field}={stamped!r} but "
@@ -3016,8 +3116,8 @@ def walk_attempt(events: list[Event]) -> Iterator[Step]:
         elif state not in transition.from_states:
             raise IllegalTransition(
                 f"illegal transition {e.event_type!r} from {state.value!r}")
-        if e.event_type in ("ClaimGranted", "ClaimExpired"):
-            generation = payload_field(e, "claim_generation")
+        if e.event_type in _GENERATION_EVENTS:
+            generation = _required_field(e, "claim_generation")
         yield Step(state, e, transition, transition.to_state, generation)
         state = transition.to_state
 
@@ -3030,7 +3130,12 @@ def project_attempt(events: list[Event]) -> AttemptProjection:
     generation: int | None = None
     for step in walk_attempt(events):
         state, last, generation = step.state_after, step.transition, step.claim_generation
-    if state is None:
+    if state is None or last is None:
+        # Unreachable through the public vocabulary today — every declared non-transition
+        # is legal only in a claim-holding state, so a stream of nothing but those already
+        # fails inside `walk_attempt`. Kept because the alternative failure mode is an
+        # `AttributeError` on `last`, and a fold whose "impossible" branch crashes instead
+        # of refusing is one that cannot be used for recovery.
         raise IllegalTransition(
             f"{events[0].attempt_id!r} has only non-transition events — no state to project")
     return AttemptProjection(
@@ -3045,16 +3150,23 @@ __all__ = [
     "ATTEMPT_EVENT_TYPES",
     "CLAIM_HOLDING_STATES",
     "COUNTED_TERMINALS",
+    "NON_TRANSITIONS",
+    "NON_TRANSITION_EVENTS",
     "OPERATIONAL_TERMINALS",
     "TERMINAL_STATES",
     "TRANSITIONS",
     "AttemptProjection",
     "AttemptState",
     "IllegalTransition",
+    "NonTransition",
     "ProblemDisposition",
+    "Step",
     "Transition",
+    "TransitionOutcome",
+    "holds_claim",
     "legal_events_from",
     "project_attempt",
+    "walk_attempt",
 ]
 ```
 
@@ -3070,7 +3182,25 @@ is where that shows up as a failure rather than as a surprise in a log.
 
 - [ ] **Step 6: Verify the model tests are load-bearing**
 
-Temporarily delete the `elif state in TERMINAL_STATES:` branch in `project_attempt`, re-run, and confirm `test_a_second_terminal_is_refused_whichever_two_they_are` FAILS. Restore it and confirm `git diff` on `lifecycle.py` is empty. A model test that passes against a broken machine is decoration.
+A model test that passes against a broken machine is decoration, so every guard the fold
+declares gets a mutation that must kill at least one test. `lifecycle.py` is new and
+therefore UNTRACKED at this point, so `git diff` proves nothing about restoration — the
+harness compares a sha256 of the file against the pre-mutation digest instead, and refuses
+to continue if an anchor did not match (a mutation that silently fails to apply reports a
+green run that means nothing; Task 3 Step 9 already produced one).
+
+|Mutation|Guard it removes|
+|-|-|
+|delete the `elif state in TERMINAL_STATES:` branch|a second terminal per Attempt|
+|`if e.seq is None or e.seq <= previous_seq:` → `if False:`|strictly-increasing `seq`|
+|`elif state not in transition.from_states:` → `elif False:`|per-row legality|
+|`if state not in rule.legal_states:` → `if False:`|where a heartbeat may be written|
+|`if stamped != generation:` → `if False:`|the beat's fencing token|
+|`CLAIM_HOLDING_STATES` hand-written without `promotion_requested`|the derivation itself|
+|`PromotionObserved` effects → `_RELEASES`|the spec/code drift check|
+|`_required_field` → bare `payload_field`|`IllegalTransition` as the ONE refusal type|
+
+Each must be applied, run, and reverted one at a time; all eight kill a test.
 
 - [ ] **Step 7: Commit**
 
@@ -3764,26 +3894,9 @@ def cas_attempt_transition(repo: Path, *, problem_id: str, attempt_id: str,
         created=result.created)
 ```
 
-`TransitionOutcome` is declared in Task 5 beside `AttemptProjection`:
-
-```python
-@dataclass(frozen=True)
-class TransitionOutcome:
-    """What a cross-stream write returns: the resulting projection, and whether THIS call
-    wrote it.
-
-    `created` exists on all four matrix rows for one reason — the lost-acknowledgement
-    contract. A durable transaction whose caller never learned it landed is
-    indistinguishable, to that caller, from one that never ran, so the recovery path is the
-    ordinary retry and the retry must report "already yours" rather than either raising or
-    claiming fresh work. `ClaimOutcome.created` (row 1) answers it for the claim grant;
-    this answers it for rows 2, 3 and 4. One question, one shape, four rows — which is also
-    what lets the lost-ack suite be parameterized over the matrix instead of written four
-    times with four different assertions."""
-
-    projection: AttemptProjection
-    created: bool
-```
+`TransitionOutcome` (`projection` + `created`) is declared in Task 5, beside
+`AttemptProjection`, and is shown there — not repeated here. A second copy of a
+dataclass in the plan is a second place for it to drift.
 
 - [ ] **Step 4: Run the tests**
 
