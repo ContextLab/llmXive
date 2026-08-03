@@ -1,18 +1,14 @@
 # Core Data & ML
 pandas>=2.0.0
 scikit-learn>=1.3.0
-numpy>=1.24.0
-
-# Chemistry & Visualization
-rdkit>=2023.9.0
-
-# Utilities
 requests>=2.31.0
-tqdm>=4.65.0
+
+# Chemistry & Quantum
+rdkit>=2023.9.0
 
 # Testing
 pytest>=7.4.0
 
-# Linting & Formatting
+# Linting & Formatting (Phase 1 T003)
 ruff>=0.1.0
 black>=23.0.0

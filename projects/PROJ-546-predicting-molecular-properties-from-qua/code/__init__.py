@@ -1,1 +1,1 @@
-# Code package for molecular property prediction pipeline
+# PROJ-546 Code Package

@@ -1,3 +1,6 @@
+# Black configuration for PROJ-546-predicting-molecular-properties-from-qua
+# Ensures consistent code formatting across the pipeline
+
 [tool.black]
 line-length = 88
 target-version = ['py311']
@@ -13,5 +16,7 @@ exclude = '''
   | buck-out
   | build
   | dist
+  | data
+  | reports
 )/
 '''

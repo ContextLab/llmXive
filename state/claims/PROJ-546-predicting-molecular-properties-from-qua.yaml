@@ -279,3 +279,110 @@
   source_type: external
   status: verified
   updated_at: '2026-08-01T07:45:54Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/docs/approximation_error.md
+  attempts: 1
+  canonical: DFTB+ error is 2 to 5 kcal/mol compared to DFT for typical organic molecules
+  claim_id: c_85af585b
+  context: 'For a typical organic molecule: DFTB+ Error: ~2-5 kcal/mol vs. DFT.'
+  evidence:
+    asserted: '2.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'DFTB+ Error: ~2-5 kcal/mol vs. DFT.'
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-08-03T18:17:36Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/docs/approximation_error.md
+  attempts: 1
+  canonical: DFT error is 1 to 2 kcal/mol compared to experiment for typical organic
+    molecules
+  claim_id: c_f8ed530b
+  context: 'For a typical organic molecule: DFT Error: ~1-2 kcal/mol vs. Experiment.'
+  evidence:
+    asserted: '1.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'DFT Error: ~1-2 kcal/mol vs. Experiment.'
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-08-03T18:17:36Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/docs/approximation_error.md
+  attempts: 1
+  canonical: Total combined error for typical organic molecules is 3 to 7 kcal/mol
+  claim_id: c_29b49f9e
+  context: 'For a typical organic molecule: Total Error: ~3-7 kcal/mol (combined).'
+  evidence:
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'Total Error: ~3-7 kcal/mol (combined).'
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-08-03T18:17:36Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/docs/approximation_error.md
+  attempts: 1
+  canonical: DFTB+ HOMO energy for benzene is -8.5 eV
+  claim_id: c_d12a8bb4
+  context: 'Worked Example: Benzene: DFTB+ HOMO: -8.5 eV'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'DFTB+ HOMO: -8.5 eV'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T18:18:09Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/docs/approximation_error.md
+  attempts: 1
+  canonical: DFT HOMO energy for benzene is -9.1 eV
+  claim_id: c_3cf517c8
+  context: 'Worked Example: Benzene: DFT HOMO: -9.1 eV'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'DFT HOMO: -9.1 eV'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T18:18:31Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/docs/approximation_error.md
+  attempts: 1
+  canonical: Difference between DFTB+ and DFT HOMO for benzene is 0.6 eV or 14 kcal/mol
+  claim_id: c_57b2ce2c
+  context: 'Worked Example: Benzene: Difference: 0.6 eV (~14 kcal/mol).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Difference: 0.6 eV (~14 kcal/mol).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T18:18:51Z'

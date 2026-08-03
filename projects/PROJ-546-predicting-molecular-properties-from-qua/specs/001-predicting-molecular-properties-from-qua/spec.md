@@ -3,29 +3,39 @@
 ## User Stories
 
 ### US1: Semi-Empirical Descriptor Generation
-As a researcher, I want to generate HOMO, LUMO, and Mayer descriptors using DFTB+ on the full dataset with geometry optimization so that I can establish a baseline for molecular properties efficiently.
+As a researcher, I want to compute HOMO/LUMO/Mayer descriptors using DFTB+ on the full dataset so that I can establish a baseline model with reasonable computational cost.
+- **Acceptance Criteria**:
+ - Geometry optimization performed for all valid molecules.
+ - Output CSV contains HOMO, LUMO, Mayer bond orders.
+ - Convergence failures are logged and skipped, not halting the pipeline.
+ - Optimized geometries exported to XYZ format.
 
 ### US2: High-Level DFT Baseline & Comparative Modeling
-As a researcher, I want to compute DFT descriptors for a subset and train two Random Forest models (one on semi-empirical, one on DFT data) so that I can compare their predictive accuracy against experimental barriers.
+As a researcher, I want to compute DFT descriptors for a subset and compare model performance against the semi-empirical baseline so that I can quantify the accuracy trade-off.
+- **Acceptance Criteria**:
+ - A subset of valid samples processed with Psi4 B3LYP/def2-SVP.
+ - Identical geometries used for both methods (imported from US1).
+ - Two Random Forest models trained and evaluated via 5-fold CV.
+ - Paired t-test performed; semi-MAE ≤ 2.0 kcal/mol verified.
 
 ### US3: Feature Importance & Sensitivity Analysis
-As a researcher, I want to identify the top descriptors contributing to the model predictions and perform a sensitivity analysis so that I can understand which physical features are most critical for barrier height prediction.
-
-## Functional Requirements
-
-- FR-001: Download experimental barrier dataset from Zenodo.
-- FR-002: Invoke DFTB+ for geometry optimization and descriptor extraction.
-- FR-003: Invoke Psi4 for B3LYP/def2-SVP calculations on a subset.
-- FR-004: Train Random Forest models using 5-fold cross-validation.
-- FR-005: Compute MAE and run paired t-tests for model comparison.
-- FR-006: Extract feature importance from the semi-empirical model.
-- FR-007: Perform sensitivity sweep over descriptor thresholds.
-- FR-008: Flag if semi-empirical MAE exceeds DFT MAE by >20%.
-- FR-009: Report cumulative importance of top descriptors.
-- FR-010: Verify semi-empirical MAE ≤ 2.0 kcal/mol.
+As a researcher, I want to identify top descriptors and sweep numerical thresholds so that I can understand model stability and physical relevance.
+- **Acceptance Criteria**:
+ - Top descriptors identified by feature importance.
+ - Sensitivity sweep over thresholds (, 1.0, 2.0 eV).
+ - MAE degradation reported for each threshold.
+ - Top descriptors stability checked (change < 1 time).
 
 ## Edge Cases
+- **Convergence Failure**: Log to `logs/convergence_failures.log`, skip molecule.
+- **OOM**: Detect via `utils/memory_monitor.py`, kill process, log, skip.
+- **Physical Range Violation**: If HOMO > LUMO, log to `logs/structural_failures.log`, skip.
 
-- Convergence failures in quantum calculations: Skip molecule, log failure, continue.
-- OOM (Out of Memory) during calculation: Detect, kill process, suggest subset reduction.
-- Missing columns in input data: Raise validation error.
+## Data Model
+- **Input**: CSV with `SMILES`, `experimental_barrier` (kcal/mol).
+- **Output**: CSV with `SMILES`, `HOMO_energy`, `LUMO_energy`, `Mayer_Bond_Order`, `predicted_barrier`.
+
+## Constraints
+- Runtime < 6 hours for full pipeline on subset.
+- Reproducibility: Pin dependencies, generate checksums.
+- Physical Validity: Verify units (eV) and physical relationships (HOMO < LUMO).

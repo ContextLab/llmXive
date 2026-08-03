@@ -1,30 +1,25 @@
-# Predicting Molecular Properties from Quantum Chemical Calculations
+# PROJ-546: Predicting Molecular Properties from Quantum Chemical Calculations
 
-**Project ID**: PROJ-546
+This project implements a pipeline to predict molecular properties using semi-empirical and high-level DFT quantum chemical calculations.
 
-## Overview
-This project implements a pipeline to predict molecular properties (specifically reaction barrier heights) using semi-empirical quantum chemical descriptors (DFTB+) and high-level DFT baselines (Psi4), validated against experimental data.
+## Project Structure
 
-## Structure
-- `code/`: Python implementation scripts for data download, descriptor generation, model training, and evaluation.
-- `data/`: Storage for raw and processed data artifacts.
-- `tests/`: Unit and integration tests.
-- `reports/`: Generated evaluation and sensitivity analysis reports.
-- `logs/`: Execution logs and error tracking.
-- `docs/`: Project documentation.
+- `code/`: Python source modules for the pipeline
+- `data/`: Input datasets, downloaded data, and generated artifacts
+- `tests/`: Unit and integration tests
+- `logs/`: Execution logs and failure reports
+- `reports/`: Final evaluation and sensitivity analysis reports
+- `docs/`: Project documentation and design decisions
+- `specs/`: Feature specifications and requirements
 
 ## Quick Start
-1. Ensure Python 3.11+ is installed.
-2. Install dependencies: `pip install -r code/requirements.txt`
-3. Download data: `python code/download_data.py`
-4. Generate descriptors: `python code/generate_descriptors.py`
-5. Train and evaluate models: `python code/train_models.py` && `python code/evaluate_models.py`
 
-## Requirements
-- DFTB+ (for semi-empirical calculations)
-- Psi4 (for DFT calculations)
-- Python 3.11+
-- scikit-learn, pandas, rdkit
+1. Install dependencies: `pip install -r code/requirements.txt`
+2. Download data: `python code/download_data.py`
+3. Generate descriptors: `python code/generate_descriptors.py --method dftb`
+4. Train models: `python code/train_models.py`
+5. Evaluate: `python code/evaluate_models.py`
 
 ## License
-Proprietary - Internal Research Use Only
+
+Internal research use only.
