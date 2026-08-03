@@ -43,25 +43,16 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001a [P] Create directory: `code/`
-- [ ] T001b [P] Create directory: `data/`
-- [ ] T001c [P] Create directory: `data/synthetic/`
-- [ ] T001d [P] Create directory: `data/synthetic/raw/`
-- [ ] T001e [P] Create directory: `data/synthetic/short_context/`
-- [ ] T001f [P] Create directory: `data/results/`
-- [ ] T001g [P] Create directory: `data/results/logs/`
-- [ ] T001h [P] Create directory: `data/results/aggregated/`
-- [ ] T001i [P] Create directory: `tests/`
-- [ ] T001j [P] Create directory: `models/`
-- [ ] T001k [P] Create directory: `data/assets/`
-- [ ] T002 [P] Create `code/__init__.py` and `tests/__init__.py`
-- [ ] T003 [P] Create `code/requirements.txt` with pinned dependencies: `transformers`, `torch` (CPU-only), `llama-cpp-python`, `onnxruntime`, `pandas`, `scikit-learn`, `numpy`, `pillow`, `pyyaml`, `requests`
+- [ ] T001 [P] Generate and execute `code/scripts/init_dirs.py`: Create a Python script that programmatically creates all required directories (`code/`, `data/`, `data/synthetic/`, `data/synthetic/raw/`, `data/synthetic/short_context/`, `data/results/`, `data/results/logs/`, `data/results/aggregated/`, `tests/`, `models/`, `data/assets/`) and writes a success log to `data/.init_log.txt`. **Verification**: Run `python code/scripts/init_dirs.py` and confirm `data/.init_log.txt` exists.
+- [X] T003 [P] Create `code/__init__.py` and `tests/__init__.py`
 
 ## Phase 1.5: Asset Preparation
 
 **Purpose**: Ensure deterministic inputs for data generation
 
-- [ ] T004 [P] Populate `data/assets/` with 20 fixed 336x336 images using Pillow to generate 'technical manual' style diagrams (grayscale gradients with OCR-readable text labels) to simulate complexity as per Spec Assumption 2. Ensure filenames are deterministic (e.g., `img_00.png` to `img_20.png`).
+- [ ] T004 [P] [US1] Implement `code/scripts/generate_assets.py` to generate 20 fixed 336x336 images using Pillow. Images must be 'technical manual' style diagrams (grayscale gradients with OCR-readable text labels) to simulate complexity uniformly. [UNRESOLVED-CLAIM: c_33d7f8a1 — status=not_enough_info] **Specifics**: Use `PIL.ImageDraw` with a standard font (e.g., `DejaVuSans` or `Arial`), high contrast (black text on white background), and ensure text is legible. Save to `data/assets/img_00.png` to `data/assets/img_20.png`. **Crucial**: Generate `data/assets/manifest.json` listing filenames and SHA hashes for verification. **Verification**: Run script, confirm `manifest.json` exists with a set of entries
+
+The research question, method, and references remain unchanged as no specific values were asserted in the original passage beyond the entry count, which has been generalized., and verify one image using `pytesseract` to ensure text is readable.
 
 ---
 
@@ -71,13 +62,13 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T005 Create `code/config.py` for hyperparameters, seeds, model paths, and Arm selection logic (**Arm B Primary** for hypothesis test, **Arm A Auxiliary** for control). **NOTE: Config must enforce Spec FR-002 model ID: mmpro/MMProLong-7B-1.0.**
-- [ ] T006 [P] Implement `code/__init__.py` and base logging infrastructure
+- [X] T005 [P] Create `code/config.py` for hyperparameters, seeds, model paths, and Arm selection logic. **Must define `MODEL_ID = "mmpro/MMProLong-7B-1.0"` and `ARM_PRIMARY = "B"`**. **Verification**: Run `grep MODEL_ID code/config.py` and confirm it returns `mmpro/MMProLong-7B-1.0`.
+- [X] T006 [P] Implement `code/__init__.py` and base logging infrastructure
 - [ ] T007 [P] Setup environment configuration management (load `.env` if present, fallback to defaults)
-- [ ] T008 Create base data entities: `code/data_generation/synthetic_sample.py` (attributes: `sample_id`, `text_token_count`, `image_count`, `visual_token_count`, `needle_location`, `needle_value`, `arm_type`, `total_context_tokens`). **Note**: Images are fetched from the fixed set in `data/assets/`. Text is generated via template-based synthetic text.
-- [ ] T009 Create base data entities: `code/inference/inference_result.py` (attributes: `sample_id`, `retrieved_value`, `is_correct`, `inference_time_ms`, `peak_memory_mb`)
-- [ ] T010 [P] Implement `code/main.py` orchestration script (pure orchestration, no pilot run logic here). **Depends on T007 and T008 completion.**
-- [ ] T040 [P] [US2] **Model Preparation**: Implement `code/inference/model_prep.py` to download **`mmpro/MMProLong-7B-1.0 `** (per Spec FR-002) from HuggingFace and convert it to `Q4_K_M.gguf ` format using `llama.cpp`, saving to `models/mmpro/MMProLong-7B-1.0 -Q4_K_M.gguf `. **This task MUST run before T041.** **WARNING: Plan.md incorrectly cites 'Qwen/Qwen2-VL-7B-Instruct'; this task enforces Spec FR-002.**
+- [X] T008 [P] Create base data entities: `code/data_generation/synthetic_sample.py` (attributes: `sample_id`, `text_token_count`, `image_count`, `visual_token_count`, `needle_location`, `needle_value`, `arm_type`, `total_context_tokens`). **Note**: `arm_type` added per Plan.md 'Dual-Arm design' requirement. Images are fetched from the fixed set in `data/assets/`. Text is generated via template-based synthetic text.
+- [ ] T009 [P] Create base data entities: `code/inference/inference_result.py` (attributes: `sample_id`, `retrieved_value`, `is_correct`, `inference_time_ms`, `peak_memory_mb`)
+- [ ] T040 [P] [US2] **Model Preparation**: Implement `code/inference/model_prep.py` to download **`mmpro/MMProLong-7B-1.0`** (per Spec FR-002) from HuggingFace and convert it to `Q4_K_M.gguf` format using `llama.cpp`, saving to `models/mmpro/MMProLong-7B-1.0-Q4_K_M.gguf`. **This task MUST run before T041.** **Verification**: Confirm file exists and has non-zero size.
+- [ ] T015 [P] [P2] Implement `code/main.py` with orchestration logic and CLI argument parser (`--arm`, `--max_tokens`, `--dry-run`). **Depends on T005, T008, T011**. **Verification**: Run `python code/main.py --help` and confirm it prints usage help.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -85,15 +76,15 @@
 
 ## Phase 3: User Story 1 - Synthetic Data Generation with Controlled Modality Balance (Priority: P1) 🎯 MVP
 
-**Goal**: Generate a synthetic dataset where visual density varies across a range. **Arm B (Constant Total) is the PRIMARY arm for the hypothesis test** (per Plan/Constitution), while Arm A (Constant Text) serves as the control (per Spec).
+**Goal**: Generate a synthetic dataset where visual density varies across a range. **Arm B (Constant Total) is the PRIMARY arm for the hypothesis test** (per Plan), while Arm A (Constant Text) serves as the control (per Spec).
 
 **Independent Test**: A script runs to generate a batch. Output validation confirms text-only token count variance <1% (Arm A) or total token variance <1% (Arm B), needle difficulty is identical, and visual token count varies exactly as specified.
 
 ### Implementation for User Story 1
 
 - [ ] T011 [P] [US1] Implement `code/data_generation/generator.py` with Dual-Arm logic:
- - **Arm B (Primary)**: Constant total tokens (text + visual), variable images (0–20). **Formula**: `visual_tokens = image_count * (336/14)^2 * 256 ` (approx 256 tokens per 336x336 image at 14x14 patch size). `text_tokens = target_total - visual_tokens`.
- - **Arm A (Auxiliary)**: Constant text tokens ({{claim:c_d8a50755}} (Wikipedia: Moonshot AI, https://en.wikipedia.org/wiki/Moonshot_AI)), variable images (0–20).
+ - **Arm B (Primary)**: Constant total tokens (text + visual), variable images (0–20). **Logic**: Calculate `visual_tokens = image_count * 576` (approx 14x14 patches per 336x336 image at 24px patch size). Set `text_tokens = target_total - visual_tokens`. Use `tiktoken` to verify token counts.
+ - **Arm A (Auxiliary)**: Constant text tokens, variable images (0–20). **Logic**: Set `text_tokens` to target value, `visual_tokens = image_count * 576`. Total context varies.
  - Ensure images are fixed resolution (336x336) and "needle" placement is deterministic.
  - **Crucial**: The generator must support a `--max_tokens` flag to handle both long-context (128K+) and short-context (≤4K) generation modes.
 - [ ] T012 [P] [US1] Implement `code/data_generation/validators.py` to verify:
@@ -103,7 +94,8 @@
  - Needle difficulty score is identical across all samples.
 - [ ] T013 [US1] Implement data storage logic in `code/data_generation/storage.py` to save generated samples as JSONL/Parquet in `data/synthetic/raw/` and `data/synthetic/short_context/`.
 - [ ] T014 [US1] Add error handling for OOM or generation failures in `code/data_generation/generator.py` (log and skip).
-- [ ] T015 [US1] Create a CLI entry point in `code/main.py` to trigger generation with `--arm A` or `--arm B` and `--max_tokens` flags. **Note: This task depends on T040 (Model Prep) completion for full pipeline readiness, though generation itself is independent.**
+- [ ] T047A [P] [US1] **Generate** the short-context control group (Arm A): 500 samples (≤4K tokens) with 1 image using `generator.py` with `--arm A --max_tokens 4096`, saving to `data/synthetic/short_context/short_control_arm_a.jsonl`. **Verification**: Run `wc -l data/synthetic/short_context/short_control_arm_a.jsonl` (must be 500) and `python code/data_generation/validators.py --file... --check-arm A`.
+- [ ] T047B [P] [US1] **Generate** the short-context control group (Arm B): 500 samples (≤4K tokens) with variable images (0-5) using `generator.py` with `--arm B --max_tokens 4096`, saving to `data/synthetic/short_context/short_control_arm_b.jsonl`. **Verification**: Run `wc -l data/synthetic/short_context/short_control_arm_b.jsonl` (must be 500) and `python code/data_generation/validators.py --file... --check-arm B`.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -111,23 +103,22 @@
 
 ## Phase 4: User Story 2 - CPU-Feasible Inference and Retrieval Execution (Priority: P2)
 
-**Goal**: Execute "needle-in-a-haystack" retrieval on the generated dataset using **`mmpro/MMProLong-7B-1.0 `** (4-bit quantized via `llama-cpp-python`) on a 2-core CPU runner within 6 hours, with robust OOM handling. **Strictly adheres to Spec FR-002.**
+**Goal**: Execute "needle-in-a-haystack" retrieval on the generated dataset using **`mmpro/MMProLong-7B-1.0`** (4-bit quantized via `llama-cpp-python`) on a 2-core CPU runner within 6 hours, with robust OOM handling. **Strictly adheres to Spec FR-002.**
 
 **Independent Test**: A single sample processes end-to-end without OOM, completes within time limits, and outputs a binary retrieval result.
 
 ### Implementation for User Story 2
 
-- [ ] T041 [P] [US2] Implement `code/inference/loader.py` to load `models/mmpro/MMProLong-7B-1.0 -Q4_K_M.gguf ` (generated by T040) with {{claim:c_273d3166}} (2105.03536, https://arxiv.org/abs/2105.03536) (`Q4_K_M` format) using `llama-cpp-python` (CPU only). **Exclusive use of llama-cpp-python required. Model ID must match Spec FR-002: mmpro/MMProLong-7B-1.0.**
-- [ ] T042 [P] [US2] Implement `code/inference/runner.py` with:
+- [ ] T041 [P] [US2] Implement `code/inference/loader.py` to load `models/mmpro/MMProLong-7B-1.0-Q4_K_M.gguf` (generated by T040) with `llama-cpp-python` (CPU only). **Exclusive use of llama-cpp-python required. Model ID must match Spec FR-002: mmpro/MMProLong-7B-1.0.**
+- [ ] T042 [US2] Implement `code/inference/runner.py` with:
  - Batch inference loop.
- - {{claim:c_5c902f9c}} (Wikidata Q19823792, https://www.wikidata.org/wiki/Q19823792).
- - OOM guardrail: catch OOM exceptions, log sample ID and memory state to `data/results/logs/oom_errors.log`, skip sample, and continue.
- - **Feasibility Gate**: Implement pilot run logic here to test memory feasibility on a single sample before full batch. **If the pilot fails, abort job with error code 1** (do not reduce context).
+ - **OOM Guardrail**: Wrap inference calls in `try/except` blocks catching `RuntimeError` or `MemoryError`. On failure, log sample ID and memory state to `data/results/logs/oom_errors.log`, skip sample, and continue.
+ - **Feasibility Gate**: Implement pilot run logic here to test memory feasibility on a single sample before full batch. **If pilot fails at 128K, automatically reduce target context to 64K and retry pilot. If 64K also fails, abort with error code 1. [UNRESOLVED-CLAIM: c_4dff599e — status=not_enough_info]**
+ - **Note**: T042 depends on T041 completion (sequential, not parallel).
 - [ ] T043 [US2] Implement `code/inference/metrics.py` to calculate retrieval accuracy (binary match/no match against ground truth needle).
 - [ ] T044 [US2] Integrate `code/inference/runner.py` into `code/main.py` to process `data/synthetic/` and write results to `data/results/aggregated/`.
 - [ ] T045 [US2] Implement timing logic in `code/inference/runner.py` to ensure average time per sample meets a predefined efficiency threshold relative to the dataset size.
-- [ ] T046 [US2] [P] Implement inference logic to process short-context samples from `data/synthetic/short_context/` and write results to `data/results/short_context_raw.jsonl`.
-- [ ] T047 [US2] [P] **Generate** the short-context control group: 500 samples (≤4K tokens) with 1 image using `generator.py` with `--arm A --max_tokens 4096`, saving to `data/synthetic/short_context/`.
+- [ ] T046 [US2] Implement inference logic to process short-context samples from `data/synthetic/short_context/` and write results to `data/results/short_context_raw.jsonl`.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -141,7 +132,7 @@
 
 ### Implementation for User Story 3
 
-- [ ] T048 [P] [US3] Implement `code/analysis/aggregator.py` to group `InferenceResult` records by `DensityBucket` (e.g., varying image counts).
+- [ ] T048 [P] [US3] Implement `code/analysis/aggregator.py` to group `InferenceResult` records by `DensityBucket` (e.g., varying image counts). **Note**: Can be developed in parallel with Phase 4, but executes after Phase 4 results are available.
 - [ ] T049 [P] [US3] Implement `code/analysis/stats.py` with:
  - Logistic Regression model (Visual Density × Text Length interaction term). **Note**: Interaction term measured using full dataset (Arm A + Arm B) where text length varies (in Arm B) or via Arm B data where text length varies inversely with image count.
  - Quadratic term inclusion to detect "cliffs".
@@ -157,7 +148,7 @@
 
 **Goal**: Evaluate short-context samples separately to ensure long-context failure is not due to general visual capability loss.
 
-**Independent Test**: Short-context samples are processed and reported separately with ≥95% accuracy baseline check.
+**Independent Test**: Short-context samples are processed and reported separately with ≥95% accuracy baseline check. [UNRESOLVED-CLAIM: c_ffad4df5 — status=not_enough_info]
 
 ### Implementation for User Story 4
 
@@ -174,12 +165,12 @@
 **Purpose**: Improvements that affect multiple user stories
 
 - [ ] T055 [P] Documentation updates: Update `README.md` with CLI usage examples for `--arm A`, `--arm B`, and `--max_tokens`; Update `docs/quickstart.md` with the Feasibility Gate logic and short-context generation steps.
-- [ ] T056 Code cleanup and refactoring
-- [ ] T057 Performance optimization for inference loop (batching strategies)
+- [ ] T056 [P] Refactor `code/inference/runner.py` to use batched loading to optimize memory usage. **Verification**: Code review confirms batched loading implementation.
+- [ ] T057 [P] Implement `code/scripts/memory_benchmark.py` to measure peak memory during a representative inference run. **Verification**: Run script and confirm `memory_report.json` shows peak memory < 7GB.
 - [ ] T058 [P] Add unit tests for `code/data_generation/validators.py` in `tests/unit/test_validators.py`
 - [ ] T059 [P] Add integration tests for inference pipeline in `tests/integration/test_inference_pipeline.py`
 - [ ] T060 Run `quickstart.md` validation to ensure end-to-end reproducibility
-- [ ] T061 Implement `code/main.py` `--hash-artifacts` step to compute SHA-256 for `data/` and `code/` and write to `state/artifact_hashes.json`
+- [ ] T061 [P] Implement `code/main.py` `--hash-artifacts` step to compute SHA-256 for `data/` and `code/` and write to `state/artifact_hashes.json`. **Verification**: Run `python code/main.py --hash-artifacts` and confirm `state/artifact_hashes.json` is created with non-empty SHA-256 values.
 
 ---
 
@@ -210,9 +201,9 @@
 ### Parallel Opportunities
 
 - All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
+- All Foundational tasks marked [P] can run in parallel **ONLY if they do not share data schema dependencies** (e.g., T008 must complete before T011)
 - Once Foundational phase completes, US1 and US2 (setup parts) can start in parallel
-- US3 and US4 analysis scripts can be developed in parallel while US2 runs
+- US3 and US4 analysis scripts can be developed in parallel while US2 runs (but execute after)
 - All tests for a user story marked [P] can run in parallel
 
 ---
@@ -264,17 +255,18 @@ With multiple developers:
 
 ## Notes
 
-- [P] tasks = different files, no dependencies
+- [P] tasks = different files, no dependencies (for development; execution order may differ)
 - [Story] label maps task to specific user story for traceability
 - Each user story should be independently completable and testable
 - Verify tests fail before implementing
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
-- **CRITICAL**: All tasks must run on 2-core CPU, ≤7GB RAM, no GPU. No 8-bit/4-bit CUDA dependencies.
+- **CRITICAL**: All tasks must run on 2-core CPU, ≤7GB RAM, no GPU. [UNRESOLVED-CLAIM: c_f4558d1a — status=not_enough_info] No 8-bit/4-bit CUDA dependencies.
 - **CRITICAL**: No synthetic/fake data inputs. Use real image references (e.g., from NAB or fixed sample set) or strictly synthetic generation that mimics real distribution without fabricating "fake" results.
 - **CRITICAL**: Task ordering respects data flow: Generation → Inference → Analysis.
-- **NOTE**: The Plan mandates **Arm B (Constant Total)** as the PRIMARY arm for the hypothesis test. Tasks follow the Plan. **Spec.md must be updated to reflect this priority.**
-- **NOTE**: The Spec mandates `mmpro/MMProLong-7B-1.0 ` (FR-002). Tasks follow the Spec. **Plan.md must be updated to reflect this model ID.** **{{claim:c_1a75fecc}}; this tasks.md enforces Spec FR-002.**
+- **NOTE**: The Plan mandates **Arm B (Constant Total)** as the PRIMARY arm for the hypothesis test. Tasks follow the Plan. **Note: Plan.md must be updated to match Spec FR-002 regarding the model ID.**
+- **NOTE**: The Spec mandates `mmpro/MMProLong-7B-1.0` (FR-002). Tasks follow the Spec. **Note: Plan.md must be updated to reflect this model ID.**
 - **NOTE**: The `data/assets/` directory must be populated with 20 complex diagrams (Task T004) before generation tasks run.
 - **NOTE**: The model must be converted to `.gguf` (Task T040) before inference tasks run.
-- **NOTE**: T010 (Orchestration) depends on T007 and T008. T040 (Model Prep) must run before T041 (Loader).
+- **NOTE**: T015 (CLI) depends on T011 and T005. T042 (Runner) depends on T041 (Loader).
+- **NOTE**: T008 (Entities) must be completed before T011 (Generator) can be implemented.

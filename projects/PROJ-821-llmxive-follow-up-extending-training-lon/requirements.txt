@@ -1,0 +1,12 @@
+# llmXive Research Pipeline Dependencies
+# Generated for task T004
+
+# Image generation
+Pillow>=9.0.0
+
+# Note: Additional dependencies will be added as tasks progress:
+# - tiktoken (T011)
+# - llama-cpp-python (T041)
+# - datasets (T047A/B)
+# - numpy, pandas, scikit-learn (T048/049)
+# - pytesseract (verification step, optional)

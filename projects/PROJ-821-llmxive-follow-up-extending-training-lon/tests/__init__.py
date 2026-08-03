@@ -1,1 +1,4 @@
-# Test package initialization
+"""
+llmXive tests package initialization.
+"""
+pass
