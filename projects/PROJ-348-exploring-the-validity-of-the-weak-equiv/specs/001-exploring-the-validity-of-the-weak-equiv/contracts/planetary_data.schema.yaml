@@ -1,0 +1,66 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "PlanetaryOrbitData"
+description: "Schema for raw and derived planetary orbital tracking data (range/range-rate) from JPL Horizons."
+type: "object"
+properties:
+  metadata:
+    type: "object"
+    properties:
+      source:
+        type: "string"
+        description: "Data source identifier (e.g., 'JPL_HORIZONS', 'INPOP19A')."
+      planet_id:
+        type: "string"
+        description: "Planet identifier (e.g., 'Mercury', 'Venus')."
+      date_range:
+        type: "object"
+        properties:
+          start:
+            type: "string"
+            format: "date-time"
+          end:
+            type: "string"
+            format: "date-time"
+      sampling_interval_days:
+        type: "integer"
+        minimum: 1
+    required:
+      - source
+      - planet_id
+      - date_range
+  data:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        timestamp:
+          type: "string"
+          format: "date-time"
+          description: "UTC timestamp of the observation."
+        range_km:
+          type: "number"
+          description: "Geometric range in kilometers."
+        range_rate_km_s:
+          type: "number"
+          description: "Range rate in km/s."
+        uncertainty_range:
+          type: "number"
+          description: "Uncertainty in range (km)."
+        uncertainty_rate:
+          type: "number"
+          description: "Uncertainty in range rate (km/s)."
+        flag:
+          type: "string"
+          enum:
+            - "OK"
+            - "INTERPOLATED"
+            - "EXCLUDED"
+          description: "Data quality flag."
+      required:
+        - timestamp
+        - range_km
+        - range_rate_km_s
+    description: "Array of time-series observations."
+required:
+  - metadata
+  - data

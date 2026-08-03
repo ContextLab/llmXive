@@ -1,0 +1,85 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "RegressionResult"
+description: "Schema for OLS regression results and Monte Carlo null distributions."
+type: "object"
+properties:
+  model_info:
+    type: "object"
+    properties:
+      dependent_variable:
+        type: "string"
+        description: "Name of the dependent variable (e.g., 'residual_precession')."
+      independent_variables:
+        type: "array"
+        items:
+          type: "string"
+        description: "List of independent variable names."
+      method:
+        type: "string"
+        enum:
+          - "OLS"
+          - "WLS"
+        description: "Regression method used."
+    required:
+      - dependent_variable
+      - independent_variables
+      - method
+  coefficients:
+    type: "object"
+    properties:
+      slope:
+        type: "number"
+        description: "Estimated slope coefficient."
+      intercept:
+        type: "number"
+        description: "Estimated intercept."
+      std_err:
+        type: "number"
+        description: "Standard error of the slope."
+      p_value:
+        type: "number"
+        minimum: 0
+        maximum: 1
+        description: "Two-tailed p-value for the slope."
+      r_squared:
+        type: "number"
+        minimum: 0
+        maximum: 1
+        description: "Coefficient of determination."
+      confidence_interval_95:
+        type: "array"
+        items:
+          type: "number"
+        minItems: 2
+        maxItems: 2
+        description: "95% confidence interval [lower, upper]."
+    required:
+      - slope
+      - p_value
+  monte_carlo:
+    type: "object"
+    properties:
+      iterations:
+        type: "integer"
+        minimum: 1000
+        description: "Number of Monte Carlo iterations performed."
+      null_distribution:
+        type: "array"
+        items:
+          type: "number"
+        description: "Array of slope values from null distribution."
+      p_value_null:
+        type: "number"
+        minimum: 0
+        maximum: 1
+        description: "P-value derived from null distribution."
+      upper_bound_omega_bd:
+        type: "number"
+        description: "Derived lower bound for omega_BD if p > 0.05."
+    required:
+      - iterations
+      - p_value_null
+required:
+  - model_info
+  - coefficients
+  - monte_carlo
