@@ -23,6 +23,7 @@ from llmxive.self_improvement.lifecycle import (
     holds_claim,
     legal_events_from,
     project_attempt,
+    released_claim,
     walk_attempt,
 )
 from tests.helpers.lane_lifecycle import attempt_event, drive
@@ -349,3 +350,69 @@ def test_terminal_and_release_are_independent_predicates():
     for t in TRANSITIONS:
         assert t.terminal == (t.to_state in TERMINAL_STATES)
         assert t.releases_claim == ("ClaimReleased" in t.coordinator_effects)
+
+
+def test_a_DECLARED_release_from_a_NON_HOLDING_state_emits_nothing():
+    """The row's dagger marks "must not leave the lane occupied", NOT "always mutates the
+    coordinator" — so a declared release from a state that holds nothing emits nothing.
+
+    Derived from the table, never hand-listed, so a row that becomes reachable from a new
+    non-holding state joins this test without anyone remembering to add it. The equality
+    below is the CURRENT membership, which is what makes such a change show up in review
+    rather than silently widen the exemption; the non-emptiness assert is what keeps the
+    parameterization from quietly becoming vacuous."""
+    pairs = {(t.event, s) for t in TRANSITIONS if t.releases_claim
+             for s in t.from_states - CLAIM_HOLDING_STATES}
+    assert pairs, "no declared-release row is reachable from a non-holding state — vacuous"
+    assert pairs == {
+        ("ReviewAborted", AttemptState.PROPOSED),
+        ("ScopeUnsupported", AttemptState.PROPOSAL_VERIFIED),
+        ("BreakerTripped", AttemptState.PROPOSED),
+        ("BreakerTripped", AttemptState.PROPOSAL_VERIFIED),
+    }
+    for event, state in pairs:
+        assert not released_claim(_BY_EVENT[event], state), (event, state)
+
+
+def test_released_claim_needs_BOTH_the_declaration_and_the_hold():
+    """The two halves are independent, so each must be able to veto on its own."""
+    holding_but_undeclared = _BY_EVENT["Implementing"]   # claimed -> implementing, no effect
+    assert not released_claim(holding_but_undeclared, AttemptState.CLAIMED)
+    declared_and_holding = _BY_EVENT["ImplementationFailed"]
+    assert released_claim(declared_and_holding, AttemptState.IMPLEMENTING)
+    # `Proposed` opens the Attempt: no declaration, and no state at all to hold from.
+    assert not released_claim(_BY_EVENT["Proposed"], None)
+
+
+@pytest.mark.parametrize("history, expected, why", [
+    (_history("Proposed", "ReviewAborted"), False,
+     "pre-claim terminal: the row declares a release, the Attempt held nothing"),
+    (_history("Proposed", "ProposalVerified", "ScopeUnsupported"), False,
+     "the other pre-claim declared-release row"),
+    (_history("Proposed", "ProposalVerified", "ClaimGranted", "Implementing",
+              "ImplementationFailed"), True,
+     "claim-holding terminal: declared and held, so a release was written"),
+    (_history("Proposed", "ProposalVerified", "ClaimGranted", "Implementing",
+              "EvaluationPassed", "PromotionRequested", "PromotionObserved"), True,
+     "releases WITHOUT being terminal — matrix row 4"),
+])
+def test_the_projection_reports_the_release_that_HAPPENED(history, expected, why):
+    """`AttemptProjection.released_claim` is the conditional reading, not the row's.
+
+    Reporting the declaration would send a consumer reconciling the coordinator against
+    this projection looking for a `ClaimReleased` that correctly does not exist — the same
+    false positive `assert_lane_consistent` case 12j catches at the audit layer."""
+    assert project_attempt(history).released_claim is expected, why
+
+
+def test_release_and_terminality_stay_independent_at_the_PROJECTION_level():
+    """The property `Transition` pins per row must survive the fold, or a consumer reading
+    only the projection gets the shortcut back."""
+    monitoring = project_attempt(_history(
+        "Proposed", "ProposalVerified", "ClaimGranted", "Implementing",
+        "EvaluationPassed", "PromotionRequested", "PromotionObserved"))
+    assert monitoring.released_claim and not monitoring.is_terminal
+    retained = project_attempt(_history(
+        "Proposed", "ProposalVerified", "ClaimGranted", "Implementing",
+        "EvaluationPassed", "PromotionRequested", "PromotionObserved", "Retained"))
+    assert retained.is_terminal and not retained.released_claim

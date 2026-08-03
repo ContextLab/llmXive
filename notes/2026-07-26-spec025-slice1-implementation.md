@@ -772,3 +772,37 @@ unasserted: `holds_claim` (declared as "the ONE reading" with three callers, but
 called it — including its `None` case) and `counts_against_operational` (the random walk
 pinned the quality counter only, so the FR-034 split between the two ledgers went
 unchecked). 52 model tests total.
+
+**Task 5 follow-up (review): the projection reported a release that never happened.**
+`AttemptProjection.releases_claim` was `last.releases_claim` — the ROW's declaration. But a
+coordinator effect is conditional on the Attempt holding the lane at the state the
+transition LEAVES (the spec's own words: the dagger marks "must not leave the lane
+occupied", not "always mutates the coordinator"). So `ReviewAborted` from `proposed`,
+`ScopeUnsupported` from `proposal_verified`, and a pre-claim `BreakerTripped` all reported
+`True` while emitting nothing. That is the exact false positive the plan's
+`assert_lane_consistent` case 12j exists to catch — reintroduced one layer up, at the fold's
+output.
+
+Renamed to `released_claim` (past tense: the row says `releases`, the projection says what
+happened) and computed through a new named predicate
+`released_claim(transition, state_before)`. Removal was the other option offered and was
+rejected: nothing consumes the field today, but removing it leaves the CLASS unaddressed —
+the next caller who wants that answer recomputes it from the row and gets the same three
+false positives. `holds_claim(state_before)` is now the one gate both this and Task 7's
+`_claim_required` consult; they differ only in which declaration they read, and the plan's
+Task 7 docstring now says so (they agree on every current row, since every row declaring an
+effect declares a release — a future `◇`-only row is when they must not be collapsed).
+
+Two stale comments corrected in the same pass, before Task 7 is written against them:
+`PromotionObserved`'s ordering rationale (it is MONITORSTARTED's ownership check, not the
+release's, that rejects the reversed order — releasing first leaves MonitorStarted with no
+owner to match), and `project_attempt`'s "last transition, not last event" note, which
+justified itself with a heartbeat AFTER a terminal — a history `walk_attempt` refuses. The
+real reason is a heartbeat DURING a held claim, which is legal and can be the final record
+on the stream.
+
+Seven tests added (59 total), including the derived non-holding set asserted by equality so
+a row reachable from a new non-holding state shows up in review rather than silently
+widening the exemption. Mutations now ten: dropping the `holds_claim` gate and having the
+projection read the row directly kill DIFFERENT tests, so the predicate being right does not
+prove the fold uses it.
