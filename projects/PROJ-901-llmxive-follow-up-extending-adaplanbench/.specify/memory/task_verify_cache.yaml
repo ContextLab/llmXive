@@ -1,45 +1,36 @@
 T008a:
   c: false
-  h: 48c7433797effbd0f2237fbcb30111a07fc17bfa1055142d15b7a96de7842a59
-  r: "`code/main.py` only contains a partially\u2011implemented `ResourceMonitor`\
-    \ class and never shows it being used to wrap task execution, and the required\
-    \ test file `tests/unit/test_resource_monitor.py` is absent. Moreover, the expected\
-    \ log file `data/processed/resource_logs.json` does not exist, so the schema,\
-    \ fail\u2011fast behavior, and logging cannot be verified. The implementation\
-    \ must complete the context manager logic, integrate it around task runs, provide\
-    \ the unit test, and generate the JSON log."
-T026a:
+  h: 1df00d7bfc472c8bbf6c3cb9c6cd44a1b1b5a35384dafda4d6dcb11b5ad7874a
+  r: The provided `code/main.py` is truncated and contains errors (e.g., `metrics.cp`
+    instead of `metrics.cpu_percent`) and does not define the required `resource_monitor_context`
+    context manager. Consequently the test suite cannot pass, and the logging/exception
+    behavior required by the task is not implemented. The missing/incorrect parts
+    must be completed for the task to be considered done.
+T012b:
   c: false
-  h: 72ca844abc23706d3c16113f50ffe2ac72cdab14226d324257e1d207dbb31f13
-  r: "The repository contains a partially\u2011written `code/agent/monolithic_runner.py`,\
-    \ but the file is truncated (the loop body ends abruptly) and does not produce\
-    \ any output files. The required input CSV (`data/processed/filtered_tasks.csv`),\
-    \ the expected log JSON (`data/processed/monolithic_logs.json`), and the schema\
-    \ file (`contracts/execution\u2011log.schema.yaml`) are all missing. Consequently\
-    \ the implementation does not meet the task\u2019s specifications."
-T026b:
+  h: bc61937762a76f3ee1925fc5013a9e54c87aee84acdb650c32316e510e73a0ab
+  r: "The repository does not contain the required output files (`data/raw/synthetic_proxy.jsonl`\
+    \ or `data/raw/adaplanbench.jsonl`), and the test `test_dataset_fetch_or_proxy`\
+    \ is not present in `tests/unit/test_filter.py`. Moreover, the `loader.py` implementation\
+    \ is truncated and does not show the full fetch\u2011or\u2011proxy logic nor the\
+    \ saving of the dataset to the specified paths. The task\u2019s core requirement\
+    \ is therefore unmet."
+T013:
   c: false
-  h: 3fa6b09e4b66726546a746bd951c669fd817b73f16f95d6b27d923d807cf628f
-  r: The repository lacks the required input file `data/processed/filtered_tasks.csv`,
-    the output log file `data/processed/dual_track_logs.json`, and the schema file
-    `contracts/execution-log.schema.yaml`. Moreover, the provided `dual_track_runner.py`
-    is truncated, so it is unclear whether `run_dual_track` fully implements the execution
-    and logging as specified. These missing artifacts prevent the task from being
-    considered complete.
-T026f:
-  c: false
-  h: b6283035750852b1b858a69d9999574915020dc804b5a174dcaf64eaa2471895
-  r: "The repository contains `code/analysis/log_aggregator.py`, but the function\
-    \ only loads and merges logs into a list and does not create/write `data/processed/execution_traces.csv`.\
-    \ Moreover, the required CSV file is absent, so the task\u2019s output artifact\
-    \ is missing. The implementation must generate the CSV with the specified columns."
+  h: 3920dfa18007863151bd16f7c5b3e7b8b261eab116f5e4e9fde4db84db53a9e4
+  r: The repository lacks the required `data/processed/filtered_tasks.csv` file, and
+    the shown portion of `code/dataset/loader.py` does not contain implementations
+    of `filter_progressive_constraints` or `save_filtered_dataset` (the functions
+    the tests import). Consequently the filtering logic and CSV output are not present.
 T030:
   c: false
-  h: a384963243868d6a5acbad6cd280d47a7f1ed9d3d19e4f9c9546c1ec9c8c460c
-  r: The required input file `data/processed/filtered_tasks.csv` does not exist, so
-    the script cannot obtain the sample size, and the expected output `data/processed/power_report.json`
-    is also missing. Additionally, the provided `power.py` is truncated and does not
-    show the logic that writes the JSON report. The task therefore is not fully implemented.
+  h: ca964bd581c7b02524dbf50133ae3eac33eee49b805194af28dd18a1e5ea2817
+  r: The required input `data/processed/filtered_tasks.csv` does not exist, so the
+    script cannot derive the sample size. Moreover, the generated output `data/processed/power_report.json`
+    is missing, and the provided `power.py` file is truncated and does not contain
+    the logic to write the JSON report or raise `PowerInsufficientError` when power
+    is below 0.80. These essential artifacts are absent, so the task is not genuinely
+    completed.
 T033:
   c: false
   h: a46cafaccdcc3c3fa997b61c3d83272054b25aea5c963f1f2db1bb8d115d99b4

@@ -1,181 +1,138 @@
-"""
-Unit tests for the resource monitor wrapper in code/main.py.
-Verifies schema and exception raising behavior.
-"""
-import json
 import os
 import sys
-import tempfile
+import json
+import pytest
 from pathlib import Path
 from unittest.mock import patch, MagicMock
-import pytest
+import psutil
 
-# Add project root to path
-sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
+# Add code to path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
-from main import ResourceMonitor, ResourceLimitExceeded
-from config import get_paths
+from config import ResourceLimitExceeded, get_paths, get_resource_limits
+from main import ResourceMonitor, ResourceMetrics, resource_monitor_context
 
+@pytest.fixture
+def mock_paths(tmp_path):
+    processed_dir = tmp_path / "data" / "processed"
+    processed_dir.mkdir(parents=True)
+    with patch('config.get_paths') as mock_get_paths:
+        mock_paths = MagicMock()
+        mock_paths.PROCESSED = processed_dir
+        mock_get_paths.return_value = mock_paths
+        yield mock_paths
 
-class TestResourceMonitorSchema:
-    """Test that ResourceMonitor produces the correct JSON schema."""
+@pytest.fixture
+def mock_limits():
+    limits = MagicMock()
+    limits.MAX_CPU_PERCENT = 90.0
+    limits.MAX_RAM_GB = 6.5
+    with patch('config.get_resource_limits', return_value=limits):
+        yield limits
 
-    def test_snapshot_schema_structure(self):
-        """Verify the snapshot dictionary has all required keys."""
-        monitor = ResourceMonitor("test_task_1")
-        monitor._log_snapshot(cpu=50.0, ram=2.5)
+@pytest.fixture
+def monitor(mock_paths, mock_limits):
+    return ResourceMonitor(task_id="TEST_TASK_001")
+
+def test_resource_metrics_creation():
+    metrics = ResourceMetrics(cpu_percent=50.0, ram_gb=2.0)
+    assert metrics.cpu_percent == 50.0
+    assert metrics.ram_gb == 2.0
+
+def test_monitor_initialization(monitor):
+    assert monitor.task_id == "TEST_TASK_001"
+    assert monitor.log_file.exists() is False
+
+def test_get_snapshot(monitor):
+    with patch.object(monitor, 'process') as mock_process:
+        mock_process.cpu_percent.return_value = 45.5
+        mock_process.memory_info.return_value = MagicMock(rss=1024**3 * 2.0)
+        metrics = monitor._get_snapshot()
+        assert metrics.cpu_percent == 45.5
+        assert metrics.ram_gb == 2.0
+
+def test_check_limits_within(monitor, mock_limits):
+    metrics = ResourceMetrics(cpu_percent=50.0, ram_gb=2.0)
+    assert monitor._check_limits(metrics) is None
+
+def test_check_limits_cpu_exceeded(monitor, mock_limits):
+    metrics = ResourceMetrics(cpu_percent=95.0, ram_gb=2.0)
+    assert monitor._check_limits(metrics) == "CPU"
+
+def test_check_limits_ram_exceeded(monitor, mock_limits):
+    metrics = ResourceMetrics(cpu_percent=50.0, ram_gb=7.0)
+    assert monitor._check_limits(metrics) == "RAM"
+
+def test_log_entry_creation(monitor, mock_paths, mock_limits):
+    metrics = ResourceMetrics(cpu_percent=50.0, ram_gb=2.0)
+    monitor._log_entry(metrics, False, None)
+    
+    assert monitor.log_file.exists()
+    with open(monitor.log_file, 'r') as f:
+        logs = json.load(f)
+    
+    assert len(logs) == 1
+    entry = logs[0]
+    assert entry["task_id"] == "TEST_TASK_001"
+    assert entry["cpu_percent"] == 50.0
+    assert entry["ram_gb"] == 2.0
+    assert entry["threshold_exceeded"] is False
+    assert entry["exceeded_limit"] is None
+    assert "snapshot_values" in entry
+    assert entry["snapshot_values"]["cpu"] == 50.0
+    assert entry["snapshot_values"]["ram"] == 2.0
+    assert "timestamp" in entry
+
+def test_wrap_task_success(monitor, mock_paths, mock_limits):
+    def success_func():
+        return "success"
+    
+    result = monitor.wrap_task(success_func)
+    assert result == "success"
+    
+    # Check log file
+    with open(monitor.log_file, 'r') as f:
+        logs = json.load(f)
+    assert len(logs) >= 1
+    assert logs[-1]["threshold_exceeded"] is False
+
+def test_wrap_task_resource_exceeded(monitor, mock_paths, mock_limits):
+    def failing_func():
+        return "should not reach"
+    
+    # Mock the snapshot to return exceeded values
+    with patch.object(monitor, '_get_snapshot') as mock_snapshot:
+        mock_snapshot.return_value = ResourceMetrics(cpu_percent=95.0, ram_gb=2.0)
         
-        assert len(monitor.snapshots) == 1
-        snapshot = monitor.snapshots[0]
+        with pytest.raises(ResourceLimitExceeded) as exc_info:
+            monitor.wrap_task(failing_func)
         
-        # Check required keys
-        assert "timestamp" in snapshot
-        assert "task_id" in snapshot
-        assert "cpu_percent" in snapshot
-        assert "ram_gb" in snapshot
-        assert "threshold_exceeded" in snapshot
-        assert "exceeded_limit" in snapshot
-        assert "snapshot_values" in snapshot
+        assert "CPU" in str(exc_info.value)
         
-        # Check types
-        assert isinstance(snapshot["timestamp"], str)
-        assert snapshot["task_id"] == "test_task_1"
-        assert isinstance(snapshot["cpu_percent"], float)
-        assert isinstance(snapshot["ram_gb"], float)
-        assert isinstance(snapshot["threshold_exceeded"], bool)
-        assert snapshot["threshold_exceeded"] is False
-        assert snapshot["exceeded_limit"] is None
-        assert isinstance(snapshot["snapshot_values"], dict)
-        assert "cpu" in snapshot["snapshot_values"]
-        assert "ram" in snapshot["snapshot_values"]
+        # Verify log was written before raising
+        with open(monitor.log_file, 'r') as f:
+            logs = json.load(f)
+        assert len(logs) >= 1
+        assert logs[-1]["threshold_exceeded"] is True
+        assert logs[-1]["exceeded_limit"] == "CPU"
 
-    def test_schema_values_correct(self):
-        """Verify values are correctly populated."""
-        monitor = ResourceMonitor("test_task_2")
-        monitor._log_snapshot(cpu=75.5, ram=4.2)
-        
-        snapshot = monitor.snapshots[0]
-        assert snapshot["cpu_percent"] == 75.5
-        assert snapshot["ram_gb"] == 4.2
-        assert snapshot["snapshot_values"]["cpu"] == 75.5
-        assert snapshot["snapshot_values"]["ram"] == 4.2
+def test_wrap_task_exception_logging(monitor, mock_paths, mock_limits):
+    def error_func():
+        raise ValueError("Test error")
+    
+    with pytest.raises(ValueError):
+        monitor.wrap_task(error_func)
+    
+    # Check log file for failure state
+    with open(monitor.log_file, 'r') as f:
+        logs = json.load(f)
+    assert len(logs) >= 1
+    # The last entry should reflect the state at failure
+    # It might not be exceeded, but it should be logged
+    assert logs[-1]["task_id"] == "TEST_TASK_001"
 
-
-class TestResourceMonitorThresholds:
-    """Test threshold detection and exception raising."""
-
-    def test_cpu_threshold_exceeded(self):
-        """Test that CPU > 90% triggers exception."""
-        # Create a temporary file for logs
-        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.json') as f:
-            temp_path = f.name
-
-        try:
-            monitor = ResourceMonitor("test_cpu_exceed", log_path=Path(temp_path))
-            # Simulate CPU > 90%
-            monitor._log_snapshot(cpu=95.0, ram=2.0)
-            
-            assert monitor.exceeded is True
-            assert monitor.exceeded_limit == "CPU"
-            assert monitor.trigger_values is not None
-            assert monitor.trigger_values["cpu"] == 95.0
-        finally:
-            if os.path.exists(temp_path):
-                os.unlink(temp_path)
-
-    def test_ram_threshold_exceeded(self):
-        """Test that RAM > 6.5GB triggers exception."""
-        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.json') as f:
-            temp_path = f.name
-
-        try:
-            monitor = ResourceMonitor("test_ram_exceed", log_path=Path(temp_path))
-            # Simulate RAM > 6.5GB
-            monitor._log_snapshot(cpu=50.0, ram=7.0)
-            
-            assert monitor.exceeded is True
-            assert monitor.exceeded_limit == "RAM"
-            assert monitor.trigger_values is not None
-            assert monitor.trigger_values["ram"] == 7.0
-        finally:
-            if os.path.exists(temp_path):
-                os.unlink(temp_path)
-
-    def test_exception_raised_on_exit(self):
-        """Test that ResourceLimitExceeded is raised on context exit."""
-        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.json') as f:
-            temp_path = f.name
-
-        try:
-            with patch.object(ResourceMonitor, '_get_current_usage', return_value=(95.0, 2.0)):
-                with pytest.raises(ResourceLimitExceeded) as exc_info:
-                    with ResourceMonitor("test_exception", log_path=Path(temp_path)) as monitor:
-                        # Do nothing, just exit context
-                        pass
-                
-                assert "CPU" in str(exc_info.value)
-        finally:
-            if os.path.exists(temp_path):
-                os.unlink(temp_path)
-
-    def test_no_exception_below_threshold(self):
-        """Test that no exception is raised when below thresholds."""
-        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.json') as f:
-            temp_path = f.name
-
-        try:
-            with patch.object(ResourceMonitor, '_get_current_usage', return_value=(50.0, 2.0)):
-                with ResourceMonitor("test_safe", log_path=Path(temp_path)) as monitor:
-                    pass  # Should not raise
-                
-                assert monitor.exceeded is False
-        finally:
-            if os.path.exists(temp_path):
-                os.unlink(temp_path)
-
-
-class TestResourceMonitorLogging:
-    """Test that logs are correctly written to disk."""
-
-    def test_logs_written_to_file(self):
-        """Verify logs are written to the specified path."""
-        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.json') as f:
-            temp_path = f.name
-
-        try:
-            with patch.object(ResourceMonitor, '_get_current_usage', return_value=(50.0, 2.0)):
-                with ResourceMonitor("test_log", log_path=Path(temp_path)) as monitor:
-                    pass
-            
-            # Verify file exists and contains valid JSON
-            assert os.path.exists(temp_path)
-            with open(temp_path, 'r') as f:
-                logs = json.load(f)
-            
-            assert isinstance(logs, list)
-            assert len(logs) >= 1
-            assert logs[0]["task_id"] == "test_log"
-        finally:
-            if os.path.exists(temp_path):
-                os.unlink(temp_path)
-
-    def test_logs_append_existing(self):
-        """Verify new logs are appended to existing logs."""
-        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.json') as f:
-            f.write(json.dumps([{"timestamp": "old", "task_id": "old_task"}]))
-            temp_path = f.name
-
-        try:
-            with patch.object(ResourceMonitor, '_get_current_usage', return_value=(50.0, 2.0)):
-                with ResourceMonitor("test_append", log_path=Path(temp_path)) as monitor:
-                    pass
-            
-            with open(temp_path, 'r') as f:
-                logs = json.load(f)
-            
-            assert len(logs) == 2
-            assert logs[0]["task_id"] == "old_task"
-            assert logs[1]["task_id"] == "test_append"
-        finally:
-            if os.path.exists(temp_path):
-                os.unlink(temp_path)
+def test_resource_monitor_context_factory():
+    with patch('config.get_paths'), patch('config.get_resource_limits'):
+        ctx = resource_monitor_context("CTX_TASK")
+        assert isinstance(ctx, ResourceMonitor)
+        assert ctx.task_id == "CTX_TASK"

@@ -1,232 +1,267 @@
 """
-Unit tests for GLMM model fitting.
-This module provides sanity checks on synthetic data to ensure the GLMM
-fitting logic in code/analysis/glmm.py works correctly before running
-on real execution traces.
+Unit tests for GLMM model fitting (T028).
+Performs a sanity check on synthetic data to ensure the model fitting logic works.
 """
-
+import json
+import math
+import os
+import sys
+import tempfile
 import unittest
-import numpy as np
-import pandas as pd
-from typing import Tuple, List, Dict, Any
+from pathlib import Path
+from typing import List, Dict, Any
 
-# Mock the analysis module functions we are testing
-# Since we cannot import the full pipeline without running data generation,
-# we import the specific logic or mock the dependencies if the module
-# relies heavily on external data files.
-# However, per the API surface, we expect `code/analysis/glmm.py` to expose:
-# prepare_data_for_glmm, fit_glmm, calculate_effect_sizes.
-# We will test the logic by generating synthetic data that mimics the
-# expected schema of `data/processed/execution_traces.csv`.
+# Add project root to path for imports
+PROJECT_ROOT = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(PROJECT_ROOT / "code"))
 
-try:
-    from analysis.glmm import (
-        load_execution_traces,
-        prepare_data_for_glmm,
-        fit_glmm,
-        calculate_effect_sizes,
-        run_statistical_analysis
-    )
-    GLMM_AVAILABLE = True
-except ImportError:
-    # Fallback if the module structure is slightly different during early dev
-    # or if dependencies (statsmodels) are missing in the test environment.
-    GLMM_AVAILABLE = False
-
-
-def generate_synthetic_execution_traces(
-    n_samples: int = 100,
-    n_groups: int = 2,
-    n_groups_per_constraint: int = 5,
-    seed: int = 42
-) -> pd.DataFrame:
-    """
-    Generates a synthetic DataFrame mimicking the schema of
-    data/processed/execution_traces.csv for unit testing.
-
-    Schema:
-    - task_id: string
-    - architecture: string ('monolithic' or 'dual_track')
-    - constraint_count: int
-    - violation_boolean: bool (0 or 1)
-    - violation_reason: string|null
-    - violation_status: string|null
-    - final_score: float
-    """
-    np.random.seed(seed)
-
-    # Create random task IDs
-    task_ids = [f"task_{i:04d}" for i in range(n_samples)]
-
-    # Create architecture labels (balanced)
-    architectures = np.random.choice(['monolithic', 'dual_track'], size=n_samples)
-
-    # Create constraint counts (ranging from 5 to 15)
-    constraint_counts = np.random.randint(5, 16, size=n_samples)
-
-    # Simulate violation_boolean based on architecture and constraint count
-    # Dual track should have lower violation rates, especially as constraints increase.
-    # Logit model: logit(p) = beta0 + beta1*arch + beta2*constraints + beta3*arch*constraints
-    beta0 = -1.0  # baseline log-odds
-    beta_arch = -0.5  # dual_track reduces log-odds of violation
-    beta_constr = 0.1  # more constraints increase log-odds of violation
-    beta_interact = -0.05  # dual_track mitigates the constraint effect
-
-    log_odds = []
-    for arch, cons in zip(architectures, constraint_counts):
-        arch_val = 1 if arch == 'dual_track' else 0
-        lo = beta0 + (beta_arch * arch_val) + (beta_constr * cons) + (beta_interact * arch_val * cons)
-        log_odds.append(lo)
-
-    probs = 1 / (1 + np.exp(-np.array(log_odds)))
-    violations = np.random.binomial(1, probs, size=n_samples).astype(bool)
-
-    # Final score: correlated with violations (lower score if violation)
-    final_scores = np.random.normal(loc=0.8, scale=0.1, size=n_samples)
-    final_scores[violations] -= 0.2  # Penalty for violations
-    final_scores = np.clip(final_scores, 0.0, 1.0)
-
-    # Fill optional columns
-    violation_reasons = [None if not v else "Constraint X violated" for v in violations]
-    violation_statuses = [None if not v else "explicit" for v in violations]
-
-    df = pd.DataFrame({
-        'task_id': task_ids,
-        'architecture': architectures,
-        'constraint_count': constraint_counts,
-        'violation_boolean': violations,
-        'violation_reason': violation_reasons,
-        'violation_status': violation_statuses,
-        'final_score': final_scores
-    })
-
-    return df
-
+from analysis.glmm import (
+    load_execution_traces,
+    prepare_data_for_glmm,
+    fit_glmm,
+    calculate_effect_sizes,
+    run_statistical_analysis
+)
+from config import ensure_directories
 
 class TestGLMMFitting(unittest.TestCase):
-    """
-    Unit tests for GLMM model fitting using synthetic data.
-    """
+    """Unit tests for GLMM model fitting on synthetic data."""
 
-    @unittest.skipIf(not GLMM_AVAILABLE, "GLMM analysis module not available")
+    def setUp(self):
+        """Set up test fixtures."""
+        self.temp_dir = tempfile.mkdtemp()
+        self.test_input_path = os.path.join(self.temp_dir, "test_execution_traces.csv")
+        self.test_output_path = os.path.join(self.temp_dir, "test_statistical_results.json")
+        ensure_directories()
+
+    def tearDown(self):
+        """Clean up temporary files."""
+        if os.path.exists(self.test_input_path):
+            os.remove(self.test_input_path)
+        if os.path.exists(self.test_output_path):
+            os.remove(self.test_output_path)
+
+    def _create_synthetic_traces(self, rows: int = 100, architecture_split: float = 0.5):
+        """
+        Create a synthetic execution_traces.csv file for testing.
+        
+        Args:
+            rows: Number of rows to generate
+            architecture_split: Proportion of 'dual_track' vs 'monolithic'
+        """
+        import pandas as pd
+        import random
+        
+        random.seed(42)
+        
+        data = []
+        for i in range(rows):
+            task_id = f"task_{i:04d}"
+            # Split architectures
+            if random.random() < architecture_split:
+                architecture = "dual_track"
+            else:
+                architecture = "monolithic"
+            
+            # Constraint count: 5 to 10
+            constraint_count = random.randint(5, 10)
+            
+            # Generate a violation status based on architecture and constraint count
+            # Dual track should have fewer violations, especially at high constraint counts
+            base_violation_prob = 0.3
+            if architecture == "dual_track":
+                base_violation_prob = 0.15
+            
+            # Increase probability with constraint count
+            violation_prob = base_violation_prob + (constraint_count - 5) * 0.02
+            
+            violation_boolean = random.random() < violation_prob
+            violation_reason = "constraint_violation" if violation_boolean else None
+            
+            # Violation status: mostly null, some specific cases
+            if violation_boolean:
+                violation_status = random.choice([None, "false_negative", "implicit_unverified"])
+            else:
+                violation_status = None
+            
+            # Final score: 0.0 to 1.0, correlated with violations
+            if violation_boolean:
+                final_score = random.uniform(0.0, 0.6)
+            else:
+                final_score = random.uniform(0.7, 1.0)
+            
+            data.append({
+                "task_id": task_id,
+                "architecture": architecture,
+                "constraint_count": constraint_count,
+                "violation_boolean": violation_boolean,
+                "violation_reason": violation_reason,
+                "violation_status": violation_status,
+                "final_score": final_score
+            })
+        
+        df = pd.DataFrame(data)
+        df.to_csv(self.test_input_path, index=False)
+        return df
+
+    def test_load_execution_traces(self):
+        """Test loading execution traces from CSV."""
+        df = self._create_synthetic_traces(50)
+        
+        loaded_df = load_execution_traces(self.test_input_path)
+        
+        self.assertEqual(len(loaded_df), 50)
+        self.assertIn("task_id", loaded_df.columns)
+        self.assertIn("architecture", loaded_df.columns)
+        self.assertIn("constraint_count", loaded_df.columns)
+        self.assertIn("violation_boolean", loaded_df.columns)
+        self.assertIn("final_score", loaded_df.columns)
+
     def test_prepare_data_for_glmm(self):
-        """
-        Sanity check: verify that prepare_data_for_glmm correctly
-        transforms the raw DataFrame into the format expected by statsmodels.
-        """
-        df = generate_synthetic_execution_traces(n_samples=200)
-
-        # Call the preparation function
-        # Note: The actual function signature might vary, adjusting to expected usage
-        try:
-            prepared_data = prepare_data_for_glmm(df)
-            
-            # Assertions
-            self.assertIsInstance(prepared_data, pd.DataFrame)
-            self.assertIn('violation_boolean', prepared_data.columns)
-            self.assertIn('architecture', prepared_data.columns)
-            self.assertIn('constraint_count', prepared_data.columns)
-            
-            # Check that categorical variables are handled (e.g., as factors or encoded)
-            # The specific encoding depends on the implementation in glmm.py
-            # We just ensure no exception is raised and data is present.
-            self.assertGreater(len(prepared_data), 0)
-            
-        except Exception as e:
-            self.fail(f"prepare_data_for_glmm raised an unexpected exception: {e}")
-
-    @unittest.skipIf(not GLMM_AVAILABLE, "GLMM analysis module not available")
-    def test_fit_glmm_convergence(self):
-        """
-        Sanity check: verify that fit_glmm can converge on synthetic data.
-        We expect a successful fit with reasonable coefficients.
-        """
-        df = generate_synthetic_execution_traces(n_samples=500) # Larger sample for stability
-
-        try:
-            # Fit the model
-            model_result = fit_glmm(df)
-            
-            # Assertions
-            self.assertIsNotNone(model_result)
-            
-            # Check for convergence status if available in the result object
-            # statsmodels GLM/GLMM results usually have a 'converged' attribute
-            if hasattr(model_result, 'converged'):
-                # Note: With small synthetic data, convergence isn't guaranteed,
-                # but we check that the object exists and has the attribute.
-                self.assertTrue(hasattr(model_result, 'converged'))
-            
-            # Check that coefficients exist
-            if hasattr(model_result, 'params'):
-                self.assertGreater(len(model_result.params), 0)
-                # Check that the interaction term (if included) is present
-                # This depends on the specific formula used in glmm.py
-                
-        except Exception as e:
-            # If it fails, it might be due to data sparsity or model specification.
-            # We fail the test to highlight the issue.
-            self.fail(f"fit_glmm failed to converge or raised an exception: {e}")
-
-    @unittest.skipIf(not GLMM_AVAILABLE, "GLMM analysis module not available")
-    def test_calculate_effect_sizes(self):
-        """
-        Sanity check: verify that calculate_effect_sizes returns valid metrics.
-        """
-        df = generate_synthetic_execution_traces(n_samples=500)
-
-        try:
-            # Prepare data first
-            prepared_data = prepare_data_for_glmm(df)
-            model_result = fit_glmm(df)
-
-            # Calculate effect sizes
-            effect_sizes = calculate_effect_sizes(model_result, prepared_data)
-
-            # Assertions
-            self.assertIsInstance(effect_sizes, dict)
-            self.assertIn('effect_size', effect_sizes)
-            self.assertIn('p_value', effect_sizes)
-            self.assertIn('interaction_effect', effect_sizes) # Based on project requirements
-
-            # Effect size should be a number
-            self.assertIsInstance(effect_sizes['effect_size'], (int, float))
-            self.assertIsInstance(effect_sizes['p_value'], (int, float))
-            
-        except Exception as e:
-            self.fail(f"calculate_effect_sizes raised an unexpected exception: {e}")
-
-    @unittest.skipIf(not GLMM_AVAILABLE, "GLMM analysis module not available")
-    def test_run_statistical_analysis_integration(self):
-        """
-        Integration test: run the full statistical analysis pipeline on synthetic data.
-        """
-        df = generate_synthetic_execution_traces(n_samples=500)
-        
-        # We cannot easily write to disk in a unit test without cleanup,
-        # so we test the internal logic by calling the function with the DataFrame
-        # if the function allows, or by mocking the file I/O.
-        # Assuming run_statistical_analysis takes a DataFrame or path.
-        # Let's assume it takes a path for the real implementation, but for unit testing
-        # we might need to adapt.
-        
-        # For this unit test, we will simulate the process by creating a temporary file
-        # or by calling the constituent parts if run_statistical_analysis is too coupled to disk.
-        # Given the task is a "sanity check", testing the components is sufficient.
+        """Test data preparation for GLMM."""
+        df = self._create_synthetic_traces(100)
         
         prepared_data = prepare_data_for_glmm(df)
-        model_result = fit_glmm(df)
-        effect_sizes = calculate_effect_sizes(model_result, prepared_data)
+        
+        # Check that binary outcome is created
+        self.assertIn("outcome", prepared_data.columns)
+        self.assertIn("architecture_encoded", prepared_data.columns)
+        self.assertIn("constraint_count", prepared_data.columns)
+        
+        # Check that outcome is binary (0 or 1)
+        self.assertTrue(all(prepared_data["outcome"].isin([0, 1])))
+        
+        # Check that architecture is encoded
+        self.assertTrue(all(prepared_data["architecture_encoded"].isin([0, 1])))
 
-        # Verify the structure of the final result
-        self.assertIn('p_value', effect_sizes)
-        self.assertIn('effect_size', effect_sizes)
-        self.assertIn('interaction_effect', effect_sizes)
+    def test_fit_glmm(self):
+        """Test GLMM model fitting."""
+        df = self._create_synthetic_traces(200)
+        
+        prepared_data = prepare_data_for_glmm(df)
+        
+        # Fit the model
+        model, results = fit_glmm(prepared_data)
+        
+        # Check that results contain expected fields
+        self.assertIn("coefficients", results)
+        self.assertIn("p_values", results)
+        self.assertIn("interaction_p_value", results)
+        
+        # Check that coefficients are present
+        self.assertIn("architecture_encoded", results["coefficients"])
+        self.assertIn("constraint_count", results["coefficients"])
+        self.assertIn("architecture_encoded:constraint_count", results["coefficients"])
+        
+        # Check that p-values are valid numbers
+        self.assertIsInstance(results["p_values"]["architecture_encoded"], float)
+        self.assertIsInstance(results["p_values"]["constraint_count"], float)
+        self.assertIsInstance(results["p_values"]["interaction_p_value"], float)
 
-        # Check that p-value is between 0 and 1
-        self.assertGreaterEqual(effect_sizes['p_value'], 0.0)
-        self.assertLessEqual(effect_sizes['p_value'], 1.0)
+    def test_calculate_effect_sizes(self):
+        """Test effect size calculation."""
+        df = self._create_synthetic_traces(200)
+        
+        prepared_data = prepare_data_for_glmm(df)
+        model, glmm_results = fit_glmm(prepared_data)
+        
+        effect_sizes = calculate_effect_sizes(prepared_data, glmm_results)
+        
+        self.assertIn("cohen_f_squared", effect_sizes)
+        self.assertIn("interaction_effect_size", effect_sizes)
+        
+        # Check that effect sizes are non-negative
+        self.assertGreaterEqual(effect_sizes["cohen_f_squared"], 0)
+        self.assertGreaterEqual(effect_sizes["interaction_effect_size"], 0)
 
+    def test_run_statistical_analysis(self):
+        """Test full statistical analysis pipeline."""
+        df = self._create_synthetic_traces(300)
+        
+        results = run_statistical_analysis(self.test_input_path, self.test_output_path)
+        
+        # Check that results file was written
+        self.assertTrue(os.path.exists(self.test_output_path))
+        
+        # Check that results contain expected fields
+        with open(self.test_output_path, 'r') as f:
+            saved_results = json.load(f)
+        
+        self.assertIn("interaction_p_value", saved_results)
+        self.assertIn("interaction_coefficient", saved_results)
+        self.assertIn("cohen_f_squared", saved_results)
+        self.assertIn("model_converged", saved_results)
+        
+        # Check that p-value is a valid number
+        self.assertIsInstance(saved_results["interaction_p_value"], float)
+        self.assertGreater(saved_results["interaction_p_value"], 0)
+        self.assertLess(saved_results["interaction_p_value"], 1)
 
-if __name__ == '__main__':
+    def test_interaction_effect_detection(self):
+        """Test that the model can detect an interaction effect when present."""
+        # Create data with a clear interaction effect
+        rows = 500
+        data = []
+        
+        for i in range(rows):
+            task_id = f"task_{i:04d}"
+            architecture = "dual_track" if i < rows // 2 else "monolithic"
+            constraint_count = random.randint(5, 10)
+            
+            # Strong interaction: dual track maintains high scores even at high constraints
+            # monolithic scores drop significantly at high constraints
+            if architecture == "dual_track":
+                base_score = 0.9 - (constraint_count - 5) * 0.02
+            else:
+                base_score = 0.9 - (constraint_count - 5) * 0.12
+            
+            final_score = max(0.0, min(1.0, base_score + random.uniform(-0.1, 0.1)))
+            violation_boolean = 0 if final_score > 0.7 else 1
+            
+            data.append({
+                "task_id": task_id,
+                "architecture": architecture,
+                "constraint_count": constraint_count,
+                "violation_boolean": violation_boolean,
+                "violation_reason": "constraint_violation" if violation_boolean else None,
+                "violation_status": None,
+                "final_score": final_score
+            })
+        
+        import pandas as pd
+        df = pd.DataFrame(data)
+        df.to_csv(self.test_input_path, index=False)
+        
+        results = run_statistical_analysis(self.test_input_path, self.test_output_path)
+        
+        # The interaction effect should be detectable (p < 0.05)
+        self.assertLess(results["interaction_p_value"], 0.05, 
+                      "Interaction effect should be significant in this synthetic data")
+
+    def test_empty_dataset_handling(self):
+        """Test handling of empty dataset."""
+        import pandas as pd
+        empty_df = pd.DataFrame(columns=["task_id", "architecture", "constraint_count", 
+                                        "violation_boolean", "violation_reason", 
+                                        "violation_status", "final_score"])
+        empty_df.to_csv(self.test_input_path, index=False)
+        
+        with self.assertRaises(ValueError):
+            run_statistical_analysis(self.test_input_path, self.test_output_path)
+
+    def test_single_architecture_handling(self):
+        """Test handling of dataset with only one architecture type."""
+        df = self._create_synthetic_traces(100, architecture_split=1.0)
+        
+        # All should be dual_track
+        self.assertTrue(all(df["architecture"] == "dual_track"))
+        
+        # This should still run but may not have a meaningful interaction effect
+        results = run_statistical_analysis(self.test_input_path, self.test_output_path)
+        
+        # Should still produce valid results
+        self.assertIn("interaction_p_value", results)
+        self.assertIsInstance(results["interaction_p_value"], float)
+
+if __name__ == "__main__":
     unittest.main()

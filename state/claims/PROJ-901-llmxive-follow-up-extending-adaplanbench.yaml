@@ -1151,3 +1151,141 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-01T12:26:14Z'
+- artifact_path: projects/PROJ-901-llmxive-follow-up-extending-adaplanbench/specs/001-llmxive-follow-up-extending-adaplanbench/tasks.md
+  attempts: 1
+  canonical: human annotation sample size at least 50
+  claim_id: c_27fdc225
+  context: 'The total sample size must be at least 50, or all available if < 50. **Dependencies**:
+    T013. **Verification**: Run `test_stratified_sampling` to verify equal distribution
+    across constraint_count bins (or all available) and **verify row count equals
+    at least 50 (or all available if < 50)**.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Human_annotation_sample_size_at_least_50
+  kind: magnitude
+  raw_text: The total sample size must be at least 50, or all available if < 50.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T23:11:49Z'
+- artifact_path: projects/PROJ-901-llmxive-follow-up-extending-adaplanbench/specs/001-llmxive-follow-up-extending-adaplanbench/tasks.md
+  attempts: 1
+  canonical: power analysis alpha 0.05 effect size 0.15
+  claim_id: c_5a5a64cb
+  context: "**Method**: Calculate the achieved power for the GLMM given: `groups=2`\
+    \ (monolithic vs dual-track), `alpha=0.05`, `effect_size=0.15` (Cohen's f\xB2\
+    \ target), and `n_observations` derived from the actual sample size in `data/processed/filtered_tasks.csv`\
+    \ (from T013)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The power analysis uses an alpha of 0.05 and an effect size of 0.15 (Cohen's\
+    \ f\xB2 target)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T23:12:52Z'
+- artifact_path: projects/PROJ-901-llmxive-follow-up-extending-adaplanbench/specs/001-llmxive-follow-up-extending-adaplanbench/tasks.md
+  attempts: 1
+  canonical: power analysis groups 2
+  claim_id: c_f0fc1162
+  context: "**Method**: Calculate the achieved power for the GLMM given: `groups=2`\
+    \ (monolithic vs dual-track), `alpha=0.05`, `effect_size=0.15` (Cohen's f\xB2\
+    \ target), and `n_observations` derived from the actual sample size in `data/processed/filtered_tasks.csv`\
+    \ (from T013)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The power analysis calculates power for 2 groups.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T23:13:28Z'
+- artifact_path: projects/PROJ-901-llmxive-follow-up-extending-adaplanbench/specs/001-llmxive-follow-up-extending-adaplanbench/tasks.md
+  attempts: 1
+  canonical: resource monitor CPU threshold 90 percent
+  claim_id: c_75c136d3
+  context: '**Fail-fast mechanism**: Raise `ResourceLimitExceeded` exception immediately
+    if CPU > 90% or RAM > 6.5GB, aborting the run.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The fail-fast mechanism raises an exception if CPU usage exceeds 90%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T23:13:28Z'
+- artifact_path: projects/PROJ-901-llmxive-follow-up-extending-adaplanbench/specs/001-llmxive-follow-up-extending-adaplanbench/tasks.md
+  attempts: 1
+  canonical: resource monitor RAM threshold 6.5 GB
+  claim_id: c_682c9406
+  context: '**Fail-fast mechanism**: Raise `ResourceLimitExceeded` exception immediately
+    if CPU > 90% or RAM > 6.5GB, aborting the run.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The fail-fast mechanism raises an exception if RAM usage exceeds 6.5GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T23:14:27Z'
+- artifact_path: projects/PROJ-901-llmxive-follow-up-extending-adaplanbench/specs/001-llmxive-follow-up-extending-adaplanbench/tasks.md
+  attempts: 1
+  canonical: monolithic baseline uses Phi-3-mini model
+  claim_id: c_5338bd56
+  context: '**Logic**: Define the prompt template and generation parameters for the
+    monolithic baseline (Phi-3-mini).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The monolithic baseline uses the Phi-3-mini model.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T23:16:24Z'
+- artifact_path: projects/PROJ-901-llmxive-follow-up-extending-adaplanbench/specs/001-llmxive-follow-up-extending-adaplanbench/tasks.md
+  attempts: 1
+  canonical: dual-track agent uses Phi-3-mini model
+  claim_id: c_38c9cfa9
+  context: '**Load Model**: Load the Phi-3-mini model (from cache or download if missing,
+    ensuring it matches the config in T007).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The dual-track agent uses the Phi-3-mini model.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T23:17:38Z'
+- artifact_path: projects/PROJ-901-llmxive-follow-up-extending-adaplanbench/specs/001-llmxive-follow-up-extending-adaplanbench/tasks.md
+  attempts: 1
+  canonical: stratified sampling bins 5 6 7-plus
+  claim_id: c_5b3c2910
+  context: 'Use stratified sampling by `constraint_count` (from T013) with bins: `[5,
+    6, 7+]` where `7+` includes ALL tasks with `constraint_count >= 7`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Stratified sampling for human annotation uses bins [5, 6, 7+] based on
+    constraint_count.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T23:18:25Z'

@@ -1,181 +1,325 @@
 """
-Module to create a stratified sample for human annotation.
-Selects 50 tasks from the filtered dataset, stratified by constraint_count.
+Annotator module for selecting a stratified sample of tasks for human annotation.
+
+This module implements the logic to randomly select a representative subset of tasks
+from the filtered dataset, stratified by constraint_count bins: [5, 6, 7+].
 """
+
 import argparse
 import os
 import sys
 import random
+import logging
 from pathlib import Path
+from typing import List, Dict, Any, Optional
+
 import pandas as pd
-import json
 
-# Add parent directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent))
+# Import config for paths
+from config import get_paths, Paths
 
-from config import Paths, get_paths, get_dataset_config
+# Setup logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
-def load_filtered_tasks(input_path: Path) -> pd.DataFrame:
-    """Load filtered tasks from CSV."""
-    if not input_path.exists():
-        raise FileNotFoundError(f"Input file not found: {input_path}")
-    return pd.read_csv(input_path)
+# Constants
+DEFAULT_SEED = 42
+DEFAULT_SAMPLE_SIZE = 50
+BIN_5 = 5
+BIN_6 = 6
+BIN_7_PLUS = 7  # Includes all tasks with constraint_count >= 7
 
-def bin_constraint(count: int) -> str:
+
+def load_filtered_tasks(input_path: str) -> pd.DataFrame:
     """
-    Bin constraint count into categories: 5, 6, 7+.
-    7+ includes ALL tasks with constraint_count >= 7.
+    Load the filtered tasks dataset from CSV.
+    
+    Args:
+        input_path: Path to the filtered_tasks.csv file
+        
+    Returns:
+        DataFrame containing the filtered tasks
+        
+    Raises:
+        FileNotFoundError: If the input file does not exist
+        ValueError: If required columns are missing
     """
-    if count < 5:
-        return "0-4"  # Should not happen in filtered data
-    elif count == 5:
-        return "5"
-    elif count == 6:
-        return "6"
-    else:
-        return "7+"
+    if not os.path.exists(input_path):
+        raise FileNotFoundError(f"Filtered tasks file not found: {input_path}")
+    
+    df = pd.read_csv(input_path)
+    
+    # Verify required columns
+    required_columns = ['task_id', 'raw_prompt', 'progressive_constraints', 'constraint_count']
+    missing_columns = [col for col in required_columns if col not in df.columns]
+    
+    if missing_columns:
+        raise ValueError(f"Missing required columns in {input_path}: {missing_columns}")
+    
+    logger.info(f"Loaded {len(df)} tasks from {input_path}")
+    return df
 
-def select_random_sample_stratified(df: pd.DataFrame, sample_size: int = 50, seed: int = 42) -> pd.DataFrame:
+
+def bin_constraint(constraint_count: int) -> str:
     """
-    Select a stratified random sample of tasks.
-    Stratifies by constraint_count bins: 5, 6, 7+.
+    Assign a constraint count to a bin for stratified sampling.
+    
+    Bins:
+    - '5': constraint_count == 5
+    - '6': constraint_count == 6
+    - '7+': constraint_count >= 7
+    
+    Args:
+        constraint_count: The number of progressive constraints
+        
+    Returns:
+        Bin label as string
+    """
+    if constraint_count == BIN_5:
+        return '5'
+    elif constraint_count == BIN_6:
+        return '6'
+    else:  # constraint_count >= 7
+        return '7+'
+
+
+def select_random_sample_stratified(
+    df: pd.DataFrame,
+    sample_size: int,
+    seed: int = DEFAULT_SEED
+) -> pd.DataFrame:
+    """
+    Select a stratified random sample from the dataset.
+    
+    Stratification is by constraint_count bins: [5, 6, 7+].
+    If a bin has fewer tasks than the proportional allocation,
+    all available tasks from that bin are selected and a WARNING is logged.
+    
+    Args:
+        df: DataFrame with task data including 'constraint_count'
+        sample_size: Target total sample size (minimum 50)
+        seed: Random seed for reproducibility
+        
+    Returns:
+        DataFrame containing the stratified sample
     """
     random.seed(seed)
+    np_random = random.Random(seed)  # Use separate RNG for pandas operations if needed
     
-    # Create bin column
-    df['constraint_bin'] = df['constraint_count'].apply(bin_constraint)
+    # Add bin column
+    df_with_bins = df.copy()
+    df_with_bins['bin'] = df_with_bins['constraint_count'].apply(bin_constraint)
     
-    # Filter out invalid bins (0-4) just in case
-    valid_df = df[df['constraint_bin'] != "0-4"]
+    # Calculate bin sizes
+    bin_counts = df_with_bins['bin'].value_counts()
+    total_tasks = len(df_with_bins)
     
-    if len(valid_df) == 0:
-        raise ValueError("No valid tasks found for stratification after filtering.")
-
-    # Calculate sample size per bin (proportional)
-    bin_counts = valid_df['constraint_bin'].value_counts()
-    total = len(valid_df)
+    logger.info(f"Total tasks: {total_tasks}")
+    logger.info(f"Bin distribution: {bin_counts.to_dict()}")
     
-    # Ensure we don't exceed available data in any bin
+    # Ensure minimum sample size
+    if sample_size < DEFAULT_SAMPLE_SIZE:
+        logger.warning(f"Requested sample size ({sample_size}) is below minimum ({DEFAULT_SAMPLE_SIZE}). Using {DEFAULT_SAMPLE_SIZE}.")
+        sample_size = DEFAULT_SAMPLE_SIZE
+    
+    # If total available tasks are less than sample_size, take all
+    if total_tasks <= sample_size:
+        logger.warning(f"Total available tasks ({total_tasks}) is less than requested sample size ({sample_size}). Selecting all tasks.")
+        sample_size = total_tasks
+    
+    # Calculate proportional allocation per bin
     sample_per_bin = {}
-    remaining = sample_size
+    remaining_sample = sample_size
     
-    # Sort bins to ensure consistent sampling order
-    bins = sorted(bin_counts.index)
+    # First pass: calculate ideal proportions
+    for bin_label in ['5', '6', '7+']:
+        bin_size = bin_counts.get(bin_label, 0)
+        if bin_size > 0:
+            proportion = bin_size / total_tasks
+            ideal_count = int(round(proportion * sample_size))
+            sample_per_bin[bin_label] = ideal_count
     
-    # Calculate proportional allocation
-    for bin_name in bins:
-        bin_size = bin_counts[bin_name]
-        proportion = bin_size / total
-        allocated = int(round(proportion * sample_size))
-        # Ensure we don't allocate more than available
-        allocated = min(allocated, bin_size)
-        sample_per_bin[bin_name] = allocated
-        remaining -= allocated
+    # Adjust to ensure we hit the target sample size
+    current_total = sum(sample_per_bin.values())
+    if current_total != sample_size:
+        # Adjust the largest bin to match target
+        max_bin = max(sample_per_bin, key=sample_per_bin.get)
+        sample_per_bin[max_bin] += (sample_size - current_total)
     
-    # Distribute remaining samples to bins with capacity
-    for bin_name in bins:
-        if remaining <= 0:
-            break
-        if sample_per_bin[bin_name] < bin_counts[bin_name]:
-            sample_per_bin[bin_name] += 1
-            remaining -= 1
+    # Second pass: enforce bin limits and log warnings
+    final_sample_per_bin = {}
+    for bin_label, target_count in sample_per_bin.items():
+        actual_count = bin_counts.get(bin_label, 0)
+        if target_count > actual_count:
+            logger.warning(f"Bin '{bin_label}' has only {actual_count} tasks, but {target_count} requested. Taking all {actual_count} available.")
+            final_sample_per_bin[bin_label] = actual_count
+        else:
+            final_sample_per_bin[bin_label] = target_count
     
-    # Sample from each bin
-    sampled_dfs = []
-    for bin_name, count in sample_per_bin.items():
-        bin_df = valid_df[valid_df['constraint_bin'] == bin_name]
-        if count > 0 and len(bin_df) > 0:
-            sampled_dfs.append(bin_df.sample(n=min(count, len(bin_df)), random_state=seed))
-    
-    if not sampled_dfs:
-        return pd.DataFrame()
-    
-    result = pd.concat(sampled_dfs, ignore_index=True)
-    return result
-
-def save_annotation_sample(sample_df: pd.DataFrame, output_path: Path):
-    """Save annotation sample to CSV with required columns."""
-    # Select required columns
-    required_cols = ['task_id', 'raw_prompt', 'constraint_list']
-    
-    # Handle missing columns gracefully
-    available_cols = [col for col in required_cols if col in sample_df.columns]
-    
-    if 'task_id' not in available_cols:
-        raise ValueError("Sample DataFrame must contain 'task_id' column.")
-    
-    # Add constraint_list if not present (derive from progressive_constraints)
-    if 'constraint_list' not in available_cols and 'progressive_constraints' in sample_df.columns:
-        def parse_constraints(constraints_field):
-            if isinstance(constraints_field, str):
-                try:
-                    return json.loads(constraints_field)
-                except:
-                    return []
-            return constraints_field if isinstance(constraints_field, list) else []
+    # Select samples from each bin
+    selected_samples = []
+    for bin_label, count in final_sample_per_bin.items():
+        bin_df = df_with_bins[df_with_bins['bin'] == bin_label]
         
-        sample_df['constraint_list'] = sample_df['progressive_constraints'].apply(parse_constraints)
-        available_cols.append('constraint_list')
+        if count == 0:
+            logger.info(f"Bin '{bin_label}': No samples selected")
+            continue
+        
+        if count >= len(bin_df):
+            # Take all
+            bin_sample = bin_df.copy()
+            logger.info(f"Bin '{bin_label}': Taking all {len(bin_sample)} tasks")
+        else:
+            # Random sample without replacement
+            bin_sample = bin_df.sample(n=count, random_state=seed)
+            logger.info(f"Bin '{bin_label}': Randomly selected {count} tasks")
+        
+        selected_samples.append(bin_sample)
     
-    if 'raw_prompt' not in available_cols and 'prompt' in sample_df.columns:
-        sample_df['raw_prompt'] = sample_df['prompt']
-        available_cols.append('raw_prompt')
+    # Combine samples
+    if not selected_samples:
+        logger.warning("No samples were selected. Returning empty DataFrame.")
+        return pd.DataFrame(columns=df.columns)
     
-    # If 'raw_prompt' is still missing, create a placeholder or fail gracefully if critical
-    if 'raw_prompt' not in available_cols:
-        # Try to find a prompt-like column
-        prompt_candidates = ['prompt', 'instruction', 'task_prompt']
-        for candidate in prompt_candidates:
-            if candidate in sample_df.columns:
-                sample_df['raw_prompt'] = sample_df[candidate]
-                available_cols.append('raw_prompt')
-                break
+    result_df = pd.concat(selected_samples, ignore_index=True)
     
-    if 'raw_prompt' not in available_cols:
-        # If no prompt column found, create an empty one to satisfy schema
-        sample_df['raw_prompt'] = ""
-        available_cols.append('raw_prompt')
+    # Drop the temporary bin column
+    result_df = result_df.drop(columns=['bin'])
+    
+    # Shuffle the final result
+    result_df = result_df.sample(frac=1, random_state=seed).reset_index(drop=True)
+    
+    logger.info(f"Total sample size: {len(result_df)}")
+    return result_df
 
-    # Select and save
-    output_df = sample_df[available_cols]
+
+def save_annotation_sample(df: pd.DataFrame, output_path: str) -> None:
+    """
+    Save the annotation sample to CSV with the required schema.
+    
+    Output Schema:
+    - task_id: string
+    - raw_prompt: string
+    - constraint_list: string representation of the list
+    - constraint_count: integer
+    
+    Args:
+        df: DataFrame containing the sample
+        output_path: Path to write the output CSV
+    """
+    # Ensure output directory exists
+    output_dir = os.path.dirname(output_path)
+    if output_dir and not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+        logger.info(f"Created output directory: {output_dir}")
+    
+    # Prepare the output DataFrame with required columns
+    output_df = pd.DataFrame()
+    output_df['task_id'] = df['task_id']
+    output_df['raw_prompt'] = df['raw_prompt']
+    
+    # Convert progressive_constraints to a string representation for the CSV
+    # The column is named 'constraint_list' in the output schema
+    if 'progressive_constraints' in df.columns:
+        output_df['constraint_list'] = df['progressive_constraints'].apply(
+            lambda x: str(x) if isinstance(x, (list, str)) else x
+        )
+    else:
+        # Fallback if column name differs
+        output_df['constraint_list'] = ''
+        logger.warning("Column 'progressive_constraints' not found. Using empty list for constraint_list.")
+    
+    output_df['constraint_count'] = df['constraint_count']
+    
+    # Save to CSV
     output_df.to_csv(output_path, index=False)
-    print(f"Saved annotation sample with {len(output_df)} tasks to {output_path}")
+    logger.info(f"Saved {len(output_df)} tasks to {output_path}")
+
 
 def main():
-    """Main entry point."""
-    parser = argparse.ArgumentParser(description="Create stratified annotation sample")
-    parser.add_argument('--input', type=str, required=True, help="Input filtered tasks CSV")
-    parser.add_argument('--output', type=str, help="Output annotation sample CSV")
-    parser.add_argument('--sample-size', type=int, default=50, help="Number of tasks to sample")
-    parser.add_argument('--seed', type=int, default=42, help="Random seed")
+    """Main entry point for the annotator CLI."""
+    parser = argparse.ArgumentParser(
+        description='Select a stratified random sample of tasks for human annotation.'
+    )
+    parser.add_argument(
+        '--input',
+        type=str,
+        required=True,
+        help='Path to the input filtered_tasks.csv file'
+    )
+    parser.add_argument(
+        '--output',
+        type=str,
+        default=None,
+        help='Path to the output annotation_sample.csv file. Defaults to data/processed/annotation_sample.csv'
+    )
+    parser.add_argument(
+        '--sample-size',
+        type=int,
+        default=DEFAULT_SAMPLE_SIZE,
+        help=f'Target sample size (minimum {DEFAULT_SAMPLE_SIZE}). Default: {DEFAULT_SAMPLE_SIZE}'
+    )
+    parser.add_argument(
+        '--seed',
+        type=int,
+        default=DEFAULT_SEED,
+        help=f'Random seed for reproducibility. Default: {DEFAULT_SEED}'
+    )
     
     args = parser.parse_args()
-    paths = get_paths()
     
-    input_path = Path(args.input)
-    output_path = Path(args.output) if args.output else paths.DATA_PROCESSED / "annotation_sample.csv"
+    # Determine output path
+    if args.output is None:
+        paths = get_paths()
+        args.output = str(paths.DATA_PROCESSED / 'annotation_sample.csv')
+    
+    logger.info(f"Starting annotation sample selection")
+    logger.info(f"Input: {args.input}")
+    logger.info(f"Output: {args.output}")
+    logger.info(f"Target sample size: {args.sample_size}")
+    logger.info(f"Random seed: {args.seed}")
     
     try:
-        print(f"Loading tasks from {input_path}...")
-        df = load_filtered_tasks(input_path)
+        # Load data
+        df = load_filtered_tasks(args.input)
         
-        print(f"Selecting stratified sample of {args.sample_size} tasks...")
-        sample = select_random_sample_stratified(df, args.sample_size, args.seed)
+        # Check if we have enough data
+        if len(df) == 0:
+            logger.error("No tasks found in the input file.")
+            sys.exit(1)
         
-        if len(sample) == 0:
-            print("Warning: No tasks selected for sampling.")
-            # Still create an empty file with headers to satisfy schema
-            pd.DataFrame(columns=['task_id', 'raw_prompt', 'constraint_list']).to_csv(output_path, index=False)
-        else:
-            print(f"Saving annotation sample to {output_path}...")
-            save_annotation_sample(sample, output_path)
+        # Select stratified sample
+        sample_df = select_random_sample_stratified(
+            df,
+            sample_size=args.sample_size,
+            seed=args.seed
+        )
         
-        print("Done.")
+        # Check if sample was generated
+        if len(sample_df) == 0:
+            logger.error("Failed to generate a sample. The input file may be empty or malformed.")
+            sys.exit(1)
+        
+        # Save the sample
+        save_annotation_sample(sample_df, args.output)
+        
+        logger.info("Annotation sample selection completed successfully.")
+        
+    except FileNotFoundError as e:
+        logger.error(f"File not found: {e}")
+        sys.exit(1)
+    except ValueError as e:
+        logger.error(f"Value error: {e}")
+        sys.exit(1)
     except Exception as e:
-        print(f"Error: {e}")
+        logger.error(f"Unexpected error: {e}")
         import traceback
         traceback.print_exc()
         sys.exit(1)
 
-if __name__ == "__main__":
+
+if __name__ == '__main__':
     main()
