@@ -1,0 +1,42 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory structure is shown in the provided evidence; the required `projects/PROJ-312-evaluating-the-impact-of-code-generation/`
+    folder with its subfolders (`code/`, `data/`, `tests/`, `contracts/`, `artifacts/`,
+    `state/`) is not present or documented. The implementer must create and list these
+    directories to satisfy the task.
+T004:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `contracts/` directory or schema definition files were provided; the required\
+    \ local schema definitions are missing entirely. The task\u2019s core deliverable\
+    \ is absent, so the claim is not satisfied."
+T006:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `logs/pipeline.log` file with JSON\u2011formatted entries is present, and\
+    \ there is no code shown that configures logging or records the `X-RateLimit-Remaining`\
+    \ and `X-RateLimit-Reset` headers on API calls. The required logging infrastructure\
+    \ is therefore missing."
+T008:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence was presented showing that the required directories (`data/raw/`,
+    `data/processed/`, `data/spot_check/`, `artifacts/`, `tests/`) actually exist
+    in the repository; the claim is unsubstantiated. The implementer must provide
+    a directory listing or screenshots confirming the creation of these folders.
+T011:
+  c: false
+  h: 1e9b8de781aa421cffe24da722d992c05cde8021d83b000c88bfe8c5574fad0e
+  r: The test file `tests/contract/test_schema_validation.py` is present, but it references
+    `contracts/pull_request.schema.yaml`, which does not exist in the repository.
+    Without the schema file, the test cannot actually validate anything, so the required
+    contract test is not functional. The missing `pull_request.schema.yaml` must be
+    added (or the path corrected) for the task to be complete.
+T012b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No script, notebook, or data files were provided that fetch PRs for the repositories\
+    \ from T012a, iterate through each PR\u2019s commits, and extract commit messages.\
+    \ The required artifact (code and/or output CSV containing the commit messages)\
+    \ is missing, so the task is not satisfied."

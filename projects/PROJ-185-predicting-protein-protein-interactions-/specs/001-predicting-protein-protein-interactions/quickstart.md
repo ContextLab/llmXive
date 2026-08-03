@@ -1,59 +1,50 @@
-# Quickstart: Predicting Plant PPIs from Co‑expression
+# Quickstart: Predict Plant PPIs from Co‑expression
 
-These instructions assume a fresh GitHub Actions runner or a local Linux environment with Docker (optional).
-
-## 1. Clone the repository
+## Prerequisites
 ```bash
-git clone https://github.com/yourorg/ppi-coexpression.git
+# Clone the repository
+git clone
 cd ppi-coexpression
-```
 
-## 2. Set up the Python environment
-```bash
-python -m venv .venv
-source .venv/bin/activate
+# Create a virtualenv and install dependencies
+python -m venv.venv
+source.venv/bin/activate
 pip install -r requirements.txt
+
+# Install R packages (run once)
+Rscript scripts/install_bioconductor.R # installs DESeq2, org.At.tair.db, limma, sva
 ```
 
-## 3. Set up the R environment (renv)
-```R
-# In R console
-install.packages("renv")
-renv::restore()   # installs DESeq2, org.At.tair.db, limma, sva, edgeR
-```
+## Configuration
+Edit `src/config/species.yaml` to list GEO series per species (default includes Arabidopsis GSE152416).
+Edit `src/config/parameters.yaml` to change thresholds, normalization mode, or random seed.
 
-## 4. Configure the run (optional)
-Edit `src/config/species.yaml` to add or modify GEO accession lists.  
-Edit `src/config/parameters.yaml` to change thresholds or seed.
-
-## 5. Run the full pipeline
+## Run the Full Pipeline
 ```bash
-make all SEED=12345
+make all SEED=12345 NORM=vst THRESHOLD=0.80
 ```
-- `make all` executes the targets `download → normalize → correlate → map_ids → select_edges → evaluate → enrich → summary → final_report`.  
-- The `SEED` variable sets the global random seed (FR‑012).
+*What happens*:
+1. Downloads GEO series, skips those with < 30 samples, checks total ≥ 50.
+2. Normalizes (VST), filters low‑expression genes, keeps the most variable genes (high‑variance genes).
+3. Batch‑corrects across series, regresses out expression‑level and gene‑length confounds.
+4. Computes Pearson correlations, writes `raw_correlations_Arabidopsis.tsv.gz`.
+5. Maps genes to STRING proteins, writes edge list `predicted_ppi_Arabidopsis.tsv`.
+6. **Evaluation** uses a [deferred]/A train‑test split proportion will be determined based on standard practice.; the test set is scored against STRING experimental + database edges (combined ≥ 700). Baseline random‑graph results and `baseline_p` are reported.
+7. Runs GO enrichment → `go_enrichment_Arabidopsis.tsv`.
+8. Generates per‑species summary and `final_report.txt`.
+9. All per‑species metrics are collated into `master_results.json`, the project’s Single Source of Truth.
 
-## 6. Inspect results
-- Predicted edges: `data/processed/predicted_ppi_<species>.tsv`  
-- Evaluation metrics: `results/evaluation_metrics.json` (validated against `contracts/evaluation.schema.yaml`)  
-- GO enrichment: `results/go_enrichment_<species>.tsv`  
-- Summary report: `results/final_report.txt`  
-- Log file (JSON‑Line): `logs/pipeline.log` (validated against `contracts/pipeline_log.schema.yaml`)
+## Individual Targets
+| Target | Description |
+|--------|-------------|
+| `make evaluate` | Runs only the evaluation phase (FR‑006‑FR‑019) on the held‑out test set. |
+| `make enrich` | Runs GO enrichment (FR‑008‑FR‑023). |
+| `make summary` | Generates summary reports (FR‑021‑FR‑028). |
+| `make clean` | Removes all intermediate files. |
 
-## 7. Run verification only
+## Validation
+After any target, the verification step runs automatically:
 ```bash
-make verify
+python scripts/verify_outputs.py
 ```
-This step validates all output files against the contracts; any violation aborts with a clear error (FR‑[relevant contract], FR‑013, FR‑019, FR‑030, FR‑034).
-
-## 8. Clean intermediate files (optional)
-```bash
-make clean
-```
-
-All commands are reproducible; re‑running with the same `SEED` yields identical outputs (SC‑).
-
----
-
-
-
+It checks all contract files (`predicted_edges.schema.yaml`, `evaluation.schema.yaml`, etc.) and aborts on failure, satisfying FR‑017, FR‑019, FR‑030, FR‑034.

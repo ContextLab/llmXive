@@ -1,40 +1,30 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Evaluation Metrics"
-type: object
+type: "object"
+description: "Metrics evaluating predicted PPIs against STRING."
 properties:
   species:
-    type: string
-    description: "Species identifier (e.g., arabidopsis_thaliana)"
+    type: "string"
+    description: "Species identifier (e.g., Arabidopsis)"
   auroc:
-    type: number
+    type: "number"
     minimum: 0.0
     maximum: 1.0
-    description: "Area under the ROC curve for full imbalanced set"
   auprc:
-    type: number
+    type: "number"
     minimum: 0.0
     maximum: 1.0
-    description: "Area under the Precision‑Recall curve for full set"
   baseline_auroc:
-    type: number
+    type: "number"
     minimum: 0.0
     maximum: 1.0
-    description: "AUROC of degree‑preserving random‑graph baseline"
   baseline_auprc:
-    type: number
+    type: "number"
     minimum: 0.0
     maximum: 1.0
-    description: "AUPRC of degree‑preserving random‑graph baseline"
   baseline_p:
-    type: number
+    type: "number"
     minimum: 0.0
     maximum: 1.0
-    description: "p‑value comparing observed AUROC to baseline distribution"
-required:
-  - species
-  - auroc
-  - auprc
-  - baseline_auroc
-  - baseline_auprc
-  - baseline_p
+required: ["species", "auroc", "auprc", "baseline_auroc", "baseline_auprc", "baseline_p"]
 additionalProperties: false

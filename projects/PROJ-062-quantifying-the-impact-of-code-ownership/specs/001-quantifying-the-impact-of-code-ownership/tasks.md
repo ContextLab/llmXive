@@ -44,7 +44,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project structure per implementation plan (`projects/PROJ-062-quantifying-the-impact-of-code-ownership/`)
-- [ ] T002 Initialize Python 3.11 project with `requirements.txt` (GitPython, scikit-learn, scipy, pandas, numpy, radon, matplotlib, pyyaml)
+- [X] T002 Initialize Python 3.11 project with `requirements.txt` (GitPython, scikit-learn, scipy, pandas, numpy, radon, matplotlib, pyyaml)
 - [ ] T003 [P] Configure linting (flake8/black) and formatting tools
 
 ---
@@ -105,10 +105,10 @@
 - [X] T020 [US2] Implement `code/metrics_calc.py` to filter out modules deleted between T and T+1 for BOTH predictor and outcome (FR-008)
 - [X] T021 [US2] Implement `code/metrics_calc.py` to calculate code churn (lines added/deleted) per module
 - [X] T022 [US2] Implement `code/metrics_calc.py` to compute cyclomatic complexity using `radon` on the latest snapshot (exclude non-Python files). **Verification**: Count total Python modules and modules with valid scores. Assert that `valid_count / total_count >= 0.95`. If the threshold is not met, log a critical warning and fail the task (or stop the pipeline) to prevent downstream analysis on invalid data.
-- [ ] T023 [US2] Implement `code/metrics_calc.py` to calculate normalized bug density (bugs/KLOC), excluding modules with 0 lines of code
-- [ ] T024 [US2] Implement `code/metrics_calc.py` to calculate module Size (KLOC) and Age (months since creation). **Note**: This task must also generate the `Gini²` (Gini squared) term for use in T031.
-- [ ] T025 [US2] Create `tests/unit/test_metrics_calc.py` to verify Gini calculation, KLOC normalization, and complexity scoring
-- [ ] T026 [US2] Create `tests/integration/test_metrics_pipeline.py` to verify end-to-end metric generation from intermediate CSVs
+- [X] T023 [US2] Implement `code/metrics_calc.py` to calculate normalized bug density (bugs/KLOC), excluding modules with 0 lines of code
+- [X] T024 [US2] Implement `code/metrics_calc.py` to calculate module Size (KLOC) and Age (months since creation). **Note**: This task must also generate the `Gini²` (Gini squared) term for use in T031.
+- [X] T025 [US2] Create `tests/unit/test_metrics_calc.py` to verify Gini calculation, KLOC normalization, and complexity scoring
+- [X] T026 [US2] Create `tests/integration/test_metrics_pipeline.py` to verify end-to-end metric generation from intermediate CSVs
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -122,10 +122,10 @@
 
 ### Implementation for User Story 3
 
-- [ ] T027 [US3] Implement `code/statistical_analysis.py` to perform Spearman rank correlation (Gini vs. bug density) using `scipy.stats`
-- [ ] T028 [US3] Implement `code/statistical_analysis.py` to calculate 95% confidence intervals for correlation coefficients
-- [ ] T029 [US3] Implement `code/statistical_analysis.py` to calculate VIF for predictors (Gini, Gini², Size, Age) as required by FR-013. **Specifics**: Calculate VIF for all listed terms. If VIF is infinite or ≥5, flag the result in the output JSON with a message stating "independent effects cannot be claimed". Note: While Gini and Gini² are collinear, the task must still attempt the calculation and report the result (including infinity) to satisfy the spec's diagnostic requirement.
-- [ ] T030 [US3] Implement `code/statistical_analysis.py` to apply multiple-comparison correction (Bonferroni or Benjamini-Hochberg) (FR-011)
+- [X] T027 [US3] Implement `code/statistical_analysis.py` to perform Spearman rank correlation (Gini vs. bug density) using `scipy.stats`
+- [X] T028 [US3] Implement `code/statistical_analysis.py` to calculate 95% confidence intervals for correlation coefficients
+- [X] T029 [US3] Implement `code/statistical_analysis.py` to calculate VIF for predictors (Gini, Gini², Size, Age) as required by FR-013. **Specifics**: Calculate VIF for all listed terms. If VIF is infinite or ≥5, flag the result in the output JSON with a message stating "independent effects cannot be claimed". Note: While Gini and Gini² are collinear, the task must still attempt the calculation and report the result (including infinity) to satisfy the spec's diagnostic requirement.
+- [X] T030 [US3] Implement `code/statistical_analysis.py` to apply multiple-comparison correction (Bonferroni or Benjamini-Hochberg) (FR-011)
 - [ ] T031 [US3] Implement `code/statistical_analysis.py` to test for non-linearity. **Specifics**: Fit a linear model (Outcome ~ Gini + Size + Age) and a quadratic model (Outcome ~ Gini + Gini² + Size + Age).
  1. Perform a Likelihood Ratio Test (LRT) to compare models.
  2. **Crucially**: Perform a standard t-test on the quadratic model to obtain the p-value for the Gini² coefficient.

@@ -1,72 +1,112 @@
 """
-Script to run formatting (black/isort) and linting (flake8) checks.
-This script is intended to be run from the code/ directory.
-
-Usage:
-    python scripts/format_and_lint.py --check   # Run checks only (CI mode)
-    python scripts/format_and_lint.py           # Run formatting fixes
+Script to run flake8 and black on the project codebase.
+This script ensures code quality by checking for linting errors
+and formatting issues according to the project's configuration.
 """
 import subprocess
 import sys
 import argparse
 from pathlib import Path
 
-def run_command(cmd: list[str], check: bool = False) -> bool:
-    """Run a shell command and return True if successful."""
-    print(f"Running: {' '.join(cmd)}")
+def run_command(command: list, description: str) -> bool:
+    """
+    Run a shell command and return True if successful.
+
+    Args:
+        command: List of command arguments
+        description: Description of what the command does
+
+    Returns:
+        True if command succeeded, False otherwise
+    """
+    print(f"Running {description}...")
     try:
-        result = subprocess.run(cmd, check=check)
-        return result.returncode == 0
+        result = subprocess.run(
+            command,
+            check=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True
+        )
+        print(f"✓ {description} passed")
+        if result.stdout:
+            print(result.stdout)
+        return True
     except subprocess.CalledProcessError as e:
-        print(f"Command failed with return code {e.returncode}")
+        print(f"✗ {description} failed")
+        if e.stdout:
+            print(e.stdout)
+        if e.stderr:
+            print(e.stderr)
+        return False
+    except FileNotFoundError:
+        print(f"✗ Command not found: {command[0]}")
+        print("Please install the required tools (flake8, black) via:")
+        print("  pip install -r requirements-dev.txt")
         return False
 
 def main():
-    parser = argparse.ArgumentParser(description="Format and lint code")
+    """Main entry point for the linting and formatting script."""
+    parser = argparse.ArgumentParser(
+        description="Run linting and formatting checks on the project."
+    )
     parser.add_argument(
-        "--check",
+        "--fix",
         action="store_true",
-        help="Run checks only without modifying files (CI mode)"
+        help="Automatically fix formatting issues with black"
+    )
+    parser.add_argument(
+        "--check-only",
+        action="store_true",
+        help="Only check for issues, do not fix"
     )
     args = parser.parse_args()
 
-    project_root = Path(__file__).parent.parent
-    os.chdir(project_root)
+    project_root = Path(__file__).parent.parent.parent
+    code_dir = project_root / "code"
 
-    print(f"Working in: {project_root}")
+    if not code_dir.exists():
+        print(f"Error: Code directory not found at {code_dir}")
+        sys.exit(1)
 
-    if args.check:
-        # Check mode: verify formatting and linting
-        print("\n--- Running isort (check mode) ---")
-        if not run_command(["isort", "--check-only", "."], check=True):
-            print("ERROR: isort check failed. Run without --check to fix.")
-            return 1
+    all_passed = True
 
-        print("\n--- Running black (check mode) ---")
-        if not run_command(["black", "--check", "."], check=True):
-            print("ERROR: black check failed. Run without --check to fix.")
-            return 1
+    # Run flake8
+    flake8_cmd = [
+        sys.executable, "-m", "flake8",
+        str(code_dir),
+        "--config=.flake8"
+    ]
+    if not run_command(flake8_cmd, "flake8 linting"):
+        all_passed = False
 
-        print("\n--- Running flake8 ---")
-        if not run_command(["flake8", "."], check=True):
-            print("ERROR: flake8 found issues.")
-            return 1
-
-        print("\n✅ All checks passed!")
-        return 0
+    # Run black
+    if args.fix:
+        black_cmd = [
+            sys.executable, "-m", "black",
+            "--config=pyproject.toml",
+            str(code_dir)
+        ]
+        if not run_command(black_cmd, "black formatting (fix mode)"):
+            all_passed = False
     else:
-        # Fix mode: apply formatting
-        print("\n--- Running isort ---")
-        run_command(["isort", "."])
+        black_cmd = [
+            sys.executable, "-m", "black",
+            "--config=pyproject.toml",
+            "--check",
+            str(code_dir)
+        ]
+        if not run_command(black_cmd, "black formatting check"):
+            all_passed = False
 
-        print("\n--- Running black ---")
-        run_command(["black", "."])
-
-        print("\n--- Running flake8 (report only) ---")
-        run_command(["flake8", "."])
-
-        print("\n✅ Formatting complete. Please review flake8 output above.")
-        return 0
+    # Summary
+    print("\n" + "="*50)
+    if all_passed:
+        print("All checks passed!")
+        sys.exit(0)
+    else:
+        print("Some checks failed. Please review the output above.")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

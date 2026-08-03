@@ -1,40 +1,29 @@
 # Evaluating the Impact of Code Generation on Code Review Turnaround Time
 
-**Project ID**: PROJ-312
+## Project Overview
+This project analyzes the impact of AI-assisted code generation on the turnaround time of code reviews in open-source repositories.
 
-## Overview
-This project investigates whether AI-assisted code generation (e.g., GitHub Copilot) significantly impacts the turnaround time of code reviews compared to human-written code.
-
-## Methodology
-1. **Data Acquisition**: Fetch PR metadata from top Python and JavaScript repositories via GitHub API.
-2. **Classification**: Label PRs as "AI-assisted" or "Non-AI" based on commit messages and labels.
-3. **Analysis**: Perform statistical testing (Mann-Whitney U) on turnaround times.
-4. **Visualization**: Generate boxplots comparing distributions.
+## User Stories
+- **US1**: Data Acquisition and Preprocessing
+- **US2**: Statistical Analysis and Hypothesis Testing
+- **US3**: Visualization and Reporting
 
 ## Directory Structure
-- `code/`: Source code for data fetching, analysis, and reporting.
-- `data/`: Raw and processed datasets.
-- `tests/`: Unit and contract tests.
-- `artifacts/`: Final reports and visualizations.
-- `contracts/`: JSON schema definitions for data validation.
+- `code/`: Core analysis and data processing logic
+- `data/`: Raw and processed data
+- `tests/`: Unit and contract tests
+- `contracts/`: Schema definitions
+- `artifacts/`: Final reports and visualizations
+- `state/`: Pipeline state tracking
 
 ## Prerequisites
 - Python 3.11+
-- GitHub Personal Access Token (set as `GITHUB_TOKEN` environment variable)
+- GitHub API token (set as `GITHUB_TOKEN` environment variable)
 
-## Quick Start
-1. Install dependencies:
- ```bash
- pip install -r requirements.txt
- ```
-2. Run the data acquisition pipeline:
- ```bash
- python code/fetch_data.py
- ```
-3. Run the analysis pipeline:
- ```bash
- python code/analyze.py
- ```
+## Installation
+```bash
+pip install -r requirements.txt
+```
 
-## License
-MIT
+## Execution
+Run the pipeline via `quickstart.md` commands or execute individual scripts in `code/`.

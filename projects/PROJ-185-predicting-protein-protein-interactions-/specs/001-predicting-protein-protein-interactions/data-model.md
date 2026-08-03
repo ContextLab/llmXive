@@ -3,29 +3,24 @@
 ## Core Entities
 | Entity | Attributes | Description |
 |--------|------------|-------------|
-| **RNASeqSample** | `accession` (str), `species` (str), `raw_counts` (path to TSV), `metadata` (JSON) | One GEO series after download. |
-| **Gene** | `gene_id` (str, TAIR or Ensembl), `cpm` (float), `variance` (float), `string_protein_id` (str, optional) | Represents a transcript after filtering. |
-| **RawCorrelation** | `gene_id_1` (str), `gene_id_2` (str), `correlation` (float), `p_value` (float), `adjusted_p_value` (float) | Pairwise correlation before identifier mapping; stored in `raw_correlations_<species>.tsv.gz`. |
-| **ProteinCorrelation** | `protein_id_1` (str), `protein_id_2` (str), `correlation` (float) | After mapping via `string_protein_id`. |
-| **PredictedEdge** | `protein_id_1` (str), `protein_id_2` (str), `correlation` (float) | Row in `predicted_ppi_<species>.tsv`. |
-| **EvaluationMetric** | `species` (str), `auroc` (float), `auprc` (float), `baseline_auroc` (float), `baseline_auprc` (float), `baseline_p` (float) | Stored in `evaluation_metrics.json`. |
-| **GOEnrichmentRecord** | `go_id` (str), `description` (str), `raw_p` (float), `adj_p` (float), `gene_count` (int) | Row in `go_enrichment_<species>.tsv`. |
-| **ThresholdSensitivityRecord** | `threshold` (float), `edge_count` (int), `auroc` (float), `auprc` (float) | Row in `threshold_sensitivity_<species>.tsv`. |
-| **PipelineLogEntry** | `timestamp` (ISO‑8601), `level` (str), `message` (str), `schema_version` (str) | JSON‑Line entry in `pipeline.log`. |
+| **RNASeqSample** | `sample_accession`, `geo_series_accession`, `metadata`, `raw_counts_path` | One GEO GSM record. |
+| **GeneExpressionMatrix** | `species`, `gene_ids`, `sample_ids`, `normalized_matrix_path` | VST‑ or TPM‑normalized expression matrix after filtering. |
+| **Gene** | `gene_id` (TAIR or Ensembl), `protein_id` (STRING), `variance` | Holds mapping to STRING protein IDs. |
+| **RawCorrelation** | `gene_id_1`, `gene_id_2`, `correlation`, `p_value`, `adjusted_p_value` | Pairwise correlation before ID mapping; stored gzipped. |
+| **ProteinCorrelation** | `protein_id_1`, `protein_id_2`, `correlation` | Correlation after gene‑to‑protein mapping. |
+| **PredictedEdge** | `protein_id_1`, `protein_id_2`, `correlation` | Edge retained after thresholding (FR‑011). |
+| **EvaluationMetric** | `species`, `auroc`, `auprc`, `baseline_auroc`, `baseline_auprc`, `baseline_p` | JSON representation (`evaluation_metrics.json`). |
+| **GOEnrichmentRecord** | `go_id`, `description`, `raw_p`, `adjusted_p`, `gene_count` | One row of `go_enrichment_<species>.tsv`. |
+| **ThresholdSensitivityRecord** | `threshold`, `num_edges`, `auroc`, `auprc` | Row of `threshold_sensitivity_<species>.tsv`. |
+| **MasterResults** | `species`, `edge_count`, `auroc`, `auprc`, `baseline_p`, `top_go_terms` | Aggregated per‑species summary stored in `master_results.json`; serves as the Single Source of Truth for the project. |
 
 ## Relationships
-- `RNASeqSample` → many `Gene` (genes expressed in the sample).  
-- `Gene` ↔ `Gene` → `RawCorrelation` (undirected).  
-- `Gene` → `ProteinCorrelation` after mapping via `string_protein_id`.  
-- `ProteinCorrelation` filtered by threshold → `PredictedEdge`.  
-- `PredictedEdge` set evaluated against STRING high‑confidence edges → `EvaluationMetric`.  
-- Genes in `PredictedEdge` serve as background for `GOEnrichmentRecord`.  
+- **RNASeqSample** → belongs to → **GeneExpressionMatrix** (many‑to‑one per species).  
+- **GeneExpressionMatrix** → contains → **Gene** (≤ 5 000 retained).  
+- **Gene** ↔ maps to ↔ **ProteinCorrelation** via `protein_id`.  
+- **RawCorrelation** → filtered → **ProteinCorrelation** → **PredictedEdge** (threshold).  
+- **PredictedEdge** → defines gene set for → **GOEnrichmentRecord**.  
+- **EvaluationMetric** consumes **RawCorrelation**, **PredictedEdge**, and STRING reference set.  
+- **MasterResults** aggregates the above per species for reporting.
 
-## Contracts (YAML schemas) – see `contracts/` directory.
-
-**Note**: Success Criterion SC‑002 mandates that each GO enrichment report contain at least one term with an adjusted p‑value < 0.05; this is reflected in the `GOEnrichmentRecord` usage.
-
----
-
-
-
+All files are TSV/JSON/GZ formats and validated against contracts in `contracts/`.

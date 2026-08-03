@@ -1,29 +1,24 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Threshold Sensitivity Record"
-type: object
+title: "Threshold Sensitivity Table"
+type: "object"
+description: "Results of correlation‑threshold sensitivity analysis."
 properties:
+  species:
+    type: "string"
   threshold:
-    type: number
-    minimum: a qualitatively moderate threshold
-    maximum: high (close to the theoretical upper limit)
-    description: "Correlation threshold evaluated in sensitivity analysis"
-  edge_count:
-    type: integer
-    minimum: a non‑negative lower bound
-    description: "Number of edges retained at this threshold"
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+  num_edges:
+    type: "integer"
+    minimum: 0
   auroc:
-    type: number
-    minimum: a non‑negative value
-    maximum: set to the highest permissible value
-    description: "AUROC computed on full set for this threshold"
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
   auprc:
-    type: number
-    minimum: non‑negative (i.e., not below zero)
-    maximum: at the defined upper limit
-    description: "AUPRC computed on full set for this threshold"
-required:
-  - threshold
-  - edge_count
-  - auroc
-  - auprc
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+required: ["species", "threshold", "num_edges", "auroc", "auprc"]
 additionalProperties: false

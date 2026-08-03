@@ -1,44 +1,46 @@
 """
-Script to create the required directory structure for the project.
-Creates data/raw, data/intermediate, data/results, tests/contract,
-tests/integration, tests/unit, and docs directories.
+Script to create the required data directory structure for the project.
+This implements Task T004: Setup data/raw/, data/intermediate/, data/results/
+with .gitkeep files.
 """
 import os
 from pathlib import Path
 
-def create_directories(base_path: Path) -> None:
+def create_directories():
     """
-    Create the required directory structure under the given base path.
+    Creates the directory structure:
+    - data/raw/
+    - data/intermediate/
+    - data/results/
     
-    Args:
-        base_path: The root directory where the structure should be created.
+    Each directory will contain a .gitkeep file to ensure they are tracked by Git
+    even if they are empty.
     """
+    base_dir = Path("data")
     directories = [
-        "data/raw",
-        "data/intermediate",
-        "data/results",
-        "tests/contract",
-        "tests/integration",
-        "tests/unit",
-        "docs",
+        base_dir / "raw",
+        base_dir / "intermediate",
+        base_dir / "results"
     ]
     
-    for dir_path in directories:
-        full_path = base_path / dir_path
-        full_path.mkdir(parents=True, exist_ok=True)
-        print(f"Created directory: {full_path}")
-
-def main() -> None:
-    """Main entry point for the script."""
-    # Determine the project root (parent of the 'code' directory)
-    # Assuming this script is located at code/scripts/setup_directories.py
-    script_dir = Path(__file__).resolve().parent
-    code_dir = script_dir.parent
-    project_root = code_dir.parent
+    for directory in directories:
+        directory.mkdir(parents=True, exist_ok=True)
+        gitkeep_path = directory / ".gitkeep"
+        
+        # Create .gitkeep file if it doesn't exist
+        if not gitkeep_path.exists():
+            gitkeep_path.touch()
+            print(f"Created directory: {directory}")
+            print(f"Created .gitkeep file: {gitkeep_path}")
+        else:
+            print(f"Directory already exists: {directory}")
+            print(f".gitkeep file already exists: {gitkeep_path}")
     
-    print(f"Project root: {project_root}")
-    create_directories(project_root)
-    print("Directory structure creation complete.")
+    print("\nDirectory structure setup complete.")
+
+def main():
+    """Entry point for the script."""
+    create_directories()
 
 if __name__ == "__main__":
     main()

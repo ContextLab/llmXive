@@ -4,90 +4,83 @@ import os
 import random
 import time
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Dict
 
-from logging_config import get_logger
+logger = logging.getLogger(__name__)
 
-logger = get_logger(__name__)
-
-def validate_json_schema(data: Any, schema_path: str) -> bool:
+def validate_json_schema(data: Dict[str, Any], schema_path: str) -> bool:
     """
     Validates data against a JSON schema defined in a YAML file.
-    Returns True if valid, False otherwise.
-    Note: For a full implementation, we'd use a library like jsonschema.
-    Here we implement a basic structural check based on the simple schema definitions provided.
+    Note: This is a simplified validator for specific schema structures.
     """
     try:
+        import yaml
         with open(schema_path, 'r') as f:
-            # Assuming simple YAML parsing or JSON if format allows
-            # Since we can't import pyyaml if not installed, we assume the schema is simple enough
-            # or we rely on the fact that T004 created simple files.
-            # For robustness, we assume the environment has pyyaml or we parse manually if JSON-like.
-            # Given constraints, we'll do a basic check if the file exists and is readable.
-            import yaml
             schema = yaml.safe_load(f)
-    except ImportError:
-        logger.warning("PyYAML not installed. Skipping detailed schema validation.")
+        
+        # Basic validation logic for 'required' and 'type'
+        if 'required' in schema:
+            for field in schema['required']:
+                if field not in data:
+                    logger.error(f"Missing required field: {field}")
+                    return False
+        
+        if 'properties' in schema:
+            for key, value in data.items():
+                if key in schema['properties']:
+                    expected_type = schema['properties'][key].get('type')
+                    if expected_type == 'string' and not isinstance(value, str):
+                        logger.error(f"Field {key} expected string, got {type(value)}")
+                        return False
+                    if expected_type == 'number' and not isinstance(value, (int, float)):
+                        logger.error(f"Field {key} expected number, got {type(value)}")
+                        return False
+                    if expected_type == 'array' and not isinstance(value, list):
+                        logger.error(f"Field {key} expected array, got {type(value)}")
+                        return False
+                    if expected_type == 'object' and not isinstance(value, dict):
+                        logger.error(f"Field {key} expected object, got {type(value)}")
+                        return False
+        
         return True
-    except FileNotFoundError:
-        logger.error(f"Schema file not found: {schema_path}")
-        return False
     except Exception as e:
-        logger.error(f"Error loading schema: {e}")
+        logger.error(f"Schema validation error: {e}")
         return False
 
-    # Basic validation logic for the specific schemas defined in T004
-    if not isinstance(data, dict):
-        logger.error("Data must be a dictionary.")
-        return False
-    
-    required_fields = schema.get("required", [])
-    for field in required_fields:
-        if field not in data:
-            logger.error(f"Missing required field: {field}")
-            return False
-    
-    return True
-
-def api_request_with_backoff(url: str, headers: Optional[Dict[str, str]] = None) -> Optional[Dict[str, Any]]:
+def api_request_with_backoff(url: str, headers: Dict[str, str] = None, max_retries: int = 5) -> Dict[str, Any]:
     """
     Makes an API request with exponential backoff and jitter.
     """
     base_delay = 1.0
     max_delay = 60.0
-    multiplier = 2.0
-    max_retries = 5
-    
-    for attempt in range(max_retries):
+    retries = 0
+
+    while retries < max_retries:
         try:
-            import urllib.request
-            import urllib.error
+            import requests
+            response = requests.get(url, headers=headers, timeout=30)
             
-            req = urllib.request.Request(url, headers=headers or {})
-            with urllib.request.urlopen(req, timeout=30) as response:
-                # Capture rate limit headers
-                if hasattr(response, 'headers'):
-                    capture_rate_limit_headers(dict(response.headers))
-                
-                return json.loads(response.read().decode('utf-8'))
-        
-        except urllib.error.HTTPError as e:
-            if e.code == 403 and "rate limit" in str(e.reason).lower():
-                logger.warning(f"Rate limit hit. Retrying in {base_delay}s...")
+            if response.status_code == 200:
+                return response.json()
+            elif response.status_code == 403:
+                # Rate limited
+                retry_after = int(response.headers.get('Retry-After', 60))
+                logger.warning(f"Rate limited. Waiting {retry_after}s.")
+                time.sleep(retry_after)
+                continue
+            elif response.status_code >= 500:
+                # Server error, retry
+                delay = min(base_delay * (2 ** retries) + random.uniform(0, 0.5 * base_delay * (2 ** retries)), max_delay)
+                logger.warning(f"Server error {response.status_code}. Retrying in {delay:.2f}s...")
+                time.sleep(delay)
+                retries += 1
             else:
-                logger.error(f"HTTP Error {e.code}: {e.reason}")
-                return None
-        
-        except Exception as e:
-            logger.error(f"Request failed: {e}")
-        
-        # Calculate delay with jitter
-        delay = min(base_delay * (multiplier ** attempt), max_delay)
-        jitter = delay * random.uniform(0, 0.5)
-        sleep_time = delay + jitter
-        
-        logger.info(f"Retrying in {sleep_time:.2f}s (Attempt {attempt + 1}/{max_retries})")
-        time.sleep(sleep_time)
-    
-    logger.error(f"Failed to fetch {url} after {max_retries} attempts.")
-    return None
+                logger.error(f"API request failed with status {response.status_code}: {response.text}")
+                return {}
+        except requests.exceptions.RequestException as e:
+            logger.error(f"Request exception: {e}")
+            delay = min(base_delay * (2 ** retries) + random.uniform(0, 0.5 * base_delay * (2 ** retries)), max_delay)
+            time.sleep(delay)
+            retries += 1
+
+    raise Exception(f"Failed to fetch {url} after {max_retries} retries")

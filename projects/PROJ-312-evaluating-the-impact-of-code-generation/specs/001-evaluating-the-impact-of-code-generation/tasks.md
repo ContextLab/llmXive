@@ -44,7 +44,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001a [P] Create directory structure: `projects/PROJ-312-evaluating-the-impact-of-code-generation/`, `code/`, `data/`, `tests/`, `contracts/`, `artifacts/`, `state/`
-- [ ] T001b [P] Create initial files: `README.md`, `code/__init__.py`
+- [X] T001b [P] Create initial files: `README.md`, `code/__init__.py`
 - [ ] T002 [P] Initialize Python 3.11 project: Create file `projects/PROJ-312-evaluating-the-impact-of-code-generation/requirements.txt` containing pinned versions (requests, pandas, scipy, matplotlib, pyyaml, tqdm, statsmodels), then run `pip install -r projects/PROJ-312-evaluating-the-impact-of-code-generation/requirements.txt`
 - [ ] T003 [P] Configure linting and formatting: Create file `projects/PROJ-312-evaluating-the-impact-of-code-generation/pyproject.toml` containing:
  ```toml
@@ -99,9 +99,9 @@
  required: [test_type, u_statistic, p_value]
  ```
 - [X] T005 [P] Implement schema validation utility in `code/utils.py`: Function `validate_json_schema(data, schema_path)` that returns True/False and logs errors
-- [~] T006 [P] Setup logging infrastructure: Create file `logs/pipeline.log` with JSON formatting. Capture rate-limit headers `X-RateLimit-Remaining` and `X-RateLimit-Reset` on every API call.
+- [ ] T006 [P] Setup logging infrastructure: Create file `logs/pipeline.log` with JSON formatting. Capture rate-limit headers `X-RateLimit-Remaining` and `X-RateLimit-Reset` on every API call.
 - [X] T007 [P] Implement exponential backoff utility in `code/utils.py`: Function `api_request_with_backoff(url, headers)` with base delay s, multiplier 2.0, max delay 60s, jitter strategy (random 0-50% of delay), a limited number of retries.
-- [~] T008 [P] Create directory structure: `data/raw/`, `data/processed/`, `data/spot_check/`, `artifacts/`, `tests/`
+- [ ] T008 [P] Create directory structure: `data/raw/`, `data/processed/`, `data/spot_check/`, `artifacts/`, `tests/`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -118,13 +118,13 @@
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
 - [X] T009 [P] [US1] Unit test for classification logic (keywords/labels) in `tests/unit/test_classifier.py`
-- [~] T010 [P] [US1] Unit test for turnaround time calculation (wall-clock hours) in `tests/unit/test_time_calc.py`
-- [~] T011 [P] [US1] Contract test for `pull_request.schema.yaml` validation in `tests/contract/test_schema_validation.py`
+- [X] T010 [P] [US1] Unit test for turnaround time calculation (wall-clock hours) in `tests/unit/test_time_calc.py`
+- [ ] T011 [P] [US1] Contract test for `pull_request.schema.yaml` validation in `tests/contract/test_schema_validation.py`
 
 ### Implementation for User Story 1
 
 - [ ] T012a [US1] Fetch a representative set of top Python and JavaScript repositories by star count using GitHub API endpoint: `search/repositories?q=language:Python+stars:>10000&sort=stars&order=desc` (and JS equivalent). Save output to `data/raw/repos.json` as a list of objects with `name` and `stars` (FR-001)
-- [~] T012b [US1] For each repo from T012a, fetch all PRs and iterate through the list of commits for *each* PR to extract commit messages for classification (FR-001, Edge Case)
+- [ ] T012b [US1] For each repo from T012a, fetch all PRs and iterate through the list of commits for *each* PR to extract commit messages for classification (FR-001, Edge Case)
 - [X] T013 [US1] Implement logic in `code/fetch_data.py` to exclude PRs with missing `merged_at` timestamps and log exclusion counts (FR-010)
 - [X] T014 [US1] Implement logic in `code/fetch_data.py` to skip repos with < 50 PRs after filtering and log warnings; ensure these repos are tracked for exclusion from final analysis (Edge Case)
 - [X] T015 [US1] Implement classification logic in `code/fetch_data.py` to label PRs as AI-assisted or non-AI-labeled based on commit messages ("copilot", "ai-generated") and labels ("ai-generated", "copilot-assisted", "llm-code") (FR-002)
@@ -133,7 +133,7 @@
 - [~] T018 [US1] Save raw data to `data/raw/` and processed data to `data/processed/` with schema validation (FR-001)
 - [~] T018b [US1] Calculate overall data quality success rate (processed/total PRs). If < 95%, raise `DataQualityError` with message "Data quality threshold not met: X%" and halt pipeline. Otherwise, log success (SC-003)
 - [X] T019 [US1] Implement `code/validate_spot_check.py` to perform manual spot-check of a *stratified random sample* (n=50) of non-AI-labeled PRs. Stratification must be based on repository and PR size (number of files changed). Estimate false-negative rate (FR-011)
-- [ ] T020 [US1] Save spot-check results to `data/spot_check/validation_report.csv`
+- [X] T020 [US1] Save spot-check results to `data/spot_check/validation_report.csv`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -147,18 +147,18 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T021 [P] [US2] Unit test for IQR outlier calculation in `tests/unit/test_iqr.py`
-- [ ] T022 [P] [US2] Unit test for Mann-Whitney U test execution in `tests/unit/test_mwu.py`
+- [X] T021 [P] [US2] Unit test for IQR outlier calculation in `tests/unit/test_iqr.py`
+- [X] T022 [P] [US2] Unit test for Mann-Whitney U test execution in `tests/unit/test_mwu.py`
 
 ### Implementation for User Story 2
 
-- [ ] T023 [US2] Implement `code/analyze.py` to calculate descriptive statistics (mean, median, SD, quartiles) for AI and non-AI groups. **Input**: Must exclude data from repositories skipped in T014 (FR-004, Edge Case)
-- [ ] T023b [US2] Calculate and log distribution characteristics (skewness, kurtosis) for both groups to validate against SC-002 (distribution characteristics)
-- [ ] T023c [US2] Calculate and log Shapiro-Wilk test p-value for normality check for both groups to validate distribution shape (SC-002)
-- [ ] T024 [US2] Implement IQR outlier calculation in `code/analyze.py` (Q1 - 1.5×IQR, Q3 + 1.5×IQR) calculated separately per group. **Note**: Outliers are excluded ONLY for visualization (T031) and sensitivity analysis (T028), NOT for the primary hypothesis test (Plan Phase 1)
-- [ ] T024b [US2] Save outlier indices for visualization and sensitivity analysis. **Do NOT exclude outliers from the primary dataset used in T026** (FR-005, Plan Phase 1)
-- [ ] T025 [US2] Log the count of outliers identified per group (FR-005)
-- [ ] T026 [US2] Execute **Stratified** Mann-Whitney U test in `code/analyze.py` comparing AI vs. non-AI groups using the **FULL dataset** (from T018, not cleaned). Stratify by PR size and author activity (Plan Phase 1, FR-006). Return U statistic, p-value, and effect size (r)
+- [X] T023 [US2] Implement `code/analyze.py` to calculate descriptive statistics (mean, median, SD, quartiles) for AI and non-AI groups. **Input**: Must exclude data from repositories skipped in T014 (FR-004, Edge Case)
+- [~] T023b [US2] Calculate and log distribution characteristics (skewness, kurtosis) for both groups to validate against SC-002 (distribution characteristics)
+- [~] T023c [US2] Calculate and log Shapiro-Wilk test p-value for normality check for both groups to validate distribution shape (SC-002)
+- [X] T024 [US2] Implement IQR outlier calculation in `code/analyze.py` (Q1 - 1.5×IQR, Q3 + 1.5×IQR) calculated separately per group. **Note**: Outliers are excluded ONLY for visualization (T031) and sensitivity analysis (T028), NOT for the primary hypothesis test (Plan Phase 1)
+- [~] T024b [US2] Save outlier indices for visualization and sensitivity analysis. **Do NOT exclude outliers from the primary dataset used in T026** (FR-005, Plan Phase 1)
+- [~] T025 [US2] Log the count of outliers identified per group (FR-005)
+- [X] T026 [US2] Execute **Stratified** Mann-Whitney U test in `code/analyze.py` comparing AI vs. non-AI groups using the **FULL dataset** (from T018, not cleaned). Stratify by PR size and author activity (Plan Phase 1, FR-006). Return U statistic, p-value, and effect size (r)
 - [ ] T026b [US2] Compare the calculated p-value against the α=0.05 threshold. Log conclusion: "Significant difference found" if p < 0.05, else "No significant difference". If p >= 0.05 and power check fails, raise `SignificanceError` (SC-004)
 - [ ] T027a [US2] Implement power check in `code/analyze.py`: if AI group count < 30, flag for abort (Plan Phase 1)
 - [ ] T027b [US2] If T027a condition is met, define `class SampleSizeError(Exception): pass` and raise `SampleSizeError` with message "Sample size too small: AI group < 30" to halt pipeline execution (Plan Phase 1)

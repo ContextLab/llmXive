@@ -1,11 +1,36 @@
 [build-system]
-requires = ["setuptools>=45", "wheel"]
+requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmxive-quantifying-code-ownership"
+version = "0.1.0"
+description = "Quantifying the Impact of Code Ownership on Software Quality"
+requires-python = ">=3.11"
+dependencies = [
+    "GitPython>=3.1.40",
+    "scikit-learn>=1.3.2",
+    "scipy>=1.11.4",
+    "pandas>=2.1.4",
+    "numpy>=1.26.2",
+    "radon>=6.0.1",
+    "matplotlib>=3.8.2",
+    "pyyaml>=6.0.1",
+]
+
+[project.optional-dependencies]
+dev = [
+    "flake8>=6.1.0",
+    "black>=23.12.1",
+    "isort>=5.13.2",
+    "mypy>=1.8.0",
+    "pytest>=7.4.3",
+]
 
 [tool.black]
 line-length = 88
 target-version = ['py311']
-include = '\\.pyi?$'
+include = '\.pyi?$'
 exclude = '''
 /(
     \.git
@@ -17,5 +42,33 @@ exclude = '''
   | buck-out
   | build
   | dist
+  | data/raw
+  | data/intermediate
+  | data/ownership_metrics
 )/
 '''
+
+[tool.isort]
+profile = "black"
+line_length = 88
+skip_glob = [
+    "data/raw/*",
+    "data/intermediate/*",
+    "data/ownership_metrics/*",
+]
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+ignore_missing_imports = true
+exclude = [
+    "data/raw/",
+    "data/intermediate/",
+    "data/ownership_metrics/",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v --tb=short"

@@ -1,11 +1,33 @@
-status: none
-intent: NCBI GEO RNA-seq count matrices plant species STRING protein interactions
-  python package dataset
-required_fields:
-- gene_id
-- sample_id
-- raw_count
+status: verified
+kind: pypi_package
+ref: GEOparse
+access_python: "import GEOparse\nimport pandas as pd\n\nseries = \"GSE154220\"\ngse\
+  \ = GEOparse.get_GEO(series, destdir=\"./\")\n\nrecords = []\nfor gsm in gse.gsms.values():\n\
+  \    meta = gsm.metadata\n    records.append({\n        \"sample_accession\": gsm.name,\n\
+  \        \"geo_series_accession\": gse.name,\n        \"title\": meta.get(\"title\"\
+  , [\"\"])[0],\n        \"organism\": meta.get(\"organism_ch1\", [\"\"])[0],\n  \
+  \      \"platform_id\": meta.get(\"platform_id\", [\"\"])[0],\n        \"submission_date\"\
+  : meta.get(\"submission_date\", [\"\"])[0],\n    })\n\ndf = pd.DataFrame(records)\n\
+  print(f\"RECORDS={len(df)}\")\nprint(\"FIELDS=\" + \",\".join(df.columns))"
+record_count: 15
+sample_fields:
+- sample_accession
+- geo_series_accession
+- title
 - organism
-cache_key: 41b86e2b37e3733400e3e349fba59948b05c5cfbc4f89c4e393d604b6fccf012
-searched_at: '2026-07-31T02:01:49.797374+00:00'
-retry_count: 1
+- platform_id
+- submission_date
+field_coverage: 0.556
+required_fields:
+- sample_accession
+- geo_series_accession
+- gene_id (e.g., Ensembl or TAIR)
+- raw_read_count
+- species_name
+- library_layout
+- sequencing_platform
+- experiment_title
+- submission_date
+intent: "download Arabidopsis thaliana bulk RNA\u2011seq count matrices from NCBI\
+  \ GEO python package dataset"
+cache_key: bf1a3fa9c727c79d9ecc5618249e4d23221cbab99a291be386a7164926f80a4f
