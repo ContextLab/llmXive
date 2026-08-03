@@ -5,7 +5,7 @@
 
 ## Summary
 
-This feature implements a computational study to quantify the relationship between network topology (specifically small-world rewiring probability) and the critical coupling strength required for synchronization in the Kuramoto model. The approach involves generating 50 network instances via Watts-Strogatz rewiring starting from a **synthetic regular ring lattice** of N=500 nodes, simulating Kuramoto dynamics using `scipy.integrate.odeint`, and performing statistical correlation analysis (Spearman) on the results. The implementation prioritizes CPU feasibility, reproducibility, and strict adherence to the project constitution regarding data hygiene and numerical stability.
+This feature implements a computational study to quantify the relationship between network topology (specifically small-world rewiring probability) and the critical coupling strength required for synchronization in the Kuramoto model. The approach involves generating network instances via Watts-Strogatz rewiring starting from a **synthetic regular ring lattice** of N=500 nodes, simulating Kuramoto dynamics using `scipy.integrate.odeint`, and performing statistical correlation analysis (Spearman) on the results. The implementation prioritizes CPU feasibility, reproducibility, and strict adherence to the project constitution regarding data hygiene and numerical stability.
 
 **Critical Methodological Correction**: The original spec (User Story 1, FR-001) mandates using the 'ca-AstroPh' citation network as a base for reconstruction into a regular ring lattice. This is methodologically incoherent, as an irregular citation network cannot be 'reconstructed' into a regular lattice without discarding its structure. This plan explicitly **replaces** the ca-AstroPh base with a synthetic regular ring lattice of N=500 nodes to ensure the Watts-Strogatz parameter `p` retains its standard theoretical meaning. **This change is flagged for a spec kickback** to align the spec with the valid scientific methodology. The study is now purely synthetic.
 
@@ -15,7 +15,7 @@ This feature implements a computational study to quantify the relationship betwe
 **Primary Dependencies**: `networkx` (graph generation), `scipy` (integration, stats), `numpy` (numerical ops), `pandas` (data handling), `pyyaml` (contracts).  
 **Storage**: Local files under `data/` (generated network instances, simulation results). No external dataset downloads required.  
 **Testing**: `pytest` (unit tests for graph generation, integration tests for simulation pipeline).  
-**Target Platform**: GitHub Actions `ubuntu-latest` (2-core CPU, 7GB RAM, no GPU).  
+**Target Platform**: GitHub Actions `ubuntu-latest` (-core CPU, 7GB RAM, no GPU).  
 **Project Type**: Computational Physics Research / CLI Tool.  
 **Performance Goals**: Complete 50 topologies × [deferred] time steps simulation within ≤ 6 hours on free-tier CI.  
 **Constraints**: No GPU/CUDA; double precision only; fixed random seeds; deterministic integrator settings.  
