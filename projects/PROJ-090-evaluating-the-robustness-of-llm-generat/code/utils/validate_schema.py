@@ -4,184 +4,165 @@ import sys
 from pathlib import Path
 from typing import List, Dict, Any, Optional
 
-def load_json_file(file_path: str) -> Any:
-    """Load a JSON file and return its contents."""
-    path = Path(file_path)
-    if not path.exists():
-        raise FileNotFoundError(f"JSON file not found: {file_path}")
-    
-    with open(path, 'r', encoding='utf-8') as f:
-        return json.load(f)
+def load_json_file(path: Path) -> Any:
+    """Load and parse a JSON file."""
+    try:
+        with open(path, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except FileNotFoundError:
+        raise FileNotFoundError(f"Input file not found: {path}")
+    except json.JSONDecodeError as e:
+        raise ValueError(f"Invalid JSON in {path}: {e}")
 
-def validate_raw_schema(data: Any) -> bool:
+def load_schema_file(path: Path) -> Dict[str, Any]:
+    """Load and parse a JSON schema file."""
+    try:
+        with open(path, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except FileNotFoundError:
+        raise FileNotFoundError(f"Schema file not found: {path}")
+    except json.JSONDecodeError as e:
+        raise ValueError(f"Invalid JSON in schema {path}: {e}")
+
+def validate_against_schema(data: Any, schema: Dict[str, Any]) -> List[str]:
     """
-    Validate the raw perturbation candidates schema.
-    Expected format: List of dictionaries with task_id, perturbation_type, raw_score, is_valid.
+    Validate data against a JSON schema (draft-07 compatible subset).
+    Returns a list of error messages. If empty, validation passed.
+    
+    Supports: type, required, properties, items (for lists), additionalProperties.
     """
-    if not isinstance(data, list):
-        print("ERROR: Raw data must be a list.")
+    errors: List[str] = []
+    
+    # Type check
+    if 'type' in schema:
+        expected_type = schema['type']
+        if expected_type == 'object':
+            if not isinstance(data, dict):
+                errors.append(f"Expected object, got {type(data).__name__}")
+        elif expected_type == 'array':
+            if not isinstance(data, list):
+                errors.append(f"Expected array, got {type(data).__name__}")
+        elif expected_type == 'string':
+            if not isinstance(data, str):
+                errors.append(f"Expected string, got {type(data).__name__}")
+        elif expected_type == 'number':
+            if not isinstance(data, (int, float)):
+                errors.append(f"Expected number, got {type(data).__name__}")
+        elif expected_type == 'boolean':
+            if not isinstance(data, bool):
+                errors.append(f"Expected boolean, got {type(data).__name__}")
+        elif expected_type == 'integer':
+            if not isinstance(data, int) or isinstance(data, bool):
+                errors.append(f"Expected integer, got {type(data).__name__}")
+    
+    # Required fields (for objects)
+    if isinstance(data, dict) and 'required' in schema:
+        for field in schema['required']:
+            if field not in data:
+                errors.append(f"Missing required field: '{field}'")
+    
+    # Properties (for objects)
+    if isinstance(data, dict) and 'properties' in schema:
+        for prop_name, prop_schema in schema['properties'].items():
+            if prop_name in data:
+                prop_errors = validate_against_schema(data[prop_name], prop_schema)
+                for err in prop_errors:
+                    errors.append(f"Field '{prop_name}': {err}")
+        
+        # Check for additional properties if not allowed
+        if schema.get('additionalProperties') is False:
+            allowed = set(schema.get('properties', {}).keys())
+            extra = set(data.keys()) - allowed
+            if extra:
+                errors.append(f"Additional properties not allowed: {extra}")
+    
+    # Items (for arrays)
+    if isinstance(data, list) and 'items' in schema:
+        for i, item in enumerate(data):
+            item_errors = validate_against_schema(item, schema['items'])
+            for err in item_errors:
+                errors.append(f"Item [{i}]: {err}")
+    
+    return errors
+
+def validate_raw_schema(input_path: Path, schema_path: Path) -> bool:
+    """
+    Validate a raw perturbation candidates file against the schema.
+    Returns True if valid, False otherwise.
+    """
+    try:
+        data = load_json_file(input_path)
+        schema = load_schema_file(schema_path)
+    except (FileNotFoundError, ValueError) as e:
+        print(f"Error loading files: {e}", file=sys.stderr)
         return False
     
-    required_fields = ['task_id', 'perturbation_type', 'raw_score', 'is_valid']
+    if not isinstance(data, list):
+        print("Error: Input file must contain a JSON array.", file=sys.stderr)
+        return False
     
-    for i, item in enumerate(data):
-        if not isinstance(item, dict):
-            print(f"ERROR: Item {i} is not a dictionary.")
-            return False
-        
-        for field in required_fields:
-            if field not in item:
-                print(f"ERROR: Item {i} missing required field: {field}")
-                return False
-        
-        # Validate types
-        if not isinstance(item['task_id'], str):
-            print(f"ERROR: Item {i} task_id must be a string.")
-            return False
-        
-        if not isinstance(item['perturbation_type'], str):
-            print(f"ERROR: Item {i} perturbation_type must be a string.")
-            return False
-        
-        if not isinstance(item['raw_score'], (int, float)):
-            print(f"ERROR: Item {i} raw_score must be a number.")
-            return False
-        
-        if not isinstance(item['is_valid'], bool):
-            print(f"ERROR: Item {i} is_valid must be a boolean.")
-            return False
+    errors = validate_against_schema(data, schema)
     
-    print(f"Raw schema validation passed for {len(data)} items.")
+    if errors:
+        print("Validation FAILED with errors:", file=sys.stderr)
+        for err in errors:
+            print(f"  - {err}", file=sys.stderr)
+        return False
+    
+    print("Validation PASSED.")
     return True
 
-def validate_filtered_schema(data: Any) -> bool:
+def validate_filtered_schema(input_path: Path, schema_path: Path) -> bool:
     """
-    Validate the filtered perturbation candidates schema.
-    Expected format: List of dictionaries with task_id, perturbation_type, raw_score.
-    All items should have raw_score > 0.95.
+    Validate a filtered perturbation candidates file against the schema.
+    Same logic as validate_raw_schema but with specific error context if needed.
+    Currently identical, but kept separate for future differentiation.
     """
-    if not isinstance(data, list):
-        print("ERROR: Filtered data must be a list.")
-        return False
-    
-    if len(data) == 0:
-        print("WARNING: Filtered data is empty.")
-        return True
-    
-    required_fields = ['task_id', 'perturbation_type', 'raw_score']
-    
-    for i, item in enumerate(data):
-        if not isinstance(item, dict):
-            print(f"ERROR: Item {i} is not a dictionary.")
-            return False
-        
-        for field in required_fields:
-            if field not in item:
-                print(f"ERROR: Item {i} missing required field: {field}")
-                return False
-        
-        # Validate types
-        if not isinstance(item['task_id'], str):
-            print(f"ERROR: Item {i} task_id must be a string.")
-            return False
-        
-        if not isinstance(item['perturbation_type'], str):
-            print(f"ERROR: Item {i} perturbation_type must be a string.")
-            return False
-        
-        if not isinstance(item['raw_score'], (int, float)):
-            print(f"ERROR: Item {i} raw_score must be a number.")
-            return False
-        
-        # Validate score threshold
-        if item['raw_score'] <= 0.95:
-            print(f"ERROR: Item {i} raw_score ({item['raw_score']}) must be > 0.95.")
-            return False
-    
-    print(f"Filtered schema validation passed for {len(data)} items.")
-    return True
+    return validate_raw_schema(input_path, schema_path)
 
-def validate_error_classification_schema(data: Any) -> bool:
+def validate_error_classification_schema(input_path: Path, schema_path: Path) -> bool:
     """
-    Validate the error classification report schema.
-    Expected format: List of dictionaries with task_id, perturbation_type, classification.
+    Validate an error classification report file against a schema.
+    Currently uses the same generic validator.
     """
-    if not isinstance(data, list):
-        print("ERROR: Error classification data must be a list.")
-        return False
-    
-    if len(data) == 0:
-        print("WARNING: Error classification data is empty.")
-        return True
-    
-    required_fields = ['task_id', 'perturbation_type', 'classification']
-    
-    for i, item in enumerate(data):
-        if not isinstance(item, dict):
-            print(f"ERROR: Item {i} is not a dictionary.")
-            return False
-        
-        for field in required_fields:
-            if field not in item:
-                print(f"ERROR: Item {i} missing required field: {field}")
-                return False
-        
-        # Validate types
-        if not isinstance(item['task_id'], str):
-            print(f"ERROR: Item {i} task_id must be a string.")
-            return False
-        
-        if not isinstance(item['perturbation_type'], str):
-            print(f"ERROR: Item {i} perturbation_type must be a string.")
-            return False
-        
-        if not isinstance(item['classification'], str):
-            print(f"ERROR: Item {i} classification must be a string.")
-            return False
-        
-        if item['classification'] not in ['syntax', 'logic', 'unknown']:
-            print(f"ERROR: Item {i} classification must be 'syntax', 'logic', or 'unknown'.")
-            return False
-    
-    # Check max size constraint (<= 50)
-    if len(data) > 50:
-        print(f"ERROR: Error classification report must have <= 50 items, found {len(data)}.")
-        return False
-    
-    print(f"Error classification schema validation passed for {len(data)} items.")
-    return True
+    return validate_raw_schema(input_path, schema_path)
 
 def main():
-    """Main entry point for schema validation."""
-    parser = argparse.ArgumentParser(description='Validate JSON schema for perturbation and error classification outputs.')
-    parser.add_argument('--input', type=str, required=True, help='Path to the input JSON file.')
-    parser.add_argument('--type', type=str, choices=['raw', 'filtered', 'error_classification'], 
-                      default='filtered', help='Type of schema to validate.')
+    parser = argparse.ArgumentParser(
+        description="Validate JSON files against a JSON schema."
+    )
+    parser.add_argument(
+        "--input", "-i",
+        required=True,
+        type=Path,
+        help="Path to the input JSON file to validate."
+    )
+    parser.add_argument(
+        "--schema", "-s",
+        required=True,
+        type=Path,
+        help="Path to the JSON schema file."
+    )
+    parser.add_argument(
+        "--type", "-t",
+        choices=["raw", "filtered", "error_classification"],
+        default="raw",
+        help="Type of validation to perform (default: raw)."
+    )
     
     args = parser.parse_args()
     
-    try:
-        data = load_json_file(args.input)
-    except Exception as e:
-        print(f"ERROR: Failed to load JSON file: {e}")
+    if args.type == "raw":
+        success = validate_raw_schema(args.input, args.schema)
+    elif args.type == "filtered":
+        success = validate_filtered_schema(args.input, args.schema)
+    elif args.type == "error_classification":
+        success = validate_error_classification_schema(args.input, args.schema)
+    else:
+        print(f"Unknown validation type: {args.type}", file=sys.stderr)
         sys.exit(1)
     
-    if args.type == 'raw':
-        success = validate_raw_schema(data)
-    elif args.type == 'filtered':
-        success = validate_filtered_schema(data)
-    elif args.type == 'error_classification':
-        success = validate_error_classification_schema(data)
-    else:
-        print(f"ERROR: Unknown schema type: {args.type}")
-        sys.exit(1)
-    
-    if success:
-        print("Validation successful.")
-        sys.exit(0)
-    else:
-        print("Validation failed.")
-        sys.exit(1)
+    sys.exit(0 if success else 1)
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

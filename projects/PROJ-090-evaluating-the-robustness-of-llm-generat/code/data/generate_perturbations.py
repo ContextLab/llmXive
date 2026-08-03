@@ -1,13 +1,3 @@
-"""
-Perturbation generation pipeline for HumanEval tasks.
-
-Implements T017: Generates up to 3 candidates (one per transformation type: synonym, typo, rephrase)
-per task. Persists the full unfiltered list of all generated candidates to
-data/processed/perturbation_candidates_raw.json.
-
-Dependency: T012 (download_humaneval), T013 (substitute_synonyms), T014 (inject_typos), T015 (rephrase_syntax)
-"""
-
 import json
 import logging
 import os
@@ -17,198 +7,184 @@ from collections import Counter
 from pathlib import Path
 from typing import List, Dict, Any, Optional
 
-# Import from project API surface
+# Import from existing API surface
+from config import get_seed_global, get_budget_generations, ensure_directories
 from data.perturbations import substitute_synonyms, inject_typos, rephrase_syntax
-from data.download_humaneval import download_humaneval
-from config import ensure_directories, get_seed_global, get_budget_generations
 from utils.logging import get_perturbation_logger, init_logging
 
 # Constants
-TRANSFORMATION_TYPES = ["synonym", "typo", "rephrase"]
+BUDGET_CAP = 656
 MAX_CANDIDATES_PER_TASK = 3
-OUTPUT_FILE = "data/processed/perturbation_candidates_raw.json"
+TRANSFORMATION_TYPES = ["rephrase", "synonym", "typo"]  # Sorted alphabetically for determinism
 
 def setup_logging():
     """Initialize logging for the perturbation generation pipeline."""
-    init_logging()
-    return get_perturbation_logger(__name__)
+    ensure_directories()
+    logger = get_perturbation_logger()
+    logger.setLevel(logging.INFO)
+    if not logger.handlers:
+        handler = logging.StreamHandler(sys.stdout)
+        handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
+        logger.addHandler(handler)
+    return logger
 
-def load_humaneval_tasks(logger: logging.Logger) -> List[Dict[str, Any]]:
+def load_humaneval_tasks() -> List[Dict[str, Any]]:
+    """Load HumanEval tasks from the downloaded dataset."""
+    data_path = Path("data/processed/humaneval_tasks.json")
+    if not data_path.exists():
+        raise FileNotFoundError(f"HumanEval dataset not found at {data_path}. Run T012 first.")
+    
+    with open(data_path, 'r', encoding='utf-8') as f:
+        tasks = json.load(f)
+    
+    return tasks
+
+def generate_single_candidate(task: Dict[str, Any], perturbation_type: str, logger: logging.Logger) -> Dict[str, Any]:
     """
-    Load HumanEval tasks from the dataset.
+    Generate a single perturbed candidate for a given task and perturbation type.
     
     Args:
-        logger: Logger instance for tracking progress.
+        task: The original HumanEval task dictionary.
+        perturbation_type: One of 'synonym', 'typo', 'rephrase'.
+        logger: Logger instance.
         
     Returns:
-        List of task dictionaries with 'task_id', 'prompt', and 'canonical_solution'.
-    """
-    logger.info("Loading HumanEval dataset...")
-    try:
-        tasks = download_humaneval()
-        logger.info(f"Loaded {len(tasks)} HumanEval tasks")
-        return tasks
-    except Exception as e:
-        logger.error(f"Failed to load HumanEval dataset: {e}")
-        raise
-
-def generate_single_candidate(
-    task_id: str,
-    prompt: str,
-    perturbation_type: str,
-    logger: logging.Logger
-) -> Optional[Dict[str, Any]]:
-    """
-    Generate a single perturbation candidate for a given task and type.
-    
-    Args:
-        task_id: Unique identifier for the task.
-        prompt: Original prompt text.
-        perturbation_type: One of "synonym", "typo", "rephrase".
-        logger: Logger instance for tracking progress.
-        
-    Returns:
-        Dictionary with candidate details, or None if generation fails.
-    """
-    try:
-        if perturbation_type == "synonym":
-            candidate_text = substitute_synonyms(prompt)
-        elif perturbation_type == "typo":
-            candidate_text = inject_typos(prompt)
-        elif perturbation_type == "rephrase":
-            candidate_text = rephrase_syntax(prompt)
-        else:
-            logger.warning(f"Unknown perturbation type: {perturbation_type}")
-            return None
-        
-        # For T017, we generate the candidate and log a raw_score placeholder.
-        # The actual semantic similarity score will be computed in T016.
-        # We use a placeholder of 1.0 here to indicate "generated successfully".
-        # The validation step (T016) will replace this with the real score.
-        raw_score = 1.0  # Placeholder; will be updated by semantic_validator.py
-        
-        candidate = {
-            "task_id": task_id,
-            "perturbation_type": perturbation_type,
-            "raw_score": raw_score,
-            "is_valid": False,  # Will be updated by semantic_validator.py
-            "candidate_text": candidate_text
+        A dictionary containing the candidate data with schema:
+        {
+            "task_id": str,
+            "perturbation_type": str,
+            "raw_score": float,
+            "is_valid": bool,
+            "candidate_text": str
         }
-        
-        logger.debug(f"Generated {perturbation_type} candidate for {task_id}")
-        return candidate
-        
-    except Exception as e:
-        logger.error(f"Failed to generate {perturbation_type} candidate for {task_id}: {e}")
-        return None
+    Note:
+        raw_score and is_valid are placeholders here as per T017 scope.
+        T016 will compute the actual semantic similarity scores.
+    """
+    task_id = task["task_id"]
+    original_prompt = task["prompt"]
+    
+    # Select the appropriate perturbation function
+    if perturbation_type == "synonym":
+        candidate_text = substitute_synonyms(original_prompt)
+    elif perturbation_type == "typo":
+        candidate_text = inject_typos(original_prompt)
+    elif perturbation_type == "rephrase":
+        candidate_text = rephrase_syntax(original_prompt)
+    else:
+        raise ValueError(f"Unknown perturbation type: {perturbation_type}")
+    
+    # T017 Requirement: Log raw score for EVERY candidate.
+    # Since T016 (semantic validation) has not run yet, we set:
+    # - raw_score: 0.0 (placeholder, to be updated by T016)
+    # - is_valid: False (placeholder, to be updated by T016)
+    # This ensures the schema is complete and T016 can update these fields.
+    candidate = {
+        "task_id": task_id,
+        "perturbation_type": perturbation_type,
+        "raw_score": 0.0,  # Placeholder for T016
+        "is_valid": False, # Placeholder for T016
+        "candidate_text": candidate_text
+    }
+    
+    logger.info(f"Generated candidate for task {task_id} (type: {perturbation_type})")
+    return candidate
 
-def generate_and_filter_perturbations(
-    tasks: List[Dict[str, Any]],
-    logger: logging.Logger
-) -> List[Dict[str, Any]]:
+def generate_and_filter_perturbations(tasks: List[Dict[str, Any]], logger: logging.Logger) -> List[Dict[str, Any]]:
     """
     Generate up to 3 candidates per task (one per transformation type).
+    Enforce the global budget cap of 656.
     
-    Args:
-        tasks: List of HumanEval task dictionaries.
-        logger: Logger instance for tracking progress.
-        
+    Logic:
+    1. Sort tasks by task_id ascending for deterministic ordering.
+    2. Iterate through transformation types (alphabetically: rephrase, synonym, typo).
+    3. Generate candidate.
+    4. Add to pool if under budget.
+    5. Stop when budget is reached.
+    
     Returns:
-        List of all generated candidates (unfiltered).
+        List of candidate dictionaries.
     """
-    all_candidates = []
-    budget = get_budget_generations()
+    random.seed(get_seed_global())
     
-    logger.info(f"Starting perturbation generation for {len(tasks)} tasks (budget: {budget})")
+    # Sort tasks by task_id for deterministic processing
+    sorted_tasks = sorted(tasks, key=lambda x: x["task_id"])
     
-    for task in tasks:
-        task_id = task.get("task_id", task.get("prompt_id", "unknown"))
-        prompt = task.get("prompt", "")
+    candidates_pool = []
+    budget_remaining = BUDGET_CAP
+    
+    # Iterate through transformation types
+    for pert_type in TRANSFORMATION_TYPES:
+        if budget_remaining <= 0:
+            logger.warning(f"Budget cap ({BUDGET_CAP}) reached. Stopping generation.")
+            break
         
-        if not prompt:
-            logger.warning(f"Skipping task {task_id}: empty prompt")
-            continue
-        
-        task_candidates = []
-        
-        # Generate one candidate per transformation type
-        for perturbation_type in TRANSFORMATION_TYPES:
-            if len(task_candidates) >= MAX_CANDIDATES_PER_TASK:
+        for task in sorted_tasks:
+            if budget_remaining <= 0:
                 break
             
-            candidate = generate_single_candidate(task_id, prompt, perturbation_type, logger)
-            if candidate:
-                task_candidates.append(candidate)
-                all_candidates.append(candidate)
-        
-        logger.info(f"Generated {len(task_candidates)} candidates for {task_id}")
+            try:
+                candidate = generate_single_candidate(task, pert_type, logger)
+                candidates_pool.append(candidate)
+                budget_remaining -= 1
+            except Exception as e:
+                logger.error(f"Error generating candidate for task {task['task_id']} type {pert_type}: {e}")
+                # Continue to next task even if one fails
+                continue
     
-    logger.info(f"Total candidates generated: {len(all_candidates)}")
-    return all_candidates
+    logger.info(f"Generation complete. Total candidates: {len(candidates_pool)}")
+    return candidates_pool
 
 def save_candidates_pool(candidates: List[Dict[str, Any]], logger: logging.Logger):
     """
-    Save all generated candidates to the raw output file.
+    Save the full unfiltered list of candidates to data/processed/perturbation_candidates_raw.json.
     
-    Args:
-        candidates: List of candidate dictionaries.
-        logger: Logger instance for tracking progress.
+    Schema:
+    [
+      {
+        "task_id": str,
+        "perturbation_type": str,
+        "raw_score": float,
+        "is_valid": bool,
+        "candidate_text": str
+      },
+      ...
+    ]
     """
-    ensure_directories()
-    output_path = Path(OUTPUT_FILE)
+    output_path = Path("data/processed/perturbation_candidates_raw.json")
     
-    logger.info(f"Saving {len(candidates)} candidates to {output_path}")
+    with open(output_path, 'w', encoding='utf-8') as f:
+        json.dump(candidates, f, indent=2)
     
-    try:
-        with open(output_path, 'w', encoding='utf-8') as f:
-            json.dump(candidates, f, indent=2, ensure_ascii=False)
-        logger.info(f"Successfully saved candidates to {output_path}")
-    except Exception as e:
-        logger.error(f"Failed to save candidates: {e}")
-        raise
+    logger.info(f"Saved {len(candidates)} candidates to {output_path}")
+    
+    # Verification: Check that no task has more than 3 candidates
+    counts = Counter(c["task_id"] for c in candidates)
+    max_count = max(counts.values()) if counts else 0
+    logger.info(f"Max candidates per task: {max_count}")
+    if max_count > MAX_CANDIDATES_PER_TASK:
+        logger.warning(f"Verification failed: Some tasks have more than {MAX_CANDIDATES_PER_TASK} candidates.")
+    else:
+        logger.info("Verification passed: All tasks have <= 3 candidates.")
 
 def main():
-    """Main entry point for the perturbation generation pipeline."""
+    """Main entry point for T017."""
     logger = setup_logging()
+    logger.info("Starting perturbation generation pipeline (T017)...")
     
     try:
-        # Set global seed for reproducibility
-        seed = get_seed_global()
-        random.seed(seed)
-        logger.info(f"Using global seed: {seed}")
+        tasks = load_humaneval_tasks()
+        logger.info(f"Loaded {len(tasks)} HumanEval tasks.")
         
-        # Load HumanEval tasks
-        tasks = load_humaneval_tasks(logger)
-        
-        if not tasks:
-            logger.error("No tasks loaded from HumanEval dataset")
-            sys.exit(1)
-        
-        # Generate perturbations
         candidates = generate_and_filter_perturbations(tasks, logger)
         
-        if not candidates:
-            logger.warning("No candidates generated")
-            # Still save an empty list to maintain pipeline structure
-            save_candidates_pool([], logger)
-            sys.exit(0)
-        
-        # Save the full unfiltered list
         save_candidates_pool(candidates, logger)
         
-        # Verification: Check that each task has exactly 3 candidates
-        task_counts = Counter(c["task_id"] for c in candidates)
-        logger.info(f"Candidate counts per task: {dict(task_counts)}")
-        
-        # Log summary
-        type_counts = Counter(c["perturbation_type"] for c in candidates)
-        logger.info(f"Candidate counts by type: {dict(type_counts)}")
-        
-        logger.info("Perturbation generation pipeline completed successfully")
+        logger.info("T017 completed successfully.")
         
     except Exception as e:
         logger.error(f"Pipeline failed: {e}")
-        sys.exit(1)
+        raise
 
 if __name__ == "__main__":
     main()

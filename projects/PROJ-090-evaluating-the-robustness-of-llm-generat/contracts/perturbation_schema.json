@@ -1,43 +1,33 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://llmxive.org/schemas/perturbation_schema_v1.json",
-  "title": "Perturbation Output Schema",
-  "description": "Schema for perturbation candidates generated in User Story 1. Ensures consistent structure for filtering and analysis.",
-  "version": "1.0",
+  "title": "Perturbation Output Schema v1.0",
+  "description": "Schema for validating perturbation generation and validation output in the robustness evaluation pipeline.",
   "type": "object",
   "properties": {
     "task_id": {
       "type": "string",
-      "description": "Unique identifier for the original HumanEval task (e.g., 'HumanEval/0').",
-      "pattern": "^HumanEval/\\d+$"
+      "description": "Unique identifier for the original HumanEval task."
     },
     "perturbation_type": {
       "type": "string",
-      "description": "Type of perturbation applied.",
-      "enum": ["synonym", "typo", "rephrase"]
+      "enum": ["synonym", "typo", "rephrase"],
+      "description": "The type of perturbation applied to the original prompt."
     },
     "raw_score": {
       "type": "number",
-      "description": "Raw semantic similarity score (cosine similarity) calculated against the original prompt.",
       "minimum": 0.0,
-      "maximum": 1.0
+      "maximum": 1.0,
+      "description": "The raw semantic similarity score (cosine similarity) calculated before any filtering threshold is applied."
     },
     "is_valid": {
       "type": "boolean",
-      "description": "True if the perturbation meets the strict semantic threshold (>0.95) and other validity checks."
+      "description": "Indicates whether the perturbation passed the semantic similarity threshold (currently > 0.95)."
     },
-    "reason": {
+    "candidate_text": {
       "type": "string",
-      "description": "Explanation for why the candidate was included or excluded (e.g., 'Score 0.96 > 0.95 threshold' or 'Score 0.88 < 0.95 threshold')."
-    },
-    "original_prompt": {
-      "type": "string",
-      "description": "The original prompt text from HumanEval."
-    },
-    "perturbed_prompt": {
-      "type": "string",
-      "description": "The text after perturbation was applied."
+      "description": "The full text of the perturbed prompt."
     }
   },
-  "required": ["task_id", "perturbation_type", "raw_score", "is_valid", "reason"]
+  "required": ["task_id", "perturbation_type", "raw_score", "is_valid", "candidate_text"],
+  "additionalProperties": false
 }

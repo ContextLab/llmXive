@@ -1,259 +1,171 @@
-"""
-Semantic Validator Module.
-
-Implements semantic similarity validation for perturbation candidates using
-sentence-transformers. Ensures strict adherence to the >0.95 threshold (FR-003).
-Handles zero-yield conditions by generating a halt report and exiting with code 1.
-"""
 import json
 import sys
 import logging
 from pathlib import Path
 from typing import List, Dict, Any, Tuple, Optional
-
 import torch
-from sentence_transformers import SentenceTransformer, util
+from sentence_transformers import SentenceTransformer
 
-# Local imports based on project API surface
-from config import get_semantic_threshold, get_config_dict, ensure_directories
+from config import ensure_directories, get_semantic_threshold
 from utils.logging import init_logging, get_perturbation_logger
 
 # Constants
-MODEL_ID = "sentence-transformers/all-MiniLM-L6-v2"
-DEFAULT_THRESHOLD = 0.95
-RAW_INPUT_FILE = "data/processed/perturbation_candidates_raw.json"
-VALIDATED_OUTPUT_FILE = "data/processed/perturbation_candidates_validated.json"
-HALT_REPORT_FILE = "data/logs/halt_report.json"
-
-# Module logger
-logger = None
+MODEL_NAME = "sentence-transformers/all-MiniLM-L6-v2"
+RAW_INPUT_PATH = "data/processed/perturbation_candidates_raw.json"
+VALIDATED_OUTPUT_PATH = "data/processed/perturbation_candidates_validated.json"
+HALT_REPORT_PATH = "data/logs/halt_report.json"
+THRESHOLD = 0.95
 
 def get_model() -> SentenceTransformer:
-    """
-    Load the semantic similarity model.
-    Uses CPU to ensure compatibility with the project's CPU-first strategy.
-    """
-    global logger
-    if logger is None:
-        init_logging()
-        logger = get_perturbation_logger()
-    
-    logger.info(f"Loading semantic model: {MODEL_ID}")
-    # Explicitly set device to CPU to avoid CUDA dependency issues in this pipeline
-    model = SentenceTransformer(MODEL_ID, device='cpu')
-    logger.info("Model loaded successfully.")
+    """Load the sentence transformer model."""
+    logger = logging.getLogger("semantic_validator")
+    logger.info(f"Loading model: {MODEL_NAME}")
+    model = SentenceTransformer(MODEL_NAME)
+    model.eval()
     return model
 
-def compute_similarity(model: SentenceTransformer, original_text: str, candidate_text: str) -> float:
-    """
-    Compute cosine similarity between two text strings.
-    
-    Args:
-        model: The loaded SentenceTransformer model.
-        original_text: The original code/prompt text.
-        candidate_text: The perturbed candidate text.
-        
-    Returns:
-        Cosine similarity score (float between 0 and 1).
-    """
-    embeddings = model.encode([original_text, candidate_text], convert_to_tensor=True)
-    cosine_score = util.cos_sim(embeddings[0], embeddings[1])
-    return float(cosine_score.item())
+def compute_similarity(
+    model: SentenceTransformer, text_a: str, text_b: str
+) -> float:
+    """Compute cosine similarity between two texts."""
+    embeddings = model.encode([text_a, text_b], convert_to_tensor=True)
+    cosine_sim = torch.nn.functional.cosine_similarity(
+        embeddings[0].unsqueeze(0), embeddings[1].unsqueeze(0)
+    )
+    return float(cosine_sim.item())
 
-def validate_perturbation(model: SentenceTransformer, candidate: Dict[str, Any], original_task: Dict[str, Any]) -> Dict[str, Any]:
+def validate_perturbation(
+    model: SentenceTransformer, original: str, candidate: str, threshold: float
+) -> Tuple[float, bool]:
     """
-    Validate a single perturbation candidate against its original task.
-    
-    Updates the candidate dictionary with 'is_valid' and 'validated_score'.
+    Validate a single perturbation candidate.
+    Returns (similarity_score, is_valid).
     """
-    original_code = original_task.get("prompt", "")
-    candidate_code = candidate.get("candidate_text", "")
-    
-    if not original_code or not candidate_code:
-        candidate["is_valid"] = False
-        candidate["validated_score"] = 0.0
-        candidate["validation_error"] = "Missing text content"
-        return candidate
-
-    try:
-        score = compute_similarity(model, original_code, candidate_code)
-        candidate["validated_score"] = score
-        
-        # Strict threshold check per FR-003
-        threshold = get_semantic_threshold()
-        candidate["is_valid"] = score > threshold
-        
-        return candidate
-    except Exception as e:
-        global logger
-        if logger is None:
-            init_logging()
-            logger = get_perturbation_logger()
-        logger.error(f"Validation failed for candidate {candidate.get('task_id')}: {str(e)}")
-        candidate["is_valid"] = False
-        candidate["validated_score"] = 0.0
-        candidate["validation_error"] = str(e)
-        return candidate
+    score = compute_similarity(model, original, candidate)
+    is_valid = score > threshold
+    return score, is_valid
 
 def load_raw_candidates() -> List[Dict[str, Any]]:
-    """
-    Load the raw perturbation candidates from the JSON file generated by T017.
-    """
-    raw_path = Path(RAW_INPUT_FILE)
-    if not raw_path.exists():
-        raise FileNotFoundError(f"Raw candidates file not found: {raw_path}")
-    
-    with open(raw_path, 'r', encoding='utf-8') as f:
-        data = json.load(f)
-    
-    if not isinstance(data, list):
-        raise ValueError(f"Expected a list in {raw_path}, got {type(data)}")
-    
-    return data
+    """Load the raw candidates from the previous step."""
+    path = Path(RAW_INPUT_PATH)
+    if not path.exists():
+        raise FileNotFoundError(f"Raw candidates file not found: {path}")
+    with open(path, "r", encoding="utf-8") as f:
+        return json.load(f)
 
 def save_validated_candidates(candidates: List[Dict[str, Any]]) -> None:
-    """
-    Save the validated candidates to the output JSON file.
-    """
-    output_path = Path(VALIDATED_OUTPUT_FILE)
-    ensure_directories() # Ensure data/processed exists
-    
-    with open(output_path, 'w', encoding='utf-8') as f:
-        json.dump(candidates, f, indent=2, ensure_ascii=False)
-    
-    logging.info(f"Saved {len(candidates)} validated candidates to {output_path}")
+    """Save the validated candidates to disk."""
+    ensure_directories([Path(VALIDATED_OUTPUT_PATH).parent])
+    with open(VALIDATED_OUTPUT_PATH, "w", encoding="utf-8") as f:
+        json.dump(candidates, f, indent=2)
 
 def save_halt_report(reason: str) -> None:
-    """
-    Save a halt report when zero valid candidates are found.
-    """
-    report_path = Path(HALT_REPORT_FILE)
-    ensure_directories() # Ensure data/logs exists
-    
-    report = {
-        "reason": reason,
-        "timestamp": None, # Could be added if needed
-        "file": VALIDATED_OUTPUT_FILE,
-        "valid_count": 0
-    }
-    
-    with open(report_path, 'w', encoding='utf-8') as f:
+    """Save a halt report if yield is zero."""
+    ensure_directories([Path(HALT_REPORT_PATH).parent])
+    report = {"reason": reason}
+    with open(HALT_REPORT_PATH, "w", encoding="utf-8") as f:
         json.dump(report, f, indent=2)
-    
-    logging.critical(f"Halt condition triggered: {reason}. Report saved to {report_path}")
 
-def validate_perturbation_batch(candidates: List[Dict[str, Any]]) -> Tuple[List[Dict[str, Any]], int]:
+def validate_perturbation_batch(
+    candidates: List[Dict[str, Any]], model: SentenceTransformer
+) -> List[Dict[str, Any]]:
     """
-    Validate a batch of candidates.
-    
-    Note: This implementation assumes the raw candidates list contains all generated variants.
-    To correctly map candidates to original tasks, we group by task_id and assume the first
-    occurrence of a task_id in the raw list (or a separate lookup) provides the 'original' text.
-    However, the raw generation (T017) likely stores the original prompt in the candidate object
-    or we need to reconstruct it.
-    
-    Strategy: Group by task_id. The 'original' prompt is needed. 
-    If the raw file doesn't explicitly store the original prompt alongside every candidate,
-    we must assume the first candidate for a task_id (or a specific marker) is the reference,
-    OR we rely on the fact that the perturbation functions (T013-15) were called with the original.
-    
-    Correction based on typical pipeline design: The raw file usually contains the candidate text.
-    We need the original text to compute similarity. 
-    Assumption: The 'task_id' maps to a task in the original HumanEval dataset.
-    Since we don't have the original HumanEval loaded here, we must assume the raw generation
-    step (T017) stored the 'original_prompt' in the candidate dictionary, OR we load HumanEval again.
-    
-    Robust approach: Load HumanEval again to get original prompts by task_id.
+    Validate all candidates in the batch.
+    Updates 'is_valid' and 'raw_score' fields in-place.
     """
-    from datasets import load_dataset
-    
-    # Load original HumanEval to get reference prompts
-    # This is safe as it's a small dataset and ensures we have the ground truth original
-    try:
-        humaneval = load_dataset("openai_humaneval", split="test")
-        original_prompts = {item["task_id"]: item["prompt"] for item in humaneval}
-    except Exception as e:
-        logging.error(f"Failed to load HumanEval for reference: {e}")
-        # Fallback: If we can't load original, we can't validate similarity.
-        # Mark all as invalid or raise error? Per spec: "Fail loudly".
-        raise RuntimeError("Cannot validate without original prompts from HumanEval.")
+    logger = logging.getLogger("semantic_validator")
+    validated_count = 0
 
-    model = get_model()
-    valid_count = 0
-    
-    for candidate in candidates:
-        task_id = candidate.get("task_id")
-        if task_id not in original_prompts:
-            logging.warning(f"Task ID {task_id} not found in HumanEval reference. Marking invalid.")
-            candidate["is_valid"] = False
-            candidate["validated_score"] = 0.0
-            candidate["validation_error"] = "Task ID not in reference"
+    for item in candidates:
+        original_text = item.get("original_text", "")
+        candidate_text = item.get("candidate_text", "")
+
+        if not original_text or not candidate_text:
+            logger.warning(
+                f"Skipping item {item.get('task_id')} due to missing text."
+            )
             continue
-        
-        original_text = original_prompts[task_id]
-        candidate = validate_perturbation(model, candidate, {"prompt": original_text})
-        
-        if candidate["is_valid"]:
-            valid_count += 1
-    
-    return candidates, valid_count
 
-def evaluate_feasibility(valid_count: int, total_count: int) -> bool:
-    """
-    Evaluate if the yield is sufficient.
-    Returns True if valid_count >= 1, False otherwise.
-    """
-    return valid_count >= 1
+        score, is_valid = validate_perturbation(
+            model, original_text, candidate_text, THRESHOLD
+        )
 
-def main():
+        # Update the item
+        item["raw_score"] = score
+        item["is_valid"] = is_valid
+
+        if is_valid:
+            validated_count += 1
+
+        # Log raw score for every candidate
+        logger.debug(
+            f"Task {item['task_id']} ({item['perturbation_type']}): "
+            f"Score={score:.4f}, Valid={is_valid}"
+        )
+
+    return candidates
+
+def evaluate_feasibility(candidates: List[Dict[str, Any]]) -> bool:
     """
-    Main entry point for the semantic validation task.
+    Check if the dataset has any valid candidates.
+    Returns True if valid yield > 0, False otherwise.
     """
+    return any(c.get("is_valid", False) for c in candidates)
+
+def main() -> None:
+    """Main entry point for semantic validation."""
+    # Setup logging
     init_logging()
-    global logger
     logger = get_perturbation_logger()
-    
-    logger.info("Starting Semantic Validation (T016)...")
-    
-    try:
-        # 1. Load raw candidates
-        logger.info(f"Loading raw candidates from {RAW_INPUT_FILE}")
-        candidates = load_raw_candidates()
-        total_count = len(candidates)
-        logger.info(f"Loaded {total_count} candidates.")
-        
-        if total_count == 0:
-            logger.warning("Raw candidates list is empty.")
-            # If input is empty, yield is zero -> Halt
-            save_halt_report("ZERO_YIELD_INPUT")
-            sys.exit(1)
+    logger.info("Starting Semantic Validation (T016)")
 
-        # 2. Validate batch
-        logger.info("Computing semantic similarities...")
-        validated_candidates, valid_count = validate_perturbation_batch(candidates)
-        
-        logger.info(f"Validation complete. Valid: {valid_count}, Total: {total_count}")
-        
-        # 3. Check Halt Condition
-        if valid_count < 1:
-            logger.critical("ZERO_YIELD: No valid perturbations found (score > 0.95).")
-            save_halt_report("ZERO_YIELD")
-            sys.exit(1)
-        
-        # 4. Save results
-        save_validated_candidates(validated_candidates)
-        
-        # 5. Log summary
-        valid_ratio = valid_count / total_count
-        logger.info(f"Success. Valid ratio: {valid_ratio:.4f}")
-        
-    except FileNotFoundError as e:
-        logger.error(f"File not found: {e}")
+    # Pre-check: Verify raw file exists
+    if not Path(RAW_INPUT_PATH).exists():
+        logger.error(
+            f"Pre-check failed: {RAW_INPUT_PATH} does not exist. "
+            "Please run T017 first."
+        )
+        # We log error but proceed to exit gracefully as per "fail loudly"
+        # However, task spec says: "if not, log error and exit"
         sys.exit(1)
+
+    try:
+        # Load raw candidates
+        logger.info(f"Loading raw candidates from {RAW_INPUT_PATH}")
+        candidates = load_raw_candidates()
+        logger.info(f"Loaded {len(candidates)} candidates.")
+
+        if not candidates:
+            logger.warning("Raw candidates list is empty.")
+            save_halt_report("ZERO_YIELD")
+            # Proceed with available data (empty list)
+            save_validated_candidates([])
+            return
+
+        # Load model
+        model = get_model()
+
+        # Validate batch
+        logger.info("Validating perturbations...")
+        validated_candidates = validate_perturbation_batch(candidates, model)
+
+        # Check yield
+        valid_count = sum(1 for c in validated_candidates if c.get("is_valid"))
+        logger.info(f"Validation complete. Valid count: {valid_count}/{len(validated_candidates)}")
+
+        if valid_count == 0:
+            logger.warning(
+                "ZERO_YIELD: No candidates passed the semantic threshold (>0.95). "
+                "Saving halt report and proceeding with available data (empty)."
+            )
+            save_halt_report("ZERO_YIELD")
+
+        # Save results
+        save_validated_candidates(validated_candidates)
+        logger.info(f"Saved validated candidates to {VALIDATED_OUTPUT_PATH}")
+
     except Exception as e:
-        logger.critical(f"Unexpected error during validation: {e}")
-        import traceback
-        traceback.print_exc()
+        logger.exception(f"Critical error during validation: {e}")
         sys.exit(1)
 
 if __name__ == "__main__":

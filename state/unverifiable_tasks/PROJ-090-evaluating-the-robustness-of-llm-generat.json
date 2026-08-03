@@ -1,0 +1,13 @@
+{
+  "project_id": "PROJ-090-evaluating-the-robustness-of-llm-generat",
+  "tasks": [
+    {
+      "task_key": "T017",
+      "reject_count": 1,
+      "last_reason": "The repository contains `code/data/generate_perturbations.py`, but it is incomplete (truncated) and does not show the logic that iterates over tasks, generates up to three candidates per task, enforces the 656\u2011sample cap, or writes the unfiltered list to `data/processed/perturbation_candidates_raw.json`. Moreover, the required JSON file is absent, so the core output and verification step are missing. The next implementer must finish the generation loop, ensure deterministic ordering, enforce the cap, and create the correctly\u2011structured `perturbation_candidates_raw.json` file.",
+      "first_seen": "2026-08-03T15:47:12.082000+00:00",
+      "last_seen": "2026-08-03T15:47:12.082000+00:00"
+    }
+  ],
+  "updated_at": "2026-08-03T15:47:12.082000+00:00"
+}

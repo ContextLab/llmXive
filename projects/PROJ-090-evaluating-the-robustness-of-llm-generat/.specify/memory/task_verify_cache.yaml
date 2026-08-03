@@ -1,12 +1,35 @@
-T017:
+T009a:
   c: false
-  h: 95555c9cfd94a8ba411f0ffbcfd4305198f708063e407a84e56ad3c1f65366d5
-  r: "The required output file `data/processed/perturbation_candidates_raw.json` does\
-    \ not exist, so the pipeline\u2019s persistence requirement is unmet (and the\
-    \ script\u2019s truncated implementation leaves doubt about generating exactly\
-    \ three candidates per task and logging the full schema). The next implementer\
-    \ must ensure the script writes a correctly\u2011structured JSON file with three\
-    \ entries per task."
+  h: 021ca3cc874e6afd083757967e89f3ad0306890640f9f8c65644ad575d1b30a0
+  r: "The `code/utils/validate_schema.py` file is present but its content is truncated\
+    \ (ends mid\u2011function) and does not show a command\u2011line interface handling\
+    \ `--input` and `--schema`. Moreover the required dummy input file `data/processed/test.json`\
+    \ is missing, so the verification command cannot be run. The task therefore lacks\
+    \ a complete, runnable utility script and the test data needed to confirm graceful\
+    \ error handling."
+T011a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The repository does not contain a `contracts/perturbation_schema.json` file (or
+    it is empty), so the required JSON schema cannot be loaded and the verification
+    command cannot succeed. The missing artifact must be added with the specified
+    fields (`task_id`, `perturbation_type`, `raw_score`, `is_valid`, `candidate_text`).
+T016:
+  c: false
+  h: 601adf513ef31aeb44cd62e58f34dcd6c48f4b61b586b6b2ad91d01503560534
+  r: "The required data files `data/processed/perturbation_candidates_raw.json`, `data/processed/perturbation_candidates_validated.json`,\
+    \ and `data/logs/halt_report.json` are absent, so the script cannot be run nor\
+    \ can the verification commands succeed. Consequently the task\u2019s core output\
+    \ and halt\u2011condition logging are missing."
+T018:
+  c: false
+  h: d36fc338cf6d40f3cd850c2bc4308b59637d120705ca29449400efcb09d5059d
+  r: "The repository contains `code/data/filter_perturbations.py`, but the script\
+    \ does not actually produce the required output files \u2013 `data/processed/perturbation_candidates.json`\
+    \ and `data/logs/halt_report.json` are missing. Moreover, the halt logic exits\
+    \ on zero candidates instead of logging a warning and continuing, and the code\
+    \ lacks a citation to FR\u2011009. Consequently the task\u2019s output and behavior\
+    \ requirements are not satisfied."
 T021:
   c: false
   h: f5b4e9143e1968fc34f09f65e412c2f9f43b416c1d8a1655e54ea9ebdd5c69ce
@@ -23,15 +46,6 @@ T023:
     \ per\u2011test\u2011case timeout was provided; the claim lacks any artifact demonstrating\
     \ that such an executor has been integrated or that it enforces the required timeout.\
     \ The required implementation and evidence are missing."
-T026:
-  c: false
-  h: fac34faf69fb4e7ed147930f2b07a6c0a27722cfd500fb7e148d1800e4291749
-  r: "The repository lacks the required `data/processed/inference_logs.json` file,\
-    \ so no confidence scores or ECE bins can be appended or verified. Moreover, the\
-    \ provided `confidence_metrics.py` only contains a confidence\u2011score helper\
-    \ and does not implement Expected Calibration Error bin computation or logic to\
-    \ write `ece_bin` into the log. Both the output artifact and the full functionality\
-    \ are missing."
 T034:
   c: false
   h: 5d8f73661e5ddf5c2155637d8cc060d0df101a5e3570504930c7859e931832d3

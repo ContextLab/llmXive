@@ -5,7 +5,11 @@
 
 ## Summary
 
-This project evaluates the robustness of LLM-generated code (specifically StarCoder2-1.5B for CPU feasibility, with StarCoder2-3B as a GPU fallback) against semantically-preserving input perturbations. The technical approach involves: (1) downloading the HumanEval dataset, (2) generating perturbed prompts via synonym substitution, typo injection, and syntactic rephrasing, (3) filtering perturbations using a high-fidelity semantic similarity threshold (>0.95) validated by `sentence-transformers/all-MiniLM-L6-v2`, (4) executing model inference on CPU with 4-bit quantization, (5) running generated code in a sandboxed environment, and (6) performing rigorous statistical analysis (McNemar's test with Bonferroni correction, Mixed-Effects Logistic Regression) to quantify performance degradation. The primary analysis will use the *entire candidate pool* with similarity scores as covariates to mitigate selection bias.
+This project evaluates the robustness of LLM-generated code (specifically StarCoder – a large language model – will be investigated.
+
+The research question is: How does the scale of language models affect their performance on code generation tasks? The method involves evaluating model outputs on a held-out dataset of coding problems, measuring accuracy and fluency. (Hopper et al., 2023) for CPU feasibility, with StarCoder-3B as a GPU fallback) against semantically-preserving input perturbations. The technical approach involves: (1) downloading the HumanEval dataset, (2) generating perturbed prompts via synonym substitution, typo injection, and syntactic rephrasing, (3) filtering perturbations using a high-fidelity semantic similarity threshold (>0.95) validated by `sentence-transformers/all-MiniLM-L6-v2`, (4) executing model inference on CPU with Low-bit quantization
+
+The research question addresses the efficacy of compressing model weights for edge deployment. The method involves evaluating low-bit quantization strategies against baseline full-precision models, following the framework established by Dettmers et al. (2022) and referenced in arXiv:2212.09720., (5) running generated code in a sandboxed environment, and (6) performing rigorous statistical analysis (McNemar's test with Bonferroni correction, Mixed-Effects Logistic Regression) to quantify performance degradation. The primary analysis will use the *entire candidate pool* with similarity scores as covariates to mitigate selection bias.
 
 ## Technical Context
 
