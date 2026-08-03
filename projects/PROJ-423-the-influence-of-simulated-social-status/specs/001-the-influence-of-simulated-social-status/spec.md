@@ -69,7 +69,7 @@ The system must conduct sensitivity analyses on decision thresholds and outliers
 - **FR-004**: The system MUST calculate and report the Variance Inflation Factor (VIF) for all fixed effect predictors to detect multicollinearity, flagging any VIF > 5.0 (See US-2).
 - **FR-005**: The system MUST perform a sensitivity analysis by sweeping the outlier exclusion threshold (defined as absolute deviation from the *cell mean* within each of the 4 experimental conditions) over the set {2.5, 3.0, 3.5} standard deviations and report the resulting change in the interaction effect size (See US-3).
 - **FR-006**: The system MUST apply Bonferroni correction to ALL post-hoc pairwise comparisons to control the family-wise error rate, regardless of whether the primary interaction term is significant (See US-3).
-- **FR-007**: The system MUST generate a forest plot visualizing the mean risk-taking scores for all four condition combinations (High/Risky, High/Conservative, Low/Risky, Low/Conservative) with 95% Confidence Intervals (See US-3).
+- **FR-007**: The system MUST generate a forest plot visualizing the mean risk-taking scores for all four condition combinations (High/Risky, High/Conservative, Low/Risky, Low/Conservative) with confidence intervals. (See US-3).
 
 ### Key Entities
 

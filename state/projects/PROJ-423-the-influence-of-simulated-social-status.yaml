@@ -6,7 +6,7 @@ failed_stage: null
 field: psychology
 human_escalation_reason: null
 id: PROJ-423-the-influence-of-simulated-social-status
-last_run_id: 1cb8c034-e3c6-4331-b50f-41e31c848264
+last_run_id: 5e4de931-0d3e-4419-a404-fc3a5dd9c5bb
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-423-the-influence-of-simulated-social-status/specs/001-the-influence-of-simulated-social-status
 title: The Influence of Simulated Social Status on Risk-Taking Behavior
-updated_at: '2026-08-02T20:34:08.594341Z'
+updated_at: '2026-08-03T11:08:58.590908Z'

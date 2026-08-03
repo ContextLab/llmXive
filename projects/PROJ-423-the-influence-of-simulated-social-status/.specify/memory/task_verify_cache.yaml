@@ -1,10 +1,3 @@
-T003b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `.gitignore` file was presented, nor any excerpt showing the required exclusion\
-    \ patterns (`__pycache__`, `*.pyc`, `.env`, `data/raw/*.csv`). Without the artifact,\
-    \ we cannot confirm the task was fulfilled. The implementer must provide a non\u2011\
-    empty `.gitignore` containing those entries."
 T010a:
   c: false
   h: 8b238362df212e1c2b7564562f08c8809081ced34ba648c439560eac728a2406
@@ -13,17 +6,6 @@ T010a:
     rather than values read from `research.md` or a JSON file. Consequently, the task
     of extracting verified effect sizes and N and defining them as constants is not
     fulfilled.
-T012e:
-  c: false
-  h: 5b1ba9587bd3b833b9cf68534ae8633e7bad2fac16ab788d315ffb8fa06000df
-  r: "The provided `code/simulate.py` generates data for the two designs but contains\
-    \ no post\u2011generation validation that the output strictly follows the selected\
-    \ design (e.g., checking that each participant appears exactly once for between\u2011\
-    subjects or appears in all four condition rows for within\u2011subjects). Moreover,\
-    \ the required `code/meta_analysis.py` file is absent entirely. A proper implementation\
-    \ must add a validation step (or implement it in the missing meta\u2011analysis\
-    \ script) that verifies the dataset\u2019s structure matches the chosen design\
-    \ before proceeding."
 T021a:
   c: false
   h: d5485f6bfc47dbb00dec85a28f1803c73d52165be1b1f28adc8300dbd0726fd9
@@ -32,14 +14,6 @@ T021a:
     excerpt does not show a `fit_adaptive_model` implementation (the file is truncated
     before such a function appears). Both the essential input file and the specified
     function are missing, so the task is not fulfilled.
-T025:
-  c: false
-  h: d4301140234e343de7844be48dd61aa1007d8b5c76716f25a4be72da8a49689e
-  r: "The `tests/contract/test_model_output.py` file is truncated (the `ci_width`\
-    \ test ends mid\u2011string) and does not include explicit checks for the `model_type`\
-    \ key. Moreover, the required schema file `contracts/model_output.schema.yaml`\
-    \ is absent, so the test cannot even load the schema it is supposed to validate\
-    \ against."
 T033:
   c: false
   h: 25cb82685ad7159641edb73dde04e4f5464b62a3f245447b2aff0269a1f9dd8b

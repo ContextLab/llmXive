@@ -473,3 +473,107 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-31T01:46:11Z'
+- artifact_path: projects/PROJ-423-the-influence-of-simulated-social-status/specs/001-the-influence-of-simulated-social-status/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis outlier sweep values are 2.5, 3.0, and 3.5 standard
+    deviations
+  claim_id: c_9db577e9
+  context: 'Strict Constraint: Calculate absolute deviation from the cell mean within
+    each of the 4 experimental conditions... Explicitly list sweep values: {2.5, 3.0,
+    3.5}.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis module explicitly lists sweep values of {2.5,
+    3.0, 3.5} standard deviations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T10:47:26Z'
+- artifact_path: projects/PROJ-423-the-influence-of-simulated-social-status/specs/001-the-influence-of-simulated-social-status/tasks.md
+  attempts: 1
+  canonical: plan.md sensitivity sweep thresholds typo missing 2.5
+  claim_id: c_318f9edb
+  context: 'Note on Plan.md: The plan.md ''Complexity Tracking'' table contains a
+    typo in the sensitivity sweep thresholds (missing 2.5).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The plan.md 'Complexity Tracking' table contains a typo in the sensitivity
+    sweep thresholds, missing the value 2.5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T10:48:03Z'
+- artifact_path: projects/PROJ-423-the-influence-of-simulated-social-status/specs/001-the-influence-of-simulated-social-status/tasks.md
+  attempts: 1
+  canonical: cyclomatic complexity acceptance criteria is less than 10
+  claim_id: c_f11ee238
+  context: 'Refactor code/analysis.py using radon tool... Acceptance Criteria: Max
+    complexity < 10.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Cyclomatic_complexity_acceptance_criteria_is_less_than_10
+  kind: magnitude
+  raw_text: The acceptance criteria for cyclomatic complexity reduction is a maximum
+    value of less than 10.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T10:48:21Z'
+- artifact_path: projects/PROJ-423-the-influence-of-simulated-social-status/specs/001-the-influence-of-simulated-social-status/tasks.md
+  attempts: 1
+  canonical: power analysis alpha 0.05 power 0.80
+  claim_id: c_e1cdfd75
+  context: Calculate N using code/power_analysis.py based on verified effect sizes
+    (alpha=0.05, power=0.80).
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "Indeed, although there are no formal standards for power, many researchers\
+        \ and funding bodies assess power using 0.80 (or 80%) as a standard for adequacy.\
+        \ This convention implies a four-to-one trade off between \u03B2-risk and\
+        \ \u03B1-risk, as the probability of a type II error \u03B2 is set as 1 -\
+        \ 0.8 = 0.2, while \u03B1, the probability of a type I error, is commonly\
+        \ set at 0.05. Some applications require much higher levels of power. Medical\
+        \ tests may be designed to minimise the number of false negatives (type II\
+        \ errors) produced by loosening the threshold of significance, raising the\
+        \ risk of obtaining a false positive (a type I error). The rationale is that\
+        \ it is better to tell a healthy patient \"we may have found something\u2014\
+        let's test further,\" than to tell a diseased patient \"all is well.\""
+      source_id: Power (statistics)
+      url: https://en.wikipedia.org/wiki/Power_(statistics)
+      value: '0.80'
+    filled: true
+  kind: numeric
+  raw_text: The power analysis uses an alpha level of 0.05 and power of 0.80.
+  resolved_value: '0.80'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-03T10:48:28Z'
+- artifact_path: projects/PROJ-423-the-influence-of-simulated-social-status/specs/001-the-influence-of-simulated-social-status/tasks.md
+  attempts: 1
+  canonical: citation validation title overlap threshold is 0.7
+  claim_id: c_34154116
+  context: Script that accepts --sources-file argument, loads citations, validates
+    them against primary sources (Title overlap >= 0.7)...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The title overlap threshold for citation validation is 0.7.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T10:48:43Z'

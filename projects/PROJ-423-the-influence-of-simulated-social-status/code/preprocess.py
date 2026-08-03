@@ -56,10 +56,6 @@ def detect_outcome_type(df: pd.DataFrame, column: str) -> str:
         return 'binary'
     return 'continuous'
 
-def determine_regression_family(outcome_type: str) -> str:
-    """Determine regression family based on outcome type."""
-    return 'binomial' if outcome_type == 'binary' else 'gaussian'
-
 def save_analysis_config(config: dict, file_path: str):
     """Save analysis configuration to a JSON file."""
     ensure_directory(file_path)
@@ -132,9 +128,16 @@ def preprocess_pipeline(input_path: str, output_path: str, config: dict = None):
     
     logger.info("Detecting outcome type")
     outcome_type = detect_outcome_type(df, config.get('outcome_column', 'risk_taking_score'))
-    family = determine_regression_family(outcome_type)
     
-    logger.info(f"Outcome type: {outcome_type}, Regression family: {family}")
+    # NOTE: Legacy logic for regression family selection has been removed.
+    # Family selection is now explicitly handled in T021b (analysis.py) based on outcome_type.json.
+    # This function only detects the type and writes it to data/processed/outcome_type.json.
+    outcome_config = {"type": outcome_type}
+    outcome_config_path = "data/processed/outcome_type.json"
+    ensure_directory(outcome_config_path)
+    with open(outcome_config_path, 'w') as f:
+        json.dump(outcome_config, f, indent=2)
+    logger.info(f"Outcome type detected: {outcome_type}. Saved to {outcome_config_path}")
     
     logger.info("Saving processed data")
     save_processed_data(df, output_path)

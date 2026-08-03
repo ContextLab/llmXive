@@ -3,14 +3,20 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-# Environment variables
+# Environment variables and secrets
 .env
 
-# Raw data files (checksummed only in data/checksums.json)
-data/raw/*.csv
+# Processed data (intermediate artifacts)
+# Raw data MUST be tracked for checksumming per Constitution Principle III
+data/processed/*.csv
+data/processed/*.json
+data/processed/*.parquet
+data/processed/*.pkl
 
-# Logs
+# Logs and temporary files
 *.log
+tmp/
+.cache/
 
 # IDE and editor files
 .idea/
@@ -19,22 +25,16 @@ data/raw/*.csv
 *.swo
 *~
 
-# OS generated files
+# OS specific
 .DS_Store
 Thumbs.db
 
-# Test coverage
-htmlcov/
-.coverage
-coverage.xml
+# Report outputs (generated)
+reports/*.pdf
+reports/*.html
+figures/*.png
+figures/*.jpg
+figures/*.svg
 
-# Build artifacts
-dist/
-build/
-*.egg-info/
-
-# Reports (optional, can be committed if desired)
-# reports/
-
-# Figures (optional, can be committed if desired)
-# figures/
+# Checksums (managed by pipeline, not git-tracked raw data)
+data/checksums.json
