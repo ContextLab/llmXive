@@ -16,3 +16,29 @@ T026:
     \ avoided. The implementer must provide the actual implementation (e.g., a module,\
     \ script, or updated data structure) that records corruption status only in the\
     \ central map."
+T028:
+  c: false
+  h: 523e8c7d7f77d49e6f16a85d5a7dbd4dddd58a6a99f58abe151c1b34d7781c6b
+  r: "The required file `tests/unit/test_reconstruction.py` does not exist, so no\
+    \ unit test for reconstruction logic is present. The task\u2019s core deliverable\
+    \ is missing."
+T041:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No actual artifacts (updated\u202FREADME.md or any files under\u202Fdocs/) were\
+    \ presented for review; without seeing the modified documentation we cannot confirm\
+    \ the required updates were made. The implementer must provide the revised README\
+    \ and any changed documentation files."
+T042:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, diff, or documentation showing that any cleanup or refactoring was performed
+    is present; the only evidence is the task description itself, which does not include
+    the required artifact (e.g., updated source files, commit history, or a report
+    of changes). The implementer must provide the refactored codebase or a clear summary
+    of the changes made.
+T044:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `tests/unit/` directory or any unit test files was provided;
+    the claim lacks the required artifact, so the task is not satisfied.

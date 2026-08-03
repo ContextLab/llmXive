@@ -1,0 +1,11 @@
+'|if mcnemar use':
+  quote: The traditional advice has been to use the exact binomial test when b + c
+    < 25. However, simulations have shown both the exact binomial test and the McNemar
+    test with continuity correction to be overly conservative. When b + c < 6, the
+    exact-P-value always exceeds the common significance level 0.05. The original
+    McNemar test was most powerful, but often slightly liberal. The mid-P version
+    was almost as powerful as the asymptotic McNemar test and was not found to exceed
+    the nominal significance level.
+  source_id: McNemar's test
+  url: https://en.wikipedia.org/wiki/McNemar's_test
+  value: '6'

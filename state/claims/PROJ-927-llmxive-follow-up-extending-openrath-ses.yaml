@@ -78,3 +78,694 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-01T21:32:33Z'
+- artifact_path: projects/PROJ-927-llmxive-follow-up-extending-openrath-ses/specs/001-llmxive-follow-up-extending-openrath-ses/tasks.md
+  attempts: 1
+  canonical: Python 3.11 project with specific library versions
+  claim_id: c_2fafdace
+  context: 'Phase 1: Setup (Shared Infrastructure) - Task T002'
+  evidence:
+    asserted: '3.11'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'Initialize Python 3.11 project with requirements.txt pinning exact versions:
+    pytest==7.4.0, scipy==1.11.0, pandas==2.1.0, numpy==1.24.0, pyyaml==6.0.1, jsonschema==4.19.0,
+    ruff==0.1.0'
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-03T03:07:00Z'
+- artifact_path: projects/PROJ-927-llmxive-follow-up-extending-openrath-ses/specs/001-llmxive-follow-up-extending-openrath-ses/tasks.md
+  attempts: 1
+  canonical: Generate reproducible synthetic multi-agent debugging workflows
+  claim_id: c_a624c7de
+  context: 'Phase 3: User Story 1 - Synthetic Workflow Generation and Ground-Truth
+    Capture'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Generate_reproducible_synthetic_multi-agent_debugging_workfl
+  kind: entity_fact
+  raw_text: Generate a reproducible set of synthetic multi-agent debugging workflows
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T03:11:49Z'
+- artifact_path: projects/PROJ-927-llmxive-follow-up-extending-openrath-ses/specs/001-llmxive-follow-up-extending-openrath-ses/tasks.md
+  attempts: 1
+  canonical: Verify byte-for-byte identical output with same seed
+  claim_id: c_ce502d17
+  context: 'Phase 3: User Story 1 - Independent Test'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verify_byte-for-byte_identical_output_with_same_seed
+  kind: entity_fact
+  raw_text: Run the generation script twice with the same seed to verify byte-for-byte
+    identical output
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T03:12:00Z'
+- artifact_path: projects/PROJ-927-llmxive-follow-up-extending-openrath-ses/specs/001-llmxive-follow-up-extending-openrath-ses/tasks.md
+  attempts: 1
+  canonical: Calculate Total Resilience as Success/Total
+  claim_id: c_56bc289b
+  context: 'Phase 5: User Story 3 - Reconstruction and Fidelity Scoring'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Calculate_Total_Resilience_as_Success/Total
+  kind: entity_fact
+  raw_text: Calculate Total Resilience as Success/Total where Unrecoverable cases
+    are failures
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T03:12:07Z'
+- artifact_path: projects/PROJ-927-llmxive-follow-up-extending-openrath-ses/specs/001-llmxive-follow-up-extending-openrath-ses/tasks.md
+  attempts: 1
+  canonical: Calculate Recoverable State Fidelity as Success/Recoverable
+  claim_id: c_8df54a4c
+  context: 'Phase 5: User Story 3 - Reconstruction and Fidelity Scoring'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Calculate_Recoverable_State_Fidelity_as_Success/Recoverable
+  kind: entity_fact
+  raw_text: Calculate Recoverable State Fidelity as Success/Recoverable
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T03:12:32Z'
+- artifact_path: projects/PROJ-927-llmxive-follow-up-extending-openrath-ses/specs/001-llmxive-follow-up-extending-openrath-ses/tasks.md
+  attempts: 1
+  canonical: Calculate Unrecoverable Rate as Unrecoverable/Total
+  claim_id: c_6d4faad7
+  context: 'Phase 5: User Story 3 - Reconstruction and Fidelity Scoring'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Calculate_Unrecoverable_Rate_as_Unrecoverable/Total
+  kind: entity_fact
+  raw_text: Calculate Unrecoverable Rate as Unrecoverable/Total
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T03:13:55Z'
+- artifact_path: projects/PROJ-927-llmxive-follow-up-extending-openrath-ses/specs/001-llmxive-follow-up-extending-openrath-ses/tasks.md
+  attempts: 1
+  canonical: Implement Cochran's Q test on 2x2x3 design
+  claim_id: c_d7b48923
+  context: 'Phase 5: User Story 3 - Implementation for User Story 3'
+  evidence:
+    entailment_evidence: Wikipedia does not have an article with this
+    entailment_status: contradicted
+    source_url: https://en.wikipedia.org/wiki/Implement_Cochran's_Q_test_on_2x2x3_design
+  kind: entity_fact
+  raw_text: Implement Cochran's Q test on the 2x2x3 design (Architecture x Outcome
+    x Corruption Rate)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-08-03T03:15:21Z'
+- artifact_path: projects/PROJ-927-llmxive-follow-up-extending-openrath-ses/specs/001-llmxive-follow-up-extending-openrath-ses/tasks.md
+  attempts: 1
+  canonical: Implement McNemar's test with Holm-Bonferroni correction
+  claim_id: c_43b591cd
+  context: 'Phase 5: User Story 3 - Implementation for User Story 3'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Implement_McNemar's_test_with_Holm-Bonferroni_correction
+  kind: entity_fact
+  raw_text: Implement McNemar's test with Holm-Bonferroni correction for pairwise
+    comparisons
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T03:16:01Z'
+- artifact_path: projects/PROJ-927-llmxive-follow-up-extending-openrath-ses/specs/001-llmxive-follow-up-extending-openrath-ses/tasks.md
+  attempts: 1
+  canonical: Iterate over corruption rates 0.05, 0.10, 0.20
+  claim_id: c_1909d057
+  context: 'Phase 5: User Story 3 - Implementation for User Story 3'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Iterate over the SWEEP_RATES list in the concrete set {0.05, 0.10, 0.20}
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T03:16:40Z'
+- artifact_path: projects/PROJ-927-llmxive-follow-up-extending-openrath-ses/specs/001-llmxive-follow-up-extending-openrath-ses/tasks.md
+  attempts: 1
+  canonical: Use Exact McNemar if N < 25
+  claim_id: c_71e56988
+  context: 'Phase 5: User Story 3 - Implementation for User Story 3'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use Exact McNemar if N < 25
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T03:16:40Z'
+- artifact_path: projects/PROJ-927-llmxive-follow-up-extending-openrath-ses/specs/001-llmxive-follow-up-extending-openrath-ses/tasks.md
+  attempts: 1
+  canonical: Ensure runtime under 6 hours and RAM under 4 GB
+  claim_id: c_b2f8246f
+  context: 'Phase N: Polish & Cross-Cutting Concerns - Task T043'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Refactor the main execution loop to use batched processing and streaming
+    to ensure < 6h runtime and < 4GB RAM
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T03:16:40Z'
+- artifact_path: projects/PROJ-927-llmxive-follow-up-extending-openrath-ses/specs/001-llmxive-follow-up-extending-openrath-ses/tasks.md
+  attempts: 0
+  canonical: Project uses Python 3.11 with specific pinned dependency versions
+  claim_id: c_2ecce730
+  context: 'Phase 1, Task T002: Initialize Python 3.11 project with requirements.txt
+    at projects/PROJ-927-llmxive-follow-up-extending-openrath-ses/ pinning exact versions...'
+  evidence:
+    asserted: '3.11'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'Initialize Python 3.11 project with requirements.txt pinning exact versions:
+    pytest==7.4.0, scipy==1.11.0, pandas==2.1.0, numpy==1.24.0, pyyaml==6.0.1, jsonschema==4.19.0,
+    ruff==0.1.0.'
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-03T03:17:15Z'
+- artifact_path: projects/PROJ-927-llmxive-follow-up-extending-openrath-ses/specs/001-llmxive-follow-up-extending-openrath-ses/tasks.md
+  attempts: 1
+  canonical: Corruption rates swept over set 0.05, 0.10, 0.20
+  claim_id: c_f28cb69b
+  context: 'Phase 5, Task T035: Implement sensitivity sweep logic... run the full
+    pipeline for each rate in the concrete set {0.05, 0.10, 0.20}.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate workflows with specific corruption rates iterated over the concrete
+    set {0.05, 0.10, 0.20}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T03:17:42Z'
+- artifact_path: projects/PROJ-927-llmxive-follow-up-extending-openrath-ses/specs/001-llmxive-follow-up-extending-openrath-ses/tasks.md
+  attempts: 1
+  canonical: Exact McNemar test used when N < 25
+  claim_id: c_c0ca69d8
+  context: 'Phase 5, Task T038: Implement fallback logic for small N contingency...
+    Use Exact McNemar if N < 25...'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exact_McNemar_test_used_when_N_%3C_25
+  kind: magnitude
+  raw_text: Use Exact McNemar test if sample size N is less than 25.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T03:18:55Z'
+- artifact_path: projects/PROJ-927-llmxive-follow-up-extending-openrath-ses/specs/001-llmxive-follow-up-extending-openrath-ses/tasks.md
+  attempts: 1
+  canonical: Sweep runtime under 6 hours and RAM under 4GB
+  claim_id: c_323ccd89
+  context: 'Phase N, Task T043: Refactor the main execution loop... to use batched
+    processing and streaming to ensure < 6h runtime and < 4GB RAM...'
+  evidence:
+    candidates:
+    - - Create account Log in Sweep runtime under
+      - 6.0
+    - - Sweep runtime under 6 hours and RAM under
+      - 4.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Sweep_runtime_under_6_hours_and_RAM_under_4GB
+  kind: magnitude
+  raw_text: Refactor main execution loop to ensure runtime is less than 6 hours and
+    RAM usage is less than 4GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-08-03T03:20:17Z'
+- artifact_path: projects/PROJ-927-llmxive-follow-up-extending-openrath-ses/specs/001-llmxive-follow-up-extending-openrath-ses/tasks.md
+  attempts: 1
+  canonical: Configuration CORRUPTION_RATE set to 0.1
+  claim_id: c_e614b18c
+  context: 'Phase 2, Task T004: Implement code/config.py to define specific keys:
+    SEED=42, CORRUPTION_RATE=0.1...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The specific value for CORRUPTION_RATE in config.py is 0.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T03:20:38Z'
+- artifact_path: projects/PROJ-927-llmxive-follow-up-extending-openrath-ses/specs/001-llmxive-follow-up-extending-openrath-ses/tasks.md
+  attempts: 1
+  canonical: Configuration SEED set to 42
+  claim_id: c_23d6a065
+  context: 'Phase 2, Task T004: Implement code/config.py to define specific keys:
+    SEED=42, CORRUPTION_RATE=0.1...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The specific value for SEED in config.py is 42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T03:21:20Z'
+- artifact_path: projects/PROJ-927-llmxive-follow-up-extending-openrath-ses/specs/001-llmxive-follow-up-extending-openrath-ses/tasks.md
+  attempts: 1
+  canonical: Configuration WORKFLOW_COUNT set to 500
+  claim_id: c_df853f78
+  context: 'Phase 2, Task T004: Implement code/config.py to define specific keys:
+    SEED=42, CORRUPTION_RATE=0.1, WORKFLOW_COUNT=500...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The specific value for WORKFLOW_COUNT in config.py is 500.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T03:21:47Z'
+- artifact_path: projects/PROJ-927-llmxive-follow-up-extending-openrath-ses/specs/001-llmxive-follow-up-extending-openrath-ses/tasks.md
+  attempts: 0
+  canonical: Python 3.11 project dependencies pinned to pytest 7.4.0, scipy 1.11.0,
+    pandas 2.1.0, numpy 1.24.0, pyyaml 6.0.1, jsonschema 4.19.0, ruff 0.1.0
+  claim_id: c_b96d77b4
+  context: Task T002 specifies the initialization of the project with specific library
+    versions required for data manipulation, schema validation, and linting.
+  evidence:
+    asserted: '3.11'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'Initialize Python 3.11 project with requirements.txt pinning exact versions:
+    pytest==7.4.0, scipy==1.11.0, pandas==2.1.0, numpy==1.24.0, pyyaml==6.0.1, jsonschema==4.19.0,
+    ruff==0.1.0'
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-03T03:25:07Z'
+- artifact_path: projects/PROJ-927-llmxive-follow-up-extending-openrath-ses/specs/001-llmxive-follow-up-extending-openrath-ses/tasks.md
+  attempts: 1
+  canonical: Sensitivity sweep corruption rates set to 0.05, 0.10, and 0.20
+  claim_id: c_cd3a4649
+  context: Task T035 and the Notes section specify the concrete set of corruption
+    rates to be used for the statistical sweep.
+  evidence:
+    asserted: '0.05'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Implement sensitivity sweep logic to iterate over SWEEP_RATES list and
+    run the full pipeline for each rate in the concrete set {0.05, 0.10, 0.20}
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-03T03:25:07Z'
+- artifact_path: projects/PROJ-927-llmxive-follow-up-extending-openrath-ses/specs/001-llmxive-follow-up-extending-openrath-ses/tasks.md
+  attempts: 1
+  canonical: 'Performance target: runtime under 6 hours and RAM under 4GB'
+  claim_id: c_e386d664
+  context: Task T043 outlines performance optimization constraints for the sweep process.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Performance_target:_runtime_under_6_hours_and_RAM_under_4GB
+  kind: magnitude
+  raw_text: Refactor the main execution loop to use batched processing and streaming
+    to ensure less than 6 hours runtime and less than 4GB RAM
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T03:25:51Z'
+- artifact_path: projects/PROJ-927-llmxive-follow-up-extending-openrath-ses/specs/001-llmxive-follow-up-extending-openrath-ses/tasks.md
+  attempts: 1
+  canonical: 'Fallback statistical method: Exact McNemar for N < 25'
+  claim_id: c_569e4bba
+  context: Task T038 defines the fallback logic for statistical tests when sample
+    sizes are small.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Fallback_statistical_method:_Exact_McNemar_for_N_%3C_25
+  kind: magnitude
+  raw_text: Use Exact McNemar if N is less than 25, and Monte Carlo for Cochran's
+    Q if assumptions are violated
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T03:26:55Z'
+- artifact_path: projects/PROJ-927-llmxive-follow-up-extending-openrath-ses/specs/001-llmxive-follow-up-extending-openrath-ses/tasks.md
+  attempts: 1
+  canonical: 'Configuration defaults: SEED 42, CORRUPTION_RATE 0.1, WORKFLOW_COUNT
+    500'
+  claim_id: c_605a003f
+  context: Task T004 specifies the initial values for the project configuration file.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Define specific configuration keys: SEED=42, CORRUPTION_RATE=0.1, WORKFLOW_COUNT=500'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T03:27:14Z'
+- artifact_path: projects/PROJ-927-llmxive-follow-up-extending-openrath-ses/specs/001-llmxive-follow-up-extending-openrath-ses/tasks.md
+  attempts: 1
+  canonical: 'Project dependencies pinned to specific versions: pytest 7.4.0, scipy
+    1.11.0, pandas 2.1.0, numpy 1.24.0, pyyaml 6.0.1, jsonschema 4.19.0, ruff 0.1.0'
+  claim_id: c_54225990
+  context: T002 Initialize Python 3.11 project with requirements.txt at projects/PROJ-927-llmxive-follow-up-extending-openrath-ses/
+    pinning exact versions
+  evidence:
+    asserted: '7.4'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'pinning exact versions: pytest==7.4.0, scipy==1.11.0, pandas==2.1.0,
+    numpy==1.24.0, pyyaml==6.0.1, jsonschema==4.19.0, ruff==0.1.0'
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-03T03:28:46Z'
+- artifact_path: projects/PROJ-927-llmxive-follow-up-extending-openrath-ses/specs/001-llmxive-follow-up-extending-openrath-ses/tasks.md
+  attempts: 1
+  canonical: Configuration corruption rate set to 0.1
+  claim_id: c_e4a33b9b
+  context: 'T004 Implement code/config.py to define specific keys: SEED=42, CORRUPTION_RATE=0.1,
+    WORKFLOW_COUNT=500'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: CORRUPTION_RATE=0.1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T03:29:13Z'
+- artifact_path: projects/PROJ-927-llmxive-follow-up-extending-openrath-ses/specs/001-llmxive-follow-up-extending-openrath-ses/tasks.md
+  attempts: 1
+  canonical: Configuration workflow count set to 500
+  claim_id: c_262ac712
+  context: 'T004 Implement code/config.py to define specific keys: SEED=42, CORRUPTION_RATE=0.1,
+    WORKFLOW_COUNT=500'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: WORKFLOW_COUNT=500
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T03:29:50Z'
+- artifact_path: projects/PROJ-927-llmxive-follow-up-extending-openrath-ses/specs/001-llmxive-follow-up-extending-openrath-ses/tasks.md
+  attempts: 1
+  canonical: Sensitivity sweep iterates over corruption rates 0.05, 0.10, and 0.20
+  claim_id: c_c097ddda
+  context: T035 Implement sensitivity sweep logic in code/main.py to iterate over
+    the SWEEP_RATES list defined in code/config.py (T004) and run the full pipeline
+    for each rate in the concrete set {0.05, 0.10, 0.20} (SC-004).
+  evidence:
+    asserted: '0.05'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: run the full pipeline for each rate in the concrete set {0.05, 0.10, 0.20}
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-03T03:29:50Z'
+- artifact_path: projects/PROJ-927-llmxive-follow-up-extending-openrath-ses/specs/001-llmxive-follow-up-extending-openrath-ses/tasks.md
+  attempts: 1
+  canonical: Exact McNemar test used when sample size N is less than 25
+  claim_id: c_fa49330b
+  context: 'T038 Implement fallback logic for small N contingency in code/analyzers/statistical_test.py:
+    Use Exact McNemar if N < 25, and Monte Carlo (a sufficient number of repetitions)
+    for Cochran''s Q if assumptions are violated.'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: The traditional advice has been to use the exact binomial test when b
+        + c < 25. However, simulations have shown both the exact binomial test and
+        the McNemar test with continuity correction to be overly conservative. When
+        b + c < 6, the exact-P-value always exceeds the common significance level
+        0.05. The original McNemar test was most powerful, but often slightly liberal.
+        The mid-P version was almost as powerful as the asymptotic McNemar test and
+        was not found to exceed the nominal significance level.
+      source_id: McNemar's test
+      url: https://en.wikipedia.org/wiki/McNemar's_test
+      value: '6'
+    filled: true
+  kind: magnitude
+  raw_text: Use Exact McNemar if N < 25
+  resolved_value: '6'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-03T03:30:06Z'
+- artifact_path: projects/PROJ-927-llmxive-follow-up-extending-openrath-ses/specs/001-llmxive-follow-up-extending-openrath-ses/tasks.md
+  attempts: 1
+  canonical: Sweep execution performance constrained to less than 6 hours runtime
+    and 4GB RAM usage
+  claim_id: c_4880bdc8
+  context: T043 Refactor the main execution loop in code/main.py to use batched processing
+    and streaming to ensure < 6h runtime and < 4GB RAM; add tests/bench_sweep.py to
+    verify performance constraints.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Sweep_execution_performance_constrained_to_less_than_6_hours
+  kind: magnitude
+  raw_text: ensure < 6h runtime and < 4GB RAM
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T03:31:34Z'
+- artifact_path: projects/PROJ-927-llmxive-follow-up-extending-openrath-ses/specs/001-llmxive-follow-up-extending-openrath-ses/tasks.md
+  attempts: 0
+  canonical: 'pinning exact versions: pytest==7.4.0, scipy==1.11.0, pandas==2.1.0,
+    numpy==1.24.0, pyyaml==6.0.1, jsonschema==4.19.0, ruff==0.1.0'
+  claim_id: c_dbc0ad1d
+  context: 'Initialize Python 3.11 project with requirements.txt at projects/PROJ-927-llmxive-follow-up-extending-openrath-ses/
+    pinning exact versions: pytest==7.4.0, scipy==1.11.0, pandas==2.1.0 (required
+    for data manipulation per Plan), numpy==1.24.0, pyyaml==6.0.1, jsonschema==4.19.0
+    (required for schema validation per Plan), ruff==0.1.0 (required for linting T003).'
+  evidence:
+    asserted: '7.4'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'pinning exact versions: pytest==7.4.0, scipy==1.11.0, pandas==2.1.0,
+    numpy==1.24.0, pyyaml==6.0.1, jsonschema==4.19.0, ruff==0.1.0'
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-03T03:32:58Z'
+- artifact_path: projects/PROJ-927-llmxive-follow-up-extending-openrath-ses/specs/001-llmxive-follow-up-extending-openrath-ses/tasks.md
+  attempts: 1
+  canonical: corruption rates iterated over 0.05, 0.10, 0.20
+  claim_id: c_dbfe0ad4
+  context: Implement sensitivity sweep logic in code/main.py to iterate over the SWEEP_RATES
+    list defined in code/config.py (T004) and run the full pipeline for each rate
+    in the concrete set {0.05, 0.10, 0.20} (SC-004).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: corruption rates must be explicitly iterated over {0.05, 0.10, 0.20}
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T03:33:58Z'
+- artifact_path: projects/PROJ-927-llmxive-follow-up-extending-openrath-ses/specs/001-llmxive-follow-up-extending-openrath-ses/tasks.md
+  attempts: 1
+  canonical: refactor main loop to ensure < 6h runtime and < 4GB RAM
+  claim_id: c_5eebcb5c
+  context: 'Performance optimization for sweep: Refactor the main execution loop in
+    code/main.py to use batched processing and streaming to ensure < 6h runtime and
+    < 4GB RAM; add tests/bench_sweep.py to verify performance constraints.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/refactor_main_loop_to_ensure_%3C_6h_runtime_and_%3C_4GB_RAM
+  kind: entity_fact
+  raw_text: refactor the main execution loop in code/main.py to use batched processing
+    and streaming to ensure < 6h runtime and < 4GB RAM
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T03:35:00Z'
+- artifact_path: projects/PROJ-927-llmxive-follow-up-extending-openrath-ses/specs/001-llmxive-follow-up-extending-openrath-ses/tasks.md
+  attempts: 0
+  canonical: 'Python dependencies pinned to specific versions: pytest 7.4.0, scipy
+    1.11.0, pandas 2.1.0, numpy 1.24.0, pyyaml 6.0.1, jsonschema 4.19.0, ruff 0.1.0'
+  claim_id: c_f606cf72
+  context: Initialize Python 3.11 project with requirements.txt at projects/PROJ-927-llmxive-follow-up-extending-openrath-ses/
+    pinning exact versions
+  evidence:
+    asserted: '7.4'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'pinning exact versions: pytest==7.4.0, scipy==1.11.0, pandas==2.1.0,
+    numpy==1.24.0, pyyaml==6.0.1, jsonschema==4.19.0, ruff==0.1.0'
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-03T03:37:18Z'
+- artifact_path: projects/PROJ-927-llmxive-follow-up-extending-openrath-ses/specs/001-llmxive-follow-up-extending-openrath-ses/tasks.md
+  attempts: 1
+  canonical: Configuration parameters set to SEED 42, CORRUPTION_RATE 0.1, and WORKFLOW_COUNT
+    500
+  claim_id: c_0ededc05
+  context: 'Implement code/config.py to define specific keys: SEED=42, CORRUPTION_RATE=0.1,
+    WORKFLOW_COUNT=500'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: SEED=42, CORRUPTION_RATE=0.1, WORKFLOW_COUNT=500
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T03:37:55Z'
+- artifact_path: projects/PROJ-927-llmxive-follow-up-extending-openrath-ses/specs/001-llmxive-follow-up-extending-openrath-ses/tasks.md
+  attempts: 1
+  canonical: Corruption rates iterated over the set 0.05, 0.10, and 0.20
+  claim_id: c_e13458b5
+  context: run the full pipeline for each rate in the concrete set {0.05, 0.10, 0.20}
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: concrete set {0.05, 0.10, 0.20}
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T03:38:11Z'
+- artifact_path: projects/PROJ-927-llmxive-follow-up-extending-openrath-ses/specs/001-llmxive-follow-up-extending-openrath-ses/tasks.md
+  attempts: 1
+  canonical: System performance target of less than 6 hours runtime and less than
+    4GB RAM usage
+  claim_id: c_6a9e2a19
+  context: Refactor the main execution loop in code/main.py to use batched processing
+    and streaming to ensure < 6h runtime and < 4GB RAM
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/System_performance_target_of_less_than_6_hours_runtime_and_l
+  kind: magnitude
+  raw_text: ensure < 6h runtime and < 4GB RAM
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T03:38:13Z'

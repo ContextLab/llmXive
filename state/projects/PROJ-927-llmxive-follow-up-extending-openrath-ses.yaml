@@ -6,7 +6,7 @@ failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-927-llmxive-follow-up-extending-openrath-ses
-last_run_id: b9a0875b-159d-43c6-8f27-e928d50c2d73
+last_run_id: 00253758-0945-4aa8-ba2d-709cdcee6410
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-927-llmxive-follow-up-extending-openrath-ses/specs/001-llmxive-follow-up-extending-openrath-ses
 title: 'llmXive follow-up: extending "OpenRath: Session-Centered Runtime State for
   Agent Systems"'
-updated_at: '2026-08-02T15:51:47.396988Z'
+updated_at: '2026-08-03T03:54:42.816710Z'

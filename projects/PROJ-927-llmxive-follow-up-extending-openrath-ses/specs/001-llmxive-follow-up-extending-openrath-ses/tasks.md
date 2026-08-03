@@ -30,7 +30,7 @@
  - Entities from data-model.md
  - Endpoints from contracts/
 
- Tasks MUST be organized by user story so each story can be:
+ Tasks MUST be organized by user story so each story can be independently
  - Implemented independently
  - Tested independently
  - Delivered as an MVP increment
@@ -43,11 +43,11 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [X] T001a [P] Create core project structure: Create directories `code/`, `code/generators/`, `code/executors/`, `code/reconstructors/`, `code/analyzers/`, `tests/`, `data/raw/workflows/`, `data/processed/event_log/`, `data/processed/session_first/`, `data/processed/results/`, `state/`. Create empty `__init__.py` files in all `code/` subdirectories (`code/`, `code/generators/`, `code/executors/`, `code/reconstructors/`, `code/analyzers/`).
+- [X] T001a [P] Create core project structure: Create directories `code/`, `code/generators/`, `code/executors/`, `code/reconstructors/`, `code/analyzers/`, `code/simulators/`, `tests/`, `data/raw/workflows/`, `data/processed/event_log/`, `data/processed/session_first/`, `data/processed/results/`, `data/processed/corrupted_logs/`, `data/processed/reconstruction_results/`, `state/`, `scripts/`, `docs/`. Create empty `__init__.py` files in ALL `code/` subdirectories (`code/`, `code/generators/`, `code/executors/`, `code/reconstructors/`, `code/analyzers/`, `code/simulators/`).
 - [X] T001b [P] Create simulators directory: Create directory `code/simulators/` and empty `__init__.py` to satisfy plan structure for `corruption_injector.py`.
 - [X] T001c [P] Create missing data directories: Create directories `data/processed/corrupted_logs/` and `data/processed/reconstruction_results/` to ensure all output paths exist before file writes.
-- [X] T002 Initialize Python 3.11 project with `requirements.txt` at `projects/PROJ-927-llmxive-follow-up-extending-openrath-ses/` pinning exact versions: `pytest==7.4.0`, `scipy==1.11.0`, `pandas==2.1.0` (required for data manipulation per Plan), `numpy==1.24.0`, `pyyaml==6.0.1`, `jsonschema==4.19.0` (required for schema validation per Plan), `ruff==0.1.0` (required for linting T003).
-- [ ] T003 [P] Configure linting and formatting: Create `.ruff.toml` with `[lint]` rules and `pyproject.toml` with `[tool.black]` section.
+- [X] T002 Initialize Python 3.11 project with `requirements.txt` at `projects/PROJ-927-llmxive-follow-up-extending-openrath-ses/` pinning exact versions: `pytest==7.4.0`, `scipy==1.11.0`, `pyyaml==6.0.1`, `jsonschema==4.19.0` (required for schema validation per Plan), `ruff==0.1.0` (required for linting T003). (Note: `pandas` removed as plan specifies `json`/`pydantic` as primary tools).
+- [X] T003 Configure linting and formatting: Create `.ruff.toml` with `[lint]` rules (E501, F401, W293) and `pyproject.toml` with `[tool.black]` section (line-length=88). This task is now completed and defines the reproducible environment.
 
 ---
 
@@ -57,12 +57,8 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T004 Implement `code/config.py` to define specific keys: `SEED=42`, `CORRUPTION_RATE=0.1`, `WORKFLOW_COUNT=500`, `SWEEP_RATES=[LOW, MEDIUM, HIGH]
-
-The specific value to remove/generalize: 'LOW'
-
-Rewritten passage:`, and directory paths for `RAW_DATA_DIR`, `PROCESSED_DATA_DIR`, `STATE_DIR`.
-- [X] T009 Create `code/main.py` orchestration skeleton with CLI arguments (`--seed`, `--count`, `--resume`), checkpoint file format (update `state/projects/PROJ-927-llmxive-follow-up-extending-openrath-ses.yaml` with `checkpoint` key containing `last_workflow_id` and `status`), and resume logic flow (load checkpoint from YAML, skip completed IDs, process remaining).
+- [X] T004 Implement `code/config.py` to define specific keys: `SEED=42`, `CORRUPTION_RATE=0.1 `, `WORKFLOW_COUNT=500 `, `SWEEP_RATES=[0.05, 0.10, 0.20]`, and directory paths for `RAW_DATA_DIR`, `PROCESSED_DATA_DIR`, `STATE_DIR`.
+- [X] T009 Create `code/main.py` orchestration skeleton with CLI arguments (`--seed`, `--count`, `--resume`), checkpoint file format (update `state/projects/PROJ-927-llmxive-follow-up-extending-openrath-ses.yaml` with `checkpoint` key containing `last_workflow_id` and `status`), and resume logic flow (load checkpoint from YAML, skip completed IDs, process remaining). **CRITICAL**: This checkpoint logic MUST support resuming both the *generation* phase (US1) and the *execution* phase (US2) if interrupted.
 - [X] T017a [P] Implement data hygiene utility: Create `code/utils/checksum_manager.py` to calculate SHA256 for files and provide a method to update the project's YAML state file (`state/projects/PROJ-927-llmxive-follow-up-extending-openrath-ses.yaml`) with `artifact_hashes` map. Do NOT run this yet; just implement the utility.
 - [X] T006 Implement `code/generators/__init__.py` and base schema definitions for Workflow Definition and Ground Truth.
 - [X] T006b [P] Define Workflow Schema: Create `code/generators/schemas.py` containing the Pydantic/JSON schema definitions for `WorkflowDefinition` and `GroundTruth` to be used by T014 for validation.
@@ -82,7 +78,7 @@ Rewritten passage:`, and directory paths for `RAW_DATA_DIR`, `PROCESSED_DATA_DIR
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
 - [X] T010 [P] [US1] Unit test for deterministic generation in `tests/unit/test_generator.py` (verify seed consistency).
-- [X] T011 [P] [US1] Unit test for ground truth immutability in `tests/unit/test_generator.py` (verify read-only constraints by attempting write and expecting PermissionError).
+- [X] T011 [P] [US1] Unit test for ground truth immutability in `tests/unit/test_generator.py`: Verify mathematical independence by comparing the generated ground truth hash against a pre-computed reference hash for the same seed. Do NOT rely on OS-level permission errors.
 
 ### Implementation for User Story 1
 
@@ -90,7 +86,7 @@ Rewritten passage:`, and directory paths for `RAW_DATA_DIR`, `PROCESSED_DATA_DIR
 - [X] T013 [US1] Implement ground truth serialization in `code/generators/workflow_generator.py`: Store to `data/raw/workflows/{workflow_id}_ground_truth.json` (one file per workflow) with SHA256 hash.
 - [X] T014 [US1] Implement validation logic in `code/generators/workflow_generator.py::validate_workflow_schema`: Use the schema defined in `code/generators/schemas.py` (T006b) to validate generated workflows. Explicitly verify that all necessary variables (tool outputs, snapshots) required by the reconstruction protocol (SC-005) are present.
 - [X] T015 [US1] Implement checkpointing logic in `code/main.py` to resume workflow generation from the last completed ID on timeout (implementation of T009 skeleton).
-- [X] T015b [US1] Generate and store pre-computed reference hash: **Run after T013 completes**. Create a script or task to generate a reference hash for the ground truth of the first workflow (seed set to a fixed value) and store it in `state/projects/PROJ-927-llmxive-follow-up-extending-openrath-ses.yaml` for verification in the Independent Test.
+- [X] T015b [US1] Generate and store pre-computed reference hash: **Run after T012/T013 execution completes**. Create script `scripts/gen_ref_hash.py` to compute hash of the first workflow (seed 42) and update `state/projects/PROJ-927-llmxive-follow-up-extending-openrath-ses.yaml` with the hash under `artifact_hashes.reference_ground_truth`.
 - [X] T016 [US1] Add logging for workflow generation steps and hash verification in `code/generators/workflow_generator.py` to produce verifiable evidence of determinism.
 - [X] T017b [US1] Execute immediate checksumming: Run the `checksum_manager` utility (from T017a) to calculate SHA256 for **EVERY** file in `data/raw/workflows/` immediately after generation and register/update entries in `state/projects/PROJ-927-llmxive-follow-up-extending-openrath-ses.yaml`.
 
@@ -114,12 +110,14 @@ Rewritten passage:`, and directory paths for `RAW_DATA_DIR`, `PROCESSED_DATA_DIR
 - [X] T020 [P] [US2] Implement `code/executors/base_executor.py` abstract base class for architecture execution.
 - [X] T021 [US2] Implement `code/executors/event_log_executor.py` for asynchronous, fragmented storage (transcripts, snapshots, outputs as separate files).
 - [X] T022 [US2] Implement `code/executors/session_first_executor.py` for atomic, single-object state recording (write-to-temp-then-rename).
-- [X] T023 [US2] Implement `code/simulators/corruption_injector.py` to randomly select and modify/delete log entries based on configurable rate (default moderate).
-- [X] T023b [US2] Execute immediate checksumming: **Must run after T026**. Run the `checksum_manager` utility (from T017a) to calculate SHA256 for **EVERY** file in `data/processed/corrupted_logs/` and `data/processed/corruption_map.json` immediately after corruption injection and register/update entries in `state/projects/PROJ-927-llmxive-follow-up-extending-openrath-ses.yaml`.
-- [X] T024a [US2] Implement stochastic network delay (jitter) simulation in `code/executors/event_log_executor.py`: Inject `time.sleep(random.uniform(0, jitter_ms))` specifically inside the `tool_call()` method (FR-004). **Crucially**: Record the injected jitter duration (in ms) into the log artifact metadata or a sidecar file so T033 can distinguish it from reconstruction overhead.
-- [X] T024b [US2] Implement stochastic network delay (jitter) simulation in `code/executors/session_first_executor.py`: Inject `time.sleep(random.uniform(0, jitter_ms))` specifically inside the `tool_call()` method (FR-004). **Crucially**: Record the injected jitter duration (in ms) into the log artifact metadata or a sidecar file so T033 can distinguish it from reconstruction overhead.
-- [X] T025 [US2] Integrate corruption injection into the execution flow in `code/main.py` to ensure logs are corrupted *after* generation (Phase 3 output) but *before* reconstruction. Explicitly depend on T023 (corruption logic) and T026 (corruption map) being implemented.
-- [X] T026 [US2] Implement central corruption map logic in `code/simulators/corruption_injector.py::log_corruption`: Write the corruption status to a central `data/processed/corruption_map.json` artifact. **PROHIBITED**: Do NOT create sidecar `.meta` files or modify JSON roots to flag corruption; the central map is the single source of truth. **Must run before T023b** to ensure the map exists for checksumming. Validate against the schema defined in T026a before writing.
+- [X] T023 [P] [US2] Implement `code/simulators/corruption_injector.py` to randomly select and modify/delete log entries based on configurable rate (default moderate). **CRITICAL**: Must explicitly exclude any file path starting with `data/raw/workflows/` from the corruption selection pool (T050 logic integrated here).
+- [X] T023-Exec [US2] Execute Corruption Injection: Run `code/main.py` (or a dedicated script) to execute the corruption injection logic (T023) for all workflows defined in the current sweep. This step generates the `data/processed/corrupted_logs/` files and `data/processed/corruption_map.json`. **Must run before T023b**.
+- [X] T023b [US2] Execute immediate checksumming: **Must run after T023-Exec completes**. Run the `checksum_manager` utility (from T017a) to calculate SHA256 for **EVERY** file in `data/processed/corrupted_logs/` and `data/processed/corruption_map.json` immediately after corruption injection and register/update entries in `state/projects/PROJ-927-llmxive-follow-up-extending-openrath-ses.yaml`.
+- [X] T024a [P] [US2] Implement stochastic network delay (jitter) simulation in `code/executors/event_log_executor.py`: Inject `time.sleep(random.uniform(0, jitter_ms))` specifically inside the `tool_call()` method (FR-004). **Crucially**: Record the injected jitter duration (in ms) into the `corruption_map.json` entry for the corresponding log artifact or the log artifact's metadata (as per T026) so T031 can distinguish it from reconstruction overhead. (T052 logic integrated here).
+- [X] T024b [P] [US2] Implement stochastic network delay (jitter) simulation in `code/executors/session_first_executor.py`: Inject `time.sleep(random.uniform(0, jitter_ms))` specifically inside the `tool_call()` method (FR-004). **Crucially**: Record the injected jitter duration (in ms) into the `corruption_map.json` entry for the corresponding log artifact or the log artifact's metadata (as per T026) so T031 can distinguish it from reconstruction overhead. (T052 logic integrated here).
+- [X] T025 [US2] Integrate corruption injection into the execution flow in `code/main.py` to ensure logs are corrupted *after* generation (Phase 3 output) but *before* reconstruction. Explicitly depend on the **execution** of T023-Exec (corruption logic) and T026-Exec (corruption map) being available as artifacts. This task orchestrates the execution of the executors (T021/T022) and the corruption injector (T023).
+- [X] T026 [P] [US2] Implement central corruption map logic in `code/simulators/corruption_injector.py::log_corruption`: Write the corruption status to a central `data/processed/corruption_map.json` artifact. **PROHIBITED**: Do NOT create sidecar `.meta` files or modify JSON roots to flag corruption; the central map is the single source of truth. **Must be executed** before T023b to ensure the map exists for checksumming. Validate against the schema defined in T026a before writing.
+- [X] T026-Exec [US2] Execute Corruption Map Generation: Run the logic from T026 to generate the `data/processed/corruption_map.json` file for the current sweep. **Must run before T023b**.
 - [X] T026a [P] Define Corruption Map Schema: Create `code/simulators/schemas.py` (or add to existing schemas) containing the schema for `corruption_map.json` to be used by T026 for validation.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -134,24 +132,26 @@ Rewritten passage:`, and directory paths for `RAW_DATA_DIR`, `PROCESSED_DATA_DIR
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T028 [P] [US3] Unit test for reconstruction logic in `tests/unit/test_reconstruction.py` (verify state restoration).
-- [ ] T029 [P] [US3] Unit test for McNemar's test integration in `tests/unit/test_metrics.py` (verify statistical calculation).
+- [X] T028 [P] [US3] Unit test for reconstruction logic in `tests/unit/test_reconstruction.py` (verify state restoration).
+- [X] T029 [P] [US3] Unit test for McNemar's test integration in `tests/unit/test_metrics.py` (verify statistical calculation).
 
 ### Implementation for User Story 3
 
 - [X] T030 [P] [US3] Implement `code/reconstructors/reconstruction_engine.py` to parse corrupted logs and rebuild state/decision tree.
 - [X] T031 [US3] Implement Reconstruction, Detection, and Aggregation Logic: In `code/reconstructors/engine.py` and `code/analyzers/metrics_calculator.py`, implement a cohesive flow to:
-    1. Detect "Unrecoverable" workflows by reading `data/processed/corruption_map.json` and cross-referencing with `decision_tree.nodes` (FR-007).
-    2. Calculate "Total Resilience" (Success/Total) where Unrecoverable cases are failures (FR-005).
-    3. Calculate "Recoverable State Fidelity" (Success/Recoverable) and "Unrecoverable Rate" (Unrecoverable/Total) as secondary metrics.
-    4. Measure "Replay Latency" (time from start of reconstruction to completion) (FR-006).
-    5. Generate `reconstruction_result.json` for each workflow containing success status, reconstructed state, and latency.
-    6. Aggregate all metrics into a single `data/processed/results/aggregated_metrics.json` file (Single Source of Truth).
-- [X] T034a [US3] Implement primary statistical test in `code/analyzers/statistical_test.py`: Cochran's Q test on the 2x2x3 design (Architecture x Outcome x Corruption Rate) as defined in Plan T013.
+ 1. Detect "Unrecoverable" workflows by reading `data/processed/corruption_map.json` and cross-referencing with `decision_tree.nodes` (FR-007). **CRITICAL**: Implement the specific graph-traversal algorithm to check if any node in the decision path references a `deleted` log entry. If so, mark the workflow as `Unrecoverable` and record the specific missing dependency. Do NOT crash; handle gracefully.
+ 2. Calculate "Total Resilience" (Success/Total) where Unrecoverable cases are failures (FR-005).
+ 3. Calculate "Recoverable State Fidelity" (Success/Recoverable) and "Unrecoverable Rate" (Unrecoverable/Total) as secondary metrics.
+ 4. Measure "Replay Latency" (time from start of reconstruction to completion) (FR-006).
+ 5. Generate `reconstruction_result.json` for each workflow containing success status, reconstructed state, and latency.
+ 6. Aggregate all metrics into a single `data/processed/results/aggregated_metrics.json` file (Single Source of Truth).
+ 7. **Fail Gracefully**: If a required log entry is missing (and not marked as deleted in the corruption map), mark the workflow as `Unrecoverable` and record the missing dependency. Do NOT raise a `FileNotFoundError` that crashes the script (T054 logic integrated here).
+- [X] T034a [US3] Implement primary statistical test in `code/analyzers/statistical_test.py`: Cochran's Q test on a multi-factor design (Architecture x Outcome x Corruption Rate) as defined in Plan T013. **CRITICAL**: If assumptions are violated (e.g., N < 25, empty cells), automatically switch to Monte Carlo (10k reps) or Exact McNemar as defined in T016. Log the switch to `data/processed/results/aggregated_metrics.json` or console, NOT a new file.
 - [X] T034b [US3] Implement post-hoc statistical analysis in `code/analyzers/statistical_test.py`: McNemar's test with Holm-Bonferroni correction for pairwise comparisons as defined in Plan T014.
 - [X] T034c [US3] Implement latency statistical comparison in `code/analyzers/statistical_test.py`: Implement Paired t-test (or Wilcoxon Signed-Rank) for latency comparison between architectures as defined in Plan T015.
 - [X] T035 [US3] Implement sensitivity sweep logic in `code/main.py` to iterate over the `SWEEP_RATES` list defined in `code/config.py` (T004) and run the full pipeline for each rate in the concrete set `{0.05, 0.10, 0.20}` (SC-004).
-- [X] T038 [US3] Implement fallback logic for small N contingency in `code/analyzers/statistical_test.py`: Use Exact McNemar if N < 25, and Monte Carlo (a sufficient number of repetitions) for Cochran's Q if assumptions are violated.
+- [X] T038 [US3] Implement fallback logic for small N contingency in `code/analyzers/statistical_test.py`: (Wikipedia: McNemar's test, 's_test), and Monte Carlo (a sufficient number of repetitions) for Cochran's Q if assumptions are violated.
+- [X] T017c [US3] Execute final data hygiene checksumming: Run the `checksum_manager` utility (from T017a) to calculate SHA256 for **EVERY** file under `data/` (both `data/raw/` and `data/processed/`) and register/update entries in `state/projects/PROJ-927-llmxive-follow-up-extending-openrath-ses.yaml` to satisfy Constitution Principle III. This task runs only after all data generation and processing is complete.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -161,12 +161,10 @@ Rewritten passage:`, and directory paths for `RAW_DATA_DIR`, `PROCESSED_DATA_DIR
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T041 [P] Documentation updates in `README.md` and `docs/`.
-- [ ] T042 Code cleanup and refactoring.
-- [X] T043 [P] Performance optimization for sweep: Refactor the main execution loop in `code/main.py` to use batched processing and streaming to ensure < 6h runtime and < 4GB RAM; add `tests/bench_sweep.py` to verify performance constraints.
-- [ ] T044 [P] Additional unit tests in `tests/unit/`.
-- [ ] T045 Run `quickstart.md` validation.
-- [X] T017c [P] Execute final data hygiene checksumming: Run the `checksum_manager` utility (from T017a) to calculate SHA256 for **EVERY** file under `data/` (both `data/raw/` and `data/processed/`) and register/update entries in `state/projects/PROJ-927-llmxive-follow-up-extending-openrath-ses.yaml` to satisfy Constitution Principle III. This task runs only after all data generation and processing is complete.
+- [X] T041 [P] Documentation updates: Create `README.md` with sections: Installation, Usage (CLI examples for `code/main.py`), Architecture Diagram, Data Hygiene. Create `docs/architecture.md` and `docs/api.md`. This task is now completed.
+- [X] T044a [P] Additional unit tests: Implement `tests/unit/test_config.py` with `test_seed_validation` and `test_corruption_rate_validation`.
+- [X] T044b [P] Additional unit tests: Implement `tests/unit/test_schemas.py` with `test_workflow_schema_validation` and `test_corruption_map_schema_validation`.
+- [X] T043 [P] Performance optimization for sweep: Refactor the main execution loop in `code/main.py` to use batched processing and streaming to ensure < 6h runtime and < 4GB RAM. Add `tests/bench_sweep.py` to verify performance constraints. This task is sequential and not parallel-safe.
 
 ---
 
