@@ -1,0 +1,36 @@
+# Ruff configuration for llmXive project
+[lint]
+# Enable pycodestyle (`E`), Pyflakes (`F`), and isort (`I`)
+select = ["E", "F", "I", "UP", "B", "C4", "SIM"]
+ignore = []
+
+# Allow autofix for all enabled rules
+fixable = ["ALL"]
+unfixable = []
+
+# Exclude a few generated directories or patterns if necessary
+exclude = [
+    ".git",
+    "__pycache__",
+    ".eggs",
+    "*.egg-info",
+    "build",
+    "dist",
+    "venv",
+    ".venv",
+]
+
+# Same as Black
+line-length = 88
+
+# Allow unused variables when underscore-prefixed
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[lint.per-file-ignores]
+# Ignore specific rules in test files if needed
+"tests/*" = ["S101"] # Allow assert in tests
+
+[lint.isort]
+# Force single line imports for better readability in small files, or combine
+force-single-line = false
+known-first-party = ["code", "tests"]

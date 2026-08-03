@@ -1,0 +1,28 @@
+T023b:
+  c: false
+  h: acae44af16b7865913ccb84a11f94de0d56f436f87b90cce172bce4a274ae438
+  r: The required output file `data/baseline_spatialclaw.csv` does not exist, indicating
+    the baseline agent was not executed and the paired dataset was not generated as
+    specified. The implementer must run `baseline_3d.py` on the exact task instances
+    and produce the CSV file in the `data/` directory.
+T026:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration, test results, or documentation were provided that demonstrate\
+    \ the implementation of logic to subtract blocked 3D library initialization time\
+    \ from step latency calculations. The required artifact (e.g., modified latency\u2011\
+    calculation module, unit tests, or logs showing the exclusion) is missing."
+T035b:
+  c: false
+  h: 0b2e8c2f74deaac482d0753ac872a455a5dca774f745a8dba3ce402baa32d80d
+  r: The `code/stats/power_analysis.py` file is truncated (e.g., an unfinished line
+    in `validate_budget`) and contains no logic to write `data/power_analysis_report.json`.
+    Moreover, the required JSON report file is missing from the repository.
+T036:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, logs, or report artifacts were supplied to demonstrate that a 2\u2011\
+    D\u2011only execution kernel was implemented, that imports of 3\u2011D libraries\
+    \ are blocked, that stochasticity control is enforced, or that performance metrics\
+    \ and a paired 2D/3D comparison report were generated. The required deliverables\
+    \ are missing."

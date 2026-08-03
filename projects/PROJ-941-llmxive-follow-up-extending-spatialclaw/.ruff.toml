@@ -1,0 +1,20 @@
+# Ruff configuration file (duplicate of pyproject.toml settings for IDE compatibility)
+line-length = 88
+target-version = "py311"
+
+select = [
+    "E",
+    "W",
+    "F",
+    "I",
+    "C",
+    "B",
+]
+ignore = [
+    "E501",
+    "B008",
+]
+
+[isort]
+known-first-party = ["agents", "data", "kernel", "metrics", "stats", "utils", "tools"]
+force-sort-within-sections = true
