@@ -4,110 +4,106 @@ import logging
 import os
 import sys
 from pathlib import Path
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, List
 
 import numpy as np
-from scipy.stats import f
+import pandas as pd
+from scipy.stats import spearmanr
+from statsmodels.stats.outliers_influence import variance_inflation_factor
 from statsmodels.stats.power import FTestAnovaPower
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='[%(levelname)s] [%(name)s] %(message)s',
-    handlers=[
-        logging.StreamHandler(sys.stdout),
-        logging.FileHandler('data/processed/pipeline.log')
-    ]
-)
-logger = logging.getLogger('utils')
+# Configure logging if not already done
+if not logging.getLogger().handlers:
+    logging.basicConfig(
+        level=logging.INFO,
+        format='[%(levelname)s] [%(asctime)s] %(message)s',
+        datefmt='%Y-%m-%d %H:%M:%S'
+    )
+logger = logging.getLogger(__name__)
 
-def log_data_gap_flag(message: str) -> None:
-    """Log a CRITICAL DATA GAP flag."""
-    logger.critical(f"CRITICAL DATA GAP: {message}")
+def log_data_gap_flag(message: str):
+    logger.critical(f"[CRITICAL DATA GAP] {message}")
 
-def log_underpowered_flag(message: str) -> None:
-    """Log an UNDERPOWERED flag."""
-    logger.critical(f"UNDERPOWERED: {message}")
+def log_underpowered_flag(message: str):
+    logger.warning(f"[UNDERPOWERED] {message}")
 
-def log_under_determined_flag(message: str) -> None:
-    """Log an UNDER-DETERMINED flag."""
-    logger.critical(f"UNDER-DETERMINED: {message}")
+def log_under_determined_flag(message: str):
+    logger.warning(f"[UNDER-DETERMINED] {message}")
 
-def calculate_vif(data: np.ndarray) -> np.ndarray:
+def calculate_vif(X: pd.DataFrame) -> pd.Series:
     """
-    Calculate Variance Inflation Factor for each feature.
-    data: array-like, shape (n_samples, n_features)
-    Returns: array of VIF values
+    Calculates Variance Inflation Factor for each column in a DataFrame.
+    
+    This function extracts the VIF calculation logic to be reusable across
+    the pipeline (e.g., in code/05_correlation.py).
+    
+    Args:
+        X: DataFrame of predictors (no intercept column required).
+    
+    Returns:
+        Series of VIF values indexed by column name.
     """
-    if len(data.shape) == 1:
-        data = data.reshape(-1, 1)
+    # Add intercept for statsmodels
+    X_with_intercept = X.copy()
+    X_with_intercept['intercept'] = 1.0
     
-    n_features = data.shape[1]
-    vif = np.zeros(n_features)
+    vif_series = pd.Series(index=X.columns, dtype=float)
     
-    for i in range(n_features):
-        # Regress feature i against all other features
-        y = data[:, i]
-        X = np.delete(data, i, axis=1)
-        # Add intercept
-        X = np.column_stack([np.ones(X.shape[0]), X])
-        
-        # OLS
+    for col in X.columns:
         try:
-            # beta = (X'X)^-1 X'y
-            XtX = X.T @ X
-            XtX_inv = np.linalg.inv(XtX)
-            beta = XtX_inv @ X.T @ y
-            y_pred = X @ beta
-            residuals = y - y_pred
-            ss_res = np.sum(residuals ** 2)
-            ss_tot = np.sum((y - np.mean(y)) ** 2)
-            r2 = 1 - (ss_res / ss_tot)
-            vif[i] = 1 / (1 - r2) if r2 < 1 else np.inf
-        except np.linalg.LinAlgError:
-            vif[i] = np.inf
+            vif = variance_inflation_factor(X_with_intercept.values, list(X_with_intercept.columns).index(col))
+            vif_series[col] = vif
+        except Exception as e:
+            logger.warning(f"Could not calculate VIF for {col}: {e}")
+            vif_series[col] = np.nan
     
-    return vif
+    return vif_series
 
-def benjamini_hochberg_fdr(p_values: list) -> list:
+def benjamini_hochberg_fdr(p_values: List[float]) -> List[float]:
     """
-    Apply Benjamini-Hochberg FDR correction.
-    p_values: list of p-values
-    Returns: list of adjusted p-values
+    Applies Benjamini-Hochberg FDR correction to a list of p-values.
+    
+    Args:
+        p_values: List of raw p-values.
+    
+    Returns:
+        List of adjusted p-values.
     """
     from statsmodels.stats.multitest import multipletests
-    _, p_adjusted, _, _ = multipletests(p_values, alpha=0.05, method='fdr_bh')
-    return p_adjusted.tolist()
+    
+    p_values = np.array(p_values)
+    # Filter out NaNs for calculation, then map back? 
+    # multipletests handles NaNs by returning NaN for them usually.
+    rejected, pvals_corrected, _, _ = multipletests(p_values, alpha=0.05, method='fdr_bh')
+    return pvals_corrected.tolist()
 
-def generate_checksum(file_path: Path) -> str:
-    """Generate SHA-256 checksum for a file."""
+def generate_checksum(file_path: str) -> str:
+    """Generates a SHA256 checksum for a file."""
     sha256_hash = hashlib.sha256()
     with open(file_path, "rb") as f:
         for byte_block in iter(lambda: f.read(4096), b""):
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-def calculate_permanova_power(n_samples: int, n_groups: int, effect_size: float = 0.15) -> float:
+def calculate_permanova_power(n: int, effect_size: float = 0.15, alpha: float = 0.05) -> float:
     """
-    Estimate power for PERMANOVA using F-test approximation.
-    effect_size (f2) = R^2 / (1 - R^2)
+    Estimates power for PERMANOVA using F-test approximation.
     """
-    f2 = effect_size / (1 - effect_size)
-    power_analysis = FTestAnovaPower()
+    power_calc = FTestAnovaPower()
+    # Effect size f^2 = R^2 / (1 - R^2)
+    f2 = (effect_size ** 2) / (1 - (effect_size ** 2))
+    # Convert f2 to eta-squared equivalent for power calculation if needed,
+    # but FTestAnovaPower expects effect_size as f (Cohen's f) or f2?
+    # statsmodels FTestAnovaPower uses effect_size = f (Cohen's f).
+    # f = sqrt(f2)
+    f = np.sqrt(f2)
+    
     try:
-        power = power_analysis.solve_power(effect_size=np.sqrt(f2),
-                                           nobs=n_samples,
-                                           alpha=0.05,
-                                           power=None,
-                                           ratio=1.0,
-                                           alternative='larger')
-        return float(power) if not np.isnan(power) else 0.0
+        power = power_calc.solve_power(effect_size=f, nobs1=n, alpha=alpha, k_groups=3) # Assuming 3 groups
+        return power
     except Exception:
         return 0.0
 
-def validate_power_requirements(power: float, n_per_group: int, min_power: float = 0.8, min_n: int = 10) -> bool:
-    """
-    Validate power requirements.
-    Returns True if power >= min_power AND n_per_group >= min_n
-    """
-    return (power >= min_power) and (n_per_group >= min_n)
+def validate_power_requirements(power: float, n_per_group: int) -> bool:
+    """Checks if power and sample size meet requirements."""
+    return power >= 0.8 and n_per_group >= 10

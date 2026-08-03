@@ -12,11 +12,13 @@ def get_logger(name: str) -> logging.Logger:
 
 def configure_root_logger(level: int = logging.INFO):
     """Configures the root logger."""
-    logging.basicConfig(
-        level=level,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        handlers=[logging.StreamHandler(sys.stdout)]
-    )
+    # Prevent multiple basicConfig calls if already configured
+    if not logging.getLogger().handlers:
+        logging.basicConfig(
+            level=level,
+            format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+            handlers=[logging.StreamHandler(sys.stdout)]
+        )
 
 def get_module_logger(name: str) -> logging.Logger:
     """Gets a module-specific logger."""

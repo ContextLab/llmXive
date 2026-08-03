@@ -43,7 +43,7 @@
 
 **Historical Context (T004, T005)**: Previous runs flagged `src/utils/seeds.py` (T004) and `src/utils/memory_monitor.py` (T005) as missing/invalid. The current tasks (T004, T005) are explicitly defined to implement these artifacts with strict determinism and memory enforcement. Implementers must ensure these are fully functional before proceeding to Phase 5 orchestration.
 
-**Time Budget & Reduction**: The time limit is strict. T056 implements a "Variant Reduction Strategy" that triggers at [deferred] of the time budget. If a critical baseline (Standard RL) is dropped, the experiment flags 'Inconclusive'.
+**Time Budget & Reduction**: The time limit is strict. [UNRESOLVED-CLAIM: c_0fded012 — status=not_enough_info] T056 implements a "Variant Reduction Strategy" that triggers at [deferred] of the time budget. If a critical baseline (Standard RL) is dropped, the experiment flags 'Inconclusive'.
 
 **Early Window Definition**: The "early trajectory" window is defined as `max(50, ceil(total_steps * 0.10))` (T018c). This value is calculated in T018c and used by T030c and T040.
 

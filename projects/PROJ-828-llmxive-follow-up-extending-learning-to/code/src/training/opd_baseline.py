@@ -1,361 +1,309 @@
-"""
-On-Policy Distillation (OPD) Baseline Implementation.
-
-This module implements the OPD baseline runner which:
-1. Loads a pruned TinyLlama model and GSM8K dataset.
-2. Performs training steps while recording weight updates (Delta W).
-3. Saves per-layer update tensors to disk for later SVD analysis.
-"""
-
 import os
 import json
 import gc
 import math
+import time
 from pathlib import Path
-from typing import List, Dict, Any, Optional, Tuple, Dict as DictType
+from typing import List, Dict, Any, Optional, Tuple
 
 import torch
 import torch.nn as nn
-from torch.optim import AdamW
-from torch.utils.data import DataLoader
+import torch.optim as optim
 from datasets import load_dataset
+from transformers import AutoModelForCausalLM, AutoTokenizer
+from peft import get_peft_model, LoraConfig, TaskType
 
-# Import project utilities
-from src.utils.seeds import set_seed
-from src.utils.memory_monitor import MemoryMonitor, enforce_memory_limit
+# Import from project API surface
+from src.utils.seeds import set_seed, generate_seed_from_string
+from src.utils.memory_monitor import MemoryMonitor
 from src.utils.hasher import compute_file_hash
-from src.data.loader import load_gsm8k_dataset
-from src.models.config import prune_tinyllama, get_model_config
-from src.models.backbone import TinyLlamaBackbone
+from src.models.config import prune_model_to_target_params
+from src.data.loader import load_gsm8k_subset
 
 # Constants
-RESULTS_DIR = Path("results")
-OPD_DIR = RESULTS_DIR / "opd"
-MEMORY_LIMIT_GB = 6.5  # Conservative limit under 7GB
+DEFAULT_TARGET_PARAMS = 300_000_000  # 300M
+PARAM_TOLERANCE = 0.05  # 5%
+DEFAULT_TOTAL_STEPS = 500
+DEFAULT_BATCH_SIZE = 4
+DEFAULT_LEARNING_RATE = 1e-4
+DEFAULT_MODEL_NAME = "TinyLlama/TinyLlama-1.1B-Chat-v1.0"
+
+
+class GSM8KDataset(torch.utils.data.Dataset):
+    """Dataset wrapper for GSM8K problems."""
+    def __init__(self, data: List[Dict[str, str]], tokenizer: AutoTokenizer, max_length: int = 512):
+        self.data = data
+        self.tokenizer = tokenizer
+        self.max_length = max_length
+
+    def __len__(self):
+        return len(self.data)
+
+    def __getitem__(self, idx):
+        item = self.data[idx]
+        # Format: "Question: {question} Answer: {answer}"
+        prompt = f"Question: {item['question']} Answer: {item['answer']}"
+        encoded = self.tokenizer(
+            prompt,
+            truncation=True,
+            max_length=self.max_length,
+            padding="max_length",
+            return_tensors="pt"
+        )
+        return {
+            "input_ids": encoded["input_ids"].squeeze(0),
+            "attention_mask": encoded["attention_mask"].squeeze(0),
+            "labels": encoded["input_ids"].squeeze(0).clone()  # Teacher forcing
+        }
 
 
 def calculate_update_delta(
-    param: torch.Tensor,
-    grad: torch.Tensor,
-    lr: float,
-    weight_decay: float = 0.0
-) -> torch.Tensor:
+    model: nn.Module,
+    old_state_dict: Dict[str, torch.Tensor],
+    new_state_dict: Dict[str, torch.Tensor]
+) -> Dict[str, torch.Tensor]:
     """
-    Calculate the update delta (Delta W) for a parameter given its gradient.
-    Delta W = - (lr * grad + lr * weight_decay * param)
-    
-    Args:
-        param: Current parameter tensor.
-        grad: Gradient tensor.
-        lr: Learning rate.
-        weight_decay: Weight decay coefficient.
-        
-    Returns:
-        Tensor representing the update vector.
+    Calculate the difference (delta) between current and previous weights.
+    Returns a dict of {layer_name: delta_tensor}.
     """
-    if grad is None:
-        return torch.zeros_like(param)
-    
-    update = lr * grad
-    if weight_decay > 0:
-        update = update + lr * weight_decay * param
-    
-    # The actual weight update applied by optimizer.step() is -update
-    # We record the direction of the change: -update
-    return -update
+    deltas = {}
+    for name, param in model.named_parameters():
+        if name in old_state_dict:
+            delta = param.data.detach().clone() - old_state_dict[name]
+            deltas[name] = delta
+    return deltas
 
 
 def save_layer_updates(
-    updates: List[Dict[str, torch.Tensor]],
-    seed: int,
+    deltas: Dict[str, torch.Tensor],
+    output_dir: Path,
     step: int,
-    output_dir: Path
-) -> None:
+    seed: int
+) -> List[Path]:
     """
-    Save per-layer update vectors to disk.
-    
-    Structure:
-    results/opd/updates_seed_{i}/layer_{l}.pt
-    
-    Args:
-        updates: List of dicts mapping layer_name -> delta tensor.
-        seed: Random seed for this run.
-        step: Current training step.
-        output_dir: Base directory for saving updates.
+    Save per-layer update vectors to separate files to ensure memory compliance.
+    Format: results/opd/updates_seed_{i}/layer_{l}.pt
     """
-    run_dir = output_dir / f"updates_seed_{seed}"
-    run_dir.mkdir(parents=True, exist_ok=True)
-    
-    # Save a snapshot of the current step's updates
-    step_dir = run_dir / f"step_{step}"
-    step_dir.mkdir(parents=True, exist_ok=True)
-    
-    for layer_name, delta in updates.items():
+    seed_dir = output_dir / f"updates_seed_{seed}"
+    seed_dir.mkdir(parents=True, exist_ok=True)
+
+    saved_files = []
+    for layer_name, delta in deltas.items():
         # Sanitize layer name for filename
         safe_name = layer_name.replace(".", "_").replace("/", "_")
-        file_path = step_dir / f"layer_{safe_name}.pt"
-        
-        # Detach and move to CPU before saving
-        cpu_delta = delta.detach().cpu()
-        torch.save(cpu_delta, file_path)
-        
-        # Log hash for integrity
-        # (Optional: could be aggregated later, but good for verification)
-        # file_hash = compute_file_hash(file_path)
-        # print(f"Saved {file_path} (hash: {file_hash[:8]})")
+        file_path = seed_dir / f"layer_{step}_{safe_name}.pt"
+        torch.save(delta, file_path)
+        saved_files.append(file_path)
+
+    return saved_files
 
 
 def run_opd_step(
-    model: TinyLlamaBackbone,
+    model: nn.Module,
     batch: Dict[str, torch.Tensor],
-    optimizer: torch.optim.Optimizer,
-    criterion: nn.Module,
-    memory_monitor: Optional[MemoryMonitor] = None
+    optimizer: optim.Optimizer,
+    old_state_dict: Dict[str, torch.Tensor]
 ) -> Tuple[Dict[str, torch.Tensor], float]:
     """
-    Execute a single OPD training step and record weight updates.
-    
-    Args:
-        model: The model instance.
-        batch: Input batch from DataLoader.
-        optimizer: Optimizer instance.
-        criterion: Loss function.
-        memory_monitor: Optional monitor to check memory usage.
-        
-    Returns:
-        Tuple of (updates_dict, loss_value).
-        updates_dict maps layer_name -> delta tensor.
+    Execute one training step and return the weight update delta and loss.
     """
-    if memory_monitor:
-        enforce_memory_limit(memory_monitor, MEMORY_LIMIT_GB)
-
     optimizer.zero_grad()
-
     input_ids = batch["input_ids"]
-    attention_mask = batch["attention_mask"]
     labels = batch["labels"]
+    attention_mask = batch["attention_mask"]
 
-    # Forward pass
     outputs = model(
         input_ids=input_ids,
         attention_mask=attention_mask,
         labels=labels
     )
     loss = outputs.loss
-
-    # Backward pass
     loss.backward()
-
-    # Record updates before optimizer step
-    updates = {}
-    for name, param in model.named_parameters():
-        if param.grad is not None:
-            delta = calculate_update_delta(
-                param.data, 
-                param.grad, 
-                optimizer.param_groups[0]['lr'],
-                optimizer.param_groups[0].get('weight_decay', 0.0)
-            )
-            updates[name] = delta
-
-    # Apply updates
     optimizer.step()
 
-    return updates, loss.item()
+    # Calculate delta after update
+    new_state_dict = {k: v.detach().clone() for k, v in model.named_parameters()}
+    delta = calculate_update_delta(model, old_state_dict, new_state_dict)
+
+    # Update old state for next step
+    for name, param in model.named_parameters():
+        old_state_dict[name] = param.detach().clone()
+
+    return delta, loss.item()
+
+
+def calculate_early_window(total_steps: int) -> int:
+    """
+    Define the 'early' trajectory window.
+    Logic: max(50, ceil(total_steps * 0.10))
+    """
+    return max(50, math.ceil(total_steps * 0.10))
 
 
 def run_opd_baseline(
     seed: int,
-    total_steps: int,
-    batch_size: int = 4,
-    learning_rate: float = 1e-4,
-    early_window_ratio: float = 0.10,
-    output_dir: Optional[Path] = None
+    total_steps: int = DEFAULT_TOTAL_STEPS,
+    batch_size: int = DEFAULT_BATCH_SIZE,
+    learning_rate: float = DEFAULT_LEARNING_RATE,
+    output_dir: Path = Path("results"),
+    model_name: str = DEFAULT_MODEL_NAME
 ) -> Dict[str, Any]:
     """
-    Run the OPD baseline training loop.
-    
-    This function:
-    1. Initializes model and data.
-    2. Runs training for `total_steps`.
-    3. Records Delta W matrices for every step.
-    4. Saves updates to `results/opd/updates_seed_{seed}/`.
-    
-    Args:
-        seed: Random seed.
-        total_steps: Number of training steps to run.
-        batch_size: Batch size for dataloader.
-        learning_rate: Learning rate for optimizer.
-        early_window_ratio: Ratio of total steps to define early window (for config).
-        output_dir: Base output directory. Defaults to results/opd.
-        
-    Returns:
-        Dict containing run metadata and paths.
+    Run the On-Policy Distillation (OPD) baseline.
+    Records Delta W matrices for the initial phase of training.
+    Saves list of tensors to results/opd/updates_seed_{i}.pt
     """
-    if output_dir is None:
-        output_dir = OPD_DIR
-        
-    output_dir.mkdir(parents=True, exist_ok=True)
-    
-    # Initialize Seed
+    # Set seed for determinism
     set_seed(seed)
-    
-    # Initialize Memory Monitor
-    monitor = MemoryMonitor(limit_gb=MEMORY_LIMIT_GB)
-    monitor.start()
 
-    # Load Data
-    print(f"[Seed {seed}] Loading GSM8K dataset...")
-    dataset = load_gsm8k_dataset("train")
-    
-    # Create DataLoader
-    dataloader = DataLoader(
-        dataset, 
-        batch_size=batch_size, 
-        shuffle=True,
-        collate_fn=lambda x: {
-            k: torch.stack([item[k] for item in x]) if isinstance(item[k], torch.Tensor) 
-               else torch.tensor([item[k] for item in x])
-            for k in x[0].keys()
-        }
+    # Initialize memory monitor
+    memory_monitor = MemoryMonitor(limit_bytes=7 * 1024**3)  # 7GB limit
+    memory_monitor.start()
+
+    # Create output directories
+    opd_dir = output_dir / "opd"
+    opd_dir.mkdir(parents=True, exist_ok=True)
+
+    # Load data
+    print(f"Loading GSM8K subset for seed {seed}...")
+    dataset = load_gsm8k_subset()
+    if len(dataset) < 1000:
+        raise ValueError(f"Dataset too small: {len(dataset)}")
+
+    tokenizer = AutoTokenizer.from_pretrained(model_name)
+    if tokenizer.pad_token is None:
+        tokenizer.pad_token = tokenizer.eos_token
+
+    gsm_dataset = GSM8KDataset(dataset, tokenizer)
+    dataloader = torch.utils.data.DataLoader(
+        gsm_dataset, batch_size=batch_size, shuffle=True
     )
-    iterator = iter(dataloader)
 
-    # Load Model
-    print(f"[Seed {seed}] Initializing pruned model...")
-    model_config = get_model_config(target_params=300_000_000)
-    model = TinyLlamaBackbone(config=model_config)
-    model.train()
+    # Load and prune model
+    print(f"Loading and pruning model: {model_name}...")
+    base_model = AutoModelForCausalLM.from_pretrained(
+        model_name,
+        torch_dtype=torch.float32,
+        device_map="cpu"
+    )
+    base_model = prune_model_to_target_params(
+        base_model,
+        target_params=DEFAULT_TARGET_PARAMS,
+        tolerance=PARAM_TOLERANCE
+    )
 
-    # Optimizer
-    optimizer = AdamW(model.parameters(), lr=learning_rate)
-    criterion = nn.CrossEntropyLoss()
+    # Initialize optimizer
+    optimizer = optim.AdamW(base_model.parameters(), lr=learning_rate)
 
-    # Run Training Loop
-    print(f"[Seed {seed}] Starting OPD training for {total_steps} steps...")
-    all_updates = []
-    
-    for step in range(total_steps):
-        try:
-            batch = next(iterator)
-        except StopIteration:
-            # Reset iterator if dataset exhausted
-            iterator = iter(dataloader)
-            batch = next(iterator)
+    # Initialize state tracking
+    old_state_dict = {k: v.detach().clone() for k, v in base_model.named_parameters()}
+    all_deltas = []  # Accumulate deltas for the summary file
+    early_window = calculate_early_window(total_steps)
+    memory_log = []
 
-        # Ensure tensors are on correct device (CPU for this project)
-        batch = {k: v.cpu() for k, v in batch.items()}
+    print(f"Starting OPD training for {total_steps} steps (Early window: {early_window})...")
+    start_time = time.time()
 
-        # Run Step
-        updates, loss = run_opd_step(
-            model, batch, optimizer, criterion, monitor
-        )
+    step = 0
+    for epoch in range(100):  # Limit epochs
+        for batch in dataloader:
+            if step >= total_steps:
+                break
 
-        # Save updates for this step
-        # T018b requirement: Save per-layer updates to separate files
-        save_layer_updates(updates, seed, step, output_dir)
-        
-        all_updates.append(updates)
+            # Move batch to CPU
+            batch = {k: v.to("cpu") for k, v in batch.items()}
 
-        # Logging
-        if step % 10 == 0:
-            mem_usage = monitor.get_peak_memory_gb()
-            print(f"[Seed {seed}] Step {step}/{total_steps} | Loss: {loss:.4f} | Peak Mem: {mem_usage:.2f}GB")
+            # Run step
+            delta, loss = run_opd_step(base_model, batch, optimizer, old_state_dict)
+            all_deltas.append(delta)
 
-        # Cleanup
-        del batch
-        del updates
-        gc.collect()
+            # Log per-step updates (T018b requirement)
+            if step % 10 == 0:  # Log every 10 steps to save I/O
+                save_layer_updates(delta, opd_dir, step, seed)
 
-    monitor.stop()
-    
-    # Save aggregated list of updates (for quick access if needed, though disk is primary)
-    # Note: Saving full tensors in memory might be heavy, so we rely on the disk writes above.
-    # If we must save the list, we do it carefully.
-    # For T018 requirement: "Save list of tensors to results/opd/updates_seed_{i}.pt"
-    # We will save a summary or a lightweight reference if the full list is too big,
-    # but the task asks for the list. Given memory constraints, we save the path list
-    # or a checkpoint of the last few if memory is tight.
-    # However, to strictly follow "Save list of tensors", we attempt to save the list
-    # of references or a summary file. 
-    # Actually, the task says "Save list of tensors". If we saved them to disk per step,
-    # we can save a manifest. But let's try to save the last N or a summary.
-    # Re-reading T018: "Save list of tensors to results/opd/updates_seed_{i}.pt".
-    # To avoid OOM, we will save a manifest file that points to the per-step files,
-    # OR if the list is small enough (e.g. just the last step or a sample), save that.
-    # Given the strict memory constraint (7GB) and the size of model weights, 
-    # saving ALL steps in memory is impossible.
-    # The task likely implies saving the *record* of updates. 
-    # We will save a manifest JSON and the per-step .pt files as the primary artifact.
-    # If the task strictly demands a .pt file with the list, we will save a truncated list 
-    # (e.g., last 5 steps) to avoid OOM, as "real" full storage is impossible in 7GB RAM.
-    
-    # Let's create a manifest instead to be safe and accurate.
-    manifest = {
-        "seed": seed,
-        "total_steps": total_steps,
-        "output_dir": str(output_dir / f"updates_seed_{seed}"),
-        "files": [f"step_{s}/" for s in range(total_steps)]
-    }
-    manifest_path = output_dir / f"updates_seed_{seed}_manifest.json"
-    with open(manifest_path, "w") as f:
-        json.dump(manifest, f, indent=2)
-        
-    # Also save the list of *paths* as a tensor-friendly structure if needed, 
-    # but the primary data is on disk.
-    # If the user strictly needs a .pt file, we save a summary tensor (e.g. mean update).
-    # But the requirement "Save list of tensors" is best satisfied by the disk files 
-    # + a manifest. 
-    # To be safe and strictly comply with "Save list of tensors ... .pt", 
-    # we will save the list of *last step's* updates or a summary. 
-    # However, the most robust interpretation for large data is the per-step files.
-    # We will generate a .pt file containing the *paths* or a summary if needed.
-    # Let's assume the "list of tensors" refers to the data we just saved.
-    # We will save a summary of the run.
-    
-    # T018c: Calculate early window
-    early_window_steps = max(50, math.ceil(total_steps * early_window_ratio))
-    early_config = {
-        "total_steps": total_steps,
-        "early_window_steps": early_window_steps,
-        "ratio": early_window_ratio
-    }
-    config_path = RESULTS_DIR / "early_window_config.json"
-    # Only write once if it doesn't exist or overwrite with latest run's config
-    # Since multiple seeds run, we might want to keep one global config if they match.
-    # For now, we write it.
-    with open(config_path, "w") as f:
-        json.dump(early_config, f, indent=2)
+            # Memory check
+            if step % 50 == 0:
+                mem_usage = memory_monitor.get_current_usage()
+                memory_log.append({"step": step, "ram_mb": mem_usage / (1024**2)})
+                if mem_usage > 7 * 1024**3:
+                    raise RuntimeError(f"Memory limit exceeded at step {step}: {mem_usage / (1024**3):.2f} GB")
 
-    print(f"[Seed {seed}] OPD run complete. Updates saved to {output_dir}")
-    
+            step += 1
+            if step >= total_steps:
+                break
+
+        if step >= total_steps:
+            break
+
+    elapsed_time = time.time() - start_time
+    peak_memory = memory_monitor.get_peak_usage()
+
+    # Save aggregated deltas for the seed
+    # T018 requirement: Save list of tensors to results/opd/updates_seed_{i}.pt
+    # We save the accumulated deltas for the early window or full run
+    output_file = opd_dir / f"updates_seed_{seed}.pt"
+    torch.save(all_deltas, output_file)
+
+    # Write early window config
+    config_file = output_dir / "early_window_config.json"
+    with open(config_file, "w") as f:
+        json.dump({
+            "total_steps": total_steps,
+            "early_window": early_window,
+            "formula": "max(50, ceil(total_steps * 0.10))"
+        }, f, indent=2)
+
+    # Write memory profile
+    memory_file = output_dir / "memory_profile.json"
+    with open(memory_file, "w") as f:
+        json.dump({
+            "seed": seed,
+            "peak_memory_mb": peak_memory / (1024**2),
+            "log": memory_log
+        }, f, indent=2)
+
+    # Compute hash of output
+    output_hash = compute_file_hash(output_file)
+
+    print(f"OPD Baseline completed for seed {seed} in {elapsed_time:.2f}s")
+    print(f"Output saved to: {output_file}")
+    print(f"Hash: {output_hash}")
+
     return {
         "seed": seed,
-        "total_steps": total_steps,
-        "early_window": early_window_steps,
-        "output_dir": str(output_dir),
-        "manifest": str(manifest_path)
+        "steps": step,
+        "early_window": early_window,
+        "output_file": str(output_file),
+        "hash": output_hash,
+        "peak_memory_mb": peak_memory / (1024**2),
+        "elapsed_time": elapsed_time
     }
 
 
 def main():
     """Entry point for running OPD baseline."""
     import argparse
-    
+
     parser = argparse.ArgumentParser(description="Run OPD Baseline")
     parser.add_argument("--seed", type=int, default=42, help="Random seed")
-    parser.add_argument("--steps", type=int, default=100, help="Total training steps")
-    parser.add_argument("--batch-size", type=int, default=4, help="Batch size")
-    parser.add_argument("--lr", type=float, default=1e-4, help="Learning rate")
-    
+    parser.add_argument("--steps", type=int, default=DEFAULT_TOTAL_STEPS, help="Total training steps")
+    parser.add_argument("--batch-size", type=int, default=DEFAULT_BATCH_SIZE, help="Batch size")
+    parser.add_argument("--lr", type=float, default=DEFAULT_LEARNING_RATE, help="Learning rate")
+    parser.add_argument("--output-dir", type=str, default="results", help="Output directory")
+    parser.add_argument("--model", type=str, default=DEFAULT_MODEL_NAME, help="Base model name")
+
     args = parser.parse_args()
-    
-    run_opd_baseline(
+
+    result = run_opd_baseline(
         seed=args.seed,
         total_steps=args.steps,
         batch_size=args.batch_size,
-        learning_rate=args.lr
+        learning_rate=args.lr,
+        output_dir=Path(args.output_dir),
+        model_name=args.model
     )
+
+    print(json.dumps(result, indent=2))
 
 
 if __name__ == "__main__":

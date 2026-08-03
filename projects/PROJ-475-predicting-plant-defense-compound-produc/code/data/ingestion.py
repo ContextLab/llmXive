@@ -1,6 +1,7 @@
 """
 Data Ingestion Module.
-Fetches data from verified URLs or generates mock data for CI/testing.
+Fetches environmental metadata from verified WorldClim/GBIF URLs.
+Enforces real data constraint: fails loudly if fetch fails.
 """
 import json
 import os
@@ -36,12 +37,6 @@ def parse_vcf_content(content: str) -> List[Dict]:
     Parses VCF content into a list of dictionaries.
     For this project, we simulate parsing a simplified VCF structure.
     """
-    # In a real scenario, use cyvcf2 or similar.
-    # Here we return a mock structure if content is not real VCF.
-    # If content is real, we would parse it.
-    # For the purpose of this pipeline, we assume the fetch returns a JSON-like string
-    # or we fallback to mock generation if the URL is not valid.
-    # To satisfy the "Real Data" constraint, we will attempt to parse if it looks like JSON.
     try:
         data = json.loads(content)
         if isinstance(data, list):
@@ -80,55 +75,105 @@ def fetch_genomic_data() -> Dict:
                 save_data({'data': data}, output_path)
                 return {'data': data}
     
-    logger.warning("Real genomic data fetch failed or not configured. Generating mock data.")
-    # Generate mock data as fallback for CI, but log warning
-    mock_data = generate_all_mock_data()
-    save_data(mock_data, output_path)
-    return mock_data
+    # Real data fetch failed or not configured.
+    # Per strict constraints, we must not silently fallback to mock if the task
+    # specifically requires real data. However, the task description says:
+    # "fetch ... OR generate mock data ... explicitly enforce verified URL check before fallback".
+    # Given the execution history flagged "synthetic/fake INPUT data not authorized",
+    # we must ensure the config has a real URL. If not, we raise.
+    # But the task T011 specifically asks for the logic: "If config.verified_urls['env'] exists... else call mock_generator".
+    # To satisfy the "Real data only" constraint while implementing the task logic:
+    # We will check the URL. If it exists, we fetch. If it fails, we raise.
+    # If the URL does not exist in config, we raise an error indicating configuration is missing.
+    # This prevents silent mock generation which was flagged as fabrication.
+    raise RuntimeError(
+        "Real genomic data fetch failed. Verified URL 'genomic' not found in config or fetch failed. "
+        "Do not generate mock data for research artifacts."
+    )
 
 def fetch_env_data() -> Dict:
-    """Fetches environmental data from verified URL or generates mock."""
+    """Fetches environmental metadata from verified WorldClim/GBIF URL.
+    
+    Logic:
+    1. Check config for verified URL.
+    2. If present, fetch.
+    3. If fetch fails, raise RuntimeError (NO MOCK FALLBACK).
+    4. If URL not present, raise ConfigurationError.
+    """
     config = get_config()
     url = config.verified_urls.get('env')
     output_path = PROJECT_ROOT / "data" / "raw" / "env_data.json"
 
-    if url:
-        logger.info(f"Fetching env data from {url}")
-        content = fetch_url_content(url)
-        if content:
-            try:
-                data = json.loads(content)
-                save_data(data, output_path)
-                return data
-            except json.JSONDecodeError:
-                pass
+    if not url:
+        raise RuntimeError(
+            "Configuration error: Verified URL for 'env' (WorldClim/GBIF) is not set. "
+            "Cannot generate mock data for research artifacts."
+        )
+
+    logger.info(f"Fetching environmental data from {url}")
+    content = fetch_url_content(url)
     
-    logger.warning("Real env data fetch failed or not configured. Generating mock data.")
-    mock_data = generate_all_mock_data()['environmental']
-    save_data(mock_data, output_path)
-    return mock_data
+    if not content:
+        raise RuntimeError(
+            f"Failed to fetch environmental data from {url}. "
+            "Real data fetch failed. No mock fallback allowed."
+        )
+
+    try:
+        data = json.loads(content)
+        # Ensure we have a list or dict with data
+        if isinstance(data, dict) and 'data' in data:
+            data = data['data']
+        elif not isinstance(data, list):
+            # If it's a single object, wrap it or handle appropriately
+            data = [data]
+        
+        save_data(data, output_path)
+        return data
+    except json.JSONDecodeError:
+        raise RuntimeError(
+            f"Failed to parse environmental data from {url}. "
+            "Response was not valid JSON."
+        )
 
 def fetch_compound_data() -> Dict:
-    """Fetches compound data from verified URL or generates mock."""
+    """Fetches compound data from verified URL.
+    
+    Logic: Same strict enforcement as fetch_env_data.
+    """
     config = get_config()
     url = config.verified_urls.get('compound')
     output_path = PROJECT_ROOT / "data" / "raw" / "compound_data.json"
 
-    if url:
-        logger.info(f"Fetching compound data from {url}")
-        content = fetch_url_content(url)
-        if content:
-            try:
-                data = json.loads(content)
-                save_data(data, output_path)
-                return data
-            except json.JSONDecodeError:
-                pass
+    if not url:
+        raise RuntimeError(
+            "Configuration error: Verified URL for 'compound' is not set. "
+            "Cannot generate mock data for research artifacts."
+        )
+
+    logger.info(f"Fetching compound data from {url}")
+    content = fetch_url_content(url)
     
-    logger.warning("Real compound data fetch failed or not configured. Generating mock data.")
-    mock_data = generate_all_mock_data()['compounds']
-    save_data(mock_data, output_path)
-    return mock_data
+    if not content:
+        raise RuntimeError(
+            f"Failed to fetch compound data from {url}. "
+            "Real data fetch failed. No mock fallback allowed."
+        )
+
+    try:
+        data = json.loads(content)
+        if isinstance(data, dict) and 'data' in data:
+            data = data['data']
+        elif not isinstance(data, list):
+            data = [data]
+        
+        save_data(data, output_path)
+        return data
+    except json.JSONDecodeError:
+        raise RuntimeError(
+            f"Failed to parse compound data from {url}. "
+            "Response was not valid JSON."
+        )
 
 def run_all_ingestion():
     """Runs all ingestion steps."""
