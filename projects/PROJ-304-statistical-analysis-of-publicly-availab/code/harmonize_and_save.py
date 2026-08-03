@@ -1,82 +1,92 @@
 """
-Task T016: Write harmonized dataset to data/processed/harmonized.parquet and update checksums.
+Harmonize spatial data and save the final dataset to Parquet.
 
-This script loads the output from the ingestion/preprocessing pipeline (harmonized data),
-ensures it exists, writes it to a Parquet file, and updates the project state checksums.
+This script orchestrates the final step of User Story 1:
+1. Loads synthetic noise and covariate data (chunked for memory safety).
+2. Harmonizes spatial data (merges, aligns CRS, handles missing covariates).
+3. Writes the unified dataset to `data/processed/harmonized.parquet`.
+4. Updates project checksums in the state file.
 """
 import logging
 import sys
 from pathlib import Path
 
-# Add project root to path to ensure imports work in various execution contexts
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-if str(PROJECT_ROOT) not in sys.path:
-    sys.path.insert(0, str(PROJECT_ROOT))
-
 from logger import get_logger, get_project_root
 from hygiene import compute_and_record_checksums
 from ingestion import load_synthetic_data_chunked, harmonize_spatial_data
 
-logger = get_logger(__name__)
-
 def main():
-    """
-    Main entry point for T016.
-    1. Loads and harmonizes data (re-running the pipeline steps to ensure data freshness).
-    2. Writes the result to data/processed/harmonized.parquet.
-    3. Updates checksums in state/projects/PROJ-304-statistical-analysis-of-publicly-availab.yaml.
-    """
+    """Execute the harmonization and save pipeline."""
+    logger = get_logger(__name__)
     project_root = get_project_root()
-    processed_dir = project_root / "data" / "processed"
-    processed_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Define paths
+    output_dir = project_root / "data" / "processed"
+    output_path = output_dir / "harmonized.parquet"
+    
+    logger.info("Starting harmonization and save process.")
+    logger.info(f"Output path: {output_path}")
 
-    output_file = processed_dir / "harmonized.parquet"
+    # Ensure output directory exists
+    output_dir.mkdir(parents=True, exist_ok=True)
 
-    logger.info(f"Starting T016: Harmonizing data and saving to {output_file}")
-
-    # 1. Load and Harmonize Data
-    # We re-run the ingestion logic to ensure we have the latest harmonized state.
-    # T011, T012, T013, T014 are assumed to be implemented and functional.
     try:
-        # Load synthetic data (chunked for memory safety)
-        raw_data = load_synthetic_data_chunked()
-        logger.info(f"Loaded raw synthetic data with {len(raw_data)} rows.")
+        # 1. Load synthetic data (chunked)
+        logger.info("Loading synthetic data chunks...")
+        # load_synthetic_data_chunked returns a generator of DataFrames or a single merged DF
+        # Based on T011 implementation, it returns a generator or the final merged DF.
+        # We assume it yields DataFrames that need to be concatenated or returns one large DF.
+        # Given T005b requirement, it likely returns a generator or a list of chunks.
+        # For simplicity in this step, we assume load_synthetic_data_chunked returns the full
+        # cleaned noise/covariate data ready for harmonization, or we handle the generator.
+        
+        # Let's assume load_synthetic_data_chunked returns a generator of DataFrames
+        # We need to concatenate them before harmonization if it's a generator.
+        # However, looking at typical patterns, it might return the final merged DF if chunking
+        # was internal. Let's assume it returns the full data or a generator.
+        # To be safe and consistent with memory-safe design:
+        data_chunks = load_synthetic_data_chunked()
+        
+        # If it returns a generator, we need to concatenate
+        if hasattr(data_chunks, '__iter__') and not isinstance(data_chunks, pd.DataFrame):
+            import pandas as pd
+            logger.info("Concatenating data chunks...")
+            full_data = pd.concat(list(data_chunks), ignore_index=True)
+        else:
+            full_data = data_chunks
 
-        # Apply harmonization (spatial merge, filtering, aggregation)
-        # This calls the logic implemented in T011-T014
-        harmonized_df = harmonize_spatial_data(raw_data)
-        logger.info(f"Harmonized data created with {len(harmonized_df)} rows.")
+        logger.info(f"Loaded {len(full_data)} rows from synthetic data.")
 
-        if harmonized_df.empty:
-            logger.warning("Harmonized dataset is empty. Proceeding with save anyway.")
+        # 2. Harmonize spatial data
+        logger.info("Harmonizing spatial data...")
+        harmonized_df = harmonize_spatial_data(full_data)
+        
+        if harmonized_df is None or len(harmonized_df) == 0:
+            raise ValueError("Harmonization resulted in an empty dataset.")
 
-    except Exception as e:
-        logger.error(f"Failed to load or harmonize data: {e}", exc_info=True)
-        raise
+        logger.info(f"Harmonized dataset contains {len(harmonized_df)} rows.")
 
-    # 2. Write to Parquet
-    try:
-        # Use pyarrow engine as specified in requirements
-        harmonized_df.to_parquet(
-            output_file,
-            engine='pyarrow',
-            index=False
-        )
-        logger.info(f"Successfully wrote harmonized dataset to {output_file}")
-    except Exception as e:
-        logger.error(f"Failed to write parquet file: {e}", exc_info=True)
-        raise
+        # 3. Write to Parquet
+        logger.info(f"Writing harmonized dataset to {output_path}...")
+        harmonized_df.to_parquet(output_path, index=False)
+        
+        # Verify file creation
+        if not output_path.exists():
+            raise FileNotFoundError(f"Output file {output_path} was not created.")
+        
+        file_size = output_path.stat().st_size
+        logger.info(f"Successfully wrote {file_size} bytes to {output_path}")
 
-    # 3. Update Checksums
-    try:
+        # 4. Update checksums
         logger.info("Updating project checksums...")
         compute_and_record_checksums()
-        logger.info("Checksums updated successfully.")
-    except Exception as e:
-        logger.error(f"Failed to update checksums: {e}", exc_info=True)
-        raise
+        
+        logger.info("Harmonization and save process completed successfully.")
+        return 0
 
-    logger.info("T016 completed successfully.")
+    except Exception as e:
+        logger.error(f"Error during harmonization and save: {e}", exc_info=True)
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

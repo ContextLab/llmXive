@@ -10,8 +10,6 @@ pyarrow
 linearmodels
 dask
 distributed
-pyyaml
 shapely
-pydantic
-ruff
-black
+spreg
+esda

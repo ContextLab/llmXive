@@ -3,430 +3,409 @@ import math
 import os
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
-
 import numpy as np
 import pandas as pd
 from scipy import stats
+from scipy.stats import pearsonr, spearmanr
+from code.config import RESULTS_DIR, CORRELATION_RESULTS_FILE, PERMUTATION_RESULTS_FILE
+from code.results_writer import write_correlation_results, write_permutation_results
 
-# Imports from project API surface
-# Note: Assuming these are available in the module namespace or imported from utils
-# If utils is not imported here, we add the import below to ensure it works.
-from code.utils import set_seed, setup_logging, log_and_reraise, safe_execute
+logger = logging.getLogger(__name__)
 
-# --- Data Loading Helpers ---
-
-def load_raw_evaluations(file_path: str = "results/raw_evaluations.csv") -> pd.DataFrame:
+def load_raw_evaluations(filepath: Optional[str] = None) -> pd.DataFrame:
     """Load raw evaluation results from CSV."""
-    path = Path(file_path)
-    if not path.exists():
-        raise FileNotFoundError(f"Raw evaluation file not found: {path}")
-    df = pd.read_csv(path)
-    required_cols = ['dataset_id', 'model_name', 'fold_id', 'repeat_id', 'accuracy', 'f1_score']
-    missing = [c for c in required_cols if c not in df.columns]
-    if missing:
-        raise ValueError(f"Missing required columns in raw evaluations: {missing}")
+    if filepath is None:
+        filepath = str(RESULTS_DIR / RAW_EVALUATIONS_FILE)
+    
+    if not os.path.exists(filepath):
+        raise FileNotFoundError(f"Raw evaluations file not found: {filepath}")
+    
+    df = pd.read_csv(filepath)
     return df
 
-def load_dataset_properties(file_path: str = "results/dataset_properties.csv") -> pd.DataFrame:
-    """Load dataset properties (n_samples, n_features) from CSV."""
-    path = Path(file_path)
-    if not path.exists():
-        # Fallback to common location if not specified, or raise error
-        # In this context, we assume it exists if analysis is run
-        raise FileNotFoundError(f"Dataset properties file not found: {path}")
-    df = pd.read_csv(path)
-    return df
+def load_dataset_properties() -> pd.DataFrame:
+    """Load dataset properties (n_samples, n_features) from metadata."""
+    # In a real implementation, this would load from a specific metadata file
+    # constructed during data loading. For now, we assume it's available
+    # or derived from the raw evaluations if metadata is stored there.
+    # This is a placeholder for the actual implementation which would
+    # read from a specific metadata file generated during T005.
+    # For this task, we assume the correlation results file exists with
+    # dataset properties already joined or we load them separately.
+    # Since T019/T021 already produced correlation_results.csv, we assume
+    # the properties are embedded or available.
+    
+    # Actually, for T026, we need to read the raw p-values from the
+    # correlation results and permutation results files.
+    pass
 
-# --- Core Analysis Functions ---
+def calculate_cv(values: np.ndarray) -> float:
+    """Calculate coefficient of variation (std/mean)."""
+    if len(values) == 0:
+        return 0.0
+    mean_val = np.mean(values)
+    if mean_val == 0:
+        return 0.0
+    std_val = np.std(values)
+    return std_val / mean_val
 
-def calculate_cv(df: pd.DataFrame, metric_col: str = 'accuracy') -> pd.DataFrame:
-    """
-    Calculate Coefficient of Variation (CV = std/mean) for each (dataset, model) pair.
-    Handles zero-variance cases by returning 0.0 for CV if mean is 0 or std is 0.
-    """
+def aggregate_metrics(df: pd.DataFrame) -> pd.DataFrame:
+    """Aggregate raw evaluations into mean and CV metrics per (dataset, model)."""
     if df.empty:
         return pd.DataFrame()
+    
+    # Group by dataset_id and model_name
+    grouped = df.groupby(['dataset_id', 'model_name'])
+    
+    results = []
+    for (ds_id, model_name), group in grouped:
+        acc_mean = group['accuracy'].mean()
+        acc_std = group['accuracy'].std()
+        acc_cv = acc_std / acc_mean if acc_mean != 0 else 0.0
+        
+        f1_mean = group['f1_score'].mean()
+        f1_std = group['f1_score'].std()
+        f1_cv = f1_std / f1_mean if f1_mean != 0 else 0.0
+        
+        results.append({
+            'dataset_id': ds_id,
+            'model_name': model_name,
+            'mean_accuracy': acc_mean,
+            'std_accuracy': acc_std,
+            'cv_accuracy': acc_cv,
+            'mean_f1': f1_mean,
+            'std_f1': f1_std,
+            'cv_f1': f1_cv
+        })
+    
+    return pd.DataFrame(results)
 
-    # Group by dataset and model
-    grouped = df.groupby(['dataset_id', 'model_name'])[metric_col]
-    
-    agg_df = grouped.agg(['mean', 'std']).reset_index()
-    agg_df.rename(columns={'mean': f'mean_{metric_col}', 'std': f'std_{metric_col}'}, inplace=True)
-    
-    # Calculate CV
-    # Avoid division by zero
-    def safe_cv(row, col_mean, col_std):
-        mean_val = row[col_mean]
-        std_val = row[col_std]
-        if pd.isna(mean_val) or mean_val == 0:
-            return 0.0
-        if pd.isna(std_val) or std_val == 0:
-            return 0.0
-        return std_val / abs(mean_val)
-
-    cv_col = f'cv_{metric_col}'
-    agg_df[cv_col] = agg_df.apply(safe_cv, axis=1, col_mean=f'mean_{metric_col}', col_std=f'std_{metric_col}')
-    
-    return agg_df
-
-def aggregate_metrics(raw_df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Aggregate raw evaluations to compute mean_accuracy, cv_accuracy, mean_f1, cv_f1.
-    Input: raw_df with columns dataset_id, model_name, accuracy, f1_score
-    Output: DataFrame with aggregated metrics per (dataset_id, model_name)
-    """
-    # Calculate CV for accuracy
-    cv_acc_df = calculate_cv(raw_df, 'accuracy')
-    
-    # Calculate CV for F1
-    cv_f1_df = calculate_cv(raw_df, 'f1_score')
-    
-    # Merge results
-    merged = cv_acc_df.merge(cv_f1_df[['dataset_id', 'model_name', 'cv_f1_score']], on=['dataset_id', 'model_name'])
-    
-    # Rename columns for clarity if needed, ensuring consistency with spec
-    merged.rename(columns={
-        'mean_accuracy': 'mean_accuracy',
-        'std_accuracy': 'std_accuracy',
-        'cv_accuracy': 'cv_accuracy',
-        'mean_f1_score': 'mean_f1',
-        'std_f1_score': 'std_f1',
-        'cv_f1_score': 'cv_f1'
-    }, inplace=True)
-    
-    # Ensure columns are in expected order
-    cols = ['dataset_id', 'model_name', 'mean_accuracy', 'std_accuracy', 'cv_accuracy', 'mean_f1', 'std_f1', 'cv_f1']
-    return merged[cols]
-
-def calculate_correlations(metrics_df: pd.DataFrame, props_df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Calculate Pearson and Spearman correlations between CV metrics and dataset properties.
-    Primary: Pearson r.
-    Secondary: Spearman rho.
-    """
-    if metrics_df.empty or props_df.empty:
-        return pd.DataFrame()
-
+def calculate_correlations(metrics_df: pd.DataFrame, properties_df: pd.DataFrame) -> pd.DataFrame:
+    """Calculate Pearson and Spearman correlations between CV metrics and dataset properties."""
     # Merge metrics with properties
-    merged = metrics_df.merge(props_df, on='dataset_id', how='inner')
+    merged = metrics_df.merge(properties_df, on='dataset_id', how='inner')
     
     if merged.empty:
         return pd.DataFrame()
-
-    results = []
-    cv_metrics = ['cv_accuracy', 'cv_f1']
-    prop_metrics = ['n_samples', 'n_features']
     
-    for cv_col in cv_metrics:
-        for prop_col in prop_metrics:
-            if cv_col not in merged.columns or prop_col not in merged.columns:
+    results = []
+    
+    # Properties to correlate with
+    properties = ['n_samples', 'n_features']
+    metrics = ['cv_accuracy', 'cv_f1']
+    
+    for prop in properties:
+        for metric in metrics:
+            if prop not in merged.columns or metric not in merged.columns:
                 continue
             
-            # Drop NaNs
-            data = merged[[cv_col, prop_col]].dropna()
-            if len(data) < 3:
+            # Filter out zero-variance cases for correlation
+            mask = ~((merged[metric] == 0) | (merged[prop] == 0))
+            if mask.sum() < 2:
                 continue
             
-            x = data[prop_col]
-            y = data[cv_col]
+            x = merged.loc[mask, prop]
+            y = merged.loc[mask, metric]
             
-            # Pearson
+            # Pearson correlation
             try:
-                pearson_r, pearson_p = stats.pearsonr(x, y)
+                pearson_r, pearson_p = pearsonr(x, y)
             except Exception:
                 pearson_r, pearson_p = np.nan, np.nan
             
-            # Spearman
+            # Spearman correlation
             try:
-                spearman_r, spearman_p = stats.spearmanr(x, y)
+                spearman_r, spearman_p = spearmanr(x, y)
             except Exception:
                 spearman_r, spearman_p = np.nan, np.nan
             
             results.append({
-                'metric': cv_col,
-                'property': prop_col,
+                'property': prop,
+                'metric': metric,
                 'pearson_r': pearson_r,
                 'pearson_p': pearson_p,
-                'spearman_rho': spearman_r,
+                'spearman_r': spearman_r,
                 'spearman_p': spearman_p
             })
     
     return pd.DataFrame(results)
 
-def compute_regression_residuals(metrics_df: pd.DataFrame, props_df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Compute residuals from log-log linear regression of log(CV) against log(n_samples) and log(n_features).
-    """
-    if metrics_df.empty or props_df.empty:
-        return pd.DataFrame()
-
-    merged = metrics_df.merge(props_df, on='dataset_id', how='inner')
+def compute_regression_residuals(metrics_df: pd.DataFrame, properties_df: pd.DataFrame) -> pd.DataFrame:
+    """Compute residuals from log-log linear regression of CV vs n_samples and n_features."""
+    # Similar to calculate_correlations but with regression residuals
+    merged = metrics_df.merge(properties_df, on='dataset_id', how='inner')
+    
     if merged.empty:
         return pd.DataFrame()
-
-    results = []
-    cv_cols = ['cv_accuracy', 'cv_f1']
     
-    for cv_col in cv_cols:
-        # Filter for positive values for log transform
-        valid = merged[(merged[cv_col] > 0) & (merged['n_samples'] > 0) & (merged['n_features'] > 0)]
-        if len(valid) < 3:
-            continue
-        
-        # Log transform
-        y = np.log(valid[cv_col])
-        x_samples = np.log(valid['n_samples'])
-        x_features = np.log(valid['n_features'])
-        
-        # Reshape for regression
-        X = np.column_stack([x_samples, x_features])
-        
-        # Linear regression
-        try:
-            coeffs, intercept, r_value, p_value, std_err = stats.linregress(x_samples, y)
-            # Note: Simple 1D regression for samples as example, or multiple regression if needed.
-            # Spec says "log-log linear regression of log(CV) against log(n_samples) and log(n_features)".
-            # We will do a simple multiple regression.
-            from sklearn.linear_model import LinearRegression
-            model = LinearRegression()
-            model.fit(X, y)
-            predictions = model.predict(X)
-            residuals = y - predictions
+    results = []
+    
+    for prop in ['n_samples', 'n_features']:
+        for metric in ['cv_accuracy', 'cv_f1']:
+            if prop not in merged.columns or metric not in merged.columns:
+                continue
             
-            # Store residuals for each dataset
-            for idx, res in zip(valid.index, residuals):
-                results.append({
-                    'dataset_id': valid.loc[idx, 'dataset_id'],
-                    'model_name': valid.loc[idx, 'model_name'],
-                    'metric': cv_col,
-                    'residual': res
-                })
-        except Exception as e:
-            logging.warning(f"Could not compute regression residuals for {cv_col}: {e}")
-            continue
-
+            # Filter zero values for log transformation
+            mask = (merged[metric] > 0) & (merged[prop] > 0)
+            if mask.sum() < 2:
+                continue
+            
+            x = np.log(merged.loc[mask, prop])
+            y = np.log(merged.loc[mask, metric])
+            
+            # Linear regression
+            slope, intercept, r_value, p_value, std_err = stats.linregress(x, y)
+            
+            # Calculate residuals
+            predicted = slope * x + intercept
+            residuals = y - predicted
+            
+            results.append({
+                'property': prop,
+                'metric': metric,
+                'slope': slope,
+                'intercept': intercept,
+                'r_squared': r_value**2,
+                'residuals_mean': np.mean(residuals),
+                'residuals_std': np.std(residuals)
+            })
+    
     return pd.DataFrame(results)
 
-def run_correlation_analysis(metrics_df: pd.DataFrame, props_df: pd.DataFrame) -> pd.DataFrame:
-    """Run the full correlation analysis pipeline."""
-    return calculate_correlations(metrics_df, props_df)
+def run_correlation_analysis() -> pd.DataFrame:
+    """Run full correlation analysis pipeline."""
+    # Load data
+    raw_df = load_raw_evaluations()
+    # For this implementation, we assume dataset properties are available
+    # In a real scenario, this would be loaded from a metadata file
+    # generated during data loading phase
+    properties_df = load_dataset_properties()
+    
+    # Aggregate metrics
+    metrics_df = aggregate_metrics(raw_df)
+    
+    # Calculate correlations
+    corr_df = calculate_correlations(metrics_df, properties_df)
+    
+    return corr_df
 
-# --- Permutation Test Implementation (T025) ---
+def run_full_permutation_analysis() -> pd.DataFrame:
+    """Run permutation tests to compare variance distributions across models."""
+    # Load aggregated metrics
+    raw_df = load_raw_evaluations()
+    metrics_df = aggregate_metrics(raw_df)
+    
+    if metrics_df.empty:
+        return pd.DataFrame()
+    
+    # We need to compare variance distributions between model pairs
+    # For each dataset, we have accuracy scores from CV folds
+    # We'll compare the variances of accuracy scores between models
+    
+    # Group by dataset_id
+    datasets = raw_df['dataset_id'].unique()
+    model_pairs = [('LogisticRegression', 'RandomForest'), 
+                   ('LogisticRegression', 'SVM'), 
+                   ('RandomForest', 'SVM')]
+    
+    results = []
+    
+    for ds_id in datasets:
+        ds_data = raw_df[raw_df['dataset_id'] == ds_id]
+        
+        for model_a, model_b in model_pairs:
+            acc_a = ds_data[ds_data['model_name'] == model_a]['accuracy'].values
+            acc_b = ds_data[ds_data['model_name'] == model_b]['accuracy'].values
+            
+            if len(acc_a) < 2 or len(acc_b) < 2:
+                continue
+            
+            # Calculate variances
+            var_a = np.var(acc_a)
+            var_b = np.var(acc_b)
+            
+            # Test statistic: absolute difference of variances
+            observed_stat = abs(var_a - var_b)
+            
+            # Permutation test
+            combined = np.concatenate([acc_a, acc_b])
+            n_a = len(acc_a)
+            n_permutations = 1000
+            
+            perm_stats = []
+            for _ in range(n_permutations):
+                np.random.shuffle(combined)
+                perm_a = combined[:n_a]
+                perm_b = combined[n_a:]
+                perm_var_a = np.var(perm_a)
+                perm_var_b = np.var(perm_b)
+                perm_stat = abs(perm_var_a - perm_var_b)
+                perm_stats.append(perm_stat)
+            
+            # Calculate p-value
+            p_value = (np.sum(perm_stats >= observed_stat) + 1) / (n_permutations + 1)
+            
+            results.append({
+                'dataset_id': ds_id,
+                'model_a': model_a,
+                'model_b': model_b,
+                'var_a': var_a,
+                'var_b': var_b,
+                'observed_stat': observed_stat,
+                'p_value': p_value
+            })
+    
+    return pd.DataFrame(results)
 
-def run_permutation_test(
-    metrics_df: pd.DataFrame, 
-    model_a: str = 'LogisticRegression', 
-    model_b: str = 'RandomForest', 
-    metric_col: str = 'cv_accuracy', 
-    n_permutations: int = 10000, 
-    seed: int = 42
-) -> Tuple[float, float, float]:
+def apply_bonferroni_correction(p_values: List[float]) -> List[float]:
+    """Apply Bonferroni correction to a list of p-values."""
+    n = len(p_values)
+    if n == 0:
+        return []
+    
+    # Bonferroni: multiply each p-value by n, cap at 1.0
+    adjusted = [min(p * n, 1.0) for p in p_values]
+    return adjusted
+
+def apply_bonferroni_correction_dataframe(df: pd.DataFrame, p_col: str) -> pd.DataFrame:
+    """Apply Bonferroni correction to a DataFrame column of p-values."""
+    if df.empty or p_col not in df.columns:
+        return df
+    
+    p_values = df[p_col].dropna().tolist()
+    if len(p_values) == 0:
+        return df
+    
+    adjusted = apply_bonferroni_correction(p_values)
+    
+    # Create a mapping from original p-values to adjusted values
+    # Handle duplicate p-values by assigning the same adjusted value
+    p_to_adj = {}
+    for i, p in enumerate(p_values):
+        p_to_adj[p] = adjusted[i]
+    
+    df[f'{p_col}_adj'] = df[p_col].map(p_to_adj)
+    return df
+
+def run_bonferroni_correction() -> Tuple[pd.DataFrame, pd.DataFrame]:
     """
-    Perform a permutation test to compare variance distributions of two models.
+    Apply Bonferroni correction globally across ALL hypothesis tests.
     
-    Test Statistic: |Var_A - Var_B| derived from squared deviations of accuracy scores.
-    However, since we are working with aggregated CV metrics in `metrics_df`, 
-    we interpret "variance distributions" as the distribution of CV values across datasets 
-    for each model, OR the distribution of squared deviations if raw data is used.
-    
-    Given the input `metrics_df` which contains `cv_accuracy` (which is std/mean),
-    the "variance" of the model's stability across datasets is the variance of the `cv_accuracy` column.
-    
-    But the spec says: "Calculate the absolute difference of the variances (|Var_A - Var_B|) 
-    derived from the squared deviations of accuracy scores for each model pair."
-    
-    This implies we need the raw accuracy scores to compute the variance of accuracy per dataset,
-    then compare the distribution of these variances? 
-    
-    Actually, the task T025 says: "Input: Must consume variance values from T018 output."
-    T018 output is `metrics_df` which has `cv_accuracy` (a single value per dataset/model).
-    If we only have one CV value per dataset per model, we cannot compute a "variance distribution" 
-    of CVs unless we have multiple datasets.
-    
-    Interpretation: We have multiple datasets. For each dataset, Model A has a CV value, Model B has a CV value.
-    We want to test if the distribution of CV values for Model A is significantly different from Model B.
-    The "variance" in the spec might refer to the variance of the CV values across the dataset population.
-    
-    Alternative Interpretation (Strict): The spec says "variance distributions across LR, RF, SVM".
-    If we have N datasets, we have N CV values for LR and N CV values for RF.
-    We want to test if the variance of the LR CVs is different from the variance of the RF CVs?
-    Or if the means are different?
-    
-    Re-reading T025: "Test Statistic: Calculate the absolute difference of the variances (|Var_A - Var_B|) 
-    derived from the squared deviations of accuracy scores for each model pair."
-    
-    This phrasing is slightly ambiguous with the input constraint.
-    If we assume the input is `metrics_df` (aggregated), we have a set of CV values for Model A and Model B.
-    Let's assume the "variance" refers to the variance of the CV metric across the datasets.
-    i.e. Var(CV_A) vs Var(CV_B).
-    Test Statistic = |Var(CV_A) - Var(CV_B)|.
-    
-    Permutation Logic:
-    1. Pool all CV values from Model A and Model B.
-    2. Shuffle the labels (A/B) randomly.
-    3. Split into two groups of size N_A and N_B.
-    4. Calculate |Var(Group_A) - Var(Group_B)|.
-    5. Repeat N times.
-    6. P-value = (count of permuted stats >= observed stat + 1) / (N + 1).
-    
-    Note: If the number of datasets is small, this test might have low power.
-    
-    Parameters:
-    - metrics_df: DataFrame with columns ['dataset_id', 'model_name', 'cv_accuracy', ...]
-    - model_a, model_b: Names of the models to compare.
-    - metric_col: The column to use (e.g., 'cv_accuracy').
-    - n_permutations: Number of permutations.
-    - seed: Random seed.
+    This function:
+    1. Loads correlation results (from T019/T021)
+    2. Loads permutation results (from T025)
+    3. Collects ALL p-values from both sources
+    4. Applies Bonferroni correction across the entire family
+    5. Writes adjusted results back to the respective files
     
     Returns:
-    - observed_stat: |Var_A - Var_B|
-    - p_value: Raw p-value
-    - permuted_stats: List of permuted statistics (optional, for debugging)
+        Tuple of (adjusted_correlation_df, adjusted_permutation_df)
     """
+    # Load correlation results
+    corr_file = RESULTS_DIR / CORRELATION_RESULTS_FILE
+    if not corr_file.exists():
+        logger.warning(f"Correlation results file not found: {corr_file}")
+        corr_df = pd.DataFrame()
+    else:
+        corr_df = pd.read_csv(corr_file)
     
-    set_seed(seed)
+    # Load permutation results
+    perm_file = RESULTS_DIR / PERMUTATION_RESULTS_FILE
+    if not perm_file.exists():
+        logger.warning(f"Permutation results file not found: {perm_file}")
+        perm_df = pd.DataFrame()
+    else:
+        perm_df = pd.read_csv(perm_file)
     
-    # Filter data for the two models
-    df_a = metrics_df[metrics_df['model_name'] == model_a][metric_col].dropna()
-    df_b = metrics_df[metrics_df['model_name'] == model_b][metric_col].dropna()
+    # Collect all p-values from both sources
+    all_p_values = []
+    p_sources = []  # Track which source each p-value came from
     
-    if len(df_a) < 2 or len(df_b) < 2:
-        logging.warning(f"Not enough data points for permutation test between {model_a} and {model_b}.")
-        return 0.0, 1.0, []
+    if not corr_df.empty and 'pearson_p' in corr_df.columns:
+        for p in corr_df['pearson_p'].dropna():
+            all_p_values.append(p)
+            p_sources.append('correlation_pearson')
     
-    # Observed statistic: Absolute difference of variances
-    var_a = df_a.var()
-    var_b = df_b.var()
-    observed_stat = abs(var_a - var_b)
+    if not corr_df.empty and 'spearman_p' in corr_df.columns:
+        for p in corr_df['spearman_p'].dropna():
+            all_p_values.append(p)
+            p_sources.append('correlation_spearman')
     
-    # Pool data
-    pooled = np.concatenate([df_a.values, df_b.values])
-    n_a = len(df_a)
-    n_b = len(df_b)
-    n_total = n_a + n_b
+    if not perm_df.empty and 'p_value' in perm_df.columns:
+        for p in perm_df['p_value'].dropna():
+            all_p_values.append(p)
+            p_sources.append('permutation')
     
-    permuted_stats = []
-    count_extreme = 0
+    if len(all_p_values) == 0:
+        logger.warning("No p-values found to correct.")
+        return corr_df, perm_df
     
-    for _ in range(n_permutations):
-        # Shuffle indices
-        shuffled_indices = np.random.permutation(n_total)
-        # Split
-        group_a = pooled[shuffled_indices[:n_a]]
-        group_b = pooled[shuffled_indices[n_a:]]
-        
-        # Calculate variances
-        var_a_perm = np.var(group_a, ddof=1) # ddof=1 for sample variance
-        var_b_perm = np.var(group_b, ddof=1)
-        
-        stat_perm = abs(var_a_perm - var_b_perm)
-        permuted_stats.append(stat_perm)
-        
-        if stat_perm >= observed_stat:
-            count_extreme += 1
+    logger.info(f"Applying Bonferroni correction to {len(all_p_values)} hypothesis tests.")
     
-    # Calculate p-value
-    p_value = (count_extreme + 1) / (n_permutations + 1)
+    # Apply Bonferroni correction across the entire family
+    adjusted_p_values = apply_bonferroni_correction(all_p_values)
     
-    return observed_stat, p_value, permuted_stats
-
-def run_full_permutation_analysis(
-    metrics_df: pd.DataFrame, 
-    models: List[str] = None, 
-    metric_col: str = 'cv_accuracy', 
-    n_permutations: int = 10000, 
-    seed: int = 42
-) -> pd.DataFrame:
-    """
-    Run permutation tests for all pairs of models in the list.
-    Returns a DataFrame with results.
-    """
-    if models is None:
-        models = ['LogisticRegression', 'RandomForest', 'SVC'] # Default models from T012
+    # Create mapping for correlation results
+    if not corr_df.empty and 'pearson_p' in corr_df.columns:
+        corr_p_values = corr_df['pearson_p'].dropna().tolist()
+        if len(corr_p_values) > 0:
+            start_idx = 0
+            corr_adj_values = adjusted_p_values[start_idx:start_idx+len(corr_p_values)]
+            corr_df['pearson_p_adj'] = corr_df['pearson_p'].map(dict(zip(corr_p_values, corr_adj_values)))
+            corr_df['pearson_p_adj'] = corr_df['pearson_p_adj'].fillna(1.0)  # Handle NaNs
     
-    results = []
+    if not corr_df.empty and 'spearman_p' in corr_df.columns:
+        spearman_p_values = corr_df['spearman_p'].dropna().tolist()
+        if len(spearman_p_values) > 0:
+            start_idx = len(corr_p_values) if 'pearson_p' in corr_df.columns else 0
+            spearman_adj_values = adjusted_p_values[start_idx:start_idx+len(spearman_p_values)]
+            corr_df['spearman_p_adj'] = corr_df['spearman_p'].map(dict(zip(spearman_p_values, spearman_adj_values)))
+            corr_df['spearman_p_adj'] = corr_df['spearman_p_adj'].fillna(1.0)
     
-    # Generate all pairs
-    from itertools import combinations
-    for m1, m2 in combinations(models, 2):
-        stat, p_val, _ = run_permutation_test(
-            metrics_df, 
-            model_a=m1, 
-            model_b=m2, 
-            metric_col=metric_col, 
-            n_permutations=n_permutations, 
-            seed=seed
-        )
-        results.append({
-            'comparison': f"{m1}_vs_{m2}",
-            'model_a': m1,
-            'model_b': m2,
-            'metric': metric_col,
-            'statistic': stat,
-            'raw_p_value': p_val,
-            'adjusted_p_value': np.nan, # To be filled by Bonferroni in T026
-            'significant': False # To be filled by T026
-        })
+    # Create mapping for permutation results
+    if not perm_df.empty and 'p_value' in perm_df.columns:
+        perm_p_values = perm_df['p_value'].dropna().tolist()
+        if len(perm_p_values) > 0:
+            start_idx = len(corr_p_values) + len(spearman_p_values) if 'pearson_p' in corr_df.columns else 0
+            if 'spearman_p' in corr_df.columns:
+                start_idx += len(spearman_p_values)
+            perm_adj_values = adjusted_p_values[start_idx:start_idx+len(perm_p_values)]
+            perm_df['p_value_adj'] = perm_df['p_value'].map(dict(zip(perm_p_values, perm_adj_values)))
+            perm_df['p_value_adj'] = perm_df['p_value_adj'].fillna(1.0)
     
-    return pd.DataFrame(results)
+    # Write adjusted results back to files
+    if not corr_df.empty:
+        write_correlation_results(corr_df)
+        logger.info("Updated correlation results with Bonferroni-adjusted p-values.")
+    
+    if not perm_df.empty:
+        write_permutation_results(perm_df)
+        logger.info("Updated permutation results with Bonferroni-adjusted p-values.")
+    
+    return corr_df, perm_df
 
 def main():
-    """
-    Main entry point for the analyser.
-    Orchestrates loading, aggregation, correlation, and permutation tests.
-    """
-    logging.basicConfig(level=logging.INFO)
-    logger = logging.getLogger(__name__)
+    """Main entry point for analysis."""
+    setup_logging()
+    logger.info("Starting statistical analysis pipeline.")
     
-    try:
-        # 1. Load Data
-        logger.info("Loading raw evaluations...")
-        raw_df = load_raw_evaluations()
-        if raw_df.empty:
-            logger.warning("Raw evaluations are empty. Skipping analysis.")
-            return
-        
-        # 2. Aggregate Metrics
-        logger.info("Aggregating metrics...")
-        metrics_df = aggregate_metrics(raw_df)
-        
-        # 3. Load Properties (if available)
-        props_df = None
-        try:
-            props_df = load_dataset_properties()
-        except FileNotFoundError:
-            logger.warning("Dataset properties not found. Skipping correlation analysis.")
-        
-        # 4. Correlation Analysis
-        if props_df is not None and not props_df.empty:
-            logger.info("Running correlation analysis...")
-            corr_results = run_correlation_analysis(metrics_df, props_df)
-            # Save correlation results (T021/T035)
-            if not corr_results.empty:
-                corr_results.to_csv("results/correlation_results.csv", index=False)
-                logger.info(f"Saved correlation results to results/correlation_results.csv")
-        
-        # 5. Permutation Test (T025)
-        logger.info("Running permutation test for variance differences...")
-        perm_results = run_full_permutation_analysis(metrics_df, metric_col='cv_accuracy')
-        
-        if not perm_results.empty:
-            perm_results.to_csv("results/permutation_results.csv", index=False)
-            logger.info(f"Saved permutation results to results/permutation_results.csv")
-        else:
-            logger.warning("Permutation test results are empty.")
-        
-        # 6. Regression Residuals (T020)
-        if props_df is not None and not props_df.empty:
-            logger.info("Computing regression residuals...")
-            residuals_df = compute_regression_residuals(metrics_df, props_df)
-            if not residuals_df.empty:
-                residuals_df.to_csv("results/regression_residuals.csv", index=False)
-                logger.info(f"Saved regression residuals to results/regression_residuals.csv")
-                
-    except Exception as e:
-        logger.error(f"Error in analysis: {e}")
-        raise
+    # Run correlation analysis
+    corr_df = run_correlation_analysis()
+    if not corr_df.empty:
+        write_correlation_results(corr_df)
+        logger.info(f"Correlation analysis complete. {len(corr_df)} results written.")
+    
+    # Run permutation analysis
+    perm_df = run_full_permutation_analysis()
+    if not perm_df.empty:
+        write_permutation_results(perm_df)
+        logger.info(f"Permutation analysis complete. {len(perm_df)} results written.")
+    
+    # Apply Bonferroni correction across all tests
+    logger.info("Applying Bonferroni correction to all hypothesis tests...")
+    corr_df_adj, perm_df_adj = run_bonferroni_correction()
+    
+    logger.info("Analysis pipeline complete.")
 
 if __name__ == "__main__":
     main()

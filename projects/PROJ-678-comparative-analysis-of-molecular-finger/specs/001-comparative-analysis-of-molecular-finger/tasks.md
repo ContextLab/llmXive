@@ -124,12 +124,12 @@ description: "Task list template for feature implementation"
  **Dependency**: T017.
 - [ ] T018b [US2] Implement `code/split.py` (or a verification script) to read `data/processed/split_indices.json` and verify its content. If status is "INVALID", log "Split Verification Failed: Status is INVALID". **Depends on T018a**.
 - [ ] T018c [US2] **Invalid Path Handler**: If `data/processed/split_indices.json` status is "INVALID", write `data/processed/invalid_split_report.md` stating "Statistical comparison is invalid due to insufficient structural diversity." AND write `data/processed/research_results.md` with header "## STATISTICAL COMPARISON INVALID" and the same message. **THEN** exit with code 0 (success) to allow the pipeline to complete. **CRITICAL**: The final `research_results.md` MUST be generated before exit. **CRITICAL**: This task acts as a hard gate; if executed, it terminates the valid path flow for T019/T029a. **Depends on T018b**.
-- [ ] T019 [US2] Implement `code/train.py` to train Random Forest models (100 trees, max_depth=15) using **K-Fold Cross-Validation** on the **full filtered dataset** (NOT the split training set) for the statistical test (FR-005).
+- [X] T019 [US2] Implement `code/train.py` to train Random Forest models (100 trees, max_depth=15) using **K-Fold Cross-Validation** on the **full filtered dataset** (NOT the split training set) for the statistical test (FR-005).
  **Rationale**: This implements the Corrected Resampled t-test (FR-005/Constitution VII) which requires repeated samples. T018a handles the single split for the descriptive report (FR-004).
  **MUST**: Check `data/processed/split_indices.json` at startup; if status is "INVALID", exit immediately with code 0 (no training).
  **Deliverable**: Write `data/processed/kfold_scores.json` with schema `{"morgan": {"roc_auc": [float,...]}, "maccs": {"roc_auc": [float,...]}}`. These scores are used for the Corrected Resampled t-test.
  **Dependency**: T018a (Success Path).
-- [ ] T020 [US2] Implement `code/train.py` to also train a **Final Model** on the **Training Set** (from T018a) and evaluate on the **Test Set** (from T018a) for the descriptive report.
+- [X] T020 [US2] Implement `code/train.py` to also train a **Final Model** on the **Training Set** (from T018a) and evaluate on the **Test Set** (from T018a) for the descriptive report. <!-- ATOMIZE: requested -->
  **Deliverable**: Write `data/processed/final_test_metrics.json` with schema `{"morgan": {"roc_auc": float, "pr_auc": float}, "maccs": {"roc_auc": float, "pr_auc": float}}`.
  **Dependency**: T018a (Success Path).
 
@@ -150,17 +150,17 @@ description: "Task list template for feature implementation"
 
 ### Implementation for User Story 3
 
-- [ ] T024 [US3] Implement `code/evaluate.py` to read `data/processed/final_test_metrics.json`.
+- [ ] T024 [US3] Implement `code/evaluate.py` to read `data/processed/final_test_metrics.json`. <!-- ATOMIZE: requested -->
  **Task**:
  - Calculate ROC-AUC and PR-AUC for the **Single Held-Out Test Set** (descriptive only).
  - Write `data/processed/test_set_descriptive.json` with schema `{"morgan": {"roc_auc": float, "pr_auc": float}, "maccs": {"roc_auc": float, "pr_auc": float}}`.
  **CRITICAL**: PR-AUC is calculated for descriptive purposes ONLY and is **NOT** used for the statistical test.
  **Dependency**: T020.
-- [ ] T025a [US3] Implement `code/evaluate.py` to perform the **Corrected Resampled t-test (Nadeau & Bengio)** on the **K-Fold ROC-AUC scores** from `data/processed/kfold_scores.json`.
+- [ ] T025a [US3] Implement `code/evaluate.py` to perform the **Corrected Resampled t-test (Nadeau & Bengio)** on the **K-Fold ROC-AUC scores** from `data/processed/kfold_scores.json`. <!-- ATOMIZE: requested -->
  **Prerequisite**: Read `data/processed/sample_size_status.json`; if status is "SKIP_STATS", skip execution and log "Statistical test skipped due to low sample size".
  **CRITICAL**: Only ROC-AUC scores are used for this test. PR-AUC is excluded.
  **Dependency**: T019, T013b.
-- [ ] T025b [US3] Implement `code/evaluate.py` to generate confidence intervals via **bootstrap resamples** of the **difference** in performance (Morgan - MACCS) for **ROC-AUC** using the **K-Fold scores**.
+- [X] T025b [US3] Implement `code/evaluate.py` to generate confidence intervals via **bootstrap resamples** of the **difference** in performance (Morgan - MACCS) for **ROC-AUC** using the **K-Fold scores**.
  **Dependency**: T025a.
 - [ ] T025c1 [US3] Implement `code/evaluate.py` to identify the phosphorus atom in the filtered compounds (from T012) and use RDKit `GetBitInfo` to find Morgan bits within radius=2 of the phosphorus atom.
  **Dependencies**: T012 (Filtered Data), T017 (Fingerprints), T019 (Train).

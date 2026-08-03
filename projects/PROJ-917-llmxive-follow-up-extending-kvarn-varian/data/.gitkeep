@@ -1,2 +1,2 @@
-# This directory is reserved for generated data artifacts.
-# Do not commit large files here.
+# This file ensures the data directory exists for checksumming.
+# It is intentionally empty.

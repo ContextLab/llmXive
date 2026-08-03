@@ -1,0 +1,42 @@
+T015:
+  c: true
+  h: 477416f1cbd2f13022b428451bc19b9c4865f5fc7bddb3ac258dca2c43a4297b
+  r: "The `code/preprocessing.py` file contains a non\u2011empty implementation of\
+    \ `clean_traffic_data` that (1) keeps rows where `traffic_volume` is 0.0, (2)\
+    \ drops only rows with `NaN` in that column, and (3) writes an exclusion record\
+    \ to `data/processed/exclusion_log.csv`. The missing log file is acceptable because\
+    \ it is created at runtime by the function."
+T022:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, notebook, or output files implementing Conley standard errors for OLS\
+    \ or HAC/robust SEs for spatial lag/error models were provided; the claim contains\
+    \ only a textual description without any concrete artifact to verify. Consequently\
+    \ the required robust SE calculations and p\u2011value outputs are missing."
+T023:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, notebook, data file, or report containing the Benjamini\u2011Hochberg\
+    \ FDR\u2011adjusted p\u2011values is present. The implementer did not provide\
+    \ any artifact that shows the correction applied to the robust\u2011SE p\u2011\
+    values from T022, so the requirement is unmet."
+T024:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, script, or documentation was presented that implements a convergence
+    fallback from spatial models to OLS, nor any evidence that OLS Moran's I is still
+    calculated and reported in that scenario. The required artifact is missing.
+T025:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, test, or documentation was provided showing that the weight matrix generation
+    now catches failures of both Queen and KNN, raises `SpatialWeightMatrixError("Both
+    Queen and KNN failed")`, and logs a CRITICAL error. The required implementation
+    artifact is missing.
+T028:
+  c: false
+  h: cf4bd9d74420efc22f64481e141c5fcf75079b394bbab6aaf30181a0fdaad2bc
+  r: The required artifact `tests/integration/test_validation.py` does not exist on
+    disk, so no integration test for the permutation test logic is present. The task
+    cannot be considered complete until this file is created with the appropriate
+    test implementation.

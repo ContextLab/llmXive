@@ -3,162 +3,172 @@ import os
 from pathlib import Path
 from typing import List, Dict, Any, Optional
 import pandas as pd
-
-from .utils import safe_execute, log_and_reraise
+from code.config import RESULTS_DIR, RAW_EVALUATIONS_FILE, STABILITY_METRICS_FILE, CORRELATION_RESULTS_FILE, REGRESSION_RESIDUALS_FILE, PERMUTATION_RESULTS_FILE, FINAL_REPORT_FILE
 
 logger = logging.getLogger(__name__)
 
-def write_stability_metrics(metrics_df: pd.DataFrame, output_path: Path) -> None:
-    """
-    Write the aggregated stability metrics to a CSV file.
-    
-    Expected columns in metrics_df:
-    - dataset_id
-    - model_name
-    - mean_accuracy
-    - cv_accuracy
-    - mean_f1
-    - cv_f1
-    - n_samples (optional, for context)
-    - n_features (optional, for context)
-    
-    Args:
-        metrics_df: DataFrame containing aggregated metrics.
-        output_path: Path to the output CSV file.
-    """
-    if not isinstance(metrics_df, pd.DataFrame):
-        raise TypeError("metrics_df must be a pandas DataFrame")
-    
-    required_columns = {'dataset_id', 'model_name', 'mean_accuracy', 'cv_accuracy', 'mean_f1', 'cv_f1'}
-    if not required_columns.issubset(metrics_df.columns):
-        missing = required_columns - set(metrics_df.columns)
-        raise ValueError(f"metrics_df is missing required columns: {missing}")
-    
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    try:
-        metrics_df.to_csv(output_path, index=False)
-        logger.info(f"Wrote stability metrics to {output_path} ({len(metrics_df)} rows)")
-    except Exception as e:
-        log_and_reraise(e, "Failed to write stability metrics")
-
-def write_correlation_results(correlation_df: pd.DataFrame, output_path: Path) -> None:
-    """
-    Write the correlation analysis results to a CSV file.
-    
-    Expected columns in correlation_df:
-    - property_name (e.g., 'n_samples', 'n_features')
-    - metric_type (e.g., 'cv_accuracy', 'cv_f1')
-    - pearson_r
-    - pearson_pvalue
-    - spearman_rho (optional)
-    - spearman_pvalue (optional)
-    - residual_mean (optional, from regression analysis)
-    
-    Args:
-        correlation_df: DataFrame containing correlation results.
-        output_path: Path to the output CSV file.
-    """
-    if not isinstance(correlation_df, pd.DataFrame):
-        raise TypeError("correlation_df must be a pandas DataFrame")
-    
-    required_columns = {'property_name', 'metric_type', 'pearson_r', 'pearson_pvalue'}
-    if not required_columns.issubset(correlation_df.columns):
-        missing = required_columns - set(correlation_df.columns)
-        raise ValueError(f"correlation_df is missing required columns: {missing}")
-    
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    try:
-        correlation_df.to_csv(output_path, index=False)
-        logger.info(f"Wrote correlation results to {output_path} ({len(correlation_df)} rows)")
-    except Exception as e:
-        log_and_reraise(e, "Failed to write correlation results")
-
-def write_regression_residuals(residuals_df: pd.DataFrame, output_path: Path) -> None:
-    """
-    Write regression residuals to a CSV file.
-    
-    Expected columns:
-    - dataset_id
-    - model_name
-    - property_name (e.g., 'log_n_samples')
-    - residual
-    
-    Args:
-        residuals_df: DataFrame containing residuals.
-        output_path: Path to the output CSV file.
-    """
-    if not isinstance(residuals_df, pd.DataFrame):
-        raise TypeError("residuals_df must be a pandas DataFrame")
-    
-    required_columns = {'dataset_id', 'model_name', 'property_name', 'residual'}
-    if not required_columns.issubset(residuals_df.columns):
-        missing = required_columns - set(residuals_df.columns)
-        raise ValueError(f"residuals_df is missing required columns: {missing}")
-    
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    try:
-        residuals_df.to_csv(output_path, index=False)
-        logger.info(f"Wrote regression residuals to {output_path} ({len(residuals_df)} rows)")
-    except Exception as e:
-        log_and_reraise(e, "Failed to write regression residuals")
-
-def append_raw_evaluations(new_rows: List[Dict[str, Any]], output_path: Path) -> None:
-    """
-    Append new evaluation rows to the raw evaluations CSV.
-    
-    Args:
-        new_rows: List of dictionaries containing row data.
-        output_path: Path to the raw evaluations CSV file.
-    """
-    if not new_rows:
-        logger.debug("No rows to append to raw evaluations")
+def write_raw_evaluations(records: List[Dict[str, Any]], overwrite: bool = True) -> None:
+    """Write raw evaluation results to CSV."""
+    if not records:
+        logger.warning("No records to write for raw evaluations.")
         return
+
+    df = pd.DataFrame(records)
+    expected_cols = ["dataset_id", "model_name", "fold_id", "repeat_id", "accuracy", "f1_score"]
+    if not all(col in df.columns for col in expected_cols):
+        raise ValueError(f"Raw evaluation records missing expected columns. Found: {df.columns.tolist()}")
     
-    df = pd.DataFrame(new_rows)
-    
+    df = df[expected_cols]
+    output_path = RESULTS_DIR / RAW_EVALUATIONS_FILE
+    df.to_csv(output_path, index=False)
+    logger.info(f"Wrote {len(df)} raw evaluation records to {output_path}")
+
+def append_raw_evaluations(records: List[Dict[str, Any]]) -> None:
+    """Append raw evaluation results to existing CSV."""
+    if not records:
+        return
+    df = pd.DataFrame(records)
+    output_path = RESULTS_DIR / RAW_EVALUATIONS_FILE
     if output_path.exists():
-        existing_df = pd.read_csv(output_path)
-        combined_df = pd.concat([existing_df, df], ignore_index=True)
-        combined_df.to_csv(output_path, index=False)
-        logger.info(f"Appended {len(df)} rows to {output_path} (total: {len(combined_df)})")
+        existing = pd.read_csv(output_path)
+        combined = pd.concat([existing, df], ignore_index=True)
+        combined.to_csv(output_path, index=False)
     else:
         df.to_csv(output_path, index=False)
-        logger.info(f"Created {output_path} with {len(df)} rows")
+    logger.info(f"Appended {len(df)} records to {output_path}")
 
-def write_raw_evaluations(rows: List[Dict[str, Any]], output_path: Path) -> None:
+def write_stability_metrics(metrics: List[Dict[str, Any]]) -> None:
     """
-    Write raw evaluation results to a CSV file.
-    
-    Expected columns:
-    - dataset_id
-    - model_name
-    - fold_id
-    - repeat_id
-    - accuracy
-    - f1_score
-    
-    Args:
-        rows: List of dictionaries containing row data.
-        output_path: Path to the output CSV file.
+    Write stability metrics (mean, std, CV for accuracy and F1) to CSV.
+    Expected columns: dataset_id, model_name, mean_accuracy, cv_accuracy, mean_f1, cv_f1
     """
-    if not rows:
-        logger.warning("No raw evaluation rows to write")
+    if not metrics:
+        logger.warning("No metrics to write for stability metrics.")
         return
+
+    df = pd.DataFrame(metrics)
+    required_cols = ["dataset_id", "model_name", "mean_accuracy", "cv_accuracy", "mean_f1", "cv_f1"]
+    if not all(col in df.columns for col in required_cols):
+        raise ValueError(f"Stability metrics missing expected columns. Found: {df.columns.tolist()}")
     
-    df = pd.DataFrame(rows)
+    df = df[required_cols]
+    output_path = RESULTS_DIR / STABILITY_METRICS_FILE
+    df.to_csv(output_path, index=False)
+    logger.info(f"Wrote {len(df)} stability metric records to {output_path}")
+
+def write_correlation_results(correlations: List[Dict[str, Any]]) -> None:
+    """
+    Write correlation results (Pearson r, p-value, Spearman rho) to CSV.
+    Expected columns: property_name, model_name, pearson_r, p_value, spearman_rho, significant
+    """
+    if not correlations:
+        logger.warning("No correlations to write.")
+        return
+
+    df = pd.DataFrame(correlations)
+    # Ensure primary columns exist
+    required_cols = ["property_name", "model_name", "pearson_r", "p_value"]
+    if not all(col in df.columns for col in required_cols):
+        raise ValueError(f"Correlation results missing expected columns. Found: {df.columns.tolist()}")
     
-    required_columns = {'dataset_id', 'model_name', 'fold_id', 'repeat_id', 'accuracy', 'f1_score'}
-    if not required_columns.issubset(df.columns):
-        missing = required_columns - set(df.columns)
-        raise ValueError(f"Raw evaluation data is missing required columns: {missing}")
+    # Order columns: property, model, pearson (primary), p-value, spearman (secondary), significance
+    ordered_cols = ["property_name", "model_name", "pearson_r", "p_value"]
+    if "spearman_rho" in df.columns:
+        ordered_cols.append("spearman_rho")
+    if "significant" in df.columns:
+        ordered_cols.append("significant")
     
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    # Add any other columns not in the list at the end
+    for col in df.columns:
+        if col not in ordered_cols:
+            ordered_cols.append(col)
     
-    try:
-        df.to_csv(output_path, index=False)
-        logger.info(f"Wrote {len(df)} raw evaluation rows to {output_path}")
-    except Exception as e:
-        log_and_reraise(e, "Failed to write raw evaluations")
+    df = df[ordered_cols]
+    output_path = RESULTS_DIR / CORRELATION_RESULTS_FILE
+    df.to_csv(output_path, index=False)
+    logger.info(f"Wrote {len(df)} correlation results to {output_path}")
+
+def write_regression_residuals(residuals: List[Dict[str, Any]]) -> None:
+    """
+    Write regression residuals from log-log analysis.
+    Expected columns: dataset_id, model_name, property_name, residual
+    """
+    if not residuals:
+        logger.warning("No residuals to write.")
+        return
+
+    df = pd.DataFrame(residuals)
+    required_cols = ["dataset_id", "model_name", "property_name", "residual"]
+    if not all(col in df.columns for col in required_cols):
+        raise ValueError(f"Regression residuals missing expected columns. Found: {df.columns.tolist()}")
+    
+    df = df[required_cols]
+    output_path = RESULTS_DIR / REGRESSION_RESIDUALS_FILE
+    df.to_csv(output_path, index=False)
+    logger.info(f"Wrote {len(df)} regression residual records to {output_path}")
+
+def write_permutation_results(results: List[Dict[str, Any]]) -> None:
+    """
+    Write permutation test results.
+    Expected columns: model_pair, property_name, statistic, raw_p_value, adjusted_p_value, significant
+    """
+    if not results:
+        logger.warning("No permutation results to write.")
+        return
+
+    df = pd.DataFrame(results)
+    required_cols = ["model_pair", "property_name", "statistic", "raw_p_value", "adjusted_p_value", "significant"]
+    if not all(col in df.columns for col in required_cols):
+        raise ValueError(f"Permutation results missing expected columns. Found: {df.columns.tolist()}")
+    
+    df = df[required_cols]
+    output_path = RESULTS_DIR / PERMUTATION_RESULTS_FILE
+    df.to_csv(output_path, index=False)
+    logger.info(f"Wrote {len(df)} permutation test results to {output_path}")
+
+def write_final_report(report_data: Dict[str, Any]) -> None:
+    """
+    Write the final summary report in Markdown format.
+    report_data should contain keys: significant_datasets, model_ranking, correction_methodology, achieved_fwer
+    """
+    if not report_data:
+        logger.warning("No report data to write.")
+        return
+
+    output_path = RESULTS_DIR / FINAL_REPORT_FILE
+    with open(output_path, 'w') as f:
+        f.write("# Stability Analysis Final Report\n\n")
+        
+        f.write("## 1. Significant Variance Differences\n\n")
+        if "significant_datasets" in report_data:
+            if report_data["significant_datasets"]:
+                for ds in report_data["significant_datasets"]:
+                    f.write(f"- Dataset {ds.get('dataset_id')} ({ds.get('model_pair')}): p-adj = {ds.get('adj_p_value'):.4f}\n")
+            else:
+                f.write("No datasets showed statistically significant variance differences after correction.\n")
+        else:
+            f.write("No data available.\n")
+        f.write("\n")
+
+        f.write("## 2. Model Comparison (Ranked by Mean CV)\n\n")
+        if "model_ranking" in report_data:
+            for i, model in enumerate(report_data["model_ranking"], 1):
+                f.write(f"{i}. {model.get('model_name')}: Mean CV = {model.get('mean_cv'):.4f}\n")
+        else:
+            f.write("No ranking data available.\n")
+        f.write("\n")
+
+        f.write("## 3. Correction Methodology\n\n")
+        if "correction_methodology" in report_data:
+            f.write(f"{report_data['correction_methodology']}\n")
+        else:
+            f.write("Bonferroni correction was applied to control Family-Wise Error Rate (FWER).\n")
+        f.write("\n")
+
+        f.write("## 4. Achieved FWER\n\n")
+        if "achieved_fwer" in report_data:
+            f.write(f"The effective alpha level (FWER) is controlled at {report_data['achieved_fwer']:.4f}.\n")
+        else:
+            f.write("FWER controlled via Bonferroni correction (alpha / number of tests).\n")
+
+    logger.info(f"Wrote final report to {output_path}")

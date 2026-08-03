@@ -29,11 +29,12 @@ T013a:
     \ complete."
 T018b:
   c: false
-  h: 0723d4bb10155a4c9d81cea537abccfb274cf7af6149790543093a6ffc48e8a3
-  r: "The repository lacks the required `data/processed/split_indices.json` file,\
-    \ and the provided `code/split.py` does not read that JSON or check a `\"status\"\
-    ` field to log the specified failure message. Instead, it contains unrelated fingerprint\u2011\
-    splitting logic, so the task\u2019s core requirement is unmet."
+  h: 3c5da6647df1efd3f9f666ab925105baab59e0f9577fa56bcbe089afd46140d5
+  r: "The provided `code/split.py` contains fingerprint\u2011splitting logic and never\
+    \ reads `data/processed/split_indices.json` nor checks a `\"status\"` field. Moreover,\
+    \ the required `data/processed/split_indices.json` file is absent from the repository.\
+    \ Both the script behavior and the needed data artifact are missing, so the task\
+    \ is not satisfied."
 T018c:
   c: false
   h: 8b019f3d9b2025644bde250f94405c5c3c610d792ca99cf39a517fb8c5297d76
@@ -42,21 +43,6 @@ T018c:
     \ are missing, so the task\u2019s core behavior (writing the reports and ensuring\
     \ the final `research_results.md` exists before exit) was not performed. The implementer\
     \ must generate both files with the specified content."
-T024:
-  c: false
-  h: 3e7bca35fa8c11e35f9b1c57cd78c75f0a73e94aa2e5e5a24caa02e207032672
-  r: "The repository contains a partially shown `code/evaluate.py`, but it does not\
-    \ demonstrate completing the per\u2011fold metric calculations nor writing the\
-    \ required `data/processed/cv_scores.json`. Moreover, the `cv_scores.json` file\
-    \ is absent from the project. The deliverable is therefore missing."
-T025a:
-  c: false
-  h: 4c8597d66edbf474b924bbda3fd1696d3567f8cec87d887e548da4139558bd9c
-  r: "The provided `code/evaluate.py` does not contain any logic to read `data/processed/cv_scores.json`\
-    \ or `sample_size_status.json`, nor does it implement the corrected resampled\
-    \ t\u2011test on the 5\u2011fold ROC\u2011AUC and PR\u2011AUC scores. Additionally,\
-    \ both required data files are absent from the repository. Consequently, the task\
-    \ requirements are not met."
 T039:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

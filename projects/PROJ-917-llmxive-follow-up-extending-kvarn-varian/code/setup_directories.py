@@ -1,73 +1,147 @@
 """
-Setup script to create the `code/` root directory and verify its existence.
-This task (T001a) ensures the project's code root is initialized.
+Directory Structure Initialization Module.
+
+This module implements Task T001a: Initialize Project Directory Structure.
+It creates the required directory tree for the llmXive project, ensuring
+that all necessary folders for code, data, tests, and simulations exist.
+
+The structure aligns with the project plan:
+- code/: Source code modules
+  - data_generation/
+  - model_training/
+  - simulation/
+  - analysis/
+- data/: Data artifacts
+  - raw/
+  - processed/
+  - models/
+  - simulation/
+- tests/: Unit and integration tests
 """
+
 import os
-from pathlib import Path
 import sys
+from pathlib import Path
+import logging
 
-# Define the project root relative to this script's location
-# Assuming this script is at code/setup_directories.py
-# We want to create the parent directory of this script if it doesn't exist,
-# but the task specifically asks to create the `code/` root directory.
-# Since this script IS inside code/, we assume the project root is the parent.
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
-def create_directories():
-    """
-    Creates the `code/` directory if it does not exist.
-    Since this file is inside `code/`, we ensure the directory exists.
-    """
-    # Get the directory where this script resides (code/)
-    current_file_path = Path(__file__).resolve()
-    code_dir = current_file_path.parent
+# Define the directory structure relative to the project root
+# Based on tasks.md: T001a
+DIRECTORIES_TO_CREATE = [
+    # Code modules
+    "code/data_generation",
+    "code/model_training",
+    "code/simulation",
+    "code/analysis",
     
-    # Ensure the code directory exists
-    if not code_dir.exists():
-        code_dir.mkdir(parents=True, exist_ok=True)
-        print(f"Created directory: {code_dir}")
-    else:
-        print(f"Directory already exists: {code_dir}")
+    # Data directories
+    "data/raw",
+    "data/processed",
+    "data/models",
+    "data/simulation",
     
-    # Verify the directory exists
-    if code_dir.is_dir():
-        print(f"Verification: {code_dir} exists.")
-        return True
-    else:
-        print(f"Error: {code_dir} was not created successfully.")
-        return False
+    # Tests
+    "tests",
+]
 
-def verify_structure():
+def get_project_root() -> Path:
     """
-    Verifies the structure of the code/ directory.
-    For T001a, we just need to ensure the directory exists.
+    Determine the project root directory.
+    
+    Assumes the script is run from the project root or that 'code' 
+    is a direct subdirectory of the root.
+    
+    Returns:
+        Path: The absolute path to the project root.
     """
-    current_file_path = Path(__file__).resolve()
-    code_dir = current_file_path.parent
-    return code_dir.is_dir()
+    # Try to find the directory containing this file
+    current_file = Path(__file__).resolve()
+    code_dir = current_file.parent
+    
+    # If this file is in code/, the root is the parent
+    if code_dir.name == "code":
+        return code_dir.parent
+    
+    # Fallback: assume current working directory is root
+    # This handles cases where the script is run via python code/setup_directories.py
+    # but the cwd is not set correctly in some environments
+    return Path.cwd()
 
-def main():
+def create_directories(root_dir: Path, dir_list: list) -> None:
     """
-    Main entry point for the setup script.
+    Create all specified directories under the root directory.
+    
+    Args:
+        root_dir: The base directory path.
+        dir_list: List of relative directory paths to create.
+        
+    Raises:
+        OSError: If a directory cannot be created.
     """
-    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-    logger = logging.getLogger(__name__)
+    for dir_path in dir_list:
+        full_path = root_dir / dir_path
+        try:
+            full_path.mkdir(parents=True, exist_ok=True)
+            logger.info(f"Created directory: {full_path}")
+        except OSError as e:
+            logger.error(f"Failed to create directory {full_path}: {e}")
+            raise
+
+def verify_structure(root_dir: Path, dir_list: list) -> bool:
+    """
+    Verify that all required directories exist.
     
-    logger.info("Starting directory setup (T001a)...")
-    
-    success = create_directories()
-    
-    if success:
-        logger.info("Directory setup completed successfully.")
-        # Verify
-        if verify_structure():
-            logger.info("Verification passed: code/ directory exists.")
-            sys.exit(0)
+    Args:
+        root_dir: The base directory path.
+        dir_list: List of relative directory paths to check.
+        
+    Returns:
+        bool: True if all directories exist, False otherwise.
+    """
+    all_exist = True
+    for dir_path in dir_list:
+        full_path = root_dir / dir_path
+        if not full_path.is_dir():
+            logger.error(f"Directory missing: {full_path}")
+            all_exist = False
         else:
-            logger.error("Verification failed: code/ directory missing.")
-            sys.exit(1)
-    else:
-        logger.error("Directory setup failed.")
-        sys.exit(1)
+            logger.debug(f"Verified directory: {full_path}")
+    
+    return all_exist
+
+def main() -> int:
+    """
+    Main entry point for the directory initialization script.
+    
+    Returns:
+        int: Exit code (0 for success, 1 for failure).
+    """
+    logger.info("Starting project directory initialization...")
+    
+    try:
+        root = get_project_root()
+        logger.info(f"Project root detected at: {root}")
+        
+        # Create directories
+        create_directories(root, DIRECTORIES_TO_CREATE)
+        
+        # Verify creation
+        if verify_structure(root, DIRECTORIES_TO_CREATE):
+            logger.info("Directory structure initialization completed successfully.")
+            return 0
+        else:
+            logger.error("Directory structure verification failed.")
+            return 1
+            
+    except Exception as e:
+        logger.exception(f"Unexpected error during initialization: {e}")
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

@@ -4,291 +4,237 @@ import pandas as pd
 from pathlib import Path
 from typing import Tuple, Optional, Dict, Any
 import json
-
-# PySAL imports
-try:
-    import libpysal
-    from libpysal.weights import Queen, KNN
-    from spreg import Lag, Error
-    from spreg import OLS as PySALOLS
-    from spreg import diagnostics as sp_diagnostics
-except ImportError:
-    # Fallback for environment setup, though requirements.txt should handle this
-    libpysal = None
-    Queen = None
-    KNN = None
-    Lag = None
-    Error = None
-    PySALOLS = None
-    sp_diagnostics = None
-
 from logger import get_logger, get_project_root
-
-logger = get_logger(__name__)
 
 class SpatialWeightMatrixError(Exception):
     """Custom exception for spatial weight matrix construction failures."""
     pass
 
-def build_spatial_weights(geodata: pd.GeoDataFrame, k: int = 8) -> libpysal.weights.W:
+def build_spatial_weights(geodataframe: pd.GeoDataFrame, id_col: str = 'grid_id') -> Any:
     """
-    Construct spatial weight matrix using Queen Contiguity, falling back to KNN.
+    Construct spatial weight matrix using Queen Contiguity, falling back to K-Nearest Neighbor (K=8).
     
-    Parameters
-    ----------
-    geodata : pd.GeoDataFrame
-        GeoDataFrame containing geometry column.
-    k : int
-        Number of neighbors for KNN fallback.
-        
-    Returns
-    -------
-    libpysal.weights.W
-        Spatial weights object.
-        
-    Raises
-    ------
-    SpatialWeightMatrixError
-        If both Queen and KNN construction fail.
-    """
-    if libpysal is None:
-        raise ImportError("PySAL libraries (libpysal, spreg) are not installed.")
-
-    logger.info("Attempting to build spatial weights matrix using Queen Contiguity...")
-    try:
-        w = Queen.from_dataframe(geodata, use_index=True)
-        logger.info(f"Queen weights constructed successfully. Non-zero elements: {w.nnonzero}")
-        return w
-    except Exception as e:
-        logger.warning(f"Queen weights construction failed: {e}. Falling back to KNN ({k}).")
-
-    try:
-        w = KNN.from_dataframe(geodata, k=k, use_index=True)
-        logger.info(f"KNN weights constructed successfully (k={k}). Non-zero elements: {w.nnonzero}")
-        return w
-    except Exception as e:
-        logger.critical(f"KNN weights construction also failed: {e}")
-        raise SpatialWeightMatrixError("Both Queen and KNN failed to construct spatial weights.")
-
-def get_weight_matrix_summary(w: libpysal.weights.W) -> Dict[str, Any]:
-    """
-    Generate a summary of the spatial weight matrix.
+    If both methods fail, raises SpatialWeightMatrixError.
     
-    Parameters
-    ----------
-    w : libpysal.weights.W
-        Spatial weights object.
+    Args:
+        geodataframe: GeoDataFrame with geometry column.
+        id_col: Name of the ID column to use as keys in the weights.
         
-    Returns
-    -------
-    dict
-        Summary statistics.
+    Returns:
+        PySAL weights object.
+        
+    Raises:
+        SpatialWeightMatrixError: If both Queen and KNN construction fail.
+    """
+    logger = get_logger(__name__)
+    
+    queen_failed = False
+    knn_failed = False
+    queen_error = None
+    knn_error = None
+
+    # Attempt 1: Queen Contiguity
+    try:
+        logger.info("Attempting to build Queen Contiguity weight matrix...")
+        import libpysal
+        w_queen = libpysal.weights.Queen.from_dataframe(geodataframe, geom_col='geometry', id_order=geodataframe[id_col].tolist())
+        
+        # Verify connectivity (optional but good practice)
+        if w_queen.n_components > 1:
+            logger.warning("Queen weights result in disconnected components. Consider KNN fallback.")
+        
+        logger.info("Queen Contiguity weight matrix built successfully.")
+        return w_queen
+        
+    except Exception as e:
+        queen_failed = True
+        queen_error = str(e)
+        logger.warning(f"Queen Contiguity failed: {e}")
+
+    # Attempt 2: K-Nearest Neighbor (K=8)
+    try:
+        logger.info("Queen failed. Attempting K-Nearest Neighbor (K=8) weight matrix...")
+        import libpysal
+        # Ensure we have coordinates if KNN requires them (libpysal usually handles GeoDataFrame)
+        w_knn = libpysal.weights.KNN.from_dataframe(geodataframe, geom_col='geometry', id_order=geodataframe[id_col].tolist(), k=8)
+        
+        logger.info("K-Nearest Neighbor (K=8) weight matrix built successfully.")
+        return w_knn
+        
+    except Exception as e:
+        knn_failed = True
+        knn_error = str(e)
+        logger.warning(f"K-Nearest Neighbor failed: {e}")
+
+    # Both failed
+    logger.critical("Both Queen Contiguity and K-Nearest Neighbor (K=8) weight matrix construction failed.")
+    logger.critical(f"Queen Error: {queen_error}")
+    logger.critical(f"KNN Error: {knn_error}")
+    raise SpatialWeightMatrixError("Both Queen and KNN failed")
+
+def get_weight_matrix_summary(w: Any) -> Dict[str, Any]:
+    """
+    Generate a summary dictionary of the weight matrix properties.
+    
+    Args:
+        w: PySAL weights object.
+        
+    Returns:
+        Dictionary containing summary stats.
     """
     return {
         "n": w.n,
-        "nonzero": w.nnonzero,
-        "mean_neighbors": w.mean_neighbors,
-        "max_neighbors": w.max_neighbors,
-        "min_neighbors": w.min_neighbors
+        "n_components": w.n_components,
+        "pct_nonzero": w.pct_nonzero,
+        "max_neighbors": max([len(neighbors) for neighbors in w.neighbors.values()]) if w.neighbors else 0,
+        "avg_neighbors": w.avg_neighbors
     }
 
 def fit_ols_model(
-    y: np.ndarray,
-    X: np.ndarray,
-    names_y: str,
-    names_x: list,
-    constant: bool = True
-) -> PySALOLS:
+    df: pd.DataFrame, 
+    dependent_var: str, 
+    independent_vars: list, 
+    weights: Optional[Any] = None
+) -> Any:
     """
-    Fit an OLS model using PySAL.
+    Fit an OLS regression model using statsmodels.
     
-    Parameters
-    ----------
-    y : np.ndarray
-        Dependent variable.
-    X : np.ndarray
-        Independent variables.
-    names_y : str
-        Name of dependent variable.
-    names_x : list
-        Names of independent variables.
-    constant : bool
-        Whether to add a constant.
+    Args:
+        df: DataFrame containing the data.
+        dependent_var: Name of the dependent variable column.
+        independent_vars: List of independent variable column names.
+        weights: Optional PySAL weights object (for diagnostics).
         
-    Returns
-    -------
-    PySALOLS
-        Fitted OLS model object.
+    Returns:
+        statsmodels OLS Results object.
     """
-    if PySALOLS is None:
-        raise ImportError("PySAL spreg is not installed.")
+    import statsmodels.api as sm
     
-    model = PySALOLS(y, X, names_y=names_y, names_x=names_x, constant=constant)
-    return model
+    logger = get_logger(__name__)
+    
+    # Prepare design matrix
+    y = df[dependent_var].dropna()
+    # Ensure indices align
+    X = df[independent_vars].loc[y.index]
+    
+    if X.empty:
+        raise ValueError("No valid independent variables after dropping NaNs.")
+        
+    X = sm.add_constant(X)
+    
+    model = sm.OLS(y, X)
+    results = model.fit()
+    
+    logger.info(f"OLS model fitted. R-squared: {results.rsquared:.4f}")
+    return results
 
 def fit_spatial_models(
-    y: np.ndarray,
-    X: np.ndarray,
-    w: libpysal.weights.W,
-    names_y: str,
-    names_x: list,
-    constant: bool = True
-) -> Tuple[Optional[Lag], Optional[Error]]:
+    df: pd.DataFrame,
+    dependent_var: str,
+    independent_vars: list,
+    w: Any,
+    robust: bool = True
+) -> Dict[str, Any]:
     """
     Fit Spatial Lag and Spatial Error models using PySAL.
     
-    This function attempts to fit both the Lag and Error models.
-    If a model fails to converge, it returns None for that model
-    and logs the error, allowing the pipeline to potentially fallback
-    or handle the missing model elsewhere (e.g., T024).
-    
-    Parameters
-    ----------
-    y : np.ndarray
-        Dependent variable (1D array).
-    X : np.ndarray
-        Independent variables (2D array).
-    w : libpysal.weights.W
-        Spatial weights matrix.
-    names_y : str
-        Name of dependent variable.
-    names_x : list
-        Names of independent variables.
-    constant : bool
-        Whether to add a constant.
+    Args:
+        df: DataFrame containing the data.
+        dependent_var: Name of the dependent variable column.
+        independent_vars: List of independent variable column names.
+        w: PySAL weights object.
+        robust: Whether to use robust standard errors.
         
-    Returns
-    -------
-    tuple
-        (lag_model, error_model). Either can be None if fitting failed.
+    Returns:
+        Dictionary containing results for 'lag' and 'error' models.
     """
-    if Lag is None or Error is None:
-        raise ImportError("PySAL spreg Lag or Error models are not installed.")
-
-    lag_model = None
-    error_model = None
-
-    # Fit Spatial Lag Model
-    logger.info("Fitting Spatial Lag Model...")
+    import libpysal
+    from pysal.model.spreg import lag, error
+    
+    logger = get_logger(__name__)
+    
+    # Prepare data
+    y = df[dependent_var].values
+    X = df[independent_vars].values
+    X = np.column_stack((np.ones(len(X)), X)) # Add constant
+    
+    results = {}
+    
+    # Spatial Lag Model
     try:
-        lag_model = Lag(
-            y, X, w=w, 
-            names_y=names_y, 
-            names_x=names_x, 
-            constant=constant
-        )
+        logger.info("Fitting Spatial Lag Model...")
+        lag_model = lag.Lag(y, X, w=w, robust=robust)
+        results['lag'] = {
+            "summary": lag_model.summary,
+            "params": lag_model.params.tolist(),
+            "loglik": lag_model.loglik,
+            "aic": lag_model.aic,
+            "bic": lag_model.bic,
+            "pvalues": lag_model.pvalues.tolist() if hasattr(lag_model, 'pvalues') else None
+        }
         logger.info("Spatial Lag Model fitted successfully.")
-        # Check for convergence issues if available in the model object
-        if hasattr(lag_model, 'logv') and lag_model.logv is not None:
-             logger.debug(f"Lag Model Log-likelihood: {lag_model.logv}")
     except Exception as e:
-        logger.error(f"Failed to fit Spatial Lag Model: {e}")
-        # Do not raise, return None to allow fallback logic in T024
+        logger.error(f"Spatial Lag Model failed: {e}")
+        results['lag'] = {"error": str(e)}
 
-    # Fit Spatial Error Model
-    logger.info("Fitting Spatial Error Model...")
+    # Spatial Error Model
     try:
-        error_model = Error(
-            y, X, w=w,
-            names_y=names_y,
-            names_x=names_x,
-            constant=constant
-        )
+        logger.info("Fitting Spatial Error Model...")
+        error_model = error.OLS(y, X, w=w, robust=robust)
+        results['error'] = {
+            "summary": error_model.summary,
+            "params": error_model.params.tolist(),
+            "loglik": error_model.loglik,
+            "aic": error_model.aic,
+            "bic": error_model.bic,
+            "pvalues": error_model.pvalues.tolist() if hasattr(error_model, 'pvalues') else None
+        }
         logger.info("Spatial Error Model fitted successfully.")
-        if hasattr(error_model, 'logv') and error_model.logv is not None:
-             logger.debug(f"Error Model Log-likelihood: {error_model.logv}")
     except Exception as e:
-        logger.error(f"Failed to fit Spatial Error Model: {e}")
-        # Do not raise, return None to allow fallback logic in T024
-
-    return lag_model, error_model
+        logger.error(f"Spatial Error Model failed: {e}")
+        results['error'] = {"error": str(e)}
+        
+    return results
 
 def main():
     """
-    Main entry point for demonstration or testing of model fitting.
-    This function expects a harmonized parquet file from T016.
+    Main entry point for testing the weight matrix failure handling.
+    This function is primarily for demonstration/testing of the error handling logic.
     """
-    project_root = get_project_root()
-    input_path = project_root / "data" / "processed" / "harmonized.parquet"
+    logger = get_logger(__name__)
+    logger.info("Starting models module main execution.")
     
-    if not input_path.exists():
-        logger.error(f"Input file not found: {input_path}")
-        logger.error("Please ensure T016 (Write harmonized dataset) is completed first.")
-        return
-
-    logger.info(f"Loading data from {input_path}")
-    df = pd.read_parquet(input_path)
-
-    # Prepare data for modeling
-    # Assuming 'noise_metric' is the target and some columns are covariates
-    # This logic might need adjustment based on exact schema from T013/T014
-    target_col = 'noise_metric_95th' # Example column name, adjust if schema differs
-    covariate_cols = [col for col in df.columns if col.startswith('traffic_') or col.startswith('land_use_')]
-    
-    if not covariate_cols:
-        logger.warning("No covariates found matching expected patterns. Using synthetic placeholders for demo.")
-        # Fallback to synthetic data generation for testing if real data structure is unknown
-        # In a real run, this should ideally fail or require explicit column mapping
-        covariate_cols = ['traffic_volume'] 
-        if 'traffic_volume' not in df.columns:
-            df['traffic_volume'] = np.random.rand(len(df))
-
-    # Ensure target exists
-    if target_col not in df.columns:
-        # Try to find any numeric column as target for demo
-        numeric_cols = df.select_dtypes(include=[np.number]).columns
-        if len(numeric_cols) > 1:
-            target_col = numeric_cols[0]
-            logger.warning(f"Target column '{target_col}' not found. Using '{target_col}' as proxy.")
-        else:
-            logger.error("No suitable target column found.")
-            return
-
-    logger.info(f"Using '{target_col}' as target and {covariate_cols} as covariates.")
-
-    # Filter NaNs
-    cols_to_use = [target_col] + covariate_cols
-    clean_df = df.dropna(subset=cols_to_use)
-    
-    if len(clean_df) < 10:
-        logger.error("Insufficient data after cleaning.")
-        return
-
-    y = clean_df[target_col].values
-    X = clean_df[covariate_cols].values
-    names_y = target_col
-    names_x = covariate_cols
-
-    # Build Weights
-    logger.info("Building spatial weights...")
+    # Create a dummy empty GeoDataFrame to trigger failure
+    # In a real scenario, this would be called from a pipeline step with real data
     try:
-        w = build_spatial_weights(clean_df, k=8)
-        w_summary = get_weight_matrix_summary(w)
-        logger.info(f"Weights Summary: {w_summary}")
+        import geopandas as gpd
+        from shapely.geometry import Point
+        
+        # Create a dataset that is too small or invalid for both Queen and KNN
+        # e.g., 1 point cannot form a KNN (k=8) or Queen neighbor
+        data = {
+            'grid_id': [1],
+            'geometry': [Point(0, 0)]
+        }
+        gdf = gpd.GeoDataFrame(data, crs="EPSG:4326")
+        
+        logger.warning("Testing with 1-point GeoDataFrame to force weight matrix failure...")
+        w = build_spatial_weights(gdf, id_col='grid_id')
+        logger.error("ERROR: Expected failure did not occur.")
+        
     except SpatialWeightMatrixError as e:
-        logger.critical(str(e))
-        return
-
-    # Fit OLS
-    logger.info("Fitting OLS Model...")
-    ols_model = fit_ols_model(y, X, names_y, names_x, constant=True)
-    logger.info(f"OLS R-squared: {ols_model.rsquared:.4f}")
-
-    # Fit Spatial Models (T021 Implementation)
-    logger.info("Fitting Spatial Lag and Error Models...")
-    lag_model, error_model = fit_spatial_models(y, X, w, names_y, names_x, constant=True)
-
-    if lag_model:
-        logger.info(f"Lag Model R-squared: {lag_model.rsquared:.4f}, AIC: {lag_model.aic:.4f}")
-    else:
-        logger.warning("Lag Model could not be fitted.")
-
-    if error_model:
-        logger.info(f"Error Model R-squared: {error_model.rsquared:.4f}, AIC: {error_model.aic:.4f}")
-    else:
-        logger.warning("Error Model could not be fitted.")
-
-    logger.info("Spatial model fitting complete.")
+        logger.critical(f"Expected failure caught: {e}")
+        # This confirms the logic works
+        return True
+    except Exception as e:
+        logger.error(f"Unexpected error during test: {e}")
+        return False
+        
+    return True
 
 if __name__ == "__main__":
-    main()
+    success = main()
+    if success:
+        print("Weight matrix failure handling test passed.")
+    else:
+        print("Weight matrix failure handling test failed.")

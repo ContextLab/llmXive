@@ -1,148 +1,123 @@
-"""
-Ingestion module for loading, merging, and harmonizing noise and covariate data.
-"""
 import logging
 import pandas as pd
 import numpy as np
 from pathlib import Path
-from typing import Dict, Any, Optional
-
+from typing import Dict, Any, Optional, Generator
 from logger import get_logger, get_project_root
-from preprocessing import aggregate_daily_metrics
+import geopandas as gpd
+from shapely.geometry import Point
+import json
 
+# Initialize logger
 logger = get_logger(__name__)
 
-def load_synthetic_data_chunked(data_dir: Path, chunk_size: int = 10000):
+def load_synthetic_data_chunked(data_dir: Optional[Path] = None) -> tuple[pd.DataFrame, pd.DataFrame]:
     """
-    Load synthetic noise and covariate data in chunks to manage memory.
-    Returns a generator of DataFrames.
-    """
-    noise_file = data_dir / "synthetic_noise.parquet"
-    covariate_file = data_dir / "synthetic_covariates.parquet"
-
-    if not noise_file.exists() or not covariate_file.exists():
-        raise FileNotFoundError(
-            f"Required synthetic data files not found in {data_dir}. "
-            "Run synthetic_data.py first."
-        )
-
-    # Load noise data in chunks
-    for chunk in pd.read_parquet(noise_file, engine="pyarrow", chunksize=chunk_size):
-        yield chunk
-
-    # We assume covariates are static and load once for the join
-    # In a real streaming scenario, this might need chunking too, but for 50k cells
-    # a single load is usually acceptable if memory permits.
-    # If memory is tight, we would load covariates in chunks matching grid_ids.
-    covariates = pd.read_parquet(covariate_file, engine="pyarrow")
-    return covariates
-
-def harmonize_spatial_data(
-    aggregated_noise: pd.DataFrame,
-    covariates: pd.DataFrame,
-    grid_resolution: float = 200.0,
-    output_path: Optional[Path] = None
-) -> pd.DataFrame:
-    """
-    Merge covariates into the aggregated noise data (200m grid cells).
-    Handles missing covariates via exclusion and logs a WARNING.
-
+    Load synthetic noise and covariate data from disk in chunks.
+    
     Args:
-        aggregated_noise: DataFrame from T013 with columns: grid_id, date, and metrics.
-        covariates: DataFrame with covariates (traffic, land_use, population) indexed by grid_id.
-        grid_resolution: Expected resolution in meters (for validation/logging).
-        output_path: Optional path to write the harmonized parquet file.
-
+        data_dir: Directory containing synthetic data files. Defaults to data/raw.
+        
     Returns:
-        Harmonized DataFrame.
+        Tuple of (noise_df, covariate_df) DataFrames.
     """
-    logger.info(f"Starting spatial harmonization with covariates for {grid_resolution}m grid.")
-
-    # Ensure grid_id is the join key in both
-    # Assuming aggregated_noise has 'grid_id' and 'date'
-    # Assuming covariates has 'grid_id' as index or column
+    if data_dir is None:
+        data_dir = get_project_root() / "data" / "raw"
     
-    if 'grid_id' not in aggregated_noise.columns:
-        raise ValueError("aggregated_noise must contain 'grid_id' column.")
+    logger.info(f"Loading synthetic data from {data_dir}")
     
-    if 'grid_id' not in covariates.columns:
-        if 'grid_id' in covariates.index:
-            covariates = covariates.reset_index()
-        else:
-            raise ValueError("covariates must contain 'grid_id' column.")
-
-    # Perform the merge (inner join to exclude missing covariates)
-    # This effectively drops any grid cell that doesn't have a matching covariate record
-    initial_count = len(aggregated_noise)
+    noise_files = list(data_dir.glob("noise_*.csv"))
+    covariate_files = list(data_dir.glob("covariates_*.csv"))
     
-    harmonized_df = pd.merge(
-        aggregated_noise,
-        covariates,
-        on='grid_id',
-        how='inner',
-        suffixes=('_noise', '_cov')
-    )
+    if not noise_files:
+        raise FileNotFoundError(f"No noise data files found in {data_dir}")
+    if not covariate_files:
+        raise FileNotFoundError(f"No covariate data files found in {data_dir}")
+    
+    # Load noise data
+    noise_dfs = []
+    for file in sorted(noise_files):
+        logger.info(f"Loading noise chunk: {file}")
+        chunk = pd.read_csv(file)
+        noise_dfs.append(chunk)
+    
+    noise_df = pd.concat(noise_dfs, ignore_index=True)
+    
+    # Load covariate data
+    covariate_dfs = []
+    for file in sorted(covariate_files):
+        logger.info(f"Loading covariate chunk: {file}")
+        chunk = pd.read_csv(file)
+        covariate_dfs.append(chunk)
+    
+    covariate_df = pd.concat(covariate_dfs, ignore_index=True)
+    
+    logger.info(f"Loaded {len(noise_df)} noise records and {len(covariate_df)} covariate records")
+    return noise_df, covariate_df
 
-    final_count = len(harmonized_df)
-    excluded_count = initial_count - final_count
-
-    if excluded_count > 0:
-        warning_msg = (
-            f"Spatial harmonization excluded {excluded_count} cells ({excluded_count/initial_count*100:.2f}%) "
-            f"due to missing covariates. These cells are dropped from the dataset."
-        )
-        logger.warning(warning_msg)
-    else:
-        logger.info("All cells successfully matched with covariates.")
-
-    # Log the schema of the resulting dataframe
-    logger.info(f"Harmonized dataset shape: {harmonized_df.shape}")
-    logger.info(f"Columns: {list(harmonized_df.columns)}")
-
-    if output_path:
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        harmonized_df.to_parquet(output_path, engine="pyarrow", index=False)
-        logger.info(f"Harmonized data written to {output_path}")
-
-    return harmonized_df
+def harmonize_spatial_data(noise_df: pd.DataFrame, covariate_df: pd.DataFrame) -> gpd.GeoDataFrame:
+    """
+    Merge noise and covariate data into a unified spatial grid.
+    
+    Args:
+        noise_df: DataFrame with noise measurements and grid_id, date.
+        covariate_df: DataFrame with covariate data and grid_id.
+        
+    Returns:
+        GeoDataFrame with merged data and geometry.
+    """
+    logger.info("Starting spatial harmonization.")
+    
+    # Ensure grid_id types match
+    noise_df['grid_id'] = noise_df['grid_id'].astype(int)
+    covariate_df['grid_id'] = covariate_df['grid_id'].astype(int)
+    
+    # Merge noise and covariates
+    merged_df = noise_df.merge(covariate_df, on='grid_id', how='left')
+    
+    # Generate geometry for each grid_id (200m grid cells)
+    # Assuming grid_id corresponds to a regular grid
+    def generate_geometry(grid_id: int) -> Point:
+        """Generate a point geometry based on grid_id."""
+        # Simple deterministic mapping: grid_id -> coordinates
+        # In a real scenario, this would use actual grid definitions
+        x = (grid_id % 1000) * 200  # 200m spacing
+        y = (grid_id // 1000) * 200
+        return Point(x, y)
+    
+    # Create GeoDataFrame
+    geometry = [generate_geometry(gid) for gid in merged_df['grid_id']]
+    gdf = gpd.GeoDataFrame(merged_df, geometry=geometry, crs="EPSG:4326")
+    
+    # Log warnings for missing covariates
+    missing_covariates = gdf['traffic_volume'].isna().sum()
+    if missing_covariates > 0:
+        logger.warning(f"Found {missing_covariates} rows with missing covariates. These will be excluded in preprocessing.")
+    
+    logger.info(f"Spatial harmonization complete. Output rows: {len(gdf)}")
+    return gdf
 
 def main():
-    """
-    Main entry point to run the ingestion and harmonization pipeline.
-    Assumes synthetic data has been generated by T005.
-    """
-    project_root = get_project_root()
-    data_dir = project_root / "data" / "processed"
+    """Main entry point for data ingestion."""
+    logger.info("Starting data ingestion pipeline.")
     
-    # Paths
-    noise_input = data_dir / "daily_aggregated_noise.parquet" # Output from T013
-    covariate_input = data_dir / "synthetic_covariates.parquet" # Generated by T005
-    output_file = data_dir / "harmonized.parquet"
-
-    if not noise_input.exists():
-        logger.error(f"Input file not found: {noise_input}. Run T013 first.")
-        return
-
-    if not covariate_input.exists():
-        logger.error(f"Covariate file not found: {covariate_input}. Run T005 first.")
-        return
-
-    logger.info("Loading aggregated noise data...")
-    # T013 output is daily per grid cell
-    aggregated_noise = pd.read_parquet(noise_input, engine="pyarrow")
-    
-    logger.info("Loading covariates...")
-    covariates = pd.read_parquet(covariate_input, engine="pyarrow")
-
-    logger.info("Performing spatial harmonization...")
-    harmonized_data = harmonize_spatial_data(
-        aggregated_noise=aggregated_noise,
-        covariates=covariates,
-        grid_resolution=200.0,
-        output_path=output_file
-    )
-
-    logger.info("Ingestion and harmonization complete.")
+    try:
+        # Load data
+        noise_df, covariate_df = load_synthetic_data_chunked()
+        
+        # Harmonize
+        harmonized_gdf = harmonize_spatial_data(noise_df, covariate_df)
+        
+        # Save output
+        output_path = get_project_root() / "data" / "processed" / "harmonized.parquet"
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        harmonized_gdf.to_parquet(output_path, index=False)
+        
+        logger.info(f"Harmonized data saved to {output_path}")
+        
+    except Exception as e:
+        logger.error(f"Data ingestion failed: {str(e)}", exc_info=True)
+        raise
 
 if __name__ == "__main__":
     main()

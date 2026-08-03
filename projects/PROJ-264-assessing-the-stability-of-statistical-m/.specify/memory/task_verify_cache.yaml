@@ -1,10 +1,3 @@
-T013:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, data files, or output artifacts (e.g., the cross\u2011validation loop,\
-    \ metric logs, or summary tables) were presented. Without any tangible implementation\
-    \ or results, we cannot confirm that accuracy and F1 are calculated inside the\
-    \ CV loop or that leakage is prevented. The required artifacts are missing."
 T020:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -12,3 +5,12 @@ T020:
     \ shows the log\u2011log linear regression of log(CV) on log(n_samples) and log(n_features),\
     \ nor any computed residuals or confirmation that Pearson\u202Fr remains the primary\
     \ output. The claim lacks any concrete evidence of the required computation."
+T026:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The provided evidence contains only the task description and project requirements,
+    with no actual code, data files, or output logs demonstrating the implementation
+    of the Bonferroni correction. There is no artifact showing that p-values from
+    the correlation analyses or permutation tests have been adjusted, nor is there
+    any evidence that the family-wise error rate (FWER) control logic has been applied
+    to the hypothesis tests.
