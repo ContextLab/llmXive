@@ -1,48 +1,50 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "SimulationRun"
-description: "Schema for a single instance of the 1,000-step autoregressive simulation."
+description: "Schema for a single autoregressive generation simulation result."
 type: "object"
-required:
-  - "run_id"
-  - "seed"
-  - "method"
-  - "steps"
-  - "accumulated_kl_divergence"
-  - "avg_latency_per_token_ms"
-  - "kl_history"
-  - "fallback_count"
 properties:
   run_id:
     type: "string"
-    description: "Unique identifier."
-  seed:
-    type: "integer"
-    description: "Random seed used for reproducibility."
+    description: "Unique identifier for the run (UUID)."
   method:
     type: "string"
     enum:
       - "static_prior"
       - "kvarn_baseline"
-    description: "Method used for scaling factor prediction."
+    description: "Method used for scaling factor computation."
   steps:
     type: "integer"
-    const: 1000
-    description: "Total steps in the simulation."
+    minimum: 1
+    description: "Number of autoregressive steps."
   accumulated_kl_divergence:
     type: "number"
     description: "Sum of KL-divergence over all steps."
-  avg_latency_per_token_ms:
+  per_token_latency_ms:
     type: "number"
     minimum: 0.0
-    description: "Average wall-clock time per token."
-  kl_history:
+    description: "Average wall-clock time per token in milliseconds."
+  epsilon_floor:
+    type: "number"
+    minimum: 0.0
+    description: "Value used for variance normalization floor."
+  seed:
+    type: "integer"
+    description: "Random seed for reproducibility."
+  kl_divergence_sequence:
     type: "array"
     items:
       type: "number"
-    minItems: 1000
-    maxItems: 1000
-    description: "List of KL values per step."
-  fallback_count:
-    type: "integer"
-    minimum: 0
-    description: "Number of times the system fell back to KVarN."
+    description: "Optional: List of KL-divergence values at each step."
+  quantization_scheme:
+    type: "string"
+    description: "The quantization scheme used (e.g., 'Uniform_INT8_Symmetric')."
+required:
+  - "run_id"
+  - "method"
+  - "steps"
+  - "accumulated_kl_divergence"
+  - "per_token_latency_ms"
+  - "epsilon_floor"
+  - "seed"
+  - "quantization_scheme"
+additionalProperties: false

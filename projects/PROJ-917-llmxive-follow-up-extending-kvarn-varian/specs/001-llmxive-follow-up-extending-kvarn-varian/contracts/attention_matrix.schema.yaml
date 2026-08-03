@@ -1,46 +1,43 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "AttentionMatrix"
-description: "Schema for a synthetic attention matrix and its derived statistics."
+description: "Schema for a synthetic attention matrix record."
 type: "object"
-required:
-  - "id"
-  - "dimensions"
-  - "sparsity_level"
-  - "outlier_magnitude"
-  - "mean"
-  - "variance"
 properties:
   id:
     type: "string"
     description: "Unique identifier (UUID)."
-  dimensions:
-    type: "object"
-    required:
-      - "rows"
-      - "cols"
-    properties:
-      rows:
-        type: "integer"
-        const: 128
-      cols:
-        type: "integer"
-        const: 128
+  shape:
+    type: "array"
+    items:
+      type: "integer"
+    minItems: 2
+    maxItems: 2
+    description: "Matrix dimensions (e.g., [128, 128])."
+  mean:
+    type: "number"
+    description: "Mean of the matrix values."
+  variance:
+    type: "number"
+    description: "Variance of the matrix values."
   sparsity_level:
     type: "number"
     minimum: 0.0
     maximum: 1.0
-    description: "Ratio of zero elements."
+    description: "Proportion of zero values (0.0 to 1.0)."
   outlier_magnitude:
     type: "number"
-    description: "Scaling factor for outlier values."
-  mean:
-    type: "number"
-    description: "Arithmetic mean of non-zero elements."
-  variance:
-    type: "number"
-    minimum: 0.0
-    description: "Variance of non-zero elements."
-  raw_data:
+    minimum: 1.0
+    description: "Factor by which outliers are scaled."
+  generated_at:
     type: "string"
-    description: "Base64 encoded flattened array (optional)."
-    pattern: "^[A-Za-z0-9+/=]+$"
+    format: "date-time"
+    description: "Timestamp of generation."
+required:
+  - "id"
+  - "shape"
+  - "mean"
+  - "variance"
+  - "sparsity_level"
+  - "outlier_magnitude"
+  - "generated_at"
+additionalProperties: false

@@ -3,66 +3,104 @@
 ## Prerequisites
 
 - Python 3.11+
-- pip
+- pip (Python package manager)
 - Git
 
 ## Installation
 
-1. **Clone the repository** (or navigate to the project root).
+1. **Clone the repository** (if not already done):
+   ```bash
+   git clone <repo-url>
+   cd projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian
+   ```
+
 2. **Create a virtual environment**:
    ```bash
    python -m venv venv
    source venv/bin/activate  # On Windows: venv\Scripts\activate
    ```
+
 3. **Install dependencies**:
    ```bash
    pip install -r code/requirements.txt
    ```
+   *Note: `requirements.txt` is located in `code/` and pins all dependencies.*
 
 ## Running the Pipeline
 
-The pipeline consists of four sequential phases. Run them in order:
+### Step 1: Generate Synthetic Data
 
-### Phase 1: Data Generation
-Generates a large set of synthetic attention matrices and computes ground-truth scaling factors.
+Generate synthetic attention matrices and compute ground-truth scaling factors.
+
 ```bash
-python code/data_generation/synthetic_matrix_generator.py The specific value to remove/generalize: a large-scale sample size
-
-Rewritten passage:
-The research question remains: [Insert Research Question]. The method will be: [Insert Method]. References: [Insert References]. This study will employ a large-scale sample size to ensure statistical power and generalizability, without predetermining the exact count at this planning stage. --output data/raw/synthetic_attention.json
-python code/data_generation/sinkhorn_solver.py --input data/raw/synthetic_attention.json --output data/processed/labels.json
+python code/main.py --task generate_data
 ```
 
-### Phase 2: Model Training
-Trains the multi-layer perceptron and evaluates against the baseline.
+- **Output**: `data/raw/synthetic_attention_matrices.jsonl`
+- **Time**: A short duration (depends on CPU speed).
+
+### Step 2: Train the Static Prior Model
+
+Train the 2-layer MLP on the generated data.
+
 ```bash
-python code/model_training/train_and_eval.py --train_data data/processed/labels.json --epochs sufficient for convergence --output data/analysis/model_metrics.json
+python code/main.py --task train_model
 ```
 
-### Phase 3: Simulation
-Runs multiple independent autoregressive simulations of sufficient length to ensure convergence.
+- **Output**: `code/models/static_prior_mlp.pt`
+- **Metrics**: Training loss, test MSE (printed to console).
+
+### Step 3: Run Simulation
+
+Run the autoregressive simulation for both methods.
+
 ```bash
-python code/simulation/autoregressive_loop.py --runs 30 --steps a sufficient number to ensure convergence --output data/simulation/accumulated_kl_divergence.csv
+python code/main.py --task run_simulation --runs multiple_runs
 ```
 
-### Phase 4: Analysis
-Performs statistical tests, sensitivity analysis, and theoretical bound computation.
+- **Output**: `data/results/simulation_run_001.json` to `simulation_run_030.json`
+- **Time**: Several hours (Multiple runs of [deferred] steps
+
+Research question: [To be defined]
+Method: [To be defined]
+References: [To be defined]).
+
+### Step 4: Analyze Results
+
+Run statistical tests, sensitivity analysis, and theoretical lower bound comparison.
+
 ```bash
-python code/analysis/statistical_tests.py --input data/simulation/accumulated_kl_divergence.csv --output data/analysis/final_report.json
+python code/main.py --task analyze_results
 ```
+
+- **Output**: Summary statistics, t-test results, sensitivity plots, and theoretical bound comparison (saved to `data/results/analysis/`).
 
 ## Verification
 
-To verify the setup:
-1. Run the unit tests:
-   ```bash
-   pytest code/tests/ -v
-   ```
-2. Check that the output files exist in the `data/` directory.
-3. Verify the `final_report.json` contains a p-value < 0.05 (if the hypothesis holds).
+### Unit Tests
+
+Run the test suite to ensure correctness.
+
+```bash
+pytest tests/unit/
+```
+
+### Integration Tests
+
+Run end-to-end tests for the simulation loop.
+
+```bash
+pytest tests/integration/
+```
 
 ## Troubleshooting
 
-- **Numerical Instability**: If you encounter `NaN` values, check the `epsilon` floor setting in `sinkhorn_solver.py`.
-- **OOM Errors**: The synthetic dataset is small, but if you increase the count, consider reducing the matrix size or enabling streaming.
-- **Convergence Failures**: The Sinkhorn solver may fail on extreme outliers. These are flagged in the logs and excluded from training.
+- **Sinkhorn Solver Non-Convergence**: If many matrices fail to converge, increase `max_iterations` in `code/data_generation/sinkhorn_solver.py`.
+- **Out of Memory**: Reduce `num_matrices` in `generate_data` task (e.g., [deferred] instead of [deferred]).
+- **Time Limit Exceeded**: Reduce `steps` in `run_simulation` task (e.g., 500 instead of [deferred]) and note the power limitation.
+
+## Next Steps
+
+- Review `research.md` for detailed methodology and results.
+- Check `data-model.md` for data structure details.
+- Examine `contracts/` for schema definitions.

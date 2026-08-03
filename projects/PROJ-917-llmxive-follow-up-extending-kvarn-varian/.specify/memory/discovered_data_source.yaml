@@ -1,16 +1,16 @@
 status: none
-intent: synthetic attention matrix dataset with sinkhorn scaling factors python package
+intent: synthetic transformer attention matrices with ground truth scaling factors
+  sinkhorn python package dataset
 required_fields:
 - matrix_id
 - attention_matrix
-- matrix_dimensions
+- matrix_shape
 - sparsity_level
 - outlier_magnitude
 - mean
 - variance
-- skewness
-- kurtosis
 - scaling_factors
-cache_key: 22ddac08c998172eb7774ae4455c00d0556c6e84c672854109c65bda7dc9a6a6
-searched_at: '2026-07-24T03:22:57.042144+00:00'
+- generation_timestamp
+cache_key: cf208a83d8e76e73520d85e76015540b10a74809c51e5e969697e8111b601f3b
+searched_at: '2026-08-03T04:26:39.266663+00:00'
 retry_count: 1

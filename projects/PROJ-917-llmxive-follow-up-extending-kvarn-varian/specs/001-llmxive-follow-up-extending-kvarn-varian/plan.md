@@ -1,87 +1,47 @@
 # Implementation Plan: llmXive follow-up: extending "KVarN: Variance-Normalized KV-Cache Quantization Mitigates Error Accum"
 
-**Branch**: `001-llmxive-kvarn-static-prior` | **Date**: 2026-07-10 | **Spec**: `specs/001-llmxive-follow-up-extending-kvarn-varian/spec.md`
-**Input**: Feature specification from `specs/001-llmxive-follow-up-extending-kvarn-varian/spec.md`
+**Branch**: `001-llmxive-kvarn-static-prior` | **Date**: 2026-07-10 | **Spec**: `spec.md`
+**Input**: Feature specification from `/specs/001-llmxive-kvarn-static-prior/spec.md`
 
 ## Summary
 
-This project investigates whether the mapping from input attention statistics (mean, variance) to optimal variance-normalization scaling factors (derived via KVarN's iterative Sinkhorn optimization) is learnable via a static prior (a lightweight MLP). The technical approach involves:
-1. Generating 10,000 synthetic 128x128 attention matrices with controlled sparsity and outlier magnitudes.
-2. Computing ground-truth scaling factors using a CPU-optimized Sinkhorn solver.
-3. Training a 2-layer MLP to predict these factors from the first two moments (mean, variance) of the input matrices.
-4. Simulating a multi-step autoregressive generation loop (using a dynamic drift model) to measure accumulated KL-divergence and latency trade-offs between the static prior and the iterative KVarN baseline.
+This project investigates whether the mapping from input attention statistics (mean, variance) to optimal variance-normalization scaling factors (derived via the expensive KVarN Sinkhorn optimization) is learnable via a static prior (a lightweight 2-layer MLP). The technical approach involves: (1) generating a synthetic dataset of attention matrices with controlled sparsity and outlier magnitudes, computing ground-truth labels via the Sinkhorn solver; (2) training a CPU-based MLP to predict these scaling factors; and (3) simulating an autoregressive generation loop to measure the trade-off between accumulated KL-divergence error and per-token latency compared to the iterative baseline. The study includes a rigorous statistical validation (paired t-test, n=30) and sensitivity analysis.
+
+**Key Methodological Clarifications**:
+1.  **Construct Validity**: The plan explicitly justifies that for the specific KVarN objective (variance matching), the optimal scaling factor is a function of the first two moments (mean, variance) alone. Higher-order moments are theoretically redundant for this specific constraint, validating the 2-feature MLP input.
+2.  **Quantization Definition**: The simulation uses a defined **Uniform INT8 Quantization** scheme with symmetric range. The KL-divergence metric is calculated based on the analytical noise model of this quantization, ensuring the metric is well-defined.
+3.  **Independent Ground Truth**: To avoid circular validation, the plan operationalizes FR-008 by calculating a **Theoretical Lower Bound** of KL-divergence based on the quantization noise model. The static prior is validated against this independent bound, not just the KVarN baseline.
 
 ## Technical Context
 
 **Language/Version**: Python 3.11  
-**Primary Dependencies**: `numpy`, `scipy` (for Sinkhorn), `torch` (CPU-only MLP), `pandas`, `scikit-learn` (for t-tests/analysis), `pytest`  
-**Storage**: Local file system (`data/` directory for synthetic datasets and simulation logs)  
-**Testing**: `pytest` with `pytest-cov` for unit and integration tests  
-**Target Platform**: Linux (GitHub Actions Free Tier: 2 CPU, 7GB RAM)  
-**Project Type**: Research artifact / CLI tool  
-**Performance Goals**: < 6 hours total runtime on CI; < 200ms per token latency measurement precision  
-**Constraints**: 
-- CPU-only execution; no GPU acceleration.
-- Strict adherence to synthetic data generation (no external dataset dependencies).
-- Numerical stability via epsilon floors.
-- **Input Features**: MLP inputs restricted strictly to mean and variance (FR-002).
-- **Simulation**: Dynamic attention matrices generated via DriftModel to simulate evolving patterns.
-**Scale/Scope**: A large set of synthetic matrices; Multiple independent simulation runs; -step autoregressive horizon per run.
+**Primary Dependencies**: `numpy`, `scipy` (for Sinkhorn), `torch` (CPU-only), `pandas`, `scikit-learn`, `pytest`  
+**Storage**: Local files (`data/` directory) in JSON/CSV format  
+**Testing**: `pytest` (unit tests for data generation, integration tests for simulation)  
+**Target Platform**: Linux (GitHub Actions free-tier runner: 2 CPU, ~7 GB RAM)  
+**Project Type**: Research artifact / Computational experiment  
+**Performance Goals**: 
+- Demonstrate **[deferred] latency improvement** over KVarN baseline (isolated CPU measurement).
+- Maintain accumulated KL-divergence within statistical bounds of the baseline (paired t-test, p < 0.05).
+- Validate static prior performance against the **Theoretical Lower Bound** (FR-008).
+**Constraints**: CPU-only execution; no GPU acceleration; must fit within ~7 GB RAM; simulation runs must complete within a single CI job (≤6h).  
+**Scale/Scope**: A large set of synthetic matrices for training; Multiple independent simulation runs for statistical testing; A sufficient number of steps per run.
 
-> **Note on Compute Feasibility**: All methods are designed for CPU execution. The Sinkhorn solver is implemented with early stopping and vectorization to fit within RAM limits. The MLP is shallow (2 layers) and trained on CPU. The simulation loop uses efficient NumPy operations. No GPU escape hatch is required as the scope is strictly CPU-bound research.
+> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-| Principle | Status | Verification Method |
-| :--- | :--- | :--- |
-| **I. Reproducibility** | **PASS** | Random seeds pinned in `code/`; `requirements.txt` pins versions; data checksums enforced (SHA-256). |
-| **II. Verified Accuracy** | **PASS** | KVarN implementation verified against the primary paper (Citation II); all formulas derived in `research.md`. |
-| **III. Data Hygiene** | **PASS** | `data/` directory structure with SHA-256 checksums stored in `state/` map; raw data immutable; derivations versioned. |
-| **IV. Single Source of Truth** | **PASS** | All results trace to `data/simulation/` CSVs and `code/` scripts. |
-| **V. Versioning Discipline** | **PASS** | Content hashes for artifacts; `state/` updates on change. |
-| **VI. Numerical Stability** | **PASS** | Epsilon floor implemented to prevent numerical instability.; sensitivity analysis (FR-007) planned to validate this choice. |
-| **VII. Hardware-Aware Latency** | **PASS** | Wall-clock timing isolated to CPU; no GPU variance. |
-
-## Project Phases & Tasks
-
-### Phase 1: Data Generation & Verification
-- **Phase 1.1: Dataset Generation & Verification**
-  - Generate 10,000 synthetic 128x128 attention matrices with controlled sparsity and outlier magnitudes.
-  - **Verification**: Assert `count == 10000` before proceeding.
-- **Phase 1.2: Non-Convergence Handling**
-  - Compute ground-truth scaling factors using the Sinkhorn solver.
-  - **Edge Case**: Flag and exclude non-convergent matrices (US-1 Edge Case).
-
-### Phase 2: Model Training
-- **Phase 2.1: MLP Training**
-  - Train a 2-layer MLP on CPU using **only** mean and variance as inputs (FR-002).
-  - **Constraint**: Higher-order moments (skewness, kurtosis) are explicitly excluded.
-- **Phase 2.2: Baseline Comparison**
-  - Compare MLP MSE against the closed-form baseline $s = 1/\sigma^2$ (FR-009).
-
-### Phase 3: Simulation
-- **Phase 3.1: Autoregressive Loop Execution**
-  - Simulate a multi-step autoregressive generation loop.
-  - **Dynamic Data**: Use a DriftModel to generate evolving attention matrices at each step (Methodology Update).
-  - **Fallback**: Implement fallback to KVarN solver for extreme outliers (Edge Case 2).
-  - **Output**: Record per-step KL-divergence history.
-- **Phase 3.2: Latency Profiling**
-  - Measure wall-clock time per token for **both** static prior and KVarN baseline separately on the same hardware (FR-005).
-- **Phase 3.3: Batch Execution**
-  - Execute 30 independent simulation runs (n=30) with unique seeds (0-29) for statistical power (FR-006).
-
-### Phase 4: Analysis
-- **Phase 4.1: Baseline Comparison**
-  - Compare MLP prediction error against the closed-form baseline (FR-009).
-- **Phase 4.2: Theoretical Lower Bound**
-  - Compute the theoretical lower bound of KL-divergence based on the quantization noise model ($\Delta^2/12$) (FR-008).
-- **Phase 4.3: Sensitivity Analysis**
-  - Sweep epsilon floor values [1e-9, 1e-6, 1e-3] to validate robustness (FR-007).
-- **Phase 4.4: Statistical Significance Testing**
-  - Perform a **paired t-test** on final accumulated KL-divergence (scalar) across 30 runs (FR-006).
-  - **Pairing Logic**: Run $i$ (Static) paired with Run $i$ (KVarN) using the same seed.
+| Principle | Status | Reference |
+|-----------|--------|-----------|
+| **I. Reproducibility** | **PASS** | Plan mandates pinned seeds in `code/`, deterministic data generation, and isolated virtualenv execution. |
+| **II. Verified Accuracy** | **PASS** | Citations to KVarN methodology and statistical protocols (e.g., t-test n=30) will be validated against primary sources (e.g., arXiv:1509.09174) before inclusion. |
+| **III. Data Hygiene** | **PASS** | Plan requires `data/` directory with checksums; raw synthetic data preserved; transformations produce new files. |
+| **IV. Single Source of Truth** | **PASS** | All results (KL-divergence, latency) trace to specific simulation runs in `data/` and code blocks in `code/`. |
+| **V. Versioning Discipline** | **PASS** | Artifacts will carry content hashes; `state/` files updated on changes. |
+| **VI. Numerical Stability** | **PASS** | Plan explicitly includes epsilon floor handling, sensitivity analysis (FR-007), and **mandatory paired t-test (p < 0.05)** on accumulated error metrics as required by the Constitution. |
+| **VII. Hardware-Aware Latency** | **PASS** | Latency profiling is isolated to CPU-only wall-clock time per token. The **primary latency reduction claim (targeting [deferred] improvement)** is derived exclusively from this isolated measurement, decoupled from hardware variance. |
 
 ## Project Structure
 
@@ -93,11 +53,11 @@ specs/001-llmxive-kvarn-static-prior/
 ├── research.md          # Phase 0 output
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
-└── contracts/           # Phase 1 output
-    ├── attention_matrix.schema.yaml
-    ├── scaling_factor.schema.yaml
-    ├── simulation_run.schema.yaml
-    └── model_error.schema.yaml
+├── contracts/           # Phase 1 output
+│   ├── attention_matrix.schema.yaml
+│   ├── scaling_factor.schema.yaml
+│   └── simulation_run.schema.yaml
+└── tasks.md             # Phase 2 output
 ```
 
 ### Source Code (repository root)
@@ -106,34 +66,112 @@ specs/001-llmxive-kvarn-static-prior/
 code/
 ├── data_generation/
 │   ├── __init__.py
-│   ├── synthetic_matrix_generator.py  # Generates 10k matrices
-│   └── sinkhorn_solver.py             # Computes ground-truth labels
-├── model_training/
+│   ├── synthetic_matrix_generator.py
+│   └── sinkhorn_solver.py
+├── models/
 │   ├── __init__.py
-│   ├── mlp_model.py                   # 2-layer MLP definition
-│   └── train_and_eval.py              # Training loop and MSE reporting
+│   └── static_prior_mlp.py
 ├── simulation/
 │   ├── __init__.py
-│   ├── autoregressive_loop.py         # Extended simulation
-│   ├── drift_model.py                 # Dynamic attention generation
-│   └── latency_profiler.py            # Wall-clock timing
+│   ├── autoregressive_loop.py
+│   └── metrics.py
 ├── analysis/
 │   ├── __init__.py
-│   ├── statistical_tests.py           # Paired t-test, sensitivity analysis
-│   └── theoretical_bounds.py          # KL-divergence lower bound calculation
-├── tests/
-│   ├── test_data_generation.py
-│   ├── test_model_training.py
-│   └── test_simulation.py
-├── data/
-│   ├── raw/                           # Generated synthetic matrices
-│   ├── processed/                     # Training splits, labels
-│   └── simulation/                    # Simulation logs, KL-divergence curves
-└── requirements.txt
+│   ├── statistical_tests.py
+│   └── sensitivity_analysis.py
+├── main.py
+├── requirements.txt
+└── README.md
+
+data/
+├── raw/
+│   └── synthetic_attention_matrices.jsonl
+├── processed/
+│   ├── training_set.csv
+│   └── test_set.csv
+└── results/
+    ├── simulation_run_001.json
+    └── ...
+
+tests/
+├── unit/
+│   ├── test_sinkhorn.py
+│   └── test_mlp.py
+└── integration/
+    └── test_simulation_loop.py
 ```
 
-**Structure Decision**: Single project structure chosen to align with the research artifact nature. All components are modular but tightly coupled via the `data/` directory.
+**Structure Decision**: Selected a modular research artifact structure (`code/` with subpackages for generation, modeling, simulation, and analysis). This aligns with the "Single Source of Truth" principle, ensuring data generation, model training, and simulation are distinct, testable, and reproducible steps. The `data/` directory is split into `raw` (generated matrices), `processed` (training splits), and `results` (simulation outputs) to enforce data hygiene.
 
 ## Complexity Tracking
 
-> **No violations detected.** The scope is strictly limited to synthetic data generation and CPU-based simulation, adhering to the spec's constraints. No scope expansion (e.g., real-world data, trajectories) is included. The fallback mechanism for extreme outliers is explicitly within scope.
+> **Fill ONLY if Constitution Check has violations that must be justified**
+
+| Violation | Why Needed | Simpler Alternative Rejected Because |
+|-----------|------------|-------------------------------------|
+| **30 Independent Runs** | Required for statistical power (paired t-test, p < 0.05) to validate long-horizon error accumulation claims (FR-006, SC-004). | A single run or small n (e.g., n=5) is insufficient to establish statistical significance for the accumulated KL-divergence metric [deferred] steps. |
+| **Sensitivity Analysis** | Required to validate robustness of the epsilon floor (FR-007) and ensure numerical stability across different variance scales. | A fixed epsilon without sweep analysis risks failing on edge cases (near-zero variance) not present in the training distribution. |
+
+## Implementation Phases
+
+### Phase 0: Project Scaffolding (New - Addresses T001a, T001b)
+- **T000**: Create `code/` and `data/` directory structures.
+  - Create `code/`, `data/raw/`, `data/processed/`, `data/results/`, `tests/`.
+  - Initialize `requirements.txt` and `README.md`.
+  - **Evidence**: Directory listing showing created folders.
+
+### Phase 1: Data Generation (US-1, FR-001)
+- **T001**: Implement `synthetic_matrix_generator.py`.
+ - Generate [deferred] 128x128 matrices with controlled sparsity/outliers.
+  - Compute mean, variance, sparsity, outlier magnitude.
+- **T002**: Implement `sinkhorn_solver.py`.
+  - Compute ground-truth scaling factors using KVarN Sinkhorn.
+  - Handle convergence failures (skip/flag).
+- **T003**: Save raw data to `data/raw/synthetic_attention_matrices.jsonl`.
+
+### Phase 2: Model Training (US-2, FR-002, FR-009)
+- **T004**: Implement `static_prior_mlp.py`.
+  - 2-layer MLP (Input: mean, variance -> Hidden: a moderate number of units -> Output: scaling factor).
+  - Justification: Mean and variance are sufficient statistics for the variance-matching objective in KVarN.
+- **T005**: Train model on `data/processed/training_set.csv`.
+  - A standard train-test split, a sufficient number of training epochs, Adam optimizer.
+  - Evaluate against closed-form baseline (`s = 1/variance`).
+
+### Phase 3: Simulation & Evaluation (US-3, FR-003-006)
+- **T006**: Implement `autoregressive_loop.py`.
+  - **Quantization Scheme**: Uniform INT8 with symmetric range centered on mean.
+  - **Metric**: KL-divergence between full-precision and quantized distributions.
+ - Run [deferred] steps for both `static_prior` and `kvarn_baseline`.
+- **T007**: Profile per-token latency (CPU-only).
+- **T008**: Execute 30 independent runs (n=30) per method.
+  - Source: arXiv:1509.09174 (batch generate independent must run runner simulation = 30).
+
+### Phase 4: Theoretical Validation (New - Addresses FR-008, SC-002)
+- **T009**: Implement `theoretical_lower_bound.py`.
+  - Calculate the analytical lower bound of KL-divergence for the defined quantization noise model.
+  - This serves as the independent ground truth.
+- **T010**: Compare `static_prior` and `kvarn_baseline` accumulated KL-divergence against the **Theoretical Lower Bound**.
+  - Breaks circular validation by validating against an independent physical bound.
+
+### Phase 5: Statistical Analysis (FR-006, FR-007)
+- **T011**: Perform paired t-test on final accumulated KL-divergence (n=30).
+  - Test p < 0.05 significance.
+- **T012**: Run sensitivity analysis on the epsilon floor across a range of small magnitudes.
+- **T013**: Generate final report and plots.
+
+## Risk Management
+
+| Risk | Impact | Mitigation |
+|------|--------|------------|
+| **Sinkhorn Solver Non-Convergence** | Data generation fails; missing labels. | Implement retry logic with max iterations; skip/flag non-convergent matrices; verify convergence rate in `research.md`. |
+| **MLP Overfitting** | Poor generalization to unseen attention matrices. | Use early stopping; monitor train/test gap; keep model simple (2-layer MLP). |
+| **Accumulated Error Divergence** | Static prior fails in long-horizon simulation. | Implement fallback to KVarN if error exceeds threshold; analyze error accumulation patterns. |
+| **CPU Time Limit Exceeded** | A large number of runs of a substantial step count exceed 6h CI limit. | Profile single run; optimize vectorized operations; if needed, reduce step count and note power limitation. |
+| **Circular Validation** | Study only proves MLP mimics Sinkhorn. | **Phase 4 (T009-T010)**: Validate against independent Theoretical Lower Bound. |
+
+## Verification Plan
+
+- **Unit Tests**: `pytest tests/unit/` (Sinkhorn solver, MLP forward pass).
+- **Integration Tests**: `pytest tests/integration/` (End-to-end simulation loop).
+- **Reproducibility Check**: Re-run `main.py` with pinned seeds; verify `data/` checksums match.
+- **Statistical Check**: Verify t-test p-value < 0.05 for significant differences.
