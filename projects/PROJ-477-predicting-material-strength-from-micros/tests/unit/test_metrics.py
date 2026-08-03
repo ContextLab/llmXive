@@ -1,6 +1,11 @@
 """
 Unit tests for metric calculation (MSE, R²) as per Task T016.
 Tests the evaluation logic in code/eval/metrics.py.
+
+This task implements:
+1. test_mse_calculation: Asserts MSE matches numpy implementation.
+2. test_ttest_significance: Uses specific input arrays and asserts calculated
+   t-statistic and p-value match scipy.stats.ttest_1samp within tolerance.
 """
 import pytest
 import numpy as np
@@ -12,7 +17,7 @@ from pathlib import Path
 project_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(project_root / "code"))
 
-from eval.metrics import calculate_mse, calculate_r2, calculate_t_statistic
+from eval.metrics import calculate_mse, calculate_r2, single_sample_ttest_squared_errors
 
 
 class TestCalculateMSE:
@@ -53,6 +58,19 @@ class TestCalculateMSE:
         """MSE should raise ValueError for mismatched lengths."""
         with pytest.raises(ValueError):
             calculate_mse([1.0, 2.0], [1.0])
+
+    def test_mse_matches_numpy(self):
+        """Assert MSE matches numpy implementation exactly."""
+        y_true = np.array([1.0, 2.0, 3.0, 4.0, 5.0])
+        y_pred = np.array([1.1, 2.2, 2.9, 4.1, 5.0])
+        
+        # Numpy MSE
+        np_mse = np.mean((y_true - y_pred) ** 2)
+        
+        # Our implementation
+        our_mse = calculate_mse(y_true.tolist(), y_pred.tolist())
+        
+        assert math.isclose(our_mse, float(np_mse), rel_tol=1e-9)
 
 
 class TestCalculateR2:
@@ -105,48 +123,99 @@ class TestCalculateR2:
             calculate_r2([1.0, 2.0], [1.0])
 
 
-class TestCalculateTStatistic:
-    """Tests for paired t-test statistic on squared errors."""
+class TestTTestSignificance:
+    """Tests for single-sample t-test on squared errors as per T016 spec."""
 
-    def test_identical_errors(self):
-        """T-stat should be 0 if error differences are all zero."""
-        err_cnn = [1.0, 2.0, 3.0]
-        err_baseline = [1.0, 2.0, 3.0]
-        t_stat, p_val = calculate_t_statistic(err_cnn, err_baseline)
-        assert t_stat == 0.0
+    def test_ttest_significance(self):
+        """
+        Test t-statistic and p-value match scipy.stats.ttest_1samp.
+        
+        Inputs per spec:
+        y_true = [1, 2, 3, 4, 5]
+        y_pred = [1.1, 2.2, 2.9, 4.1, 5.0]
+        
+        The test compares CNN squared errors against a scalar baseline error.
+        For this unit test, we simulate the scenario where the baseline scalar
+        is the mean of the squared errors (or a specific scalar value).
+        
+        We calculate the squared errors, then perform a single-sample t-test
+        against a scalar (e.g., the mean of those errors, which should yield
+        t_stat ~ 0.0, p_value ~ 1.0).
+        """
+        y_true = [1.0, 2.0, 3.0, 4.0, 5.0]
+        y_pred = [1.1, 2.2, 2.9, 4.1, 5.0]
+        
+        # Calculate squared errors
+        sq_errors = [(yt - yp) ** 2 for yt, yp in zip(y_true, y_pred)]
+        # sq_errors = [0.01, 0.04, 0.01, 0.01, 0.0]
+        
+        # For a single-sample t-test to yield t_stat ~ 0.0, p_value ~ 1.0,
+        # we test against the mean of the sample itself.
+        baseline_scalar = np.mean(sq_errors)
+        
+        # Our implementation
+        t_stat, p_val = single_sample_ttest_squared_errors(sq_errors, baseline_scalar)
+        
+        # Scipy reference
+        from scipy import stats
+        expected_t, expected_p = stats.ttest_1samp(sq_errors, baseline_scalar)
+        
+        # Assert within tolerance
+        assert math.isclose(t_stat, expected_t, rel_tol=1e-5, abs_tol=1e-5), \
+            f"t_stat {t_stat} != expected {expected_t}"
+        assert math.isclose(p_val, expected_p, rel_tol=1e-5, abs_tol=1e-5), \
+            f"p_val {p_val} != expected {expected_p}"
+        
+        # Specifically check the expected values mentioned in the task:
+        # t_stat ~ 0.0, p_value ~ 1.0
+        assert math.isclose(t_stat, 0.0, abs_tol=1e-5), f"t_stat should be ~0.0, got {t_stat}"
+        assert math.isclose(p_val, 1.0, abs_tol=1e-5), f"p_val should be ~1.0, got {p_val}"
 
-    def test_cnn_better(self):
-        """T-stat should be negative if CNN errors are consistently lower."""
-        # CNN errors: 1, 2, 3; Baseline: 2, 3, 4
-        # Diff: -1, -1, -1. Mean diff = -1. Std dev = 0.
-        # T-stat = mean_diff / (std/sqrt(n)) -> -inf or very large negative
-        err_cnn = [1.0, 2.0, 3.0]
-        err_baseline = [2.0, 3.0, 4.0]
-        t_stat, p_val = calculate_t_statistic(err_cnn, err_baseline)
-        # We expect a large negative t-statistic
-        assert t_stat < 0
-        assert p_val < 0.05  # Significant
+    def test_cnn_better_than_baseline(self):
+        """
+        Test case where CNN errors are consistently lower than baseline scalar.
+        Expect negative t-statistic and significant p-value.
+        """
+        cnn_sq_errors = [0.1, 0.2, 0.1, 0.15, 0.05]
+        baseline_scalar = 0.5  # Higher than any CNN error
+        
+        t_stat, p_val = single_sample_ttest_squared_errors(cnn_sq_errors, baseline_scalar)
+        
+        # Expect negative t-stat (mean of errors < baseline)
+        assert t_stat < 0, f"t_stat should be negative, got {t_stat}"
+        assert p_val < 0.05, f"p_val should be significant (< 0.05), got {p_val}"
 
-    def test_baseline_better(self):
-        """T-stat should be positive if Baseline errors are consistently lower."""
-        err_cnn = [2.0, 3.0, 4.0]
-        err_baseline = [1.0, 2.0, 3.0]
-        t_stat, p_val = calculate_t_statistic(err_cnn, err_baseline)
-        assert t_stat > 0
+    def test_cnn_worse_than_baseline(self):
+        """
+        Test case where CNN errors are consistently higher than baseline scalar.
+        Expect positive t-statistic and significant p-value.
+        """
+        cnn_sq_errors = [1.0, 1.5, 1.2, 1.3, 1.1]
+        baseline_scalar = 0.5  # Lower than any CNN error
+        
+        t_stat, p_val = single_sample_ttest_squared_errors(cnn_sq_errors, baseline_scalar)
+        
+        # Expect positive t-stat (mean of errors > baseline)
+        assert t_stat > 0, f"t_stat should be positive, got {t_stat}"
+        assert p_val < 0.05, f"p_val should be significant (< 0.05), got {p_val}"
 
-    def test_empty_lists(self):
-        """Should raise ValueError for empty inputs."""
+    def test_empty_errors(self):
+        """Should raise ValueError for empty errors list."""
         with pytest.raises(ValueError):
-            calculate_t_statistic([], [])
+            single_sample_ttest_squared_errors([], 0.5)
 
-    def test_single_pair(self):
-        """Should handle single pair (degrees of freedom = 0)."""
-        err_cnn = [1.0]
-        err_baseline = [2.0]
-        # With n=1, std dev is 0/undefined.
-        # Implementation should handle this (likely return inf or raise).
-        # We just ensure it doesn't crash with a weird type error.
-        t_stat, p_val = calculate_t_statistic(err_cnn, err_baseline)
-        # Depending on implementation, this might be inf or nan
+    def test_single_error(self):
+        """
+        Test with single error value.
+        Degrees of freedom = 0, so t-stat is undefined (inf or nan).
+        Implementation should handle this gracefully.
+        """
+        cnn_sq_errors = [0.5]
+        baseline_scalar = 0.5
+        
+        t_stat, p_val = single_sample_ttest_squared_errors(cnn_sq_errors, baseline_scalar)
+        
+        # With n=1, std dev is 0, t-stat is undefined.
+        # We expect inf or nan, but not a crash.
         assert isinstance(t_stat, float)
         assert isinstance(p_val, float)

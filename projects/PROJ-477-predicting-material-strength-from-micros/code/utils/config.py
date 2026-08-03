@@ -34,29 +34,37 @@ def _find_project_root() -> Path:
     
     # Strategy 1: Check parents of the current file path
     # Typical path: PROJ/code/utils/config.py -> parents: code/utils, code, PROJ
-    for parent in [current.parent] + list(current.parents):
-        # We look for a directory that contains 'code' and 'data' as subdirectories
-        # If current is PROJ/code/utils, parent is PROJ/code. 
-        # We check if parent.parent has 'code' and 'data'.
+    # We need to find the directory that is the parent of 'code'
+    # If current is .../code/utils/config.py, we check parents until we find one that has 'code' and 'data' as siblings.
+    
+    # Let's walk up from the current file's directory
+    for parent in [current] + list(current.parents):
+        # Check if this parent has 'code' and 'data' as direct children
+        # If we are at .../code/utils, parent is .../code/utils. 
+        # We need to go up to .../code, then check if .../code.parent has 'code' and 'data'.
+        
+        # Actually, let's try a simpler approach:
+        # If we are at .../code/utils/config.py, then:
+        # current.parent = .../code/utils
+        # current.parent.parent = .../code
+        # current.parent.parent.parent = ... (root)
+        # We want to find ... (root) such that .../code and .../data exist.
+        
         candidate = parent
-        # If we are at PROJ/code, we need to go up one more level to PROJ
+        # Check if candidate has 'code' and 'data' as children
         if (candidate / "code").exists() and (candidate / "data").exists():
             _PROJECT_ROOT = candidate
             return candidate
         
-        # Check if this candidate IS the root (contains code and data directly)
-        if (candidate / "code").exists() and (candidate / "data").exists():
-             _PROJECT_ROOT = candidate
-             return candidate
-
-    # Strategy 2: If we are running from a script in the root, __file__ might be relative or different.
-    # Fallback: Check if 'code' and 'data' exist in current working directory
+        # Also check if candidate IS 'code' or 'data' directory? No, we want the root.
+        
+    # Strategy 2: Fallback to CWD
     cwd = Path.cwd()
     if (cwd / "code").exists() and (cwd / "data").exists():
         _PROJECT_ROOT = cwd
         return cwd
-
-    # Strategy 3: Walk up from CWD if not found
+    
+    # Strategy 3: Walk up from CWD
     for parent in [cwd] + list(cwd.parents):
         if (parent / "code").exists() and (parent / "data").exists():
             _PROJECT_ROOT = parent

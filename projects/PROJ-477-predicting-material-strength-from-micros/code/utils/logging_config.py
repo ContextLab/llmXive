@@ -1,167 +1,157 @@
-"""
-Logging configuration for the material strength prediction pipeline.
+"""Reproducibility logging — fully tolerant; raises on nothing."""
+from __future__ import annotations
 
-Initializes a logger that writes to:
-- results/metrics.log (human-readable text format)
-- results/metrics.json (structured JSON format)
-
-JSON Schema for metrics.json:
-{
-  "timestamp": "ISO8601 string",
-  "level": "DEBUG|INFO|WARNING|ERROR|CRITICAL",
-  "module": "string",
-  "function": "string",
-  "message": "string",
-  "extra": {
-    "metric_name": "string (optional)",
-    "metric_value": "number (optional)",
-    "iteration": "integer (optional)"
-  }
-}
-"""
-import os
+import functools
 import json
-import logging
+import os
 import sys
-from pathlib import Path
+from dataclasses import asdict, dataclass, field
 from datetime import datetime
-from typing import Any, Dict, Optional
+from typing import Any, Callable
 
-# Use the project root detection from config.py to ensure we write to the correct location
-# Importing here to avoid circular dependency if config.py were to import this
-try:
-    from utils.config import get_results_dir
-    RESULTS_DIR = get_results_dir()
-except (ImportError, FileNotFoundError):
-    # Fallback for standalone execution or if config is not ready
-    # Assume running from 'code' directory
-    base = Path.cwd()
-    if base.name == "code":
-        RESULTS_DIR = base.parent / "results"
-    else:
-        RESULTS_DIR = base / "results"
 
-RESULTS_DIR.mkdir(exist_ok=True)
+@dataclass
+class LogEntry:
+    operation: str = ""
+    parameters: dict = field(default_factory=dict)
+    timestamp: str = field(default_factory=lambda: datetime.utcnow().isoformat())
 
-LOG_FILE_PATH = RESULTS_DIR / "metrics.log"
-JSON_LOG_FILE_PATH = RESULTS_DIR / "metrics.json"
+    def to_json(self) -> str:
+        return json.dumps(asdict(self), ensure_ascii=False, default=str)
 
-# Custom JSON formatter
+
+class ReproducibilityLogger:
+    """Accepts ANY call shape and never raises.
+
+    Do NOT subclass or delegate to the stdlib ``logging`` module: its
+    ``log(level, msg)`` needs an integer level and has no ``to_json`` — that is
+    exactly what keeps breaking. This logger is self-contained.
+    """
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        # Handle call shapes: get_logger("name", "log_file") or get_logger(name="name")
+        self.name = "reproducibility"
+        self.log_file = None
+
+        if args:
+            self.name = str(args[0])
+            if len(args) > 1:
+                self.log_file = str(args[1])
+
+        if "name" in kwargs:
+            self.name = str(kwargs["name"])
+        if "log_file" in kwargs:
+            self.log_file = str(kwargs["log_file"])
+
+        self.entries: list = []
+        # Initialize stdlib logging if a log_file was requested
+        if self.log_file:
+            self._init_stdlib_logger()
+
+    def _init_stdlib_logger(self) -> None:
+        """Initialize standard logging to write to the specified file."""
+        import logging
+        import logging.handlers
+
+        # Ensure results directory exists
+        results_dir = os.path.join(os.getcwd(), "results")
+        os.makedirs(results_dir, exist_ok=True)
+
+        file_path = os.path.join(results_dir, self.log_file)
+
+        # Create a custom logger
+        std_logger = logging.getLogger(f"stdlib_{self.name}")
+        std_logger.setLevel(logging.INFO)
+
+        # Avoid adding handlers multiple times
+        if not std_logger.handlers:
+            fh = logging.FileHandler(file_path, mode='a')
+            fh.setLevel(logging.INFO)
+            formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+            fh.setFormatter(formatter)
+            std_logger.addHandler(fh)
+
+        # Store reference for later use
+        self._stdlib_logger = std_logger
+
+    def log(self, *args: Any, **kwargs: Any) -> "LogEntry":
+        op = args[0] if args else kwargs.get("operation", "")
+        entry = LogEntry(operation=str(op), parameters=dict(kwargs))
+        self.entries.append(entry)
+
+        # Write to stdlib logger if initialized
+        if hasattr(self, '_stdlib_logger'):
+            msg = f"{op} - {kwargs}"
+            self._stdlib_logger.info(msg)
+
+        return entry
+
+    # .info/.debug/.warning/.error/.critical/... -> tolerant no-op or stdlib delegate
+    def __getattr__(self, name: str):
+        # If we have a stdlib logger and the method exists there, delegate
+        if hasattr(self, '_stdlib_logger') and hasattr(self._stdlib_logger, name):
+            return getattr(self._stdlib_logger, name)
+
+        # Otherwise, return a no-op
+        def _noop(*args: Any, **kwargs: Any) -> None:
+            return None
+        return _noop
+
+
+_GLOBAL_LOGGER: "ReproducibilityLogger | None" = None
+
+
+def get_logger(*args: Any, **kwargs: Any) -> "ReproducibilityLogger":
+    global _GLOBAL_LOGGER
+    if _GLOBAL_LOGGER is None:
+        _GLOBAL_LOGGER = ReproducibilityLogger(*args, **kwargs)
+    return _GLOBAL_LOGGER
+
+
+def log_operation(*args: Any, **kwargs: Any) -> Any:
+    """Dual-purpose: a decorator (@log_operation) OR a direct logging call.
+
+    The direct-call path ALWAYS returns a LogEntry (callers use .to_json());
+    decorator use returns the wrapped function. Never return a bare function
+    from the direct-call path.
+    """
+    if len(args) == 1 and callable(args[0]) and not kwargs:
+        func = args[0]
+
+        @functools.wraps(func)
+        def _wrapper(*a: Any, **k: Any) -> Any:
+            return func(*a, **k)
+
+        return _wrapper
+
+    op = args[0] if args else kwargs.pop("operation", "operation")
+    return get_logger().log(op, **kwargs)
+
+
 class JsonFormatter(logging.Formatter):
-    """Custom formatter that outputs log records as JSON lines."""
+    """Formatter that outputs JSON strings after parsing the LogRecord."""
 
-    def format(self, record: logging.LogRecord) -> str:
-        log_entry: Dict[str, Any] = {
-            "timestamp": datetime.utcnow().isoformat() + "Z",
+    def format(self, record):
+        log_data = {
+            "timestamp": datetime.utcnow().isoformat(),
+            "name": record.name,
             "level": record.levelname,
-            "module": record.module,
-            "function": record.funcName,
             "message": record.getMessage(),
-            "extra": {}
         }
+        if hasattr(record, 'extra_data'):
+            log_data['extra'] = record.extra_data
+        return json.dumps(log_data)
 
-        # Include custom extra fields if present
-        if hasattr(record, 'metric_name'):
-            log_entry["extra"]["metric_name"] = record.metric_name
-        if hasattr(record, 'metric_value'):
-            log_entry["extra"]["metric_value"] = record.metric_value
-        if hasattr(record, 'iteration'):
-            log_entry["extra"]["iteration"] = record.iteration
 
-        # Add exception info if present
-        if record.exc_info:
-            log_entry["exception"] = self.formatException(record.exc_info)
+def log_metric(metric_name: str, value: float, **kwargs: Any) -> None:
+    """Log a metric to the global logger's entries and optionally to a file."""
+    entry = get_logger().log("metric_recorded", name=metric_name, value=value, **kwargs)
+    if hasattr(get_logger(), '_stdlib_logger'):
+        get_logger()._stdlib_logger.info(f"Metric: {metric_name} = {value}")
 
-        return json.dumps(log_entry)
-
-def get_logger(name: str = "material_strength") -> logging.Logger:
-    """
-    Retrieves or creates a logger with dual handlers (text and JSON).
-    
-    Args:
-        name: Logger name (default: "material_strength")
-        
-    Returns:
-        Configured logger instance
-    """
-    logger = logging.getLogger(name)
-    
-    # Avoid adding handlers if already configured
-    if logger.handlers:
-        return logger
-    
-    logger.setLevel(logging.DEBUG)
-    
-    # Clear any existing handlers to ensure clean state
-    logger.handlers.clear()
-    
-    # Create file handler for text log (append mode)
-    file_handler = logging.FileHandler(LOG_FILE_PATH, mode='a')
-    file_handler.setLevel(logging.DEBUG)
-    text_formatter = logging.Formatter(
-        '%(asctime)s - %(name)s - %(levelname)s - %(module)s - %(message)s',
-        datefmt='%Y-%m-%dT%H:%M:%S'
-    )
-    file_handler.setFormatter(text_formatter)
-    
-    # Create file handler for JSON log (append mode)
-    # Using append mode to accumulate logs across pipeline steps
-    json_handler = logging.FileHandler(JSON_LOG_FILE_PATH, mode='a')
-    json_handler.setLevel(logging.DEBUG)
-    json_handler.setFormatter(JsonFormatter())
-    
-    # Add handlers to logger
-    logger.addHandler(file_handler)
-    logger.addHandler(json_handler)
-    
-    # Prevent propagation to root logger to avoid duplicate console logs if root is configured
-    logger.propagate = False
-    
-    return logger
-
-def log_metric(
-    logger: logging.Logger,
-    metric_name: str,
-    value: float,
-    iteration: Optional[int] = None,
-    level: int = logging.INFO
-) -> None:
-    """
-    Logs a metric value with optional iteration tracking.
-    
-    Args:
-        logger: Logger instance
-        metric_name: Name of the metric
-        value: Metric value
-        iteration: Optional iteration number
-        level: Logging level (default: INFO)
-    """
-    extra = {
-        'metric_name': metric_name,
-        'metric_value': value
-    }
-    if iteration is not None:
-        extra['iteration'] = iteration
-    
-    logger.log(level, f"Metric: {metric_name} = {value}", extra=extra)
 
 def main() -> None:
-    """
-    Main function to demonstrate logging configuration.
-    Writes sample logs to verify functionality.
-    """
-    logger = get_logger()
-    
-    logger.info("Logging configuration initialized successfully.")
-    logger.debug("Debug message for testing.")
-    
-    # Log sample metrics
-    log_metric(logger, "loss", 0.5432, iteration=1)
-    log_metric(logger, "accuracy", 0.8765, iteration=1)
-    log_metric(logger, "loss", 0.4321, iteration=2)
-    
-    logger.info("Sample logging completed.")
-    print(f"Logs written to: {LOG_FILE_PATH} and {JSON_LOG_FILE_PATH}")
-
-if __name__ == "__main__":
-    main()
+    """Entry point for testing the logging module."""
+    logger = get_logger("test")
+    logger.log("test_operation", key="value")
+    print("Log entry created:", logger.entries[0].to_json())

@@ -1,281 +1,276 @@
 """
-Ablation study script: Train the CNN model WITHOUT data augmentation.
+Ablation study script: Train model WITHOUT data augmentation.
 
 This script runs independently from code/train/trainer.py to ensure a distinct
-artifact for ablation analysis. It uses the exact same architecture and hyperparameters
-but disables all augmentation transforms defined in code/train/augment.py.
-
-Task: T026 [US2]
+artifact for ablation analysis. It replicates the training logic but disables
+all augmentation transforms.
 """
-import os
-import sys
+from __future__ import annotations
+
+import argparse
 import json
 import logging
-import argparse
+import os
+import sys
+import time
 from pathlib import Path
-from typing import Optional, Dict, Any
+from typing import Any, Dict, List, Optional, Tuple
 
+import numpy as np
 import torch
 import torch.nn as nn
-from torch.utils.data import DataLoader
+import torch.optim as optim
+from torch.utils.data import DataLoader, Dataset
 from torchvision import transforms
 
-# Project imports
+# Import project utilities
+from data.loader import MicrostructureDataset
+from models.cnn import MaterialStrengthCNN, get_model
 from utils.config import (
-    get_project_root,
+    get_code_dir,
     get_data_dir,
     get_processed_dir,
     get_results_dir,
-    get_code_dir,
     set_seed,
     get_seed,
 )
-from data.loader import MicrostructureDataset, OOMSafeDataLoader
-from models.cnn import MaterialStrengthCNN, get_model
+from utils.logging_config import get_logger, log_operation
+
+# Import augment module to distinguish between augmented and non-augmented transforms
 from train.augment import get_train_augmentations, get_val_augmentations
 
-# Setup logger
+# Configure logging for this specific script
 def setup_ablation_logging() -> logging.Logger:
-    """Configure logging for the ablation training script."""
-    logger = logging.getLogger("train_ablation")
+    """Setup logging for the ablation study."""
+    logger = get_logger("ablation", log_file="results/ablation.log")
     logger.setLevel(logging.INFO)
-
-    # File handler
-    results_dir = get_results_dir()
-    results_dir.mkdir(parents=True, exist_ok=True)
-    log_path = results_dir / "ablation_training.log"
-
-    fh = logging.FileHandler(log_path)
-    fh.setLevel(logging.INFO)
-    formatter = logging.Formatter(
-        "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-    )
-    fh.setFormatter(formatter)
-
-    # Console handler
-    ch = logging.StreamHandler()
-    ch.setLevel(logging.INFO)
-    ch.setFormatter(formatter)
-
-    logger.addHandler(fh)
-    logger.addHandler(ch)
-
     return logger
 
-def create_no_augment_transforms() -> Dict[str, Any]:
+def create_no_augment_transforms() -> Tuple[transforms.Compose, transforms.Compose]:
     """
-    Create transforms for training WITHOUT augmentation.
-    
-    Only applies the base preprocessing: Resize and Normalize.
-    This is the key difference from the standard trainer which uses
-    get_train_augmentations().
+    Create transforms WITHOUT data augmentation.
+
+    Returns:
+        Tuple of (train_transform, val_transform) with no augmentation.
     """
-    base_transform = transforms.Compose([
-        transforms.Resize((224, 224)),
-        transforms.ToTensor(),
-        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
-    ])
-    
-    return {
-        "train": base_transform,
-        "val": base_transform,
-        "test": base_transform,
-    }
+    # Base normalization only, no random flips, rotations, or brightness
+    train_transform = transforms.Compose(
+        [
+            transforms.Resize((224, 224)),
+            transforms.ToTensor(),
+            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+        ]
+    )
+
+    val_transform = transforms.Compose(
+        [
+            transforms.Resize((224, 224)),
+            transforms.ToTensor(),
+            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+        ]
+    )
+
+    return train_transform, val_transform
 
 def train_epoch(
     model: nn.Module,
-    dataloader: DataLoader,
+    loader: DataLoader,
     criterion: nn.Module,
-    optimizer: torch.optim.Optimizer,
+    optimizer: optim.Optimizer,
     device: torch.device,
     logger: logging.Logger,
-) -> float:
-    """Train the model for one epoch."""
+) -> Tuple[float, float]:
+    """
+    Train for one epoch without augmentation (data is already preprocessed).
+
+    Returns:
+        Tuple of (avg_loss, avg_mse)
+    """
     model.train()
     total_loss = 0.0
-    num_batches = 0
+    total_mse = 0.0
+    num_samples = 0
 
-    for batch_idx, (images, labels) in enumerate(dataloader):
-        images = images.to(device)
-        labels = labels.float().to(device)
+    for batch_idx, (data, target) in enumerate(loader):
+        data, target = data.to(device), target.to(device)
 
         optimizer.zero_grad()
-        outputs = model(images)
-        loss = criterion(outputs, labels)
+        output = model(data)
+        loss = criterion(output, target)
         loss.backward()
         optimizer.step()
 
-        total_loss += loss.item()
-        num_batches += 1
+        # Calculate MSE for this batch
+        mse = torch.mean((output - target) ** 2).item()
 
-    avg_loss = total_loss / num_batches
-    logger.info(f"Train Epoch Loss: {avg_loss:.4f}")
-    return avg_loss
+        total_loss += loss.item() * data.size(0)
+        total_mse += mse * data.size(0)
+        num_samples += data.size(0)
+
+        if batch_idx % 50 == 0:
+            logger.info(f"Train Batch {batch_idx}: Loss={loss.item():.4f}")
+
+    avg_loss = total_loss / num_samples
+    avg_mse = total_mse / num_samples
+    return avg_loss, avg_mse
 
 def validate_epoch(
     model: nn.Module,
-    dataloader: DataLoader,
+    loader: DataLoader,
     criterion: nn.Module,
     device: torch.device,
     logger: logging.Logger,
-) -> float:
-    """Validate the model for one epoch."""
+) -> Tuple[float, float]:
+    """
+    Validate for one epoch without augmentation.
+
+    Returns:
+        Tuple of (avg_loss, avg_mse)
+    """
     model.eval()
     total_loss = 0.0
-    num_batches = 0
+    total_mse = 0.0
+    num_samples = 0
 
     with torch.no_grad():
-        for images, labels in dataloader:
-            images = images.to(device)
-            labels = labels.float().to(device)
+        for data, target in loader:
+            data, target = data.to(device), target.to(device)
+            output = model(data)
+            loss = criterion(output, target)
+            mse = torch.mean((output - target) ** 2).item()
 
-            outputs = model(images)
-            loss = criterion(outputs, labels)
+            total_loss += loss.item() * data.size(0)
+            total_mse += mse * data.size(0)
+            num_samples += data.size(0)
 
-            total_loss += loss.item()
-            num_batches += 1
-
-    avg_loss = total_loss / num_batches
-    logger.info(f"Val Epoch Loss: {avg_loss:.4f}")
-    return avg_loss
+    avg_loss = total_loss / num_samples
+    avg_mse = total_mse / num_samples
+    return avg_loss, avg_mse
 
 def train_with_early_stopping(
     model: nn.Module,
     train_loader: DataLoader,
     val_loader: DataLoader,
     criterion: nn.Module,
-    optimizer: torch.optim.Optimizer,
+    optimizer: optim.Optimizer,
     device: torch.device,
     epochs: int,
     patience: int,
     logger: logging.Logger,
-    checkpoint_path: Path,
+    output_dir: Path,
+    seed: int,
 ) -> Dict[str, Any]:
     """
-    Train with early stopping.
-    
-    Returns a dictionary with training metrics.
+    Train with early stopping (patience=5) and save best model.
+    No data augmentation is used.
+
+    Returns:
+        Dict containing training history and metrics.
     """
     best_val_loss = float("inf")
     patience_counter = 0
-    best_model_state = None
-    training_log = {
-        "train_losses": [],
-        "val_losses": [],
-        "early_stopped": False,
-        "best_epoch": 0,
-        "epochs_run": 0,
-    }
+    history = {"train_loss": [], "val_loss": [], "train_mse": [], "val_mse": []}
+    start_time = time.time()
 
-    logger.info(f"Starting training for {epochs} epochs with patience {patience}")
+    logger.info(f"Starting ablation training (no augmentation) for {epochs} epochs")
+    logger.info(f"Early stopping patience: {patience}")
 
     for epoch in range(1, epochs + 1):
-        logger.info(f"--- Epoch {epoch}/{epochs} ---")
+        logger.info(f"Epoch {epoch}/{epochs}")
 
-        train_loss = train_epoch(model, train_loader, criterion, optimizer, device, logger)
-        val_loss = validate_epoch(model, val_loader, criterion, device, logger)
+        # Train
+        train_loss, train_mse = train_epoch(
+            model, train_loader, criterion, optimizer, device, logger
+        )
+        history["train_loss"].append(train_loss)
+        history["train_mse"].append(train_mse)
 
-        training_log["train_losses"].append(train_loss)
-        training_log["val_losses"].append(val_loss)
-        training_log["epochs_run"] = epoch
+        # Validate
+        val_loss, val_mse = validate_epoch(
+            model, val_loader, criterion, device, logger
+        )
+        history["val_loss"].append(val_loss)
+        history["val_mse"].append(val_mse)
 
+        logger.info(
+            f"Epoch {epoch} - Train Loss: {train_loss:.4f}, Val Loss: {val_loss:.4f}, "
+            f"Train MSE: {train_mse:.4f}, Val MSE: {val_mse:.4f}"
+        )
+
+        # Early stopping check
         if val_loss < best_val_loss:
             best_val_loss = val_loss
-            best_model_state = model.state_dict().copy()
             patience_counter = 0
-            training_log["best_epoch"] = epoch
-            logger.info(f"New best model found at epoch {epoch} (val_loss: {val_loss:.4f})")
             # Save best model
-            torch.save(
-                {
-                    "epoch": epoch,
-                    "model_state_dict": best_model_state,
-                    "val_loss": val_loss,
-                },
-                checkpoint_path,
-            )
+            best_model_path = output_dir / "model_best_ablation.pt"
+            torch.save(model.state_dict(), best_model_path)
+            logger.info(f"Saved best model to {best_model_path}")
         else:
             patience_counter += 1
-            logger.info(f"Patience counter: {patience_counter}/{patience}")
+            logger.info(f"Early stopping counter: {patience_counter}/{patience}")
 
-            if patience_counter >= patience:
-                logger.info(f"Early stopping triggered at epoch {epoch}")
-                training_log["early_stopped"] = True
-                break
+        if patience_counter >= patience:
+            logger.info(f"Early stopping triggered at epoch {epoch}")
+            break
 
-    return training_log
+    end_time = time.time()
+    total_time = end_time - start_time
 
-def main():
+    return {
+        "epochs_completed": epoch,
+        "best_val_loss": best_val_loss,
+        "total_time_seconds": total_time,
+        "history": history,
+        "early_stopped": patience_counter >= patience,
+        "augmented": False,  # Explicit flag for ablation identification
+        "seed": seed,
+    }
+
+def main() -> None:
     """Main entry point for ablation training."""
-    parser = argparse.ArgumentParser(description="Train CNN without augmentation (Ablation)")
-    parser.add_argument(
-        "--epochs", type=int, default=20, help="Number of training epochs"
-    )
-    parser.add_argument(
-        "--batch-size", type=int, default=32, help="Batch size"
-    )
-    parser.add_argument(
-        "--lr", type=float, default=1e-4, help="Learning rate"
-    )
-    parser.add_argument(
-        "--patience", type=int, default=5, help="Early stopping patience"
-    )
-    parser.add_argument(
-        "--seed", type=int, default=42, help="Random seed"
-    )
-    parser.add_argument(
-        "--output-dir", type=str, default=None, help="Output directory for artifacts"
-    )
+    logger = setup_ablation_logging()
+    logger.info("Starting ablation training script (T026)")
+
+    # Parse arguments
+    parser = argparse.ArgumentParser(description="Ablation training without augmentation")
+    parser.add_argument("--epochs", type=int, default=20, help="Number of epochs")
+    parser.add_argument("--batch-size", type=int, default=16, help="Batch size")
+    parser.add_argument("--lr", type=float, default=1e-4, help="Learning rate")
+    parser.add_argument("--patience", type=int, default=5, help="Early stopping patience")
+    parser.add_argument("--seed", type=int, default=42, help="Random seed")
+    parser.add_argument("--device", type=str, default="cpu", help="Device (cpu or cuda)")
     args = parser.parse_args()
 
-    # Setup
-    logger = setup_ablation_logging()
+    # Set seed
     set_seed(args.seed)
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    logger.info(f"Using device: {device}")
+    logger.info(f"Seed set to {args.seed}")
 
-    # Paths
-    project_root = get_project_root()
-    processed_dir = get_processed_dir()
+    # Setup directories
     results_dir = get_results_dir()
-    
-    if args.output_dir:
-        output_dir = Path(args.output_dir)
-    else:
-        output_dir = results_dir / "ablation"
+    output_dir = results_dir / "ablation"
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    checkpoint_path = output_dir / "model_ablation_best.pt"
-    log_path = output_dir / "training_log_ablation.json"
+    # Load dataset
+    processed_dir = get_processed_dir()
+    train_dir = processed_dir / "train"
+    val_dir = processed_dir / "val"
 
-    logger.info(f"Output directory: {output_dir}")
-    logger.info(f"Checkpoint path: {checkpoint_path}")
-
-    # Load transforms (NO AUGMENTATION)
-    transforms_dict = create_no_augment_transforms()
-    logger.info("Using NO data augmentation (ablation study)")
-
-    # Load datasets
-    train_manifest = processed_dir / "train" / "manifest.csv"
-    val_manifest = processed_dir / "val" / "manifest.csv"
-
-    if not train_manifest.exists() or not val_manifest.exists():
-        logger.error("Train or Val manifest not found. Run data pipeline first.")
+    if not train_dir.exists() or not val_dir.exists():
+        logger.error("Processed train/val directories not found. Run data pipeline first.")
         sys.exit(1)
 
-    logger.info("Loading datasets...")
-    train_dataset = MicrostructureDataset(
-        manifest_path=train_manifest,
-        transform=transforms_dict["train"],
-    )
-    val_dataset = MicrostructureDataset(
-        manifest_path=val_manifest,
-        transform=transforms_dict["val"],
-    )
+    # Create NO-AUGMENT transforms
+    train_transform, val_transform = create_no_augment_transforms()
+    logger.info("Created transforms WITHOUT data augmentation")
 
-    logger.info(f"Train size: {len(train_dataset)}, Val size: {len(val_dataset)}")
+    # Load datasets
+    train_dataset = MicrostructureDataset(str(train_dir), transform=train_transform)
+    val_dataset = MicrostructureDataset(str(val_dir), transform=val_transform)
 
-    # DataLoaders
+    logger.info(f"Train dataset size: {len(train_dataset)}")
+    logger.info(f"Val dataset size: {len(val_dataset)}")
+
+    # Create loaders
     train_loader = DataLoader(
         train_dataset, batch_size=args.batch_size, shuffle=True, num_workers=0
     )
@@ -283,18 +278,18 @@ def main():
         val_dataset, batch_size=args.batch_size, shuffle=False, num_workers=0
     )
 
-    # Model
-    logger.info("Initializing model (MobileNetV2 backbone)...")
-    model = get_model(pretrained=True, freeze_backbone=False)
+    # Setup model
+    device = torch.device(args.device)
+    model = get_model(pretrained=False)  # No pretrained for ablation consistency
     model = model.to(device)
+    logger.info(f"Model loaded on {device}")
 
-    # Loss and Optimizer
+    # Loss and optimizer
     criterion = nn.MSELoss()
-    optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
+    optimizer = optim.Adam(model.parameters(), lr=args.lr)
 
     # Train
-    logger.info("Starting training (no augmentation)...")
-    training_log = train_with_early_stopping(
+    results = train_with_early_stopping(
         model=model,
         train_loader=train_loader,
         val_loader=val_loader,
@@ -304,31 +299,17 @@ def main():
         epochs=args.epochs,
         patience=args.patience,
         logger=logger,
-        checkpoint_path=checkpoint_path,
+        output_dir=output_dir,
+        seed=args.seed,
     )
 
-    # Save final log
-    training_log["config"] = {
-        "epochs": args.epochs,
-        "batch_size": args.batch_size,
-        "lr": args.lr,
-        "patience": args.patience,
-        "seed": args.seed,
-        "augmentation": "NONE (Ablation)",
-        "device": str(device),
-    }
+    # Save results
+    results_file = output_dir / "ablation_results.json"
+    with open(results_file, "w") as f:
+        json.dump(results, f, indent=2, default=str)
 
-    with open(log_path, "w") as f:
-        json.dump(training_log, f, indent=2)
-
-    logger.info(f"Training complete. Log saved to {log_path}")
-    logger.info(f"Best model saved to {checkpoint_path}")
-    logger.info(f"Best validation loss: {training_log['val_losses'][training_log['best_epoch']-1]:.4f}")
-
-    if not training_log["early_stopped"]:
-        logger.info("Training completed without early stopping.")
-
-    return 0
+    logger.info(f"Ablation results saved to {results_file}")
+    logger.info("Ablation training completed successfully")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

@@ -1,6 +1,13 @@
 """
-Validation script for downloaded material strength dataset.
-Validates image integrity and label consistency.
+T042: Validate downloaded dataset integrity.
+
+Checks:
+1. Image files are not corrupt (can be opened by cv2).
+2. Image files are in expected format (e.g., .png, .jpg).
+3. Metadata (yield strength) exists for every image (via manifest or sidecar).
+
+Output: results/validation_report.json
+Exit: 1 if invalid_ratio > 0.01, else 0.
 """
 import os
 import sys
@@ -8,176 +15,238 @@ import json
 import csv
 import logging
 from pathlib import Path
-from typing import Dict, List, Tuple, Optional
+from typing import List, Dict, Tuple, Any
+import cv2
+import numpy as np
 
-# Add project root to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent))
+# Import project utilities
+from utils.config import get_results_dir, get_raw_dir, get_data_dir
+from utils.logging_config import get_logger, log_operation
 
-from utils.config import get_data_dir, get_results_dir, get_project_root
-from utils.logging_config import get_logger
-
-# Constants
-VALID_IMAGE_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.bmp', '.tiff', '.tif'}
-MIN_IMAGE_SIZE = (32, 32)  # Minimum valid image dimensions
 
 def setup_logging() -> logging.Logger:
-    """Setup logging for validation script."""
+    """Setup logging for the validation script."""
     logger = get_logger('validate', log_file='results/validation.log')
+    # Return the logger object (which is a ReproducibilityLogger, but we treat it as a logger for logging purposes)
+    # Since ReproducibilityLogger doesn't inherit from logging.Logger, we might need to adjust
+    # But the task requires using get_logger. We will assume the ReproducibilityLogger is used directly.
+    # However, for standard logging calls, we might need a bridge if the rest of the code expects stdlib.
+    # Given the constraints, we will use the ReproducibilityLogger methods if available, 
+    # but since the function signature says -> logging.Logger, we return the ReproducibilityLogger
+    # which has been designed to be tolerant.
     return logger
 
-def load_manifest(manifest_path: Path) -> List[Dict[str, str]]:
-    """Load the manifest CSV file."""
-    if not manifest_path.exists():
-        raise FileNotFoundError(f"Manifest file not found: {manifest_path}")
 
+def load_manifest(manifest_path: Path) -> List[Dict[str, Any]]:
+    """Load the manifest CSV to map images to metadata."""
+    if not manifest_path.exists():
+        # If no manifest, we might rely on directory structure or fail if metadata is required
+        # For this task, we assume a manifest.csv exists in data/raw/ or derived from directory structure
+        return []
+    
     records = []
-    with open(manifest_path, 'r', newline='', encoding='utf-8') as f:
+    with open(manifest_path, 'r', encoding='utf-8') as f:
         reader = csv.DictReader(f)
         for row in reader:
             records.append(row)
     return records
 
-def validate_image_exists(image_path: Path) -> Tuple[bool, Optional[str]]:
-    """Check if image file exists and is readable."""
+
+def validate_image_exists(image_path: Path) -> bool:
+    """Check if the image file exists."""
+    return image_path.exists()
+
+
+def validate_image_integrity(image_path: Path) -> Tuple[bool, str]:
+    """
+    Attempt to read the image with OpenCV.
+    Returns (is_valid, error_message).
+    """
     if not image_path.exists():
-        return False, f"File does not exist: {image_path}"
-
-    if not image_path.is_file():
-        return False, f"Not a file: {image_path}"
-
-    # Check extension
-    ext = image_path.suffix.lower()
-    if ext not in VALID_IMAGE_EXTENSIONS:
-        return False, f"Invalid extension: {ext}"
-
-    # Try to read with OpenCV
+        return False, "File does not exist"
+    
     try:
-        import cv2
+        # Read image
         img = cv2.imread(str(image_path))
         if img is None:
-            return False, "Failed to decode image (corrupted or unsupported format)"
-        if img.size == 0:
-            return False, "Image is empty"
-        return True, None
+            return False, "cv2.imread returned None (corrupt or unsupported format)"
+        
+        # Basic check: not all zeros (optional, but good for sanity)
+        if np.all(img == 0):
+            return False, "Image contains only zero values (potential corruption)"
+        
+        return True, "OK"
     except Exception as e:
-        return False, f"Error reading image: {str(e)}"
+        return False, str(e)
 
-def validate_pair(record: Dict[str, str], base_dir: Path) -> Tuple[bool, Optional[str]]:
-    """Validate a single image-label pair."""
-    image_filename = record.get('image_filename', '')
-    if not image_filename:
-        return False, "Missing image_filename in manifest"
 
-    image_path = base_dir / image_filename
-    is_valid, error = validate_image_exists(image_path)
+def validate_pair(image_path: Path, metadata: Dict[str, Any]) -> Tuple[bool, str]:
+    """
+    Validate a single image and its metadata.
+    Returns (is_valid, error_message).
+    """
+    # 1. Check image integrity
+    is_valid, msg = validate_image_integrity(image_path)
     if not is_valid:
-        return False, error
-
-    # Check for label existence if present
-    label_value = record.get('yield_strength', '')
-    if not label_value:
-        return False, "Missing yield_strength label"
+        return False, f"Image invalid: {msg}"
+    
+    # 2. Check metadata presence (e.g., yield strength)
+    # The manifest should contain the strength value. 
+    # If metadata is empty or missing key field, it's invalid.
+    if not metadata:
+        return False, "Missing metadata"
+    
+    # Assuming 'yield_strength' or similar key exists in manifest
+    # We check for presence of at least one numeric value if expected
+    # This depends on the manifest schema from T040/T013
+    # Let's assume the manifest has 'yield_strength' or 'strength'
+    strength_key = None
+    for key in ['yield_strength', 'strength', 'value']:
+        if key in metadata:
+            strength_key = key
+            break
+    
+    if strength_key is None:
+        # If no known key found, check if ANY value exists that looks like strength
+        # Or just assume valid if metadata exists and image is valid
+        # For strict validation, we might fail if no strength key is found.
+        # Let's be lenient: if image is valid and metadata exists, it's a pair.
+        # But the task says "check for missing strength metadata".
+        # We'll assume the manifest has a column 'yield_strength'
+        return False, "Missing yield strength metadata in manifest"
 
     try:
-        float(label_value)
-    except ValueError:
-        return False, f"Invalid label value (not numeric): {label_value}"
+        val = float(metadata[strength_key])
+        if np.isnan(val) or np.isinf(val):
+            return False, f"Invalid strength value: {val}"
+    except (ValueError, TypeError):
+        return False, f"Non-numeric strength value: {metadata[strength_key]}"
 
-    return True, None
+    return True, "OK"
 
-def run_validation(manifest_path: Path, base_dir: Path, logger: logging.Logger) -> Dict:
-    """Run validation on all records in manifest."""
-    records = load_manifest(manifest_path)
-    total_count = len(records)
-    invalid_count = 0
-    invalid_details = []
 
-    logger.info(f"Validating {total_count} records from {manifest_path}")
-
-    for i, record in enumerate(records):
-        is_valid, error = validate_pair(record, base_dir)
+def run_validation(raw_dir: Path, manifest_path: Path) -> Tuple[int, int, List[Dict]]:
+    """
+    Iterate through all images in raw_dir, validate against manifest.
+    Returns (total_count, invalid_count, details_list).
+    """
+    total = 0
+    invalid = 0
+    details = []
+    
+    # Load manifest
+    manifest_data = {}
+    if manifest_path.exists():
+        records = load_manifest(manifest_path)
+        for rec in records:
+            # Assume 'filename' or 'image_path' is the key
+            fname = rec.get('filename') or rec.get('image_name') or rec.get('image_id')
+            if fname:
+                manifest_data[fname] = rec
+    
+    # Find images
+    valid_extensions = {'.png', '.jpg', '.jpeg', '.tif', '.tiff', '.bmp'}
+    image_files = []
+    
+    for ext in valid_extensions:
+        image_files.extend(raw_dir.rglob(f"*{ext}"))
+        image_files.extend(raw_dir.rglob(f"*{ext.upper()}"))
+    
+    for img_path in image_files:
+        total += 1
+        fname = img_path.name
+        metadata = manifest_data.get(fname, {})
+        
+        is_valid, reason = validate_pair(img_path, metadata)
+        
         if not is_valid:
-            invalid_count += 1
-            invalid_details.append({
-                'index': i,
-                'image_filename': record.get('image_filename', 'UNKNOWN'),
-                'error': error
+            invalid += 1
+            details.append({
+                "image": str(img_path),
+                "reason": reason,
+                "status": "invalid"
             })
-            logger.warning(f"Record {i} invalid: {error}")
-
-        # Progress logging every 10%
-        if (i + 1) % max(1, total_count // 10) == 0:
-            logger.info(f"Progress: {i + 1}/{total_count} ({(i + 1) / total_count * 100:.1f}%)")
-
-    invalid_ratio = invalid_count / total_count if total_count > 0 else 0.0
-
-    result = {
-        'invalid_count': invalid_count,
-        'total_count': total_count,
-        'invalid_ratio': round(invalid_ratio, 6),
-        'invalid_details': invalid_details[:10]  # Log first 10 details
-    }
-
-    logger.info(f"Validation complete: {invalid_count}/{total_count} invalid ({invalid_ratio:.4f})")
-    return result
-
-def write_validation_report(result: Dict, output_path: Path) -> None:
-    """Write validation report to JSON file."""
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, 'w', encoding='utf-8') as f:
-        json.dump(result, f, indent=2)
-    logging.getLogger('validate').info(f"Report written to {output_path}")
-
-def main():
-    """Main entry point for validation script."""
-    logger = setup_logging()
-    logger.info("Starting dataset validation")
-
-    try:
-        project_root = get_project_root()
-        data_dir = get_data_dir()
-        results_dir = get_results_dir()
-
-        # Determine manifest path (prefer processed manifest)
-        manifest_path = data_dir / "processed" / "manifest.csv"
-        if not manifest_path.exists():
-            # Fallback to raw manifest if processed doesn't exist
-            manifest_path = data_dir / "raw" / "manifest.csv"
-
-        if not manifest_path.exists():
-            logger.error(f"No manifest found at {manifest_path}")
-            sys.exit(1)
-
-        # Base directory depends on where manifest points
-        # If manifest is in processed, base is processed; else raw
-        if "processed" in str(manifest_path):
-            base_dir = data_dir / "processed"
         else:
-            base_dir = data_dir / "raw"
+            details.append({
+                "image": str(img_path),
+                "reason": "OK",
+                "status": "valid"
+            })
+    
+    return total, invalid, details
 
-        # Run validation
-        result = run_validation(manifest_path, base_dir, logger)
 
-        # Write report
-        output_path = results_dir / "validation_report.json"
-        write_validation_report(result, output_path)
+def write_validation_report(report_path: Path, total: int, invalid: int) -> Dict:
+    """Write the validation report JSON."""
+    ratio = invalid / total if total > 0 else 0.0
+    
+    report = {
+        "invalid_count": invalid,
+        "total_count": total,
+        "invalid_ratio": ratio
+    }
+    
+    with open(report_path, 'w', encoding='utf-8') as f:
+        json.dump(report, f, indent=2)
+    
+    return report
 
-        # Exit with code 1 if invalid ratio > 1%
-        if result['invalid_ratio'] > 0.01:
-            logger.error(f"Invalid ratio {result['invalid_ratio']:.4f} exceeds threshold 0.01")
+
+def main() -> None:
+    """Main entry point for T042."""
+    logger = setup_logging()
+    log_operation("validation_start")
+    
+    try:
+        raw_dir = get_raw_dir()
+        results_dir = get_results_dir()
+        
+        # Manifest is typically in data/raw/ or data/processed/ after download
+        # T040 outputs to data/raw/. T013 creates manifest in data/processed/.
+        # For T042 (runs after T040, before T041), we look for manifest in data/raw/
+        # If not there, we might scan the directory structure if manifest is missing.
+        # However, T040 description says "Output: data/raw/ with original zip/images".
+        # It implies the metadata might be in the zip or sidecar.
+        # Let's assume a manifest.csv exists in raw_dir or we derive it.
+        # If T040 created a manifest, it should be there.
+        manifest_path = raw_dir / "manifest.csv"
+        
+        # If manifest doesn't exist in raw, maybe it's in processed? 
+        # But T042 runs BEFORE T041 (preprocess) and T013 (split).
+        # So manifest must be created by T040 or derived from filename patterns.
+        # If T040 didn't create a manifest, we assume filenames encode strength or we fail.
+        # Given the task: "check for missing strength metadata".
+        # If no manifest, we cannot check metadata -> invalid.
+        
+        if not manifest_path.exists():
+            logger.log("warning", "manifest.csv not found in data/raw/. Attempting to infer or fail.")
+            # If we can't find metadata, we might have to skip metadata check or fail all.
+            # Let's proceed with validation of images only if no manifest, 
+            # but mark metadata missing as invalid if required.
+            # For now, assume manifest exists or we treat missing manifest as 100% invalid metadata.
+            pass
+
+        total, invalid, details = run_validation(raw_dir, manifest_path)
+        
+        report_path = results_dir / "validation_report.json"
+        report = write_validation_report(report_path, total, invalid)
+        
+        logger.log("validation_complete", total=total, invalid=invalid, ratio=report["invalid_ratio"])
+        
+        print(f"Validation Report: {report}")
+        
+        # Exit logic
+        if report["invalid_ratio"] > 0.01:
+            logger.log("error", "Invalid ratio exceeds 1% threshold.")
             sys.exit(1)
-
-        logger.info("Validation passed")
-        sys.exit(0)
-
-    except FileNotFoundError as e:
-        logger.error(f"File not found: {e}")
-        sys.exit(1)
+        else:
+            logger.log("success", "Validation passed.")
+            sys.exit(0)
+            
     except Exception as e:
-        logger.error(f"Unexpected error: {e}")
-        import traceback
-        traceback.print_exc()
+        logger.log("error", str(e))
         sys.exit(1)
+
 
 if __name__ == "__main__":
     main()
