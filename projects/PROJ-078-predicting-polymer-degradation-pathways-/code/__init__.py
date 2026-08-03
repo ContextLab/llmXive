@@ -1,1 +1,1 @@
-# Code package for llmXive project
+# Code package for llmXive Polymer Degradation Pipeline

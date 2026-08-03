@@ -593,3 +593,486 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-31T20:16:41Z'
+- artifact_path: projects/PROJ-078-predicting-polymer-degradation-pathways-/specs/001-predicting-polymer-degradation-pathways/tasks.md
+  attempts: 1
+  canonical: Generate permutation test results with 1000 permutations for motif shuffling
+  claim_id: c_e9d760db
+  context: Task T037 requires performing a permutation test by shuffling input motifs
+    using 1000 permutations to ensure statistical robustness.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Generate data/reports/permutation_test_results.json with schema: {''bins'':
+    [float], ''counts'': [int], ''observed_stat'': float, ''p_value'': float}'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T00:56:17Z'
+- artifact_path: projects/PROJ-078-predicting-polymer-degradation-pathways-/specs/001-predicting-polymer-degradation-pathways/tasks.md
+  attempts: 1
+  canonical: Generate power analysis warning flag if sample size n is less than 150
+  claim_id: c_cfac064e
+  context: Task T017a specifies performing statistical power analysis and triggering
+    a warning if the calculated sample size n is less than 150.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Generate_power_analysis_warning_flag_if_sample_size_n_is_les
+  kind: magnitude
+  raw_text: If n < 150, generate a warning flag in the report
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T00:57:18Z'
+- artifact_path: projects/PROJ-078-predicting-polymer-degradation-pathways-/specs/001-predicting-polymer-degradation-pathways/tasks.md
+  attempts: 1
+  canonical: Subsample dataset using fixed random seed 42
+  claim_id: c_2f1c57a4
+  context: Task T017b describes the subsampling path if n > 150, requiring a fixed
+    random seed of 42 for stratified sampling.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Subsample the dataset to a representative subset of instances using a
+    fixed random seed 42
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T00:58:06Z'
+- artifact_path: projects/PROJ-078-predicting-polymer-degradation-pathways-/specs/001-predicting-polymer-degradation-pathways/tasks.md
+  attempts: 1
+  canonical: Trigger aggressive augmentation if sample size n is less than 50
+  claim_id: c_149fe04a
+  context: Task T017c outlines the augmentation trigger path, specifying 'augment_aggressive'
+    action if n < 50.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Trigger_aggressive_augmentation_if_sample_size_n_is_less_tha
+  kind: magnitude
+  raw_text: If n < 50, trigger aggressive augmentation
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T00:59:13Z'
+- artifact_path: projects/PROJ-078-predicting-polymer-degradation-pathways-/specs/001-predicting-polymer-degradation-pathways/tasks.md
+  attempts: 1
+  canonical: Apply 0.2 dropout rate to non-ester bonds during augmentation
+  claim_id: c_7ff8c1ee
+  context: Task T025b details the augmentation execution, using RDKit to mask non-ester
+    bonds with a dropout rate of 0.2.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Apply a dropout rate of 0.2 for non-ester bonds
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T00:59:41Z'
+- artifact_path: projects/PROJ-078-predicting-polymer-degradation-pathways-/specs/001-predicting-polymer-degradation-pathways/tasks.md
+  attempts: 1
+  canonical: Fail augmentation validation if duration exceeds 30 minutes
+  claim_id: c_d1fc28b9
+  context: Task T025c sets a constraint to log a FAIL status if the augmentation runtime
+    exceeds 30 minutes.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Log a FAIL status if augmentation duration exceeds 30 minutes
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T01:00:26Z'
+- artifact_path: projects/PROJ-078-predicting-polymer-degradation-pathways-/specs/001-predicting-polymer-degradation-pathways/tasks.md
+  attempts: 1
+  canonical: Implement 5-fold cross-validation for training
+  claim_id: c_cd0a365d
+  context: Task T028 requires implementing a training loop with 5-fold cross-validation
+    (or leave-one-out if n < 50).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement training with 5-fold cross-validation
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T01:03:10Z'
+- artifact_path: projects/PROJ-078-predicting-polymer-degradation-pathways-/specs/001-predicting-polymer-degradation-pathways/tasks.md
+  attempts: 1
+  canonical: Use 10% threshold for top attribution scores in ester bond validation
+  claim_id: c_22b1f400
+  context: Task T030 specifies using a default THRESHOLD_TOP_PERCENT of 10 for calculating
+    the percentage of hydrolysis cases where ester bonds are in the top scores.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use a default threshold of 10% for top attribution scores
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T01:03:10Z'
+- artifact_path: projects/PROJ-078-predicting-polymer-degradation-pathways-/specs/001-predicting-polymer-degradation-pathways/tasks.md
+  attempts: 1
+  canonical: Flag predictions with confidence less than 0.6 as low confidence
+  claim_id: c_0fd57ef7
+  context: Task T041 mandates flagging predictions with confidence below 0.6 as 'low
+    confidence' in the final report.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_predictions_with_confidence_less_than_0.6_as_low_confid
+  kind: magnitude
+  raw_text: Flag predictions with confidence < 0.6 as low confidence
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T01:03:26Z'
+- artifact_path: projects/PROJ-078-predicting-polymer-degradation-pathways-/specs/001-predicting-polymer-degradation-pathways/tasks.md
+  attempts: 3
+  canonical: Document default values pH 7, temp 25, uv 0 in imputation rejection log
+  claim_id: c_581c4175
+  context: Task T015c requires generating a log documenting the rejection of imputation,
+    explicitly listing default values of pH 7, temp 25, and uv 0.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Generate default values for imputation rejection: pH 7, temp 25, uv 0'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T01:03:36Z'
+- artifact_path: projects/PROJ-078-predicting-polymer-degradation-pathways-/specs/001-predicting-polymer-degradation-pathways/tasks.md
+  attempts: 1
+  canonical: data sources are NIST Chemistry WebBook and Materials Project
+  claim_id: c_2a06e9b3
+  context: 'Goal: Automatically download, filter, and convert polymer degradation
+    records from NIST Chemistry WebBook and Materials Project into a structured graph
+    dataset.'
+  evidence:
+    entailment_evidence: Data sources are NIST Chemistry WebBook and Materials Projec
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Data_sources_are_NIST_Chemistry_WebBook_and_Materials_Projec
+  kind: entity_fact
+  raw_text: The dataset for training will be sourced from NIST Chemistry WebBook and
+    Materials Project.
+  resolved_value: data sources are NIST Chemistry WebBook and Materials Project
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-03T01:06:27Z'
+- artifact_path: projects/PROJ-078-predicting-polymer-degradation-pathways-/specs/001-predicting-polymer-degradation-pathways/tasks.md
+  attempts: 1
+  canonical: NIST Chemistry WebBook URL is https://webbook.nist.gov/cgi/cbook.cgi?ID=...
+  claim_id: c_a14bc70a
+  context: 'Implement ingest.py: Download records from NIST (URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=...)
+    and Materials Project...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/NIST_Chemistry_WebBook_URL_is_https://webbook.nist.gov/cgi/c
+  kind: entity_fact
+  raw_text: The URL for NIST Chemistry WebBook data is https://webbook.nist.gov/cgi/cbook.cgi?ID=...
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T01:08:59Z'
+- artifact_path: projects/PROJ-078-predicting-polymer-degradation-pathways-/specs/001-predicting-polymer-degradation-pathways/tasks.md
+  attempts: 1
+  canonical: Materials Project API endpoint is https://materialsproject.org/rest/v2/materials/...
+  claim_id: c_bca7f21b
+  context: '...and Materials Project (API Endpoint: https://materialsproject.org/rest/v2/materials/...)
+    with rate-limit backoff.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Materials_Project_API_endpoint_is_https://materialsproject.o
+  kind: entity_fact
+  raw_text: The API endpoint for Materials Project data is https://materialsproject.org/rest/v2/materials/...
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T01:09:49Z'
+- artifact_path: projects/PROJ-078-predicting-polymer-degradation-pathways-/specs/001-predicting-polymer-degradation-pathways/tasks.md
+  attempts: 1
+  canonical: ester functional group pattern is C(=O)O
+  claim_id: c_adee013c
+  context: '...filter non-polyesters by detecting ester functional groups (pattern:
+    C(=O)O) in SMILES...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Ester_functional_group_pattern_is_C(%3DO)O
+  kind: entity_fact
+  raw_text: The ester functional group pattern is C(=O)O.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T01:10:34Z'
+- artifact_path: projects/PROJ-078-predicting-polymer-degradation-pathways-/specs/001-predicting-polymer-degradation-pathways/tasks.md
+  attempts: 1
+  canonical: default pH value is 7
+  claim_id: c_7e755347
+  context: 'Schema: {"rationale": "string", "default_values": {"pH": 7, "temp": 25,
+    "uv": 0}, "exclusion_count": int, "exclusion_reason": "confounding"}.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default value for pH is 7.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T01:11:08Z'
+- artifact_path: projects/PROJ-078-predicting-polymer-degradation-pathways-/specs/001-predicting-polymer-degradation-pathways/tasks.md
+  attempts: 1
+  canonical: default temperature value is 25
+  claim_id: c_0be2934c
+  context: 'Schema: {"rationale": "string", "default_values": {"pH": 7, "temp": 25,
+    "uv": 0}, "exclusion_count": int, "exclusion_reason": "confounding"}.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default value for temperature is 25.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T01:11:51Z'
+- artifact_path: projects/PROJ-078-predicting-polymer-degradation-pathways-/specs/001-predicting-polymer-degradation-pathways/tasks.md
+  attempts: 1
+  canonical: default UV value is 0
+  claim_id: c_efabd468
+  context: 'Schema: {"rationale": "string", "default_values": {"pH": 7, "temp": 25,
+    "uv": 0}, "exclusion_count": int, "exclusion_reason": "confounding"}.'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: '# List of geometric vertices, with (x, y, z, [w]) coordinates, w is
+        optional and defaults to 1.0.'
+      source_id: Wavefront .obj file
+      url: https://en.wikipedia.org/wiki/Wavefront_.obj_file
+      value: '0'
+    filled: true
+  kind: numeric
+  raw_text: The default value for UV is 0.
+  resolved_value: '0'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-03T01:12:08Z'
+- artifact_path: projects/PROJ-078-predicting-polymer-degradation-pathways-/specs/001-predicting-polymer-degradation-pathways/tasks.md
+  attempts: 1
+  canonical: power analysis warning if sample size n < 150
+  claim_id: c_b9c418b1
+  context: 'Trigger: If n < 150, generate a warning flag in the report.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/power_analysis_warning_if_sample_size_n_%3C_150
+  kind: magnitude
+  raw_text: A statistical power analysis warning is triggered if the sample size n
+    is less than 150.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T01:13:09Z'
+- artifact_path: projects/PROJ-078-predicting-polymer-degradation-pathways-/specs/001-predicting-polymer-degradation-pathways/tasks.md
+  attempts: 1
+  canonical: fixed random seed 42 for stratified sampling
+  claim_id: c_3e64d9d5
+  context: '...subsampling the dataset to a representative subset of instances using
+    a fixed random seed 42 and stratified sampling...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: A fixed random seed of 42 is used for stratified sampling.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T01:13:49Z'
+- artifact_path: projects/PROJ-078-predicting-polymer-degradation-pathways-/specs/001-predicting-polymer-degradation-pathways/tasks.md
+  attempts: 1
+  canonical: aggressive augmentation triggered if n < 50
+  claim_id: c_4bfd6698
+  context: '...or {"n": int, "action": "augment_aggressive"} (if n<50).'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/aggressive_augmentation_triggered_if_n_%3C_50
+  kind: magnitude
+  raw_text: Aggressive augmentation is triggered if the sample size n is less than
+    50.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T01:14:32Z'
+- artifact_path: projects/PROJ-078-predicting-polymer-degradation-pathways-/specs/001-predicting-polymer-degradation-pathways/tasks.md
+  attempts: 1
+  canonical: GNN architecture limited to <=3 layers
+  claim_id: c_7a36634a
+  context: "Goal: Train a lightweight Graph Neural Network (\u22643 layers, hidden\
+    \ dim \u2264128)..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The GNN architecture is limited to 3 layers or fewer.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T01:14:51Z'
+- artifact_path: projects/PROJ-078-predicting-polymer-degradation-pathways-/specs/001-predicting-polymer-degradation-pathways/tasks.md
+  attempts: 1
+  canonical: GNN hidden dimension limited to <=128
+  claim_id: c_59d0309f
+  context: "Goal: Train a lightweight Graph Neural Network (\u22643 layers, hidden\
+    \ dim \u2264128)..."
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: common ones (hidden size from [64, 128], number of layers L from [2,4,5,6],
+        (sub)graph pooling
+      source_id: '2110.03753'
+      url: https://arxiv.org/abs/2110.03753
+      value: 64, 128
+    filled: true
+  kind: numeric
+  raw_text: The GNN hidden dimension is limited to 128 or fewer.
+  resolved_value: 64, 128
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-03T01:15:27Z'
+- artifact_path: projects/PROJ-078-predicting-polymer-degradation-pathways-/specs/001-predicting-polymer-degradation-pathways/tasks.md
+  attempts: 1
+  canonical: non-ester bond dropout rate is 0.2
+  claim_id: c_e7999bb2
+  context: '...mask only non-ester bonds with a dropout rate of 0.2.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The dropout rate for non-ester bonds during augmentation is 0.2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T01:15:50Z'
+- artifact_path: projects/PROJ-078-predicting-polymer-degradation-pathways-/specs/001-predicting-polymer-degradation-pathways/tasks.md
+  attempts: 1
+  canonical: training converges within 6 hours on CPU
+  claim_id: c_a8164782
+  context: '...verifying the model converges within 6 hours on a CPU-only runner...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The training loop must converge within 6 hours on a CPU-only runner.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T01:16:23Z'
+- artifact_path: projects/PROJ-078-predicting-polymer-degradation-pathways-/specs/001-predicting-polymer-degradation-pathways/tasks.md
+  attempts: 1
+  canonical: null distribution generated with 1000 permutations
+  claim_id: c_d073e1e4
+  context: 'Null Distribution: Generate 1000 permutations to ensure statistical robustness.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: A null distribution for attribution scores is generated using 1000 permutations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T01:16:54Z'
+- artifact_path: projects/PROJ-078-predicting-polymer-degradation-pathways-/specs/001-predicting-polymer-degradation-pathways/tasks.md
+  attempts: 1
+  canonical: top attribution score threshold is 10%
+  claim_id: c_9fc9098a
+  context: '...top THRESHOLD_TOP_PERCENT (default 10) of attribution scores.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The threshold for the top percentage of attribution scores is 10%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T01:16:54Z'
+- artifact_path: projects/PROJ-078-predicting-polymer-degradation-pathways-/specs/001-predicting-polymer-degradation-pathways/tasks.md
+  attempts: 1
+  canonical: ester bond attribution percentage threshold is 0.90
+  claim_id: c_ab99b861
+  context: '...Compare this percentage against a null distribution... Threshold: PERCENTAGE_THRESHOLD
+    = 0.90.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The percentage threshold for ester bond attribution is 0.90.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T01:17:17Z'
+- artifact_path: projects/PROJ-078-predicting-polymer-degradation-pathways-/specs/001-predicting-polymer-degradation-pathways/tasks.md
+  attempts: 1
+  canonical: low confidence predictions flagged if confidence < 0.6
+  claim_id: c_f7b01888
+  context: '...flag predictions with confidence < 0.6 as "low confidence" in the report...'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/low_confidence_predictions_flagged_if_confidence_%3C_0.6
+  kind: magnitude
+  raw_text: Predictions with confidence less than 0.6 are flagged as low confidence.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T01:17:57Z'

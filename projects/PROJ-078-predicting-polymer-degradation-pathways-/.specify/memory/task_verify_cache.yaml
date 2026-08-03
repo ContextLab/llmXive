@@ -1,10 +1,11 @@
-T001b:
+T001a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No artifact showing that a git repository was initialized (e.g., a `.git` folder,
-    `git init` command output, or a script) or that file permissions were set is present.
-    The claim lacks any concrete evidence of the required permissions changes or repository
-    setup, so the task is not satisfied.
+  r: "No directory listing or evidence of the required folders (`code/`, `data/raw/`,\
+    \ `data/processed/`, `data/reports/`, `tests/`, `state/`) was provided; without\
+    \ concrete artifacts the claim cannot be verified. The implementer must supply\
+    \ a view of the project tree (e.g., `tree .` output) showing those non\u2011empty\
+    \ directories."
 T003:
   c: true
   h: 56622f8f9f3bdf7152fcf252035075b3ce09841be9b398d9fadfc5d8887fa275
@@ -12,6 +13,13 @@ T003:
     \ linting settings and a `[format]` section aligning with Black\u2019s defaults,\
     \ fulfilling the requirement to configure linting/formatting in the specified\
     \ location."
+T008:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No pytest configuration files (e.g., `pytest.ini` or `conftest.py`) or the required\
+    \ `tests/unit` and `tests/integration` directories with test modules are present\
+    \ in the provided evidence. The task\u2019s core deliverable \u2013 a functional\
+    \ pytest framework and the specified directory structure \u2013 is missing."
 T012:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -26,6 +34,15 @@ T014:
     of the required functionality without the actual script, so the required artifact
     is missing. The task cannot be considered completed until a concrete implementation
     that converts SMILES to RDKit molecular graphs and handles valid records is present.
+T015:
+  c: false
+  h: 9e641233e218333c81b884b8d38d0f9ac07b3ce8d1c7a1592f96ab1df0bbdc40
+  r: "The required output file `data/processed/graphs.parquet` does not exist, so\
+    \ the core artifact of the task is missing. Without this file (and any accompanying\
+    \ `preprocess.py` implementation), the conversion, filtering, and feature\u2011\
+    encoding steps cannot be verified. The implementer must provide a functioning\
+    \ script that creates the specified Parquet file containing the processed molecular\
+    \ graphs."
 T023:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

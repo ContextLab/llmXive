@@ -1,1 +1,1 @@
-# Integration tests for the polymer degradation pipeline
+# Integration tests package

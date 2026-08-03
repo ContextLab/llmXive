@@ -1,130 +1,200 @@
+"""
+Unit tests for the preprocessing pipeline.
+"""
 import pytest
 import pandas as pd
-import os
-import json
-import tempfile
+import numpy as np
 from pathlib import Path
-
-# Import the functions we want to test
-# Note: We assume these are defined in code/preprocess.py
-# Since we cannot import directly in this test file without the full environment,
-# we will mock the logic or test the main entry point if possible.
-# However, for unit tests, we should test the core logic.
-# Let's assume we can import the functions if we set up the path correctly.
-# For now, we will write tests that would pass if the functions were implemented correctly.
-
-# Mock the get_project_paths to use a temporary directory
-from unittest.mock import patch, MagicMock
-import sys
-
-# Add the code directory to the path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'code'))
+import tempfile
+import os
 
 from preprocess import (
-    compute_checksum,
-    check_augmentation_trigger,
+    smiles_to_graph,
+    has_ester_group,
+    handle_missing_environmental_data,
+    process_smiles_to_graphs,
     load_processed_polyester_dataset,
-    subsample_dataset_stratified,
     save_dataset
 )
 
-@pytest.fixture
-def temp_dir():
-    with tempfile.TemporaryDirectory() as tmpdir:
-        yield tmpdir
 
-@pytest.fixture
-def sample_dataframe():
-    data = {
-        'smiles': ['CCO', 'CC(=O)O', 'C1=CC=CC=C1', 'CC(=O)OC', 'CCO'],
-        'degradation_pathway': ['hydrolysis', 'hydrolysis', 'oxidation', 'hydrolysis', 'thermal'],
-        'temperature': [25, 30, 40, 25, 50],
-        'pH': [7, 7, 7, 8, 7]
-    }
-    return pd.DataFrame(data)
+class TestSmilesToGraph:
+    """Tests for SMILES to graph conversion."""
 
-def test_compute_checksum(temp_dir):
-    """Test that compute_checksum returns a valid SHA-256 hash."""
-    test_file = Path(temp_dir) / "test.txt"
-    test_file.write_text("Hello, World!")
-    
-    checksum = compute_checksum(str(test_file))
-    assert len(checksum) == 64  # SHA-256 hex length
-    assert all(c in '0123456789abcdef' for c in checksum)
+    def test_valid_smiles_conversion(self):
+        """Test that valid SMILES strings are converted to graphs."""
+        smiles = "CC(=O)O"  # Acetic acid (contains ester-like pattern)
+        graph = smiles_to_graph(smiles)
+        
+        assert graph is not None
+        assert "nodes" in graph
+        assert "node_features" in graph
+        assert "edges" in graph
+        assert graph["num_nodes"] > 0
 
-def test_check_augmentation_trigger_missing(temp_dir):
-    """Test that check_augmentation_trigger returns None if file is missing."""
-    trigger_path = Path(temp_dir) / "nonexistent.json"
-    result = check_augmentation_trigger(str(trigger_path))
-    assert result is None
+    def test_invalid_smiles_returns_none(self):
+        """Test that invalid SMILES strings return None."""
+        invalid_smiles = "invalid_smiles_123"
+        graph = smiles_to_graph(invalid_smiles)
+        
+        assert graph is None
 
-def test_check_augmentation_trigger_valid(temp_dir):
-    """Test that check_augmentation_trigger returns the correct dict."""
-    trigger_path = Path(temp_dir) / "trigger.json"
-    trigger_data = {"action": "none", "n": 200}
-    with open(trigger_path, 'w') as f:
-        json.dump(trigger_data, f)
-    
-    result = check_augmentation_trigger(str(trigger_path))
-    assert result == trigger_data
+    def test_empty_smiles_returns_none(self):
+        """Test that empty SMILES strings return None."""
+        graph = smiles_to_graph("")
+        
+        assert graph is None
 
-def test_load_processed_polyester_dataset_missing(temp_dir):
-    """Test that load_processed_polyester_dataset raises FileNotFoundError."""
-    with pytest.raises(FileNotFoundError):
-        load_processed_polyester_dataset(str(Path(temp_dir) / "missing.csv"))
+    def test_node_features_shape(self):
+        """Test that node features have correct shape."""
+        smiles = "CCO"  # Ethanol
+        graph = smiles_to_graph(smiles)
+        
+        assert graph is not None
+        node_features = graph["node_features"]
+        
+        # Each node should have 5 base features + 3 environmental
+        for features in node_features:
+            assert len(features) == 8  # 5 base + 3 env
 
-def test_load_processed_polyester_dataset_valid(temp_dir, sample_dataframe):
-    """Test that load_processed_polyester_dataset loads a CSV correctly."""
-    csv_path = Path(temp_dir) / "data.csv"
-    sample_dataframe.to_csv(csv_path, index=False)
-    
-    df = load_processed_polyester_dataset(str(csv_path))
-    assert len(df) == len(sample_dataframe)
-    assert list(df.columns) == list(sample_dataframe.columns)
 
-def test_subsample_dataset_stratified(temp_dir, sample_dataframe):
-    """Test that subsample_dataset_stratified performs stratified sampling."""
-    output_path = Path(temp_dir) / "output.csv"
-    
-    # Create a larger dataset for testing
-    large_df = pd.concat([sample_dataframe] * 10, ignore_index=True)
-    
-    result_path = subsample_dataset_stratified(large_df, str(output_path), seed=42)
-    
-    assert os.path.exists(result_path)
-    result_df = pd.read_csv(result_path)
-    
-    # Check that the result is a subset
-    assert len(result_df) <= len(large_df)
-    
-    # Check that the distribution of degradation_pathway is preserved (approximately)
-    original_dist = large_df['degradation_pathway'].value_counts(normalize=True)
-    result_dist = result_df['degradation_pathway'].value_counts(normalize=True)
-    
-    # Allow for some tolerance in the distribution
-    for pathway in original_dist.index:
-        if pathway in result_dist.index:
-            assert abs(original_dist[pathway] - result_dist[pathway]) < 0.1
+class TestHasEsterGroup:
+    """Tests for ester group detection."""
 
-def test_subsample_dataset_stratified_no_pathway_column(temp_dir):
-    """Test subsampling when no degradation pathway column exists."""
-    df = pd.DataFrame({
-        'smiles': ['CCO', 'CC(=O)O'],
-        'temperature': [25, 30]
-    })
-    output_path = Path(temp_dir) / "output_no_pathway.csv"
-    
-    # This should fall back to random sampling
-    result_path = subsample_dataset_stratified(df, str(output_path), seed=42)
-    
-    assert os.path.exists(result_path)
-    result_df = pd.read_csv(result_path)
-    assert len(result_df) == len(df)  # Should keep all if n <= 500
+    def test_ester_detection_positive(self):
+        """Test that ester groups are correctly detected."""
+        # Ethyl acetate
+        smiles = "CCOC(=O)C"
+        assert has_ester_group(smiles) is True
 
-def test_save_dataset(temp_dir, sample_dataframe):
-    """Test that save_dataset saves the file and returns the checksum."""
-    output_path = Path(temp_dir) / "saved.csv"
-    checksum = save_dataset(sample_dataframe, str(output_path), "Test Save")
-    
-    assert os.path.exists(output_path)
-    assert len(checksum) == 64
+        # Polyethylene terephthalate (simplified)
+        smiles = "CC(=O)OC1=CC=C(C=C1)C(=O)O"
+        assert has_ester_group(smiles) is True
+
+    def test_ester_detection_negative(self):
+        """Test that non-ester compounds are correctly identified."""
+        # Ethanol (no ester)
+        smiles = "CCO"
+        assert has_ester_group(smiles) is False
+
+        # Ethane (no ester)
+        smiles = "CC"
+        assert has_ester_group(smiles) is False
+
+    def test_invalid_smiles_returns_false(self):
+        """Test that invalid SMILES returns False."""
+        assert has_ester_group("invalid") is False
+        assert has_ester_group("") is False
+
+
+class TestHandleMissingEnvironmentalData:
+    """Tests for environmental data handling."""
+
+    def test_missing_data_flagging(self):
+        """Test that records with missing environmental data are flagged."""
+        data = {
+            "smiles": ["CCO", "CC(=O)O", "CC"],
+            "temperature": [25.0, np.nan, 30.0],
+            "ph": [7.0, 7.0, np.nan],
+            "uv": [0.0, 0.0, 0.0]
+        }
+        df = pd.DataFrame(data)
+        
+        cleaned_df, flagged_df = handle_missing_environmental_data(df)
+        
+        assert len(cleaned_df) == 1  # Only first record is complete
+        assert len(flagged_df) == 2  # Second and third have missing data
+
+    def test_complete_data_no_flagging(self):
+        """Test that complete data results in no flagged records."""
+        data = {
+            "smiles": ["CCO", "CC(=O)O"],
+            "temperature": [25.0, 30.0],
+            "ph": [7.0, 8.0],
+            "uv": [0.0, 1.0]
+        }
+        df = pd.DataFrame(data)
+        
+        cleaned_df, flagged_df = handle_missing_environmental_data(df)
+        
+        assert len(cleaned_df) == 2
+        assert len(flagged_df) == 0
+
+    def test_flagged_file_creation(self):
+        """Test that flagged records are saved to file."""
+        data = {
+            "smiles": ["CCO", "CC(=O)O"],
+            "temperature": [25.0, np.nan],
+            "ph": [7.0, 7.0],
+            "uv": [0.0, 0.0]
+        }
+        df = pd.DataFrame(data)
+        
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = Path(tmpdir) / "flagged_env_data.csv"
+            cleaned_df, flagged_df = handle_missing_environmental_data(df, str(output_path))
+            
+            assert output_path.exists()
+            assert len(pd.read_csv(output_path)) == 1
+
+
+class TestProcessSmilesToGraphs:
+    """Tests for full SMILES to graphs processing."""
+
+    def test_process_valid_records(self):
+        """Test processing of valid records."""
+        data = {
+            "smiles": ["CC(=O)O", "CCO"],
+            "degradation_pathway": ["hydrolysis", "oxidation"],
+            "temperature": [25.0, 30.0],
+            "ph": [7.0, 8.0],
+            "uv": [0.0, 1.0]
+        }
+        df = pd.DataFrame(data)
+        
+        graphs_df = process_smiles_to_graphs(df)
+        
+        assert len(graphs_df) == 2
+        assert "graph_data" in graphs_df.columns
+        assert all(graphs_df["success"])
+
+    def test_process_mixed_validity(self):
+        """Test processing with mixed valid/invalid records."""
+        data = {
+            "smiles": ["CC(=O)O", "invalid", "CCO"],
+            "degradation_pathway": ["hydrolysis", "unknown", "oxidation"],
+            "temperature": [25.0, 25.0, 30.0],
+            "ph": [7.0, 7.0, 8.0],
+            "uv": [0.0, 0.0, 1.0]
+        }
+        df = pd.DataFrame(data)
+        
+        graphs_df = process_smiles_to_graphs(df)
+        
+        # Should only have 2 valid records
+        assert len(graphs_df) == 2
+        assert graphs_df["success"].all()
+
+
+class TestSaveDataset:
+    """Tests for dataset saving."""
+
+    def test_save_to_parquet(self):
+        """Test saving dataset to parquet format."""
+        data = {
+            "smiles": ["CC(=O)O"],
+            "degradation_pathway": ["hydrolysis"],
+            "graph_data": [[{"nodes": [0], "num_nodes": 1}]]
+        }
+        df = pd.DataFrame(data)
+        
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = Path(tmpdir) / "test_graphs.parquet"
+            saved_path = save_dataset(df, str(output_path))
+            
+            assert os.path.exists(saved_path)
+            assert saved_path.endswith(".parquet")
+            
+            # Verify we can read it back
+            loaded_df = pd.read_parquet(saved_path)
+            assert len(loaded_df) == 1

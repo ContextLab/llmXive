@@ -6,7 +6,7 @@ failed_stage: null
 field: chemistry
 human_escalation_reason: null
 id: PROJ-078-predicting-polymer-degradation-pathways-
-last_run_id: d3a4ee4d-732f-4539-bb66-734dc4d83f47
+last_run_id: 8ed0304a-c07c-4f49-bbba-10812a0c4ea1
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-078-predicting-polymer-degradation-pathways-/specs/001-predicting-polymer-degradation-pathways
 title: Predicting Polymer Degradation Pathways with Graph Neural Networks
-updated_at: '2026-07-31T20:22:52.562521Z'
+updated_at: '2026-08-03T01:17:57.442698Z'

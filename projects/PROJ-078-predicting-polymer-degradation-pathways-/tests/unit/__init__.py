@@ -1,1 +1,1 @@
-# Unit tests for the polymer degradation pipeline
+# Unit tests package

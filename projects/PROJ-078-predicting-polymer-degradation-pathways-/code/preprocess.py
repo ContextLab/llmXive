@@ -1,3 +1,7 @@
+"""
+Preprocessing pipeline for polymer degradation data.
+Converts SMILES to molecular graphs, filters for polyesters, and encodes environmental conditions.
+"""
 import logging
 import json
 import hashlib
@@ -10,202 +14,348 @@ from typing import List, Dict, Any, Optional, Tuple
 import pandas as pd
 import numpy as np
 from rdkit import Chem
-from rdkit.Chem import Descriptors
+from rdkit.Chem import AllChem
+import networkx as nx
 
 from utils import get_logger, get_project_paths
 from data_models import PolymerRecord, MolecularGraph
 
-# Constants for Imputation (FR-002 Compliance)
-DEFAULT_PH = 7.0
-DEFAULT_TEMP_C = 25.0
-DEFAULT_UV_EXPOSURE = False
-
-# Output paths
-PATHS = get_project_paths()
-IMPUTED_RECORDS_PATH = PATHS / "data" / "raw" / "imputed_records.csv"
-FLAGGED_ENV_DATA_PATH = PATHS / "data" / "raw" / "flagged_env_data.csv"
-PROCESSED_GRAPH_DATASET_PATH = PATHS / "data" / "processed" / "processed_graph_dataset.csv"
-
+# Configure logger
 logger = get_logger(__name__)
 
-def compute_checksum(file_path: Path) -> str:
+# Constants
+ESTER_PATTERN = "C(=O)O"
+ENV_COLUMNS = ["temperature", "ph", "uv"]
+DEFAULT_OUTPUT_PATH = "data/processed/graphs.parquet"
+FLAGGED_ENV_PATH = "data/raw/flagged_env_data.csv"
+
+
+def compute_checksum(filepath: str) -> str:
     """Compute SHA256 checksum of a file."""
     sha256_hash = hashlib.sha256()
-    with open(file_path, "rb") as f:
+    with open(filepath, "rb") as f:
         for byte_block in iter(lambda: f.read(4096), b""):
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-def check_augmentation_trigger() -> Dict[str, Any]:
-    """Check if augmentation is triggered based on power analysis."""
-    trigger_file = PATHS / "state" / "augmentation_trigger.json"
-    if trigger_file.exists():
-        with open(trigger_file, 'r') as f:
-            return json.load(f)
-    return {"n": 0, "action": "none"}
 
-def smiles_to_graph(smiles: str) -> Optional[MolecularGraph]:
-    """Convert SMILES string to a MolecularGraph object using RDKit."""
-    mol = Chem.MolFromSmiles(smiles)
-    if mol is None:
-        return None
-    
-    # Extract basic graph features
-    num_atoms = mol.GetNumAtoms()
-    num_bonds = mol.GetNumBonds()
-    
-    # Simple feature vector: [num_atoms, num_bonds, molecular_weight]
-    mw = Descriptors.MolWt(mol)
-    
-    return MolecularGraph(
-        smiles=smiles,
-        num_atoms=num_atoms,
-        num_bonds=num_bonds,
-        molecular_weight=mw,
-        # Placeholder for actual graph tensor data
-        # In a real implementation, this would include node/edge features
-        node_features=None, 
-        edge_features=None
-    )
-
-def load_processed_polyester_dataset() -> pd.DataFrame:
-    """Load the raw polymer records after initial filtering (T014/T016a)."""
-    # This function assumes T016a has created raw_polymer_records.csv
-    # We need to read from the raw file that has already been cleaned of missing labels
-    raw_path = PATHS / "data" / "raw" / "raw_polymer_records.csv"
-    if not raw_path.exists():
-        raise FileNotFoundError(f"Raw polymer records not found at {raw_path}. Run T016a first.")
-    
-    df = pd.read_csv(raw_path)
-    return df
-
-def save_dataset(df: pd.DataFrame, output_path: Path, description: str = ""):
-    """Save dataset to CSV and log checksum."""
-    df.to_csv(output_path, index=False)
-    checksum = compute_checksum(output_path)
-    logger.info(f"{description} saved to {output_path} with checksum {checksum}")
-    return checksum
-
-def handle_missing_environmental_data(df: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
-    """
-    T015d: Implement Imputation Path for FR-002 Compliance.
-    
-    1. Identify records with missing environmental data (temp, pH, UV).
-    2. Create an imputed version of these records with default values.
-    3. Save the imputed records to data/raw/imputed_records.csv.
-    4. Exclude these records from the returned 'valid' dataframe (to prevent confounding in training).
-    5. Also save the IDs of flagged records for audit (T015b compatibility).
-    
-    Returns:
-      Tuple[valid_df, imputed_df, flagged_df]
-        - valid_df: Records with complete environmental data (for training).
-        - imputed_df: Records with imputed values (artifact for FR-002, excluded from training).
-        - flagged_df: IDs of records that had missing data (audit log).
-    """
-    logger.info("T015d: Handling missing environmental data with imputation path...")
-    
-    # Columns to check for missing data
-    env_cols = ['temperature_c', 'ph', 'uv_exposure']
-    
-    # Identify rows with any missing environmental data
-    missing_mask = df[env_cols].isnull().any(axis=1)
-    
-    # Split data
-    valid_df = df[~missing_mask].copy()
-    missing_df = df[missing_mask].copy()
-    
-    # Create flagged record IDs for audit (T015b)
-    flagged_df = missing_df[['id']].copy() if 'id' in missing_df.columns else missing_df[['smiles']].copy()
-    
-    if len(missing_df) > 0:
-        logger.warning(f"Found {len(missing_df)} records with missing environmental data. Imputing values.")
-        
-        # Impute values
-        missing_df['temperature_c'] = DEFAULT_TEMP_C
-        missing_df['ph'] = DEFAULT_PH
-        missing_df['uv_exposure'] = DEFAULT_UV_EXPOSURE
-        
-        # Add a column to track that this data was imputed
-        missing_df['is_imputed'] = True
-        
-        # Save imputed records to data/raw/imputed_records.csv
-        save_dataset(missing_df, IMPUTED_RECORDS_PATH, "Imputed records (T015d)")
-        
-        # Save flagged IDs (T015b requirement)
-        flagged_output_path = PATHS / "data" / "raw" / "flagged_env_data.csv"
-        save_dataset(flagged_df, flagged_output_path, "Flagged environmental data IDs")
-        
-        logger.info(f"Imputed {len(missing_df)} records saved to {IMPUTED_RECORDS_PATH}")
-        logger.info(f"Flagged {len(flagged_df)} record IDs saved to {flagged_output_path}")
-    else:
-        logger.info("No records with missing environmental data found.")
-        # Ensure empty files exist if no data to impute, for consistency
-        pd.DataFrame(columns=['id', 'temperature_c', 'ph', 'uv_exposure', 'is_imputed']).to_csv(IMPUTED_RECORDS_PATH, index=False)
-        pd.DataFrame(columns=['id']).to_csv(FLAGGED_ENV_DATA_PATH, index=False)
-
-    return valid_df, missing_df, flagged_df
-
-def process_smiles_to_graphs(df: pd.DataFrame) -> List[MolecularGraph]:
-    """Convert SMILES strings in dataframe to MolecularGraph objects."""
-    graphs = []
-    invalid_count = 0
-    
-    for _, row in df.iterrows():
-        smiles = row['smiles']
-        graph = smiles_to_graph(smiles)
-        if graph:
-            graphs.append(graph)
-        else:
-            invalid_count += 1
-            logger.warning(f"Invalid SMILES: {smiles}")
-    
-    if invalid_count > 0:
-        logger.warning(f"Skipped {invalid_count} invalid SMILES strings.")
-    
-    return graphs
-
-def main():
-    """
-    Main entry point for T015 and T015d.
-    1. Load raw records (T016a output).
-    2. Handle missing environmental data (T015d - Imputation).
-    3. Convert valid records to graphs (T015).
-    4. Save processed dataset.
-    """
-    logger.info("Starting T015/T015d: Preprocessing and Imputation")
-    
+def check_augmentation_trigger() -> bool:
+    """Check if augmentation is triggered based on state file."""
+    paths = get_project_paths()
+    trigger_file = paths["state"] / "augmentation_trigger.json"
+    if not trigger_file.exists():
+        return False
     try:
-        # Load raw data
-        raw_df = load_processed_polyester_dataset()
-        logger.info(f"Loaded {len(raw_df)} raw records.")
+        with open(trigger_file, "r") as f:
+            data = json.load(f)
+            return data.get("action") in ["augment", "augment_aggressive"]
+    except (json.JSONDecodeError, KeyError):
+        return False
+
+
+def smiles_to_graph(smiles: str, sanitize: bool = True, remove_hs: bool = False) -> Optional[Dict[str, Any]]:
+    """
+    Convert a SMILES string to a molecular graph representation.
+    
+    Args:
+        smiles: SMILES string
+        sanitize: Whether to sanitize the molecule (default True)
+        remove_hs: Whether to remove hydrogens (default False)
         
-        # T015d: Handle missing environmental data (Imputation path)
-        valid_df, imputed_df, flagged_df = handle_missing_environmental_data(raw_df)
+    Returns:
+        Dictionary containing graph data or None if conversion fails
+    """
+    try:
+        mol = Chem.MolFromSmiles(smiles, sanitize=sanitize)
+        if mol is None:
+            logger.warning(f"Failed to parse SMILES: {smiles}")
+            return None
         
-        # T015: Convert valid records to graphs
-        logger.info(f"Converting {len(valid_df)} valid records to graphs...")
-        graphs = process_smiles_to_graphs(valid_df)
+        # Optionally remove hydrogens (task says removeHs=False, so we keep them)
+        if remove_hs:
+            mol = Chem.RemoveHs(mol)
         
-        # Create a DataFrame from graphs for saving
-        # Note: In a real implementation, we might convert MolecularGraph objects to a serializable format
-        # For now, we'll keep the original valid_df and add graph properties
-        processed_df = valid_df.copy()
-        processed_df['num_atoms'] = [g.num_atoms for g in graphs]
-        processed_df['num_bonds'] = [g.num_bonds for g in graphs]
-        processed_df['molecular_weight'] = [g.molecular_weight for g in graphs]
+        # Build graph
+        G = nx.Graph()
+        node_features = []
         
-        # T016b: Save processed graph dataset
-        save_dataset(processed_df, PROCESSED_GRAPH_DATASET_PATH, "Processed graph dataset (T016b)")
+        # Atom features
+        for atom in mol.GetAtoms():
+            atomic_num = atom.GetAtomicNum()
+            aromatic = atom.GetIsAromatic()
+            hybridization = int(atom.GetHybridization())
+            degree = atom.GetDegree()
+            formal_charge = atom.GetFormalCharge()
+            
+            # Create feature vector
+            features = [
+                float(atomic_num),
+                float(aromatic),
+                float(hybridization),
+                float(degree),
+                float(formal_charge)
+            ]
+            node_features.append(features)
+            G.add_node(atom.GetIdx(), atomic_num=atomic_num)
         
-        # T016c: Save pre-augmentation dataset (same as processed for now)
-        pre_aug_path = PATHS / "data" / "processed" / "pre_augmented_graph_dataset.csv"
-        save_dataset(processed_df, pre_aug_path, "Pre-augmentation dataset (T016c)")
+        # Bond features (as edge attributes)
+        for bond in mol.GetBonds():
+            start_idx = bond.GetBeginAtomIdx()
+            end_idx = bond.GetEndAtomIdx()
+            bond_type = int(bond.GetBondType())
+            aromatic = bond.GetIsAromatic()
+            
+            G.add_edge(start_idx, end_idx, bond_type=bond_type, aromatic=aromatic)
         
-        logger.info("T015/T015d completed successfully.")
+        # Convert to adjacency and features for ML
+        num_nodes = len(G.nodes())
+        if num_nodes == 0:
+            return None
+        
+        # Create edge list
+        edge_list = list(G.edges())
+        edge_attrs = []
+        for u, v in edge_list:
+            bond_type = G[u][v].get("bond_type", 1)
+            aromatic = G[u][v].get("aromatic", False)
+            edge_attrs.append([float(bond_type), float(aromatic)])
+        
+        return {
+            "nodes": list(range(num_nodes)),
+            "node_features": node_features,
+            "edges": edge_list,
+            "edge_features": edge_attrs,
+            "num_nodes": num_nodes,
+            "num_edges": len(edge_list)
+        }
         
     except Exception as e:
-        logger.error(f"Error during preprocessing: {e}", exc_info=True)
+        logger.error(f"Error converting SMILES to graph: {smiles}, error: {e}")
+        return None
+
+
+def has_ester_group(smiles: str) -> bool:
+    """
+    Check if the SMILES string contains an ester functional group.
+    Pattern: C(=O)O
+    """
+    try:
+        mol = Chem.MolFromSmiles(smiles)
+        if mol is None:
+            return False
+        
+        # Search for ester pattern
+        pattern = Chem.MolFromSmarts(ESTER_PATTERN)
+        if pattern is None:
+            logger.warning(f"Could not compile ester pattern: {ESTER_PATTERN}")
+            return False
+        
+        matches = mol.GetSubstructMatches(pattern)
+        return len(matches) > 0
+        
+    except Exception as e:
+        logger.error(f"Error checking ester group in SMILES: {smiles}, error: {e}")
+        return False
+
+
+def load_processed_polyester_dataset(input_path: Optional[str] = None) -> pd.DataFrame:
+    """
+    Load the raw ingested dataset and filter for polyesters.
+    
+    Args:
+        input_path: Path to the input CSV file. If None, uses default raw path.
+        
+    Returns:
+        DataFrame containing only polyester records
+    """
+    paths = get_project_paths()
+    if input_path is None:
+        # Default to the raw polymer records file
+        input_path = paths["data_raw"] / "raw_polymer_records.csv"
+    else:
+        input_path = Path(input_path)
+    
+    if not input_path.exists():
+        raise FileNotFoundError(f"Input file not found: {input_path}")
+    
+    logger.info(f"Loading dataset from {input_path}")
+    df = pd.read_csv(input_path)
+    
+    # Filter for polyesters (must have ester group)
+    logger.info(f"Initial record count: {len(df)}")
+    
+    # Apply ester filter
+    ester_mask = df["smiles"].apply(has_ester_group)
+    polyester_df = df[ester_mask].copy()
+    
+    logger.info(f"Polyester records after filtering: {len(polyester_df)}")
+    logger.info(f"Records filtered out (non-polyesters): {len(df) - len(polyester_df)}")
+    
+    return polyester_df
+
+
+def handle_missing_environmental_data(df: pd.DataFrame, output_flagged_path: Optional[str] = None) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    """
+    Identify and flag records with missing environmental data.
+    Exclude these records from the training set.
+    
+    Args:
+        df: DataFrame with environmental columns
+        output_flagged_path: Path to save flagged records
+        
+    Returns:
+        Tuple of (cleaned_df, flagged_df)
+    """
+    paths = get_project_paths()
+    if output_flagged_path is None:
+        output_flagged_path = paths["data_raw"] / FLAGGED_ENV_PATH
+    else:
+        output_flagged_path = Path(output_flagged_path)
+    
+    # Check for missing values in environmental columns
+    missing_mask = df[ENV_COLUMNS].isna().any(axis=1)
+    flagged_df = df[missing_mask].copy()
+    cleaned_df = df[~missing_mask].copy()
+    
+    logger.info(f"Records with missing environmental data: {len(flagged_df)}")
+    logger.info(f"Records kept after environmental filtering: {len(cleaned_df)}")
+    
+    # Save flagged records
+    if len(flagged_df) > 0:
+        output_flagged_path.parent.mkdir(parents=True, exist_ok=True)
+        flagged_df.to_csv(output_flagged_path, index=False)
+        logger.info(f"Flagged records saved to {output_flagged_path}")
+    else:
+        logger.info("No records flagged for missing environmental data")
+    
+    return cleaned_df, flagged_df
+
+
+def save_dataset(graphs_df: pd.DataFrame, output_path: Optional[str] = None) -> str:
+    """
+    Save the processed graph dataset to parquet format.
+    
+    Args:
+        graphs_df: DataFrame containing graph data
+        output_path: Path to save the output file
+        
+    Returns:
+        Path to the saved file
+    """
+    paths = get_project_paths()
+    if output_path is None:
+        output_path = paths["data_processed"] / DEFAULT_OUTPUT_PATH
+    else:
+        output_path = Path(output_path)
+    
+    # Ensure directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Save to parquet
+    graphs_df.to_parquet(output_path, index=False)
+    logger.info(f"Saved graph dataset to {output_path}")
+    
+    # Compute and log checksum
+    checksum = compute_checksum(str(output_path))
+    logger.info(f"Checksum: {checksum}")
+    
+    return str(output_path)
+
+
+def process_smiles_to_graphs(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Convert SMILES strings to molecular graphs and encode environmental conditions.
+    
+    Args:
+        df: DataFrame with SMILES and environmental columns
+        
+    Returns:
+        DataFrame with graph representations
+    """
+    logger.info(f"Processing {len(df)} records to graphs...")
+    
+    graph_records = []
+    skipped_count = 0
+    
+    for idx, row in df.iterrows():
+        smiles = row["smiles"]
+        
+        # Convert to graph
+        graph_data = smiles_to_graph(smiles, sanitize=True, remove_hs=False)
+        
+        if graph_data is None:
+            skipped_count += 1
+            continue
+        
+        # Add environmental features as node features (append to each node)
+        temp = row.get("temperature", 0.0)
+        ph = row.get("ph", 7.0)
+        uv = row.get("uv", 0.0)
+        
+        # Normalize environmental features (simple min-max or just use as is)
+        # For now, we'll append them to each node's feature vector
+        for i, node_feat in enumerate(graph_data["node_features"]):
+            # Append environmental conditions to node features
+            extended_feat = node_feat + [float(temp), float(ph), float(uv)]
+            graph_data["node_features"][i] = extended_feat
+        
+        # Add metadata
+        graph_record = {
+            "smiles": smiles,
+            "degradation_pathway": row.get("degradation_pathway", "unknown"),
+            "source_id": row.get("source_id", ""),
+            "temperature": temp,
+            "ph": ph,
+            "uv": uv,
+            "num_nodes": graph_data["num_nodes"],
+            "num_edges": graph_data["num_edges"],
+            "graph_data": [graph_data],  # Store as list for consistency
+            "success": True
+        }
+        
+        graph_records.append(graph_record)
+    
+    logger.info(f"Successfully processed {len(graph_records)} records")
+    logger.info(f"Skipped {skipped_count} records due to conversion errors")
+    
+    return pd.DataFrame(graph_records)
+
+
+def main():
+    """Main entry point for preprocessing pipeline."""
+    logger.info("Starting preprocessing pipeline...")
+    
+    try:
+        # Step 1: Load raw polyester dataset
+        polyester_df = load_processed_polyester_dataset()
+        
+        if len(polyester_df) == 0:
+            logger.warning("No polyester records found. Exiting.")
+            return
+        
+        # Step 2: Handle missing environmental data
+        cleaned_df, flagged_df = handle_missing_environmental_data(polyester_df)
+        
+        if len(cleaned_df) == 0:
+            logger.warning("No records remain after environmental filtering. Exiting.")
+            return
+        
+        # Step 3: Convert SMILES to graphs
+        graphs_df = process_smiles_to_graphs(cleaned_df)
+        
+        if len(graphs_df) == 0:
+            logger.error("No graphs were successfully created. Exiting.")
+            return
+        
+        # Step 4: Save the processed dataset
+        output_path = save_dataset(graphs_df)
+        
+        logger.info(f"Preprocessing complete. Output saved to: {output_path}")
+        
+    except Exception as e:
+        logger.error(f"Preprocessing pipeline failed: {e}", exc_info=True)
         raise
+
 
 if __name__ == "__main__":
     main()
