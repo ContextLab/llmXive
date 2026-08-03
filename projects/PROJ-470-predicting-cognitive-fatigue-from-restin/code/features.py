@@ -6,303 +6,231 @@ import numpy as np
 from pathlib import Path
 import logging
 from datetime import datetime
-from typing import List, Dict, Any
 import mne
 
-# Import logging utilities from the existing utility module
-from utils.logging import get_logger, save_exclusion_log_csv
-
-# Import complexity calculation libraries
+# Import Lempel-Ziv complexity implementation
 try:
-    from lempel_ziv_complexity import lempel_ziv_complexity
-    LZC_AVAILABLE = True
+    from lempel_ziv import lzw_complexity
 except ImportError:
-    LZC_AVAILABLE = False
+    # Fallback to a simple implementation if the package is not available
+    # This ensures the script runs even if the specific package version varies
+    def lzw_complexity(binary_sequence):
+        """
+        Calculates the Lempel-Ziv complexity of a binary sequence.
+        This is a standard implementation used when external packages are unavailable.
+        """
+        if not isinstance(binary_sequence, (list, np.ndarray)):
+            binary_sequence = list(binary_sequence)
+        
+        n = len(binary_sequence)
+        if n == 0:
+            return 0.0
+        
+        lzw = 0
+        current_substring = ""
+        current_set = set()
+        current_set.add("")
+        
+        for i, bit in enumerate(binary_sequence):
+            current_substring += str(bit)
+            if current_substring not in current_set:
+                lzw += 1
+                current_set.add(current_substring)
+                # Reset current substring to the last character to start new pattern
+                current_substring = str(bit)
+                current_set.add(current_substring)
+        
+        # Normalize by length
+        if n == 0:
+            return 0.0
+        # Standard normalization for LZ76/78
+        c = lzw
+        return c / (n / np.log2(n + 1)) if n > 1 else 0.0
 
-try:
-    from nolds import pe
-    PE_AVAILABLE = True
-except ImportError:
-    PE_AVAILABLE = False
-
-def load_config(config_path: str = "code/config.yaml") -> Dict[str, Any]:
-    """Load pipeline configuration from YAML file."""
+def load_config(config_path="code/config.yaml"):
+    """Load configuration from YAML file."""
     with open(config_path, 'r') as f:
         return yaml.safe_load(f)
 
-def setup_logger(name: str, log_file: str = "logs/pipeline.log") -> logging.Logger:
-    """Setup a logger that writes to both console and file."""
+def setup_logger(name, log_file=None, level=logging.INFO):
+    """Set up a logger with file and console handlers."""
     logger = logging.getLogger(name)
-    logger.setLevel(logging.INFO)
-
-    # Create file handler
-    fh = logging.FileHandler(log_file)
-    fh.setLevel(logging.INFO)
-
-    # Create console handler
-    ch = logging.StreamHandler()
-    ch.setLevel(logging.INFO)
-
+    logger.setLevel(level)
+    
     # Create formatter
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    fh.setFormatter(formatter)
+    
+    # File handler
+    if log_file:
+        fh = logging.FileHandler(log_file)
+        fh.setFormatter(formatter)
+        logger.addHandler(fh)
+    
+    # Console handler
+    ch = logging.StreamHandler()
     ch.setFormatter(formatter)
-
-    logger.addHandler(fh)
     logger.addHandler(ch)
-
+    
     return logger
 
-def calculate_lzc(signal: np.ndarray) -> float:
+def calculate_lempel_ziv_complexity(signal, threshold=0.5):
     """
-    Calculate Lempel-Ziv Complexity for a 1D signal.
+    Calculate Lempel-Ziv Complexity for a continuous signal.
     
     Args:
-        signal: 1D numpy array of signal values.
-        
-    Returns:
-        Normalized Lempel-Ziv Complexity value.
-    """
-    if not LZC_AVAILABLE:
-        raise ImportError("lempel_ziv_complexity package is required. Install via pip install lempel-ziv-complexity")
+        signal: 1D numpy array of EEG data.
+        threshold: Threshold for binarization (default: median).
     
-    # Binarize the signal using median threshold
-    threshold = np.median(signal)
+    Returns:
+        float: Normalized Lempel-Ziv complexity value.
+    """
+    if len(signal) == 0:
+        return 0.0
+    
+    # Binarize the signal (0 if below threshold, 1 if above)
+    # Using median as the threshold is common for EEG
+    if threshold is None:
+        threshold = np.median(signal)
+    
     binary_signal = (signal > threshold).astype(int)
     
     # Calculate LZC
     try:
-        lzc_value = lempel_ziv_complexity(binary_signal)
-        # Normalize by sequence length to get a comparable metric
-        n = len(binary_signal)
-        if n == 0:
-            return 0.0
-        # Normalization factor for LZC
-        normalizer = n / np.log2(n)
-        if normalizer == 0:
-            return 0.0
-        normalized_lzc = lzc_value / normalizer
-        return float(normalized_lzc)
-    except Exception as e:
-        logger = logging.getLogger(__name__)
-        logger.warning(f"LZC calculation failed for signal of length {n}: {e}")
-        return float('nan')
+        # Try to use the external package if available
+        from lempel_ziv import lzw_complexity
+        lzc = lzw_complexity(binary_signal)
+    except ImportError:
+        # Use local implementation
+        lzc = lzw_complexity(binary_signal)
+    
+    return float(lzc)
 
-def calculate_permutation_entropy(signal: np.ndarray, order: int = 3, delay: int = 1) -> float:
+def process_eeg_segments(raw_data, config, logger):
     """
-    Calculate Permutation Entropy for a 1D signal.
+    Process EEG segments to calculate LZC per channel per participant.
     
     Args:
-        signal: 1D numpy array of signal values.
-        order: Embedding dimension (permutation order).
-        delay: Time delay for embedding.
-        
-    Returns:
-        Normalized Permutation Entropy value.
-    """
-    if not PE_AVAILABLE:
-        raise ImportError("nolds package is required. Install via pip install nolds")
-    
-    try:
-        # nolds.pe returns the permutation entropy
-        pe_value = pe(signal, tau=delay, emb_dim=order)
-        # Normalize by log2(order!) to get value between 0 and 1
-        max_entropy = np.log2(np.math.factorial(order))
-        if max_entropy == 0:
-            return 0.0
-        normalized_pe = pe_value / max_entropy
-        return float(normalized_pe)
-    except Exception as e:
-        logger = logging.getLogger(__name__)
-        logger.warning(f"PE calculation failed: {e}")
-        return float('nan')
-
-def process_eeg_segments(
-    raw_data_path: str,
-    config: Dict[str, Any],
-    logger: logging.Logger
-) -> List[Dict[str, Any]]:
-    """
-    Process EEG segments from a cleaned FIF file.
-    
-    Args:
-        raw_data_path: Path to the cleaned EEG data (FIF format).
+        raw_data: List of mne.io.Raw objects or a single Raw object.
         config: Configuration dictionary.
         logger: Logger instance.
-        
+    
     Returns:
-        List of dictionaries containing participant_id, channel, metric_type, and value.
+        list: List of dictionaries containing participant_id, channel, lzc_value.
     """
-    if not os.path.exists(raw_data_path):
-        raise FileNotFoundError(f"Processed data file not found: {raw_data_path}")
-
-    logger.info(f"Loading EEG data from {raw_data_path}")
-    
-    # Load the raw data using MNE
-    raw = mne.io.read_raw_fif(raw_data_path, preload=False)
-    
-    # Get channel names
-    ch_names = raw.ch_names
-    sfreq = raw.info['sfreq']
-    
-    logger.info(f"Found {len(ch_names)} channels. Sampling rate: {sfreq} Hz")
-    
     results = []
-    exclusion_log = []
     
-    # Iterate over each channel
-    for ch_name in ch_names:
-        logger.info(f"Processing channel: {ch_name}")
+    # Ensure raw_data is a list
+    if not isinstance(raw_data, list):
+        raw_data = [raw_data]
+    
+    for idx, raw in enumerate(raw_data):
+        # Determine participant ID
+        # Try to extract from filename or use index
+        if hasattr(raw, 'info') and 'meas_date' in raw.info:
+            # If we have metadata, we might map this to a participant
+            # For now, we'll use a generic ID based on index if not found
+            participant_id = f"participant_{idx:04d}"
+        else:
+            participant_id = f"participant_{idx:04d}"
         
-        # Get data for this channel (without preloading entire file)
-        # We extract data for one channel at a time to manage memory
-        try:
-            # Pick the specific channel
-            raw_ch = raw.copy().pick_channels([ch_name])
-            data, _ = raw_ch.get_data(return_times=False)
+        # Get channel names
+        ch_names = raw.ch_names
+        sfreq = raw.info['sfreq']
+        
+        logger.info(f"Processing participant: {participant_id}, Channels: {len(ch_names)}")
+        
+        # Iterate over each channel
+        for ch_name in ch_names:
+            # Extract data for this channel
+            data, _ = raw[:, ch_name]
+            data = data.flatten()
             
-            # Flatten if multi-dimensional (should be 1D for single channel)
-            if data.ndim > 1:
-                data = data.flatten()
-            
-            if len(data) < 100: # Minimum length check
-                logger.warning(f"Channel {ch_name} has insufficient data points ({len(data)}). Skipping.")
-                exclusion_log.append({
-                    'participant_id': 'unknown', # Fallback if participant ID not in filename
-                    'channel': ch_name,
-                    'reason': f'Insufficient data points: {len(data)}',
-                    'timestamp': datetime.now().isoformat()
-                })
+            # Filter out NaNs and Inf
+            valid_mask = np.isfinite(data)
+            if np.sum(valid_mask) < 100: # Need enough data points
+                logger.warning(f"Skipping channel {ch_name} for {participant_id}: insufficient valid data.")
                 continue
             
+            valid_data = data[valid_mask]
+            
             # Calculate LZC
-            lzc_val = calculate_lzc(data)
+            lzc_value = calculate_lempel_ziv_complexity(valid_data, threshold=None)
+            
             results.append({
-                'participant_id': Path(raw_data_path).stem, # Use filename as participant ID
+                'participant_id': participant_id,
                 'channel': ch_name,
-                'metric_type': 'LZC',
-                'value': lzc_val
+                'lzc_value': lzc_value
             })
-            
-            # Calculate Permutation Entropy (optional, but requested in task context)
-            # Only if the task implies calculating both or if we are extending features
-            # The task specifically asks for LZC, but T016 is PE. We'll calculate PE here too
-            # if the function is called, or just LZC if we are strictly T015.
-            # Since T015 is strictly LZC, we will focus on LZC here.
-            # However, the existing API has both. We will calculate LZC as primary.
-            
-        except Exception as e:
-            logger.error(f"Error processing channel {ch_name}: {e}")
-            exclusion_log.append({
-                'participant_id': Path(raw_data_path).stem,
-                'channel': ch_name,
-                'reason': f'Processing error: {str(e)}',
-                'timestamp': datetime.now().isoformat()
-            })
-            continue
-
-    # Log exclusions
-    if exclusion_log:
-        save_exclusion_log_csv(exclusion_log, "logs/exclusion_log.csv")
-
+    
     return results
 
-def save_metrics_to_csv(results: List[Dict[str, Any]], output_path: str, metric_type: str = 'LZC') -> None:
+def save_metrics_to_csv(metrics, output_path):
     """
-    Save calculated metrics to a CSV file.
+    Save metrics to a CSV file.
     
     Args:
-        results: List of result dictionaries.
+        metrics: List of dictionaries with metrics.
         output_path: Path to the output CSV file.
-        metric_type: Type of metric (e.g., 'LZC', 'PE').
     """
-    if not results:
-        logger = logging.getLogger(__name__)
-        logger.warning("No results to save.")
-        # Create an empty file with headers to satisfy downstream checks
-        df = pd.DataFrame(columns=['participant_id', 'channel', 'lzc_value' if metric_type == 'LZC' else 'pe_value'])
-        df.to_csv(output_path, index=False)
-        return
-
-    # Filter results for the specific metric type if necessary
-    filtered_results = [r for r in results if r.get('metric_type') == metric_type]
+    if not metrics:
+        raise ValueError("No metrics to save.")
     
-    if not filtered_results:
-        logger = logging.getLogger(__name__)
-        logger.warning(f"No {metric_type} results found to save.")
-        df = pd.DataFrame(columns=['participant_id', 'channel', 'lzc_value' if metric_type == 'LZC' else 'pe_value'])
-        df.to_csv(output_path, index=False)
-        return
-
-    # Convert to DataFrame
-    df = pd.DataFrame(filtered_results)
+    df = pd.DataFrame(metrics)
+    # Ensure correct column order
+    df = df[['participant_id', 'channel', 'lzc_value']]
     
-    # Rename columns to match the required schema
-    if metric_type == 'LZC':
-        df = df.rename(columns={'value': 'lzc_value'})
-        df = df[['participant_id', 'channel', 'lzc_value']]
-    elif metric_type == 'PE':
-        df = df.rename(columns={'value': 'pe_value'})
-        df = df[['participant_id', 'channel', 'pe_value']]
-    
-    # Ensure correct types
-    df['participant_id'] = df['participant_id'].astype(str)
-    df['channel'] = df['channel'].astype(str)
-    if metric_type == 'LZC':
-        df['lzc_value'] = pd.to_numeric(df['lzc_value'], errors='coerce')
-    else:
-        df['pe_value'] = pd.to_numeric(df['pe_value'], errors='coerce')
-
     # Ensure output directory exists
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
     
-    # Write to CSV
     df.to_csv(output_path, index=False)
-    logger = logging.getLogger(__name__)
-    logger.info(f"Saved {len(df)} {metric_type} metrics to {output_path}")
+    logging.info(f"Saved metrics to {output_path}")
 
 def main():
-    """Main entry point for the feature extraction pipeline."""
-    logger = setup_logger("features", "logs/features.log")
+    """Main entry point for feature extraction."""
+    logger = setup_logger('features', 'logs/features.log')
     logger.info("Starting Permutation Entropy and LZC calculation pipeline")
     
+    config = load_config()
+    
+    input_file = Path("data/processed/cleaned_eeg.fif")
+    output_file = Path("data/processed/lzc_metrics.csv")
+    
+    # Check if input file exists
+    if not input_file.exists():
+        logger.error(f"Processed data directory not found: {input_file.parent}")
+        logger.error(f"Missing file: {input_file}")
+        sys.exit(1)
+    
     try:
-        config = load_config()
+        # Load the preprocessed data
+        # The file might contain multiple subjects or a single subject
+        # We assume it's a single concatenated file or we need to split it
+        # For MNE, we usually load a Raw object
+        raw = mne.io.read_raw_fif(input_file, preload=False)
         
-        # Paths
-        processed_dir = Path("data/processed")
-        cleaned_eeg_path = processed_dir / "cleaned_eeg.fif"
-        lzc_output_path = processed_dir / "lzc_metrics.csv"
-        pe_output_path = processed_dir / "pe_metrics.csv"
+        # If the file contains multiple subjects, we might need to split them
+        # For this implementation, we assume the file contains one continuous recording
+        # or we process it as a single unit.
+        # If the file has multiple subjects, the naming convention in the filename
+        # or metadata should indicate this. We'll process the loaded raw object.
         
-        # Check if processed data exists
-        if not cleaned_eeg_path.exists():
-            logger.error(f"Processed data directory not found: {processed_dir}")
-            logger.error(f"Missing file: {cleaned_eeg_path}")
-            sys.exit(1)
+        # If the file is a list of files (not typical for .fif), we would iterate.
+        # Assuming raw is a single Raw object here.
         
-        # Process EEG segments
-        results = process_eeg_segments(str(cleaned_eeg_path), config, logger)
+        logger.info(f"Loaded EEG data: {input_file}")
+        logger.info(f"Channels: {raw.ch_names}")
+        logger.info(f"Duration: {raw.times[-1]:.2f}s")
         
-        # Save LZC metrics
-        save_metrics_to_csv(results, str(lzc_output_path), metric_type='LZC')
+        # Process segments
+        metrics = process_eeg_segments(raw, config, logger)
         
-        # Save PE metrics (for completeness, though T015 is specifically LZC)
-        # T016 will handle PE specifically, but since the function exists, we can run it
-        # if we want to be thorough, but strictly T015 is LZC.
-        # We will save PE if we calculated it, but the primary output for T015 is LZC.
-        # To be safe and avoid cluttering T015 with T016 logic, we'll just ensure LZC is saved.
-        # However, the existing API has both. Let's assume the task implies running the full
-        # feature extraction if both are available, but the verification is on LZC.
-        # We'll save PE as well if the logic was run, but the task specifically asks for LZC output.
-        # Let's stick to the task: Output to data/processed/lzc_metrics.csv.
+        # Save to CSV
+        save_metrics_to_csv(metrics, output_file)
         
-        logger.info("Feature extraction pipeline completed successfully")
+        logger.info(f"Successfully calculated LZC for {len(metrics)} channel-participant pairs.")
         
     except Exception as e:
-        logger.error(f"Pipeline failed: {e}")
-        import traceback
-        traceback.print_exc()
+        logger.error(f"Error during feature extraction: {e}", exc_info=True)
         sys.exit(1)
 
 if __name__ == "__main__":

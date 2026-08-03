@@ -1,4 +1,6 @@
-# Models package initialization
+"""
+Models package for data structures.
+"""
 from .complexity_metric import MetricType, ComplexityMetric
 from .eeg_segment import EEGSegment
 

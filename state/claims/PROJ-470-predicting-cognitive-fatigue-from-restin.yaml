@@ -1219,3 +1219,312 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-18T21:21:21Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/specs/001-predicting-cognitive-fatigue-from-restin/tasks.md
+  attempts: 1
+  canonical: 'Check for specific column name variations: pre_fatigue, fatigue_pre,
+    baseline_fatigue, post_fatigue, fatigue_post, end_fatigue'
+  claim_id: c_e5359b80
+  context: T010 [US1] ...The script MUST check for ANY of the following column name
+    variations...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Check_for_specific_column_name_variations:_pre_fatigue,_fati
+  kind: entity_fact
+  raw_text: 'The script MUST check for ANY of the following column name variations
+    for pre/post fatigue ratings: pre_fatigue, fatigue_pre, baseline_fatigue, post_fatigue,
+    fatigue_post, end_fatigue.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T08:38:20Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/specs/001-predicting-cognitive-fatigue-from-restin/tasks.md
+  attempts: 1
+  canonical: Exit with code 1 and log validation_report.json if dataset lacks required
+    variables or has insufficient sample size
+  claim_id: c_2121f4a8
+  context: T010 [US1] ...If the dataset lacks the required variables or yields an
+    insufficient sample size, the script MUST exit with code 1...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If the dataset lacks the required variables or yields an insufficient
+    sample size, the script MUST exit with code 1 (halt) and log validation_report.json.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T08:39:13Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/specs/001-predicting-cognitive-fatigue-from-restin/tasks.md
+  attempts: 1
+  canonical: Filtered signal 50Hz peak power at least 20dB lower than raw signal 50Hz
+    peak power
+  claim_id: c_b72c7b91
+  context: 'T011 [US1] Verification: ...Assert that the peak power at 50Hz in the
+    filtered signal is at least 20dB lower than the peak power at 50Hz in the raw
+    synthetic signal.'
+  evidence:
+    candidates:
+    - - Create account Log in Filtered signal
+      - 50.0
+    - - Filtered signal 50Hz peak power at least
+      - 20.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Filtered_signal_50Hz_peak_power_at_least_20dB_lower_than_raw
+  kind: magnitude
+  raw_text: The peak power at 50Hz in the filtered signal must be at least 20dB lower
+    than the peak power at 50Hz in the raw synthetic signal.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-08-03T08:39:56Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/specs/001-predicting-cognitive-fatigue-from-restin/tasks.md
+  attempts: 1
+  canonical: Apply bandpass filter with range 1-40 Hz
+  claim_id: c_6279ebe2
+  context: T011 [US1] Implement code/preprocess.py to apply a bandpass filter (1-40
+    Hz)...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The preprocessing script must apply a bandpass filter with a range of
+    1-40 Hz.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T08:40:12Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/specs/001-predicting-cognitive-fatigue-from-restin/tasks.md
+  attempts: 1
+  canonical: "Exclude epochs with amplitude greater than \xB1100\xB5V"
+  claim_id: c_678f977d
+  context: "T012 [US1] Implement artifact rejection logic in code/preprocess.py to\
+    \ exclude epochs >\xB1100\xB5V..."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exclude_epochs_with_amplitude_greater_than_%C2%B1100%C2%B5V
+  kind: magnitude
+  raw_text: "Artifact rejection logic must exclude epochs with amplitude greater than\
+    \ \xB1100\xB5V."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T08:40:35Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/specs/001-predicting-cognitive-fatigue-from-restin/tasks.md
+  attempts: 1
+  canonical: Exclude segments shorter than 120 seconds
+  claim_id: c_95365a3b
+  context: T012 [US1] ...and segments <120 seconds per FR-002...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Artifact rejection logic must exclude segments shorter than 120 seconds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T08:40:52Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/specs/001-predicting-cognitive-fatigue-from-restin/tasks.md
+  attempts: 1
+  canonical: Lempel-Ziv complexity metrics output must contain data for at least 30
+    participants
+  claim_id: c_0405854e
+  context: "T015 [US2] ...The output MUST contain data for N\u226530 participants\
+    \ when run on the full dataset."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Lempel-Ziv_complexity_metrics_output_must_contain_data_for_a
+  kind: magnitude
+  raw_text: "The output lzc_metrics.csv must contain data for N\u226530 participants\
+    \ when run on the full dataset."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T08:41:21Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/specs/001-predicting-cognitive-fatigue-from-restin/tasks.md
+  attempts: 1
+  canonical: Permutation entropy metrics output must contain data for at least 30
+    participants
+  claim_id: c_9d57f040
+  context: "T016 [US2] ...The output MUST contain data for N\u226530 participants\
+    \ when run on the full dataset."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Permutation_entropy_metrics_output_must_contain_data_for_at
+  kind: magnitude
+  raw_text: "The output pe_metrics.csv must contain data for N\u226530 participants\
+    \ when run on the full dataset."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T08:41:48Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/specs/001-predicting-cognitive-fatigue-from-restin/tasks.md
+  attempts: 1
+  canonical: Primary statistical output is Pearson or Spearman correlation between
+    complexity changes and fatigue delta scores
+  claim_id: c_0fff9a03
+  context: T019 [US3] ...The primary statistical output MUST be Pearson or Spearman
+    correlation between complexity changes (delta) and fatigue delta scores...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Primary_statistical_output_is_Pearson_or_Spearman_correlatio
+  kind: entity_fact
+  raw_text: The primary statistical output MUST be Pearson or Spearman correlation
+    between complexity changes (delta) and fatigue delta scores.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T08:42:09Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/specs/001-predicting-cognitive-fatigue-from-restin/tasks.md
+  attempts: 1
+  canonical: "Sensitivity analysis generated at p\u22640.05 and p\u22640.01 thresholds"
+  claim_id: c_6b32f032
+  context: "T022 [US3] Implement sensitivity analysis at p\u22640.05 and p\u22640.01\
+    \ thresholds..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The sensitivity analysis table must be generated at p\u22640.05 and p\u2264\
+    0.01 thresholds."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T08:42:09Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/specs/001-predicting-cognitive-fatigue-from-restin/tasks.md
+  attempts: 1
+  canonical: Pipeline runtime must be less than or equal to 6 hours
+  claim_id: c_6f13c82b
+  context: "T036 [US3] Verify total pipeline runtime \u2264 6 hours (SC-002)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_runtime_must_be_less_than_or_equal_to_6_hours
+  kind: magnitude
+  raw_text: "The pipeline runtime must be verified to be \u2264 6 hours."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T08:42:27Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/specs/001-predicting-cognitive-fatigue-from-restin/tasks.md
+  attempts: 1
+  canonical: Peak memory usage must be less than or equal to 7 GB
+  claim_id: c_7b4e5eeb
+  context: "T027 [US3] ...Verify streaming data loading in code/preprocess.py ensures\
+    \ peak memory usage \u2264 7 GB..."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Peak_memory_usage_must_be_less_than_or_equal_to_7_GB
+  kind: magnitude
+  raw_text: "Peak memory usage must be verified to be \u2264 7 GB during processing."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T08:42:55Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/specs/001-predicting-cognitive-fatigue-from-restin/tasks.md
+  attempts: 1
+  canonical: line noise attenuation at 50 Hz at least 20 dB
+  claim_id: c_5d5b0585
+  context: 'Independent Test: Run preprocessing on a single sample EEG file; verify
+    50Hz line noise peak is attenuated by >20dB in output spectrum.'
+  evidence:
+    candidates:
+    - - Log in Line noise attenuation at
+      - 50.0
+    - - Line noise attenuation at 50 Hz at least
+      - 20.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Line_noise_attenuation_at_50_Hz_at_least_20_dB
+  kind: magnitude
+  raw_text: Assert that the peak power at 50Hz in the filtered signal is at least
+    20dB lower than the peak power at 50Hz in the raw synthetic signal.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-08-03T08:45:24Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/specs/001-predicting-cognitive-fatigue-from-restin/tasks.md
+  attempts: 1
+  canonical: minimum sample size 30 participants for feature extraction
+  claim_id: c_8478f4a1
+  context: "Verification: Assert data/processed/lzc_metrics.csv exists, is non\u2011\
+    empty, and contains the three columns in the specified order. The output MUST\
+    \ contain data for N\u226530 participants when run on the full dataset."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The output MUST contain data for N\u226530 participants when run on the\
+    \ full dataset."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T08:45:24Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/specs/001-predicting-cognitive-fatigue-from-restin/tasks.md
+  attempts: 1
+  canonical: peak memory usage limit 7 GB for N 30
+  claim_id: c_ddc392f7
+  context: "T027 [US3] [Depends: T026a, T019, T020, T021, T022, T023] Verify streaming\
+    \ data loading in code/preprocess.py ensures peak memory usage \u2264 7 GB (per\
+    \ DC\u2011001 and SC\u2011003) (targeting DC\u2011001)."
+  evidence:
+    candidates:
+    - - Peak memory usage limit 7 GB for N
+      - 30.0
+    - - Look for Peak memory usage limit
+      - 7.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Peak_memory_usage_limit_7_GB_for_N_30
+  kind: magnitude
+  raw_text: Assert peak memory usage stays below 7GB during processing of a dataset
+    containing at least N=30 participants.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-08-03T08:46:10Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/specs/001-predicting-cognitive-fatigue-from-restin/tasks.md
+  attempts: 1
+  canonical: total pipeline runtime limit 6 hours
+  claim_id: c_a7d7efca
+  context: "T036 [US3] [Depends: T026a, T019, T020, T021, T022, T023] Verify total\
+    \ pipeline runtime \u2264 6 hours (SC-002)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Assert the total runtime recorded in profile_report.json (or a new runtime_report.json)\
+    \ is \u2264 6 hours."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T08:46:10Z'

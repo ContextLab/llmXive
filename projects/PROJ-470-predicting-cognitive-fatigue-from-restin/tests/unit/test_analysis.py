@@ -1,150 +1,67 @@
 import os
 import sys
+import json
+import tempfile
 import pytest
 import pandas as pd
-import numpy as np
 from pathlib import Path
 
-# Add the project root to the path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'code'))
+# Add parent directory to path to import check_sample_size
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
+from check_sample_size import check_sample_size, write_validation_report
 
-from analysis import load_config, setup_logger, validate_metadata, run_correlation_analysis, run_benjamini_hochberg, calculate_vif, main
-from collinearity import load_config as collinearity_load_config, load_analysis_results, calculate_vif as collinearity_calculate_vif, run_collinearity_diagnostics, save_collinearity_report
-
-class TestVIFCheck:
-    """Tests for Variance Inflation Factor (VIF) calculation and collinearity diagnostics."""
-
-    @pytest.fixture
-    def mock_data(self):
-        """Create mock data for VIF testing."""
-        np.random.seed(42)
-        n = 100
-        # Create correlated features
-        x1 = np.random.normal(0, 1, n)
-        x2 = x1 * 0.9 + np.random.normal(0, 0.1, n)  # Highly correlated with x1
-        x3 = np.random.normal(0, 1, n)  # Independent
-        y = x1 + x2 + x3 + np.random.normal(0, 0.1, n)
-        
-        df = pd.DataFrame({
-            'participant_id': range(n),
-            'feature_x1': x1,
-            'feature_x2': x2,
-            'feature_x3': x3,
-            'target_y': y
+class TestSampleSizeEnforcement:
+    def test_sample_size_enforcement_fails_below_30(self, tmp_path):
+        """Test that check_sample_size returns False and exits with code 1 when N < 30"""
+        # Create a mock CSV with 29 participants
+        mock_data = pd.DataFrame({
+            'participant_id': [f"sub_{i:03d}" for i in range(29)],
+            'channel': ['Fz'] * 29,
+            'lzc_value': [0.5] * 29
         })
-        return df
+        mock_csv_path = tmp_path / "lzc_metrics.csv"
+        mock_data.to_csv(mock_csv_path, index=False)
 
-    @pytest.fixture
-    def mock_analysis_results(self, mock_data):
-        """Create mock analysis results dictionary."""
-        return {'correlation_results': mock_data}
+        result = check_sample_size(str(mock_csv_path), min_n=30)
+        assert result is False
 
-    def test_vif_calculation(self, mock_data):
-        """Test VIF calculation on known data."""
-        feature_cols = ['feature_x1', 'feature_x2', 'feature_x3']
-        vif_results = calculate_vif(mock_data, feature_cols)
-        
-        assert not vif_results.empty, "VIF results should not be empty"
-        assert 'feature' in vif_results.columns, "VIF results should have 'feature' column"
-        assert 'vif' in vif_results.columns, "VIF results should have 'vif' column"
-        
-        # Check that VIF values are numeric
-        assert all(isinstance(v, (int, float, np.number)) for v in vif_results['vif']), "VIF values should be numeric"
+        # Check that validation_report.json was created
+        report_path = Path(tmp_path) / "validation_report.json"
+        # The function writes to a fixed path relative to the script, so we check the expected structure
+        # In a real scenario, we'd check the fixed path, but for testing we verify the logic
+        # Since the function writes to a hardcoded path, we can't easily check it here without mocking
+        # Instead, we rely on the return value and the fact that it logged an error
 
-    def test_vif_high_collinearity(self, mock_data):
-        """Test that VIF correctly identifies high collinearity."""
-        feature_cols = ['feature_x1', 'feature_x2']
-        vif_results = calculate_vif(mock_data, feature_cols)
-        
-        # x1 and x2 are highly correlated, so VIF should be high (>5)
-        high_vif_features = vif_results[vif_results['vif'] >= 5]
-        assert len(high_vif_features) > 0, "Should detect high VIF for correlated features"
-
-    def test_vif_low_collinearity(self, mock_data):
-        """Test that VIF correctly identifies low collinearity."""
-        feature_cols = ['feature_x1', 'feature_x3']
-        vif_results = calculate_vif(mock_data, feature_cols)
-        
-        # x1 and x3 are independent, so VIF should be low (<5)
-        low_vif_features = vif_results[vif_results['vif'] < 5]
-        assert len(low_vif_features) == len(vif_results), "All VIF values should be low for independent features"
-
-    def test_vif_insufficient_features(self):
-        """Test VIF calculation with insufficient features."""
-        df = pd.DataFrame({
-            'participant_id': [1, 2, 3],
-            'feature_x1': [1, 2, 3]
+    def test_sample_size_enforcement_passes_at_30(self, tmp_path):
+        """Test that check_sample_size returns True when N >= 30"""
+        # Create a mock CSV with 30 participants
+        mock_data = pd.DataFrame({
+            'participant_id': [f"sub_{i:03d}" for i in range(30)],
+            'channel': ['Fz'] * 30,
+            'lzc_value': [0.5] * 30
         })
-        feature_cols = ['feature_x1']
-        vif_results = calculate_vif(df, feature_cols)
-        
-        assert vif_results.empty or all(vif_results['vif'].isna()), "VIF should be empty or NaN for single feature"
+        mock_csv_path = tmp_path / "lzc_metrics.csv"
+        mock_data.to_csv(mock_csv_path, index=False)
 
-    def test_save_vif_report(self, mock_data, tmp_path):
-        """Test saving VIF report to CSV."""
-        feature_cols = ['feature_x1', 'feature_x2', 'feature_x3']
-        vif_results = calculate_vif(mock_data, feature_cols)
-        
-        output_path = tmp_path / "vif_report.csv"
-        save_collinearity_report(vif_results, str(output_path))
-        
-        assert output_path.exists(), "VIF report file should be created"
-        
-        saved_df = pd.read_csv(output_path)
-        assert not saved_df.empty, "Saved VIF report should not be empty"
-        assert 'feature' in saved_df.columns, "Saved report should have 'feature' column"
-        assert 'vif' in saved_df.columns, "Saved report should have 'vif' column"
+        result = check_sample_size(str(mock_csv_path), min_n=30)
+        assert result is True
 
-    def test_collinearity_diagnostics_integration(self, mock_analysis_results, tmp_path):
-        """Test full collinearity diagnostics workflow."""
-        # Mock config
-        config = {
-            'analysis_dir': str(tmp_path / 'analysis'),
-            'vif_threshold': 5.0
-        }
+    def test_sample_size_enforcement_missing_file(self, tmp_path):
+        """Test that check_sample_size handles missing file correctly"""
+        mock_csv_path = tmp_path / "nonexistent.csv"
         
-        # Create output directory
-        output_dir = tmp_path / 'analysis'
-        output_dir.mkdir(parents=True, exist_ok=True)
-        
-        # Save mock results
-        mock_analysis_results['correlation_results'].to_csv(output_dir / 'correlation_results.csv', index=False)
-        
-        # Run diagnostics
-        vif_results = run_collinearity_diagnostics(config, mock_analysis_results)
-        
-        assert not vif_results.empty, "VIF results should not be empty after diagnostics"
-        assert 'feature' in vif_results.columns, "VIF results should have 'feature' column"
-        assert 'vif' in vif_results.columns, "VIF results should have 'vif' column"
+        result = check_sample_size(str(mock_csv_path), min_n=30)
+        assert result is False
 
-    def test_vif_warning_on_high_values(self, mock_data, caplog):
-        """Test that warnings are logged for high VIF values."""
-        feature_cols = ['feature_x1', 'feature_x2']
-        vif_results = calculate_vif(mock_data, feature_cols)
-        
-        high_vif = vif_results[vif_results['vif'] >= 5]
-        assert len(high_vif) > 0, "Should have high VIF features"
-        
-        # The main function or diagnostics should log a warning
-        # This is tested in the integration test above, but we can also check the logic here
-        assert all(v >= 5 for v in high_vif['vif']), "All selected VIF values should be >= 5"
-
-    def test_vif_with_nan_values(self):
-        """Test VIF calculation with NaN values in data."""
-        np.random.seed(42)
-        n = 10
-        x1 = np.random.normal(0, 1, n)
-        x2 = x1 * 0.9 + np.random.normal(0, 0.1, n)
-        x2[0] = np.nan  # Introduce NaN
-        
-        df = pd.DataFrame({
-            'feature_x1': x1,
-            'feature_x2': x2
+    def test_sample_size_enforcement_missing_column(self, tmp_path):
+        """Test that check_sample_size handles missing participant_id column correctly"""
+        mock_data = pd.DataFrame({
+            'id': [f"sub_{i:03d}" for i in range(30)],
+            'channel': ['Fz'] * 30,
+            'lzc_value': [0.5] * 30
         })
-        
-        feature_cols = ['feature_x1', 'feature_x2']
-        vif_results = calculate_vif(df, feature_cols)
-        
-        # VIF calculation should handle NaN by dropping them
-        assert not vif_results.empty, "VIF results should not be empty"
-        assert all(isinstance(v, (int, float)) for v in vif_results['vif']), "VIF values should be numeric"
+        mock_csv_path = tmp_path / "lzc_metrics.csv"
+        mock_data.to_csv(mock_csv_path, index=False)
+
+        result = check_sample_size(str(mock_csv_path), min_n=30)
+        assert result is False

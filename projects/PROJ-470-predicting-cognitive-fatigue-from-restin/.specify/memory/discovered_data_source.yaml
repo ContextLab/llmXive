@@ -1,18 +1,18 @@
 status: none
-intent: download resting state EEG with fatigue ratings dataset PhysioNet CIRCOR Digiscope
-  PVT python package dataset
+intent: PhysioNet resting state EEG with fatigue ratings PVT CIRCOR Digiscope python
+  package dataset
 required_fields:
 - participant_id
-- session_id
 - eeg_data
-- channel_names
-- sampling_rate
-- recording_start_time
-- recording_end_time
+- eeg_sampling_rate
+- eeg_channels
+- recording_condition
 - fatigue_rating_pre
 - fatigue_rating_post
-- fatigue_scale
-- task_type
-cache_key: 5246f5c3e73275d921a85d5acf7052c7128356a25f0f5499e2b7ca29292a9b8a
-searched_at: '2026-07-25T10:18:36.500745+00:00'
+- sustained_attention_task
+- task_performance_metrics
+- timestamp_start
+- timestamp_end
+cache_key: 2f4a58a0b78f932bc4d83fb6238282fc6a215d4e1c0b671c54999066284b0c29
+searched_at: '2026-08-03T08:30:52.372920+00:00'
 retry_count: 1

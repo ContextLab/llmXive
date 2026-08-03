@@ -1,3 +1,12 @@
+T010:
+  c: false
+  h: 4c4d3141aacc2addbe782951ab5aa0e5e399696d104d2dd21f1986d29f3fbd26
+  r: "The provided `code/download.py` stops after reading the CSV header and does\
+    \ not contain the required logic to check for fatigue rating columns, count participants,\
+    \ exit with code\u202F1, write the exact `validation_report.json`, or generate\
+    \ `data/processed/participant_exclusion_log.csv`. Moreover, the exclusion log\
+    \ file is absent from the repository. These critical artifacts and behaviors are\
+    \ missing, so the task is not satisfied."
 T011:
   c: false
   h: 0e4480e12ca3457e7c3ed8e3f6a2c312cbd732b361add669c968fdc4ceb269ba
@@ -15,15 +24,14 @@ T014:
     \ and is truncated). Consequently the script does not meet the specification of\
     \ calculating LZC per channel and writing the results to the CSV. The missing\
     \ CSV and absent LZC logic must be added."
-T016:
+T015:
   c: false
-  h: e63e29db0d5bf20f804f8a83923d9f5b6db89655eb6f8927d0751b1353e53795
-  r: "The repository lacks the required output file `data/processed/pe_metrics.csv`\
-    \ and the input file `data/processed/cleaned_eeg.fif`. Moreover, `code/features.py`\
-    \ is incomplete: the `calculate_permutation_entropy` function is truncated and\
-    \ there is no code that iterates over participants/channels, computes PE, and\
-    \ writes the CSV with the specified schema. Consequently the task\u2019s functional\
-    \ and testing requirements are not met."
+  h: c26ce5a36ebb31b95d02ee5dadfb30245e6dd0b558997740f56010bd58132352
+  r: "The required output file `data/processed/lzc_metrics.csv` is missing, and the\
+    \ input file `data/processed/cleaned_eeg.fif` that the script must process also\
+    \ does not exist. Consequently the script cannot be executed to produce the mandated\
+    \ CSV, and no unit\u2011test artifacts are present. The implementation therefore\
+    \ does not satisfy the task requirements."
 T020:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -46,3 +54,11 @@ T024:
     that any documentation covering pipeline parameters, data sources, or statistical
     interpretation guidelines exists. The required artifact is missing, so the task
     is not satisfied.
+T026a:
+  c: false
+  h: 8a7930f89d0e0b5374ce983e9a45edffb189ce6b9034033b6bf399a2bcfa26ab
+  r: "The provided unit test only checks the boolean return value of `check_sample_size`\
+    \ and does not verify that the script exits with code\u202F1 or writes `validation_report.json`\
+    \ containing the required message. Moreover, the actual implementation file (`check_sample_size.py`)\
+    \ is not shown, and the required data file `data/processed/lzc_metrics.csv` is\
+    \ missing. The task\u2019s verification criteria are therefore not satisfied."

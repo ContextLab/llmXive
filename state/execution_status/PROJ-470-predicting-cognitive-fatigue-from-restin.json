@@ -1,20 +1,18 @@
 {
   "project_id": "PROJ-470-predicting-cognitive-fatigue-from-restin",
   "ok": false,
-  "reason": "5 command(s) failed: python code/download.py (rc=1); python code/preprocess.py (rc=1); python code/features.py (rc=1); 1 declared deliverable(s) absent: data/processed/lzc_metrics.csv",
+  "reason": "3 command(s) failed: python code/download.py (rc=1); python code/features.py (rc=1); python code/analysis.py (rc=1); 1 declared deliverable(s) absent: data/processed/lzc_metrics.csv",
   "artifacts": [],
   "failures": [
     "python code/download.py -> rc=1\n    ",
-    "python code/preprocess.py -> rc=1\n    2026-07-25 10:14:41,440 - preprocess - INFO - Starting preprocessing pipeline\n2026-07-25 10:14:41,442 - preprocess - WARNING - No EEG files found in data/raw\n2026-07-25 10:14:41,442 - preprocess - ERROR - Pipeline failed: save_exclusion_log_csv() takes 1 positional argument but 2 were given",
-    "python code/features.py -> rc=1\n    2026-07-25 10:14:43,046 - features - INFO - Starting Permutation Entropy calculation pipeline\n2026-07-25 10:14:43,046 - features - ERROR - Processed data directory not found: data/processed",
-    "python code/analysis.py -> rc=1\n    2026-07-25 10:14:44,183 - __main__ - INFO - Starting analysis pipeline.\n2026-07-25 10:14:44,183 - __main__ - ERROR - Features file not found: data/processed/lzc_metrics.csv\n\nINFO:__main__:Starting analysis pipeline.\nERROR:__main__:Features file not found: data/processed/lzc_metrics.csv",
-    "python code/report.py -> rc=1\n    "
+    "python code/features.py -> rc=1\n    2026-08-03 08:29:52,817 - features - INFO - Starting Permutation Entropy and LZC calculation pipeline\n2026-08-03 08:29:52,818 - features - ERROR - Processed data directory not found: data/processed\n2026-08-03 08:29:52,818 - features - ERROR - Missing file: data/processed/cleaned_eeg.fif",
+    "python code/analysis.py -> rc=1\n    2026-08-03 08:29:53,462 - __main__ - INFO - Starting analysis pipeline.\n2026-08-03 08:29:53,462 - __main__ - ERROR - Features file not found: data/processed/lzc_metrics.csv\n\nINFO:__main__:Starting analysis pipeline.\nERROR:__main__:Features file not found: data/processed/lzc_metrics.csv"
   ],
-  "fix_rounds": 5,
+  "fix_rounds": 6,
   "model_tier": 0,
-  "total_attempts": 5,
+  "total_attempts": 6,
   "replan_rounds": 0,
   "failure_class": "execution_bug",
   "evidence": [],
-  "updated_at": "2026-07-25T10:14:45Z"
+  "updated_at": "2026-08-03T08:29:54Z"
 }
