@@ -1,42 +1,41 @@
 import os
 import pytest
-from config import get_config
+import sys
 
-def test_data_directories_exist():
-    """Test that required data directories exist after setup."""
-    config = get_config()
-    data_dirs = [
-        config['data']['raw'],
-        config['data']['processed'],
-        config['data']['assets']
-    ]
-    
-    for dir_path in data_dirs:
-        assert os.path.exists(dir_path), f"Directory {dir_path} does not exist"
-        assert os.path.isdir(dir_path), f"{dir_path} is not a directory"
+# Add project root to path if running from tests/
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-def test_code_directories_exist():
-    """Test that required code and test directories exist."""
-    config = get_config()
-    required_dirs = [
-        config['paths']['code'],
-        config['paths']['tests'],
-        config['paths']['artifacts']
-    ]
-    
-    for dir_path in required_dirs:
-        assert os.path.exists(dir_path), f"Directory {dir_path} does not exist"
-        assert os.path.isdir(dir_path), f"{dir_path} is not a directory"
+from config import get_config, ensure_directories
 
-def test_artifacts_directories_exist():
-    """Test that required artifacts directories exist."""
-    config = get_config()
-    artifacts_dirs = [
-        config['paths']['artifacts'],
-        os.path.join(config['paths']['artifacts'], 'logs'),
-        os.path.join(config['paths']['artifacts'], 'metrics')
+@pytest.fixture
+def config():
+    return get_config()
+
+def test_required_directories_exist(config):
+    """
+    Verify that the directories required by T001a and T001b exist.
+    T001a: data/raw, data/processed, data/assets
+    T001b: code, artifacts, tests
+    """
+    required_paths = [
+        os.path.join(config.project_root, "data", "raw"),
+        os.path.join(config.project_root, "data", "processed"),
+        os.path.join(config.project_root, "data", "assets"),
+        os.path.join(config.project_root, "code"),
+        os.path.join(config.project_root, "artifacts"),
+        os.path.join(config.project_root, "tests"),
     ]
+
+    for path in required_paths:
+        assert os.path.exists(path), f"Required directory does not exist: {path}"
+        assert os.path.isdir(path), f"Path exists but is not a directory: {path}"
+
+def test_ensure_directories_creates_missing(config, tmp_path):
+    """Test that ensure_directories actually creates directories."""
+    test_dir = os.path.join(tmp_path, "new_dir")
+    assert not os.path.exists(test_dir)
     
-    for dir_path in artifacts_dirs:
-        assert os.path.exists(dir_path), f"Directory {dir_path} does not exist"
-        assert os.path.isdir(dir_path), f"{dir_path} is not a directory"
+    ensure_directories([test_dir])
+    
+    assert os.path.exists(test_dir)
+    assert os.path.isdir(test_dir)

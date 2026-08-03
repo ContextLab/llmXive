@@ -42,14 +42,3 @@
   verification_status: pending
   verified_against_url: https://download.pytorch.org/whl/cpu
   verified_at: '2026-07-11T20:29:45.156076Z'
-- artifact_hash: 7d8c9d82886eb20e5ca0ad1614d20c872604ec112c7a5e4d2259d8bbd32df965
-  artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://huggingface.co/datasets/chembench/reactive_substructures/resolve/main/reference_set.csv`
-  verification_status: pending
-  verified_against_url: https://huggingface.co/datasets/chembench/reactive_substructures/resolve/main/reference_set.csv
-  verified_at: '2026-08-01T09:33:06.490826Z'

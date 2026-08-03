@@ -12,7 +12,7 @@ This project implements a CPU-feasible pipeline to predict molecular reactivity 
 **Primary Dependencies**: `torch` (CPU-only), `rdkit`, `scikit-learn`, `pandas`, `pytorch-geometric` (CPU wheels), `numpy`, `scipy`  
 **Storage**: Local filesystem (`data/`), serialized as Parquet/JSON  
 **Testing**: `pytest` (unit), `pytest-cov`  
-**Target Platform**: GitHub Actions Free Tier (Linux, 2 vCPU, 7 GB RAM)  
+**Target Platform**: GitHub Actions Free Tier (Linux, multiple vCPU, 7 GB RAM)  
 **Project Type**: Computational Research Pipeline / Library  
 **Performance Goals**: End-to-end runtime ≤ 6 hours; Memory peak ≤ 4 GB  
 **Constraints**: No GPU/CUDA; No deep learning frameworks requiring heavy dependencies (e.g., TensorFlow); Dataset subset to a manageable size to fit memory.  

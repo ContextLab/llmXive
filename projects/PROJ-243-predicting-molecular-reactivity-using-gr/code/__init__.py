@@ -1,4 +1,2 @@
-"""
-llmXive Project: Predicting Molecular Reactivity
-Code package for data processing, model training, and analysis.
-"""
+# Code package for PROJ-243-predicting-molecular-reactivity-using-gr
+# This file marks the code directory as a Python package.

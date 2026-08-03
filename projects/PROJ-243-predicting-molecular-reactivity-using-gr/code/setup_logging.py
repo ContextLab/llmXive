@@ -1,3 +1,9 @@
+"""
+Script to initialize the logging infrastructure for the project.
+
+This script ensures that the logging directories exist and the
+logging utility is properly configured.
+"""
 import sys
 import os
 from datetime import datetime
@@ -6,24 +12,21 @@ from config import ensure_directories
 
 def main():
     """
-    Initialize the logging infrastructure for the project.
-    This script ensures that the required directories exist and
-    configures the global logger to write to artifacts/logs and artifacts/metrics.json.
+    Main entry point for setup_logging.
     """
-    # Ensure standard directories exist as per project setup
+    # Ensure directories exist
     ensure_directories()
     
-    # Initialize logging
-    logger = setup_logging(
-        log_dir="artifacts/logs",
-        metrics_file="artifacts/metrics.json"
-    )
+    # Setup logging
+    logger = setup_logging(run_id="init")
+    logger.info("Logging infrastructure setup started.")
     
-    logger.info("Logging infrastructure setup complete.")
-    log_metric("setup_complete", True, metadata={"task": "T008", "timestamp": datetime.now().isoformat()})
+    # Log initialization metric
+    log_metric("logging_setup", "initialized", tags={"status": "success"})
+    flush_metrics()
     
-    print("Logging setup complete. Logs will be written to artifacts/logs/")
-    print("Metrics will be written to artifacts/metrics.json")
+    logger.info("Logging infrastructure setup completed successfully.")
+    print("Logging setup complete. Logs will be written to artifacts/logs/ and metrics to artifacts/metrics.json")
 
 if __name__ == "__main__":
     main()

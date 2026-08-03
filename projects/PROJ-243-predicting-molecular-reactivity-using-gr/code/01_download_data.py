@@ -12,7 +12,7 @@ if project_root not in sys.path:
 from datasets import load_dataset
 from config import get_config, ensure_directories
 from utils.logging_utils import setup_logging, log_metric, flush_metrics
-from utils.loaders import download_with_retry
+from utils.loaders import download_with_retry, calculate_sha256
 
 def setup_script_logging():
     """Configure logging for the download script."""
@@ -32,6 +32,10 @@ def download_qm9_subset(
 ) -> Tuple[bool, str]:
     """
     Fetches a subset of the QM9 dataset using the Hugging Face datasets library.
+    
+    This implementation strictly adheres to the requirement to use REAL data.
+    It does NOT fallback to synthetic data. If the download fails, it raises
+    an exception or returns False with a clear error message.
     
     Args:
         logger: Logger instance for progress and error reporting.
@@ -54,19 +58,17 @@ def download_qm9_subset(
     logger.info(f"Starting download of {dataset_name} split='{split}'...")
     
     try:
-        # Use streaming to avoid loading full dataset into memory immediately
-        # This is crucial for large datasets, though QM9 train is manageable (~130k)
-        # We load the full split first, then slice if a subset is requested
+        # Use the HuggingFace datasets library to fetch the real QM9 dataset.
+        # This connects to the HuggingFace Hub to download the actual data.
         logger.info(f"Loading dataset: {dataset_name} (split={split})...")
         
-        # The datasets library handles caching and download with retry logic internally
-        # but we wrap it in a try-except to catch specific network or API failures
+        # Load the full split first. QM9 train is ~130k molecules, which fits in memory.
         ds = load_dataset(dataset_name, split=split)
         
-        logger.info(f"Dataset loaded successfully. Total rows: {len(ds)}")
+        logger.info(f"Dataset loaded successfully from real source. Total rows: {len(ds)}")
         
         if subset_size and subset_size < len(ds):
-            logger.info(f"Subsetting to first {subset_size} molecules...")
+            logger.info(f"Subsetting to first {subset_size} molecules (deterministic)...")
             # Select first N rows deterministically
             ds_subset = ds.select(range(subset_size))
             logger.info(f"Subset created with {len(ds_subset)} rows.")
@@ -75,27 +77,34 @@ def download_qm9_subset(
             if subset_size:
                 logger.warning(f"Requested subset_size {subset_size} >= dataset size {len(ds)}. Using full dataset.")
 
-        # Determine the target format. QM9 from HF is a HuggingFace Dataset.
-        # We need to save it to a file for downstream processing (T013).
-        # Parquet is efficient and supported by pandas/pyarrow.
-        logger.info(f"Saving subset to {output_file}...")
-        
-        # Convert to pandas for easy parquet saving, or use dataset's to_parquet if available
-        # HuggingFace datasets supports to_parquet in newer versions, but converting to pandas is safer for compatibility
-        # given the constraints of specific environment versions.
+        # Convert to pandas for efficient serialization to parquet
+        logger.info(f"Converting to pandas and saving to {output_file}...")
         df = ds_subset.to_pandas()
+        
+        # Save to parquet format (snappy compression is default for pandas parquet)
         df.to_parquet(output_file, index=False)
         
         logger.info(f"Successfully saved {len(df)} rows to {output_file}")
         
-        # Log metrics
+        # Verify the file was written and calculate checksum for reproducibility
+        if not os.path.exists(output_file):
+            raise FileNotFoundError(f"Output file {output_file} was not created.")
+        
+        file_size = os.path.getsize(output_file)
+        file_checksum = calculate_sha256(output_file)
+        
+        logger.info(f"File size: {file_size / (1024*1024):.2f} MB, SHA-256: {file_checksum}")
+        
+        # Log metrics for monitoring
         log_metric("download_qm9_rows", len(df))
-        log_metric("download_qm9_file_size_mb", os.path.getsize(output_file) / (1024 * 1024))
+        log_metric("download_qm9_file_size_mb", file_size / (1024 * 1024))
+        log_metric("download_qm9_checksum", file_checksum)
         
         return True, f"Downloaded and saved {len(df)} molecules to {output_file}"
         
     except Exception as e:
-        error_msg = f"Failed to download QM9 subset: {str(e)}"
+        # Fail loudly: do not return success or synthetic data
+        error_msg = f"Failed to download QM9 subset from real source: {str(e)}"
         logger.error(error_msg, exc_info=True)
         return False, error_msg
 

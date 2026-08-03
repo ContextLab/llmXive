@@ -299,3 +299,56 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-01T09:30:43Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: kinetic dataset contains at least 20 molecules with experimental rates
+  claim_id: c_205c7d2e
+  context: "T009d [P] [FR-009] **FETCH EXTERNAL DATA**: Download the real external\
+    \ kinetic dataset (\u226520 molecules with experimental rates) from a verified\
+    \ source (e.g., HuggingFace `kinetic_rates` or UCI)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Kinetic_dataset_contains_at_least_20_molecules_with_experime
+  kind: magnitude
+  raw_text: "Download the real external kinetic dataset (\u226520 molecules with experimental\
+    \ rates) from a verified source (e.g., HuggingFace 'kinetic_rates' or UCI)."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T20:04:55Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: invalid SMILES exclusion rate target is less than 0.1 percent
+  claim_id: c_1bc8cdb6
+  context: '3. Invalid SMILES handling: Log and exclude molecules; target < 0.1% exclusion.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Invalid_SMILES_exclusion_rate_target_is_less_than_0.1_percen
+  kind: magnitude
+  raw_text: target < 0.1% exclusion
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T20:12:25Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: end-to-end runtime limit is 6 hours and memory limit is 4 GB
+  claim_id: c_6a9ece70
+  context: "- [ ] T037 Performance optimization: Verify end-to-end runtime \u2264\
+    \ 6 hours and memory \u2264 4 GB on CI"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify end-to-end runtime \u2264 6 hours and memory \u2264 4 GB on CI"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T20:12:25Z'

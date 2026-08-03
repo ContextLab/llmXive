@@ -4,43 +4,39 @@ import logging
 from config import ensure_directories
 
 def setup_script_logging():
-    """Initialize logging for the setup script."""
+    """Configure logging for the directory setup script."""
     logging.basicConfig(
         level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
         handlers=[
-            logging.StreamHandler(sys.stdout)
+            logging.StreamHandler(sys.stdout),
+            logging.FileHandler("artifacts/logs/setup_directories.log")
         ]
     )
     return logging.getLogger(__name__)
 
 def main():
-    """Create code, artifacts, and tests directories."""
+    """
+    Main entry point for T001b: Create code and artifact directories.
+    
+    This script ensures the existence of the following directories:
+    - code/
+    - artifacts/
+    - tests/
+    
+    It relies on the ensure_directories function from config.py which 
+    reads the project configuration and creates the necessary folder structure.
+    """
     logger = setup_script_logging()
     logger.info("Starting directory setup for T001b...")
     
-    # Define the directories required by T001b
-    # Note: ensure_directories handles the creation of all required paths
-    # including data/ subdirs (T001a) and these new ones.
-    # We call it here to ensure the specific T001b targets are created.
+    # Ensure the base directories exist
+    # The ensure_directories function in config.py is responsible for creating
+    # the full directory tree defined in the project configuration.
+    ensure_directories()
     
-    config_dirs = [
-        'code',
-        'artifacts',
-        'tests'
-    ]
-    
-    # ensure_directories is expected to take a list of relative paths or
-    # use the config to determine them. Based on the API surface, 
-    # ensure_directories is in config.py.
-    # We will call it to ensure these specific directories exist.
-    
-    try:
-        ensure_directories(config_dirs)
-        logger.info("Successfully created directories: code, artifacts, tests")
-    except Exception as e:
-        logger.error(f"Failed to create directories: {e}")
-        sys.exit(1)
+    logger.info("Directory setup completed successfully.")
+    logger.info("Created directories: code/, artifacts/, tests/")
 
 if __name__ == "__main__":
     main()

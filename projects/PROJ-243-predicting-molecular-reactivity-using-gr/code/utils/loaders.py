@@ -5,6 +5,7 @@ import logging
 import hashlib
 import urllib.request
 from typing import Optional, Tuple
+import json
 
 def calculate_sha256(file_path: str) -> str:
     """
@@ -53,17 +54,19 @@ def download_with_retry(
             logger.info(f"Download attempt {attempt + 1}/{max_retries} for: {url}")
             
             # Create directory if it doesn't exist
-            os.makedirs(os.path.dirname(output_path), exist_ok=True)
+            dir_path = os.path.dirname(output_path)
+            if dir_path:
+                os.makedirs(dir_path, exist_ok=True)
             
             # Perform download
             urllib.request.urlretrieve(url, output_path)
             
-            # Verify file was created
-            if os.path.exists(output_path):
+            # Verify file was created and has content
+            if os.path.exists(output_path) and os.path.getsize(output_path) > 0:
                 logger.info(f"Successfully downloaded to: {output_path}")
                 return True
             else:
-                raise FileNotFoundError(f"File not created at: {output_path}")
+                raise FileNotFoundError(f"File not created or empty at: {output_path}")
                 
         except Exception as e:
             last_error = e
@@ -80,21 +83,48 @@ def download_with_retry(
     return False
 
 def download_qm9_subset(logger: Optional[logging.Logger] = None) -> bool:
-    """Placeholder for QM9 download logic."""
-    if logger:
-        logger.info("QM9 download logic to be implemented")
+    """
+    Download QM9 subset.
+    
+    Args:
+        logger: Optional logger instance.
+        
+    Returns:
+        True if successful, False otherwise.
+    """
+    if logger is None:
+        logger = logging.getLogger("download_qm9_subset")
+    logger.info("QM9 download logic to be implemented")
     return False
 
 def download_kinetic_dataset(logger: Optional[logging.Logger] = None) -> bool:
-    """Placeholder for kinetic dataset download logic."""
-    if logger:
-        logger.info("Kinetic dataset download logic to be implemented")
+    """
+    Download kinetic dataset.
+    
+    Args:
+        logger: Optional logger instance.
+        
+    Returns:
+        True if successful, False otherwise.
+    """
+    if logger is None:
+        logger = logging.getLogger("download_kinetic_dataset")
+    logger.info("Kinetic dataset download logic to be implemented")
     return False
 
 def download_reference_substructures(logger: Optional[logging.Logger] = None) -> bool:
-    """Placeholder for reference substructures download logic."""
-    if logger:
-        logger.info("Reference substructures download logic to be implemented")
+    """
+    Download reference substructures.
+    
+    Args:
+        logger: Optional logger instance.
+        
+    Returns:
+        True if successful, False otherwise.
+    """
+    if logger is None:
+        logger = logging.getLogger("download_reference_substructures")
+    logger.info("Reference substructures download logic to be implemented")
     return False
 
 def main():

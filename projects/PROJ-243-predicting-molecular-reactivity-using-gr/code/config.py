@@ -5,73 +5,71 @@ from typing import Optional, Dict, Any
 import numpy as np
 
 class Config:
-    """Configuration management for the project."""
-    
+    """Global configuration container."""
     def __init__(self):
-        self._config = self._load_config()
+        self.seed = 42
+        self.device = 'cpu'
+        self.project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        self.data_dir = os.path.join(self.project_root, "data")
+        self.code_dir = os.path.join(self.project_root, "code")
+        self.tests_dir = os.path.join(self.project_root, "tests")
+        self.artifacts_dir = os.path.join(self.project_root, "artifacts")
+        self.specs_dir = os.path.join(self.project_root, "specs")
         
-    def _load_config(self) -> Dict[str, Any]:
-        """Load configuration from environment or defaults."""
-        return {
-            "paths": {
-                "raw": os.path.join("data", "raw"),
-                "processed": os.path.join("data", "processed"),
-                "assets": os.path.join("data", "assets"),
-                "code": "code",
-                "artifacts": "artifacts",
-                "tests": "tests",
-                "logs": os.path.join("artifacts", "logs")
-            },
-            "random_seed": 42,
-            "device": "cpu",
-            "logging_level": logging.INFO
-        }
+        # Training hyperparameters (defaults)
+        self.batch_size = 32
+        self.epochs = 100
+        self.learning_rate = 1e-3
+        self.weight_decay = 1e-5
+        self.patience = 5  # Early stopping patience
         
-    def get(self, key: str, default: Any = None) -> Any:
-        """Get a configuration value."""
-        keys = key.split(".")
-        value = self._config
-        for k in keys:
-            if isinstance(value, dict) and k in value:
-                value = value[k]
-            else:
-                return default
-        return value
+        # Data processing parameters
+        self.max_memory_gb = 4.0
+        self.min_batch_size = 16
+        
+        # Logging settings
+        self.log_level = logging.INFO
 
-_config_instance = None
+_config = Config()
 
-def get_config() -> Dict[str, Any]:
-    """Get the global configuration instance."""
-    global _config_instance
-    if _config_instance is None:
-        _config_instance = Config()
-    return _config_instance._config
-
-def ensure_directories() -> None:
-    """Create all required directories if they don't exist."""
-    config = get_config()
-    paths = config["paths"]
-    
-    required_dirs = [
-        paths["raw"],
-        paths["processed"],
-        paths["assets"],
-        paths["code"],
-        paths["artifacts"],
-        paths["tests"],
-        paths["logs"]
-    ]
-    
-    for dir_path in required_dirs:
-        os.makedirs(dir_path, exist_ok=True)
+def get_config() -> Config:
+    """Return the global configuration instance."""
+    return _config
 
 def set_seed(seed: Optional[int] = None) -> None:
-    """Set random seed for reproducibility."""
+    """Set random seeds for reproducibility."""
     if seed is None:
-        seed = get_config()["random_seed"]
-        
+        seed = _config.seed
     random.seed(seed)
     np.random.seed(seed)
-    os.environ["PYTHONHASHSEED"] = str(seed)
+    # Note: torch is not imported here to avoid circular dependency or forced import
+    # If torch is available, it should be seeded in the module that uses it.
+    try:
+        import torch
+        torch.manual_seed(seed)
+        if torch.cuda.is_available():
+            torch.cuda.manual_seed_all(seed)
+    except ImportError:
+        pass
     
-    logging.info(f"Random seed set to: {seed}")
+    logging.info(f"Random seed set to {seed}")
+
+def ensure_directories(dirs: list) -> None:
+    """
+    Create a list of directories if they do not exist.
+    Raises an error if creation fails.
+    """
+    for dir_path in dirs:
+        # Construct absolute path relative to project root if relative
+        if not os.path.isabs(dir_path):
+            full_path = os.path.join(_config.project_root, dir_path)
+        else:
+            full_path = dir_path
+
+        if not os.path.exists(full_path):
+            try:
+                os.makedirs(full_path, exist_ok=True)
+                logging.debug(f"Created directory: {full_path}")
+            except OSError as e:
+                logging.error(f"Failed to create directory {full_path}: {e}")
+                raise e
