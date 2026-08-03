@@ -13,7 +13,7 @@ This project implements a computational investigation into whether recursive sel
 **Primary Dependencies**: `torch` (CPU-only, pinned to.0+), `transformers` (4.40+), `datasets` (2.18+), `scikit-learn`, `numpy`, `pandas`, `pytest`, `jsonschema`  
 **Storage**: Local filesystem (`data/` for datasets, `artifacts/` for checkpoints and evaluation results).  
 **Testing**: `pytest` for unit tests; `GitHub Actions` for end-to-end integration and reproducibility.  
-**Target Platform**: GitHub Actions free-tier runner (Linux, multiple CPU cores, ~7 GB RAM, ~14 GB disk, no GPU).  
+**Target Platform**: GitHub Actions free-tier runner (Linux, multiple CPU cores, ~7 GB RAM, ~ GB disk, no GPU).  
 **Project Type**: Computational research / Machine Learning experiment  
 **Performance Goals**: Training must complete within 2 hours per seed; total CI job time ≤ 4 hours for 5 seeds (aligned with Constitution Principle VII). Memory usage must remain < 7 GB.  
 **Constraints**: No GPU/CUDA usage; no 8-bit/4-bit quantization requiring CUDA; no large-LLM inference; strict adherence to 7 GB RAM limit.  

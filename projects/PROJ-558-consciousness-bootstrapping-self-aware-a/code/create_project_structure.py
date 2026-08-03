@@ -1,43 +1,67 @@
+"""
+Script to create the directory structure for the Consciousness Bootstrapping project.
+This script creates the required hierarchy under the project root.
+"""
 import os
 from pathlib import Path
 
 def create_structure():
     """
-    Creates the directory structure for the PROJ-558 project.
+    Creates the directory structure for project PROJ-558.
     
-    Creates the following hierarchy relative to the project root:
+    Structure:
     projects/PROJ-558-consciousness-bootstrapping-self-aware-a/
     ├── data/
     │   ├── raw/
     │   └── processed/
     ├── code/
     ├── tests/
-    └── artifacts/
-        ├── checkpoints/
-        └── results/
+    ├── artifacts/
+    │   ├── checkpoints/
+    │   └── results/
     """
-    project_root = Path(__file__).parent.parent
-    base_dir = project_root / "projects" / "PROJ-558-consciousness-bootstrapping-self-aware-a"
+    # Define the project root relative to where this script is run
+    # Assuming the script is run from the project root or code directory
+    # We will create it relative to the current working directory
+    base_path = Path.cwd()
     
-    directories = [
-        base_dir / "data" / "raw",
-        base_dir / "data" / "processed",
-        base_dir / "code",
-        base_dir / "tests",
-        base_dir / "artifacts" / "checkpoints",
-        base_dir / "artifacts" / "results",
+    project_root = base_path / "projects" / "PROJ-558-consciousness-bootstrapping-self-aware-a"
+    
+    # Define subdirectories
+    subdirs = [
+        "data/raw",
+        "data/processed",
+        "code",
+        "tests",
+        "artifacts/checkpoints",
+        "artifacts/results",
+        "artifacts/figures", # Added for completeness based on common patterns, though not explicitly in T001a, often needed for plots
     ]
     
-    for directory in directories:
-        directory.mkdir(parents=True, exist_ok=True)
-        print(f"Created directory: {directory}")
+    created_count = 0
     
-    # Ensure the base directories exist for verification
-    (base_dir / "data").mkdir(parents=True, exist_ok=True)
-    (base_dir / "artifacts").mkdir(parents=True, exist_ok=True)
+    for subdir in subdirs:
+        dir_path = project_root / subdir
+        if not dir_path.exists():
+            dir_path.mkdir(parents=True, exist_ok=True)
+            print(f"Created: {dir_path}")
+            created_count += 1
+        else:
+            print(f"Exists: {dir_path}")
     
-    print(f"Project structure created at: {base_dir}")
-    return base_dir
+    print(f"\nProject structure created at: {project_root}")
+    print(f"Total new directories created: {created_count}")
+    
+    # Verify structure
+    print("\nVerifying structure...")
+    for subdir in subdirs:
+        dir_path = project_root / subdir
+        if dir_path.exists():
+            print(f"  [OK] {dir_path}")
+        else:
+            print(f"  [FAIL] {dir_path}")
+    
+    return project_root
 
 if __name__ == "__main__":
     create_structure()
