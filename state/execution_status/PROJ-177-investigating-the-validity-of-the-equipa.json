@@ -1,0 +1,20 @@
+{
+  "project_id": "PROJ-177-investigating-the-validity-of-the-equipa",
+  "ok": false,
+  "reason": "5 command(s) failed: python code/main.py --step ingestion --sample-ratio 0.1 (rc=2); python code/main.py --step stats --alpha 0.01 (rc=2); python code/main.py --step sensitivity --thresholds 0.01,0.05,0.10 (rc=2); 1 declared deliverable(s) absent: data/derived/energy_samples.csv",
+  "artifacts": [],
+  "failures": [
+    "python code/main.py --step ingestion --sample-ratio 0.1 -> rc=2\n    usage: main.py [-h]\n               [--stage {all,checksum_raw,hash_artifacts,ingest,stats,sensitivity,regression}]\n               [--config CONFIG] [--verbose]\nmain.py: error: unrecognized arguments: --step ingestion --sample-ratio 0.1",
+    "python code/main.py --step stats --alpha 0.01 -> rc=2\n    usage: main.py [-h]\n               [--stage {all,checksum_raw,hash_artifacts,ingest,stats,sensitivity,regression}]\n               [--config CONFIG] [--verbose]\nmain.py: error: unrecognized arguments: --step stats --alpha 0.01",
+    "python code/main.py --step sensitivity --thresholds 0.01,0.05,0.10 -> rc=2\n    usage: main.py [-h]\n               [--stage {all,checksum_raw,hash_artifacts,ingest,stats,sensitivity,regression}]\n               [--config CONFIG] [--verbose]\nmain.py: error: unrecognized arguments: --step sensitivity --thresholds 0.01,0.05,0.10",
+    "python code/main.py --step regression -> rc=2\n    usage: main.py [-h]\n               [--stage {all,checksum_raw,hash_artifacts,ingest,stats,sensitivity,regression}]\n               [--config CONFIG] [--verbose]\nmain.py: error: unrecognized arguments: --step regression",
+    "python code/main.py --full-run --sample-ratio 0.1 -> rc=2\n    usage: main.py [-h]\n               [--stage {all,checksum_raw,hash_artifacts,ingest,stats,sensitivity,regression}]\n               [--config CONFIG] [--verbose]\nmain.py: error: unrecognized arguments: --full-run --sample-ratio 0.1"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "execution_bug",
+  "evidence": [],
+  "updated_at": "2026-08-03T21:53:28Z"
+}

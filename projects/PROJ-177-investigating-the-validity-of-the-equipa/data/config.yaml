@@ -1,17 +1,14 @@
-# Configuration for granular system energy calculation
-mass: 0.01  # kg (example: 10g particle)
-inertia: 0.000004  # kg*m^2 (example: 2/5 * m * r^2 with r=0.01m)
-gravity: 9.81  # m/s^2
-k_spring: 100.0  # N/m (vibrational spring constant)
-z_ref: 0.0  # reference height for potential energy
-material_properties:
+materials:
   steel:
-    density: 7850  # kg/m^3
-    radius: 0.0025  # m
+    mass: 0.01
+    inertia: 0.0001
+    roughness: 0.5
   polymer:
-    density: 1200  # kg/m^3
-    radius: 0.0025  # m
+    mass: 0.005
+    inertia: 0.00005
+    roughness: 0.2
 frequency_bins:
-  low: [0, 50]
-  medium: [50, 150]
-  high: [150, 300]
+  - 5.0
+  - 10.0
+  - 15.0
+gravity: 9.81
