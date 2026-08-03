@@ -1580,7 +1580,12 @@ def test_emitted_time_never_moves_backward_across_a_refresh():
     # lagging node) — within tolerance, so it is absorbed rather than fatal. Emitted time
     # must not regress: the lane's durations would go negative.
     mono = Mono()
-    clock = _clock(mono, [DATE_HDR, EARLIER_HDR], refresh_interval_s=300)
+    # The THIRD header is what makes this a stepped-back authority rather than a STOPPED
+    # one: after the backward step it keeps ticking, so the next refresh reads a later
+    # instant and the clamp releases. Repeating EARLIER_HDR forever models a clock that
+    # stopped — a different fault, with its own test below.
+    clock = _clock(mono, [DATE_HDR, EARLIER_HDR, "Fri, 31 Jul 2026 13:05:40 GMT"],
+                   refresh_interval_s=300)
     first = dt.datetime.fromisoformat(clock())
     mono.advance(400)
     second = dt.datetime.fromisoformat(clock())
@@ -1629,6 +1634,32 @@ def test_a_regression_PAST_THE_TOLERANCE_fails_closed_instead_of_freezing():
     # And it does not quietly recover from the poisoned sample: the next call re-samples.
     assert clock.fetch_count() == 2
     assert first is not None
+
+
+def test_an_authority_that_is_STUCK_fails_closed_once_the_stall_exceeds_the_tolerance():
+    """The magnitude bound alone does not cover this, and the gap is silent: a constant
+    distance behind the floor never trips a size check, every refresh re-anchors to the
+    same stale value, and emitted time stands still while every call succeeds."""
+    mono = Mono()
+    clock = _clock(mono, [DATE_HDR, EARLIER_HDR], refresh_interval_s=300)
+    clock()
+    mono.advance(400)
+    assert clock()                       # clamped, legitimately: 60 s is inside tolerance
+    mono.advance(MAX_CLOCK_REGRESSION_S + 1)
+    with pytest.raises(NoTrustedTimeError, match="stood still"):
+        clock()
+
+
+def test_a_clamp_SHORTER_than_the_tolerance_is_absorbed_without_raising():
+    """The complement: a brief clamp is what the clamp is FOR. Advance by less than the
+    60 s step, or elapsed time releases the clamp and this tests the release instead."""
+    mono = Mono()
+    clock = _clock(mono, [DATE_HDR, EARLIER_HDR], refresh_interval_s=300)
+    clock()
+    mono.advance(400)
+    held = dt.datetime.fromisoformat(clock())
+    mono.advance(30)
+    assert dt.datetime.fromisoformat(clock()) == held
 
 
 def test_the_regression_tolerance_is_DERIVED_from_the_skew_allowance():
@@ -2075,6 +2106,26 @@ therefore either absorbed and visible as a stall in the stamps, or fatal and vis
 raise — never silently rewritten backward into the log, where a duration would come out
 negative.
 
+**The clamp is bounded in DURATION as well as magnitude** (added during implementation; the
+magnitude bound alone does not deliver what the paragraph above argues for). An authority
+that is STUCK — serving the same instant rather than a smaller one — sits a CONSTANT
+distance behind the floor. It never trips the "moved too far backward" check, and every
+refresh re-anchors to the same stale value, so emitted time stands still **indefinitely
+while every call still succeeds**: expiry stops approaching, hold time stops accruing,
+cooldowns stop maturing, and nothing raises. That is precisely the "looks healthy and makes
+no progress" state the magnitude bound was introduced to prevent, reached by a route it
+cannot see. `_clamped_since` records when the clamp engaged and is cleared whenever emitted
+time tracks the authority again; a clamp held continuously for longer than
+`MAX_CLOCK_REGRESSION_S` fails closed, because standing still that long is
+indistinguishable — from every consumer's point of view — from having no time at all.
+
+One consequence worth stating, because it sets what a test of the clamp can observe: the
+clamp **releases on its own** once monotonic elapsed carries the new anchor past the floor,
+which takes exactly as long as the backward step was large. A 60-second step is clamped for
+60 seconds. A test that wants to observe a live clamp must therefore advance by less than
+the step; advancing further tests the RELEASE, not the absorption. The stuck-authority case
+is the exception, and only because each refresh re-installs the same stale anchor.
+
 - [ ] **Step 4: Run the tests**
 
 Run: `python -m pytest tests/unit/test_self_improvement_clock.py -q`
@@ -2087,10 +2138,13 @@ stored wall anchor, re-run, and confirm `test_emitted_time_never_moves_backward_
 and `test_refresh_scheduling_uses_monotonic_elapsed` FAIL. Restore.
 
 Then, one at a time, restoring after each: delete the `self._floor` clamp and confirm BOTH
-regression tests fail; remove the `MAX_CLOCK_REGRESSION_S` bound (clamp unconditionally) and
-confirm `test_a_regression_PAST_THE_TOLERANCE_fails_closed_instead_of_freezing` fails —
-this is the mutation that reproduces the frozen lane, so it is the one most worth seeing
-fail; drop `_HTTP_DATE_RESOLUTION_S` from `uncertainty_s` and confirm
+regression tests fail; remove the `MAX_CLOCK_REGRESSION_S` magnitude bound (clamp
+unconditionally) and confirm
+`test_a_regression_PAST_THE_TOLERANCE_fails_closed_instead_of_freezing` fails; remove the
+`_clamped_since` DURATION bound and confirm
+`test_an_authority_that_is_STUCK_fails_closed_once_the_stall_exceeds_the_tolerance` fails —
+these two are the mutations that reproduce the frozen lane, by different routes, so they
+are the ones most worth seeing fail; drop `_HTTP_DATE_RESOLUTION_S` from `uncertainty_s` and confirm
 `test_uncertainty_never_drops_below_the_HEADER_RESOLUTION` fails; drop `_HTTP_DATE_CENTRE`
 and confirm `test_the_header_instant_is_CENTRED_not_taken_at_face_value` fails. Each of the
 four is a separate guarantee, so each needs a test that dies without it. Confirm

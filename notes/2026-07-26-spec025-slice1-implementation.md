@@ -689,6 +689,33 @@ half-state. Restored and re-verified. *The first attempt at this substitution si
 failed to match, and the test "passed" — a passing test after a no-op edit proves nothing;
 always confirm the edit landed before believing the result.*
 
+**Task 4 — the authoritative clock.** `policy.py` (the Policy Contract's first consumer is
+the clock, so the module is born here) + `clock.py`: `GitHubDateClock` with bracketed
+monotonic sampling, `FixedAnchorClock`, `parse_http_date`, `NoTrustedTimeError`.
+
+*A real gap in the plan's design, exposed by implementation.* The plan bounded the clamp's
+MAGNITUDE (`MAX_CLOCK_REGRESSION_S`) but not its DURATION — and the duration is what its own
+rationale argues about ("an unbounded clamp converts an authority fault into a lane that
+looks healthy and makes no progress"). An authority that is STUCK, serving the same instant
+forever, sits a CONSTANT distance behind the floor: it never trips the magnitude check, and
+every refresh re-anchors to the same stale value, so emitted time stands still indefinitely
+while every call still succeeds. Expiry stops approaching, hold time stops accruing,
+cooldowns stop maturing, and nothing raises. Fixed with `_clamped_since`: a clamp held
+continuously for longer than the same tolerance fails closed. Two new tests cover it (the
+stuck authority raises; a brief clamp is still absorbed).
+
+*A test fake that modelled the wrong fault.* The plan's non-regression test repeated
+`EARLIER_HDR` forever, which is a STOPPED authority, then asserted "elapsed monotonic time
+walks out of the clamp on its own" — which a stopped authority never does. Corrected to a
+stepped-back-then-ticking authority (a third, later header), with the stopped case split
+into its own test where it belongs.
+
+Six mutations run, each killing at least one dedicated test: no floor clamp (5 fail), no
+magnitude bound (1), no duration bound (1), no header-resolution floor (2), no header
+centring (2), and reading the wall clock (10, including the grep guard). Real-call suite
+verified against live GitHub with a token from `gh auth token` — 4 passed, including that an
+unauthenticated run against the REAL endpoint still raises rather than quietly succeeding.
+
 **Wrong test paths in the plan, fixed while wiring decision 3's gate.** The plan named
 `tests/unit/test_model_selection_ledger_transport.py` as the ledger gate; no such file
 exists. The credit ledger reaches the shared transport through
