@@ -74,7 +74,8 @@ def _coord(eid: str, *, rev: int = 0, attempt_id: str = "A1") -> Event:
 def _prob(eid: str, *, rev: int = 0, problem_id: str = "prob-1",
           attempt_id: str = "A1") -> Event:
     return Event(event_id=eid, event_type="Proposed", problem_id=problem_id, actor="a",
-                 payload={}, timestamp=f"2026-07-31T00:00:{rev:02d}+00:00",
+                 payload={"problem_id": problem_id, "attempt_id": attempt_id},
+                 timestamp=f"2026-07-31T00:00:{rev:02d}+00:00",
                  attempt_id=attempt_id, expected_problem_revision=rev)
 
 

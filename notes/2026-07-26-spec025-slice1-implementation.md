@@ -806,3 +806,54 @@ a row reachable from a new non-holding state shows up in review rather than sile
 widening the exemption. Mutations now ten: dropping the `holds_claim` gate and having the
 projection read the row directly kill DIFFERENT tests, so the predicate being right does not
 prove the fold uses it.
+
+**Task 6 — the Attempt event vocabulary + write-boundary validators.** 24 types added to
+`KNOWN_EVENT_TYPES_V1` (the 22 transitions minus the 3 already there, plus `ClaimHeartbeat`,
+`MonitorEnded`, `SideEffectRequested`, `SideEffectObserved`, `Cooldown`), each with a
+validator; `MonitorStarted` gained required `problem_id` + `merged_at`;
+`coordinator._coord_event` became `events.coord_event` alongside `COORDINATOR_KEYS` +
+`coordinator_event_id`.
+
+*Two questions the plan's Task 6 did not answer, both forced by what the fold does.*
+
+- **Nineteen types would have had no validator.** The plan tabulates payload key sets for
+  seven types; the other nineteen are plain transitions. A type in the vocabulary with no
+  validator is a payload nobody checks — and `walk_attempt` reads these payloads. They now
+  share `_validate_attempt_transition` (names its Problem, names its Attempt, payload agrees
+  with envelope on both), NOT `_exact_keys`: the house rule scopes exactness to events
+  binding a limit or a routing identity, and fixing a key set here would mean guessing the
+  per-transition fields the spec's own idempotency keys imply (`head_sha`, `reason`) and
+  rejecting records the table requires. `test_every_attempt_event_type_has_a_payload_validator`
+  is the guard. `ClaimGranted` additionally requires `claim_generation`, the one field the
+  fold reads; Task 8 adds the four claim terms and makes it exact.
+
+- **`SideEffect*`/`Cooldown` must NOT carry an ENVELOPE `attempt_id`.** `project_attempt`
+  selects a history as `[e for e in stream if e.attempt_id == attempt_id]` and fails closed
+  on any type outside `ATTEMPT_EVENT_TYPES`, so one of these filed under an Attempt's
+  envelope makes every LATER projection of that Attempt raise — permanently (append-only),
+  leaving it unable to record even its own terminal. Their association lives in the payload.
+  This is a DECISION, flagged for the maintainer: it is the only reading consistent with
+  the fold and with Task 5's own comment that "nothing lands on the Attempt's own stream"
+  for the publish saga, but Task 9 is what will actually read these back.
+
+*Three transport fixtures the plan did not look at.* `test_self_improvement_lane_log.py`'s
+`_ev`/`_gapped` and `test_self_improvement_lane_transaction.py`'s `_prob` build
+`event_type="Proposed"` with `payload={}` as a generic problem-stream record. `Proposed` is
+validated from this task on, so those fixtures were exercising the store with a record the
+store is now supposed to refuse — 24 failures, all fixed by giving them a well-formed
+identity pair rather than by exempting `Proposed`.
+
+`coord_event`'s signature changed with the move: the free `idem` tuple became
+`(event_type, *, problem_id, attempt_id, ...)` with the key read from `COORDINATOR_KEYS`.
+Keeping `idem` a parameter would have left the `"claim"`/`"release"` literals at the call
+sites, which is the duplication declaring the keys was supposed to remove.
+
+`_instant` was extracted from `validate_lane_event`'s envelope timestamp check (messages
+unchanged) so the envelope and every payload moment — `merged_at`, `cooldown_until` — are
+one rule rather than three.
+
+Eleven mutations run for Task 6, all killed (table in the plan's new Step 5 — Task 6 had no
+verification step). The FIRST anchor failed to match and the harness refused to score it
+rather than reporting a pass; that guard is now the reusable part
+(`scratchpad/mutate.py` + a per-task spec module), since the same silent no-op already cost
+a wasted "verification" in Task 3.

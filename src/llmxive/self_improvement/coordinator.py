@@ -11,7 +11,7 @@ from pathlib import Path
 from llmxive.self_improvement.events import (
     COORDINATOR_STREAM,
     Event,
-    derive_event_id,
+    coord_event,
     payload_field,
 )
 from llmxive.self_improvement.lane_log import LaneLogConfig, append, read
@@ -118,21 +118,6 @@ def project_coordinator(events: list[Event]) -> LaneCoordinator:
     return c
 
 
-def _coord_event(event_type: str, idem: tuple[str, ...], payload: dict, actor: str,
-                 timestamp: str, attempt_id: str) -> Event:
-    """One coordinator event with a DETERMINISTIC id, so a re-invoked operation rebuilds
-    the same event rather than minting a second record of the same decision.
-
-    The revision anchors and ``seq`` are deliberately left unset: the store stamps all of
-    them inside the CAS from the verified parent (see ``lane_log._finalize``), and a value
-    fixed out here would be a guess about a revision we have not yet won."""
-    return Event(
-        event_id=derive_event_id(COORDINATOR_STREAM, "\x00".join(idem)), event_type=event_type,
-        problem_id=COORDINATOR_STREAM, actor=actor, payload=payload, timestamp=timestamp,
-        attempt_id=attempt_id,
-    )
-
-
 def _already_landed(events: list[Event], event_id: str) -> bool:
     return any(e.event_id == event_id for e in events)
 
@@ -159,9 +144,9 @@ def cas_claim(repo: Path, *, problem_id: str, attempt_id: str, actor: str, times
     load-bearing under spec 025 FR-035, where ``ClaimExpired`` makes re-granting routine."""
     events = read(repo, COORDINATOR_STREAM, config=config)
     revision = project_coordinator(events).lane_revision
-    event = _coord_event("ClaimAcquired", ("claim", problem_id, attempt_id),
-                         {"problem_id": problem_id, "attempt_id": attempt_id},
-                         actor, timestamp, attempt_id)
+    event = coord_event("ClaimAcquired", problem_id=problem_id, attempt_id=attempt_id,
+                        payload={"problem_id": problem_id, "attempt_id": attempt_id},
+                        actor=actor, timestamp=timestamp)
 
     def _idle_or_landed(evs: list[Event]) -> tuple[bool, str]:
         if _already_landed(evs, event.event_id):
@@ -191,9 +176,9 @@ def cas_release(repo: Path, *, problem_id: str, attempt_id: str, actor: str, tim
     another Attempt entirely."""
     events = read(repo, COORDINATOR_STREAM, config=config)
     revision = project_coordinator(events).lane_revision
-    event = _coord_event("ClaimReleased", ("release", problem_id, attempt_id),
-                         {"problem_id": problem_id, "attempt_id": attempt_id},
-                         actor, timestamp, attempt_id)
+    event = coord_event("ClaimReleased", problem_id=problem_id, attempt_id=attempt_id,
+                        payload={"problem_id": problem_id, "attempt_id": attempt_id},
+                        actor=actor, timestamp=timestamp)
 
     def _owns_or_landed(evs: list[Event]) -> tuple[bool, str]:
         if _already_landed(evs, event.event_id):

@@ -321,12 +321,42 @@ def test_a_malformed_claim_is_rejected_at_the_write_boundary(event_type, payload
         validate_lane_event(_coord_event(event_type, payload))
 
 
+_MERGED_AT = "2026-07-31T12:00:00+00:00"
+
+
+def _monitor(**over):
+    payload = {"problem_id": "P1", "attempt_id": "A1", "merged_at": _MERGED_AT, **over}
+    return _coord_event("MonitorStarted", payload)
+
+
 def test_monitor_started_binds_one_attempt():
-    validate_lane_event(_coord_event("MonitorStarted", {"attempt_id": "A1"}))
+    validate_lane_event(_monitor())
     with pytest.raises(ValueError, match="disagrees"):
-        validate_lane_event(_coord_event("MonitorStarted", {"attempt_id": "A9"}))
+        validate_lane_event(_monitor(attempt_id="A9"))
     with pytest.raises(ValueError, match="unexpected"):
-        validate_lane_event(_coord_event("MonitorStarted", {"attempt_id": "A1", "when": "now"}))
+        validate_lane_event(_monitor(when="now"))
+
+
+@pytest.mark.parametrize("drop", ["problem_id", "merged_at"])
+def test_monitor_started_requires_the_fields_the_COORDINATOR_will_need(drop):
+    """Both are REQUIRED, not optional (spec rev 24). `merged_at` is what
+    `last_autonomous_merge_at` folds to, and `problem_id` is what lets the ownership check
+    compare the PAIR rather than an `attempt_id` alone (the 1A F6 mistake). MonitorStarted
+    has exactly one producer and it always knows both, so an optional field would exist
+    solely so a record could be written without the value the coordinator then needs."""
+    payload = {"problem_id": "P1", "attempt_id": "A1", "merged_at": _MERGED_AT}
+    del payload[drop]
+    with pytest.raises(ValueError, match=drop):
+        validate_lane_event(_coord_event("MonitorStarted", payload))
+
+
+@pytest.mark.parametrize("bad", ["2026-07-31", "not-a-time", "2026-07-31T12:00:00"])
+def test_monitor_started_merged_at_is_an_INSTANT_not_a_date(bad):
+    """A bare date parses fine and would order merges from different runners by an offset
+    nobody wrote down — the same requirement the envelope timestamp has, and the reason
+    both go through one `_instant`."""
+    with pytest.raises(ValueError, match="merged_at"):
+        validate_lane_event(_monitor(merged_at=bad))
 
 
 def test_promotion_enabled_must_be_an_actual_bool():
@@ -461,3 +491,289 @@ def test_types_without_a_validator_are_envelope_only():
 
     assert "ChainResolved" not in TYPE_VALIDATORS
     validate_lane_event(_raw(event_type="ChainResolved", payload={"anything": 1}))
+
+
+# ---- Slice 2: the Attempt lifecycle vocabulary ----
+
+
+def _attempt(event_type, payload=None, *, problem_id="prob-1", attempt_id="A1", **over):
+    """A Problem-stream Attempt event: the identity pair in the payload, matching the
+    envelope, plus whatever the type adds."""
+    body = {"problem_id": problem_id, "attempt_id": attempt_id, **(payload or {})}
+    return _raw(event_type=event_type, problem_id=problem_id, attempt_id=attempt_id,
+                payload=body, **over)
+
+
+def test_every_declared_transition_has_a_writable_event_type():
+    """`lifecycle` DECLARES the machine; `events` decides what the store will accept. If the
+    two drift, a transition the table says is legal is refused at the write boundary — so
+    the drift is a failing test rather than a runtime surprise."""
+    from llmxive.self_improvement.events import KNOWN_EVENT_TYPES_V1
+    from llmxive.self_improvement.lifecycle import ATTEMPT_EVENT_TYPES
+
+    missing = ATTEMPT_EVENT_TYPES - KNOWN_EVENT_TYPES_V1
+    assert not missing, f"transitions the store would refuse to write: {sorted(missing)}"
+
+
+def test_every_attempt_event_type_has_a_payload_validator():
+    """Envelope-only is a deliberate choice for the audit-mirror types, which re-serialize
+    already-typed dataclasses. It is NEVER right for an Attempt event: `walk_attempt` reads
+    these payloads, and an unchecked one lands durably and then makes the fold raise."""
+    from llmxive.self_improvement.events import TYPE_VALIDATORS
+    from llmxive.self_improvement.lifecycle import ATTEMPT_EVENT_TYPES
+
+    assert not (ATTEMPT_EVENT_TYPES - set(TYPE_VALIDATORS))
+
+
+def test_no_event_type_lives_on_both_streams():
+    """`ClaimGranted`/`ClaimExpired` (Attempt) and `ClaimAcquired`/`ClaimReleased`
+    (coordinator) describe the same moments from two sides and are NOT duplicates. Keeping
+    the vocabularies disjoint is what makes "which stream is this?" answerable from the
+    event type alone — and rev 22's coordinator-side `ClaimExpired` is the temptation this
+    pins shut."""
+    from llmxive.self_improvement.coordinator import _COORDINATOR_TYPES
+    from llmxive.self_improvement.lifecycle import ATTEMPT_EVENT_TYPES
+
+    assert not (ATTEMPT_EVENT_TYPES & _COORDINATOR_TYPES)
+
+
+def test_side_effect_intents_are_not_attempt_transitions():
+    """`PromotionRequested` (a TRANSITION) and `SideEffectRequested{effect:"merge"}` (the
+    saga's fencing record) are different layers, and the machine must not confuse them: the
+    transition moves the Attempt, the intent is what blocks a reclaim until reconciled."""
+    from llmxive.self_improvement.lifecycle import ATTEMPT_EVENT_TYPES
+
+    assert "SideEffectRequested" not in ATTEMPT_EVENT_TYPES
+    assert "SideEffectObserved" not in ATTEMPT_EVENT_TYPES
+    assert "PromotionRequested" in ATTEMPT_EVENT_TYPES
+
+
+@pytest.mark.parametrize("event_type", ["Implementing", "EvaluationPassed", "Retained"])
+def test_a_plain_transition_binds_its_problem_and_its_attempt(event_type):
+    validate_lane_event(_attempt(event_type))
+    # A transition may carry per-transition fields (a head_sha, a reason); the schema is
+    # required-fields, not exact, because those are declared by the task that writes them.
+    validate_lane_event(_attempt(event_type, {"head_sha": "abc123"}))
+
+
+@pytest.mark.parametrize("payload, envelope, why", [
+    ({"attempt_id": "A1"}, {}, "problem_id"),
+    ({"problem_id": "prob-1"}, {}, "attempt_id"),
+    ({"problem_id": "prob-2", "attempt_id": "A1"}, {}, "disagrees"),
+    ({"problem_id": "prob-1", "attempt_id": "A2"}, {}, "disagrees"),
+])
+def test_a_transition_filed_against_the_WRONG_timeline_is_refused(payload, envelope, why):
+    """The ids decide which timeline the record joins: `project_attempt` selects by the
+    envelope `attempt_id`, and the cross-stream pairing walks compare `(problem_id,
+    attempt_id)`. A disagreement files the event against the wrong Attempt — silently, and
+    durably."""
+    with pytest.raises(ValueError, match=why):
+        validate_lane_event(_raw(event_type="Implementing", problem_id="prob-1",
+                                 attempt_id="A1", payload=payload, **envelope))
+
+
+def test_claim_granted_must_carry_the_generation_the_FOLD_reads():
+    """`walk_attempt` reads `claim_generation` off every grant. Refusing a grant without one
+    HERE is the difference between a rejected append and an Attempt whose every future
+    projection raises on a record that is already durable."""
+    validate_lane_event(_attempt("ClaimGranted", {"claim_generation": 1}))
+    with pytest.raises(ValueError, match="claim_generation"):
+        validate_lane_event(_attempt("ClaimGranted"))
+    for bad in (0, -1, True, "1"):
+        with pytest.raises(ValueError, match="claim_generation"):
+            validate_lane_event(_attempt("ClaimGranted", {"claim_generation": bad}))
+
+
+def test_a_heartbeat_names_its_generation_and_its_tick():
+    validate_lane_event(_attempt("ClaimHeartbeat", {"claim_generation": 1, "tick": 0}))
+    with pytest.raises(ValueError, match="unexpected"):
+        validate_lane_event(
+            _attempt("ClaimHeartbeat", {"claim_generation": 1, "tick": 0, "extra": 1}))
+    with pytest.raises(ValueError, match="tick"):
+        validate_lane_event(_attempt("ClaimHeartbeat", {"claim_generation": 1, "tick": -1}))
+    with pytest.raises(ValueError, match="tick"):
+        validate_lane_event(_attempt("ClaimHeartbeat", {"claim_generation": 1}))
+
+
+def test_the_FIRST_beat_of_a_claim_is_tick_zero():
+    """`tick` is non-negative, not positive: a positive-int check would reject the first
+    record of every claim's heartbeat series."""
+    validate_lane_event(_attempt("ClaimHeartbeat", {"claim_generation": 1, "tick": 0}))
+
+
+def test_claim_expired_names_the_generation_and_the_reason():
+    validate_lane_event(
+        _attempt("ClaimExpired", {"claim_generation": 2, "reason": "heartbeat_lapsed"}))
+    validate_lane_event(
+        _attempt("ClaimExpired", {"claim_generation": 2, "reason": "hold_time_exceeded"}))
+    with pytest.raises(ValueError, match="reason"):
+        validate_lane_event(
+            _attempt("ClaimExpired", {"claim_generation": 2, "reason": "crashed"}))
+
+
+def _aborted(**over):
+    payload = {"stage": "proposal", "cause": "model_unavailable",
+               "unresolved_dispatches": [], **over}
+    return _attempt("ReviewAborted", payload)
+
+
+def test_review_aborted_records_which_review_and_why():
+    validate_lane_event(_aborted())
+    validate_lane_event(_aborted(stage="patch", cause="wall_clock",
+                                 unresolved_dispatches=["route-1", "route-2"]))
+
+
+@pytest.mark.parametrize("field, bad", [
+    ("stage", "review"),          # not one of {proposal, patch}
+    ("stage", "Proposal"),        # case matters — a vocabulary, not a label
+    ("cause", "wallclock"),       # the typo this vocabulary exists to catch
+    ("cause", "rejected"),        # a VERDICT, not an operational cause
+])
+def test_review_aborted_vocabularies_are_closed(field, bad):
+    """A free-form string here is how a typo becomes a silent new category: nothing rejects
+    it, the counter that keys on the real value never sees it, and the record is durable
+    and wrong forever."""
+    with pytest.raises(ValueError, match=field):
+        validate_lane_event(_aborted(**{field: bad}))
+
+
+def test_unresolved_dispatches_is_a_LIST_never_a_bare_string():
+    """`str` is iterable, so an element-wise check over `"route-1"` passes one character at
+    a time and a single id silently records as seven."""
+    with pytest.raises(ValueError, match="unresolved_dispatches"):
+        validate_lane_event(_aborted(unresolved_dispatches="route-1"))
+    with pytest.raises(ValueError, match=r"unresolved_dispatches'\[1\]"):
+        validate_lane_event(_aborted(unresolved_dispatches=["route-1", ""]))
+
+
+def _intent(event_type="SideEffectRequested", **over):
+    payload = {"problem_id": "prob-1", "attempt_id": "A1", "claim_generation": 1,
+               "effect": "merge", "idempotency_key": "k1", **over}
+    return _raw(event_type=event_type, problem_id="prob-1", attempt_id=None, payload=payload)
+
+
+def test_an_intent_and_its_observation_round_trip():
+    validate_lane_event(_intent())
+    validate_lane_event(_intent("SideEffectObserved", disposition="landed"))
+
+
+@pytest.mark.parametrize("disposition", ["landed", "rejected", "contained", "ambiguous"])
+def test_all_FOUR_dispositions_are_writable(disposition):
+    """Four, not two. `contained` (may still land, but only where it is harmless) and
+    `rejected` (landing is now impossible) are different facts, and collapsing them is the
+    rev-22 error."""
+    validate_lane_event(_intent("SideEffectObserved", disposition=disposition))
+
+
+def test_an_observation_without_a_disposition_is_refused():
+    with pytest.raises(ValueError, match="disposition"):
+        validate_lane_event(_intent("SideEffectObserved"))
+
+
+def test_an_intent_must_not_carry_a_disposition():
+    with pytest.raises(ValueError, match="unexpected"):
+        validate_lane_event(_intent(disposition="landed"))
+
+
+def _cooldown(**over):
+    payload = {"problem_id": "prob-1", "cause": "quality", "epoch": 0,
+               "cooldown_until": "2026-08-30T00:00:00+00:00", **over}
+    return _raw(event_type="Cooldown", problem_id="prob-1", attempt_id=None, payload=payload)
+
+
+@pytest.mark.parametrize("event_type", ["SideEffectRequested", "SideEffectObserved", "Cooldown"])
+def test_a_NON_TRANSITION_problem_event_may_not_carry_an_envelope_attempt_id(event_type):
+    """`project_attempt` selects an Attempt's history by the ENVELOPE `attempt_id` and folds
+    everything it finds, failing closed on any type outside `ATTEMPT_EVENT_TYPES`. So a
+    record filed under an Attempt's envelope that is not one of its transitions would make
+    every LATER projection of that Attempt raise — permanently, since history is
+    append-only, and the Attempt could not even record its own terminal. The association
+    still exists; it lives in the payload."""
+    raw = (_cooldown() if event_type == "Cooldown"
+           else _intent(event_type, **({"disposition": "landed"}
+                                       if event_type == "SideEffectObserved" else {})))
+    raw["attempt_id"] = "A1"
+    with pytest.raises(ValueError, match="must not carry an envelope attempt_id"):
+        validate_lane_event(raw)
+
+
+def test_a_cooldown_names_its_cause_and_its_epoch():
+    validate_lane_event(_cooldown())
+    validate_lane_event(_cooldown(cause="operational", epoch=3))
+
+
+def test_a_cooldown_epoch_starts_at_zero_and_is_never_negative():
+    """The key is `(problem_id,"cooldown",cause,epoch)`. Without the epoch a Problem that
+    cooled down once could never cool down again (the rev-18 defect), and the FIRST cooldown
+    of a cause is epoch 0 — so non-negative, not positive."""
+    validate_lane_event(_cooldown(epoch=0))
+    with pytest.raises(ValueError, match="epoch"):
+        validate_lane_event(_cooldown(epoch=-1))
+
+
+def test_a_cooldown_until_is_an_instant():
+    with pytest.raises(ValueError, match="cooldown_until"):
+        validate_lane_event(_cooldown(cooldown_until="2026-08-30"))
+
+
+def test_a_cooldown_cause_is_one_of_the_two_counters():
+    with pytest.raises(ValueError, match="cause"):
+        validate_lane_event(_cooldown(cause="tired"))
+
+
+def test_monitor_ended_records_which_terminal_closed_the_window():
+    validate_lane_event(
+        _coord_event("MonitorEnded", {"problem_id": "P1", "attempt_id": "A1",
+                                      "outcome": "retained"}))
+    with pytest.raises(ValueError, match="outcome"):
+        validate_lane_event(
+            _coord_event("MonitorEnded", {"problem_id": "P1", "attempt_id": "A1",
+                                          "outcome": "promoted"}))
+
+
+# ---- the ONE coordinator-record keying ----
+
+
+def test_a_coordinator_partner_id_is_COMPUTED_not_searched_for():
+    """Given either half of a cross-stream transaction, the other half's id is a pure
+    function of `(event_type, problem_id, attempt_id)` — which is what makes a partner
+    locatable on replay and auditable after the fact."""
+    from llmxive.self_improvement.events import coordinator_event_id
+
+    a = coordinator_event_id("ClaimReleased", "P1", "A1")
+    assert a == coordinator_event_id("ClaimReleased", "P1", "A1")
+    assert a != coordinator_event_id("ClaimAcquired", "P1", "A1")
+    assert a != coordinator_event_id("ClaimReleased", "P2", "A1")
+    assert a != coordinator_event_id("ClaimReleased", "P1", "A2")
+
+
+def test_a_type_with_no_declared_key_cannot_be_keyed_by_guesswork():
+    """`PromotionEnabledSet` is a coordinator event but NOT a cross-stream partner — it is
+    keyed by `(coordinator,"reenable")`, not by a Problem and an Attempt. Deriving an id for
+    it here would invent a pairing that does not exist."""
+    from llmxive.self_improvement.events import coordinator_event_id
+
+    with pytest.raises(ValueError, match="not a cross-stream coordinator event"):
+        coordinator_event_id("PromotionEnabledSet", "P1", "A1")
+
+
+def test_the_builder_and_the_derivation_agree_by_construction():
+    """One builder, one derivation. Two of them drifting on id derivation would mint
+    duplicate records of a single decision — the half-state this slice exists to prevent."""
+    from llmxive.self_improvement.events import (
+        COORDINATOR_STREAM as CS,
+    )
+    from llmxive.self_improvement.events import (
+        coord_event,
+        coordinator_event_id,
+    )
+
+    event = coord_event("ClaimReleased", problem_id="P1", attempt_id="A1",
+                        payload={"problem_id": "P1", "attempt_id": "A1"},
+                        actor="a", timestamp="2026-07-31T12:00:00+00:00")
+    assert event.event_id == coordinator_event_id("ClaimReleased", "P1", "A1")
+    # The ENVELOPE names the stream this lands on; the PAYLOAD names the claimed Problem.
+    assert event.problem_id == CS and event.payload["problem_id"] == "P1"
+    # The store stamps the anchors inside the CAS — a value fixed here would be a guess
+    # about a revision we have not won yet.
+    assert event.seq is None and event.expected_lane_revision is None

@@ -58,8 +58,11 @@ def local_repo(tmp_path):
 
 
 def _ev(eid, rev, problem_id="prob-1", *, payload=None, timestamp=None):
+    # A REAL event type with a WELL-FORMED payload: `Proposed` is validated at the write
+    # boundary (it names its Problem and its Attempt), so a transport fixture carrying `{}`
+    # would be exercising the store with a record the store is supposed to refuse.
     return Event(event_id=eid, event_type="Proposed", problem_id=problem_id, actor="a",
-                 payload={} if payload is None else payload,
+                 payload={"problem_id": problem_id, "attempt_id": "A1", **(payload or {})},
                  timestamp=timestamp or f"2026-07-24T00:00:{rev:02d}+00:00",
                  attempt_id="A1", expected_problem_revision=rev)
 
@@ -256,7 +259,8 @@ def _force_commit_event(repo, raw: dict) -> None:
 
 def _gapped(seq: int) -> dict:
     return {"event_id": "gap", "event_type": "Proposed", "problem_id": "prob-1", "actor": "a",
-            "payload": {}, "timestamp": "2026-07-24T00:00:09+00:00", "schema_version": 1,
+            "payload": {"problem_id": "prob-1", "attempt_id": "A1"},
+            "timestamp": "2026-07-24T00:00:09+00:00", "schema_version": 1,
             "attempt_id": "A1", "seq": seq,
             "expected_problem_revision": seq, "resulting_problem_revision": seq + 1,
             "expected_lane_revision": None, "resulting_lane_revision": None}

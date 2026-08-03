@@ -3357,6 +3357,41 @@ def test_no_event_type_lives_on_both_streams():
     assert not (ATTEMPT_EVENT_TYPES & _COORDINATOR_TYPES)
 ```
 
+**Third, what validates the transitions the table above does NOT list.** Nineteen of the
+new types are plain transitions with no constrained fields, and a type in the vocabulary
+with no validator is a payload nobody checks — which `walk_attempt` then reads. They share
+one validator, `_validate_attempt_transition`, enforcing the contract every Attempt event
+has: it names its Problem and its Attempt, and the payload agrees with the envelope on both
+(`_same_problem` + `_same_attempt`). Deliberately NOT `_exact_keys`: the house rule scopes
+exactness to events binding a LIMIT or a ROUTING IDENTITY, and a transition binds neither —
+its per-transition fields (the `head_sha` in `EvaluationPassed`'s idempotency key, the
+`reason` in `RevertRequested`'s) are declared by the tasks that write them, so fixing a key
+set here would mean guessing them and rejecting records the spec's own table requires.
+Pinned by:
+
+```python
+def test_every_attempt_event_type_has_a_payload_validator():
+    from llmxive.self_improvement.events import TYPE_VALIDATORS
+    from llmxive.self_improvement.lifecycle import ATTEMPT_EVENT_TYPES
+    assert not (ATTEMPT_EVENT_TYPES - set(TYPE_VALIDATORS))
+```
+
+`ClaimGranted` extends it with a required `claim_generation`, because `walk_attempt` READS
+that field: refusing a grant without one at the write boundary is the difference between a
+rejected append and an Attempt whose every future projection raises on a record that is
+already durable. Task 8 adds the four claim-bound terms and makes that schema exact.
+
+**Fourth, the envelope-`attempt_id` rule for Problem-scoped records.** `project_attempt`
+selects an Attempt's history as `[e for e in stream if e.attempt_id == attempt_id]` and
+folds everything it finds, failing closed on any type outside `ATTEMPT_EVENT_TYPES`. So a
+`SideEffectRequested`, `SideEffectObserved`, or `Cooldown` stamped with an ENVELOPE
+`attempt_id` would make every later projection of that Attempt raise — permanently, since
+history is append-only, and the Attempt could not record even its own terminal. These three
+therefore carry NO envelope `attempt_id` (`_no_envelope_attempt`); their Attempt association
+lives in the payload, which is what `unreconciled_intents` reads. `lifecycle.NON_TRANSITIONS`
+remains the ONLY way an event legitimately lands under an Attempt's envelope without moving
+its state, and it carries the rules that make such a record legal.
+
 New types and their exact payload key sets:
 
 | Event | Payload keys |
@@ -3376,8 +3411,16 @@ ownership check (Task 12) cannot compare the PAIR and would fall back to matchin
 `attempt_id` alone, the 1A F6 mistake. Its `_MONITOR_KEYS` becomes
 `frozenset({"problem_id", "attempt_id", "merged_at"})`, and the five 1A call sites that
 construct one (`tests/unit/test_self_improvement_coordinator.py:94-95`,
-`tests/unit/test_self_improvement_events.py:325-329`) gain both fields plus a claim so the
-ownership check is satisfiable. **Add the fields — do not make them optional.**
+`tests/unit/test_self_improvement_events.py:325-329`) gain both fields; the "plus a claim so
+the ownership check is satisfiable" part belongs to Task 12, which adds the check.
+**Add the fields — do not make them optional.**
+
+Three MORE call sites break, in a place the plan did not look: the transport suites build
+their fixtures as `event_type="Proposed"` with `payload={}`
+(`test_self_improvement_lane_log.py`'s `_ev` and `_gapped`,
+`test_self_improvement_lane_transaction.py`'s `_prob`). `Proposed` is validated from this
+task onward, so those fixtures were exercising the store with a record the store is now
+supposed to refuse. Give them a well-formed identity pair — do not exempt `Proposed`.
 `MonitorStarted` has exactly one producer (Task 7's effect builder), which always knows
 both; an optional field would exist solely so a record could be written without the value
 the coordinator then needs, which is how `last_autonomous_merge_at` would end up `None` for
@@ -3413,8 +3456,23 @@ Expected: failures naming the unknown event types.
 
 Add each type to `KNOWN_EVENT_TYPES_V1` with a comment marking it a Slice-2 vocabulary extension (record SHAPE unchanged ⇒ `SCHEMA_VERSION` stays 1, per Slice 1A's F7 rule). Write one `_validate_*` per type following the existing house style — `_same_attempt(raw)`, `_exact_keys(payload, frozenset({...}), "<Type>")`, `_require(payload, key, str)`, and a membership check against a module-level frozenset for each constrained vocabulary. Register all of them in `TYPE_VALIDATORS`.
 
-Also **move `coordinator._coord_event` to `events.coord_event`** (same body, now public) and
-have `coordinator.py` import it. Task 7's effect builders construct coordinator events, and
+Add the shared payload helpers the constrained vocabularies need, beside the existing ones:
+`_non_negative_int` (a counter that legitimately starts at zero — a cooldown `epoch`, a
+claim's first heartbeat `tick` — which `_positive_int` would reject), `_one_of` (a closed
+vocabulary), `_string_list` (a list of non-empty strings, *never* a bare string: `str` is
+iterable, so an element-wise check over `"route-1"` passes one character at a time and one
+id records as seven), `_instant` (an ISO-8601 moment with a timezone — extracted from
+`validate_lane_event`'s envelope check, messages unchanged, so the envelope timestamp and
+every payload timestamp are the same rule), and `_same_problem` (the `_same_attempt`
+argument one level up; NOT applied to coordinator-stream events, where the payload's
+`problem_id` is the CLAIMED Problem and the envelope's is `COORDINATOR_STREAM`).
+
+Also **move `coordinator._coord_event` to `events.coord_event`** (now public) and
+have `coordinator.py` import it. Its signature changes with the move: the free `idem` tuple
+becomes `(event_type, *, problem_id, attempt_id, payload, actor, timestamp)`, and the key
+comes from `COORDINATOR_KEYS` below rather than from a literal at each call site. That is
+the point of declaring the keys at all — leaving `idem` a parameter would keep the
+`"claim"`/`"release"` literals in the callers, which is the duplication this removes. Task 7's effect builders construct coordinator events, and
 `events.py` is the module that owns event construction and the only one both can import
 without a cycle (`coordinator.py` imports `lifecycle` from Task 8 onward). The alternative —
 a second deterministic-id builder in `lifecycle.py` — is the duplication Constitution I
@@ -3456,11 +3514,39 @@ def coordinator_event_id(event_type: str, problem_id: str, attempt_id: str) -> s
 Run: `python -m pytest tests/unit/test_self_improvement_events.py -q`
 Expected: all pass.
 
-- [ ] **Step 5: Commit**
+- [ ] **Step 5: Verify the validators are load-bearing**
+
+A validator that cannot reject anything is documentation. One mutation per guard, applied
+and reverted one at a time against a sha256-verified snapshot:
+
+|Mutation|Guard it removes|
+|-|-|
+|`_no_envelope_attempt`'s test → `if False:`|the rule that keeps `project_attempt` foldable|
+|`_same_problem`'s comparison → `if False:`|the payload/envelope Problem agreement|
+|`_one_of`'s membership test → `if False:`|every constrained vocabulary at once|
+|`_string_list`'s list-type check → `if False:`|the bare-string-is-iterable trap|
+|`_payload_instant` → a bare `_require(..., str)`|`merged_at` / `cooldown_until` as instants|
+|`_non_negative_int` → `_positive_int`|the first `tick`/`epoch` of every series|
+|`_validate_claim_granted` drops `claim_generation`|the field `walk_attempt` reads|
+|`_validate_monitor_started` drops the rev-24 fields|`problem_id` + `merged_at`|
+|`coordinator_event_id`'s membership guard → `if False:`|keying a non-partner by guesswork|
+|drop `_PLAIN_ATTEMPT_TRANSITIONS` from `TYPE_VALIDATORS`|nineteen unchecked payloads|
+|drop the Slice-2 names from `KNOWN_EVENT_TYPES_V1`|the vocabulary itself|
+
+All eleven kill a test. Run them with the same harness discipline Task 5 used: an anchor
+that does not match must ABORT rather than score, because a substitution that silently fails
+to apply reports a green run that means nothing — which is what happened on the first
+attempt here, and the harness caught it.
+
+- [ ] **Step 6: Commit**
 
 ```bash
 PRE_COMMIT_ALLOW_NO_CONFIG=1 git commit -o src/llmxive/self_improvement/events.py \
+  src/llmxive/self_improvement/coordinator.py \
   tests/unit/test_self_improvement_events.py \
+  tests/unit/test_self_improvement_coordinator.py \
+  tests/integration/test_self_improvement_lane_log.py \
+  tests/integration/test_self_improvement_lane_transaction.py \
   -m "feat(025 slice-2): Attempt lifecycle event vocabulary + write-boundary validators"
 ```
 
@@ -4055,7 +4141,10 @@ duplication Constitution I forbids, and the older one would be the unsafe path.
 2. `ClaimOutcome.generation` reports it (the field rev 22 deliberately left off until now).
 3. Generation is monotonic across claim/release cycles and NEVER resets — three cycles yield 1, 2, 3.
 4. `ClaimTerms` (expiry, hold time, skew, policy version) round-trips through the `ClaimGranted` payload and is what a later reader sees, **not** the current module constants: write a claim, then re-read it with different module constants patched in via the injected policy object, and assert the CLAIM's terms win. This is the row Task 1 Step 3 added — a policy edit mid-claim must not retroactively expire a live run.
-5. A `ClaimGranted` whose payload omits any term is refused at the write boundary.
+5. A `ClaimGranted` whose payload omits any term is refused at the write boundary. Task 6
+   left `_validate_claim_granted` as required-fields (identity pair + `claim_generation`,
+   the one field `walk_attempt` reads) because the full key set was not yet known; THIS is
+   where the four terms join it and the schema becomes `_exact_keys`.
 6. **Both records land in ONE commit** carrying IDENTICAL terms and generation — assert the two payloads agree field-for-field and that `git show --name-only` on `result.commit` lists both paths. This is the invariant that makes "the coordinator record is authoritative" safe to rely on rather than a coin flip between two sources.
 7. **A claim on an Attempt that is not `proposal_verified` is refused**, and writes NOTHING to either stream. The claim is a transition in the table (`proposal_verified → claimed`), so it obeys the table like every other one.
 8. **A crash at `_before_ref_update` leaves neither record.** The lane is unclaimed and the Attempt is still `proposal_verified`; a retry then succeeds normally.

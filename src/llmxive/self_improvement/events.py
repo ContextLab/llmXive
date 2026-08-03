@@ -51,6 +51,34 @@ KNOWN_EVENT_TYPES_V1 = frozenset({
     # the primary fail. A vocabulary extension only — the record SHAPE is unchanged, so
     # SCHEMA_VERSION stays 1.
     "ReviewRerouted",
+    # --- Slice 2 (FR-035): the Attempt lifecycle vocabulary -----------------------------
+    # These MIRROR `lifecycle.ATTEMPT_EVENT_TYPES`, which is the declaration;
+    # `test_every_declared_transition_has_a_writable_event_type` fails if the two drift.
+    # A vocabulary extension only — the record SHAPE is unchanged, so SCHEMA_VERSION stays
+    # 1 (Slice 1A F7); bumping it would make a reader reject prior-version history.
+    #
+    # `ClaimGranted`/`ClaimExpired` on a Problem stream are ATTEMPT transitions (they move
+    # the Attempt). `ClaimAcquired`/`ClaimReleased` on the coordinator stream are LANE
+    # mutations (they move the singleton). NEITHER IS A DUPLICATE OF THE OTHER and neither
+    # is derivable from the other: they live on different STREAMS with independent revision
+    # lines, so each needs its own record. They are not independent in TIME, though — the
+    # pair is written in ONE transaction (`append_many`), which is why no reconciler ever
+    # has to correlate them or handle seeing one without the other.
+    #
+    # No event type appears on BOTH streams (pinned by
+    # `test_no_event_type_lives_on_both_streams`). A reclaim's coordinator side is the
+    # ordinary `ClaimReleased` every other release writes; a coordinator-side `ClaimExpired`
+    # would be a second type whose only content — the next generation — the next
+    # `ClaimAcquired` computes anyway. Disjoint vocabularies also make "which stream is
+    # this?" answerable from the event type alone.
+    "ClaimGranted", "Implementing", "ImplementationFailed", "PublishFailed",
+    "TestingFailed", "EvaluationFailed", "ScopeUnsupported", "FreshnessStale",
+    "EvaluationPassed", "PromotionRequested", "PromotionObserved", "PromotionAborted",
+    "RevertRequested", "RevertObserved", "RevertAborted", "Retained", "BreakerTripped",
+    "ReviewAborted", "ClaimExpired", "ClaimHeartbeat",
+    # Slice-2 records that are NOT Attempt transitions: the monitoring close-out
+    # (coordinator stream) and the spec's `‡` Problem-scoped rows.
+    "MonitorEnded", "SideEffectRequested", "SideEffectObserved", "Cooldown",
 })
 
 LEGS = ("primary", "fallback")   # FR-002's two-attempt reroute; nothing else is a leg
@@ -120,6 +148,61 @@ def _as_dict(e: Event) -> dict[str, Any]:
     }
 
 
+#: The idempotency-key prefix each cross-stream coordinator event is keyed by.
+#: Declared once because FOUR places need it and they must agree EXACTLY: :func:`coord_event`
+#: builds with it, `lifecycle`'s effect builders build with it, `cas_claim` derives its
+#: ``ClaimAcquired`` id from it, and both the replay path and ``assert_lane_consistent``
+#: compute a partner's id from it WITHOUT building the event. It was a bare ``"release"`` /
+#: ``"monitor"`` / ``"claim"`` literal in five places across three modules; a typo in any one
+#: of them mints a SECOND record for one decision, which is precisely the half-state the
+#: whole slice exists to prevent.
+COORDINATOR_KEYS: dict[str, str] = {
+    "ClaimAcquired": "claim",
+    "ClaimReleased": "release",
+    "MonitorStarted": "monitor",
+}
+
+
+def coordinator_event_id(event_type: str, problem_id: str, attempt_id: str) -> str:
+    """The derived id of a coordinator record — computed, never searched for.
+
+    This is what makes a transaction's partner LOCATABLE on replay and auditable after the
+    fact: given either half, the other half's id is a pure function of
+    ``(event_type, problem_id, attempt_id)``."""
+    if event_type not in COORDINATOR_KEYS:
+        raise ValueError(
+            f"{event_type!r} is not a cross-stream coordinator event — "
+            f"expected one of {sorted(COORDINATOR_KEYS)}"
+        )
+    return derive_event_id(
+        COORDINATOR_STREAM,
+        "\x00".join((COORDINATOR_KEYS[event_type], problem_id, attempt_id)))
+
+
+def coord_event(event_type: str, *, problem_id: str, attempt_id: str, payload: dict,
+                actor: str, timestamp: str) -> Event:
+    """One coordinator event with a DETERMINISTIC id, so a re-invoked operation rebuilds
+    the same event rather than minting a second record of the same decision.
+
+    Lives HERE rather than in :mod:`coordinator` because ``lifecycle``'s effect builders
+    also construct coordinator events, and this module is the one both can import without a
+    cycle. A second deterministic-id builder there would be the duplication Constitution I
+    forbids, and two builders drifting on id derivation would mint duplicate records of one
+    decision.
+
+    ``problem_id`` is the CLAIMED Problem and goes in the payload; the ENVELOPE's is always
+    :data:`COORDINATOR_STREAM`, because that is the stream this lands on.
+
+    The revision anchors and ``seq`` are deliberately left unset: the store stamps all of
+    them inside the CAS from the verified parent (see ``lane_log._finalize``), and a value
+    fixed out here would be a guess about a revision we have not yet won."""
+    return Event(
+        event_id=coordinator_event_id(event_type, problem_id, attempt_id),
+        event_type=event_type, problem_id=COORDINATOR_STREAM, actor=actor,
+        payload=payload, timestamp=timestamp, attempt_id=attempt_id,
+    )
+
+
 # --- per-type payload schemas ---------------------------------------------------
 #
 # The envelope check accepts ANY payload, so an event carrying a SAFETY CLAIM a
@@ -159,6 +242,73 @@ def _positive_int(payload: Mapping[str, Any], key: str) -> int:
     if isinstance(value, bool) or value <= 0:   # bool IS an int in Python
         raise ValueError(f"payload key {key!r} must be a positive int, got {value!r}")
     return value
+
+
+def _non_negative_int(payload: Mapping[str, Any], key: str) -> int:
+    """Zero is a legitimate value for a COUNTER that starts at zero — a Problem's first
+    cooldown ``epoch``, a claim's first heartbeat ``tick`` — where :func:`_positive_int`
+    would reject the very first record of the series."""
+    value = _require(payload, key, int)
+    if isinstance(value, bool) or value < 0:   # bool IS an int in Python
+        raise ValueError(f"payload key {key!r} must be a non-negative int, got {value!r}")
+    return value
+
+
+def _one_of(payload: Mapping[str, Any], key: str, allowed: frozenset[str], label: str) -> str:
+    """A CONSTRAINED vocabulary, checked at the write boundary.
+
+    A free-form string here is how a typo becomes a silent new category: nothing rejects
+    ``cause="wallclock"``, the counter that keys on ``"wall_clock"`` never sees it, and the
+    record is durable and wrong forever."""
+    value = _require(payload, key, str)
+    if value not in allowed:
+        raise ValueError(
+            f"{label} payload key {key!r} must be one of {sorted(allowed)}, got {value!r}")
+    return value
+
+
+def _string_list(payload: Mapping[str, Any], key: str, label: str) -> list[str]:
+    """A LIST of non-empty strings — possibly empty, never a bare string.
+
+    The bare-string case is the one worth spelling out: ``str`` is iterable, so an
+    element-wise check over ``"abc"`` passes one character at a time and a single id
+    silently records as three."""
+    if key not in payload:
+        raise ValueError(f"payload missing required key {key!r}")
+    value = payload[key]
+    if not isinstance(value, list):
+        raise ValueError(
+            f"{label} payload key {key!r} must be a list, got {type(value).__name__}")
+    for position, item in enumerate(value):
+        if not isinstance(item, str) or not item:
+            raise ValueError(
+                f"{label} payload key {key!r}[{position}] must be a non-empty string, "
+                f"got {item!r}")
+    return value
+
+
+def _instant(value: str, label: str) -> datetime:
+    """An ISO-8601 INSTANT: a time AND a timezone, never a bare calendar date.
+
+    One implementation for the envelope timestamp and for every payload field that records
+    a moment (``merged_at``, ``cooldown_until``), because they are the same requirement:
+    ``"2026-07-24"`` parses fine and would order records from different runners by an offset
+    nobody wrote down, and FR-036's whole point is that lane runs execute on independent
+    clocks."""
+    try:
+        parsed = datetime.fromisoformat(value)
+    except ValueError as exc:
+        raise ValueError(f"{label} {value!r} is not ISO-8601") from exc
+    if parsed.tzinfo is None:
+        raise ValueError(
+            f"{label} {value!r} must include a time AND a timezone "
+            "(an instant, not a date)"
+        )
+    return parsed
+
+
+def _payload_instant(payload: Mapping[str, Any], key: str) -> datetime:
+    return _instant(_require(payload, key, str), f"payload key {key!r}")
 
 
 def _finite_number(payload: Mapping[str, Any], key: str, *, strictly_positive: bool) -> float:
@@ -215,6 +365,45 @@ def _same_attempt(raw: Mapping[str, Any]) -> str:
             f"attempt_id {raw.get('attempt_id')!r}"
         )
     return attempt
+
+
+def _same_problem(raw: Mapping[str, Any]) -> str:
+    """The payload's ``problem_id`` MUST equal the envelope's, for a PROBLEM-stream event.
+
+    Sibling of :func:`_same_attempt` and the same failure it prevents one level up: a
+    record filed on stream P1 whose payload names P2 has two readings and no way to tell
+    which the writer meant. Deliberately NOT applied to coordinator-stream events, where
+    the payload's ``problem_id`` is the CLAIMED Problem and the envelope's is
+    :data:`COORDINATOR_STREAM` — there the two are meant to differ."""
+    payload = raw["payload"]
+    problem = _require(payload, "problem_id", str)
+    if raw.get("problem_id") != problem:
+        raise ValueError(
+            f"payload problem_id {problem!r} disagrees with the event's "
+            f"problem_id {raw.get('problem_id')!r}"
+        )
+    return problem
+
+
+def _no_envelope_attempt(raw: Mapping[str, Any]) -> None:
+    """A Problem-stream record that is NOT an Attempt transition must carry NO envelope
+    ``attempt_id``.
+
+    ``project_attempt`` selects an Attempt's history as ``[e for e in stream if
+    e.attempt_id == attempt_id]`` and folds everything it finds, failing closed on any type
+    outside ``lifecycle.ATTEMPT_EVENT_TYPES``. So an intent or a cooldown stamped with an
+    envelope ``attempt_id`` would make every LATER projection of that Attempt raise —
+    permanently, because history is append-only, and the Attempt would be unable to record
+    even its own terminal. The association still exists: it lives in the PAYLOAD, which is
+    what the intent reader filters on. `lifecycle.NON_TRANSITIONS` is the ONLY way an event
+    legitimately lands under an Attempt's envelope without moving its state, and it carries
+    the rules that make such a record legal."""
+    if raw.get("attempt_id") is not None:
+        raise ValueError(
+            f"{raw['event_type']} must not carry an envelope attempt_id "
+            f"({raw['attempt_id']!r}) — it is not an Attempt transition, and project_attempt "
+            "folds every event filed under an Attempt's envelope"
+        )
 
 
 _ATTEMPT_CONFIG_KEYS = frozenset({"attempt_id", "call_ceiling", "attempt_budget_credits"})
@@ -365,7 +554,8 @@ def _validate_reservation_transition(raw: Mapping[str, Any]) -> None:
 
 
 _CLAIM_KEYS = frozenset({"problem_id", "attempt_id"})
-_MONITOR_KEYS = frozenset({"attempt_id"})
+_MONITOR_KEYS = frozenset({"problem_id", "attempt_id", "merged_at"})
+_MONITOR_ENDED_KEYS = frozenset({"problem_id", "attempt_id", "outcome"})
 _PROMOTION_KEYS = frozenset({"promotion_enabled", "policy_version"})
 
 
@@ -389,9 +579,33 @@ def _validate_claim(raw: Mapping[str, Any]) -> None:
 
 
 def _validate_monitor_started(raw: Mapping[str, Any]) -> None:
+    """The monitoring window opens here, and BOTH added fields are required rather than
+    optional (spec 025 rev 24).
+
+    ``merged_at`` is the instant the promotion being monitored was observed — what
+    ``last_autonomous_merge_at`` folds to. ``problem_id`` is what lets the fold's ownership
+    check compare the PAIR; without it the check falls back to matching an ``attempt_id``
+    alone, which is the 1A F6 mistake. ``MonitorStarted`` has exactly ONE producer (the
+    transition effect builder) and it always knows both, so an optional field would exist
+    solely so a record could be written without the value the coordinator then needs — which
+    is how ``last_autonomous_merge_at`` ends up ``None`` for a merge that demonstrably
+    happened."""
     payload = raw["payload"]
     _exact_keys(payload, _MONITOR_KEYS, "MonitorStarted payload")
+    _require(payload, "problem_id", str)
     _same_attempt(raw)
+    _payload_instant(payload, "merged_at")
+
+
+def _validate_monitor_ended(raw: Mapping[str, Any]) -> None:
+    """The close-out of a monitoring window. ``outcome`` records WHICH terminal ended it,
+    so the coordinator's removal from ``monitored_attempts`` is self-describing rather than
+    something a reader has to go find on the Attempt's stream."""
+    payload = raw["payload"]
+    _exact_keys(payload, _MONITOR_ENDED_KEYS, "MonitorEnded payload")
+    _require(payload, "problem_id", str)
+    _same_attempt(raw)
+    _one_of(payload, "outcome", _MONITOR_OUTCOMES, "MonitorEnded")
 
 
 def _validate_promotion_enabled_set(raw: Mapping[str, Any]) -> None:
@@ -418,6 +632,164 @@ def _validate_promotion_enabled_set(raw: Mapping[str, Any]) -> None:
             )
 
 
+# --- Slice 2: the Attempt lifecycle ---------------------------------------------------
+
+_REVIEW_STAGES = frozenset({"proposal", "patch"})
+#: FR-034's seven causes. An abort is UNCOUNTED against the quality cap, so what it says
+#: about itself is the only record of why a Problem's operational streak advanced.
+_REVIEW_ABORT_CAUSES = frozenset({
+    "model_unavailable", "chain_exhausted", "route_audit_fatal", "route_replay",
+    "unresolved_dispatch", "budget_ceiling", "wall_clock",
+})
+_CLAIM_EXPIRY_REASONS = frozenset({"heartbeat_lapsed", "hold_time_exceeded"})
+_SIDE_EFFECTS = frozenset({"publish", "merge", "revert"})
+_INTENT_DISPOSITIONS = frozenset({"landed", "rejected", "contained", "ambiguous"})
+_COOLDOWN_CAUSES = frozenset({"quality", "operational"})
+_MONITOR_OUTCOMES = frozenset({"retained", "reverted"})
+
+_HEARTBEAT_KEYS = frozenset({"problem_id", "attempt_id", "claim_generation", "tick"})
+_CLAIM_EXPIRED_KEYS = frozenset({"problem_id", "attempt_id", "claim_generation", "reason"})
+_REVIEW_ABORTED_KEYS = frozenset({
+    "problem_id", "attempt_id", "stage", "cause", "unresolved_dispatches"})
+_SIDE_EFFECT_KEYS = frozenset({
+    "problem_id", "attempt_id", "claim_generation", "effect", "idempotency_key"})
+_SIDE_EFFECT_OBSERVED_KEYS = _SIDE_EFFECT_KEYS | {"disposition"}
+_COOLDOWN_KEYS = frozenset({"problem_id", "cause", "epoch", "cooldown_until"})
+
+
+def _validate_attempt_transition(raw: Mapping[str, Any]) -> None:
+    """The contract EVERY Attempt transition shares: it names its Problem and its Attempt,
+    and the payload agrees with the envelope on both.
+
+    Deliberately NOT :func:`_exact_keys`. The house rule is that an event binding a LIMIT or
+    a ROUTING IDENTITY has an exact schema; a transition binds neither, and its
+    per-transition fields (the ``head_sha`` in ``EvaluationPassed``'s idempotency key, the
+    ``reason`` in ``RevertRequested``'s, …) are declared by the tasks that write them.
+    Fixing an exact key set here would mean guessing those, and a guess would reject records
+    the spec's own table requires.
+
+    What IS universal is the identity pair, and it is universal because every reader depends
+    on it: ``project_attempt`` selects a history by the envelope ``attempt_id`` and the
+    coordinator pairing walks compare ``(problem_id, attempt_id)`` across streams. A
+    transition whose ids disagree is filed against the wrong Attempt's timeline — silently,
+    and durably."""
+    _same_problem(raw)
+    _same_attempt(raw)
+
+
+def _validate_claim_granted(raw: Mapping[str, Any]) -> None:
+    """The ATTEMPT-side half of a claim grant (the coordinator-side half is
+    ``ClaimAcquired``, written in the same transaction).
+
+    ``claim_generation`` is required because ``walk_attempt`` READS it: a grant without one
+    is a history the fold refuses, and refusing it here — at the write boundary — is the
+    difference between a rejected append and an Attempt whose every future projection
+    raises. Task 8 adds the four claim-bound policy terms (``claim_expiry_s``,
+    ``max_claim_hold_time_s``, ``max_clock_skew_s``, ``policy_version``) and makes this
+    schema exact once the full key set is known."""
+    _validate_attempt_transition(raw)
+    _positive_int(raw["payload"], "claim_generation")
+
+
+def _validate_claim_heartbeat(raw: Mapping[str, Any]) -> None:
+    """Proof of life for ONE claim, and only for the claim it names.
+
+    The generation is the fencing token: a beat stamped with a generation the Attempt no
+    longer holds is a crashed runner's beat arriving after a reclaim, and accepting it would
+    defeat the token. ``tick`` starts at zero, so it is non-negative rather than positive —
+    the first beat of a claim is a legitimate record."""
+    payload = raw["payload"]
+    _exact_keys(payload, _HEARTBEAT_KEYS, "ClaimHeartbeat payload")
+    _validate_attempt_transition(raw)
+    _positive_int(payload, "claim_generation")
+    _non_negative_int(payload, "tick")
+
+
+def _validate_claim_expired(raw: Mapping[str, Any]) -> None:
+    """The one terminal written by a DIFFERENT run than the one that abandoned the Attempt
+    (FR-035). ``claim_generation`` names the claim being expired — the reclaimer re-verifies
+    it INSIDE the CAS, so a record naming the wrong one would let a stale observation evict
+    a live holder. ``reason`` distinguishes the two independent preconditions, which have
+    different repair paths."""
+    payload = raw["payload"]
+    _exact_keys(payload, _CLAIM_EXPIRED_KEYS, "ClaimExpired payload")
+    _validate_attempt_transition(raw)
+    _positive_int(payload, "claim_generation")
+    _one_of(payload, "reason", _CLAIM_EXPIRY_REASONS, "ClaimExpired")
+
+
+def _validate_review_aborted(raw: Mapping[str, Any]) -> None:
+    """An operational abort, NOT a verdict (spec rev 17): the lane could not reach an
+    answer, so this is uncounted against the Problem's quality cap and counted against its
+    operational streak instead.
+
+    ``stage`` is required because ``ReviewAborted`` is legal from two states where two
+    different reviews run, and "which review" is not recoverable from the transition alone.
+    ``unresolved_dispatches`` lists the route ids resolved to ``dispatch_unknown`` before
+    the decision (FR-034); it is a list because the honest answer is often "none", and an
+    empty list says that where a missing key would say nothing at all."""
+    payload = raw["payload"]
+    _exact_keys(payload, _REVIEW_ABORTED_KEYS, "ReviewAborted payload")
+    _validate_attempt_transition(raw)
+    _one_of(payload, "stage", _REVIEW_STAGES, "ReviewAborted")
+    _one_of(payload, "cause", _REVIEW_ABORT_CAUSES, "ReviewAborted")
+    _string_list(payload, "unresolved_dispatches", "ReviewAborted")
+
+
+def _validate_side_effect(raw: Mapping[str, Any]) -> None:
+    """The saga's two records: an intent, and the observation that closes it.
+
+    They are NOT Attempt transitions — ``PromotionRequested`` moves the Attempt, this is the
+    fencing record that blocks a reclaim until reconciled — so they carry no envelope
+    ``attempt_id`` (see :func:`_no_envelope_attempt`). ``idempotency_key`` is what makes the
+    external effect re-observable after a crash instead of re-attempted."""
+    payload = raw["payload"]
+    observed = raw["event_type"] == "SideEffectObserved"
+    _exact_keys(payload, _SIDE_EFFECT_OBSERVED_KEYS if observed else _SIDE_EFFECT_KEYS,
+                f"{raw['event_type']} payload")
+    _no_envelope_attempt(raw)
+    _same_problem(raw)
+    _require(payload, "attempt_id", str)
+    _positive_int(payload, "claim_generation")
+    _one_of(payload, "effect", _SIDE_EFFECTS, raw["event_type"])
+    _require(payload, "idempotency_key", str)
+    if observed:
+        # FOUR dispositions, not two: `contained` (may still land, but only where it is
+        # harmless) and `rejected` (landing is now impossible) are different facts, and
+        # collapsing them is the rev-22 error.
+        _one_of(payload, "disposition", _INTENT_DISPOSITIONS, "SideEffectObserved")
+
+
+def _validate_cooldown(raw: Mapping[str, Any]) -> None:
+    """A PROBLEM's rest, not an Attempt's outcome — so no envelope ``attempt_id``, and no
+    ``attempt_id`` in the payload either.
+
+    ``cause`` and ``epoch`` are both required because the idempotency key is
+    ``(problem_id, "cooldown", cause, epoch)``: without the cause the two counters share one
+    slot, and without the epoch a Problem that cooled down once could never cool down
+    again (the rev-18 defect)."""
+    payload = raw["payload"]
+    _exact_keys(payload, _COOLDOWN_KEYS, "Cooldown payload")
+    _no_envelope_attempt(raw)
+    _same_problem(raw)
+    _one_of(payload, "cause", _COOLDOWN_CAUSES, "Cooldown")
+    _non_negative_int(payload, "epoch")
+    _payload_instant(payload, "cooldown_until")
+
+
+#: The transitions whose payload is the identity pair plus whatever the writing task adds.
+#: Listed rather than derived from `lifecycle.TRANSITIONS` on purpose: importing `lifecycle`
+#: here would be a cycle (it imports this module), and the two sets agreeing is asserted by
+#: `test_every_declared_transition_has_a_writable_event_type` — a check, not a hope.
+_PLAIN_ATTEMPT_TRANSITIONS = frozenset({
+    "Proposed", "ProposalVerified", "Rejected", "Implementing", "ImplementationFailed",
+    "PublishFailed", "TestingFailed", "EvaluationFailed", "ScopeUnsupported",
+    "FreshnessStale", "EvaluationPassed", "PromotionRequested", "PromotionObserved",
+    "PromotionAborted", "RevertRequested", "RevertObserved", "RevertAborted", "Retained",
+    "BreakerTripped",
+})
+
+
 #: Per-type schemas. Each validator receives the WHOLE raw event, not just the payload:
 #: several invariants are cross-field (``payload["attempt_id"]`` must equal the
 #: envelope's), and a payload-only signature cannot express that.
@@ -438,6 +810,18 @@ TYPE_VALIDATORS: dict[str, Callable[[Mapping[str, Any]], None]] = {
     # Slice 1B: vocabulary membership alone would leave this payload unchecked, and it is
     # not a passive record — the invocation-identity projection reads it field by field.
     "ReviewRerouted": _validate_review_rerouted,
+    # Slice 2. Every Attempt transition is validated — the plain ones share the identity
+    # contract, the rest add their own fields. A type in the vocabulary with NO validator
+    # would be a payload nobody checks, and `walk_attempt` reads these payloads.
+    **dict.fromkeys(_PLAIN_ATTEMPT_TRANSITIONS, _validate_attempt_transition),
+    "ClaimGranted": _validate_claim_granted,
+    "ClaimHeartbeat": _validate_claim_heartbeat,
+    "ClaimExpired": _validate_claim_expired,
+    "ReviewAborted": _validate_review_aborted,
+    "MonitorEnded": _validate_monitor_ended,
+    "SideEffectRequested": _validate_side_effect,
+    "SideEffectObserved": _validate_side_effect,
+    "Cooldown": _validate_cooldown,
 }
 
 
@@ -520,20 +904,12 @@ def validate_lane_event(raw: dict) -> None:
             f"revision anchors inconsistent: seq={seq}, expected={exp}, resulting={res} "
             "(require expected==seq and resulting==seq+1)"
         )
-    timestamp = _envelope_str(raw, "timestamp")
-    try:
-        parsed = datetime.fromisoformat(timestamp)
-    except ValueError as exc:
-        raise ValueError(f"lane event timestamp {timestamp!r} is not ISO-8601") from exc
-    if parsed.tzinfo is None:
-        # FR-011 records an INSTANT, not a calendar day: "2026-07-24" parses fine and
-        # would order events from different runners by an offset nobody recorded. A
-        # timezone-aware value is also what makes the conservative reconciliation
-        # timeout (Task 12) comparable across processes.
-        raise ValueError(
-            f"lane event timestamp {timestamp!r} must include a time AND a timezone "
-            "(an instant, not a date)"
-        )
+    # FR-011 records an INSTANT, not a calendar day: "2026-07-24" parses fine and would
+    # order events from different runners by an offset nobody recorded. A timezone-aware
+    # value is also what makes the conservative reconciliation timeout (Task 12) comparable
+    # across processes. Same rule as every payload field that records a moment, hence the
+    # shared `_instant` — the message is unchanged.
+    _instant(_envelope_str(raw, "timestamp"), "lane event timestamp")
     payload = raw["payload"]
     if not isinstance(payload, Mapping):
         raise ValueError(f"lane event payload must be a mapping, got {type(payload).__name__}")
@@ -593,6 +969,7 @@ def event_from_json(text: str) -> Event:
 
 
 __all__ = [
+    "COORDINATOR_KEYS",
     "COORDINATOR_STREAM",
     "KNOWN_EVENT_TYPES_V1",
     "LEGS",
@@ -605,6 +982,8 @@ __all__ = [
     "SUPPORTED_SCHEMA_VERSIONS",
     "TYPE_VALIDATORS",
     "Event",
+    "coord_event",
+    "coordinator_event_id",
     "derive_event_id",
     "derive_route_id",
     "event_from_json",

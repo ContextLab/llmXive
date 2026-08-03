@@ -12,6 +12,8 @@ import pytest
 from llmxive.self_improvement.coordinator import EMPTY_COORDINATOR, project_coordinator
 from llmxive.self_improvement.events import COORDINATOR_STREAM, Event
 
+_MERGED_AT = "2026-07-24T00:00:00+00:00"
+
 
 def _ev(eid, etype, payload, seq, *, attempt_id="A1"):
     return Event(event_id=eid, event_type=etype, problem_id=COORDINATOR_STREAM, actor="coord",
@@ -91,8 +93,14 @@ def test_a_payload_missing_the_field_the_fold_reads_fails_closed():
 
 def test_monitor_started_accumulates_in_order():
     c = project_coordinator([
-        _ev("e1", "MonitorStarted", {"attempt_id": "A1"}, 0),
-        _ev("e2", "MonitorStarted", {"attempt_id": "A2"}, 1, attempt_id="A2"),
+        # The payloads are what `validate_lane_event` would accept (spec rev 24 made
+        # `problem_id` and `merged_at` required); the fold reads only `attempt_id` today —
+        # `last_autonomous_merge_at` and the ownership check come with Task 12.
+        _ev("e1", "MonitorStarted",
+            {"problem_id": "P1", "attempt_id": "A1", "merged_at": _MERGED_AT}, 0),
+        _ev("e2", "MonitorStarted",
+            {"problem_id": "P2", "attempt_id": "A2", "merged_at": _MERGED_AT}, 1,
+            attempt_id="A2"),
     ])
     assert c.monitored_attempts == ("A1", "A2") and c.lane_revision == 2
 
