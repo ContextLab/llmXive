@@ -1,65 +1,28 @@
-%YAML 1.1
----
-type: object
-description: >
-  Schema for processed cancer dataset records.
-  Each record represents a single sample with gene expression data.
-required:
-  - tumor_type
-  - sample_id
-  - response_label
-  - gene_expression
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Cancer Biomarker Dataset Schema"
+description: "Schema for the processed cancer dataset used in biomarker discovery."
+type: "object"
 properties:
-  tumor_type:
-    type: string
-    description: >
-      The cancer/tumor type identifier (e.g., 'BRCA', 'LUAD', 'PRAD').
-      Must match the standardized nomenclature used in TCGA/GEO.
-    minLength: 2
-    maxLength: 10
   sample_id:
-    type: string
-    description: >
-      Unique identifier for the sample.
-      For TCGA: TCGA-XX-XXXX format.
-      For GEO: GSM-XXXXXXX format.
-    minLength: 5
+    type: "string"
+    description: "Unique identifier for the sample (e.g., TCGA barcode)."
+  tumor_type:
+    type: "string"
+    description: "Cancer type code (e.g., BRCA, LUAD)."
   response_label:
-    type: string
-    description: >
-      Binary or categorical response label indicating chemotherapy response.
-      Expected values: 'Responder', 'NonResponder', 'CR', 'PR', 'SD', 'PD'.
-      Must be mapped to a binary classification for modeling.
-    enum:
-      - Responder
-      - NonResponder
-      - CR
-      - PR
-      - SD
-      - PD
-  gene_expression:
-    type: object
-    description: >
-      Map of gene symbols (HGNC) to normalized expression values.
-      Keys are gene symbols, values are numeric expression levels.
-      Values should be VST-normalized or log2-transformed counts.
-    additionalProperties:
-      type: number
-      minimum: 0
-    minProperties: 1
-additionalProperties: false
-examples:
-  - tumor_type: "BRCA"
-    sample_id: "TCGA-02-0001"
-    response_label: "Responder"
-    gene_expression:
-      TP53: 12.5
-      BRCA1: 8.3
-      EGFR: 4.1
-  - tumor_type: "LUAD"
-    sample_id: "GSM123456"
-    response_label: "NonResponder"
-    gene_expression:
-      KRAS: 15.2
-      EGFR: 6.7
-      ALK: 2.1
+    type: "string"
+    description: "Chemotherapy response status (e.g., Responder, Non-Responder)."
+  expression_vector:
+    type: "array"
+    items:
+      type: "number"
+    description: "Normalized gene expression values."
+  set_type:
+    type: "string"
+    description: "Data split type (e.g., discovery, training, external_validation)."
+required:
+  - sample_id
+  - tumor_type
+  - response_label
+  - expression_vector
+  - set_type

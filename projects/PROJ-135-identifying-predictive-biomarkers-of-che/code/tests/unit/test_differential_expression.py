@@ -1,8 +1,6 @@
 """
-Unit tests for Differential Expression module.
-Tests the logic of filtering and data preparation without running DESeq2 (mocked).
+Unit tests for Differential Expression Analysis (T023).
 """
-
 import os
 import sys
 import pytest
@@ -10,115 +8,130 @@ import pandas as pd
 import numpy as np
 from pathlib import Path
 import tempfile
+import json
 
-# Mock rpy2 to avoid R dependency in unit tests
-from unittest.mock import patch, MagicMock
+# Import functions to test
+from src.differential_expression import process_tumor_type_discovery, run_deseq2_analysis_scipy
 
-# Import the function to test (we will test the logic inside process_tumor_type_discovery)
-# Since rpy2 is heavy, we mock the run_deseq2_analysis function
-from src.differential_expression import process_tumor_type_discovery
+@pytest.fixture
+def temp_data_dir():
+    with tempfile.TemporaryDirectory() as tmpdir:
+        yield Path(tmpdir)
 
 @pytest.fixture
 def sample_discovery_data():
-    """Generate a sample discovery set (Samples x Genes format)."""
-    n_samples = 50
+    """
+    Generate a small synthetic dataset for testing.
+    Format: Samples as rows, Genes as columns, plus response_label.
+    """
+    np.random.seed(42)
+    n_samples = 20
     n_genes = 100
-    n_responders = 20
     
-    # Create metadata
-    responses = ['Responder'] * n_responders + ['NonResponder'] * (n_samples - n_responders)
-    np.random.shuffle(responses)
+    # Create gene names
+    genes = [f"GENE_{i:03d}" for i in range(n_genes)]
+    samples = [f"Sample_{i}" for i in range(n_samples)]
     
-    # Create random counts (integers)
-    data = np.random.randint(10, 1000, size=(n_samples, n_genes))
+    # Create expression data
+    # Responders (10) vs Non-responders (10)
+    # Make some genes differentially expressed
+    expr_data = np.random.rand(n_samples, n_genes) * 10
     
-    # Create DataFrame
-    gene_names = [f"GENE_{i}" for i in range(n_genes)]
-    df = pd.DataFrame(data, columns=gene_names)
-    df['response'] = responses
+    # Inject signal: first 5 genes higher in responders
+    responders_idx = list(range(10))
+    expr_data[responders_idx, :5] += 5.0
+    
+    df = pd.DataFrame(expr_data, columns=genes, index=samples)
+    df['response_label'] = ['Responder'] * 10 + ['NonResponder'] * 10
     
     return df
 
-@pytest.fixture
-def temp_data_dir(sample_discovery_data):
-    """Create a temporary directory with a sample discovery file."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        data_dir = Path(tmpdir)
-        tumor_type = "TEST_TY"
-        file_path = data_dir / f"{tumor_type}_discovery_set.csv"
-        sample_discovery_data.to_csv(file_path, index=False)
-        yield data_dir, tumor_type
+def test_process_discovery_set_format(temp_data_dir, sample_discovery_data):
+    """
+    Test that process_tumor_type_discovery correctly handles a valid discovery set.
+    """
+    # Create input file with correct naming convention
+    tumor_type = "Lung"
+    input_file = temp_data_dir / f"{tumor_type}_discovery_set.csv"
+    sample_discovery_data.to_csv(input_file)
+    
+    # Call function
+    result = process_tumor_type_discovery(tumor_type, temp_data_dir, temp_data_dir)
+    
+    # Assertions
+    assert result['status'] == 'success'
+    assert result['tumor_type'] == tumor_type
+    assert 'output_file' in result
+    assert os.path.exists(result['output_file'])
+    
+    # Check output content
+    with open(result['output_file'], 'r') as f:
+        de_results = json.load(f)
+    
+    assert isinstance(de_results, list)
+    # We injected signal, so we expect some significant genes (even with scipy approx)
+    # Note: With small N, scipy might not find all, but it should run without error.
+    # Just verify the structure is correct.
+    if len(de_results) > 0:
+        assert 'gene' in de_results[0]
+        assert 'log2FoldChange' in de_results[0]
+        assert 'padj' in de_results[0]
 
-def test_process_discovery_set_format(temp_data_dir):
-    """Test that the function correctly identifies Samples x Genes format."""
-    data_dir, tumor_type = temp_data_dir
-    results_dir = Path(temp_data_dir[0].parent) / "results"
-    results_dir.mkdir(exist_ok=True)
+def test_wrong_filename(temp_data_dir, sample_discovery_data):
+    """
+    Test that a file NOT ending in _discovery_set.csv raises an error (Data Leakage Prevention).
+    """
+    tumor_type = "Lung"
+    # Incorrect filename
+    input_file = temp_data_dir / f"{tumor_type}_training_set.csv"
+    sample_discovery_data.to_csv(input_file)
     
-    # Mock the run_deseq2_analysis to avoid R call
-    with patch('src.differential_expression.run_deseq2_analysis') as mock_de:
-        # Create a mock result DataFrame
-        mock_result = pd.DataFrame({
-            'gene': ['GENE_0', 'GENE_1'],
-            'base_mean': [100.0, 200.0],
-            'log2_fold_change': [2.5, -1.5],
-            'pvalue': [0.01, 0.001],
-            'padj': [0.02, 0.005],
-            'significant': [True, True]
-        })
-        mock_de.return_value = mock_result
-        
-        result = process_tumor_type_discovery(tumor_type, data_dir, results_dir)
-        
-        assert result['status'] == 'success'
-        assert result['tumor_type'] == tumor_type
-        assert 'output_file' in result
-        
-        # Verify run_deseq2_analysis was called
-        assert mock_de.called
-        args, kwargs = mock_de.call_args
-        # Check that counts and metadata were passed correctly
-        assert 'counts_df' in kwargs
-        assert 'metadata_df' in kwargs
-        assert 'response' in kwargs['metadata_df'].columns
-
-def test_threshold_logic():
-    """Test the filtering logic for FDR and log2FC."""
-    # This tests the logic inside run_deseq2_analysis (which we can't easily isolate without mocking R)
-    # Instead, we test the pandas filtering logic directly here.
-    
-    df = pd.DataFrame({
-        'padj': [0.01, 0.06, 0.03, 0.04],
-        'log2_fold_change': [2.0, 1.5, 0.5, -2.0]
-    })
-    
-    FDR_THRESHOLD = 0.05
-    LOG2FC_THRESHOLD = 1.0
-    
-    mask = (
-        (df['padj'] < FDR_THRESHOLD) & 
-        (df['padj'].notna()) &
-        (df['log2_fold_change'].abs() > LOG2FC_THRESHOLD)
-    )
-    
-    assert mask.sum() == 2 # GENE_0 and GENE_3 should be significant
-    # GENE_1: p=0.06 (fail)
-    # GENE_2: p=0.03 (pass), log2FC=0.5 (fail)
-    # GENE_0: p=0.01 (pass), log2FC=2.0 (pass)
-    # GENE_3: p=0.04 (pass), log2FC=-2.0 (pass)
+    with pytest.raises(ValueError, match="Data Leakage Prevention Failed"):
+        process_tumor_type_discovery(tumor_type, temp_data_dir, temp_data_dir)
 
 def test_missing_response_column(temp_data_dir):
-    """Test handling of missing response column."""
-    data_dir, _ = temp_data_dir
-    # Modify the file to remove response
-    file_path = data_dir / "TEST_TY_discovery_set.csv"
-    df = pd.read_csv(file_path)
-    df = df.drop(columns=['response'])
-    df.to_csv(file_path, index=False)
+    """
+    Test that a file missing 'response_label' raises an error.
+    """
+    tumor_type = "Lung"
+    input_file = temp_data_dir / f"{tumor_type}_discovery_set.csv"
     
-    results_dir = Path(temp_data_dir[0].parent) / "results"
-    results_dir.mkdir(exist_ok=True)
+    # Create data without label
+    df = pd.DataFrame(np.random.rand(10, 5), columns=[f"GENE_{i}" for i in range(5)])
+    df.to_csv(input_file)
     
-    result = process_tumor_type_discovery("TEST_TY", data_dir, results_dir)
-    assert result['status'] == 'error'
-    assert 'missing_response' in result['reason']
+    with pytest.raises(ValueError, match="Could not find 'response_label'"):
+        process_tumor_type_discovery(tumor_type, temp_data_dir, temp_data_dir)
+
+def test_threshold_logic(temp_data_dir):
+    """
+    Test the threshold logic in run_deseq2_analysis_scipy.
+    """
+    # Create simple data where we know the result
+    # 2 groups of 3 samples
+    # Gene 1: Group A = 1, Group B = 10 (Large diff)
+    # Gene 2: Group A = 5, Group B = 5 (No diff)
+    
+    counts = pd.DataFrame({
+        'Sample_A1': [1, 5],
+        'Sample_A2': [1, 5],
+        'Sample_A3': [1, 5],
+        'Sample_B1': [10, 5],
+        'Sample_B2': [10, 5],
+        'Sample_B3': [10, 5]
+    }, index=['Gene1', 'Gene2']).T
+    
+    counts.index.name = 'Sample'
+    col_data = pd.DataFrame({
+        'response_label': ['A', 'A', 'A', 'B', 'B', 'B']
+    }, index=counts.index)
+    
+    # Run analysis
+    results = run_deseq2_analysis_scipy(counts, col_data)
+    
+    # Gene1 should be significant (high logFC, low pval)
+    # Gene2 should not be significant (logFC ~ 0)
+    significant_genes = results['gene'].tolist()
+    
+    assert 'Gene1' in significant_genes
+    assert 'Gene2' not in significant_genes

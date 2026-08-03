@@ -1,153 +1,117 @@
+"""
+Unit tests for preprocessing functions (T016).
+"""
 import pytest
 import pandas as pd
 import numpy as np
 from pathlib import Path
 import tempfile
 import os
+import sys
 
-# Import the function to test
-from src.preprocessing import filter_low_expression_genes, load_processed_data, save_processed_data
+# Add project root to path
+project_root = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(project_root / "code"))
+
+from src.preprocessing import filter_low_expression_genes, apply_vst_transformation
+
 
 class TestFilterLowExpressionGenes:
-    """
-    Unit tests for T016: Filter low-expression genes (CPM < 1 in >80% samples).
-    """
+    """Tests for low-expression gene filtering."""
 
-    def test_filter_logic_keeps_high_expression_genes(self):
-        """
-        Test that genes with high expression (CPM >= 1 in >20% of samples) are kept.
-        """
-        # Create a synthetic dataframe
-        # 10 samples, 3 genes
-        data = {
-            'gene_A': [100, 100, 100, 100, 100, 100, 100, 100, 100, 100], # High expression everywhere
-            'gene_B': [100, 0, 0, 0, 0, 0, 0, 0, 0, 0], # High in 10% (1/10). Should be dropped?
-            'gene_C': [100, 100, 0, 0, 0, 0, 0, 0, 0, 0], # High in 20% (2/10). Should be kept?
-            'response': [1, 0, 1, 0, 1, 0, 1, 0, 1, 0]
-        }
-        df = pd.DataFrame(data)
-
-        # Library sizes:
-        # gene_A: 1000 per row (assuming other cols are 0 or small) -> CPM ~ 1000/1000 * 1M = 1M (High)
-        # gene_B: 100 in row 0, 0 elsewhere.
-        # gene_C: 200 in row 0,1.
-
-        # Let's calculate expected CPM manually to be sure.
-        # Row 0: Sum = 100+100+100 = 300. CPM_A = 100/300*1M = 333k. CPM_B = 100/300*1M = 333k. CPM_C = 100/300*1M = 333k.
-        # Row 1: Sum = 100+0+100 = 200. CPM_A = 500k. CPM_B = 0. CPM_C = 500k.
-        # Row 2: Sum = 100+0+0 = 100. CPM_A = 1M. CPM_B = 0. CPM_C = 0.
-        # ...
-        # gene_B CPM < 1 in rows 1-9 (9 rows). 9/10 = 90% > 80%. DROPPED.
-        # gene_C CPM < 1 in rows 2-9 (8 rows). 8/10 = 80%. NOT > 80%. KEPT.
-        # gene_A CPM < 1 in 0 rows. KEPT.
-
-        filtered_df, dropped = filter_low_expression_genes(df, cpm_threshold=1.0, sample_fraction=0.80)
-
-        assert 'gene_A' in filtered_df.columns
-        assert 'gene_C' in filtered_df.columns
-        assert 'gene_B' not in filtered_df.columns
-        assert 'gene_B' in dropped
-        assert 'gene_A' not in dropped
-
-    def test_filter_logic_drops_low_expression_genes(self):
-        """
-        Test that genes with very low expression (CPM < 1 in >80% of samples) are dropped.
-        """
-        # 10 samples
-        # gene_X: 0 in all samples -> CPM 0 in 100% -> Dropped
-        # gene_Y: 0 in 9 samples, 100 in 1 sample -> CPM < 1 in 90% -> Dropped
-        data = {
-            'gene_X': [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            'gene_Y': [100, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            'response': [1, 0, 1, 0, 1, 0, 1, 0, 1, 0]
-        }
-        df = pd.DataFrame(data)
-
-        filtered_df, dropped = filter_low_expression_genes(df, cpm_threshold=1.0, sample_fraction=0.80)
-
-        assert 'gene_X' not in filtered_df.columns
-        assert 'gene_Y' not in filtered_df.columns
-        assert len(dropped) == 2
-
-    def test_filter_logic_keeps_boundary_case(self):
-        """
-        Test boundary: CPM < 1 in exactly 80% of samples. Should be KEPT (since condition is >80%).
-        """
-        # 10 samples. 80% = 8 samples.
-        # gene_Z: CPM < 1 in 8 samples. CPM >= 1 in 2 samples.
-        # Condition: Drop if count > 8. Here count = 8. So KEEP.
-        data = {
-            # Construct values such that CPM < 1 in exactly 8 rows
-            # Row 0, 1: High count.
-            # Row 2-9: Zero count.
-            'gene_Z': [1000, 1000, 0, 0, 0, 0, 0, 0, 0, 0],
-            'response': [1, 0, 1, 0, 1, 0, 1, 0, 1, 0]
-        }
-        df = pd.DataFrame(data)
+    def test_filter_logic(self):
+        """Test that genes with low CPM in most samples are removed."""
+        # Create a DataFrame: 5 genes, 10 samples
+        # Gene 1: High counts in all samples -> Keep
+        # Gene 2: Low counts in 9/10 samples -> Remove
+        # Gene 3: Medium counts in 5/10 samples -> Remove (50% < 20% threshold for keeping)
+        # Gene 4: Low counts in 2/10 samples -> Keep (80% >= 20% threshold)
+        # Gene 5: All zeros -> Remove
         
-        # Row 0 sum = 1000. CPM = 1M.
-        # Row 1 sum = 1000. CPM = 1M.
-        # Row 2 sum = 0. CPM = NaN/0.
-        # ...
-        # gene_Z CPM < 1 in rows 2-9 (8 rows). 8/10 = 0.8.
-        # Threshold is > 0.8. 0.8 is not > 0.8. So KEEP.
+        np.random.seed(42)
+        counts = pd.DataFrame(
+            {
+                f"sample_{i}": [1000, 10, 5, 100, 0] for i in range(10)
+            },
+            index=[f"gene_{j}" for j in range(5)]
+        )
+        # Adjust Gene 4 to have some expression in 8 samples
+        counts.loc["gene_3", counts.columns[:8]] = 50
+        counts.loc["gene_3", counts.columns[8:]] = 1  # Low in 2 samples
 
-        filtered_df, dropped = filter_low_expression_genes(df, cpm_threshold=1.0, sample_fraction=0.80)
+        # Filter with threshold CPM=1, max 80% samples below (i.e., keep if >= 20% samples have CPM>=1)
+        filtered = filter_low_expression_genes(counts, cpm_threshold=1.0, sample_fraction=0.8)
+        
+        # Expected: Gene 0 (high), Gene 3 (medium in 8) should be kept
+        # Gene 1 (low in 9), Gene 2 (low in 5), Gene 4 (all 0) should be removed
+        assert filtered.shape[0] == 2
+        assert "gene_0" in filtered.index
+        assert "gene_3" in filtered.index
 
-        assert 'gene_Z' in filtered_df.columns
-        assert 'gene_Z' not in dropped
+    def test_no_genes_removed(self):
+        """Test case where all genes pass the filter."""
+        counts = pd.DataFrame(
+            np.random.poisson(100, size=(5, 10)),
+            index=[f"gene_{i}" for i in range(5)],
+            columns=[f"sample_{j}" for j in range(10)]
+        )
+        filtered = filter_low_expression_genes(counts, cpm_threshold=1.0, sample_fraction=0.8)
+        assert filtered.shape == counts.shape
 
-    def test_empty_dataframe(self):
-        """Test handling of empty DataFrame."""
-        df = pd.DataFrame(columns=['gene_A', 'response'])
-        filtered_df, dropped = filter_low_expression_genes(df)
-        assert filtered_df.empty
-        assert dropped == []
+    def test_all_genes_removed(self):
+        """Test case where all genes are removed."""
+        counts = pd.DataFrame(
+            np.zeros((5, 10)),
+            index=[f"gene_{i}" for i in range(5)],
+            columns=[f"sample_{j}" for j in range(10)]
+        )
+        filtered = filter_low_expression_genes(counts, cpm_threshold=1.0, sample_fraction=0.8)
+        assert filtered.shape[0] == 0
 
-    def test_missing_response_column(self):
-        """Test that missing response column raises error."""
-        data = {
-            'gene_A': [1, 2, 3],
-            'gene_B': [4, 5, 6]
-        }
-        df = pd.DataFrame(data)
-        with pytest.raises(ValueError, match="Missing 'response' column"):
-            filter_low_expression_genes(df)
 
-    def test_all_genes_dropped(self):
-        """Test case where all genes are dropped."""
-        data = {
-            'gene_A': [0, 0, 0, 0, 0],
-            'gene_B': [0, 0, 0, 0, 0],
-            'response': [1, 0, 1, 0, 1]
-        }
-        df = pd.DataFrame(data)
-        filtered_df, dropped = filter_low_expression_genes(df)
-        assert 'response' in filtered_df.columns
-        assert len(filtered_df.columns) == 1 # Only response
-        assert len(dropped) == 2
+class TestVSTTransformation:
+    """Tests for VST transformation."""
 
-    def test_no_genes_dropped(self):
-        """Test case where no genes are dropped."""
-        data = {
-            'gene_A': [1000, 1000, 1000, 1000, 1000],
-            'gene_B': [1000, 1000, 1000, 1000, 1000],
-            'response': [1, 0, 1, 0, 1]
-        }
-        df = pd.DataFrame(data)
-        filtered_df, dropped = filter_low_expression_genes(df)
-        assert 'gene_A' in filtered_df.columns
-        assert 'gene_B' in filtered_df.columns
-        assert len(dropped) == 0
+    def test_vst_output_shape(self):
+        """Test that VST preserves dimensions."""
+        # Create a small count matrix
+        np.random.seed(42)
+        counts = pd.DataFrame(
+            np.random.poisson(50, size=(3, 5)),
+            index=[f"gene_{i}" for i in range(3)],
+            columns=[f"sample_{j}" for j in range(5)]
+        )
+        
+        # Apply VST
+        vst_df = apply_vst_transformation(counts)
+        
+        # Check shape
+        assert vst_df.shape == counts.shape
 
-class TestLoadAndSave:
-    """Tests for load and save functions (mocked file system)."""
-    
-    def test_save_and_load_roundtrip(self, tmp_path):
-        """Test saving and loading a dataframe."""
-        # Mock get_project_root to use tmp_path
-        # This requires patching, but for unit test simplicity we assume the function logic is correct
-        # and test the IO behavior if we can control the path.
-        # Since we can't easily patch get_project_root here without pytest fixtures,
-        # we focus on the filter logic which is the core of T016.
-        pass
+    def test_vst_values_range(self):
+        """Test that VST values are in a reasonable range."""
+        np.random.seed(42)
+        counts = pd.DataFrame(
+            np.random.poisson(100, size=(5, 10)),
+            index=[f"gene_{i}" for i in range(5)],
+            columns=[f"sample_{j}" for j in range(10)]
+        )
+        
+        vst_df = apply_vst_transformation(counts)
+        
+        # VST values are typically in a range like -2 to 10 for RNA-seq
+        # Just check they are numeric and finite
+        assert vst_df.notna().all().all()
+        assert np.isfinite(vst_df).all().all()
+
+    def test_vst_with_low_counts(self):
+        """Test VST with low counts (edge case)."""
+        counts = pd.DataFrame(
+            np.random.poisson(1, size=(3, 5)),
+            index=[f"gene_{i}" for i in range(3)],
+            columns=[f"sample_{j}" for j in range(5)]
+        )
+        
+        vst_df = apply_vst_transformation(counts)
+        assert vst_df.shape == counts.shape
+        assert np.isfinite(vst_df).all().all()

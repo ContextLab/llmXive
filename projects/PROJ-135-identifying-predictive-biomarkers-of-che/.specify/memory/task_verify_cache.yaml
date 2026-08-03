@@ -5,19 +5,3 @@ T008:
     and no contract test harness for validating a YAML schema are present in the provided
     evidence. The claim only contains a feature specification unrelated to setting
     up pytest or YAML schema tests, so the required artifacts are missing.
-T010:
-  c: false
-  h: 150b0f3fdab97ba9581f7896c8578544371f8a4b05b489987e83a8ef54b8a722
-  r: The `tests/contract/test_data_schema.py` file is present but is truncated (ends
-    with an incomplete `except` block) and therefore contains a syntax error. Moreover,
-    the required `dataset.schema.yaml` file does not exist at the referenced path,
-    so the test cannot actually load or validate any schema against raw data. Both
-    the missing schema and the broken test mean the contract test does not fulfill
-    the requirement.
-T012c:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, log, or test output is provided that shows a SHA256 checksum\
-    \ being calculated immediately after each file is downloaded into `data/raw/`\
-    \ and appended to an in\u2011memory list. The required artifact (implementation\
-    \ of per\u2011file checksum logic) is missing."
