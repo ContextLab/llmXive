@@ -37,8 +37,8 @@ import re
 import subprocess
 import tempfile
 import time
-from collections.abc import Callable, Mapping
-from dataclasses import dataclass, field
+from collections.abc import Callable, Mapping, Sequence
+from dataclasses import dataclass, field, replace
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -50,6 +50,11 @@ Seam = Callable[[], None] | None
 
 #: git's "ref must not currently exist" sentinel for ``update-ref``.
 _ZERO_OID = "0" * 40
+
+#: The field a store-assigned position is stamped into. Named once here rather than
+#: written as a literal at each use, which is how it would silently diverge from the
+#: caller-side name (``self_improvement.events.SEQ_FIELD``).
+SEQ_KEY = "seq"
 
 #: Event ids become git path segments (``<event_dir>/<id>.json``), so they must be a
 #: single safe path component — no "/" (nesting/collision) or "..".
@@ -151,6 +156,24 @@ class AppendResult:
 
     commit: str
     seq: int
+    created: bool
+
+
+@dataclass(frozen=True)
+class TransactionResult:
+    """``commit`` is the resulting tip. ``seqs`` maps ``(stream, event_id)`` to the
+    position that event was assigned ON THAT STREAM. ``created`` is True iff THIS call
+    moved the ref; False means every event was already present with identical content (an
+    idempotent replay).
+
+    Keyed by the PAIR, not by ``event_id`` alone: ids are derived per stream but nothing
+    in this module guarantees two streams cannot present the same id, and an id-keyed
+    mapping would silently collapse two entries into one — reporting a seq for a stream
+    that never got it, and losing the other. The key is the identity of a blob's PATH, so
+    that is what the mapping is keyed by."""
+
+    commit: str
+    seqs: Mapping[tuple[str, str], int]
     created: bool
 
 
@@ -380,14 +403,22 @@ def _read_log_at(
     return events
 
 
-def _append_commit(
-    repo: Path, log: LogRef, parent: str | None, event: dict, message: str
-) -> str:
-    """Build (WITHOUT touching the working tree) a new commit that adds exactly
-    one event file onto ``parent``'s tree. Returns the new commit OID."""
-    event_id = str(event["event_id"])
-    # hash-object needs the content on stdin, so run it directly for the pipe
-    # (the fixed identity env is irrelevant to a pure blob write).
+def _identity_body(doc: dict, identity_exclude: frozenset[str]) -> str:
+    """The canonical body used for the append-only comparison, with the fields that are
+    NOT part of an event's semantic identity removed from BOTH sides.
+
+    Module-level rather than a closure inside one writer: `append_to_log` and
+    `append_transaction` must answer "is this the same event?" identically, and two copies
+    of that answer is two definitions of event identity (Constitution I)."""
+    if not identity_exclude:
+        return _canonical(doc)
+    return _canonical({k: v for k, v in doc.items() if k not in identity_exclude})
+
+
+def _write_blob(repo: Path, event: dict) -> str:
+    """The canonical body of one event, written to the object store. Runs ``hash-object``
+    directly (not through :func:`_git`) because the content goes in on stdin; the fixed
+    identity env is irrelevant to a pure blob write."""
     proc = subprocess.run(
         ["git", "hash-object", "-w", "--stdin"],
         cwd=str(repo),
@@ -396,28 +427,53 @@ def _append_commit(
         text=True,
         check=True,
     )
-    blob_oid = proc.stdout.strip()
+    return proc.stdout.strip()
 
+
+def _commit_events(
+    repo: Path,
+    log: LogRef,
+    parent: str | None,
+    placed: list[tuple[str, dict]],
+    message: str,
+) -> str:
+    """Build (WITHOUT touching the working tree) ONE commit that adds every event in
+    ``placed`` — each a ``(event_dir, event)`` pair — onto ``parent``'s tree.
+
+    Several event_dirs in one commit is the whole point: the lane's coordinator stream and
+    its per-Problem streams are SUBTREES OF ONE REF, so a multi-stream mutation is a single
+    tree write followed by a single ref compare-and-swap. Splitting it into two commits
+    would reintroduce a window in which one half is durable and the other is not — the
+    window that needs a compensating recovery path, which is what this exists to delete."""
+    entries = [(event_dir, event, _write_blob(repo, event)) for event_dir, event in placed]
     with tempfile.TemporaryDirectory() as td:
         index = str(Path(td) / "index")
         env = {"GIT_INDEX_FILE": index}
         if parent is not None:
             _git(["read-tree", parent], cwd=repo, identity=log.git_identity, extra_env=env)
-        _git(
-            [
-                "update-index", "--add", "--cacheinfo",
-                f"100644,{blob_oid},{log.event_dir}/{event_id}.json",
-            ],
-            cwd=repo,
-            identity=log.git_identity,
-            extra_env=env,
-        )
+        for event_dir, event, blob_oid in entries:
+            _git(
+                [
+                    "update-index", "--add", "--cacheinfo",
+                    f"100644,{blob_oid},{event_dir}/{event['event_id']!s}.json",
+                ],
+                cwd=repo,
+                identity=log.git_identity,
+                extra_env=env,
+            )
         tree = _git(["write-tree"], cwd=repo, identity=log.git_identity, extra_env=env).stdout.strip()
 
     commit_args = ["commit-tree", tree, "-m", message]
     if parent is not None:
         commit_args += ["-p", parent]
     return _git(commit_args, cwd=repo, identity=log.git_identity).stdout.strip()
+
+
+def _append_commit(
+    repo: Path, log: LogRef, parent: str | None, event: dict, message: str
+) -> str:
+    """One event onto ``parent`` — the single-event case of :func:`_commit_events`."""
+    return _commit_events(repo, log, parent, [(log.event_dir, event)], message)
 
 
 def _fetch_authoritative(repo: Path, log: LogRef, remote: str) -> None:
@@ -660,11 +716,6 @@ def append_to_log(
     if (event is None) == (prepare is None):
         raise ValueError("append_to_log requires exactly one of 'event' or 'prepare'")
 
-    def _identity_body(doc: dict) -> str:
-        if not identity_exclude:
-            return _canonical(doc)
-        return _canonical({k: v for k, v in doc.items() if k not in identity_exclude})
-
     for _attempt in range(max_retries):
         if _attempt:
             # Jittered backoff. The losers of a race would otherwise re-read and re-commit
@@ -703,7 +754,8 @@ def append_to_log(
         if parent is not None:
             existing = _read_event_blob(repo, log, event_id, parent)
             if existing is not None:
-                if _identity_body(json.loads(existing)) == _identity_body(built):
+                if _identity_body(json.loads(existing), identity_exclude) == _identity_body(
+                        built, identity_exclude):
                     landed = json.loads(existing)
                     return AppendResult(parent, int(landed.get("seq", seq)), created=False)
                 raise GitLogError(
@@ -735,6 +787,156 @@ def append_to_log(
     )
 
 
+def append_transaction(
+    repo: Path,
+    *,
+    log: LogRef,
+    streams: Sequence[str],
+    event_dir_for: Callable[[str], str],
+    validate: Callable[[dict], None],
+    message_fn: Callable[[list[dict]], str],
+    prepare: Callable[[dict[str, list[dict]]], list[tuple[str, dict]] | None],
+    finalize: Callable[[dict, int], dict] | None = None,
+    identity_exclude: frozenset[str] = frozenset(),
+    _after_parent: Seam = None,
+    _before_ref_update: Seam = None,
+    _after_push: Seam = None,
+    max_retries: int = _DEFAULT_MAX_RETRIES,
+) -> TransactionResult:
+    """Append events across SEVERAL subtrees of one ref as a single compare-and-swap.
+
+    This is :func:`append_to_log` generalized along the axis that matters for a log whose
+    streams share a ref: ``prepare`` receives EVERY stream in ``streams`` as observed at
+    one parent, returns the events to write as ``(stream, event)`` pairs, and all of them
+    land in ONE commit under ONE ref CAS. Either the whole set is durable or none of it
+    is — there is no interval in which an observer sees half, and therefore nothing to
+    compensate for after a crash.
+
+    That property is what makes a cross-stream precondition ENFORCEABLE rather than
+    advisory: a predicate that reads the coordinator's current claim generation and then
+    writes an Attempt terminal is deciding against the same parent the commit is built on,
+    so a generation that changed underneath loses the CAS and the whole transaction is
+    recomputed.
+
+    ``prepare`` is re-invoked on every attempt (fresh state per attempt), may return
+    ``None`` for an idempotent no-op, and may raise :class:`GitLogDenied` to refuse.
+    ``finalize(event, seq)`` receives the position on that event's OWN stream, counting
+    events earlier in this same transaction. Ordering within a stream follows the order
+    ``prepare`` returned.
+
+    The three underscore-prefixed arguments are TEST-ONLY crash seams (see :data:`Seam`).
+    """
+    for _attempt in range(max_retries):
+        if _attempt:
+            time.sleep(random.uniform(0, _RETRY_BACKOFF_S))
+        sync_and_verify(repo, log=log)
+        # ONE observation of the ref feeds the CAS parent AND every stream's next seq.
+        parent = _rev(repo, log.ref, identity=log.git_identity)
+        observed = {
+            s: _read_log_at(
+                repo,
+                log=replace(log, event_dir=event_dir_for(s)),
+                tip=parent,
+                validate=validate,
+            )
+            for s in streams
+        }
+        pairs = prepare(observed)  # fresh per attempt; may raise GitLogDenied
+        if pairs is None:
+            return TransactionResult(parent or _ZERO_OID, {}, created=False)
+        for stream, _ in pairs:
+            if stream not in observed:
+                raise GitLogError(
+                    f"transaction wrote to stream {stream!r}, which was not declared in "
+                    f"streams={list(streams)!r} — its state was never observed"
+                )
+
+        placed: list[tuple[str, str, dict]] = []
+        seqs: dict[tuple[str, str], int] = {}
+        used = {s: len(evs) for s, evs in observed.items()}
+        for stream, event in pairs:
+            built = dict(event)
+            if finalize is not None:
+                built = finalize(built, used[stream])
+            validate(built)
+            event_id = str(built["event_id"])
+            if not _SAFE_ID.match(event_id):
+                raise GitLogError(f"event_id {event_id!r} must match {_SAFE_ID.pattern}")
+            # Two events at one path would write one blob: `update-index --cacheinfo`
+            # keeps the LAST, so an event would vanish while its seq was still consumed —
+            # a silent gap that only surfaces later as a continuity failure in an
+            # unrelated read. Reject it where the mistake is, at the same path.
+            if (stream, event_id) in seqs:
+                raise GitLogError(
+                    f"transaction writes {event_id!r} to stream {stream!r} twice — one "
+                    "blob path cannot hold two events"
+                )
+            seqs[(stream, event_id)] = used[stream]
+            used[stream] += 1
+            placed.append((stream, event_dir_for(stream), built))
+
+        # APPEND-ONLY + all-or-nothing replay. A transaction cannot leave SOME of its ids
+        # present, so a mixed result means a writer outside this transaction produced one
+        # of them: fail closed rather than "finish" a transaction that was never started.
+        present: list[tuple[str, dict]] = []
+        absent: list[tuple[str, dict]] = []
+        for stream, event_dir, built in placed:
+            stored = None if parent is None else _read_event_blob(
+                repo, replace(log, event_dir=event_dir), str(built["event_id"]), parent
+            )
+            if stored is None:
+                absent.append((stream, built))
+                continue
+            if _identity_body(json.loads(stored), identity_exclude) != _identity_body(
+                built, identity_exclude
+            ):
+                raise GitLogError(
+                    f"event_id {built['event_id']!r} already exists with DIFFERENT "
+                    "content (append-only violation) — failing closed"
+                )
+            present.append((stream, json.loads(stored)))
+        if present and not absent:
+            # The STORED seq, not the recomputed one: a replay observes a longer stream,
+            # so `used[stream]` no longer names the position these events actually occupy.
+            landed = {(s, str(b["event_id"])): int(b[SEQ_KEY]) for s, b in present}
+            return TransactionResult(parent or _ZERO_OID, landed, created=False)
+        if present and absent:
+            raise GitLogError(
+                f"transaction is partially present: {[b['event_id'] for _, b in present]} "
+                f"already committed, {[b['event_id'] for _, b in absent]} absent — "
+                "refusing to complete a transaction that was never atomically started"
+            )
+
+        if _after_parent is not None:
+            _after_parent()  # TEST-ONLY barrier: parent + per-stream seqs are fixed
+
+        new_commit = _commit_events(
+            repo, log, parent, [(d, b) for _, d, b in placed],
+            message_fn([b for _, _, b in placed]),
+        )
+
+        if _before_ref_update is not None:
+            _before_ref_update()  # TEST-ONLY: the commit exists but is UNREACHABLE
+
+        if log.remote is not None:
+            if _push_fast_forward(repo, log, log.remote, new_commit):
+                if _after_push is not None:
+                    _after_push()  # TEST-ONLY: durable on the remote, local ref not moved
+                _sync_local_ref(repo, log, new_commit, parent)
+                return TransactionResult(new_commit, seqs, created=True)
+            continue  # concurrent transaction won — refetch + recompute
+        proc = _git(
+            ["update-ref", log.ref, new_commit, parent or _ZERO_OID],
+            cwd=repo, identity=log.git_identity, check=False,
+        )
+        if proc.returncode == 0:
+            return TransactionResult(new_commit, seqs, created=True)
+        # ref moved under us (same-clone concurrency) — recompute from the new tip.
+    raise GitLogContention(
+        f"could not fast-forward {log.ref} after {max_retries} attempts (sustained contention)"
+    )
+
+
 __all__ = [
     "AppendResult",
     "GitLogAuthError",
@@ -743,7 +945,9 @@ __all__ = [
     "GitLogError",
     "LogRef",
     "Seam",
+    "TransactionResult",
     "append_to_log",
+    "append_transaction",
     "bootstrap_log",
     "read_log",
     "sync_and_verify",

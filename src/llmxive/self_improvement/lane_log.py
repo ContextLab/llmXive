@@ -7,7 +7,7 @@ FAILS CLOSED until bootstrapped, and supports ``expected_anchor`` pinning."""
 from __future__ import annotations
 
 import json
-from collections.abc import Callable
+from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -16,7 +16,10 @@ from llmxive.git_event_log import (
     GitLogDenied,
     GitLogError,
     LogRef,
+    Seam,
+    TransactionResult,
     append_to_log,
+    append_transaction,
     bootstrap_log,
     read_log,
     sync_and_verify,
@@ -192,12 +195,71 @@ def append(repo: Path, event: Event, *, expected_revision: int | None,
     # a GitLogError from _check_continuity (corruption) propagates unchanged — fail closed.
 
 
+def _txn_message(events: list[dict]) -> str:
+    return "self-improvement txn: " + " + ".join(
+        f"{e.get('event_type', '?')} {e['event_id']}" for e in events)
+
+
+def append_many(repo: Path, events: Sequence[Event], *,
+                expected_revisions: Mapping[str, int],
+                precondition: Callable[[dict[str, list[Event]]], tuple[bool, str]] | None = None,
+                config: LaneLogConfig | None = None,
+                _after_parent: Seam = None, _before_ref_update: Seam = None,
+                _after_push: Seam = None) -> TransactionResult:
+    """CAS-append several lane events ACROSS STREAMS as one transaction.
+
+    The lane's streams are subtrees of ONE ref, so a mutation spanning the coordinator and
+    a Problem is a single commit and a single compare-and-swap — which is what lets a
+    precondition read one stream while writing another and have that read be BINDING.
+    ``expected_revisions`` names the revision each touched stream must still be at;
+    ``precondition`` sees every touched stream, keyed by stream id, at the common parent.
+    Raises :class:`LaneRevisionConflict` when either loses.
+
+    The three underscore-prefixed arguments are the TEST-ONLY crash seams, forwarded
+    verbatim to the core."""
+    if not events:
+        raise ValueError("append_many requires at least one event")
+    streams = sorted({e.problem_id for e in events} | set(expected_revisions))
+
+    def _prepare(observed: dict[str, list[dict]]) -> list[tuple[str, dict]]:
+        projected: dict[str, list[Event]] = {}
+        for stream, raw in observed.items():
+            ordered = _sorted_by_seq(raw)
+            _check_continuity(ordered, stream)  # BEFORE any other check
+            projected[stream] = [_to_event(r) for r in ordered]
+        for stream, expected in expected_revisions.items():
+            actual = len(projected[stream])
+            if actual != expected:
+                raise GitLogDenied(
+                    f"stale revision on {stream!r}: expected {expected}, actual {actual}")
+        if precondition is not None:
+            ok, reason = precondition(projected)
+            if not ok:
+                raise GitLogDenied(reason)
+        return [(e.problem_id, json.loads(event_to_json(e))) for e in events]
+
+    log = _log_ref(COORDINATOR_STREAM, config)
+    try:
+        return append_transaction(
+            repo, log=log, streams=streams,
+            event_dir_for=lambda s: _log_ref(s, config).event_dir,
+            validate=validate_lane_event, message_fn=_txn_message, prepare=_prepare,
+            finalize=_finalize, identity_exclude=_IDENTITY_EXCLUDE,
+            _after_parent=_after_parent, _before_ref_update=_before_ref_update,
+            _after_push=_after_push,
+        )
+    except GitLogDenied as exc:
+        raise LaneRevisionConflict(str(exc)) from exc
+    # a GitLogError from _check_continuity (corruption) propagates unchanged — fail closed.
+
+
 __all__ = [
     "LANE_REF",
     "LaneContention",
     "LaneLogConfig",
     "LaneRevisionConflict",
     "append",
+    "append_many",
     "bootstrap_lane_log",
     "read",
 ]

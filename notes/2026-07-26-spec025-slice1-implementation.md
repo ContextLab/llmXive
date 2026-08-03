@@ -649,6 +649,46 @@ same class as Task 1's Step 2c:
   change is additive at every call site. That is worth knowing before an implementer goes
   looking for breakage.
 
+## Slice 2 implementation log
+
+**Task 2 — the ref-rewind fix (`66a8eada95`).** `_sync_local_ref` replaces `append_to_log`'s
+bare post-push `update-ref`. Verified load-bearing by restoring the bare call and watching
+the regression test fail, then restoring the fix. Reused the module's existing
+`_is_ancestor` rather than the plan's second raw `merge-base` call.
+
+*One of my own tests passed against unfixed code first.* `_empty_commit_on` built the
+"ours" and "unrelated" sibling commits with identical tree, parent, message and identity —
+`commit-tree` is deterministic, so within one second they were the SAME object and the
+divergence case was an ancestor of itself. Fixed with a required `message` parameter plus
+an explicit `assert unrelated != ours`. Worth remembering: a git fixture that builds two
+"different" commits needs something to actually differ.
+
+**Task 3 — multi-subtree transactions.** `_commit_events` (many `(event_dir, event)` pairs,
+one commit), `append_transaction` + `TransactionResult` in `git_event_log.py`, `append_many`
+in `lane_log.py`. `_identity_body` lifted out of `append_to_log`'s closure so both writers
+share one definition of event identity.
+
+Two things the plan's test code got wrong, both found by running it:
+
+- **Replay tests that stamp `seq` must also exclude it from identity.** A replay observes a
+  longer stream, so the rebuilt event carries a different `seq` than the stored one, and
+  the append-only guard fires before the replay path is ever reached. The plan's
+  `test_a_replay_reports_the_STORED_seqs_not_recomputed_ones` passed `finalize` with no
+  `identity_exclude`, so it could not have reached the branch it was written to test.
+  `_seq` and `_EXCL` now travel together, which is the pairing `lane_log._IDENTITY_EXCLUDE`
+  already makes in production.
+- **A replay must re-read `expected_revisions`.** They are an assertion about the log's
+  CURRENT shape, checked before anything else, so a retry quoting the ORIGINAL numbers is
+  asserting something false and correctly loses. Every `cas_*` caller reads them fresh;
+  the lost-ack tests now do the same, and a new test pins that stale ones are refused.
+
+Atomicity verified load-bearing (Step 9): replacing `append_many`'s body with two
+sequential `append` calls makes `test_a_crash_before_the_ref_moves_leaves_NEITHER_stream`
+fail with the coordinator event durable and the Problem event missing — the exact
+half-state. Restored and re-verified. *The first attempt at this substitution silently
+failed to match, and the test "passed" — a passing test after a no-op edit proves nothing;
+always confirm the edit landed before believing the result.*
+
 **Wrong test paths in the plan, fixed while wiring decision 3's gate.** The plan named
 `tests/unit/test_model_selection_ledger_transport.py` as the ledger gate; no such file
 exists. The credit ledger reaches the shared transport through
