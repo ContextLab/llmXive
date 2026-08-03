@@ -1,2 +1,1 @@
-# This file ensures the state/projects directory is tracked by git
-# even if it is empty initially.
+# This directory holds project state YAML files.

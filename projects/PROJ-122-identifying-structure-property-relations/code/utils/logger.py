@@ -1,211 +1,304 @@
 """
-Base logging infrastructure for the llmXive research pipeline.
+Base logging infrastructure for the llmXive automated science pipeline.
 
-Provides a centralized logging configuration that ensures:
-- Consistent log format across all modules
-- Timestamped logs with ISO 8601 format
-- Log levels configurable via environment variable or function argument
-- File and console handlers
-- Integration with the project's seed and checksum utilities
+Provides centralized logging configuration, pipeline-specific loggers,
+and artifact checksum logging capabilities.
 """
-
 import logging
 import os
 import sys
 from pathlib import Path
 from typing import Optional, Union
 from datetime import datetime
+import json
+import hashlib
 
-# Import project utilities to ensure they are available
-from .seeds import get_seed_context, is_deterministic_configured
-from .checksum import compute_file_checksum
-
-
-# Default log format
-DEFAULT_FORMAT = (
-    "%(asctime)s | %(levelname)-8s | %(name)s | "
-    "%(filename)s:%(lineno)d | %(message)s"
-)
-
-# Default log level
-DEFAULT_LEVEL = logging.INFO
-
-# Log file directory (relative to project root)
+# Constants
+DEFAULT_LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+DEFAULT_DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
 LOG_DIR = Path("state/logs")
+LOG_FILE_PREFIX = "pipeline_"
+LOG_EXTENSION = ".log"
+
+# Global logger instance cache
+_loggers: dict = {}
+_logging_configured = False
 
 
 def _ensure_log_dir() -> Path:
     """Ensure the log directory exists."""
-    log_path = Path.cwd() / LOG_DIR
-    log_path.mkdir(parents=True, exist_ok=True)
-    return log_path
+    if not LOG_DIR.exists():
+        LOG_DIR.mkdir(parents=True, exist_ok=True)
+    return LOG_DIR
 
 
-def _get_log_filename() -> str:
-    """Generate a timestamped log filename."""
+def _get_log_file_path() -> Path:
+    """Generate a unique log file path based on current timestamp."""
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    # Include seed context if available for reproducibility tracking
-    seed_ctx = get_seed_context()
-    if seed_ctx and seed_ctx.get("seed") is not None:
-        return f"pipeline_{timestamp}_seed{seed_ctx['seed']}.log"
-    return f"pipeline_{timestamp}.log"
+    return _ensure_log_dir() / f"{LOG_FILE_PREFIX}{timestamp}{LOG_EXTENSION}"
 
 
 def setup_logging(
-    level: Optional[Union[int, str]] = None,
-    log_file: Optional[Union[str, Path]] = None,
-    console: bool = True,
+    level: int = logging.INFO,
+    log_to_file: bool = True,
+    log_to_console: bool = True,
+    log_file_path: Optional[Union[str, Path]] = None,
     format_str: Optional[str] = None,
-    project_id: Optional[str] = None
-) -> logging.Logger:
+    date_format: Optional[str] = None
+) -> None:
     """
-    Configure the root logger for the pipeline.
-
+    Configure the root logging infrastructure.
+    
     Args:
-        level: Log level (e.g., 'DEBUG', 'INFO', logging.INFO).
-               Defaults to environment variable LOG_LEVEL or DEFAULT_LEVEL.
-        log_file: Path to log file. If None, uses auto-generated filename in state/logs/.
-        console: Whether to log to console (default True).
-        format_str: Custom log format string. Defaults to DEFAULT_FORMAT.
-        project_id: Optional project identifier to include in log metadata.
-
-    Returns:
-        The configured root logger.
+        level: Logging level (e.g., logging.DEBUG, logging.INFO)
+        log_to_file: Whether to write logs to a file
+        log_to_console: Whether to print logs to stdout
+        log_file_path: Optional custom path for the log file
+        format_str: Optional custom log format string
+        date_format: Optional custom date format string
+    
+    Raises:
+        ValueError: If both log_to_file and log_to_console are False
     """
-    # Determine log level
-    if level is None:
-        level_str = os.environ.get("LOG_LEVEL", "INFO")
-        if isinstance(level_str, str):
-            level = getattr(logging, level_str.upper(), DEFAULT_LEVEL)
-        else:
-            level = level_str
-
-    # Get or create logger
-    logger = logging.getLogger()
-    logger.setLevel(level)
-
-    # Clear existing handlers to avoid duplicates
-    logger.handlers.clear()
-
-    # Format string
-    fmt = format_str or DEFAULT_FORMAT
-    formatter = logging.Formatter(fmt)
-
+    global _logging_configured
+    
+    if not log_to_file and not log_to_console:
+        raise ValueError("At least one of log_to_file or log_to_console must be True")
+    
+    if _logging_configured:
+        # If already configured, just update the level
+        logging.getLogger().setLevel(level)
+        return
+    
+    # Get root logger
+    root_logger = logging.getLogger()
+    root_logger.setLevel(level)
+    
+    # Clear any existing handlers
+    root_logger.handlers.clear()
+    
+    # Custom format
+    fmt = format_str or DEFAULT_LOG_FORMAT
+    date_fmt = date_format or DEFAULT_DATE_FORMAT
+    formatter = logging.Formatter(fmt, date_fmt)
+    
     # Console handler
-    if console:
+    if log_to_console:
         console_handler = logging.StreamHandler(sys.stdout)
         console_handler.setLevel(level)
         console_handler.setFormatter(formatter)
-        logger.addHandler(console_handler)
-
+        root_logger.addHandler(console_handler)
+    
     # File handler
-    if log_file is None:
-        log_dir = _ensure_log_dir()
-        log_filename = _get_log_filename()
-        log_file = log_dir / log_filename
-    else:
-        log_file = Path(log_file)
-        log_file.parent.mkdir(parents=True, exist_ok=True)
-
-    file_handler = logging.FileHandler(str(log_file))
-    file_handler.setLevel(level)
-    file_handler.setFormatter(formatter)
-    logger.addHandler(file_handler)
-
-    # Log startup information
-    logger.info("Logging infrastructure initialized.")
-    logger.info(f"Log file: {log_file}")
-    logger.info(f"Log level: {logging.getLevelName(level)}")
+    if log_to_file:
+        file_path = Path(log_file_path) if log_file_path else _get_log_file_path()
+        file_handler = logging.FileHandler(file_path)
+        file_handler.setLevel(level)
+        file_handler.setFormatter(formatter)
+        root_logger.addHandler(file_handler)
+        
+        # Log the file path to console for easy reference
+        if log_to_console:
+            root_logger.info(f"Logs being written to: {file_path.absolute()}")
     
-    # Log project context if provided
-    if project_id:
-        logger.info(f"Project ID: {project_id}")
-    
-    # Log deterministic seed status
-    if is_deterministic_configured():
-        seed_ctx = get_seed_context()
-        logger.info(f"Deterministic mode enabled with seed: {seed_ctx.get('seed')}")
-    else:
-        logger.warning("Deterministic mode NOT configured. Results may not be reproducible.")
-
-    return logger
+    _logging_configured = True
+    root_logger.info("Logging infrastructure initialized successfully")
 
 
 def get_logger(name: Optional[str] = None) -> logging.Logger:
     """
-    Get a logger instance, optionally with a specific name.
-
+    Get a logger instance, optionally named for a specific module/component.
+    
     Args:
-        name: Logger name. If None, uses the root logger.
-
+        name: Optional name for the logger (e.g., 'ingest', 'features', 'train')
+    
     Returns:
-        A configured logger instance.
+        A configured logging.Logger instance
     """
     if name is None:
-        return logging.getLogger()
-    return logging.getLogger(name)
+        name = "pipeline"
+    
+    if name in _loggers:
+        return _loggers[name]
+    
+    logger = logging.getLogger(name)
+    
+    # Ensure logging is configured if not already
+    if not _logging_configured:
+        setup_logging()
+    
+    _loggers[name] = logger
+    return logger
 
 
 def log_artifact_checksum(
-    logger: logging.Logger,
-    file_path: Union[str, Path],
-    artifact_name: Optional[str] = None
+    artifact_path: Union[str, Path],
+    logger: Optional[logging.Logger] = None,
+    algorithm: str = "sha256"
 ) -> str:
     """
-    Compute and log the SHA-256 checksum of an artifact.
-
+    Compute and log the checksum of an artifact file.
+    
     Args:
-        logger: Logger instance to use.
-        file_path: Path to the file.
-        artifact_name: Optional name for the artifact (defaults to filename).
-
+        artifact_path: Path to the artifact file
+        logger: Optional logger instance (uses default if None)
+        algorithm: Hash algorithm to use (default: sha256)
+    
     Returns:
-        The computed checksum string.
+        The computed checksum string (hex digest)
+    
+    Raises:
+        FileNotFoundError: If the artifact file does not exist
+        ValueError: If the algorithm is not supported
     """
-    path = Path(file_path)
+    path = Path(artifact_path)
+    
     if not path.exists():
-        logger.error(f"Artifact not found: {path}")
         raise FileNotFoundError(f"Artifact not found: {path}")
-
-    checksum = compute_file_checksum(path)
-    name = artifact_name or path.name
-    logger.info(f"Artifact checksum ({name}): {checksum}")
+    
+    if logger is None:
+        logger = get_logger()
+    
+    # Compute checksum
+    hasher = hashlib.new(algorithm)
+    with open(path, "rb") as f:
+        for chunk in iter(lambda: f.read(8192), b""):
+            hasher.update(chunk)
+    
+    checksum = hasher.hexdigest()
+    
+    # Log the checksum
+    logger.info(
+        f"Artifact checksum computed: path={path}, algorithm={algorithm}, "
+        f"checksum={checksum}"
+    )
+    
     return checksum
 
 
 class PipelineLogger:
     """
-    Context-aware logger wrapper for pipeline stages.
+    Context-aware logger for pipeline stages with artifact tracking.
     
-    Provides structured logging for specific pipeline stages with
-    automatic timing and status tracking.
+    Provides methods for logging stage start/end, artifacts, and metrics
+    in a structured format.
     """
     
-    def __init__(self, stage_name: str, logger: Optional[logging.Logger] = None):
+    def __init__(self, stage_name: str, parent_logger: Optional[logging.Logger] = None):
+        """
+        Initialize the pipeline logger for a specific stage.
+        
+        Args:
+            stage_name: Name of the pipeline stage (e.g., 'ingest', 'features')
+            parent_logger: Optional parent logger instance
+        """
         self.stage_name = stage_name
-        self.logger = logger or get_logger(f"pipeline.{stage_name}")
+        self.logger = parent_logger or get_logger(f"pipeline.{stage_name}")
         self._start_time: Optional[datetime] = None
-        
-    def start(self, **kwargs):
-        """Log the start of a stage."""
+        self._artifacts_logged: list = []
+    
+    def start(self, message: Optional[str] = None) -> None:
+        """Log the start of a pipeline stage."""
         self._start_time = datetime.now()
-        self.logger.info(f"Starting stage: {self.stage_name}", extra=kwargs)
+        msg = message or f"Starting stage: {self.stage_name}"
+        self.logger.info(f"[{self.stage_name.upper()}] {msg}")
+    
+    def end(self, message: Optional[str] = None, success: bool = True) -> None:
+        """Log the end of a pipeline stage."""
+        if self._start_time is None:
+            self.logger.warning(f"[{self.stage_name.upper()}] End called without start")
+            return
         
-    def complete(self, **kwargs):
-        """Log the successful completion of a stage."""
-        duration = (datetime.now() - self._start_time).total_seconds() if self._start_time else 0
-        self.logger.info(
-            f"Completed stage: {self.stage_name} in {duration:.2f}s",
-            extra={"duration": duration, **kwargs}
-        )
-        self._start_time = None
+        duration = (datetime.now() - self._start_time).total_seconds()
+        status = "SUCCESS" if success else "FAILED"
+        msg = message or f"Stage {self.stage_name} completed in {duration:.2f}s"
+        self.logger.info(f"[{self.stage_name.upper()}] {status}: {msg}")
+    
+    def log_artifact(
+        self,
+        name: str,
+        path: Union[str, Path],
+        checksum: Optional[str] = None,
+        metadata: Optional[dict] = None
+    ) -> None:
+        """
+        Log an artifact produced by this stage.
         
-    def fail(self, error: Exception, **kwargs):
-        """Log a stage failure."""
-        duration = (datetime.now() - self._start_time).total_seconds() if self._start_time else 0
-        self.logger.error(
-            f"Failed stage: {self.stage_name} after {duration:.2f}s: {str(error)}",
-            exc_info=True,
-            extra={"duration": duration, "error": str(error), **kwargs}
-        )
-        self._start_time = None
+        Args:
+            name: Human-readable name for the artifact
+            path: Path to the artifact file
+            checksum: Optional pre-computed checksum
+            metadata: Optional additional metadata dict
+        """
+        path = Path(path)
+        if not path.exists():
+            self.logger.warning(f"Artifact logged but not found: {path}")
+        
+        artifact_info = {
+            "name": name,
+            "path": str(path),
+            "timestamp": datetime.now().isoformat(),
+            "stage": self.stage_name
+        }
+        
+        if checksum:
+            artifact_info["checksum"] = checksum
+        elif path.exists():
+            try:
+                artifact_info["checksum"] = log_artifact_checksum(path, self.logger)
+            except Exception as e:
+                self.logger.warning(f"Could not compute checksum for {path}: {e}")
+        
+        if metadata:
+            artifact_info["metadata"] = metadata
+        
+        self._artifacts_logged.append(artifact_info)
+        self.logger.info(f"[{self.stage_name.upper()}] Artifact logged: {name} -> {path}")
+    
+    def log_metric(self, name: str, value: Union[int, float, str], unit: Optional[str] = None) -> None:
+        """
+        Log a performance metric.
+        
+        Args:
+            name: Name of the metric
+            value: Value of the metric
+            unit: Optional unit of measurement
+        """
+        msg = f"{name}={value}" + (f" ({unit})" if unit else "")
+        self.logger.info(f"[{self.stage_name.upper()}] Metric: {msg}")
+    
+    def log_error(self, error: Exception, context: Optional[str] = None) -> None:
+        """
+        Log an error with optional context.
+        
+        Args:
+            error: The exception that occurred
+            context: Optional context description
+        """
+        msg = context if context else str(error)
+        self.logger.error(f"[{self.stage_name.upper()}] Error: {msg}", exc_info=True)
+    
+    def get_artifact_summary(self) -> dict:
+        """
+        Get a summary of all artifacts logged in this stage.
+        
+        Returns:
+            Dict containing list of artifact info dicts
+        """
+        return {
+            "stage": self.stage_name,
+            "artifact_count": len(self._artifacts_logged),
+            "artifacts": self._artifacts_logged
+        }
+    
+    def __enter__(self) -> "PipelineLogger":
+        """Context manager entry."""
+        self.start()
+        return self
+    
+    def __exit__(self, exc_type, exc_val, exc_tb) -> None:
+        """Context manager exit."""
+        success = exc_type is None
+        self.end(success=success)
+        if exc_val:
+            self.log_error(exc_val)

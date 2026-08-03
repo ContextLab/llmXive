@@ -1,2 +1,2 @@
-# This file ensures the data/processed directory is tracked by git
-# even if it is empty initially.
+# This directory holds processed data files.
+# Do not commit large binary files; use .gitignore to exclude data files.

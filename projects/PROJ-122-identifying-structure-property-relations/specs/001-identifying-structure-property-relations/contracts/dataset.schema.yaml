@@ -1,152 +1,101 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Polymer Blend Dataset Schema"
-description: |
-  Schema for the harmonized polymer blend dataset used in the structure-property
-  relationship analysis. This schema defines the expected structure, data types,
-  and constraints for records ingested from NIST, Polymer Database, and Materials Project.
-type: object
-required:
-  - metadata
-  - records
-properties:
-  metadata:
-    type: object
-    description: "Metadata about the dataset generation"
-    required:
-      - version
-      - generated_at
-      - source_files
-      - total_records
-      - valid_records
-      - excluded_records
-    properties:
-      version:
-        type: string
-        description: "Schema version (e.g., 1.0.0)"
-        pattern: "^\\d+\\.\\d+\\.\\d+$"
-      generated_at:
-        type: string
-        description: "ISO 8601 timestamp of generation"
-        pattern: "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})$"
-      source_files:
-        type: array
-        description: "List of source file paths that contributed to this dataset"
-        items:
-          type: string
-          pattern: "^data/raw/.*\\.(csv|json|parquet)$"
-      total_records:
-        type: integer
-        description: "Total number of records attempted to process"
-        minimum: 0
-      valid_records:
-        type: integer
-        description: "Number of records that passed all validation checks"
-        minimum: 0
-      excluded_records:
-        type: integer
-        description: "Number of records excluded due to validation failures"
-        minimum: 0
-      validation_summary:
-        type: object
-        description: "Summary of validation failures"
-        properties:
-          invalid_smiles:
-            type: integer
-            minimum: 0
-          invalid_composition:
-            type: integer
-            minimum: 0
-          invalid_units:
-            type: integer
-            minimum: 0
-          missing_fields:
-            type: integer
-            minimum: 0
+# Dataset Schema Definition for Polymer Blend Structure-Property Relationships
+# Generated for PROJ-122
+# Validates raw and harmonized data against FR-001 requirements
+schema_version: "1.0.0"
+dataset_type: "polymer_blend"
 
-  records:
-    type: array
-    description: "List of validated polymer blend records"
-    items:
-      type: object
-      required:
-        - record_id
-        - source
-        - smirks_component_a
-        - smirks_component_b
-        - weight_fraction_a
-        - weight_fraction_b
-        - Tg_measured_K
-        - modulus_GPa
-      properties:
-        record_id:
-          type: string
-          description: "Unique identifier for the record"
-          pattern: "^REC-[0-9]{8}$"
-        source:
-          type: string
-          description: "Origin of the data (nist, polymer_db, materials_project)"
-          enum:
-            - nist
-            - polymer_db
-            - materials_project
-        smirks_component_a:
-          type: string
-          description: "SMILES/SMIRKS string for component A"
-          minLength: 1
-        smirks_component_b:
-          type: string
-          description: "SMILES/SMIRKS string for component B (may be same as A for blends)"
-          minLength: 1
-        weight_fraction_a:
-          type: number
-          description: "Weight fraction of component A (0.0 to 1.0)"
-          minimum: 0.0
-          maximum: 1.0
-        weight_fraction_b:
-          type: number
-          description: "Weight fraction of component B (0.0 to 1.0)"
-          minimum: 0.0
-          maximum: 1.0
-        Tg_measured_K:
-          type: number
-          description: "Glass transition temperature in Kelvin"
-          minimum: 100.0
-          maximum: 1000.0
-        modulus_GPa:
-          type: number
-          description: "Young's modulus in GPa"
-          minimum: 0.0
-          maximum: 100.0
-        raw_Tg:
-          type: number
-          description: "Original Tg value before unit conversion"
-        raw_Tg_unit:
-          type: string
-          description: "Original unit of Tg (C, K, F)"
-          enum:
-            - C
-            - K
-            - F
-        raw_modulus:
-          type: number
-          description: "Original modulus value before unit conversion"
-        raw_modulus_unit:
-          type: string
-          description: "Original unit of modulus (Pa, kPa, MPa, GPa)"
-          enum:
-            - Pa
-            - kPa
-            - MPa
-            - GPa
-        validation_flags:
-          type: array
-          description: "List of validation flags applied to this record"
-          items:
-            type: string
-          default: []
-        confidence_score:
-          type: number
-          description: "Confidence score for the record (0.0 to 1.0)"
-          minimum: 0.0
-          maximum: 1.0
-          default: 1.0
+fields:
+  - name: smiles
+    type: string
+    required: true
+    description: "SMILES string for the polymer or blend component"
+    validation:
+      pattern: "^[A-Za-z0-9@#$%&*\\-\\[\\]\\(\\)\\{\\}\\.,\\+=<>!/]+$"
+      min_length: 1
+      max_length: 2000
+      description: "Must be a valid non-empty string"
+
+  - name: composition
+    type: string
+    required: true
+    description: "Composition string (e.g., 'Polymer A: 60%, Polymer B: 40%')"
+    validation:
+      min_length: 1
+      max_length: 1000
+
+  - name: tg_k
+    type: number
+    required: true
+    description: "Glass transition temperature in Kelvin"
+    validation:
+      min: 100.0
+      max: 1000.0
+      unit: "K"
+
+  - name: modulus_gpa
+    type: number
+    required: false
+    description: "Young's modulus in GPa"
+    validation:
+      min: 0.0
+      max: 100.0
+      unit: "GPa"
+
+  - name: source
+    type: string
+    required: true
+    description: "Origin of the data (e.g., NIST, Polymer Database, Materials Project)"
+    validation:
+      allowed_values:
+        - "NIST"
+        - "Polymer Database"
+        - "Materials Project"
+        - "Literature"
+        - "Other"
+
+  - name: raw_tg
+    type: number
+    required: false
+    description: "Original Tg value before unit conversion"
+
+  - name: raw_tg_unit
+    type: string
+    required: false
+    description: "Original unit for Tg (e.g., 'C', 'K')"
+
+  - name: raw_modulus
+    type: number
+    required: false
+    description: "Original modulus value before unit conversion"
+
+  - name: raw_modulus_unit
+    type: string
+    required: false
+    description: "Original unit for modulus (e.g., 'Pa', 'GPa', 'MPa')"
+
+  - name: weight_fractions
+    type: string
+    required: false
+    description: "Comma-separated weight fractions (e.g., '0.6,0.4')"
+
+  - name: checksum
+    type: string
+    required: false
+    description: "SHA-256 checksum of the raw data row"
+    validation:
+      pattern: "^[a-f0-9]{64}$"
+
+constraints:
+  - name: weight_fraction_sum
+    description: "If weight_fractions is present, sum must be within tolerance of 1.0"
+    tolerance: 0.02
+  - name: valid_smiles
+    description: "SMILES must be parseable by RDKit"
+  - name: required_fields_present
+    description: "smiles, composition, tg_k, source must be non-null"
+
+metadata:
+  created_by: "llmXive Pipeline"
+  project_id: "PROJ-122"
+  task_reference: "T005"
+  last_updated: "2024-01-01"

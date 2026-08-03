@@ -41,11 +41,11 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001a [P] Initialize project directory structure: Create `code/`, `data/raw/`, `data/processed/`, `data/features/`, `tests/`, `state/projects/` in a single step.
-- [ ] T001b [P] Create `code/requirements.txt` with pinned dependencies (pandas, rdkit, scikit-learn, xgboost, shap, pyyaml, requests, joblib, psutil)
+- [ ] T001a [P] Initialize project directory structure: Create `code/`, `data/raw/`, `data/processed/`, `data/features/`, `tests/`, `state/projects/` AND the placeholder file `state/projects/PROJ-122-identifying-structure-property-relations.yaml` in a single step.
+- [X] T001b [P] Create `code/requirements.txt` with pinned dependencies (pandas, rdkit, scikit-learn, xgboost, shap, pyyaml, requests, joblib, psutil)
 - [ ] T001c [P] Create `tests/` directory structure: `contract/`, `integration/`, `unit/`
 - [ ] T001d [P] Create `state/projects/` directory structure and placeholder `PROJ-122-identifying-structure-property-relations.yaml`
-- [ ] T002 Initialize Python 3.11 project with pinned dependencies in `code/requirements.txt`
+- [X] T002 Initialize Python 3.11 project with pinned dependencies in `code/requirements.txt`
 - [ ] T003 [P] Configure linting (flake8/black) and formatting tools
 - [ ] T004 [P] Initialize `.gitignore` and `pytest` configuration
 
@@ -57,11 +57,11 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T005 Create data schema definitions in `specs/001-structure-property-relationships/contracts/dataset.schema.yaml`: Define YAML schema with fields for SMILES, composition, Tg (K), Modulus (GPa), source, and validation rules per FR-001.
-- [ ] T006 Create output schema definitions in `specs/001-structure-property-relationships/contracts/output.schema.yaml`: Define YAML schema for processed datasets, feature matrices, and model outputs per FR-001.
-- [ ] T007 Implement base logging infrastructure in `code/utils/logger.py`
-- [ ] T008 Implement deterministic random seed pinning in `code/utils/seeds.py`
-- [ ] T009 Implement checksum utility for raw data in `code/utils/checksum.py`
+- [ ] T005 [P] Create data schema definitions in `specs/001-structure-property-relationships/contracts/dataset.schema.yaml`: Define YAML schema with fields for SMILES, composition, Tg (K), Modulus (GPa), source, and validation rules per FR-001. **Content**: `type: object`, `required: [smiles, composition, tg_k, modulus_gpa]`, `properties: smiles (string, pattern: ^[A-Za-z0-9...]$), composition (array), tg_k (number, min: 0), modulus_gpa (number, min: 0)`.
+- [ ] T006 [P] Create output schema definitions in `specs/001-structure-property-relationships/contracts/output.schema.yaml`: Define YAML schema for processed datasets, feature matrices, and model outputs per FR-001. **Content**: `type: object`, `required: [features, target, metadata]`, `properties: features (array of numbers), target (number), metadata (object)`.
+- [X] T007 Implement base logging infrastructure in `code/utils/logger.py`
+- [X] T008 Implement deterministic random seed pinning in `code/utils/seeds.py`
+- [X] T009 Implement checksum utility for raw data in `code/utils/checksum.py`: Implement `compute_sha256(file_path)` and `write_state_hash(state_file, key, hash_value)` functions to update the `artifact_hashes` map in the state YAML.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -78,23 +78,23 @@
 > **NOTE**: Write these tests FIRST, ensure they FAIL before implementation
 > **Dependency**: T010 requires T005 and T006 completion.
 
-- [ ] T010 [P] [US1] Contract test for data schema validation in `tests/test_contract.py`: Implement tests validating data against `dataset.schema.yaml` (T005). **Dependency**: T005, T006 must be complete.
-- [ ] T011 [P] [US1] Unit test for unit conversion logic (C->K, Pa->GPa) in `tests/test_ingest.py`
-- [ ] T012 [P] [US1] Unit test for weight-fraction sum check (tolerance ±0.02) in `tests/test_ingest.py`
-- [ ] T013 [P] [US1] Unit test for RDKit SMILES parsing and invalid row exclusion in `tests/test_ingest.py`
+- [ ] T010 [P] [US1] Contract test for data schema validation in `tests/test_contract.py`: **Precondition Check**: Verify T005 and T006 are populated with valid YAML schemas. If `dataset.schema.yaml` or `output.schema.yaml` are missing or invalid, the test MUST fail immediately with a clear error message "Schema artifacts missing or invalid". Implement tests validating data against `dataset.schema.yaml` (T005). **Dependency**: T005, T006 must be complete.
+- [X] T011 [P] [US1] Unit test for unit conversion logic (C->K, Pa->GPa) in `tests/test_ingest.py`
+- [X] T012 [P] [US1] Unit test for weight-fraction sum check (tolerance ±0.02) in `tests/test_ingest.py`
+- [X] T013 [P] [US1] Unit test for RDKit SMILES parsing and invalid row exclusion in `tests/test_ingest.py`
 
 ### Implementation for User Story 1
 
-- [ ] T019a [US1] Implement Data Verification Gate in `code/01_ingest.py` (Pre-ingestion): **Invoke Reference-Validator Agent** to verify existence and accessibility of specific dataset URLs containing SMILES, Composition, Tg, and Modulus. **Input**: List of URLs from `config.py`. **Output**: `state/verification_log.json` with keys `url`, `status`, `overlap_score`. **Logic**: Check `CITATION_TITLE_OVERLAP_THRESHOLD >= 0.7`. **Action**: If no URL passes, HALT pipeline with error code 1 and message "Data Verification Gate Failed: No verified source found" (FR-015, FR-019). **Dependency**: This task runs BEFORE any data fetching (T014-T018).
-- [ ] T014 [US1] Implement API fetcher with exponential backoff in `code/01_ingest.py`: Implement with exact parameters: initial=1s, multiplier=2, max=5 retries per FR-010. Output: `code/01_ingest.py` with function `fetch_with_backoff(url)`.
+- [ ] T019a [P] [US1] Implement Data Verification Gate in `code/01_ingest.py` (Pre-ingestion): **Invoke Reference-Validator Agent** to verify existence and accessibility of specific dataset URLs containing SMILES, Composition, Tg, and Modulus. **Input**: List of URLs from `config.py`. **Output**: `state/verification_log.json` with keys `url`, `status`, `overlap_score`. **Logic**: Check `CITATION_TITLE_OVERLAP_THRESHOLD >= 0.7`. **Action**: If no URL passes, HALT pipeline with error code 1 and message "Data Verification Gate Failed: No verified source found" (FR-015, FR-019). **Dependency**: This task runs BEFORE any data fetching (T014-T018).
+- [ ] T014 [US1] Implement API fetcher with exponential backoff in `code/01_ingest.py`: Implement with exact parameters: initial=1s, multiplier=2, max=5 retries per FR-010. Output: `code/01_ingest.py` with function `fetch_with_backoff(url)`. **Dependency**: Requires T019a to pass.
 - [ ] T015 [US1] Implement unit harmonization logic (Tg to Kelvin, Modulus to GPa) in `code/01_ingest.py`
 - [ ] T016 [US1] Implement weight-fraction validation and exclusion logic in `code/01_ingest.py`
 - [ ] T017 [US1] Implement SMILES validation and RDKit parsing in `code/01_ingest.py`
 - [ ] T018 [US1] Implement data quality report generation (`data_quality_report.json`) in `code/01_ingest.py`
-- [ ] T019b [US1] Implement "Sensitivity Sweep Script" in `code/01b_sensitivity.py`: Run a comprehensive sensitivity sweep over a range of weight-fraction tolerance values (e.g., 0.01, 0.02, 0.05) defined in `config.py`. **Range**: Values from `config.py`. **Output**: `tolerance_sensitivity_report.json` with keys `threshold`, `pass_rate`, `valid_count`. **Metric**: Percentage of valid records per threshold. **Dependency**: Requires T014-T018 completion (raw data available).
-- [ ] T019c [US1] Implement "Join Success Rate Check & Fallback Trigger" in `code/01_ingest.py`: Calculate the percentage of records with a "perfect join" (SMILES, Composition, Tg, Modulus all non-null). **Precondition**: Verify that a "verified source for the combined data exists" (check `state/verification_log.json` or `config.py`). **Action**: If join failure rate > 50% AND verified source exists, trigger "Monomer-Level Fallback" mode immediately and halt the main blend pipeline, switching to `code/02b_fallback.py` (FR-013, Plan Gate 1). **Action**: If join failure rate > 50% AND no verified source, HALT with "Data Insufficient for Fallback". **Exit Mechanism**: Raise `SystemExit` with code 1 and message. **Dependency**: Requires T020c (source tagging) to be executed first.
-- [ ] T020 [US1] Save raw data to `data/raw/` with SHA-256 checksums in `state/`: Compute SHA-256 hash for each raw file, update `state/projects/PROJ-122-identifying-structure-property-relations.yaml` with artifact hashes (FR-018). **Dependency**: Requires T019a to pass. **Note**: This task MUST run BEFORE T019c to ensure data is available for fallback.
-- [ ] T020c [US1] Implement "Source Tagging" in `code/01_ingest.py`: Tag all ingested records with their source origin (column 'source') to enable stratified splitting in downstream tasks (FR-016). **Dependency**: Required for T033c. **Order**: Must run BEFORE T019c.
+- [ ] T020 [US1] Save raw data to `data/raw/` with SHA-256 checksums in `state/`: Compute SHA-256 hash for each raw file. **Mechanism**: Invoke `utils.checksum.write_state_hash(state_file="state/projects/PROJ-122-identifying-structure-property-relations.yaml", key="raw_data_<filename>", hash_value=...)` to explicitly update the `artifact_hashes` map in the state YAML (FR-018). **Dependency**: Requires T019a to pass. **Note**: This task MUST run BEFORE T019c to ensure data is available for fallback.
+- [ ] T020c [US1] Implement "Source Tagging" in `code/01_ingest.py`: Tag all ingested records with their source origin (column 'source') to enable stratified splitting in downstream tasks (FR-016). **Dependency**: Required for T019c. **Order**: Must run BEFORE T019c.
+- [ ] T019c [US1] Implement "Join Success Rate Check & Fallback Trigger" in `code/01_ingest.py`: Calculate the percentage of records with a "perfect join" (SMILES, Composition, Tg, Modulus all non-null). **Precondition**: Verify that T019a (Data Verification Gate) passed AND T020 (Raw Data Save) AND T020c (Source Tagging) are complete. **Action**: If join failure rate > 50% AND verified source exists, trigger "Monomer-Level Fallback" mode immediately and halt the main blend pipeline, switching to `code/02b_fallback.py` (FR-013). **Action**: If join failure rate > 50% AND no verified source, HALT with "Data Insufficient for Fallback". **Exit Mechanism**: Raise `SystemExit` with code 1 and message. **Dependency**: Requires T020c and T020 to be executed first.
+- [ ] T019b [US1] Implement "Sensitivity Sweep Script" in `code/01b_sensitivity.py`: Run a comprehensive sensitivity sweep over a range of weight-fraction tolerance values (e.g., low, medium, and high magnitudes) defined in `config.py`. **Range**: Values from `config.py`. **Output**: `tolerance_sensitivity_report.json` with keys `threshold`, `pass_rate`, `baseline_pass_rate` (at 0.02), `delta_pass_rate` (calculated as `pass_rate - baseline_pass_rate`), and `impact_assessment` (string describing the impact on data quality). **Metric**: Percentage of valid records per threshold. **Logic**: Calculate `delta_pass_rate` to quantify impact. **Dependency**: Requires T014-T018 completion (raw data available).
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -142,8 +142,11 @@
 
 ### Implementation for User Story 3
 
-- [ ] T033 [US3] Implement data splitting (train/validation/test) with fixed seed in `code/03_train.py`: **Gate**: Check if N < 100; if so, raise `DataInsufficiencyError` with message "Dataset size N={N} < 100" and halt pipeline (FR-012). **Logic**: If N < 500, implement Stratified Repeated K-Fold (multiple folds, multiple repeats) as per FR-005. If N >= 500, use random split with fixed seed.
-- [ ] T033c [US3] Implement "Stratified Repeated K-Fold" in `code/03_train.py`: If N < 500, implement Stratified Repeated K-Fold (multiple folds, multiple repeats) as per FR-005. If N >= 500, use random split with fixed seed.
+- [ ] T033 [US3] Implement data splitting (train/validation/test) with fixed seed in `code/03_train.py`: **Gate**: Check if N < 100; if so, raise `DataInsufficiencyError` with message "Dataset size N={N} < 100" and halt pipeline (FR-012). **Logic**: 
+  - **If N >= 500**: Use random split with fixed seed (70/15/15).
+  - **If N < 500**: Implement Stratified Repeated K-Fold with **5 folds and 3 repeats** (as per FR-005 "multiple folds, multiple repeats").
+  - **Stratification**: Stratify by 'source' column (FR-016).
+  **Dependency**: Requires T027a (Target Variable).
 - [ ] T033d [US3] Implement "Target Variable Assignment" in `code/03_train.py`: Explicitly assign `y = Tg_residual` (computed in T027a) as the target vector for all training models (FR-004).
 - [ ] T033e [US3] Implement "Report Source Stratification Success" in `code/03_train.py`: Generate a report verifying the split distribution by source to confirm stratification worked as intended (FR-016).
 - [ ] T034 [US3] Implement Random Forest and XGBoost training with cross-validation in `code/03_train.py`
@@ -151,10 +154,11 @@
 - [ ] T036 [US3] Implement paired t-test comparison (ML vs Linear) and **configurable correction method** (default Bonferroni or FDR, configurable in `config.py`) in `code/03_train.py` (Assumptions). Output: p-value and conclusion (reject/fail to reject null hypothesis).
 - [ ] T037 [US3] Implement SHAP value computation for a representative set of top predictions in `code/03_train.py`
 - [ ] T037b [US3] Implement VIF diagnostic reporting in `code/03_train.py`: Report VIF values for the final model features (note: sensitivity analysis logic is moved to T038d).
-- [ ] T038 [US3] Implement multiple independent training runs with different seeds for stability analysis in `code/03_train.py`: Execute multiple independent runs with varying random seeds (seeds -5). (FR-009).
-- [ ] T038d [US3] Implement VIF Sensitivity Analysis: If VIF > 5.0 (from T028a), **re-train** the model excluding the predictor with the highest VIF, compare MAE/R² against the full model, and report the impact in `data/features/vif_sensitivity_report.json`. **Mandatory Action**: If VIF > 10, **EXCLUDE** the predictor from the final feature matrix, re-train the model with the reduced set, and update the final model artifact. (FR-008). **Action**: Update `data/features/processed_data.csv` to remove the predictor and save the new model artifact. **Dependency**: Requires T028a output (vif_report.json).
+- [ ] T038 [US3] Implement multiple independent training runs with different seeds for stability analysis in `code/03_train.py`: Execute multiple independent runs with varying random seeds.. (FR-009).
+- [ ] T038d [US3] Implement VIF Sensitivity Analysis: If VIF > 5.0 (from T028a), **re-train** the model excluding the predictor with the highest VIF, compare MAE/R² against the full model, and report the impact in `data/features/vif_sensitivity_report.json`. **Mandatory Action**: If VIF > 10, **EXCLUDE** the predictor from the final feature matrix, re-train the model with the reduced set, and save the new model artifact to `data/models/model_final_vif_corrected.pkl` (FR-008). **Action**: Update `data/features/processed_data.csv` to remove the predictor and save the new model artifact. **Dependency**: Requires T028a COMPLETION and the generation of `vif_report.json` before this task can start.
 
 **Checkpoint**: All user stories should now be independently functional
+**Note**: T038d must strictly wait for T028a to complete and produce `vif_report.json`.
 
 ---
 

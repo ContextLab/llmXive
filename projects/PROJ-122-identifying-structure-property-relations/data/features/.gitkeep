@@ -1,2 +1,2 @@
-# This file ensures the data/features directory is tracked by git
-# even if it is empty initially.
+# This directory holds feature matrices and derived datasets.
+# Do not commit large binary files; use .gitignore to exclude data files.

@@ -1,2 +1,2 @@
-# This directory is for raw data files.
-# T020 will populate this with checksums upon successful ingestion.
+# This directory holds raw ingested data files.
+# Do not commit large binary files; use .gitignore to exclude data files.
