@@ -14100,3 +14100,486 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-02T01:09:14Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 0
+  canonical: Permutation test runs 500 shuffles
+  claim_id: c_6fe99ad9
+  context: "Execution: Shuffle labels 500 times (seed = 42), re\u2011train/re\u2011\
+    evaluate the model for each permutation..."
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: "conservativeness also occurs if very few (e.g. 25\u2013100) random pe\
+        \ rmutations"
+      source_id: '1411.7565'
+      url: https://arxiv.org/abs/1411.7565
+      value: '100'
+    filled: true
+  kind: numeric
+  raw_text: The permutation test shuffles labels 500 times.
+  resolved_value: '100'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-03T16:44:33Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: Pipeline produces graph metrics CSV without machine learning training
+  claim_id: c_af6d1ffb
+  context: 'Independent Test: The pipeline can be run on a single batch of data to
+    produce data/processed/graph_metrics.csv containing subject IDs and calculated
+    graph metrics without any machine learning training.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_produces_graph_metrics_CSV_without_machine_learning
+  kind: entity_fact
+  raw_text: The pipeline can be run on a single batch of data to produce data/processed/graph_metrics.csv
+    containing subject IDs and calculated graph metrics without any machine learning
+    training.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T16:45:15Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: Pipeline downloads BIDS rs-fMRI data and generates graph metrics
+  claim_id: c_8e2e5e12
+  context: "Goal: Download raw BIDS rs\u2011fMRI data, filter for longitudinal scores,\
+    \ and generate graph metrics."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_downloads_BIDS_rs-fMRI_data_and_generates_graph_met
+  kind: entity_fact
+  raw_text: "Download raw BIDS rs\u2011fMRI data, filter for longitudinal scores,\
+    \ and generate graph metrics."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T16:45:39Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: Pipeline outputs model and performance report with ROC-AUC and F1-score
+  claim_id: c_ec2b8ce3
+  context: "Independent Test: The pipeline can be executed to output data/processed/model.pkl\
+    \ and data/processed/performance_report.json containing ROC\u2011AUC and F1\u2011\
+    score for nested CV, without running the permutation test."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_outputs_model_and_performance_report_with_ROC-AUC_a
+  kind: entity_fact
+  raw_text: "The pipeline can be executed to output data/processed/model.pkl and data/processed/performance_report.json\
+    \ containing ROC\u2011AUC and F1\u2011score for nested CV, without running the\
+    \ permutation test."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T16:46:04Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: Random Forest classifier with nested cross-validation predicts cognitive
+    decline
+  claim_id: c_7acd01c1
+  context: "Goal: Train a Random Forest classifier with nested cross\u2011validation\
+    \ to predict cognitive decline."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Random_Forest_classifier_with_nested_cross-validation_predic
+  kind: entity_fact
+  raw_text: "Train a Random Forest classifier with nested cross\u2011validation to\
+    \ predict cognitive decline."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T16:46:38Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: Pipeline runs permutation test and outputs results and sensitivity report
+  claim_id: c_60ade6b5
+  context: 'Independent Test: The pipeline can take an existing model and performance
+    metric, run the permutation test, and output data/processed/permutation_results.json
+    and data/processed/sensitivity_report.json.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_runs_permutation_test_and_outputs_results_and_sensi
+  kind: entity_fact
+  raw_text: The pipeline can take an existing model and performance metric, run the
+    permutation test, and output data/processed/permutation_results.json and data/processed/sensitivity_report.json.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T16:46:59Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: Model significance validated via permutation test and threshold sensitivity
+  claim_id: c_69751637
+  context: 'Goal: Validate model significance via permutation test and assess robustness
+    via threshold sensitivity.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Model_significance_validated_via_permutation_test_and_thresh
+  kind: entity_fact
+  raw_text: Validate model significance via permutation test and assess robustness
+    via threshold sensitivity.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T16:47:23Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: Pipeline correlates topology with molecular markers or calculates structural
+    reserve proxy
+  claim_id: c_fe61b0a5
+  context: 'Independent Test: The pipeline includes a feature engineering step that
+    correlates network topology with available molecular markers (if present in metadata)
+    or explicitly calculates a ''structural reserve'' proxy based on longitudinal
+    graph metric changes, and documents the absence of such data if unavailable.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_correlates_topology_with_molecular_markers_or_calcu
+  kind: entity_fact
+  raw_text: The pipeline includes a feature engineering step that correlates network
+    topology with available molecular markers (if present in metadata) or explicitly
+    calculates a 'structural reserve' proxy based on longitudinal graph metric changes,
+    and documents the absence of such data if unavailable.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T16:47:40Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: Dataset is OpenNeuro ds000246
+  claim_id: c_cf172c4b
+  context: 'Implement code/01_download_and_filter.py: Download ds000246 (Constitution
+    VI, FR-001), parse BIDS metadata...'
+  evidence:
+    entailment_evidence: Dataset is OpenNeuro ds000246 - Wikipedia
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Dataset_is_OpenNeuro_ds000246
+  kind: entity_fact
+  raw_text: The dataset used is OpenNeuro ds000246 (Constitution VI).
+  resolved_value: Dataset is OpenNeuro ds000246
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-03T16:47:44Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: Pipeline limits dataset to 100 eligible subjects
+  claim_id: c_8d3523a2
+  context: 'Implement code/01_download_and_filter.py: ...limit to N = min(100, available_eligible),
+    fail if zero eligible subjects.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline limits the dataset to N = min(100, available_eligible) subjects.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T16:48:28Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: Pipeline uses fixed AAL atlas
+  claim_id: c_6d0ffc88
+  context: 'Implement code/02_preprocess_and_parcellate.py: ...apply the fixed AAL
+    atlas fetched via nilearn.datasets.fetch_atlas_aal...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_uses_fixed_AAL_atlas
+  kind: entity_fact
+  raw_text: The pipeline uses the fixed AAL atlas fetched via nilearn.datasets.fetch_atlas_aal.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T16:49:25Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: Pipeline calculates node degree, global efficiency, clustering coefficient,
+    and path length
+  claim_id: c_b1e2e785
+  context: 'Implement code/03_compute_graph_metrics.py: Calculate node degree, global
+    efficiency, clustering coefficient, and path length for every subject...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_calculates_node_degree,_global_efficiency,_clusteri
+  kind: entity_fact
+  raw_text: The pipeline calculates node degree, global efficiency, clustering coefficient,
+    and path length for every subject.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T16:49:44Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: Pipeline processes subject-by-subject within 7GB RAM limit
+  claim_id: c_1e4686b0
+  context: "Implement code/03_compute_graph_metrics.py: ...Process subject\u2011by\u2011\
+    subject to stay within 7GB RAM."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_processes_subject-by-subject_within_7GB_RAM_limit
+  kind: entity_fact
+  raw_text: "The pipeline processes subject\u2011by\u2011subject to stay within 7GB\
+    \ RAM."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T16:50:17Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: Cognitive decline defined as drop of 3 points or more
+  claim_id: c_4b00494d
+  context: "Implement code/04_train_model.py: Define decline label (drop \u2265 3\
+    \ points)."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Cognitive_decline_defined_as_drop_of_3_points_or_more
+  kind: entity_fact
+  raw_text: "The decline label is defined as a drop of \u2265 3 points in MMSE/MOCA\
+    \ scores."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T16:50:44Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: Random Forest uses n_estimators=100 and max_depth=None
+  claim_id: c_36e67110
+  context: Spec FR-003 mandates fixed parameters n_estimators=100 and max_depth=None.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Random Forest model uses fixed parameters n_estimators=100 and max_depth=None.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T16:51:04Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: Inner CV loop excludes features with correlation greater than 0.95
+  claim_id: c_555cac92
+  context: "Inside the inner CV loop: perform collinearity check (exclude features\
+    \ with correlation > 0.95, keep higher\u2011variance feature)..."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Inner_CV_loop_excludes_features_with_correlation_greater_tha
+  kind: magnitude
+  raw_text: The inner CV loop excludes features with correlation > 0.95.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T16:51:33Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: Inner CV loop applies variance threshold greater than 0.01
+  claim_id: c_ec068788
+  context: "apply Variance Thresholding (variance > 0.01) and RFE to select \u2264\
+    \ 20 features..."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Inner_CV_loop_applies_variance_threshold_greater_than_0.01
+  kind: magnitude
+  raw_text: The inner CV loop applies Variance Thresholding with variance > 0.01.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T16:52:00Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: Inner CV loop selects 20 or fewer features
+  claim_id: c_4c4c095e
+  context: "apply Variance Thresholding (variance > 0.01) and RFE to select \u2264\
+    \ 20 features..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The inner CV loop selects \u2264 20 features."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T16:52:02Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: Permutation test aborts if runtime exceeds 2 hours
+  claim_id: c_d04ae33b
+  context: If estimated runtime > 2 hours, abort with EXIT_CODE_RUNTIME_EXCEEDED =
+    4...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The permutation test aborts if the estimated runtime exceeds 2 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T16:52:16Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: Decision threshold sweep over 0.45, 0.50, and 0.55
+  claim_id: c_6affda53
+  context: 'Part 1 (Decision Threshold Sweep): Perform decision threshold sweep over
+    {0.45, 0.50, 0.55} on the baseline trained model...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The decision threshold sweep is performed over {0.45, 0.50, 0.55}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T16:52:38Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: Label definition sensitivity tests drops of 2, 3, and 4 points
+  claim_id: c_90c97d2c
+  context: "Part 2 (Label Definition Sensitivity): Vary the decline\u2011definition\
+    \ threshold by testing drop values of {2, 3, 4} points on raw MMSE/MOCA scores."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The label definition sensitivity analysis tests drop values of {2, 3,
+    4} points.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T16:53:08Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: Success criteria require ROC-AUC greater than 0.50
+  claim_id: c_8290c019
+  context: "Check that ROC\u2011AUC > 0.50, p < 0.05, and total runtime < 6 h..."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Success_criteria_require_ROC-AUC_greater_than_0.50
+  kind: magnitude
+  raw_text: "Success criteria require ROC\u2011AUC > 0.50."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T16:53:29Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: Success criteria require total runtime less than 6 hours
+  claim_id: c_5fed22f6
+  context: "Check that ROC\u2011AUC > 0.50, p < 0.05, and total runtime < 6 h..."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Success_criteria_require_total_runtime_less_than_6_hours
+  kind: magnitude
+  raw_text: Success criteria require total runtime < 6 hours.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T16:53:53Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: Nested-CV training completes within 30 minutes on CPU-only runner
+  claim_id: c_9a87888c
+  context: "Verify runtime: Ensure nested\u2011CV training completes within 30 minutes\
+    \ on the CPU\u2011only runner..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The nested-CV training must complete within 30 minutes on the CPU\u2011\
+    only runner."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T16:54:21Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: Graph metrics computation completes in 30 minutes for 100 subjects
+  claim_id: c_858727a4
+  context: Refactor code/03_compute_graph_metrics.py to use joblib.Parallel(n_jobs=2,
+    backend='loky') and verify runtime reduction (target < 30 min for 100 subjects).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The graph metrics computation must complete in under 30 minutes for 100
+    subjects.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T16:54:38Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: Random seed is set to 42
+  claim_id: c_b67a1fde
+  context: Configure environment configuration management for random seeds (random_seed=42)...
+  evidence:
+    asserted: '42.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The random seed is pinned to 42.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-08-03T16:54:40Z'

@@ -39,7 +39,7 @@ This project implements a computational pipeline to predict cognitive decline (s
 
 | Spec Requirement | Plan Implementation Status | Notes |
 |------------------|----------------------------|-------|
-| FR-001 (Download & Filter) | ✅ Implemented in `01_download_and_filter.py` | Targets `ds000248` |
+| FR-001 (Download & Filter) | ✅ Implemented in `01_download_and_filter.py` | Targets a specific dataset from the OpenNeuro repository. |
 | FR-002 (Preprocess & Graph Metrics) | ✅ Implemented in `02_preprocess_and_parcellate.py`, `03_compute_graph_metrics.py` | |
 | FR-003 (5-fold CV) | ⚠️ **Superseded** | Superseded by FR-010 (Nested CV). No separate code artifact. |
 | FR-004 (Evaluate Model) | ✅ Implemented in `05_evaluate_model.py` | |
@@ -153,7 +153,7 @@ tests/
   - Shuffle labels multiple times (random seed = 42).
   - Re-train model and compute ROC-AUC for each permutation.
   - Calculate p-value = (+ count(permuted >= original)) / (+ n), where n denotes the total number of permutations.
-  - Bounded by 2-hour runtime.
+  - Bounded by -hour runtime.
   - Output: `data/processed/permutation_results.json`.
 - **Step 3.2**: Sensitivity analysis (FR-006, FR-012).
   - Sweep decision thresholds across a range of values.

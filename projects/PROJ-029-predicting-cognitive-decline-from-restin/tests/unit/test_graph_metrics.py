@@ -103,3 +103,60 @@ def test_compute_subject_metrics_float_weights():
     assert metrics["num_edges"] == 3
     assert metrics["degree"] > 0
     assert metrics["global_efficiency"] > 0
+    
+def test_graph_utils_degree():
+    """Test degree centrality calculation."""
+    # Star graph: center connected to 3 leaves
+    matrix = np.zeros((4, 4))
+    matrix[0, 1] = matrix[1, 0] = 1
+    matrix[0, 2] = matrix[2, 0] = 1
+    matrix[0, 3] = matrix[3, 0] = 1
+    
+    degree = calculate_degree_centrality(matrix)
+    # Center node (0) should have degree 3, others 1
+    assert degree[0] == 3.0
+    assert degree[1] == 1.0
+    assert degree[2] == 1.0
+    assert degree[3] == 1.0
+
+def test_graph_utils_efficiency():
+    """Test global efficiency calculation."""
+    # Two nodes connected
+    matrix = np.array([[0, 1], [1, 0]], dtype=float)
+    eff = calculate_global_efficiency(matrix)
+    assert eff > 0.0
+
+def test_graph_utils_clustering():
+    """Test clustering coefficient calculation."""
+    # Triangle: perfect clustering
+    matrix = np.ones((3, 3)) - np.eye(3)
+    cc = calculate_clustering_coefficient(matrix)
+    assert abs(cc - 1.0) < 1e-6
+
+def test_graph_utils_path_length():
+    """Test shortest path length calculation."""
+    # Line graph: 0-1-2
+    matrix = np.zeros((3, 3))
+    matrix[0, 1] = matrix[1, 0] = 1
+    matrix[1, 2] = matrix[2, 1] = 1
+    
+    path_len = calculate_shortest_path_length(matrix)
+    # Average path length for line of 3: (1+2+1)/3 = 1.333
+    assert abs(path_len - 1.333333) < 0.01
+
+def test_compute_subject_metrics_edge_cases():
+    """Test edge cases in metric computation."""
+    # Single node
+    matrix = np.zeros((1, 1))
+    metrics = compute_subject_metrics(matrix, "single_node")
+    assert metrics["num_nodes"] == 1
+    assert metrics["num_edges"] == 0
+    assert metrics["degree"] == 0.0
+    
+    # All zeros matrix (no edges)
+    matrix = np.zeros((5, 5))
+    metrics = compute_subject_metrics(matrix, "no_edges")
+    assert metrics["num_edges"] == 0
+    assert metrics["degree"] == 0.0
+    assert metrics["global_efficiency"] == 0.0
+    assert metrics["clustering_coefficient"] == 0.0

@@ -52,8 +52,8 @@
 - [X] T003b [P] Create directory `tests/integration/` at repository root
 - [X] T003c [P] Create directory `tests/contract/` at repository root
 - [X] T004a [P] Initialize Python 3.11 project structure in `code/`
-- [X] T004b [P] Create `code/requirements.txt` with pinned dependencies: `nibabel`, `networkx`, `scikit-learn`, `pandas`, `numpy`, `bids`, `requests`, `tqdm`, `pytest`, `nilearn`, `psutil`, `joblib`, `fslpy`
-- [X] T004c [P] Implement `code/00_data_gate.py`: Verify OpenNeuro `ds000246` (Constitution VI, FR-001) availability. Parse metadata to ensure rs-fMRI and longitudinal MMSE/MOCA scores exist. Exit with `EXIT_CODE_NO_LABELS = 2` if missing. Log verification status. <!-- NOTE: Plan.md currently references ds000248; tasks strictly follow Constitution VI. This discrepancy is flagged for plan.md update. -->
+- [X] T004b [P] Create `code/requirements.txt` with pinned dependencies: `nibabel`, `networkx`, `scikit-learn`, `pandas`, `numpy`, `bids`, `requests`, `tqdm`, `pytest`, `nilearn`, `psutil`, `joblib`, `matplotlib`, `seaborn` (Note: `fslpy` removed as FSL requires OS-level install; using `nilearn` for preprocessing)
+- [X] T004c [P] Implement `code/00_data_gate.py`: Verify OpenNeuro `ds000246` (Constitution VI, FR-001) availability. Parse metadata to ensure rs-fMRI and longitudinal MMSE/MOCA scores exist. Exit with `EXIT_CODE_NO_LABELS = 2` if missing. Log verification status. **Note**: This task uses `ds000246` as mandated by Spec/Constitution, overriding any conflicting references in Plan.md.
 - [X] T005 [P] Implement utility modules: `code/utils/io.py` (BIDS loading), `code/utils/graph.py` (AAL atlas loading), `code/utils/stats.py` (collinearity checks)
 - [X] T006 [P] Setup logging infrastructure in `code/utils/logger.py` to capture excluded subjects and feature‑filtering logs
 - [X] T007 [P] Create base schema contracts in `specs/001-predicting-cognitive-decline-from-restin/contracts/` for dataset, graph metrics, and model output
@@ -76,71 +76,76 @@
 
 ## Phase 3: User Story 1 - Data Ingestion and Graph Construction (Priority: P1) 🎯 MVP
 
-**Goal**: Download raw BIDS rs‑fMRI data, filter for longitudinal scores, and generate graph metrics.
+**Goal**: Download raw BIDS rs‑fMRI data, filter for longitudinal scores, and generate graph metrics. [UNRESOLVED-CLAIM: c_8e2e5e12 — status=not_enough_info]
 
 **Independent Test**: The pipeline can be run on a single batch of data to produce `data/processed/graph_metrics.csv` containing subject IDs and calculated graph metrics without any machine learning training.
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
+> **NOTE: These tasks are sequential to code creation, NOT parallel.**
 
-- [X] T014 [P] [US1] Unit test for AAL atlas parcellation in `tests/unit/test_parcellation.py`
-- [X] T015 [P] [US1] Unit test for graph metric calculation (degree, efficiency) in `tests/unit/test_graph_metrics.py`
-- [X] T016 [P] [US1] Integration test for data filtering logic (MMSE/MOCA non‑null check) in `tests/integration/test_filtering.py`
+- [X] T014 [US1] Unit test for AAL atlas parcellation in `tests/unit/test_parcellation.py` (Depends on T018)
+- [X] T015 [US1] Unit test for graph metric calculation (degree, efficiency) in `tests/unit/test_graph_metrics.py` (Depends on T019)
+- [X] T016 [US1] Integration test for data filtering logic (MMSE/MOCA non‑null check) in `tests/integration/test_filtering.py` (Depends on T017) <!-- FAILED: unspecified -->
 
 ### Implementation for User Story 1
 
-- [ ] T017 [US1] Implement `code/01_download_and_filter.py`: Download `ds000246` (Constitution VI, FR-001), parse BIDS metadata, filter for subjects with non‑null MMSE/MOCA at both timepoints, limit to `N = min(100, available_eligible)`, fail if zero eligible subjects. Output `data/processed/eligible_subjects.csv`, `data/processed/excluded_subjects.log`, and `data/artifacts/data_gate_status.json`. Exit with `EXIT_CODE_NO_ELIGIBLE = 3` if no eligible subjects found.
-- [ ] T018 [US1] Implement `code/02_preprocess_and_parcellate.py`: Load raw BIDS data for subjects listed in `data/processed/eligible_subjects.csv`, perform motion correction using `fsl` (mcflirt with default reference volume and 6 degrees of freedom), normalization using `nilearn.image.resample_img` (target space: MNI152), apply the fixed AAL atlas fetched via `nilearn.datasets.fetch_atlas_aal`, and calculate connectivity matrices. Output to `data/processed/connectivity_matrices/`. **Depends on: T017**.
-- [ ] T019 [US1] Implement `code/03_compute_graph_metrics.py`: Calculate node degree, global efficiency, clustering coefficient, and path length for every subject; output to `data/processed/graph_metrics.csv`. Process subject‑by‑subject to stay within 7GB RAM. **CSV Schema**: `subject_id, node_degree, global_efficiency, clustering_coeff, path_length, local_efficiency`. **Depends on: T018**.
-- [X] T020 [US1] Add validation: Verify memory usage during graph metric calculation stays within the 7 GB RAM limit on a 2‑core runner (use `psutil`).
+- [ ] T017 [US1] Implement `code/01_download_and_filter.py`: Download `ds000246` (Constitution VI, FR-001), parse BIDS metadata, filter for subjects with non‑null MMSE/MOCA at both timepoints, limit to `N = min(100, available_eligible)`, fail if zero eligible subjects. Output `data/processed/eligible_subjects.csv`, `data/processed/excluded_subjects.log`, and `data/artifacts/data_gate_status.json`. Exit with `EXIT_CODE_NO_ELIGIBLE = 3` if no eligible subjects found. **Note**: This task uses `ds000246` as mandated by Spec/Constitution, overriding any conflicting references in Plan.md.
+- [ ] T018 [US1] Implement `code/02_preprocess_and_parcellate.py`: Load raw BIDS data for subjects listed in `data/processed/eligible_subjects.csv`, perform motion correction and normalization using `nilearn` (realign to mean image, resample to MNI152), apply the fixed AAL atlas fetched via `nilearn.datasets.fetch_atlas_aal`, and calculate connectivity matrices. Output to `data/processed/connectivity_matrices/`. **Depends on: T017**.
+- [ ] T019 [US1] Implement `code/03_compute_graph_metrics.py`: Calculate node degree, global efficiency, clustering coefficient, and path length for every subject; output to `data/processed/graph_metrics.csv`. Process subject‑by‑subject to stay within 7GB RAM. **CSV Schema**: `subject_id, node_degree, global_efficiency, clustering_coeff, path_length, local_efficiency`. **Depends on: T018**. **Internal Validation**: Include `psutil` to monitor peak RAM during calculation; if > 7GB, log a warning and continue (do not abort, as subject‑by‑subject processing should prevent this).
+- [X] T044 [US1-Ext] Implement `code/08_plasticity_feature_engineering.py`:
+ 1. Calculate a "longitudinal reserve" proxy by computing the slope: `(metric_t2 - metric_t1) / time_diff` for subjects with >1 scan (using graph metrics from T019).
+ 2. Output `data/processed/plasticity_features.csv` and a metadata note to `data/artifacts/plasticity_limitations.txt`.
+ 3. **Note**: This task generates a data file that T023 (Phase 4) will optionally consume if present. **Depends on: T019**.
 
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
+**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
 ---
 
 ## Phase 4: User Story 2 - Predictive Modeling and Validation (Priority: P2)
 
-**Goal**: Train a Random Forest classifier with nested cross‑validation to predict cognitive decline.
+**Goal**: Train a Random Forest classifier with nested cross‑validation to predict cognitive decline. [UNRESOLVED-CLAIM: c_7acd01c1 — status=not_enough_info]
 
 **Independent Test**: The pipeline can be executed to output `data/processed/model.pkl` and `data/processed/performance_report.json` containing ROC‑AUC and F1‑score for nested CV, without running the permutation test.
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T021 [P] [US2] Unit test for nested CV grid‑search logic in `tests/unit/test_nested_cv.py`
-- [X] T022 [P] [US2] Integration test for model training and evaluation flow in `tests/integration/test_model_training.py`
-- [X] T041 [P] [US2] Unit test verifying that the collinearity filter correctly drops one of a pair of features with Pearson > 0.95 (Tests logic in T023)
+- [ ] T021 [P] [US2] Unit test for nested CV grid‑search logic in `tests/unit/test_nested_cv.py`
+- [ ] T022 [P] [US2] Integration test for model training and evaluation flow in `tests/integration/test_model_training.py`
+- [ ] T041 [P] [US2] Unit test verifying that the collinearity filter correctly drops one of a pair of features with Pearson > 0.95 (Tests logic in T023)
 
 ### Implementation for User Story 2
 
-- [ ] T023 [US2] Implement `code/04_train_model.py`: Define decline label (drop ≥ 3 points). Implement Nested CV (K-fold outer cross-validation, grid‑search inner). **Grid Search Parameters**: `n_estimators` over `{10, 50, 100, 200, 500}` and `max_depth` over `{5, 10, None}`. **Inside the inner CV loop**: perform collinearity check (exclude features with correlation > 0.95, keep higher‑variance feature), apply Variance Thresholding (`variance > 0.01`) and RFE to select ≤ 20 features, then fit Random Forest. **Optional Input**: If `data/processed/plasticity_features.csv` exists (from T044), include these features in the feature set. Output `data/processed/model.pkl`, `data/processed/cv_results.json` (Schema: `fold, n_estimators, max_depth, roc_auc, accuracy, f1_score`), and `data/processed/model_params.json`. **Depends on: T019**.
+- [ ] T023 [US2] Implement `code/04_train_model.py`: Define decline label (drop ≥ 3 points). Implement Nested CV (K-fold outer cross-validation, grid‑search inner). **Note on Spec Conflict**: Spec FR-003 mandates fixed parameters `n_estimators=100` and `max_depth=None`. Spec FR-010 mandates Nested CV. This task implements FR-010's Nested CV structure but **FIXES** the Random Forest parameters to FR-003 values (n_estimators=100, max_depth=None). The inner loop is used for **nested feature selection** (Variance Thresholding + RFE) and collinearity handling only, NOT for tuning n_estimators or max_depth. **Inside the inner CV loop**: perform collinearity check (exclude features with correlation > 0.95, keep higher‑variance feature), apply Variance Thresholding (`variance > 0.01`) and RFE to select ≤ 20 features, then fit Random Forest with fixed params. **Optional Input**: If `data/processed/plasticity_features.csv` exists (from T044), include these features in the feature set. Output `data/processed/model.pkl`, `data/processed/cv_results.json` (Schema: `fold, n_estimators, max_depth, roc_auc, accuracy, f1_score`), and `data/processed/model_params.json`. **Depends on: T019, T044**.
 - [ ] T024 [US2] Implement `code/05_evaluate_model.py`: Calculate ROC‑AUC, accuracy, and F1‑score per fold and mean; output to `data/processed/performance_report.json`. **JSON Schema**: `fold, roc_auc, accuracy, f1_score, mean_roc_auc, mean_accuracy, mean_f1_score`.
 - [X] T025 [US2] Implement `code/11_external_outcome_check.py`: Check for MCI conversion data in the dataset; if unavailable, write a limitation note to `data/artifacts/limitations.txt` (output consumed by T031 for final report generation) (FR-011).
-- [X] T026 [US2] Verify runtime: Ensure nested‑CV training completes within 30 minutes on the CPU‑only runner (use joblib with `n_jobs=2` and monitor elapsed time)
+- [X] T026 [US2] Verify runtime: Ensure nested‑CV training completes within 30 minutes on the CPU‑only runner (use joblib with `n_jobs=2` and monitor elapsed time)
 
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
+**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
 ---
 
 ## Phase 5: User Story 3 - Statistical Significance and Sensitivity Analysis (Priority: P3)
 
-**Goal**: Validate model significance via permutation test and assess robustness via threshold sensitivity.
+**Goal**: Validate model significance via permutation test and assess robustness via threshold sensitivity. [UNRESOLVED-CLAIM: c_69751637 — status=not_enough_info]
 
 **Independent Test**: The pipeline can take an existing model and performance metric, run the permutation test, and output `data/processed/permutation_results.json` and `data/processed/sensitivity_report.json`.
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T027 [P] [US3] Unit test for p‑value calculation logic in `tests/unit/test_permutation.py`
-- [X] T028 [P] [US3] Unit test for threshold sweep logic in `tests/unit/test_sensitivity.py`
-- [X] T042 [P] [US3] Add integration test that runs the full permutation pipeline on a **mini‑subset** (e.g., 5 subjects, 10 permutations) to ensure end‑to‑end correctness without exceeding CI limits.
+- [ ] T027 [P] [US3] Unit test for p‑value calculation logic in `tests/unit/test_permutation.py`
+- [ ] T028 [P] [US3] Unit test for threshold sweep logic in `tests/unit/test_sensitivity.py`
+- [ ] T042 [P] [US3] Add integration test that runs the full permutation pipeline on a **mini‑subset** (e.g., 5 subjects, 10 permutations) to ensure end‑to‑end correctness without exceeding CI limits.
 
 ### Implementation for User Story 3
 
-- [ ] T029 [US3] Implement `code/06_permutation_test.py`: Import training logic from `code/04_train_model.py`. **Pre-flight Check**: Run 1 pilot permutation, estimate total runtime = pilot_time * a large multiplier. If estimated runtime > 2 hours, abort with `EXIT_CODE_RUNTIME_EXCEEDED = 4` and error message "Runtime limit exceeded for n=500 permutations". **Execution**: Shuffle labels **500** times (seed = 42), re‑train/re‑evaluate the model for each permutation, and record ROC‑AUC. **Constraint**: Strictly enforce n=500 as per FR-005. Do NOT downgrade to 100. Output to `data/processed/permutation_results.json` with keys `p_value`, `distribution`, `original_score`, `n_permutations`. **Depends on: T023**.
-- [X] T030a [US3] Implement `code/07_sensitivity_analysis.py` (Part 1): Perform decision threshold sweep over `{0.45, 0.50, 0.55}` on the trained model. Report false‑positive/false‑negative rates.
-- [X] T030b [US3] Implement `code/07_sensitivity_analysis.py` (Part 2): Vary the decline‑definition threshold by testing drop values of **{2, 3, 4} points** on raw MMSE/MOCA scores. **MUST re-train the model** for each variation to assess robustness of the label definition (FR-012). Report false‑positive/false‑negative rates.
+- [ ] T029 [US3] Implement `code/06_permutation_test.py`: Import training logic from `code/04_train_model.py`. **Pre-flight Check**: Run 1 pilot permutation, estimate total runtime = pilot_time * 500. If estimated runtime > 2 hours, abort with `EXIT_CODE_RUNTIME_EXCEEDED = 4` and error message "Runtime limit exceeded for n=500 permutations". **Execution**: Shuffle labels **500** times (seed = 42), re‑train/re‑evaluate the model for each permutation, and record ROC‑AUC. **Constraint**: Strictly enforce n=500 as per FR-005. If runtime exceeds 2 hours, the abort mechanism above handles it. Output to `data/processed/permutation_results.json` with keys `p_value`, `distribution`, `original_score`, `n_permutations`. **Depends on: T023**.
+- [ ] T030 [US3] Implement `code/07_sensitivity_analysis.py`:
+ 1. **Part 1 (Decision Threshold Sweep)**: Perform decision threshold sweep over `{0.45, 0.50, 0.55}` on the **baseline trained model** (from T023). Report false‑positive/false‑negative rates.
+ 2. **Part 2 (Label Definition Sensitivity)**: Vary the decline‑definition threshold by testing drop values of **{2, 3, 4} points** on raw MMSE/MOCA scores. **MUST re-train the model** for each variation (2 and 4 points) to assess robustness of the label definition (FR-012). Compare the FPR/FNR of the re-trained models against the baseline (3-point) model to explicitly assess robustness. Report false‑positive/false‑negative rates for all thresholds and a summary of the variation. **Depends on: T023**.
 - [X] T031 [US3] Implement `code/09_generate_report.py`: Aggregate all results, explicitly label findings as "associational" (FR‑007), document limitations (read from `data/artifacts/limitations.txt` generated by T025), and output `data/artifacts/final_report.md`.
-- [X] T032 [US3] Implement `code/10_verify_success_criteria.py`: Check that ROC‑AUC > 0.50, p < 0.05, and total runtime < 6 h; write `VERIFICATION_STATUS` and `runtime_report.json`. **Exit Condition**: If SC-002 (ROC-AUC > 0.50) or SC-003 (p < 0.05) are not met, exit with `sys.exit(1)` and log "Success Criteria Not Met".
+- [X] T032 [US3] Implement `code/10_verify_success_criteria.py`: Check that ROC‑AUC > 0.50, p < 0.05, and total runtime < 6 h; write `VERIFICATION_STATUS` and `runtime_report.json`. **Exit Condition**: If SC-002 (ROC-AUC > 0.50) or SC-003 (p < 0.05) are not met, exit with `sys.exit(1)` and log "Success Criteria Not Met".
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -154,14 +159,7 @@
 
 ### Implementation for Review Revision
 
-- [ ] T044 [US3-Ext] Implement `code/08_plasticity_feature_engineering.py`: 
-  1. Inspect dataset metadata for any available molecular markers (e.g., PET amyloid/tau, post-mortem gene expression proxies, or CSF biomarkers). 
-  2. If available, correlate these with the graph metrics to derive a "plasticity potential" feature. 
-  3. If unavailable, compute a "longitudinal reserve" proxy by calculating the slope: `(metric_t2 - metric_t1) / time_diff` for subjects with >1 scan. 
-  4. Output `data/processed/plasticity_features.csv` and a metadata note to `data/artifacts/plasticity_limitations.txt`.
-  5. **Note**: This task generates a data file that T023 (Phase 4) will optionally consume if present. **Depends on: T019**.
-
-- [ ] T045 [US3-Ext] Update `code/09_generate_report.py` to include a dedicated section discussing the "Static vs. Dynamic" limitation: explicitly state whether molecular/plasticity data was found, how the "reserve" proxy was calculated, and how the absence of such data limits the causal interpretation of the topology-decline relationship (addressing Kandel's critique).
+- [X] T045 [US3-Ext] Update `code/09_generate_report.py` to include a dedicated section discussing the "Static vs. Dynamic" limitation: explicitly state whether molecular/plasticity data was found, how the "reserve" proxy was calculated, and how the absence of such data limits the causal interpretation of the topology-decline relationship (addressing Kandel's critique).
 
 **Checkpoint**: Review concerns regarding molecular grounding and time-dependent plasticity are addressed or explicitly documented as limitations.
 
@@ -172,8 +170,8 @@
 **Purpose**: Improvements that affect multiple user stories
 
 - [X] T033 [P] Documentation updates: Update `README.md` with execution order, dataset requirements, and how to reproduce each phase
-- [X] T034 Code cleanup: Remove debug prints, ensure all random seeds are pinned to a fixed value to guarantee reproducibility., and enforce PEP 8 compliance via `flake8`
-- [X] T035 Performance optimization: Refactor `code/03_compute_graph_metrics.py` to use `joblib.Parallel(n_jobs=2, backend="loky")` and verify runtime reduction (target < 30 min for 100 subjects).
+- [X] T034 Code cleanup: Remove debug prints, ensure all random seeds are pinned to a fixed value to guarantee reproducibility., and enforce PEP 8 compliance via `flake8`
+- [X] T035 Performance optimization: Refactor `code/03_compute_graph_metrics.py` to use `joblib.Parallel(n_jobs=2, backend="loky")` and verify runtime reduction (target < 30 min for 100 subjects).
 - [X] T036 [P] Run the full `tests/` suite and ensure **all** tests pass
 - [X] T037 Security hardening: Scan `data/raw/` for PII using `pybids`/`bids-validator`; automatically redact any personal identifiers found in JSON side‑cars or filenames
 - [X] T038 [P] Run `quickstart.md` validation to ensure end‑to‑end reproducibility on a fresh runner
@@ -187,18 +185,18 @@
 
 ### Phase Dependencies
 
-- **Setup (Phase 1)**: No dependencies – can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion – BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
+- **Setup (Phase 1)**: No dependencies – can start immediately
+- **Foundational (Phase 2)**: Depends on Setup completion – BLOCKS all user stories
+- **User Stories (Phase 3+)**: All depend on Foundational phase completion
  - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
 
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) – No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) – Depends on T019 (graph_metrics.csv) completion
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) – Depends on T023 (model training) completion
+- **User Story 1 (P1)**: Can start after Foundational (Phase 2) – No dependencies on other stories
+- **User Story 2 (P2)**: Can start after Foundational (Phase 2) – Depends on T019 (graph_metrics.csv) completion
+- **User Story 3 (P3)**: Can start after Foundational (Phase 2) – Depends on T023 (model training) completion
 
 ### Within Each User Story
 
@@ -221,41 +219,41 @@
 - **T018** depends on T017 (sequential).
 - **T019** depends on T018 (sequential).
 - **T044** depends on T019 (sequential).
-- **T023** depends on T019 (sequential).
+- **T023** depends on T019 and T044 (sequential).
 - **T024** depends on T023 (sequential).
 - **T029** depends on T023 (sequential).
-- **T030** is a single consolidated task covering all sensitivity analysis steps.
+- **T030** depends on T023 (sequential).
 - **T045** depends on T031 (sequential).
 
 ---
 
 ## Implementation Strategy
 
-### MVP First (User Story 1 Only)
+### MVP First (User Story 1 Only)
 
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL – blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently
+1. Complete Phase 1: Setup
+2. Complete Phase 2: Foundational (CRITICAL – blocks all stories)
+3. Complete Phase 3: User Story 1
+4. **STOP and VALIDATE**: Test User Story 1 independently
 5. Deploy/demo if ready
 
 ### Incremental Delivery
 
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
+1. Complete Setup + Foundational → Foundation ready
+2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
+3. Add User Story 2 → Test independently → Deploy/Demo
+4. Add User Story 3 → Test independently → Deploy/Demo
 5. Each story adds value without breaking previous stories
 
 ### Parallel Team Strategy
 
 With multiple developers:
 
-1. Team completes Setup + Foundational together
+1. Team completes Setup + Foundational together
 2. Once Foundational is done:
- - Developer A: User Story 1 (Data & Graphs)
- - Developer B: User Story 2 (Modeling)
- - Developer C: User Story 3 (Validation)
+ - Developer A: User Story 1 (Data & Graphs)
+ - Developer B: User Story 2 (Modeling)
+ - Developer C: User Story 3 (Validation)
 3. Stories complete and integrate independently
 
 ---
@@ -275,5 +273,5 @@ With multiple developers:
 - **Critical**: Ensure `code/06_permutation_test.py` enforces runtime bounds and exits gracefully if limits are exceeded.
 - **Critical**: Ensure `code/04_train_model.py` correctly implements nested feature selection (Variance Threshold -> RFE) and collinearity handling within the inner loop (training fold only).
 - **Critical**: Ensure all tasks reference the correct dataset `ds000246` as per Constitution VI and Spec FR-001.
-- **Critical**: Ensure `code/04_train_model.py` implements the grid search range `{10, 50, 100, 200, 500}` for `n_estimators` and `{5, 10, None}` for `max_depth`.
+- **Critical**: Ensure `code/04_train_model.py` implements fixed parameters (n_estimators=100, max_depth=None) as per Spec FR-003, using Nested CV only for feature selection.
 - **Critical (Review Revision)**: Ensure `code/08_plasticity_feature_engineering.py` explicitly handles the case where no molecular data is found, logging a clear limitation rather than silently skipping the feature engineering step.
