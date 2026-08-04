@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-02T20:15:01.750328Z'
-current_stage: planned
+current_stage: analyzed
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-894-llmxive-follow-up-extending-memory-is-re
-last_run_id: 4afa280c-acb6-4fb3-95a6-3e9607170ea6
+last_run_id: ca32c1a8-013b-49c1-8a6b-41e791062376
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/specs/001-llmxive-follow-up-extending-memory-is-re
 title: 'llmXive follow-up: extending "Memory is Reconstructed, Not Retrieved: Graph
   Memory for LLM Agents"'
-updated_at: '2026-08-02T10:28:24.782393Z'
+updated_at: '2026-08-04T23:22:11.158554Z'

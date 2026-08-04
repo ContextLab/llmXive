@@ -97,7 +97,7 @@ projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/
 - **Goal**: Implement data loading, graph generation, and strategy skeletons.
 - **FR-001**: Implement `data_loader.py` to fetch LoCoMo and generate synthetic noisy graphs using NER/Rule-Based extraction.
 - **FR-002, FR-003, FR-004**: Implement `strategies/full.py`, `lazy.py`, `greedy.py`.
-- **FR-007**: Implement `runner.py` with hard 30-minute timeout per task.
+- **FR-007**: Implement `runner.py` with a hard timeout per task.
 - **Edge Cases**: Ensure `graph_utils.py` handles disconnected graphs (flag as unresolved) and degenerate inputs (no division by zero).
 
 ### Phase 2: Integration & Execution
