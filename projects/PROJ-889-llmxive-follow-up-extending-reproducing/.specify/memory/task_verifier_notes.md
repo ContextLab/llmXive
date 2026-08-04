@@ -2,10 +2,11 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T003a** — declared artifact(s) missing/empty/invalid: ruff.toml
-- **T005a** — declared artifact(s) missing/empty/invalid: schema.yaml
-- **T005b** — declared artifact(s) missing/empty/invalid: schema.yaml
-- **T013** — No `download_cherrl_logs.py` script or fetched log files in `data/raw/cherrl_logs/` are present; the claim lacks any concrete artifact demonstrating real data download, error handling, or saved output. The required code and data are missing.
+- **T013** — No `download_cherrl_logs.py` script or any code was presented, and thus there is no evidence that the required logic (real HuggingFace fetch, loud failure on error, saving to `data/raw/cherrl_logs/`) has been implemented. The necessary artifact is missing.
 - **T016** — declared artifact(s) missing/empty/invalid: data/processed/trajectories_divergence.csv
-- **T025** — declared artifact(s) missing/empty/invalid: data/processed/baseline_mask.json
+- **T021** — The required input file `data/processed/trajectories_divergence.csv` is absent, and the provided `code/detector.py` does not contain a clear implementation of a sliding‑window (W=20, min 5 samples) z‑score calculation that reads from that CSV. Consequently the task’s core requirement is not met.
+- **T025a** — The required input file `data/processed/trajectories_divergence.csv` does not exist, so the implementer could not read the data, compute elevated‑G segments, or store their indices. Without this essential artifact the task’s logic cannot be executed.
+- **T025b** — No code, notebook, script, or data file was presented that creates a boolean `is_contaminated` column in a DataFrame based on the contaminated segments from T025a. The required artifact (the mask column or a function that generates it) is missing, so the task is not satisfied.
+- **T025c** — The submission contains only a high‑level feature specification unrelated to T025c; there is no code, notebook, script, or data showing that a mask was applied to a baseline calculation, nor any evidence that an `is_contaminated` column was added/validated or that a DataFrame was prepared for T022. The required artifact is missing.
 - **T023** — declared artifact(s) missing/empty/invalid: data/processed/trajectories_labeled.csv
+- **T032a** — The `code/ground_truth.py` does not raise `SystemExit(1)` on a failed J_unbiased‑J_gold correlation check (it only returns a boolean), and there is no logic that writes `data/processed/independence_check_status.json` on success (the file is missing). Consequently the required behavior and deliverable are not present.

@@ -1,193 +1,153 @@
 """
-Download CHERRL trajectory logs from the verified HuggingFace repository.
+Download CHERRL logs from the verified HuggingFace dataset repository.
 
-This script fetches real data from the CHERRL repository artifacts.
-It implements a 'fail loud' strategy: if the fetch fails or the source
-does not match the verified data URL, it logs an error and exits with code 2.
-
-No synthetic fallback is allowed.
+This script fetches real trajectory data required for the llmXive pipeline.
+It implements a 'fail loud' strategy: if the data source is unreachable or
+the dataset ID does not match the verified source, it logs an error and
+exits with code 2. No mock mode or synthetic data generation is supported.
 """
 import os
 import sys
 import hashlib
 import shutil
 from pathlib import Path
-import requests
-import tarfile
-import zipfile
-import json
+from typing import Optional
 
-# Verified data source configuration
-# Based on arXiv:2606.04923 and CHERRL repository artifacts
-VERIFIED_REPO_ID = "CHERRL-repo/trajectory-logs"
-VERIFIED_DATASET_NAME = "cherrl_trajectories"
-EXPECTED_FILE_PATTERN = "seed_*.json"
+# Attempt to import datasets; if missing, the user must install it per requirements.txt
+try:
+    from datasets import load_dataset
+except ImportError:
+    print("ERROR: The 'datasets' library is not installed. Please install it via 'pip install datasets'")
+    sys.exit(2)
 
-# Output directory relative to project root
-OUTPUT_DIR_NAME = "data/raw/cherrl_logs"
+# Import project utilities
+from config import get_project_root, ensure_paths_exist
+from utils.validator import validate_cherrl_source
+from utils.io_utils import ensure_dir
 
-def get_project_root() -> Path:
-    """Get the project root directory (parent of 'code' directory)."""
-    return Path(__file__).resolve().parent.parent
+
+# Verified Data Source Configuration
+# This matches the verified real data source provided in the project specification.
+VERIFIED_DATASET_ID = "cherrl-repo/logs"
+VERIFIED_SPLIT = "train"
+OUTPUT_DIR_NAME = "cherrl_logs"
+EXIT_CODE_DATA_MISSING = 2
+
 
 def verify_arxiv_source() -> bool:
     """
-    Verify that the data source is accessible and matches the verified CHERRL repository.
+    Validates that the data source matches the verified CHERRL repository.
     
     Returns:
-        bool: True if source is verified, False otherwise.
+        bool: True if the source is valid, False otherwise.
     
     Raises:
-        SystemExit: If the source is unreachable or mismatched (exit code 2).
+        SystemExit: If the source is invalid or unreachable.
     """
-    project_root = get_project_root()
-    output_dir = project_root / OUTPUT_DIR_NAME
-    
-    # Ensure output directory exists
-    output_dir.mkdir(parents=True, exist_ok=True)
-    
-    # Check if data already exists to avoid redundant downloads
-    existing_files = list(output_dir.glob("*.json"))
-    if existing_files:
-        print(f"INFO: Found {len(existing_files)} existing log files in {output_dir}")
-        # Verify at least one file is valid JSON
-        try:
-            with open(existing_files[0], 'r') as f:
-                json.load(f)
-            print("INFO: Existing data appears valid, skipping download")
-            return True
-        except (json.JSONDecodeError, Exception) as e:
-            print(f"WARNING: Existing data invalid, will re-download: {e}")
-            shutil.rmtree(output_dir)
-            output_dir.mkdir(parents=True, exist_ok=True)
-    
-    print(f"INFO: Verifying data source: {VERIFIED_REPO_ID}")
-    
     try:
-        # Attempt to list files from the HuggingFace dataset
-        # Using the HuggingFace Hub API endpoint
-        api_url = f"https://huggingface.co/api/datasets/{VERIFIED_REPO_ID}"
-        response = requests.get(api_url, timeout=30)
-        
-        if response.status_code != 200:
-            print(f"ERROR: Data source unreachable (HTTP {response.status_code})")
-            print("ERROR: Data source unreachable or mismatch")
-            sys.exit(2)
-        
-        dataset_info = response.json()
-        
-        # Verify dataset exists and is accessible
-        if "id" not in dataset_info or dataset_info["id"] != VERIFIED_REPO_ID:
-            print(f"ERROR: Source mismatch. Expected {VERIFIED_REPO_ID}, got {dataset_info.get('id')}")
-            print("ERROR: Data source unreachable or mismatch")
-            sys.exit(2)
-        
-        print(f"INFO: Verified dataset source: {dataset_info['id']}")
+        # The validator checks against the known good source
+        is_valid = validate_cherrl_source(VERIFIED_DATASET_ID)
+        if not is_valid:
+            print(f"ERROR: Data source '{VERIFIED_DATASET_ID}' is unreachable or mismatch.")
+            return False
         return True
-        
-    except requests.exceptions.RequestException as e:
-        print(f"ERROR: Network error accessing data source: {e}")
-        print("ERROR: Data source unreachable or mismatch")
-        sys.exit(2)
     except Exception as e:
-        print(f"ERROR: Unexpected error verifying source: {e}")
-        print("ERROR: Data source unreachable or mismatch")
-        sys.exit(2)
+        print(f"ERROR: Data source unreachable or mismatch: {e}")
+        return False
 
-def download_from_huggingface() -> bool:
+
+def download_from_huggingface(output_path: Path) -> bool:
     """
-    Download the CHERRL trajectory logs from the verified HuggingFace repository.
+    Downloads the CHERRL logs dataset from HuggingFace Hub.
     
+    Args:
+        output_path: The directory where the extracted logs will be saved.
+        
     Returns:
-        bool: True if download successful, False otherwise.
-    
-    Raises:
-        SystemExit: If download fails (exit code 2).
+        bool: True if download and extraction succeed, False otherwise.
     """
-    project_root = get_project_root()
-    output_dir = project_root / OUTPUT_DIR_NAME
-    output_dir.mkdir(parents=True, exist_ok=True)
-    
-    print(f"INFO: Starting download from {VERIFIED_REPO_ID} to {output_dir}")
+    print(f"Fetching dataset: {VERIFIED_DATASET_ID} (split: {VERIFIED_SPLIT})...")
     
     try:
-        # Use the HuggingFace datasets library for robust download
-        # First, check if the library is available
-        try:
-            from datasets import load_dataset
-        except ImportError:
-            print("ERROR: 'datasets' library not installed. Please install it with: pip install datasets")
-            print("ERROR: Data source unreachable or mismatch")
-            sys.exit(2)
-        
-        # Load the dataset with streaming to handle large data
-        print("INFO: Loading dataset with streaming...")
+        # Load the dataset using streaming=False to ensure we get the full data
+        # as required for the analysis pipeline.
         dataset = load_dataset(
-            VERIFIED_REPO_ID,
-            split="train",
-            streaming=True
+            VERIFIED_DATASET_ID,
+            split=VERIFIED_SPLIT,
+            trust_remote_code=True
         )
         
-        # Process and save the data
-        log_count = 0
-        for idx, item in enumerate(dataset):
-            # Validate item structure
-            if not isinstance(item, dict):
-                print(f"ERROR: Invalid item format at index {idx}")
-                continue
-            
-            # Create filename based on seed_id if available
-            seed_id = item.get("seed_id", f"seed_{idx:04d}")
-            filename = f"{seed_id}.json"
-            filepath = output_dir / filename
-            
-            # Save the trajectory data
-            with open(filepath, 'w') as f:
-                json.dump(item, f, indent=2)
-            
-            log_count += 1
-            
-            # Progress indicator every 100 items
-            if log_count % 100 == 0:
-                print(f"INFO: Downloaded {log_count} logs...")
+        if dataset is None or len(dataset) == 0:
+            print("ERROR: Downloaded dataset is empty.")
+            return False
         
-        print(f"INFO: Successfully downloaded {log_count} trajectory logs to {output_dir}")
+        print(f"Successfully loaded {len(dataset)} records from HuggingFace.")
         
-        if log_count == 0:
-            print("ERROR: No data downloaded from the source")
-            print("ERROR: Data source unreachable or mismatch")
-            sys.exit(2)
+        # Ensure the output directory exists
+        ensure_dir(output_path)
         
+        # Save the dataset to parquet or CSV format for downstream processing.
+        # We will save as parquet for efficiency, but the ingestion module
+        # can handle various formats. Let's save as a single parquet file per seed
+        # if possible, or a single file if the dataset is small enough.
+        # For simplicity and robustness, we save the full split as a Parquet file.
+        output_file = output_path / "cherrl_logs.parquet"
+        
+        # Convert to pandas and save (or use dataset.to_parquet if available)
+        # Using to_pandas() ensures compatibility with standard pandas I/O
+        df = dataset.to_pandas()
+        df.to_parquet(output_file, index=False)
+        
+        print(f"Data saved to: {output_file}")
+        
+        # Verify the file was created and is not empty
+        if not output_file.exists():
+            print("ERROR: Output file was not created.")
+            return False
+        
+        if output_file.stat().st_size == 0:
+            print("ERROR: Output file is empty.")
+            return False
+            
         return True
-        
-    except Exception as e:
-        print(f"ERROR: Failed to download data: {e}")
-        print("ERROR: Data source unreachable or mismatch")
-        sys.exit(2)
 
-def main():
-    """Main entry point for the CHERRL log download script."""
-    print("=" * 60)
-    print("CHERRL Trajectory Log Downloader")
-    print("=" * 60)
+    except Exception as e:
+        print(f"ERROR: Failed to download or process dataset: {e}")
+        return False
+
+
+def main() -> int:
+    """
+    Main entry point for the download script.
     
-    # Step 1: Verify the data source
-    print("\n[1/2] Verifying data source...")
+    Returns:
+        int: Exit code (0 for success, 2 for data missing/failure).
+    """
+    # 1. Setup paths
+    project_root = get_project_root()
+    raw_data_dir = project_root / "data" / "raw"
+    output_dir = raw_data_dir / OUTPUT_DIR_NAME
+    
+    ensure_paths_exist() # Ensure data directories exist
+    
+    print(f"Project root: {project_root}")
+    print(f"Target output directory: {output_dir}")
+    
+    # 2. Verify Source
     if not verify_arxiv_source():
-        print("ERROR: Source verification failed")
-        sys.exit(2)
+        print(f"ERROR: Data source unreachable or mismatch")
+        return EXIT_CODE_DATA_MISSING
     
-    # Step 2: Download the data
-    print("\n[2/2] Downloading trajectory logs...")
-    if not download_from_huggingface():
-        print("ERROR: Download failed")
-        sys.exit(2)
+    # 3. Download Data
+    success = download_from_huggingface(output_dir)
     
-    print("\n" + "=" * 60)
-    print("SUCCESS: CHERRL logs downloaded and saved to data/raw/cherrl_logs/")
-    print("=" * 60)
+    if not success:
+        print(f"ERROR: Data source unreachable or mismatch")
+        return EXIT_CODE_DATA_MISSING
     
+    print("Download completed successfully.")
     return 0
+
 
 if __name__ == "__main__":
     sys.exit(main())

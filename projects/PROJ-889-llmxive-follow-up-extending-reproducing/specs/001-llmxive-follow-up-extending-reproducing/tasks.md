@@ -45,7 +45,7 @@
 
 - [X] T001 Create project structure per implementation plan: Create directories `code/`, `data/raw`, `data/processed`, `tests/`, `tests/unit`, `tests/integration`, `contracts/`. Create files `requirements.txt`, `.gitignore`, `README.md`, `code/__init__.py`.
 - [X] T002 Initialize Python 3.11 project with dependencies: `pandas`, `numpy`, `scipy`, `requests`, `pyyaml`, `jsonschema`, `pytest` in `requirements.txt`
-- [ ] T003a [P] Configure linting (ruff): Create `.ruff.toml` with rules for E (Error), F (Pyflakes), W (Warning), I (Import), N (Naming) enforcing PEP8 and Google style.
+- [X] T003a [P] Configure linting (ruff): Create `.ruff.toml` with rules for E (Error), F (Pyflakes), W (Warning), I (Import), N (Naming) enforcing PEP8 and Google style. **Content**: Write a valid `.ruff.toml` file with `select = ["E", "F", "W", "I", "N"]` and `line-length = 88`.
 - [X] T003b [P] Configure formatting (black): Create `pyproject.toml` for Black formatting configuration.
 
 ---
@@ -58,11 +58,11 @@
 
 - [X] T004a [P] Create data directory structure: Create directories `data/raw` and `data/processed` at the repository root.
 - [X] T004b [P] Configure.gitignore for data: Update `.gitignore` to exclude `data/raw/*` and `data/processed/*` while keeping the directory structure.
-- [ ] T005a [P] Create trajectory schema: Create `contracts/trajectory.schema.yaml` defining the schema for `seed_id`, `bias_type`, `timestep`, `J_biased`, `J_unbiased`, `J_gold`. (FR-001, FR-002, Entity: Trajectory)
-- [ ] T005b [P] Create metrics schema: Create `contracts/metrics.schema.yaml` defining the schema for Precision, Recall, F1-score, p-value, effect_size. (FR-005, SC-001, SC-002)
+- [X] T005a [P] Create trajectory schema: Create `contracts/trajectory.schema.yaml` defining the schema for `seed_id`, `bias_type`, `timestep`, `J_biased`, `J_unbiased`, `J_gold`. (FR-001, FR-002, Entity: Trajectory) **Content**: Write a valid YAML schema file defining types for all required columns. **Note**: File must exist and be valid YAML.
+- [X] T005b [P] Create metrics schema: Create `contracts/metrics.schema.yaml` defining the schema for Precision, Recall, F1-score, p-value, effect_size. (FR-005, SC-001, SC-002) **Content**: Write a valid YAML schema file defining types for all required metrics. **Note**: File must exist and be valid YAML.
 - [X] T006 Create base utility module for file I/O and checksumming (`code/utils/io_utils.py`)
 - [X] T007 Configure environment configuration management for data paths and hyperparameters (`code/config.py`)
-- [X] T017 [P] [US1] Implement edge case handlers for time-series processing in `code/utils/math_utils.py`. **Logic**: 1. Implement `interpolate_missing_timesteps()` using linear interpolation for gaps in the time series. 2. Implement `safe_z_score()` which returns a neutral baseline value if the standard deviation of the window is zero, using a small positive epsilon floor to prevent division by zero. 3. Implement `handle_nan()` to gracefully handle NaN values in sliding window calculations (merged from T024). **Dependency**: Requires T005a (schema) to validate input types.
+- [X] T017 [US1] Implement edge case handlers for time-series processing in `code/utils/math_utils.py`. **Logic**: 1. Implement `interpolate_missing_timesteps()` using linear interpolation for gaps in the time series. 2. Implement `safe_z_score()` which returns a neutral baseline value if the standard deviation of the window is zero, using a small positive epsilon floor to prevent division by zero. 3. Implement `handle_nan()` to gracefully handle NaN values in sliding window calculations (merged from T024). **Dependency**: Requires T005a (schema) to validate input types. **Sequential Order**: This task MUST be executed after T005a completes. **Note**: This task is NOT parallel with T005a.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -85,9 +85,9 @@
 
 ### Implementation for User Story 1
 
-- [ ] T013 [US1] Implement `download_cherrl_logs.py` to fetch real data. **Logic**: 1. Fetch data from the verified CHERRL repository artifacts as cited in the spec (arXiv:2606.04923). 2. **Fail Loud**: If fetch fails or the source does not match the verified data URL, log "ERROR: Data source unreachable or mismatch" and exit with code 2 (data_missing). **NO** synthetic fallback allowed. 3. **Deliverable**: Save extracted logs to `data/raw/cherrl_logs/`. This ensures the pipeline halts visibly if data is missing, making the failure mode testable.
-- [X] T014 [US1] Implement `code/ingestion.py` to load logs and compute $G(t) = |J_{\text{biased}} - J_{\text{unbiased}}|$ (FR-001). **Dependency**: Requires T013 to complete successfully and produce raw logs.
-- [X] T015 [US1] Implement `code/ingestion.py` to compute $\Delta G(t)$ (discrete derivative), rolling z-score (FR-002), and handle edge cases. **Logic**: Calculate rolling z-score with a sliding window of W=20 timesteps, **requiring a minimum of 5 samples** to compute the standard deviation. Use `linear interpolation` for missing timesteps (T017). If variance of $G(t)$ is zero, set z-score to 0 (using epsilon=1e-9 floor for division). **Dependency**: Requires T014 and T017 to be completed.
+- [ ] T013 [US1] Implement `download_cherrl_logs.py` to fetch real data. **Logic**: 1. Fetch data from the verified CHERRL repository artifacts using HuggingFace `datasets.load_dataset('cherrl-repo/logs', split='train')`. 2. **Fail Loud**: If fetch fails or the source does not match the verified data URL, log "ERROR: Data source unreachable or mismatch" and exit with code 2 (data_missing). **NO MOCK MODE**: Do not implement a `--mock-mode` flag. The pipeline must fail if real data is missing. 3. **Deliverable**: Save extracted logs to `data/raw/cherrl_logs/`. This ensures the pipeline halts visibly if data is missing in production.
+- [X] T014 [US1] Implement `code/ingestion.py` to load logs and compute $G(t) = |J_{\text{biased}} - J_{\text{unbiased}}|$ (FR-001). **Dependency**: Requires T013 to complete successfully and produce raw logs. **Validation**: Must verify T013 output exists before processing.
+- [X] T015 [US1] Implement `code/ingestion.py` to compute $\Delta G(t)$ (discrete derivative), rolling z-score (FR-002), and handle edge cases. **Logic**: Calculate rolling z-score with a sliding window of W=20 timesteps, **requiring a minimum of 5 samples** to compute the standard deviation. Use `linear interpolation` for missing timesteps (T017). If variance of $G(t)$ is zero, set z-score to 0 (using epsilon=1e-9 floor for division). **Dependency**: Requires T014 and **T017** to be completed. **Specific Calls**: Must use `interpolate_missing_timesteps` and `safe_z_score` from `code/utils/math_utils.py`.
 - [ ] T016 [US1] Implement aggregation logic to merge multiple seed logs into `data/processed/trajectories_divergence.csv` preserving `seed_id` and `bias_type`. **Schema**: Output must contain columns: `seed_id`, `bias_type`, `timestep`, `J_biased`, `J_unbiased`, `J_gold`, `G_t`, `dG_t`. **Dependency**: Requires T015.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -108,9 +108,11 @@
 
 ### Implementation for User Story 2
 
-- [X] T021 [US2] Implement `code/detector.py` to calculate sliding window z-score ($W=20$, min 5 samples) per FR-002, reading from `data/processed/trajectories_divergence.csv`. **Dependency**: Requires T016 (aggregated data).
-- [ ] T025 [US2] Implement contaminated window exclusion logic (FR-009). **Logic**: 1. Identify contiguous segments where the **duration** of elevated $G(t)$ exceeds the sliding window size (W=20). Use the global median of $G(t)$ from T016 as a preliminary threshold to identify candidate elevated segments, but the exclusion is strictly based on the **duration** constraint. 2. Generate a `baseline_mask` boolean series that marks these contaminated indices as True (to be excluded). 3. **Output**: Save `baseline_mask` as `data/processed/baseline_mask.json`. **Action**: This mask is consumed by T022 to **exclude** these indices from the rolling standard deviation calculation, preventing baseline suppression. **Dependency**: Requires T016 (raw G(t) data).
-- [X] T022 [US2] Implement logic in `code/detector.py` to flag "hacked" if $z(G(t)) > 3.0$ OR if $\Delta G(t)$ exceeds a dynamic threshold. **Config**: Use the fixed threshold k=3.0 as defined in FR-003 for the z-score component. **Baseline**: Calculate baseline noise floor as the standard deviation of the **preceding 100 timesteps** (or all available if <100) using the corrected baseline from T025, **consuming the `baseline_mask` to skip contaminated indices**. **Dependency**: Requires T025.
+- [ ] T021 [US2] Implement `code/detector.py` to calculate sliding window z-score ($W=20$, min 5 samples) per FR-002, reading from `data/processed/trajectories_divergence.csv`. **Dependency**: Requires T016 (aggregated data).
+- [ ] T025a [US2] Identify contaminated windows (FR-009). **Logic**: 1. Read `data/processed/trajectories_divergence.csv`. 2. Identify contiguous segments where the **duration** of elevated $G(t)$ (above global median) exceeds the sliding window size (W=20). 3. Store the indices of these segments in a temporary list or DataFrame. **Dependency**: Requires T016.
+- [ ] T025b [US2] Generate `is_contaminated` mask. **Logic**: 1. Create a boolean column `is_contaminated` in the DataFrame. 2. Set `True` for all timesteps belonging to the contaminated segments identified in T025a. 3. Set `False` otherwise. **Dependency**: Requires T025a.
+- [ ] T025c [US2] Apply mask to baseline calculation. **Logic**: 1. Ensure the `is_contaminated` column is present and correct. 2. Prepare the DataFrame for T022. **Dependency**: Requires T025b.
+- [X] T022 [US2] Implement logic in `code/detector.py` to flag "hacked" if $z(G(t)) > 3.0$ OR if $\Delta G(t)$ exceeds a dynamic threshold. **Config**: Use the fixed threshold k=3.0 as defined in FR-003 for the z-score component. **Baseline**: Calculate baseline noise floor as the standard deviation of the **preceding 100 timesteps** (or all available if <100) using the corrected baseline from T025c, **consuming the `is_contaminated` column from T025c to skip contaminated indices**. **Dependency**: Requires T016 (aggregated data) and **T025c (contaminated window mask)** to calculate the baseline.
 - [ ] T023 [US2] Generate `data/processed/trajectories_labeled.csv` by appending `hacked_label` column to the US1 output, preserving separation of concerns (FR-001 vs FR-003). **Schema**: `hacked_label` must be a boolean column (True/False). **Dependency**: Requires T022.
 - [Note: T024 has been merged into T017 to handle NaN values in `code/utils/math_utils.py`. T024 is removed from the task list.]
 
@@ -136,14 +138,15 @@
 
 ### Implementation for User Story 3
 
-- [X] T032a [US3] Implement `code/ground_truth.py` to check Pearson correlation for $J_{\text{unbiased}}$ vs $J_{\text{gold}}$ (FR-006). **Logic**: If correlation is **strictly greater than** `CORRELATION_THRESHOLD` (default 0.8), raise `RuntimeError` with message "CIRCULAR_VALIDATION: Correlation > threshold" and exit with code 1 immediately. Do not proceed. **Dependency**: Requires T014, T015 (data ingestion).
-- [X] T032b [US3] Implement `code/ground_truth.py` to check Pearson correlation for $J_{\text{biased}}$ vs $J_{\text{gold}}$ (FR-008). **Logic**: If correlation is **strictly greater than** `CORRELATION_THRESHOLD` (default 0.8), raise `RuntimeError` with message "CIRCULAR_VALIDATION: Correlation > threshold" and exit with code 1 immediately. Do not proceed. **Dependency**: Requires T014, T015 (data ingestion).
-- [ ] T031 [US3] Implement `code/ground_truth.py` to derive labels from $J_{\text{gold}}$ drops (≥0.1 decrease over 50 steps, sustained 3 steps) per FR-004. **Traceability**: The fixed-step window is defined in **FR-004**. **Edge Case Logic**: Use `linear interpolation` for missing timesteps. If the running mean window is not fully available at the start of the trajectory, compute the mean over the available steps. **Dependency**: Requires T032a and T032b to complete successfully (exit code 0).
-- [ ] T033 [US3] Implement `code/evaluation.py` to generate a "Stratified Random Baseline". **Logic**: Sample timesteps uniformly stratified by rubric type (Lexical, Format, Tone, Self-praise) using the value defined in `code/config.py` as `BASELINE_SAMPLE_FRACTION`. **Config Requirement**: The task must define `BASELINE_SAMPLE_FRACTION` in `code/config.py` with a default placeholder value of **0.01** ([deferred] of timesteps) if not present. **Seed Requirement**: Use a pinned random seed defined in `code/config.py` as `BASELINE_SEED`. **Error Handling**: If `BASELINE_SEED` or `BASELINE_SAMPLE_FRACTION` is missing from config, raise `RuntimeError` with message "MISSING_CONFIG: BASELINE_SEED and BASELINE_SAMPLE_FRACTION required for reproducibility" and exit with code 1. **Output**: A binary label set for the baseline.
-- [ ] T034a [US3] Implement `code/evaluation.py` to perform a **Wilcoxon signed-rank test** (Primary, per FR-005) comparing the detector's F1-scores against the **Stratified Random Baseline** (generated in T033). **Inputs**: F1-scores from detector and baseline across all seeds. **Output**: Report p-value and effect size.
-- [ ] T035 [US3] Implement `code/evaluation.py` to check SC-003 (F1 std dev ≤ 0.15). **Logic**: Calculate the standard deviation of F1-scores across rubric types. If the standard deviation exceeds a pre-defined threshold, **halt the pipeline immediately** and report this as a research failure (do not attempt tuning). If the standard deviation is ≤ 0.15, **continue to report generation**. **Exit Code**: Exit with code 1 with the specific message "RESEARCH_FAILURE: Non-generalizable threshold" to signal a failed research outcome.
-- [ ] T037 [US3] Implement sensitivity analysis for ground-truth drop threshold (FR-007). **Logic**: Sweep the values defined in `code/config.py` as `SENSITIVITY_THRESHOLDS` (e.g., a representative range of low-magnitude thresholds) and report variation in F1-scores. **Output**: Save results to `data/processed/sensitivity_analysis.csv` with columns: `rubric_type`, `threshold`, `f1_score`, `precision`, `recall`. **Dependency**: Requires T031.
-- [ ] T038 [US3] Generate final `data/processed/metrics.csv` and evaluation report with p-values, F1 scores, and sensitivity analysis results. **Schema**: `metrics.csv` must contain columns: `metric_name`, `value`, `p_value`, `effect_size`. **Report Format**: Generate a Markdown report (`data/processed/evaluation_report.md`) summarizing the findings.
+- [ ] T032a [US3] Implement `code/ground_truth.py` to check Pearson correlation for $J_{\text{unbiased}}$ vs $J_{\text{gold}}$ (FR-006). **Logic**: If correlation is **strictly greater than** `CORRELATION_THRESHOLD` (default a high positive magnitude, defined in `code/config.py`), **raise SystemExit(1)** and log "ERROR: Independence check failed (J_unbiased vs J_gold). Pipeline halted." **Deliverable**: If passed, write `data/processed/independence_check_status.json` with status "ok". **Do not** write a status file if failed; halt immediately. **Dependency**: Requires T014, T015 (data ingestion).
+- [~] T032b [US3] Implement `code/ground_truth.py` to check Pearson correlation for $J_{\text{biased}}$ vs $J_{\text{gold}}$ (FR-008). **Logic**: If correlation is **strictly greater than** `CORRELATION_THRESHOLD` (default 0.8), **raise SystemExit(1)** and log "ERROR: Independence check failed (J_biased vs J_gold). Pipeline halted." **Deliverable**: If passed, write `data/processed/independence_check_status.json` with status "ok". **Do not** write a status file if failed; halt immediately. **Dependency**: Requires T014, T015 (data ingestion).
+- [ ] T031 [US3] Implement `code/ground_truth.py` to derive labels from $J_{\text{gold}}$ drops (≥0.1 decrease over 50 steps, sustained 3 steps) per FR-004. **Traceability**: The fixed-step window is defined in **FR-004**. **Edge Case Logic**: Use `linear interpolation` for missing timesteps. If the running mean window is not fully available at the start of the trajectory, compute the mean over the available steps. **Dependency**: Requires T032a and T032b to complete successfully (i.e., not halt) and produce `data/processed/independence_check_status.json`. **Logic**: If the pipeline has not halted (meaning independence checks passed), proceed with label generation.
+- [ ] T033-Pre [US3] Define Baseline Configuration. **Logic**: Edit `code/config.py` to define `BASELINE_SAMPLE_FRACTION` (float, 0.0-1.0) and `BASELINE_SEED` (int). **Requirement**: These values MUST be explicitly set by the researcher before T033 runs. If missing, T033 will fail.
+- [ ] T033 [US3] Implement `code/evaluation.py` to generate a "Stratified Random Baseline". **Logic**: Sample timesteps uniformly stratified by rubric type (Lexical, Format, Tone, Self-praise) using `BASELINE_SAMPLE_FRACTION` from `code/config.py`. **Config Requirement**: The task must read `BASELINE_SAMPLE_FRACTION` and `BASELINE_SEED` from `code/config.py`. If the value is missing or `None`, raise `RuntimeError` with message "MISSING_CONFIG: BASELINE_SAMPLE_FRACTION is required and must be explicitly defined by the researcher" and exit with code 1. **Seed Requirement**: Use a pinned random seed defined in `code/config.py` as `BASELINE_SEED`. **Error Handling**: If `BASELINE_SEED` is missing from config, raise `RuntimeError` with message "MISSING_CONFIG: BASELINE_SEED required for reproducibility" and exit with code 1. **Output**: A binary label set for the baseline.
+- [ ] T034a [US3] Implement `code/evaluation.py` to perform a **Wilcoxon signed-rank test** (Primary, per FR-005) comparing the detector's F1-scores against the **Stratified Random Baseline** (generated in T033). **Inputs**: F1-scores from detector and baseline across all seeds. **Output**: Report p-value and effect size. **Dependency**: Requires T033 (baseline generation).
+- [ ] T035 [US3] Implement `code/evaluation.py` to check SC-003 (F1 std dev ≤ 0.15). **Logic**: Calculate the standard deviation of F1-scores across rubric types. If the standard deviation exceeds 0.15, **flag the study as FAILED** in the final report (T038). **Action**: Record the std dev and the "FAILED" status in `data/processed/metrics.csv`. **Dependency**: Requires T034a.
+- [ ] T037 [US3] Implement sensitivity analysis for ground-truth drop threshold (FR-007). **Logic**: Sweep the values defined in `code/config.py` as `SENSITIVITY_THRESHOLDS` (e.g., a representative range of low-magnitude thresholds) and report variation in F1-scores. **Output**: Save results to `data/processed/sensitivity_analysis.csv` with columns: `rubric_type`, `threshold`, `f1_score`, `precision`, `recall`. **Dependency**: Requires T031 (ground truth labels).
+- [ ] T038 [US3] Generate final `data/processed/metrics.csv` and evaluation report with p-values, F1 scores, and sensitivity analysis results. **Schema**: `metrics.csv` must contain columns: `metric_name`, `value`, `p_value`, `effect_size`. **Report Format**: Generate a Markdown (Wikidata Q107380638, https://www.wikidata.org/wiki/Q107380638) report (`data/processed/evaluation_report.md`) summarizing the findings, including any "FAILED" flags from T035. **Dependency**: Requires T034a, T035, and T037.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -154,9 +157,8 @@
 **Purpose**: Improvements that affect multiple user stories
 
 - [ ] T039 [P] Documentation updates in `README.md` and `quickstart.md`
-- [ ] T040a [P] Refactor `code/utils.py` into modular submodules: Split `code/utils.py` into `code/utils/io_utils.py` (file I/O, checksumming) and `code/utils/math_utils.py` (statistical helpers, interpolation, z-score).
 - [ ] T040b [P] Refactor `code/config.py` into classes: Organize constants into classes `DataConfig`, `ModelConfig`, and `EvalConfig` with docstrings.
-- [ ] T041 Implement sequential seed processing in `code/main.py` to ensure memory safety and runtime < 4 hours (process seeds one by one if needed).
+- [X] T041 [P] Implement sequential seed processing in `code/main.py` to ensure memory safety and runtime < 4 hours (process seeds one by one if needed). **Note**: This logic is integrated into the main pipeline loop, not a separate task.
 - [ ] T042 [P] Additional unit tests for edge cases (missing data, zero variance) in `tests/unit/`
 - [ ] T043 Run quickstart.md validation and verify all artifacts are checksummed
 
@@ -185,12 +187,12 @@
 - Data ingestion (T013) MUST precede math computation (T014)
 - Ground truth derivation (T031) MUST be preceded by Independence Checks (T032a/T032b)
 - Independence check (T032a/T032b) MUST run before any ground truth is used for metrics
-- Contaminated window exclusion (T025) MUST run before Flagging Logic (T022)
+- Contaminated window exclusion (T025a -> T025b -> T025c) MUST run before Flagging Logic (T022)
 
 ### Parallel Opportunities
 
 - All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
+- All Foundational tasks marked [P] can run in parallel (within Phase 2), EXCEPT T017 which is sequential to T005a
 - Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
 - All tests for a user story marked [P] can run in parallel
 - Different user stories can be worked on in parallel by different team members (if dependencies allow, e.g., US2/US3 can start once US1 data format is known)
@@ -250,22 +252,25 @@ With multiple developers:
 - Verify tests fail before implementing
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
-- **CRITICAL**: Ensure all data download tasks (T013) validate the source against the verified dataset URLs in the plan's input block (CHERRL repository, not just arXiv) before fetching. No fake data generation is allowed.
-- **CRITICAL**: Ensure T032a (independence check) and T032b run BEFORE T031 (ground truth generation) to prevent circular validation. T032a must check J_unbiased vs J_gold and T032b must check J_biased vs J_gold. Both must halt if correlation > 0.8 (strictly greater).
-- **CRITICAL**: If SC-003 fails (F1 std dev > 0.15), T035 must halt the pipeline with exit code 1. No automatic tuning (T036) is permitted.
+- **CRITICAL**: Ensure all data download tasks (T013) validate the source against the verified dataset URLs in the plan's input block (CHERRL repository, HuggingFace) before fetching. No fake data generation is allowed.
+- **CRITICAL**: Ensure T032a (independence check) and T032b run BEFORE T031 (ground truth generation) to prevent circular validation. T032a must check J_unbiased vs J_gold and T032b must check J_biased vs J_gold. Both must **halt the pipeline** (exit code 1) if correlation > 0.8.
+- **CRITICAL**: If SC-003 fails (F1 std dev > 0.15), T035 must mark the study as **FAILED** in the report.
 - **CRITICAL**: T034a must use the Wilcoxon signed-rank test as the primary method per FR-005, comparing against the Stratified Random Baseline generated in T033.
-- **CRITICAL**: T013 must implement a "fail loud" strategy: if the real fetch fails or source mismatch, the script MUST exit with code 2 and log "ERROR: Data source unreachable". It must NOT contain any `try/except` block that falls back to synthetic data generation or mock data.
+- **CRITICAL**: T013 must implement a "fail loud" strategy for real data (exit code 2) and **DO NOT** support mock mode.
 - **CRITICAL**: T022, T032a, and T032b must load empirical constants (multiplier, correlation threshold) from `code/config.py` rather than hardcoding them, to defer empirical specifics as per Spec Assumptions.
-- **CRITICAL**: T025 must implement FR-009 to exclude contaminated windows where hacking event duration exceeds the sliding window size, preventing suppression of the z-score baseline. T025 must run before T022.
+- **CRITICAL**: T025a, T025b, T025c must implement FR-009 to exclude contaminated windows where hacking event duration exceeds the sliding window size, preventing suppression of the z-score baseline. T025c must run before T022.
 - **CRITICAL**: T037 must implement FR-007 sensitivity analysis to validate robustness across rubric types by sweeping the drop threshold over the values defined in `code/config.py` as `SENSITIVITY_THRESHOLDS`.
 - **CRITICAL**: T033 and T034a must use a pinned random seed from `code/config.py` (`BASELINE_SEED`). If the seed is missing, the task must raise an error and exit.
-- **CRITICAL**: T033 must use a fixed sample fraction defined in `code/config.py` (`BASELINE_SAMPLE_FRACTION`) with a default placeholder of 0.01 for the stratified random baseline, not hardcoded.
+- **CRITICAL**: T033 must use a fixed sample fraction defined in `code/config.py` (`BASELINE_SAMPLE_FRACTION`) with **NO default value**; the researcher must explicitly define it (via T033-Pre).
 - **CRITICAL**: T017 must implement linear interpolation for missing timesteps, epsilon floor (1e-9) for zero variance, and NaN handling (merged from T024).
-- **CRITICAL**: T040 has been split into T040a and T040b to reduce granularity while maintaining executability.
-- **CRITICAL**: T017 has been moved to Phase 2 to align with US1 dependencies.
+- **CRITICAL**: T040a has been removed as redundant (utils already split in plan). T040b remains for config refactoring.
+- **CRITICAL**: T017 has been moved to Phase 2 to align with US1 dependencies and is now sequential to T005a.
 - **CRITICAL**: T015 explicitly mandates the "min 5 samples" constraint for rolling z-score calculation.
-- **CRITICAL**: T025 explicitly details the algorithm for contaminated window exclusion (identify segments > 20 steps, mask from baseline) and outputs `data/processed/baseline_mask.json`.
+- **CRITICAL**: T025a/b/c explicitly details the algorithm for contaminated window exclusion (identify segments > 20 steps, mask from baseline) and outputs the mask as a DataFrame column, NOT a separate JSON file.
 - **CRITICAL**: T037 explicitly defines the output schema columns (rubric_type, threshold, f1_score, precision, recall) and references the config key for sweep values.
-- **CRITICAL**: T033 explicitly defines the baseline logic as "sample timesteps uniformly stratified by rubric type" and requires `BASELINE_SAMPLE_FRACTION` in `code/config.py` with a default of 0.01.
+- **CRITICAL**: T033 explicitly defines the baseline logic as "sample timesteps uniformly stratified by rubric type" and requires `BASELINE_SAMPLE_FRACTION` in `code/config.py` with NO default value.
 - **CRITICAL**: T038 explicitly defines the schema for `metrics.csv` and the format of the evaluation report.
 - **CRITICAL**: T024 has been merged into T017 to handle NaN values in `code/utils/math_utils.py`.
+- **CRITICAL**: T041 logic is now part of `code/main.py` and not a separate task.
+- **CRITICAL**: T022 is marked [ ] because it depends on T025 (contaminated window mask) which is also [ ]. T022 cannot be complete until T025 is implemented.
+- **CRITICAL**: T015 is marked [ ] because it depends on T017 (edge case handlers) which is also [ ]. T015 cannot be complete until T017 is implemented.

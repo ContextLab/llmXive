@@ -6,3 +6,6 @@ pyyaml
 jsonschema
 pytest
 datasets
+ruff
+black
+pyarrow

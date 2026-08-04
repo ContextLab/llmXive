@@ -5,6 +5,50 @@ T010:
     \ no unit test for the $G(t)$ calculation logic is present. The task cannot be\
     \ considered completed until a non\u2011empty test file is added at the specified\
     \ location."
+T013:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `download_cherrl_logs.py` script or any code was presented, and thus there
+    is no evidence that the required logic (real HuggingFace fetch, loud failure on
+    error, saving to `data/raw/cherrl_logs/`) has been implemented. The necessary
+    artifact is missing.
+T021:
+  c: false
+  h: 9e41f355bf75eee1fb93190908ed3df3296cad0ec66c748e16a13b5427f5ada0
+  r: "The required input file `data/processed/trajectories_divergence.csv` is absent,\
+    \ and the provided `code/detector.py` does not contain a clear implementation\
+    \ of a sliding\u2011window (W=20, min\u202F5 samples) z\u2011score calculation\
+    \ that reads from that CSV. Consequently the task\u2019s core requirement is not\
+    \ met."
+T025a:
+  c: false
+  h: bffd43bc826427a6d64531727ed51f2b894d5cd67ae06b0f25503ab21afc5925
+  r: "The required input file `data/processed/trajectories_divergence.csv` does not\
+    \ exist, so the implementer could not read the data, compute elevated\u2011G segments,\
+    \ or store their indices. Without this essential artifact the task\u2019s logic\
+    \ cannot be executed."
+T025b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, notebook, script, or data file was presented that creates a boolean
+    `is_contaminated` column in a DataFrame based on the contaminated segments from
+    T025a. The required artifact (the mask column or a function that generates it)
+    is missing, so the task is not satisfied.
+T025c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The submission contains only a high\u2011level feature specification unrelated\
+    \ to T025c; there is no code, notebook, script, or data showing that a mask was\
+    \ applied to a baseline calculation, nor any evidence that an `is_contaminated`\
+    \ column was added/validated or that a DataFrame was prepared for T022. The required\
+    \ artifact is missing."
+T032a:
+  c: false
+  h: 9eedbf484c5d00d9ffdfec38b6a04c5bc675f374fc23455a44c7ba7de5572566
+  r: "The `code/ground_truth.py` does not raise `SystemExit(1)` on a failed J_unbiased\u2011\
+    J_gold correlation check (it only returns a boolean), and there is no logic that\
+    \ writes `data/processed/independence_check_status.json` on success (the file\
+    \ is missing). Consequently the required behavior and deliverable are not present."
 T037:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

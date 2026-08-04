@@ -2552,3 +2552,304 @@
   source_type: external
   status: verified
   updated_at: '2026-08-02T09:26:12Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: Data pipeline exits with code 2 if real data is missing
+  claim_id: c_cea65d45
+  context: 'T013 [US1] Implement `download_cherrl_logs.py` to fetch real data. **Logic**:
+    1. Fetch data from the verified CHERRL repository artifacts using HuggingFace
+    `datasets.load_dataset(''cherrl-repo/logs'', split=''train'')`. 2. **Fail Loud**:
+    If fetch fails or the source does not match the verified data URL, log ''ERROR:
+    Data source unreachable or mismatch'' and exit with code 2 (data_missing).'
+  evidence:
+    asserted: '2.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The pipeline must fail if real data is missing, exiting with code 2.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-08-04T22:10:37Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: Rolling z-score requires minimum 5 samples
+  claim_id: c_681d0f9a
+  context: 'T015 [US1] Implement `code/ingestion.py` to compute $\Delta G(t)$ (discrete
+    derivative), rolling z-score (FR-002), and handle edge cases. **Logic**: Calculate
+    rolling z-score with a sliding window of W=20 timesteps, **requiring a minimum
+    of 5 samples** to compute the standard deviation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Rolling z-score calculation requires a minimum of 5 samples to compute
+    the standard deviation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T22:10:59Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: Rolling z-score sliding window size is 20
+  claim_id: c_63a42fcb
+  context: 'T015 [US1] Implement `code/ingestion.py` to compute $\Delta G(t)$ (discrete
+    derivative), rolling z-score (FR-002), and handle edge cases. **Logic**: Calculate
+    rolling z-score with a sliding window of W=20 timesteps, **requiring a minimum
+    of 5 samples** to compute the standard deviation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sliding window size for the rolling z-score is 20 timesteps.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T22:12:49Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: Z-score threshold k is 3.0
+  claim_id: c_fa0c3d1c
+  context: 'T022 [US2] Implement logic in `code/detector.py` to flag ''hacked'' if
+    $z(G(t)) > 3.0$ OR if $\Delta G(t)$ exceeds a dynamic threshold. **Config**: Use
+    the fixed threshold k=3.0 as defined in FR-003 for the z-score component.'
+  evidence:
+    asserted: '3.0'
+    authority: scipy.constants.k (CODATA 2018, exact by SI definition)
+    constant: boltzmann
+    corrected: true
+    mode: approximate
+    true_value: 1.380649e-23
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?k
+  kind: numeric
+  raw_text: The fixed threshold k for the z-score component is 3.0.
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2bfb0d3513311088eea23af05f5f28fc2ef73a6a80811bbb243001626363f07f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-04T22:12:50Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: Baseline noise floor uses preceding 100 timesteps
+  claim_id: c_ebc9c5b1
+  context: 'T022 [US2] Implement logic in `code/detector.py` to flag ''hacked'' if
+    $z(G(t)) > 3.0$ OR if $\Delta G(t)$ exceeds a dynamic threshold. **Config**: Use
+    the fixed threshold k=3.0 as defined in FR-003 for the z-score component. **Baseline**:
+    Calculate baseline noise floor as the standard deviation of the **preceding 100
+    timesteps** (or all available if <100) using the corrected baseline from T025c,
+    **consuming the `is_contaminated` column from T025c to skip contaminated indices**.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The baseline noise floor is calculated using the standard deviation of
+    the preceding 100 timesteps.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T22:13:07Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: Independence check fails if Pearson correlation > 0.8
+  claim_id: c_e2698c05
+  context: 'T032b [US3] Implement `code/ground_truth.py` to check Pearson correlation
+    for $J_{\text{biased}}$ vs $J_{\text{gold}}$ (FR-008). **Logic**: If correlation
+    is **strictly greater than** `CORRELATION_THRESHOLD` (default 0.8), **raise SystemExit(1)**
+    and log ''ERROR: Independence check failed (J_biased vs J_gold). Pipeline halted.'''
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Independence_check_fails_if_Pearson_correlation_%3E_0.8
+  kind: magnitude
+  raw_text: The independence check fails if the Pearson correlation between J_unbiased
+    and J_gold is strictly greater than 0.8.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T22:13:42Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: Ground truth derived from 0.1 drop over 50 steps sustained 3 steps
+  claim_id: c_e3783740
+  context: "T031 [US3] Implement `code/ground_truth.py` to derive labels from $J_{\\\
+    text{gold}}$ drops (\u22650.1 decrease over 50 steps, sustained 3 steps) per FR-004."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Ground_truth_derived_from_0.1_drop_over_50_steps_sustained_3
+  kind: magnitude
+  raw_text: Ground truth labels are derived from J_gold drops of at least 0.1 over
+    50 steps, sustained for 3 steps.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T22:14:07Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: Ground truth requires 50 step drop duration
+  claim_id: c_33bc66e0
+  context: "T031 [US3] Implement `code/ground_truth.py` to derive labels from $J_{\\\
+    text{gold}}$ drops (\u22650.1 decrease over 50 steps, sustained 3 steps) per FR-004."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The ground truth derivation requires a sustained drop over 50 steps.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T22:14:28Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: Ground truth requires 3 step sustained duration
+  claim_id: c_ae273bdc
+  context: "T031 [US3] Implement `code/ground_truth.py` to derive labels from $J_{\\\
+    text{gold}}$ drops (\u22650.1 decrease over 50 steps, sustained 3 steps) per FR-004."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The ground truth derivation requires the drop to be sustained for 3 steps.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T22:14:49Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: Study fails if F1 std dev > 0.15
+  claim_id: c_4eb2e484
+  context: "T035 [US3] Implement `code/evaluation.py` to check SC-003 (F1 std dev\
+    \ \u2264 0.15). **Logic**: Calculate the standard deviation of F1-scores across\
+    \ rubric types. If the standard deviation exceeds 0.15, **flag the study as FAILED**\
+    \ in the final report (T038)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The study is flagged as FAILED if the standard deviation of F1-scores
+    across rubric types exceeds 0.15.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T22:15:04Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: Primary statistical test is Wilcoxon signed-rank test
+  claim_id: c_9e89e320
+  context: T034a [US3] Implement `code/evaluation.py` to perform a **Wilcoxon signed-rank
+    test** (Primary, per FR-005) comparing the detector's F1-scores against the **Stratified
+    Random Baseline** (generated in T033).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Primary_statistical_test_is_Wilcoxon_signed-rank_test
+  kind: entity_fact
+  raw_text: The primary statistical test used is the Wilcoxon signed-rank test.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T22:15:25Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: Data download exits with code 2 on source mismatch
+  claim_id: c_7b731c7a
+  context: 'T013 [US1] Implement `download_cherrl_logs.py` to fetch real data. **Logic**:
+    1. Fetch data from the verified CHERRL repository artifacts using HuggingFace
+    `datasets.load_dataset(''cherrl-repo/logs'', split=''train'')`. 2. **Fail Loud**:
+    If fetch fails or the source does not match the verified data URL, log ''ERROR:
+    Data source unreachable or mismatch'' and exit with code 2 (data_missing).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The data download task exits with code 2 if the data source is unreachable
+    or mismatched.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T22:15:45Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: Independence check raises SystemExit(1) on failure
+  claim_id: c_afc4b182
+  context: 'T032a [US3] Implement `code/ground_truth.py` to check Pearson correlation
+    for $J_{\text{unbiased}}$ vs $J_{\text{gold}}$ (FR-006). **Logic**: If correlation
+    is **strictly greater than** `CORRELATION_THRESHOLD` (default a high positive
+    magnitude, defined in `code/config.py`), **raise SystemExit(1)** and log ''ERROR:
+    Independence check failed (J_unbiased vs J_gold). Pipeline halted.'''
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The independence check task raises SystemExit(1) if the correlation threshold
+    is exceeded.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T22:16:02Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: Baseline generation uses stratified random sampling by rubric type
+  claim_id: c_0dbbc404
+  context: 'T033 [US3] Implement `code/evaluation.py` to generate a ''Stratified Random
+    Baseline''. **Logic**: Sample timesteps uniformly stratified by rubric type (Lexical,
+    Format, Tone, Self-praise) using `BASELINE_SAMPLE_FRACTION` from `code/config.py`.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Baseline_generation_uses_stratified_random_sampling_by_rubri
+  kind: entity_fact
+  raw_text: The baseline generation uses a stratified random sampling by rubric type.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T22:16:15Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: Evaluation report is in Markdown format
+  claim_id: c_e4945099
+  context: 'T038 [US3] Generate final `data/processed/metrics.csv` and evaluation
+    report with p-values, F1 scores, and sensitivity analysis results. **Schema**:
+    `metrics.csv` must contain columns: `metric_name`, `value`, `p_value`, `effect_size`.
+    **Report Format**: Generate a Markdown report (`data/processed/evaluation_report.md`)
+    summarizing the findings, including any ''FAILED'' flags from T035.'
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P856: https://Python-Markdown.github.io/'
+      source_id: Q107380638
+      url: https://www.wikidata.org/wiki/Q107380638
+      value: Markdown
+    filled: true
+  kind: entity_fact
+  raw_text: The evaluation report is generated in Markdown format.
+  resolved_value: Markdown
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-04T22:16:24Z'

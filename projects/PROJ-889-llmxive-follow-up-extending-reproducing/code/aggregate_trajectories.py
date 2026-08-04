@@ -1,191 +1,182 @@
 """
-Aggregation Module for CHERRL Trajectory Processing.
+Aggregation module for merging multiple seed logs into a single processed dataset.
 
-This module implements the aggregation logic to merge multiple seed logs into a single
-processed dataset containing divergence gap metrics (G(t) and dG(t)).
+This module implements T016: Aggregation logic to merge multiple seed logs
+into data/processed/trajectories_divergence.csv preserving seed_id and bias_type.
 """
+
 import os
 import sys
 from pathlib import Path
 from typing import List, Dict, Any, Optional
+
 import numpy as np
 import pandas as pd
 
-# Import from project utils and config
-# Note: Using relative imports for execution flexibility, but absolute imports defined in spec surface
-try:
-    from code.config import get_project_root, DataConfig
-    from code.utils.io_utils import ensure_dir, write_csv
-    from code.utils.math_utils import interpolate_missing_timesteps, safe_z_score, handle_nan
-except ImportError:
-    # Fallback for direct execution in code directory
-    from config import get_project_root, DataConfig
-    from utils.io_utils import ensure_dir, write_csv
-    from utils.math_utils import interpolate_missing_timesteps, safe_z_score, handle_nan
+# Import from existing project modules
+from config import get_project_root, ensure_paths_exist
+from utils.io_utils import read_csv, write_csv, ensure_dir
+from utils.validator import validate_file_against_schema
 
 
 def aggregate_seed_logs(
-    seed_logs: List[pd.DataFrame],
-    seed_ids: List[str],
-    bias_types: List[str]
+    input_dir: Path,
+    output_file: Path,
+    schema_path: Optional[Path] = None
 ) -> pd.DataFrame:
     """
-    Aggregate multiple seed logs into a single DataFrame.
-
-    Args:
-        seed_logs: List of DataFrames, each containing processed trajectory data for a seed.
-        seed_ids: List of seed identifiers corresponding to each log.
-        bias_types: List of bias types corresponding to each log.
-
-    Returns:
-        A single DataFrame containing all trajectories with 'seed_id' and 'bias_type' columns.
-    """
-    if not seed_logs:
-        raise ValueError("No seed logs provided for aggregation.")
-
-    if len(seed_logs) != len(seed_ids) or len(seed_logs) != len(bias_types):
-        raise ValueError("Mismatch in number of logs, seed_ids, and bias_types.")
-
-    # Ensure all logs have the required columns
-    required_cols = ['seed_id', 'bias_type', 'timestep', 'J_biased', 'J_unbiased', 'J_gold', 'G_t', 'dG_t']
+    Aggregate multiple seed trajectory logs into a single processed CSV.
     
-    processed_logs = []
-    for i, df in enumerate(seed_logs):
-        # Validate and assign metadata
-        df['seed_id'] = seed_ids[i]
-        df['bias_type'] = bias_types[i]
+    Reads all CSV files from input_dir (one per seed), combines them,
+    and writes the result to output_file. Preserves seed_id and bias_type.
+    
+    Args:
+        input_dir: Directory containing seed log CSV files
+        output_file: Path to write the aggregated CSV
+        schema_path: Optional path to trajectory schema for validation
+    
+    Returns:
+        DataFrame containing all aggregated trajectories
+    
+    Raises:
+        FileNotFoundError: If input directory is empty or contains no CSV files
+        ValueError: If required columns are missing from input files
+    """
+    input_dir = Path(input_dir)
+    output_file = Path(output_file)
+    
+    if not input_dir.exists():
+        raise FileNotFoundError(f"Input directory does not exist: {input_dir}")
+    
+    # Find all CSV files in the input directory
+    csv_files = list(input_dir.glob("*.csv"))
+    if not csv_files:
+        raise FileNotFoundError(f"No CSV files found in {input_dir}")
+    
+    # Expected columns from T014/T015 processing
+    required_columns = {
+        'seed_id', 'bias_type', 'timestep', 
+        'J_biased', 'J_unbiased', 'J_gold',
+        'G_t', 'dG_t'
+    }
+    
+    dataframes = []
+    
+    for csv_file in csv_files:
+        # Read the seed log
+        df = read_csv(csv_file)
         
-        # Ensure column order matches schema
-        if not all(col in df.columns for col in required_cols):
-            missing = set(required_cols) - set(df.columns)
-            raise ValueError(f"Seed log {seed_ids[i]} missing columns: {missing}")
+        # Validate required columns exist
+        missing_cols = required_columns - set(df.columns)
+        if missing_cols:
+            raise ValueError(
+                f"File {csv_file.name} missing required columns: {missing_cols}"
+            )
         
-        # Select and order columns
-        processed_logs.append(df[required_cols])
-
-    # Concatenate all logs
-    aggregated_df = pd.concat(processed_logs, ignore_index=True)
-
+        # Ensure seed_id is preserved (might be in filename or column)
+        if 'seed_id' not in df.columns:
+            # Extract from filename if not in column
+            seed_id = csv_file.stem
+            df['seed_id'] = seed_id
+        
+        # Ensure bias_type is preserved
+        if 'bias_type' not in df.columns:
+            # Try to extract from filename or set a default
+            # Assuming filename format: {seed_id}_{bias_type}.csv or similar
+            parts = csv_file.stem.split('_')
+            if len(parts) >= 2:
+                df['bias_type'] = parts[-1]
+            else:
+                df['bias_type'] = 'unknown'
+        
+        # Ensure numeric types for calculations
+        numeric_cols = ['timestep', 'J_biased', 'J_unbiased', 'J_gold', 'G_t', 'dG_t']
+        for col in numeric_cols:
+            if col in df.columns:
+                df[col] = pd.to_numeric(df[col], errors='coerce')
+        
+        dataframes.append(df)
+    
+    # Concatenate all dataframes
+    if not dataframes:
+        raise ValueError("No valid dataframes to aggregate")
+    
+    aggregated_df = pd.concat(dataframes, ignore_index=True)
+    
     # Sort by seed_id, bias_type, and timestep for consistent ordering
     aggregated_df = aggregated_df.sort_values(
         by=['seed_id', 'bias_type', 'timestep']
     ).reset_index(drop=True)
-
+    
+    # Validate against schema if provided
+    if schema_path and schema_path.exists():
+        try:
+            validate_file_against_schema(
+                aggregated_df, 
+                schema_path,
+                schema_type='trajectory'
+            )
+        except Exception as e:
+            # Log validation warning but continue
+            print(f"Warning: Schema validation failed: {e}")
+    
+    # Ensure output directory exists
+    ensure_dir(output_file.parent)
+    
+    # Write to CSV
+    write_csv(aggregated_df, output_file)
+    
+    print(f"Aggregated {len(csv_files)} seed logs into {output_file}")
+    print(f"Total rows: {len(aggregated_df)}")
+    print(f"Unique seeds: {aggregated_df['seed_id'].nunique()}")
+    print(f"Unique bias types: {aggregated_df['bias_type'].nunique()}")
+    
     return aggregated_df
 
 
-def main() -> int:
+def main():
     """
-    Main entry point for the aggregation pipeline.
-
-    Reads processed trajectory files from data/processed/, aggregates them,
-    and writes the final output to data/processed/trajectories_divergence.csv.
-
-    Returns:
-        0 on success, 1 on failure.
+    Main entry point for trajectory aggregation.
+    
+    Reads from data/raw/cherrl_logs/ (or configured input) and writes to
+    data/processed/trajectories_divergence.csv.
     """
     project_root = get_project_root()
-    raw_dir = project_root / "data" / "raw" / "cherrl_logs"
-    processed_dir = project_root / "data" / "processed"
-    output_path = processed_dir / "trajectories_divergence.csv"
-
-    # Ensure output directory exists
-    ensure_dir(output_path.parent)
-
-    # Locate all processed trajectory files (assuming they are generated by T015)
-    # Expected pattern: data/processed/seed_<id>_<bias_type>_processed.csv
-    # However, T015 might output intermediate files. Let's assume T015 outputs
-    # per-seed processed files that need aggregation.
-    # Based on T015 description, it processes trajectories. T016 aggregates them.
-    # We look for CSV files in processed_dir that are not the final output.
     
-    # Strategy: T015 likely produces files like `data/processed/seed_<id>_divergence.csv`
-    # or similar. We will scan for CSVs that contain the required columns.
-    # If T015 produces a single file per seed, we aggregate those.
+    # Default paths
+    input_dir = project_root / "data" / "raw" / "cherrl_logs"
+    output_file = project_root / "data" / "processed" / "trajectories_divergence.csv"
+    schema_path = project_root / "contracts" / "trajectory.schema.yaml"
     
-    # Let's assume the intermediate files are named: 
-    # data/processed/trajectory_<seed_id>_<bias_type>.csv
-    # containing: timestep, J_biased, J_unbiased, J_gold, G_t, dG_t
+    # Check for command line arguments
+    if len(sys.argv) > 1:
+        input_dir = Path(sys.argv[1])
+    if len(sys.argv) > 2:
+        output_file = Path(sys.argv[2])
     
-    candidate_files = list(processed_dir.glob("trajectory_*.csv"))
+    # Ensure paths exist
+    ensure_paths_exist()
     
-    if not candidate_files:
-        # Fallback: Check if there's a generic pattern or if we need to look in raw
-        # If T015 hasn't run or named files differently, we might need to adjust.
-        # For now, let's assume T015 output is in data/processed with specific naming.
-        # If no files found, check if we can find the raw logs and process them here?
-        # No, T016 depends on T015. T015 must have produced the data.
-        # Let's try a broader search in data/processed
-        candidate_files = [f for f in processed_dir.glob("*.csv") if "divergence" not in f.name]
+    try:
+        # Perform aggregation
+        df = aggregate_seed_logs(
+            input_dir=input_dir,
+            output_file=output_file,
+            schema_path=schema_path
+        )
         
-        if not candidate_files:
-            print("ERROR: No intermediate trajectory files found in data/processed/.")
-            print("Ensure T015 has completed successfully and produced per-seed CSVs.")
-            return 1
-
-    seed_logs = []
-    seed_ids = []
-    bias_types = []
-
-    for file_path in candidate_files:
-        try:
-            df = pd.read_csv(file_path)
-            
-            # Verify required columns exist
-            required = ['timestep', 'J_biased', 'J_unbiased', 'J_gold', 'G_t', 'dG_t']
-            if not all(col in df.columns for col in required):
-                print(f"Skipping {file_path}: Missing required columns.")
-                continue
-
-            # Extract seed_id and bias_type from filename or infer?
-            # The task says "preserving seed_id and bias_type".
-            # If the file doesn't have them as columns, we must infer from filename.
-            # Expected filename: trajectory_<seed_id>_<bias_type>.csv
-            parts = file_path.stem.split('_')
-            if len(parts) >= 4 and parts[0] == 'trajectory':
-                # Assuming format: trajectory_<seed_id>_<bias_type>.csv
-                # e.g., trajectory_seed1_lexical.csv
-                # This is fragile. Let's check if columns exist first.
-                if 'seed_id' in df.columns and 'bias_type' in df.columns:
-                    s_id = df['seed_id'].iloc[0]
-                    b_type = df['bias_type'].iloc[0]
-                else:
-                    # Infer from filename: trajectory_<id>_<type>.csv
-                    # parts[1] = seed_id, parts[2] = bias_type
-                    if len(parts) >= 3:
-                        s_id = parts[1]
-                        b_type = parts[2]
-                    else:
-                        print(f"Skipping {file_path}: Cannot infer seed_id/bias_type from filename.")
-                        continue
-            else:
-                print(f"Skipping {file_path}: Unrecognized filename format.")
-                continue
-
-            seed_logs.append(df)
-            seed_ids.append(s_id)
-            bias_types.append(b_type)
-            
-            print(f"Loaded: {file_path} (seed={s_id}, bias={b_type})")
-
-        except Exception as e:
-            print(f"Error loading {file_path}: {e}")
-            continue
-
-    if not seed_logs:
-        print("ERROR: No valid trajectory files found to aggregate.")
+        print("Aggregation completed successfully.")
+        return 0
+        
+    except FileNotFoundError as e:
+        print(f"ERROR: {e}")
+        return 2
+    except ValueError as e:
+        print(f"ERROR: {e}")
         return 1
-
-    # Aggregate
-    print(f"Aggregating {len(seed_logs)} seed logs...")
-    final_df = aggregate_seed_logs(seed_logs, seed_ids, bias_types)
-
-    # Write output
-    print(f"Writing aggregated data to {output_path}...")
-    write_csv(final_df, output_path)
-
-    print(f"Aggregation complete. Total rows: {len(final_df)}")
-    return 0
+    except Exception as e:
+        print(f"ERROR: Unexpected error during aggregation: {e}")
+        return 1
 
 
 if __name__ == "__main__":

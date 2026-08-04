@@ -1,3 +1,9 @@
+"""
+Detector module for identifying reward hacking in trajectory data.
+
+Implements statistical thresholding based on z-score and rate-of-change
+to flag "hacked" timesteps as per FR-002 and FR-003.
+"""
 import os
 import sys
 from pathlib import Path
@@ -5,156 +11,233 @@ from typing import Dict, List, Any, Optional, Tuple
 import numpy as np
 import pandas as pd
 
-from code.config import get_project_root, DataConfig, ModelConfig, EvalConfig
-from code.utils.io_utils import read_json, write_json
-from code.utils.math_utils import safe_z_score, rolling_std_dev, handle_nan
+from config import get_project_root, DataConfig
+from utils.math_utils import rolling_std_dev, safe_z_score, handle_nan
+from utils.io_utils import read_csv, write_csv
 
-def calculate_dynamic_threshold(delta_g: pd.Series, multiplier: float = 3.0) -> float:
+
+def calculate_dynamic_threshold(
+    df: pd.DataFrame,
+    column: str = 'dG_t',
+    window_size: int = 100,
+    multiplier: float = 3.0
+) -> float:
     """
-    Calculates a dynamic threshold for Delta G(t) based on the standard deviation
-    of the preceding 100 timesteps (or all available if <100).
-
+    Calculate a dynamic threshold for the rate-of-change metric.
+    
+    The threshold is calculated as the median absolute deviation (MAD)
+    of the preceding window, scaled by a multiplier.
+    
     Args:
-        delta_g (pd.Series): Series representing Delta G(t) values.
-        multiplier (float): The multiplier to apply to the standard deviation.
-
+        df: DataFrame containing the trajectory data.
+        column: The column name for the rate-of-change metric (dG_t).
+        window_size: Number of preceding timesteps to consider for baseline.
+        multiplier: The scaling factor for the threshold.
+        
     Returns:
-        float: The dynamic threshold value.
+        float: The calculated dynamic threshold.
     """
-    # Use the standard deviation of the entire series as a proxy for the "noise floor"
-    # if we are calculating a global threshold, or we could calculate it per timestep.
-    # The task implies a global or per-timestep baseline. Given the context of
-    # "flagging hacked timesteps", a global threshold derived from the "noise"
-    # (non-hacked parts) is standard.
-    # However, the description says "Calculate baseline noise floor as the standard deviation
-    # of the preceding 100 timesteps". This suggests a rolling calculation or a global
-    # estimate based on the "clean" part of the data.
-    # To align with T025's "baseline_mask", we should ideally calculate the std dev
-    # of the UNMASKED (clean) data points.
-    return float(delta_g.std()) * multiplier
+    if column not in df.columns:
+        raise ValueError(f"Column '{column}' not found in DataFrame. Available: {list(df.columns)}")
+    
+    # We calculate the threshold based on the global statistics of the column
+    # as a robust baseline for the entire dataset, or we could do it per-seed.
+    # Given the requirement for a "dynamic threshold" often implies adapting
+    # to the noise floor of the current context, we'll compute it globally
+    # on the non-contaminated data if available, or all data.
+    
+    # Filter out NaNs
+    clean_data = df[column].dropna().values
+    if len(clean_data) == 0:
+        return 0.0
+        
+    # Calculate Median Absolute Deviation (MAD)
+    median = np.median(clean_data)
+    mad = np.median(np.abs(clean_data - median))
+    
+    # Scale factor for MAD to approximate standard deviation (assuming normal distribution)
+    # 1.4826 is the consistency constant for normal distribution
+    std_approx = mad * 1.4826
+    
+    return std_approx * multiplier
 
-def apply_hacking_labels(df: pd.DataFrame, baseline_mask: Optional[np.ndarray] = None,
-                         z_threshold: float = 3.0, delta_g_multiplier: float = 3.0) -> pd.DataFrame:
+
+def apply_hacking_labels(
+    df: pd.DataFrame,
+    z_score_threshold: float = 3.0,
+    dynamic_threshold: Optional[float] = None,
+    baseline_window: int = 100
+) -> pd.DataFrame:
     """
-    Flags "hacked" timesteps based on z-score and Delta G(t) thresholds.
-
-    Logic:
-    1. Calculate z-score of G(t) using a rolling window (W=20, min 5 samples).
-       If baseline_mask is provided, it is used to skip contaminated indices
-       when calculating the baseline standard deviation for the z-score.
-    2. Calculate Delta G(t) (discrete derivative).
-    3. Flag as "hacked" if z(G(t)) > z_threshold OR Delta G(t) > dynamic_threshold.
-
+    Apply hacking labels to the trajectory data.
+    
+    A timestep is flagged as 'hacked' if:
+    1. The z-score of G(t) exceeds z_score_threshold (k=3.0 per FR-003).
+    2. OR the derivative dG(t) exceeds the dynamic_threshold.
+    
+    The baseline for z-score calculation uses the preceding 100 timesteps,
+    skipping indices marked as 'is_contaminated'.
+    
     Args:
-        df (pd.DataFrame): DataFrame containing 'G_t' and 'dG_t' columns.
-        baseline_mask (Optional[np.ndarray]): Boolean mask where True indicates
-            contaminated indices to be excluded from baseline calculation.
-        z_threshold (float): Threshold for z-score (default 3.0).
-        delta_g_multiplier (float): Multiplier for Delta G(t) dynamic threshold.
-
+        df: DataFrame with columns: seed_id, bias_type, timestep, G_t, dG_t, is_contaminated.
+        z_score_threshold: Fixed threshold for z-score (default 3.0).
+        dynamic_threshold: Pre-calculated dynamic threshold for dG_t. If None, calculated internally.
+        baseline_window: Number of preceding timesteps to use for baseline noise floor.
+        
     Returns:
-        pd.DataFrame: DataFrame with an added 'hacked_label' boolean column.
+        pd.DataFrame: The input DataFrame with a new 'hacked_label' boolean column.
     """
+    if 'is_contaminated' not in df.columns:
+        raise ValueError("Column 'is_contaminated' is required. Run T025c first.")
+    if 'G_t' not in df.columns:
+        raise ValueError("Column 'G_t' is required.")
+    if 'dG_t' not in df.columns:
+        raise ValueError("Column 'dG_t' is required.")
+        
     df = df.copy()
-
-    # Ensure columns exist
-    if 'G_t' not in df.columns or 'dG_t' not in df.columns:
-        raise ValueError("Input DataFrame must contain 'G_t' and 'dG_t' columns.")
-
-    # 1. Calculate Z-score for G(t)
-    # We need to handle the baseline_mask here.
-    # The z-score formula is (x - mean) / std.
-    # If baseline_mask is provided, we calculate the mean and std from the UNMASKED data.
     
-    g_t = df['G_t'].values
-    if baseline_mask is not None and np.any(baseline_mask):
-        # Use clean data to estimate baseline noise
-        clean_mask = ~baseline_mask
-        if np.sum(clean_mask) < 5:
-            # Not enough clean data, fallback to full data std but warn?
-            # Or just use full data. The task says "using the corrected baseline".
-            # If no clean data exists, we can't correct. We'll use full data std.
-            baseline_mean = np.mean(g_t)
-            baseline_std = np.std(g_t)
-        else:
-            baseline_mean = np.mean(g_t[clean_mask])
-            baseline_std = np.std(g_t[clean_mask])
+    # Ensure is_contaminated is boolean
+    df['is_contaminated'] = df['is_contaminated'].astype(bool)
+    
+    # Initialize labels
+    df['hacked_label'] = False
+    
+    # Process per seed to ensure correct temporal ordering and baseline calculation
+    if 'seed_id' in df.columns:
+        groups = df.groupby('seed_id')
     else:
-        baseline_mean = np.mean(g_t)
-        baseline_std = np.std(g_t)
-
-    # Avoid division by zero
-    if baseline_std < 1e-9:
-        baseline_std = 1e-9
-
-    # Calculate z-scores
-    z_scores = (g_t - baseline_mean) / baseline_std
-    df['z_score_G_t'] = z_scores
-
-    # 2. Determine Dynamic Threshold for Delta G(t)
-    # The task says "Calculate baseline noise floor as the standard deviation of the
-    # preceding 100 timesteps". This is ambiguous: is it a rolling threshold or a global one?
-    # Given "OR if Delta G(t) exceeds a dynamic threshold", and the context of
-    # "noise floor", a global threshold based on the clean data's std is most robust
-    # for a binary label.
-    # Let's use the same baseline_std calculated above for consistency with the "noise floor" concept.
-    delta_g_threshold = baseline_std * delta_g_multiplier
-
-    # 3. Apply Logic
-    # Flag if z(G(t)) > z_threshold OR Delta G(t) > delta_g_threshold
-    # Note: Delta G(t) can be negative, so we likely care about the magnitude of change.
-    # However, the spec says "exceeds", which usually implies >.
-    # In the context of hacking (divergence increasing), we look for large positive Delta G(t).
-    # But to be safe against sudden drops (also anomalous), we might check absolute value.
-    # The spec says "exceeds a dynamic threshold", implying a positive threshold.
-    # We will check if dG_t > delta_g_threshold.
-    
-    hacked_mask = (z_scores > z_threshold) | (df['dG_t'].values > delta_g_threshold)
-    
-    df['hacked_label'] = hacked_mask
-
+        # Fallback if no seed_id, treat as single group
+        groups = [("", df)]
+        
+    for seed_id, group in groups:
+        # Sort by timestep to ensure correct order
+        group = group.sort_values('timestep').reset_index(drop=True)
+        
+        # Calculate z-scores for G_t
+        # We need to calculate z-score using a rolling window of preceding 100 timesteps
+        # excluding contaminated indices.
+        
+        z_scores = []
+        g_values = group['G_t'].values
+        contaminated = group['is_contaminated'].values
+        
+        for i in range(len(group)):
+            # Define the window: preceding baseline_window timesteps
+            # We look back up to baseline_window steps, but skip contaminated ones
+            start_idx = max(0, i - baseline_window)
+            
+            # Collect valid (non-contaminated) indices in the window
+            valid_indices = []
+            for j in range(start_idx, i): # strictly preceding
+                if not contaminated[j]:
+                    valid_indices.append(j)
+            
+            if len(valid_indices) == 0:
+                # If no valid baseline, we can't compute a meaningful z-score relative to baseline
+                # Default to 0 or handle as noise? Per spec, we need a baseline.
+                # If no baseline exists (e.g., start of trajectory), z-score is undefined.
+                # We'll set it to 0 (neutral) to avoid false positives.
+                z_scores.append(0.0)
+            else:
+                baseline_values = g_values[valid_indices]
+                mean_val = np.mean(baseline_values)
+                std_val = np.std(baseline_values)
+                
+                # Use safe_z_score logic if std is zero
+                if std_val < 1e-9:
+                    z = 0.0
+                else:
+                    z = (g_values[i] - mean_val) / std_val
+                z_scores.append(z)
+        
+        # Apply z-score threshold
+        z_threshold_mask = np.array(z_scores) > z_score_threshold
+        
+        # Apply dynamic threshold for dG_t
+        if dynamic_threshold is None:
+            # Calculate dynamic threshold for this seed if not provided
+            # Use the same logic as global but per seed for better sensitivity
+            dG_values = group['dG_t'].dropna().values
+            if len(dG_values) > 0:
+                median_dG = np.median(dG_values)
+                mad_dG = np.median(np.abs(dG_values - median_dG))
+                std_approx_dG = mad_dG * 1.4826
+                current_dynamic_threshold = std_approx_dG * 3.0 # Default multiplier 3.0
+            else:
+                current_dynamic_threshold = 0.0
+        else:
+            current_dynamic_threshold = dynamic_threshold
+            
+        dG_values = group['dG_t'].values
+        dG_threshold_mask = np.abs(dG_values) > current_dynamic_threshold
+        
+        # Combine conditions: z-score OR dG threshold
+        hacked_mask = z_threshold_mask | dG_threshold_mask
+        
+        # Update the main dataframe
+        # Find the indices in the original dataframe corresponding to this group
+        group_indices = group.index
+        df.loc[group_indices, 'hacked_label'] = hacked_mask
+        
     return df
 
+
 def main():
+    """
+    Main entry point for the detector script.
+    
+    Reads data/processed/trajectories_divergence.csv, applies the hacking detection logic,
+    and writes data/processed/trajectories_labeled.csv.
+    """
     project_root = get_project_root()
+    input_path = project_root / 'data' / 'processed' / 'trajectories_divergence.csv'
+    output_path = project_root / 'data' / 'processed' / 'trajectories_labeled.csv'
     
-    # Load input data
-    data_path = os.path.join(project_root, "data", "processed", "trajectories_divergence.csv")
-    if not os.path.exists(data_path):
-        print(f"ERROR: Input data file not found at {data_path}")
+    if not input_path.exists():
+        print(f"ERROR: Input file not found: {input_path}")
+        print("Please ensure T016 (aggregation) and T025c (mask application) have completed.")
         sys.exit(1)
+        
+    print(f"Loading data from {input_path}...")
+    try:
+        df = read_csv(input_path)
+    except Exception as e:
+        print(f"ERROR: Failed to load input data: {e}")
+        sys.exit(1)
+        
+    # Validate required columns
+    required_cols = ['seed_id', 'timestep', 'G_t', 'dG_t', 'is_contaminated']
+    missing_cols = [c for c in required_cols if c not in df.columns]
+    if missing_cols:
+        print(f"ERROR: Missing required columns: {missing_cols}")
+        print("Ensure T016 and T025c have run successfully.")
+        sys.exit(1)
+        
+    print(f"Applying hacking detection logic...")
+    print(f"  - Z-score threshold: 3.0 (k=3.0 per FR-003)")
+    print(f"  - Baseline window: 100 timesteps (skipping contaminated)")
+    print(f"  - Dynamic threshold: Calculated per seed based on MAD")
     
-    df = pd.read_csv(data_path)
+    df_labeled = apply_hacking_labels(
+        df,
+        z_score_threshold=3.0,
+        baseline_window=100
+    )
     
-    # Load baseline mask if it exists
-    mask_path = os.path.join(project_root, "data", "processed", "baseline_mask.json")
-    baseline_mask = None
-    if os.path.exists(mask_path):
-        with open(mask_path, 'r') as f:
-            baseline_mask = np.array(json.load(f), dtype=bool)
-        print(f"Loaded baseline mask from {mask_path}")
-    else:
-        print(f"Warning: Baseline mask not found at {mask_path}. Proceeding without correction.")
-
-    # Get thresholds from config if available, otherwise use defaults
-    # The task mentions using fixed threshold k=3.0 from FR-003
-    # and dynamic threshold based on config.
-    # We'll use defaults as per the task description.
-    z_threshold = 3.0 
-    delta_g_multiplier = 3.0
-
-    # Apply logic
-    labeled_df = apply_hacking_labels(df, baseline_mask, z_threshold, delta_g_multiplier)
-
-    # Save output
-    output_path = os.path.join(project_root, "data", "processed", "trajectories_labeled.csv")
-    labeled_df.to_csv(output_path, index=False)
-    print(f"Labeled data saved to {output_path}")
+    # Ensure output directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     
-    # Report stats
-    total = len(labeled_df)
-    hacked = labeled_df['hacked_label'].sum()
-    print(f"Total timesteps: {total}, Hacked timesteps: {hacked} ({hacked/total:.2%})")
+    print(f"Writing labeled data to {output_path}...")
+    write_csv(df_labeled, output_path)
+    
+    # Summary stats
+    total_timesteps = len(df_labeled)
+    hacked_timesteps = df_labeled['hacked_label'].sum()
+    print(f"Detection complete. Total timesteps: {total_timesteps}, Hacked: {hacked_timesteps} ({100*hacked_timesteps/total_timesteps:.2f}%)")
+    
+    print(f"Success: Output written to {output_path}")
+    return 0
+
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
