@@ -2,38 +2,64 @@ $schema: "http://json-schema.org/draft-07/schema#"
 title: "DiscreteStateVector"
 description: "Schema for quantized state vectors generated from LIBERO dataset."
 type: "object"
-properties:
-  timestep:
-    type: "integer"
-    description: "Time step index."
-  bit_depth:
-    type: "integer"
-    enum: [4, 8, 12, 16]
-    description: "Quantization level in bits."
-  state_vector:
-    type: "array"
-    items:
-      type: "integer"
-    description: "List of discrete integer values representing state."
-    minItems: 1
-  collision_flag:
-    type: "integer"
-    enum: [0, 1]
-    description: "Binary collision indicator."
-  noise_std:
-    type: "number"
-    description: "Standard deviation of injected Gaussian noise."
-  is_dropped:
-    type: "boolean"
-    description: "True if the timestep was dropped due to sparsity simulation."
-  source_episode_id:
-    type: "string"
-    description: "ID of the source episode for pairing in statistical tests."
 required:
   - "timestep"
   - "bit_depth"
-  - "state_vector"
-  - "collision_flag"
-  - "noise_std"
-  - "is_dropped"
-  - "source_episode_id"
+  - "proprioception"
+  - "object_states"
+properties:
+  timestep:
+    type: "integer"
+    minimum: 0
+    description: "Global time step index."
+  bit_depth:
+    type: "integer"
+    enum:
+      - 4
+      - 8
+      - 16
+    description: "Quantization level used."
+  proprioception:
+    type: "array"
+    items:
+      type: "integer"
+      minimum: 0
+      description: "Discretized joint angles/positions."
+  object_states:
+    type: "array"
+    items:
+      type: "object"
+      required:
+        - "obj_id"
+        - "position"
+        - "velocity"
+        - "collision_flag"
+      properties:
+        obj_id:
+          type: "integer"
+          minimum: 0
+        position:
+          type: "array"
+          minItems: 3
+          maxItems: 3
+          items:
+            type: "integer"
+            minimum: 0
+        velocity:
+          type: "array"
+          minItems: 3
+          maxItems: 3
+          items:
+            type: "integer"
+            minimum: 0
+          description: "Discretized velocity derived via finite differencing of positions."
+        collision_flag:
+          type: "integer"
+          enum:
+            - 0
+            - 1
+  noise_level:
+    type: "number"
+    minimum: 0.0
+    description: "Standard deviation of injected Gaussian noise."
+additionalProperties: false

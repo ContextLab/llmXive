@@ -2,82 +2,69 @@
 
 ## Overview
 
-This document defines the data structures for the discrete state vectors, prediction horizons, and error metrics used in the study. All data artifacts are derived from the raw LIBERO dataset and transformed into JSON-serialized formats for processing.
+This document defines the data structures used throughout the project, ensuring consistency between the quantization pipeline, the model training loop, and the analysis phase. All data is derived from the LIBERO benchmark and transformed into discrete representations.
 
 ## Entity Definitions
 
 ### 1. DiscreteStateVector
 Represents the quantized state of the embodied agent at a single time step.
 
--   **Type**: JSON Object
--   **Fields**:
-    -   `timestep`: Integer (0, 1, 2, ...)
-    -   `bit_depth`: Integer (4, 8, 12, or 16)
-    -   `state_vector`: List of Integers (values in range [0, 2^bit_depth - 1])
-    -   `collision_flag`: Integer (0 or 1)
-    -   `noise_std`: Float (0.0 to 0.5, representing injected noise level)
-    -   `is_dropped`: Boolean (True if the timestep was dropped due to sparsity simulation)
-    -   `source_episode_id`: String (ID of the source episode for pairing)
-
-**Example**:
-```json
-{
-  "timestep": 42,
-  "bit_depth": 8,
-  "state_vector": [12, 255, 0, 1, 180, 45],
-  "collision_flag": 0,
-  "noise_std": 0.1,
-  "is_dropped": false,
-  "source_episode_id": "libero_10_scene_3_ep_001"
-}
-```
+- **Type**: JSON Object / Dictionary
+- **Fields**:
+  - `timestep` (int): The global time step index.
+  - `bit_depth` (int): The quantization level used (4, 8, or 16).
+  - `proprioception` (list[int]): Discretized joint angles/positions.
+  - `object_states` (list[dict]): List of object states.
+    - `obj_id` (int): Unique object identifier.
+    - `position` (list[int]): Discretized [x, y, z] coordinates.
+    - `velocity` (list[int]): Discretized [vx, vy, vz]. **Derived via finite differencing of positions.**
+    - `collision_flag` (int): Binary (0 or 1).
+  - `noise_level` (float): The standard deviation of Gaussian noise applied (if any).
 
 ### 2. PredictionHorizon
-Defines the scope of the prediction task.
+Defines the scope of a prediction task.
 
--   **Type**: Integer
--   **Allowed Values**: 100, 250, 500 (FR-004)
--   **Description**: The number of future time steps the model attempts to predict from the current state.
+- **Type**: Integer
+- **Values**: 100, 250, 500 (as per spec).
+- **Usage**: Used to slice sequences for training and evaluation.
 
 ### 3. ErrorMetric
-Composite record containing the performance of a model run.
+Composite record for statistical analysis.
 
--   **Type**: JSON Object
--   **Fields**:
-    -   `run_id`: String (UUID for independent run)
-    -   `bit_depth`: Integer
-    -   `horizon`: Integer (100, 250, or 500)
-    -   `mse`: Float (Mean Squared Error)
-    -   `cumulative_error_rate`: Float (MSE growth per step)
-    -   `noise_std`: Float
-    -   `ram_peak_mb`: Float (Peak RAM usage in MB)
-    -   `latency_per_step_ms`: Float (Inference latency)
-    -   `entropy_score`: Float (Entropy of the quantized distribution)
-    -   `is_untrained`: Boolean (True if model was trained from scratch due to missing weights)
+- **Type**: JSON Object / Dictionary
+- **Fields**:
+  - `run_id` (string): Unique identifier for the experiment run.
+  - `bit_depth` (int): Quantization level.
+  - `horizon` (int): Prediction horizon used.
+  - `mse` (float): Raw Mean Squared Error.
+  - `mse_normalized` (float): MSE divided by state space dimensionality.
+  - `quantization_noise_floor` (float): Theoretical MSE of the quantization process.
+  - `mse_adjusted` (float): `mse_normalized` - `quantization_noise_floor`. **Primary metric for stability threshold.**
+  - `cumulative_error_rate` (float): Slope of error growth over time.
+  - `p_value` (float): Result of statistical test vs. baseline.
+  - `is_significant` (bool): True if p < 0.05.
+  - `degradation_factor` (float): Ratio of discrete MSE to continuous baseline MSE.
 
 ## Data Flow
 
-1.  **Raw Input**: HDF5/Parquet from LIBERO (verified URLs).
-2.  **Processing**: `quantize.py` converts to `DiscreteStateVector` (JSON) with sparsity and noise.
-3.  **Model Input**: Sequence of `DiscreteStateVector` fed to Kairos.
-4.  **Model Output**: Predicted sequence of `DiscreteStateVector`.
-5.  **Evaluation**: `metrics.py` calculates `ErrorMetric` for each horizon using **clean** ground truth.
-6.  **Aggregation**: `stats.py` aggregates `ErrorMetric` across 10 runs for significance testing.
+1.  **Raw Input**: `LIBERO_Parquet` (Continuous floats).
+2.  **Transformation**: `Quantizer` (Continuous -> Discrete, with finite differencing for velocity).
+3.  **Intermediate**: `DiscreteStateVector` (JSON).
+4.  **Model Input**: Tensorized `DiscreteStateVector` (CPU).
+5.  **Model Output**: `PredictedDiscreteStateVector`.
+6.  **Analysis**: `ErrorMetric` (Aggregated statistics).
 
 ## Storage Layout
 
-```text
-data/
-├── raw/
-│   ├── libero_hdf5/          # Original HDF5 files (checksummed)
-│   └── libero_parquet/       # Parquet files (checksummed)
-├── processed/
-│   ├── quantized_4bit/       # JSON files for 4-bit
-│   ├── quantized_8bit/       # JSON files for 8-bit
-│   ├── quantized_12bit/      # JSON files for 12-bit
-│   └── quantized_16bit/      # JSON files for 16-bit
-└── results/
-    ├── mse_logs/             # ErrorMetric JSON files
-    ├── checkpoints/          # Model weights (if needed)
-    └── stats/                # Aggregated statistical results
-```
+- **`data/raw/`**: Raw parquet files (downloaded via streaming, not stored permanently if possible, or stored with checksum).
+- **`data/derived/quantized_4bit/`**: JSON files containing `DiscreteStateVector` for 4-bit.
+- **`data/derived/quantized_8bit/`**: JSON files containing `DiscreteStateVector` for 8-bit.
+- **`data/derived/quantized_16bit/`**: JSON files containing `DiscreteStateVector` for 16-bit.
+- **`data/results/`**: `ErrorMetric` JSON files for each run.
+
+## Constraints
+
+- **Integrity**: No floating-point values in `DiscreteStateVector` fields (except `noise_level`).
+- **Range**: All integer values must be within $[0, 2^{\text{bit\_depth}} - 1]$.
+- **Validation**: All derived files must be validated against `contracts/dataset.schema.yaml` before training.
+- **Derivation**: `velocity` fields MUST be derived via finite differencing, not natively extracted.

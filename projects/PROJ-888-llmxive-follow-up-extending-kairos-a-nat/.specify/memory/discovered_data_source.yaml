@@ -1,16 +1,12 @@
 status: none
-intent: LIBERO benchmark dataset and LERobot download pip python package dataset
+intent: download LIBERO benchmark dataset HDF5 python package dataset
 required_fields:
-- episode_id
-- step
+- rgb_frame
+- proprioceptive_state
 - joint_positions
 - joint_velocities
-- end_effector_position
-- end_effector_orientation
-- object_positions
-- object_orientations
 - gripper_state
-- rgb_frame
-cache_key: 79ac14e81e33a4dac3142144063c36da25ac9fdcb44e824e3ca929123244b1b2
-searched_at: '2026-07-18T16:10:05.171979+00:00'
+- timestamp
+cache_key: d92e266f77e5414067606fb8aa92c37037467ecc993e5830b3d02d20e983ace8
+searched_at: '2026-08-04T16:29:10.134087+00:00'
 retry_count: 1

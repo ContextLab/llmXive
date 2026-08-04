@@ -20,6 +20,15 @@ properties:
   mse:
     type: "number"
     description: "Mean Squared Error between predicted and clean ground truth."
+  mse_normalized:
+    type: "number"
+    description: "MSE divided by state space dimensionality."
+  quantization_noise_floor:
+    type: "number"
+    description: "Theoretical MSE of the quantization process."
+  mse_adjusted:
+    type: "number"
+    description: "Model-adjusted error (mse_normalized - quantization_noise_floor)."
   cumulative_error_rate:
     type: "number"
     description: "MSE growth rate per time step."
@@ -41,6 +50,9 @@ required:
   - noise_std
   - horizon
   - mse
+  - mse_normalized
+  - quantization_noise_floor
+  - mse_adjusted
   - cumulative_error_rate
   - entropy_score
   - ram_peak_mb

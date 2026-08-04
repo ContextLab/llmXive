@@ -31,9 +31,14 @@ properties:
         type: "string"
       episode_id:
         type: "string"
+      velocity_derivation:
+        type: "string"
+        const: "finite_differencing"
+        description: "Method used to derive velocity."
     required:
       - scene_id
       - episode_id
+      - velocity_derivation
 required:
   - timestamp
   - bit_depth

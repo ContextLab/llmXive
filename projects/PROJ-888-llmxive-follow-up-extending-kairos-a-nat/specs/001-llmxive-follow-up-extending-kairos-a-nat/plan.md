@@ -1,95 +1,108 @@
 # Implementation Plan: llmXive follow-up: extending "Kairos: A Native World Model Stack for Physical AI"
 
-**Branch**: `001-llmxive-discrete-scaling` | **Date**: 2026-07-14 | **Spec**: `spec.md`
-**Input**: Feature specification from `specs/001-llmxive-discrete-scaling/spec.md`
+**Branch**: `001-llmxive-kairos-discrete-scaling` | **Date**: 2026-07-14 | **Spec**: `spec.md`
+**Input**: Feature specification from `specs/001-llmxive-follow-up-extending-kairos-a-nat/spec.md`
 
 ## Summary
 
-This project implements a CPU-tractable study to determine how the minimum information density required for stable long-horizon forecasting in embodied agents scales as input modality shifts from continuous visual streams to sparse, discrete sensor streams. The approach involves: (1) converting the continuous LIBERO benchmark dataset into discrete, quantized JSON state vectors (/8/12/16-bit) with simulated sparsity (temporal subsampling); (2) adapting the pre-trained Kairos Hybrid Linear Temporal Attention model to accept these discrete inputs via a fixed projection layer (or training from scratch if weights are missing); (3) training and evaluating the model on a CPU-only environment with constrained memory to simulate edge constraints; and (4) performing statistical validation (paired t-tests/Wilcoxon) to identify the stability threshold where error accumulation exceeds baseline visual-modality performance.
+This project investigates how the minimum information density required for stable long-horizon forecasting in embodied agents scales as input modality shifts from continuous visual streams to sparse, discrete sensor streams. The technical approach involves converting the continuous LIBERO benchmark dataset into discrete, JSON-serialized state vectors with configurable quantization (4, 8, 16-bit), feeding these into a CPU-only execution of the Kairos Hybrid Linear Temporal Attention module (with a *pre-trained, frozen* discrete projection layer, initialized via a small pre-training step to ensure valid input mapping), and statistically analyzing the **Model-Adjusted Error** (MSE_normalized - QuantizationNoiseFloor) growth rates to identify stability thresholds. The baseline comparison uses the *same* frozen projection layer configuration for both modalities to isolate the modality shift effect from projection failure.
 
 ## Technical Context
 
-**Language/Version**: Python 3.x  
-**Primary Dependencies**: `torch` (CPU-only), `datasets` (HuggingFace), `numpy`, `pandas`, `scipy` (for statistical tests), `json`, `h5py` (for LIBERO HDF5 parsing), `tqdm`, `psutil` (RAM monitoring)  
-**Storage**: Local `data/` directory (raw HDF5/Parquet, processed JSON), `data/processed/` (quantized streams), `data/results/` (MSE logs, checkpoints)  
-**Testing**: `pytest` (unit tests for quantization logic, integration tests for training loop), `pytest-timeout` (enforce 6h limit)  
-**Target Platform**: Linux (GitHub Actions free-tier runner: 2 CPU, ~7 GB RAM, Substantial disk storage capacity.)  
-**Project Type**: Research Pipeline / Data Processing / Model Training  
-**Performance Goals**: Training time ≤ 4 hours (graceful exit at h), Peak RAM < 7GB, Inference latency ≤ 2s/step  
-**Constraints**: No GPU/CUDA; strict adherence to FR-004 (, 250, 500 step horizons) and FR-005 (t-test/Wilcoxon only); quantization sweep in fixed-bit increments  
-**Scale/Scope**: LIBERO dataset subset (N=50 episodes, A fixed number of steps per episode.); Multiple independent runs per quantization level; Multiple quantization levels (4, 8, 12, 16-bit)
+**Language/Version**: Python 3.11  
+**Primary Dependencies**: `torch` (CPU-only), `datasets` (Hugging Face), `numpy`, `pandas`, `scipy`, `pytest`, `pyyaml`  
+**Storage**: Local file system (JSON/Parquet), Hugging Face cache  
+**Testing**: `pytest` (unit, integration, contract)  
+**Target Platform**: GitHub Actions Free Tier (2 vCPU, ~7GB RAM, ~14GB Disk, CPU-only, **6h runtime limit**)  
+**Project Type**: Research / Data Pipeline / Model Evaluation  
+**Performance Goals**: Training loop completes ≤ 4 hours on sampled data; Inference ≤ 2s/step; RAM < 6GB  
+**Constraints**: No CUDA; No external API calls during CI; Strict reproducibility via pinned seeds.  
+**Scale/Scope**: LIBERO subset (streamed/sampled); 3 quantization levels; 500-step horizon predictions.
 
-> **Note on Dataset**: The plan uses the verified LIBERO HDF source. As no "JSON-serialized" dataset exists in the verified list, the pipeline *must* generate this artifact from the raw HDF5 source (Addressing Assumption about data).
+> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research.*
+*Gates determined based on `constitution.md`*
 
-| Principle | Requirement | Plan Compliance Strategy |
-| :--- | :--- | :--- |
-| **I. Reproducibility** | Random seeds pinned; canonical sources. | `code/config.py` defines `SEED=42`. `datasets.load_dataset` uses verified URLs. Checksums recorded in `data/`. Untrained runs are recorded but excluded from final stats. |
-| **II. Verified Accuracy** | Citations verified. | All dataset URLs match the `# Verified datasets` block. No external papers cited without verification. |
-| **III. Data Hygiene** | Checksummed; no in-place mods. | Raw HDF5 downloaded to `data/raw/`. Quantized JSON written to `data/processed/`. Checksums generated post-conversion. |
-| **IV. Single Source of Truth** | Figures trace to `data/`. | `code/analysis.py` reads *only* from `data/results/` to generate plots. No hand-typed numbers. |
-| **V. Versioning** | Content hashes. | `state/...yaml` updated on artifact change. `requirements.txt` pinned. |
-| **VI. Resource-Constrained** | CPU-only (2-core/7GB/6h). | Model uses `device="cpu"`. Training loop includes `timeout` check. RAM monitored via `psutil`. Sweep values: **[, 8, 12, 16]**. |
-| **VII. Discrete Modality** | MSE normalized; horizons /250/500; t-test/Wilcoxon; **No BHM**. | `code/metrics.py` implements horizons **[, 250, 500]**. `code/stats.py` uses `scipy.stats.ttest_rel` or `wilcoxon`. **No Bayesian Hierarchical Models**. |
-
-**Addressing Unresolved Panel Concerns**:
-1.  **Stats Method**: `code/stats.py` will **only** implement `paired t-test` and `Wilcoxon signed-rank` as primary methods. Bayesian Hierarchical Models are **excluded** to comply with FR-005 and Principle VII.
-2.  **Horizon Steps**: `code/metrics.py` will calculate error growth strictly for horizons **[a small number, 250, and 500]**. The 1000-step horizon is **removed** to align with FR-004.
-    *   *Constitution Note*: While Principle VII mentions 1000 steps, FR-004 and SC-001 explicitly mandate [100, 250, 500]. The plan follows the specific functional requirement (FR-004) over the generic principle text.
-3.  **Weight Fallback**: If pre-trained Kairos weights are unavailable, the system will **train a model from scratch** for a sufficient number of epochs on the continuous baseline to learn temporal dependencies before testing discrete stability. This ensures the mechanism is tested, not random noise. Runs are flagged as "Untrained" and excluded from final stats but recorded for reproducibility.
-4.  **Sensitivity Sweep**: `code/experiments.py` will explicitly sweep quantization levels **[, 8, 12, 16]** bits. The terms "low/medium/high" are **replaced** with these specific integer values.
-5. **Sample Size**: A fixed number of episodes per run, with steps/episode (Total [deferred] steps). This provides sufficient power for the paired tests on the defined horizons.
-6.  **Sparsity**: Simulated via **temporal subsampling** (stride=2) and **random dropout** (20% rate) to simulate low-bandwidth transmission.
-7.  **Ground Truth**: Evaluation uses **Clean Ground Truth** (noise removed) to separate model error from sensor noise.
-8.  **Statistical Validity**: Levene's test for equal variance is performed before t-test; if unequal, Wilcoxon is used. Pairing is by **Episode ID**.
+1.  **Reproducibility (Principle I)**: The plan mandates pinned random seeds in `code/config.py` and uses the `datasets` library with `streaming=True` to fetch the *same* canonical HuggingFace source on every run. Checksums will be recorded for all derived data in `data/`.
+2.  **Verified Accuracy (Principle II)**: All dataset URLs cited in `research.md` are restricted to the verified list provided in the prompt (HuggingFace LIBERO variants). No external citations will be introduced without validation.
+3.  **Data Hygiene (Principle III)**: The pipeline will not modify raw data. Raw parquet files will be downloaded to `data/raw/` with checksums. Quantized outputs will be written to `data/derived/` with new filenames and documented derivation scripts.
+4.  **Single Source of Truth (Principle IV)**: All figures in the final paper will be generated programmatically from `data/derived/` files. No hand-typed statistics.
+5.  **Versioning Discipline (Principle V)**: The plan explicitly tracks artifact hashes in the specific file `state/projects/PROJ-888-llmxive-follow-up-extending-kairos-a-nat.yaml` as required by the Constitution.
+6.  **Resource-Constrained Stability Verification (Principle VI)**: The entire pipeline is designed for the 2-core/7GB RAM/6h constraint. The plan explicitly defines the "CPU-only" execution path and includes logic to checkpoint and exit gracefully if time limits are approached.
+7.  **Discrete Modality Error Characterization (Principle VII)**: The analysis script will calculate MSE normalized by state space dimensionality, subtract the quantization noise floor, and perform paired t-tests/Wilcoxon tests as required.
 
 ## Project Structure
 
 ### Documentation (this feature)
 
 ```text
-specs/001-llmxive-discrete-scaling/
+specs/001-llmxive-kairos-discrete-scaling/
 ├── plan.md              # This file
 ├── research.md          # Phase 0 output
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
-├── contracts/           # Phase 1 output
-└── tasks.md             # Phase 2 output
+├── contracts/           # Phase 1 output (Design Artifacts)
+│   ├── dataset.schema.yaml
+│   └── output.schema.yaml
+└── tasks.md             # Phase 2 output (generated later)
 ```
 
 ### Source Code (repository root)
 
 ```text
-projects/PROJ-888-llmxive-follow-up-extending-kairos-a-nat/code/
-├── config.py            # Seeds, paths, hyperparameters (10 runs, horizons, N=50)
-├── download.py          # LIBERO fetch, Schema Verification, Weight fetch (with fallback)
-├── quantize.py          # HDF5 -> JSON (4/8/12/16-bit) with noise injection and sparsity
-├── model.py             # Kairos adapter (fixed projection layer or train-from-scratch)
-├── train.py             # CPU training loop with checkpointing
-├── metrics.py           # MSE, cumulative error (100, 250, 500), Entropy Check
-├── stats.py             # Levene's test, Paired t-test, Wilcoxon, significance reporting
-├── experiments.py       # Sweep loop (4, 8, 12, 16-bit)
-└── utils.py             # Logging, RAM monitoring, timeout handling
-
-tests/
-├── unit/
-│   ├── test_quantize.py
-│   └── test_metrics.py
-└── integration/
-    └── test_training_loop.py
+projects/PROJ-888-llmxive-follow-up-extending-kairos-a-nat/
+├── code/
+│   ├── __init__.py
+│   ├── config.py              # Seeds, paths, hyperparameters
+│   ├── data/
+│   │   ├── __init__.py
+│   │   ├── downloader.py      # HF dataset fetcher
+│   │   ├── quantizer.py       # Continuous -> Discrete conversion (includes degeneracy check)
+│   │   └── noise_injector.py  # Gaussian noise simulation
+│   ├── model/
+│   │   ├── __init__.py
+│   │   ├── kairos_adapter.py  # Discrete projection layer (Pre-trained, frozen)
+│   │   └── trainer.py         # CPU training loop (generates ResourceConstraintReport.json)
+│   ├── analysis/
+│   │   ├── __init__.py
+│   │   ├── metrics.py         # MSE, growth rate, normalization, noise floor
+│   │   └── stats.py           # T-tests, Wilcoxon, threshold detection (generates StabilityFramingReport.md)
+│   └── main.py                # Orchestration script
+├── data/
+│   ├── raw/                   # Downloaded parquet (symlinked or cached)
+│   ├── derived/               # Quantized JSON/Parquet
+│   └── .checksums             # SHA256 hashes
+├── tests/
+│   ├── __init__.py
+│   ├── contract/              # Schema validation tests
+│   ├── integration/           # End-to-end pipeline tests
+│   └── unit/                  # Quantization logic tests
+├── state/
+│   └── projects/PROJ-888-llmxive-follow-up-extending-kairos-a-nat.yaml # Versioning artifact
+└── README.md                  # Project overview and quickstart
 ```
 
-**Structure Decision**: Single project structure. All data processing and modeling occur in `code/` under the project ID. This ensures tight coupling between data hygiene and analysis, satisfying the "Single Source of Truth" principle.
+**Structure Decision**: Selected the "Single Project" structure (`code/`, `data/`, `tests/`) as this is a research pipeline rather than a production service. The separation of `data/`, `model/`, and `analysis` modules ensures modularity for the specific phases of quantization, training, and statistical validation. **Note**: `contracts/` are design artifacts located in `specs/`, not source code.
 
 ## Complexity Tracking
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| **Custom Quantization Pipeline** | No verified JSON source exists; must transform HDF5 to discrete vectors. | Using a pre-processed dataset would require trusting an external, unverified source, violating Principle III (Data Hygiene). |
-| **Fallback Weight Strategy** | Hard dependency on external weights risks total pipeline failure. | A hard fail would violate Reproducibility (Principle I) if the external source is temporarily down. The "Train-from-scratch" fallback allows the *mechanism* to be tested. |
-| **Statistical Rigor (10 runs, N=50)** | Required for FR-005 to detect significant differences in error accumulation. | Single-run analysis is insufficient for statistical significance (p < 0.05) and violates Principle VII. |
-| **Sparsity Simulation** | Quantization alone does not simulate "sparse streams". | Using only quantization would fail to answer the core research question about modality shift to sparse streams. |
-| **Clean Ground Truth Evaluation** | Noise injection conflates sensor noise with model error. | Evaluating against noisy ground truth would penalize accurate models for predicting the underlying state. |
+| None | The project scope is tightly constrained by the CPU/6h limits. | N/A - The design is intentionally minimal to ensure feasibility. |
+
+## Functional Requirements Mapping
+
+- **FR-001**: Implemented in `code/data/quantizer.py` (Phase 1). Includes degeneracy check for 1-bit collapse.
+- **FR-002**: Implemented in `code/model/kairos_adapter.py` (Phase 2). The discrete projection layer is **pre-trained, frozen** (after initialization via a small pre-training step) to isolate modality shift.
+- **FR-003**: Implemented in `code/model/trainer.py` (Phase 3).
+- **FR-004**: Implemented in `code/analysis/metrics.py` (Phase 3).
+- **FR-005**: Implemented in `code/analysis/stats.py` (Phase 3).
+- **FR-006**: Implemented in `code/analysis/stats.py` (Phase 3).
+- **FR-007**: Implemented in `code/model/trainer.py` which MUST write `ResourceConstraintReport.json` at every epoch, containing CPU utilization, peak RAM, and latency per step.
+- **FR-008**: Implemented in `code/analysis/stats.py` which MUST generate `StabilityFramingReport.md` explicitly framing claims as "relative degradation" against the continuous baseline.
+- **FR-009**: Implemented in `code/analysis/metrics.py` (Phase 3) to calculate and subtract the Quantization Noise Floor.
+- **SC-001**: Implemented in `code/analysis/stats.py` which identifies the threshold where Model-Adjusted MSE exceeds the continuous baseline by a specific percentage (e.g., [deferred] or [deferred]).
+
+## projects/PROJ-888-llmxive-follow-up-extending-kairos-a-nat/specs/001-llmxive-follow-up-extending-kairos-a-nat/research.md

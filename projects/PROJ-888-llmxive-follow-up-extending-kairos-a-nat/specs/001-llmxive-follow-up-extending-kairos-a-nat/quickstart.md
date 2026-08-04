@@ -2,71 +2,82 @@
 
 ## Prerequisites
 
--   Python 3.11+
--   7GB+ RAM available
--   14GB+ Disk space
--   Git
+- Python 3.11+
+- Git
+- Hugging Face CLI (optional, for large downloads)
+- Sufficient RAM available (for streaming processing)
 
 ## Installation
 
-1.  **Clone and Setup**:
+1.  **Clone the repository**:
     ```bash
-    git clone <repo-url>
-    cd projects/PROJ-888-llmxive-follow-up-extending-kairos-a-nat/code/
+    git clone <repository-url>
+    cd projects/PROJ-888-llmxive-follow-up-extending-kairos-a-nat
+    ```
+
+2.  **Create a virtual environment**:
+    ```bash
     python -m venv venv
-    source venv/bin/activate
-    pip install -r requirements.txt
+    source venv/bin/activate  # On Windows: venv\Scripts\activate
     ```
 
-2.  **Verify Dependencies**:
+3.  **Install dependencies**:
     ```bash
-    python -c "import torch; import datasets; import scipy; print('Dependencies OK')"
+    pip install -r code/requirements.txt
     ```
 
-## Data Download
+## Running the Pipeline
 
-Run the download script to fetch the verified LIBERO dataset:
+### 1. Data Construction (Quantization)
+
+Convert the continuous LIBERO dataset to discrete JSON vectors.
+
 ```bash
-python download.py --source libero_hdf5
-```
-*Note: This will download the raw HDF5 file to `data/raw/`, verify the checksum, and perform schema compatibility checks.*
-
-## Quantization Pipeline
-
-Convert the raw data to discrete JSON vectors with sparsity simulation:
-```bash
-python quantize.py --bit-depth 4 --noise-std 0.1 --sparsity-stride 2 --sparsity-dropout 0.2 --output data/processed/quantized_4bit
-python quantize.py --bit-depth 8 --noise-std 0.1 --sparsity-stride 2 --sparsity-dropout 0.2 --output data/processed/quantized_8bit
-python quantize.py --bit-depth 12 --noise-std 0.1 --sparsity-stride 2 --sparsity-dropout 0.2 --output data/processed/quantized_12bit
-python quantize.py --bit-depth 16 --noise-std 0.1 --sparsity-stride 2 --sparsity-dropout 0.2 --output data/processed/quantized_16bit
+python code/data/quantizer.py \
+  --bit-depth 4 \
+  --source "physical-intelligence/libero" \
+  --output-dir data/derived/quantized_4bit \
+  --streaming
 ```
 
-## Training & Evaluation
+*Note: Use appropriate bit-depth settings for other resolutions.*
 
-Run the full experiment sweep (4, 8, 12, 16-bit) with 10 independent runs:
+### 2. Training (CPU-Only)
+
+Train the Kairos adapter on the quantized data.
+
 ```bash
-python experiments.py --runs 10 --horizons 100,250,500 --sweep 4,8,12,16 --episodes 50
+python code/model/trainer.py \
+  --data-dir data/derived/quantized_4bit \
+  --epochs 10 \
+  --horizon 500 \
+  --checkpoint-interval 1 \
+  --seed 42
 ```
 
-*This script will:*
-1.  Load the Kairos model (with fallback to train-from-scratch if weights missing).
-2.  Train on the CPU for each quantization level.
-3.  Evaluate on horizons 100, 250, and 500 using **clean** ground truth.
-4.  Log `ErrorMetric` to `data/results/mse_logs/`.
-5.  Perform Levene's test, paired t-tests, and Wilcoxon tests.
+*The training loop includes a timeout guard.*
 
-## Statistical Analysis
+### 3. Analysis & Threshold Detection
 
-View the aggregated results:
+Compute stability metrics and statistical significance.
+
 ```bash
-python stats.py --input data/results/mse_logs/
+python code/analysis/stats.py \
+  --results-dir data/results/ \
+  --baseline-mode "continuous" \
+  --test-type "paired_t"
 ```
-*Output: Summary table with MSE, p-values, and stability thresholds.*
 
-## Validation
+## Testing
 
-Check that all constraints are met:
+Run the contract and integration tests to verify data integrity and pipeline logic.
+
 ```bash
-python -m pytest tests/ -v
+pytest tests/ -v
 ```
-*Ensure no tests fail and RAM/CPU logs are within limits.*
+
+## Troubleshooting
+
+- **Out of Memory**: Ensure `--streaming` is used during quantization. The raw dataset should not be loaded entirely into RAM.
+- **CUDA Errors**: This project is CPU-only. If you see CUDA errors, check `code/config.py` to ensure `device="cpu"` is set.
+- **Degenerate Data**: If the 1-bit quantization is attempted, the script will raise a `ValueError` indicating "Invalid Data: State space collapse."

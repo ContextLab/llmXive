@@ -46,3 +46,4 @@ required:
   - "latency_per_step_ms"
   - "entropy_score"
   - "is_untrained"
+additionalProperties: false

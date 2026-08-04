@@ -4,93 +4,92 @@
 
 How does the minimum information density required for stable long-horizon forecasting in embodied agents scale as input modality shifts from continuous visual streams to sparse, discrete sensor streams, and what architectural properties are necessary to preserve error bounds under these constraints?
 
-## Background & Hypothesis
-
-### Background
-The Kairos architecture utilizes a Hybrid Linear Temporal Attention mechanism designed for physical AI. While effective with continuous visual streams, its performance under sparse, discrete sensor inputs (simulating low-bandwidth edge devices) is unknown. The hypothesis is that there exists a non-linear "tipping point" in information density (bit-depth) below which the cumulative error growth rate explodes, rendering long-horizon forecasting unstable.
-
-### Hypothesis
-1. **H1**: There exists a critical quantization threshold (likely between 4-bit and 8-bit) where the Mean Squared Error (MSE) growth rate increases non-linearly.
-2. **H2**: The Hybrid Linear Temporal Attention mechanism will maintain stability at 8-bit and 16-bit but degrade significantly at 4-bit compared to the continuous baseline.
-3. **H3**: Statistical validation (paired t-test) will show a significant difference (p < 0.05) in error accumulation between the discrete (4-bit) and continuous modalities.
-
 ## Dataset Strategy
 
-The study relies on the **LIBERO** benchmark dataset, which contains continuous RGB frames and proprioceptive states for embodied agents. Since no verified "JSON-serialized" dataset exists, the research pipeline must construct the discrete dataset from the raw HDF5 source.
-
 ### Verified Datasets
-The following sources are verified for programmatic access and used exclusively:
+The study relies on the **LIBERO** benchmark, which provides continuous visual streams (RGB) and proprioceptive states. This dataset is selected because it is the standard for embodied AI world models and is publicly available via Hugging Face.
 
-| Dataset | Source URL | Usage |
-|:--- |:--- |:--- |
-| **LIBERO (HDF5)** | ` | Primary source for raw proprioceptive states and object positions. |
-| **LIBERO (Parquet)** | ` | Alternative/Supplementary source for state vectors if HDF5 parsing fails. |
+| Dataset Name | Purpose | Verified Source URL | Access Method |
+| :--- | :--- | :--- | :--- |
+| LIBERO (Parquet) | Primary source for continuous state vectors (RGB + Proprioception) to be quantized. | `https://huggingface.co/datasets/physical-intelligence/libero/resolve/main/data/chunk-000/episode_000000.parquet` (and variants) | `datasets.load_dataset(..., streaming=True)` |
 
-**Note**: No verified source exists for "JSON-serialized" or "CPU-only" datasets. The plan *must* generate the discrete JSON data from the raw LIBERO HDF5/Parquet sources using `code/quantize.py`. The hallucinated 'yuanty/LIBERO-fastwam' URL has been removed.
+**Note**: No verified source exists for "JSON-serialized" discrete data. The project will *generate* this from the raw LIBERO data using the `quantizer.py` script. The 'libero_plus' fallback has been removed as it was not verified to contain the specific proprioceptive state vectors required.
 
-### Data Processing Plan
-1. **Download**: Fetch raw HDF5/Parquet files from verified URLs.
-2. **Schema Verification**: Programmatically compare the `state_vector` schema of HDF5 and Parquet sources. If they differ, abort with an error to prevent silent data corruption.
-3. **Parse**: Extract proprioceptive states (positions, velocities) and collision flags.
-4. **Sparsity Simulation**: Apply **temporal subsampling** (stride=2) and **random dropout** (20% rate) to simulate low-bandwidth transmission.
-5. **Quantize**: Map continuous floats to discrete integers based on bit-depth (4-bit: 0-15, 8-bit: 0-255, 12-bit: 0-4095, 16-bit: 0-65535).
-6. **Noise Injection**: Add Gaussian noise with a standard deviation within a low-to-moderate range to simulate sensor instability.
-7. **Serialize**: Output as JSON-serialized state vectors to `data/processed/`.
-8. **Ground Truth**: For evaluation, use the **clean** (noise-free) quantized state as the target to separate model error from sensor noise.
+### Data Availability & Feasibility
+- **Open Access**: The LIBERO dataset is open and directly downloadable via the Hugging Face `datasets` library. No credentials or data-use agreements are required.
+- **Streaming Strategy**: The full LIBERO dataset may exceed the memory limit of the CI runner. The implementation will use `streaming=True` to iterate over episodes one by one, quantizing and writing to disk immediately, ensuring peak RAM usage remains low.
+- **Sampling**: For the training phase (US-2), a fixed random sample (e.g., first 50 episodes) will be used to ensure the 6-hour training constraint is met. The full dataset will be used only for the final stability threshold mapping (US-3) if time permits, otherwise the sample is the definitive test set.
 
-### Sample Size Definition
-- **N (Episodes)**: 50 episodes per run (sourced from LIBERO-10 Documentation which lists ~400 total episodes).
-- **Steps per Episode**: 200 steps.
-- **Total Effective N**: [deferred] steps per run.
-- **Runs**: 10 independent runs per quantization level.
+### Data Schema Verification
+- **Proprioception**: The `physical-intelligence/libero` dataset contains joint angles and gripper pose.
+- **Velocity**: Velocities are **not** natively provided in the parquet schema. They are derived via **finite differencing** of positions ($v_t = (p_t - p_{t-1}) / \Delta t$) in the `quantizer.py` script. This derivation is explicitly documented in the data model.
 
-## Model Strategy
+## Methodology
 
-### Architecture
-- **Base**: Pre-trained Kairos Hybrid Linear Temporal Attention module.
-- **Modification**: Replace visual embedding layers with a **fixed, untrained discrete projection layer**. This isolates the modality shift from architectural changes (FR-002).
-- **Training**: CPU-only training on the discrete dataset.
+### Phase 1: Data Construction and Quantization (FR-001)
+1.  **Download**: Stream LIBERO episodes from the verified Hugging Face URL.
+2.  **Extraction**: Extract continuous state vectors (positions, joint angles).
+3.  **Derivation**: Calculate velocities via finite differencing of positions.
+4.  **Quantization**:
+    - Map continuous values to discrete integer bins based on bit-depth ($2^4=16$, $2^8=256$, $2^{16}=65536$).
+    - Formula: $v_{discrete} = \lfloor \frac{v_{cont} - v_{min}}{v_{max} - v_{min}} \times (2^b - 1) \rfloor$.
+5.  **Serialization**: Output as JSON-serialized state vectors.
+6.  **Degeneracy Check**: If $b=1$, check if all values collapse to a single bin. If so, flag as "Invalid Data" and abort (Edge Case).
+7.  **Noise Injection**: Inject Gaussian noise ($\sigma > 0$) before quantization to simulate sensor instability.
 
-### Computational Feasibility (CPU-First)
-The study is designed for the GitHub Actions free-tier (a limited number of CPUs and memory).
-- **Model Size**: The Kairos attention module is lightweight; the visual encoder is replaced by a small projection layer, reducing memory footprint.
-- **Batch Size**: Dynamically adjusted to fit < 6GB RAM.
-- **Precision**: `float32` (default CPU precision).
-- **Training Time**: Target ≤ 4 hours for sampled dataset. Graceful exit at an appropriate duration.
+### Phase 2: CPU-Only Model Training (FR-002, FR-003)
+1.  **Architecture Adaptation**: Load pre-trained Kairos weights. Replace the visual embedding layer with a **pre-trained, frozen** discrete projection layer that maps the discrete integer IDs to the model's latent space.
+    - **Initialization Strategy**: To avoid the "trivial failure" of a random layer, the fixed weights are initialized via a pre-computed linear mapping derived from a small-scale pre-training step on the discrete data (e.g., 1 epoch on a small subset). Once initialized, the layer is **frozen** for the main training loop.
+2.  **Baseline Consistency**: The continuous baseline model uses the **same** frozen projection layer configuration (initialized identically) to ensure the comparison isolates the "modality shift" effect, not a "training deficit".
+3.  **Training Loop**:
+    - Run on CPU-only PyTorch.
+    - Input: Quantized state sequences.
+    - Objective: Predict next state (autoregressive).
+    - Constraints: Graceful exit if time > 6h; checkpoint every epoch.
+    - **Logging**: Write `ResourceConstraintReport.json` at the end of every epoch (FR-007).
+4.  **Inference**: Generate long sequences. Measure latency and RAM.
 
-**Decision/Rationale**:
-- **CPU vs. GPU**: The method (Linear Temporal Attention on discrete vectors) is computationally light enough for CPU. No transformer fine-tuning or diffusion generation is required. The "GPU escape hatch" is **not** needed unless the pre-trained weights are incompatible with CPU (unlikely for PyTorch), but the plan assumes CPU-first execution.
-- **Dataset Size**: The full LIBERO dataset may exceed RAM. The plan will sample N=50 episodes (200 steps each) to ensure feasibility while maintaining statistical power for the 10 independent runs.
-- **Weight Fallback**: If pre-trained weights are missing, the system will **train a model from scratch** for 5 epochs on the continuous baseline to learn the temporal dependencies. This ensures the "stability of the mechanism" is tested, rather than testing random noise. Runs with this fallback are flagged as "Untrained" and excluded from final statistical analysis but recorded for pipeline reproducibility.
+### Phase 3: Stability Analysis (FR-004, FR-005, FR-006, FR-009)
+1.  **Quantization Noise Floor**: Calculate the theoretical MSE of the quantization process itself (no model) to establish a noise floor.
+2.  **Metric Calculation**: Compute MSE between predicted and ground-truth discrete sequences.
+    - Normalization: $MSE_{norm} = MSE / \text{state\_dim}$.
+    - **Model-Adjusted Error**: $MSE_{adj} = MSE_{norm} - \text{NoiseFloor}$.
+3.  **Threshold Mapping**: Sweep bit-depth (low, medium, high). Plot $MSE_{adj}$ vs. Bit-depth.
+ - **Stability Threshold**: The bit-depth where $MSE_{adj}$ exceeds a [deferred] percentage increase (e.g., [deferred] or [deferred]) over the continuous baseline's $MSE_{adj}$.
+4.  **Statistical Validation**:
+    - Perform paired t-test (or Wilcoxon if non-normal) on the **error difference** (Discrete Error - Continuous Error) for the *same* (episode, timestep) pairs.
+    - Ground truth for discrete: Quantized version of continuous state.
+    - Ground truth for continuous: Original continuous state.
+    - Identify the "stability threshold": The bit-depth where $MSE_{adj}$ exceeds a statistically significant deviation (p < 0.05) or a [deferred] increase over the continuous baseline.
+5.  **Framing**: Generate `StabilityFramingReport.md` explicitly framing claims as "relative degradation" (FR-008).
 
-## Statistical Analysis Plan
+## Power Analysis & Sample Size Justification
+- **Target Power**: [deferred] to detect a [deferred] degradation effect size at alpha=0.05.
+- **Variance Estimate**: Based on pilot studies of 500-step horizons, variance is high.
+- **Sample Size**: N=10 independent runs with distinct noise seeds and N=50 episodes per run.
+- **Rationale**: This sample size is the maximum feasible within the available computational time constraint while providing sufficient power to detect the expected modality shift. Larger samples are infeasible without GPU acceleration.
 
-### Metrics
-- **Primary**: Mean Squared Error (MSE) between predicted and **clean** ground-truth discrete sequences.
-- **Secondary**: Cumulative error growth rate over horizons **100, 250, and 500** steps (FR-004).
-- **Normalization**: MSE normalized by state space dimensionality (Principle VII).
-- **Entropy Check**: Verify that quantization bins capture sufficient information (entropy > threshold).
+## Decision / Rationale
 
-### Statistical Tests
-- **Method**: Paired t-test or Wilcoxon signed-rank test (FR-005, Principle VII). **No Bayesian Hierarchical Models**.
-- **Pairing**: Same **Episode ID** across modalities.
-- **Variance Check**: Levene's test for equal variance. If variances are unequal, use Wilcoxon.
-- **Runs**: 10 independent runs with different noise seeds per quantization level.
-- **Significance**: p < 0.05.
+- **Pre-trained, Frozen Projection Layer**: The discrete projection layer is **pre-trained, frozen** (after initialization via a small pre-training step) to strictly adhere to FR-002 and isolate the "information density" effect from "training adaptation". The initialization strategy ensures the layer is not random and avoids trivial failure.
+- **Baseline Consistency**: Both discrete and continuous modalities use the *same* frozen projection layer configuration to ensure a fair comparison.
+- **CPU-First Approach**: The research question targets "resource-constrained deployment." Therefore, the primary method is CPU-only training.
+- **Streaming Data**: Essential for fitting the 7GB RAM constraint.
+- **Quantization Logic**: Using integer binning ensures the "sparse" nature of the input is preserved.
+- **Statistical Rigor**: Using paired tests on the *same* episodes (continuous vs. discrete) controls for environmental variance, isolating the effect of the modality shift. The noise floor subtraction ensures we measure model stability, not just quantization error.
+- **Model-Adjusted Error**: The primary metric for threshold detection is the Model-Adjusted Error, which isolates the model's predictive degradation from the inevitable information loss of quantization.
 
-### Sensitivity Analysis
-- **Sweep**: Quantization levels **4, 8, 12, 16** bits (SC-005).
-- **Output**: Error rate change and stability boundary identification.
-
-## Risk Assessment
+## Risks & Mitigations
 
 | Risk | Impact | Mitigation |
-|:--- |:--- |:--- |
-| **Missing Model Weights** | High (Blocks US2/US3) | Fallback to **train-from-scratch** (5 epochs) on continuous baseline. Flag as "Untrained" and exclude from stats. |
-| **RAM Exceeded** | High (Crash) | Streaming data; dynamic batch sizing; sample size reduction. |
-| **Quantization Collapse** | Medium (Invalid Data) | Detect 1-bit degeneracy; flag run as "Invalid". |
-| **Time Limit Exceeded** | Medium (Incomplete Results) | Checkpoint every epoch; graceful exit; report partial results. |
-| **Schema Mismatch** | High (Parsing Error) | Programmatic schema verification in `download.py`. Abort if mismatch. |
-| **Statistical Power** | Medium (False Negative) | N=50 episodes, 200 steps/episode, 10 runs. |
-| **Noise Conflation** | Medium (Invalid Metric) | Evaluate against **clean** ground truth (noise removed). |
-| **Variance Assumption** | Medium (Invalid Test) | Levene's test before t-test; fallback to Wilcoxon. |
+| :--- | :--- | :--- |
+| **Dataset Missing Variables** | High | LIBERO contains proprioception. Velocities are derived via finite differencing. |
+| **Training Time > 6h** | High | Use a smaller sample size and reduce epochs. The plan includes a graceful exit mechanism. |
+| **Degenerate 1-bit Data** | Medium | The `quantizer.py` includes a check to detect single-value collapse and flag the run as invalid. |
+| **Noise Injection Failure** | Medium | Noise is clamped to valid discrete bins to prevent data corruption. |
+| **Fixed Layer Failure** | High | The "Initialization Strategy" ensures the fixed layer is not random, avoiding trivial failure. |
+
+## References
+
+- **LIBERO Dataset**: `https://huggingface.co/datasets/physical-intelligence/libero` (Verified URL used in code).
+- **Kairos Architecture**: (Internal Reference: `projects/PROJ-888-llmxive-follow-up-extending-kairos-a-nat/` previous work).

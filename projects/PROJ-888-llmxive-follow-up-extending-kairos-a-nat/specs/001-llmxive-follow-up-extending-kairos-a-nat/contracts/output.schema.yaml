@@ -1,0 +1,54 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ErrorMetric"
+description: "Schema for statistical analysis results of model stability."
+type: "object"
+required:
+  - "run_id"
+  - "bit_depth"
+  - "horizon"
+  - "mse"
+  - "mse_normalized"
+  - "p_value"
+  - "is_significant"
+properties:
+  run_id:
+    type: "string"
+    description: "Unique identifier for the experiment run."
+  bit_depth:
+    type: "integer"
+    enum:
+      - 4
+      - 8
+      - 16
+    description: "Quantization level used."
+  horizon:
+    type: "integer"
+    enum:
+      - 100
+      - 250
+      - 500
+    description: "Prediction horizon used."
+  mse:
+    type: "number"
+    minimum: 0
+    description: "Raw Mean Squared Error."
+  mse_normalized:
+    type: "number"
+    minimum: 0
+    description: "MSE divided by state space dimensionality."
+  cumulative_error_rate:
+    type: "number"
+    description: "Slope of error growth over time."
+  p_value:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "Result of statistical test vs. baseline."
+  is_significant:
+    type: "boolean"
+    description: "True if p < 0.05."
+  degradation_factor:
+    type: "number"
+    minimum: 0
+    description: "Ratio of discrete MSE to continuous baseline MSE."
+additionalProperties: false

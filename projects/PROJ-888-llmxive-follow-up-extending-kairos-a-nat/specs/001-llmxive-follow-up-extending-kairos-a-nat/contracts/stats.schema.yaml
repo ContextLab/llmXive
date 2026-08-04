@@ -28,6 +28,9 @@ properties:
   variance_equal:
     type: "boolean"
     description: "Result of Levene's test for equal variance."
+  noise_floor_subtracted:
+    type: "boolean"
+    description: "True if quantization noise floor was subtracted."
 required:
   - "comparison"
   - "test_method"
@@ -37,3 +40,5 @@ required:
   - "mean_mse_baseline"
   - "stability_threshold"
   - "variance_equal"
+  - "noise_floor_subtracted"
+additionalProperties: false
