@@ -203,195 +203,329 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-31T01:13:54Z'
-- artifact_path: projects/PROJ-594-quantum-cognition-in-llms-superposition/specs/001-quantum-cognition-in-llms-superposition/tasks.md
+- artifact_path: projects/PROJ-594-quantum-cognition-in-llms-superposition/research.md
   attempts: 1
-  canonical: WiC dataset source is SuperGLUE
-  claim_id: c_d00dd91d
-  context: Create code/data/download_wic.py to fetch WiC from SuperGLUE via datasets.load_dataset('super_glue',
-    'wic')
+  canonical: frozen BERT baseline accuracy 72.4% macro-F1 0.71 on WiC test set
+  claim_id: c_1cc30608
+  context: Baseline Performance section reporting control condition results.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: A frozen BERT baseline achieved an accuracy of 72.4% and a macro-F1 of
+    0.71 on the WiC test set.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T10:28:54Z'
+- artifact_path: projects/PROJ-594-quantum-cognition-in-llms-superposition/research.md
+  attempts: 1
+  canonical: complex-valued adapter model accuracy 74.8% macro-F1 0.73
+  claim_id: c_b460a2b0
+  context: Quantum-Inspired Model Performance section reporting experimental results.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The complex-valued adapter model achieved an accuracy of 74.8% and a macro-F1
+    of 0.73.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T10:28:54Z'
+- artifact_path: projects/PROJ-594-quantum-cognition-in-llms-superposition/research.md
+  attempts: 1
+  canonical: paired t-test across 5 random seeds yielded p-value 0.032
+  claim_id: c_709402e7
+  context: Statistical significance testing of the model improvement.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: A paired t-test across 5 random seeds yielded a p-value of 0.032, indicating
+    a statistically significant improvement over the baseline.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T10:29:25Z'
+- artifact_path: projects/PROJ-594-quantum-cognition-in-llms-superposition/research.md
+  attempts: 1
+  canonical: interference cross-term Spearman rho -0.65 correlation with ambiguity
+    labels
+  claim_id: c_5e1a1d6b
+  context: Interference Analysis section quantifying the relationship between interference
+    and ambiguity.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Analysis of the interference cross-term revealed a strong negative correlation\
+    \ (Spearman \u03C1 = -0.65) with ambiguity labels."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T10:29:42Z'
+- artifact_path: projects/PROJ-594-quantum-cognition-in-llms-superposition/research.md
+  attempts: 1
+  canonical: quantum model achieves statistically significant improvement in macro-F1
+    scores over frozen BERT baseline and classical sum-of-squares ablation across
+    5 random seeds
+  claim_id: c_aa236424
+  context: Section 3 Results. The study compares the proposed quantum-inspired adapter
+    against standard baselines.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Our experiments across 5 random seeds demonstrate that the quantum model
+    achieves a statistically significant improvement in macro-F1 scores compared to
+    a frozen BERT baseline and a classical sum-of-squares ablation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T10:31:06Z'
+- artifact_path: projects/PROJ-594-quantum-cognition-in-llms-superposition/research.md
+  attempts: 1
+  canonical: interference cross-term was consistently negative for ambiguous tokens
+  claim_id: c_d22e3472
+  context: Section 3 Results. The paper reports on the behavior of the Born rule cross-term
+    during experiments.
   evidence:
     entailment_status: not_found
     reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/WiC_dataset_source_is_SuperGLUE
+    source_url: https://en.wikipedia.org/wiki/Interference_cross-term_was_consistently_negative_for_ambigu
   kind: entity_fact
-  raw_text: The WiC dataset is fetched from SuperGLUE via datasets.load_dataset('super_glue',
-    'wic').
+  raw_text: The interference cross-term was consistently negative for ambiguous tokens,
+    validating the hypothesis of phase cancellation.
   resolved_value: null
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-08-04T09:31:44Z'
-- artifact_path: projects/PROJ-594-quantum-cognition-in-llms-superposition/specs/001-quantum-cognition-in-llms-superposition/tasks.md
+  updated_at: '2026-08-04T10:31:26Z'
+- artifact_path: projects/PROJ-594-quantum-cognition-in-llms-superposition/research.md
   attempts: 1
-  canonical: Phase penalty loss formula defined as lambda times (1 minus cosine of
-    phase difference)
-  claim_id: c_e9e74bda
-  context: 'Define the FR-009 loss function: Create code/models/loss_utils.py with
-    function phase_penalty_loss(phase_diff, lambda=0.5). Formula: loss += lambda *
-    (1 - torch.cos(phase_diff)).'
+  canonical: Words in Context (WiC) dataset from SuperGLUE contains sentences with
+    target words marked for ambiguity (label 1) or lack thereof (label 0)
+  claim_id: c_104edc07
+  context: Section 2.1 Data. The dataset used for training and evaluation is described.
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: The phase penalty loss formula is loss += lambda * (1 - torch.cos(phase_diff)).
+  raw_text: We utilize the Words in Context (WiC) dataset from SuperGLUE, which contains
+    sentences with target words marked for ambiguity (label 1) or lack thereof (label
+    0).
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-08-04T09:32:00Z'
-- artifact_path: projects/PROJ-594-quantum-cognition-in-llms-superposition/specs/001-quantum-cognition-in-llms-superposition/tasks.md
+  updated_at: '2026-08-04T10:31:38Z'
+- artifact_path: projects/PROJ-594-quantum-cognition-in-llms-superposition/specs/001-quantum-cognition-in-llms-superposition/research.md
   attempts: 1
-  canonical: Interference cross-term formula defined as 2 times real part of c1 times
-    conjugate of c2
-  claim_id: c_787b58ec
-  context: 'Define explicit cross-term calculation: Create code/models/loss_utils.py
-    with function calculate_interference_cross_term(c1, c2). Formula: 2 * torch.real(c1
-    * torch.conj(c2)).'
-  evidence:
-    entailment_evidence: ''
-    entailment_status: not_found
-    object: c1 times conjugate of c2
-    relation: part of
-    source_kind: url
-    source_url: https://en.wikipedia.org/wiki/Interference_cross-term_formula_defined_as_2_times_real_part
-    source_value: https://en.wikipedia.org/wiki/Interference_cross-term_formula_defined_as_2_times_real_part
-    subject: Interference cross-term formula defined as 2 times real
-  kind: relational
-  raw_text: The interference cross-term formula is 2 * torch.real(c1 * torch.conj(c2)).
-  resolved_value: null
-  resolver: resolve_relational
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-04T09:32:20Z'
-- artifact_path: projects/PROJ-594-quantum-cognition-in-llms-superposition/specs/001-quantum-cognition-in-llms-superposition/tasks.md
-  attempts: 1
-  canonical: Born rule probability is squared magnitude of sum of complex vectors
-  claim_id: c_f64333a4
-  context: 'Implement code/models/bert_adapter.py: Superposition (vector addition)
-    and Born rule (P_raw = ||c_sum||^2)'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The Born rule probability calculation is P_raw = ||c_sum||^2.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-04T09:33:15Z'
-- artifact_path: projects/PROJ-594-quantum-cognition-in-llms-superposition/specs/001-quantum-cognition-in-llms-superposition/tasks.md
-  attempts: 1
-  canonical: Softmax normalization formula for final probability
-  claim_id: c_68d8c92f
-  context: 'Implement code/models/bert_adapter.py: Softmax normalization P_final =
-    e^P_raw / (e^P_raw + e^P_alt)'
+  canonical: quantum-inspired model shows statistically significant macro-F1 improvement
+    over frozen BERT on WiC ambiguous instances
+  claim_id: c_ba4f2b91
+  context: Our quantum-inspired model demonstrates a statistically significant improvement
+    in macro-F1 score over the frozen BERT baseline on ambiguous instances of the
+    WiC dataset. The interference cross-term analysis confirms that ambiguous tokens
+    exhibit negative cross-terms, indicative of destructive interference between competing
+    semantic interpretations, which is suppressed in the classical baseline.
   evidence:
     entailment_status: not_found
     reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Softmax_normalization_formula_for_final_probability
+    source_url: https://en.wikipedia.org/wiki/Quantum-inspired_model_shows_statistically_significant_macro
   kind: entity_fact
-  raw_text: The softmax normalization formula is P_final = e^P_raw / (e^P_raw + e^P_alt).
+  raw_text: Our quantum-inspired model demonstrates a statistically significant improvement
+    in macro-F1 score over the frozen BERT baseline on ambiguous instances of the
+    WiC dataset.
   resolved_value: null
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-08-04T09:33:50Z'
-- artifact_path: projects/PROJ-594-quantum-cognition-in-llms-superposition/specs/001-quantum-cognition-in-llms-superposition/tasks.md
+  updated_at: '2026-08-04T10:32:38Z'
+- artifact_path: projects/PROJ-594-quantum-cognition-in-llms-superposition/specs/001-quantum-cognition-in-llms-superposition/research.md
   attempts: 1
-  canonical: Paired t-test alpha level set to 0.05
-  claim_id: c_7cb7b310
-  context: 'Implement code/analysis/stats_test.py: Paired t-test logic (alpha=0.05)
-    across multiple seeds.'
+  canonical: WiC dataset from SuperGLUE used for experiments to determine if target
+    word has same meaning in two contexts
+  claim_id: c_ad01a403
+  context: Experiments are conducted on the WiC (Words in Context) dataset from SuperGLUE,
+    which consists of sentences where the model must determine if a target word is
+    used with the same meaning in two different contexts.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/WiC_dataset_from_SuperGLUE_used_for_experiments_to_determine
+  kind: entity_fact
+  raw_text: Experiments are conducted on the WiC (Words in Context) dataset from SuperGLUE,
+    which consists of sentences where the model must determine if a target word is
+    used with the same meaning in two different contexts.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T10:33:06Z'
+- artifact_path: projects/PROJ-594-quantum-cognition-in-llms-superposition/idea/quantum-cognition-in-llms-superposition.md
+  attempts: 1
+  canonical: frozen BERT baseline achieved 72.4% accuracy and 0.71 macro-F1 on WiC
+    test set
+  claim_id: c_f8b0be2c
+  context: Section 3.1 Baseline Performance describes the performance of the baseline
+    model on the WiC test set.
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: The paired t-test uses an alpha significance level of 0.05.
+  raw_text: A frozen BERT baseline achieved an accuracy of 72.4% and a macro-F1 of
+    0.71 on the WiC test set.
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-08-04T09:33:55Z'
-- artifact_path: projects/PROJ-594-quantum-cognition-in-llms-superposition/specs/001-quantum-cognition-in-llms-superposition/tasks.md
+  updated_at: '2026-08-04T10:34:09Z'
+- artifact_path: projects/PROJ-594-quantum-cognition-in-llms-superposition/idea/quantum-cognition-in-llms-superposition.md
   attempts: 1
-  canonical: Bootstrap resampling uses 1000 iterations and 0.95 confidence level
-  claim_id: c_cfaf3171
-  context: 'Implement code/analysis/stats_test.py: Bootstrap resampling (k=1000 iterations)
-    to calculate confidence intervals for the mean difference.'
+  canonical: variance across 5 seeds was less than 0.02
+  claim_id: c_3e0e0aa7
+  context: Section 3.1 reports the stability of the frozen BERT baseline across multiple
+    random seeds.
   evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Bootstrap resampling is configured for 1000 iterations with a confidence
-    level of 0.95.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-04T09:34:01Z'
-- artifact_path: projects/PROJ-594-quantum-cognition-in-llms-superposition/specs/001-quantum-cognition-in-llms-superposition/tasks.md
-  attempts: 1
-  canonical: Classical sum-of-squares baseline probability formula
-  claim_id: c_5bfa34cc
-  context: Implement code/experiments/run_classical_baseline.py for Classical Sum-of-Squares
-    baseline (P = ||c1||^2 + ||c2||^2).
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The classical sum-of-squares baseline probability is calculated as P =
-    ||c1||^2 + ||c2||^2.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-04T09:34:05Z'
-- artifact_path: projects/PROJ-594-quantum-cognition-in-llms-superposition/specs/001-quantum-cognition-in-llms-superposition/tasks.md
-  attempts: 1
-  canonical: Phase-randomized control applies uniform random phase shifts between
-    0 and 2 pi
-  claim_id: c_9a34d921
-  context: 'Implement code/experiments/run_magnitude_control.py for Phase-Randomized
-    Control (P = ||c1 + e^(i*phi_rand)*c2||^2). Logic: Apply random phase shifts phi_rand
-    ~ U(0, 2pi) to c2 before addition.'
-  evidence:
-    asserted: '0.0'
-    authority: (1+sqrt(5))/2 (IEEE-754 double, Python stdlib math.sqrt)
-    constant: golden_ratio
-    corrected: true
-    mode: approximate
-    true_value: 1.618033988749895
-    url: https://en.wikipedia.org/wiki/Golden_ratio
-  kind: numeric
-  raw_text: The phase-randomized control applies random phase shifts phi_rand ~ U(0,
-    2pi) to c2 before addition.
-  resolved_value: '2'
-  resolver: approximate
-  source_hash: 290a41cc5fb1b98dcc344e1c80bbc36f6fae8c957aab54f9535e67f96da14e06
-  source_type: external
-  status: verified
-  updated_at: '2026-08-04T09:34:05Z'
-- artifact_path: projects/PROJ-594-quantum-cognition-in-llms-superposition/specs/001-quantum-cognition-in-llms-superposition/tasks.md
-  attempts: 1
-  canonical: Interference cross-term assumption requires Spearman correlation less
-    than -0.3
-  claim_id: c_83ada05f
-  context: 'Verify that interference cross-term assumption (negative values for ambiguity)
-    holds in ablation results. Logic: Assert spearman_correlation in data/results/interference_correlation.json
-    is < -0.3.'
-  evidence:
-    candidates_found: 0
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Interference_cross-term_assumption_requires_Spearman_correla
+    candidates:
+    - - Create account Log in Variance across
+      - 5.0
+    - - Variance across 5 seeds was less than
+      - 0.02
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Variance_across_5_seeds_was_less_than_0.02
   kind: magnitude
-  raw_text: The interference cross-term assumption requires a Spearman rank correlation
-    of less than -0.3.
+  raw_text: The variance across 5 seeds was minimal (< 0.02), confirming stability.
   resolved_value: null
   resolver: resolve_superlative
   source_hash: null
   source_type: external
+  status: refuted
+  updated_at: '2026-08-04T10:34:29Z'
+- artifact_path: projects/PROJ-594-quantum-cognition-in-llms-superposition/idea/quantum-cognition-in-llms-superposition.md
+  attempts: 1
+  canonical: complex-valued adapter model achieved 74.8% accuracy and 0.74 macro-F1
+  claim_id: c_9113bb57
+  context: Section 3.2 Quantum-Enhanced Performance reports the results of the proposed
+    model.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The complex-valued adapter model achieved an accuracy of 74.8% and a macro-F1
+    of 0.74.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
   status: not_enough_info
-  updated_at: '2026-08-04T09:34:10Z'
+  updated_at: '2026-08-04T10:34:29Z'
+- artifact_path: projects/PROJ-594-quantum-cognition-in-llms-superposition/idea/quantum-cognition-in-llms-superposition.md
+  attempts: 1
+  canonical: paired t-test across 5 seeds yielded p-value of 0.032
+  claim_id: c_2002d5a4
+  context: Section 3.3 Statistical Significance details the statistical testing performed
+    on the results.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: A paired t-test across 5 seeds yielded a p-value of 0.032.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T10:34:50Z'
+- artifact_path: projects/PROJ-594-quantum-cognition-in-llms-superposition/idea/quantum-cognition-in-llms-superposition.md
+  attempts: 1
+  canonical: Cohen's d effect size was 0.65
+  claim_id: c_93bfbcef
+  context: Section 3.3 reports the calculated effect size for the improvement observed.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The effect size (Cohen's d) was 0.65.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T10:36:50Z'
+- artifact_path: projects/PROJ-594-quantum-cognition-in-llms-superposition/idea/quantum-cognition-in-llms-superposition.md
+  attempts: 1
+  canonical: 95% bootstrap confidence intervals for mean accuracy difference were
+    0.01 to 0.05
+  claim_id: c_e6fba19b
+  context: Section 3.3 provides the confidence interval for the accuracy difference
+    between models.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Bootstrap confidence intervals (95%) for the mean difference in accuracy
+    were [0.01, 0.05].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T10:36:50Z'
+- artifact_path: projects/PROJ-594-quantum-cognition-in-llms-superposition/research.md
+  attempts: 1
+  canonical: quantum-inspired model achieves 2.1% macro-F1 improvement over frozen
+    BERT on WiC dataset
+  claim_id: c_0840f556
+  context: Results are framed strictly as associational correlations between the interference
+    mechanism and prediction accuracy, avoiding causal claims. Our experiments on
+    the WiC (Words in Context) dataset indicate that the quantum-inspired model achieves
+    a macro-F1 score associational improvement of approximately 2.1% over the frozen
+    BERT baseline.
+  evidence:
+    asserted: '1.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Our experiments on the WiC (Words in Context) dataset indicate that the
+    quantum-inspired model achieves a macro-F1 score associational improvement of
+    approximately 2.1% over the frozen BERT baseline.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-08-04T10:38:16Z'
+- artifact_path: projects/PROJ-594-quantum-cognition-in-llms-superposition/research.md
+  attempts: 1
+  canonical: negative correlation between cross-term magnitude and ambiguity resolution
+    success
+  claim_id: c_34c5dea3
+  context: Statistical analysis (paired t-test, p < 0.05) confirms this difference
+    is significant across 5 random seeds. The interference cross-term analysis reveals
+    a negative correlation between the magnitude of the cross-term and ambiguity resolution
+    success, supporting the hypothesis that destructive interference is a key mechanism
+    for disambiguation.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Negative_correlation_between_cross-term_magnitude_and_ambigu
+  kind: entity_fact
+  raw_text: The interference cross-term analysis reveals a negative correlation between
+    the magnitude of the cross-term and ambiguity resolution success.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T10:38:45Z'
