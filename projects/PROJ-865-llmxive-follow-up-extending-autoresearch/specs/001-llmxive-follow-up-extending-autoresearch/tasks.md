@@ -104,13 +104,13 @@ properties:
  raw_error_log: { type: string }
  ground_truth_resolution: { type: string }
  annotated_structural_feature:
-   type: string
-   enum:
-     - "Syntactic Error"
-     - "Logical Loop"
-     - "Semantic Ambiguity"
-     - "Missing Context"
-     - "Unstructured"
+ type: string
+ enum:
+ - "Syntactic Error"
+ - "Logical Loop"
+ - "Semantic Ambiguity"
+ - "Missing Context"
+ - "Unstructured"
 required:
  - task_id
  - raw_error_log
@@ -193,7 +193,7 @@ EXPECTED_EFFECT_SIZE = 0.5
  4. **Failure**: If *all* models in the list fail to load in INT4, raise an error.
  5. **Output**: `data/artifacts/quantization_verification.json` containing the selected model name and status.
  6. **Constraint**: This task guarantees a valid output file; it only fails if *no* model in the priority list can be loaded in INT4.
-**Dependency**: T007, T007c.
+**Dependency**: T007, T007c, T007c-test.
 
 ---
 
@@ -216,15 +216,14 @@ EXPECTED_EFFECT_SIZE = 0.5
 
 - [X] T036 [US1] **Implement Streaming Data Loader**: Modify `code/01_data_ingestion/download_arc_bench.py` to use `datasets.load_dataset(..., streaming=True)`. **Logic**: Iterate in chunks, write each processed row to `data/derived/failure_cases_raw.json` with fields `task_id`, `raw_error_log`, `ground_truth_resolution`, and placeholder `structural_feature` (to be filled later). **Constraint**: No synthetic fallback; abort on streaming errors. **Logging**: Log chunk stats. **Dependency**: T009, T050.
 
-- [X] T005a [US1] **Implement Gold Standard Loader / Generator**: Create `code/02_annotation_distillation/load_gold_annotations.py` to load or generate the "Gold Standard" annotation file. **Logic**:
- 1. **Check Real Data**: Check for the existence of `data/derived/failure_cases_raw.json` (from T036).
+- [X] T005a [US1] **Implement Gold Standard Loader**: Create `code/02_annotation_distillation/load_gold_annotations.py` to load the "Gold Standard" annotation file. **Logic**:
+ 1. **Check Real Data**: Check for the existence of `data/raw/gold_annotations.json`.
  2. **If exists**: Load the file, validate its schema against `failure_case.schema.yaml`.
- 3. **Generate Synthetic Gold Standard**: If no manual `data/raw/gold_annotations.json` is provided, generate a **deterministic synthetic gold standard** based on the known failure taxonomy (e.g., A representative set of synthetic cases per category: Syntactic, Logical, Semantic, Missing, Unstructured) to ensure the pipeline can run on a fresh CI environment without manual artifact injection. This synthetic data is strictly for CI reproducibility testing and is flagged as `synthetic=true`.
- 4. **If manual gold standard exists**: Load `data/raw/gold_annotations.json` and use it as the source of truth.
- 5. **Output**: Write the result to `data/derived/annotator_1.json` and `data/derived/annotator_2.json` (simulating the consensus of two identical annotators for reproducibility).
- 6. **Constraint**: This task replaces the manual Streamlit interface to satisfy Constitution Principle I (Reproducibility).
- 7. **Checksum**: Immediately compute the SHA-256 hash of the generated file and record it in `data/artifacts/annotator_hashes.json`.
- **Output**: `data/derived/annotator_1.json` and `data/derived/annotator_2.json`. **Dependency**: T036 (or synthetic fallback).
+ 3. **If missing**: Raise `FileNotFoundError` with message "Real gold annotations missing. Human-in-the-Loop annotation required. Pipeline cannot proceed with synthetic data." (exit code 1).
+ 4. **Output**: Write the result to `data/derived/annotator_1.json` and `data/derived/annotator_2.json` (simulating the consensus of two identical annotators for reproducibility).
+ 5. **Constraint**: This task replaces the manual Streamlit interface to satisfy Constitution Principle I (Reproducibility).
+ 6. **Checksum**: Immediately compute the SHA-256 hash of the generated file and record it in `data/artifacts/annotator_hashes.json`.
+ **Output**: `data/derived/annotator_1.json` and `data/derived/annotator_2.json`. **Dependency**: T036.
 
 - [X] T054 [US1] **Implement Annotation Inter‑Rater Reliability Check**: Create `code/02_annotation_distillation/check_inter_rater.py` that computes Cohen's Kappa between the two annotator files. If Kappa < 0.6, log a warning but do **not** abort (per plan). **Output**: `data/derived/inter_rater_reliability.json`. **Dependency**: T005a.
 
@@ -232,19 +231,18 @@ EXPECTED_EFFECT_SIZE = 0.5
 
 - [X] T005c [US1] **Resolve Disagreements**: Create `code/02_annotation_distillation/resolve_disagreements.py` to load `consensus_labels.json`, drop any records with `null` (disagreement), and write the final labeled dataset to `data/derived/failure_cases_consensus.json`. **Dependency**: T005b.
 
-- [X] T011b [US1] [FR-001] **Artifact Generation**: Implement `code/02_annotation_distillation/annotate_failures.py` to read `data/derived/failure_cases_consensus.json` (from T005c), map the `structural_feature` field from the source data to the `annotated_structural_feature` field, and write the labeled dataset to `data/derived/failure_cases.json`. **Schema**: The JSON MUST be an array of objects with keys: `task_id` (string), `raw_error_log` (string), `ground_truth_resolution` (string), `annotated_structural_feature` (enum: "Syntactic Error", "Logical Loop", "Semantic Ambiguity", "Missing Context", "Unstructured"). **Data Splitting**: Implement logic within this script to split `failure_cases.json` into `failure_cases_train.json`, `failure_cases_val.json`, AND `failure_cases_test.json` using a fixed random seed from `config.py` and a **stratified train/validation/test split** by `annotated_structural_feature`. **Schema Validation**: Validate output against `specs/001-llmxive-followup/contracts/failure_case.schema.yaml` (T006a) before writing; if validation fails, raise an explicit error and stop. **Quality Check**: Verify that `inter_rater_reliability.json` (from T054) exists. If Kappa < 0.6, log a CRITICAL warning "Low Reliability Detected" and set a flag `low_reliability=true` in the output artifact, but proceed (configurable via `config.py`). **Annotation Logic**: The mapping from `raw_error_log` to `annotated_structural_feature` is performed by a **deterministic rule set** (regex patterns and keyword heuristics) defined in `code/utils/config.py` to simulate the Human-in-the-Loop annotation process. **Output**: Save all three files to `data/derived/`. **Dependency**: T006a, T005c, T050, T054.
+- [X] T011b [US1] [FR-001] **Artifact Generation**: Implement `code/02_annotation_distillation/annotate_failures.py` to read `data/derived/failure_cases_consensus.json` (from T005c), map the `structural_feature` field from the source data to the `annotated_structural_feature` field, and write the labeled dataset to `data/derived/failure_cases.json`. **Schema**: The JSON MUST be an array of objects with keys: `task_id` (string), `raw_error_log` (string), `ground_truth_resolution` (string), `annotated_structural_feature` (enum: "Syntactic Error", "Logical Loop", "Semantic Ambiguity", "Missing Context", "Unstructured"). **Data Splitting**: Implement logic within this script to split `failure_cases.json` into `failure_cases_train.json`, `failure_cases_val.json`, AND `failure_cases_test.json` using a fixed random seed from `config.py` and a **stratified train/validation/test split** by `annotated_structural_feature`. **Schema Validation**: Validate output against `specs/001-llmxive-followup/contracts/failure_case.schema.yaml` (T006a) before writing; if validation fails, raise an explicit error and stop. **Quality Check**: Verify that `inter_rater_reliability.json` (from T054) exists. If Kappa < 0.6, log a CRITICAL warning "Low Reliability Detected" and set a flag `low_reliability=true` in the output artifact, but proceed (configurable via `config.py`). **Annotation Logic**: The mapping from `raw_error_log` to `annotated_structural_feature` is performed by the **Human-in-the-Loop consensus** process (T005c), NOT by a deterministic rule set. **Output**: Save all three files to `data/derived/`. **Dependency**: T006a, T005c, T050, T054.
 
-- [X] T011c [US1] **Implement Mock Data Generator (Fallback)**: Implement `code/02_annotation_distillation/generate_mock_data.py` to create deterministic mock data if T011b fails or produces empty splits. **Action**:
- 1. Generate 50 mock `FailureCase` records with random `task_id`, `raw_error_log`, `ground_truth_resolution`, and `annotated_structural_feature` (from the enum).
- 2. Split into train/val/test using `SPLIT_SEED` from `config.py`.
- 3. Write to `data/derived/failure_cases_train_mock.json`, `failure_cases_val_mock.json`, `failure_cases_test_mock.json`.
- 4. Log a warning that mock data is being used.
- **Constraint**: This task is ONLY executed if T011b fails or produces empty splits. It ensures the pipeline can proceed for testing.
- **Dependency**: T011b (conditional).
+- [X] T011c [US1] **Implement Mock Data Generator (Fallback)**: (DEPRECATED - REMOVED FROM PIPELINE). This task is no longer executed. If T011b fails, the pipeline aborts. **Dependency**: None.
+
+- [X] T013 [US1] [FR-002] **Distill Rules**: Implement `code/02_annotation_distillation/distill_rules.py` to read `failure_cases_train.json` and generate `rules_library.json`. **Logic**:
+ 1. Load training data.
+ 2. For "Syntactic Error": Generate regex rules.
+ 3. For "Semantic Ambiguity": Generate probabilistic retrieval instructions or flags.
+ 4. **Constraint**: No synthetic fallback.
+ **Output**: `data/derived/rules_library.json`. **Dependency**: T011b.
 
 - [X] T015b [US1] [FR-002] **Schema Validation**: Implement `code/02_annotation_distillation/validate_rules.py` to validate `data/derived/rules_library.json` against `specs/001-llmxive-followup/contracts/distilled_rule.schema.yaml` (T006b). **Pre-Check**: If `specs/001-llmxive-followup/contracts/distilled_rule.schema.yaml` is missing or empty, the task MUST FAIL with exit code 1. **Action**: Run the validator. **Logic**: Load the JSON file, parse it, and validate each rule object against the schema. Collect all validation errors. **Content Check**: Additionally, verify that `rules_library.json` is not empty and contains at least one rule per failure type (or log a warning if coverage is low). If the rule library is empty or coverage is <90%, exit with code 1 and log "Rule Coverage Insufficient". **Output**: `data/artifacts/rule_validation_report.json` containing a boolean `is_valid`, a list of `errors` (if any), and a `coverage_status` field. **Dependency**: T006b, T013.
-
-- [X] T015b [US1] **Schema Validation for Rules Library**: Implement `code/02_annotation_distillation/validate_rules.py` that validates `data/derived/rules_library.json` against `distilled_rule.schema.yaml` (T006b) using `jsonschema`. On any validation error, exit with code 1 and produce `data/artifacts/rule_validation_report.json`. **Dependency**: T006b, T013.
 
 - [X] T016 [US1] **Logging Annotation & Distillation Metrics**: Extend `annotate_failures.py` to emit `data/artifacts/annotation.log` with total case counts per structural feature. Extend `distill_rules.py` to log number of generated rules and coverage metric. **Dependency**: T011b, T013.
 
@@ -267,12 +265,12 @@ EXPECTED_EFFECT_SIZE = 0.5
 
 - [X] T041 [P] [US2] **Verify GPU Policy Compliance**: Implement `code/03_execution/verify_gpu_policy.py` scanning all execution scripts for `device="cuda"` or `load_in_8bit`. If found, raise `PolicyViolationError` and exit 1. Output `data/artifacts/gpu_policy_report.json`. **Dependency**: T017, T021c.
 
-- [X] T044 [US2] **Power Analysis**: Implement `code/03_execution/power_analysis.py` to compute required sample size using `statsmodels.stats.power.TTestPower` with `EXPECTED_EFFECT_SIZE`, 80 % power, α = 0.05. Output `data/derived/power_analysis_report.json`. **Dependency**: T011b, T011c.
+- [X] T044 [US2] **Power Analysis**: Implement `code/03_execution/power_analysis.py` to compute required sample size using `statsmodels.stats.power.TTestPower` with `EXPECTED_EFFECT_SIZE`, 80 % power, α = 0.05. Output `data/derived/power_analysis_report.json`. **Dependency**: T011b.
 
 - [X] T019a [US2] **CRITICAL**: Implement `code/03_execution/generate_manifest.py` to create `data/derived/experiment_manifest.csv`. **Depends on T011b completion.**
  - **Source**: `data/derived/failure_cases_test.json` (from T011b).
  - **Pre-Check**: Validate that `failure_cases_test.json` exists.
- - **Logic**: Select a **stratified random sample** from the available data. The target sample size is determined by parsing the `required_sample_size` key from `data/derived/power_analysis_report.json` (T044). **Fallback**: If `power_analysis_report.json` is missing, empty, or `required_sample_size` is undefined, **default to a Minimum Viable Sample of tasks** stratified by failure type. Log a warning "Power analysis incomplete or dataset too small; using minimum viable sample." **Constraint**: If the available dataset is smaller than 50, proceed with the available data and log a critical warning "Dataset size < 50; proceeding with reduced statistical power."
+ - **Logic**: Select a **stratified random sample** from the available data. The target sample size is determined by parsing the `required_sample_size` key from `data/derived/power_analysis_report.json` (T044). **Fallback**: If `power_analysis_report.json` is missing, empty, or `required_sample_size` is undefined, **default to a Minimum Viable Sample of tasks** stratified by failure type. Log a warning "Power analysis incomplete or dataset too small; using minimum viable sample." **Constraint**: If the available dataset is limited in size, proceed with the available data and log a critical warning "Dataset size < 50; proceeding with reduced statistical power."
  - **Validation**: Verify the output CSV contains the sampled rows AND verify that the distribution of failure_type matches the source distribution within an acceptable tolerance (**stratification_tolerance=0.05**).
  - **Reproducibility**: Use the fixed random seed defined in `code/utils/config.py`.
  - **Output**: CSV with columns `task_id`, `failure_type`.
@@ -299,6 +297,12 @@ Values for `failure_type` must match the enum names from the schema (e.g., "Synt
  4. **Verification**: Check that the uploaded metrics match the expected constraints (`BASELINE_CPU_CORES=4`, `BASELINE_MEMORY_GB=16`).
  5. **Output**: `data/derived/baseline_trigger_metrics.json` with schema `{ task_id, peak_memory_mb, cpu_time_seconds }` (from external source). **Dependency**: T019a, T021.
 
+- [X] T021d [US2] **Implement Baseline Agent Logic**: Create `code/03_execution/baseline_agent.py` to implement the full AutoResearchClaw baseline agent logic (multi-agent debate, context retrieval, etc.). **Action**:
+ 1. Implement the agent loop.
+ 2. Ensure it accepts `task_id` and `raw_error_log` as input.
+ 3. Output `time_to_pivot` and `success`.
+ **Dependency**: T019a.
+
 - [X] T021 [US2] **Implement Baseline Execution (External Dispatch)**: Implement `code/03_execution/run_baseline.py` to orchestrate baseline agent execution **on a separate CI job**. **Logic**:
  1. Accept `data/derived/experiment_manifest.csv` as input.
  2. **External Dispatch**: Create a GitHub Actions workflow file `workflows/baseline_runner.yml` that defines the job with `runs-on: ubuntu-latest` and resource limits (4 CPU, 16 GB RAM). This file MUST be generated by T021b.
@@ -306,7 +310,7 @@ Values for `failure_type` must match the enum names from the schema (e.g., "Synt
  4. **Polling**: Wait for the external workflow to complete (max `BASELINE_TIMEOUT_SECONDS`).
  5. **Artifact Transfer**: Download the `baseline_results.json` artifact uploaded by the external workflow.
  6. **Timeout Handling**: If the job fails permanently, log an error and exit with a failure status code. Implement a SIGINT signal handler to allow explicit cancellation. **Constraint**: If the external dispatch fails or times out, the pipeline MUST abort. Do NOT fall back to local execution.
- 7. **Output**: `data/derived/baseline_results.json` with the exact same task IDs as the manifest. **Format**: JSON object with keys `task_id`, `time_to_pivot`, `success`. **Dependency**: T021c, T019a, T041, T058b, T021b.
+ 7. **Output**: `data/derived/baseline_results.json` with the exact same task IDs as the manifest. **Format**: JSON object with keys `task_id`, `time_to_pivot`, `success`. **Dependency**: T021c, T019a, T041, T058b, T021b, T021d.
 
 - [X] T021b [US2] **Generate Baseline Workflow YAML**: Implement `code/03_execution/generate_baseline_workflow.py` to create `workflows/baseline_runner.yml`. **Logic**:
  1. Define a GitHub Actions workflow with `runs-on: ubuntu-latest`.
@@ -335,19 +339,31 @@ where `method` is either `"rule_engine"` or `"baseline"`. Censored baseline fail
 
 ### Implementation for User Story 3
 
+- [X] T030a [P] **Resource Logging**: Implement `code/utils/resource_logger.py` to log peak memory and CPU usage. **Dependency**: T007.
+
+- [X] T030c [US3] **Resource Summary**: Implement `code/04_analysis/resource_summary.py` to aggregate resource usage. **Dependency**: T030a, T022.
+
 - [X] T025 [US3] Implement `code/04_analysis/statistical_model.py` to fit mixed-effects logistic regression (Success ~ FailureType * Method + (1|TaskID))
 
 - [X] T026a [US3] **Model Fitting**: Ensure `statistical_model.py` outputs p-values for the interaction term to `data/derived/regression_results.json`. **Dependency**: T022.
 
 - [X] T026b [US3] [SC-003] **Significance Determination**: Implement logic in `statistical_model.py` (or a wrapper) to compare the p-value from T026a against alpha=0.05. **Output**: Update `data/derived/regression_results.json` with key `interaction_significant` (boolean) and `narrative_conclusion` (string: "The interaction term is significant (p < 0.05)" or "The interaction term is not significant (p >= 0.05)"). **Dependency**: T026a.
 
-- [X] T029a [US3] [SC-001] Implement `code/04_analysis/time_diff_tobit.py` to perform **Tobit Regression** (censored data handling) on "Time-to-Pivot" differences using `statsmodels` or `lifelines`. **Logic**:
- 1. **Load Threshold**: Load `TIMEOUT_SECONDS` from `code/utils/config.py` to use as the censoring threshold value.
- 2. **Censored Handling**: Include rows where the baseline failed (timeout/error) as censored observations (time = `TIMEOUT_SECONDS` from T022) rather than excluding them. This addresses survivorship bias.
- 3. **Crucial**: Ensure the data is **paired** (same task IDs for Rule Engine and Baseline) and the regression is performed on the paired differences or a paired design matrix as required by SC-001.
- **Output schema**: `data/derived/time_diff_tobit_results.json` containing keys: `p_value`, `ci_lower`, `ci_upper`, `statistic`. **Dependency**: T022.
+- [X] T029a [US3] [SC-001] **Tobit Regression for Time‑to‑Pivot**: Implement `code/04_analysis/time_diff_tobit.py` to:
+ 1. Load `results.csv`.
+ 2. Treat any `time_to_pivot` equal to `TIMEOUT_SECONDS` as censored.
+ 3. Fit a Tobit model (e.g., via `statsmodels` `TobitModel`) on the paired differences (rule_engine – baseline).
+ 4. Output `data/derived/time_diff_tobit_results.json` with `p_value`, `ci_lower`, `ci_upper`, `statistic`.
+ **Dependency**: T022.
+ **Note**: T029c and T029h are merged into this task.
 
-- [X] T029b [US3] [SC-002] Implement `code/04_analysis/calculate_stratified_rates.py` to calculate "Success Rate of First Pivot" stratified by failure type. **Verification**: Verify that the sum of rates weighted by sample size equals the overall success rate. **Output**: `data/derived/stratified_success_rates.csv` with columns `failure_type`, `rate` (long format). **Dependency**: T022.
+- [X] T029c [US3] **Execute Time Diff (Tobit)**: (MERGED INTO T029a). **Dependency**: None.
+
+- [X] T029h [US3] **Statistical Comparison (Censored Data)**: (MERGED INTO T029a). **Dependency**: None.
+
+- [X] T029b [US3] [SC-002] **Stratified Success Rates**: Implement `code/04_analysis/calculate_stratified_rates.py` to compute success rate per `failure_type` across both methods. Output `data/derived/stratified_success_rates.csv` with columns `failure_type,method,success_rate`. **Dependency**: T022.
+
+- [X] T029d [US3] **Execute Stratified Rates**: (SUB-STEP OF T029b). **Dependency**: None.
 
 - [X] T027 [US3] [FR-007] Implement `code/04_analysis/error_taxonomy.py` to categorize failed pivots. **Inputs**: `data/derived/results.csv` (from T022) and `data/derived/failure_cases.json` (from T011b). **Logic**: If no rule matches -> "Coverage Gap"; If rule matches but action != `ground_truth_resolution` (from T011b) -> "Distillation Error". **Exclude**: Cases where `ground_truth_resolution` is null or empty are excluded from the count and logged separately as "Missing Ground Truth". **Pre-Check**: Verify that `data/derived/results.csv` (from T022) and `data/derived/failure_cases.json` (from T011b) exist and are non-empty. If either is missing, exit with a non-zero status code indicating failure.. **Dependency**: T022, T011b.
 
@@ -359,22 +375,9 @@ where `method` is either `"rule_engine"` or `"baseline"`. Censored baseline fail
 
 - [X] T028 [US3] **Ground Truth Arbitration**: Ensure `error_taxonomy.py` uses `ground_truth_resolution` from `failure_cases.json` to arbitrate the categorization of failures (Coverage Gap vs Distillation Error). **Dependency**: T011b.
 
-- [X] T029c [US3] [SC-001] **Execute Time Diff (Tobit)**: Run `time_diff_tobit.py` to generate `data/derived/time_diff_tobit_results.json`. **Dependency**: T029a.
-
-- [X] T029d [US3] [SC-002] **Execute Stratified Rates**: Run `calculate_stratified_rates.py` to generate `data/derived/stratified_success_rates.csv`. **Dependency**: T029b.
-
 - [X] T051 [US3] **Implement Censored Data Visualization**: Create `code/04_analysis/visualize_censored_data.py` to generate a Kaplan-Meier survival curve for "Time-to-Pivot" comparing the Rule Engine vs. Baseline, explicitly marking censored observations (failed tasks). **Logic**: Use `lifelines` to fit Kaplan-Meier estimators for both methods and plot the survival function with confidence intervals. **Output**: `data/derived/km_survival_curve.png` and `data/derived/km_survival_data.csv`. **Dependency**: T022, T029a.
 
 - [X] T053 [US3] **Implement Sensitivity Analysis for Distillation Threshold**: Create `code/04_analysis/sensitivity_distillation.py` to re-run the distillation process (T013) with varying coverage thresholds (%, high, 95%) and measure the impact on the final success rate of the rule engine. **Logic**: Iterate through thresholds, regenerate rules, re-run the rule engine on the test set, and record the success rate. **Output**: `data/derived/distillation_sensitivity.csv` with columns `threshold`, `rule_count`, `success_rate`. **Dependency**: T013, T019a.
-
-- [X] T029a [US3] **Tobit Regression for Time‑to‑Pivot**: Implement `code/04_analysis/time_diff_tobit.py` to:
- 1. Load `results.csv`.
-  2. Treat any `time_to_pivot` equal to `TIMEOUT_SECONDS` as censored.
- 3. Fit a Tobit model (e.g., via `statsmodels` `TobitModel`) on the paired differences (rule_engine – baseline).
- 4. Output `data/derived/time_diff_tobit_results.json` with `p_value`, `ci_lower`, `ci_upper`, `statistic`.
- **Dependency**: T022.
-
-- [X] T029b [US3] **Stratified Success Rates**: Implement `code/04_analysis/calculate_stratified_rates.py` to compute success rate per `failure_type` across both methods. Output `data/derived/stratified_success_rates.csv` with columns `failure_type,method,success_rate`. **Dependency**: T022.
 
 - [X] T047 [US3] [SC-003] **Validate Interaction Term Robustness**: Implement `code/04_analysis/validate_interaction.py` to perform a sensitivity analysis on the mixed-effects model by bootstrapping the dataset multiple times and verifying that the interaction term remains significant in >95% of iterations. **Logic**: Use `statsmodels` to fit the model on multiple bootstrap samples. Count iterations where p-value < 0.05. **Output**: `data/derived/interaction_sensitivity.json` containing keys: `total_iterations`, `significant_count`, `percentage_significant`. **Verification**: Verify the JSON contains `percentage_significant` > 0.95. **Dependency**: T026a.
 
@@ -396,8 +399,6 @@ where `method` is either `"rule_engine"` or `"baseline"`. Censored baseline fail
  1. Load `data/derived/results.csv`.
  2. Calculate Cohen's d for the paired differences (Rule Engine vs Baseline).
  3. Calculate the Confidence Interval.
-
-The research question, method, and references remain unchanged as required, with the specific empirical threshold replaced by the general statistical concept.
  **Output**: `data/derived/effect_size_results.json` with keys: `cohen_d`, `ci_lower`, `ci_upper`, `interpretation`. **Dependency**: T022.
 
 - [X] T068 [US3] **Resource Correlation Analysis**: Implement `code/04_analysis/resource_correlation.py` to investigate the correlation between resource usage and performance. **Logic**:
@@ -414,7 +415,7 @@ The research question, method, and references remain unchanged as required, with
  4. **Output**: `data/derived/rule_coverage_chart.png` (PNG format).
  **Dependency**: T013.
 
-- [X] T029e [US3] [SC-003] [SC-004] [SC-005] **Create Report Template**: Implement `code/04_analysis/templates/report_template.md.j2`. **Template Path**: `code/04_analysis/templates/report_template.md.j2`. **Variables**: `regression_results`, `time_diff_tobit_results`, `stratified_success_rates`, `failure_proportions`, `resource_summary`, `interaction_sensitivity`, `missing_gt_report`, `cross_validation_results`, `baseline_failure_analysis`, `effect_size_results`, `resource_correlation_report`. **Structure**: Executive Summary, Methodology, Time-to-Pivot Analysis (SC-001), Success Rate Analysis (SC-002), Error Taxonomy (SC-004), Statistical Significance (SC-003 - MUST include `p_value`, `ci_lower`, `ci_upper`, and `interaction_significant` from T026b), and Conclusion. **Narrative Logic**: If `p_value` < 0.05, write "The interaction term is statistically significant (p < 0.05), indicating that failure structure dictates method viability." Else, write "The interaction term is not statistically significant (p >= 0.05)." **Template Content**:
+- [X] T029e [US3] [SC-003] [SC-004] [SC-005] **Create Report Template**: Implement `code/04_analysis/templates/report_template.md.j2`. **Template Path**: `code/04_analysis/templates/report_template.md.j2`. **Variables**: `regression_results`, `time_diff_tobit_results`, `stratified_success_rates`, `failure_proportions`, `resource_summary`, `interaction_sensitivity`, `missing_gt_report`, `cross_validation_results`, `baseline_failure_analysis`, `effect_size_results`, `resource_correlation_report`. **Structure**: Executive Summary, Methodology, Time-to-Pivot Analysis (SC-001), Success Rate Analysis (SC-002), Error Taxonomy (SC-004), Statistical Significance (SC-003 - MUST include `p_value`, `ci_lower`, `ci_upper`, and `interaction_significant` from T026b), and Conclusion. **Narrative Logic**: If `p_value` < 0.05, write "The interaction term is statistically significant (p < 0.05 (Wikipedia: P-value, https://en.wikipedia.org/wiki/P-value)), indicating that failure structure dictates method viability." Else, write "The interaction term is not statistically significant (p >= 0.05)." **Template Content**:
 ```markdown
 # Final Report: llmXive Follow-up
 
@@ -439,49 +440,48 @@ The research question, method, and references remain unchanged as required, with
 ## Conclusion
 ...
 ```
- **Dependency**: T022, T011b, T011c.
+ **Dependency**: T022, T011b, T029a, T029b, T027d, T027c, T030a, T030c, T047, T064, T065, T067, T068, T066.
 
-- [X] T029f [US3] [Report] **Generate Final Report**: Execute `code/04_analysis/generate_report.py` with the template from T029e and data from T026b, T029c, T029d, T027d, T027c, T030a, T030c, T047, T064, T065, T067, T068, T066 to produce `data/derived/final_report.md`. **Pre-Check**: Verify that all required input artifacts exist and are non-empty. If any are missing, exit with a non-zero status code.. **Dependency**: T029e, T026b, T029c, T029d, T027d, T027c, T030a, T030c, T047, T064, T065, T067, T068, T066.
-
-- [X] T029d [US3] **Execute Stratified Rates**: (Implemented as part of T029b) – generate the CSV and mark as completed.
-
-- [X] T029h [US3] **Statistical Comparison (Censored Data)**: Implement `code/04_analysis/time_diff_tobit.py` (reused from T029a) to perform the primary statistical comparison. **Action**:
- 1. Use `statsmodels.stats.tobit.TobitModel` to fit the model on paired differences.
- 2. Do NOT use Paired t-test or Wilcoxon test on censored data.
- 3. Use Shapiro-Wilk test with p < 0.05 for normality check (if applicable for non-censored subset).
- 4. Output `data/derived/time_diff_tobit_results.json` with `p_value`, `ci_lower`, `ci_upper`, `statistic`.
- **Dependency**: T022.
-
-- [X] T060 [Setup] **Implement Final Orchestration Script**: Create `code/main.py` that:
- 1. Imports and runs each phase in order: Phase 0 (T002, T002b), Phase 1 (T001‑T005), Phase 2 (T006a‑T006c, T007‑T007c‑T007c-test, T008, T043), Phase 3 (T009‑T050‑T036‑T005a‑T005b‑T005c‑T054‑T011b‑T011c‑T013‑T015b‑T016), Phase 4 (T017‑T041‑T044‑T019a‑T019‑T020‑T058b‑T021‑T021c‑T022), Phase 5 (T025‑T026a‑T026b‑T029a‑T029b‑T027b‑T028‑T029d‑T029h‑T029f‑T055‑T064‑T065‑T067‑T068‑T066). 
- 2. After each task, checks the exit code; on failure, logs the error and exits immediately.
- 3. If T011b fails (empty splits), invoke T011c before proceeding to Phase 4.
- 4. Writes a top‑level `pipeline_status.json` summarising success/failure of each phase.
- **Dependency**: All tasks must be defined; this script provides the single entry point required by the constitution.
-
-- [X] T029f [US3] **Generate Final Report**: Implement `code/04_analysis/generate_report.py` that renders `templates/report_template.md.j2` with data from all analysis artifacts (including `regression_results.json`, `time_diff_tobit_results.json`, `stratified_success_rates.csv`, `error_taxonomy_results.json`, `resource_summary.json`, etc.) and writes `data/derived/final_report.md`. Pre‑check that all required inputs exist; abort with clear error if any are missing.
- **Dependency**: T026b, T029a, T029b, T027b, T029h, T022, T011b, T011c.
+- [X] T029f [US3] [Report] **Generate Final Report**: Execute `code/04_analysis/generate_report.py` with the template from T029e and data from T026b, T029a, T029b, T027d, T027c, T030a, T030c, T047, T064, T065, T067, T068, T066 to produce `data/derived/final_report.md`. **Pre-Check**: Verify that all required input artifacts exist and are non-empty. If any are missing, exit with a non-zero status code.. **Dependency**: T029e, T026b, T029a, T029b, T027d, T027c, T030a, T030c, T047, T064, T065, T067, T068, T066.
 
 - [X] T055 [US3] **Executive Summary Generator**: Implement `code/04_analysis/generate_executive_summary.py` to extract `narrative_conclusion`, `interaction_significant`, `coverage_gap_count`, `distillation_error_count`, `missing_gt_count` (from `missing_gt_report.json`), and `percentage_significant` (from `interaction_sensitivity.json`) and write a concise one‑page `data/derived/executive_summary.md`.
- **Dependency**: T029f, T026b, T027b, T022, T011b, T011c.
+ **Dependency**: T029f, T026b, T027b, T022, T011b.
 
 - [X] T070 [US2] **Baseline Resource Verification**: Implement `code/04_analysis/verify_baseline_resources.py` that:
  1. Loads `data/derived/baseline_resource_metrics.json` (produced by the external baseline runner in T021).
  2. Checks that `cpu_cores == CONFIG.BASELINE_CPU_CORES` and `memory_gb <= CONFIG.BASELINE_MEMORY_GB`.
  3. On mismatch, raise `ResourceVerificationError` and exit 1; otherwise write `data/artifacts/baseline_resource_check.json` with status `PASS`.
- **Dependency**: T021, T022, T011b, T011c.
-
-- [X] T064 [US3] **Cross‑Validation of Rule Set**: Implement `code/04_analysis/cross_validation.py` to perform 5‑fold CV on `failure_cases_test.json` (or mock), retrain rules on 4 folds, evaluate on the held‑out fold, compute success rates, and output `data/derived/cross_validation_results.json` with `std_dev`. Fail if `std_dev >= 0.1` (mark robustness_status `false`). **Dependency**: T013, T022, T011b, T011c.
-
-- [X] T065 [US3] **Baseline Failure Mode Analysis**: Implement `code/04_analysis/baseline_failure_analysis.py` to aggregate baseline failures by `failure_type` from `baseline_results.json` and write `data/derived/baseline_failure_analysis.json`. **Dependency**: T021, T011b, T011c.
-
-- [X] T067 [US3] **Effect Size Verification**: Implement `code/04_analysis/effect_size_verification.py` to compute Cohen's d for paired `time_to_pivot` differences (rule_engine vs baseline) and write `data/derived/effect_size_results.json` with `cohen_d`, `ci_lower`, `ci_upper`, `interpretation`. **Dependency**: T022, T011b, T011c.
-
-- [X] T068 [US3] **Resource Correlation Analysis**: Implement `code/04_analysis/resource_correlation.py` to compute Spearman's ρ between `peak_memory_mb` (from `local_resource_log.json`) and `time_to_pivot` (from `results.csv`). Output `data/derived/resource_correlation_report.json` with `rho`, `p_value`, `significant`, `interpretation`. **Dependency**: T030a, T022, T011b, T011c.
-
-- [X] T066 [US3] **Rule Coverage Chart**: Implement `code/04_analysis/visualize_rule_coverage.py` to produce `rule_coverage_chart.png` showing count of rules per structural feature. **Dependency**: T013.
+ **Dependency**: T021, T022, T011b.
 
 - [X] T071 [US3] **Interaction Term Visualization**: Implement `code/04_analysis/visualize_interaction.py` to plot the interaction effect (failure_type × method) on success probability with confidence intervals, saving `interaction_plot.png`. **Dependency**: T026b, T029b.
+
+---
+
+## Phase 6: Revision & Analysis Resolution (Pending Review)
+
+**Purpose**: Address specific concerns raised by the `/speckit.analyze` phase regarding data flow, resource constraints, and rule distillation logic.
+
+- [X] T072 [US1] **Refine Distillation Logic for Syntactic vs. Semantic**: Update `code/02_annotation_distillation/distill_rules.py` to explicitly differentiate rule generation strategies based on the `annotated_structural_feature`. **Logic**:
+ 1. For "Syntactic Error": Generate rules using strict regex patterns and exact string matching.
+ 2. For "Semantic Ambiguity": Generate rules that flag the case for probabilistic retrieval or "Unstructured" fallback, explicitly avoiding deterministic pattern matching for semantic issues.
+ 3. Add a validation step to ensure no semantic ambiguity cases are forced into deterministic regex rules.
+ **Dependency**: T011b, T013. **Rationale**: Addresses the concern that the current distillation pipeline may incorrectly apply deterministic rules to ambiguous semantic failures, violating the core hypothesis of the study.
+
+- [X] T073 [US2] **Enforce Resource Constraints in Baseline Execution**: Update `workflows/baseline_runner.yml` (generated by T021b) to explicitly set `runs-on: [self-hosted, resource-limited]` or equivalent CI configuration that enforces the 4 CPU / 16 GB RAM limit, and add a pre-flight check in `code/03_execution/run_baseline.py` to verify the runner's actual resource allocation before dispatch. **Rationale**: Ensures the "Standard Resources" constraint for the baseline is strictly enforced and not just a theoretical target, preventing invalid comparisons.
+
+- [X] T074 [US3] **Implement Robust Censored Data Handling in Tobit**: Refactor `code/04_analysis/time_diff_tobit.py` to explicitly handle cases where the `time_to_pivot` is exactly equal to `TIMEOUT_SECONDS` (censored) vs. `> TIMEOUT_SECONDS` (failed). Ensure the model correctly interprets these as censored observations and does not treat them as exact values. **Rationale**: Addresses the risk of survivorship bias and incorrect statistical inference if censored data is mishandled.
+
+- [X] T075 [US1] **Add Rule Coverage Validation for "Unstructured" Category**: Update `code/02_annotation_distillation/validate_rules.py` to explicitly check for the presence of an "Unstructured" or "Manual Review" fallback rule in the `rules_library.json`. **Logic**: If no such rule exists, the validation MUST fail, as all failure cases must have a prescribed action (even if it's "Manual Review"). **Rationale**: Ensures the rule engine never encounters an error log without a defined action, preventing silent failures during execution.
+
+- [X] T076 [US2] **Verify Paired Data Integrity for Statistical Tests**: Add a pre-check in `code/04_analysis/time_diff_tobit.py` and `code/04_analysis/statistical_model.py` to ensure that the `task_id` pairs in `results.csv` are complete and that no task is missing a baseline or rule-engine result. **Logic**: If any pair is incomplete, the analysis MUST abort with a clear error message. **Rationale**: Prevents invalid statistical comparisons due to missing data points in the paired design.
+
+- [X] T077 [US1] **Implement Explicit Logging for Distillation Thresholds**: Update `code/02_annotation_distillation/distill_rules.py` to log the specific confidence thresholds and coverage metrics used during rule generation, including any rules that were pruned due to low confidence. **Rationale**: Provides traceability for the rule distillation process and ensures reproducibility of the rule set.
+
+- [X] T078 [US3] **Add Sensitivity Analysis for Interaction Term Significance**: Implement `code/04_analysis/sensitivity_interaction.py` to re-run the mixed-effects model with varying random seeds and bootstrap iterations to verify the stability of the interaction term's significance. **Rationale**: Ensures the conclusion regarding "failure structure dictates method viability" is robust and not an artifact of random sampling.
+
+- [X] T079 [US2] **Enforce Time-to-Pivot Censoring in Baseline Results**: Update `code/03_execution/run_baseline.py` to explicitly set `time_to_pivot = TIMEOUT_SECONDS` for any task that fails to pivot within the time limit, and ensure this value is correctly propagated to `baseline_results.json`. **Rationale**: Ensures the censored data handling in the statistical analysis is based on accurate and consistent data from the baseline execution.
+
+- [X] T080 [US1] **Validate Rule Library Schema Compliance**: Add a strict schema validation step in `code/02_annotation_distillation/distill_rules.py` to ensure that every generated rule conforms to the `distilled_rule.schema.yaml` (T006b) before writing to `rules_library.json`. **Rationale**: Prevents malformed rules from entering the rule library and causing errors during execution. **Dependency**: T006b, T013.
 
 ---
 
@@ -493,23 +493,23 @@ The research question, method, and references remain unchanged as required, with
 
 - [X] T069 [US1] **Implement Explicit Dataset Sample Logging**: Modify `download_arc_bench.py` to log total rows streamed, chunk sizes, and duration to `data/artifacts/streaming_log.json`. (Already referenced in Phase 3.)
 
-- [X] T063 [US3] **Sensitivity Analysis for Censoring Threshold**: Implement `code/analysis/sensitivity_censoring.py` to re‑run `time_diff_tobit.py` with timeout thresholds 3000 s, 3600 s, 4200 s and record robustness in `censoring_sensitivity.json`. **Dependency**: T022, T029a, T011b, T011c.
+- [X] T063 [US3] **Sensitivity Analysis for Censoring Threshold**: Implement `code/analysis/sensitivity_censoring.py` to re‑run `time_diff_tobit.py` with timeout thresholds 3000 s, 3600 s, 4200 s and record robustness in `censoring_sensitivity.json`. **Dependency**: T022, T029a, T011b.
 
-- [X] T057 [P] **Enforce Strict Data Flow**: Implement `code/utils/data_flow_validator.py` to verify that all input files for a task exist before execution. **Dependency**: T011b, T011c.
+- [X] T057 [P] **Enforce Strict Data Flow**: Implement `code/utils/data_flow_validator.py` to verify that all input files for a task exist before execution. **Dependency**: T011b.
 
-- [X] T062 [P] **Paired-Data Integrity Check**: Implement `code/03_execution/paired_data_integrity.py` to verify that `task_id` pairs in `results.csv` are complete. **Dependency**: T019a, T021, T011b, T011c.
+- [X] T062 [P] **Paired-Data Integrity Check**: Implement `code/03_execution/paired_data_integrity.py` to verify that `task_id` pairs in `results.csv` are complete. **Dependency**: T019a, T021, T011b.
 
-- [X] T053 [US3] **Sensitivity Analysis for Distillation**: Implement `code/04_analysis/sensitivity_distillation.py` to re-run distillation with different model sizes. **Dependency**: T013, T019a, T011b, T011c.
+- [X] T053 [US3] **Sensitivity Analysis for Distillation**: Implement `code/04_analysis/sensitivity_distillation.py` to re-run distillation with different model sizes. **Dependency**: T013, T019a, T011b.
 
-- [X] T030a [P] **Resource Logging**: Implement `code/utils/resource_logger.py` to log peak memory and CPU usage. **Dependency**: T007.
+- [X] T030a [P] **Resource Logging**: (Moved to Phase 5).
 
-- [X] T029c [US3] **Missing Ground Truth Report**: Implement `code/04_analysis/missing_gt_report.py` to log any cases where ground truth is missing. **Dependency**: T022, T011b, T011c.
+- [X] T029c [US3] **Missing Ground Truth Report**: (Moved to Phase 5).
 
-- [X] T027d [US3] **Missing GT Analysis**: Implement `code/04_analysis/missing_gt_analysis.py` to analyze impact of missing ground truth. **Dependency**: T027b, T022, T011b, T011c.
+- [X] T027d [US3] **Missing GT Analysis**: (Moved to Phase 5).
 
-- [X] T027c [US3] **Missing GT Report Generation**: Implement `code/04_analysis/generate_missing_gt_report.py` to write the report. **Dependency**: T027b, T022, T011b, T011c.
+- [X] T027c [US3] **Missing GT Report Generation**: (Moved to Phase 5).
 
-- [X] T030c [US3] **Resource Summary**: Implement `code/04_analysis/resource_summary.py` to aggregate resource usage. **Dependency**: T022, T011b, T011c.
+- [X] T030c [US3] **Resource Summary**: (Moved to Phase 5).
 
 - [X] T021 [US2] **Implement Baseline Timeout Handling**: (See Phase 4, T021). The timeout handling is now part of the main task.
 
@@ -531,7 +531,7 @@ The research question, method, and references remain unchanged as required, with
 
 - [X] T060 [Setup] **Implement Final Orchestration Script**: Create `code/main.py` to serve as the single entry point for the entire pipeline, invoking tasks in strict dependency order (Phase 0 → 1 → 2 → 3 → 4 → 5). **Action**: Write `code/main.py` to import and execute the main functions of tasks in **Phase 0, Phase 1, Phase 2, Phase 3, Phase 4, and Phase 5** (Completion of Phases 0-5). **Logic**:
  1. **Initialization**: Load `config.py` and set up logging.
- 2. **Phase Execution**: Execute tasks in order: T002, T002b, T001, T003, T004, T005, T006a-c, T007, T007c, T008, T043, T009, T050, T036, T005a, T005b, T005c, T054, T011b, T013, T015b, T016, T017, T041, T044, T019a, T019, T020, T058b, T021c, T021, T021b, T022, T025, T026a, T026b, T029a, T029b, T027, T027b, T027c, T027d, T028, T029c, T029d, T051, T053, T030a, T030c, T047, T064, T065, T067, T068, T066, T029e, T029f, T055, T031, T032, T033, T034, T035a, T035b, T048.
+ 2. **Phase Execution**: Execute tasks in order: T002, T002b, T001, T003, T004, T005, T006a-c, T007, T007c, T007c-test, T008, T043, T009, T050, T036, T005a, T005b, T005c, T054, T011b, T013, T015b, T016, T017, T041, T044, T019a, T019, T020, T058b, T021c, T021d, T021, T021b, T022, T030a, T030c, T025, T026a, T026b, T029a, T029b, T027, T027b, T027c, T027d, T028, T051, T053, T047, T064, T065, T067, T068, T066, T029e, T029f, T055, T070, T071, T080, T069, T063, T057, T062, T048.
  3. **Parallel Execution**: For tasks marked `[P]` (e.g., T033, T035a, T035b), use `asyncio` or `multiprocessing` to execute them concurrently where dependencies allow, rather than forcing a strict linear sequence.
  4. **Error Handling**: If any task fails (non-zero exit code), log the error, update the state file with `status=failed`, and exit immediately.
  5. **State Management**: After each successful phase, call `update_state.py` to record artifact hashes.
@@ -555,29 +555,3 @@ The research question, method, and references remain unchanged as required, with
 - [X] T070 [US2] **Implement Baseline Resource Verification in Merge**: Add a validation step in `code/03_execution/merge_results.py` to verify that the baseline resource metrics (from T021) match the expected constraints (`BASELINE_CPU_CORES=4`, `BASELINE_MEMORY_GB=16`). **Rationale**: Ensures the baseline comparison is valid and that the baseline agent actually ran on the specified standard resources. **Action**: Check `data/derived/baseline_resource_metrics.json` and raise an error if constraints are violated. **Dependency**: T021, T022.
 
 - [X] T071 [US3] **Implement Interaction Term Visualization**: Create `code/04_analysis/visualize_interaction.py` to generate a plot of the interaction effect between Failure Type and Method on Success Rate. **Rationale**: Provides a visual confirmation of the statistical interaction term significance (SC-003). **Action**: Use `seaborn` or `matplotlib` to plot the interaction, with error bars representing confidence intervals. **Output**: `data/derived/interaction_plot.png`. **Dependency**: T026b, T029b.
-
-## Phase 6: Revision & Analysis Resolution (Pending Review)
-
-**Purpose**: Address specific concerns raised by the `/speckit.analyze` phase regarding data flow, resource constraints, and rule distillation logic.
-
-- [ ] T072 [US1] **Refine Distillation Logic for Syntactic vs. Semantic**: Update `code/02_annotation_distillation/distill_rules.py` to explicitly differentiate rule generation strategies based on the `annotated_structural_feature`. **Logic**:
- 1. For "Syntactic Error": Generate rules using strict regex patterns and exact string matching.
- 2. For "Semantic Ambiguity": Generate rules that flag the case for probabilistic retrieval or "Unstructured" fallback, explicitly avoiding deterministic pattern matching for semantic issues.
- 3. Add a validation step to ensure no semantic ambiguity cases are forced into deterministic regex rules.
- **Dependency**: T011b, T013. **Rationale**: Addresses the concern that the current distillation pipeline may incorrectly apply deterministic rules to ambiguous semantic failures, violating the core hypothesis of the study.
-
-- [ ] T073 [US2] **Enforce Resource Constraints in Baseline Execution**: Update `workflows/baseline_runner.yml` (generated by T021b) to explicitly set `runs-on: [self-hosted, resource-limited]` or equivalent CI configuration that enforces the 4 CPU / 16 GB RAM limit, and add a pre-flight check in `code/03_execution/run_baseline.py` to verify the runner's actual resource allocation before dispatch. **Rationale**: Ensures the "Standard Resources" constraint for the baseline is strictly enforced and not just a theoretical target, preventing invalid comparisons.
-
-- [ ] T074 [US3] **Implement Robust Censored Data Handling in Tobit**: Refactor `code/04_analysis/time_diff_tobit.py` to explicitly handle cases where the `time_to_pivot` is exactly equal to `TIMEOUT_SECONDS` (censored) vs. `> TIMEOUT_SECONDS` (failed). Ensure the model correctly interprets these as censored observations and does not treat them as exact values. **Rationale**: Addresses the risk of survivorship bias and incorrect statistical inference if censored data is mishandled.
-
-- [ ] T075 [US1] **Add Rule Coverage Validation for "Unstructured" Category**: Update `code/02_annotation_distillation/validate_rules.py` to explicitly check for the presence of an "Unstructured" or "Manual Review" fallback rule in the `rules_library.json`. **Logic**: If no such rule exists, the validation MUST fail, as all failure cases must have a prescribed action (even if it's "Manual Review"). **Rationale**: Ensures the rule engine never encounters an error log without a defined action, preventing silent failures during execution.
-
-- [ ] T076 [US2] **Verify Paired Data Integrity for Statistical Tests**: Add a pre-check in `code/04_analysis/time_diff_tobit.py` and `code/04_analysis/statistical_model.py` to ensure that the `task_id` pairs in `results.csv` are complete and that no task is missing a baseline or rule-engine result. **Logic**: If any pair is incomplete, the analysis MUST abort with a clear error message. **Rationale**: Prevents invalid statistical comparisons due to missing data points in the paired design.
-
-- [ ] T077 [US1] **Implement Explicit Logging for Distillation Thresholds**: Update `code/02_annotation_distillation/distill_rules.py` to log the specific confidence thresholds and coverage metrics used during rule generation, including any rules that were pruned due to low confidence. **Rationale**: Provides traceability for the rule distillation process and ensures reproducibility of the rule set.
-
-- [ ] T078 [US3] **Add Sensitivity Analysis for Interaction Term Significance**: Implement `code/04_analysis/sensitivity_interaction.py` to re-run the mixed-effects model with varying random seeds and bootstrap iterations to verify the stability of the interaction term's significance. **Rationale**: Ensures the conclusion regarding "failure structure dictates method viability" is robust and not an artifact of random sampling.
-
-- [ ] T079 [US2] **Enforce Time-to-Pivot Censoring in Baseline Results**: Update `code/03_execution/run_baseline.py` to explicitly set `time_to_pivot = TIMEOUT_SECONDS` for any task that fails to pivot within the time limit, and ensure this value is correctly propagated to `baseline_results.json`. **Rationale**: Ensures the censored data handling in the statistical analysis is based on accurate and consistent data from the baseline execution.
-
-- [ ] T080 [US1] **Validate Rule Library Schema Compliance**: Add a strict schema validation step in `code/02_annotation_distillation/distill_rules.py` to ensure that every generated rule conforms to the `distilled_rule.schema.yaml` (T006b) before writing to `rules_library.json`. **Rationale**: Prevents malformed rules from entering the rule library and causing errors during execution.

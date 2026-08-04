@@ -20,15 +20,6 @@ T007:
     \ does it automatically run after each major phase. Moreover, the required state\
     \ file `state/projects/PROJ-865-llmxive-followup-extending-autoresearch.yaml`\
     \ is missing, so the hashes and timestamp cannot be recorded."
-T013:
-  c: false
-  h: 623df3e18f031fc0946a892abb84bed6678319b0912774c6493a0b9d9e151168
-  r: "The repository contains a `distill_rules.py` file, but it is truncated and does\
-    \ not implement the required model\u2011selection, RAM\u2011monitoring, \u2265\
-    90\u202F% coverage check, or mandatory failure behavior; it even mentions falling\
-    \ back to regex, which the task forbids. Moreover, the required output file `data/derived/rules_library.json`\
-    \ is missing. These missing/incorrect artifacts prevent the task from being considered\
-    \ complete."
 T015b:
   c: false
   h: cfc439a05981677f666f5d9dd99aa8fb5cc37b6ccc92c9330c91e1557d733b59

@@ -1,9 +1,9 @@
-'|alpha analysi power use':
-  quote: '0.05'
-  source_id: Power (statistics)
-  url: https://en.wikipedia.org/wiki/Power_(statistics)
-  value: '0.05'
-'|alpha determination significance use':
+'|baseline limit second timeout':
+  quote: '120'
+  source_id: '2402.05223'
+  url: https://arxiv.org/abs/2402.05223
+  value: '120'
+'|significance statistical test threshold':
   quote: "The error that a practising statistician would consider the more important\
     \ to avoid (which is a subjective judgment) is called the error of the first kind.\
     \ The first demand of the mathematical theory is to deduce such test criteria\
@@ -13,19 +13,3 @@
   source_id: P-value
   url: https://en.wikipedia.org/wiki/P-value
   value: '0.05'
-'|baseline limit second timeout':
-  quote: '120'
-  source_id: '2402.05223'
-  url: https://arxiv.org/abs/2402.05223
-  value: '120'
-'|check cohen inter kappa rater reliability threshold use':
-  quote: "substantial agreement ( \u03BA > 0.6) for three themes and moderate agreement\
-    \ on one. Our findings demonstrate"
-  source_id: '2508.14764'
-  url: https://arxiv.org/abs/2508.14764
-  value: '0.6'
-'|effect expected size':
-  quote: 0.0 0.5 1.0 1.5 2.0
-  source_id: '1809.02623'
-  url: https://arxiv.org/abs/1809.02623
-  value: '0.5'

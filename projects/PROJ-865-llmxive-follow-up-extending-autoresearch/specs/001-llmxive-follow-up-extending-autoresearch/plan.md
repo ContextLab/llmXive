@@ -5,7 +5,7 @@
 
 ## Summary
 
-This project investigates the structural features of autonomous agent failure modes to determine the viability of deterministic rule extraction versus probabilistic context retrieval. The implementation ingests failure transcripts from the **verified** ARC-Bench dataset (`claw-ai-lab/arc-bench`), annotates them with structural features (syntactic, logical, semantic, etc.) using a **Human-in-the-Loop Ground Truth** process (Phase 0) to ensure validity, and distills a deterministic rule library using a CPU-tractable small language model (INT4). This rule engine is then executed against a held-out test set (N=500) and compared against the full AutoResearchClaw baseline agent. The study concludes with a mixed-effects logistic regression (handling censored data) to determine if failure structure dictates method viability.
+This project investigates the structural features of autonomous agent failure modes to determine the viability of deterministic rule extraction versus probabilistic context retrieval. The implementation ingests failure transcripts from the **verified** ARC-Bench dataset (`claw-ai-lab/arc-bench`), annotates them with structural features (syntactic, logical, semantic, etc.) using a **Human-in-the-Loop Ground Truth** process (Phase 0) to ensure validity, and distills a deterministic rule library using a CPU-tractable small language model (quantized). This rule engine is then executed against a held-out test set (N=500) and compared against the full AutoResearchClaw baseline agent. The study concludes with a mixed-effects logistic regression (handling censored data) to determine if failure structure dictates method viability.
 
 ## Technical Context
 
@@ -14,7 +14,7 @@ This project investigates the structural features of autonomous agent failure mo
 **Storage**: Local file system (JSON/CSV/Parquet) under `data/`
 **Testing**: `pytest`
 **Target Platform**:
-- **Rule Engine**: GitHub Actions Free Tier (2 CPU, 7 GB RAM).
+- **Rule Engine**: GitHub Actions Free Tier (multi-core CPU, 7 GB RAM).
 - **Baseline Agent**: **Standard Resources** (4 CPU, 16 GB RAM) executed on a separate CI job or external runner as per FR-004.
 - **GPU Policy**: **NO GPU for primary analysis**. If INT4 model fails on CPU, the run is aborted or scaled down; GPU results are excluded from the primary analysis to satisfy Constitution Principle VII.
 **Project Type**: Computational research pipeline

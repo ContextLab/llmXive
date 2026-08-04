@@ -1,0 +1,90 @@
+name: Baseline Runner (Resource Constrained)
+
+on:
+  workflow_dispatch:
+    inputs:
+      manifest_path:
+        description: 'Path to the experiment manifest CSV'
+        required: true
+        type: string
+
+env:
+  # Explicitly enforce the resource constraints defined in config.py
+  # These are passed as environment variables to the runner for verification
+  BASELINE_CPU_CORES: "4"
+  BASELINE_MEMORY_GB: "16"
+  TIMEOUT_SECONDS: "3600"
+
+jobs:
+  run-baseline:
+    # Use a self-hosted runner with the specific resource label
+    # If self-hosted is not available, this will fail fast, preventing invalid comparisons
+    runs-on: [self-hosted, resource-limited]
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Verify Runner Resources (Pre-flight)
+        id: resource_check
+        run: |
+          python -c "
+          import os
+          import sys
+          import psutil
+
+          # Read expected limits from environment (set by workflow)
+          expected_cpu = int(os.getenv('BASELINE_CPU_CORES', 4))
+          expected_mem_gb = int(os.getenv('BASELINE_MEMORY_GB', 16))
+
+          # Detect actual resources
+          actual_cpu = psutil.cpu_count(logical=True)
+          actual_mem_gb = psutil.virtual_memory().total / (1024 ** 3)
+
+          print(f'Runner Resources: CPU={actual_cpu}, RAM={actual_mem_gb:.2f}GB')
+          print(f'Expected Limits:  CPU={expected_cpu}, RAM={expected_mem_gb}GB')
+
+          # Strict check: Actual must be <= Expected (we are limited)
+          # In a real CI, 'self-hosted' implies we are on a specific box.
+          # We verify we are not on a massive instance.
+          if actual_cpu > expected_cpu * 1.1: # 10% tolerance
+              print(f'ERROR: CPU cores ({actual_cpu}) exceed limit ({expected_cpu}).')
+              sys.exit(1)
+          
+          if actual_mem_gb > expected_mem_gb * 1.1:
+              print(f'ERROR: Memory ({actual_mem_gb:.2f}GB) exceeds limit ({expected_mem_gb}GB).')
+              sys.exit(1)
+
+          print('Resource constraints verified.')
+          "
+
+      - name: Run Baseline Agent
+        id: run_baseline
+        run: |
+          python code/03_execution/run_baseline.py \
+            --manifest "${{ github.event.inputs.manifest_path }}" \
+            --output "data/derived/baseline_results.json"
+
+      - name: Upload Baseline Results
+        uses: actions/upload-artifact@v4
+        with:
+          name: baseline-results
+          path: data/derived/baseline_results.json
+          retention-days: 5
+
+      - name: Upload Resource Metrics
+        uses: actions/upload-artifact@v4
+        with:
+          name: baseline-resource-metrics
+          path: data/derived/baseline_resource_metrics.json
+          retention-days: 5

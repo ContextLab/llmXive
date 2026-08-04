@@ -1,226 +1,242 @@
+"""
+Statistical Model: Mixed-Effects Logistic Regression.
+
+Fits a mixed-effects logistic regression model:
+Success ~ FailureType * Method + (1|TaskID)
+
+Pre-check: Verifies that the `results.csv` contains complete pairs of task_ids.
+If any pair is incomplete, the analysis aborts with a clear error.
+"""
 import json
 import sys
 import os
 import logging
 from pathlib import Path
 from typing import Dict, Any, Optional, Tuple
-
 import pandas as pd
+import numpy as np
 import statsmodels.api as sm
-import statsmodels.formula.api as smf
+from statsmodels.formula.api import mixedlm
+# Note: statsmodels mixedlm is for linear models. For logistic, we need GLMM.
+# statsmodels does not have a native GLMM (Generalized Linear Mixed Model) in the standard API.
+# We will use `statsmodels` if possible, or fallback to a library like `pymer4` or `lme4` (R) via rpy2,
+# or implement a custom approximation.
+# However, the plan mentions `statsmodels.stats.power.TTestPower` and `MixedLM`.
+# If GLMM is not available, we might have to use a fixed-effects logistic regression with robust SEs
+# or a simpler approximation.
+# Given the constraint to use existing APIs and not invent, we will attempt to use `statsmodels`
+# or a standard approximation.
+# If `statsmodels` doesn't support GLMM, we will use a fixed-effects model with clustering by TaskID
+# using GEE (Generalized Estimating Equations) which is supported in statsmodels.
+# GEE is a valid alternative for clustered binary data.
 
-# Import logging utilities from the project's utils
-try:
-    from utils.logging import get_logger, log_stage_start, log_stage_end
-except ImportError:
-    # Fallback for direct execution if utils is not in path
-    def get_logger(name):
-        return logging.getLogger(name)
-    def log_stage_start(name):
-        logging.info(f"Starting stage: {name}")
-    def log_stage_end(name):
-        logging.info(f"Ending stage: {name}")
+from statsmodels.genmod.generalized_estimating_equations import GEE
+from statsmodels.genmod.cov_struct import Exchangeable
+from scipy.stats import norm
 
-logger = get_logger(__name__)
+# Import local config
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+from code.utils.config import TIMEOUT_SECONDS
 
-def load_results_csv(filepath: str) -> pd.DataFrame:
-    """
-    Load the merged results CSV file.
-    """
-    path = Path(filepath)
-    if not path.exists():
-        raise FileNotFoundError(f"Results file not found: {filepath}")
-    df = pd.read_csv(path)
-    logger.info(f"Loaded {len(df)} rows from {filepath}")
+# Setup logging
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+if not logger.handlers:
+    handler = logging.StreamHandler(sys.stdout)
+    handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
+    logger.addHandler(handler)
+
+def get_logger():
+    return logger
+
+def load_results_csv(file_path: Path) -> pd.DataFrame:
+    """Load the merged results CSV."""
+    if not file_path.exists():
+        raise FileNotFoundError(f"Results file not found: {file_path}")
+    df = pd.read_csv(file_path)
+    required_cols = ['task_id', 'method', 'time_to_pivot', 'success', 'failure_type']
+    missing = [c for c in required_cols if c not in df.columns]
+    if missing:
+        raise ValueError(f"Missing required columns in {file_path}: {missing}")
     return df
+
+def verify_paired_data(df: pd.DataFrame) -> Tuple[bool, List[str]]:
+    """
+    Pre-check: Ensure that the `task_id` pairs in results.csv are complete.
+    Every task_id must have exactly one 'rule_engine' and one 'baseline' entry.
+    """
+    logger.info("Verifying paired data integrity for statistical model...")
+    
+    pivot_table = df.pivot_table(index='task_id', columns='method', values='time_to_pivot', aggfunc='count', fill_value=0)
+    
+    all_tasks = df['task_id'].unique()
+    rule_engine_count = pivot_table['rule_engine'].reindex(all_tasks, fill_value=0) if 'rule_engine' in pivot_table.columns else pd.Series(0, index=all_tasks)
+    baseline_count = pivot_table['baseline'].reindex(all_tasks, fill_value=0) if 'baseline' in pivot_table.columns else pd.Series(0, index=all_tasks)
+    
+    missing_pairs = []
+    for task_id in all_tasks:
+        has_rule = rule_engine_count.get(task_id, 0) > 0
+        has_baseline = baseline_count.get(task_id, 0) > 0
+        
+        if not has_rule or not has_baseline:
+            reason = []
+            if not has_rule: reason.append("missing rule_engine")
+            if not has_baseline: reason.append("missing baseline")
+            missing_pairs.append(f"{task_id}: {', '.join(reason)}")
+    
+    if missing_pairs:
+        logger.error(f"Paired data integrity check FAILED. {len(missing_pairs)} incomplete pairs found.")
+        for pair in missing_pairs[:5]:
+            logger.error(f"  - {pair}")
+        if len(missing_pairs) > 5:
+            logger.error(f"  ... and {len(missing_pairs) - 5} more.")
+        return False, missing_pairs
+    
+    logger.info("Paired data integrity check PASSED.")
+    return True, []
 
 def prepare_data_for_regression(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Prepare the dataframe for mixed-effects logistic regression.
-    Ensures categorical variables are handled correctly.
-    """
-    # Ensure success is numeric (0/1) if it's boolean
-    if df['success'].dtype == bool:
-        df['success'] = df['success'].astype(int)
+    """Prepare data for GEE regression."""
+    # Filter to only tasks that have both methods (already done by pre-check, but ensure)
+    # We need a long format for GEE
+    # Columns: task_id, method, success, failure_type
     
-    # Convert categorical columns to category type for proper encoding
-    df['failure_type'] = df['failure_type'].astype('category')
-    df['method'] = df['method'].astype('category')
+    # Encode categorical variables
+    # Method: baseline (ref), rule_engine
+    # FailureType: one-hot or ordinal? Let's use one-hot or treat as categorical.
     
-    # Drop rows with missing critical values
-    df = df.dropna(subset=['success', 'failure_type', 'method', 'task_id'])
+    # Create a numeric encoding for success
+    df['success_num'] = df['success'].astype(int)
     
-    logger.info(f"Prepared {len(df)} rows for regression after cleaning")
+    # Create interaction term manually if needed, or let formula handle it
+    # Formula: success_num ~ C(method) * C(failure_type)
+    # Grouping: task_id
+    
     return df
 
-def fit_mixed_effects_model(df: pd.DataFrame) -> Optional[smf.mixed_linear_model.MixedLMResults]:
+def fit_mixed_effects_model(df: pd.DataFrame) -> Dict[str, Any]:
     """
-    Fit the mixed-effects logistic regression model:
-    Success ~ FailureType * Method + (1|TaskID)
-    
-    Note: statsmodels' MixedLM is for linear mixed models. For logistic,
-    we use GLM with a binomial family and use a workaround for random effects
-    or use a library like `lme4` via R, but since we are Python-only:
-    
-    We will use `statsmodels` GLM with fixed effects for the interaction
-    and treat TaskID as a fixed effect (dummy variables) if the number is small,
-    OR use a generalized linear mixed model if available.
-    
-    However, standard `statsmodels` MixedLM does not directly support Binomial
-    families with random effects in the same call as GLM. 
-    
-    Alternative: Since the task requires "mixed-effects", and `statsmodels` 
-    `MixedLM` is Gaussian, we often approximate or use `glmer` (R). 
-    Given Python constraints, we will fit a GLM with interaction and 
-    include TaskID as a fixed effect dummy if feasible, or use a simpler 
-    logistic regression with interaction if the random effect structure 
-    is too complex for standard library without external dependencies like `pymer4`.
-    
-    Correction for strict compliance: The task asks for "mixed-effects".
-    We will attempt to use `statsmodels`' `GLM` with `Binomial` family 
-    and include TaskID as a categorical predictor (fixed effect) to control 
-    for task-specific variance, which is the standard Python-only approximation
-    when `MixedLM` with Binomial isn't natively supported in the core package 
-    without complex workarounds.
-    
-    Formula: success ~ C(failure_type) * C(method) + C(task_id)
+    Fit a GEE model (approximation for Mixed Effects Logistic Regression).
+    Formula: success ~ C(method) * C(failure_type)
     """
+    logger.info("Fitting GEE model (Mixed Effects approximation)...")
+    
+    # Ensure factors are categorical
+    df['method'] = df['method'].astype('category')
+    df['failure_type'] = df['failure_type'].astype('category')
+    
+    # Define formula
+    formula = "success_num ~ C(method) * C(failure_type)"
+    
+    # Fit GEE
+    # Using Exchangeable correlation structure
     try:
-        # Attempt to fit GLM with Binomial family
-        # We include TaskID as a fixed effect to account for the 'random' variation
-        # if the number of unique tasks is manageable.
-        formula = "success ~ C(failure_type) * C(method) + C(task_id)"
+        gee_model = GEE.from_formula(
+            formula,
+            groups="task_id",
+            data=df,
+            family=sm.families.Binomial(),
+            cov_struct=Exchangeable()
+        )
+        gee_result = gee_model.fit()
         
-        model = smf.glm(formula=formula, data=df, family=sm.families.Binomial())
-        result = model.fit()
-        logger.info("GLM with Binomial family fitted successfully.")
-        return result
-    except Exception as e:
-        logger.error(f"Failed to fit GLM model: {e}")
-        return None
-
-def extract_interaction_p_value(results: Any) -> Tuple[Optional[float], str]:
-    """
-    Extract the p-value for the interaction term between FailureType and Method.
-    Returns (p_value, interaction_term_name).
-    """
-    if results is None:
-        return None, ""
-    
-    # The interaction term name depends on the specific levels, but generally
-    # it will be "C(failure_type)[T.X]:C(method)[T.Y]"
-    # We look for any coefficient that contains both "failure_type" and "method"
-    
-    interaction_term = None
-    p_value = None
-    
-    params = results.params
-    pvalues = results.pvalues
-    
-    for idx, p_val in pvalues.items():
-        if "C(failure_type)" in idx and "C(method)" in idx and ":" in idx:
-            interaction_term = idx
-            p_value = p_val
-            break
-    
-    if interaction_term is None:
-        logger.warning("Interaction term not found in model results.")
-        return None, ""
+        # Extract interaction term p-value
+        # The interaction term is C(method)[T.rule_engine]:C(failure_type)[...
+        # We need to find the coefficient that represents the interaction between Method and FailureType.
+        # Since failure_type has multiple levels, there will be multiple interaction terms.
+        # The task asks for "the interaction term". We will look for the p-value of the interaction.
+        # If there are multiple, we might need to check if ANY is significant, or the overall F-test.
+        # For simplicity, we will report the p-value of the first significant interaction or the overall model significance.
+        # However, the plan says "p-values for the interaction term".
+        # We will extract the p-value for the interaction of the main method effect with the first failure type level.
         
-    return p_value, interaction_term
-
-def save_regression_results(filepath: str, results: Any, p_value: Optional[float], interaction_term: str):
-    """
-    Save the regression results and significance determination to a JSON file.
-    Updates the file with 'interaction_significant' and 'narrative_conclusion'.
-    """
-    output_data = {}
-    
-    # Load existing data if the file exists (to preserve other keys if any)
-    path = Path(filepath)
-    if path.exists():
-        try:
-            with open(path, 'r') as f:
-                output_data = json.load(f)
-        except json.JSONDecodeError:
-            output_data = {}
-    
-    # Store raw stats
-    if results is not None:
-        output_data['model_summary'] = results.summary().as_text()
-        if interaction_term:
-            output_data['interaction_term'] = interaction_term
-            output_data['p_value'] = p_value
-            output_data['coefficient'] = results.params[interaction_term]
-            output_data['std_err'] = results.bse[interaction_term]
-    
-    # Determine significance (SC-003)
-    alpha = 0.05
-    is_significant = False
-    narrative = ""
-    
-    if p_value is not None:
-        is_significant = p_value < alpha
-        if is_significant:
-            narrative = f"The interaction term is significant (p < 0.05 (Wikipedia: P-value, https://en.wikipedia.org/wiki/P-value))"
+        params = gee_result.params
+        pvalues = gee_result.pvalues
+        
+        # Find interaction terms
+        interaction_pvalues = {}
+        for idx, pval in pvalues.items():
+            if "C(method)" in str(idx) and "C(failure_type)" in str(idx):
+                interaction_pvalues[idx] = pval
+        
+        if not interaction_pvalues:
+            logger.warning("No interaction terms found in the model.")
+            # Fallback: assume no interaction
+            min_p = 1.0
+            interaction_significant = False
+            narrative = "No interaction terms detected."
         else:
-            narrative = "The interaction term is not significant (p >= 0.05)"
-    else:
-        narrative = "Could not determine significance: p-value is missing."
-    
-    output_data['interaction_significant'] = is_significant
-    output_data['narrative_conclusion'] = narrative
-    
-    # Ensure directory exists
-    path.parent.mkdir(parents=True, exist_ok=True)
-    
-    with open(path, 'w') as f:
-        json.dump(output_data, f, indent=2)
-    
-    logger.info(f"Regression results saved to {filepath}")
-    logger.info(f"Significance: {is_significant}, Conclusion: {narrative}")
+            # Take the minimum p-value among interactions as a proxy, or average?
+            # For a binary decision, we check if ANY interaction is significant.
+            min_p = min(interaction_pvalues.values())
+            interaction_significant = min_p < 0.05
+            
+            if interaction_significant:
+                narrative = "The interaction term is significant (p < 0.05), indicating that failure structure dictates method viability."
+            else:
+                narrative = "The interaction term is not significant (p >= 0.05)."
+        
+        return {
+            "model_summary": str(gee_result.summary()),
+            "params": params.to_dict(),
+            "pvalues": pvalues.to_dict(),
+            "interaction_pvalues": interaction_pvalues,
+            "min_interaction_p": min_p,
+            "interaction_significant": interaction_significant,
+            "narrative_conclusion": narrative
+        }
+    except Exception as e:
+        logger.error(f"Model fitting failed: {e}")
+        raise
+
+def extract_interaction_p_value(results: Dict[str, Any]) -> float:
+    """Extract the minimum interaction p-value."""
+    return results.get("min_interaction_p", 1.0)
+
+def save_regression_results(results: Dict[str, Any], output_path: Path):
+    """Save results to JSON."""
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, 'w') as f:
+        json.dump(results, f, indent=2)
+    logger.info(f"Regression results saved to {output_path}")
 
 def main():
-    log_stage_start("Statistical Model Analysis (Significance Determination)")
+    """Main entry point."""
+    input_path = Path("data/derived/results.csv")
+    output_path = Path("data/derived/regression_results.json")
     
-    # Paths
-    results_csv = "data/derived/results.csv"
-    output_json = "data/derived/regression_results.json"
+    logger.info("Starting Statistical Model Analysis...")
     
     try:
         # 1. Load Data
-        df = load_results_csv(results_csv)
+        df = load_results_csv(input_path)
         
-        # 2. Prepare Data
-        df_clean = prepare_data_for_regression(df)
+        # 2. Pre-check: Verify Paired Data Integrity
+        is_valid, missing_pairs = verify_paired_data(df)
+        if not is_valid:
+            logger.error("Analysis aborted due to incomplete paired data.")
+            sys.exit(1)
         
-        if len(df_clean) == 0:
-            raise ValueError("No valid data remaining for regression after cleaning.")
+        # 3. Prepare Data
+        df_prep = prepare_data_for_regression(df)
         
-        # 3. Fit Model
-        results = fit_mixed_effects_model(df_clean)
+        # 4. Fit Model
+        results = fit_mixed_effects_model(df_prep)
         
-        # 4. Extract P-value
-        p_value, interaction_term = extract_interaction_p_value(results)
+        # 5. Save Results
+        save_regression_results(results, output_path)
         
-        # 5. Save Results with Significance Determination
-        save_regression_results(output_json, results, p_value, interaction_term)
+        logger.info("Analysis completed successfully.")
         
-        log_stage_end("Statistical Model Analysis (Significance Determination)")
-        return 0
-        
+    except FileNotFoundError as e:
+        logger.error(f"Input file error: {e}")
+        sys.exit(1)
+    except ValueError as e:
+        logger.error(f"Data validation error: {e}")
+        sys.exit(1)
     except Exception as e:
-        logger.error(f"Pipeline failed: {e}")
-        # Even on error, if partial results exist, we might want to write them,
-        # but per instructions, we fail loudly if we can't complete.
-        # However, we should ensure the output file is created if possible.
-        # If the error is before loading, we can't write valid stats.
-        if "results" in locals() and results is not None:
-            try:
-                save_regression_results(output_json, results, None, "")
-            except:
-                pass
-        return 1
+        logger.error(f"Unexpected error: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()
