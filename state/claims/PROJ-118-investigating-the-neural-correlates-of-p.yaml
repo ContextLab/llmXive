@@ -277,3 +277,52 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-01T17:07:26Z'
+- artifact_path: projects/PROJ-118-investigating-the-neural-correlates-of-p/docs/REPRODUCIBILITY.md
+  attempts: 1
+  canonical: OpenNeuro dataset ds003645 used as source
+  claim_id: c_725f86a4
+  context: 'Data Integrity - Source: OpenNeuro `ds003645`.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/OpenNeuro_dataset_ds003645_used_as_source
+  kind: entity_fact
+  raw_text: OpenNeuro `ds003645`.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T07:29:31Z'
+- artifact_path: projects/PROJ-118-investigating-the-neural-correlates-of-p/docs/REPRODUCIBILITY.md
+  attempts: 1
+  canonical: Pipeline subsamples to 32 channels
+  claim_id: c_0552cf50
+  context: 'Known Limitations - Memory: ICA on full datasets may exceed 7GB RAM on
+    some machines; the pipeline subsamples to 32 channels to mitigate this.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 32 channels
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T07:29:42Z'
+- artifact_path: projects/PROJ-118-investigating-the-neural-correlates-of-p/docs/REPRODUCIBILITY.md
+  attempts: 1
+  canonical: Cluster-based permutation tests use 1000 permutations
+  claim_id: c_ae25c06b
+  context: 'Known Limitations - Time: Cluster-based permutation tests (1000 permutations)
+    may take several hours on dual-core CPUs.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 1000 permutations
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T07:29:57Z'

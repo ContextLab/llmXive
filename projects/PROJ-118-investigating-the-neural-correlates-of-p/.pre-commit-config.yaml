@@ -6,6 +6,7 @@ repos:
       - id: end-of-file-fixer
       - id: check-yaml
       - id: check-added-large-files
+        args: ['--maxkb=10240'] # Limit to 10MB for data files
       - id: check-merge-conflict
       - id: debug-statements
 
@@ -20,13 +21,30 @@ repos:
     rev: 7.0.0
     hooks:
       - id: flake8
+        additional_dependencies:
+          - flake8-docstrings
+          - flake8-bugbear
         args:
           - --max-line-length=88
-          - --ignore=E203,W503
-          - --exclude=venv,build,dist,.git,__pycache__
+          - --extend-ignore=E203,W503
+          - --exclude=data/raw,data/processed,venv,.venv
 
   - repo: https://github.com/pycqa/isort
     rev: 5.13.2
     hooks:
       - id: isort
-        args: [--profile=black, --line-length=88]
+        args:
+          - --profile=black
+          - --line-length=88
+          - --skip-glob=data/*
+
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.8.0
+    hooks:
+      - id: mypy
+        additional_dependencies:
+          - types-PyYAML
+          - types-requests
+        args:
+          - --ignore-missing-imports
+          - --no-error-summary

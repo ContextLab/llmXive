@@ -1,3 +1,2 @@
-# This directory stores raw, unaltered EEG data downloaded from OpenNeuro.
-# Per Constitution VI, raw data remains unaltered here.
-# Do not remove this file; it ensures the directory is tracked by git.
+# This file ensures the data/raw directory exists in the repository.
+# Actual data will be downloaded here by code/download.py.

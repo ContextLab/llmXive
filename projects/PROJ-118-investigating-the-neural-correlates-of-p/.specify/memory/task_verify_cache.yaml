@@ -1,12 +1,10 @@
-T027:
+T009:
   c: false
-  h: 64947c94ccd4bdbf689d8123765289f608f287bcd3bec6e6b765019e4fa42e07
-  r: "The `results/metrics.csv` file contains only the header line and no participant\
-    \ rows, so the required output data is missing. Moreover, the provided `code/extract.py`\
-    \ excerpt shows functions for loading epochs and computing ERPs but does not include\
-    \ any logic that writes a CSV with the specified columns or handles the `peak_detected`\
-    \ flag for inclusion/exclusion in downstream analyses. The task\u2019s core functionality\
-    \ is therefore not implemented."
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, configuration file, or documentation was provided that defines or manages
+    the `OPENNEURO_API_KEY` environment variable or sets up local path handling. The
+    required artifact (e.g., a script, `.env` template, or setup instructions) is
+    missing.
 T029:
   c: false
   h: 2246d6e78f54be34eab482147e06f4a4e5c296a5f6d25957fec553f3b721d33e
@@ -24,6 +22,45 @@ T035:
     \ Consequently, the script cannot produce the full set of statistics (p\u2011\
     values, effect sizes, cluster results, mixed\u2011effects summary) as required.\
     \ The missing JSON output and unimplemented analysis steps must be added."
+T040:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No updated `README.md` file or any files in a `docs/` directory were provided
+    as evidence, so the required documentation artifacts are missing. The implementer
+    must add the updated README and any documentation files in `docs/` to satisfy
+    task T040.
+T041:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code files, diff logs, or documentation showing that the `code/` directory\
+    \ was cleaned up or refactored are present; the only artifacts described relate\
+    \ to EEG preprocessing and analysis, not to any code\u2011base cleanup. Consequently\
+    \ the required artifact for task T041 is missing."
+T042:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No performance logs, benchmark reports, or resource\u2011usage evidence were\
+    \ provided to demonstrate that the ICA step and permutation tests complete within\
+    \ 6\u202Fhours on a 2\u2011CPU / 7\u202FGB RAM configuration. The required artifact\
+    \ (timing/validation output) is missing."
+T043:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of new unit test files in `tests/unit/` was provided; the claim\
+    \ lacks any displayed artifact showing tests for empty datasets or missing peaks.\
+    \ The required edge\u2011case tests are missing or not shown."
+T044:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a `quickstart.md` validation run, logs, or reproducibility report\
+    \ is present; the required artifact confirming end\u2011to\u2011end execution\
+    \ of the pipeline is missing."
+T045:
+  c: false
+  h: ea8be3499a3726d7a4b0ec03029317af4d436762f4588a07c5983d42e67a8804
+  r: "The required `state.yaml` file is missing, and there is no evidence that artifact\
+    \ hashes have been generated or recorded. Without the state file and hash verification,\
+    \ the task\u2019s requirement is not satisfied."
 T050:
   c: false
   h: 0599872a63249ef4ae0338cc6c14dfd4912a2d4c1aa368edff3f9b0d88964366

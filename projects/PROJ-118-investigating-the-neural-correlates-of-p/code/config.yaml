@@ -1,12 +1,52 @@
-# Configuration for the auditory oddball preprocessing pipeline
+# Pipeline configuration
+dataset_id: ds003645
+paths:
+  raw: data/raw
+  processed: data/processed
+  results: results
+
+# Processing parameters
 filter:
-  low: 1.0
-  high: 30.0
+  lowcut: 1.0
+  highcut: 30.0
 epoch:
   tmin: -0.2
-  tmax: 0.6
-  baseline: [-0.2, 0]
+  tmax: 0.8
 ica:
   threshold: 0.8
   method: 'fastica'
-  n_components: 0.95
+
+# Analysis parameters
+channels:
+  - 'Fz'
+  - 'FCz'
+  - 'Cz'
+  - 'Pz'
+  - 'F3'
+  - 'F4'
+  - 'C3'
+  - 'C4'
+  - 'P3'
+  - 'P4'
+  - 'F7'
+  - 'F8'
+  - 'T7'
+  - 'T8'
+  - 'P7'
+  - 'P8'
+  - 'O1'
+  - 'O2'
+  - 'Fz'
+  - 'FCz'
+  - 'Cz'
+  - 'Pz'
+  - 'POz'
+  - 'AFz'
+  - 'AF3'
+  - 'AF4'
+  - 'FC3'
+  - 'FC4'
+  - 'CP3'
+  - 'CP4'
+  - 'PO3'
+  - 'PO4'

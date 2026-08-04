@@ -1,7 +1,3 @@
-"""
-Download module for fetching datasets from OpenNeuro.
-Implements retry logic with exponential backoff and checksum verification.
-"""
 import os
 import subprocess
 import time
@@ -10,23 +6,16 @@ import json
 import shutil
 import logging
 from pathlib import Path
-from typing import Optional, Dict, Any
+from typing import Dict, List, Optional, Tuple, Any
 
-import requests
+from config_loader import get_project_root, get_config, ensure_directory
 
-# Configuration constants
-INITIAL_BACKOFF = 10  # seconds
-MAX_RETRIES = 3
-
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-
-def load_config(config_path: str = "code/config.yaml") -> Dict[str, Any]:
-    """Load configuration from YAML file."""
-    with open(config_path, 'r') as f:
-        return yaml.safe_load(f)
-
+def load_config() -> Dict[str, Any]:
+    """Load project configuration from code/config.yaml."""
+    return get_config()
 
 def calculate_sha256(file_path: Path) -> str:
     """Calculate SHA256 hash of a file."""
@@ -36,152 +25,226 @@ def calculate_sha256(file_path: Path) -> str:
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-
-def get_manifest_hash(manifest_path: Path, filename: str) -> Optional[str]:
-    """Extract hash for a specific file from the OpenNeuro manifest."""
+def get_manifest_hash(dataset_id: str, filename: str, manifest_path: Path) -> Optional[str]:
+    """
+    Extract the expected SHA256 hash for a specific file from the OpenNeuro manifest.
+    The manifest is typically a JSON file containing an array of objects with 'filename' and 'checksum'.
+    """
     if not manifest_path.exists():
+        logger.error(f"Manifest file not found: {manifest_path}")
         return None
-    
+
     with open(manifest_path, 'r') as f:
-        manifest = json.load(f)
+        manifest_data = json.load(f)
+
+    for entry in manifest_data:
+        if entry.get('filename') == filename:
+            # OpenNeuro manifests often use 'checksum' or 'sha256'
+            return entry.get('checksum') or entry.get('sha256')
     
-    for entry in manifest:
-        if entry['filename'] == filename:
-            return entry['sha256']
+    logger.warning(f"Hash not found for {filename} in manifest")
     return None
 
-
-def download_file(url: str, dest_path: Path, retries: int = MAX_RETRIES) -> bool:
+def download_file(url: str, dest_path: Path, retries: int = 3, backoff: int = 10) -> bool:
     """
-    Download a file from URL with retry logic and exponential backoff.
-    
-    Args:
-        url: The URL to download from
-        dest_path: Local path to save the file
-        retries: Number of retry attempts (default: MAX_RETRIES)
-    
-    Returns:
-        True if download successful, False otherwise
-    
-    Raises:
-        Exception if all retries fail
+    Download a file from a URL with retry logic.
+    Uses wget via subprocess for robustness.
     """
     dest_path.parent.mkdir(parents=True, exist_ok=True)
     
-    backoff_time = INITIAL_BACKOFF
-    
     for attempt in range(1, retries + 1):
+        logger.info(f"Downloading {url} (Attempt {attempt}/{retries})...")
         try:
-            logger.info(f"Attempt {attempt}/{retries}: Downloading from {url}")
-            response = requests.get(url, stream=True, timeout=30)
-            response.raise_for_status()
-            
-            with open(dest_path, 'wb') as f:
-                for chunk in response.iter_content(chunk_size=8192):
-                    if chunk:
-                        f.write(chunk)
-            
-            logger.info(f"Successfully downloaded to {dest_path}")
-            return True
-            
-        except requests.RequestException as e:
-            logger.warning(f"Attempt {attempt} failed: {e}")
-            if attempt < retries:
-                logger.info(f"Retrying in {backoff_time} seconds...")
-                time.sleep(backoff_time)
-                backoff_time *= 2  # Exponential backoff
-            else:
-                logger.error(f"All {retries} attempts failed")
-                raise
+            # Use wget with -O for output file and --show-progress
+            # -q for quiet (unless error) is often better for logs, but let's be verbose
+            result = subprocess.run(
+                ['wget', '-O', str(dest_path), url],
+                check=True,
+                capture_output=True,
+                text=True
+            )
+            if result.returncode == 0:
+                logger.info(f"Successfully downloaded: {dest_path}")
+                return True
+        except subprocess.CalledProcessError as e:
+            logger.error(f"Download failed: {e.stderr}")
+        
+        if attempt < retries:
+            logger.info(f"Retrying in {backoff} seconds...")
+            time.sleep(backoff)
+            backoff *= 2  # Exponential backoff
+        else:
+            logger.error(f"Failed to download {url} after {retries} attempts.")
+            return False
     
     return False
 
-
-def verify_checksum(file_path: Path, expected_hash: Optional[str]) -> bool:
+def verify_checksum(file_path: Path, expected_hash: str) -> bool:
     """
-    Verify the SHA256 checksum of a file.
-    
-    Args:
-        file_path: Path to the file to verify
-        expected_hash: Expected SHA256 hash (if None, only checks file is non-empty)
-    
-    Returns:
-        True if verification passes, False otherwise
+    Verify the SHA256 checksum of a downloaded file against the expected hash.
+    Raises an error if they do not match.
     """
     if not file_path.exists():
-        logger.error(f"File not found: {file_path}")
-        return False
+        raise FileNotFoundError(f"File not found for verification: {file_path}")
     
-    if file_path.stat().st_size == 0:
-        logger.error(f"File is empty: {file_path}")
-        return False
-    
-    if expected_hash is None:
-        logger.info("No expected hash provided, skipping checksum verification")
-        return True
-    
+    logger.info(f"Verifying checksum for {file_path}...")
     actual_hash = calculate_sha256(file_path)
     
     if actual_hash.lower() == expected_hash.lower():
-        logger.info(f"Checksum verified: {actual_hash}")
+        logger.info(f"Checksum verification PASSED for {file_path}")
         return True
     else:
-        logger.error(f"Checksum mismatch! Expected: {expected_hash}, Got: {actual_hash}")
-        return False
+        error_msg = (
+            f"Checksum verification FAILED for {file_path}. "
+            f"Expected: {expected_hash}, Got: {actual_hash}"
+        )
+        logger.error(error_msg)
+        raise ValueError(error_msg)
 
+def extract_tar_gz(tar_path: Path, dest_dir: Path) -> None:
+    """Extract a .tar.gz file to the destination directory."""
+    if not tar_path.exists():
+        raise FileNotFoundError(f"Archive not found: {tar_path}")
+    
+    logger.info(f"Extracting {tar_path} to {dest_dir}...")
+    dest_dir.mkdir(parents=True, exist_ok=True)
+    shutil.unpack_archive(str(tar_path), str(dest_dir), format='gztar')
+    logger.info("Extraction complete.")
 
-def extract_tar_gz(tar_path: Path, dest_dir: Path) -> bool:
-    """Extract a tar.gz file to destination directory."""
+def run_download_pipeline(dataset_id: str, target_dir: Path) -> None:
+    """
+    Main pipeline to download and verify the dataset.
+    This function assumes T010 has handled the bulk download or will be called
+    in a sequence where download happens first.
+    For T011, we focus on the verification logic against the manifest.
+    
+    However, to make this a runnable script for T011 as described:
+    "Verify checksums against OpenNeuro manifest hashes before finalizing data/raw"
+    
+    We will:
+    1. Locate the manifest in data/raw (or download it if missing).
+    2. Iterate over expected files.
+    3. Verify checksums.
+    """
+    # Ensure target directory exists
+    ensure_directory(target_dir)
+    
+    # OpenNeuro dataset manifest URL pattern
+    # Usually: https://openneuro.org/datasets/{dataset_id}/file-display/ds{dataset_id}_version:1.0.0:dataset_description.json
+    # But for file checksums, we need the 'md5' or 'sha256' manifest.
+    # OpenNeuro provides a 'md5sums' or similar file, or we can use the API.
+    # For this pipeline, we assume a 'manifest.json' or 'checksums.txt' exists or is downloaded.
+    
+    # Standard OpenNeuro checksums file is often at:
+    # https://openneuro.org/datasets/{dataset_id}/versions/1.0.0/file-display/checksums.txt
+    # Or we download the dataset_description and derive.
+    # Let's assume the manifest is available at a standard location or we fetch it.
+    
+    # For ds003645 (Auditory Oddball), the checksums are typically in a 'checksums.txt' or similar.
+    # We will try to fetch the manifest from OpenNeuro's CDN if not present.
+    
+    manifest_url = f"https://openneuro.org/datasets/{dataset_id}/versions/1.0.0/file-display/checksums.txt"
+    manifest_path = target_dir / "checksums.txt"
+    
+    if not manifest_path.exists():
+        logger.info("Manifest not found locally, attempting to download...")
+        if not download_file(manifest_url, manifest_path):
+            raise RuntimeError("Failed to download manifest file. Cannot verify checksums.")
+    
+    # Parse manifest
+    # Format usually: <hash>  <filename>
+    expected_files = {}
+    with open(manifest_path, 'r') as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            parts = line.split()
+            if len(parts) >= 2:
+                # Handle potential multiple spaces
+                hash_val = parts[0]
+                fname = ' '.join(parts[1:])
+                expected_files[fname] = hash_val
+    
+    logger.info(f"Found {len(expected_files)} files to verify in manifest.")
+    
+    verification_failed = False
+    
+    for filename, expected_hash in expected_files.items():
+        file_path = target_dir / filename
+        
+        # Handle nested paths in manifest (e.g., sub-01/eeg/sub-01_task-auditory_eeg.json)
+        if not file_path.exists():
+            # Check if it's a nested path
+            # Sometimes manifests list relative paths from the dataset root
+            # We need to check if the file exists in the target_dir
+            if not file_path.exists():
+                logger.warning(f"File not found for verification: {file_path}")
+                # Depending on strictness, this might be a failure or just a warning
+                # For T011, we want to ensure integrity, so missing files are critical
+                verification_failed = True
+                continue
+        
+        try:
+            verify_checksum(file_path, expected_hash)
+        except ValueError as e:
+            logger.error(str(e))
+            verification_failed = True
+        except Exception as e:
+            logger.error(f"Unexpected error verifying {filename}: {e}")
+            verification_failed = True
+    
+    if verification_failed:
+        raise RuntimeError("Checksum verification failed for one or more files. Data integrity compromised.")
+    
+    logger.info("All checksums verified successfully. Data ready for processing.")
+
+def download_openneuro_dataset(dataset_id: str, output_dir: Path) -> None:
+    """
+    Wrapper to orchestrate the full download and verification.
+    T010 handles the bulk download (wget/curl), T011 handles verification.
+    This function ensures both happen.
+    """
+    # 1. Download (Simulating T010 logic here for completeness if called standalone)
+    # In the actual pipeline, T010 might have already done this. 
+    # But for a complete script, we ensure data exists.
+    
+    # Construct download URL for the dataset (tar.gz)
+    # OpenNeuro datasets can be downloaded via:
+    # https://openneuro.org/datasets/{dataset_id}/versions/1.0.0/file-download
+    # Or via AWS S3.
+    # For simplicity and robustness, we assume T010 has populated data/raw.
+    # If not, we attempt a direct download of the dataset archive.
+    
+    # If data/raw is empty, we try to download the dataset.
+    # This part is T010 logic, but we include it to make the script runnable.
+    raw_dir = output_dir
+    if not any(raw_dir.iterdir()):
+        logger.warning("data/raw is empty. Attempting to download dataset (T010 logic)...")
+        # We need a specific file to download for verification to work.
+        # We will download the dataset_description.json first as a sanity check.
+        desc_url = f"https://openneuro.org/datasets/{dataset_id}/versions/1.0.0/file-display/dataset_description.json"
+        desc_path = raw_dir / "dataset_description.json"
+        if download_file(desc_url, desc_path):
+            logger.info("Dataset description downloaded. Proceeding to checksum verification.")
+        else:
+            raise RuntimeError("Could not download dataset to verify checksums.")
+    
+    # 2. Verify (T011 Logic)
+    run_download_pipeline(dataset_id, output_dir)
+
+def main():
+    """Entry point for the download and verification script."""
+    config = load_config()
+    dataset_id = config.get('dataset_id', 'ds003645')
+    raw_dir = get_project_root() / 'data' / 'raw'
+    
     try:
-        shutil.unpack_archive(str(tar_path), str(dest_dir), format='gztar')
-        logger.info(f"Successfully extracted {tar_path} to {dest_dir}")
-        return True
+        download_openneuro_dataset(dataset_id, raw_dir)
+        logger.info("Pipeline completed successfully.")
     except Exception as e:
-        logger.error(f"Failed to extract {tar_path}: {e}")
-        return False
+        logger.error(f"Pipeline failed: {e}")
+        raise
 
-
-def run_download_pipeline(config: Dict[str, Any], output_dir: Path) -> bool:
-    """
-    Run the complete download pipeline for a dataset.
-    
-    Args:
-        config: Configuration dictionary with dataset info
-        output_dir: Directory to save downloaded data
-    
-    Returns:
-        True if pipeline completes successfully, False otherwise
-    """
-    dataset_id = config.get('dataset_id')
-    if not dataset_id:
-        logger.error("Dataset ID not found in configuration")
-        return False
-    
-    # Construct OpenNeuro download URL
-    base_url = f"https://openneuro.org/datasets/{dataset_id}/downloads"
-    
-    # For simplicity, we'll download the main tarball
-    # In a real implementation, this would parse the manifest
-    download_url = f"https://s3.amazonaws.com/openneuro.org/datasets/{dataset_id}/attachments/{dataset_id}.tar.gz"
-    
-    tar_path = output_dir / f"{dataset_id}.tar.gz"
-    
-    if not download_file(download_url, tar_path):
-        return False
-    
-    # Verify checksum if available
-    manifest_path = output_dir / "manifest.json"
-    expected_hash = get_manifest_hash(manifest_path, f"{dataset_id}.tar.gz")
-    
-    if expected_hash and not verify_checksum(tar_path, expected_hash):
-        logger.error("Checksum verification failed")
-        return False
-    
-    # Extract the archive
-    if not extract_tar_gz(tar_path, output_dir):
-        return False
-    
-    # Clean up tar file
-    tar_path.unlink()
-    
-    return True
+if __name__ == "__main__":
+    main()

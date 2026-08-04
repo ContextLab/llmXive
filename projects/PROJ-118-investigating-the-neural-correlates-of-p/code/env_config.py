@@ -1,8 +1,8 @@
 """
-Environment configuration and management for the llmXive project.
+Environment configuration and management for the llmXive pipeline.
 
-Handles loading of environment variables (OPENNERO_API_KEY) and
-resolution of local paths relative to the project root.
+This module centralizes access to environment variables (like OPENNEURO_API_KEY)
+and provides utilities for resolving project paths.
 """
 import os
 import logging
@@ -11,131 +11,167 @@ from typing import Optional
 
 logger = logging.getLogger(__name__)
 
+# Default relative paths from project root
+DEFAULT_PATHS = {
+    "data_raw": "data/raw",
+    "data_processed": "data/processed",
+    "results": "results",
+    "code": "code",
+    "tests": "tests",
+    "figures": "results/plots",
+    "config": "code/config.yaml",
+}
+
 def get_project_root() -> Path:
     """
     Determine the project root directory.
     
-    Looks for a marker file (e.g., .project_root) or traverses up to find
-    the directory containing 'code/', 'data/', 'tests/'.
+    Looks for the PROJECT_ROOT environment variable first.
+    If not set, assumes the current working directory is the project root.
+    
+    Returns:
+        Path: The absolute path to the project root.
     """
-    current = Path(__file__).resolve()
-    # Traverse up from code/ directory
-    for parent in current.parents:
-        if (parent / "code").exists() and (parent / "data").exists() and (parent / "tests").exists():
-            return parent
+    root_env = os.getenv("PROJECT_ROOT")
+    if root_env:
+        root = Path(root_env)
+        if not root.is_absolute():
+            root = Path.cwd() / root
+    else:
+        root = Path.cwd()
     
-    # Fallback: assume current directory structure if standard layout found
-    if current.name == "env_config.py" and current.parent.name == "code":
-        return current.parent.parent
+    if not root.exists():
+        raise FileNotFoundError(f"Project root directory not found: {root}")
     
-    # Last resort: current working directory
-    logger.warning("Could not auto-detect project root, using CWD.")
-    return Path.cwd()
+    logger.debug(f"Project root identified at: {root}")
+    return root.resolve()
 
-def get_openneuro_api_key(required: bool = False) -> Optional[str]:
+def get_openneuro_api_key() -> str:
     """
     Retrieve the OpenNeuro API key from environment variables.
     
-    Args:
-        required: If True, raise an error if the key is missing.
+    Checks for 'OPENNEURO_API_KEY'. If not found, raises a clear error
+    instructing the user to set the variable.
     
     Returns:
-        The API key string or None.
-    
+        str: The API key.
+        
     Raises:
-        EnvironmentError: If required is True and the key is not set.
+        ValueError: If the API key is not set in the environment.
     """
     key = os.getenv("OPENNEURO_API_KEY")
-    if required and not key:
-        error_msg = (
+    if not key:
+        raise ValueError(
             "OPENNEURO_API_KEY environment variable is not set. "
-            "Please set it to access OpenNeuro datasets. "
-            "Example: export OPENNEURO_API_KEY='your_key_here'"
+            "Please export OPENNEURO_API_KEY='your_key_here' before running the pipeline."
         )
-        logger.error(error_msg)
-        raise EnvironmentError(error_msg)
-    
-    if key:
-        logger.info("OpenNeuro API key found in environment.")
+    logger.debug("OpenNeuro API key loaded from environment.")
     return key
 
-def get_path(relative_path: str, base_dir: Optional[Path] = None) -> Path:
+def get_path(name: str, relative_to: Optional[Path] = None) -> Path:
     """
-    Resolve a relative path to an absolute path within the project structure.
+    Resolve a named path relative to the project root.
     
     Args:
-        relative_path: Path relative to the project root or specified base_dir.
-        base_dir: Optional base directory. If None, uses project root.
-    
+        name: The key name from DEFAULT_PATHS (e.g., 'data_raw', 'results').
+        relative_to: Optional base path. Defaults to get_project_root().
+        
     Returns:
-        Absolute Path object.
+        Path: The resolved absolute path.
+        
+    Raises:
+        KeyError: If the path name is not defined in DEFAULT_PATHS.
     """
-    if base_dir is None:
-        base_dir = get_project_root()
+    if relative_to is None:
+        relative_to = get_project_root()
     
-    full_path = base_dir / relative_path
-    return full_path.resolve()
+    if name not in DEFAULT_PATHS:
+        raise KeyError(f"Path name '{name}' not found in DEFAULT_PATHS. Available: {list(DEFAULT_PATHS.keys())}")
+    
+    path_str = DEFAULT_PATHS[name]
+    return (relative_to / path_str).resolve()
 
-def ensure_directory(path: Path) -> None:
+def ensure_directory(path: Optional[Path] = None, name: Optional[str] = None) -> Path:
     """
     Ensure a directory exists, creating it if necessary.
     
     Args:
-        path: Path to the directory to ensure.
-    """
-    if not path.exists():
-        logger.info(f"Creating directory: {path}")
-        path.mkdir(parents=True, exist_ok=True)
-
-def validate_environment() -> bool:
-    """
-    Validate that the necessary environment variables and directory structures exist.
-    
+        path: Explicit Path object to ensure.
+        name: Name of the path to resolve from DEFAULT_PATHS (used if path is None).
+        
     Returns:
-        True if validation passes, False otherwise.
+        Path: The absolute path to the directory.
+        
+    Raises:
+        ValueError: If neither path nor name is provided.
     """
-    is_valid = True
+    if path is None:
+        if name is None:
+            raise ValueError("Must provide either 'path' or 'name' to ensure_directory.")
+        path = get_path(name)
     
-    # Check API key (not strictly required for all tasks, but good to warn)
-    if not get_openneuro_api_key(required=False):
-        logger.warning("OPENNEURO_API_KEY not set. Some data downloads may fail.")
+    path.mkdir(parents=True, exist_ok=True)
+    logger.debug(f"Ensured directory exists: {path}")
+    return path
+
+def validate_environment() -> None:
+    """
+    Validate that all critical environment variables and paths are set.
     
-    # Check critical directories
-    root = get_project_root()
-    critical_dirs = [
-        root / "data" / "raw",
-        root / "data" / "processed",
-        root / "code",
-        root / "tests",
-        root / "results"
-    ]
+    Performs a check on:
+    - OPENNEURO_API_KEY
+    - Project root existence
     
-    for dir_path in critical_dirs:
-        if not dir_path.exists():
-            logger.error(f"Critical directory missing: {dir_path}")
-            is_valid = False
+    Raises:
+        ValueError: If validation fails.
+    """
+    logger.info("Validating environment configuration...")
     
-    return is_valid
+    # Check API key
+    try:
+        get_openneuro_api_key()
+        logger.info("✓ OPENNERO_API_KEY is set.")
+    except ValueError as e:
+        logger.error(f"✗ Environment Validation Failed: {e}")
+        raise
+    
+    # Check project root
+    try:
+        root = get_project_root()
+        logger.info(f"✓ Project root exists: {root}")
+    except FileNotFoundError as e:
+        logger.error(f"✗ Environment Validation Failed: {e}")
+        raise
+    
+    # Check required directories exist (create if missing, but log)
+    required_dirs = ["data_raw", "data_processed", "results", "code", "tests"]
+    for dir_name in required_dirs:
+        try:
+            ensure_directory(name=dir_name)
+            logger.debug(f"  - {dir_name}: OK")
+        except Exception as e:
+            logger.warning(f"  - {dir_name}: Could not ensure ({e})")
+    
+    logger.info("Environment validation complete.")
 
 def main():
-    """CLI entry point to validate environment and print paths."""
-    print("=== llmXive Environment Configuration ===")
-    root = get_project_root()
-    print(f"Project Root: {root}")
+    """
+    CLI entry point to validate environment and print configuration.
+    """
+    logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
     
-    api_key = get_openneuro_api_key(required=False)
-    if api_key:
-        print("OpenNeuro API Key: [REDACTED] (Found)")
-    else:
-        print("OpenNeuro API Key: [MISSING]")
-    
-    if validate_environment():
-        print("Environment validation: PASSED")
-    else:
-        print("Environment validation: FAILED")
-        return 1
-    
-    return 0
+    try:
+        validate_environment()
+        print("\nConfiguration Summary:")
+        print(f"  Project Root: {get_project_root()}")
+        print(f"  Data Raw:     {get_path('data_raw')}")
+        print(f"  Data Processed: {get_path('data_processed')}")
+        print(f"  Results:      {get_path('results')}")
+        print(f"  API Key Set:  {'Yes' if os.getenv('OPENNEURO_API_KEY') else 'No'}")
+        print("\nEnvironment is ready.")
+    except (ValueError, FileNotFoundError) as e:
+        print(f"\nError: {e}")
+        exit(1)
 
 if __name__ == "__main__":
-    exit(main())
+    main()
