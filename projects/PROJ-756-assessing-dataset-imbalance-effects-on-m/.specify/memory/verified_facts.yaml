@@ -1,0 +1,10 @@
+'|footprint gb less memory than':
+  quote: either 20, 60, 120, 250, 320, 500 GB;  the user can use the format option
+    from system settings to utilize the new HDD. Inside, the Xbox 360 uses the triple-core
+    IBM designed Xenon as its CPU, with each core capable of simultaneously processing
+    two threads, and can therefore operate on up to six threads at once. Graphics
+    processing is handled by the ATI Xenos, which has 10 MB of eDRAM. Its main memory
+    pool is 512 MB in size.
+  source_id: Xbox 360 technical specifications
+  url: https://en.wikipedia.org/wiki/Xbox_360_technical_specifications
+  value: 512 MB

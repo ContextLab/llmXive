@@ -1,0 +1,28 @@
+T016:
+  c: false
+  h: b4d110c78a40240838c03ba667ac338bc85f4f0fa1a6282b6fafea8d14ef9c9d
+  r: The provided `code/evaluation.py` defines helper functions but does not contain
+    a runnable entry that loads models and calls `generate_report` with the required
+    `results/baseline_report.csv` path, and the expected CSV file is absent from the
+    repository. Consequently the baseline performance report has not been produced
+    as the task demands.
+T018:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, configuration files, or test output showing that API errors and data
+    ingestion failures are now logged with a configurable retry count were provided.
+    The claim lacks any concrete artifact (e.g., a logging module, updated ingestion
+    script, or documentation) to verify the required functionality.
+T019:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No test artifacts, logs, or reports are present showing that Tasks\u202FT012\
+    \ and\u202FT013 have been executed and passed after the baseline implementation.\
+    \ The claim lacks any concrete evidence (e.g., CI run output, CSV performance\
+    \ reports, or verification scripts) required to confirm the verification."
+T020:
+  c: false
+  h: d402660beb88aed357a65f3e4afd5f54632eb0c961b0adf168073ffa038446b1
+  r: "The required file `tests/contract/test_resampling_schema.py` is missing from\
+    \ the repository, so no test code exists to validate the resampling logic or CV\
+    \ constraints. Without this artifact, the task\u2019s deliverable is not present."

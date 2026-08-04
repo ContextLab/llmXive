@@ -1,0 +1,63 @@
+# Contract for Resampling Pipeline Output (Task T020)
+# This file defines the expected schema and constraints for the output
+# of the resampling logic in code/resampling.py.
+
+# The resampling logic MUST produce a JSON file at:
+# data/processed/resampling_output.json
+
+schema_version: "1.0"
+description: "Schema for resampling output validating CV constraints"
+
+required_fields:
+  - bin_id
+  - target_mean
+  - bin_count
+  - cv_score
+  - total_samples
+  - strategy
+
+constraints:
+  # The primary constraint for User Story 2 (Resampling)
+  # The Coefficient of Variation of bin counts must be <= 0.10
+  cv_score:
+    type: float
+    max: 0.10
+    description: "Coefficient of Variation of bin counts (std/mean). Must be <= 0.10."
+
+  bin_count:
+    type: integer
+    min: 1
+    description: "Number of samples in the bin. Must be >= 1."
+
+output_format:
+  type: object
+  properties:
+    strategy:
+      type: string
+      description: "The resampling strategy used (e.g., 'dynamic_binning', 'cost_sensitive')"
+    total_samples:
+      type: integer
+      description: "Total number of samples in the resampled dataset"
+    cv_score:
+      type: number
+      description: "Calculated CV of the bin counts"
+    bins:
+      type: array
+      items:
+        type: object
+        properties:
+          bin_id:
+            type: integer
+          target_mean:
+            type: number
+          bin_count:
+            type: integer
+        required:
+          - bin_id
+          - target_mean
+          - bin_count
+  required:
+    - strategy
+    - total_samples
+    - cv_score
+    - bins

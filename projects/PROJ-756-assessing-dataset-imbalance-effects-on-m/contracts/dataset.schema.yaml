@@ -1,0 +1,93 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Processed Materials Dataset Schema
+description: >
+  Schema for validated processed datasets used in imbalance analysis.
+  Validated by tests/contract/test_dataset_schema.py.
+type: object
+required:
+  - metadata
+  - features
+  - targets
+  - imbalance_scores
+properties:
+  metadata:
+    type: object
+    required:
+      - source
+      - timestamp
+      - sample_count
+      - property_name
+    properties:
+      source:
+        type: string
+        description: Origin of the data (e.g., 'OQMD', 'AFLOW', 'Combined')
+      timestamp:
+        type: string
+        format: date-time
+        description: ISO 8601 timestamp of processing
+      sample_count:
+        type: integer
+        minimum: 100
+        description: Number of samples in the dataset
+      property_name:
+        type: string
+        description: Name of the target property being predicted
+  features:
+    type: object
+    required:
+      - columns
+      - descriptor_count
+    properties:
+      columns:
+        type: array
+        items:
+          type: string
+        description: List of feature column names (Magpie descriptors)
+      descriptor_count:
+        type: integer
+        minimum: 14
+        description: Total number of compositional descriptors
+  targets:
+    type: object
+    required:
+      - column_name
+      - min
+      - max
+      - mean
+      - std
+    properties:
+      column_name:
+        type: string
+        description: Name of the target column
+      min:
+        type: number
+      max:
+        type: number
+      mean:
+        type: number
+      std:
+        type: number
+      distribution_type:
+        type: string
+        enum:
+          - skewed
+          - balanced
+          - unknown
+        description: Inferred distribution type based on imbalance score
+  imbalance_scores:
+    type: object
+    required:
+      - target_gini
+      - compositional_gini
+    properties:
+      target_gini:
+        type: number
+        minimum: 0
+        maximum: 1
+        description: Gini coefficient of the target values
+      compositional_gini:
+        type: number
+        minimum: 0
+        maximum: 1
+        description: Gini coefficient derived from compositional feature space clustering
+additionalProperties: false
