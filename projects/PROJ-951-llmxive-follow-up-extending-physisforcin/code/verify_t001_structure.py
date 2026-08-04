@@ -2,38 +2,41 @@ import os
 from pathlib import Path
 from create_project_structure import create_project_structure
 
-def print_tree(start_path: Path, indent: str = ""):
-    """Recursively prints the directory tree structure."""
-    print(indent + start_path.name)
-    if start_path.is_dir():
-        items = sorted(start_path.iterdir())
-        for i, item in enumerate(items):
-            is_last = i == len(items) - 1
-            connector = "└── " if is_last else "├── "
-            new_indent = indent + ("    " if is_last else "│   ")
-            print_tree(item, indent + connector)
+def print_tree(path, prefix=""):
+    """Recursively prints the directory tree."""
+    path = Path(path)
+    if not path.exists():
+        print(f"{prefix}[MISSING] {path.name}")
+        return
+
+    print(f"{prefix}[DIR ] {path.name}")
+    
+    try:
+        items = sorted(path.iterdir())
+    except PermissionError:
+        print(f"{prefix}  [ERR  ] Permission denied")
+        return
+
+    for i, item in enumerate(items):
+        is_last = i == len(items) - 1
+        extension = "└── " if is_last else "├── "
+        child_prefix = prefix + ("    " if is_last else "│   ")
+        
+        if item.is_dir():
+            print(f"{prefix}{extension}{item.name}/")
+            print_tree(item, child_prefix)
+        else:
+            print(f"{prefix}{extension}{item.name}")
 
 def main():
-    """
-    Verifies that the T001 task has been completed by checking the existence
-    of the required project root directory.
-    """
-    target_dir = Path("projects/PROJ-951-llmxive-follow-up-extending-physisforcin/code")
+    target_path = Path("projects/PROJ-951-llmxive-follow-up-extending-physisforcin/code")
     
-    # Ensure the structure exists
-    create_project_structure()
-    
-    if not target_dir.exists():
-        print(f"ERROR: Directory {target_dir} does not exist.")
+    print(f"Verifying structure at: {target_path}")
+    if not target_path.exists():
+        print("ERROR: Target directory does not exist. Please run T001 first.")
         return False
     
-    if not target_dir.is_dir():
-        print(f"ERROR: {target_dir} is not a directory.")
-        return False
-    
-    print(f"SUCCESS: T001 Project root exists at {target_dir.resolve()}")
-    print("\nDirectory Tree:")
-    print_tree(target_dir)
+    print_tree(target_path)
     return True
 
 if __name__ == "__main__":

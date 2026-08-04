@@ -47,7 +47,7 @@
 - [X] T001b [P] Create `tests/` directory structure
 - [X] T001c [P] Create `data/raw/` and `data/processed/` directories
 - [X] T001d [P] Create `artifacts/` and `artifacts/models/` directories
-- [ ] T002 {{claim:c_1ed3d08c}} <!-- FAILED: unspecified -->
+- [ ] T002 {{claim:c_1ed3d08c}} <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
 - [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
 
 ---
@@ -59,9 +59,9 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [ ] T004 Implement `src/config.py` adhering to JSON Schema contract defined in `contracts/config_schema.json` for paths, seeds, and API keys (no hardcoded secrets)
-- [ ] T005 [P] Create `src/lib/utils.py` with logging setup, random seed initialization, and deterministic file I/O helpers
+- [X] T005 [P] Create `src/lib/utils.py` with logging setup, random seed initialization, and deterministic file I/O helpers
 - [ ] T006 [P] Setup `tests/contract/` framework using `pytest-jsonschema` to validate `config.py` against `contracts/config_schema.json` and output artifacts against `data-model.md`
-- [ ] T007 Create `data/provenance.yaml` schema and initialization logic to record API endpoints, checksums, and processing params
+- [X] T007 Create `data/provenance.yaml` schema and initialization logic to record API endpoints, checksums, and processing params
 - [ ] T008 Implement data directory structure with checksumming scripts for `data/raw/` and `data/processed/`
 - [X] T009a Implement Google Earth Engine Service Account authentication setup in `src/data/ingestion.py` using a pre-seeded Service Account JSON key via environment variable `GOOGLE_EARTH_ENGINE_CREDENTIALS` (not interactive auth) to enable API access for CI reproducibility (Constitution Principle I)
 
@@ -83,12 +83,12 @@
 ### Implementation for User Story 1
 
 - [X] T011a [US1] Implement logic in `src/data/ingestion.py` to calculate cloud-free coverage for spring (March-May) 2020 and select 10-15 study sites deterministically based on >80% coverage from candidate sites list defined in config.py (FR-001) <!-- FAILED: unspecified -->
-- [X] T011 [US1] Implement `src/data/ingestion.py` to download Sentinel data via Google Earth Engine API for the selected 10-15 sites (2018-2023) [UNRESOLVED-CLAIM: c_9b057b7e — status=not_enough_info], extracting NDVI/EVI at regular intervals, relying on authentication established in T009a (FR-001)
+- [X] T011 [US1] Implement `src/data/ingestion.py` to download Sentinel data via Google Earth Engine API for the selected 10-15 sites (2018-2023), extracting NDVI/EVI at regular intervals, relying on authentication established in T009a (FR-001)
 - [X] T012 [US1] Implement `src/data/ingestion.py` to retrieve daily climate data (temp, precip, solar) from NOAA GHCN and NASA POWER APIs using coordinate-based station lookup and align with satellite timestamps (FR-002)
 - [X] T013 [US1] Implement `src/data/ingestion.py` to fetch ground-truth phenology observations from Nature's Notebook API using radius search to map observations to the selected sites defined in T011a (FR-003)
 - [X] T020 [US1] Implement `src/data/preprocessing.py` to create Lagged Feature Windows (e.g., Jan-Mar data to predict April event) to prevent data leakage (Plan: Feature Independence)
 - [X] T021 [US1] Implement `src/data/preprocessing.py` to exclude `gdd_cumulative` from raw inputs to avoid multicollinearity with temperature (Plan: Feature Independence)
-- [X] T014 [US1] Implement interpolation logic in `src/data/preprocessing.py`: Linear interpolate if ≤1 consecutive 10-day gaps [UNRESOLVED-CLAIM: c_f6d1ef52 — status=not_enough_info]; exclude rows if >1 gap; flag and exclude sites with zero cloud-free observations in critical windows (FR-008, Edge Case)
+- [X] T014 [US1] Implement interpolation logic in `src/data/preprocessing.py`: Linear interpolate if ≤1 consecutive 10-day gaps; exclude rows if >1 gap; flag and exclude sites with zero cloud-free observations in critical windows (FR-008, Edge Case)
 - [ ] T015 [US1] Implement logic to flag sites with <80% cloud-free coverage or zero observations in critical windows as "insufficient data" and exclude from training (Edge Case)
 - [ ] T016 [US1] Implement logic to handle missing phenology labels by masking rows during training rather than imputation (Edge Case)
 - [ ] T017 [US1] Implement `data/provenance.yaml` population with GEE endpoints, date ranges, processing_params, software_version, and checksums for all downloaded data, updating immediately after each T011-T013 step (Constitution Principle VI)

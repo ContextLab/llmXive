@@ -1,3 +1,1 @@
-"""
-Contract tests validating data schemas and API contracts.
-"""
+"""Contract testing framework for schema validation."""

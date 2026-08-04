@@ -1,0 +1,44 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No directory structure (`data/raw`, `data/processed`, `code`, `tests`, `docs`)\
+    \ was shown or listed in the provided evidence, so we cannot confirm that the\
+    \ required project folders exist and contain any content. The implementer must\
+    \ supply a view of the repository showing these directories (and preferably non\u2011\
+    empty placeholder files) to satisfy the task."
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., `pyproject.toml` with Black
+    settings, `.ruff.toml` or `.flake8` files) or scripts/CI steps are present in
+    the provided evidence, so the requirement to configure ruff/flake8 and Black has
+    not been demonstrated. The implementer must add the appropriate configuration
+    files and show they are active (e.g., a sample run output).
+T004:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No GitHub Actions workflow file (e.g., `.github/workflows/ci.yml`) was provided\
+    \ or referenced, and there is no evidence that a CI pipeline installing R\u2011\
+    base, the R packages `lme4` and `ordinal`, and the required Python dependencies\
+    \ exists. The task therefore remains unfulfilled."
+T005:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `.gitignore` file was presented, and there is no evidence of its contents\
+    \ containing the required patterns (`data/raw/*` except `.gitkeep`, `data/processed/*`,\
+    \ `__pycache__`, model caches). The task\u2019s deliverable is therefore missing."
+T010:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `.env` template file containing an `HF_TOKEN` placeholder was provided or\
+    \ referenced; the claim contains only the higher\u2011level feature specification,\
+    \ not the required environment\u2011configuration artifact. The task remains undone\
+    \ until a proper `.env` template is added."
+T011:
+  c: false
+  h: e23fb44fe5caeeb737dffdfec5709b1c389c68e09803eb8db37a2581ffede8bf
+  r: The `code/utils/schema_validator.py` file exists, but the required schema `contracts/dataset.schema.yaml`
+    is missing, so the validator cannot actually validate against the intended contract.
+    Additionally, the shown source is truncated, suggesting the implementation may
+    be incomplete. The missing schema file must be added (or the path corrected) and
+    the validator fully implemented to meet the task.

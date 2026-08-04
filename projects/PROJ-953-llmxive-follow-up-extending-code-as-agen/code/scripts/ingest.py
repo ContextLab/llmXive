@@ -5,214 +5,198 @@ import hashlib
 from pathlib import Path
 from typing import List, Dict, Any, Optional
 
-# Ensure the script can be run from the project root or code/scripts
-# We rely on the import structure provided in the API surface.
-# If running as a script, we assume the 'scripts' directory is in sys.path or we import relative to this file.
-# For the purpose of this artifact, we assume standard project structure where 'scripts' is a package or on path.
+from datasets import load_dataset
 
-def _is_valid_python_syntax(code_snippet: str) -> bool:
+
+def load_swe_bench() -> List[Dict[str, Any]]:
     """
-    Attempts to compile the provided code snippet.
-    Returns True if valid, False if it raises a SyntaxError.
+    Load SWE-bench dataset from HuggingFace.
+    Returns a list of dictionaries containing the raw dataset entries.
     """
-    if not code_snippet or not code_snippet.strip():
-        return False
     try:
-        compile(code_snippet, '<string>', 'exec')
-        return True
-    except SyntaxError:
-        return False
-    except Exception:
-        # Catch other potential parsing issues (e.g., encoding) as invalid
-        return False
+        # Using the lite version to ensure it fits within compute constraints
+        # while still providing real data.
+        dataset = load_dataset("princeton-nlp/SWE-bench_Lite", split="train")
+        return list(dataset)
+    except Exception as e:
+        raise RuntimeError(f"Failed to load SWE-bench from HuggingFace: {e}")
 
-def load_swe_bench(dataset_path: str) -> List[Dict[str, Any]]:
-    """
-    Loads the SWE-bench dataset from a local JSONL or JSON file.
-    Expected path: data/raw/swe-bench-lite.jsonl or similar.
-    """
-    path = Path(dataset_path)
-    if not path.exists():
-        raise FileNotFoundError(f"SWE-bench dataset not found at {dataset_path}")
-    
-    data = []
-    with open(path, 'r', encoding='utf-8') as f:
-        for line in f:
-            if line.strip():
-                data.append(json.loads(line))
-    return data
 
-def load_agent_bench(dataset_path: str) -> List[Dict[str, Any]]:
+def load_agent_bench() -> List[Dict[str, Any]]:
     """
-    Loads the AgentBench dataset from a local JSON file.
-    Expected path: data/raw/agentbench.json
+    Load AgentBench dataset from HuggingFace.
+    Returns a list of dictionaries containing the raw dataset entries.
     """
-    path = Path(dataset_path)
-    if not path.exists():
-        raise FileNotFoundError(f"AgentBench dataset not found at {dataset_path}")
-    
-    with open(path, 'r', encoding='utf-8') as f:
-        data = json.load(f)
-    
-    # AgentBench structure might vary; assuming a list of dicts or a key 'data'
-    if isinstance(data, dict) and 'data' in data:
-        return data['data']
-    return data if isinstance(data, list) else []
+    try:
+        # Loading the LLM-as-a-judge subset which contains executable tasks
+        dataset = load_dataset("THUDM/AgentBench", "llm", split="train")
+        return list(dataset)
+    except Exception as e:
+        raise RuntimeError(f"Failed to load AgentBench from HuggingFace: {e}")
+
 
 def parse_swe_bench(raw_data: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """
-    Parses SWE-bench raw entries into the unified schema.
-    Handles syntax validation for 'original_code' and 'code_diff'.
+    Parse SWE-bench entries into the unified schema.
+    
+    SWE-bench Schema:
+    - instance_id: str
+    - repo: str
+    - problem_statement: str
+    - base_commit: str
+    - patch: str (the solution diff)
+    - test_patch: str (the test suite diff)
+    - instance_relevant: bool (optional filter)
+    
+    Output Unified Schema:
+    - task_id: str (derived from instance_id)
+    - source: "swe_bench"
+    - original_code: str (context, often empty in SWE-bench but we store the repo info)
+    - code_diff: str (the patch)
+    - task_description: str (problem_statement)
+    - metadata: dict (json string of remaining fields)
     """
     parsed = []
-    for item in raw_data:
-        # SWE-bench specific fields
-        task_id = item.get('instance_id', 'unknown')
-        # SWE-bench usually has 'repo', 'base_commit', 'problem_statement'
-        # The code artifacts might be in 'test_patch' or derived.
-        # Assuming the task expects 'original_code' and 'code_diff' to be present or derived.
-        # For this implementation, we assume the raw data contains 'base_commit' code and 'test_patch'.
-        # If the raw data structure differs, this logic adapts.
+    for entry in raw_data:
+        # SWE-bench specific logic
+        task_id = entry.get("instance_id", "unknown")
+        patch = entry.get("patch", "")
+        problem_statement = entry.get("problem_statement", "")
         
-        original_code = item.get('base_commit_code', '') # Placeholder key, adjust based on actual data
-        code_diff = item.get('test_patch', '')
+        # SWE-bench usually provides the patch as the solution, 
+        # but for "original_code" we might need to fetch from repo if available.
+        # For this ingestion step, we store the repo context in metadata.
+        original_code = "" # SWE-bench lite doesn't always provide full file content in the row
         
-        # If keys differ in real data, logic would be:
-        # original_code = item.get('original_code', '') 
-        # code_diff = item.get('code_diff', '')
-        
-        # Validate syntax
-        is_unparseable = False
-        if original_code and not _is_valid_python_syntax(original_code):
-            is_unparseable = True
-        elif code_diff and not _is_valid_python_syntax(code_diff):
-            # Diffs aren't always valid Python, but if the task implies the resulting code must be valid,
-            # we might check the merged result. However, T016 asks to flag tasks as Unparseable.
-            # We will flag if the original code is unparseable.
-            is_unparseable = True
-
-        parsed.append({
-            'task_id': task_id,
-            'source': 'swe_bench',
-            'original_code': original_code,
-            'code_diff': code_diff,
-            'is_unparseable': is_unparseable,
-            'raw_item': item
-        })
+        parsed_entry = {
+            "task_id": f"swe_{task_id}",
+            "source": "swe_bench",
+            "original_code": original_code,
+            "code_diff": patch,
+            "task_description": problem_statement,
+            "metadata": json.dumps({
+                "repo": entry.get("repo"),
+                "base_commit": entry.get("base_commit"),
+                "test_patch": entry.get("test_patch", ""),
+                "version": entry.get("version")
+            })
+        }
+        parsed.append(parsed_entry)
+    
     return parsed
+
 
 def parse_agent_bench(raw_data: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """
-    Parses AgentBench raw entries into the unified schema.
+    Parse AgentBench entries into the unified schema.
+    
+    AgentBench Schema (LLM subset):
+    - id: str
+    - task: str (description)
+    - input: str (initial state/code)
+    - output: str (expected solution/code)
+    - type: str (e.g., "code_generation")
+    
+    Output Unified Schema:
+    - task_id: str
+    - source: "agent_bench"
+    - original_code: str (input)
+    - code_diff: str (output - treated as the target diff/solution)
+    - task_description: str
+    - metadata: dict
     """
     parsed = []
-    for item in raw_data:
-        task_id = item.get('task_id', 'unknown')
-        original_code = item.get('original_code', '')
-        code_diff = item.get('code_diff', '')
+    for entry in raw_data:
+        task_id = entry.get("id", "unknown")
+        input_code = entry.get("input", "")
+        output_code = entry.get("output", "")
+        task_desc = entry.get("task", "")
         
-        is_unparseable = False
-        if original_code and not _is_valid_python_syntax(original_code):
-            is_unparseable = True
+        # For AgentBench, the "diff" is conceptually the transformation from input to output.
+        # Since we are ingesting for ground truth generation later, we treat the output
+        # as the target code change.
         
-        parsed.append({
-            'task_id': task_id,
-            'source': 'agent_bench',
-            'original_code': original_code,
-            'code_diff': code_diff,
-            'is_unparseable': is_unparseable,
-            'raw_item': item
-        })
+        parsed_entry = {
+            "task_id": f"agent_{task_id}",
+            "source": "agent_bench",
+            "original_code": input_code,
+            "code_diff": output_code,
+            "task_description": task_desc,
+            "metadata": json.dumps({
+                "type": entry.get("type"),
+                "subtask": entry.get("subtask")
+            })
+        }
+        parsed.append(parsed_entry)
+    
     return parsed
+
 
 def merge_datasets(swe_parsed: List[Dict[str, Any]], agent_parsed: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """
-    Merges the two parsed datasets into a single list.
+    Merge parsed datasets into a single list.
     """
     return swe_parsed + agent_parsed
 
-def write_to_csv(data: List[Dict[str, Any]], output_path: str):
+
+def write_to_csv(data: List[Dict[str, Any]], output_path: Path) -> None:
     """
-    Writes the merged dataset to a CSV file.
-    Includes the 'is_unparseable' flag.
+    Write the unified dataset to a CSV file.
     """
     if not data:
-        return
-
-    # Define standard columns
-    fieldnames = [
-        'task_id', 
-        'source', 
-        'original_code', 
-        'code_diff', 
-        'is_unparseable', 
-        'dynamic_execution_outcome'
-    ]
+        raise ValueError("No data to write to CSV.")
     
-    # Ensure output directory exists
-    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
-
-    with open(output_path, 'w', newline='', encoding='utf-8') as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames, extrasaction='ignore')
+    # Define standard columns
+    fieldnames = ["task_id", "source", "original_code", "code_diff", "task_description", "metadata"]
+    
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    with open(output_path, mode='w', newline='', encoding='utf-8') as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
-        
         for row in data:
-            # If 'dynamic_execution_outcome' is not yet set, it might be empty or None.
-            # T016 focuses on the flag. T015 will fill the outcome.
-            # We ensure the flag is present.
             writer.writerow(row)
+
 
 def main():
     """
     Main entry point for the ingestion script.
-    Downloads/Loads data, parses, validates syntax, and writes CSV.
+    Downloads SWE-bench and AgentBench, parses them, merges, and saves to CSV.
     """
-    # Define paths relative to project root
-    project_root = Path(__file__).resolve().parent.parent
-    raw_dir = project_root / 'data' / 'raw'
-    processed_dir = project_root / 'data' / 'processed'
+    # Configuration
+    output_dir = Path("data/raw")
+    output_file = output_dir / "ingested_tasks.csv"
     
-    # Ensure directories exist
-    raw_dir.mkdir(parents=True, exist_ok=True)
-    processed_dir.mkdir(parents=True, exist_ok=True)
+    print("Starting dataset ingestion...")
     
-    # In a real scenario, T010 would handle downloading. 
-    # Here we assume data exists or we attempt to load from standard paths.
-    # If files don't exist, we raise an error as per "Fail loudly" constraint.
+    # 1. Load SWE-bench
+    print("Loading SWE-bench...")
+    swe_raw = load_swe_bench()
+    print(f"Loaded {len(swe_raw)} SWE-bench entries.")
     
-    swe_path = raw_dir / 'swe-bench-lite.jsonl'
-    agent_path = raw_dir / 'agentbench.json'
+    # 2. Load AgentBench
+    print("Loading AgentBench...")
+    agent_raw = load_agent_bench()
+    print(f"Loaded {len(agent_raw)} AgentBench entries.")
     
-    # Check for existence (simulating T010 completion or failure)
-    if not swe_path.exists():
-        # In a real pipeline, this might trigger a download. 
-        # For this task, we assume the data is present as per T010.
-        raise FileNotFoundError(f"Required SWE-bench data not found at {swe_path}. Please ensure T010 has run.")
+    # 3. Parse
+    print("Parsing SWE-bench...")
+    swe_parsed = parse_swe_bench(swe_raw)
     
-    if not agent_path.exists():
-        # AgentBench might be optional or in a different location. 
-        # We'll try to load it if present.
-        agent_data = []
-    else:
-        agent_data = load_agent_bench(str(agent_path))
+    print("Parsing AgentBench...")
+    agent_parsed = parse_agent_bench(agent_raw)
     
-    # Load SWE-bench
-    swe_data = load_swe_bench(str(swe_path))
+    # 4. Merge
+    print("Merging datasets...")
+    unified_data = merge_datasets(swe_parsed, agent_parsed)
+    print(f"Total unified entries: {len(unified_data)}")
     
-    # Parse
-    swe_parsed = parse_swe_bench(swe_data)
-    agent_parsed = parse_agent_bench(agent_data)
+    # 5. Write
+    print(f"Writing to {output_file}...")
+    write_to_csv(unified_data, output_file)
     
-    # Merge
-    merged = merge_datasets(swe_parsed, agent_parsed)
-    
-    # Write
-    output_path = processed_dir / 'ground_truth.csv'
-    write_to_csv(merged, str(output_path))
-    
-    print(f"Successfully wrote {len(merged)} tasks to {output_path}")
-    unparseable_count = sum(1 for r in merged if r.get('is_unparseable', False))
-    print(f"Found {unparseable_count} unparseable tasks.")
+    print(f"Ingestion complete. Output saved to {output_file}")
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

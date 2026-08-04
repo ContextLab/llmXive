@@ -1,0 +1,58 @@
+{
+  "nodes": [
+    {
+      "id": 0,
+      "type": "module",
+      "start_point": { "row": 0, "column": 0 },
+      "end_point": { "row": 1, "column": 20 }
+    },
+    {
+      "id": 1,
+      "type": "function_definition",
+      "start_point": { "row": 0, "column": 0 },
+      "end_point": { "row": 1, "column": 20 }
+    },
+    {
+      "id": 2,
+      "type": "identifier",
+      "start_point": { "row": 0, "column": 4 },
+      "end_point": { "row": 0, "column": 11 }
+    },
+    {
+      "id": 3,
+      "type": "block",
+      "start_point": { "row": 1, "column": 4 },
+      "end_point": { "row": 1, "column": 20 }
+    },
+    {
+      "id": 4,
+      "type": "expression_statement",
+      "start_point": { "row": 1, "column": 4 },
+      "end_point": { "row": 1, "column": 20 }
+    },
+    {
+      "id": 5,
+      "type": "call",
+      "start_point": { "row": 1, "column": 4 },
+      "end_point": { "row": 1, "column": 20 }
+    },
+    {
+      "id": 6,
+      "type": "identifier",
+      "start_point": { "row": 1, "column": 4 },
+      "end_point": { "row": 1, "column": 11 }
+    }
+  ],
+  "edges": [
+    { "from": 0, "to": 1 },
+    { "from": 1, "to": 2 },
+    { "from": 1, "to": 3 },
+    { "from": 3, "to": 4 },
+    { "from": 4, "to": 5 },
+    { "from": 5, "to": 6 }
+  ],
+  "metadata": {
+    "has_semantic_nodes": true,
+    "fallback_active": false
+  }
+}

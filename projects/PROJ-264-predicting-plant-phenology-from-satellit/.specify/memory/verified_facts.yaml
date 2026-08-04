@@ -1,5 +1,5 @@
-'|block cross spatial validation':
+'|defined en golden holdout http implement model org plan py ratio src temporal train using wiki wikipedia':
   quote: 1.618033988749895 ((1+sqrt(5))/2 (IEEE-754 double, Python stdlib math.sqrt))
   source_id: golden_ratio
   url: https://en.wikipedia.org/wiki/Golden_ratio
-  value: '5'
+  value: '1.618033988749895'

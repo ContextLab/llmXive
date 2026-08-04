@@ -25,7 +25,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project structure per implementation plan (`code/`, `data/`, `tests/`)
-- [ ] T002 [P] Initialize Python 3.11 project with `requirements.txt` (datasets, tree-sitter, scikit-learn, pandas, networkx, radon, pytest, jsonschema)
+- [X] T002 [P] Initialize Python 3.11 project with `requirements.txt` (datasets, tree-sitter, scikit-learn, pandas, networkx, radon, pytest, jsonschema)
 - [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
 
 ---
@@ -37,9 +37,9 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [ ] T004 [P] Create YAML schemas in `contracts/` named `task_artifact.schema.yaml`, `structural_metric.schema.yaml`, and `model_outcome.schema.yaml` (YAML format, not JSON) to validate data artifacts. The `structural_metric.schema.yaml` MUST explicitly define `semantic_complexity_score` as optional and include the fallback metrics (`lines_of_code`) in the schema definition.
-- [ ] T005 [P] Implement `scripts/update_state.py` to update `state/projects/...yaml` (Constitution Principle V)
+- [X] T005 [P] Implement `scripts/update_state.py` to update `state/projects/...yaml` (Constitution Principle V)
 - [ ] T006 [P] Setup `data/raw/`, `data/processed/`, and `data/graphs/` directories with `.gitkeep`
-- [~] T007 [P] Create base configuration loader for environment variables and dataset paths
+- [ ] T007 [P] Create base configuration loader for environment variables and dataset paths
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -62,8 +62,8 @@
 - [X] T011 [US1] Implement code artifact extraction logic in `code/scripts/ingest.py` to parse `code_diff` and `original_code` for both datasets, ensuring both are processed and merged before generating the ground truth.
 - [X] T012 [US1] Implement `code/scripts/baseline_runner.py` to execute code in a full-environment baseline: use Docker containers (or equivalent sandboxing) to replicate the specific task environment for SWE-bench/AgentBench, install dependencies, and run the test suite to record `Pass`/`Fail`/`Timeout` outcomes. This must satisfy FR-003 and Constitution Principle VI.
 - [X] T013 [US1] Implement timeout logic in `code/scripts/baseline_runner.py` (with a configurable maximum duration) to record "Timeout/Fail" outcomes; explicitly forbid treating timeouts as "Unknown" or "Skipped" to maintain safety conservatism.
-- [~] T016 [US1] Add error handling for syntax errors: implement logic to flag tasks as "Unparseable" in the CSV generation step, retain these rows in the ground truth with a specific status flag, and ensure subsequent tasks (T015, T019, T020) explicitly skip the `tree-sitter` step for these entries.
-- [ ] T015 [US1] Generate `data/processed/ground_truth.csv` with columns: `task_id`, `code_diff`, `dynamic_execution_outcome` (consuming results from T012/T013/T016), ensuring all "Unparseable" tasks are correctly flagged and included.
+- [ ] T016 [US1] Add error handling for syntax errors: implement logic to flag tasks as "Unparseable" in the CSV generation step, retain these rows in the ground truth with a specific status flag, and ensure subsequent tasks (T015, T019, T020) explicitly skip the `tree-sitter` step for these entries.
+- [X] T015 [US1] Generate `data/processed/ground_truth.csv` with columns: `task_id`, `code_diff`, `dynamic_execution_outcome` (consuming results from T012/T013/T016), ensuring all "Unparseable" tasks are correctly flagged and included.
 
 **Checkpoint**: Ground truth dataset is generated and validated.
 
@@ -78,17 +78,17 @@
 ### Tests for User Story 2
 
 - [X] T017 [P] [US2] Unit test for `tree-sitter` parsing on valid Python code in `tests/unit/test_tree_sitter.py`
-- [~] T018 [P] [US2] Unit test for fallback metrics (depth, cyclomatic, LOC) when semantic nodes are missing in `tests/unit/test_fallback_metrics.py`
+- [X] T018 [P] [US2] Unit test for fallback metrics (depth, cyclomatic, LOC) when semantic nodes are missing in `tests/unit/test_fallback_metrics.py`
 
 ### Implementation for User Story 2
 
 - [ ] T019 [P] [US2] Implement `scripts/extract_features.py` to load `ground_truth.csv` and iterate through `code_diff`, explicitly filtering out "Unparseable" tasks before processing.
-- [ ] T020 [US2] Implement `tree-sitter` parsing logic in `code/scripts/extract_features.py` to generate dependency graphs
-- [ ] T021 [US2] Implement metric calculation in `code/scripts/extract_features.py` using `tree-sitter` to calculate `dependency_depth`, `cyclomatic_complexity`, and `semantic_complexity_score`. If semantic nodes are missing, calculate `dependency_depth`, `cyclomatic_complexity`, and `lines_of_code` as the fallback set. Serialize dependency graphs to `data/graphs/{task_id}.json`.
+- [X] T020 [US2] Implement `tree-sitter` parsing logic in `code/scripts/extract_features.py` to generate dependency graphs
+- [X] T021 [US2] Implement metric calculation in `code/scripts/extract_features.py` using `tree-sitter` to calculate `dependency_depth`, `cyclomatic_complexity`, and `semantic_complexity_score`. If semantic nodes are missing, calculate `dependency_depth`, `cyclomatic_complexity`, and `lines_of_code` as the fallback set. Serialize dependency graphs to `data/graphs/{task_id}.json`.
 - [ ] T022 [US2] Implement fallback logic for "semantic_complexity" (use simplified set: `dependency_depth`, `cyclomatic_complexity`, `lines_of_code` if specific nodes missing)
-- [ ] T023 [US2] Serialize dependency graphs to `data/graphs/{task_id}.json` for traceability
-- [ ] T024 [US2] Generate `data/processed/features.csv` merging `ground_truth.csv` with calculated metrics
-- [ ] T025 [US2] Add validation to ensure no missing metric values in `features.csv`
+- [~] T023 [US2] Serialize dependency graphs to `data/graphs/{task_id}.json` for traceability
+- [X] T024 [US2] Generate `data/processed/features.csv` merging `ground_truth.csv` with calculated metrics
+- [~] T025 [US2] Add validation to ensure no missing metric values in `features.csv`
 
 **Checkpoint**: Feature dataset is generated with all structural metrics.
 

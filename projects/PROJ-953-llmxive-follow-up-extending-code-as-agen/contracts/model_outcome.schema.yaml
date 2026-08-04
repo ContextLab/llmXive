@@ -1,68 +1,55 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: Model Outcome Schema
-description: Schema for validating model training outcomes and threshold analysis results.
+description: Schema for validating model outcome data artifacts
 type: object
 required:
-  - model_type
-  - thresholds
-  - minimum_fnr
-  - is_safe
-  - correlation_coefficient
+  - model_id
+  - outcome_type
+  - results
 properties:
-  model_type:
+  model_id:
     type: string
-    description: Type of model trained (e.g., LogisticRegression, RandomForest).
-    enum:
-      - LogisticRegression
-      - RandomForest
-  training_seed:
-    type: integer
-    description: Random seed used for training reproducibility.
-  thresholds:
+    description: Unique identifier for the model
+  outcome_type:
+    type: string
+    description: Type of outcome (e.g., "prediction", "threshold_analysis")
+  results:
     type: object
-    description: False Negative Rates (FNR) for each evaluated threshold.
+    description: The model outcome results
     properties:
-      0.01:
+      accuracy:
         type: number
         minimum: 0
         maximum: 1
-      0.05:
+      precision:
         type: number
         minimum: 0
         maximum: 1
-      0.1:
+      recall:
         type: number
         minimum: 0
         maximum: 1
-    required:
-      - 0.01
-      - 0.05
-      - 0.1
-  minimum_fnr:
-    type: number
-    description: The minimum achievable False Negative Rate across all thresholds.
-    minimum: 0
-    maximum: 1
-  target_fnr:
-    type: number
-    description: The target False Negative Rate constraint (0.001 for 0.1%).
-    default: 0.001
-  is_safe:
-    type: boolean
-    description: Indicates if the model meets the safety constraint (FNR <= target).
-  correlation_coefficient:
-    type: number
-    description: Correlation coefficient between structural features and execution necessity.
-    minimum: -1
-    maximum: 1
-  associational_statement:
-    type: string
-    description: Explicit statement framing results as associational per FR-006.
-  optimal_threshold:
-    type: number
-    description: The selected optimal threshold based on safety constraints.
-  model_path:
-    type: string
-    description: Path to the saved model artifact.
-    pattern: "^models/.*\\.pkl$"
-additionalProperties: false
+      f1_score:
+        type: number
+        minimum: 0
+        maximum: 1
+      false_negative_rate:
+        type: number
+        minimum: 0
+        maximum: 1
+      threshold:
+        type: number
+      is_safe:
+        type: boolean
+  metadata:
+    type: object
+    description: Optional metadata
+    properties:
+      trained_at:
+        type: string
+        format: date-time
+      dataset_version:
+        type: string
+      hyperparameters:
+        type: object
+additionalProperties: true

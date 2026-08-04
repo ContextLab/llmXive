@@ -1,99 +1,77 @@
 """
 Contract tests for config.py against contracts/config_schema.json.
 
-This module validates that the Config dataclass and its JSON serialization
-strictly adhere to the schema defined in contracts/config_schema.json.
+Uses pytest-jsonschema to validate the generated configuration dictionary
+against the JSON Schema definition.
 """
 import json
 import os
 import pytest
+import jsonschema
 from pathlib import Path
+from src.config import get_config
 
-# Import the real Config class from the existing API surface
-from src.config import Config, get_config
-
-# Path to the schema relative to project root
-SCHEMA_PATH = Path("contracts/config_schema.json")
-
+# Determine paths relative to project root
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+SCHEMA_PATH = PROJECT_ROOT / "contracts" / "config_schema.json"
 
 @pytest.fixture
-def schema():
-    """Load the JSON schema from the contracts directory."""
+def config_schema():
+    """Load the JSON Schema for configuration."""
     if not SCHEMA_PATH.exists():
         pytest.fail(f"Schema file not found at {SCHEMA_PATH}")
     with open(SCHEMA_PATH, "r", encoding="utf-8") as f:
         return json.load(f)
 
-
 @pytest.fixture
-def config_instance():
-    """Generate a valid Config instance using the real get_config logic."""
-    # Ensure required env vars are set if the schema requires them, 
-    # or use defaults if the schema allows. 
-    # We rely on get_config() which handles defaults/overrides.
-    try:
-        cfg = get_config()
-        return cfg
-    except Exception as e:
-        pytest.fail(f"Failed to instantiate Config: {e}")
-
-
-def test_config_serializes_to_valid_json(config_instance):
-    """Ensure the Config instance can be serialized to valid JSON."""
-    try:
-        json_str = config_instance.to_json()
-        assert json_str is not None
-        assert isinstance(json_str, str)
-        # Verify it parses back
-        parsed = json.loads(json_str)
-        assert isinstance(parsed, dict)
-    except AttributeError:
-        # If to_json is not implemented, we check dict conversion if available
-        # or fail if the contract requires JSON serialization.
-        # Based on typical dataclass patterns, we assume to_json or asdict exists.
-        if hasattr(config_instance, 'asdict'):
-            json_str = json.dumps(config_instance.asdict())
-            json.loads(json_str)
+def config_dict():
+    """Generate the configuration dictionary from the singleton."""
+    # Force a fresh load if needed, or just get the current config
+    # get_config() returns the Config dataclass, we need to serialize it
+    cfg = get_config()
+    # Convert dataclass to dict recursively
+    def to_dict(obj):
+        if hasattr(obj, '__dataclass_fields__'):
+            return {k: to_dict(v) for k, v in obj.__dict__.items()}
+        elif isinstance(obj, (list, tuple)):
+            return [to_dict(i) for i in obj]
+        elif isinstance(obj, dict):
+            return {k: to_dict(v) for k, v in obj.items()}
         else:
-            pytest.fail("Config instance lacks JSON serialization method (to_json or asdict)")
+            return obj
+    
+    return to_dict(cfg)
 
-
-def test_config_against_schema(schema, config_instance):
-    """Validate the Config JSON output against the JSON Schema."""
-    pytest.importorskip("jsonschema")
-    from jsonschema import validate, ValidationError
-
-    # Serialize the config to a dict for validation
-    if hasattr(config_instance, 'to_json'):
-        config_json = json.loads(config_instance.to_json())
-    elif hasattr(config_instance, 'asdict'):
-        config_json = config_instance.asdict()
-    else:
-        # Fallback: try to access public attributes if dataclass
-        config_json = {
-            k: v for k, v in vars(config_instance).items() 
-            if not k.startswith('_')
-        }
-
+def test_config_validates_against_schema(config_dict, config_schema):
+    """
+    Verify that the runtime configuration dictionary conforms to the 
+    JSON Schema defined in contracts/config_schema.json.
+    """
     try:
-        validate(instance=config_json, schema=schema)
-    except ValidationError as e:
-        pytest.fail(f"Config validation failed against schema: {e.message}")
+        jsonschema.validate(instance=config_dict, schema=config_schema)
+    except jsonschema.ValidationError as e:
+        pytest.fail(f"Config validation failed: {e.message} at {list(e.absolute_path)}")
+    except jsonschema.SchemaError as e:
+        pytest.fail(f"Schema itself is invalid: {e.message}")
 
-
-def test_required_fields_exist(schema, config_instance):
-    """Verify that all required fields in the schema are present in the Config."""
-    required_fields = schema.get("required", [])
+def test_required_fields_present(config_dict, config_schema):
+    """
+    Explicitly check that all required fields from the schema are present
+    in the generated config dictionary.
+    """
+    required_fields = config_schema.get("required", [])
+    missing = []
+    for field in required_fields:
+        if field not in config_dict:
+            missing.append(field)
     
-    # Get available keys from the config instance
-    if hasattr(config_instance, 'to_json'):
-        config_json = json.loads(config_instance.to_json())
-    elif hasattr(config_instance, 'asdict'):
-        config_json = config_instance.asdict()
-    else:
-        config_json = {k: v for k, v in vars(config_instance).items() if not k.startswith('_')}
+    if missing:
+        pytest.fail(f"Missing required config fields: {missing}")
 
-    missing_fields = [f for f in required_fields if f not in config_json]
-    
-    if missing_fields:
-        pytest.fail(f"Missing required fields in Config: {missing_fields}")
+def test_schema_file_is_valid_json():
+    """Ensure the schema file itself is valid JSON."""
+    try:
+        with open(SCHEMA_PATH, "r", encoding="utf-8") as f:
+            json.load(f)
+    except json.JSONDecodeError as e:
+        pytest.fail(f"Schema file is not valid JSON: {e}")

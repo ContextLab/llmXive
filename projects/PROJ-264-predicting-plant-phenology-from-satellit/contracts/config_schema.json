@@ -1,148 +1,38 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "Project Configuration Schema",
-  "description": "JSON Schema for validating the project configuration file (config.json).",
+  "title": "Plant Phenology Pipeline Configuration",
+  "description": "JSON Schema for the project configuration adhering to T004 requirements.",
   "type": "object",
   "properties": {
     "paths": {
       "type": "object",
-      "description": "Directory paths for project artifacts.",
       "properties": {
-        "root": {
-          "type": "string",
-          "description": "Root directory of the project (absolute or relative to execution)."
-        },
-        "data_raw": {
-          "type": "string",
-          "description": "Path to raw data directory."
-        },
-        "data_processed": {
-          "type": "string",
-          "description": "Path to processed data directory."
-        },
-        "artifacts": {
-          "type": "string",
-          "description": "Path to artifacts directory."
-        },
-        "models": {
-          "type": "string",
-          "description": "Path to models subdirectory."
-        },
-        "figures": {
-          "type": "string",
-          "description": "Path to figures directory."
-        }
+        "data_raw": { "type": "string" },
+        "data_processed": { "type": "string" },
+        "artifacts": { "type": "string" },
+        "artifacts_models": { "type": "string" },
+        "logs": { "type": "string" },
+        "contracts": { "type": "string" }
       },
-      "required": ["root", "data_raw", "data_processed", "artifacts", "models", "figures"],
-      "additionalProperties": false
+      "required": ["data_raw", "data_processed", "artifacts", "artifacts_models"]
     },
     "seeds": {
       "type": "object",
-      "description": "Random seeds for reproducibility.",
       "properties": {
-        "global_seed": {
-          "type": "integer",
-          "description": "Global random seed for numpy, random, torch, etc."
-        },
-        "data_split_seed": {
-          "type": "integer",
-          "description": "Seed specifically for data splitting operations."
-        }
+        "global": { "type": "integer" },
+        "train_test_split": { "type": "integer" },
+        "cross_validation": { "type": "integer" }
       },
-      "required": ["global_seed", "data_split_seed"],
-      "additionalProperties": false
+      "required": ["global"]
     },
     "api_keys": {
-      "type": "object",
-      "description": "API keys and endpoints. Values MUST be loaded from environment variables, not hardcoded.",
-      "properties": {
-        "google_earth_engine": {
-          "type": "object",
-          "description": "GEE authentication configuration.",
-          "properties": {
-            "credentials_env_var": {
-              "type": "string",
-              "description": "Name of the environment variable containing the GEE service account JSON key."
-            }
-          },
-          "required": ["credentials_env_var"],
-          "additionalProperties": false
-        },
-        "nasa_power": {
-          "type": "object",
-          "description": "NASA POWER API configuration.",
-          "properties": {
-            "api_key_env_var": {
-              "type": "string",
-              "description": "Name of the environment variable containing the NASA POWER API key (if required)."
-            },
-            "base_url": {
-              "type": "string",
-              "description": "Base URL for the NASA POWER API."
-            }
-          },
-          "required": ["base_url"],
-          "additionalProperties": false
-        },
-        "noaa_ghcn": {
-          "type": "object",
-          "description": "NOAA GHCN API configuration.",
-          "properties": {
-            "base_url": {
-              "type": "string",
-              "description": "Base URL for the NOAA GHCN API."
-            }
-          },
-          "required": ["base_url"],
-          "additionalProperties": false
-        },
-        "natures_notebook": {
-          "type": "object",
-          "description": "Nature's Notebook API configuration.",
-          "properties": {
-            "api_key_env_var": {
-              "type": "string",
-              "description": "Name of the environment variable containing the Nature's Notebook API key."
-            },
-            "base_url": {
-              "type": "string",
-              "description": "Base URL for the Nature's Notebook API."
-            }
-          },
-          "required": ["base_url"],
-          "additionalProperties": false
-        }
-      },
-      "required": ["google_earth_engine", "nasa_power", "noaa_ghcn", "natures_notebook"],
-      "additionalProperties": false
+      "type": "array",
+      "description": "List of API key identifiers loaded from environment.",
+      "items": { "type": "string" }
     },
-    "study_parameters": {
-      "type": "object",
-      "description": "Parameters defining the study scope.",
-      "properties": {
-        "year_range": {
-          "type": "object",
-          "properties": {
-            "start_year": {"type": "integer"},
-            "end_year": {"type": "integer"}
-          },
-          "required": ["start_year", "end_year"]
-        },
-        "target_species": {
-          "type": "array",
-          "items": {"type": "string"},
-          "description": "List of target species scientific names."
-        },
-        "phenology_events": {
-          "type": "array",
-          "items": {"type": "string"},
-          "description": "List of phenology events to predict (e.g., 'budburst', 'flowering')."
-        }
-      },
-      "required": ["year_range", "target_species", "phenology_events"],
-      "additionalProperties": false
+    "debug": {
+      "type": "boolean"
     }
   },
-  "required": ["paths", "seeds", "api_keys", "study_parameters"],
-  "additionalProperties": false
+  "required": ["paths", "seeds"]
 }

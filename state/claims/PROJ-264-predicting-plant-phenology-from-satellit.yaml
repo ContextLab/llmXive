@@ -247,3 +247,250 @@
   source_type: external
   status: refuted
   updated_at: '2026-08-02T01:10:52Z'
+- artifact_path: projects/PROJ-264-predicting-plant-phenology-from-satellit/specs/001-predicting-plant-phenology-from-satellit/tasks.md
+  attempts: 1
+  canonical: select 10-15 study sites based on >80% cloud-free coverage for spring
+    2020
+  claim_id: c_02ec87bb
+  context: T011a [US1] Implement logic in `src/data/ingestion.py` to calculate cloud-free
+    coverage for spring (March-May) 2020 and select 10-15 study sites deterministically
+    based on >80% coverage from candidate sites list defined in config.py (FR-001)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `src/data/ingestion.py` to calculate cloud-free coverage for
+    spring (March-May) 2020 and select 10-15 study sites deterministically based on
+    >80% coverage from candidate sites list defined in config.py
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T22:09:20Z'
+- artifact_path: projects/PROJ-264-predicting-plant-phenology-from-satellit/specs/001-predicting-plant-phenology-from-satellit/tasks.md
+  attempts: 1
+  canonical: download Sentinel data for 10-15 sites from 2018 to 2023
+  claim_id: c_48fd67ff
+  context: T011 [US1] Implement `src/data/ingestion.py` to download Sentinel data
+    via Google Earth Engine API for the selected 10-15 sites (2018-2023), extracting
+    NDVI/EVI at regular intervals, relying on authentication established in T009a
+    (FR-001)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `src/data/ingestion.py` to download Sentinel data via Google
+    Earth Engine API for the selected 10-15 sites (2018-2023), extracting NDVI/EVI
+    at regular intervals
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T22:09:45Z'
+- artifact_path: projects/PROJ-264-predicting-plant-phenology-from-satellit/specs/001-predicting-plant-phenology-from-satellit/tasks.md
+  attempts: 1
+  canonical: retrieve daily climate data from NOAA GHCN and NASA POWER APIs
+  claim_id: c_0b2b4626
+  context: T012 [US1] Implement `src/data/ingestion.py` to retrieve daily climate
+    data (temp, precip, solar) from NOAA GHCN and NASA POWER APIs using coordinate-based
+    station lookup and align with satellite timestamps (FR-002)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Retrieve_daily_climate_data_from_NOAA_GHCN_and_NASA_POWER_AP
+  kind: entity_fact
+  raw_text: Implement `src/data/ingestion.py` to retrieve daily climate data (temp,
+    precip, solar) from NOAA GHCN and NASA POWER APIs using coordinate-based station
+    lookup and align with satellite timestamps
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T22:10:16Z'
+- artifact_path: projects/PROJ-264-predicting-plant-phenology-from-satellit/specs/001-predicting-plant-phenology-from-satellit/tasks.md
+  attempts: 1
+  canonical: fetch ground-truth phenology observations from Nature's Notebook API
+  claim_id: c_1b3ba945
+  context: T013 [US1] Implement `src/data/ingestion.py` to fetch ground-truth phenology
+    observations from Nature's Notebook API using radius search to map observations
+    to the selected sites defined in T011a (FR-003)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetch_ground-truth_phenology_observations_from_Nature%27s_Note
+  kind: entity_fact
+  raw_text: Implement `src/data/ingestion.py` to fetch ground-truth phenology observations
+    from Nature's Notebook API using radius search to map observations to the selected
+    sites defined in T011a
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T22:10:42Z'
+- artifact_path: projects/PROJ-264-predicting-plant-phenology-from-satellit/specs/001-predicting-plant-phenology-from-satellit/tasks.md
+  attempts: 1
+  canonical: "evaluate model on held-out test site/year and calculate RMSE and R\xB2"
+  claim_id: c_349c65b0
+  context: "Independent Test: Train model on subset; evaluate on held-out test site/year;\
+    \ verify numeric predictions and calculated RMSE/R\xB2."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Evaluate_model_on_held-out_test_site/year_and_calculate_RMSE
+  kind: entity_fact
+  raw_text: "Train model on subset; evaluate on held-out test site/year; verify numeric\
+    \ predictions and calculated RMSE/R\xB2"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T22:11:16Z'
+- artifact_path: projects/PROJ-264-predicting-plant-phenology-from-satellit/specs/001-predicting-plant-phenology-from-satellit/tasks.md
+  attempts: 1
+  canonical: use temporal holdout train on 2018-2021 and test on 2022-2023
+  claim_id: c_3d0de08e
+  context: 'T023 [US2] Implement `src/models/train.py` using {{claim:c_2ff485b7}}
+    (golden_ratio, https://en.wikipedia.org/wiki/Golden_ratio) and Temporal Holdout
+    (train on 2018-2021, test 2022-2023) as defined in Plan (Plan: Validation Strategy)'
+  evidence:
+    fill:
+      channel: constants
+      conflicts: []
+      quote: 1.618033988749895 ((1+sqrt(5))/2 (IEEE-754 double, Python stdlib math.sqrt))
+      source_id: golden_ratio
+      url: https://en.wikipedia.org/wiki/Golden_ratio
+      value: '1.618033988749895'
+    filled: true
+  kind: numeric
+  raw_text: Implement `src/models/train.py` using golden ratio and Temporal Holdout
+    (train on 2018-2021, test 2022-2023) as defined in Plan
+  resolved_value: '1.618033988749895'
+  resolver: fill:constants
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-04T22:11:21Z'
+- artifact_path: projects/PROJ-264-predicting-plant-phenology-from-satellit/specs/001-predicting-plant-phenology-from-satellit/tasks.md
+  attempts: 1
+  canonical: "calculate RMSE MAE and R\xB2 on held-out test sets"
+  claim_id: c_58f033ad
+  context: "T024 [US2] Implement `src/models/evaluate.py` to calculate RMSE, MAE,\
+    \ and R\xB2 on held-out test sets (FR-005)"
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Calculate_RMSE_MAE_and_R%C2%B2_on_held-out_test_sets
+  kind: entity_fact
+  raw_text: "Implement `src/models/evaluate.py` to calculate RMSE, MAE, and R\xB2\
+    \ on held-out test sets"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T22:11:55Z'
+- artifact_path: projects/PROJ-264-predicting-plant-phenology-from-satellit/specs/001-predicting-plant-phenology-from-satellit/tasks.md
+  attempts: 1
+  canonical: train linear regression baseline using 10-day aggregated mean temperature
+  claim_id: c_433734ce
+  context: T024a [US2] [US2] Implement `src/models/evaluate.py` to train a simple
+    linear regression baseline model using only 10-day aggregated mean temperature
+    (matching T020 feature schema) and compare its performance against the primary
+    model (SC-001)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `src/models/evaluate.py` to train a simple linear regression
+    baseline model using only 10-day aggregated mean temperature and compare its performance
+    against the primary model
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T22:12:24Z'
+- artifact_path: projects/PROJ-264-predicting-plant-phenology-from-satellit/specs/001-predicting-plant-phenology-from-satellit/tasks.md
+  attempts: 1
+  canonical: sweep regularization parameter alpha over 0.01 0.05 and 0.1
+  claim_id: c_b8ed8027
+  context: "T028 [US3] Implement `src/models/sensitivity.py` to sweep regularization\
+    \ parameter (alpha) over the discrete set {0.01, 0.05, 0.1} and report RMSE/R\xB2\
+    \ variation (FR-006)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement `src/models/sensitivity.py` to sweep regularization parameter\
+    \ (alpha) over the discrete set {0.01, 0.05, 0.1} and report RMSE/R\xB2 variation"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T22:12:54Z'
+- artifact_path: projects/PROJ-264-predicting-plant-phenology-from-satellit/specs/001-predicting-plant-phenology-from-satellit/tasks.md
+  attempts: 1
+  canonical: rank predictors with permutation importance score greater than 0.01
+  claim_id: c_31dfde72
+  context: T029 [US3] Implement `src/models/sensitivity.py` to calculate Permutation
+    Importance for all predictors, explicitly measuring the increase in RMSE when
+    features are permuted, and rank those with score > 0.01 (FR-007, SC-004)
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Rank_predictors_with_permutation_importance_score_greater_th
+  kind: magnitude
+  raw_text: Implement `src/models/sensitivity.py` to calculate Permutation Importance
+    for all predictors, explicitly measuring the increase in RMSE when features are
+    permuted, and rank those with score > 0.01
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T22:13:12Z'
+- artifact_path: projects/PROJ-264-predicting-plant-phenology-from-satellit/specs/001-predicting-plant-phenology-from-satellit/tasks.md
+  attempts: 1
+  canonical: run quickstart.md validation for end-to-end reproducibility
+  claim_id: c_a35b3ed8
+  context: T036 Run `quickstart.md` validation to ensure end-to-end reproducibility
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Run_quickstart.md_validation_for_end-to-end_reproducibility
+  kind: entity_fact
+  raw_text: Run quickstart.md validation to ensure end-to-end reproducibility
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T22:13:40Z'
+- artifact_path: projects/PROJ-264-predicting-plant-phenology-from-satellit/specs/001-predicting-plant-phenology-from-satellit/tasks.md
+  attempts: 1
+  canonical: train on 2018-2021 and test on 2022-2023 using golden ratio split
+  claim_id: c_f1b36a57
+  context: 'T023 [US2] Implement `src/models/train.py` using {{claim:c_2ff485b7}}
+    (golden_ratio, https://en.wikipedia.org/wiki/Golden_ratio) and Temporal Holdout
+    (train on 2018-2021, test 2022-2023) as defined in Plan (Plan: Validation Strategy)'
+  evidence:
+    fill:
+      channel: constants
+      conflicts: []
+      quote: 1.618033988749895 ((1+sqrt(5))/2 (IEEE-754 double, Python stdlib math.sqrt))
+      source_id: golden_ratio
+      url: https://en.wikipedia.org/wiki/Golden_ratio
+      value: '1.618033988749895'
+    filled: true
+  kind: numeric
+  raw_text: 'Implement `src/models/train.py` using golden_ratio, https://en.wikipedia.org/wiki/Golden_ratio
+    and Temporal Holdout (train on 2018-2021, test 2022-2023) as defined in Plan (Plan:
+    Validation Strategy)'
+  resolved_value: '1.618033988749895'
+  resolver: fill:constants
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-04T22:15:39Z'

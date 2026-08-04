@@ -1,0 +1,40 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the required `code/`, `data/`, and `tests/` directories was provided;\
+    \ the artifact list is empty, so the project structure has not been demonstrated.\
+    \ The implementer must create and show these three top\u2011level folders (with\
+    \ at least placeholder files) to satisfy the task."
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`,
+    or a `black` config) or setup scripts are present in the provided evidence, so
+    the requirement to configure ruff and black is not demonstrated. The implementer
+    must add the appropriate configuration files and ensure they are applied to the
+    codebase.
+T006:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required `data/raw/`, `data/processed/`, or `data/graphs/`
+    directories or their `.gitkeep` placeholder files is provided; without these artifacts
+    the task is not satisfied.
+T007:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No configuration loader code or related files were presented; the claim provides\
+    \ no artifact implementing environment\u2011variable handling or dataset\u2011\
+    path configuration, so the required base config loader is missing."
+T016:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, CSV, or configuration changes were provided that show tasks are flagged\
+    \ as \u201CUnparseable,\u201D retained in the ground\u2011truth CSV with a status\
+    \ field, or that T015, T019, and T020 skip the tree\u2011sitter step for those\
+    \ rows. The required implementation artifacts are missing."
+T022:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or documentation implementing the fallback logic for \u201C\
+    semantic_complexity\u201D is provided; the artifact is missing entirely, so the\
+    \ requirement cannot be verified as satisfied."

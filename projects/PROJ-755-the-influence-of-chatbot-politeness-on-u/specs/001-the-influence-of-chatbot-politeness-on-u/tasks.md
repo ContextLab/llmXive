@@ -44,7 +44,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project structure per implementation plan (`data/raw`, `data/processed`, `code`, `tests`, `docs`)
-- [ ] T002 Initialize Python 3.11 project with `requirements.txt` (transformers, datasets, statsmodels, pandas, scikit-learn, numpy, pyyaml, tqdm, rpy2, textstat, evalue)
+- [X] T002 Initialize Python 3.11 project with `requirements.txt` (transformers, datasets, statsmodels, pandas, scikit-learn, numpy, pyyaml, tqdm, rpy2, textstat, evalue)
 - [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
 - [ ] T004 Setup CI workflow (GitHub Actions) to install R-base, R packages (lme4, ordinal), and Python dependencies
 - [ ] T005 Create `.gitignore` to exclude `data/raw/*` (except.gitkeep), `data/processed/*`, `__pycache__`, and model caches
@@ -63,8 +63,8 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete. These tasks verify the data exists and meets schema requirements.
 
 - [ ] T009 [P] Create `contracts/output.schema.yaml` defining CLMM results structure
-- [~] T010 [P] Setup environment configuration management (`.env` template for HF_TOKEN if needed)
-- [~] T011 [P] [US1] Implement `code/utils/schema_validator.py` to validate dataset schemas against `contracts/dataset.schema.yaml`
+- [ ] T010 [P] Setup environment configuration management (`.env` template for HF_TOKEN if needed)
+- [ ] T011 [P] [US1] Implement `code/utils/schema_validator.py` to validate dataset schemas against `contracts/dataset.schema.yaml`
 - [~] T012 [P] [US1/US3] **VERIFICATION GATE**: Validate presence of `quality_rating`, `user_id`, `age`, and `gender` fields in the merged dataset.
  - *Logic*:
  1. Check `quality_rating` and `user_id`: If missing, **halt pipeline** and log critical error (US-1/US-2 blocked).
@@ -118,21 +118,21 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T021 [P] [US2] Unit test for VIF calculation and collinearity check in `tests/unit/test_collinearity.py`
-- [ ] T022 [P] [US2] Integration test for CLMM execution and result schema validation in `tests/integration/test_clmm.py`
+- [X] T021 [P] [US2] Unit test for VIF calculation and collinearity check in `tests/unit/test_collinearity.py`
+- [X] T022 [P] [US2] Integration test for CLMM execution and result schema validation in `tests/integration/test_clmm.py`
 
 ### Implementation for User Story 2
 
-- [ ] T023 [US2] Implement `code/02_fit_clmm.py` to load `scored_dialogues.parquet`
-- [ ] T024 [US2] Implement VIF check for `politeness` and `conversation_length`; log warning and drop variable if VIF ≥ 5.
-- [ ] T025 [US2] Implement CLMM fitting via `rpy2` (formula: `quality_rating ~ politeness + conversation_length + (1|user_id)`) with `lme4`.
-- [ ] T026 [US2] **Convergence Tracking & Fallback**: Calculate and log the **CLMM convergence rate** (number of converged models / total attempts).
+- [X] T023 [US2] Implement `code/02_fit_clmm.py` to load `scored_dialogues.parquet`
+- [~] T024 [US2] Implement VIF check for `politeness` and `conversation_length`; log warning and drop variable if VIF ≥ 5.
+- [~] T025 [US2] Implement CLMM fitting via `rpy2` (formula: `quality_rating ~ politeness + conversation_length + (1|user_id)`) with `lme4`.
+- [~] T026 [US2] **Convergence Tracking & Fallback**: Calculate and log the **CLMM convergence rate** (number of converged models / total attempts).
  - *Success Condition*: If convergence ≥ 95%, proceed.
  - *Failure Condition*: If convergence < 95%, **generate `data/processed/convergence_failure_report.csv`** detailing the failure, **halt** the primary CLMM path, and **trigger fallback** to fixed-effects ordinal regression (log diagnostic).
  - *Note*: Fallback models do not count as "converged CLMM" for SC-003; the report documents the deviation.
-- [ ] T027 [US2] Implement Benjamini-Hochberg correction for p-values across fixed effects.
+- [~] T027 [US2] Implement Benjamini-Hochberg correction for p-values across fixed effects.
 - [ ] T028 [US2] Save results to `data/processed/clmm_results.csv` with coefficients, SEs, p-values, CI, and convergence metrics.
-- [ ] T029 [US2] Implement sensitivity analysis sweep (p < 0.01, 0.05, 0.10) and **explicitly report the range of variation** in headline significance rates across these thresholds.
+- [~] T029 [US2] Implement sensitivity analysis sweep (p < 0.01, 0.05, 0.10) and **explicitly report the range of variation** in headline significance rates across these thresholds.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -146,7 +146,7 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T030 [P] [US3] Unit test for lexicon-based scoring logic in `tests/unit/test_lexicon_scoring.py`
+- [X] T030 [P] [US3] Unit test for lexicon-based scoring logic in `tests/unit/test_lexicon_scoring.py`
 - [ ] T031 [P] [US3] Integration test for subgroup filtering logic (n ≥ 30) in `tests/integration/test_subgroup.py`
 
 ### Implementation for User Story 3

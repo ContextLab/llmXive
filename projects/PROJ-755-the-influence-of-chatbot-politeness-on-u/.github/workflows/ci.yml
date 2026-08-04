@@ -7,52 +7,69 @@ on:
     branches: [ main, develop ]
 
 jobs:
-  build-and-test:
+  test:
     runs-on: ubuntu-latest
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Set up Python 3.11
+    - name: Set up Python
       uses: actions/setup-python@v5
       with:
         python-version: '3.11'
 
-    - name: Install R-base
+    - name: Install R
       uses: r-lib/actions/setup-r@v2
       with:
-        r-version: 'release'
-        use-public-rspm: true
+        r-version: '4.3.0'
 
-    - name: Install R packages (lme4, ordinal)
+    - name: Install R packages
       run: |
-        Rscript -e 'install.packages("lme4", repos="https://cloud.r-project.org")'
-        Rscript -e 'install.packages("ordinal", repos="https://cloud.r-project.org")'
+        Rscript -e "install.packages('remotes')"
+        Rscript -e "remotes::install_cran('lme4')"
+        Rscript -e "remotes::install_cran('ordinal')"
+        Rscript -e "remotes::install_cran('rpy2')"
+
+    - name: Cache R packages
+      uses: actions/cache@v4
+      with:
+        path: ${{ env.R_LIBS_USER }}
+        key: ${{ runner.os }}-r-${{ hashFiles('**/DESCRIPTION') }}
+        restore-keys: |
+          ${{ runner.os }}-r-
 
     - name: Install Python dependencies
       run: |
         python -m pip install --upgrade pip
-        if [ -f requirements.txt ]; then
-          pip install -r requirements.txt
-        else
-          echo "requirements.txt not found. Installing core dependencies."
-          pip install transformers datasets statsmodels pandas scikit-learn numpy pyyaml tqdm rpy2 textstat evalue
-        fi
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
-    - name: Verify R packages installation
-      run: |
-        Rscript -e 'library(lme4)'
-        Rscript -e 'library(ordinal)'
+    - name: Cache Python dependencies
+      uses: actions/cache@v4
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
 
-    - name: Run linting (ruff)
+    - name: Lint with Ruff
       run: |
-        ruff check code/ tests/ || true
+        python -m pip install ruff
+        ruff check .
 
-    - name: Run formatting check (black)
+    - name: Format check with Black
       run: |
-        black --check code/ tests/ || true
+        python -m pip install black
+        black --check .
 
-    - name: Run unit tests
+    - name: Run tests
       run: |
-        python -m pytest tests/ -v --tb=short || true
+        python -m pip install pytest pytest-cov
+        pytest tests/ -v --cov=code --cov-report=xml
+
+    - name: Upload coverage reports
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage.xml
+        flags: unittests
+        fail_ci_if_error: false

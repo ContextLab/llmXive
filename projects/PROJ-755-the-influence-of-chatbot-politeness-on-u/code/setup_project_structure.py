@@ -1,33 +1,21 @@
-"""
-Script to initialize the project directory structure for the 
-'Influence of Chatbot Politeness on User-Perceived Quality' research project.
-
-Creates the following directories relative to the project root:
-- data/raw
-- data/processed
-- code
-- code/utils
-- tests
-- tests/unit
-- tests/integration
-- tests/contract
-- docs
-- specs
-- figures
-
-Also creates .gitkeep files in data directories to ensure they are tracked
-by git even when empty.
-"""
 import os
 import sys
 from pathlib import Path
 
 def create_structure():
-    # Define the root directory (current working directory where script is run)
-    root = Path.cwd()
+    """
+    Creates the project directory structure and necessary placeholder files
+    as per the implementation plan.
     
-    # Define the directory structure to create
-    # Using relative paths from the root
+    Structure:
+    - data/raw/ (with .gitkeep)
+    - data/processed/ (with .gitkeep)
+    - code/
+    - tests/
+    - docs/
+    """
+    root = Path(__file__).parent.parent
+    
     directories = [
         "data/raw",
         "data/processed",
@@ -37,48 +25,32 @@ def create_structure():
         "tests/unit",
         "tests/integration",
         "tests/contract",
-        "docs",
-        "specs",
-        "figures"
+        "docs"
     ]
-    
-    # Track created directories
-    created = []
     
     for dir_path in directories:
         full_path = root / dir_path
-        try:
-            full_path.mkdir(parents=True, exist_ok=True)
-            created.append(dir_path)
-            
-            # Create .gitkeep in data directories to ensure they are tracked
-            if dir_path.startswith("data/"):
-                gitkeep_path = full_path / ".gitkeep"
-                if not gitkeep_path.exists():
-                    gitkeep_path.touch()
-                    print(f"  Created .gitkeep in {dir_path}")
-                    
-        except PermissionError:
-            print(f"  Error: Permission denied creating {dir_path}")
-            return False
-        except Exception as e:
-            print(f"  Error creating {dir_path}: {e}")
-            return False
+        full_path.mkdir(parents=True, exist_ok=True)
+        print(f"Created directory: {full_path.relative_to(root)}")
     
-    # Print summary
-    print(f"\nProject structure initialized successfully in: {root}")
-    print(f"Created {len(created)} directories:")
-    for d in created:
-        print(f"  - {d}")
-        
+    # Create .gitkeep files in data directories to ensure they are tracked
+    # even when empty
+    data_raw_keep = root / "data" / "raw" / ".gitkeep"
+    data_processed_keep = root / "data" / "processed" / ".gitkeep"
+    
+    for keep_file in [data_raw_keep, data_processed_keep]:
+        if not keep_file.exists():
+            keep_file.touch()
+            print(f"Created placeholder: {keep_file.relative_to(root)}")
+    
+    # Create README placeholders
+    docs_readme = root / "docs" / "README.md"
+    if not docs_readme.exists():
+        docs_readme.write_text("# Documentation\n\nDocumentation for the project goes here.\n")
+        print(f"Created placeholder: {docs_readme.relative_to(root)}")
+    
+    print("\nProject structure created successfully.")
     return True
 
 if __name__ == "__main__":
-    print("Initializing project structure for PROJ-755...")
-    success = create_structure()
-    if not success:
-        print("\nInitialization failed. Please check permissions and try again.")
-        sys.exit(1)
-    else:
-        print("\nInitialization complete.")
-        sys.exit(0)
+    create_structure()

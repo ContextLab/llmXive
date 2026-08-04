@@ -1976,3 +1976,285 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-25T08:09:59Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Verify availability of Wan2.1 model family from huggingface.co/Wan-AI/Wan2.1-Turbo
+  claim_id: c_7658dc15
+  context: 'T012b [US1] {{claim:c_bdc111ab}} (Wikipedia: Alibaba Group, https://en.wikipedia.org/wiki/Alibaba_Group).
+    **Logic**: Verify availability of `Wan2.1` model family from `huggingface.co/Wan-AI/Wan2.1-Turbo`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Prefer 'Wan-Turbo (distilled a large-scale model)' if available; otherwise,
+    verify any compatible Wan2.1 variant.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T22:20:27Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Wan2.1 model family available at huggingface.co/Wan-AI/Wan2.1-Turbo
+  claim_id: c_46023b6d
+  context: T012b task logic to verify model availability.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify availability of 'Wan2.1' model family from 'huggingface.co/Wan-AI/Wan2.1-Turbo'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T22:23:09Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Wan-Turbo distilled 100M model at huggingface.co/Wan-AI/Wan2.1-Turbo
+  claim_id: c_70a71c3b
+  context: T013 task specification for video generation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use 'Wan-Turbo (distilled 100M)' from 'huggingface.co/Wan-AI/Wan2.1-Turbo'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T22:23:34Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: UNet diffusion model target parameter count 50M
+  claim_id: c_cd4984b9
+  context: T024 task specification for diffusion model implementation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Configure UNet architecture such that the total parameter count is approximately\
+    \ 50M (\xB110%)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T22:23:57Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Physics filter discards bottom of score distribution
+  claim_id: c_80cac475
+  context: Independent test description for User Story 1.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Physics_filter_discards_bottom_of_score_distribution
+  kind: entity_fact
+  raw_text: Verify physics filtering discards the bottom of the distribution based
+    on score distribution.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T22:24:38Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Data augmentation applied if dataset size less than 30
+  claim_id: c_36f7b156
+  context: T023 task logic for data augmentation module.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Data_augmentation_applied_if_dataset_size_less_than_30
+  kind: magnitude
+  raw_text: Apply augmentation only if dataset size < 30.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T22:25:08Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Augment dataset to 30 samples if size less than 30
+  claim_id: c_1fab5084
+  context: T019b task logic for dataset augmentation.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Augment_dataset_to_30_samples_if_size_less_than_30
+  kind: magnitude
+  raw_text: Augment curated dataset if size < 30 to reach n=30.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T22:25:33Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Memory usage during filtering less than 6 GB
+  claim_id: c_c090a0f5
+  context: T020 task constraint for memory monitoring.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Memory_usage_during_filtering_less_than_6_GB
+  kind: magnitude
+  raw_text: Ensure < 6 GB RAM during filtering.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T22:26:08Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Memory usage during training less than 6 GB
+  claim_id: c_c387f3a3
+  context: T028 task constraint for resource monitoring.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Memory_usage_during_training_less_than_6_GB
+  kind: magnitude
+  raw_text: Ensure < 6 GB RAM during training.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T22:26:37Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Minimum curated score at least 60th percentile of raw scores
+  claim_id: c_fcc6bf17
+  context: T011c integration test output verification.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Minimum_curated_score_at_least_60th_percentile_of_raw_scores
+  kind: magnitude
+  raw_text: Verify min score in curated dataset >= 60th percentile of raw set.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T22:27:02Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Model convergence and checkpoint save within 4 hours
+  claim_id: c_ad8e7ff1
+  context: T022 integration test output verification.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify model converges and saves a checkpoint within 4 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T22:27:25Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Correlation between PyBullet and MuJoCo scores less than 0.95
+  claim_id: c_2a6e24a9
+  context: T038 task logic for correlation analysis.
+  evidence:
+    entailment_evidence: Correlation between PyBullet and MuJoCo scores less than
+      0.
+    entailment_status: contradicted
+    source_url: https://en.wikipedia.org/wiki/Correlation_between_PyBullet_and_MuJoCo_scores_less_than_0.9
+  kind: magnitude
+  raw_text: Verify correlation < 0.95 between PyBullet scores and MuJoCo scores.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-08-04T22:27:51Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Stratified sampling for evaluation set size 30
+  claim_id: c_b7f66e5a
+  context: T034 task implementation details.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement stratified sampling for evaluation set (n=30).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T22:28:11Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Peak RAM usage reduced to less than 5.5 GB
+  claim_id: c_3643d979
+  context: T042 task goal for code cleanup and refactoring.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Peak_RAM_usage_reduced_to_less_than_5.5_GB
+  kind: magnitude
+  raw_text: Reduce peak RAM to < 5.5 GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T22:28:43Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: CV pipeline processing time per video less than 2 minutes
+  claim_id: c_e1811bd9
+  context: T043 task goal for performance optimization.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/CV_pipeline_processing_time_per_video_less_than_2_minutes
+  kind: magnitude
+  raw_text: Reduce processing time per video to < 2 minutes.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T22:29:19Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Fallback to synthetic ground truth and baseline if real data unavailable
+  claim_id: c_32efcefe
+  context: T037 task logic for MuJoCo independent validation.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fallback_to_synthetic_ground_truth_and_baseline_if_real_data
+  kind: entity_fact
+  raw_text: Use T037a and T033a only if T037b fails.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T22:29:38Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Discard rate fixed at predetermined level
+  claim_id: c_364965c6
+  context: Notes section regarding revision on discard rate.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Discard_rate_fixed_at_predetermined_level
+  kind: entity_fact
+  raw_text: Discard rate is FIXED at a predetermined level.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T22:30:11Z'

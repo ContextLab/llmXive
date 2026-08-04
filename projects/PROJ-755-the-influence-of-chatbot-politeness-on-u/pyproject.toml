@@ -1,11 +1,12 @@
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "llmXive-chatbot-politeness"
+name = "llmxive-politeness-study"
 version = "0.1.0"
-description = "Research pipeline: Influence of Chatbot Politeness on User-Perceived Quality"
+description = "Research on the influence of chatbot politeness on user-perceived quality"
+readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
     "transformers",
@@ -20,34 +21,83 @@ dependencies = [
     "textstat",
     "evalue",
     "python-dotenv",
+    "pyarrow",
+    "politeness",
 ]
 
 [tool.black]
 line-length = 88
-target-version = ['py311']
+target-version = ["py311"]
 include = '\.pyi?$'
 exclude = '''
 /(
     \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | _build
-  | buck-out
-  | build
-  | dist
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+    | data
 )/
 '''
 
-[tool.isort]
-profile = "black"
-line_length = 88
-known_first_party = ["code"]
-
 [tool.ruff]
-# Inherit settings from .ruff.toml if present, or define here for pyproject usage
+# Same as Black
 line-length = 88
 target-version = "py311"
-select = ["E", "W", "F", "I", "B", "C4"]
-ignore = ["ANN101", "ANN204"]
+
+# Exclude a variety of commonly ignored directories.
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "venv",
+    "data",
+]
+
+# Assume Python 3.11
+[tool.ruff.lint]
+# Enable pycodestyle (`E`) and Pyflakes (`F`) codes by default.
+select = ["E", "F", "I", "N", "W", "UP"]
+ignore = [
+    "E501", # Line too long (handled by black)
+    "F401", # Unused imports (handled by ruff check --fix or manual review)
+]
+
+# Allow autofix for all enabled rules (when `--fix` is provided).
+fixable = ["ALL"]
+unfixable = []
+
+# Allow unused variables when underscore-prefixed.
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[tool.ruff.format]
+# Like Black, use double quotes for strings.
+quote-style = "double"
+
+# Like Black, indent with spaces, rather than tabs.
+indent-style = "space"
+
+# Like Black, respect magic trailing commas.
+skip-magic-trailing-comma = false
+
+# Like Black, automatically detect the appropriate line ending.
+line-ending = "auto"

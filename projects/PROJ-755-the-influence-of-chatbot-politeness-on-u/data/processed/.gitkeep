@@ -1,1 +1,2 @@
-.keep
+# This file ensures the data/processed directory is tracked by git
+# Processed data files will be generated here during execution
