@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
+requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -7,31 +7,52 @@ name = "predicting-molecular-properties"
 version = "0.1.0"
 description = "Predicting molecular properties from quantum chemical calculations"
 requires-python = ">=3.11"
-dependencies = [
-    "scikit-learn>=1.4.0",
-    "pandas>=2.2.0",
-    "rdkit>=2024.1.0",
-    "requests>=2.31.0",
-]
+dependencies = []
 
 [tool.black]
 line-length = 88
 target-version = ['py311']
 include = '\.pyi?$'
-exclude = '''
+extend-exclude = '''
 /(
     \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | _build
-  | buck-out
-  | build
-  | dist
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+    | data
+    | logs
+    | reports
 )/
 '''
 
 [tool.ruff]
-# Inherit from .ruff.toml but allow override via CLI
-extend = ".ruff.toml"
+line-length = 88
+target-version = "py311"
+src = ["code", "tests"]
+
+[tool.ruff.lint]
+select = [
+    "E",
+    "W",
+    "F",
+    "I",
+    "B",
+    "C4",
+    "UP",
+    "S",
+]
+ignore = [
+    "E501",
+    "B008",
+]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"

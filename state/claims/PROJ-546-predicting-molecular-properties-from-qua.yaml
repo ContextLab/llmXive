@@ -386,3 +386,784 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-03T18:18:51Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: 50 molecules run with 50 rows in output CSV, no NaN, HOMO/LUMO in eV,
+    charges sum to net charge
+  claim_id: c_8bf8f987
+  context: 'Independent Test: Run on 50 molecules; verify descriptors_semi.csv has
+    50 rows, no NaN, HOMO/LUMO in eV, charges sum to net charge.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run on 50 molecules; verify descriptors_semi.csv has 50 rows, no NaN,
+    HOMO/LUMO in eV, charges sum to net charge.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T17:22:08Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: Stratified random subset of 50 valid samples selected for 5-fold CV and
+    paired t-test
+  claim_id: c_938ecc4b
+  context: 'Subset Selection: Select a stratified random subset of 50 valid samples
+    from the full dataset to ensure statistical validity for 5-fold CV and paired
+    t-test.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Select a stratified random subset of 50 valid samples from the full dataset
+    to ensure statistical validity for 5-fold CV and paired t-test.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T17:23:33Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: Semi-MAE less than or equal to 2.0 kcal/mol verified
+  claim_id: c_31c2f5a7
+  context: "Implement code/evaluate_models.py to compute per-fold MAE, run paired\
+    \ t-test (spec.md US2), and verify semi-MAE \u2264 2.0 kcal/mol (spec.md US2)."
+  evidence:
+    entailment_evidence: Wikipedia does not have an article with this exact name.
+    entailment_status: contradicted
+    source_url: https://en.wikipedia.org/wiki/Semi-MAE_less_than_or_equal_to_2.0_kcal/mol_verified
+  kind: magnitude
+  raw_text: "Verify semi-MAE \u2264 2.0 kcal/mol"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-08-04T17:23:51Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: Semi-MAE exceeds DFT-MAE by more than 20 percent flagged
+  claim_id: c_056fc247
+  context: "Implement logic to compute MAE flags: 1) flag if semi-MAE exceeds DFT-MAE\
+    \ by >20% (spec.md US2), 2) verify semi-MAE \u2264 2.0 kcal/mol (spec.md US2)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Semi-MAE_exceeds_DFT-MAE_by_more_than_20_percent_flagged
+  kind: magnitude
+  raw_text: Flag if semi-MAE exceeds DFT-MAE by >20%
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T17:24:12Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: Top 3 descriptors change 0 times across sweep
+  claim_id: c_964d61eb
+  context: Implement logic to verify stability of top descriptors (spec.md US3) by
+    checking if the top 3 descriptors change 0 times (change < 1 time) across the
+    sweep and recording the result in reports/sensitivity.csv.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Check if the top 3 descriptors change 0 times across the sweep
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T17:24:32Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: Total runtime less than 6 hours asserted
+  claim_id: c_e7dc983b
+  context: 'Validate runtime logs from T033a: Assert total runtime < 6 hours (Constitution
+    Principle VII) and write validation result to reports/runtime_validation.json.'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "The Central Board of Film Certification (CBFC) did not mandate any visual\
+        \ cuts for Stree 2. However, the board requested two audio modifications:\
+        \ the removal of a celebrity's name and the muting of a national monument's\
+        \ name. After these changes, the film was granted a U/A rating and has a runtime\
+        \ of 149 minutes. One improvised scene involved Rajkummar Rao singing \"Calm\
+        \ Down\" by Rema and Selena Gomez, which led to the producers paying \u20B9\
+        25 lakh in residuals."
+      source_id: Stree 2
+      url: https://en.wikipedia.org/wiki/Stree_2
+      value: 149 minutes
+    filled: true
+  kind: magnitude
+  raw_text: Assert total runtime < 6 hours
+  resolved_value: 149 minutes
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-04T17:24:52Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: Stratified random subset of 50 samples used for 5-fold CV and paired
+    t-test
+  claim_id: c_9c7f07b7
+  context: 'Subset Selection: Select a stratified random subset of 50 valid samples
+    from the full dataset to ensure statistical validity for 5-fold CV and paired
+    t-test.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Select a stratified random subset of 50 valid samples from the full dataset
+    to ensure statistical validity for 5-fold CV and paired t-test.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T17:25:11Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: Semi-MAE threshold verified at 2.0 kcal/mol
+  claim_id: c_9a2cf30d
+  context: "Implement code/evaluate_models.py to compute per-fold MAE, run paired\
+    \ t-test (spec.md US2), and verify semi-MAE \u2264 2.0 kcal/mol (spec.md US2)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify semi-MAE \u2264 2.0 kcal/mol."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T17:25:11Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: Top 3 descriptors stability check requires 0 changes across sweep
+  claim_id: c_51e69349
+  context: Implement logic to verify stability of top descriptors (spec.md US3) by
+    checking if the top 3 descriptors change 0 times (change < 1 time) across the
+    sweep and recording the result in reports/sensitivity.csv.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify if the top 3 descriptors change 0 times across the sweep.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T17:25:33Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: Semi-MAE flagged if exceeding DFT-MAE by 20%
+  claim_id: c_e4d8c02f
+  context: 'Implement logic to compute MAE flags: 1) flag if semi-MAE exceeds DFT-MAE
+    by >20% (spec.md US2)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Flag if semi-MAE exceeds DFT-MAE by >20%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T17:25:33Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: stratified random subset of 50 valid samples for 5-fold CV and paired
+    t-test
+  claim_id: c_f77a293a
+  context: 'Subset Selection: Select a **stratified random subset of 50 valid samples**
+    from the full dataset to ensure statistical validity for 5-fold CV and paired
+    t-test.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Select a stratified random subset of 50 valid samples from the full dataset
+    to ensure statistical validity for 5-fold CV and paired t-test.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T17:25:43Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: verify semi-MAE less than or equal to 2.0 kcal per mol
+  claim_id: c_a6668576
+  context: "Implement `code/evaluate_models.py` to compute per-fold MAE, run paired\
+    \ t-test (spec.md US2), and verify semi-MAE \u2264 2.0 kcal/mol (spec.md US2)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_semi-MAE_less_than_or_equal_to_2.0_kcal_per_mol
+  kind: magnitude
+  raw_text: "Verify semi-MAE \u2264 2.0 kcal/mol."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T17:25:45Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: top 3 descriptors change 0 times across the sweep
+  claim_id: c_7150035f
+  context: Implement logic to verify stability of top descriptors (spec.md US3) by
+    checking if the top 3 descriptors change **0 times** (change < 1 time) across
+    the sweep and recording the result in `reports/sensitivity.csv`.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Check if the top 3 descriptors change 0 times across the sweep.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T17:25:47Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: verify descriptors_semi.csv has 50 rows for 50 molecules with no NaN
+    and charges summing to net charge
+  claim_id: c_336272c0
+  context: 'Independent Test: Run on 50 molecules; verify descriptors_semi.csv has
+    50 rows, no NaN, HOMO/LUMO in eV, charges sum to net charge.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run on 50 molecules; verify descriptors_semi.csv has 50 rows, no NaN,
+    HOMO/LUMO in eV, charges sum to net charge.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T17:25:59Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: select stratified random subset of 50 valid samples for 5-fold CV and
+    paired t-test
+  claim_id: c_3f4be4d9
+  context: 'Subset Selection: Select a stratified random subset of 50 valid samples
+    from the full dataset to ensure statistical validity for 5-fold CV and paired
+    t-test.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Select a stratified random subset of 50 valid samples from the full dataset
+    to ensure statistical validity for 5-fold CV and paired t-test.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T17:25:59Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: verify semi-MAE is less than or equal to 2.0 kcal/mol
+  claim_id: c_f6ad607f
+  context: "Implement code/evaluate_models.py to compute per-fold MAE, run paired\
+    \ t-test (spec.md US2), and verify semi-MAE \u2264 2.0 kcal/mol (spec.md US2)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_semi-MAE_is_less_than_or_equal_to_2.0_kcal/mol
+  kind: magnitude
+  raw_text: "Verify semi-MAE \u2264 2.0 kcal/mol."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T17:26:01Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: flag if semi-MAE exceeds DFT-MAE by more than 20 percent
+  claim_id: c_8cb57388
+  context: 'Implement logic to compute MAE flags: 1) flag if semi-MAE exceeds DFT-MAE
+    by >20% (spec.md US2)...'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_if_semi-MAE_exceeds_DFT-MAE_by_more_than_20_percent
+  kind: magnitude
+  raw_text: Flag if semi-MAE exceeds DFT-MAE by >20%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T17:26:02Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: verify top 3 descriptors change 0 times across the sweep
+  claim_id: c_49cce8a2
+  context: Implement logic to verify stability of top descriptors (spec.md US3) by
+    checking if the top 3 descriptors change 0 times (change < 1 time) across the
+    sweep...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Check if the top 3 descriptors change 0 times across the sweep.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T17:26:02Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: verify top 5 descriptors correspond to general chemical properties
+  claim_id: c_d1434960
+  context: Implement code/evaluators/physical_interpretability.py... ensuring the
+    'top 5' correspond to general chemical properties (e.g., electronegativity, bond
+    order) rather than statistical noise.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify the top 5 descriptors correspond to general chemical properties
+    rather than statistical noise.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T17:26:18Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: stratified random subset of 50 valid samples for 5-fold CV and paired
+    t-test
+  claim_id: c_530f87cf
+  context: 'Implement code/generate_descriptors.py (DFT branch) to invoke Psi4 for
+    B3LYP/def2-SVP on a subset. Crucially: Import optimized geometries from data/optimized_geometries/
+    (output of T013) instead of re-optimizing... Subset Selection: Select a stratified
+    random subset of 50 valid samples from the full dataset to ensure statistical
+    validity for 5-fold CV and paired t-test.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Select a stratified random subset of 50 valid samples from the full dataset
+    to ensure statistical validity for 5-fold CV and paired t-test.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T17:27:10Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: semi-MAE less than or equal to 2.0 kcal/mol
+  claim_id: c_f2999118
+  context: "Implement code/evaluate_models.py to compute per-fold MAE, run paired\
+    \ t-test (spec.md US2), and verify semi-MAE \u2264 2.0 kcal/mol (spec.md US2)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Semi-MAE_less_than_or_equal_to_2.0_kcal/mol
+  kind: magnitude
+  raw_text: "Verify semi-MAE \u2264 2.0 kcal/mol."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T17:27:12Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: semi-MAE exceeds DFT-MAE by more than 20 percent
+  claim_id: c_d6926211
+  context: "Implement logic to compute MAE flags: 1) flag if semi-MAE exceeds DFT-MAE\
+    \ by >20% (spec.md US2), 2) verify semi-MAE \u2264 2.0 kcal/mol (spec.md US2)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Semi-MAE_exceeds_DFT-MAE_by_more_than_20_percent
+  kind: magnitude
+  raw_text: Flag if semi-MAE exceeds DFT-MAE by >20%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T17:27:13Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: run on 50 molecules with 50 rows in descriptors_semi.csv, no NaN, HOMO/LUMO
+    in eV, charges sum to net charge
+  claim_id: c_8838bf9f
+  context: 'Independent Test: Run on 50 molecules; verify descriptors_semi.csv has
+    50 rows, no NaN, HOMO/LUMO in eV, charges sum to net charge.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run on 50 molecules; verify descriptors_semi.csv has 50 rows, no NaN,
+    HOMO/LUMO in eV, charges sum to net charge.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T17:27:13Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: validate runtime logs against Wikipedia Stree 2
+  claim_id: c_0593e6b5
+  context: 'Validate runtime logs from T033a: {{claim:c_e7dc983b}} (Wikipedia: Stree
+    2, https://en.wikipedia.org/wiki/Stree_2) (Constitution Principle VII) and write
+    validation result to reports/runtime_validation.json.'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: 'Validate runtime logs from T033a against Wikipedia: Stree 2, https://en.wikipedia.org/wiki/Stree_2.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T17:27:29Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: stratified random subset of 50 valid samples for statistical validity
+  claim_id: c_164a9f25
+  context: 'T020 [US2] Implement code/generate_descriptors.py (DFT branch) to invoke
+    Psi4 for B3LYP/def2-SVP on a subset. Crucially: Import optimized geometries...
+    Subset Selection: Select a stratified random subset of 50 valid samples...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Select a stratified random subset of 50 valid samples from the full dataset
+    to ensure statistical validity for 5-fold CV and paired t-test.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T17:27:51Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: verify semi-MAE less than or equal to 2.0 kcal/mol
+  claim_id: c_251f5fdf
+  context: "T022 [US2] Implement code/evaluate_models.py to compute per-fold MAE,\
+    \ run paired t-test (spec.md US2), and verify semi-MAE \u2264 2.0 kcal/mol (spec.md\
+    \ US2)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_semi-MAE_less_than_or_equal_to_2.0_kcal/mol
+  kind: magnitude
+  raw_text: "Verify semi-MAE \u2264 2.0 kcal/mol."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T17:27:53Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: flag if semi-MAE exceeds DFT-MAE by greater than 20 percent
+  claim_id: c_754febef
+  context: 'T023 [US2] Implement logic to compute MAE flags: 1) flag if semi-MAE exceeds
+    DFT-MAE by >20% (spec.md US2)...'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_if_semi-MAE_exceeds_DFT-MAE_by_greater_than_20_percent
+  kind: magnitude
+  raw_text: Flag if semi-MAE exceeds DFT-MAE by >20%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T17:27:58Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: top 3 descriptors change 0 times across sweep
+  claim_id: c_7e4545c7
+  context: T032b [US3] Implement logic to verify stability of top descriptors (spec.md
+    US3) by checking if the top 3 descriptors change 0 times (change < 1 time) across
+    the sweep...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Check if the top 3 descriptors change 0 times across the sweep.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T17:27:58Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: run on 50 molecules verify descriptors_semi.csv has 50 rows
+  claim_id: c_dcaeb704
+  context: 'Independent Test: Run on 50 molecules; verify descriptors_semi.csv has
+    50 rows, no NaN, HOMO/LUMO in eV, charges sum to net charge.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run on 50 molecules; verify descriptors_semi.csv has 50 rows.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T17:28:23Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: top 5 descriptors correspond to general chemical properties
+  claim_id: c_1562ebc3
+  context: T044 [US3] Implement code/evaluators/physical_interpretability.py... ensuring
+    the 'top 5' correspond to general chemical properties (e.g., electronegativity,
+    bond order) rather than statistical noise.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure the top 5 descriptors correspond to general chemical properties
+    rather than statistical noise.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T17:28:41Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: use Python 3.11
+  claim_id: c_0fca513a
+  context: T002 Initialize Python 3.11 project with requirements.txt (scikit-learn,
+    pandas, rdkit, requests)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use Python 3.11.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T17:28:57Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 2
+  canonical: flag if semi-MAE exceeds DFT-MAE by greater than 20 percent
+  claim_id: c_7e6110ab
+  context: "Implement logic to compute MAE flags: 1) flag if semi-MAE exceeds DFT-MAE\
+    \ by >20% (spec.md US2), 2) verify semi-MAE \u2264 2.0 kcal/mol (spec.md US2)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_if_semi-MAE_exceeds_DFT-MAE_by_greater_than_20_percent
+  kind: magnitude
+  raw_text: Flag if semi-MAE exceeds DFT-MAE by >20%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T17:31:24Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 2
+  canonical: top 3 descriptors change 0 times across the sweep
+  claim_id: c_9981844c
+  context: Implement logic to verify stability of top descriptors (spec.md US3) by
+    checking if the top 3 descriptors change 0 times (change < 1 time) across the
+    sweep and recording the result in reports/sensitivity.csv.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Check if the top 3 descriptors change 0 times (change < 1 time) across
+    the sweep.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T17:31:24Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: stratified random subset of 50 valid samples for statistical validity
+  claim_id: c_e37a862e
+  context: 'Subset Selection: Select a stratified random subset of 50 valid samples
+    from the full dataset to ensure statistical validity for 5-fold CV and paired
+    t-test. Include unit normalization (eV for energies).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Select a stratified random subset of 50 valid samples from the full dataset
+    to ensure statistical validity for 5-fold CV and paired t-test.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T17:32:20Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: run on 50 molecules to verify descriptor output
+  claim_id: c_f35be3d8
+  context: 'Independent Test: Run on 50 molecules; verify `descriptors_semi.csv` has
+    50 rows, no NaN, HOMO/LUMO in eV, charges sum to net charge.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run on 50 molecules; verify descriptors_semi.csv has 50 rows, no NaN,
+    HOMO/LUMO in eV, charges sum to net charge.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T17:32:20Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: top 3 descriptors change 0 times across sweep
+  claim_id: c_5db99e7e
+  context: Implement logic to verify stability of top descriptors (spec.md US3) by
+    checking if the top 3 descriptors change **0 times** (change < 1 time) across
+    the sweep and recording the result in `reports/sensitivity.csv`.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify stability of top descriptors by checking if the top 3 descriptors
+    change 0 times across the sweep.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T17:32:41Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 2
+  canonical: stratified random subset of 50 valid samples for 5-fold CV and paired
+    t-test
+  claim_id: c_d2012858
+  context: 'Subset Selection: Select a stratified random subset of 50 valid samples
+    from the full dataset to ensure statistical validity for 5-fold CV and paired
+    t-test. Include unit normalization (eV for energies).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Select a stratified random subset of 50 valid samples from the full dataset
+    to ensure statistical validity for 5-fold CV and paired t-test.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T17:35:24Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: run on 50 molecules verify descriptors_semi.csv has 50 rows no NaN HOMO/LUMO
+    in eV charges sum to net charge
+  claim_id: c_22faab76
+  context: 'Independent Test: Run on 50 molecules; verify descriptors_semi.csv has
+    50 rows, no NaN, HOMO/LUMO in eV, charges sum to net charge.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run on 50 molecules; verify descriptors_semi.csv has 50 rows, no NaN,
+    HOMO/LUMO in eV, charges sum to net charge.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T17:35:24Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 2
+  canonical: verify semi-MAE less than or equal to 2.0 kcal/mol
+  claim_id: c_102e2ce3
+  context: "Implement code/evaluate_models.py to compute per-fold MAE, run paired\
+    \ t-test (spec.md US2), and verify semi-MAE \u2264 2.0 kcal/mol (spec.md US2)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_semi-MAE_less_than_or_equal_to_2.0_kcal/mol
+  kind: magnitude
+  raw_text: "verify semi-MAE \u2264 2.0 kcal/mol"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T17:35:30Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: flag if semi-MAE exceeds DFT-MAE by greater than 20 percent
+  claim_id: c_c6a1156a
+  context: "Implement logic to compute MAE flags: 1) Flag if semi-MAE exceeds DFT-MAE\
+    \ by >20%. (spec.md US2), 2) verify semi-MAE \u2264 2.0 kcal/mol (spec.md US2)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_if_semi-MAE_exceeds_DFT-MAE_by_greater_than_20_percent
+  kind: magnitude
+  raw_text: Flag if semi-MAE exceeds DFT-MAE by >20%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T17:35:31Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: check if top 3 descriptors change 0 times across the sweep
+  claim_id: c_67f13354
+  context: Implement logic to verify stability of top descriptors (spec.md US3) by
+    checking if the top 3 descriptors change 0 times (change < 1 time) across the
+    sweep and recording the result in reports/sensitivity.csv.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Check if the top 3 descriptors change 0 times (change < 1 time) across
+    the sweep.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T17:35:31Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: ensure top 5 correspond to general chemical properties rather than statistical
+    noise
+  claim_id: c_ff32b464
+  context: Implement code/evaluators/physical_interpretability.py to trace top feature
+    importance scores back to specific physical mechanisms (spec.md US3), ensuring
+    the 'top 5' correspond to general chemical properties (e.g., electronegativity,
+    bond order) rather than statistical noise.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure the 'top 5' correspond to general chemical properties (e.g., electronegativity,
+    bond order) rather than statistical noise.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T17:35:49Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: initialize Python 3.11 project with scikit-learn pandas rdkit requests
+  claim_id: c_a9fdd772
+  context: Initialize Python 3.11 project with requirements.txt (scikit-learn, pandas,
+    rdkit, requests).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Initialize Python 3.11 project with requirements.txt (scikit-learn, pandas,
+    rdkit, requests).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T17:36:02Z'

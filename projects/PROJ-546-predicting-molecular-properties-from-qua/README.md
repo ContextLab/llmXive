@@ -1,25 +1,21 @@
 # PROJ-546: Predicting Molecular Properties from Quantum Chemical Calculations
 
-This project implements a pipeline to predict molecular properties using semi-empirical and high-level DFT quantum chemical calculations.
+## Overview
+This project implements a pipeline to predict molecular reaction barrier heights using semi-empirical (DFTB+) and high-level DFT (Psi4) quantum chemical calculations, followed by machine learning modeling (Random Forest) and sensitivity analysis.
 
 ## Project Structure
-
-- `code/`: Python source modules for the pipeline
-- `data/`: Input datasets, downloaded data, and generated artifacts
-- `tests/`: Unit and integration tests
-- `logs/`: Execution logs and failure reports
-- `reports/`: Final evaluation and sensitivity analysis reports
-- `docs/`: Project documentation and design decisions
-- `specs/`: Feature specifications and requirements
+- `code/`: Python scripts for data download, descriptor generation, model training, and evaluation.
+- `data/`: Raw and processed data files (CSV, XYZ, logs).
+- `reports/`: Evaluation metrics, sensitivity analysis, and summary reports.
+- `tests/`: Unit and integration tests.
+- `specs/`: Design documents and user stories.
 
 ## Quick Start
-
 1. Install dependencies: `pip install -r code/requirements.txt`
 2. Download data: `python code/download_data.py`
-3. Generate descriptors: `python code/generate_descriptors.py --method dftb`
+3. Generate descriptors: `python code/generate_descriptors.py`
 4. Train models: `python code/train_models.py`
 5. Evaluate: `python code/evaluate_models.py`
 
 ## License
-
-Internal research use only.
+MIT

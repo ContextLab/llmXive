@@ -1,24 +1,22 @@
 #!/bin/bash
-# Setup script to install linting and formatting tools and run initial checks
-# Usage: bash code/setup_linting.sh
+# Script to initialize linting and formatting tools for the project.
+# This script installs ruff and black, then runs a format check and lint check.
 
 set -e
 
 echo "Installing linting and formatting tools..."
-pip install ruff black pytest
+pip install -r code/requirements.txt
 
-echo "Running initial Ruff check..."
-# Run ruff on the code directory
-ruff check code/ || {
-    echo "Ruff found issues. Please fix them before proceeding."
+echo "Running Black format check (dry-run)..."
+black --check code/ tests/ || (
+    echo "Formatting issues detected. Run 'black code/ tests/' to fix automatically."
     exit 1
-}
+)
 
-echo "Running initial Black check..."
-# Run black in check mode
-black --check code/ || {
-    echo "Black found formatting issues. Run 'black code/' to fix."
+echo "Running Ruff lint check..."
+ruff check code/ tests/ || (
+    echo "Linting errors detected. Run 'ruff check --fix code/ tests/' to attempt automatic fixes."
     exit 1
-}
+)
 
-echo "Linting and formatting setup complete. All checks passed."
+echo "Linting and formatting checks passed."

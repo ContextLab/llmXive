@@ -1,15 +1,16 @@
-# Contracts & Validation Rules
+# Contracts and Validation Rules
 
-## Data Contracts
-- **Input**: CSV with `smiles`, `experimental_barrier`, `net_charge`.
-- **Output**: CSV with `smiles`, `homo`, `lumo`, `mayer_order`, `charges_sum`.
+## Data Validation Contracts
+- **Input CSV**: Must contain columns `smiles`, `experimental_barrier`.
+- **Descriptor CSV**: Must contain `HOMO_energy`, `LUMO_energy`, `mayer_bond_order`.
+- **Physical Range**: `HOMO_energy < LUMO_energy` for all valid entries.
 
-## Physical Constraints
-- **HOMO < LUMO**: Always true for stable molecules.
-- **Charge Sum**: Sum of atomic charges must equal `net_charge` (within tolerance).
-- **Barrier Range**: Experimental barriers must be positive.
+## Model Contracts
+- **Training**: 5-fold cross-validation.
+- **Evaluation**: MAE must be reported in kcal/mol.
+- **Threshold**: Semi-empirical MAE ≤ 2.0 kcal/mol (spec US2).
 
-## Error Handling
-- **ConvergenceError**: Raised if DFTB+ or Psi4 fails to converge.
-- **OOMError**: Raised if memory limit exceeded.
-- **ValidationError**: Raised if output data violates physical constraints.
+## Execution Contracts
+- **Convergence**: Failures must be logged, not raise unhandled exceptions.
+- **Memory**: OOM events must be detected and logged.
+- **Atomicity**: Output files (JSON/CSV) must be written atomically to prevent partial writes.

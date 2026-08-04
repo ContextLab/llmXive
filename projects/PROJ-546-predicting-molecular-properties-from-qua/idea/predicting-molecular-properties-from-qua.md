@@ -1,29 +1,29 @@
-# Research Idea: Predicting Molecular Properties from Quantum Chemical Calculations
+# Idea: Predicting Molecular Properties from Quantum Chemical Calculations
 
 ## Motivation
-Predicting reaction barrier heights is critical for drug discovery and materials science. High-level DFT is accurate but computationally expensive. Semi-empirical methods (DFTB+) are fast but less accurate. This project aims to bridge the gap by training ML models on semi-empirical descriptors, calibrated against a small set of DFT calculations and experimental data.
+Predicting molecular reaction barrier heights is critical for drug discovery and materials science. High-level DFT methods are accurate but computationally expensive. Semi-empirical methods (DFTB+) are fast but less accurate. This project aims to bridge the gap by using machine learning to predict DFT-level accuracy from semi-empirical descriptors.
 
-## Key Challenges
-- **Accuracy vs. Cost**: Balancing the speed of DFTB+ with the accuracy of DFT.
-- **Geometry Consistency**: Ensuring identical geometries for fair comparison (Constitution Principle VI).
-- **Physical Validity**: Ensuring predictions align with observable structural data (Franklin Review).
-- **Approximation Error**: Quantifying the "missing degrees of freedom" in semi-empirical models (Feynman Review).
-
-## Proposed Approach
-1. **Data Collection**: Fetch experimental barrier data from Zenodo.
+## Approach
+1. **Data Collection**: Download experimental barrier dataset from Zenodo.
 2. **Descriptor Generation**:
- - Run DFTB+ for full dataset (geometry optimization + descriptors).
- - Run Psi4 for subset (using DFTB+ optimized geometries).
-3. **Model Training**: Train Random Forests on both descriptor sets.
-4. **Evaluation**: Compare MAE against experimental ground truth.
-5. **Sensitivity Analysis**: Analyze feature importance and threshold stability.
-
-## Validation Strategy
-- **Experimental Ground Truth**: Verify predictions against measured barriers (Curie/Franklin Review).
-- **Physical Interpretability**: Trace top features to known chemical invariants (Pauling/Feynman Review).
-- **Map vs. Territory**: Distinguish computational artifacts from physical observables (Einstein Review).
+ - Compute semi-empirical descriptors (HOMO, LUMO, Mayer) using DFTB+ on full dataset.
+ - Compute high-level DFT descriptors on a stratified subset using Psi4.
+3. **Model Training**: Train Random Forest models on semi-empirical and DFT descriptors.
+4. **Evaluation**: Compare MAE of both models against experimental ground truth.
+5. **Sensitivity Analysis**: Identify top descriptors and analyze threshold effects.
 
 ## Expected Outcomes
-- A pipeline that generates semi-empirical descriptors with < 2.0 kcal/mol MAE.
-- Quantitative analysis of approximation errors in DFTB+.
-- Identification of robust descriptors that generalize across methods.
+- A pipeline that generates descriptors from quantum calculations.
+- Two trained models (semi-empirical vs DFT) with comparative metrics.
+- Insights into which descriptors are most predictive of barrier heights.
+- Evidence of physical interpretability (top descriptors map to chemical properties).
+
+## Challenges
+- **Convergence**: DFTB+ may fail to converge for some molecules.
+- **Cost**: DFT calculations are expensive; subset selection is critical.
+- **Accuracy**: Semi-empirical methods may not capture all physical effects.
+
+## Validation
+- Compare model predictions against experimental data.
+- Verify physical ranges (HOMO < LUMO, reasonable energies).
+- Ensure reproducibility via checksums and versioned dependencies.

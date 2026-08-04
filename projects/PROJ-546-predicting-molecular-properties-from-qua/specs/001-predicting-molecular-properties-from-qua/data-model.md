@@ -1,25 +1,27 @@
 # Data Model Specification
 
-## Input Data
-- Source: Zenodo (Experimental Barrier Dataset)
-- Format: CSV
-- Required Columns:
- - `smiles`: String (SMILES notation)
- - `experimental_barrier`: Float (kcal/mol)
- - `net_charge`: Integer
+## Raw Data
+- **Source**: Zenodo (Experimental Barrier Heights)
+- **Format**: CSV
+- **Fields**:
+ - `molecule_id`: Unique identifier (string)
+ - `smiles`: Canonical SMILES string
+ - `experimental_barrier`: Reaction barrier height in kcal/mol (float)
 
-## Intermediate Data
-- DFTB Descriptors (`descriptors_semi.csv`):
- - `smiles`: String
- - `homo`: Float (eV)
- - `lumo`: Float (eV)
- - `mayer_order`: Float
- - `charges_sum`: Float
- - `geometry_optimized`: Boolean
-- DFT Descriptors (`descriptors_dft.csv`):
- - Same structure as DFTB, computed via Psi4.
+## Processed Data
+- **Semi-Empirical Descriptors** (`data/descriptors_semi.csv`)
+ - `molecule_id`
+ - `smiles`
+ - `HOMO_energy` (eV)
+ - `LUMO_energy` (eV)
+ - `mayer_bond_order` (float)
+ - `total_energy` (eV)
+ - `geometry_file`: Path to XYZ file in `data/optimized_geometries/`
 
-## Output Data
-- Model Weights: Pickle files (`.pkl`)
-- Evaluation Reports: JSON (`reports/evaluation.json`)
-- Sensitivity Analysis: CSV (`reports/sensitivity.csv`)
+- **DFT Descriptors** (`data/descriptors_dft.csv`)
+ - Same schema as semi-empirical, but derived from Psi4/B3LYP.
+
+## Logs
+- `logs/convergence_failures.log`: JSON lines of failed DFTB+ runs.
+- `logs/dftb_execution.log`: JSON lines of execution metrics (wall_time, peak_memory).
+- `logs/structural_failures.log`: CSV of molecules with invalid physical ranges.

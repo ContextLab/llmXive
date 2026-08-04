@@ -1,26 +1,20 @@
 # Reproducibility Guide
 
-## Standard of Evidence
-- **Dataset**: Experimental barrier heights from Zenodo (DOI: 10.xxxx/xxxxx).
-- **Instruments**: DFTB+ (v22.1), Psi4 (v1.8).
-- **Error Margins**: MAE calculated against experimental ground truth; threshold set at 2.0 kcal/mol.
+## Data Sources
+- **Experimental Dataset**: Zenodo ID [INSERT_ID], Version [INSERT_VERSION].
+- **Checksums**: See `data/checksums.txt` for SHA-256 hashes of all raw and processed artifacts.
 
-## Environment Setup
-1. **Python**: 3.11+
-2. **Dependencies**: `pip install -r code/requirements.txt`
-3. **External Tools**:
- - DFTB+ must be in PATH.
- - Psi4 must be in PATH.
+## Environment
+- **Python**: 3.11+
+- **Dependencies**: `code/requirements.txt` (pinned versions)
+- **Quantum Software**: DFTB+ and Psi4 must be installed and available in PATH.
 
-## Data Integrity
-- Checksums for all artifacts are stored in `data/checksums.txt`.
-- Verify integrity before running: `python code/generate_checksums.py --verify`.
+## Execution
+1. Run `python code/download_data.py` to fetch raw data.
+2. Run `python code/generate_descriptors.py` for semi-empirical results.
+3. Run `python code/train_models.py` and `code/evaluate_models.py` for modeling.
+4. Verify results against `reports/evaluation.json`.
 
-## Execution Steps
-1. Download data: `python code/download_data.py`
-2. Run full pipeline: `bash scripts/run_pipeline.sh` (if available) or execute scripts sequentially.
-3. Validate results: `python code/evaluate_models.py`
-
-## Known Limitations
-- Semi-empirical approximations may miss solvent effects (Franklin Review).
-- Basis set limitations in DFTB+ may affect accuracy (Feynman Review).
+## Physical Constraints
+- Ensure `HOMO < LUMO` for all generated descriptors.
+- Verify geometry alignment between DFTB+ and Psi4 runs.

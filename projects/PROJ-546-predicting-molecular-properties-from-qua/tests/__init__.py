@@ -1,1 +1,1 @@
-# PROJ-546 Tests Package
+# Test package for PROJ-546

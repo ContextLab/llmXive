@@ -1,20 +1,20 @@
 # Research Question Validation
 
 ## Objective
-Validate the use of semi-empirical methods (DFTB+) as a proxy for high-level DFT calculations in predicting molecular reaction barriers.
+Validate whether semi-empirical quantum chemical calculations (DFTB+) can serve as a computationally efficient proxy for high-level DFT (B3LYP) in predicting molecular reaction barriers.
 
 ## Hypothesis
-Semi-empirical descriptors (HOMO, LUMO, Mayer orders) can predict experimental barriers with accuracy comparable to DFT within a margin of 2.0 kcal/mol, while offering a 10x speedup in computation time.
+Machine learning models trained on DFTB+ descriptors will achieve a Mean Absolute Error (MAE) within 2.0 kcal/mol of experimental values, comparable to models trained on DFT descriptors, while reducing computational cost by an order of magnitude.
 
 ## Methodology
-1. **Data Collection**: Retrieve experimental barrier data from Zenodo.
+1. **Data Acquisition**: Download experimental barrier dataset from Zenodo.
 2. **Descriptor Generation**:
- - Compute DFTB+ descriptors for the full dataset.
- - Compute DFT (B3LYP/def2-SVP) descriptors for a subset.
-3. **Modeling**: Train Random Forest models on both descriptor sets.
-4. **Evaluation**: Compare MAE against experimental ground truth and perform statistical significance testing.
+ - Run DFTB+ for geometry optimization and descriptor extraction on the full dataset.
+ - Run Psi4 (B3LYP/def2-SVP) on a stratified subset (50 molecules) using the *same* optimized geometries from DFTB+.
+3. **Model Training**: Train Random Forest regressors on both descriptor sets.
+4. **Evaluation**: Compare MAE against experimental ground truth using 5-fold CV and paired t-tests.
+5. **Sensitivity Analysis**: Analyze feature importance and stability across descriptor thresholds.
 
-## Constraints
-- Computational budget: ~6 hours for the full pipeline.
-- Memory limit: 6.5 GB per process.
-- Accuracy threshold: Semi-empirical MAE ≤ 2.0 kcal/mol.
+## Physical Constraints
+- **Constitution Principle VI**: Geometries for DFT must match DFTB+ to ensure fair comparison.
+- **Physical Reality**: Descriptors must satisfy `HOMO < LUMO` and charge conservation.

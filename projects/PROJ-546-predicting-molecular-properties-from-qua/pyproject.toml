@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
+requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -7,7 +7,12 @@ name = "predicting-molecular-properties"
 version = "0.1.0"
 description = "Predicting molecular properties from quantum chemical calculations"
 requires-python = ">=3.11"
-dependencies = []
+dependencies = [
+    "scikit-learn>=1.3.0",
+    "pandas>=2.0.0",
+    "rdkit>=2023.9.1",
+    "requests>=2.31.0",
+]
 
 [tool.black]
 line-length = 88
@@ -28,14 +33,14 @@ exclude = '''
 '''
 
 [tool.ruff]
+# Same as ruff.toml for standalone usage, but can be overridden here
 line-length = 88
 target-version = "py311"
-src = ["code", "tests"]
+select = [
+    "E", "W", "F", "I", "B", "C4", "UP"
+]
+ignore = ["E501"]
 
-[tool.pytest.ini_options]
-testpaths = ["tests"]
-pythonpath = ["code"]
-addopts = "-v --strict-markers"
-
-[tool.setuptools.packages.find]
-where = ["code"]
+[tool.ruff.per-file-ignores]
+"code/__init__.py" = ["F401"]
+"tests/*" = ["S101"]

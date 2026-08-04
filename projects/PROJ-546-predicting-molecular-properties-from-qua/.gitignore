@@ -22,24 +22,21 @@ wheels/
 
 # Virtual Environments
 venv/
-env/
 ENV/
-.venv
+env/
 
-# IDEs
+# IDE
 .idea/
 .vscode/
 *.swp
 *.swo
 
-# Data and Logs
-data/raw/
-data/processed/
-data/optimized_geometries/
-logs/
-*.log
-
-# Reports
+# Data & Logs
+data/*.csv
+data/*.tar.gz
+data/*.xyz
+data/optimized_geometries/*
+logs/*.log
 reports/*.json
 reports/*.csv
 reports/*.md

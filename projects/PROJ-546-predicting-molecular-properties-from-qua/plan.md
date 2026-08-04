@@ -1,34 +1,30 @@
 # Implementation Plan: PROJ-546
 
 ## Phase 1: Setup
-- T001: Create project structure (This task).
-- T002: Initialize Python project and requirements.
-- T003: Configure linting (ruff) and formatting (black).
+- Create project directory structure.
+- Initialize Python environment and dependencies.
+- Configure linting (ruff) and formatting (black).
 
 ## Phase 2: Foundational
-- T004: Implement data download (Zenodo).
-- T006: Implement error utilities (convergence/OOM).
-- T008: Finalize requirements.txt.
-- T010: Implement data validation.
-- T011: Contract test for download.
+- Implement data download and validation (Zenodo).
+- Implement error handling utilities (Convergence, OOM).
+- Set up logging infrastructure.
 
-## Phase 3: User Story 1 (Semi-Empirical)
-- T013: Implement DFTB+ descriptor generation.
-- T016: Implement memory monitoring.
-- T017: Add logging for DFTB+ execution.
-- T012: Integration test for US1.
+## Phase 3: User Story 1 (MVP)
+- Implement DFTB+ descriptor generation.
+- Export optimized geometries.
+- Handle convergence failures gracefully.
 
-## Phase 4: User Story 2 (DFT & Modeling)
-- T020: Implement Psi4 descriptor generation.
-- T021: Implement model training.
-- T022: Implement evaluation and t-tests.
-- T018, T019: Tests for US2.
+## Phase 4: User Story 2
+- Implement Psi4 descriptor generation (subset).
+- Train and evaluate Random Forest models.
+- Perform paired t-test and MAE verification.
 
-## Phase 5: User Story 3 (Sensitivity)
-- T029: Implement feature importance extraction.
-- T030-T032: Sensitivity sweep and reporting.
-- T028: Test for US3.
+## Phase 5: User Story 3
+- Implement sensitivity analysis and feature importance extraction.
+- Verify descriptor stability across thresholds.
 
-## Phase 6: Polish
-- T033-T035: End-to-end validation and reporting.
-- T045-T046: Documentation updates.
+## Phase 6: Validation & Polish
+- Generate checksums for reproducibility.
+- Create summary report.
+- Validate runtime logs against physical constraints.
