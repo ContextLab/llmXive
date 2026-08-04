@@ -1084,3 +1084,614 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-02T18:21:56Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/data/results/power_analysis.md
+  attempts: 1
+  canonical: Ndcg At 10 achieved power 0.8234
+  claim_id: c_1997fbe4
+  context: Ndcg At 10 table shows Achieved Power 0.8234
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ndcg At 10 achieved power of 0.8234
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T08:09:54Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/data/results/power_analysis.md
+  attempts: 1
+  canonical: Wasted Call Ratio achieved power 0.8756
+  claim_id: c_3796b4bc
+  context: Wasted Call Ratio table shows Achieved Power 0.8756
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Wasted Call Ratio achieved power of 0.8756
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T08:10:18Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/data/results/power_analysis.md
+  attempts: 1
+  canonical: Ndcg At 10 effect size 0.8944
+  claim_id: c_1dc63003
+  context: Ndcg At 10 table shows Effect Size (r) 0.8944
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ndcg At 10 had an effect size of 0.8944
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T08:10:50Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/data/results/power_analysis.md
+  attempts: 1
+  canonical: Wasted Call Ratio effect size 0.9487
+  claim_id: c_e758c912
+  context: Wasted Call Ratio table shows Effect Size (r) 0.9487
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Wasted Call Ratio had an effect size of 0.9487
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T08:11:22Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/data/results/power_analysis.md
+  attempts: 1
+  canonical: Ndcg At 10 Z-Statistic 2.0000
+  claim_id: c_a1cf0c4c
+  context: Ndcg At 10 table shows Z-Statistic 2.0000
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ndcg At 10 had a Z-Statistic of 2.0000
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T08:11:50Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/data/results/power_analysis.md
+  attempts: 1
+  canonical: Wasted Call Ratio Z-Statistic 2.1213
+  claim_id: c_21633a60
+  context: Wasted Call Ratio table shows Z-Statistic 2.1213
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Wasted Call Ratio had a Z-Statistic of 2.1213
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T08:12:07Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/data/results/power_analysis.md
+  attempts: 1
+  canonical: Ndcg At 10 P-Value 0.045500
+  claim_id: c_965c2552
+  context: Ndcg At 10 table shows P-Value 0.045500
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ndcg At 10 had a P-Value of 0.045500
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T08:12:34Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/data/results/power_analysis.md
+  attempts: 1
+  canonical: Wasted Call Ratio P-Value 0.033900
+  claim_id: c_299cfa26
+  context: Wasted Call Ratio table shows P-Value 0.033900
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Wasted Call Ratio had a P-Value of 0.033900
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T08:12:54Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/data/results/power_analysis.md
+  attempts: 1
+  canonical: Baseline mean Ndcg At 10 0.6520
+  claim_id: c_1fe8c4f3
+  context: Ndcg At 10 table shows Baseline Mean 0.6520
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Baseline mean for Ndcg At 10 was 0.6520
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T08:13:12Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/data/results/power_analysis.md
+  attempts: 1
+  canonical: Clustering-Aided mean Ndcg At 10 0.7340
+  claim_id: c_0741b064
+  context: Ndcg At 10 table shows Clustering-Aided Mean 0.7340
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Clustering-Aided mean for Ndcg At 10 was 0.7340
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T08:13:26Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/data/results/power_analysis.md
+  attempts: 1
+  canonical: Mean difference Ndcg At 10 0.0820
+  claim_id: c_72b1bf2a
+  context: Ndcg At 10 table shows Mean Difference 0.0820
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Mean difference for Ndcg At 10 was 0.0820
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T08:13:42Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/data/results/power_analysis.md
+  attempts: 1
+  canonical: Baseline mean Wasted Call Ratio 0.4520
+  claim_id: c_fbb9b782
+  context: Wasted Call Ratio table shows Baseline Mean 0.4520
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Baseline mean for Wasted Call Ratio was 0.4520
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T08:14:01Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/data/results/power_analysis.md
+  attempts: 1
+  canonical: Clustering-Aided mean Wasted Call Ratio 0.2140
+  claim_id: c_71f093af
+  context: Wasted Call Ratio table shows Clustering-Aided Mean 0.2140
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Clustering-Aided mean for Wasted Call Ratio was 0.2140
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T08:14:20Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/data/results/power_analysis.md
+  attempts: 1
+  canonical: Mean difference Wasted Call Ratio -0.2380
+  claim_id: c_da663dd0
+  context: Wasted Call Ratio table shows Mean Difference -0.2380
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Mean difference for Wasted Call Ratio was -0.2380
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T08:14:38Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/data/results/power_analysis.md
+  attempts: 1
+  canonical: experiment 5 independent runs
+  claim_id: c_99dc531e
+  context: 'Methodology section states Sample Size (N): 5 independent runs'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The experiment consisted of 5 independent runs
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T08:14:58Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/docs/research_conclusions.md
+  attempts: 1
+  canonical: pre-clustering reduces wasted LLM calls by 30-45%
+  claim_id: c_c87dffc2
+  context: The primary conclusion is that pre-clustering reduces wasted LLM calls
+    by approximately 30-45% (depending on the Jaccard threshold) while restoring NDCG@10
+    to within 1-2% of the unique-only baseline
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pre-clustering reduces wasted LLM calls by approximately 30-45% (depending
+    on the Jaccard threshold)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T08:17:02Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/docs/research_conclusions.md
+  attempts: 1
+  canonical: restoring NDCG@10 to within 1-2% of unique-only baseline
+  claim_id: c_9460e3f3
+  context: pre-clustering reduces wasted LLM calls by approximately 30-45% (depending
+    on the Jaccard threshold) while restoring NDCG@10 to within 1-2% of the unique-only
+    baseline
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: restoring NDCG@10 to within 1-2% of the unique-only baseline
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T08:17:19Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/docs/research_conclusions.md
+  attempts: 1
+  canonical: baseline active ranker flagged 38% of LLM budget as wasted calls on injected
+    scifact dataset
+  claim_id: c_13f815bf
+  context: On the injected scifact dataset, the baseline active ranker (without clustering)
+    flagged ~38% of its LLM budget as 'wasted' calls (pairs with cosine similarity
+    > 0.95)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: On the injected scifact dataset, the baseline active ranker (without clustering)
+    flagged ~38% of its LLM budget as 'wasted' calls
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T08:17:20Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/docs/research_conclusions.md
+  attempts: 1
+  canonical: cosine similarity proxy achieved 94.2% accuracy in identifying true near-duplicates
+  claim_id: c_7476ae3e
+  context: The cosine similarity proxy (> 0.95) was validated against LLM consensus
+    ground truth. The proxy achieved 94.2% accuracy in identifying true near-duplicates
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The proxy achieved 94.2% accuracy in identifying true near-duplicates
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T08:17:20Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/docs/research_conclusions.md
+  attempts: 1
+  canonical: processing full redundant list resulted in 4.5% drop in NDCG@10 compared
+    to unique-only baseline
+  claim_id: c_4af02bad
+  context: Processing the full redundant list resulted in a 4.5% drop in NDCG@10 compared
+    to a unique-only baseline, demonstrating that redundancy actively degrades ranking
+    quality
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Processing the full redundant list resulted in a 4.5% drop in NDCG@10
+    compared to a unique-only baseline
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T08:17:20Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/docs/research_conclusions.md
+  attempts: 1
+  canonical: clustering filter reduced candidate pool size by 42% on average
+  claim_id: c_de8daa3a
+  context: The clustering filter successfully reduced the candidate pool size by 42%
+    on average across datasets, effectively removing redundant clusters before the
+    active ranker processed them
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The clustering filter successfully reduced the candidate pool size by
+    42% on average across datasets
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T08:17:20Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/docs/research_conclusions.md
+  attempts: 1
+  canonical: clustering-aided variant restored NDCG@10 to 98.5% of unique baseline
+  claim_id: c_f11dcd27
+  context: The clustering-aided variant restored NDCG@10 to 98.5% of the unique baseline,
+    effectively closing the gap caused by redundancy
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The clustering-aided variant restored NDCG@10 to 98.5% of the unique baseline
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T08:17:37Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/docs/research_conclusions.md
+  attempts: 1
+  canonical: 0.95 is optimal Jaccard threshold operating point
+  claim_id: c_85d6fbd3
+  context: A sweep of Jaccard thresholds (0.90 to 0.99) revealed that 0.95 is the
+    optimal operating point, balancing false positive merges against false negative
+    misses
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 0.95 is the optimal operating point for Jaccard thresholds
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T08:17:55Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/docs/research_conclusions.md
+  attempts: 1
+  canonical: statistical power for 5-run design was 0.82
+  claim_id: c_b5cc249d
+  context: The achieved statistical power for the 5-run design was 0.82, exceeding
+    the standard threshold of 0.80, indicating the sample size was sufficient to detect
+    the observed effect sizes
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The achieved statistical power for the 5-run design was 0.82
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T08:18:18Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/docs/research_conclusions.md
+  attempts: 1
+  canonical: 'study limited to three BEIR datasets: nfcorpus, scifact, trec-covid'
+  claim_id: c_8f472fea
+  context: The study was limited to three BEIR datasets (nfcorpus, scifact, trec-covid).
+    Generalization to other domains requires further validation
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Study_limited_to_three_BEIR_datasets:_nfcorpus,_scifact,_tre
+  kind: entity_fact
+  raw_text: The study was limited to three BEIR datasets (nfcorpus, scifact, trec-covid)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T08:18:40Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/README.md
+  attempts: 1
+  canonical: Baseline active ranker wasted 45 percent of LLM call budget on near-duplicate
+    pairs with similarity greater than 0.95
+  claim_id: c_a49caefd
+  context: Redundancy Induces Significant Efficiency Loss (US1) - Wasted Call Ratio
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Baseline_active_ranker_wasted_45_percent_of_LLM_call_budget
+  kind: magnitude
+  raw_text: On datasets with injected redundancy, the baseline active ranker wasted
+    ~45% of its LLM call budget on near-duplicate pairs (similarity > 0.95).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T08:20:32Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/README.md
+  attempts: 1
+  canonical: Processing redundant lists without filtering resulted in 12 percent drop
+    in NDCG at 10 compared to unique subset baseline
+  claim_id: c_8c5dac2b
+  context: Redundancy Induces Significant Efficiency Loss (US1) - NDCG@10 Impact
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Processing redundant lists without filtering resulted in a ~12% drop in
+    NDCG@10 compared to the unique-subset baseline.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T08:20:33Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/README.md
+  attempts: 1
+  canonical: Cosine similarity proxy with threshold greater than 0.95 validated against
+    LLM consensus with 94 percent accuracy
+  claim_id: c_25330b04
+  context: Redundancy Induces Significant Efficiency Loss (US1) - Proxy Validation
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Cosine_similarity_proxy_with_threshold_greater_than_0.95_val
+  kind: magnitude
+  raw_text: The cosine similarity proxy (> 0.95) was validated against LLM consensus
+    with > 94% accuracy.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T08:20:52Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/README.md
+  attempts: 1
+  canonical: MinHash-LSH pre-clustering with Jaccard threshold 0.95 reduced candidate
+    pool size by 38 percent
+  claim_id: c_f65a3564
+  context: Pre-Clustering Restores Performance (US2) - Reduction Efficiency
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: MinHash-LSH pre-clustering (Jaccard threshold 0.95) reduced the candidate
+    pool size by ~38%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T08:21:14Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/README.md
+  attempts: 1
+  canonical: Clustering aided variant restored NDCG at 10 to within 2 percent of unique
+    subset baseline
+  claim_id: c_061bf1f7
+  context: Pre-Clustering Restores Performance (US2) - NDCG Recovery
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The clustering-aided variant restored NDCG@10 to within 2% of the unique-subset
+    baseline.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T08:21:28Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/README.md
+  attempts: 1
+  canonical: Full pipeline completed within 6 hour runtime and 7 gigabyte memory limits
+    on nfcorpus scifact and trec-covid datasets
+  claim_id: c_5b0bd6f0
+  context: Pre-Clustering Restores Performance (US2) - Resource Compliance
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The full pipeline (clustering + active ranker) completed within the 6-hour
+    runtime and 7GB memory limits on all tested datasets (nfcorpus, scifact, trec-covid).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T08:21:43Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/README.md
+  attempts: 1
+  canonical: wasted call ratio 35-45% for nfcorpus and scifact with redundancy similarity
+    > 0.95
+  claim_id: c_01310612
+  context: 'Redundancy Impact (US1): Injecting synthetic redundancy... resulted in
+    a wasted call ratio of ~35-45%...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Injecting synthetic redundancy (similarity > 0.95) into `nfcorpus` and
+    `scifact` resulted in a wasted call ratio of ~35-45% when using a standard active
+    ranker without pre-filtering.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T08:23:01Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/README.md
+  attempts: 1
+  canonical: cosine similarity proxy > 0.95 validated against LLM consensus with 95%
+    agreement
+  claim_id: c_8c816688
+  context: The cosine similarity proxy (> 0.95) was validated against LLM consensus
+    (95% agreement)...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The cosine similarity proxy (> 0.95) was validated against LLM consensus
+    (95% agreement), confirming its reliability as a 'wasted' call indicator.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T08:23:01Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/README.md
+  attempts: 1
+  canonical: NDCG@10 dropped 8-12% on redundant lists compared to unique baseline
+  claim_id: c_8f096805
+  context: NDCG@10 dropped by ~8-12% on redundant lists compared to the unique baseline...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: NDCG@10 dropped by ~8-12% on redundant lists compared to the unique baseline,
+    confirming the efficiency loss hypothesis.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T08:23:27Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/README.md
+  attempts: 1
+  canonical: MinHash-LSH pre-clustering with Jaccard threshold 0.95 reduced candidate
+    pool size by > 40%
+  claim_id: c_2b75fd17
+  context: Applying MinHash-LSH pre-clustering (Jaccard threshold = 0.95) reduced
+    the candidate pool size by > 40%...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Applying MinHash-LSH pre-clustering (Jaccard threshold = 0.95) reduced
+    the candidate pool size by > 40% before the active ranker step.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T08:23:48Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/README.md
+  attempts: 1
+  canonical: clustering-aided variant restored NDCG@10 within 1.5% of unique baseline
+    with 60% fewer LLM calls
+  claim_id: c_bc0fa1d5
+  context: The clustering-aided variant restored NDCG@10 to within 1.5% of the unique
+    baseline while utilizing 60% fewer LLM calls.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The clustering-aided variant restored NDCG@10 to within 1.5% of the unique
+    baseline while utilizing 60% fewer LLM calls.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T08:24:05Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/README.md
+  attempts: 1
+  canonical: power analysis indicated achieved power > 0.8
+  claim_id: c_229fd814
+  context: Power analysis indicated achieved power > 0.8 for the observed effect sizes.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Power analysis indicated achieved power > 0.8 for the observed effect
+    sizes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T08:24:05Z'

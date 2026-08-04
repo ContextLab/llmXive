@@ -42,3 +42,28 @@
   verification_status: mismatch
   verified_against_url: https://github.com/your-username/llmXive
   verified_at: '2026-07-18T17:34:25.978828Z'
+- artifact_hash: 72d2342a1f8a64dbf4c1580625a3ba5749266242bb4608b143bc84a746683686
+  artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/README.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: "GitHub - beir-cellar/beir: A Heterogeneous Benchmark for Information\
+    \ Retrieval. Easy to use, evaluate your models across 15+ diverse IR datasets.\
+    \ \xB7 GitHub"
+  kind: url
+  value: https://github.com/beir-cellar/beir
+  verification_status: pending
+  verified_against_url: https://github.com/beir-cellar/beir
+  verified_at: '2026-08-04T08:24:36.206073Z'
+- artifact_hash: 72d2342a1f8a64dbf4c1580625a3ba5749266242bb4608b143bc84a746683686
+  artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/README.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: "GitHub - huggingface/sentence-transformers: State-of-the-Art Embeddings,\
+    \ Retrieval, and Reranking \xB7 GitHub"
+  kind: url
+  value: https://github.com/UKPLab/sentence-transformers
+  verification_status: pending
+  verified_against_url: https://github.com/huggingface/sentence-transformers
+  verified_at: '2026-08-04T08:24:36.206073Z'

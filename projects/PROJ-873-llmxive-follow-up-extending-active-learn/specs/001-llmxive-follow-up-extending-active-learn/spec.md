@@ -33,7 +33,7 @@
 **Acceptance Scenarios**:
 
 1. **Given** a retrieval candidate list with [deferred] near-duplicate passages, **When** the pre-clustering step (threshold Jaccard > 0.95) reduces the candidate pool size by at least 30%, **Then** the system MUST measure and report the "wasted" call ratio and NDCG@10 recovery; the hypothesis is that the "wasted" call ratio will drop to < 10%, and the NDCG@10 will recover to within 5% of the unique-only baseline performance (derived from the unique subset of the redundant list).
-2. **Given** the full pipeline execution on a standard GitHub Actions free-tier runner (2 CPU, 7GB RAM), **When** processing a dataset of N=100 candidates with redundancy level >= 40%, **Then** the total execution time must be ≤ 6 hours, and peak memory usage must remain ≤ 7GB.
+2. **Given** the full pipeline execution on a standard GitHub Actions free-tier runner (a standard multi-core CPU and ample RAM), **When** processing a dataset of N=100 candidates with redundancy level >= 40%, **Then** the total execution time must be ≤ 6 hours, and peak memory usage must remain ≤ 7GB.
 
 ---
 
