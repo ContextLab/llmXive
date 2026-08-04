@@ -1,95 +1,112 @@
 # Data Model: Predicting Catalytic Activity from Electronic Structure and Reaction Path Features
 
-## 1. Entity-Relationship Overview
+## Entity Definitions
 
-The data model consists of three primary stages: **Raw Ingestion**, **Aligned/Processed**, and **Model Output**.
+### CatalystEntry
+Represents a unique catalyst configuration after alignment and preprocessing.
 
-### 1.1 Raw Data Entities
-- **OC20Entry**: Raw DFT structure data.
-  - Keys: `id`, `atoms`, `energy`, `forces`, `energy_change`.
-  - Derived: `composition` (from atoms), `surface_facet` (from structure).
+| Attribute | Type | Description | Source |
+|-----------|------|-------------|--------|
+| `catalyst_id` | str | Unique identifier (hash of composition + facet + condition) | Derived |
+| `composition` | str | Chemical formula (e.g., "Pt") | OC20/MP |
+| `surface_facet` | str | Surface facet (e.g., "111") | OC20/MP |
+| `synthesis_condition` | str | Synthesis condition (fuzzy-matched) | Experimental |
+| `d_band_center` | float | d-band center (eV) | Derived (pymatgen) |
+| `p_band_center` | float | p-band center (eV) | Derived (pymatgen) |
+| `bader_charges` | float | Bader charge (e) | Derived (pymatgen) |
+| `activation_barrier` | float | Activation energy (eV) | Derived (pymatgen) |
+| `reaction_energy` | float | Reaction energy (eV) | Derived (pymatgen) |
+| `coordination_number` | float | Average coordination number (for imputation) | Derived |
+| `surface_area` | float | Surface area (for imputation) | Derived |
+| `experimental_tof` | float | Experimental TOF (s⁻¹) | OC20 Experimental |
+| `is_imputed` | bool | True if descriptor was imputed | Derived |
+| `excluded_from_training` | bool | True if entry was excluded (e.g., <5 neighbors) | Derived |
 
-### 1.2 Processed Data Entities
-- **CatalystEntry**: Unified record for modeling.
-  - **Attributes**:
-    - `catalyst_id`: Unique identifier (hash of composition + facet).
-    - `composition`: String (e.g., "Cu2O").
-    - `surface_facet`: String (e.g., "(111)").
-    - `d_band_center`: Float (eV) (derived or imputed).
-    - `adsorption_energy`: Float (eV) (derived or imputed).
-    - `energy_change`: Float (eV) (DFT reaction energy, target).
-    - `imputation_flag`: Boolean (True if KNN imputed).
-    - `exclusion_reason`: String (if excluded from training).
+### ModelMetrics
+Stores performance statistics for trained models.
 
-### 1.3 Model Output Entities
-- **ModelMetrics**: Performance statistics.
-  - `model_type`: String ("XGBoost" or "Linear").
-  - `r_squared`: Float.
-  - `mean_absolute_error`: Float.
-  - `pearson_r`: Float.
-  - `t_test_p_value`: Float.
-  - `alignment_rate`: Float (SC-002).
-- **FeatureImportance**: SHAP results.
-  - `descriptor_name`: String.
-  - `mean_absolute_shap_value`: Float.
-  - `rank`: Integer.
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `model_type` | str | "XGBoost", "Volcano", or "Reduced" |
+| `r_squared` | float | R² score on test set |
+| `mean_absolute_error` | float | MAE on test set |
+| `pearson_r` | float | Pearson correlation coefficient |
+| `t_test_p_value` | float | p-value from statistical test (if applicable) |
+| `test_size` | int | Number of samples in test set |
 
-## 2. Schema Definitions
+### FeatureImportance
+Represents descriptor impact from SHAP analysis.
 
-### 2.1 Aligned Dataset Schema (`aligned_dataset.csv`)
-| Column | Type | Description | Constraints |
-| :--- | :--- | :--- | :--- |
-| `catalyst_id` | String | Unique ID | Primary Key |
-| `composition` | String | Chemical formula | Not Null |
-| `surface_facet` | String | Crystal facet | Not Null |
-| `d_band_center` | Float | d-band center (eV) | Not Null (imputed if needed) |
-| `adsorption_energy` | Float | Adsorption energy (eV) | Not Null (imputed if needed) |
-| `energy_change` | Float | Reaction energy (eV) | Not Null (target) |
-| `imputation_flag` | Boolean | True if KNN used | Default False |
-| `exclusion_reason` | String | Reason for exclusion | Optional |
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `descriptor_name` | str | Name of the descriptor |
+| `mean_absolute_shap_value` | float | Mean absolute SHAP value |
+| `rank` | int | Rank (1 = most important) |
+| `physical_mechanism` | str | Known physical mechanism (if any) |
 
-### 2.2 Output Metrics Schema (`metrics.json`)
-```json
-{
-  "xgboost": {
-    "r_squared": 0.0,
-    "mae": 0.0,
-    "pearson_r": 0.0
-  },
-  "linear_baseline": {
-    "r_squared": 0.0,
-    "mae": 0.0,
-    "pearson_r": 0.0
-  },
-  "comparison": {
-    "test_type": "t-test",
-    "p_value": 0.0,
-    "significant": false
-  },
-  "alignment_rate": 0.0,
-  "top_5_descriptors": [
-    {"name": "string", "shap_value": 0.0}
-  ]
-}
+### ReducedModelMetrics
+Stores metrics for the top-5 reduced model (SC-003).
+
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `r_squared_full` | float | R² of the full XGBoost model |
+| `r_squared_reduced` | float | R² of the top-5 reduced model |
+| `ratio` | float | `r_squared_reduced / r_squared_full` |
+| `passes_sc003` | bool | True if ratio ≥ 0.50 |
+
+## Data Flow Diagram
+
+```mermaid
+graph TD
+    A[OC20 Raw] --> B[Download & Stream]
+    C[MP API] --> D[Fetch Descriptors]
+    B --> E[Descriptor Extraction]
+    D --> E
+    E --> F{Alignment}
+    F -->|Matched| G[Unified Dataset]
+    F -->|Unmatched| H[Excluded Log]
+    G --> I{Imputation k=5 (Geo-aware)}
+    I -->|Success| J[Imputed Dataset]
+    I -->|<5 Neighbors| K[Excluded Log]
+    J --> L[Scaling]
+    L --> M[Aligned Dataset CSV]
+    M --> N[XGBoost Training]
+    M --> O[Volcano Baseline]
+    N --> P[SHAP Analysis]
+    O --> P
+    P --> Q[Feature Importance Report]
+    N --> R[Reduced Model Training (Top-5)]
+    R --> S[Reduced Model Metrics]
+    N --> T[Model Metrics]
+    O --> T
+    Q --> U[Final Report]
+    S --> U
+    T --> U
 ```
 
-## 3. Data Transformation Logic
+## Data Quality Rules
 
-1. **Alignment**: Filter OC20 entries by `composition` and `surface_facet`.
-2. **Derivation**: Attempt to derive `d_band_center` and `adsorption_energy` from OC20 native data or adsorption energies.
-3. **Filtering**: Remove rows where `energy_change` is missing.
-4. **Imputation**:
-   - Generate Morgan fingerprints for surface slabs.
-   - Compute Euclidean distance in fingerprint space.
-   - Select k=5 nearest neighbors.
-   - If k < 5, set `exclusion_reason` = "Insufficient neighbors" and exclude from training.
-   - Else, fill with mean of neighbors.
-5. **Scaling**: Apply `StandardScaler` to all numeric features (excluding `energy_change`).
+1. **No NaN in Target**: `experimental_tof` must have no missing values after imputation (entries with missing TOF are excluded).
+2. **Unique Alignment**: `synthesis_condition` must be uniquely mappable (fuzzy match) per catalyst; ambiguous entries excluded.
+3. **Imputation Flag**: All imputed values are flagged (`is_imputed=True`).
+4. **Exclusion Log**: All excluded entries (unmatched, <5 neighbors) are logged with reasons.
+5. **Checksum**: All raw and processed files are checksummed (SHA-256).
 
-## 4. Data Integrity & Hygiene
+## Storage Layout
 
-- **Checksums**: All raw files in `data/raw/` must have a `.sha256` file.
-- **Immutability**: Raw files are never modified. All transformations write to `data/processed/`.
-- **PII**: No personal data is involved.
+```text
+data/raw/
+├── oc20_sample.parquet          # Streamed sample from OC20
+├── mp_cache.json                # Cached MP descriptors
 
-## projects/PROJ-170-predicting-catalytic-activity-from-elect/specs/001-predicting-catalytic-activity-from-elect/quickstart.md
+data/processed/
+└── aligned_dataset.csv          # Final aligned, imputed, scaled dataset
+
+outputs/
+├── alignment_log.json           # Unmatched entries
+├── imputation_log.json          # Entries excluded due to <5 neighbors
+├── feature_importance.png       # Top 5 SHAP bar plot
+├── reduced_model_metrics.json   # SC-003 metrics
+└── final_report.md              # Complete results report
+```
+

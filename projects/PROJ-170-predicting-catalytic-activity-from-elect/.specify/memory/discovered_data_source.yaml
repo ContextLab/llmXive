@@ -1,0 +1,11 @@
+status: none
+intent: download OC20 dataset Materials Project bulk descriptors dft23 python package
+  dataset
+required_fields:
+- catalyst_id
+- d_band_center
+- activation_barrier
+- experimental_tof
+cache_key: e3291caec3804e8ce1651e4a3ae0a92b3b27665e546ecdfd64ce9fb04e679778
+searched_at: '2026-08-04T00:11:56.988754+00:00'
+retry_count: 1

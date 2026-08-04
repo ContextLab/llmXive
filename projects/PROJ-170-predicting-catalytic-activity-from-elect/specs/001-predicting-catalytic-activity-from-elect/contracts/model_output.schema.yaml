@@ -1,0 +1,38 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Metrics Schema"
+description: "Schema for the output of the model training and evaluation step."
+type: "object"
+properties:
+  run_id:
+    type: "string"
+    description: "Unique identifier for the model run."
+  model_type:
+    type: "string"
+    enum:
+      - "XGBoost"
+      - "Linear"
+    description: "Type of model trained."
+  r_squared:
+    type: "number"
+    description: "Coefficient of determination."
+  mean_absolute_error:
+    type: "number"
+    description: "Mean Absolute Error in log(TOF)."
+  pearson_r:
+    type: "number"
+    description: "Pearson correlation coefficient."
+  t_test_p_value:
+    type: ["number", "null"]
+    description: "P-value from paired t-test or Wilcoxon test (null if not applicable)."
+  hyperparameters:
+    type: "object"
+    description: "Dictionary of hyperparameters used for the model."
+    additionalProperties: true
+required:
+  - run_id
+  - model_type
+  - r_squared
+  - mean_absolute_error
+  - pearson_r
+  - hyperparameters
+additionalProperties: false

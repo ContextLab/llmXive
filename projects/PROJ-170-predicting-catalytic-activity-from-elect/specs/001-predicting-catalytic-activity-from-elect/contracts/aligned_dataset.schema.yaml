@@ -1,0 +1,57 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Aligned Dataset Schema"
+description: "Schema for the aligned, imputed, and scaled catalyst dataset (aligned_dataset.csv)"
+type: "object"
+properties:
+  catalyst_id:
+    type: "string"
+    description: "Unique identifier for the catalyst entry"
+  composition:
+    type: "string"
+    description: "Chemical formula of the catalyst"
+  surface_facet:
+    type: "string"
+    description: "Surface facet index (e.g., 111, 100)"
+  synthesis_condition:
+    type: "string"
+    description: "Synthesis condition (fuzzy-matched)"
+  d_band_center:
+    type: "number"
+    description: "d-band center in eV (zero mean, unit variance scaled)"
+  p_band_center:
+    type: "number"
+    description: "p-band center in eV (scaled)"
+  bader_charges:
+    type: "number"
+    description: "Bader charge in e (scaled)"
+  activation_barrier:
+    type: "number"
+    description: "Activation energy in eV (scaled)"
+  reaction_energy:
+    type: "number"
+    description: "Reaction energy in eV (scaled)"
+  coordination_number:
+    type: "number"
+    description: "Average coordination number (used for imputation)"
+  surface_area:
+    type: "number"
+    description: "Surface area (used for imputation)"
+  experimental_tof:
+    type: "number"
+    description: "Experimental turnover frequency in s⁻¹ (scaled)"
+  is_imputed:
+    type: "boolean"
+    description: "True if any descriptor was imputed"
+  excluded_from_training:
+    type: "boolean"
+    description: "True if entry was excluded from model training"
+required:
+  - catalyst_id
+  - composition
+  - surface_facet
+  - synthesis_condition
+  - d_band_center
+  - experimental_tof
+  - is_imputed
+  - excluded_from_training
+additionalProperties: false
