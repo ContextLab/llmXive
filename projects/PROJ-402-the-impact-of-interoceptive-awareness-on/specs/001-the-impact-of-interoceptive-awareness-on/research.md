@@ -1,69 +1,57 @@
 # Research: The Impact of Interoceptive Awareness on Emotional Regulation During Simulated Stress
 
-## Executive Summary
+## 1. Dataset Strategy
 
-This research phase validates the feasibility of testing the hypothesis: "Does behavioral interoceptive accuracy predict the magnitude of physiological emotional regulation during acute psychosocial stress, independent of baseline HRV?"
+### Verified Datasets & Availability
+The project relies on the following datasets. Per the verified sources list, we will use the specific Hugging Face links provided for raw BIDS data where available, or Zenodo DOIs.
 
-**Primary Finding**: The WESAD dataset (DOI: 10.5281/zenodo.1292932) contains high-quality ECG/PPG signals for stress (TSST) and baseline phases but **lacks** a specific behavioral interoceptive accuracy task (e.g., Schandry heartbeat perception). OpenNeuro studies containing "TSST" similarly lack the required behavioral task in their `events.tsv` metadata (verified via BIDS index API). Consequently, the primary outcome of this project is a **Data Gap & Sensitivity Report** confirming the absence of the predictor variable. The report will include a **Minimum Detectable Effect Size (MDES)** calculation based on the **Total Variance of the Outcome** (Stress HRV) and a **Best-Case Scenario Assumption** (R²=0.10) to quantify the study's theoretical sensitivity limit.
-
-## Dataset Strategy
-
-The project relies on two primary data sources. Per the `# Verified datasets` block, we cite only the URLs provided.
-
-| Dataset | Purpose | Source URL | Verification Status |
+| Dataset | Purpose | Verified Source / URL | Variable Fit Check |
 |:--- |:--- |:--- |:--- |
-| **WESAD** | Primary source for ECG/PPG stress/baseline signals. | ` | **Verified** (Parquet format, contains ECG/PPG). |
-| **OpenNeuro (Global TSST Index)** | Secondary search for TSST + Interoception across all studies. | ` (Query: `query { datasets(where: {tags: {name: "stress"}}) { id metadata { tasks { name } } } }`) | **Verified** (Official GraphQL API for BIDS index). |
-| **WESAD (Zenodo)** | Canonical source for download (fallback). | `10.5281/zenodo.1292932` | **NO verified source found** (DOI only; use HuggingFace mirror if Zenodo URL is unreachable, per FR-001). |
-| **TSST** | Stress paradigm definition. | N/A | **NO verified source found** (Task definition only). |
-| **HRV** | Validation of HRV calculation. | ` | **Verified** (Used for unit test validation). |
+| **WESAD** | Stress/ECG/PPG Data | **Primary**: Zenodo DOI `10.5281/zenodo.1292932` (Raw BIDS). **Fallback**: None (Zenodo is the canonical source for raw BIDS). | **Stress**: Contains TSST. **Interoception**: **Likely Missing**. WESAD contains resting, stress, and amusement, but standard documentation confirms it does not include a Schandry heartbeat counting task. This confirms the spec's assumption of a data gap. |
+| **OpenNeuro** | Stress/Interoception Search | **Target**: OpenNeuro raw BIDS datasets with physiological data. Search via API for "TSST" and "interoception". | **Search**: Scanning raw BIDS `events.tsv` and `dataset_description.json`. If found, download full BIDS directory. If no raw BIDS dataset with both TSST and interoception exists, this path also yields a data gap. **Note**: Processed fMRI parquets (e.g., fslr64k) are rejected as they lack raw signals and BIDS metadata. |
+| **PhysioNet MIT-BIH** | HRV Metric Validation | ` | **Validation**: Used in `00_validate_hrv.py` to verify `hrv-analysis` library correctness before processing study data. |
 
-**Dataset Selection Rationale**:
-1. **WESAD** is the only verified open dataset with concurrent ECG/PPG and a validated stress paradigm (TSST) in the provided list.
-2. **OpenNeuro** is searched via the official **GraphQL API** to query the **global BIDS index** for *all* studies tagged with "stress" (TSST) and "heartbeat". This replaces the invalid "single atlas" scan, ensuring a representative audit of the repository by inspecting the metadata index of all relevant studies.
-3. **No Access-Gated Data**: We explicitly avoid ADNI, HCP, or UK Biobank as they require credentials and cannot be fetched by the CI runner.
-4. **Zenodo Fallback**: If the Zenodo DOI link is unreachable, the pipeline will automatically fall back to the verified HuggingFace mirror to satisfy FR-001 (download from canonical source).
+### Dataset Selection Rationale
+* **WESAD** is selected as the primary source because it contains the necessary ECG/PPG signals for HRV calculation and includes a stress paradigm. It is downloaded as a **raw BIDS** dataset to ensure `events.tsv` files are present for the audit.
+* **OpenNeuro** is searched for interoception tasks. The plan targets **raw BIDS** datasets to ensure the presence of `events.tsv` files. Processed fMRI parquets are rejected as they lack the required metadata structure.
+* **Feasibility Conclusion**: Based on the spec's assumption and the nature of WESAD (which focuses on emotional states, not interoceptive accuracy tasks), the project anticipates a **negative feasibility result** (data gap). The pipeline will generate a "Feasibility Failure" report.
 
-**Variable Fit Analysis**:
-- **Required**: Behavioral Interoceptive Accuracy (Schandry task), Stress HRV, Baseline HRV.
-- **WESAD Status**: Contains Stress HRV (ECG/PPG during TSST) and Baseline HRV. **Missing**: Behavioral Schandry task. The dataset contains only resting-state and stress signals, no explicit "heartbeat counting" task.
-- **OpenNeuro Status**: API query for studies with "TSST" and "heartbeat" in metadata yielded no matches across the indexed TSST studies.
-- **Conclusion**: The dataset-variable fit is **negative** for the primary hypothesis. The plan shifts to documenting this gap and calculating MDES based on outcome variance.
-
-## Methodological Rigor
+## 2. Methodological Rigor
 
 ### Statistical Approach
-Since the primary hypothesis cannot be tested due to missing data, the statistical plan is bifurcated:
+* **Primary Analysis (Conditional)**: Linear Regression (ANCOVA).
+ * **Outcome**: Stress HRV (RMSSD).
+ * **Predictor**: Interoceptive Accuracy (Schandry score).
+ * **Covariate**: Baseline HRV (RMSSD).
+ * **Rationale**: Controls for individual differences in autonomic tone (Constitution Principle VII).
+ * **Statistical Justification**: We use raw Stress HRV as the outcome with Baseline HRV as a covariate (ANCOVA) rather than a difference score (Stress - Baseline). In small samples (N<20), difference scores can suffer from regression-to-the-mean artifacts if the correlation between baseline and stress is high. ANCOVA is statistically superior for isolating the unique variance of the predictor while controlling for baseline, provided the linearity assumption holds.
+* **Fallback Analysis (Expected)**: **Feasibility Failure Report**.
+ * **Context**: If the Schandry task is missing (as expected).
+ * **Method**: The study **does not** calculate an Upper Bound of Detectable Effect (UBDE) or Minimum Detectable Effect Size (MDES). A power analysis requires a defined predictor variance, which is unknown/zero if the task is missing. Calculating a UBDE would imply the study *could* have worked with more data, which is false without the task.
+ * **Output**: The report explicitly states: "Hypothesis Untestable: Predictor Variable (Interoceptive Accuracy) Missing from Dataset." It documents the specific data gap and the impossibility of the test.
 
-1. **If Data Exists (Hypothetical)**:
- - **Model**: Linear Regression (ANCOVA).
- - **Outcome**: Stress HRV (RMSSD).
- - **Predictor**: Interoceptive Accuracy (Schandry score).
- - **Covariate**: Baseline HRV (RMSSD).
- - **Rationale**: Controls for individual differences in autonomic tone (Constitution Principle VII).
- - **Multiple Comparisons**: Not applicable for a single primary hypothesis.
- - **Causal Framing**: Strictly **associational**. No randomization exists.
+### Statistical Rigor Checklist
+* **Multiple Comparisons**: Not applicable for the primary single hypothesis test.
+* **Power/Sample Size**: WESAD typically has N=15-20 subjects. This is a small sample. The plan acknowledges low power. If data exists, the report will include a post-hoc power analysis noting the limitation.
+* **Causal Inference**: **Associational only**. The dataset is observational. Claims will be framed as "predictive association," not causal effects.
+* **Measurement Validity**: Schandry task is the gold standard for behavioral interoception. If missing, no proxy (e.g., resting HRV) will be used, per Spec Assumption.
+* **Collinearity**: Baseline HRV and Stress HRV are correlated. Using Baseline as a covariate (ANCOVA) is statistically preferred over difference scores.
 
-2. **If Data is Missing (Actual Plan)**:
- - **Metric**: Minimum Detectable Effect Size (MDES) / Theoretical Sensitivity Bound.
- - **Calculation**: Based on sample size (N) of WESAD and **Total Variance of the Outcome** (Stress HRV).
- - **Best-Case Scenario Assumption**: Since the predictor is missing, we cannot estimate its contribution to variance. We assume a conservative **R² = 0.10** (the predictor explains [deferred] of the variance) to calculate the detectable effect size.
- - **Rationale**: This MDES represents the smallest effect size a *hypothetical* predictor would need to have to be statistically detectable (at α=0.05, Power=0.8) given the observed noise of the outcome and the sample size. It is explicitly framed as a **Theoretical Sensitivity Bound**, not an empirical test of the hypothesis. This avoids the category error of estimating predictor variance from missing data while still providing a quantitative feasibility metric as required by FR-006.
- - **Note**: This is explicitly framed as a "Feasibility Metric" and not a test of the hypothesis.
+## 3. Compute Feasibility
 
-### Data Integrity & Preprocessing
-- **Artifact Rejection**: Signals with < 5% valid beats during the TSST window will be excluded (Edge Case handling).
-- **HRV Calculation**: `hrv-analysis` library (Python) will be used to compute RMSSD and SDNN.
- - **Validation**: Metrics will be cross-checked against the `hrv2` dataset (verified URL) to ensure library correctness.
-- **Collinearity**: Baseline HRV is a covariate, not a predictor of change. We avoid regressing "Delta HRV" on "Baseline HRV" to prevent mathematical tautology (Assumption: Statistical Model).
+* **CPU-First**: All operations (download, CSV parsing, HRV calculation via `hrv-analysis`, linear regression via `scikit-learn`) are lightweight and run efficiently on a 2-core CPU.
+* **Memory**: WESAD BIDS is small (<1GB). HRV calculation is streaming or batch-based, well within 7GB RAM.
+* **GPU**: Not required. No deep learning or large language models are used.
+* **Time**: Download ([deferred]), Audit ([deferred]), Preprocessing ([deferred]), Analysis ([deferred]). Total estimated time < 20 minutes.
 
-## Decision Log
+## 4. Data Integrity & Hygiene
 
-| Decision | Rationale |
-|:--- |:--- |
-| **Use WESAD Parquet** | Verified URL available; contains ECG/PPG; fits CPU constraints. |
-| **Skip Deep Learning** | No GPU available; classical statistics sufficient for HRV/Regression. |
-| **Prioritize Audit** | The "finding" is the data gap; running full regression on synthetic data would be fabrication. |
-| **MDES as Sensitivity Bound** | If data is missing, MDES based on **Total Outcome Variance** + **Hypothetical R²** is the only scientifically valid quantitative metric to report (per FR-006), distinct from a formal power analysis of the missing predictor. |
-| **OpenNeuro Global Index Query** | Replaced invalid single-atlas scan with official GraphQL API query to scan all TSST-tagged studies in the OpenNeuro repository, ensuring a representative audit of the available data landscape. |
-| **Zenodo Fallback** | If Zenodo URL is unreachable, use HuggingFace mirror to satisfy FR-001 download requirement. |
+* **Checksums**: Every downloaded file will be checksummed (SHA-256) and logged.
+* **Raw vs. Derived**: Raw data is immutable. HRV metrics are written to new files.
+* **Missing Data**: Subjects with missing interoception data (if any) are excluded from regression but included in descriptive stats. Subjects with noisy ECG (<5% valid beats) are excluded from HRV calculation with logging.
+* **Audit Robustness**: The audit script (`02_audit_metadata.py`) checks `events.tsv`, `dataset_description.json`, and `README` files to avoid false negatives from non-standard task labels.
+
+## 5. Decision/Rationale
+
+**Choice**: CPU-only pipeline using `hrv-analysis` and `pandas`.
+**Rationale**: The hypothesis requires classical statistical analysis on a small dataset. GPU acceleration offers no benefit and introduces unnecessary complexity. The primary challenge is data availability, not compute power. The plan prioritizes a robust "Feasibility Failure" reporting mechanism over a forced, underpowered regression on incomplete data.

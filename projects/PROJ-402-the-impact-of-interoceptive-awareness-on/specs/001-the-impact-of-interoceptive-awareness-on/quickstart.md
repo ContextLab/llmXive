@@ -2,9 +2,9 @@
 
 ## Prerequisites
 
--   Python 3.11+
--   `pip`
--   Git
+*   Python 3.11+
+*   `pip`
+*   Internet connection (for dataset download)
 
 ## Installation
 
@@ -21,40 +21,45 @@
 
 ## Running the Pipeline
 
-The pipeline is designed to run end-to-end on a CPU-only environment.
+The pipeline is executed sequentially. Run the following commands in order:
 
-### Step 1: Data Audit (Mandatory)
-Run the audit script to check for the Schandry task and TSST.
+### Step 1: Download Data
+Downloads WESAD (Zenodo) and verifies checksums.
 ```bash
-python code/01_audit_data.py
+python code/01_download_data.py
 ```
-**Output**: `data/audit/data_audit.md` and `data/audit/audit_results.json`.
--   If the script reports "Schandry task NOT found", the pipeline will proceed to generate the Feasibility Report (MDES).
--   If "Schandry task found", proceed to Step 2.
+*Output*: `data/raw/wesad/` (BIDS directory structure)
 
-### Step 2: HRV Preprocessing (Conditional)
-*Only run if Step 1 confirms the existence of ECG/PPG signals for stress.*
+### Step 2: Audit Metadata
+Scans for Schandry and TSST tasks.
 ```bash
-python code/02_preprocess_hrv.py
+python code/02_audit_metadata.py
 ```
-**Output**: `data/derived/hrv_metrics.csv`.
+*Output*: `results/data_audit.md` (Intermediate report)
 
-### Step 3: Analysis (Conditional)
-*Only run if Step 1 confirms the existence of the Schandry task.*
+### Step 3: Preprocess HRV (Conditional)
+If the audit confirms data availability, this step calculates HRV.
 ```bash
-python code/03_analyze_regression.py
+python code/03_preprocess_hrv.py
 ```
-**Output**: `data/derived/regression_results.csv` and `results/paper_stats.md`.
-*If the Schandry task is missing, this script automatically calculates and outputs the Feasibility Report (MDES based on outcome variance + hypothetical R²) instead.*
+*Output*: `data/derived/hrv_metrics.csv`
 
-### Step 4: Versioning Update (Mandatory)
-Update the project state with artifact hashes.
+### Step 4: Analyze & Report
+Runs regression or Feasibility Failure report generation and captures timing.
 ```bash
-python code/04_update_state.py
+python code/04_analyze_regression.py
+python code/06_capture_timing.py
 ```
-**Output**: Updated `state/projects/PROJ-402-...yaml` with new artifact hashes (SHA-256).
+*Output*: `results/data_audit.md` (Final), `results/regression_results.json`, `results/timing.log`
 
-## Verification
+## Testing
 
--   **Unit Tests**: Run `pytest tests/` to verify HRV calculation accuracy against the `hrv2` dataset and schema validation.
--   **Reproducibility**: Re-run `main.py` (if created) to ensure checksums match.
+Run the test suite to verify logic:
+```bash
+pytest tests/ -v
+```
+
+## Troubleshooting
+
+*   **Missing Data**: If `data_audit.md` reports "Schandry Task: Missing", the regression step will automatically skip and generate a "Feasibility Failure" report. This is the expected outcome.
+*   **Noisy Signals**: If HRV calculation fails for a subject, they are excluded, and a warning is logged in `results/logs/preprocess.log`.

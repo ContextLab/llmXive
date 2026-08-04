@@ -1,16 +1,17 @@
 status: none
-intent: download WESAD dataset Zenodo and OpenNeuro TSST interoception metadata python
-  package
+intent: WESAD OpenNeuro TSST Schandry heartbeat interoception dataset python package
+  dataset
 required_fields:
 - subject_id
 - session_id
-- task_name
-- event_timestamp
-- event_type
-- interoception_task_name
-- stress_paradigm_name
-- physiological_signal_types
-- metadata_keywords
-cache_key: 3eb6efef6a3579d7aa0641dfd05f5220bd3c73ebf7bcb045d66fa56025e2ce51
-searched_at: '2026-07-31T16:08:09.056145+00:00'
+- modality
+- signal_data
+- sampling_rate
+- interoception_task_present
+- interoception_task_events
+- tsst_stress_task_present
+- tsst_event_markers
+- bids_metadata
+cache_key: a43ea0a7e5f62599fc64f8cf3db27326088522e883ad10ab46ed4dacecf119a8
+searched_at: '2026-08-04T18:27:14.608780+00:00'
 retry_count: 1

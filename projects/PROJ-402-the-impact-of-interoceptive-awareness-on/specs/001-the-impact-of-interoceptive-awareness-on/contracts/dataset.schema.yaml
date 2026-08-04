@@ -1,32 +1,43 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Dataset Audit Result"
+title: "BIDS Dataset Structure Schema"
+description: "Schema for the downloaded BIDS dataset directory structure (not a flat file)"
 type: "object"
 properties:
-  dataset_name:
+  root_directory:
     type: "string"
-    description: "Name of the dataset scanned (e.g., WESAD, OpenNeuro)"
-  search_terms:
+    description: "Path to the root of the BIDS dataset"
+  dataset_description:
+    type: "object"
+    description: "dataset_description.json content"
+    properties:
+      Name:
+        type: "string"
+      BIDSVersion:
+        type: "string"
+    required:
+      - "Name"
+      - "BIDSVersion"
+  subjects:
     type: "array"
-    items:
-      type: "string"
-    description: "Keywords searched (e.g., 'Schandry', 'TSST')"
-  results:
-    type: "array"
+    description: "List of subject directories"
     items:
       type: "object"
       properties:
-        term:
+        subject_id:
           type: "string"
-        found:
+          description: "e.g., sub-01"
+        has_events:
           type: "boolean"
-        evidence_path:
-          type: "string"
-          description: "Path to the file containing the evidence or 'N/A' if not found"
+          description: "Whether sub-*/events.tsv exists"
+        has_ecg:
+          type: "boolean"
+          description: "Whether ECG signal files exist"
       required:
-        - term
-        - found
-        - evidence_path
+        - "subject_id"
+        - "has_events"
+        - "has_ecg"
 required:
-  - dataset_name
-  - search_terms
-  - results
+  - "root_directory"
+  - "dataset_description"
+  - "subjects"
+additionalProperties: true

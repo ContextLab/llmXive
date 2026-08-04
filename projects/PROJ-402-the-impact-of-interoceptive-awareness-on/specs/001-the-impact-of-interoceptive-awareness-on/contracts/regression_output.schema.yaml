@@ -1,12 +1,12 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Regression or MDES Output"
+title: "Regression or Feasibility Output"
 type: "object"
 properties:
   analysis_type:
     type: "string"
     enum:
       - "linear_regression"
-      - "mdes_calculation"
+      - "feasibility_failure"
     description: "Type of analysis performed based on data availability"
   outcome_variable:
     type: "string"
@@ -38,17 +38,12 @@ properties:
         description: "Output for linear regression"
       - type: "object"
         properties:
-          mdes_value:
-            type: "number"
-          assumed_r_squared:
-            type: "number"
-          confidence_level:
-            type: "number"
-          description: "Output for MDES calculation (based on total outcome variance + hypothetical R²)"
+          failure_reason:
+            type: "string"
+            description: "Explanation of why the hypothesis could not be tested"
         required:
-          - mdes_value
-          - assumed_r_squared
-          - confidence_level
+          - failure_reason
+        description: "Output for feasibility failure"
 required:
   - analysis_type
   - outcome_variable

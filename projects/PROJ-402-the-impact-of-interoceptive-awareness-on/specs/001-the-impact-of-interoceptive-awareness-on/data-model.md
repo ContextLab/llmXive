@@ -1,66 +1,44 @@
 # Data Model: The Impact of Interoceptive Awareness on Emotional Regulation During Simulated Stress
 
-## Overview
-
-This document defines the data structures used throughout the pipeline. All data is stored in `data/` with checksums. Derived data is stored in `data/derived/`.
-
-## Entity Definitions
+## 1. Entity Definitions
 
 ### Subject
 A unique participant in the dataset.
--   `subject_id`: String (e.g., "101", "S01").
--   `dataset_source`: String ("WESAD", "OpenNeuro").
--   `has_schandry`: Boolean (True if behavioral task data exists).
--   `has_stress_ecg`: Boolean (True if ECG/PPG during TSST exists).
+*   `subject_id` (string): Unique identifier (e.g., "01", "S01").
+*   `age` (integer): Optional demographic.
+*   `gender` (string): Optional demographic.
 
 ### Phase
-A temporal segment of the experiment.
--   `phase_id`: String ("baseline", "stress", "recovery").
--   `start_time`: Float (seconds from start of recording).
--   `end_time`: Float.
--   `duration_sec`: Float.
+A distinct temporal segment of the experiment.
+*   `phase_id` (string): "baseline", "stress", "recovery".
+*   `start_time` (float): Timestamp relative to session start.
+*   `end_time` (float): Timestamp relative to session start.
+*   `task_label` (string): BIDS task label (e.g., "rest", "tsst", "schandry").
 
 ### Metric
 A derived quantitative value.
--   `metric_id`: String ("RMSSD", "SDNN").
--   `value`: Float.
--   `unit`: String ("ms").
--   `phase`: String (reference to Phase).
--   `subject_id`: String (reference to Subject).
+*   `metric_id` (string): "rmssd", "sdnn".
+*   `value` (float): The calculated metric.
+*   `phase_id` (string): Links to the phase.
+*   `subject_id` (string): Links to the subject.
+*   `quality_flag` (string): "valid", "noisy", "missing".
 
-### AuditResult
-The output of the data availability scan.
--   `dataset_name`: String.
--   `search_term`: String ("Schandry", "TSST", "heartbeat").
--   `found`: Boolean.
--   `evidence_path`: String (path to `events.tsv` or metadata file).
+### InteroceptionScore
+Behavioral performance on the Schandry task.
+*   `subject_id` (string): Links to the subject.
+*   `accuracy_score` (float): Ratio of correct counts (0.0 to 1.0).
+*   `task_type` (string): "schandry".
 
-### FeasibilityMetric
-The output of the MDES calculation.
--   `metric_type`: String ("MDES").
--   `outcome_variance`: Float (Total Variance of Stress HRV).
--   `sample_size`: Integer.
--   `assumed_r_squared`: Float (Hypothetical R², e.g., 0.10).
--   `detectable_effect`: Float (Effect size detectable at alpha=0.05, power=0.8).
--   `note`: String ("Calculated based on outcome variance + hypothetical R²; predictor missing").
+## 2. Data Flow
 
-## Data Flow
+1.  **Ingestion**: Raw ECG/PPG signals and BIDS metadata (`events.tsv`) are downloaded.
+2.  **Audit**: `02_audit_metadata.py` parses `events.tsv` to populate a `AuditLog` (Subject, Task Presence).
+3.  **Preprocessing**: `03_preprocess_hrv.py` reads raw signals, applies artifact rejection, and outputs `hrv_metrics.csv`.
+4.  **Analysis**: `04_analyze_regression.py` joins `hrv_metrics.csv` with `InteroceptionScore` (if available) to perform regression or UBDE calculation.
+5.  **Output**: `data_audit.md` and regression results.
 
-1.  **Raw Ingestion**:
-    -   WESAD Parquet -> `data/raw/wesad.parquet`
-    -   OpenNeuro Metadata (API) -> `data/raw/openneuro_index.json`
-2.  **Audit**:
-    -   `01_audit_data.py` scans metadata -> `data/audit/audit_results.json`
-3.  **Preprocessing (Conditional)**:
-    -   If `has_stress_ecg` is True: `02_preprocess_hrv.py` -> `data/derived/hrv_metrics.csv`
-4.  **Analysis (Conditional)**:
-    -   If `has_schandry` is True: `03_analyze_regression.py` -> `data/derived/regression_results.csv`
-    -   If `has_schandry` is False: `03_analyze_regression.py` -> `data/audit/feasibility_report.md` (Contains MDES based on outcome variance + hypothetical R²)
-5.  **Versioning**:
-    -   `04_update_state.py` hashes all outputs (SHA-256) -> updates `state/projects/...yaml`
+## 3. Assumptions & Constraints
 
-## Schema Constraints
-
--   **No NaNs**: HRV metric columns must be non-null for valid subjects.
--   **Uniqueness**: `subject_id` + `phase` + `metric_id` must be unique.
--   **Range**: RMSSD values must be > 0 and < 2000 ms (physiological sanity check).
+*   **BIDS Compliance**: Input data is assumed to follow BIDS structure (or be convertible to it).
+*   **Signal Quality**: ECG signals must have >95% valid beats for HRV calculation.
+*   **Variable Independence**: Interoception scores are independent of HRV signals (different modalities).

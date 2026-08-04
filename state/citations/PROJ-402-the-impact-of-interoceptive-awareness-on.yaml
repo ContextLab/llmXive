@@ -9,50 +9,6 @@
   verification_status: mismatch
   verified_against_url: https://api.crossref.org/works/10.5281/zenodo.1292932
   verified_at: '2026-07-31T16:02:09.228159Z'
-- artifact_hash: 9480214212d3711b9a1a0c7d3a90911769c620fcad04c5cee9810a9b3a3b43a5
-  artifact_path: projects/PROJ-402-the-impact-of-interoceptive-awareness-on/specs/001-the-impact-of-interoceptive-awareness-on/research.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: wesad_4_3_120.parquet
-  kind: url
-  value: https://huggingface.co/datasets/LouisSimon/wesad-parquet/resolve/main/wesad_4_3_120.parquet`
-  verification_status: pending
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/6a4cf77420510de4b2df8b0e/c4bdd25ed53393eb6d89a77359bc537011f42cd51d0024141025c500464dc81c?X-Xet-Cas-Uid=public&user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27wesad_4_3_120.parquet%3B+filename%3D%22wesad_4_3_120.parquet%22%3B&Expires=1785518481&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNmE0Y2Y3NzQyMDUxMGRlNGIyZGY4YjBlL2M0YmRkMjVlZDUzMzkzZWI2ZDg5YTc3MzU5YmM1MzcwMTFmNDJjZDUxZDAwMjQxNDEwMjVjNTAwNDY0ZGM4MWNcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZ1c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3d2VzYWRfNF8zXzEyMC5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIyd2VzYWRfNF8zXzEyMC5wYXJxdWV0JTIyJTNCIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODU1MTg0ODF9fX1dfQ__&Signature=MEUCIQDY7u%7EL1D3amUd-MY0eUBamJxXn%7EPlWv6fo6upZgaL0KgIgcEGtVYl5qFXODOu1nxCsnx1aF3ENjDfSMOJTzVB3rtI_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F
-  verified_at: '2026-07-31T16:21:21.169019Z'
-- artifact_hash: 9480214212d3711b9a1a0c7d3a90911769c620fcad04c5cee9810a9b3a3b43a5
-  artifact_path: projects/PROJ-402-the-impact-of-interoceptive-awareness-on/specs/001-the-impact-of-interoceptive-awareness-on/research.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: Apollo Server
-  kind: url
-  value: https://openneuro.org/api/graphql`
-  verification_status: pending
-  verified_against_url: https://openneuro.org/api/graphql
-  verified_at: '2026-07-31T16:21:21.169019Z'
-- artifact_hash: 9480214212d3711b9a1a0c7d3a90911769c620fcad04c5cee9810a9b3a3b43a5
-  artifact_path: projects/PROJ-402-the-impact-of-interoceptive-awareness-on/specs/001-the-impact-of-interoceptive-awareness-on/research.md
-  cite_id: c-003
-  cited_authors: []
-  cited_title: null
-  fetched_title: test-00000-of-00001.parquet
-  kind: url
-  value: https://huggingface.co/datasets/btd25/hrv2/resolve/main/data/test-00000-of-00001.parquet`
-  verification_status: pending
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/6796b45eaa78d98bcc63621d/704e03f86c3722f1df0c236cd01cf23f625763846cbc3da88b38214ba2dd2fdc?user_id=public&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00001.parquet%3B+filename%3D%22test-00000-of-00001.parquet%22%3B&Expires=1785518484&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjc5NmI0NWVhYTc4ZDk4YmNjNjM2MjFkLzcwNGUwM2Y4NmMzNzIyZjFkZjBjMjM2Y2QwMWNmMjNmNjI1NzYzODQ2Y2JjM2RhODhiMzgyMTRiYTJkZDJmZGNcXD91c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTIyJTNCIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODU1MTg0ODR9fX1dfQ__&Signature=MEQCIG0puejejuKxiv5sXouX-zWndSBNp0qoN4DNmRjR4580AiAG555zosf1M2WuaGjy8SjdJlLsyCeY2P9fHhTeeIQZow__&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F
-  verified_at: '2026-07-31T16:21:21.169019Z'
-- artifact_hash: 9480214212d3711b9a1a0c7d3a90911769c620fcad04c5cee9810a9b3a3b43a5
-  artifact_path: projects/PROJ-402-the-impact-of-interoceptive-awareness-on/specs/001-the-impact-of-interoceptive-awareness-on/research.md
-  cite_id: c-004
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: doi
-  value: 10.5281/zenodo.1292932
-  verification_status: mismatch
-  verified_against_url: https://api.crossref.org/works/10.5281/zenodo.1292932
-  verified_at: '2026-07-31T16:21:21.169019Z'
 - artifact_hash: 4fd360000742e289f2a380dc865995819d770b08b5ee301475858c972432fc39
   artifact_path: projects/PROJ-402-the-impact-of-interoceptive-awareness-on/specs/001-the-impact-of-interoceptive-awareness-on/tasks.md
   cite_id: c-001
@@ -64,3 +20,36 @@
   verification_status: pending
   verified_against_url: https://en.wikipedia.org/wiki/History_of_Python
   verified_at: '2026-08-02T06:50:48.813576Z'
+- artifact_hash: ab3a38b27de351cccba3f8a47c676c2fb99b2d7a9b4f106dd61930e8ba161e8a
+  artifact_path: projects/PROJ-402-the-impact-of-interoceptive-awareness-on/specs/001-the-impact-of-interoceptive-awareness-on/plan.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: doi
+  value: 10.5281/zenodo.1292932
+  verification_status: mismatch
+  verified_against_url: https://api.crossref.org/works/10.5281/zenodo.1292932
+  verified_at: '2026-08-04T18:40:08.451650Z'
+- artifact_hash: 4d51496576a6dd13b93fa98c1404de6f6337873c8741f52c74747b1f73a08292
+  artifact_path: projects/PROJ-402-the-impact-of-interoceptive-awareness-on/specs/001-the-impact-of-interoceptive-awareness-on/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Index of /protected/published-projects/mitdb/1.0.0/
+  kind: url
+  value: https://physionet.org/files/mitdb/1.0.0/`
+  verification_status: pending
+  verified_against_url: https://physionet.org/files/mitdb/1.0.0/
+  verified_at: '2026-08-04T18:40:16.650707Z'
+- artifact_hash: 4d51496576a6dd13b93fa98c1404de6f6337873c8741f52c74747b1f73a08292
+  artifact_path: projects/PROJ-402-the-impact-of-interoceptive-awareness-on/specs/001-the-impact-of-interoceptive-awareness-on/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: doi
+  value: 10.5281/zenodo.1292932
+  verification_status: mismatch
+  verified_against_url: https://api.crossref.org/works/10.5281/zenodo.1292932
+  verified_at: '2026-08-04T18:40:16.650707Z'
