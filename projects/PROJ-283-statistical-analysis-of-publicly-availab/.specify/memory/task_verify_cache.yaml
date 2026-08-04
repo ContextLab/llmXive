@@ -1,3 +1,19 @@
+T025:
+  c: false
+  h: 253399e81af28d86c8a35ff60b3fc80209a108760c20862f79c6068ec1c1e2b3
+  r: "The script does not sweep thresholds from a low value up to\u202F0.05 in 0.005\
+    \ steps, nor does it compute or report the delta (variation) in significant\u2011\
+    predictor counts. It also never writes the analysis results to `data/results/sensitivity_analysis.json`,\
+    \ and that JSON file is absent. These missing pieces prevent the task from being\
+    \ fulfilled."
+T027:
+  c: false
+  h: e2093a664a8f7ed39d74efbf42204e579904c50b9b5279f33017981b11229734
+  r: "The repository lacks the required `data/results/model_metrics.json` file and\
+    \ the `model_output.schema.yaml` schema, so the output cannot be validated. Moreover,\
+    \ the provided `src/models/fit.py` (truncated) shows no code that writes model\
+    \ coefficients, p\u2011values, R\xB2, or AIC to a JSON file, so the core functionality\
+    \ is missing. The task therefore remains unfinished."
 T034:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

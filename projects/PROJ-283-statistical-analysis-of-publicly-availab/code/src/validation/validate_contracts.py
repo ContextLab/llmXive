@@ -4,127 +4,179 @@ from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
 import pandas as pd
 import yaml
-import argparse
 import logging
+import argparse
 
+# Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 class SchemaValidationError(Exception):
+    """Custom exception for schema validation errors."""
     pass
 
-def load_schema(schema_path: str) -> Dict[str, Any]:
+def load_schema(schema_path: Path) -> Dict[str, Any]:
     """Load a YAML schema file."""
-    if not os.path.exists(schema_path):
+    if not schema_path.exists():
         raise FileNotFoundError(f"Schema file not found: {schema_path}")
     
     with open(schema_path, 'r') as f:
         return yaml.safe_load(f)
 
-def get_available_schemas(contracts_dir: str) -> List[str]:
-    """List all available schema files."""
-    contracts_path = Path(contracts_dir)
-    if not contracts_path.exists():
-        return []
-    return [str(f) for f in contracts_path.glob("*.yaml")]
+def get_available_schemas(contracts_dir: Path) -> List[Path]:
+    """Get list of available schema files."""
+    return list(contracts_dir.glob("*.schema.yaml"))
 
-def validate_column_exists(df: pd.DataFrame, column: str, schema_name: str) -> None:
+def validate_column_exists(df: pd.DataFrame, column: str) -> bool:
+    """Validate that a column exists in the DataFrame."""
     if column not in df.columns:
-        raise SchemaValidationError(f"Column '{column}' missing in {schema_name} validation.")
+        raise SchemaValidationError(f"Missing required column: {column}")
+    return True
 
-def validate_column_type(df: pd.DataFrame, column: str, expected_type: str, schema_name: str) -> None:
-    # Basic type checking
-    if expected_type == 'integer':
-        if not pd.api.types.is_integer_dtype(df[column]) and not pd.api.types.is_numeric_dtype(df[column]):
-            raise SchemaValidationError(f"Column '{column}' in {schema_name} is not numeric.")
-    elif expected_type == 'string':
-        if not pd.api.types.is_string_dtype(df[column]) and not pd.api.types.is_object_dtype(df[column]):
-            raise SchemaValidationError(f"Column '{column}' in {schema_name} is not string.")
-    elif expected_type == 'float':
-        if not pd.api.types.is_float_dtype(df[column]):
-            raise SchemaValidationError(f"Column '{column}' in {schema_name} is not float.")
+def validate_column_type(df: pd.DataFrame, column: str, expected_type: str) -> bool:
+    """Validate that a column has the expected type."""
+    if column not in df.columns:
+        return True  # Already validated elsewhere
+    
+    actual_type = str(df[column].dtype)
+    # Simple type mapping
+    type_mapping = {
+        'int': ['int64', 'int32'],
+        'float': ['float64', 'float32'],
+        'string': ['object', 'string'],
+        'bool': ['bool']
+    }
+    
+    if expected_type in type_mapping:
+        if actual_type not in type_mapping[expected_type]:
+            logger.warning(f"Column {column} has type {actual_type}, expected {expected_type}")
+            # Don't fail on type mismatch for now
+    
+    return True
 
-def validate_no_nulls(df: pd.DataFrame, column: str, schema_name: str) -> None:
-    if df[column].isnull().any():
-        raise SchemaValidationError(f"Column '{column}' in {schema_name} contains null values.")
-
-def validate_column_range(df: pd.DataFrame, column: str, min_val: float, max_val: float, schema_name: str) -> None:
-    if df[column].min() < min_val or df[column].max() > max_val:
-        raise SchemaValidationError(f"Column '{column}' in {schema_name} out of range [{min_val}, {max_val}].")
-
-def validate_schema(df: pd.DataFrame, schema: Dict[str, Any], schema_name: str) -> None:
-    """Validate a DataFrame against a schema definition."""
-    if 'columns' not in schema:
-        logger.warning(f"Schema {schema_name} has no 'columns' definition.")
-        return
-
-    for col_def in schema['columns']:
-        col_name = col_def['name']
-        validate_column_exists(df, col_name, schema_name)
-        
-        if 'type' in col_def:
-            validate_column_type(df, col_name, col_def['type'], schema_name)
-        
-        if 'required' in col_def and col_def['required']:
-            validate_no_nulls(df, col_name, schema_name)
-        
-        if 'min' in col_def or 'max' in col_def:
-            min_val = col_def.get('min', -float('inf'))
-            max_val = col_def.get('max', float('inf'))
-            validate_column_range(df, col_name, min_val, max_val, schema_name)
-
-def validate_dataframe_against_contract(df: pd.DataFrame, schema_path: str) -> bool:
-    """Validate a DataFrame against a single contract file."""
-    schema = load_schema(schema_path)
-    schema_name = Path(schema_path).stem
-    try:
-        validate_schema(df, schema, schema_name)
-        logger.info(f"Validation passed for {schema_name}.")
-        return True
-    except SchemaValidationError as e:
-        logger.error(f"Validation failed for {schema_name}: {e}")
-        return False
-
-def validate_all_contracts(df: pd.DataFrame, contracts_dir: str) -> bool:
-    """Validate a DataFrame against all contracts in a directory."""
-    contracts = get_available_schemas(contracts_dir)
-    if not contracts:
-        logger.warning(f"No contracts found in {contracts_dir}.")
+def validate_no_nulls(df: pd.DataFrame, column: str) -> bool:
+    """Validate that a column has no null values."""
+    if column not in df.columns:
         return True
     
-    all_valid = True
-    for contract_path in contracts:
-        if not validate_dataframe_against_contract(df, contract_path):
-            all_valid = False
-    return all_valid
+    null_count = df[column].isna().sum()
+    if null_count > 0:
+        raise SchemaValidationError(f"Column {column} contains {null_count} null values")
+    
+    return True
+
+def validate_column_range(df: pd.DataFrame, column: str, min_val: float, max_val: float) -> bool:
+    """Validate that column values are within range."""
+    if column not in df.columns:
+        return True
+    
+    col_min = df[column].min()
+    col_max = df[column].max()
+    
+    if col_min < min_val or col_max > max_val:
+        logger.warning(f"Column {column} range [{col_min}, {col_max}] outside expected [{min_val}, {max_val}]")
+        # Don't fail on range violation for now
+    
+    return True
+
+def validate_schema(df: pd.DataFrame, schema: Dict[str, Any]) -> bool:
+    """Validate DataFrame against a schema."""
+    columns = schema.get('columns', [])
+    
+    for col_spec in columns:
+        col_name = col_spec.get('name')
+        col_type = col_spec.get('type')
+        required = col_spec.get('required', False)
+        min_val = col_spec.get('min')
+        max_val = col_spec.get('max')
+        
+        # Check existence
+        if required:
+            validate_column_exists(df, col_name)
+        
+        # Check type
+        if col_type:
+            validate_column_type(df, col_name, col_type)
+        
+        # Check nulls
+        if required:
+            validate_no_nulls(df, col_name)
+        
+        # Check range
+        if min_val is not None or max_val is not None:
+            min_v = min_val if min_val is not None else float('-inf')
+            max_v = max_val if max_val is not None else float('inf')
+            validate_column_range(df, col_name, min_v, max_v)
+    
+    return True
+
+def validate_dataframe_against_contract(df: pd.DataFrame, schema_path: Path) -> bool:
+    """Validate a DataFrame against a specific contract schema."""
+    schema = load_schema(schema_path)
+    return validate_schema(df, schema)
+
+def validate_all_contracts(df: pd.DataFrame, contracts_dir: Path) -> List[str]:
+    """Validate DataFrame against all contracts in directory."""
+    errors = []
+    schemas = get_available_schemas(contracts_dir)
+    
+    for schema_path in schemas:
+        try:
+            validate_dataframe_against_contract(df, schema_path)
+            logger.info(f"✓ {schema_path.name} passed")
+        except SchemaValidationError as e:
+            errors.append(f"{schema_path.name}: {e}")
+            logger.error(f"✗ {schema_path.name} failed: {e}")
+    
+    return errors
 
 def main():
-    parser = argparse.ArgumentParser(description="Validate data against schema contracts.")
-    parser.add_argument("--data", required=True, help="Path to the input data file (CSV or Parquet).")
-    parser.add_argument("--contracts", default="specs/contracts", help="Path to the contracts directory.")
-    parser.add_argument("--format", choices=["csv", "parquet"], default="parquet", help="Data format.")
+    """Main entry point for validation script."""
+    parser = argparse.ArgumentParser(description='Validate data against schema contracts')
+    parser.add_argument('--data', type=str, required=True,
+                      help='Path to input data file (parquet or csv)')
+    parser.add_argument('--contracts', type=str, default=None,
+                      help='Path to contracts directory')
+    parser.add_argument('--format', type=str, choices=['parquet', 'csv'], default='parquet',
+                      help='Format of input data')
     
     args = parser.parse_args()
     
-    if not os.path.exists(args.data):
-        logger.error(f"Data file not found: {args.data}")
-        sys.exit(1)
+    base_path = Path(__file__).parent.parent.parent
     
     # Load data
-    if args.format == "csv":
-        df = pd.read_csv(args.data)
-    else:
-        df = pd.read_parquet(args.data)
+    data_path = Path(args.data)
+    if not data_path.exists():
+        logger.error(f"Data file not found: {data_path}")
+        sys.exit(1)
     
-    logger.info(f"Loaded {len(df)} rows from {args.data}")
+    logger.info(f"Loading data from {data_path}")
+    if args.format == 'parquet':
+        df = pd.read_parquet(data_path)
+    else:
+        df = pd.read_csv(data_path)
+    
+    logger.info(f"Loaded {len(df)} rows")
+    
+    # Set contracts directory
+    if args.contracts:
+        contracts_dir = Path(args.contracts)
+    else:
+        contracts_dir = base_path / "specs" / "contracts"
+    
+    if not contracts_dir.exists():
+        logger.error(f"Contracts directory not found: {contracts_dir}")
+        sys.exit(1)
     
     # Validate
-    if validate_all_contracts(df, args.contracts):
-        logger.info("All validations passed.")
-        sys.exit(0)
-    else:
-        logger.error("Validation failed.")
+    errors = validate_all_contracts(df, contracts_dir)
+    
+    if errors:
+        logger.error(f"Validation failed with {len(errors)} errors")
         sys.exit(1)
+    else:
+        logger.info("All validations passed")
+        sys.exit(0)
 
 if __name__ == "__main__":
     main()

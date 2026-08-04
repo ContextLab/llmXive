@@ -1,0 +1,154 @@
+- artifact_path: projects/PROJ-283-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: python requirements include pandas, numpy, scikit-learn, statsmodels,
+    chess, matplotlib, seaborn, requests, datasets, pytest
+  claim_id: c_44a877b0
+  context: 'Initialize Python 3.11 project by creating `requirements.txt` at repository
+    root containing: `pandas`, `numpy`, `scikit-learn`, `statsmodels`, `chess`, `matplotlib`,
+    `seaborn`, `requests`, `datasets`, `pytest`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Initialize Python 3.11 project by creating `requirements.txt` at repository
+    root containing: `pandas`, `numpy`, `scikit-learn`, `statsmodels`, `chess`, `matplotlib`,
+    `seaborn`, `requests`, `datasets`, `pytest`.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T01:52:08Z'
+- artifact_path: projects/PROJ-283-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: game_record schema includes game_id, white_rating, black_rating, eco_code,
+    avg_move_time_white, avg_move_time_black, material_imbalance_move10, outcome,
+    elo_expected_prob, outcome_deviation
+  claim_id: c_0cd568cc
+  context: 'Define `specs/contracts/game_record.schema.yaml` with columns: `game_id`,
+    `white_rating`, `black_rating`, `eco_code`, `avg_move_time_white`, `avg_move_time_black`,
+    `material_imbalance_move10`, `outcome`, `elo_expected_prob`, `outcome_deviation`.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Game_record_schema_includes_game_id,_white_rating,_black_rat
+  kind: entity_fact
+  raw_text: 'Define `specs/contracts/game_record.schema.yaml` with columns: `game_id`,
+    `white_rating`, `black_rating`, `eco_code`, `avg_move_time_white`, `avg_move_time_black`,
+    `material_imbalance_move10`, `outcome`, `elo_expected_prob`, `outcome_deviation`.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T01:52:56Z'
+- artifact_path: projects/PROJ-283-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: model_output schema includes model_type, coefficients, p_values, r_squared,
+    aic, cross_validation_scores
+  claim_id: c_30e72e5e
+  context: 'Define `specs/contracts/model_output.schema.yaml` with columns: `model_type`,
+    `coefficients`, `p_values`, `r_squared`, `aic`, `cross_validation_scores`.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Model_output_schema_includes_model_type,_coefficients,_p_val
+  kind: entity_fact
+  raw_text: 'Define `specs/contracts/model_output.schema.yaml` with columns: `model_type`,
+    `coefficients`, `p_values`, `r_squared`, `aic`, `cross_validation_scores`.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T01:53:28Z'
+- artifact_path: projects/PROJ-283-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: data reduction triggered if estimated size exceeds 6 GB
+  claim_id: c_0bf2cb5b
+  context: 'Implement a pre-flight check in `src/data/precheck.py` that validates
+    the *subset* selected in T008a-select. **Logic**: Read `data/raw/selected_ids.txt`,
+    calculate the *estimated* total size using the heuristic from T008a-define. If
+    estimated size > 6GB, trigger reduction.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If estimated size > 6GB, trigger reduction.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T01:53:28Z'
+- artifact_path: projects/PROJ-283-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: sample size halved if estimated size exceeds 6 GB
+  claim_id: c_36642f32
+  context: 'Implement the reduction logic in `src/data/precheck.py`. **Algorithm**:
+    If estimated size > 6GB, halve the sample size (`len(ids) // 2`) and rewrite `data/raw/selected_ids.txt`
+    with the smaller set.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If estimated size > 6GB, halve the sample size (`len(ids) // 2`) and rewrite
+    `data/raw/selected_ids.txt` with the smaller set.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T01:53:28Z'
+- artifact_path: projects/PROJ-283-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: exception raised if inclusion rate is less than 0.95
+  claim_id: c_637dd8bb
+  context: 'Implement `src/data/process.py` to read `data/results/inclusion_metrics.json`
+    and **validate** the inclusion rate. **Logic**: If `inclusion_rate` < 0.95, raise
+    an exception with a clear error message and exit code 1.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exception_raised_if_inclusion_rate_is_less_than_0.95
+  kind: magnitude
+  raw_text: If `inclusion_rate` < 0.95, raise an exception...
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T01:54:05Z'
+- artifact_path: projects/PROJ-283-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: threshold sweep range is 0.001 to 0.05 with step size of 0.005
+  claim_id: c_46623fa2
+  context: 'Implement `src/reports/sensitivity.py` to perform threshold sweep analysis
+    over a **specific range of small values** (FR-010). **Deliverable**: Save results
+    to `data/results/sensitivity_analysis.json`. **Logic**: Sweep thresholds from
+    a low value to 0.05 in steps of 0.005.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sweep thresholds from a low value to 0.05 in steps of 0.005.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T01:54:44Z'
+- artifact_path: projects/PROJ-283-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: standard deviation of r squared is calculated
+  claim_id: c_9aeb368b
+  context: "Implement `src/models/validate.py` to calculate R\xB2 and MSE variance\
+    \ across folds; specifically calculate standard deviation of R\xB2."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Standard_deviation_of_r_squared_is_calculated
+  kind: entity_fact
+  raw_text: "...calculate standard deviation of R\xB2."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T01:55:28Z'

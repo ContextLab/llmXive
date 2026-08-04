@@ -6,13 +6,14 @@ from typing import Dict, List, Tuple, Optional, Any
 from pathlib import Path
 import json
 import logging
+import os
 
 # Configure logging
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
 logger = logging.getLogger(__name__)
-
-# Set style for plots
-sns.set(style="whitegrid")
 
 def load_model_results(results_path: Path) -> Dict[str, Any]:
     """Load model metrics from JSON file."""
@@ -23,7 +24,7 @@ def load_model_results(results_path: Path) -> Dict[str, Any]:
         return json.load(f)
 
 def load_processed_data(data_path: Path) -> pd.DataFrame:
-    """Load processed game data from Parquet or CSV."""
+    """Load processed game records from parquet or csv."""
     if data_path.suffix == '.parquet':
         return pd.read_parquet(data_path)
     elif data_path.suffix == '.csv':
@@ -31,237 +32,300 @@ def load_processed_data(data_path: Path) -> pd.DataFrame:
     else:
         raise ValueError(f"Unsupported file format: {data_path.suffix}")
 
-def calculate_residuals(df: pd.DataFrame, model_type: str) -> pd.Series:
-    """Calculate residuals for a given model."""
-    if model_type not in df.columns or 'outcome' not in df.columns:
-        raise ValueError(f"Required columns not found for {model_type}")
-    
-    return df['outcome'] - df[model_type]
+def calculate_residuals(df: pd.DataFrame, model_type: str = 'beta') -> pd.Series:
+    """Calculate residuals for the specified model."""
+    if model_type == 'beta':
+        # For Beta regression, we predict outcome_deviation
+        if 'outcome_deviation' not in df.columns:
+            raise ValueError("Dataset missing 'outcome_deviation' column")
+        if 'predicted_outcome_deviation_beta' not in df.columns:
+            raise ValueError("Dataset missing 'predicted_outcome_deviation_beta' column")
+        return df['outcome_deviation'] - df['predicted_outcome_deviation_beta']
+    elif model_type == 'ridge':
+        if 'predicted_outcome_deviation_ridge' not in df.columns:
+            raise ValueError("Dataset missing 'predicted_outcome_deviation_ridge' column")
+        return df['outcome_deviation'] - df['predicted_outcome_deviation_ridge']
+    elif model_type == 'gaussian':
+        if 'predicted_outcome_deviation_gaussian' not in df.columns:
+            raise ValueError("Dataset missing 'predicted_outcome_deviation_gaussian' column")
+        return df['outcome_deviation'] - df['predicted_outcome_deviation_gaussian']
+    else:
+        raise ValueError(f"Unknown model type: {model_type}")
 
 def create_predicted_vs_actual_plot(
     df: pd.DataFrame, 
     model_type: str, 
     output_path: Path,
-    title: str = "Predicted vs Actual Outcome"
-) -> Path:
-    """Create scatter plot of predicted vs actual values."""
+    sample_size: int = 10000
+) -> str:
+    """Create scatter plot of predicted vs actual outcome deviation."""
+    logger.info(f"Creating predicted vs actual plot for {model_type} model")
+    
+    # Sample data if too large for plotting
+    if len(df) > sample_size:
+        df_sample = df.sample(n=sample_size, random_state=42)
+    else:
+        df_sample = df
+    
     plt.figure(figsize=(10, 8))
     
-    predicted = df[model_type]
-    actual = df['outcome']
+    if model_type == 'beta':
+        actual_col = 'outcome_deviation'
+        pred_col = 'predicted_outcome_deviation_beta'
+    elif model_type == 'ridge':
+        actual_col = 'outcome_deviation'
+        pred_col = 'predicted_outcome_deviation_ridge'
+    elif model_type == 'gaussian':
+        actual_col = 'outcome_deviation'
+        pred_col = 'predicted_outcome_deviation_gaussian'
+    else:
+        raise ValueError(f"Unknown model type: {model_type}")
     
-    plt.scatter(actual, predicted, alpha=0.6, edgecolors='w', linewidth=0.5)
-    plt.plot([actual.min(), actual.max()], [actual.min(), actual.max()], 'r--', lw=2, label='Perfect Prediction')
+    # Check if columns exist
+    if actual_col not in df_sample.columns or pred_col not in df_sample.columns:
+        logger.warning(f"Columns {actual_col} or {pred_col} not found in dataset. Skipping plot.")
+        plt.close()
+        return str(output_path)
     
-    plt.xlabel('Actual Outcome')
-    plt.ylabel(f'Predicted Outcome ({model_type})')
-    plt.title(title)
+    sns.scatterplot(
+        x=df_sample[pred_col],
+        y=df_sample[actual_col],
+        alpha=0.3,
+        s=10,
+        edgecolors='none'
+    )
+    
+    # Add diagonal line
+    min_val = min(df_sample[pred_col].min(), df_sample[actual_col].min())
+    max_val = max(df_sample[pred_col].max(), df_sample[actual_col].max())
+    plt.plot([min_val, max_val], [min_val, max_val], 'r--', linewidth=2, label='Perfect Prediction')
+    
+    plt.xlabel(f'Predicted Outcome Deviation ({model_type.title()})')
+    plt.ylabel('Actual Outcome Deviation')
+    plt.title(f'Predicted vs Actual: {model_type.title()} Regression')
     plt.legend()
+    plt.grid(True, alpha=0.3)
     
-    plt.tight_layout()
-    plt.savefig(output_path, dpi=300)
+    plt.savefig(output_path, dpi=150, bbox_inches='tight')
     plt.close()
     
     logger.info(f"Saved predicted vs actual plot to {output_path}")
-    return output_path
+    return str(output_path)
 
 def create_residual_plot(
-    residuals: pd.Series, 
+    df: pd.DataFrame,
+    model_type: str,
     output_path: Path,
-    title: str = "Residual Plot"
-) -> Path:
-    """Create residual plot to check for patterns."""
-    plt.figure(figsize=(10, 6))
+    sample_size: int = 10000
+) -> str:
+    """Create residual plot (residuals vs predicted values)."""
+    logger.info(f"Creating residual plot for {model_type} model")
     
-    indices = range(len(residuals))
-    plt.scatter(indices, residuals, alpha=0.6, edgecolors='w', linewidth=0.5)
+    # Sample data if too large
+    if len(df) > sample_size:
+        df_sample = df.sample(n=sample_size, random_state=42)
+    else:
+        df_sample = df
+    
+    plt.figure(figsize=(10, 8))
+    
+    if model_type == 'beta':
+        pred_col = 'predicted_outcome_deviation_beta'
+    elif model_type == 'ridge':
+        pred_col = 'predicted_outcome_deviation_ridge'
+    elif model_type == 'gaussian':
+        pred_col = 'predicted_outcome_deviation_gaussian'
+    else:
+        raise ValueError(f"Unknown model type: {model_type}")
+    
+    if pred_col not in df_sample.columns or 'outcome_deviation' not in df_sample.columns:
+        logger.warning(f"Required columns not found. Skipping residual plot.")
+        plt.close()
+        return str(output_path)
+    
+    residuals = df_sample['outcome_deviation'] - df_sample[pred_col]
+    
+    sns.scatterplot(
+        x=df_sample[pred_col],
+        y=residuals,
+        alpha=0.3,
+        s=10,
+        edgecolors='none'
+    )
+    
+    # Add horizontal line at 0
     plt.axhline(y=0, color='r', linestyle='--', linewidth=2)
     
-    plt.xlabel('Game Index')
+    plt.xlabel(f'Predicted Outcome Deviation ({model_type.title()})')
     plt.ylabel('Residuals')
-    plt.title(title)
+    plt.title(f'Residual Plot: {model_type.title()} Regression')
+    plt.grid(True, alpha=0.3)
     
-    plt.tight_layout()
-    plt.savefig(output_path, dpi=300)
+    plt.savefig(output_path, dpi=150, bbox_inches='tight')
     plt.close()
     
     logger.info(f"Saved residual plot to {output_path}")
-    return output_path
+    return str(output_path)
 
 def create_feature_importance_plot(
-    coefficients: Dict[str, float], 
+    model_metrics: Dict[str, Any],
     output_path: Path,
-    title: str = "Feature Importance"
-) -> Path:
-    """Create bar plot of feature importance (absolute coefficients)."""
-    # Convert to DataFrame for easier plotting
-    df_importance = pd.DataFrame({
-        'feature': list(coefficients.keys()),
-        'coefficient': list(coefficients.values())
-    })
-    
-    # Sort by absolute value
-    df_importance = df_importance.sort_values('coefficient', key=abs, ascending=False)
+    model_type: str = 'beta'
+) -> str:
+    """Create feature importance ranking plot based on model coefficients."""
+    logger.info(f"Creating feature importance plot for {model_type} model")
     
     plt.figure(figsize=(12, 8))
-    plt.barh(df_importance['feature'], df_importance['coefficient'], color='skyblue')
+    
+    # Extract coefficients based on model type
+    if model_type not in model_metrics:
+        logger.warning(f"Model type '{model_type}' not found in metrics. Skipping plot.")
+        plt.close()
+        return str(output_path)
+    
+    coefficients = model_metrics[model_type].get('coefficients', {})
+    
+    if not coefficients:
+        logger.warning("No coefficients found in model metrics. Skipping plot.")
+        plt.close()
+        return str(output_path)
+    
+    # Convert to DataFrame for sorting
+    coef_df = pd.DataFrame(list(coefficients.items()), columns=['Feature', 'Coefficient'])
+    coef_df = coef_df[coef_df['Feature'] != 'intercept']
+    
+    # Sort by absolute value of coefficient
+    coef_df = coef_df.sort_values('Coefficient', key=abs, ascending=True)
+    
+    # Plot top 15 features
+    top_n = min(15, len(coef_df))
+    coef_top = coef_df.tail(top_n)
+    
+    plt.barh(coef_top['Feature'], coef_top['Coefficient'])
     plt.xlabel('Coefficient Value')
     plt.ylabel('Feature')
-    plt.title(title)
+    plt.title(f'Top {top_n} Feature Importance ({model_type.title()} Regression)')
+    plt.gca().invert_yaxis()
+    plt.grid(True, alpha=0.3, axis='x')
     
-    # Add value labels
-    for i, v in enumerate(df_importance['coefficient']):
-        plt.text(v, i, f"{v:.3f}", va='center')
-    
-    plt.tight_layout()
-    plt.savefig(output_path, dpi=300)
+    plt.savefig(output_path, dpi=150, bbox_inches='tight')
     plt.close()
     
     logger.info(f"Saved feature importance plot to {output_path}")
-    return output_path
+    return str(output_path)
 
 def generate_diagnostic_report(
-    model_metrics: Dict[str, Any],
-    residuals_stats: Dict[str, Dict[str, float]],
-    plots_info: Dict[str, str],
+    plot_paths: List[str],
+    cv_summary: Dict[str, Any],
+    r2_std: float,
+    validation_status: str,
+    significant_predictors: List[str],
     output_path: Path
-) -> Dict[str, Any]:
-    """Generate a comprehensive diagnostic report as JSON."""
+) -> str:
+    """Generate a JSON diagnostic report summarizing all plots and metrics."""
+    logger.info("Generating diagnostic report")
+    
     report = {
-        "generated_at": pd.Timestamp.now().isoformat(),
-        "model_metrics": model_metrics,
-        "residuals_statistics": residuals_stats,
-        "plots_generated": list(plots_info.keys()),
-        "plot_file_paths": plots_info,
-        "summary": {
-            "total_models_evaluated": len(model_metrics),
-            "total_plots_created": len(plots_info),
-            "residuals_mean_all": np.mean([stats['mean'] for stats in residuals_stats.values()]),
-            "residuals_std_all": np.mean([stats['std'] for stats in residuals_stats.values()])
-        }
+        "plot_paths": plot_paths,
+        "cv_summary": cv_summary,
+        "r2_std": r2_std,
+        "validation_status": validation_status,
+        "significant_predictors": significant_predictors
     }
     
     with open(output_path, 'w') as f:
-        json.dump(report, f, indent=2, default=str)
+        json.dump(report, f, indent=2)
     
     logger.info(f"Saved diagnostic report to {output_path}")
-    return report
+    return str(output_path)
 
 def main():
     """Main function to generate all diagnostic plots and report."""
+    logger.info("Starting diagnostic plot generation")
+    
     # Define paths
-    base_dir = Path(__file__).resolve().parent.parent.parent
-    results_dir = base_dir / "data" / "results"
-    results_dir.mkdir(parents=True, exist_ok=True)
+    base_path = Path(__file__).parent.parent.parent
+    data_path = base_path / "data" / "processed" / "games.parquet"
+    results_path = base_path / "data" / "results" / "model_metrics.json"
+    diagnostics_path = base_path / "data" / "results" / "diagnostics.json"
+    plots_dir = base_path / "data" / "results"
     
-    # Paths to input files
-    processed_data_path = base_dir / "data" / "processed" / "games.parquet"
-    model_metrics_path = results_dir / "model_metrics.json"
+    # Ensure plots directory exists
+    plots_dir.mkdir(parents=True, exist_ok=True)
     
-    # Output paths
-    plots_dir = results_dir
-    diagnostics_json_path = results_dir / "diagnostics.json"
-    
-    # Verify input files exist
-    if not processed_data_path.exists():
-        raise FileNotFoundError(f"Processed data not found at {processed_data_path}")
-    if not model_metrics_path.exists():
-        raise FileNotFoundError(f"Model metrics not found at {model_metrics_path}")
-    
-    # Load data
-    logger.info("Loading processed data...")
-    df = load_processed_data(processed_data_path)
-    
-    logger.info("Loading model metrics...")
-    model_metrics = load_model_results(model_metrics_path)
-    
-    # Identify models in the data
-    # We expect columns like 'predicted_outcome_GLM' and 'predicted_outcome_Ridge'
-    # or similar naming convention based on fit.py
-    model_columns = [col for col in df.columns if col.startswith('predicted_outcome_')]
-    
-    if not model_columns:
-        raise ValueError("No predicted outcome columns found in the processed data. "
-                       "Expected columns like 'predicted_outcome_GLM' or 'predicted_outcome_Ridge'.")
-    
-    logger.info(f"Found model columns: {model_columns}")
-    
-    plots_info = {}
-    residuals_stats = {}
-    
-    for model_col in model_columns:
-        model_name = model_col.replace('predicted_outcome_', '')
-        logger.info(f"Processing model: {model_name}")
+    try:
+        # Load data
+        logger.info(f"Loading processed data from {data_path}")
+        df = load_processed_data(data_path)
         
-        # Calculate residuals
-        residuals = calculate_residuals(df, model_col)
+        logger.info(f"Loading model metrics from {results_path}")
+        model_metrics = load_model_results(results_path)
         
-        # Store statistics
-        residuals_stats[model_name] = {
-            "mean": float(residuals.mean()),
-            "std": float(residuals.std()),
-            "min": float(residuals.min()),
-            "max": float(residuals.max())
-        }
+        # Load CV summary from model_metrics if available
+        cv_summary = model_metrics.get('cv_summary', {
+            'mean_r2': 0.0,
+            'std_r2': 0.0,
+            'mean_mse': 0.0
+        })
+        r2_std = cv_summary.get('std_r2', 0.0)
+        validation_status = cv_summary.get('validation_status', 'Unknown')
         
-        # 1. Predicted vs Actual Plot
-        plot_path = plots_dir / f"predicted_vs_actual_{model_name}.png"
-        create_predicted_vs_actual_plot(
-            df, 
-            model_col, 
-            plot_path, 
-            title=f"Predicted vs Actual - {model_name}"
+        # Get significant predictors from model metrics
+        significant_predictors = []
+        if 'beta' in model_metrics:
+            # Extract predictors with p-values < 0.05 (if available)
+            p_values = model_metrics['beta'].get('p_values', {})
+            for feat, p_val in p_values.items():
+                if isinstance(p_val, (int, float)) and p_val < 0.05:
+                    significant_predictors.append(feat)
+        
+        # Generate plots
+        plot_paths = []
+        
+        # 1. Predicted vs Actual plots for all models
+        for model_type in ['beta', 'ridge', 'gaussian']:
+            plot_path = plots_dir / f"predicted_vs_actual_{model_type}.png"
+            try:
+                path_str = create_predicted_vs_actual_plot(df, model_type, plot_path)
+                plot_paths.append(path_str)
+            except Exception as e:
+                logger.warning(f"Failed to create {model_type} predicted vs actual plot: {e}")
+        
+        # 2. Residual plots for all models
+        for model_type in ['beta', 'ridge', 'gaussian']:
+            plot_path = plots_dir / f"residuals_{model_type}.png"
+            try:
+                path_str = create_residual_plot(df, model_type, plot_path)
+                plot_paths.append(path_str)
+            except Exception as e:
+                logger.warning(f"Failed to create {model_type} residual plot: {e}")
+        
+        # 3. Feature importance plot (beta model)
+        feature_importance_path = plots_dir / "feature_importance_beta.png"
+        try:
+            path_str = create_feature_importance_plot(model_metrics, feature_importance_path, 'beta')
+            plot_paths.append(path_str)
+        except Exception as e:
+            logger.warning(f"Failed to create feature importance plot: {e}")
+        
+        # Generate diagnostic report
+        generate_diagnostic_report(
+            plot_paths=plot_paths,
+            cv_summary=cv_summary,
+            r2_std=r2_std,
+            validation_status=validation_status,
+            significant_predictors=significant_predictors,
+            output_path=diagnostics_path
         )
-        plots_info[f"predicted_vs_actual_{model_name}"] = str(plot_path.relative_to(base_dir))
         
-        # 2. Residual Plot
-        plot_path = plots_dir / f"residuals_{model_name}.png"
-        create_residual_plot(
-            residuals, 
-            plot_path, 
-            title=f"Residuals - {model_name}"
-        )
-        plots_info[f"residuals_{model_name}"] = str(plot_path.relative_to(base_dir))
+        logger.info("Diagnostic plot generation completed successfully")
         
-        # 3. Feature Importance Plot (if coefficients are available in model_metrics)
-        # Check if coefficients exist for this model in the loaded metrics
-        model_metrics_flat = model_metrics.get('models', {})
-        # Try to find coefficients for this model
-        # The structure might be {'Gaussian GLM': {...}, 'Ridge': {...}}
-        # We need to map model_name (e.g., "GLM") to the key in metrics
-        # Heuristic: Look for keys containing the model name or common aliases
-        coeff_key = None
-        for key in model_metrics_flat:
-            if model_name.lower() in key.lower() or key.lower() in model_name.lower():
-                coeff_key = key
-                break
-        
-        if coeff_key and 'coefficients' in model_metrics_flat[coeff_key]:
-            coeffs = model_metrics_flat[coeff_key]['coefficients']
-            plot_path = plots_dir / f"feature_importance_{model_name}.png"
-            create_feature_importance_plot(
-                coeffs, 
-                plot_path, 
-                title=f"Feature Importance - {model_name}"
-            )
-            plots_info[f"feature_importance_{model_name}"] = str(plot_path.relative_to(base_dir))
-        else:
-            logger.warning(f"Coefficients not found for model {model_name} in model_metrics, skipping feature importance plot.")
-    
-    # Generate final diagnostic report
-    logger.info("Generating diagnostic report...")
-    report = generate_diagnostic_report(
-        model_metrics,
-        residuals_stats,
-        plots_info,
-        diagnostics_json_path
-    )
-    
-    logger.info("All plots and report generated successfully.")
-    print(f"Diagnostic report saved to: {diagnostics_json_path}")
-    print(f"Plots saved to: {plots_dir}")
-    
-    return report
+    except FileNotFoundError as e:
+        logger.error(f"Data file not found: {e}")
+        raise
+    except Exception as e:
+        logger.error(f"Error generating diagnostic plots: {e}")
+        raise
 
 if __name__ == "__main__":
     main()

@@ -1,241 +1,222 @@
-"""
-Sensitivity analysis for model threshold stability.
-
-Implements threshold sweep analysis over a range of small p-value thresholds
-to compute the Jaccard index of significant predictors (FR-010).
-"""
 import pandas as pd
 import numpy as np
 from typing import List, Dict, Tuple, Set
 from pathlib import Path
 import json
 import logging
-from src.config import ensure_directories
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+# Constants for the sweep
+MIN_THRESHOLD = 0.001
+MAX_THRESHOLD = 0.05
+STEP = 0.005
+
 def calculate_jaccard_index(set_a: Set[str], set_b: Set[str]) -> float:
     """
-    Calculate the Jaccard index between two sets.
-    J = |A ∩ B| / |A ∪ B|
-    
-    Args:
-        set_a: First set of elements
-        set_b: Second set of elements
-        
-    Returns:
-        Jaccard index between 0.0 and 1.0
+    Calculate the Jaccard index between two sets of predictor names.
+    Jaccard Index = |A ∩ B| / |A ∪ B|
     """
     if not set_a and not set_b:
-        return 1.0  # Both empty, perfect agreement
-    
+        return 1.0
     intersection = len(set_a.intersection(set_b))
     union = len(set_a.union(set_b))
-    
     if union == 0:
-        return 1.0
-        
+        return 0.0
     return intersection / union
 
-def get_significant_predictors(
-    results_df: pd.DataFrame, 
-    p_value_col: str, 
-    threshold: float
-) -> Set[str]:
+def get_significant_predictors(p_values: pd.Series, threshold: float) -> Set[str]:
     """
-    Get the set of predictor names that are significant at the given threshold.
-    
-    Args:
-        results_df: DataFrame containing model results with p-values
-        p_value_col: Name of the column containing p-values
-        threshold: P-value threshold for significance
-        
-    Returns:
-        Set of predictor names with p-values below threshold
+    Identify predictors with p-values below the given threshold.
     """
-    significant = results_df[results_df[p_value_col] < threshold]
-    return set(significant.index) if 'index' in results_df.columns else set(significant[p_value_col].index)
+    if p_values.empty:
+        return set()
+    significant = p_values[p_values < threshold].index.tolist()
+    return set(significant)
 
 def perform_threshold_sweep(
-    model_results: pd.DataFrame,
-    p_value_column: str = 'p_value',
-    threshold_range: List[float] = None
-) -> Dict:
+    p_values_df: pd.DataFrame,
+    min_thresh: float = MIN_THRESHOLD,
+    max_thresh: float = MAX_THRESHOLD,
+    step: float = STEP
+) -> List[Dict]:
     """
-    Perform threshold sweep analysis to measure stability of significant predictors.
+    Perform a threshold sweep analysis.
     
     Args:
-        model_results: DataFrame with predictor names as index and p-values
-        p_value_column: Column name containing p-values
-        threshold_range: List of thresholds to sweep (defaults to 0.001 to 0.1)
-        
+        p_values_df: DataFrame containing p-values for predictors. 
+                     Expected columns: 'model_type', 'predictor', 'p_value' (or similar structure).
+                     If the DataFrame is in wide format (predictors as columns), 
+                     we will iterate columns. If long, we aggregate.
+        min_thresh: Start of the sweep.
+        max_thresh: End of the sweep (inclusive).
+        step: Step size for the sweep.
+    
     Returns:
-        Dictionary containing sweep results with Jaccard indices
+        List of dictionaries containing threshold, count, delta, and Jaccard index.
     """
-    if threshold_range is None:
-        threshold_range = [0.001, 0.005, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.1]
+    results = []
+    prev_significant: Set[str] = set()
+    prev_count = 0
     
-    # Sort thresholds to ensure sequential comparison
-    threshold_range = sorted(threshold_range)
+    # Ensure we cover the range correctly
+    thresholds = np.arange(min_thresh, max_thresh + step/2, step)
     
-    results = {
-        'thresholds': threshold_range,
-        'significant_sets': [],
-        'jaccard_indices': [],
-        'pairwise_jaccards': []
-    }
+    # Flatten p-values if necessary. Assuming the input is a Series or 
+    # a DataFrame where we can extract a mapping of predictor -> p_value.
+    # The typical output from T024 (metrics.py) might be a DataFrame 
+    # with columns like 'predictor' and 'p_value' or a wide table.
+    # We expect p_values_df to be a Series or a DataFrame that we can convert to a Series.
     
-    significant_sets = []
-    
-    logger.info(f"Performing threshold sweep over {len(threshold_range)} thresholds")
-    
-    for i, threshold in enumerate(threshold_range):
-        significant = get_significant_predictors(model_results, p_value_column, threshold)
-        significant_sets.append(significant)
-        
-        logger.info(f"Threshold {threshold:.3f}: {len(significant)} significant predictors")
-        
-        # Calculate Jaccard index with previous threshold if available
-        if i > 0:
-            prev_set = significant_sets[i - 1]
-            jaccard = calculate_jaccard_index(prev_set, significant)
-            results['jaccard_indices'].append(jaccard)
-            results['pairwise_jaccards'].append({
-                'threshold_from': threshold_range[i - 1],
-                'threshold_to': threshold,
-                'jaccard_index': jaccard
-            })
+    if isinstance(p_values_df, pd.DataFrame):
+        # If it's a long format: columns ['predictor', 'p_value']
+        if 'predictor' in p_values_df.columns and 'p_value' in p_values_df.columns:
+            p_series = p_values_df.set_index('predictor')['p_value']
         else:
-            results['jaccard_indices'].append(1.0)  # First threshold has no previous
-    
-    results['significant_sets'] = [list(s) for s in significant_sets]
-    
-    # Calculate overall stability metric (mean Jaccard index)
-    if results['jaccard_indices']:
-        results['mean_jaccard_index'] = float(np.mean(results['jaccard_indices']))
-        results['std_jaccard_index'] = float(np.std(results['jaccard_indices']))
+            # Assume wide format: columns are predictors, values are p-values
+            # We might need to aggregate across models if multiple exist, 
+            # but for sensitivity analysis on a specific model's p-values, 
+            # we usually take one. Let's assume the first model or a specific one.
+            # For simplicity, if it's wide, we take the first column as the reference 
+            # or aggregate if multiple models are present. 
+            # Given the task context (US2), we likely have one set of p-values 
+            # (e.g., from Beta Regression). Let's assume the input is already 
+            # the relevant p-value series or a wide dataframe where we take the mean/first.
+            # To be robust: if multiple columns exist, we'll treat the first one.
+            p_series = p_values_df.iloc[:, 0]
+            p_series.index = p_values_df.columns
+    elif isinstance(p_values_df, pd.Series):
+        p_series = p_values_df
     else:
-        results['mean_jaccard_index'] = 0.0
-        results['std_jaccard_index'] = 0.0
+        raise ValueError("p_values_df must be a pandas Series or DataFrame")
+
+    for thresh in thresholds:
+        # Ensure threshold does not exceed max
+        current_thresh = min(thresh, max_thresh)
         
-    logger.info(f"Sweep complete. Mean Jaccard index: {results['mean_jaccard_index']:.4f}")
-    
+        current_significant = get_significant_predictors(p_series, current_thresh)
+        current_count = len(current_significant)
+        
+        # Calculate Delta (variation in count)
+        delta = current_count - prev_count if prev_count > 0 or prev_significant else 0
+        
+        # Calculate Jaccard Index with previous set
+        jaccard = 0.0
+        if prev_significant or current_significant:
+            jaccard = calculate_jaccard_index(prev_significant, current_significant)
+        
+        results.append({
+            "threshold": float(current_thresh),
+            "significant_count": current_count,
+            "delta": delta,
+            "jaccard_index": round(jaccard, 4)
+        })
+        
+        prev_significant = current_significant
+        prev_count = current_count
+
     return results
 
 def generate_sensitivity_report(
-    model_metrics_path: str,
-    output_path: str,
-    p_value_column: str = 'p_value',
-    threshold_range: List[float] = None
+    p_values_source: pd.DataFrame,
+    output_path: Path
 ) -> Dict:
     """
-    Generate a comprehensive sensitivity analysis report.
+    Generate the full sensitivity analysis report and save it to JSON.
     
     Args:
-        model_metrics_path: Path to the model metrics JSON file
-        output_path: Path to save the sensitivity report
-        p_value_column: Column name containing p-values
-        threshold_range: List of thresholds to sweep
-        
+        p_values_source: DataFrame of p-values.
+        output_path: Path to save the JSON report.
+    
     Returns:
-        Dictionary containing the sensitivity analysis results
+        The report dictionary.
     """
-    ensure_directories()
+    logger.info(f"Performing sensitivity analysis on {len(p_values_source)} predictors...")
     
-    logger.info(f"Loading model metrics from {model_metrics_path}")
+    sweep_results = perform_threshold_sweep(p_values_source)
     
-    # Load model metrics
-    with open(model_metrics_path, 'r') as f:
-        model_metrics = json.load(f)
+    # Calculate summary statistics
+    counts = [r['significant_count'] for r in sweep_results]
+    deltas = [r['delta'] for r in sweep_results]
+    jaccards = [r['jaccard_index'] for r in sweep_results]
     
-    # Convert coefficients and p-values to DataFrame
-    # Assuming structure: {model_type: {model_name: {coefficients: {...}, p_values: {...}}}}
-    report_data = {
-        'analysis_type': 'threshold_sweep_sensitivity',
-        'models_analyzed': [],
-        'results': {}
+    report = {
+        "analysis_type": "threshold_sweep",
+        "range": {
+            "min": MIN_THRESHOLD,
+            "max": MAX_THRESHOLD,
+            "step": STEP
+        },
+        "summary": {
+            "total_thresholds_tested": len(sweep_results),
+            "min_significant_count": min(counts),
+            "max_significant_count": max(counts),
+            "mean_significant_count": float(np.mean(counts)),
+            "max_delta": max(deltas),
+            "min_jaccard": min(jaccards),
+            "max_jaccard": max(jaccards)
+        },
+        "sweep_data": sweep_results
     }
     
-    for model_type, models in model_metrics.items():
-        if not isinstance(models, dict):
-            continue
-            
-        for model_name, model_data in models.items():
-            if 'p_values' not in model_data or 'coefficients' not in model_data:
-                logger.warning(f"Skipping {model_type}/{model_name}: missing p_values or coefficients")
-                continue
-                
-            p_values = model_data['p_values']
-            coefficients = model_data['coefficients']
-            
-            # Create DataFrame with p-values
-            df = pd.DataFrame({
-                'coefficient': coefficients,
-                'p_value': p_values
-            }, index=p_values.keys())
-            
-            logger.info(f"Analyzing {model_type}/{model_name} with {len(df)} predictors")
-            
-            # Perform threshold sweep
-            sweep_results = perform_threshold_sweep(
-                df, 
-                p_value_column='p_value',
-                threshold_range=threshold_range
-            )
-            
-            report_data['models_analyzed'].append(f"{model_type}/{model_name}")
-            report_data['results'][f"{model_type}_{model_name}"] = sweep_results
-            
-    # Save report
-    output_path = Path(output_path)
+    # Ensure directory exists
     output_path.parent.mkdir(parents=True, exist_ok=True)
     
     with open(output_path, 'w') as f:
-        json.dump(report_data, f, indent=2, default=str)
+        json.dump(report, f, indent=2)
     
-    logger.info(f"Sensitivity report saved to {output_path}")
-    
-    return report_data
+    logger.info(f"Sensitivity analysis report saved to {output_path}")
+    return report
 
 def main():
-    """Main entry point for sensitivity analysis."""
-    # Define paths
-    base_path = Path(__file__).parent.parent.parent
-    metrics_path = base_path / "data" / "results" / "model_metrics.json"
-    output_path = base_path / "data" / "results" / "sensitivity_analysis.json"
+    """
+    Main entry point for the sensitivity analysis script.
+    Expects the p-values to be loaded from a known location or passed via arguments.
+    For this implementation, we assume the p-values are available from the 
+    model metrics output or a specific file generated by T024/T027.
     
-    # Define threshold range (small thresholds for p-values)
-    threshold_range = [0.001, 0.005, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.1]
+    We will attempt to load 'data/results/model_metrics.json' which should contain
+    the p-values for the Beta Regression model (primary).
+    """
+    # Default paths
+    metrics_path = Path("data/results/model_metrics.json")
+    output_path = Path("data/results/sensitivity_analysis.json")
     
     if not metrics_path.exists():
-        logger.error(f"Model metrics file not found at {metrics_path}")
-        logger.error("Please run the modeling pipeline first to generate model_metrics.json")
-        return 1
+        logger.error(f"Model metrics file not found at {metrics_path}. "
+                     "Please ensure T027 has run and produced model_metrics.json.")
+        sys.exit(1)
     
-    try:
-        report = generate_sensitivity_report(
-            str(metrics_path),
-            str(output_path),
-            p_value_column='p_value',
-            threshold_range=threshold_range
-        )
-        
-        print(f"Sensitivity analysis complete.")
-        print(f"Models analyzed: {', '.join(report['models_analyzed'])}")
-        print(f"Report saved to: {output_path}")
-        
-        # Print summary
-        for model_key, results in report['results'].items():
-            print(f"\n{model_key}:")
-            print(f"  Mean Jaccard Index: {results['mean_jaccard_index']:.4f} (+/- {results['std_jaccard_index']:.4f})")
-            print(f"  Thresholds tested: {len(results['thresholds'])}")
-            
-    except Exception as e:
-        logger.error(f"Error during sensitivity analysis: {e}")
-        raise
-        
-    return 0
+    with open(metrics_path, 'r') as f:
+        metrics_data = json.load(f)
+    
+    # Extract p-values for the Beta Regression model (primary model)
+    # The structure of model_metrics.json depends on T027. 
+    # Assuming it has a structure like:
+    # {
+    #   "beta_regression": {
+    #     "coefficients": {...},
+    #     "p_values": {...},
+    #     ...
+    #   },
+    #   ...
+    # }
+    
+    if "beta_regression" not in metrics_data:
+        logger.error("Beta regression model metrics not found in model_metrics.json.")
+        sys.exit(1)
+    
+    p_values_dict = metrics_data["beta_regression"].get("p_values", {})
+    
+    if not p_values_dict:
+        logger.warning("No p-values found for Beta Regression. Generating empty report.")
+        p_series = pd.Series(dtype=float)
+    else:
+        p_series = pd.Series(p_values_dict)
+    
+    generate_sensitivity_report(p_series, output_path)
 
 if __name__ == "__main__":
-    exit(main())
+    import sys
+    main()
