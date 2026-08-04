@@ -1,85 +1,82 @@
 # Data Model: Investigating the Correlation Between Circadian Gene Expression and Metabolic Syndrome Risk
 
-## 1. Entity Definitions
+## Overview
 
-### 1.1 Donor
+This document defines the data entities, relationships, and schemas used in the project. It ensures that all data transformations are traceable and that the data flow adheres to the project constitution (Principle III: Data Hygiene, Principle IV: Single Source of Truth).
+
+## Entities
+
+### 1. Donor
 Represents a human subject from the GTEx dataset.
-- `donor_id`: String (Unique identifier, e.g., "GTEx-XXX-XXXX")
-- `age`: Integer (Years)
-- `sex`: String ("Male", "Female")
-- `tissue`: String (e.g., "Adipose - Subcutaneous", "Liver")
-- `pmi`: Float (Post-Mortem Interval in hours)
-- `time_of_death`: String (e.g., "Morning", "Afternoon", or ISO timestamp if available)
-- `time_radians`: Float (Continuous circular representation of time for modeling)
-- `bmi`: Float (kg/m²)
-- `fasting_glucose`: Float (mg/dL)
-- `systolic_bp`: Float (mmHg)
-- `diastolic_bp`: Float (mmHg)
-- `triglycerides`: Float (mg/dL)
-- `hdl`: Float (mg/dL)
-- `metabolic_status`: String ("MetS", "Control", "Excluded")
-- `criteria_count`: Integer (0-5, number of ATP-III criteria met)
-- `exclusion_reason`: String (Nullable, e.g., "Missing Glucose")
-- `validation_status`: String ("Valid", "Probable", "Invalid") (Result of Phase 0.5)
+- **Attributes**:
+  - `donor_id` (str): Unique identifier.
+  - `age` (int): Age at death.
+  - `sex` (str): 'M' or 'F'.
+  - `tissue` (str): Tissue source (e.g., 'Liver', 'Adipose').
+  - `bmi` (float): Body Mass Index.
+  - `fasting_glucose` (float): mg/dL.
+  - `triglycerides` (float): mg/dL.
+  - `hdl` (float): mg/dL.
+  - `systolic_bp` (float): mmHg.
+  - `diastolic_bp` (float): mmHg.
+  - `pmi` (float): Post-Mortem Interval (hours).
+  - `time_of_death` (str): Time of death (HH:MM).
+  - `metabolic_status` (str): 'MetS' or 'Control' (derived).
+  - `criteria_count` (int): 0-5 (number of ATP-III criteria met).
+  - `exclusion_reason` (str): If excluded, reason (e.g., 'missing_glucose').
 
-### 1.2 GeneExpression
-Represents the transcript abundance for a specific gene in a donor.
-- `donor_id`: String (Foreign key to Donor)
-- `gene_symbol`: String (e.g., "PER1", "BMAL1")
-- `tpm`: Float (Transcripts Per Million)
-- `log_tpm`: Float (Log10(TPM + 1))
-- `phase_adjusted_tpm`: Float (Nullable, TPM adjusted for time of death)
+### 2. GeneExpression
+Represents transcript abundance for a specific gene in a donor's tissue.
+- **Attributes**:
+  - `donor_id` (str): FK to Donor.
+  - `gene_symbol` (str): e.g., 'PER1', 'BMAL1'.
+  - `tissue` (str): FK to Donor.tissue.
+  - `tpm` (float): Transcripts Per Million.
+  - `log_tpm` (float): log2(TPM + 1) (derived).
 
-### 1.3 AnalysisResult
+### 3. AnalysisResult
 Stores the output of statistical tests.
-- `test_id`: String (Unique identifier)
-- `tissue`: String
-- `gene_symbol`: String
-- `test_type`: String ("Wilcoxon", "Spearman", "LogisticRegression", "TraitOR")
-- `p_value`: Float
-- `adjusted_p_value`: Float (FDR corrected)
-- `effect_size`: Float (e.g., Cohen's d, Correlation coefficient, Odds Ratio)
-- `confidence_interval_lower`: Float
-- `confidence_interval_upper`: Float
-- `significant`: Boolean
-- `model_type`: String ("BinaryMetS", "SeverityScore", "TraitSpecific")
+- **Attributes**:
+  - `gene_symbol` (str).
+  - `tissue` (str).
+  - `test_type` (str): 'wilcoxon', 'logistic_regression', 'correlation'.
+  - `statistic` (float): Test statistic (e.g., W, Z, beta).
+  - `p_value` (float): Raw p-value.
+  - `adj_p_value` (float): FDR-adjusted p-value.
+  - `effect_size` (float): e.g., Odds Ratio, Correlation coefficient.
+  - `significant` (bool): True if adj_p_value < 0.05.
 
-## 2. File Formats
+## Data Flow
 
-### 2.1 Raw Data
-- **Format**: Parquet (preferred) or TSV.
-- **Location**: `data/raw/`
-- **Content**: Unmodified downloads from GTEx.
+```mermaid
+graph TD
+    A[Raw GTEx Data] -->|Stream & Parse| B(Cleaned Donor Table)
+    B -->|Filter Missing| C{Complete Cases?}
+    C -->|No| D[Log Exclusion]
+    C -->|Yes| E[Classify MetS]
+    E --> F[MetS Labels]
+    A -->|Stream & Parse| G[Gene Expression Matrix]
+    F --> H[Join Donor + Expression]
+    H --> I[Statistical Analysis]
+    I --> J[Results Table]
+    J --> K[Visualization]
+    J --> L[Report Generation]
+```
 
-### 2.2 Processed Data
-- **Format**: CSV or JSON.
-- **Location**: `data/processed/`
-- **Content**:
-  - `baseline_labels.csv`: Donor ID, Metabolic Status, Criteria Count, Validation Status.
-  - `expression_matrix.csv`: Donor ID, Gene Symbol, TPM, Log TPM, Phase Adjusted TPM.
-  - `model_results.json`: Nested JSON containing AUC, Odds Ratios, and CI per gene, per tissue, per model type.
+## File Structure
 
-### 2.3 Intermediate Artifacts
-- **Format**: Pickle or HDF5 (if necessary for large matrices).
-- **Usage**: Temporary storage for stratified datasets before statistical testing.
+| File Path | Purpose | Schema |
+| :--- | :--- | :--- |
+| `data/raw/gtex_raw.parquet` | Raw downloaded data (immutable) | `contracts/dataset.schema.yaml` |
+| `data/processed/donors_clean.csv` | Cleaned donor data with classifications | `contracts/dataset.schema.yaml` |
+| `data/processed/baseline_labels.csv` | Binary MetS labels and criteria counts | `contracts/output.schema.yaml` |
+| `data/processed/gene_expression.csv` | Log-transformed expression matrix | `contracts/dataset.schema.yaml` |
+| `data/processed/statistical_results.csv` | P-values, FDR, Odds Ratios | `contracts/output.schema.yaml` |
+| `data/processed/model_metrics.json` | AUC, CV scores | `contracts/output.schema.yaml` |
 
-## 3. Data Flow
+## Constraints
 
-1. **Ingestion**: `download_gtex.py` fetches raw data → `data/raw/`.
-2. **Validation**: `validate_phenotype.py` checks variables → `data/processed/validation_report.json`.
-3. **Classification**: `classify_metabolic.py` reads raw data, applies ATP-III logic, outputs `baseline_labels.csv` → `data/processed/`.
-4. **Preprocessing**: `preprocess.py` merges labels with expression data, handles log-transform, calculates `time_radians` → `expression_matrix.csv`.
-5. **Analysis**:
-   - `differential_expression.py` (with phase adjustment) → `model_results.json` (DE results).
-   - `correlation.py` (with partial correlation) → `model_results.json` (Correlation results).
-   - `modeling.py` (Binary, Severity, Trait-Specific) → `model_results.json` (Regression results).
-6. **Sensitivity**: `sensitivity_analysis.py` → `model_results.json` (Stability metrics).
-7. **Visualization**: `plots.py` reads `model_results.json` and `expression_matrix.csv` to generate figures.
-
-## 4. Constraints & Validation
-
-- **Missing Values**: Any clinical variable with `NaN`, `null`, or `< -1` triggers exclusion.
-- **Log Transformation**: `log_tpm = log10(tpm + 1)` to handle zero counts.
-- **Tissue Filtering**: Tissues with < 20 samples per group are excluded before testing.
-- **FDR**: All p-values must be corrected using Benjamini-Hochberg before reporting significance.
-- **Time Modeling**: `time_radians` is calculated as `(hour / 24) * 2 * pi`.
+- **Immutability**: Raw data files are never modified.
+- **Checksums**: All files in `data/` are checksummed (SHA-256) and recorded in `state/`.
+- **PII**: No personally identifying information is stored. `donor_id` is an anonymized GTEx ID.
+- **Missing Data**: Samples with missing clinical variables are excluded, not imputed.

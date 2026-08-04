@@ -3,16 +3,14 @@
 ## Prerequisites
 
 - Python 3.11+
-- `pip` (Python package manager)
-- Git (for cloning the repository)
-- Access to Hugging Face (public datasets do not require a token, but a free account is recommended for rate limits).
-- Access to GTEx v8 data (via official portal or verified mirror).
+- Git
+- Access to a terminal with internet connectivity (for downloading datasets).
 
 ## Installation
 
-1. **Clone the repository**:
+1. **Clone the repository** (if not already done):
    ```bash
-   git clone <repository-url>
+   git clone <repo-url>
    cd projects/PROJ-110-investigating-the-correlation-between-ci
    ```
 
@@ -27,70 +25,59 @@
    pip install -r requirements.txt
    ```
 
-   *Note: `requirements.txt` includes `pandas`, `numpy`, `scipy`, `scikit-learn`, `statsmodels`, `datasets`, `matplotlib`, `seaborn`, `pyyaml`.*
+## Data Preparation
 
-## Running the Pipeline
+The pipeline automatically downloads data from verified Hugging Face sources.
+**Note**: Ensure you have sufficient disk space (~5-10GB) for the downloaded data.
 
-The pipeline is orchestrated via `code/main.py`.
+1. **Run the data download script**:
+   ```bash
+   python code/data_loader.py --download
+   ```
+   This script will:
+   - Stream data from the verified URLs.
+   - Verify the schema (check for required clinical variables).
+   - Save raw data to `data/raw/`.
+   - Log any missing variables or access errors.
 
-### 1. Download Data
-Fetches the GTEx v8 dataset from the verified source.
-```bash
-python code/data/download_gtex.py
-```
-*Output*: `data/raw/gtex_data.parquet` (or similar).
+2. **Verify data integrity**:
+   Check the log output for `ERROR` or `WARNING` messages. If the required clinical variables (BMI, Glucose, etc.) are missing, the pipeline will halt.
 
-### 2. Validate Phenotype (NEW)
-Checks for the presence of all required clinical variables.
-```bash
-python code/data/validate_phenotype.py
-```
-*Output*: `data/processed/validation_report.json`.
-*Logs*: Warnings if variables are missing or unreliable.
+## Running the Analysis
 
-### 3. Classify Metabolic Status
-Applies ATP-III criteria to label donors.
-```bash
-python code/data/classify_metabolic.py
-```
-*Output*: `data/processed/baseline_labels.csv`.
-*Logs*: Warnings for excluded samples and low-power tissues.
+1. **Execute the main pipeline**:
+   ```bash
+   python code/main.py
+   ```
+   This will:
+   - Classify donors into MetS/Control.
+   - Perform differential expression analysis (Wilcoxon).
+   - Fit logistic regression models.
+   - Generate diagnostic plots.
+   - Save results to `data/processed/`.
 
-### 4. Run Analysis
-Executes differential expression, correlation, and logistic regression.
-```bash
-python code/main.py
-```
-*Output*:
-- `data/processed/model_results.json`
-- `data/processed/figures/` (Heatmaps, ROC curves, Scatters)
+2. **Expected Outputs**:
+   - `data/processed/baseline_labels.csv`: Classification results.
+   - `data/processed/statistical_results.csv`: P-values, FDR, Odds Ratios.
+   - `data/processed/plots/`: Heatmaps, ROC curves, scatter plots.
+   - `output/report.md`: Summary of findings.
 
-### 5. Sensitivity Analysis (NEW)
-Runs the threshold variation test (SC-005).
-```bash
-python code/sensitivity/sensitivity_analysis.py
-```
-*Output*: `data/processed/sensitivity_results.json`.
+## Testing
 
-### 6. Validate Results
-Run unit and integration tests to ensure reproducibility.
+Run the test suite to verify correctness:
 ```bash
 pytest tests/
 ```
 
 ## Troubleshooting
 
-- **Missing Data**: If the log reports "Insufficient GTEx sample size (N < 100)", the study is running in `exploratory` mode. Results should be interpreted with caution.
-- **Memory Error**: If the process runs out of memory, ensure the `streaming=True` flag is used in the download script, or reduce the sample size in `config.yaml`.
-- **Tissue Exclusion**: Tissues with < 20 samples per group are automatically excluded. Check `stderr` for the specific list of excluded tissues.
-- **Variable Validation**: If `validate_phenotype.py` reports missing "Fasting Glucose", the study cannot proceed with strict ATP-III classification.
+- **Missing Clinical Variables**: If the script fails with "Missing required columns", check the `research.md` for the "Critical Data Gap Analysis". The verified GTEx URLs may not contain the necessary phenotype data.
+- **Memory Error**: If you encounter OOM errors, ensure `streaming=True` is used in `data_loader.py`. Do not load the full dataset into memory.
+- **Permission Denied**: Ensure you have write access to `data/` and `code/`.
 
-## Expected Outputs
+## Cleanup
 
-- **baseline_labels.csv**: A CSV with columns `donor_id`, `metabolic_status`, `criteria_count`, `validation_status`.
-- **model_results.json**: A JSON file containing:
-  - `differential_expression`: List of genes with p-values, FDR, and effect sizes.
-  - `correlation`: List of gene-trait correlations with coefficients and p-values.
-  - `logistic_regression`: AUC, Odds Ratios, and 95% CIs for each gene (Binary, Severity, Trait-Specific).
-  - `sensitivity`: Stability metrics for threshold variations.
-- **figures/**: PNG files for ROC curves, heatmaps, and scatter plots.
+To remove generated data (keep raw data):
+```bash
+rm -rf data/processed/*
+```

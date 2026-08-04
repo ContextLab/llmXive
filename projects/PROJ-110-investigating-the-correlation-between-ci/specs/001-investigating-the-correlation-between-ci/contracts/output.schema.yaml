@@ -1,60 +1,81 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Differential Expression and Model Output Schema"
-description: "Combined schema for statistical test results and model metrics."
-type: object
+title: "Analysis Output Schema"
+description: "Schema for statistical analysis results and model outputs."
+type: "object"
 properties:
-  differential_results:
-    type: array
+  statistical_results:
+    type: "array"
     items:
-      type: object
+      type: "object"
       properties:
+        gene_symbol:
+          type: "string"
         tissue:
-          type: string
-        gene:
-          type: string
+          type: "string"
+        test_type:
+          type: "string"
+          enum: ["wilcoxon", "logistic_regression", "correlation"]
+        statistic:
+          type: "number"
         p_value:
-          type: number
+          type: "number"
+          minimum: 0
+          maximum: 1
         adj_p_value:
-          type: number
+          type: "number"
+          minimum: 0
+          maximum: 1
         effect_size:
-          type: number
-        n_metS:
-          type: integer
-        n_control:
-          type: integer
-        phase_adjusted:
-          type: boolean
-          description: "Whether time-adjustment was applied."
+          type: "number"
+        significant:
+          type: "boolean"
       required:
+        - gene_symbol
         - tissue
-        - gene
+        - test_type
         - p_value
         - adj_p_value
+        - significant
   model_metrics:
-    type: array
-    items:
-      type: object
-      properties:
-        fold:
-          type: integer
-        auc:
-          type: number
-        auc_ci_lower:
-          type: number
-        auc_ci_upper:
-          type: number
-        odds_ratios:
-          type: object
-          description: "Map of gene -> odds ratio"
-        model_type:
-          type: string
-          enum: ["BinaryMetS", "SeverityScore", "TraitSpecific"]
-      required:
-        - fold
-        - auc
-        - odds_ratios
-        - model_type
+    type: "object"
+    properties:
+      auc_mean:
+        type: "number"
+        minimum: 0
+        maximum: 1
+      auc_std:
+        type: "number"
+        minimum: 0
+      cv_folds:
+        type: "integer"
+        minimum: 1
+      odds_ratios:
+        type: "object"
+        additionalProperties:
+          type: "object"
+          properties:
+            or:
+              type: "number"
+            se:
+              type: "number"
+            p_value:
+              type: "number"
+            ci_lower:
+              type: "number"
+            ci_upper:
+              type: "number"
+          required:
+            - or
+            - se
+            - p_value
+            - ci_lower
+            - ci_upper
+    required:
+      - auc_mean
+      - auc_std
+      - cv_folds
+      - odds_ratios
 required:
-  - differential_results
+  - statistical_results
   - model_metrics
 additionalProperties: false

@@ -75,22 +75,29 @@
 
 **Purpose**: Download, verify, and filter data. This phase MUST complete before any analysis or classification.
 
-**⚠️ CRITICAL**: T010 (Load GTEx) MUST precede T011 (Verify Columns) and T013b (Filter Genes).
+**⚠️ CRITICAL**: T009a (Schema Inspection) MUST precede T010 (Download). T010 MUST precede T011 (Verify Columns) and T013b (Filter Genes).
+
+- [ ] T009a [US1] Implement `inspect_gtex_schema` in `code/data/downloader.py` to verify variable presence BEFORE downloading.
+  - **Logic**: Use `datasets.load_dataset(..., streaming=True)` to peek at the schema of the GTEx v8 dataset (without downloading the full file).
+  - **Verification**: Check for the presence of required columns: `bmi`, `fasting_glucose`, `triglycerides`, `hdl`, `systolic_bp`, `diastolic_bp`, `pmi`, `time_of_death`.
+  - **Output**: Write `data/processed/schema_inspection.json` with `status="verified"` or `status="missing_columns"` and a list of missing columns.
+  - **Constraint**: If any required column is missing, the task MUST log a CRITICAL error and **halt execution** (do not proceed to download). This enforces the "Data Availability Strategy".
+  - **Depends on**: T004 (Data Directory Setup), T006 (Config).
 
 - [ ] T010 [US1] Implement `download_gtex_data` in `code/data/downloader.py` to download GTEx v8 RNA-seq TPM matrix and Phenotype file.
   - **Source**: Read the dataset ID and file paths from `code/config.yaml` (key: `datasets.gtex.source`). Do NOT hardcode the URL.
-  - **Verification**: Before downloading, verify the source against the "Verified Datasets" block in `research.md` (or `config.yaml` if verified there). If the source is not verified, raise an error.
+  - **Verification**: Verify the source against the "Verified Datasets" block in `research.md` (or `config.yaml` if verified there). If the source is not verified, raise an error.
   - **Output**: Write `data/raw/gtex_v8_tpm_matrix.csv` and `data/raw/gtex_v8_phenotype.csv`.
   - **Verification**: Check file existence and row count > 0. Raise error if files are missing or empty.
   - **Constraint**: Do not use synthetic data. If download fails, raise an exception.
-  - **Depends on**: T004 (Data Directory Setup), T006 (Config).
+  - **Depends on**: T009a (Schema Inspection passed), T004 (Data Directory Setup), T006 (Config).
 
 - [ ] T011 [US1] Implement column verification gate in `code/data/downloader.py` to check for BMI, Glucose, BP, TG, HDL.
-  - **Logic**: If any required column is missing:
-    1. Log a warning.
+  - **Logic**: If any required column is missing (should not happen if T009a passed, but as a safety check):
+    1. Log a CRITICAL error.
     2. **DO NOT** attempt to fetch TCGA data as a fallback (per FR-001).
-    3. Write `data/processed/data_availability_gate.json` with `status="Exploratory - Insufficient Phenotype Data"`.
-    4. **Continue execution** with available data (do not exit/halt).
+    3. Write `data/processed/data_availability_gate.json` with `status="Exploratory - Missing Columns"` and list missing columns.
+    4. **HALT** execution.
   - If all columns present: Proceed.
   - **Depends on**: T010 (Data Loading).
 
@@ -155,7 +162,7 @@
 - [ ] T042 [US1] Implement `run_sensitivity_analysis` in `code/main.py` to vary ATP-III thresholds by ±5% (SC-005).
   - **Logic**:
     1. Read `data/processed/filtered_phenotype.csv` (from T014) to ensure the **exact same cohort** is used as the baseline.
-    2. Re-classify samples with varied thresholds (e.g., BMI >= 30 * 1.05 = 31.5, or 30 * 0.95 = 28.5). **Definition**: relative change.
+    2. Re-classify samples with varied thresholds. **Definition**: Apply a **relative change** of ±5% to each threshold value (e.g., BMI >= 30 * 1.05 = 31.5, or 30 * 0.95 = 28.5).
     3. Compare baseline vs. varied labels.
     4. **Calculate** the percentage of reclassified samples.
     5. **Calculate** the robustness metrics: "Classification Agreement Rate" (percentage of samples with same label) and "Delta in Prevalence" (difference in MetS rate).
@@ -182,10 +189,25 @@
 ### Implementation for User Story 2
 
 - [ ] T024 [US2] Implement `stratify_by_tissue` in `code/analysis/differential.py` to group samples by tissue type.
+- [ ] T024b [US2] Implement `filter_underpowered_tissues` in `code/analysis/differential.py` to exclude tissues with <20 samples per group.
+  - **Logic**:
+    1. Count samples per tissue per group (MetS vs Control) from the output of T014.
+    2. Identify tissues where count < 20 for either group.
+    3. Log a WARNING to stderr for each excluded tissue.
+    4. Return a filtered list of valid tissues.
+  - **Output**: Write `data/processed/excluded_tissues.json` with list of excluded tissues and reasons.
+  - **Constraint**: This task MUST run BEFORE T025. T025 MUST only receive the filtered list of valid tissues.
+  - **Depends on**: T014 (Classification), T024 (Stratification).
+
 - [ ] T025 [US2] Implement `run_wilcoxon_tests` in `code/analysis/differential.py` to perform Wilcoxon rank-sum tests for each gene per tissue.
-- [ ] T026 [US2] Implement `apply_fdr_correction` in `code/analysis/differential.py` using Benjamini-Hochberg procedure on all p-values.
-  - **Input**: Raw p-values from T029.
-  - **Output**: Adjusted p-values (FDR).
+  - **Input**: Filtered list of valid tissues from T024b.
+  - **Constraint**: Do NOT run tests on tissues excluded by T024b.
+  - **Depends on**: T024b.
+
+- [ ] T026 [US2] Implement `apply_fdr_correction` in `code/analysis/differential.py` using Benjamini-Hochberg procedure on **DE p-values only**.
+  - **Input**: Raw p-values from T029 (Differential Expression).
+  - **Output**: Adjusted p-values (FDR) for DE tests.
+  - **Constraint**: This task handles ONLY Differential Expression FDR. Correlation FDR is handled by T050.
   - **Depends on**: T029.
 
 - [ ] T027 [US2] Implement `compute_effect_sizes` in `code/analysis/differential.py` to calculate Cohen's d or similar metrics.
@@ -209,12 +231,18 @@
 - [ ] T029 [US2] Implement `generate_correlation_analysis` in `code/analysis/correlation.py` to compute Spearman/Pearson correlations with continuous traits (FR-007).
   - **Logic**: Compute correlations for ALL core circadian genes against continuous traits (BMI, Glucose, TG, HDL, BP) using the method determined by T028.
   - **Output**: Return a DataFrame with columns `[gene, r, p_raw]`. **DO NOT include significance flags here**; those are added after FDR correction.
-  - **Note**: This task prepares the raw data for plotting; T026 handles the correction.
+  - **Note**: This task prepares the raw data for plotting; T050 handles the correction.
   - **Depends on**: T014, T013, T028.
+
+- [ ] T050 [US2] Implement `apply_correlation_fdr` in `code/analysis/correlation.py` to apply independent Benjamini-Hochberg FDR to correlation p-values.
+  - **Input**: Raw p-values from T029 (Correlation).
+  - **Output**: Adjusted p-values (FDR) for correlation tests.
+  - **Constraint**: This task MUST apply FDR **independently** from the DE FDR (T026).
+  - **Depends on**: T029.
 
 - [ ] T030 [US2] Implement `plot_scatter_significant` in `code/viz/plots.py` to generate scatter plots for significant correlations (FR-007).
   - **Output**: Write `docs/correlation_scatter_*.png` for each significant gene-trait pair.
-  - **Depends on**: T029, T028, T026.
+  - **Depends on**: T029, T028, T050.
 
 **Checkpoint**: Correlation analysis complete
 
@@ -235,9 +263,24 @@
 ### Implementation for User Story 3
 
 - [ ] T034 [US3] Implement `prepare_model_features` in `code/analysis/modeling.py` to encode categorical variables (Tissue, Sex) and scale features.
-- [ ] T035 [US3] Implement `train_logistic_regression` in `code/analysis/modeling.py` fitting `MetS ~ Gene_Expression + Age + Sex + Tissue`.
+- [ ] T035 [US3] Implement `train_logistic_regression` in `code/analysis/modeling.py` fitting `MetS ~ Gene_Expression + Age + Sex + Tissue + PMI + Time_of_Death`.
+  - **Constraint**: MUST include `PMI` and `Time_of_Death` as covariates as per FR-005.
+  - **Output**: Trained model object.
+  - **Depends on**: T014, T034.
+
 - [ ] T036 [US3] Implement `run_cross_validation` in `code/analysis/modeling.py` performing k-fold CV and calculating mean AUC with confidence intervals.
-- [ ] T037 [US3] Implement `extract_odds_ratios` in `code/analysis/modeling.py` to compute OR, SE, and p-values for predictors.
+- [ ] T037 [US3] Implement `extract_odds_ratios` in `code/analysis/modeling.py` to compute OR, SE, and p-values for predictors (Gene Expression + Covariates).
+  - **Output**: Write `data/processed/odds_ratios_main.csv` with ORs for genes and covariates.
+  - **Depends on**: T035.
+
+- [ ] T047 [US3] Implement `extract_trait_odds_ratios` in `code/analysis/modeling.py` to run separate models for individual metabolic traits.
+  - **Logic**:
+    1. For each metabolic trait (BMI, Glucose, TG, HDL, BP), fit a separate logistic regression model: `MetS ~ Gene_Expression + Covariates + Trait`.
+    2. Extract the Odds Ratio for the specific trait variable.
+    3. Write results to `data/processed/odds_ratios_traits.csv`.
+  - **Constraint**: This task specifically addresses FR-009 to distinguish prediction targets.
+  - **Depends on**: T014, T034.
+
 - [ ] T038 [US3] Implement `check_collinearity` in `code/analysis/modeling.py` to calculate VIF and flag issues if VIF > 5 (FR-005).
   - **Output**: Write `data/processed/collinearity_report.json` with VIF values and flags.
   - **Depends on**: T035.
@@ -261,7 +304,7 @@
 - [ ] T044 [P] Implement `update_state_hash` in `code/main.py` to write hashes to `state/projects/PROJ-110-...yaml`.
 - [ ] T045 [P] Generate final diagnostic report in `docs/report.md` summarizing SC-001 through SC-005 outcomes.
   - **Requirement**: Must explicitly include the "Classification Agreement Rate" metric from T042 as the primary evidence for SC-005.
-  - **Depends on**: T042, T018, T026, T036.
+  - **Depends on**: T042, T018, T026, T036, T047.
 - [ ] T046 [P] Run end-to-end integration test in `tests/integration/test_pipeline.py` to verify full pipeline execution on sample data.
 
 ---
@@ -362,8 +405,12 @@ With multiple developers:
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Critical**: All data downloads must use real, verified URLs (GTEx v8); no synthetic data fabrication allowed.
 - **Critical**: Power analysis (T015) MUST NOT attempt TCGA fallback. If power < 0.8, flag as "Exploratory" only.
-- **Critical**: Tissue stratification (T024) must exclude tissues with <20 samples per group.
+- **Critical**: Tissue stratification (T024b) must exclude tissues with <20 samples per group.
 - **Critical**: Gene filtering (T013) must occur immediately after data loading (T010) in Phase 0, before any analysis.
 - **Critical**: Sensitivity analysis (T042) must explicitly calculate and report the robustness metrics (agreement rate, delta prevalence) to satisfy SC-005, using the exact same filtered cohort as T014.
 - **Critical**: Diagnostic plots (T039, T040) and Collinearity check (T038) are mandatory for FR-008 and FR-005 compliance.
 - **Critical**: The final report (T045) must explicitly state the "Classification Agreement Rate".
+- **Critical**: Logistic regression (T035) MUST include PMI and Time_of_Death as covariates.
+- **Critical**: Odds ratios for individual traits (T047) must be reported separately from gene expression ORs.
+- **Critical**: Independent FDR correction (T050) must be applied to correlation p-values separately from DE p-values.
+- **Critical**: Pre-download schema inspection (T009a) is mandatory to prevent unnecessary downloads.

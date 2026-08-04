@@ -1,24 +1,23 @@
 # Implementation Plan: Investigating the Correlation Between Circadian Gene Expression and Metabolic Syndrome Risk
 
-**Branch**: `001-circadian-metabolic-correlation` | **Date**: 2026-06-28 | **Spec**: `spec.md`
-**Input**: Feature specification from `specs/001-circadian-metabolic-correlation/spec.md`
+**Branch**: `001-circadian-metabolic-correlation` | **Date**: 2026-06-28 | **Spec**: `specs/001-investigating-the-correlation-between-ci/spec.md`
+**Input**: Feature specification from `specs/001-investigating-the-correlation-between-ci/spec.md`
 
 ## Summary
 
-This project investigates the association between circadian gene expression (e.g., *PER1*, *BMAL1*) and Metabolic Syndrome (MetS) status in human post-mortem tissue. The technical approach involves downloading GTEx v8 RNA-seq and phenotype data, validating clinical variables (Phase 0.5), classifying donors using strict ATP-III criteria (FR-001, FR-002), performing phase-adjusted stratified Wilcoxon rank-sum tests with Benjamini-Hochberg correction (FR-003, FR-004), and fitting multivariate logistic regression models with continuous time-of-death modeling (FR-005, FR-006). The pipeline prioritizes CPU-tractable methods (scikit-learn, statsmodels) to run within GitHub Actions free-tier constraints (A minimal configuration of CPU and RAM resources.), streaming data where necessary to avoid memory overflow. A dedicated sensitivity analysis (Phase 4) validates classification stability (SC-005).
+This project implements a statistical analysis pipeline to investigate the correlation between core circadian gene expression (e.g., *PER1*, *BMAL1*) and Metabolic Syndrome (MetS) risk using GTEx v8 data. The approach involves: (1) classifying donors into MetS/Control groups based strictly on ATP-III criteria using clinical phenotype data; (2) performing differential expression analysis (Wilcoxon rank-sum) with global Benjamini-Hochberg FDR correction; (3) building multivariate logistic regression models with cross-validation to predict MetS status while controlling for confounders (age, sex, PMI), **excluding** the clinical traits that define MetS to avoid tautology; and (4) generating diagnostic visualizations. The pipeline prioritizes CPU-tractable methods (scikit-learn, statsmodels, pandas) to ensure execution on GitHub Actions free-tier runners. Streaming is used for data loading, but FDR correction is applied to the collected list of summary statistics (which fits in RAM). Time of Death is used as a covariate if present; if missing, samples are excluded from circadian-specific analysis or PMI is used as a proxy, with the study reframed as "associational" for those samples.
 
 ## Technical Context
 
 **Language/Version**: Python 3.11  
-**Primary Dependencies**: `pandas`, `numpy`, `scipy`, `scikit-learn`, `statsmodels`, `matplotlib`, `seaborn`, `datasets` (Hugging Face), `pyyaml`, `gtex` (if available)  
-**Storage**: Local file system (`data/raw`, `data/processed`); no external database.  
-**Testing**: `pytest` (unit tests for classification logic; integration tests for pipeline steps).  
-**Target Platform**: Linux (GitHub Actions free-tier runner).  
-**Project Type**: Data analysis pipeline / Research script.  
-**Performance Goals**: Complete analysis on available GTEx subset within 6 hours; handle limited RAM via streaming or sampling.  
-**Constraints**: No GPU available for deep learning; strict adherence to ATP-III thresholds; exclusion of samples with missing clinical variables; FDR correction mandatory.  
-**Scale/Scope**: GTEx dataset (variable N based on complete cases); A core set of circadian genes.  
-**Configuration**: All random seeds, streaming flags, and dataset URLs are externalized in `config.yaml` to ensure reproducibility.
+**Primary Dependencies**: `pandas`, `numpy`, `scipy`, `scikit-learn`, `statsmodels`, `datasets` (Hugging Face), `matplotlib`, `seaborn`, `pyyaml`  
+**Storage**: Local file system (`data/raw`, `data/processed`, `data/interim`); No external database.  
+**Testing**: `pytest` (unit tests for classification logic, integration tests for pipeline flow).  
+**Target Platform**: Linux (GitHub Actions `ubuntu-latest` free tier).  
+**Project Type**: Data analysis pipeline / research script.  
+**Performance Goals**: Complete analysis within 6 hours on 2 vCPU, ~7GB RAM. Memory usage < 6GB via streaming/chunked processing.  
+**Constraints**: CPU-only execution; no GPU acceleration; strict adherence to ATP-III thresholds; exclusion of samples with missing clinical variables; global FDR correction mandatory.  
+**Scale/Scope**: GTEx dataset (a large-scale collection of samples, but significantly reduced by clinical variable completeness); A core set of circadian genes; ~ clinical traits.
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
@@ -26,13 +25,15 @@ This project investigates the association between circadian gene expression (e.g
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-- **I. Reproducibility**: Plan mandates pinned `requirements.txt`, random seed setting in `config.yaml`, and deterministic data fetching from verified GTEx sources.
-- **II. Verified Accuracy**: A pre-execution step using the Reference-Validator Agent verifies all dataset URLs against the "Verified Datasets" block in `research.md` before any download occurs.
-- **III. Data Hygiene**: Plan includes checksumming steps for raw data; `data/` will be organized into `raw` (immutable) and `processed` (derived).
-- **IV. Single Source of Truth**: All figures and statistics will be generated by scripts in `code/` and stored in `data/processed`; no hand-typed numbers in reports.
-- **V. Versioning Discipline**: Artifacts will be hashed; `state/` files updated on artifact change. The `state/` directory is explicitly included in the project structure.
-- **VI. Clinical Criteria and Gene Panel Integrity**: Plan strictly implements ATP-III thresholds (BMI ≥ 30, etc.) and uses the specified core gene list (PER1-3, CRY1-2, BMAL1, CLOCK, NR1D1, RORα) for primary tests.
-- **VII. Statistical Correction and Validation**: Plan includes Benjamini-Hochberg FDR for all p-values and 5-fold CV for logistic regression.
+| Principle | Status | Notes |
+| :--- | :--- | :--- |
+| **I. Reproducibility (NON-NEGOTIABLE)** | ✅ PASS | Plan mandates pinned `requirements.txt`, random seeds, and direct download from canonical open sources. |
+| **II. Verified Accuracy** | ✅ PASS | All dataset citations restricted to verified open sources. No fabricated URLs. |
+| **III. Data Hygiene** | ✅ PASS | Plan requires checksums for raw data, immutable raw files, and new filenames for derivations. PII scan compliance noted. |
+| **IV. Single Source of Truth** | ✅ PASS | All statistics will be derived from `data/processed` artifacts; no hand-typed numbers in `paper/`. |
+| **V. Versioning Discipline** | ✅ PASS | Content hashes tracked in `state/` YAML; artifact updates trigger state updates. |
+| **VI. Clinical Criteria and Gene Panel Integrity** | ✅ PASS | MetS classification strictly follows ATP-III (BMI≥30, Glu≥100, etc.) as defined in FR-002. Gene panel fixed (PER-3, CRY1-2, BMAL1, CLOCK, NR1D1, RORα) per Principle VI. |
+| **VII. Statistical Correction and Validation** | ✅ PASS | Benjamini-Hochberg FDR mandated for DE and correlation (global); k-fold CV for logistic regression. |
 
 ## Project Structure
 
@@ -45,102 +46,116 @@ specs/001-circadian-metabolic-correlation/
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
 ├── contracts/           # Phase 1 output
-└── tasks.md             # Phase 2 output (generated by /speckit-tasks)
+│   ├── dataset.schema.yaml
+│   ├── classification.schema.yaml
+│   ├── model.schema.yaml
+│   └── output.schema.yaml
+└── tasks.md             # Phase 2 output (NOT created by /speckit-plan)
 ```
 
 ### Source Code (repository root)
 
 ```text
 projects/PROJ-110-investigating-the-correlation-between-ci/
+├── data/
+│   ├── raw/                 # Downloaded GTEx parquet/TSV (immutable)
+│   ├── processed/           # Classifications, cleaned matrices, model outputs
+│   └── interim/             # Temporary intermediate files (e.g., filtered samples)
 ├── code/
 │   ├── __init__.py
-│   ├── config.yaml      # Seeds, streaming flags, dataset URLs
-│   ├── data/
-│   │   ├── __init__.py
-│   │   ├── download_gtex.py       # Fetches data from verified GTEx sources
-│   │   ├── validate_phenotype.py  # Phase 0.5: Validates clinical variables
-│   │   ├── classify_metabolic.py  # Implements ATP-III logic (FR-001, FR-002)
-│   │   └── preprocess.py          # Log-transform, missing value handling
-│   ├── analysis/
-│   │   ├── __init__.py
-│   │   ├── differential_expression.py # Wilcoxon + FDR + Phase Adjustment (FR-003, FR-004)
-│   │   ├── correlation.py           # Spearman/Pearson + Partial Correlation (FR-007)
-│   │   └── modeling.py              # Logistic Regression + CV + Severity Score (FR-005, FR-006, FR-009)
-│   ├── viz/
-│   │   ├── __init__.py
-│   │   └── plots.py                 # Heatmaps, ROC, Scatters (FR-008)
-│   ├── sensitivity/
-│   │   └── sensitivity_analysis.py  # Phase 4: Threshold variation (SC-005)
-│   └── main.py                      # Entry point orchestrating the pipeline
-├── data/
-│   ├── raw/                         # Downloaded parquet/TSV (immutable)
-│   └── processed/
-│       ├── baseline_labels.csv      # FR-001 output: MetS/Control labels
-│       ├── expression_matrix.csv    # Log-transformed TPM
-│       └── model_results.json       # AUC, Odds Ratios, CI
-├── state/                           # Artifact hashes and timestamps
-├── contracts/                       # Schema definitions
+│   ├── config.py            # Paths, seeds, thresholds
+│   ├── data_loader.py       # GTEx download, streaming, cleaning
+│   ├── classifier.py        # ATP-III logic, baseline_labels generation
+│   ├── analysis.py          # Wilcoxon, FDR, Logistic Regression
+│   ├── viz.py               # Heatmaps, ROC, scatter plots
+│   └── main.py              # Pipeline orchestration
 ├── tests/
 │   ├── unit/
-│   │   ├── test_classification.py   # Validates ATP-III logic
-│   │   └── test_fdr.py              # Validates correction logic
+│   │   ├── test_classifier.py
+│   │   └── test_data_loader.py
 │   └── integration/
-│       └── test_pipeline.py         # End-to-end run on subset
+│       └── test_pipeline.py
 ├── docs/
-│   └── README.md
-└── requirements.txt
+│   └── methodology.md
+├── requirements.txt
+└── README.md
 ```
 
-**Structure Decision**: Single-project structure selected to maintain tight coupling between data processing and analysis scripts, minimizing I/O overhead and simplifying reproducibility on the CI runner. The `data/` directory is strictly separated into `raw` and `processed` to satisfy Data Hygiene principles. The `state/` and `contracts/` directories are explicitly included to satisfy Constitution Principles V and I.
+**Structure Decision**: Single-project structure selected to match the "research pipeline" nature. `data/` is split into `raw` (immutable), `processed` (derived), and `interim` (scratch) to satisfy Data Hygiene (Principle III). `code/` is modularized by function (load, classify, analyze, viz) to support unit testing and reproducibility.
 
 ## Complexity Tracking
 
+> **Fill ONLY if Constitution Check has violations that must be justified**
+
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| Phase-Adjusted DE | GTEx samples are post-mortem with variable time-of-death; circadian phase is a major confound. | Ignoring time would make any "difference" potentially just a sampling artifact. |
-| Continuous Time Modeling | Circadian rhythms are sinusoidal, not categorical. | Categorical "Morning/Afternoon" bins lose biological resolution and introduce residual confounding. |
-| Stratified/Mixed-Effects Modeling | Tissue types have distinct expression baselines. | Pooling tissues with a simple categorical covariate risks overfitting and masking tissue-specific signals. |
-| Sensitivity Analysis | SC-005 requires stability check of ATP-III thresholds. | A single threshold run cannot prove the robustness of the classification. |
+| N/A | N/A | N/A |
 
-## Phases & Tasks
+## Phase Breakdown
 
-### Phase 0: Data Acquisition & Validation
-1. **Download**: Fetch GTEx v8 Phenotype and Expression data from verified sources (FR-001).
-2. **Validate (NEW)**: Run `validate_phenotype.py` to confirm presence of all ATP-III variables (BMI, Glucose, BP, TG, HDL). If "Fasting Glucose" is missing or unreliable, flag as "Exploratory" and adjust analysis scope.
-3. **Stream**: If data > 7GB, use streaming to process shards sequentially.
+### Phase 0: Research & Data Strategy
+- **Goal**: Confirm data availability, verify variable presence, and define the statistical approach.
+- **Actions**:
+  - Inspect GTEx v8 schema via Hugging Face `load_dataset` (streaming) to confirm presence of `bmi`, `fasting_glucose`, `triglycerides`, `hdl`, `systolic_bp`, `diastolic_bp`, `pmi`, `time_of_death`.
+  - Validate that the dataset does not require authentication or credentials (open access).
+  - Confirm the list of core circadian genes exists in the expression matrix. **This list is fixed per Constitution Principle VI (PER1-3, CRY1-2, BMAL1/ARNTL, CLOCK, NR1D1, RORα).**
+  - Define the "Verified datasets" strategy for the `research.md`.
+  - **Fallback Strategy**: If `time_of_death` is missing, the plan will exclude those samples from circadian-specific analysis or use `pmi` as a proxy, reframing the study as "associational" for those samples. It will NOT halt the entire pipeline.
+- **FR/SC Mapping**: FR-001 (Data download), SC-001 (Classification proportion), SC-002 (Gene count).
 
-### Phase 1: Preprocessing & Classification
-1. **Classify**: Apply ATP-III criteria (FR-002). Handle missing data by exclusion (FR-001).
-2. **Transform**: Log-transform TPM (pseudocount +1) (Edge Case).
-3. **Power Check**: Calculate MDES. If N < 100, set `study_status=exploratory`.
+### Phase 1: Data Model & Contracts
+- **Goal**: Define schemas for input data, intermediate classifications, and model outputs.
+- **Actions**:
+  - Create `contracts/dataset.schema.yaml` defining the expected columns and types for GTEx input.
+  - Create `contracts/classification.schema.yaml` defining the structure of the classification CSV.
+  - Create `contracts/model.schema.yaml` defining the logistic regression results.
+  - Create `contracts/output.schema.yaml` defining the final aggregated results.
+  - Define the `data-model.md` with entity relationships (Donor -> GeneExpression -> MetabolicStatus).
+- **FR/SC Mapping**: FR-001 (Data parsing), FR-002 (Classification), SC-005 (Sensitivity).
 
-### Phase 2: Statistical Analysis
-1. **DE Analysis**: Wilcoxon rank-sum, stratified by tissue, with phase-adjustment (if time metadata available) (FR-003). Apply FDR (FR-004).
-2. **Correlation**: Spearman/Pearson (Shapiro-Wilk conditional) with partial correlation for time (FR-007).
-3. **Modeling**: Logistic regression with continuous time terms (sine/cosine) and tissue-specific stratification (FR-005). Fit severity score model (FR-005). Fit trait-specific OR models (FR-009).
+### Phase 2: Implementation (Code Generation)
+- **Goal**: Generate the Python scripts for the pipeline.
+- **Actions**:
+  - Implement `classifier.py`: Strict ATP-III logic, handling of missing data (exclusion), logging.
+  - Implement `analysis.py`: 
+    - Wilcoxon test (stratified by tissue), **global** Benjamini-Hochberg FDR correction across all gene-tissue tests.
+    - Logistic Regression: Predict `MetS` (binary) using `gene_expression` + `age` + `sex` + `tissue` + `pmi` + `time_of_death` (if present). **DO NOT include BMI, glucose, etc. as predictors for the binary outcome to avoid tautology.**
+    - Separate model: Predict `Severity_Score` (continuous) using `gene_expression` + covariates.
+    - 5-fold Cross-Validation.
+    - VIF check for collinearity.
+  - Implement `viz.py`: Heatmaps, ROC curves.
+  - Implement `main.py`: Orchestration, seed setting, error handling.
+- **FR/SC Mapping**: FR-003 (Wilcoxon), FR-004 (FDR), FR-005 (LogReg), FR-006 (CV), FR-007 (Correlation), FR-008 (Plots), FR-009 (Odds Ratios).
 
-### Phase 3: Visualization & Reporting
-1. **Plots**: Generate heatmaps, ROC curves, scatter plots (FR-008).
-2. **Report**: Compile results into `model_results.json`.
+### Phase 3: Testing & Validation
+- **Goal**: Verify pipeline correctness and reproducibility.
+- **Actions**:
+  - Run unit tests on classification logic (edge cases: BMI=29.9, missing values).
+  - Run integration test on a small subset of data to ensure full pipeline execution.
+  - Verify that `data/processed/baseline_labels.csv` is generated correctly.
+- **FR/SC Mapping**: SC-003 (AUC), SC-004 (Correlation magnitude), SC-005 (Sensitivity).
 
-### Phase 4: Sensitivity Analysis (NEW)
-1. **Threshold Sweep**: Vary ATP-III thresholds by ±5% (SC-005).
-2. **Stability Check**: Measure label stability. Report if < 90% stability.
+### Phase 4: Execution & Reporting
+- **Goal**: Run full pipeline on CI and generate final reports.
+- **Actions**:
+  - Execute `main.py` on GitHub Actions.
+  - Generate `paper/` artifacts (figures, tables) from `data/processed`.
+  - Update `state/` with artifact hashes.
+- **FR/SC Mapping**: All SCs.
 
-## Compute Feasibility & Environment
+## Compute Feasibility Strategy
 
-- **Environment**: GitHub Actions Free Tier (2 CPU, 7GB RAM, 14GB Disk).
-- **Strategy**: CPU-first.
-  - **Why**: The analysis relies on classical statistics (Wilcoxon, Logistic Regression) and standard libraries (`scipy`, `statsmodels`), which are highly optimized for CPU. No deep learning or GPU-accelerated inference is required.
-  - **Memory Management**: Data is streamed or processed in chunks to fit within 7GB RAM. If the full GTEx v8 exceeds this, a representative sample (random seed from `config.yaml`) is used, with a power limitation noted.
-- **GPU Escape Hatch**: Not applicable for this specific statistical pipeline. If a future expansion requires fine-tuning a transformer, the plan would switch to a scaled-down Kaggle GPU run (-bit quantization), but the current scope is fully CPU-tractable.
+- **CPU-First**: All statistical methods (Wilcoxon, Logistic Regression, Correlation) are classical and run efficiently on CPU.
+- **Memory Management**: Use `datasets.load_dataset(..., streaming=True)` to avoid loading the full GTEx matrix into RAM. 
+- **FDR Implementation**: P-values are collected in a temporary list as they are generated per tissue/gene chunk. Since the total number of tests is small (~15 genes * ~50 tissues < 1000 tests), the full list of p-values fits easily in RAM. FDR is applied to this collected list, not the raw data stream.
+- **Disk Usage**: Raw data is streamed; processed data is written to disk. The memory limit is respected by not storing full intermediate matrices if not needed.
+- **No GPU Required**: The spec explicitly assumes CPU-only. No transformers or deep learning models are used, eliminating the need for the GPU escape hatch.
+- **No Synthetic Data**: All results must be derived from real, downloaded data. If the real data is insufficient, the study is labeled "exploratory" or halted.
 
-## Risks & Mitigations
+## Data Availability Strategy
 
-| Risk | Impact | Mitigation |
-| :--- | :--- | :--- |
-| **Missing Clinical Variables** | High: N < 100, study becomes exploratory. | Phase 0.5 Validation Gate; explicit flagging; no TCGA fallback. |
-| **Circadian Phase Confounding** | High: False positives due to sampling time. | Continuous time modeling (sine/cosine); partial correlation; phase-adjusted DE. |
-| **Tissue Imbalance** | Medium: Some tissues have few MetS cases. | Stratified modeling or separate tissue models; low-power exclusion. |
-| **Collinearity** | Medium: Age/PMI may correlate with expression. | VIF check; descriptive reporting if VIF > 5. |
-| **Data Size** | Medium: GTEx v8 > 7GB RAM. | Streaming mode or random sampling with explicit power limitation note. |
+- **Primary Source**: GTEx v8 via Hugging Face `datasets` library (e.g., `genomicsGTEx/gtex_v8` or the official GTEx Portal if an open mirror is verified).
+- **Verification**: The plan relies *only* on the URLs provided in the "Verified datasets" block of the research.md.
+  - *Note*: The implementation will attempt to load these. If the specific columns required for ATP-III are missing, the system will log a critical error and **halt**, as no open substitute with these specific clinical variables is currently verified. The plan does *not* fabricate data or use test files.
+  - *Fallback*: If the specific GTEx test files lack the required clinical variables, the plan explicitly states that the study cannot proceed with *these* specific URLs and must wait for a verified source with the full phenotype data. The plan does *not* substitute a different dataset or synthesize data.
+- **Streaming**: The code will use `streaming=True` to handle large files, ensuring the 7GB RAM limit is not exceeded.

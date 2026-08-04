@@ -1,114 +1,13 @@
+# This file is DEPRECATED. Please use output.schema.yaml as the single source of truth.
+# This file is kept for backward compatibility but contains no new definitions.
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Analysis Results Schema"
-description: "Schema for the output of differential expression, correlation, and logistic regression analyses."
+title: "Analysis Results Schema (Deprecated)"
+description: "This schema is deprecated. Use output.schema.yaml."
 type: "object"
 properties:
-  differential_expression:
-    type: "array"
-    description: "Results of Wilcoxon rank-sum tests."
-    items:
-      type: "object"
-      properties:
-        tissue:
-          type: "string"
-        gene_symbol:
-          type: "string"
-        p_value:
-          type: "number"
-        adjusted_p_value:
-          type: "number"
-          description: "Benjamini-Hochberg FDR corrected p-value."
-        effect_size:
-          type: "number"
-          description: "Effect size (e.g., Cohen's d)."
-        significant:
-          type: "boolean"
-          description: "True if adjusted_p_value < 0.05."
-        phase_adjusted:
-          type: "boolean"
-          description: "Whether time-adjustment was applied."
-      required:
-        - tissue
-        - gene_symbol
-        - p_value
-        - adjusted_p_value
-        - effect_size
-        - significant
-  correlation:
-    type: "array"
-    description: "Results of Spearman/Pearson correlations."
-    items:
-      type: "object"
-      properties:
-        gene_symbol:
-          type: "string"
-        trait:
-          type: "string"
-          description: "Metabolic trait (e.g., BMI, Glucose)."
-        correlation_coefficient:
-          type: "number"
-        p_value:
-          type: "number"
-        adjusted_p_value:
-          type: "number"
-        significant:
-          type: "boolean"
-        partial_correlation:
-          type: "number"
-          description: "Correlation controlling for time of death."
-      required:
-        - gene_symbol
-        - trait
-        - correlation_coefficient
-        - p_value
-        - adjusted_p_value
-        - significant
-  logistic_regression:
-    type: "object"
-    description: "Results of logistic regression models."
-    properties:
-      auc:
-        type: "number"
-        description: "Area Under the Curve with 95% CI."
-      auc_ci_lower:
-        type: "number"
-      auc_ci_upper:
-        type: "number"
-      odds_ratios:
-        type: "array"
-        items:
-          type: "object"
-          properties:
-            predictor:
-              type: "string"
-            odds_ratio:
-              type: "number"
-            ci_lower:
-              type: "number"
-            ci_upper:
-              type: "number"
-            p_value:
-              type: "number"
-            significant:
-              type: "boolean"
-            model_type:
-              type: "string"
-              enum: ["BinaryMetS", "SeverityScore", "TraitSpecific"]
-          required:
-            - predictor
-            - odds_ratio
-            - ci_lower
-            - ci_upper
-            - p_value
-            - significant
-            - model_type
-    required:
-      - auc
-      - auc_ci_lower
-      - auc_ci_upper
-      - odds_ratios
+  deprecated:
+    type: "boolean"
+    description: "Always true."
 required:
-  - differential_expression
-  - correlation
-  - logistic_regression
+  - deprecated
 additionalProperties: false

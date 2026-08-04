@@ -1,6 +1,17 @@
-- artifact_hash: fdc95af5c29f86968ca0fd93b318cfcab8c15a5008ad2a76f55d5d3432523e5f
+- artifact_hash: 7b993fa1ac1c5ed51e470e746ced462800b97e664de0a22cc22112fea9864b83
   artifact_path: projects/PROJ-110-investigating-the-correlation-between-ci/specs/001-investigating-the-correlation-between-ci/research.md
   cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://huggingface.co/datasets/genomicsGTEx/gtex_v8`
+  verification_status: pending
+  verified_against_url: https://huggingface.co/datasets/genomicsGTEx/gtex_v8
+  verified_at: '2026-08-04T19:28:19.376003Z'
+- artifact_hash: 7b993fa1ac1c5ed51e470e746ced462800b97e664de0a22cc22112fea9864b83
+  artifact_path: projects/PROJ-110-investigating-the-correlation-between-ci/specs/001-investigating-the-correlation-between-ci/research.md
+  cite_id: c-002
   cited_authors: []
   cited_title: null
   fetched_title: GTEx Portal
@@ -8,37 +19,4 @@
   value: https://www.gtexportal.org/home/datasets`
   verification_status: pending
   verified_against_url: https://www.gtexportal.org/home/datasets
-  verified_at: '2026-07-26T18:47:28.305667Z'
-- artifact_hash: fdc95af5c29f86968ca0fd93b318cfcab8c15a5008ad2a76f55d5d3432523e5f
-  artifact_path: projects/PROJ-110-investigating-the-correlation-between-ci/specs/001-investigating-the-correlation-between-ci/research.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: gtex (Xu Zou)
-  kind: url
-  value: https://huggingface.co/datasets/gtex`
-  verification_status: pending
-  verified_against_url: https://huggingface.co/gtex/datasets
-  verified_at: '2026-07-26T18:47:28.305667Z'
-- artifact_hash: fdc95af5c29f86968ca0fd93b318cfcab8c15a5008ad2a76f55d5d3432523e5f
-  artifact_path: projects/PROJ-110-investigating-the-correlation-between-ci/specs/001-investigating-the-correlation-between-ci/research.md
-  cite_id: c-003
-  cited_authors: []
-  cited_title: null
-  fetched_title: "CNX-PathLLM/GTEx-WSI-Description \xB7 Datasets at Hugging Face"
-  kind: url
-  value: https://huggingface.co/datasets/CNX-PathLLM/GTEx-WSI-Description/...`
-  verification_status: pending
-  verified_against_url: https://huggingface.co/datasets/CNX-PathLLM/GTEx-WSI-Description
-  verified_at: '2026-07-26T18:47:28.305667Z'
-- artifact_hash: fdc95af5c29f86968ca0fd93b318cfcab8c15a5008ad2a76f55d5d3432523e5f
-  artifact_path: projects/PROJ-110-investigating-the-correlation-between-ci/specs/001-investigating-the-correlation-between-ci/research.md
-  cite_id: c-004
-  cited_authors: []
-  cited_title: null
-  fetched_title: "MagicSign/TrASPr_GTEx_data \xB7 Datasets at Hugging Face"
-  kind: url
-  value: https://huggingface.co/datasets/MagicSign/TrASPr_GTEx_data/...`
-  verification_status: pending
-  verified_against_url: https://huggingface.co/datasets/MagicSign/TrASPr_GTEx_data
-  verified_at: '2026-07-26T18:47:28.305667Z'
+  verified_at: '2026-08-04T19:28:19.376003Z'

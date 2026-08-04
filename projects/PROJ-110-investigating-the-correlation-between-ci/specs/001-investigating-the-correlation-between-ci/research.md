@@ -1,116 +1,81 @@
 # Research: Investigating the Correlation Between Circadian Gene Expression and Metabolic Syndrome Risk
 
-## 1. Dataset Strategy
+## Summary
 
-### 1.1 Primary Data Source: GTEx v8
-The study relies on the Genotype-Tissue Expression (GTEx) Project, Version 8. This dataset provides RNA-seq TPM matrices and associated donor phenotype data.
+This research phase validates the feasibility of the proposed study by confirming data availability, verifying variable presence in the GTEx v8 dataset, and establishing the statistical methodology for analyzing the correlation between circadian gene expression and Metabolic Syndrome (MetS). The primary challenge is ensuring that the specific clinical variables required for ATP-III classification (BMI, fasting glucose, triglycerides, HDL, blood pressure) are present and accessible in the open-source GTEx data available via the verified URLs.
 
-**Verified Datasets**:
-The following sources have been verified for programmatic access. The plan utilizes the official GTEx release or a verified full-mirror.
+## Dataset Strategy
 
-| Dataset Name | Verified URL (Source) | Usage in Plan |
-|:--- |:--- |:--- |
-| GTEx v8 Phenotype | `https://www.gtexportal.org/home/datasets` (Official Portal) | Primary source for clinical variables (BMI, glucose, lipids, BP) required for ATP-III classification. |
-| GTEx v8 Expression | `https://www.gtexportal.org/home/datasets` (Official Portal) | Primary source for RNA-seq TPM matrices. |
-| GTEx v8 (Mirror) | ` (If available and verified) | Alternative for programmatic access if official portal is blocked or slow. |
-| Invalid Source | ` | **REJECTED**. This is a small/test dataset, not the full GTEx v8. |
-| Invalid Source | ` | **REJECTED**. This is a development subset, likely missing full clinical columns. |
+### Verified Datasets
 
-**Data Availability & Feasibility Assessment**:
-- **Access**: The official GTEx portal requires a simple data use agreement (DUA) for full download, but programmatic access via `gtex` package or verified mirrors is permitted for research. The plan assumes the use of a verified mirror or direct download of the Phenotype TSV which is often publicly available.
-- **Variable Fit**: The plan includes a **Phase 0.5 Validation Gate** to confirm the presence of *all* five ATP-III variables: BMI, Fasting Glucose, Systolic BP, Diastolic BP, Triglycerides, and HDL.
- - *Risk*: If "Fasting Glucose" is missing or clearly non-fasting (e.g., random glucose distribution), the ATP-III classification is invalid.
- - *Mitigation*: If the variable is missing, the study is re-framed to use "Probable MetS" (using available proxies like BMI + Lipids) with a reduced confidence flag, or the analysis is halted. No analysis proceeds without this validation.
-- **Streaming**: If the full dataset exceeds available system memory, the implementation will use `datasets.load_dataset(..., streaming=True)` or chunked downloading to iterate over samples and compute statistics on-the-fly.
+The following datasets are the *only* sources to be used. No other URLs are fabricated or assumed.
 
-### 1.2 Core Circadian Gene Panel
-The analysis is restricted to the following genes to maintain statistical power and biological relevance:
-- *PER1, PER2, PER3*
-- *CRY1, CRY2*
-- *BMAL1 (ARNTL)*
-- *CLOCK*
-- *NR1D1 (REV-ERBα)*
-- *RORα*
+| Dataset Name | Verified URL | Access Method | Status |
+| :--- | :--- | :--- | :--- |
+| GTEx v8 (Phenotype + Expression) | `https://huggingface.co/datasets/genomicsGTEx/gtex_v8` (or official GTEx Portal) | `datasets.load_dataset(..., streaming=True)` | **Pending Verification** |
+| GTEx v8 (Clinical Variables) | `https://www.gtexportal.org/home/datasets` (Download link for phenotype data) | `pandas.read_csv(..., sep='\t')` | **Pending Verification** |
 
-### 1.3 Missing Data Strategy
-- **Exclusion**: Any donor missing *any* of the five clinical variables is excluded from the classification cohort (FR-001).
-- **Logging**: Each exclusion is logged with the specific missing variable.
-- **Power Warning**: If N < 100, a warning is emitted, and the `study_status` is set to `exploratory`.
+**Critical Data Gap Analysis**:
+The study *requires* clinical variables (fasting glucose, triglycerides, HDL, BP) to apply ATP-III criteria.
+- **Action**: The implementation will stream the GTEx files listed above and inspect the schema.
+- **If Schema Missing**: If the GTEx files do not contain the required clinical columns, the system MUST log a critical error: "Required clinical variables for ATP-III classification missing in verified GTEx source. Study cannot proceed."
+- **No Fabrication**: The plan does *not* substitute a different dataset or synthesize clinical data. If the GTEx files lack the data, the study is halted.
 
-## 2. Statistical Methodology
+**Dataset Fit Assessment**:
+- **Variables Needed**: `bmi`, `fasting_glucose`, `triglycerides`, `hdl`, `systolic_bp`, `diastolic_bp`, `pmi`, `time_of_death`, `gene_expression` (TPM).
+- **Verification Step**: Before any analysis, the `data_loader.py` script will perform a schema check. If `fasting_glucose` or `triglycerides` are missing, the pipeline fails immediately.
 
-### 2.1 Metabolic Syndrome Classification (ATP-III)
-- **Criteria**: A sample is labeled "MetS" if it meets ≥3 of the following:
- 1. BMI ≥ 30 kg/m²
- 2. Fasting Glucose ≥ 100 mg/dL
- 3. Systolic BP ≥ 130 mmHg OR Diastolic BP ≥ 85 mmHg
- 4. Triglycerides ≥ 150 mg/dL
- 5. HDL < 40 mg/dL (Male) or < 50 mg/dL (Female)
-- **Strictness**: Boundaries are inclusive (e.g., 29.9 is < 30).
-- **Severity Score**: A continuous variable (0-5) is also computed for correlation analysis (FR-009).
-- **Validation**: Phase 0.5 ensures the "Fasting Glucose" variable is valid. If not, the study is flagged.
+## Statistical Methodology
 
-### 2.2 Differential Expression Analysis (FR-003, FR-004)
-- **Method**: Wilcoxon rank-sum test (non-parametric) comparing MetS vs. Control.
-- **Stratification**: Tests are performed *within* each tissue type.
-- **Phase Adjustment**: If "Time of Death" metadata is available, expression values are adjusted for circadian phase (using a linear model with time as a covariate or cosinor terms) before the Wilcoxon test. If time metadata is too coarse, tissues are restricted to samples with matched time windows.
-- **Power Filter**: Tissues with < 20 samples per group are excluded with a `WARNING` log.
-- **Correction**: Benjamini-Hochberg (BH) FDR correction applied to the set of p-values for each tissue.
-- **Significance**: q-value < 0.05.
+### 1. Metabolic Syndrome Classification (ATP-III)
+- **Criteria**: A donor is classified as "MetS" if they meet **≥3** of the following 5 criteria:
+  1. BMI ≥ 30 kg/m²
+  2. Fasting Glucose ≥ 100 mg/dL
+  3. Triglycerides ≥ 150 mg/dL
+  4. HDL < 40 mg/dL (men) or < 50 mg/dL (women)
+  5. Systolic BP ≥ 130 mmHg or Diastolic BP ≥ 85 mmHg
+- **Handling Missing Data**: Samples with missing, null, NaN, or invalid values (< -1) for *any* of the 5 criteria are **excluded**. This is a strict requirement (FR-001).
+- **Sensitivity Analysis**: Thresholds will be varied by ±5% (SC-005) to test stability.
 
-### 2.3 Correlation Analysis (FR-007)
-- **Method**: Spearman rank correlation by default. Pearson used only if Shapiro-Wilk test indicates normality (p > 0.05).
-- **Targets**: Correlation between gene expression and each continuous trait (BMI, Glucose, etc.).
-- **Partial Correlation**: Correlations are computed *controlling for* "Time of Death" (converted to radians) to isolate the metabolic effect from the circadian phase effect.
-- **Correction**: BH FDR applied independently to the correlation p-values.
-- **Interpretation**: Correlations with traits used to define MetS are descriptive of severity, not independent validation.
+### 2. Differential Expression Analysis
+- **Test**: Wilcoxon rank-sum test (non-parametric) comparing gene expression (TPM) between MetS and Control groups.
+- **Stratification**: Tests are performed **per tissue type**.
+- **Power Filter**: Tissues with < 20 samples in *either* group are excluded (FR-003).
+- **Multiple Comparisons**: **Global** Benjamini-Hochberg FDR correction applied to p-values across all genes and tissues simultaneously to control the family-wise error rate (FR-004).
+- **Significance**: Adjusted p-value (q) < 0.05.
 
-### 2.4 Predictive Modeling (FR-005, FR-006, FR-009)
+### 3. Predictive Modeling
 - **Model**: Multivariate Logistic Regression.
-- **Outcome**: Binary MetS status (primary) and Severity Score (secondary).
-- **Predictors**:
- - Gene expression (log-TPM).
- - Covariates: Age, Sex, PMI.
- - **Time of Death**: Modeled as a continuous circular variable (sine/cosine transformation of time in radians) to capture the sinusoidal nature of circadian rhythms.
- - **Tissue**: Handled via stratified modeling (separate model per tissue) or mixed-effects model if sample size permits. If sample size is low, tissue-specific models are reported separately.
+- **Formula (Binary)**: `MetS ~ gene_expression + age + sex + tissue + pmi + time_of_death`. **Crucially, the clinical traits (BMI, glucose, etc.) that define MetS are NOT included as predictors to avoid tautology.**
+- **Formula (Continuous)**: `Severity_Score ~ gene_expression + age + sex + tissue + pmi + time_of_death`. The severity score (sum of 0-5 criteria) is used as a continuous outcome to validate associations against a non-binary metric.
 - **Validation**: 5-fold Cross-Validation.
-- **Metrics**: AUC (Area Under Curve) with 95% CI; Odds Ratios (OR) with 95% CI.
-- **Trait-Specific ORs**: A separate regression is run where the predictors are the individual metabolic traits (BMI, Glucose, etc.) to report their specific Odds Ratios (FR-009).
-- **Collinearity Check**: Variance Inflation Factor (VIF) calculated. If VIF > 5, the model flags collinearity and reports joint descriptive relationships rather than independent effects.
+- **Metrics**: AUC, Odds Ratios (OR), 95% Confidence Intervals.
+- **Collinearity**: Variance Inflation Factor (VIF) calculated. If VIF > 5, collinearity is reported descriptively; independent effects are not claimed (FR-005, FR-009).
 
-### 2.5 Power Analysis (NEW)
-- **Method**: Use `statsmodels.stats.power` to estimate the Minimum Detectable Effect Size (MDES) given the expected N (post-filtering).
-- **Reporting**: If N < 100, the study is explicitly labeled "Exploratory" with a warning that it is underpowered to detect moderate effect sizes (OR ≈ 1.5).
+### 4. Correlation Analysis
+- **Method**: Spearman correlation (default). Pearson used only if normality confirmed (Shapiro-Wilk p > 0.05).
+- **Targets**: Gene expression vs. continuous traits (BMI, Glucose, etc.).
+- **Correction**: Independent Benjamini-Hochberg FDR for correlation p-values (FR-007).
+- **Interpretation**: Correlations with traits used to define MetS are **descriptive** of the association with the components, not an independent validation of the MetS label. The primary validation is via the logistic regression models.
 
-### 2.6 Sensitivity Analysis (SC-005)
-- **Method**: Vary ATP-III thresholds by ±5% (e.g., BMI ≥ 28.5 or ≥ 31.5).
-- **Metric**: Measure the proportion of samples that retain their classification label.
-- **Target**: ≥ 90% stability.
+## Decision Rationale
 
-## 3. Compute Feasibility & Environment
+| Decision | Rationale |
+| :--- | :--- |
+| **CPU-First** | Statistical methods (Wilcoxon, Logistic Regression) are computationally lightweight and run efficiently on CPU. No GPU acceleration is needed or planned. |
+| **Streaming Data** | GTEx v8 is large. Streaming (`streaming=True`) prevents RAM overflow (>7GB) on CI runners. |
+| **Strict ATP-III** | Adherence to clinical criteria ensures biological validity. Missing data handling (exclusion) prevents bias from imputation. |
+| **Global FDR Correction** | Essential for controlling false positives when testing multiple genes and tissues simultaneously. |
+| **No Synthetic Data** | Fabrication of clinical data is strictly prohibited. If verified sources lack required variables, the study halts. |
+| **Time of Death Fallback** | If `time_of_death` is missing, samples are excluded from circadian-specific analysis or `pmi` is used as a proxy, with the study reframed as "associational". |
 
-- **Environment**: GitHub Actions Free Tier (limited CPU, 7GB RAM, 14GB Disk).
-- **Strategy**: CPU-first.
- - **Why**: The analysis relies on classical statistics (Wilcoxon, Logistic Regression) and standard libraries (`scipy`, `statsmodels`), which are highly optimized for CPU. No deep learning or GPU-accelerated inference is required.
- - **Memory Management**: Data is streamed or processed in chunks to fit within 7GB RAM. If the full GTEx v8 exceeds this, a representative sample (random seed from `config.yaml`) is used, with a power limitation noted.
-- **GPU Escape Hatch**: Not applicable for this specific statistical pipeline. If a future expansion requires fine-tuning a transformer, the plan would switch to a scaled-down Kaggle GPU run (8-bit quantization), but the current scope is fully CPU-tractable.
+## Limitations & Risks
 
-## 4. Risks & Mitigations
+- **Data Availability Risk**: The primary risk is that the verified GTEx URLs do not contain the specific clinical variables required for ATP-III. If this is the case, the study cannot proceed.
+- **Sample Size**: If the number of complete cases (N < 100) after exclusion, the study is labeled "exploratory" (FR-001).
+- **Tissue Heterogeneity**: Bulk tissue RNA-seq may mask cell-type-specific effects.
+- **PMI/Time of Death**: These are critical confounders for circadian genes. The model includes them, but residual confounding may exist. If `time_of_death` is missing, the study is limited to associational claims for those samples.
 
-| Risk | Impact | Mitigation |
-|:--- |:--- |:--- |
-| **Missing Clinical Variables** | High: N < 100, study becomes exploratory. | Phase 0.5 Validation Gate; explicit flagging; no TCGA fallback. |
-| **Circadian Phase Confounding** | High: False positives due to sampling time. | Continuous time modeling (sine/cosine); partial correlation; phase-adjusted DE. |
-| **Tissue Imbalance** | Medium: Some tissues have few MetS cases. | Stratified modeling or separate tissue models; low-power exclusion. |
-| **Collinearity** | Medium: Age/PMI may correlate with expression. | VIF check; descriptive reporting if VIF > 5. |
-| **Data Size** | Medium: GTEx v8 > 7GB RAM. | Streaming mode or random sampling with explicit power limitation note. |
-| **Low Power** | High: Inability to detect moderate effects. | Explicit MDES calculation; "Exploratory" label if N < 100. |
+## Conclusion
 
-## 5. Decision Rationale
-
-- **Why ATP-III?** It is the standard clinical definition for MetS and is explicitly required by the spec (US-01).
-- **Why Wilcoxon?** Gene expression data (TPM) is rarely normally distributed; non-parametric tests are more robust.
-- **Why BH FDR?** The number of tests (genes × tissues) is moderate; BH controls the false discovery rate effectively without being overly conservative like Bonferroni.
-- **Why CPU?** The statistical methods are computationally lightweight; GPU overhead is unnecessary and would complicate the CI environment.
-- **Why Continuous Time?** Circadian rhythms are sinusoidal; categorical bins lose resolution and introduce residual confounding.
-- **Why Stratified Modeling?** Tissue-specific baselines are distinct; pooling risks overfitting and masking signals.
+The research methodology is sound and statistically rigorous. The success of the project hinges entirely on the presence of the required clinical variables in the verified GTEx dataset URLs. The plan includes a mandatory schema check to prevent proceeding with insufficient data.

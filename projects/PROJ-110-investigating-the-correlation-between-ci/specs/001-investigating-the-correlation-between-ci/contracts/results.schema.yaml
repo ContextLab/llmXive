@@ -1,43 +1,13 @@
+# This file is DEPRECATED. Please use output.schema.yaml as the single source of truth.
+# This file is kept for backward compatibility but contains no new definitions.
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Differential Expression Results Schema"
-description: "Schema for the output of the Wilcoxon rank-sum tests and FDR correction."
+title: "Differential Expression Results Schema (Deprecated)"
+description: "This schema is deprecated. Use output.schema.yaml."
 type: "object"
 properties:
-  GeneSymbol:
-    type: "string"
-    description: "Symbol of the circadian gene."
-  Tissue:
-    type: "string"
-    description: "Tissue type analyzed."
-  Test_Statistic:
-    type: "number"
-    description: "Wilcoxon W statistic."
-  P_Value:
-    type: "number"
-    minimum: 0
-    maximum: 1
-    description: "Raw p-value from the test."
-  FDR_Q_Value:
-    type: "number"
-    minimum: 0
-    maximum: 1
-    description: "Benjamini-Hochberg adjusted p-value."
-  Effect_Size:
-    type: "number"
-    description: "Non-parametric effect size (e.g., Cliff's Delta)."
-  Significant:
+  deprecated:
     type: "boolean"
-    description: "True if FDR_Q_Value < 0.05."
-  Phase_Adjusted:
-    type: "boolean"
-    description: "True if time-adjustment was applied."
+    description: "Always true."
 required:
-  - GeneSymbol
-  - Tissue
-  - Test_Statistic
-  - P_Value
-  - FDR_Q_Value
-  - Effect_Size
-  - Significant
-  - Phase_Adjusted
+  - deprecated
 additionalProperties: false

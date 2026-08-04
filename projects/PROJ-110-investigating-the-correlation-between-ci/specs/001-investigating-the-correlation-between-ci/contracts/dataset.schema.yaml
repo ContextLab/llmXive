@@ -1,54 +1,76 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "GTEx Metabolic Phenotype Dataset Schema"
-description: "Schema for the cleaned GTEx phenotype data used for ATP-III classification."
-type: object
+title: "GTEx Dataset Schema"
+description: "Schema for the raw and processed GTEx dataset used in the circadian-metabolic correlation study."
+type: "object"
 properties:
-  sample_id:
-    type: string
-    description: "Unique GTEx sample identifier"
-  tissue:
-    type: string
-    description: "Tissue source (e.g., 'Adipose', 'Liver')"
+  donor_id:
+    type: "string"
+    description: "Unique GTEx donor identifier."
   age:
-    type: number
-    description: "Donor age in years"
+    type: "integer"
+    description: "Age at death in years."
   sex:
-    type: string
-    enum: ["Male", "Female"]
-    description: "Biological sex of the donor"
+    type: "string"
+    enum: ["M", "F"]
+    description: "Biological sex."
+  tissue:
+    type: "string"
+    description: "Tissue source (e.g., Liver, Adipose)."
   bmi:
-    type: number
-    description: "Body Mass Index (kg/m^2)"
-  glucose:
-    type: number
-    description: "Fasting glucose (mg/dL)"
-  systolic_bp:
-    type: number
-    description: "Systolic blood pressure (mmHg)"
-  diastolic_bp:
-    type: number
-    description: "Diastolic blood pressure (mmHg)"
+    type: "number"
+    description: "Body Mass Index (kg/m^2)."
+  fasting_glucose:
+    type: "number"
+    description: "Fasting glucose (mg/dL)."
   triglycerides:
-    type: number
-    description: "Triglycerides (mg/dL)"
+    type: "number"
+    description: "Triglycerides (mg/dL)."
   hdl:
-    type: number
-    description: "High-Density Lipoprotein (mg/dL)"
+    type: "number"
+    description: "High-Density Lipoprotein (mg/dL)."
+  systolic_bp:
+    type: "number"
+    description: "Systolic blood pressure (mmHg)."
+  diastolic_bp:
+    type: "number"
+    description: "Diastolic blood pressure (mmHg)."
+  pmi:
+    type: "number"
+    description: "Post-Mortem Interval (hours)."
   time_of_death:
-    type: ["string", "null"]
-    description: "Time of death (e.g., 'Morning', 'Afternoon', or ISO timestamp)"
-  time_radians:
-    type: ["number", "null"]
-    description: "Continuous circular representation of time (0 to 2pi)"
+    type: "string"
+    description: "Time of death (HH:MM)."
+  gene_symbol:
+    type: "string"
+    description: "Gene symbol (e.g., PER1, BMAL1)."
+  tpm:
+    type: "number"
+    description: "Transcripts Per Million (TPM)."
+  log_tpm:
+    type: "number"
+    description: "Log2 transformed TPM (log2(TPM + 1))."
+  metabolic_status:
+    type: "string"
+    enum: ["MetS", "Control"]
+    description: "Classification based on ATP-III criteria."
+  criteria_count:
+    type: "integer"
+    minimum: 0
+    maximum: 5
+    description: "Number of ATP-III criteria met."
 required:
-  - sample_id
-  - tissue
+  - donor_id
   - age
   - sex
+  - tissue
   - bmi
-  - glucose
-  - systolic_bp
-  - diastolic_bp
+  - fasting_glucose
   - triglycerides
   - hdl
+  - systolic_bp
+  - diastolic_bp
+  - pmi
+  - time_of_death
+  - gene_symbol
+  - tpm
 additionalProperties: false
