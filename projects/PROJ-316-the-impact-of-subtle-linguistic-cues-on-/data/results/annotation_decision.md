@@ -3,7 +3,7 @@
 **Date**: 2026-06-13
 **Project**: PROJ-316 - The Impact of Subtle Linguistic Cues on Perceived Authenticity
 **Task ID**: T000b
-**Phase**: Phase -2 (Power Analysis Decision Gate)
+**Phase**: Phase -1 (Power Analysis Decision Gate)
 
 ## 1. Power Analysis Inputs (From T000a & T000)
 
@@ -41,10 +41,10 @@ The decision logic for this gate is defined in `tasks.md`:
 
 ## 6. Next Steps
 
-1. Proceed to **T001c**: Generate "Gold Standard" subset. (Note: While the power analysis suggests 92, the immediate task T001c specifies a pilot of 50 turns for lexicon validation. The full 92 will be targeted for the final analysis dataset).
-2. Execute **T001f**: Acquire raw conversation dataset.
-3. Execute **T002**: Implement annotation tool.
-4. Execute **T001e**: Generate human hedge labels for the full N=92 set (or as many as can be reliably annotated to meet the N=92 threshold).
+1. Proceed to **T001a**: Verify availability of public dataset.
+2. Execute **T001f**: Acquire raw conversation dataset (ConvAI2).
+3. Execute **T001b**: Define manual annotation protocol.
+4. Execute **T001k**: Generate "Analysis Set" of N=92 annotated turns.
 
 ---
 *This decision is recorded to satisfy Constitution Principle II (Verified Accuracy) and FR-011 (Power Analysis).*

@@ -42,7 +42,7 @@
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/ai2/human-ai-interaction
   verified_at: '2026-07-16T12:23:27.676155Z'
-- artifact_hash: c160e593cca5be54e1a993bebd4055ca5f913f37d14701b72503585d796b3d9f
+- artifact_hash: d3ff7f8494ab4766ec3f7796ecae825b5db4f45f37aea008363e24bef6993ca9
   artifact_path: projects/PROJ-316-the-impact-of-subtle-linguistic-cues-on-/data/results/effect_size_citation.md
   cite_id: c-001
   cited_authors: []
@@ -52,8 +52,8 @@
   value: https://doi.org/10.1177/0146167203029005010
   verification_status: pending
   verified_against_url: https://journals.sagepub.com/doi/10.1177/0146167203029005010
-  verified_at: '2026-07-22T23:44:56.906552Z'
-- artifact_hash: c160e593cca5be54e1a993bebd4055ca5f913f37d14701b72503585d796b3d9f
+  verified_at: '2026-08-04T00:54:23.296391Z'
+- artifact_hash: d3ff7f8494ab4766ec3f7796ecae825b5db4f45f37aea008363e24bef6993ca9
   artifact_path: projects/PROJ-316-the-impact-of-subtle-linguistic-cues-on-/data/results/effect_size_citation.md
   cite_id: c-002
   cited_authors: []
@@ -63,4 +63,4 @@
   value: 10.1177/0146167203029005010
   verification_status: pending
   verified_against_url: https://doi.org/10.1177/0146167203029005010
-  verified_at: '2026-07-22T23:44:56.906552Z'
+  verified_at: '2026-08-04T00:54:23.296391Z'
