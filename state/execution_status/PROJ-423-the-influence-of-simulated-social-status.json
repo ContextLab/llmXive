@@ -1,0 +1,20 @@
+{
+  "project_id": "PROJ-423-the-influence-of-simulated-social-status",
+  "ok": false,
+  "reason": "10 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/decision_record.json: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026act\": \"The pipeline uses synthetic data generation based on lite\u2026\u201d; code/generate_data.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026rovides functionality to generate synthetic research data simulating\u2026\u201d; code/generate_data.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026d.DataFrame:     \"\"\"     Generate synthetic dataset for the social s\u2026\u201d; 1 run-book script(s) missing (plan/impl path mismatch): python code/power_analysis.py; 4 command(s) failed: python code/simulate.py (rc=1); python code/preprocess.py (rc=2); python code/analysis.py (rc=1); 3 declared deliverable(s) absent: data/processed/cleaned_data.csv; data/processed/outcome_type.json; data/processed/structure_config.json",
+  "artifacts": [],
+  "failures": [
+    "python code/power_analysis.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-423-the-influence-of-simulated-social-status/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-423-the-influence-of-simulated-social-status/code/power_analysis.py': [Errno 2] No such file or directory",
+    "python code/simulate.py -> rc=1\n    Simulation or validation failed: name 'sys' is not defined",
+    "python code/preprocess.py -> rc=2\n    usage: preprocess.py [-h] --input INPUT --output OUTPUT\n                     [--structure-output STRUCTURE_OUTPUT] [--seed SEED]\npreprocess.py: error: the following arguments are required: --input, --output",
+    "python code/analysis.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-423-the-influence-of-simulated-social-status/code/analysis.py\", line 43, in <module>\n    logger = setup_logger(\"analysis\", \"logs/analysis.log\")\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-423-the-influence-of-simulated-social-status/code/logger.py\", line 26, in setup_logger\n    fh = logging.FileHandler(log_file)\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/hostedtoolcache/Python/3.11.15/x64/l",
+    "python code/report.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-423-the-influence-of-simulated-social-status/code/report.py\", line 38, in <module>\n    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))\n    ^^^\nNameError: name 'sys' is not defined. Did you mean: 'sns'?"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "fabrication",
+  "evidence": [],
+  "updated_at": "2026-08-04T12:46:39Z"
+}

@@ -4,180 +4,142 @@ import json
 import argparse
 import pandas as pd
 import numpy as np
-from datetime import datetime
 
-# Local imports based on API surface
-from config import load_simulation_params, get_random_seed, get_sample_size
-from utils import set_seed, ensure_directory
-from logger import get_logger
+from config import load_simulation_params, get_random_seed, get_effect_size_high_low, get_effect_size_interaction, get_sample_size
+from logger import setup_logger
+from utils import set_seed, ensure_directory, calculate_checksum, update_checksums
 
-logger = get_logger(__name__)
+logger = setup_logger("simulate", "logs/simulate.log")
 
-# --- Simulation Logic ---
-
-def generate_synthetic_data(design_type: str = "between", n: int = None, seed: int = None) -> pd.DataFrame:
+def generate_synthetic_data(n_subjects: int, seed: int, effect_size_high: float, effect_size_interaction: float) -> pd.DataFrame:
     """
-    Generates synthetic data for the specified design type.
-    design_type: 'between' or 'within'
+    Generates synthetic data for the social status risk experiment.
+    
+    Args:
+        n_subjects: Number of unique participants.
+        seed: Random seed for reproducibility.
+        effect_size_high: Base effect size for high status.
+        effect_size_interaction: Interaction effect size.
+        
+    Returns:
+        DataFrame with simulated participant data.
     """
-    if seed is None:
-        seed = get_random_seed()
-    if n is None:
-        n = get_sample_size()
-
     set_seed(seed)
+    logger.info(f"Generating synthetic data with N={n_subjects} and seed={seed}")
 
-    logger.info(f"Generating synthetic data for {design_type}-subjects design with N={n}")
-
-    if design_type == "between":
-        # Between-subjects: Each participant appears once
-        participant_ids = [f"sub_{i:04d}" for i in range(n)]
-        status_levels = np.random.choice(["High", "Low"], size=n)
-        observed_behaviors = np.random.choice(["Risky", "Conservative"], size=n)
-        
-        # Simulate risk taking score based on simple effect model
-        # Base mean 50, effect sizes added
-        risk_scores = np.random.normal(50, 10, size=n)
-        for i, (status, behavior) in enumerate(zip(status_levels, observed_behaviors)):
-            if status == "High":
-                risk_scores[i] += 2.0 # Example effect
-            if behavior == "Risky":
-                risk_scores[i] += 1.5
-        
-        df = pd.DataFrame({
-            "participant_id": participant_ids,
-            "status_level": status_levels,
-            "observed_behavior": observed_behaviors,
-            "risk_taking_score": risk_scores
-        })
-
-    elif design_type == "within":
-        # Within-subjects: Each participant appears in all 4 condition combinations
-        conditions = [
-            ("High", "Risky"),
-            ("High", "Conservative"),
-            ("Low", "Risky"),
-            ("Low", "Conservative")
-        ]
-        rows = []
-        for pid in range(n):
-            participant_id = f"sub_{pid:04d}"
-            for status, behavior in conditions:
-                # Simulate score with within-subject correlation logic (simplified)
-                base = 50 + np.random.normal(0, 5) # Subject baseline
-                effect = 0
-                if status == "High": effect += 2.0
-                if behavior == "Risky": effect += 1.5
-                
-                score = base + effect + np.random.normal(0, 5) # Residual noise
-                rows.append({
-                    "participant_id": participant_id,
-                    "status_level": status,
-                    "observed_behavior": behavior,
-                    "risk_taking_score": score
-                })
-        
-        df = pd.DataFrame(rows)
-    else:
-        raise ValueError(f"Unsupported design_type: {design_type}. Must be 'between' or 'within'.")
-
+    # Define conditions: 2 (Status: High/Low) x 2 (Behavior: Risky/Conservative)
+    # We simulate a between-subjects design for this initial generation
+    # to match the typical requirement of T011 validation (variance check).
+    # 4 groups total.
+    group_size = n_subjects // 4
+    remainder = n_subjects % 4
+    
+    status_levels = ['High', 'Low', 'High', 'Low']
+    observed_behaviors = ['Risky', 'Risky', 'Conservative', 'Conservative']
+    
+    # Generate participant IDs
+    participant_ids = [f"P{i}" for i in range(1, n_subjects + 1)]
+    
+    # Assign conditions
+    data = []
+    idx = 0
+    for i, (status, behavior) in enumerate(zip(status_levels, observed_behaviors)):
+        count = group_size + (1 if i < remainder else 0)
+        for _ in range(count):
+            data.append({
+                'participant_id': participant_ids[idx],
+                'status_level': status,
+                'observed_behavior': behavior
+            })
+            idx += 1
+    
+    df = pd.DataFrame(data)
+    
+    # Generate risk_taking_score based on parameters
+    # Base score
+    base_score = 50.0
+    # Status effect (High > Low)
+    status_effect = np.where(df['status_level'] == 'High', effect_size_high, 0.0)
+    # Behavior effect (Risky > Conservative) - assumed main effect
+    behavior_effect = np.where(df['observed_behavior'] == 'Risky', 10.0, -10.0)
+    # Interaction effect
+    interaction_mask = (df['status_level'] == 'High') & (df['observed_behavior'] == 'Risky')
+    interaction_effect = np.where(interaction_mask, effect_size_interaction, 0.0)
+    
+    # Noise
+    noise = np.random.normal(0, 10.0, size=len(df))
+    
+    df['risk_taking_score'] = base_score + status_effect + behavior_effect + interaction_effect + noise
+    
     return df
 
-def validate_design_adherence(df: pd.DataFrame, expected_design: str) -> bool:
+def validate_design_adherence(df: pd.DataFrame) -> bool:
     """
-    Validates that the generated dataset strictly adheres to the chosen design.
+    Validates that the generated data has the required variance in status_level.
     
-    For between-subjects: Each participant_id must appear exactly once.
-    For within-subjects: Each participant_id must appear exactly 4 times (once per condition).
+    Constraint: Must raise a ValueError if status_level has no variance.
     
-    Raises ValueError if validation fails.
+    Args:
+        df: The generated DataFrame.
+        
+    Returns:
+        True if valid.
+        
+    Raises:
+        ValueError: If experimental condition integrity is violated.
     """
-    logger.info(f"Validating design adherence for {expected_design} design...")
+    if 'status_level' not in df.columns:
+        raise ValueError("Error: status_level column missing.")
     
-    unique_participants = df['participant_id'].nunique()
-    total_rows = len(df)
+    unique_statuses = df['status_level'].unique()
+    if len(unique_statuses) < 2:
+        # This triggers the specific error message required by T011
+        raise ValueError("Error: status_level has no variance. Experimental condition integrity violated.")
     
-    if expected_design == "between":
-        # Check: 1 row per participant
-        counts = df['participant_id'].value_counts()
-        if not (counts == 1).all():
-            raise ValueError(
-                f"Design Violation: Between-subjects design expected. "
-                f"Found {unique_participants} unique participants but {total_rows} rows. "
-                f"Some participants appear multiple times. "
-                f"Counts: {counts[counts > 1].to_dict()}"
-            )
-        logger.info(f"Validation passed: Between-subjects design confirmed ({unique_participants} participants, 1 row each).")
-        
-    elif expected_design == "within":
-        # Check: 4 rows per participant (High/Risky, High/Cons, Low/Risky, Low/Cons)
-        # We expect 4 unique combinations of (status_level, observed_behavior)
-        expected_combinations = 4
-        counts = df['participant_id'].value_counts()
-        
-        if not (counts == expected_combinations).all():
-            raise ValueError(
-                f"Design Violation: Within-subjects design expected. "
-                f"Found {unique_participants} unique participants but {total_rows} rows. "
-                f"Expected {expected_combinations} rows per participant. "
-                f"Found counts: {counts.value_counts().to_dict()}"
-            )
-        
-        # Additional check: ensure all 4 condition combinations exist for each participant
-        # (This is implicitly checked by count == 4 if we assume the generator is correct,
-        # but let's be explicit about the combinations)
-        unique_combos = df.groupby('participant_id')[['status_level', 'observed_behavior']].apply(
-            lambda x: set(zip(x['status_level'], x['observed_behavior']))
-        )
-        
-        required_set = {
-            ("High", "Risky"), ("High", "Conservative"),
-            ("Low", "Risky"), ("Low", "Conservative")
-        }
-        
-        for pid, combos in unique_combos.items():
-            if combos != required_set:
-                missing = required_set - combos
-                raise ValueError(
-                    f"Design Violation: Participant {pid} missing conditions: {missing}. "
-                    f"Within-subjects design requires all 4 condition combinations per participant."
-                )
-        
-        logger.info(f"Validation passed: Within-subjects design confirmed ({unique_participants} participants, {expected_combinations} rows each).")
-    else:
-        raise ValueError(f"Unknown design type for validation: {expected_design}")
-
+    logger.info(f"Validation passed: Found {len(unique_statuses)} unique status levels: {list(unique_statuses)}")
     return True
 
 def main():
-    parser = argparse.ArgumentParser(description="Generate and validate synthetic simulation data.")
-    parser.add_argument("--design", type=str, default="between", choices=["between", "within"],
-                        help="Design type: 'between' or 'within'")
-    parser.add_argument("--output", type=str, default="data/raw/simulated_data.csv",
-                        help="Output file path")
-    parser.add_argument("--validate", action="store_true", default=True,
-                        help="Run design adherence validation after generation")
-    
+    parser = argparse.ArgumentParser(description="Generate synthetic research data for social status risk experiment.")
+    parser.add_argument('--output', type=str, default='data/raw/simulation_output.csv',
+                        help='Path to save the generated CSV.')
+    parser.add_argument('--seed', type=int, default=None,
+                        help='Random seed. If None, uses seed from config.')
     args = parser.parse_args()
-    
-    params = load_simulation_params()
-    design = args.design
-    n = params.get("n", 100)
-    seed = params.get("seed", 42)
-    
-    ensure_directory(args.output)
-    
+
     try:
-        df = generate_synthetic_data(design_type=design, n=n, seed=seed)
+        # Load parameters
+        params = load_simulation_params()
+        seed = args.seed if args.seed is not None else params.get('random_seed', 42)
+        n_subjects = params.get('n_subjects', 200)
+        effect_size_high = params.get('effect_size_high', 0.5)
+        effect_size_interaction = params.get('effect_size_interaction', 0.3)
+
+        # Generate data
+        df = generate_synthetic_data(n_subjects, seed, effect_size_high, effect_size_interaction)
+
+        # Validate design adherence (T011 requirement)
+        validate_design_adherence(df)
+
+        # Ensure output directory exists
+        ensure_directory(args.output)
+
+        # Save to CSV
         df.to_csv(args.output, index=False)
         logger.info(f"Data saved to {args.output}")
-        
-        if args.validate:
-            validate_design_adherence(df, design)
-            logger.info("Design validation successful.")
-            
+
+        # Update checksums
+        update_checksums(args.output)
+
+        print(f"Success: Generated {len(df)} rows with seed {seed}.")
+
+    except ValueError as e:
+        logger.error(f"Validation failed: {e}")
+        print(f"Error: {e}", file=sys.stderr)
+        sys.exit(1)
     except Exception as e:
-        logger.error(f"Simulation or validation failed: {e}")
+        logger.exception(f"Unexpected error during simulation: {e}")
+        print(f"Error: {e}", file=sys.stderr)
         sys.exit(1)
 
 if __name__ == "__main__":

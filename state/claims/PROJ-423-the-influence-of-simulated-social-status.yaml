@@ -577,3 +577,135 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-03T10:48:43Z'
+- artifact_path: projects/PROJ-423-the-influence-of-simulated-social-status/specs/001-the-influence-of-simulated-social-status/tasks.md
+  attempts: 1
+  canonical: Calculate N using power analysis with alpha 0.05 and power 0.80
+  claim_id: c_c60182c8
+  context: T000g-GenerateResearch task description specifies the parameters for the
+    power analysis calculation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate N using code/power_analysis.py based on verified effect sizes
+    (alpha=0.05, power=0.80).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T12:56:26Z'
+- artifact_path: projects/PROJ-423-the-influence-of-simulated-social-status/specs/001-the-influence-of-simulated-social-status/tasks.md
+  attempts: 1
+  canonical: Assume binary outcome if unique risk_taking_score values are less than
+    10
+  claim_id: c_716bd2e7
+  context: T014a task description defines the logic for detecting the outcome variable
+    type.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Assume_binary_outcome_if_unique_risk_taking_score_values_are
+  kind: magnitude
+  raw_text: If unique values in risk_taking_score < 10, assume binary; else continuous.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T12:57:01Z'
+- artifact_path: projects/PROJ-423-the-influence-of-simulated-social-status/specs/001-the-influence-of-simulated-social-status/tasks.md
+  attempts: 1
+  canonical: Flag Variance Inflation Factors greater than 5.0
+  claim_id: c_3b549dee
+  context: T022 task description specifies the threshold for flagging multicollinearity.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_Variance_Inflation_Factors_greater_than_5.0
+  kind: magnitude
+  raw_text: Calculate Variance Inflation Factors (VIF) for all predictors and flag
+    if > 5.0.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T12:57:19Z'
+- artifact_path: projects/PROJ-423-the-influence-of-simulated-social-status/specs/001-the-influence-of-simulated-social-status/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis sweep values are 2.5, 3.0, and 3.5
+  claim_id: c_e8bea6eb
+  context: T030 task description defines the specific standard deviation thresholds
+    for the sensitivity analysis.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Explicitly list sweep values: {2.5, 3.0, 3.5}.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T12:57:59Z'
+- artifact_path: projects/PROJ-423-the-influence-of-simulated-social-status/specs/001-the-influence-of-simulated-social-status/tasks.md
+  attempts: 1
+  canonical: Verify interaction p-value is less than 0.05 across outlier thresholds
+    2.5, 3.0, and 3.5
+  claim_id: c_b88f43bb
+  context: T031b-ValidateStability task description outlines the stability metric
+    calculation.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_interaction_p-value_is_less_than_0.05_across_outlier
+  kind: magnitude
+  raw_text: Check if the interaction p-value remains < 0.05 across all outlier thresholds
+    {2.5, 3.0, 3.5}.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T12:58:29Z'
+- artifact_path: projects/PROJ-423-the-influence-of-simulated-social-status/specs/001-the-influence-of-simulated-social-status/tasks.md
+  attempts: 1
+  canonical: Refactor code to achieve maximum cyclomatic complexity less than 10
+  claim_id: c_eda10e2d
+  context: T041a-Analysis task description sets the acceptance criteria for code complexity
+    reduction using radon.
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P6597: 3613'
+      source_id: Q26991474
+      url: https://www.wikidata.org/wiki/Q26991474
+      value: '3613'
+    filled: true
+  kind: magnitude
+  raw_text: Max complexity < 10.
+  resolved_value: '3613'
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-04T12:58:42Z'
+- artifact_path: projects/PROJ-423-the-influence-of-simulated-social-status/specs/001-the-influence-of-simulated-social-status/tasks.md
+  attempts: 1
+  canonical: Target functions with cyclomatic complexity greater than or equal to
+    10 for refactoring
+  claim_id: c_a4f687ae
+  context: T041b-Simulate task description identifies functions requiring refactoring
+    based on complexity.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Target_functions_with_cyclomatic_complexity_greater_than_or
+  kind: magnitude
+  raw_text: 'Target: All functions with complexity >= 10.'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T12:59:08Z'

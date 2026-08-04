@@ -1,1 +1,33 @@
-[]
+- artifact_hash: 8877ceee98613d2383d1d764cccb0139121f1b9c34e42b1c461be2ef289190bd
+  artifact_path: projects/PROJ-423-the-influence-of-simulated-social-status/specs/001-the-influence-of-simulated-social-status/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Max - Wikidata
+  kind: url
+  value: https://www.wikidata.org/wiki/Q26991474
+  verification_status: pending
+  verified_against_url: https://www.wikidata.org/wiki/Q26991474
+  verified_at: '2026-08-04T12:59:08.323303Z'
+- artifact_hash: 664a27d9d2e63ab4f6e7b97fc2f83917400211f794071d9526a976e145b74d7d
+  artifact_path: projects/PROJ-423-the-influence-of-simulated-social-status/specs/001-the-influence-of-simulated-social-status/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: code_stock.csv
+  kind: url
+  value: https://huggingface.co/datasets/AIGuruTinix/ViFinQA/resolve/main/code_stock.csv
+  verification_status: pending
+  verified_against_url: https://huggingface.co/api/resolve-cache/datasets/AIGuruTinix/ViFinQA/0450088ab22ec946f04f097586967ca405955b3b/code_stock.csv?%2Fdatasets%2FAIGuruTinix%2FViFinQA%2Fresolve%2Fmain%2Fcode_stock.csv=&etag=%2235061d68c7cc863bf5567c2e8db901d6f3afe524%22
+  verified_at: '2026-08-04T13:31:48.322806Z'
+- artifact_hash: 664a27d9d2e63ab4f6e7b97fc2f83917400211f794071d9526a976e145b74d7d
+  artifact_path: projects/PROJ-423-the-influence-of-simulated-social-status/specs/001-the-influence-of-simulated-social-status/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: test-00000-of-00001-1136ef192260594c.parquet
+  kind: url
+  value: https://huggingface.co/datasets/anubhavmaity/notMNIST/resolve/main/data/test-00000-of-00001-1136ef192260594c.parquet
+  verification_status: pending
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/6583da9b948899c453a33e26/c5c87ab94c52e9c07f3f09f743974e92eff022d315261b1ea5d84a924d035c7d?X-Xet-Cas-Uid=public&user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00001-1136ef192260594c.parquet%3B+filename%3D%22test-00000-of-00001-1136ef192260594c.parquet%22%3B&Expires=1785853908&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjU4M2RhOWI5NDg4OTljNDUzYTMzZTI2L2M1Yzg3YWI5NGM1MmU5YzA3ZjNmMDlmNzQzOTc0ZTkyZWZmMDIyZDMxNTI2MWIxZWE1ZDg0YTkyNGQwMzVjN2RcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZ1c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGVzdC0wMDAwMC1vZi0wMDAwMS0xMTM2ZWYxOTIyNjA1OTRjLnBhcnF1ZXQlM0IrZmlsZW5hbWUlM0QlMjJ0ZXN0LTAwMDAwLW9mLTAwMDAxLTExMzZlZjE5MjI2MDU5NGMucGFycXVldCUyMiUzQiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzg1ODUzOTA4fX19XX0_&Signature=MEQCICutjwqs5SbFtiuZQrFxyJW4MP%7EAREV687DpCnCCq3oBAiAOOSPKJwT0EVEtnD%7E2h8ZKF7oBpiVATJI00AKRrUVw%7EA__&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F
+  verified_at: '2026-08-04T13:31:48.322806Z'

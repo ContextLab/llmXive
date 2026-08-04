@@ -1,19 +1,103 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Structure Config Schema
-description: Schema for data/processed/structure_config.json
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Output Schema"
+description: "Schema for the regression model results and diagnostics."
 type: object
 properties:
-  type:
+  design_type:
     type: string
-    description: "Data structure type: 'between-subjects' or 'within-subjects'"
+    description: "Type of experimental design detected."
     enum:
-      - "between-subjects"
       - "within-subjects"
-  n_subjects:
-    type: integer
-    description: "Number of unique participants in the dataset"
-    minimum: 1
+      - "between-subjects"
+  outcome_type:
+    type: string
+    description: "Type of outcome variable."
+    enum:
+      - "continuous"
+      - "binary"
+  fixed_effects:
+    type: object
+    description: "Coefficients for fixed effects."
+    properties:
+      intercept:
+        type: number
+      status_level_High:
+        type: number
+      observed_behavior_Risky:
+        type: number
+      status_level_High:observed_behavior_Risky:
+        type: number
+    required:
+      - intercept
+      - status_level_High
+      - observed_behavior_Risky
+      - status_level_High:observed_behavior_Risky
+  p_values:
+    type: object
+    description: "P-values for fixed effects."
+    properties:
+      intercept:
+        type: number
+      status_level_High:
+        type: number
+      observed_behavior_Risky:
+        type: number
+      status_level_High:observed_behavior_Risky:
+        type: number
+    required:
+      - intercept
+      - status_level_High
+      - observed_behavior_Risky
+      - status_level_High:observed_behavior_Risky
+  adjusted_p_values:
+    type: object
+    description: "Bonferroni-corrected p-values for post-hoc comparisons (FR-006)."
+    properties:
+      High_Risky_vs_High_Conservative:
+        type: number
+      High_Risky_vs_Low_Risky:
+        type: number
+      High_Risky_vs_Low_Conservative:
+        type: number
+      # ... other pairwise comparisons
+    required:
+      - High_Risky_vs_High_Conservative
+  ci_width:
+    type: number
+    description: "Width of the 95% Confidence Interval for the interaction coefficient (SC-003)."
+  vif_scores:
+    type: object
+    description: "Variance Inflation Factors for fixed effects."
+    properties:
+      status_level:
+        type: number
+      observed_behavior:
+        type: number
+    required:
+      - status_level
+      - observed_behavior
+  sensitivity_analysis:
+    type: array
+    description: "Results of the outlier threshold sweep."
+    items:
+      type: object
+      properties:
+        threshold_sd:
+          type: number
+        interaction_p_value:
+          type: number
+        interaction_coefficient:
+          type: number
+      required:
+        - threshold_sd
+        - interaction_p_value
+        - interaction_coefficient
 required:
-  - type
-  - n_subjects
+  - design_type
+  - outcome_type
+  - fixed_effects
+  - p_values
+  - ci_width
+  - vif_scores
+  - sensitivity_analysis
 additionalProperties: false

@@ -13,3 +13,4 @@ weasyprint==60.1
 datasets==2.14.4
 radon==6.0.1
 pydantic==2.3.0
+scipy  # auto-added: imported by run-book but missing from venv

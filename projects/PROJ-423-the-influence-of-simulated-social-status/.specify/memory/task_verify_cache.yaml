@@ -6,14 +6,21 @@ T010a:
     rather than values read from `research.md` or a JSON file. Consequently, the task
     of extracting verified effect sizes and N and defining them as constants is not
     fulfilled.
-T021a:
+T013:
   c: false
-  h: d5485f6bfc47dbb00dec85a28f1803c73d52165be1b1f28adc8300dbd0726fd9
-  r: The repository lacks the required `data/processed/structure_config.json` file,
-    so the function cannot read the design type. Moreover, the provided `code/analysis.py`
-    excerpt does not show a `fit_adaptive_model` implementation (the file is truncated
-    before such a function appears). Both the essential input file and the specified
-    function are missing, so the task is not fulfilled.
+  h: 9a33e93178f9583473f0ad2c13cadd33686d292b4268126e6c6d0fdfeac81851
+  r: "The required output file `data/processed/cleaned_data.csv` does not exist, and\
+    \ the provided `preprocess.py` is incomplete (truncated, missing a main routine,\
+    \ missing imports, and no evidence it writes to the required path or reports the\
+    \ final N). The task\u2019s core requirements are therefore not satisfied."
+T014a:
+  c: false
+  h: b52cd32219c66b0c04433166100d93075426d28e758bfb699d5a0ad04e55af64
+  r: The repository lacks the required `data/processed/cleaned_data.csv` and the resulting
+    `data/processed/outcome_type.json`. Moreover, while `code/preprocess.py` defines
+    a `detect_outcome_type` function, the shown code does not demonstrate reading
+    the CSV, invoking the detection, and writing the JSON with the single `type` key.
+    The essential output artifact is missing, so the task is not satisfied.
 T033:
   c: false
   h: 25cb82685ad7159641edb73dde04e4f5464b62a3f245447b2aff0269a1f9dd8b
