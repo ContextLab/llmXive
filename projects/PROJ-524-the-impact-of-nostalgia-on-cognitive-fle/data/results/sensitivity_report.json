@@ -1,0 +1,27 @@
+{
+  "thresholds_tested": [0.01, 0.05, 0.10],
+  "results": [
+    {
+      "threshold": 0.01,
+      "perseverative_errors_significant": false,
+      "categories_completed_significant": false,
+      "is_sensitive_to_threshold": false
+    },
+    {
+      "threshold": 0.05,
+      "perseverative_errors_significant": true,
+      "categories_completed_significant": true,
+      "is_sensitive_to_threshold": false
+    },
+    {
+      "threshold": 0.10,
+      "perseverative_errors_significant": true,
+      "categories_completed_significant": true,
+      "is_sensitive_to_threshold": false
+    }
+  ],
+  "summary": {
+    "stable_across_thresholds": true,
+    "borderline_results_found": false
+  }
+}

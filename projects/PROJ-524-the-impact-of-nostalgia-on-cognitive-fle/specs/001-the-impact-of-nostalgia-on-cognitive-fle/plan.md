@@ -9,7 +9,7 @@ This project implements a computational pipeline to analyze the **associational*
 
 **Critical Design Note**: The study design is **between-subjects** (observational exposure), not within-subjects. Therefore, the plan uses **Welch's independent samples t-test** (or mixed-effects models if repeated measures are unexpectedly found) rather than paired t-tests. This corrects a contradiction in the source spec (FR-002) which mandates "paired t-tests" for a design that is inherently observational and between-subjects.
 
-The implementation strictly adheres to CPU-only constraints (2 cores, 7GB RAM) and ensures reproducibility via checksummed data and pinned dependencies. If no real-world dataset matching the specific schema (WCST + Age 65+ + Nostalgia labels) is found, the system falls back to a **Methodological Simulation** using synthetic data to validate the pipeline, clearly labeling results as simulation-only.
+The implementation strictly adheres to CPU-only constraints (a limited number of cores, 7GB RAM) and ensures reproducibility via checksummed data and pinned dependencies. If no real-world dataset matching the specific schema (WCST + Age 65+ + Nostalgia labels) is found, the system falls back to a **Methodological Simulation** using synthetic data to validate the pipeline, clearly labeling results as simulation-only.
 
 ## Technical Context
 

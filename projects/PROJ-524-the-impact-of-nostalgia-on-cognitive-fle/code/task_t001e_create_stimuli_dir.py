@@ -7,41 +7,49 @@ from utils import setup_logging, log_info, log_warning
 
 def create_stimuli_directory():
     """
-    Creates the data/stimuli/ directory if it does not exist.
-    Returns the Path object of the created directory.
+    Creates the data/stimuli/ directory required for storing experimental stimuli.
+    This is a foundational setup task (T001e).
+    
+    Returns:
+        Path: The path to the created directory.
+    
+    Raises:
+        OSError: If the directory cannot be created.
     """
     config = get_config()
-    data_root = config.get('paths', {}).get('data', 'data')
-    stimuli_path = Path(data_root) / 'stimuli'
+    base_dir = config.get('base_dir', Path.cwd())
+    stimuli_dir = base_dir / 'data' / 'stimuli'
     
-    log_info(f"Ensuring stimuli directory exists at: {stimuli_path}")
-    
-    # ensure_dirs creates the directory structure if it doesn't exist
-    ensure_dirs([stimuli_path])
-    
-    if not stimuli_path.exists():
-        log_error(f"Failed to create stimuli directory: {stimuli_path}")
-        return None
-    
-    log_info(f"Stimuli directory ready: {stimuli_path}")
-    return stimuli_path
+    try:
+        # ensure_dirs handles creation of parent directories if needed
+        ensure_dirs(stimuli_dir)
+        log_info(f"Stimuli directory created successfully: {stimuli_dir}")
+        return stimuli_dir
+    except OSError as e:
+        log_error(f"Failed to create stimuli directory at {stimuli_dir}: {e}")
+        raise
 
 def main():
-    """Entry point for task T001e execution."""
+    """
+    Entry point for the T001e task script.
+    """
     # Setup logging
-    log_level = get_config().get('logging', {}).get('level', 'INFO')
-    logger = setup_logging(level=log_level)
+    log_level = get_config().get('log_level', 'INFO')
+    setup_logging(level=log_level)
     
     log_info("Starting task T001e: Create stimuli directory")
     
-    result_path = create_stimuli_directory()
-    
-    if result_path:
-        log_info("Task T001e completed successfully.")
-        return 0
-    else:
-        log_error("Task T001e failed to create the stimuli directory.")
-        return 1
+    try:
+        stimuli_path = create_stimuli_directory()
+        log_info(f"Task T001e completed. Directory: {stimuli_path}")
+        # Verify existence for robustness
+        if not stimuli_path.exists():
+            log_error("Verification failed: Directory does not exist after creation.")
+            sys.exit(1)
+        sys.exit(0)
+    except Exception as e:
+        log_error(f"Task T001e failed with error: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

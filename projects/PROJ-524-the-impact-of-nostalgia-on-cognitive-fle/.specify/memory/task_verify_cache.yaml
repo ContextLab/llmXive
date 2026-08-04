@@ -1,10 +1,35 @@
-T003:
+T001a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No linting/formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`,
-    `.pre-commit-config.yaml`, or scripts invoking ruff/black) are present in the
-    provided evidence, nor any documentation showing they have been set up. Without
-    these artifacts the requirement to configure ruff and black is not satisfied.
+  r: No evidence of a `data/raw/` directory is provided; the artifact list is empty
+    and there is no confirmation that the required folder was created. The implementer
+    must create the directory (or show its existence) to satisfy the task.
+T001b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a `data/processed/` directory being present was provided; the\
+    \ implementer\u2019s claim is unsubstantiated and no artifact confirming the directory\u2019\
+    s existence is shown. The required directory must be created and verified (e.g.,\
+    \ by listing its path)."
+T001c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence was provided that a `data/results/` directory actually exists; the
+    implementer did not supply any filesystem listing, screenshot, or code confirming
+    creation of the required folder. The task remains unverified.
+T001e:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence was provided that a `data/stimuli/` directory actually exists; the\
+    \ implementer did not supply any filesystem listing, creation script, or confirmation\
+    \ that the required directory was created. The task remains undone until the directory\
+    \ is present and non\u2011empty (or at least created)."
+T012d:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, script, or data artifact was provided that shows the MMSE column is
+    checked, records with `MMSE < 24` are excluded, and the count of excluded records
+    is returned to shared state. The required implementation and output are missing.
 T013b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -52,3 +77,11 @@ T025:
     in the repository, so the integration test for the sensitivity analysis pipeline
     is missing. The task cannot be considered completed until this file is added with
     appropriate test code.
+T040:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No updated `spec.md` file is provided; the evidence contains only the original\
+    \ specification excerpt and task description, with no indication that the document\
+    \ was edited to replace references to paired t\u2011tests with Welch\u2019s independent\u2011\
+    samples t\u2011test or that FR\u2011002 and US\u20112 were revised accordingly.\
+    \ The required artifact is missing."

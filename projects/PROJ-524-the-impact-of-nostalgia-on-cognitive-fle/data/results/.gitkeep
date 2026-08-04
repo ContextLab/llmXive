@@ -1,2 +1,2 @@
-# This file ensures the data/results directory is tracked by git.
-# The directory itself is created by code/task_t001c_create_results_dir.py
+# This directory is for storing statistical results, reports, and analysis outputs.
+# It is created by Task T001c.

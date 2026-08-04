@@ -1,10 +1,7 @@
 """
-Task T015: Stimulus File Integrity Check
-
-Implements stimulus file integrity check:
-1. Fetch canonical checksum from dataset's metadata.json or GitHub release asset.
-2. Compare against local file SHA-256.
-3. Log mismatch as ERR_STIMULUS_CORRUPT.
+Task T015: Stimulus Integrity Check
+Validates stimulus files in data/stimuli/ against checksums in data/raw/metadata.json.
+Runs ONLY if SIMULATION_MODE is False.
 """
 import os
 import json
@@ -13,191 +10,169 @@ import hashlib
 from pathlib import Path
 from typing import Optional, Dict, Any, Tuple
 
-from config import get_config, get_env_str, ensure_dirs
-from utils import setup_logging, compute_sha256, log_info, log_warning, log_error, get_timestamp
+from config import get_config, get_env_bool, ensure_dirs
+from utils import setup_logging, log_info, log_warning, log_error, compute_sha256
 
-# Constants
-STIMULUS_SUBDIR = "stimuli"
-METADATA_FILENAME = "metadata.json"
-CHECKSUM_KEY = "stimulus_checksum"  # Expected key in metadata.json
-LOG_FILE = "data/processed/stimulus_integrity_log.json"
-GITHUB_RELEASE_URL = "https://github.com/example/nostalgia-cognitive-flexibility/releases/download/v1.0.0/metadata.json"
+# Configure logging for this module
+logger = setup_logging("task_t015_stimulus_integrity", level=logging.INFO)
 
-
-def fetch_canonical_checksum_from_metadata(metadata_path: Path) -> Optional[str]:
+def fetch_canonical_checksum_from_metadata(metadata_path: Path) -> Dict[str, str]:
     """
-    Fetch canonical checksum from local metadata.json if it exists.
+    Reads data/raw/metadata.json and extracts the 'stimuli_checksums' dictionary.
+    Returns a mapping of filename -> expected_sha256.
     """
     if not metadata_path.exists():
-        log_warning(f"Metadata file not found at {metadata_path}. Cannot fetch checksum.")
-        return None
+        raise FileNotFoundError(f"Metadata file not found: {metadata_path}")
+    
+    with open(metadata_path, 'r', encoding='utf-8') as f:
+        metadata = json.load(f)
+    
+    if 'stimuli_checksums' not in metadata:
+        raise KeyError("Key 'stimuli_checksums' not found in metadata.json")
+    
+    return metadata['stimuli_checksums']
 
-    try:
-        with open(metadata_path, 'r', encoding='utf-8') as f:
-            metadata = json.load(f)
-        
-        if CHECKSUM_KEY in metadata:
-            return metadata[CHECKSUM_KEY]
-        else:
-            log_warning(f"Checksum key '{CHECKSUM_KEY}' not found in metadata.json.")
-            return None
-    except json.JSONDecodeError as e:
-        log_error(f"Failed to parse metadata.json: {e}")
-        return None
-    except Exception as e:
-        log_error(f"Unexpected error reading metadata.json: {e}")
-        return None
-
-
-def fetch_canonical_checksum_from_github() -> Optional[str]:
+def compute_local_checksum(file_path: Path) -> str:
     """
-    Fallback: Fetch canonical checksum from GitHub release metadata.
-    Requires 'requests' library.
+    Computes the SHA-256 checksum of a file.
     """
-    try:
-        import requests
-        log_info(f"Attempting to fetch checksum from GitHub release: {GITHUB_RELEASE_URL}")
-        
-        response = requests.get(GITHUB_RELEASE_URL, timeout=10)
-        response.raise_for_status()
-        
-        metadata = response.json()
-        if CHECKSUM_KEY in metadata:
-            return metadata[CHECKSUM_KEY]
-        else:
-            log_warning(f"Checksum key '{CHECKSUM_KEY}' not found in GitHub metadata.")
-            return None
-    except ImportError:
-        log_error("The 'requests' library is required to fetch checksums from GitHub. Please install it.")
-        return None
-    except requests.exceptions.RequestException as e:
-        log_error(f"Failed to fetch checksum from GitHub: {e}")
-        return None
-    except Exception as e:
-        log_error(f"Unexpected error fetching checksum from GitHub: {e}")
-        return None
-
-
-def compute_local_checksum(stimulus_path: Path) -> Optional[str]:
-    """
-    Compute SHA-256 checksum of the local stimulus file.
-    """
-    if not stimulus_path.exists():
-        log_error(f"Stimulus file not found at {stimulus_path}. Cannot compute checksum.")
-        return None
-
-    try:
-        return compute_sha256(stimulus_path)
-    except Exception as e:
-        log_error(f"Failed to compute SHA-256 for {stimulus_path}: {e}")
-        return None
-
+    return compute_sha256(file_path)
 
 def check_integrity(
-    project_root: Path,
-    stimulus_filename: str = "nostalgia_stimuli_v1.zip"
+    stimuli_dir: Path,
+    expected_checksums: Dict[str, str],
+    simulation_mode: bool
 ) -> Tuple[bool, Dict[str, Any]]:
     """
-    Main integrity check logic.
+    Validates local stimulus files against expected checksums.
     
     Returns:
-        Tuple[bool, Dict]: (is_valid, report_dict)
+        Tuple[success, report_dict]
+        - success: True if all checks pass, False otherwise.
+        - report_dict: Contains details of the check.
     """
-    stimulus_dir = project_root / "data" / STIMULUS_SUBDIR
-    metadata_path = project_root / "data" / STIMULUS_SUBDIR / METADATA_FILENAME
-    stimulus_path = stimulus_dir / stimulus_filename
-
     report = {
-        "timestamp": get_timestamp(),
-        "stimulus_file": str(stimulus_path),
-        "metadata_file": str(metadata_path),
-        "canonical_source": None,
-        "canonical_checksum": None,
-        "local_checksum": None,
-        "status": "UNKNOWN",
-        "error": None
+        "simulation_mode": simulation_mode,
+        "checks_performed": [],
+        "errors": [],
+        "status": "UNKNOWN"
     }
 
-    # 1. Compute local checksum
-    local_checksum = compute_local_checksum(stimulus_path)
-    report["local_checksum"] = local_checksum
-
-    if local_checksum is None:
-        report["status"] = "FAIL_FILE_NOT_FOUND"
-        log_error(f"Stimulus integrity check FAILED: File not found at {stimulus_path}")
-        return False, report
-
-    # 2. Fetch canonical checksum
-    canonical_checksum = fetch_canonical_checksum_from_metadata(metadata_path)
-    
-    if canonical_checksum:
-        report["canonical_source"] = "local_metadata"
-        report["canonical_checksum"] = canonical_checksum
-    else:
-        log_info("Local metadata checksum not found. Attempting GitHub fallback.")
-        canonical_checksum = fetch_canonical_checksum_from_github()
-        if canonical_checksum:
-            report["canonical_source"] = "github_release"
-            report["canonical_checksum"] = canonical_checksum
-        else:
-            report["status"] = "FAIL_NO_CANONICAL"
-            log_error("Stimulus integrity check FAILED: Could not fetch canonical checksum from any source.")
-            return False, report
-
-    # 3. Compare
-    if local_checksum == canonical_checksum:
-        report["status"] = "PASS"
-        log_info(f"Stimulus integrity check PASSED. Checksum: {local_checksum}")
+    if simulation_mode:
+        log_info("SIMULATION_MODE is True. Skipping stimulus integrity check.")
+        report["status"] = "SKIPPED_SIMULATION"
+        report["checks_performed"].append("SKIPPED_STIMULUS_CHECK_SIMULATION")
         return True, report
-    else:
-        report["status"] = "FAIL_MISMATCH"
-        report["error"] = "ERR_STIMULUS_CORRUPT"
-        log_error(f"ERR_STIMULUS_CORRUPT: Checksum mismatch for {stimulus_filename}")
-        log_error(f"  Expected: {canonical_checksum}")
-        log_error(f"  Found:    {local_checksum}")
+
+    if not stimuli_dir.exists():
+        msg = f"Stimuli directory does not exist: {stimuli_dir}"
+        log_error(msg)
+        report["errors"].append({"type": "ERR_STIMULUS_MISSING", "message": msg})
+        report["status"] = "FAILED"
         return False, report
 
+    missing_files = []
+    corrupt_files = []
+    
+    for filename, expected_hash in expected_checksums.items():
+        file_path = stimuli_dir / filename
+        
+        if not file_path.exists():
+            msg = f"Stimulus file missing: {filename}"
+            log_error(msg)
+            missing_files.append(filename)
+            report["errors"].append({"type": "ERR_STIMULUS_MISSING", "file": filename, "message": msg})
+            report["checks_performed"].append(f"MISSING_{filename}")
+            continue
 
-def save_report(report: Dict[str, Any], output_path: Path):
+        try:
+            actual_hash = compute_local_checksum(file_path)
+            report["checks_performed"].append(f"VERIFIED_{filename}")
+            
+            if actual_hash != expected_hash:
+                msg = f"Checksum mismatch for {filename}: expected {expected_hash}, got {actual_hash}"
+                log_error(msg)
+                corrupt_files.append(filename)
+                report["errors"].append({"type": "ERR_STIMULUS_CORRUPT", "file": filename, "message": msg})
+            else:
+                log_info(f"Stimulus integrity verified: {filename}")
+                report["checks_performed"].append(f"OK_{filename}")
+        except Exception as e:
+            msg = f"Error reading checksum for {filename}: {str(e)}"
+            log_error(msg)
+            report["errors"].append({"type": "ERR_STIMULUS_READ", "file": filename, "message": msg})
+
+    if missing_files:
+        log_error(f"Critical: {len(missing_files)} stimulus files missing.")
+        report["status"] = "FAILED_MISSING"
+        return False, report
+
+    if corrupt_files:
+        log_error(f"Critical: {len(corrupt_files)} stimulus files corrupted.")
+        report["status"] = "FAILED_CORRUPT"
+        return False, report
+
+    log_info("All stimulus files verified successfully.")
+    report["status"] = "PASSED"
+    return True, report
+
+def save_report(report: Dict[str, Any], output_path: Path) -> None:
     """
-    Save the integrity check report to a JSON file.
+    Saves the integrity check report to data/results/stimulus_integrity_report.json.
     """
-    ensure_dirs([output_path.parent])
+    ensure_dirs(output_path)
     with open(output_path, 'w', encoding='utf-8') as f:
         json.dump(report, f, indent=2)
     log_info(f"Integrity report saved to {output_path}")
 
-
-def main():
+def main() -> int:
     """
-    Entry point for the script.
+    Main entry point for Task T015.
     """
-    # Setup logging
-    logger = setup_logging("task_t015", log_level=logging.INFO)
-    
-    # Get configuration
     config = get_config()
-    project_root = Path(config.get("project_root", "."))
+    data_root = Path(config.get("data_root", "data"))
+    stimuli_dir = data_root / "stimuli"
+    metadata_path = data_root / "raw" / "metadata.json"
+    output_path = data_root / "results" / "stimulus_integrity_report.json"
     
-    # Determine stimulus filename from config or default
-    stimulus_filename = get_env_str("STIMULUS_FILENAME", "nostalgia_stimuli_v1.zip")
+    simulation_mode = get_env_bool("SIMULATION_MODE", default=False)
     
-    log_info(f"Starting stimulus integrity check for: {stimulus_filename}")
-    
-    is_valid, report = check_integrity(project_root, stimulus_filename)
-    
-    # Save report
-    output_path = Path(project_root) / "data" / "processed" / "stimulus_integrity_log.json"
+    logger.info("Starting Task T015: Stimulus Integrity Check")
+    logger.info(f"Simulation Mode: {simulation_mode}")
+
+    try:
+        # Fetch expected checksums
+        expected_checksums = fetch_canonical_checksum_from_metadata(metadata_path)
+        logger.info(f"Loaded {len(expected_checksums)} expected checksums from metadata.")
+    except FileNotFoundError as e:
+        log_error(f"Metadata file not found. Cannot proceed: {e}")
+        # If metadata is missing, we cannot verify, but this might be expected in early dev.
+        # However, per task spec, we should halt if we can't verify in non-sim mode.
+        if not simulation_mode:
+            return 1
+        else:
+            # In sim mode, just report skipped
+            report = {
+                "simulation_mode": True,
+                "status": "SKIPPED_SIMULATION",
+                "errors": [{"type": "ERR_METADATA_MISSING", "message": str(e)}]
+            }
+            save_report(report, output_path)
+            return 0
+    except KeyError as e:
+        log_error(f"Metadata malformed: {e}")
+        return 1
+
+    success, report = check_integrity(stimuli_dir, expected_checksums, simulation_mode)
+
     save_report(report, output_path)
-    
-    if not is_valid:
-        log_error("Stimulus integrity check completed with errors. See log for details.")
-        # Exit with non-zero code to indicate failure
+
+    if not success:
+        logger.error("Stimulus integrity check FAILED. Halting pipeline.")
         return 1
     
-    log_info("Stimulus integrity check completed successfully.")
+    logger.info("Stimulus integrity check PASSED.")
     return 0
-
 
 if __name__ == "__main__":
     exit(main())
