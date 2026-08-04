@@ -14,3 +14,5 @@ pyarrow
 # New dependency for schema validation if not already present
 # pyyaml is already listed
 # pyarrow for parquet support in pandas
+python-dotenv  # auto-added: imported by run-book but missing from venv
+urllib3  # auto-added: imported by run-book but missing from venv

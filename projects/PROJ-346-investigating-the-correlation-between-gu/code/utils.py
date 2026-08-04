@@ -1,123 +1,159 @@
+"""
+Shared utilities for the Gut Microbiome and Cognitive Flexibility project.
+"""
+
 import logging
 import sys
 import os
 import time
 import json
 import hashlib
-from pathlib import Path
-from typing import Dict, Any, Optional
 import requests
-from requests.adapters import HTTPAdapter
-from urllib3.util.retry import Retry
+from pathlib import Path
+from typing import Optional, Dict, Any
+import numpy as np
 
 # Constants
 READ_THRESHOLD = 10000
 ABUNDANCE_FILTER = 0.001
-AGE_STRATA = {
-    "young": "<40",
-    "middle": "40-60",
-    "old": ">=60"
-}
+AGE_STRATA = {'young': '<40', 'middle': '40-60', 'senior': '>=60'}
 
-def get_project_root_path() -> Path:
-    """Return the project root directory."""
-    # Assuming the code is run from the project root or code directory
-    current_file = Path(__file__).resolve()
-    return current_file.parent.parent
-
-def get_code_path() -> Path:
-    """Return the code directory path."""
-    return get_project_root_path() / "code"
-
-def get_data_path() -> Path:
-    """Return the data directory path."""
-    return get_project_root_path() / "data"
-
-def get_data_raw_path() -> Path:
-    """Return the raw data directory path."""
-    return get_data_path() / "raw"
-
-def get_data_processed_path() -> Path:
-    """Return the processed data directory path."""
-    return get_data_path() / "processed"
-
-def get_data_qc_path() -> Path:
-    """Return the QC data directory path."""
-    return get_data_path() / "qc"
-
-def get_specs_path() -> Path:
-    """Return the specs directory path."""
-    return get_project_root_path() / "specs"
-
-def get_contracts_path() -> Path:
-    """Return the contracts directory path."""
-    return get_project_root_path() / "contracts"
-
-def get_figures_path() -> Path:
-    """Return the figures directory path."""
-    return get_project_root_path() / "figures"
-
-def ensure_directory(path: Path) -> None:
-    """Ensure a directory exists, creating it if necessary."""
-    path.mkdir(parents=True, exist_ok=True)
-
-def setup_logger(name: str, level: int = logging.INFO) -> logging.Logger:
-    """Set up and return a logger with standard formatting."""
+# Logger setup
+def setup_logger(name, level=logging.INFO):
     logger = logging.getLogger(name)
+    if logger.handlers:
+        return logger
     logger.setLevel(level)
-    
-    if not logger.handlers:
-        handler = logging.StreamHandler(sys.stdout)
-        formatter = logging.Formatter(
-            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-        )
-        handler.setFormatter(formatter)
-        logger.addHandler(handler)
-    
+    handler = logging.StreamHandler(sys.stdout)
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
     return logger
 
-def get_logger(name: str) -> logging.Logger:
-    """Get an existing logger or create a new one."""
-    return logging.getLogger(name)
+logger = setup_logger("utils")
 
-def write_json_log(data: Dict[str, Any], file_path: Path) -> None:
-    """Write a dictionary to a JSON file."""
-    ensure_directory(file_path.parent)
-    with open(file_path, 'w', encoding='utf-8') as f:
-        json.dump(data, f, indent=2)
+def get_project_root_path():
+    """Returns the absolute path to the project root."""
+    # Assume script is in code/ or code/subdir/
+    current = Path(__file__).resolve()
+    return current.parent.parent
 
-def read_json_log(file_path: Path) -> Dict[str, Any]:
-    """Read a JSON file and return its contents."""
-    with open(file_path, 'r', encoding='utf-8') as f:
-        return json.load(f)
+def get_code_path():
+    """Returns the path to the code directory."""
+    return get_project_root_path() / "code"
 
-def validate_dataframe_columns(df, required_columns: list) -> bool:
-    """Validate that a DataFrame contains all required columns."""
-    return all(col in df.columns for col in required_columns)
+def get_data_path():
+    """Returns the path to the data directory."""
+    return get_project_root_path() / "data"
 
-def sanitize_url(url: str) -> str:
-    """Sanitize a URL string."""
-    # Basic sanitization to prevent injection
-    allowed_schemes = ['http', 'https']
-    if not url.startswith(tuple(f'{s}://' for s in allowed_schemes)):
-        raise ValueError(f"Invalid URL scheme: {url}")
-    return url
+def get_data_raw_path():
+    """Returns the path to the raw data directory."""
+    return get_data_path() / "raw"
 
-def sanitize_file_path(path: str) -> str:
-    """Sanitize a file path string."""
-    # Remove potentially dangerous characters
-    dangerous_chars = ['<', '>', ':', '"', '|', '?', '*']
-    for char in dangerous_chars:
-        path = path.replace(char, '')
+def get_data_processed_path(*args, **kwargs):
+    """
+    Returns the path to the processed data directory.
+    Accepts flexible arguments to satisfy various call signatures across the project.
+    
+    Call signatures observed:
+    - get_data_processed_path()
+    - get_data_processed_path(root)
+    - get_data_processed_path(root, sub_dir)
+    """
+    root = get_project_root_path()
+    
+    # Handle positional arguments if passed (e.g., from code/03_correlation.py)
+    if args:
+        # If first arg is a Path or string, treat as root override
+        if isinstance(args[0], (str, Path)):
+            root = Path(args[0])
+        # If second arg is provided, treat as subdirectory
+        if len(args) > 1:
+            return root / "data" / "processed" / args[1]
+    
+    # Handle keyword arguments if passed
+    if 'root' in kwargs:
+        root = Path(kwargs['root'])
+    if 'sub_dir' in kwargs:
+        return root / "data" / "processed" / kwargs['sub_dir']
+    
+    return root / "data" / "processed"
+
+def get_data_qc_path():
+    """Returns the path to the QC data directory."""
+    return get_project_root_path() / "data" / "qc"
+
+def get_specs_path():
+    """Returns the path to the specs directory."""
+    return get_project_root_path() / "specs"
+
+def get_contracts_path():
+    """Returns the path to the contracts directory."""
+    return get_project_root_path() / "contracts"
+
+def get_figures_path():
+    """Returns the path to the figures directory."""
+    return get_project_root_path() / "figures"
+
+def ensure_directory(path):
+    """Creates a directory if it does not exist."""
+    path = Path(path)
+    if not path.exists():
+        path.mkdir(parents=True, exist_ok=True)
     return path
 
-def get_retry_session(retries: int = 3, backoff_factor: float = 0.5) -> requests.Session:
-    """Create a requests session with retry logic."""
+def filter_low_read_samples(df, column='read_count', threshold=READ_THRESHOLD):
+    """Filters out samples with read counts below the threshold."""
+    return df[df[column] >= threshold]
+
+def filter_rare_taxa(df, column='relative_abundance', threshold=ABUNDANCE_FILTER):
+    """Filters out taxa with relative abundance below the threshold."""
+    return df[df[column] >= threshold]
+
+def get_age_group(age, strata=AGE_STRATA):
+    """Categorizes age into predefined strata."""
+    if age < 40:
+        return strata['young']
+    elif age < 60:
+        return strata['middle']
+    else:
+        return strata['senior']
+
+def write_json_log(data, path):
+    """Writes data to a JSON log file."""
+    ensure_directory(path)
+    with open(path, 'w') as f:
+        json.dump(data, f, indent=2)
+
+def read_json_log(path):
+    """Reads data from a JSON log file."""
+    if not os.path.exists(path):
+        return {}
+    with open(path, 'r') as f:
+        return json.load(f)
+
+def sanitize_url(url):
+    """Sanitizes a URL string."""
+    # Basic sanitization to prevent injection
+    if not url.startswith(('http://', 'https://')):
+        raise ValueError("Invalid URL scheme")
+    return url
+
+def sanitize_file_path(path):
+    """Sanitizes a file path string."""
+    p = Path(path)
+    if '..' in p.parts:
+        raise ValueError("Invalid path: contains '..'")
+    return p
+
+def get_retry_session(max_retries=3, backoff_factor=0.5):
+    """Returns a requests Session with retry logic."""
     session = requests.Session()
+    from requests.adapters import HTTPAdapter
+    from urllib3.util.retry import Retry
+    
     retry = Retry(
-        total=retries,
-        read=retries,
-        connect=retries,
+        total=max_retries,
         backoff_factor=backoff_factor,
         status_forcelist=[429, 500, 502, 503, 504]
     )
@@ -126,39 +162,29 @@ def get_retry_session(retries: int = 3, backoff_factor: float = 0.5) -> requests
     session.mount("https://", adapter)
     return session
 
-def load_data_with_retry(url: str, timeout: int = 30) -> bytes:
-    """Load data from a URL with retry logic."""
-    session = get_retry_session()
-    try:
-        response = session.get(url, timeout=timeout)
-        response.raise_for_status()
-        return response.content
-    except requests.RequestException as e:
-        logger = get_logger("utils")
-        logger.error(f"Failed to load data from {url} after retries: {e}")
-        raise
+def load_data_with_retry(url, session=None, timeout=30):
+    """Loads data from a URL with retry logic."""
+    if session is None:
+        session = get_retry_session()
+    
+    for attempt in range(3):
+        try:
+            response = session.get(url, timeout=timeout)
+            response.raise_for_status()
+            return response
+        except requests.RequestException as e:
+            if attempt == 2:
+                raise
+            time.sleep(2 ** attempt)
 
-def compute_file_hash(file_path: Path, algorithm: str = 'sha256') -> str:
-    """Compute the hash of a file."""
-    hash_func = hashlib.new(algorithm)
-    with open(file_path, 'rb') as f:
-        for chunk in iter(lambda: f.read(4096), b""):
-            hash_func.update(chunk)
-    return hash_func.hexdigest()
+def compute_file_hash(path, algorithm='sha256'):
+    """Computes the hash of a file."""
+    h = hashlib.new(algorithm)
+    with open(path, 'rb') as f:
+        while chunk := f.read(8192):
+            h.update(chunk)
+    return h.hexdigest()
 
-def filter_low_read_samples(df, read_column: str, threshold: int = READ_THRESHOLD):
-    """Filter out samples with read counts below threshold."""
-    return df[df[read_column] >= threshold]
-
-def filter_rare_taxa(df, abundance_column: str, threshold: float = ABUNDANCE_FILTER):
-    """Filter out taxa with abundance below threshold."""
-    return df[df[abundance_column] >= threshold]
-
-def get_age_group(age: float) -> str:
-    """Categorize age into predefined strata."""
-    if age < 40:
-        return AGE_STRATA["young"]
-    elif age < 60:
-        return AGE_STRATA["middle"]
-    else:
-        return AGE_STRATA["old"]
+def get_logger(name):
+    """Returns a logger instance."""
+    return logging.getLogger(name)

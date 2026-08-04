@@ -11,14 +11,6 @@ T010a:
     repository, so the integration tests for `test_linkage_failure_detection` and
     `test_gap_report_trigger` are missing. The task cannot be considered completed
     until this file is added with the specified tests.
-T015:
-  c: false
-  h: 392fffb22cb49b6c6127f98e65760d8f7e45d521a12572e9fc52f8516ca7c63a
-  r: "The repository contains `code/02_preprocess.py`, but the required output file\
-    \ `data/qc/filtering_log.json` does not exist, indicating that the outlier\u2011\
-    filtering step is not logging to the specified location (or the logging code is\
-    \ missing/incomplete). Without this log file, the task\u2019s requirement is not\
-    \ fulfilled."
 T020:
   c: false
   h: ea0a908338222d8597ae90b3617458b6cde9c3b0d75575748cd3a6e3851d0e80
@@ -26,14 +18,6 @@ T020:
     \ repository, so no unit test for the LASSO/Elastic Net regression is present.\
     \ The implementer must add a non\u2011empty test file at that location that validates\
     \ the regression functionality."
-T023:
-  c: false
-  h: d67cd91a5b8b72733b8de714a8a8dc023859427a1215f35c2fa85fce4690012d
-  r: "The repository lacks `data/processed/merged_dataset.parquet`, and `code/04_regression.py`\
-    \ raises a `FileNotFoundError` instead of detecting the missing file, skipping\
-    \ execution, and logging \u201CN/A - Data Gap\u201D. Moreover, the visible portion\
-    \ of the script does not show any LASSO/Elastic Net fitting logic, so the required\
-    \ regression implementation is absent."
 T025:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -49,21 +33,20 @@ T026:
     to persist those results with metadata\u2014is therefore unmet."
 T029:
   c: false
-  h: ddd96ceb1de8ceb56aa046e7e2fb16474d01b4a939603f3e596e767cd1b2235e
-  r: "The `code/05_sensitivity.py` file exists and checks for `data/processed/merged_dataset.parquet`,\
-    \ but the provided excerpt stops inside `apply_rarefaction` and never shows any\
-    \ computation of Spearman correlations stratified by the three age groups. Without\
-    \ the correlation\u2011by\u2011age\u2011group logic, the script does not fulfill\
-    \ the core requirement of the task. The implementer must add the analysis that\
-    \ groups samples by age (<40, 40\u2011<60, \u226560) and computes the correlations\
-    \ for each group (or confirm that such code is present beyond the truncated view)."
+  h: 985b9f7455542149cd6c2bc1a0efe488caa966f2f144a43992981edf9e92f4d2
+  r: "The provided `code/05_sensitivity.py` does not contain any logic that computes\
+    \ or stratifies correlations by the required age groups (<40,\u202F\u226540\u2011\
+    <60,\u202F\u226560); the visible portion only loads data and simulates rarefaction,\
+    \ and the file is labeled for a different task (T030). Consequently, the core\
+    \ requirement of FR\u2011006 is not fulfilled. The script must be extended to\
+    \ calculate correlations and split them by the three age brackets."
 T030:
   c: false
-  h: ddd96ceb1de8ceb56aa046e7e2fb16474d01b4a939603f3e596e767cd1b2235e
-  r: "The `code/05_sensitivity.py` file exists but the visible portion only loads\
-    \ the merged dataset, defines age groups, and begins a rarefaction helper; it\
-    \ never implements the DESeq2 normalization or the required comparison of significant\
-    \ taxa counts between DESeq2 and rarefaction. Moreover, the required input file\
-    \ `data/processed/merged_dataset.parquet` is absent, so the script cannot actually\
-    \ run the analysis even in the \u201Cskip if missing\u201D scenario. The core\
-    \ functionality the task demanded is missing."
+  h: 985b9f7455542149cd6c2bc1a0efe488caa966f2f144a43992981edf9e92f4d2
+  r: "The provided `code/05_sensitivity.py` is present but ends abruptly (truncated)\
+    \ and does not contain any logic to perform DESeq2 normalization, identify significant\
+    \ taxa, count them, or generate the required delta table/report. Only a placeholder\
+    \ rarefaction function and a data\u2011gap check are shown, so the core requirement\
+    \ of comparing significant taxa counts across methods is not fulfilled. The script\
+    \ needs the missing implementation (DESeq2 processing, significance testing, and\
+    \ output generation)."

@@ -1,0 +1,16 @@
+status: none
+intent: download American Gut Project Qiita 10313 UK Biobank NHANES cognitive dataset
+  python package dataset
+required_fields:
+- sample_id
+- read_count
+- taxa_abundance_matrix
+- age
+- sex
+- bmi
+- cognitive_flexibility_score
+- cognitive_score_z
+- collection_date
+cache_key: 9e284fe5033bdbbf487537b9daaa52a76f0d17c4e52ac9f1c8b1801b095f1bfd
+searched_at: '2026-08-04T12:12:30.688104+00:00'
+retry_count: 1
