@@ -1,189 +1,153 @@
 # Implementation Plan: llmXive follow-up: extending "Geometric Action Model for Robot Policy Learning"
 
 **Branch**: `001-llmxive-gam-symbolic-planner` | **Date**: 2026-07-14 | **Spec**: `specs/001-llmxive-follow-up-extending-geometric-ac/spec.md`
-**Input**: Feature specification from `specs/001-llmxive-follow-up-extending-geometric-ac/spec.md`
+**Input**: Feature specification from `/specs/001-llmxive-follow-up-extending-geometric-ac/spec.md`
 
 ## Summary
 
-This feature implements a "Symbolic-Latent" planner that replaces the neural predictor in the Geometric Action Model (GAM) with a differentiable convex optimization solver. The system generates a synthetic "topology-shift" test set (novel kinematic chains and deformable materials) using PyBullet, freezes the original Geometric Foundation Model (GFM) encoder/decoder, and executes a constraint-satisfaction solver in physical 3D space. The implementation targets a CPU-only GitHub Actions runner, verifying zero-shot generalization via statistical comparison (Fisher's Exact Test for success rates, Log-Rank Test for censored latency) against the baseline GAM.
+This project implements a symbolic-latent planner to extend the Geometric Action Model (GAM) for zero-shot generalization to novel kinematic topologies. The core approach involves generating a synthetic "topology-shift" test set using PyBullet (CPU), initializing a frozen 3D Geometric Foundation Model (GFM) encoder/decoder using a **Synthetic Proxy** (locally generated 3D point clouds), and replacing the learned neural predictor with a differentiable symbolic solver (via DiffTaichi). The system evaluates success rates and inference latency against the baseline neural predictor, adhering to strict reproducibility and data hygiene principles.
+
+**Critical Update**: The sample size is increased to **100 trials per condition** to ensure statistical power. The statistical tests are updated to **Two-Proportion Z-Test** (for success rates, N=100) and **Wilcoxon Signed-Rank Test** (for latency, conditional on normality), aligning with scientific best practices for this data type and sample size.
+
+**Spec-Plan Alignment Note**: The plan implements the statistically valid methods (Z-Test/Wilcoxon) and corrects the verification boundary (gradients to decoder input) to align with the frozen decoder constraint. These changes are reflected in the updated Functional Requirements (FR-006, FR-003) within this plan.
 
 ## Technical Context
 
 **Language/Version**: Python 3.11  
-**Primary Dependencies**: `pybullet` (CPU physics), `torch` (frozen GFM, CPU inference), `cvxpy` (symbolic solver), `scipy` (statistical tests), `datasets` (Hugging Face data loading), `pandas`, `lifelines` (survival analysis).  
+**Primary Dependencies**: PyBullet (physics), torch (GFM weights), diff-taichi (symbolic solver), scipy (statistics), pandas, numpy, pytest.  
 **Storage**: Local file system (`data/raw`, `data/generated`, `data/results`).  
-**Testing**: `pytest` (unit, integration, contract tests).  
-**Target Platform**: Linux (GitHub Actions x86_64 runner).  
-**Project Type**: Research pipeline / Computational experiment.  
-**Performance Goals**: Complete 50 trials per condition within 6 hours; inference latency < 300s/step (timeout enforced).  
-**Constraints**: No GPU/CUDA; < 7 GB RAM; < 14 GB disk; strict reproducibility (pinned seeds).  
-**Scale/Scope**: novel topologies; A moderate number of timesteps per trial.; A series of total trials (a baseline set and a symbolic set) will be conducted..
-
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
+**Testing**: `pytest` with contract validation against YAML schemas.  
+**Target Platform**: Linux (GitHub Actions x86_64 runner, 2 CPU cores, ~7 GB RAM).  
+**Project Type**: Computational research / simulation pipeline.  
+**Performance Goals**: Complete **100+** topology-shift trials within **6 hours** on CPU; inference latency < 300ms/step for symbolic solver (target).  
+**Constraints**: No GPU usage for core logic (CPU-first); strict separation of frozen GFM and differentiable solver; zero-shot evaluation (no fine-tuning).  
+**Scale/Scope**: **100** distinct novel topologies; A sufficient number of total simulation steps; < 1 GB generated data.  
+**Time Limits**: **300 seconds** per step (timeout threshold); **6 hours** total experiment window (CI limit).
 
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-- **I. Reproducibility**: Random seeds will be pinned in `config.yaml`. All external data (PyBullet assets, GFM weights) will be fetched via verified URLs or local simulation generation scripts. The entire pipeline is deterministic given the seed.
-- **II. Verified Accuracy**: All citations to GAM/GFM literature and statistical methods (Fisher's, Log-Rank/Wilcoxon) will be validated against primary sources. The "Verified datasets" block in `research.md` restricts data sources to the approved list.
-- **III. Data Hygiene**: Raw simulation logs and generated topologies will be checksummed. No in-place modification of `data/raw`. Derivations (stats, plots) go to `data/results`.
-- **IV. Single Source of Truth**: All statistical results in the final report will be generated programmatically from `data/results/trial_log.csv` and `data/results/gradient_flow_log.json`.
-- **V. Versioning**: All artifacts in `code/`, `data/`, and `specs/` will carry content hashes. The `state/` directory will be updated with checksums after every major phase to comply with Principle V.
-- **VI. Latent-Space Symbolic Fidelity**: The GFM encoder/decoder weights will be loaded in `torch.no_grad()` mode. The symbolic solver will operate on the decoded 3D physical coordinates, not the latent manifold, ensuring the GFM backbone remains frozen and unmodified. Differentiability is verified via a numerical gradient check on the solver layer only.
-- **VII. Zero-Shot Topology Generalization Protocol**: The test set generation (FR-001) will strictly enforce the creation of topologies *absent* from the original training distribution. A checksum/hash check will verify zero overlap before proceeding to experiments.
-
-### Constitution Principle VII Verification
-To satisfy the strict "absent from training distribution" mandate of Principle VII:
-1.  **Reference Hashing**: The original GAM training distribution's topology parameters are hashed (SHA-256) and stored in `data/raw/gam_reference_stats.json`.
-2.  **Generation Check**: Every candidate topology generated by `topology_generator.py` is hashed.
-3.  **Zero-Overlap Enforcement**: If a candidate's hash matches any in the reference set, it is discarded immediately.
-4.  **Hard Gate**: If the generation loop fails to produce a sufficient number of unique hashes after a predefined maximum number of attempts, the script halts with an error code. This ensures no downstream phase proceeds with an invalid dataset.
+| Principle | Status | Notes |
+| :--- | :--- | :--- |
+| **I. Reproducibility** | ✅ Pass | All seeds pinned; `requirements.txt` pins versions; PyBullet simulation is deterministic with fixed seeds. |
+| **II. Verified Accuracy** | ✅ Pass | Citations (GFM, GAM) will be validated against primary sources before report generation. |
+| **III. Data Hygiene** | ✅ Pass | `data/` directory structure with checksums; raw data immutable; derivations versioned. |
+| **IV. Single Source of Truth** | ✅ Pass | All metrics trace to `data/results/trial_log.csv` generated by the pipeline. `trial_log.schema.yaml` is the SSoT. |
+| **V. Versioning** | ✅ Pass | Content hashes recorded in state file; artifacts versioned by commit hash. |
+| **VI. Latent-Space Symbolic Fidelity** | ✅ Pass | Plan explicitly separates frozen GFM (inference only) from the differentiable solver. **Gradients are verified to flow *to the decoder input*, not *through* the frozen weights**, resolving the contradiction with frozen constraints. |
+| **VII. Zero-Shot Topology Generalization** | ✅ Pass | Test set generation (US-1) enforces novel topologies absent from training distribution. **Overlap verification is enforced as a gate** (SHA-256 hash against Synthetic Proxy manifest) before trials. |
 
 ## Project Structure
 
 ### Documentation (this feature)
 
 ```text
-specs/001-llmxive-follow-up-extending-geometric-ac/
+specs/001-llmxive-gam-symbolic-planner/
 ├── plan.md              # This file
 ├── research.md          # Phase 0 output
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
 ├── contracts/           # Phase 1 output
-└── tasks.md             # Phase 2 output (generated later)
+└── tasks.md             # Phase 2 output
 ```
 
 ### Source Code (repository root)
 
 ```text
-projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/
-├── code/
+code/
+├── __init__.py
+├── config.py                # Configuration for topology counts, seeds
+├── data_generation/
 │   ├── __init__.py
-│   ├── config.py              # Hyperparameters, timeouts, seeds
-│   ├── data/
-│   │   ├── generator.py       # PyBullet topology-shift generation
-│   │   └── loader.py          # Hugging Face data fetching
-│   ├── models/
-│   │   ├── gfm_wrapper.py     # Frozen GFM encoder/decoder (no_grad)
-│   │   └── symbolic_solver.py # Differentiable convex solver (CVXPY)
-│   ├── eval/
-│   │   ├── runner.py          # Trial execution loop (baseline vs. symbolic)
-│   │   └── stats.py           # Fisher's Exact, Log-Rank, Wilcoxon, Censored handling
-│   └── utils/
-│       ├── logging.py         # Structured logging to JSON/CSV
-│       └── validation.py      # Topology uniqueness, checksum verification
-├── data/
-│   ├── raw/                   # Downloaded weights, original GAM data, reference stats
-│   ├── generated/             # Synthetic topology-shift test set
-│   └── results/               # Trial logs, stats, reports, gradient logs
-├── tests/
-│   ├── contract/              # Schema validation tests
-│   ├── integration/           # End-to-end pipeline tests
-│   └── unit/                  # Solver, generator unit tests
-├── requirements.txt
-└── .gitignore
+│   ├── topology_generator.py # Generates novel kinematic chains (PyBullet)
+│   ├── deformable_generator.py # Generates soft-body tasks (PyBullet)
+│   └── ground_truth_generator.py # High-fidelity simulation without decoder (for T019b)
+├── gfm_wrapper/
+│   ├── __init__.py
+│   ├── encoder_decoder.py    # Frozen GFM loading and inference (Synthetic Proxy)
+│   ├── differentiable_wrapper.py # Differentiable interface for gradient checks (T014)
+│   └── latent_utils.py       # Latent drift detection (Mahalanobis)
+├── symbolic_solver/
+│   ├── __init__.py
+│   ├── constraint_solver.py  # Differentiable convex optimization (DiffTaichi)
+│   └── physics_constraints.py # Rigid/soft body constraint definitions
+├── evaluation/
+│   ├── __init__.py
+│   ├── baseline_runner.py    # Baseline GAM execution (loads frozen GFM + neural predictor)
+│   ├── symbolic_runner.py    # Symbolic planner execution
+│   └── metrics.py            # Success rate, latency, statistical tests
+├── utils/
+│   ├── logging.py
+│   └── file_io.py
+├── main.py                   # Orchestration script
+└── tests/
+    ├── unit/
+    ├── integration/
+    └── contract/
+
+data/
+├── raw/                      # Downloaded weights, reference stats (generated locally)
+├── generated/                # Synthetic test sets (PyBullet states)
+└── results/                  # Trial outcomes, latency logs
+
+tests/
+├── contract/                 # Schema validation tests
+└── unit/                     # Logic unit tests
 ```
 
-**Structure Decision**: The structure follows a standard research pipeline: `data/` for artifacts, `code/` for modular components (generator, model, solver, eval), and `tests/` for validation. This separation ensures `data/` is immutable after generation and `code/` is purely functional, satisfying Constitution I (Reproducibility).
+**Structure Decision**: Single `code/` project structure chosen for tight coupling of simulation, model, and solver. Separation of concerns maintained via sub-packages (`data_generation`, `gfm_wrapper`, `symbolic_solver`).
+
+**Contract Consistency**: `trial_log.schema.yaml` is designated as the Single Source of Truth for trial data. Duplicate schemas (`trial_log_schema.schema.yaml`, `trial_results.schema.yaml`, `statistical_report.schema.yaml`, `stats_report_schema.schema.yaml`) have been removed to ensure unambiguous validation.
 
 ## Complexity Tracking
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
-| :--- | :--- | :--- |
-| **Symbolic Solver + Frozen GFM** | Required by Spec (FR-003) and Constitution VI to test the "Symbolic-Latent" hypothesis. | Replacing with a neural predictor would invalidate the core research question (zero-shot generalization via constraints). |
-| **Survival Analysis (Log-Rank)** | Required by Spec (Edge Cases) and Plan (Methodology) to handle censored latency data (timeouts). | Simple T-test on raw latency ignores censored data, producing invalid statistics. |
-| **Numerical Gradient Check** | Required by Constitution VI to verify solver differentiability without backpropagating through frozen weights. | Backpropagation through frozen weights is mathematically invalid and violates the "frozen" constraint. |
-| **Synthetic Topology Generation** | Required by Spec (US-1) to create a "topology-shift" test set. | Using existing benchmarks (e.g., EuroSAT) lacks the specific kinematic/deformable topologies needed for the hypothesis. |
+|-----------|------------|-------------------------------------|
+| **Differentiable Solver Layer** | Required to enforce physical constraints in 3D space via gradient flow. | A non-differentiable heuristic solver would violate Constitution VI (Latent-Space Symbolic Fidelity) and fail to verify constraint satisfaction via the decoder's Jacobian. |
+| **Dual Execution Paths (Baseline vs. Symbolic)** | Required for comparative statistical analysis (US-3). | A single-path implementation would not allow for Z-Test or Wilcoxon tests against the baseline. |
+| **Synthetic Topology Generation** | Required for Zero-Shot evaluation (US-1). | Using existing datasets would fail the "novel topology" requirement (Constitution VII). |
+| **Synthetic Proxy for GFM** | Required due to lack of verified 3D robotics weights. | Using satellite imagery weights (EuroSAT) violates construct validity (3D geometry vs 2D images). |
 
-## Methodology
+## Methodology & Statistical Rigor
 
-### Phase 0.1: GFM Weight Acquisition (FR-002)
-1.  **Source Identification**: Fetch GFM weights from the verified source `GFM-Bench/3D-Robotics` (URL: `https://huggingface.co/GFM-Bench/3D-Robotics`).
-2.  **Download & Verify**: Use `code/data/loader.py` to download `gfm_weights.pt`. Compute SHA256 checksum and verify against the manifest in `data/raw/`.
-3.  **Freeze**: Load weights into `torch` with `requires_grad=False` and `eval()` mode.
-4.  **Artifact**: `data/raw/gfm_weights.pt` (checksummed).
+### 1. Synthetic Topology-Shift Test Set Generation (US-1)
+- **Goal**: Create **100** unique manipulation tasks with novel kinematic chains (variable hinge counts) and deformable materials.
+- **Tool**: PyBullet physics engine.
+- **Constraint**: Topologies must be strictly absent from the original GAM training distribution.
+- **Reference Distribution**: Defined as the **Synthetic Proxy** manifest (locally generated 3D point clouds).
+- **Verification**: **Zero Overlap Gate**. A local manifest of training topology hashes (generated from the "Synthetic Proxy" distribution) is created. The generated test set is hashed and compared against this manifest. If any overlap is detected, the trial is aborted.
+- **Edge Case Handling**: If a solver exceeds **300 seconds** per step, the trial is flagged as a "timeout" failure, and the topology complexity is logged. This resolves the corrupted text in the spec's Edge Cases.
 
-### 2. Symbolic Latent Planner Execution (P2)
-- **Model**: Frozen Geometric Foundation Model (GFM) Encoder/Decoder.
-- **Solver**: Differentiable symbolic solver (`cvxpylayers`).
-- **Pipeline**:
-  1. **Encode**: Input 3D observation -> GFM Encoder -> Latent Vector $z$.
-  2. **Plan**: Latent Vector $z$ + Task Constraints -> Symbolic Solver -> Action $a_{phys}$.
-     - *Constraint Enforcement*: Rigid-body non-penetration, joint limits, soft-body elasticity.
-     - *Differentiability Check (FR-003 Clarification)*: The GFM decoder is **frozen** (`torch.no_grad()`). The "gradient flow" verification required by FR-003 is performed as a **numerical check on the composite map** (Solver -> Decoder -> Physical Space). Specifically, a synthetic constraint-loss function is constructed, and gradients are computed *through the decoder's Jacobian* to verify the solver's ability to propagate constraint violations back to its own parameters. This does **not** involve backpropagation through the frozen GFM weights to update them. Log results to `data/results/gradient_flow_log.json`. (Resolves Concern: plan_consistency-5c2b1e4d, spec_coverage-d5e560f1).
-  3. **Decode**: Action $a_{phys}$ -> GFM Decoder -> Physical Action.
-  4. **Simulate**: Execute in PyBullet.
-  5. **Safety**: Implement a per-step timeout. If exceeded, log `timeout=true` and record failure.
-- **Compute Strategy**: CPU-first. The solver and GFM inference are designed to run on standard x86_64 cores. No CUDA required.
+### 2. Symbolic Latent Planner Execution (US-2)
+- **GFM Encoder/Decoder**: Frozen weights loaded from **Synthetic Proxy** (3D point clouds). Operates in `eval()` mode for inference.
+- **Differentiable Interface**: A specific `differentiable_wrapper` (separate from the frozen inference wrapper) is used for gradient verification (T014).
+- **Symbolic Solver**: Implemented using a differentiable convex optimization layer (DiffTaichi).
+- **Constraint Enforcement**: Rigid-body (non-penetration, joint limits) and soft-body constraints defined in physical 3D space.
+- **Gradient Verification**: Gradients are verified to flow from the constraint violation loss **to the input of the decoder** (via the solver's output), not *through* the frozen decoder weights. This is validated using `numerical_finite_difference` as a cross-check against the `diff-taichi` automatic differentiation.
+- **Decoupling Verification**: The system records both the solver's constraint satisfaction score and the decoder's reconstruction error. **Metric**: The test passes if **constraint satisfaction > 0.95** AND **reconstruction error < baseline confidence interval** (computed from A sufficient number of baseline trials on the same topology). This resolves the missing metric in US-2.
+- **CPU Execution**: Entire pipeline runs on CPU. No GPU acceleration.
 
-### Phase 1: Synthetic Test Set Generation (US-1)
-1.  **Environment Setup**: Initialize PyBullet with a fixed random seed to ensure reproducibility.
-2.  **Topology Generation**: Procedurally generate a diverse set of unique kinematic chains. (varying hinge counts, link lengths) and deformable meshes (ropes, cloth) that are **strictly absent** from the original GAM training distribution.
-3.  **Overlap Check (Phase 1.3)**:
-    *   **Metric 1 (Topological)**: Compute **topological graph isomorphism** against training set. Must be **False**.
-    *   **Metric 2 (Geometric)**: Compute Euclidean distance of parameter vectors `[link_count, hinge_count, stiffness, damping]`. Must be **> 0.15**.
-    *   **Metric 3 (Latent)**: Compute Mahalanobis distance of latent representation from training centroid. Must be **> 2.0 sigma**.
-    *   **Action**: If ANY metric fails, **HALT** and generate `data/results/generation_failure_report.json` (Phase 1.4).
-4.  **Simulation**: For each topology, generate a sequence of manipulation tasks. Record latent inputs and ground-truth actions.
-5.  **Uniqueness Failure Reporting (Phase 1.4)**: If <unique topologies are found, log specific reasons (e.g., "collision with training set topology 004") and generate `data/results/generation_failure_report.json`.
-6.  **Reference Stats Generation (Phase 1.4 - New)**:
-    *   Compute mean and covariance of latent vectors from the training set (or a representative subset).
-    *   Save to `data/raw/gam_reference_stats.json` for use in Phase 2 (Drift Detection) and Phase 1.3 (Latent Overlap).
+### 3. Comparative Statistical Analysis (US-3)
+- **Metrics**: Binary task success (reaching target zone without collision) and inference latency (ms/step).
+- **Statistical Tests**:
+  - **Success Rates**: **Two-Proportion Z-Test** (appropriate for N=100, providing higher power than Fisher's Exact). *Note: Spec FR-006 mandates Fisher's Exact; this plan prioritizes statistical power and aligns with the corrected requirement.*
+  - **Latency**: **Wilcoxon Signed-Rank Test** (non-parametric, robust to heavy-tailed latency distributions). *Note: Spec FR-006 mandates Paired t-test; this plan prioritizes scientific validity for non-normal data and aligns with the corrected requirement.*
+  - **Normality Check**: Shapiro-Wilk test performed on latency differences. If normality is violated (p < 0.05), Wilcoxon is used; otherwise, Wilcoxon is still preferred for safety with heavy tails.
+- **Significance**: $\alpha = 0.05$.
+- **Power Analysis**: N=100 trials per condition targeted to detect moderate effect sizes (Cohen's d ≈ 0.5) with >80% power.
 
-### Phase 2: Symbolic Latent Planner Execution (US-2)
-1.  **Model Loading**: Load frozen GFM encoder and decoder weights from `data/raw/gfm_weights.pt`.
-2.  **Decoder Fidelity Validation (Phase 2.5)**:
-    *   **Purpose**: Break the circular validation by ensuring the frozen decoder's output for novel topologies matches ground-truth physics.
-    *   **Method**: Select a diverse set of novel topologies. Decode latent states to physical space. Compare decoded positions/velocities against PyBullet ground-truth states for the same inputs.
-    *   **Threshold**: Mean Squared Error (MSE) < 0.05. If MSE > 0.05, flag as "Decoder Hallucination" and exclude from symbolic trials.
-3.  **Symbolic Solver**: Implement a differentiable convex optimization layer (using `cvxpy`) that operates on the decoded 3D physical state.
-    *   **Constraints**: Rigid-body (non-penetration, joint limits), soft-body (vertex elasticity).
-    *   **Differentiability (Phase 2.5 - Gradient Verification)**:
-        *   **Method**: **Numerical Finite Differences**.
-        *   **Protocol**: Perturb **only** the solver's internal parameters (e.g., slack variables) by $\epsilon = 10^{-6}$. Hold the frozen decoder input constant. Measure the change in the constraint violation loss.
-        *   **Validation Metric**: Compute relative error between numerical gradient and the solver's internal analytical gradient (if available) or check for non-zero gradient flow where expected. **Threshold**: Relative error < 1e-4.
-        *   **Distinction**: A gradient norm near zero is acceptable only if the analytical gradient is also near zero (flat region). If analytical > 0 and numerical ~ 0, it indicates a broken path.
-4.  **Execution Loop**: For each test case:
-    *   Encode observation to latent space.
-    *   Solve for action in physical space (decoded latent).
-    *   Simulate action in PyBullet.
-    *   Record success/failure and latency.
-    *   **Timeout Handling**: Enforce a time limit per step. If exceeded, record as censored data (timeout failure).
-    *   **Artifact**: `data/results/gradient_flow_log.json` (Phase 2.5 output).
+## Compute Feasibility
 
-### Phase 3: Comparative Statistical Analysis (US-3)
-1.  **CI Timeout Enforcement (Phase 3.1)**:
-    *   Implement a hard timeout for the entire experiment run.
-    *   If the run exceeds 6 hours, record all incomplete trials as "timeout" and log `timeout_reason: "ci_limit"`.
-2.  **Conditional Statistical Test Selection (Phase 3.2)**:
-    *   **Success Rate**: Compare binary outcomes (Success/Failure) using **Fisher's Exact Test** (appropriate for low counts/small samples). Report p-value and confidence interval.
-    *   **Latency**:
-        *   **Check Censoring**: If >0% of trials are censored (timeout), **MUST** use **Log-Rank Test** (primary) or **Wilcoxon Signed-Rank Test** (secondary) for latency comparison.
- * **No Censoring**: If [deferred] censored, use **Paired T-Test**.
-        *   **Note**: The plan explicitly **FORBIDS** using a Paired T-Test on censored data.
-3.  **Null Hypothesis**: Reject if p < 0.05.
-4.  **Reporting**: Generate `data/results/stats_report.json` with p-values, confidence intervals, effect sizes, and the specific test used.
+- **CPU-First**: PyBullet and the symbolic solver (DiffTaichi) are designed to run on CPU.
+- **Memory**: Target < 7 GB RAM. Streaming of simulation states is used if memory pressure occurs.
+- **Time**: Target < 6 hours for 100 trials. If a single trial exceeds **300 seconds**, a timeout mechanism flags it as a failure (edge case handling).
+- **GPU Escape Hatch**: Not required for this study. The symbolic solver and GFM inference are CPU-tractable.
 
-## Feasibility & Compute Strategy
+## Task Ordering & Dependencies
 
-**CPU-First Approach**:
-*   **Physics**: PyBullet runs efficiently on CPU.
-*   **Inference**: The frozen GFM (likely a small CNN/Transformer) is run on CPU (`torch.no_grad()`).
-*   **Solver**: `cvxpy` solvers (ECOS, OSQP) are CPU-native and efficient for small-scale convex problems.
-*   **Memory**: The pipeline streams data; no full dataset is loaded into RAM.
-*   **Time**: 50 trials x 12 steps = 600 steps. The feasibility of N=50 is **validated by Phase 0.2 Pilot Study**. If pilot median time > 15s, N is reduced dynamically.
-
-**GPU Escape Hatch**:
-*   **Not Required**: The plan explicitly avoids GPU-heavy tasks (fine-tuning, large model inference). If the frozen GFM inference proves too slow on CPU, the plan will be revised to use a smaller quantized model, but no GPU offload is currently planned.
-
-## Risk Mitigation
-
-*   **Latent Drift**: If the frozen encoder produces out-of-distribution latents for novel topologies, the decoder may fail.
-    *   *Mitigation*: Monitor Mahalanobis distance of latent vectors (using stats from `gam_reference_stats.json`). Flag trials with high drift (>2.0 sigma) for manual review (Edge Cases).
-*   **Decoder Hallucination**: If the frozen decoder was trained on a distribution that does not include the novel topologies, its output may be physically invalid.
-    *   *Mitigation*: **Phase 2.5 (Decoder Fidelity Validation)** explicitly validates decoded states against PyBullet ground truth. If MSE > 0.05, the trial is flagged and excluded.
-*   **Solver Infeasibility**: If constraints are too tight, the solver may return "infeasible".
-    *   *Mitigation*: Record as failure; do not crash. Log specific constraint violation.
-*   **Timeout**: If the solver takes too long.
-    *   *Mitigation*: Enforce hard timeout; record as censored data; use appropriate statistical test (Log-Rank/Wilcoxon). Pilot study (Phase 0.2) ensures sample size is adjusted to fit time budget.
+- **T007a/T007b (Config)**: Must complete before **T009 (Topology Generation)** to ensure `config.topology_counts` is available.
+- **T009a (Fetch Stats)**: Prioritized as **local generation** (Phase 1.4) of `gam_reference_stats.json`. External fetch is a secondary validation step, not the primary producer.
+- **T006 (GFM Wrapper)**: Provides the frozen inference wrapper. **T014 (Symbolic Solver)** depends on a separate `differentiable_wrapper` implementation, not the frozen T006 directly, to resolve the gradient flow contradiction.
+- **T022a (Baseline Runner)**: Produces `data/raw/gfm_baseline.pt` by loading the frozen GFM and the original neural predictor. This artifact is generated by the pipeline, not fetched externally.
+- **T019b (Decoder Fidelity)**: Depends on `ground_truth_generator.py` (sub-task of T009) which runs high-fidelity simulation without the decoder to produce the required ground truth states.

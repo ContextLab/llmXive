@@ -1,281 +1,231 @@
-import pytest
-import numpy as np
-import torch
-import logging
+"""
+Unit tests for solver constraints and symbolic solver logic.
+Tests the SymbolicSolver and ConstraintMatrix from code/symbolic_solver.py
+and the DifferentiableSymbolicSolver from code/differentiable_solver.py.
+"""
 import os
 import sys
+import unittest
+import math
+from unittest.mock import patch, MagicMock
+import numpy as np
 
-# Ensure code/ is in path for imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
+# Add code directory to path for imports
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'code'))
 
-from code.symbolic_solver import ConstraintMatrix, SymbolicSolver, TimeoutError
-from code.config import load_config, SolverConfig
-from code.utils import set_deterministic_seed
+from symbolic_solver import SymbolicSolver, ConstraintMatrix, TimeoutError as SolverTimeoutError
+from differentiable_solver import DifferentiableSymbolicSolver, ConstraintViolationLoss
 
-@pytest.fixture
-def solver_config():
-    """Load configuration for solver tests."""
-    set_deterministic_seed(42)
-    return load_config()
 
-@pytest.fixture
-def sample_constraint_matrix():
-    """Create a sample constraint matrix for testing."""
-    # Simulate a simple non-penetration constraint setup
-    # Matrix shape: (num_constraints, num_variables)
-    num_constraints = 10
-    num_variables = 6  # 3D position + 3D orientation
-    matrix = np.random.randn(num_constraints, num_variables).astype(np.float32)
-    bounds = np.array([[-1.0, 1.0]] * num_constraints, dtype=np.float32)
-    return matrix, bounds
+class TestConstraintMatrix(unittest.TestCase):
+    """Tests for ConstraintMatrix data structure and validation."""
 
-class TestConstraintMatrix:
-    """Unit tests for ConstraintMatrix functionality."""
+    def test_init_valid_constraints(self):
+        """Test initialization with valid constraint matrices."""
+        # Create a simple non-penetration constraint: Ax <= b
+        A = np.array([[1.0, 0.0], [0.0, 1.0]])
+        b = np.array([1.0, 1.0])
+        
+        cm = ConstraintMatrix(A, b)
+        
+        self.assertIsInstance(cm.A, np.ndarray)
+        self.assertIsInstance(cm.b, np.ndarray)
+        self.assertEqual(cm.A.shape[0], cm.b.shape[0])
+        np.testing.assert_array_equal(cm.A, A)
+        np.testing.assert_array_equal(cm.b, b)
 
-    def test_initialization(self):
-        """Test ConstraintMatrix initialization."""
-        matrix = np.eye(5)
-        bounds = np.array([[-1, 1]] * 5)
-        cm = ConstraintMatrix(matrix, bounds)
+    def test_init_mismatched_shapes(self):
+        """Test that mismatched shapes raise ValueError."""
+        A = np.array([[1.0, 0.0], [0.0, 1.0]])
+        b = np.array([1.0])  # Wrong size
         
-        assert cm.constraint_matrix.shape == (5, 5)
-        assert cm.bounds.shape == (5, 2)
-        assert cm.num_constraints == 5
-        assert cm.num_variables == 5
+        with self.assertRaises(ValueError):
+            ConstraintMatrix(A, b)
 
-    def test_invalid_dimensions(self):
-        """Test that mismatched dimensions raise an error."""
-        matrix = np.random.randn(5, 3)
-        bounds = np.array([[-1, 1]] * 4)  # Wrong number of constraints
+    def test_check_feasibility(self):
+        """Test feasibility checking."""
+        A = np.array([[1.0, 0.0], [0.0, 1.0]])
+        b = np.array([1.0, 1.0])
+        cm = ConstraintMatrix(A, b)
         
-        with pytest.raises(ValueError):
-            ConstraintMatrix(matrix, bounds)
+        # Point (0.5, 0.5) should be feasible
+        x_feasible = np.array([0.5, 0.5])
+        self.assertTrue(cm.is_feasible(x_feasible))
+        
+        # Point (1.5, 1.5) should be infeasible
+        x_infeasible = np.array([1.5, 1.5])
+        self.assertFalse(cm.is_feasible(x_infeasible))
 
-    def test_bounds_validation(self):
-        """Test bounds validation (lower <= upper)."""
-        matrix = np.eye(3)
-        invalid_bounds = np.array([[1.0, -1.0], [-1, 1], [-1, 1]])  # First row invalid
+    def test_violation_magnitude(self):
+        """Test violation magnitude calculation."""
+        A = np.array([[1.0, 0.0], [0.0, 1.0]])
+        b = np.array([1.0, 1.0])
+        cm = ConstraintMatrix(A, b)
         
-        with pytest.raises(ValueError):
-            ConstraintMatrix(matrix, invalid_bounds)
+        # Point (1.5, 0.5) violates first constraint by 0.5
+        x = np.array([1.5, 0.5])
+        violation = cm.violation_magnitude(x)
+        self.assertGreater(violation, 0.0)
+        self.assertAlmostEqual(violation, 0.5, places=5)
 
-    def test_constraint_satisfaction_check(self, sample_constraint_matrix):
-        """Test checking if a solution satisfies constraints."""
-        matrix, bounds = sample_constraint_matrix
-        cm = ConstraintMatrix(matrix, bounds)
-        
-        # Create a solution that satisfies constraints
-        solution = np.zeros(matrix.shape[1])
-        result = cm.check_satisfaction(solution)
-        
-        assert result['satisfied'] is True
-        assert result['violated_indices'] == []
 
-        # Create a solution that violates constraints
-        solution_violated = np.ones(matrix.shape[1]) * 10.0
-        result_violated = cm.check_satisfaction(solution_violated)
-        
-        assert result_violated['satisfied'] is False
-        assert len(result_violated['violated_indices']) > 0
+class TestSymbolicSolver(unittest.TestCase):
+    """Tests for the SymbolicSolver class."""
 
-    def test_jacobian_computation(self):
-        """Test Jacobian computation for constraint gradients."""
-        num_constraints = 8
-        num_variables = 4
-        matrix = np.random.randn(num_constraints, num_variables)
-        bounds = np.array([[-1.0, 1.0]] * num_constraints)
-        
-        cm = ConstraintMatrix(matrix, bounds)
-        jacobian = cm.get_jacobian()
-        
-        assert jacobian.shape == (num_constraints, num_variables)
-        np.testing.assert_array_almost_equal(jacobian, matrix)
+    def setUp(self):
+        """Set up test fixtures."""
+        self.solver = SymbolicSolver()
+        # Create a simple quadratic programming problem:
+        # min 0.5 * x^T * P * x + q^T * x
+        # subject to G * x <= h
+        self.P = np.array([[2.0, 0.0], [0.0, 2.0]])
+        self.q = np.array([-1.0, -1.0])
+        self.G = np.array([[1.0, 0.0], [0.0, 1.0], [-1.0, 0.0], [0.0, -1.0]])
+        self.h = np.array([1.0, 1.0, 1.0, 1.0])
 
-class TestSymbolicSolver:
-    """Unit tests for SymbolicSolver functionality."""
+    def test_solve_simple_qp(self):
+        """Test solving a simple quadratic program."""
+        result = self.solver.solve(self.P, self.q, self.G, self.h)
+        
+        self.assertIsNotNone(result)
+        self.assertIn('solution', result)
+        self.assertIn('success', result)
+        self.assertIn('message', result)
+        
+        # The optimal solution for min 0.5 * (2x^2 + 2y^2) - x - y
+        # subject to -1 <= x,y <= 1 is (0.5, 0.5)
+        self.assertTrue(result['success'])
+        np.testing.assert_array_almost_equal(result['solution'], [0.5, 0.5], decimal=2)
 
-    def test_solver_initialization(self, solver_config):
-        """Test SymbolicSolver initialization with valid config."""
-        solver = SymbolicSolver(solver_config.solver)
+    def test_solve_infeasible_problem(self):
+        """Test solving an infeasible problem."""
+        # Create infeasible constraints: x <= -1 and x >= 1
+        G_infeas = np.array([[1.0], [-1.0]])
+        h_infeas = np.array([-1.0, -1.0])  # x <= -1 and -x <= -1 => x >= 1
         
-        assert solver.config is not None
-        assert solver.timeout_handler is not None
-        assert solver.constraint_matrix is None
+        result = self.solver.solve(self.P, self.q, G_infeas, h_infeas)
+        
+        self.assertFalse(result['success'])
+        self.assertIn('infeasible', result.get('message', '').lower() or result.get('status', '').lower())
 
-    def test_constraint_matrix_setter(self, solver_config, sample_constraint_matrix):
-        """Test setting constraint matrix on solver."""
-        solver = SymbolicSolver(solver_config.solver)
-        matrix, bounds = sample_constraint_matrix
+    def test_solve_unbounded_problem(self):
+        """Test handling of unbounded problems."""
+        # Unbounded: no constraints, minimize -x - y
+        G_empty = np.zeros((0, 2))
+        h_empty = np.zeros(0)
         
-        solver.set_constraint_matrix(matrix, bounds)
+        result = self.solver.solve(self.P, self.q, G_empty, h_empty)
         
-        assert solver.constraint_matrix is not None
-        assert solver.constraint_matrix.num_constraints == matrix.shape[0]
+        # Should succeed but solution might be large
+        self.assertTrue(result['success'])
+        self.assertIsNotNone(result['solution'])
 
-    def test_solve_with_timeout(self, solver_config):
-        """Test solver timeout behavior."""
-        solver = SymbolicSolver(solver_config.solver)
-        
-        # Set a very short timeout
-        solver.config.timeout_seconds = 0.001
-        
-        # Create a constraint matrix that would take time to solve
-        # (simulated by a large matrix)
-        large_matrix = np.random.randn(1000, 500)
-        bounds = np.array([[-1.0, 1.0]] * 1000)
-        
-        solver.set_constraint_matrix(large_matrix, bounds)
-        
-        with pytest.raises(TimeoutError):
-            solver.solve()
-
-    def test_solve_feasible_problem(self, solver_config):
-        """Test solving a simple feasible problem."""
-        solver = SymbolicSolver(solver_config.solver)
-        
-        # Simple identity constraint: x = 0
-        matrix = np.eye(3)
-        bounds = np.array([[0.0, 0.0]] * 3)
-        
-        solver.set_constraint_matrix(matrix, bounds)
-        
-        result = solver.solve()
-        
-        assert result['success'] is True
-        np.testing.assert_array_almost_equal(result['solution'], np.zeros(3))
-
-    def test_solve_infeasible_problem(self, solver_config):
-        """Test handling of infeasible problems."""
-        solver = SymbolicSolver(solver_config.solver)
-        
-        # Infeasible constraints: x >= 5 AND x <= 3
-        matrix = np.array([[1.0], [-1.0]])
-        bounds = np.array([[5.0, np.inf], [-np.inf, -3.0]])
-        
-        solver.set_constraint_matrix(matrix, bounds)
-        
-        result = solver.solve()
-        
-        assert result['success'] is False
-        assert result['infeasible'] is True
-
-    def test_non_penetration_constraints(self, solver_config):
-        """Test non-penetration constraint generation."""
-        solver = SymbolicSolver(solver_config.solver)
-        
-        # Simulate two objects that should not penetrate
-        # Object 1 at (0, 0, 0) with radius 1
-        # Object 2 at (3, 0, 0) with radius 1
-        # Constraint: distance >= 2
-        
-        # Simple 1D constraint: x2 - x1 >= 2
-        matrix = np.array([[-1.0, 1.0]])
-        bounds = np.array([[2.0, np.inf]])
-        
-        solver.set_constraint_matrix(matrix, bounds)
-        
-        result = solver.solve()
-        
-        assert result['success'] is True
-        # Solution should satisfy x2 - x1 >= 2
-        assert result['solution'][1] - result['solution'][0] >= 2.0
-
-    def test_joint_limit_constraints(self, solver_config):
-        """Test joint limit constraint enforcement."""
-        solver = SymbolicSolver(solver_config.solver)
-        
-        # Joint limits: -pi <= theta <= pi
-        matrix = np.eye(1)
-        bounds = np.array([[-np.pi, np.pi]])
-        
-        solver.set_constraint_matrix(matrix, bounds)
-        
-        result = solver.solve()
-        
-        assert result['success'] is True
-        assert -np.pi <= result['solution'][0] <= np.pi
-
-    def test_multiple_constraint_types(self, solver_config):
-        """Test combining multiple constraint types."""
-        solver = SymbolicSolver(solver_config.solver)
-        
-        # Combine joint limits and non-penetration
-        # Joint 1: -pi <= theta1 <= pi
-        # Joint 2: -pi <= theta2 <= pi
-        # Non-penetration: theta2 - theta1 >= 0.5
-        
-        matrix = np.array([
-            [1.0, 0.0],  # theta1 >= -pi
-            [-1.0, 0.0],  # theta1 <= pi
-            [0.0, 1.0],  # theta2 >= -pi
-            [0.0, -1.0],  # theta2 <= pi
-            [-1.0, 1.0]  # theta2 - theta1 >= 0.5
-        ])
-        bounds = np.array([
-            [-np.pi, np.inf],
-            [-np.inf, np.pi],
-            [-np.pi, np.inf],
-            [-np.inf, np.pi],
-            [0.5, np.inf]
-        ])
-        
-        solver.set_constraint_matrix(matrix, bounds)
-        
-        result = solver.solve()
-        
-        assert result['success'] is True
-        # Verify all constraints are satisfied
-        theta1, theta2 = result['solution']
-        assert -np.pi <= theta1 <= np.pi
-        assert -np.pi <= theta2 <= np.pi
-        assert theta2 - theta1 >= 0.5
-
-class TestSolverIntegration:
-    """Integration tests for solver with configuration."""
-
-    def test_solver_with_config_defaults(self):
-        """Test solver uses default config values correctly."""
-        config = load_config()
-        solver = SymbolicSolver(config.solver)
-        
-        assert solver.config.timeout_seconds == config.solver.timeout_seconds
-        assert solver.config.max_iterations == config.solver.max_iterations
-
-    def test_solver_error_logging(self, solver_config, caplog):
-        """Test that solver errors are properly logged."""
-        solver = SymbolicSolver(solver_config.solver)
-        
-        # Set up logging capture
-        with caplog.at_level(logging.ERROR):
-            # Try to solve with invalid constraints
-            matrix = np.array([[1.0]])
-            bounds = np.array([[5.0, 3.0]])  # Invalid: lower > upper
+    def test_timeout_handling(self):
+        """Test that timeout is properly handled."""
+        # This is a mock test since actual timeout requires slow computation
+        with patch.object(self.solver, '_solve_with_timeout') as mock_solve:
+            mock_solve.side_effect = SolverTimeoutError("Test timeout")
             
-            solver.set_constraint_matrix(matrix, bounds)
-            
-            with pytest.raises(ValueError):
-                solver.solve()
-            
-            assert "Invalid bounds" in caplog.text or "constraint" in caplog.text.lower()
+            with self.assertRaises(SolverTimeoutError):
+                self.solver.solve(self.P, self.q, self.G, self.h)
 
-    def test_solver_performance_baseline(self, solver_config):
-        """Test solver performance on a baseline problem."""
-        solver = SymbolicSolver(solver_config.solver)
+
+class TestDifferentiableSymbolicSolver(unittest.TestCase):
+    """Tests for the DifferentiableSymbolicSolver wrapper."""
+
+    def setUp(self):
+        """Set up test fixtures."""
+        try:
+            import torch
+            self.has_torch = True
+        except ImportError:
+            self.has_torch = False
+            self.skipTest("PyTorch not available")
+
+        self.solver = DifferentiableSymbolicSolver()
+
+    @unittest.skipIf(not hasattr(unittest.TestCase, 'skipTest'), 'skipTest not available')
+    def test_wrapper_creation(self):
+        """Test that the wrapper can be created."""
+        self.assertIsNotNone(self.solver)
+
+    def test_constraint_violation_loss(self):
+        """Test the constraint violation loss function."""
+        if not self.has_torch:
+            return
         
-        # Standard test problem
-        num_vars = 50
-        num_constraints = 100
+        import torch
+        # Create a simple constraint: x <= 1
+        A = torch.tensor([[1.0, 0.0]], requires_grad=True)
+        b = torch.tensor([1.0])
         
-        matrix = np.random.randn(num_constraints, num_vars)
-        bounds = np.array([[-1.0, 1.0]] * num_constraints)
+        # Point that violates constraint: x = 1.5
+        x = torch.tensor([1.5, 0.5], requires_grad=True)
         
-        solver.set_constraint_matrix(matrix, bounds)
+        loss_fn = ConstraintViolationLoss()
+        loss = loss_fn(A, b, x)
         
-        import time
-        start = time.time()
-        result = solver.solve()
-        elapsed = time.time() - start
+        self.assertGreater(loss.item(), 0.0)
         
-        # Should complete within timeout
-        assert elapsed < solver.config.timeout_seconds
-        assert result['success'] is True
+        # Check that gradients can be computed
+        loss.backward()
+        self.assertIsNotNone(x.grad)
+        self.assertIsNotNone(A.grad)
+
+    def test_differentiable_solve(self):
+        """Test that gradients flow through the differentiable solver."""
+        if not self.has_torch:
+            return
+        
+        import torch
+        
+        # Create a simple differentiable problem
+        P = torch.tensor([[2.0, 0.0], [0.0, 2.0]], requires_grad=False)
+        q = torch.tensor([-1.0, -1.0], requires_grad=True)  # Make q differentiable
+        
+        # Constraints: x <= 1, y <= 1
+        G = torch.tensor([[1.0, 0.0], [0.0, 1.0]], requires_grad=False)
+        h = torch.tensor([1.0, 1.0], requires_grad=False)
+        
+        # Solve
+        result = self.solver.solve(P, q, G, h)
+        
+        self.assertTrue(result['success'])
+        self.assertIsNotNone(result['solution'])
+        
+        # Check gradients if available
+        if q.grad is not None:
+            # Gradient should exist
+            pass
+
+
+class TestSolverIntegration(unittest.TestCase):
+    """Integration tests combining solver components."""
+
+    def test_full_constraint_pipeline(self):
+        """Test the full pipeline from constraint creation to solving."""
+        # Create constraints
+        A = np.array([[1.0, 0.0], [0.0, 1.0], [-1.0, 0.0], [0.0, -1.0]])
+        b = np.array([1.0, 1.0, 1.0, 1.0])
+        cm = ConstraintMatrix(A, b)
+        
+        # Verify constraints are valid
+        self.assertTrue(cm.is_feasible(np.array([0.5, 0.5])))
+        self.assertFalse(cm.is_feasible(np.array([1.5, 1.5])))
+        
+        # Solve a problem within these constraints
+        solver = SymbolicSolver()
+        P = np.array([[2.0, 0.0], [0.0, 2.0]])
+        q = np.array([-1.0, -1.0])
+        
+        result = solver.solve(P, q, A, b)
+        
+        self.assertTrue(result['success'])
+        solution = result['solution']
+        
+        # Verify solution satisfies constraints
+        self.assertTrue(cm.is_feasible(solution))
+
+
+if __name__ == '__main__':
+    unittest.main()

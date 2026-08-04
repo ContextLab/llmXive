@@ -1,3 +1,3 @@
 """
-Test package for llmXive research implementation.
+Test package for llmXive project.
 """

@@ -1,16 +1,17 @@
 status: none
-intent: download GAM manipulation dataset PyBullet synthetic topology shift reference
-  meta-world python package dataset
+intent: download GAM manipulation dataset and GFM weights PyBullet synthetic topology
+  shift dataset python package
 required_fields:
 - task_id
-- topology_definition
-- object_type
-- material_properties
-- initial_state
-- simulation_states
-- actions
-- timestamps
+- topology_description
+- kinematic_chain_links
+- deformable_object_type
+- vertex_positions_per_timestep
+- rigid_body_states
+- action_sequence
+- timestamp
+- simulation_state
 - metadata_hash
-cache_key: c8b9ef67175fe33d0c51ba53f8f3395c23592fe8b8d13eb5daede96239fbf52f
-searched_at: '2026-08-02T18:49:44.848967+00:00'
+cache_key: de509bc7aea3d5ca158a870b985ef348312b765f47212cbbd4a6f5645da544c1
+searched_at: '2026-08-04T01:06:39.493918+00:00'
 retry_count: 1

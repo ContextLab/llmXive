@@ -1,1 +1,2 @@
-# Placeholder for raw input data (e.g., downloaded models, reference stats)
+# This directory stores raw input data (e.g., downloaded datasets, reference stats).
+# Do not commit large files; use .gitkeep to preserve directory structure.

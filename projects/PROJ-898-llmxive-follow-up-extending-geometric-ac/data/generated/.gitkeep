@@ -1,1 +1,2 @@
-# Placeholder for generated test sets and simulation states
+# This directory stores generated simulation states and test sets.
+# Do not commit large files; use .gitkeep to preserve directory structure.

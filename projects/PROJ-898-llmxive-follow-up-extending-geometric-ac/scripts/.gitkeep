@@ -1,1 +1,2 @@
-# Placeholder for executable scripts (e.g., generate_test_set.py)
+# This directory stores executable scripts for running experiments and validation.
+# Do not commit large files; use .gitkeep to preserve directory structure.

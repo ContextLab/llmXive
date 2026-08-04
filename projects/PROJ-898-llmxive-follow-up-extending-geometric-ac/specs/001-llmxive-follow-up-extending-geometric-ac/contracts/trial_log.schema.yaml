@@ -1,44 +1,40 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Trial Log Schema"
-description: "Schema for the primary results log (CSV/JSON)."
-type: object
+description: "Schema for validation of trial execution logs (success/latency). Single Source of Truth."
+type: "object"
 properties:
   trial_id:
-    type: string
+    type: "string"
     description: "Unique identifier for the trial."
-  method:
-    type: string
-    enum: ["symbolic", "baseline_gam"]
-    description: "Method used for the trial."
   topology_id:
-    type: string
-    description: "ID of the topology used."
-  step:
-    type: integer
-    minimum: 0
-    description: "Timestep within the trial."
+    type: "string"
+    description: "Identifier for the novel topology used in the trial."
+  approach:
+    type: "string"
+    enum:
+      - "symbolic"
+      - "baseline"
+    description: "The method used for the trial."
   success:
-    type: boolean
-    description: "True if the manipulation was successful."
+    type: "boolean"
+    description: "Whether the manipulation task was completed successfully."
   latency_ms:
-    type: number
-    description: "Inference latency in milliseconds."
-  timeout:
-    type: boolean
-    description: "True if the step exceeded the time limit."
-  timeout_reason:
-    type: string
-    enum: ["step_limit", "infeasible", "collision", "drift", "ci_limit", "none"]
-    description: "Reason for timeout or failure (distinguishes computational vs physical failure)."
-  error_reason:
-    type: string
-    nullable: true
-    description: "Reason for failure (e.g., 'infeasible', 'collision', 'timeout')."
-  ood_flag:
-    type: boolean
-    description: "True if latent drift exceeded threshold."
-  seed:
-    type: integer
-    description: "Random seed used for this trial."
-required: ["trial_id", "method", "topology_id", "step", "success", "latency_ms", "timeout", "timeout_reason", "seed"]
+    type: "number"
+    description: "Inference latency in milliseconds per step."
+  timestamp:
+    type: "string"
+    format: "date-time"
+    description: "ISO 8601 timestamp of the trial execution."
+  error_type:
+    type:
+      - "string"
+      - "null"
+    description: "Type of error if the trial failed (e.g., 'infeasible', 'timeout', 'physics_crash')."
+required:
+  - trial_id
+  - topology_id
+  - approach
+  - success
+  - latency_ms
+  - timestamp
 additionalProperties: false

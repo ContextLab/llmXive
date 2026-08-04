@@ -46,7 +46,7 @@
 **Independent Test**: Can be fully tested by running the analysis script on the collected results from P1 and P2, generating a report that includes p-values, confidence intervals, and effect sizes for both success rate and latency comparisons.
 
 **Acceptance Scenarios**:
-1. **Given** the binary success/failure outcomes for 50 trials of the symbolic approach and 50 trials of the baseline, **When** the Fisher's Exact Test is executed, **Then** the system outputs a p-value and a confidence interval for the difference in success rates.
+1. **Given** the binary success/failure outcomes for a series of trials of the symbolic approach and a series of trials of the baseline, **When** the Fisher's Exact Test is executed, **Then** the system outputs a p-value and a confidence interval for the difference in success rates.
 2. **Given** the inference latency measurements (ms) for both approaches, **When** the paired t-test is executed, **Then** the system outputs the mean difference, p-value, and effect size (Cohen's d).
 3. **Given** the analysis results, **When** the report is generated, **Then** it explicitly states whether the null hypothesis (no difference in generalization) is rejected at the α=0.05 significance level.
 

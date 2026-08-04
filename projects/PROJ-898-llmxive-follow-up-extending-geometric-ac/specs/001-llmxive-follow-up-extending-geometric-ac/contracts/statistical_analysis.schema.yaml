@@ -1,0 +1,71 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Statistical Analysis Schema"
+description: "Schema for validation of statistical analysis results (Fisher's Exact, t-test)."
+type: "object"
+properties:
+  success_rate_comparison:
+    type: "object"
+    description: "Results of Fisher's Exact Test for success rates."
+    properties:
+      test_name:
+        type: "string"
+        const: "Fisher's Exact Test"
+      p_value:
+        type: "number"
+        description: "P-value from the test."
+      confidence_interval:
+        type: "array"
+        items:
+          type: "number"
+        minItems: 2
+        maxItems: 2
+        description: "95% Confidence interval for the difference in success rates."
+      effect_size:
+        type: "number"
+        description: "Effect size (e.g., odds ratio)."
+      null_hypothesis_rejected:
+        type: "boolean"
+        description: "Whether the null hypothesis was rejected at alpha=0.05."
+    required:
+      - test_name
+      - p_value
+      - confidence_interval
+      - effect_size
+      - null_hypothesis_rejected
+  latency_comparison:
+    type: "object"
+    description: "Results of Paired t-test for inference latency."
+    properties:
+      test_name:
+        type: "string"
+        const: "Paired t-test"
+      p_value:
+        type: "number"
+        description: "P-value from the test."
+      mean_difference:
+        type: "number"
+        description: "Mean difference in latency (ms)."
+      confidence_interval:
+        type: "array"
+        items:
+          type: "number"
+        minItems: 2
+        maxItems: 2
+        description: "95% Confidence interval for the mean difference."
+      effect_size:
+        type: "number"
+        description: "Cohen's d effect size."
+      null_hypothesis_rejected:
+        type: "boolean"
+        description: "Whether the null hypothesis was rejected at alpha=0.05."
+    required:
+      - test_name
+      - p_value
+      - mean_difference
+      - confidence_interval
+      - effect_size
+      - null_hypothesis_rejected
+required:
+  - success_rate_comparison
+  - latency_comparison
+additionalProperties: false

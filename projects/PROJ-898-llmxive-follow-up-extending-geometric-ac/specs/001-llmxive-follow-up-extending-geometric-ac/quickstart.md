@@ -2,89 +2,68 @@
 
 ## Prerequisites
 
--   **Python**: 3.11+
--   **OS**: Linux (Ubuntu 20.04+ recommended for PyBullet compatibility)
--   **Memory**: > 7 GB RAM
--   **Disk**: > 14 GB free space
+- Python 3.11+
+- Git
+- A minimum of two CPU cores and 7 GB RAM.
+- Sufficient disk space for data storage and processing.
 
 ## Installation
 
-1.  **Clone and Setup**:
-    ```bash
-    git clone <repo-url>
-    cd projects/PROJ-898-llmxive-follow-up-extending-geometric-ac
-    python -m venv venv
-    source venv/bin/activate
-    ```
+1. **Clone the repository**:
+   ```bash
+   git clone <repo-url>
+   cd projects/PROJ-898-llmxive-follow-up-extending-geometric-ac
+   ```
 
-2.  **Install Dependencies**:
-    ```bash
-    pip install -r requirements.txt
-    ```
-    *Dependencies include: `pybullet`, `torch`, `cvxpy`, `scipy`, `datasets`, `pandas`, `pytest`, `lifelines`.*
+2. **Create virtual environment**:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate
+   ```
 
-3.  **Verify Environment**:
-    ```bash
-    python -c "import pybullet; import torch; print('Environment OK')"
-    ```
+3. **Install dependencies**:
+   ```bash
+   pip install -r code/requirements.txt
+   ```
 
-## Data Preparation
+4. **Verify installation**:
+   ```bash
+   pytest tests/unit/
+   ```
 
-1.  **Download GFM Weights (Phase 0.1)**:
-    The script `code/data/loader.py` will automatically download the GFM weights from the verified source `GFM-Bench/3D-Robotics` if `data/raw/gfm_weights.pt` is missing.
-    ```bash
-    python code/data/loader.py --download
-    ```
-    *This fetches weights from `https://huggingface.co/GFM-Bench/3D-Robotics`.*
+## Running the Pipeline
 
-2.  **Generate Synthetic Test Set (Phase 1)**:
-    ```bash
-    python code/data/generator.py --num-topologies 50 --seed 42
-    ```
-    *This creates `data/generated/topology_shift_set/`, verifies uniqueness, and generates `data/raw/gam_reference_stats.json`.*
+### 1. Generate Synthetic Test Set
+```bash
+python code/main.py --task generate --config code/config.py
+```
+*Output*: `data/generated/topology_shift_test_set/`
 
-3.  **Run Pilot Study (Phase 0.2)**:
-    ```bash
-    python code/eval/runner.py --method symbolic --trials 5 --pilot
-    ```
-    *This estimates solver latency to determine final trial count.*
+### 2. Run Baseline GAM
+```bash
+python code/main.py --task baseline --input data/generated/topology_shift_test_set
+```
+*Output*: `data/results/baseline_logs.csv`
 
-## Running the Experiment
+### 3. Run Symbolic Planner
+```bash
+python code/main.py --task symbolic --input data/generated/topology_shift_test_set
+```
+*Output*: `data/results/symbolic_logs.csv`
 
-1.  **Execute Baseline & Symbolic Trials (Phase 2 & 3)**:
-    ```bash
-    python code/eval/runner.py --method symbolic --method baseline_gam --trials 50 --timeout 300
-    ```
-    *This runs both methods on the generated test set, enforcing timeouts and logging results to `data/results/trial_log.csv`.*
+### 4. Statistical Analysis
+```bash
+python code/main.py --task analyze
+```
+*Output*: `data/results/statistical_analysis.json`
 
-2.  **Run Statistical Analysis (Phase 3)**:
-    ```bash
-    python code/eval/stats.py --input data/results/trial_log.csv
-    ```
-    *This generates `data/results/stats_report.json` with p-values and effect sizes (Log-Rank/Wilcoxon for latency if censored).*
+## Validation
 
-## Verification
-
-1.  **Check Results**:
-    ```bash
-    cat data/results/stats_report.json
-    ```
-    *Verify `null_hypothesis_rejected` is True/False as expected.*
-
-2.  **Check Gradient Logs**:
-    ```bash
-    cat data/results/gradient_flow_log.json
-    ```
-    *Verify `is_differentiable` is true for all entries.*
-
-3.  **Run Tests**:
-    ```bash
-    pytest tests/ -v
-    ```
-    *Ensures all contract tests (schema validation) and unit tests pass.*
+- **Contract Tests**: Run `pytest tests/contract/` to validate data schemas.
+- **Reproducibility**: Re-run the pipeline with `--seed 42` to verify deterministic results.
 
 ## Troubleshooting
 
--   **PyBullet Errors**: Ensure `libGLU.so` and `libGL` are installed (common on headless Linux).
--   **Timeout Failures**: If many trials time out, check `data/results/failure_report.json` for solver infeasibility.
--   **GPU Errors**: If `torch` tries to use CUDA, ensure `CUDA_VISIBLE_DEVICES=""` is set or `torch.device("cpu")` is used.
+- **Physics Errors**: Check PyBullet version compatibility.
+- **Out of Memory**: Reduce the number of simulation steps or topology complexity in `config.py`.
+- **Latency Timeout**: If a trial exceeds a predefined time threshold, it is logged as a timeout failure.

@@ -10,7 +10,9 @@ properties:
     format: "date-time"
   method:
     type: "string"
-    const: "numerical_finite_difference"
+    enum:
+      - "numerical_finite_difference"
+      - "diff-taichi"
     description: "The method used for verification."
   results:
     type: "array"

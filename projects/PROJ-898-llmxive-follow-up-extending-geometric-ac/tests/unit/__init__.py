@@ -1,1 +1,3 @@
-"""Unit tests package for llmXive symbolic planner."""
+"""
+Unit tests package for llmXive project.
+"""
