@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-02T06:50:24.325210Z'
-current_stage: flesh_out_in_progress
+current_stage: flesh_out_complete
 failed_stage: null
 field: biology
 human_escalation_reason: null
 id: PROJ-126-predicting-avian-migration-patterns-from
-last_run_id: 06434b9f-34b8-4c9d-842d-678c8aadda86
+last_run_id: e0e5c244-fb10-45a8-9d4e-93fc83a10f6c
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: Predicting Avian Migration Patterns from Publicly Available eBird Data
-updated_at: '2026-06-15T20:48:44.530772Z'
+updated_at: '2026-08-04T19:01:20.773848Z'

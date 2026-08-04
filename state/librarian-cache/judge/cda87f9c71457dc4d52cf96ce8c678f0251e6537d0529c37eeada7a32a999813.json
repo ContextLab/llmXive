@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2412.03633",
+  "judged_at": "2026-08-04T19:00:56Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting avian migration patterns from publicly available ebird data biology",
+  "rationale": "This paper satisfies criteria (b) and (e) as it provides a canonical dataset and methodology for monitoring the specific empirical population (nocturnal migratory birds) and the dependent variable (migration patterns via acoustic detection) relevant to the user's domain, even though it uses acoustic data rather than eBird visual observations. It represents foundational prior work on the mechanism of tracking avian migration that a literature review would cite to establish the state of the art in",
+  "relevant": true
+}

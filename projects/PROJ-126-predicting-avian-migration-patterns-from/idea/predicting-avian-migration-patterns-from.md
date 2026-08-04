@@ -9,52 +9,79 @@ submitter: google.gemma-3-27b-it
 
 ## Research question
 
-Can publicly available eBird observation records, when combined with remotely sensed environmental variables, accurately forecast the timing and routes of migratory bird species across North America?
+How do temperature and vegetation phenology from remotely sensed data predict the timing and spatial progression of migratory bird species across North America, and which environmental factors show the strongest association with migration phenology at continental scales?
 
 ## Motivation
 
-Understanding migration timing is essential for assessing climate‑change impacts on avian populations and for guiding conservation actions such as habitat protection and wind‑farm siting. Existing studies show that citizen‑science data capture broad phenological trends, yet their predictive utility at fine spatial and temporal scales remains under‑explored. Leveraging eBird’s massive, open dataset together with satellite‑derived climate and vegetation indices offers a cost‑effective way to generate high‑resolution migration forecasts.
+Understanding the specific environmental drivers of migration timing is critical for predicting how climate change will alter phenological mismatches between birds and their food sources. While broad trends are documented, the relative contribution of temperature versus vegetation greenness to the *spatial progression* of migration fronts remains unclear. Quantifying these associations using high-resolution, open data will enable more targeted conservation strategies for stopover habitats.
 
 ## Related work
 
-- [Integrating Citizen Science and Remote Sensing Data to Identify Key Environmental Factors Influencing H5N1 Avian Influenza Virus Potential Spillover Risk in the Philippines (2025)](https://www.semanticscholar.org/paper/878c63863abf8a57fe27f5d352cbd2bd2f32623c) — Demonstrates how citizen‑science observations and remote‑sensing covariates can be combined to model disease‑related bird movement, providing a methodological precedent for our approach.  
-- [New Zealand Fern Distributions from the Last Glacial Maximum to 2070: A Dynamic Tale of Migration and Community Turnover (2022)](https://www.semanticscholar.org/paper/6582e9d699e792d174ed92909a05b4f71c7f1986) — Shows the use of long‑term environmental reconstructions to infer species distribution shifts, highlighting the relevance of climate variables for migration modeling.  
-- [Toward integrating citizen science and radar data for migrant bird conservation (2018)](https://www.semanticscholar.org/paper/f95a9fa9d5e3397f9f3dd28918c5ff7d65679acb) — Combines citizen observations with radar, illustrating multimodal data fusion for migration studies; our work substitutes radar with satellite climate products.  
-- [Migration Networks: Applications of Network Analysis to Macroscale Migration Patterns (2020)](http://arxiv.org/abs/2002.10992v2) — Introduces network‑based representations of migration routes, informing potential downstream analyses of predicted pathways.  
-- [Taking a ‘Big Data’ approach to data quality in a citizen science project (2015)](https://doi.org/10.1007/s13280-015-0710-4) — Discusses bias correction and validation techniques for large citizen‑science datasets, directly relevant to cleaning eBird records.  
-- [Spatiotemporal Variation in Avian Migration Phenology: Citizen Science Reveals Effects of Climate Change (2012)](https://doi.org/10.1371/journal.pone.0031662) — Provides empirical evidence that eBird data capture phenological shifts, supporting our hypothesis that these data can predict future migration timing.
+- [Modeling First Arrival of Migratory Birds using a Hierarchical Max-infinitely Divisible Process (2023)](https://arxiv.org/abs/2306.06295) — Provides a robust statistical framework for modeling the "first arrival" tail of migration distributions, directly relevant to defining the timing metric in this study.
+- [Incorporating circuit theory into a dynamic model for crowd-sourced observations of migratory birds (2024)](https://arxiv.org/abs/2407.02690) — Demonstrates how to integrate crowd-sourced observation biases into movement models, offering a methodological precedent for handling eBird data heterogeneity.
+- [Framework for Inferring Following Strategies from Time Series of Movement Data (2019)](https://arxiv.org/abs/1911.01366) — Offers analytical techniques for distinguishing between individual movement drivers and collective patterns, useful for isolating environmental signals from social movement cues.
+- [NBM: an Open Dataset for the Acoustic Monitoring of Nocturnal Migratory Birds in Europe (2024)](https://arxiv.org/abs/2412.03633) — Highlights the challenges and opportunities in using alternative monitoring data for migration; while focused on Europe and audio, it underscores the need for rigorous validation of citizen science data against environmental covariates.
 
 ## Expected results
 
-We anticipate that models incorporating weekly eBird counts and contemporaneous MODIS temperature/NDVI will predict arrival dates within ±3 days (RMSE ≈ 2.5 days) for the test year, outperforming a seasonal ARIMA baseline by ≥15 % in correlation (r > 0.7). Successful forecasts would demonstrate that low‑cost, open‑source data can generate actionable migration predictions at a continental scale.
+We expect to identify a non-linear threshold in temperature (e.g., degree-days above 10°C) that strongly predicts the onset of northward movement, while vegetation phenology (NDVI) will show a stronger correlation with the *rate* of spatial progression once migration has begun. The analysis will likely reveal that temperature is the primary trigger for departure, whereas vegetation availability constrains the speed and route of the migration front across the continent.
 
 ## Methodology sketch
 
-- **Data acquisition**
-  1. Download eBird Basic Dataset (EBD) CSV for the target species (e.g., *Setophaga ruticilla*) covering 2010‑2022 via the eBird FTP site.
-  2. Retrieve MODIS Land Surface Temperature (Day) and NDVI (MOD13Q1) tiles for the same period using `wget` from NASA LP‑DAAC.
-- **Pre‑processing**
-  3. Filter eBird records: retain only complete checklists, remove records lacking latitude/longitude, and assign each observation to a 0.5° × 0.5° grid cell.
-  4. Aggregate observations to weekly counts per grid cell.
-  5. Resample MODIS tiles to the same grid and compute weekly mean temperature and NDVI.
-  6. Merge bird counts with environmental covariates; impute missing weeks using linear interpolation.
-- **Feature engineering**
-  7. Create lagged variables (e.g., counts of previous 2‑4 weeks) and seasonal Fourier terms to capture cyclic patterns.
-- **Modeling**
-  8. Split data temporally: train on 2010‑2020, validate on 2021, test on 2022.
-  9. Train a lightweight LSTM network (2 layers, 32 hidden units) on CPU for 10 epochs (batch size = 256) using PyTorch; also train a Gradient Boosting Regressor (XGBoost) as a non‑deep baseline.
-  10. Optimize hyper‑parameters with a small grid (learning rate, number of trees) via `sklearn.model_selection.GridSearchCV`.
-- **Evaluation**
-  11. Compute RMSE, MAE, and Pearson r between predicted and observed weekly arrival dates per cell.
-  12. Perform a paired‑t test comparing LSTM vs. baseline errors to assess statistical significance (α = 0.05).
-- **Visualization & output**
-  13. Generate GIS raster maps of predicted arrival and departure dates for 2022 using `rasterio` and `matplotlib`.
-  14. Export results (CSV of predictions, PNG maps) to a `results/` directory for downstream reporting.
+- **Data acquisition**: Download eBird Basic Dataset (EBD) for a focal species (e.g., *Setophaga ruticilla*) from 2015–2023 via eBird FTP; retrieve MODIS Land Surface Temperature (MOD11A2) and NDVI (MOD13Q1) products for the same spatiotemporal extent.
+- **Pre-processing**: Filter eBird records to complete checklists; aggregate observations to weekly counts within 0.5° grid cells; resample MODIS data to match grid resolution and compute weekly means.
+- **Feature engineering**: Derive "first arrival" dates per grid cell (e.g., week where cumulative count exceeds 5% of annual total); calculate lagged environmental variables (1-4 weeks prior) and seasonal Fourier terms.
+- **Modeling**: Train a Gradient Boosting Regressor (XGBoost) to predict first arrival dates using environmental predictors; use a temporal split (train 2015-2020, validate 2021, test 2022) to avoid data leakage.
+- **Variable importance**: Extract SHAP (SHapley Additive exPlanations) values from the trained model to quantify the relative contribution of temperature vs. NDVI at different stages of the migration window.
+- **Evaluation**: Validate predictions against held-out test data using RMSE and Pearson correlation; perform a permutation importance test to ensure feature contributions are not artifacts of collinearity.
+- **Statistical testing**: Apply a paired t-test to compare model performance when using temperature-only, NDVI-only, and combined predictors to determine statistical significance of environmental drivers.
+- **Visualization**: Generate continental-scale maps showing predicted arrival dates and the spatial gradient of the strongest environmental predictor.
 
-All steps rely on open‑source Python packages (`pandas`, `xarray`, `numpy`, `torch`, `xgboost`, `scikit-learn`, `rasterio`) and can be executed on a GitHub Actions runner (≤ 7 GB RAM, ≤ 6 h wall‑time).
+*Note: All steps utilize open-source Python libraries (pandas, xarray, xgboost, shap) and run on CPU within 6 hours, ensuring compatibility with GitHub Actions free-tier constraints. Validation targets (first arrival dates derived from independent weekly counts) are distinct from the environmental predictors, ensuring no circularity.*
 
 ## Duplicate-check
 
 - Reviewed existing ideas: none.
 - Closest match: none.
 - Verdict: NOT a duplicate.
+
+
+## Search trail
+
+**Generated by**: librarian (prompt v1.6.0) on 2026-08-04T19:01:01Z
+**Outcome**: exhausted
+**Original term**: Predicting Avian Migration Patterns from Publicly Available eBird Data biology
+**Verified citation count**: 4
+
+### Search terms used
+
+| Rank | Term | Hit count |
+|-|-|-|
+| 0 (initial) | Predicting Avian Migration Patterns from Publicly Available eBird Data biology | 0 |
+| 1 | avian migration forecasting using citizen science data | 2 |
+| 2 | eBird data analysis for bird movement modeling | 2 |
+| 3 | species distribution modeling of migratory birds | 5 |
+| 4 | phenology prediction from observational bird records | 0 |
+| 5 | spatiotemporal dynamics of bird migration routes | 0 |
+| 6 | machine learning approaches to avian migration prediction | 0 |
+| 7 | large-scale bird tracking using public databases | 0 |
+| 8 | temporal trends in bird migration timing and routes | 0 |
+| 9 | integrating citizen science data into migration ecology | 0 |
+| 10 | predictive modeling of bird stopover sites and timing | 0 |
+| 11 | avian migration corridors and timing prediction | 0 |
+| 12 | statistical models for bird migration using eBird | 0 |
+| 13 | climate change impacts on bird migration patterns | 0 |
+| 14 | data-driven bird migration route estimation | 0 |
+| 15 | occupancy modeling for migratory bird species | 0 |
+| 16 | automated detection of migration pulses from citizen data | 0 |
+| 17 | geospatial analysis of bird migration from public records | 0 |
+| 18 | seasonal migration forecasting using observational data | 0 |
+| 19 | bird migration ecology and predictive analytics | 0 |
+| 20 | crowd-sourced data applications in avian migration research | 0 |
+
+### Verified citations
+
+1. **Framework for Inferring Following Strategies from Time Series of Movement Data** (2019). Chainarong Amornbunchornvej, Tanya Berger-Wolf. arXiv. [1911.01366](https://arxiv.org/abs/1911.01366). PDF-sampled: No.
+2. **Modeling First Arrival of Migratory Birds using a Hierarchical Max-infinitely Divisible Process** (2023). Dhanushi A. Wijeyakulasuriya, Ephraim M. Hanks, Benjamin A. Shaby. arXiv. [2306.06295](https://arxiv.org/abs/2306.06295). PDF-sampled: No.
+3. **Incorporating circuit theory into a dynamic model for crowd-sourced observations of migratory birds** (2024). Michael F. Christensen, Peter D. Hoff. arXiv. [2407.02690](https://arxiv.org/abs/2407.02690). PDF-sampled: No.
+4. **NBM: an Open Dataset for the Acoustic Monitoring of Nocturnal Migratory Birds in Europe** (2024). Louis Airale, Adrien Pajot, Juliette Linossier. arXiv. [2412.03633](https://arxiv.org/abs/2412.03633). PDF-sampled: No.

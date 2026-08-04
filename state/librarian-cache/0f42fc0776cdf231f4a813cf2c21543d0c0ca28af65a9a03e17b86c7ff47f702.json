@@ -1,0 +1,566 @@
+{
+  "fetched_at": "2026-08-04T18:59:42Z",
+  "field": "biology",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "biology",
+      "idea_body_excerpt": "Predicting Plant Disease Severity from Publicly Available Image Data and Meteorological Records",
+      "target_n": 5
+    },
+    "duration_seconds": 42.096,
+    "ended_at": "2026-08-04T18:59:42Z",
+    "expansion": null,
+    "extracted_queries": [
+      "phenotypic symptom progression environmental stress",
+      "PlantVillage dataset weather station data",
+      "abiotic biotic interaction stress response",
+      "disease severity index remote sensing metrics",
+      "pathogen epidemiology climate covariates modeling"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2407.12851"
+      ]
+    },
+    "per_query_hit_count": {
+      "PlantVillage dataset weather station data": 3,
+      "Predicting Plant Disease Severity from Publicly Available Image Data and Meteorological Records biology": 3,
+      "abiotic biotic interaction stress response": 3,
+      "disease severity index remote sensing metrics": 3,
+      "pathogen epidemiology climate covariates modeling": 3,
+      "phenotypic symptom progression environmental stress": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": true,
+      "rejected_count": 5,
+      "rejections": [
+        {
+          "primary_pointer": "1910.11509",
+          "rationale": "The paper addresses Parkinson's disease severity prediction using gait sensor data, which is a distinct biological domain (neurology/human motor function) and data modality (1D time-series from foot sensors) compared to the user's question about plant disease severity using image and meteorological data. This falls under the rejection rule for \"Distinct construct sharing only homonym keywords\" (specifically the shared term \"severity prediction\") and is \"Off-domain entirely\" as it studies human p",
+          "title": "Deep 1D-Convnet for accurate Parkinson disease detection and severity prediction from gait"
+        },
+        {
+          "primary_pointer": "2407.12851",
+          "rationale": "The paper focuses on constructing an ontology for Traditional Chinese Medicine (TCM) symptom phenotypes using electronic medical records, which is an off-domain application (human medicine vs. plant biology) and addresses semantic data integration rather than the specific mechanism of predicting plant disease severity from images and meteorological data. It shares only the homonym keyword \"disease\" but lacks any measurable connection to the user's variables, domain, or empirical setting.",
+          "title": "ISPO: An Integrated Ontology of Symptom Phenotypes for Semantic Integration of Traditional Chinese Medical Data"
+        },
+        {
+          "primary_pointer": "2405.19595",
+          "rationale": "The paper is entirely off-domain, focusing on human medical imaging (abdominal CT scans) and traumatic injury detection, whereas the user's question concerns plant disease severity prediction using image data and meteorological records. This falls under the rejection rule for \"Distinct construct sharing only homonym keywords\" (e.g., \"disease\" in humans vs. plants) and \"Off-domain entirely,\" as there is no measurable connection to the biological mechanism, domain, or variables of the user's resea",
+          "title": "The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset"
+        },
+        {
+          "primary_pointer": "2409.00735",
+          "rationale": "The paper focuses on a simulation environment for optimizing chemical treatment strategies and yield recovery using reinforcement learning, rather than addressing the specific mechanism of predicting disease severity from image and meteorological data. While it operates in the same broad domain of agricultural biotic stress, it does not measure the target variables (image-based severity prediction or weather correlations) nor does it establish the empirical baseline for the specific prediction t",
+          "title": "AgGym: An agricultural biotic stress simulation environment for ultra-precision management planning"
+        },
+        {
+          "primary_pointer": "2403.19646",
+          "rationale": "The paper focuses on general remote sensing change detection and captioning (e.g., urban expansion, land cover change) using a generic \"Change-Agent\" framework, which does not address the specific biological mechanism of plant disease severity or the integration of meteorological records required by the user's question. While it uses satellite imagery, it lacks the specific domain application (plant pathology) and the multi-modal data fusion (images + weather) necessary to be considered relevant",
+          "title": "Change-Agent: Towards Interactive Comprehensive Remote Sensing Change Interpretation and Analysis"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-08-04T18:59:00Z",
+    "term_input": {
+      "normalized": "predicting plant disease severity from publicly available image data and meteorological records biology",
+      "raw": "Predicting Plant Disease Severity from Publicly Available Image Data and Meteorological Records biology"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Alzheimer's disease (AD) exhibits substantial clinical and biological heterogeneity, complicating efforts in treatment and intervention development. While new computational methods offer insights into AD progression, the reproducibility of these subtypes across datasets remains understudied, particularly concerning the robustness of subtype definitions when validated on diverse databases. This study evaluates the consistency of AD progression subtypes identified by the Subtype and Stage Inference (SuStaIn) algorithm using T1-weighted MRI data across 5,444 subjects from ANMerge, OASIS, and ADNI datasets, forming four independent cohorts. Each cohort was analyzed under two conditions: one using the full cohort, including cognitively normal controls, and another excluding controls to test subtype robustness. Results confirm the three primary atrophy subtypes identified in earlier studies: Typical, Cortical, and Subcortical, as well as the emergence of rare and atypical AD variants such as posterior cortical atrophy (PCA). Notably, each subtype displayed varying robustness to the inclusion of controls, with certain subtypes, like Subcortical, more influenced by cohort composition. This investigation underscores SuStaIn's reliability for defining stable AD subtypes and suggests its utility in clinical stratification for trials and diagnosis. However, our findings also highlight the need for improved dataset diversity, particularly in terms of ethnic representation, to enhance generalizability and support broader clinical application.",
+          "claimed_authors": [
+            "Emma Prevot",
+            "Cameron Shand",
+            "Neil Oxtoby",
+            "for Alzheimer's Disease Neuroimaging Initiative"
+          ],
+          "claimed_title": "How reproducible are data-driven subtypes of Alzheimer's disease atrophy?",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2412.00160"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Predicting Plant Disease Severity from Publicly Available Image Data and Meteoro', candidate_title=\"How reproducible are data-driven subtypes of Alzheimer's disease atrophy?\")",
+        "failed_at": "2026-08-04T18:59:29Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Progressive cognitive decline spanning across decades is characteristic of Alzheimer's disease (AD). Various predictive models have been designed to realize its early onset and study the long-term trajectories of cognitive test scores across populations of interest. Research efforts have been geared towards superimposing patients' cognitive test scores with the long-term trajectory denoting gradual cognitive decline, while considering the heterogeneity of AD. Multiple trajectories representing cognitive assessment for the long-term have been developed based on various parameters, highlighting the importance of classifying several groups based on disease progression patterns. In this study, a novel method capable of self-organized prediction, classification, and the overlay of long-term cognitive trajectories based on short-term individual data was developed, based on statistical and differential equation modeling. We validated the predictive accuracy of the proposed method for the long-term trajectory of cognitive test score results on two cohorts: the Alzheimer's Disease Neuroimaging Initiative (ADNI) study and the Japanese ADNI study. We also presented two practical illustrations of the simultaneous evaluation of risk factor associated with both the onset and the longitudinal progression of AD, and an innovative randomized controlled trial design for AD that standardizes the heterogeneity of patients enrolled in a clinical trial. These resources would improve the power of statistical hypothesis testing and help evaluate the therapeutic effect. The application of predicting the trajectory of longitudinal disease progression goes beyond AD, and is especially relevant for progressive and neurodegenerative disorders.",
+          "claimed_authors": [
+            "Hiroyuki Sato",
+            "Keisuke Suzuki",
+            "Atsushi Hashizume",
+            "Ryoichi Hanazawa",
+            "Masanao Sasaki",
+            "Akihiro Hirakawa",
+            "the Japanese Alzheimer's Disease Neuroimaging Initiative",
+            "the Alzheimer's Disease Neuroimaging Initiative"
+          ],
+          "claimed_title": "Self-organized clustering, prediction, and superposition of long-term cognitive decline from short-term individual cognitive test scores in Alzheimer's disease",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2402.12205"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Predicting Plant Disease Severity from Publicly Available Image Data and Meteoro', candidate_title=\"Self-organized clustering, prediction, and superposition of long-term cognitive decline from short-term individual cognitive test scores in Alzheimer's disease\")",
+        "failed_at": "2026-08-04T18:59:29Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Abdominal aortic aneurysm (AAA) is a permanent and irreversible dilation of the lower region of the aorta. It is typically an asymptomatic condition that if left untreated can expand to the point of rupture. Mechanically-speaking, rupture of an artery occurs when the local wall stress exceeds the local wall strength. It is therefore understandable that numerous studies have attempted to estimate the AAA wall stress. Recently the Intelligent Systems for Medicine Laboratory (ISML) presented a very efficient method to compute AAA wall stress using geometry from Computed Tomography (CT) images, and median arterial pressure as the applied load. The ISML's method is embedded in the software platform BioPARR - Biomechanics based Prediction of Aneurysm Rupture Risk, freely available from http://bioparr.mech.uwa.edu.au/. The uniqueness of our stress computation approach is three-fold: i) the results are insensitive to unknown patient-specific mechanical properties of arterial wall tissue; ii) the residual stress is accounted for, according to Y.C. Fung's Uniform Stress Hypothesis; and iii) the analysis is automated and quick, making our approach compatible with clinical workflows. In this study we evaluated 19 cases of AAA. A proportion of these were classified as symptomatic. The results of the analysis demonstrate, contrary to the common view, that neither the wall stress magnitude nor the stress distribution correlate with the presence of clinical symptoms.",
+          "claimed_authors": [
+            "Karol Miller",
+            "Hozan Mufty",
+            "Alastair Catlin",
+            "Christopher Rogers",
+            "Bradley Saunders",
+            "Ross Sciarrone",
+            "Inge Fourneau",
+            "Bart Meuris",
+            "Angus Tavner",
+            "Grand R. Joldes",
+            "Adam Wittek"
+          ],
+          "claimed_title": "Wall Stress Distributions in Abdominal Aortic Aneurysms Do Not Correlate With Symptoms",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1904.07393"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Predicting Plant Disease Severity from Publicly Available Image Data and Meteoro', candidate_title='Wall Stress Distributions in Abdominal Aortic Aneurysms Do Not Correlate With Symptoms')",
+        "failed_at": "2026-08-04T18:59:29Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Is environmental injustice driven by a global network of multinational companies? Is there a global environmental justice movement resisting extractivism? This study addresses these questions through a social network analysis of firms and Environmental Justice Organizations (EJOs) involved in socioenvironmental conflicts. Using Environmental Justice Atlas (EJAtlas) data, we examine 3,396 conflicts involving 6,244 companies and 11,231 EJOs. The findings reveal evident structural asymmetries. Corporations form cohesive, sector-specific global networks that support coordination across regions. Conversely, EJOs form a larger, decentralized, and self-organized network characterised by sparse localised interconnections that enable regional coordination across sectors. A limited number of international EJOs involved in many conflicts worldwide weaves a global environmental justice network to match the global spread of multinational corporations and supply chains. This research study shows that these contrasting network structures reflect the distinct purposes of their constituent actors: sectoral expansion for corporations and environmental and territorial defense for EJOs.",
+          "claimed_authors": [
+            "Dario Cottafava",
+            "José R. Nicolás-Carlock",
+            "Marcel Llavero-Pasquina",
+            "Joan Martínez Alier"
+          ],
+          "claimed_title": "Globally distributed environmental justice resistance against extractive corporate networks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2603.29722"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Predicting Plant Disease Severity from Publicly Available Image Data and Meteoro', candidate_title='Globally distributed environmental justice resistance against extractive corporate networks')",
+        "failed_at": "2026-08-04T18:59:29Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed stochastic gradient descent (SGD) in the master-worker architecture under Byzantine attacks. We consider the heterogeneous data model, where different workers may have different local datasets, and we do not make any probabilistic assumptions on data generation. At the core of our algorithm, we use the polynomial-time outlier-filtering procedure for robust mean estimation proposed by Steinhardt et al. (ITCS 2018) to filter-out corrupt gradients. In order to be able to apply their filtering procedure in our {\\em heterogeneous} data setting where workers compute {\\em stochastic} gradients, we derive a new matrix concentration result, which may be of independent interest.\n  We provide convergence analyses for smooth strongly-convex and non-convex objectives. We derive our results under the bounded variance assumption on local stochastic gradients and a {\\em deterministic} condition on datasets, namely, gradient dissimilarity; and for both these quantities, we provide concrete bounds in the statistical heterogeneous data model. We give a trade-off between the mini-batch size for stochastic gradients and the approximation error. Our algorithm can tolerate up to $\\frac{1}{4}$ fraction Byzantine workers. It can find approximate optimal parameters in the strongly-convex setting exponentially fast and reach to an approximate stationary point in the non-convex setting with a linear speed, thus, matching the convergence rates of vanilla SGD in the Byzantine-free setting.\n  We also propose and analyze a Byzantine-resilient SGD algorithm with gradient compression, where workers send $k$ random coordinates of their gradients. Under mild conditions, we show a $\\frac{d}{k}$-factor saving in communication bits as well as decoding complexity over our compression-free algorithm without affecting its convergence rate (order-wise) and the approximation error.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2005.07866"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Predicting Plant Disease Severity from Publicly Available Image Data and Meteoro', candidate_title='Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data')",
+        "failed_at": "2026-08-04T18:59:29Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed optimization in the presence of Byzantine adversaries, where both data and computation are distributed among $m$ worker machines, $t$ of which may be corrupt. The compromised nodes may collaboratively and arbitrarily deviate from their pre-specified programs, and a designated (master) node iteratively computes the model/parameter vector for generalized linear models. In this work, we primarily focus on two iterative algorithms: Proximal Gradient Descent (PGD) and Coordinate Descent (CD). Gradient descent (GD) is a special case of these algorithms. PGD is typically used in the data-parallel setting, where data is partitioned across different samples, whereas, CD is used in the model-parallelism setting, where data is partitioned across the parameter space.\n  In this paper, we propose a method based on data encoding and error correction over real numbers to combat adversarial attacks. We can tolerate up to $t\\leq \\lfloor\\frac{m-1}{2}\\rfloor$ corrupt worker nodes, which is information-theoretically optimal. We give deterministic guarantees, and our method does not assume any probability distribution on the data. We develop a {\\em sparse} encoding scheme which enables computationally efficient data encoding and decoding. We demonstrate a trade-off between the corruption threshold and the resource requirements (storage, computational, and communication complexity). As an example, for $t\\leq\\frac{m}{3}$, our scheme incurs only a {\\em constant} overhead on these resources, over that required by the plain distributed PGD/CD algorithms which provide no adversarial protection. To the best of our knowledge, ours is the first paper that makes CD secure against adversarial attacks.\n  Our encoding scheme extends efficiently to the data streaming model and for stochastic gradient descent (SGD). We also give experimental results to show the efficacy of our proposed schemes.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Linqi Song",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Data Encoding for Byzantine-Resilient Distributed Optimization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1907.02664"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Predicting Plant Disease Severity from Publicly Available Image Data and Meteoro', candidate_title='Data Encoding for Byzantine-Resilient Distributed Optimization')",
+        "failed_at": "2026-08-04T18:59:29Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Biotic stress consists of damage to plants through other living organisms. Efficient control of biotic agents such as pests and pathogens (viruses, fungi, bacteria, etc.) is closely related to the concept of agricultural sustainability. Agricultural sustainability promotes the development of new technologies that allow the reduction of environmental impacts, greater accessibility to farmers and, consequently, increase on productivity. The use of computer vision with deep learning methods allows the early and correct identification of the stress-causing agent. So, corrective measures can be applied as soon as possible to mitigate the problem. The objective of this work is to design an effective and practical system capable of identifying and estimating the stress severity caused by biotic agents on coffee leaves. The proposed approach consists of a multi-task system based on convolutional neural networks. In addition, we have explored the use of data augmentation techniques to make the system more robust and accurate. The experimental results obtained for classification as well as for severity estimation indicate that the proposed system might be a suitable tool to assist both experts and farmers in the identification and quantification of biotic stresses in coffee plantations.",
+          "claimed_authors": [
+            "J. G. M. Esgario",
+            "R. A. Krohling",
+            "J. A. Ventura"
+          ],
+          "claimed_title": "Deep Learning for Classification and Severity Estimation of Coffee Leaf Biotic Stress",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1907.11561"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Predicting Plant Disease Severity from Publicly Available Image Data and Meteoro', candidate_title='Deep Learning for Classification and Severity Estimation of Coffee Leaf Biotic Stress')",
+        "failed_at": "2026-08-04T18:59:29Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "While generative artificial intelligence (Gen AI) increasingly transforms academic environments, a critical gap exists in understanding and mitigating human biases in AI interactions, such as anchoring and confirmation bias. This position paper advocates for metacognitive AI literacy interventions to help university students critically engage with AI and address biases across the Human-AI interaction workflows. The paper presents the importance of considering (1) metacognitive support with deliberate friction focusing on human bias; (2) bi-directional Human-AI interaction intervention addressing both input formulation and output interpretation; and (3) adaptive scaffolding that responds to diverse user engagement patterns. These frameworks are illustrated through ongoing work on \"DeBiasMe,\" AIED (AI in Education) interventions designed to enhance awareness of cognitive biases while empowering user agency in AI interactions. The paper invites multiple stakeholders to engage in discussions on design and evaluation methods for scaffolding mechanisms, bias visualization, and analysis frameworks. This position contributes to the emerging field of AI-augmented learning by emphasizing the critical role of metacognition in helping students navigate the complex interaction between human, statistical, and systemic biases in AI use while highlighting how cognitive adaptation to AI systems must be explicitly integrated into comprehensive AI literacy frameworks.",
+          "claimed_authors": [
+            "Chaeyeon Lim"
+          ],
+          "claimed_title": "DeBiasMe: De-biasing Human-AI Interactions with Metacognitive AIED (AI in Education) Interventions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2504.16770"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Plant Disease Severity from Publicly Available Image Data and Meteoro', candidate_title='DeBiasMe: De-biasing Human-AI Interactions with Metacognitive AIED (AI in Education) Interventions')",
+        "failed_at": "2026-08-04T18:59:30Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Remote Sensing Image Retrieval remains a challenging topic due to the special nature of Remote Sensing Imagery. Such images contain various different semantic objects, which clearly complicates the retrieval task. In this paper, we present an image retrieval pipeline that uses attentive, local convolutional features and aggregates them using the Vector of Locally Aggregated Descriptors (VLAD) to produce a global descriptor. We study various system parameters such as the multiplicative and additive attention mechanisms and descriptor dimensionality. We propose a query expansion method that requires no external inputs. Experiments demonstrate that even without training, the local convolutional features and global representation outperform other systems. After system tuning, we can achieve state-of-the-art or competitive results. Furthermore, we observe that our query expansion method increases overall system performance by about 3%, using only the top-three retrieved images. Finally, we show how dimensionality reduction produces compact descriptors with increased retrieval performance and fast retrieval computation times, e.g. 50% faster than the current systems.",
+          "claimed_authors": [
+            "Raffaele Imbriaco",
+            "Clint Sebastian",
+            "Egor Bondarev",
+            "Peter H. N. de With"
+          ],
+          "claimed_title": "Aggregated Deep Local Features for Remote Sensing Image Retrieval",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1903.09469"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Predicting Plant Disease Severity from Publicly Available Image Data and Meteoro', candidate_title='Aggregated Deep Local Features for Remote Sensing Image Retrieval')",
+        "failed_at": "2026-08-04T18:59:30Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Vision-language models (VLMs) have shown significant promise in remote sensing applications, particularly for land-use and land-cover (LULC) mapping via zero-shot classification and retrieval. However, current approaches face several key challenges, such as the dependence on caption-based supervision, which is often not available or very limited in terms of the covered semantics, and the fact of being adapted from generic VLM architectures that are suitable for very high resolution images. Consequently, these models tend to prioritize spatial context over spectral and temporal information, limiting their effectiveness for medium-resolution remote sensing imagery. In this work, we present TimeSenCLIP, a lightweight VLM for remote sensing time series, using a cross-view temporal contrastive framework to align multispectral Sentinel-2 time series with geo-tagged ground-level imagery, without requiring textual annotations. Unlike prior VLMs, TimeSenCLIP emphasizes temporal and spectral signals over spatial context, investigating whether single-pixel time series contain sufficient information for solving a variety of tasks.",
+          "claimed_authors": [
+            "Pallavi Jain",
+            "Diego Marcos",
+            "Dino Ienco",
+            "Roberto Interdonato",
+            "Tristan Berchoux"
+          ],
+          "claimed_title": "TimeSenCLIP: A Time Series Vision-Language Model for Remote Sensing",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2508.11919"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Predicting Plant Disease Severity from Publicly Available Image Data and Meteoro', candidate_title='TimeSenCLIP: A Time Series Vision-Language Model for Remote Sensing')",
+        "failed_at": "2026-08-04T18:59:30Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Mediterranean ecosystems such as those found in California, Central Chile, Southern Europe, and Southwest Australia host numerous, diverse, fire-adapted micro-ecosystems. These micro-ecosystems are as diverse as mountainous conifer to desert-like chaparral communities. Over the last few centuries, human intervention, invasive species, and climate warming have drastically affected the composition and health of Mediterranean ecosystems on almost every continent. Increased fuel load from fire suppression policies and the continued range expansion of non-native insects and plants, some driven by long-term drought, produced the deadliest wildfire season on record in 2018. As a consequence of these fires, a large number of structures are destroyed, releasing household chemicals into the environment as uncontrolled toxins. The mobilization of these materials can lead to health risks and disruption in both human and natural systems. This article identifies drivers that led to a structural weakening of the mosaic of fire-adapted ecosystems in California, and subsequently increased the risk of destructive and explosive wildfires throughout the state. Under a new climate regime, managing the impacts on systems moving out-of-phase with natural processes may protect lives and ensure the stability of ecosystem services.",
+          "claimed_authors": [
+            "Kimberley Miner",
+            "Laura Meyerson",
+            ". Climate Change Institute",
+            "School of Earth",
+            "Climate Sciences",
+            "University of Maine",
+            " Orono",
+            "ME 04469 2. Department of Natural Resources Science",
+            "University of Rhode Island",
+            " Kingston",
+            "RI 02881"
+          ],
+          "claimed_title": "Invasive species, extreme fire risk, and toxin release under a changing climate",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2008.01035"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Plant Disease Severity from Publicly Available Image Data and Meteoro', candidate_title='Invasive species, extreme fire risk, and toxin release under a changing climate')",
+        "failed_at": "2026-08-04T18:59:30Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The response of precipitation extremes to climate change is considered using results from theory, modeling, and observations, with a focus on the physical factors that control the response. Observations and simulations with climate models show that precipitation extremes intensify in response to a warming climate. However, the sensitivity of precipitation extremes to warming remains uncertain when convection is important, and it may be higher in the tropics than the extratropics. Several physical contributions govern the response of precipitation extremes. The thermodynamic contribution is robust and well understood, but theoretical understanding of the microphysical and dynamical contributions is still being developed. Orographic precipitation extremes and snowfall extremes respond differently from other precipitation extremes and require particular attention. Outstanding research challenges include the influence of mesoscale convective organization, the dependence on the duration considered, and the need to better constrain the sensitivity of tropical precipitation extremes to warming.",
+          "claimed_authors": [
+            "Paul A. O'Gorman"
+          ],
+          "claimed_title": "Precipitation extremes under climate change",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2015,
+          "primary_pointer": "1503.07557"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Plant Disease Severity from Publicly Available Image Data and Meteoro', candidate_title='Precipitation extremes under climate change')",
+        "failed_at": "2026-08-04T18:59:30Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Assessments of impacts of climate change and future projections over the Indian region, have so far relied on a single regional climate model (RCM) - eg., the PRECIS RCM of the Hadley Centre, UK. While these assessments have provided inputs to various reports (e.g., INCCA 2010; NATCOMM2 2012), it is important to have an ensemble of climate projections drawn from multiple RCMs due to large uncertainties in regional-scale climate projections. Ensembles of multi-RCM projections driven under different perceivable socio-economic scenarios are required to capture the probable path of growth, and provide the behavior of future climate and impacts on various biophysical systems and economic sectors dependent on such systems.\n  The Centre for Climate Change Research, Indian Institute of Tropical Meteorology (CCCR-IITM) has generated an ensemble of high resolution downscaled projections of regional climate and monsoon over South Asia until 2100 for the Intergovernmental Panel for Climate Change (IPCC)using a RCM (ICTP-RegCM4) at 50 km horizontal resolution, by driving the regional model with lateral and lower boundary conditions from multiple global atmosphere-ocean coupled models from the Coupled Model Intercomparison Project Phase 5 (CMIP5). The future projections are based on three Representation Concentration Pathway (RCP) scenarios (viz., RCP2.6, RCP4.5, RCP8.5) of the IPCC.",
+          "claimed_authors": [
+            "J. Sanjay",
+            "R. Krishnan",
+            "M. V. S. Ramarao",
+            "R. Mahesh",
+            "Bhupendra Bahadur Singh",
+            "Jayashri Patel",
+            "Sandip Ingle",
+            "Preethi Bhaskar",
+            "J. V. Revadekar",
+            "T. P. Sabin",
+            "M. Mujumdar"
+          ],
+          "claimed_title": "Future Climate Change Projections over the Indian Region",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2012.10386"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Plant Disease Severity from Publicly Available Image Data and Meteoro', candidate_title='Future Climate Change Projections over the Indian Region')",
+        "failed_at": "2026-08-04T18:59:30Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Imanne El Maachi",
+            "Guillaume-Alexandre Bilodeau",
+            "Wassim Bouachir"
+          ],
+          "title": "Deep 1D-Convnet for accurate Parkinson disease detection and severity prediction from gait",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2019
+        },
+        "primary_pointer": "1910.11509",
+        "summary": "Diagnosing Parkinson's disease is a complex task that requires the evaluation of several motor and non-motor symptoms. During diagnosis, gait abnormalities are among the important symptoms that physicians should consider. However, gait evaluation is challenging and relies on the expertise and subjectivity of clinicians. In this context, the use of an intelligent gait analysis algorithm may assist physicians in order to facilitate the diagnosis process. This paper proposes a novel intelligent Parkinson detection system based on deep learning techniques to analyze gait information. We used 1D convolutional neural network (1D-Convnet) to build a Deep Neural Network (DNN) classifier. The proposed model processes 18 1D-signals coming from foot sensors measuring the vertical ground reaction force (VGRF). The first part of the network consists of 18 parallel 1D-Convnet corresponding to system inputs. The second part is a fully connected network that connects the concatenated outputs of the 1D-Convnets to obtain a final classification. We tested our algorithm in Parkinson's detection and in the prediction of the severity of the disease with the Unified Parkinson's Disease Rating Scale (UPDRS). Our experiments demonstrate the high efficiency of the proposed method in the detection of Parkinson disease based on gait data. The proposed algorithm achieved an accuracy of 98.7 %. To our knowledge, this is the state-of-the-start performance in Parkinson's gait recognition. Furthermore, we achieved an accuracy of 85.3 % in Parkinson's severity prediction. To the best of our knowledge, this is the first algorithm to perform a severity prediction based on the UPDRS. Our results show that the model is able to learn intrinsic characteristics from gait data and to generalize to unseen subjects, which could be helpful in a clinical diagnosis.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1910.11509",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-04T18:59:28Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Zixin Shu",
+            "Rui Hua",
+            "Dengying Yan",
+            "Chenxia Lu",
+            "Ning Xu",
+            "Jun Li",
+            "Hui Zhu",
+            "Jia Zhang",
+            "Dan Zhao",
+            "Chenyang Hui",
+            "Junqiu Ye",
+            "Chu Liao",
+            "Qi Hao",
+            "Wen Ye",
+            "Cheng Luo",
+            "Xinyan Wang",
+            "Chuang Cheng",
+            "Xiaodong Li",
+            "Baoyan Liu",
+            "Xiaji Zhou",
+            "Runshun Zhang",
+            "Min Xu",
+            "Xuezhong Zhou"
+          ],
+          "title": "ISPO: An Integrated Ontology of Symptom Phenotypes for Semantic Integration of Traditional Chinese Medical Data",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2407.12851",
+        "summary": "Symptom phenotypes are one of the key types of manifestations for diagnosis and treatment of various disease conditions. However, the diversity of symptom terminologies is one of the major obstacles hindering the analysis and knowledge sharing of various types of symptom-related medical data particularly in the fields of Traditional Chinese Medicine (TCM). Objective: This study aimed to construct an Integrated Ontology of symptom phenotypes (ISPO) to support the data mining of Chinese EMRs and real-world study in TCM field. Methods: To construct an integrated ontology of symptom phenotypes (ISPO), we manually annotated classical TCM textbooks and large-scale Chinese electronic medical records (EMRs) to collect symptom terms with support from a medical text annotation system. Furthermore, to facilitate the semantic interoperability between different terminologies, we incorporated public available biomedical vocabularies by manual mapping between Chinese terms and English terms with cross-references to source vocabularies. In addition, we evaluated the ISPO using independent clinical EMRs to provide a high-usable medical ontology for clinical data analysis. Results: By integrating 78,696 inpatient cases of EMRs, 5 biomedical vocabularies, 21 TCM books and dictionaries, ISPO provides 3,147 concepts, 23,475 terms, and 55,552 definition or contextual texts. Adhering to the taxonomical structure of the related anatomical systems of symptom phenotypes, ISPO provides 12 top-level categories and 79 middle-level sub-categories. The validation of data analysis showed the ISPO has a coverage rate of 95.35%, 98.53% and 92.66% for symptom terms with occurrence rates of 0.5% in additional three independent curated clinical datasets, which can demonstrate the significant value of ISPO in mapping clinical terms to ontologies.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2407.12851",
+          "http_status": 200,
+          "pdf_sample_score": 0.3326,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-04T18:59:29Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Jeffrey D. Rudie",
+            "Hui-Ming Lin",
+            "Robyn L. Ball",
+            "Sabeena Jalal",
+            "Luciano M. Prevedello",
+            "Savvas Nicolaou",
+            "Brett S. Marinelli",
+            "Adam E. Flanders",
+            "Kirti Magudia",
+            "George Shih",
+            "Melissa A. Davis",
+            "John Mongan",
+            "Peter D. Chang",
+            "Ferco H. Berger",
+            "Sebastiaan Hermans",
+            "Meng Law",
+            "Tyler Richards",
+            "Jan-Peter Grunz",
+            "Andreas Steven Kunz",
+            "Shobhit Mathur",
+            "Sandro Galea-Soler",
+            "Andrew D. Chung",
+            "Saif Afat",
+            "Chin-Chi Kuo",
+            "Layal Aweidah",
+            "Ana Villanueva Campos",
+            "Arjuna Somasundaram",
+            "Felipe Antonio Sanchez Tijmes",
+            "Attaporn Jantarangkoon",
+            "Leonardo Kayat Bittencourt",
+            "Michael Brassil",
+            "Ayoub El Hajjami",
+            "Hakan Dogan",
+            "Muris Becircic",
+            "Agrahara G. Bharatkumar",
+            "Eduardo Moreno Júdice de Mattos Farina",
+            "Dataset Curator Group",
+            "Dataset Contributor Group",
+            "Dataset Annotator Group",
+            "Errol Colak"
+          ],
+          "title": "The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2405.19595",
+        "summary": "The RSNA Abdominal Traumatic Injury CT (RATIC) dataset is the largest publicly available collection of adult abdominal CT studies annotated for traumatic injuries. This dataset includes 4,274 studies from 23 institutions across 14 countries. The dataset is freely available for non-commercial use via Kaggle at https://www.kaggle.com/competitions/rsna-2023-abdominal-trauma-detection. Created for the RSNA 2023 Abdominal Trauma Detection competition, the dataset encourages the development of advanced machine learning models for detecting abdominal injuries on CT scans. The dataset encompasses detection and classification of traumatic injuries across multiple organs, including the liver, spleen, kidneys, bowel, and mesentery. Annotations were created by expert radiologists from the American Society of Emergency Radiology (ASER) and Society of Abdominal Radiology (SAR). The dataset is annotated at multiple levels, including the presence of injuries in three solid organs with injury grading, image-level annotations for active extravasations and bowel injury, and voxelwise segmentations of each of the potentially injured organs. With the release of this dataset, we hope to facilitate research and development in machine learning and abdominal trauma that can lead to improved patient care and outcomes.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2405.19595",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-04T18:59:29Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Mahsa Khosravi",
+            "Matthew Carroll",
+            "Kai Liang Tan",
+            "Liza Van der Laan",
+            "Joscif Raigne",
+            "Daren S. Mueller",
+            "Arti Singh",
+            "Aditya Balu",
+            "Baskar Ganapathysubramanian",
+            "Asheesh Kumar Singh",
+            "Soumik Sarkar"
+          ],
+          "title": "AgGym: An agricultural biotic stress simulation environment for ultra-precision management planning",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2409.00735",
+        "summary": "Agricultural production requires careful management of inputs such as fungicides, insecticides, and herbicides to ensure a successful crop that is high-yielding, profitable, and of superior seed quality. Current state-of-the-art field crop management relies on coarse-scale crop management strategies, where entire fields are sprayed with pest and disease-controlling chemicals, leading to increased cost and sub-optimal soil and crop management. To overcome these challenges and optimize crop production, we utilize machine learning tools within a virtual field environment to generate localized management plans for farmers to manage biotic threats while maximizing profits. Specifically, we present AgGym, a modular, crop and stress agnostic simulation framework to model the spread of biotic stresses in a field and estimate yield losses with and without chemical treatments. Our validation with real data shows that AgGym can be customized with limited data to simulate yield outcomes under various biotic stress conditions. We further demonstrate that deep reinforcement learning (RL) policies can be trained using AgGym for designing ultra-precise biotic stress mitigation strategies with potential to increase yield recovery with less chemicals and lower cost. Our proposed framework enables personalized decision support that can transform biotic stress management from being schedule based and reactive to opportunistic and prescriptive. We also release the AgGym software implementation as a community resource and invite experts to contribute to this open-sourced publicly available modular environment framework. The source code can be accessed at: https://github.com/SCSLabISU/AgGym.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2409.00735",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-04T18:59:29Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Chenyang Liu",
+            "Keyan Chen",
+            "Haotian Zhang",
+            "Zipeng Qi",
+            "Zhengxia Zou",
+            "Zhenwei Shi"
+          ],
+          "title": "Change-Agent: Towards Interactive Comprehensive Remote Sensing Change Interpretation and Analysis",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2403.19646",
+        "summary": "Monitoring changes in the Earth's surface is crucial for understanding natural processes and human impacts, necessitating precise and comprehensive interpretation methodologies. Remote sensing satellite imagery offers a unique perspective for monitoring these changes, leading to the emergence of remote sensing image change interpretation (RSICI) as a significant research focus. Current RSICI technology encompasses change detection and change captioning, each with its limitations in providing comprehensive interpretation. To address this, we propose an interactive Change-Agent, which can follow user instructions to achieve comprehensive change interpretation and insightful analysis, such as change detection and change captioning, change object counting, change cause analysis, etc. The Change-Agent integrates a multi-level change interpretation (MCI) model as the eyes and a large language model (LLM) as the brain. The MCI model contains two branches of pixel-level change detection and semantic-level change captioning, in which the BI-temporal Iterative Interaction (BI3) layer is proposed to enhance the model's discriminative feature representation capabilities. To support the training of the MCI model, we build the LEVIR-MCI dataset with a large number of change masks and captions of changes. Experiments demonstrate the SOTA performance of the MCI model in achieving both change detection and change description simultaneously, and highlight the promising application value of our Change-Agent in facilitating comprehensive interpretation of surface changes, which opens up a new avenue for intelligent remote sensing applications. To facilitate future research, we will make our dataset and codebase of the MCI model and Change-Agent publicly available at https://github.com/Chen-Yang-Liu/Change-Agent",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2403.19646",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-04T18:59:30Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "predicting plant disease severity from publicly available image data and meteorological records biology",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

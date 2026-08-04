@@ -1,0 +1,624 @@
+{
+  "fetched_at": "2026-08-04T19:01:01Z",
+  "field": "biology",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "biology",
+      "idea_body_excerpt": "Predicting Avian Migration Patterns from Publicly Available eBird Data",
+      "target_n": 5
+    },
+    "duration_seconds": 63.669,
+    "ended_at": "2026-08-04T19:01:01Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "avian migration forecasting using citizen science data"
+        ],
+        [
+          2,
+          "eBird data analysis for bird movement modeling"
+        ],
+        [
+          3,
+          "species distribution modeling of migratory birds"
+        ],
+        [
+          4,
+          "phenology prediction from observational bird records"
+        ],
+        [
+          5,
+          "spatiotemporal dynamics of bird migration routes"
+        ],
+        [
+          6,
+          "machine learning approaches to avian migration prediction"
+        ],
+        [
+          7,
+          "large-scale bird tracking using public databases"
+        ],
+        [
+          8,
+          "temporal trends in bird migration timing and routes"
+        ],
+        [
+          9,
+          "integrating citizen science data into migration ecology"
+        ],
+        [
+          10,
+          "predictive modeling of bird stopover sites and timing"
+        ],
+        [
+          11,
+          "avian migration corridors and timing prediction"
+        ],
+        [
+          12,
+          "statistical models for bird migration using eBird"
+        ],
+        [
+          13,
+          "climate change impacts on bird migration patterns"
+        ],
+        [
+          14,
+          "data-driven bird migration route estimation"
+        ],
+        [
+          15,
+          "occupancy modeling for migratory bird species"
+        ],
+        [
+          16,
+          "automated detection of migration pulses from citizen data"
+        ],
+        [
+          17,
+          "geospatial analysis of bird migration from public records"
+        ],
+        [
+          18,
+          "seasonal migration forecasting using observational data"
+        ],
+        [
+          19,
+          "bird migration ecology and predictive analytics"
+        ],
+        [
+          20,
+          "crowd-sourced data applications in avian migration research"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Predicting Avian Migration Patterns from Publicly Available eBird Data biology": 0,
+        "avian migration forecasting using citizen science data": 2,
+        "eBird data analysis for bird movement modeling": 2,
+        "species distribution modeling of migratory birds": 5
+      },
+      "total_queries_issued": 3
+    },
+    "extracted_queries": [
+      "eBird citizen science occupancy models",
+      "avian migration phenology climate drivers",
+      "MaxEnt species distribution modeling bird",
+      "spatiotemporal movement ecology tracking data",
+      "migratory connectivity landscape genetics barrier"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "1911.01366"
+      ]
+    },
+    "per_query_hit_count": {
+      "MaxEnt species distribution modeling bird": 3,
+      "Predicting Avian Migration Patterns from Publicly Available eBird Data biology": 3,
+      "avian migration phenology climate drivers": 3,
+      "eBird citizen science occupancy models": 3,
+      "migratory connectivity landscape genetics barrier": 3,
+      "spatiotemporal movement ecology tracking data": 2
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 5,
+      "rejections": [
+        {
+          "primary_pointer": "2304.12836",
+          "rationale": "The paper focuses on Natural Language Processing (NLP) and the methodology of using citizen science for text annotation, which is a distinct domain from the user's question about predicting biological avian migration patterns using eBird data. While both involve \"citizen science\" and \"eBird\" (as a potential data source), the paper does not measure migration mechanisms, analyze bird movement data, or establish baselines for the biological variables in question, failing to meet any of the inclusio",
+          "title": "Lessons Learned from a Citizen Science Project for Natural Language Processing"
+        },
+        {
+          "primary_pointer": "2103.02005",
+          "rationale": "The paper focuses on classifying variable stars using astronomical light curves, which is an off-domain topic entirely unrelated to the user's question about predicting avian migration patterns using eBird data. While both involve citizen science, the specific biological domain (birds vs. stars), data type (migration records vs. light curves), and research goals are distinct constructs sharing only the general methodology of volunteer classification.",
+          "title": "Citizen ASAS-SN: Citizen Science with The All-Sky Automated Survey for SuperNovae (ASAS-SN)"
+        },
+        {
+          "primary_pointer": "2510.21391",
+          "rationale": "The paper focuses on generating synthetic remote sensing imagery for computer vision tasks (detection, segmentation) using a layout-to-image framework, which is distinct from the user's question about predicting biological migration patterns from observational citizen science data (eBird). While both involve \"remote sensing\" or \"data,\" the paper addresses image synthesis and augmentation rather than the ecological mechanism, statistical modeling, or empirical analysis of avian migration, failing",
+          "title": "TerraGen: A Unified Multi-Task Layout Generation Framework for Remote Sensing Data Augmentation"
+        },
+        {
+          "primary_pointer": "0808.2401",
+          "rationale": "The paper investigates the biophysical mechanism of magnetoreception (radical-pair model) and the effects of radio-frequency fields on bird orientation, which is a distinct construct from the user's question about predicting migration patterns using statistical models on eBird occurrence data. This falls under the rejection rule for \"Distinct construct sharing only homonym keywords\" (both involve birds and navigation/migration concepts but address fundamentally different scientific problems: bio",
+          "title": "The puzzle of magnetic resonance effect on the magnetic compass of migratory birds"
+        },
+        {
+          "primary_pointer": "1408.5265",
+          "rationale": "The paper focuses on a video game simulation (\"Angry Birds\") and uses the term \"bird\" in a fictional context, which constitutes a distinct construct sharing only a homonym keyword with the user's question about real-world avian biology and migration. It has no measurable connection to the user's domain (ecology), variables (migration patterns), or empirical setting (eBird data).",
+          "title": "A Bayesian Ensemble Regression Framework on the Angry Birds Game"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-08-04T18:59:57Z",
+    "term_input": {
+      "normalized": "predicting avian migration patterns from publicly available ebird data biology",
+      "raw": "Predicting Avian Migration Patterns from Publicly Available eBird Data biology"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Background: Many mathematical models have now been employed across every area of systems biology. These models increasingly involve large numbers of unknown parameters, have complex structure which can result in substantial evaluation time relative to the needs of the analysis, and need to be compared to observed data. The correct analysis of such models usually requires a global parameter search, over a high dimensional parameter space, that incorporates and respects the most important sources of uncertainty. This can be an extremely difficult task, but it is essential for any meaningful inference or prediction to be made about any biological system. It hence represents a fundamental challenge for the whole of systems biology.\n  Results: Bayesian statistical methodology for the uncertainty analysis of complex models is introduced, which is designed to address the high dimensional global parameter search problem. Bayesian emulators that mimic the systems biology model but which are extremely fast to evaluate are embedded within an iterative history match: an efficient method to search high dimensional spaces within a more formal statistical setting, while incorporating major sources of uncertainty. The approach is demonstrated via application to two models of hormonal crosstalk in Arabidopsis root development, which have 32 rate parameters, for which we identify the sets of rate parameter values that lead to acceptable matches to observed trend data. The biological consequences of the resulting comparison, including the evaluation of gene functions, are described.",
+          "claimed_authors": [
+            "Ian Vernon",
+            "Junli Liu",
+            "Michael Goldstein",
+            "James Rowe",
+            "Jen Topping",
+            "Keith Lindsey"
+          ],
+          "claimed_title": "Bayesian uncertainty analysis for complex systems biology models: emulation, global parameter searches and evaluation of gene functions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1607.06358"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Predicting Avian Migration Patterns from Publicly Available eBird Data biology', candidate_title='Bayesian uncertainty analysis for complex systems biology models: emulation, global parameter searches and evaluation of gene functions')",
+        "failed_at": "2026-08-04T19:00:27Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper we use H II starburst galaxy apparent magnitude versus redshift data from Siegel et al. (2005) to constrain dark energy cosmological model parameters. These constraints are generally consistent with those derived using other data sets, but are not as restrictive as the tightest currently available constraints.",
+          "claimed_authors": [
+            "Data Mania",
+            "Bharat Ratra"
+          ],
+          "claimed_title": "Constraints on dark energy from H II starburst galaxy apparent magnitude versus redshift data",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1110.5626"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Predicting Avian Migration Patterns from Publicly Available eBird Data biology', candidate_title='Constraints on dark energy from H II starburst galaxy apparent magnitude versus redshift data')",
+        "failed_at": "2026-08-04T19:00:27Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed optimization in the presence of Byzantine adversaries, where both data and computation are distributed among $m$ worker machines, $t$ of which may be corrupt. The compromised nodes may collaboratively and arbitrarily deviate from their pre-specified programs, and a designated (master) node iteratively computes the model/parameter vector for generalized linear models. In this work, we primarily focus on two iterative algorithms: Proximal Gradient Descent (PGD) and Coordinate Descent (CD). Gradient descent (GD) is a special case of these algorithms. PGD is typically used in the data-parallel setting, where data is partitioned across different samples, whereas, CD is used in the model-parallelism setting, where data is partitioned across the parameter space.\n  In this paper, we propose a method based on data encoding and error correction over real numbers to combat adversarial attacks. We can tolerate up to $t\\leq \\lfloor\\frac{m-1}{2}\\rfloor$ corrupt worker nodes, which is information-theoretically optimal. We give deterministic guarantees, and our method does not assume any probability distribution on the data. We develop a {\\em sparse} encoding scheme which enables computationally efficient data encoding and decoding. We demonstrate a trade-off between the corruption threshold and the resource requirements (storage, computational, and communication complexity). As an example, for $t\\leq\\frac{m}{3}$, our scheme incurs only a {\\em constant} overhead on these resources, over that required by the plain distributed PGD/CD algorithms which provide no adversarial protection. To the best of our knowledge, ours is the first paper that makes CD secure against adversarial attacks.\n  Our encoding scheme extends efficiently to the data streaming model and for stochastic gradient descent (SGD). We also give experimental results to show the efficacy of our proposed schemes.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Linqi Song",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Data Encoding for Byzantine-Resilient Distributed Optimization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1907.02664"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Predicting Avian Migration Patterns from Publicly Available eBird Data biology', candidate_title='Data Encoding for Byzantine-Resilient Distributed Optimization')",
+        "failed_at": "2026-08-04T19:00:27Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We investigate the development of scientific content knowledge of volunteers participating in online citizen science projects in the Zooniverse (www.zooniverse.org), including the astronomy projects Galaxy Zoo (www.galaxyzoo.org) and Planet Hunters (www.planethunters.org). We use econometric methods to test how measures of project participation relate to success in a science quiz, controlling for factors known to correlate with scientific knowledge. Citizen scientists believe they are learning about both the content and processes of science through their participation. Won't don't directly test the latter, but we find evidence to support the former - that more actively engaged participants perform better in a project-specific science knowledge quiz, even after controlling for their general science knowledge. We interpret this as evidence of learning of science content inspired by participation in online citizen science.",
+          "claimed_authors": [
+            "Karen Masters",
+            "Eun Young Oh",
+            "Joe Cox",
+            "Brooke Simmons",
+            "Chris Lintott",
+            "Gary Graham",
+            "Anita Greenhill",
+            "Kate Holmes"
+          ],
+          "claimed_title": "Science Learning via Participation in Online Citizen Science",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1601.05973"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Avian Migration Patterns from Publicly Available eBird Data biology', candidate_title='Science Learning via Participation in Online Citizen Science')",
+        "failed_at": "2026-08-04T19:00:27Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Many Natural Language Processing (NLP) systems use annotated corpora for training and evaluation. However, labeled data is often costly to obtain and scaling annotation projects is difficult, which is why annotation tasks are often outsourced to paid crowdworkers. Citizen Science is an alternative to crowdsourcing that is relatively unexplored in the context of NLP. To investigate whether and how well Citizen Science can be applied in this setting, we conduct an exploratory study into engaging different groups of volunteers in Citizen Science for NLP by re-annotating parts of a pre-existing crowdsourced dataset. Our results show that this can yield high-quality annotations and attract motivated volunteers, but also requires considering factors such as scalability, participation over time, and legal and ethical issues. We summarize lessons learned in the form of guidelines and provide our code and data to aid future work on Citizen Science.",
+          "claimed_authors": [
+            "Jan-Christoph Klie",
+            "Ji-Ung Lee",
+            "Kevin Stowe",
+            "Gözde Gül Şahin",
+            "Nafise Sadat Moosavi",
+            "Luke Bates",
+            "Dominic Petrak",
+            "Richard Eckart de Castilho",
+            "Iryna Gurevych"
+          ],
+          "claimed_title": "Lessons Learned from a Citizen Science Project for Natural Language Processing",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2304.12836"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Predicting Avian Migration Patterns from Publicly Available eBird Data biology', candidate_title='Lessons Learned from a Citizen Science Project for Natural Language Processing')",
+        "failed_at": "2026-08-04T19:00:27Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Citizen science datasets can be very large and promise to improve species distribution modelling, but detection is imperfect, risking bias when fitting models. In particular, observers may not detect species that are actually present. Occupancy models can estimate and correct for this observation process, and multi-species occupancy models exploit similarities in the observation process, which can improve estimates for rare species. However, the computational methods currently used to fit these models do not scale to large datasets. We develop approximate Bayesian inference methods and use graphics processing units (GPUs) to scale multi-species occupancy models to very large citizen science data. We fit multi-species occupancy models to one month of data from the eBird project consisting of 186,811 checklist records comprising 430 bird species. We evaluate the predictions on a spatially separated test set of 59,338 records, comparing two different inference methods -- Markov chain Monte Carlo (MCMC) and variational inference (VI) -- to occupancy models fitted to each species separately using maximum likelihood. We fitted models to the entire dataset using VI, and up to 32,000 records with MCMC. VI fitted to the entire dataset performed best, outperforming single-species models on both AUC (90.4% compared to 88.7%) and on log likelihood (-0.080 compared to -0.085). We also evaluate how well range maps predicted by the model agree with expert maps. We find that modelling the detection process greatly improves agreement and that the resulting maps agree as closely with expert maps as ones estimated using high quality survey data. Our results demonstrate that multi-species occupancy models are a compelling approach to model large citizen science datasets, and that, once the observation process is taken into account, they can model species distributions accurately.",
+          "claimed_authors": [
+            "Martin Ingram",
+            "Damjan Vukcevic",
+            "Nick Golding"
+          ],
+          "claimed_title": "Scaling multi-species occupancy models to large citizen science datasets",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2206.08894"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Predicting Avian Migration Patterns from Publicly Available eBird Data biology', candidate_title='Scaling multi-species occupancy models to large citizen science datasets')",
+        "failed_at": "2026-08-04T19:00:27Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Mediterranean ecosystems such as those found in California, Central Chile, Southern Europe, and Southwest Australia host numerous, diverse, fire-adapted micro-ecosystems. These micro-ecosystems are as diverse as mountainous conifer to desert-like chaparral communities. Over the last few centuries, human intervention, invasive species, and climate warming have drastically affected the composition and health of Mediterranean ecosystems on almost every continent. Increased fuel load from fire suppression policies and the continued range expansion of non-native insects and plants, some driven by long-term drought, produced the deadliest wildfire season on record in 2018. As a consequence of these fires, a large number of structures are destroyed, releasing household chemicals into the environment as uncontrolled toxins. The mobilization of these materials can lead to health risks and disruption in both human and natural systems. This article identifies drivers that led to a structural weakening of the mosaic of fire-adapted ecosystems in California, and subsequently increased the risk of destructive and explosive wildfires throughout the state. Under a new climate regime, managing the impacts on systems moving out-of-phase with natural processes may protect lives and ensure the stability of ecosystem services.",
+          "claimed_authors": [
+            "Kimberley Miner",
+            "Laura Meyerson",
+            ". Climate Change Institute",
+            "School of Earth",
+            "Climate Sciences",
+            "University of Maine",
+            " Orono",
+            "ME 04469 2. Department of Natural Resources Science",
+            "University of Rhode Island",
+            " Kingston",
+            "RI 02881"
+          ],
+          "claimed_title": "Invasive species, extreme fire risk, and toxin release under a changing climate",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2008.01035"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Avian Migration Patterns from Publicly Available eBird Data biology', candidate_title='Invasive species, extreme fire risk, and toxin release under a changing climate')",
+        "failed_at": "2026-08-04T19:00:27Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The response of precipitation extremes to climate change is considered using results from theory, modeling, and observations, with a focus on the physical factors that control the response. Observations and simulations with climate models show that precipitation extremes intensify in response to a warming climate. However, the sensitivity of precipitation extremes to warming remains uncertain when convection is important, and it may be higher in the tropics than the extratropics. Several physical contributions govern the response of precipitation extremes. The thermodynamic contribution is robust and well understood, but theoretical understanding of the microphysical and dynamical contributions is still being developed. Orographic precipitation extremes and snowfall extremes respond differently from other precipitation extremes and require particular attention. Outstanding research challenges include the influence of mesoscale convective organization, the dependence on the duration considered, and the need to better constrain the sensitivity of tropical precipitation extremes to warming.",
+          "claimed_authors": [
+            "Paul A. O'Gorman"
+          ],
+          "claimed_title": "Precipitation extremes under climate change",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2015,
+          "primary_pointer": "1503.07557"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Avian Migration Patterns from Publicly Available eBird Data biology', candidate_title='Precipitation extremes under climate change')",
+        "failed_at": "2026-08-04T19:00:27Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Assessments of impacts of climate change and future projections over the Indian region, have so far relied on a single regional climate model (RCM) - eg., the PRECIS RCM of the Hadley Centre, UK. While these assessments have provided inputs to various reports (e.g., INCCA 2010; NATCOMM2 2012), it is important to have an ensemble of climate projections drawn from multiple RCMs due to large uncertainties in regional-scale climate projections. Ensembles of multi-RCM projections driven under different perceivable socio-economic scenarios are required to capture the probable path of growth, and provide the behavior of future climate and impacts on various biophysical systems and economic sectors dependent on such systems.\n  The Centre for Climate Change Research, Indian Institute of Tropical Meteorology (CCCR-IITM) has generated an ensemble of high resolution downscaled projections of regional climate and monsoon over South Asia until 2100 for the Intergovernmental Panel for Climate Change (IPCC)using a RCM (ICTP-RegCM4) at 50 km horizontal resolution, by driving the regional model with lateral and lower boundary conditions from multiple global atmosphere-ocean coupled models from the Coupled Model Intercomparison Project Phase 5 (CMIP5). The future projections are based on three Representation Concentration Pathway (RCP) scenarios (viz., RCP2.6, RCP4.5, RCP8.5) of the IPCC.",
+          "claimed_authors": [
+            "J. Sanjay",
+            "R. Krishnan",
+            "M. V. S. Ramarao",
+            "R. Mahesh",
+            "Bhupendra Bahadur Singh",
+            "Jayashri Patel",
+            "Sandip Ingle",
+            "Preethi Bhaskar",
+            "J. V. Revadekar",
+            "T. P. Sabin",
+            "M. Mujumdar"
+          ],
+          "claimed_title": "Future Climate Change Projections over the Indian Region",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2012.10386"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Avian Migration Patterns from Publicly Available eBird Data biology', candidate_title='Future Climate Change Projections over the Indian Region')",
+        "failed_at": "2026-08-04T19:00:27Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper addresses the problem of species classification in bird song recordings. The massive amount of available field recordings of birds presents an opportunity to use machine learning to automatically track bird populations. However, it also poses a problem: such field recordings typically contain significant environmental noise and overlapping vocalizations that interfere with classification. The widely available training datasets for species identification also typically leave background species unlabeled. This leads classifiers to ignore vocalizations with a low signal-to-noise ratio. However, recent advances in unsupervised sound separation, such as \\emph{mixture invariant training} (MixIT), enable high quality separation of bird songs to be learned from such noisy recordings. In this paper, we demonstrate improved separation quality when training a MixIT model specifically for birdsong data, outperforming a general audio separation model by over 5 dB in SI-SNR improvement of reconstructed mixtures. We also demonstrate precision improvements with a downstream multi-species bird classifier across three independent datasets. The best classifier performance is achieved by taking the maximum model activations over the separated channels and original audio. Finally, we document additional classifier improvements, including taxonomic classification, augmentation by random low-pass filters, and additional channel normalization.",
+          "claimed_authors": [
+            "Tom Denton",
+            "Scott Wisdom",
+            "John R. Hershey"
+          ],
+          "claimed_title": "Improving Bird Classification with Unsupervised Sound Separation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2110.03209"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Predicting Avian Migration Patterns from Publicly Available eBird Data biology', candidate_title='Improving Bird Classification with Unsupervised Sound Separation')",
+        "failed_at": "2026-08-04T19:00:27Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Bird sounds possess distinctive spectral structure which may exhibit small shifts in spectrum depending on the bird species and environmental conditions. In this paper, we propose using convolutional recurrent neural networks on the task of automated bird audio detection in real-life environments. In the proposed method, convolutional layers extract high dimensional, local frequency shift invariant features, while recurrent layers capture longer term dependencies between the features extracted from short time frames. This method achieves 88.5% Area Under ROC Curve (AUC) score on the unseen evaluation data and obtains the second place in the Bird Audio Detection challenge.",
+          "claimed_authors": [
+            " EmreÇakır",
+            "Sharath Adavanne",
+            "Giambattista Parascandolo",
+            "Konstantinos Drossos",
+            "Tuomas Virtanen"
+          ],
+          "claimed_title": "Convolutional Recurrent Neural Networks for Bird Audio Detection",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1703.02317"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Predicting Avian Migration Patterns from Publicly Available eBird Data biology', candidate_title='Convolutional Recurrent Neural Networks for Bird Audio Detection')",
+        "failed_at": "2026-08-04T19:00:27Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The Boltzmann-Wallis-Jaynes' multiplicity argument is taken up and elaborated. MaxEnt is proved and demonstrated to be just an asymptotic case of looking for such a vector of absolute frequencies in a feasible set, which has maximal probability of being generated by a uniform prior generator/pmf.",
+          "claimed_authors": [
+            "Marian Grendar",
+            "Marian Grendar"
+          ],
+          "claimed_title": "What is the question that MaxEnt answers? A probabilistic interpretation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2000,
+          "primary_pointer": "math-ph/0009020"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Avian Migration Patterns from Publicly Available eBird Data biology', candidate_title='What is the question that MaxEnt answers? A probabilistic interpretation')",
+        "failed_at": "2026-08-04T19:00:27Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "How do groups of individuals achieve consensus in movement decisions? Do individuals follow their friends, the one predetermined leader, or whomever just happens to be nearby? To address these questions computationally, we formalize \"Coordination Strategy Inference Problem\". In this setting, a group of multiple individuals moves in a coordinated manner towards a target path. Each individual uses a specific strategy to follow others (e.g. nearest neighbors, pre-defined leaders, preferred friends). Given a set of time series that includes coordinated movement and a set of candidate strategies as inputs, we provide the first methodology (to the best of our knowledge) to infer whether each individual uses local-agreement-system or dictatorship-like strategy to achieve movement coordination at the group level. We evaluate and demonstrate the performance of the proposed framework by predicting the direction of movement of an individual in a group in both simulated datasets as well as two real-world datasets: a school of fish and a troop of baboons. Moreover, since there is no prior methodology for inferring individual-level strategies, we compare our framework with the state-of-the-art approach for the task of classification of group-level-coordination models. The results show that our approach is highly accurate in inferring the correct strategy in simulated datasets even in complicated mixed strategy settings, which no existing method can infer. In the task of classification of group-level-coordination models, our framework performs better than the state-of-the-art approach in all datasets. Animal data experiments show that fish, as expected, follow their neighbors, while baboons have a preference to follow specific individuals. Our methodology generalizes to arbitrary time series data of real numbers, beyond movement data.",
+          "claimed_authors": [
+            "Chainarong Amornbunchornvej",
+            "Tanya Berger-Wolf"
+          ],
+          "claimed_title": "Framework for Inferring Following Strategies from Time Series of Movement Data",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1911.01366"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Predicting Avian Migration Patterns from Publicly Available eBird Data biology', candidate_title='Framework for Inferring Following Strategies from Time Series of Movement Data')",
+        "failed_at": "2026-08-04T19:00:27Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed stochastic gradient descent (SGD) in the master-worker architecture under Byzantine attacks. We consider the heterogeneous data model, where different workers may have different local datasets, and we do not make any probabilistic assumptions on data generation. At the core of our algorithm, we use the polynomial-time outlier-filtering procedure for robust mean estimation proposed by Steinhardt et al. (ITCS 2018) to filter-out corrupt gradients. In order to be able to apply their filtering procedure in our {\\em heterogeneous} data setting where workers compute {\\em stochastic} gradients, we derive a new matrix concentration result, which may be of independent interest.\n  We provide convergence analyses for smooth strongly-convex and non-convex objectives. We derive our results under the bounded variance assumption on local stochastic gradients and a {\\em deterministic} condition on datasets, namely, gradient dissimilarity; and for both these quantities, we provide concrete bounds in the statistical heterogeneous data model. We give a trade-off between the mini-batch size for stochastic gradients and the approximation error. Our algorithm can tolerate up to $\\frac{1}{4}$ fraction Byzantine workers. It can find approximate optimal parameters in the strongly-convex setting exponentially fast and reach to an approximate stationary point in the non-convex setting with a linear speed, thus, matching the convergence rates of vanilla SGD in the Byzantine-free setting.\n  We also propose and analyze a Byzantine-resilient SGD algorithm with gradient compression, where workers send $k$ random coordinates of their gradients. Under mild conditions, we show a $\\frac{d}{k}$-factor saving in communication bits as well as decoding complexity over our compression-free algorithm without affecting its convergence rate (order-wise) and the approximation error.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2005.07866"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Predicting Avian Migration Patterns from Publicly Available eBird Data biology', candidate_title='Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data')",
+        "failed_at": "2026-08-04T19:00:27Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The phenotypic consequences of individual mutations are modulated by the wild type genetic background in which they occur.Although such background dependence is widely observed, we do not know whether general patterns across species and traits exist, nor about the mechanisms underlying it. We also lack knowledge on how mutations interact with genetic background to influence gene expression, and how this in turn mediates mutant phenotypes. Furthermore, how genetic background influences patterns of epistasis remains unclear. To investigate the genetic basis and genomic consequences of genetic background dependence of the scallopedE3 allele on the Drosophila melanogaster wing, we generated multiple novel genome level datasets from a mapping by introgression experiment and a tagged RNA gene expression dataset. In addition we used whole genome re-sequencing of the parental lines two commonly used laboratory strains to predict polymorphic transcription factor binding sites for SD. We integrated these data with previously published genomic datasets from expression microarrays and a modifier mutation screen. By searching for genes showing a congruent signal across multiple datasets, we were able to identify a robust set of candidate loci contributing to the background dependent effects of mutations in sd. We also show that the majority of background-dependent modifiers previously reported are caused by higher-order epistasis, not quantitative non-complementation. These findings provide a useful foundation for more detailed investigations of genetic background dependence in this system, and this approach is likely to prove useful in exploring the genetic basis of other traits as well.",
+          "claimed_authors": [
+            "Christopher H. Chandler",
+            "Sudarshan Chari",
+            "David Tack",
+            "Ian Dworkin"
+          ],
+          "claimed_title": "Causes and Consequences of genetic background effects illuminated by integrative genomic analysis",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1309.0547"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Predicting Avian Migration Patterns from Publicly Available eBird Data biology', candidate_title='Causes and Consequences of genetic background effects illuminated by integrative genomic analysis')",
+        "failed_at": "2026-08-04T19:00:27Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The premise of genetic analysis is that a causal link exists between phenotypic and allelic variation. Yet it has long been documented that mutant phenotypes are not a simple result of a single DNA lesion, but rather are due to interactions of the focal allele with other genes and the environment. Although an experimentally rigorous approach, focusing on individual mutations and isogenic control strains, has facilitated amazing progress within genetics and related fields, a glimpse back suggests that a vast complexity has been omitted from our current understanding of allelic effects. Armed with traditional genetic analyses and the foundational knowledge they have provided, we argue that the time and tools are ripe to return to the under-explored aspects of gene function and embrace the context-dependent nature of genetic effects. We assert that a broad understanding of genetic effects and the evolutionary dynamics of alleles requires identifying how mutational outcomes depend upon the wild-type genetic background. Furthermore, we discuss how best to exploit genetic background effects to broaden genetic research programs.",
+          "claimed_authors": [
+            "Chris H. Chandler",
+            "Sudarshan Chari",
+            "Ian Dworkin"
+          ],
+          "claimed_title": "Does your gene need a background check? How genetic background impacts the analysis of mutations, genes, and evolution",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1301.2694"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Avian Migration Patterns from Publicly Available eBird Data biology', candidate_title='Does your gene need a background check? How genetic background impacts the analysis of mutations, genes, and evolution')",
+        "failed_at": "2026-08-04T19:00:27Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Many modified genetic codes are found in specific genomes in which one or more codons have been reassigned to a different amino acid from that in the canonical code. We present a model that unifies four possible mechanisms for reassignment, based on the observation that reassignment involves a gain and a loss. The loss could be the deletion or loss of function of a tRNA or release factor. The gain could be the gain of a new type of tRNA for the reassigned codon, or the gain of function of an existing tRNA due to a mutation or a base modification. In the codon disappearance mechanism, the codon disappears from the genome during the period of reassignment. In the other mechanisms, the codon does not disappear. In the ambiguous intermediate mechanism, the gain precedes the loss; in the unassigned codon mechanism, the loss precedes the gain; and in the compensatory change mechanism, the loss and gain spread through the population simultaneously. We present simulations of the gain-loss model and demonstrate that all four mechanisms are possible. The frequencies of the different mechanisms are influenced by selection strengths, number of codons undergoing reassignment, directional mutation pressure and the possibility of selection for reduced genome size.",
+          "claimed_authors": [
+            "Supratim Sengupta",
+            "Paul G. Higgs"
+          ],
+          "claimed_title": "A Unified Model of Codon Reassignment in Alternative Genetic Codes",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2004,
+          "primary_pointer": "q-bio/0410022"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Avian Migration Patterns from Publicly Available eBird Data biology', candidate_title='A Unified Model of Codon Reassignment in Alternative Genetic Codes')",
+        "failed_at": "2026-08-04T19:00:27Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Chainarong Amornbunchornvej",
+            "Tanya Berger-Wolf"
+          ],
+          "title": "Framework for Inferring Following Strategies from Time Series of Movement Data",
+          "venue": "arXiv",
+          "year": 2019
+        },
+        "primary_pointer": "1911.01366",
+        "summary": "How do groups of individuals achieve consensus in movement decisions? Do individuals follow their friends, the one predetermined leader, or whomever just happens to be nearby? To address these questions computationally, we formalize \"Coordination Strategy Inference Problem\". In this setting, a group of multiple individuals moves in a coordinated manner towards a target path. Each individual uses a specific strategy to follow others (e.g. nearest neighbors, pre-defined leaders, preferred friends). Given a set of time series that includes coordinated movement and a set of candidate strategies as inputs, we provide the first methodology (to the best of our knowledge) to infer whether each individual uses local-agreement-system or dictatorship-like strategy to achieve movement coordination at the group level. We evaluate and demonstrate the performance of the proposed framework by predicting the direction of movement of an individual in a group in both simulated datasets as well as two real-world datasets: a school of fish and a troop of baboons. Moreover, since there is no prior methodology for inferring individual-level strategies, we compare our framework with the state-of-the-art approach for the task of classification of group-level-coordination models. The results show that our approach is highly accurate in inferring the correct strategy in simulated datasets even in complicated mixed strategy settings, which no existing method can infer. In the task of classification of group-level-coordination models, our framework performs better than the state-of-the-art approach in all datasets. Animal data experiments show that fish, as expected, follow their neighbors, while baboons have a preference to follow specific individuals. Our methodology generalizes to arbitrary time series data of real numbers, beyond movement data.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1911.01366",
+          "http_status": 200,
+          "pdf_sample_score": 0.3428,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-04T19:00:37Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Dhanushi A. Wijeyakulasuriya",
+            "Ephraim M. Hanks",
+            "Benjamin A. Shaby"
+          ],
+          "title": "Modeling First Arrival of Migratory Birds using a Hierarchical Max-infinitely Divisible Process",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2306.06295",
+        "summary": "Humans have recorded the arrival dates of migratory birds for millennia, searching for trends and patterns. As the first arrival among individuals in a species is the realized tail of the probability distribution of arrivals, the appropriate statistical framework with which to analyze such events is extreme value theory. Here, for the first time, we apply formal extreme value techniques to the dynamics of bird migrations. We study the annual first arrivals of Magnolia Warblers using modern tools from the statistical field of extreme value analysis. Using observations from the eBird database, we model the spatial distribution of Magnolia Warbler arrivals as a max-infinitely divisible process, which allows us to spatially interpolate observed annual arrivals in a probabilistically-coherent way, and to project arrival dynamics into the future by conditioning on climatic variables.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2306.06295",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 1.0,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-04T19:00:42Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Michael F. Christensen",
+            "Peter D. Hoff"
+          ],
+          "title": "Incorporating circuit theory into a dynamic model for crowd-sourced observations of migratory birds",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2407.02690",
+        "summary": "While the overarching pattern of biannual avian migration is well understood, there are significant questions pertaining to this phenomenon that invite further study. Necessary to any analysis of these questions is an understanding of how a given species' spatial distribution evolves in time. While studies of animal movement are often conducted using telemetry data, the collection of such data can be time- and resource-intensive, frequently resulting in small sample sizes. Ecological surveys of animal populations are also indicative of species distribution trends, but may be constrained to a limited spatial domain. Within this article we utilize crowd-sourced observations from the eBird database to model the abundance of migratory bird species in space and time. While crowd-sourced observations are individually less reliable than those produced by experts, the sheer size and spatial coverage of the eBird database make it attractive for use in this setting. We introduce a hidden Markov model for observed bird counts utilizing a novel transition structure developed using principles from circuit theory. After illustrating model properties we fit it to observations of Baltimore orioles and yellow-rumped warblers within the eastern United States and discuss insight it provides into the migratory patterns for these species.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2407.02690",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.8,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-04T19:00:42Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Louis Airale",
+            "Adrien Pajot",
+            "Juliette Linossier"
+          ],
+          "title": "NBM: an Open Dataset for the Acoustic Monitoring of Nocturnal Migratory Birds in Europe",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2412.03633",
+        "summary": "The persisting threats on migratory bird populations highlight the urgent need for effective monitoring techniques that could assist in their conservation. Among these, passive acoustic monitoring is an essential tool, particularly for nocturnal migratory species that are difficult to track otherwise. This work presents the Nocturnal Bird Migration (NBM) dataset, a collection of 13,359 annotated vocalizations from 117 species of the Western Palearctic. The dataset includes precise time and frequency annotations, gathered by dozens of bird enthusiasts across France, enabling novel downstream acoustic analysis. In particular, we prove the utility of this database by training an original two-stage deep object detection model tailored for the processing of audio data. While allowing the precise localization of bird calls in spectrograms, this model shows competitive accuracy on the 45 main species of the dataset with state-of-the-art systems trained on much larger audio collections. These results highlight the interest of fostering similar open-science initiatives to acquire costly but valuable fine-grained annotations of audio files. All data and code are made openly available.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2412.03633",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-04T19:00:43Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "predicting avian migration patterns from publicly available ebird data biology",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

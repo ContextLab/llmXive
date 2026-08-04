@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1911.01366",
+  "judged_at": "2026-08-04T19:00:49Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting avian migration patterns from publicly available ebird data biology",
+  "rationale": "This paper satisfies criterion (d) as a foundational methodology for inferring individual-level movement strategies from time-series data, which is the core computational technique required to analyze the \"how\" of avian migration patterns. It also meets criterion (a) by measuring the same biological mechanism (group coordination and following strategies) in animal populations, providing a canonical framework that a literature review on migration prediction would cite to establish the state-of-th",
+  "relevant": true
+}

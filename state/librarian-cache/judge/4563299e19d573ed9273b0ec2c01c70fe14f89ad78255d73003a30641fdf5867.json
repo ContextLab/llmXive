@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2407.12851",
+  "judged_at": "2026-08-04T18:59:35Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting plant disease severity from publicly available image data and meteorological records biology",
+  "rationale": "The paper focuses on constructing an ontology for Traditional Chinese Medicine (TCM) symptom phenotypes using electronic medical records, which is an off-domain application (human medicine vs. plant biology) and addresses semantic data integration rather than the specific mechanism of predicting plant disease severity from images and meteorological data. It shares only the homonym keyword \"disease\" but lacks any measurable connection to the user's variables, domain, or empirical setting.",
+  "relevant": false
+}

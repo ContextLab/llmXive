@@ -1,8 +1,13 @@
 status: none
-intent: RealEstate10K dataset download via pip install python package dataset
+intent: RealEstate10K video dataset download including validation set python package
+  dataset
 required_fields:
 - sequence_id
-- frame_number
-- rgb_image_path
-- camera_intrinsics
-- timestamp
+- video_file_path
+- rgb_frame_paths
+- frame_timestamp_list
+- camera_intrinsics_if_available
+- train_val_test_split_labels
+cache_key: 3d4289312c2015fa43216829eca92d29aafb37505d661c8c716e45a6ed1a735a
+searched_at: '2026-08-04T19:03:41.806678+00:00'
+retry_count: 1

@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-07T18:44:51.317890Z'
-current_stage: flesh_out_in_progress
+current_stage: flesh_out_complete
 failed_stage: null
 field: biology
 human_escalation_reason: null
 id: PROJ-405-predicting-plant-disease-severity-from-p
-last_run_id: 4e4a8587-6f03-4d3d-a617-24720d379c82
+last_run_id: 646ead37-46a5-464b-b82e-adc4ffac8960
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: null
 title: Predicting Plant Disease Severity from Publicly Available Image Data and Meteorological
   Records
-updated_at: '2026-06-14T06:23:26.982794Z'
+updated_at: '2026-08-04T18:59:56.245351Z'

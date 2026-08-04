@@ -251,6 +251,10 @@
     "classified_at": "2026-07-14T06:06:00Z",
     "verdict": false
   },
+  "PROJ-126-predicting-avian-migration-patterns-from::1.6.0": {
+    "classified_at": "2026-08-04T19:00:27Z",
+    "verdict": false
+  },
   "PROJ-128-investigating-the-influence-of-network-t::1.6.0": {
     "classified_at": "2026-06-26T10:09:36Z",
     "verdict": false
@@ -533,6 +537,10 @@
   },
   "PROJ-404-predicting-molecular-surface-charge-dist::1.6.0": {
     "classified_at": "2026-07-20T00:49:25Z",
+    "verdict": false
+  },
+  "PROJ-405-predicting-plant-disease-severity-from-p::1.6.0": {
+    "classified_at": "2026-08-04T18:59:28Z",
     "verdict": false
   },
   "PROJ-406-investigating-neural-signatures-of-predi::1.6.0": {
