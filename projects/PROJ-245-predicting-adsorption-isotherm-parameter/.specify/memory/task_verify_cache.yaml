@@ -1,10 +1,18 @@
-T024:
+T015:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, notebook, script, or result files were provided that implement a mean\u2011\
-    predicting null model or demonstrate that the trained model\u2019s RMSE is significantly\
-    \ lower than the null model\u2019s RMSE. The required artifact (implementation\
-    \ and verification output) is missing, so the task is not satisfied."
+  h: be329dc50bca60c2206b94d3dfd28667b1053e9e690049036176825694d4bd8f
+  r: "The `code/data/preprocess.py` file is truncated and the `handle_missing_pore_volume`\
+    \ function ends abruptly without writing the exclusion reasons to `data/validation/exclusion_log.json`.\
+    \ Moreover, the `exclusion_log.json` file does not exist, so the required logging\
+    \ of missing pore\u2011volume exclusions is not implemented."
+T016:
+  c: false
+  h: dd06fc27ae4605d2b5104c8e55f7a8587180f1de11281e8e061d0624a86ea892
+  r: "The provided `preprocess.py` does not contain any logic that groups by `descriptor_hash`,\
+    \ computes target variance/std, applies the 3\u2011sigma rule, excludes flagged\
+    \ rows, or logs the reason, and the required output file `data/processed/outliers.csv`\
+    \ is absent. Consequently the task\u2019s outlier\u2011detection requirement is\
+    \ not fulfilled."
 T029:
   c: false
   h: 48c8b8e4fb8ee101011b1779c5cad1a3a2735261e85048ff31661bc1b3677b71
@@ -25,6 +33,22 @@ T037:
     was actually updated. Without concrete evidence of the required files and their
     content, we cannot confirm the documentation updates were performed. The implementer
     must provide the updated README.md and the relevant files in the docs/ directory.
+T039b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No runtime measurements, profiling data, or optimized code were provided; the\
+    \ claim that the pipeline now runs \u2264\u202F4\u202Fhours is unsupported by\
+    \ any artifact. The implementer must supply concrete evidence (e.g., benchmark\
+    \ logs, timing reports, before\u2011and\u2011after performance comparisons) and\
+    \ the code changes that achieve the required runtime."
+T039c:
+  c: false
+  h: e0077cd84b901189ce1e87b3ca231293293e1c0cbaf82eb81a4f26265f25cdcb
+  r: The provided `code/main.py` is truncated and does not contain a functional implementation
+    of a `--mode dry_run` CLI flag or the conditional logic to skip training/hyperparameter
+    tuning. Additionally, the required output file `data/benchmarks/runtime_log.json`
+    is missing from the repository. Both the code change and the generated artifact
+    are absent, so the task is not satisfied.
 T045:
   c: false
   h: bd02ab47037b53553133fdc1a3af351e0a99eb006646ec55d485a0361d7dac38
@@ -34,3 +58,19 @@ T045:
     does not exist, indicating the script has not been executed or does not generate
     the report as specified. The implementation therefore does not fully satisfy the
     task requirements.
+T061a:
+  c: false
+  h: c1e8da88934f5ba0a2d0aff77e72c9ccef1df59a374760afc1da8f12102285bf
+  r: "The repository contains `code/data/verify_real.py`, but the required output\
+    \ file `data/validation/reference_hash.json` is absent, and the shown portion\
+    \ of the script is truncated before any code that writes the hash to that file.\
+    \ Without the reference hash file, the task\u2019s core requirement is not met."
+T061b:
+  c: false
+  h: c1e8da88934f5ba0a2d0aff77e72c9ccef1df59a374760afc1da8f12102285bf
+  r: "The `verify_real.py` script is present but the code is truncated (e.g., a missing\
+    \ colon after `if i >= SAMPLE_SIZE`) and we cannot see any logic that actually\
+    \ reads `data/validation/reference_hash.json` and raises `DataIntegrityError`\
+    \ on a mismatch. Moreover, the required `data/validation/reference_hash.json`\
+    \ file does not exist, so the verification step cannot be performed. The task\u2019\
+    s core requirement is therefore not satisfied."

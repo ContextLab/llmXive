@@ -1,10 +1,9 @@
 status: none
-intent: download NIST Adsorption Isotherms Database HuggingFace plus MOF-1000 Zenodo
-  repository python package dataset
+intent: download NIST Adsorption Isotherms Database and MOF-1000 Zenodo python package
+  dataset
 required_fields:
 - adsorbate_name
-- adsorbate_smiles
-- adsorbent_id
+- adsorbent_name
 - isotherm_type
 - pressure
 - amount_adsorbed
@@ -14,6 +13,7 @@ required_fields:
 - surface_area_m2_per_g
 - pore_volume_cm3_per_g
 - molecular_weight
-cache_key: 647706064e4bcd0b222959c6571e23213491fbffad8225cd66b249b9339bf364
-searched_at: '2026-08-01T20:09:13.832425+00:00'
+- polar_surface_area
+cache_key: ff67b5548b9003bbb539e6214c00c709c23924b58993214dab70695638a962dc
+searched_at: '2026-08-04T11:08:45.708096+00:00'
 retry_count: 1

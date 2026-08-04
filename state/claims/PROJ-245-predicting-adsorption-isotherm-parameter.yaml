@@ -103,3 +103,134 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-16T23:51:03Z'
+- artifact_path: projects/PROJ-245-predicting-adsorption-isotherm-parameter/docs/descriptor_provenance.md
+  attempts: 1
+  canonical: Ertl et al. 2001 Advanced Drug Delivery Reviews 46 3-13
+  claim_id: c_4491e4c4
+  context: Citation for TPSA Method used in the Kinetic Diameter calculation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Ertl, P., et al. ''Experimental and computational approaches to estimate
+    solubility and permeability in drug discovery and development environments.''
+    Advanced Drug Delivery Reviews 46.1-3 (2001): 3-13.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T11:10:12Z'
+- artifact_path: projects/PROJ-245-predicting-adsorption-isotherm-parameter/docs/descriptor_provenance.md
+  attempts: 1
+  canonical: Ruthven 1984 Principles of Adsorption and Adsorption Processes
+  claim_id: c_9cdbba2c
+  context: Citation for Kinetic Diameter Context.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ruthven, D. M. 'Principles of Adsorption and Adsorption Processes.' Wiley-Interscience
+    (1984).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T11:10:31Z'
+- artifact_path: projects/PROJ-245-predicting-adsorption-isotherm-parameter/docs/descriptor_provenance.md
+  attempts: 1
+  canonical: Boltzmann constant 1.380649e-23 J/K
+  claim_id: c_41a43687
+  context: Definition of k_B in the Lennard-Jones Energy Parameter calculation.
+  evidence:
+    asserted: '1.380649'
+    authority: scipy.constants.k (CODATA 2018, exact by SI definition)
+    constant: boltzmann
+    corrected: true
+    mode: approximate
+    true_value: 1.380649e-23
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?k
+  kind: numeric
+  raw_text: The Boltzmann constant is 1.380649 x 10^-23 J/K.
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2bfb0d3513311088eea23af05f5f28fc2ef73a6a80811bbb243001626363f07f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-04T11:10:31Z'
+- artifact_path: projects/PROJ-245-predicting-adsorption-isotherm-parameter/docs/descriptor_provenance.md
+  attempts: 1
+  canonical: Reid et al. 1987 The Properties of Gases and Liquids
+  claim_id: c_738f57db
+  context: Citation for Critical Temperature Correlation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Reid, R. C., Prausnitz, J. M., & Poling, B. E. 'The Properties of Gases
+    and Liquids.' McGraw-Hill (1987).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T11:10:53Z'
+- artifact_path: projects/PROJ-245-predicting-adsorption-isotherm-parameter/docs/descriptor_provenance.md
+  attempts: 1
+  canonical: Joback and Reid 1987 Chemical Engineering Communications 57 233-243
+  claim_id: c_e6b547fe
+  context: Citation for Joback Method.
+  evidence:
+    asserted: '57.1'
+    authority: scipy.constants.k (CODATA 2018, exact by SI definition)
+    constant: boltzmann
+    corrected: true
+    mode: approximate
+    true_value: 1.380649e-23
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?k
+  kind: numeric
+  raw_text: 'Joback, K. G., & Reid, R. C. ''Estimation of pure-component properties
+    from group-contributions.'' Chemical Engineering Communications 57.1-6 (1987):
+    233-243.'
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2bfb0d3513311088eea23af05f5f28fc2ef73a6a80811bbb243001626363f07f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-04T11:10:53Z'
+- artifact_path: projects/PROJ-245-predicting-adsorption-isotherm-parameter/docs/descriptor_provenance.md
+  attempts: 1
+  canonical: Smith et al. 2017 Journal of Chemical Theory and Computation 13 2038-2043
+  claim_id: c_c56c84f3
+  context: Citation for Psi4 Software.
+  evidence:
+    asserted: '4.0'
+    authority: scipy.constants.G (CODATA 2018)
+    constant: gravitational
+    corrected: true
+    mode: approximate
+    true_value: 6.6743e-11
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?bg
+  kind: numeric
+  raw_text: 'Smith, D. G. A., et al. ''Psi4 1.1: An Open-Source Electronic Structure
+    Program.'' Journal of Chemical Theory and Computation 13.5 (2017): 2038-2043.'
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 16b9e93ae6af4b3aeb9369d1fe412957a076db9d43662f67d44f3a07c85ec513
+  source_type: external
+  status: verified
+  updated_at: '2026-08-04T11:10:53Z'
+- artifact_path: projects/PROJ-245-predicting-adsorption-isotherm-parameter/docs/descriptor_provenance.md
+  attempts: 1
+  canonical: Buckingham 1959 Advances in Chemical Physics 1 107-142
+  claim_id: c_4390f1fc
+  context: Citation for Quadrupole Theory.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Buckingham, A. D. ''Molecular Energy Levels and Spectra.'' Advances in
+    Chemical Physics 1 (1959): 107-142.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T11:11:14Z'

@@ -6,234 +6,379 @@ from pathlib import Path
 from typing import Dict, Any, List, Tuple, Optional
 import numpy as np
 import pandas as pd
-from sklearn.metrics import mean_squared_error, r2_score, mean_absolute_error
+from scipy import stats
+from sklearn.metrics import mean_squared_error, r2_score
+from sklearn.model_selection import KFold
 
-# Ensure logging is configured
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+# Import from existing project modules
+from models.evaluate import bootstrap_confidence_intervals, load_test_data, load_models, prepare_features_and_target
+from utils.runtime_logger import start_timer, end_timer, get_elapsed_seconds, persist_runtime_log
+
 logger = logging.getLogger(__name__)
 
 def ensure_dirs():
-    """Ensure output directories exist."""
-    output_dir = Path("data/validation")
-    output_dir.mkdir(parents=True, exist_ok=True)
-    return output_dir
+    """Ensure required directories exist."""
+    dirs = [
+        Path("data/validation"),
+        Path("data/results")
+    ]
+    for d in dirs:
+        d.mkdir(parents=True, exist_ok=True)
+    return dirs
 
-def load_test_data():
+def predict_mean_null_model(X_train: pd.DataFrame, y_train: pd.Series, X_test: pd.DataFrame, y_test: pd.Series) -> Tuple[np.ndarray, float]:
     """
-    Load the preprocessed test data used for evaluation.
-    This assumes the preprocessing pipeline has run and saved data to data/processed/processed_data.csv
+    Implement a null model that predicts the mean of the training target for all test samples.
+    
+    Args:
+        X_train: Training features (not used, but required for signature consistency)
+        y_train: Training targets
+        X_test: Test features (not used)
+        y_test: Test targets
+        
+    Returns:
+        Tuple of (predictions, mean_train_target)
     """
-    data_path = Path("data/processed/processed_data.csv")
-    if not data_path.exists():
-        raise FileNotFoundError(f"Test data not found at {data_path}. Run preprocessing first.")
-    
-    df = pd.read_csv(data_path)
-    
-    # Identify target columns based on common conventions or schema
-    # Assuming the schema defines specific target columns for isotherm parameters
-    # Common targets from context: langmuir_capacity, henry_constant
-    target_cols = [col for col in df.columns if col in ['langmuir_capacity', 'henry_constant']]
-    
-    if not target_cols:
-        raise ValueError("No target columns found in dataset. Expected 'langmuir_capacity' or 'henry_constant'.")
-    
-    # For this task, we focus on one target at a time or aggregate if needed.
-    # Let's assume we evaluate against the first available target for simplicity, 
-    # or we can return metrics for all.
-    return df, target_cols
+    mean_target = y_train.mean()
+    predictions = np.full(len(y_test), mean_target)
+    return predictions, mean_target
 
-def load_models():
+def calculate_null_model_metrics(y_test: pd.Series, predictions: np.ndarray) -> Dict[str, float]:
     """
-    Load the trained models from disk.
-    Expected path: data/models/
-    We need to load the models that were trained in T020/T021.
-    Since we are implementing T024, we assume T020/T021/T023 have run.
-    We expect joblib files or similar.
+    Calculate metrics for the null model.
+    
+    Args:
+        y_test: Actual test values
+        predictions: Null model predictions
+        
+    Returns:
+        Dictionary with RMSE, R2, MAE
     """
-    model_dir = Path("data/models")
-    if not model_dir.exists():
-        raise FileNotFoundError(f"Models directory not found at {model_dir}. Run training first.")
-    
-    # We need to know which model is the "best" or simply compare against the set of trained models.
-    # For T024, we compare the BEST model against the null model.
-    # Let's assume the best model was saved as 'best_model.pkl' or similar by the training pipeline.
-    # If not, we might need to load all and pick based on a metadata file.
-    
-    # Attempt to load a metadata file that records the best model
-    metadata_path = model_dir / "evaluation_results.json"
-    best_model_name = None
-    
-    if metadata_path.exists():
-        with open(metadata_path, 'r') as f:
-            metadata = json.load(f)
-            # Assuming the evaluation results saved the best model name
-            best_model_name = metadata.get('best_model_name')
-    
-    if not best_model_name:
-        # Fallback: try to find any .pkl or .joblib file and assume it's the one we want to compare
-        # This is risky but necessary if metadata is missing.
-        # Better: raise error if we can't identify the best model.
-        import glob
-        model_files = list(model_dir.glob("*.pkl")) + list(model_dir.glob("*.joblib"))
-        if not model_files:
-            raise FileNotFoundError("No model files found.")
-        # Pick the first one found (should be the best if the pipeline is correct)
-        best_model_path = model_files[0]
-        best_model_name = best_model_path.stem
-        logger.warning(f"Could not determine best model from metadata. Using {best_model_name}.")
-    
-    # Load the model using joblib
-    import joblib
-    model_path = model_dir / f"{best_model_name}.pkl"
-    if not model_path.exists():
-        model_path = model_dir / f"{best_model_name}.joblib"
-    
-    if not model_path.exists():
-        raise FileNotFoundError(f"Best model file {model_path} not found.")
-    
-    model = joblib.load(model_path)
-    return model, best_model_name
-
-def predict_mean_null_model(X_train: pd.DataFrame, y_train: pd.Series) -> float:
-    """
-    The null model simply predicts the mean of the training targets for all test instances.
-    Returns the mean value.
-    """
-    return y_train.mean()
-
-def calculate_null_model_metrics(y_true: pd.Series, y_pred_mean: float) -> Dict[str, float]:
-    """
-    Calculate metrics for the null model (predicting mean).
-    """
-    y_pred = np.full_like(y_true, y_pred_mean)
-    
-    rmse = np.sqrt(mean_squared_error(y_true, y_pred))
-    mae = mean_absolute_error(y_true, y_pred)
-    r2 = r2_score(y_true, y_pred)
+    rmse = np.sqrt(mean_squared_error(y_test, predictions))
+    r2 = r2_score(y_test, predictions)
+    mae = np.mean(np.abs(y_test - predictions))
     
     return {
         "rmse": float(rmse),
-        "mae": float(mae),
         "r2": float(r2),
-        "model_type": "null_mean"
+        "mae": float(mae)
     }
 
-def compare_models(null_metrics: Dict[str, float], model_metrics: Dict[str, float], model_name: str):
+def compare_models_with_bootstrap(
+    y_test: pd.Series,
+    y_pred_trained: np.ndarray,
+    y_pred_null: np.ndarray,
+    n_bootstrap: int = 1000,
+    seed: int = 42
+) -> Dict[str, Any]:
     """
-    Compare the null model metrics with the trained model metrics.
-    Verify significant RMSE improvement.
-    Returns a dictionary with the comparison results.
+    Compare trained model vs null model using paired t-test and bootstrap confidence intervals.
+    
+    Args:
+        y_test: Actual test values
+        y_pred_trained: Trained model predictions
+        y_pred_null: Null model predictions
+        n_bootstrap: Number of bootstrap resamples
+        seed: Random seed for reproducibility
+        
+    Returns:
+        Dictionary with comparison results including p-values and CIs
     """
-    null_rmse = null_metrics['rmse']
-    model_rmse = model_metrics['rmse']
+    # Calculate per-sample errors
+    errors_trained = y_test.values - y_pred_trained
+    errors_null = y_test.values - y_pred_null
     
-    improvement = null_rmse - model_rmse
-    improvement_pct = (improvement / null_rmse) * 100 if null_rmse > 0 else 0.0
+    # RMSE for each model
+    rmse_trained = np.sqrt(np.mean(errors_trained**2))
+    rmse_null = np.sqrt(np.mean(errors_null**2))
     
-    # Significant improvement threshold (arbitrary but strict, e.g., > 10% reduction)
-    significant = improvement_pct > 10.0
+    # RMSE reduction percentage
+    rmse_reduction_pct = ((rmse_null - rmse_trained) / rmse_null) * 100
     
-    comparison = {
-        "model_name": model_name,
-        "null_model_rmse": null_rmse,
-        "trained_model_rmse": model_rmse,
-        "rmse_improvement": improvement,
-        "improvement_percentage": improvement_pct,
-        "significant_improvement": significant,
-        "null_model_r2": null_metrics['r2'],
-        "trained_model_r2": model_metrics['r2']
+    # Paired t-test on squared errors (for RMSE comparison)
+    squared_errors_trained = errors_trained**2
+    squared_errors_null = errors_null**2
+    
+    t_stat, p_value = stats.ttest_rel(squared_errors_null, squared_errors_trained)
+    
+    # Wilcoxon signed-rank test as non-parametric alternative
+    wilcoxon_stat, wilcoxon_p = stats.wilcoxon(squared_errors_null, squared_errors_trained)
+    
+    # Bootstrap confidence intervals for R2
+    # Calculate R2 for each model
+    r2_trained = r2_score(y_test, y_pred_trained)
+    r2_null = r2_score(y_test, y_pred_null)
+    
+    # Bootstrap for R2 of trained model
+    np.random.seed(seed)
+    n_samples = len(y_test)
+    r2_bootstrap_trained = []
+    r2_bootstrap_null = []
+    
+    for _ in range(n_bootstrap):
+        # Resample with replacement
+        indices = np.random.choice(n_samples, size=n_samples, replace=True)
+        y_test_boot = y_test.values[indices]
+        y_pred_trained_boot = y_pred_trained[indices]
+        y_pred_null_boot = y_pred_null[indices]
+        
+        # Calculate R2 for bootstrap sample
+        r2_boot_trained = r2_score(y_test_boot, y_pred_trained_boot)
+        r2_boot_null = r2_score(y_test_boot, y_pred_null_boot)
+        
+        r2_bootstrap_trained.append(r2_boot_trained)
+        r2_bootstrap_null.append(r2_boot_null)
+    
+    # Calculate 95% CI for trained model R2
+    ci_lower_trained = float(np.percentile(r2_bootstrap_trained, 2.5))
+    ci_upper_trained = float(np.percentile(r2_bootstrap_trained, 97.5))
+    ci_trained = {"lower": ci_lower_trained, "upper": ci_upper_trained}
+    
+    # Calculate 95% CI for null model R2
+    ci_lower_null = float(np.percentile(r2_bootstrap_null, 2.5))
+    ci_upper_null = float(np.percentile(r2_bootstrap_null, 97.5))
+    ci_null = {"lower": ci_lower_null, "upper": ci_upper_null}
+    
+    # Determine significance
+    is_significant = p_value < 0.05
+    improvement_significant = rmse_reduction_pct > 20 and p_value < 0.05
+    
+    return {
+        "rmse_trained": float(rmse_trained),
+        "rmse_null": float(rmse_null),
+        "rmse_reduction_pct": float(rmse_reduction_pct),
+        "r2_trained": float(r2_trained),
+        "r2_null": float(r2_null),
+        "r2_ci_trained": ci_trained,
+        "r2_ci_null": ci_null,
+        "paired_t_test": {
+            "t_statistic": float(t_stat),
+            "p_value": float(p_value),
+            "is_significant": bool(is_significant)
+        },
+        "wilcoxon_test": {
+            "statistic": float(wilcoxon_stat),
+            "p_value": float(wilcoxon_p),
+            "is_significant": bool(wilcoxon_p < 0.05)
+        },
+        "meets_improvement_threshold": bool(improvement_significant),
+        "threshold_pct": 20.0,
+        "bootstrap_resamples": n_bootstrap,
+        "seed": seed
     }
+
+def run_cross_fold_comparison(
+    X: pd.DataFrame,
+    y: pd.Series,
+    model,
+    n_splits: int = 5,
+    seed: int = 42
+) -> Dict[str, Any]:
+    """
+    Run paired comparison across cross-validation folds.
     
-    logger.info(f"Null Model RMSE: {null_rmse:.4f}")
-    logger.info(f"Trained Model ({model_name}) RMSE: {model_rmse:.4f}")
-    logger.info(f"RMSE Improvement: {improvement_pct:.2f}%")
-    logger.info(f"Significant Improvement: {significant}")
+    Args:
+        X: Feature matrix
+        y: Target vector
+        model: Trained model object with .predict() method
+        n_splits: Number of CV folds
+        seed: Random seed
+        
+    Returns:
+        Comparison results aggregated across folds
+    """
+    kf = KFold(n_splits=n_splits, shuffle=True, random_state=seed)
     
-    return comparison
+    trained_rmse_list = []
+    null_rmse_list = []
+    trained_r2_list = []
+    null_r2_list = []
+    
+    for fold_idx, (train_idx, test_idx) in enumerate(kf.split(X)):
+        X_train_fold = X.iloc[train_idx]
+        y_train_fold = y.iloc[train_idx]
+        X_test_fold = X.iloc[test_idx]
+        y_test_fold = y.iloc[test_idx]
+        
+        # Train model on fold
+        model_fold = model.clone() if hasattr(model, 'clone') else model
+        if hasattr(model_fold, 'fit'):
+            model_fold.fit(X_train_fold, y_train_fold)
+        
+        # Predictions
+        y_pred_trained = model_fold.predict(X_test_fold)
+        y_pred_null, _ = predict_mean_null_model(X_train_fold, y_train_fold, X_test_fold, y_test_fold)
+        
+        # Calculate metrics
+        rmse_trained = np.sqrt(mean_squared_error(y_test_fold, y_pred_trained))
+        rmse_null = np.sqrt(mean_squared_error(y_test_fold, y_pred_null))
+        r2_trained = r2_score(y_test_fold, y_pred_trained)
+        r2_null = r2_score(y_test_fold, y_pred_null)
+        
+        trained_rmse_list.append(rmse_trained)
+        null_rmse_list.append(rmse_null)
+        trained_r2_list.append(r2_trained)
+        null_r2_list.append(r2_null)
+    
+    # Aggregate results
+    avg_rmse_trained = np.mean(trained_rmse_list)
+    avg_rmse_null = np.mean(null_rmse_list)
+    avg_r2_trained = np.mean(trained_r2_list)
+    avg_r2_null = np.mean(null_r2_list)
+    
+    rmse_reduction_pct = ((avg_rmse_null - avg_rmse_trained) / avg_rmse_null) * 100
+    
+    # Paired t-test across folds
+    t_stat, p_value = stats.ttest_rel(null_rmse_list, trained_rmse_list)
+    
+    # Bootstrap CI for R2 across folds
+    bootstrap_r2_trained = []
+    bootstrap_r2_null = []
+    np.random.seed(seed)
+    
+    for _ in range(1000):
+        indices = np.random.choice(len(trained_r2_list), size=len(trained_r2_list), replace=True)
+        bootstrap_r2_trained.append(np.mean([trained_r2_list[i] for i in indices]))
+        bootstrap_r2_null.append(np.mean([null_r2_list[i] for i in indices]))
+    
+    ci_lower_trained = float(np.percentile(bootstrap_r2_trained, 2.5))
+    ci_upper_trained = float(np.percentile(bootstrap_r2_trained, 97.5))
+    ci_lower_null = float(np.percentile(bootstrap_r2_null, 2.5))
+    ci_upper_null = float(np.percentile(bootstrap_r2_null, 97.5))
+    
+    return {
+        "method": "cross_fold_paired",
+        "n_folds": n_splits,
+        "avg_rmse_trained": float(avg_rmse_trained),
+        "avg_rmse_null": float(avg_rmse_null),
+        "rmse_reduction_pct": float(rmse_reduction_pct),
+        "avg_r2_trained": float(avg_r2_trained),
+        "avg_r2_null": float(avg_r2_null),
+        "r2_ci_trained": {"lower": ci_lower_trained, "upper": ci_upper_trained},
+        "r2_ci_null": {"lower": ci_lower_null, "upper": ci_upper_null},
+        "paired_t_test": {
+            "t_statistic": float(t_stat),
+            "p_value": float(p_value),
+            "is_significant": bool(p_value < 0.05)
+        },
+        "meets_improvement_threshold": bool(rmse_reduction_pct > 20 and p_value < 0.05),
+        "threshold_pct": 20.0
+    }
 
 def main():
     """
-    Main entry point for the null model comparison task.
-    1. Load test data.
-    2. Load the best trained model.
-    3. Calculate null model predictions (mean of training targets).
-       *Note*: We need the training targets. Since we are in T024 and the pipeline 
-       usually splits data, we need to access the training set used for the model.
-       However, standard practice is to store the training mean in the model or metadata.
-       Alternatively, we re-run the split or load the training data if available.
-       
-       Assumption: The training pipeline (T020/T021) saved the training mean in the model's metadata
-       or we can load the training data from data/processed/train_data.csv if the preprocessing step saved it.
-       Let's assume the preprocessing step saved train/test splits: data/processed/train_data.csv, data/processed/test_data.csv
+    Main function to run null model comparison and save results.
     """
+    start_timer("null_comparison")
+    
+    # Ensure directories
+    ensure_dirs()
+    
+    logger.info("Starting null model comparison analysis...")
+    
     try:
-        # Ensure directories
-        output_dir = ensure_dirs()
-        
         # Load test data
-        test_df, target_cols = load_test_data()
-        logger.info(f"Loaded test data with shape {test_df.shape}")
+        X_test, y_test = load_test_data()
         
-        # Load training data to calculate the mean
-        train_path = Path("data/processed/train_data.csv")
-        if not train_path.exists():
-            raise FileNotFoundError("Training data not found. Preprocessing must save train_data.csv.")
-        
-        train_df = pd.read_csv(train_path)
-        
-        # Load the trained model
-        model, model_name = load_models()
-        
-        results = []
-        
-        for target in target_cols:
-            logger.info(f"Evaluating against target: {target}")
-            
-            # Get training and test targets
-            y_train = train_df[target]
-            y_test = test_df[target]
-            X_test = test_df.drop(columns=[target])
-            
-            # 1. Calculate Null Model Metrics
-            mean_pred = predict_mean_null_model(X_test, y_train) # X_test not used, just for signature
-            null_metrics = calculate_null_model_metrics(y_test, mean_pred)
-            
-            # 2. Calculate Trained Model Metrics
-            # We need to predict on X_test
-            y_pred_trained = model.predict(X_test)
-            
-            # Calculate metrics for the trained model
-            trained_metrics = {
-                "rmse": float(np.sqrt(mean_squared_error(y_test, y_pred_trained))),
-                "mae": float(mean_absolute_error(y_test, y_pred_trained)),
-                "r2": float(r2_score(y_test, y_pred_trained)),
-                "model_type": model_name
+        if X_test is None or y_test is None or len(X_test) == 0:
+            logger.error("No test data available for null model comparison")
+            result = {
+                "status": "failed",
+                "reason": "No test data available",
+                "timestamp": str(pd.Timestamp.now())
             }
-            
-            # 3. Compare
-            comparison = compare_models(null_metrics, trained_metrics, model_name)
-            comparison["target"] = target
-            results.append(comparison)
+            output_path = Path("data/validation/null_model_comparison.json")
+            with open(output_path, 'w') as f:
+                json.dump(result, f, indent=2)
+            return result
+        
+        logger.info(f"Loaded test data with {len(X_test)} samples")
+        
+        # Load trained models
+        models = load_models()
+        
+        if not models:
+            logger.error("No trained models available for comparison")
+            result = {
+                "status": "failed",
+                "reason": "No trained models available",
+                "timestamp": str(pd.Timestamp.now())
+            }
+            output_path = Path("data/validation/null_model_comparison.json")
+            with open(output_path, 'w') as f:
+                json.dump(result, f, indent=2)
+            return result
+        
+        # Get the best model (usually the last one or the one with best metrics)
+        best_model_name = list(models.keys())[0]
+        best_model = models[best_model_name]
+        logger.info(f"Using model: {best_model_name}")
+        
+        # Prepare features and target
+        X, y = prepare_features_and_target(X_test, y_test)
+        
+        # Run cross-fold comparison
+        logger.info("Running cross-fold paired comparison...")
+        cross_fold_results = run_cross_fold_comparison(X, y, best_model)
+        
+        # Also run single-split comparison for completeness
+        logger.info("Running single-split comparison with bootstrap...")
+        y_pred_trained = best_model.predict(X)
+        y_pred_null, _ = predict_mean_null_model(X, y, X, y)
+        
+        single_split_results = compare_models_with_bootstrap(
+            y_test,
+            y_pred_trained,
+            y_pred_null,
+            n_bootstrap=1000,
+            seed=42
+        )
+        
+        # Combine results
+        final_result = {
+            "status": "success",
+            "timestamp": str(pd.Timestamp.now()),
+            "cross_fold_comparison": cross_fold_results,
+            "single_split_comparison": single_split_results,
+            "summary": {
+                "best_method": "cross_fold_paired" if cross_fold_results.get("is_significant") else "single_split",
+                "rmse_improvement_pct": cross_fold_results.get("rmse_reduction_pct", 0),
+                "p_value": cross_fold_results.get("paired_t_test", {}).get("p_value", 1.0),
+                "is_significant": cross_fold_results.get("paired_t_test", {}).get("is_significant", False),
+                "meets_20pct_threshold": cross_fold_results.get("meets_improvement_threshold", False),
+                "r2_trained": cross_fold_results.get("avg_r2_trained", 0),
+                "r2_null": cross_fold_results.get("avg_r2_null", 0),
+                "r2_ci_95": cross_fold_results.get("r2_ci_trained", {})
+            }
+        }
         
         # Save results
-        output_path = output_dir / "null_model_comparison.json"
+        output_path = Path("data/validation/null_model_comparison.json")
         with open(output_path, 'w') as f:
-            json.dump(results, f, indent=2)
+            json.dump(final_result, f, indent=2)
         
-        logger.info(f"Null model comparison results saved to {output_path}")
+        logger.info(f"Results saved to {output_path}")
+        logger.info(f"RMSE improvement: {cross_fold_results.get('rmse_reduction_pct', 0):.2f}%")
+        logger.info(f"P-value: {cross_fold_results.get('paired_t_test', {}).get('p_value', 1.0):.4f}")
+        logger.info(f"Significant: {cross_fold_results.get('paired_t_test', {}).get('is_significant', False)}")
         
-        # Verify significant improvement
-        all_significant = all(r['significant_improvement'] for r in results)
-        if not all_significant:
-            logger.warning("Not all targets showed significant RMSE improvement (>10%).")
-        else:
-            logger.info("All targets showed significant RMSE improvement.")
-            
-        return results
-
+        end_timer("null_comparison")
+        persist_runtime_log()
+        
+        return final_result
+        
     except Exception as e:
-        logger.error(f"Error in null model comparison: {e}", exc_info=True)
-        raise
+        logger.error(f"Error during null model comparison: {str(e)}", exc_info=True)
+        result = {
+            "status": "failed",
+            "reason": str(e),
+            "timestamp": str(pd.Timestamp.now())
+        }
+        output_path = Path("data/validation/null_model_comparison.json")
+        with open(output_path, 'w') as f:
+            json.dump(result, f, indent=2)
+        return result
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
     main()

@@ -75,3 +75,50 @@
   verification_status: pending
   verified_against_url: https://json-schema.org/draft-07/schema
   verified_at: '2026-07-30T10:33:58.745148Z'
+- artifact_hash: 9d5abfb6c0d232b5dabba2efd2743209d691b5213ac5cae2dc0450d29ac36df9
+  artifact_path: projects/PROJ-245-predicting-adsorption-isotherm-parameter/docs/descriptor_provenance.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: "Experimental and computational approaches to estimate solubility\
+    \ and permeability in drug discovery and development settings 1PII of original\
+    \ article: S0169-409X(96)00423-1. The article was originally published in Advanced\
+    \ Drug Delivery Reviews 23 (1997) 3\u201325. 1"
+  kind: doi
+  value: 10.1016/S0169-409X(00)00129-0
+  verification_status: pending
+  verified_against_url: https://doi.org/10.1016/s0169-409x(00)00129-0
+  verified_at: '2026-08-04T11:09:46.378075Z'
+- artifact_hash: 9d5abfb6c0d232b5dabba2efd2743209d691b5213ac5cae2dc0450d29ac36df9
+  artifact_path: projects/PROJ-245-predicting-adsorption-isotherm-parameter/docs/descriptor_provenance.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: doi
+  value: 10.1063/1.314333
+  verification_status: mismatch
+  verified_against_url: https://api.crossref.org/works/10.1063/1.314333
+  verified_at: '2026-08-04T11:09:46.378075Z'
+- artifact_hash: 9d5abfb6c0d232b5dabba2efd2743209d691b5213ac5cae2dc0450d29ac36df9
+  artifact_path: projects/PROJ-245-predicting-adsorption-isotherm-parameter/docs/descriptor_provenance.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: ESTIMATION OF PURE-COMPONENT PROPERTIES FROM GROUP-CONTRIBUTIONS
+  kind: doi
+  value: 10.1080/00986448708960487
+  verification_status: pending
+  verified_against_url: https://doi.org/10.1080/00986448708960487
+  verified_at: '2026-08-04T11:09:46.378075Z'
+- artifact_hash: 9d5abfb6c0d232b5dabba2efd2743209d691b5213ac5cae2dc0450d29ac36df9
+  artifact_path: projects/PROJ-245-predicting-adsorption-isotherm-parameter/docs/descriptor_provenance.md
+  cite_id: c-004
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: doi
+  value: 10.1021/acs.jctc.6b01090
+  verification_status: mismatch
+  verified_against_url: https://api.crossref.org/works/10.1021/acs.jctc.6b01090
+  verified_at: '2026-08-04T11:09:46.378075Z'

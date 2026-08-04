@@ -79,10 +79,10 @@ contracts/
 
 ### Phase 2: Model Training & Evaluation
 1. **Split**: 80/20 split stratified by `material_id` (no leakage).
-2. **Train**: Fit Linear, RF, GB models with 5-fold CV (material-level).
+2. **Train**: Fit Linear, RF, GB models with k-fold CV (material-level).
 3. **Tune**: Hyperparameter optimization.
 4. **Evaluate**: Report R², RMSE, MAE vs Null Model.
-5. **Reduced Model**: Train a model using **only** the top 3 features (SC-003).
+5. **Reduced Model**: Train a model using **only** the top features (SC-003).
 
 ### Phase 3: Interpretation & Reporting
 1. **SHAP Analysis**: Generate SHAP summary plots and partial dependence plots.

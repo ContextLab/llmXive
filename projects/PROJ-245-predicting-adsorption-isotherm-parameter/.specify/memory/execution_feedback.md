@@ -8,42 +8,51 @@ The gate detected that your reported numbers are NOT real measurements: they are
 2. Run a REAL, honestly scaled-down experiment that MEASURES the actual quantity on the CPU (e.g. time a real (small) computation, count real events, compute the real statistic over real or clearly-labelled sampled INPUT data). A small REAL result beats a big fake one.
 3. If the headline quantity genuinely NEEDS a GPU (it trains/runs a transformer, a diffusion model, CUDA kernels, 8-bit quantization), do NOT fake it and do NOT cripple it onto the CPU. KEEP the real GPU code (use `device="cuda"`, the real model, 8-bit if needed) but SCALE IT DOWN to fit ONE free Kaggle GPU (~16 GB VRAM, one ~9h kernel): a small/quantized model, a few-hundred-example subset, a handful of steps. The execution stage AUTO-DETECTS the GPU requirement (the CPU run fails with a CUDA error) and re-runs your SAME run-book on Kaggle's free GPU, producing a REAL (scaled) result — that is the correct path for a GPU experiment. Do NOT add a silent CPU fallback that would run a degenerate result locally (it would never offload). Never present a simulated number as a measurement.
 
-- code/data/loader.py: synthetic/fake INPUT data not authorized by the spec — “…acefully falling back to synthetic data generation if the fetch…”
-- code/data/loader.py: synthetic/fake INPUT data not authorized by the spec — “…sources. If that fails, generate synthetic data.          Args:…”
-- code/data/loader.py: synthetic/fake INPUT data not authorized by the spec — “…logger.info("Forcing synthetic data generation.")         re…”
-- code/data/loader.py: synthetic/fake INPUT data not authorized by the spec — “…ces failed. Switching to synthetic data generation.")     write_…”
-- code/data/loader.py: synthetic/fake INPUT data not authorized by the spec — “…ll sources. Switching to synthetic data for pipeline validation.…”
-- code/data/loader.py: synthetic/fake INPUT data not authorized by the spec — “…000 data not accessible; synthetic data used for CI reproducibil…”
+- code/data/loader.py: synthetic/fake INPUT data not authorized by the spec — “…Per project constraints, synthetic data generation is strictly p…”
 - code/data/synthetic_gen.py: synthetic/fake INPUT data not authorized by the spec — “…""" Synthetic Data Generator for Adsorption…”
 - code/data/synthetic_gen.py: synthetic/fake INPUT data not authorized by the spec — “…eters.  Generates N=5000 synthetic records linking molecular descri…”
+- code/data/synthetic_gen.py: synthetic/fake INPUT data not authorized by the spec — “…d.DataFrame:     """     Generate synthetic adsorption dataset.…”
+- code/data/synthetic_gen.py: synthetic/fake INPUT data not authorized by the spec — “…:         DataFrame with synthetic adsorption data.     """     # Molecular…”
+- code/data/synthetic_gen.py: synthetic/fake INPUT data not authorized by the spec — “…n df  def main():     """Generate and save synthetic data to disk."""     pri…”
+- code/data/synthetic_gen.py: synthetic/fake INPUT data not authorized by the spec — “…f"Generating {N_SAMPLES} synthetic samples...")     df = generate_s…”
+- code/data/validate_schema.py: synthetic/fake INPUT data not authorized by the spec — “…schema validation on the generated synthetic data."""     schema_path…”
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 32 fabricated/simulated-result signal(s) — results are not real measurements: code/data/loader.py: synthetic/fake INPUT data not authorized by the spec — “…acefully falling back to synthetic data generation if the fetch…”; code/data/loader.py: synthetic/fake INPUT data not authorized by the spec — “…sources. If that fails, generate synthetic data.          Args:…”; code/data/loader.py: synthetic/fake INPUT data not authorized by the spec — “…logger.info("Forcing synthetic data generation.")         re…”; 3 command(s) failed: python code/main.py --data-dir data/raw --task curate_data (rc=1); python code/main.py --data-dir data/processed --task train_model --target langmuir_capacity (rc=1); python code/main.py --data-dir data/processed --model trained_models/best_model.pkl --task shap_analysis (rc=1); 2 declared deliverable(s) absent: data/benchmarks/runtime_log.json; data/processed/outliers.csv
+**Summary**: 28 fabricated/simulated-result signal(s) — results are not real measurements: code/data/loader.py: synthetic/fake INPUT data not authorized by the spec — “…Per project constraints, synthetic data generation is strictly p…”; code/data/synthetic_gen.py: synthetic/fake INPUT data not authorized by the spec — “…""" Synthetic Data Generator for Adsorption…”; code/data/synthetic_gen.py: synthetic/fake INPUT data not authorized by the spec — “…eters.  Generates N=5000 synthetic records linking molecular descri…”; 3 command(s) failed: python code/main.py --data-dir data/raw --task curate_data (rc=1); python code/main.py --data-dir data/processed --task train_model --target langmuir_capacity (rc=1); python code/main.py --data-dir data/processed --model trained_models/best_model.pkl --task shap_analysis (rc=1); 2 declared deliverable(s) absent: data/benchmarks/runtime_log.json; data/processed/outliers.csv
 
 ## Failing / missing run-book commands
 
 - python code/main.py --data-dir data/raw --task curate_data -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-245-predicting-adsorption-isotherm-parameter/code/main.py", line 18, in <module>
-    from data.download import main as download_main
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-245-predicting-adsorption-isotherm-parameter/code/data/download.py", line 4, in <module>
-    import requests
-ModuleNotFoundError: No module named 'requests'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-245-predicting-adsorption-isotherm-parameter/code/main.py", line 20, in <module>
+    from data.preprocess import main as preprocess_main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-245-predicting-adsorption-isotherm-parameter/code/data/preprocess.py", line 11, in <module>
+    from data.descriptors import calculate_descriptors_batch
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-245-predicting-adsorption-isotherm-parameter/code/data/descriptors.py", line 25, in <module>
+    'polarizability': rdMolDescriptors.CalcPolarizability,
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'rdkit.Chem.rdMolDescriptors' has no attribute 'CalcPolarizability'
 - python code/main.py --data-dir data/processed --task train_model --target langmuir_capacity -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-245-predicting-adsorption-isotherm-parameter/code/main.py", line 18, in <module>
-    from data.download import main as download_main
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-245-predicting-adsorption-isotherm-parameter/code/data/download.py", line 4, in <module>
-    import requests
-ModuleNotFoundError: No module named 'requests'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-245-predicting-adsorption-isotherm-parameter/code/main.py", line 20, in <module>
+    from data.preprocess import main as preprocess_main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-245-predicting-adsorption-isotherm-parameter/code/data/preprocess.py", line 11, in <module>
+    from data.descriptors import calculate_descriptors_batch
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-245-predicting-adsorption-isotherm-parameter/code/data/descriptors.py", line 25, in <module>
+    'polarizability': rdMolDescriptors.CalcPolarizability,
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'rdkit.Chem.rdMolDescriptors' has no attribute 'CalcPolarizability'
 - python code/main.py --data-dir data/processed --model trained_models/best_model.pkl --task shap_analysis -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-245-predicting-adsorption-isotherm-parameter/code/main.py", line 18, in <module>
-    from data.download import main as download_main
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-245-predicting-adsorption-isotherm-parameter/code/data/download.py", line 4, in <module>
-    import requests
-ModuleNotFoundError: No module named 'requests'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-245-predicting-adsorption-isotherm-parameter/code/main.py", line 20, in <module>
+    from data.preprocess import main as preprocess_main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-245-predicting-adsorption-isotherm-parameter/code/data/preprocess.py", line 11, in <module>
+    from data.descriptors import calculate_descriptors_batch
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-245-predicting-adsorption-isotherm-parameter/code/data/descriptors.py", line 25, in <module>
+    'polarizability': rdMolDescriptors.CalcPolarizability,
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'rdkit.Chem.rdMolDescriptors' has no attribute 'CalcPolarizability'
 
 ## Declared deliverables still missing
 
