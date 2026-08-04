@@ -3,153 +3,80 @@ import subprocess
 import sys
 from pathlib import Path
 
-
-def check_config_files():
-    """Check if ruff and black config files exist in the project root."""
+def check_config_files() -> bool:
+    """Verify that linting and formatting config files exist."""
     project_root = Path(__file__).parent.parent
     ruff_config = project_root / "pyproject.toml"
     black_config = project_root / "pyproject.toml"
+    pre_commit_config = project_root / ".pre-commit-config.yaml"
 
     if not ruff_config.exists():
-        print(f"Warning: {ruff_config} not found. Creating default configuration.")
+        print("ERROR: pyproject.toml (for ruff/black config) not found.")
+        return False
+    if not pre_commit_config.exists():
+        print("ERROR: .pre-commit-config.yaml not found.")
         return False
 
     print("Configuration files found.")
     return True
 
-
-def install_dev_dependencies():
-    """Install ruff and black as development dependencies."""
-    print("Installing development dependencies (ruff, black)...")
+def install_dev_dependencies() -> bool:
+    """Install development dependencies (ruff, black, pytest, etc.)."""
     try:
-        subprocess.check_call(
-            [sys.executable, "-m", "pip", "install", "-U", "ruff", "black"],
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL
-        )
-        print("Dependencies installed successfully.")
+        subprocess.check_call([
+            sys.executable, "-m", "pip", "install", "-e", ".[dev]"
+        ], cwd=Path(__file__).parent.parent)
+        print("Development dependencies installed successfully.")
         return True
     except subprocess.CalledProcessError as e:
-        print(f"Failed to install dependencies: {e}")
+        print(f"ERROR: Failed to install dev dependencies: {e}")
         return False
 
-
-def initialize_pre_commit():
-    """Initialize pre-commit configuration if not present."""
-    project_root = Path(__file__).parent.parent
-    pre_commit_config = project_root / ".pre-commit-config.yaml"
-
-    if pre_commit_config.exists():
-        print(".pre-commit-config.yaml already exists.")
+def initialize_pre_commit() -> bool:
+    """Initialize pre-commit hooks."""
+    try:
+        subprocess.check_call(["pre-commit", "install"], cwd=Path(__file__).parent.parent)
+        print("Pre-commit hooks installed.")
         return True
+    except subprocess.CalledProcessError as e:
+        print(f"ERROR: Failed to install pre-commit hooks: {e}")
+        return False
 
-    print("Creating .pre-commit-config.yaml...")
-    config_content = """repos:
-  - repo: https://github.com/psf/black
-    rev: 24.2.0
-    hooks:
-- id: black
-  language_version: python3
-  - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.3.0
-    hooks:
-- id: ruff
-  args: [--fix, --exit-non-zero-on-fix]
-- id: ruff-format
-"""
+def run_linter() -> bool:
+    """Run ruff linter."""
     try:
-        pre_commit_config.write_text(config_content)
-        print("Created .pre-commit-config.yaml.")
+        subprocess.check_call(["ruff", "check", "."], cwd=Path(__file__).parent.parent)
+        print("Linter passed.")
         return True
-    except IOError as e:
-        print(f"Failed to create pre-commit config: {e}")
+    except subprocess.CalledProcessError as e:
+        print(f"ERROR: Linter failed: {e}")
         return False
 
-
-def run_linter():
-    """Run ruff linter on the codebase."""
-    project_root = Path(__file__).parent.parent
-    print("Running ruff linter...")
+def run_formatter() -> bool:
+    """Run black formatter."""
     try:
-        result = subprocess.run(
-            [sys.executable, "-m", "ruff", "check", str(project_root / "code")],
-            cwd=project_root,
-            capture_output=True,
-            text=True
-        )
-        if result.returncode == 0:
-            print("Linter passed: No issues found.")
-            return True
-        else:
-            print("Linter found issues:")
-            print(result.stdout)
-            return False
-    except FileNotFoundError:
-        print("Error: ruff not found. Please install it first.")
+        subprocess.check_call(["black", "."], cwd=Path(__file__).parent.parent)
+        print("Formatter completed.")
+        return True
+    except subprocess.CalledProcessError as e:
+        print(f"ERROR: Formatter failed: {e}")
         return False
 
-
-def run_formatter():
-    """Run black formatter on the codebase."""
-    project_root = Path(__file__).parent.parent
-    print("Running black formatter...")
-    try:
-        result = subprocess.run(
-            [sys.executable, "-m", "black", "--check", str(project_root / "code")],
-            cwd=project_root,
-            capture_output=True,
-            text=True
-        )
-        if result.returncode == 0:
-            print("Formatter passed: Code is already formatted.")
-            return True
-        else:
-            print("Formatter found formatting issues.")
-            print("Run 'black code/' to fix them.")
-            return False
-    except FileNotFoundError:
-        print("Error: black not found. Please install it first.")
-        return False
-
-
-def main():
-    """Main entry point for setting up linting and formatting tools."""
+def main() -> int:
+    """Main entry point for setup."""
     print("Setting up linting and formatting tools...")
 
-    # Check configuration
     if not check_config_files():
-        print("Creating default configuration in pyproject.toml...")
-        project_root = Path(__file__).parent.parent
-        pyproject = project_root / "pyproject.toml"
-        if pyproject.exists():
-            content = pyproject.read_text()
-            # Append ruff and black configs if not present
-            if "[tool.ruff]" not in content:
-                content += "\n[tool.ruff]\nline-length = 88\nselect = [\"E\", \"F\", \"W\", \"I\"]\n"
-            if "[tool.black]" not in content:
-                content += "\n[tool.black]\nline-length = 88\ntarget-version = ['py38']\n"
-            pyproject.write_text(content)
-        else:
-            content = """[tool.ruff]
-line-length = 88
-select = ["E", "F", "W", "I"]
+        return 1
 
-[tool.black]
-line-length = 88
-target-version = ['py38']
-"""
-            pyproject.write_text(content)
-
-    # Install dependencies
     if not install_dev_dependencies():
-        print("Failed to install dependencies. Exiting.")
-        sys.exit(1)
+        return 1
 
-    # Initialize pre-commit
-    initialize_pre_commit()
+    if not initialize_pre_commit():
+        return 1
 
-    print("\nSetup complete. Run 'ruff check code/' and 'black --check code/' to verify.")
-
+    print("Setup complete. Run 'ruff check .' and 'black .' to verify.")
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

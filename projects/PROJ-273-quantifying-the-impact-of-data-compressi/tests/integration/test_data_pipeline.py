@@ -8,6 +8,7 @@ This test verifies the end-to-end flow:
 
 NOTE: This test uses a simulated noise segment to ensure deterministic, 
 fast execution in CI without requiring network access to GWOSC.
+It relies on the real `src.data.inject` and `src.data.validate` modules.
 """
 import pytest
 import numpy as np
@@ -16,6 +17,7 @@ import tempfile
 import os
 from pathlib import Path
 import sys
+import h5py
 
 # Add project root to path to import src modules
 project_root = Path(__file__).parent.parent.parent

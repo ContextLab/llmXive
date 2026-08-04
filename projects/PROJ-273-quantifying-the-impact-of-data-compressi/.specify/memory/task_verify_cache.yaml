@@ -6,6 +6,13 @@ T001#1:
     \ containing the exact replacement text, we cannot confirm that the specification\
     \ was modified as requested. The implementer must supply the modified `spec.md`\
     \ with the specified wording."
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`,
+    or similar) or any evidence of ruff/black setup were presented. The claim provides
+    only a unrelated feature specification, so the required linting/formatting tooling
+    is missing.
 T004:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -14,34 +21,18 @@ T004:
     \ the required formal amendment was made. The implementer must supply the modified\
     \ `spec.md` with the new wording authorizing Bilby/Dynesty as the Parameter Estimation\
     \ engine."
-T006#1:
+T006:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence was provided that the required directories (`data/raw/`, `data/interim/`,\
-    \ `data/processed/`, `data/external/`) actually exist in the repository; the response\
-    \ contains only the task description and no file\u2011system listing or screenshots\
-    \ confirming their creation. The implementer must add the directory structure\
-    \ to the project."
+  r: No evidence of the required `data/raw/`, `data/interim/`, `data/processed/`,
+    or `data/external/` directories is provided; the implementer did not supply any
+    artifact confirming the directory structure exists.
 T007:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
   r: No evidence of a `tests/` directory or its required subfolders (`unit/`, `integration/`,
     `contract/`) is present in the provided artifacts; the implementer did not supply
     any file listings or screenshots confirming the structure.
-T007#1:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of a `tests/` directory (or its `unit/`, `integration/`, `contract/`\
-    \ subfolders) is provided; the implementer\u2019s claim lacks any artifact confirming\
-    \ the required directory structure exists."
-T008:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No pytest configuration file (e.g., `pytest.ini`, `pyproject.toml`, or `setup.cfg`)\
-    \ containing coverage threshold settings and a 300\u2011second timeout is present\
-    \ in the provided evidence. Without such a file, the task of configuring pytest\
-    \ with the required coverage and CI\u2011compatible timeout cannot be confirmed\
-    \ as completed."
 T009:
   c: true
   h: 910b1ff19aefba13dd156f74838d7cded8bdbaeea374164169d2c95cb4f839e4
@@ -61,3 +52,9 @@ T012:
   r: No evidence of a `spec.md` file containing the required amendment was provided;
     the implementer did not supply the updated file or show the exact replacement
     text, so we cannot confirm the specification was modified as required.
+T017:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `quickstart.md` file was presented in the evidence, nor any excerpt or link\
+    \ confirming its existence in `specs/001-compression-impact-gw-reconstruction/`.\
+    \ Without the required document, the task\u2019s deliverable is missing."

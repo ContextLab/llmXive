@@ -13,7 +13,7 @@ This project quantifies the impact of lossless and lossy data compression on the
 **Primary Dependencies**: `numpy`, `scipy`, `pandas`, `h5py`, `lalsimulation`, `bilby`, `dynesty`, `gwosc`, `lz4`, `pywavelets`, `astropy`, `pillow` (for JPEG2000 folding)
 **Storage**: Local filesystem; raw data in `data/raw/`, processed in `data/interim/`
 **Testing**: `pytest` (unit tests for compression logic; integration tests for pipeline flow)
-**Target Platform**: Linux (GitHub Actions free-tier runner: 2 CPU, 7GB RAM, no GPU)
+**Target Platform**: Linux (GitHub Actions free-tier runner: CPU, 7GB RAM, no GPU)
 **Project Type**: Scientific Research Pipeline / CLI
 **Performance Goals**: Full pipeline execution ≤ 6 hours; single event "Fast PE" ≤ 2 hours; memory usage < 6 GB.
 **Constraints**: No GPU/CUDA; no full LALInference MCMC on CI (infeasible); use of external baseline for `Bias_Original`; synthetic injections required for ground truth.

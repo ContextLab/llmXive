@@ -4,12 +4,7 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T001` (rejected 1x): declared artifact(s) missing/empty/invalid: code/provenance/deviation_constitution_principle_ii.md, state/projects/PROJ-273-quantifying-the-impact-of-data-compressi.yaml
-- `T006` (rejected 1x): No evidence was provided that the required directories (`data/raw/`, `data/interim/`, `data/processed/`, `data/external/`) actually exist; the response contains no file listings, screenshots, or code creating them. The implementer must add the directory structure to the repository (or provide proof of its presence).
-- `T015` (rejected 1x): No code, script, or output files were provided that demonstrate a loop fetching additional noise segments in batches, validating them, and ensuring ≥12 valid events with complete spin metadata. Without such artifacts, the requirement cannot be verified. The implementer must supply the actual implementation (e.g., a function or module) and evidence (logs, test results, or data files) showing the batch‑fetching and validation logic works as specified.
-- `T016` (rejected 1x): No updated description of T015 is present in the provided evidence; the claim that the specification now clarifies stopping after 12 valid events cannot be verified because the artifact itself is missing. The next implementer must supply the revised T015 text showing the required clarification.
-- `T003` (rejected 1x): No configuration files (e.g., `pyproject.toml`, `.ruff.toml`, `.pre-commit-config.yaml`) or scripts setting up ruff linting and black formatting are present; the only artifacts shown relate to a data‑compression feature, not to linting/formatting setup. Consequently the required linting/formatting configuration is missing.
-- `T013` (rejected 1x): declared artifact(s) missing/empty/invalid: src/data/inject.py
+- `T008` (rejected 1x): No pytest configuration file (e.g., `pytest.ini`, `pyproject.toml`, or `setup.cfg`) containing coverage threshold settings and a 300‑second timeout is present in the provided evidence. Without such a file, the task of configuring pytest with the required coverage and CI‑compatible timeout cannot be confirmed as completed.
 
 ## Required change
 
