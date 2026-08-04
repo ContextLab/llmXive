@@ -1179,3 +1179,83 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-01T14:19:27Z'
+- artifact_path: projects/PROJ-131-the-impact-of-perceived-social-support-o/data/results/regression_summary.md
+  attempts: 1
+  canonical: analysis cohort N=300 after listwise deletion
+  claim_id: c_fd8dda9c
+  context: 'Cohort: Validated analysis cohort with N=300 (after listwise deletion)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The analysis cohort consisted of N=300 after listwise deletion.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T02:07:52Z'
+- artifact_path: projects/PROJ-131-the-impact-of-perceived-social-support-o/data/results/regression_summary.md
+  attempts: 1
+  canonical: depression interaction coefficient -0.42 CI [-0.78 -0.09] p 0.032
+  claim_id: c_d90e1d69
+  context: '| Depression | -0.42 | 0.18 | [-0.78, -0.09] | 0.032* |'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The interaction coefficient for Depression was -0.42 with a 95% BCa CI
+    of [-0.78, -0.09] and an FDR-adjusted p-value of 0.032.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T02:08:00Z'
+- artifact_path: projects/PROJ-131-the-impact-of-perceived-social-support-o/data/results/regression_summary.md
+  attempts: 1
+  canonical: anxiety interaction coefficient -0.31 CI [-0.62 -0.04] p 0.048
+  claim_id: c_a3beadc3
+  context: '| Anxiety | -0.31 | 0.15 | [-0.62, -0.04] | 0.048* |'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The interaction coefficient for Anxiety was -0.31 with a 95% BCa CI of
+    [-0.62, -0.04] and an FDR-adjusted p-value of 0.048.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T02:08:05Z'
+- artifact_path: projects/PROJ-131-the-impact-of-perceived-social-support-o/data/results/regression_summary.md
+  attempts: 1
+  canonical: ptsd interaction coefficient -0.28 CI [-0.71 0.12] p 0.187
+  claim_id: c_71252ba3
+  context: '| PTSD | -0.28 | 0.21 | [-0.71, 0.12] | 0.187 |'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The interaction coefficient for PTSD was -0.28 with a 95% BCa CI of [-0.71,
+    0.12] and an FDR-adjusted p-value of 0.187.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T02:08:36Z'
+- artifact_path: projects/PROJ-131-the-impact-of-perceived-social-support-o/data/results/regression_summary.md
+  attempts: 1
+  canonical: BCa confidence intervals computed with 1000 resamples
+  claim_id: c_6ac2c4d4
+  context: 'Bootstrap CIs: Bias-corrected and accelerated (BCa) confidence intervals
+    computed with 1,000 resamples.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Bias-corrected and accelerated (BCa) confidence intervals were computed
+    with 1,000 resamples.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T02:08:51Z'

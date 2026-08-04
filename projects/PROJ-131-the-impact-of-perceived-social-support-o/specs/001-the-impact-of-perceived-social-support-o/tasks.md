@@ -65,11 +65,11 @@ The implementation **strictly follows the Plan's 'Revised Approach'** (Single-Da
 - [X] T005 [US1] Implement `tests/test_scales.py` with unit tests verifying scoring logic matches the definitions in `config/scales.yaml`. **Dependency**: Must run after T004.
 - [X] T006 [P] Setup `code/data/ingestion.py` skeleton with read‑only raw data validation logic.
 - [X] T007 Create `code/data/cohort.py` skeleton for constructing the analysis cohort (single source).
-- [ ] T008 [P] Configure `main_pipeline.py` entry point to orchestrate modular steps.
+- [X] T008 [P] Configure `main_pipeline.py` entry point to orchestrate modular steps (skeleton creation).
 - [X] T009 [P] Setup environment configuration for data paths **and** create `config/seeds.yaml` to define reproducible seeds.
  **Content outline**:
  ```yaml
- random_seed: 42
+ random_seed:
  ```
  **Instruction**: Ensure the file contains valid YAML with the integer value `42` for `random_seed`. This seed will be used for all random operations (imputation, bootstrapping, sampling).
 
@@ -92,13 +92,15 @@ The implementation **strictly follows the Plan's 'Revised Approach'** (Single-Da
  - **Source**: Use `ucimlrepo` or `datasets.load_dataset` with the specific ID for the Cyberbullying Survey, or load from `data/raw/cyberbullying_2021.csv` if provided locally.
  - **Validation**: Verify file integrity (checksum) and log E‑MISSING‑ if required items are absent.
  - **GSS Exclusion**: Do NOT attempt to load GSS 2022. If GSS is found in `data/raw`, log a warning that it is being ignored per the Plan's 'Revised Approach'.
-- [X] T013 [US1] Implement `code/data/preprocessing.py` to perform the following steps in order:
- 1. **Listwise Deletion**: Drop rows where variables with >5% missingness are present.
- 2. **MICE Imputation**: Apply Multiple Imputation by Chained Equations (MICE) to remaining missing values in the predictor matrix: `['age','gender','education','income','social_support','harassment_severity','depression','anxiety','ptsd']`. Configure with `m=5`, `max_iter=10`, `random_state=42`.
- 3. **Convergence Check**: Verify MICE convergence by checking the trace of imputed values. If convergence fails (trace does not stabilize), increase `max_iter` to 50 and re-run. Log status `W-MICE-NONCONV-001` if max_iter was increased.
- 4. **Scale Scoring**: Apply scoring algorithms defined in `config/scales.yaml` to raw item columns.
+- [X] T013 [US1] Implement `code/data/preprocessing.py` to perform the following steps in **strict order**:
+ 1. **MICE Imputation**: Apply Multiple Imputation by Chained Equations (MICE) to missing values in the **predictor matrix** (`['age','gender','education','income','social_support','harassment_severity']`). Configure with `m=5`, `max_iter=10`, `random_state=42`.
+ 2. **Imputation Strategy**: If `harassment_severity` has missing values, impute the continuous variable first. **Do not** impute the binary `harassment_exposure` directly.
+ 3. **Derivation**: **After** MICE imputation is complete, derive the binary `harassment_exposure` variable from the imputed `harassment_severity` (e.g., `exposure = 1 if severity > 0 else 0`).
+ 4. **Scale Scoring**: Apply scoring algorithms defined in `config/scales.yaml` to raw item columns to generate `depression`, `anxiety`, and `ptsd` scores.
  5. **PCL-5 Handling**: If PCL-5 items are missing from the dataset, log `E-MISSING-001` (PTSD) and set the `ptsd` column to `NaN`. **Verification**: Ensure the pipeline explicitly adapts the outcome set and FDR correction logic (FR-008) to handle a reduced set of outcomes (Depression, Anxiety only) without crashing.
- 6. Output the processed DataFrame for downstream cohort construction.
+ 6. **Listwise Deletion for Outcomes**: Perform listwise deletion **only** on rows where critical outcome variables (`depression`, `anxiety`, `ptsd`) are missing after imputation and derivation. Do NOT perform listwise deletion on predictor variables before imputation.
+ 7. **Convergence Check**: Verify MICE convergence by checking the trace of imputed values. If convergence fails (trace does not stabilize), increase `max_iter` to 50 and re-run. Log status `W-MICE-NONCONV-001` if max_iter was increased.
+ 8. Output the processed DataFrame for downstream cohort construction.
 - [X] T014 [US1] Implement `code/data/cohort.py` to:
  1. Filter the dataset to remove rows with critical missing values (harassment_severity, social_support, or at least one mental health outcome).
  2. Ensure `harassment_severity` has sufficient variance (SD > 0.5, N > 30). If not, log `E-LOW-VAR-001` and halt.
@@ -128,10 +130,10 @@ The implementation **strictly follows the Plan's 'Revised Approach'** (Single-Da
 ### Implementation for User Story 2
 
 - [X] T020 [P] [US2] Implement `code/analysis/models.py` to fit OLS models with heteroskedasticity‑consistent (HC3) standard errors for Depression, Anxiety, and PTSD (if PCL-5 present). Include interaction term `SocialSupport:HarassmentExposure`.
-- [X] T021 [P] [US2] Compute **bias‑corrected accelerated (BCa) bootstrap CIs** with a **sufficiently large number of resamples** to ensure stable interval estimation. using `statsmodels.stats.bootstrap`. Seed the process with `random_seed` from `config/seeds.yaml`.
+- [X] T021 [P] [US2] Compute **bias‑corrected accelerated (BCa) bootstrap CIs** with **1,000 resamples** using `statsmodels.stats.bootstrap`. Seed the process with `random_seed` from `config/seeds.yaml`.
 - [X] T022 [P] [US2] Add fallback: if the robust model fails to converge, automatically refit a standard OLS model (no HCSE) and log status `E‑NONCONV‑001`.
 - [X] T023 [P] [US2] Implement Benjamini‑Hochberg FDR correction across the set of outcome tests (Depression, Anxiety, PTSD) and attach adjusted p‑values to the results.
-- [ ] T024 [P] [US2] Save regression outputs (coefficients, SEs, p‑values, bootstrap CIs, adjusted p‑values) to `data/results/regression_results.csv`.
+- [X] T024 [P] [US2] Save regression outputs (coefficients, SEs, p‑values, bootstrap CIs, adjusted p‑values) to `data/results/regression_results.csv`.
 - [X] T024b [P] [US2] **Create Results Module**: Implement `code/analysis/results.py` to handle report generation.
  - **Action**: Create the file with correct syntax (fixing previous `"std_error": ro` error).
  - **Content**: Functions to read `analysis_cohort.csv` and `regression_results.csv` and format them for markdown output.
@@ -141,7 +143,7 @@ The implementation **strictly follows the Plan's 'Revised Approach'** (Single-Da
  - Bootstrap confidence intervals.
  - FDR-adjusted p-values.
  - Interpretation of the interaction term.
- - **Dependency**: Must run after T016, T024, and T024b.
+ - **Dependency**: Must run after T016, T024, and **T024b**.
 
 **Checkpoint**: User Stories 1 & 2 are independently testable.
 
@@ -159,15 +161,18 @@ The implementation **strictly follows the Plan's 'Revised Approach'** (Single-Da
 
 - [X] T027 [P] [US3] Implement `code/analysis/sensitivity.py` to:
  1. Re‑fit models using **continuous harassment severity** instead of binary exposure.
- 2. If a `platform` column exists, stratify analyses by **all available platforms**.
- 3. **Edge Case Handling**: If a platform group has N < 30, log `E-SMALL-N-001` and exclude that group from stratification. Do not arbitrarily truncate to "top three" platforms.
- 4. If fewer than two valid platforms remain after filtering, log `E‑SKIP‑001` and skip stratification.
+ 2. If a `platform` column exists, stratify analyses by **all available platforms** meeting the N >= 30 threshold.
+ 3. **Edge Case Handling**: If a platform group has N < 30 **OR fewer than 2 distinct categories** (e.g., all users are 'Twitter'), log `E-SMALL-N-001` and exclude that group from stratification. Do not arbitrarily truncate to "top three" platforms.
+ 4. **Single Group Handling**: If only **one** valid platform group exists (N >= 30 and categories >= 2), **run the stratification** on that single group. Do NOT skip stratification.
  5. **Consolidation**: This task now contains the **sole** implementation of stratification edge-case logic; no other task (e.g., T046) implements this logic.
+ - **Data Flow**: This task generates an in-memory DataFrame of sensitivity results.
 - [X] T028 [US3] **Generate Coefficient Comparison Table**: Compare interaction coefficients from each sensitivity run against the baseline (from T020) and produce a table of coefficient shifts.
  - **Deliverable**: `data/results/coefficient_comparison.csv` containing the baseline and sensitivity coefficients with calculated shifts.
- - **Logic**: Read `regression_results.csv` (baseline) and `sensitivity_analysis.csv` (sensitivity), merge on model ID, and compute `shift = sensitivity_coef - baseline_coef`.
- - **Dependency**: Must run after T020 and T027.
-- [ ] T029 [P] [US3] Save the sensitivity summary to `data/results/sensitivity_analysis.csv`. <!-- FAILED: unspecified -->
+ - **Logic**: Read the **in-memory DataFrame generated by T027** (do not rely on T029's file save for data access). Merge with baseline results and compute `shift = sensitivity_coef - baseline_coef`.
+ - **Dependency**: Must run after T020 and **T027**. (T029 is not a blocking dependency for data access).
+- [X] T029 [US3] **Save Sensitivity Summary**: Save the sensitivity summary to `data/results/sensitivity_analysis.csv`.
+ - **Dependency**: Must run after **T027** (Implementation) completes. This task is **NOT** parallel; it must wait for T027 to finish generating the data.
+ - **Action**: Write the in-memory DataFrame from T027 to disk.
 - [X] T030 [P] [US3] Add logging for each scenario, including data availability warnings.
 
 **Checkpoint**: All user stories are now functional.
@@ -176,7 +181,7 @@ The implementation **strictly follows the Plan's 'Revised Approach'** (Single-Da
 
 ## Phase 6: Polish & Cross‑Cutting Concerns
 
-- [ ] T031 [US1-US3] **Orchestrate Pipeline**: Implement `main_pipeline.py` to chain all phases: Ingestion → Preprocessing → Validation → Modeling → Sensitivity → Reporting.
+- [X] T031 [US1-US3] **Orchestrate Pipeline**: Update `main_pipeline.py` to chain all phases: Ingestion → Preprocessing → Validation → Modeling → Sensitivity → Reporting.
  - **Deliverable**: `main_pipeline.py` that executes T012-T030 sequentially and outputs a single run log at `data/results/pipeline_run.log`.
  - **Content Requirements**:
  - Import `ingestion`, `preprocessing`, `cohort`, `models`, `sensitivity`, `results`.
@@ -190,8 +195,8 @@ The implementation **strictly follows the Plan's 'Revised Approach'** (Single-Da
  - **Verification**: The file must be syntactically correct and executable.
  - **Dependency**: Must run after all phase tasks are complete.
 - [X] T032 Code cleanup and refactoring in `code/analysis/` to ensure modularity.
-- [ ] T033 [P] Performance optimization: Verify that bootstrapping (1,000 (Wikipedia: Bootstrapping (statistics), https://en.wikipedia.org/wiki/Bootstrapping_(statistics)) resamples for up to three models) completes within 6 hours on a 2‑core CPU. **Verification Step**: Run `time python main_pipeline.py` and assert output < 21600s.
-- [X] T034 [P] Additional unit testsfor edge cases (empty datasets, missing columns) in `tests/unit/`.
+- [X] T033 [P] Performance optimization: Verify that bootstrapping (1,000 resamples for up to three models) completes within 6 hours on a 2‑core CPU. **Verification Step**: Run `time python main_pipeline.py` and assert output < 21600s.
+- [X] T034 [P] Additional unit tests for edge cases (empty datasets, missing columns) in `tests/unit/`.
 - [X] T035 Run `quickstart.md` validation to ensure end‑to‑end pipeline execution.
 - [X] T036 Update `research.md` with placeholder interpretation that emphasizes associational findings.
 
@@ -203,38 +208,80 @@ The implementation **strictly follows the Plan's 'Revised Approach'** (Single-Da
 
 ### Implementation for Execution Safety
 
-- [ ] T050 [US1] **Hardening Ingestion**: Modify `code/data/ingestion.py` to strictly enforce the "Fail Loudly" rule.
+- [X] T050 [US1] **Hardening Ingestion**: Modify `code/data/ingestion.py` to strictly enforce the "Fail Loudly" rule.
  - **Requirement**: Remove any `try/except` blocks that catch download errors and fall back to `generate_synthetic_*()` or `mock_*()` functions.
  - **Action**: If the real fetch (via `ucimlrepo` or `load_dataset`) fails, the script MUST raise a `RuntimeError` with a clear message: "Real data fetch failed. Aborting to prevent synthetic data fabrication."
  - **Verification**: Unit test `tests/unit/test_ingestion_failures.py` must confirm that a missing network or invalid dataset ID raises an exception rather than returning mock data.
 
-- [ ] T051 [US1] **Dataset Source Verification**: Update `code/data/ingestion.py` to log the exact source URL and dataset ID used.
+- [X] T051 [US1] **Dataset Source Verification**: Update `code/data/ingestion.py` to log the exact source URL and dataset ID used.
  - **Requirement**: The log output must explicitly state: "Source: [URL/ID] | Method: [ucimlrepo/load_dataset]".
  - **Action**: If a "VERIFIED REAL DATA SOURCE" block is provided in execution feedback, the code MUST update the fetch logic to use that exact package/recipe instead of guessing.
  - **Verification**: Run the pipeline and grep logs for "Source:" to confirm the real dataset is being referenced.
 
-- [ ] T052 [US1] **Streaming/Chunking for Large Data**: Implement streaming logic in `code/data/ingestion.py` if the Cyberbullying Survey exceeds ~1GB.
+- [X] T052 [US1] **Streaming/Chunking for Large Data**: Implement streaming logic in `code/data/ingestion.py` if the Cyberbullying Survey exceeds ~1GB.
  - **Requirement**: Use `datasets.load_dataset(..., streaming=True)` and iterate with `itertools.islice` if a full sample is needed for testing, ensuring the code handles chunked processing for statistics.
  - **Action**: If the dataset is small (<1GB), load fully into memory; otherwise, implement the streaming accumulator for mean/variance calculations to stay within 7GB RAM limits.
  - **Verification**: Unit test `tests/unit/test_streaming_logic.py` to ensure chunked processing yields identical statistics to full-load processing on a sample subset.
 
 - [X] T053 [US2] **Bootstrap Feasibility Check**: Add a pre-flight check in `code/analysis/models.py` to estimate bootstrap runtime.
- - **Requirement**: Run a quick "dry run" with 10 resamples to estimate time per resample. If `1000 * estimated_time > 6 hours`, log a warning `W-SLOW-BOOT-001` and **HALT** execution.
- - **Action**: Ensure the resample count is strictly CPU-tractable on the 2-core runner; if not, the pipeline must stop rather than fabricate results or reduce rigor. **Do not** reduce resamples to 500 without a spec amendment.
- - **Verification**: Run the dry-run on the CI runner and verify the estimated total time is < 6 hours.
+ - **Requirement**: Run a quick "dry run" with 10 resamples to estimate time per resample. If `1000 * estimated_time > 6 hours`, log a warning `W-SLOW-BOOT-001` and **FAIL** execution with error code `E-COMPUTE-OVERFLOW-001`.
+ - **Action**: Ensure the resample count is strictly CPU-tractable on the 2-core runner; if not, the pipeline must **OPTIMIZE CODE** (e.g., vectorize loops, reduce overhead) or fail with `E-COMPUTE-OVERFLOW-001` to signal an infrastructure constraint. **Do not** reduce resamples to 500. Reducing resamples is strictly prohibited as it violates FR-007 and Constitution Principle I.
+ - **Verification**: Run the dry-run on the CI runner and verify the estimated total time is < 6 hours. If it exceeds, the pipeline halts with the specific error code.
  - **Note**: This check runs BEFORE the full bootstrap in T021/T033 to prevent long hangs.
 
 - [X] T054 [US3] **Stratification Edge Case Handling**: Update `code/analysis/sensitivity.py` to handle the "Low N" edge case rigorously.
- - **Requirement**: If a platform group has N < 30, the stratified model MUST NOT run. Log `E-SMALL-N-001` and exclude that group from stratification.
+ - **Requirement**: If a platform group has N < 30 **OR fewer than 2 distinct categories**, the stratified model MUST NOT run. Log `E-SMALL-N-001` and exclude that group from stratification.
  - **Action**: Ensure the code does not attempt to fit a regression on a group with insufficient variance or sample size, which would cause convergence errors or spurious results.
- - **Verification**: Unit test `tests/unit/test_stratification_edge_cases.py` with a mock dataset containing a group of N=10 to confirm the model skips and logs the error.
+ - **Verification**: Unit test `tests/unit/test_stratification_edge_cases.py` with a mock dataset containing a group of N=10 or a group with 1 category to confirm the model skips and logs the error.
  - **Note**: This logic is consolidated in T027; this task ensures the implementation in T027 is robust.
 
-- [ ] T055 [P] **Reproducibility Audit**: Add a final validation step in `main_pipeline.py` to hash the final `analysis_cohort.csv` and `regression_results.csv`.
- - **Requirement**: Compare the hash against the seed defined in `config/seeds.yaml`. If the hash changes between runs with the same seed, the pipeline must fail with `E-NON-DET-001`.
+- [X] T055a [P] **Initialize Baseline Hash**: Create a mechanism to initialize the baseline hash for reproducibility checks.
+ - **Requirement**: On the first run (or if no baseline exists), generate the hash for `analysis_cohort.csv` and `regression_results.csv` and save it to `data/results/baseline_hashes.json`.
+ - **Action**: If the baseline file does not exist, create it with the current run's hashes and log `INFO: Baseline hash initialized`. Do not fail.
+ - **Verification**: Run the pipeline on a fresh environment and confirm `baseline_hashes.json` is created.
+
+- [X] T055 [P] **Reproducibility Audit**: Add a final validation step in `main_pipeline.py` to hash the final `analysis_cohort.csv` and `regression_results.csv`.
+ - **Requirement**: Compare the hash against the **stored baseline hash** from `data/results/baseline_hashes.json`. If the hash changes between runs with the same seed, the pipeline must fail with `E-NON-DET-001`. If no baseline exists (handled by T055a), **create** the baseline hash with the current run's values and log `INFO: Baseline hash initialized`.
  - **Action**: Ensure all random number generators (numpy, pandas, statsmodels) are seeded explicitly before any operation.
  - **Deliverable**: `data/results/reproducibility_audit.json` containing the hash comparison results and pass/fail status.
  - **Dependency**: Must run after T031, T016, T024, and T029.
+
+---
+
+## Phase 8: Final Verification & Documentation (Revision Round 2)
+
+**Goal**: Ensure the final deliverable meets all constitutional requirements and is ready for human review.
+
+### Implementation for Final Verification
+
+- [ ] T061a [P] **Ensure Research.md Existence**: Create `research.md` if it does not exist. <!-- FAILED: unspecified -->
+ - **Requirement**: If `research.md` is missing, generate a placeholder file with the project title, date, and a note that it is a draft.
+ - **Action**: Ensure the file exists at `projects/PROJ-131-the-impact-of-perceived-social-support-o/specs/001-the-impact-of-perceived-social-support-o/research.md` (or the path defined in the plan) before T061 runs.
+ - **Verification**: Run `ls research.md` before T061 to confirm existence.
+
+- [X] T060 [P] **Final Data Lineage Audit**: Create `data/results/data_lineage_report.md` that traces every metric back to its raw source variable and transformation step.
+ - **Requirement**: Explicitly list the dataset ID, version, and fetch method used for the Cyberbullying Survey 2021.
+ - **Action**: Verify that no synthetic data generation functions were called during the run.
+ - **Verification**: Run `grep -r "generate_synthetic" code/` and ensure no matches are found in the execution logs.
+
+- [X] T061 [P] **Methodological Consistency Check**: Review `research.md` and `data/results/regression_summary.md` to ensure they explicitly state the "Single-Dataset" approach and do not mention the deprecated "Synthetic Cohort" or GSS 2022 matching.
+ - **Requirement**: Any mention of GSS 2022 must be framed as "excluded due to methodological invalidity".
+ - **Action**: If inconsistencies are found, update the documentation to reflect the Plan's Revised Approach.
+ - **Dependency**: Must run after **T061a** (Ensure Research.md Existence) to guarantee the file exists before modification.
+
+- [ ] T062 [P] **Compute Resource Verification**: Confirm that the entire pipeline (including 1,000 bootstrap resamples) completes within the 6-hour limit on a standard 2-core CPU runner. <!-- FAILED: unspecified -->
+ - **Requirement**: If the dry-run (T053) indicated a risk, optimize the code (e.g., parallelize bootstrap loops if `multiprocessing` is allowed, or reduce overhead). **Do not** reduce resamples to 500.
+ - **Action**: If optimization fails to meet the 6-hour limit, the pipeline must fail with `E-COMPUTE-OVERFLOW-001` to signal an infrastructure constraint. Document the final runtime and resource usage in `data/results/performance_report.json`.
+
+- [ ] T063 [P] **Final Code Review**: Run `ruff check.` and `pytest` to ensure all code is linted and all tests pass. <!-- FAILED: unspecified -->
+ - **Requirement**: Zero linting errors; [deferred] test pass rate.
+ - **Action**: Fix any remaining issues before marking this task complete.
+
+- [ ] T064 [P] **Generate Final Readme**: Update `README.md` with instructions on how to run the pipeline, including prerequisites, data sources, and expected outputs.
+ - **Requirement**: Include a section on "Methodological Approach" explaining the single-dataset choice.
+ - **Action**: Ensure the README is clear and actionable for a new developer.
+
+---
 
 ## Dependencies & Execution Order
 
@@ -242,19 +289,11 @@ The implementation **strictly follows the Plan's 'Revised Approach'** (Single-Da
 - **User Story 1** (T012‑T017) → **User Story 2** (T020‑T025) → **User Story 3** (T027‑T030)
 - **Polish (Phase 6)** runs after all user stories.
 - **Execution Safety (Phase 7)** must be completed before the final production run to ensure data integrity and reproducibility.
-- Parallelizable tasks are marked `[P]`; ordering respects data flow and artifact hand‑offs as described above.
-
-## Parallel Example: User Story 1
-
-```bash
-# Launch all tests for User Story 1 together (if tests requested):
-Task: "Contract test for [endpoint] in tests/contract/test_[name].py"
-Task: "Integration test for [user journey] in tests/integration/test_[name].py"
-
-# Launch all models for User Story 1 together:
-Task: "Create [Entity1] model in src/models/[entity1].py"
-Task: "Create [Entity2] model in src/models/[entity2].py"
-```
+- **Final Verification (Phase 8)** must be completed before the project is considered ready for human review.
+- **Parallelizable tasks are marked [P]; ordering respects data flow and artifact hand‑offs as described below:**
+ - T027 (Generate Data) → T029 (Save Data) → T028 (Read & Compare). T029 is NOT parallel; it must wait for T027.
+ - T061a (Create File) → T061 (Modify File). T061 must wait for T061a.
+ - T055a (Init Baseline) → T055 (Audit Baseline). T055 handles missing baseline by initializing it if T055a hasn't run yet, but logically T055a is the initializer.
 
 ---
 

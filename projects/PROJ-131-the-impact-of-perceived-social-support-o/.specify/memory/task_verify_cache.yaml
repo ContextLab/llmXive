@@ -48,3 +48,30 @@ T041:
     request diff is provided; the claim that the spec has been amended to deprecate\
     \ the synthetic cohort requirements is unsupported by any tangible artifact. The\
     \ required amendment is missing."
+T061a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `research.md` file was presented in the provided artifacts; therefore the
+    required document does not exist (or is empty), so the task of ensuring its existence
+    is not satisfied.
+T062:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No timing logs, benchmark reports, or resource\u2011usage evidence are present\
+    \ to show that the full pipeline (including the 1,000 BCa bootstrap resamples)\
+    \ finishes within the 6\u2011hour limit on a 2\u2011core CPU. The required verification\
+    \ artifact is missing."
+T063:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting (`ruff`) or test (`pytest`) output files, logs, or reports are present
+    to demonstrate that the codebase was checked for style violations or that all
+    tests pass. Without such artifacts, the claim that the final code review was completed
+    cannot be verified.
+T064:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No updated `README.md` file or its contents were provided; without evidence of
+    the required instructions (prerequisites, data sources, how to run the pipeline,
+    expected outputs), the claim cannot be verified. The implementer must supply the
+    actual README file showing the requested documentation.

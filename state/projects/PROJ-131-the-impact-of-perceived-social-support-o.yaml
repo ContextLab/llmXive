@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-02T07:39:40.167382Z'
-current_stage: planned
+current_stage: in_progress
 failed_stage: null
 field: psychology
 human_escalation_reason: null
 id: PROJ-131-the-impact-of-perceived-social-support-o
-last_run_id: 4fa371c5-30b6-4ff7-a421-8c4aa9e25be9
+last_run_id: 98950026-99a7-48c3-88d3-59a6aae07951
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-131-the-impact-of-perceived-social-support-o/specs/001-the-impact-of-perceived-social-support-o
 title: The Impact of Perceived Social Support on Resilience to Online Harassment
-updated_at: '2026-08-01T14:19:27.271092Z'
+updated_at: '2026-08-04T02:15:31.359212Z'
