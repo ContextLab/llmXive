@@ -32,6 +32,24 @@ _SEQ = count()
 #: one would make every claim-reaching test fail for a reason unrelated to what it asserts.
 _GENERATION_DEFAULT = {"ClaimGranted": 1, "ClaimExpired": 1, "ClaimHeartbeat": 1}
 
+#: A stand-in for every payload field the TABLE declares as part of an idempotency key.
+#: Keyed by FIELD and applied through `Transition.key_fields`, so declaring a new keyed row
+#: is all it takes to cover it here. Same rule as the generation defaults, one layer out:
+#: the fold does not READ these, but no writer can produce a keyed transition without them,
+#: so a history containing one is not a history the machine could have reached.
+_KEY_FIELD_DEFAULT: dict[str, Any] = {
+    "head_sha": "a" * 40, "reason": "regression", "lane_revision": 0, "claim_generation": 1}
+
+_undefaulted = {f for t in TRANSITIONS for f in t.key_fields
+                if f not in _KEY_FIELD_DEFAULT}
+if _undefaulted:   # at IMPORT: a silent omission would build unproducible histories
+    raise AssertionError(
+        f"idempotency-key fields with no test default: {sorted(_undefaulted)}")
+
+_KEY_DEFAULTS: dict[str, dict[str, Any]] = {
+    t.event: {f: _KEY_FIELD_DEFAULT[f] for f in t.key_fields}
+    for t in TRANSITIONS if t.key_fields}
+
 
 def attempt_event(event_type: str, *, attempt_id: str = "A1", problem_id: str = "P1",
                   payload: dict | None = None, seq: int | None = _UNSET) -> Event:
@@ -48,6 +66,7 @@ def attempt_event(event_type: str, *, attempt_id: str = "A1", problem_id: str = 
     body: dict[str, Any] = {"problem_id": problem_id, "attempt_id": attempt_id}
     if event_type in _GENERATION_DEFAULT:
         body["claim_generation"] = _GENERATION_DEFAULT[event_type]
+    body.update(_KEY_DEFAULTS.get(event_type, {}))
     body.update(payload or {})
     return Event(
         event_id=derive_event_id(problem_id, f"{event_type}\x00{attempt_id}"),
@@ -74,7 +93,7 @@ class Clock:
 
 def seed_claim(repo, *, problem_id: str = "P1", attempt_id: str = "A1",
                generation: int = 1, actor: str = "seed", clock: Clock | None = None,
-               config=None, already_proposed: bool = False) -> None:
+               config=None, already_proposed: bool = False) -> Event:
     """Put the lane in the state a paired claim leaves it in, WITHOUT going through
     `cas_claim`.
 
@@ -88,10 +107,14 @@ def seed_claim(repo, *, problem_id: str = "P1", attempt_id: str = "A1",
     `tests/helpers/`, so nothing in `src/` can reach it.
 
     `already_proposed` skips the two opening transitions for an Attempt a test has already
-    started — the claim-status race needs an Attempt that exists before the lane moves."""
+    started — the claim-status race needs an Attempt that exists before the lane moves.
+
+    Returns the grant, so a test re-issuing it through the real path can pass the SAME
+    key-bearing payload rather than a guess at what the fixture chose."""
+    from llmxive.self_improvement.coordinator import project_coordinator
     from llmxive.self_improvement.events import COORDINATOR_STREAM, coord_event
     from llmxive.self_improvement.lane_log import append_many, read
-    from llmxive.self_improvement.lifecycle import cas_attempt_transition
+    from llmxive.self_improvement.lifecycle import TRANSITIONS, cas_attempt_transition
 
     clock = clock or Clock()
     if not already_proposed:
@@ -106,15 +129,20 @@ def seed_claim(repo, *, problem_id: str = "P1", attempt_id: str = "A1",
     problem_events = read(repo, problem_id, config=config)
     coordinator_events = read(repo, COORDINATOR_STREAM, config=config)
     timestamp = clock()
+    row = next(t for t in TRANSITIONS if t.event == "ClaimGranted")
+    payload = {"problem_id": problem_id, "attempt_id": attempt_id,
+               # The grant's key is `(attempt_id,"claim",lane_revision)`, so the revision it
+               # was granted AT is part of the record, not just of the CAS below.
+               "claim_generation": generation,
+               "lane_revision": project_coordinator(coordinator_events).lane_revision}
     grant = Event(
-        # The id `cas_attempt_transition` would derive for this row, so a later
-        # `ClaimGranted` through the real path is an idempotent no-op rather than a second
-        # grant — the fixture has to be indistinguishable from the thing it stands in for.
-        event_id=derive_event_id(problem_id, f"claim\x00{attempt_id}"),
+        # Derived BY THE ROW, not rebuilt from its parts. A hand-written copy of the
+        # derivation is a second implementation of the idempotency key: this fixture stands
+        # in for `cas_attempt_transition`, so a copy that drifted would make every
+        # claim-holding test assert against a claim the real path can no longer produce.
+        event_id=row.event_id(problem_id, attempt_id, payload),
         event_type="ClaimGranted", problem_id=problem_id, actor=actor,
-        payload={"problem_id": problem_id, "attempt_id": attempt_id,
-                 "claim_generation": generation},
-        timestamp=timestamp, attempt_id=attempt_id,
+        payload=payload, timestamp=timestamp, attempt_id=attempt_id,
     )
     acquired = coord_event("ClaimAcquired", problem_id=problem_id, attempt_id=attempt_id,
                            payload={"problem_id": problem_id, "attempt_id": attempt_id},
@@ -123,6 +151,7 @@ def seed_claim(repo, *, problem_id: str = "P1", attempt_id: str = "A1",
                 expected_revisions={COORDINATOR_STREAM: len(coordinator_events),
                                     problem_id: len(problem_events)},
                 config=config)
+    return grant
 
 
 def witness_payload(state: AttemptState | None, event_type: str) -> dict[str, str]:
@@ -224,7 +253,10 @@ _EFFECT_ORDER = ("MonitorStarted", "ClaimReleased")
 #: out from under it — and a relative path would depend on the working directory instead.
 _SPEC = Path(__file__).resolve().parents[2] / "specs/025-self-improvement-lane/spec.md"
 
-SpecRow = tuple[frozenset[str], str, str, tuple[str, ...]]
+#: `(from_states, to_state, (key_suffix, key_fields), coordinator_effects)`. The key is a
+#: PAIR because the spec states a tuple: comparing only the suffix is how a code table that
+#: had dropped `head_sha` and `reason` from its derived ids matched the spec exactly.
+SpecRow = tuple[frozenset[str], str, tuple[str, tuple[str, ...]], tuple[str, ...]]
 
 
 def parse_spec_transitions() -> tuple[dict[str, SpecRow], frozenset[str], frozenset[str]]:
@@ -284,19 +316,36 @@ def parse_spec_transitions() -> tuple[dict[str, SpecRow], frozenset[str], frozen
         event = _event_name(event_cell)
         if not event.isidentifier():
             raise AssertionError(f"unparseable Event cell: {event_cell!r}")
-        # `(attempt_id,"promo-obs",head_sha)` → `promo-obs`: the suffix is the only part
-        # `TRANSITIONS` carries, because the other elements are values, not declarations.
-        key = re.search(r'"([^"]+)"', key_cell)
-        if key is None:
-            raise AssertionError(f"no quoted idempotency suffix in: {key_cell!r}")
         from_states = frozenset() if _clean(froms) == "∅" else frozenset(
             _clean(f) for f in froms.split("/"))
-        rows[event] = (from_states, _clean(to), key.group(1), effects)
+        rows[event] = (from_states, _clean(to), _parse_key(key_cell), effects)
     if not rows:
         raise AssertionError(f"no transition rows parsed from {_SPEC} — the test is vacuous")
     if not lane_events:
         raise AssertionError(f"no ‡ rows parsed from {_SPEC} — the test is vacuous")
     return rows, frozenset(non_transitions), frozenset(lane_events)
+
+
+def _parse_key(cell: str) -> tuple[str, tuple[str, ...]]:
+    """`` `(attempt_id,"promo-obs",head_sha)` `` → `("promo-obs", ("head_sha",))`.
+
+    The WHOLE declaration, not just the suffix. The previous parser stopped at the first
+    quoted literal and discarded the rest as "values, not declarations" — but the field
+    NAMES are exactly a declaration (which payload fields complete the key), and dropping
+    them made the test bless a code table that derived its ids without them.
+
+    Every row is `(attempt_id, "suffix", field*)`: `attempt_id` is implicit in the
+    per-Attempt derivation, so it is required and then dropped. Anything else is a spec typo
+    rather than a shape this parser should quietly accommodate."""
+    parts = [p.strip() for p in _clean(cell).strip("()").split(",")]
+    if len(parts) < 2 or parts[0] != "attempt_id":
+        raise AssertionError(f"idempotency key is not attempt-scoped: {cell!r}")
+    if not (parts[1].startswith('"') and parts[1].endswith('"') and len(parts[1]) > 2):
+        raise AssertionError(f"no quoted idempotency suffix in: {cell!r}")
+    for field in parts[2:]:
+        if not field.isidentifier():
+            raise AssertionError(f"idempotency key names a non-field {field!r}: {cell!r}")
+    return parts[1].strip('"'), tuple(parts[2:])
 
 
 def _clean(cell: str) -> str:

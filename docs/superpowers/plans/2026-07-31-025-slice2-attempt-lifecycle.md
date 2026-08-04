@@ -236,7 +236,12 @@ created and used there.
 - `src/llmxive/self_improvement/lifecycle.py` — `AttemptState`, `ProblemDisposition`, `Transition`, `TRANSITIONS`, `TERMINAL_STATES`, `COUNTED_TERMINALS`, `CLAIM_HOLDING_STATES`, `NON_TRANSITION_EVENTS`, `holds_claim`, `released_claim`, `walk_attempt`, `project_attempt`, `_claim_required`, `cas_attempt_transition`, `IllegalTransition`. `walk_attempt` is the single fail-closed fold and `_claim_required` the single applicability predicate — the writer and the auditor consume both rather than each carrying its own. One responsibility: what may legally happen to an Attempt.
 - `src/llmxive/self_improvement/intents.py` — `IntentDisposition`, `IntentRecord`, `Reconciler`, `record_intent`, `observe_intent`, `unreconciled_intents`, `LaneQuarantine`. One responsibility: the saga's intent bookkeeping and its four outcomes.
 - `src/llmxive/self_improvement/cooldown.py` — `CooldownCause`, `CooldownState`, `problem_cooldown`, `cas_cooldown`. One responsibility: the two independent counters.
-- `src/llmxive/self_improvement/coordinator.py` — **modified**: `claim_generation` on `LaneCoordinator`; `ClaimTerms`; `cas_heartbeat`; `cas_reclaim`; `ClaimOutcome.generation`; `MonitorEnded` + `last_autonomous_merge_at` folding; `assert_lane_consistent`/`LaneInconsistent`. No `cas_release_terminal` and no `cas_promotion_observed`: Task 3's transaction makes the state the first would repair unreachable, and the second is what `cas_attempt_transition` plus the table's declared effects already does.
+- `src/llmxive/self_improvement/coordinator.py` — **modified**: `claim_generation` on `LaneCoordinator`; `ClaimTerms`; `ClaimOutcome.generation`; `MonitorEnded` + `last_autonomous_merge_at` folding. No `cas_release_terminal` and no `cas_promotion_observed`: Task 3's transaction makes the state the first would repair unreachable, and the second is what `cas_attempt_transition` plus the table's declared effects already does.
+- `src/llmxive/self_improvement/pairing.py` — **new** (Task 7): `LaneInconsistent`, `assert_member_identity`, `assert_partner_intact`, `replayed_transaction`.
+- `src/llmxive/self_improvement/claim.py` — **new** (Task 8): `cas_heartbeat`, `cas_reclaim`.
+- `src/llmxive/self_improvement/consistency.py` — **new** (Task 8): `assert_lane_consistent`.
+  The last three were all planned as `coordinator.py` edits; see "the module ownership this
+  settles for Task 8" below for why each moved and what each may import.
 - `src/llmxive/self_improvement/events.py` — **modified**: new event types + validators (vocabulary extension only; `SCHEMA_VERSION` stays 1, per Slice 1A's F7 rule); `MonitorStarted` gains `merged_at`; `_coord_event` becomes the public `coord_event` both `coordinator.py` and `lifecycle.py` build coordinator events with.
 - `src/llmxive/self_improvement/__init__.py` — **modified**: exports.
 - `specs/025-self-improvement-lane/spec.md` — **modified** (Task 1, rev 23): the store's real shape, terminal-and-release atomicity, and the clock's sampling construction.
@@ -2789,14 +2794,15 @@ def parse_spec_transitions() -> tuple[dict[str, SpecRow], frozenset[str]]:
         event = _clean(event_cell)
         if not event.isidentifier():
             raise AssertionError(f"unparseable Event cell: {event_cell!r}")
-        # `(attempt_id,"promo-obs",head_sha)` → `promo-obs`: the suffix is the only part
-        # `TRANSITIONS` carries, because the other elements are values, not declarations.
-        key = re.search(r'"([^"]+)"', key_cell)
-        if key is None:
-            raise AssertionError(f"no quoted idempotency suffix in: {key_cell!r}")
+        # `(attempt_id,"promo-obs",head_sha)` → `("promo-obs", ("head_sha",))`. The WHOLE
+        # declaration: the field NAMES say which payload fields complete the key, which is
+        # as much a declaration as the suffix. (Corrected — see the Task-7 review note
+        # below. The original stopped at the first quoted literal and discarded the rest as
+        # "values, not declarations", which is what let a code table deriving its ids
+        # WITHOUT those fields compare equal to a spec that requires them.)
         from_states = frozenset() if _clean(froms) == "∅" else frozenset(
             _clean(f) for f in froms.split("/"))
-        rows[event] = (from_states, _clean(to), key.group(1), effects)
+        rows[event] = (from_states, _clean(to), _parse_key(key_cell), effects)
     if not rows:
         raise AssertionError(f"no transition rows parsed from {_SPEC} — the test is vacuous")
     return rows, frozenset(non_transitions)
@@ -3818,13 +3824,26 @@ It writes `Proposed` and `ProposalVerified` on the Problem stream first (via
 mechanism that turns out to be unreachable as described — none was a code defect:**
 
 1. **8d's stated mechanism is wrong.** "Only the re-made applicability check can catch it"
-   is false: `expected[problem_id]` pins the WHOLE Problem stream, and this Attempt's state
-   cannot change without that stream growing, so a stale revision rejects the transaction
-   first — always. The applicability re-check is therefore unreachable while that pin
-   stands. It is KEPT as defence in depth (it is the one check that would still hold if the
-   pin were loosened to allow per-Attempt concurrency), the code comment says so, and the
-   test asserts what actually fires. A test whose docstring names the wrong guard is worse
-   than no test: it reports coverage that does not exist.
+   is false. Stated in the three parts the case actually has:
+
+   - **Primary guarantee, today:** `expected[problem_id]` pins the WHOLE Problem stream.
+     This Attempt's state cannot change without that stream growing, and a grown stream is
+     already a stale revision, so the CAS rejects the transaction FIRST — always.
+   - **Secondary invariant:** applicability (`_claim_required`) is recomputed INSIDE the
+     CAS against the parent the commit is built on, and must agree with what the writes
+     were built from. Unreachable while the pin above stands, which is why the test asserts
+     the guard that actually fires rather than this one.
+   - **Future value:** the secondary check becomes load-bearing the moment per-Attempt
+     concurrency is introduced — a per-Attempt pin would let two Attempts on one Problem
+     transition concurrently, and then `from_states` alone does not settle applicability
+     (`ReviewAborted` is legal from `proposed`, which holds nothing, AND from
+     `implementing`, which holds the lane).
+
+   The check is KEPT as defence in depth and the code comment says all three things. What is
+   NOT done: loosening the whole-stream pin to make the secondary check observable. That
+   would trade a real serialization guarantee for a testable one. A test whose docstring
+   names the wrong guard is worse than no test — it reports coverage that does not exist —
+   so the correction is to the CLAIM, never to the guard.
 2. **14a cannot be built by deleting a partner.** That leaves a seq GAP, which
    `_check_continuity` refuses as corruption on READ — a `GitLogError` raised long before
    the replay check could see anything. The half-transaction is written by hand instead
@@ -3893,12 +3912,17 @@ def events_by_commit(
     job is to disbelieve.
 
     The NUL-prefixed format matters — an event id is a hex digest and would be
-    indistinguishable from a bare ``%H`` line, and a path can never begin with NUL."""
+    indistinguishable from a bare ``%H`` line, and a path can never begin with NUL.
+
+    ABSENCE is established first, by asking about the REF, and only then is the traversal
+    run under CHECKED error handling. `git log` exits non-zero for a missing ref AND for a
+    damaged object store, and collapsing the two would report an empty history for the
+    second — which this function's one consumer reads as "no commit introduces this event",
+    i.e. a transport fault surfacing as a corruption finding about the log."""
+    if _rev(repo, LANE_REF, identity=identity) is None:
+        return {}                     # no ref yet → no events (cold start), not a failure
     proc = _git(["log", "--reverse", "--format=%x00%H", "--name-only", "--diff-filter=A",
-                 LANE_REF], cwd=repo,
-                identity=_log_ref(COORDINATOR_STREAM, config).git_identity, check=False)
-    if proc.returncode != 0:          # no ref yet → no events, not an error
-        return {}
+                 LANE_REF], cwd=repo, identity=identity)
     added, commit = {}, ""
     for line in proc.stdout.splitlines():
         if line.startswith("\x00"):
@@ -3925,9 +3949,28 @@ cycle is certain rather than hypothetical:
 They therefore live in **`src/llmxive/self_improvement/pairing.py`**, which imports only the
 store and the event vocabulary and sits below both. One responsibility, and it is a real one:
 whether what is stored looks like something ONE transaction produced. Every symbol and
-signature is exactly as specified above; only the module differs. The rule this settles for
-Task 8: `coordinator.py` owns the coordinator STREAM and never imports `lifecycle`; anything
-spanning both streams lives above both.
+signature is exactly as specified above; only the module differs.
+
+**The module ownership this settles for Task 8** (maintainer's ruling, 2026-08-04), which
+supersedes the file map's "`coordinator.py` — modified" line for these three symbols:
+
+| Module | Owns | May import |
+|-|-|-|
+| `coordinator.py` | the coordinator STREAM: `project_coordinator`, `cas_claim`, `cas_release` | NEVER `lifecycle` |
+| `pairing.py` | transaction-member identity, same-commit proof, replay integrity | the store + the event vocabulary only |
+| `claim.py` (new, Task 8) | `cas_heartbeat`, `cas_reclaim` | `lifecycle` + `coordinator` + `pairing` |
+| `consistency.py` (new, Task 8) | `assert_lane_consistent` | `lifecycle` + `coordinator` + `pairing` |
+
+`pairing.py` keeps ONLY the integrity primitives. Heartbeat and reclaim do strictly more
+than validate a pair — they read both projections, evaluate expiry and intent
+preconditions, and WRITE — so they belong in a claim-oriented service above both streams,
+not smuggled into the module that exists to disbelieve stored records. `assert_lane_consistent`
+walks all of history across both streams and is an auditor, not a writer, so it gets its own
+module rather than riding along with the claim service.
+
+**A function-local import is not an acceptable answer to the cycle.** It hides the layering
+violation from every tool that reads imports and from the next reader, and it survives only
+until the second call site. If a symbol is needed in both directions, the layering is wrong.
 
 `events_by_commit` also split in two for the same reason of knowledge boundaries — the plan's
 own argument, followed one level further. `_git` is private to `git_event_log`, and that
@@ -4159,6 +4202,48 @@ PRE_COMMIT_ALLOW_NO_CONFIG=1 git commit -o src/llmxive/self_improvement/lifecycl
   tests/integration/test_self_improvement_lifecycle_cas.py \
   -m "feat(025 slice-2): terminal-slot CAS — exactly one terminal per Attempt (FR-035)"
 ```
+
+**Task-7 review, round 2 (2026-08-04): the idempotency key was INCOMPLETE.** Every
+transition derived its id from `key_suffix` and `attempt_id` alone, dropping the variable
+components the spec's key column declares — `head_sha` on `EvaluationPassed` /
+`PromotionRequested` / `PromotionObserved`, `reason` on `RevertRequested`, `lane_revision`
+on `ClaimGranted`, `claim_generation` on `ClaimExpired`. The key was a PREFIX of itself, and
+it failed two ways:
+
+- **A lost operation.** `RevertAborted` returns the Attempt to `monitoring`, so a second
+  `RevertRequested` under a different reason is a legal next operation — and it derived the
+  FIRST request's id, was found in the history, and returned `created=False` with the
+  Attempt still in `monitoring`. A revert nobody issued, reported as done.
+- **A false replay.** For the one-shot rows, a retry bearing a DIFFERENT `head_sha` replayed
+  the original instead of being rejected as the conflicting invocation it is.
+
+Fixed declaratively, not with an event-name `if` chain: `Transition.key_fields` names the
+payload fields that complete each row's key, and `Transition.event_id` is the ONE derivation
+site (`json.dumps` per component so `1` and `"1"` are different keys; a declared field the
+payload does not carry raises `IllegalTransition` rather than falling back to the shorter
+key).
+
+**The copies were the real shape of this bug.** THREE sites derived the id by hand:
+`cas_attempt_transition`, `seed_claim`, and the lost-acknowledgement damage builder
+(`_half_a_transaction` + the anchor-type case). Updating the writer alone left the other two
+deriving the OLD id — the fixture stood in for a claim the real path can no longer produce,
+and the damage was planted at an id the replay path never reads (one row-4 test failed for
+exactly that reason and is what surfaced them). All three now derive through
+`Transition.event_id`, and a static test asserts nothing anywhere feeds `key_suffix` to
+`derive_event_id` again, so the class is closed rather than its three instances.
+
+**Why the drift test did not catch it:** its parser stopped at the first quoted literal, so
+it compared suffixes and blessed the mismatch. Corrected above; the comparison is now the
+COMPLETE declaration, with a vacuity guard asserting some spec row parses with key fields.
+Spec **rev 26** renames three key cells to the payload fields records actually carry
+(`lane_rev` → `lane_revision`, `generation` → `claim_generation` ×2) so the two are
+comparable at all — the keys themselves are unchanged.
+
+**Also fixed (Low):** `added_paths_by_commit` treated EVERY non-zero `git log` as an empty
+ref. Absence is now established with `_rev` first and the traversal runs checked, so a
+damaged object store fails closed instead of handing the same-commit proof an empty map —
+which its one consumer would report as "no commit introduces this event", i.e. a transport
+fault surfacing as a corruption finding about the log.
 
 ---
 

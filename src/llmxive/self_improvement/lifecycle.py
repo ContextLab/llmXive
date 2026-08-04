@@ -11,6 +11,7 @@ Attempt's outcome."""
 from __future__ import annotations
 
 import enum
+import json
 from collections import deque
 from collections.abc import Callable, Iterator, Mapping
 from dataclasses import dataclass
@@ -116,9 +117,46 @@ class Transition:
     from_states: frozenset[AttemptState]
     to_state: AttemptState
     key_suffix: str                       # the idempotency key's 2nd element, per the spec
-    coordinator_effects: tuple[str, ...]  # the spec table's † and ◇ markers
+    #: The PAYLOAD FIELDS completing the spec's key, in the order the table states them:
+    #: `(attempt_id,"promo-obs",head_sha)` → `("head_sha",)`. Most rows declare none, and
+    #: for those the key is exactly what it always was.
+    #:
+    #: Declared per row rather than resolved by an event-name `if` chain, because the id is
+    #: derived at ONE site and every row must reach it the same way. Dropping these
+    #: components made the key a prefix of itself: after `RevertRequested(reason=A)` →
+    #: `RevertAborted`, a legal `RevertRequested(reason=B)` derived the FIRST event's id,
+    #: was found in the history, and was reported as an already-landed replay — a
+    #: silently-lost operation. The one-shot rows failed the same way less visibly: a retry
+    #: bearing a DIFFERENT `head_sha` replayed the original rather than being rejected as
+    #: the conflicting invocation it is.
+    key_fields: tuple[str, ...] = ()
+    coordinator_effects: tuple[str, ...] = ()  # the spec table's † and ◇ markers
     #: Set only where the payload names its own source state; see :class:`StateWitness`.
     witness: StateWitness | None = None
+
+    def event_id(self, problem_id: str, attempt_id: str,
+                 payload: Mapping[str, Any]) -> str:
+        """This transition's COMPLETE idempotency key, as a derived event id.
+
+        The spec writes the key as a tuple; a git path needs one string, so the elements are
+        joined by NUL — a byte no id, suffix, or field value can contain. Values are JSON so
+        the encoding is injective in the type as well as the text: `1` and `"1"` are
+        different keys, which matters because a field's type is pinned by its validator at
+        one layer and by its writer at another, and a key that conflated them would silently
+        merge two operations.
+
+        A declared field the payload does not carry is a CALLER bug, not a cause to fall
+        back on a shorter key: a shorter key is precisely the collision above. Raising
+        `IllegalTransition` keeps it at the boundary — the caller cannot have meant an
+        operation it could not name."""
+        parts = [self.key_suffix, attempt_id]
+        for field in self.key_fields:
+            if payload.get(field) is None:
+                raise IllegalTransition(
+                    f"{self.event} is keyed by {field!r}, which this payload does not "
+                    "carry — the key would collide with a different invocation")
+            parts.append(json.dumps(payload[field], sort_keys=True))
+        return derive_event_id(problem_id, "\x00".join(parts))
 
     @property
     def terminal(self) -> bool:
@@ -136,8 +174,9 @@ class Transition:
 
 
 def _t(event: str, froms: tuple[AttemptState, ...], to: AttemptState, key: str,
-       *, effects: tuple[str, ...] = (), witness: StateWitness | None = None) -> Transition:
-    return Transition(event, frozenset(froms), to, key, effects, witness)
+       *, keyed_by: tuple[str, ...] = (), effects: tuple[str, ...] = (),
+       witness: StateWitness | None = None) -> Transition:
+    return Transition(event, frozenset(froms), to, key, keyed_by, effects, witness)
 
 
 _RELEASES = ("ClaimReleased",)
@@ -154,7 +193,8 @@ TRANSITIONS: tuple[Transition, ...] = (
     _t("ReviewAborted", (S.PROPOSED, S.IMPLEMENTING), S.REVIEW_ABORTED, "reviewabort",
        effects=_RELEASES,
        witness=StateWitness("stage", ((S.PROPOSED, "proposal"), (S.IMPLEMENTING, "patch")))),
-    _t("ClaimGranted", (S.PROPOSAL_VERIFIED,), S.CLAIMED, "claim"),
+    _t("ClaimGranted", (S.PROPOSAL_VERIFIED,), S.CLAIMED, "claim",
+       keyed_by=("lane_revision",)),
     _t("Implementing", (S.CLAIMED,), S.IMPLEMENTING, "impl"),
     _t("ImplementationFailed", (S.CLAIMED, S.IMPLEMENTING), S.IMPL_FAILED, "implfail",
        effects=_RELEASES),
@@ -165,8 +205,10 @@ TRANSITIONS: tuple[Transition, ...] = (
        S.UNSUPPORTED_SCOPE, "unsupported", effects=_RELEASES),
     _t("FreshnessStale", (S.CLAIMED, S.IMPLEMENTING), S.SUPERSEDED, "stale",
        effects=_RELEASES),
-    _t("EvaluationPassed", (S.IMPLEMENTING,), S.PROMOTING, "eval"),
-    _t("PromotionRequested", (S.PROMOTING,), S.PROMOTION_REQUESTED, "promo-req"),
+    _t("EvaluationPassed", (S.IMPLEMENTING,), S.PROMOTING, "eval",
+       keyed_by=("head_sha",)),
+    _t("PromotionRequested", (S.PROMOTING,), S.PROMOTION_REQUESTED, "promo-req",
+       keyed_by=("head_sha",)),
     # Matrix row 4. The claim ends here, not at a terminal: the merge has landed and the
     # monitoring window is unattended, so holding the singleton lane through it would block
     # every other Problem for the whole window. MonitorStarted precedes ClaimReleased
@@ -174,10 +216,14 @@ TRANSITIONS: tuple[Transition, ...] = (
     # MonitorStarted with no owner to match, so it is MONITORSTARTED's ownership check —
     # not the release's — that rejects the reversed order.
     _t("PromotionObserved", (S.PROMOTION_REQUESTED,), S.MONITORING, "promo-obs",
-       effects=("MonitorStarted", "ClaimReleased")),
+       keyed_by=("head_sha",), effects=("MonitorStarted", "ClaimReleased")),
     _t("PromotionAborted", (S.PROMOTION_REQUESTED,), S.PROMOTION_ABORTED, "promo-abort",
        effects=_RELEASES),
-    _t("RevertRequested", (S.MONITORING,), S.REVERT_REQUESTED, "revert-req"),
+    # The one REPEATABLE row: `RevertAborted` returns the Attempt to `monitoring`, so a
+    # second revert request under a different `reason` is an ordinary next operation. It is
+    # also the row where an incomplete key was directly destructive.
+    _t("RevertRequested", (S.MONITORING,), S.REVERT_REQUESTED, "revert-req",
+       keyed_by=("reason",)),
     _t("RevertObserved", (S.REVERT_REQUESTED,), S.REVERTED, "revert-obs"),
     _t("RevertAborted", (S.REVERT_REQUESTED,), S.MONITORING, "revert-abort"),
     _t("Retained", (S.MONITORING,), S.RETAINED, "retain"),
@@ -187,7 +233,8 @@ TRANSITIONS: tuple[Transition, ...] = (
     # FR-035: the one terminal written by a DIFFERENT run than the one that abandoned it.
     _t("ClaimExpired",
        (S.CLAIMED, S.IMPLEMENTING, S.PROMOTING, S.PROMOTION_REQUESTED),
-       S.ATTEMPT_ABANDONED, "claimexpired", effects=_RELEASES),
+       S.ATTEMPT_ABANDONED, "claimexpired", keyed_by=("claim_generation",),
+       effects=_RELEASES),
 )
 
 def _validate_declarations(transitions: tuple[Transition, ...]) -> None:
@@ -200,6 +247,21 @@ def _validate_declarations(transitions: tuple[Transition, ...]) -> None:
     A witness whose `by_state` disagrees with its row's `from_states` is the drift this
     exists to prevent — add a source state to a witnessed row and the fold would otherwise
     silently stop checking that state, which is exactly the hole being closed here."""
+    seen: dict[str, str] = {}
+    for t in transitions:
+        # The suffix DISCRIMINATES rows, so it must be unique across the whole table
+        # regardless of what each row appends after it. Two rows sharing a suffix and
+        # declaring no fields derive the same id for the same Attempt — one transition
+        # silently replaying as another.
+        if t.key_suffix in seen:
+            raise ValueError(
+                f"{t.event} and {seen[t.key_suffix]} share the idempotency suffix "
+                f"{t.key_suffix!r} — their keys would collide on one Attempt")
+        seen[t.key_suffix] = t.event
+        for field in t.key_fields:
+            if not field.isidentifier():
+                raise ValueError(
+                    f"{t.event}: {field!r} is not a payload field name")
     for t in transitions:
         if t.witness is None:
             continue
@@ -637,7 +699,7 @@ def cas_attempt_transition(repo: Path, *, problem_id: str, attempt_id: str,
     coordinator_events = read(repo, COORDINATOR_STREAM, config=config)
     coordinator = project_coordinator(coordinator_events)
     history = [e for e in events if e.attempt_id == attempt_id]
-    event_id = derive_event_id(problem_id, f"{transition.key_suffix}\x00{attempt_id}")
+    event_id = transition.event_id(problem_id, attempt_id, payload)
     stored = next((e for e in history if e.event_id == event_id), None)
 
     if stored is not None:

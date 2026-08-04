@@ -163,9 +163,13 @@ def test_the_seeded_claim_is_indistinguishable_from_one_written_through_this_pat
     lets Task 8 replace the fixture with the real `cas_claim` and leave these tests green —
     if it were distinguishable, every claim-holding case would be asserting against the
     fixture instead of against the claim's shape."""
-    seed_claim(repo, clock=clock)
+    grant = seed_claim(repo, clock=clock)
     before = _counts(repo, "P1")
-    outcome = _apply(repo, "ClaimGranted", payload={"claim_generation": 1}, clock=clock)
+    outcome = _apply(repo, "ClaimGranted", clock=clock, payload={
+        # The grant's COMPLETE key, taken from the fixture's own record: re-deriving it here
+        # from remembered values would test this test's memory, not the derivation.
+        "claim_generation": grant.payload["claim_generation"],
+        "lane_revision": grant.payload["lane_revision"]})
     assert outcome.created is False
     assert outcome.projection.state is AttemptState.CLAIMED
     assert outcome.projection.claim_generation == 1
@@ -398,3 +402,85 @@ def test_events_this_path_must_refuse(repo, clock, event_type, why):
     _apply(repo, "Proposed", clock=clock)
     with pytest.raises(IllegalTransition, match=why):
         _apply(repo, event_type, clock=clock)
+
+
+# --- the COMPLETE idempotency key -------------------------------------------------------
+#
+# The spec keys several rows on a payload field as well as the suffix —
+# `(attempt_id,"revert-req",reason)`, `(attempt_id,"eval",head_sha)`. Deriving the id from
+# the suffix alone makes the key a PREFIX of itself, and these are the two ways that bites:
+# a legal repeat silently replays the earlier operation, and a conflicting retry reports
+# success for an operation nobody asked for.
+
+
+def _to_monitoring(repo, clock, head_sha="a" * 40):
+    _to_promotion_requested(repo, clock)
+    _apply(repo, "PromotionObserved", payload={"head_sha": head_sha}, clock=clock)
+
+
+def test_a_SECOND_revert_request_after_an_abort_is_a_NEW_request(repo, clock):
+    """The row the incomplete key actually lost. `RevertAborted` returns the Attempt to
+    `monitoring`, so a second `RevertRequested` under a different reason is an ordinary
+    next operation — not a retry of the first. Keyed on the suffix alone it derived the
+    FIRST request's id, was found in the history, and came back `created=False` with the
+    Attempt still in `monitoring`: a revert nobody would ever issue, reported as done."""
+    _to_monitoring(repo, clock)
+    first = _apply(repo, "RevertRequested", payload={"reason": "regression-A"}, clock=clock)
+    _apply(repo, "RevertAborted", clock=clock)
+    assert _attempt(repo).state is AttemptState.MONITORING
+
+    second = _apply(repo, "RevertRequested", payload={"reason": "regression-B"}, clock=clock)
+
+    assert second.created is True
+    assert second.projection.state is AttemptState.REVERT_REQUESTED
+    requests = [e for e in read(repo, "P1") if e.event_type == "RevertRequested"]
+    assert [e.payload["reason"] for e in requests] == ["regression-A", "regression-B"]
+    assert first.projection != second.projection
+
+
+def test_repeating_a_revert_request_under_the_SAME_reason_is_idempotent(repo, clock):
+    """The other half of the same property: completing the key must not DEFEAT idempotency.
+    Same complete key → same id → the ordinary lost-acknowledgement replay."""
+    _to_monitoring(repo, clock)
+    first = _apply(repo, "RevertRequested", payload={"reason": "regression-A"}, clock=clock)
+    before = _counts(repo, "P1")
+
+    second = _apply(repo, "RevertRequested", payload={"reason": "regression-A"}, clock=clock)
+
+    assert first.created is True and second.created is False
+    assert second.projection == first.projection
+    assert _counts(repo, "P1") == before
+
+
+def test_a_retry_under_a_CONFLICTING_head_sha_is_refused_not_replayed(repo, clock):
+    """A one-shot row, where the incomplete key was quieter but no safer. `EvaluationPassed`
+    cannot legally repeat, so the question is what a retry bearing a DIFFERENT `head_sha`
+    means: it is a different operation — this commit passed evaluation, not that one — and
+    the honest answer is refusal. The old key answered `created=False`, i.e. "your call
+    landed", for a commit the lane never evaluated."""
+    seed_claim(repo, clock=clock)
+    _apply(repo, "Implementing", clock=clock)
+    _apply(repo, "EvaluationPassed", payload={"head_sha": "a" * 40}, clock=clock)
+    before = _counts(repo, "P1")
+
+    with pytest.raises(LaneRevisionConflict, match="illegal from 'promoting'"):
+        _apply(repo, "EvaluationPassed", payload={"head_sha": "b" * 40}, clock=clock)
+
+    assert _counts(repo, "P1") == before
+    passed = [e for e in read(repo, "P1") if e.event_type == "EvaluationPassed"]
+    assert [e.payload["head_sha"] for e in passed] == ["a" * 40]
+
+
+def test_a_payload_MISSING_a_declared_key_field_is_refused(repo, clock):
+    """No key, no operation. Falling back to the shorter key is precisely the collision
+    above, so this is `IllegalTransition` at the boundary — a caller bug, not a CAS race —
+    and nothing is appended."""
+    seed_claim(repo, clock=clock)
+    _apply(repo, "Implementing", clock=clock)
+    before = _counts(repo, "P1")
+
+    with pytest.raises(IllegalTransition, match="keyed by 'head_sha'"):
+        _apply(repo, "EvaluationPassed", clock=clock)
+
+    assert _counts(repo, "P1") == before
+    assert _attempt(repo).state is AttemptState.IMPLEMENTING

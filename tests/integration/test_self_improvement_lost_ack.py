@@ -271,12 +271,16 @@ def _half_a_transaction(repo, row, clock) -> None:
     """The Attempt half with NO coordinator half — built by hand, because deleting the
     partner from a landed transaction would leave a seq GAP and be refused as corruption on
     read, long before the replay check could see it."""
-    from llmxive.self_improvement.events import Event, derive_event_id
+    from llmxive.self_improvement.events import Event
     from llmxive.self_improvement.lifecycle import _BY_EVENT
 
     transition = _BY_EVENT[row.event_type]
     event = Event(
-        event_id=derive_event_id("P1", f"{transition.key_suffix}\x00A1"),
+        # Through the ROW, never rebuilt from the suffix: a keyed row (`PromotionObserved`
+        # carries `head_sha`) lands at a DIFFERENT id, so a hand-copied derivation writes
+        # damage the replay path never looks at — and the test then passes or fails for
+        # reasons unrelated to the half-transaction it means to plant.
+        event_id=transition.event_id("P1", "A1", row.payload),
         event_type=row.event_type, problem_id="P1", actor="runner-1",
         payload={"problem_id": "P1", "attempt_id": "A1", **row.payload},
         timestamp=clock(), attempt_id="A1",
@@ -387,9 +391,8 @@ def test_a_replay_whose_ANCHOR_is_the_wrong_type_raises(repo, prelude, event_typ
         prelude(repo, LOCAL, clock)
     _apply(repo, event_type, payload=payload, config=LOCAL, clock=clock)
 
-    from llmxive.self_improvement.events import derive_event_id
     from llmxive.self_improvement.lifecycle import _BY_EVENT
-    anchor_id = derive_event_id("P1", f"{_BY_EVENT[event_type].key_suffix}\x00A1")
+    anchor_id = _BY_EVENT[event_type].event_id("P1", "A1", payload)
     raw = _stored_raw(repo, "P1", anchor_id)
     _commit_blobs(repo, {_path("P1", anchor_id): _to_json(
         {**raw, "event_type": replacement,

@@ -317,13 +317,22 @@ def added_paths_by_commit(repo: Path, *, log: LogRef) -> dict[str, str]:
     indistinguishable from a bare ``%H``, and a path can never begin with NUL.
 
     LOCAL, like :func:`read_log`, and for the same reason — a caller that needs the
-    authoritative tip syncs first. A missing ref is no events, not an error."""
+    authoritative tip syncs first.
+
+    Fails CLOSED like :func:`read_log`, and the discipline is the same one :func:`_rev`
+    exists to enforce: ABSENCE is established first, by asking about the REF, and only then
+    is the traversal run under checked error handling. Treating any non-zero ``git log`` as
+    "no events" would report an empty history for a damaged object store or a broken
+    repository — and this function's one consumer is the same-commit proof, which reads a
+    missing entry as "no commit introduces this event". A transport fault would surface
+    there as a corruption finding about the log, sending a reader after damage that is not
+    where the message points."""
+    if _rev(repo, log.ref, identity=log.git_identity) is None:
+        return {}                 # no ref yet → no events (cold start), not a failure
     proc = _git(
         ["log", "--reverse", "--format=%x00%H", "--name-only", "--diff-filter=A", log.ref],
-        cwd=repo, identity=log.git_identity, check=False,
+        cwd=repo, identity=log.git_identity,
     )
-    if proc.returncode != 0:      # no ref yet → no events (cold start), not a failure
-        return {}
     added: dict[str, str] = {}
     commit = ""
     for line in proc.stdout.splitlines():

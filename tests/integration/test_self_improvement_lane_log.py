@@ -23,6 +23,7 @@ from llmxive.self_improvement.lane_log import (
     LaneRevisionConflict,
     append,
     bootstrap_lane_log,
+    events_by_commit,
     read,
 )
 
@@ -280,6 +281,37 @@ def test_append_checks_continuity_before_the_revision(local_repo):
     _force_commit_event(local_repo, _gapped(2))
     with pytest.raises(GitLogError, match="corrupt sequence"):
         append(local_repo, _ev("e9", 2), expected_revision=2)
+
+
+# ---- the same-commit traversal: absence vs failure ----
+
+
+def test_events_by_commit_reports_an_UNBOOTSTRAPPED_lane_as_empty(tmp_path):
+    """A ref that genuinely does not exist is a cold start, not a fault. Establishing that
+    by asking about the REF is the whole point — `git log` exits non-zero for both."""
+    r = tmp_path / "cold"
+    subprocess.run(["git", "init", "-q", str(r)], check=True)
+    _git(r, "config", "user.email", "t@t")
+    _git(r, "config", "user.name", "t")
+    assert events_by_commit(r) == {}
+
+
+def test_events_by_commit_FAILS_CLOSED_when_the_traversal_cannot_run(local_repo):
+    """The ref exists and resolves, and the traversal still fails — a damaged object store.
+
+    Deleting the tip's TREE leaves the commit object readable (so the ref resolves) while
+    `git log --name-only --diff-filter=A` cannot diff it. Treating that as "no events" hands
+    the same-commit proof an empty map, and its one consumer reads a missing entry as "no
+    commit introduces this event" — a transport fault reported as log CORRUPTION, sending a
+    reader after damage that is not where the message points."""
+    append(local_repo, _ev("e0", 0), expected_revision=0)
+    assert events_by_commit(local_repo), "the traversal found nothing to break"
+    tree = subprocess.run(["git", "rev-parse", f"{LANE_REF}^{{tree}}"], cwd=str(local_repo),
+                          capture_output=True, text=True, check=True).stdout.strip()
+    (local_repo / ".git" / "objects" / tree[:2] / tree[2:]).unlink()
+
+    with pytest.raises(GitLogError):
+        events_by_commit(local_repo)
 
 
 # ---- TRUE barrier-driven race on the append CAS ----

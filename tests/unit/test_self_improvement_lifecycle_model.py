@@ -5,7 +5,9 @@ fully deterministic, and the seed is printed on failure so any counterexample re
 from __future__ import annotations
 
 import random
+import re
 from dataclasses import replace
+from pathlib import Path
 
 import pytest
 
@@ -144,11 +146,20 @@ def test_the_code_table_matches_the_spec_table():
     the spec says `PromotionObserved` releases the claim and the code says it does not —
     which is precisely the defect this test exists to catch, so matching names is not
     enough. Every field the spec states is compared: from-states, to-state, idempotency
-    key, and the effect markers († releases the claim, ◇ starts monitoring)."""
+    key, and the effect markers († releases the claim, ◇ starts monitoring).
+
+    The key is compared COMPLETE — suffix and the payload fields that follow it. Comparing
+    only the suffix is what let a code table that derived its ids without `head_sha` and
+    `reason` match a spec that requires them, so a partial comparison here is the same class
+    of hole as a names-only one."""
     from tests.helpers.lane_lifecycle import parse_spec_transitions
 
     spec_rows, spec_non_transitions, _lane_events = parse_spec_transitions()
     assert spec_rows, "the spec transition table did not parse — the test is vacuous"
+    # A key parser that returned no fields for every row would compare `()` with `()` and
+    # bless exactly the derivation defect this comparison was widened to catch.
+    assert any(fields for _f, _t, (_s, fields), _e in spec_rows.values()), (
+        "no spec row parsed with idempotency-key fields — the key comparison is vacuous")
     # Every Attempt-scoped row that is NOT a transition must be declared, or
     # `project_attempt` fails closed the first time one is written. Two directions, and
     # they are not symmetric:
@@ -167,7 +178,7 @@ def test_the_code_table_matches_the_spec_table():
         f"{sorted(spec_non_transitions - NON_TRANSITION_EVENTS - _NOT_ATTEMPT_STREAM_EVENTS)}")
     code_rows = {
         t.event: (frozenset(s.value for s in t.from_states), t.to_state.value,
-                  t.key_suffix, t.coordinator_effects)
+                  (t.key_suffix, t.key_fields), t.coordinator_effects)
         for t in TRANSITIONS
     }
     assert set(spec_rows) == set(code_rows), (
@@ -510,8 +521,53 @@ def test_a_MALFORMED_witness_declaration_is_refused_at_import(witness, from_stat
     real drift path: adding a source state to a witnessed row, witnessing an opening
     transition, witnessing a field the write boundary does not constrain, and letting the
     two vocabularies diverge."""
-    bad = Transition("X", frozenset(from_states), AttemptState.REJECTED, "x", (), witness)
+    bad = Transition("X", frozenset(from_states), AttemptState.REJECTED, "x",
+                     witness=witness)
     with pytest.raises(ValueError, match=message):
+        _validate_declarations((bad,))
+
+
+def test_NOBODY_rebuilds_a_transition_id_from_its_suffix():
+    """One derivation, statically enforced — because the copies were the actual bug.
+
+    Three sites had hand-written `derive_event_id(problem_id, f"{suffix}\\x00{attempt_id}")`:
+    the writer, the claim fixture, and the lost-acknowledgement damage builder. When the key
+    gained its variable components the writer was updated and the other two silently kept
+    deriving the OLD id — one fixture then stood in for a claim the real path can no longer
+    produce, and one planted damage at an id the replay path never reads. Neither is a
+    failure the copy itself reports.
+
+    `Transition.event_id` is the only derivation. Mentioning `key_suffix` is fine (the drift
+    test compares it); FEEDING it to `derive_event_id` is what nothing but the row may do."""
+    root = Path(__file__).resolve().parents[2]
+    rebuilt = re.compile(r"derive_event_id\([^)]*key_suffix")
+    offenders = [
+        str(path.relative_to(root))
+        for path in (*(root / "src/llmxive").rglob("*.py"), *(root / "tests").rglob("*.py"))
+        if rebuilt.search(path.read_text())
+    ]
+    assert not offenders, (
+        f"an idempotency key rebuilt outside `Transition.event_id`: {sorted(offenders)}")
+
+
+def test_two_rows_sharing_an_idempotency_SUFFIX_are_refused_at_import():
+    """The suffix is what DISCRIMINATES rows. Two rows sharing one derive the same id for
+    the same Attempt when neither declares key fields — so a caller invoking the second
+    would be told the first had already landed. Exercised against a bad table, because the
+    real one satisfies the rule and would prove nothing about it."""
+    rows = (Transition("X", frozenset(), AttemptState.PROPOSED, "dup"),
+            Transition("Y", frozenset({AttemptState.PROPOSED}), AttemptState.REJECTED,
+                       "dup"))
+    with pytest.raises(ValueError, match="share the idempotency suffix"):
+        _validate_declarations(rows)
+
+
+def test_a_key_field_that_is_not_a_field_NAME_is_refused_at_import():
+    """A key field is looked up in a payload, so anything that cannot BE a payload key is a
+    declaration that can only fail at write time — where it would read as a caller error."""
+    bad = Transition("X", frozenset(), AttemptState.PROPOSED, "x",
+                     key_fields=("head sha",))
+    with pytest.raises(ValueError, match="not a payload field name"):
         _validate_declarations((bad,))
 
 
