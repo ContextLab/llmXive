@@ -1,6 +1,3 @@
-"""
-Data validation schema and checksumming logic.
-"""
 import hashlib
 import json
 import os
@@ -8,251 +5,171 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 import pandas as pd
 import numpy as np
 
-# Physical bounds for robot joint configurations (normalized to [-1, 1])
-# These are standard bounds for 7-DOF manipulators used in VLA datasets
-DEFAULT_JOINT_LOWER_BOUNDS = np.array([-1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0])
-DEFAULT_JOINT_UPPER_BOUNDS = np.array([1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0])
-
-# Physical bounds for end-effector velocities (m/s)
-DEFAULT_VELOCITY_LOWER_BOUNDS = np.array([-2.0, -2.0, -2.0])
-DEFAULT_VELOCITY_UPPER_BOUNDS = np.array([2.0, 2.0, 2.0])
-
-# Physical bounds for end-effector accelerations (m/s^2)
-DEFAULT_ACCEL_LOWER_BOUNDS = np.array([-10.0, -10.0, -10.0])
-DEFAULT_ACCEL_UPPER_BOUNDS = np.array([10.0, 10.0, 10.0])
-
-def compute_file_checksum(filepath: str, algorithm: str = 'md5') -> str:
+def compute_file_checksum(file_path: str, algorithm: str = 'sha256') -> str:
     """
-    Compute checksum of a file for integrity verification.
-
+    Compute the checksum of a file.
+    
     Args:
-        filepath (str): Path to the file.
-        algorithm (str): Hash algorithm to use ('md5', 'sha256', etc.).
-
+        file_path: Path to the file.
+        algorithm: Hash algorithm to use.
+        
     Returns:
-        str: Hexadecimal checksum string.
-
-    Raises:
-        FileNotFoundError: If the file does not exist.
-        ValueError: If the algorithm is not supported.
+        Hexadecimal checksum string.
     """
-    if not os.path.exists(filepath):
-        raise FileNotFoundError(f"File not found for checksum: {filepath}")
-    
-    try:
-        hash_func = hashlib.new(algorithm)
-    except ValueError as e:
-        raise ValueError(f"Unsupported hash algorithm '{algorithm}': {e}")
-    
-    with open(filepath, 'rb') as f:
+    hasher = hashlib.new(algorithm)
+    with open(file_path, 'rb') as f:
         for chunk in iter(lambda: f.read(4096), b''):
-            hash_func.update(chunk)
-    return hash_func.hexdigest()
+            hasher.update(chunk)
+    return hasher.hexdigest()
 
 def validate_dataframe_schema(
     df: pd.DataFrame, 
-    expected_columns: List[str], 
-    required_types: Optional[Dict[str, type]] = None
-) -> bool:
+    expected_columns: List[str],
+    expected_dtypes: Optional[Dict[str, str]] = None
+) -> Tuple[bool, List[str]]:
     """
-    Validate that a DataFrame has the expected schema.
-
+    Validate that a DataFrame has the expected columns and optional dtypes.
+    
     Args:
-        df (pd.DataFrame): DataFrame to validate.
-        expected_columns (List[str]): List of required column names.
-        required_types (Dict[str, type], optional): Dictionary mapping column names to expected types.
-
+        df: DataFrame to validate.
+        expected_columns: List of expected column names.
+        expected_dtypes: Optional dictionary mapping column names to expected dtypes.
+        
     Returns:
-        bool: True if validation passes.
-
-    Raises:
-        ValueError: If validation fails.
+        Tuple of (is_valid, list of error messages).
     """
-    if df.empty:
-        raise ValueError("DataFrame is empty; cannot validate schema.")
-
+    errors = []
+    
     missing_cols = set(expected_columns) - set(df.columns)
     if missing_cols:
-        raise ValueError(f"Missing required columns: {missing_cols}")
-    
-    if required_types:
-        for col, expected_type in required_types.items():
+        errors.append(f"Missing columns: {missing_cols}")
+        
+    if expected_dtypes:
+        for col, expected_dtype in expected_dtypes.items():
             if col in df.columns:
-                # Check dtype compatibility for numpy/pandas types
-                if np.issubdtype(expected_type, np.number):
-                    if not np.issubdtype(df[col].dtype, np.number):
-                        raise ValueError(
-                            f"Column '{col}' has incorrect numeric type. "
-                            f"Expected numeric, got {df[col].dtype}"
-                        )
-                elif not isinstance(df[col].iloc[0], expected_type):
-                    raise ValueError(
-                        f"Column '{col}' has incorrect type. "
-                        f"Expected {expected_type}, got {type(df[col].iloc[0])}"
-                    )
-    
-    return True
+                actual_dtype = str(df[col].dtype)
+                if expected_dtype not in actual_dtype:
+                    errors.append(f"Column '{col}' has dtype {actual_dtype}, expected {expected_dtype}")
+                    
+    return len(errors) == 0, errors
 
 def validate_numeric_bounds(
-    data: np.ndarray, 
-    lower_bounds: np.ndarray, 
-    upper_bounds: np.ndarray, 
-    name: str = "data"
-) -> bool:
+    data: Union[np.ndarray, pd.Series, List[float]],
+    lower_bound: Optional[float] = None,
+    upper_bound: Optional[float] = None
+) -> Tuple[bool, List[str]]:
     """
-    Validate that numeric data is within physical bounds.
-
+    Validate that numeric data falls within specified bounds.
+    
     Args:
-        data (np.ndarray): Data array to validate.
-        lower_bounds (np.ndarray): Lower bounds.
-        upper_bounds (np.ndarray): Upper bounds.
-        name (str): Name of the data for error messages.
-
+        data: Numeric data to validate.
+        lower_bound: Optional lower bound.
+        upper_bound: Optional upper bound.
+        
     Returns:
-        bool: True if all values are within bounds.
-
-    Raises:
-        ValueError: If any value is out of bounds or dimensions mismatch.
+        Tuple of (is_valid, list of error messages).
     """
-    if data.ndim == 0:
-        data = np.array([data])
-        
-    if lower_bounds.ndim == 0:
-        lower_bounds = np.array([lower_bounds])
-    if upper_bounds.ndim == 0:
-        upper_bounds = np.array([upper_bounds])
-
-    # Handle 2D data (samples x features) or 1D data (features)
-    feature_dim = data.shape[-1] if data.ndim > 1 else data.shape[0]
+    data = np.asarray(data)
+    errors = []
     
-    if lower_bounds.shape[0] != feature_dim or upper_bounds.shape[0] != feature_dim:
-        raise ValueError(
-            f"Dimension mismatch in {name}: data has {feature_dim} features, "
-            f"but bounds have {lower_bounds.shape[0]} and {upper_bounds.shape[0]}"
-        )
-
-    # Broadcast bounds for multi-sample validation
-    if data.ndim > 1:
-        if data.shape[1] != feature_dim:
-            raise ValueError(f"Dimension mismatch: data shape {data.shape}, expected last dim {feature_dim}")
-        
-        if np.any(data < lower_bounds) or np.any(data > upper_bounds):
-            out_of_lower = np.sum(data < lower_bounds)
-            out_of_upper = np.sum(data > upper_bounds)
-            raise ValueError(
-                f"{name} out of bounds: {out_of_lower} values below lower limit, "
-                f"{out_of_upper} values above upper limit"
-            )
-    else:
-        if np.any(data < lower_bounds) or np.any(data > upper_bounds):
-            out_of_lower = np.sum(data < lower_bounds)
-            out_of_upper = np.sum(data > upper_bounds)
-            raise ValueError(
-                f"{name} out of bounds: {out_of_lower} values below lower limit, "
-                f"{out_of_upper} values above upper limit"
-            )
-    
-    return True
+    if lower_bound is not None:
+        violations = data < lower_bound
+        if np.any(violations):
+            count = np.sum(violations)
+            errors.append(f"{count} values below lower bound {lower_bound}")
+            
+    if upper_bound is not None:
+        violations = data > upper_bound
+        if np.any(violations):
+            count = np.sum(violations)
+            errors.append(f"{count} values above upper bound {upper_bound}")
+            
+    return len(errors) == 0, errors
 
 def validate_cluster_assignments(
-    assignments: np.ndarray, 
-    n_clusters: int, 
-    min_samples_per_cluster: int = 100
-) -> bool:
+    assignments: np.ndarray,
+    n_clusters: int,
+    min_cluster_size: int = 100
+) -> Tuple[bool, List[str]]:
     """
-    Validate cluster assignments meet quality criteria.
-
+    Validate cluster assignments.
+    
     Args:
-        assignments (np.ndarray): Array of cluster labels.
-        n_clusters (int): Expected number of clusters.
-        min_samples_per_cluster (int): Minimum samples required per cluster.
-
+        assignments: Array of cluster labels.
+        n_clusters: Expected number of clusters.
+        min_cluster_size: Minimum samples per cluster.
+        
     Returns:
-        bool: True if validation passes.
-
-    Raises:
-        ValueError: If validation fails.
+        Tuple of (is_valid, list of error messages).
     """
-    if assignments.size == 0:
-        raise ValueError("Assignments array is empty.")
-
-    unique_labels, counts = np.unique(assignments, return_counts=True)
+    errors = []
+    unique_labels = np.unique(assignments)
     
     if len(unique_labels) != n_clusters:
-        raise ValueError(
-            f"Expected {n_clusters} clusters, found {len(unique_labels)}. "
-            f"Labels found: {unique_labels}"
-        )
-    
-    if n_clusters > 1:
-        for label, count in zip(unique_labels, counts):
-            if count < min_samples_per_cluster:
-                raise ValueError(
-                    f"Cluster {label} has only {count} samples, "
-                    f"minimum required is {min_samples_per_cluster}"
-                )
-    
-    return True
+        errors.append(f"Expected {n_clusters} clusters, found {len(unique_labels)}")
+        
+    for label in unique_labels:
+        count = np.sum(assignments == label)
+        if count < min_cluster_size:
+            errors.append(f"Cluster {label} has only {count} samples (min: {min_cluster_size})")
+            
+    return len(errors) == 0, errors
 
 def validate_trajectory_consistency(
-    trajectory: np.ndarray, 
-    expected_length: Optional[int] = None,
-    joint_bounds: Optional[Tuple[np.ndarray, np.ndarray]] = None
-) -> bool:
+    trajectory: np.ndarray,
+    expected_dims: int,
+    min_length: int = 10
+) -> Tuple[bool, List[str]]:
     """
-    Validate that a trajectory array is consistent with physical constraints.
-
+    Validate trajectory consistency.
+    
     Args:
-        trajectory (np.ndarray): Trajectory data (T x D or D).
-        expected_length (int, optional): Expected number of time steps.
-        joint_bounds (Tuple[np.ndarray, np.ndarray], optional): (lower, upper) bounds for joints.
-
+        trajectory: Array of shape (T, D).
+        expected_dims: Expected number of dimensions.
+        min_length: Minimum number of time steps.
+        
     Returns:
-        bool: True if validation passes.
-
-    Raises:
-        ValueError: If validation fails.
+        Tuple of (is_valid, list of error messages).
     """
-    if trajectory.ndim == 1:
-        trajectory = trajectory.reshape(1, -1)
+    errors = []
+    trajectory = np.asarray(trajectory)
     
-    if trajectory.shape[1] != 7: # Assuming 7-DOF for Qwen-VLA tasks
-        # Allow flexibility if bounds are provided
-        if joint_bounds is None:
-            raise ValueError(f"Expected 7 joints, got {trajectory.shape[1]}")
-    
-    if expected_length is not None and trajectory.shape[0] != expected_length:
-        raise ValueError(
-            f"Trajectory length mismatch: expected {expected_length}, got {trajectory.shape[0]}"
-        )
-
-    if joint_bounds:
-        lower, upper = joint_bounds
-        validate_numeric_bounds(trajectory, lower, upper, name="trajectory")
-    
-    return True
+    if trajectory.ndim != 2:
+        errors.append(f"Trajectory must be 2D, got {trajectory.ndim}D")
+    else:
+        if trajectory.shape[1] != expected_dims:
+            errors.append(f"Expected {expected_dims} dimensions, got {trajectory.shape[1]}")
+        if trajectory.shape[0] < min_length:
+            errors.append(f"Trajectory length {trajectory.shape[0]} < minimum {min_length}")
+            
+    return len(errors) == 0, errors
 
 def generate_validation_report(
-    results: Dict[str, bool],
-    filepath: str
-) -> None:
+    results: Dict[str, Tuple[bool, List[str]]]
+) -> str:
     """
-    Generate a JSON validation report.
-
-    Args:
-        results (Dict[str, bool]): Dictionary of validation check names to results.
-        filepath (str): Output path for the report.
-    """
-    report = {
-        "timestamp": pd.Timestamp.now().isoformat(),
-        "checks": results,
-        "summary": {
-            "total": len(results),
-            "passed": sum(results.values()),
-            "failed": len(results) - sum(results.values())
-        }
-    }
+    Generate a human-readable validation report.
     
-    os.makedirs(os.path.dirname(filepath) if os.path.dirname(filepath) else '.', exist_ok=True)
-    with open(filepath, 'w') as f:
-        json.dump(report, f, indent=2)
+    Args:
+        results: Dictionary mapping test names to (is_valid, errors) tuples.
+        
+    Returns:
+        Formatted report string.
+    """
+    lines = []
+    lines.append("Validation Report")
+    lines.append("=" * 40)
+    
+    all_passed = True
+    for name, (is_valid, errors) in results.items():
+        status = "PASSED" if is_valid else "FAILED"
+        lines.append(f"\n{name}: {status}")
+        if not is_valid:
+            all_passed = False
+            for error in errors:
+                lines.append(f"  - {error}")
+                
+    lines.append("\n" + "=" * 40)
+    lines.append(f"Overall: {'ALL TESTS PASSED' if all_passed else 'SOME TESTS FAILED'}")
+    
+    return "\n".join(lines)

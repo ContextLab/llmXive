@@ -1,91 +1,104 @@
-"""
-Kinematic feature extraction utilities.
-"""
 import numpy as np
-from typing import List, Tuple, Optional
+from typing import List, Tuple, Optional, Union, Dict, Any
 
 def compute_velocity(
-    positions: np.ndarray, 
-    dt: float = 1.0
+    positions: Union[np.ndarray, List[float]], 
+    dt: float = 0.02
 ) -> np.ndarray:
     """
-    Compute velocity from position data using finite differences.
-
-    Args:
-        positions (np.ndarray): Array of shape (T, D) where T is time steps and D is dimensions.
-        dt (float): Time step duration.
-
-    Returns:
-        np.ndarray: Array of velocity (T-1, D).
-    """
-    if positions.shape[0] < 2:
-        return np.zeros_like(positions)
+    Compute velocity from a sequence of positions.
     
-    return np.diff(positions, axis=0) / dt
+    Args:
+        positions: Array of shape (N, D) where N is time steps and D is dimensions.
+        dt: Time step between frames.
+        
+    Returns:
+        Velocity array of shape (N-1, D).
+    """
+    positions = np.asarray(positions)
+    if positions.ndim == 1:
+        positions = positions.reshape(-1, 1)
+        
+    diffs = np.diff(positions, axis=0)
+    velocities = diffs / dt
+    return velocities
 
 def compute_acceleration(
-    positions: np.ndarray, 
-    dt: float = 1.0
+    velocities: Union[np.ndarray, List[float]], 
+    dt: float = 0.02
 ) -> np.ndarray:
     """
-    Compute acceleration from position data using finite differences.
-
-    Args:
-        positions (np.ndarray): Array of shape (T, D).
-        dt (float): Time step duration.
-
-    Returns:
-        np.ndarray: Array of acceleration (T-2, D).
-    """
-    if positions.shape[0] < 3:
-        return np.zeros_like(positions)
+    Compute acceleration from a sequence of velocities.
     
-    velocities = compute_velocity(positions, dt)
-    return compute_velocity(velocities, dt)
+    Args:
+        velocities: Array of shape (N, D) where N is time steps and D is dimensions.
+        dt: Time step between frames.
+        
+    Returns:
+        Acceleration array of shape (N-1, D).
+    """
+    velocities = np.asarray(velocities)
+    if velocities.ndim == 1:
+        velocities = velocities.reshape(-1, 1)
+        
+    diffs = np.diff(velocities, axis=0)
+    accelerations = diffs / dt
+    return accelerations
 
 def normalize_joint_angles(
-    angles: np.ndarray, 
-    lower_bounds: np.ndarray, 
-    upper_bounds: np.ndarray
+    angles: Union[np.ndarray, List[float]], 
+    lower_bounds: Optional[Union[np.ndarray, List[float]]] = None,
+    upper_bounds: Optional[Union[np.ndarray, List[float]]] = None
 ) -> np.ndarray:
     """
-    Normalize joint angles to [-1, 1] range based on physical limits.
-
+    Normalize joint angles to [0, 1] range based on bounds.
+    
     Args:
-        angles (np.ndarray): Array of joint angles (T, D).
-        lower_bounds (np.ndarray): Lower physical limits for each joint.
-        upper_bounds (np.ndarray): Upper physical limits for each joint.
-
+        angles: Array of joint angles.
+        lower_bounds: Lower bounds for each joint. If None, uses -pi.
+        upper_bounds: Upper bounds for each joint. If None, uses pi.
+        
     Returns:
-        np.ndarray: Normalized angles in [-1, 1].
+        Normalized angles in [0, 1].
     """
-    if angles.shape[-1] != lower_bounds.shape[0]:
-        raise ValueError("Dimension mismatch between angles and bounds")
+    angles = np.asarray(angles, dtype=float)
     
-    # Avoid division by zero
-    ranges = upper_bounds - lower_bounds
-    ranges = np.where(ranges == 0, 1.0, ranges)
+    if lower_bounds is None:
+        lower_bounds = -np.pi * np.ones_like(angles)
+    else:
+        lower_bounds = np.asarray(lower_bounds, dtype=float)
+        
+    if upper_bounds is None:
+        upper_bounds = np.pi * np.ones_like(angles)
+    else:
+        upper_bounds = np.asarray(upper_bounds, dtype=float)
+        
+    range_vals = upper_bounds - lower_bounds
+    range_vals[range_vals == 0] = 1.0  # Avoid division by zero
     
-    normalized = 2 * ((angles - lower_bounds) / ranges) - 1
-    return np.clip(normalized, -1.0, 1.0)
+    normalized = (angles - lower_bounds) / range_vals
+    return np.clip(normalized, 0.0, 1.0)
 
 def extract_kinematic_features(
-    trajectory: np.ndarray, 
-    dt: float = 0.1
-) -> dict:
+    trajectory: np.ndarray,
+    dt: float = 0.02
+) -> Dict[str, np.ndarray]:
     """
-    Extract all kinematic features from a trajectory.
-
+    Extract kinematic features (position, velocity, acceleration) from a trajectory.
+    
     Args:
-        trajectory (np.ndarray): Array of shape (T, D) representing joint positions over time.
-        dt (float): Time step duration.
-
+        trajectory: Array of shape (T, D) representing T time steps of D-dimensional positions.
+        dt: Time step between frames.
+        
     Returns:
-        dict: Dictionary containing positions, velocities, accelerations.
+        Dictionary with keys 'position', 'velocity', 'acceleration'.
     """
+    trajectory = np.asarray(trajectory, dtype=float)
+    
     features = {
-        'positions': trajectory,
-        'velocities': compute_velocity(trajectory, dt),
-        'accelerations': compute_acceleration(trajectory, dt)
+        'position': trajectory,
+        'velocity': compute_velocity(trajectory, dt),
+        'acceleration': compute_acceleration(compute_velocity(trajectory, dt), dt)
     }
+    
     return features

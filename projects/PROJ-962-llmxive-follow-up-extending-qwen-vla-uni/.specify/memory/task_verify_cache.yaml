@@ -33,9 +33,27 @@ T036:
     \ of the \u201Ctrajectory fidelity metric\u201D was provided. Consequently there\
     \ is no evidence that the percentage of kinematic features within the VLA proxy\
     \ error margin was computed or documented. The required output is missing."
-T038:
+T039b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `quickstart.md` or `research.md` files were presented, nor any excerpts showing\
-    \ the required execution instructions or methodology notes (CGMM, McNemar's Test).\
-    \ The task\u2019s documentation updates are therefore missing."
+  r: "No code files from `code/utils/` were presented, nor any diff or description\
+    \ showing that duplicate imports and unused variables have been removed. Without\
+    \ the actual cleaned modules, we cannot confirm the required cleanup was performed.\
+    \ The implementer must provide the updated `code/utils/` files (or a clear before\u2011\
+    after diff) demonstrating the removal of duplicate imports and unused variables."
+T040:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The claim references unit tests in `code/tests/`, but no test files, directory\
+    \ listings, or test code were provided as evidence. Without concrete artifacts\
+    \ showing non\u2011empty test cases for OOD prompts and simulation crashes, we\
+    \ cannot verify that the required tests exist or meet the specification. The implementer\
+    \ must add and show the actual test files in `code/tests/`."
+T041:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No execution logs, output files, or verification results for running `quickstart.md`\
+    \ are present; the implementer provided only the feature specification without\
+    \ any evidence that the end\u2011to\u2011end pipeline was actually executed and\
+    \ validated. The required artifact (a successful run of the quickstart validation)\
+    \ is missing."

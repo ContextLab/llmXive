@@ -2,75 +2,34 @@
 
 ## Overview
 
-This document defines the data schemas and transformation pipelines for the `001-non-neural-vla-approximation` feature. All data artifacts are stored under `data/` and must be checksummed.
+This document defines the data structures, schemas, and flow for the `001-non-neural-vla-approximation` feature. It ensures that all data artifacts are validated against strict contracts before being used in training or evaluation.
+
+## Data Flow
+
+1.  **Raw Ingestion**: `file-000.parquet` (HuggingFace) $\rightarrow$ `data/raw/vla_episodes.parquet`
+2.  **Feature Extraction**: Raw actions $\rightarrow$ `data/processed/kinematic_features.csv` (Statistical summaries: Mean/Max/Variance of velocity, acceleration, angles)
+3.  **Clustering**: Features $\rightarrow$ `data/processed/cluster_assignments.csv` (Cluster ID, Silhouette Score)
+4.  **Embedding Generation**: Text $\rightarrow$ `data/processed/bert_embeddings.npy`
+5.  **Model Training**: (Embeddings, Cluster Actions) $\rightarrow$ `data/models/cluster_*.pkl`
+6.  **Simulation Output**: Trajectories $\rightarrow$ `data/results/simulation_results.csv`
+
+## Schema Definitions
+
+### 1. Raw Dataset Schema (`contracts/dataset.schema.yaml`)
+Defines the expected structure of the ingested Qwen-VLA parquet file.
+
+### 2. Trajectory Schema (`contracts/trajectory.schema.yaml`)
+Defines the structure of a single robot trajectory (time-series of joint states).
+
+### 3. Simulation Result Schema (`contracts/simulation_result.schema.yaml`)
+Defines the output of the PyBullet evaluation.
+
+### 4. Model Schema (`contracts/model.schema.yaml`)
+Defines the structure of the serialized per-cluster model artifacts (Decision Tree or GMM).
 
 ## Entity Definitions
 
-### 1. Raw Trajectory (Ingested)
-The raw data structure extracted from the HuggingFace parquet source.
-*   **Source**: `data/raw/hy_embodied.parquet`
-*   **Fields**:
-    *   `instruction`: String (Text prompt)
-    *   `actions`: List of Floats (Joint angles/EE positions over time)
-    *   `task_type`: String (e.g., "grasp", "navigate")
-    *   `episode_id`: String (Unique identifier)
-
-### 2. Kinematic Features (Processed)
-Derived features used for clustering.
-*   **Source**: `data/processed/kinematic_features.feather`
-*   **Fields**:
-    *   `episode_id`: String (FK to Raw)
-    *   `mean_velocity`: Float
-    *   `max_acceleration`: Float
-    *   `joint_angle_std`: Float
-    *   `cluster_id`: Integer (Assigned by K-Means)
-
-### 3. Cluster Model (Trained)
-Serialized model for each cluster.
-*   **Source**: `data/models/cluster_{id}.pkl`
-*   **Fields**:
-    *   `cluster_id`: Integer
-    *   `model_type`: String ("DecisionTree" or "GMM")
-    *   `embedding_dim`: Integer
-    *   `hyperparameters`: JSON (Model config)
-    *   `centroid_embedding`: List of Floats
-
-### 4. Simulation Result (Evaluation)
-Output from the PyBullet execution.
-*   **Source**: `data/results/simulation_logs.csv`
-*   **Fields**:
-    *   `prompt_id`: String
-    *   `task_type`: String
-    *   `model_used`: String ("NonNeural", "Random", "VLA_Proxy")
-    *   `success`: Boolean
-    *   `collision_count`: Integer
-    *   `execution_time_ms`: Float
-    *   `fidelity_score`: Float (0.0 - 1.0)
-
-## Transformation Pipeline
-
-1.  **Ingest**: `01_ingest.py`
-    *   Input: HF Parquet URL
-    *   Output: `data/raw/hy_embodied.parquet` (Checksummed)
-    *   Logic: Validate schema, handle missing values, save raw.
-
-2.  **Feature Engineering**: `02_cluster.py` (Part 1)
-    *   Input: `data/raw/hy_embodied.parquet`
-    *   Output: `data/processed/kinematic_features.feather`
-    *   Logic: Calculate velocity/acceleration, normalize, K-Means.
-
-3.  **Model Training**: `03_train.py`
-    *   Input: `data/processed/kinematic_features.feather`, Frozen BERT
-    *   Output: `data/models/cluster_{id}.pkl`
-    *   Logic: Embed text, split train/test, fit model per cluster.
-
-4.  **Simulation**: `05_simulate.py`
-    *   Input: `data/models/*.pkl`, Test Prompts
-    *   Output: `data/results/simulation_logs.csv`
-    *   Logic: Generate trajectory, run PyBullet, record metrics.
-
-## Data Constraints
-
-*   **Immutability**: Files in `data/raw/` are never modified.
-*   **Checksums**: All files in `data/raw/` and `data/results/` must have a corresponding `.sha256` file.
-*   **PII**: No personally identifiable information allowed. Text prompts are sanitized if necessary.
+- **Trajectory**: A list of time steps, where each step is a dictionary of joint angles and end-effector position.
+- **Cluster**: A grouping of trajectories sharing similar kinematic profiles (based on statistical features).
+- **Prompt**: A text string instruction.
+- **Simulation Result**: A record of a single execution attempt.

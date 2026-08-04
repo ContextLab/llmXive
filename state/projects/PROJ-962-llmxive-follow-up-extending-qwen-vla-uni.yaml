@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-03T18:15:29.156469Z'
-current_stage: tasked
+current_stage: planned
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-962-llmxive-follow-up-extending-qwen-vla-uni
-last_run_id: 7254745a-ca8d-4a21-98db-d151f037fdc0
+last_run_id: b2d38986-f90d-4b09-bf4a-07d8756751fc
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-962-llmxive-follow-up-extending-qwen-vla-uni/specs/001-llmxive-follow-up-extending-qwen-vla-uni
 title: 'llmXive follow-up: extending "Qwen-VLA: Unifying Vision-Language-Action Modeling
   across Tasks, Envir"'
-updated_at: '2026-08-02T21:28:19.100073Z'
+updated_at: '2026-08-04T10:54:37.778487Z'

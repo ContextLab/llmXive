@@ -1,34 +1,28 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "VLA Trajectory Dataset Schema"
-description: "Schema for the ingested Qwen-VLA/Hy-Embodied dataset used in clustering and training."
+title: "Qwen-VLA Dataset Schema"
+description: "Schema for the ingested Qwen-VLA parquet dataset"
 type: "object"
-required:
-  - "instruction"
-  - "actions"
-  - "episode_id"
 properties:
-  instruction:
+  text_instruction:
     type: "string"
-    description: "Text instruction for the robotic task (e.g., 'Pick up the red block')."
-  actions:
+    description: "The text instruction for the robot task"
+  action_sequence:
     type: "array"
-    description: "Time-series array of joint angles and end-effector positions."
+    description: "List of action vectors (joint angles, end-effector pose) over time"
     items:
-      type: "number"
+      type: "array"
+      items:
+        type: "number"
     minItems: 1
-  episode_id:
-    type: "string"
-    description: "Unique identifier for the episode."
   task_type:
     type: "string"
-    description: "Category of the task (e.g., 'grasp', 'navigate', 'place')."
     enum:
       - "grasp"
       - "navigate"
       - "place"
-      - "unknown"
-  metadata:
-    type: "object"
-    description: "Optional metadata from the source dataset."
-    additionalProperties: true
+      - "other"
+required:
+  - "text_instruction"
+  - "action_sequence"
+  - "task_type"
 additionalProperties: false

@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Conditional GMM Model Schema"
-description: "Schema for the serialized per-cluster model artifacts (Conditional Gaussian Mixture Model)."
+description: "Schema for the serialized per-cluster model artifacts (Conditional Gaussian Mixture Model or Decision Tree)."
 type: "object"
 required:
   - "cluster_id"
@@ -16,13 +16,14 @@ properties:
     type: "string"
     description: "Type of model used for this cluster."
     enum:
-      - "ConditionalGaussianMixtureModel"
+      - "DecisionTreeRegressor"
+      - "GaussianMixture"
   embedding_dim:
     type: "integer"
     description: "Dimensionality of the input text embeddings (e.g., 768 for BERT)."
   hyperparameters:
     type: "object"
-    description: "Model-specific hyperparameters (e.g., n_components, weight_net_type)."
+    description: "Model-specific hyperparameters (e.g., n_components, max_depth)."
     additionalProperties: true
   centroid_embedding:
     type: "array"
@@ -39,7 +40,11 @@ properties:
       sample_count:
         type: "integer"
         description: "Number of samples used for training."
+      r2_score:
+        type: "number"
+        description: "R-squared score on the validation set."
     required:
       - "log_likelihood"
       - "sample_count"
+      - "r2_score"
 additionalProperties: false

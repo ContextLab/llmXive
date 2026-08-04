@@ -1,0 +1,45 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Robot Trajectory Schema"
+description: "Schema for a generated or reference robot trajectory"
+type: "object"
+properties:
+  trajectory_id:
+    type: "string"
+    description: "Unique identifier for the trajectory"
+  prompt:
+    type: "string"
+    description: "The text prompt used to generate the trajectory"
+  cluster_id:
+    type: "integer"
+    description: "The cluster ID this trajectory was sampled from"
+  time_steps:
+    type: "array"
+    description: "List of time steps, each containing joint angles and end-effector pose"
+    items:
+      type: "object"
+      properties:
+        joint_angles:
+          type: "array"
+          items:
+            type: "number"
+          description: "Joint angles at this time step"
+        end_effector_pos:
+          type: "array"
+          items:
+            type: "number"
+          description: "End-effector position [x, y, z]"
+        end_effector_quat:
+          type: "array"
+          items:
+            type: "number"
+          description: "End-effector orientation [x, y, z, w]"
+      required:
+        - "joint_angles"
+        - "end_effector_pos"
+        - "end_effector_quat"
+required:
+  - "trajectory_id"
+  - "prompt"
+  - "cluster_id"
+  - "time_steps"
+additionalProperties: false

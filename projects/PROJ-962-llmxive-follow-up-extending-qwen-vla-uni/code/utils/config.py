@@ -1,91 +1,101 @@
-"""
-Configuration management for the Non-Neural VLA Approximation pipeline.
-Handles dataset paths, simulation parameters, and clustering strategy parameters.
-"""
 import os
 import yaml
 from typing import Dict, Any, Optional
 
-DEFAULT_CONFIG_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), "config.yaml")
-
-# Default configuration values
-DEFAULT_CONFIG = {
-    "paths": {
-        "data_raw": "data/raw",
-        "data_processed": "data/processed",
-        "data_results": "data/results",
-        "models": "artifacts/models",
-        "vla_proxy_baseline": "data/results/vla_proxy_baseline.parquet"
-    },
-    "clustering": {
-        "initial_k": 50,
-        "silhouette_threshold": 0.25,
-        "k_decrement_step": 5,
-        "max_attempts": 10,
-        "min_samples_per_cluster": 100
-    },
-    "simulation": {
-        "joint_limits": {
-            "shoulder_pan": [-6.28, 6.28],
-            "shoulder_lift": [-3.14, 3.14],
-            "elbow": [-3.14, 3.14],
-            "wrist_1": [-6.28, 6.28],
-            "wrist_2": [-6.28, 6.28],
-            "wrist_3": [-6.28, 6.28]
-        },
-        "task_types": ["grasp", "navigate", "place"],
-        "max_steps": 100,
-        "collision_threshold": 0.01
-    },
-    "training": {
-        "bert_model": "bert-base-uncased",
-        "r2_threshold": 0.6,
-        "train_test_split": 0.8
-    },
-    "evaluation": {
-        "confidence_interval": 0.95,
-        "fidelity_error_margin": 0.05
-    }
-}
+_config: Optional[Dict[str, Any]] = None
+_config_path: Optional[str] = None
 
 def get_config_path() -> str:
-    """Returns the path to the configuration file."""
-    return DEFAULT_CONFIG_PATH
+    """
+    Get the path to the configuration file.
+    
+    Returns:
+        Path to the config file.
+    """
+    global _config_path
+    if _config_path is None:
+        # Default path relative to project root
+        _config_path = os.path.join("data", "config.yaml")
+    return _config_path
 
 def load_config_from_file(config_path: Optional[str] = None) -> Dict[str, Any]:
     """
-    Loads configuration from a YAML file.
-    Falls back to DEFAULT_CONFIG if file is missing.
+    Load configuration from a YAML file.
+    
+    Args:
+        config_path: Path to config file. If None, uses default.
+        
+    Returns:
+        Configuration dictionary.
     """
-    if config_path is None:
-        config_path = DEFAULT_CONFIG_PATH
+    global _config, _config_path
+    path = config_path or get_config_path()
+    _config_path = path
+    
+    if not os.path.exists(path):
+        # Return default config if file doesn't exist
+        return _get_default_config()
+        
+    with open(path, 'r') as f:
+        _config = yaml.safe_load(f)
+        
+    return _config
 
-    if os.path.exists(config_path):
-        with open(config_path, 'r') as f:
-            config = yaml.safe_load(f)
-            # Merge with defaults to ensure all keys exist
-            for key in DEFAULT_CONFIG:
-                if key not in config:
-                    config[key] = DEFAULT_CONFIG[key]
-                elif isinstance(DEFAULT_CONFIG[key], dict):
-                    for sub_key in DEFAULT_CONFIG[key]:
-                        if sub_key not in config[key]:
-                            config[key][sub_key] = DEFAULT_CONFIG[key][sub_key]
-            return config
-    return DEFAULT_CONFIG
+def _get_default_config() -> Dict[str, Any]:
+    """
+    Get default configuration values.
+    
+    Returns:
+        Default configuration dictionary.
+    """
+    return {
+        "data": {
+            "dataset_name": "Qwen-VLA/Hy-Embodied",
+            "streaming": True,
+            "batch_size": 1024
+        },
+        "clustering": {
+            "max_k": 50,
+            "min_silhouette": 0.25,
+            "k_reduction_step_size": 5,
+            "max_k_reduction_attempts": 10
+        },
+        "simulation": {
+            "dt": 0.02,
+            "max_steps": 500,
+            "joint_limits": {
+                "lower": -3.14,
+                "upper": 3.14
+            }
+        }
+    }
 
 def get_config() -> Dict[str, Any]:
-    """Returns the merged configuration dictionary."""
-    return load_config_from_file()
+    """
+    Get the current configuration.
+    
+    Returns:
+        Configuration dictionary.
+    """
+    global _config
+    if _config is None:
+        _config = load_config_from_file()
+    return _config
 
 def set_config_value(key: str, value: Any) -> None:
     """
-    Sets a specific value in the configuration.
-    Note: This modifies the in-memory config. To persist, save to YAML manually.
+    Set a configuration value.
+    
+    Args:
+        key: Dot-separated key path (e.g., "clustering.max_k").
+        value: Value to set.
     """
-    config = get_config()
+    global _config
+    if _config is None:
+        _config = _get_default_config()
+        
     keys = key.split('.')
-    current = config
+    current = _config
     for k in keys[:-1]:
         if k not in current:
             current[k] = {}
@@ -93,13 +103,31 @@ def set_config_value(key: str, value: Any) -> None:
     current[keys[-1]] = value
 
 def get_clustering_params() -> Dict[str, Any]:
-    """Returns clustering-specific parameters."""
-    return get_config().get("clustering", DEFAULT_CONFIG["clustering"])
+    """
+    Get clustering-specific parameters.
+    
+    Returns:
+        Dictionary of clustering parameters.
+    """
+    config = get_config()
+    return config.get("clustering", {})
 
 def get_data_params() -> Dict[str, Any]:
-    """Returns data path parameters."""
-    return get_config().get("paths", DEFAULT_CONFIG["paths"])
+    """
+    Get data loading parameters.
+    
+    Returns:
+        Dictionary of data parameters.
+    """
+    config = get_config()
+    return config.get("data", {})
 
 def get_simulation_params() -> Dict[str, Any]:
-    """Returns simulation-specific parameters."""
-    return get_config().get("simulation", DEFAULT_CONFIG["simulation"])
+    """
+    Get simulation parameters.
+    
+    Returns:
+        Dictionary of simulation parameters.
+    """
+    config = get_config()
+    return config.get("simulation", {})

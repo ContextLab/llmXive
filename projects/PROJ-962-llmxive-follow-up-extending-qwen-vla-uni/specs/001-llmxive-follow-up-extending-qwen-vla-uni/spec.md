@@ -96,7 +96,7 @@ The system must execute generated trajectories in a PyBullet simulation for Mult
 
 - The Qwen-VLA dataset available on HuggingFace contains the specific text-action pairs required for the subset and is accessible via a public mirror if the primary link is unstable.
 - The PyBullet physics simulator can run deterministically on a CPU-only runner without requiring GPU acceleration for the specific robot models used in the "grasp," "navigate," and "place" tasks.
-- The frozen BERT encoder (e.g., `bert-base-uncased`) is small enough to fit within the 7 GB RAM limit of the free-tier runner when combined with the clustering and simulation processes.
+- The frozen BERT encoder (e.g., `bert-base-uncased`) is small enough to fit within the RAM limits of the free-tier runner. when combined with the clustering and simulation processes.
 - The "Trajectory Fidelity" metric is defined as the percentage of kinematic features (velocity, acceleration profiles) within a small error margin of the original VLA's trajectory, as this provides a concrete, measurable threshold for the trade-off analysis.
 - The random sampling baseline will generate trajectories by uniformly sampling from the joint angle space within the robot's mechanical limits, serving as a strict lower-bound reference.
 - The dataset contains sufficient variance in action sequences to support clustering; if the data is uniform, FR-002a will reduce the cluster count to 1 and log a warning.
