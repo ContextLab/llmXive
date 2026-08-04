@@ -1,0 +1,44 @@
+T023:
+  c: false
+  h: 22044b2243b18bd166f0d59cb671d5947b4270321096ead5b6fdd183f9ca389e
+  r: "The provided `generator.py` defines `TemplateExplanation` but does not show\
+    \ any code that returns this object on LLM failure/timeout nor logs to `data/fallbacks.log`;\
+    \ the file is truncated before any generation or fallback logic. Additionally,\
+    \ the required `data/fallbacks.log` file is missing. The task\u2019s fallback\
+    \ mechanism and logging requirements are therefore not satisfied."
+T036:
+  c: false
+  h: 130300574329a315d3d71f291f8da526db327c7458b7c9e24ad438351dae5a0b
+  r: "The `stats.py` script exists and writes the required keys, but the input CSV\
+    \ `data/evolution_results.csv` is missing, and the mixed\u2011effects model only\
+    \ groups by `seed` (formula `\"metric ~ condition + (1|seed)\"`) without handling\
+    \ nested runs within seeds as required. The implementation therefore does not\
+    \ fully satisfy the task."
+T037:
+  c: false
+  h: 772410e35608facfd6c5b26ca3cef8ac3131cc253d44373e0a4d84519eb85808
+  r: The repository lacks the required `data/final_results.csv` file, and `code/main.py`
+    does not contain a complete CLI that parses `--run-evolution` nor does it generate
+    the specified `final_results.csv` (the file is missing and the script is truncated
+    before any such output logic). These core requirements are therefore unmet.
+T038#1:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `docs/` files or `README.md` changes were presented; the evidence lacks any
+    updated documentation artifacts required by task T038. The implementer must add
+    the necessary documentation updates in the repository.
+T039:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration files, or documentation were supplied that implement\
+    \ the required dynamic\u2011shift environment extension or the counterfactual\
+    \ explanation module. Consequently, the artifact(s) needed to satisfy the user\
+    \ stories are missing."
+T040:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The implementer supplied only a feature specification for environment extensions\
+    \ and a counterfactual explanation module, with no code, benchmarks, or timing\
+    \ data related to \u201CPerformance optimization across all stories\u201D or CPU\u2011\
+    inference thresholds. Consequently, the required artifact (optimized implementation\
+    \ and evidence that CPU inference stays within the acceptable time limit) is missing."

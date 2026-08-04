@@ -1,0 +1,28 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "DynamicShiftEnvironmentConfig",
+  "type": "object",
+  "properties": {
+    "env_id": {
+      "type": "string",
+      "description": "Base environment ID"
+    },
+    "shift_step": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Step at which shift occurs"
+    },
+    "shift_type": {
+      "type": "string",
+      "enum": ["reward", "transition"],
+      "description": "Type of shift to apply"
+    },
+    "shift_magnitude": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 1.0,
+      "description": "Magnitude of reward scaling post-shift"
+    }
+  },
+  "required": ["env_id", "shift_step", "shift_type", "shift_magnitude"]
+}

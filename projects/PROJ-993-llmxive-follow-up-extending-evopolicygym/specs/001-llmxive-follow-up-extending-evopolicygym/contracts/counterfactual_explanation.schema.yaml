@@ -1,0 +1,29 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "CounterfactualExplanation"
+description: "Schema for validating generated counterfactual failure explanations."
+type: "object"
+required:
+  - run_id
+  - explanation_text
+  - rule_id
+  - corrective_action
+properties:
+  run_id:
+    type: "string"
+    description: "Identifier of the evolutionary run."
+  explanation_text:
+    type: "string"
+    description: "Natural language explanation of the failure and required correction."
+    maxLength: 200
+  rule_id:
+    type: "string"
+    description: "Unique identifier of the violated rule from the environment schema."
+  corrective_action:
+    type: "string"
+    description: "Description of the action that would have succeeded."
+  fallback_used:
+    type: "boolean"
+    description: "True if the explanation was generated via template fallback due to timeout/error."
+  generation_time_ms:
+    type: "number"
+    description: "Time taken to generate the explanation in milliseconds."

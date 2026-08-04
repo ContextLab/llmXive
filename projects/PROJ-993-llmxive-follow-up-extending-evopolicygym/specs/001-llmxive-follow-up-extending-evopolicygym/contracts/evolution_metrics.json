@@ -1,0 +1,68 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://llmxive.org/contracts/evolution_metrics.json",
+  "title": "Evolutionary Harness Metrics",
+  "description": "Schema for aggregated metrics from the evolutionary evolution process.",
+  "type": "object",
+  "properties": {
+    "run_id": {
+      "type": "string",
+      "description": "Unique identifier for the evolution run."
+    },
+    "seed": {
+      "type": "integer",
+      "description": "Random seed used for reproducibility."
+    },
+    "generation": {
+      "type": "integer",
+      "description": "The generation number of the evolutionary algorithm."
+    },
+    "condition": {
+      "type": "string",
+      "enum": ["baseline", "counterfactual"],
+      "description": "The experimental condition under which this run was executed."
+    },
+    "final_reward": {
+      "type": "number",
+      "description": "Total accumulated reward over the episode."
+    },
+    "avg_reward": {
+      "type": "number",
+      "description": "Average reward per step."
+    },
+    "policy_complexity_cc": {
+      "type": "number",
+      "description": "Cyclomatic complexity of the evolved policy code."
+    },
+    "policy_complexity_branches": {
+      "type": "integer",
+      "description": "Number of conditional branches in the policy."
+    },
+    "explanation_success": {
+      "type": "boolean",
+      "description": "Whether a valid counterfactual explanation was generated for failures."
+    },
+    "explanation_latency_ms": {
+      "type": "number",
+      "description": "Time taken to generate explanation in milliseconds."
+    },
+    "shift_occurred": {
+      "type": "boolean",
+      "description": "Whether a dynamic shift was triggered during this run."
+    },
+    "pre_shift_reward": {
+      "type": "number",
+      "description": "Cumulative reward before the shift step."
+    },
+    "post_shift_reward": {
+      "type": "number",
+      "description": "Cumulative reward after the shift step."
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp of the run completion."
+    }
+  },
+  "required": ["run_id", "seed", "generation", "condition", "final_reward", "policy_complexity_cc"]
+}

@@ -1,0 +1,31 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "DynamicShiftEnvironmentConfig"
+description: "Configuration for extending EvoPolicyGym environments with dynamic shift modes."
+type: "object"
+required:
+  - env_id
+  - shift_step
+  - shift_type
+properties:
+  env_id:
+    type: "string"
+    description: "Unique identifier for the base environment (e.g., 'env-01')."
+  shift_step:
+    type: "integer"
+ description: "The step number (or percentage of total budget) at which the shift occurs. Default is [deferred]."
+    minimum: 0
+  shift_type:
+    type: "string"
+    enum:
+      - "reward_change"
+      - "transition_change"
+      - "both"
+    description: "Type of dynamic shift to inject."
+  shift_params:
+    type: "object"
+    description: "Parameters specific to the shift type (e.g., new reward function coefficients)."
+    additionalProperties: true
+  seed:
+    type: "integer"
+    description: "Random seed for the shift generation if stochastic."
+    default: 42
