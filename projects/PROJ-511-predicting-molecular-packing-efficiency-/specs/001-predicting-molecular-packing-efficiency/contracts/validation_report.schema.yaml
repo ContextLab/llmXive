@@ -2,138 +2,50 @@ $schema: "http://json-schema.org/draft-07/schema#"
 title: "Validation Report Schema"
 type: "object"
 properties:
-  dataset_stats:
-    type: "object"
-    properties:
-      total_records:
-        type: "integer"
-      train_records:
-        type: "integer"
-      val_records:
-        type: "integer"
-    required:
-      - total_records
-      - train_records
-      - val_records
-  model_metrics:
-    type: "object"
-    properties:
-      baseline:
-        type: "object"
-        properties:
-          mae:
-            type: "number"
-          pearson_r:
-            type: "number"
-          spearman_rho:
-            type: "number"
-          permutation_p_value:
-            type: "number"
-          description: "Two-sided p-value from conditional test (1k or 10k shuffles)"
-        required:
-          - mae
-          - pearson_r
-          - spearman_rho
-          - permutation_p_value
-      control_3d_only:
-        type: "object"
-        properties:
-          mae:
-            type: "number"
-          pearson_r:
-            type: "number"
-          spearman_rho:
-            type: "number"
-        required:
-          - mae
-          - pearson_r
-          - spearman_rho
-      upper_bound:
-        type: "object"
-        properties:
-          mae:
-            type: "number"
-          pearson_r:
-            type: "number"
-          spearman_rho:
-            type: "number"
-        required:
-          - mae
-          - pearson_r
-          - spearman_rho
-    required:
-      - baseline
-      - control_3d_only
-      - upper_bound
-  robustness_analysis:
+  mae:
+    type: "number"
+    description: "Mean Absolute Error"
+  pearson_r:
+    type: "number"
+    description: "Pearson correlation coefficient"
+  spearman_rho:
+    type: "number"
+    description: "Spearman rank correlation coefficient"
+  shapiro_wilk_p:
+    type: "number"
+    description: "p-value from Shapiro-Wilk normality test on residuals"
+  permutation_test_p:
+    type: "number"
+    description: "Two-sided p-value from 10,000 shuffle permutation test"
+  vif_flags:
+    type: "array"
+    items:
+      type: "string"
+    description: "List of feature names with VIF > 5"
+  partial_corr:
+    type: "number"
+    description: "Partial correlation coefficient controlling for composition"
+  sensitivity_analysis:
     type: "object"
     properties:
       thresholds:
         type: "array"
         items:
-          type: "object"
-          properties:
-            threshold:
-              type: "number"
-            pearson_r:
-              type: "number"
-            permutation_p_value:
-              type: "number"
-            bonferroni_corrected_p:
-              type: "number"
-          required:
-            - threshold
-            - pearson_r
-            - permutation_p_value
-            - bonferroni_corrected_p
-    required:
-      - thresholds
-  diagnostics:
-    type: "object"
-    properties:
-      max_vif:
+          type: "number"
+        description: "List of thresholds tested"
+      pearson_r_variation:
         type: "number"
-        description: "Maximum Variance Inflation Factor"
-      vif_flags:
-        type: "array"
-        items:
-          type: "string"
-        description: "List of features with VIF > 5"
-      partial_corr:
+        description: "Variation in Pearson r across thresholds"
+      bonferroni_corrected_p:
         type: "number"
-        description: "Partial correlation controlling for composition"
-      shapiro_wilk_p:
-        type: "number"
-        description: "Shapiro-Wilk p-value on CAPE residuals"
-      residual_spearman_rho:
-        type: "number"
-        description: "Spearman's rho on CAPE residuals"
-    required:
-      - max_vif
-      - vif_flags
-      - partial_corr
-      - shapiro_wilk_p
-      - residual_spearman_rho
-  success_criteria:
-    type: "object"
-    properties:
-      sc_001_met:
-        type: "boolean"
-      sc_002_met:
-        type: "boolean"
-      sc_003_met:
-        type: "boolean"
-      sc_004_met:
-        type: "boolean"
-    required:
-      - sc_001_met
-      - sc_002_met
-      - sc_003_met
-      - sc_004_met
+        description: "Bonferroni corrected p-value"
 required:
-  - dataset_stats
-  - model_metrics
-  - robustness_analysis
-  - diagnostics
-  - success_criteria
+  - mae
+  - pearson_r
+  - spearman_rho
+  - shapiro_wilk_p
+  - permutation_test_p
+  - vif_flags
+  - partial_corr
+  - sensitivity_analysis
 additionalProperties: false

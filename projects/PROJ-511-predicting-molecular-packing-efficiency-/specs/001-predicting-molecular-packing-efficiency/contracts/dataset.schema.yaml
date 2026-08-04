@@ -1,70 +1,68 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Molecular Packing Dataset Schema"
+title: "Dataset Schema"
 type: "object"
 properties:
   cod_id:
     type: "string"
-    description: "Unique identifier from COD"
+    description: "Unique COD identifier"
   smiles:
     type: "string"
     description: "Canonical SMILES string"
   smiles_source:
     type: "string"
-    enum: ["extracted", "generated"]
-    description: "Origin of the SMILES string"
+    enum:
+      - "extracted"
+      - "generated"
+    description: "Source of the SMILES string"
   unit_cell_volume:
     type: "number"
     description: "Unit cell volume in Angstroms cubed"
-  n_atoms:
-    type: "integer"
-    minimum: 1
-    description: "Number of non-hydrogen atoms"
-  sum_vdw_volume:
+  vdw_volume_sum:
     type: "number"
-    description: "Sum of atomic van der Waals volumes"
+    description: "Sum of Bondi van der Waals volumes"
   packing_coefficient:
     type: "number"
-    minimum: 0
-    maximum: 1
     description: "Raw packing coefficient"
   cape:
     type: "number"
     description: "Composition-Adjusted Packing Efficiency"
-  radius_gyration:
+  num_non_hydrogen_atoms:
+    type: "integer"
+    description: "Count of non-hydrogen atoms"
+  radius_of_gyration:
     type: "number"
     description: "Radius of gyration in Angstroms"
   asphericity:
     type: "number"
-    description: "Asphericity parameter (0 to 1)"
-  moments_inertia:
-    type: "array"
-    items:
-      type: "number"
-    minItems: 3
-    maxItems: 3
-    description: "Principal moments of inertia"
+    description: "Asphericity descriptor"
+  principal_moments:
+    type: "string"
+    description: "Principal moments of inertia as comma-separated string"
   lattice_system:
     type: "string"
-    description: "Crystal lattice system"
+    description: "Crystal system"
   temperature_K:
-    type: "number"
+    type: ["number", "null"]
     description: "Measurement temperature in Kelvin"
   has_solvent:
     type: "boolean"
-    description: "Presence of solvent molecules"
+    description: "Flag for solvent presence"
+  atom_type_counts:
+    type: "string"
+    description: "Comma-separated counts of each atom type"
 required:
   - cod_id
   - smiles
   - smiles_source
   - unit_cell_volume
-  - n_atoms
-  - sum_vdw_volume
+  - vdw_volume_sum
   - packing_coefficient
   - cape
-  - radius_gyration
+  - num_non_hydrogen_atoms
+  - radius_of_gyration
   - asphericity
-  - moments_inertia
+  - principal_moments
   - lattice_system
-  - temperature_K
   - has_solvent
+  - atom_type_counts
 additionalProperties: false

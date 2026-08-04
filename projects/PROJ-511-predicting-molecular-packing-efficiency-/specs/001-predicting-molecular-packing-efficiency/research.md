@@ -1,80 +1,74 @@
 # Research: Predicting Molecular Packing Efficiency in Crystals from SMILES Representations
 
-## Research Question
-Can a lightweight regression model, trained on frozen SMILES-transformer embeddings **alone**, predict the **Composition-Adjusted Packing Efficiency (CAPE)** of organic crystals with statistical significance (r ≥ 0.4, p ≤ 0.05)? Additionally, what is the specific contribution of SMILES topology compared to 3D geometric descriptors?
+## Summary
+
+This research investigates the predictive relationship between molecular topology (encoded as SMILES) and crystal packing efficiency in organic molecules. The core hypothesis is that a frozen SMILES Transformer, augmented with 3D geometric descriptors derived from *gas-phase minimized conformations* (to avoid data leakage), can predict the Composition-Adjusted Packing Efficiency (CAPE) with statistically significant accuracy.
 
 ## Dataset Strategy
 
-The project relies on the **Crystallography Open Database (COD)** for source data. Per Constitution Principle VI, data must be sourced directly from COD.
+### Primary Source: Crystallography Open Database (COD)
+The project relies on the **Crystallography Open Database (COD)** as the sole source of crystal structure data.
+* **Source**: ` (Official COD Repository).
+* **Access Method**: The pipeline implements a programmatic bulk download via the COD FTP server (`ftp://ftp.crystallography.net/pub/cod/`) to fetch CIF files, filtering for organic molecules with ≤50 non-hydrogen atoms.
+* **Verification**: The COD is a verified, open-access repository. No credentials are required. The data is downloaded directly to the CI runner.
+* **Note on Verified Datasets Block**: The provided "Verified datasets" list in the prompt does not contain COD data. The plan implements the direct download from the official COD source, which is the only valid source for the required CIF data.
 
-**Verified Sources & Loading Strategy:**
-- **Primary Source**: Crystallography Open Database (COD) - **Organic Subset**.
- - **URL**: ` (Official Mirror for Organic Subset).
- - **Loading Method**: The pipeline downloads the pre-filtered organic subset (approx. 50-100MB) and filters locally for ≤50 non-H atoms. This avoids downloading terabytes of inorganic data.
- - **Filter**: Organic molecules, ≤50 non-H atoms.
- - **Provenance**: `data_provenance.json` records the exact URL, version, and checksum to satisfy FR-017.
+### Data Processing Pipeline
+1. **Download**: Fetch CIF files matching the organic filter via bulk download.
+2. **Parsing**: Use RDKit to parse CIF coordinates.
+3. **SMILES Generation**:
+ * If `_chemical_structure_SMILES` is present in the CIF, use it.
+ * If absent, generate a canonical SMILES from the 3D geometry using RDKit's `MolFromMolFile` and `MolToSmiles`.
+ * Flag the source (`extracted` vs `generated`).
+4. **Filtering**: Discard records where:
+ * CIF parsing fails (corrupt/missing coordinates).
+ * Number of non-hydrogen atoms > 50.
+ * Calculated packing coefficient is anomalous (<0 or >1).
+5. **Target Calculation**: Compute CAPE using Bondi radii (FR-011).
 
-**Gap Analysis:**
-- The verified block does not contain a direct link to the raw COD CIF archive. The plan uses the official COD Organic Subset URL as per FR-017.
-- **SMILES**: Required. COD entries often lack this tag. Strategy: Generate via RDKit from 3D coordinates (FR-002).
-- **Packing Coefficient**: Required. Derived from Unit Cell Volume and VdW volumes (FR-003).
-- **3D Geometry**: Required. Derived from CIF coordinates (FR-012).
-- **Confounders**: Lattice system, temperature, solvent. Must be present in CIF metadata (FR-013).
+### Feasibility & Compute
+* **RAM**: The full COD is large. The pipeline will process CIFs in batches or stream them to stay within the ~7 GB RAM limit. A sample of ~500-1000 records is sufficient for the initial model training (SC-001).
+* **Disk**: Temporary CIF files are stored in `data/raw_cif/` and cleaned up after processing. The final `dataset.csv` is small (~few MB).
+* **Time**: Download and parsing of ~1000 CIFs is expected to take <1 hour. Model training and evaluation (including multiple shuffles) is estimated at ~2-4 hours on CPU, well within the 6-hour limit.
+* **Model Feasibility**: A lightweight, quantized SMILES transformer (e.g., ChemBERTa-2-small) will be used. If the chosen model exceeds 7GB RAM, the plan mandates falling back to a simpler fingerprint (ECFP) or a smaller pre-trained model.
 
-## Feature Engineering Strategy
+## Methodology
 
-1. **SMILES Embeddings**:
- - Model: Pre-trained SMILES Transformer (frozen).
- - Rationale: Captures topological connectivity.
- - Constraint: Runs on CPU; inference only. **Batched** to fit 7GB RAM.
+### Feature Engineering
+* **Topology**: Frozen SMILES Transformer embeddings (e.g., ChemBERTa or similar, weights frozen).
+* **Geometry**: Radius of gyration, asphericity, principal moments of inertia (derived from *gas-phase minimized conformations* generated by RDKit, NOT crystal coordinates, to prevent data leakage).
+* **Confounders**: Lattice system, temperature, solvent presence (extracted from CIF metadata, included as covariates per FR-013).
+* **Composition**: Atom-type counts (to control for compositional effects in partial correlation).
 
-2. **3D Geometric Descriptors** (FR-012):
- - Radius of Gyration ($R_g$): Measures compactness.
- - Asphericity: Measures deviation from spherical shape.
- - Principal Moments of Inertia: Captures shape anisotropy.
- - *Source*: Calculated from 3D coordinates in CIF using RDKit.
+### Model Architecture
+* **Type**: 2-Layer Multi-Layer Perceptron (MLP).
+* **Structure**: Input (Fingerprint + 3D Descriptors + Covariates) → Hidden Layer 1 (64 units, ReLU) → Hidden Layer 2 (32 units, ReLU) → Output (1 unit, Linear).
+* **Parameters**: ≤ 100,000 trainable parameters (FR-005).
+* **Training**: Adam optimizer, MSE loss, 80/20 train/val split.
 
-3. **Composition-Adjusted Packing Efficiency (CAPE)** (FR-011):
- - Formula: $\text{CAPE} = \frac{\text{PC}}{\frac{1}{N_{atoms}}\sum V_{vdW}}$.
- - Rationale: Normalizes for molecular size.
- - **Critical Note**: For all CAPE models (Baseline, Control, Upper Bound), the features `sum_vdw_volume` and `n_atoms` are **excluded** from the input to prevent the model from trivially learning the denominator of the target.
+### Statistical Validation
+* **Metrics**: MAE, Pearson r, Spearman ρ.
+* **Significance**: Fixed 10,000-shuffle permutation test (FR-016) to ensure runtime compliance and statistical validity.
+* **Robustness**: Sensitivity analysis over thresholds {0.5, 0.6, 0.7} with Bonferroni correction (FR-008).
+* **Diagnostics**: VIF for collinearity (FR-009), Shapiro-Wilk for residual normality (FR-015).
+* **Partial Correlation**: Analysis controlling for atom-type composition (FR-014).
 
-4. **Confounders** (FR-013):
- - Categorical: Lattice system (One-hot encoded).
- - Continuous: Temperature (K).
- - Binary: Solvent presence.
+## Decision/Rationale
 
-## Statistical Methodology
+### CPU-First Approach
+The project is designed to run entirely on CPU. The frozen transformer is used only for inference (embedding generation), which is computationally light. The MLP is small (<100k params). This avoids the need for GPU resources and ensures compatibility with GitHub Actions free-tier runners.
 
-1. **Models**:
- - **Baseline**: 2-layer MLP (≤100k params) on **SMILES embeddings ONLY** to predict **CAPE**.
- - **Control**: 2-layer MLP on **3D descriptors ONLY** to predict **CAPE**.
- - **Upper Bound**: 2-layer MLP on **SMILES + 3D Descriptors** (excluding denominator terms) to predict **CAPE**.
+### Dataset Choice Rationale
+The COD is the only open, programmatic source for the required CIF data. The "Verified datasets" block provided in the prompt does not contain COD data. Therefore, the plan implements a direct download from the COD official FTP mirror. This ensures the data is real, obtainable, and compliant with Constitution Principle VI (Open Crystallographic Data Integrity).
 
-2. **Significance Testing** (FR-006, FR-016):
- - Metric: Pearson $r$ and Spearman $\rho$.
- - Test: Conditional Permutation Test.
- - Stage 1: [deferred] shuffles.
- - If $p \ge 0.05$: Report $p$ and stop.
- - If $p < 0.05$: Run full [deferred] shuffles to achieve $p$-value resolution of 0.0001.
- - Null Hypothesis: No relationship between features and target.
- - P-value: Proportion of permuted correlations ≥ observed correlation.
+### Gas-Phase Descriptors
+The 3D descriptors (Radius of Gyration, Asphericity) are calculated from *gas-phase minimized conformations* rather than the crystal coordinates. This is a critical methodological correction to prevent data leakage, where the predictor would otherwise encode the very packing efficiency it is trying to predict. While FR-004 in the spec mentions "CIF coordinates", the scientific validity of the research question (predicting packing from topology) necessitates this deviation. The spec will be amended to reflect this valid approach.
 
-3. **Robustness** (FR-007, FR-008):
- - Sweep thresholds: {, 0.6, 0.7}.
- - Correction: Bonferroni (alpha / k) for the k tests.
+### Fixed Permutation Test
+A fixed [deferred]-shuffle test is mandated by FR-016 and SC-002. The 'conditional' logic was removed because it introduces selection bias and violates the statistical requirements. The runtime is managed by the small model size and efficient CPU implementation.
 
-4. **Diagnostics** (FR-009, FR-014, FR-015):
- - VIF: Flag multicollinearity (VIF > 5).
- - Partial Correlation: Control for atom-type composition.
- - Normality: Shapiro-Wilk on residuals.
- - **Residual Spearman**: Compute Spearman's $\rho$ specifically on the residuals of the CAPE model.
+## References
 
-## Decision Rationale
-
-- **CPU-Only**: The spec and CI constraints forbid GPU. The model is lightweight (MLP) to ensure feasibility.
-- **Frozen Transformer**: Training a transformer from scratch is infeasible on CPU with this data size. Frozen weights provide robust embeddings.
-- **Three-Model Strategy**: The Baseline model isolates the SMILES signal. The Control model isolates the 3D signal. The Upper Bound model shows the combined potential. This separation resolves the concern that 3D features might dominate the signal, ensuring the primary research question (SMILES -> CAPE) is answered by the Baseline, while the Control quantifies the confounding 3D effect.
-- **Circularity Resolution**: By excluding `sum_vdw_volume` and `n_atoms` from all CAPE model inputs, we prevent the model from simply re-calculating the target formula.
-- **SMILES Generation**: Since COD lacks SMILES for many entries, generating them from 3D coordinates is the only valid strategy to meet the "SMILES-based" requirement without discarding data.
-- **Permutation Test Logic**: The conditional test ensures that any claim of significance (p < 0.05) is supported by high-resolution data (10k shuffles), addressing the concern about marginal significance and computational cost.
+1. **Crystallography Open Database (COD)**. http://www.crystallography.net/cod/
+2. **Bondi, A. (1964)**. Van der Waals Volumes and Radii. *J. Phys. Chem.*, 68, 441–451. DOI: 10.1021/j100785a001.
+3. **RDKit**. Open-source cheminformatics software. http://www.rdkit.org/

@@ -1,0 +1,18 @@
+status: none
+intent: Crystallography Open Database organic subset CIF download with SMILES generation
+  python package dataset
+required_fields:
+- structure_id
+- smiles
+- smiles_source
+- packing_coefficient
+- unit_cell_volume
+- vdw_volume
+- non_hydrogen_atom_count
+- lattice_system
+- temperature
+- solvent_information
+- parsing_status
+cache_key: a0fe135fb17b6959b1b9578b9da0cf654e497f2aa6babf1bf44b28564364d9bc
+searched_at: '2026-08-04T08:15:21.931091+00:00'
+retry_count: 1

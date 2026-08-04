@@ -1,69 +1,81 @@
-# Quickstart: Predicting Molecular Packing Efficiency in Crystals from SMILES Representations
+# Quickstart: Predicting Molecular Packing Efficiency in Crystals
 
 ## Prerequisites
 
 - Python 3.11+
-- `pip` or `conda`
-- Access to the Crystallography Open Database (internet required for download)
+- `pip`
+- Access to the internet (for downloading COD data and packages)
 
 ## Installation
 
-1.  **Clone and Setup**:
-    ```bash
-    cd projects/PROJ-511-predicting-molecular-packing-efficiency-/
-    python -m venv venv
-    source venv/bin/activate
-    pip install -r code/requirements.txt
-    ```
+1. **Clone the repository**:
+ ```bash
+ git clone <repo-url>
+ cd PROJ-511-predicting-molecular-packing-efficiency
+ ```
 
-2.  **Verify Dependencies**:
-    ```bash
-    python -c "import rdkit; import torch; print('Dependencies OK')"
-    ```
+2. **Create a virtual environment**:
+ ```bash
+ python -m venv venv
+ source venv/bin/activate # On Windows: venv\Scripts\activate
+ ```
+
+3. **Install dependencies**:
+ ```bash
+ pip install -r requirements.txt
+ ```
 
 ## Running the Pipeline
 
-### Step 1: Data Acquisition & Feature Engineering
-Download COD Organic Subset, generate SMILES, and compute features.
-```bash
-python code/data/download_cod.py
-python code/data/generate_smiles.py
-python code/data/compute_features.py
-```
-*Output*: `data/processed/dataset.csv`, `data/data_provenance.json`
+The pipeline is executed via the `main.py` script, which orchestrates all phases.
 
-### Step 2: Model Training
-Train the Baseline and Upper Bound models on the processed dataset.
 ```bash
-python code/models/trainer.py
+python src/main.py
 ```
-*Output*: `models/baseline_checkpoint.pt`, `models/upper_bound_checkpoint.pt`, `results/training_log.json`
 
-### Step 3: Evaluation & Robustness
-Run validation, permutation tests (1,000 shuffles), and threshold sweeps.
-```bash
-python code/analysis/diagnostics.py
-python code/analysis/robustness.py
-```
-*Output*: `results/validation_report.json`
+This command performs the following steps automatically:
+1. **Download**: Fetches COD CIF files (filtered for organic molecules ≤50 atoms).
+2. **Process**: Generates SMILES, calculates CAPE, and creates `data/dataset.csv`.
+3. **Train**: Trains the 2-layer MLP model.
+4. **Evaluate**: Runs metrics and permutation tests.
+5. **Report**: Generates `results/report.html`.
 
-### Step 4: Generate Report
-Create the final HTML report.
-```bash
-python code/report/generate_report.py
-```
-*Output*: `results/report.html`
+### Manual Steps (Optional)
 
-## Validation
+If you wish to run steps individually:
 
-Run the contract tests to ensure data and outputs match schemas:
-```bash
-pytest tests/contract/
-```
+1. **Download & Parse**:
+ ```bash
+ python src/data/download_cif.py
+ python src/data/parse_cif.py
+ ```
+2. **Train**:
+ ```bash
+ python src/training/train.py
+ ```
+3. **Evaluate**:
+ ```bash
+ python src/training/evaluate.py
+ ```
+4. **Sensitivity**:
+ ```bash
+ python src/training/sensitivity.py
+ ```
+5. **Report**:
+ ```bash
+ python src/utils/report.py
+ ```
+
+## Output Files
+
+- `data/dataset.csv`: The processed dataset.
+- `models/mlp.pt`: Trained model weights.
+- `results/validation_report.json`: Statistical metrics.
+- `results/sensitivity_report.csv`: Threshold analysis.
+- `results/report.html`: Final HTML report.
 
 ## Troubleshooting
 
-- **Memory Error**: Ensure `data/processed/dataset.csv` is not loaded entirely into RAM at once if N > 2000. The pipeline uses chunked processing.
-- **CUDA Error**: If `ImportError: No module named 'torch.cuda'` appears, ensure the CPU-only version of PyTorch was installed (`pip install torch --index-url https://download.pytorch.org/whl/cpu`).
-- **Missing SMILES**: If the script fails to generate SMILES, check the CIF coordinates for validity. Corrupt CIFs are logged in `data/logs/parsing_errors.log`.
-- **Runtime Error**: If the pipeline exceeds 4 hours, check the `data_provenance.json` to ensure the correct subset was downloaded.
+- **Missing COD Data**: Ensure you have internet access. The script downloads directly from ` via FTP.
+- **RAM Issues**: If running out of memory, reduce the number of CIFs processed by adjusting the `MAX_RECORDS` constant in `src/config.py`.
+- **SMILES Generation Failures**: Check `data/parsing_errors.log` for records that failed RDKit parsing.
