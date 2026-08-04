@@ -3,207 +3,305 @@ import sys
 import logging
 import traceback
 import gc
+import json
+import math
 from pathlib import Path
-from typing import List, Dict, Any, Optional, Tuple
+from typing import List, Dict, Any, Optional
+
 import pandas as pd
 import numpy as np
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error
-import joblib
 
-# Import local utilities
+# Local imports matching API surface
+from utils.logging_config import setup_logging, get_logger
 from utils.seed import set_seed
-from utils.logging_config import get_logger, log_error_summary
-
-# Import config
 from config import get_config
 
+# Configure logging
 logger = get_logger(__name__)
 
-# Constants from task description
-SUBSET_SIZES = [1000, 5000, 10000, 20000, 40000]
-MIN_SAMPLES_THRESHOLD = 1000
-RANDOM_SEED = 42
-
 class DataInsufficientError(Exception):
-    """Raised when a property does not have enough data points for training."""
+    """Raised when dataset size is insufficient for requested subset sizes."""
     pass
 
-def load_master_dataset() -> pd.DataFrame:
+def load_master_dataset(features_path: str) -> pd.DataFrame:
     """
-    Loads the consolidated master dataset from the processed data directory.
+    Load the master dataset containing materials and their descriptors.
+    
+    Args:
+        features_path: Path to the Parquet or CSV file containing features.
+        
     Returns:
-        pd.DataFrame: The master dataset.
+        DataFrame with material properties and descriptors.
+        
+    Raises:
+        FileNotFoundError: If the file does not exist.
+        ValueError: If the file format is unsupported.
     """
-    config = get_config()
-    master_path = config.data_dir / "processed" / "materials_master.parquet"
+    path = Path(features_path)
+    if not path.exists():
+        raise FileNotFoundError(f"Feature file not found: {features_path}")
     
-    if not master_path.exists():
-        raise FileNotFoundError(f"Master dataset not found at {master_path}. "
-                                "Please run data generation pipelines first.")
+    if path.suffix == '.parquet':
+        df = pd.read_parquet(path)
+    elif path.suffix == '.csv':
+        df = pd.read_csv(path)
+    else:
+        raise ValueError(f"Unsupported file format: {path.suffix}. Use .parquet or .csv")
     
-    logger.info(f"Loading master dataset from {master_path}")
-    df = pd.read_parquet(master_path)
-    logger.info(f"Loaded {len(df)} records with {len(df.columns)} columns")
+    logger.info(f"Loaded dataset with {len(df)} rows and {len(df.columns)} columns")
     return df
 
-def get_feature_columns(df: pd.DataFrame) -> List[str]:
+def get_feature_columns(df: pd.DataFrame, exclude_cols: List[str] = None) -> List[str]:
     """
-    Identifies the Magpie descriptor columns in the dataframe.
-    Assumes descriptors are numeric columns not named 'property_name', 'target', or 'material_id'.
+    Identify feature columns for training.
+    
+    Args:
+        df: Input DataFrame.
+        exclude_cols: Columns to exclude from features (e.g., target, ID).
+        
+    Returns:
+        List of feature column names.
     """
-    exclude_cols = {'property_name', 'target', 'material_id', 'structure'}
-    feature_cols = [col for col in df.columns if col not in exclude_cols and pd.api.types.is_numeric_dtype(df[col])]
+    if exclude_cols is None:
+        exclude_cols = ['property_name', 'material_id', 'target']
+    
+    feature_cols = [col for col in df.columns if col not in exclude_cols]
+    logger.info(f"Identified {len(feature_cols)} feature columns")
     return feature_cols
 
-def train_single_model(X: np.ndarray, y: np.ndarray, seed: int) -> Tuple[RandomForestRegressor, float]:
+def train_single_model(X_train, y_train, X_test, y_test, seed: int = 42) -> Dict[str, Any]:
     """
-    Trains a single Random Forest model and returns the model and MSE.
+    Train a single Random Forest model and return metrics.
+    
+    Args:
+        X_train: Training features.
+        y_train: Training targets.
+        X_test: Test features.
+        y_test: Test targets.
+        seed: Random seed for reproducibility.
+        
+    Returns:
+        Dictionary containing RMSE and R2 score.
     """
     set_seed(seed)
-    X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.2, random_state=seed)
     
     model = RandomForestRegressor(
-        n_estimators=100, 
-        max_depth=10, 
+        n_estimators=100,
+        max_depth=10,
+        min_samples_split=2,
+        min_samples_leaf=1,
         random_state=seed,
         n_jobs=-1
     )
+    
     model.fit(X_train, y_train)
+    y_pred = model.predict(X_test)
     
-    y_pred = model.predict(X_val)
-    mse = mean_squared_error(y_val, y_pred)
-    return model, mse
-
-def generate_learning_curve_for_property(
-    property_name: str, 
-    df_property: pd.DataFrame, 
-    feature_cols: List[str]
-) -> Optional[Dict[str, Any]]:
-    """
-    Generates a learning curve for a specific property by training on increasing subset sizes.
+    rmse = np.sqrt(mean_squared_error(y_test, y_pred))
     
-    Args:
-        property_name: Name of the property.
-        df_property: DataFrame containing only rows for this property.
-        feature_cols: List of feature column names.
-        
-    Returns:
-        Dict containing subset sizes and corresponding MSEs, or None if skipped.
-    """
-    n_samples = len(df_property)
+    # Calculate R2 score
+    ss_res = np.sum((y_test - y_pred) ** 2)
+    ss_tot = np.sum((y_test - np.mean(y_test)) ** 2)
+    r2 = 1 - (ss_res / ss_tot) if ss_tot != 0 else 0.0
     
-    # --- T022 Implementation: Error Handling for Insufficient Data ---
-    if n_samples < MIN_SAMPLES_THRESHOLD:
-        logger.warning(
-            f"Skipping property '{property_name}': Insufficient data points. "
-            f"Found {n_samples} samples, but require at least {MIN_SAMPLES_THRESHOLD}."
-        )
-        # Log to a dedicated error summary or status file could be added here
-        return None
-    # ---------------------------------------------------------------
-
-    results = {
-        "property_name": property_name,
-        "total_samples": n_samples,
-        "subset_sizes": [],
-        "mse_scores": [],
-        "status": "success"
+    return {
+        'rmse': float(rmse),
+        'r2': float(r2),
+        'n_train': len(y_train),
+        'n_test': len(y_test)
     }
 
-    # Filter valid subset sizes based on available data
-    valid_sizes = [size for size in SUBSET_SIZES if size <= n_samples]
+def generate_learning_curve_for_property(
+    df: pd.DataFrame,
+    property_name: str,
+    target_col: str,
+    feature_cols: List[str],
+    subset_sizes: List[int] = [1000, 5000, 10000, 20000, 40000],
+    seed: int = 42
+) -> Optional[Dict[str, Any]]:
+    """
+    Generate a learning curve for a specific property.
     
-    if not valid_sizes:
-        logger.warning(
-            f"Skipping property '{property_name}': No valid subset sizes available. "
-            f"Max subset size {max(SUBSET_SIZES)} > {n_samples} samples."
-        )
+    Args:
+        df: Full dataset.
+        property_name: Name of the property to analyze.
+        target_col: Name of the target column.
+        feature_cols: List of feature column names.
+        subset_sizes: List of training subset sizes to evaluate.
+        seed: Base random seed.
+        
+    Returns:
+        Dictionary containing learning curve results or None if data is insufficient.
+    """
+    # Filter data for this property
+    prop_data = df[df['property_name'] == property_name].copy()
+    total_entries = len(prop_data)
+    
+    logger.info(f"Processing property '{property_name}' with {total_entries} entries")
+    
+    # Pre-check: Verify dataset size against maximum subset size
+    max_subset = max(subset_sizes)
+    if total_entries < max_subset:
+        logger.warning(f"Property '{property_name}' has only {total_entries} entries, "
+                     f"which is less than the required maximum subset size of {max_subset}. "
+                     f"Skipping full curve generation.")
+        
+        # Update state/properties_status.json
+        status_path = Path("state/properties_status.json")
+        status_data = {}
+        if status_path.exists():
+            with open(status_path, 'r') as f:
+                status_data = json.load(f)
+        
+        status_data[property_name] = {
+            'total_entries': total_entries,
+            'max_subset_size': total_entries,
+            'status': 'skipped_insufficient_data',
+            'reason': f'Only {total_entries} entries available, need {max_subset}'
+        }
+        
+        with open(status_path, 'w') as f:
+            json.dump(status_data, f, indent=2)
+        
         return None
-
-    logger.info(f"Processing property '{property_name}' with {n_samples} samples. "
-                f"Valid subset sizes: {valid_sizes}")
-
-    X = df_property[feature_cols].values
-    y = df_property['target'].values
-
-    for size in valid_sizes:
-        try:
-            # Sample data for this subset size
-            # Using a fixed seed for reproducibility of the subset selection
-            idx = np.random.RandomState(RANDOM_SEED).choice(len(X), size=size, replace=False)
-            X_subset = X[idx]
-            y_subset = y[idx]
-
-            model, mse = train_single_model(X_subset, y_subset, RANDOM_SEED)
+    
+    # Prepare features and target
+    if target_col not in prop_data.columns:
+        logger.error(f"Target column '{target_col}' not found in property data")
+        return None
+        
+    X = prop_data[feature_cols].values
+    y = prop_data[target_col].values
+    
+    # Remove NaN values if any
+    mask = ~np.isnan(X).any(axis=1) & ~np.isnan(y)
+    X = X[mask]
+    y = y[mask]
+    
+    if len(X) < max_subset:
+        logger.warning(f"After cleaning, property '{property_name}' has {len(X)} entries, "
+                     f"which is less than {max_subset}. Skipping.")
+        return None
+    
+    results = []
+    
+    for size in subset_sizes:
+        logger.info(f"Training on {size} samples for {property_name}")
+        
+        # Use stratified sampling if possible, otherwise random
+        # For simplicity, we take the first 'size' samples after shuffling with seed
+        indices = np.arange(len(X))
+        np.random.seed(seed)
+        np.random.shuffle(indices)
+        
+        train_indices = indices[:size]
+        X_train = X[train_indices]
+        y_train = y[train_indices]
+        
+        # Create a small test set (20% of the training size)
+        test_size = max(100, int(size * 0.2))
+        test_indices = indices[size:size + test_size]
+        
+        # Ensure we have enough data for test
+        if len(test_indices) < test_size:
+            test_indices = indices[:test_size]
             
-            results["subset_sizes"].append(size)
-            results["mse_scores"].append(mse)
-            
-            logger.debug(f"  Subset {size}: MSE = {mse:.4f}")
-            
-        except Exception as e:
-            logger.error(f"Error training on subset size {size} for {property_name}: {e}")
-            results["status"] = "partial_failure"
-            results["subset_sizes"].append(size)
-            results["mse_scores"].append(None)
-            continue
-
-    return results
+        X_test = X[test_indices]
+        y_test = y[test_indices]
+        
+        metrics = train_single_model(X_train, y_train, X_test, y_test, seed)
+        
+        results.append({
+            'property_name': property_name,
+            'subset_size': size,
+            'rmse': metrics['rmse'],
+            'r2': metrics['r2'],
+            'n_train': metrics['n_train'],
+            'n_test': metrics['n_test']
+        })
+    
+    return {
+        'property_name': property_name,
+        'learning_curve': results,
+        'total_available': len(X)
+    }
 
 def main():
-    """
-    Main entry point for generating learning curves.
-    """
+    """Main entry point for learning curve generation."""
+    # Parse arguments
+    import argparse
+    parser = argparse.ArgumentParser(description='Generate learning curves for material properties')
+    parser.add_argument('--features', type=str, default='data/processed/magpie_features.parquet',
+                      help='Path to features file')
+    parser.add_argument('--output', type=str, default='data/processed/learning_curves.csv',
+                      help='Output path for learning curve results')
+    parser.add_argument('--target', type=str, default='target',
+                      help='Name of target column')
+    parser.add_argument('--seed', type=int, default=42,
+                      help='Random seed')
+    parser.add_argument('--subset-sizes', type=str, default='1000,5000,10000,20000,40000',
+                      help='Comma-separated list of subset sizes')
+    
+    args = parser.parse_args()
+    
+    # Setup logging
+    setup_logging()
+    
+    logger.info("Starting learning curve generation")
+    
     try:
-        logger.info("Starting Learning Curve Generation Pipeline")
-        set_seed(RANDOM_SEED)
-
-        # Load data
-        df = load_master_dataset()
-        feature_cols = get_feature_columns(df)
+        # Load dataset
+        df = load_master_dataset(args.features)
         
-        if not feature_cols:
-            raise ValueError("No feature columns found in the master dataset.")
-
-        # Group by property
+        # Get feature columns
+        feature_cols = get_feature_columns(df, exclude_cols=['property_name', 'material_id', args.target])
+        
+        # Parse subset sizes
+        subset_sizes = [int(x.strip()) for x in args.subset_sizes.split(',')]
+        subset_sizes = sorted(subset_sizes)
+        
+        logger.info(f"Using subset sizes: {subset_sizes}")
+        
+        # Get unique properties
         properties = df['property_name'].unique()
-        logger.info(f"Found {len(properties)} distinct properties.")
-
-        all_curves = []
-        skipped_properties = []
-
+        logger.info(f"Found {len(properties)} properties: {properties}")
+        
+        all_results = []
+        
         for prop in properties:
-            df_prop = df[df['property_name'] == prop].copy()
+            result = generate_learning_curve_for_property(
+                df, prop, args.target, feature_cols, subset_sizes, args.seed
+            )
             
-            curve_result = generate_learning_curve_for_property(prop, df_prop, feature_cols)
-            
-            if curve_result:
-                all_curves.append(curve_result)
+            if result:
+                all_results.extend(result['learning_curve'])
+                logger.info(f"Completed learning curve for {prop}")
             else:
-                skipped_properties.append(prop)
-
+                logger.warning(f"Skipped {prop} due to insufficient data")
+        
+        if not all_results:
+            logger.error("No learning curves were generated. Check data availability.")
+            sys.exit(1)
+        
         # Save results
-        if all_curves:
-            output_df = pd.DataFrame(all_curves)
-            # Flatten lists for CSV/Parquet export if needed, or save as JSON
-            # For this task, we save a structured JSON or a wide-format CSV
-            output_path = get_config().data_dir / "processed" / "learning_curves.json"
-            output_df.to_json(output_path, orient='records', indent=2)
-            logger.info(f"Saved learning curves to {output_path}")
-        else:
-            logger.warning("No learning curves were generated.")
-
-        if skipped_properties:
-            logger.info(f"Skipped {len(skipped_properties)} properties due to insufficient data: {skipped_properties}")
-
-        logger.info("Learning Curve Generation Pipeline Completed")
-
+        output_path = Path(args.output)
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        
+        results_df = pd.DataFrame(all_results)
+        results_df.to_csv(output_path, index=False)
+        
+        logger.info(f"Saved learning curves to {output_path}")
+        logger.info(f"Generated {len(all_results)} learning curve points across {len(properties)} properties")
+        
     except Exception as e:
-        logger.critical(f"Pipeline failed: {e}")
+        logger.error(f"Error during learning curve generation: {e}")
         traceback.print_exc()
         sys.exit(1)
+    finally:
+        gc.collect()
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

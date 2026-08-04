@@ -1,0 +1,17 @@
+status: none
+intent: Materials Project AFLOW NIST material properties python package dataset
+required_fields:
+- material_id
+- chemical_formula
+- composition
+- property_name
+- property_value
+- units
+- temperature
+- pressure
+- measurement_method
+- source_database
+- property_category
+cache_key: f33f50b36184ebda23506c73dd010fa00786d8dccdc46463f5a16836cf92b16a
+searched_at: '2026-08-03T23:56:18.145571+00:00'
+retry_count: 1

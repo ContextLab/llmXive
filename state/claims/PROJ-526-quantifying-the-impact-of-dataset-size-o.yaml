@@ -1,0 +1,190 @@
+- artifact_path: projects/PROJ-526-quantifying-the-impact-of-dataset-size-o/specs/001-quantifying-the-impact-of-dataset-size-o/tasks.md
+  attempts: 1
+  canonical: Project goal to compute Magpie vectors for material properties
+  claim_id: c_0335acb1
+  context: 'Phase 3: User Story 1 - Data Acquisition and Composition Descriptor Generation
+    (Priority: P1) Goal: Download standardized material property datasets from public
+    repositories and compute composition-only descriptors (Magpie vectors) to establish
+    a baseline.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Project_goal_to_compute_Magpie_vectors_for_material_properti
+  kind: entity_fact
+  raw_text: The project aims to download standardized material property datasets from
+    public repositories and compute composition-only descriptors (Magpie vectors)
+    to establish a baseline.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T00:13:50Z'
+- artifact_path: projects/PROJ-526-quantifying-the-impact-of-dataset-size-o/specs/001-quantifying-the-impact-of-dataset-size-o/tasks.md
+  attempts: 1
+  canonical: 5 training subsets with sizes 1000 to 40000 per property
+  claim_id: c_a660d979
+  context: 'T019 [US2] Implement code/train_learning_curves.py to generate 5 training
+    subsets (sizes: [1000, 5000, 10000, 20000, 40000]) per property, training with
+    1 random seed per subset using fixed hyperparameters.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The implementation generates 5 training subsets with sizes [1000, 5000,
+    10000, 20000, 40000] per property.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T00:14:20Z'
+- artifact_path: projects/PROJ-526-quantifying-the-impact-of-dataset-size-o/specs/001-quantifying-the-impact-of-dataset-size-o/tasks.md
+  attempts: 1
+  canonical: Project targets 2-3 distinct material properties
+  claim_id: c_52b89c2e
+  context: 'T036 [P] Spec Amendment Task: Update spec.md (and state/amendments.md)
+    to formally modify: FR-001: Replace ''at least 15 distinct material properties''
+    with ''2-3 distinct material properties''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project targets 2-3 distinct material properties.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T00:15:06Z'
+- artifact_path: projects/PROJ-526-quantifying-the-impact-of-dataset-size-o/specs/001-quantifying-the-impact-of-dataset-size-o/tasks.md
+  attempts: 1
+  canonical: Properties classified as non-power-law if R2 less than 0.9
+  claim_id: c_e5120514
+  context: T020 [US2] Implement code/fit_scaling_laws.py to fit Error = a * N^-b and
+    classify properties as 'non-power-law' if R^2 < 0.9.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Properties_classified_as_non-power-law_if_R2_less_than_0.9
+  kind: magnitude
+  raw_text: "The project classifies properties as 'non-power-law' if R\xB2 < 0.9."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T00:15:46Z'
+- artifact_path: projects/PROJ-526-quantifying-the-impact-of-dataset-size-o/specs/001-quantifying-the-impact-of-dataset-size-o/tasks.md
+  attempts: 1
+  canonical: Peak RAM usage less than 7GB during dataset load
+  claim_id: c_970d1f32
+  context: T014 [US1] Implement chunked loading in code/download_data.py using batch
+    processing and optimized dtypes (float32) to verify peak RAM usage remains < 7GB
+    during full dataset load.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Peak_RAM_usage_less_than_7GB_during_dataset_load
+  kind: magnitude
+  raw_text: The project enforces a peak RAM usage of less than 7GB during full dataset
+    load.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T00:16:44Z'
+- artifact_path: projects/PROJ-526-quantifying-the-impact-of-dataset-size-o/specs/001-quantifying-the-impact-of-dataset-size-o/tasks.md
+  attempts: 1
+  canonical: Permutation test p-value threshold less than 0.1
+  claim_id: c_f0fde25e
+  context: 'T036 [P] Spec Amendment Task: Update spec.md ... SC-001: Replace ''p-value
+    < 0.05'' with ''p-value < 0.1'' to account for the mathematical granularity limit
+    of N=5 permutations.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Permutation_test_p-value_threshold_less_than_0.1
+  kind: magnitude
+  raw_text: The project uses a permutation test with a p-value threshold of less than
+    0.1 to compare electronic vs. mechanical classes.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T00:18:47Z'
+- artifact_path: projects/PROJ-526-quantifying-the-impact-of-dataset-size-o/specs/001-quantifying-the-impact-of-dataset-size-o/tasks.md
+  attempts: 1
+  canonical: Deviation from Constitution Principle VII using 5 subsets and 1 seed
+  claim_id: c_5b285af2
+  context: 'T035 [P] Constitution Override Task: Create a formal amendment record
+    ... documenting the deviation from Constitution Principle VII (reduced subsets/seeds)
+    ... Explicitly state that Constitution Principle VII (multiple subsets/3 seeds/ANOVA)
+    is overridden by subsets/1 seed/Permutation Test.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project deviates from Constitution Principle VII by using 5 subsets
+    and 1 seed instead of multiple subsets and 3 seeds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T00:19:42Z'
+- artifact_path: projects/PROJ-526-quantifying-the-impact-of-dataset-size-o/specs/001-quantifying-the-impact-of-dataset-size-o/tasks.md
+  attempts: 1
+  canonical: Minimum 40000 entries required for full learning curve
+  claim_id: c_bce27b00
+  context: 'T039 [US2] Subset Size Validation: Add a pre-check in code/train_learning_curves.py
+    to verify that the available dataset for a given property has at least 40,000
+    entries (the largest subset size).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Minimum_40000_entries_required_for_full_learning_curve
+  kind: magnitude
+  raw_text: The project requires at least 40,000 entries for a property to generate
+    the full learning curve.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T00:20:49Z'
+- artifact_path: projects/PROJ-526-quantifying-the-impact-of-dataset-size-o/specs/001-quantifying-the-impact-of-dataset-size-o/tasks.md
+  attempts: 1
+  canonical: Project uses Python 3.10
+  claim_id: c_e2dbffec
+  context: T002 Initialize Python 3.10 project with dependencies (pymatgen, matminer,
+    scikit-learn, pandas, numpy, requests, huggingface_hub) in requirements.txt
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses Python 3.10.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T00:21:33Z'
+- artifact_path: projects/PROJ-526-quantifying-the-impact-of-dataset-size-o/specs/001-quantifying-the-impact-of-dataset-size-o/tasks.md
+  attempts: 1
+  canonical: Dependencies include pymatgen matminer scikit-learn pandas numpy requests
+    huggingface_hub
+  claim_id: c_e5893c3c
+  context: T002 Initialize Python 3.10 project with dependencies (pymatgen, matminer,
+    scikit-learn, pandas, numpy, requests, huggingface_hub) in requirements.txt
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dependencies_include_pymatgen_matminer_scikit-learn_pandas_n
+  kind: entity_fact
+  raw_text: The project uses dependencies including pymatgen, matminer, scikit-learn,
+    pandas, numpy, requests, and huggingface_hub.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T00:22:32Z'

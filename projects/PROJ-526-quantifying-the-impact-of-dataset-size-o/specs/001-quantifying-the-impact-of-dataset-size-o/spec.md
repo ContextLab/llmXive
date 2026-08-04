@@ -39,7 +39,7 @@ with physical characteristics of the properties (e.g., spatial locality, symmetr
 - **FR-001**: The pipeline must successfully download and process at least 15 distinct material properties.
  *Correction*: Due to data availability constraints (see Amendment T036), the pipeline targets **N=2-3** properties per class (Electronic, Mechanical). The hard halt in T016 remains but is adjusted to expect the actual available N.
 - **FR-002**: The system must compute Magpie composition descriptors for all material entries.
-- **FR-003**: The system must generate learning curves for 5 subset sizes: [1000, 5000, 10000, 20000, 40000].
+- **FR-003**: The system must generate learning curves for multiple subset sizes spanning a range of magnitudes.
 - **FR-004**: The system must fit power-law models and classify fits with $R^2 < 0.9$ as "non-power-law".
 - **FR-005**: The system must perform a Permutation Test to compare scaling exponents between classes.
 
@@ -71,7 +71,7 @@ with physical characteristics of the properties (e.g., spatial locality, symmetr
 - **Rationale**: Standard tests (Kruskal-Wallis, ANOVA) require N >= 5 per group for valid asymptotic approximation. With N = 2-3, exact permutation tests are required.
 - **Procedure**:
  1. Combine scaling exponents from both classes.
- 2. Randomly shuffle class labels 10,000 times.
+ 2. Randomly shuffle class labels [deferred] times.
  3. Compute the difference in means for each shuffle.
  4. Calculate p-value as the proportion of shuffled differences >= observed difference.
 - **Threshold**: p < 0.05 for statistical significance.

@@ -1,0 +1,21 @@
+{
+  "project_id": "PROJ-526-quantifying-the-impact-of-dataset-size-o",
+  "ok": false,
+  "reason": "6 command(s) failed: python code/download_data.py --output data/raw/ (rc=1); python code/generate_descriptors.py --input data/raw/ --output data/processed/ (rc=1); python code/train_learning_curves.py --features data/processed/magpie_features.csv --output data/processed/learning_curves.csv (rc=1)",
+  "artifacts": [],
+  "failures": [
+    "python code/download_data.py --output data/raw/ -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-526-quantifying-the-impact-of-dataset-size-o/code/download_data.py\", line 9, in <module>\n    from huggingface_hub import HfApi, hf_hub_download, list_repo_files\nModuleNotFoundError: No module named 'huggingface_hub'",
+    "python code/generate_descriptors.py --input data/raw/ --output data/processed/ -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-526-quantifying-the-impact-of-dataset-size-o/code/generate_descriptors.py\", line 8, in <module>\n    import pandas as pd\nModuleNotFoundError: No module named 'pandas'",
+    "python code/train_learning_curves.py --features data/processed/magpie_features.csv --output data/processed/learning_curves.csv -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-526-quantifying-the-impact-of-dataset-size-o/code/train_learning_curves.py\", line 8, in <module>\n    import pandas as pd\nModuleNotFoundError: No module named 'pandas'",
+    "python code/fit_scaling_laws.py --input data/processed/learning_curves.csv --output data/processed/scaling_results.csv -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-526-quantifying-the-impact-of-dataset-size-o/code/fit_scaling_laws.py\", line 18, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'",
+    "python code/analyze_physics.py --input data/processed/scaling_results.csv --output data/processed/final_analysis.csv -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-526-quantifying-the-impact-of-dataset-size-o/code/analyze_physics.py\", line 7, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'",
+    "python code/visualize_results.py --input data/processed/final_analysis.csv --output figures/ -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-526-quantifying-the-impact-of-dataset-size-o/code/visualize_results.py\", line 13, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "execution_bug",
+  "evidence": [],
+  "updated_at": "2026-08-03T23:54:21Z"
+}
