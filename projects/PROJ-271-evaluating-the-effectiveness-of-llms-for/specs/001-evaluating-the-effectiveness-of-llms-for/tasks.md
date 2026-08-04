@@ -102,7 +102,7 @@
 - [X] T017 [US2] Implement JSON parsing and error handling in `code/semantic_analysis.py` to log "Unparseable" for malformed LLM outputs (Edge Case)
 - [X] T018 [US2] Implement context window check in `code/semantic_analysis.py` to truncate or skip functions exceeding model limits and log the count (Edge Case)
 - [ ] T019 [US2] Write embeddings and LLM labels to `data/processed/semantic_results.json` (FR-004, FR-005)
-- [~] T020 [US2] [Depends: T006b] Add monitoring in `code/semantic_analysis.py` to record peak RAM, CPU utilization, and inference time per batch to `results/resource_metrics.json` using `code/monitoring.py` (FR-008)
+- [ ] T020 [US2] [Depends: T006b] Add monitoring in `code/semantic_analysis.py` to record peak RAM, CPU utilization, and inference time per batch to `results/resource_metrics.json` using `code/monitoring.py` (FR-008)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -118,8 +118,8 @@
 
 ### Implementation for User Story 3
 
-- [~] T021 [US3] [Depends: T019] Implement `code/statistical_analysis.py` to merge `data/static_baseline.csv` and `data/processed/semantic_results.json` into a unified dataset
-- [~] T021a [US3] Validate merged dataset completeness (≥95% rows have all required fields: code, metrics, static labels, semantic vectors, LLM labels) of the 800 sampled functions before proceeding to statistical analysis (SC-005)
+- [ ] T021 [US3] [Depends: T019] Implement `code/statistical_analysis.py` to merge `data/static_baseline.csv` and `data/processed/semantic_results.json` into a unified dataset
+- [ ] T021a [US3] Validate merged dataset completeness (≥95% rows have all required fields: code, metrics, static labels, semantic vectors, LLM labels) of the 800 sampled functions before proceeding to statistical analysis (SC-005)
 - [X] T022 [US3] Implement McNemar's test per smell category (aggregating paired detection outcomes per function) in `code/statistical_analysis.py` (FR-006)
 - [X] T023 [US3] Implement Variance Inflation Factor (VIF) calculation in `code/statistical_analysis.py` for predictors (LOC, Cyclomatic, Semantic Mean) (FR-010)
 - [X] T024 [US3] Implement logistic regression fitting in `code/statistical_analysis.py` that excludes predictors with VIF ≥ 5, flags high-VIF predictors in output, and implements exclusion as the only fallback path (FR-007, FR-010)
@@ -127,7 +127,7 @@
 - [ ] T026 [US3] Generate `results/statistical_significance.json` containing McNemar p-values (FR-006, SC-003)
 - [ ] T027 [US3] Generate `results/logistic_regression.json` containing coefficients and VIF scores (FR-007, SC-001, SC-002)
 - [ ] T028 [US3] Generate `results/sensitivity_report.md` listing smells detected *only* by static, *only* by LLM, and sensitivity results (FR-009)
-- [~] T029 [US3] Verify `results/` artifacts contain valid data for ≥ 95% of the sample (SC-005)
+- [ ] T029 [US3] Verify `results/` artifacts contain valid data for ≥ 95% of the sample (SC-005)
 
 **Checkpoint**: All user stories should now be independently functional
 

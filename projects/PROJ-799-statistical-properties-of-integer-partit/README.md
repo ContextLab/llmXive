@@ -1,22 +1,55 @@
 # Statistical Properties of Integer Partitions Into Distinct Prime Summands
 
-## Overview
-This project investigates the statistical properties of the partition function $p_{\mathcal{P}}(n)$, which counts the number of ways to write an integer $n$ as a sum of distinct prime numbers.
+## Project Overview
+This project investigates the statistical properties of integer partitions into distinct prime summands, denoted as $p_{\mathcal{P}}(n)$. We compute exact values for $n \in [1, 50000]$ [UNRESOLVED-CLAIM: c_6a09483e — status=not_enough_info] and compare them against asymptotic baselines derived from the distinct-partition variant of Meinardus' theorem.
 
-## Key Objectives
-1. Compute exact values of $p_{\mathcal{P}}(n)$ for $n \in [1, 50000]$.
-2. Compare against asymptotic baselines derived from Meinardus' theorem (distinct-partition variant).
-3. Model residual errors using prime density features and oscillatory terms.
-
-## Project Structure
+## Directory Structure
 - `code/`: Source code for data generation, feature engineering, and modeling.
-- `data/`: Raw and processed datasets.
+- `code/utils/`: Utility modules (e.g., prime sieves).
+- `data/raw/`: Generated raw data (partitions).
+- `data/processed/`: Processed features and model results.
+- `data/schemas/`: JSON/YAML schemas for data validation.
 - `tests/`: Unit and integration tests.
-- `docs/`: Documentation and methodology notes.
-- `state/`: Project state tracking and artifact checksums.
+- `docs/`: Documentation.
+- `state/`: Project state tracking (checksums, versions).
 
-## Getting Started
-See `quickstart.md` for execution instructions.
+## Prerequisites
+- Python 3.11+
+- pip
 
-## License
-Research project - all rights reserved.
+## Installation
+1. Clone the repository.
+2. Install dependencies:
+ ```bash
+ pip install -e.
+ ```
+ Or manually:
+ ```bash
+ pip install numpy scipy scikit-learn statsmodels matplotlib pandas pygam flake8 black pytest
+ ```
+
+## Linting and Formatting
+This project uses `flake8` for linting and `black` for formatting, scoped to the `code/` directory.
+
+### Run Linting
+```bash
+flake8 code/
+```
+
+### Run Formatting
+```bash
+black code/
+```
+
+### Check Formatting (Dry Run)
+```bash
+black --check code/
+```
+
+## Running the Pipeline
+Refer to `quickstart.md` for the full execution pipeline.
+
+## Testing
+```bash
+pytest tests/
+```

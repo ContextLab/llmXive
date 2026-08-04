@@ -28,16 +28,45 @@ T003:
     empty config files, the requirement to configure flake8/black is not satisfied."
 T011:
   c: false
-  h: cd7e4a86565ef24d0d7adf3af48acd299b45816fed8f32b19c4b72e5ddaabfa5
-  r: "The repository contains `code/data_pipeline.py`, but the shown content stops\
-    \ before any CSV\u2011writing logic and does not demonstrate that normalized smell\
-    \ codes are serialized to `data/static_baseline.csv`. Moreover, the required output\
-    \ file `data/static_baseline.csv` is absent from the project. Both the implementation\
-    \ and the generated artifact are missing, so the task is not satisfied."
+  h: e23d60d64f8f9c1e2ce0d815bf395c0f50d4b6232230b2f3551d33691e7cdf59
+  r: The `code/data_pipeline.py` file is incomplete (truncated) and does not contain
+    any logic that writes a CSV file, and the required `data/static_baseline.csv`
+    does not exist on disk. Consequently, the CSV serialization requirement is not
+    fulfilled.
 T013:
   c: false
-  h: a7233287627f03cee2483228127b2c3aaa0604e719b6e3fee2af43ddea9221be
-  r: The repository contains `code/semantic_analysis.py`, but the required input file
-    `data/static_baseline.csv` is missing, so the module cannot actually load functions
-    and compute embeddings as specified. Without this CSV the implementation cannot
-    be verified or used.
+  h: 1e00ca07bcf56c4c9652895c58d2a7d812587d9b2db8082a77d6e36971617d86
+  r: The `code/semantic_analysis.py` file is present and contains functions to load
+    the embedding model and compute embeddings, but the required input file `data/static_baseline.csv`
+    is missing, so the script cannot actually process any functions. Without the CSV,
+    the core requirement of computing dense vectors for its functions is unmet.
+T020:
+  c: false
+  h: 5f87ae29f59008beef596b359f7644ec09acc2a4dcbade20cabaf5477ce6e756
+  r: The `code/semantic_analysis.py` file does not show any usage of the monitoring
+    utilities to capture peak RAM, CPU utilization, or inference time per batch, and
+    the required output file `results/resource_metrics.json` is absent. Consequently
+    the task of adding monitoring and persisting the metrics has not been fulfilled.
+T021:
+  c: false
+  h: 77969cf8d00f5ef7c95e53aa6bdbb8ec0996790eeb48a03246a2a016fac6fab7
+  r: The provided `code/statistical_analysis.py` exists but the essential input files
+    `data/static_baseline.csv` and `data/processed/semantic_results.json` are missing,
+    so the script cannot actually perform the required merge. Additionally, the displayed
+    source is truncated, leaving the implementation incomplete. The next implementer
+    must supply the missing data files (or mock them) and ensure the full script correctly
+    loads and merges them into a unified dataset.
+T021a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact (e.g., validation script output, summary report, or dataset file)\
+    \ was provided showing that the merged dataset of 800 functions was checked and\
+    \ that \u226595\u202F% of rows contain all required fields (code, metrics, static\
+    \ labels, semantic vectors, LLM labels). Without such evidence the requirement\
+    \ is not satisfied."
+T029:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `results/` directory or files were presented, and thus there is no data to\
+    \ inspect for validity or coverage of \u2265\u202F95% of the sample. The required\
+    \ artifact is missing, so the task is not satisfied."

@@ -158,10 +158,10 @@
 **Purpose**: Improvements that affect multiple user stories
 
 - [ ] T041 [P] Documentation updates in `paper/draft.md` (include findings and limitations)
-- [ ] T042 Code cleanup and refactoring of `code/analysis/` scripts <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
+- [ ] T042 Code cleanup and refactoring of `code/analysis/` scripts <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
 - [ ] T043 Performance optimization: ensure VCF streaming does not exceed 7GB RAM
 - [ ] T044 [P] Additional unit tests for edge cases (zero burden, missing haplogroup) in `code/tests/`
-- [ ] T045 Run `quickstart.md` validation and verify total runtime ≤ 6 hours on 2 CPU runner
+- [ ] T045 Run `quickstart.md` validation and verify total runtime ≤ 6 hours on 2 CPU runner <!-- FAILED: unspecified -->
 - [ ] T046 Generate final figures (linear fit, threshold sensitivity) in `paper/figures/`
 
 ---

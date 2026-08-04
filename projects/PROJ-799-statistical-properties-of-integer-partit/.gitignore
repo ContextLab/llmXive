@@ -1,29 +1,21 @@
-# Python
+# Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
-*.so
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
 
-# Virtual Environments
+# C extensions
+*.so
+
+# Distribution / packaging
+.eggs/
+*.egg-info/
+build/
+dist/
+
+# Virtual environments
 venv/
-ENV/
 env/
+.venv/
 
 # IDE
 .idea/
@@ -31,15 +23,19 @@ env/
 *.swp
 *.swo
 
-# Data (Large artifacts)
+# Data artifacts (generated)
 data/raw/*.csv
 data/processed/*.csv
 data/processed/*.json
 data/processed/*.png
-data/processed/*.parquet
+data/processed/*.pdf
 
-# State
+# State files
 state/projects/*.yaml
 
 # Logs
 *.log
+
+# OS
+.DS_Store
+Thumbs.db

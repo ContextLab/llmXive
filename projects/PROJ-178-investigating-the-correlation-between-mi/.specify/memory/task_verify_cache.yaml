@@ -1,24 +1,3 @@
-T018:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, or data file implementing the metadata merge logic was provided;\
-    \ there is no artifact (e.g., Python/R script, function, or resulting merged CSV/Parquet)\
-    \ that joins burden, haplogroups, age, sex, population, and PCs as required. The\
-    \ implementer\u2019s claim consists only of a textual description without any\
-    \ concrete implementation or output."
-T019:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, script, configuration, or log file implementing the exclusion of samples
-    with missing age or failed haplogroup assignment was provided; the evidence on
-    disk is empty, so the required exclusion logic cannot be verified.
-T024:
-  c: false
-  h: 0986c34f5d5b51437853769b1c87a809991dab0fd3147d28a5b81988494f352b
-  r: "The provided `code/analysis/model.py` does not rank\u2011transform `PC1` and\
-    \ `PC2` as required, and it never writes the regression results (including adjusted\
-    \ p\u2011values) to `code/data/processed/model_results.csv` \u2013 the CSV file\
-    \ is absent. Consequently the task\u2019s specifications are not met."
 T027:
   c: false
   h: eca5992662b913324ddd32d3e787ba2792ddc04cb8727401f97deff5019c542f
@@ -26,19 +5,6 @@ T027:
     \ coefficients or p\u2011values are recorded as specified. The implementer must\
     \ create this log file and write the secondary OLS model\u2019s coefficient and\
     \ p\u2011value entries into it."
-T041:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `paper/draft.md` file or its contents were provided; without the markdown
-    document showing the required findings and limitations, we cannot confirm that
-    the documentation update was performed. The necessary artifact is missing.
-T042:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No cleaned or refactored scripts from the `code/analysis/` directory are present;
-    the implementer provided no code artifacts, diff patches, or documentation indicating
-    that the cleanup was performed. Consequently the required output for task T042
-    is missing.
 T043:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

@@ -4,16 +4,14 @@ import sys
 import time
 from datetime import datetime
 from pathlib import Path
-
-# Add project root to path
-sys.path.insert(0, str(Path(__file__).parent))
-
-from config.environment import ensure_directories, get_ftp_urls, get_local_paths
+from config.environment import get_local_paths
 
 def setup_logging():
-    """Configures logging to file and console."""
-    ensure_directories()
-    log_file = Path(get_local_paths()["logs_dir"]) / f"analysis_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
+    """Setup logging configuration for the analysis pipeline."""
+    log_dir = get_local_paths()['logs']
+    os.makedirs(log_dir, exist_ok=True)
+    
+    log_file = os.path.join(log_dir, f'analysis_{datetime.now().strftime("%Y%m%d_%H%M%S")}.log')
     
     logging.basicConfig(
         level=logging.INFO,
@@ -26,72 +24,55 @@ def setup_logging():
     return logging.getLogger(__name__)
 
 class AnalysisTimer:
-    def __init__(self, task_name):
-        self.task_name = task_name
+    """Timer to track execution time of analysis stages."""
+    
+    def __init__(self, name: str):
+        self.name = name
         self.start_time = None
         self.end_time = None
-
+    
     def __enter__(self):
         self.start_time = time.time()
-        logging.info(f"Starting task: {self.task_name}")
+        logger = logging.getLogger(__name__)
+        logger.info(f"Starting {self.name}")
         return self
-
+    
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.end_time = time.time()
-        duration = self.end_time - self.start_time
-        if exc_type is not None:
-            logging.error(f"Task {self.task_name} failed after {duration:.2f}s")
-        else:
-            logging.info(f"Task {self.task_name} completed in {duration:.2f}s")
+        elapsed = self.end_time - self.start_time
+        logger = logging.getLogger(__name__)
+        logger.info(f"Completed {self.name} in {elapsed:.2f} seconds")
+        return False
 
 def run_pipeline():
-    """Executes the full analysis pipeline."""
+    """
+    Run the complete analysis pipeline.
+    This orchestrates all tasks from T018 to T020.
+    """
     logger = setup_logging()
-    logger.info("Pipeline started")
+    logger.info("Starting mito-aging correlation analysis pipeline")
     
-    # Import tasks
-    from analysis.load_data import main as task_load_data
-    from analysis.preprocess import main as task_preprocess
-    from analysis.merge_metadata import main as task_merge
-    from analysis.model import main as task_model
-    from analysis.sensitivity import main as task_sensitivity
-    from analysis.sensitivity_report import main as task_report
-    from analysis.visualize import main as task_visualize
-
     try:
-        # Phase 1: Data Acquisition
-        with AnalysisTimer("T012: Load Data"):
-            task_load_data()
+        # Step 1: Merge metadata (T018)
+        with AnalysisTimer("Metadata Merge (T018)"):
+            from analysis.merge_metadata import main as merge_main
+            merge_main()
         
-        # Phase 2: Preprocessing
-        with AnalysisTimer("T014-T017: Preprocess"):
-            task_preprocess()
+        # Step 2: Clean dataset - apply exclusion logic (T019)
+        with AnalysisTimer("Dataset Cleaning (T019)"):
+            from analysis.clean_dataset import main as clean_main
+            clean_main()
         
-        # Phase 3: Merge
-        with AnalysisTimer("T018-T020: Merge Metadata"):
-            task_merge()
+        # Step 3: Write processed dataset with checksum (T020)
+        with AnalysisTimer("Dataset Writing (T020)"):
+            from analysis.write_dataset import main as write_main
+            write_main()
         
-        # Phase 4: Modeling
-        with AnalysisTimer("T023-T025: Statistical Modeling"):
-            task_model()
-        
-        # Phase 5: Sensitivity
-        with AnalysisTimer("T032-T037: Sensitivity Analysis"):
-            task_sensitivity()
-        
-        # Phase 6: Reporting
-        with AnalysisTimer("T038: Write Sensitivity Report"):
-            task_report()
-        
-        # Phase 7: Visualization
-        with AnalysisTimer("T037: Generate Plots"):
-            task_visualize()
-
         logger.info("Pipeline completed successfully")
-        return 0
+        
     except Exception as e:
-        logger.error(f"Pipeline failed: {e}", exc_info=True)
-        return 1
+        logger.error(f"Pipeline failed: {str(e)}")
+        raise
 
-if __name__ == "__main__":
-    sys.exit(run_pipeline())
+if __name__ == '__main__':
+    run_pipeline()

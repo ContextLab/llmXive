@@ -1,0 +1,49 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llm-xive-code-smell-detection"
+version = "0.1.0"
+description = "Evaluating LLM effectiveness for detecting code smells"
+requires-python = ">=3.11"
+dependencies = [
+    "datasets",
+    "pandas",
+    "radon",
+    "pylint",
+    "sentence-transformers",
+    "llama-cpp-python",
+    "scikit-learn",
+    "statsmodels",
+    "numpy",
+    "psutil"
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+
+[tool.black]
+line-length = 88
+target-version = ['py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+    | venv
+    | env
+)/
+'''
+
+[tool.isort]
+profile = "black"
+line_length = 88
+skip_gitignore = true

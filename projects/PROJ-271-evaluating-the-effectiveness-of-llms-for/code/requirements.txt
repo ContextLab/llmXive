@@ -1,0 +1,14 @@
+datasets>=2.14.0
+pandas>=2.0.0
+radon>=6.0.1
+pylint>=3.0.0
+sentence-transformers>=2.2.0
+llama-cpp-python>=0.2.0
+scikit-learn>=1.3.0
+statsmodels>=0.14.0
+numpy>=1.24.0
+psutil>=5.9.0
+black>=24.2.0
+flake8>=7.0.0
+pre-commit>=3.6.0
+isort>=5.13.0

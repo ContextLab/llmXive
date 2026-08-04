@@ -3,33 +3,45 @@ from pathlib import Path
 
 def create_project_directories():
     """
-    Create the required directory structure for the project.
+    Creates the required directory structure for the project.
     
-    Creates:
-    - data/raw/
-    - data/processed/
-    - results/
+    This function creates the following directories relative to the project root:
+    - projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/code/
+    - projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/data/raw/
+    - projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/data/processed/
+    - projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/results/
+    - projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/tests/unit/
+    - projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/tests/contract/
     
-    This function is idempotent and will not raise errors if directories
-    already exist.
+    Returns:
+        bool: True if all directories were created successfully, False otherwise.
     """
-    base_path = Path(__file__).resolve().parent.parent
-    project_root = base_path / "projects" / "PROJ-271-evaluating-the-effectiveness-of-llms-for"
+    project_root = Path("projects/PROJ-271-evaluating-the-effectiveness-of-llms-for")
     
-    # Define directory paths
-    data_raw = project_root / "data" / "raw"
-    data_processed = project_root / "data" / "processed"
-    results_dir = project_root / "results"
-    
-    # Create directories
     directories = [
-        data_raw,
-        data_processed,
-        results_dir
+        project_root / "code",
+        project_root / "data" / "raw",
+        project_root / "data" / "processed",
+        project_root / "results",
+        project_root / "tests" / "unit",
+        project_root / "tests" / "contract",
     ]
     
+    created_count = 0
     for directory in directories:
-        directory.mkdir(parents=True, exist_ok=True)
-        print(f"Created directory: {directory}")
+        try:
+            directory.mkdir(parents=True, exist_ok=True)
+            created_count += 1
+        except OSError as e:
+            print(f"Error creating directory {directory}: {e}")
     
-    return True
+    print(f"Successfully created {created_count}/{len(directories)} directories.")
+    return created_count == len(directories)
+
+if __name__ == "__main__":
+    success = create_project_directories()
+    if success:
+        print("Directory setup completed successfully.")
+    else:
+        print("Directory setup encountered errors.")
+        exit(1)
