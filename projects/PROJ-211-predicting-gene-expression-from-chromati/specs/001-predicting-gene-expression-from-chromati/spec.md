@@ -36,7 +36,7 @@ This project investigates the extent to which bulk chromatin accessibility profi
 
 **Acceptance Criteria**:
 - Elastic Net models trained for each cell line (α=0.5, λ via CV).
-- 5-fold cross-validation performed.
+- -fold cross-validation performed.
 - Pearson correlation and R² calculated.
 - P-values corrected for multiple testing (Bonferroni).
 

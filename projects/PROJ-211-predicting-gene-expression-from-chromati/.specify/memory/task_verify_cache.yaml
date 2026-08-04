@@ -1,34 +1,44 @@
-T011b:
+T010#1:
   c: false
   h: 8cd91b70233f2221a7fcdd404a34c0096ca0fa36d82da1a14ea3e9eb59517c13
   r: "The repository contains `code/download_encode.py`, but the required output files\
     \ `data/raw/encode_counts.csv` and `data/raw/encode_peaks.bed` are absent, and\
-    \ no checksum file is present. Without these data artifacts the FR\u2011001 requirement\
-    \ is not fulfilled."
-T015:
+    \ no checksum file is present. Without these data artifacts the task\u2019s deliverables\
+    \ are not satisfied."
+T013:
   c: false
-  h: 0d13b8198267323dfe16537fa5f109b6dbde4266d9ca9f3abd663878f972e5d6
-  r: "The required input `data/processed/imputed_expression.csv` does not exist, and\
-    \ the expected output `data/processed/variable_peaks.csv` is also missing. Moreover,\
-    \ the provided `code/preprocess.py` is truncated and shows no implementation of\
-    \ selecting the top\u202FN variable peaks or a CLI option to configure N. The\
-    \ task\u2019s deliverables are therefore not present."
+  h: 5670d5019eac7c6f8d5705385bdb0feef0d18e7cd0eca50af79499cd7b8e7955
+  r: "The repository lacks the required `data/processed/merged_matrix.csv` input and\
+    \ the resulting `data/processed/filtered_expression.csv` output. Moreover, `code/preprocess.py`\
+    \ only defines helper functions and does not contain a runnable script that reads\
+    \ the specified input, applies the filtering and log\u2011pseudocount, and writes\
+    \ the deliverable file. These missing artifacts mean the task\u2019s requirement\
+    \ is not satisfied."
+T014:
+  c: false
+  h: 34aaa438d7fa8b5482506756bcfe9a734fa54eb9517a056c162c91154af97db2
+  r: The repository contains a `impute_missing_values_median` function, but there
+    is no script logic that reads `data/processed/filtered_expression.csv`, applies
+    the imputation, and writes `data/processed/imputed_expression.csv`. Both the required
+    input and output CSV files are absent, and no checksum is provided. The deliverable
+    file is missing, so the task is not satisfied.
 T016:
   c: false
-  h: 37a8da8ba2f5e9f384153b5ce2118905a94966e8de6958c388445f58abc0dc46
-  r: "The repository lacks the required input file `data/processed/imputed_expression.csv`\
-    \ and the output file `data/processed/housekeeping_genes.csv`. Moreover, the provided\
-    \ `code/preprocess.py` (truncated) shows no implementation for computing the coefficient\
-    \ of variation or writing the housekeeping genes CSV. The task\u2019s deliverable\
-    \ is therefore not present."
-T017:
+  h: 6e6df161fe7ce4be839c65b62905ef9157c1553e28d225c8cfe8902f623d713c
+  r: "The required input `data/processed/imputed_expression.csv` does not exist, and\
+    \ the expected output `data/processed/housekeeping_genes.csv` is also missing.\
+    \ Moreover, `code/preprocess.py` (as shown) contains no implementation that computes\
+    \ coefficient\u2011of\u2011variation across cell lines, applies the default CV\u202F\
+    <\u202F0.2 threshold, or writes the housekeeping genes file, nor does it invoke\
+    \ `utils.checksum_file()`. The task\u2019s core functionality is therefore not\
+    \ delivered."
+T016b:
   c: false
-  h: 38b2b846e3451b24d43dba13554a48e7c9c329f0df7e34115ea9561a2aebe478
-  r: "The required input file `data/processed/imputed_expression.csv` and the output\
-    \ file `data/processed/cell_type_specific_genes.csv` are both missing, and the\
-    \ provided `code/preprocess.py` does not contain any implementation that computes\
-    \ expression variance, selects 500 cell\u2011type\u2011specific genes, or writes\
-    \ the specified CSV. Consequently the task\u2019s deliverables are not present."
+  h: 6dba13793198d85daafb04e1edefed622e695cec89c69d46c87f261023b2a9a7
+  r: "The repository lacks the required input `data/processed/imputed_expression.csv`\
+    \ and the output `data/processed/cell_type_specific_genes.csv`. Moreover, `code/preprocess.py`\
+    \ does not contain any logic to compute coefficient of variation or select genes\
+    \ with CV\u202F>\u202F0.5, so the specified functionality is not implemented."
 T021:
   c: false
   h: cf395a1ec9632e5c8a247aa6cddf63f341bc209326c4338067f5ca589c26f3dc
@@ -37,13 +47,6 @@ T021:
     \ excerpt does not show saving of the trained model to `data/models/elastic_net_{cell_line}.pkl`\
     \ nor a clear setting of \u03B1=0.5, leaving the deliverable unverified. The task\
     \ therefore remains unfinished."
-T022:
-  c: false
-  h: a427076118e6d1909f4c4815ca80bcce467f1d2683d423ac6dcf95d6799d5214
-  r: "The required output file `data/processed/cv_scores.json` does not exist, and\
-    \ the provided excerpt of `code/train.py` does not show a k\u2011fold (k=5) cross\u2011\
-    validation loop or a comment justifying the choice of k=5. Without the CV scores\
-    \ file and clear evidence of the requested implementation, the task is not satisfied."
 T023:
   c: false
   h: da3c3f618a19c9d4e1a67497ced1ee1168259a284e43f1023820cb66caa0ecde

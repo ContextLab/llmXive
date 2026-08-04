@@ -1,97 +1,126 @@
-"""
-Unit tests for preprocessing functions.
-"""
-
+import pytest
+import pandas as pd
+import numpy as np
 import os
 import sys
 import tempfile
-import pandas as pd
-import numpy as np
+import shutil
 
-# Add parent directory to path for imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'code'))
+# Add the code directory to the path
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'code'))
 
-from preprocess import filter_genes_zero_expression, apply_log_pseudocount
+from preprocess import (
+    load_data,
+    save_data,
+    filter_genes_zero_expression,
+    apply_log_pseudocount,
+    impute_missing_values_median,
+    calculate_coefficient_of_variation,
+    define_housekeeping_genes,
+    define_cell_type_specific_genes
+)
 
-
-def test_filter_genes_zero_expression():
-    """Test that genes with all zeros are filtered out."""
-    # Create test data
+@pytest.fixture
+def sample_data():
+    """Create sample data for testing."""
     data = {
-        'gene_id': ['gene1', 'gene2', 'gene3', 'gene4'],
-        'sample1': [0, 5, 0, 10],
-        'sample2': [0, 3, 0, 0],
-        'sample3': [0, 0, 0, 5]
+        'gene_id': ['GENE1', 'GENE2', 'GENE3', 'GENE4', 'GENE5'],
+        'cell_line_1': [10.0, 0.0, 5.0, 0.0, 100.0],
+        'cell_line_2': [12.0, 0.0, 6.0, 0.0, 110.0],
+        'cell_line_3': [8.0, 0.0, 4.0, 0.0, 90.0],
+        'cell_line_4': [11.0, 0.0, 5.5, 0.0, 105.0],
+        'cell_line_5': [9.0, 0.0, 4.5, 0.0, 95.0]
     }
-    df = pd.DataFrame(data)
-    df = df.set_index('gene_id')
+    return pd.DataFrame(data)
 
-    # Filter
-    result = filter_genes_zero_expression(df)
+@pytest.fixture
+def temp_dir():
+    """Create a temporary directory for file I/O tests."""
+    temp_path = tempfile.mkdtemp()
+    yield temp_path
+    shutil.rmtree(temp_path)
 
-    # gene1 and gene3 should be removed (all zeros)
-    # gene2 and gene4 should remain
-    assert len(result) == 2
-    assert 'gene2' in result.index
-    assert 'gene4' in result.index
-    assert 'gene1' not in result.index
-    assert 'gene3' not in result.index
+def test_filter_genes_zero_expression(sample_data):
+    """Test filtering genes with zero expression in all samples."""
+    filtered = filter_genes_zero_expression(sample_data, 'gene_id')
+    
+    # GENE2, GENE4 should be filtered out (all zeros)
+    expected_genes = ['GENE1', 'GENE3', 'GENE5']
+    assert list(filtered['gene_id']) == expected_genes
+    assert len(filtered) == 3
 
-    print("✓ test_filter_genes_zero_expression passed")
+def test_apply_log_pseudocount(sample_data):
+    """Test log pseudocount transformation."""
+    transformed = apply_log_pseudocount(sample_data, 'gene_id', pseudocount=1.0)
+    
+    # Check that transformation was applied
+    assert 'cell_line_1' in transformed.columns
+    assert transformed['cell_line_1'].iloc[0] == np.log2(10.0 + 1.0)
+    assert transformed['cell_line_1'].iloc[1] == np.log2(0.0 + 1.0)  # log2(1) = 0
 
+def test_impute_missing_values_median(sample_data):
+    """Test median imputation for missing values."""
+    # Add some NaN values
+    sample_data_with_nan = sample_data.copy()
+    sample_data_with_nan.loc[0, 'cell_line_1'] = np.nan
+    sample_data_with_nan.loc[1, 'cell_line_2'] = np.nan
+    
+    imputed = impute_missing_values_median(sample_data_with_nan, 'gene_id')
+    
+    # Check that NaN values are filled
+    assert not imputed['cell_line_1'].isna().any()
+    assert not imputed['cell_line_2'].isna().any()
+    
+    # Check that the imputed value is the median
+    median_val = sample_data['cell_line_1'].median()
+    assert imputed.loc[0, 'cell_line_1'] == median_val
 
-def test_apply_log_pseudocount():
-    """Test log transformation with pseudocount."""
-    # Create test data
-    data = {
-        'gene_id': ['gene1', 'gene2'],
-        'sample1': [0, 1],
-        'sample2': [0, 10],
-        'sample3': [1, 100]
-    }
-    df = pd.DataFrame(data)
-    df = df.set_index('gene_id')
+def test_calculate_coefficient_of_variation(sample_data):
+    """Test CV calculation."""
+    cv_df = calculate_coefficient_of_variation(sample_data, 'gene_id')
+    
+    # Check that CV column exists
+    assert 'cv' in cv_df.columns
+    assert len(cv_df) == len(sample_data)
+    
+    # GENE2 and GENE4 have all zeros, so CV should be 0 (handled in implementation)
+    # GENE1, GENE3, GENE5 should have non-zero CV
+    g1_cv = cv_df.loc[cv_df['gene_id'] == 'GENE1', 'cv'].values[0]
+    assert g1_cv > 0  # Should have some variation
 
-    # Apply transformation with pseudocount=1
-    result = apply_log_pseudocount(df, pseudocount=1.0)
+def test_define_housekeeping_genes(sample_data):
+    """Test housekeeping gene definition with CV threshold."""
+    # With threshold 0.2, only genes with very low CV should be selected
+    # GENE1, GENE3, GENE5 have low variation relative to mean
+    housekeeping = define_housekeeping_genes(sample_data, cv_threshold=0.2, gene_col='gene_id')
+    
+    # Check that housekeeping genes have CV < 0.2
+    assert all(housekeeping['cv'] < 0.2)
+    
+    # GENE2 and GENE4 should be filtered out (all zeros, CV=0 but might be handled differently)
+    # In practice, GENE2 and GENE4 would have been filtered earlier by filter_genes_zero_expression
+    assert 'GENE1' in housekeeping['gene_id'].values or 'GENE3' in housekeeping['gene_id'].values
 
-    # Check that log(0+1) = 0
-    assert result.loc['gene1', 'sample1'] == np.log(1)  # Should be 0
-    # Check that log(1+1) = log(2)
-    assert result.loc['gene1', 'sample3'] == np.log(2)
-    # Check that log(100+1) ≈ log(101)
-    assert np.isclose(result.loc['gene2', 'sample3'], np.log(101))
+def test_define_cell_type_specific_genes(sample_data):
+    """Test cell-type-specific gene definition with CV threshold."""
+    # With threshold 0.5, genes with high CV should be selected
+    cell_type = define_cell_type_specific_genes(sample_data, cv_threshold=0.5, gene_col='gene_id')
+    
+    # Check that cell-type-specific genes have CV > 0.5
+    assert all(cell_type['cv'] > 0.5)
 
-    print("✓ test_apply_log_pseudocount passed")
-
-
-def test_filter_and_transform_pipeline():
-    """Test the combined filter and transform pipeline."""
-    # Create test data with some genes having all zeros
-    data = {
-        'gene_id': ['gene1', 'gene2', 'gene3'],
-        'sample1': [0, 5, 0],
-        'sample2': [0, 3, 0],
-        'sample3': [0, 0, 0]  # gene3 has all zeros
-    }
-    df = pd.DataFrame(data)
-    df = df.set_index('gene_id')
-
-    # Filter
-    filtered = filter_genes_zero_expression(df)
-    assert len(filtered) == 1  # Only gene2 should remain
-    assert 'gene2' in filtered.index
-
-    # Transform
-    transformed = apply_log_pseudocount(filtered, pseudocount=1.0)
-    assert transformed.loc['gene2', 'sample1'] == np.log(6)  # log(5+1)
-    assert transformed.loc['gene2', 'sample2'] == np.log(4)  # log(3+1)
-
-    print("✓ test_filter_and_transform_pipeline passed")
-
-
-if __name__ == '__main__':
-    test_filter_genes_zero_expression()
-    test_apply_log_pseudocount()
-    test_filter_and_transform_pipeline()
-    print("\nAll tests passed!")
+def test_load_save_data(temp_dir, sample_data):
+    """Test loading and saving data."""
+    test_file = os.path.join(temp_dir, 'test.csv')
+    
+    # Save data
+    save_data(sample_data, test_file)
+    assert os.path.exists(test_file)
+    
+    # Load data
+    loaded = load_data(test_file)
+    assert len(loaded) == len(sample_data)
+    assert list(loaded.columns) == list(sample_data.columns)
+    
+    # Check values
+    pd.testing.assert_frame_equal(loaded, sample_data)

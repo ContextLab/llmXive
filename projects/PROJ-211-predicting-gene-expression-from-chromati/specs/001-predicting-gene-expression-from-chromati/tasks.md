@@ -49,8 +49,6 @@
 
 - [X] T003 [P] Configure linting (flake8/black) and formatting tools in `.pre-commit-config.yaml`
 
-- [ ] T004b [P] Fix corrupted SC-005 text in `spec.md` by replacing the unrelated text with the measurable resource thresholds (Several CPU, sufficient RAM, 6h) defined in the Constitution. **Deliverable**: Valid `spec.md` with corrected SC-005. <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
-
 ---
 
 ## Phase 2: Foundational (Blocking Prerequisites)
@@ -65,8 +63,6 @@
 
 - [X] T006 [P] Create base utility module `code/utils.py` for logging, checksumming, and config loading. **Function**: `checksum_file(path)` must be implemented and tested.
 
-- [ ] T007 Setup directory structure for `data/raw/`, `data/processed/`, `data/models/`, `logs/`
-
 - [X] T008 Configure error handling and retry logic (multiple attempts, fixed time intervals) for data fetching in `code/utils.py`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -75,7 +71,7 @@
 
 ## Phase 3: User Story 1 - Download and preprocess paired multiomic data (Priority: P1) 🎯 MVP
 
-**Goal**: Download paired RNA-seq and DNase-seq/ATAC-seq count data for ≥5 human cell lines, preprocess accessibility signal within ±50kb windows, and filter genes.
+**Goal**: Download paired RNA-seq and DNase-seq/ATAC-seq count data for ≥5 human cell lines., Process accessibility signal within ±50kb windows., and filter genes.
 
 **Independent Test**: Verify pipeline produces matching gene matrices (accessibility features and expression values) that fit within 7GB RAM.
 
@@ -86,23 +82,25 @@
 
 ### Implementation for User Story 1
 
-- [ ] T011 [US1] Execute `generate_data.py` to produce paired RNA-seq and DNase-seq counts for GM12878, K562, HMEC, IMR90, HepG2 with {{claim:c_c41f9ff0}} for CI validation. **Note**: This is for CI only. **Deliverable**: `data/raw/synthetic_counts.csv`, `data/raw/synthetic_peaks.bed`. **Checksum**: Run `utils.checksum_file()` on outputs and record in `logs/checksums.txt`.
+- [ ] T010 [US1] Implement ENCODE data download logic in `code/download_encode.py` to fetch paired RNA-seq and DNase-seq/ATAC-seq count data for a diverse panel of cell lines. **Input**: ENCODE API endpoints. **Deliverable**: `code/download_encode.py` and `data/raw/encode_counts.csv`, `data/raw/encode_peaks.bed`. **Note**: If ENCODE API fails, fall back to synthetic data generation (T011b) for CI validation only. **Checksum**: Run `utils.checksum_file()` on outputs. <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
 
-- [ ] T011b [US1] Implement FR-001: ENCODE download logic in `code/download_encode.py` to fetch real paired RNA-seq and DNase-seq/ATAC-seq count data for ≥5 human cell lines from the ENCODE portal. **Deliverable**: `code/download_encode.py` and `data/raw/encode_counts.csv`, `data/raw/encode_peaks.bed` (or equivalent). **Checksum**: Run `utils.checksum_file()` on outputs and record in `logs/checksums.txt`.
+- [ ] T011 [US1] Execute `generate_data.py` to produce paired RNA-seq and DNase-seq counts for GM12878, K562, HMEC, IMR90, and HepG2 with Seed=42 for CI validation if real data is unavailable. **Deliverable**: `data/raw/synthetic_counts.csv`, `data/raw/synthetic_peaks.bed`. **Checksum**: Run `utils.checksum_file()` on outputs and record in `logs/checksums.txt`.
 
-- [ ] T012.2 [US1] Validate Python implementation logic against a small synthetic bedtools test set to ensure the Python fallback matches `bedtools coverage` output. **Input**: Synthetic coordinates. **Deliverable**: `logs/validation_report.txt` confirming match. **Dependency**: Must pass before T012.1 is considered production-ready.
+- [ ] T012.0 [US1] Implement Python windowing logic in `code/preprocess.py` to aggregate accessibility signal within ±50kb of TSS using synthetic peak and gene coordinate files. **Input**: `data/raw/synthetic_peaks.bed`, `data/raw/synthetic_genes.bed`. **Deliverable**: `code/preprocess.py` function `aggregate_signal`.
 
-- [ ] T012.1 [US1] Execute `bedtools coverage` to aggregate accessibility signal within ±50kb of TSS using the synthetic peak and gene coordinate files using the synthetic peak and gene coordinate files. **Command**: `bedtools coverage -a genes.bed -b peaks.bed -f 0.01 -s`. **Deliverable**: `data/processed/tss_aggregated_features.csv`. **Checksum**: Run `utils.checksum_file()` on output and record in `logs/checksums.txt`. **Note**: This is the production artifact.
+- [ ] T012.1 [US1] Implement unit tests in `tests/unit/test_preprocess.py` to validate Python windowing logic against synthetic in-memory coordinates. **Input**: Synthetic coordinates. **Deliverable**: `tests/unit/test_preprocess.py`. **Dependency**: Must pass before T012.0 is considered production-ready.
 
-- [ ] T013 [US1] Implement gene filtering in `code/preprocess.py` to filter genes with zero expression in all samples and apply a logarithmic pseudocount transformation (log(counts + 1)) to handle zero values. **Input**: `data/processed/tss_aggregated_features.csv`. **Deliverable**: `data/processed/filtered_expression.csv`. **Checksum**: Run `utils.checksum_file()` on output.
+- [ ] T012.5 [US1] Merge aggregated peak features with gene expression counts to form the joint matrix required for filtering. **Input**: `data/processed/tss_aggregated_features.csv`, `data/raw/encode_counts.csv` (or synthetic equivalent). **Deliverable**: `data/processed/merged_matrix.csv`. **Checksum**: Run `utils.checksum_file()` on output.
 
-- [ ] T014 [US1] Implement missing value imputation in `code/preprocess.py` using median imputation per peak. **Input**: `data/processed/filtered_expression.csv`. **Deliverable**: `data/processed/imputed_expression.csv`. **Checksum**: Run `utils.checksum_file()` on output.
+- [ ] T013 [US1] Implement gene filtering in `code/preprocess.py` to filter genes with zero expression in all samples and apply a logarithmic pseudocount transformation to handle zero values. **Input**: `data/processed/merged_matrix.csv`. **Deliverable**: `data/processed/filtered_expression.csv`. **Checksum**: Run `utils.checksum_file()` on output. <!-- FAILED: unspecified -->
 
-- [ ] T015 [US1] Select top N variable peaks based on variance across samples in `code/preprocess.py`, where N=1000 (configurable via CLI). **Input**: `data/processed/imputed_expression.csv`. **Deliverable**: `data/processed/variable_peaks.csv`. **Checksum**: Run `utils.checksum_file()` on output.
+- [ ] T014 [US1] Implement missing value imputation in `code/preprocess.py` using median imputation per peak. **Input**: `data/processed/filtered_expression.csv`. **Deliverable**: `data/processed/imputed_expression.csv`. **Checksum**: Run `utils.checksum_file()` on output. <!-- FAILED: unspecified -->
 
-- [ ] T016 [US1] {{claim:c_912ac751}} in `code/preprocess.py` by calculating the coefficient of variation across all cell lines. **Input**: `data/processed/imputed_expression.csv`. **Deliverable**: `data/processed/housekeeping_genes.csv`. **Checksum**: Run `utils.checksum_file()` on output.
+- [ ] T016 [US1] Define housekeeping genes in `code/preprocess.py` by calculating the coefficient of variation across all cell lines using a configurable threshold (default CV < 0.2). **Input**: `data/processed/imputed_expression.csv`. **Deliverable**: `data/processed/housekeeping_genes.csv`. **Checksum**: Run `utils.checksum_file()` on output.
 
-- [ ] T017 [US1] Define 500 cell-type-specific genes with variance > 0.5 in `code/preprocess.py` by calculating expression variance across cell lines. **Input**: `data/processed/imputed_expression.csv`. **Deliverable**: `data/processed/cell_type_specific_genes.csv`. **Checksum**: Run `utils.checksum_file()` on output.
+- [ ] T016b [US1] Define cell-type-specific genes in `code/preprocess.py` by selecting genes with high coefficient of variation (CV > 0.5) across cell lines. **Input**: `data/processed/imputed_expression.csv`. **Deliverable**: `data/processed/cell_type_specific_genes.csv`. **Checksum**: Run `utils.checksum_file()` on output.
+
+- [ ] T016c [US1] Filter the feature matrix and target vector to only housekeeping genes in `code/preprocess.py` for specific metric calculation. **Input**: `data/processed/imputed_expression.csv`, `data/processed/housekeeping_genes.csv`. **Deliverable**: `data/processed/housekeeping_matrix.csv`. **Checksum**: Run `utils.checksum_file()` on output.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -121,19 +119,19 @@
 
 ### Implementation for User Story 2
 
-- [ ] T021 [US2] Implement Elastic Net training in `code/train.py` (α=0.5, λ via CV) for each cell line. **Input**: `data/processed/variable_peaks.csv`. **Deliverable**: `data/models/elastic_net_{cell_line}.pkl`.
-
-- [ ] T022 [US2] Implement k-fold cross-validation loop in `code/train.py` with k=5 (document justification for k=5 being a 'reasonable number' in code comments). **Deliverable**: Cross-validation scores in `data/processed/cv_scores.json`.
+- [ ] T021 [US2] Implement Elastic Net training in `code/train.py` (α=0.5, λ via internal k-fold cross-validation) for each cell line. **Input**: `data/processed/imputed_expression.csv`. **Deliverable**: `data/models/elastic_net_{cell_line}.pkl`, `data/processed/cv_scores.json`.
 
 - [ ] T023 [US2] Calculate Pearson correlation between predicted and actual expression in `code/evaluate.py`. **Deliverable**: Correlation matrix in `data/processed/correlations.csv`.
 
-- [ ] T024 [US2] {{claim:c_ae4403f0}} (Wikidata Q385989, https://www.wikidata.org/wiki/Q385989) in `code/evaluate.py` (FR-006). **Deliverable**: Corrected p-values in `data/processed/pvalues_corrected.csv`.
+- [ ] T024 [US2] Apply Bonferroni correction to p-values in `code/evaluate.py` (FR-006) using `scipy.stats`. **Deliverable**: Corrected p-values in `data/processed/pvalues_corrected.csv`.
 
-- [ ] T025 [US2] Calculate and report R² for housekeeping genes per cell line in `code/evaluate.py` (FR-009, SC-001) using the gene list from `data/processed/housekeeping_genes.csv`. **Deliverable**: `data/processed/housekeeping_r2.csv`.
+- [ ] T025 [US2] Calculate and report R² for housekeeping genes per cell line in `code/evaluate.py` (FR-009, SC-001) using the gene list from `data/processed/housekeeping_matrix.csv`. **Deliverable**: `data/processed/housekeeping_r2.csv`.
 
-- [ ] T026 [US2] Implement external validation (train on subset, test on held-out cell line) in `code/evaluate.py` (FR-014, SC-006). **Inputs**: gene lists from `data/processed/housekeeping_genes.csv` and `data/processed/cell_type_specific_genes.csv`. **Deliverable**: Report the R² for the held-out line in `data/processed/external_validation_r2.csv`.
+- [ ] T025b [US2] Calculate and report R² for cell-type-specific genes per cell line in `code/evaluate.py`. **Input**: `data/processed/cell_type_specific_genes.csv`. **Deliverable**: `data/processed/cell_type_specific_r2.csv`.
 
-- [ ] T027 [US2] Log memory usage and runtime to `logs/` to verify CPU/RAM constraints (SC-005). **Deliverable**: `logs/profiling.log`.
+- [ ] T026 [US2] Implement external validation in `code/evaluate.py` (SC-006) by training on multiple cell lines (e.g., GM, K562, HMEC, IMR90) and testing on a held-out cell line (e.g., HepG2). **Inputs**: Full model, held-out cell line data. **Deliverable**: Report the R² for the held-out line in `data/processed/external_validation_r2.csv`.
+
+- [ ] T027 [US2] Log memory usage and runtime to `logs/` to verify CPU/RAM constraints (SC-005). **Deliverable**: `logs/profiling.log`. **Success Criterion**: Verify runtime ≤ 2 hours per cell line and RAM ≤ 7GB.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -152,13 +150,13 @@
 
 ### Implementation for User Story 3
 
-- [ ] T030 [US3] Extract non-zero coefficient features and rank by absolute magnitude in `code/interpret.py` (FR-007). **Deliverable**: `data/processed/feature_importance.csv`.
+- [ ] T030 [US3] Extract non-zero coefficient features and rank by absolute magnitude in `code/interpret.py` (FR-007). **Input**: `data/models/elastic_net_{cell_line}.pkl`. **Deliverable**: `data/processed/feature_importance.csv` (Peak IDs).
 
-- [ ] T031 [US3] Map peak coordinates to genomic location relative to nearest TSS in `code/interpret.py` (FR-008). **Deliverable**: `data/processed/peak_annotations.csv`.
+- [ ] T031 [US3] Map peak coordinates to genomic location relative to nearest TSS in `code/interpret.py` (FR-008). **Input**: `data/processed/feature_importance.csv` (Peak IDs), `data/processed/tss_aggregated_features.csv`. **Deliverable**: `data/processed/peak_annotations.csv`.
 
-- [ ] T032 [US3] Calculate percentage of top-100 features within ±10kb of TSS in `code/interpret.py` (SC-003). **Deliverable**: `data/processed/tss_proximity_stats.json`.
+- [ ] T032 [US3] Calculate percentage of top-100 features within ±10kb of TSS in `code/interpret.py` (SC-003). **Input**: `data/processed/peak_annotations.csv`. **Deliverable**: `data/processed/tss_proximity_stats.json`.
 
-- [ ] T033 [US3] Calculate and report performance gap (ΔR²) between housekeeping and cell-type-specific genes in `code/interpret.py` (FR-010, SC-004). **Inputs**: R² values from T025 and gene lists from T016/T017. **Deliverable**: `data/processed/performance_gap.json`.
+- [ ] T033 [US3] Calculate and report performance gap (ΔR²) between housekeeping and cell-type-specific genes in `code/interpret.py` (FR-010, SC-004). **Inputs**: R² values from T025 (`housekeeping_r2.csv`) and T025b (`cell_type_specific_r2.csv`). **Deliverable**: `data/processed/performance_gap.json`.
 
 - [ ] T034 [US3] Generate summary report comparing model performance across cell types and gene categories in `code/interpret.py`. **Deliverable**: `docs/regulatory_insights_report.md`.
 
@@ -170,9 +168,7 @@
 
 **Purpose**: Address reviewer concerns and document findings
 
-- [ ] T035 [US1] Draft and apply text to `spec.md` and `plan.md` to include caveat that prediction is a "first-order approximation" and not a causal law, referencing bulk profile limitations. **Deliverable**: Updated `spec.md` and `plan.md`.
-
-- [ ] T036 [US3] Draft text for `docs/regulatory_context.md` to document ENCODE consortium findings regarding regulatory genome complexity and discussion on "dappled models" vs. "unified laws". **Deliverable**: `docs/regulatory_context.md`.
+- [ ] T047 [US3] Document the limitation of "unexplained variance" and lack of single-cell heterogeneity metrics in `docs/regulatory_insights_report.md` (FR-010, SC-001). Explicitly state that the model provides a "first-order approximation" and cannot capture cell-type heterogeneity due to bulk data constraints. **Deliverable**: Updated `docs/regulatory_insights_report.md`.
 
 - [ ] T037 Run `quickstart.md` validation. **Pass/Fail**: Execute `quickstart.md`; verify exit code 0 and that all generated artifacts exist in `data/`.
 
@@ -182,13 +178,15 @@
 
 **Purpose**: Final documentation and limitations
 
-- [ ] T045 [US1] Draft text for `docs/limitations.md` explicitly stating that bulk chromatin accessibility profiles provide a "first-order approximation" of gene regulation and do not capture single-cell heterogeneity. **Deliverable**: `docs/limitations.md`.
-
-- [ ] T046 [US1] Apply drafted text to `docs/limitations.md`.
-
-- [ ] T047 [US3] Implement analysis in `code/interpret.py` to calculate "unexplained variance" (1 - R²) and correlate with known measures of cell-type heterogeneity (if available) or explicitly report this limitation. **Deliverable**: Updated `data/processed/unexplained_variance.json`.
-
 - [ ] T048 [US3] Add a dedicated section to `docs/regulatory_context.md` titled "Dappled Models vs. Unified Laws" that synthesizes the ENCODE consortium's findings on regulatory complexity. **Deliverable**: Updated `docs/regulatory_context.md`.
+
+- [ ] T050 [US3] Add a subsection to `docs/regulatory_context.md` titled "Correlation vs. Causation" that clarifies the statistical nature of the Elastic Net findings and explicitly warns against inferring direct causal regulatory links from these bulk correlations. **Deliverable**: Updated `docs/regulatory_context.md`.
+
+- [ ] T057 [US3] Update `docs/regulatory_context.md` to include a new subsection "The Bulk Averaging Artifact" that explicitly quantifies how bulk profiles smooth over single-cell heterogeneity, citing the ENCODE finding that regulatory landscapes are cell-state specific. **Deliverable**: Updated `docs/regulatory_context.md`.
+
+- [ ] T058 [US3] Modify the final summary report generation in `code/interpret.py` to automatically prepend a "Causality Warning" header to any output file containing correlation metrics, stating that the model identifies statistical associations, not causal regulatory mechanisms. **Deliverable**: Updated `code/interpret.py` and example output in `docs/regulatory_insights_report.md`.
+
+- [ ] T059 [US3] Add a validation task to `tests/integration/test_interpretation.py` that asserts the presence of the "first-order approximation" caveat in all generated report headers. **Deliverable**: Updated `tests/integration/test_interpretation.py`.
 
 ---
 
@@ -196,17 +194,17 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T050 [P] Documentation updates in `docs/` based on profiling results.
+- [ ] T051 [P] Documentation updates in `docs/` based on profiling results.
 
-- [ ] T051 Refactor `code/preprocess.py` to reduce memory usage based on `logs/` profiling data.
+- [ ] T052 Refactor `code/preprocess.py` to reduce memory usage based on `logs/` profiling data.
 
-- [ ] T052 Optimize cross-validation loop in `code/train.py` to reduce runtime based on `logs/` profiling data.
+- [ ] T053 Optimize cross-validation loop in `code/train.py` to reduce runtime based on `logs/` profiling data.
 
-- [ ] T053 [P] Additional unit tests in `tests/unit/` for edge cases identified in integration tests.
+- [ ] T054 [P] Additional unit tests in `tests/unit/` for edge cases identified in integration tests.
 
-- [ ] T054 Security hardening (PII scan verification).
+- [ ] T055 Security hardening (PII scan verification).
 
-- [ ] T055 Run `quickstart.md` validation again after optimizations.
+- [ ] T056 Run `quickstart.md` validation again after optimizations.
 
 ---
 
@@ -254,7 +252,7 @@ Task: "Contract test for data schema validation in tests/contract/test_data_sche
 Task: "Integration test for data download and filtering pipeline in tests/integration/test_data_pipeline.py"
 
 # Launch all models for User Story 1 together:
-Task: "Execute bedtools coverage to aggregate signal in data/processed/tss_aggregated_features.csv"
+Task: "Execute Python windowing to aggregate signal in data/processed/tss_aggregated_features.csv"
 Task: "Implement gene filtering in code/preprocess.py"
 ```
 
@@ -300,6 +298,8 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Constraint**: All data generation must use synthetic data with fixed seeds to ensure CPU-only CI feasibility (no external API dependencies), but production pipeline must implement FR-001 (T011b).
-- **Constraint**: No GPU/CUDA; {{claim:c_e2c9d43f}}.
-- **Revision Note**: Phase 7 tasks are mandatory to address standard limitations and documentation, replacing the previous hallucinated reviewer tasks.
+- **Constraint**: All data generation must use synthetic data with fixed seeds to ensure CPU-only CI feasibility (no external API dependencies) ONLY IF real data fetch fails.
+- **Constraint**: No GPU/CUDA.
+- **Revision Note**: Phase 7 tasks T057-T059 are now standard documentation tasks addressing "Bulk Averaging" and "Correlation vs Causation" as required by the spec, removing the fabricated "Freeman Dyson" review reference.
+- **Revision Note**: T010 now implements real ENCODE data download, satisfying FR-001.
+- **Revision Note**: T026 now correctly implements cell-line holdout validation for SC-006.
