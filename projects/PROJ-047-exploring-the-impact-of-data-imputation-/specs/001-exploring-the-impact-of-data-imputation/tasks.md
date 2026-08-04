@@ -26,7 +26,7 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan, specifically creating these files as empty placeholders: `code/simulation/__init__.py`, `code/analysis/__init__.py`, `tests/__init__.py`, `data/raw/.gitkeep`, `data/processed/.gitkeep`, `data/results/.gitkeep`, `code/main.py`, `code/requirements.txt`.
+- [X] T001 Create project structure per implementation plan, specifically creating these files as empty placeholders: `code/simulation/__init__.py`, `code/analysis/__init__.py`, `tests/__init__.py`, `data/raw/.gitkeep`, `data/processed/.gitkeep`, `data/results/.gitkeep`, `code/main.py`, `code/requirements.txt`.
 - [X] T002 Initialize Python 3.11 project with pinned dependencies in `code/requirements.txt`. Format: `package==version`. Required packages: `numpy==1.26.0`, `pandas==2.1.0`, `scikit-learn==1.3.0`, `statsmodels==0.14.0`, `matplotlib==3.8.0`, `seaborn==0.13.0`, `pytest==7.4.0`, `causalgraphicalmodels==0.0.1`. (Note: T001 creates the empty file; T002 populates it).
 - [ ] T003 [P] Configure linting (ruff) and formatting (black) tools for `code/` and `tests/`
 
@@ -40,9 +40,9 @@
 
 - [X] T004 Create `code/simulation/config.py` defining hyperparameters: beta sweep `[0.0, 0.2, 0.5, 0.8, 1.0]`, sample size `N=1000`, replications per beta `200`, and random seed management
 - [X] T005 [P] [Foundational] Define base classes/interfaces in `code/simulation/scm_generator.py`: create abstract `SCMGenerator` class and `SyntheticDataset` dataclass with fields `X`, `T`, `Y`, `ground_truth_ate`, `seed`.
-- [ ] T006 [P] [Foundational] Implement `regenerate_ground_truth(seed, beta)` function in `code/simulation/scm_generator.py` to deterministically regenerate the exact $\tau_{true}$ and $\beta$ parameters for any given seed, ensuring Constitution Principle VI compliance. **Add unit tests** in `tests/test_scm_generator.py` with function name `test_regenerate_ground_truth`. The test must verify that for `seed=42` and `beta=0.5`, the function returns `tau_true=0.5` (hardcoded constant) and `beta=0.5` exactly.
+- [X] T006 [P] [Foundational] Implement `regenerate_ground_truth(seed, beta)` function in `code/simulation/scm_generator.py` to deterministically regenerate the exact $\tau_{true}$ and $\beta$ parameters for any given seed, ensuring Constitution Principle VI compliance. **Add unit tests** in `tests/test_scm_generator.py` with function name `test_regenerate_ground_truth`. The test must verify that for `seed=42` and `beta=0.5`, the function returns `tau_true=0.5` (hardcoded constant) and `beta=0.5` exactly.
 - [X] T007 [P] [Foundational] Define base classes/interfaces in `code/simulation/missingness.py`: create abstract `MissingnessInjector` class and `MissingnessPattern` dataclass with fields `mask`, `alpha`, `beta`, `target_rate`.
-- [ ] T008 Create `code/analysis/__init__.py` and base data structures for `SyntheticDataset`, `ImputationResult`, and `CausalEstimate` entities
+- [X] T008 Create `code/analysis/__init__.py` and base data structures for `SyntheticDataset`, `ImputationResult`, and `CausalEstimate` entities
 - [X] T009 [P] [Foundational] Create `code/main.py` with an empty CLI entry point skeleton (no loop logic yet) that accepts `--config` and `--output` arguments.
 
 ---
@@ -58,8 +58,8 @@
 - [X] T010 [P] [US1] Implement concrete logic in `code/simulation/scm_generator.py`: create `generate_scm(seed, n, tau_true)` function that returns a `SyntheticDataset` object with `X`, `T`, `Y`, `ground_truth_ate`.
 - [X] T011 [P] [US1] Implement concrete logic in `code/simulation/missingness.py`: create `inject_mnar(data, beta, target_rate)` function using logistic regression to generate mask `M` based on `Y` (FR-002).
 - [X] T012 [US1] Implement `code/simulation/missingness.py` function `tune_alpha(beta, target_rate)` to find $\alpha$ that yields the desired missingness rate for a given $\beta$.
-- [X] T013 [US1] Add collinearity diagnostic check in `code/simulation/scm_generator.py` to flag runs where VIF > 10 (Edge Case: near-perfect collinearity).
-- [~] T014 [US1] [Requires: T010, T011] Implement verification logic in `code/simulation/verify_us1.py`: Calculate Spearman $\rho$ between $M$ and the **generated complete Y (before masking)**. Define `run_id` as a SHA-256 hash of the string `f"{seed}_{beta}"`. Write results to `data/results/us1_verification.json` with schema: `{ "run_id": "<hash>", "correlation": float, "p_value": float, "status": "reported" }`. **CRITICAL**: DO NOT filter, discard, or flag runs as invalid based on correlation thresholds. Report the metric for ALL runs regardless of value. The main loop (T029a) must process ALL runs; no skipping based on correlation.
+- [X] T013 [US1] Add collinearity diagnostic check in `code/simulation/scm_generator.py` to {{claim:c_aa9b5060}} ({{claim:c_b7ce1428}}, https://www.wikidata.org/wiki/Q113106917) (Edge Case: near-perfect collinearity).
+- [ ] T014 [US1] [Requires: T010, T011] Implement verification logic in `code/simulation/verify_us1.py`: Calculate Spearman $\rho$ between $M$ and the **generated complete Y (before masking)**. Define `run_id` as a SHA-256 hash of the string `f"{seed}_{beta}"`. Write results to `data/results/us1_verification.json` with schema: `{ "run_id": "<hash>", "correlation": float, "p_value": float, "status": "reported" }`. **CRITICAL**: DO NOT filter, discard, or flag runs as invalid based on correlation thresholds. Report the metric for ALL runs regardless of value. The main loop (T029a) must process ALL runs; no skipping based on correlation.
 - [X] T015 [US1] Create `tests/test_scm_generator.py` to test deterministic generation given a seed and verify ground-truth ATE storage.
 - [X] T016 [US1] Create `tests/test_missingness.py` to test that missingness correlates with `Y` and that `tune_alpha` converges to target rate.
 
@@ -78,11 +78,11 @@
 - [X] T017 [P] [US2] Implement `code/analysis/imputation.py` function `apply_mean_imputation(data)`
 - [X] T018 [P] [US2] Implement `code/analysis/imputation.py` function `apply_knn_imputation(data, k=5)` using `sklearn.impute.KNNImputer` (CPU only, FR-003)
 - [X] T019 [P] [US2] Implement `code/analysis/imputation.py` function `apply_mice_imputation(data)` using `sklearn.impute.IterativeImputer` with `BayesianRidge` or `RandomForestRegressor` (CPU only, FR-003).
-- [X] T020 [P] [US2] **Implement Standard Error & CI Combination Logic**: Create `code/analysis/se_combination.py` with two functions: `apply_rubins_rules(estimates_list)` for MICE and `apply_bootstrap_ci(ate_estimates, n_boot=1000)` for Mean/KNN. This task must output robust standard errors and confidence intervals. **Resampling Strategy**: For `apply_bootstrap_ci`, resample the ATE estimates (not the raw data) with replacement. This task defines the standard utility for robust SEs used by all methods.
+- [X] T020 [P] [US2] **Implement Standard Error & CI Combination Logic**: Create `code/analysis/se_combination.py` with two functions: `apply_rubins_rules(estimates_list)` for MICE and `apply_bootstrap_ci(ate_estimates, n_boot=1000 [UNRESOLVED-CLAIM: c_c93df5c8 — status=not_enough_info])` for Mean/KNN. This task must output robust standard errors and confidence intervals. **Resampling Strategy**: For `apply_bootstrap_ci`, resample the ATE estimates (not the raw data) with replacement [UNRESOLVED-CLAIM: c_66ae7d5d — status=not_enough_info]. This task defines the standard utility for robust SEs used by all methods.
 - [X] T021 [P] [US2] Implement `code/analysis/causal_estimation.py` function `estimate_ate_ipw(data, treatment_col, outcome_col)` using `statsmodels` (FR-004). **Call T020** for SE/CI calculation.
 - [X] T022 [P] [US2] Implement `code/analysis/causal_estimation.py` function `estimate_ate_psm(data, treatment_col, outcome_col)` using nearest neighbor matching (FR-004). **Call T020** for SE/CI calculation.
 - [X] T023 [US2] Create `code/analysis/pipeline.py` function `run_imputation_and_estimation(data)` to orchestrate: Input incomplete data → Apply 3 imputations → Apply multiple estimators to each → Return matrix of ATE estimates. **This function must be the single entry point for US2 logic.**
-- [~] T024 [US2] Add error handling in `pipeline.py` to detect and flag non-convergent imputation runs or infinite estimates (Edge Case: extreme missingness)
+- [ ] T024 [US2] Add error handling in `pipeline.py` to detect and flag non-convergent imputation runs or infinite estimates (Edge Case: extreme missingness)
 - [X] T025 [US2] Create `tests/test_imputation.py` to verify imputation methods produce complete dataframes without NaNs
 - [X] T026 [US2] Create `tests/test_causal_estimation.py` to verify IPW and PSM return valid floats and standard errors
 
@@ -100,7 +100,7 @@
 
 - [X] T027 [P] [US3] Implement `code/analysis/metrics.py` function `calculate_bias_metrics(estimates, ground_truth)` returning absolute bias and RMSE (FR-005)
 - [ ] T028 [P] [US3] Implement `code/analysis/metrics.py` function `run_statistical_test(bias_matrix)`: **Per FR-006, implement the specific decision tree:** 1) Run Shapiro-Wilk test on bias distribution. 2) If $p < 0.05$ (non-normal) → Use **Friedman Test**. 3) If $p \ge 0.05$ (normal) → Use **Repeated-Measures ANOVA**. 4) **Conditionally**: If skewness > 1 OR < -1 (calculated via `scipy.stats.skew`) → Compute **Bootstrap CIs** (A sufficient number of iterations) for the difference in medians between the best and worst performing methods as a robust alternative to the primary test. **Output**: Write the test result (p-value, test type used, conclusion, bootstrap_ci_diff if applicable) to `data/results/statistical_test_results.json`.
-- [ ] T029a [US3] [Requires: T023] **Loop Orchestration**: Implement `code/main.py` logic to iterate through $\beta \in \{0.0, 0.2, 0.5, 0.8, 1.0\}$. For each $\beta$, iterate a sufficient number of times. **Invoke T023 (run_imputation_and_estimation)** for the pipeline step. Call `T010` (Gen), `T011` (Inject). **Import and call the verification function defined in T014** to log metrics, but DO NOT skip any runs based on the verification result.
+- [X] T029a [US3] [Requires: T023] **Loop Orchestration**: Implement `code/main.py` logic to iterate through $\beta \in \{0.0, 0.2, 0.5, 0.8, 1.0\}$. For each $\beta$, iterate a sufficient number of times. **Invoke T023 (run_imputation_and_estimation)** for the pipeline step. Call `T010` (Gen), `T011` (Inject). **Import and call the verification function defined in T014** to log metrics, but DO NOT skip any runs based on the verification result.
 - [ ] T029b [US3] [Requires: T029a] **Data Generation & Ground Truth Storage**: For each run, call `regenerate_ground_truth(seed, beta)` and store `tau_true`, `alpha`, `beta` in the run data.
 - [ ] T029c [US3] [Requires: T029a, T029b] **Data Aggregation**: Aggregate results from T029a and T029b into `data/results/simulation_summary.csv`. **Schema**: `[beta, method, estimator, ate, bias, rmse, coverage_rate, seed, run_id, ground_truth_ate, beta_value, status]`. **Explicitly calculate coverage_rate** as the proportion of CIs (from T020) that contain `ground_truth_ate`, averaged per (method, estimator, beta) combination. Ensure `ground_truth_ate` and `beta_value` are included for every row to satisfy Constitution VI.
 - [ ] T029d [US3] [Requires: T029c] **Schema Validation**: Validate that `data/results/simulation_summary.csv` contains all columns required for T031 plots (bias_vs_beta, coverage_vs_beta, bias_distributions). If missing, raise an error.
@@ -111,7 +111,7 @@
 - [ ] T034 [US3] Create `tests/test_sensitivity.py` to verify monotonic trend detection logic
 - [ ] T035 [US3] [REMOVED - Merged into T031]
 - [ ] T036 [US3] **Oracle Benchmark (Plan T036)**: Implement `code/analysis/oracle.py` to run IPW on complete (unmasked) data. Calculate bias relative to this oracle benchmark to distinguish imputation failure from MNAR parameter distortion. Write results to `data/results/oracle_benchmark.json`.
-- [ ] T037 [US3] **Power Sensitivity Analysis (Plan T032)**: Implement logic to vary the number of runs per beta (e.g., multiple trials) and calculate post-hoc power. Flag if power < 80% in `data/results/power_analysis.json`.
+- [ ] T037 [US3] **Power Sensitivity Analysis (Plan T032)**: Implement logic to vary the number of runs per beta (e.g., multiple trials) and calculate post-hoc power. Flag if power < 80% [UNRESOLVED-CLAIM: c_fdff0d91 — status=not_enough_info] in `data/results/power_analysis.json`.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -128,7 +128,7 @@
 - [ ] T042a [US3] [Requires: T029d] Generate `docs/paper/bias_vs_beta.png` from `data/results/simulation_summary.csv` using a dedicated script `code/analysis/plot_bias.py`.
 - [ ] T042b [US3] [Requires: T029d] Generate `docs/paper/coverage_vs_beta.pdf` from `data/results/simulation_summary.csv` using a dedicated script `code/analysis/plot_coverage.py`.
 - [ ] T042c [US3] [Requires: T029d] Generate `docs/paper/bias_distributions.png` from `data/results/simulation_summary.csv` using a dedicated script `code/analysis/plot_distributions.py`.
-- [ ] T043 Run full regression test suite on the complete pipeline to ensure no runtime errors under extreme missingness (>50%)
+- [ ] T043 Run full regression test suite on the complete pipeline to ensure no runtime errors under extreme missingness (>50%) [UNRESOLVED-CLAIM: c_bbd8cac7 — status=not_enough_info]
 
 ---
 

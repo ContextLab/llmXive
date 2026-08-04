@@ -1,25 +1,3 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No directory tree or listing of the required `projects/PROJ-191-investigating-the-validity-of-the-invers/`\
-    \ sub\u2011folders is present in the provided evidence; without concrete artifacts\
-    \ we cannot confirm the tree was created in a single atomic operation. The implementer\
-    \ must supply a visible file\u2011system snapshot (e.g., `tree` output or a zip\
-    \ archive) showing all required sub\u2011directories."
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No linting or formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`,
-    `.pre-commit-config.yaml` with black settings) are present in the provided evidence,
-    so the requirement to configure ruff and black is not demonstrated. The implementer
-    must add the appropriate configuration artifacts.
-T007:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory structure or script implementing robust `mkdir -p` logic was provided;
-    there is no evidence that `data/raw/`, `data/processed/`, and `data/results/`
-    actually exist or that code creates them. The implementer must supply the created
-    directories (or a script that creates them) as proof.
 T016:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -29,3 +7,25 @@ T016:
     without any artifact demonstrating that the logic has been added, tested, or integrated
     into the pipeline. The implementer must supply the actual implementation (e.g.,
     source file changes, unit tests, or execution logs) showing the fallback behavior.
+T022:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or function implementing a log\u2011likelihood using the banded\
+    \ approximation from T015\u2011TRANS is present in the provided artifacts. The\
+    \ required implementation and any associated tests or documentation are missing,\
+    \ so the task\u2019s requirement is not satisfied."
+T023:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or output file implementing the `emcee` runner was provided;\
+    \ the evidence on disk contains no artifact that starts with 5\u202F000 steps,\
+    \ checks Gelman\u2011Rubin, and continues in 1\u202F000\u2011step batches. Consequently\
+    \ the required functionality is missing."
+T025#1:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, notebook, or result files were provided that implement the\
+    \ injection\u2011recovery test, generate simulated data with a known non\u2011\
+    zero\u202F\u03B1, run the Bayesian inference, and demonstrate that the injected\
+    \ \u03B1 lies within the 95\u202F% credible interval. The required artifact is\
+    \ missing, so the task is not satisfied."

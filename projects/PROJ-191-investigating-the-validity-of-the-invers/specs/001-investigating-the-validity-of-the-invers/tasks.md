@@ -101,17 +101,17 @@
 ### Tests for User Story 2 (OPTIONAL)
 
 - [X] T018 [P] [US2] Unit test for Yukawa force model implementation in `tests/unit/test_physics.py`.
-- [ ] T019 [P] [US2] Unit test for log‑likelihood function with banded covariance in `tests/unit/test_likelihood.py`.
-- [ ] T020 [P] [US2] Integration test for MCMC convergence detection in `tests/integration/test_mcmc_diagnostics.py`.
-- [ ] T025-TEST [US2] Unit test for injection‑recovery logic (FR‑008) in `tests/unit/test_injection_recovery.py`.
+- [X] T019 [P] [US2] Unit test for log‑likelihood function with banded covariance in `tests/unit/test_likelihood.py`.
+- [X] T020 [P] [US2] Integration test for MCMC convergence detection in `tests/integration/test_mcmc_diagnostics.py`.
+- [X] T025-TEST [US2] Unit test for injection‑recovery logic (FR‑008) in `tests/unit/test_injection_recovery.py`.
 - [ ] T026-TEST [US2] Unit test for null‑simulation baseline logic (FR‑009) in `tests/unit/test_null_simulation.py`.
 
 ### Implementation for User Story 2
 
-- [ ] T021 [P] [US2] Implement Newtonian and Yukawa‑modified force models in `code/models/physics.py`.
-- [ ] T022 [US2] Implement log‑likelihood function using the **banded approximation** produced by T015‑TRANS. **Dependency**: must run after T015‑TRANS completes; the full covariance matrix remains stored in the dataset for reporting.
+- [X] T021 [P] [US2] Implement Newtonian and Yukawa‑modified force models in `code/models/physics.py`.
+- [ ] T022 [US2] Implement log‑likelihood function using the **banded approximation** produced by T015‑TRANS. **Dependency**: must run after T015‑TRANS completes; the full covariance matrix remains stored in the dataset for reporting. <!-- FAILED: unspecified -->
 - [ ] T023 [US2] Implement `emcee` runner that **starts with a minimum of 5 000 steps** and then continues in batches of 1 000 steps **until** the Gelman‑Rubin statistic falls below 1.01. No hard upper bound on total steps is imposed; if the 6‑hour runtime limit is approached, the automatic subsampling logic in T027 will be triggered to reduce the data size before further steps.
-- [ ] T024 [US2] Implement `dynesty` nested sampler for both Newtonian and Yukawa models in `code/inference/nested.py`.
+- [X] T024 [US2] Implement `dynesty` nested sampler for both Newtonian and Yukawa models in `code/inference/nested.py`.
 - [ ] T025 [US2] Implement injection‑recovery test (FR‑008) to validate that a known non‑zero α injected into simulated data is recovered within the 95 % credible interval.
 - [ ] T026 [US2] Implement null‑simulation test (FR‑009) to establish the baseline false‑positive rate for the Bayes factor K.
 - [ ] T027 [US2] Add runtime monitoring: **if wall‑clock time exceeds 5 hours**, automatically subsample the dataset by selecting a random [deferred] of points **without replacement**, then re‑sort the selected points by separation to preserve monotonic order. Restart the inference with the reduced dataset to stay within the 6‑hour limit.

@@ -1,31 +1,31 @@
-# Python 3.11+ dependencies for PROJ-336: Investigating the Impact of Simulated Sensory Deprivation on Resting-State Brain Network Dynamics
-# Pinned versions to ensure reproducibility and compatibility with CPU-tractable pipelines.
+# Python 3.11+ pinned dependencies for llmXive project
+# Neuroimaging data handling
+nibabel==5.2.1
 
-# Core Data & Scientific Computing
+# Core numerical computing
 numpy==1.26.4
+
+# Data manipulation
 pandas==2.2.1
-scipy==1.13.0
+
+# Network analysis
+networkx==3.2.1
+
+# Machine learning
 scikit-learn==1.4.1.post1
 
-# Neuroimaging Specific
-nibabel==5.2.1
-bids-validator==1.14.6
-# fsl-afni-wrappers is a meta-package for FSL/AFNI command line tools.
-# Note: In many environments, FSL/AFNI are installed via system package managers (apt/brew)
-# or conda. This pin ensures the Python wrapper interface is available if installed via pip.
-fsl-afni-wrappers==0.0.3
-
-# Network Analysis
-networkx==3.2.1
+# Scientific computing
+scipy==1.12.0
 
 # Visualization
 matplotlib==3.8.3
 seaborn==0.13.2
 
-# Utilities & IO
-requests==2.31.0
-tqdm==4.66.2
-pyyaml==6.0.1
+# BIDS validation
+bids-validator==1.14.6
 
-# Testing (Optional but recommended for T009-T010 etc.)
-pytest==8.1.1
+# HTTP requests
+requests==2.31.0
+
+# FSL/AFNI wrappers
+fsl-afni-wrappers==0.4.2

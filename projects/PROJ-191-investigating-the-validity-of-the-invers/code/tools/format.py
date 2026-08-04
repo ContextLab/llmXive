@@ -1,41 +1,35 @@
 """
-Utility to run black and ruff fixers.
-Usage: python tools/format.py
+Formatting tool wrapper for Black.
+Runs black on the codebase.
 """
 import subprocess
 import sys
 from pathlib import Path
 
-def run_command(cmd: list[str]) -> int:
-    print(f"Running: {' '.join(cmd)}")
+def run_command():
+    """Run black formatter on the project."""
+    project_root = Path(__file__).resolve().parents[2]
+    code_dir = project_root / "code"
+    
+    print(f"Running black on {code_dir}...")
+    
     try:
-        result = subprocess.run(cmd, check=True)
-        return result.returncode
+        result = subprocess.run(
+            [sys.executable, "-m", "black", str(code_dir)],
+            cwd=project_root,
+            check=True,
+            capture_output=False,
+            text=True
+        )
+        print("Formatting completed successfully.")
+        return 0
     except subprocess.CalledProcessError as e:
-        print(f"Command failed: {e}")
-        return e.returncode
+        print(f"Formatting failed: {e}")
+        return 1
 
-def main() -> None:
-    root = Path(__file__).resolve().parent.parent
-    code_dir = root / "code"
-    tests_dir = root / "tests"
-
-    # Format with Black
-    print("--- Formatting with Black ---")
-    ret = run_command([sys.executable, "-m", "black", str(code_dir), str(tests_dir)])
-    if ret != 0:
-        sys.exit(ret)
-
-    # Lint and fix with Ruff
-    print("--- Linting and fixing with Ruff ---")
-    ret = run_command([sys.executable, "-m", "ruff", "check", "--fix", str(code_dir), str(tests_dir)])
-    if ret != 0:
-        # Ruff returns non-zero if errors remain, which is expected in CI but we warn here
-        print("Ruff found remaining issues.")
-        # Optional: run ruff format if enabled in future
-        # ret = run_command([sys.executable, "-m", "ruff", "format", str(code_dir), str(tests_dir)])
-
-    print("Formatting complete.")
+def main():
+    """Entry point for the format script."""
+    sys.exit(run_command())
 
 if __name__ == "__main__":
     main()

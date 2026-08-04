@@ -44,7 +44,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project structure per implementation plan (`src/`, `tests/`, `data/`, `results/`)
-- [ ] T002 Initialize Python 3.11 project with pinned dependencies in `requirements.txt` (nibabel, numpy, pandas, networkx, scikit-learn, scipy, matplotlib, seaborn, bids-validator, requests, fsl-afni-wrappers)
+- [X] T002 Initialize Python 3.11 project with pinned dependencies in `requirements.txt` (nibabel, numpy, pandas, networkx, scikit-learn, scipy, matplotlib, seaborn, bids-validator, requests, fsl-afni-wrappers)
 
 ---
 

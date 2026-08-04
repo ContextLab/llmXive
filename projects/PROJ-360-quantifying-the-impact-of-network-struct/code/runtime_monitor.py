@@ -3,6 +3,8 @@ Runtime monitoring and pipeline instrumentation.
 
 This module provides utilities to measure and log the total pipeline runtime
 to verify compliance with SC-005 (pipeline must complete in < 6 hours).
+
+It acts as a wrapper script that enforces a timeout during execution.
 """
 
 import os
@@ -10,18 +12,24 @@ import time
 import logging
 import json
 import sys
+import subprocess
 from pathlib import Path
 from datetime import datetime
-from typing import Optional
+from typing import Optional, List
 
 # Constants
 RESULTS_DIR = Path("results")
-RUNTIME_LOG_PATH = RESULTS_DIR / "runtime.log"
+RUNTIME_LOG_PATH = RESULTS_DIR / "runtime_log.json"
 START_TIME_MARKER_PATH = RESULTS_DIR / ".pipeline_start_time"
 MAX_RUNTIME_HOURS = 6
 MAX_RUNTIME_SECONDS = MAX_RUNTIME_HOURS * 3600
 
-def setup_runtime_logger(name: str = "runtime") -> logging.Logger:
+# Default pipeline command to wrap
+DEFAULT_PIPELINE_CMD = [
+    sys.executable, "code/quickstart.py"
+]
+
+def setup_runtime_logger(name: str = "runtime_monitor") -> logging.Logger:
     """
     Setup a dedicated logger for runtime monitoring.
 
@@ -41,11 +49,17 @@ def setup_runtime_logger(name: str = "runtime") -> logging.Logger:
     RESULTS_DIR.mkdir(parents=True, exist_ok=True)
 
     # File handler
-    file_handler = logging.FileHandler(RUNTIME_LOG_PATH)
+    file_handler = logging.FileHandler(RESULTS_DIR / "runtime_monitor.log")
     file_handler.setLevel(logging.INFO)
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     file_handler.setFormatter(formatter)
     logger.addHandler(file_handler)
+
+    # Console handler for immediate feedback
+    console_handler = logging.StreamHandler(sys.stdout)
+    console_handler.setLevel(logging.INFO)
+    console_handler.setFormatter(formatter)
+    logger.addHandler(console_handler)
 
     return logger
 
@@ -84,93 +98,152 @@ def load_pipeline_start_time() -> Optional[float]:
     except (json.JSONDecodeError, IOError):
         return None
 
-def measure_and_log_runtime() -> bool:
+def run_pipeline_with_timeout(cmd: List[str], timeout_seconds: int) -> int:
     """
-    Measure total pipeline runtime, log it, and assert compliance with SC-005.
+    Run the pipeline command with a hard timeout.
+
+    Args:
+        cmd: Command and arguments to execute
+        timeout_seconds: Maximum allowed runtime in seconds
 
     Returns:
-        True if runtime is within limits, False otherwise
-
-    Raises:
-        RuntimeError: If runtime exceeds the 6-hour limit
+        Exit code: 0 if successful, 1 if timeout or error
     """
     logger = setup_runtime_logger()
-    start_epoch = load_pipeline_start_time()
-
-    if start_epoch is None:
-        logger.warning("No start time marker found. Assuming immediate start.")
-        start_epoch = time.time()
-
-    end_epoch = time.time()
-    elapsed_seconds = end_epoch - start_epoch
-    elapsed_hours = elapsed_seconds / 3600
-
-    # Log format requirement: "Total runtime: <X> seconds"
-    log_message = f"Total runtime: {elapsed_seconds} seconds"
+    start_time = time.time()
     
-    # Append to log file
-    with open(RUNTIME_LOG_PATH, 'a') as f:
-        f.write(f"{log_message}\n")
-        f.write(f"Start Epoch: {start_epoch}\n")
-        f.write(f"End Epoch: {end_epoch}\n")
-        f.write(f"Elapsed Time: {elapsed_seconds:.2f} seconds ({elapsed_hours:.4f} hours)\n")
-        f.write(f"Max Allowed: {MAX_RUNTIME_HOURS} hours\n")
-        f.write(f"Compliant: {elapsed_seconds <= MAX_RUNTIME_SECONDS}\n")
-        f.write("-" * 40 + "\n")
+    # Record start time if not already done
+    if not START_TIME_MARKER_PATH.exists():
+        record_start_time()
 
-    logger.info(log_message)
-    logger.info(f"SC-005 Compliance Check: {'PASSED' if elapsed_seconds <= MAX_RUNTIME_SECONDS else 'FAILED'}")
+    logger.info(f"Starting pipeline: {' '.join(cmd)}")
+    logger.info(f"Timeout limit: {timeout_seconds} seconds ({timeout_seconds/3600:.2f} hours)")
 
-    if elapsed_seconds > MAX_RUNTIME_SECONDS:
-        error_msg = f"ERROR: Runtime {elapsed_seconds}s exceeds 6h limit"
+    try:
+        # Run the subprocess
+        process = subprocess.run(
+            cmd,
+            timeout=timeout_seconds,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+            cwd=Path.cwd()
+        )
+
+        end_time = time.time()
+        elapsed_seconds = end_time - start_time
+        elapsed_hours = elapsed_seconds / 3600
+
+        # Log the output (truncated if too long)
+        if process.stdout:
+            stdout_lines = process.stdout.split('\n')
+            for line in stdout_lines[-50:]: # Log last 50 lines
+                logger.info(line)
+            if len(stdout_lines) > 50:
+                logger.info(f"... ({len(stdout_lines) - 50} more lines suppressed)")
+
+        # Record runtime metrics
+        runtime_data = {
+            "start_timestamp": datetime.fromtimestamp(load_pipeline_start_time() or start_time).isoformat(),
+            "end_timestamp": datetime.now().isoformat(),
+            "elapsed_seconds": elapsed_seconds,
+            "elapsed_hours": elapsed_hours,
+            "max_allowed_hours": MAX_RUNTIME_HOURS,
+            "timed_out": False,
+            "exit_code": process.returncode,
+            "compliant": elapsed_seconds <= MAX_RUNTIME_SECONDS
+        }
+
+        # Write to JSON log
+        with open(RUNTIME_LOG_PATH, 'w') as f:
+            json.dump(runtime_data, f, indent=2)
+
+        logger.info(f"Pipeline finished. Exit code: {process.returncode}")
+        logger.info(f"Total runtime: {elapsed_seconds:.2f} seconds ({elapsed_hours:.4f} hours)")
+
+        if process.returncode != 0:
+            logger.error(f"Pipeline failed with exit code {process.returncode}")
+            return 1
+
+        # Check timeout compliance
+        if elapsed_seconds > MAX_RUNTIME_SECONDS:
+            error_msg = "ERROR: Runtime exceeds time limit"
+            logger.error(error_msg)
+            logger.error(f"Runtime {elapsed_seconds}s > {MAX_RUNTIME_SECONDS}s limit")
+            return 1
+
+        logger.info("SC-005 Compliance Check: PASSED")
+        return 0
+
+    except subprocess.TimeoutExpired:
+        end_time = time.time()
+        elapsed_seconds = end_time - start_time
+        
+        error_msg = "ERROR: Runtime exceeds time limit"
         logger.error(error_msg)
-        raise RuntimeError(error_msg)
+        logger.error(f"Pipeline exceeded {timeout_seconds}s ({timeout_seconds/3600:.2f}h) limit after {elapsed_seconds:.2f}s")
+        
+        # Record timeout in log
+        runtime_data = {
+            "start_timestamp": datetime.fromtimestamp(load_pipeline_start_time() or start_time).isoformat(),
+            "end_timestamp": datetime.now().isoformat(),
+            "elapsed_seconds": elapsed_seconds,
+            "max_allowed_hours": MAX_RUNTIME_HOURS,
+            "timed_out": True,
+            "exit_code": -1,
+            "compliant": False,
+            "error": "Runtime exceeds time limit"
+        }
+        
+        with open(RUNTIME_LOG_PATH, 'w') as f:
+            json.dump(runtime_data, f, indent=2)
 
-    return True
+        return 1
+    except Exception as e:
+        logger.error(f"Unexpected error during pipeline execution: {e}")
+        return 1
 
 def main() -> int:
     """
-    Main entry point for runtime monitoring script.
+    Main entry point for runtime monitor wrapper script.
 
-    This script can be run standalone to:
-    1. Record the start time (if called with --record-start)
-    2. Measure and log the total runtime (default behavior)
-
+    Usage:
+        python code/runtime_monitor.py [command] [args...]
+    
+    If no command is provided, it defaults to running the quickstart pipeline.
+    
     Returns:
-        Exit code (0 for success, 1 for failure)
+        Exit code (0 for success, 1 for failure/timeout)
     """
     import argparse
 
-    parser = argparse.ArgumentParser(description="Pipeline runtime monitor")
-    parser.add_argument(
-        "--record-start",
-        action="store_true",
-        help="Record the pipeline start time"
+    parser = argparse.ArgumentParser(
+        description="Runtime monitor wrapper for the pipeline. Enforces SC-005 timeout."
     )
     parser.add_argument(
-        "--measure",
-        action="store_true",
-        help="Measure and log the total runtime (default)"
+        "--timeout",
+        type=int,
+        default=MAX_RUNTIME_SECONDS,
+        help=f"Timeout in seconds (default: {MAX_RUNTIME_SECONDS} seconds / {MAX_RUNTIME_HOURS} hours)"
+    )
+    parser.add_argument(
+        "--command",
+        nargs=argparse.REMAINDER,
+        help="Command to run. Defaults to 'python code/quickstart.py'"
     )
 
     args = parser.parse_args()
 
-    try:
-        if args.record_start:
-            record_start_time()
-            print("Start time recorded.")
-            return 0
-        else:
-            measure_and_log_runtime()
-            print("Runtime measured and logged successfully.")
-            return 0
-    except RuntimeError as e:
-        # Explicitly exit with code 1 on timeout as per SC-005
-        print(f"Runtime compliance check failed: {e}")
-        return 1
-    except Exception as e:
-        print(f"Unexpected error: {e}")
-        return 1
+    # Determine command to run
+    if args.command:
+        cmd = args.command
+    else:
+        cmd = DEFAULT_PIPELINE_CMD
+
+    # Ensure results directory exists
+    RESULTS_DIR.mkdir(parents=True, exist_ok=True)
+
+    return run_pipeline_with_timeout(cmd, args.timeout)
 
 if __name__ == "__main__":
     exit(main())

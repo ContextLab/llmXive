@@ -1,0 +1,25 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required directories (`src/`, `tests/`, `data/`, `results/`)
+    is presented; the implementer did not supply a directory listing or any files
+    showing that the project structure has been created.
+T006:
+  c: false
+  h: b409d03c52eaebae554d2c251271638c4f14c243c987359026a020954764b8f4
+  r: "The required file `src/data/quality_check.py` is missing entirely, so no code,\
+    \ exclusion manifest, logging, or error\u2011handling exists to meet the specification.\
+    \ The task cannot be considered done until this file is created with the described\
+    \ functionality."
+T007:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `main.py` file or any code implementing the required orchestration, checkpointing,
+    and resumption logic was provided; the evidence section contains no artifacts
+    to verify. The task therefore remains unfulfilled.
+T008:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a modified `main.py` implementing disk\u2011quota enforcement,\
+    \ compression of intermediate files, or checkpointing is provided; the required\
+    \ artifact is missing, so the task cannot be confirmed as completed."

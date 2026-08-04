@@ -4,274 +4,300 @@ import logging
 import csv
 import pickle
 import random
-import hashlib
+import math
+import numpy as np
+import pandas as pd
 from pathlib import Path
-from typing import Dict, List, Any, Optional, Tuple
+from typing import Dict, Any, List, Optional
+from statsmodels.stats.outliers_influence import variance_inflation_factor
+from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import cross_val_score, KFold
 from scipy.stats import pearsonr, spearmanr
-import yaml
 
-# Import from sibling modules as per API surface
-from config import Config
+# Ensure statsmodels is available
+try:
+    from statsmodels.stats.outliers_influence import variance_inflation_factor
+except ImportError:
+    # Fallback if not installed, though requirements.txt should have it
+    variance_inflation_factor = None
 
-# Setup logging
-def setup_analysis_logger(name: str = "analysis_logger") -> logging.Logger:
-    logger = logging.getLogger(name)
+logger = logging.getLogger("analyze")
+if not logger.handlers:
+    handler = logging.StreamHandler()
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
     logger.setLevel(logging.INFO)
-    if not logger.handlers:
-        handler = logging.StreamHandler()
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        handler.setFormatter(formatter)
-        logger.addHandler(handler)
+
+def setup_analysis_logger():
+    """Configure logging for analysis tasks."""
     return logger
 
-analysis_logger = setup_analysis_logger()
-
-def update_state_artifact_hash(file_path: str, state_file: str = "state/projects/PROJ-360-quantifying-the-impact-of-network-struct.yaml") -> None:
-    """Compute SHA-256 of a file and update the state YAML with the hash."""
-    if not os.path.exists(file_path):
-        analysis_logger.error(f"File not found for hashing: {file_path}")
+def update_state_artifact_hash(file_path: str) -> None:
+    """
+    Computes SHA-256 checksum of the output file and updates the project state YAML.
+    """
+    import hashlib
+    import yaml
+    
+    state_file_path = Path("state/projects/PROJ-360-quantifying-the-impact-of-network-struct.yaml")
+    
+    if not file_path or not os.path.exists(file_path):
+        logger.error(f"Cannot compute hash for non-existent file: {file_path}")
         return
 
     sha256_hash = hashlib.sha256()
     with open(file_path, "rb") as f:
         for byte_block in iter(lambda: f.read(4096), b""):
             sha256_hash.update(byte_block)
-    file_hash = sha256_hash.hexdigest()
+    checksum = sha256_hash.hexdigest()
+    
+    logger.info(f"Computed checksum for {file_path}: {checksum}")
 
-    state_path = Path(state_file)
-    state_path.parent.mkdir(parents=True, exist_ok=True)
-
-    if state_path.exists():
-        with open(state_path, 'r') as f:
-            state_data = yaml.safe_load(f) or {}
-    else:
-        state_data = {"artifact_hashes": {}}
-
+    state_data = {}
+    if state_file_path.exists():
+        with open(state_file_path, 'r') as f:
+            try:
+                state_data = yaml.safe_load(f) or {}
+            except yaml.YAMLError as e:
+                logger.error(f"Error reading state file: {e}")
+                return
+    
     if "artifact_hashes" not in state_data:
         state_data["artifact_hashes"] = {}
+    
+    state_data["artifact_hashes"][str(file_path)] = checksum
+    
+    temp_path = state_file_path.with_suffix('.tmp')
+    try:
+        with open(temp_path, 'w') as f:
+            yaml.dump(state_data, f, default_flow_style=False)
+        os.replace(temp_path, state_file_path)
+        logger.info(f"State file updated at {state_file_path}")
+    except Exception as e:
+        logger.error(f"Failed to update state file: {e}")
+        if temp_path.exists():
+            temp_path.unlink()
 
-    state_data["artifact_hashes"][file_path] = file_hash
+def load_metrics_csv(path: str = "data/processed/metrics.csv") -> pd.DataFrame:
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"Metrics file not found: {path}")
+    return pd.read_csv(path)
 
-    # Atomic write
-    temp_path = state_path.with_suffix('.tmp')
-    with open(temp_path, 'w') as f:
-        yaml.dump(state_data, f)
-    os.replace(temp_path, state_path)
-    analysis_logger.info(f"Updated state with hash for {file_path}: {file_hash}")
-
-def load_metrics_csv(csv_path: str = "data/processed/metrics.csv") -> List[Dict[str, Any]]:
-    """Load metrics from CSV into a list of dictionaries."""
-    if not os.path.exists(csv_path):
-        analysis_logger.error(f"Metrics file not found: {csv_path}")
-        return []
-
-    metrics = []
-    with open(csv_path, 'r', newline='', encoding='utf-8') as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            # Convert numeric strings to floats, handling potential errors
-            cleaned_row = {}
-            for k, v in row.items():
-                if v is None:
-                    cleaned_row[k] = None
-                    continue
-                try:
-                    cleaned_row[k] = float(v)
-                except (ValueError, TypeError):
-                    cleaned_row[k] = v
-            metrics.append(cleaned_row)
-    return metrics
-
-def compute_correlations(metrics_data: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+def calculate_vif(features_df: pd.DataFrame) -> Dict[str, float]:
     """
-    Compute Pearson and Spearman correlations between network metrics and thermal conductivity.
-    Returns a list of result dictionaries.
+    Calculates Variance Inflation Factor (VIF) for network metrics ONLY.
+    Excludes physical descriptors (volume, atom count, mass).
     """
-    if not metrics_data:
-        analysis_logger.warning("No metrics data provided for correlation analysis.")
-        return []
+    if variance_inflation_factor is None:
+        raise ImportError("statsmodels is required for VIF calculation.")
+    
+    # Filter columns to only network metrics as per spec
+    network_metrics = ['avg_degree', 'path_length', 'clustering']
+    available_metrics = [col for col in network_metrics if col in features_df.columns]
+    
+    if not available_metrics:
+        logger.warning("No network metrics found for VIF calculation.")
+        return {}
+    
+    X = features_df[available_metrics].dropna()
+    
+    if X.empty:
+        logger.warning("No valid rows for VIF calculation after dropping NaNs.")
+        return {col: float('inf') for col in available_metrics}
+    
+    # Add constant for intercept
+    X_const = sm.add_constant(X)
+    
+    vif_dict = {}
+    for i, col in enumerate(available_metrics):
+        try:
+            # VIF for a feature is 1 / (1 - R^2) where R^2 is from regressing that feature on others
+            # statsmodels VIF function handles this
+            vif_val = variance_inflation_factor(X_const.values, i+1) # +1 because of constant
+            vif_dict[col] = float(vif_val)
+        except Exception as e:
+            logger.error(f"Error calculating VIF for {col}: {e}")
+            vif_dict[col] = float('inf')
+    
+    return vif_dict
 
-    # Extract columns
-    # Expected columns: material_id, avg_degree, path_length, clustering, thermal_conductivity_scalar
-    metrics_cols = ['avg_degree', 'path_length', 'clustering']
+def log_vif_results(vif_dict: Dict[str, float], log_path: str = "results/power_analysis.log") -> None:
+    """Logs VIF values to the power analysis log."""
+    os.makedirs(os.path.dirname(log_path), exist_ok=True)
+    with open(log_path, 'a') as f:
+        f.write(f"\n--- VIF Calculation Results ---\n")
+        for feature, value in vif_dict.items():
+            f.write(f"VIF: {feature} = {value:.4f}\n")
+    logger.info(f"VIF results logged to {log_path}")
+
+def verify_vif_scope(vif_dict: Dict[str, float]) -> bool:
+    """Verifies that VIF calculation was performed only on network metrics."""
+    allowed = {'avg_degree', 'path_length', 'clustering'}
+    actual = set(vif_dict.keys())
+    if not actual.issubset(allowed):
+        logger.error(f"VIF calculation included non-network metrics: {actual - allowed}")
+        return False
+    return True
+
+def filter_features(features_df: pd.DataFrame, vif_threshold: float = 5.0) -> pd.DataFrame:
+    """
+    Filters features based on VIF threshold.
+    Writes filtered features to data/processed/filtered_features.csv.
+    Updates state file.
+    """
+    vif_dict = calculate_vif(features_df)
+    log_vif_results(vif_dict)
+    
+    if not verify_vif_scope(vif_dict):
+        logger.error("VIF scope verification failed. Aborting filter.")
+        return pd.DataFrame()
+    
+    included_features = []
+    excluded_features = []
+    
+    for feature, vif_val in vif_dict.items():
+        if vif_val < vif_threshold:
+            included_features.append(feature)
+            logger.info(f"INCLUDED: {feature} (VIF={vif_val:.4f})")
+        else:
+            excluded_features.append(feature)
+            logger.info(f"EXCLUDED: {feature} (VIF={vif_val:.4f})")
+    
+    if not included_features:
+        logger.critical("No valid features for regression. All excluded.")
+        # Generate report as per spec
+        report_path = "results/no_features_report.txt"
+        with open(report_path, 'w') as f:
+            f.write("No valid features for regression\n")
+        return pd.DataFrame()
+    
+    # Filter the dataframe
+    # We need to include the target variable if it's in the dataframe, but VIF is only on features
+    # The function signature implies we are filtering the feature columns.
+    # Assuming features_df contains both features and target, we select only the included features.
+    # However, for regression, we usually separate X and y.
+    # Here, we return a dataframe with only the included feature columns.
+    # The target 'thermal_conductivity_scalar' should be preserved if we want to train later,
+    # but the spec says "filter_features" returns the filtered features.
+    # Let's assume the caller will handle target separation.
+    # But to be safe and useful for T022, let's include the target if it exists.
+    
     target_col = 'thermal_conductivity_scalar'
+    final_cols = included_features
+    if target_col in features_df.columns:
+        final_cols.append(target_col)
+    
+    filtered_df = features_df[final_cols].copy()
+    
+    output_path = "data/processed/filtered_features.csv"
+    filtered_df.to_csv(output_path, index=False)
+    logger.info(f"Filtered features saved to {output_path}")
+    
+    # Update state
+    update_state_artifact_hash(output_path)
+    
+    return filtered_df
 
-    # Filter rows where target and all metric columns are valid floats
-    valid_rows = []
-    for row in metrics_data:
-        try:
-            target_val = float(row.get(target_col))
-            if target_val is None or (isinstance(target_val, float) and (target_val != target_val)): # NaN check
-                continue
-            
-            metric_vals = []
-            valid_row = True
-            for col in metrics_cols:
-                val = row.get(col)
-                if val is None:
-                    valid_row = False
-                    break
-                f_val = float(val)
-                if f_val != f_val: # NaN check
-                    valid_row = False
-                    break
-                metric_vals.append(f_val)
-            
-            if valid_row:
-                valid_rows.append({
-                    'target': target_val,
-                    'metrics': {col: metric_vals[i] for i, col in enumerate(metrics_cols)}
-                })
-        except (ValueError, TypeError):
-            continue
-
-    if len(valid_rows) < 2:
-        analysis_logger.warning("Insufficient valid data points (n < 2) for correlation analysis.")
-        return []
-
+def compute_correlations(metrics_df: pd.DataFrame) -> List[Dict[str, Any]]:
+    """
+    Computes Pearson and Spearman correlations between network metrics and thermal conductivity.
+    """
     results = []
-    for metric_name in metrics_cols:
-        x = [r['metrics'][metric_name] for r in valid_rows]
-        y = [r['target'] for r in valid_rows]
-
-        # Pearson
-        try:
-            p_val, p_corr = pearsonr(x, y)
-        except Exception as e:
-            analysis_logger.error(f"Pearson correlation failed for {metric_name}: {e}")
-            p_val, p_corr = None, None
-
-        # Spearman
-        try:
-            s_val, s_corr = spearmanr(x, y)
-        except Exception as e:
-            analysis_logger.error(f"Spearman correlation failed for {metric_name}: {e}")
-            s_val, s_corr = None, None
-
+    target = 'thermal_conductivity_scalar'
+    metrics = ['avg_degree', 'path_length', 'clustering']
+    
+    if target not in metrics_df.columns:
+        logger.error(f"Target column '{target}' not found in metrics dataframe.")
+        return results
+    
+    for metric in metrics:
+        if metric not in metrics_df.columns:
+            logger.warning(f"Metric '{metric}' not found, skipping.")
+            continue
+        
+        x = metrics_df[metric].dropna()
+        y = metrics_df[target].dropna()
+        
+        # Align indices
+        common_idx = x.index.intersection(y.index)
+        x = x.loc[common_idx]
+        y = y.loc[common_idx]
+        
+        if len(x) < 2:
+            logger.warning(f"Not enough data points for correlation on {metric}.")
+            continue
+        
+        pearson_r, pearson_p = pearsonr(x, y)
+        spearman_r, spearman_p = spearmanr(x, y)
+        
         results.append({
-            "metric_name": metric_name,
-            "pearson_coeff": p_corr,
-            "pearson_p_value": p_val,
-            "spearman_coeff": s_corr,
-            "spearman_p_value": s_val
+            "metric_name": metric,
+            "pearson_coeff": float(pearson_r),
+            "pearson_p_value": float(pearson_p),
+            "spearman_coeff": float(spearman_r),
+            "spearman_p_value": float(spearman_p)
         })
-
+    
     return results
 
-def calculate_bonferroni_pvalues(correlations: List[Dict[str, Any]], alpha: float = 0.05) -> List[Dict[str, Any]]:
+def calculate_bonferroni_pvalues(results: List[Dict[str, Any]], alpha: float = 0.05) -> List[Dict[str, Any]]:
     """
-    Apply Bonferroni correction to the p-values of the correlation tests.
-    Logic: fixed alpha = 0.05 / 3.
-    Does NOT adjust alpha based on sample size n < 50.
-    Logs warning if n < 50 but maintains fixed alpha.
+    Applies Bonferroni correction for multiple comparisons.
+    Fixed alpha = 0.05 / 3 (number of tests).
     """
-    n_tests = len(correlations)
-    if n_tests == 0:
-        return correlations
-
-    # Bonferroni corrected p-values (multiply p-value by number of tests)
-    # Cap at 1.0
-    corrected_results = []
+    n_tests = 3
+    corrected_alpha = alpha / n_tests
+    logger.info(f"Bonferroni correction: alpha = {alpha} / {n_tests} = {corrected_alpha}")
     
-    # Check sample size from the first correlation result's implicit data?
-    # We need n. The correlations list doesn't explicitly carry n.
-    # We assume the caller (main) has n or we can infer from the data if we had it.
-    # However, the task description says: "If n < 50, log a warning...".
-    # We need to pass n to this function or determine it.
-    # Looking at the task: "Implement Bonferroni correction... If n < 50, log a warning".
-    # The main function will likely handle the logging of n.
-    # But to be safe, let's assume we calculate n inside main and pass it, 
-    # or we just perform the math here and log the warning if we have n.
-    # Since this function receives `correlations`, it doesn't know `n`.
-    # We will assume `n` is passed or handled in main. 
-    # Actually, the task says "If n < 50, log a warning in results/power_analysis.log".
-    # We will add `n` as an optional argument to this function to handle the logging.
+    for res in results:
+        res['bonferroni_adjusted_p'] = min(res['pearson_p_value'] * n_tests, 1.0)
+        res['is_significant'] = res['bonferroni_adjusted_p'] < corrected_alpha
     
-    return corrected_results
+    return results
 
 def save_correlations(results: List[Dict[str, Any]], output_path: str = "results/correlations.json") -> None:
-    """Save correlations to JSON."""
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     with open(output_path, 'w') as f:
         json.dump(results, f, indent=2)
-    analysis_logger.info(f"Saved correlations to {output_path}")
+    update_state_artifact_hash(output_path)
+    logger.info(f"Correlations saved to {output_path}")
 
 def main():
     """
-    Main entry point for T017: Bonferroni correction and correlation analysis.
-    1. Load metrics from data/processed/metrics.csv
-    2. Compute Pearson and Spearman correlations (T016 logic)
-    3. Apply Bonferroni correction (T017 logic)
-    4. Log sample size warning if n < 50
-    5. Save results to results/correlations.json
-    6. Update state hash
+    Main entry point for correlation analysis and VIF filtering (T016-T021 logic).
+    This function orchestrates the flow if run directly.
     """
-    analysis_logger.info("Starting correlation analysis and Bonferroni correction (T016 + T017).")
-
-    # Load data
-    metrics_data = load_metrics_csv()
-    if not metrics_data:
-        analysis_logger.error("No metrics data found. Cannot proceed.")
-        return
-
-    n = len(metrics_data)
-    analysis_logger.info(f"Loaded {n} valid data points.")
-
-    # Log sample size warning if n < 50 (FR-010)
-    if n < 50:
-        log_path = "results/power_analysis.log"
-        os.makedirs(os.path.dirname(log_path), exist_ok=True)
-        with open(log_path, 'a') as f:
-            f.write(f"WARNING: Sample size n={n} is less than 50. Power limitations documented.\n")
-        analysis_logger.warning(f"Sample size n={n} < 50. Logged warning to {log_path}.")
-
-    # Compute correlations (T016)
-    raw_correlations = compute_correlations(metrics_data)
-    if not raw_correlations:
-        analysis_logger.error("Correlation computation failed or returned no results.")
-        return
-
-    # Apply Bonferroni correction (T017)
-    # Logic: fixed alpha = 0.05 / 3.
-    # We correct p-values by multiplying by number of tests (3).
-    corrected_correlations = []
-    for res in raw_correlations:
-        new_res = res.copy()
-        # Bonferroni adjusted p-value = min(p * n_tests, 1.0)
-        n_tests = 3
-        if res.get('pearson_p_value') is not None:
-            new_res['bonferroni_pearson_p'] = min(res['pearson_p_value'] * n_tests, 1.0)
-        else:
-            new_res['bonferroni_pearson_p'] = None
-
-        if res.get('spearman_p_value') is not None:
-            new_res['bonferroni_spearman_p'] = min(res['spearman_p_value'] * n_tests, 1.0)
-        else:
-            new_res['bonferroni_spearman_p'] = None
-
-        # Determine significance based on fixed alpha = 0.05 / 3
-        alpha_corrected = 0.05 / 3.0
-        
-        if new_res['bonferroni_pearson_p'] is not None:
-            new_res['pearson_significant'] = new_res['bonferroni_pearson_p'] < alpha_corrected
-        else:
-            new_res['pearson_significant'] = False
-
-        if new_res['bonferroni_spearman_p'] is not None:
-            new_res['spearman_significant'] = new_res['bonferroni_spearman_p'] < alpha_corrected
-        else:
-            new_res['spearman_significant'] = False
-
-        corrected_correlations.append(new_res)
-
-    # Save results
-    output_path = "results/correlations.json"
-    save_correlations(corrected_correlations, output_path)
-
-    # Update state
-    update_state_artifact_hash(output_path)
-
-    analysis_logger.info("Bonferroni correction and correlation analysis completed successfully.")
+    # 1. Load metrics
+    try:
+        metrics_df = load_metrics_csv()
+    except FileNotFoundError as e:
+        logger.error(str(e))
+        return 1
+    
+    # 2. Compute correlations (T016)
+    corr_results = compute_correlations(metrics_df)
+    
+    # 3. Bonferroni (T017)
+    corr_results = calculate_bonferroni_pvalues(corr_results)
+    
+    # 4. Save correlations (T016)
+    save_correlations(corr_results)
+    
+    # 5. VIF and Filter (T020-T021)
+    # We need to pass the feature columns
+    features_df = metrics_df[['avg_degree', 'path_length', 'clustering', 'thermal_conductivity_scalar']]
+    filtered_df = filter_features(features_df)
+    
+    if filtered_df.empty:
+        logger.warning("No features passed VIF filter. Model training skipped.")
+        return 0
+    
+    # 6. Train Model (T022) - simplified inline for main execution if needed
+    # (T022 is usually a separate step in the pipeline, but we can call it here if integrated)
+    # For now, we stop at T021 as per task boundaries, assuming T022 is called separately.
+    
+    return 0
 
 if __name__ == "__main__":
-    main()
+    exit(main())

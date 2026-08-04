@@ -7,20 +7,10 @@ T004b:
     to set up environment configuration management is not satisfied.
 T013:
   c: false
-  h: 8389142b587688067764e8d534bef73575a608ae40505006d312978fc86619a3
-  r: The `metrics.csv` file contains only a header with no data rows and uses different
-    column names than required, so the computed metrics are missing. The `compute_metrics.py`
-    script is truncated (e.g., an unfinished string literal) and does not show the
-    actual metric calculations or CSV writing. Additionally, the required state YAML
-    file is absent. These issues must be fixed before the task can be considered complete.
-T014a:
-  c: false
-  h: d78f6b49fb18fdf7d4b907f98732d16e4e31da4854675a8564600d1e5586608f
-  r: "The provided `code/compute_metrics.py` excerpt never shows a `compute_physical_descriptors`\
-    \ function, and the `results/power_analysis.log` contains only power\u2011analysis\
-    \ placeholders\u2014not the required Unit Cell Volume, Total Atom Count, or Mean\
-    \ Atomic Mass entries. Consequently the task\u2019s core functionality and logging\
-    \ output are missing."
+  h: 3a83027cea1e5920be7acfff7372203f851bcb3775d84f9953d2ab5c46dc66ef
+  r: "The repository contains a partially shown `code/compute_metrics.py`, but the\
+    \ required output file `data/processed/metrics.csv` and the state file `state/projects/PROJ-360-quantifying-the-impact-of-network-struct.yaml`\
+    \ are absent. Without these artifacts, the task\u2019s deliverables are not satisfied."
 T015:
   c: false
   h: 8be47ed9dc8eaf7a8fed4ffe0d3fb6c039659f069ae9f0ae81ec0cdbe3b001aa
@@ -29,22 +19,22 @@ T015:
     of the required assertion or logging of missing metadata. The `results/power_analysis.log`
     does not record any count of skipped materials for missing thermal conductivity
     data. The task therefore remains unfinished.
-T016:
+T020a:
   c: false
-  h: ab808cb10bb283d9a455317e9f562a66cd47a372545a1948dd23136bfd960668
-  r: The `results/correlations.json` file is empty (`[]`) instead of containing the
-    computed Pearson and Spearman coefficients, and the required state file `state/projects/PROJ-360-quantifying-the-impact-of-network-struct.yaml`
-    does not exist. Moreover, the shown `code/analyze.py` is truncated before any
-    logic that actually performs the correlation calculations or writes the results,
-    so the core functionality is missing.
-T021:
+  h: 3e55f991541f6dac0064382cd734283e0637a791d28c042aeae7b319d6748497
+  r: "The required input file `data/processed/metrics.csv` is absent, so the function\
+    \ cannot be exercised on the specified data. Moreover, the `calculate_vif` function\
+    \ in `code/analyze.py` is truncated in the provided view, and it is unclear whether\
+    \ it correctly selects only the three network\u2011metric columns, uses `variance_inflation_factor`,\
+    \ and logs/skips singular features as required. Both the missing CSV and the incomplete\
+    \ function implementation need to be provided."
+T020b:
   c: false
-  h: 3b5c804a8e43475f17f96978a85eef2cf55b6c10fc30daa700dcd027eb009908
-  r: "The repository lacks the required output artifacts \u2013 `results/power_analysis.log`\
-    \ and `data/processed/filtered_features.csv` do not exist \u2013 and the shown\
-    \ portion of `code/analyze.py` does not contain an implementation of `filter_features`\
-    \ that performs the VIF\u2011based filtering, logging, and CSV writing as specified.\
-    \ The task therefore remains unfinished."
+  h: 6923e46852618fcbf911450abe8318028fe0b901e668c0b3c7d9f246c4122ccf
+  r: The repository lacks the required `results/power_analysis.log` file, and the
+    provided excerpt of `code/analyze.py` does not show a `log_vif_results(vif_dict)`
+    implementation (or any evidence that it writes VIF values in the specified format).
+    Without the function and its output file, the task is not fulfilled.
 T022:
   c: false
   h: 88449c0e507e23ec0e830845184d6dd58afb64e064c497cd0bcaf5ca56b4faa9

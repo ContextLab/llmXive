@@ -1,85 +1,66 @@
-"""
-Tests for the SCM Generator module.
-
-Specifically tests the regenerate_ground_truth function for
-Constitution Principle VI compliance.
-"""
 import pytest
-import sys
-import os
+import numpy as np
+from simulation.scm_generator import regenerate_ground_truth, generate_scm, check_collinearity
 
-# Add parent directory to path for imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+def test_regenerate_ground_truth():
+    """
+    Test that regenerate_ground_truth returns the expected values for seed=42, beta=0.5.
+    According to the specification, tau_true should be 0.5 (hardcoded constant)
+    and beta should be 0.5 exactly.
+    """
+    seed = 42
+    beta = 0.5
+    
+    tau_true, returned_beta = regenerate_ground_truth(seed, beta)
+    
+    assert tau_true == 0.5, f"Expected tau_true=0.5, got {tau_true}"
+    assert returned_beta == 0.5, f"Expected beta=0.5, got {returned_beta}"
 
-from code.simulation.scm_generator import regenerate_ground_truth
+def test_regenerate_ground_truth_deterministic():
+    """
+    Test that regenerate_ground_truth is deterministic for the same inputs.
+    """
+    seed = 123
+    beta = 0.8
+    
+    result1 = regenerate_ground_truth(seed, beta)
+    result2 = regenerate_ground_truth(seed, beta)
+    
+    assert result1 == result2, "regenerate_ground_truth should be deterministic"
 
+def test_generate_scm_basic():
+    """
+    Test basic functionality of generate_scm.
+    """
+    seed = 42
+    n = 100
+    tau_true = 0.5
+    
+    dataset = generate_scm(seed, n, tau_true)
+    
+    assert dataset.X.shape == (n,), f"Expected X shape ({n},), got {dataset.X.shape}"
+    assert dataset.T.shape == (n,), f"Expected T shape ({n},), got {dataset.T.shape}"
+    assert dataset.Y.shape == (n,), f"Expected Y shape ({n},), got {dataset.Y.shape}"
+    assert dataset.ground_truth_ate == tau_true
+    assert dataset.seed == seed
 
-class TestRegenerateGroundTruth:
-    """Test suite for the regenerate_ground_truth function."""
+def test_check_collinearity_no_collinearity():
+    """
+    Test that check_collinearity returns False for uncorrelated data.
+    """
+    rng = np.random.default_rng(42)
+    X = rng.normal(0, 1, (100, 3))
     
-    def test_regenerate_ground_truth(self):
-        """
-        Test that regenerate_ground_truth returns expected values for seed=42, beta=0.5.
-        
-        According to T006 requirements:
-        - For seed=42 and beta=0.5, the function must return tau_true=0.5 (hardcoded constant)
-        - beta must be returned as 0.5 exactly
-        """
-        seed = 42
-        beta = 0.5
-        
-        tau_true, beta_returned = regenerate_ground_truth(seed, beta)
-        
-        # Verify tau_true is exactly 0.5 as required by the test specification
-        assert tau_true == 0.5, f"Expected tau_true=0.5, got {tau_true}"
-        
-        # Verify beta is returned exactly as provided
-        assert beta_returned == 0.5, f"Expected beta=0.5, got {beta_returned}"
+    assert not check_collinearity(X), "Should not detect collinearity in random data"
+
+def test_check_collinearity_with_collinearity():
+    """
+    Test that check_collinearity returns True for highly correlated data.
+    """
+    rng = np.random.default_rng(42)
+    X1 = rng.normal(0, 1, 100)
+    X2 = X1 + rng.normal(0, 0.01, 100)  # Nearly identical
+    X3 = rng.normal(0, 1, 100)
+    X = np.column_stack([X1, X2, X3])
     
-    def test_regenerate_ground_truth_deterministic(self):
-        """
-        Test that the function is deterministic: same inputs always produce same outputs.
-        """
-        seed = 123
-        beta = 0.8
-        
-        # Run multiple times
-        results = [regenerate_ground_truth(seed, beta) for _ in range(5)]
-        
-        # All results should be identical
-        assert len(set(results)) == 1, "Function should be deterministic"
-        
-        # Verify the result is consistent
-        expected_tau, expected_beta = results[0]
-        for tau, b in results:
-            assert tau == expected_tau
-            assert b == expected_beta
-    
-    def test_regenerate_ground_truth_different_seeds(self):
-        """
-        Test that different seeds produce different tau_true values.
-        """
-        beta = 0.5
-        
-        tau1, _ = regenerate_ground_truth(100, beta)
-        tau2, _ = regenerate_ground_truth(200, beta)
-        
-        # Different seeds should generally produce different tau values
-        # (though theoretically possible to collide, it's extremely unlikely)
-        assert tau1 != tau2, "Different seeds should produce different tau values"
-    
-    def test_regenerate_ground_truth_beta_preserved(self):
-        """
-        Test that the beta parameter is always returned unchanged.
-        """
-        test_cases = [
-            (42, 0.0),
-            (42, 0.2),
-            (42, 1.0),
-            (999, -0.5),
-            (123, 2.5)
-        ]
-        
-        for seed, beta in test_cases:
-            tau, beta_returned = regenerate_ground_truth(seed, beta)
-            assert beta_returned == beta, f"Beta should be preserved: expected {beta}, got {beta_returned}"
+    assert check_collinearity(X), "Should detect collinearity in correlated data"

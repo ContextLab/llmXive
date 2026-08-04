@@ -17,11 +17,11 @@ As a security researcher, I want to automatically generate code samples from spe
 
 **Acceptance Scenarios**:
 
-1. **Given** a configured model (e.g., StarCoder) and a task ID from HumanEval (Python) or MBPP, **When** the generation script runs with a fixed random seed, **Then** a unique code file is produced in the output directory with ≥ 5 lines of valid code.
+1. **Given** a configured model (e.g., StarCoder) and a task ID from HumanEval (Python) and MBPP, **When** the generation script runs with a fixed random seed on a GitHub Actions Runner (ubuntu-latest, 2-core, 7GB RAM, Python 3.9.18, pinned dependencies, timeout 10s), **Then** a unique code file is produced in the output directory with ≥ 5 lines of valid code.
 2. **Given** a set of generated code files, **When** the static analysis tool (Bandit) runs, **Then** a structured report is produced listing vulnerability types (mapped to CWE) and counts per file.
-3. **Given** a generated code file and its static analysis report, **When** the count calculation script runs, **Then** the output CSV includes a row with `lines_of_code`, `vulnerability_count`, and `source_type`.
-4. **Given** the full pipeline execution, **When** the process completes, **Then** the total runtime and memory usage do not exceed the defined resource limits (≤ 6 hours, ≤ 7340 MB RAM) to ensure feasibility.
-5. **Given** the generation loop, **When** the system fails to reach 64 valid samples after 200 attempts, **Then** the system halts, logs the final count, and flags the dataset as 'insufficient data' without proceeding to analysis.
+3. **Given** a generated code file and its static analysis report, **When** the count calculation script runs, **Then** the output CSV includes a row with `lines_of_code`, `raw_vulnerability_count`, and `source_type`.
+4. **Given** the full pipeline execution, **When** the process completes, **Then** the total runtime and memory usage do not exceed the defined resource limits (≤ 6 hours, ≤ 7340 MB RAM) on the specified hardware profile (GitHub Actions Runner, ubuntu-latest, 2-core, 7GB RAM).
+5. **Given** the generation loop, **When** the system fails to reach 64 valid samples after 200 attempts, **Then** the system proceeds to power analysis (FR-009), flags the dataset as 'under-powered', and logs the final count without halting the pipeline.
 
 ---
 
@@ -35,9 +35,10 @@ As a security researcher, I want to compare the vulnerability counts of LLM-gene
 
 **Acceptance Scenarios**:
 
-1. **Given** two datasets (LLM-generated and human-written) with calculated vulnerability counts, **When** the comparison script runs, **Then** a Zero-Inflated Negative Binomial (ZINB) regression is performed; if the model fails to converge after 3 attempts, a permutation test on raw counts is executed.
+1. **Given** two datasets (LLM-generated and human-written) with calculated adjusted vulnerability densities, **When** the comparison script runs, **Then** a Zero-Inflated Negative Binomial (ZINB) regression is performed with an offset for log(lines_of_code); if the model fails to converge after 3 attempts, a permutation test on adjusted counts is executed.
 2. **Given** the test results, **When** the script calculates effect size, **Then** the incidence rate ratio (IRR) or risk ratio is reported with a 95% confidence interval.
 3. **Given** stratified data by vulnerability category (e.g., SQL injection, XSS), **When** the script runs, **Then** separate statistical comparisons are generated for each category ONLY if n ≥ 5 per group; otherwise, the category is flagged as 'insufficient data' and skipped.
+4. **Given** the stratified vulnerability data, **When** the script runs, **Then** Benjamini-Hochberg (FDR) correction is applied to p-values to control for correlated tests.
 
 ---
 
@@ -51,9 +52,25 @@ As a security researcher, I want to generate visualizations comparing the distri
 
 **Acceptance Scenarios**:
 
-1. **Given** the final analysis dataset, **When** the visualization script runs, **Then** a boxplot comparing LLM vs. Human vulnerability counts is saved.
+1. **Given** the final analysis dataset, **When** the visualization script runs, **Then** a boxplot comparing LLM vs. Human adjusted vulnerability densities is saved.
 2. **Given** the stratified vulnerability data, **When** the script runs, **Then** a bar chart showing the top 5 vulnerability types by frequency for each source is generated.
 3. **Given** the analysis results, **When** the report generator runs, **Then** a summary Markdown document is created containing the key statistics and paths to the generated images.
+
+---
+
+### User Story 4 - Ground-Truth Validation and FPR Correction (Priority: P2)
+
+As a security researcher, I want to estimate the false positive rate (FPR) of static analysis tools via a deterministic audit and adjust the vulnerability counts, so that the final density metric is scientifically valid and not inflated by tool noise.
+
+**Why this priority**: Static analysis tools have high false positive rates. Without correction, the 'vulnerability density' metric is scientifically invalid. This user story ensures the primary metric is accurate.
+
+**Independent Test**: Can be fully tested by running the validation script on a small set of known-vulnerable and known-safe code snippets and verifying that the calculated FPR matches the expected rate within a tolerance of 0.05.
+
+**Acceptance Scenarios**:
+
+1. **Given** a dataset of generated and human code samples, **When** the validation script runs, **Then** a stratified random sample of n=20 items per group (LLM and Human) is selected for audit.
+2. **Given** the selected sample, **When** a deterministic audit script applies strict heuristic rules (CWE signature matching), **Then** a 'True/False' flag is assigned based on the heuristic agreement.
+3. **Given** the audit results, **When** the FPR calculation runs, **Then** group-specific FPRs are computed and used to adjust the raw vulnerability counts.
 
 ---
 
@@ -62,33 +79,35 @@ As a security researcher, I want to generate visualizations comparing the distri
 - What happens when the static analysis tool fails to parse a generated file (e.g., syntax error)? The system must skip the file, log the error, and exclude it from count calculations without crashing the pipeline.
 - How does the system handle models that generate empty or non-code output? The system must detect zero lines of code and exclude the sample from the count calculation to avoid division by zero.
 - How does the system handle tasks where the human reference solution is missing or invalid? The system must flag the task ID and exclude it from the comparative analysis, logging the exclusion reason.
-- What happens if the valid sample size drops below a statistically sufficient threshold after filtering? The system must trigger a power analysis or flag the dataset as under-powered for the intended statistical tests.
+- What happens if the valid sample size drops below a statistically sufficient threshold after filtering? The system must trigger a power analysis (FR-009) ONLY if the generation loop exhausts 200 attempts and the final count is < 64.
 
 ## Requirements *(mandatory)*
 
 ### Functional Requirements
 
 - **FR-001**: System MUST download and load specified open-source code generation models (e.g., StarCoder, CodeGen) from the HuggingFace Model Hub into memory for inference. (See US-1)
-- **FR-002**: System MUST generate code samples for a random set of tasks from the HumanEval (Python) and MBPP benchmarks using a fixed random seed. The system MUST iteratively generate samples until ≥ 64 valid samples (passing benchmark tests) are obtained per model or 200 attempts are exhausted. (See US-1)
+- **FR-002**: System MUST generate code samples for a random set of tasks from BOTH HumanEval (Python) and MBPP benchmarks using a fixed random seed. The system MUST iteratively generate samples until ≥ 64 valid samples (passing benchmark tests in Python 3.9, pinned dependencies, timeout 10s on GitHub Actions Runner) are obtained per model or 200 attempts are exhausted. (See US-1)
 - **FR-003**: System MUST execute static analysis tools (Bandit for Python) on all generated and human-written code samples using pinned tool versions and default rule-sets to extract vulnerability counts. (See US-1)
-- **FR-004**: System MUST calculate the primary metric as `vulnerability_count` (raw count) for every code sample. A secondary metric `density_per_1k_lines` MAY be calculated but is NOT used for primary statistical testing. (See US-1)
-- **FR-005**: System MUST perform a Zero-Inflated Negative Binomial (ZINB) regression to compare vulnerability counts between LLM and Human groups; if the model fails to converge after 3 attempts, the system MUST default to a permutation test on raw counts. (See US-2)
+- **FR-004**: System MUST calculate `raw_vulnerability_count` for every code sample. The primary metric for statistical testing MUST be `adjusted_vulnerability_density`, calculated as `raw_count * (1 - group_FPR) / lines_of_code * 1000`, where `group_FPR` is derived from FR-014. (See US-1, US-4)
+- **FR-005**: System MUST perform a Zero-Inflated Negative Binomial (ZINB) regression to compare `adjusted_vulnerability_density` between LLM and Human groups, using `log(lines_of_code)` as an offset; if the model fails to converge after 3 attempts, the system MUST default to a permutation test on adjusted counts. The model MUST include `validity_rate` as a covariate to control for selection bias introduced by the validity filter. PREREQUISITE: FR-014 must complete successfully before this regression executes. (See US-2, US-4)
 - **FR-006**: System MUST stratify the statistical analysis by vulnerability category (mapped to CWE IDs) ONLY if the category contains ≥ 5 samples per group; otherwise, the system MUST log a warning and skip the test for that category. (See US-2)
-- **FR-007**: System MUST apply a multiple-comparison correction (e.g., Bonferroni or Benjamini-Hochberg) to p-values when testing across multiple vulnerability categories to control family-wise error rate. (See US-2)
-- **FR-008**: System MUST generate visualizations (boxplots, bar charts) comparing the distribution of vulnerability counts between code sources. (See US-3)
-- **FR-009**: System MUST perform a post-hoc power analysis if the final valid sample count is < 64, and report the achieved power to detect a medium effect size (d=0.5). The system MUST flag the dataset as 'under-powered' if achieved power < 0.80. (See US-2)
+- **FR-007**: System MUST apply Benjamini-Hochberg (FDR) correction to p-values when testing across multiple vulnerability categories to control for correlated tests, as vulnerability categories are not independent events. (See US-2)
+- **FR-008**: System MUST generate visualizations (boxplots, bar charts) comparing the distribution of adjusted vulnerability densities between code sources. (See US-3)
+- **FR-009**: System MUST perform a post-hoc power analysis if the final valid sample count is < 64 AND the generation loop has exhausted 200 attempts, and report the achieved power to detect a medium effect size (d=0.5). The system MUST flag the dataset as 'under-powered' if achieved power < 0.80. (See US-1)
 - **FR-010**: System MUST use pinned versions for all static analysis tools and configuration files to ensure deterministic output across runs. (See US-1)
-- **FR-011**: System MUST compare results across at least two distinct benchmark datasets (HumanEval and MBPP) to satisfy the research question's comparative scope regarding task diversity. (See US-2)
-- **FR-012**: System MUST execute a Reference-Validator Agent on a stratified random sample of n=20 items per group (LLM and Human) to estimate False Positive Rates (FPR). The system MUST calculate group-specific FPRs and apply the adjustment formula: `adjusted_count = raw_count * (1 - group_FPR)`. (See US-2)
+- **FR-011**: System MUST compare results across BOTH HumanEval and MBPP benchmark datasets to satisfy the research question's comparative scope regarding task diversity. (See US-2)
+- **FR-012**: System MUST execute a Ground-Truth Validation Step on a stratified random sample of n=20 items per group (LLM and Human) to estimate False Positive Rates (FPR). The system MUST calculate group-specific FPRs and apply the adjustment formula: `adjusted_count = raw_count * (1 - group_FPR)`. (See US-4)
 - **FR-013**: System MUST compare results across at least two distinct model architectures (e.g., StarCoder and CodeGen) to satisfy the research question's comparative scope. (See US-2)
-- **FR-014**: System MUST execute the Reference-Validator Agent as defined in Constitution Principle II. The agent MUST use a rule-based heuristic (matching CWE signatures to code patterns) and a deterministic seed-based subset selection to output a binary 'True/False' flag for each sampled item. (See Constitution Principle II)
-- **FR-015**: System MUST handle ZINB model convergence failures by falling back to a permutation test on raw counts after 3 failed attempts. (See US-2)
+- **FR-014**: System MUST execute a Ground-Truth Validation Step where n=20 samples per group are selected via stratified random sampling by severity and source type. A deterministic audit script MUST manually review each sample using strict heuristic rules (CWE signature matching); a sample is flagged 'True' only if the heuristic matches the signature. This step MUST complete before FR-005. (See US-4)
+- **FR-016**: System MUST filter human reference solutions for 'validity' (passing the same benchmark tests: Python 3.9, pinned dependencies, timeout 10s) before comparison to ensure 'Valid LLM' vs 'Valid Human' comparison, thereby controlling for selection bias. (See US-1, US-2)
+- **FR-017**: System MUST include `validity_rate` (ratio of valid samples) as a covariate in the ZINB regression to control for residual selection bias. (See US-2)
 
 ### Key Entities
 
-- **CodeSample**: Represents a single unit of code (generated or human) with attributes: `source_type` (LLM/Human), `model_name`, `benchmark_name`, `task_id`, `lines_of_code`, `vulnerability_count`, `is_valid` (passed benchmark tests).
+- **CodeSample**: Represents a single unit of code (generated or human) with attributes: `source_type` (LLM/Human), `model_name`, `benchmark_name`, `task_id`, `lines_of_code`, `raw_vulnerability_count`, `is_valid` (passed benchmark tests).
 - **VulnerabilityReport**: Represents the output of a static analysis tool for a specific file, containing `file_path`, `cwe_id`, `severity`, and `line_number`.
 - **StatisticalResult**: Represents the outcome of a hypothesis test, containing `test_type`, `p_value`, `confidence_interval`, `effect_size`, `adjusted_p_value`, and `convergence_status`.
+- **GroundTruthAudit**: Represents the result of a manual audit, containing `sample_id`, `heuristic_flag`, `final_flag` (agreement), and `cwe_id`.
 
 ## Success Criteria *(mandatory)*
 
@@ -96,21 +115,21 @@ As a security researcher, I want to generate visualizations comparing the distri
 
 > Planning docs state *what* will be measured and the *source/reference* it is measured against; defer specific empirical values (counts, dataset sizes, measured quantities, percentages) to the implementation/research phase.
 
-- **SC-001**: The difference in mean vulnerability count between LLM-generated and human-written code is measured against the null hypothesis of no difference (p < 0.05) to determine statistical significance. (See US-2)
-- **SC-002**: The effect size (Incidence Rate Ratio or Risk Ratio) of the vulnerability count difference is measured against standard benchmarks (small/medium/large) to quantify the magnitude of the security risk. (See US-2)
-- **SC-003**: The family-wise error rate across multiple vulnerability category tests is measured against the target threshold (α ≤ 0.05) after applying multiple-comparison correction. (See US-2)
-- **SC-004**: The computational resource usage (CPU time and memory) for the full batch execution of the generation and analysis pipeline is measured against the GitHub Actions free-tier limits (≤ 6 hours, ≤ 7340 MB RAM) to ensure feasibility. (See US-1)
-- **SC-005**: The reproducibility of results is measured against the requirement that re-running the pipeline with the same random seed and pinned tool versions yields identical statistical outputs (absolute difference ≤ 1e-6 for floating-point values). (See US-1, Constitution Principle IV)
+- **SC-001**: The difference in mean adjusted vulnerability density between LLM-generated and human-written code is measured against the null hypothesis of no difference (p < 0.05) to determine statistical significance. (See US-2)
+- **SC-002**: The effect size (Incidence Rate Ratio or Risk Ratio) of the adjusted vulnerability density difference is measured against standard benchmarks (small/medium/large) to quantify the magnitude of the security risk. (See US-2)
+- **SC-003**: The family-wise error rate across multiple vulnerability category tests is measured against the target threshold (α ≤ 0.05) after applying Benjamini-Hochberg correction. (See US-2)
+- **SC-004**: The computational resource usage (CPU time and memory) for the full batch execution of the generation and analysis pipeline is measured against the GitHub Actions free-tier limits (≤ 6 hours, ≤ 7340 MB RAM) on the specified hardware profile (ubuntu-latest, 2-core, 7GB RAM). (See US-1)
+- **SC-005**: The reproducibility of results is measured against the requirement that re-running the pipeline with the same random seed and pinned tool versions yields identical test method selection (ZINB vs Permutation) and identical numeric outputs within tolerance (absolute difference ≤ 1e-6 for floating-point values). All statistical results MUST be derived from real measurements; no simulated, placeholder, or hardcoded values are permitted. (See US-1, Constitution Principle IV)
 
 ## Assumptions
 
 - The open-source models (StarCoder, CodeGen) and static analysis tools (Bandit) are compatible with CPU-only execution and fit within the ≤ 7340 MB RAM limit of the GitHub Actions runner.
 - The HumanEval and MBPP benchmark datasets and their corresponding human-written reference solutions are publicly available and can be downloaded without authentication or paywalls.
 - The static analysis tool (Bandit) will successfully parse at least 90% of the generated code samples, excluding only those with fatal syntax errors that prevent parsing.
-- The "vulnerability count" metric (raw count), adjusted for false-positive rates, is a valid proxy for security risk in this context.
+- The "adjusted_vulnerability_density" metric (adjusted count / lines of code), derived from manual ground-truth FPR correction (FR-014), is a valid proxy for security risk in this context.
 - The final valid sample size (≥ 64 per model) will provide sufficient statistical power to detect a medium effect size (d=0.5), subject to verification by FR-009.
-- The analysis is observational; findings will be framed as associational differences in vulnerability counts, not causal claims about the models' inherent security properties.
-- Constitution Principle II (Verified Accuracy) is satisfied by the execution of FR-014.
+- The analysis is observational; findings will be framed as associational differences in vulnerability densities, not causal claims about the models' inherent security properties.
 - Constitution Principle III (Data Hygiene) is satisfied by the checksumming of raw data and recording in `state/` (as per FR-010 and Constitution III).
 - Constitution Principle IV (Single Source of Truth) is satisfied by the enforcement of traceability from `data/` to `code/` in the report generation script.
 - Constitution Principle V (Versioning Discipline) is satisfied by the update of `state/` files with content hashes upon completion.
+- **Justification for FPR Correction**: The inclusion of FR-012 and FR-014 (Ground-Truth Validation) is essential rigor to correct for the high false positive rates of static analysis tools, ensuring the primary metric is scientifically valid and not inflated by tool noise.

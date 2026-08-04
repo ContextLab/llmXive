@@ -1,0 +1,3 @@
+# This directory stores final analysis results, statistical reports, and visualizations.
+# Includes metrics.csv, stats.csv, plots, and markdown reports.
+# .gitkeep ensures the directory exists in version control.

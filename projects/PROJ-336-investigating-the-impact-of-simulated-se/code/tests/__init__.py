@@ -1,3 +1,3 @@
 """
-Test package initialization.
+llmXive Research Pipeline - Test Package
 """

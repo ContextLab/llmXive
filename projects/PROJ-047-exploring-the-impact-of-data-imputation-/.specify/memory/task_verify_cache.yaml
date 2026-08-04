@@ -1,0 +1,35 @@
+T014:
+  c: false
+  h: e882cc9f4825e90974916b03f651794b57b57e8128c91fddc12e7737509d5a04
+  r: The `verify_us1.py` file is truncated and does not contain code that writes the
+    required JSON output, and the expected `data/results/us1_verification.json` file
+    is absent. Both the generation of the result file and the complete verification
+    logic are missing, so the task is not fulfilled.
+T024:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code artifact (e.g., a modified `pipeline.py` containing the required error\u2011\
+    handling logic) was provided; therefore we cannot verify that non\u2011convergent\
+    \ imputation runs or infinite estimates are detected and flagged. The implementer\
+    \ must supply the updated `pipeline.py` with the appropriate checks and error\
+    \ messages."
+T028:
+  c: false
+  h: 4d4f03cd571994d2d4f61b9b034ddadc83c69770c711c3d66dc74eaa13bc06ff
+  r: "The provided `metrics.py` excerpt shows only the `calculate_bias_metrics` function;\
+    \ there is no `run_statistical_test(bias_matrix)` implementation, nor any code\
+    \ that writes to `data/results/statistical_test_results.json`. Additionally, the\
+    \ required JSON results file is absent from the repository. The task\u2019s core\
+    \ function and its output are therefore missing."
+T029b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or data file was presented that calls `regenerate_ground_truth(seed,\
+    \ beta)` nor stores the resulting `tau_true`, `alpha`, and `beta` in per\u2011\
+    run data. Without such an artifact, the requirement is not satisfied."
+T029c:
+  c: false
+  h: 0a1f7ec409db775305ffaba09c7a681192e6689e55651b32540a20d4d17b7717
+  r: "The required output file `data/results/simulation_summary.csv` is missing, so\
+    \ no aggregation, schema compliance, or coverage_rate calculation can be verified.\
+    \ The task\u2019s core artifact does not exist."

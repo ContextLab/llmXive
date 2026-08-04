@@ -1,3 +1,3 @@
 """
-Source package initialization.
+llmXive Research Pipeline - Source Code Package
 """
