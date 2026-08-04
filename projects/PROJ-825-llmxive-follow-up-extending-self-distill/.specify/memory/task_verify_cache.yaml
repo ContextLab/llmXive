@@ -1,0 +1,8 @@
+T005:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No linting or formatting configuration files (e.g., `pyproject.toml` with Black\
+    \ settings, `.ruff.toml` or `ruff.toml`, or any setup scripts) are present in\
+    \ the provided evidence, and the artifacts shown relate only to the SDAR student\u2011\
+    only gating feature, not to configuring Ruff or Black. The required linting/formatting\
+    \ setup is therefore missing."

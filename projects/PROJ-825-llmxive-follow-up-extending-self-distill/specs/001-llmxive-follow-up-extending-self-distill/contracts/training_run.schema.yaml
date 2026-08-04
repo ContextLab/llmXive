@@ -1,0 +1,67 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "TrainingRun"
+description: "Schema for a single training run artifact."
+type: "object"
+properties:
+  run_id:
+    type: "string"
+    description: "Unique identifier for the run."
+  variant:
+    type: "string"
+    enum:
+      - "grpo"
+      - "baseline"
+      - "student-only"
+    description: "The variant of SDAR used."
+  environment:
+    type: "string"
+    enum:
+      - "alfworld"
+      - "webshop"
+    description: "The environment used for training."
+  seed:
+    type: "integer"
+    description: "Random seed used."
+  start_time:
+    type: "string"
+    format: "date-time"
+    description: "ISO 8601 timestamp of start."
+  end_time:
+    type: "string"
+    format: "date-time"
+    description: "ISO 8601 timestamp of end."
+  total_steps:
+    type: "integer"
+    description: "Total number of training steps."
+  final_success_rate:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Average task success rate."
+  avg_cpu_time_per_step:
+    type: "number"
+    description: "Average CPU time in seconds per step."
+  peak_memory_mb:
+    type: "number"
+    description: "Peak RSS memory in MB."
+  convergence_steps:
+    type:
+      - "integer"
+      - "null"
+    description: "Steps to reach reward threshold 0.8, or null if not reached."
+  early_stopped:
+    type: "boolean"
+    description: "True if the run terminated early due to threshold or step cap."
+required:
+  - "run_id"
+  - "variant"
+  - "environment"
+  - "seed"
+  - "start_time"
+  - "end_time"
+  - "total_steps"
+  - "final_success_rate"
+  - "avg_cpu_time_per_step"
+  - "peak_memory_mb"
+  - "early_stopped"
+additionalProperties: false

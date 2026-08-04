@@ -1,0 +1,42 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "GatingSignal"
+description: "Schema for a single gating signal computation."
+type: "object"
+properties:
+  step_id:
+    type: "integer"
+    description: "Training step index."
+  token_id:
+    type: "integer"
+    description: "Token index in the sequence."
+  token_text:
+    type: "string"
+    description: "The actual token string."
+  entropy:
+    type: "number"
+    description: "Token entropy (H_t)."
+  stability:
+    type: "number"
+    description: "Context stability score (S_t)."
+  final_gate:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Final gated score (g_t)."
+  is_valid:
+    type: "boolean"
+    description: "True if no NaN/Inf detected."
+  paired_trajectory_id:
+    type:
+      - "string"
+      - "null"
+    description: "UUID of the baseline trajectory if this is a replay for correlation analysis."
+required:
+  - "step_id"
+  - "token_id"
+  - "token_text"
+  - "entropy"
+  - "stability"
+  - "final_gate"
+  - "is_valid"
+additionalProperties: false

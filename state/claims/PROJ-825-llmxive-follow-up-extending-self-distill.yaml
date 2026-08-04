@@ -1,0 +1,559 @@
+- artifact_path: projects/PROJ-825-llmxive-follow-up-extending-self-distill/specs/001-llmxive-follow-up-extending-self-distill/tasks.md
+  attempts: 1
+  canonical: combined RSS memory of Qwen2.5-1.7B and sentence-transformers must not
+    exceed 7GB
+  claim_id: c_aca6706f
+  context: T011 [P] Verify Qwen2.5-1.7B availability AND measure peak RSS memory of
+    combined Qwen2.5-1.7B (8-bit quantized) + sentence-transformers (all-MiniLM-L6-v2
+    quantized) in a dry-run script; FAIL if combined RSS >7GB RAM (Constitution VI)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: FAIL if combined RSS >7GB RAM
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T21:07:37Z'
+- artifact_path: projects/PROJ-825-llmxive-follow-up-extending-self-distill/specs/001-llmxive-follow-up-extending-self-distill/tasks.md
+  attempts: 1
+  canonical: training loop termination condition is average per-episode cumulative
+    reward of 0.8 for 3 consecutive episodes
+  claim_id: c_619086d7
+  context: 'T015 [P] [US1] TDD: Integration test for Student-Only loop termination
+    in `code/tests/test_training_loop.py` (verify stop when **average per-episode
+    cumulative reward reaches 0.8 for 3 consecutive episodes** OR step cap, as per
+    US-1 Acceptance Scenario 1)'
+  evidence:
+    asserted: '0.8'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: stop when average per-episode cumulative reward reaches 0.8 for 3 consecutive
+    episodes
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-04T21:07:37Z'
+- artifact_path: projects/PROJ-825-llmxive-follow-up-extending-self-distill/specs/001-llmxive-follow-up-extending-self-distill/tasks.md
+  attempts: 1
+  canonical: comparison table includes final task success rates and steps to 0.8 reward
+    threshold for GRPO, Baseline, and Student-Only variants
+  claim_id: c_58b46783
+  context: T025 [US2] Create `code/scripts/compare_variants.py` to aggregate logs
+    and output a comparison table of final task success rates and steps-to-threshold
+    (0.8 reward) for all three variants
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: output a comparison table of final task success rates and steps-to-threshold
+    (0.8 reward) for all three variants
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T21:08:23Z'
+- artifact_path: projects/PROJ-825-llmxive-follow-up-extending-self-distill/specs/001-llmxive-follow-up-extending-self-distill/tasks.md
+  attempts: 1
+  canonical: target cost reduction percentage is 60 percent
+  claim_id: c_8a0e0994
+  context: "T031 [US3] Implement `code/scripts/analyze_results.py` to calculate: -\
+    \ Cost reduction % (CPU time) comparing Student-Only vs. Baseline (target \u2265\
+    60%)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "target \u226560%"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T21:08:23Z'
+- artifact_path: projects/PROJ-825-llmxive-follow-up-extending-self-distill/specs/001-llmxive-follow-up-extending-self-distill/tasks.md
+  attempts: 1
+  canonical: performance retention inequality requires Student success minus GRPO
+    success to be at least 0.8 times Baseline success minus GRPO success
+  claim_id: c_f6345d6b
+  context: "T031 [US3] ... - **Explicitly verify the performance retention inequality**:\
+    \ `(Success_Student - Success_GRPO) \u2265 0.8 \xD7 (Success_Baseline - Success_GRPO)`\
+    \ and output a **PASS/FAIL boolean** result as required by SC-001"
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Performance_retention_inequality_requires_Student_success_mi
+  kind: magnitude
+  raw_text: "Success_Student - Success_GRPO \u2265 0.8 \xD7 (Success_Baseline - Success_GRPO)"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T21:08:44Z'
+- artifact_path: projects/PROJ-825-llmxive-follow-up-extending-self-distill/specs/001-llmxive-follow-up-extending-self-distill/tasks.md
+  attempts: 1
+  canonical: statistical test uses bootstrapping exclusively for a sample size of
+    5
+  claim_id: c_5b1965dc
+  context: T030 [P] [US3] Implement `code/metrics/statistical_test.py` with **Bootstrapping
+    only** for N=5 bounded data (per FR-005 and Plan "Complexity Tracking"); remove
+    any conditional logic for Mann-Whitney U or normality tests as these are explicitly
+    rejected for this data regime.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Bootstrapping only for N=5 bounded data
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T21:09:20Z'
+- artifact_path: projects/PROJ-825-llmxive-follow-up-extending-self-distill/specs/001-llmxive-follow-up-extending-self-distill/tasks.md
+  attempts: 1
+  canonical: transformers library version requirement is 4.40.0 or higher
+  claim_id: c_7e54fd81
+  context: 'T004 Initialize Python project with `requirements.txt` containing pinned
+    versions: `transformers>=4.40.0`'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: transformers>=4.40.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T21:09:42Z'
+- artifact_path: projects/PROJ-825-llmxive-follow-up-extending-self-distill/specs/001-llmxive-follow-up-extending-self-distill/tasks.md
+  attempts: 1
+  canonical: datasets library version requirement is 2.14.0 or higher
+  claim_id: c_0eae725b
+  context: 'T004 Initialize Python project with `requirements.txt` containing pinned
+    versions: ... `datasets>=2.14.0`'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: datasets>=2.14.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T21:10:02Z'
+- artifact_path: projects/PROJ-825-llmxive-follow-up-extending-self-distill/specs/001-llmxive-follow-up-extending-self-distill/tasks.md
+  attempts: 1
+  canonical: sentence-transformers library version requirement is 2.2.0 or higher
+  claim_id: c_bd8a0035
+  context: 'T004 Initialize Python project with `requirements.txt` containing pinned
+    versions: ... `sentence-transformers>=2.2.0`'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: sentence-transformers>=2.2.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T21:10:28Z'
+- artifact_path: projects/PROJ-825-llmxive-follow-up-extending-self-distill/specs/001-llmxive-follow-up-extending-self-distill/tasks.md
+  attempts: 1
+  canonical: torch library version requirement is 2.0.0 or higher
+  claim_id: c_9298962a
+  context: 'T004 Initialize Python project with `requirements.txt` containing pinned
+    versions: ... `torch>=2.0.0`'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: torch>=2.0.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T21:10:43Z'
+- artifact_path: projects/PROJ-825-llmxive-follow-up-extending-self-distill/specs/001-llmxive-follow-up-extending-self-distill/tasks.md
+  attempts: 1
+  canonical: scikit-learn library version requirement is 1.3.0 or higher
+  claim_id: c_063f69a1
+  context: 'T004 Initialize Python project with `requirements.txt` containing pinned
+    versions: ... `scikit-learn>=1.3.0`'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: scikit-learn>=1.3.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T21:11:04Z'
+- artifact_path: projects/PROJ-825-llmxive-follow-up-extending-self-distill/specs/001-llmxive-follow-up-extending-self-distill/tasks.md
+  attempts: 1
+  canonical: pytest library version requirement is 7.0.0 or higher
+  claim_id: c_44be7bf6
+  context: 'T004 Initialize Python project with `requirements.txt` containing pinned
+    versions: ... `pytest>=7.0.0`'
+  evidence:
+    fill:
+      channel: constants
+      conflicts: []
+      quote: 3.141592653589793 (math.pi (IEEE-754 double, Python stdlib))
+      source_id: pi
+      url: https://en.wikipedia.org/wiki/Pi
+      value: '3.141592653589793'
+    filled: true
+  kind: numeric
+  raw_text: pytest>=7.0.0
+  resolved_value: '3.141592653589793'
+  resolver: fill:constants
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-04T21:11:07Z'
+- artifact_path: projects/PROJ-825-llmxive-follow-up-extending-self-distill/specs/001-llmxive-follow-up-extending-self-distill/tasks.md
+  attempts: 1
+  canonical: alfworld library version requirement is 0.3.0 or higher
+  claim_id: c_c2913b0d
+  context: 'T004 Initialize Python project with `requirements.txt` containing pinned
+    versions: ... `alfworld>=0.3.0`'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: alfworld>=0.3.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T21:11:22Z'
+- artifact_path: projects/PROJ-825-llmxive-follow-up-extending-self-distill/specs/001-llmxive-follow-up-extending-self-distill/tasks.md
+  attempts: 1
+  canonical: webshop library version requirement is 0.1.0 or higher
+  claim_id: c_01e135b8
+  context: 'T004 Initialize Python project with `requirements.txt` containing pinned
+    versions: ... `webshop>=0.1.0`'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: webshop>=0.1.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T21:11:40Z'
+- artifact_path: projects/PROJ-825-llmxive-follow-up-extending-self-distill/specs/001-llmxive-follow-up-extending-self-distill/tasks.md
+  attempts: 1
+  canonical: pandas library version requirement is 2.0.0 or higher
+  claim_id: c_96692bea
+  context: 'T004 Initialize Python project with `requirements.txt` containing pinned
+    versions: ... `pandas>=2.0.0`'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pandas>=2.0.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T21:11:56Z'
+- artifact_path: projects/PROJ-825-llmxive-follow-up-extending-self-distill/specs/001-llmxive-follow-up-extending-self-distill/tasks.md
+  attempts: 1
+  canonical: numpy library version requirement is 1.24.0 or higher
+  claim_id: c_ed118023
+  context: 'T004 Initialize Python project with `requirements.txt` containing pinned
+    versions: ... `numpy>=1.24.0`'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: numpy>=1.24.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T21:12:11Z'
+- artifact_path: projects/PROJ-825-llmxive-follow-up-extending-self-distill/specs/001-llmxive-follow-up-extending-self-distill/tasks.md
+  attempts: 1
+  canonical: model Qwen2.5-1.7B is used in the project
+  claim_id: c_483e846b
+  context: T011 [P] Verify Qwen2.5-1.7B availability AND measure peak RSS memory of
+    combined Qwen2.5-1.7B (8-bit quantized) + sentence-transformers (all-MiniLM-L6-v2
+    quantized) in a dry-run script
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Qwen2.5-1.7B
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T21:12:33Z'
+- artifact_path: projects/PROJ-825-llmxive-follow-up-extending-self-distill/specs/001-llmxive-follow-up-extending-self-distill/tasks.md
+  attempts: 1
+  canonical: model all-MiniLM-L6-v2 is used in the project
+  claim_id: c_47307b3b
+  context: T011 [P] Verify Qwen2.5-1.7B availability AND measure peak RSS memory of
+    combined Qwen2.5-1.7B (8-bit quantized) + sentence-transformers (all-MiniLM-L6-v2
+    quantized) in a dry-run script
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: embedding (i.e., all-MiniLM-L6-v2) in an
+      source_id: '2607.07974'
+      url: https://arxiv.org/abs/2607.07974
+      value: all-MiniLM-L6-v2
+    filled: true
+  kind: entity_fact
+  raw_text: all-MiniLM-L6-v2
+  resolved_value: all-MiniLM-L6-v2
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-04T21:12:48Z'
+- artifact_path: projects/PROJ-825-llmxive-follow-up-extending-self-distill/specs/001-llmxive-follow-up-extending-self-distill/tasks.md
+  attempts: 1
+  canonical: Qwen2.5-1.7B 8-bit quantized plus sentence-transformers quantized combined
+    RSS memory exceeds 7GB
+  claim_id: c_be876eab
+  context: T011 [P] Verify Qwen2.5-1.7B availability AND measure peak RSS memory of
+    combined Qwen2.5-1.7B (8-bit quantized) + sentence-transformers ({{claim:c_47307b3b}}
+    (2607.07974, https://arxiv.org/abs/2607.07974) quantized) in a dry-run script;
+    FAIL if combined RSS >7GB RAM (Constitution VI)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify Qwen2.5-1.7B availability AND measure peak RSS memory of combined
+    Qwen2.5-1.7B (8-bit quantized) + sentence-transformers (quantized) in a dry-run
+    script; FAIL if combined RSS >7GB RAM
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T21:13:35Z'
+- artifact_path: projects/PROJ-825-llmxive-follow-up-extending-self-distill/specs/001-llmxive-follow-up-extending-self-distill/tasks.md
+  attempts: 1
+  canonical: Training loop stops when average per-episode cumulative reward reaches
+    0.8 for 3 consecutive episodes
+  claim_id: c_841ca6e2
+  context: 'T015 [P] [US1] TDD: Integration test for Student-Only loop termination
+    in `code/tests/test_training_loop.py` (verify stop when **average per-episode
+    cumulative reward reaches 0.8 for 3 consecutive episodes** OR step cap, as per
+    US-1 Acceptance Scenario 1)'
+  evidence:
+    asserted: '0.8'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: verify stop when average per-episode cumulative reward reaches 0.8 for
+    3 consecutive episodes
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-04T21:13:35Z'
+- artifact_path: projects/PROJ-825-llmxive-follow-up-extending-self-distill/specs/001-llmxive-follow-up-extending-self-distill/tasks.md
+  attempts: 1
+  canonical: Pearson correlation coefficient computed between Student-Only scores
+    and Baseline Teacher-Student gaps
+  claim_id: c_a09137f2
+  context: 'T026 [US2] [Depends on: T019, T012] Implement `code/agents/student_only_agent.py`
+    paired replay logic: load Baseline trajectories (from T012) and replay them through
+    the Student-Only agent to compute scores on identical states; **compute and report
+    Pearson correlation coefficient** between Student-Only scores and Baseline Teacher-Student
+    gaps (FR-007, Constitution VII)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pearson_correlation_coefficient_computed_between_Student-Onl
+  kind: entity_fact
+  raw_text: compute and report Pearson correlation coefficient between Student-Only
+    scores and Baseline Teacher-Student gaps
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T21:14:05Z'
+- artifact_path: projects/PROJ-825-llmxive-follow-up-extending-self-distill/specs/001-llmxive-follow-up-extending-self-distill/tasks.md
+  attempts: 1
+  canonical: Target cost reduction of 60% in CPU time comparing Student-Only vs. Baseline
+  claim_id: c_01c5b0ea
+  context: "T031 [US3] Implement `code/scripts/analyze_results.py` to calculate: -\
+    \ Cost reduction % (CPU time) comparing Student-Only vs. Baseline (target \u2265\
+    60%)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Cost reduction % (CPU time) comparing Student-Only vs. Baseline (target\
+    \ \u226560%)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T21:14:05Z'
+- artifact_path: projects/PROJ-825-llmxive-follow-up-extending-self-distill/specs/001-llmxive-follow-up-extending-self-distill/tasks.md
+  attempts: 1
+  canonical: Performance retention inequality (Success_Student - Success_GRPO) >=
+    0.8 * (Success_Baseline - Success_GRPO) verified
+  claim_id: c_c7b35292
+  context: "T031 [US3] Implement `code/scripts/analyze_results.py` to calculate: -\
+    \ **Explicitly verify the performance retention inequality**: `(Success_Student\
+    \ - Success_GRPO) \u2265 0.8 \xD7 (Success_Baseline - Success_GRPO)` and output\
+    \ a **PASS/FAIL boolean** result as required by SC-001"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Explicitly verify the performance retention inequality: (Success_Student\
+    \ - Success_GRPO) \u2265 0.8 \xD7 (Success_Baseline - Success_GRPO)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T21:14:05Z'
+- artifact_path: projects/PROJ-825-llmxive-follow-up-extending-self-distill/specs/001-llmxive-follow-up-extending-self-distill/tasks.md
+  attempts: 1
+  canonical: combined Qwen2.5-1.7B and sentence-transformers 8-bit quantized RSS memory
+    limit is 7GB
+  claim_id: c_14940bb2
+  context: T011 [P] Verify Qwen2.5-1.7B availability AND measure peak RSS memory of
+    combined Qwen2.5-1.7B (8-bit quantized) + sentence-transformers ({{claim:c_47307b3b}}
+    (2607.07974, https://arxiv.org/abs/2607.07974) quantized) in a dry-run script;
+    FAIL if combined RSS >7GB RAM (Constitution VI)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify Qwen2.5-1.7B availability AND measure peak RSS memory of combined
+    Qwen2.5-1.7B (8-bit quantized) + sentence-transformers (quantized) in a dry-run
+    script; FAIL if combined RSS >7GB RAM
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T21:14:49Z'
+- artifact_path: projects/PROJ-825-llmxive-follow-up-extending-self-distill/specs/001-llmxive-follow-up-extending-self-distill/tasks.md
+  attempts: 1
+  canonical: student-only loop termination condition is average per-episode cumulative
+    reward of 0.8 for 3 consecutive episodes
+  claim_id: c_68349855
+  context: 'T015 [P] [US1] TDD: Integration test for Student-Only loop termination
+    in `code/tests/test_training_loop.py` (verify stop when **average per-episode
+    cumulative reward reaches 0.8 for 3 consecutive episodes** OR step cap, as per
+    US-1 Acceptance Scenario 1)'
+  evidence:
+    asserted: '0.8'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: verify stop when average per-episode cumulative reward reaches 0.8 for
+    3 consecutive episodes OR step cap
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-04T21:14:49Z'
+- artifact_path: projects/PROJ-825-llmxive-follow-up-extending-self-distill/specs/001-llmxive-follow-up-extending-self-distill/tasks.md
+  attempts: 1
+  canonical: target cost reduction percentage for Student-Only vs Baseline is 60 percent
+  claim_id: c_9d2bb114
+  context: "T031 [US3] Implement `code/scripts/analyze_results.py` to calculate: -\
+    \ Cost reduction % (CPU time) comparing Student-Only vs. Baseline (target \u2265\
+    60%)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "target cost reduction % (CPU time) comparing Student-Only vs. Baseline\
+    \ is \u226560%"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T21:14:49Z'
+- artifact_path: projects/PROJ-825-llmxive-follow-up-extending-self-distill/specs/001-llmxive-follow-up-extending-self-distill/tasks.md
+  attempts: 1
+  canonical: target P-value for Bootstrapping is less than 0.05
+  claim_id: c_88f9ef0c
+  context: 'T031 [US3] Implement `code/scripts/analyze_results.py` to calculate: -
+    **Import and execute the Bootstrapping logic from `code/metrics/statistical_test.py`
+    (T030)** to determine the P-value (target p < 0.05)'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Target_P-value_for_Bootstrapping_is_less_than_0.05
+  kind: magnitude
+  raw_text: target P-value is < 0.05
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T21:15:19Z'
+- artifact_path: projects/PROJ-825-llmxive-follow-up-extending-self-distill/specs/001-llmxive-follow-up-extending-self-distill/tasks.md
+  attempts: 1
+  canonical: performance retention inequality requires Student minus GRPO to be greater
+    than or equal to 0.8 times Baseline minus GRPO
+  claim_id: c_11493054
+  context: "T031 [US3] Implement `code/scripts/analyze_results.py` to calculate: -\
+    \ **Explicitly verify the performance retention inequality**: `(Success_Student\
+    \ - Success_GRPO) \u2265 0.8 \xD7 (Success_Baseline - Success_GRPO)` and output\
+    \ a **PASS/FAIL boolean** result as required by SC-001"
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Performance_retention_inequality_requires_Student_minus_GRPO
+  kind: magnitude
+  raw_text: "performance retention inequality: (Success_Student - Success_GRPO) \u2265\
+    \ 0.8 \xD7 (Success_Baseline - Success_GRPO)"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T21:15:44Z'
+- artifact_path: projects/PROJ-825-llmxive-follow-up-extending-self-distill/specs/001-llmxive-follow-up-extending-self-distill/tasks.md
+  attempts: 1
+  canonical: Bootstrapping is implemented for N equals 5 bounded data
+  claim_id: c_2dfaf633
+  context: T030 [P] [US3] Implement `code/metrics/statistical_test.py` with **Bootstrapping
+    only** for N=5 bounded data (per FR-005 and Plan "Complexity Tracking"); remove
+    any conditional logic for Mann-Whitney U or normality tests as these are explicitly
+    rejected for this data regime.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Bootstrapping only for N=5 bounded data
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T21:15:44Z'
