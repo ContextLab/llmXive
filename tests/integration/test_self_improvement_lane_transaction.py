@@ -64,9 +64,17 @@ def clone(tmp_path, bare_remote):
 _REMOTE = LaneLogConfig(remote="origin")
 
 
+#: A claim's generation + terms. These transport tests are about the COMMIT — one commit,
+#: two streams, binding preconditions — but the record they move must still be one the write
+#: boundary accepts, or they would be exercising the store with something it refuses.
+_CLAIM_BODY = {"claim_generation": 1, "lane_revision": 0, "claim_expiry_s": 13200,
+               "max_claim_hold_time_s": 13200, "max_clock_skew_s": 300, "policy_version": 1}
+
+
 def _coord(eid: str, *, rev: int = 0, attempt_id: str = "A1") -> Event:
     return Event(event_id=eid, event_type="ClaimAcquired", problem_id=COORDINATOR_STREAM,
-                 actor="a", payload={"problem_id": "prob-1", "attempt_id": attempt_id},
+                 actor="a",
+                 payload={"problem_id": "prob-1", "attempt_id": attempt_id, **_CLAIM_BODY},
                  timestamp=f"2026-07-31T00:00:{rev:02d}+00:00", attempt_id=attempt_id,
                  expected_lane_revision=rev)
 

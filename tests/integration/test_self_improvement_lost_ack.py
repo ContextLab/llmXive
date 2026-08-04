@@ -409,8 +409,9 @@ def test_a_PRE_CLAIM_terminal_that_somehow_has_a_release_raises(repo):
 
     Passing the pruned effect list instead of `(declared, required)` would make "correctly
     wrote nothing" and "wrongly holds another Attempt's release" the same input."""
-    from llmxive.self_improvement.coordinator import cas_claim
     from llmxive.self_improvement.events import coord_event
+    from llmxive.self_improvement.lane_log import append
+    from tests.helpers.lane_lifecycle import TEST_CLAIM_TERMS
 
     clock = Clock()
     # The lane's coordinator says P1/A1 holds it; P1/A1's own timeline never got a grant, so
@@ -418,7 +419,17 @@ def test_a_PRE_CLAIM_terminal_that_somehow_has_a_release_raises(repo):
     # foldable — a release naming an Attempt the coordinator does not show as owner is
     # refused by `project_coordinator` long before any replay, which is why this case has to
     # be built from the disagreement rather than from a stray record.
-    cas_claim(repo, problem_id="P1", attempt_id="A1", actor="runner-1", timestamp=clock())
+    #
+    # Hand-appended, because `cas_claim` can no longer produce it: a claim is now ONE
+    # transaction over both streams, so a coordinator half with no grant is exactly the
+    # state it exists to make unreachable. Building the damage by hand is the honest way to
+    # test a checker against a state the writers refuse to create.
+    append(repo, coord_event(
+        "ClaimAcquired", problem_id="P1", attempt_id="A1", actor="runner-1",
+        timestamp=clock(),
+        payload={"problem_id": "P1", "attempt_id": "A1", "claim_generation": 1,
+                 "lane_revision": 0, **TEST_CLAIM_TERMS.as_payload()}),
+        expected_revision=0, config=LOCAL)
     _apply(repo, "Proposed", config=LOCAL, clock=clock)
     payload = {"stage": "proposal", "cause": "wall_clock", "unresolved_dispatches": []}
     _apply(repo, "ReviewAborted", payload=payload, config=LOCAL, clock=clock)

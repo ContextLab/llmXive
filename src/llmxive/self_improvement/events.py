@@ -554,16 +554,62 @@ def _validate_reservation_transition(raw: Mapping[str, Any]) -> None:
 
 
 _CLAIM_KEYS = frozenset({"problem_id", "attempt_id"})
+
+#: The policy a claim was granted UNDER, carried ON the claim (spec 025 FR-035). A later
+#: reclaimer reads these from the record rather than from live policy, so editing the Policy
+#: Contract mid-claim cannot retroactively expire a live run.
+_CLAIM_TERM_KEYS = frozenset({
+    "claim_expiry_s", "max_claim_hold_time_s", "max_clock_skew_s", "policy_version"})
+
+#: ONE key set for BOTH halves of a claim, because a claim IS one construction written to
+#: two streams: the coordinator's `ClaimAcquired` and the Attempt's `ClaimGranted` embed the
+#: same body. Two key sets would be two schemas for one record — and the auditor compares
+#: the halves field-for-field, so a field one half may carry and the other may not is a
+#: disagreement the comparison would report as corruption.
+_CLAIM_PAIR_KEYS = _CLAIM_KEYS | {"claim_generation", "lane_revision"} | _CLAIM_TERM_KEYS
 _MONITOR_KEYS = frozenset({"problem_id", "attempt_id", "merged_at"})
 _MONITOR_ENDED_KEYS = frozenset({"problem_id", "attempt_id", "outcome"})
 _PROMOTION_KEYS = frozenset({"promotion_enabled", "policy_version"})
 
 
+def _claim_pair_payload(raw: Mapping[str, Any]) -> None:
+    """The body a claim's TWO halves share, checked identically on both (Task 8).
+
+    Exact, because this payload binds LIMITS: `claim_expiry_s` and `max_claim_hold_time_s`
+    decide when a live holder may be evicted, and `max_clock_skew_s` decides how much a
+    disagreeing clock is allowed to move that decision. The house rule is that an event
+    binding a limit or a routing identity has an exact schema, and a claim binds three.
+
+    `lane_revision` is here because it is part of the grant's idempotency key
+    (`(attempt_id,"claim",lane_revision)`), and only the payload can carry it: the
+    Attempt-side half's envelope records the PROBLEM revision, so a reader with the record
+    in hand would otherwise have no way to recover the key it was written under."""
+    payload = raw["payload"]
+    _exact_keys(payload, _CLAIM_PAIR_KEYS, f"{raw['event_type']} payload")
+    _require(payload, "problem_id", str)
+    _positive_int(payload, "claim_generation")
+    _non_negative_int(payload, "lane_revision")
+    for term in sorted(_CLAIM_TERM_KEYS):
+        _positive_int(payload, term)
+
+
+def _validate_claim_acquired(raw: Mapping[str, Any]) -> None:
+    """The COORDINATOR half of a claim: ownership plus the terms it was granted under.
+
+    Ownership is checked exactly as ``ClaimReleased``'s is (see :func:`_validate_claim`) —
+    the projection reads these two ids to decide who holds the singleton lane."""
+    _claim_pair_payload(raw)
+    _same_attempt(raw)
+
+
 def _validate_claim(raw: Mapping[str, Any]) -> None:
-    """``ClaimAcquired``/``ClaimReleased`` — the lane's OWNERSHIP record.
+    """``ClaimReleased`` — the lane's OWNERSHIP record.
 
     ``project_coordinator`` reads these two ids to decide who holds the singleton claim,
     and ``cas_release`` compares them to refuse a delayed release from a previous owner.
+    A release carries NO generation and NO terms — one owner for the number
+    (:func:`_claim_pair_payload`), and a release that restated them could disagree with the
+    claim it is releasing.
     A missing or empty id would therefore either explode inside the projection or, worse,
     compare equal to nothing and let a stale release clear a live claim.
 
@@ -686,14 +732,15 @@ def _validate_claim_granted(raw: Mapping[str, Any]) -> None:
     """The ATTEMPT-side half of a claim grant (the coordinator-side half is
     ``ClaimAcquired``, written in the same transaction).
 
-    ``claim_generation`` is required because ``walk_attempt`` READS it: a grant without one
-    is a history the fold refuses, and refusing it here — at the write boundary — is the
+    ``claim_generation`` matters twice over: ``walk_attempt`` READS it, so a grant without
+    one is a history the fold refuses — and refusing it here, at the write boundary, is the
     difference between a rejected append and an Attempt whose every future projection
-    raises. Task 8 adds the four claim-bound policy terms (``claim_expiry_s``,
-    ``max_claim_hold_time_s``, ``max_clock_skew_s``, ``policy_version``) and makes this
-    schema exact once the full key set is known."""
+    raises.
+
+    Exactly the same key set as its coordinator half, and deliberately so: the two are one
+    construction, and the auditor compares them field-for-field."""
+    _claim_pair_payload(raw)
     _validate_attempt_transition(raw)
-    _positive_int(raw["payload"], "claim_generation")
 
 
 def _validate_claim_heartbeat(raw: Mapping[str, Any]) -> None:
@@ -808,7 +855,7 @@ TYPE_VALIDATORS: dict[str, Callable[[Mapping[str, Any]], None]] = {
     # The coordinator stream: these four are what `project_coordinator` folds, and the
     # projection is the lane's recovery authority — a malformed payload must be refused at
     # the WRITE boundary, not surface as a KeyError inside the fold once it is durable.
-    "ClaimAcquired": _validate_claim,
+    "ClaimAcquired": _validate_claim_acquired,
     "ClaimReleased": _validate_claim,
     "MonitorStarted": _validate_monitor_started,
     "PromotionEnabledSet": _validate_promotion_enabled_set,

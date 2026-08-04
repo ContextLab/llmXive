@@ -25,11 +25,12 @@ from llmxive.self_improvement.call_ledger import (
     LaneCallLedger,
     project_call_claims,
 )
+from llmxive.self_improvement.claim import cas_claim
 from llmxive.self_improvement.coordinator import (
     EMPTY_COORDINATOR,
     ClaimOutcome,
+    ClaimTerms,
     LaneCoordinator,
-    cas_claim,
     cas_release,
     project_coordinator,
 )
@@ -80,6 +81,7 @@ __all__ = [
     "AttemptReservation",
     "CallClaim",
     "ClaimOutcome",
+    "ClaimTerms",
     "Event",
     "EventStoreRouteAudit",
     "IndependenceDegraded",

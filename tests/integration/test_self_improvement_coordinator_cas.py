@@ -10,7 +10,8 @@ import subprocess
 
 import pytest
 
-from llmxive.self_improvement.coordinator import cas_claim, cas_release, project_coordinator
+from llmxive.self_improvement.claim import cas_claim
+from llmxive.self_improvement.coordinator import cas_release, project_coordinator
 from llmxive.self_improvement.events import COORDINATOR_STREAM
 from llmxive.self_improvement.lane_log import (
     LaneLogConfig,
@@ -18,6 +19,8 @@ from llmxive.self_improvement.lane_log import (
     bootstrap_lane_log,
     read,
 )
+from llmxive.self_improvement.lifecycle import cas_attempt_transition
+from tests.helpers.lane_lifecycle import TEST_CLAIM_TERMS
 
 TS = "2026-07-24T00:00:00+00:00"
 
@@ -39,21 +42,45 @@ def _events(repo):
     return read(repo, COORDINATOR_STREAM)
 
 
+def _claim(repo, *, problem_id, attempt_id, actor="d", timestamp=TS, **kw):
+    """Claim through the real path, with the two transitions the table now requires.
+
+    A claim is `proposal_verified → claimed`, so an Attempt with no events cannot be
+    claimed at all — these 1A tests predate that and claimed from an empty Problem stream.
+    The prelude is itself idempotent (each opening transition finds its own stored event),
+    so a REPLAY of a claim can run it too and stay a replay.
+
+    The prelude writes only to the PROBLEM stream, so every coordinator-stream count and
+    revision assertion below still means what it meant."""
+    for event_type in ("Proposed", "ProposalVerified"):
+        cas_attempt_transition(repo, problem_id=problem_id, attempt_id=attempt_id,
+                               event_type=event_type, payload={}, actor=actor,
+                               clock=lambda: timestamp)
+    return cas_claim(repo, problem_id=problem_id, attempt_id=attempt_id, actor=actor,
+                     timestamp=timestamp, terms=TEST_CLAIM_TERMS, **kw)
+
+
 def test_claim_when_idle_then_occupied_blocks_others(repo):
-    c = cas_claim(repo, problem_id="P1", attempt_id="A1", actor="d", timestamp=TS)
+    c = _claim(repo, problem_id="P1", attempt_id="A1", actor="d", timestamp=TS)
     assert c.acquired and (c.owner_problem_id, c.owner_attempt_id) == ("P1", "A1")
     assert c.coordinator.active_problem_id == "P1" and c.coordinator.lane_revision == 1
     with pytest.raises(LaneRevisionConflict, match="occupied"):
-        cas_claim(repo, problem_id="P2", attempt_id="A2", actor="d", timestamp=TS)
+        _claim(repo, problem_id="P2", attempt_id="A2", actor="d", timestamp=TS)
     # the failed claim left NO record — a rejected CAS never appends
     assert len(_events(repo)) == 1
 
 
 def test_claim_is_idempotent_on_reinvocation(repo):
-    a = cas_claim(repo, problem_id="P1", attempt_id="A1", actor="d", timestamp=TS)
-    b = cas_claim(repo, problem_id="P1", attempt_id="A1", actor="d", timestamp=TS)  # re-invoked
-    assert a == b and b.coordinator.lane_revision == 1  # no duplicate event, same answer
+    a = _claim(repo, problem_id="P1", attempt_id="A1", actor="d", timestamp=TS)
+    b = _claim(repo, problem_id="P1", attempt_id="A1", actor="d", timestamp=TS)  # re-invoked
+    assert b.coordinator.lane_revision == 1  # no duplicate event
     assert b.acquired  # the re-invoker DOES still hold it — idempotent, not superseded
+    # Same claim, so the same generation — but NOT the same outcome record. `created`
+    # separates "I took the lane" from "the lane was already mine", which a caller that
+    # logs or meters claims needs and an equality assertion used to hide.
+    assert a.created is True and b.created is False
+    assert a.generation == b.generation == 1
+    assert (a.acquired, a.owner_problem_id) == (b.acquired, b.owner_problem_id)
     assert len(_events(repo)) == 1
 
 
@@ -69,12 +96,12 @@ def test_a_replayed_claim_returns_successfully_while_someone_else_owns_the_lane(
     FR-035 reclaim (``ClaimExpired``) makes re-granting a routine event rather than a
     rarity, so this replay window stops being hypothetical.
     """
-    cas_claim(repo, problem_id="P1", attempt_id="A1", actor="d", timestamp=TS)
+    _claim(repo, problem_id="P1", attempt_id="A1", actor="d", timestamp=TS)
     cas_release(repo, problem_id="P1", attempt_id="A1", actor="d", timestamp=TS)
-    cas_claim(repo, problem_id="P2", attempt_id="A2", actor="d", timestamp=TS)
+    _claim(repo, problem_id="P2", attempt_id="A2", actor="d", timestamp=TS)
 
     # P1/A1's ORIGINAL claim call is retried (lost acknowledgement, crash-retry, replay).
-    late = cas_claim(repo, problem_id="P1", attempt_id="A1", actor="d", timestamp=TS)
+    late = _claim(repo, problem_id="P1", attempt_id="A1", actor="d", timestamp=TS)
 
     # It returned without raising -- and says so plainly: P1/A1 holds nothing.
     assert late.acquired is False
@@ -87,7 +114,7 @@ def test_a_replayed_claim_returns_successfully_while_someone_else_owns_the_lane(
 def test_a_release_from_a_non_owner_cannot_clear_the_active_claim(repo):
     # The F6 guard: a caller that believes it holds the lane must not be able to evict the
     # Attempt that actually does.
-    cas_claim(repo, problem_id="P1", attempt_id="A1", actor="d", timestamp=TS)
+    _claim(repo, problem_id="P1", attempt_id="A1", actor="d", timestamp=TS)
     with pytest.raises(LaneRevisionConflict, match="owner mismatch"):
         cas_release(repo, problem_id="PX", attempt_id="AX", actor="d", timestamp=TS)
     assert project_coordinator(_events(repo)).active_problem_id == "P1"
@@ -96,7 +123,7 @@ def test_a_release_from_a_non_owner_cannot_clear_the_active_claim(repo):
 def test_a_release_reports_that_the_releaser_no_longer_holds_the_lane(repo):
     # `acquired` means "does the pair I named hold the lane NOW", so a successful release
     # reports False. Same field, same question, both entry points.
-    cas_claim(repo, problem_id="P1", attempt_id="A1", actor="d", timestamp=TS)
+    _claim(repo, problem_id="P1", attempt_id="A1", actor="d", timestamp=TS)
     out = cas_release(repo, problem_id="P1", attempt_id="A1", actor="d", timestamp=TS)
     assert out.acquired is False
     assert (out.owner_problem_id, out.owner_attempt_id) == (None, None)
@@ -104,7 +131,7 @@ def test_a_release_reports_that_the_releaser_no_longer_holds_the_lane(repo):
 
 def test_a_release_naming_the_right_problem_but_the_wrong_attempt_is_refused(repo):
     # Ownership is the PAIR: an earlier Attempt on the same Problem is still a non-owner.
-    c = cas_claim(repo, problem_id="P1", attempt_id="A2", actor="d", timestamp=TS)
+    c = _claim(repo, problem_id="P1", attempt_id="A2", actor="d", timestamp=TS)
     assert c.acquired  # A2 holds it...
     with pytest.raises(LaneRevisionConflict, match="owner mismatch"):
         cas_release(repo, problem_id="P1", attempt_id="A1", actor="d", timestamp=TS)
@@ -115,9 +142,9 @@ def test_a_delayed_duplicate_release_does_not_disturb_a_newer_claim(repo):
     # P1/A1 claims and releases, P2/A2 claims, and then a DELAYED retry of P1/A1's release
     # arrives. It is reporting a fact that is already durable, not requesting a change, so
     # it neither appends a second record nor evicts P2/A2.
-    cas_claim(repo, problem_id="P1", attempt_id="A1", actor="d", timestamp=TS)
+    _claim(repo, problem_id="P1", attempt_id="A1", actor="d", timestamp=TS)
     cas_release(repo, problem_id="P1", attempt_id="A1", actor="d", timestamp=TS)
-    cas_claim(repo, problem_id="P2", attempt_id="A2", actor="d", timestamp=TS)
+    _claim(repo, problem_id="P2", attempt_id="A2", actor="d", timestamp=TS)
 
     late = cas_release(repo, problem_id="P1", attempt_id="A1", actor="d", timestamp=TS)
     assert (late.owner_problem_id, late.owner_attempt_id) == ("P2", "A2")
@@ -129,7 +156,7 @@ def test_a_delayed_duplicate_release_does_not_disturb_a_newer_claim(repo):
 
 
 def test_release_is_idempotent_for_the_true_owner(repo):
-    cas_claim(repo, problem_id="P1", attempt_id="A1", actor="d", timestamp=TS)
+    _claim(repo, problem_id="P1", attempt_id="A1", actor="d", timestamp=TS)
     cas_release(repo, problem_id="P1", attempt_id="A1", actor="d", timestamp=TS)
     c = cas_release(repo, problem_id="P1", attempt_id="A1", actor="d", timestamp=TS)  # re-invoked
     assert c.coordinator.active_problem_id is None
@@ -139,7 +166,7 @@ def test_release_is_idempotent_for_the_true_owner(repo):
 def test_the_lane_cycles_through_several_attempts(repo):
     # The singleton is a lock, not a one-shot: the durable record must support handoff.
     for problem, attempt in (("P1", "A1"), ("P2", "A2"), ("P3", "A3")):
-        held = cas_claim(repo, problem_id=problem, attempt_id=attempt, actor="d", timestamp=TS)
+        held = _claim(repo, problem_id=problem, attempt_id=attempt)
         assert held.acquired
         c = cas_release(repo, problem_id=problem, attempt_id=attempt, actor="d", timestamp=TS)
         assert c.coordinator.active_problem_id is None
@@ -149,7 +176,7 @@ def test_the_lane_cycles_through_several_attempts(repo):
 def test_the_claim_record_carries_its_attempt_on_the_envelope(repo):
     # The payload's attempt_id is cross-checked against the envelope's at the write
     # boundary, so a claim that omitted the envelope id could never be appended at all.
-    cas_claim(repo, problem_id="P1", attempt_id="A1", actor="d", timestamp=TS)
+    _claim(repo, problem_id="P1", attempt_id="A1", actor="d", timestamp=TS)
     event = _events(repo)[0]
     assert event.attempt_id == "A1" and event.payload["attempt_id"] == "A1"
     assert event.problem_id == COORDINATOR_STREAM and event.payload["problem_id"] == "P1"

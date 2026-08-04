@@ -87,7 +87,7 @@ def _coord(**kw):
     ``ClaimAcquired`` has a payload schema (the fold reads both ids), so the base event
     carries a well-formed one — the envelope cases below are what these vary."""
     base = _raw(problem_id=COORDINATOR_STREAM, event_type="ClaimAcquired", attempt_id="A1",
-                payload={"problem_id": "P1", "attempt_id": "A1"},
+                payload={"problem_id": "P1", "attempt_id": "A1", **CLAIM_PAIR_TERMS},
                 expected_problem_revision=None, resulting_problem_revision=None,
                 expected_lane_revision=0, resulting_lane_revision=1)
     base.update(kw)
@@ -299,9 +299,27 @@ def _coord_event(event_type, payload, *, attempt_id="A1"):
                 expected_lane_revision=0, resulting_lane_revision=1)
 
 
+#: The generation + terms a claim's TWO halves share. `ClaimAcquired` carries them (it is
+#: half of the claim); `ClaimReleased` must NOT — one owner for the number — so the two are
+#: no longer schema-identical and the shared cases below add them per type.
+CLAIM_PAIR_TERMS = {"claim_generation": 1, "lane_revision": 0, "claim_expiry_s": 13200,
+                    "max_claim_hold_time_s": 13200, "max_clock_skew_s": 300,
+                    "policy_version": 1}
+_CLAIM_EXTRA = {"ClaimAcquired": CLAIM_PAIR_TERMS, "ClaimReleased": {}}
+
+
 @pytest.mark.parametrize("event_type", ["ClaimAcquired", "ClaimReleased"])
 def test_a_claim_records_both_ownership_ids(event_type):
-    validate_lane_event(_coord_event(event_type, {"problem_id": "P1", "attempt_id": "A1"}))
+    validate_lane_event(_coord_event(event_type, {
+        "problem_id": "P1", "attempt_id": "A1", **_CLAIM_EXTRA[event_type]}))
+
+
+def test_a_release_may_not_restate_the_claims_generation_or_terms():
+    """The asymmetry, pinned. A release that carried its own copy could disagree with the
+    claim it releases, and then two records would answer "under what terms" differently."""
+    with pytest.raises(ValueError, match="unexpected"):
+        validate_lane_event(_coord_event("ClaimReleased", {
+            "problem_id": "P1", "attempt_id": "A1", **CLAIM_PAIR_TERMS}))
 
 
 @pytest.mark.parametrize("event_type", ["ClaimAcquired", "ClaimReleased"])
@@ -314,6 +332,7 @@ def test_a_claim_records_both_ownership_ids(event_type):
     ({"problem_id": "P1", "attempt_id": "A1", "extra": 1}, "unexpected"),
 ])
 def test_a_malformed_claim_is_rejected_at_the_write_boundary(event_type, payload, why):
+    payload = {**payload, **_CLAIM_EXTRA[event_type]}
     # These ids ARE the lane's ownership record: project_coordinator decides who holds the
     # singleton from them, and cas_release compares them to refuse a stale release. A
     # missing one would explode inside the fold once the event is already durable.
@@ -576,12 +595,35 @@ def test_claim_granted_must_carry_the_generation_the_FOLD_reads():
     """`walk_attempt` reads `claim_generation` off every grant. Refusing a grant without one
     HERE is the difference between a rejected append and an Attempt whose every future
     projection raises on a record that is already durable."""
-    validate_lane_event(_attempt("ClaimGranted", {"claim_generation": 1}))
+    validate_lane_event(_attempt("ClaimGranted", CLAIM_PAIR_TERMS))
     with pytest.raises(ValueError, match="claim_generation"):
-        validate_lane_event(_attempt("ClaimGranted"))
+        validate_lane_event(_attempt("ClaimGranted", {
+            k: v for k, v in CLAIM_PAIR_TERMS.items() if k != "claim_generation"}))
     for bad in (0, -1, True, "1"):
         with pytest.raises(ValueError, match="claim_generation"):
-            validate_lane_event(_attempt("ClaimGranted", {"claim_generation": bad}))
+            validate_lane_event(_attempt(
+                "ClaimGranted", {**CLAIM_PAIR_TERMS, "claim_generation": bad}))
+
+
+@pytest.mark.parametrize("term", sorted(CLAIM_PAIR_TERMS))
+def test_a_grant_MISSING_any_claim_bound_term_is_refused(term):
+    """The terms are not decoration: a reclaimer reads `claim_expiry_s` and
+    `max_claim_hold_time_s` off the record to decide whether a LIVE holder may be evicted,
+    and `max_clock_skew_s` to decide how far a disagreeing clock may move that decision. A
+    grant missing one would send the reclaimer to live policy — which is exactly the
+    retroactive expiry recording them on the claim exists to prevent."""
+    with pytest.raises(ValueError, match=term):
+        validate_lane_event(_attempt("ClaimGranted", {
+            k: v for k, v in CLAIM_PAIR_TERMS.items() if k != term}))
+
+
+def test_a_grant_and_its_coordinator_half_share_ONE_payload_schema():
+    """One construction wrote both, and the auditor compares them field-for-field. A field
+    one half may carry and the other may not is a disagreement that comparison would report
+    as corruption."""
+    body = {"problem_id": "P1", "attempt_id": "A1", **CLAIM_PAIR_TERMS}
+    validate_lane_event(_attempt("ClaimGranted", CLAIM_PAIR_TERMS))
+    validate_lane_event(_coord_event("ClaimAcquired", body))
 
 
 def test_a_heartbeat_names_its_generation_and_its_tick():

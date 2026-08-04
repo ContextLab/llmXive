@@ -12,11 +12,44 @@ from llmxive.self_improvement.events import (
     COORDINATOR_STREAM,
     Event,
     coord_event,
+    coordinator_event_id,
     payload_field,
 )
 from llmxive.self_improvement.lane_log import LaneLogConfig, append, read
+from llmxive.self_improvement.pairing import LaneInconsistent
 
 _COORDINATOR_TYPES = {"ClaimAcquired", "ClaimReleased", "MonitorStarted", "PromotionEnabledSet"}
+
+
+@dataclass(frozen=True)
+class ClaimTerms:
+    """The policy a claim was granted UNDER, recorded on the claim itself.
+
+    Read by any later reclaimer from the ``ClaimGranted`` payload rather than from live
+    policy, so editing the Policy Contract while a run holds the lane cannot retroactively
+    expire it. Same discipline as ``bind_attempt_config``."""
+
+    claim_expiry_s: int
+    max_claim_hold_time_s: int
+    max_clock_skew_s: int
+    policy_version: int
+
+    def as_payload(self) -> dict[str, int]:
+        """The four terms as payload fields. BOTH halves of a claim embed the result of ONE
+        call, so they cannot drift."""
+        return {"claim_expiry_s": self.claim_expiry_s,
+                "max_claim_hold_time_s": self.max_claim_hold_time_s,
+                "max_clock_skew_s": self.max_clock_skew_s,
+                "policy_version": self.policy_version}
+
+    @classmethod
+    def from_payload(cls, event: Event) -> ClaimTerms:
+        """The terms a stored claim was granted under — from the RECORD, never from live
+        policy. This direction is the one that carries the guarantee: a reclaimer deciding
+        whether a holder has expired must use the holder's terms, not today's."""
+        return cls(*(payload_field(event, f) for f in (
+            "claim_expiry_s", "max_claim_hold_time_s", "max_clock_skew_s",
+            "policy_version")))
 
 
 @dataclass(frozen=True)
@@ -33,8 +66,19 @@ class LaneCoordinator:
     last_autonomous_merge_at: str | None
     policy_version: int
 
+    #: The FENCING TOKEN (FR-035), incremented by every ``ClaimAcquired`` and NEVER reset —
+    #: a reset makes two different claims indistinguishable, which is the one thing a
+    #: fencing token exists to prevent. A release does not bump it: a generation identifies
+    #: a CLAIM and a released lane holds none, so the next ``ClaimAcquired`` takes the next
+    #: number either way, and a stale worker at generation *g* is already defeated by "the
+    #: lane is not held by me" before any generation is compared.
+    #:
+    #: This is the counter's CURRENT value. It cannot answer a question about a PAST claim —
+    #: see :attr:`ClaimOutcome.generation`, which reads that claim's own record instead.
+    claim_generation: int = 0
 
-EMPTY_COORDINATOR = LaneCoordinator(0, None, None, (), False, None, 0)
+
+EMPTY_COORDINATOR = LaneCoordinator(0, None, None, (), False, None, 0, 0)
 
 
 @dataclass(frozen=True)
@@ -54,22 +98,63 @@ class ClaimOutcome:
     ``(problem_id, attempt_id)`` I named hold the lane now? It is therefore False after a
     successful release, and False for a superseded replay.
 
-    The FR-035 fencing token (``claim_generation``) belongs on this record and joins it
-    with that slice; it is deliberately absent rather than faked, because the coordinator
-    stream does not yet carry generations."""
+    Note the two TIME FRAMES on one record, and that this is deliberate: ``acquired`` and
+    ``owner_*`` are about NOW, while ``generation`` and ``created`` are about THIS CALL's
+    claim. A replay of a finished claim reports somebody else as the owner and still reports
+    its own generation, because those are answers to different questions."""
 
     acquired: bool
     owner_problem_id: str | None
     owner_attempt_id: str | None
     coordinator: LaneCoordinator
 
+    #: The generation of the claim THIS call concerns, read from its own ``ClaimAcquired``
+    #: record. NOT :attr:`LaneCoordinator.claim_generation`, which is the counter's current
+    #: value: after generation 1 was released and generation 2 granted elsewhere, a replay
+    #: of the generation-1 claim must still report 1. The counter cannot answer a question
+    #: about a past claim, and answering it from the counter is how a stale worker would be
+    #: handed a fencing token that is not its own.
+    generation: int
 
-def _outcome(coordinator: LaneCoordinator, problem_id: str, attempt_id: str) -> ClaimOutcome:
+    #: True iff THIS call wrote the records. False for an idempotent replay — including a
+    #: retry after a lost acknowledgement, which is the normal recovery path and must be
+    #: distinguishable from a fresh grant by callers that log or meter claims.
+    created: bool
+
+
+def _outcome(coordinator: LaneCoordinator, problem_id: str, attempt_id: str, *,
+             generation: int, created: bool) -> ClaimOutcome:
+    """Both past-tense fields are passed EXPLICITLY rather than derived here: there is
+    exactly one place each is known — the transaction's own result, and the claim's own
+    event pair — and a helper that guessed would be guessing about the past."""
     owner = (coordinator.active_problem_id, coordinator.active_attempt_id)
     return ClaimOutcome(
         acquired=owner == (problem_id, attempt_id),
         owner_problem_id=owner[0], owner_attempt_id=owner[1], coordinator=coordinator,
+        generation=generation, created=created,
     )
+
+
+def _acquired_for(coordinator_events: list[Event], problem_id: str,
+                  attempt_id: str) -> Event:
+    """The ``ClaimAcquired`` of THIS pair's claim, found by derived id.
+
+    There is at most one per ``(problem_id, attempt_id)`` — the id is derived from exactly
+    those two, and the table forbids re-claiming an Attempt — so this is unambiguous rather
+    than "the most recent match".
+
+    Note the asymmetry with the grant, which is NOT locatable this way: the grant's key
+    carries the lane revision it was granted at (`(attempt_id,"claim",lane_revision)`), and
+    by the time anyone replays, the coordinator's revision has moved — not least because
+    this very ``ClaimAcquired`` landed. The coordinator half is the anchor precisely because
+    its key has no variable component."""
+    acquired_id = coordinator_event_id("ClaimAcquired", problem_id, attempt_id)
+    acquired = next((e for e in coordinator_events if e.event_id == acquired_id), None)
+    if acquired is None:
+        raise LaneInconsistent(
+            f"no ClaimAcquired for {problem_id}/{attempt_id}: a claim record is being "
+            "reported on, so its grant must exist")
+    return acquired
 
 
 def project_coordinator(events: list[Event]) -> LaneCoordinator:
@@ -92,8 +177,11 @@ def project_coordinator(events: list[Event]) -> LaneCoordinator:
                 raise ValueError(
                     f"illegal transition ClaimAcquired while active ({c.active_problem_id!r})"
                 )
+            # ONLY here. Every other event leaves the counter alone, including the release:
+            # see `LaneCoordinator.claim_generation`.
             c = replace(c, active_problem_id=payload_field(e, "problem_id"),
-                        active_attempt_id=payload_field(e, "attempt_id"))
+                        active_attempt_id=payload_field(e, "attempt_id"),
+                        claim_generation=c.claim_generation + 1)
         elif e.event_type == "ClaimReleased":
             if c.active_problem_id is None:  # only active → idle
                 raise ValueError("illegal transition ClaimReleased while idle")
@@ -120,43 +208,6 @@ def project_coordinator(events: list[Event]) -> LaneCoordinator:
 
 def _already_landed(events: list[Event], event_id: str) -> bool:
     return any(e.event_id == event_id for e in events)
-
-
-def cas_claim(repo: Path, *, problem_id: str, attempt_id: str, actor: str, timestamp: str,
-              config: LaneLogConfig | None = None) -> ClaimOutcome:
-    """Take the lane's singleton claim for ``(problem_id, attempt_id)``, or raise
-    :class:`LaneRevisionConflict` if another Problem holds it (or the lane revision moved
-    under us — the caller recomputes and retries or yields; it NEVER forces).
-
-    Re-invoking with the same pair is idempotent: the event id is derived from
-    ``("claim", problem_id, attempt_id)``, so a retry after a lost acknowledgement finds
-    its own record and does not append a second claim. That rests on Attempt ids being
-    single-use, which spec 025 guarantees — a crashed Attempt is a FAILED Attempt and its
-    successor gets a new id.
-
-    **Returning without raising does NOT mean you hold the lane** — check
-    :attr:`ClaimOutcome.acquired`, which is the whole reason this returns an outcome rather
-    than a projection. The idempotency branch asks "did THIS event already land", not "do I
-    own the claim now", so a replay arriving after the claim was released and the lane
-    re-granted appends nothing and returns ``acquired=False`` with ``owner_*`` naming the
-    Attempt that actually holds it. Pinned by
-    ``test_a_replayed_claim_returns_successfully_while_someone_else_owns_the_lane``, and
-    load-bearing under spec 025 FR-035, where ``ClaimExpired`` makes re-granting routine."""
-    events = read(repo, COORDINATOR_STREAM, config=config)
-    revision = project_coordinator(events).lane_revision
-    event = coord_event("ClaimAcquired", problem_id=problem_id, attempt_id=attempt_id,
-                        payload={"problem_id": problem_id, "attempt_id": attempt_id},
-                        actor=actor, timestamp=timestamp)
-
-    def _idle_or_landed(evs: list[Event]) -> tuple[bool, str]:
-        if _already_landed(evs, event.event_id):
-            return (True, "")  # this exact claim already landed → idempotent
-        active = project_coordinator(evs).active_problem_id
-        return (active is None, "" if active is None else f"lane occupied by {active!r}")
-
-    append(repo, event, expected_revision=revision, precondition=_idle_or_landed, config=config)
-    return _outcome(project_coordinator(read(repo, COORDINATOR_STREAM, config=config)),
-                    problem_id, attempt_id)
 
 
 def cas_release(repo: Path, *, problem_id: str, attempt_id: str, actor: str, timestamp: str,
@@ -189,16 +240,27 @@ def cas_release(repo: Path, *, problem_id: str, attempt_id: str, actor: str, tim
                 f"release owner mismatch: active={c.active_problem_id!r}/"
                 f"{c.active_attempt_id!r}, releasing {problem_id!r}/{attempt_id!r}")
 
-    append(repo, event, expected_revision=revision, precondition=_owns_or_landed, config=config)
-    return _outcome(project_coordinator(read(repo, COORDINATOR_STREAM, config=config)),
-                    problem_id, attempt_id)
+    result = append(repo, event, expected_revision=revision,
+                    precondition=_owns_or_landed, config=config)
+    coordinator_events = read(repo, COORDINATOR_STREAM, config=config)
+    # The generation of the claim being RELEASED, from that claim's own record. Not
+    # `project_coordinator(...).claim_generation`: after this release the lane may already
+    # have been re-granted, and the counter would then hand back the NEXT holder's token —
+    # to a caller asking about its own, finished claim. `ClaimReleased` carries no
+    # generation of its own (one owner for the number), so the claim's `ClaimAcquired` is
+    # the only place the answer exists. `created` is False on the idempotent path, which is
+    # what a delayed duplicate release must report.
+    return _outcome(project_coordinator(coordinator_events), problem_id, attempt_id,
+                    generation=payload_field(
+                        _acquired_for(coordinator_events, problem_id, attempt_id),
+                        "claim_generation"),
+                    created=result.created)
 
 
 __all__ = [
     "EMPTY_COORDINATOR",
     "ClaimOutcome",
     "LaneCoordinator",
-    "cas_claim",
     "cas_release",
     "project_coordinator",
 ]

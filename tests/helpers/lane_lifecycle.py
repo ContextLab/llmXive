@@ -10,6 +10,7 @@ from itertools import count
 from pathlib import Path
 from typing import Any
 
+from llmxive.self_improvement.coordinator import ClaimTerms
 from llmxive.self_improvement.events import Event, derive_event_id
 from llmxive.self_improvement.lifecycle import (
     NON_TRANSITION_EVENTS,
@@ -91,67 +92,44 @@ class Clock:
         return f"2026-08-04T12:{self._n // 60:02d}:{self._n % 60:02d}+00:00"
 
 
+#: The terms every fixture claims under. A CONSTANT, so a test that cares about terms
+#: (they are recorded on the claim and read back by a reclaimer) compares against something
+#: named rather than against four literals repeated at each call site.
+TEST_CLAIM_TERMS = ClaimTerms(claim_expiry_s=13200, max_claim_hold_time_s=13200,
+                              max_clock_skew_s=300, policy_version=1)
+
+
 def seed_claim(repo, *, problem_id: str = "P1", attempt_id: str = "A1",
-               generation: int = 1, actor: str = "seed", clock: Clock | None = None,
-               config=None, already_proposed: bool = False) -> Event:
-    """Put the lane in the state a paired claim leaves it in, WITHOUT going through
-    `cas_claim`.
+               actor: str = "seed", clock: Clock | None = None, config=None,
+               already_proposed: bool = False,
+               terms: ClaimTerms | None = None) -> Event:
+    """Drive an Attempt to `claimed` through the REAL claim path.
 
-    Writes the same two records in the same ONE commit that Task 8's paired `cas_claim`
-    will — so tests assert against the claim's SHAPE rather than against whichever version
-    of `cas_claim` exists when they run, and Task 8 replacing that function leaves them
-    green. Slice 1A's `cas_claim` writes only the coordinator's `ClaimAcquired`, which would
-    leave the Attempt at `proposal_verified` with no claim-holding transition legal.
+    Two opening transitions and then `cas_claim`, which writes the coordinator's
+    `ClaimAcquired` and the Attempt's `ClaimGranted` in ONE commit. It was a hand-built
+    stand-in while `cas_claim` was still coordinator-only; now that the paired one exists,
+    standing in for it would be a second implementation of the claim — and every
+    claim-holding test would be asserting against the fixture instead of the thing.
 
-    It is a FIXTURE, not a second claim API: it takes no preconditions and lives in
-    `tests/helpers/`, so nothing in `src/` can reach it.
-
-    `already_proposed` skips the two opening transitions for an Attempt a test has already
+    `already_proposed` skips the opening `Proposed` for an Attempt a test has already
     started — the claim-status race needs an Attempt that exists before the lane moves.
 
-    Returns the grant, so a test re-issuing it through the real path can pass the SAME
-    key-bearing payload rather than a guess at what the fixture chose."""
-    from llmxive.self_improvement.coordinator import project_coordinator
-    from llmxive.self_improvement.events import COORDINATOR_STREAM, coord_event
-    from llmxive.self_improvement.lane_log import append_many, read
-    from llmxive.self_improvement.lifecycle import TRANSITIONS, cas_attempt_transition
+    Returns the grant, so a caller can pass the SAME key-bearing payload back through a
+    path that re-derives the id."""
+    from llmxive.self_improvement.claim import cas_claim
+    from llmxive.self_improvement.lane_log import read
+    from llmxive.self_improvement.lifecycle import cas_attempt_transition
 
     clock = clock or Clock()
-    if not already_proposed:
-        for event_type in ("Proposed", "ProposalVerified"):
-            cas_attempt_transition(repo, problem_id=problem_id, attempt_id=attempt_id,
-                                   event_type=event_type, payload={}, actor=actor,
-                                   clock=clock, config=config)
-    else:
+    opening = ("ProposalVerified",) if already_proposed else ("Proposed", "ProposalVerified")
+    for event_type in opening:
         cas_attempt_transition(repo, problem_id=problem_id, attempt_id=attempt_id,
-                               event_type="ProposalVerified", payload={}, actor=actor,
+                               event_type=event_type, payload={}, actor=actor,
                                clock=clock, config=config)
-    problem_events = read(repo, problem_id, config=config)
-    coordinator_events = read(repo, COORDINATOR_STREAM, config=config)
-    timestamp = clock()
-    row = next(t for t in TRANSITIONS if t.event == "ClaimGranted")
-    payload = {"problem_id": problem_id, "attempt_id": attempt_id,
-               # The grant's key is `(attempt_id,"claim",lane_revision)`, so the revision it
-               # was granted AT is part of the record, not just of the CAS below.
-               "claim_generation": generation,
-               "lane_revision": project_coordinator(coordinator_events).lane_revision}
-    grant = Event(
-        # Derived BY THE ROW, not rebuilt from its parts. A hand-written copy of the
-        # derivation is a second implementation of the idempotency key: this fixture stands
-        # in for `cas_attempt_transition`, so a copy that drifted would make every
-        # claim-holding test assert against a claim the real path can no longer produce.
-        event_id=row.event_id(problem_id, attempt_id, payload),
-        event_type="ClaimGranted", problem_id=problem_id, actor=actor,
-        payload=payload, timestamp=timestamp, attempt_id=attempt_id,
-    )
-    acquired = coord_event("ClaimAcquired", problem_id=problem_id, attempt_id=attempt_id,
-                           payload={"problem_id": problem_id, "attempt_id": attempt_id},
-                           actor=actor, timestamp=timestamp)
-    append_many(repo, [acquired, grant],
-                expected_revisions={COORDINATOR_STREAM: len(coordinator_events),
-                                    problem_id: len(problem_events)},
-                config=config)
-    return grant
+    cas_claim(repo, problem_id=problem_id, attempt_id=attempt_id, actor=actor,
+              timestamp=clock(), terms=terms or TEST_CLAIM_TERMS, config=config)
+    return next(e for e in read(repo, problem_id, config=config)
+                if e.event_type == "ClaimGranted" and e.attempt_id == attempt_id)
 
 
 def witness_payload(state: AttemptState | None, event_type: str) -> dict[str, str]:
