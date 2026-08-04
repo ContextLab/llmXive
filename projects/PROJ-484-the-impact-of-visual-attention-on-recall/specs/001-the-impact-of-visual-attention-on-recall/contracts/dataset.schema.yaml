@@ -1,0 +1,58 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis Ready Dataset Schema"
+description: "Schema for the cleaned analysis-ready CSV file containing trial-level data."
+type: object
+properties:
+  participant_id:
+    type: integer
+    description: "Unique identifier for the participant."
+  stimulus_id:
+    type: integer
+    description: "Unique stimulus identifier."
+  fixation_duration_ms:
+    type: number
+    description: "Duration of fixation in milliseconds."
+    minimum: 0
+  valence:
+    type: string
+    description: "Emotional valence of the stimulus."
+    enum:
+      - "threat"
+      - "neutral"
+  recall_accuracy:
+    type: integer
+    description: "Binary recall outcome (0=fail, 1=success)."
+    enum:
+      - 0
+      - 1
+  trait_anxiety_score:
+    type: integer
+    description: "STAI trait anxiety score."
+    minimum: 20
+    maximum: 80
+  group:
+    type: string
+    description: "Anxiety group based on median split."
+    enum:
+      - "high"
+      - "low"
+  trial_id:
+    type: integer
+    description: "Unique trial identifier."
+  trial_status:
+    type: string
+    description: "Indicates if the trial was valid or excluded."
+    enum:
+      - "valid"
+      - "excluded"
+required:
+  - participant_id
+  - stimulus_id
+  - fixation_duration_ms
+  - valence
+  - recall_accuracy
+  - trait_anxiety_score
+  - group
+  - trial_id
+  - trial_status
+additionalProperties: false

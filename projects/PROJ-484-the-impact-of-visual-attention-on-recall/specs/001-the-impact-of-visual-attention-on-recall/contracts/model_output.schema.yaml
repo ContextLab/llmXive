@@ -1,0 +1,73 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Output Schema"
+description: "Schema for the JSON output of the mixed-effects model fitting process."
+type: object
+properties:
+  model_formula:
+    type: string
+    description: "The formula used for the model."
+  convergence_status:
+    type: string
+    description: "Convergence status of the model."
+    enum:
+      - "OK"
+      - "Warning"
+      - "Failed"
+  fixed_effects:
+    type: object
+    description: "Fixed effects coefficients and statistics."
+    additionalProperties:
+      type: object
+      properties:
+        estimate:
+          type: number
+        std_error:
+          type: number
+        z_value:
+          type: number
+        p_value:
+          type: number
+      required:
+        - estimate
+        - std_error
+        - z_value
+        - p_value
+  random_effects:
+    type: object
+    description: "Random effects variance components."
+    properties:
+      participant:
+        type: number
+        description: "Variance for participant random effect."
+      stimulus:
+        type: number
+        description: "Variance for stimulus random effect."
+  likelihood_ratio_test:
+    type: object
+    description: "Results of the LRT comparing full vs reduced model."
+    properties:
+      chi_squared:
+        type: number
+      degrees_of_freedom:
+        type: integer
+      p_value:
+        type: number
+  dispersion_parameter:
+    type: number
+    description: "Dispersion parameter for overdispersion check."
+  aic:
+    type: number
+    description: "Akaike Information Criterion."
+  bic:
+    type: number
+    description: "Bayesian Information Criterion."
+required:
+  - model_formula
+  - convergence_status
+  - fixed_effects
+  - random_effects
+  - likelihood_ratio_test
+  - dispersion_parameter
+  - aic
+  - bic
+additionalProperties: false

@@ -1,0 +1,13 @@
+status: none
+intent: OpenNeuro ds001435 RSVP IAPS NimStim dataset python package dataset
+required_fields:
+- participant_id
+- trial_id
+- stimulus_id
+- fixation_duration
+- valence_label
+- stai_score
+- recall_response
+cache_key: e8adf0b9347f1641553ce79fa383a03396102ac10a5a44e4fddd392f30262a50
+searched_at: '2026-08-04T06:11:37.868520+00:00'
+retry_count: 1
