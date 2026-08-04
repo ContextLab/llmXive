@@ -1,59 +1,124 @@
-# Predicting the Impact of Alloying on Creep Resistance
+# Predicting the Impact of Alloying on Creep Resistance via Public Data
 
-This project implements an automated science pipeline to predict the impact of alloying elements on creep resistance using public data (NIMS) and thermodynamic descriptors from Materials Project.
+This project implements an automated science pipeline to predict creep resistance in alloys using public datasets (NIMS, Materials Project) and machine learning. It compares thermodynamic-feature models against composition-only models using rigorous nested cross-validation and statistical significance testing.
 
 ## Project Structure
 
 ```
 .
-├── config/ # Configuration files (YAML)
-├── contracts/ # Schema definitions for validation
-├── data/ # Data storage (raw, processed, outputs)
+├── config/ # Configuration files (settings, synthetic params)
+├── contracts/ # Data and output schema definitions
+├── data/ # Generated datasets and outputs
 ├── docs/ # Documentation and reports
-├── logs/ # Runtime logs
+├── logs/ # Runtime and execution logs
 ├── src/ # Source code
 │ ├── data/ # Data acquisition and preprocessing
-│ ├── models/ # Model training and evaluation
+│ ├── models/ # Model training, evaluation, and interpretation
 │ ├── reports/ # Report generation
-│ └── utils/ # Utility functions
-├── tests/ # Test suite
-└── requirements.txt # Python dependencies
+│ └── utils/ # Logging, hashing, validation utilities
+├── tests/ # Unit, integration, and contract tests
+├── requirements.txt # Python dependencies
+└── README.md # This file
 ```
 
-## Quickstart
+## Prerequisites
 
-1. **Setup Environment**
+- Python 3.11+
+- pip
+
+## Installation
+
+1. Clone the repository:
+ ```bash
+ git clone <repository-url>
+ cd predicting-impact-of-alloying-on-creep-resistance
+ ```
+
+2. Create a virtual environment and activate it:
  ```bash
  python -m venv venv
  source venv/bin/activate # On Windows: venv\Scripts\activate
+ ```
+
+3. Install dependencies:
+ ```bash
  pip install -r requirements.txt
  ```
 
-2. **Configure**
- Edit `config/settings.yaml` to set API keys (e.g., Materials Project) and paths.
+4. (Optional) Configure API keys:
+ - Set `MP_API_KEY` in `config/settings.yaml` for Materials Project access.
+ - Set `NIMS_API_KEY` if using NIMS data (if available).
 
-3. **Run Pipeline**
- ```bash
- python src/data/pipeline.py
- ```
+## Quickstart
 
-4. **Train Models**
- ```bash
- python src/models/main_eval.py
- ```
+### 1. Run the Data Pipeline
 
-5. **Generate Report**
- ```bash
- python src/reports/generate_report.py
- ```
+Generates synthetic data (default) or fetches real data if configured, preprocesses it, and outputs a validated CSV.
 
-## Testing
+```bash
+python src/data/pipeline.py
+```
 
-Run the test suite:
+**Output**: `data/processed/alloy_dataset.csv`
+
+### 2. Train and Evaluate Models
+
+Trains two Gradient Boosting models (Thermodynamic vs. Composition-Only) and performs statistical significance testing (Permutation Test or Bootstrap).
+
+```bash
+python src/models/main_eval.py
+```
+
+**Output**:
+- `logs/model_comparison.log`: Detailed metrics and p-values.
+- `data/outputs/model_report.json`: Structured performance data.
+
+### 3. Interpret Model Features (SHAP)
+
+Generates SHAP summary plots and ranks feature importance.
+
+```bash
+python src/models/interpret.py
+```
+
+**Output**: `data/outputs/shap_summary.png`
+
+### 4. Generate Final Report
+
+Compiles all results into a human-readable report.
+
+```bash
+python src/reports/generate_report.py
+```
+
+**Output**: `docs/reports/final_report.md`
+
+## Running Tests
+
+Run the full test suite:
+
 ```bash
 pytest tests/ -v
 ```
 
+Run specific test categories:
+
+```bash
+# Unit tests
+pytest tests/unit/ -v
+
+# Integration tests
+pytest tests/integration/ -v
+
+# Contract tests
+pytest tests/contract/ -v
+```
+
+## Configuration
+
+- **`config/settings.yaml`**: General settings, random seeds, API keys, and paths.
+- **`config/synthetic_params.yaml`**: Parameters for synthetic data generation (Arrhenius/Power-law constants).
+
 ## License
 
-MIT License
+MIT License. See `LICENSE` for details.

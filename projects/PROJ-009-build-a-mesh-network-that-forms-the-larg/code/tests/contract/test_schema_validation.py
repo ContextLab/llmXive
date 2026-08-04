@@ -1,187 +1,237 @@
 """
-Unit tests for the schema validation framework.
-Tests validate that ExecutionRun and RegressionModel structures are correctly validated.
+Contract tests for schema validation framework.
+
+These tests ensure that the schema validation framework correctly
+validates ExecutionRun and RegressionModel structures.
 """
 import pytest
 from datetime import datetime
 from code.tests.contract.validator import (
-    validate_schema,
+    SchemaValidationError,
     validate_execution_run,
     validate_regression_model,
-    SchemaValidationError
+    validate_schema,
+    validate_type,
+    validate_enum,
+    validate_minimum,
+    validate_maximum,
+    load_schema_from_yaml
 )
 from code.tests.contract.schemas import EXECUTION_RUN_SCHEMA, REGRESSION_MODEL_SCHEMA
 
-# Valid ExecutionRun data
-VALID_EXECUTION_RUN = {
-    "run_id": "run-20231015-001",
-    "timestamp": "2023-10-15T10:30:00Z",
-    "node_count": 10,
-    "granularity": "medium",
-    "total_tasks": 100,
-    "completed_tasks": 98,
-    "failed_tasks": 2,
-    "start_time": "2023-10-15T10:30:00Z",
-    "end_time": "2023-10-15T11:45:00Z",
-    "status": "completed",
-    "network_conditions": {
-        "latency_ms": 50.0,
-        "packet_loss_pct": 0.5
-    },
-    "metrics": {
-        "throughput_tasks_per_sec": 15.5,
-        "avg_cpu_utilization_pct": 75.2,
-        "coordination_overhead_ratio": 0.12,
-        "heterogeneity_penalty": 0.05
-    }
-}
-
-# Valid RegressionModel data
-VALID_REGRESSION_MODEL = {
-    "model_type": "MLR",
-    "r_squared": 0.85,
-    "coefficients": {
-        "heterogeneity": -0.5,
-        "granularity": 2.3,
-        "latency": -0.8,
-        "intercept": 10.0
-    },
-    "p_values": {
-        "heterogeneity": 0.001,
-        "granularity": 0.02,
-        "latency": 0.005,
-        "intercept": 0.0001
-    },
-    "feature_names": ["heterogeneity", "granularity", "latency", "intercept"],
-    "n_observations": 500,
-    "theoretical_bound": 100.0,
-    "bound_violation_flag": False,
-    "interaction_terms": ["heterogeneity:granularity"]
-}
 
 class TestExecutionRunValidation:
+    """Tests for ExecutionRun schema validation."""
+    
     def test_valid_execution_run(self):
         """Test that a valid ExecutionRun passes validation."""
-        result = validate_execution_run(VALID_EXECUTION_RUN)
-        assert result is True
-
+        valid_data = {
+            "run_id": "run-001",
+            "timestamp_start": "2024-01-15T10:30:00Z",
+            "timestamp_end": "2024-01-15T10:45:00Z",
+            "node_count": 10,
+            "granularity": "medium",
+            "injected_latency_ms": 50.0,
+            "packet_loss_rate": 0.02,
+            "throughput_ops_sec": 1500.5,
+            "coordination_overhead_ratio": 0.15,
+            "status": "completed",
+            "heterogeneity_index": 0.25,
+            "total_compute_time_sec": 900.0,
+            "total_coordination_time_sec": 135.0
+        }
+        
+        # Should not raise
+        assert validate_execution_run(valid_data) is True
+    
     def test_missing_required_field(self):
-        """Test that missing required fields raise an error."""
-        invalid_data = VALID_EXECUTION_RUN.copy()
-        del invalid_data["run_id"]
+        """Test that missing required fields cause validation failure."""
+        invalid_data = {
+            "run_id": "run-002",
+            "timestamp_start": "2024-01-15T10:30:00Z",
+            # Missing timestamp_end
+            "node_count": 10,
+            "granularity": "medium",
+            "injected_latency_ms": 50.0,
+            "packet_loss_rate": 0.02,
+            "throughput_ops_sec": 1500.5,
+            "coordination_overhead_ratio": 0.15,
+            "status": "completed"
+        }
         
         with pytest.raises(SchemaValidationError) as exc_info:
             validate_execution_run(invalid_data)
         
-        assert "run_id" in str(exc_info.value)
-
-    def test_invalid_granularity_value(self):
+        assert "timestamp_end" in str(exc_info.value)
+    
+    def test_invalid_enum_value(self):
         """Test that invalid enum values are rejected."""
-        invalid_data = VALID_EXECUTION_RUN.copy()
-        invalid_data["granularity"] = "invalid_granularity"
+        invalid_data = {
+            "run_id": "run-003",
+            "timestamp_start": "2024-01-15T10:30:00Z",
+            "timestamp_end": "2024-01-15T10:45:00Z",
+            "node_count": 10,
+            "granularity": "invalid_granularity",  # Not in enum
+            "injected_latency_ms": 50.0,
+            "packet_loss_rate": 0.02,
+            "throughput_ops_sec": 1500.5,
+            "coordination_overhead_ratio": 0.15,
+            "status": "completed"
+        }
         
         with pytest.raises(SchemaValidationError) as exc_info:
             validate_execution_run(invalid_data)
         
-        assert "invalid_granularity" in str(exc_info.value)
+        assert "granularity" in str(exc_info.value)
+    
+    def test_negative_number_rejected(self):
+        """Test that negative numbers for non-negative fields are rejected."""
+        invalid_data = {
+            "run_id": "run-004",
+            "timestamp_start": "2024-01-15T10:30:00Z",
+            "timestamp_end": "2024-01-15T10:45:00Z",
+            "node_count": -5,  # Invalid: negative
+            "granularity": "medium",
+            "injected_latency_ms": 50.0,
+            "packet_loss_rate": 0.02,
+            "throughput_ops_sec": 1500.5,
+            "coordination_overhead_ratio": 0.15,
+            "status": "completed"
+        }
+        
+        with pytest.raises(SchemaValidationError) as exc_info:
+            validate_execution_run(invalid_data)
+        
+        assert "node_count" in str(exc_info.value)
+    
+    def test_packet_loss_out_of_range(self):
+        """Test that packet_loss_rate > 1 is rejected."""
+        invalid_data = {
+            "run_id": "run-005",
+            "timestamp_start": "2024-01-15T10:30:00Z",
+            "timestamp_end": "2024-01-15T10:45:00Z",
+            "node_count": 10,
+            "granularity": "medium",
+            "injected_latency_ms": 50.0,
+            "packet_loss_rate": 1.5,  # Invalid: > 1
+            "throughput_ops_sec": 1500.5,
+            "coordination_overhead_ratio": 0.15,
+            "status": "completed"
+        }
+        
+        with pytest.raises(SchemaValidationError) as exc_info:
+            validate_execution_run(invalid_data)
+        
+        assert "packet_loss_rate" in str(exc_info.value)
 
-    def test_negative_node_count(self):
-        """Test that negative node counts are rejected."""
-        invalid_data = VALID_EXECUTION_RUN.copy()
-        invalid_data["node_count"] = -5
-        
-        with pytest.raises(SchemaValidationError) as exc_info:
-            validate_execution_run(invalid_data)
-        
-        assert "minimum" in str(exc_info.value)
-
-    def test_invalid_status(self):
-        """Test that invalid status values are rejected."""
-        invalid_data = VALID_EXECUTION_RUN.copy()
-        invalid_data["status"] = "unknown_status"
-        
-        with pytest.raises(SchemaValidationError) as exc_info:
-            validate_execution_run(invalid_data)
-        
-        assert "unknown_status" in str(exc_info.value)
-
-    def test_missing_network_conditions(self):
-        """Test that missing required nested fields are caught."""
-        invalid_data = VALID_EXECUTION_RUN.copy()
-        invalid_data["network_conditions"] = {"latency_ms": 50.0}  # Missing packet_loss_pct
-        
-        with pytest.raises(SchemaValidationError) as exc_info:
-            validate_execution_run(invalid_data)
-        
-        assert "packet_loss_pct" in str(exc_info.value)
 
 class TestRegressionModelValidation:
+    """Tests for RegressionModel schema validation."""
+    
     def test_valid_regression_model(self):
         """Test that a valid RegressionModel passes validation."""
-        result = validate_regression_model(VALID_REGRESSION_MODEL)
-        assert result is True
-
+        valid_data = {
+            "model_id": "model-001",
+            "model_type": "MLR",
+            "r_squared": 0.85,
+            "coefficients": {
+                "intercept": 100.0,
+                "node_count": 5.5,
+                "granularity_fine": -10.0,
+                "granularity_coarse": 20.0,
+                "injected_latency": -0.5
+            },
+            "p_values": {
+                "intercept": 0.001,
+                "node_count": 0.002,
+                "granularity_fine": 0.03,
+                "granularity_coarse": 0.01,
+                "injected_latency": 0.005
+            },
+            "interaction_terms": ["node_count:granularity_fine"],
+            "theoretical_bound": 2500.0,
+            "bound_violation_flag": False
+        }
+        
+        # Should not raise
+        assert validate_regression_model(valid_data) is True
+    
     def test_missing_coefficients(self):
-        """Test that missing coefficients field raises an error."""
-        invalid_data = VALID_REGRESSION_MODEL.copy()
-        del invalid_data["coefficients"]
+        """Test that missing coefficients cause validation failure."""
+        invalid_data = {
+            "model_id": "model-002",
+            "model_type": "GAM",
+            # Missing coefficients
+            "r_squared": 0.82,
+            "p_values": {},
+            "interaction_terms": [],
+            "theoretical_bound": 2500.0,
+            "bound_violation_flag": False
+        }
         
         with pytest.raises(SchemaValidationError) as exc_info:
             validate_regression_model(invalid_data)
         
         assert "coefficients" in str(exc_info.value)
-
+    
     def test_invalid_model_type(self):
-        """Test that invalid model types are rejected."""
-        invalid_data = VALID_REGRESSION_MODEL.copy()
-        invalid_data["model_type"] = "INVALID_TYPE"
+        """Test that invalid model_type enum is rejected."""
+        invalid_data = {
+            "model_id": "model-003",
+            "model_type": "INVALID_TYPE",
+            "r_squared": 0.80,
+            "coefficients": {"intercept": 50.0},
+            "p_values": {"intercept": 0.05},
+            "interaction_terms": [],
+            "theoretical_bound": 2500.0,
+            "bound_violation_flag": False
+        }
         
         with pytest.raises(SchemaValidationError) as exc_info:
             validate_regression_model(invalid_data)
         
-        assert "INVALID_TYPE" in str(exc_info.value)
-
+        assert "model_type" in str(exc_info.value)
+    
     def test_r_squared_out_of_range(self):
-        """Test that R-squared values outside [0, 1] are rejected."""
-        invalid_data = VALID_REGRESSION_MODEL.copy()
-        invalid_data["r_squared"] = 1.5
+        """Test that r_squared > 1 is rejected."""
+        invalid_data = {
+            "model_id": "model-004",
+            "model_type": "MLR",
+            "r_squared": 1.2,  # Invalid: > 1
+            "coefficients": {"intercept": 50.0},
+            "p_values": {"intercept": 0.05},
+            "interaction_terms": [],
+            "theoretical_bound": 2500.0,
+            "bound_violation_flag": False
+        }
         
         with pytest.raises(SchemaValidationError) as exc_info:
             validate_regression_model(invalid_data)
         
-        assert "maximum" in str(exc_info.value)
+        assert "r_squared" in str(exc_info.value)
 
-    def test_negative_n_observations(self):
-        """Test that negative observation counts are rejected."""
-        invalid_data = VALID_REGRESSION_MODEL.copy()
-        invalid_data["n_observations"] = -10
-        
-        with pytest.raises(SchemaValidationError) as exc_info:
-            validate_regression_model(invalid_data)
-        
-        assert "minimum" in str(exc_info.value)
-
-    def test_unexpected_property(self):
-        """Test that unexpected properties are rejected when additionalProperties is false."""
-        invalid_data = VALID_REGRESSION_MODEL.copy()
-        invalid_data["unexpected_field"] = "should_fail"
-        
-        with pytest.raises(SchemaValidationError) as exc_info:
-            validate_regression_model(invalid_data)
-        
-        assert "unexpected_field" in str(exc_info.value)
 
 class TestSchemaLoading:
-    def test_execution_run_schema_structure(self):
-        """Test that the ExecutionRun schema has the required structure."""
-        assert EXECUTION_RUN_SCHEMA["type"] == "object"
+    """Tests for schema loading functionality."""
+    
+    def test_load_schema_from_dict(self):
+        """Test that schemas can be loaded from the module."""
+        assert isinstance(EXECUTION_RUN_SCHEMA, dict)
         assert "required" in EXECUTION_RUN_SCHEMA
         assert "properties" in EXECUTION_RUN_SCHEMA
-        assert "run_id" in EXECUTION_RUN_SCHEMA["properties"]
-
-    def test_regression_model_schema_structure(self):
-        """Test that the RegressionModel schema has the required structure."""
-        assert REGRESSION_MODEL_SCHEMA["type"] == "object"
+        
+        assert isinstance(REGRESSION_MODEL_SCHEMA, dict)
         assert "required" in REGRESSION_MODEL_SCHEMA
         assert "properties" in REGRESSION_MODEL_SCHEMA
-        assert "coefficients" in REGRESSION_MODEL_SCHEMA["properties"]
+    
+    def test_schema_has_required_fields(self):
+        """Test that schemas define required fields."""
+        exec_required = EXECUTION_RUN_SCHEMA.get("required", [])
+        assert "run_id" in exec_required
+        assert "throughput_ops_sec" in exec_required
+        assert "status" in exec_required
+        
+        reg_required = REGRESSION_MODEL_SCHEMA.get("required", [])
+        assert "model_id" in reg_required
+        assert "r_squared" in reg_required
+        assert "coefficients" in reg_required

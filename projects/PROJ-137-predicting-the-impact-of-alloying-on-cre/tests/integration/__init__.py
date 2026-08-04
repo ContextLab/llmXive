@@ -1,3 +1,1 @@
-"""
-Integration tests for full pipeline components.
-"""
+"""Integration tests."""

@@ -47,7 +47,7 @@
 - [ ] T001.1 [P] Create `code/__init__.py` (empty file)
 - [ ] T001.2 [P] Create `code/main.py` (stub with argparse entry point)
 - [ ] T001.3 [P] Create `code/config.py` (stub with placeholder constants)
-- [ ] T002 Initialize Python 3.10 project with pinned dependencies (`requirements.txt`)
+- [X] T002 Initialize Python 3.10 project with pinned dependencies (`requirements.txt`)
 - [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
 
 ---
@@ -68,8 +68,8 @@ expected alphabetic or numeric character, but found '*'
  in "<unicode string>", line 4, column 2:
  **Input**: Design documents from...
  ^) -->
-- [~] T007 [P] Create `config.py` with constants for seeds, permutation counts (N=1000), batch sizes, and memory thresholds
-- [~] T008 [P] Implement `metrics.py` with a CPU-only NDCG@k calculation function using IDCG normalization and explicit relevance label mapping
+- [ ] T007 [P] Create `config.py` with constants for seeds, permutation counts (N=1000), batch sizes, and memory thresholds
+- [ ] T008 [P] Implement `metrics.py` with a CPU-only NDCG@k calculation function using IDCG normalization and explicit relevance label mapping
 - [ ] T008.1 [P] Implement `metrics.py` with CPU-only MAP calculation function using IDCG normalization and explicit relevance label mapping
 - [~] T009 Setup environment configuration management (paths for `data/raw/`, `results/`)
 
@@ -141,11 +141,11 @@ expected alphabetic or numeric character, but found '*'
 
 ### Implementation for User Story 3
 
-- [ ] T029 [P] [US3] Implement `visualization.py` to generate density plots comparing original vs. permuted scores
-- [ ] T030 [US3] Annotate plots with MDES and significance thresholds: **Modify `visualization.py` to add a vertical dashed line at `mdes` value and text label "MDES={val}" to all density plots in `results/plots/`**
+- [~] T029 [P] [US3] Implement `visualization.py` to generate density plots comparing original vs. permuted scores
+- [~] T030 [US3] Annotate plots with MDES and significance thresholds: **Modify `visualization.py` to add a vertical dashed line at `mdes` value and text label "MDES={val}" to all density plots in `results/plots/`**
 - [ ] T031 [US3] Generate `results/summary.csv` aggregating all query-metric pairs, p-values, and MDES
-- [ ] T032 [US3] Implement final runtime/memory guard in `main.py`: if > 5h or > 6GB RAM, force subsampling and log warning
-- [ ] T033 [US3] Add error handling for network failures in `data_loader.py` (graceful exit with error code)
+- [~] T032 [US3] Implement final runtime/memory guard in `main.py`: if > 5h or > 6GB RAM, force subsampling and log warning
+- [~] T033 [US3] Add error handling for network failures in `data_loader.py` (graceful exit with error code)
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -155,9 +155,9 @@ expected alphabetic or numeric character, but found '*'
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T034 [P] Documentation updates: Update `README.md` with sections: 'Installation', 'Usage', 'Output Artifacts'
-- [ ] T035 Code cleanup: Remove debug prints and ensure logging levels are appropriate
-- [ ] T036 Performance optimization: Verify batch processing logic is efficient; **Ensure memory < 6GB during batch of 50 queries**
+- [~] T034 [P] Documentation updates: Update `README.md` with sections: 'Installation', 'Usage', 'Output Artifacts'
+- [~] T035 Code cleanup: Remove debug prints and ensure logging levels are appropriate
+- [~] T036 Performance optimization: Verify batch processing logic is efficient; **Ensure memory < 6GB during batch of 50 queries**
 - [ ] T037 [P] Run `quickstart.md` validation to ensure all artifacts are generated correctly
 - [ ] T038 Add content checksums to `data/raw/` and `results/` artifacts for reproducibility (Constitution Principle V)
 

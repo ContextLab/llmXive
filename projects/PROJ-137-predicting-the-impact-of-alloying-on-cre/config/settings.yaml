@@ -1,12 +1,19 @@
+# Project settings
 random_seed: 42
-paths:
-  data: "data/processed"
-  models: "data/models"
-  outputs: "data/outputs"
-  reports: "docs/reports"
+project_root: "."
+data_dir: "data"
+output_dir: "data/outputs"
+log_dir: "logs"
+figures_dir: "figures"
+
+# API Keys (placeholders)
 api_keys:
-  materials_project: "YOUR_MP_API_KEY_HERE"
-  nims: "YOUR_NIMS_API_KEY_HERE"
-cv_splits: 5
-cv_repeats: 3
-target: "log_rupture_time"
+  nims: "${NIMS_API_KEY:-}"
+  materials_project: "${MP_API_KEY:-}"
+
+# Paths
+paths:
+  raw_data: "data/raw"
+  processed_data: "data/processed"
+  models: "models"
+  reports: "docs/reports"

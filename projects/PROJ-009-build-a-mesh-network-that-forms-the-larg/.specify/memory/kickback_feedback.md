@@ -4,9 +4,9 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T001` (rejected 1x): No evidence of the required directories (`code/orchestrator`, `code/analysis`, `code/simulation`, `data/raw`, `data/processed`, `tests/`) is provided; the implementer did not supply a directory listing or any files showing that the project structure has been created.
-- `T003` (rejected 1x): declared artifact(s) missing/empty/invalid: pre-commit-config.yaml
-- `T008` (rejected 1x): I examined the repository for a `contracts/` directory containing YAML schema files named for `ExecutionRun` and `RegressionModel`, and for a `tests/contract/` directory with corresponding unit tests. Neither the schema files nor the test files are present in the provided artifact list, so the required contracts and tests have not been delivered.
+- `T001` (rejected 1x): No evidence of the required directory tree (`code/orchestrator`, `code/analysis`, `code/simulation`, `code/data`, `code/tests`) is presented; without a listing or screenshots of these folders, we cannot confirm the project structure was created. The implementer must provide proof that these directories exist and are non‑empty.
+- `T003` (rejected 1x): The implementer supplied no configuration files (e.g., `pyproject.toml`, `.ruff.toml`, `.flake8`, or `black` settings) or documentation showing that ruff/flake8 linting and black formatting have been set up. Without these artifacts, the task of configuring the linting and formatting tools is not satisfied.
+- `T007` (rejected 1x): No files or code were presented in `code/tests/contract/` that implement a schema‑validation framework using pyyaml, nor any definitions for `ExecutionRun` or `RegressionModel`. The required artifact is missing, so the task is not satisfied.
 
 ## Required change
 

@@ -1,24 +1,3 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of the required directory tree (`code/orchestrator`, `code/analysis`,\
-    \ `code/simulation`, `code/data`, `code/tests`) is presented; without a listing\
-    \ or screenshots of these folders, we cannot confirm the project structure was\
-    \ created. The implementer must provide proof that these directories exist and\
-    \ are non\u2011empty."
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: The implementer supplied no configuration files (e.g., `pyproject.toml`, `.ruff.toml`,
-    `.flake8`, or `black` settings) or documentation showing that ruff/flake8 linting
-    and black formatting have been set up. Without these artifacts, the task of configuring
-    the linting and formatting tools is not satisfied.
-T007:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No files or code were presented in `code/tests/contract/` that implement a schema\u2011\
-    validation framework using\u202Fpyyaml, nor any definitions for `ExecutionRun`\
-    \ or `RegressionModel`. The required artifact is missing, so the task is not satisfied."
 T013:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -32,3 +11,29 @@ T014a:
     \ and there is no indication that the required remote\u2011execution logic for\
     \ `tcpdump` and `mpstat` via SSH has been added to `code/orchestrator/`. The task\u2019\
     s core artifact is therefore missing."
+T014b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `code/orchestrator/mpstat_parser.py` file or its contents were provided,\
+    \ so we cannot confirm that a parser was implemented, that it is non\u2011empty,\
+    \ or that it correctly extracts `cpu_utilization_pct` for the `PhysicalNode` entity.\
+    \ The required artifact is missing."
+T015:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `code/orchestrator/scheduler.py` file or its contents were provided, so we
+    cannot verify that task chunk distribution, OOM handling, or straggler detection
+    logic was actually implemented. The required artifact is missing.
+T016:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `benchmark.py` file was found in `code/orchestrator/`, nor any code snippet,\
+    \ documentation, or output demonstrating that a Monte\u202FCarlo integration workload\
+    \ can be launched on remote nodes. The required artifact is missing, so the task\
+    \ is not satisfied."
+T017:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `code/orchestrator/data_collector.py` file was provided, and there is no\
+    \ evidence of a generated CSV in `code/data/raw/`. Without the script and its\
+    \ output, the task\u2019s requirement cannot be confirmed as met."

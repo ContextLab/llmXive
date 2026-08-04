@@ -1,3 +1,1 @@
-"""
-llmXive Project: Predicting the Impact of Alloying on Creep Resistance
-"""
+"""llmXive: Automated Science Pipeline for Creep Resistance Prediction."""

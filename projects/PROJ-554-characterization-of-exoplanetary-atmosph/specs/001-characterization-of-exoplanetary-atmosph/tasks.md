@@ -61,7 +61,7 @@
 - [X] T005c [P] Implement censored data helpers in `code/utils.py` (upper limit handling functions)
 - [X] T006a [P] Create data directories: `data/raw/`, `data/processed/`; verify existence
 - [X] T006b [P] Create code and test directories: `code/`, `tests/unit/`, `tests/contract/`, `tests/integration/`; verify existence
-- [ ] T007 [P] Create base data models in `code/data_models.py` (Exoplanet Spectrum, Retrieval Result)
+- [X] T007 [P] Create base data models in `code/data_models.py` (Exoplanet Spectrum, Retrieval Result)
 - [ ] T008 [P] Configure environment variable handling for API keys (if needed) and random seeds
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -78,8 +78,8 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T009 [US1] Contract test for metadata schema in `tests/contract/test_metadata_schema.py` implementing `validate_metadata_schema` function. **Depends on T011b**.
-- [ ] T010 [US1] Integration test for API download in `tests/integration/test_download.py` implementing `test_download_returns_valid_metadata` with specific mock parameters. **Depends on T011b**.
+- [X] T009 [US1] Contract test for metadata schema in `tests/contract/test_metadata_schema.py` implementing `validate_metadata_schema` function. **Depends on T011b**.
+- [X] T010 [US1] Integration test for API download in `tests/integration/test_download.py` implementing `test_download_returns_valid_metadata` with specific mock parameters. **Depends on T011b**.
 
 ### Implementation for User Story 1
 
@@ -88,7 +88,7 @@
 - [X] T011c [P] [US1] Implement parsing logic in `code/download.py` to extract equilibrium temperature (K), host star metallicity ([Fe/H]), spectral resolution (R), and signal-to-noise ratio (SNR)
 - [ ] T012 [US1] Save raw spectrum files to `data/raw/` and metadata CSV (including SNR, R) to `data/processed/metadata.csv`
 - [X] T013 [US1] Implement `validate_sample_size` in `code/download.py` to count unique planets. If count < 30 or > 45, log `logging.warning` but proceed (do not raise error) to satisfy FR-001 "download ALL". If count is absent or null, raise `RuntimeError`.
-- [~] T014 [US1] Add logging for download progress and API response handling
+- [ ] T014 [US1] Add logging for download progress and API response handling
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -103,16 +103,16 @@
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
 - [X] T016 [P] [US2] Contract test for retrieval output schema in `tests/contract/test_retrieval_schema.py`
-- [~] T017 [P] [US2] Integration test for retrieval on sample spectrum in `tests/integration/test_retrieval.py`
+- [ ] T017 [P] [US2] Integration test for retrieval on sample spectrum in `tests/integration/test_retrieval.py`
 
 ### Implementation for User Story 2
 
 - [X] T018a [P] [US2] Configure `petitRADTRANS` for CPU-optimized mode (single-threaded, memory limit GB) in `code/retrieval.py`
 - [X] T018b [P] [US2] Implement wrapper function in `code/retrieval.py` to run retrieval on a single spectrum file
-- [~] T018c [P] [US2] Define output schema mapping: log10 water mixing ratio, standard deviation, or upper limit flag
-- [~] T019 [US2] Implement logic to detect low S/N spectra using SNR/Resolution metadata and derive upper limits (censored values) instead of false precision
+- [ ] T018c [P] [US2] Define output schema mapping: log10 water mixing ratio, standard deviation, or upper limit flag
+- [ ] T019 [US2] Implement logic to detect low S/N spectra using SNR/Resolution metadata and derive upper limits (censored values) instead of false precision
 - [ ] T020 [US2] Implement output generation: save results to `data/processed/retrieval_results.csv`
-- [~] T021 [US2] Add error handling for non-convergent retrievals: log failure, attempt upper limit derivation, proceed without halting
+- [ ] T021 [US2] Add error handling for non-convergent retrievals: log failure, attempt upper limit derivation, proceed without halting
 - [X] T022 [US2] Implement `test_upper_limit_flags_reflect_noise` in `code/validation.py` to verify upper limit flags reflect physical noise floors. **Depends on T019**.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently

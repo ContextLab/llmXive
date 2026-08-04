@@ -1,399 +1,408 @@
 """
-Remote Instrumentor for Mesh Network Supercomputer.
+Remote Instrumentation Module for Mesh Network Supercomputer.
 
-This module provides the RemoteInstrumentor class to remotely execute
-tcpdump (packet counts) and mpstat (CPU usage) commands on target nodes via SSH.
-It depends on the NodeManager (T013) for establishing SSH connections.
+This module handles remote execution of instrumentation commands (tcpdump, mpstat)
+on physical nodes via SSH, parses their output, and provides network saturation
+detection capabilities.
 """
+
+from __future__ import annotations
+
 import logging
 import re
 import time
-from typing import Dict, Any, Optional, List, Tuple
 from datetime import datetime
 from pathlib import Path
+from typing import List, Dict, Any, Optional, Tuple, Dict as TypingDict
+
+import paramiko
+from paramiko import SSHClient, AutoAddPolicy, SSHException
 
 from orchestrator.logger import get_logger
-from orchestrator.node_manager import NodeManager
-from orchestrator.models import PhysicalNode
+from orchestrator.models import PhysicalNode, NodeStatus
+from orchestrator.mpstat_parser import parse_mpstat_output, get_aggregated_utilization
 
+# Configure logger
 logger = get_logger(__name__)
 
+# Constants for network saturation detection
+PACKET_LOSS_THRESHOLD = 0.20  # 20% packet loss threshold
+DEFAULT_TIMEOUT = 30  # seconds for SSH command execution
+TCPDUMP_DURATION = 10  # seconds to capture packets for saturation check
+TCPDUMP_IFACE = "eth0"  # Default interface to monitor
 
 class RemoteInstrumentor:
     """
-    Handles remote instrumentation commands on mesh nodes.
+    Handles remote instrumentation of physical nodes via SSH.
     
-    This class uses SSH (via NodeManager) to execute system commands
-    for monitoring network traffic and CPU utilization.
+    Capabilities:
+    - Execute tcpdump for packet capture and loss analysis
+    - Execute mpstat for CPU utilization monitoring
+    - Detect network saturation based on packet loss
+    - Parse and aggregate remote command outputs
     """
 
-    def __init__(self, node_manager: NodeManager):
+    def __init__(self, config: TypingDict[str, Any] = None):
         """
         Initialize the RemoteInstrumentor.
         
         Args:
-            node_manager: An initialized NodeManager instance for SSH connections.
+            config: Optional configuration dictionary. Expected keys:
+                    - timeout: SSH command timeout (default: 30)
+                    - tcpdump_duration: Duration for packet capture (default: 10)
+                    - tcpdump_interface: Network interface to monitor (default: eth0)
+                    - packet_loss_threshold: Threshold for saturation detection (default: 0.20)
         """
-        self.node_manager = node_manager
-        self.logger = logger
+        self.config = config or {}
+        self.timeout = self.config.get('timeout', DEFAULT_TIMEOUT)
+        self.tcpdump_duration = self.config.get('tcpdump_duration', TCPDUMP_DURATION)
+        self.tcpdump_iface = self.config.get('tcpdump_interface', TCPDUMP_IFACE)
+        self.packet_loss_threshold = self.config.get('packet_loss_threshold', PACKET_LOSS_THRESHOLD)
+        self._clients: Dict[str, SSHClient] = {}
 
-    def execute_tcpdump(self, node: PhysicalNode, duration: int = 10, interface: str = "eth0") -> Dict[str, Any]:
+    def _get_ssh_client(self, node: PhysicalNode) -> SSHClient:
         """
-        Execute tcpdump on a remote node to count packets.
+        Establish or retrieve an SSH connection to a node.
         
         Args:
-            node: The target PhysicalNode.
-            duration: Duration in seconds to capture packets.
-            interface: Network interface to monitor (default: eth0).
-        
+            node: PhysicalNode object containing connection details
+            
         Returns:
-            A dictionary containing:
-                - node_id: ID of the node
-                - timestamp: When the capture started
-                - packet_count: Total packets captured
-                - interface: Interface used
-                - success: Boolean indicating success
-                - raw_output: Raw stdout from the command (optional)
-        
+            SSHClient instance connected to the node
+            
         Raises:
-            RuntimeError: If the command fails or returns invalid data.
+            paramiko.AuthenticationException: If authentication fails
+            paramiko.SSHException: If connection cannot be established
         """
-        # tcpdump command: capture for duration, count packets, suppress verbose output
-        # Using -c 1000000 to ensure we don't stop due to count limit if duration is reached
-        # Using -q to reduce output size, -i for interface
-        # We parse the final line which contains "X packets captured"
-        cmd = f"sudo tcpdump -i {interface} -q -c 1000000 -G {duration} -W 1 2>&1"
-        
-        self.logger.info(f"Executing tcpdump on node {node.node_id} for {duration}s on {interface}")
+        if node.hostname in self._clients:
+            try:
+                # Check if connection is still alive
+                self._clients[node.hostname].transport.sock.send(b'\x00')
+                return self._clients[node.hostname]
+            except Exception:
+                # Connection dead, remove and reconnect
+                del self._clients[node.hostname]
+
+        client = SSHClient()
+        client.set_missing_host_key_policy(AutoAddPolicy())
         
         try:
-            # Execute command via NodeManager
-            result = self.node_manager.execute_command(node, cmd, timeout=duration + 30)
+            client.connect(
+                hostname=node.hostname,
+                port=node.port or 22,
+                username=node.username or 'root',
+                password=node.password,
+                key_filename=node.ssh_key_path,
+                timeout=self.timeout,
+                allow_agent=False,
+                look_for_keys=False
+            )
+            self._clients[node.hostname] = client
+            logger.info(f"SSH connection established to {node.hostname}")
+        except SSHException as e:
+            logger.error(f"Failed to connect to {node.hostname}: {e}")
+            raise
+        
+        return client
+
+    def execute_remote_command(self, node: PhysicalNode, command: str) -> Tuple[int, str, str]:
+        """
+        Execute a command on a remote node via SSH.
+        
+        Args:
+            node: PhysicalNode object
+            command: Shell command to execute
             
-            if result.exit_code != 0:
-                # Check for specific errors (e.g., permission denied, interface not found)
-                if "Permission denied" in result.stderr or "Operation not permitted" in result.stderr:
-                    self.logger.warning(f"tcpdump permission issue on node {node.node_id}. Attempting without sudo...")
-                    # Retry without sudo (might work if user has capabilities)
-                    cmd_fallback = f"tcpdump -i {interface} -q -c 1000000 -G {duration} -W 1 2>&1"
-                    result = self.node_manager.execute_command(node, cmd_fallback, timeout=duration + 30)
-                    if result.exit_code != 0:
-                        raise RuntimeError(f"tcpdump failed on node {node.node_id}: {result.stderr}")
-                else:
-                    raise RuntimeError(f"tcpdump failed on node {node.node_id}: {result.stderr}")
+        Returns:
+            Tuple of (exit_code, stdout, stderr)
             
-            # Parse output to find packet count
-            # tcpdump summary line usually looks like: "12345 packets captured"
-            packet_count = 0
-            for line in result.stdout.split('\n'):
-                match = re.search(r'(\d+)\s+packets?\s+captured', line, re.IGNORECASE)
-                if match:
-                    packet_count = int(match.group(1))
-                    break
+        Raises:
+            SSHException: If command execution fails
+        """
+        client = self._get_ssh_client(node)
+        
+        try:
+            stdin, stdout, stderr = client.exec_command(command, timeout=self.timeout)
+            exit_code = stdout.channel.recv_exit_status()
+            stdout_text = stdout.read().decode('utf-8', errors='replace')
+            stderr_text = stderr.read().decode('utf-8', errors='replace')
             
-            # If no packets captured line found, try to infer from other patterns
-            if packet_count == 0 and result.stdout:
-                # Sometimes tcpdump outputs "X packets dropped by kernel" etc.
-                # We'll assume 0 if we can't find a capture count
-                self.logger.debug(f"Could not parse packet count from tcpdump output on node {node.node_id}")
+            return exit_code, stdout_text, stderr_text
+        except Exception as e:
+            logger.error(f"Command execution failed on {node.hostname}: {e}")
+            raise
+
+    def collect_tcpdump_stats(self, node: PhysicalNode) -> Dict[str, Any]:
+        """
+        Collect packet statistics from a remote node using tcpdump.
+        
+        Executes a tcpdump command to capture packets for a specified duration
+        and returns statistics about packet counts and potential loss.
+        
+        Args:
+            node: PhysicalNode object
+            
+        Returns:
+            Dictionary containing packet statistics:
+            - packets_received: Number of packets received
+            - packets_dropped: Number of packets dropped
+            - packet_loss_rate: Ratio of dropped packets (0.0 to 1.0)
+            - duration: Duration of capture in seconds
+            - interface: Network interface monitored
+        """
+        # tcpdump command with count and duration
+        # -c limits total packets, -i specifies interface, -q reduces output verbosity
+        # We use a wrapper to count packets and drops
+        tcpdump_cmd = (
+            f"timeout {self.tcpdump_duration} tcpdump -i {self.tcpdump_iface} -c 10000 -q 2>&1 || true"
+        )
+        
+        try:
+            exit_code, stdout, stderr = self.execute_remote_command(node, tcpdump_cmd)
+            
+            # Parse tcpdump output for packet counts
+            # tcpdump typically outputs: "1234 packets captured"
+            # and may show: "56 packets dropped by kernel"
+            captured_match = re.search(r'(\d+)\s+packets?\s+captured', stdout + stderr, re.IGNORECASE)
+            dropped_match = re.search(r'(\d+)\s+packets?\s+dropped', stdout + stderr, re.IGNORECASE)
+            
+            packets_received = int(captured_match.group(1)) if captured_match else 0
+            packets_dropped = int(dropped_match.group(1)) if dropped_match else 0
+            
+            # Calculate packet loss rate
+            total_packets = packets_received + packets_dropped
+            if total_packets > 0:
+                packet_loss_rate = packets_dropped / total_packets
+            else:
+                packet_loss_rate = 0.0
             
             return {
-                "node_id": node.node_id,
-                "timestamp": datetime.now().isoformat(),
-                "packet_count": packet_count,
-                "interface": interface,
-                "success": True,
-                "raw_output": result.stdout[:500] if result.stdout else None  # Truncate for logging
+                'packets_received': packets_received,
+                'packets_dropped': packets_dropped,
+                'packet_loss_rate': packet_loss_rate,
+                'duration': self.tcpdump_duration,
+                'interface': self.tcpdump_iface,
+                'timestamp': datetime.now().isoformat(),
+                'node_hostname': node.hostname
             }
             
         except Exception as e:
-            self.logger.error(f"tcpdump execution failed on node {node.node_id}: {str(e)}")
+            logger.error(f"Failed to collect tcpdump stats from {node.hostname}: {e}")
+            # Return a failure state with high packet loss to trigger abort
             return {
-                "node_id": node.node_id,
-                "timestamp": datetime.now().isoformat(),
-                "packet_count": 0,
-                "interface": interface,
-                "success": False,
-                "error": str(e)
+                'packets_received': 0,
+                'packets_dropped': 0,
+                'packet_loss_rate': 1.0,  # Force saturation detection on error
+                'duration': self.tcpdump_duration,
+                'interface': self.tcpdump_iface,
+                'timestamp': datetime.now().isoformat(),
+                'node_hostname': node.hostname,
+                'error': str(e)
             }
 
-    def execute_mpstat(self, node: PhysicalNode, interval: float = 1.0, count: int = 5) -> Dict[str, Any]:
+    def collect_mpstat_stats(self, node: PhysicalNode) -> Dict[str, Any]:
         """
-        Execute mpstat on a remote node to get CPU utilization.
+        Collect CPU statistics from a remote node using mpstat.
         
         Args:
-            node: The target PhysicalNode.
-            interval: Interval between samples in seconds.
-            count: Number of samples to take.
-        
+            node: PhysicalNode object
+            
         Returns:
-            A dictionary containing:
-                - node_id: ID of the node
-                - timestamp: When the measurement started
-                - cpu_utilization_pct: Average CPU utilization percentage (100 - idle)
-                - samples: List of individual sample values
-                - success: Boolean indicating success
-                - raw_output: Raw stdout from the command
-        
-        Raises:
-            RuntimeError: If the command fails or returns invalid data.
+            Dictionary containing CPU statistics:
+            - cpu_utilization_pct: Aggregated CPU utilization percentage
+            - per_core_utilization: List of utilization per core
+            - timestamp: When the measurement was taken
+            - node_hostname: Source node hostname
         """
-        # mpstat command: get CPU stats, interval, count
-        # We use -P ALL to get per-CPU stats, then average them
-        cmd = f"mpstat -P ALL {interval} {count} 2>&1"
-        
-        self.logger.info(f"Executing mpstat on node {node.node_id}: interval={interval}s, count={count}")
+        # mpstat command: 1 sample, 1 second interval, all CPUs
+        mpstat_cmd = "mpstat 1 1 -P ALL 2>&1 || echo 'mpstat not available'"
         
         try:
-            result = self.node_manager.execute_command(node, cmd, timeout=(interval * count) + 30)
+            exit_code, stdout, stderr = self.execute_remote_command(node, mpstat_cmd)
             
-            if result.exit_code != 0:
-                raise RuntimeError(f"mpstat failed on node {node.node_id}: {result.stderr}")
+            if "mpstat not available" in stdout:
+                logger.warning(f"mpstat not available on {node.hostname}")
+                return {
+                    'cpu_utilization_pct': 0.0,
+                    'per_core_utilization': [],
+                    'timestamp': datetime.now().isoformat(),
+                    'node_hostname': node.hostname,
+                    'error': 'mpstat not available'
+                }
             
             # Parse mpstat output
-            # Format:
-            # Linux 5.x.x...
-            # 12:34:56  CPU    %usr   %nice    %sys %iowait    %irq   %soft  %steal  %guest  %gnice   %idle
-            # 12:34:57  all    1.00    0.00    0.50    0.00    0.00    0.00    0.00    0.00    0.00   98.50
-            # ...
-            # Average: ...
-            
-            lines = result.stdout.split('\n')
-            samples = []
-            cpu_line_pattern = re.compile(r'^\s*\d+:\d+:\d+\s+(all|\d+)\s+([\d.]+)\s+([\d.]+)\s+([\d.]+)\s+([\d.]+)\s+([\d.]+)\s+([\d.]+)\s+([\d.]+)\s+([\d.]+)\s+([\d.]+)\s+([\d.]+)\s*$')
-            
-            for line in lines:
-                match = cpu_line_pattern.match(line)
-                if match:
-                    # Extract idle percentage (last column)
-                    idle_pct = float(match.group(12))
-                    cpu_util = 100.0 - idle_pct
-                    samples.append(cpu_util)
-            
-            if not samples:
-                raise RuntimeError(f"Could not parse mpstat output on node {node.node_id}")
-            
-            avg_utilization = sum(samples) / len(samples)
+            parsed_data = parse_mpstat_output(stdout)
+            aggregated_util = get_aggregated_utilization(parsed_data)
             
             return {
-                "node_id": node.node_id,
-                "timestamp": datetime.now().isoformat(),
-                "cpu_utilization_pct": avg_utilization,
-                "samples": samples,
-                "success": True,
-                "raw_output": result.stdout[:1000] if result.stdout else None
+                'cpu_utilization_pct': aggregated_util,
+                'per_core_utilization': parsed_data.get('per_core', []),
+                'timestamp': datetime.now().isoformat(),
+                'node_hostname': node.hostname
             }
             
         except Exception as e:
-            self.logger.error(f"mpstat execution failed on node {node.node_id}: {str(e)}")
+            logger.error(f"Failed to collect mpstat stats from {node.hostname}: {e}")
             return {
-                "node_id": node.node_id,
-                "timestamp": datetime.now().isoformat(),
-                "cpu_utilization_pct": 0.0,
-                "samples": [],
-                "success": False,
-                "error": str(e)
+                'cpu_utilization_pct': 0.0,
+                'per_core_utilization': [],
+                'timestamp': datetime.now().isoformat(),
+                'node_hostname': node.hostname,
+                'error': str(e)
             }
 
-    def check_network_saturation(self, node: PhysicalNode, duration: int = 10, threshold: float = 0.20) -> Dict[str, Any]:
+    def check_network_saturation(self, node: PhysicalNode) -> bool:
         """
-        Check for network saturation by measuring packet loss rate.
+        Check if a node's network is saturated (>20% packet loss).
         
-        This method executes a ping-based test or analyzes tcpdump output
-        to detect if packet loss exceeds the specified threshold.
+        This method collects tcpdump statistics from the remote node and
+        determines if the packet loss rate exceeds the configured threshold.
+        If saturation is detected, it logs a critical error and returns True.
         
         Args:
-            node: The target PhysicalNode.
-            duration: Duration of the test in seconds.
-            threshold: Packet loss threshold (e.g., 0.20 for 20%).
-        
+            node: PhysicalNode object to check
+            
         Returns:
-            A dictionary containing:
-                - node_id: ID of the node
-                - packet_loss_rate: Estimated packet loss rate
-                - saturated: Boolean indicating if loss exceeds threshold
-                - success: Boolean indicating success
-        
-        Note:
-            This implementation uses a simple ping-based approach.
-            For more accurate results, tcpdump analysis during active traffic
-            would be needed.
+            True if network saturation is detected (packet_loss_rate > 20%),
+            False otherwise
+            
+        Raises:
+            RuntimeError: If network saturation is detected (to abort the run)
         """
-        # Use ping to measure packet loss
-        # Send 100 packets over duration seconds
-        packets_to_send = 100
-        cmd = f"ping -c {packets_to_send} -W 1 -i {duration/packets_to_send} 127.0.0.1 2>&1"
+        logger.info(f"Checking network saturation on {node.hostname}")
         
-        self.logger.info(f"Checking network saturation on node {node.node_id}")
+        stats = self.collect_tcpdump_stats(node)
+        packet_loss_rate = stats.get('packet_loss_rate', 0.0)
         
-        try:
-            result = self.node_manager.execute_command(node, cmd, timeout=duration + 30)
-            
-            if result.exit_code != 0:
-                # ping might fail for other reasons, try a simpler check
-                self.logger.warning(f"Ping failed on node {node.node_id}, using fallback check")
-                return {
-                    "node_id": node.node_id,
-                    "packet_loss_rate": 0.0,
-                    "saturated": False,
-                    "success": False,
-                    "error": "Ping command failed"
-                }
-            
-            # Parse ping output for packet loss
-            # Look for line like: "100 packets transmitted, 100 received, 0% packet loss"
-            loss_match = re.search(r'(\d+)%\s+packet\s+loss', result.stdout)
-            
-            if loss_match:
-                loss_rate = float(loss_match.group(1)) / 100.0
-                saturated = loss_rate > threshold
-                
-                self.logger.info(f"Node {node.node_id}: packet loss {loss_rate*100:.1f}% (threshold: {threshold*100:.1f}%)")
-                
-                return {
-                    "node_id": node.node_id,
-                    "packet_loss_rate": loss_rate,
-                    "saturated": saturated,
-                    "success": True
-                }
-            else:
-                self.logger.warning(f"Could not parse packet loss from ping output on node {node.node_id}")
-                return {
-                    "node_id": node.node_id,
-                    "packet_loss_rate": 0.0,
-                    "saturated": False,
-                    "success": False,
-                    "error": "Could not parse ping output"
-                }
-                
-        except Exception as e:
-            self.logger.error(f"Network saturation check failed on node {node.node_id}: {str(e)}")
-            return {
-                "node_id": node.node_id,
-                "packet_loss_rate": 0.0,
-                "saturated": False,
-                "success": False,
-                "error": str(e)
-            }
+        logger.info(
+            f"Node {node.hostname}: packet_loss_rate={packet_loss_rate:.2%}, "
+            f"received={stats['packets_received']}, dropped={stats['packets_dropped']}"
+        )
+        
+        if packet_loss_rate > self.packet_loss_threshold:
+            error_msg = (
+                f"CRITICAL: Network saturation detected on {node.hostname}. "
+                f"Packet loss rate: {packet_loss_rate:.2%} (threshold: {self.packet_loss_threshold:.2%}). "
+                f"Aborting run to prevent corrupted data."
+            )
+            logger.critical(error_msg)
+            raise RuntimeError(error_msg)
+        
+        return False
 
-    def capture_unmodeled_vars(self, node: PhysicalNode) -> Dict[str, Any]:
+    def collect_node_metrics(self, node: PhysicalNode) -> Dict[str, Any]:
         """
-        Capture unmodeled variables like thermal throttling and OS noise.
-        
-        This method attempts to gather metrics that might affect performance
-        but are not directly modeled in the primary analysis.
+        Collect all instrumentation metrics from a node.
         
         Args:
-            node: The target PhysicalNode.
-        
+            node: PhysicalNode object
+            
         Returns:
-            A dictionary containing:
-                - node_id: ID of the node
-                - timestamp: When the measurement was taken
-                - thermal_throttling: Boolean indicating if throttling is active
-                - os_noise_metrics: Dictionary with OS noise metrics
-                - success: Boolean indicating success
+            Dictionary containing both CPU and network metrics
         """
-        result_data = {
-            "node_id": node.node_id,
-            "timestamp": datetime.now().isoformat(),
-            "thermal_throttling": False,
-            "os_noise_metrics": {},
-            "success": False
-        }
-        
-        try:
-            # Check for thermal throttling (if available)
-            # Try to read thermal zone info
-            thermal_cmd = "cat /sys/class/thermal/thermal_zone0/temp 2>/dev/null || echo 'N/A'"
-            thermal_result = self.node_manager.execute_command(node, thermal_cmd, timeout=5)
-            
-            if thermal_result.exit_code == 0 and thermal_result.stdout.strip() != 'N/A':
-                try:
-                    temp_millidegrees = int(thermal_result.stdout.strip())
-                    temp_celsius = temp_millidegrees / 1000.0
-                    result_data["os_noise_metrics"]["temperature_celsius"] = temp_celsius
-                    
-                    # Assume throttling if temperature > 80C (adjustable threshold)
-                    if temp_celsius > 80.0:
-                        result_data["thermal_throttling"] = True
-                        self.logger.warning(f"Node {node.node_id}: High temperature detected ({temp_celsius:.1f}C)")
-                except ValueError:
-                    pass
-            
-            # Check for high load average (OS noise indicator)
-            load_cmd = "uptime 2>/dev/null || echo 'N/A'"
-            load_result = self.node_manager.execute_command(node, load_cmd, timeout=5)
-            
-            if load_result.exit_code == 0:
-                load_match = re.search(r'load average:\s+([\d.]+),\s+([\d.]+),\s+([\d.]+)', load_result.stdout)
-                if load_match:
-                    load_1min = float(load_match.group(1))
-                    load_5min = float(load_match.group(2))
-                    load_15min = float(load_match.group(3))
-                    result_data["os_noise_metrics"]["load_average_1min"] = load_1min
-                    result_data["os_noise_metrics"]["load_average_5min"] = load_5min
-                    result_data["os_noise_metrics"]["load_average_15min"] = load_15min
-            
-            # Check for interrupt frequency (another OS noise indicator)
-            # This is a simplified check - real implementation would sample /proc/interrupts
-            interrupt_cmd = "cat /proc/stat | grep ^intr 2>/dev/null || echo 'N/A'"
-            interrupt_result = self.node_manager.execute_command(node, interrupt_cmd, timeout=5)
-            
-            if interrupt_result.exit_code == 0:
-                result_data["os_noise_metrics"]["interrupts"] = interrupt_result.stdout.strip()
-            
-            result_data["success"] = True
-            
-        except Exception as e:
-            self.logger.error(f"Failed to capture unmodeled vars on node {node.node_id}: {str(e)}")
-            result_data["error"] = str(e)
-        
-        return result_data
-
-    def instrument_node(self, node: PhysicalNode, capture_duration: int = 10) -> Dict[str, Any]:
-        """
-        Perform a full instrumentation cycle on a node.
-        
-        This method executes both tcpdump and mpstat commands and
-        captures unmodeled variables in a single operation.
-        
-        Args:
-            node: The target PhysicalNode.
-            capture_duration: Duration for packet capture in seconds.
-        
-        Returns:
-            A dictionary containing all instrumentation results:
-                - tcpdump_result: Result from tcpdump execution
-                - mpstat_result: Result from mpstat execution
-                - unmodeled_vars: Result from unmodeled variables capture
-                - network_saturation: Result from network saturation check
-        """
-        self.logger.info(f"Starting full instrumentation cycle on node {node.node_id}")
-        
-        tcpdump_result = self.execute_tcpdump(node, duration=capture_duration)
-        mpstat_result = self.execute_mpstat(node)
-        unmodeled_result = self.capture_unmodeled_vars(node)
-        saturation_result = self.check_network_saturation(node, duration=capture_duration)
-        
         return {
-            "node_id": node.node_id,
-            "timestamp": datetime.now().isoformat(),
-            "tcpdump": tcpdump_result,
-            "mpstat": mpstat_result,
-            "unmodeled_vars": unmodeled_result,
-            "network_saturation": saturation_result
+            'cpu': self.collect_mpstat_stats(node),
+            'network': self.collect_tcpdump_stats(node),
+            'timestamp': datetime.now().isoformat(),
+            'node_hostname': node.hostname
         }
 
+    def close_connections(self):
+        """Close all active SSH connections."""
+        for hostname, client in self._clients.items():
+            try:
+                client.close()
+                logger.info(f"Closed SSH connection to {hostname}")
+            except Exception as e:
+                logger.warning(f"Error closing connection to {hostname}: {e}")
+        self._clients.clear()
 
-def create_instrumentor(node_manager: NodeManager) -> RemoteInstrumentor:
+def create_instrumentor(config: TypingDict[str, Any] = None) -> RemoteInstrumentor:
     """
     Factory function to create a RemoteInstrumentor instance.
     
     Args:
-        node_manager: An initialized NodeManager instance.
-    
+        config: Optional configuration dictionary
+        
     Returns:
-        A configured RemoteInstrumentor instance.
+        Configured RemoteInstrumentor instance
     """
-    return RemoteInstrumentor(node_manager)
+    return RemoteInstrumentor(config)
+
+def main():
+    """
+    Main entry point for standalone testing of the RemoteInstrumentor.
+    
+    This function demonstrates the network saturation check capability
+    by attempting to connect to configured nodes and checking their
+    network health.
+    """
+    import argparse
+    import yaml
+    
+    parser = argparse.ArgumentParser(description='Remote Instrumentor - Network Saturation Check')
+    parser.add_argument('--config', type=str, help='Path to configuration YAML file')
+    parser.add_argument('--nodes', type=str, nargs='+', help='List of node hostnames to check')
+    parser.add_argument('--threshold', type=float, default=0.20, help='Packet loss threshold (default: 0.20)')
+    
+    args = parser.parse_args()
+    
+    # Load configuration
+    config = {}
+    if args.config:
+        with open(args.config, 'r') as f:
+            config = yaml.safe_load(f) or {}
+    
+    # Override with command line args
+    config['packet_loss_threshold'] = args.threshold
+    
+    instrumentor = create_instrumentor(config)
+    
+    # Define test nodes (in production, these would come from config or node_manager)
+    test_nodes = []
+    if args.nodes:
+        for hostname in args.nodes:
+            test_nodes.append(PhysicalNode(
+                hostname=hostname,
+                port=22,
+                username='root',
+                password=None,
+                ssh_key_path=None
+            ))
+    else:
+        # Default test node for demonstration
+        test_nodes.append(PhysicalNode(
+            hostname='localhost',
+            port=22,
+            username='root',
+            password=None,
+            ssh_key_path=None
+        ))
+    
+    print(f"Checking network saturation on {len(test_nodes)} node(s)...")
+    
+    saturation_detected = False
+    for node in test_nodes:
+        try:
+            print(f"\nChecking {node.hostname}...")
+            instrumentor.check_network_saturation(node)
+            print(f"  ✓ {node.hostname}: Network healthy")
+        except RuntimeError as e:
+            print(f"  ✗ {node.hostname}: {e}")
+            saturation_detected = True
+        except Exception as e:
+            print(f"  ✗ {node.hostname}: Connection error - {e}")
+            # Connection errors are treated as saturation to abort the run
+            saturation_detected = True
+    
+    instrumentor.close_connections()
+    
+    if saturation_detected:
+        print("\n⚠ Network saturation detected. Run aborted.")
+        exit(1)
+    else:
+        print("\n✓ All nodes healthy. Network saturation check passed.")
+        exit(0)
+
+if __name__ == '__main__':
+    main()

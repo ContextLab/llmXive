@@ -1,11 +1,26 @@
-arrhenius:
-  activation_energy: 250000 # J/mol
-  pre_exponential: 1e10
-power_law:
-  stress_exponent: 5.0
+# Synthetic Data Generation Parameters
+# Based on Arrhenius and Power-Law creep models
+
+model_type: "arrhenius_power_law"
+
+# Arrhenius Parameters
+activation_energy_range: [200000, 400000] # J/mol
+pre_exponential_range: [1e-10, 1e-5] # s^-1
+
+# Power-Law Parameters
+stress_exponent_range: [3, 8]
+stress_coefficient_range: [1e-15, 1e-10]
+
+# Statistical Targets for Validation
 statistical_targets:
   ks_distance_threshold: 0.05
-  mean_sd_mismatch_threshold: 0.10
-temperature_bins: 5
-min_samples_per_bin: 10
-random_seed: 42
+  mean_mismatch_threshold: 0.10
+  sd_mismatch_threshold: 0.10
+  r_squared_threshold: 0.80
+
+# Distribution Parameters
+n_samples: 1000
+temperature_range: [700, 1100] # Kelvin
+stress_range: [50, 300] # MPa
+composition_elements: ["Cr", "Ni", "Fe", "Mo", "W", "Al", "Ti"]
+n_elements_per_alloy: [3, 5]

@@ -1,33 +1,42 @@
-import yaml
+"""
+Schema validation and physics consistency checks.
+"""
 import pandas as pd
-from pathlib import Path
-import jsonschema
-from jsonschema import validate, ValidationError
+import yaml
+import os
+from typing import List, Dict, Any
 
-_project_root = Path(__file__).resolve().parent.parent.parent
-
-def load_schema(schema_path):
-    """Load a JSON/YAML schema."""
-    path = _project_root / schema_path
-    if not path.exists():
-        return None
-    with open(path, 'r') as f:
-        if schema_path.endswith('.yaml') or schema_path.endswith('.yml'):
-            return yaml.safe_load(f)
-        else:
-            return json.load(f)
-
-def validate_dataset_schema(df, schema_path="contracts/dataset.schema.yaml"):
-    """Validate dataframe against a schema."""
-    schema = load_schema(schema_path)
-    if not schema:
-        # If schema missing, skip validation or return True
-        return True
+def validate_schema(df: pd.DataFrame, schema_path: str) -> bool:
+    """
+    Validate DataFrame against a YAML schema.
     
-    # Convert df to dict of lists for jsonschema
-    data = df.to_dict(orient='records')
-    try:
-        validate(instance=data, schema=schema)
-        return True
-    except ValidationError as e:
-        raise ValueError(f"Schema validation failed: {e.message}")
+    Args:
+        df: DataFrame to validate.
+        schema_path: Path to schema YAML file.
+        
+    Returns:
+        True if valid, False otherwise.
+    """
+    if not os.path.exists(schema_path):
+        raise FileNotFoundError(f"Schema file not found: {schema_path}")
+        
+    with open(schema_path, 'r') as f:
+        schema = yaml.safe_load(f)
+        
+    required_cols = schema.get('required_columns', [])
+    type_map = schema.get('column_types', {})
+    
+    # Check columns
+    missing_cols = [c for c in required_cols if c not in df.columns]
+    if missing_cols:
+        raise ValueError(f"Missing required columns: {missing_cols}")
+        
+    # Check types (basic)
+    for col, dtype in type_map.items():
+        if col in df.columns:
+            if dtype == 'numeric' and not pd.api.types.is_numeric_dtype(df[col]):
+                raise TypeError(f"Column {col} must be numeric")
+            elif dtype == 'string' and not pd.api.types.is_string_dtype(df[col]):
+                raise TypeError(f"Column {col} must be string")
+                
+    return True

@@ -88,7 +88,7 @@
 - [ ] T015 [US1] Implement `scheduler.py` in `code/orchestrator/` to distribute `TaskChunk` units and handle OOM/straggler detection logic. DEPENDS ON T013.
 - [ ] T016 [US1] Implement `benchmark.py` in `code/orchestrator/` to run the Monte Carlo integration workload on remote nodes
 - [ ] T017 [US1] Implement `data_collector.py` in `code/orchestrator/` to aggregate raw logs from nodes and write to `code/data/raw/` as CSV. DEPENDS ON T014b, T016.
-- [ ] T018 [US1] Implement `check_network_saturation()` in `code/orchestrator/instrumentor_remote.py` to detect >20% packet loss and abort the run (Required for Edge Cases). DEPENDS ON T014a.
+- [X] T018 [US1] Implement `check_network_saturation()` in `code/orchestrator/instrumentor_remote.py` to detect >20% packet loss and abort the run (Required for Edge Cases). DEPENDS ON T014a.
 - [ ] T019 [US1] Implement `detect_dropout_events()` in `code/orchestrator/node_manager.py` to detect and record "dropout" events when nodes enter sleep mode or lose power. DEPENDS ON T013.
 - [ ] T020 [US1] Implement `capture_unmodeled_vars()` in `code/orchestrator/instrumentor_remote.py` to log thermal throttling and OS noise metrics for the "Golden Dataset". DEPENDS ON T014a.
 

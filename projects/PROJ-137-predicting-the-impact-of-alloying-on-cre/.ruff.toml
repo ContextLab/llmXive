@@ -1,4 +1,4 @@
-# Extends the configuration in pyproject.toml if needed, 
-# or serves as a standalone config file.
-# Keeping this for explicit ruff discovery in some IDEs.
+# Extends the configuration in pyproject.toml for specific linter overrides if needed.
+# Currently, all configuration is managed in pyproject.toml to keep the root clean.
+# This file exists to satisfy potential IDE detection of a dedicated ruff config file.
 extend = "pyproject.toml"

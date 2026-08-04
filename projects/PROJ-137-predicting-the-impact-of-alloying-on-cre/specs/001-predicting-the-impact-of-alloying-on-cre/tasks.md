@@ -25,7 +25,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project structure per implementation plan (`src/`, `tests/`, `data/`, `docs/`, `config/`) <!-- ATOMIZE: requested -->
-- [ ] T002 Initialize Python 3.11 project with `requirements.txt` (pandas, scikit-learn, pymatgen, shap, numpy, pyyaml, requests, tqdm, scipy, pytest)
+- [X] T002 Initialize Python 3.11 project with `requirements.txt` (pandas, scikit-learn, pymatgen, shap, numpy, pyyaml, requests, tqdm, scipy, pytest)
 - [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
 
 ---
@@ -36,9 +36,9 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 [P] Create `config/settings.yaml` with random seeds, paths, and API key placeholders
-- [ ] T005 [P] Create `config/synthetic_params.yaml` with Arrhenius/Power-law parameters and statistical targets
-- [ ] T006a [P] Create `docs/data-model.md` defining `AlloySample`, `ThermodynamicDescriptor`, `ModelPerformance` entities with detailed schema descriptions, explicitly referencing `contracts/dataset.schema.yaml` for alignment
+- [X] T004 [P] Create `config/settings.yaml` with random seeds, paths, and API key placeholders
+- [X] T005 [P] Create `config/synthetic_params.yaml` with Arrhenius/Power-law parameters and statistical targets
+- [X] T006a [P] Create `docs/data-model.md` defining `AlloySample`, `ThermodynamicDescriptor`, `ModelPerformance` entities with detailed schema descriptions, explicitly referencing `contracts/dataset.schema.yaml` for alignment
 - [ ] T006b Create `contracts/dataset.schema.yaml` validating the processed CSV schema (alloy_id, composition_str, temperature, stress, rupture_time, mixing_enthalpy, radius_mismatch)
 - [ ] T007 [P] Create `contracts/output.schema.yaml` for model reports
 - [X] T008 [P] Implement `src/utils/logger.py` for structured logging
@@ -73,7 +73,7 @@
 - [X] T017 [US1] Implement `src/data/preprocess.py`: Composition parsing (alphabetical sort, rounding, weight% to atomic%), and exclusion logic for missing thermodynamic data. **Mandatory**: Embed logging for excluded entries (missing temperature/stress/rupture time AND missing thermodynamic data) directly within this script to ensure counts are generated during the pipeline run and available for the report.
 - [X] T018 [US1] Implement `src/data/merge.py`: Join composition data with Materials Project thermodynamic properties (mixing enthalpy, radius mismatch) using `pymatgen`.
 - [X] T019 [US1] Implement `src/data/pipeline.py`: Orchestration script that selects real vs. synthetic path, runs preprocessing, validates schema, and logs exclusion counts. **Mandatory**: Embed logging for excluded entries (missing temperature/stress/rupture time AND missing thermodynamic data) directly within this script to ensure counts are generated during the pipeline run and available for the report.
-- [~] T020 REMOVED (Merged into T019)
+- [ ] T020 REMOVED (Merged into T019)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -124,17 +124,17 @@
 
 ### Tests for User Story 3
 
-- [ ] T026 [P] [US3] Unit test for SHAP value extraction and formatting in `tests/unit/test_shap_utils.py`
+- [X] T026 [P] [US3] Unit test for SHAP value extraction and formatting in `tests/unit/test_shap_utils.py`
 
 ### Implementation for User Story 3
 
-- [ ] T027 [US3] Implement `src/models/interpret.py`:
+- [X] T027 [US3] Implement `src/models/interpret.py`:
  - Load the trained Thermodynamic GBR model.
  - Compute SHAP values using `TreeExplainer`.
  - Generate and save SHAP summary plot (PNG) in `data/outputs/`.
  - Extract top features and calculate mean absolute SHAP values.
  - Determine direction of influence (positive/negative correlation) for top features.
-- [ ] T028 [US3] Implement `src/reports/generate_report.py`:
+- [X] T028 [US3] Implement `src/reports/generate_report.py`:
  - Compile final results: R² delta, statistical test results, SHAP top 5 list.
  - Format report with text summary: "feature_name: +value" or "feature_name: positive correlation".
  - Save final report to `docs/reports/`.
@@ -150,7 +150,7 @@
 - [ ] T029 [P] Update `README.md` with quickstart instructions and execution commands
 - [ ] T030 [P] Add `.gitignore` and CI configuration (GitHub Actions) for CPU-only runner
 - [ ] T031 [P] Create `tests/integration/test_runtime.py` script to run the full pipeline, capture execution time, and **log the specific duration value** to stdout and a log file as a measured outcome for SC-005. Also assert pipeline duration < 6h and log failure if exceeded.
-- [ ] T032 [P] Create `src/utils/runtime_logger.py` to ensure the total execution time is explicitly logged to standard output and a dedicated log file (`logs/runtime.log`) as a measured outcome for SC-005. This task ensures the artifact (the logged time value) is produced for the report, distinct from the pass/fail assertion in T031.
+- [X] T032 [P] Create `src/utils/runtime_logger.py` to ensure the total execution time is explicitly logged to standard output and a dedicated log file (`logs/runtime.log`) as a measured outcome for SC-005. This task ensures the artifact (the logged time value) is produced for the report, distinct from the pass/fail assertion in T031.
 - [ ] T033 Verify all artifacts (CSVs, plots, reports) are hashed and state updated per `src/utils/hash.py`
 
 ---

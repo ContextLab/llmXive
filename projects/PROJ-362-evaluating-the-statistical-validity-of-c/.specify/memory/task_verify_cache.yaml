@@ -1,0 +1,41 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required `projects/PROJ-362-evaluating-the-statistical-validity-of-c/code/`
+    directory or an `__init__.py` file was presented; the claim lacks any tangible
+    artifact confirming the root project structure was created.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The claim provides only a statistical\u2011validity feature specification and\
+    \ no linting or formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`,\
+    \ `black` settings, or a `pre\u2011commit` hook). Since there is no artifact showing\
+    \ that ruff and black have been set up, the requirement to configure linting (ruff)\
+    \ and formatting (black) tools is not satisfied. The missing artifacts need to\
+    \ be added for the task to be considered complete."
+T004:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `data_loader.py` file or any code implementing dataset fetching with retry
+    logic is provided; the evidence contains only the task description and project
+    requirements, without the required artifact. Consequently, the implementation
+    cannot be verified as completed.
+T006:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `data_loader.py` file with added validation logic is present, nor any logs\
+    \ or tests demonstrating schema enforcement or warnings for zero\u2011relevance\
+    \ queries. The required code artifact is missing, so the task is not satisfied."
+T007:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `config.py` file or its contents are present in the provided evidence; therefore\
+    \ the required constants for seeds, permutation count (N=1000), batch sizes, and\
+    \ memory thresholds have not been supplied. The task remains undone until a non\u2011\
+    empty `config.py` with those definitions is added."
+T008:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `metrics.py` file or any code implementing a CPU\u2011only NDCG@k function\
+    \ with IDCG normalization and explicit relevance\u2011label mapping was presented.\
+    \ The required artifact is missing, so the task is not satisfied."

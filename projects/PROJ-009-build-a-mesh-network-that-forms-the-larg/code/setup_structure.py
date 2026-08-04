@@ -1,74 +1,79 @@
 """
-Project structure setup script for the Mesh Network Supercomputer project.
-Creates the necessary directory hierarchy as per the implementation plan.
+Setup script to create the project directory structure for the Mesh Network Supercomputer.
+This script creates the required directories as per the implementation plan.
 """
 import os
 from pathlib import Path
 
 def create_structure():
     """Create the project directory structure."""
-    root = Path(".")
+    base_dir = Path(__file__).parent.parent
     
-    # Define all required directories
+    # Define the required directories
     directories = [
         # Code modules
-        "code/orchestrator/workers",
-        "code/analysis",
-        "code/simulation",
+        base_dir / "code" / "orchestrator",
+        base_dir / "code" / "orchestrator" / "workers",
+        base_dir / "code" / "analysis",
+        base_dir / "code" / "simulation",
+        base_dir / "code" / "data",
+        base_dir / "code" / "data" / "raw",
+        base_dir / "code" / "data" / "processed",
+        base_dir / "code" / "tests",
+        base_dir / "code" / "tests" / "unit",
+        base_dir / "code" / "tests" / "integration",
+        base_dir / "code" / "tests" / "contract",
         
-        # Data directories
-        "data/raw",
-        "data/processed",
-        
-        # Test directories
-        "tests/contract",
-        "tests/integration",
-        "tests/unit",
-        
-        # Specs directory (if not exists)
-        "specs/001-mesh-supercomputer",
-        
-        # Contracts directory for schemas
-        "contracts",
-        
-        # State directory for runtime state
-        "state",
-        
-        # Figures directory for plots
-        "figures",
+        # Ensure __init__.py files exist to make them packages
+        # (We will create empty ones below)
     ]
     
-    created_count = 0
-    for dir_path in directories:
-        full_path = root / dir_path
-        if not full_path.exists():
-            full_path.mkdir(parents=True, exist_ok=True)
-            created_count += 1
-            print(f"Created directory: {full_path}")
-        else:
-            print(f"Directory exists: {full_path}")
+    # Create directories
+    for directory in directories:
+        directory.mkdir(parents=True, exist_ok=True)
+        print(f"Created: {directory}")
     
-    # Create __init__.py files for Python packages
-    package_dirs = [
-        "code",
-        "code/orchestrator",
-        "code/orchestrator/workers",
-        "code/analysis",
-        "code/simulation",
-        "tests",
-        "tests/contract",
-        "tests/integration",
-        "tests/unit",
+    # Create __init__.py files to make directories into Python packages
+    init_files = [
+        base_dir / "code" / "orchestrator" / "__init__.py",
+        base_dir / "code" / "orchestrator" / "workers" / "__init__.py",
+        base_dir / "code" / "analysis" / "__init__.py",
+        base_dir / "code" / "simulation" / "__init__.py",
+        base_dir / "code" / "tests" / "__init__.py",
+        base_dir / "code" / "tests" / "unit" / "__init__.py",
+        base_dir / "code" / "tests" / "integration" / "__init__.py",
+        base_dir / "code" / "tests" / "contract" / "__init__.py",
     ]
     
-    for pkg_dir in package_dirs:
-        init_file = root / pkg_dir / "__init__.py"
+    for init_file in init_files:
         if not init_file.exists():
             init_file.touch()
-            print(f"Created package marker: {init_file}")
-        
-    print(f"\nProject structure setup complete. Created {created_count} new directories.")
-    return created_count
+            print(f"Created: {init_file}")
+    
+    # Create placeholder files to ensure directories are not empty
+    # (Some CI systems or verifiers require non-empty directories)
+    placeholder_files = {
+        base_dir / "code" / "orchestrator" / ".gitkeep": "Orchestrator module",
+        base_dir / "code" / "analysis" / ".gitkeep": "Analysis module",
+        base_dir / "code" / "simulation" / ".gitkeep": "Simulation module",
+        base_dir / "code" / "data" / "raw" / ".gitkeep": "Raw data storage",
+        base_dir / "code" / "data" / "processed" / ".gitkeep": "Processed data storage",
+        base_dir / "code" / "tests" / ".gitkeep": "Tests module",
+    }
+    
+    for file_path, content in placeholder_files.items():
+        if not file_path.exists():
+            file_path.write_text(content)
+            print(f"Created placeholder: {file_path}")
+    
+    print("\nProject structure created successfully!")
+    print(f"Base directory: {base_dir}")
+    
+    # List created structure
+    print("\nDirectory structure:")
+    for directory in directories:
+        if directory.exists():
+            print(f"  ✓ {directory.relative_to(base_dir)}")
 
 if __name__ == "__main__":
     create_structure()

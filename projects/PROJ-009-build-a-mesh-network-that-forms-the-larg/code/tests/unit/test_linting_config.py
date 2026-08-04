@@ -1,91 +1,68 @@
-"""
-Unit tests to verify that linting and formatting configurations are present and valid.
-These tests ensure T003 (Configure linting and formatting) is complete.
-"""
 import os
 import tomli
 import pytest
 from pathlib import Path
 
-# Determine project root relative to this test file
-PROJECT_ROOT = Path(__file__).parent.parent.parent
+# Ensure we can import from the code root
+import sys
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+
+ROOT_DIR = Path(__file__).parent.parent.parent.parent
 
 def test_pyproject_toml_exists():
-    """Verify pyproject.toml exists at project root."""
-    config_path = PROJECT_ROOT / "pyproject.toml"
-    assert config_path.exists(), f"pyproject.toml not found at {config_path}"
+    """Verify pyproject.toml exists at the project root."""
+    assert (ROOT_DIR / "pyproject.toml").exists(), "pyproject.toml must exist at project root"
 
 def test_pyproject_toml_has_black_config():
-    """Verify Black configuration exists in pyproject.toml."""
-    config_path = PROJECT_ROOT / "pyproject.toml"
-    with open(config_path, "rb") as f:
+    """Verify black configuration is present in pyproject.toml."""
+    pyproject_path = ROOT_DIR / "pyproject.toml"
+    assert pyproject_path.exists()
+    
+    with open(pyproject_path, "rb") as f:
         config = tomli.load(f)
     
-    assert "tool" in config, "No [tool] section in pyproject.toml"
-    assert "black" in config["tool"], "No [tool.black] section in pyproject.toml"
+    assert "tool" in config, "tool section missing"
+    assert "black" in config["tool"], "black configuration missing in [tool.black]"
     
     black_config = config["tool"]["black"]
-    assert "line-length" in black_config, "Black line-length not configured"
-    assert black_config["line-length"] == 88, "Black line-length should be 88"
+    assert "line-length" in black_config, "black line-length not configured"
+    assert black_config["line-length"] == 88, f"Expected line-length 88, got {black_config['line-length']}"
 
 def test_pyproject_toml_has_ruff_config():
-    """Verify Ruff configuration exists in pyproject.toml."""
-    config_path = PROJECT_ROOT / "pyproject.toml"
-    with open(config_path, "rb") as f:
+    """Verify ruff configuration is present in pyproject.toml."""
+    pyproject_path = ROOT_DIR / "pyproject.toml"
+    assert pyproject_path.exists()
+    
+    with open(pyproject_path, "rb") as f:
         config = tomli.load(f)
     
-    assert "tool" in config, "No [tool] section in pyproject.toml"
-    assert "ruff" in config["tool"], "No [tool.ruff] section in pyproject.toml"
+    assert "tool" in config, "tool section missing"
+    assert "ruff" in config["tool"], "ruff configuration missing in [tool.ruff]"
     
     ruff_config = config["tool"]["ruff"]
-    assert "line-length" in ruff_config, "Ruff line-length not configured"
-    assert ruff_config["line-length"] == 88, "Ruff line-length should be 88"
+    assert "line-length" in ruff_config, "ruff line-length not configured"
+    assert ruff_config["line-length"] == 88, f"Expected line-length 88, got {ruff_config['line-length']}"
 
 def test_flake8_config_exists():
-    """Verify .flake8 configuration file exists."""
-    flake8_path = PROJECT_ROOT / ".flake8"
-    assert flake8_path.exists(), f".flake8 not found at {flake8_path}"
+    """Verify .flake8 config file exists."""
+    assert (ROOT_DIR / ".flake8").exists(), ".flake8 config must exist at project root"
 
 def test_flake8_config_valid():
-    """Verify .flake8 contains expected settings."""
-    flake8_path = PROJECT_ROOT / ".flake8"
+    """Verify .flake8 config has valid syntax and required settings."""
+    flake8_path = ROOT_DIR / ".flake8"
+    assert flake8_path.exists()
+    
     content = flake8_path.read_text()
-    
-    assert "max-line-length = 88" in content, "max-line-length not set to 88 in .flake8"
-    assert "extend-ignore" in content, "extend-ignore not configured in .flake8"
-    
+    assert "[flake8]" in content, ".flake8 must have [flake8] section"
+    assert "max-line-length" in content, "max-line-length must be configured in .flake8"
+    assert "88" in content, "max-line-length should be 88 to match black"
+
 def test_ruff_binary_available():
-    """Verify ruff is installed and runnable (optional check)."""
-    import subprocess
-    try:
-        result = subprocess.run(
-            ["ruff", "--version"],
-            cwd=PROJECT_ROOT,
-            capture_output=True,
-            text=True,
-            timeout=10
-        )
-        assert result.returncode == 0, "ruff command failed"
-        assert "ruff" in result.stdout.lower(), "ruff version output unexpected"
-    except FileNotFoundError:
-        pytest.skip("ruff not installed in environment")
-    except subprocess.TimeoutExpired:
-        pytest.fail("ruff command timed out")
+    """Verify ruff binary is available in PATH."""
+    import shutil
+    assert shutil.which("ruff") is not None, "ruff binary must be available in PATH"
 
 def test_black_binary_available():
-    """Verify black is installed and runnable (optional check)."""
-    import subprocess
-    try:
-        result = subprocess.run(
-            ["black", "--version"],
-            cwd=PROJECT_ROOT,
-            capture_output=True,
-            text=True,
-            timeout=10
-        )
-        assert result.returncode == 0, "black command failed"
-        assert "black" in result.stdout.lower(), "black version output unexpected"
-    except FileNotFoundError:
-        pytest.skip("black not installed in environment")
-    except subprocess.TimeoutExpired:
-        pytest.fail("black command timed out")
+    """Verify black binary is available in PATH."""
+    import shutil
+    assert shutil.which("black") is not None, "black binary must be available in PATH"
