@@ -1,13 +1,14 @@
 status: none
-intent: social status risk taking effect size dataset PROSPERO Open Science Framework
-  python package dataset
+intent: "ICPSR Add Health social status and risk\u2011taking dataset download python\
+  \ package dataset"
 required_fields:
 - participant_id
-- status_level
+- social_status
 - risk_behavior
 - outcome
-- subject_type
-- missing_indicator
-cache_key: 41daa1b9dd5d2f60fd2e283692d51c9cf8f1f2ea4aec10726add20ef917ea671
-searched_at: '2026-08-04T13:24:42.113626+00:00'
+- study_phase
+- age
+- gender
+cache_key: 3df11e523bdf00f0999e51c92faf3f16edf825c222da7516dedc17e5a76ecb9e
+searched_at: '2026-08-04T12:41:55.477143+00:00'
 retry_count: 1

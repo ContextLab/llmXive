@@ -8,19 +8,28 @@ T010a:
     fulfilled.
 T013:
   c: false
-  h: 9a33e93178f9583473f0ad2c13cadd33686d292b4268126e6c6d0fdfeac81851
+  h: d60e9f98e7ab55318188525fc7aaa11764e557210fe6aef699298456112a36d7
   r: "The required output file `data/processed/cleaned_data.csv` does not exist, and\
-    \ the provided `preprocess.py` is incomplete (truncated, missing a main routine,\
-    \ missing imports, and no evidence it writes to the required path or reports the\
-    \ final N). The task\u2019s core requirements are therefore not satisfied."
+    \ the provided `code/preprocess.py` (as shown) contains no logic for handling\
+    \ missing values, reporting the final N, or writing a cleaned CSV to the specified\
+    \ path. The implementation therefore does not meet the task\u2019s core requirements."
 T014a:
   c: false
-  h: b52cd32219c66b0c04433166100d93075426d28e758bfb699d5a0ad04e55af64
+  h: e49add600b18de75a49f027f079a49731f0b15b3f959af68fbadf36399dd6651
   r: The repository lacks the required `data/processed/cleaned_data.csv` and the resulting
-    `data/processed/outcome_type.json`. Moreover, while `code/preprocess.py` defines
-    a `detect_outcome_type` function, the shown code does not demonstrate reading
-    the CSV, invoking the detection, and writing the JSON with the single `type` key.
-    The essential output artifact is missing, so the task is not satisfied.
+    `data/processed/outcome_type.json`. Moreover, the provided `code/preprocess.py`
+    (truncated) does not contain the logic to count unique `risk_taking_score` values
+    and write the outcome type JSON as specified. The necessary artifact and functionality
+    are missing.
+T023:
+  c: false
+  h: 3214a614a510fe34ebd175185aacbf68a7f293f62a3cc4b6696bfc9f2694d48c
+  r: The required output file `data/processed/model_output.json` does not exist, so
+    the CI bounds, parameter recovery metric, and `ci_width` are never written. Additionally,
+    `code/simulation_parameters.json` lacks the expected `injected_interaction_effect`
+    key (it contains `effect_size_interaction` instead), so the script cannot read
+    the correct injected effect size. These missing/incorrect artifacts prevent the
+    task from being fulfilled.
 T033:
   c: false
   h: 25cb82685ad7159641edb73dde04e4f5464b62a3f245447b2aff0269a1f9dd8b

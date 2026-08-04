@@ -17,15 +17,15 @@ The pipeline includes:
 
 ## Technical Context
 
-**Language/Version**: Python 3.11  
-**Primary Dependencies**: `pandas`, `numpy`, `statsmodels`, `scikit-learn`, `seaborn`, `matplotlib`, `pyyaml`, `pytest`  
-**Storage**: Local files (`data/raw/`, `data/processed/`, `code/`)  
-**Testing**: `pytest` (unit tests for data generation, integration tests for model fitting). **Configuration**: `pytest.ini` at `code/` with coverage goal >80%.  
-**Target Platform**: Linux (GitHub Actions free-tier: 2 CPU, ~7 GB RAM)  
-**Project Type**: Computational Research / Statistical Analysis  
-**Performance Goals**: Complete full analysis (simulation, model fitting, sensitivity sweep) within 6 hours on CPU.  
-**Constraints**: No GPU required (CPU-tractable statistical methods); memory usage < 7 GB; strict adherence to reproducibility (random seeds).  
-**Scale/Scope**: Simulation of a large cohort of synthetic participants (power-justified); multiple experimental conditions; 3 sensitivity thresholds.
+**Language/Version**: Python
+**Primary Dependencies**: `pandas`, `numpy`, `scikit-learn`, `statsmodels`, `seaborn`, `matplotlib`, `pyyaml`
+**Storage**: Local filesystem (`data/raw/`, `data/processed/`) for CSV/JSON artifacts.
+**Testing**: `pytest` with `contract` tests validating schema compliance.
+**Target Platform**: Linux (GitHub Actions Free Tier: 2 vCPU, ~7GB RAM).
+**Project Type**: Computational Research / Data Analysis Pipeline / Power Analysis.
+**Performance Goals**: Complete power analysis, data simulation, cleaning, modeling, and reporting within 6 hours. Memory usage < 6GB.
+**Constraints**: No GPU available; must use CPU-optimized statistical methods. No access to gated clinical data.
+**Scale/Scope**: Simulated dataset of [N calculated via Power Analysis] participants.
 
 ## Constitution Check
 
