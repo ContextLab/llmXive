@@ -1,177 +1,209 @@
-"""
-Aggregates dropped records from various filtering stages into a single audit file.
-
-This module satisfies T021 by combining:
-1. Records dropped by T015 (Missing OSM data)
-2. Records dropped by T017 (SNR <= 10 dB)
-3. Records dropped by T018 (Species with < 5 recordings)
-
-Output: data/interim/dropped_records.csv
-"""
 import os
 import csv
 import logging
 from pathlib import Path
 from typing import List, Dict, Optional
+
 from src.utils.config import get_project_root, get_interim_data_dir
-from src.utils.logging import setup_logger
 
-# Define the column schema for the aggregated dropped records file
-DROPPED_RECORD_COLUMNS = [
-    "record_id",
-    "species_id",
-    "source",
-    "reason_code",
-    "reason_details",
-    "timestamp"
-]
+logger = logging.getLogger(__name__)
 
-def read_dropped_csv(file_path: Path) -> List[Dict]:
-    """Reads a CSV file of dropped records and returns a list of dictionaries."""
-    records = []
-    if not file_path.exists():
-        logging.warning(f"Missing dropped records file: {file_path}. Skipping.")
-        return records
+def read_dropped_csv(file_path: Path) -> List[Dict[str, str]]:
+    """
+    Read a CSV file containing dropped records.
     
+    Args:
+        file_path: Path to the CSV file
+        
+    Returns:
+        List of dictionaries representing the records
+    """
+    if not file_path.exists():
+        logger.warning(f"File not found: {file_path}. Returning empty list.")
+        return []
+    
+    records = []
     try:
         with open(file_path, 'r', newline='', encoding='utf-8') as f:
             reader = csv.DictReader(f)
             for row in reader:
-                # Ensure we have a record_id, otherwise generate one based on index
-                if 'record_id' not in row or not row['record_id']:
-                    row['record_id'] = f"unknown_{len(records)}"
                 records.append(row)
     except Exception as e:
-        logging.error(f"Error reading {file_path}: {e}")
+        logger.error(f"Error reading {file_path}: {e}")
+        raise
     
     return records
 
-def aggregate_dropped_records() -> Path:
+def aggregate_dropped_records(
+    osm_missing_path: Optional[Path] = None,
+    snr_filtered_path: Optional[Path] = None,
+    species_filtered_path: Optional[Path] = None,
+    output_path: Optional[Path] = None
+) -> Path:
     """
-    Aggregates dropped records from T015, T017, and T018 into a single CSV.
+    Aggregate dropped records from multiple filtering stages into a single CSV.
     
-    Sources:
-    - data/interim/dropped_missing_osm.csv (T015)
-    - data/interim/filtered_snr.csv (T017 - contains excluded records logic or we assume 
-      the exclusion log is separate. Based on T017a description, we look for exclusion logs.
-      If T017a output 'filtered_snr.csv' is the KEEP list, we need the DROP list.
-      However, T017a description says: "returns filtered records and exclusion logs".
-      We assume a standard exclusion log file exists or we parse the drop logic.
-      
-      Correction: T017b generates 'data/interim/filtered_snr.csv'. 
-      T018 generates 'data/interim/species_filtered.csv'.
-      T015 generates 'data/interim/dropped_missing_osm.csv'.
-      
-      We need to ensure we are aggregating the EXCLUDED records.
-      - T015: 'dropped_missing_osm.csv' (Excluded)
-      - T017: The task T017a says "returns filtered records and exclusion logs". 
-        If the script T017b (default execution) produced a log, we should find it.
-        Let's assume the exclusion log is named 'excluded_snr.csv' or similar.
-        If not found, we check if 'filtered_snr.csv' is the result of keeping, 
-        and we might need to reconstruct or assume the log is missing.
-        However, looking at T017a implementation requirements, it should have produced a log.
-        Let's look for 'excluded_snr.csv' or 'snr_dropped.csv'. 
-        If T017b only produced the 'filtered' (kept) file, we might need to re-run the filter 
-        or assume the log is at a standard location.
+    This satisfies US-1 Acceptance Scenario 3 by collecting all excluded records
+    from:
+    1. T015: Missing OSM data (dropped_missing_osm.csv)
+    2. T017: SNR filtering (filtered_snr.csv exclusion log)
+    3. T018: Species count filtering (species_filtered.csv)
+    
+    Args:
+        osm_missing_path: Path to T015 dropped records
+        snr_filtered_path: Path to T017 dropped/excluded records
+        species_filtered_path: Path to T018 dropped records
+        output_path: Path for the aggregated output file
         
-        Wait, T017a description: "Output: data/interim/filtered_snr.csv". 
-        It doesn't explicitly name the exclusion log file in the output list, 
-        but says "returns filtered records and exclusion logs".
-        Usually, a script like this writes the exclusion log to a file like 
-        'data/interim/snr_exclusions.csv'.
-        
-        Let's assume the exclusion log for T017 is 'data/interim/snr_exclusions.csv'.
-        
-      - T018: 'data/interim/species_filtered.csv' (Excluded species records)
+    Returns:
+        Path to the aggregated dropped records file
     """
-    root = get_project_root()
-    interim_dir = get_interim_data_dir()
+    if output_path is None:
+        output_path = get_interim_data_dir() / "dropped_records.csv"
     
-    # Define source paths
-    # T015: Dropped records due to missing OSM
-    path_t015 = interim_dir / "dropped_missing_osm.csv"
+    # Ensure output directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     
-    # T017: Dropped records due to SNR threshold. 
-    # We need to locate the exclusion log generated by the SNR filter.
-    # Based on standard naming conventions in such pipelines, it's likely 'snr_exclusions.csv'
-    # or the script might have written to 'excluded_records_snr.csv'.
-    # Let's check for common names. If T017b was run, it should have created this.
-    # If not found, we log a warning.
-    path_t017_candidates = [
-        interim_dir / "snr_exclusions.csv",
-        interim_dir / "excluded_snr.csv",
-        interim_dir / "dropped_snr.csv"
-    ]
-    path_t017 = None
-    for p in path_t017_candidates:
-        if p.exists():
-            path_t017 = p
-            break
+    all_dropped = []
     
-    # T018: Dropped records due to species count
-    path_t018 = interim_dir / "species_filtered.csv"
+    # Collect from T015: Missing OSM
+    if osm_missing_path is None:
+        osm_missing_path = get_interim_data_dir() / "dropped_missing_osm.csv"
     
-    aggregated_records = []
-    
-    # Process T015 (Missing OSM)
-    if path_t015.exists():
-        records = read_dropped_csv(path_t015)
-        for r in records:
-            r['source'] = 'T015'
-            r['reason_code'] = 'MISSING_OSM'
-            if 'reason_details' not in r or not r['reason_details']:
-                r['reason_details'] = 'OSM land-use data not found for coordinates'
-            aggregated_records.append(r)
-    
-    # Process T017 (SNR Filter)
-    if path_t017:
-        records = read_dropped_csv(path_t017)
-        for r in records:
-            r['source'] = 'T017'
-            r['reason_code'] = 'SNR_LOW'
-            if 'reason_details' not in r or not r['reason_details']:
-                r['reason_details'] = 'SNR <= 10 dB threshold'
-            aggregated_records.append(r)
+    if osm_missing_path.exists():
+        osm_records = read_dropped_csv(osm_missing_path)
+        for record in osm_records:
+            record['_exclusion_reason'] = 'missing_osm'
+            record['_exclusion_task'] = 'T015'
+        all_dropped.extend(osm_records)
+        logger.info(f"Collected {len(osm_records)} records from T015 (missing OSM)")
     else:
-        # If T017 exclusion log is missing, we check if we can infer from T017b output?
-        # No, T017b output is the KEPT records. We cannot easily reconstruct dropped without log.
-        # We log a warning.
-        logging.warning("Could not find SNR exclusion log for T017. T021 aggregation may be incomplete.")
+        logger.warning(f"T015 dropped file not found: {osm_missing_path}")
     
-    # Process T018 (Species Count)
-    if path_t018.exists():
-        records = read_dropped_csv(path_t018)
-        for r in records:
-            r['source'] = 'T018'
-            r['reason_code'] = 'LOW_SPECIES_COUNT'
-            if 'reason_details' not in r or not r['reason_details']:
-                r['reason_details'] = 'Species has < 5 valid recordings'
-            aggregated_records.append(r)
+    # Collect from T017: SNR Filtering
+    # The SNR filter typically logs excluded records to a separate file or
+    # the filtered output contains only passing records. We need to check
+    # if there's an exclusion log or reconstruct from the process.
+    # Based on T017a implementation, we look for the exclusion log.
+    if snr_filtered_path is None:
+        # Try common exclusion log names
+        exclusion_candidates = [
+            get_interim_data_dir() / "snr_excluded.csv",
+            get_interim_data_dir() / "dropped_snr.csv",
+            get_interim_data_dir() / "excluded_snr.csv"
+        ]
+        snr_excluded_path = None
+        for candidate in exclusion_candidates:
+            if candidate.exists():
+                snr_excluded_path = candidate
+                break
+        
+        if snr_excluded_path is None:
+            # If no explicit exclusion log, check if the filtering script
+            # logged to a specific location or if we need to reconstruct
+            logger.warning("No SNR exclusion log found. Checking if filtered_snr.csv exists...")
+            filtered_path = get_interim_data_dir() / "filtered_snr.csv"
+            if filtered_path.exists():
+                logger.info("filtered_snr.csv exists but exclusion log missing. "
+                          "Records in filtered file passed SNR check. "
+                          "Excluded records may be in logs or need reconstruction.")
+                # We cannot reconstruct without the original pre-filter dataset
+                # This is a known limitation - the exclusion log should exist
+    else:
+        if snr_filtered_path.exists():
+            snr_records = read_dropped_csv(snr_filtered_path)
+            for record in snr_records:
+                record['_exclusion_reason'] = 'snr_below_threshold'
+                record['_exclusion_task'] = 'T017'
+            all_dropped.extend(snr_records)
+            logger.info(f"Collected {len(snr_records)} records from T017 (SNR filter)")
+        else:
+            logger.warning(f"T017 dropped file not found: {snr_filtered_path}")
+    
+    # Collect from T018: Species Filtering
+    if species_filtered_path is None:
+        species_filtered_path = get_interim_data_dir() / "species_filtered.csv"
+    
+    if species_filtered_path.exists():
+        species_records = read_dropped_csv(species_filtered_path)
+        for record in species_records:
+            record['_exclusion_reason'] = 'insufficient_species_records'
+            record['_exclusion_task'] = 'T018'
+        all_dropped.extend(species_records)
+        logger.info(f"Collected {len(species_records)} records from T018 (species filter)")
+    else:
+        logger.warning(f"T018 dropped file not found: {species_filtered_path}")
     
     # Write aggregated output
-    output_path = interim_dir / "dropped_records.csv"
-    with open(output_path, 'w', newline='', encoding='utf-8') as f:
-        writer = csv.DictWriter(f, fieldnames=DROPPED_RECORD_COLUMNS)
-        writer.writeheader()
-        for record in aggregated_records:
-            # Ensure all columns exist
-            row = {col: record.get(col, '') for col in DROPPED_RECORD_COLUMNS}
-            writer.writerow(row)
+    if all_dropped:
+        # Ensure consistent columns
+        fieldnames = []
+        if all_dropped:
+            # Get all keys from first record and add exclusion info
+            base_keys = list(all_dropped[0].keys())
+            fieldnames = [k for k in base_keys if k not in ['_exclusion_reason', '_exclusion_task']]
+            fieldnames.extend(['_exclusion_reason', '_exclusion_task'])
+        else:
+            fieldnames = ['_exclusion_reason', '_exclusion_task']
+        
+        with open(output_path, 'w', newline='', encoding='utf-8') as f:
+            writer = csv.DictWriter(f, fieldnames=fieldnames, extrasaction='ignore')
+            writer.writeheader()
+            writer.writerows(all_dropped)
+        
+        logger.info(f"Aggregated {len(all_dropped)} dropped records to {output_path}")
+    else:
+        # Write empty file with headers if no dropped records found
+        logger.warning("No dropped records found from any source. Writing empty file.")
+        with open(output_path, 'w', newline='', encoding='utf-8') as f:
+            writer = csv.DictWriter(f, fieldnames=['_exclusion_reason', '_exclusion_task'])
+            writer.writeheader()
     
-    logging.info(f"Aggregated {len(aggregated_records)} dropped records into {output_path}")
     return output_path
 
 def main():
-    """Entry point for T021 execution."""
-    logger = setup_logger("dropped_records_aggregator")
-    logger.info("Starting T021: Dropping records aggregation")
+    """
+    Main entry point for T021: Aggregate dropped records.
     
-    try:
-        output_file = aggregate_dropped_records()
-        logger.info(f"Successfully generated {output_file}")
-    except Exception as e:
-        logger.error(f"Failed to aggregate dropped records: {e}")
-        raise
+    This function orchestrates the aggregation of all dropped records from
+    the three main filtering stages (T015, T017, T018) into a single
+    dropped_records.csv file.
+    """
+    logger.info("Starting T021: Dropped Records Aggregation")
+    
+    project_root = get_project_root()
+    interim_dir = get_interim_data_dir()
+    
+    # Define paths based on previous task outputs
+    osm_missing_path = interim_dir / "dropped_missing_osm.csv"
+    snr_excluded_path = interim_dir / "snr_excluded.csv"  # Expected from T017
+    species_filtered_path = interim_dir / "species_filtered.csv"
+    output_path = interim_dir / "dropped_records.csv"
+    
+    # Perform aggregation
+    result_path = aggregate_dropped_records(
+        osm_missing_path=osm_missing_path,
+        snr_filtered_path=snr_excluded_path,
+        species_filtered_path=species_filtered_path,
+        output_path=output_path
+    )
+    
+    logger.info(f"T021 completed. Aggregated file: {result_path}")
+    
+    # Verify output exists
+    if result_path.exists():
+        logger.info(f"Output file exists: {result_path.stat().st_size} bytes")
+    else:
+        logger.error("Output file was not created!")
+        raise FileNotFoundError(f"Expected output not created: {result_path}")
+    
+    return result_path
 
 if __name__ == "__main__":
+    # Setup basic logging if run directly
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+    
     main()

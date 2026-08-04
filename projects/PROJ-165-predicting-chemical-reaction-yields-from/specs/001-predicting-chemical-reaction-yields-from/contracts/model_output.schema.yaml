@@ -45,9 +45,13 @@ properties:
             description: "P-value from paired t-test (Bonferroni corrected)."
           significant:
             type: "boolean"
+          valid:
+            type: "boolean"
+            description: "True if N_templates >= 50."
         required:
           - p_value
           - significant
+          - valid
       permutation_test:
         type: "object"
         properties:
@@ -73,9 +77,13 @@ properties:
       correlation_with_residuals:
         type: "number"
         description: "Correlation coefficient between attention weights and residuals."
+      nist_alignment_score:
+        type: "number"
+        description: "Percentage of peaks within 50 cm-1 of simulated injection points."
     required:
       - top_peaks_wavenumbers
       - correlation_with_residuals
+      - nist_alignment_score
 required:
   - metrics
   - baselines

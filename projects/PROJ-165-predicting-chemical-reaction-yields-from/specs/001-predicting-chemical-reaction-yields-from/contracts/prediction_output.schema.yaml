@@ -1,0 +1,69 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "PredictionOutput"
+description: "Schema for model prediction output and evaluation metrics."
+type: "object"
+properties:
+  model_name:
+    type: "string"
+    description: "Name of the model (e.g., 'attention_net', 'fingerprint_baseline')."
+  metrics:
+    type: "object"
+    properties:
+      rmse:
+        type: "number"
+        description: "Root Mean Squared Error."
+        minimum: 0.0
+      mae:
+        type: "number"
+        description: "Mean Absolute Error."
+        minimum: 0.0
+      r_squared:
+        type: "number"
+        description: "R-squared value."
+    required:
+      - rmse
+      - mae
+      - r_squared
+  statistical_tests:
+    type: "object"
+    properties:
+      paired_t_test_p_value:
+        type: "number"
+        description: "P-value from paired t-test against best baseline."
+      bonferroni_corrected_p_value:
+        type: "number"
+        description: "Bonferroni-corrected p-value."
+      permutation_test_r_squared:
+        type: "number"
+        description: "R-squared from permutation test (should be < 0.05)."
+    required:
+      - paired_t_test_p_value
+      - bonferroni_corrected_p_value
+      - permutation_test_r_squared
+  attention_analysis:
+    type: "object"
+    properties:
+      top_peaks_wavenumbers:
+        type: "array"
+        description: "Top 5 wavenumbers with highest attention weights."
+        items:
+          type: "number"
+      nist_alignment_score:
+        type: "number"
+        description: "Percentage of peaks within 50 cm-1 of simulated injection points."
+        minimum: 0.0
+        maximum: 100.0
+    required:
+      - top_peaks_wavenumbers
+      - nist_alignment_score
+  vif_score:
+    type: "number"
+    description: "Variance Inflation Factor between spectral and fingerprint inputs."
+    minimum: 1.0
+required:
+  - model_name
+  - metrics
+  - statistical_tests
+  - attention_analysis
+  - vif_score
+additionalProperties: false

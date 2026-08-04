@@ -3,136 +3,142 @@
 **Branch**: `001-predict-reaction-yields-from-spectra` | **Date**: 2026-07-14 | **Spec**: `specs/001-predict-reaction-yields-from-spectra/spec.md`
 
 ## Summary
-This project implements a multi-head self-attention neural network to predict chemical reaction yields using concatenated inputs: **real experimental** spectroscopic data (IR, Raman, NMR), structural fingerprints (ECFP4), and reaction condition embeddings. The plan prioritizes a robust, leakage-free data pipeline that splits by reaction template, ensuring no structural overlap between train/test sets. It addresses the core scientific hypothesis: **real** spectroscopic data contains independent predictive signal beyond molecular structure.
 
-**Critical Constraint**: The project **strictly prohibits** the use of simulated, synthetic, or deterministic spectra generated from SMILES. All spectral inputs must be **real experimental measurements** from verified open datasets. If a sufficient number of verified paired samples (SMILES + Real Spectrum + Yield) cannot be assembled, the project will pivot to a **Qualitative Architecture Validation** mode using the available small real dataset, or generate a **Data Insufficiency Report** if no real paired data exists. This ensures the validity of the "independent signal" hypothesis.
+This project implements a multi-head self-attention neural network to predict chemical reaction yields using concatenated inputs: spectroscopic data (IR, NMR), ECFP4 fingerprints, and reaction condition vectors. The plan strictly adheres to the "CPU-first" compute constraint, utilizing a scaled-down dataset and quantized/efficient model architecture to fit within GitHub Actions limits (2 CPU, ~7GB RAM, 6h). The pipeline prioritizes rigorous data hygiene (leakage prevention via template splitting), statistical validity (Bonferroni-corrected t-tests, power analysis), and interpretability (attention heatmaps validated against simulation logic).
+
+**Critical Pivot**: Due to the lack of verified experimental paired spectra/yield data, this plan pivots to using **DFT-simulated data** (sdmattpotter/dftest61523) exclusively. The research question is reframed to "Can a model learn the simulation logic mapping spectra to yield?" with a "Circularity Check" to reject the hypothesis if the simulation is too deterministic (R² > 0.95).
 
 ## Technical Context
 
 **Language/Version**: Python 3.11  
-**Primary Dependencies**: `torch` (CPU-only), `scikit-learn`, `rdkit`, `pandas`, `pyyaml`, `datasets` (Hugging Face), `matplotlib`, `seaborn`.  
-**Storage**: Local file system (`data/`, `src/`, `state/`), Parquet/CSV for datasets.  
-**Testing**: `pytest` with `coverage` for unit tests; `pytest` integration tests for pipeline steps.  
-**Target Platform**: Linux (GitHub Actions free-tier runner: 2 CPU, ~7 GB RAM).  
-**Project Type**: Scientific computing pipeline / Machine Learning research prototype.  
-**Performance Goals**: Complete full training/evaluation cycle (including data ingestion, preprocessing, model training, and analysis) within 6 hours on CPU.  
-**Constraints**: Memory footprint < 7 GB RAM; Disk usage < 14 GB; No local GPU; Strict adherence to template-based splitting to prevent leakage.  
-**Scale/Scope**: Dataset size limited to what fits in RAM or can be streamed; model architecture simplified (e.g., 2-3 attention heads, smaller hidden dimensions) to fit CPU constraints.
+**Primary Dependencies**: `torch` (CPU mode), `scikit-learn`, `pandas`, `pyarrow`, `rdkit`, `numpy`, `matplotlib`, `seaborn`, `pyyaml`, `joblib`  
+**Storage**: Local filesystem (`data/raw`, `data/processed`, `data/artifacts`) with Parquet/JSONL formats  
+**Testing**: `pytest` (unit, integration, contract)  
+**Target Platform**: GitHub Actions Free Tier (Linux, CPU-only) with automatic offload logic for GPU-specific tasks (none planned for this scope, as models are scaled for CPU)  
+**Project Type**: Computational Research Pipeline / CLI  
+**Performance Goals**: Complete full training/evaluation pipeline ≤ 6 hours on 2 vCPU; Memory usage ≤ 6 GB peak.  
+**Constraints**: No local GPU available; **Dataset size limited to a large-scale collection of samples (operational target)** to fit RAM, with a theoretical maximum if streaming is optimized; No access to gated datasets; Must handle missing spectral channels via masking.  
+**Scale/Scope**: Single reaction type analysis (e.g., cross-coupling) or broad multi-task with strict template separation; A large-scale set of training samples.
 
-> **Note on Dataset Fit**: The spec requires paired SMILES, spectra, and conditions. Verified datasets in the input block provide SMILES (USPTO, ZINC, ChEMBL) and isolated NMR/IR samples (NMR_demo, MolSpectra). **No single verified dataset contains all three for the same reaction instance.**
-> **Strategy**: The project will attempt to merge verified sources (e.g., matching SMILES from USPTO with spectra from NMR_demo). **If the number of successfully merged, real paired samples is < 500, the quantitative hypothesis (H1) is dropped.** The project will then pivot to a **Qualitative Architecture Validation** using the small real dataset to test if the model can learn *any* signal, or generate a **Data Insufficiency Report** if N=0. This adheres to the "No Fabrication" principle.
+> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase.
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research.*
+*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-| Principle | Status | Action/Mapping |
-| :--- | :--- | :--- |
-| **I. Reproducibility** | **PASS** | `random_seed` pinned in `src/utils/seeds.py`; `requirements.txt` pins versions; CI runs `pytest` end-to-end. |
-| **II. Verified Accuracy** | **PASS** | All dataset URLs cited in `research.md` are from the verified block. **No simulated data is used.** If data is insufficient, the project reports "Data Insufficiency" or "Qualitative Validation" rather than fabricating metrics. |
-| **III. Data Hygiene** | **PASS** | `data/raw/` preserved; `data/processed/` checksummed via `src/utils/checksums.py`; no in-place modifications. |
-| **IV. Single Source of Truth** | **PASS** | All figures/stats in `paper/` trace to `data/processed/` artifacts and `src/` execution logs. |
-| **V. Versioning** | **PASS** | Content hashes recorded in `state/projects/...yaml`; artifact hashes updated on every `data/` write. |
-| **VI. Spectral Preprocessing** | **PASS** | `src/data/preprocessing.py` implements resampling to fixed grid (low-wavenumber to high-wavenumber, 0-10 ppm) and unit variance normalization. |
-| **VII. Structural Baseline** | **PASS** | `src/models/baselines.py` implements ECFP4-only, Spectrum-only, and Condition-only baselines for comparison. |
+| Principle | Compliance Strategy |
+| :--- | :--- |
+| **I. Reproducibility** | All random seeds pinned in `src/utils/seeds.py`. External datasets fetched via `datasets` library with specific commit hashes or checksums recorded in `state/`. Training logs saved deterministically. |
+| **II. Verified Accuracy** | **Mandatory Blocking Gate**: The Reference-Validator Agent runs before execution. If any citation is unreachable or mismatch, the pipeline halts with exit code 1. All citations mapped to the "Verified datasets" block. |
+| **III. Data Hygiene** | Raw data immutable; derivatives written to `data/processed/`. Checksums recorded in `state/...yaml`. No PII (chemical data is inherently non-PII). |
+| **IV. Single Source of Truth** | All metrics in `paper/` trace to `data/artifacts/metrics.json`. Figures trace to `data/artifacts/figures/`. |
+| **V. Versioning Discipline** | **Explicit Mapping**: After every artifact generation (code, config, data), compute SHA256 and update `state/...yaml`. This includes `tasks.md`, `plan.md`, and generated JSON/Parquet files. |
+| **VI. Spectral Preprocessing** | `src/data/preprocessing.py` implements resampling to fixed grids (covering the mid-infrared to near-infrared regions and typical NMR chemical shift ranges) and unit variance normalization. **Masking Strategy**: Zero-fill missing spectrum arrays and append a binary mask vector (1=present, 0=missing) to the input tensor. |
+| **VII. Structural Baseline** | `src/models/baselines.py` implements ECFP4-only, Spectrum-only, and Condition-only baselines. Attention heatmaps generated and compared against *simulated injection points* (not NIST, due to data mismatch). |
 
 ## Project Structure
 
 ### Documentation (this feature)
+
 ```text
 specs/001-predict-reaction-yields-from-spectra/
 ├── plan.md              # This file
 ├── research.md          # Phase 0 output
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
-└── contracts/           # Design Artifacts (Inputs)
-    ├── dataset.schema.yaml
-    ├── model_output.schema.yaml
-    └── experiment_config.schema.yaml
+├── contracts/
+│   ├── reaction_sample.schema.yaml
+│   └── prediction_output.schema.yaml
+└── tasks.md             # Phase 2 output (Generated previously, currently under revision (rejected by verifier))
 ```
 
 ### Source Code (repository root)
+
 ```text
 src/
-├── __init__.py
 ├── cli/
 │   └── main.py          # Entry point for pipeline execution
 ├── data/
-│   ├── ingestion.py     # Download/verify datasets
-│   ├── preprocessing.py # Resampling, normalization, template splitting
+│   ├── ingestion.py     # Download and verify datasets (US-1)
+│   ├── preprocessing.py # Resampling, normalization, template splitting (FR-001, FR-002)
 │   └── loaders.py       # PyTorch Dataset/DataLoader wrappers
 ├── models/
-│   ├── attention_net.py # Multi-head attention model
-│   └── baselines.py     # Fingerprint/Spectrum/Condition only models
+│   ├── attention_net.py # Multi-head attention architecture (FR-003)
+│   └── baselines.py     # Fingerprint/Spectrum/Condition only baselines (FR-005)
 ├── utils/
-│   ├── seeds.py         # RNG pinning
-│   ├── validators.py    # Schema validation, leakage checks
-│   └── checksums.py     # Data integrity hashing
-├── eval/
-│   ├── metrics.py       # RMSE, MAE, R², t-tests
-│   └── interpretability.py # Attention heatmaps, permutation tests
-├── config/
-│   └── default.yaml     # Hyperparameters (LR, batch size, epochs)
-└── constants.py         # Spectral grid definitions
-
-tests/
-├── unit/
-│   ├── test_preprocessing.py
-│   └── test_models.py
-├── integration/
-│   └── test_pipeline.py
-└── contract/
-    └── test_schemas.py
+│   ├── seeds.py         # Reproducibility seed management (Constitution I)
+│   ├── validators.py    # Schema validation, leakage checks (FR-014)
+│   └── nist_refs.py     # Versioned reference module for functional groups (FR-012)
+├── evaluation/
+│   ├── metrics.py       # RMSE, MAE, R², VIF calculation
+│   └── interpretability.py # Attention heatmaps, permutation tests (FR-007, FR-008)
+└── config/
+    └── defaults.yaml    # Hyperparameters (LR, batch size, epochs)
 
 data/
-├── raw/                 # Downloaded raw files (checksummed)
-├── processed/           # Split, resampled, normalized data
-└── artifacts/           # Manifests, leakage reports, logs
+├── raw/                 # Downloaded datasets (checksummed)
+├── processed/           # Resampled spectra, split indices
+└── artifacts/           # Leakage reports, model checkpoints, figures, validation reports
 
-state/
-└── projects/PROJ-165-.../
-    └── artifact_hashes.yaml
+tests/
+├── contract/            # Schema validation tests
+├── integration/         # Pipeline end-to-end tests
+└── unit/                # Unit tests for preprocessing, metrics
 ```
 
-**Structure Decision**: Single-project structure selected to minimize overhead. The `src/` hierarchy separates data, model, and evaluation logic clearly. `data/` is strictly read-only for raw, write-only for processed. `state/` tracks metadata.
+**Structure Decision**: Single project structure selected to minimize overhead. The `src/` hierarchy separates concerns (data, models, evaluation) to facilitate the "Single Source of Truth" principle and allow independent testing of the preprocessing pipeline vs. the model training.
 
 ## Complexity Tracking
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 | :--- | :--- | :--- |
-| **Multi-modal Attention** | Required to isolate spectral signal from structural signal (SC-001). | Concatenated MLP would not allow per-channel attention weights needed for interpretability (SC-003). |
-| **Template-based Splitting** | Required to prevent leakage (FR-002, US-1). | Random split would leak reaction templates, invalidating generalizability claims. |
-| **Real Data Only** | Required to test "independent signal" hypothesis validly. | Simulated spectra would create a tautological relationship with fingerprints, invalidating the hypothesis. |
+| **Multi-Head Attention** | Required by FR-003 to capture distinct spectral regions and condition interactions. | Simple MLP would fail to isolate spectral contributions (SC-003) and provide interpretability. |
+| **Template-Based Splitting** | Required by FR-002 to prevent data leakage. | Random splitting would allow reaction templates to appear in both train/test, invalidating SC-001. |
+| **Baseline Suite** | Required by SC-001 to quantify "independent predictive signal" of spectra. | Training only the attention model would not prove spectra add value over fingerprints alone. |
+| **Spectral Masking Ablation** | Required to mathematically decouple spectral signal from fingerprint input. | Architecture alone does not prove independence. **Mechanism**: Zero-out specific spectral bands (e.g., 1600-1800 cm⁻¹) and measure the drop in R². If the drop is significant while the fingerprint input remains constant, the signal is isolated. |
+| **VIF Calculation** | Required by FR-016 to detect collinearity between spectral and fingerprint inputs. | Ignoring collinearity could lead to false claims of "independent" signal. |
 
-## Development & Linting
-- **Linting**: `pyproject.toml` configures `ruff` and `black` for consistent code style.
-- **CI**: GitHub Actions workflow runs `ruff check` and `black --check` on every PR.
-- **Type Checking**: `mypy` is used for static type checking.
+## Data Flow & Transformations
 
-## Data Hygiene
-- **Checksums**: `src/utils/checksums.py` generates and logs SHA-256 hashes for all files in `data/raw/`.
-- **Logs**: `data/artifacts/ingestion_log.json` and `data/validation_status.json` track data acquisition status.
-- **Leakage Reports**: `data/artifacts/leakage_report.json` documents the template split verification.
+1.  **Raw Ingestion**:
+    *   Input: Parquet files from Hugging Face (sdmattpotter/dftest).
+    *   Transformation: Extract SMILES, compute fingerprints (RDKit), parse conditions (if available).
+    *   Output: `data/raw/intermediate.parquet`.
 
-## Data Sufficiency Gate (Updated)
+2.  **Spectral Preprocessing**:
+    *   Input: Raw spectral arrays (variable length).
+    *   Transformation: Resample to `SpectralGrid`, normalize (unit variance), handle missing channels (masking).
+    *   Output: `data/processed/spectra_resampled.parquet`.
 
-Before training begins, the pipeline MUST execute a "Data Sufficiency Check":
-1. Count the number of samples with **real** paired spectra and yields.
-2. If `N == 0`:
-   - Halt training.
-   - Generate `data/artifacts/data_insufficiency_report.json`.
-   - Output a qualitative analysis of the available data (e.g., "No real paired samples found; quantitative hypothesis H1 cannot be tested.").
-3. If `0 < N < 500`:
-   - **Perform Template Diversity Check**: Count unique reaction templates.
-     - If unique templates < 3: Report "Insufficient Template Diversity for Splitting". Halt template-based splitting. Perform single-set qualitative analysis.
-     - If unique templates >= 3: Proceed with **Qualitative Architecture Validation**. Train the model on the small real dataset (using a single set or minimal split if possible). Report performance metrics but explicitly state that quantitative claims (H1, H2) are not supported due to low power and potential lack of statistical independence.
-   - *Decision*: The project defaults to **Path 1 (Real Data Merge)**. If the merge yields < 500 samples, the project pivots to Path 2 (Qualitative Validation or Report).
+3.  **Splitting (Leakage Prevention)**:
+    *   Input: `ReactionSample` list.
+    *   Transformation: Group by `reaction_template_id`. Split groups into training, validation, and test sets..
+    *   **Step 3.2**: Compute MD5 hashes of canonical SMILES and reaction template IDs. Compare against test set. Write results to `data/artifacts/leakage_report.json`.
+    *   Output: `data/processed/train.parquet`, `data/processed/val.parquet`, `data/processed/test.parquet`.
 
-This gate ensures the project does not proceed with a scientifically invalid dataset or fabricate data.
+4.  **Model Input**:
+    *   Input: Preprocessed samples.
+    *   Transformation: Batch creation, tensor conversion.
+    *   Output: PyTorch `DataLoader` batches.
 
-## FR-010 Fallback Strategy
-FR-010 requires validation against an independent experimental dataset.
-- **Primary Path**: Use a separate, verified experimental dataset (e.g., a hold-out set from a different publication) if available.
-- **Fallback Path**: If no independent dataset exists, perform a **Temporal Split** or **Source-Stratified Split** on the available real data (e.g., using older USPTO reactions for training and newer ones for validation) **ONLY IF** the source distribution is demonstrably different (e.g., different instrument, different year range with documented shift).
-- **Not Applicable**: If no independent dataset exists and no valid temporal/source split can be demonstrated, FR-010 is marked as "Not Applicable" in the final report with a limitation note. The report will explicitly state that independent validation was not possible.
-- **Reporting**: The final report will explicitly state which validation strategy was used.
+5.  **Evaluation Output**:
+    *   Input: Predictions vs. Ground Truth.
+    *   Transformation: Compute RMSE, MAE, R², Attention Weights.
+    *   Output: `data/artifacts/metrics.json`, `data/artifacts/attention_heatmaps.png`.
+
+6.  **Phase 4: Simulated Validation Report Generation** (FR-010, SC-003b):
+    *   Trigger: If no experimental data is found (which is the case).
+    *   Action: Generate `data/artifacts/simulated_validation_report.json` documenting the reliance on simulated data and the inability to validate against experimental reality.
+
+7.  **Phase 5: Integrity & Limitation Reports** (FR-015, FR-016):
+    *   Action: Run "Simulated Data Integrity Check" (R² > 0.95 threshold) and write `data/artifacts/integrity_report.json`.
+    *   Action: Compute VIF and write `data/artifacts/vif_report.json`.
+    *   Action: Generate `data/artifacts/limitation_note.md` documenting the data mismatch.
+
+## Limitations & Assumptions
+
+*   **Data Source**: Reliance on DFT-simulated spectra may not perfectly reflect experimental noise. This is mitigated by the "Simulated Validation Report" requirement.
+*   **Condition Encoding**: If solvent/catalyst data is missing from the DFT dataset, the "condition" input will be a simplified reaction-type embedding.
+*   **Power**: Sample size may limit the power to detect small effect sizes. in the t-test. We will report the achieved power or confidence intervals.
+*   **Circularity**: The "independent signal" claim is not testable with DFT data if the simulation is deterministic. The plan includes a "Circularity Check" to reject the hypothesis if R² > 0.95.
+*   **NIST Reference**: No verified programmatic dataset exists for the specific functional group frequencies required. We use a versioned, checksummed local JSON file (`src/data/nist_refs.json`) as a "Versioned Reference Module".

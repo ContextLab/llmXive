@@ -9,7 +9,7 @@
 
 ### User Story 1 - Data Ingestion and Preprocessing Pipeline (Priority: P1)
 
-**User Journey**: A researcher uploads or selects a dataset of chemical reactions containing SMILES strings, spectroscopic data (IR, Raman, NMR), and reaction conditions (solvent, catalyst, temperature). The system ingests this data, encodes the conditions, resamples all spectra to a standardized wavenumber/chemical shift grid, normalizes intensities, and generates a clean, split-ready dataset with a 70/15/15 train/validation/test partition ensuring no reaction template leakage between sets. The pipeline must also validate against an independent experimental dataset if available, or generate a Simulated Validation Report if only simulated data is present.
+**User Journey**: A researcher uploads or selects a dataset of chemical reactions containing SMILES strings, spectroscopic data (IR, Raman, NMR), and reaction conditions (solvent, catalyst, temperature). The system ingests this data, encodes the conditions, resamples all spectra to a standardized wavenumber/chemical shift grid, normalizes intensities, and generates a clean, split-ready dataset with a train/validation/test partition ensuring no reaction template leakage between sets. The pipeline must also validate against an independent experimental dataset if available, or generate a Simulated Validation Report if only simulated data is present.
 
 **Why this priority**: Without a robust, leakage-free data pipeline that accounts for reaction conditions and validates against independent data (or documents the limitation for simulated data), no model training or validation is possible. This is the foundational step that enables all subsequent analysis and determines the validity of the research question.
 
@@ -50,7 +50,7 @@
 **Acceptance Scenarios**:
 
 1. **Given** the test set predictions from the attention model and the baseline models, **When** the evaluation script runs, **Then** it outputs a table comparing RMSE and R², and reports a p-value from a paired t-test on absolute errors.
-2. **Given** a specific reaction instance, **When** the attention visualization is generated, **Then** the heatmap highlights the top [deferred] percentile of spectral weights, and a sensitivity analysis is reported over {5%, 10%, 15%} thresholds.
+2. **Given** a specific reaction instance, **When** the attention visualization is generated, **Then** the heatmap highlights the top [deferred] percentile of spectral weights, and a sensitivity analysis is reported over low, medium, and high thresholds.
 3. **Given** a permutation test where *yield* labels are shuffled, **When** the model is re-evaluated, **Then** the performance drops to near-random levels (e.g., R² < 0.05), confirming the model learned signal rather than noise.
 
 ---

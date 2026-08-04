@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "ReactionSample"
-description: "Schema for a single reaction sample in the processed dataset. Only real experimental data is permitted."
+description: "Schema for a single reaction sample in the processed dataset. Includes simulated data."
 type: "object"
 properties:
   id:
@@ -18,22 +18,22 @@ properties:
     type: "array"
     items:
       type: "number"
-    minItems: 3601
-    maxItems: 3601
-    description: "Resampled IR spectrum (400-4000 cm-1). Must be real experimental data."
+    minItems: 200
+    maxItems: 200
+    description: "Resampled IR spectrum (400-4000 cm-1)."
   nmr_spectrum:
     type: "array"
     items:
       type: "number"
-    minItems: 1001
-    maxItems: 1001
-    description: "Resampled NMR spectrum (0-10 ppm). Must be real experimental data."
+    minItems: 200
+    maxItems: 200
+    description: "Resampled NMR spectrum (0-10 ppm)."
   rfp:
     type: "array"
     items:
       type: "integer"
-    minItems: 2048
-    maxItems: 2048
+    minItems: 1024
+    maxItems: 1024
     description: "ECFP4 fingerprint vector."
   reaction_template_id:
     type: "string"
@@ -50,11 +50,12 @@ properties:
   source:
     type: "string"
     enum:
-      - "USPTO"
-      - "NMR_demo"
-      - "MolSpectra"
+      - "DFT_Simulated"
       - "Unknown"
-    description: "Origin of the data. Synthetic data sources (e.g., DFT_Simulated) are NOT permitted."
+    description: "Origin of the data."
+  is_simulated:
+    type: "boolean"
+    description: "Flag indicating if data is from DFT simulation."
 required:
   - id
   - reaction_smiles
@@ -64,4 +65,5 @@ required:
   - rfp
   - reaction_template_id
   - source
+  - is_simulated
 additionalProperties: false

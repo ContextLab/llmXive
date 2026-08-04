@@ -152,8 +152,8 @@
 - [ ] T043 [P] Documentation updates in `docs/` and `README.md`
 - [ ] T044 Code cleanup and refactoring
 - [ ] T045 Performance optimization across all stories (ensure < 6h runtime on N=200)
-- [ ] T046 [P] Additional unit tests (if requested) in `tests/unit/`
-- [ ] T047 Security hardening (data handling)
+- [~] T046 [P] Additional unit tests (if requested) in `tests/unit/`
+- [~] T047 Security hardening (data handling)
 - [ ] T048 Run `quickstart.md` validation
 
 ---

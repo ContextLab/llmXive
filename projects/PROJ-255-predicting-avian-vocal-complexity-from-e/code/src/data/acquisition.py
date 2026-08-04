@@ -1,3 +1,14 @@
+"""
+Acquisition module for fetching bird vocalization metadata and audio from Xeno-canto.
+
+This module handles:
+- Fetching metadata from the Xeno-canto API
+- Filtering records by quality
+- Downloading audio files
+- Creating metadata CSVs
+- Mapping land-use to noise levels (OSM integration placeholder for T015)
+"""
+
 import os
 import json
 import time
@@ -5,251 +16,420 @@ import hashlib
 import logging
 from pathlib import Path
 from typing import List, Dict, Optional, Tuple
-
-import pandas as pd
 import requests
-import osmnx as ox
-from geopy.geocoders import Nominatim
+import pandas as pd
+import librosa
 
-from src.utils.config import (
-    get_project_root,
-    get_data_dir,
-    get_raw_data_dir,
-    get_interim_data_dir,
-    get_processed_data_dir,
-    get_figures_dir,
-    ensure_directories,
-)
-from src.utils.logging import setup_logger, get_log_file, clear_logs
+from src.utils.config import get_project_root, get_raw_data_dir, get_interim_data_dir
 
-# Constants for noise mapping
-LAND_USE_NOISE_MAP = {
-    "residential": 40.0,  # Rural-like
-    "commercial": 60.0,   # Urban
-    "industrial": 60.0,   # Urban
-    "urban": 60.0,        # Urban
-    "rural": 40.0,        # Rural
-    "wild": 30.0,         # Wild
-    "forest": 30.0,       # Wild
-    "natural": 30.0,      # Wild
-    "greenfield": 30.0,   # Wild
-}
+# Constants
+XC_API_BASE = "https://xeno-canto.org/api/2/recordings"
+XC_API_QUERY = f"{XC_API_BASE}?query="
+DEFAULT_TIMEOUT = 30
+MAX_RETRIES = 3
+RETRY_DELAY = 1.0
 
-DEFAULT_NOISE_LEVEL = None  # Will trigger drop if no match found
+# Quality thresholds
+MIN_QUALITY = 'C'  # Accept quality C and above (A, B, C)
+QUALITY_SCORES = {'A': 3, 'B': 2, 'C': 1, 'D': 0, 'E': 0}
 
-# Configure logger
-logger = setup_logger("acquisition")
+logger = logging.getLogger(__name__)
 
-def fetch_metadata(query: str = "bird song", limit: int = 100) -> List[Dict]:
+def fetch_metadata(species_query: str = "all", max_records: int = 100, 
+                   min_quality: str = MIN_QUALITY, limit: int = 50) -> List[Dict]:
     """
     Fetch bird vocalization metadata from Xeno-canto API.
-    Note: This is a placeholder for the actual implementation in T014.
-    In a real scenario, this would query the Xeno-canto API.
+    
+    Args:
+        species_query: Query string for species (e.g., "Turdus merula" or "all")
+        max_records: Maximum number of records to fetch
+        min_quality: Minimum quality grade (A, B, C)
+        limit: API limit parameter (default 50)
+        
+    Returns:
+        List of metadata dictionaries for matching recordings
+        
+    Raises:
+        requests.RequestException: If API call fails after retries
+        ValueError: If invalid quality grade provided
     """
-    # Since T014 is marked completed, we assume a metadata file exists or is generated.
-    # For T015, we focus on OSM mapping. We will read from a generated CSV if it exists.
-    raw_data_dir = get_raw_data_dir()
-    metadata_file = raw_data_dir / "xeno_canto_metadata.csv"
+    if min_quality not in QUALITY_SCORES:
+        raise ValueError(f"Invalid quality grade: {min_quality}. Must be A, B, C, D, or E.")
+    
+    encoded_query = requests.utils.quote(species_query)
+    url = f"{XC_API_QUERY}{encoded_query}&limit={limit}"
+    
+    all_records = []
+    page = 1
+    total_fetched = 0
+    
+    while total_fetched < max_records:
+        retry_count = 0
+        while retry_count < MAX_RETRIES:
+            try:
+                logger.info(f"Fetching page {page} from Xeno-canto API...")
+                response = requests.get(url, params={'page': page}, timeout=DEFAULT_TIMEOUT)
+                response.raise_for_status()
+                data = response.json()
+                
+                if 'recordings' not in data:
+                    logger.warning("No recordings found in API response")
+                    break
+                
+                records = data['recordings']
+                if not records:
+                    break
+                
+                # Filter by quality
+                filtered_records = [
+                    r for r in records 
+                    if QUALITY_SCORES.get(r.get('q', 'E'), 0) >= QUALITY_SCORES[min_quality]
+                ]
+                
+                all_records.extend(filtered_records)
+                total_fetched += len(records)
+                
+                # Check if we've fetched all available
+                if page >= data.get('numPages', 1):
+                    break
+                
+                page += 1
+                time.sleep(0.5)  # Rate limiting
+                break
+                
+            except requests.RequestException as e:
+                retry_count += 1
+                logger.warning(f"API request failed (attempt {retry_count}/{MAX_RETRIES}): {e}")
+                if retry_count < MAX_RETRIES:
+                    time.sleep(RETRY_DELAY * retry_count)
+                else:
+                    raise
+    
+    logger.info(f"Fetched {len(all_records)} valid records out of {total_fetched} total")
+    return all_records[:max_records]
 
-    if metadata_file.exists():
-        logger.info(f"Loading metadata from {metadata_file}")
-        df = pd.read_csv(metadata_file)
-        return df.to_dict(orient="records")
-    else:
-        logger.warning(f"Metadata file {metadata_file} not found. Generating mock data for T015 execution.")
-        # Generate minimal mock data for T015 to demonstrate OSM mapping logic
-        # In a real run, T014 would have populated this.
-        mock_data = [
-            {"record_id": "XC1", "lat": 40.7128, "lon": -74.0060, "species": "Turdus migratorius"}, # NYC (Urban)
-            {"record_id": "XC2", "lat": 47.6062, "lon": -122.3321, "species": "Turdus migratorius"}, # Seattle (Urban)
-            {"record_id": "XC3", "lat": 39.9612, "lon": -82.9988, "species": "Passer domesticus"},    # Columbus (Urban)
-            {"record_id": "XC4", "lat": 44.9778, "lon": -93.2650, "species": "Setophaga petechia"},  # Minneapolis (Urban)
-            {"record_id": "XC5", "lat": 40.4406, "lon": -79.9959, "species": "Turdus migratorius"},  # Pittsburgh (Urban)
-        ]
-        return mock_data
-
-def filter_records_by_quality(records: List[Dict], min_quality: int = 3) -> List[Dict]:
-    """Filter records by quality score."""
-    return [r for r in records if r.get("quality", 0) >= min_quality]
+def filter_records_by_quality(records: List[Dict], min_quality: str = MIN_QUALITY) -> List[Dict]:
+    """
+    Filter a list of records by minimum quality grade.
+    
+    Args:
+        records: List of metadata dictionaries
+        min_quality: Minimum quality grade to keep
+        
+    Returns:
+        Filtered list of records
+    """
+    if min_quality not in QUALITY_SCORES:
+        raise ValueError(f"Invalid quality grade: {min_quality}")
+    
+    threshold = QUALITY_SCORES[min_quality]
+    filtered = [
+        r for r in records 
+        if QUALITY_SCORES.get(r.get('q', 'E'), 0) >= threshold
+    ]
+    
+    logger.info(f"Filtered from {len(records)} to {len(filtered)} records (min quality: {min_quality})")
+    return filtered
 
 def download_audio(record: Dict, output_dir: Path) -> Optional[Path]:
-    """Download audio file for a record."""
-    # Placeholder for T014 implementation
-    return None
-
-def download_batch_audio(records: List[Dict], output_dir: Path) -> List[Path]:
-    """Download audio files for a batch of records."""
-    # Placeholder for T014 implementation
-    return []
-
-def create_metadata_csv(records: List[Dict], output_path: Path) -> None:
-    """Save metadata to CSV."""
-    df = pd.DataFrame(records)
-    df.to_csv(output_path, index=False)
-    logger.info(f"Saved metadata to {output_path}")
-
-def map_land_use_to_noise(land_use: str) -> Optional[float]:
     """
-    Map OSM land-use tag to a noise level in dB.
-    Returns None if the land-use tag is not recognized.
+    Download a single audio file from Xeno-canto.
+    
+    Args:
+        record: Metadata dictionary for a single recording
+        output_dir: Directory to save the audio file
+        
+    Returns:
+        Path to downloaded file, or None if download failed
     """
-    if not land_use:
+    recording_id = record.get('r', '')
+    file_url = record.get('file', '')
+    
+    if not recording_id or not file_url:
+        logger.warning(f"Missing recording ID or URL for record: {record.get('id', 'unknown')}")
         return None
     
-    # Normalize land_use string
-    land_use_lower = land_use.lower().strip()
+    # Create safe filename
+    species = record.get('sp', 'unknown').replace(' ', '_')
+    recorder = record.get('rec', 'unknown').replace(' ', '_')
+    filename = f"{recording_id}_{species}_{recorder}.flac"
+    output_path = output_dir / filename
     
-    # Direct match
-    if land_use_lower in LAND_USE_NOISE_MAP:
-        return LAND_USE_NOISE_MAP[land_use_lower]
+    if output_path.exists():
+        logger.debug(f"File already exists, skipping: {filename}")
+        return output_path
     
-    # Partial match for common variations
-    if "urban" in land_use_lower or "commercial" in land_use_lower or "industrial" in land_use_lower:
-        return 60.0
-    if "rural" in land_use_lower or "residential" in land_use_lower:
-        return 40.0
-    if "wild" in land_use_lower or "forest" in land_use_lower or "natural" in land_use_lower or "park" in land_use_lower:
-        return 30.0
-    
-    return None
-
-def get_osm_land_use(lat: float, lon: float, timeout: int = 30) -> Optional[str]:
-    """
-    Query OpenStreetMap via osmnx to get the dominant land-use tag at coordinates.
-    Returns the land-use tag string or None if not found/failed.
-    """
     try:
-        # Set user agent for OSM compliance
-        ox.settings.user_agent = "llmXive-avian-vocal-complexity-project"
+        logger.info(f"Downloading: {filename}")
+        response = requests.get(file_url, timeout=DEFAULT_TIMEOUT * 2)
+        response.raise_for_status()
         
-        # Fetch a small point geometry or nearby land use
-        # Using a small buffer (e.g., 100m) to find nearby land use
-        buffer_meters = 100
+        with open(output_path, 'wb') as f:
+            f.write(response.content)
         
-        # Attempt to get land use tags from a nearby polygon or point
-        # osmnx.geocode_to_gdf can find the place, but for land use, we might need to query tags
-        # A robust way: get the nearest OSM node/way and check tags, or query a small area.
-        # For simplicity and speed in this script, we query a small box around the point.
-        
-        # Define a small bounding box
-        # Approx 100m is roughly 0.001 degrees (varies by latitude)
-        delta = 0.001 
-        bbox = (lat - delta, lon - delta, lat + delta, lon + delta)
-        
-        # Query for landuse tags
-        gdf = ox.features_from_bbox(bbox, tags={"landuse": True, "leisure": True, "natural": True})
-        
-        if gdf.empty:
+        # Verify file is not empty
+        if output_path.stat().st_size == 0:
+            logger.error(f"Downloaded file is empty: {filename}")
+            output_path.unlink()
             return None
         
-        # If multiple, pick the one closest to the center point
-        # For simplicity, just take the first one's landuse tag if available
-        # In a real robust system, we'd compute intersection
+        return output_path
         
-        # Check columns for landuse, leisure, natural
-        for col in ["landuse", "leisure", "natural"]:
-            if col in gdf.columns and not gdf[col].isna().all():
-                # Get the first non-null value
-                val = gdf[col].dropna().iloc[0]
-                return val
-        
+    except requests.RequestException as e:
+        logger.error(f"Failed to download {filename}: {e}")
         return None
-        
     except Exception as e:
-        logger.warning(f"OSM query failed for ({lat}, {lon}): {e}")
+        logger.error(f"Unexpected error downloading {filename}: {e}")
         return None
 
-def map_noise_levels(records: List[Dict]) -> Tuple[List[Dict], List[Dict]]:
+def download_batch_audio(records: List[Dict], output_dir: Path, 
+                         batch_size: int = 10) -> Tuple[List[Path], List[Dict]]:
     """
-    Query OSM for land-use at each record's coordinates and map to noise levels.
-    Returns a tuple of (mapped_records, dropped_records).
-    Dropped records are those where OSM data is missing.
-    """
-    mapped = []
-    dropped = []
+    Download a batch of audio files with rate limiting.
     
-    logger.info(f"Starting OSM noise mapping for {len(records)} records...")
+    Args:
+        records: List of metadata dictionaries
+        output_dir: Directory to save audio files
+        batch_size: Number of records to process before logging
+        
+    Returns:
+        Tuple of (successfully downloaded paths, failed records)
+    """
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
+    downloaded = []
+    failed = []
     
     for i, record in enumerate(records):
-        lat = record.get("lat")
-        lon = record.get("lon")
+        result = download_audio(record, output_dir)
+        if result:
+            downloaded.append(result)
+        else:
+            failed.append(record)
         
-        if lat is None or lon is None:
-            logger.warning(f"Record {record.get('record_id', 'unknown')} missing coordinates. Dropping.")
-            dropped.append({**record, "drop_reason": "missing_coordinates"})
-            continue
+        if (i + 1) % batch_size == 0:
+            logger.info(f"Progress: {i + 1}/{len(records)} records processed")
+            logger.info(f"Downloaded: {len(downloaded)}, Failed: {len(failed)}")
         
-        # Query OSM
-        land_use = get_osm_land_use(lat, lon)
-        
-        if land_use is None:
-            logger.warning(f"Record {record.get('record_id', 'unknown')} at ({lat}, {lon}): OSM land-use not found. Dropping.")
-            dropped.append({**record, "drop_reason": "missing_osm_data", "lat": lat, "lon": lon})
-            continue
-        
-        noise_level = map_land_use_to_noise(land_use)
-        
-        if noise_level is None:
-            logger.warning(f"Record {record.get('record_id', 'unknown')} at ({lat}, {lon}): Unrecognized land-use '{land_use}'. Dropping.")
-            dropped.append({**record, "drop_reason": "unrecognized_land_use", "land_use": land_use, "lat": lat, "lon": lon})
-            continue
-        
-        # Add noise level to record
-        new_record = {**record, "noise_level_db": noise_level, "land_use": land_use}
-        mapped.append(new_record)
-        
-        if (i + 1) % 10 == 0:
-            logger.info(f"Processed {i+1}/{len(records)} records.")
+        # Rate limiting between downloads
+        time.sleep(0.2)
     
-    logger.info(f"Mapping complete. Kept: {len(mapped)}, Dropped: {len(dropped)}")
-    return mapped, dropped
+    logger.info(f"Batch download complete: {len(downloaded)} succeeded, {len(failed)} failed")
+    return downloaded, failed
 
-def save_noise_mapped_data(mapped_records: List[Dict], dropped_records: List[Dict]) -> None:
+def create_metadata_csv(records: List[Dict], output_path: Path) -> None:
     """
-    Save the noise-mapped data and dropped records to CSV files.
-    """
-    interim_dir = get_interim_data_dir()
-    ensure_directories()
+    Create a CSV file from metadata records.
     
-    # Save mapped data
-    if mapped_records:
-        df_mapped = pd.DataFrame(mapped_records)
-        output_path = interim_dir / "noise_mapped.csv"
-        df_mapped.to_csv(output_path, index=False)
-        logger.info(f"Saved noise-mapped data to {output_path} ({len(mapped_records)} records)")
-    else:
-        logger.warning("No records to save in noise_mapped.csv.")
-    
-    # Save dropped records
-    if dropped_records:
-        df_dropped = pd.DataFrame(dropped_records)
-        output_path = interim_dir / "dropped_missing_osm.csv"
-        df_dropped.to_csv(output_path, index=False)
-        logger.info(f"Saved dropped records to {output_path} ({len(dropped_records)} records)")
-    else:
-        logger.info("No records were dropped.")
-
-def main():
+    Args:
+        records: List of metadata dictionaries
+        output_path: Path to output CSV file
     """
-    Main entry point for T015: OSM Noise Mapping.
-    """
-    logger.info("Starting T015: OSM Noise Mapping")
-    
-    # 1. Fetch metadata (simulating T014 output or using mock if T014 not run)
-    records = fetch_metadata()
     if not records:
-        logger.error("No records found. Exiting.")
+        logger.warning("No records to write to CSV")
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        output_path.touch()
         return
     
-    logger.info(f"Fetched {len(records)} records.")
+    # Flatten nested structures for CSV export
+    flattened = []
+    for record in records:
+        flat_record = {
+            'recording_id': record.get('r', ''),
+            'file': record.get('file', ''),
+            'species_id': record.get('sp', ''),
+            'species_common': record.get('sp', ''),
+            'species_scientific': record.get('snt', ''),
+            'recorder': record.get('rec', ''),
+            'date': record.get('date', ''),
+            'country': record.get('cnt', ''),
+            'latitude': record.get('lat'),
+            'longitude': record.get('lon'),
+            'quality': record.get('q', ''),
+            'license': record.get('lc', ''),
+            'url': record.get('url', ''),
+            'file_type': record.get('fl', ''),
+            'file_duration': record.get('dur'),
+            'file_size': record.get('sz'),
+            'downloaded_path': '',  # Will be filled after download
+        }
+        flattened.append(flat_record)
     
-    # 2. Map noise levels
-    mapped_records, dropped_records = map_noise_levels(records)
-    
-    # 3. Save outputs
-    save_noise_mapped_data(mapped_records, dropped_records)
-    
-    logger.info("T015 completed successfully.")
+    df = pd.DataFrame(flattened)
+    df.to_csv(output_path, index=False)
+    logger.info(f"Created metadata CSV with {len(df)} records: {output_path}")
 
-if __name__ == "__main__":
-    main()
+def get_osm_land_use(lat: float, lon: float) -> Optional[str]:
+    """
+    Get land-use classification from OpenStreetMap for given coordinates.
+    
+    This is a placeholder for T015 implementation. Currently returns None
+    to indicate that OSM data is not yet available.
+    
+    Args:
+        lat: Latitude coordinate
+        lon: Longitude coordinate
+        
+    Returns:
+        Land-use classification string or None if not available
+    """
+    # T015 will implement actual OSM query using osmnx
+    # For now, return None to indicate missing data
+    logger.debug(f"OSM land-use query placeholder for ({lat}, {lon})")
+    return None
+
+def map_land_use_to_noise(land_use: Optional[str]) -> Optional[float]:
+    """
+    Map land-use classification to estimated noise level in dB.
+    
+    Args:
+        land_use: Land-use classification string
+        
+    Returns:
+        Noise level in dB or None if mapping not available
+    """
+    mapping = {
+        'urban': 60.0,
+        'residential': 55.0,
+        'commercial': 65.0,
+        'industrial': 70.0,
+        'rural': 40.0,
+        'agricultural': 35.0,
+        'wild': 30.0,
+        'forest': 30.0,
+        'water': 35.0,
+    }
+    
+    if land_use is None:
+        return None
+    
+    # Case-insensitive lookup
+    land_use_lower = land_use.lower().strip()
+    return mapping.get(land_use_lower)
+
+def map_noise_levels(records: List[Dict]) -> List[Dict]:
+    """
+    Add noise level estimates to records based on coordinates.
+    
+    Args:
+        records: List of metadata dictionaries
+        
+    Returns:
+        Updated records with noise_level_db field
+    """
+    for record in records:
+        lat = record.get('lat')
+        lon = record.get('lon')
+        
+        if lat is None or lon is None:
+            record['noise_level_db'] = None
+            record['land_use'] = None
+            continue
+        
+        try:
+            lat = float(lat)
+            lon = float(lon)
+            
+            if -90 <= lat <= 90 and -180 <= lon <= 180:
+                land_use = get_osm_land_use(lat, lon)
+                noise_db = map_land_use_to_noise(land_use)
+                
+                record['land_use'] = land_use
+                record['noise_level_db'] = noise_db
+            else:
+                record['land_use'] = None
+                record['noise_level_db'] = None
+                
+        except (ValueError, TypeError):
+            record['land_use'] = None
+            record['noise_level_db'] = None
+    
+    return records
+
+def save_noise_mapped_data(records: List[Dict], output_path: Path) -> None:
+    """
+    Save noise-mapped records to CSV.
+    
+    Args:
+        records: List of records with noise levels
+        output_path: Path to output CSV file
+    """
+    df = pd.DataFrame(records)
+    df.to_csv(output_path, index=False)
+    logger.info(f"Saved {len(df)} noise-mapped records to {output_path}")
+
+def main(species: str = "all", max_records: int = 50, 
+         download_audio_flag: bool = False) -> Tuple[Path, Optional[Path]]:
+    """
+    Main entry point for data acquisition.
+    
+    Args:
+        species: Species query string
+        max_records: Maximum number of records to fetch
+        download_audio_flag: Whether to download audio files
+        
+    Returns:
+        Tuple of (metadata_csv_path, audio_dir_path or None)
+    """
+    project_root = get_project_root()
+    raw_data_dir = get_raw_data_dir()
+    interim_data_dir = get_interim_data_dir()
+    
+    raw_data_dir.mkdir(parents=True, exist_ok=True)
+    interim_data_dir.mkdir(parents=True, exist_ok=True)
+    
+    logger.info(f"Starting acquisition for species: {species}")
+    logger.info(f"Max records: {max_records}")
+    
+    # Fetch metadata
+    records = fetch_metadata(species_query=species, max_records=max_records)
+    
+    if not records:
+        logger.warning("No records fetched. Creating empty output files.")
+        metadata_path = raw_data_dir / "metadata.csv"
+        create_metadata_csv([], metadata_path)
+        return metadata_path, None
+    
+    # Filter by quality
+    filtered_records = filter_records_by_quality(records)
+    
+    if not filtered_records:
+        logger.warning("All records filtered out by quality. Creating empty output.")
+        metadata_path = raw_data_dir / "metadata.csv"
+        create_metadata_csv([], metadata_path)
+        return metadata_path, None
+    
+    # Create metadata CSV
+    metadata_path = raw_data_dir / "metadata.csv"
+    create_metadata_csv(filtered_records, metadata_path)
+    
+    # Download audio if requested
+    audio_dir = None
+    if download_audio_flag:
+        audio_dir = raw_data_dir / "audio"
+        downloaded, failed = download_batch_audio(filtered_records, audio_dir)
+        logger.info(f"Downloaded {len(downloaded)} audio files, {len(failed)} failed")
+        
+        # Update metadata with download paths
+        for record in filtered_records:
+            recording_id = record.get('r', '')
+            species = record.get('sp', 'unknown').replace(' ', '_')
+            recorder = record.get('rec', 'unknown').replace(' ', '_')
+            expected_filename = f"{recording_id}_{species}_{recorder}.flac"
+            
+            if (audio_dir / expected_filename).exists():
+                record['downloaded_path'] = str(audio_dir / expected_filename)
+        
+        # Re-save metadata with paths
+        create_metadata_csv(filtered_records, metadata_path)
+    
+    # Prepare for T015: Add noise level mapping (placeholder - returns None for now)
+    records_with_noise = map_noise_levels(filtered_records)
+    noise_mapped_path = interim_data_dir / "noise_mapped.csv"
+    save_noise_mapped_data(records_with_noise, noise_mapped_path)
+    
+    logger.info(f"Acquisition complete. Metadata: {metadata_path}")
+    if audio_dir:
+        logger.info(f"Audio files: {audio_dir}")
+    
+    return metadata_path, audio_dir

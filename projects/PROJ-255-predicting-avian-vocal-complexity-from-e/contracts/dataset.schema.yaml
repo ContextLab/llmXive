@@ -1,107 +1,215 @@
-# Dataset Schema Definitions for Avian Vocal Complexity Project
-# This file defines the expected structure of all generated CSV datasets.
+%YAML 1.2
+---
+# Dataset Schema for Avian Vocal Complexity Project (T006)
+# Defines the structure for intermediate and processed data artifacts.
+# Used for validation in tests and pipeline execution.
 
-noise_mapped:
-  description: "Intermediate dataset mapping bird recordings to OSM-derived noise levels."
-  columns:
-    record_id:
-      type: string
-      nullable: false
-      description: "Unique identifier for the recording."
-    species_id:
-      type: string
-      nullable: false
-      description: "Xeno-canto species code."
-    location_lat:
-      type: float
-      nullable: false
-      description: "Latitude of the recording location."
-    location_lon:
-      type: float
-      nullable: false
-      description: "Longitude of the recording location."
-    land_use:
-      type: string
-      nullable: false
-      description: "OSM land-use classification (e.g., urban, rural, wild)."
-    noise_level_db:
-      type: float
-      nullable: false
-      description: "Estimated ambient noise level in dB(A)."
-    source_url:
-      type: string
-      nullable: true
-      description: "Original Xeno-canto URL."
+version: "1.0"
+description: "Schema for input/output datasets in the avian vocal complexity pipeline."
 
-vocal_metrics:
-  description: "Extracted vocal complexity metrics for each recording."
-  columns:
-    record_id:
-      type: string
-      nullable: false
-      description: "Unique identifier for the recording."
-    species_id:
-      type: string
-      nullable: false
-      description: "Xeno-canto species code."
-    syllable_count:
-      type: integer
-      nullable: false
-      description: "Number of detected syllables."
-    duration_sec:
-      type: float
-      nullable: false
-      description: "Total duration of the recording in seconds."
-    bandwidth_hz:
-      type: float
-      nullable: false
-      description: "Frequency bandwidth (high - low) in Hz."
-    spectral_entropy:
-      type: float
-      nullable: false
-      description: "Spectral entropy of the vocalization."
-    snr_db:
-      type: float
-      nullable: false
-      description: "Signal-to-Noise Ratio in dB."
+schemas:
+  # Schema for raw metadata fetched from Xeno-canto
+  raw_metadata:
+    type: object
+    required:
+      - recording_id
+      - species_id
+      - species_name
+      - latitude
+      - longitude
+      - date
+      - file_url
+      - quality
+    properties:
+      recording_id:
+        type: string
+        description: "Unique Xeno-canto recording ID (e.g., XC12345)"
+      species_id:
+        type: string
+        description: "Species identifier (e.g., Turdus merula)"
+      species_name:
+        type: string
+        description: "Full scientific name"
+      latitude:
+        type: number
+        format: float
+        minimum: -90
+        maximum: 90
+      longitude:
+        type: number
+        format: float
+        minimum: -180
+        maximum: 180
+      date:
+        type: string
+        format: date
+        description: "Recording date (YYYY-MM-DD)"
+      file_url:
+        type: string
+        format: uri
+        description: "Direct URL to the audio file"
+      quality:
+        type: string
+        enum: ["A", "B", "C"]
+        description: "Xeno-canto quality rating"
 
-final_dataset:
-  description: "Final processed dataset combining noise mapping and vocal metrics."
-  columns:
-    record_id:
-      type: string
-      nullable: false
-    species_id:
-      type: string
-      nullable: false
-    location_lat:
-      type: float
-      nullable: false
-    location_lon:
-      type: float
-      nullable: false
-    land_use:
-      type: string
-      nullable: false
-    noise_level_db:
-      type: float
-      nullable: false
-    syllable_count:
-      type: integer
-      nullable: false
-    duration_sec:
-      type: float
-      nullable: false
-    bandwidth_hz:
-      type: float
-      nullable: false
-    spectral_entropy:
-      type: float
-      nullable: false
-    snr_db:
-      type: float
-      nullable: false
-    complexity_score:
-      type: float
-      nullable: false
-      description: "Aggregated complexity metric (normalized)."
+  # Schema for noise-mapped intermediate data (Output of T015)
+  noise_mapped:
+    type: object
+    required:
+      - recording_id
+      - species_id
+      - latitude
+      - longitude
+      - land_use_type
+      - noise_level_db
+      - source
+    properties:
+      recording_id:
+        type: string
+        description: "Reference to raw metadata"
+      species_id:
+        type: string
+      latitude:
+        type: number
+        format: float
+      longitude:
+        type: number
+        format: float
+      land_use_type:
+        type: string
+        enum: ["Urban", "Rural", "Wild", "Unknown"]
+        description: "OSM land-use classification"
+      noise_level_db:
+        type: number
+        format: float
+        description: "Estimated ambient noise level in dB(A)"
+      source:
+        type: string
+        enum: ["OSM"]
+        description: "Source of noise data"
+
+  # Schema for filtered data after SNR and species count filtering (Output of T017/T018)
+  filtered_records:
+    type: object
+    required:
+      - recording_id
+      - species_id
+      - noise_level_db
+      - snr_db
+      - location_id
+    properties:
+      recording_id:
+        type: string
+      species_id:
+        type: string
+      noise_level_db:
+        type: number
+        format: float
+      snr_db:
+        type: number
+        format: float
+        description: "Signal-to-Noise Ratio in dB"
+      location_id:
+        type: string
+        description: "Unique location identifier for grouping"
+
+  # Schema for extracted vocal metrics (Output of T019)
+  vocal_metrics:
+    type: object
+    required:
+      - recording_id
+      - syllable_count
+      - duration_sec
+      - bandwidth_hz
+      - spectral_entropy
+    properties:
+      recording_id:
+        type: string
+      syllable_count:
+        type: integer
+        minimum: 0
+        description: "Count of detected syllables"
+      duration_sec:
+        type: number
+        format: float
+        minimum: 0
+        description: "Total duration of the recording in seconds"
+      bandwidth_hz:
+        type: number
+        format: float
+        minimum: 0
+        description: "Frequency bandwidth in Hz"
+      spectral_entropy:
+        type: number
+        format: float
+        minimum: 0
+        description: "Spectral entropy measure of complexity"
+
+  # Schema for the final processed dataset (Output of T020)
+  final_dataset:
+    type: object
+    required:
+      - recording_id
+      - species_id
+      - noise_level_db
+      - location_id
+      - syllable_count
+      - duration_sec
+      - bandwidth_hz
+      - spectral_entropy
+    properties:
+      recording_id:
+        type: string
+      species_id:
+        type: string
+      noise_level_db:
+        type: number
+        format: float
+      location_id:
+        type: string
+      syllable_count:
+        type: integer
+      duration_sec:
+        type: number
+        format: float
+      bandwidth_hz:
+        type: number
+        format: float
+      spectral_entropy:
+        type: number
+        format: float
+      # Optional: aggregated species-level metrics if added later
+      species_avg_complexity:
+        type: number
+        format: float
+
+# Validation Rules
+validation_rules:
+  noise_level_db:
+    min: -20
+    max: 100
+    unit: dB(A)
+  snr_db:
+    min: 0
+    max: 60
+    unit: dB
+  duration_sec:
+    min: 0.1
+    max: 300
+    unit: seconds
+
+# File Path Mappings
+file_mapping:
+  raw_metadata: "data/raw/metadata.csv"
+  noise_mapped: "data/interim/noise_mapped.csv"
+  dropped_missing_osm: "data/interim/dropped_missing_osm.csv"
+  filtered_snr: "data/interim/filtered_snr.csv"
+  species_filtered: "data/interim/species_filtered.csv"
+  vocal_metrics: "data/interim/vocal_metrics.csv"
+  final_dataset: "data/processed/final_dataset.csv"
+  dropped_records: "data/interim/dropped_records.csv"
+  sensitivity_counts: "data/interim/sensitivity_counts.csv"
+  sensitivity_5db: "data/processed/sensitivity_5db.csv"
+  sensitivity_10db: "data/processed/sensitivity_10db.csv"
+  sensitivity_15db: "data/processed/sensitivity_15db.csv"

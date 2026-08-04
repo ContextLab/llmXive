@@ -7,11 +7,10 @@ T009:
     \ for config/logging, so the required tests are missing."
 T015:
   c: false
-  h: 35b70f2122bc3d3ac9e2bd1c9516ee5b892bebadcd4daac7f8268b529129bb50
-  r: "The required `src/data/acquisition.py` script does not exist, and the expected\
-    \ output files `data/interim/noise_mapped.csv` and `data/interim/dropped_missing_osm.csv`\
-    \ are also missing. Consequently, the task\u2019s core functionality and deliverables\
-    \ are not present."
+  h: b0e5f024103d336225a98fe03ac66656280a54a51e9640c6e856e0f151a18b5e
+  r: "The required output files `data/interim/noise_mapped.csv` and `data/interim/dropped_missing_osm.csv`\
+    \ are not present on disk, so the task\u2019s deliverables are missing despite\
+    \ the presence of `src/data/acquisition.py`."
 T017a:
   c: false
   h: 4ba9b64cb5ad3b1316966afed5dc79044c6d5bbb5c9826dd2494c34c4bf42fa8
@@ -42,3 +41,29 @@ T023:
   r: The required artifact `tests/unit/test_loso_cv.py` does not exist in the repository,
     so the unit test for LOSO cross-validation split logic is missing. The task cannot
     be considered completed until this file is added with appropriate test code.
+T029b:
+  c: false
+  h: 42578b756036e9c38f2f8cae18f1733899a758cef5bba9bed157b18d8aa38f71
+  r: "The required artifact `data/processed/final_dataset.csv` does not exist, so\
+    \ no species count can be performed or verified. Without the file, the task\u2019\
+    s core requirement (counting species and ensuring \u2265\u202F50) cannot be satisfied."
+T030b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No correlation results (e.g., a CSV, table, or report containing the Pearson/Spearman
+    r values for each threshold dataset from T030a) were provided. The claim lacks
+    any artifact demonstrating that the required calculations were performed.
+T040:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `state/projects/PROJ-255...yaml` file (or any updated version of it) is present,
+    and no artifact hashes have been supplied. The provided evidence only describes
+    feature specifications and test scenarios, not the required YAML update. The task
+    therefore remains unfinished.
+T041:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No integration\u2011test artifacts (e.g., test script output, logs, or a report\
+    \ showing the end\u2011to\u2011end run on a representative subset of recordings)\
+    \ were provided. Without such evidence we cannot verify that the end\u2011to\u2011\
+    end flow was actually executed and passed. The required test results are missing."

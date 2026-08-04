@@ -1,62 +1,81 @@
-# Quickstart: Predicting Chemical Reaction Yields from Spectroscopic Data with Attention Mechanisms
+# Quickstart: Predicting Chemical Reaction Yields from Spectroscopic Data
 
 ## Prerequisites
-- Python 3.11+
-- Git
-- ~ GB Disk Space
-- Internet Access (for dataset download)
+
+*   Python 3.11+
+*   pip / poetry
+*   Sufficient disk space (for datasets and artifacts)
+*   Internet connection (for downloading datasets)
 
 ## Installation
 
-1.  **Clone & Setup**
+1.  **Clone the repository** and navigate to the project directory.
+2.  **Create a virtual environment**:
     ```bash
-    git clone <repo-url>
-    cd <project-root>
-    python -m venv .venv
-    source .venv/bin/activate
+    python -m venv venv
+    source venv/bin/activate  # On Windows: venv\Scripts\activate
+    ```
+3.  **Install dependencies**:
+    ```bash
     pip install -r requirements.txt
     ```
+    *Note: `requirements.txt` pins versions of `torch` (CPU), `rdkit`, `pandas`, `pyarrow`, etc.*
 
-2.  **Verify Environment**
+## Data Download & Preprocessing
+
+The pipeline automatically downloads datasets from Hugging Face if `data/raw/` is empty.
+
+1.  **Run the ingestion script**:
     ```bash
-    python -c "import torch; print(torch.__version__); print('CPU' if not torch.cuda.is_available() else 'GPU')"
+    python src/cli/main.py --stage ingest
     ```
+    *This will download DFT data, verify checksums, and log to `state/...yaml`.*
 
-## Running the Pipeline
+2.  **Run the preprocessing pipeline**:
+    ```bash
+    python src/cli/main.py --stage preprocess
+    ```
+    *This resamples spectra, computes fingerprints, splits by template, and generates the leakage report.*
 
-### Step 1: Data Ingestion & Preprocessing
-Downloads verified datasets, filters for **real paired data** (SMILES + Spectrum + Yield), resamples, and splits by template.
-**Note**: Samples without real spectra are excluded. If the final dataset size is < 500, the pipeline halts and generates a Data Insufficiency Report.
+## Training
+
+Run the training script. By default, it uses the CPU and stops after a predefined number of epochs or early stopping.
+
 ```bash
-python -m src.cli.main ingest
-python -m src.cli.main preprocess
+python src/cli/main.py --stage train
 ```
-*Outputs*: `data/processed/train.parquet`, `data/processed/test.parquet`, `data/artifacts/leakage_report.json`, or `data/artifacts/data_insufficiency_report.json`.
 
-### Step 2: Model Training (Conditional)
-Trains the attention model with early stopping. **Only runs if data sufficiency check passes.**
+*   **Output**: Model weights saved to `data/artifacts/model_best.pt` and training logs to `data/artifacts/training_log.json`.
+*   **Time Estimate**: ~2-4 hours on a standard CPU runner.
+
+## Evaluation & Interpretability
+
+Run the evaluation script to generate metrics, baselines, and attention heatmaps.
+
 ```bash
-python -m src.cli.main train
+python src/cli/main.py --stage evaluate
 ```
-*Outputs*: `models/best_model.pt`, `data/artifacts/training_log.json`.
 
-### Step 3: Evaluation & Interpretability
-Runs baselines, computes metrics, performs permutation tests, and generates heatmaps. **Only runs if data sufficiency check passes.**
+*   **Output**:
+    *   `data/artifacts/metrics.json`: RMSE, MAE, R² for all models.
+    *   `data/artifacts/attention_heatmaps.png`: Visualizations of spectral importance.
+    *   `data/artifacts/leakage_report.json`: Verification of split integrity.
+    *   `data/artifacts/integrity_report.json`: Simulated Data Integrity Check results.
+    *   `data/artifacts/vif_report.json`: Collinearity check results.
+    *   `data/artifacts/simulated_validation_report.json`: Limitation note for simulated data.
+
+## Reproducibility
+
+To ensure full reproducibility, set the seed explicitly:
+
 ```bash
-python -m src.cli.main evaluate
-```
-*Outputs*: `data/artifacts/evaluation_report.json`, `figures/attention_heatmap.png`.
-
-## Testing
-
-Run unit and integration tests:
-```bash
-pytest tests/ -v --cov=src
+export PYTHONHASHSEED=42
+export RANDOM_SEED=42
+python src/cli/main.py --stage train
 ```
 
 ## Troubleshooting
 
-- **Data Insufficiency**: If the pipeline halts with "Data Insufficiency", check `data/artifacts/data_insufficiency_report.json` for the count of real paired samples. The project cannot proceed with quantitative analysis if N < 500.
-- **Memory Error**: Reduce `batch_size` in `config/default.yaml` to 16.
-- **Dataset Missing**: Ensure internet connection; check `data/raw/` for checksums.
-- **Leakage Detected**: If `leakage_report.json` shows overlap, re-run `preprocess` with a different random seed or check template extraction logic.
+*   **OOM (Out of Memory)**: If you encounter memory errors, reduce `BATCH_SIZE` in `src/config/defaults.yaml` to 16 or 8.
+*   **Missing Datasets**: If a download fails, check your internet connection. The script retries a limited number of times.
+*   **CUDA Errors**: This project is CPU-first. If you see CUDA errors, ensure `torch` was installed as the CPU version (check `requirements.txt`).

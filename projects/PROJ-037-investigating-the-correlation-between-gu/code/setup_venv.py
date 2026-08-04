@@ -1,38 +1,22 @@
-"""
-Virtual Environment Setup Script for PROJ-037.
-
-This script creates a Python virtual environment in the project root
-and installs all dependencies listed in requirements.txt.
-"""
 import os
 import subprocess
 import sys
 import shutil
 from pathlib import Path
 
-# Project root is assumed to be the directory containing this script's parent
-# or explicitly defined relative to the project structure.
-# Based on task T002b context, we operate within the project root.
-PROJECT_ROOT = Path(__file__).parent.parent
-VENV_DIR = PROJECT_ROOT / "venv"
-REQUIREMENTS_FILE = PROJECT_ROOT / "requirements.txt"
-
-def run_command(cmd: list, check: bool = True) -> subprocess.CompletedProcess:
+def run_command(command: list, cwd: Path = None) -> None:
     """
-    Run a shell command and return the result.
+    Run a shell command and raise an exception if it fails.
     
     Args:
-        cmd: List of command arguments.
-        check: If True, raise CalledProcessError on non-zero exit.
-    
-    Returns:
-        CompletedProcess instance.
+        command: List of command arguments
+        cwd: Working directory for the command
     """
     try:
         result = subprocess.run(
-            cmd,
-            cwd=PROJECT_ROOT,
-            check=check,
+            command,
+            cwd=cwd,
+            check=True,
             capture_output=True,
             text=True
         )
@@ -40,79 +24,79 @@ def run_command(cmd: list, check: bool = True) -> subprocess.CompletedProcess:
             print(result.stdout)
         if result.stderr:
             print(result.stderr, file=sys.stderr)
-        return result
     except subprocess.CalledProcessError as e:
-        print(f"Error running command: {' '.join(cmd)}")
-        print(f"Return code: {e.returncode}")
-        print(f"Stdout: {e.stdout}")
-        print(f"Stderr: {e.stderr}")
-        raise
+        raise RuntimeError(
+            f"Command failed with exit code {e.returncode}.\n"
+            f"STDOUT: {e.stdout}\n"
+            f"STDERR: {e.stderr}"
+        )
 
 def main():
     """
-    Main entry point for virtual environment setup.
+    Create a virtual environment and install requirements.
     
-    1. Checks if a venv already exists. If so, prompts for removal or skipping.
-    2. Creates a new virtual environment using `python -m venv venv`.
-    3. Identifies the correct pip executable within the new venv.
-    4. Installs dependencies from requirements.txt.
+    This script:
+    1. Creates a 'venv' directory in the project root
+    2. Activates the environment (conceptually) by using the venv's python
+    3. Installs dependencies from requirements.txt
+    
+    Note: This script is designed to be run from the project root.
     """
-    print(f"Project Root: {PROJECT_ROOT}")
+    # Determine project root (assuming script is in code/ or code/setup_venv.py)
+    script_path = Path(__file__).resolve()
+    project_root = script_path.parent.parent
+    
+    venv_path = project_root / "venv"
+    requirements_path = project_root / "requirements.txt"
     
     # Check if requirements.txt exists
-    if not REQUIREMENTS_FILE.exists():
+    if not requirements_path.exists():
         raise FileNotFoundError(
-            f"requirements.txt not found at {REQUIREMENTS_FILE}. "
-            "Please ensure T002a (requirements.txt creation) is completed first."
+            f"requirements.txt not found at {requirements_path}. "
+            "Please create it with the required dependencies first."
         )
-
+    
     # Check if venv already exists
-    if VENV_DIR.exists():
-        print(f"Virtual environment already exists at {VENV_DIR}.")
-        response = input("Do you want to remove it and recreate? (y/n): ").strip().lower()
-        if response == 'y':
-            print(f"Removing existing venv at {VENV_DIR}...")
-            shutil.rmtree(VENV_DIR)
-            print("Removed.")
-        else:
-            print("Skipping venv creation. Please manually upgrade packages if needed.")
-            return
-
-    # Create virtual environment
-    print(f"Creating virtual environment at {VENV_DIR}...")
-    run_command([sys.executable, "-m", "venv", str(VENV_DIR)])
-
-    # Determine the pip path based on OS
-    if sys.platform == "win32":
-        pip_path = VENV_DIR / "Scripts" / "pip.exe"
-        python_path = VENV_DIR / "Scripts" / "python.exe"
+    if venv_path.exists():
+        print(f"Virtual environment already exists at {venv_path}.")
+        print("Skipping creation. You may want to delete it manually and re-run if issues persist.")
     else:
-        pip_path = VENV_DIR / "bin" / "pip"
-        python_path = VENV_DIR / "bin" / "python"
-
-    if not pip_path.exists():
-        raise RuntimeError(f"Pip executable not found at {pip_path}. "
-                           "Virtual environment creation may have failed.")
-
-    # Upgrade pip first
+        print(f"Creating virtual environment at {venv_path}...")
+        run_command([sys.executable, "-m", "venv", str(venv_path)])
+    
+    # Determine the python executable inside the venv
+    if sys.platform == "win32":
+        python_executable = venv_path / "Scripts" / "python.exe"
+        pip_executable = venv_path / "Scripts" / "pip.exe"
+    else:
+        python_executable = venv_path / "bin" / "python"
+        pip_executable = venv_path / "bin" / "pip"
+    
+    if not python_executable.exists():
+        raise RuntimeError(
+            f"Python executable not found at {python_executable}. "
+            "Virtual environment creation may have failed."
+        )
+    
+    # Upgrade pip
     print("Upgrading pip...")
-    run_command([str(python_path), "-m", "pip", "install", "--upgrade", "pip"])
-
+    run_command([str(python_executable), "-m", "pip", "install", "--upgrade", "pip"])
+    
     # Install requirements
-    print(f"Installing requirements from {REQUIREMENTS_FILE}...")
+    print(f"Installing requirements from {requirements_path}...")
     run_command([
-        str(pip_path),
+        str(pip_executable),
         "install",
         "-r",
-        str(REQUIREMENTS_FILE)
+        str(requirements_path)
     ])
-
-    print("\nVirtual environment setup complete.")
-    print(f"Activate the environment before running scripts:")
+    
+    print(f"Virtual environment setup complete at {venv_path}.")
+    print("To activate manually, run:")
     if sys.platform == "win32":
-        print(f"  {VENV_DIR}\\Scripts\\activate")
+        print(f"  {venv_path}\\Scripts\\activate")
     else:
-        print(f"  source {VENV_DIR}/bin/activate")
+        print(f"  source {venv_path}/bin/activate")
 
 if __name__ == "__main__":
     main()

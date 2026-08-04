@@ -293,3 +293,56 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-05T16:46:46Z'
+- artifact_path: projects/PROJ-255-predicting-avian-vocal-complexity-from-e/specs/001-predicting-avian-vocal-complexity-from-e/tasks.md
+  attempts: 3
+  canonical: 'OSM land-use to noise mapping: Urban=60, Rural=40, Wild=30'
+  claim_id: c_eaeedb8d
+  context: 'T015 [US1] Primary Source: Implement src/data/acquisition.py to query
+    OpenStreetMap via osmnx for land-use at coordinates and map to noise levels (Urban=60,
+    Rural=40, Wild=30).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement src/data/acquisition.py to query OpenStreetMap via osmnx for
+    land-use at coordinates and map to noise levels (Urban=60, Rural=40, Wild=30).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T04:29:47Z'
+- artifact_path: projects/PROJ-255-predicting-avian-vocal-complexity-from-e/specs/001-predicting-avian-vocal-complexity-from-e/tasks.md
+  attempts: 1
+  canonical: "OSM noise proxy validation against Global Soundscapes dataset with \u2264\
+    2 dB(A) deviation"
+  claim_id: c_bd9f4e04
+  context: "T015c [US1] Validation: Implement logic to validate OSM noise proxies\
+    \ against the Global Soundscapes dataset (if available) with \u22642 dB(A) deviation."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement logic to validate OSM noise proxies against the Global Soundscapes\
+    \ dataset (if available) with \u22642 dB(A) deviation."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T04:29:47Z'
+- artifact_path: projects/PROJ-255-predicting-avian-vocal-complexity-from-e/specs/001-predicting-avian-vocal-complexity-from-e/tasks.md
+  attempts: 2
+  canonical: Sensitivity analysis SNR thresholds include 10 and 15 dB
+  claim_id: c_891d07d8
+  context: 'T030a [US2] Sensitivity Execution: Execute the filtering engine (Ta) with
+    SNR thresholds ranging from low to high values, including 10 and 15 dB.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execute the filtering engine (Ta) with SNR thresholds ranging from low
+    to high values, including 10 and 15 dB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T04:30:15Z'
