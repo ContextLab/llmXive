@@ -1,261 +1,251 @@
 """
-Unit tests for environment variable validation and error handling infrastructure.
-
-Tests cover:
-- Loading .env files
-- Registering required variables
-- Validation logic
-- Type casting
-- Error handling
+Unit tests for environment variable validation infrastructure (T010).
 """
 import os
 import pytest
 import tempfile
 from pathlib import Path
+
 from src.utils.env_config import (
     EnvConfig,
-    EnvValidationError,
-    env_config,
-    validate_environment
+    EnvVarDefinition,
+    ValidationResult,
+    validate_environment,
+    get_env_config,
+    get_env
 )
+
 
 class TestEnvConfig:
     """Tests for the EnvConfig class."""
-    
-    def setup_method(self):
-        """Reset environment before each test."""
-        # Save original environment
-        self.original_env = os.environ.copy()
-        # Reset the singleton
-        env_config._initialized = False
-        env_config.__init__()
-    
-    def teardown_method(self):
-        """Restore environment after each test."""
-        os.environ.clear()
-        os.environ.update(self.original_env)
-    
-    def test_load_dotenv_creates_variables(self):
-        """Test that .env file loading works correctly."""
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.env', delete=False) as f:
-            f.write("TEST_VAR=value123\n")
-            f.write("ANOTHER_VAR=456\n")
-            f.write("# This is a comment\n")
-            f.write("\n")  # Empty line
-            env_path = f.name
-        
-        try:
-            env_config.load_dotenv(env_path)
-            assert os.environ.get('TEST_VAR') == 'value123'
-            assert os.environ.get('ANOTHER_VAR') == '456'
-            assert 'COMMENTS' not in os.environ
-        finally:
-            os.unlink(env_path)
-    
-    def test_register_required_variable(self):
-        """Test registering a required variable."""
-        env_config.register_required('TEST_VAR')
-        assert 'TEST_VAR' in env_config._required
-    
-    def test_validate_missing_required_raises_error(self):
-        """Test validation fails for missing required variables."""
-        env_config.register_required('MISSING_VAR')
-        
-        with pytest.raises(EnvValidationError) as exc_info:
-            env_config.validate(fail_fast=True)
-        
-        assert 'MISSING_VAR' in exc_info.value.missing_vars
-        assert 'Missing required variables' in str(exc_info.value)
-    
-    def test_validate_with_default(self):
-        """Test that default values are used when variable is missing."""
-        env_config.register_required('VAR_WITH_DEFAULT', default='default_value')
-        
-        result = env_config.validate(fail_fast=True)
-        assert result is True
-        assert os.environ.get('VAR_WITH_DEFAULT') == 'default_value'
-    
-    def test_validator_function(self):
-        """Test custom validator functions."""
-        def is_valid_level(x):
-            return x in ['DEBUG', 'INFO', 'ERROR']
-        
-        env_config.register_required(
-            'LOG_LEVEL',
-            validator=is_valid_level
-        )
-        
-        # Test with invalid value
-        os.environ['LOG_LEVEL'] = 'INVALID'
-        result = env_config.validate(fail_fast=False)
-        assert result is False
-        
-        # Test with valid value
-        os.environ['LOG_LEVEL'] = 'INFO'
-        result = env_config.validate(fail_fast=True)
-        assert result is True
-    
-    def test_get_with_casting(self):
-        """Test getting values with type casting."""
-        os.environ['TEST_INT'] = '42'
-        os.environ['TEST_FLOAT'] = '3.14'
-        os.environ['TEST_BOOL'] = 'true'
-        os.environ['TEST_STR'] = 'hello'
-        
-        assert env_config.get('TEST_INT', int) == 42
-        assert env_config.get('TEST_FLOAT', float) == 3.14
-        assert env_config.get('TEST_BOOL', bool) is True
-        assert env_config.get('TEST_STR', str) == 'hello'
-    
-    def test_get_missing_variable_raises_keyerror(self):
-        """Test that missing variable raises KeyError."""
+
+    def test_define_variable(self):
+        """Test defining a variable."""
+        config = EnvConfig()
+        config.define("TEST_VAR", required=True)
+        assert "TEST_VAR" in config.definitions
+        assert config.definitions["TEST_VAR"].required is True
+
+    def test_define_with_defaults(self):
+        """Test defining a variable with defaults."""
+        config = EnvConfig()
+        config.define("OPT_VAR", required=False, default="default_val")
+        assert config.definitions["OPT_VAR"].default == "default_val"
+        assert config.definitions["OPT_VAR"].required is False
+
+    def test_define_with_type_hint(self):
+        """Test defining a variable with type hint."""
+        config = EnvConfig()
+        config.define("INT_VAR", type_hint=int, default=42)
+        assert config.definitions["INT_VAR"].type_hint == int
+
+    def test_define_with_allowed_values(self):
+        """Test defining a variable with allowed values."""
+        config = EnvConfig()
+        config.define("LEVEL", allowed_values=["low", "medium", "high"])
+        assert config.definitions["LEVEL"].allowed_values == ["low", "medium", "high"]
+
+    def test_validate_missing_required(self):
+        """Test validation fails when required var is missing."""
+        config = EnvConfig()
+        config.define("MISSING_REQ", required=True)
+        result = config.validate()
+        assert result.success is False
+        assert any("MISSING_REQ" in err for err in result.errors)
+
+    def test_validate_missing_optional_with_default(self):
+        """Test validation succeeds with default for optional var."""
+        config = EnvConfig()
+        config.define("OPT_WITH_DEFAULT", required=False, default="fallback")
+        result = config.validate()
+        assert result.success is True
+        assert result.resolved_config["OPT_WITH_DEFAULT"] == "fallback"
+        assert any("OPT_WITH_DEFAULT" in warn for warn in result.warnings)
+
+    def test_validate_success(self):
+        """Test validation succeeds when all required vars are set."""
+        os.environ["VALID_VAR"] = "value"
+        config = EnvConfig()
+        config.define("VALID_VAR", required=True)
+        result = config.validate()
+        assert result.success is True
+        assert result.resolved_config["VALID_VAR"] == "value"
+        # Cleanup
+        del os.environ["VALID_VAR"]
+
+    def test_type_coercion_int(self):
+        """Test integer type coercion."""
+        os.environ["INT_VAL"] = "123"
+        config = EnvConfig()
+        config.define("INT_VAL", type_hint=int)
+        result = config.validate()
+        assert result.success is True
+        assert result.resolved_config["INT_VAL"] == 123
+        del os.environ["INT_VAL"]
+
+    def test_type_coercion_path(self):
+        """Test Path type coercion."""
+        os.environ["PATH_VAL"] = "/tmp/test"
+        config = EnvConfig()
+        config.define("PATH_VAL", type_hint=Path)
+        result = config.validate()
+        assert result.success is True
+        assert result.resolved_config["PATH_VAL"] == Path("/tmp/test")
+        del os.environ["PATH_VAL"]
+
+    def test_type_coercion_bool(self):
+        """Test boolean type coercion."""
+        os.environ["BOOL_TRUE"] = "true"
+        os.environ["BOOL_FALSE"] = "0"
+        config = EnvConfig()
+        config.define("BOOL_TRUE", type_hint=bool)
+        config.define("BOOL_FALSE", type_hint=bool)
+        result = config.validate()
+        assert result.success is True
+        assert result.resolved_config["BOOL_TRUE"] is True
+        assert result.resolved_config["BOOL_FALSE"] is False
+        del os.environ["BOOL_TRUE"]
+        del os.environ["BOOL_FALSE"]
+
+    def test_invalid_type_coercion(self):
+        """Test validation fails on invalid type coercion."""
+        os.environ["BAD_INT"] = "not_a_number"
+        config = EnvConfig()
+        config.define("BAD_INT", type_hint=int)
+        result = config.validate()
+        assert result.success is False
+        assert any("BAD_INT" in err and "convert" in err for err in result.errors)
+        del os.environ["BAD_INT"]
+
+    def test_allowed_values_violation(self):
+        """Test validation fails on allowed values violation."""
+        os.environ["BAD_LEVEL"] = "super_high"
+        config = EnvConfig()
+        config.define("BAD_LEVEL", allowed_values=["low", "high"])
+        result = config.validate()
+        assert result.success is False
+        assert any("BAD_LEVEL" in err for err in result.errors)
+        del os.environ["BAD_LEVEL"]
+
+    def test_get_after_validation(self):
+        """Test retrieving values after validation."""
+        os.environ["GET_VAR"] = "retrieved"
+        config = EnvConfig()
+        config.define("GET_VAR", required=True)
+        config.validate()
+        val = config.get("GET_VAR")
+        assert val == "retrieved"
+        del os.environ["GET_VAR"]
+
+    def test_get_before_validation_raises(self):
+        """Test getting value before validation raises error."""
+        config = EnvConfig()
+        config.define("UNSET_VAR")
+        with pytest.raises(RuntimeError, match="validated"):
+            config.get("UNSET_VAR")
+
+    def test_get_missing_key_raises(self):
+        """Test getting a key that was not defined raises error."""
+        os.environ["UNDEF_VAR"] = "val"
+        config = EnvConfig()
+        config.define("OTHER_VAR")
+        config.validate()
         with pytest.raises(KeyError):
-            env_config.get('NON_EXISTENT_VAR')
-    
-    def test_get_optional_with_default(self):
-        """Test optional variable with default."""
-        result = env_config.get_optional('MISSING_VAR', default='fallback')
-        assert result == 'fallback'
-    
-    def test_get_optional_type_casting(self):
-        """Test optional variable with type casting."""
-        os.environ['OPT_INT'] = '100'
-        
-        result = env_config.get_optional('OPT_INT', default=0, cast_type=int)
-        assert result == 100
-        
-        result = env_config.get_optional('MISSING_INT', default=42, cast_type=int)
-        assert result == 42
-    
-    def test_invalid_cast_falls_back_to_default(self):
-        """Test that invalid casting falls back to default."""
-        os.environ['BAD_INT'] = 'not_a_number'
-        
-        result = env_config.get_optional('BAD_INT', default=99, cast_type=int)
-        assert result == 99
-    
-    def test_singleton_pattern(self):
-        """Test that EnvConfig follows singleton pattern."""
-        config1 = EnvConfig()
-        config2 = EnvConfig()
-        assert config1 is config2
-    
-    def test_bool_casting_variants(self):
-        """Test various boolean string representations."""
-        os.environ['BOOL_TRUE_1'] = 'true'
-        os.environ['BOOL_TRUE_2'] = '1'
-        os.environ['BOOL_TRUE_3'] = 'yes'
-        os.environ['BOOL_TRUE_4'] = 'on'
-        os.environ['BOOL_FALSE_1'] = 'false'
-        os.environ['BOOL_FALSE_2'] = '0'
-        os.environ['BOOL_FALSE_3'] = 'no'
-        os.environ['BOOL_FALSE_4'] = 'off'
-        
-        assert env_config.get('BOOL_TRUE_1', bool) is True
-        assert env_config.get('BOOL_TRUE_2', bool) is True
-        assert env_config.get('BOOL_TRUE_3', bool) is True
-        assert env_config.get('BOOL_TRUE_4', bool) is True
-        
-        assert env_config.get('BOOL_FALSE_1', bool) is False
-        assert env_config.get('BOOL_FALSE_2', bool) is False
-        assert env_config.get('BOOL_FALSE_3', bool) is False
-        assert env_config.get('BOOL_FALSE_4', bool) is False
-    
-    def test_env_validation_error_message(self):
-        """Test error message contains helpful information."""
-        env_config.register_required('VAR_1')
-        env_config.register_required('VAR_2')
-        
-        with pytest.raises(EnvValidationError) as exc_info:
-            env_config.validate(fail_fast=True)
-        
-        error_msg = str(exc_info.value)
-        assert 'VAR_1' in error_msg
-        assert 'VAR_2' in error_msg
-        assert 'Missing' in error_msg
+            config.get("UNDEF_VAR")
+        del os.environ["UNDEF_VAR"]
+
+    def test_get_path_helper(self):
+        """Test get_path helper method."""
+        os.environ["PATH_GET"] = "/some/path"
+        config = EnvConfig()
+        config.define("PATH_GET", required=True)
+        config.validate()
+        p = config.get_path("PATH_GET")
+        assert isinstance(p, Path)
+        assert p == Path("/some/path")
+        del os.environ["PATH_GET"]
+
 
 class TestValidateEnvironment:
-    """Tests for the validate_environment convenience function."""
-    
-    def setup_method(self):
-        """Reset environment before each test."""
-        self.original_env = os.environ.copy()
-        env_config._initialized = False
-        env_config.__init__()
-    
-    def teardown_method(self):
-        """Restore environment after each test."""
-        os.environ.clear()
-        os.environ.update(self.original_env)
-    
-    def test_validate_environment_with_missing_vars(self):
-        """Test validate_environment raises on missing vars."""
-        with pytest.raises(EnvValidationError):
-            validate_environment()
-    
-    def test_validate_environment_with_valid_vars(self):
-        """Test validate_environment passes with valid vars."""
-        os.environ['PROJECT_ROOT'] = str(Path.cwd())
-        os.environ['DATA_DIR'] = str(Path.cwd() / 'data')
-        os.environ['LOG_LEVEL'] = 'INFO'
+    """Tests for the global validate_environment function."""
+
+    def test_fail_fast_on_error(self):
+        """Test that validate_environment exits on error."""
+        config = get_env_config()
+        # Reset global config state if needed
+        config.definitions["FAIL_GLOBAL"] = EnvVarDefinition("FAIL_GLOBAL", required=True)
+        # Ensure it's not set
+        if "FAIL_GLOBAL" in os.environ:
+            del os.environ["FAIL_GLOBAL"]
         
-        # Should not raise
-        validate_environment()
-    
-    def test_validate_environment_loads_dotenv(self):
-        """Test that validate_environment loads .env file."""
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.env', delete=False) as f:
-            f.write('PROJECT_ROOT=/test/root\n')
-            f.write('DATA_DIR=/test/data\n')
-            f.write('LOG_LEVEL=DEBUG\n')
-            env_path = f.name
-        
-        try:
-            # Temporarily change cwd to where .env is
-            original_cwd = os.getcwd()
-            os.chdir(Path(env_path).parent)
-            
-            validate_environment()
-            
-            assert os.environ.get('PROJECT_ROOT') == '/test/root'
-            assert os.environ.get('DATA_DIR') == '/test/data'
-            assert os.environ.get('LOG_LEVEL') == 'DEBUG'
-        finally:
-            os.chdir(original_cwd)
-            os.unlink(env_path)
+        # We can't actually test sys.exit in a simple way without mocking,
+        # but we can test the logic path by calling validate() directly on the instance
+        result = config.validate()
+        assert result.success is False
+
+    def test_success_path(self):
+        """Test success path of global validator."""
+        config = get_env_config()
+        # Clear previous definitions to avoid conflicts
+        config.definitions.clear()
+        os.environ["GLOBAL_SUCCESS"] = "ok"
+        config.define("GLOBAL_SUCCESS", required=True)
+        result = config.validate()
+        assert result.success is True
+        del os.environ["GLOBAL_SUCCESS"]
+
 
 class TestEnvConfigPersistence:
-    """Tests for configuration persistence across calls."""
-    
-    def setup_method(self):
-        """Reset environment before each test."""
-        self.original_env = os.environ.copy()
-        env_config._initialized = False
-        env_config.__init__()
-    
-    def teardown_method(self):
-        """Restore environment after each test."""
-        os.environ.clear()
-        os.environ.update(self.original_env)
-    
-    def test_config_registers_persist(self):
-        """Test that registered variables persist across validate calls."""
-        env_config.register_required('PERSIST_VAR', default='default')
-        
-        # First validation
-        env_config.validate(fail_fast=True)
-        assert os.environ.get('PERSIST_VAR') == 'default'
-        
-        # Second validation (should still have the var)
-        env_config.validate(fail_fast=True)
-        assert os.environ.get('PERSIST_VAR') == 'default'
-    
-    def test_multiple_validations_dont_duplicate(self):
-        """Test multiple validations don't cause issues."""
-        env_config.register_required('MULTI_VAR', default='value')
-        
-        for _ in range(3):
-            env_config.validate(fail_fast=True)
-        
-        # Should still be single instance
-        assert env_config.get('MULTI_VAR') == 'value'
+    """Tests for loading environment from .env files."""
+
+    def test_load_from_file_exists(self):
+        """Test loading from existing .env file."""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.env', delete=False) as f:
+            f.write("FILE_VAR=from_file\n")
+            f.write("FILE_INT=42\n")
+            temp_path = f.name
+
+        try:
+            config = EnvConfig()
+            config.load_from_file(temp_path)
+            assert os.getenv("FILE_VAR") == "from_file"
+            assert os.getenv("FILE_INT") == "42"
+        finally:
+            os.unlink(temp_path)
+
+    def test_load_from_file_not_found(self):
+        """Test loading from non-existent file logs warning."""
+        config = EnvConfig()
+        # Should not raise, just log
+        config.load_from_file("/nonexistent/path/.env")
+
+    def test_load_from_file_skips_comments(self):
+        """Test that comments and empty lines are skipped."""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.env', delete=False) as f:
+            f.write("# This is a comment\n")
+            f.write("\n")
+            f.write("COMMENT_VAR=value\n")
+            temp_path = f.name
+
+        try:
+            config = EnvConfig()
+            config.load_from_file(temp_path)
+            assert os.getenv("COMMENT_VAR") == "value"
+            assert os.getenv("This is a comment") is None
+        finally:
+            os.unlink(temp_path)
+
+    def test_load_from_file_invalid_line(self):
+        """Test handling of invalid lines."""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.env', delete=False) as f:
+            f.write("NO_EQUALS\n")
+            f.write("VALID=ok\n")
+            temp_path = f.name
+
+        try:
+            config = EnvConfig()
+            config.load_from_file(temp_path)
+            assert os.getenv("NO_EQUALS") is None
+            assert os.getenv("VALID") == "ok"
+        finally:
+            os.unlink(temp_path)

@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 import subprocess
 import sys
 import tempfile
@@ -7,253 +8,211 @@ import signal
 import logging
 import traceback
 from pathlib import Path
-from typing import Dict, List, Any, Optional, Tuple
+from typing import List, Dict, Any, Optional, Tuple
 from datetime import datetime
-import time
 
-from models.data_models import ExecutionStatus, GeneratedCode
+from models.data_models import ExecutionStatus
 from utils.logger import get_logger
 
-# Custom exception for timeout scenarios
+# Import logger setup to ensure structured logging
+logger = get_logger(__name__)
+
 class ExecutionTimeoutError(Exception):
-    """Raised when code execution exceeds the configured timeout."""
+    """Raised when code execution exceeds the timeout threshold."""
     pass
 
-# Constants
-DEFAULT_TIMEOUT_SECONDS = 10
-LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+class ExecutionError(Exception):
+    """Raised when code execution fails due to syntax or runtime errors."""
+    def __init__(self, message: str, error_type: str = "RuntimeError"):
+        super().__init__(message)
+        self.error_type = error_type
 
-def run_code_with_timeout(code: str, timeout: int = DEFAULT_TIMEOUT_SECONDS) -> Tuple[bool, Optional[str], Optional[str], Optional[str]]:
+def run_code_with_timeout(code: str, timeout: float = 5.0) -> Tuple[bool, Optional[str], Optional[str], str]:
     """
-    Executes Python code in a subprocess with a timeout.
+    Execute code in an isolated subprocess with a timeout.
     
-    Args:
-        code: The Python code string to execute.
-        timeout: Maximum execution time in seconds.
-        
     Returns:
         Tuple of (success, stdout, stderr, error_type)
-        - success: True if execution completed without timeout or fatal error.
-        - stdout: Standard output from the process.
-        - stderr: Standard error from the process.
-        - error_type: Type of error if failed (e.g., 'SyntaxError', 'RuntimeError', 'Timeout'), None if success.
+        - success: bool indicating if execution completed without timeout
+        - stdout: captured stdout or None
+        - stderr: captured stderr or None
+        - error_type: 'Timeout', 'SyntaxError', 'RuntimeError', or 'None'
     """
-    logger = get_logger("execution.runner")
-    logger.debug(f"Executing code with timeout {timeout}s")
-
-    # Create a temporary file for the code
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as f:
-        f.write(code)
-        temp_file = f.name
-
-    try:
-        # Run the code in a subprocess
-        start_time = time.time()
-        process = subprocess.Popen(
-            [sys.executable, temp_file],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            text=True,
-            preexec_fn=os.setsid if os.name != 'nt' else None  # Ensure we can kill the process group
-        )
-
+    with tempfile.TemporaryDirectory() as tmpdir:
+        script_path = Path(tmpdir) / "test_script.py"
+        script_path.write_text(code)
+        
         try:
-            stdout, stderr = process.communicate(timeout=timeout)
-            elapsed = time.time() - start_time
+            # Run with timeout
+            result = subprocess.run(
+                [sys.executable, str(script_path)],
+                capture_output=True,
+                text=True,
+                timeout=timeout,
+                cwd=tmpdir
+            )
             
-            if process.returncode == 0:
-                logger.debug(f"Execution succeeded in {elapsed:.2f}s")
-                return True, stdout.strip(), stderr.strip(), None
+            if result.returncode == 0:
+                return True, result.stdout, result.stderr, "None"
             else:
-                # Determine error type from stderr or traceback
-                error_type = _classify_error(stderr)
-                logger.warning(f"Execution failed with return code {process.returncode}. Type: {error_type}")
-                return False, stdout.strip(), stderr.strip(), error_type
-
+                # Check for syntax errors vs runtime errors
+                error_output = result.stderr
+                if "SyntaxError" in error_output or "IndentationError" in error_output:
+                    return False, result.stdout, error_output, "SyntaxError"
+                else:
+                    return False, result.stdout, error_output, "RuntimeError"
+                    
         except subprocess.TimeoutExpired:
-            # Kill the process group to ensure cleanup
-            if os.name != 'nt':
-                try:
-                    os.killpg(os.getpgid(process.pid), signal.SIGKILL)
-                except ProcessLookupError:
-                    pass
-            else:
-                process.kill()
-            
-            logger.error(f"Execution timed out after {timeout}s")
-            return False, "", f"Execution timed out after {timeout} seconds", "TimeoutError"
+            return False, None, None, "Timeout"
+        except Exception as e:
+            return False, None, str(e), "SystemError"
 
-    except Exception as e:
-        logger.error(f"Unexpected error during execution: {str(e)}")
-        return False, "", str(e), "UnexpectedError"
-    finally:
-        # Clean up temporary file
-        try:
-            os.unlink(temp_file)
-        except OSError:
-            pass
-
-def _classify_error(stderr: str) -> str:
+def execute_sample(sample: Dict[str, Any], timeout: float = 5.0) -> Dict[str, Any]:
     """
-    Classifies the error type based on the stderr content.
-    """
-    if not stderr:
-        return "RuntimeError"
-    
-    # Check for specific syntax errors
-    if "SyntaxError" in stderr or "IndentationError" in stderr:
-        return "SyntaxError"
-    
-    # Check for name errors (often indicates missing imports or typos)
-    if "NameError" in stderr:
-        return "NameError"
-    
-    # Check for type errors
-    if "TypeError" in stderr:
-        return "TypeError"
-    
-    # Check for attribute errors
-    if "AttributeError" in stderr:
-        return "AttributeError"
-    
-    # Check for value errors
-    if "ValueError" in stderr:
-        return "ValueError"
-    
-    # Check for import errors
-    if "ImportError" in stderr or "ModuleNotFoundError" in stderr:
-        return "ImportError"
-    
-    # Check for runtime exceptions (e.g., ZeroDivisionError)
-    if "ZeroDivisionError" in stderr:
-        return "ZeroDivisionError"
-    
-    # Default to RuntimeError for other exceptions
-    return "RuntimeError"
-
-def execute_sample(sample: Dict[str, Any], timeout: int = DEFAULT_TIMEOUT_SECONDS) -> Dict[str, Any]:
-    """
-    Executes a single generated code sample and captures the result.
+    Execute a single code sample and capture execution status and errors.
     
     Args:
-        sample: Dictionary containing 'id', 'code', 'complexity_label', etc.
-        timeout: Execution timeout in seconds.
+        sample: Dictionary containing 'code' (the generated code) and metadata
+        timeout: Maximum execution time in seconds
         
     Returns:
-        Dictionary with execution results including status, error type, and logs.
+        Dictionary with execution results including status, error types, and logs
     """
-    logger = get_logger("execution.runner")
-    
-    sample_id = sample.get('id', 'unknown')
     code = sample.get('code', '')
+    sample_id = sample.get('sample_id', 'unknown')
     complexity_label = sample.get('complexity_label', 'unknown')
+    problem_id = sample.get('problem_id', 'unknown')
     
-    logger.info(f"Executing sample {sample_id} (complexity: {complexity_label})")
+    logger.info(f"Executing sample {sample_id} (Complexity: {complexity_label})")
     
     try:
         success, stdout, stderr, error_type = run_code_with_timeout(code, timeout)
         
         if success:
-            status = ExecutionStatus.PASS.value
-            logger.info(f"Sample {sample_id} executed successfully.")
+            status = ExecutionStatus.PASS
+            error_message = None
+            logger.info(f"Sample {sample_id} executed successfully")
         else:
-            # Mark as failed based on error type
-            status = ExecutionStatus.FAIL.value
-            logger.warning(f"Sample {sample_id} failed: {error_type}")
-            
+            if error_type == "Timeout":
+                status = ExecutionStatus.FAIL
+                error_message = f"Execution timed out after {timeout} seconds"
+                logger.warning(f"Sample {sample_id} timed out")
+            elif error_type == "SyntaxError":
+                status = ExecutionStatus.FAIL
+                error_message = f"Syntax error: {stderr}"
+                logger.error(f"Sample {sample_id} failed with syntax error: {stderr[:200]}")
+            elif error_type == "RuntimeError":
+                status = ExecutionStatus.FAIL
+                error_message = f"Runtime error: {stderr}"
+                logger.error(f"Sample {sample_id} failed with runtime error: {stderr[:200]}")
+            else:
+                status = ExecutionStatus.FAIL
+                error_message = f"Unknown error: {stderr}"
+                logger.error(f"Sample {sample_id} failed with unknown error: {stderr[:200]}")
+        
         return {
-            'id': sample_id,
+            'sample_id': sample_id,
+            'problem_id': problem_id,
             'complexity_label': complexity_label,
-            'status': status,
-            'error_type': error_type,
+            'status': status.value,
+            'error_type': error_type if not success else None,
+            'error_message': error_message,
             'stdout': stdout,
             'stderr': stderr,
-            'execution_time': None, # Could be tracked if needed
-            'timestamp': datetime.now().isoformat()
+            'execution_time': timeout if error_type == "Timeout" else None
         }
         
     except Exception as e:
-        # Catch-all for any unexpected errors during execution logic
-        logger.exception(f"Critical error executing sample {sample_id}: {str(e)}")
+        # Catch-all for unexpected exceptions during execution
+        logger.exception(f"Unexpected error executing sample {sample_id}: {e}")
         return {
-            'id': sample_id,
+            'sample_id': sample_id,
+            'problem_id': problem_id,
             'complexity_label': complexity_label,
             'status': ExecutionStatus.FAIL.value,
-            'error_type': 'CriticalExecutionError',
-            'stdout': '',
-            'stderr': str(e),
-            'execution_time': None,
-            'timestamp': datetime.now().isoformat()
+            'error_type': 'SystemError',
+            'error_message': str(e),
+            'stdout': None,
+            'stderr': traceback.format_exc(),
+            'execution_time': None
         }
 
-def run_batch_execution(samples: List[Dict[str, Any]], timeout: int = DEFAULT_TIMEOUT_SECONDS) -> List[Dict[str, Any]]:
+def run_batch_execution(samples: List[Dict[str, Any]], timeout: float = 5.0) -> List[Dict[str, Any]]:
     """
-    Executes a batch of generated code samples.
+    Execute a batch of code samples with exception handling for each.
     
     Args:
-        samples: List of dictionaries containing code samples.
-        timeout: Execution timeout in seconds per sample.
+        samples: List of dictionaries containing code and metadata
+        timeout: Maximum execution time per sample
         
     Returns:
-        List of execution result dictionaries.
+        List of execution result dictionaries
     """
-    logger = get_logger("execution.runner")
     logger.info(f"Starting batch execution of {len(samples)} samples")
-    
     results = []
+    
     for i, sample in enumerate(samples):
         logger.debug(f"Processing sample {i+1}/{len(samples)}")
         result = execute_sample(sample, timeout)
         results.append(result)
         
-    logger.info(f"Batch execution completed. {len(results)} results generated.")
+        # Log progress
+        if (i + 1) % 10 == 0:
+            logger.info(f"Completed {i+1}/{len(samples)} samples")
+    
+    # Log summary
+    success_count = sum(1 for r in results if r['status'] == ExecutionStatus.PASS.value)
+    fail_count = len(results) - success_count
+    logger.info(f"Batch execution complete: {success_count} passed, {fail_count} failed")
+    
     return results
 
 def main():
-    """
-    Main entry point for testing the runner module.
-    This function demonstrates exception handling by running a sample with a syntax error
-    and a sample that times out.
-    """
-    logger = setup_structured_logger("runner_test")
-    logger.info("Starting runner.py test suite")
+    """Main entry point for testing the execution runner."""
+    # Example usage
+    test_samples = [
+        {
+            'sample_id': 'test_001',
+            'problem_id': 'human_eval_001',
+            'complexity_label': 'simple',
+            'code': 'def add(a, b): return a + b\nprint(add(2, 3))'
+        },
+        {
+            'sample_id': 'test_002',
+            'problem_id': 'human_eval_002',
+            'complexity_label': 'moderate',
+            'code': 'def multiply(a, b): return a * b\nprint(multiply(4, 5))'
+        },
+        {
+            'sample_id': 'test_003',
+            'problem_id': 'human_eval_003',
+            'complexity_label': 'complex',
+            'code': 'def divide(a, b):\n    if b == 0:\n        raise ValueError("Cannot divide by zero")\n    return a / b\nprint(divide(10, 2))'
+        },
+        {
+            'sample_id': 'test_004',
+            'problem_id': 'human_eval_004',
+            'complexity_label': 'very_complex',
+            'code': 'def invalid_syntax\n    print("This is invalid")'  # Intentional syntax error
+        },
+        {
+            'sample_id': 'test_005',
+            'problem_id': 'human_eval_005',
+            'complexity_label': 'degenerate',
+            'code': 'import time\ntime.sleep(10)\nprint("Done")'  # Intentional timeout
+        }
+    ]
     
-    # Test Case 1: Syntax Error
-    syntax_error_sample = {
-        'id': 'test_syntax_error',
-        'code': 'def broken(\n    print("missing parenthesis"', # Intentional syntax error
-        'complexity_label': 'simple'
-    }
+    results = run_batch_execution(test_samples, timeout=2.0)
     
-    result1 = execute_sample(syntax_error_sample, timeout=5)
-    logger.info(f"Syntax Error Test Result: {result1['status']}, Error Type: {result1['error_type']}")
-    assert result1['status'] == ExecutionStatus.FAIL.value, "Syntax error should result in FAIL status"
-    assert result1['error_type'] == 'SyntaxError', "Error type should be classified as SyntaxError"
-    
-    # Test Case 2: Timeout
-    timeout_sample = {
-        'id': 'test_timeout',
-        'code': 'import time\nwhile True:\n    time.sleep(1)', # Infinite loop
-        'complexity_label': 'moderate'
-    }
-    
-    result2 = execute_sample(timeout_sample, timeout=2) # Set short timeout
-    logger.info(f"Timeout Test Result: {result2['status']}, Error Type: {result2['error_type']}")
-    assert result2['status'] == ExecutionStatus.FAIL.value, "Timeout should result in FAIL status"
-    assert result2['error_type'] == 'TimeoutError', "Error type should be classified as TimeoutError"
-    
-    # Test Case 3: Successful Execution
-    success_sample = {
-        'id': 'test_success',
-        'code': 'print("Hello, World!")',
-        'complexity_label': 'simple'
-    }
-    
-    result3 = execute_sample(success_sample, timeout=5)
-    logger.info(f"Success Test Result: {result3['status']}")
-    assert result3['status'] == ExecutionStatus.PASS.value, "Successful code should result in PASS status"
-    
-    logger.info("All tests passed.")
+    # Print results
+    for result in results:
+        print(f"\nSample: {result['sample_id']}")
+        print(f"Status: {result['status']}")
+        if result['error_type']:
+            print(f"Error Type: {result['error_type']}")
+            print(f"Error Message: {result['error_message']}")
+        print("-" * 50)
 
 if __name__ == "__main__":
     main()

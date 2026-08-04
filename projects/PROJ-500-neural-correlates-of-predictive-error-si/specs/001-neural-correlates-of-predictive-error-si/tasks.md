@@ -102,7 +102,7 @@
 
 - [X] T014 [US1] Implement streaming data downloader in `src/data/ingest.py` (chunked buffering, delete raw files post-processing, FR-001, FR-009)
 - [X] T015 [US1] Implement preprocessing module in `src/data/preprocess.py` (–40 Hz bandpass, ICA artifact removal, bad channel interpolation) (FR-002)
-- [ ] T016 [US1] Implement artifact rejection logic (trial count loss ≤ 5%) and underpowered dataset flagging (<20 subjects) in `src/data/preprocess.py`. **Deliverable**: Write excluded subject IDs to `data/excluded_subjects.csv` and update `data/validation_report.json` with `underpowered_subjects` list. Subjects are included in the dataset but EXCLUDED from the primary GLMM input (Constitution VII, Plan Phase 0.5).
+- [ ] T016 [US1] Implement artifact rejection logic (trial count loss ≤ 5%) and underpowered dataset flagging (<20 subjects) in `src/data/preprocess.py`. **Deliverable**: Write excluded subject IDs to `data/excluded_subjects.csv` and update `data/validation_report.json` with `underpowered_subjects` list. Subjects are included in the dataset but EXCLUDED from the primary GLMM input (Constitution VII, Plan Phase 0.5). <!-- FAILED: unspecified -->
 - [X] T017 [US1] Add reporting validation in `src/data/preprocess.py` to calculate and log topographic correlation improvement (ICA vs. raw) to `logs/preprocessing_report.json`. **Note**: This is a "soft" check for reporting only; do NOT block the pipeline if <20% (Plan overrides Spec US-1 Scenario 2).
 - [X] T018 [US1] Implement epoching logic in `src/data/preprocess.py` (-200ms to 500ms, standard/deviant separation based on metadata) (FR-003)
 
@@ -142,8 +142,8 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T027 [P] [US3] Contract test for model_output schema in `tests/contract/test_schemas.py`
-- [ ] T028 [P] [US3] Unit test for permutation test implementation in `tests/unit/test_model.py`. **Verification**: Must verify that the permutation test includes a logic check for sufficiency (e.g., stability of p-value with increasing n) or dynamically adjusts n based on dataset size.
+- [X] T027 [P] [US3] Contract test for model_output schema in `tests/contract/test_schemas.py`
+- [X] T028 [P] [US3] Unit test for permutation test implementation in `tests/unit/test_model.py`. **Verification**: Must verify that the permutation test includes a logic check for sufficiency (e.g., stability of p-value with increasing n) or dynamically adjusts n based on dataset size.
 
 ### Implementation for User Story 3
 

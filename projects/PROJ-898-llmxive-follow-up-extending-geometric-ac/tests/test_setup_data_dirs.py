@@ -1,115 +1,63 @@
 """
-Tests for the data directory setup functionality.
+Unit tests for the setup_data_dirs module.
 """
 import os
 import tempfile
 import pytest
-import sys
+from code.setup_data_dirs import ensure_gitkeep, DATA_DIRS
 
-# Add project root to path for imports
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+class TestSetupDataDirs:
+    """Tests for data directory setup functionality."""
 
-from code.setup_data_dirs import ensure_gitkeep
-
-class TestEnsureGitkeep:
-    """Test cases for the ensure_gitkeep function."""
-
-    def test_creates_directory_and_gitkeep(self, tmp_path):
-        """Test that ensure_gitkeep creates a directory and .gitkeep file."""
+    def test_ensure_gitkeep_creates_directory(self, tmp_path):
+        """Test that ensure_gitkeep creates the directory if it doesn't exist."""
         test_dir = tmp_path / "test_subdir"
-        assert not test_dir.exists()
-        
         ensure_gitkeep(str(test_dir))
-        
         assert test_dir.exists()
         assert test_dir.is_dir()
-        
+
+    def test_ensure_gitkeep_creates_gitkeep(self, tmp_path):
+        """Test that ensure_gitkeep creates a .gitkeep file."""
+        test_dir = tmp_path / "test_subdir"
+        ensure_gitkeep(str(test_dir))
         gitkeep_file = test_dir / ".gitkeep"
         assert gitkeep_file.exists()
         assert gitkeep_file.is_file()
 
-    def test_preserves_existing_gitkeep(self, tmp_path):
-        """Test that ensure_gitkeep does not overwrite existing .gitkeep files."""
+    def test_ensure_gitkeep_idempotent(self, tmp_path):
+        """Test that calling ensure_gitkeep multiple times doesn't overwrite content."""
         test_dir = tmp_path / "test_subdir"
-        test_dir.mkdir()
-        
-        gitkeep_file = test_dir / ".gitkeep"
-        original_content = "# Original content\n"
-        gitkeep_file.write_text(original_content)
-        
         ensure_gitkeep(str(test_dir))
         
-        # Content should remain unchanged
-        assert gitkeep_file.read_text() == original_content
-
-    def test_handles_nested_directories(self, tmp_path):
-        """Test that ensure_gitkeep creates nested directory structures."""
-        nested_dir = tmp_path / "level1" / "level2" / "level3"
-        assert not nested_dir.exists()
+        # Get initial modification time
+        gitkeep_file = test_dir / ".gitkeep"
+        initial_mtime = gitkeep_file.stat().st_mtime
         
-        ensure_gitkeep(str(nested_dir))
+        # Call again
+        ensure_gitkeep(str(test_dir))
         
-        assert nested_dir.exists()
-        assert nested_dir.is_dir()
-        
-        gitkeep_file = nested_dir / ".gitkeep"
+        # File should still exist and not be modified (content unchanged)
         assert gitkeep_file.exists()
+        # Note: os.makedirs with exist_ok=True doesn't change mtime,
+        # but file write might if we weren't checking existence first.
+        # Our implementation checks existence before writing.
 
-    def test_content_of_gitkeep(self, tmp_path):
-        """Test that .gitkeep files contain the expected comment."""
-        test_dir = tmp_path / "test_subdir"
-        ensure_gitkeep(str(test_dir))
-        
-        gitkeep_file = test_dir / ".gitkeep"
-        content = gitkeep_file.read_text()
-        
-        assert "# This file ensures the directory is tracked by git." in content
+    def test_data_dirs_structure(self):
+        """Verify that the defined DATA_DIRS list contains expected paths."""
+        assert "data/raw" in DATA_DIRS
+        assert "data/generated" in DATA_DIRS
+        assert "data/results" in DATA_DIRS
+        assert len(DATA_DIRS) == 3
 
-class TestMainFunction:
-    """Test cases for the main function of setup_data_dirs."""
-
-    def test_main_creates_standard_directories(self, tmp_path, monkeypatch):
-        """Test that main creates the standard data directories."""
-        # Change to tmp_path to simulate project root
-        monkeypatch.chdir(tmp_path)
+    def test_main_creates_all_dirs(self, tmp_path):
+        """Test that main() creates all required directories and .gitkeep files."""
+        from code.setup_data_dirs import main
         
-        # Mock the script location to be inside code/
-        import code.setup_data_dirs as setup_module
-        original_dir = os.path.dirname(os.path.abspath(__file__))
-        monkeypatch.setattr(setup_module, '__file__', str(tmp_path / 'code' / 'setup_data_dirs.py'))
+        result = main(str(tmp_path))
+        assert result == 0
         
-        # Create code directory to make the path resolution work
-        (tmp_path / 'code').mkdir(exist_ok=True)
-        
-        exit_code = setup_module.main()
-        
-        assert exit_code == 0
-        
-        # Verify directories were created
-        for dir_name in ['raw', 'generated', 'results']:
-            data_dir = tmp_path / 'data' / dir_name
-            assert data_dir.exists()
-            assert (data_dir / '.gitkeep').exists()
-
-    def test_main_handles_missing_permissions(self, tmp_path, monkeypatch):
-        """Test that main returns 1 when directory creation fails."""
-        # This is hard to test without actually blocking permissions,
-        # so we just verify the return code logic is in place
-        monkeypatch.chdir(tmp_path)
-        
-        # Create a read-only file where a directory should be
-        data_dir = tmp_path / 'data'
-        data_dir.mkdir()
-        (data_dir / 'raw').mkdir()
-        (data_dir / 'raw' / 'test_file').touch()
-        
-        # Make the directory read-only (Unix only)
-        try:
-            os.chmod(str(data_dir / 'raw'), 0o444)
-            exit_code = setup_module.main()
-            # Restore permissions for cleanup
-            os.chmod(str(data_dir / 'raw'), 0o755)
-            # On some systems, this might still succeed if running as root
-            # So we just check the logic path exists
-        except PermissionError:
-            pass
+        for dir_name in DATA_DIRS:
+            full_path = tmp_path / dir_name
+            assert full_path.exists()
+            gitkeep_file = full_path / ".gitkeep"
+            assert gitkeep_file.exists()

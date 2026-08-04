@@ -1,3 +1,11 @@
+"""
+Artifact versioning utility for tracking project state and generating checksums.
+
+This module provides functions to:
+1. Compute SHA-256 checksums for data artifacts
+2. Maintain a versioned state file in state/projects/
+3. Update the project manifest after data generation
+"""
 import os
 import yaml
 import hashlib
@@ -13,162 +21,183 @@ logger = get_logger(__name__)
 
 def get_state_file_path() -> Path:
     """
-    Derives the state file path from the project ID.
-    Returns: Path to the project's state YAML file.
+    Derive the state file path from the project ID.
+    
+    Returns:
+        Path to the project's YAML state file in state/projects/
     """
     project_id = get_project_id()
-    if not project_id:
-        raise ValueError("Project ID could not be determined from configuration.")
-    
     # Ensure the directory exists
-    state_dir = Paths.state / "projects"
+    state_dir = Paths.STATE_DIR / "projects"
     state_dir.mkdir(parents=True, exist_ok=True)
     
+    # The filename is derived directly from the project ID
     filename = f"{project_id}.yaml"
     return state_dir / filename
 
 
-def load_state_file(path: Optional[Path] = None) -> Dict[str, Any]:
+def load_state_file() -> Dict[str, Any]:
     """
-    Loads the state file if it exists, otherwise returns an empty structure.
-    """
-    if path is None:
-        path = get_state_file_path()
+    Load the existing state file or create a new one if it doesn't exist.
     
-    if not path.exists():
-        logger.info(f"State file {path} does not exist. Initializing new state.")
-        return {
+    Returns:
+        Dictionary containing the project state
+    """
+    state_path = get_state_file_path()
+    
+    if state_path.exists():
+        with open(state_path, 'r', encoding='utf-8') as f:
+            state = yaml.safe_load(f) or {}
+    else:
+        # Initialize a new state file
+        state = {
             "project_id": get_project_id(),
             "created_at": datetime.utcnow().isoformat(),
             "updated_at": None,
             "artifacts": {},
-            "checksums": {}
+            "metadata": {}
         }
     
-    with open(path, 'r', encoding='utf-8') as f:
-        data = yaml.safe_load(f)
-        if data is None:
-            return {}
-        return data
+    return state
 
 
 def compute_artifact_checksums(artifact_paths: List[Path]) -> Dict[str, str]:
     """
-    Computes SHA-256 checksums for a list of artifact paths.
-    Returns a dict mapping relative path string to checksum hex.
+    Compute SHA-256 checksums for a list of artifact files.
+    
+    Args:
+        artifact_paths: List of paths to artifacts to checksum
+        
+    Returns:
+        Dictionary mapping relative paths to their SHA-256 hex digest
     """
     checksums = {}
-    for p in artifact_paths:
-        if not p.exists():
-            logger.warning(f"Artifact path does not exist for checksum: {p}")
+    
+    for artifact_path in artifact_paths:
+        if not artifact_path.exists():
+            logger.warning(f"Artifact not found, skipping checksum: {artifact_path}")
             continue
         
-        sha256_hash = hashlib.sha256()
-        with open(p, "rb") as f:
-            for byte_block in iter(lambda: f.read(4096), b""):
-                sha256_hash.update(byte_block)
-        
-        # Store relative path for portability
+        # Calculate relative path from project root for storage
         try:
-            rel_path = p.relative_to(Paths.root)
+            rel_path = str(artifact_path.relative_to(Paths.PROJECT_ROOT))
         except ValueError:
-            rel_path = p.name
+            # If not under project root, use absolute path
+            rel_path = str(artifact_path)
         
-        checksums[str(rel_path)] = sha256_hash.hexdigest()
+        # Compute SHA-256
+        sha256_hash = hashlib.sha256()
+        with open(artifact_path, "rb") as f:
+            for chunk in iter(lambda: f.read(8192), b""):
+                sha256_hash.update(chunk)
+        
+        checksums[rel_path] = sha256_hash.hexdigest()
+        logger.info(f"Computed checksum for {rel_path}: {checksums[rel_path][:16]}...")
     
     return checksums
 
 
-def update_state_file(state: Dict[str, Any], path: Optional[Path] = None) -> None:
+def update_state_file(state: Dict[str, Any], new_artifacts: Dict[str, str], 
+                     metadata_updates: Optional[Dict[str, Any]] = None) -> None:
     """
-    Writes the state dictionary to the YAML file.
-    Updates the 'updated_at' timestamp.
-    """
-    if path is None:
-        path = get_state_file_path()
-    
-    state["updated_at"] = datetime.utcnow().isoformat()
-    
-    with open(path, 'w', encoding='utf-8') as f:
-        yaml.dump(state, f, default_flow_style=False, sort_keys=False)
-    
-    logger.info(f"State file updated: {path}")
-
-
-def record_data_generation_state(
-    artifact_paths: List[Path],
-    metadata: Optional[Dict[str, Any]] = None
-) -> None:
-    """
-    Main utility to update the project state after data generation.
-    
-    1. Loads existing state.
-    2. Computes checksums for provided artifact paths.
-    3. Updates the 'artifacts' and 'checksums' sections.
-    4. Saves the updated state file derived from the project ID.
+    Update the state file with new artifact checksums and metadata.
     
     Args:
-        artifact_paths: List of Path objects pointing to generated artifacts (e.g., parquet, csv).
-        metadata: Optional dict of extra metadata to store in the state (e.g., generation config).
+        state: Current state dictionary
+        new_artifacts: Dictionary of new artifact paths -> checksums
+        metadata_updates: Optional dictionary of metadata fields to update
     """
-    state = load_state_file()
+    state["updated_at"] = datetime.utcnow().isoformat()
     
-    # Ensure structure exists
+    # Merge new artifacts
     if "artifacts" not in state:
         state["artifacts"] = {}
-    if "checksums" not in state:
-        state["checksums"] = {}
+    state["artifacts"].update(new_artifacts)
     
-    # Update metadata if provided
-    if metadata:
+    # Apply metadata updates
+    if metadata_updates:
         if "metadata" not in state:
             state["metadata"] = {}
-        state["metadata"].update(metadata)
+        state["metadata"].update(metadata_updates)
     
-    # Compute new checksums
+    # Write back to file
+    state_path = get_state_file_path()
+    with open(state_path, 'w', encoding='utf-8') as f:
+        yaml.dump(state, f, default_flow_style=False, sort_keys=False, allow_unicode=True)
+    
+    logger.info(f"Updated state file: {state_path}")
+
+
+def record_data_generation_state(artifact_paths: List[Path], 
+                                 metadata: Optional[Dict[str, Any]] = None) -> None:
+    """
+    Record the state after data generation by checksumming artifacts and updating the manifest.
+    
+    This is the primary entry point for T009. It:
+    1. Loads the current state file (or creates a new one)
+    2. Computes checksums for all provided artifact paths
+    3. Updates the state file with the new checksums and metadata
+    
+    Args:
+        artifact_paths: List of paths to data artifacts generated in this run
+        metadata: Optional metadata to record (e.g., generation timestamp, config hash)
+    """
+    logger.info("Recording data generation state...")
+    
+    # Load current state
+    state = load_state_file()
+    
+    # Compute checksums
     new_checksums = compute_artifact_checksums(artifact_paths)
     
-    # Update state with new checksums (overwriting old ones for same paths)
-    state["checksums"].update(new_checksums)
+    if not new_checksums:
+        logger.warning("No artifacts were checksummed. State file may not be updated with new data.")
     
-    # Record artifact info
-    for p in artifact_paths:
-        if p.exists():
-            try:
-                rel_path = str(p.relative_to(Paths.root))
-            except ValueError:
-                rel_path = str(p)
-            
-            state["artifacts"][rel_path] = {
-                "size_bytes": p.stat().st_size,
-                "last_modified": datetime.fromtimestamp(p.stat().st_mtime).isoformat(),
-                "checksum": new_checksums.get(rel_path, "unknown")
-            }
+    # Prepare metadata
+    metadata_updates = metadata or {}
+    metadata_updates["last_data_generation"] = datetime.utcnow().isoformat()
+    metadata_updates["artifact_count"] = len(new_checksums)
     
-    update_state_file(state)
+    # Update and save state
+    update_state_file(state, new_checksums, metadata_updates)
+    
+    logger.info(f"Successfully recorded state for {len(new_checksums)} artifacts.")
 
-
-def main() -> None:
+def main():
     """
-    Entry point for command-line usage.
-    Usage: python -m utils.versioning [artifact_path1] [artifact_path2] ...
+    CLI entry point for the versioning utility.
+    
+    Usage:
+        python -m utils.versioning --artifacts data/processed/prompt_variants.parquet data/results/execution_outcomes.csv
     """
-    import sys
+    import argparse
     
-    if len(sys.argv) < 2:
-        print("Usage: python -m utils.versioning <path/to/artifact1> [path/to/artifact2] ...")
-        sys.exit(1)
+    parser = argparse.ArgumentParser(description="Record artifact state for versioning")
+    parser.add_argument(
+        "--artifacts", 
+        nargs="+", 
+        required=True,
+        help="List of artifact paths to checksum and record"
+    )
+    parser.add_argument(
+        "--metadata-json",
+        type=str,
+        default=None,
+        help="Optional JSON string of metadata to record"
+    )
     
-    paths = [Path(p) for p in sys.argv[1:]]
-    missing = [p for p in paths if not p.exists()]
-    if missing:
-        print(f"Error: The following paths do not exist: {missing}")
-        sys.exit(1)
+    args = parser.parse_args()
     
-    logger.info(f"Recording state for artifacts: {paths}")
-    record_data_generation_state(paths, metadata={"source": "cli"})
-    print("State updated successfully.")
-
+    # Convert string paths to Path objects
+    artifact_paths = [Path(p) for p in args.artifacts]
+    
+    # Parse metadata if provided
+    metadata = None
+    if args.metadata_json:
+        import json
+        metadata = json.loads(args.metadata_json)
+    
+    record_data_generation_state(artifact_paths, metadata)
 
 if __name__ == "__main__":
     main()

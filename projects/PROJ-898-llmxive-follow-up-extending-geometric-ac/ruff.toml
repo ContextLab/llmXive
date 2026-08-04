@@ -1,24 +1,69 @@
-[lint]
-select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # Pyflakes
-    "I",  # isort
-    "B",  # flake8-bugbear
-    "C4", # flake8-comprehensions
-    "UP", # pyupgrade
-]
-ignore = [
-    "E501", # Line too long (handled by black)
-    "B008", # Do not perform function call in argument defaults (common in dataclasses)
-]
-
-[lint.isort]
-known-first-party = ["code"]
-force-single-line = true
+# Ruff configuration for llmXive project
+# Matches black formatting standards
 
 [format]
+# Use black-compatible formatting
 quote-style = "double"
 indent-style = "space"
 skip-magic-trailing-comma = false
 line-ending = "auto"
+
+[lint]
+# Enable pycodestyle (E), pyflakes (F), and isort (I) rules
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "C90", # mccabe complexity
+    "UP",  # pyupgrade
+    "N",   # pep8-naming
+    "D",   # pydocstyle (disabled most rules below)
+    "ARG", # flake8-unused-arguments
+    "B",   # flake8-bugbear
+]
+
+# Ignore specific rules that conflict with project style
+ignore = [
+    "D100", # Missing docstring in public module
+    "D101", # Missing docstring in public class
+    "D102", # Missing docstring in public method
+    "D103", # Missing docstring in public function
+    "D104", # Missing docstring in public package
+    "D105", # Missing docstring in magic method
+    "D203", # 1 blank line required before class docstring (conflicts with D211)
+    "D213", # Multi-line docstring summary should start at the second line (conflicts with D212)
+    "D401", # First line should be in imperative mood (too strict)
+]
+
+# Allow long lines up to black's default (88)
+line-length = 88
+
+[lint.isort]
+# Match black's import sorting
+known-first-party = ["code"]
+known-third-party = [
+    "numpy",
+    "pandas",
+    "pytest",
+    "torch",
+    "cvxpy",
+    "diffcp",
+    "scipy",
+    "pybullet",
+    "yaml",
+    "cvxpylayers",
+    "lifelines",
+]
+force-sort-within-sections = true
+lines-after-imports = 2
+
+[lint.per-file-ignores]
+# Ignore docstring requirements in test files
+"tests/**" = ["D", "ARG"]
+# Ignore unused imports in __init__.py
+"**/__init__.py" = ["F401"]
+
+[lint.mccabe]
+# Maximum cyclomatic complexity
+max-complexity = 15

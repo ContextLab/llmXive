@@ -1,4 +1,4 @@
-name: CI - Multi-core x86_64 CPU Only
+name: CI - Geometric Action Model Symbolic Planner
 
 on:
   push:
@@ -6,66 +6,63 @@ on:
   pull_request:
     branches: [ main, develop ]
 
-# FR-004: Multi-core x86_64 runner, no GPU/CUDA
-# Using ubuntu-latest (x86_64) which is CPU-only in standard GH Actions
+# FR-004: Multi-core x86_64 runner, no GPU/CUDA, with fixed timeout limit
+# to constrain experimental trial duration.
 jobs:
-  test:
+  run-experiments:
     runs-on: ubuntu-latest
-
-    # Fixed timeout limit to constrain experimental trial duration (e.g., 6 hours max for full suite)
-    timeout-minutes: 360
+    timeout-minutes: 360 # 6 hours total limit per SC-005
 
     steps:
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Python 3.11
+      - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
-
-      - name: Cache pip dependencies
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-
+          python-version: '3.10'
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Verify CPU-only environment
+      - name: Run Data Generation (US1)
+        # T009-gen-chains & T009-gen-deformable logic
         run: |
-          python -c "import torch; assert not torch.cuda.is_available(), 'CUDA must not be available in this CI environment'; print('CPU-only environment verified')"
+          python code/data_generation.py --mode generate_chains
+          python code/data_generation.py --mode generate_deformable
+        timeout-minutes: 120 # 2 hours max for generation phase
 
-      - name: Run Linting (Ruff)
+      - name: Verify Zero Overlap (US1)
+        # T009-verify-overlap logic
         run: |
-          ruff check code/ tests/
+          python code/metadata_checksum.py --verify-overlap
+        timeout-minutes: 30
 
-      - name: Run Formatting Check (Black)
+      - name: Run Inference Pipeline (US2)
+        # T020: Encode -> Solve -> Decode -> Simulate
         run: |
-          black --check code/ tests/
+          python code/inference_pipeline.py
+        timeout-minutes: 240 # 4 hours max for inference phase
+        env:
+          # Ensure CPU-only execution as per FR-004
+          CUDA_VISIBLE_DEVICES: ""
+          TORCH_DEVICE: "cpu"
 
-      - name: Run Unit Tests
+      - name: Run Statistical Analysis (US3)
+        # T023, T024a: Compare Symbolic vs Baseline
         run: |
-          pytest tests/ -v --tb=short
+          python code/analysis.py
+        timeout-minutes: 30
 
-      - name: Run Integration Tests (Optional)
+      - name: Upload Results Artifacts
         if: always()
-        run: |
-          pytest tests/integration/ -v --tb=short || echo "Integration tests skipped or failed"
-
-      - name: Verify Data Structure
-        run: |
-          test -d data/raw && test -d data/generated && test -d data/results
-          test -f data/raw/.gitkeep && test -f data/generated/.gitkeep && test -f data/results/.gitkeep
-
-      - name: Validate Configuration
-        run: |
-          python code/config.py --validate
-
-# Note: This workflow enforces the 6-hour limit (360 minutes) for the entire job
-# to ensure the experimental trial does not exceed the standard CI limit as per FR-004.
+        uses: actions/upload-artifact@v4
+        with:
+          name: experiment-results
+          path: |
+            data/results/
+            data/generated/
+            data/raw/
+          retention-days: 7

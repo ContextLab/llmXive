@@ -1,78 +1,132 @@
-$schema: "http://json-schema.org/draft-07/schema#"
+$schema: http://json-schema.org/draft-07/schema#
 title: Model Output Schema
-description: Schema for statistical model output
+description: >
+  Schema for the statistical modeling results from the Gaussian LME
+  analysis, including coefficients, p-values, and robustness metrics.
 type: object
-properties:
-  model_type:
-    type: string
-    description: Type of model used (e.g., Gaussian LME)
-  formula:
-    type: string
-    description: Model formula
-  coefficients:
-    type: object
-    description: Model coefficients
-    additionalProperties:
-      type: object
-      properties:
-        estimate:
-          type: number
-        std_error:
-          type: number
-        t_value:
-          type: number
-        p_value:
-          type: number
-        p_value_corrected:
-          type: number
-  model_fit:
-    type: object
-    description: Model fit statistics
-    properties:
-      aic:
-        type: number
-      bic:
-        type: number
-      log_likelihood:
-        type: number
-  permutation_test:
-    type: object
-    description: Permutation test results
-    properties:
-      n_permutations:
-        type: integer
-      p_value:
-        type: number
-      observed_stat:
-        type: number
-      null_distribution:
-        type: array
-        items:
-          type: number
-  robustness:
-    type: object
-    description: Sensitivity analysis results
-    properties:
-      time_window_sweep:
-        type: array
-        items:
-          type: object
-          properties:
-            window_start:
-              type: number
-            window_end:
-              type: number
-            coefficient:
-              type: number
-            p_value:
-              type: number
-  timestamp:
-    type: string
-    format: date-time
-    description: Timestamp of model execution
 required:
   - model_type
   - formula
   - coefficients
-  - model_fit
-  - timestamp
+  - p_values
+  - permutation_test
+  - robustness_analysis
+  - metadata
+properties:
+  model_type:
+    type: string
+    const: Gaussian LME
+    description: The type of statistical model fitted.
+  formula:
+    type: string
+    description: The R-style formula used for the model (e.g., MMN ~ Accuracy + (1|Subject)).
+  coefficients:
+    type: object
+    description: Dictionary of model coefficients.
+    properties:
+      Intercept:
+        type: number
+      Accuracy:
+        type: number
+      Learning_Phase:
+        type: number
+    description: Estimated fixed effects coefficients.
+  standard_errors:
+    type: object
+    description: Standard errors for the coefficients.
+    properties:
+      Intercept:
+        type: number
+      Accuracy:
+        type: number
+      Learning_Phase:
+        type: number
+  p_values:
+    type: object
+    description: Raw and corrected p-values for the coefficients.
+    properties:
+      raw:
+        type: object
+        properties:
+          Intercept:
+            type: number
+          Accuracy:
+            type: number
+          Learning_Phase:
+            type: number
+      corrected:
+        type: object
+        description: P-values corrected using FDR (Benjamini-Hochberg).
+        properties:
+          Intercept:
+            type: number
+          Accuracy:
+            type: number
+          Learning_Phase:
+            type: number
+    required:
+      - raw
+      - corrected
+  permutation_test:
+    type: object
+    description: Results of the permutation test for significance validation.
+    properties:
+      n_permutations:
+        type: integer
+        minimum: 1
+      observed_statistic:
+        type: number
+      permuted_distribution:
+        type: array
+        items:
+          type: number
+        description: Array of statistics from permuted datasets.
+      p_value:
+        type: number
+        minimum: 0.0
+        maximum: 1.0
+      sufficiency_check:
+        type: string
+        description: >
+          Result of the logic check for sufficiency (e.g., "stable", "insufficient_samples").
+  robustness_analysis:
+    type: object
+    description: Results from the sensitivity analysis (time window sweep).
+    properties:
+      time_windows:
+        type: array
+        items:
+          type: object
+          properties:
+            window_start_ms:
+              type: integer
+            window_end_ms:
+              type: integer
+            coefficient:
+              type: number
+            p_value:
+              type: number
+      stability_metric:
+        type: number
+        description: A metric quantifying the stability of the effect across windows.
+  metadata:
+    type: object
+    description: Metadata about the analysis run.
+    properties:
+      run_timestamp:
+        type: string
+        format: date-time
+      data_version:
+        type: string
+      software_version:
+        type: string
+      subject_count:
+        type: integer
+      trial_count:
+        type: integer
+      analysis_mode:
+        type: string
+        enum:
+          - error_signal
+          - stimulus_driven
+additionalProperties: false

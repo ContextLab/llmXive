@@ -9,7 +9,7 @@
   verification_status: pending
   verified_against_url: https://json-schema.org/draft-07/schema
   verified_at: '2026-07-31T09:01:18.962858Z'
-- artifact_hash: 29d783ae156b16562e51d42584c3471058087cdc3338244049a66941665e8c57
+- artifact_hash: 53563eaabd5a560794bbaa3cc7ca039d067e269e289c04ba97f03c260987d6aa
   artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -19,8 +19,8 @@
   value: https://download.pytorch.org/whl/cpu`
   verification_status: pending
   verified_against_url: https://download.pytorch.org/whl/cpu
-  verified_at: '2026-08-03T06:37:03.205361Z'
-- artifact_hash: 29d783ae156b16562e51d42584c3471058087cdc3338244049a66941665e8c57
+  verified_at: '2026-08-04T01:12:46.105174Z'
+- artifact_hash: 53563eaabd5a560794bbaa3cc7ca039d067e269e289c04ba97f03c260987d6aa
   artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -30,4 +30,4 @@
   value: https://huggingface.co/datasets/llmXive/gam-baseline-stats/resolve/main/gam_reference_stats.json`
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/llmXive/gam-baseline-stats/resolve/main/gam_reference_stats.json
-  verified_at: '2026-08-03T06:37:03.205361Z'
+  verified_at: '2026-08-04T01:12:46.105174Z'

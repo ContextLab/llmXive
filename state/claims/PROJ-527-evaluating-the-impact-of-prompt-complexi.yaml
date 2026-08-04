@@ -276,3 +276,164 @@
   source_type: external
   status: verified
   updated_at: '2026-07-29T15:56:51Z'
+- artifact_path: projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/specs/001-evaluating-the-impact-of-prompt-complexi/tasks.md
+  attempts: 1
+  canonical: HumanEval dataset download URL
+  claim_id: c_a3b839e5
+  context: Implement `code/data/fetcher.py` to download HumanEval dataset from `https://huggingface.co/datasets/openai/human-eval`
+    with checksum verification.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/HumanEval_dataset_download_URL
+  kind: entity_fact
+  raw_text: The HumanEval dataset can be downloaded from https://huggingface.co/datasets/openai/human-eval
+    with checksum verification.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T00:55:18Z'
+- artifact_path: projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/specs/001-evaluating-the-impact-of-prompt-complexi/tasks.md
+  attempts: 1
+  canonical: Python version 3.11
+  claim_id: c_8d9b0942
+  context: 'Initialize Python 3.11 project with dependencies: `datasets`, `tiktoken`,
+    `scikit-learn`, `statsmodels`, `pandas`, `ruff`, `requests`, `pyyaml` in `requirements.txt`'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project will use Python 3.11.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T00:55:56Z'
+- artifact_path: projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/specs/001-evaluating-the-impact-of-prompt-complexi/tasks.md
+  attempts: 1
+  canonical: Prompt token count as covariate
+  claim_id: c_c8331612
+  context: Update FR-012 to mandate 'prompt token count' as the covariate for readability
+    metrics instead of 'code length' (aligning with Plan.md).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Prompt_token_count_as_covariate
+  kind: entity_fact
+  raw_text: The 'prompt token count' should be used as the covariate for readability
+    metrics.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T00:56:35Z'
+- artifact_path: projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/specs/001-evaluating-the-impact-of-prompt-complexi/tasks.md
+  attempts: 1
+  canonical: Use Linear Mixed Models
+  claim_id: c_9a136c44
+  context: Update FR-005 to mandate Linear Mixed Models (LMM) instead of ANOVA/Kruskal-Wallis
+    (aligning with Plan.md).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_Linear_Mixed_Models
+  kind: entity_fact
+  raw_text: Linear Mixed Models (LMM) will be used instead of ANOVA/Kruskal-Wallis.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T00:57:29Z'
+- artifact_path: projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/specs/001-evaluating-the-impact-of-prompt-complexi/tasks.md
+  attempts: 1
+  canonical: Simple prompt <= 50 tokens
+  claim_id: c_b1fd5a64
+  context: "Implement `code/prompts/tokenizer.py` using `tiktoken cl100k_base` to\
+    \ count prompt tokens and validate thresholds (simple \u226450, moderate 51-150,\
+    \ etc.)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The 'simple' prompt variant should have a token count \u2264 50."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T00:57:29Z'
+- artifact_path: projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/specs/001-evaluating-the-impact-of-prompt-complexi/tasks.md
+  attempts: 1
+  canonical: Moderate prompt 51-150 tokens
+  claim_id: c_4582d2ca
+  context: "Implement `code/prompts/tokenizer.py` using `tiktoken cl100k_base` to\
+    \ count prompt tokens and validate thresholds (simple \u226450, moderate 51-150,\
+    \ etc.)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The 'moderate' prompt variant should have a token count between 51 and
+    150.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T00:57:57Z'
+- artifact_path: projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/specs/001-evaluating-the-impact-of-prompt-complexi/tasks.md
+  attempts: 1
+  canonical: TikToken cl100k_base tokenizer
+  claim_id: c_fc8761f6
+  context: "Implement `code/prompts/tokenizer.py` using `tiktoken cl100k_base` to\
+    \ count prompt tokens and validate thresholds (simple \u226450, moderate 51-150,\
+    \ etc.)"
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/TikToken_cl100k_base_tokenizer
+  kind: entity_fact
+  raw_text: The project will use the `tiktoken cl100k_base` tokenizer.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T00:58:59Z'
+- artifact_path: projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/specs/001-evaluating-the-impact-of-prompt-complexi/tasks.md
+  attempts: 1
+  canonical: Multiple comparison correction (Bonferroni/Holm-Bonferroni)
+  claim_id: c_3f15adb9
+  context: "Implement multiple-comparison correction in `stats.py` using Bonferroni\
+    \ or Holm-Bonferroni with adjusted significance threshold (\u03B1 \u2264 0.05\
+    \ / number of tests)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Bonferroni or Holm-Bonferroni correction will be used with an adjusted\
+    \ significance threshold of \u03B1 \u2264 0.05 / number of tests."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T00:58:59Z'
+- artifact_path: projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/specs/001-evaluating-the-impact-of-prompt-complexi/tasks.md
+  attempts: 1
+  canonical: Pipeline runtime <= 6 hours
+  claim_id: c_920efd8b
+  context: "Performance optimization to ensure full pipeline runs within \u22646 hours\
+    \ on CPU (subset if necessary): Profile `main.py` and implement caching for LLM\
+    \ queries in `code/llm/client.py` to reduce runtime to \u22646 hours."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The project aims to run the full pipeline within \u22646 hours on CPU."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T00:59:00Z'

@@ -592,3 +592,268 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-03T06:24:08Z'
+- artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/tasks.md
+  attempts: 1
+  canonical: kinematic chains generated with hinge counts 3 to 10
+  claim_id: c_fe5af5ae
+  context: Implement code/data_generation.py logic to generate a diverse set of novel
+    kinematic chains (hinge counts 3-10 as defined by config.topology_counts (default
+    range(3, 11))) in PyBullet.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The task generates a diverse set of novel kinematic chains with hinge
+    counts 3-10.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T01:14:03Z'
+- artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/tasks.md
+  attempts: 1
+  canonical: deformable materials generated with stiffness range 0.1 to 0.5
+  claim_id: c_5610d8f3
+  context: Implement code/data_generation.py logic to generate a diverse set of deformable
+    materials (stiffness in range 0.1 to 0.5 as defined by config.stiffness_range
+    (default [0.1, 0.5])) in PyBullet.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The task generates a diverse set of deformable materials with stiffness
+    in the range 0.1 to 0.5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T01:14:47Z'
+- artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/tasks.md
+  attempts: 1
+  canonical: generate at least 50 unique topology IDs
+  claim_id: c_d39d853a
+  context: Generate chains until len(unique_topology_ids) >= 50 (combined with deformable)
+    or config.max_attempts (default 1000) is reached.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Generate_at_least_50_unique_topology_IDs
+  kind: magnitude
+  raw_text: The generation process targets a count of at least 50 unique topology
+    IDs.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T01:16:02Z'
+- artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/tasks.md
+  attempts: 1
+  canonical: default max_attempts is 1000
+  claim_id: c_bdbcbcd8
+  context: Generate chains until len(unique_topology_ids) >= 50 (combined with deformable)
+    or config.max_attempts (default 1000) is reached.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default maximum number of attempts for generation is 1000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T01:16:47Z'
+- artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/tasks.md
+  attempts: 1
+  canonical: default trial_count is 50
+  claim_id: c_614d4171
+  context: 'Create code/config.yaml defining experiment parameters: ... trial_count
+    (50) ...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default trial count is 50.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T01:17:26Z'
+- artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/tasks.md
+  attempts: 1
+  canonical: recovery exponential backoff initial 1 second
+  claim_id: c_97f9c8b9
+  context: 'recovery mechanism (retry with exponential backoff: initial=1s, multiplier=2,
+    max=5 retries)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The recovery mechanism uses exponential backoff with an initial retry
+    time of 1 second.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T01:17:51Z'
+- artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/tasks.md
+  attempts: 1
+  canonical: recovery max 5 retries
+  claim_id: c_f08f0896
+  context: 'recovery mechanism (retry with exponential backoff: initial=1s, multiplier=2,
+    max=5 retries)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The recovery mechanism allows a maximum of 5 retries.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T01:18:09Z'
+- artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/tasks.md
+  attempts: 1
+  canonical: decoder hallucination flag if MSE > 0.05
+  claim_id: c_1665c94b
+  context: 'Threshold: If MSE > 0.05, flag as ''Decoder Hallucination'' and exclude
+    from symbolic trials.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/decoder_hallucination_flag_if_MSE_%3E_0.05
+  kind: magnitude
+  raw_text: The decoder fidelity validation flags a 'Decoder Hallucination' if the
+    Mean Squared Error is greater than 0.05.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T01:19:02Z'
+- artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/tasks.md
+  attempts: 1
+  canonical: CI global time limit 6 hours
+  claim_id: c_634d1155
+  context: 'Implement global CI time limit check in code/inference_pipeline.py: monitor
+    total elapsed time; if > 6 hours, EXIT WITH CODE 2'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The CI pipeline enforces a global time limit of 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T01:19:54Z'
+- artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/tasks.md
+  attempts: 1
+  canonical: success metric distance to target < 5cm
+  claim_id: c_9c5b500c
+  context: assert collision_flag == 0 AND distance to target object center < 5cm (where
+    target_object_center is the centroid defined in config.target_zone)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/success_metric_distance_to_target_%3C_5cm
+  kind: entity_fact
+  raw_text: The success metric requires the object to be within 5cm of the target
+    center.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T01:20:47Z'
+- artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/tasks.md
+  attempts: 1
+  canonical: success metric duration at least 1 second
+  claim_id: c_87df38cc
+  context: for success_frames >= int(sim_fps) (approx 1 second) to set success=true.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Success_metric_duration_at_least_1_second
+  kind: magnitude
+  raw_text: The success metric requires the condition to hold for at least one second
+    of simulation frames.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T01:21:24Z'
+- artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/tasks.md
+  attempts: 1
+  canonical: reference data URL huggingface gam-baseline-stats
+  claim_id: c_5d69007c
+  context: Run Reference-Validator Agent on the URL https://huggingface.co/datasets/llmXive/gam-baseline-stats/resolve/main/gam_reference_stats.json
+    (defined in Spec Assumptions and Plan Phase 0.1) to verify it is the canonical
+    primary source.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Reference_data_URL_huggingface_gam-baseline-stats
+  kind: entity_fact
+  raw_text: The reference data is fetched from the URL https://huggingface.co/datasets/llmXive/gam-baseline-stats/resolve/main/gam_reference_stats.json.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T01:22:01Z'
+- artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/tasks.md
+  attempts: 1
+  canonical: Stratified Log-Rank test using lifelines
+  claim_id: c_815b6a7d
+  context: Perform Stratified Log-Rank test (using lifelines.statistics.logrank_test
+    with stratify='trial_id' to maintain pairing) and report Hazard Ratio/Cliff's
+    Delta.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Stratified_Log-Rank_test_using_lifelines
+  kind: entity_fact
+  raw_text: The task uses the lifelines library for the Stratified Log-Rank test.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T01:22:39Z'
+- artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/tasks.md
+  attempts: 1
+  canonical: Paired t-test using scipy.stats.ttest_rel
+  claim_id: c_996ee7cc
+  context: Perform Paired t-test (using scipy.stats.ttest_rel) and report mean difference,
+    p-value, and effect size (Cohen's d) with a confidence interval.
+  evidence:
+    entailment_evidence: ttest_rel
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Paired_t-test_using_scipy.stats.ttest_rel
+  kind: entity_fact
+  raw_text: The task uses scipy.stats.ttest_rel for the Paired t-test.
+  resolved_value: Paired t-test using scipy.stats.ttest_rel
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-04T01:22:41Z'
+- artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/tasks.md
+  attempts: 1
+  canonical: analysis reports 95% CI
+  claim_id: c_c295b6f6
+  context: 'Implement report generation logic in code/analysis.py to create data/results/analysis_report.md
+    as a Markdown table with columns: Metric, Symbolic, Baseline, Difference, P-value,
+    95% CI, Effect Size.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The analysis reports a 95% confidence interval.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T01:22:41Z'

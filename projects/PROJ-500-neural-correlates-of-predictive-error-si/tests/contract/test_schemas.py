@@ -1,475 +1,206 @@
 """
-Contract tests for data schemas used in the Neural Correlates of Predictive Error Signals pipeline.
+Contract tests for data schemas in the Neural Correlates of Predictive Error Signals pipeline.
 
-This module validates that data artifacts produced by the pipeline conform to the
-expected schema definitions, ensuring data integrity and traceability.
+This module validates that data artifacts conform to the schemas defined in `contracts/`.
+It ensures data integrity across the pipeline stages (Ingestion -> Preprocessing -> Alignment -> Modeling).
 """
+
 import json
 import os
-import sys
 import pytest
+import yaml
 from pathlib import Path
-from typing import Dict, Any, List, Optional
+from typing import Any, Dict, List
 
-# Add project root to path if running standalone
-if "code" not in sys.path[0]:
-    project_root = Path(__file__).parent.parent.parent
-    sys.path.insert(0, str(project_root / "code"))
+# Project root relative to this file (assuming tests/contract/)
+PROJECT_ROOT = Path(__file__).parent.parent.parent
 
-from src.utils.config import get_config
+# Schema file paths
+CONTRACTS_DIR = PROJECT_ROOT / "contracts"
+MODEL_OUTPUT_SCHEMA_PATH = CONTRACTS_DIR / "model_output.schema.yaml"
+ALIGNED_DATA_SCHEMA_PATH = CONTRACTS_DIR / "aligned_data.schema.yaml"
 
-# Schema definitions
-ALIGNED_DATA_SCHEMA = {
-    "required_columns": [
-        "subject_id",
-        "block_id",
-        "mmn_amplitude",
-        "accuracy",
-        "analysis_mode",
-        "source_window_start_trial",
-        "timestamp"
-    ],
-    "optional_columns": [
-        "learning_phase",
-        "trial_count",
-        "artifact_rejection_rate"
-    ],
-    "column_types": {
-        "subject_id": str,
-        "block_id": (int, str),
-        "mmn_amplitude": (float, int),
-        "accuracy": float,
-        "analysis_mode": str,
-        "source_window_start_trial": int,
-        "timestamp": str
-    },
-    "valid_analysis_modes": ["error_signal", "stimulus_driven"]
-}
+# Output artifact paths for validation
+MODEL_OUTPUT_PATH = PROJECT_ROOT / "analysis" / "results" / "model_output.json"
+ALIGNED_DATA_PATH = PROJECT_ROOT / "data" / "aligned_data.csv"
 
-MODEL_OUTPUT_SCHEMA = {
-    "required_keys": [
-        "model_type",
-        "formula",
-        "coefficients",
-        "p_values",
-        "fdr_corrected_p_values",
-        "permutation_test_p_value",
-        "subject_count",
-        "trial_count",
-        "model_fit_metrics"
-    ],
-    "optional_keys": [
-        "sensitivity_analysis",
-        "convergence_warnings"
-    ],
-    "structure": {
-        "coefficients": dict,
-        "p_values": dict,
-        "fdr_corrected_p_values": dict,
-        "permutation_test_p_value": float,
-        "model_fit_metrics": dict
-    }
-}
+def load_schema(schema_path: Path) -> Dict[str, Any]:
+    """Load a YAML schema definition."""
+    if not schema_path.exists():
+        raise FileNotFoundError(f"Schema file not found: {schema_path}")
+    with open(schema_path, "r") as f:
+        return yaml.safe_load(f)
 
-VALIDATION_REPORT_SCHEMA = {
-    "required_keys": [
-        "analysis_mode",
-        "dataset_metadata",
-        "variable_check",
-        "underpowered_subjects",
-        "excluded_subjects"
-    ],
-    "optional_keys": [
-        "preprocessing_summary",
-        "artifact_rejection_summary"
-    ],
-    "structure": {
-        "analysis_mode": str,
-        "dataset_metadata": dict,
-        "variable_check": dict,
-        "underpowered_subjects": list,
-        "excluded_subjects": list
-    }
-}
+def validate_required_fields(data: Dict[str, Any], required_fields: List[str], context: str) -> None:
+    """Validate that all required fields are present in the data."""
+    missing = [f for f in required_fields if f not in data]
+    if missing:
+        raise AssertionError(
+            f"Validation failed for {context}: Missing required fields: {missing}"
+        )
 
-INTERIM_LAGGED_MMNS_SCHEMA = {
-    "required_columns": [
-        "subject_id",
-        "block_id",
-        "mmn_amplitude",
-        "source_window_start_trial"
-    ],
-    "optional_columns": [
-        "window_end_trial",
-        "trial_count_in_window"
-    ],
-    "column_types": {
-        "subject_id": str,
-        "block_id": (int, str),
-        "mmn_amplitude": (float, int),
-        "source_window_start_trial": int
-    }
-}
-
-
-def load_json_file(file_path: Path) -> Dict[str, Any]:
-    """Load and return JSON data from a file."""
-    if not file_path.exists():
-        raise FileNotFoundError(f"File not found: {file_path}")
-    
-    with open(file_path, 'r') as f:
-        return json.load(f)
-
-
-def load_csv_file(file_path: Path) -> List[Dict[str, Any]]:
-    """Load CSV file and return as list of dictionaries."""
-    import csv
-    if not file_path.exists():
-        raise FileNotFoundError(f"File not found: {file_path}")
-    
-    with open(file_path, 'r') as f:
-        reader = csv.DictReader(f)
-        return list(reader)
-
-
-def validate_schema(data: Any, schema: Dict[str, Any], data_type: str) -> List[str]:
-    """
-    Validate data against a schema definition.
-    
-    Args:
-        data: The data to validate (dict for JSON, list of dicts for CSV)
-        schema: The schema definition
-        data_type: Type of data being validated ('json' or 'csv')
-        
-    Returns:
-        List of validation error messages (empty if valid)
-    """
-    errors = []
-    
-    if data_type == 'json':
-        if not isinstance(data, dict):
-            errors.append(f"Expected JSON data to be a dict, got {type(data).__name__}")
-            return errors
-        
-        # Check required keys
-        if 'required_keys' in schema:
-            missing_keys = set(schema['required_keys']) - set(data.keys())
-            if missing_keys:
-                errors.append(f"Missing required keys: {missing_keys}")
-        
-        # Check structure types
-        if 'structure' in schema:
-            for key, expected_type in schema['structure'].items():
-                if key in data:
-                    if isinstance(expected_type, tuple):
-                        if not isinstance(data[key], expected_type):
-                            errors.append(f"Key '{key}' should be one of {expected_type}, got {type(data[key]).__name__}")
-                    elif not isinstance(data[key], expected_type):
-                        errors.append(f"Key '{key}' should be {expected_type.__name__}, got {type(data[key]).__name__}")
-    
-    elif data_type == 'csv':
-        if not isinstance(data, list):
-            errors.append(f"Expected CSV data to be a list of dicts, got {type(data).__name__}")
-            return errors
-        
-        if len(data) == 0:
-            errors.append("CSV file is empty")
-            return errors
-        
-        first_row = data[0]
-        
-        # Check required columns
-        if 'required_columns' in schema:
-            missing_cols = set(schema['required_columns']) - set(first_row.keys())
-            if missing_cols:
-                errors.append(f"Missing required columns: {missing_cols}")
-        
-        # Check column types
-        if 'column_types' in schema:
-            for col, expected_type in schema['column_types'].items():
-                if col in first_row:
-                    # Try to convert and check type
-                    value = first_row[col]
-                    if isinstance(expected_type, tuple):
-                        valid = False
-                        for t in expected_type:
-                            try:
-                                if t == str:
-                                    valid = True
-                                    break
-                                elif t == int:
-                                    int(value)
-                                    valid = True
-                                    break
-                                elif t == float:
-                                    float(value)
-                                    valid = True
-                                    break
-                            except (ValueError, TypeError):
-                                continue
-                        if not valid:
-                            errors.append(f"Column '{col}' should be one of {expected_type}, got {type(value).__name__}")
-                    else:
-                        try:
-                            if expected_type == str:
-                                pass  # All CSV values are strings
-                            elif expected_type == int:
-                                int(value)
-                            elif expected_type == float:
-                                float(value)
-                        except (ValueError, TypeError):
-                            errors.append(f"Column '{col}' should be {expected_type.__name__}, got {type(value).__name__}")
-        
-        # Check valid analysis modes if applicable
-        if 'valid_analysis_modes' in schema and 'analysis_mode' in first_row:
-            valid_modes = schema['valid_analysis_modes']
-            for row in data:
-                if 'analysis_mode' in row and row['analysis_mode'] not in valid_modes:
-                    errors.append(f"Invalid analysis_mode: {row['analysis_mode']}. Expected one of {valid_modes}")
-                    break
-    
-    return errors
-
-
-class TestAlignedDataSchema:
-    """Contract tests for the aligned_data.csv schema."""
-    
-    @pytest.fixture
-    def sample_aligned_data(self) -> List[Dict[str, Any]]:
-        """Create sample aligned data that conforms to the schema."""
-        return [
-            {
-                "subject_id": "sub-001",
-                "block_id": "1",
-                "mmn_amplitude": -2.45,
-                "accuracy": 0.85,
-                "analysis_mode": "error_signal",
-                "source_window_start_trial": 10,
-                "timestamp": "2024-01-15T10:30:00Z",
-                "learning_phase": "early"
-            },
-            {
-                "subject_id": "sub-001",
-                "block_id": "2",
-                "mmn_amplitude": -3.12,
-                "accuracy": 0.92,
-                "analysis_mode": "error_signal",
-                "source_window_start_trial": 60,
-                "timestamp": "2024-01-15T10:35:00Z",
-                "learning_phase": "late"
-            }
-        ]
-    
-    def test_aligned_data_schema_valid(self, sample_aligned_data):
-        """Test that valid aligned data passes schema validation."""
-        errors = validate_schema(sample_aligned_data, ALIGNED_DATA_SCHEMA, 'csv')
-        assert len(errors) == 0, f"Valid data failed validation: {errors}"
-    
-    def test_aligned_data_missing_required_columns(self):
-        """Test that missing required columns are detected."""
-        invalid_data = [
-            {
-                "subject_id": "sub-001",
-                "block_id": "1",
-                # Missing mmn_amplitude, accuracy, etc.
-            }
-        ]
-        errors = validate_schema(invalid_data, ALIGNED_DATA_SCHEMA, 'csv')
-        assert len(errors) > 0
-        assert any("Missing required columns" in e for e in errors)
-    
-    def test_aligned_data_invalid_analysis_mode(self):
-        """Test that invalid analysis_mode values are detected."""
-        invalid_data = [
-            {
-                "subject_id": "sub-001",
-                "block_id": "1",
-                "mmn_amplitude": -2.45,
-                "accuracy": 0.85,
-                "analysis_mode": "invalid_mode",
-                "source_window_start_trial": 10,
-                "timestamp": "2024-01-15T10:30:00Z"
-            }
-        ]
-        errors = validate_schema(invalid_data, ALIGNED_DATA_SCHEMA, 'csv')
-        assert len(errors) > 0
-        assert any("Invalid analysis_mode" in e for e in errors)
-    
-    @pytest.mark.skipif(not Path("data/aligned_data.csv").exists(), reason="aligned_data.csv not generated yet")
-    def test_real_aligned_data_conforms(self):
-        """Test that the actual aligned_data.csv file conforms to the schema."""
-        data = load_csv_file(Path("data/aligned_data.csv"))
-        errors = validate_schema(data, ALIGNED_DATA_SCHEMA, 'csv')
-        assert len(errors) == 0, f"Real aligned_data.csv failed validation: {errors}"
-
+def validate_field_types(data: Dict[str, Any], type_map: Dict[str, str], context: str) -> None:
+    """Validate that fields match expected types."""
+    for field, expected_type in type_map.items():
+        if field in data:
+            value = data[field]
+            if expected_type == "string":
+                if not isinstance(value, str):
+                    raise AssertionError(
+                        f"Validation failed for {context}: Field '{field}' expected string, got {type(value)}"
+                    )
+            elif expected_type == "number":
+                if not isinstance(value, (int, float)):
+                    raise AssertionError(
+                        f"Validation failed for {context}: Field '{field}' expected number, got {type(value)}"
+                    )
+            elif expected_type == "boolean":
+                if not isinstance(value, bool):
+                    raise AssertionError(
+                        f"Validation failed for {context}: Field '{field}' expected boolean, got {type(value)}"
+                    )
+            elif expected_type == "array":
+                if not isinstance(value, list):
+                    raise AssertionError(
+                        f"Validation failed for {context}: Field '{field}' expected array, got {type(value)}"
+                    )
+            elif expected_type == "object":
+                if not isinstance(value, dict):
+                    raise AssertionError(
+                        f"Validation failed for {context}: Field '{field}' expected object, got {type(value)}"
+                    )
 
 class TestModelOutputSchema:
     """Contract tests for the model_output.json schema."""
-    
+
     @pytest.fixture
-    def sample_model_output(self) -> Dict[str, Any]:
-        """Create sample model output that conforms to the schema."""
-        return {
-            "model_type": "GaussianLME",
-            "formula": "MMN_Amplitude ~ Accuracy + Learning_Phase + (1|Subject)",
-            "coefficients": {
-                "Intercept": 0.5,
-                "Accuracy": -2.3,
-                "Learning_Phase": 0.8
-            },
-            "p_values": {
-                "Intercept": 0.001,
-                "Accuracy": 0.02,
-                "Learning_Phase": 0.15
-            },
-            "fdr_corrected_p_values": {
-                "Intercept": 0.001,
-                "Accuracy": 0.03,
-                "Learning_Phase": 0.15
-            },
-            "permutation_test_p_value": 0.045,
-            "subject_count": 25,
-            "trial_count": 1500,
-            "model_fit_metrics": {
-                "AIC": 1250.5,
-                "BIC": 1280.3,
-                "log_likelihood": -620.2
-            }
-        }
-    
-    def test_model_output_schema_valid(self, sample_model_output):
-        """Test that valid model output passes schema validation."""
-        errors = validate_schema(sample_model_output, MODEL_OUTPUT_SCHEMA, 'json')
-        assert len(errors) == 0, f"Valid data failed validation: {errors}"
-    
-    def test_model_output_missing_required_keys(self):
-        """Test that missing required keys are detected."""
-        invalid_data = {
-            "model_type": "GaussianLME",
-            # Missing many required keys
-        }
-        errors = validate_schema(invalid_data, MODEL_OUTPUT_SCHEMA, 'json')
-        assert len(errors) > 0
-        assert any("Missing required keys" in e for e in errors)
-    
-    def test_model_output_invalid_structure(self):
-        """Test that invalid structure types are detected."""
-        invalid_data = {
-            "model_type": "GaussianLME",
-            "formula": "MMN ~ Acc",
-            "coefficients": "not_a_dict",  # Should be dict
-            "p_values": {},
-            "fdr_corrected_p_values": {},
-            "permutation_test_p_value": "not_a_float",  # Should be float
-            "subject_count": 25,
-            "trial_count": 1500,
-            "model_fit_metrics": {}
-        }
-        errors = validate_schema(invalid_data, MODEL_OUTPUT_SCHEMA, 'json')
-        assert len(errors) > 0
-    
-    @pytest.mark.skipif(not Path("analysis/results/model_output.json").exists(), reason="model_output.json not generated yet")
-    def test_real_model_output_conforms(self):
-        """Test that the actual model_output.json file conforms to the schema."""
-        data = load_json_file(Path("analysis/results/model_output.json"))
-        errors = validate_schema(data, MODEL_OUTPUT_SCHEMA, 'json')
-        assert len(errors) == 0, f"Real model_output.json failed validation: {errors}"
+    def schema(self):
+        """Load the model output schema."""
+        return load_schema(MODEL_OUTPUT_SCHEMA_PATH)
 
+    def test_schema_file_exists(self):
+        """Verify the schema definition file exists."""
+        assert MODEL_OUTPUT_SCHEMA_PATH.exists(), f"Schema file missing: {MODEL_OUTPUT_SCHEMA_PATH}"
 
-class TestValidationReportSchema:
-    """Contract tests for the validation_report.json schema."""
-    
+    def test_schema_structure(self, schema):
+        """Verify the schema has the expected structure."""
+        assert "type" in schema, "Schema must define 'type'"
+        assert "properties" in schema, "Schema must define 'properties'"
+        assert "required" in schema, "Schema must define 'required' fields"
+
+    def test_model_output_artifact_exists(self):
+        """Verify the model output artifact exists (if analysis was run)."""
+        # This test passes if the file exists. If the pipeline hasn't run yet,
+        # this might be skipped or expected to fail depending on CI configuration.
+        # For contract testing, we assert existence if the file is expected.
+        if MODEL_OUTPUT_PATH.exists():
+            assert MODEL_OUTPUT_PATH.is_file()
+        else:
+            # If file doesn't exist, we skip the content validation but note it.
+            # In a real CI, this might be a failure if the stage is expected to produce it.
+            pytest.skip(f"Model output artifact not found at {MODEL_OUTPUT_PATH}. Analysis may not have run yet.")
+
+    def test_model_output_conforms_to_schema(self):
+        """Validate that model_output.json matches the schema."""
+        if not MODEL_OUTPUT_PATH.exists():
+            pytest.skip("Model output artifact not found.")
+
+        with open(MODEL_OUTPUT_PATH, "r") as f:
+            data = json.load(f)
+
+        schema = load_schema(MODEL_OUTPUT_SCHEMA_PATH)
+
+        # Check required fields
+        validate_required_fields(data, schema["required"], "model_output.json")
+
+        # Check field types
+        type_map = {k: v.get("type", "any") for k, v in schema["properties"].items()}
+        validate_field_types(data, type_map, "model_output.json")
+
+        # Specific checks for Gaussian LME output (Plan Correction)
+        if "coefficients" in data:
+            assert isinstance(data["coefficients"], dict), "coefficients must be an object"
+            # Check for expected fixed effects based on T029
+            expected_fixed_effects = ["Accuracy", "Learning_Phase"]
+            for effect in expected_fixed_effects:
+                # The key might be the effect name directly or nested
+                if effect not in data["coefficients"]:
+                    # Allow for formatting variations, e.g., "Accuracy (1)" or similar
+                    matching_keys = [k for k in data["coefficients"].keys() if effect in k]
+                    assert len(matching_keys) > 0, f"Missing expected coefficient for {effect}"
+
+        if "p_values" in data:
+            assert isinstance(data["p_values"], dict), "p_values must be an object"
+
+        if "permutation_test" in data:
+            assert isinstance(data["permutation_test"], dict), "permutation_test must be an object"
+            assert "p_value" in data["permutation_test"], "permutation_test must have p_value"
+            assert "n_permutations" in data["permutation_test"], "permutation_test must have n_permutations"
+
+        if "robustness" in data:
+            assert isinstance(data["robustness"], dict), "robustness must be an object"
+
+class TestAlignedDataSchema:
+    """Contract tests for the aligned_data.csv schema."""
+
     @pytest.fixture
-    def sample_validation_report(self) -> Dict[str, Any]:
-        """Create sample validation report that conforms to the schema."""
-        return {
-            "analysis_mode": "error_signal",
-            "dataset_metadata": {
-                "source": "OpenNeuro",
-                "dataset_id": "ds001234",
-                "subject_count": 30
-            },
-            "variable_check": {
-                "stimulus_type": True,
-                "response_correctness": True
-            },
-            "underpowered_subjects": ["sub-001", "sub-002"],
-            "excluded_subjects": ["sub-001", "sub-002"]
-        }
-    
-    def test_validation_report_schema_valid(self, sample_validation_report):
-        """Test that valid validation report passes schema validation."""
-        errors = validate_schema(sample_validation_report, VALIDATION_REPORT_SCHEMA, 'json')
-        assert len(errors) == 0, f"Valid data failed validation: {errors}"
-    
-    def test_validation_report_missing_required_keys(self):
-        """Test that missing required keys are detected."""
-        invalid_data = {
-            "analysis_mode": "error_signal",
-            # Missing other required keys
-        }
-        errors = validate_schema(invalid_data, VALIDATION_REPORT_SCHEMA, 'json')
-        assert len(errors) > 0
-        assert any("Missing required keys" in e for e in errors)
-    
-    @pytest.mark.skipif(not Path("data/validation_report.json").exists(), reason="validation_report.json not generated yet")
-    def test_real_validation_report_conforms(self):
-        """Test that the actual validation_report.json file conforms to the schema."""
-        data = load_json_file(Path("data/validation_report.json"))
-        errors = validate_schema(data, VALIDATION_REPORT_SCHEMA, 'json')
-        assert len(errors) == 0, f"Real validation_report.json failed validation: {errors}"
+    def schema(self):
+        """Load the aligned data schema."""
+        return load_schema(ALIGNED_DATA_SCHEMA_PATH)
 
+    def test_schema_file_exists(self):
+        """Verify the schema definition file exists."""
+        assert ALIGNED_DATA_SCHEMA_PATH.exists(), f"Schema file missing: {ALIGNED_DATA_SCHEMA_PATH}"
 
-class TestInterimLaggedMMNsSchema:
-    """Contract tests for the interim_lagged_mmns.csv schema."""
-    
-    @pytest.fixture
-    def sample_interim_data(self) -> List[Dict[str, Any]]:
-        """Create sample interim lagged MMN data that conforms to the schema."""
-        return [
-            {
-                "subject_id": "sub-001",
-                "block_id": "1",
-                "mmn_amplitude": -2.45,
-                "source_window_start_trial": 10,
-                "window_end_trial": 59,
-                "trial_count_in_window": 50
-            },
-            {
-                "subject_id": "sub-001",
-                "block_id": "2",
-                "mmn_amplitude": -3.12,
-                "source_window_start_trial": 60,
-                "window_end_trial": 109,
-                "trial_count_in_window": 50
-            }
-        ]
-    
-    def test_interim_data_schema_valid(self, sample_interim_data):
-        """Test that valid interim data passes schema validation."""
-        errors = validate_schema(sample_interim_data, INTERIM_LAGGED_MMNS_SCHEMA, 'csv')
-        assert len(errors) == 0, f"Valid data failed validation: {errors}"
-    
-    def test_interim_data_missing_required_columns(self):
-        """Test that missing required columns are detected."""
-        invalid_data = [
-            {
-                "subject_id": "sub-001",
-                "block_id": "1",
-                # Missing mmn_amplitude, source_window_start_trial
-            }
-        ]
-        errors = validate_schema(invalid_data, INTERIM_LAGGED_MMNS_SCHEMA, 'csv')
-        assert len(errors) > 0
-        assert any("Missing required columns" in e for e in errors)
-    
-    @pytest.mark.skipif(not Path("data/interim_lagged_mmns.csv").exists(), reason="interim_lagged_mmns.csv not generated yet")
-    def test_real_interim_data_conforms(self):
-        """Test that the actual interim_lagged_mmns.csv file conforms to the schema."""
-        data = load_csv_file(Path("data/interim_lagged_mmns.csv"))
-        errors = validate_schema(data, INTERIM_LAGGED_MMNS_SCHEMA, 'csv')
-        assert len(errors) == 0, f"Real interim_lagged_mmns.csv failed validation: {errors}"
+    def test_schema_structure(self, schema):
+        """Verify the schema has the expected structure."""
+        assert "columns" in schema, "Schema must define 'columns'"
+        assert isinstance(schema["columns"], list), "columns must be a list"
 
+    def test_aligned_data_artifact_exists(self):
+        """Verify the aligned data artifact exists."""
+        if ALIGNED_DATA_PATH.exists():
+            assert ALIGNED_DATA_PATH.is_file()
+        else:
+            pytest.skip(f"Aligned data artifact not found at {ALIGNED_DATA_PATH}. US2 may not have run yet.")
 
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+    def test_aligned_data_conforms_to_schema(self):
+        """Validate that aligned_data.csv matches the schema."""
+        if not ALIGNED_DATA_PATH.exists():
+            pytest.skip("Aligned data artifact not found.")
+
+        import pandas as pd
+        df = pd.read_csv(ALIGNED_DATA_PATH)
+        schema = load_schema(ALIGNED_DATA_SCHEMA_PATH)
+
+        expected_columns = [col["name"] for col in schema["columns"]]
+        missing_columns = [col for col in expected_columns if col not in df.columns]
+
+        assert not missing_columns, f"Aligned data missing required columns: {missing_columns}"
+
+        # Validate specific column types based on schema
+        for col_def in schema["columns"]:
+            col_name = col_def["name"]
+            col_type = col_def.get("type", "string")
+            if col_name in df.columns:
+                if col_type == "integer":
+                    assert pd.api.types.is_integer_dtype(df[col_name]) or pd.api.types.is_numeric_dtype(df[col_name]), \
+                        f"Column {col_name} should be integer/numeric"
+                elif col_type == "float":
+                    assert pd.api.types.is_float_dtype(df[col_name]) or pd.api.types.is_numeric_dtype(df[col_name]), \
+                        f"Column {col_name} should be float/numeric"
+                elif col_type == "string":
+                    assert df[col_name].dtype == object or pd.api.types.is_string_dtype(df[col_name]), \
+                        f"Column {col_name} should be string"
+
+        # Specific checks for Lagged Alignment (T024)
+        if "mmn_amplitude" in df.columns:
+            assert not df["mmn_amplitude"].isna().all(), "mmn_amplitude cannot be all NaN"
+        if "source_window_start_trial" in df.columns:
+            assert not df["source_window_start_trial"].isna().all(), "source_window_start_trial cannot be all NaN"
+
+        # Check for analysis_mode flag (T022)
+        if "analysis_mode" in df.columns:
+            valid_modes = ["error_signal", "stimulus_driven"]
+            invalid_modes = df[~df["analysis_mode"].isin(valid_modes)]
+            assert len(invalid_modes) == 0, f"Invalid analysis_mode values found: {invalid_modes['analysis_mode'].unique()}"

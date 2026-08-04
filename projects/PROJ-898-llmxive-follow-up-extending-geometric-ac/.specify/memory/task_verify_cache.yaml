@@ -5,13 +5,32 @@ T001a:
     any of its contents were presented; the claim provides no tangible artifact to
     confirm the required project root structure exists. The task therefore remains
     unverified and incomplete.
-T008a:
+T001b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No CPU\u2011only profiling script, execution logs, or timing results are present;\
-    \ the claim provides no artifact demonstrating that solver steps were measured\
-    \ and shown to be under 300\u202Fseconds on a 2\u2011core machine. The required\
-    \ evidence is missing."
+  r: "The implementer provided only a feature specification and user stories; no file\u2011\
+    system evidence (e.g., a listing or screenshots) shows that `code/`, `data/`,\
+    \ and `tests/` directories actually exist or contain any files. Without concrete\
+    \ proof of those directories, the task requirement is not satisfied."
+T001c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of `.gitkeep` files in `data/raw`, `data/generated`, or `data/results`
+    was provided; the required placeholder files are missing. The implementer must
+    add a `.gitkeep` file to each of those three subdirectories.
+T003:
+  c: false
+  h: 8504db267c9e4796587f4b28d01007f3138f033e49454887d1cc226d1686b927
+  r: "The `ruff.toml` file is present and appears correctly configured, but the required\
+    \ `.pre-commit-config.yaml` file is missing from the repository. Without this\
+    \ file the task of configuring pre\u2011commit hooks for ruff/black is not fulfilled."
+T004:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required `data/raw`, `data/generated`, `data/results` directories
+    or accompanying `.gitkeep` files is provided; without visible artifacts we cannot
+    confirm the directory structure was created. The implementer must add the directory
+    tree and the placeholder `.gitkeep` files to satisfy the task.
 T018:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

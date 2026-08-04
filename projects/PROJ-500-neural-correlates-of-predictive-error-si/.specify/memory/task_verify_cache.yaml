@@ -27,3 +27,18 @@ T016:
     \ (the `write_excluded_subjects_csv` function is incomplete and no code updates\
     \ the JSON report), so the artifact\u2011rejection and underpowered\u2011subject\
     \ flagging logic is not fully implemented."
+T020:
+  c: false
+  h: f73f75f674e290d92cfea932ae85bd8d9b2fd709e0d78872d14ead69c89f1121
+  r: "The repository contains the integration test file, but the required output `data/interim_lagged_mmns.csv`\
+    \ does not exist, so the test cannot verify the correct schema or lagged\u2011\
+    alignment logic. The missing CSV (and any evidence that the test checks its contents)\
+    \ must be generated for the task to be considered complete."
+T025:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, script, or data artifact was provided that shows exclusion of blocks
+    with fewer than 10 valid trials or NaN handling for excessive artifact rejection,
+    nor is there an `aligned_data.csv` output demonstrating the lagged alignment with
+    underpowered subjects excluded. The required implementation and resulting files
+    are missing.
