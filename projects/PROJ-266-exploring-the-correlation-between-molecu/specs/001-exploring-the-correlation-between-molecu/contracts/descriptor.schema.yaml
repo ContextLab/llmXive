@@ -1,0 +1,39 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Flexibility Descriptor Schema"
+description: "Schema for molecular flexibility descriptors computed from 3D conformers and normal‑mode analysis. Note: bond/angle variances are diagnostic only."
+type: object
+properties:
+  smi:
+    type: "string"
+    description: "Canonical SMILES string of the molecule."
+  dihedral_variance:
+    type: "number"
+    description: "Dihedral angle variance (rad²) - PRIMARY PREDICTOR."
+  bond_variance:
+    type: "number"
+    description: "Bond length variance (rad²) - DIAGNOSTIC ONLY (excluded from modeling)."
+  angle_variance:
+    type: "number"
+    description: "Bond angle variance (rad²) - DIAGNOSTIC ONLY (excluded from modeling)."
+  size_normalized_flexibility:
+    type: "number"
+    description: "dihedral_variance / num_rotatable_bonds."
+  conformer_count:
+    type: "integer"
+    description: "Number of conformers generated."
+  nma_success:
+    type: "boolean"
+    description: "True if normal‑mode analysis succeeded."
+  converged:
+    type: "boolean"
+    description: "True if variance stability criterion (<1% change) was met."
+required:
+  - "smi"
+  - "dihedral_variance"
+  - "bond_variance"
+  - "angle_variance"
+  - "size_normalized_flexibility"
+  - "conformer_count"
+  - "nma_success"
+  - "converged"
+additionalProperties: false

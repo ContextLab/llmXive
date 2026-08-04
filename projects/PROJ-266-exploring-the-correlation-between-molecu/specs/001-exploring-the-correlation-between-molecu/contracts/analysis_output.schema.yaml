@@ -3,12 +3,10 @@ title: Analysis Output Schema
 description: >
   Schema for the output of the molecular flexibility analysis pipeline.
   Includes computed variance metrics, outlier flags, and correlation results.
-  Used by T025 (contract tests) and T015 (analysis).
+  Note: bond/angle variances are excluded from the final model.
 type: object
 required:
   - smiles
-  - bond_variance
-  - angle_variance
   - dihedral_variance
   - is_outlier
   - logPapp
@@ -17,21 +15,21 @@ properties:
   smiles:
     type: string
     description: Canonical SMILES string of the molecule.
-  bond_variance:
-    type: number
-    description: Variance of bond lengths across the conformer ensemble (rad² or Å²).
-    minimum: 0.0
-  angle_variance:
-    type: number
-    description: Variance of bond angles across the conformer ensemble (rad²).
-    minimum: 0.0
   dihedral_variance:
     type: number
     description: Variance of dihedral angles across the conformer ensemble (rad²).
     minimum: 0.0
+  bond_variance:
+    type: number
+    description: Variance of bond lengths (diagnostic only, not used in model).
+    minimum: 0.0
+  angle_variance:
+    type: number
+    description: Variance of bond angles (diagnostic only, not used in model).
+    minimum: 0.0
   is_outlier:
     type: boolean
-    description: Flag indicating if the molecule is an outlier based on IQR method (T014b).
+    description: Flag indicating if the molecule is an outlier based on IQR method.
   logPapp:
     type: number
     description: Apparent permeability coefficient (log Papp) from the processed dataset.
@@ -42,6 +40,7 @@ properties:
       - logP
       - mw
       - psa
+      - size_normalized_flexibility
     properties:
       logP:
         type: number
@@ -52,25 +51,16 @@ properties:
       psa:
         type: number
         description: Polar Surface Area (Å²).
+      size_normalized_flexibility:
+        type: number
+        description: Dihedral variance per rotatable bond.
   correlation_results:
     type: ["object", "null"]
     description: Optional dictionary containing correlation statistics (pearson, spearman, p-values).
     properties:
-      pearson_bond:
-        type: number
-      pearson_angle:
-        type: number
       pearson_dihedral:
         type: number
-      spearman_bond:
-        type: number
-      spearman_angle:
-        type: number
       spearman_dihedral:
-        type: number
-      p_value_bond:
-        type: number
-      p_value_angle:
         type: number
       p_value_dihedral:
         type: number

@@ -2,83 +2,75 @@
 
 ## Prerequisites
 
-- Python 3.11+  
-- pip  
-- Git  
+- Python 3.11+
+- `pip`
+- Git
 
 ## Installation
 
-```bash
-git clone <repo-url>
-cd projects/PROJ-266-exploring-the-correlation-between-molecu
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-pip install -r code/requirements.txt
-```
+1. **Clone the repository**  
+   ```bash
+   git clone <repo-url>
+   cd projects/PROJ-266-exploring-the-correlation-between-molecu
+   ```
+
+2. **Create a virtual environment**  
+   ```bash
+   python -m venv venv
+   source venv/bin/activate   # Windows: venv\Scripts\activate
+   ```
+
+3. **Install dependencies**  
+   ```bash
+   pip install -r code/requirements.txt
+   ```
 
 ## Running the Pipeline
 
-### 0. Feasibility Gate (Benchmark)
+The entire workflow is orchestrated by a single entry‑point script:
+
 ```bash
-python code/main.py --benchmark --subset-size 100
+python code/run_pipeline.py
 ```
-- Estimates total runtime on a subset of 100 molecules.  
-- If estimated runtime > 4 hours, dataset will be sampled to 500 molecules.  
-- Pass/fail criterion: Estimated runtime ≤ 6 hours.
 
-### 1. Fetch and Validate Data
-```bash
-python code/fetch_chembl.py --output data/raw/chembl_caco2_raw.csv
-python code/validate_data.py --input data/raw/chembl_caco2_raw.csv --output data/processed/validated_molecules.csv
-```
-- Outputs ≥500 valid records (SMILES + logPapp non-NULL).  
-- Logs excluded records due to protocol heterogeneity.
+### What the script does (high‑level)
 
-### 2. Generate Conformers and Compute Descriptors
-```bash
-python code/generate_conformers.py --input data/processed/validated_molecules.csv --output data/processed/conformers.parquet --conformers 20
-python code/compute_flexibility.py --input data/processed/conformers.parquet --output data/processed/flexibility_descriptors.csv
-```
-- Generates 20 conformers per molecule (CPU-feasible).  
-- Computes bond, angle, dihedral variance (Å² for bonds, rad² for angles/dihedrals).  
-- Requires ≥450 valid descriptors.  
-- Performs convergence check on a subset to ensure variance stability.
+1. **Data Fetch** – pulls Caco‑2 records from ChEMBL, writes `data/raw/chembl_caco2_raw.csv`.  
+2. **Checksum** – `utils/checksum.py` computes SHA‑256 hashes and stores them in `state/artifact_hashes`.  
+3. **Citation Validation** – `validate_citations.py` checks title overlap ≥ 0.7.  
+4. **Preprocessing** – filters invalid rows, logs protocol heterogeneity.  
+5. **Conformer Generation & Convergence Check** – RDKit `EmbedMultipleConfs` with iterative stability loop (batch = 100).  
+6. **Normal‑Mode Analysis** – `nma_analysis.py` (PyVib) derives torsional variance (dihedral only for prediction).  
+7. **Descriptor Calculation** – `descriptors.py` writes `flexibility_descriptors.csv` (diagnostic metrics excluded from modeling).  
+8. **Statistical Analysis** – `analysis.py` performs power analysis, correlation, robust regression (Huber/Ridge), VIF handling, 5‑fold CV.  
+9. **Visualization** – `visualize.py` creates `plot.png` (PNG, dpi ≥ 300).  
+10. **Task Manifest** – `run_pipeline.py` writes `tasks.md` summarising each step and its checksum.
 
-### 3. Correlation Analysis
-```bash
-python code/correlation_analysis.py --input data/processed/flexibility_descriptors.csv --output data/processed/correlation_results.json
-```
-- Computes Pearson/Spearman correlations with p-values and FDR correction.  
-- Flags results as associational.
+## Verifying Results
 
-### 4. Model Building and Visualization
-```bash
-python code/regression_model.py --input data/processed/flexibility_descriptors.csv --output data/processed/model_results.json
-python code/visualize.py --input data/processed/correlation_results.json --output figures/flexibility_vs_permeability.png
-```
-- Scaffold-based 5-fold cross-validation (R², RMSE, MAE).  
-- VIF diagnosis and Ridge regression fallback if collinearity detected.  
-- Generates scatter plot with 95% CI (300 dpi).
+- **Data Completeness**  
+  ```bash
+  python code/utils/check_pass_rate.py data/processed/cleaned_dataset.csv
+  ```
+  Expected: ≥ 83% valid records.
 
-## Output Artifacts
+- **Conformer/NMA Success**  
+  ```bash
+  python code/utils/check_success_rate.py data/processed/flexibility_descriptors.csv
+  ```
+  Expected: ≥ 90% success AND convergence flag = True.
 
-- `data/processed/validated_molecules.csv`  
-- `data/processed/flexibility_descriptors.csv`  
-- `data/processed/correlation_results.json`  
-- `data/processed/model_results.json`  
-- `figures/flexibility_vs_permeability.png`  
+- **View Plot**  
+  Open `data/processed/plot.png` with any image viewer.
+
+- **Run Tests**  
+  ```bash
+  pytest tests/
+  ```
 
 ## Troubleshooting
 
-- **Conformer generation fails**: Check SMILES validity; skip invalid molecules.  
-- **Runtime exceeds 6h**: Reduce sample size to 500 molecules in `fetch_chembl.py`.  
-- **Memory error**: Sample dataset to 500 molecules; reduce conformers to 10.  
-- **Collinearity detected**: Ridge regression fallback will be automatically applied.  
-- **Variance not stable**: Convergence check will flag this; consider increasing conformer count if feasible.
-
-## Notes
-
-- **Conformer Limit**: 20 conformers (not 50) for CPU feasibility.  
-- **Associational Only**: No causal claims; results framed as correlations.  
-- **Reproducibility**: Random seeds pinned; re-run from scratch for validation.  
-- **Feasibility Gate**: Benchmark task ensures runtime ≤ 6 hours before full execution.
+- **ChEMBL Rate Limits** – exponential back‑off (max 3 retries, 5 s interval).  
+- **Conformer Failures** – see `data/processed/failures.log`.  
+- **Memory Errors** – reduce batch size via `--batch-size` flag in `run_pipeline.py`.  
+- **Power Insufficiency** – pipeline will log "Limited Power" if N < 150 but proceeds.

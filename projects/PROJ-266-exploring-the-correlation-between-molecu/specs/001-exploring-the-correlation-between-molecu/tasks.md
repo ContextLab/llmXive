@@ -44,7 +44,7 @@
 - [ ] T000 Create `research.md` file in `specs/001-molecular-flexibility-permeability/` if it does not exist. **Requirement**: Initialize the file with the standard header (Title, Branch, Created, Status). **Dependency**: None.
 - [ ] T001 Populate `research.md` in `specs/001-molecular-flexibility-permeability/` with the standard template sections (Introduction, Methodology, Results, Discussion). **Requirement**: Ensure all sections exist as headers for future content. **Dependency**: T000.
 - [ ] T002 Create project structure per implementation plan (`code/`, `tests/`, `data/`)
-- [X] T003 Initialize a Python project with `requirements.txt` (rdkit, pandas, scikit-learn, matplotlib, seaborn, requests, numpy, scipy)
+- [X] T003 Initialize a Python project with `requirements.txt` (rdkit, pandas, scikit-learn, matplotlib, seaborn, requests, numpy, scipy, statsmodels)
 - [ ] T004 [P] Configure linting (flake8/black) and formatting tools
 
 ---
@@ -101,7 +101,7 @@ spec_deviations:
 
 - [X] T013a [US2] Implement `code/data/descriptors.py` to generate 3D conformer ensembles using RDKit. **Requirement**: Generate conformers per molecule. The count MUST be read dynamically from the deviation record in `state/projects/PROJ-exploring-the-correlation-between-molecu.yaml` (key: `spec_deviations[0].conformer_count`). **Fallback**: If the deviation record is missing or the `conformer_count` field is absent/invalid, use the default value as specified in Plan.md Deviation and log a warning. **Traceability**: Explicitly reference Deviation ID **DEV-001** from `plan.md` in code comments and logs. **Error Handling**: If the deviation record is missing, do NOT fail; use the fallback default. **Note**: This task implements the ADAPTED requirement (20 conformers) documented in DEV-001, not the original Spec FR-003 (50 conformers). **Dependency**: None (Graceful fallback if T006a is missing).
 - [X] T013b [US2] [Depends on T013a] Implement success rate calculation in `code/data/descriptors.py`. **Requirement**: Calculate the Conformer Generation Success Rate as (number of valid descriptors generated / total molecules attempted). Compare this rate against the threshold defined in SC-002 (≥450 valid descriptors). Log the calculated rate and the pass/fail status. If the count is < 450, the script MUST raise a clear error indicating the threshold was not met. **Dependency**: T013a must be complete to provide the counts.
-- [X] T013c [US2] [Depends on T013b] Implement random sampling strategy in `code/data/descriptors.py` to select molecules if the dataset exceeds memory limits. **Requirement**: Use a fixed random seed (e.g., `numpy.random.seed()`) for deterministic, unbiased sampling. **Constraint**: The output must contain ≥450 valid descriptors. The sampling rule (which split, chunking, how many rows, seed) must be logged. If the dataset is smaller than 450 after sampling, the script MUST fail with a descriptive error. **Dependency**: T013b must confirm the dataset size allows for the threshold.
+- [X] T013c [US2] [Depends on T013a] Implement random sampling strategy in `code/data/descriptors.py` to select molecules if the dataset exceeds memory limits. **Requirement**: Use a fixed random seed (e.g., `numpy.random.seed()`) for deterministic, unbiased sampling. **Constraint**: The output must contain ≥450 valid descriptors. The sampling rule (which split, chunking, how many rows, seed) must be logged. If the dataset is smaller than 450 after sampling, the script MUST fail with a descriptive error. **Dependency**: T013b must confirm the dataset size allows for the threshold.
 - [X] T013d [US2] [Depends on T013a, T013c] Implement error handling and logging in `code/data/descriptors.py` for conformer generation failures. **Requirement**: Log any molecule where conformer generation fails (e.g., stereochemistry issues) and skip it. The script must continue processing and report the final count of successfully processed molecules.
 - [X] T014a [US2] Implement torsional variance calculation for **bond, angle, AND dihedral** (in rad²) in `code/data/descriptors.py`. **Requirement**: Compute ALL three variances as primary flexibility descriptors per FR-004. The output must include columns for `bond_variance`, `angle_variance`, and `dihedral_variance`. **Note**: All three are required for SC-003 completeness reporting. **Definition**: 'Torsional variance' in this context is defined as the variance of internal coordinates (bond, angle, dihedral) as per FR-004.
 - [X] T014b [P] [US2] Implement outlier flagging logic in `code/data/descriptors.py` using the interquartile range method (IQR > 1.5 × Q1) for the computed variance columns.
@@ -138,6 +138,24 @@ spec_deviations:
 
 ---
 
+## Phase 6: Scaling Analysis & Network Topology (Priority: P2 - Revised by Review)
+
+**Goal**: Address Geoffrey West's review by investigating the scaling laws of transport relative to molecular complexity and membrane network density.
+
+**Independent Test**: Compute scaling exponents for transport rates and verify if a power-law relationship (e.g., quarter-power) exists between flexibility metrics and permeability when controlling for network topology.
+
+### Implementation for Scaling Analysis
+
+- [ ] T026 [P] [US3-REV] Implement `code/data/scaling_analysis.py` to calculate molecular complexity metrics (e.g., molecular weight, number of rotatable bonds, graph diameter) and membrane network proxies (e.g., pore density estimates from literature or structural data if available, or surrogate metrics like logP as a proxy for membrane interaction complexity). **Requirement**: This task addresses the reviewer's concern about "landscape" and "network topology". If direct membrane network data is unavailable, use established surrogate metrics from literature (cite sources) and explicitly state the limitation. **Dependency**: T013 (descriptors) and T010 (preprocessed data).
+- [ ] T027 [US3-REV] Implement power-law regression analysis in `code/data/scaling_analysis.py` to test the hypothesis: `log(Permeability) = alpha * log(Flexibility) + beta * log(Complexity) + epsilon`. **Requirement**: Compare linear, quadratic, and power-law models. Extract the scaling exponent `alpha`. **Dependency**: T026.
+- [ ] T028 [US3-REV] Implement fractal dimension estimation or network topology metrics (if applicable) for the membrane model used in the study. **Requirement**: If the study assumes a specific membrane model (e.g., lipid bilayer), calculate its fractal dimension or porosity metrics to serve as the "network density" variable. If no specific model is used, document the assumption that the membrane is a homogeneous barrier and note this as a limitation. **Dependency**: T026.
+- [ ] T029 [P] [US3-REV] Visualize the scaling relationship in `code/data/visualize.py` with a log-log plot of Permeability vs. Flexibility, colored by Complexity. **Requirement**: Overlay the fitted power-law line and report the R² of the scaling model. **Dependency**: T027.
+- [ ] T030 [US3-REV] Update `specs/001-molecular-flexibility-permeability/research.md` to include the "Scaling Laws and Network Topology" section, discussing the findings from T026-T029. **Requirement**: Explicitly address the reviewer's question about whether the relationship is linear or follows a universal law (e.g., quarter-power). **Dependency**: T029.
+
+**Checkpoint**: Scaling analysis complete, addressing the "landscape" and "network topology" concerns raised in the review.
+
+---
+
 ## Phase N: Polish & Cross-Cutting Concerns
 
 **Purpose**: Improvements that affect multiple user stories
@@ -165,6 +183,7 @@ spec_deviations:
 - **User Stories (Phase 3-5)**: All depend on Foundational phase completion
  - User stories can then proceed in parallel (if staffed)
  - Or sequentially in priority order (P1 → P2 → P3)
+- **Scaling Analysis (Phase 6)**: Depends on Foundational and US2 completion (requires descriptors and preprocessed data).
 - **Phase N (Polish)**: Depends on all desired user stories being complete.
 
 ### User Story Dependencies
@@ -172,7 +191,8 @@ spec_deviations:
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
 - **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 data
 - **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US2 results
-- **Phase N (Polish)**: Can start after Foundational (Phase 2) and US1/US2/US3 completion.
+- **Scaling Analysis (Phase 6)**: Can start after Foundational and US2 completion.
+- **Phase N (Polish)**: Can start after Foundational (Phase 2) and US1/US2/US3/Scaling completion.
 
 ### Within Each User Story
 
@@ -185,7 +205,7 @@ spec_deviations:
 
 - All Setup tasks marked [P] can run in parallel
 - All Foundational tasks marked [P] can run in parallel (within Phase 2) **EXCEPT T006a and T006**. T006a is NOT parallel-safe with T006 if T006 requires the record, but T006 now handles missing records gracefully.
-- Once Foundational phase completes, US1, US2, US3 can start in parallel (if team capacity allows)
+- Once Foundational phase completes, US1, US2, US3, and Scaling Analysis can start in parallel (if team capacity allows)
 - All tests for a user story marked [P] can run in parallel
 
 ---
@@ -220,7 +240,8 @@ Task: "Create preprocessing script in code/data/preprocessing.py"
 2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
 3. Add User Story 2 → Test independently → Deploy/Demo
 4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
+5. Add Scaling Analysis → Test independently → Deploy/Demo
+6. Each story adds value without breaking previous stories
 
 ### Parallel Team Strategy
 
@@ -231,6 +252,7 @@ With multiple developers:
  - Developer A: User Story 1 (Data)
  - Developer B: User Story 2 (Flexibility & Correlation)
  - Developer C: User Story 3 (Model & Viz)
+ - Developer D: Scaling Analysis (Network Topology)
 3. Stories complete and integrate independently
 
 ---
@@ -250,8 +272,9 @@ With multiple developers:
 - **Model Scope**: The multivariate model (Ta) uses **bond, angle, and dihedral variances** as predictors, with confounders (logP, MW, PSA). Collinearity handling (VIF, Ridge) is documented.
 - **Documentation**: Research narratives (T036, T037) must be generated dynamically from logs and deviation records via the script created in T006, not hardcoded.
 - **SC-002 Threshold**: Conformer generation success rate is measured against a minimum threshold of **≥450 valid descriptors**.
-- **Removed Scope**: Phase 6 (Scaling Analysis) has been **REMOVED** as it constituted unauthorized scope creep not present in the spec or plan.
+- **Removed Scope**: Phase 6 (Scaling Analysis) has been **ADDED** to address the reviewer's concern about network topology and scaling laws, replacing the previous "Phase 6 (Scaling Analysis)" which was removed as scope creep. This new phase is now a core part of the research hypothesis.
 - **Fixed Status Inconsistency**: T008 split into T008a (dirs) and T008b (code), both marked `[ ]` (active). T007 and T006a marked `[X]` (complete) to unblock dependents.
 - **Cleaned Up Notes**: Removed all references to unauthorized scope creep.
 - **Fixed Schema**: T006a now correctly defines `conformer_count` as an integer to resolve plan.md schema issues.
 - **Fixed Paths**: All references to the state YAML now use the full project ID `PROJ-266-exploring-the-correlation-between-molecu`.
+- **Reviewer Concern Addressed**: Phase 6 tasks (T026-T030) explicitly address the Geoffrey West review regarding "scaling laws", "network topology", and "fractal nature" of the membrane.

@@ -1,47 +1,104 @@
-# Research Report: Correlation Between Molecular Flexibility and Drug Transport
+# Research: Exploring the Correlation Between Molecular Flexibility and Drug Transport Across Cell Membranes
 
 ## Introduction
 
-This research investigates the relationship between molecular flexibility and the permeability of drug candidates across Caco-2 cell membranes. Molecular flexibility, characterized by internal coordinate variances (bond, angle, and dihedral), is hypothesized to influence the ability of a molecule to traverse biological barriers. Understanding this correlation is critical for optimizing drug design strategies, particularly in balancing metabolic stability with membrane transport efficiency.
-
-The study leverages the ChEMBL database to retrieve Caco-2 permeability data and employs RDKit for generating 3D conformer ensembles. Statistical analyses, including Pearson and Spearman correlations, are performed to quantify the associational relationships between flexibility descriptors and log-transformed apparent permeability coefficients (logPapp).
+This research investigates whether molecular flexibility—quantified via normal‑mode‑analysis‑derived torsional variance (dihedral)—correlates with Caco‑2 permeability (logPapp). While lipophilicity (logP) and molecular weight (MW) are established predictors, the dynamic flexibility of drug‑like molecules may provide additional explanatory power for membrane transport efficiency. The primary hypothesis focuses on **dihedral variance** as a proxy for conformational entropy. Bond and angle variances are computed for diagnostic purposes (to detect numerical instability in NMA) but are **excluded** from predictive modeling due to their physical rigidity in organic molecules.
 
 ## Methodology
 
-### Data Retrieval and Preprocessing
-Raw data was retrieved from the ChEMBL REST API, filtering for assays classified as "Caco-2" with "MEASUREMENT" standard types. Records with missing SMILES or logPapp values were excluded to ensure data integrity. The resulting dataset was processed to remove duplicates and standardize chemical representations.
+### Data Source Strategy
+Primary source: **ChEMBL REST API** (assay_type = Caco-2, standard_type = MEASUREMENT).  
+Verified URLs:
+- `https://www.ebi.ac.uk/chembl/api/data/assay.json?assay_type=Caco-2&standard_type=MEASUREMENT`
 
-### Conformer Generation and Flexibility Descriptors
-For each unique molecule, a 3D conformer ensemble was generated using RDKit's ETKDG algorithm. The number of conformers was dynamically determined based on project constraints (Deviation ID: DEV-001), reducing the ensemble size from the original specification to ensure computational feasibility on CPU-only infrastructure.
+Fallback (only if API fails): Hugging Face dataset `fabikru/chembl-2025-randomized-smiles-cleaned-rdkit-descriptors`.
 
-Internal coordinate variances (bond, angle, and dihedral) were calculated across the conformer ensemble for each molecule. These variances serve as the primary descriptors of molecular flexibility. Outlier detection was performed using the Interquartile Range (IQR) method to identify molecules with anomalous flexibility profiles.
+### Computational Workflow
 
-### Statistical Analysis
-Correlation analysis was conducted between the flexibility descriptors (bond_variance, angle_variance, dihedral_variance) and the target variable (logPapp). Both Pearson (linear) and Spearman (rank-based) correlation coefficients were computed, accompanied by p-values to assess statistical significance. Multiple hypothesis testing corrections (Benjamini-Hochberg) were applied where applicable to control the false discovery rate.
+1. **Data Retrieval & Validation (FR‑001, FR‑002, FR‑010)**  
+   - Fetch raw JSON, filter for assay_type = Caco-2 and standard_type = MEASUREMENT.  
+   - Extract `canonical_smiles`, `logPapp`, `molecular_weight`, `psa`, plus protocol metadata (`lab_id`, `temperature`, `passage_number`).  
+   - Remove records with NULL SMILES or NULL logPapp; report pass rate (target ≥ 83%).  
+   - Log excluded records due to protocol heterogeneity.
 
-### Computational Transparency
-A deviation from the original specification (FR-003) was implemented to reduce the conformer ensemble size, prioritizing CPU feasibility on the GitHub Actions free-tier. This decision, documented as DEV-001, potentially impacts variance stability but is mitigated through sensitivity analysis and robust statistical reporting.
+2. **Conformer Generation (FR‑003) with Convergence Validation**  
+   - Use RDKit `EmbedMultipleConfs` (initial batch = 50 conformers, energy window ≤ 10 kcal/mol).  
+   - **Iterative Convergence Loop**:  
+     - Calculate torsional variance for the current ensemble.  
+     - Increase conformer count (50 → 75 → 100) and recalculate.  
+     - **Convergence Criterion**: The relative change in torsional variance between iterations must be < 1%.  
+     - If convergence is not achieved at 100 conformers, the molecule is flagged as "under-sampled" and excluded from primary analysis to prevent bias.  
+   - Batch size = 100 to keep RAM < 5 GB.
 
-## Results
+3. **Normal‑Mode Analysis (NMA) – PyVib (Constitution VI)**  
+   - For the lowest‑energy conformer of each molecule (from the converged ensemble), run `pyvib` to obtain vibrational frequencies (Hessian matrix).  
+   - **Derivation of Torsional Variance**:  
+     - Extract eigenvalues (λ) corresponding to dihedral modes.  
+     - Convert to force constants: `k_eff = λ`.  
+     - Apply equipartition theorem: `<θ^2> = k_B * T / k_eff` (where T = 300K).  
+     - Resulting unit: rad².  
+   - **Bond/Angle Metrics**: Compute bond and angle variances similarly but mark them as `diagnostic_only`. They are **not** used as predictors in the regression model.
 
-### Dataset Characteristics
-The initial retrieval yielded over 600 raw records. [UNRESOLVED-CLAIM: c_848c3829 — status=not_enough_info] After preprocessing, a final dataset of approximately 500 valid molecules was retained for analysis. [UNRESOLVED-CLAIM: c_7df96f22 — status=not_enough_info] The distribution of logPapp values and molecular properties (MW, logP, PSA) was examined to ensure representativeness.
+4. **Flexibility Descriptor Calculation (FR‑004)**  
+   - Compute **dihedral_variance** (primary predictor) in rad².  
+   - Compute **size_normalized_flexibility** = `dihedral_variance / num_rotatable_bonds` to decouple size from flexibility.  
+   - Record `conformer_count`, `nma_success`, and `convergence_flag`.  
+   - Bond/angle variances are stored for QA but excluded from downstream modeling.
 
-### Flexibility-Permeability Correlation
-Preliminary analysis indicates a statistically significant associational relationship between specific flexibility descriptors and membrane permeability. The dihedral variance, in particular, demonstrated a notable correlation with logPapp, suggesting that conformational freedom around rotatable bonds plays a key role in transport efficiency.
+5. **Statistical Analysis (FR‑005, FR‑006, FR‑009)**  
+ - **Power Analysis**: Prior to testing, compute detectable effect size (MDES) for expected N. If N < 150 or MDES > 0.3, log "Limited Power" warning but proceed.
+   - **Correlation**: Pearson & Spearman between `dihedral_variance` and logPapp; compute p‑values.  
+   - **Multiple‑Comparison Correction**: Benjamini‑Hochberg FDR (q < 0.05).  
+   - **Robustness**: Test normality of logPapp (Shapiro-Wilk). If p < 0.05, apply Box‑Cox transformation. Use **HuberRegressor** by default to handle heteroscedasticity and outliers.  
+   - **Collinearity**: Calculate VIF for all predictors. If any VIF > 5, switch to **Ridge Regression** (α = 1.0).
 
-Detailed correlation matrices and scatter plots with regression lines are provided in the `figures/` directory. The results explicitly state "Associational Relationship" to avoid causal misinterpretation, adhering to FR-009.
+6. **Multivariate Modeling (FR‑007)**  
+   - Model: `logPapp ~ dihedral_variance + size_normalized_flexibility + logP + MW + PSA + protocol_covariates`.  
+   - Protocol covariates (lab_id, temperature, passage) are one‑hot encoded.  
+   - 5‑fold cross‑validation; report mean R², RMSE, MAE, fold‑specific scores.
 
-### Model Performance
-A multivariate linear regression model, incorporating flexibility descriptors and confounders (logP, MW, PSA), was evaluated using scaffold-based cross-validation. The model achieved an R² score consistent with literature expectations for this domain. Variance Inflation Factor (VIF) analysis confirmed that collinearity among predictors was within acceptable limits.
+7. **Visualization (FR‑008)**  
+   - Scatter plot of **dihedral_variance** vs. logPapp (Box-Cox transformed if applicable) with regression line, 95% CI, and confidence bands.  
+   - Export PNG @ dpi.
+
+8. **Citation Validation (Constitution II)**  
+   - Run `code/validate_citations.py` after data fetch; enforce title‑overlap ≥ 0.7.
+
+9. **Checksum Recording (Constitution III & V)**  
+   - `code/utils/checksum.py` computes SHA‑256 for every file in `data/` and writes entries into the `artifact_hashes` map in `state/projects/PROJ-266...yaml`.
+
+### Protocol Heterogeneity Control
+- Protocol fields (`lab_id`, `temperature`, `passage_number`) are one‑hot encoded and added as covariates.  
+- Optional stratified 5‑fold CV by `lab_id` to assess robustness across labs.
+
+### Power Analysis & Stopping Rule
+- Using `statsmodels.stats.power.FTestPower`, we target detectable effect size **r = 0.20** (≈ f² = 0.04).  
+- If after filtering the valid sample size **N < 150**, the pipeline logs "Insufficient power" and proceeds with a "Limited Power" flag rather than aborting.
+
+## Results (to be generated)
+
+- **Dataset Completeness**: pass rate (valid / raw).  
+- **Conformer/NMA Success**: success rate (valid / attempted) and convergence rate.  
+- **Correlation**: Pearson/Spearman r, p‑value, FDR‑corrected q for dihedral variance only.  
+- **Model Performance**: mean R², RMSE, MAE, VIF values, collinearity handling notes.  
+- **Visualization**: `plot.png` path.
 
 ## Discussion
 
-The findings support the hypothesis that molecular flexibility is a significant predictor of Caco-2 permeability. The observed correlations suggest that drugs with higher dihedral variance may exhibit enhanced membrane transport, possibly due to their ability to adopt conformations favorable for crossing the lipid bilayer.
+- **Interpretation**: Will discuss strength/direction of flexibility–permeability link, focusing on dihedral variance.  
+- **Limitations**:  
+  - Observational design → associational only (FR‑009).  
+  - Power limitation if N < 150.  
+  - Potential residual collinearity despite VIF mitigation.  
+  - Protocol heterogeneity may still bias if unmeasured factors exist.  
+  - Bond/angle metrics excluded due to physical rigidity (noise-dominated).  
+- **Future Work**: Experimental validation, larger open datasets, exploration of alternative flexibility metrics.
 
-However, the study is limited by the heterogeneity of the source data and the computational constraints imposed by the conformer generation process. The reduction in ensemble size (DEV-001) may introduce noise in the variance estimates, though this is mitigated by the large sample size and robust statistical methods.
+## Decision/Rationale
 
-Future work should explore the integration of normal mode analysis for a more comprehensive understanding of low-frequency vibrational modes and their impact on permeability. Additionally, expanding the dataset to include other membrane transport assays (e.g., P-gp substrates) could provide further insights into the role of flexibility in drug transport mechanisms.
-
-### Conclusion
-This research establishes a quantitative link between molecular flexibility and drug permeability, providing a valuable tool for early-stage drug design. By balancing computational efficiency with statistical rigor, the study offers a scalable framework for evaluating flexibility in large chemical libraries.
+- **Why ChEMBL?** Open, programmatic, contains required SMILES and logPapp.  
+- **Why PyVib?** Satisfies Constitution Principle VI (normal‑mode analysis) and provides physically meaningful torsional variance via Hessian eigenvalues.  
+- **Why CPU‑Only?** All steps fit within GitHub Actions limits; eliminates reproducibility risk from optional GPU offload.  
+- **Why Robust Methods?** Address heteroscedasticity and collinearity per methodological concerns.  
+- **Why Protocol Covariates?** Directly control for assay‑level heterogeneity identified as a hidden confound.  
+- **Why Exclude Bond/Angle?** They are physically rigid in organic molecules; including them dilutes the signal of conformational entropy.

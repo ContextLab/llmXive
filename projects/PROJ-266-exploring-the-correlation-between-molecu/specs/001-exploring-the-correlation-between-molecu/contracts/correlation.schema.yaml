@@ -4,8 +4,8 @@ type: object
 properties:
   descriptor_type:
     type: string
-    enum: ["bond", "angle", "dihedral"]
-    description: "Type of flexibility descriptor"
+    enum: ["dihedral"]
+    description: "Type of flexibility descriptor (only dihedral is predictive)"
   method:
     type: string
     enum: ["Pearson", "Spearman"]

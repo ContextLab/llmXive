@@ -1,64 +1,98 @@
 # Data Model: Exploring the Correlation Between Molecular Flexibility and Drug Transport Across Cell Membranes
 
-## Entities
+## Entity‑Relationship Overview
 
-### Molecule
-- **SMILES**: string (canonicalized)  
-- **Molecular Weight (MW)**: float (g/mol)  
-- **logP**: float (octanol-water partition coefficient)  
-- **PSA**: float (polar surface area, Å²)  
-- **logPapp**: float (Caco-2 permeability, cm/s)  
-- **Assay Protocol**: string (standard_type)  
-- **Conformer Ensemble**: list of 3D coordinates (20 conformers)  
-- **Flexibility Descriptors**: dict (bond_variance, angle_variance, dihedral_variance)  
+The project models four core entities: `Molecule`, `FlexibilityDescriptor`, `CorrelationResult`, and `ModelPerformance`.
 
-### FlexibilityDescriptor
-- **bond_variance**: float (Å²)  
-- **angle_variance**: float (rad²)  
-- **dihedral_variance**: float (rad²)  
-- **ensemble_size**: int (20)  
-- **energy_window**: float (10 kcal/mol)  
-
-### CorrelationResult
-- **descriptor_type**: string (bond/angle/dihedral)  
-- **method**: string (Pearson/Spearman)  
-- **r**: float (correlation coefficient)  
-- **p_value**: float  
-- **q_value**: float (FDR-corrected)  
-- **ci_lower**: float (95% CI lower)  
-- **ci_upper**: float (95% CI upper)  
-- **associational_only**: boolean (flag indicating results are associational)  
-
-### ModelPerformance
-- **mean_r2**: float  
-- **mean_rmse**: float  
-- **mean_mae**: float  
-- **fold_r2**: list of 5 floats  
-- **confounder_coefficients**: dict (logP, MW, PSA, flexibility_descriptor)  
+```mermaid
+erDiagram
+    MOLECULE ||--o{ FLEXIBILITY_DESCRIPTOR : "has"
+    MOLECULE ||--o{ CORRELATION_RESULT : "yields"
+    MOLECULE ||--o{ MODEL_PERFORMANCE : "contributes to"
+    
+    MOLECULE {
+        string smi "SMILES string"
+        float mw "Molecular Weight"
+        float logPapp "Caco‑2 Permeability (logPapp)"
+        float psa "Polar Surface Area"
+        string protocol_id "Identifier for assay protocol (lab/temperature/passage)"
+        int rotatable_bonds "Number of rotatable bonds"
+    }
+    
+    FLEXIBILITY_DESCRIPTOR {
+        float dihedral_variance "Dihedral angle variance (rad²) - PRIMARY PREDICTOR"
+        float bond_variance "Bond length variance (rad²) - DIAGNOSTIC ONLY"
+        float angle_variance "Bond angle variance (rad²) - DIAGNOSTIC ONLY"
+        float size_normalized_flexibility "dihedral_variance / rotatable_bonds"
+        int conformer_count "Number of conformers generated"
+        bool nma_success "True if PyVib normal‑mode analysis succeeded"
+        bool converged "True if variance stability criterion met"
+    }
+    
+    CORRELATION_RESULT {
+        float pearson_r "Pearson correlation coefficient"
+        float pearson_p "Pearson p‑value"
+        float spearman_r "Spearman correlation coefficient"
+        float spearman_p "Spearman p‑value"
+        float fdr_q "Benjamini‑Hochberg q‑value"
+        string method "Pearson or Spearman"
+    }
+    
+    MODEL_PERFORMANCE {
+        float mean_r2 "Mean R² from 5‑fold CV"
+        float mean_rmse "Mean RMSE"
+        float mean_mae "Mean MAE"
+        string coefficients "Confounder coefficients (logP, MW, PSA, protocol, flexibility)"
+        list fold_scores "R² for each fold"
+    }
+```
 
 ## Data Flow
 
-1. **Raw Data**: ChEMBL API → `data/raw/chembl_caco2_raw.csv`  
-2. **Validated Data**: Filtered SMILES/logPapp → `data/processed/validated_molecules.csv`  
-3. **Conformers**: 3D ensembles → `data/processed/conformers.parquet`  
-4. **Descriptors**: Flexibility metrics → `data/processed/flexibility_descriptors.csv`  
-5. **Results**: Correlation/model outputs → `data/processed/results.json`  
+1. **Raw Data**: `data/raw/chembl_caco2_raw.csv` (SMILES, logPapp, MW, PSA, protocol metadata).  
+2. **Processed Data**: `data/processed/cleaned_dataset.csv` (filtered, validated).  
+3. **Descriptors**: `data/processed/flexibility_descriptors.csv` (Molecule ID + variance metrics, NMA flag, convergence flag).  
+4. **Results**: `data/processed/correlation_results.csv` and `data/processed/model_metrics.csv`.  
+5. **Artifacts**: `data/processed/plot.png` (visualization).
 
-## Transformations
+## Schema Definitions
 
-- **Validation**: Remove NULL SMILES/logPapp; filter `standard_type=MEASUREMENT`.  
-- **Conformer Generation**: RDKit `EmbedMultipleConfs` with 20 conformers, MMFF94 optimization.  
-- **Descriptor Computation**: Variance of internal coordinates across ensemble.  
-- **Correlation**: Pearson/Spearman with FDR correction.  
-- **Model**: Linear regression with scaffold-based 5-fold CV and VIF/Ridge fallback.  
+### Input Schema (ChEMBL)
+- `canonical_smiles`: String (non‑NULL)  
+- `standard_value`: Float (logPapp, non‑NULL)  
+- `molecular_weight`: Float (optional; can be computed from SMILES)  
+- `polar_surface_area`: Float (optional; can be computed)  
+- `lab_id`, `temperature`, `passage_number`: Strings/Numbers (optional metadata for protocol heterogeneity)
+- `num_rotatable_bonds`: Integer (computed from SMILES)
 
-## Assumptions
+### Output Schema (Flexibility Descriptors)
+- `smiles`: String  
+- `dihedral_variance`: Float (rad²) - Primary Predictor  
+- `bond_variance`: Float (rad²) - Diagnostic Only  
+- `angle_variance`: Float (rad²) - Diagnostic Only  
+- `size_normalized_flexibility`: Float  
+- `conformer_count`: Integer  
+- `nma_success`: Boolean  
+- `converged`: Boolean
 
-- SMILES strings are canonical and valid for RDKit parsing.  
-- logPapp values are in consistent units (cm/s).  
-- Conformer ensembles adequately represent conformational space (20 samples).  
-- Bond and angle variances are near-zero and are included for completeness but are not primary predictors.  
-- Dihedral variance is the primary flexibility metric.  
-- Scaffold-based splitting prevents data leakage in cross-validation.  
-- VIF diagnosis and Ridge regression fallback handle collinearity.  
-- Convergence check ensures 20 conformers yield stable variance estimates.
+### Output Schema (Correlation Results)
+- `descriptor_name`: String (`dihedral_variance`)  
+- `pearson_r`: Float  
+- `pearson_p`: Float  
+- `spearman_r`: Float  
+- `spearman_p`: Float  
+- `fdr_q`: Float  
+
+### Output Schema (Model Performance)
+- `mean_r2`: Float  
+- `mean_rmse`: Float  
+- `mean_mae`: Float  
+- `coefficients`: String (JSON‑encoded mapping)  
+- `fold_scores`: List[Float] (5 values)
+
+## Data Hygiene Rules
+
+- **Immutability**: Raw data never modified; each transformation writes a new file.  
+- **Checksums**: Every file in `data/` is checksummed (SHA‑256) by `utils/checksum.py` and recorded in `state/artifact_hashes`.  
+- **Seeding**: All stochastic steps use `seed = 42`.  
+- **Validation**: Files are validated against the JSON‑Schema contracts in `contracts/`.

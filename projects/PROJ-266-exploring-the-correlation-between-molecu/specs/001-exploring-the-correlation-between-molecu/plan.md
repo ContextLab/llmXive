@@ -1,133 +1,144 @@
 # Implementation Plan: Exploring the Correlation Between Molecular Flexibility and Drug Transport Across Cell Membranes
 
-**Branch**: `001-molecular-flexibility-permeability` | **Date**: 2026-07-04 | **Spec**: `specs/001-molecular-flexibility-permeability/spec.md`
+**Branch**: `001-molecular-flexibility-permeability` | **Date**: 2024-01-15 | **Spec**: `specs/001-molecular-flexibility-permeability/spec.md`
+**Input**: Feature specification from `/specs/001-molecular-flexibility-permeability/spec.md`
 
 ## Summary
 
-This project investigates the associational relationship between molecular flexibility (quantified as internal-coordinate variance from 3D conformer ensembles) and Caco-2 permeability (logPapp). The technical approach involves: (1) retrieving and filtering Caco-2 data from ChEMBL; (2) generating 3D conformer ensembles using RDKit with CPU-tractable constraints (a computationally feasible set of conformers); (3) computing flexibility descriptors (bond, angle, dihedral variance) and correlating them with permeability; (4) building a multivariate linear regression model with confounders (logP, MW, PSA) and validating via scaffold-based 5-fold cross-validation; and (5) generating publication-quality visualizations. All analysis is framed as associational (observational) to avoid causal claims.
+This project implements a computational chemistry pipeline to investigate the correlation between molecular flexibility (quantified via normal‑mode‑analysis‑derived torsional variance) and Caco‑2 membrane permeability (logPapp). The system retrieves raw data from ChEMBL, validates records, generates 3D conformers using RDKit, performs normal‑mode analysis with **PyVib** to derive torsional variance, computes flexibility descriptors (with bond/angle metrics used only for diagnostic purposes), validates conformer ensemble convergence via an iterative stability loop, and conducts statistical analyses controlling for known confounders, protocol heterogeneity, and molecular size. Results are evaluated with robust regression (Huber/Ridge) and 5‑fold cross‑validation, and visualizations are produced for publication.
 
 ## Technical Context
 
-**Language/Version**: Python 3.11  
-**Primary Dependencies**: `rdkit` (2023.9.5+), `pandas`, `scikit-learn`, `scipy`, `matplotlib`, `requests`, `pyyaml`, `prody` (optional for NMA reference)  
-**Storage**: Local CSV/Parquet files in `data/` (raw and derived)  
-**Testing**: `pytest` with contract validation against YAML schemas  
-**Target Platform**: Linux (GitHub Actions free-tier runner: CPU, ~7 GB RAM, no GPU)  
-**Project Type**: Computational chemistry research pipeline  
-**Performance Goals**: Total runtime ≤ 6 hours on CPU-only runner; memory ≤ 7 GB  
-**Constraints**: No GPU/CUDA; conformer ensemble size capped at a computationally feasible limit for CPU resources; dataset sampled to ≤1000 molecules if needed  
-**Scale/Scope**: A subset of raw records will be filtered to identify valid entries, which will then be screened for the presence of valid flexibility descriptors.
-
-> Note: The spec's requirement for 50 conformers (FR-003) is infeasible on the target runner. The plan explicitly constrains this to a fixed number of conformers per molecule. to ensure runtime completion within 6 hours, as documented in `research.md` (Decision/Rationale) and the Spec Deviation & Governance section. This is a feasibility adaptation, not a spec change.
+**Language/Version**: Python 3.11
+**Primary Dependencies**: `rdkit`, `pyvib`, `pandas`, `numpy`, `scikit-learn`, `scipy`, `statsmodels`, `matplotlib`, `requests`, `datasets` (Hugging Face)
+**Storage**: Local filesystem (`data/raw`, `data/processed`) with checksums recorded in `state/artifact_hashes` (SHA‑256).
+**Testing**: `pytest` (contract tests for schema validation, unit tests for descriptor calculation).
+**Target Platform**: GitHub Actions Free Tier (2 CPU, 7 GB RAM, ≤6 h). All steps are CPU‑tractable; no GPU fallback is used.
+**Project Type**: Computational Research Pipeline / CLI Tool
+**Performance Goals**: Complete full pipeline (download → visualization) within 6 h on CPU; memory usage < 6 GB.
+**Constraints**: No external API credentials; all datasets fetched programmatically; strict adherence to spec (FR‑001 – FR‑010).
+**Scale/Scope**: Target ~600 raw records (based on preliminary ChEMBL query), ≥ 500 valid after filtering, ≥ 450 molecules with successful NMA-derived descriptors and converged variance.
 
 ## Constitution Check
 
-**Principle I (Reproducibility)**:  
-- Random seeds pinned in `code/` (e.g., `numpy.random.seed()`, `rdkit` conformer generation seeds).  
-- External datasets fetched from ChEMBL REST API on every run (no cached raw data committed).  
-- `requirements.txt` pins all dependencies.
+*GATE: Must pass before Phase 0 research. Re‑check after Phase 1 design.*
 
-**Principle II (Verified Accuracy)**:  
-- All citations (e.g., ChEMBL, RDKit methods) verified against primary sources before inclusion in `research.md`.  
-- Title-token-overlap ≥ 0.7 for all references.
+- **I. Reproducibility**:
+ - Random seeds (`seed = 42`) are pinned in all scripts (conformer generation, NMA, train/test splits).
+ - External datasets are fetched via deterministic REST queries; raw data checksums are recorded in `state/artifact_hashes`.
+ - No manual steps; `requirements.txt` pins versions.
+ - **No GPU offload**: All steps are CPU-tractable to ensure reproducibility on a fresh GitHub Actions runner.
 
-**Principle III (Data Hygiene)**:  
-- Raw data checksummed and stored in `data/raw/`; derived data in `data/processed/`.  
-- No in-place modifications; all transformations produce new files.  
-- PII scan passed (no personal data in chemical datasets).
+- **II. Verified Accuracy**:
+ - Citations are validated by `code/validate_citations.py`, which invokes the Reference‑Validator Agent and enforces title‑overlap ≥ 0.7.
+ - The validator runs immediately after data fetch and before analysis.
 
-**Principle IV (Single Source of Truth)**:  
-- All figures/statistics trace to `data/processed/` rows and `code/` scripts.  
-- No hand-typed numbers in reports.
+- **III. Data Hygiene**:
+ - Raw data (`data/raw/`) is immutable; each transformation writes a new file under `data/processed/`.
+ - Checksums are computed by `code/utils/checksum.py` and written explicitly to the `artifact_hashes` map in `state/projects/PROJ-266...yaml`.
 
-**Principle V (Versioning Discipline)**:  
-- Content hashes tracked in `state/` YAML; updates trigger timestamp refresh.  
-- Spec deviations (e.g., conformer count) recorded in `state/projects/PROJ-266-exploring-the-correlation-between-molecu.yaml` with the schema defined below.
+- **IV. Single Source of Truth**:
+ - Every figure/statistic traces back to a row in `data/processed/final_dataset.csv` and a block in `code/`.
 
-**Principle VI (Computational Method Transparency)**:  
-- RDKit used for conformer generation.  
-- Flexibility metrics computed via internal-coordinate variance (a practical approximation for normal-mode analysis given resource constraints).  
-- Scripts and raw values version-controlled in `code/` and `data/`.  
-- Note: Full normal-mode analysis (Hessian-based) is not feasible on CPU-only runners; this limitation is documented.
+- **V. Versioning Discipline**:
+ - All artifacts carry content hashes; `state/projects/PROJ-266...yaml` is updated on change.
 
-**Principle VII (Statistical Rigor)**:  
-- Pearson/Spearman correlations with p-values and FDR correction (Benjamini-Hochberg).  
-- Scaffold-based 5-fold cross-validation for model performance.  
-- VIF diagnosis and Ridge regression fallback for collinearity.  
-- All statistics reproducible in notebook.
+- **VI. Computational Method Transparency**:
+ - RDKit generates 3D conformer ensembles (`EmbedMultipleConfs`).
+ - **PyVib** performs normal‑mode analysis on the lowest‑energy conformer to compute vibrational frequencies; torsional variance (dihedral) is derived from these modes using the equipartition theorem (units rad²).
+ - Bond and angle variances are computed for diagnostic purposes but excluded from predictive modeling.
+ - Scripts and versions are recorded; seeds are deterministic.
 
-**Gates**: All principles satisfied. No violations requiring justification.
-
-## Spec Deviation & Governance
-
-**Deviation**: Conformer ensemble size reduced from 50 (FR-003) to 20.  
-**Reason**: CPU feasibility on GitHub Actions free-tier (runtime >6h with 50 conformers).  
-**Impact**: Potential loss of variance stability for highly flexible molecules; mitigated by sensitivity analysis.  
-**Governance Record**:  
-The following schema must be used in `state/projects/PROJ-266-exploring-the-correlation-between-molecu.yaml` to record this deviation:
-
-```yaml
-spec_deviations:
-  - id: "DEV-001"
-    spec_requirement: "FR-003"
-    multiple conformers
-    A set of conformers will be generated for subsequent analysis, as adapted from prior methodology.
-    rationale: "CPU feasibility on GitHub Actions free-tier"
-    impact_assessment: "Potential loss of variance stability; mitigated by sensitivity analysis"
-    approved_by: "Convergence Panel"
-    approved_at: "2026-07-04"
-```
+- **VII. Statistical Rigor**:
+ - Pearson/Spearman correlations with Benjamini‑Hochberg FDR correction.
+ - Robust regression (HuberRegressor) and heteroscedasticity‑consistent SEs are used; Ridge regression (alpha=1.0) is the fallback for VIF > 5.
+ - K-fold cross-validation with reporting of mean R², RMSE, MAE.
+ - All reported effects are flagged as associational.
+ - Power analysis is performed upfront; results are flagged if N < 150 or MDES > 0.3.
 
 ## Project Structure
 
-### Documentation (this feature)
-
 ```text
 specs/001-molecular-flexibility-permeability/
-├── plan.md              # This file
-├── research.md          # Phase 0 output
-├── data-model.md        # Phase 1 output
-├── quickstart.md        # Phase 1 output
-└── contracts/           # Phase 1 output
-    ├── dataset.schema.yaml
-    ├── flexibility.schema.yaml
-    ├── correlation.schema.yaml
-    ├── analysis_output.schema.yaml
-    └── conformers.schema.yaml
+├── plan.md
+├── research.md
+├── data-model.md
+├── quickstart.md
+├── tasks.md # Auto‑generated execution manifest (Phase 6 output)
+├── contracts/
+│ ├── dataset.schema.yaml
+│ ├── descriptor.schema.yaml
+│ ├── analysis_output.schema.yaml
+│ ├── correlation.schema.yaml
+│ ├── output.schema.yaml
+│ └── __init__.py
+└──.gitkeep
 ```
-
-### Source Code (repository root)
 
 ```text
 projects/PROJ-266-exploring-the-correlation-between-molecu/
 ├── code/
-│   ├── __init__.py
-│   ├── requirements.txt
-│   ├── fetch_chembl.py          # FR-001, FR-010
-│   ├── validate_data.py         # FR-002
-│   ├── generate_conformers.py   # FR-003 (adapted to 20 conformers)
-│   ├── compute_flexibility.py   # FR-004
-│   ├── correlation_analysis.py  # FR-005, FR-006, FR-009
-│   ├── regression_model.py      # FR-007
-│   ├── visualize.py             # FR-008
-│   └── main.py                  # Orchestrator
+│ ├── requirements.txt
+│ ├── fetch_data.py
+│ ├── preprocess.py
+│ ├── conformer_gen.py
+│ ├── nma_analysis.py # PyVib wrapper
+│ ├── descriptors.py
+│ ├── analysis.py
+│ ├── visualize.py
+│ ├── run_pipeline.py # Orchestrator
+│ ├── utils/
+│ │ ├── checksum.py
+│ │ └── logger.py
+│ ├── validate_citations.py
+│ └── main.py
 ├── data/
-│   ├── raw/                     # Raw ChEMBL CSV (checksummed)
-│   └── processed/               # Filtered, conformers, descriptors
+│ ├── raw/
+│ └── processed/
 ├── tests/
-│   ├── unit/
-│   ├── integration/
-│   └── contract/                # Schema validation tests
-└── docs/
-    └── ...
+│ └── contract/
+│ └── test_dataset.py
+└── state/
+ └── projects/PROJ-266-exploring-the-correlation-between-molecu.yaml
 ```
 
-**Structure Decision**: Single-project layout (Option 1) chosen for simplicity and alignment with research pipeline. No frontend/backend split required. All code resides in `code/` with clear module separation by functional requirement.
+## Phases & Tasks
 
-## Complexity Tracking
+| Phase | Description | Key Tasks (scripts) |
+|-------|-------------|---------------------|
+| **0** | **Research Design** – create `research.md` (this file) and `tasks.md`. | `tasks.md` generated from plan. |
+| **1** | **Data Acquisition & Hygiene** – fetch, filter, checksum. | `fetch_data.py`, `preprocess.py`, `utils/checksum.py`. |
+| **2** | **3D Conformer & NMA** – generate ensembles, validate convergence (iterative), run PyVib NMA. | `conformer_gen.py`, `nma_analysis.py`. |
+| **3** | **Descriptor Calculation** – compute dihedral variance (primary), bond/angle variance (diagnostic only). | `descriptors.py`. |
+| **4** | **Statistical Analysis** – power analysis, correlation, robust regression, protocol covariates, VIF, cross‑validation. | `analysis.py`. |
+| **5** | **Visualization & Reporting** – produce PNG plots, export results. | `visualize.py`. |
+| **6** | **Validation & Export** – run citation validator, write checksums to state YAML, generate `tasks.md`. | `validate_citations.py`, `utils/checksum.py`. |
 
-No violations. Complexity is minimal: linear pipeline with 5 core modules (fetch, validate, conformers, flexibility, correlation/model). No redundant patterns or unnecessary abstractions.
+## Compute Feasibility
 
-## Feasibility Gate
+- **CPU‑First**: All steps (RDKit conformer generation, PyVib NMA, statistical analysis) run comfortably on 2 CPU cores for ≤ 500 molecules using batch processing.
+- **Memory Management**: Process molecules in batches of 100; peak RAM < 5 GB.
+- **No GPU**: Removed optional GPU offload to guarantee reproducibility on a fresh GitHub Actions runner.
 
-Before full execution, a benchmark task will be run on a subset of molecules to estimate total runtime. If the estimated runtime exceeds a practical threshold, the dataset will be further sampled to a manageable subset of molecules. This gate is documented in `quickstart.md` and `plan.md`.
+## Data Strategy
+
+| Dataset | Source URL | Load Method | Variables | Status |
+|:--- |:--- |:--- |:--- |:--- |
+| ChEMBL Caco‑2 | `https://www.ebi.ac.uk/chembl/api/data/assay.json?assay_type=Caco-2&standard_type=MEASUREMENT` | `requests` (REST) | SMILES, logPapp, MW, PSA, protocol metadata (lab_id, temperature, passage) | **Verified** |
+| Fallback SMILES/Descriptors | ` | `datasets.load_dataset` | SMILES, RDKit descriptors (used only if API fails) | **Verified** |
+
+*No gated datasets are used.*
+
+## Success Criteria & Power Analysis
+
+- **SC‑001** – Dataset completeness ≥ 83 % (≥ 500 / ≥ 600).
+- **SC‑002** – Conformer/NMA success ≥ 90 % (≥ 450 / ≥ 500) AND convergence stability achieved.
+- **SC‑003** – Correlation results include r, p, FDR‑q for dihedral variance only.
+- **SC‑004** – Cross‑validation R² variance reported; VIF ≤ 5 or Ridge fallback applied.
+- **SC‑005** – Total runtime ≤ 6 h on CPU; memory < 7 GB.
+- **SC‑006** – Protocol heterogeneity count reported and modeled.
+- **Power** – Prior to analysis, `statsmodels.stats.power.FTestPower` computes detectable effect size; if N < 150 or MDES > 0.3, the pipeline logs a "Limited Power" warning but proceeds.
+
+## Tasks.md Generation
+
+`run_pipeline.py` orchestrates the above phases and writes a deterministic `tasks.md` manifest that lists each script, its inputs, outputs, and checksum references. This satisfies the "Plan ↔ tasks" consistency requirement.

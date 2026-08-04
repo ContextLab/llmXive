@@ -1,0 +1,51 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis Output Schema"
+description: "Schema for correlation results and model performance metrics."
+type: object
+required:
+  - correlation_results
+  - model_performance
+properties:
+  correlation_results:
+    type: "array"
+    items:
+      type: "object"
+      required:
+        - descriptor_name
+        - pearson_r
+        - pearson_p
+        - spearman_r
+        - spearman_p
+        - fdr_q
+      properties:
+        descriptor_name:
+          type: "string"
+        pearson_r:
+          type: "number"
+        pearson_p:
+          type: "number"
+        spearman_r:
+          type: "number"
+        spearman_p:
+          type: "number"
+        fdr_q:
+          type: "number"
+  model_performance:
+    type: "object"
+    required:
+      - mean_r2
+      - mean_rmse
+      - mean_mae
+      - fold_scores
+    properties:
+      mean_r2:
+        type: "number"
+      mean_rmse:
+        type: "number"
+      mean_mae:
+        type: "number"
+      fold_scores:
+        type: "array"
+        items:
+          type: "number"
+additionalProperties: false

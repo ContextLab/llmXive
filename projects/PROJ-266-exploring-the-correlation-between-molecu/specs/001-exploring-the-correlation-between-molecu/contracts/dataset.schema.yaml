@@ -1,65 +1,33 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Caco-2 Permeability Dataset Schema
-description: |
-  Schema for the filtered Caco-2 permeability dataset derived from ChEMBL.
-  Validates the output of code/data/preprocessing.py (T010).
-type: object
-required:
-  - metadata
-  - records
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Caco-2 Permeability Dataset Schema"
+description: "Schema for the raw and cleaned Caco-2 permeability dataset from ChEMBL."
+type: "object"
 properties:
-  metadata:
-    type: object
-    required:
-      - source
-      - generated_at
-      - total_raw_records
-      - filtered_records
-      - excluded_null_smiles
-      - excluded_null_logpapp
-    properties:
-      source:
-        type: string
-        const: "ChEMBL"
-      generated_at:
-        type: string
-        format: date-time
-      total_raw_records:
-        type: integer
-        minimum: 0
-      filtered_records:
-        type: integer
-        minimum: 0
-      excluded_null_smiles:
-        type: integer
-        minimum: 0
-      excluded_null_logpapp:
-        type: integer
-        minimum: 0
-  records:
-    type: array
-    items:
-      type: object
-      required:
-        - smiles
-        - logPapp
-        - assay_id
-        - molreg_id
-      properties:
-        smiles:
-          type: string
-          description: Canonical SMILES string of the molecule.
-          minLength: 1
-        logPapp:
-          type: number
-          description: Log of the apparent permeability coefficient (cm/s).
-        assay_id:
-          type: string
-          description: ChEMBL Assay ID.
-        molreg_id:
-          type: string
-          description: ChEMBL Molecule Registry ID.
-        experimental_conditions:
-          type: string
-          nullable: true
-          description: Optional experimental protocol details.
+  smi:
+    type: "string"
+    description: "Canonical SMILES string of the molecule."
+  logPapp:
+    type: "number"
+    description: "Caco-2 permeability value (logPapp)."
+  mw:
+    type: "number"
+    description: "Molecular weight (g/mol)."
+  psa:
+    type: "number"
+    description: "Polar surface area (Å²)."
+  lab_id:
+    type: "string"
+    description: "Identifier for the laboratory that performed the assay."
+  temperature:
+    type: "number"
+    description: "Assay temperature in Celsius."
+  passage_number:
+    type: "integer"
+    description: "Cell passage number used in the assay."
+  num_rotatable_bonds:
+    type: "integer"
+    description: "Number of rotatable bonds (computed)."
+required:
+  - "smi"
+  - "logPapp"
+additionalProperties: false
