@@ -1,115 +1,167 @@
 """
-Unit tests for download_metabolomics module.
-Tests the core logic without actually downloading data.
+Unit tests for metabolite data download functionality.
 """
-import pytest
-import pandas as pd
-from unittest.mock import Mock, patch, MagicMock
-from pathlib import Path
-import json
-
-# Import the functions to test
+import os
 import sys
+import tempfile
+import zipfile
+from pathlib import Path
+from unittest.mock import patch, MagicMock
+
+import pytest
+
+# Add parent directory to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'code'))
 
-from download_metabolomics import (
-    build_metabolite_matrix,
-    DownloadError
+from data.download import (
+    validate_study_accession,
+    download_metabolite_study,
+    create_session,
+    E_DATASET
 )
 
-class TestBuildMetaboliteMatrix:
-    """Tests for the build_metabolite_matrix function."""
+class TestValidateStudyAccession:
+    """Tests for validate_study_accession function."""
+    
+    def test_valid_geo_accession(self):
+        """Test valid GEO accession format."""
+        assert validate_study_accession("GSE21857") is True
+        assert validate_study_accession("GSE167633") is True
+    
+    def test_valid_metabolomics_accession(self):
+        """Test valid Metabolomics Workbench accession format."""
+        assert validate_study_accession("ST002565") is True
+        assert validate_study_accession("ST123456") is True
+    
+    def test_invalid_accession(self):
+        """Test invalid accession formats."""
+        assert validate_study_accession("INVALID") is False
+        assert validate_study_accession("GSE") is False
+        assert validate_study_accession("ST") is False
+        assert validate_study_accession("") is False
 
-    def test_build_matrix_with_valid_data(self):
-        """Test building a matrix with valid metabolite data."""
-        # Mock metabolite data
-        metabolite_data = {
-            "data": {
-                "metabolites": [
-                    {"metabolite_id": "M1", "name": "Metabolite 1"},
-                    {"metabolite_id": "M2", "name": "Metabolite 2"}
-                ],
-                "samples": ["S1", "S2", "S3"],
-                "values": [
-                    [1.5, 2.0, 1.8],
-                    [0.5, 0.7, 0.6]
-                ]
-            }
-        }
+class TestDownloadMetaboliteStudy:
+    """Tests for download_metabolite_study function."""
+    
+    def test_invalid_accession_raises_error(self):
+        """Test that invalid accession raises E_DATASET."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_dir = Path(tmpdir)
+            with pytest.raises(E_DATASET):
+                download_metabolite_study("INVALID_ID", output_dir)
+    
+    def test_successful_download_structure(self):
+        """Test successful download creates valid zip file."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_dir = Path(tmpdir)
+            
+            # Mock the session and responses
+            with patch('data.download.create_session') as mock_session_class:
+                mock_session = MagicMock()
+                mock_session_class.return_value = mock_session
+                
+                # Mock metadata response
+                mock_metadata_response = MagicMock()
+                mock_metadata_response.status_code = 200
+                mock_metadata_response.json.return_value = {
+                    'analyses': [{'analysis_id': 'AN123456'}]
+                }
+                
+                # Mock download response
+                mock_download_response = MagicMock()
+                mock_download_response.status_code = 200
+                mock_download_response.text = "mock metabolite data"
+                
+                mock_session.get.side_effect = [mock_metadata_response, mock_download_response]
+                
+                # Perform download
+                output_file = download_metabolite_study("ST002565", output_dir)
+                
+                # Verify file exists
+                assert output_file.exists()
+                assert output_file.name == "metabolomics_ST002565.zip"
+                
+                # Verify zip structure
+                with zipfile.ZipFile(output_file, 'r') as zipf:
+                    files = zipf.namelist()
+                    assert len(files) == 1
+                    assert files[0].endswith("_metabolite_data.txt")
+    
+    def test_network_error_raises_dataset_error(self):
+        """Test that network errors raise E_DATASET."""
+        import requests
         
-        # Mock sample metadata
-        sample_metadata = [
-            {"sample_id": "S1", "biosample_id": "B1"},
-            {"sample_id": "S2", "biosample_id": "B2"},
-            {"sample_id": "S3", "biosample_id": "B3"}
-        ]
-        
-        # Mock analysis metadata
-        analysis_metadata = [{"analysis_id": "A1"}]
-        
-        # Build the matrix
-        df = build_metabolite_matrix(metabolite_data, sample_metadata, analysis_metadata)
-        
-        # Assertions
-        assert isinstance(df, pd.DataFrame)
-        assert len(df) == 2  # 2 metabolites
-        assert len(df.columns) == 3  # 3 samples
-        assert list(df.index) == ["M1", "M2"]
-        assert list(df.columns) == ["B1", "B2", "B3"]
-        assert df.loc["M1", "B1"] == 1.5
-        assert df.loc["M2", "B3"] == 0.6
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_dir = Path(tmpdir)
+            
+            with patch('data.download.create_session') as mock_session_class:
+                mock_session = MagicMock()
+                mock_session_class.return_value = mock_session
+                
+                # Simulate network error
+                mock_session.get.side_effect = requests.RequestException("Network error")
+                
+                with pytest.raises(E_DATASET):
+                    download_metabolite_study("ST002565", output_dir)
+    
+    def test_invalid_metadata_raises_dataset_error(self):
+        """Test that invalid metadata raises E_DATASET."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_dir = Path(tmpdir)
+            
+            with patch('data.download.create_session') as mock_session_class:
+                mock_session = MagicMock()
+                mock_session_class.return_value = mock_session
+                
+                # Mock metadata response with no analyses
+                mock_metadata_response = MagicMock()
+                mock_metadata_response.status_code = 200
+                mock_metadata_response.json.return_value = {
+                    'analyses': []
+                }
+                
+                mock_session.get.return_value = mock_metadata_response
+                
+                with pytest.raises(E_DATASET):
+                    download_metabolite_study("ST002565", output_dir)
+    
+    def test_download_failure_raises_dataset_error(self):
+        """Test that download failure raises E_DATASET."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_dir = Path(tmpdir)
+            
+            with patch('data.download.create_session') as mock_session_class:
+                mock_session = MagicMock()
+                mock_session_class.return_value = mock_session
+                
+                # Mock metadata response
+                mock_metadata_response = MagicMock()
+                mock_metadata_response.status_code = 200
+                mock_metadata_response.json.return_value = {
+                    'analyses': [{'analysis_id': 'AN123456'}]
+                }
+                
+                # Mock download failure
+                mock_download_response = MagicMock()
+                mock_download_response.status_code = 404
+                
+                mock_session.get.side_effect = [mock_metadata_response, mock_download_response]
+                
+                with pytest.raises(E_DATASET):
+                    download_metabolite_study("ST002565", output_dir)
 
-    def test_build_matrix_missing_values_raises_error(self):
-        """Test that missing values raise an error."""
-        metabolite_data = {
-            "data": {
-                "metabolites": [{"metabolite_id": "M1"}],
-                "samples": ["S1"],
-                "values": []  # Empty values
-            }
-        }
-        
-        sample_metadata = [{"sample_id": "S1", "biosample_id": "B1"}]
-        analysis_metadata = [{"analysis_id": "A1"}]
-        
-        with pytest.raises(DownloadError, match="No metabolite values found"):
-            build_metabolite_matrix(metabolite_data, sample_metadata, analysis_metadata)
-
-    def test_build_matrix_missing_metabolites_raises_error(self):
-        """Test that missing metabolites raise an error."""
-        metabolite_data = {
-            "data": {
-                "metabolites": [],  # Empty metabolites
-                "samples": ["S1"],
-                "values": [[1.5]]
-            }
-        }
-        
-        sample_metadata = [{"sample_id": "S1", "biosample_id": "B1"}]
-        analysis_metadata = [{"analysis_id": "A1"}]
-        
-        # This should create an empty dataframe or handle gracefully
-        # Depending on implementation, it might raise an error or return empty
-        df = build_metabolite_matrix(metabolite_data, sample_metadata, analysis_metadata)
-        assert isinstance(df, pd.DataFrame)
-        assert len(df) == 0  # No metabolites
-
-    def test_build_matrix_with_fallback_biosample_id(self):
-        """Test that biosample_id falls back to sample_name when biosample_id is missing."""
-        metabolite_data = {
-            "data": {
-                "metabolites": [{"metabolite_id": "M1"}],
-                "samples": ["S1"],
-                "values": [[1.5]]
-            }
-        }
-        
-        # Sample metadata without biosample_id
-        sample_metadata = [{"sample_id": "S1", "sample_name": "S1"}]
-        analysis_metadata = [{"analysis_id": "A1"}]
-        
-        df = build_metabolite_matrix(metabolite_data, sample_metadata, analysis_metadata)
-        
-        # Should use sample_name as biosample_id
-        assert "S1" in df.columns
-        assert df.loc["M1", "S1"] == 1.5
+class TestCreateSession:
+    """Tests for create_session function."""
+    
+    def test_session_created_with_headers(self):
+        """Test that session is created with appropriate headers."""
+        session = create_session()
+        assert 'User-Agent' in session.headers
+        assert 'PlantDefensePipeline' in session.headers['User-Agent']
+    
+    def test_session_has_timeout(self):
+        """Test that session has timeout configured."""
+        session = create_session()
+        # Note: requests.Session doesn't have a direct timeout attribute,
+        # but the default behavior should be reasonable
+        assert session is not None

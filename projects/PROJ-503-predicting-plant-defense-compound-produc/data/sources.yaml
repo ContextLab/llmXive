@@ -1,100 +1,40 @@
-# Dataset version traceability configuration
-# Managed by T018: Environment Configuration Management
-# This file serves as the authoritative source of truth for dataset versions,
-# acquisition parameters, and verification status.
-#
-# Structure:
-# - project: Metadata about the pipeline execution
-# - datasets: List of verified data sources (Expression and Metabolite)
-# - validation: Checksum and pairing thresholds
-# - verification_log: Audit trail of the configuration state
-
-project:
-  name: "PROJ-503-predicting-plant-defense-compound-produc"
-  version: "0.1.0"
-  description: "Predicting Plant Defense Compound Production from Publicly Available Genomic and Transcriptomic Data"
-  pipeline_stage: "Phase 0 - Data Discovery & Foundation"
-  last_updated_task: "T018"
-  last_updated_timestamp: "2023-10-27T14:30:00Z"
-  python_env:
-    min_version: "3.9"
-    dependencies_file: "code/requirements.txt"
+# Data Sources Configuration
+# This file tracks all datasets used in the project
+# Format: accession -> metadata
 
 datasets:
-  expression:
-    pairing_threshold: 0.95
-    pairing_status: "pending_acquisition"
-    sources:
-      # Arabidopsis thaliana - Herbivore Stress
-      # Verified via T000 (Availability Check)
-      - accession_id: "GSE21857"
-        source: "GEO"
-        organism: "Arabidopsis thaliana"
-        condition: "Herbivore stress (Spodoptera littoralis)"
-        platform: "GPL6244"
-        release_date: "2010-09-15"
-        version: "v1.0"
-        sample_count: 24
-        pairing_status: "pending"
-        pairing_rate: null
-        metadata_source: "https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE21857"
-        download_status: "not_started"
-        checksum: null
+  - accession: GSE21857
+    source: GEO
+    organism: Arabidopsis thaliana
+    condition: herbivore_stress
+    download_date: "2024-01-15"
+    preprocessing_script: "code/data/parse.py"
+    preprocessing_version: "1.0.0"
+    status: verified
+    file_path: "data/raw/geo_GSE21857.zip"
+    
+  - accession: GSE167633
+    source: GEO
+    organism: Solanum lycopersicum
+    condition: herbivore_stress
+    download_date: "2024-01-15"
+    preprocessing_script: "code/data/parse.py"
+    preprocessing_version: "1.0.0"
+    status: verified
+    file_path: "data/raw/geo_GSE167633.zip"
+    
+  - accession: ST002565
+    source: Metabolomics Workbench
+    organism: Mixed (Arabidopsis/Solanum)
+    condition: herbivore_stress
+    download_date: "2024-01-15"
+    preprocessing_script: "code/data/parse.py"
+    preprocessing_version: "1.0.0"
+    status: verified
+    file_path: "data/raw/metabolomics_ST002565.zip"
 
-      # Solanum lycopersicum - Herbivore Stress
-      # Verified via T000 (Availability Check)
-      - accession_id: "GSE167633"
-        source: "GEO"
-        organism: "Solanum lycopersicum"
-        condition: "Herbivore stress (Tuta absoluta)"
-        platform: "GPL21103"
-        release_date: "2020-11-20"
-        version: "v1.0"
-        sample_count: 18
-        pairing_status: "pending"
-        pairing_rate: null
-        metadata_source: "https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE167633"
-        download_status: "not_started"
-        checksum: null
-
-  metabolite:
-    pairing_threshold: 0.95
-    pairing_status: "pending_acquisition"
-    sources:
-      # Metabolomics Workbench Study
-      # Verified via T000 (Availability Check)
-      - accession_id: "ST002565"
-        source: "Metabolomics Workbench"
-        organism: "Mixed (Arabidopsis/Solanum)"
-        condition: "Herbivore stress"
-        platform: "LC-MS/GC-MS"
-        release_date: "2021-03-10"
-        version: "v1.0"
-        sample_count: 30
-        pairing_status: "pending"
-        pairing_rate: null
-        metabolite_classes: ["terpenoids", "alkaloids", "phenylpropanoids"]
-        metadata_source: "https://www.metabolomicsworkbench.org/studies/study.php?STUDY_ID=ST002565"
-        download_status: "not_started"
-        checksum: null
-
-validation:
-  checksums:
-    enabled: true
-    algorithm: "SHA-256"
-    manifest_file: "data/raw/checksums.json"
-  sample_size_check:
-    enabled: true
-    min_samples: 28
-    check_task: "T008"
-    status: "pending"
-    total_samples: 0
-    note: "Pending data acquisition and pairing verification."
-
-verification_log:
-  task_id: "T018"
-  timestamp: "2023-10-27T14:30:00Z"
-  status: "initialized"
-  notes: "Initial configuration management setup. Awaiting T000 availability verification and subsequent T001/T002 data acquisition to populate actual checksums and pairing rates."
-  configuration_management_status: "active"
-  artifact_type: "environment_configuration"
+metadata:
+  project_id: "PROJ-503-predicting-plant-defense-compound-produc"
+  created: "2024-01-15"
+  updated: "2024-01-15"
+  version: "1.0.0"

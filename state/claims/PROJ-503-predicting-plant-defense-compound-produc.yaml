@@ -1416,3 +1416,325 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-02T21:17:42Z'
+- artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/specs/001-predicting-plant-defense-compound-produc/tasks.md
+  attempts: 1
+  canonical: GSE21857 dataset for Arabidopsis
+  claim_id: c_1ae985d8
+  context: 'Verify availability of specific datasets: GSE21857 (Arabidopsis), GSE167633
+    (Solanum), ST002565 (Metabolomics Workbench).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/GSE21857_dataset_for_Arabidopsis
+  kind: entity_fact
+  raw_text: GSE21857 is a dataset for Arabidopsis
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T15:11:11Z'
+- artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/specs/001-predicting-plant-defense-compound-produc/tasks.md
+  attempts: 1
+  canonical: GSE167633 dataset for Solanum
+  claim_id: c_1057e3c2
+  context: 'Verify availability of specific datasets: GSE21857 (Arabidopsis), GSE167633
+    (Solanum), ST002565 (Metabolomics Workbench).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/GSE167633_dataset_for_Solanum
+  kind: entity_fact
+  raw_text: GSE167633 is a dataset for Solanum
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T15:11:28Z'
+- artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/specs/001-predicting-plant-defense-compound-produc/tasks.md
+  attempts: 1
+  canonical: ST002565 dataset from Metabolomics Workbench
+  claim_id: c_9a42966f
+  context: 'Verify availability of specific datasets: GSE21857 (Arabidopsis), GSE167633
+    (Solanum), ST002565 (Metabolomics Workbench).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/ST002565_dataset_from_Metabolomics_Workbench
+  kind: entity_fact
+  raw_text: ST002565 is a dataset from Metabolomics Workbench
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T15:11:45Z'
+- artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/specs/001-predicting-plant-defense-compound-produc/tasks.md
+  attempts: 1
+  canonical: 99% SHA-256 checksum match rate for downloaded files
+  claim_id: c_b5c1d7b9
+  context: "Verify SC-004: 'Downloaded files from GEO and Metabolomics Workbench must\
+    \ match expected checksums (SHA-256) for \u226599% of requested experiment IDs'."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/99%25_SHA-256_checksum_match_rate_for_downloaded_files
+  kind: magnitude
+  raw_text: Downloaded files from GEO and Metabolomics Workbench must match expected
+    checksums (SHA-256) for at least 99% of requested experiment IDs
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T15:12:07Z'
+- artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/specs/001-predicting-plant-defense-compound-produc/tasks.md
+  attempts: 1
+  canonical: 95% minimum pairing rate for final paired set
+  claim_id: c_c841e697
+  context: Abort with E-PAIRING if pairing rate on the final paired set is < 95% (FR-009,
+    SC-005).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/95%25_minimum_pairing_rate_for_final_paired_set
+  kind: magnitude
+  raw_text: Pairing rate on the final paired set must be at least 95%
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T15:12:35Z'
+- artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/specs/001-predicting-plant-defense-compound-produc/tasks.md
+  attempts: 1
+  canonical: Minimum sample size of 40 for power analysis
+  claim_id: c_394ef528
+  context: Abort with E-POWER if N < 40.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Minimum_sample_size_of_40_for_power_analysis
+  kind: magnitude
+  raw_text: Power analysis requires a sample size of at least 40
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T15:13:30Z'
+- artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/specs/001-predicting-plant-defense-compound-produc/tasks.md
+  attempts: 1
+  canonical: Pearson r >= 0.5 for highest correlation metabolite in 5-fold CV
+  claim_id: c_682a2ed2
+  context: "Verify SC-001: 'Pearson correlation coefficient (r) between predicted\
+    \ and observed abundance must be \u2265 0.5 for the metabolite with the highest\
+    \ Pearson r across the 5\u2011fold cross\u2011validation'."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pearson_r_%3E=_0.5_for_highest_correlation_metabolite_in_5-fol
+  kind: magnitude
+  raw_text: Pearson correlation coefficient (r) between predicted and observed abundance
+    must be at least 0.5 for the metabolite with the highest Pearson r across the
+    5-fold cross-validation
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T15:14:49Z'
+- artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/specs/001-predicting-plant-defense-compound-produc/tasks.md
+  attempts: 1
+  canonical: 60% default sequence identity threshold for ortholog fallback
+  claim_id: c_7d68d04f
+  context: 'Threshold: Default 60% sequence identity (unless overridden by T010).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Default sequence identity threshold for ortholog fallback is 60%
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T15:14:49Z'
+- artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/specs/001-predicting-plant-defense-compound-produc/tasks.md
+  attempts: 1
+  canonical: 75% retention of known defense pathway genes per species
+  claim_id: c_f1e002a8
+  context: "Verify \u226575% of known defense pathway genes retained per species (SC-006)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/75%25_retention_of_known_defense_pathway_genes_per_species
+  kind: magnitude
+  raw_text: At least 75% of known defense pathway genes must be retained per species
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T15:15:25Z'
+- artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/specs/001-predicting-plant-defense-compound-produc/tasks.md
+  attempts: 1
+  canonical: 1000 iterations for max-T permutation test
+  claim_id: c_e4060cc5
+  context: Implement max-T permutation test with 1 000 iterations in code/evaluation.py
+    (FR-006).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Max-T permutation test uses 1000 iterations
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T15:15:56Z'
+- artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/specs/001-predicting-plant-defense-compound-produc/tasks.md
+  attempts: 1
+  canonical: Two-sided p-value <= 0.05 for true predictive signal
+  claim_id: c_ac1c0a02
+  context: "Report two\u2011sided p\u2011value \u2264 0.05 for metabolites showing\
+    \ true predictive signal (US-3 acceptance scenario 2) (FR-006)."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Two-sided_p-value_%3C=_0.05_for_true_predictive_signal
+  kind: magnitude
+  raw_text: Two-sided p-value must be less than or equal to 0.05 for metabolites showing
+    true predictive signal
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T15:16:37Z'
+- artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/specs/001-predicting-plant-defense-compound-produc/tasks.md
+  attempts: 1
+  canonical: Bonferroni-corrected p-value <= 0.05 for highest correlation metabolite
+  claim_id: c_906c848e
+  context: "Verify Bonferroni\u2011corrected p\u2011value \u2264 0.05 for metabolite\
+    \ with highest correlation (SC-002)."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Bonferroni-corrected_p-value_%3C=_0.05_for_highest_correlation
+  kind: magnitude
+  raw_text: Bonferroni-corrected p-value must be less than or equal to 0.05 for the
+    metabolite with the highest correlation
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T15:17:13Z'
+- artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/specs/001-predicting-plant-defense-compound-produc/tasks.md
+  attempts: 1
+  canonical: VIF warning threshold > 5.0
+  claim_id: c_e01f2861
+  context: 'Action: Log warning if VIF > 5.0, do not drop features (Ridge handles
+    collinearity).'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/VIF_warning_threshold_%3E_5.0
+  kind: magnitude
+  raw_text: VIF warning is logged if VIF is greater than 5.0
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T15:17:42Z'
+- artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/specs/001-predicting-plant-defense-compound-produc/tasks.md
+  attempts: 1
+  canonical: 80% minimum line coverage for unit tests
+  claim_id: c_c7373fca
+  context: "Create unit tests with \u226580% line coverage."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/80%25_minimum_line_coverage_for_unit_tests
+  kind: magnitude
+  raw_text: Unit tests must have at least 80% line coverage
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T15:18:14Z'
+- artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/specs/001-predicting-plant-defense-compound-produc/tasks.md
+  attempts: 1
+  canonical: E2E runtime < 4 hours
+  claim_id: c_5b77b560
+  context: Run tests/integration/test_e2e_runtime.py to verify E2E runtime <4h (SC-003).
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/E2E_runtime_%3C_4_hours
+  kind: magnitude
+  raw_text: End-to-end runtime must be less than 4 hours
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T15:18:34Z'
+- artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/specs/001-predicting-plant-defense-compound-produc/tasks.md
+  attempts: 1
+  canonical: Sample size for power analysis must be at least 40
+  claim_id: c_67763c08
+  context: 'Phase 0.1: Data Acquisition & Verification, Task T008'
+  evidence:
+    asserted: '0.05'
+    authority: math.e (IEEE-754 double, Python stdlib)
+    constant: e
+    corrected: true
+    mode: approximate
+    true_value: 2.718281828459045
+    url: https://en.wikipedia.org/wiki/E_(mathematical_constant)
+  kind: magnitude
+  raw_text: Perform power analysis on the final paired set using statsmodels.stats.power.tt_solve_power
+    (F-test, effect size, alpha 0.05, power 0.8). Abort with E-POWER if N < 40.
+  resolved_value: '2.72'
+  resolver: approximate
+  source_hash: 43f9d428e4053c6b0833b38f4a75232c81cfb415f4e254a9b7852ef8bce7bafd
+  source_type: external
+  status: verified
+  updated_at: '2026-08-04T15:19:55Z'
+- artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/specs/001-predicting-plant-defense-compound-produc/tasks.md
+  attempts: 1
+  canonical: Variance Inflation Factor threshold for warning is 5.0
+  claim_id: c_05497309
+  context: 'Phase 5: User Story 3, Task T054'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Action: Log warning if VIF > 5.0, do not drop features (Ridge handles
+    collinearity).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T15:19:56Z'
+- artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/specs/001-predicting-plant-defense-compound-produc/tasks.md
+  attempts: 1
+  canonical: Unit test line coverage must be at least 80%
+  claim_id: c_2c53e81a
+  context: 'Phase 6: Polish & Cross-Cutting Concerns, Task T061'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Unit_test_line_coverage_must_be_at_least_80%25
+  kind: magnitude
+  raw_text: "Create unit tests with \u226580% line coverage."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T15:20:38Z'

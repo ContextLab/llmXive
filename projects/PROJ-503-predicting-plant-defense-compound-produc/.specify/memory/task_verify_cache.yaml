@@ -5,15 +5,37 @@ T000:
     \ script is missing, so the verification logic (including aborting with\u202F\
     E\u2011DATASET) cannot be demonstrated. The existing `docs/dataset_availability_report.md`\
     \ alone does not satisfy the full task."
-T001:
+T001a:
   c: false
-  h: 6a37472dd637e07e1c0a8ac2646b37e2da856fc4dff780a33a79833f1f73eb6a
-  r: "The required output file `data/raw/geo_expression_matrix.csv` does not exist,\
-    \ and the provided `download.py` is incomplete (truncated before the actual download,\
-    \ parsing, and CSV\u2011writing logic). Consequently the task of downloading the\
-    \ two GEO series, parsing the matrix, and producing the specified CSV file has\
-    \ not been fulfilled. The missing CSV and incomplete script must be added for\
-    \ the task to be considered complete."
+  h: 4a44e43fb042f1c5051478a49790edff07dc246217aea895d57c3a1b25d4c26a
+  r: The expected raw zip files (`data/raw/geo_GSE21857.zip` and `geo_GSE167633.zip`)
+    are absent, and the provided `download.py` script is truncated and does not demonstrate
+    a complete download implementation or raising `E_DATASET` on failure. No evidence
+    of a successful download execution is present.
+T001b:
+  c: false
+  h: 45ace4a6d3aca02439cf0fe52eccfa771ec6357fb0b5fefbc47e64b866515ccf
+  r: "The required output `data/raw/geo_expression_matrix.csv` does not exist, and\
+    \ the provided `parse.py` only contains code for metabolomics parsing (the GEO\u2011\
+    parsing portion is absent or incomplete in the shown excerpt). Consequently the\
+    \ task\u2019s core requirement\u2014parsing GEO raw zip files into a wide\u2011\
+    format expression CSV\u2014is not satisfied."
+T002a:
+  c: false
+  h: dadd2c385d0622a81dc42ab2f4cb292e01dcd55634183069110669c1138ff630
+  r: The expected `projects/PROJ-503-predicting-plant-defense-compound-produc/data/raw/metabolomics_ST002565.zip`
+    file is absent, and the provided `download.py` script is truncated and shows no
+    concrete implementation that performs the download, checks for failure, or raises
+    `E_DATASET`. Without the actual data file and a complete, verified download routine,
+    the task requirement is not satisfied.
+T002b:
+  c: false
+  h: 2ebc2257c1ff5cbd047a5a61a2587f80faee392bd5dd27b77c4ac2822b2d203a
+  r: "The required output file `projects/PROJ-503-predicting-plant-defense-compound-produc/data/raw/metabolite_matrix.csv`\
+    \ does not exist, and the provided `parse.py` is truncated before any logic that\
+    \ maps \u201CStudy Accession\u201D \u2192 `sample_id`, \u201CCompound Name\u201D\
+    \ \u2192 `metabolite_id`, or writes the wide\u2011format CSV. The task\u2019s\
+    \ core deliverable is therefore missing."
 T003:
   c: false
   h: e395f5cfc11cd0149a80cd7cbc91a7e58ce3ed381ef1ba8514879f44abb0ea83
@@ -41,15 +63,6 @@ T008:
   r: "No `logs/power_analysis_report.json` file was presented, and no content showing\
     \ N, power, effect_size, alpha, or test_type was provided. The required power\u2011\
     analysis output is therefore missing."
-T010:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The implementer provided no code, script, documentation, or test files for a\
-    \ SHA\u2011256 checksum validation utility, nor any evidence that such a utility\
-    \ was created or integrated. The artifacts shown pertain only to the plant\u2011\
-    defense prediction pipeline, which does not satisfy the required checksum utility\
-    \ task. The missing deliverable is a functional SHA\u2011256 checksum validation\
-    \ tool (e.g., a script or module) with usage instructions or tests."
 T014:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -57,25 +70,6 @@ T014:
     \ showing that the required folders under `projects/PROJ-503-predicting-plant-defense-compound-produc/`\
     \ were created. Without concrete evidence of the filesystem structure, the task\u2019\
     s deliverable is missing."
-T018:
-  c: false
-  h: 70d7d389da6eb49f92230f2a3c8b6554ad4fd1f9c90f890a13ce50b16d2a5c74
-  r: "The required file `projects/PROJ-503-predicting-plant-defense-compound-produc/data/sources.yaml`\
-    \ does not exist; only a `data/sources.yaml` at a different location is present,\
-    \ so the task\u2019s specified artifact is missing."
-T023:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, or output files (e.g., a CSV of paired expression\u2011metabolite\
-    \ samples or the required `logs/data_pairing.json`) were provided to demonstrate\
-    \ that sample\u2011level pairing using biological identifiers has been implemented.\
-    \ The claim lacks any tangible artifact confirming the required functionality."
-T024:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No CSV file with normalized TPM/FPKM values (or any generated artifact) was provided,
-    nor any logs showing calculation or skipping of samples. Without the actual expression
-    CSV and accompanying evidence, the task requirement is not satisfied.
 T025:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
