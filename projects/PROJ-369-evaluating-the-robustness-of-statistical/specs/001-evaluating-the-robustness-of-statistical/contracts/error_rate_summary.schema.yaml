@@ -1,0 +1,47 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ErrorRateSummary Schema"
+description: "Schema for aggregated error rate results including N-variation and non-linear regression metrics."
+type: "object"
+properties:
+  dataset_id:
+    type: "string"
+    description: "ID of the dataset"
+  nominal_alpha:
+    type: "number"
+    description: "Nominal significance level (0.05)"
+  observed_error_rate:
+    type: "number"
+    description: "Observed Type I error rate"
+  shuffled_null_distribution:
+    type: "array"
+    items:
+      type: "number"
+ description: "P-values from [deferred] shuffled versions"
+  regression_slope:
+    type: "number"
+    description: "Slope of error rate vs. H (from non-linear model)"
+  regression_p_value:
+    type: "number"
+    description: "P-value of the regression slope"
+  vif:
+    type: "number"
+    description: "Variance Inflation Factor"
+  n_eff:
+    type: "number"
+    description: "Effective Sample Size"
+  hurst_target:
+    type: "number"
+    description: "Target H (synthetic) or Estimated H (real)"
+  length_target:
+    type: "integer"
+    description: "Target N (synthetic) or Actual N (real)"
+required:
+  - dataset_id
+  - nominal_alpha
+  - observed_error_rate
+  - regression_slope
+  - regression_p_value
+  - vif
+  - n_eff
+  - hurst_target
+  - length_target

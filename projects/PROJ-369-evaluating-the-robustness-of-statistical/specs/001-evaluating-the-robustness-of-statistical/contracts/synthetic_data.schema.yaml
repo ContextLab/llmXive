@@ -1,0 +1,60 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Synthetic Data Schema"
+description: "Schema for generated time series with known ground truth, varying sample sizes, and theoretical VIF."
+type: "object"
+properties:
+  model_type:
+    type: "string"
+    enum:
+      - "fGn"
+      - "ARFIMA"
+    description: "Type of generative model used."
+  hurst_target:
+    type: "number"
+    enum:
+      - 0.5
+      - 0.7
+      - 0.8
+      - 0.9
+    description: "Target Hurst exponent."
+  mean_target:
+    type: "number"
+    const: 0.0
+    description: "Target mean."
+  length_target:
+    type: "integer"
+    enum:
+      - 100
+      - 500
+      - 1000
+      - 5000
+      - 10000
+    description: "Target sample size (N)."
+  values:
+    type: "array"
+    items:
+      type: "number"
+    description: "Generated time series values."
+  actual_hurst:
+    type: "number"
+    description: "Estimated Hurst exponent of the generated series."
+  actual_mean:
+    type: "number"
+    description: "Actual mean of the generated series."
+  theoretical_vif:
+    type: "number"
+    minimum: 1.0
+    description: "Calculated Variance Inflation Factor based on the true H and N."
+  theoretical_n_eff:
+    type: "number"
+    description: "Theoretical Effective Sample Size."
+required:
+  - model_type
+  - hurst_target
+  - mean_target
+  - length_target
+  - values
+  - actual_hurst
+  - actual_mean
+  - theoretical_vif
+  - theoretical_n_eff
