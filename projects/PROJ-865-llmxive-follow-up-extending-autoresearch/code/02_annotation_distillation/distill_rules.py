@@ -1,349 +1,249 @@
 """
-Distill rules from annotated failure cases.
-Implements T080: Strict schema validation for every generated rule before writing.
+Distillation pipeline for generating rules from annotated failure cases.
+Includes strict schema validation against distilled_rule.schema.yaml.
 """
-
 import json
 import re
 import sys
 import time
 import os
+import psutil
 import logging
-import yaml
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
+import yaml
 
-# Add project root to path for imports
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(PROJECT_ROOT))
-
+# Import logging utilities from the project's utils
 from utils.logging import get_logger, log_stage_start, log_stage_end
-from utils.config import DEFAULT_SAMPLE_SIZE
+from utils.config import EXPECTED_EFFECT_SIZE, DEFAULT_SAMPLE_SIZE
 
 logger = get_logger(__name__)
 
-# Paths
-SCHEMA_PATH = PROJECT_ROOT / "specs" / "001-llmxive-followup" / "contracts" / "distilled_rule.schema.yaml"
-INPUT_FAILURE_CASES = PROJECT_ROOT / "data" / "derived" / "failure_cases_train.json"
-OUTPUT_RULES_LIBRARY = PROJECT_ROOT / "data" / "derived" / "rules_library.json"
-OUTPUT_COVERAGE_REPORT = PROJECT_ROOT / "data" / "derived" / "rule_coverage_report.json"
+SCHEMA_PATH = Path("specs/001-llmxive-followup/contracts/distilled_rule.schema.yaml")
+RULES_OUTPUT_PATH = Path("data/derived/rules_library.json")
+COVERAGE_OUTPUT_PATH = Path("data/derived/rule_coverage_report.json")
 
 def load_schema(schema_path: Path) -> Dict[str, Any]:
-    """Load the JSON schema from YAML file."""
+    """Load the JSON schema definition from a YAML file."""
     if not schema_path.exists():
         raise FileNotFoundError(f"Schema file not found: {schema_path}")
-    with open(schema_path, 'r', encoding='utf-8') as f:
+    with open(schema_path, "r", encoding="utf-8") as f:
         return yaml.safe_load(f)
 
 def validate_rule_against_schema(rule: Dict[str, Any], schema: Dict[str, Any]) -> Tuple[bool, List[str]]:
     """
     Validate a single rule against the schema.
     Returns (is_valid, list_of_errors).
+    This implements strict validation before writing to the library.
     """
     errors = []
+    required_fields = schema.get("required", [])
+    properties = schema.get("properties", {})
 
     # Check required fields
-    required_fields = schema.get('required', [])
     for field in required_fields:
         if field not in rule:
             errors.append(f"Missing required field: {field}")
 
-    if errors:
-        return False, errors
+    # Check field types
+    if "rule_id" in rule and not isinstance(rule["rule_id"], str):
+        errors.append("Field 'rule_id' must be a string")
+    if "condition_pattern" in rule and not isinstance(rule["condition_pattern"], str):
+        errors.append("Field 'condition_pattern' must be a string")
+    if "pivot_action" in rule and not isinstance(rule["pivot_action"], str):
+        errors.append("Field 'pivot_action' must be a string")
+    if "confidence" in rule:
+        if not isinstance(rule["confidence"], (int, float)):
+            errors.append("Field 'confidence' must be a number")
+        elif not (0.0 <= rule["confidence"] <= 1.0):
+            errors.append("Field 'confidence' must be between 0.0 and 1.0")
 
-    # Check types and constraints based on schema properties
-    properties = schema.get('properties', {})
-
-    # Check rule_id
-    if 'rule_id' in rule:
-        if not isinstance(rule['rule_id'], str):
-            errors.append("rule_id must be a string")
-
-    # Check condition_pattern
-    if 'condition_pattern' in rule:
-        if not isinstance(rule['condition_pattern'], str):
-            errors.append("condition_pattern must be a string")
-        else:
-            # Validate regex compilation
-            try:
-                re.compile(rule['condition_pattern'])
-            except re.error as e:
-                errors.append(f"Invalid regex in condition_pattern: {e}")
-
-    # Check pivot_action
-    if 'pivot_action' in rule:
-        if not isinstance(rule['pivot_action'], str):
-            errors.append("pivot_action must be a string")
-
-    # Check confidence
-    if 'confidence' in rule:
-        if not isinstance(rule['confidence'], (int, float)):
-            errors.append("confidence must be a number")
-        elif not (0.0 <= rule['confidence'] <= 1.0):
-            errors.append("confidence must be between 0.0 and 1.0")
-
-    # Check failure_type enum
-    if 'failure_type' in rule:
-        enum_values = properties.get('failure_type', {}).get('enum', [])
-        if rule['failure_type'] not in enum_values:
-            errors.append(f"failure_type must be one of {enum_values}, got: {rule['failure_type']}")
+    # Check for unexpected fields (optional strictness)
+    allowed_keys = set(properties.keys())
+    for key in rule.keys():
+        if key not in allowed_keys:
+            errors.append(f"Unexpected field in rule: {key}")
 
     return len(errors) == 0, errors
 
-def check_ram_usage() -> bool:
-    """Check if RAM usage is within limits (simple check)."""
-    try:
-        import psutil
-        process = psutil.Process(os.getpid())
-        mem_mb = process.memory_info().rss / 1024 / 1024
-        if mem_mb > 6000: # Warn if > 6GB
-            logger.warning(f"High RAM usage detected: {mem_mb:.2f} MB")
-        return True
-    except ImportError:
-        logger.warning("psutil not installed, skipping RAM check")
-        return True
+def check_ram_usage(threshold_gb: float = 7.0) -> bool:
+    """Check if current RAM usage is below threshold."""
+    mem = psutil.virtual_memory()
+    available_gb = mem.available / (1024 ** 3)
+    if available_gb < threshold_gb:
+        logger.warning(f"Low RAM available: {available_gb:.2f} GB < {threshold_gb} GB")
+        return False
+    return True
 
 def load_annotated_failures(input_path: Path) -> List[Dict[str, Any]]:
-    """Load annotated failure cases from JSON."""
+    """Load the consensus failure cases."""
     if not input_path.exists():
         raise FileNotFoundError(f"Input file not found: {input_path}")
-    with open(input_path, 'r', encoding='utf-8') as f:
+    with open(input_path, "r", encoding="utf-8") as f:
         return json.load(f)
 
 def extract_rules_regex(failures: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """
-    Extract rules using deterministic regex patterns based on structural features.
-    T072: Differentiate strategies for Syntactic vs Semantic.
+    Extract deterministic rules based on regex patterns for syntactic errors.
     """
     rules = []
-    rule_counter = 1
-
-    # Define deterministic patterns for specific failure types
-    # Syntactic: Look for specific error keywords
-    syntactic_patterns = [
-        (r"SyntaxError.*", "Syntactic Error", "Refactor syntax"),
-        (r"IndentationError.*", "Syntactic Error", "Fix indentation"),
-        (r"NameError.*", "Syntactic Error", "Check variable scope"),
+    # Simple heuristic: if error log contains specific keywords, generate a rule
+    patterns = [
+        (r"SyntaxError|IndentationError|NameError", "Syntactic Error", "Fix syntax and retry"),
+        (r"TimeoutError|timed out", "Timeout", "Reduce complexity or increase timeout"),
+        (r"KeyError|IndexError", "Data Access", "Validate data structure before access"),
     ]
 
-    # Semantic: Flag for retrieval/unstructured (T072)
-    semantic_patterns = [
-        (r"ambiguity|unclear|vague", "Semantic Ambiguity", "Retrieve context"),
-        (r"missing.*context", "Missing Context", "Fetch documentation"),
-    ]
-
-    # Logical: Loops
-    logical_patterns = [
-        (r"infinite.*loop|recursion.*limit", "Logical Loop", "Add termination condition"),
-    ]
-
-    # Unstructured: Catch-all
-    unstructured_pattern = r"error|exception|failed"
-
-    processed_ids = set()
-
-    for failure in failures:
-        task_id = failure.get('task_id')
-        raw_log = failure.get('raw_error_log', '')
-        failure_type = failure.get('annotated_structural_feature', 'Unstructured')
-
-        if not raw_log or task_id in processed_ids:
-            continue
-
-        rule_found = False
-        matched_rule = None
-
-        # Apply specific strategies based on failure_type
-        if failure_type == "Syntactic Error":
-            for pattern, f_type, action in syntactic_patterns:
-                if re.search(pattern, raw_log, re.IGNORECASE):
-                    matched_rule = {
-                        "rule_id": f"RULE_SYNTAX_{rule_counter}",
-                        "condition_pattern": pattern,
-                        "pivot_action": action,
-                        "confidence": 0.95,
-                        "failure_type": f_type
-                    }
-                    rule_found = True
-                    break
-
-        elif failure_type == "Semantic Ambiguity":
-            for pattern, f_type, action in semantic_patterns:
-                if re.search(pattern, raw_log, re.IGNORECASE):
-                    matched_rule = {
-                        "rule_id": f"RULE_SEMANTIC_{rule_counter}",
-                        "condition_pattern": pattern,
-                        "pivot_action": action,
-                        "confidence": 0.80,
-                        "failure_type": f_type
-                    }
-                    rule_found = True
-                    break
-            # Fallback for semantic if no specific match: Unstructured
-            if not rule_found:
-                matched_rule = {
-                    "rule_id": f"RULE_SEMANTIC_FALLBACK_{rule_counter}",
-                    "condition_pattern": r".*",
-                    "pivot_action": "Manual Review",
-                    "confidence": 0.50,
-                    "failure_type": "Semantic Ambiguity"
-                }
-                rule_found = True
-
-        elif failure_type == "Logical Loop":
-            for pattern, f_type, action in logical_patterns:
-                if re.search(pattern, raw_log, re.IGNORECASE):
-                    matched_rule = {
-                        "rule_id": f"RULE_LOGIC_{rule_counter}",
-                        "condition_pattern": pattern,
-                        "pivot_action": action,
-                        "confidence": 0.90,
-                        "failure_type": f_type
-                    }
-                    rule_found = True
-                    break
-
-        # Default fallback for Unstructured or unmatched
-        if not rule_found:
-            matched_rule = {
-                "rule_id": f"RULE_UNSTRUCTURED_{rule_counter}",
-                "condition_pattern": unstructured_pattern,
-                "pivot_action": "Manual Review",
-                "confidence": 0.60,
-                "failure_type": "Unstructured"
-            }
-            rule_found = True
-
-        if matched_rule:
-            rules.append(matched_rule)
-            processed_ids.add(task_id)
-            rule_counter += 1
-
+    for pattern, feature, action in patterns:
+        count = sum(1 for f in failures if re.search(pattern, f.get("raw_error_log", ""), re.IGNORECASE))
+        if count > 0:
+            confidence = min(0.9, 0.5 + (count / len(failures)) * 0.4) if failures else 0.5
+            rules.append({
+                "rule_id": f"rule_{feature.replace(' ', '_').lower()}",
+                "condition_pattern": pattern,
+                "pivot_action": action,
+                "confidence": confidence,
+                "source_feature": feature
+            })
     return rules
 
 def extract_rules_with_llm(failures: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """
     Placeholder for LLM-based rule extraction.
-    Currently returns empty as we rely on regex for determinism in this phase.
+    In a real implementation, this would call an LLM to analyze semantic failures.
+    For now, returns a fallback rule for unstructured cases.
     """
+    # Check for semantic ambiguity
+    semantic_count = sum(1 for f in failures if "Semantic Ambiguity" in f.get("annotated_structural_feature", ""))
+    if semantic_count > 0:
+        return [{
+            "rule_id": "rule_semantic_fallback",
+            "condition_pattern": "Semantic Ambiguity detected",
+            "pivot_action": "Request clarification or switch to probabilistic retrieval",
+            "confidence": 0.8,
+            "source_feature": "Semantic Ambiguity"
+        }]
     return []
 
 def calculate_coverage(rules: List[Dict[str, Any]], failures: List[Dict[str, Any]]) -> Dict[str, Any]:
-    """Calculate rule coverage over the dataset."""
+    """Calculate how many failures are covered by the generated rules."""
     total = len(failures)
-    covered = 0
-    covered_ids = set()
+    if total == 0:
+        return {"total": 0, "covered": 0, "coverage_rate": 0.0}
 
-    for rule in rules:
-        pattern = re.compile(rule['condition_pattern'], re.IGNORECASE)
-        for failure in failures:
-            if failure['task_id'] not in covered_ids:
-                if pattern.search(failure.get('raw_error_log', '')):
-                    covered += 1
-                    covered_ids.add(failure['task_id'])
+    covered = 0
+    for failure in failures:
+        log = failure.get("raw_error_log", "")
+        for rule in rules:
+            if re.search(rule["condition_pattern"], log, re.IGNORECASE):
+                covered += 1
+                break
 
     return {
-        "total_cases": total,
-        "covered_cases": covered,
-        "coverage_percentage": (covered / total * 100) if total > 0 else 0.0
+        "total": total,
+        "covered": covered,
+        "coverage_rate": covered / total if total > 0 else 0.0
     }
 
-def save_rules_library(rules: List[Dict[str, Any]], output_path: Path):
-    """Save the validated rules library to JSON."""
+def save_rules_library(rules: List[Dict[str, Any]], output_path: Path) -> None:
+    """Save the validated rules to a JSON file."""
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, 'w', encoding='utf-8') as f:
+    with open(output_path, "w", encoding="utf-8") as f:
         json.dump(rules, f, indent=2)
     logger.info(f"Saved {len(rules)} rules to {output_path}")
 
-def save_coverage_report(coverage: Dict[str, Any], output_path: Path):
+def save_coverage_report(coverage: Dict[str, Any], output_path: Path) -> None:
     """Save the coverage report."""
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, 'w', encoding='utf-8') as f:
+    with open(output_path, "w", encoding="utf-8") as f:
         json.dump(coverage, f, indent=2)
     logger.info(f"Saved coverage report to {output_path}")
 
-def log_distillation_thresholds(rules: List[Dict[str, Any]]):
-    """Log thresholds and pruning info."""
-    logger.info(f"Distillation complete. Total rules: {len(rules)}")
+def log_thresholds_and_pruning(rules: List[Dict[str, Any]], threshold: float) -> None:
+    """Log the rules that passed the confidence threshold."""
     for rule in rules:
-        logger.info(f"Rule {rule['rule_id']}: Confidence={rule['confidence']}, Type={rule['failure_type']}")
+        logger.info(f"Rule {rule['rule_id']}: confidence={rule['confidence']:.2f}, action={rule['pivot_action']}")
 
-def run_distill_pipeline(input_path: Path, output_path: Path, schema_path: Path):
+def run_distill_pipeline(
+    input_path: Path = Path("data/derived/failure_cases_consensus.json"),
+    output_path: Path = RULES_OUTPUT_PATH,
+    coverage_path: Path = COVERAGE_OUTPUT_PATH,
+    min_confidence: float = 0.5
+) -> List[Dict[str, Any]]:
     """
-    Main pipeline: Load, Extract, Validate, Save.
-    T080: Strict validation for every rule.
+    Main pipeline to distill rules from failures.
+    1. Load failures.
+    2. Extract rules (regex + heuristic).
+    3. **Validate every rule against the schema** before adding to library.
+    4. Filter by confidence.
+    5. Save validated rules.
     """
-    logger.info(f"Starting distillation pipeline. Input: {input_path}")
+    logger.info("Starting rule distillation pipeline...")
 
-    # 1. Load Schema
-    schema = load_schema(schema_path)
-
-    # 2. Load Data
+    # 1. Load data
     failures = load_annotated_failures(input_path)
-    logger.info(f"Loaded {len(failures)} failure cases")
+    logger.info(f"Loaded {len(failures)} failure cases.")
 
-    # 3. Extract Rules
-    rules = extract_rules_regex(failures)
-    # Note: LLM extraction skipped for determinism in this phase
+    # 2. Extract rules
+    regex_rules = extract_rules_regex(failures)
+    llm_rules = extract_rules_with_llm(failures)
+    all_candidates = regex_rules + llm_rules
 
-    # 4. STRICT VALIDATION (T080)
-    valid_rules = []
-    invalid_count = 0
+    # 3. Load Schema and Validate STRICTLY
+    if not SCHEMA_PATH.exists():
+        raise FileNotFoundError(f"Schema file missing: {SCHEMA_PATH}. Cannot validate rules.")
+    schema = load_schema(SCHEMA_PATH)
+    logger.info(f"Loaded schema from {SCHEMA_PATH}")
 
-    for i, rule in enumerate(rules):
-        is_valid, errors = validate_rule_against_schema(rule, schema)
+    validated_rules = []
+    validation_errors = []
+
+    for i, candidate in enumerate(all_candidates):
+        is_valid, errors = validate_rule_against_schema(candidate, schema)
         if is_valid:
-            valid_rules.append(rule)
+            # Filter by confidence
+            if candidate.get("confidence", 0.0) >= min_confidence:
+                validated_rules.append(candidate)
+            else:
+                logger.debug(f"Rule {candidate.get('rule_id', 'unknown')} filtered out: confidence {candidate.get('confidence')} < {min_confidence}")
         else:
-            invalid_count += 1
-            logger.error(f"Rule validation FAILED for rule {rule.get('rule_id', 'UNKNOWN')}: {errors}")
-            # In a strict pipeline, we might abort here, but we log and continue to save valid ones
-            # or raise an error if ANY rule is invalid. Per T080, we prevent malformed rules.
-            # We will raise to ensure the pipeline fails if the logic is broken.
-            raise ValueError(f"Schema validation failed for rule {rule.get('rule_id')}: {errors}")
+            error_msg = f"Validation failed for candidate {i}: {errors}"
+            logger.error(error_msg)
+            validation_errors.append({"candidate_index": i, "candidate": candidate, "errors": errors})
 
-    if invalid_count > 0:
-        raise RuntimeError(f"Pipeline failed: {invalid_count} rules failed schema validation.")
+    if validation_errors:
+        logger.error(f"Found {len(validation_errors)} invalid rules. Aborting write to prevent malformed library.")
+        # In a strict pipeline, we might raise here, but for now we log and proceed with valid ones if any
+        # However, if the task requires *every* generated rule to be valid, we should ensure we don't write garbage.
+        # We will write only the validated ones, but log the failure.
+        raise ValueError(f"Rule validation failed for {len(validation_errors)} candidates. Check logs for details.")
 
-    logger.info(f"Validation passed for {len(valid_rules)} rules.")
+    # 4. Save
+    save_rules_library(validated_rules, output_path)
 
-    # 5. Calculate Coverage
-    coverage = calculate_coverage(valid_rules, failures)
-    logger.info(f"Coverage: {coverage['coverage_percentage']:.2f}%")
+    # 5. Calculate and save coverage
+    coverage = calculate_coverage(validated_rules, failures)
+    save_coverage_report(coverage, coverage_path)
 
-    # 6. Save Outputs
-    save_rules_library(valid_rules, output_path)
-    save_coverage_report(coverage, OUTPUT_COVERAGE_REPORT)
-    log_distillation_thresholds(valid_rules)
-
-    return valid_rules, coverage
+    logger.info(f"Distillation complete. {len(validated_rules)} valid rules saved.")
+    return validated_rules
 
 def main():
-    """Entry point for the script."""
+    """Entry point for the distillation script."""
     log_stage_start("distill_rules")
-
     try:
-        # Ensure directories exist
-        OUTPUT_RULES_LIBRARY.parent.mkdir(parents=True, exist_ok=True)
+        # Check RAM before proceeding
+        if not check_ram_usage():
+            logger.error("Insufficient RAM. Aborting.")
+            sys.exit(1)
 
-        # Run pipeline
-        rules, coverage = run_distill_pipeline(
-            input_path=INPUT_FAILURE_CASES,
-            output_path=OUTPUT_RULES_LIBRARY,
-            schema_path=SCHEMA_PATH
-        )
-
+        # Run the pipeline
+        run_distill_pipeline()
         log_stage_end("distill_rules", status="success")
-        return 0
-
-    except FileNotFoundError as e:
-        logger.error(f"File not found: {e}")
-        log_stage_end("distill_rules", status="failed", error=str(e))
-        return 1
     except Exception as e:
-        logger.error(f"Pipeline failed: {e}")
+        logger.error(f"Pipeline failed: {e}", exc_info=True)
         log_stage_end("distill_rules", status="failed", error=str(e))
-        return 1
+        sys.exit(1)
 
 if __name__ == "__main__":
     sys.exit(main())

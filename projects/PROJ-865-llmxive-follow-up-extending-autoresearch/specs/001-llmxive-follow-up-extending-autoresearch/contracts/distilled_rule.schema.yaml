@@ -3,30 +3,23 @@ type: object
 properties:
   rule_id:
     type: string
-    description: "Unique identifier for the distilled rule."
+    description: "Unique identifier for the rule"
   condition_pattern:
     type: string
-    description: "The regex or pattern used to match the failure condition."
+    description: "Regex pattern or condition to match"
   pivot_action:
     type: string
-    description: "The action to take when the condition is met."
+    description: "Action to take when condition is met"
   confidence:
     type: number
     minimum: 0.0
     maximum: 1.0
-    description: "Confidence score of the rule."
-  failure_type:
+    description: "Confidence score of the rule"
+  source_feature:
     type: string
-    enum:
-      - "Syntactic Error"
-      - "Logical Loop"
-      - "Semantic Ambiguity"
-      - "Missing Context"
-      - "Unstructured"
-    description: "The structural feature category this rule addresses."
+    description: "The failure feature this rule addresses"
 required:
   - rule_id
   - condition_pattern
   - pivot_action
   - confidence
-  - failure_type

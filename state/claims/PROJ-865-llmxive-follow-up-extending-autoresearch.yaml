@@ -1338,24 +1338,6 @@
   updated_at: '2026-07-30T00:04:18Z'
 - artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
   attempts: 1
-  canonical: stratification tolerance 0.05
-  claim_id: c_2a54a50b
-  context: 'Validation: Verify the output CSV contains the sampled rows AND verify
-    that the distribution of failure_type matches the source distribution within an
-    acceptable tolerance (stratification_tolerance=0.05).'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The document defines a stratified tolerance of 0.05 for verifying that
-    the distribution of failure_type matches the source distribution.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-30T00:08:44Z'
-- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
-  attempts: 1
   canonical: MAX_CPU_CORES 2
   claim_id: c_738c65b2
   context: 'Implement code/utils/config.py with environment variables, random seeds,
@@ -1805,25 +1787,6 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-30T00:23:27Z'
-- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
-  attempts: 1
-  canonical: HuggingFace dataset claw-ai-lab/arc-bench
-  claim_id: c_a636a32b
-  context: Fetch the primary source URLs/DOIs for all citations listed in plan.md
-    and spec.md (e.g., the HuggingFace dataset claw-ai-lab/arc-bench or the associated
-    paper DOI).
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/HuggingFace_dataset_claw-ai-lab/arc-bench
-  kind: entity_fact
-  raw_text: The HuggingFace dataset is claw-ai-lab/arc-bench.
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-01T23:29:11Z'
 - artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
   attempts: 1
   canonical: Expected effect size 0.5
@@ -2285,329 +2248,183 @@
   status: verified
   updated_at: '2026-08-01T23:43:58Z'
 - artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
-  attempts: 1
-  canonical: HuggingFace dataset claw-ai-lab/arc-bench referenced
-  claim_id: c_94afe1f9
+  attempts: 2
+  canonical: HuggingFace dataset claw-ai-lab/arc-bench
+  claim_id: c_a636a32b
   context: Fetch the primary source URLs/DOIs for all citations listed in plan.md
     and spec.md (e.g., the HuggingFace dataset claw-ai-lab/arc-bench or the associated
     paper DOI).
   evidence:
     entailment_status: not_found
     reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/HuggingFace_dataset_claw-ai-lab/arc-bench_referenced
+    source_url: https://en.wikipedia.org/wiki/HuggingFace_dataset_claw-ai-lab/arc-bench
   kind: entity_fact
-  raw_text: The document references the HuggingFace dataset 'claw-ai-lab/arc-bench'.
+  raw_text: The HuggingFace dataset is claw-ai-lab/arc-bench.
   resolved_value: null
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-08-04T14:11:57Z'
+  updated_at: '2026-08-04T14:55:33Z'
 - artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
   attempts: 1
-  canonical: Expected effect size 0.5 based on Cohen 1988
-  claim_id: c_e559d404
+  canonical: Cohen J 1988 Statistical Power Analysis for the Behavioral Sciences 2nd
+    ed
+  claim_id: c_195ef789
   context: 'Statistical Power Analysis Reference: Cohen, J. (1988). Statistical Power
     Analysis for the Behavioral Sciences (2nd ed.). This value represents a medium
-    effect size convention for social sciences. EXPECTED_EFFECT_SIZE = 0.5'
+    effect size convention for social sciences.'
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: The statistical power analysis uses an expected effect size of 0.5, representing
-    a medium effect size convention for social sciences according to Cohen (1988).
+  raw_text: 'Statistical Power Analysis Reference: Cohen, J. (1988). Statistical Power
+    Analysis for the Behavioral Sciences (2nd ed.).'
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-08-04T14:12:22Z'
+  updated_at: '2026-08-04T14:55:50Z'
 - artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
   attempts: 1
-  canonical: Resource limits MAX_CPU_CORES 2 and MAX_MEMORY_GB 7
-  claim_id: c_417eace2
-  context: 'Implement code/utils/config.py with environment variables, random seeds,
-    and explicit resource limits: MAX_CPU_CORES=2, MAX_MEMORY_GB=7...'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The project configuration sets a maximum of 2 CPU cores and 7 GB of memory
-    for the primary resource limits.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-04T14:13:02Z'
-- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
-  attempts: 1
-  canonical: Baseline resources 4 CPU cores and 16 GB RAM
-  claim_id: c_4ccada7c
-  context: '...BASELINE_CPU_CORES=4, BASELINE_MEMORY_GB=16...'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The baseline execution is configured with 4 CPU cores and 16 GB of RAM.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-04T14:13:23Z'
-- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
-  attempts: 1
-  canonical: Model priority list Llama-8B-INT4 Llama-3-4B-INT4 TinyLlama-1.1B-INT4
-  claim_id: c_20e81d45
-  context: '...MODEL_PRIORITY_LIST=["Llama-8B-INT4", "Llama-3-4B-INT4", "TinyLlama-1.1B-INT4"].'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The model priority list includes Llama-8B-INT4, Llama-3-4B-INT4, and TinyLlama-1.1B-INT4.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-04T14:13:42Z'
-- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
-  attempts: 1
-  canonical: Inter-rater reliability threshold Cohen's Kappa 0.6
-  claim_id: c_8634dbbf
-  context: Create code/02_annotation_distillation/check_inter_rater.py that computes
-    Cohen's Kappa between the two annotator files. If Kappa < 0.6, log a warning but
-    do not abort (per plan).
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The inter-rater reliability check uses a Cohen's Kappa threshold of 0.6,
-    logging a warning if the value is lower.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-04T14:14:13Z'
-- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
-  attempts: 1
-  canonical: Power analysis 80% power alpha 0.05
-  claim_id: c_d72d9df8
-  context: "Implement code/03_execution/power_analysis.py to compute required sample\
-    \ size using statsmodels.stats.power.TTestPower with EXPECTED_EFFECT_SIZE, 80\
-    \ % power, \u03B1 = 0.05."
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The power analysis computes the required sample size using 80% power and
-    an alpha level of 0.05.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-04T14:14:14Z'
-- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
-  attempts: 1
-  canonical: Significance threshold alpha 0.05
-  claim_id: c_0b164b3a
-  context: Implement logic in statistical_model.py (or a wrapper) to compare the p-value
-    from T026a against alpha=0.05.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The significance determination for the interaction term uses an alpha
-    threshold of 0.05.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-04T14:14:48Z'
-- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
-  attempts: 2
-  canonical: Cross-validation k=5
-  claim_id: c_ced2225a
-  context: Implement code/04_analysis/cross_validation.py to perform k-fold cross-validation
-    (k=5) of the distilled rule set.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The cross-validation uses k=5 folds.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-04T14:14:56Z'
-- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
-  attempts: 1
-  canonical: Rule set robustness threshold std_dev 0.1
-  claim_id: c_e243e996
-  context: 'Pass/Fail: If std_dev < 0.1, the rule set is considered robust. Otherwise,
-    flag as unstable.'
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Rule_set_robustness_threshold_std_dev_0.1
-  kind: magnitude
-  raw_text: The robustness status of the rule set is marked as false if the standard
-    deviation of success rates across folds is greater than or equal to 0.1.
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-04T14:15:04Z'
-- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
-  attempts: 1
-  canonical: Interaction term robustness threshold 95%
-  claim_id: c_b7a93aea
-  context: Verify the JSON contains percentage_significant > 0.95.
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Interaction_term_robustness_threshold_95%25
-  kind: magnitude
-  raw_text: The sensitivity analysis for the interaction term requires the term to
-    remain significant in more than 95% of bootstrap iterations.
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-04T14:15:11Z'
-- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
-  attempts: 1
-  canonical: Censoring threshold sensitivity 3000s 3600s 4200s
-  claim_id: c_bfc4e6ef
-  context: Implement code/analysis/sensitivity_censoring.py to re-run time_diff_tobit.py
-    with timeout thresholds 3000 s, 3600 s, 4200 s...
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Censoring_threshold_sensitivity_3000s_3600s_4200s
-  kind: entity_fact
-  raw_text: The sensitivity analysis for the censoring threshold tests timeout values
-    of 3000s, 3600s, and 4200s.
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-04T14:15:18Z'
-- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
-  attempts: 0
-  canonical: Baseline timeout limit is 7200 seconds
-  claim_id: c_515a47b5
-  context: Implement code/utils/config.py with environment variables... TIMEOUT_SECONDS=3600,
-    BASELINE_TIMEOUT_SECONDS=7200...
+  canonical: medium effect size 0.5 social sciences
+  claim_id: c_14ba7bc2
+  context: EXPECTED_EFFECT_SIZE = 0.5 This value represents a medium effect size convention
+    for social sciences.
   evidence:
     fill:
-      channel: paper
-      conflicts: []
-      quote: '120'
-      source_id: '2402.05223'
-      url: https://arxiv.org/abs/2402.05223
-      value: '120'
+      channel: wikipedia
+      conflicts:
+      - channel: wikipedia
+        source_id: Effect size
+        url: https://en.wikipedia.org/wiki/Effect_size
+        value: '0.5'
+      quote: 'h = 0.50: "medium effect size".'
+      source_id: Cohen's h
+      url: https://en.wikipedia.org/wiki/Cohen's_h
+      value: '0.50'
     filled: true
   kind: numeric
-  raw_text: The baseline timeout limit is 7200 seconds.
-  resolved_value: '120'
-  resolver: fill:paper
+  raw_text: The configuration defines a medium effect size convention of 0.5 for social
+    sciences.
+  resolved_value: '0.50'
+  resolver: fill:wikipedia
   source_hash: null
   source_type: external
   status: verified
-  updated_at: '2026-08-04T14:17:04Z'
+  updated_at: '2026-08-04T14:56:06Z'
 - artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
   attempts: 1
-  canonical: HuggingFace dataset claw-ai-lab/arc-bench is primary source
-  claim_id: c_80f0b672
-  context: Fetch the primary source URLs/DOIs for all citations listed in plan.md
-    and spec.md (e.g., the HuggingFace dataset claw-ai-lab/arc-bench or the associated
-    paper DOI).
+  canonical: fixed random seed in config.py
+  claim_id: c_46ee908c
+  context: 'Reproducibility: Use the fixed random seed defined in code/utils/config.py.'
   evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/HuggingFace_dataset_claw-ai-lab/arc-bench_is_primary_source
+    entailment_evidence: Fixed random seed in config.
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Fixed_random_seed_in_config.py
   kind: entity_fact
-  raw_text: The HuggingFace dataset 'claw-ai-lab/arc-bench' is the primary source
-    for the ARC-Bench topic subset.
-  resolved_value: null
+  raw_text: The pipeline uses a fixed random seed defined in code/utils/config.py.
+  resolved_value: fixed random seed in config.py
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-04T14:17:45Z'
+  status: verified
+  updated_at: '2026-08-04T14:56:08Z'
 - artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
   attempts: 1
-  canonical: Expected effect size is 0.5
-  claim_id: c_93e504c1
-  context: '# Statistical Power Analysis # Reference: Cohen, J. (1988). Statistical
-    Power Analysis for the Behavioral Sciences (2nd ed.). # This value represents
-    a medium effect size convention for social sciences. EXPECTED_EFFECT_SIZE = 0.5'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The expected effect size for the statistical power analysis is 0.5.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-04T14:17:52Z'
-- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
-  attempts: 1
-  canonical: Cohen's Kappa threshold for warning is 0.6
-  claim_id: c_b027f41c
-  context: Create code/02_annotation_distillation/check_inter_rater.py that computes
-    Cohen's Kappa between the two annotator files. If Kappa < 0.6, log a warning but
-    do not abort (per plan).
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The Cohen's Kappa threshold for inter-rater reliability warning is 0.6.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-04T14:17:55Z'
-- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
-  attempts: 1
-  canonical: Baseline resource constraints are 4 CPU cores and 16 GB RAM
-  claim_id: c_d424a26c
-  context: Create code/03_execution/provision_baseline_runner.py to ping the external
-    baseline runner API (BASELINE_RUNNER_URL from config.py) and verify it reports
-    cpu_cores=4 and memory_gb=16.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The baseline resource constraints are 4 CPU cores and 16 GB RAM.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-04T14:17:59Z'
-- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
-  attempts: 1
-  canonical: Minimum viable sample size is 50 tasks
-  claim_id: c_ef98256d
+  canonical: minimum viable sample size 50 tasks
+  claim_id: c_ead4ce43
   context: 'Constraint: If the available dataset is smaller than 50, proceed with
     the available data and log a critical warning ''Dataset size < 50; proceeding
     with reduced statistical power.'''
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: The minimum viable sample size for the experiment manifest is 50 tasks.
+  raw_text: The minimum viable sample size is 50 tasks.
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-08-04T14:18:08Z'
+  updated_at: '2026-08-04T14:56:41Z'
+- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
+  attempts: 2
+  canonical: stratification tolerance 0.05
+  claim_id: c_2a54a50b
+  context: 'Validation: Verify the output CSV contains the sampled rows AND verify
+    that the distribution of failure_type matches the source distribution within an
+    acceptable tolerance (stratification_tolerance=0.05).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The document defines a stratified tolerance of 0.05 for verifying that
+    the distribution of failure_type matches the source distribution.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T14:56:57Z'
 - artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
   attempts: 1
-  canonical: Significance threshold alpha is 0.05
-  claim_id: c_c3f1d1a6
+  canonical: baseline runner 4 CPU cores 16 GB RAM
+  claim_id: c_c35d8202
+  context: This script runs locally but validates the external execution. It does
+    NOT run the baseline itself. ... Check that the uploaded metrics match the expected
+    constraints (BASELINE_CPU_CORES=4, BASELINE_MEMORY_GB=16).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The baseline runner is configured with 4 CPU cores and 16 GB RAM.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T14:57:14Z'
+- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
+  attempts: 1
+  canonical: baseline timeout 7200 seconds
+  claim_id: c_dcbc9b3d
+  context: BASELINE_TIMEOUT_SECONDS=7200 ... Wait for the external workflow to complete
+    (max BASELINE_TIMEOUT_SECONDS).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The baseline timeout is 7200 seconds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T14:57:32Z'
+- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
+  attempts: 1
+  canonical: Cohen's Kappa threshold 0.6
+  claim_id: c_630d6dd8
+  context: If Kappa < 0.6, log a warning but do not abort (per plan).
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: "substantial agreement ( \u03BA > 0.6) for three themes and moderate\
+        \ agreement on one. Our findings demonstrate"
+      source_id: '2508.14764'
+      url: https://arxiv.org/abs/2508.14764
+      value: '0.6'
+    filled: true
+  kind: entity_fact
+  raw_text: The inter-rater reliability threshold is a Cohen's Kappa of 0.6.
+  resolved_value: '0.6'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-04T14:57:50Z'
+- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
+  attempts: 1
+  canonical: statistical power 80% alpha 0.05
+  claim_id: c_306329b2
   context: "Implement code/03_execution/power_analysis.py to compute required sample\
     \ size using statsmodels.stats.power.TTestPower with EXPECTED_EFFECT_SIZE, 80\
     \ % power, \u03B1 = 0.05."
@@ -2615,273 +2432,97 @@
     fill:
       channel: wikipedia
       conflicts: []
-      quote: "The error that a practising statistician would consider the more important\
-        \ to avoid (which is a subjective judgment) is called the error of the first\
-        \ kind. The first demand of the mathematical theory is to deduce such test\
-        \ criteria as would ensure that the probability of committing an error of\
-        \ the first kind would equal (or approximately equal, or not exceed) a preassigned\
-        \ number \u03B1, such as \u03B1 = 0.05 or 0.01, etc. This number is called\
-        \ the level of significance."
-      source_id: P-value
-      url: https://en.wikipedia.org/wiki/P-value
-      value: '0.05'
+      quote: "Indeed, although there are no formal standards for power, many researchers\
+        \ and funding bodies assess power using 0.80 (or 80%) as a standard for adequacy.\
+        \ This convention implies a four-to-one trade off between \u03B2-risk and\
+        \ \u03B1-risk, as the probability of a type II error \u03B2 is set as 1 -\
+        \ 0.8 = 0.2, while \u03B1, the probability of a type I error, is commonly\
+        \ set at 0.05. Some applications require much higher levels of power. Medical\
+        \ tests may be designed to minimise the number of false negatives (type II\
+        \ errors) produced by loosening the threshold of significance, raising the\
+        \ risk of obtaining a false positive (a type I error). The rationale is that\
+        \ it is better to tell a healthy patient \"we may have found something\u2014\
+        let's test further,\" than to tell a diseased patient \"all is well.\""
+      source_id: Power (statistics)
+      url: https://en.wikipedia.org/wiki/Power_(statistics)
+      value: '0.80'
     filled: true
   kind: numeric
-  raw_text: The significance threshold (alpha) for statistical tests is 0.05.
-  resolved_value: '0.05'
+  raw_text: The statistical power analysis targets 80% power with alpha = 0.05.
+  resolved_value: '0.80'
   resolver: fill:wikipedia
   source_hash: null
   source_type: external
   status: verified
-  updated_at: '2026-08-04T14:18:20Z'
+  updated_at: '2026-08-04T14:57:57Z'
 - artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
   attempts: 1
-  canonical: Power analysis targets 80% power
-  claim_id: c_10166704
-  context: "Implement code/03_execution/power_analysis.py to compute required sample\
-    \ size using statsmodels.stats.power.TTestPower with EXPECTED_EFFECT_SIZE, 80\
-    \ % power, \u03B1 = 0.05."
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The power analysis targets 80% statistical power.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-04T14:18:21Z'
-- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
-  attempts: 1
-  canonical: Default timeout limit is 3600 seconds
-  claim_id: c_43864ed7
-  context: Implement code/utils/config.py with environment variables... TIMEOUT_SECONDS=3600...
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The default timeout limit for tasks is 3600 seconds.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-04T14:18:27Z'
-- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
-  attempts: 1
-  canonical: Max CPU cores for local environment is 2
-  claim_id: c_434e1b43
-  context: Implement code/utils/config.py with environment variables... MAX_CPU_CORES=2...
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The maximum number of CPU cores for the local environment is 2.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-04T14:18:35Z'
-- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
-  attempts: 1
-  canonical: Max memory limit for local environment is 7 GB
-  claim_id: c_aea2b1c3
-  context: Implement code/utils/config.py with environment variables... MAX_MEMORY_GB=7...
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The maximum memory limit for the local environment is 7 GB.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-04T14:18:40Z'
-- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
-  attempts: 1
-  canonical: Default sample size is 50
-  claim_id: c_b38d1c0d
-  context: Implement code/utils/config.py with environment variables... DEFAULT_SAMPLE_SIZE=50...
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The default sample size is 50.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-04T14:19:16Z'
-- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
-  attempts: 1
-  canonical: Max streaming rows is 500
-  claim_id: c_89d40199
-  context: Implement code/utils/config.py with environment variables... MAX_STREAMING_ROWS=500...
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The maximum number of streaming rows is 500.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-04T14:19:24Z'
-- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
-  attempts: 1
-  canonical: Model priority list includes Llama-8B-INT4, Llama-3-4B-INT4, and TinyLlama-1.1B-INT4
-  claim_id: c_27c926ad
-  context: Implement code/utils/config.py with environment variables... MODEL_PRIORITY_LIST=["Llama-8B-INT4",
-    "Llama-3-4B-INT4", "TinyLlama-1.1B-INT4"].
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The model priority list includes 'Llama-8B-INT4', 'Llama-3-4B-INT4', and
-    'TinyLlama-1.1B-INT4'.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-04T14:19:25Z'
-- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
-  attempts: 1
-  canonical: Cross-validation robustness threshold is std_dev < 0.1
-  claim_id: c_6f07bb40
+  canonical: cross-validation robustness threshold std_dev 0.1
+  claim_id: c_1caf542c
   context: 'Pass/Fail: If std_dev < 0.1, the rule set is considered robust. Otherwise,
     flag as unstable.'
   evidence:
-    candidates_found: 0
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Cross-validation_robustness_threshold_is_std_dev_%3C_0.1
-  kind: magnitude
-  raw_text: The cross-validation robustness threshold requires a standard deviation
-    of success rates less than 0.1.
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Cross-validation_robustness_threshold_std_dev_0.1
+  kind: entity_fact
+  raw_text: The cross-validation robustness threshold is a standard deviation of 0.1.
   resolved_value: null
-  resolver: resolve_superlative
+  resolver: resolve_entity_fact
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-08-04T14:19:31Z'
+  updated_at: '2026-08-04T14:58:34Z'
 - artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
   attempts: 1
-  canonical: Interaction term sensitivity requires > 95% significant iterations
-  claim_id: c_172ce3a8
-  context: Verify the JSON contains percentage_significant > 0.95.
-  evidence:
-    candidates_found: 0
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Interaction_term_sensitivity_requires_%3E_95%25_significant_iter
-  kind: magnitude
-  raw_text: The sensitivity analysis for the interaction term requires significance
-    in more than 95% of bootstrap iterations.
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-04T14:19:36Z'
-- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
-  attempts: 1
-  canonical: Stratification tolerance is 0.05
-  claim_id: c_0dc30b8c
-  context: Verify the output CSV contains the sampled rows AND verify that the distribution
-    of failure_type matches the source distribution within an acceptable tolerance
-    (stratification_tolerance=0.05).
+  canonical: interaction term sensitivity >95% significant
+  claim_id: c_17e083bd
+  context: 'Verification: Verify the JSON contains percentage_significant > 0.95.'
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: The stratification tolerance for the experiment manifest is 0.05.
+  raw_text: The sensitivity analysis for the interaction term requires >95% significant
+    iterations.
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-08-04T14:19:42Z'
+  updated_at: '2026-08-04T14:58:34Z'
 - artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
   attempts: 1
-  canonical: Mock data generator creates 50 records
-  claim_id: c_fb40d32e
-  context: Generate 50 mock FailureCase records with random task_id, raw_error_log,
-    ground_truth_resolution, and annotated_structural_feature (from the enum).
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The mock data generator creates 50 mock FailureCase records.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-04T14:19:49Z'
-- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
-  attempts: 1
-  canonical: Censoring sensitivity tests 3000s, 3600s, 4200s
-  claim_id: c_4065021f
+  canonical: censoring thresholds 3000s 3600s 4200s
+  claim_id: c_9dc8f377
   context: Implement code/analysis/sensitivity_censoring.py to re-run time_diff_tobit.py
     with timeout thresholds 3000 s, 3600 s, 4200 s and record robustness in censoring_sensitivity.json.
   evidence:
     entailment_status: not_found
     reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Censoring_sensitivity_tests_3000s,_3600s,_4200s
+    source_url: https://en.wikipedia.org/wiki/Censoring_thresholds_3000s_3600s_4200s
   kind: entity_fact
-  raw_text: The sensitivity analysis for censoring thresholds tests values of 3000s,
-    3600s, and 4200s.
+  raw_text: The sensitivity analysis for censoring thresholds includes 3000s, 3600s,
+    and 4200s.
   resolved_value: null
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-08-04T14:19:54Z'
+  updated_at: '2026-08-04T14:58:55Z'
 - artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
   attempts: 1
-  canonical: Baseline execution resource constraints are 4 CPU cores and 16 GB RAM
-  claim_id: c_a6d44dc7
-  context: 'This file MUST be generated by T021b. Define a GitHub Actions workflow
-    with runs-on: ubuntu-latest. Set resource constraints: env: { CPU_CORES: "4",
-    MEMORY_GB: "16" }.'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The baseline execution resource constraints are 4 CPU cores and 16 GB
-    RAM.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-04T14:19:56Z'
-- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
-  attempts: 1
-  canonical: Resource correlation uses Spearman's rho
-  claim_id: c_0f798dce
-  context: Perform Spearman correlation between peak_memory_mb and time_to_pivot.
+  canonical: research question method and references remain unchanged
+  claim_id: c_78f30d5a
+  context: Effect Size Verification task description in Phase 5.
   evidence:
     entailment_status: not_found
     reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Resource_correlation_uses_Spearman's_rho
+    source_url: https://en.wikipedia.org/wiki/Research_question_method_and_references_remain_unchanged
   kind: entity_fact
-  raw_text: The resource correlation analysis uses Spearman's rho.
+  raw_text: The research question, method, and references remain unchanged as required,
+    with the specific empirical threshold replaced by the general statistical concept.
   resolved_value: null
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-08-04T14:20:07Z'
-- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
-  attempts: 1
-  canonical: Rule coverage validation requires 90% coverage
-  claim_id: c_474e6f77
-  context: If the rule library is empty or coverage is <90%, exit with code 1 and
-    log 'Rule Coverage Insufficient'.
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Rule_coverage_validation_requires_90%25_coverage
-  kind: magnitude
-  raw_text: The rule coverage validation requires at least 90% coverage.
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-04T14:20:15Z'
+  updated_at: '2026-08-04T15:04:44Z'

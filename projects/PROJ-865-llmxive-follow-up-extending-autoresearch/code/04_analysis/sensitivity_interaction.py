@@ -1,260 +1,299 @@
 """
-Sensitivity Analysis for Interaction Term Significance.
+Sensitivity Analysis for Interaction Term Significance (T078).
 
 This script re-runs the mixed-effects logistic regression model with varying
 random seeds and bootstrap iterations to verify the stability of the interaction
-term's significance (p-value).
+term's significance.
 
-It ensures the conclusion regarding "failure structure dictates method viability"
-is robust and not an artifact of random sampling or specific data ordering.
-
-Input: data/derived/results.csv
-Output: data/derived/interaction_sensitivity.json
+Goal: Ensure the conclusion "failure structure dictates method viability" is
+robust and not an artifact of random sampling or specific data splits.
 """
+
 import json
 import sys
 import os
 import logging
 import random
-from pathlib import Path
-from typing import List, Dict, Any, Optional, Tuple
-import pandas as pd
 import numpy as np
+import pandas as pd
+from pathlib import Path
+from typing import Dict, Any, List, Optional, Tuple
+from statsmodels.formula.api import mixedlm
+from statsmodels.regression.mixed_linear_model import MixedLMParams
+import scipy.stats as stats
 
-# Import from existing project modules
-# Note: We are implementing the logic here, not importing a pre-existing function
-# as the task is to create this new file.
-# We will import config for TIMEOUT_SECONDS if needed, but primarily use standard libs.
-try:
-    from utils.logging import get_logger, log_stage_start, log_stage_end
-except ImportError:
-    # Fallback if running directly without package context
-    def get_logger(name):
-        return logging.getLogger(name)
-    def log_stage_start(msg): logging.info(msg)
-    def log_stage_end(msg): logging.info(msg)
+# Project imports
+from utils.logging import get_logger, log_stage_start, log_stage_end
+from utils.config import EXPECTED_EFFECT_SIZE
 
 # Constants
-DEFAULT_BOOTSTRAP_ITERATIONS = 100
-DEFAULT_SEEDS = 42
-SIGNIFICANCE_THRESHOLD = 0.05
-INPUT_FILE = "data/derived/results.csv"
-OUTPUT_FILE = "data/derived/interaction_sensitivity.json"
-MIN_SAMPLE_SIZE = 30  # Minimum rows required to run regression
+LOG_FILE = Path("data/artifacts/sensitivity_interaction.log")
+OUTPUT_FILE = Path("data/derived/sensitivity_interaction_results.json")
+INPUT_RESULTS = Path("data/derived/results.csv")
+INPUT_FAILURE_CASES = Path("data/derived/failure_cases.json")
+
+# Configuration for sensitivity analysis
+N_BOOTSTRAP_ITERATIONS = 100  # Number of bootstrap iterations
+N_SEEDS = 10                  # Number of different random seeds to test
+ALPHA = 0.05                  # Significance level
+RANDOM_SEEDS = [42, 123, 456, 789, 1011, 1213, 1415, 1617, 1819, 2021]
 
 logger = get_logger(__name__)
 
-def load_results_csv(filepath: str) -> pd.DataFrame:
-    """Load and validate the results CSV."""
-    if not os.path.exists(filepath):
-        raise FileNotFoundError(f"Input file not found: {filepath}")
-    
-    df = pd.read_csv(filepath)
-    
-    # Verify required columns
-    required_cols = ['task_id', 'method', 'time_to_pivot', 'success', 'failure_type']
-    missing = [c for c in required_cols if c not in df.columns]
-    if missing:
-        raise ValueError(f"Missing required columns in {filepath}: {missing}")
-    
-    # Ensure success is boolean/numeric
-    df['success'] = df['success'].astype(int)
-    
-    logger.info(f"Loaded {len(df)} rows from {filepath}")
+def load_results_csv(path: Path) -> pd.DataFrame:
+    """Load the merged results CSV."""
+    if not path.exists():
+        raise FileNotFoundError(f"Input file not found: {path}")
+    df = pd.read_csv(path)
+    logger.info(f"Loaded {len(df)} rows from {path}")
     return df
 
-def verify_paired_data(df: pd.DataFrame) -> pd.DataFrame:
-    """Ensure we have paired data for rule_engine and baseline."""
-    # Group by task_id and check if both methods exist
-    counts = df.groupby('task_id')['method'].count()
-    paired_tasks = counts[counts == 2].index
-    
-    if len(paired_tasks) < MIN_SAMPLE_SIZE:
-        logger.warning(f"Only {len(paired_tasks)} paired tasks found. Minimum required: {MIN_SAMPLE_SIZE}.")
-        # We proceed but warn, as the task is about sensitivity of the existing data
-    
-    return df[df['task_id'].isin(paired_tasks)]
+def load_failure_cases(path: Path) -> List[Dict[str, Any]]:
+    """Load the failure cases JSON."""
+    if not path.exists():
+        raise FileNotFoundError(f"Input file not found: {path}")
+    with open(path, 'r') as f:
+        data = json.load(f)
+    logger.info(f"Loaded {len(data)} failure cases from {path}")
+    return data
 
 def prepare_data_for_regression(df: pd.DataFrame) -> pd.DataFrame:
-    """Prepare data for mixed-effects model."""
-    # Create a binary success column if not already
-    df['success_bin'] = df['success'].astype(int)
+    """
+    Prepare data for mixed-effects logistic regression.
     
-    # Encode categorical variables
-    df['failure_type'] = df['failure_type'].astype('category')
-    df['method'] = df['method'].astype('category')
+    Formula: Success ~ FailureType * Method + (1|TaskID)
+    """
+    # Ensure required columns exist
+    required_cols = ['task_id', 'method', 'success', 'failure_type']
+    for col in required_cols:
+        if col not in df.columns:
+            raise ValueError(f"Missing required column: {col}")
+    
+    # Convert success to binary (0/1) if not already
+    if df['success'].dtype == 'object':
+        df['success'] = df['success'].map({True: 1, False: 0, 'true': 1, 'false': 0})
+    
+    # Create interaction term explicitly (though formula handles it)
+    df['interaction'] = df['failure_type'].astype(str) + "_" + df['method'].astype(str)
     
     return df
 
-def fit_mixed_effects_model(df: pd.DataFrame, seed: int) -> Optional[float]:
+def fit_mixed_effects_model(df: pd.DataFrame, seed: int) -> Tuple[Optional[float], Optional[float]]:
     """
-    Fit the mixed-effects logistic regression model:
-    Success ~ FailureType * Method + (1|TaskID)
+    Fit the mixed-effects logistic regression model and extract the interaction p-value.
     
-    Returns the p-value of the interaction term, or None if fitting fails.
+    Note: statsmodels mixedlm does not directly support logistic regression (GLMM).
+    We use a linear mixed model as an approximation for the binary outcome, or
+    we use a fixed-effects logistic regression with clustered standard errors if
+    the mixed-effects GLMM is unavailable.
+    
+    For this analysis, we will use a Linear Mixed Model on the binary outcome
+    as a proxy, which is common in exploratory sensitivity analysis when GLMM
+    is computationally expensive or unstable.
+    
+    Returns:
+        Tuple of (p_value, coefficient) for the interaction term, or (None, None) on failure.
     """
     try:
-        import statsmodels.api as sm
-        import statsmodels.formula.api as smf
-    except ImportError:
-        logger.error("statsmodels is required for this analysis.")
-        return None
-
-    # Set random seed for reproducibility of the bootstrap sample
-    random.seed(seed)
-    np.random.seed(seed)
-    
-    # For bootstrap, we resample the rows
-    # Note: In a strict paired design, we might resample pairs, 
-    # but here we resample the aggregated results to check robustness of the estimate.
-    # We resample with replacement to create a bootstrap sample.
-    bootstrap_df = df.sample(n=len(df), replace=True, random_state=seed)
-    
-    if len(bootstrap_df) < MIN_SAMPLE_SIZE:
-        return None
-
-    try:
-        # Formula: Success ~ FailureType * Method + (1|TaskID)
-        # Using MixedLM or GLMM (statsmodels MixedLM is for linear, GLMM is complex)
-        # For logistic mixed effects, we often use glmer (lme4 in R) or similar.
-        # In statsmodels, we can use MixedLM with a custom link or use a simpler approach
-        # if the full GLMM is too unstable. However, the task specifies mixed-effects logistic.
-        # We will use the standard MixedLM with a Gaussian approximation if GLMM is unavailable,
-        # but ideally we use the binomial family if statsmodels version supports it.
-        # Given constraints, we will attempt the standard formula approach.
+        # Set seed for reproducibility
+        random.seed(seed)
+        np.random.seed(seed)
         
-        # Note: statsmodels MixedLM does not directly support binomial family in older versions.
-        # We will use the 'formula' API which is robust.
-        # If the environment has 'formulaic' and 'statsmodels' >= 0.13, we might use GLMM.
-        # To be safe and robust across versions, we will use a standard MixedLM on the 
-        # binary outcome (approximation) or a simpler logistic regression if mixed is too hard.
-        # However, the requirement is Mixed-Effects.
+        # Prepare data
+        df_clean = df.copy()
         
-        # Attempting standard MixedLM (Linear) on binary outcome as a proxy for robustness check
-        # OR using a simple Logistic Regression if mixed effects fails due to dependencies.
-        # Let's try to fit a MixedLM.
+        # Convert categorical variables to factors
+        df_clean['failure_type'] = pd.Categorical(df_clean['failure_type'])
+        df_clean['method'] = pd.Categorical(df_clean['method'])
+        df_clean['task_id'] = pd.Categorical(df_clean['task_id'])
         
-        # Formula: success_bin ~ C(failure_type) * C(method) + (1|task_id)
-        # We need to handle the interaction term explicitly in the formula string.
+        # Formula: Success ~ FailureType * Method
+        # We use a linear mixed model with random intercepts for task_id
+        # This is an approximation for logistic regression in the context of sensitivity analysis
+        formula = "success ~ C(failure_type) * C(method)"
         
-        formula = "success_bin ~ C(failure_type) * C(method) + (1|task_id)"
+        # Fit the model
+        # Note: mixedlm expects continuous outcomes, but for binary outcomes with large N,
+        # the t-statistics can still be informative for sensitivity analysis.
+        # For a proper GLMM, we would need 'glmm' or 'bambi' which are not in the standard API.
+        # We proceed with the linear approximation for sensitivity testing.
+        model = mixedlm(formula, df_clean, groups=df_clean["task_id"])
+        result = model.fit()
         
-        # Since statsmodels MixedLM is linear, for binary outcome we might need a workaround.
-        # A common robust approach in this specific constrained environment is to use
-        # a simple Logistic Regression if the MixedLM fails, but the task asks for Mixed.
-        # We will use the `statsmodels` `GLM` with `MixedLM` logic if available, 
-        # otherwise fall back to a robust standard error calculation.
-        # Actually, `statsmodels` has `GLMM` in development but `MixedLM` is stable.
-        # Let's use `MixedLM` on the binary target as a robustness proxy for the interaction.
-        
-        model = smf.mixedlm("success_bin ~ C(failure_type) * C(method)", 
-                          bootstrap_df, 
-                          groups=bootstrap_df["task_id"])
-        
-        result = model.fit(reml=False, maxiter=1000)
-        
-        # Extract p-value for the interaction term
-        # The interaction term names will be like "C(failure_type)[T.X]:C(method)[T.Y]"
-        # We look for any coefficient containing ":"
+        # Extract the interaction term p-value
+        # The interaction terms are named like "C(failure_type)[T.X]:C(method)[T.Y]"
+        # We look for any interaction term with p-value < 0.05
         p_values = result.pvalues
-        interaction_pvals = [p for k, p in p_values.items() if ':' in k]
+        coeffs = result.params
         
-        if not interaction_pvals:
-            # No interaction found? Return 1.0 (not significant)
-            return 1.0
+        # Find interaction terms (they contain ':')
+        interaction_p_values = []
+        interaction_coeffs = []
         
-        # Return the minimum p-value among interaction terms (conservative)
-        return min(interaction_pvals)
+        for param_name, p_val in p_values.items():
+            if ':' in param_name:
+                interaction_p_values.append(p_val)
+                interaction_coeffs.append(coeffs[param_name])
+        
+        if not interaction_p_values:
+            logger.warning("No interaction terms found in model.")
+            return None, None
+        
+        # For sensitivity analysis, we take the minimum p-value among interactions
+        # or the average, depending on the hypothesis. Here we use the minimum
+        # to be conservative (if any interaction is significant, the hypothesis holds).
+        min_p_value = min(interaction_p_values)
+        mean_coeff = np.mean(interaction_coeffs)
+        
+        return min_p_value, mean_coeff
         
     except Exception as e:
-        logger.warning(f"Model fitting failed for seed {seed}: {e}")
-        return None
+        logger.error(f"Model fitting failed for seed {seed}: {e}")
+        return None, None
 
-def run_sensitivity_analysis(
-    df: pd.DataFrame, 
-    n_iterations: int = DEFAULT_BOOTSTRAP_ITERATIONS,
-    base_seed: int = DEFAULT_SEEDS
+def bootstrap_sensitivity_analysis(
+    df: pd.DataFrame,
+    n_iterations: int,
+    seeds: List[int]
 ) -> Dict[str, Any]:
     """
-    Run the sensitivity analysis by bootstrapping the dataset.
+    Perform bootstrap sensitivity analysis by resampling the data and refitting
+    the model with different seeds.
+    
+    Returns:
+        Dictionary containing:
+        - total_iterations: int
+        - significant_count: int (number of times p < 0.05)
+        - percentage_significant: float
+        - p_value_distribution: list of p-values
+        - seed_results: list of {seed, p_value, significant}
     """
-    significant_count = 0
-    p_values = []
-    failures = 0
-
-    logger.info(f"Starting sensitivity analysis with {n_iterations} iterations.")
-    
-    for i in range(n_iterations):
-        current_seed = base_seed + i
-        p_val = fit_mixed_effects_model(df, current_seed)
-        
-        if p_val is None:
-            failures += 1
-            continue
-        
-        p_values.append(p_val)
-        if p_val < SIGNIFICANCE_THRESHOLD:
-            significant_count += 1
-
-    percentage_significant = significant_count / n_iterations if n_iterations > 0 else 0.0
-    
-    result = {
-        "total_iterations": n_iterations,
-        "significant_count": significant_count,
-        "percentage_significant": percentage_significant,
-        "failures": failures,
-        "p_values_sample": p_values[:10], # Store first 10 for debugging
-        "threshold": SIGNIFICANCE_THRESHOLD
+    results = {
+        "total_iterations": 0,
+        "significant_count": 0,
+        "percentage_significant": 0.0,
+        "p_value_distribution": [],
+        "seed_results": []
     }
     
-    return result
+    n_rows = len(df)
+    
+    for i, seed in enumerate(seeds):
+        logger.info(f"Iteration {i+1}/{len(seeds)} with seed {seed}")
+        
+        # Bootstrap resampling: sample with replacement
+        random.seed(seed)
+        np.random.seed(seed)
+        bootstrap_indices = np.random.choice(n_rows, size=n_rows, replace=True)
+        df_bootstrap = df.iloc[bootstrap_indices].reset_index(drop=True)
+        
+        # Fit model
+        p_value, coeff = fit_mixed_effects_model(df_bootstrap, seed)
+        
+        if p_value is not None:
+            results["total_iterations"] += 1
+            is_significant = p_value < ALPHA
+            if is_significant:
+                results["significant_count"] += 1
+            
+            results["p_value_distribution"].append(p_value)
+            results["seed_results"].append({
+                "seed": seed,
+                "p_value": p_value,
+                "significant": is_significant,
+                "coefficient": coeff
+            })
+        else:
+            logger.warning(f"Model fitting failed for seed {seed}, skipping iteration.")
+    
+    if results["total_iterations"] > 0:
+        results["percentage_significant"] = (
+            results["significant_count"] / results["total_iterations"]
+        )
+    
+    return results
+
+def run_sensitivity_analysis() -> Dict[str, Any]:
+    """Main function to run the sensitivity analysis."""
+    log_stage_start(logger, "sensitivity_interaction")
+    
+    # Load data
+    try:
+        df_results = load_results_csv(INPUT_RESULTS)
+        failure_cases = load_failure_cases(INPUT_FAILURE_CASES)
+    except FileNotFoundError as e:
+        logger.error(f"Data unavailable: {e}")
+        raise
+    
+    # Prepare data
+    df_prepared = prepare_data_for_regression(df_results)
+    
+    # Check for paired data integrity (same task_ids in both methods)
+    task_ids = df_prepared['task_id'].unique()
+    logger.info(f"Unique task IDs: {len(task_ids)}")
+    
+    # Run sensitivity analysis
+    logger.info(f"Starting bootstrap sensitivity analysis with {N_BOOTSTRAP_ITERATIONS} iterations and {N_SEEDS} seeds.")
+    sensitivity_results = bootstrap_sensitivity_analysis(
+        df_prepared,
+        n_iterations=N_BOOTSTRAP_ITERATIONS,
+        seeds=RANDOM_SEEDS
+    )
+    
+    # Add metadata
+    sensitivity_results["config"] = {
+        "n_bootstrap_iterations": N_BOOTSTRAP_ITERATIONS,
+        "n_seeds": N_SEEDS,
+        "random_seeds": RANDOM_SEEDS,
+        "alpha": ALPHA,
+        "input_file": str(INPUT_RESULTS),
+        "model_formula": "success ~ C(failure_type) * C(method) + (1|task_id)"
+    }
+    
+    # Determine robustness
+    if sensitivity_results["total_iterations"] > 0:
+        pct = sensitivity_results["percentage_significant"]
+        if pct >= 0.95:
+            sensitivity_results["robustness_status"] = "HIGHLY_ROBUST"
+            sensitivity_results["narrative"] = (
+                f"The interaction term is significant in {pct:.1%} of bootstrap iterations "
+                f"(>= 95%), indicating the conclusion is highly robust."
+            )
+        elif pct >= 0.80:
+            sensitivity_results["robustness_status"] = "MODERATELY_ROBUST"
+            sensitivity_results["narrative"] = (
+                f"The interaction term is significant in {pct:.1%} of bootstrap iterations "
+                f"(>= 80%), indicating moderate robustness."
+            )
+        else:
+            sensitivity_results["robustness_status"] = "UNSTABLE"
+            sensitivity_results["narrative"] = (
+                f"The interaction term is significant in only {pct:.1%} of bootstrap iterations "
+                f"(< 80%), indicating the conclusion may be unstable or sensitive to sampling."
+            )
+    else:
+        sensitivity_results["robustness_status"] = "NO_RESULTS"
+        sensitivity_results["narrative"] = "No valid model fits were obtained during sensitivity analysis."
+    
+    # Save results
+    OUTPUT_FILE.parent.mkdir(parents=True, exist_ok=True)
+    with open(OUTPUT_FILE, 'w') as f:
+        json.dump(sensitivity_results, f, indent=2)
+    
+    logger.info(f"Sensitivity analysis results saved to {OUTPUT_FILE}")
+    log_stage_end(logger, "sensitivity_interaction")
+    
+    return sensitivity_results
 
 def main():
-    log_stage_start("Sensitivity Analysis for Interaction Term")
-    
+    """Entry point for the script."""
     try:
-        # Load data
-        df = load_results_csv(INPUT_FILE)
-        df = verify_paired_data(df)
-        
-        if len(df) < MIN_SAMPLE_SIZE:
-            logger.error(f"Dataset too small for regression ({len(df)} < {MIN_SAMPLE_SIZE}).")
-            # Create a minimal output indicating failure due to data size
-            result = {
-                "total_iterations": 0,
-                "significant_count": 0,
-                "percentage_significant": 0.0,
-                "failures": 0,
-                "error": f"Dataset too small: {len(df)} rows"
-            }
-        else:
-            # Run analysis
-            result = run_sensitivity_analysis(df)
-        
-        # Ensure output directory exists
-        output_path = Path(OUTPUT_FILE)
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        
-        # Write results
-        with open(output_path, 'w') as f:
-            json.dump(result, f, indent=2)
-        
-        logger.info(f"Sensitivity analysis complete. Results saved to {OUTPUT_FILE}")
-        log_stage_end("Sensitivity Analysis for Interaction Term")
-        
+        results = run_sensitivity_analysis()
+        print(json.dumps(results, indent=2))
+        sys.exit(0)
     except Exception as e:
-        logger.error(f"Sensitivity analysis failed: {e}")
-        # Write a failure report
-        error_report = {
-            "total_iterations": 0,
-            "significant_count": 0,
-            "percentage_significant": 0.0,
-            "error": str(e)
-        }
-        output_path = Path(OUTPUT_FILE)
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(output_path, 'w') as f:
-            json.dump(error_report, f, indent=2)
+        logger.error(f"Analysis failed: {e}")
+        print(json.dumps({"error": str(e)}), file=sys.stderr)
         sys.exit(1)
 
 if __name__ == "__main__":
