@@ -5,12 +5,14 @@ from __future__ import annotations
 
 import re
 from collections import deque
+from collections.abc import Sequence
 from itertools import count
 from pathlib import Path
 from typing import Any
 
 from llmxive.self_improvement.events import Event, derive_event_id
 from llmxive.self_improvement.lifecycle import (
+    NON_TRANSITION_EVENTS,
     TRANSITIONS,
     AttemptState,
     legal_events_from,
@@ -55,6 +57,59 @@ def attempt_event(event_type: str, *, attempt_id: str = "A1", problem_id: str = 
     )
 
 
+def witness_payload(state: AttemptState | None, event_type: str) -> dict[str, str]:
+    """The payload term a transition's state witness requires when taken FROM ``state``.
+
+    `attempt_event` supplies the generation defaults on its own because they depend only on
+    the event type; a witness term depends on the SOURCE STATE, which only a builder walking
+    a history knows. Same rule though — a history built by these helpers must be one the
+    writers could have produced, or tests start failing (or worse, PASSING) for reasons
+    unrelated to what they assert: `drive(REVIEW_ABORTED)` without this yields a history the
+    fold refuses for a missing `stage`, which still satisfies a `pytest.raises` looking for
+    "already terminal".
+
+    Returns `{}` when the step is not legal from ``state`` — the fold will refuse it, and
+    inventing a witness for a transition that cannot happen would mask that refusal."""
+    transition = next((t for t in TRANSITIONS if t.event == event_type
+                       and (state in t.from_states if state is not None
+                            else not t.from_states)), None)
+    if transition is None or transition.witness is None:
+        return {}
+    term = transition.witness.term(state)
+    return {} if term is None else {transition.witness.field: term}
+
+
+def next_state(state: AttemptState | None, event_type: str) -> AttemptState | None:
+    """Where the machine lands, or ``None`` if the step is not legal from ``state``.
+
+    Non-transitions leave the state alone — a heartbeat that reset the tracked state to
+    `None` would make every witness after it unknowable."""
+    if event_type in NON_TRANSITION_EVENTS:
+        return state
+    transition = next((t for t in TRANSITIONS if t.event == event_type
+                       and (state in t.from_states if state is not None
+                            else not t.from_states)), None)
+    return None if transition is None else transition.to_state
+
+
+def build_history(event_types: Sequence[str], *, sequential: bool = False) -> list[Event]:
+    """A history of ``event_types``, each carrying whatever its source state obliges it to.
+
+    The ONE state-tracking builder: `drive`, the random walks, and the test module's
+    `_history` all route through it, so a future witnessed field is satisfied everywhere at
+    once instead of in whichever builder someone remembers."""
+    events: list[Event] = []
+    state: AttemptState | None = None
+    for position, event_type in enumerate(event_types):
+        payload: dict[str, Any] = dict(witness_payload(state, event_type))
+        if event_type == "ClaimHeartbeat":
+            payload["tick"] = position
+        events.append(attempt_event(event_type, payload=payload,
+                                    seq=position if sequential else _UNSET))
+        state = next_state(state, event_type)
+    return events
+
+
 def _shortest_paths() -> dict[AttemptState, list[str]]:
     """BFS over the declared table. Derived, never hand-written: a hand-written path would
     silently stop testing a transition the table later changes."""
@@ -79,7 +134,7 @@ def drive(state: AttemptState) -> list[Event]:
     """A minimal legal history ending in ``state``."""
     if state not in _PATHS:
         raise AssertionError(f"{state} is unreachable from PROPOSED — the table is wrong")
-    return [attempt_event(e) for e in _PATHS[state]]
+    return build_history(_PATHS[state])
 
 
 _MARKER_EFFECTS = {"†": "ClaimReleased", "◇": "MonitorStarted"}
@@ -104,23 +159,30 @@ _SPEC = Path(__file__).resolve().parents[2] / "specs/025-self-improvement-lane/s
 SpecRow = tuple[frozenset[str], str, str, tuple[str, ...]]
 
 
-def parse_spec_transitions() -> tuple[dict[str, SpecRow], frozenset[str]]:
+def parse_spec_transitions() -> tuple[dict[str, SpecRow], frozenset[str], frozenset[str]]:
     """Parse spec 025's Attempt transition table into rows comparable with `TRANSITIONS`,
-    plus the set of Attempt-scoped rows that are NOT transitions.
+    the set of Attempt-scoped rows that are NOT transitions, and EVERY `‡` row's event name.
 
     The spec's six columns are `From | Event | To | Idempotency key | Side effect |
     Reconciliation`; the effect markers live in the Event cell (`†` release, `◇` monitor,
     `‡` not an Attempt transition). Only the four machine-checkable fields come back — the
     last two columns are prose by design and comparing them would make the test a diff.
 
-    Both halves of the return are needed because the spec's `‡` rows split two ways: some
-    are problem- or coordinator-scoped and never touch an Attempt's stream, and some (keyed
-    by `attempt_id`) do. Only the second kind must appear in `NON_TRANSITION_EVENTS`.
+    The second return is needed because the spec's `‡` rows split two ways: some are
+    problem- or coordinator-scoped and never touch an Attempt's stream, and some (keyed by
+    `attempt_id`) do. Only the second kind must appear in `NON_TRANSITION_EVENTS`.
+
+    The THIRD return exists because excluding `‡` rows from the row comparison silently
+    excluded their VOCABULARY too, and two rows drifted in that blind spot: the spec named
+    an `OperationalCooldown` and a `PromotionReenabled` that no writer produces. A `‡` row
+    is not an Attempt transition, but it still names a record something must write, so the
+    names remain checkable against `KNOWN_EVENT_TYPES_V1` even when the columns are not.
 
     A row that does not parse is an ERROR, never a skip. Silently dropping unparseable rows
     is how a drift test ends up comparing an empty set with an empty set and passing."""
     rows: dict[str, SpecRow] = {}
     non_transitions: set[str] = set()
+    lane_events: set[str] = set()
     inside = False
     for line in _SPEC.read_text().split("\n"):
         stripped = line.strip()
@@ -139,18 +201,19 @@ def parse_spec_transitions() -> tuple[dict[str, SpecRow], frozenset[str]]:
                 f"spec transition row has {len(cells)} cells, expected 6: {stripped!r}")
         froms, event_cell, to, key_cell, _side, _recon = cells
         if _NOT_AN_ATTEMPT_TRANSITION in event_cell:
+            lane_events.add(_event_name(event_cell))
             # Not a transition — but if it is keyed by `attempt_id` it still LANDS on an
             # Attempt's stream, and `project_attempt` folds every event it finds there.
             # Collecting these is what lets the parity test prove `NON_TRANSITION_EVENTS`
             # is complete instead of remembered; forgetting one makes every projection of
             # that Attempt fail closed the moment the event is first written.
             if "attempt_id" in key_cell:
-                non_transitions.add(_clean(event_cell))
+                non_transitions.add(_event_name(event_cell))
             continue
         effects = tuple(
             name for name in _EFFECT_ORDER
             if name in {_MARKER_EFFECTS[m] for m in event_cell if m in _MARKER_EFFECTS})
-        event = _clean(event_cell)
+        event = _event_name(event_cell)
         if not event.isidentifier():
             raise AssertionError(f"unparseable Event cell: {event_cell!r}")
         # `(attempt_id,"promo-obs",head_sha)` → `promo-obs`: the suffix is the only part
@@ -163,7 +226,9 @@ def parse_spec_transitions() -> tuple[dict[str, SpecRow], frozenset[str]]:
         rows[event] = (from_states, _clean(to), key.group(1), effects)
     if not rows:
         raise AssertionError(f"no transition rows parsed from {_SPEC} — the test is vacuous")
-    return rows, frozenset(non_transitions)
+    if not lane_events:
+        raise AssertionError(f"no ‡ rows parsed from {_SPEC} — the test is vacuous")
+    return rows, frozenset(non_transitions), frozenset(lane_events)
 
 
 def _clean(cell: str) -> str:
@@ -172,3 +237,11 @@ def _clean(cell: str) -> str:
     for junk in ("`", "*", *_MARKER_EFFECTS, _NOT_AN_ATTEMPT_TRANSITION):
         out = out.replace(junk, "")
     return out.strip()
+
+
+def _event_name(cell: str) -> str:
+    """`_clean`, plus a trailing parenthetical GLOSS — `PromotionEnabledSet (manual
+    re-enable)`. The gloss says when the row applies; the event name is what the code must
+    have. Scoped to the Event column deliberately: a `‡` row's From cell is a prose
+    CONDITION that may itself be parenthesised, and stripping there would erase it."""
+    return re.sub(r"\s*\([^)]*\)", "", _clean(cell)).strip()

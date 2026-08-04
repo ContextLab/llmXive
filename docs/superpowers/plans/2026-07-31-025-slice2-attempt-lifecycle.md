@@ -360,11 +360,21 @@ Event cell. Six edits, all in `specs/025-self-improvement-lane/spec.md:300-331`:
    no from-states for exactly that reason.
 
 5. **Rows that are not Attempt transitions get `‡`**: `ProblemDiscovered`,
-   `PublishRequested→Published`, `PromotionReenabled`, `Cooldown`, `OperationalCooldown`,
-   `ClaimHeartbeat`. They belong in the table — they are real lane transitions — but they
-   do not move an Attempt through `TRANSITIONS`, and the parser must exclude them by a
-   DECLARED marker rather than by a name list living in a test file, which is the same
-   drift in a new place.
+   `PublishRequested→Published`, `PromotionEnabledSet`, `Cooldown`, `ClaimHeartbeat`. They
+   belong in the table — they are real lane transitions — but they do not move an Attempt
+   through `TRANSITIONS`, and the parser must exclude them by a DECLARED marker rather than
+   by a name list living in a test file, which is the same drift in a new place.
+
+   **Excluding the columns excluded the NAMES (spec rev 25).** That is a hole, and two rows
+   fell through it: the spec's `OperationalCooldown` (unified into `Cooldown(cause=...)` —
+   see Task 6's vocabulary table) and `PromotionReenabled` (the record is slice 1A's
+   `PromotionEnabledSet`) named records no writer would ever produce, and nothing compared
+   them because `‡` rows were skipped wholesale. A `‡` row still CLAIMS a record exists, so
+   `parse_spec_transitions` now returns every `‡` row's event name as a third element and
+   `test_every_non_attempt_row_names_a_record_something_can_WRITE` checks it against
+   `KNOWN_EVENT_TYPES_V1`. `PublishRequested→Published` is excluded explicitly — it names
+   the publish SAGA, not one event type — so a future non-literal cell forces a decision
+   instead of being absorbed by a lenient parser.
 
 6. **A one-line legend under the table** naming all three markers, so the next reader does
    not have to infer them from usage.
@@ -2863,12 +2873,55 @@ class ProblemDisposition(enum.StrEnum):
 
 
 @dataclass(frozen=True)
+class StateWitness:
+    """A payload term that redundantly NAMES which of a multi-source transition's
+    ``from_states`` the event was taken from.
+
+    A witnessed field is checkable, and therefore must be checked. ``ReviewAborted`` is
+    legal from `proposed` (where the PROPOSAL review runs) and from `implementing` (where
+    the PATCH review runs), and its ``stage`` says which — so a ``stage="patch"`` abort
+    recorded from `proposed` is a durable record asserting a review that provably never
+    ran. The write boundary cannot catch it: ``_one_of`` sees a term from the legal
+    vocabulary, and the state it disagrees with is not in the record. Only the fold, which
+    knows the state the transition is LEAVING, can.
+
+    ``by_state`` is a tuple of pairs rather than a mapping to keep :class:`Transition`
+    hashable. It is exhaustive over ``from_states`` AND over the field's write-boundary
+    vocabulary, both asserted at import by :func:`_validate_declarations` — a source state
+    with no term would be unwitnessable, and a term no source state can produce is a term
+    no writer could legally use."""
+
+    field: str
+    by_state: tuple[tuple[AttemptState, str], ...]
+
+    def term(self, state: AttemptState | None) -> str | None:
+        return next((term for s, term in self.by_state if s is state), None)
+
+    @property
+    def states(self) -> frozenset[AttemptState]:
+        return frozenset(s for s, _ in self.by_state)
+
+    @property
+    def terms(self) -> frozenset[str]:
+        return frozenset(term for _, term in self.by_state)
+
+
+#: The write-boundary vocabulary each witnessed field is constrained to, named by the layer
+#: that OWNS it. `_validate_declarations` asserts each witness covers its field's vocabulary
+#: exactly, so the `_one_of` set and the state map cannot drift into disagreeing about which
+#: terms exist.
+_WITNESS_VOCABULARY: dict[str, frozenset[str]] = {"stage": REVIEW_STAGES}
+
+
+@dataclass(frozen=True)
 class Transition:
     event: str
     from_states: frozenset[AttemptState]
     to_state: AttemptState
     key_suffix: str                       # the idempotency key's 2nd element, per the spec
     coordinator_effects: tuple[str, ...]  # the spec table's † and ◇ markers
+    #: Set only where the payload names its own source state; see :class:`StateWitness`.
+    witness: StateWitness | None = None
 
     @property
     def terminal(self) -> bool:
@@ -2886,8 +2939,8 @@ class Transition:
 
 
 def _t(event: str, froms: tuple[AttemptState, ...], to: AttemptState, key: str,
-       *, effects: tuple[str, ...] = ()) -> Transition:
-    return Transition(event, frozenset(froms), to, key, effects)
+       *, effects: tuple[str, ...] = (), witness: StateWitness | None = None) -> Transition:
+    return Transition(event, frozenset(froms), to, key, effects, witness)
 
 
 _RELEASES = ("ClaimReleased",)
@@ -2899,8 +2952,11 @@ TRANSITIONS: tuple[Transition, ...] = (
     _t("Proposed", (), S.PROPOSED, "proposed"),
     _t("ProposalVerified", (S.PROPOSED,), S.PROPOSAL_VERIFIED, "verified"),
     _t("Rejected", (S.PROPOSED, S.PROPOSAL_VERIFIED), S.REJECTED, "reject"),
+    # `stage` is not free-form: `proposed` is where the proposal review runs and
+    # `implementing` is where the patch review runs, so the source state DETERMINES it.
     _t("ReviewAborted", (S.PROPOSED, S.IMPLEMENTING), S.REVIEW_ABORTED, "reviewabort",
-       effects=_RELEASES),
+       effects=_RELEASES,
+       witness=StateWitness("stage", ((S.PROPOSED, "proposal"), (S.IMPLEMENTING, "patch")))),
     _t("ClaimGranted", (S.PROPOSAL_VERIFIED,), S.CLAIMED, "claim"),
     _t("Implementing", (S.CLAIMED,), S.IMPLEMENTING, "impl"),
     _t("ImplementationFailed", (S.CLAIMED, S.IMPLEMENTING), S.IMPL_FAILED, "implfail",
@@ -2936,6 +2992,41 @@ TRANSITIONS: tuple[Transition, ...] = (
        (S.CLAIMED, S.IMPLEMENTING, S.PROMOTING, S.PROMOTION_REQUESTED),
        S.ATTEMPT_ABANDONED, "claimexpired", effects=_RELEASES),
 )
+
+
+def _validate_declarations(transitions: tuple[Transition, ...]) -> None:
+    """Refuse a malformed table AT IMPORT, not on the first history that trips over it.
+
+    Takes the table as an argument so the check is itself testable: a rule enforced only
+    over the one table that already satisfies it is a rule with no evidence it does
+    anything. Called below with `TRANSITIONS`.
+
+    A witness whose `by_state` disagrees with its row's `from_states` is the drift this
+    exists to prevent — add a source state to a witnessed row and the fold would otherwise
+    silently stop checking that state, which is exactly the hole being closed here."""
+    for t in transitions:
+        if t.witness is None:
+            continue
+        if not t.from_states:
+            raise ValueError(
+                f"{t.event}: a state witness on an opening transition witnesses nothing")
+        if t.witness.states != t.from_states:
+            raise ValueError(
+                f"{t.event}: witness covers {sorted(s.value for s in t.witness.states)} "
+                f"but the row is legal from {sorted(s.value for s in t.from_states)}")
+        vocabulary = _WITNESS_VOCABULARY.get(t.witness.field)
+        if vocabulary is None:
+            raise ValueError(
+                f"{t.event}: no write-boundary vocabulary declared for witnessed field "
+                f"{t.witness.field!r} — the fold and `_one_of` would be unrelated checks")
+        if t.witness.terms != vocabulary:
+            raise ValueError(
+                f"{t.event}: witness terms {sorted(t.witness.terms)} disagree with the "
+                f"{t.witness.field!r} vocabulary {sorted(vocabulary)}")
+
+
+_validate_declarations(TRANSITIONS)
+
 
 TERMINAL_STATES: frozenset[AttemptState] = frozenset({
     S.REJECTED, S.REVIEW_ABORTED, S.ATTEMPT_ABANDONED, S.IMPL_FAILED, S.PUBLISH_FAILED,
@@ -3213,6 +3304,17 @@ def walk_attempt(events: list[Event]) -> Iterator[Step]:
         elif state not in transition.from_states:
             raise IllegalTransition(
                 f"illegal transition {e.event_type!r} from {state.value!r}")
+        if transition.witness is not None:
+            # Checkable here and NOWHERE ELSE: `validate_lane_event` sees one record and
+            # the state it contradicts is not in it, so a `stage` from the legal vocabulary
+            # always passes the write boundary. Only the fold knows the state being left.
+            expected = transition.witness.term(state)
+            actual = _required_field(e, transition.witness.field)
+            if actual != expected:
+                raise IllegalTransition(
+                    f"{e.event_type!r} from {state.value!r} carries "
+                    f"{transition.witness.field}={actual!r}, but only {expected!r} is "
+                    f"possible there — the record claims something its own history denies")
         if e.event_type in _GENERATION_EVENTS:
             generation = _required_field(e, "claim_generation")
         yield Step(state, e, transition, transition.to_state, generation)
@@ -3302,10 +3404,49 @@ green run that means nothing; Task 3 Step 9 already produced one).
 |`_required_field` → bare `payload_field`|`IllegalTransition` as the ONE refusal type|
 |`released_claim` drops its `holds_claim` gate|the conditional-effects reading|
 |the projection reports `last.transition.releases_claim`|…and again at the fold's output|
+|`if transition.witness is not None:` → `if False:`|the state-witness check|
+|`_validate_declarations` body → `return`|the declaration check itself|
 
-Each must be applied, run, and reverted one at a time; all ten kill a test. The last two
-are separate rows deliberately: they kill DIFFERENT tests, so the predicate being right
-does not prove the fold uses it, and vice versa.
+Each must be applied, run, and reverted one at a time; all twelve kill a test. The
+release-semantics pair are separate rows deliberately: they kill DIFFERENT tests, so the
+predicate being right does not prove the fold uses it, and vice versa.
+
+**The state witness (added after the Task-6 review).** A transition legal from more than
+one state whose payload carries a term NAMING which one is checkable, and therefore must be
+checked. `ReviewAborted.stage` is the case: `proposed` is where the proposal review runs and
+`implementing` is where the patch review runs, so a `stage="patch"` abort recorded from
+`proposed` asserts a review that provably never ran — and FR-034's operational streak, which
+decides whether a Problem cools down, is read straight off these records.
+
+It belongs in `walk_attempt` and NOWHERE ELSE. `validate_lane_event` sees one record;
+`_one_of` sees a term from the legal vocabulary; the state it contradicts is not in the
+record. Only the fold knows the state being left.
+
+It is declared as DATA (`StateWitness` on the row), not branched on by event name, for the
+usual reason — and the declaration carries its own well-formedness contract, checked at
+import by `_validate_declarations`: `by_state` must cover the row's `from_states` exactly
+(add a source state to a witnessed row and the fold would otherwise silently stop checking
+it) and must cover the field's write-boundary vocabulary exactly (`events.REVIEW_STAGES`,
+now public for this reason — two hand-written copies drift into a `stage` the validator
+accepts and the fold refuses, which does not reject the append, it WEDGES every later
+projection of the Attempt it landed on). `_validate_declarations` takes the table as an
+argument so the rule can be exercised against malformed tables; a check run only over the
+one table that already satisfies it has no evidence it does anything.
+
+The CLASS is pinned, not the instance:
+`test_every_multi_source_transition_has_DECIDED_about_a_state_witness` enumerates every row
+legal from more than one state and requires each to be witnessed or explicitly listed as
+unwitnessed, so a new multi-source row cannot ship an unchecked claim. The near miss is
+`ClaimExpired.reason` — it looks like a discriminator, but `heartbeat_lapsed` and
+`hold_time_exceeded` are both possible from all four claim-holding states, so it describes
+the CAUSE, not the source.
+
+Test helpers must build histories a writer could produce, or tests fail — or PASS — for the
+wrong reason: `drive(REVIEW_ABORTED)` without a `stage` yields a history the fold refuses
+for a missing field, which still satisfies a `pytest.raises` looking for "already terminal".
+Since a witness term depends on the SOURCE STATE, `attempt_event` cannot supply it alone;
+`build_history` in `tests/helpers/lane_lifecycle.py` is the ONE state-tracking builder, and
+`drive`, the random walks, and the test module's `_history` all route through it.
 
 - [ ] **Step 7: Commit**
 
@@ -3403,6 +3544,15 @@ New types and their exact payload key sets:
 | `SideEffectRequested` | `problem_id`, `attempt_id`, `claim_generation`, `effect`, `idempotency_key` |
 | `SideEffectObserved` | `problem_id`, `attempt_id`, `claim_generation`, `effect`, `idempotency_key`, `disposition` |
 | `Cooldown` | `problem_id`, `cause`, `epoch`, `cooldown_until` |
+
+**`Cooldown` is ONE type, and spec rev 25 says so too.** The spec table declared `Cooldown`
+and `OperationalCooldown` as separate rows carrying identical fields and differing only in
+a value rev 18 had already folded into the idempotency key
+(`(problem_id,"cooldown",cause,epoch)`). Two schemas for one record is a Constitution I
+duplication, so the vocabulary above declares one type with `cause` as the discriminator —
+but until rev 25 that was a PLAN decision contradicting a normative table, which is a
+divergence, not a simplification. The spec now carries the unified row. Task 11 projects
+cooldown from it.
 
 One EXISTING type also changes shape. `MonitorStarted` gains two required keys:
 `merged_at` — the instant the promotion it is monitoring was observed, which is what

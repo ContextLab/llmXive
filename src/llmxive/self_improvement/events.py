@@ -634,7 +634,12 @@ def _validate_promotion_enabled_set(raw: Mapping[str, Any]) -> None:
 
 # --- Slice 2: the Attempt lifecycle ---------------------------------------------------
 
-_REVIEW_STAGES = frozenset({"proposal", "patch"})
+#: Public because `lifecycle` reads it: the `ReviewAborted` state witness maps each source
+#: state to the stage term it may carry, and its import-time check asserts the map's values
+#: are exactly this set. Two hand-written copies of a vocabulary that must agree is how a
+#: `stage` the write boundary accepts becomes a `stage` the fold refuses — which does not
+#: reject the append, it wedges every later projection of the Attempt it landed on.
+REVIEW_STAGES = frozenset({"proposal", "patch"})
 #: FR-034's seven causes. An abort is UNCOUNTED against the quality cap, so what it says
 #: about itself is the only record of why a Problem's operational streak advanced.
 _REVIEW_ABORT_CAUSES = frozenset({
@@ -731,7 +736,7 @@ def _validate_review_aborted(raw: Mapping[str, Any]) -> None:
     payload = raw["payload"]
     _exact_keys(payload, _REVIEW_ABORTED_KEYS, "ReviewAborted payload")
     _validate_attempt_transition(raw)
-    _one_of(payload, "stage", _REVIEW_STAGES, "ReviewAborted")
+    _one_of(payload, "stage", REVIEW_STAGES, "ReviewAborted")
     _one_of(payload, "cause", _REVIEW_ABORT_CAUSES, "ReviewAborted")
     _string_list(payload, "unresolved_dispatches", "ReviewAborted")
 

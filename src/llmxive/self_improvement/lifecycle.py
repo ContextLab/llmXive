@@ -15,7 +15,7 @@ from collections import deque
 from collections.abc import Iterator
 from dataclasses import dataclass
 
-from llmxive.self_improvement.events import Event, payload_field
+from llmxive.self_improvement.events import REVIEW_STAGES, Event, payload_field
 
 
 class IllegalTransition(ValueError):
@@ -57,12 +57,55 @@ class ProblemDisposition(enum.StrEnum):
 
 
 @dataclass(frozen=True)
+class StateWitness:
+    """A payload term that redundantly NAMES which of a multi-source transition's
+    ``from_states`` the event was taken from.
+
+    A witnessed field is checkable, and therefore must be checked. ``ReviewAborted`` is
+    legal from `proposed` (where the PROPOSAL review runs) and from `implementing` (where
+    the PATCH review runs), and its ``stage`` says which — so a ``stage="patch"`` abort
+    recorded from `proposed` is a durable record asserting a review that provably never
+    ran. The write boundary cannot catch it: ``_one_of`` sees a term from the legal
+    vocabulary, and the state it disagrees with is not in the record. Only the fold, which
+    knows the state the transition is LEAVING, can.
+
+    ``by_state`` is a tuple of pairs rather than a mapping to keep :class:`Transition`
+    hashable. It is exhaustive over ``from_states`` AND over the field's write-boundary
+    vocabulary, both asserted at import by :func:`_validate_declarations` — a source state
+    with no term would be unwitnessable, and a term no source state can produce is a term
+    no writer could legally use."""
+
+    field: str
+    by_state: tuple[tuple[AttemptState, str], ...]
+
+    def term(self, state: AttemptState | None) -> str | None:
+        return next((term for s, term in self.by_state if s is state), None)
+
+    @property
+    def states(self) -> frozenset[AttemptState]:
+        return frozenset(s for s, _ in self.by_state)
+
+    @property
+    def terms(self) -> frozenset[str]:
+        return frozenset(term for _, term in self.by_state)
+
+
+#: The write-boundary vocabulary each witnessed field is constrained to, named by the layer
+#: that OWNS it. `_validate_declarations` asserts each witness covers its field's vocabulary
+#: exactly, so the `_one_of` set and the state map cannot drift into disagreeing about which
+#: terms exist.
+_WITNESS_VOCABULARY: dict[str, frozenset[str]] = {"stage": REVIEW_STAGES}
+
+
+@dataclass(frozen=True)
 class Transition:
     event: str
     from_states: frozenset[AttemptState]
     to_state: AttemptState
     key_suffix: str                       # the idempotency key's 2nd element, per the spec
     coordinator_effects: tuple[str, ...]  # the spec table's † and ◇ markers
+    #: Set only where the payload names its own source state; see :class:`StateWitness`.
+    witness: StateWitness | None = None
 
     @property
     def terminal(self) -> bool:
@@ -80,8 +123,8 @@ class Transition:
 
 
 def _t(event: str, froms: tuple[AttemptState, ...], to: AttemptState, key: str,
-       *, effects: tuple[str, ...] = ()) -> Transition:
-    return Transition(event, frozenset(froms), to, key, effects)
+       *, effects: tuple[str, ...] = (), witness: StateWitness | None = None) -> Transition:
+    return Transition(event, frozenset(froms), to, key, effects, witness)
 
 
 _RELEASES = ("ClaimReleased",)
@@ -93,8 +136,11 @@ TRANSITIONS: tuple[Transition, ...] = (
     _t("Proposed", (), S.PROPOSED, "proposed"),
     _t("ProposalVerified", (S.PROPOSED,), S.PROPOSAL_VERIFIED, "verified"),
     _t("Rejected", (S.PROPOSED, S.PROPOSAL_VERIFIED), S.REJECTED, "reject"),
+    # `stage` is not free-form: `proposed` is where the proposal review runs and
+    # `implementing` is where the patch review runs, so the source state DETERMINES it.
     _t("ReviewAborted", (S.PROPOSED, S.IMPLEMENTING), S.REVIEW_ABORTED, "reviewabort",
-       effects=_RELEASES),
+       effects=_RELEASES,
+       witness=StateWitness("stage", ((S.PROPOSED, "proposal"), (S.IMPLEMENTING, "patch")))),
     _t("ClaimGranted", (S.PROPOSAL_VERIFIED,), S.CLAIMED, "claim"),
     _t("Implementing", (S.CLAIMED,), S.IMPLEMENTING, "impl"),
     _t("ImplementationFailed", (S.CLAIMED, S.IMPLEMENTING), S.IMPL_FAILED, "implfail",
@@ -130,6 +176,40 @@ TRANSITIONS: tuple[Transition, ...] = (
        (S.CLAIMED, S.IMPLEMENTING, S.PROMOTING, S.PROMOTION_REQUESTED),
        S.ATTEMPT_ABANDONED, "claimexpired", effects=_RELEASES),
 )
+
+def _validate_declarations(transitions: tuple[Transition, ...]) -> None:
+    """Refuse a malformed table AT IMPORT, not on the first history that trips over it.
+
+    Takes the table as an argument so the check is itself testable: a rule enforced only
+    over the one table that already satisfies it is a rule with no evidence it does
+    anything. Called below with `TRANSITIONS`.
+
+    A witness whose `by_state` disagrees with its row's `from_states` is the drift this
+    exists to prevent — add a source state to a witnessed row and the fold would otherwise
+    silently stop checking that state, which is exactly the hole being closed here."""
+    for t in transitions:
+        if t.witness is None:
+            continue
+        if not t.from_states:
+            raise ValueError(
+                f"{t.event}: a state witness on an opening transition witnesses nothing")
+        if t.witness.states != t.from_states:
+            raise ValueError(
+                f"{t.event}: witness covers {sorted(s.value for s in t.witness.states)} "
+                f"but the row is legal from {sorted(s.value for s in t.from_states)}")
+        vocabulary = _WITNESS_VOCABULARY.get(t.witness.field)
+        if vocabulary is None:
+            raise ValueError(
+                f"{t.event}: no write-boundary vocabulary declared for witnessed field "
+                f"{t.witness.field!r} — the fold and `_one_of` would be unrelated checks")
+        if t.witness.terms != vocabulary:
+            raise ValueError(
+                f"{t.event}: witness terms {sorted(t.witness.terms)} disagree with the "
+                f"{t.witness.field!r} vocabulary {sorted(vocabulary)}")
+
+
+_validate_declarations(TRANSITIONS)
+
 
 TERMINAL_STATES: frozenset[AttemptState] = frozenset({
     S.REJECTED, S.REVIEW_ABORTED, S.ATTEMPT_ABANDONED, S.IMPL_FAILED, S.PUBLISH_FAILED,
@@ -407,6 +487,17 @@ def walk_attempt(events: list[Event]) -> Iterator[Step]:
         elif state not in transition.from_states:
             raise IllegalTransition(
                 f"illegal transition {e.event_type!r} from {state.value!r}")
+        if transition.witness is not None:
+            # Checkable here and NOWHERE ELSE: `validate_lane_event` sees one record and
+            # the state it contradicts is not in it, so a `stage` from the legal vocabulary
+            # always passes the write boundary. Only the fold knows the state being left.
+            expected = transition.witness.term(state)
+            actual = _required_field(e, transition.witness.field)
+            if actual != expected:
+                raise IllegalTransition(
+                    f"{e.event_type!r} from {state.value!r} carries "
+                    f"{transition.witness.field}={actual!r}, but only {expected!r} is "
+                    f"possible there — the record claims something its own history denies")
         if e.event_type in _GENERATION_EVENTS:
             generation = _required_field(e, "claim_generation")
         yield Step(state, e, transition, transition.to_state, generation)
@@ -454,6 +545,7 @@ __all__ = [
     "IllegalTransition",
     "NonTransition",
     "ProblemDisposition",
+    "StateWitness",
     "Step",
     "Transition",
     "TransitionOutcome",

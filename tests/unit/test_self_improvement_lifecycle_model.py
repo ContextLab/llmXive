@@ -9,7 +9,7 @@ from dataclasses import replace
 
 import pytest
 
-from llmxive.self_improvement.events import Event
+from llmxive.self_improvement.events import KNOWN_EVENT_TYPES_V1, REVIEW_STAGES, Event
 from llmxive.self_improvement.lifecycle import (
     _BY_EVENT,
     CLAIM_HOLDING_STATES,
@@ -20,13 +20,21 @@ from llmxive.self_improvement.lifecycle import (
     TRANSITIONS,
     AttemptState,
     IllegalTransition,
+    StateWitness,
+    Transition,
+    _validate_declarations,
     holds_claim,
     legal_events_from,
     project_attempt,
     released_claim,
     walk_attempt,
 )
-from tests.helpers.lane_lifecycle import attempt_event, drive
+from tests.helpers.lane_lifecycle import (
+    attempt_event,
+    build_history,
+    drive,
+    witness_payload,
+)
 
 
 def test_every_transition_names_states_that_exist():
@@ -118,7 +126,7 @@ def test_random_walks_never_violate_the_invariants():
             if not options:
                 break
             event = rng.choice(sorted(options))
-            history.append(attempt_event(event))
+            history.append(attempt_event(event, payload=witness_payload(state, event)))
             state = project_attempt(history).state
         result = project_attempt(history)
         assert result.state is state, f"trial {trial}: fold disagreed with the walk"
@@ -139,7 +147,7 @@ def test_the_code_table_matches_the_spec_table():
     key, and the effect markers († releases the claim, ◇ starts monitoring)."""
     from tests.helpers.lane_lifecycle import parse_spec_transitions
 
-    spec_rows, spec_non_transitions = parse_spec_transitions()
+    spec_rows, spec_non_transitions, _lane_events = parse_spec_transitions()
     assert spec_rows, "the spec transition table did not parse — the test is vacuous"
     # Every Attempt-scoped row that is NOT a transition must be declared, or
     # `project_attempt` fails closed the first time one is written. Two directions, and
@@ -170,16 +178,38 @@ def test_the_code_table_matches_the_spec_table():
     assert not mismatched, f"spec/code row mismatch: {mismatched}"
 
 
+def test_every_non_attempt_row_names_a_record_something_can_WRITE():
+    """The `‡` rows' blind spot. They are excluded from the row comparison above because
+    they move no Attempt — but excluding the COLUMNS silently excluded the NAMES, and two
+    rows drifted there: the spec declared an `OperationalCooldown` (the implementation
+    unified it into `Cooldown(cause=...)`) and a `PromotionReenabled` (the record is slice
+    1A's `PromotionEnabledSet`). Neither would ever have been written.
+
+    A `‡` row is still a claim that some record exists, so the names are checkable even
+    where the columns are not."""
+    from tests.helpers.lane_lifecycle import parse_spec_transitions
+
+    _rows, _non_transitions, lane_events = parse_spec_transitions()
+    # `PublishRequested→Published` is the one cell that names no single event type: it names
+    # the publish SAGA, whose records are the `SideEffectRequested`/`SideEffectObserved`
+    # pair. Excluded explicitly, so a future non-literal cell forces a decision here rather
+    # than being absorbed by a lenient parser.
+    _NOT_A_SINGLE_EVENT = {"PublishRequested→Published"}
+    undeclared = lane_events - KNOWN_EVENT_TYPES_V1 - _NOT_A_SINGLE_EVENT
+    assert not undeclared, (
+        f"‡ rows naming records no writer can produce: {sorted(undeclared)}")
+
+
 def _history(*event_types: str) -> list[Event]:
     """A committed-looking Attempt history: `attempt_event` per type, `seq` 0..n.
 
     The claim generation the beat rule compares against is stamped by `attempt_event`
-    itself, for every event type that carries one — so a history built here is one the
-    writers could actually have produced, and there is ONE place that knows which types
-    those are. A helper that emitted beats or grants with no generation would make every
-    claim-reaching test fail for the wrong reason."""
-    return [attempt_event(t, seq=i, payload={"tick": i} if t == "ClaimHeartbeat" else None)
-            for i, t in enumerate(event_types)]
+    itself, for every event type that carries one, and `build_history` adds whatever each
+    step's SOURCE STATE obliges it to carry — so a history built here is one the writers
+    could actually have produced, and there is ONE place that knows both rules. A helper
+    that emitted beats or grants with no generation, or a `ReviewAborted` with no `stage`,
+    would make every history that crosses one fail for the wrong reason."""
+    return build_history(event_types, sequential=True)
 
 
 def test_heartbeats_do_not_disturb_a_projection():
@@ -403,6 +433,95 @@ def test_the_projection_reports_the_release_that_HAPPENED(history, expected, why
     this projection looking for a `ClaimReleased` that correctly does not exist — the same
     false positive `assert_lane_consistent` case 12j catches at the audit layer."""
     assert project_attempt(history).released_claim is expected, why
+
+
+@pytest.mark.parametrize("reached, stage, why", [
+    (AttemptState.PROPOSED, "proposal", "the proposal review is what runs at `proposed`"),
+    (AttemptState.IMPLEMENTING, "patch", "the patch review is what runs at `implementing`"),
+])
+def test_a_review_abort_naming_the_review_that_ran_is_accepted(reached, stage, why):
+    history = [*drive(reached), attempt_event("ReviewAborted", payload={"stage": stage})]
+    assert project_attempt(history).state is AttemptState.REVIEW_ABORTED, why
+
+
+@pytest.mark.parametrize("reached, stage, why", [
+    (AttemptState.PROPOSED, "patch",
+     "no patch exists at `proposed` — the claim is not merely unlikely, it is impossible"),
+    (AttemptState.IMPLEMENTING, "proposal",
+     "the proposal review finished two transitions ago; it cannot be what aborted"),
+])
+def test_a_review_abort_naming_a_review_that_did_not_run_is_refused(reached, stage, why):
+    """The write boundary cannot catch this and never will: `_one_of` sees a term from the
+    legal vocabulary, and the state it contradicts is not in the record. Left unchecked, a
+    durable `ReviewAborted` asserts an operational failure in a review that provably never
+    ran — and FR-034's operational streak, which decides whether a Problem cools down, is
+    read straight off these records."""
+    history = [*drive(reached), attempt_event("ReviewAborted", payload={"stage": stage})]
+    with pytest.raises(IllegalTransition, match="its own history denies"):
+        project_attempt(history)
+
+
+def test_a_witnessed_transition_with_NO_witness_term_is_refused():
+    """Missing, not merely wrong. `_required_field` is what makes the refusal an
+    `IllegalTransition` rather than the bare `ValueError` `payload_field` raises."""
+    history = [*drive(AttemptState.PROPOSED), attempt_event("ReviewAborted")]
+    with pytest.raises(IllegalTransition, match="payload lacks 'stage'"):
+        project_attempt(history)
+
+
+def test_every_multi_source_transition_has_DECIDED_about_a_state_witness():
+    """The class, not the instance. A payload term that names its own source state is
+    checkable only on rows legal from more than one state, so every such row must have been
+    considered — a new one added without a decision fails here rather than shipping an
+    unchecked claim.
+
+    The unwitnessed rows are unwitnessed for a reason, and it is the same reason each time:
+    their payloads carry no term that names a state. `ClaimExpired.reason` is the near miss
+    — it looks like a discriminator, but `heartbeat_lapsed` and `hold_time_exceeded` are
+    both possible from all four claim-holding states, so it describes the CAUSE, not the
+    source."""
+    unwitnessed = {"Rejected", "ImplementationFailed", "ScopeUnsupported", "FreshnessStale",
+                   "BreakerTripped", "ClaimExpired"}
+    multi_source = {t.event for t in TRANSITIONS if len(t.from_states) > 1}
+    witnessed = {t.event for t in TRANSITIONS if t.witness is not None}
+    assert witnessed <= multi_source, (
+        f"a witness on a single-source row witnesses nothing: {sorted(witnessed - multi_source)}")
+    assert multi_source - witnessed == unwitnessed, (
+        f"multi-source rows with no witness decision: "
+        f"{sorted(multi_source - witnessed - unwitnessed)}")
+
+
+@pytest.mark.parametrize("witness, from_states, message", [
+    (StateWitness("stage", ((AttemptState.PROPOSED, "proposal"),)),
+     (AttemptState.PROPOSED, AttemptState.IMPLEMENTING), "but the row is legal from"),
+    (StateWitness("stage", ((AttemptState.PROPOSED, "proposal"),
+                            (AttemptState.IMPLEMENTING, "patch"))),
+     (), "witnesses nothing"),
+    (StateWitness("outcome", ((AttemptState.PROPOSED, "proposal"),
+                              (AttemptState.IMPLEMENTING, "patch"))),
+     (AttemptState.PROPOSED, AttemptState.IMPLEMENTING), "no write-boundary vocabulary"),
+    (StateWitness("stage", ((AttemptState.PROPOSED, "proposal"),
+                            (AttemptState.IMPLEMENTING, "implementation"))),
+     (AttemptState.PROPOSED, AttemptState.IMPLEMENTING), "disagree with the"),
+])
+def test_a_MALFORMED_witness_declaration_is_refused_at_import(witness, from_states, message):
+    """The declaration check gets its own table, because a rule exercised only against the
+    one table that already satisfies it has no evidence it does anything. Each case is a
+    real drift path: adding a source state to a witnessed row, witnessing an opening
+    transition, witnessing a field the write boundary does not constrain, and letting the
+    two vocabularies diverge."""
+    bad = Transition("X", frozenset(from_states), AttemptState.REJECTED, "x", (), witness)
+    with pytest.raises(ValueError, match=message):
+        _validate_declarations((bad,))
+
+
+def test_the_witness_and_the_write_boundary_share_ONE_stage_vocabulary():
+    """Two hand-written copies would drift into a `stage` the validator accepts and the fold
+    refuses — which does not reject the append, it WEDGES every later projection of the
+    Attempt it landed on. `_validate_declarations` asserts this at import; asserting it here
+    too pins that the check is wired to the real vocabulary and not to a local copy."""
+    witness = _BY_EVENT["ReviewAborted"].witness
+    assert witness is not None and witness.terms == REVIEW_STAGES
 
 
 def test_release_and_terminality_stay_independent_at_the_PROJECTION_level():

@@ -857,3 +857,68 @@ verification step). The FIRST anchor failed to match and the harness refused to 
 rather than reporting a pass; that guard is now the reusable part
 (`scratchpad/mutate.py` + a per-task spec module), since the same silent no-op already cost
 a wasted "verification" in Task 3.
+
+## Task 6 review — two contract gaps (2026-08-03)
+
+**1. `ReviewAborted.stage` was not tied to the lifecycle state.** `_one_of` accepted both
+`"proposal"` and `"patch"` from either source state, so a durable `stage="patch"` recorded
+from `proposed` — a review that provably never ran — passed validation AND projection.
+FR-034's operational streak, which decides whether a Problem cools down, is read straight
+off these records.
+
+The write boundary structurally cannot catch it: it sees ONE record, the term is from the
+legal vocabulary, and the state it contradicts is not in the record. Only `walk_attempt`
+knows the state being left. Fixed there.
+
+Fixed as the CLASS, not the instance — a `if event_type == "ReviewAborted"` branch in the
+fold would have left the next multi-source witnessed row unchecked:
+
+- `StateWitness(field, by_state)` is declared ON THE ROW, so the fold looks it up rather
+  than branching on a name.
+- `_validate_declarations(transitions)` runs AT IMPORT and refuses a malformed table:
+  `by_state` must cover `from_states` exactly (add a source state to a witnessed row and
+  the fold would otherwise silently stop checking it) and must cover the field's
+  write-boundary vocabulary exactly. It takes the table as an ARGUMENT so the rule can be
+  exercised against malformed tables — a check run only over the one table that satisfies
+  it has no evidence it does anything.
+- `events._REVIEW_STAGES` became public `REVIEW_STAGES` and `lifecycle` imports it, so the
+  `_one_of` set and the state map are ONE declaration. Two copies drift into a `stage` the
+  validator accepts and the fold refuses — which does not reject the append, it WEDGES
+  every later projection of the Attempt it landed on.
+- `test_every_multi_source_transition_has_DECIDED_about_a_state_witness` enumerates all 7
+  multi-source rows and requires each be witnessed or explicitly listed. The near miss is
+  `ClaimExpired.reason`: it looks like a discriminator, but both values are possible from
+  all four claim-holding states, so it names the CAUSE, not the source.
+
+*Test helpers had to change too.* A witness term depends on the SOURCE state, so
+`attempt_event` cannot supply it the way it supplies `claim_generation`. Without that,
+`drive(REVIEW_ABORTED)` yields a history the fold refuses for a MISSING `stage` — which
+still satisfies a `pytest.raises` looking for "already terminal", i.e. two existing grid
+tests would have kept passing for the wrong reason. `build_history` is now the ONE
+state-tracking builder; `drive`, the random walks, and `_history` all route through it.
+
+**2. Spec/code divergence on `Cooldown` — and the blind spot that hid it.** The spec table
+declared `Cooldown` AND `OperationalCooldown`; the code declares only `Cooldown` with
+`cause` as the discriminator (which rev 18 had already put in the idempotency key). The
+unified form is right — two schemas for one record is a Constitution I duplication — but
+until now it was a PLAN decision contradicting a normative table.
+
+The reason nothing caught it: the drift test excludes `‡` rows because they are not Attempt
+transitions, and excluding the COLUMNS silently excluded the NAMES. Extending the check
+found a SECOND divergence the review did not mention — `PromotionReenabled (manual)` also
+names no record; the coordinator event that re-enables promotion after a breaker is slice
+1A's `PromotionEnabledSet`.
+
+- Spec amended to **rev 25**: one `Cooldown` row, and `PromotionEnabledSet (manual
+  re-enable)`.
+- `parse_spec_transitions` returns every `‡` row's event name as a third element;
+  `test_every_non_attempt_row_names_a_record_something_can_WRITE` checks it against
+  `KNOWN_EVENT_TYPES_V1`. `PublishRequested→Published` is excluded explicitly (it names the
+  publish SAGA, not one event type) so a future non-literal cell forces a decision.
+- `_event_name` strips a trailing parenthetical GLOSS, scoped to the Event column — a `‡`
+  row's From cell is a prose condition that is itself parenthesised, and stripping there
+  would erase it.
+- Verified non-vacuous by restoring BOTH old spec strings one at a time: each fails the new
+  test, spec sha256-restored after.
+
+14 lifecycle mutations now (10 + 4 new), all killed.
