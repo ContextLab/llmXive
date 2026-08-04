@@ -1943,3 +1943,534 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-01T19:11:35Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 0
+  canonical: null results defined as correlation less than 0.1
+  claim_id: c_fd5a0045
+  context: T022 [US2] Create control validation script... (5) handles null results
+    (correlation < 0.1) by reporting with p-value and confidence intervals without
+    forcing positive finding
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: The strength of correlations also are an important consideration for
+        interpretation of correlation analyses but descriptions of the strength of
+        correlation are not universally accepted. A small correlation coefficient
+        calculated for a very large sample may be statistically significant without
+        providing a quantitative relation between variables. Similarly, a large correlation
+        coefficient calculated with a small sample size may indicate that a quantitative
+        equation between variables may be possible even though the correlation coefficient
+        is not statistically significant. Akoglu (2018) noted the need for consistent
+        descriptions of strength and provides different correlation-strength descriptors
+        for psychology, politics, and medicine that have different descriptors and
+        thresholds. Because there is a general lack of consensus on correlation strength,
+        Granato (2014)  defined operational definitions for the absolute values of
+        correlation coefficients as weak (less than 0.5), moderate (greater than or
+        equal to 0.5 and less than 0.75), semi-strong (greater than or equal to 0.75
+        and less than 0.85), and strong (greater than or equal to 0.85) for use in
+        hydrologic analyses of stormwater treatment statistics. Similarly, Schober
+        and others (2018) note that "...cutoff points are arbitrary and inconsistent
+        and should be used judiciously..." Despite their warning Schober and others
+        (2018) provide a table indicating that correlations less than or equal to
+        0.1 are negligible; correlations greater than 0.1 and less than or equal to
+        0.39 are weak; correlations greater than 0.39 and less than or equal to 0.69
+        are moderate; correlations greater than 0.69 and less than or equal to 0.89
+        are strong; and correlations greater than 0.89 are very strong. Descriptions
+        of strength indicate the potential to develop quantitative relations among
+        variables but these descriptors, as with the correlation coefficients themselves,
+        do not indicate causation.
+      source_id: Spearman's rank correlation coefficient
+      url: https://en.wikipedia.org/wiki/Spearman's_rank_correlation_coefficient
+      value: '0.1'
+    filled: true
+  kind: magnitude
+  raw_text: Null results are defined as correlation < 0.1.
+  resolved_value: '0.1'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-04T09:31:26Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: citation verification script exits with error on failure
+  claim_id: c_0122566e
+  context: T008 [P] Create citation verification script... Script must exit with error
+    code if any citation fails.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Citation_verification_script_exits_with_error_on_failure
+  kind: entity_fact
+  raw_text: The script must exit with error code if any citation fails.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T09:31:48Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: merged CSV contains at least 90 percent of expected monthly rows
+  claim_id: c_f711e808
+  context: "Independent Test: Can be fully tested by executing the data pipeline script\
+    \ and verifying the output contains a merged CSV with \u2265 90% of expected monthly\
+    \ rows and no NaN values in the primary columns"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Merged_CSV_contains_at_least_90_percent_of_expected_monthly
+  kind: magnitude
+  raw_text: "The merged CSV must contain \u2265 90% of expected monthly rows."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T09:32:15Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: merged CSV has no NaN values in primary columns
+  claim_id: c_8ecca547
+  context: "Independent Test: Can be fully tested by executing the data pipeline script\
+    \ and verifying the output contains a merged CSV with \u2265 90% of expected monthly\
+    \ rows and no NaN values in the primary columns"
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Merged_CSV_has_no_NaN_values_in_primary_columns
+  kind: entity_fact
+  raw_text: The merged CSV must have no NaN values in the primary columns.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T09:32:35Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: pipeline runtime is at most 6 hours on minimal CPU and 7 GB RAM
+  claim_id: c_51012482
+  context: "T035 Measure aggregate pipeline runtime (full historical dataset from\
+    \ data/processed/merged_monthly.csv) to verify \u2264 6 hours on A minimal CPU\
+    \ configuration and 7 GB RAM (SC-004) using Python time module with assertion\
+    \ that fails if exceeded"
+  evidence:
+    candidates:
+    - - CPU and
+      - 7.0
+    - - Pipeline runtime is at most
+      - 6.0
+    ordering_correct: true
+    source_url: https://en.wikipedia.org/wiki/Pipeline_runtime_is_at_most_6_hours_on_minimal_CPU_and_7_GB
+  kind: magnitude
+  raw_text: "The pipeline runtime must be \u2264 6 hours on a minimal CPU configuration\
+    \ and 7 GB RAM."
+  resolved_value: pipeline runtime is at most 6 hours on minimal CPU and 7 GB RAM
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-04T09:32:36Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: bootstrap resampling uses 1000 iterations with seed 42
+  claim_id: c_fcdf7e76
+  context: 'T021 [US2] Create bootstrap correction script... that: (1) implements
+    bootstrap resampling (1000 iterations, seed=42) for % confidence intervals'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The bootstrap resampling uses 1000 iterations with seed=42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T09:32:55Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: AR(1) model uses lags 1 and trend c for autocorrelation correction
+  claim_id: c_acf0644f
+  context: 'T020 [US2] Create correlation computation script... (3) implements autocorrelation
+    correction: use statsmodels.tsa.ar_model.AutoReg with lags=1 and trend=''c'' to
+    fit AR(1)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The AR(1) model uses lags=1 and trend='c' for autocorrelation correction.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T09:33:16Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: effective sample size calculated as n times rho divided by one plus rho
+  claim_id: c_0d1c13e6
+  context: "T020 [US2] Create correlation computation script... (4) implements effective\
+    \ sample size calculation (n_eff = n \xD7 (-\u03C1)/(1+\u03C1))"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The effective sample size is calculated as n_eff = n \xD7 (-\u03C1)/(1+\u03C1\
+    )."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T09:33:47Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: signal magnitude comparison uses at least 3 sigma as reporting metric
+  claim_id: c_7f2faa8c
+  context: "T022 [US2] Create control validation script... (4) implements signal magnitude\
+    \ comparison to GRACE-FO measurement noise floor (report as metric, NOT a pass/fail\
+    \ threshold; \u2265 3\u03C3 is a reporting metric, not a constraint)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Signal_magnitude_comparison_uses_at_least_3_sigma_as_reporti
+  kind: magnitude
+  raw_text: "The signal magnitude comparison uses \u2265 3\u03C3 as a reporting metric."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T09:34:32Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: region filtering for West Coast NA mid to high latitude North America
+    120 W to 125 W
+  claim_id: c_e4857e2f
+  context: "T015 [US1] Create data fetching script... (4) implements region filtering\
+    \ for West Coast NA (mid-to-high latitude North America, 120\xB0W-125\xB0W)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The region filtering is for West Coast NA (mid-to-high latitude North\
+    \ America, 120\xB0W-125\xB0W)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T09:35:03Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: title token overlap threshold for citation validation is at least 0.7
+  claim_id: c_1565c634
+  context: "T008 [P] Create citation verification script... that validates both URL\
+    \ reachability AND citation validation (title-token-overlap \u2265 0.7 against\
+    \ primary source) per Constitution Principle II."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Title_token_overlap_threshold_for_citation_validation_is_at
+  kind: magnitude
+  raw_text: "The title-token-overlap threshold for citation validation is \u2265 0.7."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T09:35:15Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: lag window analysis covers 0 to 3 months
+  claim_id: c_0d8ef724
+  context: 'Goal: Compute Pearson correlation between AR intensity and gravity anomalies
+    across lag windows 0-3 months'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The lag window analysis covers 0-3 months.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T09:35:35Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: "Region filtering for West Coast NA set to 120\xB0W-125\xB0W"
+  claim_id: c_44d3d25c
+  context: Task T015 description regarding data fetching and region filtering.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The script implements region filtering for West Coast NA (mid-to-high\
+    \ latitude North America, 120\xB0W-125\xB0W)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T09:36:08Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: 'Bootstrap resampling parameters: 1000 iterations, seed 42'
+  claim_id: c_7c3031d1
+  context: Task T021 description regarding bootstrap correction and confidence intervals.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Bootstrap resampling uses 1000 iterations with seed=42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T09:36:08Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: Constitution Principle VII mentions Pearson correlation greater than
+    0.5 as an example
+  claim_id: c_2a2f3c4c
+  context: Notes section discussing spec contradiction regarding pre-specified thresholds.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Constitution_Principle_VII_mentions_Pearson_correlation_grea
+  kind: magnitude
+  raw_text: The specification defines a success criterion of Pearson correlation greater
+    than 0.5.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T09:36:55Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: Pipeline runtime limit of 6 hours on minimal CPU and 7 GB RAM
+  claim_id: c_1ea1f566
+  context: Task T035 description for measuring aggregate pipeline runtime.
+  evidence:
+    candidates:
+    - - CPU and
+      - 7.0
+    - - Pipeline runtime limit of
+      - 6.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Pipeline_runtime_limit_of_6_hours_on_minimal_CPU_and_7_GB_RA
+  kind: magnitude
+  raw_text: The pipeline runtime must be verified to be less than or equal to 6 hours
+    on a minimal CPU configuration with 7 GB RAM.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-08-04T09:37:39Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: Null result threshold defined as correlation less than 0.1
+  claim_id: c_942e68f1
+  context: Task T022 description regarding handling null results and noise-floor calculation.
+  evidence:
+    entailment_evidence: Null result threshold defined as correlation less than 0.1
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Null_result_threshold_defined_as_correlation_less_than_0.1
+  kind: magnitude
+  raw_text: Correlation values less than 0.1 are handled as null results.
+  resolved_value: Null result threshold defined as correlation less than 0.1
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-04T09:37:41Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: Signal magnitude reporting metric of 3 sigma
+  claim_id: c_e9f00874
+  context: Task T022 description regarding noise-floor calculation and signal magnitude
+    comparison.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Signal magnitude comparison to GRACE-FO measurement noise floor uses a
+    reporting metric of 3 sigma.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T09:37:52Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: 'Data sources: GRACE-FO mascon solutions from PO.DAAC and NOAA CPC AR
+    Catalog from ERDDAP'
+  claim_id: c_66b9d2b9
+  context: Phase 2, T015 description regarding data fetching from specific repositories.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Data_sources:_GRACE-FO_mascon_solutions_from_PO.DAAC_and_NOA
+  kind: entity_fact
+  raw_text: The project uses GRACE-FO processed mascon solutions from PO.DAAC and
+    NOAA CPC Atmospheric River Catalog data from an ERDDAP endpoint.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T09:40:52Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: "Analysis region: West Coast NA (120\xB0W-125\xB0W)"
+  claim_id: c_e5b4843b
+  context: Phase 2, T015 description regarding region filtering.
+  evidence:
+    entailment_evidence: "Analysis region: West Coast NA (120\xB0W-125\xB0W)"
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Analysis_region:_West_Coast_NA_(120%C2%B0W-125%C2%B0W)
+  kind: entity_fact
+  raw_text: "The analysis region is defined as West Coast NA (mid-to-high latitude\
+    \ North America, 120\xB0W-125\xB0W)."
+  resolved_value: "Analysis region: West Coast NA (120\xB0W-125\xB0W)"
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-04T09:40:54Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: "Data completeness threshold: \u2265 90% of expected monthly rows"
+  claim_id: c_6fa5ec20
+  context: Phase 2, T017 description regarding merged output validation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The data pipeline validates completeness with a threshold of \u2265 90%\
+    \ of expected monthly rows."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T09:40:54Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: 'Correlation lag windows: 0-3 months'
+  claim_id: c_f07ebf0e
+  context: Phase 3, Goal description for statistical correlation analysis.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The correlation analysis computes Pearson correlation between AR intensity
+    and gravity anomalies across lag windows of 0-3 months.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T09:41:17Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: 'Bootstrap resampling: 1000 iterations, seed 42'
+  claim_id: c_a3e6c255
+  context: Phase 3, T021 description regarding bootstrap correction.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Bootstrap resampling is configured with 1000 iterations and a random seed
+    of 42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T09:41:35Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: 'Noise floor calculation source: GRACE-FO mascon uncertainty metadata'
+  claim_id: c_3de0aad2
+  context: Phase 3, T022 description regarding control validation.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Noise_floor_calculation_source:_GRACE-FO_mascon_uncertainty
+  kind: entity_fact
+  raw_text: The noise-floor calculation uses GRACE-FO mascon uncertainty metadata.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T09:41:51Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: 'Null result definition: correlation < 0.1'
+  claim_id: c_0ef38f81
+  context: Phase 3, T022 description regarding handling of null results.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Null_result_definition:_correlation_%3C_0.1
+  kind: magnitude
+  raw_text: Null results are defined as a correlation coefficient less than 0.1.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T09:42:36Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: "Signal magnitude metric: \u2265 3\u03C3 of GRACE-FO measurement noise\
+    \ floor"
+  claim_id: c_ca1a1001
+  context: Phase 3, T022 description regarding signal magnitude comparison.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Signal_magnitude_metric:_%E2%89%A5_3%CF%83_of_GRACE-FO_measurement_noise
+  kind: entity_fact
+  raw_text: "The signal magnitude comparison metric uses a threshold of \u2265 3\u03C3\
+    \ relative to the GRACE-FO measurement noise floor."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T09:43:16Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: "Pipeline runtime limit: \u2264 6 hours on minimal CPU and 7 GB RAM"
+  claim_id: c_8ecb7e60
+  context: Phase 5, T035 description regarding runtime measurement.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The full historical dataset pipeline runtime is verified to be \u2264\
+    \ 6 hours on a minimal CPU configuration and 7 GB RAM."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T09:43:16Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: 'Gravity anomaly definition: geoid height variations at satellite altitude
+    (GRACE-FO L2 mascon)'
+  claim_id: c_6515e187
+  context: Phase 6, T041 description regarding frame of reference clarification.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Gravity_anomaly_definition:_geoid_height_variations_at_satel
+  kind: entity_fact
+  raw_text: Gravity anomalies in this project are measured as geoid height variations
+    at satellite altitude using GRACE-FO L2 mascon solutions.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T09:43:48Z'

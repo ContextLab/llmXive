@@ -1,10 +1,17 @@
-T010:
+T006:
+  c: false
+  h: ffb63c3523255bd67b5ff04e5931e73e0bcf5d234c9e85ef739579eb902de948
+  r: The required file `projects/PROJ-267-exploring-the-relationship-between-atmos/code/requirements.txt`
+    does not exist, so the specified dependencies are not initialized at the correct
+    project location. The existing `code/requirements.txt` is at a different path
+    and does not fulfill the task.
+T009:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required `projects/PROJ-267-exploring-the-relationship-between-atmos/data-model.md`
-    file (or its contents) was provided; without the file containing the entity definitions
-    for AR Event, Gravity Anomaly, and Correlation Result, the task cannot be considered
-    completed.
+  r: "No `quickstart.md` file was presented in the evidence, and thus there is no\
+    \ content covering installation, run commands, data sources, or expected outputs\
+    \ as required by FR\u2011007. The implementer must create the `projects/PROJ-267-exploring-the-relationship-between-atmos/quickstart.md`\
+    \ document with the specified sections."
 T017:
   c: false
   h: e624b3b855a5bb91a904463a8451d361bacfc49caf3e67f80cf96a364ce10bee

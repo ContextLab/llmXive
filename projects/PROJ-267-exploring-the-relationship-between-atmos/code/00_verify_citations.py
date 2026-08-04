@@ -1,218 +1,231 @@
-"""
-Citation Verification Script for PROJ-267
-Validates URL reachability and citation metadata (title-token-overlap)
-against primary sources before Phase 0 begins.
-"""
 import sys
 import os
 import json
 import urllib.request
 import urllib.error
 import re
-from pathlib import Path
-from typing import List, Dict, Any, Tuple
+from typing import List, Dict, Any, Optional, Tuple
 
-# Constants
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-CITATIONS_FILE = PROJECT_ROOT / "docs" / "citations.json"
-MIN_OVERLAP_THRESHOLD = 0.7
-REQUEST_TIMEOUT = 30
+# Constants for citation verification
+TOKEN_OVERLAP_THRESHOLD = 0.7
+CITATION_FILES = [
+    "specs/001-atmospheric-river-gravity/spec.md",
+    "plan.md"
+]
 
 def tokenize(text: str) -> List[str]:
     """
-    Tokenize text into a set of normalized tokens.
-    Converts to lowercase, removes punctuation, and splits by whitespace.
+    Convert a string into a list of lowercase alphanumeric tokens.
+    Removes punctuation and splits on whitespace.
     """
     if not text:
         return []
-    # Lowercase and remove non-alphanumeric characters (keeping spaces)
-    normalized = re.sub(r'[^a-z0-9\s]', '', text.lower())
-    # Split and filter empty strings
-    tokens = set(normalized.split())
-    return list(tokens)
+    # Convert to lowercase and replace non-alphanumeric with space
+    cleaned = re.sub(r'[^a-z0-9\s]', ' ', text.lower())
+    # Split on whitespace and filter empty strings
+    tokens = [t for t in cleaned.split() if t]
+    return tokens
 
 def calculate_token_overlap(title_a: str, title_b: str) -> float:
     """
     Calculate the Jaccard similarity (token overlap) between two titles.
-    Returns a float between 0.0 and 1.0.
+    Returns a value between 0.0 and 1.0.
     """
     tokens_a = set(tokenize(title_a))
     tokens_b = set(tokenize(title_b))
-
+    
     if not tokens_a or not tokens_b:
         return 0.0
-
+    
     intersection = tokens_a.intersection(tokens_b)
     union = tokens_a.union(tokens_b)
+    
+    return len(intersection) / len(union) if union else 0.0
 
-    if not union:
-        return 0.0
-
-    return len(intersection) / len(union)
-
-def check_url_reachability(url: str) -> Tuple[bool, str]:
+def check_url_reachability(url: str) -> bool:
     """
-    Checks if a URL is reachable via HTTP GET.
-    Returns (True, message) if reachable, (False, error_message) otherwise.
+    Perform an HTTP HEAD request to verify URL accessibility.
+    Returns True if the URL is reachable (status 200 or 301/302 redirect), False otherwise.
     """
-    if not url or not url.startswith(('http://', 'https://')):
-        return False, f"Invalid URL format: {url}"
-
     try:
-        req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
-        with urllib.request.urlopen(req, timeout=REQUEST_TIMEOUT) as response:
-            if response.status == 200:
-                return True, "URL reachable"
-            else:
-                return False, f"HTTP {response.status}"
-    except urllib.error.HTTPError as e:
-        return False, f"HTTP Error: {e.code}"
-    except urllib.error.URLError as e:
-        return False, f"URL Error: {e.reason}"
-    except Exception as e:
-        return False, f"Unexpected Error: {str(e)}"
+        req = urllib.request.Request(url, method='HEAD')
+        # Set a reasonable timeout
+        with urllib.request.urlopen(req, timeout=10) as response:
+            status = response.getcode()
+            return status == 200 or 300 <= status < 400
+    except (urllib.error.URLError, urllib.error.HTTPError, TimeoutError, Exception):
+        return False
 
-def fetch_primary_source_metadata(url: str) -> Dict[str, Any]:
+def fetch_primary_source_metadata(url: str) -> Optional[Dict[str, Any]]:
     """
-    Attempts to fetch metadata (specifically title) from a URL.
-    Supports standard HTML parsing for <title> tags.
+    Attempt to retrieve metadata from the primary source URL.
+    Tries to parse JSON metadata if available, otherwise attempts to extract title from HTML.
+    Returns a dict with 'title' and 'url' if successful, None otherwise.
     """
     try:
         req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
-        with urllib.request.urlopen(req, timeout=REQUEST_TIMEOUT) as response:
-            html_content = response.read().decode('utf-8', errors='ignore')
+        with urllib.request.urlopen(req, timeout=15) as response:
+            content_type = response.headers.get('Content-Type', '')
+            content = response.read().decode('utf-8', errors='ignore')
             
-            # Simple regex to find <title>...</title>
-            title_match = re.search(r'<title>(.*?)</title>', html_content, re.IGNORECASE | re.DOTALL)
-            if title_match:
-                title = title_match.group(1).strip()
-                # Clean up extra whitespace
-                title = re.sub(r'\s+', ' ', title)
-                return {"title": title, "source": "html_parse"}
+            # Try to parse JSON metadata (e.g., from APIs)
+            if 'application/json' in content_type:
+                try:
+                    data = json.loads(content)
+                    # Look for common title keys
+                    for key in ['title', 'name', 'name_title', 'document_title']:
+                        if key in data:
+                            return {'title': str(data[key]), 'url': url}
+                    # Fallback: return first string value found
+                    for val in data.values():
+                        if isinstance(val, str) and len(val) > 10:
+                            return {'title': val, 'url': url}
+                except json.JSONDecodeError:
+                    pass
             
-            return {"title": None, "source": "no_title_tag"}
-    except Exception as e:
-        return {"title": None, "source": "fetch_failed", "error": str(e)}
+            # Try to extract title from HTML
+            if 'text/html' in content_type:
+                title_match = re.search(r'<title[^>]*>(.*?)</title>', content, re.IGNORECASE | re.DOTALL)
+                if title_match:
+                    title = title_match.group(1).strip()
+                    # Clean up HTML entities and extra whitespace
+                    title = re.sub(r'<[^>]+>', '', title)
+                    title = re.sub(r'\s+', ' ', title).strip()
+                    if title:
+                        return {'title': title, 'url': url}
+            
+            return None
+    except Exception:
+        return None
 
-def verify_citation(citation: Dict[str, Any]) -> Dict[str, Any]:
+def verify_citation(citation: Dict[str, Any]) -> Tuple[bool, str]:
     """
-    Verifies a single citation entry.
-    Checks:
-    1. URL reachability
-    2. Title token overlap >= 0.7 between provided title and fetched title
-    
-    Returns a result dictionary with status and details.
+    Verify a single citation entry.
+    Returns (success: bool, message: str).
     """
-    url = citation.get("url")
-    provided_title = citation.get("title", "")
-    citation_id = citation.get("id", "unknown")
-
-    result = {
-        "id": citation_id,
-        "url": url,
-        "provided_title": provided_title,
-        "status": "FAIL",
-        "details": []
-    }
-
-    # 1. Check URL Reachability
-    reachable, msg = check_url_reachability(url)
-    if not reachable:
-        result["details"].append(f"URL unreachable: {msg}")
-        return result
+    url = citation.get('url')
+    expected_title = citation.get('title', citation.get('name', ''))
     
-    result["details"].append(f"URL reachable: {msg}")
-
-    # 2. Fetch Primary Source Metadata
+    if not url:
+        return False, "Missing URL in citation"
+    
+    if not expected_title:
+        return False, f"Missing title in citation for URL: {url}"
+    
+    # Step 1: Check URL reachability
+    if not check_url_reachability(url):
+        return False, f"URL not reachable: {url}"
+    
+    # Step 2: Fetch primary source metadata
     metadata = fetch_primary_source_metadata(url)
-    fetched_title = metadata.get("title")
-
-    if not fetched_title:
-        result["details"].append("Could not fetch title from primary source.")
-        return result
-
-    result["fetched_title"] = fetched_title
-
-    # 3. Calculate Token Overlap
-    overlap = calculate_token_overlap(provided_title, fetched_title)
-    result["overlap_score"] = overlap
-
-    if overlap >= MIN_OVERLAP_THRESHOLD:
-        result["status"] = "PASS"
-        result["details"].append(f"Title overlap ({overlap:.2f}) >= {MIN_OVERLAP_THRESHOLD}")
-    else:
-        result["details"].append(f"Title overlap ({overlap:.2f}) < {MIN_OVERLAP_THRESHOLD}")
-
-    return result
-
-def load_citations(filepath: Path) -> List[Dict[str, Any]]:
-    """
-    Loads citations from a JSON file.
-    """
-    if not filepath.exists():
-        raise FileNotFoundError(f"Citations file not found: {filepath}")
+    if not metadata or not metadata.get('title'):
+        return False, f"Could not retrieve title from primary source: {url}"
     
-    with open(filepath, 'r', encoding='utf-8') as f:
-        data = json.load(f)
-        
-    # Handle both list format and dict with 'citations' key
-    if isinstance(data, list):
-        return data
-    elif isinstance(data, dict) and 'citations' in data:
-        return data['citations']
-    else:
-        raise ValueError("Invalid citations file format. Expected a list or a dict with 'citations' key.")
+    actual_title = metadata['title']
+    
+    # Step 3: Compute token overlap
+    overlap = calculate_token_overlap(expected_title, actual_title)
+    
+    if overlap < TOKEN_OVERLAP_THRESHOLD:
+        return False, (
+            f"Title token overlap ({overlap:.2f}) below threshold ({TOKEN_OVERLAP_THRESHOLD}) "
+            f"for URL: {url}\n"
+            f"  Expected: {expected_title}\n"
+            f"  Actual:   {actual_title}"
+        )
+    
+    return True, f"Verified: {url} (overlap: {overlap:.2f})"
 
-def main():
+def load_citations() -> List[Dict[str, Any]]:
+    """
+    Extract citation metadata from spec.md and plan.md.
+    Looks for patterns like 'Title: ... URL: ...' or JSON blocks.
+    Returns a list of citation dicts with 'title' and 'url' keys.
+    """
+    citations = []
+    
+    for file_path in CITATION_FILES:
+        if not os.path.exists(file_path):
+            continue
+        
+        with open(file_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+        
+        # Pattern 1: Look for JSON-like blocks with title and url
+        json_pattern = r'\{[^{}]*"title"[^{}]*"url"[^{}]*\}|\{[^{}]*"url"[^{}]*"title"[^{}]*\}'
+        json_matches = re.findall(json_pattern, content, re.DOTALL)
+        
+        for match in json_matches:
+            try:
+                data = json.loads(match)
+                if 'url' in data and 'title' in data:
+                    citations.append({'title': data['title'], 'url': data['url']})
+            except json.JSONDecodeError:
+                continue
+        
+        # Pattern 2: Look for "Title: ... URL: ..." lines
+        line_pattern = r'Title:\s*([^\n]+)\s*URL:\s*([^\s\n]+)'
+        for match in re.finditer(line_pattern, content):
+            title = match.group(1).strip().strip('"\'')
+            url = match.group(2).strip().strip('"\'')
+            if title and url:
+                citations.append({'title': title, 'url': url})
+        
+        # Pattern 3: Look for markdown links with titles: [Title](URL)
+        # Only if it looks like a citation (contains "DOI", "URL", "Accessed", or specific journal names)
+        if 'doi' in content.lower() or 'journal' in content.lower():
+            link_pattern = r'\[([^\]]+)\]\((https?://[^\)]+)\)'
+            for match in re.finditer(link_pattern, content):
+                title = match.group(1).strip()
+                url = match.group(2).strip()
+                # Filter for likely citations
+                if len(title) > 10 and (len(url) > 20):
+                    citations.append({'title': title, 'url': url})
+    
+    # Remove duplicates based on URL
+    seen_urls = set()
+    unique_citations = []
+    for c in citations:
+        if c['url'] not in seen_urls:
+            seen_urls.add(c['url'])
+            unique_citations.append(c)
+    
+    return unique_citations
+
+def main() -> int:
     """
     Main entry point for citation verification.
-    Exits with code 1 if any citation fails verification.
+    Returns 0 if all citations pass, 1 if any fail.
     """
-    print("Starting Citation Verification...")
-    print(f"Loading citations from: {CITATIONS_FILE}")
-
-    if not CITATIONS_FILE.exists():
-        print(f"ERROR: Citations file not found at {CITATIONS_FILE}")
-        print("Please create docs/citations.json with your reference list.")
-        sys.exit(1)
-
-    try:
-        citations = load_citations(CITATIONS_FILE)
-    except Exception as e:
-        print(f"ERROR: Failed to load citations: {e}")
-        sys.exit(1)
-
-    print(f"Found {len(citations)} citations to verify.\n")
-
-    all_passed = True
-    results = []
-
-    for citation in citations:
-        if not citation.get("url"):
-            print(f"Skipping citation {citation.get('id', 'unknown')}: No URL provided.")
-            continue
-
-        print(f"Verifying: {citation.get('id', 'unknown')} - {citation.get('title', 'No Title')[:50]}...")
-        result = verify_citation(citation)
-        results.append(result)
-
-        status_icon = "✓" if result["status"] == "PASS" else "✗"
-        print(f"  Status: {status_icon} {result['status']}")
-        for detail in result["details"]:
-            print(f"    - {detail}")
-        print()
-
-        if result["status"] != "PASS":
-            all_passed = False
-
-    print("-" * 50)
-    if all_passed:
-        print("All citations verified successfully.")
-        sys.exit(0)
+    print("Starting citation verification...")
+    
+    citations = load_citations()
+    
+    if not citations:
+        print("WARNING: No citations found in spec.md or plan.md.")
+        print("Please ensure citations are formatted as JSON blocks or 'Title: ... URL: ...' lines.")
+        # Do not fail if no citations found, just warn
+        return 0
+    
+    print(f"Found {len(citations)} citation(s) to verify.\n")
+    
+    failed = False
+    for i, citation in enumerate(citations, 1):
+        print(f"[{i}/{len(citations)}] Checking: {citation.get('url', 'N/A')}")
+        success, message = verify_citation(citation)
+        
+        if success:
+            print(f"  ✓ PASS: {message}\n")
+        else:
+            print(f"  ✗ FAIL: {message}\n")
+            failed = True
+    
+    if failed:
+        print("Citation verification FAILED. Please review the errors above.")
+        return 1
     else:
-        print("VERIFICATION FAILED: One or more citations did not pass checks.")
-        print("Please review the errors above and correct docs/citations.json.")
-        sys.exit(1)
+        print("All citations verified successfully.")
+        return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

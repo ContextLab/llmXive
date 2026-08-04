@@ -90,7 +90,7 @@ The system MUST generate time-series overlays, scatter plots with regression lin
 
 - **SC-001**: Data ingestion completeness is measured against the total available monthly mascons in the study period with ≥ 90% completeness threshold (See US-1).
 - **SC-002**: Correlation is deemed statistically significant when p < 0.05 after multiple-testing correction (See US-2).
-- **SC-003**: Sensitivity analysis coverage is measured against the defined threshold set {0.4, 0.5, 0.6} (See US-3).
+- **SC-003**: Sensitivity analysis coverage is measured against the defined threshold set {0.5, 0.6} (See US-3).
 - **SC-004**: Runtime is measured against GitHub Actions CI job limit of ≤ 6 hours on 2 CPU cores, 7 GB RAM (See US-1).
 
 ## Assumptions

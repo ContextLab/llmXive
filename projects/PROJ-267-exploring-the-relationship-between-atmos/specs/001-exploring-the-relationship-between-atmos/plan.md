@@ -100,7 +100,7 @@ projects/PROJ-267-exploring-the-relationship-between-atmos/
 | FR-001 | Ingest GRACE-FO Level-2 mascon (≥90% completeness) | Phase 0 | `01_data_ingestion.py`; Gravity Anomaly entity |
 | FR-002 | Ingest NOAA AR catalog; aggregate to monthly | Phase 0 | `01_data_ingestion.py`; AR Event entity |
 | FR-003 | GRACE-FO preprocessing (degree-1, C20, Spatial smoothing at a defined scale) | Phase 1 | `02_preprocessing.py`; Gravity Anomaly entity |
-| FR-004 | Pearson correlation across lags 0-3; bootstrap 95% CI; signal vs noise floor (≥3σ) | Phase 2 | `03_correlation_analysis.py`; Correlation Result entity |
+| FR-004 | Pearson correlation across lags -3; bootstrap % CI; signal vs noise floor (≥3σ) | Phase 2 | `03_correlation_analysis.py`; Correlation Result entity |
 | FR-005 | Multiple-comparison correction (Bonferroni/FDR) | Phase 2 | `03_correlation_analysis.py`; Correlation Result entity |
 | FR-006 | Sensitivity analysis (thresholds across a range of values) | Phase 3 | `05_sensitivity_report.py` |
 | FR-007 | No causal language in outputs | Phase 4 | Output validation checks |
@@ -108,7 +108,7 @@ projects/PROJ-267-exploring-the-relationship-between-atmos/
 | FR-009 | Temporal aggregation bias documentation | Phase 3 | `05_sensitivity_report.py` |
 | SC-001 | ≥90% data completeness | Phase 0 | Completeness check in `01_data_ingestion.py` |
 | SC-002 | p < 0.05 after correction | Phase 2 | Significance flagging in `03_correlation_analysis.py` |
-| SC-003 | Threshold set {0.4, 0.5, 0.6} coverage | Phase 3 | Sensitivity sweep in `05_sensitivity_report.py` |
+| SC-003 | Threshold set {varying values} coverage | Phase 3 | Sensitivity sweep in `05_sensitivity_report.py` |
 | SC-004 | Runtime ≤6h on 2 CPU, 7 GB RAM | All phases | CPU-tractable methods; sampled data if needed |
 
 ## Computational Feasibility
@@ -117,7 +117,7 @@ projects/PROJ-267-exploring-the-relationship-between-atmos/
 |----------|------------|---------------------|
 | CPU | 2 cores | Use vectorized numpy operations; avoid parallelization overhead |
 | RAM | 7 GB | Subset data to study region; process in chunks if needed |
-| Disk | 14 GB | Store only processed CSV; delete raw downloads after checksum |
+| Disk | GB | Store only processed CSV; delete raw downloads after checksum |
 | Runtime | 6 hours | Bootstrap A sufficient number of iterations is feasible on CPU; correlation is O(n); autocorrelation correction adds minimal overhead |
 | GPU | Not available | Use scipy/statsmodels CPU-only methods; no deep learning |
 
@@ -132,7 +132,7 @@ All phases reference entity definitions from `data-model.md`:
 
 Per scientific soundness concern, Phase 2 implements autocorrelation correction:
 1. **Pre-whitening**: Fit AR(1) model to time series, use residuals for correlation
-2. **Effective sample size**: n_eff = n × (1-ρ)/(1+ρ) where ρ is lag-1 autocorrelation
+2. **Effective sample size**: n_eff = n × (-ρ)/(+ρ) where ρ is lag-1 autocorrelation
 3. **Robust standard errors**: Newey-West adjustment for p-value computation
 
 This addresses temporal autocorrelation in monthly time series data that would otherwise inflate Type I error rates.

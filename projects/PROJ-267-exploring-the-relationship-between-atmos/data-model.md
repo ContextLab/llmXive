@@ -1,90 +1,115 @@
 # Data Model: Atmospheric River Gravity Correlation
 
-This document defines the core data entities used in the `PROJ-267` pipeline, aligning with the requirements specified in `plan.md` Phase 1 output and the user stories for data ingestion, correlation analysis, and visualization.
+This document defines the core entities and data structures used throughout the `PROJ-267` pipeline.
+It serves as the contract for data ingestion, preprocessing, analysis, and visualization tasks.
 
-## 1. Entity Definitions
+## 1. Core Entities
 
 ### 1.1 AR Event (Atmospheric River Event)
-Represents a single detected atmospheric river event from the NOAA CPC Atmospheric River Catalog. This entity captures the meteorological forcing component of the study.
+Represents a single atmospheric river occurrence as recorded in the NOAA CPC Atmospheric River Catalog.
 
-**Source**: NOAA CPC Atmospheric River Catalog (via `code/01_data_ingestion.py`)
+**Source**: NOAA CPC AR Catalog (via ERDDAP)
+**Granularity**: Event-level (individual storm passage)
+**Temporal Resolution**: Event start/end timestamps (aggregated to monthly for analysis)
 
-**Attributes**:
-- `event_id`: (string) Unique identifier for the AR event (e.g., "AR_2020_001").
-- `start_time`: (datetime) UTC timestamp of event onset.
-- `end_time`: (datetime) UTC timestamp of event termination.
-- `intensity_class`: (string) Classification of the event (e.g., "AR Cat 1", "AR Cat 2", etc., or "Strong", "Weak").
-- `max_iwv_transport`: (float) Maximum Integrated Water Vapor Transport observed during the event, in kg/(m·s).
-- `peak_date`: (date) The date on which the maximum IWV transport occurred.
-- `region`: (string) Geographic region where the event was detected (e.g., "West Coast NA").
-- `source_url`: (string) Reference URL to the original catalog entry.
+**Fields**:
+- `event_id` (str): Unique identifier for the AR event.
+- `start_time` (datetime): ISO 8601 timestamp of event onset.
+- `end_time` (datetime): ISO 8601 timestamp of event termination.
+- `peak_iwvt` (float): Peak Integrated Water Vapor Transport (kg m⁻¹ s⁻¹) during the event.
+- `duration_hours` (float): Duration of the event in hours.
+- `landfall_lat` (float): Latitude of primary landfall point (degrees North).
+- `landfall_lon` (float): Longitude of primary landfall point (degrees East, converted to West for analysis).
+- `region_flag` (bool): Boolean flag indicating if the event intersected the target West Coast NA region (120°W-125°W).
 
-**Derived Aggregates (Monthly)**:
-- `month`: (string) ISO 8601 month string (e.g., "2020-01").
-- `monthly_event_count`: (integer) Number of distinct AR events occurring in this month within the target region.
-- `monthly_max_iwv`: (float) Maximum daily IWV transport value observed in the month.
-- `monthly_cumulative_iwv`: (float) Sum of daily peak IWV values for all events in the month.
+**Derived Attributes (for analysis)**:
+- `month` (int): Month index (1-12) of the event start.
+- `year` (int): Year of the event start.
+- `monthly_iwvt_sum` (float): Sum of peak IWVT for all events in a given month (used as AR intensity proxy).
+- `monthly_event_count` (int): Number of AR events in a given month.
 
 ---
 
 ### 1.2 Gravity Anomaly
-Represents the processed mass variation data derived from GRACE-FO mascon solutions, corrected for degree-1 and C20 coefficients, and smoothed. This entity captures the geophysical response component.
+Represents a processed gravity measurement derived from GRACE-FO mascon solutions.
 
-**Source**: GRACE-FO Level-3 Mascon Solutions (via `code/02_preprocessing.py`)
+**Source**: GRACE-FO L2 Mascon Solutions (via PO.DAAC)
+**Granularity**: Grid cell / Regional average
+**Temporal Resolution**: Monthly means (derived from ~1-month repeat cycles)
 
-**Attributes**:
-- `grid_cell_id`: (string) Unique identifier for the spatial grid cell (e.g., "lat_40_lon_-122").
-- `latitude`: (float) Center latitude of the grid cell in degrees.
-- `longitude`: (float) Center longitude of the grid cell in degrees.
-- `date`: (date) Date of the monthly solution.
-- `equivalent_water_height`: (float) Equivalent Water Height (EWH) in meters, representing the mass anomaly relative to a reference mean.
-- `uncertainty`: (float) Estimated uncertainty of the measurement (1-sigma) in meters.
-- `c20_corrected`: (boolean) Flag indicating if C20 coefficient replacement was applied.
-- `degree_1_corrected`: (boolean) Flag indicating if degree-1 coefficient correction was applied.
+**Fields**:
+- `grid_id` (str): Unique identifier for the spatial grid cell or region.
+- `center_lat` (float): Center latitude of the grid cell/region (degrees North).
+- `center_lon` (float): Center longitude of the grid cell/region (degrees East, converted to West for analysis).
+- `time_period` (datetime): ISO 8601 month string (e.g., "2018-01-01") representing the averaging window.
+- `mascon_solution` (str): Identifier for the specific GRACE-FO mascon solution version used (e.g., "JPL RL06").
 
-**Derived Aggregates (Regional Monthly)**:
-- `month`: (string) ISO 8601 month string.
-- `region_mean_ewh`: (float) Area-weighted mean EWH across the target region (35°N-50°N, 120°W-125°W) for the month.
-- `region_std_ewh`: (float) Standard deviation of EWH across the region.
-- `anomaly_flag`: (boolean) Indicator if the monthly mean exceeds 3σ of the regional noise floor (per FR-004).
+**Physical Definition (Frame of Reference)**:
+> **Note**: Gravity anomaly refers to geoid height variations at satellite altitude (GRACE-FO L2 mascon solutions), NOT local surface gravitational acceleration. This is a covariant description of mass redistribution effects on the geopotential field at the measurement altitude, distinguishing physical curvature from coordinate artifacts.
+
+**Values**:
+- `equiv_water_height` (float): Equivalent Water Height (EWH) in meters. Positive values indicate mass gain (water accumulation), negative indicate mass loss.
+- `uncertainty` (float): Estimated uncertainty of the EWH measurement in meters (derived from mascon metadata).
+- `degree_1_corrected` (bool): Flag indicating if degree-1 coefficient correction has been applied.
+- `c20_replaced` (bool): Flag indicating if C20 coefficient replacement has been applied.
+- `smoothed` (bool): Flag indicating if Gaussian smoothing has been applied.
+
+**Derived Attributes (for analysis)**:
+- `month` (int): Month index (1-12).
+- `year` (int): Year.
+- `regional_mean_ewh` (float): Mean EWH across the target West Coast NA region for the given month.
 
 ---
 
 ### 1.3 Correlation Result
-Represents the statistical output of the analysis comparing AR intensity metrics against Gravity Anomaly metrics. This entity is the final product of the statistical pipeline (User Story 2).
+Represents the statistical outcome of the correlation analysis between AR intensity and Gravity Anomalies.
 
-**Source**: Statistical analysis scripts (`code/04_correlation.py`, `code/05_bootstrap_correction.py`)
+**Source**: Computed via `04_correlation.py` and `05_bootstrap_correction.py`
+**Granularity**: Analysis run (specific lag, region, and method)
 
-**Attributes**:
-- `analysis_id`: (string) Unique identifier for the correlation analysis run.
-- `region_type`: (string) Type of region analyzed ("target" or "control").
-- `lag_months`: (integer) Time lag in months applied to the AR data relative to the gravity data (0, 1, 2, or 3).
-- `correlation_coefficient`: (float) Pearson correlation coefficient (r).
-- `p_value`: (float) P-value from the t-test on the correlation coefficient.
-- `p_value_corrected`: (float) P-value after multiple-comparison correction (e.g., Bonferroni).
-- `is_significant`: (boolean) True if `p_value_corrected` < 0.05 (per SC-002).
-- `bootstrap_ci_lower`: (float) Lower bound of the 95% bootstrap confidence interval for r.
-- `bootstrap_ci_upper`: (float) Upper bound of the 95% bootstrap confidence interval for r.
-- `effective_sample_size`: (float) Calculated effective sample size (n_eff) after autocorrelation correction.
-- `noise_floor_threshold`: (float) The 3σ noise floor value used for signal validation (meters).
-- `signal_magnitude`: (float) Observed signal magnitude relative to the noise floor.
-- `null_result_flag`: (boolean) True if the correlation coefficient is < 0.1 or if the signal is indistinguishable from noise.
+**Fields**:
+- `analysis_id` (str): Unique identifier for the analysis run.
+- `region_type` (str): "target" (West Coast NA) or "control" (non-AR active region).
+- `lag_months` (int): Time lag applied to AR data relative to gravity data (0 to 3 months).
+- `method` (str): Statistical method used (e.g., "pearson", "spearman", "ar1_residuals").
+- `n_observations` (int): Effective number of observations used (after autocorrelation correction).
+- `correlation_coefficient` (float): Pearson correlation coefficient (r).
+- `p_value` (float): Raw p-value from the correlation test.
+- `p_value_fdr` (float): FDR-corrected p-value for multiple comparisons.
+- `significant_fdr` (bool): Boolean flag indicating if `p_value_fdr < 0.05` (informational only, not a success criterion).
+- `bootstrap_ci_lower` (float): Lower bound of the 95% bootstrap confidence interval.
+- `bootstrap_ci_upper` (float): Upper bound of the 95% bootstrap confidence interval.
+- `signal_to_noise_ratio` (float): Ratio of |correlation_coefficient| to the noise floor derived from control regions.
+- `timestamp` (datetime): ISO 8601 timestamp when the analysis was performed.
+
+**Constraints**:
+- `n_observations` must be > 0.
+- `correlation_coefficient` must be in [-1, 1].
+- `p_value` must be in [0, 1].
+- `bootstrap_ci_lower` <= `correlation_coefficient` <= `bootstrap_ci_upper`.
 
 ---
 
-## 2. Data Flow & Relationships
+## 2. Data Flow & Transformation Rules
 
-1. **Ingestion**: `AR Event` and `Gravity Anomaly` records are fetched from external sources and stored in `data/raw/`.
-2. **Preprocessing**: Raw records are aggregated into monthly time-series:
- - `AR Event` → `Monthly AR Summary` (contains `monthly_max_iwv`).
- - `Gravity Anomaly` → `Monthly Gravity Summary` (contains `region_mean_ewh`).
-3. **Merge**: The monthly summaries are joined on `month` to form the `merged_monthly.csv` dataset.
-4. **Analysis**: The merged dataset is used to compute `Correlation Result` entries for various lag windows and region types.
+### 2.1 Ingestion -> Preprocessing
+- **AR Events**: Raw event list -> Filtered by region (120°W-125°W) -> Aggregated to `monthly_iwvt_sum`.
+- **Gravity**: Raw mascon grid -> Degree-1 correction -> C20 replacement -> Gaussian smoothing -> Regional mean aggregation.
 
-## 3. Schema Validation
+### 2.2 Preprocessing -> Merge
+- **Join Key**: `year` and `month`.
+- **Alignment**: AR intensity (monthly sum) aligned with Gravity Anomaly (monthly mean) for the same calendar month.
+- **Exclusion**: Months with zero AR events are excluded from correlation calculation (as per `02_preprocessing.py` logic).
 
-All data artifacts must conform to the schemas defined in:
+### 2.3 Merge -> Analysis
+- **Input**: `merged_monthly.csv` (contains `year`, `month`, `iwvt_sum`, `regional_mean_ewh`).
+- **Pre-whitening**: AR(1) model applied to both series; residuals used for correlation to correct for autocorrelation.
+- **Lagging**: AR series shifted by 0, 1, 2, 3 months relative to Gravity series.
+
+## 3. Schema Compliance
+
+All CSV outputs must strictly adhere to the schemas defined in:
 - `contracts/dataset.schema.yaml` (for `merged_monthly.csv`)
-- `contracts/output.schema.yaml` (for `Correlation Result` outputs)
+- `contracts/output.schema.yaml` (for `correlation_results.json`)
 
-Validation is enforced by `code/03_merge_output.py` and `code/05_bootstrap_correction.py`.
+Any deviation in column names, types, or missing required fields will cause the pipeline to fail validation.
