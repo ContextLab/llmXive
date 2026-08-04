@@ -23,6 +23,7 @@ if project_root not in sys.path:
 
 from analysis.stats_test import run_stats_analysis
 from utils.config import set_environment
+from utils.framing_utils import format_associational_statement
 
 def load_metrics_from_json(file_path: str) -> List[Dict[str, Any]]:
     """
@@ -115,13 +116,19 @@ def main():
 
     print(f"Found {len(b_accs)} paired seeds.")
 
-    # Run statistical analysis
-    # We run analysis on Accuracy first, then F1
+    # Run statistical analysis on Accuracy first
     print("Running statistical analysis on Accuracy...")
     stats_acc = run_stats_analysis(b_accs, q_accs, metric_name="Accuracy")
 
+    # Run statistical analysis on F1
     print("Running statistical analysis on F1...")
     stats_f1 = run_stats_analysis(b_f1s, q_f1s, metric_name="F1")
+
+    # Determine overall conclusion based on Accuracy p-value (primary metric)
+    conclusion = "significant" if stats_acc['p_value'] < 0.05 else "not_significant"
+    conclusion_text = format_associational_statement(
+        f"Associational improvement observed: {'significant' if conclusion == 'significant' else 'not significant'} (p={stats_acc['p_value']:.4f})."
+    )
 
     # Construct the final report
     report = {
@@ -135,6 +142,12 @@ def main():
         "results": {
             "accuracy": stats_acc,
             "f1": stats_f1
+        },
+        "conclusion": {
+            "status": conclusion,
+            "statement": conclusion_text,
+            "ci_lower": stats_acc['ci_lower'],
+            "ci_upper": stats_acc['ci_upper']
         }
     }
 

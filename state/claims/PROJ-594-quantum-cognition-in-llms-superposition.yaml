@@ -203,3 +203,195 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-31T01:13:54Z'
+- artifact_path: projects/PROJ-594-quantum-cognition-in-llms-superposition/specs/001-quantum-cognition-in-llms-superposition/tasks.md
+  attempts: 1
+  canonical: WiC dataset source is SuperGLUE
+  claim_id: c_d00dd91d
+  context: Create code/data/download_wic.py to fetch WiC from SuperGLUE via datasets.load_dataset('super_glue',
+    'wic')
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/WiC_dataset_source_is_SuperGLUE
+  kind: entity_fact
+  raw_text: The WiC dataset is fetched from SuperGLUE via datasets.load_dataset('super_glue',
+    'wic').
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T09:31:44Z'
+- artifact_path: projects/PROJ-594-quantum-cognition-in-llms-superposition/specs/001-quantum-cognition-in-llms-superposition/tasks.md
+  attempts: 1
+  canonical: Phase penalty loss formula defined as lambda times (1 minus cosine of
+    phase difference)
+  claim_id: c_e9e74bda
+  context: 'Define the FR-009 loss function: Create code/models/loss_utils.py with
+    function phase_penalty_loss(phase_diff, lambda=0.5). Formula: loss += lambda *
+    (1 - torch.cos(phase_diff)).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The phase penalty loss formula is loss += lambda * (1 - torch.cos(phase_diff)).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T09:32:00Z'
+- artifact_path: projects/PROJ-594-quantum-cognition-in-llms-superposition/specs/001-quantum-cognition-in-llms-superposition/tasks.md
+  attempts: 1
+  canonical: Interference cross-term formula defined as 2 times real part of c1 times
+    conjugate of c2
+  claim_id: c_787b58ec
+  context: 'Define explicit cross-term calculation: Create code/models/loss_utils.py
+    with function calculate_interference_cross_term(c1, c2). Formula: 2 * torch.real(c1
+    * torch.conj(c2)).'
+  evidence:
+    entailment_evidence: ''
+    entailment_status: not_found
+    object: c1 times conjugate of c2
+    relation: part of
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/Interference_cross-term_formula_defined_as_2_times_real_part
+    source_value: https://en.wikipedia.org/wiki/Interference_cross-term_formula_defined_as_2_times_real_part
+    subject: Interference cross-term formula defined as 2 times real
+  kind: relational
+  raw_text: The interference cross-term formula is 2 * torch.real(c1 * torch.conj(c2)).
+  resolved_value: null
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T09:32:20Z'
+- artifact_path: projects/PROJ-594-quantum-cognition-in-llms-superposition/specs/001-quantum-cognition-in-llms-superposition/tasks.md
+  attempts: 1
+  canonical: Born rule probability is squared magnitude of sum of complex vectors
+  claim_id: c_f64333a4
+  context: 'Implement code/models/bert_adapter.py: Superposition (vector addition)
+    and Born rule (P_raw = ||c_sum||^2)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Born rule probability calculation is P_raw = ||c_sum||^2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T09:33:15Z'
+- artifact_path: projects/PROJ-594-quantum-cognition-in-llms-superposition/specs/001-quantum-cognition-in-llms-superposition/tasks.md
+  attempts: 1
+  canonical: Softmax normalization formula for final probability
+  claim_id: c_68d8c92f
+  context: 'Implement code/models/bert_adapter.py: Softmax normalization P_final =
+    e^P_raw / (e^P_raw + e^P_alt)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Softmax_normalization_formula_for_final_probability
+  kind: entity_fact
+  raw_text: The softmax normalization formula is P_final = e^P_raw / (e^P_raw + e^P_alt).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T09:33:50Z'
+- artifact_path: projects/PROJ-594-quantum-cognition-in-llms-superposition/specs/001-quantum-cognition-in-llms-superposition/tasks.md
+  attempts: 1
+  canonical: Paired t-test alpha level set to 0.05
+  claim_id: c_7cb7b310
+  context: 'Implement code/analysis/stats_test.py: Paired t-test logic (alpha=0.05)
+    across multiple seeds.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The paired t-test uses an alpha significance level of 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T09:33:55Z'
+- artifact_path: projects/PROJ-594-quantum-cognition-in-llms-superposition/specs/001-quantum-cognition-in-llms-superposition/tasks.md
+  attempts: 1
+  canonical: Bootstrap resampling uses 1000 iterations and 0.95 confidence level
+  claim_id: c_cfaf3171
+  context: 'Implement code/analysis/stats_test.py: Bootstrap resampling (k=1000 iterations)
+    to calculate confidence intervals for the mean difference.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Bootstrap resampling is configured for 1000 iterations with a confidence
+    level of 0.95.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T09:34:01Z'
+- artifact_path: projects/PROJ-594-quantum-cognition-in-llms-superposition/specs/001-quantum-cognition-in-llms-superposition/tasks.md
+  attempts: 1
+  canonical: Classical sum-of-squares baseline probability formula
+  claim_id: c_5bfa34cc
+  context: Implement code/experiments/run_classical_baseline.py for Classical Sum-of-Squares
+    baseline (P = ||c1||^2 + ||c2||^2).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The classical sum-of-squares baseline probability is calculated as P =
+    ||c1||^2 + ||c2||^2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T09:34:05Z'
+- artifact_path: projects/PROJ-594-quantum-cognition-in-llms-superposition/specs/001-quantum-cognition-in-llms-superposition/tasks.md
+  attempts: 1
+  canonical: Phase-randomized control applies uniform random phase shifts between
+    0 and 2 pi
+  claim_id: c_9a34d921
+  context: 'Implement code/experiments/run_magnitude_control.py for Phase-Randomized
+    Control (P = ||c1 + e^(i*phi_rand)*c2||^2). Logic: Apply random phase shifts phi_rand
+    ~ U(0, 2pi) to c2 before addition.'
+  evidence:
+    asserted: '0.0'
+    authority: (1+sqrt(5))/2 (IEEE-754 double, Python stdlib math.sqrt)
+    constant: golden_ratio
+    corrected: true
+    mode: approximate
+    true_value: 1.618033988749895
+    url: https://en.wikipedia.org/wiki/Golden_ratio
+  kind: numeric
+  raw_text: The phase-randomized control applies random phase shifts phi_rand ~ U(0,
+    2pi) to c2 before addition.
+  resolved_value: '2'
+  resolver: approximate
+  source_hash: 290a41cc5fb1b98dcc344e1c80bbc36f6fae8c957aab54f9535e67f96da14e06
+  source_type: external
+  status: verified
+  updated_at: '2026-08-04T09:34:05Z'
+- artifact_path: projects/PROJ-594-quantum-cognition-in-llms-superposition/specs/001-quantum-cognition-in-llms-superposition/tasks.md
+  attempts: 1
+  canonical: Interference cross-term assumption requires Spearman correlation less
+    than -0.3
+  claim_id: c_83ada05f
+  context: 'Verify that interference cross-term assumption (negative values for ambiguity)
+    holds in ablation results. Logic: Assert spearman_correlation in data/results/interference_correlation.json
+    is < -0.3.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Interference_cross-term_assumption_requires_Spearman_correla
+  kind: magnitude
+  raw_text: The interference cross-term assumption requires a Spearman rank correlation
+    of less than -0.3.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T09:34:10Z'

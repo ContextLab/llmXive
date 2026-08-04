@@ -13,7 +13,7 @@ The researcher needs to establish a rigorous performance baseline using a standa
 
 **Why this priority**: Without a verified, reproducible baseline, any observed differences in the complex-valued model cannot be attributed to the quantum-inspired architecture. This is the prerequisite for all comparative analysis.
 
-**Independent Test**: The system can be fully tested by loading the frozen BERT model, running inference on the WiC test split, and outputting a JSON file containing accuracy and macro-F1 scores. No complex-valued logic is required for this test.
+**Independent Test**: The system can be fully tested by loading the frozen BERT model, running inference on the WiC test split, and outputting a JSON file containing accuracy and macro-F scores. No complex-valued logic is required for this test.
 
 **Acceptance Scenarios**:
 

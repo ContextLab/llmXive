@@ -1,86 +1,81 @@
-"""
-Unit tests for interference_check.py (Task T036)
-"""
 import os
 import sys
 import json
 import tempfile
 import pytest
-import numpy as np
+import torch
 
 # Add project root to path
-PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-sys.path.insert(0, PROJECT_ROOT)
+_project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+if _project_root not in sys.path:
+    sys.path.insert(0, _project_root)
 
-from code.analysis.interference_check import load_interference_data, compute_spearman_correlation
+from code.analysis.interference_check import (
+    load_cross_term_data,
+    verify_negative_cross_terms,
+    save_results
+)
 
-class TestInterferenceCheck:
-    def test_load_interference_data_valid(self, tmp_path):
-        """Test loading valid interference data."""
-        data = {
-            "samples": [
-                {"ambiguity_score": 0.8, "cross_term_value": -0.5},
-                {"ambiguity_score": 0.2, "cross_term_value": 0.1},
-                {"ambiguity_score": 0.9, "cross_term_value": -0.8}
-            ]
-        }
-        input_file = tmp_path / "interference_validation.json"
-        with open(input_file, "w") as f:
-            json.dump(data, f)
+def test_verify_negative_cross_terms():
+    """Test that verify_negative_cross_terms correctly identifies negative values."""
+    # Mock data with some negative values
+    mock_data = {
+        "cross_term_values": [1.5, -2.3, 0.5, -0.1, 3.0],
+        "ambiguous_indices": [0, 1, 2, 3, 4]
+    }
+    
+    result = verify_negative_cross_terms(mock_data)
+    
+    assert result["min_cross_term"] == -2.3
+    assert result["percentage_negative"] == 0.4  # 2 out of 5
+    assert result["valid"] is True
 
-        samples = load_interference_data(str(input_file))
-        assert len(samples) == 3
-        assert samples[0]["ambiguity_score"] == 0.8
-        assert samples[0]["cross_term_value"] == -0.5
+def test_verify_negative_cross_terms_all_positive():
+    """Test that valid is False when no negative values exist."""
+    mock_data = {
+        "cross_term_values": [1.5, 2.3, 0.5, 0.1, 3.0],
+        "ambiguous_indices": [0, 1, 2, 3, 4]
+    }
+    
+    result = verify_negative_cross_terms(mock_data)
+    
+    assert result["min_cross_term"] == 0.1
+    assert result["percentage_negative"] == 0.0
+    assert result["valid"] is False
 
-    def test_load_interference_data_missing_file(self):
-        """Test error handling for missing file."""
-        with pytest.raises(FileNotFoundError):
-            load_interference_data("/nonexistent/path/file.json")
+def test_verify_negative_cross_terms_empty():
+    """Test handling of empty list."""
+    mock_data = {
+        "cross_term_values": [],
+        "ambiguous_indices": []
+    }
+    
+    result = verify_negative_cross_terms(mock_data)
+    
+    assert result["min_cross_term"] == 0.0
+    assert result["percentage_negative"] == 0.0
+    assert result["valid"] is False
 
-    def test_load_interference_data_invalid_format(self, tmp_path):
-        """Test error handling for invalid format."""
-        data = {"wrong_key": []}
-        input_file = tmp_path / "interference_validation.json"
-        with open(input_file, "w") as f:
-            json.dump(data, f)
+def test_load_cross_term_data_file_not_found():
+    """Test that FileNotFoundError is raised for missing file."""
+    with pytest.raises(FileNotFoundError):
+        load_cross_term_data("non_existent_file.json")
 
-        with pytest.raises(ValueError):
-            load_interference_data(str(input_file))
-
-    def test_compute_spearman_correlation_negative(self):
-        """Test that negative correlation is detected correctly."""
-        samples = [
-            {"ambiguity_score": 0.1, "cross_term_value": 0.9},
-            {"ambiguity_score": 0.3, "cross_term_value": 0.5},
-            {"ambiguity_score": 0.5, "cross_term_value": 0.1},
-            {"ambiguity_score": 0.7, "cross_term_value": -0.3},
-            {"ambiguity_score": 0.9, "cross_term_value": -0.7}
-        ]
-        result = compute_spearman_correlation(samples)
-        assert result["correlation_coefficient"] < 0
-        assert result["p_value"] < 0.05
-        assert result["sample_count"] == 5
-
-    def test_compute_spearman_correlation_positive(self):
-        """Test that positive correlation is detected (unexpected for this hypothesis)."""
-        samples = [
-            {"ambiguity_score": 0.1, "cross_term_value": -0.9},
-            {"ambiguity_score": 0.3, "cross_term_value": -0.5},
-            {"ambiguity_score": 0.5, "cross_term_value": 0.0},
-            {"ambiguity_score": 0.7, "cross_term_value": 0.4},
-            {"ambiguity_score": 0.9, "cross_term_value": 0.8}
-        ]
-        result = compute_spearman_correlation(samples)
-        assert result["correlation_coefficient"] > 0
-
-    def test_compute_spearman_correlation_no_correlation(self):
-        """Test with random data showing no correlation."""
-        np.random.seed(42)
-        samples = [
-            {"ambiguity_score": float(i), "cross_term_value": float(np.random.randn())}
-            for i in range(100)
-        ]
-        result = compute_spearman_correlation(samples)
-        assert abs(result["correlation_coefficient"]) < 0.3  # Likely small
-        assert result["sample_count"] == 100
+def test_save_results():
+    """Test that save_results writes valid JSON."""
+    test_data = {
+        "min_cross_term": -1.0,
+        "percentage_negative": 0.5,
+        "valid": True
+    }
+    
+    with tempfile.TemporaryDirectory() as tmpdir:
+        output_path = os.path.join(tmpdir, "test_output.json")
+        save_results(test_data, output_path)
+        
+        assert os.path.exists(output_path)
+        
+        with open(output_path, 'r') as f:
+            loaded = json.load(f)
+        
+        assert loaded == test_data

@@ -106,7 +106,7 @@ projects/PROJ-594-quantum-cognition-in-llms-superposition/
 
 ## Compute Feasibility
 
-- **Hardware**: CPU-only (2 cores, 7 GB RAM).
+- **Hardware**: CPU-only (a small number of cores, 7 GB RAM).
 - **Strategy**:
   - Frozen BERT (no gradient computation for transformer layers).
   - Compact adapter (< 1M parameters).

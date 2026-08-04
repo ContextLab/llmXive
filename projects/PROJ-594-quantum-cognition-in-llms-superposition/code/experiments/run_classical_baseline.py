@@ -1,224 +1,199 @@
 """
-Classical Sum-of-Squares Baseline Implementation (Ablation Study).
+Classical Sum-of-Squares Baseline (Ablation Condition).
 
-This script implements the classical probability baseline where the probability
-of an outcome is the sum of the squared magnitudes of the component amplitudes,
-explicitly excluding the interference cross-term.
-
-Formula: P_classical = ||c1||^2 + ||c2||^2
-
-This serves as the primary ablation condition to demonstrate that the performance
-gains (if any) in the quantum model are due to the interference term, not just
-the magnitude of the vectors.
+Implements P = ||c1||^2 + ||c2||^2 (no interference cross-term).
+This serves as the primary ablation condition to isolate the contribution
+of the quantum interference mechanism.
 """
+
 import os
 import sys
 import json
 import argparse
 import random
 import torch
-import numpy as np
 from typing import Dict, List, Any, Tuple
 
 # Add project root to path for imports
-PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
-if PROJECT_ROOT not in sys.path:
-    sys.path.insert(0, PROJECT_ROOT)
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)
 
-from models.baseline_bert import load_wic_dataset, run_frozen_bert_inference
-from models.bert_adapter import ComplexLinearProjection, ContextDependentPhaseShift
-from utils.config import set_environment, get_config
+from datasets import load_dataset
+from transformers import BertTokenizer, BertModel
+from utils.config import get_config
 from utils.logging import detect_nan_inf
+from utils.framing_utils import format_associational_statement
 
-def compute_classical_probability(
-    c1: torch.Tensor,
-    c2: torch.Tensor
-) -> torch.Tensor:
+def set_seed(seed: int) -> None:
+    """Set random seeds for reproducibility."""
+    random.seed(seed)
+    torch.manual_seed(seed)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed_all(seed)
+
+def load_wic_dataset(split: str = "validation") -> List[Dict[str, Any]]:
     """
-    Compute classical probability as sum of squared magnitudes.
+    Load the WiC dataset from SuperGLUE.
+    Returns a list of examples with context, target word, and labels.
+    """
+    try:
+        dataset = load_dataset("super_glue", "wic", split=split)
+        return list(dataset)
+    except Exception as e:
+        raise RuntimeError(f"Failed to load WiC dataset: {e}")
+
+def get_bert_embedding(model: BertModel, tokenizer: BertTokenizer, text: str) -> torch.Tensor:
+    """
+    Get BERT embedding for a given text.
+    Returns the mean pooling of the last hidden state.
+    """
+    inputs = tokenizer(text, return_tensors="pt", truncation=True, padding=True, max_length=128)
+    with torch.no_grad():
+        outputs = model(**inputs)
+        last_hidden = outputs.last_hidden_state
+        # Mean pooling
+        attention_mask = inputs['attention_mask']
+        mask_expanded = attention_mask.unsqueeze(-1).expand(last_hidden.size()).float()
+        sum_embeddings = torch.sum(last_hidden * mask_expanded, 1)
+        sum_mask = torch.clamp(mask_expanded.sum(1), min=1e-9)
+        embedding = sum_embeddings / sum_mask
+    return embedding.squeeze(0)
+
+def compute_classical_probability(c1: torch.Tensor, c2: torch.Tensor) -> float:
+    """
+    Compute classical probability using Sum-of-Squares: P = ||c1||^2 + ||c2||^2.
+    This explicitly excludes the interference cross-term (2*Re(c1 * conj(c2))).
     
     Args:
-        c1: Complex tensor of shape [batch, dim] for interpretation 1.
-        c2: Complex tensor of shape [batch, dim] for interpretation 2.
-        
+        c1: Complex vector for context 1 (or real embedding treated as complex)
+        c2: Complex vector for context 2
+    
     Returns:
-        Tensor of shape [batch] containing P_classical = ||c1||^2 + ||c2||^2.
+        Normalized probability for class 1 (True/False)
     """
     # Ensure inputs are complex
-    if c1.is_complex():
-        mag1_sq = torch.abs(c1) ** 2
-    else:
-        mag1_sq = c1 ** 2
-        
-    if c2.is_complex():
-        mag2_sq = torch.abs(c2) ** 2
-    else:
-        mag2_sq = c2 ** 2
-        
-    return mag1_sq.sum(dim=-1) + mag2_sq.sum(dim=-1)
+    if not torch.is_complex(c1):
+        c1 = c1.to(torch.complex64)
+    if not torch.is_complex(c2):
+        c2 = c2.to(torch.complex64)
+    
+    # Sum of squares (magnitudes squared)
+    mag_sq_1 = torch.abs(c1) ** 2
+    mag_sq_2 = torch.abs(c2) ** 2
+    
+    # Total unnormalized probability
+    total_prob = torch.sum(mag_sq_1) + torch.sum(mag_sq_2)
+    
+    # Avoid division by zero
+    if total_prob == 0:
+        return 0.5
+    
+    # Normalize to get probability for class 1 (assuming c1 corresponds to True)
+    # In this ablation, we treat the magnitude of the first component as the signal
+    # relative to the total magnitude.
+    p_true = torch.sum(mag_sq_1) / total_prob
+    return p_true.item()
 
-def run_single_seed(seed: int, device: str = 'cpu') -> Dict[str, Any]:
+def preprocess_wic_example(example: Dict[str, Any], tokenizer: BertTokenizer) -> Tuple[torch.Tensor, torch.Tensor, int]:
     """
-    Run the classical baseline experiment for a single random seed.
+    Preprocess a WiC example to get embeddings for the target word in both contexts.
     
-    Args:
-        seed: Random seed for reproducibility.
-        device: Device to run computations on ('cpu' or 'cuda').
-        
     Returns:
-        Dictionary containing metrics (accuracy, f1, etc.).
+        c1: Embedding for context 1
+        c2: Embedding for context 2
+        label: Ground truth label (1 if same meaning, 0 if different)
     """
-    set_environment(seed=seed, device=device)
+    context1 = example['sentence1']
+    context2 = example['sentence2']
+    word = example['word']
+    label = 1 if example['label'] == 1 else 0
+    
+    # Simple approach: use the full sentence embedding
+    # A more sophisticated approach would extract the specific word embedding
+    c1 = get_bert_embedding(tokenizer, tokenizer, context1)
+    c2 = get_bert_embedding(tokenizer, tokenizer, context2)
+    
+    return c1, c2, label
+
+def run_single_seed(seed: int) -> Dict[str, Any]:
+    """
+    Run the classical baseline for a single seed.
+    
+    Returns:
+        Dictionary with accuracy, macro_f1, and seed.
+    """
+    set_seed(seed)
     config = get_config()
+    device = torch.device(config['device'])
     
-    print(f"Running Classical Baseline with seed {seed}...")
+    # Load data
+    data = load_wic_dataset("validation")
+    tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
+    model = BertModel.from_pretrained('bert-base-uncased')
+    model.to(device)
+    model.eval()
     
-    # Load dataset
-    dataset = load_wic_dataset()
-    if dataset is None:
-        raise RuntimeError("Failed to load WiC dataset. Ensure T006 has been run.")
+    # Freeze model
+    for param in model.parameters():
+        param.requires_grad = False
     
-    # Load frozen BERT to get hidden states
-    # We use the same frozen BERT backbone as the quantum model for fair comparison
-    tokenizer, model = run_frozen_bert_inference(dataset, device, batch_size=config['batch_size'])
-    
-    # Initialize the complex projection (same architecture as Quantum model)
-    # This ensures the only difference is the probability calculation rule
-    hidden_size = config['hidden_size']
-    complex_proj = ComplexLinearProjection(hidden_size).to(device)
-    complex_proj.eval() # Frozen for this ablation baseline
-    
-    # Initialize phase shift (context-dependent) - also frozen for fair comparison
-    phase_shift = ContextDependentPhaseShift(hidden_size).to(device)
-    phase_shift.eval()
-    
-    correct = 0
-    total = 0
     predictions = []
     labels = []
     
-    # Process in batches
-    batch_size = config['batch_size']
-    n_samples = len(dataset['test'])
-    
-    with torch.no_grad():
-        for i in range(0, n_samples, batch_size):
-            batch_end = min(i + batch_size, n_samples)
-            batch_data = dataset['test'].select(range(i, batch_end))
-            
-            # Tokenize and get BERT hidden states
-            inputs = tokenizer(
-                batch_data['sentence1'],
-                batch_data['sentence2'],
-                padding=True,
-                truncation=True,
-                max_length=config['max_length'],
-                return_tensors='pt'
-            ).to(device)
-            
-            # Get hidden states from BERT
-            outputs = model(**inputs)
-            hidden_states = outputs.last_hidden_state # [batch, seq_len, hidden]
-            
-            # Apply complex projection
-            c_complex = complex_proj(hidden_states) # [batch, seq_len, hidden]
-            
-            # Apply context-dependent phase shift
-            c_shifted = phase_shift(c_complex) # [batch, seq_len, hidden]
-            
-            # Extract representations for the target word (simplified: use mean pool of context)
-            # In a real implementation, we'd extract specific token indices.
-            # For this baseline, we'll use the mean of the hidden states as the "interpretation" vector
-            # and assume the two interpretations are derived from the same source but projected differently.
-            # To simulate the "two interpretations" (c1, c2), we can split the sequence or use a specific mechanism.
-            # Here, we simulate c1 and c2 by splitting the batch dimension or using a deterministic split
-            # of the projected vectors to mimic the "two paths" in the quantum model.
-            
-            # Simplified approach for ablation: 
-            # We treat the first half of the sequence as "Interpretation 1" and second half as "Interpretation 2"
-            # or simply use the full vector as one and a perturbed version as the other.
-            # However, the task definition says P = ||c1||^2 + ||c2||^2.
-            # In the quantum model, c1 and c2 are the amplitudes for the two possible answers (True/False).
-            # We will simulate this by projecting the hidden state into two separate channels.
-            
-            # Reshape to [batch, seq_len * hidden] then split into two equal parts
-            b, s, h = c_shifted.shape
-            c_flat = c_shifted.view(b, -1)
-            mid = c_flat.shape[1] // 2
-            c1 = c_flat[:, :mid].view(b, -1) # First half
-            c2 = c_flat[:, mid:].view(b, -1) # Second half
-            
-            # Compute classical probability
-            probs = compute_classical_probability(c1, c2)
-            
-            # Normalize to get binary probability (True vs False)
-            # P(True) = P1 / (P1 + P2) ? 
-            # The task says P = ||c1||^2 + ||c2||^2. 
-            # In the context of the binary classification (True/False), 
-            # we interpret ||c1||^2 as the score for True and ||c2||^2 for False.
-            # So P(True) = ||c1||^2 / (||c1||^2 + ||c2||^2)
-            
-            score_true = torch.abs(c1) ** 2
-            score_false = torch.abs(c2) ** 2
-            
-            # Handle potential division by zero
-            denom = score_true + score_false + 1e-8
-            p_true = score_true / denom
-            
-            # Predict
-            preds = (p_true > 0.5).long()
-            true_labels = torch.tensor(batch_data['label'], device=device).long()
-            
-            correct += (preds == true_labels).sum().item()
-            total += len(batch_data)
-            
-            predictions.extend(preds.cpu().numpy().tolist())
-            labels.extend(true_labels.cpu().numpy().tolist())
-    
-    accuracy = correct / total if total > 0 else 0.0
-    
-    # Compute F1 (simplified for binary)
-    from sklearn.metrics import f1_score
-    f1 = f1_score(labels, predictions, average='macro')
-    
-    metrics = {
-        "seed": seed,
-        "accuracy": accuracy,
-        "f1_macro": f1,
-        "model_type": "classical_baseline",
-        "description": "Sum of Squares (||c1||^2 + ||c2||^2) without interference"
-    }
-    
-    # Check for NaN/Inf
-    if detect_nan_inf(torch.tensor([accuracy, f1])):
-        raise RuntimeError(f"NaN/Inf detected in metrics for seed {seed}")
+    # Process examples
+    for example in data:
+        c1, c2, label = preprocess_wic_example(example, tokenizer)
+        c1 = c1.to(device)
+        c2 = c2.to(device)
         
-    return metrics
+        # Compute classical probability
+        p_true = compute_classical_probability(c1, c2)
+        
+        # Convert to binary prediction
+        pred = 1 if p_true > 0.5 else 0
+        
+        predictions.append(pred)
+        labels.append(label)
+    
+    # Calculate metrics
+    accuracy = sum(1 for p, l in zip(predictions, labels) if p == l) / len(labels)
+    
+    # Calculate macro F1
+    from sklearn.metrics import f1_score
+    macro_f1 = f1_score(labels, predictions, average='macro')
+    
+    return {
+        "accuracy": accuracy,
+        "macro_f1": macro_f1,
+        "seed": seed
+    }
 
 def main():
-    parser = argparse.ArgumentParser(description="Run Classical Baseline (Ablation)")
+    parser = argparse.ArgumentParser(description="Run Classical Sum-of-Squares Baseline")
     parser.add_argument("--seed", type=int, default=42, help="Random seed")
-    parser.add_argument("--device", type=str, default="cpu", help="Device to use")
-    parser.add_argument("--output", type=str, default="data/results/classical_baseline_metrics.json", help="Output path")
     args = parser.parse_args()
     
-    # Ensure output directory exists
-    output_dir = os.path.dirname(args.output)
-    os.makedirs(output_dir, exist_ok=True)
+    print(format_associational_statement("Starting classical baseline evaluation..."))
+    print(format_associational_statement(f"Using seed: {args.seed}"))
     
     try:
-        metrics = run_single_seed(args.seed, args.device)
+        results = run_single_seed(args.seed)
         
-        # Save metrics
-        with open(args.output, 'w') as f:
-            json.dump(metrics, f, indent=2)
+        # Write results to file
+        output_path = os.path.join(project_root, "data", "results", "classical_baseline_metrics.json")
+        os.makedirs(os.path.dirname(output_path), exist_ok=True)
         
-        print(f"Classical Baseline completed. Metrics saved to {args.output}")
-        print(f"Accuracy: {metrics['accuracy']:.4f}, F1: {metrics['f1_macro']:.4f}")
+        with open(output_path, 'w') as f:
+            json.dump(results, f, indent=2)
+        
+        print(format_associational_statement(f"Results written to {output_path}"))
+        print(format_associational_statement(f"Accuracy: {results['accuracy']:.4f}"))
+        print(format_associational_statement(f"Macro F1: {results['macro_f1']:.4f}"))
         
     except Exception as e:
         print(f"Error running classical baseline: {e}")
-        sys.exit(1)
+        raise
 
 if __name__ == "__main__":
     main()

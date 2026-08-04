@@ -17,7 +17,7 @@ if project_root not in sys.path:
 from models.baseline_bert import load_wic_dataset, run_frozen_bert_inference, compute_metrics
 from utils.config import set_environment, get_config
 from utils.logging import detect_nan_inf
-from utils.framing_utils import format_associational_statement
+from utils.framing_utils import format_associational_statement, format_result_summary
 
 def run_single_seed(seed: int) -> Dict[str, float]:
     """
@@ -29,10 +29,11 @@ def run_single_seed(seed: int) -> Dict[str, float]:
     
     print(format_associational_statement(f"--- Running Baseline Evaluation (Seed: {seed}) ---"))
     
-    # Load dataset
+    # Load dataset (Real data from SuperGLUE)
+    # The dataset loader in T006 handles the actual fetch from SuperGLUE
     dataset = load_wic_dataset()
     
-    # Run inference
+    # Run inference on frozen BERT
     predictions, labels = run_frozen_bert_inference(dataset, config)
     
     # Check for NaN/Inf in predictions
@@ -80,13 +81,13 @@ def main():
         sys.exit(1)
 
     # Calculate statistics
-    mean_acc = np.mean(accuracies)
-    var_acc = np.var(accuracies, ddof=0) # Population variance for stability check
-    std_acc = np.std(accuracies)
+    mean_acc = float(np.mean(accuracies))
+    var_acc = float(np.var(accuracies, ddof=0)) # Population variance for stability check
+    std_acc = float(np.std(accuracies))
     
-    mean_f1 = np.mean(f1s)
-    var_f1 = np.var(f1s, ddof=0)
-    std_f1 = np.std(f1s)
+    mean_f1 = float(np.mean(f1s))
+    var_f1 = float(np.var(f1s, ddof=0))
+    std_f1 = float(np.std(f1s))
 
     print(format_associational_statement(f"\n--- Stability Analysis ---"))
     print(format_associational_statement(f"Accuracy: Mean={mean_acc:.4f}, Var={var_acc:.6f}, Std={std_acc:.4f}"))
@@ -111,27 +112,28 @@ def main():
     print(format_associational_statement("Stability Check PASSED."))
 
     # Prepare final output
-    # Note: Schema requested in task: {"accuracy": float, "macro_f1": float, "seed": int, "variance_accuracy": float, "variance_macro_f1": float}
-    # Since we run multiple seeds, we output per-seed metrics and summary variances.
-    # We include the mean accuracy/F1 as the primary "accuracy" and "macro_f1" fields in summary, 
+    # Schema: {"accuracy": float, "macro_f1": float, "seed": int, "variance_accuracy": float, "variance_macro_f1": float}
+    # We include mean accuracy/F1 as the primary "accuracy" and "macro_f1" fields in summary, 
     # and variance fields as requested.
     final_report = {
         'seeds_used': args.seeds,
         'stability_threshold': args.variance_threshold,
         'stability_check_passed': True,
         'summary': {
-            'accuracy': float(mean_acc),
-            'macro_f1': float(mean_f1),
-            'variance_accuracy': float(var_acc),
-            'variance_macro_f1': float(var_f1)
+            'accuracy': mean_acc,
+            'macro_f1': mean_f1,
+            'variance_accuracy': var_acc,
+            'variance_macro_f1': var_f1
         },
-        'per_seed_metrics': all_metrics
+        'per_seed_metrics': all_metrics,
+        'framing_note': format_result_summary("Baseline performance represents an associational correlation between input context and label.")
     }
 
     with open(output_path, 'w') as f:
         json.dump(final_report, f, indent=2)
 
     print(format_associational_statement(f"Results saved to {output_path}"))
+    print(format_associational_statement("Execution complete."))
 
 if __name__ == "__main__":
     main()

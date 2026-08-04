@@ -1,3 +1,12 @@
+T012:
+  c: false
+  h: fe8c76af8b3905a567540d5de05fe337b48b523671d50b57e600b5b19e34cc48
+  r: "The provided `run_baseline.py` is truncated and never computes variance, asserts\
+    \ the <\u202F0.02 threshold, or writes the required `baseline_metrics.json` with\
+    \ the specified schema. The needed `config.yaml` (for seed values) is missing,\
+    \ and `framing_utils.py` contains a placeholder `pass` and does not actually enforce\
+    \ associational framing for JSON output. Consequently the artifact does not meet\
+    \ the task\u2019s functional and output requirements."
 T015:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -13,31 +22,21 @@ T023:
     \ and writes its values to `data/results/cross_term_log.json`. Moreover, the required\
     \ log file is missing from the repository. Consequently the task\u2019s core requirements\
     \ are not met."
-T024c:
+T029:
   c: false
-  h: fa443a262d4cfde03788ac9e81fb82765ddde24799691198ff7234c6875fc3d6
-  r: "The repository contains a `run_quantum.py` file, but it is truncated and shows\
-    \ no logic that writes `data/results/quantum_metrics.json`. Moreover, the required\
-    \ `data/results/quantum_metrics.json` file is absent. The task\u2019s core requirement\u2014\
-    producing the JSON metrics file with the specified schema\u2014is therefore not\
-    \ met."
-T025:
+  h: 6cf286d2a91c8296aeecded6c56c02b544deaaf0a8c9133dd3907ac08c4b61fa
+  r: "The repository contains `code/analysis/stats_test.py` with a paired t\u2011\
+    test implementation, but the required output file `data/results/stats_report.json`\
+    \ is absent, so the task\u2019s verification step cannot be satisfied. The missing\
+    \ JSON file (or its contents) must be generated for the task to be complete."
+T030b:
   c: false
-  h: 2e0391afb980f960d4d558e56e61711e908c1da2892f5c5f54422fad0758335b
-  r: "The repository contains `code/experiments/run_quantum.py`, but the shown excerpt\
-    \ stops before any training loop and does not demonstrate computing `calculate_interference_cross_term`\
-    \ for ambiguous tokens or accumulating and writing the results to `data/results/cross_term_log.json`.\
-    \ Moreover, the required `cross_term_log.json` file is absent. The task\u2019\
-    s core logging functionality and output file are therefore missing."
-T025b:
-  c: false
-  h: ca6f1c120574c2b29d7ba1699f8ff17f1c6c0327316060139ee58262be3b3a78
-  r: 'The required input `data/results/cross_term_log.json` is absent, so the script
-    cannot perform the check, and the existing `interference_validation.json` does
-    not follow the specified schema (it lacks `min_cross_term` and `valid` fields
-    and uses different names). A proper unit test/assertion that reads the log, asserts
-    a negative minimum, and writes a JSON matching `{"min_cross_term": float, "percentage_negative":
-    float, "valid": bool}` is missing.'
+  h: bc30377312f2212723abf3c96efc0def792b806c36a0a3c6b7fdc4cb67fa3650
+  r: "The repository contains a partially shown `stats_test.py` that defines a bootstrap\
+    \ function but does not include code to write `data/results/bootstrap_ci.json`\
+    \ or to assert that the interval width is <\u202F0.1. Moreover, the required `bootstrap_ci.json`\
+    \ file is absent. The task\u2019s output artifact and verification step are therefore\
+    \ missing."
 T031:
   c: false
   h: f7832f67b29e4aec9bf9ffe67dca613493818ab4bc4b76988e771989e059b5ff
@@ -45,13 +44,6 @@ T031:
     \ is missing, indicating the script either does not generate the report or has\
     \ not been executed. The task\u2019s core requirement\u2014to produce `stats_report.json`\u2014\
     is not satisfied."
-T032:
-  c: false
-  h: 70224a0c8f0ad2f10c845b98366757f4d7b22a01076a2ab1f72ca5b77cecf581
-  r: The required file `data/results/stats_report.json` does not exist, so there is
-    no evidence that it contains the p-value, t-statistic, Cohen's d, and 95% confidence
-    interval. The artifact must be created and populated with the specified statistical
-    fields.
 T036:
   c: false
   h: 2c68ac864e7ea77f325607e8ef3906d203ffd632db56ba49ed4d32d1c64df561

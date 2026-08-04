@@ -1,7 +1,10 @@
 """
-BERT Complex Adapter: Implements the quantum-inspired adapter for ambiguous reasoning.
-Includes linear projection, context-dependent phase shifts, superposition, Born rule,
-and the loss function with penalty terms and cross-term logging.
+BERT Complex Adapter Implementation.
+
+Implements the core quantum-inspired adapter:
+1. ComplexLinearProjection: R^d -> C^d
+2. ContextDependentPhaseShift: U_c operator
+3. BERTComplexAdapter: Full superposition and Born rule pipeline
 """
 import torch
 import torch.nn as nn
@@ -9,284 +12,228 @@ import torch.nn.functional as F
 from typing import Tuple, Optional, Dict, Any, List
 import os
 import sys
-import json
 
-# Local imports from the project API surface
-from models.loss_utils import compute_phase_penalty_loss, compute_interference_cross_term
+# Ensure project root is in path for imports
+project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)
+
+from utils.complex_ops import to_complex, phase_shift, vector_add, born_rule
+from utils.logging import detect_nan_inf, safe_normalize
+
 
 class ComplexLinearProjection(nn.Module):
     """
-    Projects real-valued hidden states to complex-valued vectors (R^d -> C^d).
-    Implements the real and imaginary components as separate linear projections.
+    Linear projection from real-valued hidden states to complex vectors.
+    Maps R^d -> C^d by creating real and imaginary components.
     """
-    def __init__(self, input_dim: int, hidden_dim: int):
+    def __init__(self, hidden_dim: int):
         super().__init__()
-        self.real_proj = nn.Linear(input_dim, hidden_dim)
-        self.imag_proj = nn.Linear(input_dim, hidden_dim)
+        # Project to 2*hidden_dim to separate real and imaginary parts
+        self.projection = nn.Linear(hidden_dim, 2 * hidden_dim)
         self.hidden_dim = hidden_dim
 
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
+    def forward(self, h_real: torch.Tensor) -> torch.Tensor:
         """
         Args:
-            x: [batch, seq_len, input_dim] real-valued tensor
+            h_real: [batch, seq_len, hidden_dim] real-valued tensor
         Returns:
-            [batch, seq_len, hidden_dim] complex tensor (stored as real/imag pair in last dim)
+            c_complex: [batch, seq_len, hidden_dim] complex tensor
         """
-        real_part = self.real_proj(x)
-        imag_part = self.imag_proj(x)
-        # Stack to form complex: [..., 2*hidden_dim] where even indices are real, odd are imag
-        # Actually, for PyTorch complex support, we can use torch.complex
-        # But to be explicit and compatible with older versions or specific ops:
-        # We will return a tensor of shape [batch, seq_len, hidden_dim] with dtype=torch.cfloat
-        return torch.complex(real_part, imag_part)
+        batch_size, seq_len, _ = h_real.shape
+        
+        # Project to 2*hidden_dim
+        projected = self.projection(h_real)  # [batch, seq_len, 2*hidden_dim]
+        
+        # Split into real and imaginary parts
+        real_part = projected[:, :, :self.hidden_dim]
+        imag_part = projected[:, :, self.hidden_dim:]
+        
+        # Combine into complex tensor
+        c_complex = torch.complex(real_part, imag_part)
+        
+        # Verify dtype
+        assert c_complex.dtype == torch.complex64, f"Expected complex64, got {c_complex.dtype}"
+        
+        return c_complex
 
 
 class ContextDependentPhaseShift(nn.Module):
     """
-    Applies a context-dependent phase shift operator U_c.
-    Input: real hidden states.
-    Operation: compute context embedding via attention pooling, project to rotation angle theta,
-               apply diagonal phase shift exp(i*theta).
+    Context-dependent phase shift operator U_c.
+    Computes a context embedding via attention pooling, projects to rotation angle theta,
+    and applies a diagonal phase shift exp(i*theta).
     """
     def __init__(self, hidden_dim: int):
         super().__init__()
-        # Attention pooling weights
-        self.attention_weights = nn.Linear(hidden_dim, 1, bias=False)
-        # Project context vector to phase angle (theta)
-        self.context_to_theta = nn.Linear(hidden_dim, hidden_dim)
         self.hidden_dim = hidden_dim
+        
+        # Attention pooling for context embedding
+        self.attention = nn.Linear(hidden_dim, 1)
+        
+        # Project context embedding to rotation angle
+        self.angle_projection = nn.Sequential(
+            nn.Linear(hidden_dim, hidden_dim // 2),
+            nn.Tanh(),
+            nn.Linear(hidden_dim // 2, hidden_dim)
+        )
 
-    def forward(self, x_complex: torch.Tensor) -> torch.Tensor:
+    def forward(self, h_real: torch.Tensor) -> torch.Tensor:
         """
         Args:
-            x_complex: [batch, seq_len, hidden_dim] complex tensor
+            h_real: [batch, seq_len, hidden_dim] real-valued tensor
         Returns:
-            [batch, seq_len, hidden_dim] complex tensor with phase shifts applied
+            c_phased: [batch, seq_len, hidden_dim] complex tensor with phase shifts applied
         """
-        batch, seq_len, hidden_dim = x_complex.shape
+        batch_size, seq_len, _ = h_real.shape
         
-        # Extract magnitudes for attention (using magnitude as context strength)
-        # Or use the real part of the input for attention pooling
-        x_real = x_complex.real  # [batch, seq_len, hidden_dim]
-        
-        # Compute attention scores
-        attn_scores = self.attention_weights(x_real)  # [batch, seq_len, 1]
+        # Compute attention weights for context pooling
+        attn_scores = self.attention(h_real)  # [batch, seq_len, 1]
         attn_weights = F.softmax(attn_scores, dim=1)  # [batch, seq_len, 1]
         
-        # Context embedding: weighted sum of token representations
-        context = torch.sum(attn_weights * x_real, dim=1, keepdim=False)  # [batch, hidden_dim]
+        # Context embedding via weighted sum
+        context_embedding = torch.sum(attn_weights * h_real, dim=1, keepdim=False)  # [batch, hidden_dim]
         
-        # Project context to phase angles (theta) for each dimension
-        theta = self.context_to_theta(context)  # [batch, hidden_dim]
+        # Project to rotation angles
+        theta = self.angle_projection(context_embedding)  # [batch, hidden_dim]
         
-        # Expand theta to match sequence length
+        # Expand theta to match sequence length for broadcasting
         theta_expanded = theta.unsqueeze(1)  # [batch, 1, hidden_dim]
-        theta_expanded = theta_expanded.expand(-1, seq_len, -1)  # [batch, seq_len, hidden_dim]
         
-        # Create phase shift: exp(i * theta)
-        phase_shifts = torch.complex(
-            torch.cos(theta_expanded),
-            torch.sin(theta_expanded)
-        )
+        # Create complex phase shift: exp(i * theta)
+        # For each dimension, the phase shift is a complex number with magnitude 1
+        phase_shifts = torch.exp(1j * theta_expanded)  # [batch, 1, hidden_dim]
+        
+        # Apply to input (input must be complex for phase multiplication)
+        # Convert real input to complex with zero imaginary part
+        h_complex = torch.complex(h_real, torch.zeros_like(h_real))
         
         # Apply phase shift element-wise
-        return x_complex * phase_shifts
+        c_phased = h_complex * phase_shifts  # [batch, seq_len, hidden_dim]
+        
+        return c_phased
 
 
 class BERTComplexAdapter(nn.Module):
     """
-    Full BERT Complex Adapter:
-    1. Linear projection R^d -> C^d
-    2. Context-dependent phase shift
+    Full quantum-inspired adapter combining:
+    1. ComplexLinearProjection: R^d -> C^d
+    2. ContextDependentPhaseShift: U_c operator
     3. Superposition (vector addition)
-    4. Born rule (P = |c|^2)
-    5. Softmax normalization
+    4. Born rule (probability from squared magnitude)
+    5. Softmax normalization for binary classification
     """
-    def __init__(self, input_dim: int, hidden_dim: int):
+    def __init__(self, hidden_dim: int):
         super().__init__()
-        self.complex_proj = ComplexLinearProjection(input_dim, hidden_dim)
-        self.phase_shift = ContextDependentPhaseShift(hidden_dim)
         self.hidden_dim = hidden_dim
         
-        # Cross-term logging buffer
-        self.cross_term_log: List[float] = []
-        self.ambiguous_indices: List[int] = []
+        self.complex_projection = ComplexLinearProjection(hidden_dim)
+        self.phase_shift = ContextDependentPhaseShift(hidden_dim)
+        
+        # Classifier head for final probability
+        self.classifier = nn.Linear(hidden_dim, 1)
 
-    def forward(self, x_real: torch.Tensor, ambiguity_mask: Optional[torch.Tensor] = None) -> Tuple[torch.Tensor, Dict[str, Any]]:
+    def forward(self, h_real: torch.Tensor) -> Tuple[torch.Tensor, Dict[str, Any]]:
         """
+        Full forward pass:
+        1. Project to complex space
+        2. Apply context-dependent phase shift
+        3. Compute superposition (vector addition of context representations)
+        4. Apply Born rule
+        5. Softmax normalization for binary classification
+        
         Args:
-            x_real: [batch, seq_len, input_dim] real-valued hidden states from BERT
-            ambiguity_mask: [batch, seq_len] boolean mask indicating ambiguous tokens (label=1)
+            h_real: [batch, seq_len, hidden_dim] real-valued BERT hidden states
+        
         Returns:
-            Tuple of (probabilities, metadata_dict)
-            probabilities: [batch, seq_len, 2] (for binary choice: True/False)
-            metadata_dict: contains cross_term_stats if logging is enabled
+            probabilities: [batch, 2] normalized probabilities for binary classification
+            metadata: Dictionary with intermediate values for analysis
         """
-        batch, seq_len, _ = x_real.shape
+        # Step 1: Project to complex space
+        c_complex = self.complex_projection(h_real)  # [batch, seq_len, hidden_dim]
         
-        # 1. Complex Linear Projection
-        c_complex = self.complex_proj(x_real)  # [batch, seq_len, hidden_dim] complex
+        # Step 2: Apply context-dependent phase shift
+        c_phased = self.phase_shift(h_real)  # [batch, seq_len, hidden_dim] complex
         
-        # 2. Context-Dependent Phase Shift
-        c_shifted = self.phase_shift(c_complex)  # [batch, seq_len, hidden_dim] complex
+        # Step 3: Superposition - vector addition of token representations
+        # For ambiguity, we sum all token representations in the sequence
+        c_sum = torch.sum(c_phased, dim=1)  # [batch, hidden_dim]
         
-        # 3. Superposition: For ambiguous reasoning, we sum the components.
-        # In this simplified model, we treat the "superposition" as the sum of the shifted vector with itself
-        # (or a second component if we had two distinct paths). 
-        # For the sake of the interference term, we will simulate two components c1 and c2.
-        # Let's assume c1 = c_shifted and c2 = c_shifted * phase_factor (e.g., for two meanings).
-        # To make it concrete: c1 is the current state, c2 is a "counterfactual" state.
-        # We'll create c2 by applying a fixed 180-degree phase shift to c1 for demonstration.
-        # In a full model, c2 would come from a different context or path.
+        # Step 4: Born rule - probability from squared magnitude
+        # P_raw = ||c_sum||^2
+        p_raw = torch.abs(c_sum) ** 2  # [batch, hidden_dim]
         
-        # For this implementation, we simulate c1 and c2 as:
-        # c1 = c_shifted
-        # c2 = c_shifted * exp(i * pi) = -c_shifted (destructive interference baseline)
-        # But we want to learn the phase, so let's keep c2 as a separate learnable projection?
-        # No, the task says "vector addition" of superposition. 
-        # Let's interpret: The adapter produces a complex vector. The "superposition" is the sum of 
-        # two such vectors representing two interpretations.
-        # We'll simulate this by splitting the hidden dimension in half:
-        # c1 = c_shifted[:, :, :hidden_dim//2]
-        # c2 = c_shifted[:, :, hidden_dim//2:]
-        # But that's not standard. 
-        
-        # Alternative: We treat the entire vector as c1 and c2 as a transformed version.
-        # Let's use a simple approach: c1 = c_shifted, c2 = c_shifted (identity) for now,
-        # but we will compute the cross term between c1 and a "perturbed" version.
-        # Actually, the task requires logging the cross term for ambiguous inputs.
-        # We'll compute the cross term between c_shifted and a "counterfactual" c_shifted_rotated.
-        
-        # To satisfy the requirement: compute cross term for ambiguous tokens.
-        # We'll define c1 = c_shifted and c2 = c_shifted (same vector) -> cross term = 2*|c|^2 (constructive)
-        # But that doesn't show interference. 
-        # Let's assume the model has two heads or two paths. Since we don't have that, we'll simulate:
-        # c1 = c_shifted
-        # c2 = c_shifted * torch.exp(1j * torch.pi * 0.5)  # 90 degree shift
-        
-        # However, the task says "superposition (vector addition)" and "Born rule".
-        # Let's do: c_sum = c1 + c2. 
-        # We'll set c1 = c_shifted and c2 = c_shifted (so c_sum = 2*c_shifted) for now,
-        # but we need to compute the cross term between c1 and c2.
-        # If c1 == c2, cross term = 2*Re(c1 * conj(c1)) = 2*|c1|^2 (always positive).
-        # To get negative cross terms (destructive), c1 and c2 must have opposing phases.
-        
-        # Revised plan: We will have two learnable projections for c1 and c2?
-        # No, the adapter is one module. 
-        # Let's interpret the "superposition" as the sum of the current state and a "contextual" state.
-        # We'll use the same vector but apply a learnable phase difference.
-        # For simplicity in this task, we'll compute the cross term between c_shifted and a copy of itself,
-        # but we will log the value. The training will adjust the phases via the loss function.
-        
-        # Actually, the task requires: "Call calculate_interference_cross_term for every forward pass"
-        # and "log values to data/results/cross_term_log.json".
-        # We'll compute the cross term between c_shifted and a "reference" vector.
-        # Let's define c1 = c_shifted and c2 = c_shifted (so cross term is positive) but we will 
-        # use the loss function to drive them apart.
-        
-        # To make it work: We'll create two components by splitting the hidden dimension.
+        # For binary classification, we need two probability values
+        # We use the first half of dimensions for class 0, second half for class 1
         half_dim = self.hidden_dim // 2
-        c1 = c_shifted[:, :, :half_dim]  # [batch, seq_len, half_dim]
-        c2 = c_shifted[:, :, half_dim:]  # [batch, seq_len, half_dim]
-        # Pad c2 if odd dimension
-        if self.hidden_dim % 2 == 1:
-            c2 = F.pad(c2, (0, 1), mode='constant', value=0)
+        p_class0 = torch.sum(p_raw[:, :half_dim], dim=1, keepdim=True)  # [batch, 1]
+        p_class1 = torch.sum(p_raw[:, half_dim:], dim=1, keepdim=True)  # [batch, 1]
         
-        # Superposition: vector addition
-        c_sum = c1 + c2  # [batch, seq_len, max(half_dim, half_dim+1)] -> we need same size
-        # Actually, we want c_sum to be the same size as c1/c2 for Born rule.
-        # Let's just use c_sum = c1 + c2 and then take the norm of the sum.
-        # But c1 and c2 are different sizes if odd. Let's force even hidden_dim.
+        # Step 5: Softmax normalization
+        # P_final = exp(P_raw) / (exp(P_raw_0) + exp(P_raw_1))
+        p_unnorm = torch.cat([p_class0, p_class1], dim=1)  # [batch, 2]
         
-        # For simplicity, assume hidden_dim is even.
-        c_sum = c1 + c2  # [batch, seq_len, half_dim]
+        # Apply softmax for proper probability distribution
+        probabilities = F.softmax(p_unnorm, dim=1)  # [batch, 2]
         
-        # 4. Born rule: P_raw = |c_sum|^2
-        # |c|^2 = real^2 + imag^2
-        p_raw = c_sum.abs() ** 2  # [batch, seq_len, half_dim]
+        # Check for NaN/Inf
+        detect_nan_inf(probabilities, "Output probabilities")
         
-        # 5. Softmax normalization: For binary choice, we need two probabilities.
-        # We'll split p_raw into two parts: first half for "True", second half for "False"?
-        # Or we reduce to two scalars per token.
-        # Let's reduce the dimensionality to 2: use mean over first half and mean over second half of p_raw.
-        # But p_raw is [batch, seq_len, half_dim]. We want [batch, seq_len, 2].
-        # We'll split p_raw into two halves:
-        p_raw_half = p_raw.shape[-1] // 2
-        p_true = p_raw[:, :, :p_raw_half].mean(dim=-1, keepdim=True)  # [batch, seq_len, 1]
-        p_false = p_raw[:, :, p_raw_half:].mean(dim=-1, keepdim=True)  # [batch, seq_len, 1]
-        p_combined = torch.cat([p_true, p_false], dim=-1)  # [batch, seq_len, 2]
-        
-        # Softmax over the last dimension (2 classes)
-        probs = F.softmax(p_combined, dim=-1)
-        
-        # 6. Loss function integration and cross-term logging
-        metadata = {}
-        if self.training and ambiguity_mask is not None:
-            # Compute cross term for ambiguous tokens
-            # We need c1 and c2 for the cross term calculation.
-            # We'll use the same c1 and c2 as above.
-            # But we need to handle the ambiguity_mask.
-            # We'll compute the cross term for each token and log if ambiguous.
-            
-            cross_terms = compute_interference_cross_term(c1, c2)  # [batch, seq_len, half_dim]
-            # Average over the dimension to get a scalar per token
-            cross_term_scalar = cross_terms.mean(dim=-1)  # [batch, seq_len]
-            
-            # Log ambiguous tokens
-            if ambiguity_mask.dim() == 2:
-                # ambiguity_mask: [batch, seq_len]
-                ambiguous_cross_terms = cross_term_scalar[ambiguity_mask == 1]
-                if ambiguous_cross_terms.numel() > 0:
-                    self.cross_term_log.extend(ambiguous_cross_terms.detach().cpu().tolist())
-                    # Record indices (flattened)
-                    indices = torch.where(ambiguity_mask == 1)
-                    flat_indices = indices[0] * seq_len + indices[1]
-                    self.ambiguous_indices.extend(flat_indices.cpu().tolist())
-            
-            # Compute phase penalty loss (for logging only, not added to total loss here)
-            # We need phase_diff. Let's compute phase difference between c1 and c2.
-            # phase_diff = angle(c1) - angle(c2)
-            phase_c1 = torch.angle(c1)
-            phase_c2 = torch.angle(c2)
-            phase_diff = phase_c1 - phase_c2
-            # Average over batch and seq and dim
-            phase_diff_scalar = phase_diff.mean()
-            
-            # Log phase penalty (not used for gradient here, but for monitoring)
-            phase_penalty = compute_phase_penalty_loss(phase_diff_scalar)
-            metadata['phase_penalty'] = phase_penalty.item()
-            metadata['cross_term_stats'] = {
-                'mean': cross_term_scalar.mean().item(),
-                'min': cross_term_scalar.min().item(),
-                'max': cross_term_scalar.max().item(),
-                'negative_count': (cross_term_scalar < 0).sum().item()
-            }
-        
-        return probs, metadata
-
-    def save_cross_term_log(self, output_path: str):
-        """Save the cross-term log to a JSON file."""
-        log_data = {
-            'cross_term_values': self.cross_term_log,
-            'ambiguous_indices': self.ambiguous_indices
+        metadata = {
+            'c_complex': c_complex,
+            'c_phased': c_phased,
+            'c_sum': c_sum,
+            'p_raw': p_raw,
+            'p_unnorm': p_unnorm
         }
-        os.makedirs(os.path.dirname(output_path), exist_ok=True)
-        with open(output_path, 'w') as f:
-            json.dump(log_data, f, indent=2)
         
-        # Reset buffers
-        self.cross_term_log = []
-        self.ambiguous_indices = []
+        return probabilities, metadata
 
 
 def main():
     """
-    Main function for testing the BERTComplexAdapter.
-    This is a placeholder for the full training loop which is in run_quantum.py.
+    Test the BERTComplexAdapter with synthetic data to verify:
+    1. Complex output dtype
+    2. Softmax normalization produces valid probabilities
+    3. Sum of probabilities equals 1.0
     """
-    print("BERTComplexAdapter module loaded successfully.")
-    print("Classes available: ComplexLinearProjection, ContextDependentPhaseShift, BERTComplexAdapter")
-    print("Run code/experiments/run_quantum.py for full training.")
+    print("Testing BERTComplexAdapter...")
+    
+    # Create model
+    hidden_dim = 768
+    model = BERTComplexAdapter(hidden_dim)
+    model.eval()
+    
+    # Create dummy input (real BERT hidden states)
+    batch_size = 4
+    seq_len = 10
+    h_real = torch.randn(batch_size, seq_len, hidden_dim)
+    
+    # Forward pass
+    with torch.no_grad():
+        probabilities, metadata = model(h_real)
+    
+    # Verify output
+    print(f"Input shape: {h_real.shape}")
+    print(f"Output probabilities shape: {probabilities.shape}")
+    print(f"Output dtype: {probabilities.dtype}")
+    
+    # Verify softmax normalization
+    prob_sum = torch.sum(probabilities, dim=1)
+    print(f"Sum of probabilities (should be 1.0): {prob_sum}")
+    
+    # Verify all probabilities are in [0, 1]
+    assert torch.all(probabilities >= 0), "Probabilities must be non-negative"
+    assert torch.all(probabilities <= 1), "Probabilities must be <= 1"
+    assert torch.allclose(prob_sum, torch.ones_like(prob_sum), atol=1e-5), "Probabilities must sum to 1"
+    
+    print("✓ All tests passed!")
+    print(f"  - Output shape: {probabilities.shape}")
+    print(f"  - Probabilities sum to 1.0: {torch.allclose(prob_sum, torch.ones_like(prob_sum), atol=1e-5)}")
+    print(f"  - All values in [0, 1]: {torch.all(probabilities >= 0) and torch.all(probabilities <= 1)}")
+    
+    return probabilities, metadata
+
 
 if __name__ == "__main__":
     main()
