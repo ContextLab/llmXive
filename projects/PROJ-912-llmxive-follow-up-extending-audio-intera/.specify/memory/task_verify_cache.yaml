@@ -1,0 +1,21 @@
+T003b:
+  c: true
+  h: bb7754ad1bd4466cc1ec2f3963eb5762a5a4e2bf5f5707e6d78442228abff126
+  r: "The `code/.black.toml` file exists, is non\u2011empty, and contains a full Black\
+    \ configuration (line length, target version, include/exclude patterns, and formatting\
+    \ options), fulfilling the requirement to configure formatting in that location."
+T030:
+  c: false
+  h: 2b40b113fb9feee13ad2c789d4136bca01a8b66cab04cb26b84e9047ee6fcbdc
+  r: "The `robustness_curve.py` file is truncated, contains syntax errors, and never\
+    \ reads `correlation_data.json` nor implements the >10\u202F% AUC drop detection\
+    \ or writes `data/processed/breaking_point.json` (the file is missing). Hence\
+    \ the required step\u2011change detection and output artifact are not present."
+T033:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, test, documentation, or any other artifact showing that a validation
+    step was added to enforce descriptive results and block causal claims is present.
+    Without such evidence, we cannot confirm the requirement was met. The implementer
+    must provide the implemented validation logic (e.g., a linting rule, unit tests,
+    or documentation) and demonstrate it works on sample outputs.

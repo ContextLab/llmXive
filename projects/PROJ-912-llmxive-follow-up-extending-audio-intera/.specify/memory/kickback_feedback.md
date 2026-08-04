@@ -4,9 +4,12 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T001` (rejected 1x): The provided information contains only the feature specification and user stories; there is no evidence that the required directories (`code/`, `data/`, `tests/`, `state/`) actually exist or contain any files. The implementer has not supplied any artifact confirming the project structure was created.
-- `T003` (rejected 1x): No configuration files (e.g., `pyproject.toml` with Black settings, `ruff.toml` or `ruff.toml` entries, or CI scripts invoking ruff/black) are present in the `code/` directory, nor any evidence that linting/formatting has been set up. Without these artifacts, the requirement to configure ruff and black cannot be confirmed.
-- `T008` (rejected 1x): No GitHub Actions YAML file or any other environment‑configuration artifact was provided; the only content shown relates to audio model user stories, not to a CI runner setup. The required CI configuration is missing, so the task is not satisfied.
+- `T001d` (rejected 1x): No `state/__init__.py` file was presented in the evidence, and no content was shown to confirm its existence or that it contains appropriate package initialization code. The required artifact is therefore missing.
+- `T008a` (rejected 1x): declared artifact(s) missing/empty/invalid: github/workflows/ci.yml
+- `T008b` (rejected 1x): The implementer provided only a feature specification for audio model compression, with no CI configuration files, scripts, or documentation showing environment variables for resource limits. No artifact related to “Configure CI runner environment variables for resource limits” is present.
+- `T020` (rejected 1x): The repository contains a partially implemented `code/data/loader.py`, but the required output file `data/processed/subtle_cue_subset.parquet` is absent, and the checksum verification logic does not actually compare stored and computed checksums. Consequently the task’s core deliverables are not fulfilled.
+- `T026` (rejected 1x): The implementer provided only the high‑level feature specification and user stories; there is no code, configuration, or log files showing that inference latency and RAM usage are actually being recorded. No logging implementation, test output, or documentation of the added logging was supplied, so the requirement to “Add logging for inference performance and resource usage” is not met.
+- `T029` (rejected 1x): The `code/analysis/robustness_curve.py` file is truncated and the `save_correlation_data` function is incomplete (the `mkdir` call is cut off and no JSON writing logic is present). Moreover, the required output file `data/processed/correlation_data.json` does not exist on disk. Consequently, the task’s requirement to produce the raw correlation data JSON is not satisfied.
 
 ## Required change
 

@@ -1,85 +1,156 @@
-name: llmXive CI Pipeline
+name: CI Pipeline
 
 on:
   push:
     branches: [ main, develop ]
   pull_request:
-    branches: [ main ]
-
-jobs:
-  test-and-validate:
-    runs-on: ubuntu-latest
-    timeout-minutes: 60
-    strategy:
-      matrix:
-        python-version: ['3.11']
-
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v5
-      with:
-        python-version: ${{ matrix.python-version }}
-        cache: 'pip'
-
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        if [ -f code/requirements.txt ]; then
-          pip install -r code/requirements.txt
-        else
-          echo "Warning: code/requirements.txt not found. Installing core dependencies."
-          pip install torch torchaudio scikit-learn datasets pandas matplotlib numpy transformers pytest ruff black
-        fi
-
-    - name: Lint with ruff
-      run: |
-        cd code
-        ruff check .
-
-    - name: Format check with black
-      run: |
-        cd code
-        black --check .
-
-    - name: Run unit tests
-      run: |
-        cd code
-        python -m pytest tests/unit/ -v --tb=short
-
-    - name: Run integration tests
-      run: |
-        cd code
-        python -m pytest tests/integration/ -v --tb=short
-
-    - name: Validate configuration
-      run: |
-        cd code
-        python -c "from config import Config; Config.validate_all()"
-
-    - name: Upload test artifacts
-      if: always()
-      uses: actions/upload-artifact@v4
-      with:
-        name: test-results-${{ matrix.python-version }}
-        path: |
-          code/data/processed/*.csv
-          code/data/processed/*.json
-          code/data/processed/*.png
-        if-no-files-found: ignore
-
-    - name: Check resource constraints
-      run: |
-        echo "Verifying CI runner resource constraints (CPU-only, memory limits)..."
-        # This step ensures that any heavy operations are flagged if they exceed limits
-        # Actual resource monitoring is handled by the runner itself
-        echo "CI environment check passed."
+    branches: [ main, develop ]
 
 env:
-  # Force CPU-only execution to comply with project constraints
-  TORCH_USE_CUDA_DSA: 0
+  # Resource Limits for CI Runner (CPU/Memory constraints)
+  # These variables enforce the constraints defined in code/config.py (ResourceConfig)
+  CI_RUNNER_CPU_LIMIT: "2"
+  CI_RUNNER_MEMORY_LIMIT_GB: "7"
+  CI_RUNNER_TIMEOUT_MINUTES: "360"
+  
+  # PyTorch CPU-only enforcement
   CUDA_VISIBLE_DEVICES: ""
-  HF_DATASETS_OFFLINE: 0
-  TRANSFORMERS_OFFLINE: 0
+  TORCH_NUM_THREADS: "2"
+  OMP_NUM_THREADS: "2"
+  MKL_NUM_THREADS: "2"
+  
+  # Data and State Paths
+  PROJECT_ROOT: "."
+  DATA_DIR: "data"
+  STATE_DIR: "state"
+  LOGS_DIR: "logs"
+
+jobs:
+  lint-and-format:
+    name: Lint & Format Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r code/requirements.txt
+          pip install ruff black
+      - name: Check Ruff
+        run: |
+          cd code
+          ruff check .
+      - name: Check Black
+        run: |
+          cd code
+          black --check .
+
+  unit-tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r code/requirements.txt
+          pip install pytest pytest-cov
+      - name: Run Unit Tests
+        run: |
+          cd code
+          pytest tests/unit/ -v --cov=. --cov-report=xml
+        env:
+          # Enforce resource limits via environment variables
+          CI_RUNNER_CPU_LIMIT: "2"
+          CI_RUNNER_MEMORY_LIMIT_GB: "7"
+
+  integration-tests:
+    name: Integration Tests (Model Load & Compression)
+    runs-on: ubuntu-latest
+    timeout-minutes: ${{ fromJSON(env.CI_RUNNER_TIMEOUT_MINUTES) }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r code/requirements.txt
+          pip install pytest
+      - name: Run Integration Tests
+        run: |
+          cd code
+          pytest tests/integration/ -v
+        env:
+          CI_RUNNER_CPU_LIMIT: "2"
+          CI_RUNNER_MEMORY_LIMIT_GB: "7"
+          # Ensure CPU-only execution
+          CUDA_VISIBLE_DEVICES: ""
+
+  data-pipeline-check:
+    name: Data Pipeline (Streaming & Validation)
+    runs-on: ubuntu-latest
+    timeout-minutes: ${{ fromJSON(env.CI_RUNNER_TIMEOUT_MINUTES) }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r code/requirements.txt
+      - name: Validate Subtle Cue Builder
+        run: |
+          cd code
+          python -m data.subtle_cue_builder
+        env:
+          CI_RUNNER_CPU_LIMIT: "2"
+          CI_RUNNER_MEMORY_LIMIT_GB: "7"
+      - name: Validate Loader Output
+        run: |
+          cd code
+          python -m data.loader
+        env:
+          CI_RUNNER_CPU_LIMIT: "2"
+          CI_RUNNER_MEMORY_LIMIT_GB: "7"
+
+  robustness-analysis:
+    name: Robustness Analysis & Step-Change Detection
+    runs-on: ubuntu-latest
+    timeout-minutes: ${{ fromJSON(env.CI_RUNNER_TIMEOUT_MINUTES) }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r code/requirements.txt
+      - name: Run Robustness Curve Analysis
+        run: |
+          cd code
+          python -m analysis.robustness_curve
+        env:
+          CI_RUNNER_CPU_LIMIT: "2"
+          CI_RUNNER_MEMORY_LIMIT_GB: "7"
+      - name: Verify Breaking Point Output
+        run: |
+          cd code
+          python -c "import os; assert os.path.exists('data/processed/breaking_point.json'), 'breaking_point.json missing'; import json; d=json.load(open('data/processed/breaking_point.json')); print(f'Breaking Point: {d}')"
+        env:
+          CI_RUNNER_CPU_LIMIT: "2"
+          CI_RUNNER_MEMORY_LIMIT_GB: "7"

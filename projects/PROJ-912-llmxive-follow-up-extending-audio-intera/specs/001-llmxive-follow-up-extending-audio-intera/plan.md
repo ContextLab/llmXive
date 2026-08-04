@@ -4,13 +4,13 @@
 **Input**: Feature specification from `/specs/001-audio-compression-robustness/spec.md`
 
 ## Summary
-This project implements a rigorous evaluation pipeline to measure the robustness of acoustic feature detection (specifically high-frequency transients and low-amplitude events) under model compression. The approach involves: (1) loading a pre-trained Audio-Language Model (**facebook/wav2vec2-base-960h** as a verified substitute for the non-existent DeSTA2.5-Audio); (2) generating student variants via quantization (FP32, INT8, INT4 via Dynamic Quantization) and pruning; (3) creating a "SubtleCue" testbed by combining filtered ESC-50 and UrbanSound8K data with a distinct "Control Set" of non-subtle classes (verified low-frequency hums) to ensure binary discrimination validity; (4) running inference on a 2-core CPU runner to measure AUC, latency, and RAM; and (5) performing sensitivity and ablation analyses (normalized by parameter count) to identify the "breaking point" for safe edge deployment. All operations are designed to run within GitHub Actions free-tier constraints (≤7GB RAM, ≤6h, CPU-only). The pipeline explicitly validates all outputs against schemas in `contracts/` before writing results.
+This project implements a rigorous evaluation pipeline to measure the robustness of acoustic feature detection (specifically high-frequency transients and low-amplitude events) under model compression. The approach involves: (1) loading a pre-trained Audio-Language Model (**facebook/wavvec2-base-960h** as a verified substitute for the non-existent DeSTA2.5-Audio); (2) generating student variants via quantization (floating-point, integer representations via Dynamic Quantization) and pruning; (3) creating a "SubtleCue" testbed by combining filtered ESC-50 and UrbanSound8K data with a distinct "Control Set" of non-subtle classes (verified low-frequency hums) to ensure binary discrimination validity; (4) running inference on a -core CPU runner to measure AUC, latency, and RAM; and (5) performing sensitivity and ablation analyses (normalized by parameter count) to identify the "breaking point" for safe edge deployment. All operations are designed to run within GitHub Actions free-tier constraints (≤7GB RAM, ≤6h, CPU-only). The pipeline explicitly validates all outputs against schemas in `contracts/` before writing results.
 
 **Spec Gap Alert**: The source spec (FR-001) requires loading "DeSTA2.5-Audio". This model does not exist in public repositories. The plan proceeds with **facebook/wav2vec2-base-960h** (verified, CPU-loadable) as a functional substitute. This is a blocking gap in the spec's exact execution but necessary for feasibility.
 
 ## Technical Context
 
-**Language/Version**: Python 3.11  
+**Language/Version**: Python  
 **Primary Dependencies**: `torch`, `torchaudio`, `scikit-learn`, `datasets`, `pandas`, `matplotlib`, `numpy`  
 **Storage**: Local ephemeral storage on CI runner (streamed dataset, checkpointed models)  
 **Testing**: `pytest` (unit tests for data filtering, metric calculation; integration tests for pipeline flow)  

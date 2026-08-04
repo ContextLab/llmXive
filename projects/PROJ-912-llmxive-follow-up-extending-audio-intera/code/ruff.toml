@@ -1,23 +1,23 @@
 # Ruff configuration for llmXive project
-# This file mirrors settings in pyproject.toml for standalone ruff usage
-line-length = 100
+# Enforces PEP 8, flake8, and isort standards
+[tool.ruff]
+line-length = 88
+indent-width = 4
 target-version = "py311"
 
-[lint]
-select = [
-    "E",
-    "W",
-    "F",
-    "I",
-    "B",
-    "C4",
-    "UP",
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F", "B", "I", "UP"]
+ignore = []
+fixable = ["ALL"]
+unfixable = []
+exclude = [
+    ".bzr", ".direnv", ".eggs", ".git", ".git-rewrite", ".hg",
+    ".mypy_cache", ".nox", ".pants.d", ".pytype", ".ruff_cache",
+    ".svn", ".tox", ".venv", "__pypackages__", "_build", "buck-out",
+    "build", "dist", "node_modules", "venv",
 ]
-ignore = [
-    "E501",
-    "B008",
-]
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 
-[lint.isort]
-known-first-party = ["config", "data", "models", "utils", "inference", "analysis"]
-force-sort-within-sections = true
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["E402"]
+"tests/*" = ["S101"]

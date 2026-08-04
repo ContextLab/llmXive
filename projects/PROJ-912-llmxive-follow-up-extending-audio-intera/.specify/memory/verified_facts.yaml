@@ -1,6 +1,5 @@
-0.1|analysi including sensitivity sweep threshold:
-  quote: smaller than 0.05. The remaining pairs form a plausible set of sensitivity
-    parameters
-  source_id: '1501.05788'
-  url: https://arxiv.org/abs/1501.05788
-  value: '0.05'
+'|level precision student train variant varying':
+  quote: 32-bit computer number format
+  source_id: Q1307173
+  url: https://www.wikidata.org/wiki/Q1307173
+  value: 32-bit computer number format

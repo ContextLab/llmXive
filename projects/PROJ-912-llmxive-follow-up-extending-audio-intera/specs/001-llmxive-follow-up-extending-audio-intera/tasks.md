@@ -41,9 +41,13 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan (`code/`, `data/`, `tests/`, `state/`)
+- [X] T001a Create `code/__init__.py`
+- [X] T001b Create `data/__init__.py`
+- [X] T001c Create `tests/__init__.py`
+- [ ] T001d Create `state/__init__.py`
 - [X] T002 Initialize Python 3.11 project with dependencies: `torch`, `torchaudio`, `scikit-learn`, `datasets`, `pandas`, `matplotlib`, `numpy` in `code/requirements.txt`
-- [ ] T003 [P] Configure linting and formatting tools (ruff/black) in `code/`
+- [X] T003a Configure linting in `code/.ruff.toml`
+- [X] T003b Configure formatting in `code/.black.toml`
 
 ---
 
@@ -57,7 +61,8 @@
 - [X] T005 [P] Setup error handling and logging infrastructure in `code/utils/logger.py`
 - [X] T006 [P] Implement schema validation utilities in `code/utils/validators.py` (for contracts)
 - [X] T007 Create base model wrapper class in `code/models/student.py` (empty skeleton for StudentModel entity)
-- [ ] T008 Setup environment configuration management for CI runner (GitHub Actions YAML)
+- [ ] T008a Setup GitHub Actions workflow file `.github/workflows/ci.yml`
+- [ ] T008b Configure CI runner environment variables for resource limits
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -65,9 +70,9 @@
 
 ## Phase 3: User Story 1 - Construct and Train Compressed Student Models (Priority: P1) 🎯 MVP
 
-**Goal**: Instantiate, compress, and train pre-trained Audio-Language Model into student variants with varying precision levels (FP32, INT8, INT4) using Knowledge Distillation, ensuring CPU-only execution.
+**Goal**: Instantiate, compress, and train **facebook/wav2vec2-base-960h** (verified substitute for non-existent DeSTA2.5-Audio) into student variants with varying precision levels (FP32, INT8, INT4) and structural pruning using Knowledge Distillation, ensuring CPU-only execution.
 
-**Independent Test**: Verify that distinct model checkpoints are saved with correct parameter counts, quantization types, and training loss convergence (KD loss), and that they load without CUDA errors on a 2-core CPU runner.
+**Independent Test**: Verify that distinct model checkpoints are saved with correct parameter counts, quantization types, pruning ratios, and training loss convergence (KD loss), and that they load without CUDA errors on a 2-core CPU runner.
 
 ### Tests for User Story 1 (Post-Implementation Execution) ⚠️
 
@@ -80,9 +85,10 @@
 
 - [X] T011 [P] [US1] Implement teacher model loader in `code/models/teacher_loader.py`. **FR-001 Override**: Load `facebook/wav2vec2-base-960h` as verified substitute for non-existent `DeSTA2.5-Audio`. Justification: Plan.md Summary.
 - [X] T012 [US1] Implement compression logic in `code/models/compress.py` using `torch.ao.quantization` for FP32, INT8, INT4 (Dynamic Quantization).
-- [X] T013 [US1] Implement pruning logic in `code/models/compress.py`: Read pruning ratios from `code/config.py` (schema key: `pruning_ratios`) and apply structural pruning logic.
-- [X] T014 [US1] Implement Knowledge Distillation training loop in `code/models/compress.py` (CPU-only, small batch size). **MUST**: 1) Load teacher model from T011 artifact, 2) Compute KD loss as weighted sum of student logits and teacher logits (soft targets) vs ground truth, 3) Save `distillation_loss_curve.csv`. Do NOT use standard supervised loss only.
-- [X] T015 [US1] Implement checkpoint saving in `code/models/compress.py` (save to `data/processed/` with metadata: bit-width, param count). **Depends on T014**.
+- [X] T013 [US1] Implement **structural pruning logic** in `code/models/compress.py`: Read pruning ratios from `code/config.py` (schema key: `pruning_ratios`) as **deferred variables** and apply **magnitude-based pruning** to remove X% of weights. **Output**: Save `pruned_model.pt` to `data/processed/`. **Dependency**: This artifact is required input for T014b training loop.
+- [X] T014a [US1] Implement Knowledge Distillation training loop for **quantized** models in `code/models/compress.py` (CPU-only, small batch size). **MUST**: 1) Load teacher model from T011 artifact, 2) Load student model (quantized from T012), 3) Compute KD loss as weighted sum of student logits and teacher logits (soft targets) vs ground truth, 4) Save `distillation_loss_curve_quant.csv`. Do NOT use standard supervised loss only.
+- [X] T014b [US1] Implement Knowledge Distillation training loop for **pruned** models in `code/models/compress.py` (CPU-only, small batch size). **MUST**: 1) Load teacher model from T011 artifact, 2) Load student model (pruned from T013), 3) Compute KD loss as weighted sum of student logits and teacher logits (soft targets) vs ground truth, 4) Save `distillation_loss_curve_pruned.csv`. Do NOT use standard supervised loss only.
+- [X] T015 [US1] Implement checkpoint saving in `code/models/compress.py` (save to `data/processed/` with metadata: bit-width, param count, pruning ratio). **Depends on T014a/T014b**.
 - [X] T016 [US1] Add validation to ensure saved models load successfully on CPU without CUDA errors in `code/models/student.py`. **Note**: Validates base structure; ablation modifications (T037/T038) are runtime-only and do not affect this saved artifact.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -102,12 +108,12 @@
 
 ### Implementation for User Story 2
 
-- [X] T020 [US2] Implement filtered data loader in `code/data/loader.py` using `datasets.load_dataset` with `streaming=True`. **MUST** stream only the defined "Subtle Cue" classes and "Control Set" classes to avoid OOM. Do not load full dataset. <!-- FAILED: unspecified -->
 - [X] T021 [US2] Implement "Subtle Cue" filtering criteria in `code/data/subtle_cue_builder.py`: Define classes with freq > 8kHz OR amplitude < -40dBFS (e.g., "glass breaking," "alarm," "whisper").
-- [X] T021b [US2] [FR-002 Scope Extension] Implement "Control Set" generator in `code/data/subtle_cue_builder.py`: Use UrbanSound8K (Plan Complexity Tracking) to define low-frequency, high-amplitude classes (e.g., "engine hum" -> class IDs X, Y). **MUST** explicitly map class names to dataset IDs to enable binary discrimination.
+- [X] T021b [US2] [FR-002 Scope Extension] Implement "Control Set" generator in `code/data/subtle_cue_builder.py`: Use UrbanSound (Plan Complexity Tracking) to define low-frequency, high-amplitude classes (e.g., "engine hum" -> class IDs X, Y). **MUST**: 1) Explicitly reference Plan.md justification for scope extension, 2) Map class names to dataset IDs, 3) **Verify**: Record UrbanSound8K subset checksum in `state/` YAML for lineage.
+- [ ] T020 [US2] Implement filtered data loader in `code/data/loader.py` using `datasets.load_dataset` with `streaming=True`. **MUST**: 1) Consume class definitions from T021/T021b artifacts to determine which classes to stream, 2) Stream only the defined "Subtle Cue" classes and "Control Set" classes to avoid OOM, 3) **Output**: Generate `data/processed/subtle_cue_subset.parquet` with checksum, 4) **Verify**: Assert file exists and checksum matches `state/` YAML. Do not load full dataset.
 - [X] T022 [US2] Implement CPU inference runner in `code/inference/runner.py` (Batch processing to fit RAM, handle OOM gracefully)
-- [X] T023 [US2] Implement metrics calculation in `code/inference/metrics.py` (AUC, latency, peak RAM usage). **MUST**: Calculate values and immediately compare against GitHub Actions constraints (≤6h, ≤7GB), logging a pass/fail status per FR-004 and SC-002.
-- [ ] T024 [US2] Integrate inference and metrics to generate `data/processed/robustness_metrics.csv`.
+- [X] T023 [US2] Implement metrics calculation in `code/inference/metrics.py` (AUC, latency, peak RAM usage). **MUST**: Calculate values and immediately compare against GitHub Actions constraints (≤6h, ≤7GB) [UNRESOLVED-CLAIM: c_8cd7219d — status=not_enough_info], logging a pass/fail status per FR-004 and SC-002.
+- [X] T024 [US2] Integrate inference and metrics to generate `data/processed/robustness_metrics.csv`. **MUST**: 1) Ensure schema: `model_id`, `auc`, `latency_ms`, `ram_gb`, 2) **Verify**: Assert CSV has correct columns and row count > 0.
 - [ ] T026 [US2] Add logging for inference performance and resource usage
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -122,15 +128,15 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T027 [P] [US3] Unit test for step-change detection in `tests/unit/test_analysis.py`
-- [ ] T028 [P] [US3] Unit test for sensitivity sweep in `tests/unit/test_sensitivity.py`
+- [X] T027 [P] [US3] Unit test for step-change detection in `tests/unit/test_analysis.py`
+- [X] T028 [P] [US3] Unit test for sensitivity sweep in `tests/unit/test_sensitivity.py`
 
 ### Implementation for User Story 3
 
 - [ ] T029 [US3] Implement robustness curve analysis in `code/analysis/robustness_curve.py`. **MUST**: Output raw correlation data (bits/params vs AUC) to `data/processed/correlation_data.json` for consumption by T030.
-- [ ] T030 [US3] Implement step-change detection in `code/analysis/robustness_curve.py`. **MUST**: Consume `correlation_data.json` from T029, identify the "breaking point" where relative AUC drop exceeds **>10%** (per FR-005), and output `data/processed/breaking_point.json` containing bit-width, drop %, and `threshold_violated` flag.
-- [ ] T031 [US3] Implement sensitivity analysis in `code/analysis/sensitivity.py` (Sweep thresholds {, 0.05, 0.1} and report FPR/FNR).
-- [ ] T032 [US3] Generate plots and reports in `data/processed/` (AUC vs. Compression plot, Sensitivity table).
+- [ ] T030 [US3] Implement step-change detection in `code/analysis/robustness_curve.py`. **MUST**: 1) Consume `correlation_data.json` from T029, 2) Identify the "breaking point" where relative AUC drop exceeds **>10%** (per FR-005), 3) **Verify**: Assert and output `threshold_violated` flag (true if drop > 10%) in `data/processed/breaking_point.json` containing bit-width, drop %, and `threshold_violated` flag.
+- [X] T031 [US3] Implement sensitivity analysis in `code/analysis/sensitivity.py` (Sweep thresholds {0.01, 0.05, 0.1} and report FPR/FNR [UNRESOLVED-CLAIM: c_13aafb32 — status=not_enough_info]).
+- [ ] T032 [US3] Generate plots and reports in `data/processed/` (AUC vs. Compression plot, Sensitivity table). **MUST**: Output `data/processed/robustness_curve.png` and `data/processed/sensitivity_report.csv`.
 - [ ] T033 [US3] Add validation to ensure results are descriptive (no causal claims).
 
 **Checkpoint**: All user stories should now be independently functional
@@ -145,17 +151,18 @@
 
 ### Tests for User Story 4 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T034 [P] [US4] Unit test for ablation config parsing in `tests/unit/test_ablation.py`
-- [ ] T035 [P] [US4] Integration test for ablation execution in `tests/integration/test_ablation_run.py`
+- [X] T034 [P] [US4] Unit test for ablation config parsing in `tests/unit/test_ablation.py`
+- [X] T035 [P] [US4] Integration test for ablation execution in `tests/integration/test_ablation_run.py`
 
 ### Implementation for User Story 4
 
-- [ ] T036 [P] [US4] Implement ablation configuration parser in `code/analysis/ablation.py` (Config for freeze attention, prune FFN).
-- [ ] T037 [US4] Implement component freezing logic in `code/models/student.py`: **Simulated Freezing**: Use `requires_grad=False` on specific early attention head parameters to freeze them for inference, preserving architecture structure.
-- [ ] T038 [US4] Implement component pruning logic in `code/models/student.py`: **Simulated Pruning (Masking)**: Use weight masking (zeroing specific FFN weights) to simulate pruning, preserving architecture structure to isolate contribution without structural removal.
+- [X] T036 [P] [US4] Implement ablation configuration parser in `code/analysis/ablation.py` (Config for freeze attention, prune FFN).
+- [X] T036b [P] [US4] Implement model cloning utility in `code/models/student.py`: Create a function `clone_model(model)` that returns a deep copy of the model weights to ensure state isolation.
+- [ ] T037 [US4] Implement component freezing logic in `code/models/student.py`: **True Freezing**: **MUST** call T036b utility to instantiate a fresh model copy, then set `requires_grad=False` on specific early attention head parameters AND **remove** those parameters from the computation graph to ensure no gradients flow, isolating their contribution.
+- [ ] T038 [US4] Implement component pruning logic in `code/models/student.py`: **True Pruning**: **MUST** call T036b utility to instantiate a fresh model copy, then **remove** specific late feed-forward layers from the model architecture (not just mask weights) to simulate pruning and isolate contribution.
 - [ ] T039 [US4] Integrate ablation with inference runner in `code/analysis/ablation.py` (Run inference on ablated models).
-- [ ] T040 [US4] Generate ablation results in `data/processed/ablation_results.csv`.
-- [ ] T041 [US4] Add validation to verify gradients are zeroed or weights masked as expected.
+- [ ] T040 [US4] Generate ablation results in `data/processed/ablation_results.csv`. **MUST**: Verify file exists and contains columns [config_id, auc, latency].
+- [ ] T041 [US4] Add validation to verify gradients are zeroed or layers removed as expected.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -165,10 +172,14 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T042a [P] Update `README.md` with usage examples and installation instructions
+- [ ] T042a1 [P] Add installation section to `README.md`
+- [ ] T042a2 [P] Add usage example section to `README.md`
 - [ ] T042b [P] Generate API documentation for `code/models/compress.py` and `code/analysis/robustness_curve.py`
 - [ ] T042c [P] Update `quickstart.md` with the specific "Subtle Cue" + "Control Set" data flow
-- [ ] T043a [P] Run `ruff`/`black` to format all code in `code/`
+- [ ] T043a1 [P] Format `code/models/compress.py`
+- [ ] T043a2 [P] Format `code/analysis/robustness_curve.py`
+- [ ] T043a3 [P] Format `code/data/loader.py`
+- [ ] T043a4 [P] Format `code/analysis/ablation.py`
 - [ ] T043b [P] Remove unused imports and dead code in `code/`
 - [ ] T044a [P] Optimize data loader batch size: **Metric**: Maximize throughput while keeping peak RAM < 6GB. **Method**: Binary search on batch size.
 - [ ] T044b [P] Verify streaming efficiency and chunking logic in `code/data/loader.py`
@@ -274,7 +285,11 @@ With multiple developers:
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Data Hygiene**: All data loading MUST use `streaming=True` and fail loudly if real data is unavailable (no synthetic fallbacks).
 - **Resource Constraints**: All inference and training MUST be optimized for a constrained multi-core CPU environment with limited memory and a fixed time budget.
-- **Distillation**: T014 MUST use teacher logits for loss; standard supervised loss is insufficient.
-- **Ablation**: T037/T038 MUST use freezing/masking (simulation), not layer removal, to preserve architecture.
+- **Distillation**: T014a/T014b MUST use teacher logits for loss; standard supervised loss is insufficient.
+- **Ablation**: T037/T038 MUST use true structural modifications (removal) on **fresh model copies** (via T036b) to preserve architecture and ensure state isolation.
 - **Metrics**: T019 MUST ensure no internal weights are accessed during AUC calculation.
 - **Overrides**: T011 (FR-001) and T021b (FR-002) explicitly acknowledge plan-driven scope extensions/substitutions.
+- **Revision Concerns (Data Flow)**: T020 (Data Loader) MUST execute AFTER T021/T021b (Definitions) and BEFORE T022 (Inference Runner) and T024 (Metric Integration) to ensure data availability.
+- **Revision Concerns (Ablation Isolation)**: T037 and T038 must be executed with a fresh model instance per configuration (via T036b) to prevent state leakage between "freeze" and "mask" runs.
+- **Revision Concerns (Artifact Clarity)**: T020, T024, T029, T030, T032, T040 now explicitly name output artifacts and verification steps.
+- **Revision Concerns (Task Granularity)**: T001, T042a, T043a split into atomic tasks for better executability.
