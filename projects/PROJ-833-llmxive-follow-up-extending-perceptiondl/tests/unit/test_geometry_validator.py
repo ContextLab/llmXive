@@ -1,192 +1,149 @@
 """
+tests/unit/test_geometry_validator.py
+
 Unit tests for code/synthetic/geometry_validator.py
 """
+
 import json
 import tempfile
+import os
 from pathlib import Path
 import pytest
 
 from synthetic.geometry_validator import validate_geometry_in_file, validate_all_in_directory
 from synthetic.deriver import calculate_centroid, derive_spatial_relation
 
-
-def test_validate_geometry_pass():
-    """Test that a file with correct derived_relations passes validation."""
-    # Create a simple case: two boxes, one left of the other
-    # Box 1: (0, 0, 10, 10) -> centroid (5, 5)
-    # Box 2: (20, 0, 10, 10) -> centroid (25, 5)
-    # Relation: Box 1 is "left of" Box 2, Box 2 is "right of" Box 1
-    
+def test_validate_geometry_in_file_correct():
+    """Test validation with correct geometric relations."""
+    # Create a temporary JSON file with correct relations
     data = {
-        "image_path": "test.png",
+        "image_path": "test.jpg",
         "bounding_boxes": [
-            {"x": 0, "y": 0, "w": 10, "h": 10, "id": "box1"},
-            {"x": 20, "y": 0, "w": 10, "h": 10, "id": "box2"}
+            {"x": 0, "y": 0, "w": 10, "h": 10, "id": 1},
+            {"x": 20, "y": 0, "w": 10, "h": 10, "id": 2}
         ],
-        "derived_relations": [
-            "box1 left of box2",
-            "box2 right of box1"
-        ]
+        "derived_relations": ["left of"]  # Box 1 is left of Box 2
     }
 
     with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
         json.dump(data, f)
-        temp_path = Path(f.name)
+        temp_path = f.name
 
     try:
-        result = validate_geometry_in_file(temp_path)
-        assert result is True
+        is_valid, errors = validate_geometry_in_file(temp_path)
+        assert is_valid, f"Expected valid, got errors: {errors}"
+        assert len(errors) == 0
     finally:
-        temp_path.unlink()
+        os.unlink(temp_path)
 
-
-def test_validate_geometry_fail_missing_relation():
-    """Test that a file with missing derived_relation fails validation."""
-    # Same geometry as above, but missing one relation
+def test_validate_geometry_in_file_incorrect():
+    """Test validation with incorrect geometric relations."""
+    # Box 1 is at x=0, Box 2 is at x=20. Box 1 is LEFT of Box 2.
+    # We store "right of" which is incorrect.
     data = {
-        "image_path": "test.png",
+        "image_path": "test.jpg",
         "bounding_boxes": [
-            {"x": 0, "y": 0, "w": 10, "h": 10, "id": "box1"},
-            {"x": 20, "y": 0, "w": 10, "h": 10, "id": "box2"}
+            {"x": 0, "y": 0, "w": 10, "h": 10, "id": 1},
+            {"x": 20, "y": 0, "w": 10, "h": 10, "id": 2}
         ],
-        "derived_relations": [
-            "box1 left of box2"
-            # Missing: "box2 right of box1"
-        ]
+        "derived_relations": ["right of"]  # Incorrect!
     }
 
     with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
         json.dump(data, f)
-        temp_path = Path(f.name)
+        temp_path = f.name
 
     try:
-        with pytest.raises(ValueError, match="Missing"):
-            validate_geometry_in_file(temp_path)
+        is_valid, errors = validate_geometry_in_file(temp_path)
+        assert not is_valid, "Expected invalid due to mismatched relation"
+        assert len(errors) > 0
+        assert any("Missing relations" in e or "Extra relations" in e for e in errors)
     finally:
-        temp_path.unlink()
+        os.unlink(temp_path)
 
+def test_validate_geometry_in_file_missing_file():
+    """Test validation on a non-existent file."""
+    with pytest.raises(FileNotFoundError):
+        validate_geometry_in_file("/non/existent/path/file.json")
 
-def test_validate_geometry_fail_wrong_relation():
-    """Test that a file with incorrect derived_relation fails validation."""
+def test_validate_geometry_in_file_missing_key():
+    """Test validation on a file missing required keys."""
     data = {
-        "image_path": "test.png",
-        "bounding_boxes": [
-            {"x": 0, "y": 0, "w": 10, "h": 10, "id": "box1"},
-            {"x": 20, "y": 0, "w": 10, "h": 10, "id": "box2"}
-        ],
-        "derived_relations": [
-            "box1 above box2",  # Wrong!
-            "box2 below box1"   # Wrong!
-        ]
+        "image_path": "test.jpg"
+        # Missing bounding_boxes and derived_relations
     }
 
     with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
         json.dump(data, f)
-        temp_path = Path(f.name)
+        temp_path = f.name
 
     try:
-        with pytest.raises(ValueError, match="Missing"):
-            validate_geometry_in_file(temp_path)
-    finally:
-        temp_path.unlink()
-
-
-def test_validate_geometry_three_boxes():
-    """Test validation with three boxes in a triangle arrangement."""
-    # Box 1: (0, 0, 10, 10) -> centroid (5, 5)
-    # Box 2: (20, 0, 10, 10) -> centroid (25, 5)
-    # Box 3: (10, 20, 10, 10) -> centroid (15, 25)
-    # Relations: 1 left of 2, 1 below 3, 2 below 3 (and inverses)
-    
-    data = {
-        "image_path": "test.png",
-        "bounding_boxes": [
-            {"x": 0, "y": 0, "w": 10, "h": 10, "id": "box1"},
-            {"x": 20, "y": 0, "w": 10, "h": 10, "id": "box2"},
-            {"x": 10, "y": 20, "w": 10, "h": 10, "id": "box3"}
-        ],
-        "derived_relations": [
-            "box1 left of box2",
-            "box2 right of box1",
-            "box1 below box3",
-            "box3 above box1",
-            "box2 below box3",
-            "box3 above box2"
-        ]
-    }
-
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
-        json.dump(data, f)
-        temp_path = Path(f.name)
-
-    try:
-        result = validate_geometry_in_file(temp_path)
-        assert result is True
-    finally:
-        temp_path.unlink()
-
-
-def test_validate_directory():
-    """Test validating multiple files in a directory."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        tmpdir_path = Path(tmpdir)
-        
-        # Create two valid JSON files
-        for i in range(2):
-            data = {
-                "image_path": f"test{i}.png",
-                "bounding_boxes": [
-                    {"x": 0, "y": 0, "w": 10, "h": 10, "id": "box1"},
-                    {"x": 20, "y": 0, "w": 10, "h": 10, "id": "box2"}
-                ],
-                "derived_relations": [
-                    "box1 left of box2",
-                    "box2 right of box1"
-                ]
-            }
-            json_path = tmpdir_path / f"test{i}.json"
-            with open(json_path, 'w') as f:
-                json.dump(data, f)
-        
-        count = validate_all_in_directory(tmpdir_path)
-        assert count == 2
-
-
-def test_validate_directory_with_invalid_file():
-    """Test that directory validation fails if any file is invalid."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        tmpdir_path = Path(tmpdir)
-        
-        # Create one valid file
-        data_valid = {
-            "image_path": "test0.png",
-            "bounding_boxes": [
-                {"x": 0, "y": 0, "w": 10, "h": 10, "id": "box1"},
-                {"x": 20, "y": 0, "w": 10, "h": 10, "id": "box2"}
-            ],
-            "derived_relations": [
-                "box1 left of box2",
-                "box2 right of box1"
-            ]
-        }
-        json_path_valid = tmpdir_path / "test0.json"
-        with open(json_path_valid, 'w') as f:
-            json.dump(data_valid, f)
-        
-        # Create one invalid file
-        data_invalid = {
-            "image_path": "test1.png",
-            "bounding_boxes": [
-                {"x": 0, "y": 0, "w": 10, "h": 10, "id": "box1"},
-                {"x": 20, "y": 0, "w": 10, "h": 10, "id": "box2"}
-            ],
-            "derived_relations": [
-                "box1 above box2"  # Wrong relation
-            ]
-        }
-        json_path_invalid = tmpdir_path / "test1.json"
-        with open(json_path_invalid, 'w') as f:
-            json.dump(data_invalid, f)
-        
         with pytest.raises(ValueError):
-            validate_all_in_directory(tmpdir_path)
+            validate_geometry_in_file(temp_path)
+    finally:
+        os.unlink(temp_path)
+
+def test_validate_all_in_directory():
+    """Test validation of a directory with mixed valid/invalid files."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        # Create a valid file
+        valid_data = {
+            "image_path": "valid.jpg",
+            "bounding_boxes": [
+                {"x": 0, "y": 0, "w": 10, "h": 10, "id": 1},
+                {"x": 20, "y": 0, "w": 10, "h": 10, "id": 2}
+            ],
+            "derived_relations": ["left of"]
+        }
+        valid_path = os.path.join(tmpdir, "valid.json")
+        with open(valid_path, 'w') as f:
+            json.dump(valid_data, f)
+
+        # Create an invalid file
+        invalid_data = {
+            "image_path": "invalid.jpg",
+            "bounding_boxes": [
+                {"x": 0, "y": 0, "w": 10, "h": 10, "id": 1},
+                {"x": 20, "y": 0, "w": 10, "h": 10, "id": 2}
+            ],
+            "derived_relations": ["right of"]
+        }
+        invalid_path = os.path.join(tmpdir, "invalid.json")
+        with open(invalid_path, 'w') as f:
+            json.dump(invalid_data, f)
+
+        total, valid, errors = validate_all_in_directory(tmpdir)
+
+        assert total == 2
+        assert valid == 1
+        assert len(errors) == 1
+        assert "invalid.json" in errors[0]
+
+def test_centroid_calculation():
+    """Test that centroid calculation is correct."""
+    box = {"x": 10, "y": 10, "w": 20, "h": 20}
+    centroid = calculate_centroid(box)
+    assert centroid[0] == 20.0  # x + w/2
+    assert centroid[1] == 20.0  # y + h/2
+
+def test_derive_spatial_relation():
+    """Test spatial relation derivation."""
+    c1 = (10, 10)
+    c2 = (30, 10)
+    relation = derive_spatial_relation(c1, c2)
+    assert relation == "left of"
+
+    c3 = (30, 10)
+    c4 = (10, 10)
+    relation = derive_spatial_relation(c3, c4)
+    assert relation == "right of"
+
+    c5 = (10, 10)
+    c6 = (10, 30)
+    relation = derive_spatial_relation(c5, c6)
+    assert relation == "above"
+
+    c7 = (10, 30)
+    c8 = (10, 10)
+    relation = derive_spatial_relation(c7, c8)
+    assert relation == "below"

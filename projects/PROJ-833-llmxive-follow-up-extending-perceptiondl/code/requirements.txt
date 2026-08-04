@@ -11,3 +11,6 @@ psutil==5.9.7
 jsonschema==4.20.0
 pillow==10.2.0
 numpy==1.26.3
+bitsandbytes  # auto-added: imported by run-book but missing from venv
+torchvision  # auto-added: imported by run-book but missing from venv
+pyyaml  # auto-added: imported by run-book but missing from venv

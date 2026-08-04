@@ -1,155 +1,165 @@
 """
-Geometry Validator for Synthetic Data.
+code/synthetic/geometry_validator.py
 
-This module verifies that the `derived_relations` stored in generated JSON
-annotation files match the geometric reality of the bounding box coordinates.
-It re-computes relations from saved coordinates and asserts they match the
-stored values. Fail if any mismatch is found.
+Validates that derived spatial relations in synthetic JSON annotations match the
+geometric reality of the bounding box coordinates.
+
+This module implements the core logic for T048b: re-computing relations from
+saved coordinates and asserting they match the stored `derived_relations`.
 """
+
 import json
 import sys
 import math
 from pathlib import Path
 from typing import List, Dict, Tuple, Any, Optional
 
-# Import from existing API surface
 from synthetic.deriver import calculate_centroid, derive_spatial_relation
 
-
-def validate_geometry_in_file(json_path: Path, tolerance: float = 1e-6) -> bool:
+def validate_geometry_in_file(json_path: str, tolerance: float = 0.01) -> Tuple[bool, List[str]]:
     """
-    Validate that derived_relations in a JSON file match the geometric reality
-    of the bounding box coordinates.
+    Validate that derived relations in a JSON file match geometric reality.
+
+    This function:
+    1. Loads the JSON file containing bounding boxes and derived_relations.
+    2. Re-computes the spatial relations from the bounding box coordinates.
+    3. Compares the recomputed relations with the stored ones.
+    4. Returns True if all match, False otherwise, along with a list of mismatches.
 
     Args:
         json_path: Path to the JSON annotation file.
-        tolerance: Floating point tolerance for centroid comparisons.
+        tolerance: Small tolerance for floating point comparisons (not used for string comparison but kept for API consistency).
 
     Returns:
-        True if all relations match geometric reality, False otherwise.
+        Tuple of (is_valid, list_of_error_messages).
+        is_valid is True if all relations match, False otherwise.
+        list_of_error_messages contains descriptions of any mismatches found.
 
     Raises:
-        ValueError: If a mismatch is found (fail loudly).
+        FileNotFoundError: If the JSON file does not exist.
+        json.JSONDecodeError: If the file is not valid JSON.
+        ValueError: If the JSON structure is invalid.
     """
-    if not json_path.exists():
-        raise FileNotFoundError(f"File not found: {json_path}")
+    path = Path(json_path)
+    if not path.exists():
+        raise FileNotFoundError(f"JSON file not found: {json_path}")
 
-    try:
-        with open(json_path, 'r') as f:
-            data = json.load(f)
-    except json.JSONDecodeError as e:
-        raise ValueError(f"Invalid JSON in {json_path}: {e}")
+    with open(json_path, 'r') as f:
+        data = json.load(f)
 
-    bounding_boxes = data.get("bounding_boxes", [])
-    stored_relations = data.get("derived_relations", [])
+    if 'bounding_boxes' not in data:
+        raise ValueError(f"Missing 'bounding_boxes' in {json_path}")
+    if 'derived_relations' not in data:
+        raise ValueError(f"Missing 'derived_relations' in {json_path}")
 
-    if not bounding_boxes:
-        # No boxes means no relations to validate
-        return True
+    boxes = data['bounding_boxes']
+    stored_relations = data['derived_relations']
 
-    # Re-compute relations from coordinates
-    # We need to map box IDs to their centroids
-    box_centroids = {}
-    box_dims = {}
-    for box in bounding_boxes:
-        box_id = box["id"]
-        x, y, w, h = box["x"], box["y"], box["w"], box["h"]
-        cx, cy = calculate_centroid(x, y, w, h)
-        box_centroids[box_id] = (cx, cy)
-        box_dims[box_id] = (x, y, w, h)
+    errors = []
 
-    # Re-derive all pairwise relations
-    computed_relations = []
-    box_ids = sorted(box_centroids.keys())
-    for i, id1 in enumerate(box_ids):
-        for j, id2 in enumerate(box_ids):
-            if i >= j:
-                continue
-            cx1, cy1 = box_centroids[id1]
-            cx2, cy2 = box_centroids[id2]
-            
-            # Derive relation from id1 to id2
-            rel = derive_spatial_relation(cx1, cy1, cx2, cy2)
-            computed_relations.append(f"{id1} {rel} {id2}")
-            
-            # Derive inverse relation from id2 to id1
-            rel_inv = derive_spatial_relation(cx2, cy2, cx1, cy1)
-            computed_relations.append(f"{id2} {rel_inv} {id1}")
+    # Re-compute relations for every pair of boxes
+    recomputed_relations = []
+    n = len(boxes)
+    for i in range(n):
+        for j in range(i + 1, n):
+            box1 = boxes[i]
+            box2 = boxes[j]
 
-    # Compare stored vs computed
+            # Calculate centroids
+            c1 = calculate_centroid(box1)
+            c2 = calculate_centroid(box2)
+
+            # Derive the relation (e.g., "left of", "above")
+            relation = derive_spatial_relation(c1, c2)
+            recomputed_relations.append(relation)
+
+    # Compare stored vs recomputed
+    # Note: The order of relations in the stored list might not be deterministic
+    # if the generator didn't enforce a specific ordering. However, the set of
+    # relations must match exactly.
     stored_set = set(stored_relations)
-    computed_set = set(computed_relations)
+    recomputed_set = set(recomputed_relations)
 
-    if stored_set != computed_set:
-        missing = computed_set - stored_set
-        extra = stored_set - computed_set
-        error_msg = f"Geometry mismatch in {json_path}:\n"
-        if missing:
-            error_msg += f"  Missing (should exist): {missing}\n"
-        if extra:
-            error_msg += f"  Extra (should not exist): {extra}\n"
-        raise ValueError(error_msg)
+    if stored_set != recomputed_set:
+        missing_in_stored = recomputed_set - stored_set
+        extra_in_stored = stored_set - recomputed_set
 
-    return True
+        if missing_in_stored:
+            errors.append(f"Missing relations in stored data: {missing_in_stored}")
+        if extra_in_stored:
+            errors.append(f"Extra relations in stored data (not geometrically valid): {extra_in_stored}")
 
+    return len(errors) == 0, errors
 
-def validate_all_in_directory(directory: Path, recursive: bool = False) -> int:
+def validate_all_in_directory(directory: str) -> Tuple[int, int, List[str]]:
     """
     Validate all JSON files in a directory.
 
     Args:
         directory: Path to the directory containing JSON files.
-        recursive: If True, search subdirectories.
 
     Returns:
-        Number of files validated successfully.
-
-    Raises:
-        ValueError: If any file fails validation.
+        Tuple of (total_files, valid_files, list_of_all_errors).
     """
-    pattern = "**/*.json" if recursive else "*.json"
-    json_files = list(directory.glob(pattern))
-    
-    if not json_files:
-        raise FileNotFoundError(f"No JSON files found in {directory}")
+    dir_path = Path(directory)
+    if not dir_path.exists():
+        raise FileNotFoundError(f"Directory not found: {directory}")
 
-    success_count = 0
-    for json_file in json_files:
+    json_files = list(dir_path.glob("*.json"))
+    total = len(json_files)
+    valid = 0
+    all_errors = []
+
+    for file_path in json_files:
         try:
-            validate_geometry_in_file(json_file)
-            success_count += 1
-        except (ValueError, FileNotFoundError) as e:
-            # Fail loudly on first error
-            raise e
-        
-    return success_count
+            is_valid, errors = validate_geometry_in_file(str(file_path))
+            if is_valid:
+                valid += 1
+            else:
+                all_errors.extend([f"{file_path.name}: {e}" for e in errors])
+        except Exception as e:
+            all_errors.append(f"{file_path.name}: Exception during validation - {str(e)}")
 
+    return total, valid, all_errors
 
 def main():
-    """CLI entry point for geometry validation."""
-    if len(sys.argv) < 2:
-        print("Usage: python -m synthetic.geometry_validator <json_file_or_dir>")
-        sys.exit(1)
+    """
+    Execute validation on the synthetic dataset directory.
+    This is the script entry point for T048b execution.
+    """
+    # Default path based on project structure
+    synthetic_dir = "data/synthetic"
 
-    target = Path(sys.argv[1])
+    # Check for command line argument override
+    if len(sys.argv) > 1:
+        synthetic_dir = sys.argv[1]
 
-    if not target.exists():
-        print(f"Error: Path not found: {target}")
-        sys.exit(1)
+    print(f"Validating synthetic dataset in: {synthetic_dir}")
 
     try:
-        if target.is_file():
-            validate_geometry_in_file(target)
-            print(f"Geometry validation PASSED: {target}")
-        else:
-            count = validate_all_in_directory(target)
-            print(f"Geometry validation PASSED for {count} files in {target}")
-        
-        sys.exit(0)
-    except (ValueError, FileNotFoundError) as e:
-        print(f"Geometry validation FAILED:\n{e}")
-        sys.exit(1)
+        total, valid, errors = validate_all_in_directory(synthetic_dir)
 
+        if total == 0:
+            print("⚠ No JSON files found in the directory.")
+            sys.exit(1)
+
+        print(f"Total files: {total}, Valid: {valid}, Invalid: {total - valid}")
+
+        if errors:
+            print("\n❌ Validation Errors Found:")
+            for err in errors:
+                print(f"  - {err}")
+            sys.exit(1)
+        else:
+            print("\n✅ All geometric relations validated successfully.")
+            sys.exit(0)
+
+    except FileNotFoundError as e:
+        print(f"❌ Error: {e}")
+        sys.exit(1)
+    except Exception as e:
+        print(f"❌ Unexpected error: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

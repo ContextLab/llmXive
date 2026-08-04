@@ -691,3 +691,784 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-28T21:54:45Z'
+- artifact_path: projects/PROJ-833-llmxive-follow-up-extending-perceptiondl/specs/001-llmxive-follow-up-extending-perceptiondl/tasks.md
+  attempts: 1
+  canonical: Sample 50 images per region-count bin
+  claim_id: c_84f72fcb
+  context: 'Sampling: Sample exactly n=50 images per region-count bin. Validation:
+    Verify the dataset contains image-caption pairs or bounding box annotations before
+    proceeding.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sample exactly n=50 images per region-count bin.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T07:28:57Z'
+- artifact_path: projects/PROJ-833-llmxive-follow-up-extending-perceptiondl/specs/001-llmxive-follow-up-extending-perceptiondl/tasks.md
+  attempts: 1
+  canonical: Include exact file paths in descriptions
+  claim_id: c_72ccd8ed
+  context: 'Format: [ID] [P?] [Story] Description - Include exact file paths in descriptions'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Include_exact_file_paths_in_descriptions
+  kind: entity_fact
+  raw_text: Include exact file paths in descriptions.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T07:29:19Z'
+- artifact_path: projects/PROJ-833-llmxive-follow-up-extending-perceptiondl/specs/001-llmxive-follow-up-extending-perceptiondl/tasks.md
+  attempts: 1
+  canonical: Reduce image count by 5 if Peak RSS > 7 GB
+  claim_id: c_4cc4fd93
+  context: 'Memory Logic: Implement runtime memory monitoring logic and an adaptive
+    reduction mechanism: if Peak RSS > 7 GB, implement a retry loop that reduces the
+    image count per bin by exactly 5 images and retries inference.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If Peak RSS > 7 GB, implement a retry loop that reduces the image count
+    per bin by exactly 5 images.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T07:29:19Z'
+- artifact_path: projects/PROJ-833-llmxive-follow-up-extending-perceptiondl/specs/001-llmxive-follow-up-extending-perceptiondl/tasks.md
+  attempts: 1
+  canonical: Switch to INT8 quantization if memory threshold exceeded
+  claim_id: c_4172bb4f
+  context: 'Fallback: If memory usage exceeds a predefined threshold during load,
+    dynamically switch to INT8 quantization. (load_in_8bit=True) and log the switch.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Switch_to_INT8_quantization_if_memory_threshold_exceeded
+  kind: entity_fact
+  raw_text: If memory usage exceeds a predefined threshold during load, dynamically
+    switch to INT8 quantization.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T07:29:37Z'
+- artifact_path: projects/PROJ-833-llmxive-follow-up-extending-perceptiondl/specs/001-llmxive-follow-up-extending-perceptiondl/tasks.md
+  attempts: 1
+  canonical: Primary source dataset is paradlc-bench
+  claim_id: c_cef6057d
+  context: 'Dataset: Primary source is paradlc-bench. If unavailable, fallback to
+    coco/coco-stuff-164k.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Primary_source_dataset_is_paradlc-bench
+  kind: entity_fact
+  raw_text: The primary source dataset is paradlc-bench.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T07:30:22Z'
+- artifact_path: projects/PROJ-833-llmxive-follow-up-extending-perceptiondl/specs/001-llmxive-follow-up-extending-perceptiondl/tasks.md
+  attempts: 1
+  canonical: Fallback dataset is coco/coco-stuff-164k
+  claim_id: c_328625b7
+  context: Primary source is paradlc-bench. If unavailable, fallback to coco/coco-stuff-164k.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The fallback dataset is coco/coco-stuff-164k.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T07:30:38Z'
+- artifact_path: projects/PROJ-833-llmxive-follow-up-extending-perceptiondl/specs/001-llmxive-follow-up-extending-perceptiondl/tasks.md
+  attempts: 1
+  canonical: Use torch version 2.1.0
+  claim_id: c_db530c7c
+  context: 'Create code/requirements.txt containing pinned versions: torch==2.1.0,
+    transformers==4.36.0...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use torch version 2.1.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T07:30:55Z'
+- artifact_path: projects/PROJ-833-llmxive-follow-up-extending-perceptiondl/specs/001-llmxive-follow-up-extending-perceptiondl/tasks.md
+  attempts: 1
+  canonical: Use transformers version 4.36.0
+  claim_id: c_3a5dee77
+  context: 'Create code/requirements.txt containing pinned versions: torch==2.1.0,
+    transformers==4.36.0...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use transformers version 4.36.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T07:31:20Z'
+- artifact_path: projects/PROJ-833-llmxive-follow-up-extending-perceptiondl/specs/001-llmxive-follow-up-extending-perceptiondl/tasks.md
+  attempts: 1
+  canonical: Use diffusers version 0.25.0
+  claim_id: c_3aa1ca37
+  context: 'Create code/requirements.txt containing pinned versions: ...diffusers==0.25.0...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use diffusers version 0.25.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T07:32:24Z'
+- artifact_path: projects/PROJ-833-llmxive-follow-up-extending-perceptiondl/specs/001-llmxive-follow-up-extending-perceptiondl/tasks.md
+  attempts: 1
+  canonical: Use spacy version 3.7.2
+  claim_id: c_f3995706
+  context: 'Create code/requirements.txt containing pinned versions: ...spacy==3.7.2...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use spacy version 3.7.2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T07:32:26Z'
+- artifact_path: projects/PROJ-833-llmxive-follow-up-extending-perceptiondl/specs/001-llmxive-follow-up-extending-perceptiondl/tasks.md
+  attempts: 1
+  canonical: Use pandas version 2.1.4
+  claim_id: c_fe37f718
+  context: 'Create code/requirements.txt containing pinned versions: ...pandas==2.1.4...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use pandas version 2.1.4.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T07:32:33Z'
+- artifact_path: projects/PROJ-833-llmxive-follow-up-extending-perceptiondl/specs/001-llmxive-follow-up-extending-perceptiondl/tasks.md
+  attempts: 1
+  canonical: Use scikit-learn version 1.3.2
+  claim_id: c_b7733730
+  context: 'Create code/requirements.txt containing pinned versions: ...scikit-learn==1.3.2...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use scikit-learn version 1.3.2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T07:32:38Z'
+- artifact_path: projects/PROJ-833-llmxive-follow-up-extending-perceptiondl/specs/001-llmxive-follow-up-extending-perceptiondl/tasks.md
+  attempts: 1
+  canonical: Use matplotlib version 3.8.2
+  claim_id: c_6a75d716
+  context: 'Create code/requirements.txt containing pinned versions: ...matplotlib==3.8.2...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use matplotlib version 3.8.2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T07:32:43Z'
+- artifact_path: projects/PROJ-833-llmxive-follow-up-extending-perceptiondl/specs/001-llmxive-follow-up-extending-perceptiondl/tasks.md
+  attempts: 1
+  canonical: Use datasets version 2.16.1
+  claim_id: c_4112e782
+  context: 'Create code/requirements.txt containing pinned versions: ...datasets==2.16.1...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use datasets version 2.16.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T07:32:49Z'
+- artifact_path: projects/PROJ-833-llmxive-follow-up-extending-perceptiondl/specs/001-llmxive-follow-up-extending-perceptiondl/tasks.md
+  attempts: 1
+  canonical: Use huggingface_hub version 0.20.1
+  claim_id: c_3cf6bcb5
+  context: 'Create code/requirements.txt containing pinned versions: ...huggingface_hub==0.20.1...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use huggingface_hub version 0.20.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T07:32:54Z'
+- artifact_path: projects/PROJ-833-llmxive-follow-up-extending-perceptiondl/specs/001-llmxive-follow-up-extending-perceptiondl/tasks.md
+  attempts: 1
+  canonical: Use psutil version 5.9.7
+  claim_id: c_9396a1e8
+  context: 'Create code/requirements.txt containing pinned versions: ...psutil==5.9.7.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use psutil version 5.9.7.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T07:32:58Z'
+- artifact_path: projects/PROJ-833-llmxive-follow-up-extending-perceptiondl/specs/001-llmxive-follow-up-extending-perceptiondl/tasks.md
+  attempts: 1
+  canonical: Define TIPPING_POINT_THRESHOLD as 0.9
+  claim_id: c_9b76b222
+  context: 'Specifics: Define TIPPING_POINT_THRESHOLD = 0.9 (documented as placeholder
+    for scientific validation) and BATCH_SIZE = 8.'
+  evidence:
+    asserted: '0.9'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Define TIPPING_POINT_THRESHOLD = 0.9.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-04T07:32:58Z'
+- artifact_path: projects/PROJ-833-llmxive-follow-up-extending-perceptiondl/specs/001-llmxive-follow-up-extending-perceptiondl/tasks.md
+  attempts: 1
+  canonical: Define BATCH_SIZE as 8
+  claim_id: c_ae520e82
+  context: 'Specifics: Define TIPPING_POINT_THRESHOLD = 0.9 (documented as placeholder
+    for scientific validation) and BATCH_SIZE = 8.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Define BATCH_SIZE = 8.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T07:33:04Z'
+- artifact_path: projects/PROJ-833-llmxive-follow-up-extending-perceptiondl/specs/001-llmxive-follow-up-extending-perceptiondl/tasks.md
+  attempts: 1
+  canonical: Configure black line-length to 88
+  claim_id: c_05516332
+  context: Create pyproject.toml with [tool.black] line-length=88 and [tool.flake8]
+    max-line-length=88.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Configure [tool.black] line-length=88.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T07:33:11Z'
+- artifact_path: projects/PROJ-833-llmxive-follow-up-extending-perceptiondl/specs/001-llmxive-follow-up-extending-perceptiondl/tasks.md
+  attempts: 1
+  canonical: Configure flake8 max-line-length to 88
+  claim_id: c_8776591c
+  context: Create pyproject.toml with [tool.black] line-length=88 and [tool.flake8]
+    max-line-length=88.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Configure [tool.flake8] max-line-length=88.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T07:33:13Z'
+- artifact_path: projects/PROJ-833-llmxive-follow-up-extending-perceptiondl/specs/001-llmxive-follow-up-extending-perceptiondl/tasks.md
+  attempts: 1
+  canonical: Verified model ID is perception-dlm-v1
+  claim_id: c_0177135b
+  context: Implement code/models/parallel_runner.py to load PerceptionDLM from code/config.py
+    (using the verified model ID perception-dlm-v1)...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verified_model_ID_is_perception-dlm-v1
+  kind: entity_fact
+  raw_text: The verified model ID is perception-dlm-v1.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T07:33:17Z'
+- artifact_path: projects/PROJ-833-llmxive-follow-up-extending-perceptiondl/specs/001-llmxive-follow-up-extending-perceptiondl/tasks.md
+  attempts: 1
+  canonical: Generate images for region counts 40, 45, and 50
+  claim_id: c_389eb6ee
+  context: 'Implement code/synthetic/generator.py to orchestrate T046-T049: loop through
+    a sampled subset of the dataset (n=50 per bin) and generate images for region
+    counts, including, 40, 45, and 50...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate images for region counts 40, 45, and 50.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T07:33:22Z'
+- artifact_path: projects/PROJ-833-llmxive-follow-up-extending-perceptiondl/specs/001-llmxive-follow-up-extending-perceptiondl/tasks.md
+  attempts: 1
+  canonical: Generate images for region count 45
+  claim_id: c_8606246a
+  context: 'Implement code/synthetic/generator.py to orchestrate T046-T049: loop through
+    a sampled subset of the dataset (n=50 per bin) and generate images for region
+    counts, including, 40, 45, and 50...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate images for region count 45.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T07:33:56Z'
+- artifact_path: projects/PROJ-833-llmxive-follow-up-extending-perceptiondl/specs/001-llmxive-follow-up-extending-perceptiondl/tasks.md
+  attempts: 1
+  canonical: Generate images for region count 50
+  claim_id: c_d7e73956
+  context: 'Implement code/synthetic/generator.py to orchestrate T046-T049: loop through
+    a sampled subset of the dataset (n=50 per bin) and generate images for region
+    counts, including, 40, 45, and 50...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate images for region count 50.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T07:33:57Z'
+- artifact_path: projects/PROJ-833-llmxive-follow-up-extending-perceptiondl/specs/001-llmxive-follow-up-extending-perceptiondl/tasks.md
+  attempts: 1
+  canonical: 'Output JSON keys: captions, region_count, inference_time, region_ids'
+  claim_id: c_f6837f7b
+  context: 'Schema: Output JSON with keys: captions (list), region_count (int), inference_time
+    (float), region_ids (list).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Output_JSON_keys:_captions,_region_count,_inference_time,_re
+  kind: entity_fact
+  raw_text: 'Output JSON with keys: captions (list), region_count (int), inference_time
+    (float), region_ids (list).'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T07:34:04Z'
+- artifact_path: projects/PROJ-833-llmxive-follow-up-extending-perceptiondl/specs/001-llmxive-follow-up-extending-perceptiondl/tasks.md
+  attempts: 1
+  canonical: Use default precision FP16/FP32 without quantization
+  claim_id: c_1b9fd43c
+  context: 'Constraint: Load model in default precision (FP16/FP32) without quantization.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_default_precision_FP16/FP32_without_quantization
+  kind: entity_fact
+  raw_text: Use default precision (FP16/FP32) without quantization.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T07:34:11Z'
+- artifact_path: projects/PROJ-833-llmxive-follow-up-extending-perceptiondl/specs/001-llmxive-follow-up-extending-perceptiondl/tasks.md
+  attempts: 1
+  canonical: Allow INT8 quantization if RSS > 6.5 GB
+  claim_id: c_69816a5c
+  context: 'Exception: If RSS > 6.5 GB, dynamic INT8 quantization is permitted as
+    a fallback to ensure execution (T051a, T052a).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If RSS > 6.5 GB, dynamic INT8 quantization is permitted as a fallback.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T07:34:11Z'
+- artifact_path: projects/PROJ-833-llmxive-follow-up-extending-perceptiondl/specs/001-llmxive-follow-up-extending-perceptiondl/tasks.md
+  attempts: 1
+  canonical: Sample 50 images per region-count bin
+  claim_id: c_ef4009d9
+  context: 'Strategy: If paradlc-bench is unavailable, document the fallback in docs/design_decisions.md
+    (T004b). Sampling: Sample exactly n=50 images per region-count bin.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sample exactly n=50 images per region-count bin.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T07:36:01Z'
+- artifact_path: projects/PROJ-833-llmxive-follow-up-extending-perceptiondl/specs/001-llmxive-follow-up-extending-perceptiondl/tasks.md
+  attempts: 1
+  canonical: Generate images for region counts 40, 45, and 50
+  claim_id: c_ac5ed41f
+  context: 'Implement code/synthetic/generator.py to orchestrate T046-T049: loop through
+    a sampled subset of the dataset (n=50 per bin) and generate images for region
+    counts, including, 40, 45, and 50, ensuring JSON outputs include derived geometric
+    relations.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate images for region counts, including, 40, 45, and 50.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T07:36:46Z'
+- artifact_path: projects/PROJ-833-llmxive-follow-up-extending-perceptiondl/specs/001-llmxive-follow-up-extending-perceptiondl/tasks.md
+  attempts: 2
+  canonical: Use streaming to stay within 7GB RAM
+  claim_id: c_ae847cd4
+  context: 'Streaming: Use datasets.load_dataset(..., streaming=True) to process images
+    in chunks to stay within 7GB RAM.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_streaming_to_stay_within_7GB_RAM
+  kind: entity_fact
+  raw_text: Use datasets.load_dataset(..., streaming=True) to process images in chunks
+    to stay within 7GB RAM.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T07:36:47Z'
+- artifact_path: projects/PROJ-833-llmxive-follow-up-extending-perceptiondl/specs/001-llmxive-follow-up-extending-perceptiondl/tasks.md
+  attempts: 1
+  canonical: Default tipping point threshold is 0.9
+  claim_id: c_5880c207
+  context: Define TIPPING_POINT_THRESHOLD = 0.9 (documented as placeholder for scientific
+    validation) and BATCH_SIZE = 8.
+  evidence:
+    asserted: '0.9'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Use default value 0.9 for TIPPING_POINT_THRESHOLD.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-04T07:36:47Z'
+- artifact_path: projects/PROJ-833-llmxive-follow-up-extending-perceptiondl/specs/001-llmxive-follow-up-extending-perceptiondl/tasks.md
+  attempts: 1
+  canonical: Reduce sample size by 5 images if Peak RSS exceeds 7 GB
+  claim_id: c_21b45167
+  context: 'Memory Logic: Implement runtime memory monitoring logic (reading /proc/self/status
+    or using psutil) and an adaptive reduction mechanism: if Peak RSS > 7 GB, implement
+    a retry loop that reduces the image count per bin by exactly 5 images and retries
+    inference, failing only if the count drops below the minimum threshold (per FR-007).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Reduce image count per bin by exactly 5 images if Peak RSS > 7 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T07:37:09Z'
+- artifact_path: projects/PROJ-833-llmxive-follow-up-extending-perceptiondl/specs/001-llmxive-follow-up-extending-perceptiondl/tasks.md
+  attempts: 1
+  canonical: PerceptionDLM model ID is perception-dlm-v1
+  claim_id: c_99056e29
+  context: Implement code/models/parallel_runner.py to load PerceptionDLM from code/config.py
+    (using the verified model ID perception-dlm-v1), run batched inference (batch
+    size 8) without cross-batch context, and include time.perf_counter instrumentation
+    to capture wall-clock inference time.
+  evidence:
+    entailment_evidence: PerceptionDLM model ID is perception-dlm-v1
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/PerceptionDLM_model_ID_is_perception-dlm-v1
+  kind: entity_fact
+  raw_text: PerceptionDLM model ID is perception-dlm-v1.
+  resolved_value: PerceptionDLM model ID is perception-dlm-v1
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-04T07:37:11Z'
+- artifact_path: projects/PROJ-833-llmxive-follow-up-extending-perceptiondl/specs/001-llmxive-follow-up-extending-perceptiondl/tasks.md
+  attempts: 1
+  canonical: Primary source dataset is paradlc-bench
+  claim_id: c_26af73f9
+  context: 'Implement code/synthetic/fetcher.py to download a sampled subset of the
+    dataset from HuggingFace. Dataset: Primary source is paradlc-bench. If unavailable,
+    fallback to coco/coco-stuff-164k.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Primary_source_dataset_is_paradlc-bench
+  kind: entity_fact
+  raw_text: Primary source dataset is paradlc-bench.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T07:37:13Z'
+- artifact_path: projects/PROJ-833-llmxive-follow-up-extending-perceptiondl/specs/001-llmxive-follow-up-extending-perceptiondl/tasks.md
+  attempts: 1
+  canonical: Fallback dataset is coco-stuff-164k
+  claim_id: c_2a5cc18d
+  context: Primary source is paradlc-bench. If unavailable, fallback to coco/coco-stuff-164k.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Fallback dataset is coco-stuff-164k.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T07:37:13Z'
+- artifact_path: projects/PROJ-833-llmxive-follow-up-extending-perceptiondl/specs/001-llmxive-follow-up-extending-perceptiondl/tasks.md
+  attempts: 1
+  canonical: torch version is 2.1.0
+  claim_id: c_8ec9dbfa
+  context: 'Create code/requirements.txt containing pinned versions: torch==2.1.0,
+    transformers==4.36.0, diffusers==0.25.0, spacy==3.7.2, pandas==2.1.4, scikit-learn==1.3.2,
+    matplotlib==3.8.2, datasets==2.16.1, huggingface_hub==0.20.1, psutil==5.9.7.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: torch version is 2.1.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T07:37:33Z'
+- artifact_path: projects/PROJ-833-llmxive-follow-up-extending-perceptiondl/specs/001-llmxive-follow-up-extending-perceptiondl/tasks.md
+  attempts: 1
+  canonical: transformers version is 4.36.0
+  claim_id: c_2b8df4f1
+  context: 'Create code/requirements.txt containing pinned versions: torch==2.1.0,
+    transformers==4.36.0, diffusers==0.25.0, spacy==3.7.2, pandas==2.1.4, scikit-learn==1.3.2,
+    matplotlib==3.8.2, datasets==2.16.1, huggingface_hub==0.20.1, psutil==5.9.7.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: transformers version is 4.36.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T07:37:52Z'
+- artifact_path: projects/PROJ-833-llmxive-follow-up-extending-perceptiondl/specs/001-llmxive-follow-up-extending-perceptiondl/tasks.md
+  attempts: 1
+  canonical: diffusers version is 0.25.0
+  claim_id: c_6f4e3471
+  context: 'Create code/requirements.txt containing pinned versions: torch==2.1.0,
+    transformers==4.36.0, diffusers==0.25.0, spacy==3.7.2, pandas==2.1.4, scikit-learn==1.3.2,
+    matplotlib==3.8.2, datasets==2.16.1, huggingface_hub==0.20.1, psutil==5.9.7.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: diffusers version is 0.25.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T07:38:14Z'
+- artifact_path: projects/PROJ-833-llmxive-follow-up-extending-perceptiondl/specs/001-llmxive-follow-up-extending-perceptiondl/tasks.md
+  attempts: 1
+  canonical: spacy version is 3.7.2
+  claim_id: c_60fdf74e
+  context: 'Create code/requirements.txt containing pinned versions: torch==2.1.0,
+    transformers==4.36.0, diffusers==0.25.0, spacy==3.7.2, pandas==2.1.4, scikit-learn==1.3.2,
+    matplotlib==3.8.2, datasets==2.16.1, huggingface_hub==0.20.1, psutil==5.9.7.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: spacy version is 3.7.2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T07:38:31Z'
+- artifact_path: projects/PROJ-833-llmxive-follow-up-extending-perceptiondl/specs/001-llmxive-follow-up-extending-perceptiondl/tasks.md
+  attempts: 1
+  canonical: pandas version is 2.1.4
+  claim_id: c_02edba37
+  context: 'Create code/requirements.txt containing pinned versions: torch==2.1.0,
+    transformers==4.36.0, diffusers==0.25.0, spacy==3.7.2, pandas==2.1.4, scikit-learn==1.3.2,
+    matplotlib==3.8.2, datasets==2.16.1, huggingface_hub==0.20.1, psutil==5.9.7.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pandas version is 2.1.4.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T07:38:49Z'
+- artifact_path: projects/PROJ-833-llmxive-follow-up-extending-perceptiondl/specs/001-llmxive-follow-up-extending-perceptiondl/tasks.md
+  attempts: 1
+  canonical: scikit-learn version is 1.3.2
+  claim_id: c_741298a8
+  context: 'Create code/requirements.txt containing pinned versions: torch==2.1.0,
+    transformers==4.36.0, diffusers==0.25.0, spacy==3.7.2, pandas==2.1.4, scikit-learn==1.3.2,
+    matplotlib==3.8.2, datasets==2.16.1, huggingface_hub==0.20.1, psutil==5.9.7.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: scikit-learn version is 1.3.2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T07:39:08Z'
+- artifact_path: projects/PROJ-833-llmxive-follow-up-extending-perceptiondl/specs/001-llmxive-follow-up-extending-perceptiondl/tasks.md
+  attempts: 1
+  canonical: matplotlib version is 3.8.2
+  claim_id: c_140b73e2
+  context: 'Create code/requirements.txt containing pinned versions: torch==2.1.0,
+    transformers==4.36.0, diffusers==0.25.0, spacy==3.7.2, pandas==2.1.4, scikit-learn==1.3.2,
+    matplotlib==3.8.2, datasets==2.16.1, huggingface_hub==0.20.1, psutil==5.9.7.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: matplotlib version is 3.8.2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T07:39:24Z'
+- artifact_path: projects/PROJ-833-llmxive-follow-up-extending-perceptiondl/specs/001-llmxive-follow-up-extending-perceptiondl/tasks.md
+  attempts: 1
+  canonical: datasets version is 2.16.1
+  claim_id: c_75205f34
+  context: 'Create code/requirements.txt containing pinned versions: torch==2.1.0,
+    transformers==4.36.0, diffusers==0.25.0, spacy==3.7.2, pandas==2.1.4, scikit-learn==1.3.2,
+    matplotlib==3.8.2, datasets==2.16.1, huggingface_hub==0.20.1, psutil==5.9.7.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: datasets version is 2.16.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T07:39:43Z'
+- artifact_path: projects/PROJ-833-llmxive-follow-up-extending-perceptiondl/specs/001-llmxive-follow-up-extending-perceptiondl/tasks.md
+  attempts: 1
+  canonical: huggingface_hub version is 0.20.1
+  claim_id: c_fa7c9e93
+  context: 'Create code/requirements.txt containing pinned versions: torch==2.1.0,
+    transformers==4.36.0, diffusers==0.25.0, spacy==3.7.2, pandas==2.1.4, scikit-learn==1.3.2,
+    matplotlib==3.8.2, datasets==2.16.1, huggingface_hub==0.20.1, psutil==5.9.7.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: huggingface_hub version is 0.20.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T07:40:00Z'
+- artifact_path: projects/PROJ-833-llmxive-follow-up-extending-perceptiondl/specs/001-llmxive-follow-up-extending-perceptiondl/tasks.md
+  attempts: 1
+  canonical: psutil version is 5.9.7
+  claim_id: c_d7298c08
+  context: 'Create code/requirements.txt containing pinned versions: torch==2.1.0,
+    transformers==4.36.0, diffusers==0.25.0, spacy==3.7.2, pandas==2.1.4, scikit-learn==1.3.2,
+    matplotlib==3.8.2, datasets==2.16.1, huggingface_hub==0.20.1, psutil==5.9.7.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: psutil version is 5.9.7.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T07:40:19Z'
+- artifact_path: projects/PROJ-833-llmxive-follow-up-extending-perceptiondl/specs/001-llmxive-follow-up-extending-perceptiondl/tasks.md
+  attempts: 1
+  canonical: Dynamic INT8 quantization permitted if RSS exceeds 6.5 GB
+  claim_id: c_1bdab5f4
+  context: 'Constraint: All model loading MUST use default precision (FP16/FP32) without
+    quantization to satisfy Spec Assumptions. Exception: If RSS > 6.5 GB, dynamic
+    INT8 quantization is permitted as a fallback to ensure execution (T051a, T052a).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Dynamic INT8 quantization is permitted if RSS > 6.5 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T07:40:33Z'

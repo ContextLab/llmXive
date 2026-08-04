@@ -20,21 +20,6 @@ T015:
     `tests/unit/test_metrics.py` only contains partial tests for functions in `synthetic.deriver`
     (and is truncated), not for `code/metrics/consistency.py`. Hence the unit test
     for the specified file is missing.
-T019:
-  c: false
-  h: f8bb137819bf48863bb20768555cbb48ddf49866e5e3731d54e4bfcc131aa209
-  r: The provided `code/main.py` does not contain any calls to `code/models/parallel_runner.py`
-    nor logic that writes a JSON file with the required schema, and the expected output
-    file `data/processed/parallel_results.json` is absent from the repository. Consequently
-    the required parallel inference implementation and result saving are not present.
-T020:
-  c: false
-  h: ff1a86f3a77bcbdfc0fedc327367c504f3c2e3e08c899c4b77449b1b6debef8c
-  r: "The repository lacks the required `data/processed/sequential_results.json` file,\
-    \ and the shown portion of `code/main.py` does not contain any logic that calls\
-    \ `run_sequential_pipeline` and writes a JSON with the fields `captions`, `region_count`,\
-    \ `inference_time`, and `region_ids`. The implementation of the sequential inference\
-    \ and result\u2011saving step is therefore missing."
 T029a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

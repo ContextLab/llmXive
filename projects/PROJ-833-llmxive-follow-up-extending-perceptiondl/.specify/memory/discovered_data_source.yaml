@@ -1,0 +1,19 @@
+status: none
+intent: download COCO-Stuff and ParaDLC-Bench datasets via HuggingFace datasets python
+  package dataset
+required_fields:
+- image_id
+- file_name
+- width
+- height
+- bbox (x y width height)
+- segmentation
+- area
+- category_id
+- stuff_category_id
+- iscrowd
+- mask (binary)
+- caption (optional)
+cache_key: f206b0131e664362cd3224f50ab6d4983ba3b2457feab30900511ef482ab0438
+searched_at: '2026-08-04T07:26:20.386500+00:00'
+retry_count: 1

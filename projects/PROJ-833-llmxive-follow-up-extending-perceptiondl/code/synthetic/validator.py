@@ -122,11 +122,11 @@ def main():
     print("✓ Test 1 passed: Non-overlapping boxes validated correctly")
     
     # Test 2: Overlapping boxes
-    boxes_overlap = [
+    boxes_overlap_test = [
         {'x': 0, 'y': 0, 'w': 10, 'h': 10},
         {'x': 5, 'y': 5, 'w': 10, 'h': 10}
     ]
-    assert not validate_no_overlaps(boxes_overlap), "Test 2 failed: Overlapping boxes detected as non-overlapping"
+    assert not validate_no_overlaps(boxes_overlap_test), "Test 2 failed: Overlapping boxes detected as non-overlapping"
     print("✓ Test 2 passed: Overlapping boxes detected correctly")
     
     # Test 3: Touching boxes (should not overlap if strict)
