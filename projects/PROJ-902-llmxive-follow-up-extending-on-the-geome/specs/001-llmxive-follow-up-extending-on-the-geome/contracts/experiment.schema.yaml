@@ -1,0 +1,82 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Experiment Result Schema"
+description: "Schema for CSV/JSON artifacts produced by the llmXive geometry extension pipeline."
+type: object
+properties:
+  run_id:
+    type: string
+    description: "Unique identifier for a single training run (hash of model checkpoint + seed)."
+  seed:
+    type: integer
+    minimum: 0
+    description: "Random seed used for this run."
+  condition:
+    type: string
+    enum:
+      - "full_opd"
+      - "frozen_opd"
+      - "frozen_sft"
+      - "frozen_random"
+    description: "Experimental condition."
+  epoch:
+    type: integer
+    minimum: 1
+    description: "Training epoch number (1‑indexed)."
+  accuracy:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Test accuracy on the held‑out generalization subset."
+  loss:
+    type: number
+    description: "Training loss at the end of the epoch."
+  peak_ram_mb:
+    type: number
+    minimum: 0
+    description: "Maximum resident set size (VmRSS) observed during the run, in megabytes."
+  wall_time_sec:
+    type: number
+    minimum: 0
+    description: "Total wall‑clock time for the run, in seconds."
+  variance_explained:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Cumulative variance explained by the selected subspace (only for mask‑producing runs)."
+  tost_p_lower:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "One‑sided p‑value for the lower bound of the TOST equivalence test (null: μ_frozen ≤ μ_full − Δ)."
+  tost_p_upper:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "One‑sided p‑value for the upper bound of the TOST equivalence test (null: μ_frozen ≥ μ_full + Δ)."
+  power:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Achieved statistical power for the equivalence or t‑test."
+  t_test_p:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Two‑sample t‑test p‑value for SFT comparisons."
+  accuracy_drop_pp:
+    type: number
+    description: "Mean accuracy drop (percentage points) of the constrained condition relative to the full OPD baseline."
+  plateau_epoch:
+    type: integer
+    minimum: 1
+    description: "Epoch at which loss plateau is first detected (Δloss < 0.001 over two consecutive epochs)."
+required:
+  - run_id
+  - seed
+  - condition
+  - epoch
+  - accuracy
+  - loss
+  - peak_ram_mb
+  - wall_time_sec
+additionalProperties: false
