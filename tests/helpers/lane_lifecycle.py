@@ -57,6 +57,74 @@ def attempt_event(event_type: str, *, attempt_id: str = "A1", problem_id: str = 
     )
 
 
+class Clock:
+    """A monotonic instant source with the shape `cas_attempt_transition` takes.
+
+    Distinct timestamps per call, because several assertions turn on two records sharing
+    ONE construction: a clock returning a constant would make `assert_partner_intact`'s
+    actor/timestamp agreement check pass for halves that were built separately."""
+
+    def __init__(self, start: int = 0) -> None:
+        self._n = start
+
+    def __call__(self) -> str:
+        self._n += 1
+        return f"2026-08-04T12:{self._n // 60:02d}:{self._n % 60:02d}+00:00"
+
+
+def seed_claim(repo, *, problem_id: str = "P1", attempt_id: str = "A1",
+               generation: int = 1, actor: str = "seed", clock: Clock | None = None,
+               config=None, already_proposed: bool = False) -> None:
+    """Put the lane in the state a paired claim leaves it in, WITHOUT going through
+    `cas_claim`.
+
+    Writes the same two records in the same ONE commit that Task 8's paired `cas_claim`
+    will — so tests assert against the claim's SHAPE rather than against whichever version
+    of `cas_claim` exists when they run, and Task 8 replacing that function leaves them
+    green. Slice 1A's `cas_claim` writes only the coordinator's `ClaimAcquired`, which would
+    leave the Attempt at `proposal_verified` with no claim-holding transition legal.
+
+    It is a FIXTURE, not a second claim API: it takes no preconditions and lives in
+    `tests/helpers/`, so nothing in `src/` can reach it.
+
+    `already_proposed` skips the two opening transitions for an Attempt a test has already
+    started — the claim-status race needs an Attempt that exists before the lane moves."""
+    from llmxive.self_improvement.events import COORDINATOR_STREAM, coord_event
+    from llmxive.self_improvement.lane_log import append_many, read
+    from llmxive.self_improvement.lifecycle import cas_attempt_transition
+
+    clock = clock or Clock()
+    if not already_proposed:
+        for event_type in ("Proposed", "ProposalVerified"):
+            cas_attempt_transition(repo, problem_id=problem_id, attempt_id=attempt_id,
+                                   event_type=event_type, payload={}, actor=actor,
+                                   clock=clock, config=config)
+    else:
+        cas_attempt_transition(repo, problem_id=problem_id, attempt_id=attempt_id,
+                               event_type="ProposalVerified", payload={}, actor=actor,
+                               clock=clock, config=config)
+    problem_events = read(repo, problem_id, config=config)
+    coordinator_events = read(repo, COORDINATOR_STREAM, config=config)
+    timestamp = clock()
+    grant = Event(
+        # The id `cas_attempt_transition` would derive for this row, so a later
+        # `ClaimGranted` through the real path is an idempotent no-op rather than a second
+        # grant — the fixture has to be indistinguishable from the thing it stands in for.
+        event_id=derive_event_id(problem_id, f"claim\x00{attempt_id}"),
+        event_type="ClaimGranted", problem_id=problem_id, actor=actor,
+        payload={"problem_id": problem_id, "attempt_id": attempt_id,
+                 "claim_generation": generation},
+        timestamp=timestamp, attempt_id=attempt_id,
+    )
+    acquired = coord_event("ClaimAcquired", problem_id=problem_id, attempt_id=attempt_id,
+                           payload={"problem_id": problem_id, "attempt_id": attempt_id},
+                           actor=actor, timestamp=timestamp)
+    append_many(repo, [acquired, grant],
+                expected_revisions={COORDINATOR_STREAM: len(coordinator_events),
+                                    problem_id: len(problem_events)},
+                config=config)
+
+
 def witness_payload(state: AttemptState | None, event_type: str) -> dict[str, str]:
     """The payload term a transition's state witness requires when taken FROM ``state``.
 

@@ -12,10 +12,23 @@ from __future__ import annotations
 
 import enum
 from collections import deque
-from collections.abc import Iterator
+from collections.abc import Callable, Iterator, Mapping
 from dataclasses import dataclass
+from pathlib import Path
+from typing import Any
 
-from llmxive.self_improvement.events import REVIEW_STAGES, Event, payload_field
+from llmxive.git_event_log import Seam
+from llmxive.self_improvement.coordinator import project_coordinator
+from llmxive.self_improvement.events import (
+    COORDINATOR_STREAM,
+    REVIEW_STAGES,
+    Event,
+    coord_event,
+    derive_event_id,
+    payload_field,
+)
+from llmxive.self_improvement.lane_log import LaneLogConfig, append_many, read
+from llmxive.self_improvement.pairing import replayed_transaction
 
 
 class IllegalTransition(ValueError):
@@ -531,6 +544,187 @@ def project_attempt(events: list[Event]) -> AttemptProjection:
     )
 
 
+def _release_effect(problem_id: str, attempt_id: str, actor: str, timestamp: str) -> Event:
+    """The coordinator's release. Carries NO generation: the fencing token advances on
+    ``ClaimAcquired`` alone, so putting one here would be a second, unread copy of a number
+    with one owner."""
+    return coord_event("ClaimReleased", problem_id=problem_id, attempt_id=attempt_id,
+                       payload={"problem_id": problem_id, "attempt_id": attempt_id},
+                       actor=actor, timestamp=timestamp)
+
+
+def _monitor_effect(problem_id: str, attempt_id: str, actor: str, timestamp: str) -> Event:
+    """Matrix row 4. ``merged_at`` is this transaction's instant — the SAME clock read the
+    Attempt's ``PromotionObserved`` carries, because they are one commit. It is the value
+    ``last_autonomous_merge_at`` folds to, so the coordinator never has to guess when the
+    merge it is monitoring actually landed."""
+    return coord_event("MonitorStarted", problem_id=problem_id, attempt_id=attempt_id,
+                       payload={"problem_id": problem_id, "attempt_id": attempt_id,
+                                "merged_at": timestamp},
+                       actor=actor, timestamp=timestamp)
+
+
+#: Keyed by the exact names :attr:`Transition.coordinator_effects` uses. A row naming an
+#: effect with no builder is caught by `test_every_declared_effect_has_a_builder`, not at
+#: runtime in production — the table and this registry are two halves of one declaration.
+_COORDINATOR_EFFECTS: dict[str, Callable[[str, str, str, str], Event]] = {
+    "ClaimReleased": _release_effect,
+    "MonitorStarted": _monitor_effect,
+}
+
+
+def _claim_required(transition: Transition, state_before: AttemptState | None) -> bool:
+    """Does this transition, from this state, have to write the coordinator too?
+
+    The matrix's conditional-effects clause, in code: the row must declare effects AND the
+    Attempt must hold the lane in the state the transition is LEAVING. "Holds the lane" is
+    read from the Attempt's own timeline (:func:`holds_claim`) rather than from the
+    coordinator, so that this — the WRITER's rule — and ``assert_lane_consistent``'s rule
+    are the same predicate over the same input. Two readings of "is a release required" is
+    how a writer ends up manufacturing precisely the half-state its auditor is looking for.
+
+    It takes a STATE, not a history, because a replay must ask the question about the state
+    the stored event was written FROM — which is not the current state, since the event
+    already moved it. Passing a history would silently answer about the present.
+
+    Sibling of :func:`released_claim`, which asks the narrower "was a ``ClaimReleased``
+    among them?". They differ ONLY in which declaration they consult — both gate on the
+    same ``holds_claim(state_before)``, and neither may re-derive that gate. (They currently
+    agree on every row, because every row that declares any effect declares a release; a
+    future ``◇``-only row is exactly when they must not be collapsed into one.)"""
+    return bool(transition.coordinator_effects) and holds_claim(state_before)
+
+
+def _state_before(history: list[Event], event_id: str) -> AttemptState | None:
+    """The state this Attempt was in immediately before ``event_id`` was applied.
+
+    Read back through the SAME fold everything else uses, so a replay's applicability answer
+    is the one the original write computed and the one the auditor will compute."""
+    for step in walk_attempt(history):
+        if step.event.event_id == event_id:
+            return step.state_before
+    raise IllegalTransition(f"{event_id} is not a transition in this history")
+
+
+def cas_attempt_transition(repo: Path, *, problem_id: str, attempt_id: str,
+                           event_type: str, payload: Mapping[str, Any], actor: str,
+                           clock: Callable[[], str],
+                           config: LaneLogConfig | None = None,
+                           _after_parent: Seam = None, _before_ref_update: Seam = None,
+                           _after_push: Seam = None) -> TransitionOutcome:
+    """Append one Attempt transition — and the coordinator effects its row declares — under
+    the table's rules, or raise ``LaneRevisionConflict``.
+
+    Returns the resulting projection together with whether THIS call wrote it, so a retry
+    after a lost acknowledgement is an ordinary no-op rather than an error.
+
+    The precondition is re-evaluated against the projection the CAS commits against — never
+    a stale read — so a terminal that landed while this caller was deciding defeats it. That
+    is the whole mechanism behind FR-035's "exactly one terminal": ref-level CAS ORDERS two
+    concurrent terminals, it does not reject either, so the rejection has to happen here."""
+    if event_type in NON_TRANSITION_EVENTS:
+        raise IllegalTransition(
+            f"{event_type!r} moves no state and is not written through this path")
+    transition = _BY_EVENT.get(event_type)
+    if transition is None:
+        raise IllegalTransition(f"unknown Attempt event {event_type!r}")
+    if event_type == "ClaimExpired":
+        # A reclaim's preconditions (expiry reached, no unreconciled intent, held at the
+        # observed generation) are not decorations on this transition — they ARE the
+        # reclaim. Reaching it through the generic path would skip them.
+        raise IllegalTransition("ClaimExpired is written by cas_reclaim, not by this path")
+    events = read(repo, problem_id, config=config)
+    coordinator_events = read(repo, COORDINATOR_STREAM, config=config)
+    coordinator = project_coordinator(coordinator_events)
+    history = [e for e in events if e.attempt_id == attempt_id]
+    event_id = derive_event_id(problem_id, f"{transition.key_suffix}\x00{attempt_id}")
+    stored = next((e for e in history if e.event_id == event_id), None)
+
+    if stored is not None:
+        event = stored
+        requires_claim = _claim_required(transition, _state_before(history, event_id))
+        writes = replayed_transaction(
+            repo, stored, transition.coordinator_effects, coordinator_events,
+            problem_id=problem_id, attempt_id=attempt_id,
+            expected_event_type=event_type, required=requires_claim, config=config)
+    else:
+        event = Event(
+            event_id=event_id,
+            event_type=event_type, problem_id=problem_id, actor=actor,
+            payload={"problem_id": problem_id, "attempt_id": attempt_id, **payload},
+            timestamp=clock(), attempt_id=attempt_id,
+        )
+        # Whether this transition must ALSO write the coordinator is a fact about the
+        # ATTEMPT — exactly the predicate `assert_lane_consistent` audits with. Deriving it
+        # from the coordinator's ownership instead makes a DISAGREEMENT between the two look
+        # like "nothing to release": an Attempt in `implementing` whose claim record is
+        # missing or names someone else would write its terminal alone, manufacturing the
+        # half-state the transaction exists to prevent and leaving the auditor to find it
+        # later. Reading it from the Attempt's own timeline makes the two readings agree by
+        # construction, and turns a divergence into a REFUSAL here.
+        requires_claim = _claim_required(
+            transition, project_attempt(history).state if history else None)
+        writes = [event, *(
+            _COORDINATOR_EFFECTS[name](problem_id, attempt_id, actor, event.timestamp)
+            for name in (transition.coordinator_effects if requires_claim else ()))]
+
+    expected = {problem_id: len(events)}
+    if requires_claim:
+        expected[COORDINATOR_STREAM] = coordinator.lane_revision
+
+    def _legal_or_landed(observed: dict[str, list[Event]]) -> tuple[bool, str]:
+        evs = observed[problem_id]
+        if any(e.event_id == event.event_id for e in evs):
+            return (True, "")  # this exact transition already landed → idempotent
+        history = [e for e in evs if e.attempt_id == attempt_id]
+        if not history:
+            return (not transition.from_states, "an Attempt cannot open with this event")
+        try:
+            current = project_attempt(history)
+        except IllegalTransition as exc:   # a history we cannot trust → refuse to add to it
+            return (False, f"unprojectable history: {exc}")
+        if current.is_terminal:
+            return (False, f"{attempt_id!r} already terminal at {current.state.value!r}")
+        if current.state not in transition.from_states:
+            return (False, f"illegal from {current.state.value!r}")
+        if _claim_required(transition, current.state) != requires_claim:
+            # Defence in depth behind the expected-revision pin above, which is what
+            # actually rejects a claim status that moved: this Attempt's state cannot change
+            # without its Problem stream growing, and a grown stream is already a stale
+            # revision. The check stays because it is the ONE thing that would still be true
+            # if that pin were ever loosened to allow per-Attempt concurrency — and because
+            # `from_states` alone does not pin applicability: `ReviewAborted` is legal from
+            # `proposed` (holds nothing) AND from `implementing` (holds the lane), so a
+            # single-stream write built from a stale `proposed` would satisfy every other
+            # check at a parent where the Attempt is claimed.
+            return (False, "this Attempt's claim status changed while these writes were "
+                           "being built — recompute against the new tip")
+        if requires_claim:
+            # Re-checked against the SAME parent the commit is built on, so a claim that
+            # changed hands while this caller was deciding defeats the release half — and
+            # because it is one transaction, it defeats the terminal too. Note this now runs
+            # whenever the ATTEMPT holds, so an idle-or-foreign coordinator is a REFUSAL
+            # rather than a silently claim-free terminal.
+            now_holding = project_coordinator(observed[COORDINATOR_STREAM])
+            if (now_holding.active_problem_id, now_holding.active_attempt_id) != (
+                    problem_id, attempt_id):
+                return (False,
+                        f"{attempt_id!r} is {current.state.value!r} and so holds the lane, "
+                        f"but the coordinator has "
+                        f"{now_holding.active_problem_id}/{now_holding.active_attempt_id}")
+        return (True, "")
+
+    result = append_many(repo, writes, expected_revisions=expected,
+                         precondition=_legal_or_landed, config=config,
+                         _after_parent=_after_parent,
+                         _before_ref_update=_before_ref_update, _after_push=_after_push)
+    return TransitionOutcome(
+        projection=project_attempt(
+            [e for e in read(repo, problem_id, config=config)
+             if e.attempt_id == attempt_id]),
+        created=result.created)
+
+
 __all__ = [
     "ATTEMPT_EVENT_TYPES",
     "CLAIM_HOLDING_STATES",
@@ -549,6 +743,7 @@ __all__ = [
     "Step",
     "Transition",
     "TransitionOutcome",
+    "cas_attempt_transition",
     "holds_claim",
     "legal_events_from",
     "project_attempt",

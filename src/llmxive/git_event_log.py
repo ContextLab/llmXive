@@ -295,6 +295,45 @@ def read_log(repo: Path, *, log: LogRef, validate: Callable[[dict], None]) -> li
                         validate=validate)
 
 
+def added_paths_by_commit(repo: Path, *, log: LogRef) -> dict[str, str]:
+    """``{path: commit}`` for every blob ADDED on ``log.ref``, in ONE traversal.
+
+    Each record is its own blob (:func:`_commit_events` places one per event) and the ref
+    is append-only and linear, so ``--diff-filter=A`` attributes every record to the commit
+    that introduced it, exactly. That is what makes "these were written by ONE transaction"
+    checkable after the fact rather than merely asserted by the writer: two blobs in one
+    commit were committed together, and no later edit can make two separate commits look
+    like one.
+
+    PATHS, not records. This module knows how to ask git and nothing about what a path
+    MEANS; mapping one to a stream and a record id is the caller's knowledge.
+
+    A path that was removed and re-added resolves to the LATER commit — the traversal is
+    ``--reverse`` (oldest first) and each hit overwrites — which is the honest answer: the
+    blob reachable from the tip is the one that commit introduced.
+
+    The NUL-prefixed commit format matters. ``--name-only`` prints commit lines and path
+    lines with nothing to tell them apart, an event id is a hex digest that would be
+    indistinguishable from a bare ``%H``, and a path can never begin with NUL.
+
+    LOCAL, like :func:`read_log`, and for the same reason — a caller that needs the
+    authoritative tip syncs first. A missing ref is no events, not an error."""
+    proc = _git(
+        ["log", "--reverse", "--format=%x00%H", "--name-only", "--diff-filter=A", log.ref],
+        cwd=repo, identity=log.git_identity, check=False,
+    )
+    if proc.returncode != 0:      # no ref yet → no events (cold start), not a failure
+        return {}
+    added: dict[str, str] = {}
+    commit = ""
+    for line in proc.stdout.splitlines():
+        if line.startswith("\x00"):
+            commit = line[1:]
+        elif line.strip():
+            added[line] = commit
+    return added
+
+
 #: CAS attempts before an append gives up. It MUST exceed the number of writers that can
 #: contend on one ref, because losing every race to every peer is a legal interleaving,
 #: not an anomaly: the convergence panel dispatches its lenses through a ThreadPoolExecutor
@@ -946,6 +985,7 @@ __all__ = [
     "LogRef",
     "Seam",
     "TransactionResult",
+    "added_paths_by_commit",
     "append_to_log",
     "append_transaction",
     "bootstrap_log",

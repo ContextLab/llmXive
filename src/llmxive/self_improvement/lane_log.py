@@ -9,7 +9,7 @@ from __future__ import annotations
 import json
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 
 from llmxive.git_event_log import (
     AppendResult,
@@ -18,6 +18,7 @@ from llmxive.git_event_log import (
     LogRef,
     Seam,
     TransactionResult,
+    added_paths_by_commit,
     append_to_log,
     append_transaction,
     bootstrap_log,
@@ -149,6 +150,32 @@ def read(repo: Path, problem_id: str, *, config: LaneLogConfig | None = None) ->
     return [_to_event(r) for r in raw_sorted]
 
 
+def events_by_commit(repo: Path,
+                     config: LaneLogConfig | None = None) -> dict[tuple[str, str], str]:
+    """``{(stream, event_id): commit}`` for every event on the lane ref.
+
+    The ref's LAYOUT is this module's knowledge — ``git_event_log`` returns paths and knows
+    nothing about what a path segment means — so the translation happens here rather than
+    at the coordinator, which should no more parse a tree than it should shell out to git.
+
+    Keyed by the PAIR, matching :attr:`TransactionResult.seqs` and the store's own notion of
+    identity: an id is unique within a stream, and the same id on two streams is a different
+    record. Keying on the bare id would let one silently overwrite the other and produce a
+    same-commit verdict about the WRONG event — a false pass in the checker whose entire job
+    is to disbelieve.
+
+    Local, like the traversal beneath it. Every caller reaches this after a `read`, which
+    has already synced and verified the tip."""
+    return {
+        (path.parent.name, path.stem): commit
+        for path, commit in (
+            (PurePosixPath(raw), commit)
+            for raw, commit in added_paths_by_commit(
+                repo, log=_log_ref(COORDINATOR_STREAM, config)).items())
+        if path.suffix == ".json"
+    }
+
+
 def _finalize(built: dict, seq: int) -> dict:
     """Stamp the store-owned fields inside the CAS.
 
@@ -261,5 +288,6 @@ __all__ = [
     "append",
     "append_many",
     "bootstrap_lane_log",
+    "events_by_commit",
     "read",
 ]

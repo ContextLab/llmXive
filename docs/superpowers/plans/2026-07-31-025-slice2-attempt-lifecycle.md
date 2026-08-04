@@ -3814,6 +3814,54 @@ It writes `Proposed` and `ProposalVerified` on the Problem stream first (via
 
     Damage is applied by writing the blobs directly and committing on the ref — NOT by calling lane APIs, which correctly refuse to produce any of these states.
 
+**Six cases needed correcting once run against the real store. Each was a claim about a
+mechanism that turns out to be unreachable as described — none was a code defect:**
+
+1. **8d's stated mechanism is wrong.** "Only the re-made applicability check can catch it"
+   is false: `expected[problem_id]` pins the WHOLE Problem stream, and this Attempt's state
+   cannot change without that stream growing, so a stale revision rejects the transaction
+   first — always. The applicability re-check is therefore unreachable while that pin
+   stands. It is KEPT as defence in depth (it is the one check that would still hold if the
+   pin were loosened to allow per-Attempt concurrency), the code comment says so, and the
+   test asserts what actually fires. A test whose docstring names the wrong guard is worse
+   than no test: it reports coverage that does not exist.
+2. **14a cannot be built by deleting a partner.** That leaves a seq GAP, which
+   `_check_continuity` refuses as corruption on READ — a `GitLogError` raised long before
+   the replay check could see anything. The half-transaction is written by hand instead
+   (`_half_a_transaction`), which is also the more faithful shape: a transaction that never
+   wrote its second half, rather than one whose second half was removed afterwards.
+3. **14b/14f are only reachable on row 4's `MonitorStarted`.** Rewriting a `ClaimReleased`'s
+   `attempt_id` makes `project_coordinator` refuse the history as a non-owner release before
+   `cas_attempt_transition` reaches its replay path — a different, also-correct fail-closed
+   outcome, but not the one under test. `MonitorStarted` has no ownership fold until Task
+   12, so it is where these damages reach the checker.
+4. **The ANCHOR's payload-identity check is unreachable by construction**, and
+   `assert_member_identity`'s docstring now says so. `validate_lane_event` refuses on READ
+   any record whose payload disagrees with its envelope, and the anchor is selected from a
+   stream read by `problem_id` and filtered by the envelope `attempt_id` — so a mismatched
+   anchor is either rejected earlier or not found at all. What protects the anchor is the
+   TYPE check (14e), tested on both branches of `required`. The payload check is live for
+   PARTNERS, which are located by id alone among all coordinator events.
+5. **Clause 3 needs a foldable divergence.** A forged `ClaimReleased` for an Attempt the
+   coordinator does not show as owner is refused by the fold. The case is built from the
+   real disagreement instead: the coordinator says P1/A1 holds the lane (a bare `cas_claim`)
+   while P1/A1's own timeline never got a grant, so it aborts from `proposed` holding
+   nothing — and the release that then exists for it released somebody else's claim.
+6. **Case 6 could not use `ClaimGranted`.** `seed_claim` writes the grant at the id this
+   path derives, so re-issuing it is a correct idempotent REPLAY, not an illegal transition.
+   Case 6 uses `Rejected` (legal from `proposal_verified`, not from `implementing`), and the
+   original assertion became its own test: the fixture is indistinguishable from a grant
+   written through the real path — the property that lets Task 8 swap in the real
+   `cas_claim` without touching these tests.
+
+**One case was ADDED.** `expected[COORDINATOR_STREAM] = coordinator.lane_revision` survived
+mutation: no test failed with the pin removed, because the ownership re-check covers the
+safety property on its own. The pin is kept — it is what makes the release half get built
+against a coordinator state the caller actually observed — and
+`test_a_concurrent_coordinator_write_defeats_a_claim_holding_transition` now covers it: an
+unrelated coordinator write (the promotion gate, which changes no ownership) makes a
+claim-holding terminal rebuild and retry.
+
 - [ ] **Step 2: Run to verify they fail**
 
 Run: `python -m pytest tests/integration/test_self_improvement_lifecycle_cas.py -q`
@@ -3861,8 +3909,35 @@ def events_by_commit(
     return added
 ```
 
-and in `coordinator.py`, the exception both the writer and (in Task 8) the auditor raise —
-defined here because this is the task whose replay path first refuses:
+**Correction made during implementation: the pairing primitives get their own module.** The
+plan put `LaneInconsistent` + `assert_member_identity` + `assert_partner_intact` +
+`replayed_transaction` in `coordinator.py`. That forces an import CYCLE at Task 8, and the
+cycle is certain rather than hypothetical:
+
+- `lifecycle` must import `coordinator` — `cas_attempt_transition` reads `project_coordinator`
+  to check who holds the lane.
+- Task 8 then makes `coordinator` import `lifecycle` — `cas_heartbeat` needs
+  `CLAIM_HOLDING_STATES`, `cas_reclaim` needs the `ClaimExpired` row, and
+  `assert_lane_consistent` needs `walk_attempt` + `holds_claim`. `cas_claim`'s row-1 replay
+  (`_validate_claim_pair`) is the third caller of `assert_partner_intact`, so the primitives
+  cannot simply live in `lifecycle` either.
+
+They therefore live in **`src/llmxive/self_improvement/pairing.py`**, which imports only the
+store and the event vocabulary and sits below both. One responsibility, and it is a real one:
+whether what is stored looks like something ONE transaction produced. Every symbol and
+signature is exactly as specified above; only the module differs. The rule this settles for
+Task 8: `coordinator.py` owns the coordinator STREAM and never imports `lifecycle`; anything
+spanning both streams lives above both.
+
+`events_by_commit` also split in two for the same reason of knowledge boundaries — the plan's
+own argument, followed one level further. `_git` is private to `git_event_log`, and that
+module knows how to ask git and nothing about what a path MEANS, so it gains a public
+`added_paths_by_commit(repo, *, log) -> {path: commit}` and `lane_log.events_by_commit`
+translates paths into `(stream, event_id)`. A private-symbol import across modules would
+have been the alternative.
+
+The exception both the writer and (in Task 8) the auditor raise — defined here because this
+is the task whose replay path first refuses:
 
 ```python
 class LaneInconsistent(RuntimeError):
@@ -3880,29 +3955,27 @@ Then the row's effects and the transition itself:
 ```python
 def _release_effect(problem_id: str, attempt_id: str, actor: str, timestamp: str) -> Event:
     """The coordinator's release. Carries NO generation: the fencing token advances on
-    ``ClaimAcquired`` alone, so putting one here would be a second, unread copy of a
-    number with one owner."""
-    return coord_event("ClaimReleased",
-                        (COORDINATOR_KEYS["ClaimReleased"], problem_id, attempt_id),
-                        {"problem_id": problem_id, "attempt_id": attempt_id},
-                        actor, timestamp, attempt_id)
+    ``ClaimAcquired`` alone, so putting one here would be a second, unread copy of a number
+    with one owner."""
+    return coord_event("ClaimReleased", problem_id=problem_id, attempt_id=attempt_id,
+                       payload={"problem_id": problem_id, "attempt_id": attempt_id},
+                       actor=actor, timestamp=timestamp)
 
 
 def _monitor_effect(problem_id: str, attempt_id: str, actor: str, timestamp: str) -> Event:
     """Matrix row 4. ``merged_at`` is this transaction's instant — the SAME clock read the
     Attempt's ``PromotionObserved`` carries, because they are one commit. It is the value
-    `last_autonomous_merge_at` folds to, so the coordinator never has to guess when the
+    ``last_autonomous_merge_at`` folds to, so the coordinator never has to guess when the
     merge it is monitoring actually landed."""
-    return coord_event("MonitorStarted",
-                        (COORDINATOR_KEYS["MonitorStarted"], problem_id, attempt_id),
-                        {"problem_id": problem_id, "attempt_id": attempt_id,
-                         "merged_at": timestamp},
-                        actor, timestamp, attempt_id)
+    return coord_event("MonitorStarted", problem_id=problem_id, attempt_id=attempt_id,
+                       payload={"problem_id": problem_id, "attempt_id": attempt_id,
+                                "merged_at": timestamp},
+                       actor=actor, timestamp=timestamp)
 
 
-#: Keyed by the exact names `Transition.coordinator_effects` uses. A row naming an effect
-#: with no builder is caught by `test_every_declared_effect_has_a_builder`, not at runtime
-#: in production — the table and this registry are two halves of one declaration.
+#: Keyed by the exact names :attr:`Transition.coordinator_effects` uses. A row naming an
+#: effect with no builder is caught by `test_every_declared_effect_has_a_builder`, not at
+#: runtime in production — the table and this registry are two halves of one declaration.
 _COORDINATOR_EFFECTS: dict[str, Callable[[str, str, str, str], Event]] = {
     "ClaimReleased": _release_effect,
     "MonitorStarted": _monitor_effect,
@@ -3914,211 +3987,28 @@ def _claim_required(transition: Transition, state_before: AttemptState | None) -
 
     The matrix's conditional-effects clause, in code: the row must declare effects AND the
     Attempt must hold the lane in the state the transition is LEAVING. "Holds the lane" is
-    read from the Attempt's own timeline (`holds_claim`) rather than from the coordinator,
-    so that this — the WRITER's rule — and `assert_lane_consistent`'s rule are the same
-    predicate over the same input. Two readings of "is a release required" is how a writer
-    ends up manufacturing precisely the half-state its auditor is looking for.
+    read from the Attempt's own timeline (:func:`holds_claim`) rather than from the
+    coordinator, so that this — the WRITER's rule — and ``assert_lane_consistent``'s rule
+    are the same predicate over the same input. Two readings of "is a release required" is
+    how a writer ends up manufacturing precisely the half-state its auditor is looking for.
 
     It takes a STATE, not a history, because a replay must ask the question about the state
     the stored event was written FROM — which is not the current state, since the event
     already moved it. Passing a history would silently answer about the present.
 
-    Sibling of Task 5's `released_claim`, which asks the narrower "was a `ClaimReleased`
+    Sibling of :func:`released_claim`, which asks the narrower "was a ``ClaimReleased``
     among them?". They differ ONLY in which declaration they consult — both gate on the
-    same `holds_claim(state_before)`, and neither may re-derive that gate. (They currently
+    same ``holds_claim(state_before)``, and neither may re-derive that gate. (They currently
     agree on every row, because every row that declares any effect declares a release; a
-    future `◇`-only row is exactly when they must not be collapsed into one.)"""
+    future ``◇``-only row is exactly when they must not be collapsed into one.)"""
     return bool(transition.coordinator_effects) and holds_claim(state_before)
-
-
-def assert_member_identity(event: Event, expected_type: str, stream: str,
-                           problem_id: str, attempt_id: str) -> None:
-    """A located record IS the record it was located as: right type, right stream, naming
-    this Problem and Attempt. Raise otherwise.
-
-    Every caller that finds a record by DERIVED ID needs this, because a derived id is a
-    hypothesis ("if this transaction landed, its record is here") and the record found
-    there is evidence, not proof. Reusing it verbatim without checking is how a corrupt
-    record gets replayed as a healthy transaction — `append_many` cannot catch it, since
-    on the replay path each stored event is compared against ITSELF.
-
-    `expected_type` is REQUIRED and has no default. An earlier revision made the anchor's
-    type check optional, and both replay paths then silently omitted it: the parameter
-    existed, defaulted to `None`, and disabled exactly the check it was added for. A
-    caller that genuinely cannot name a type must not call this function at all."""
-    if event.event_type != expected_type:
-        raise LaneInconsistent(
-            f"{problem_id}/{attempt_id}: expected {expected_type} on {stream!r}, "
-            f"found {event.event_type}")
-    if event.problem_id != stream:
-        raise LaneInconsistent(
-            f"{problem_id}/{attempt_id}: {event.event_type} is on stream "
-            f"{event.problem_id!r}, expected {stream!r}")
-    if (payload_field(event, "problem_id"), payload_field(event, "attempt_id")) != (
-            problem_id, attempt_id):
-        raise LaneInconsistent(
-            f"{problem_id}/{attempt_id}: {event.event_type} names "
-            f"{payload_field(event, 'problem_id')}/"
-            f"{payload_field(event, 'attempt_id')} instead")
-
-
-def assert_partner_intact(*, anchor: Event, partner: Event | None, coordinator_event: str,
-                          compare: tuple[str, ...],
-                          commit_of: Mapping[tuple[str, str], str],
-                          problem_id: str, attempt_id: str) -> Event:
-    """One anchor→partner pairing, checked to the FULL strength of the matrix, or raise.
-
-    Four things, in the order a corruption is cheapest to describe: the partner exists; it
-    is the declared type on the coordinator stream naming this Problem and Attempt
-    (`assert_member_identity`); both members were introduced by the SAME commit; and the
-    fields the row calls shared agree.
-
-    **The ANCHOR's own identity is the caller's job, not this function's**, because only
-    the caller knows how the anchor was obtained. A caller that located it by derived id
-    (both replay paths) MUST call `assert_member_identity` on it first; the auditor need
-    not, because its anchor comes out of `walk_attempt`, which has already refused unknown
-    types and illegal transitions. Making that an optional parameter here was the bug: it
-    read as covered and was not. `actor` and `timestamp` are checked too, unconditionally — every
-    row builds all of its members from one actor and one timestamp (row 1 from one `body`,
-    rows 2/4 from `_COORDINATOR_EFFECTS[...](..., actor, event.timestamp)`, row 3 from
-    `cas_reclaim`'s single pair), and the store never stamps them itself: `lane_log.append`
-    and `append_many` pass no `now_field`, so `git_event_log`'s `setdefault` never fires and
-    the caller's values are what land. If a future row legitimately writes its halves under
-    different identities, that belongs on `_Pairing` where the row is declared — not as a
-    weakening here.
-
-    ONE function for THREE callers, and that is the point:
-
-    - `replayed_transaction` — the writer, replaying rows 2/3/4 after a lost ack;
-    - `_validate_claim_pair` — the writer, replaying row 1;
-    - `assert_lane_consistent` — the auditor, over all history.
-
-    The first two also call `assert_member_identity` on their anchor; the auditor does
-    not, for the reason above.
-
-    They previously carried three strengths of the same check, weakest at the writer: the
-    replay path verified only that a partner was PRESENT. A record at a derived id can be
-    present and still be the wrong type, name another Attempt, disagree on generation, or —
-    the one presence can never see — have been added by a DIFFERENT COMMIT, which is a
-    transaction that was re-split into two and is exactly the regression the atomicity
-    argument rests on. Feeding such a record back to `append_many` proves nothing, because
-    there each stored event is compared against ITSELF: on the replay path append-only
-    validation is a tautology, so everything it cannot see must be checked here.
-
-    `commit_of` is passed in rather than read, so a caller checking several pairings pays
-    for one `events_by_commit` traversal."""
-    if partner is None:
-        raise LaneInconsistent(
-            f"{problem_id}/{attempt_id}: {anchor.event_type} is present but its "
-            f"{coordinator_event} is not — half a transaction, which nothing that writes "
-            "this lane can produce")
-    assert_member_identity(partner, coordinator_event, COORDINATOR_STREAM,
-                           problem_id, attempt_id)
-    # Scoped by (stream, id) — the store's identity, not the bare id.
-    commits = {}
-    for event in (anchor, partner):
-        commit = commit_of.get((event.problem_id, event.event_id))
-        if commit is None:
-            raise LaneInconsistent(
-                f"{problem_id}/{attempt_id}: no commit introduces {event.event_type} — "
-                "the ref does not contain a record that `read` returned")
-        commits[event.event_type] = commit
-    if len(set(commits.values())) != 1:
-        # Both present is not the invariant; both present IN ONE COMMIT is.
-        raise LaneInconsistent(
-            f"{problem_id}/{attempt_id}: " + " and ".join(
-                f"{t} was added by {c}" for t, c in commits.items()) +
-            " — the matrix says one transaction writes both")
-    for field in compare:
-        if payload_field(anchor, field) != payload_field(partner, field):
-            raise LaneInconsistent(
-                f"{problem_id}/{attempt_id}: {field} is "
-                f"{payload_field(anchor, field)!r} on {anchor.event_type} and "
-                f"{payload_field(partner, field)!r} on {partner.event_type} — one "
-                "transaction wrote both from one construction, so they cannot disagree")
-    if (anchor.actor, anchor.timestamp) != (partner.actor, partner.timestamp):
-        raise LaneInconsistent(
-            f"{problem_id}/{attempt_id}: the halves disagree on actor/timestamp "
-            f"({anchor.actor}@{anchor.timestamp} vs {partner.actor}@{partner.timestamp}); "
-            "the replay path reuses both verbatim, so a disagreement here would be carried "
-            "forward as fact")
-    return partner
-
-
-def replayed_transaction(repo: Path, stored: Event, declared_effects: tuple[str, ...],
-                         coordinator_events: list[Event], *, problem_id: str,
-                         attempt_id: str, expected_event_type: str, required: bool,
-                         config: LaneLogConfig | None = None) -> list[Event]:
-    """The event set of an already-landed cross-stream transaction, LOCATED not rebuilt.
-
-    `cas_attempt_transition` (rows 2 and 4) and `cas_reclaim` (row 3) call it with the
-    effects their row DECLARES and with `required` = whether the Attempt held the lane in
-    the state the stored event was written from. Both clauses of the conditional-effects
-    rule are checked here, not only the one that expects a partner — passing the pruned
-    list instead of `(declared, required)` would make "correctly wrote nothing" and
-    "wrongly holds another Attempt's release" the same input. Row 1 does NOT, and the reason is worth stating so nobody
-    "unifies" it later: there, the Attempt-side `ClaimGranted` is not a reliable anchor —
-    the surviving half can be EITHER one, and `cas_claim` must detect a lone `ClaimAcquired`
-    (a lane wedged behind an Attempt that never started) as well as a lone grant. Its
-    bidirectional check is a stronger test, not a duplicate of this one; folding it into
-    this shape would delete a case.
-
-    Two properties, both learned the hard way:
-
-    **Located, not rebuilt.** `actor` is part of an event's identity
-    (`lane_log._IDENTITY_EXCLUDE` covers `seq`, `timestamp` and the revision anchors — not
-    `actor`), and recovery routinely runs under a different runner identity than the one
-    that died. Rebuilding would produce a different body under the same derived id and fail
-    append-only validation on exactly the cross-runner retry the lost-acknowledgement
-    contract exists to make survivable.
-
-    **Intact or refused.** A stored Attempt event whose declared partner is missing is half
-    a transaction; one whose partner is present but malformed, or present but added by a
-    different commit, is a transaction that was never atomically written. Returning the
-    Attempt event anyway would let the retry report success while the damage went
-    unmentioned — the naive replay's failure, and the reason a row-4 replay could pass with
-    its `MonitorStarted` gone. Every member therefore goes through `assert_partner_intact`,
-    the SAME check the auditor applies to history: a replay is an audit of one transaction,
-    and running a weaker one at the moment a caller is about to be handed the result is the
-    wrong place to save a traversal. Completing a missing half instead is the repair this
-    design does not offer: it would finish a transaction that was never atomically
-    started."""
-    # FIRST, and on BOTH branches below: the anchor was located by a derived id, so its
-    # own identity is a hypothesis until checked. The `not required` path returns it with
-    # no partner to cross-check against, which makes this the only thing standing between
-    # a corrupt record at the right id and a replay reported as success.
-    assert_member_identity(stored, expected_event_type, problem_id, problem_id, attempt_id)
-    found = {
-        name: next((e for e in coordinator_events
-                    if e.event_id == coordinator_event_id(name, problem_id, attempt_id)),
-                   None)
-        for name in declared_effects
-    }
-    if not required:
-        # Clause 3 of the conditional-effects rule, which the auditor also enforces: a row
-        # can DECLARE an effect and correctly not have written one. Then the absence is the
-        # invariant, and a partner that exists released somebody else's claim.
-        present = sorted(name for name, event in found.items() if event is not None)
-        if present:
-            raise LaneInconsistent(
-                f"{problem_id}/{attempt_id}: {stored.event_type} was written from a state "
-                f"that held nothing, so it wrote no coordinator effect — but "
-                f"{', '.join(present)} exists for it, which released another Attempt's "
-                "claim")
-        return [stored]
-    commit_of = events_by_commit(repo, config=config)
-    return [stored, *(
-        assert_partner_intact(anchor=stored, partner=found[name], coordinator_event=name,
-                              compare=(), commit_of=commit_of,
-                              problem_id=problem_id, attempt_id=attempt_id)
-        for name in declared_effects)]
 
 
 def _state_before(history: list[Event], event_id: str) -> AttemptState | None:
     """The state this Attempt was in immediately before ``event_id`` was applied.
 
-    Read back through the SAME fold everything else uses, so a replay's applicability
-    answer is the one the original write computed and the one the auditor will compute."""
+    Read back through the SAME fold everything else uses, so a replay's applicability answer
+    is the one the original write computed and the one the auditor will compute."""
     for step in walk_attempt(history):
         if step.event.event_id == event_id:
             return step.state_before
@@ -4132,7 +4022,7 @@ def cas_attempt_transition(repo: Path, *, problem_id: str, attempt_id: str,
                            _after_parent: Seam = None, _before_ref_update: Seam = None,
                            _after_push: Seam = None) -> TransitionOutcome:
     """Append one Attempt transition — and the coordinator effects its row declares — under
-    the table's rules, or raise :class:`LaneRevisionConflict`.
+    the table's rules, or raise ``LaneRevisionConflict``.
 
     Returns the resulting projection together with whether THIS call wrote it, so a retry
     after a lost acknowledgement is an ordinary no-op rather than an error.
@@ -4175,12 +4065,12 @@ def cas_attempt_transition(repo: Path, *, problem_id: str, attempt_id: str,
         )
         # Whether this transition must ALSO write the coordinator is a fact about the
         # ATTEMPT — exactly the predicate `assert_lane_consistent` audits with. Deriving it
-        # from the coordinator's ownership instead makes a DISAGREEMENT between the two
-        # look like "nothing to release": an Attempt in `implementing` whose claim record
-        # is missing or names someone else would write its terminal alone, manufacturing
-        # the half-state the transaction exists to prevent and leaving the auditor to find
-        # it later. Reading it from the Attempt's own timeline makes the two readings agree
-        # by construction, and turns a divergence into a REFUSAL here.
+        # from the coordinator's ownership instead makes a DISAGREEMENT between the two look
+        # like "nothing to release": an Attempt in `implementing` whose claim record is
+        # missing or names someone else would write its terminal alone, manufacturing the
+        # half-state the transaction exists to prevent and leaving the auditor to find it
+        # later. Reading it from the Attempt's own timeline makes the two readings agree by
+        # construction, and turns a divergence into a REFUSAL here.
         requires_claim = _claim_required(
             transition, project_attempt(history).state if history else None)
         writes = [event, *(
@@ -4200,27 +4090,30 @@ def cas_attempt_transition(repo: Path, *, problem_id: str, attempt_id: str,
             return (not transition.from_states, "an Attempt cannot open with this event")
         try:
             current = project_attempt(history)
-        except IllegalTransition as exc:      # a history we cannot trust → refuse to add to it
+        except IllegalTransition as exc:   # a history we cannot trust → refuse to add to it
             return (False, f"unprojectable history: {exc}")
         if current.is_terminal:
             return (False, f"{attempt_id!r} already terminal at {current.state.value!r}")
         if current.state not in transition.from_states:
             return (False, f"illegal from {current.state.value!r}")
         if _claim_required(transition, current.state) != requires_claim:
-            # The applicability decision is re-made at the parent, because `from_states`
-            # alone does not pin it: `ReviewAborted` is legal from `proposed` (holds
-            # nothing) AND from `implementing` (holds the lane). A stale read of `proposed`
-            # builds a single-stream write that would still satisfy every other check at a
-            # parent where the Attempt is `implementing` and claimed — landing a terminal
-            # on a live claim. Losing here is a rebuild-and-retry, not an error.
+            # Defence in depth behind the expected-revision pin above, which is what
+            # actually rejects a claim status that moved: this Attempt's state cannot change
+            # without its Problem stream growing, and a grown stream is already a stale
+            # revision. The check stays because it is the ONE thing that would still be true
+            # if that pin were ever loosened to allow per-Attempt concurrency — and because
+            # `from_states` alone does not pin applicability: `ReviewAborted` is legal from
+            # `proposed` (holds nothing) AND from `implementing` (holds the lane), so a
+            # single-stream write built from a stale `proposed` would satisfy every other
+            # check at a parent where the Attempt is claimed.
             return (False, "this Attempt's claim status changed while these writes were "
                            "being built — recompute against the new tip")
         if requires_claim:
             # Re-checked against the SAME parent the commit is built on, so a claim that
             # changed hands while this caller was deciding defeats the release half — and
-            # because it is one transaction, it defeats the terminal too. Note this now
-            # runs whenever the ATTEMPT holds, so an idle-or-foreign coordinator is a
-            # REFUSAL rather than a silently claim-free terminal.
+            # because it is one transaction, it defeats the terminal too. Note this now runs
+            # whenever the ATTEMPT holds, so an idle-or-foreign coordinator is a REFUSAL
+            # rather than a silently claim-free terminal.
             now_holding = project_coordinator(observed[COORDINATOR_STREAM])
             if (now_holding.active_problem_id, now_holding.active_attempt_id) != (
                     problem_id, attempt_id):

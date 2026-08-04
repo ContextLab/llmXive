@@ -922,3 +922,59 @@ names no record; the coordinator event that re-enables promotion after a breaker
   test, spec sha256-restored after.
 
 14 lifecycle mutations now (10 + 4 new), all killed.
+
+## Task 7 — `cas_attempt_transition`, the terminal-slot CAS (2026-08-04)
+
+Rows 2 and 4 of the cross-stream matrix. A transition writes its row's declared coordinator
+effects in the SAME commit, and FR-035's "exactly one terminal" is enforced in the
+precondition — ref-level CAS ORDERS two concurrent terminals, it rejects neither.
+
+**The plan's module placement forced an import cycle; corrected before writing any code.**
+`LaneInconsistent` + `assert_member_identity` + `assert_partner_intact` +
+`replayed_transaction` were assigned to `coordinator.py`. But `lifecycle` must import
+`coordinator` (the CAS reads `project_coordinator`), and Task 8 makes `coordinator` import
+`lifecycle` (`cas_heartbeat` needs `CLAIM_HOLDING_STATES`, `cas_reclaim` the `ClaimExpired`
+row, `assert_lane_consistent` `walk_attempt`+`holds_claim`). `cas_claim`'s row-1 replay is a
+third caller of `assert_partner_intact`, so `lifecycle` was not a home either.
+
+They live in **`pairing.py`** — imports only the store and the event vocabulary, sits below
+both. Every symbol and signature is as specified; only the module differs. The rule this
+settles for Task 8: `coordinator.py` owns the coordinator STREAM and never imports
+`lifecycle`; anything spanning both streams lives above both.
+
+`events_by_commit` split the same way: `_git` is private to `git_event_log`, and that module
+knows how to ask git and nothing about what a path MEANS, so it gained a public
+`added_paths_by_commit` and `lane_log` translates paths to `(stream, event_id)`.
+
+**Six planned test cases were unreachable as described.** None was a code defect; each was a
+claim about which mechanism fires:
+
+- **8d**: the plan says "only the re-made applicability check can catch it". False —
+  `expected[problem_id]` pins the whole Problem stream, and the Attempt's state cannot change
+  without that stream growing, so a STALE REVISION always rejects first. The check is kept as
+  defence in depth (it is what would still hold if the pin were loosened for per-Attempt
+  concurrency) and the test now names the guard that actually fires. A test whose docstring
+  names the wrong guard reports coverage that does not exist.
+- **14a** (missing partner): deleting a partner leaves a seq GAP → `GitLogError` on read,
+  long before the replay check. Built by hand as a half-transaction instead — the more
+  faithful shape anyway.
+- **14b/14f**: rewriting a `ClaimReleased`'s Attempt makes `project_coordinator` refuse it as
+  a non-owner release before the replay path. Moved to row 4's `MonitorStarted`, which has no
+  ownership fold until Task 12.
+- **The anchor's payload-identity check is unreachable by construction** — `read` validates
+  envelope/payload agreement and the history is filtered by the envelope `attempt_id`. What
+  protects the anchor is the TYPE check, tested on both branches of `required`. Documented in
+  `assert_member_identity` rather than left to be rediscovered.
+- **Clause 3** needs a FOLDABLE divergence: coordinator says P1/A1 holds (bare `cas_claim`),
+  the Attempt's own timeline never got a grant.
+- **Case 6** could not use `ClaimGranted`: `seed_claim` writes it at the derived id, so
+  re-issuing it is a correct idempotent replay. Became its own test — the fixture is
+  indistinguishable from the real path, which is what lets Task 8 swap in `cas_claim`.
+
+**One guard had no test.** `expected[COORDINATOR_STREAM]` SURVIVED mutation: the ownership
+re-check covers the safety property alone. Kept (it is what makes the release half get built
+against a coordinator state the caller observed) and now covered by a concurrent unrelated
+coordinator write.
+
+Gates: 20 CAS + 17 lost-ack/replay-damage tests; 12 mutations (7 lifecycle + 5 pairing) all
+killed with sha256-verified restore.
