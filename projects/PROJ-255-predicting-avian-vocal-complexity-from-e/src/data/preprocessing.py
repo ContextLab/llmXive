@@ -8,15 +8,14 @@ import yaml
 from src.utils.config import get_project_root, get_interim_data_dir, get_processed_data_dir
 from src.utils.logging import setup_logger
 
-# Initialize logger
-logger = setup_logger("preprocessing")
+logger = setup_logger(__name__)
 
 def load_csv(file_path: Path) -> List[Dict[str, str]]:
     """Load a CSV file into a list of dictionaries."""
     if not file_path.exists():
-        raise FileNotFoundError(f"Input file not found: {file_path}")
+        raise FileNotFoundError(f"CSV file not found: {file_path}")
     
-    with open(file_path, 'r', encoding='utf-8') as f:
+    with open(file_path, 'r', newline='', encoding='utf-8') as f:
         reader = csv.DictReader(f)
         return list(reader)
 
@@ -24,13 +23,13 @@ def save_csv(data: List[Dict[str, str]], file_path: Path) -> None:
     """Save a list of dictionaries to a CSV file."""
     if not data:
         logger.warning(f"No data to save to {file_path}")
-        # Create empty file with headers if possible, or just touch it
+        # Create empty file with headers if we know them, otherwise just create empty
         file_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(file_path, 'w', encoding='utf-8') as f:
-            f.write("")
+        with open(file_path, 'w', newline='', encoding='utf-8') as f:
+            pass
         return
 
-    fieldnames = data[0].keys()
+    fieldnames = list(data[0].keys())
     file_path.parent.mkdir(parents=True, exist_ok=True)
     with open(file_path, 'w', newline='', encoding='utf-8') as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
@@ -43,161 +42,140 @@ def validate_against_schema(data: List[Dict[str, str]], schema_path: Path) -> Tu
     Returns (is_valid, list_of_errors).
     """
     if not schema_path.exists():
-        logger.warning(f"Schema file not found: {schema_path}. Skipping validation.")
-        return True, []
+        logger.error(f"Schema file not found: {schema_path}")
+        return False, [f"Schema file not found: {schema_path}"]
 
-    with open(schema_path, 'r') as f:
+    with open(schema_path, 'r', encoding='utf-8') as f:
         schema = yaml.safe_load(f)
 
     errors = []
-    required_fields = schema.get('required_fields', [])
     
-    if not data:
-        return True, []
+    # Check required columns
+    required_columns = schema.get('required_columns', [])
+    if data:
+        actual_columns = set(data[0].keys())
+        missing_columns = set(required_columns) - actual_columns
+        if missing_columns:
+            errors.append(f"Missing required columns: {missing_columns}")
+    
+    # Check data types if defined
+    column_types = schema.get('column_types', {})
+    if data and column_types:
+        for row_idx, row in enumerate(data):
+            for col, expected_type in column_types.items():
+                if col in row:
+                    val = row[col]
+                    if expected_type == 'int':
+                        try:
+                            int(val)
+                        except ValueError:
+                            errors.append(f"Row {row_idx}: Column '{col}' expected int, got '{val}'")
+                    elif expected_type == 'float':
+                        try:
+                            float(val)
+                        except ValueError:
+                            errors.append(f"Row {row_idx}: Column '{col}' expected float, got '{val}'")
+                    # Add more type checks as needed
 
-    for i, row in enumerate(data):
-        for field in required_fields:
-            if field not in row or row[field] is None or row[field] == '':
-                errors.append(f"Row {i}: Missing or empty required field '{field}'")
-    
     return len(errors) == 0, errors
 
-def combine_datasets(datasets: List[List[Dict[str, str]]]) -> List[Dict[str, str]]:
-    """Combine multiple datasets into one."""
+def combine_filtered_data_and_metrics(
+    filtered_data_path: Path,
+    metrics_path: Path,
+    output_path: Path
+) -> List[Dict[str, str]]:
+    """
+    Combine filtered SNR data with extracted vocal metrics.
+    Assumes both files share a common key 'recording_id'.
+    """
+    if not filtered_data_path.exists():
+        raise FileNotFoundError(f"Filtered data file not found: {filtered_data_path}")
+    if not metrics_path.exists():
+        raise FileNotFoundError(f"Metrics file not found: {metrics_path}")
+
+    filtered_data = load_csv(filtered_data_path)
+    metrics_data = load_csv(metrics_path)
+
+    # Index metrics by recording_id
+    metrics_index = {row['recording_id']: row for row in metrics_data}
+
     combined = []
-    for dataset in datasets:
-        combined.extend(dataset)
+    for row in filtered_data:
+        rec_id = row.get('recording_id')
+        if rec_id and rec_id in metrics_index:
+            metrics_row = metrics_index[rec_id]
+            # Merge, keeping filtered_data keys first, then adding metrics
+            merged = {**row, **metrics_row}
+            combined.append(merged)
+        else:
+            logger.warning(f"Recording ID {rec_id} in filtered data not found in metrics. Skipping.")
+
+    logger.info(f"Combined {len(combined)} records from filtered data and metrics.")
+    save_csv(combined, output_path)
     return combined
-
-def filter_by_snr_threshold(input_path: Path, output_path: Path, 
-                            dropped_path: Path, snr_threshold: float = 10.0) -> Tuple[int, int]:
-    """
-    Filter records based on SNR threshold.
-    
-    Args:
-        input_path: Path to the input CSV (noise_mapped.csv or similar)
-        output_path: Path to save filtered records
-        dropped_path: Path to save dropped records
-        snr_threshold: Minimum SNR in dB to keep a record (default 10.0)
-    
-    Returns:
-        Tuple of (kept_count, dropped_count)
-    
-    This implements the core filtering logic for T017a.
-    Records with SNR <= threshold are dropped.
-    """
-    logger.info(f"Starting SNR filtering with threshold {snr_threshold} dB")
-    logger.info(f"Input: {input_path}, Output: {output_path}, Dropped: {dropped_path}")
-    
-    if not input_path.exists():
-        raise FileNotFoundError(f"Input file not found: {input_path}")
-    
-    data = load_csv(input_path)
-    
-    kept_records = []
-    dropped_records = []
-    
-    # Check if SNR column exists
-    if not data:
-        logger.warning("Input file is empty")
-        save_csv([], output_path)
-        save_csv([], dropped_path)
-        return 0, 0
-    
-    if 'snr_db' not in data[0]:
-        # Try alternative column names
-        if 'snr' in data[0]:
-            snr_col = 'snr'
-        elif 'signal_noise_ratio' in data[0]:
-            snr_col = 'signal_noise_ratio'
-        else:
-            raise ValueError("No SNR column found in input data. Expected 'snr_db', 'snr', or 'signal_noise_ratio'")
-    else:
-        snr_col = 'snr_db'
-    
-    for row in data:
-        try:
-            snr_value = float(row.get(snr_col, 0))
-        except (ValueError, TypeError):
-            # Invalid SNR value - drop the record
-            dropped_records.append({**row, 'drop_reason': 'invalid_snr_value'})
-            continue
-        
-        if snr_value > snr_threshold:
-            kept_records.append(row)
-        else:
-            dropped_records.append({**row, 'drop_reason': f'snr_below_threshold_{snr_threshold}'})
-    
-    # Save results
-    save_csv(kept_records, output_path)
-    save_csv(dropped_records, dropped_path)
-    
-    logger.info(f"Filtering complete: {len(kept_records)} kept, {len(dropped_records)} dropped")
-    return len(kept_records), len(dropped_records)
-
-def run_sensitivity_analysis(input_path: Path, thresholds: List[float], 
-                             output_dir: Path) -> Dict[float, Tuple[int, int]]:
-    """
-    Run filtering with multiple SNR thresholds for sensitivity analysis.
-    
-    Args:
-        input_path: Path to input CSV
-        thresholds: List of SNR thresholds to test
-        output_dir: Directory to save results
-    
-    Returns:
-        Dictionary mapping threshold -> (kept_count, dropped_count)
-    """
-    output_dir.mkdir(parents=True, exist_ok=True)
-    results = {}
-    
-    for threshold in thresholds:
-        output_file = output_dir / f"filtered_snr_threshold_{threshold}.csv"
-        dropped_file = output_dir / f"dropped_snr_threshold_{threshold}.csv"
-        
-        kept, dropped = filter_by_snr_threshold(
-            input_path, output_file, dropped_file, threshold
-        )
-        results[threshold] = (kept, dropped)
-        logger.info(f"Threshold {threshold}: kept={kept}, dropped={dropped}")
-    
-    return results
 
 def main():
     """
-    Main entry point for the preprocessing module.
-    Executes T017a: Filtering Engine with default SNR threshold.
+    Main entry point for T020:
+    1. Load filtered SNR data (from T017b)
+    2. Load extracted metrics (from T019)
+    3. Combine them into final_dataset.csv
+    4. Validate against dataset.schema.yaml
     """
     root = get_project_root()
     interim_dir = get_interim_data_dir()
-    
-    # Input file from previous step (T015)
-    input_file = interim_dir / "noise_mapped.csv"
-    
-    # Output files for T017a
-    output_file = interim_dir / "filtered_snr.csv"
-    dropped_file = interim_dir / "dropped_snr_filtered.csv"
-    
-    # Default threshold from project constraints (10 dB)
-    default_threshold = 10.0
-    
+    processed_dir = get_processed_data_dir()
+
+    # Ensure output directory exists
+    processed_dir.mkdir(parents=True, exist_ok=True)
+
+    # Input paths
+    filtered_snr_path = interim_dir / "filtered_snr.csv"
+    metrics_path = interim_dir / "vocal_metrics.csv"
+    schema_path = root / "contracts" / "dataset.schema.yaml"
+    output_path = processed_dir / "final_dataset.csv"
+
+    logger.info(f"Starting T020: Combining filtered data and metrics.")
+    logger.info(f"  Filtered SNR: {filtered_snr_path}")
+    logger.info(f"  Metrics: {metrics_path}")
+    logger.info(f"  Schema: {schema_path}")
+    logger.info(f"  Output: {output_path}")
+
     try:
-        kept_count, dropped_count = filter_by_snr_threshold(
-            input_file, output_file, dropped_file, default_threshold
+        # Combine data
+        combined_data = combine_filtered_data_and_metrics(
+            filtered_snr_path,
+            metrics_path,
+            output_path
         )
-        
-        logger.info(f"T017a completed successfully.")
-        logger.info(f"Output: {output_file} ({kept_count} records)")
-        logger.info(f"Dropped: {dropped_file} ({dropped_count} records)")
-        
-        return 0
-        
+
+        if not combined_data:
+            logger.error("Combined data is empty. Cannot validate or proceed.")
+            return 1
+
+        # Validate against schema
+        is_valid, errors = validate_against_schema(combined_data, schema_path)
+
+        if is_valid:
+            logger.info("Validation PASSED. Final dataset created successfully.")
+            logger.info(f"Total records: {len(combined_data)}")
+            logger.info(f"Columns: {list(combined_data[0].keys())}")
+            return 0
+        else:
+            logger.error("Validation FAILED.")
+            for err in errors:
+                logger.error(f"  - {err}")
+            # Still save the file, but return error code
+            logger.warning(f"Saved invalid dataset to {output_path} for inspection.")
+            return 1
+
     except FileNotFoundError as e:
-        logger.error(f"Input file missing: {e}")
+        logger.error(f"File not found: {e}")
         return 1
     except Exception as e:
-        logger.error(f"Filtering failed: {e}")
-        raise
+        logger.exception(f"Unexpected error during T020: {e}")
+        return 1
 
 if __name__ == "__main__":
-    exit(main())
+    import sys
+    sys.exit(main())

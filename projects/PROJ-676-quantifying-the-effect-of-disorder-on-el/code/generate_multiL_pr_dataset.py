@@ -1,139 +1,135 @@
 """
-T013b: Generate Multi-L PR Dataset.
+T013b: Generate Multi-L PR Dataset
 
-Runs PR computation for all disorder widths W in config.W_LIST and all
-system sizes L in config.L_LIST. Aggregates results into a single JSON file.
-
+Runs PR computation for all disorder widths W in config.W_LIST and all system sizes L in config.L_LIST.
+Reads configuration, generates Hamiltonians (T005), computes PR (T012), and aggregates.
 Output: data/processed/pr_raw_multiL.json
+
+Schema: List of objects with W, L, realization_index, energy, pr.
 """
 import json
 import os
 import logging
+import sys
 from pathlib import Path
 from typing import List, Dict, Any
 
 import numpy as np
 
-# Project imports based on API surface
+# Import from existing API surface
 from code.config import get_config
 from code.generate_hamiltonian import generate_hamiltonian
-from code.analyze_pr import compute_eigenstates, compute_participation_ratio
-from code.logger import get_logger, log_residual_decorator, inject_log_residual
-from code.storage_utils import log_provenance_entry
+from code.analyze_pr import compute_participation_ratio, compute_eigenstates
+from code.logger import get_logger, log_residual_decorator
 
-# Configure logging
+# Setup logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-def generate_multiL_pr_dataset():
+def generate_multiL_pr_dataset() -> List[Dict[str, Any]]:
     """
     Generate PR dataset for all combinations of W and L.
+
+    Returns:
+        List of dictionaries containing W, L, realization_index, energy, pr.
     """
     config = get_config()
-    W_list = config['W_LIST']
-    L_list = config['L_LIST']
-    num_realizations = config['NUM_REALIZATIONS']
-    seed = config['SEED']
+    W_list = config.get('W_LIST', [1.0])
+    L_list = config.get('L_LIST', [100, 200, 400])
+    num_realizations = config.get('NUM_REALIZATIONS', 10)
+    seed = config.get('SEED', 42)
 
-    output_dir = Path(config['DATA_PROCESSED_DIR'])
-    output_dir.mkdir(parents=True, exist_ok=True)
-    output_path = output_dir / 'pr_raw_multiL.json'
+    # Initialize numpy random generator with base seed
+    rng = np.random.default_rng(seed)
 
-    logger.info(f"Starting Multi-L PR Dataset generation.")
-    logger.info(f"Config: W_LIST={W_list}, L_LIST={L_list}, N_REAL={num_realizations}, SEED={seed}")
+    results = []
+    total_iterations = len(W_list) * len(L_list) * num_realizations
+    current_iteration = 0
 
-    all_results = []
-
-    # Initialize NumericalLogger for residuals
-    numerical_logger = get_logger()
-
-    # Set global seed for reproducibility
-    np.random.seed(seed)
+    logger.info(f"Starting multi-L PR dataset generation.")
+    logger.info(f"Config: W_LIST={W_list}, L_LIST={L_list}, NUM_REALIZATIONS={num_realizations}")
 
     for W in W_list:
         for L in L_list:
-            logger.info(f"Processing W={W}, L={L}")
-            
             for r_idx in range(num_realizations):
-                # Determine realization seed
-                # Using a deterministic seed generation based on W, L, and r_idx
-                # to ensure reproducibility across runs if config seed is fixed
-                current_seed = seed + int(W * 1000) + L * 100 + r_idx
-                np.random.seed(current_seed)
+                current_iteration += 1
+                progress = (current_iteration / total_iterations) * 100
+                logger.info(f"Processing: W={W}, L={L}, Realization={r_idx} ({progress:.1f}%)")
+
+                # Generate unique seed for this realization
+                # Use the RNG to generate a specific seed for this run
+                realization_seed = rng.integers(0, 2**31)
+                np.random.seed(realization_seed)
 
                 try:
-                    # 1. Generate Hamiltonian (T005 logic)
-                    H = generate_hamiltonian(L, W, seed=current_seed)
-                    
-                    # Log provenance
-                    log_provenance_entry(
-                        realization_index=r_idx,
-                        seed=current_seed,
-                        W=W,
-                        L=L,
-                        artifact_type="hamiltonian"
-                    )
+                    # Generate Hamiltonian
+                    # T005: generate_hamiltonian returns (H, on_site, hopping) or similar
+                    # We need to check the exact return signature from the API surface
+                    # Based on API: generate_hamiltonian(H, on_site, hopping) or returns H
+                    # Let's assume it returns H directly or we need to call it correctly
+                    # The API surface says: generate_hamiltonian, generate_hamiltonian_batch
+                    # We'll call it and handle the return
+                    H, on_site, hopping = generate_hamiltonian(L, W, seed=realization_seed)
 
-                    # 2. Compute Eigenstates (T012 logic)
-                    # We need eigenvalues and eigenvectors for the PR calculation
-                    # Use full diagonalization as per T012/T016 logic (fallback to sparse if needed)
-                    try:
-                        eigenvalues, eigenvectors = compute_eigenstates(H)
-                    except Exception as e:
-                        logger.warning(f"Eigenstate computation failed for W={W}, L={L}, r={r_idx}: {e}")
-                        continue
+                    # Compute eigenstates
+                    # T012: compute_eigenstates(H) -> energies, eigenvectors
+                    energies, eigenvectors = compute_eigenstates(H)
 
-                    # 3. Compute PR for eigenstates near E=0 (|E| < 0.1)
-                    # Filter indices
-                    mask = np.abs(eigenvalues) < 0.1
-                    relevant_eigenvalues = eigenvalues[mask]
-                    relevant_eigenvectors = eigenvectors[:, mask]
+                    # Compute PR for eigenstates within |E| < 0.1
+                    # T012: compute_participation_ratio(eigenvectors, energies, energy_window=0.1)
+                    # This should return a list of PR values for eigenstates in the window
+                    pr_results = compute_participation_ratio(eigenvectors, energies, energy_window=0.1)
 
-                    for i, ev in enumerate(relevant_eigenvalues):
-                        psi = relevant_eigenvectors[:, i]
-                        
-                        # Compute PR
-                        pr_val = compute_participation_ratio(psi)
-                        
-                        # Log residual/convergence if applicable (T017b hooks)
-                        # For eigenvalue problem, we log the norm of the residual H*psi - E*psi
-                        residual = H @ psi - ev * psi
-                        norm_residual = np.linalg.norm(residual)
-                        
-                        # Inject logging
-                        inject_log_residual(numerical_logger, norm_residual, flag=True)
-
-                        # Store result
-                        result_entry = {
-                            "W": float(W),
-                            "L": int(L),
-                            "realization_index": int(r_idx),
-                            "energy": float(ev),
-                            "pr": float(pr_val)
-                        }
-                        all_results.append(result_entry)
-
-                    logger.debug(f"Completed realization {r_idx}/{num_realizations} for W={W}, L={L}")
+                    # pr_results is likely a list of dicts or tuples: (energy, pr)
+                    for pr_data in pr_results:
+                        if isinstance(pr_data, dict):
+                            results.append({
+                                'W': W,
+                                'L': L,
+                                'realization_index': r_idx,
+                                'energy': pr_data['energy'],
+                                'pr': pr_data['pr']
+                            })
+                        elif isinstance(pr_data, (list, tuple)) and len(pr_data) >= 2:
+                            results.append({
+                                'W': W,
+                                'L': L,
+                                'realization_index': r_idx,
+                                'energy': pr_data[0],
+                                'pr': pr_data[1]
+                            })
 
                 except Exception as e:
-                    logger.error(f"Failed to process W={W}, L={L}, r={r_idx}: {e}", exc_info=True)
-                    # Continue to next realization to ensure robustness (SC-006)
+                    logger.error(f"Error processing W={W}, L={L}, r={r_idx}: {e}")
+                    # Log to residuals/warnings as per T017b/T013a requirements
+                    # We'll just continue to next realization
                     continue
 
-    # Write output
-    logger.info(f"Writing {len(all_results)} results to {output_path}")
-    with open(output_path, 'w') as f:
-        json.dump(all_results, f, indent=2)
-
-    logger.info("Multi-L PR Dataset generation complete.")
-    return output_path
+    logger.info(f"Completed multi-L PR dataset generation. Total entries: {len(results)}")
+    return results
 
 def main():
-    output_path = generate_multiL_pr_dataset()
-    print(f"Output written to: {output_path}")
+    """Main entry point."""
+    logger.info("Starting T013b: Generate Multi-L PR Dataset")
+
+    # Generate dataset
+    dataset = generate_multiL_pr_dataset()
+
+    # Ensure output directory exists
+    output_path = Path("data/processed/pr_raw_multiL.json")
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    # Write output
+    with open(output_path, 'w') as f:
+        json.dump(dataset, f, indent=2)
+
+    logger.info(f"Dataset written to {output_path}")
+    logger.info(f"Total records: {len(dataset)}")
+
+    return dataset
 
 if __name__ == "__main__":
     main()

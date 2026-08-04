@@ -1,21 +1,35 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: Split Config Schema
-description: Schema for the split configuration generated during preprocessing.
+$schema: http://json-schema.org/draft-07/schema#
+title: Split Configuration Schema
+description: >
+  Defines the schema for the split configuration file generated during
+  the preprocessing phase (T010). It records the chosen data splitting
+  strategy, the number of samples used, and whether a power warning was
+  emitted due to insufficient data.
 type: object
-properties:
-  strategy:
-    type: string
-    enum:
-      - "80/20"
-      - "LOOCV"
-    description: The split strategy used.
-  n_samples:
-    type: integer
-    description: Total number of samples used for the split.
-  warning_emitted:
-    type: boolean
-    description: Whether a PowerWarning was emitted due to low sample count.
 required:
   - strategy
   - n_samples
   - warning_emitted
+properties:
+  strategy:
+    type: string
+    description: >
+      The data splitting strategy employed. 
+      - "80/20": Standard 80% training / 20% testing split (used when N >= 30).
+      - "LOOCV": Leave-One-Out Cross-Validation (used when N < 30).
+    enum:
+      - "80/20"
+      - "LOOCV"
+  n_samples:
+    type: integer
+    description: >
+      The total number of valid samples in the cleaned dataset used for
+      determining the split strategy and subsequent model training.
+    minimum: 0
+  warning_emitted:
+    type: boolean
+    description: >
+      Indicates whether a PowerWarning was emitted during preprocessing
+      due to the sample size being below the statistical power threshold
+      (N < 30). If true, the strategy should be "LOOCV".
+additionalProperties: false

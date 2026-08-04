@@ -1,0 +1,147 @@
+%YAML 1.2
+---
+$schema: http://json-schema.org/draft-07/schema#
+title: Molecular Crystal Packing Dataset Schema
+description: >
+  Schema for the processed dataset used in predicting molecular crystal packing
+  from structural descriptors. Includes raw descriptors, imputed values, and
+  stratified splits.
+type: object
+required:
+  - metadata
+  - columns
+  - data
+properties:
+  metadata:
+    type: object
+    required:
+      - version
+      - created_at
+      - source
+      - checksum
+    properties:
+      version:
+        type: string
+        description: Schema version (e.g., "1.0.0")
+      created_at:
+        type: string
+        format: date-time
+        description: ISO 8601 timestamp of dataset creation
+      source:
+        type: string
+        description: Source of the raw data (e.g., "Crystallography Open Database")
+      checksum:
+        type: string
+        description: SHA-256 checksum of the raw source file
+      split_strategy:
+        type: string
+        description: Method used for splitting (e.g., "stratified_by_mw")
+  columns:
+    type: array
+    items:
+      type: object
+      required:
+        - name
+        - type
+        - description
+      properties:
+        name:
+          type: string
+        type:
+          type: string
+          enum: [integer, float, string, boolean]
+        description:
+          type: string
+        nullable:
+          type: boolean
+          default: false
+        imputed:
+          type: boolean
+          default: false
+          description: True if value was imputed
+    minItems: 8
+    description: >
+      Expected columns: ID, Volume, SurfaceArea, Dipole, HBD, HBA, PSA, 
+      packing_coefficient, mw, dipole_imputed, interaction_type, interaction_confidence
+  data:
+    type: array
+    items:
+      type: object
+      required:
+        - ID
+        - packing_coefficient
+      properties:
+        ID:
+          type: string
+          description: Unique identifier from COD
+        Volume:
+          type: number
+          minimum: 0
+          description: Molecular volume in Å³
+        SurfaceArea:
+          type: number
+          minimum: 0
+          description: Molecular surface area in Å²
+        Dipole:
+          type: number
+          nullable: true
+          description: Dipole moment in Debye
+        HBD:
+          type: integer
+          minimum: 0
+          description: Number of hydrogen bond donors
+        HBA:
+          type: integer
+          minimum: 0
+          description: Number of hydrogen bond acceptors
+        PSA:
+          type: number
+          minimum: 0
+          description: Polar surface area in Å²
+        packing_coefficient:
+          type: number
+          minimum: 0
+          maximum: 1
+          description: Ratio of molecular volume to unit cell volume
+        mw:
+          type: number
+          minimum: 0
+          description: Molecular weight in Da
+        dipole_imputed:
+          type: boolean
+          description: Flag indicating if Dipole was imputed
+        interaction_type:
+          type: ["string", "null"]
+          description: Dominant intermolecular interaction type
+        interaction_confidence:
+          type: ["number", "null"]
+          minimum: 0
+          maximum: 1
+          description: Confidence score for interaction classification
+examples:
+  - metadata:
+      version: "1.0.0"
+      created_at: "2023-10-27T10:00:00Z"
+      source: "Crystallography Open Database"
+      checksum: "abc123..."
+      split_strategy: "stratified_by_mw"
+    columns:
+      - name: ID
+        type: string
+        description: "Unique identifier"
+      - name: packing_coefficient
+        type: float
+        description: "Target variable"
+    data:
+      - ID: "COD-12345"
+        Volume: 120.5
+        SurfaceArea: 250.0
+        Dipole: 1.5
+        HBD: 1
+        HBA: 2
+        PSA: 40.0
+        packing_coefficient: 0.65
+        mw: 180.16
+        dipole_imputed: false
+        interaction_type: "hydrogen_bond"
+        interaction_confidence: 0.92

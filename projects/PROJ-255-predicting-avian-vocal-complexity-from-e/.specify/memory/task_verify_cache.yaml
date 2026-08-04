@@ -1,16 +1,3 @@
-T009:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "There are no unit test files, test suites, or any code artifacts provided that\
-    \ target the project's configuration or logging utilities. The only evidence shown\
-    \ relates to avian vocal\u2011complexity feature specifications, not to unit tests\
-    \ for config/logging, so the required tests are missing."
-T015:
-  c: false
-  h: b0e5f024103d336225a98fe03ac66656280a54a51e9640c6e856e0f151a18b5e
-  r: "The required output files `data/interim/noise_mapped.csv` and `data/interim/dropped_missing_osm.csv`\
-    \ are not present on disk, so the task\u2019s deliverables are missing despite\
-    \ the presence of `src/data/acquisition.py`."
 T017a:
   c: false
   h: 4ba9b64cb5ad3b1316966afed5dc79044c6d5bbb5c9826dd2494c34c4bf42fa8
@@ -19,6 +6,15 @@ T017a:
     reads, filters, and writes the CSV files. Moreover, the required output file `data/interim/filtered_snr.csv`
     is absent from the repository. Both the core logic and the expected artifact are
     missing, so the task is not genuinely completed.
+T020:
+  c: false
+  h: 1396832019d87e3a39c69b69df5ae1d431508037eb3e3705e99d46804a523911
+  r: The required output file `data/processed/final_dataset.csv` does not exist, and
+    the schema file `contracts/dataset.schema.yaml` is also missing. Moreover, the
+    provided `src/data/preprocessing.py` is truncated and does not show the logic
+    for combining filtered data, extracting metrics, saving the final CSV, or invoking
+    validation against the specified schema. These essential artifacts and functionality
+    are absent.
 T021:
   c: false
   h: 72d8e33168345de4cb8483256a346d203f4ce5756cfa1f6aa0206337934bc9ab

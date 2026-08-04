@@ -922,23 +922,6 @@
   updated_at: '2026-07-31T16:03:18Z'
 - artifact_path: projects/PROJ-676-quantifying-the-effect-of-disorder-on-el/specs/001-quantifying-the-effect-of-disorder-on-el/tasks.md
   attempts: 1
-  canonical: TM and PR localization lengths agree within 10% for L >= 400
-  claim_id: c_d7ec3336
-  context: 'Independent Test for User Story 2: Run TM on same realizations as PR,
-    compute Lyapunov exponents, and verify $\xi_{TM} \approx \xi_{PR}$ within 10%
-    for $L \ge 400$.'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Verify that $\xi_{TM} \approx \xi_{PR}$ within 10% for $L \ge 400$.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-31T16:03:18Z'
-- artifact_path: projects/PROJ-676-quantifying-the-effect-of-disorder-on-el/specs/001-quantifying-the-effect-of-disorder-on-el/tasks.md
-  attempts: 1
   canonical: PR scales linearly with L for W=0
   claim_id: c_cabcc66e
   context: 'Task T033a: The code must detect W=0 and verify that PR scales extensively
@@ -966,25 +949,6 @@
   kind: numeric
   raw_text: The transfer matrix method stops when $L=800$ and relative change between
     $L=400$ and $L=800$ is $\le 5\%$.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-31T16:03:58Z'
-- artifact_path: projects/PROJ-676-quantifying-the-effect-of-disorder-on-el/specs/001-quantifying-the-effect-of-disorder-on-el/tasks.md
-  attempts: 1
-  canonical: TM and PR localization lengths agree within 10% for L >= 400 in 80% of
-    realizations
-  claim_id: c_05bcc6c5
-  context: "Task T023: Implement `code/compare_methods.py` to verify $\\xi_{TM}$ vs\
-    \ $\\xi_{PR}$ agreement within 10% for **L \u2265 400** and **\u2265 80% of config.NUM_REALIZATIONS\
-    \ realizations**."
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: "Verify $\\xi_{TM}$ vs $\\xi_{PR}$ agreement within 10% for L \u2265 400\
-    \ and \u2265 80% of realizations."
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
@@ -1074,3 +1038,278 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-31T16:06:14Z'
+- artifact_path: projects/PROJ-676-quantifying-the-effect-of-disorder-on-el/specs/001-quantifying-the-effect-of-disorder-on-el/tasks.md
+  attempts: 1
+  canonical: PR decreases with increasing W for L=400 realization
+  claim_id: c_f5b85860
+  context: 'Independent Test for User Story 1: Run on a single realization (L=400,
+    W=1.0), compute eigenstates, extract PR for $|E|<0.1$, and verify PR decreases
+    with increasing W.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify PR decreases with increasing W for a single realization (L=400,
+    W=1.0).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T10:52:44Z'
+- artifact_path: projects/PROJ-676-quantifying-the-effect-of-disorder-on-el/specs/001-quantifying-the-effect-of-disorder-on-el/tasks.md
+  attempts: 2
+  canonical: TM and PR localization lengths agree within 10% for L >= 400
+  claim_id: c_d7ec3336
+  context: 'Independent Test for User Story 2: Run TM on same realizations as PR,
+    compute Lyapunov exponents, and verify $\xi_{TM} \approx \xi_{PR}$ within 10%
+    for $L \ge 400$.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify that $\xi_{TM} \approx \xi_{PR}$ within 10% for $L \ge 400$.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T10:52:44Z'
+- artifact_path: projects/PROJ-676-quantifying-the-effect-of-disorder-on-el/specs/001-quantifying-the-effect-of-disorder-on-el/tasks.md
+  attempts: 1
+  canonical: Visualization decay length matches computed xi within 20%
+  claim_id: c_8b0805de
+  context: 'Independent Test for User Story 3: Generate a single eigenstate visualization
+    ($L=200, W=2.0, E \approx 0$), confirm exponential decay, and verify decay length
+    matches computed $\xi$.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify decay length matches computed $\xi$ within 20%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T10:52:44Z'
+- artifact_path: projects/PROJ-676-quantifying-the-effect-of-disorder-on-el/specs/001-quantifying-the-effect-of-disorder-on-el/tasks.md
+  attempts: 2
+  canonical: TM and PR localization lengths agree within 10% for L >= 400 in 80% of
+    realizations
+  claim_id: c_05bcc6c5
+  context: "Task T023: Implement `code/compare_methods.py` to verify $\\xi_{TM}$ vs\
+    \ $\\xi_{PR}$ agreement within 10% for **L \u2265 400** and **\u2265 80% of config.NUM_REALIZATIONS\
+    \ realizations**."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify $\\xi_{TM}$ vs $\\xi_{PR}$ agreement within 10% for L \u2265 400\
+    \ and \u2265 80% of realizations."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T10:52:45Z'
+- artifact_path: projects/PROJ-676-quantifying-the-effect-of-disorder-on-el/specs/001-quantifying-the-effect-of-disorder-on-el/tasks.md
+  attempts: 1
+  canonical: 100 realizations provide 80% power to detect slope deviation from -2
+    at alpha=0.05
+  claim_id: c_d2f58670
+  context: "Task T015b: Perform a priori power analysis to verify 100 realizations\
+    \ provide \u226580% power to detect slope deviation from -2 at \u03B1=0.05 (SC-003)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Perform a priori power analysis to verify 100 realizations provide \u2265\
+    80% power to detect slope deviation from -2 at \u03B1=0.05."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T10:53:30Z'
+- artifact_path: projects/PROJ-676-quantifying-the-effect-of-disorder-on-el/specs/001-quantifying-the-effect-of-disorder-on-el/tasks.md
+  attempts: 1
+  canonical: 1000 realizations complete within 6 hours on CPU cores
+  claim_id: c_e7ad69a3
+  context: 'Task T032: Tune `joblib` parallelization to ensure 1000 realizations complete
+    within 6 hours on CPU cores.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure 1000 realizations complete within 6 hours on CPU cores.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T10:53:49Z'
+- artifact_path: projects/PROJ-676-quantifying-the-effect-of-disorder-on-el/specs/001-quantifying-the-effect-of-disorder-on-el/tasks.md
+  attempts: 1
+  canonical: PR scales extensively for W=0 using L in 100, 200, 400
+  claim_id: c_0b37eac2
+  context: 'Task T013c: Detect W=0 in `config.W_LIST`. If present, compute PR for
+    $L \in [100, 200, 400]$ using T012 logic. **Logic**: Verify PR scales extensively
+    (PR ~ L).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify PR scales extensively (PR ~ L) for W=0 using L in [100, 200, 400].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T10:54:16Z'
+- artifact_path: projects/PROJ-676-quantifying-the-effect-of-disorder-on-el/specs/001-quantifying-the-effect-of-disorder-on-el/tasks.md
+  attempts: 1
+  canonical: Fit PR(L) using PR_infinity * (1 - exp(-L/xi)) model
+  claim_id: c_3b4e371d
+  context: 'Task T013a: **Fitting Model**: Use non-linear least squares to fit $PR(L)
+    = PR_{\infty} \times (1 - \exp(-L/\xi))$ to the data for each W.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use non-linear least squares to fit $PR(L) = PR_{\infty} \times (1 - \exp(-L/\xi))$.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T10:55:07Z'
+- artifact_path: projects/PROJ-676-quantifying-the-effect-of-disorder-on-el/specs/001-quantifying-the-effect-of-disorder-on-el/tasks.md
+  attempts: 1
+  canonical: Exclude fits with R squared less than 0.95
+  claim_id: c_2a9f9f59
+  context: 'Task T013a: **Constraint**: **DO NOT** fall back to linear interpolation.
+    If the fit fails to converge or yields non-physical $\xi$ (e.g., negative, R^2
+    < 0.95), **log a warning** and skip this realization.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exclude_fits_with_R_squared_less_than_0.95
+  kind: magnitude
+  raw_text: Exclude realizations with R^2 < 0.95 from finite-size scaling fits.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T10:55:41Z'
+- artifact_path: projects/PROJ-676-quantifying-the-effect-of-disorder-on-el/specs/001-quantifying-the-effect-of-disorder-on-el/tasks.md
+  attempts: 1
+  canonical: Restrict slope -2 validation to W less than 1.0
+  claim_id: c_1d40d66b
+  context: 'Task T014: **MUST** restrict the regression for slope -2 validation (SC-001)
+    to the subset where $W < \text{config.WEAK_DISORDER_CUTOFF}$.'
+  evidence:
+    candidates:
+    - - W less than
+      - 1.0
+    - - Restrict slope
+      - -2.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Restrict_slope_-2_validation_to_W_less_than_1.0
+  kind: magnitude
+  raw_text: Restrict regression for slope -2 validation to the subset where $W < 1.0$.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-08-04T10:56:03Z'
+- artifact_path: projects/PROJ-676-quantifying-the-effect-of-disorder-on-el/specs/001-quantifying-the-effect-of-disorder-on-el/tasks.md
+  attempts: 1
+  canonical: Hamiltonian uses hopping t=1 and on-site U(-W/2, W/2)
+  claim_id: c_a0c7fb9b
+  context: 'Task T005: Implement `code/generate_hamiltonian.py` (FR-001) to generate
+    1D tight-binding matrices $L \times L$ with hopping $t=1$ and on-site $\epsilon_i
+    \sim U(-W/2, W/2)$.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use hopping $t=1$ and on-site $\epsilon_i \sim U(-W/2, W/2)$ for Hamiltonian
+    generation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T10:56:25Z'
+- artifact_path: projects/PROJ-676-quantifying-the-effect-of-disorder-on-el/specs/001-quantifying-the-effect-of-disorder-on-el/tasks.md
+  attempts: 1
+  canonical: Compute PR using sum squared over sum fourth power for E in |0.1|
+  claim_id: c_ef7b6281
+  context: 'Task T012: **Implement `code/analyze_pr.py`**: Compute Participation Ratio
+    $PR = (\sum|\psi_i|^2)^2 / \sum|\psi_i|^4$ for eigenstates within $|E|<0.1$ (FR-002).'
+  evidence:
+    entailment_evidence: ''
+    entailment_status: not_found
+    object: ''
+    relation: ''
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/Compute_PR_using_sum_squared_over_sum_fourth_power_for_E_in
+    source_value: https://en.wikipedia.org/wiki/Compute_PR_using_sum_squared_over_sum_fourth_power_for_E_in_
+    subject: Compute PR using sum squared over sum fourth power for E in |0.1|
+  kind: relational
+  raw_text: Compute Participation Ratio $PR = (\sum|\psi_i|^2)^2 / \sum|\psi_i|^4$
+    for eigenstates within $|E|<0.1$.
+  resolved_value: null
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T10:56:50Z'
+- artifact_path: projects/PROJ-676-quantifying-the-effect-of-disorder-on-el/specs/001-quantifying-the-effect-of-disorder-on-el/tasks.md
+  attempts: 1
+  canonical: Switch to sparse eigsh if memory exceeds 6GB for L=1600
+  claim_id: c_d2002108
+  context: 'Task T016: Add fallback mechanism in `code/analyze_pr.py` to use `scipy.sparse.linalg.eigsh`
+    if `scipy.linalg.eigh` exceeds 6GB RAM for $L=1600$ (FR-008).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use `scipy.sparse.linalg.eigsh` if `scipy.linalg.eigh` exceeds 6GB RAM
+    for $L=1600$.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T10:57:01Z'
+- artifact_path: projects/PROJ-676-quantifying-the-effect-of-disorder-on-el/specs/001-quantifying-the-effect-of-disorder-on-el/tasks.md
+  attempts: 1
+  canonical: Verify TM convergence trace relative change criteria
+  claim_id: c_ffab6940
+  context: 'Task T019: Integration test for TM convergence and method agreement in
+    `tests/integration/test_tm_validation.py`. **Asserts convergence trace exists
+    and relative change criteria are met**.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verify_TM_convergence_trace_relative_change_criteria
+  kind: entity_fact
+  raw_text: Verify convergence trace relative change criteria are met for Transfer
+    Matrix Method.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T10:57:30Z'
+- artifact_path: projects/PROJ-676-quantifying-the-effect-of-disorder-on-el/specs/001-quantifying-the-effect-of-disorder-on-el/tasks.md
+  attempts: 1
+  canonical: Track gamma relative change for L from 100 to 800
+  claim_id: c_06f936f3
+  context: 'Task T022: Add convergence monitoring logic to track relative change in
+    $\gamma$ between consecutive size doublings ($L=100 \to 800$).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Track relative change in $\gamma$ between consecutive size doublings ($L=100
+    \to 800$).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T10:57:47Z'

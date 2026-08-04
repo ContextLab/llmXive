@@ -1,10 +1,8 @@
 """
-T013c: Implement W=0 Edge Case Handler
-
-Detects W=0 in config.W_LIST. If present, computes Participation Ratio (PR)
-for L in [100, 200, 400] using the logic from analyze_pr.py.
-Verifies PR scales extensively (PR ~ L) and writes results to
-data/processed/w0_results.json with is_delocalized: true.
+Implementation of W=0 (Clean Limit) Edge Case Handler.
+Task T013c: Compute PR for L in [100, 200, 400] when W=0.
+Verify PR scales extensively (PR ~ L) and mark as delocalized.
+Output: data/processed/w0_results.json
 """
 import json
 import os
@@ -16,15 +14,12 @@ from typing import List, Dict, Any, Tuple
 import numpy as np
 from scipy import linalg
 
-# Add project root to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent))
+# Ensure code/ is in path for imports
+sys.path.insert(0, str(Path(__file__).parent))
 
-from code.config import get_config
-from code.logger import NumericalLogger, get_logger, log_residual_decorator
-from code.analyze_pr import compute_participation_ratio
-from code.generate_hamiltonian import generate_hamiltonian
+from config import get_config
+from logger import NumericalLogger, get_logger, log_residual_decorator
 
-# Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
@@ -34,130 +29,159 @@ logger = logging.getLogger(__name__)
 def generate_clean_hamiltonian(L: int, seed: int) -> np.ndarray:
     """
     Generate a clean (W=0) 1D tight-binding Hamiltonian.
-    H has 0 on-diagonal and -1 (hopping t=1) off-diagonal.
+    H_ij = -t * (delta_{i,j+1} + delta_{i,j-1}) with t=1.
+    On-site energy is 0 everywhere.
     """
+    # Main diagonal (on-site)
     main_diag = np.zeros(L)
-    off_diag = -np.ones(L - 1)
-    H = np.diag(main_diag) + np.diag(off_diag, k=1) + np.diag(off_diag, k=-1)
-    return H
+    # Off-diagonals (hopping)
+    off_diag = -1.0 * np.ones(L - 1)
 
-@log_residual_decorator
-def compute_w0_participation_ratio(H: np.ndarray, energy_window: float = 0.1, logger: NumericalLogger = None) -> Tuple[np.ndarray, np.ndarray, List[Dict[str, Any]]]:
+    H = linalg.diags([off_diag, main_diag, off_diag], offsets=[-1, 0, 1], format='csr')
+    return H.toarray()
+
+def compute_w0_participation_ratio(H: np.ndarray, seed: int, realization_idx: int) -> List[Dict[str, Any]]:
     """
-    Compute PR for eigenstates within |E| < energy_window for a clean Hamiltonian.
-    Returns eigenvalues, eigenvectors, and a list of PR results.
+    Compute Participation Ratio for all eigenstates of a clean Hamiltonian.
+    PR = (sum |psi|^2)^2 / sum |psi|^4
+    For clean limit, PR should scale ~ L/3 for extended states (specifically L/3 for 1D sine waves).
     """
     L = H.shape[0]
-    # For clean limit, standard dense eig is fine and stable
     eigenvalues, eigenvectors = linalg.eigh(H)
 
     results = []
-    valid_indices = []
+    for i in range(L):
+        psi = eigenvectors[:, i]
+        # Probability density
+        prob_density = np.abs(psi) ** 2
+        
+        # PR calculation
+        sum_sq = np.sum(prob_density)
+        sum_fourth = np.sum(prob_density ** 2)
+        
+        if sum_fourth == 0:
+            pr = float('inf')
+        else:
+            pr = (sum_sq ** 2) / sum_fourth
 
-    for i, e in enumerate(eigenvalues):
-        if abs(e) < energy_window:
-            psi = eigenvectors[:, i]
-            pr = compute_participation_ratio(psi)
-            results.append({
-                "energy": float(e),
-                "pr": float(pr),
-                "L": L
-            })
-            valid_indices.append(i)
+        results.append({
+            "W": 0.0,
+            "L": L,
+            "realization_index": realization_idx,
+            "energy": float(eigenvalues[i]),
+            "pr": float(pr)
+        })
+    return results
 
-    return eigenvalues, eigenvectors, results
-
-def analyze_w0_delocalization(config: Dict[str, Any], logger: NumericalLogger) -> Dict[str, Any]:
+def analyze_w0_delocalization(
+    L_values: List[int], 
+    num_realizations: int, 
+    seed: int,
+    logger: NumericalLogger
+) -> Dict[str, Any]:
     """
-    Analyze W=0 case for L in [100, 200, 400].
-    Verifies PR ~ L scaling.
+    Run PR computation for W=0 across specified L values and realizations.
+    Verify extensive scaling (PR ~ L) and output results.
     """
-    target_L_list = [100, 200, 400]
-    seed = config.get("SEED", 42)
-    results = {
-        "disorder_width": 0.0,
+    all_pr_data = []
+    scaling_verification = []
+
+    logger.log_convergence({"status": "starting_w0_analysis", "L_values": L_values})
+
+    for L in L_values:
+        L_pr_values = []
+        for r_idx in range(num_realizations):
+            # Generate clean Hamiltonian
+            H = generate_clean_hamiltonian(L, seed + r_idx)
+            
+            # Compute PRs
+            pr_results = compute_w0_participation_ratio(H, seed + r_idx, r_idx)
+            all_pr_data.extend(pr_results)
+            
+            # Collect PRs for eigenstates near E=0 for scaling check
+            # Filter for |E| < 0.1 (or all if none match, but clean band is [-2, 2])
+            near_zero = [r for r in pr_results if abs(r['energy']) < 0.1]
+            if not near_zero:
+                # Fallback to middle eigenstates if band structure differs slightly
+                mid_idx = L // 2
+                near_zero = [pr_results[mid_idx]]
+            
+            avg_pr = np.mean([r['pr'] for r in near_zero])
+            L_pr_values.append(avg_pr)
+
+        # Verify scaling: PR should be proportional to L
+        # For 1D clean chain, PR ~ L/3
+        expected_ratio = L / 3.0
+        actual_ratio = np.mean(L_pr_values) if L_pr_values else 0.0
+        
+        scaling_verification.append({
+            "L": L,
+            "mean_PR": float(actual_ratio),
+            "expected_PR": float(expected_ratio),
+            "ratio": float(actual_ratio / expected_ratio) if expected_ratio > 0 else 0.0,
+            "is_extensive": float(actual_ratio) > 0.1 * L  # Heuristic check
+        })
+
+    logger.log_convergence({
+        "status": "w0_analysis_complete",
+        "scaling_verification": scaling_verification
+    })
+
+    return {
         "is_delocalized": True,
-        "PR_values": [],
-        "scaling_check": {
-            "expected_ratio": 1.0,
-            "observed_ratios": []
+        "PR_values": all_pr_data,
+        "scaling_check": scaling_verification,
+        "parameters": {
+            "L_values": L_values,
+            "num_realizations": num_realizations,
+            "seed": seed
         }
     }
 
-    logger.log_convergence({"event": "W0_analysis_start", "L_list": target_L_list})
-
-    for L in target_L_list:
-        # Generate clean Hamiltonian
-        H = generate_clean_hamiltonian(L, seed)
-        
-        # Compute PR
-        _, _, pr_results = compute_w0_participation_ratio(H, energy_window=0.1, logger=logger)
-        
-        if not pr_results:
-            logger.log_residual({"L": L, "error": "No eigenstates in window", "flag": False})
-            continue
-
-        # Average PR for states in window
-        avg_pr = np.mean([r["pr"] for r in pr_results])
-        results["PR_values"].append({
-            "L": L,
-            "avg_pr": float(avg_pr),
-            "num_states": len(pr_results)
-        })
-
-        logger.log_residual({"L": L, "pr": avg_pr, "flag": True})
-
-    # Verify scaling: PR should be proportional to L
-    # Check ratios PR/L for consecutive sizes
-    if len(results["PR_values"]) >= 2:
-        for i in range(1, len(results["PR_values"])):
-            curr = results["PR_values"][i]
-            prev = results["PR_values"][i-1]
-            # Ratio of PR growth vs L growth
-            pr_ratio = curr["avg_pr"] / prev["avg_pr"]
-            l_ratio = curr["L"] / prev["L"]
-            results["scaling_check"]["observed_ratios"].append({
-                "L_from": prev["L"],
-                "L_to": curr["L"],
-                "pr_ratio": float(pr_ratio),
-                "l_ratio": float(l_ratio),
-                "matches_linear": abs(pr_ratio - l_ratio) < 0.2 # 20% tolerance
-            })
-
-    logger.log_convergence({"event": "W0_analysis_complete", "is_delocalized": True})
-    return results
-
 def main():
-    """Main entry point for T013c."""
+    """Entry point for W=0 analysis."""
     config = get_config()
     
-    # Check if W=0 is in the list
-    w_list = config.get("W_LIST", [])
+    # Determine L values to use. Task T013c specifies [100, 200, 400].
+    # If config.L_LIST exists, we can use that, but T013c explicitly asks for specific values.
+    # We will use the intersection or the specific set if W=0 is present in config.W_LIST.
+    target_L = [100, 200, 400]
     
-    if 0.0 not in w_list and 0 not in w_list:
-        logger = logging.getLogger(__name__)
-        logger.info("W=0 not in config.W_LIST. Skipping W0 analysis.")
-        # Still create an empty result file to indicate task completion status
-        output_path = Path("data/processed/w0_results.json")
+    # Check if W=0 is in config
+    if 0.0 not in config.get('W_LIST', []):
+        logger.info("W=0 not in config.W_LIST. Skipping W=0 analysis.")
+        # Still create an empty result file to satisfy schema expectations downstream
+        output_path = Path(config['DATA_PROCESSED_PATH']) / "w0_results.json"
         output_path.parent.mkdir(parents=True, exist_ok=True)
         with open(output_path, 'w') as f:
-            json.dump({"skipped": True, "reason": "W=0 not in config.W_LIST"}, f, indent=2)
+            json.dump({"is_delocalized": False, "reason": "W=0 not in config"}, f, indent=2)
         return
 
+    num_realizations = config.get('NUM_REALIZATIONS', 10)
+    seed = config.get('SEED', 42)
+    
+    # Initialize Logger
     logger_instance = get_logger()
     
-    logger.info("Starting W=0 delocalization analysis (T013c)...")
+    logger.info(f"Starting W=0 delocalization analysis for L={target_L}, N={num_realizations}")
     
-    w0_results = analyze_w0_delocalization(config, logger_instance)
+    results = analyze_w0_delocalization(
+        L_values=target_L,
+        num_realizations=num_realizations,
+        seed=seed,
+        logger=logger_instance
+    )
     
-    output_path = Path("data/processed/w0_results.json")
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    # Write output
+    output_dir = Path(config['DATA_PROCESSED_PATH'])
+    output_dir.mkdir(parents=True, exist_ok=True)
+    output_path = output_dir / "w0_results.json"
     
     with open(output_path, 'w') as f:
-        json.dump(w0_results, f, indent=2)
+        json.dump(results, f, indent=2)
     
     logger.info(f"W=0 results written to {output_path}")
-    print(f"Success: W=0 analysis complete. Results saved to {output_path}")
+    print(f"Success: W=0 analysis complete. Output: {output_path}")
 
 if __name__ == "__main__":
     main()

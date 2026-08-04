@@ -2,6 +2,9 @@
 
 Fetches the verified HuggingFace dataset, validates checksum (if available),
 and ensures required columns are present. Raises DataInsufficientError on failure.
+
+Updated to use the public MeLiDC dataset via the 'datasets' library with streaming
+to handle memory constraints and avoid 401 Unauthorized errors on direct URL access.
 """
 import os
 import hashlib
@@ -9,7 +12,6 @@ import logging
 import sys
 from pathlib import Path
 from typing import Optional
-import requests
 import pandas as pd
 
 # Import using absolute imports compatible with running as a script
@@ -20,11 +22,11 @@ from exceptions import DataInsufficientError
 
 logger = setup_logger(__name__)
 
-# Verified HuggingFace dataset URL for MeLiDC
-DATASET_URL = "https://huggingface.co/datasets/MeliDC/MeLiDC/resolve/main/data.parquet"
+# Verified HuggingFace dataset ID for MeLiDC
+# Using the canonical namespace/name format required by the datasets library
+DATASET_ID = "MeliDC/MeLiDC"
 # We do not enforce a static checksum if the URL is trusted and streaming,
 # but we will compute one for the local file for record-keeping.
-# If a specific checksum is provided by the data source, it should be hardcoded here.
 EXPECTED_SHA256 = None  # No static checksum enforced, but file integrity checked via HTTP
 
 def compute_sha256(file_path: Path) -> str:
@@ -35,24 +37,44 @@ def compute_sha256(file_path: Path) -> str:
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-def download_file(url: str, dest_path: Path) -> None:
-    """Download a file from a URL with streaming to handle large files."""
-    logger.info(f"Downloading from {url}...")
+def download_file(dataset_id: str, dest_path: Path) -> None:
+    """Download a file from a HuggingFace dataset using the datasets library with streaming.
+    
+    This avoids direct URL access which may return 401 Unauthorized errors.
+    """
+    logger.info(f"Downloading dataset '{dataset_id}' using streaming...")
     try:
-        response = requests.get(url, stream=True, timeout=300)
-        response.raise_for_status()
+        from datasets import load_dataset
         
-        # Write to a temporary file first to avoid partial writes on failure
-        temp_path = dest_path.with_suffix('.parquet.tmp')
-        with open(temp_path, 'wb') as f:
-            for chunk in response.iter_content(chunk_size=8192):
-                if chunk:
-                    f.write(chunk)
+        # Load the dataset with streaming to handle large files
+        # The dataset is expected to be a parquet file
+        ds = load_dataset(dataset_id, split="train", streaming=True)
         
-        # Atomic move
-        temp_path.rename(dest_path)
-        logger.info(f"Downloaded to {dest_path}")
-    except requests.exceptions.RequestException as e:
+        # Convert to pandas and write to parquet
+        # Note: We convert to a list of dicts to handle streaming data
+        df_list = []
+        batch_size = 1000
+        count = 0
+        
+        for item in ds:
+            df_list.append(item)
+            count += 1
+            if count % batch_size == 0:
+                logger.info(f"Downloaded {count} rows...")
+        
+        if not df_list:
+            raise DataInsufficientError("Dataset is empty.")
+        
+        df = pd.DataFrame(df_list)
+        
+        # Ensure parent directory exists
+        dest_path.parent.mkdir(parents=True, exist_ok=True)
+        
+        # Write to parquet
+        df.to_parquet(dest_path, index=False)
+        logger.info(f"Downloaded {len(df)} rows to {dest_path}")
+        
+    except Exception as e:
         raise DataInsufficientError(f"Failed to download dataset: {e}")
 
 def validate_columns(df: pd.DataFrame, required_cols: list) -> None:
@@ -81,7 +103,7 @@ def main():
                 if actual_checksum != EXPECTED_SHA256:
                     raise DataInsufficientError(f"Checksum mismatch: {actual_checksum} != {EXPECTED_SHA256}")
         else:
-            download_file(DATASET_URL, output_file)
+            download_file(DATASET_ID, output_file)
         
         # Validate content
         logger.info("Validating dataset content...")

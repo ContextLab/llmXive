@@ -92,18 +92,18 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T009 [P] [US1] Unit test for CIF parsing logic in `tests/unit/test_data_loaders.py`
-- [ ] T010 [P] [US1] Unit test for descriptor computation (RDKit) in `tests/unit/test_descriptors.py`
-- [ ] T011 [P] [US1] Integration test for full ingestion pipeline with sample data in `tests/integration/test_ingestion.py`
+- [X] T009 [P] [US1] Unit test for CIF parsing logic in `tests/unit/test_data_loaders.py`
+- [X] T010 [P] [US1] Unit test for descriptor computation (RDKit) in `tests/unit/test_descriptors.py`
+- [X] T011 [P] [US1] Integration test for full ingestion pipeline with sample data in `tests/integration/test_ingestion.py`
 
 ### Implementation for User Story 1
 
-- [ ] T012 [US1] Implement `code/01_ingest_and_descriptors.py` to download CIFs, parse unit cell parameters ($a, b, c, \alpha, \beta, \gamma$), and calculate $V_{cell}$.
+- [X] T012 [US1] Implement `code/01_ingest_and_descriptors.py` to download CIFs, parse unit cell parameters ($a, b, c, \alpha, \beta, \gamma$), and calculate $V_{cell}$.
  **Deliverable**: Generate `data/descriptors/raw_descriptors.csv` with columns `[ID, Volume, SurfaceArea, Dipole, HBD, HBA, PSA, packing_coefficient]`.
  **Verification**: File exists with **≥ 50** rows and all listed columns present.
-- [ ] T013 [US1] Implement logic to add missing hydrogens geometrically before descriptor calculation; log count of modified entries to `data/processed/hydrogen_addition.log`.
+- [X] T013 [US1] Implement logic to add missing hydrogens geometrically before descriptor calculation; log count of modified entries to `data/processed/hydrogen_addition.log`.
 - [ ] T014 [US1] Implement descriptor computation for Volume, Surface Area, Dipole, HBA, HBD, PSA using `utils/descriptors.py`. <!-- FAILED: unspecified -->
-- [~] T015 [US1] Derive `packing_coefficient = V_mol / V_cell` and **filter out physically impossible values** (`packing_coefficient < 0` or `> 1`).
+- [ ] T015 [US1] Derive `packing_coefficient = V_mol / V_cell` and **filter out physically impossible values** (`packing_coefficient < 0` or `> 1`).
  **Log**: Write number of excluded rows to `data/processed/filter_log.txt`.
 - [ ] T016 [US1] Implement missing‑data handling: impute auxiliary descriptors (e.g., Dipole) with the training‑set median and flag the row in `data/descriptors/raw_descriptors.csv` with a boolean column `dipole_imputed`. Exclude rows with missing target and log count to `data/processed/missing_target.log`.
 - [ ] T017.1 [US1] Perform a **stratified split** of the cleaned dataset into Train/Val/Test (70/15/15) **by molecular weight** (MW) to satisfy FR‑003.
@@ -112,7 +112,7 @@
  **Log**: Write KS statistic and p‑value to `data/processed/split_validation.log`.
 - [ ] T017.3 [US1] Generate a JSON report `data/processed/split_report.json` summarizing row counts, MW statistics (mean, std), and KS test results. Follow the schema defined in `contracts/dataset.schema.yaml`.
 - [ ] T017.1‑T017.3 are **not** marked `[P]` because they depend sequentially on each other.
-- [~] T018 [US1] Generate SHA‑256 checksums for raw CIFs and all derived CSV/JSON artifacts; record them in `state/projects/PROJ-238.../artifact_hashes`.
+- [ ] T018 [US1] Generate SHA‑256 checksums for raw CIFs and all derived CSV/JSON artifacts; record them in `state/projects/PROJ-238.../artifact_hashes`.
 - [ ] **(Removed) T019** – interaction classification is now handled in User Story 3.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -134,9 +134,9 @@
 
 - [X] T022 [US2] Implement `code/02_train_models.py` to load pre‑split data from `data/processed/`.
  **Verification**: Files `train.csv`, `val.csv`, `test.csv` exist, have non‑overlapping IDs, and contain the required columns.
-- [~] T023 [US2] Train Random Forest regressor with default hyperparameters and `random_state=42`.
-- [~] T024 [US2] Train Gradient Boosting regressor with default hyperparameters and `random_state=42`.
-- [~] T025 [US2] Implement Mean Predictor baseline (predicts the training‑set mean of `packing_coefficient`).
+- [ ] T023 [US2] Train Random Forest regressor with default hyperparameters and `random_state=42`.
+- [ ] T024 [US2] Train Gradient Boosting regressor with default hyperparameters and `random_state=42`.
+- [ ] T025 [US2] Implement Mean Predictor baseline (predicts the training‑set mean of `packing_coefficient`).
 - [~] T026 [US2] Implement Control Analysis: train secondary RF/GB models **excluding** Volume and Surface Area descriptors to probe the contribution of interaction‑related features.
  **Deliverable**: Save results to `results/control_analysis_metrics.json`.
 - [~] T027 [US2] Evaluate all models on the test set; compute R², MAE, RMSE.
@@ -172,7 +172,7 @@
  **Verification**: All rows have non‑null `interaction_type`.
 - [ ] T035.3 [US3] Generate `results/interaction_classification.md` reporting overall classification accuracy and 95 % confidence intervals obtained via bootstrapping (≥ 1 000 resamples).
  **Verification**: Report includes accuracy, CI, and number of resamples.
-- [ ] T036 [US3] (Optional) Evaluate interaction‑type prediction against any available external benchmark (if present) and log results to `results/interaction_benchmark.log`.
+- [~] T036 [US3] (Optional) Evaluate interaction‑type prediction against any available external benchmark (if present) and log results to `results/interaction_benchmark.log`.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -182,10 +182,10 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T037 [P] Update `state/projects/PROJ-238.../artifact_hashes` with final result checksums
-- [ ] T038 Verify `results/metrics.json` contains all required fields and the Bonferroni flag
-- [ ] T039 [P] Generate `quickstart.md` and `contracts/` schemas from data model
-- [ ] T040 [P] Execute full pipeline validation: Run `code/01_ingest_and_descriptors.py`, `code/02_train_models.py`, and `code/03_evaluate_and_report.py` in a CI environment.
+- [~] T037 [P] Update `state/projects/PROJ-238.../artifact_hashes` with final result checksums
+- [~] T038 Verify `results/metrics.json` contains all required fields and the Bonferroni flag
+- [~] T039 [P] Generate `quickstart.md` and `contracts/` schemas from data model
+- [X] T040 [P] Execute full pipeline validation: Run `code/01_ingest_and_descriptors.py`, `code/02_train_models.py`, and `code/03_evaluate_and_report.py` in a CI environment. <!-- ATOMIZE: requested -->
  **Verification**: All exit codes are 0 and artifacts are generated in `data/` and `results/`.
 
 ---

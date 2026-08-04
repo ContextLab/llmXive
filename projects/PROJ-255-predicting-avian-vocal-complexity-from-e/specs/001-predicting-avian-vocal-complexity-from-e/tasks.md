@@ -80,7 +80,7 @@ expected alphabetic or numeric character, but found ' '
 - [X] T017b [US1] **Default Execution**: Execute the filtering engine from T017a with the default dB threshold to generate the primary `data/interim/filtered_snr.csv`.
 - [X] T018 [US1] Implement `src/data/preprocessing.py` to filter species with <5 valid recordings per location and log exclusions.
 - [ ] T018b [US1] **Audit Trail**: Generate `data/interim/species_filtered.csv` containing all species excluded by T018.
-- [ ] T021 [US1] **Logging**: Generate `data/interim/dropped_records.csv` containing all records excluded by T015 (missing OSM), T017 (SNR ≤ 10 dB), and T018 (species count) to satisfy US-1 Acceptance Scenario 3.
+- [X] T021 [US1] **Logging**: Generate `data/interim/dropped_records.csv` containing all records excluded by T015 (missing OSM), T017 (SNR ≤ 10 dB), and T018 (species count) to satisfy US-1 Acceptance Scenario 3.
 - [ ] T019 [US1] Implement `src/data/extraction.py` to extract vocal metrics (syllable count, duration, bandwidth, spectral entropy) using `librosa` (CPU-only).
 - [ ] T020 [US1] Implement `src/data/preprocessing.py` to combine filtered data and extracted metrics to generate `data/processed/final_dataset.csv` and validate against `contracts/dataset.schema.yaml`.
 

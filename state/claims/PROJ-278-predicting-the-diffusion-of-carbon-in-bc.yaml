@@ -581,3 +581,478 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-23T19:58:59Z'
+- artifact_path: projects/PROJ-278-predicting-the-diffusion-of-carbon-in-bc/specs/001-predicting-the-diffusion-of-carbon-in-bc/tasks.md
+  attempts: 1
+  canonical: HuggingFace dataset URL for MeLiDC carbon diffusion data
+  claim_id: c_6d9e8384
+  context: Implement code/01_download.py to fetch the verified HuggingFace dataset
+    URL https://huggingface.co/datasets/MeliDC/MeLiDC/resolve/main/data.parquet, generate
+    SHA256 checksum, and store in data/raw/.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/HuggingFace_dataset_URL_for_MeLiDC_carbon_diffusion_data
+  kind: entity_fact
+  raw_text: The verified HuggingFace dataset URL is https://huggingface.co/datasets/MeliDC/MeLiDC/resolve/main/data.parquet
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T10:24:41Z'
+- artifact_path: projects/PROJ-278-predicting-the-diffusion-of-carbon-in-bc/specs/001-predicting-the-diffusion-of-carbon-in-bc/tasks.md
+  attempts: 1
+  canonical: Permutation test uses 10000 iterations
+  claim_id: c_851fcd5d
+  context: Perform a permutation test with 10,000 iterations comparing best ML model
+    vs. the Linear Regression baseline (same split).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The permutation test uses 10,000 iterations
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T10:24:58Z'
+- artifact_path: projects/PROJ-278-predicting-the-diffusion-of-carbon-in-bc/specs/001-predicting-the-diffusion-of-carbon-in-bc/tasks.md
+  attempts: 1
+  canonical: Sample size threshold for LOOCV is 30
+  claim_id: c_1892cb06
+  context: 'Count total samples: if N < 30, emit PowerWarning AND set split_strategy=LOOCV;
+    if N >= 30, set split_strategy=80/20.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sample size threshold for switching from 80/20 split to LOOCV is 30
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T10:25:30Z'
+- artifact_path: projects/PROJ-278-predicting-the-diffusion-of-carbon-in-bc/specs/001-predicting-the-diffusion-of-carbon-in-bc/tasks.md
+  attempts: 1
+  canonical: Permutation test executed with 10000 iterations
+  claim_id: c_5f93cc21
+  context: T015 [US2] Implementation of code/03_train.py specifies the number of iterations
+    for the permutation test.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Permutation_test_executed_with_10000_iterations
+  kind: magnitude
+  raw_text: Perform a permutation test with 10,000 iterations comparing best ML model
+    vs. the Linear Regression baseline (same split).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T10:29:08Z'
+- artifact_path: projects/PROJ-278-predicting-the-diffusion-of-carbon-in-bc/specs/001-predicting-the-diffusion-of-carbon-in-bc/tasks.md
+  attempts: 1
+  canonical: 'Split strategy determined by sample size: LOOCV if N < 30, 80/20 if
+    N >= 30'
+  claim_id: c_12dddd6d
+  context: T010 [US1] Implementation of code/02_preprocess.py defines the logic for
+    selecting the data split strategy based on the total sample count.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If N < 30, emit PowerWarning AND set split_strategy=LOOCV; if N >= 30,
+    set split_strategy=80/20.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T10:30:47Z'
+- artifact_path: projects/PROJ-278-predicting-the-diffusion-of-carbon-in-bc/specs/001-predicting-the-diffusion-of-carbon-in-bc/tasks.md
+  attempts: 1
+  canonical: Dataset filtered for BCC structure and Carbon solute
+  claim_id: c_4f2a2332
+  context: T010 [US1] Implementation of code/02_preprocess.py specifies the initial
+    filtering criteria for the raw dataset.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset_filtered_for_BCC_structure_and_Carbon_solute
+  kind: entity_fact
+  raw_text: Filter for structure == 'BCC' and solute == 'C'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T10:31:22Z'
+- artifact_path: projects/PROJ-278-predicting-the-diffusion-of-carbon-in-bc/specs/001-predicting-the-diffusion-of-carbon-in-bc/tasks.md
+  attempts: 1
+  canonical: 'Descriptors computed: atomic_radius_variance, VEC, electronegativity_spread,
+    mixing_entropy, inv_temperature'
+  claim_id: c_6c477e0a
+  context: T010 [US1] Implementation of code/02_preprocess.py lists the specific descriptors
+    to be computed from the compositional data.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Compute descriptors: atomic_radius_variance, VEC, electronegativity_spread,
+    mixing_entropy (formula: -R * sum(xi * ln(xi))), inv_temperature (formula: 1.0
+    / T).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T10:31:49Z'
+- artifact_path: projects/PROJ-278-predicting-the-diffusion-of-carbon-in-bc/specs/001-predicting-the-diffusion-of-carbon-in-bc/tasks.md
+  attempts: 1
+  canonical: 'Dataset source URL: https://huggingface.co/datasets/MeliDC/MeLiDC/resolve/main/data.parquet'
+  claim_id: c_d1296bb9
+  context: T009 [US1] Implementation of code/01_download.py specifies the exact URL
+    to fetch the dataset from HuggingFace.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset_source_URL:_https://huggingface.co/datasets/MeliDC/M
+  kind: entity_fact
+  raw_text: Fetch the verified HuggingFace dataset URL https://huggingface.co/datasets/MeliDC/MeLiDC/resolve/main/data.parquet.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T10:32:05Z'
+- artifact_path: projects/PROJ-278-predicting-the-diffusion-of-carbon-in-bc/specs/001-predicting-the-diffusion-of-carbon-in-bc/tasks.md
+  attempts: 1
+  canonical: Dataset checksum verification using SHA256
+  claim_id: c_9f588478
+  context: T009 [US1] Implementation of code/01_download.py requires generating a
+    SHA256 checksum for the downloaded dataset.
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: SHA-256
+      source_id: Q110651361
+      url: https://www.wikidata.org/wiki/Q110651361
+      value: SHA-256
+    filled: true
+  kind: entity_fact
+  raw_text: Generate SHA256 checksum and store in data/raw/.
+  resolved_value: SHA-256
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-04T10:32:21Z'
+- artifact_path: projects/PROJ-278-predicting-the-diffusion-of-carbon-in-bc/specs/001-predicting-the-diffusion-of-carbon-in-bc/tasks.md
+  attempts: 1
+  canonical: Project initialized with Python 3.11
+  claim_id: c_3747ee2e
+  context: T002 [P] Setup task specifies the Python version and package management
+    requirements.
+  evidence:
+    asserted: '3.11'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Initialize Python 3.11 project with pinned code/requirements.txt.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-04T10:32:21Z'
+- artifact_path: projects/PROJ-278-predicting-the-diffusion-of-carbon-in-bc/specs/001-predicting-the-diffusion-of-carbon-in-bc/tasks.md
+  attempts: 1
+  canonical: Black formatter configured with line-length 88 and target-version py311
+  claim_id: c_d754f882
+  context: T003 [P] Setup task specifies the formatting configuration parameters.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Configure line-length = 88 and target-version = py311 for black formatting.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T10:32:48Z'
+- artifact_path: projects/PROJ-278-predicting-the-diffusion-of-carbon-in-bc/specs/001-predicting-the-diffusion-of-carbon-in-bc/tasks.md
+  attempts: 1
+  canonical: 'Random Forest hyperparameter grid: n_estimators [100, 200], max_depth
+    [5, 10]'
+  claim_id: c_5f4b1be5
+  context: T015 [US2] Implementation of code/03_train.py defines the constrained grid
+    search space for the Random Forest model.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Random Forest grid search: n_estimators in [100, 200], max_depth in [5,
+    10].'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T10:33:11Z'
+- artifact_path: projects/PROJ-278-predicting-the-diffusion-of-carbon-in-bc/specs/001-predicting-the-diffusion-of-carbon-in-bc/tasks.md
+  attempts: 1
+  canonical: 'XGBoost hyperparameter grid: n_estimators [100], max_depth [3, 5]'
+  claim_id: c_b745be58
+  context: T015 [US2] Implementation of code/03_train.py defines the constrained grid
+    search space for the XGBoost model.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'XGBoost grid search: n_estimators in [100], max_depth in [3, 5].'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T10:33:36Z'
+- artifact_path: projects/PROJ-278-predicting-the-diffusion-of-carbon-in-bc/specs/001-predicting-the-diffusion-of-carbon-in-bc/tasks.md
+  attempts: 1
+  canonical: 'Elastic Net hyperparameter grid: alpha [0.1, 1.0]'
+  claim_id: c_1f3df8a3
+  context: T015 [US2] Implementation of code/03_train.py defines the constrained grid
+    search space for the Elastic Net model.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Elastic Net grid search: alpha in [0.1, 1.0].'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T10:33:55Z'
+- artifact_path: projects/PROJ-278-predicting-the-diffusion-of-carbon-in-bc/specs/001-predicting-the-diffusion-of-carbon-in-bc/tasks.md
+  attempts: 1
+  canonical: Peak memory usage constrained to 6 GB
+  claim_id: c_db35e3fd
+  context: Notes section specifies the memory constraint for the models running on
+    CPU-only CI.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Peak memory usage must stay within 6 GB as verified by code/memory_monitor.py
+    and tests/test_memory.py.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T10:34:19Z'
+- artifact_path: projects/PROJ-278-predicting-the-diffusion-of-carbon-in-bc/specs/001-predicting-the-diffusion-of-carbon-in-bc/tasks.md
+  attempts: 1
+  canonical: Model training runtime constrained to 6 hours
+  claim_id: c_e77a05b9
+  context: Phase 3 independent test requirements specify the maximum runtime for the
+    training process.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Model_training_runtime_constrained_to_6_hours
+  kind: magnitude
+  raw_text: Runtime must be less than 6 hours on CPU-only CI.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T10:34:49Z'
+- artifact_path: projects/PROJ-278-predicting-the-diffusion-of-carbon-in-bc/specs/001-predicting-the-diffusion-of-carbon-in-bc/tasks.md
+  attempts: 1
+  canonical: Dataset size assumed to be less than 10000 rows
+  claim_id: c_2117a143
+  context: Notes section states the constraint regarding the maximum dataset size
+    expected for the CI environment.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Dataset_size_assumed_to_be_less_than_10000_rows
+  kind: magnitude
+  raw_text: Dataset size is assumed < 10k rows to fit in available RAM.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T10:35:18Z'
+- artifact_path: projects/PROJ-278-predicting-the-diffusion-of-carbon-in-bc/specs/001-predicting-the-diffusion-of-carbon-in-bc/tasks.md
+  attempts: 1
+  canonical: Best model selected based on cross-validated R-squared
+  claim_id: c_f3b1eba3
+  context: T015 [US2] Implementation of code/03_train.py specifies the criterion for
+    selecting the best performing model.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Best_model_selected_based_on_cross-validated_R-squared
+  kind: magnitude
+  raw_text: Select best ML model based on cross-validated R^2.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T10:36:27Z'
+- artifact_path: projects/PROJ-278-predicting-the-diffusion-of-carbon-in-bc/specs/001-predicting-the-diffusion-of-carbon-in-bc/tasks.md
+  attempts: 1
+  canonical: 'Model metrics calculated: R-squared, RMSE, MAE'
+  claim_id: c_ff9d4bae
+  context: T015 [US2] Implementation of code/03_train.py lists the metrics to be calculated
+    on the test set.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate R^2, RMSE, MAE on test set.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T10:40:02Z'
+- artifact_path: projects/PROJ-278-predicting-the-diffusion-of-carbon-in-bc/specs/001-predicting-the-diffusion-of-carbon-in-bc/tasks.md
+  attempts: 1
+  canonical: Adjusted R-squared from best model used as upper bound of explainable
+    variance
+  claim_id: c_3e5ce317
+  context: T019 [US3] Implementation of code/04_evaluate.py specifies how the adjusted
+    R-squared is calculated and used for variance partitioning.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Adjusted_R-squared_from_best_model_used_as_upper_bound_of_ex
+  kind: magnitude
+  raw_text: Calculate adjusted R^2 from the best model (not baseline) as the upper
+    bound of variance explainable by composition.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T10:43:01Z'
+- artifact_path: projects/PROJ-278-predicting-the-diffusion-of-carbon-in-bc/specs/001-predicting-the-diffusion-of-carbon-in-bc/tasks.md
+  attempts: 1
+  canonical: Microstructural gap calculated as 1 minus adjusted R-squared
+  claim_id: c_e755440d
+  context: T019 [US3] Implementation of code/04_evaluate.py defines the formula for
+    the microstructural gap.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Microstructural_gap_calculated_as_1_minus_adjusted_R-squared
+  kind: magnitude
+  raw_text: Calculate microstructural gap as 1 - adjusted R^2 (using best model's
+    R^2).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T10:45:50Z'
+- artifact_path: projects/PROJ-278-predicting-the-diffusion-of-carbon-in-bc/specs/001-predicting-the-diffusion-of-carbon-in-bc/tasks.md
+  attempts: 1
+  canonical: Residual variance labeled as noise, measurement error, and missing compositional
+    descriptors
+  claim_id: c_25c22694
+  context: T019 [US3] Implementation of code/04_evaluate.py requires specific labeling
+    for the residual variance components in the output CSV.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Residual_variance_labeled_as_noise,_measurement_error,_and_m
+  kind: entity_fact
+  raw_text: Explicitly label the residual variance components as 'noise, measurement
+    error, and missing compositional descriptors' in the output.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T10:46:15Z'
+- artifact_path: projects/PROJ-278-predicting-the-diffusion-of-carbon-in-bc/specs/001-predicting-the-diffusion-of-carbon-in-bc/tasks.md
+  attempts: 1
+  canonical: Entries missing microstructure_controlled or single_crystal flags are
+    excluded
+  claim_id: c_c5345e4c
+  context: T010 [US1] Implementation of code/02_preprocess.py specifies the data filtering
+    logic based on provenance flags.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Entries_missing_microstructure_controlled_or_single_crystal
+  kind: entity_fact
+  raw_text: Enforce provenance check (exclude entries missing microstructure_controlled/single_crystal
+    flags) and log excluded entries.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T10:46:33Z'
+- artifact_path: projects/PROJ-278-predicting-the-diffusion-of-carbon-in-bc/specs/001-predicting-the-diffusion-of-carbon-in-bc/tasks.md
+  attempts: 1
+  canonical: Atomic fractions normalized to sum to 1.0
+  claim_id: c_e834440b
+  context: T010 [US1] Implementation of code/02_preprocess.py specifies the normalization
+    step for atomic fractions.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Normalize atomic fractions to sum to 1.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T10:46:58Z'
+- artifact_path: projects/PROJ-278-predicting-the-diffusion-of-carbon-in-bc/specs/001-predicting-the-diffusion-of-carbon-in-bc/tasks.md
+  attempts: 1
+  canonical: DataInsufficientError raised on fetch failure, checksum mismatch, or
+    missing columns
+  claim_id: c_701e2bea
+  context: T009 [US1] Implementation of code/01_download.py defines the error handling
+    conditions for data retrieval.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/DataInsufficientError_raised_on_fetch_failure,_checksum_mism
+  kind: entity_fact
+  raw_text: Raise DataInsufficientError if fetch fails, checksum mismatch, OR if required
+    columns are missing.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T10:47:22Z'
+- artifact_path: projects/PROJ-278-predicting-the-diffusion-of-carbon-in-bc/specs/001-predicting-the-diffusion-of-carbon-in-bc/tasks.md
+  attempts: 1
+  canonical: 'Required columns: structure, composition, diffusion_coefficient, temperature,
+    microstructure_controlled'
+  claim_id: c_843a3767
+  context: T009 [US1] Implementation of code/01_download.py lists the mandatory columns
+    in the dataset.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Required_columns:_structure,_composition,_diffusion_coeffici
+  kind: entity_fact
+  raw_text: Required columns (structure, composition, diffusion_coefficient, temperature,
+    microstructure_controlled) must be present in the raw file.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T10:47:51Z'

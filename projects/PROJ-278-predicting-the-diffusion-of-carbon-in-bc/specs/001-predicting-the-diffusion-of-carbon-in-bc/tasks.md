@@ -33,8 +33,8 @@
 - [X] T005a [P] [US2] Define schema content for `specs/001-predict-carbon-diffusion-bcc/contracts/model_output.schema.yaml`: Specify keys for `model_results.json` (`best_model`, `baseline_model`, `r2`, `rmse`, `mae`, `p_value`), `feature_importance.json` (`ranked_features`, `top_two`), and `variance_partition.csv` (`adjusted_r2`, `microstructural_gap`, `residual_variance_label` constrained to enum ["noise, measurement error, and missing compositional descriptors"]).
 - [X] T005b [P] [US2] Write `specs/001-predict-carbon-diffusion-bcc/contracts/model_output.schema.yaml`: Create the YAML file defined in T005a.
 - [X] T006 [P] [US1] Implement `code/utils.py` helper functions for periodic table property retrieval (atomic radius, VEC, electronegativity) using `pymatgen` or `matminer`.
-- [ ] T007 [P] [US1] Setup deterministic logging and error handling infrastructure: Create `code/logging_config.py` with log format `%(asctime)s - %(levelname)s - %(message)s` and implement custom exceptions `DataInsufficientError`, `PowerWarning`, `SHAPError` inheriting from `Exception`.
-- [ ] T008 [P] [US1] Configure environment configuration management: Create `code/config.yaml` with keys `random_seed` (int), `data_path` (str), `output_path` (str) and implement a loader in `code/utils.py` to read these values.
+- [X] T007 [P] [US1] Setup deterministic logging and error handling infrastructure: Create `code/logging_config.py` with log format `%(asctime)s - %(levelname)s - %(message)s` and implement custom exceptions `DataInsufficientError`, `PowerWarning`, `SHAPError` inheriting from `Exception`. <!-- FAILED: unspecified -->
+- [X] T008 [P] [US1] Configure environment configuration management: Create `code/config.yaml` with keys `random_seed` (int), `data_path` (str), `output_path` (str) and implement a loader in `code/utils.py` to read these values.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -46,8 +46,8 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete. T004b/T005b/T004c (Schemas) MUST be completed before T010/T012/T014.
 
-- [ ] T009 [US1] Implement `code/01_download.py` to fetch the verified HuggingFace dataset URL `https://huggingface.co/datasets/MeliDC/MeLiDC/resolve/main/data.parquet`, generate SHA256 checksum, and store in `data/raw/`. Raise `DataInsufficientError` if fetch fails, checksum mismatch, OR if required columns (`structure`, `composition`, `diffusion_coefficient`, `temperature`, `microstructure_controlled`) are missing from the raw file.
-- [ ] T010 [US1] [Depends on T004b, T004c] Implement `code/02_preprocess.py` to:
+- [X] T009 [US1] Implement `code/01_download.py` to fetch the verified HuggingFace dataset URL `https://huggingface.co/datasets/MeliDC/MeLiDC/resolve/main/data.parquet`, generate SHA256 checksum, and store in `data/raw/`. Raise `DataInsufficientError` if fetch fails, checksum mismatch, OR if required columns (`structure`, `composition`, `diffusion_coefficient`, `temperature`, `microstructure_controlled`) are missing from the raw file.
+- [X] T010 [US1] [Depends on T004b, T004c] Implement `code/02_preprocess.py` to:
  - Filter for `structure == "BCC"` and `solute == "C"`
  - Enforce provenance check (exclude entries missing `microstructure_controlled`/`single_crystal` flags) and log excluded entries
  - Normalize atomic fractions to sum to 1.0
@@ -62,7 +62,7 @@
  - `log10` transformation is applied correctly
  - Provenance flags are respected (no entries with missing flags in output)
  - **Depends on T010**: Verify `split_config.json` exists, is valid JSON, and matches the schema defined in T004c.
-- [ ] T012 [US1] Implement `tests/test_preprocess.py` function `test_dataset_schema_validation` using `jsonschema.validate(data, schema)` to ensure `dataset_cleaned.csv` matches the schema defined in T004b. **Depends on T004b and T010**.
+- [X] T012 [US1] Implement `tests/test_preprocess.py` function `test_dataset_schema_validation` using `jsonschema.validate(data, schema)` to ensure `dataset_cleaned.csv` matches the schema defined in T004b. **Depends on T004b and T010**. <!-- FAILED: unspecified -->
 - [X] T013 [US1] [P] Validation test ensuring no non-BCC or missing-composition entries remain: Implement `tests/test_preprocess.py` function `test_bcc_filter_and_completeness` asserting `len(df[df['structure'] != 'BCC']) == 0` and `df['composition'].isnull().sum() == 0`.
 - [ ] T013b [US1] [P] Implement `tests/test_provenance.py` to explicitly validate the provenance exclusion logic (FR-008, SC-006): verify that entries missing `microstructure_controlled` or `single_crystal` flags are correctly excluded and logged in `code/02_preprocess.py`.
 
@@ -247,7 +247,7 @@ With multiple developers:
 - Commit after each task or logical group.
 - Stop at any checkpoint to validate story independently.
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence.
-- **Constraint Reminder**: All models MUST run on CPU-only CI (no CUDA, no 8-bit quantization). Dataset size is assumed < 10k rows to fit in available RAM.
+- **Constraint Reminder**: All models MUST run on CPU-only CI (no CUDA, no 8-bit quantization). Dataset size is assumed < 10k rows to fit in available RAM. [UNRESOLVED-CLAIM: c_2117a143 — status=not_enough_info]
 - **Memory Constraint**: Peak memory usage must stay within acceptable system limits. as verified by `code/memory_monitor.py` and `tests/test_memory.py`.
 - **Baseline Clarity**: The "linear baseline" for permutation tests is explicitly a **Linear Regression (OLS)** model trained on the **same split** as the best model, as defined in FR-005 and the Plan.
 - **Data Integrity**: The `code/01_download.py` script MUST raise `DataInsufficientError` if the verified HuggingFace source returns zero entries or fails checksum validation; it MUST NOT fallback to synthetic data or mock generators.

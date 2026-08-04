@@ -11,13 +11,6 @@ T004a:
   r: The required file `specs/001-predict-carbon-diffusion-bcc/contracts/dataset.schema.yaml`
     is missing, so no schema defining the listed fields is present. The implementer
     must create this YAML file with the specified field definitions.
-T004c:
-  c: false
-  h: a171dffefa1639578c25955eede05a554655c7128e206e9072477adfaba5187e
-  r: The required file `specs/001-predict-carbon-diffusion-bcc/contracts/split_config.schema.yaml`
-    does not exist, so none of the specified fields (`strategy`, `n_samples`, `warning_emitted`)
-    are defined. The task cannot be considered done until the schema file is created
-    with the correct field definitions.
 T005a:
   c: false
   h: a171dffefa1639578c25955eede05a554655c7128e206e9072477adfaba5187e

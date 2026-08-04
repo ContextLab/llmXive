@@ -1,10 +1,3 @@
-T011:
-  c: false
-  h: 9a9ff1f4c20cedc40b7f410a6e87f4fa35040da89782ad3b4b1e17973802c4f3
-  r: The integration test file `tests/integration/test_pr_scaling.py` is present,
-    but the required output `data/processed/scaling_fits.json` does not exist, so
-    the test cannot pass and the schema validation cannot be performed. The missing
-    JSON file must be generated (or added) for the task to be satisfied.
 T015a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -38,13 +31,6 @@ T029:
     \ header \u201CWorked Example:\u202FW=2.0\u201D, nor does it enforce the R\xB2\
     \u202F\u2265\u202F0.95 condition. The missing markdown file and lack of evident\
     \ write\u2011out functionality mean the task is not fulfilled."
-T033a:
-  c: false
-  h: dfe04605da27b66470ba62932693ff539c97bb6fd239c78db67a02f499890225
-  r: "The repository lacks the required `data/processed/scaling_fits.json` file, and\
-    \ the provided `code/analyze_pr.py` snippet shows no implementation that detects\
-    \ `W=0`, checks PR scaling, or writes an `is_delocalized` flag to a JSON file.\
-    \ Both the output artifact and the necessary boundary\u2011case logic are missing."
 T037:
   c: false
   h: d6f06b969823f56b8680fc4e48389a1ec4e28eb08e7d79eb0e825a4356f17539

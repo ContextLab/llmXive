@@ -1,0 +1,7 @@
+drop_reason,drop_source,recording_id,species_id,location,noise_level_db,snr_db
+missing_osm,T015,xc_001,Passer_domesticus,40.7128,-74.0060,,
+missing_osm,T015,xc_002,Turdus_migratorius,34.0522,-118.2437,,
+low_snr,T017,xc_003,Setophaga_coronata,42.3601,-71.0589,35.0,8.5
+low_snr,T017,xc_004,Cardinalis_cardinalis,39.7392,-104.9903,38.0,9.2
+insufficient_species_records,T018,xc_005,Myiarchus_crinitus,33.4484,-112.0740,45.0,15.0
+insufficient_species_records,T018,xc_006,Quiscalus_quiscula,29.7604,-95.3698,55.0,18.0

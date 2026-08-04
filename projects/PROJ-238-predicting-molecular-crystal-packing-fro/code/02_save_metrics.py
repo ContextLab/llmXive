@@ -1,32 +1,26 @@
 """
-T029: Save consolidated metrics summary to results/metrics.json.
+T029: Save a consolidated metrics summary (R², MAE, RMSE, corrected p-values, significance flags) to results/metrics.json.
 
-This script consolidates the evaluation results from the trained models
-(Random Forest, Gradient Boosting, Mean Baseline) and the statistical
-significance tests (paired t-tests with Bonferroni correction) into a
-single JSON artifact as required by the specification.
+This script aggregates model evaluation results from the trained models (Random Forest, Gradient Boosting)
+and the statistical tests performed against the baseline. It loads predictions and test data,
+computes the required metrics, and writes a consolidated JSON report to results/metrics.json.
 
-It assumes that T028 has already been run and that the intermediate
-metrics (R², MAE, RMSE, p-values, significance flags) are available
-either in memory or via a temporary state file produced by the
-statistical evaluation step. Since T028 (02_statistical_evaluation.py)
-is marked as completed, we assume it produces a state file or the
-main entry point of the training pipeline has already aggregated
-these values.
+Dependencies:
+- code/utils/metrics.py (for statistical tests if re-running, though usually results are passed or loaded)
+- code/02_train_models.py (produces the model artifacts and predictions)
+- code/02_statistical_evaluation.py (produces the statistical test results)
 
-For this implementation, we will re-load the predictions and models
-to re-compute the metrics and perform the statistical tests to ensure
-the final JSON is derived from the actual data on disk, satisfying
-the "real data only" constraint.
+Note: This task assumes that T028 (statistical tests) has been run and its results are available,
+or that this script performs the final aggregation of metrics computed in previous steps.
+Given the pipeline flow, we will load the model predictions, compute R2/MAE/RMSE, and load
+the statistical test results from the intermediate output of T028 (or re-calculate if necessary).
 
-Workflow:
-1. Load the test set data (X_test, y_test).
-2. Load the trained models (RF, GB, MeanBaseline) from the state directory.
-3. Generate predictions for all models.
-4. Compute R², MAE, RMSE for each model.
-5. Perform paired t-tests (RF vs Mean, GB vs Mean) using utils.metrics.
-6. Apply Bonferroni correction (alpha = 0.05 / 2).
-7. Assemble the final dictionary and write to results/metrics.json.
+To ensure robustness, this script will:
+1. Load test data from data/processed/test.csv.
+2. Load model predictions (saved as pickles or json by the training/evaluation step).
+3. Calculate R², MAE, RMSE for each model.
+4. Load or re-compute the Bonferroni-corrected p-values and significance flags.
+5. Save the consolidated summary to results/metrics.json.
 """
 
 import os
@@ -35,215 +29,193 @@ import json
 import logging
 import pickle
 from pathlib import Path
-from typing import Dict, Any, List, Tuple
-
-# Project imports
-# Note: We assume the training script saved models to state/projects/PROJ-238.../models
-# We need to locate the config or hardcode the path based on project structure.
-# Using the config module to get paths is safer.
-from config import get_config, log_event
-from utils.metrics import paired_t_test, bonferroni_correct
+from typing import Dict, Any, List, Tuple, Optional
+import numpy as np
 from sklearn.metrics import r2_score, mean_absolute_error, mean_squared_error
 
-# Setup logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-logger = logging.getLogger(__name__)
+# Add project root to path to allow imports from code/ and utils/
+project_root = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(project_root))
 
-def load_model_predictions(model_path: Path) -> Any:
-    """Load a pickled model from disk."""
-    if not model_path.exists():
-        raise FileNotFoundError(f"Model not found at {model_path}")
-    with open(model_path, 'rb') as f:
-        return pickle.load(f)
+from code.config import setup_logging, get_config
+from code.utils.metrics import paired_t_test, bonferroni_correct
 
-def load_test_data(config: Dict[str, str]) -> Tuple[Any, Any, Any]:
-    """
-    Load test data.
-    We assume the data was split and saved by T017.1/T022.
-    The training script (02_train_models.py) likely saved the split data
-    or we can reload it from the CSV files.
-    For this script, we assume the training script saved the X_test, y_test
-    arrays or we can infer the path.
-    
-    However, to be robust and avoid re-parsing CSVs if not needed,
-    we look for a 'state' file containing the test split or reload from CSV.
-    Given the constraint to use real data, we will reload from the CSV
-    if we can't find a pre-saved array, but the most reliable way in
-    this pipeline is that 02_train_models.py saved the necessary arrays
-    or we can re-load from the processed CSVs.
-    
-    Let's assume the standard flow:
-    1. 02_train_models.py loads train/val/test CSVs.
-    2. It trains models and saves them.
-    3. It evaluates and might save predictions.
-    
-    For T029, we need to ensure we have the predictions.
-    If 02_statistical_evaluation.py (T028) ran, it might have saved a
-    'metrics_state.json' or similar.
-    
-    Strategy: Try to load from a state file first. If not, re-compute
-    by loading the CSV and models.
-    """
-    # Path to processed test data (generated by T017.1)
-    test_csv_path = Path(config['DATA_PATH']) / 'processed' / 'test.csv'
-    
-    if not test_csv_path.exists():
-        raise FileNotFoundError(f"Test data not found at {test_csv_path}")
-    
+# Configure logging
+logger = setup_logging()
+config = get_config()
+
+# Paths
+DATA_DIR = project_root / "data" / "processed"
+RESULTS_DIR = project_root / "results"
+TEST_DATA_PATH = DATA_DIR / "test.csv"
+MODELS_DIR = project_root / "state" / "projects" / config.project_id / "models"
+PREDICTIONS_DIR = project_root / "state" / "projects" / config.project_id / "predictions"
+STAT_RESULTS_PATH = RESULTS_DIR / "statistical_test_results.json"
+METRICS_OUTPUT_PATH = RESULTS_DIR / "metrics.json"
+
+def load_test_data() -> pd.DataFrame:
+    """Load the test dataset."""
     import pandas as pd
-    df = pd.read_csv(test_csv_path)
+    if not TEST_DATA_PATH.exists():
+        raise FileNotFoundError(f"Test data not found at {TEST_DATA_PATH}. Run T017 first.")
+    return pd.read_csv(TEST_DATA_PATH)
+
+def load_model_predictions(model_name: str) -> Tuple[np.ndarray, np.ndarray]:
+    """
+    Load predictions for a specific model.
+    Expects a file named {model_name}_predictions.npy or .pickle in the predictions directory.
+    Returns (y_true, y_pred).
+    """
+    import pandas as pd
+    # Try to find the prediction file
+    # Convention: predictions are saved as {model_name}_predictions.npy
+    pred_file = PREDICTIONS_DIR / f"{model_name}_predictions.npy"
+    true_file = PREDICTIONS_DIR / f"{model_name}_true.npy" # Or we can just load from test data if IDs match
+
+    if not pred_file.exists():
+        raise FileNotFoundError(f"Predictions for {model_name} not found at {pred_file}. Run training/evaluation first.")
+
+    y_pred = np.load(pred_file)
     
-    # Columns: ID, Volume, SurfaceArea, Dipole, HBD, HBA, PSA, packing_coefficient, ...
-    feature_cols = ['Volume', 'SurfaceArea', 'Dipole', 'HBD', 'HBA', 'PSA']
-    target_col = 'packing_coefficient'
-    
-    # Filter out rows with missing target (should be done by T016, but double check)
-    df = df.dropna(subset=[target_col])
-    
-    X = df[feature_cols].values
-    y = df[target_col].values
-    
-    return X, y, df['ID'].values
+    # Load true values. We assume the order matches the test set or is stored.
+    # If stored separately:
+    if true_file.exists():
+        y_true = np.load(true_file)
+    else:
+        # Fallback: load from test data if we can match IDs, but for simplicity in this pipeline,
+        # we assume the prediction file was saved in the same order as the test set split.
+        # A more robust way is to save the index.
+        df_test = load_test_data()
+        # If the prediction file contains only values, we assume order matches df_test
+        y_true = df_test['packing_coefficient'].values
+
+    return y_true, y_pred
+
+def load_statistical_results() -> Optional[Dict[str, Any]]:
+    """Load the statistical test results if they exist."""
+    if STAT_RESULTS_PATH.exists():
+        with open(STAT_RESULTS_PATH, 'r') as f:
+            return json.load(f)
+    return None
+
+def calculate_metrics(y_true: np.ndarray, y_pred: np.ndarray) -> Dict[str, float]:
+    """Calculate R2, MAE, RMSE."""
+    r2 = r2_score(y_true, y_pred)
+    mae = mean_absolute_error(y_true, y_pred)
+    rmse = np.sqrt(mean_squared_error(y_true, y_pred))
+    return {
+        "r2": float(r2),
+        "mae": float(mae),
+        "rmse": float(rmse)
+    }
 
 def main():
-    config = get_config()
-    project_id = config.get('PROJECT_ID', 'PROJ-238-predicting-molecular-crystal-packing-fro')
-    state_path = Path(config.get('DATA_PATH', 'data')) / '..' / 'state' / 'projects' / project_id
-    results_path = Path(config.get('DATA_PATH', 'data')) / '..' / 'results'
+    logger.info("Starting T029: Save consolidated metrics summary.")
     
     # Ensure results directory exists
-    results_path.mkdir(parents=True, exist_ok=True)
-    
-    logger.info(f"Loading test data from {state_path}")
-    
-    # Paths to models (assumed saved by 02_train_models.py)
-    # We need to find where they are saved.
-    # Let's assume a standard location: state_path / 'models'
-    models_dir = state_path / 'models'
-    if not models_dir.exists():
-        # Fallback: maybe they are in the root of state/projects
-        models_dir = state_path
-    
-    rf_model_path = models_dir / 'random_forest.pkl'
-    gb_model_path = models_dir / 'gradient_boosting.pkl'
-    mean_model_path = models_dir / 'mean_baseline.pkl' # Or just the mean value saved
+    RESULTS_DIR.mkdir(parents=True, exist_ok=True)
 
-    # Load data
+    # 1. Load Test Data
     try:
-        X_test, y_test, ids = load_test_data(config)
-        logger.info(f"Loaded {len(y_test)} test samples.")
-    except Exception as e:
-        logger.error(f"Failed to load test data: {e}")
+        df_test = load_test_data()
+        logger.info(f"Loaded test data with {len(df_test)} rows.")
+    except FileNotFoundError as e:
+        logger.error(str(e))
         sys.exit(1)
 
-    # Load models
-    models = {}
-    try:
-        models['random_forest'] = load_model_predictions(rf_model_path)
-        models['gradient_boosting'] = load_model_predictions(gb_model_path)
-        # For mean baseline, we might have saved the mean value or a dummy object
-        if mean_model_path.exists():
-            with open(mean_model_path, 'rb') as f:
-                mean_val = pickle.load(f)
-        else:
-            # Compute mean from training data if not saved? 
-            # But we only have test data here.
-            # We must rely on the training script having saved the mean value.
-            # Let's try to find a 'mean_baseline_value.pkl' or similar.
-            # If T025 ran, it should have saved the mean.
-            # Let's assume the mean was saved in a specific file.
-            mean_path_fallback = models_dir / 'mean_baseline_value.pkl'
-            if mean_path_fallback.exists():
-                with open(mean_path_fallback, 'rb') as f:
-                    mean_val = pickle.load(f)
+    models_to_evaluate = ["random_forest", "gradient_boosting", "mean_baseline"]
+    all_metrics = {}
+    statistical_summary = {}
+
+    # 2. Evaluate each model
+    for model_name in models_to_evaluate:
+        logger.info(f"Evaluating {model_name}...")
+        try:
+            y_true, y_pred = load_model_predictions(model_name)
+            metrics = calculate_metrics(y_true, y_pred)
+            all_metrics[model_name] = metrics
+            logger.info(f"{model_name} R2: {metrics['r2']:.4f}, MAE: {metrics['mae']:.4f}, RMSE: {metrics['rmse']:.4f}")
+        except FileNotFoundError as e:
+            logger.warning(f"Could not load predictions for {model_name}: {e}. Skipping.")
+            all_metrics[model_name] = None
+
+    # 3. Handle Statistical Tests
+    # T028 should have produced statistical test results. We try to load them.
+    # If not, we re-calculate if we have the predictions.
+    stat_results = load_statistical_results()
+    
+    alpha = 0.05
+    n_models = 2 # RF and GB compared to baseline
+    alpha_corrected = alpha / n_models
+
+    if stat_results:
+        logger.info("Loading statistical test results from file.")
+        statistical_summary = stat_results.get("tests", {})
+        # Ensure the corrected alpha is recorded in the summary
+        statistical_summary["alpha_corrected"] = alpha_corrected
+    else:
+        logger.info("Statistical results file not found. Attempting to re-calculate if predictions exist.")
+        # Re-calculate logic
+        if all_metrics.get("random_forest") and all_metrics.get("mean_baseline"):
+            # We need the raw predictions for the paired t-test
+            _, rf_pred = load_model_predictions("random_forest")
+            _, baseline_pred = load_model_predictions("mean_baseline")
+            _, y_true = load_model_predictions("random_forest") # True values are same
+
+            # Paired t-test: RF vs Baseline
+            t_stat, p_val_rf = paired_t_test(y_true, rf_pred, y_true, baseline_pred)
+            
+            if all_metrics.get("gradient_boosting"):
+                _, gb_pred = load_model_predictions("gradient_boosting")
+                t_stat_gb, p_val_gb = paired_t_test(y_true, gb_pred, y_true, baseline_pred)
             else:
-                # If we can't find it, we can't do the baseline comparison properly.
-                # But the task says T025 is done. Let's assume it's in 'mean_baseline.pkl'
-                # as a simple float.
-                # If the file exists but is not a model object, it might be the value.
-                # Let's try to load it as a float.
-                with open(mean_model_path, 'rb') as f:
-                    mean_val = pickle.load(f)
-        models['mean_baseline'] = mean_val
-        logger.info("Models loaded successfully.")
-    except Exception as e:
-        logger.error(f"Failed to load models: {e}")
-        sys.exit(1)
+                p_val_gb = None
 
-    # Generate predictions
-    predictions = {}
-    for name, model in models.items():
-        if name == 'mean_baseline':
-            preds = [model] * len(y_test)
-        else:
-            preds = model.predict(X_test)
-        predictions[name] = preds
+            # Bonferroni correction
+            p_values = [p for p in [p_val_rf, p_val_gb] if p is not None]
+            corrected_p_values = bonferroni_correct(p_values, n_models)
+            
+            # Map back
+            corrected_map = {}
+            idx = 0
+            if p_val_rf is not None:
+                corrected_map["random_forest_vs_baseline"] = {
+                    "p_value": p_val_rf,
+                    "corrected_p_value": corrected_p_values[idx],
+                    "significant": corrected_p_values[idx] < alpha_corrected
+                }
+                idx += 1
+            if p_val_gb is not None:
+                corrected_map["gradient_boosting_vs_baseline"] = {
+                    "p_value": p_val_gb,
+                    "corrected_p_value": corrected_p_values[idx],
+                    "significant": corrected_p_values[idx] < alpha_corrected
+                }
 
-    # Compute metrics
-    metrics_summary = {
-        'models': {},
-        'statistical_tests': {},
-        'config': {
-            'alpha': 0.05,
-            'n_comparisons': 2,
-            'alpha_corrected': 0.05 / 2
+            statistical_summary = {
+                "alpha": alpha,
+                "n_comparisons": n_models,
+                "alpha_corrected": alpha_corrected,
+                "tests": corrected_map
+            }
+
+    # 4. Construct Final Report
+    report = {
+        "models": all_metrics,
+        "statistical_analysis": statistical_summary,
+        "metadata": {
+            "generated_at": str(pd.Timestamp.now()),
+            "test_set_size": len(df_test),
+            "alpha": alpha,
+            "alpha_corrected": alpha_corrected
         }
     }
 
-    model_names = ['random_forest', 'gradient_boosting']
-    baseline_name = 'mean_baseline'
-
-    for name in model_names:
-        preds = predictions[name]
-        r2 = r2_score(y_test, preds)
-        mae = mean_absolute_error(y_test, preds)
-        rmse = mean_squared_error(y_test, preds, squared=False)
-        
-        metrics_summary['models'][name] = {
-            'r2': float(r2),
-            'mae': float(mae),
-            'rmse': float(rmse)
-        }
-        logger.info(f"{name}: R²={r2:.4f}, MAE={mae:.4f}, RMSE={rmse:.4f}")
-
-    # Statistical tests
-    # Paired t-test: RF vs Mean, GB vs Mean
-    baseline_preds = predictions[baseline_name]
+    # 5. Save to results/metrics.json
+    with open(METRICS_OUTPUT_PATH, 'w') as f:
+        json.dump(report, f, indent=2)
     
-    p_values = {}
-    significance_flags = {}
-    
-    for name in model_names:
-        preds = predictions[name]
-        # Paired t-test
-        t_stat, p_val = paired_t_test(preds, baseline_preds)
-        p_values[name] = float(p_val)
-        
-        # Bonferroni correction (already done in function? No, we do it here for the summary)
-        # The function bonferroni_correct takes a list of p-values.
-        # We will correct them all at once.
-    
-    # Correct p-values for all comparisons
-    p_vals_list = list(p_values.values())
-    corrected_p_vals = bonferroni_correct(p_vals_list, n_comparisons=2)
-    
-    for i, name in enumerate(model_names):
-        corrected_p = corrected_p_vals[i]
-        is_significant = corrected_p < metrics_summary['config']['alpha_corrected']
-        metrics_summary['statistical_tests'][name] = {
-            'p_value_original': p_values[name],
-            'p_value_corrected': float(corrected_p),
-            'significant': is_significant
-        }
-        logger.info(f"{name} vs Baseline: p={p_values[name]:.4f}, p_corr={corrected_p:.4f}, sig={is_significant}")
+    logger.info(f"Consolidated metrics saved to {METRICS_OUTPUT_PATH}")
 
-    # Write to JSON
-    output_path = results_path / 'metrics.json'
-    with open(output_path, 'w') as f:
-        json.dump(metrics_summary, f, indent=2)
-
-    logger.info(f"Metrics saved to {output_path}")
-    log_event('metrics_saved', {'path': str(output_path)})
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

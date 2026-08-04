@@ -4,185 +4,191 @@ import json
 import logging
 import pickle
 import numpy as np
+import matplotlib
+matplotlib.use('Agg')  # Non-interactive backend for server environments
 import matplotlib.pyplot as plt
-import seaborn as sns
 from pathlib import Path
-from typing import Dict, Any, List, Tuple
-from sklearn.inspection import permutation_importance
+from typing import List, Dict, Any, Tuple
 
-# Import project config
-from code.config import get_config, setup_logging
+# Import config for logging setup
+from code.config import setup_logging, get_config
 
-# Ensure matplotlib uses non-interactive backend for headless environments
-plt.switch_backend('Agg')
+# Ensure the code directory is in the path for relative imports if running as script
+# but the API surface expects imports like `from code.utils.metrics import ...`
+# The project structure seems to be code/ at root, so we adjust sys.path if necessary
+# However, the provided API surface shows imports like `from code.config import ...`
+# which implies the root is the parent of `code`.
+# Let's ensure we can import from code.utils if needed, though this task focuses on plotting.
 
-def load_test_data() -> Tuple[np.ndarray, np.ndarray, List[str]]:
-    """
-    Loads the test set data from data/processed/test.csv.
-    Returns features (X), target (y), and feature names (feature_names).
-    """
+def load_test_data() -> pd.DataFrame:
+    """Load the test dataset from the processed directory."""
+    import pandas as pd
     config = get_config()
-    test_path = Path(config.get('DATA_PATH', 'data/processed')) / 'test.csv'
+    test_path = config.get('DATA_PATH', 'data/processed') / 'test.csv'
+    if not isinstance(test_path, Path):
+        test_path = Path(test_path)
     
     if not test_path.exists():
         raise FileNotFoundError(f"Test data file not found: {test_path}")
     
-    import pandas as pd
     df = pd.read_csv(test_path)
-    
-    # Expected target column
-    target_col = 'packing_coefficient'
-    if target_col not in df.columns:
-        raise ValueError(f"Target column '{target_col}' not found in {test_path}")
-    
-    # Identify feature columns (exclude ID and target)
-    exclude_cols = [target_col, 'id', 'dipole_imputed', 'interaction_type', 'interaction_confidence']
-    feature_cols = [c for c in df.columns if c not in exclude_cols]
-    
-    X = df[feature_cols].values
-    y = df[target_col].values
-    feature_names = feature_cols
-    
-    return X, y, feature_names
+    return df
 
-def load_model(model_path: str = None) -> Any:
-    """
-    Loads the trained Random Forest model from the default path.
-    """
-    if model_path is None:
-        config = get_config()
-        # Default path based on project structure
-        model_path = Path('state/projects/PROJ-238-predicting-molecular-crystal-packing-fro/models/random_forest_model.pkl')
-    else:
-        model_path = Path(model_path)
-        
-    if not model_path.exists():
-        raise FileNotFoundError(f"Model file not found: {model_path}")
+def load_model() -> Any:
+    """Load the trained Random Forest model from the state directory."""
+    config = get_config()
+    # Assuming the model is saved in state/projects/PROJ-238.../models/
+    # We need to find the specific model file. The task implies we use the RF model.
+    # Let's look for a file named 'rf_model.pkl' or similar in the expected state path.
+    state_path = config.get('STATE_PATH', 'state/projects/PROJ-238-predicting-molecular-crystal-packing-fro')
+    if not isinstance(state_path, Path):
+        state_path = Path(state_path)
     
-    with open(model_path, 'rb') as f:
-        return pickle.load(f)
+    model_dir = state_path / 'models'
+    if not model_dir.exists():
+        raise FileNotFoundError(f"Model directory not found: {model_dir}")
+    
+    model_file = model_dir / 'rf_model.pkl'
+    if not model_file.exists():
+        # Try to find any .pkl file if exact name is unknown
+        pkl_files = list(model_dir.glob('*.pkl'))
+        if not pkl_files:
+            raise FileNotFoundError(f"No model files found in {model_dir}")
+        model_file = pkl_files[0]
+    
+    with open(model_file, 'rb') as f:
+        model = pickle.load(f)
+    return model
 
-def calculate_permutation_importance(model: Any, X: np.ndarray, y: np.ndarray, 
-                                     feature_names: List[str], 
-                                     scoring: str = 'r2', n_repeats: int = 10, 
-                                     random_state: int = 42) -> Dict[str, float]:
+def calculate_permutation_importance(model, X: np.ndarray, y: np.ndarray, n_repeats: int = 10, random_state: int = 42) -> Dict[str, float]:
     """
-    Calculates permutation importance for the given model.
+    Calculate permutation importance for the given model and data.
     Returns a dictionary mapping feature names to their importance scores.
     """
-    result = permutation_importance(model, X, y, n_repeats=n_repeats, 
-                                    random_state=random_state, scoring=scoring)
+    from sklearn.inspection import permutation_importance
     
-    importance_dict = {}
-    for i, name in enumerate(feature_names):
-        importance_dict[name] = result.importances_mean[i]
-        
-    return importance_dict
+    # Ensure inputs are numpy arrays
+    X = np.array(X)
+    y = np.array(y)
+    
+    result = permutation_importance(model, X, y, n_repeats=n_repeats, random_state=random_state, scoring='r2')
+    
+    # The result.importances_mean gives the mean importance for each feature
+    # We need to map these to feature names. The caller must provide the feature names.
+    return result.importances_mean
 
-def generate_feature_importance_plot(importance_dict: Dict[str, float], 
-                                     output_path: str) -> None:
+def generate_feature_importance_plot(importance_scores: np.ndarray, feature_names: List[str], output_path: Path):
     """
-    Generates a bar plot of feature importance, highlighting the top 3 features
-    and displaying their cumulative importance percentage.
-    Saves the plot to output_path.
+    Generate a bar plot of feature importance, highlighting the top 3 features
+    and showing their cumulative importance.
     """
-    # Sort features by importance (descending)
-    sorted_features = sorted(importance_dict.items(), key=lambda x: x[1], reverse=True)
-    names = [k for k, v in sorted_features]
-    values = [v for k, v in sorted_features]
+    # Sort features by importance descending
+    indices = np.argsort(importance_scores)[::-1]
+    sorted_importances = importance_scores[indices]
+    sorted_features = [feature_names[i] for i in indices]
     
     # Calculate cumulative importance
-    total_importance = sum(values)
-    if total_importance == 0:
-        raise ValueError("Total importance is zero; cannot calculate percentages.")
+    cumulative_importance = np.cumsum(sorted_importances)
+    total_importance = np.sum(sorted_importances)
     
-    cumulative_percentages = []
-    current_sum = 0
-    for v in values:
-        current_sum += v
-        cumulative_percentages.append((current_sum / total_importance) * 100)
+    # Normalize to percentage
+    cumulative_percentage = (cumulative_importance / total_importance) * 100
     
-    # Determine top 3 features
-    top_3_count = min(3, len(names))
-    top_3_names = names[:top_3_count]
-    top_3_cumulative = cumulative_percentages[top_3_count - 1]
-    
-    # Create plot
+    # Create the plot
     plt.figure(figsize=(12, 8))
-    colors = ['#1f77b4' if name in top_3_names else '#d6d6d6' for name in names]
     
-    bars = plt.barh(names, values, color=colors)
+    # Plot bar chart
+    bars = plt.barh(range(len(sorted_features)), sorted_importances, color='skyblue', edgecolor='black')
     
-    # Annotate top 3 bars with cumulative percentage
-    for i, (name, val, cum_pct) in enumerate(zip(names, values, cumulative_percentages)):
-        if name in top_3_names:
-            # Position text to the right of the bar
-            plt.text(val + 0.002, i, f'{cum_pct:.1f}%', va='center', fontsize=10, fontweight='bold')
+    # Highlight top 3 features
+    for i in range(min(3, len(sorted_features))):
+        bars[i].set_color('coral')
+        bars[i].set_edgecolor('darkred')
+        bars[i].set_linewidth(2)
     
-    plt.xlabel('Permutation Importance (R² decrease)')
-    plt.title(f'Feature Importance (Top 3 highlighted, Cumulative: {top_3_cumulative:.1f}%)')
-    plt.gca().invert_yaxis()
+    # Add labels
+    plt.yticks(range(len(sorted_features)), sorted_features, fontsize=10)
+    plt.xlabel('Permutation Importance (Mean Decrease in R²)', fontsize=12)
+    plt.title('Feature Importance for Molecular Crystal Packing Prediction', fontsize=14, fontweight='bold')
+    
+    # Add text annotations for top 3 features and cumulative percentage
+    for i, (bar, imp, feat) in enumerate(zip(bars, sorted_importances, sorted_features)):
+        if i < 3:
+            # Annotate the bar with the importance value
+            plt.text(imp, i, f'  {imp:.4f}', va='center', fontsize=9, fontweight='bold')
+            
+            # Annotate cumulative percentage on the right side
+            cum_pct = cumulative_percentage[i]
+            plt.text(max(sorted_importances) * 1.05, i, f'  Cum: {cum_pct:.1f}%', va='center', fontsize=9, color='darkred', fontweight='bold')
+    
+    # Add a horizontal line indicating the 60% cumulative threshold
+    # Find the index where cumulative percentage first exceeds 60%
+    threshold_idx = np.argmax(cumulative_percentage >= 60)
+    if cumulative_percentage[threshold_idx] >= 60:
+        # Calculate the cumulative importance value at that index
+        threshold_val = cumulative_importance[threshold_idx]
+        plt.axvline(x=threshold_val, color='green', linestyle='--', linewidth=1.5, label=f'60% Cumulative Threshold ({cumulative_percentage[threshold_idx]:.1f}%)')
+        plt.legend()
+    
+    # Ensure the output directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Save the plot
     plt.tight_layout()
-    
-    # Ensure output directory exists
-    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
-    
-    plt.savefig(output_path, dpi=300)
+    plt.savefig(output_path, dpi=300, bbox_inches='tight')
     plt.close()
+    
+    logging.info(f"Feature importance plot saved to {output_path}")
+    
+    # Verify the top 3 cumulative importance is > 60%
+    top3_cum = cumulative_percentage[2] if len(cumulative_percentage) >= 3 else cumulative_percentage[-1]
+    if top3_cum <= 60:
+        logging.warning(f"Top 3 features only account for {top3_cum:.1f}% of total importance (expected > 60%)")
+    else:
+        logging.info(f"Top 3 features account for {top3_cum:.1f}% of total importance (> 60% requirement met)")
 
 def main():
-    """
-    Main entry point for Task T033: Generate feature importance visualization.
-    """
-    logger = setup_logging()
-    logger.info("Starting T033: Feature Importance Generation")
+    """Main entry point for the feature importance generation task."""
+    # Setup logging
+    logger = setup_logging('T033_feature_importance')
+    logger.info("Starting T033: Generate feature importance plot")
     
     try:
-        # 1. Load Test Data
+        # Load test data
         logger.info("Loading test data...")
-        X, y, feature_names = load_test_data()
-        logger.info(f"Loaded {X.shape[0]} samples with {X.shape[1]} features.")
+        test_df = load_test_data()
         
-        # 2. Load Model
-        logger.info("Loading Random Forest model...")
+        # Define feature columns (excluding ID and target)
+        # Assuming the target is 'packing_coefficient' and ID is 'ID'
+        feature_cols = [col for col in test_df.columns if col not in ['ID', 'packing_coefficient', 'dipole_imputed', 'interaction_type', 'interaction_confidence']]
+        
+        if not feature_cols:
+            raise ValueError("No feature columns found in test data. Check column names.")
+        
+        logger.info(f"Using {len(feature_cols)} features: {feature_cols}")
+        
+        # Prepare X and y
+        X = test_df[feature_cols].values
+        y = test_df['packing_coefficient'].values
+        
+        # Load the trained Random Forest model
+        logger.info("Loading trained Random Forest model...")
         model = load_model()
-        logger.info("Model loaded successfully.")
         
-        # 3. Calculate Permutation Importance
+        # Calculate permutation importance
         logger.info("Calculating permutation importance...")
-        importance_dict = calculate_permutation_importance(model, X, y, feature_names)
+        importance_scores = calculate_permutation_importance(model, X, y, n_repeats=10, random_state=42)
         
-        # 4. Generate Plot
-        config = get_config()
-        output_dir = Path(config.get('RESULTS_PATH', 'results'))
-        output_file = output_dir / 'feature_importance.png'
-        
-        logger.info(f"Generating plot at {output_file}...")
-        generate_feature_importance_plot(importance_dict, str(output_file))
-        
-        # 5. Verification
-        if not output_file.exists():
-            raise FileNotFoundError(f"Failed to generate output file: {output_file}")
-        
-        # Check top 3 cumulative importance
-        sorted_features = sorted(importance_dict.items(), key=lambda x: x[1], reverse=True)
-        top_3_vals = [v for _, v in sorted_features[:3]]
-        total = sum(importance_dict.values())
-        cumulative_top_3 = sum(top_3_vals) / total
-        
-        logger.info(f"Top 3 features: {[f[0] for f in sorted_features[:3]]}")
-        logger.info(f"Cumulative importance of top 3: {cumulative_top_3*100:.2f}%")
-        
-        if cumulative_top_3 <= 0.60:
-            logger.warning(f"Cumulative importance ({cumulative_top_3*100:.2f}%) is <= 60%. Check data or model.")
-        else:
-            logger.info(f"Success: Cumulative importance ({cumulative_top_3*100:.2f}%) > 60%.")
+        # Generate the plot
+        output_path = Path("results/feature_importance.png")
+        logger.info(f"Generating feature importance plot at {output_path}...")
+        generate_feature_importance_plot(importance_scores, feature_cols, output_path)
         
         logger.info("T033 completed successfully.")
         
     except Exception as e:
         logger.error(f"Error during T033 execution: {e}", exc_info=True)
-        sys.exit(1)
+        raise
 
 if __name__ == "__main__":
     main()
