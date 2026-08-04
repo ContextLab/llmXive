@@ -91,7 +91,7 @@ properties:
     type: "array"
     items:
       type: "string"
-    description: "List of study limitations (including FPR circularity, quantization bias, lack of ground truth)."
+    description: "List of study limitations (including FPR circularity, quantization bias, lack of ground truth, selection bias)."
 required:
   - title
   - date

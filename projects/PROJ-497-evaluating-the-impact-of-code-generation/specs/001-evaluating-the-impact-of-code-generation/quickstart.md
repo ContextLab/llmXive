@@ -1,107 +1,138 @@
 # Quickstart: Evaluating the Impact of Code Generation Models on Code Vulnerability Density
 
-## Prerequisites
+## 1. Prerequisites
 
-- Python 3.11+
-- `pip` (or `conda`)
-- ≥ 7GB RAM, ≥ 14GB disk
-- Internet access (for dataset/model downloads)
+- **Python**: 3.11+
+- **HuggingFace CLI**: `pip install huggingface_hub`
+- **Bandit**: `pip install bandit`
+- **Git**: For version control and reproducibility checks.
+- **CPU/GPU**: CPU-only execution preferred; GPU available via Kaggle auto-offload if needed (though the pipeline is designed for CPU).
 
-## Installation
+## 2. Installation
 
-1. Clone the repository and navigate to the project directory:
+1. **Clone the repository**:
    ```bash
    git clone <repo-url>
    cd projects/PROJ-497-evaluating-the-impact-of-code-generation
    ```
 
-2. Create a virtual environment and install dependencies:
+2. **Create a virtual environment**:
    ```bash
    python -m venv venv
    source venv/bin/activate  # On Windows: venv\Scripts\activate
-   pip install -r requirements.txt
    ```
 
-   **requirements.txt** (pinned versions):
-   ```text
-   transformers==4.35.0
-   datasets==2.14.0
-   bandit==1.7.5
-   scipy==1.11.3
-   statsmodels==0.14.0
-   pandas==2.1.3
-   matplotlib==3.8.2
-   seaborn==0.13.0
-   pytest==7.4.3
-   bitsandbytes==0.41.0  # For 8-bit quantization (CPU-compatible)
+3. **Install dependencies**:
+   ```bash
+   pip install -r code/requirements.txt
    ```
 
-## Running the Pipeline
+4. **Verify environment**:
+   ```bash
+   pytest tests/ --collect-only
+   ```
 
-### Step 1: Download Benchmarks
+## 3. Execution Workflow
+
+### Step 1: Download Datasets
 ```bash
-python code/generate.py --download-benchmarks
+python code/generation/download_models.py
 ```
-- Downloads HumanEval and MBPP to `data/raw/`.
-- Checksums recorded in `state/`.
+- Downloads HumanEval, MBPP datasets from verified HuggingFace sources.
+- Stores in `data/raw/`.
+- Generates checksums in `state/checksums.json`.
 
 ### Step 2: Generate Code Samples
 ```bash
-python code/generate.py --model starcoder --benchmark humaneval --target-samples 64 --fixed-tasks 128
-python code/generate.py --model codegen --benchmark mbpp --target-samples 64 --fixed-tasks 128
+python code/generation/generate_samples.py --seed 42 --models starcoder codegen --benchmarks humaneval mbpp
 ```
-- Generates code samples for a **fixed set of tasks** until 64 valid samples (passing tests) or 200 attempts.
-- Outputs to `data/generated/`.
+- Generates code samples for specified models and benchmarks.
+- Validates samples against benchmark tests.
+- Stores valid samples in `data/processed/valid_samples/`.
+- **Note**: Iterates until ≥ 32 valid samples per model or 200 attempts exhausted.
+- **Logs**: Invalid samples are logged for sensitivity analysis.
 
 ### Step 3: Run Static Analysis
 ```bash
-python code/analyze.py --input-dir data/generated
+python code/analysis/run_bandit.py --input data/processed/valid_samples/ --config code/.bandit.yaml
 ```
-- Runs Bandit on all generated and human code samples.
-- Outputs vulnerability reports to `data/processed/vuln_reports/`.
+- Runs Bandit on all valid samples.
+- Generates `data/processed/vulnerability_reports.csv`.
 
-### Step 4: Measure Complexity
+### Step 4: Calculate Metrics & Adjust for FPR
 ```bash
-python code/analyze.py --measure-complexity --input-dir data/generated
+python code/reporting/validator_agent.py --sample-size 20 --output data/processed/validator_flags.csv
+python code/analysis/calculate_metrics.py --input data/processed/vulnerability_reports.csv --flags data/processed/validator_flags.csv --output data/processed/fpr_metrics.json
+python code/analysis/calculate_metrics.py --adjust --fpr-file data/processed/fpr_metrics.json
 ```
-- Calculates Cyclomatic Complexity for all samples.
-- Outputs `data/processed/complexity_metrics.csv`.
+- Calculates raw and adjusted vulnerability counts.
+- Applies False Positive Rate correction using the results of the manual audit.
+- **Output**: `data/processed/fpr_metrics.json` (group-specific FPRs).
 
-### Step 5: Estimate FPR (Sensitivity Analysis)
+### Step 5: Statistical Analysis
 ```bash
-python code/validator.py --input-dir data/processed/vuln_reports --sample-size 20
+python code/analysis/statistical_tests.py --input data/processed/vulnerability_counts.csv
 ```
-- Estimates group-specific FPRs.
-- Outputs `data/processed/fpr_metrics.json`.
+- Runs ZINB regression (with fallback to permutation test).
+- Applies Benjamini-Hochberg multiple-comparison correction.
+- Outputs `data/processed/statistical_results.json`.
 
-### Step 6: Adjust Counts & Statistical Analysis
+### Step 6: Generate Visualizations & Report
 ```bash
-python code/stats.py --input-dir data/processed
+python code/reporting/generate_plots.py --input data/processed/statistical_results.json
+python code/reporting/generate_report.py --input data/processed/statistical_results.json --fpr data/processed/fpr_metrics.json --images results/plots/
 ```
-- Adjusts vulnerability counts using FPR (sensitivity only).
-- Runs **Permutation Test** on raw counts.
-- Outputs `data/processed/stats_results.json`.
+- Generates boxplots and bar charts in `results/plots/`.
+- Generates `results/summary.md` with key statistics and image paths.
+- **Constraint**: `summary.md` is generated *only* from `data/processed` and `results/plots`. No hardcoded values.
 
-### Step 7: Generate Visualizations & Report
+## 4. Verification & Reproducibility
+
+### Checksum Verification
 ```bash
-python code/viz.py --input-dir data/processed
-python code/report.py --input-dir data/processed --output results/summary.md
+python code/utils/data_hygiene.py --verify
 ```
-- Generates boxplots, bar charts to `results/plots/`.
-- Creates `results/summary.md` with stats, images, and sensitivity metrics.
-- **Note**: Primary conclusion is based on raw counts.
+- Verifies SHA-256 checksums of all files in `data/`.
 
-## Testing
-
-Run unit and integration tests:
+### Reproducibility Test
 ```bash
-pytest tests/unit/
-pytest tests/integration/
-pytest tests/contract/
+python code/utils/reproducibility.py --seed 42 --compare
 ```
+- Runs the pipeline twice with the same seed.
+- Compares outputs for identical floating-point values (≤ 1e-6 difference).
+- Logs results to `state/reproducibility_logs/`.
+- **Constraint**: Pipeline halts if outputs differ beyond tolerance.
 
-## Troubleshooting
+### PII Scan
+```bash
+python code/utils/data_hygiene.py --scan-pii
+```
+- Scans all data and report files for PII.
+- Logs results to `state/pii_scan.log`.
+- **Constraint**: Pipeline halts if PII is detected.
 
-- **OOM Errors**: If models exceed 7GB RAM, switch to smaller variants (e.g., `starcoderbase-1b`) or reduce target samples.
-- **Permutation Test**: If sample size is too small, the test will fail gracefully and flag the dataset as 'under-powered'.
-- **Bandit Failures**: Syntax errors in generated code are logged and excluded; no crash.
+### Test Execution
+```bash
+pytest tests/ -v --junitxml=state/test_results/junit.xml
+```
+- Runs all unit, integration, and contract tests.
+- Logs results to `state/test_results/`.
+- **Constraint**: Pipeline halts if any test fails.
+
+## 5. Troubleshooting
+
+- **Model Inference OOM**: If CPU inference fails, the system will auto-offload to Kaggle GPU (if configured). Ensure `KAGGLE_USERNAME` and `KAGGLE_KEY` are set. The pipeline is designed for CPU execution so this should not occur but is provided as a fallback.
+- **ZINB Non-Convergence**: The system will automatically fall back to permutation test. Check logs for convergence status.
+- **Insufficient Samples**: If < 64 valid samples, the system will flag as 'under-powered' and report power analysis results.
+- **Bandit Errors**: Syntax errors in generated code are skipped and logged. Check `logs/bandit_errors.log`.
+
+## 6. Output Artifacts
+
+| Artifact | Location | Description |
+| :--- | :--- | :--- |
+| **Valid Samples** | `data/processed/valid_samples/` | Generated code files that passed benchmark tests. |
+| **Vulnerability Counts** | `data/processed/vulnerability_counts.csv` | Raw and adjusted vulnerability counts per sample. |
+| **FPR Metrics** | `data/processed/fpr_metrics.json` | False Positive Rate estimates from Reference-Validator. |
+| **Statistical Results** | `data/processed/statistical_results.json` | ZINB/Permutation test results with p-values and effect sizes. |
+| **Plots** | `results/plots/` | Boxplots and bar charts comparing vulnerability distributions. |
+| **Summary Report** | `results/summary.md` | Final report with key statistics and image paths. |

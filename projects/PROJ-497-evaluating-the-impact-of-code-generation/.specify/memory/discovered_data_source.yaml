@@ -1,26 +1,12 @@
-status: verified
-kind: pypi_package
-ref: datasets
-access_python: 'import datasets
-
-  ds = datasets.load_dataset("openai/openai_humaneval", split="test")
-
-  print(f"RECORDS={len(ds)}")
-
-  print("FIELDS=" + ",".join(ds.column_names))'
-record_count: 164
-sample_fields:
-- task_id
-- prompt
-- canonical_solution
-- test
-- entry_point
-field_coverage: 0.8
+status: none
+intent: download HumanEval MBPP openai_humaneval dataset python package dataset
 required_fields:
 - task_id
 - prompt
-- reference_solution
+- entry_point
+- canonical_solution
 - test_cases
 - language
-intent: download huggingface datasets openai_humaneval mbpp python package dataset
-cache_key: 078b350573b47e8340f26941f72a6d508847a7591f7a1a1edfe2246af7ce23d3
+cache_key: c54bec365e50514b3d2f795a484256714916d72b3470615d0b0992a0ae04fca9
+searched_at: '2026-08-04T03:20:25.018338+00:00'
+retry_count: 1

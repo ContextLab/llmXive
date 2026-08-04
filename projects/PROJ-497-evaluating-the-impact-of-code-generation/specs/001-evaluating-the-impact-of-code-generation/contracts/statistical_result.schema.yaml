@@ -1,51 +1,50 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Statistical Result Schema"
-description: "Schema for the output of statistical hypothesis tests."
+title: "StatisticalResult Schema"
+description: "Schema for the output of hypothesis tests (data/processed/statistical_results.json)"
 type: "object"
 properties:
   test_type:
     type: "string"
-    enum: ["Permutation", "ZINB"]
-    description: "Type of statistical test performed."
+    enum: ["ZINB", "Permutation"]
+    description: "Type of statistical test performed"
+  comparison_group:
+    type: "string"
+    description: "Group being compared (e.g., LLM_vs_Human, Category_SQL_Injection)"
   p_value:
     type: "number"
-    description: "P-value from the test."
+    minimum: 0.0
+    maximum: 1.0
+    description: "Raw p-value from the test"
+  adjusted_p_value:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "P-value after multiple-comparison correction"
+  effect_size:
+    type: "number"
+    description: "Incidence Rate Ratio (IRR) or Risk Ratio"
   confidence_interval:
     type: "array"
     items:
       type: "number"
     minItems: 2
     maxItems: 2
-    description: "95% confidence interval for the effect size."
-  effect_size:
-    type: "number"
-    description: "Effect size (e.g., Rank-Biserial)."
-  adjusted_p_value:
-    type: "number"
-    description: "P-value after multiple-comparison correction."
+    description: "95% confidence interval for the effect size"
   convergence_status:
     type: "string"
-    enum: ["SUCCESS", "FAILED"]
-    description: "Status of the model convergence (if applicable)."
-  power:
+    enum: ["CONVERGED", "FAILED"]
+    description: "Status of the ZINB model convergence"
+  power_achieved:
     type: "number"
-    minimum: 0
-    maximum: 1
-    description: "Post-hoc power analysis result."
-  flag:
-    type: "string"
-    enum: ["OK", "UNDER_POWERED", "INSUFFICIENT_DATA"]
-    description: "Data quality flag."
-  unit_of_analysis:
-    type: "string"
-    description: "Description of the unit of analysis (e.g., 'Individual Code Sample')."
+    minimum: 0.0
+    maximum: 1.0
+    description: "Achieved power to detect medium effect size (if applicable)"
 required:
   - test_type
+  - comparison_group
   - p_value
-  - confidence_interval
-  - effect_size
   - adjusted_p_value
+  - effect_size
+  - confidence_interval
   - convergence_status
-  - flag
-  - unit_of_analysis
 additionalProperties: false

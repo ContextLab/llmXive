@@ -16,7 +16,7 @@ properties:
         description: "Raw p-value from the test."
       adjusted_p_value:
         type: "number"
-        description: "P-value after multiple-comparison correction (if applicable)."
+        description: "P-value after multiple-comparison correction (Benjamini-Hochberg)."
       effect_size:
         type: "number"
         description: "Effect size (e.g., Rank-Biserial for Permutation)."

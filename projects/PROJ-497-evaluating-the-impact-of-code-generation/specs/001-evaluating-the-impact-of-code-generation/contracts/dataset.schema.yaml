@@ -1,53 +1,56 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Aggregated Analysis Dataset Schema"
-description: "Schema for the aggregated analysis dataset containing vulnerability counts and metadata (Unit of Analysis = Individual Code Sample)."
+title: "CodeSample Dataset Schema"
+description: "Schema for the processed vulnerability counts dataset (data/processed/vulnerability_counts.csv)"
 type: "object"
 properties:
-  task_id:
+  sample_id:
     type: "string"
-    description: "Unique identifier for the task."
-  benchmark_name:
-    type: "string"
-    enum: ["HumanEval", "MBPP"]
-    description: "Benchmark dataset used for the task."
+    description: "Unique identifier for the code sample (e.g., humaneval-001-starcoder-01)"
   source_type:
     type: "string"
     enum: ["LLM", "Human"]
-    description: "Origin of the code sample (LLM = Aggregated)."
+    description: "Source of the code sample"
   model_name:
     type: "string"
-    description: "Name of the model (if LLM) or 'Human'."
+    description: "Name of the model used for generation (e.g., starcoder, codegen)"
+    pattern: "^[a-z0-9_-]+$"
+  benchmark_name:
+    type: "string"
+    enum: ["HumanEval", "MBPP"]
+    description: "Benchmark dataset used"
+  task_id:
+    type: "string"
+    description: "Task identifier from the benchmark"
   lines_of_code:
-    type: "number"
-    description: "Mean number of lines of code for the group."
-  vulnerability_count:
-    type: "number"
-    description: "Mean count of vulnerabilities detected (raw)."
-  adjusted_vulnerability_count:
-    type: "number"
-    description: "Mean count of vulnerabilities detected (adjusted, sensitivity only)."
-  sample_count:
     type: "integer"
-    description: "Number of samples aggregated (for LLM)."
+    minimum: 1
+    description: "Number of lines of code in the sample"
   is_valid:
     type: "boolean"
-    description: "Whether the task had at least one valid sample."
-  content_hash:
-    type: "string"
-    description: "SHA-256 hash of the aggregated content."
-  complexity_mean:
+    description: "Whether the sample passed benchmark tests"
+  vulnerability_count:
+    type: "integer"
+    minimum: 0
+    description: "Raw count of vulnerabilities found by Bandit"
+  adjusted_vulnerability_count:
     type: "number"
-    description: "Mean Cyclomatic Complexity."
+    minimum: 0
+    description: "Vulnerability count adjusted for false positive rate"
+  cwe_ids:
+    type: "array"
+    items:
+      type: "string"
+      pattern: "^CWE-[0-9]+$"
+    description: "List of Common Weakness Enumeration IDs found"
 required:
-  - task_id
-  - benchmark_name
+  - sample_id
   - source_type
   - model_name
+  - benchmark_name
+  - task_id
   - lines_of_code
+  - is_valid
   - vulnerability_count
   - adjusted_vulnerability_count
-  - sample_count
-  - is_valid
-  - content_hash
-  - complexity_mean
+  - cwe_ids
 additionalProperties: false

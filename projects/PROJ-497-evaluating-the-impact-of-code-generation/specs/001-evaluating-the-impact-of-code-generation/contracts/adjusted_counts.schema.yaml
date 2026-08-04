@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "AdjustedCounts"
-description: "Schema for vulnerability counts adjusted for false positive rates. NOTE: This is a SENSITIVITY METRIC ONLY, not the primary metric for statistical testing."
+description: "Schema for vulnerability counts adjusted for false positive rates."
 type: object
 properties:
   file_path:
@@ -14,7 +14,7 @@ properties:
     description: "Source of the code (LLM-generated or Human-written)."
   model_name:
     type: string
-    description: "Name of the LLM model (if source_type is LLM)."
+    description: "Name of the model (if source_type is LLM)."
   benchmark_name:
     type: string
     description: "Benchmark dataset used (e.g., 'humaneval', 'mbpp')."
@@ -29,22 +29,18 @@ properties:
     description: "Raw vulnerability count from static analysis."
   adjusted_vulnerability_count:
     type: number
-    description: "Vulnerability count adjusted for false positive rate. **SENSITIVITY METRIC ONLY**."
+    description: "Vulnerability count adjusted for false positive rate."
   is_valid:
     type: boolean
-    description: "Whether the code sample passed benchmark tests."
-  is_sensitivity_metric:
-    type: boolean
-    description: "Always true. Indicates this metric is for sensitivity analysis only."
-  complexity_score:
-    type: number
-    description: "Cyclomatic complexity of the code."
+    description: "Whether the sample passed benchmark tests."
+
 required:
   - file_path
   - source_type
+  - model_name
+  - benchmark_name
+  - task_id
   - lines_of_code
+  - is_valid
   - raw_vulnerability_count
   - adjusted_vulnerability_count
-  - is_valid
-  - is_sensitivity_metric
-  - complexity_score
