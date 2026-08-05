@@ -66,8 +66,8 @@ EOF`
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T004 [P] Create `code/config.py` as a Python constants module. **MUST define** the following constants with exact values: `TRAIN_START=1998`, `TRAIN_END=2017`, `TEST_START=2018`, `TEST_END=2020`, `ACE_VARS=['N_p', 'T_p', 'He+_ratio']`, `NOAA_VARS=['Kp', 'Dst']`. **MUST explicitly document** that `TRAIN_START` to `TEST_END` covers the full multi-decadal span referenced in SC-001 for the "full 20-year lagged correlation analysis" performance benchmark, while `TRAIN_START` to `TRAIN_END` is the subset used for model fitting. All downstream tasks MUST import these constants from `code.config`.
-- [ ] T005 [P] Create `code/data/fetch.py` as a **stub file** containing empty function signatures: `fetch_ace(start_date, end_date) -> str` returning `data/raw/ace_raw.csv` and `fetch_noaa(start_date, end_date) -> str` returning `data/raw/noaa_raw.csv`. Do not implement logic yet. **Note**: This is a scaffolding step; logic must be implemented in T011.
+- [X] T004 [P] Create `code/config.py` as a Python constants module. **MUST define** the following constants with exact values: `TRAIN_START=1998`, `TRAIN_END=2017`, `TEST_START=2018`, `TEST_END=2020`, `{{claim:c_c53ab88f}}`, `NOAA_VARS=['Kp', 'Dst'] `. **MUST explicitly document** that `TRAIN_START` to `TEST_END` covers the full multi-decadal span referenced in SC-001 for the "full 20-year lagged correlation analysis" performance benchmark, while `TRAIN_START` to `TRAIN_END` is the subset used for model fitting. All downstream tasks MUST import these constants from `code.config`.
+- [ ] T005 [P] Create `code/data/fetch.py` as a **stub file** containing empty function signatures: `fetch_ace(start_date, end_date) -> str` returning `data/raw/ace_raw.csv` and `fetch_noaa(start_date, end_date) -> str` returning `data/raw/noaa_raw.csv`. Do not implement logic yet. **Note**: This is a scaffolding step; logic must be implemented in T011. <!-- FAILED: unspecified -->
 - [X] T006 [P] Setup logging infrastructure in `code/__init__.py` by creating a logger named 'solar_wind' with level 'INFO' and a StreamHandler. **MUST use the following exact code snippet**:
  ```python
  import logging
@@ -200,7 +200,7 @@ EOF`
 
 **Purpose**: Implement streaming and chunked processing to handle the full 20-year dataset within 7GB RAM limits. These tasks MUST precede the data writing tasks.
 
-- [X] T046a [P] [US1] **Define Streaming Config** in `code/config.py`. Add `STREAMING_CHUNK_SIZE=100000` (rows) and `MAX_MEMORY_GB=6`.
+- [X] T046a [P] [US1] **Define Streaming Config** in `code/config.py`. Add `STREAMING_CHUNK_SIZE=100000 ` (rows) and `MAX_MEMORY_GB=6 `.
 - [X] T046b [P] [US1] **Implement Chunked Fetch** in `code/data/fetch.py`. Modify `fetch_ace` and `fetch_noaa` to use `datasets.load_dataset(..., streaming=True)` or chunked HTTP requests. **MUST** accumulate data in chunks and write to `data/raw/` incrementally. **MUST** state the exact streaming rule in the docstring.
 - [X] T046c [P] [US1] **Implement Chunked Write** in `code/data/fetch.py`. Ensure raw files are written in chunks to avoid memory spikes. <!-- FAILED: unspecified -->
 - [X] T047a [P] [US1] **Implement Chunked Reader** in `code/data/align.py`. Create function `read_synced_in_chunks(filepath, chunksize=...)` using `pandas.read_csv`.
@@ -221,8 +221,8 @@ EOF`
 
 - [X] T050 [P] [US2] Implement `code/analysis/correlation.py` function `shift_series(series: pd.Series, lag_hours: int) -> pd.Series`. **MUST** shift the geomagnetic index series forward by `lag_hours` to align with the solar wind composition (predictor) at time `t`. **MUST** ensure the shift creates NaNs at the beginning of the series which are then dropped before correlation calculation to prevent bias.
 - [X] T051 [P] [US2] Implement `code/analysis/neff.py` function `calculate_effective_sample_size_neff(series: pd.Series) -> float`. **MUST** calculate the lag-1 autocorrelation of the series residuals (after detrending with `scipy.signal.detrend`) and apply the Pyper & Peterman formula. **MUST** handle edge cases where the series is too short for autocorrelation calculation.
-- [ ] T052 [P] [US2] Implement `code/analysis/correlation.py` function `compute_p_value_adjusted(r: float, n_eff: float) -> float`. **MUST** compute the t-statistic using the effective sample size $N_{eff}$ and return the two-tailed p-value. **MUST** use `scipy.stats.t.sf` for accuracy.
-- [ ] T054 [P] [US2] Write unit test `test_lag_shift_logic` in `code/tests/test_correlation.py`. **MUST** verify that a known shift (e.g., lag=1h) correctly aligns a synthetic time series with a delayed version of itself, producing a high correlation, while an unshifted comparison produces a low correlation.
+- [X] T052 [P] [US2] Implement `code/analysis/correlation.py` function `compute_p_value_adjusted(r: float, n_eff: float) -> float`. **MUST** compute the t-statistic using the effective sample size $N_{eff}$ and return the two-tailed p-value. **MUST** use `scipy.stats.t.sf` for accuracy.
+- [X] T054 [P] [US2] Write unit test `test_lag_shift_logic` in `code/tests/test_correlation.py`. **MUST** verify that a known shift (e.g., lag=1h) correctly aligns a synthetic time series with a delayed version of itself, producing a high correlation, while an unshifted comparison produces a low correlation.
 - [ ] T055 [P] [US2] Write unit test `test_neff_autocorrelation` in `code/tests/test_neff.py`. **MUST** verify that a highly autocorrelated series (e.g., AR(1) with phi=0.9) results in a significantly reduced $N_{eff}$ compared to $N$, and that a white noise series results in $N_{eff} \approx N$.
 
 **Checkpoint**: Statistical engine ready - US2 can now be implemented.

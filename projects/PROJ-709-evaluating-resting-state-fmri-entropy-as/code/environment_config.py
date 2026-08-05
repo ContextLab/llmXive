@@ -1,239 +1,225 @@
 """
 Environment configuration management for CPU-only execution.
-
-This module ensures that all deep learning and numerical libraries
-are configured to run on CPU only, preventing accidental GPU usage
-and ensuring reproducibility across different hardware environments.
+Ensures no CUDA flags are set and configures libraries to use CPU only.
 """
-
 import os
 import sys
 import logging
 from typing import Dict, Any, Optional
 
-# Configure logging for this module
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 logger = logging.getLogger(__name__)
 
-
-def configure_cpu_only() -> Dict[str, bool]:
+def configure_cpu_only() -> Dict[str, str]:
     """
-    Configure the environment for CPU-only execution.
-
-    This function sets environment variables and library-specific flags
-    to ensure that:
-    1. PyTorch (if available) uses CPU only
-    2. TensorFlow (if available) uses CPU only
-    3. CUDA is disabled at the environment level
-    4. OpenMP thread count is controlled for reproducibility
-
+    Configure environment variables to enforce CPU-only execution.
+    Returns a dictionary of the configuration changes made.
+    
+    This function:
+    1. Unsets any existing CUDA_VISIBLE_DEVICES
+    2. Sets PyTorch to CPU-only mode (if available)
+    3. Sets TensorFlow to CPU-only mode (if available)
+    4. Configures OpenMP thread limits for stability
+    5. Disables GPU acceleration flags in relevant libraries
+    
     Returns:
-        Dict[str, bool]: A dictionary of configuration status flags
+        Dict[str, str]: Mapping of environment variables set/modified
     """
-    config_status = {
-        "cuda_disabled": False,
-        "torch_cpu_only": False,
-        "tensorflow_cpu_only": False,
-        "openmp_threads_set": False,
-        "numpy_threads_set": False,
-    }
-
-    # Disable CUDA at the environment level
-    os.environ["CUDA_VISIBLE_DEVICES"] = ""
-    os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
-    config_status["cuda_disabled"] = True
-    logger.info("Environment: CUDA_VISIBLE_DEVICES set to empty string")
-
-    # Configure PyTorch (if available)
+    config_changes = {}
+    
+    # 1. Ensure CUDA is not visible
+    if 'CUDA_VISIBLE_DEVICES' in os.environ:
+        old_val = os.environ.pop('CUDA_VISIBLE_DEVICES')
+        config_changes['CUDA_VISIBLE_DEVICES'] = f"(unset from '{old_val}')"
+        logger.info(f"Unset CUDA_VISIBLE_DEVICES (was: {old_val})")
+    else:
+        config_changes['CUDA_VISIBLE_DEVICES'] = "already unset"
+        logger.debug("CUDA_VISIBLE_DEVICES was already unset")
+    
+    # 2. Configure PyTorch (if installed)
     try:
         import torch
-        # Force PyTorch to use CPU
+        torch.set_num_threads(1)
         if torch.cuda.is_available():
-            torch.cuda.is_available = lambda: False
-            logger.warning("PyTorch: CUDA detected but forced to CPU-only mode")
-        config_status["torch_cpu_only"] = True
-        logger.info("PyTorch: CPU-only mode configured")
+            logger.warning("PyTorch: CUDA detected but will be disabled for this run")
+        config_changes['torch_set_num_threads'] = "1"
+        config_changes['torch_device'] = "cpu"
+        logger.info("PyTorch configured for CPU-only (num_threads=1)")
     except ImportError:
-        logger.debug("PyTorch not installed; skipping CPU configuration")
-
-    # Configure TensorFlow (if available)
+        logger.debug("PyTorch not installed, skipping torch configuration")
+    except Exception as e:
+        logger.warning(f"Could not configure PyTorch: {e}")
+    
+    # 3. Configure TensorFlow (if installed)
     try:
         import tensorflow as tf
-        # Disable GPU devices for TensorFlow
-        tf.config.set_visible_devices([], "GPU")
-        config_status["tensorflow_cpu_only"] = True
-        logger.info("TensorFlow: GPU devices disabled")
+        # Limit GPU memory growth and disable GPU if possible
+        gpus = tf.config.list_physical_devices('GPU')
+        if gpus:
+            try:
+                # Disable all GPUs
+                tf.config.set_visible_devices([], 'GPU')
+                config_changes['tensorflow_visible_devices'] = "[]"
+                logger.info("TensorFlow: Disabled all GPU devices")
+            except RuntimeError as e:
+                logger.warning(f"TensorFlow GPU disable failed: {e}")
+        config_changes['tensorflow_threads'] = "1"
+        logger.info("TensorFlow configured for CPU-only")
     except ImportError:
-        logger.debug("TensorFlow not installed; skipping CPU configuration")
-
-    # Set thread limits for reproducibility
-    # These control parallelism in numerical libraries
-    os.environ["OMP_NUM_THREADS"] = "1"
-    os.environ["MKL_NUM_THREADS"] = "1"
-    os.environ["OPENBLAS_NUM_THREADS"] = "1"
-    os.environ["NUMEXPR_NUM_THREADS"] = "1"
-    os.environ["VECLIB_MAXIMUM_THREADS"] = "1"
-    os.environ["NUMBA_NUM_THREADS"] = "1"
-    config_status["openmp_threads_set"] = True
-    config_status["numpy_threads_set"] = True
-    logger.info("Environment: Thread counts limited to 1 for reproducibility")
-
-    # Additional NumPy configuration
-    try:
-        import numpy as np
-        # Ensure NumPy uses single-threaded operations if possible
-        # Note: This is best-effort as NumPy's threading behavior depends
-        # on the underlying BLAS/LAPACK implementation
-        if hasattr(np, "core"):
-            # Force NumPy to use a single thread for operations
-            # This is a heuristic; actual behavior depends on installation
-            pass
-        logger.info("NumPy: Thread configuration applied")
-    except ImportError:
-        logger.debug("NumPy not installed; skipping configuration")
-
-    return config_status
-
+        logger.debug("TensorFlow not installed, skipping tensorflow configuration")
+    except Exception as e:
+        logger.warning(f"Could not configure TensorFlow: {e}")
+    
+    # 4. Set OpenMP thread limits for stability and reproducibility
+    # This prevents libraries from spawning too many threads
+    os.environ['OMP_NUM_THREADS'] = '1'
+    os.environ['MKL_NUM_THREADS'] = '1'
+    os.environ['OPENBLAS_NUM_THREADS'] = '1'
+    os.environ['VECLIB_MAXIMUM_THREADS'] = '1'
+    os.environ['NUMEXPR_NUM_THREADS'] = '1'
+    
+    config_changes['OMP_NUM_THREADS'] = '1'
+    config_changes['MKL_NUM_THREADS'] = '1'
+    config_changes['OPENBLAS_NUM_THREADS'] = '1'
+    config_changes['VECLIB_MAXIMUM_THREADS'] = '1'
+    config_changes['NUMEXPR_NUM_THREADS'] = '1'
+    logger.info("OpenMP/MKL/OpenBLAS thread limits set to 1")
+    
+    # 5. Ensure no GPU-specific environment variables are set
+    gpu_vars = [
+        'CUDA_HOME', 'CUDA_PATH', 'NVCC', 'LD_LIBRARY_PATH',
+        'LIBRARY_PATH', 'DYLD_LIBRARY_PATH'
+    ]
+    for var in gpu_vars:
+        if var in os.environ and 'cuda' in os.environ[var].lower():
+            logger.warning(f"Potential GPU library path found in {var}: {os.environ[var]}")
+    
+    return config_changes
 
 def get_environment_summary() -> Dict[str, Any]:
     """
     Generate a summary of the current environment configuration.
-
+    
     Returns:
-        Dict[str, Any]: A dictionary containing environment details
+        Dict[str, Any]: Summary including:
+            - cpu_only_mode: bool (True if CUDA is disabled)
+            - torch_available: bool
+            - torch_cuda_available: bool
+            - tensorflow_available: bool
+            - tensorflow_gpu_available: bool
+            - thread_limits: Dict[str, str]
+            - cuda_visible_devices: str or None
     """
     summary = {
-        "cuda_visible_devices": os.environ.get("CUDA_VISIBLE_DEVICES", "not set"),
-        "cuda_device_order": os.environ.get("CUDA_DEVICE_ORDER", "not set"),
-        "omp_num_threads": os.environ.get("OMP_NUM_THREADS", "not set"),
-        "mkl_num_threads": os.environ.get("MKL_NUM_THREADS", "not set"),
-        "openblas_num_threads": os.environ.get("OPENBLAS_NUM_THREADS", "not set"),
-        "platform": sys.platform,
-        "python_version": sys.version,
+        'cpu_only_mode': False,
+        'torch_available': False,
+        'torch_cuda_available': False,
+        'tensorflow_available': False,
+        'tensorflow_gpu_available': False,
+        'thread_limits': {},
+        'cuda_visible_devices': os.environ.get('CUDA_VISIBLE_DEVICES')
     }
-
-    # Check library availability
+    
+    # Check PyTorch
     try:
         import torch
-        summary["torch_available"] = True
-        summary["torch_version"] = torch.__version__
-        summary["torch_cuda_available"] = torch.cuda.is_available()
+        summary['torch_available'] = True
+        summary['torch_cuda_available'] = torch.cuda.is_available()
+        summary['cpu_only_mode'] = not summary['torch_cuda_available'] or 'CUDA_VISIBLE_DEVICES' not in os.environ
     except ImportError:
-        summary["torch_available"] = False
-
+        pass
+    
+    # Check TensorFlow
     try:
         import tensorflow as tf
-        summary["tensorflow_available"] = True
-        summary["tensorflow_version"] = tf.__version__
-        # Check visible devices
-        summary["tensorflow_visible_devices"] = [str(d) for d in tf.config.list_physical_devices()]
+        summary['tensorflow_available'] = True
+        gpus = tf.config.list_physical_devices('GPU')
+        summary['tensorflow_gpu_available'] = len(gpus) > 0
+        if not summary['tensorflow_gpu_available']:
+            summary['cpu_only_mode'] = True
     except ImportError:
-        summary["tensorflow_available"] = False
-
-    try:
-        import numpy as np
-        summary["numpy_available"] = True
-        summary["numpy_version"] = np.__version__
-    except ImportError:
-        summary["numpy_available"] = False
-
-    try:
-        import scipy
-        summary["scipy_available"] = True
-        summary["scipy_version"] = scipy.__version__
-    except ImportError:
-        summary["scipy_available"] = False
-
+        pass
+    
+    # Thread limits
+    summary['thread_limits'] = {
+        'OMP': os.environ.get('OMP_NUM_THREADS', 'not set'),
+        'MKL': os.environ.get('MKL_NUM_THREADS', 'not set'),
+        'OPENBLAS': os.environ.get('OPENBLAS_NUM_THREADS', 'not set'),
+        'NUMEXPR': os.environ.get('NUMEXPR_NUM_THREADS', 'not set')
+    }
+    
+    # Validate CPU-only status
+    if 'CUDA_VISIBLE_DEVICES' in os.environ:
+        summary['cpu_only_mode'] = False
+    elif summary['torch_cuda_available'] or summary['tensorflow_gpu_available']:
+        summary['cpu_only_mode'] = False
+    
     return summary
-
 
 def validate_cpu_only() -> bool:
     """
     Validate that the environment is correctly configured for CPU-only execution.
-
+    
     Returns:
-        bool: True if CPU-only configuration is valid, False otherwise
+        bool: True if CPU-only mode is confirmed, False otherwise
+    
+    Raises:
+        RuntimeError: If GPU execution is detected and cannot be disabled
     """
-    is_valid = True
-
-    # Check CUDA visibility
-    cuda_visible = os.environ.get("CUDA_VISIBLE_DEVICES", "")
-    if cuda_visible != "":
-        logger.error(f"CUDA_VISIBLE_DEVICES is set to '{cuda_visible}', expected empty string")
-        is_valid = False
-    else:
-        logger.debug("CUDA visibility validation passed")
-
-    # Check PyTorch (if available)
-    try:
-        import torch
-        if torch.cuda.is_available():
-            logger.warning("PyTorch reports CUDA is available; this may indicate configuration failure")
-            # Note: We may have overridden this, so check actual device
-            if torch.cuda.device_count() > 0:
-                logger.error("PyTorch has access to GPU devices")
-                is_valid = False
-    except ImportError:
-        pass
-
-    # Check TensorFlow (if available)
-    try:
-        import tensorflow as tf
-        gpus = tf.config.list_physical_devices("GPU")
-        if len(gpus) > 0:
-            logger.error(f"TensorFlow detected {len(gpus)} GPU devices")
-            is_valid = False
-        else:
-            logger.debug("TensorFlow GPU validation passed")
-    except ImportError:
-        pass
-
-    # Check thread settings
-    for var in ["OMP_NUM_THREADS", "MKL_NUM_THREADS", "OPENBLAS_NUM_THREADS"]:
-        if os.environ.get(var) != "1":
-            logger.warning(f"{var} is not set to 1, may affect reproducibility")
-
-    if is_valid:
-        logger.info("CPU-only environment validation: PASSED")
-    else:
-        logger.error("CPU-only environment validation: FAILED")
-
-    return is_valid
-
+    summary = get_environment_summary()
+    
+    # Check if CUDA is explicitly disabled
+    if 'CUDA_VISIBLE_DEVICES' in os.environ:
+        logger.error("CUDA_VISIBLE_DEVICES is set, GPU execution may occur")
+        return False
+    
+    # Check PyTorch
+    if summary['torch_available'] and summary['torch_cuda_available']:
+        logger.error("PyTorch CUDA is available and not disabled")
+        return False
+    
+    # Check TensorFlow
+    if summary['tensorflow_available'] and summary['tensorflow_gpu_available']:
+        logger.error("TensorFlow GPU is available and not disabled")
+        return False
+    
+    # Check thread limits
+    for key, val in summary['thread_limits'].items():
+        if val == 'not set':
+            logger.warning(f"{key} thread limit not set (may cause performance issues)")
+    
+    logger.info("Environment validated: CPU-only mode confirmed")
+    return True
 
 def main():
     """
-    Main entry point for environment configuration.
-
-    This function configures the environment for CPU-only execution
-    and prints a summary of the configuration.
+    Main entry point for running environment configuration checks.
+    This function configures CPU-only execution and validates the setup.
     """
-    # Set up logging
-    logging.basicConfig(
-        level=logging.INFO,
-        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-    )
-
-    logger.info("Starting CPU-only environment configuration...")
-
-    # Configure CPU-only execution
-    config_status = configure_cpu_only()
-    logger.info(f"Configuration status: {config_status}")
-
-    # Get environment summary
+    logger.info("=== Starting Environment Configuration for CPU-Only Execution ===")
+    
+    # Configure CPU-only mode
+    config_changes = configure_cpu_only()
+    logger.info(f"Configuration changes applied: {list(config_changes.keys())}")
+    
+    # Get and display summary
     summary = get_environment_summary()
-    logger.info("Environment summary:")
+    logger.info(f"Environment Summary:")
     for key, value in summary.items():
         logger.info(f"  {key}: {value}")
-
+    
     # Validate configuration
     is_valid = validate_cpu_only()
     if is_valid:
-        logger.info("Environment is correctly configured for CPU-only execution.")
+        logger.info("✓ Environment successfully configured for CPU-only execution")
+        sys.exit(0)
     else:
-        logger.warning("Environment may not be correctly configured for CPU-only execution.")
-
-    return 0 if is_valid else 1
-
+        logger.error("✗ Environment validation failed: GPU execution may occur")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

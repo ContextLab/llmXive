@@ -864,3 +864,274 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-10T16:00:55Z'
+- artifact_path: projects/PROJ-779-cross-modal-comparison-of-neural-predict/docs/README.md
+  attempts: 1
+  canonical: Auditory modality data source is OpenNeuro dataset ds000246
+  claim_id: c_9e0be28f
+  context: 'Mandatory Real Data Sources: All analysis data MUST originate from verified
+    OpenNeuro datasets: Auditory Modality: OpenNeuro dataset ds000246'
+  evidence:
+    entailment_evidence: Auditory modality data source is OpenNeuro dataset ds000246
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Auditory_modality_data_source_is_OpenNeuro_dataset_ds000246
+  kind: entity_fact
+  raw_text: 'Auditory Modality: OpenNeuro dataset ds000246'
+  resolved_value: Auditory modality data source is OpenNeuro dataset ds000246
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-05T16:18:21Z'
+- artifact_path: projects/PROJ-779-cross-modal-comparison-of-neural-predict/docs/README.md
+  attempts: 1
+  canonical: Visual modality data source is OpenNeuro dataset ds000117 via Hugging
+    Face Hub mirror
+  claim_id: c_e8b23413
+  context: 'Mandatory Real Data Sources: All analysis data MUST originate from verified
+    OpenNeuro datasets: Visual Modality: OpenNeuro dataset ds000117 (via Hugging Face
+    Hub mirror)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Visual_modality_data_source_is_OpenNeuro_dataset_ds000117_vi
+  kind: entity_fact
+  raw_text: 'Visual Modality: OpenNeuro dataset ds000117 (via Hugging Face Hub mirror)'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T16:18:49Z'
+- artifact_path: projects/PROJ-779-cross-modal-comparison-of-neural-predict/docs/README.md
+  attempts: 1
+  canonical: Datasets validated for sampling rate greater than or equal to 500 Hz
+  claim_id: c_a17308bf
+  context: "Data Verification: All downloaded datasets are validated for sampling\
+    \ rate (\u2265500 Hz) and trial counts (\u2265100 oddball, \u2265300 standard)\
+    \ immediately upon fetch."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Datasets_validated_for_sampling_rate_greater_than_or_equal_t
+  kind: magnitude
+  raw_text: "All downloaded datasets are validated for sampling rate (\u2265500 Hz)"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T16:19:15Z'
+- artifact_path: projects/PROJ-779-cross-modal-comparison-of-neural-predict/docs/README.md
+  attempts: 1
+  canonical: Datasets validated for at least 100 oddball trials and 300 standard trials
+  claim_id: c_fa0122b3
+  context: "Data Verification: All downloaded datasets are validated for sampling\
+    \ rate (\u2265500 Hz) and trial counts (\u2265100 oddball, \u2265300 standard)\
+    \ immediately upon fetch."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Datasets_validated_for_at_least_100_oddball_trials_and_300_s
+  kind: magnitude
+  raw_text: "All downloaded datasets are validated for trial counts (\u2265100 oddball,\
+    \ \u2265300 standard)"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T16:19:38Z'
+- artifact_path: projects/PROJ-779-cross-modal-comparison-of-neural-predict/specs/001-cross-modal-comparison-of-neural-predict/tasks.md
+  attempts: 1
+  canonical: No synthetic data generation permitted; data must originate from OpenNeuro
+  claim_id: c_b4a53e94
+  context: Document "Real Data" assumption in docs/README.md and code/config.py, explicitly
+    stating that all data must originate from OpenNeuro datasets and that no synthetic
+    data generation is permitted.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/No_synthetic_data_generation_permitted;_data_must_originate
+  kind: entity_fact
+  raw_text: All data must originate from OpenNeuro datasets and that no synthetic
+    data generation is permitted.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T16:22:04Z'
+- artifact_path: projects/PROJ-779-cross-modal-comparison-of-neural-predict/specs/001-cross-modal-comparison-of-neural-predict/tasks.md
+  attempts: 1
+  canonical: Visual dataset ID openneuro/ds version r.0
+  claim_id: c_a7e6d0b9
+  context: 'Implement code/data/download.py to fetch ds (visual) using huggingface_hub.snapshot_download
+    with Dataset ID: openneuro/ds and Version Tag: r.0.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Dataset ID: openneuro/ds and Version Tag: r.0'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T16:22:38Z'
+- artifact_path: projects/PROJ-779-cross-modal-comparison-of-neural-predict/specs/001-cross-modal-comparison-of-neural-predict/tasks.md
+  attempts: 1
+  canonical: Auditory dataset ds000246
+  claim_id: c_1705b3c6
+  context: Download OpenNeuro datasets (ds000246, ds000117), validate trial counts
+    and sampling rates, and apply standardized preprocessing.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Auditory_dataset_ds000246
+  kind: entity_fact
+  raw_text: Auditory dataset ds000246
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T16:22:56Z'
+- artifact_path: projects/PROJ-779-cross-modal-comparison-of-neural-predict/specs/001-cross-modal-comparison-of-neural-predict/tasks.md
+  attempts: 1
+  canonical: Visual dataset ds000117
+  claim_id: c_d4acfff8
+  context: Download OpenNeuro datasets (ds000246, ds000117), validate trial counts
+    and sampling rates, and apply standardized preprocessing.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Visual_dataset_ds000117
+  kind: entity_fact
+  raw_text: Visual dataset ds000117
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T16:23:14Z'
+- artifact_path: projects/PROJ-779-cross-modal-comparison-of-neural-predict/specs/001-cross-modal-comparison-of-neural-predict/tasks.md
+  attempts: 1
+  canonical: Sampling rate threshold 500 Hz
+  claim_id: c_ab37c586
+  context: "Create code/config.py defining paths, random seeds, sampling rate threshold\
+    \ (\u2265500 Hz), trial thresholds (\u2265100 oddball, \u2265300 standard), and\
+    \ time windows."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Sampling rate threshold is \u2265500 Hz"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T16:23:14Z'
+- artifact_path: projects/PROJ-779-cross-modal-comparison-of-neural-predict/specs/001-cross-modal-comparison-of-neural-predict/tasks.md
+  attempts: 1
+  canonical: Oddball trial threshold 100
+  claim_id: c_42c9056d
+  context: "Create code/config.py defining paths, random seeds, sampling rate threshold\
+    \ (\u2265500 Hz), trial thresholds (\u2265100 oddball, \u2265300 standard), and\
+    \ time windows."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Oddball trial threshold is \u2265100"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T16:23:14Z'
+- artifact_path: projects/PROJ-779-cross-modal-comparison-of-neural-predict/specs/001-cross-modal-comparison-of-neural-predict/tasks.md
+  attempts: 1
+  canonical: Standard trial threshold 300
+  claim_id: c_f22475f6
+  context: "Create code/config.py defining paths, random seeds, sampling rate threshold\
+    \ (\u2265500 Hz), trial thresholds (\u2265100 oddball, \u2265300 standard), and\
+    \ time windows."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Standard trial threshold is \u2265300"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T16:23:14Z'
+- artifact_path: projects/PROJ-779-cross-modal-comparison-of-neural-predict/specs/001-cross-modal-comparison-of-neural-predict/tasks.md
+  attempts: 1
+  canonical: Full pipeline execution time under 6 hours on GitHub Actions free-tier
+  claim_id: c_505f2822
+  context: Run full pipeline on GitHub Actions free-tier (limited CPU, GB RAM); verify
+    exit code 0 within 6 hours, source maps generated, and statistical decisions reported.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Source maps generated and statistical decisions reported within 6 hours
+    on GitHub Actions free-tier
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T16:23:32Z'
+- artifact_path: projects/PROJ-779-cross-modal-comparison-of-neural-predict/specs/001-cross-modal-comparison-of-neural-predict/tasks.md
+  attempts: 1
+  canonical: GitHub Actions free-tier RAM limit 7GB
+  claim_id: c_2185f9f9
+  context: All tasks must be executable on CPU-only GitHub Actions free-tier (limited
+    CPU resources, 7GB RAM, 6h limit).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/GitHub_Actions_free-tier_RAM_limit_7GB
+  kind: entity_fact
+  raw_text: GitHub Actions free-tier limits are 7GB RAM
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T16:23:58Z'
+- artifact_path: projects/PROJ-779-cross-modal-comparison-of-neural-predict/specs/001-cross-modal-comparison-of-neural-predict/tasks.md
+  attempts: 1
+  canonical: Latency difference threshold 50ms
+  claim_id: c_07496abe
+  context: "Implement code/main.py logic for Latency Classification: Check |\u0394\
+    t| < 50ms (SC-001) and set classification field."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Latency_difference_threshold_50ms
+  kind: entity_fact
+  raw_text: "Latency classification threshold is |\u0394t| < 50ms"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T16:24:24Z'
+- artifact_path: projects/PROJ-779-cross-modal-comparison-of-neural-predict/specs/001-cross-modal-comparison-of-neural-predict/tasks.md
+  attempts: 1
+  canonical: Split-half reliability method Odd/Even trials
+  claim_id: c_8c4bc937
+  context: "Implement code/validation/reliability.py split-half reliability (Odd/Even\
+    \ trials) and Cronbach's \u03B1 calculation (FR-013)."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Split-half_reliability_method_Odd/Even_trials
+  kind: entity_fact
+  raw_text: Split-half reliability uses Odd/Even trials
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T16:24:55Z'

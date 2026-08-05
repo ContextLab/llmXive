@@ -446,3 +446,369 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-23T19:02:10Z'
+- artifact_path: projects/PROJ-709-evaluating-resting-state-fmri-entropy-as/specs/001-evaluating-resting-state-fmri-entropy-as/tasks.md
+  attempts: 1
+  canonical: Initialize project directory structure with code, data/raw, data/processed,
+    data/derived, tests, and docs directories
+  claim_id: c_27a6e211
+  context: 'Phase 1: Setup (Shared Infrastructure) - Purpose: Project initialization
+    and basic structure'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Initialize_project_directory_structure_with_code,_data/raw,
+  kind: entity_fact
+  raw_text: 'Initialize project directory structure: Create `code/`, `data/raw/`,
+    `data/processed/`, `data/derived/`, `tests/`, and `docs/` directories'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T16:38:53Z'
+- artifact_path: projects/PROJ-709-evaluating-resting-state-fmri-entropy-as/specs/001-evaluating-resting-state-fmri-entropy-as/tasks.md
+  attempts: 1
+  canonical: Create requirements.txt with pinned versions for antropy, scikit-learn,
+    nibabel, nilearn, pandas, numpy, scipy, matplotlib, seaborn, statsmodels, openneuro-py,
+    and pyyaml
+  claim_id: c_9fd02641
+  context: 'Phase 1: Setup (Shared Infrastructure) - T002a'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Create_requirements.txt_with_pinned_versions_for_antropy,_sc
+  kind: entity_fact
+  raw_text: 'Create `code/requirements.txt` with pinned versions: `antropy`, `scikit-learn`,
+    `nibabel`, `nilearn`, `pandas`, `numpy`, `scipy`, `matplotlib`, `seaborn`, `statsmodels`,
+    `openneuro-py`, `pyyaml`'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T16:39:13Z'
+- artifact_path: projects/PROJ-709-evaluating-resting-state-fmri-entropy-as/specs/001-evaluating-resting-state-fmri-entropy-as/tasks.md
+  attempts: 1
+  canonical: Configure hyperparameters with m=2, r_factor=0.2, fd_threshold=0.2, target_length=120,
+    atlas_n=200, and dataset_id=ds000305
+  claim_id: c_d275392b
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - T004'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Configure hyperparameters: `m=2`, `r_factor=0.2`, `fd_threshold=0.2`,
+    `target_length=120`, `atlas_n=200`, `dataset_id="ds000305"`'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T16:41:00Z'
+- artifact_path: projects/PROJ-709-evaluating-resting-state-fmri-entropy-as/specs/001-evaluating-resting-state-fmri-entropy-as/tasks.md
+  attempts: 1
+  canonical: Fetch ADHD dataset ds000305 from OpenNeuro
+  claim_id: c_d2b51f30
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - T005'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetch_ADHD_dataset_ds000305_from_OpenNeuro
+  kind: entity_fact
+  raw_text: Fetch ADHD dataset `ds000305` from OpenNeuro
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T16:41:21Z'
+- artifact_path: projects/PROJ-709-evaluating-resting-state-fmri-entropy-as/specs/001-evaluating-resting-state-fmri-entropy-as/tasks.md
+  attempts: 1
+  canonical: Verify checksums using SHA256
+  claim_id: c_c0b23ce9
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - T005'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verify_checksums_using_SHA256
+  kind: entity_fact
+  raw_text: Verify checksums using SHA256 and write `data/raw/checksums.sha256`
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T16:41:50Z'
+- artifact_path: projects/PROJ-709-evaluating-resting-state-fmri-entropy-as/specs/001-evaluating-resting-state-fmri-entropy-as/tasks.md
+  attempts: 1
+  canonical: Filter subjects with less than 100 time points
+  claim_id: c_2d390c49
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - T005'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Filter_subjects_with_less_than_100_time_points
+  kind: magnitude
+  raw_text: Filter subjects with < 100 time points (post-scrubbing simulation)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T16:42:56Z'
+- artifact_path: projects/PROJ-709-evaluating-resting-state-fmri-entropy-as/specs/001-evaluating-resting-state-fmri-entropy-as/tasks.md
+  attempts: 1
+  canonical: Write filtered valid subjects to valid_subjects.csv
+  claim_id: c_1d7f8ea5
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - T005'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Write_filtered_valid_subjects_to_valid_subjects.csv
+  kind: entity_fact
+  raw_text: Write the filtered list of valid subjects to `data/derived/valid_subjects.csv`
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T16:43:54Z'
+- artifact_path: projects/PROJ-709-evaluating-resting-state-fmri-entropy-as/specs/001-evaluating-resting-state-fmri-entropy-as/tasks.md
+  attempts: 1
+  canonical: Verify output subject_entropy_features.csv is a 5 by 201 numeric matrix
+    for 5 subjects
+  claim_id: c_b2a6a679
+  context: 'Phase 3: User Story 1 - Independent Test'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verify_output_subject_entropy_features.csv_is_a_5_by_201_num
+  kind: entity_fact
+  raw_text: Run on 5 subjects; verify output `subject_entropy_features.csv` is (5,
+    201) numeric matrix
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T16:45:11Z'
+- artifact_path: projects/PROJ-709-evaluating-resting-state-fmri-entropy-as/specs/001-evaluating-resting-state-fmri-entropy-as/tasks.md
+  attempts: 1
+  canonical: Verify Framewise Displacement greater than 0.2mm removal
+  claim_id: c_6e4bf156
+  context: 'Phase 3: User Story 1 - Tests for User Story 1 - T010'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_Framewise_Displacement_greater_than_0.2mm_removal
+  kind: magnitude
+  raw_text: Verify FD > 0.2mm removal
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T16:52:55Z'
+- artifact_path: projects/PROJ-709-evaluating-resting-state-fmri-entropy-as/specs/001-evaluating-resting-state-fmri-entropy-as/tasks.md
+  attempts: 1
+  canonical: Truncate time series to N=120 before computing SD
+  claim_id: c_d7be3fce
+  context: 'Phase 3: User Story 1 - Implementation - T015'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement `code/entropy_engine.py`: FIRST truncate to N=120, THEN compute
+    SD on the truncated series'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T16:53:12Z'
+- artifact_path: projects/PROJ-709-evaluating-resting-state-fmri-entropy-as/specs/001-evaluating-resting-state-fmri-entropy-as/tasks.md
+  attempts: 1
+  canonical: Verify subject_entropy_features.csv exists with shape N by 201
+  claim_id: c_8320fa48
+  context: 'Phase 3: User Story 1 - Implementation - T018b'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify output file `data/processed/subject_entropy_features.csv` exists
+    with shape (N, 201)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T16:53:35Z'
+- artifact_path: projects/PROJ-709-evaluating-resting-state-fmri-entropy-as/specs/001-evaluating-resting-state-fmri-entropy-as/tasks.md
+  attempts: 1
+  canonical: Reduce 200 PCA components to a stable subset of 20 to 50 features using
+    feature selection
+  claim_id: c_2e8283d7
+  context: 'Phase 4: User Story 2 - Implementation - T023c'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform Feature Selection (RFE or L) on the 200 PCA components to reduce
+    the feature space to a stable subset (20-50 features)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T16:53:55Z'
+- artifact_path: projects/PROJ-709-evaluating-resting-state-fmri-entropy-as/specs/001-evaluating-resting-state-fmri-entropy-as/tasks.md
+  attempts: 1
+  canonical: Train Ridge Regression models using Entropy-only, Connectivity-only,
+    and Combined feature sets
+  claim_id: c_718026b3
+  context: 'Phase 4: User Story 2 - Implementation - T024'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Train_Ridge_Regression_models_using_Entropy-only,_Connectivi
+  kind: entity_fact
+  raw_text: Train Ridge Regression for ADHD-RS prediction using **Entropy-only**,
+    **Connectivity-only**, and **Combined** models
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T16:54:32Z'
+- artifact_path: projects/PROJ-709-evaluating-resting-state-fmri-entropy-as/specs/001-evaluating-resting-state-fmri-entropy-as/tasks.md
+  attempts: 1
+  canonical: Train Logistic Ridge models for binary diagnosis using Entropy-only,
+    Connectivity-only, and Combined feature sets
+  claim_id: c_1e55e469
+  context: 'Phase 4: User Story 2 - Implementation - T025'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Train_Logistic_Ridge_models_for_binary_diagnosis_using_Entro
+  kind: entity_fact
+  raw_text: Train Logistic Ridge for binary diagnosis (Entropy-only, Connectivity-only,
+    Combined)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T16:54:50Z'
+- artifact_path: projects/PROJ-709-evaluating-resting-state-fmri-entropy-as/specs/001-evaluating-resting-state-fmri-entropy-as/tasks.md
+  attempts: 1
+  canonical: Run permutation test with 1000 iterations
+  claim_id: c_a81384a3
+  context: 'Phase 5: User Story 3 - Goal'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run permutation (1000 iter) and sensitivity sweep
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T16:55:08Z'
+- artifact_path: projects/PROJ-709-evaluating-resting-state-fmri-entropy-as/specs/001-evaluating-resting-state-fmri-entropy-as/tasks.md
+  attempts: 1
+  canonical: Verify p-value is less than 0.05
+  claim_id: c_81409086
+  context: 'Phase 5: User Story 3 - Goal'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_p-value_is_less_than_0.05
+  kind: magnitude
+  raw_text: Verify p-value < 0.05
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T16:55:42Z'
+- artifact_path: projects/PROJ-709-evaluating-resting-state-fmri-entropy-as/specs/001-evaluating-resting-state-fmri-entropy-as/tasks.md
+  attempts: 1
+  canonical: Sweep r values 0.15, 0.20, and 0.25 and calculate performance variance
+  claim_id: c_f3d31e7d
+  context: 'Phase 5: User Story 3 - Implementation - T033'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Sweep `r` \u2208 {0.15, 0.20, 0.25} and calculate performance variance"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T16:56:51Z'
+- artifact_path: projects/PROJ-709-evaluating-resting-state-fmri-entropy-as/specs/001-evaluating-resting-state-fmri-entropy-as/tasks.md
+  attempts: 1
+  canonical: Flag if absolute correlation r is greater than or equal to 0.3
+  claim_id: c_c036beb5
+  context: 'Phase 5: User Story 3 - Implementation - T035'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_if_absolute_correlation_r_is_greater_than_or_equal_to_0
+  kind: magnitude
+  raw_text: "Flag if |r| \u2265 0.3"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T16:57:20Z'
+- artifact_path: projects/PROJ-709-evaluating-resting-state-fmri-entropy-as/specs/001-evaluating-resting-state-fmri-entropy-as/tasks.md
+  attempts: 1
+  canonical: Verify if raw difference in mean Pearson correlation between Entropy-only
+    and Connectivity-only models is greater than or equal to 0.05
+  claim_id: c_52b8ca46
+  context: 'Phase 5: User Story 3 - Implementation - T036a'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_if_raw_difference_in_mean_Pearson_correlation_between
+  kind: magnitude
+  raw_text: "Calculate the raw difference in mean Pearson correlation (\u0394r) between\
+    \ Entropy-only and Connectivity-only models; verify if \u0394r \u2265 0.05"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T16:57:47Z'
+- artifact_path: projects/PROJ-709-evaluating-resting-state-fmri-entropy-as/specs/001-evaluating-resting-state-fmri-entropy-as/tasks.md
+  attempts: 1
+  canonical: Verify if lower bound of 95% confidence interval for delta AUC is greater
+    than or equal to 0.05
+  claim_id: c_cc832457
+  context: 'Phase 5: User Story 3 - Implementation - T037'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_if_lower_bound_of_95%25_confidence_interval_for_delta_A
+  kind: magnitude
+  raw_text: "Verify if [lower bound of 95% CI] is \u2265 0.05"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T16:58:11Z'
+- artifact_path: projects/PROJ-709-evaluating-resting-state-fmri-entropy-as/specs/001-evaluating-resting-state-fmri-entropy-as/tasks.md
+  attempts: 1
+  canonical: Run main.py on 50 subjects and fail if wall-clock time exceeds 6 hours
+  claim_id: c_0f16e2f6
+  context: 'Phase 6: Polish & Cross-Cutting Concerns - T042'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run `code/main.py --subset` on 50 subjects, measure wall-clock time, record
+    in `data/derived/runtime_log.txt`; fail if > 6h
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T16:58:29Z'

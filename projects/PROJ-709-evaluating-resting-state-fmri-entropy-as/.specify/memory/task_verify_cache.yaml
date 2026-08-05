@@ -42,3 +42,34 @@ T012:
     \ does not exist in the repository, so the task\u2019s deliverable is missing.\
     \ The implementer must add the test file implementing the full US1 pipeline on\
     \ 2 subjects."
+T013:
+  c: false
+  h: 6699c0c8803b634ab0c24d89bfe3e3d6784883ba38eb15381b82bb512200b2d0
+  r: "The provided `code/preprocessing.py` contains a placeholder FD calculation and\
+    \ a \u201Csimulated\u201D scrubbing function that never writes to `data/raw/exclusions.log`.\
+    \ Moreover, the required `exclusions.log` file is absent from the repository.\
+    \ Consequently, the task\u2019s core requirements\u2014actual FD\u2011based volume\
+    \ removal and logging of excluded volumes\u2014are not fulfilled."
+T018a:
+  c: false
+  h: 524b114ad735d29001a0654d6199819b63c7e44cb5166d2780b76a08eaab39d2
+  r: The repository contains a `code/main.py` file, but it is truncated and does not
+    show the full implementation of the subject loop or CSV writing. Moreover, the
+    required output `data/processed/subject_entropy_features.csv` is absent from the
+    project. Both the functional script and the generated CSV are missing, so the
+    task is not satisfied.
+T019:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, test, or documentation was provided that implements the required\
+    \ validation step (checking for NaN values in the final CSV and confirming entropy\
+    \ values lie within a biologically plausible range). Without such artifacts, the\
+    \ task\u2019s requirement is not satisfied."
+T023c:
+  c: false
+  h: 7591dcba3fdbc620bbea0ff2ae3f20060b4de16622e4c180d44b606e4a713141
+  r: "The provided `code/connectivity_engine.py` contains PCA logic but no implementation\
+    \ of RFE/Lasso feature selection nor any code that writes `data/derived/connectivity_features_reduced.csv`.\
+    \ Moreover, the expected output CSV file is absent from the repository. The task\u2019\
+    s core requirement\u2014reducing the 200 PCA components to 20\u201150 stable features\
+    \ and saving them\u2014is therefore not satisfied."

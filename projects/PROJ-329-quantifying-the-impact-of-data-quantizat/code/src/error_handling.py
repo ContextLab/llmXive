@@ -1,251 +1,306 @@
 """
-Error handling utilities for missing or corrupted noise files.
+Error handling module for gravitational wave data processing.
 
-This module provides robust error handling for scenarios where
-LIGO O3 noise files are missing, corrupted, or inaccessible.
-It ensures the pipeline fails gracefully with clear error messages
-rather than crashing with cryptic tracebacks.
+Provides custom exceptions and utility functions for handling
+missing or corrupted noise files in a graceful manner.
 """
-
 import os
 import logging
 from pathlib import Path
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Dict, Any
 import hashlib
+import json
 
-# Configure logging for this module
+# Configure logging
 logger = logging.getLogger(__name__)
 
 class NoiseFileError(Exception):
-    """Custom exception for noise file related errors."""
-    pass
+    """Base exception for noise file related errors."""
+    def __init__(self, message: str, file_path: Optional[str] = None):
+        super().__init__(message)
+        self.file_path = file_path
 
 class MissingNoiseFileError(NoiseFileError):
-    """Raised when a required noise file is missing."""
-    pass
+    """Exception raised when a noise file is not found."""
+    def __init__(self, file_path: str, search_paths: Optional[list] = None):
+        self.search_paths = search_paths or []
+        msg = f"Noise file not found: {file_path}"
+        if self.search_paths:
+            msg += f"\nSearched in: {self.search_paths}"
+        super().__init__(msg, file_path)
 
 class CorruptedNoiseFileError(NoiseFileError):
-    """Raised when a noise file is corrupted or invalid."""
-    pass
+    """Exception raised when a noise file is corrupted or invalid."""
+    def __init__(self, file_path: str, reason: str, expected_checksum: Optional[str] = None, actual_checksum: Optional[str] = None):
+        self.reason = reason
+        self.expected_checksum = expected_checksum
+        self.actual_checksum = actual_checksum
+        msg = f"Corrupted noise file: {file_path}\nReason: {reason}"
+        if expected_checksum and actual_checksum:
+            msg += f"\nExpected checksum: {expected_checksum}\nActual checksum: {actual_checksum}"
+        super().__init__(msg, file_path)
 
 class NoiseFileAccessError(NoiseFileError):
-    """Raised when noise file cannot be accessed (permissions, etc.)."""
-    pass
+    """Exception raised when there are permission or access issues."""
+    def __init__(self, file_path: str, reason: str):
+        msg = f"Cannot access noise file: {file_path}\nReason: {reason}"
+        super().__init__(msg, file_path)
 
-def validate_noise_file(
-    noise_path: str,
-    expected_checksum: Optional[str] = None,
-    min_size_bytes: int = 1024
-) -> Tuple[bool, str]:
+def get_noise_file_directories() -> list:
     """
-    Validate that a noise file exists, is accessible, and meets basic integrity checks.
+    Returns a list of directories where noise files are expected.
+    
+    Returns:
+        list: List of Path objects representing search directories.
+    """
+    base_dir = Path(os.getenv('PROJECT_ROOT', '.'))
+    # Standard locations based on project structure
+    search_dirs = [
+        base_dir / 'data' / 'raw' / 'noise',
+        base_dir / 'data' / 'processed' / 'noise',
+        base_dir / 'data' / 'raw',
+        base_dir / 'data' / 'processed',
+    ]
+    # Filter to existing directories
+    return [d for d in search_dirs if d.exists()]
+
+def find_noise_file(filename: str) -> Optional[Path]:
+    """
+    Search for a noise file in standard directories.
     
     Args:
-        noise_path: Path to the noise file
-        expected_checksum: Optional MD5 checksum to verify against
-        min_size_bytes: Minimum acceptable file size in bytes
+        filename: Name of the noise file to find.
         
     Returns:
-        Tuple of (is_valid, error_message)
+        Path to the file if found, None otherwise.
     """
-    path = Path(noise_path)
+    search_dirs = get_noise_file_directories()
+    for directory in search_dirs:
+        candidate = directory / filename
+        if candidate.exists() and candidate.is_file():
+            logger.info(f"Found noise file at: {candidate}")
+            return candidate
     
-    # Check if file exists
-    if not path.exists():
-        return False, f"Noise file not found: {noise_path}"
-    
-    # Check if it's a file (not directory)
-    if not path.is_file():
-        return False, f"Path is not a file: {noise_path}"
-    
-    # Check file size
-    try:
-        file_size = path.stat().st_size
-        if file_size < min_size_bytes:
-            return False, f"Noise file too small ({file_size} bytes < {min_size_bytes} bytes): {noise_path}"
-    except OSError as e:
-        return False, f"Cannot access file size: {noise_path} - {str(e)}"
-    
-    # Verify checksum if provided
-    if expected_checksum:
-        try:
-            actual_checksum = calculate_file_checksum(path)
-            if actual_checksum.lower() != expected_checksum.lower():
-                return False, f"Checksum mismatch for {noise_path}: expected {expected_checksum}, got {actual_checksum}"
-        except Exception as e:
-            return False, f"Checksum verification failed for {noise_path}: {str(e)}"
-    
-    return True, ""
-
-def calculate_file_checksum(file_path: Path, algorithm: str = 'md5') -> str:
-    """
-    Calculate the checksum of a file.
-    
-    Args:
-        file_path: Path to the file
-        algorithm: Hash algorithm to use (default: md5)
-        
-    Returns:
-        Hex digest of the file checksum
-        
-    Raises:
-        NoiseFileAccessError: If file cannot be read
-    """
-    try:
-        hash_func = hashlib.new(algorithm)
-        with open(file_path, 'rb') as f:
-            # Read in chunks to handle large files
-            for chunk in iter(lambda: f.read(8192), b''):
-                hash_func.update(chunk)
-        return hash_func.hexdigest()
-    except PermissionError:
-        raise NoiseFileAccessError(f"Permission denied reading file: {file_path}")
-    except Exception as e:
-        raise NoiseFileAccessError(f"Error reading file {file_path}: {str(e)}")
-
-def load_noise_file_with_fallback(
-    noise_path: str,
-    fallback_path: Optional[str] = None
-) -> Tuple[Optional[Path], Optional[str]]:
-    """
-    Attempt to load a noise file with fallback to an alternative location.
-    
-    Args:
-        noise_path: Primary noise file path
-        fallback_path: Optional fallback path if primary is missing/corrupted
-        
-    Returns:
-        Tuple of (valid_path_or_none, error_message_or_none)
-    """
-    # Try primary path
-    valid, error = validate_noise_file(noise_path)
-    if valid:
-        logger.info(f"Using primary noise file: {noise_path}")
-        return Path(noise_path), None
-    
-    logger.warning(f"Primary noise file invalid: {error}")
-    
-    # Try fallback if provided
-    if fallback_path:
-        valid, fallback_error = validate_noise_file(fallback_path)
-        if valid:
-            logger.info(f"Using fallback noise file: {fallback_path}")
-            return Path(fallback_path), None
-        logger.warning(f"Fallback noise file also invalid: {fallback_error}")
-    
-    # No valid file found
-    return None, f"Failed to load noise file. Primary: {error}" + (f"; Fallback: {fallback_error}" if fallback_path else "")
-
-def handle_noise_file_error(
-    noise_path: str,
-    error_context: str = "waveform generation",
-    raise_on_failure: bool = True
-) -> bool:
-    """
-    Handle noise file errors gracefully with logging and optional raising.
-    
-    Args:
-        noise_path: Path to the problematic noise file
-        error_context: Context where the error occurred (e.g., "waveform generation")
-        raise_on_failure: If True, raise an exception; if False, return False
-        
-    Returns:
-        True if noise file is valid, False otherwise
-    """
-    valid, error_msg = validate_noise_file(noise_path)
-    
-    if not valid:
-        error_msg = f"Noise file error during {error_context}: {error_msg}"
-        
-        if raise_on_failure:
-            # Determine appropriate exception type
-            if "not found" in error_msg.lower():
-                raise MissingNoiseFileError(error_msg)
-            elif "too small" in error_msg.lower() or "checksum" in error_msg.lower():
-                raise CorruptedNoiseFileError(error_msg)
-            else:
-                raise NoiseFileError(error_msg)
-        else:
-            logger.error(error_msg)
-            return False
-    
-    return True
-
-def get_noise_file_directories() -> dict:
-    """
-    Return standard directories where noise files are expected.
-    
-    Returns:
-        Dictionary with 'raw', 'processed', and 'fallback' paths
-    """
-    base_dir = Path(__file__).parent.parent.parent / "data"
-    return {
-        'raw': base_dir / "raw" / "ligo_noise",
-        'processed': base_dir / "processed" / "noise",
-        'fallback': base_dir / "raw" / "fallback_noise"
-    }
-
-def find_noise_file(
-    search_patterns: list,
-    directories: Optional[dict] = None
-) -> Optional[Path]:
-    """
-    Search for a noise file matching patterns in standard directories.
-    
-    Args:
-        search_patterns: List of filename patterns to search for
-        directories: Optional dict of directories to search (defaults to standard paths)
-        
-    Returns:
-        Path to first valid noise file found, or None
-    """
-    if directories is None:
-        directories = get_noise_file_directories()
-    
-    for directory_type, dir_path in directories.items():
-        if not dir_path.exists():
-            continue
-            
-        for pattern in search_patterns:
-            for file_path in dir_path.glob(pattern):
-                if file_path.is_file():
-                    valid, _ = validate_noise_file(str(file_path))
-                    if valid:
-                        logger.info(f"Found noise file: {file_path} (in {directory_type})")
-                        return file_path
-    
+    logger.warning(f"Noise file '{filename}' not found in any standard location.")
     return None
 
-def ensure_noise_file_availability(
-    required_patterns: list,
-    error_context: str = "analysis"
-) -> Path:
+def calculate_file_checksum(file_path: str) -> str:
     """
-    Ensure a noise file is available, raising a clear error if not.
+    Calculate SHA-256 checksum of a file.
     
     Args:
-        required_patterns: List of filename patterns that are acceptable
-        error_context: Context for error message
+        file_path: Path to the file.
         
     Returns:
-        Path to the found noise file
+        Hexadecimal checksum string.
         
     Raises:
-        MissingNoiseFileError: If no valid noise file is found
+        NoiseFileAccessError: If file cannot be read.
     """
-    noise_file = find_noise_file(required_patterns)
+    path = Path(file_path)
+    if not path.exists():
+        raise MissingNoiseFileError(str(path))
     
-    if noise_file is None:
-        directories = get_noise_file_directories()
-        dir_list = ", ".join([f"{k}: {v}" for k, v in directories.items()])
-        
-        error_msg = (
-            f"No valid noise file found for {error_context}. "
-            f"Searched patterns: {required_patterns}. "
-            f"Expected locations: {dir_list}. "
-            f"Please ensure LIGO O3 noise data is downloaded and placed in the appropriate directory."
-        )
-        
-        raise MissingNoiseFileError(error_msg)
+    try:
+        sha256_hash = hashlib.sha256()
+        with open(path, "rb") as f:
+            for byte_block in iter(lambda: f.read(4096), b""):
+                sha256_hash.update(byte_block)
+        return sha256_hash.hexdigest()
+    except PermissionError as e:
+        raise NoiseFileAccessError(str(path), f"Permission denied: {e}")
+    except Exception as e:
+        raise NoiseFileAccessError(str(path), f"Error reading file: {e}")
+
+def validate_noise_file(file_path: str, expected_checksum: Optional[str] = None) -> Tuple[bool, str]:
+    """
+    Validate a noise file for integrity and format.
     
-    return noise_file
+    Args:
+        file_path: Path to the noise file.
+        expected_checksum: Optional expected SHA-256 checksum.
+        
+    Returns:
+        Tuple of (is_valid, message)
+        
+    Raises:
+        MissingNoiseFileError: If file does not exist.
+        CorruptedNoiseFileError: If file is invalid.
+    """
+    path = Path(file_path)
+    
+    # Check existence
+    if not path.exists():
+        raise MissingNoiseFileError(str(path))
+    
+    # Check readability
+    try:
+        if not os.access(path, os.R_OK):
+            raise NoiseFileAccessError(str(path), "File is not readable")
+    except Exception as e:
+        raise NoiseFileAccessError(str(path), str(e))
+    
+    # Check file size (should be non-zero)
+    size = path.stat().st_size
+    if size == 0:
+        raise CorruptedNoiseFileError(str(path), "File is empty")
+    
+    # Validate format based on extension
+    suffix = path.suffix.lower()
+    if suffix in ['.h5', '.hdf5']:
+        try:
+            import h5py
+            with h5py.File(path, 'r') as f:
+                # Check for expected datasets
+                if 'data' not in f and 'timeseries' not in f and 'strain' not in f:
+                    raise CorruptedNoiseFileError(
+                        str(path), 
+                        "HDF5 file missing expected data dataset (data, timeseries, or strain)"
+                    )
+        except ImportError:
+            # h5py not available, skip HDF5 specific checks
+            logger.warning("h5py not available, skipping HDF5 validation")
+        except Exception as e:
+            raise CorruptedNoiseFileError(str(path), f"HDF5 validation failed: {e}")
+    elif suffix == '.txt' or suffix == '.csv':
+        # Basic text file check
+        try:
+            with open(path, 'r') as f:
+                first_line = f.readline()
+                if not first_line.strip():
+                    raise CorruptedNoiseFileError(str(path), "Text file is empty or invalid")
+        except Exception as e:
+            raise CorruptedNoiseFileError(str(path), f"Text file validation failed: {e}")
+    else:
+        logger.warning(f"Unknown file format: {suffix}, skipping format validation")
+    
+    # Checksum validation if provided
+    if expected_checksum:
+        actual_checksum = calculate_file_checksum(str(path))
+        if actual_checksum != expected_checksum:
+            raise CorruptedNoiseFileError(
+                str(path), 
+                "Checksum mismatch",
+                expected_checksum=expected_checksum,
+                actual_checksum=actual_checksum
+            )
+    
+    return True, "File validation successful"
+
+def load_noise_file_with_fallback(file_path: str, expected_checksum: Optional[str] = None) -> Tuple[Optional[Path], Optional[Exception]]:
+    """
+    Attempt to load a noise file with validation.
+    
+    This function attempts to load the file at the specified path.
+    If the file is missing or corrupted, it returns None and the
+    exception that occurred, allowing the caller to handle it gracefully.
+    
+    Args:
+        file_path: Path to the noise file.
+        expected_checksum: Optional expected checksum for validation.
+        
+    Returns:
+        Tuple of (Path if valid, Exception if error)
+    """
+    try:
+        # Try to find the file if exact path not provided
+        path = Path(file_path)
+        if not path.exists():
+            found_path = find_noise_file(path.name)
+            if found_path:
+                path = found_path
+            else:
+                raise MissingNoiseFileError(file_path, get_noise_file_directories())
+        
+        # Validate the file
+        is_valid, msg = validate_noise_file(str(path), expected_checksum)
+        if is_valid:
+            logger.info(f"Noise file validated successfully: {path}")
+            return path, None
+        else:
+            return None, CorruptedNoiseFileError(str(path), msg)
+            
+    except NoiseFileError as e:
+        logger.error(f"Noise file error: {e}")
+        return None, e
+    except Exception as e:
+        logger.error(f"Unexpected error loading noise file: {e}")
+        return None, e
+
+def handle_noise_file_error(error: Exception, context: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    """
+    Handle noise file errors gracefully and return structured error information.
+    
+    Args:
+        error: The exception that occurred.
+        context: Optional context dictionary with additional information.
+        
+    Returns:
+        Dictionary with error details suitable for logging or reporting.
+    """
+    error_info = {
+        "success": False,
+        "error_type": type(error).__name__,
+        "message": str(error),
+        "file_path": getattr(error, 'file_path', None),
+        "context": context or {}
+    }
+    
+    if isinstance(error, MissingNoiseFileError):
+        error_info["error_category"] = "missing"
+        error_info["search_paths"] = getattr(error, 'search_paths', [])
+        logger.critical(f"Missing noise file: {error_info['message']}")
+        
+    elif isinstance(error, CorruptedNoiseFileError):
+        error_info["error_category"] = "corrupted"
+        error_info["reason"] = getattr(error, 'reason', 'Unknown')
+        logger.critical(f"Corrupted noise file: {error_info['message']}")
+        
+    elif isinstance(error, NoiseFileAccessError):
+        error_info["error_category"] = "access"
+        logger.critical(f"Access error for noise file: {error_info['message']}")
+        
+    else:
+        error_info["error_category"] = "unknown"
+        logger.error(f"Unexpected noise file error: {error_info['message']}")
+    
+    return error_info
+
+def ensure_noise_file_availability(file_path: str, expected_checksum: Optional[str] = None) -> Path:
+    """
+    Ensure a noise file is available and valid. Raises on failure.
+    
+    This is the primary entry point for ensuring noise file availability.
+    It will attempt to find the file if not at the exact path, validate it,
+    and raise a specific exception if validation fails.
+    
+    Args:
+        file_path: Path to the noise file.
+        expected_checksum: Optional expected checksum.
+        
+    Returns:
+        Path to the validated noise file.
+        
+    Raises:
+        MissingNoiseFileError: If file cannot be found.
+        CorruptedNoiseFileError: If file is invalid.
+        NoiseFileAccessError: If file cannot be accessed.
+    """
+    path = Path(file_path)
+    
+    # If path doesn't exist, try to find it
+    if not path.exists():
+        found_path = find_noise_file(path.name)
+        if found_path:
+            path = found_path
+        else:
+            raise MissingNoiseFileError(file_path, get_noise_file_directories())
+    
+    # Validate and return
+    is_valid, msg = validate_noise_file(str(path), expected_checksum)
+    if not is_valid:
+        # This will raise an exception if validation fails
+        validate_noise_file(str(path), expected_checksum)
+    
+    logger.info(f"Noise file confirmed available: {path}")
+    return path

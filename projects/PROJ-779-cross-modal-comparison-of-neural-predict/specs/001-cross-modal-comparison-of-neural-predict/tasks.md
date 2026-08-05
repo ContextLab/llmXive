@@ -47,7 +47,7 @@
 - [X] T001b [P] Create `code/data/` directory and `code/data/__init__.py`
 - [X] T001c [P] Create `code/analysis/` and `code/validation/` directories with `__init__.py` files
 - [X] T002 [P] Create `requirements.txt` with pinned versions (mne, numpy, scipy, scikit-learn, pandas, statsmodels, h5py, requests, pytest, huggingface_hub)
-- [ ] T003 [P] Create virtualenv and install dependencies from `requirements.txt` <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [X] T003 [P] Create virtualenv and install dependencies from `requirements.txt` <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested -->
 - [X] T004 [P] Configure linting (ruff) and formatting (black) tools
 
 ---
@@ -64,7 +64,7 @@
 - [X] T008 Create base `code/data/data_loader.py` skeleton for dataset validation logic
 - [X] T009 Configure error handling and logging infrastructure in `code/utils/logger.py`
 - [ ] T010 Setup environment configuration management (load from `.env` or defaults)
-- [ ] T011 [P] **Setup**: Document "Real Data" assumption in `docs/README.md` and `code/config.py`, explicitly stating that all data must originate from OpenNeuro datasets and that no synthetic data generation is permitted.
+- [X] T011 [P] **Setup**: Document "Real Data" assumption in `docs/README.md` and `code/config.py`, explicitly stating that all data must originate from OpenNeuro datasets and that no synthetic data generation is permitted.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel (dependent on data availability)
 
@@ -72,7 +72,7 @@
 
 ## Phase 3: User Story 1 - Data Acquisition and Preprocessing Pipeline (Priority: P1) 🎯 MVP
 
-**Goal**: Download OpenNeuro datasets (ds000246, ds000117) [UNRESOLVED-CLAIM: c_7bc70f80 — status=not_enough_info], validate trial counts and sampling rates, and apply standardized preprocessing (filtering, ICA, re-referencing).
+**Goal**: Download OpenNeuro datasets (ds000246, ds000117), validate trial counts and sampling rates, and apply standardized preprocessing (filtering, ICA, re-referencing).
 
 **Independent Test**: Run `code/data/download.py` and `code/data/preprocess.py` on a subset; verify output files exist, artifact logs are generated, and sampling rate validation halts execution if <500 Hz.
 
@@ -93,7 +93,7 @@
 - [X] T019 [US1] Implement `code/data/preprocess.py` bandpass filter (low-frequency cutoff).
 - [X] T020 [US1] Implement `code/data/preprocess.py` ICA artifact removal (using MNE default settings, CPU-tractable). **Depends on T019.**
 - [X] T021 [US1] Implement `code/data/preprocess.py` common average re-referencing. **Depends on T020.**
-- [~] T022 [US1] Implement `code/data/preprocess.py` to **SAVE CLEANED DATA ARTIFACT** (`data/processed/cleaned_data.fif`) and trial rejection logging. **Depends on T021.**
+- [ ] T022 [US1] Implement `code/data/preprocess.py` to **SAVE CLEANED DATA ARTIFACT** (`data/processed/cleaned_data.fif`) and trial rejection logging. **Depends on T021.**
 - [X] T023 [US1] Create `code/main.py` orchestration script to chain download → validate → preprocess
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently. US2 and US3 can only start after T022 completes.
@@ -119,7 +119,7 @@
 - [X] T029 [US2] Implement `code/analysis/metrics.py` peak latency extraction (Auditory and Visual modalities)
 - [X] T030 [US2] Implement `code/analysis/metrics.py` mean amplitude extraction for the same windows <!-- FAILED: unspecified -->
 - [X] T031 [US2] Implement `code/analysis/metrics.py` to generate a summary table (DataFrame/JSON) with latency, amplitude, and modality labels
-- [~] T032 [US2] Update `code/main.py` to call extraction after preprocessing and save results to `data/results/metrics_summary.json`
+- [ ] T032 [US2] Update `code/main.py` to call extraction after preprocessing and save results to `data/results/metrics_summary.json`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently.
 
@@ -136,20 +136,20 @@
 - [X] T033 [P] [US3] Unit test for MNE lead field generation in `tests/unit/analysis/test_source.py` <!-- SKIPPED: non-mapping output -->
 - [X] T034 [P] [US3] Unit test for permutation test logic in `tests/unit/analysis/test_stats.py`
 - [X] T035 [P] [US3] Unit test for split-half reliability calculation in `tests/unit/validation/test_reliability.py`
-- [~] T036 [P] [US3] CI Integration test: Run full pipeline on GitHub Actions and verify time/memory constraints
+- [ ] T036 [P] [US3] CI Integration test: Run full pipeline on GitHub Actions and verify time/memory constraints
 
 ### Implementation for User Story 3
 
 - [X] T037 [US3] Implement `code/analysis/source.py` to setup ICBM152 head model and compute lead fields. **Depends on T022 (cleaned data) and T005 (config paths).**
 - [X] T038 [US3] Implement `code/analysis/source.py` MNE with depth weighting and orientation normalization. **Depends on T037 (Lead Fields).**
-- [~] T039 [US3] Implement `code/analysis/source.py` sensitivity analysis: sweep spatial smoothing kernel (σ ∈ {low, medium, high} mm), compute Coefficient of Variation, and **Generate and save `data/results/sensitivity_analysis.csv` containing source strength vs. sigma values** (FR-014). **Depends on T038.**
-- [ ] T040 [US3] Implement `code/analysis/stats.py` Mixed-Effects Permutation Test (sufficient permutations for robust inference) for **source strength** modality comparison. **Depends on T039.**
-- [ ] T041 [US3] Implement `code/analysis/stats.py` independent samples t-test for **source strength** modality comparison (Required by FR-006 'OR' condition). **Depends on T040.**
-- [ ] T042 [US3] Implement `code/analysis/stats.py` TOST (Two One-Sided Tests) for **source strength** equivalence. **Depends on T041.**
-- [ ] T043 [US3] Implement `code/analysis/stats.py` Benjamini-Hochberg correction for multiple comparisons. **Depends on T042.**
-- [ ] T044 [US3] Implement `code/validation/reliability.py` split-half reliability (Odd/Even trials) and Cronbach's α calculation (FR-013). **Depends on T039.**
+- [ ] T039 [US3] Implement `code/analysis/source.py` sensitivity analysis: sweep spatial smoothing kernel (σ ∈ {low, medium, high} mm), compute Coefficient of Variation, and **Generate and save `data/results/sensitivity_analysis.csv` containing source strength vs. sigma values** (FR-014). **Depends on T038.**
+- [X] T040 [US3] Implement `code/analysis/stats.py` Mixed-Effects Permutation Test (sufficient permutations for robust inference) for **source strength** modality comparison. **Depends on T039.**
+- [X] T041 [US3] Implement `code/analysis/stats.py` independent samples t-test for **source strength** modality comparison (Required by FR-006 'OR' condition). **Depends on T040.**
+- [X] T042 [US3] Implement `code/analysis/stats.py` TOST (Two One-Sided Tests) for **source strength** equivalence. **Depends on T041.**
+- [X] T043 [US3] Implement `code/analysis/stats.py` Benjamini-Hochberg correction for multiple comparisons. **Depends on T042.**
+- [X] T044 [US3] Implement `code/validation/reliability.py` split-half reliability (Odd/Even trials) and Cronbach's α calculation (FR-013). **Depends on T039.**
 - [ ] T045 [US3] Implement `code/main.py` to aggregate results from T037-T044 for final report generation (Report Assembly). **Depends on completion of T037-T044.**
-- [ ] T046 [US3] Implement `code/main.py` logic for Latency Classification: Check |Δt| < 50ms [UNRESOLVED-CLAIM: c_737cb22f — status=not_enough_info] (SC-001) and set classification field.
+- [ ] T046 [US3] Implement `code/main.py` logic for Latency Classification: Check |Δt| < 50ms (SC-001) and set classification field.
 - [ ] T047 [US3] Implement `code/main.py` logic for Source Overlap: Check **Dice > 0.6 AND TOST p < 0.05** (Plan Logic) and set classification field. **Note: Implements Plan Phase 4 logic, overriding obsolete SC-002 text.**
 - [ ] T048 [US3] **Data Integrity Verification**: Implement `code/main.py` to validate that processed data artifacts match the checksums recorded in `data/manifest.json` (generated during T015/T016). **Replace any 'random source' detection logic with this concrete checksum verification to ensure data originates from the fetched OpenNeuro sources.** **Depends on T045.**
 - [ ] T049 [US3] Generate final report in `data/results/final_report.md` stating: (A) Latency difference vs 50ms threshold, (B) Source overlap (Dice) & TOST result, (C) Reliability score, (D) Computational feasibility confirmation. **Depends on T046, T047, T048.**

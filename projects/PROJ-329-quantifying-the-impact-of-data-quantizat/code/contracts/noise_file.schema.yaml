@@ -1,0 +1,69 @@
+%YAML 1.2
+---
+$schema: http://json-schema.org/draft-07/schema#
+title: NoiseFileSchema
+description: Schema for validating noise file metadata and integrity information.
+type: object
+required:
+  - file_path
+  - checksum
+  - format
+  - created_at
+  - size_bytes
+properties:
+  file_path:
+    type: string
+    description: Absolute or relative path to the noise file.
+    pattern: "^[^\\s]+$"
+  checksum:
+    type: string
+    description: SHA-256 checksum of the file for integrity verification.
+    pattern: "^[a-f0-9]{64}$"
+  format:
+    type: string
+    description: File format (e.g., 'h5', 'txt', 'csv').
+    enum:
+      - h5
+      - hdf5
+      - txt
+      - csv
+  created_at:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp of file creation.
+  size_bytes:
+    type: integer
+    minimum: 1
+    description: File size in bytes.
+  validation_status:
+    type: string
+    description: Status of the last validation run.
+    enum:
+      - valid
+      - invalid
+      - pending
+      - unknown
+  validation_message:
+    type: string
+    description: Optional message from validation.
+  search_paths:
+    type: array
+    items:
+      type: string
+    description: List of directories where the file was searched for.
+  error_details:
+    type: object
+    description: Detailed error information if validation failed.
+    properties:
+      error_type:
+        type: string
+      error_category:
+        type: string
+        enum:
+          - missing
+          - corrupted
+          - access
+          - unknown
+      message:
+        type: string
+additionalProperties: true

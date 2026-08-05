@@ -1824,24 +1824,6 @@
   updated_at: '2026-07-18T11:28:39Z'
 - artifact_path: projects/PROJ-476-quantifying-correlations-between-solar-w/specs/001-quantifying-correlations-between-solar-w/tasks.md
   attempts: 1
-  canonical: NOAA variables Kp and Dst
-  claim_id: c_8804d049
-  context: 'MUST define the following constants with exact values: ... NOAA_VARS=[''Kp'',
-    ''Dst'']'
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/NOAA_variables_Kp_and_Dst
-  kind: entity_fact
-  raw_text: NOAA_VARS=['Kp', 'Dst']
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-18T11:28:56Z'
-- artifact_path: projects/PROJ-476-quantifying-correlations-between-solar-w/specs/001-quantifying-correlations-between-solar-w/tasks.md
-  attempts: 1
   canonical: effective sample size formula N times 1 minus rho 1 over 1 plus rho 1
   claim_id: c_3309ebe8
   context: MUST use formula N_{eff} = N \frac{1-\rho_1}{1+\rho_1} with synthetic data
@@ -3016,3 +2998,499 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-18T12:09:39Z'
+- artifact_path: projects/PROJ-476-quantifying-correlations-between-solar-w/specs/001-quantifying-correlations-between-solar-w/tasks.md
+  attempts: 0
+  canonical: ACE variables are N_p, T_p, and He+_ratio
+  claim_id: c_c53ab88f
+  context: 'MUST define the following constants with exact values: ... ACE_VARS=[''N_p'',
+    ''T_p'', ''He+_ratio'']...'
+  evidence:
+    entailment_evidence: ACE variables are N p, T p, and He2+ ratio
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/ACE_variables_are_N_p,_T_p,_and_He2+_ratio
+  kind: entity_fact
+  raw_text: ACE_VARS=['N_p', 'T_p', 'He+_ratio']
+  resolved_value: ACE variables are N_p, T_p, and He2+_ratio
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-05T16:05:40Z'
+- artifact_path: projects/PROJ-476-quantifying-correlations-between-solar-w/specs/001-quantifying-correlations-between-solar-w/tasks.md
+  attempts: 1
+  canonical: Training period 1998-2017 and test period 2018-2020
+  claim_id: c_4b8ea4f3
+  context: 'Create code/config.py as a Python constants module. MUST define the following
+    constants with exact values: TRAIN_START=1998, TRAIN_END=2017, TEST_START=2018,
+    TEST_END=2020...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: TRAIN_START=1998, TRAIN_END=2017, TEST_START=2018, TEST_END=2020
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T16:06:18Z'
+- artifact_path: projects/PROJ-476-quantifying-correlations-between-solar-w/specs/001-quantifying-correlations-between-solar-w/tasks.md
+  attempts: 1
+  canonical: NOAA variables are Kp and Dst
+  claim_id: c_3ffe4848
+  context: 'MUST define the following constants with exact values: ... NOAA_VARS=[''Kp'',
+    ''Dst''].'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/NOAA_variables_are_Kp_and_Dst
+  kind: entity_fact
+  raw_text: NOAA_VARS=['Kp', 'Dst']
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T16:06:41Z'
+- artifact_path: projects/PROJ-476-quantifying-correlations-between-solar-w/specs/001-quantifying-correlations-between-solar-w/tasks.md
+  attempts: 1
+  canonical: Streaming chunk size is 100000 rows
+  claim_id: c_4ba36ede
+  context: Add STREAMING_CHUNK_SIZE=100000 (rows) and MAX_MEMORY_GB=6.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: STREAMING_CHUNK_SIZE=100000 rows
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T16:07:04Z'
+- artifact_path: projects/PROJ-476-quantifying-correlations-between-solar-w/specs/001-quantifying-correlations-between-solar-w/tasks.md
+  attempts: 1
+  canonical: Maximum memory limit is 6 GB
+  claim_id: c_8eb19024
+  context: Add STREAMING_CHUNK_SIZE=100000 (rows) and MAX_MEMORY_GB=6.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: MAX_MEMORY_GB=6
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T16:07:20Z'
+- artifact_path: projects/PROJ-476-quantifying-correlations-between-solar-w/specs/001-quantifying-correlations-between-solar-w/tasks.md
+  attempts: 1
+  canonical: Peak RAM usage limit is 7 GB
+  claim_id: c_821cd97d
+  context: Implement streaming and chunked processing to handle the full 20-year dataset
+    within 7GB RAM limits.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Peak RAM usage must be under 7GB
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T16:08:15Z'
+- artifact_path: projects/PROJ-476-quantifying-correlations-between-solar-w/specs/001-quantifying-correlations-between-solar-w/tasks.md
+  attempts: 1
+  canonical: Effective sample size formula using lag-1 autocorrelation
+  claim_id: c_b7d3025a
+  context: MUST use formula Neff = N (1-rho_1)/(1+rho_1) with synthetic data...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Neff formula is Neff = N * (1 - rho_1) / (1 + rho_1)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T16:08:49Z'
+- artifact_path: projects/PROJ-476-quantifying-correlations-between-solar-w/specs/001-quantifying-correlations-between-solar-w/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction divisor is 30
+  claim_id: c_8b63a50a
+  context: "MUST use a HARDCODED divisor of 30 (Several params \xD7 a set of indices\
+    \ \xD7 5 lags) to calculate alpha_adj = 0.05 / 30."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Bonferroni divisor is 30
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T16:09:17Z'
+- artifact_path: projects/PROJ-476-quantifying-correlations-between-solar-w/specs/001-quantifying-correlations-between-solar-w/tasks.md
+  attempts: 1
+  canonical: Significance threshold for correlation coefficient is 0.5
+  claim_id: c_582e0056
+  context: MUST report whether the composition-index pair exceeds |r| > 0.5 AND has
+    the Bonferroni-corrected p < 0.05...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Global significance threshold is |r| > 0.5
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T16:09:18Z'
+- artifact_path: projects/PROJ-476-quantifying-correlations-between-solar-w/specs/001-quantifying-correlations-between-solar-w/tasks.md
+  attempts: 1
+  canonical: Gap interpolation threshold is 6 hours
+  claim_id: c_dfabc06c
+  context: "MUST perform linear interpolation for gaps \u2264 6h. MUST log interpolated\
+    \ intervals. MUST raise a warning or exclude gaps > 6h..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Interpolation is performed for gaps \u2264 6h"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T16:09:19Z'
+- artifact_path: projects/PROJ-476-quantifying-correlations-between-solar-w/specs/001-quantifying-correlations-between-solar-w/tasks.md
+  attempts: 1
+  canonical: Visualization file size limit is 5 MB
+  claim_id: c_dfbc11d4
+  context: "MUST use assert os.path.getsize(filepath) <= 5*1024*1024 to verify PNG\
+    \ generation \u2264 5MB."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Output visualization files must be \u2264 5MB"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T16:09:19Z'
+- artifact_path: projects/PROJ-476-quantifying-correlations-between-solar-w/specs/001-quantifying-correlations-between-solar-w/tasks.md
+  attempts: 1
+  canonical: ACE data source URL is ftp://ftp.ngdc.noaa.gov/STP/space-weather/interplanetary-data/ace/
+  claim_id: c_1985940b
+  context: MUST add a constant NOAA_URL with the value ftp://ftp.ngdc.noaa.gov/STP/space-weather/interplanetary-data/ace/...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/ACE_data_source_URL_is_ftp://ftp.ngdc.noaa.gov/STP/space-wea
+  kind: entity_fact
+  raw_text: NOAA URL is ftp://ftp.ngdc.noaa.gov/STP/space-weather/interplanetary-data/ace/
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T16:09:28Z'
+- artifact_path: projects/PROJ-476-quantifying-correlations-between-solar-w/specs/001-quantifying-correlations-between-solar-w/tasks.md
+  attempts: 1
+  canonical: NOAA Kp/Dst data source URL is ftp://ftp.ngdc.noaa.gov/STP/space-weather/indices/kp/
+  claim_id: c_7acc1673
+  context: MUST add ... NOAA_KP_DST_URL with the value ftp://ftp.ngdc.noaa.gov/STP/space-weather/indices/kp/.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/NOAA_Kp/Dst_data_source_URL_is_ftp://ftp.ngdc.noaa.gov/STP/s
+  kind: entity_fact
+  raw_text: NOAA Kp/Dst URL is ftp://ftp.ngdc.noaa.gov/STP/space-weather/indices/kp/
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T16:09:36Z'
+- artifact_path: projects/PROJ-476-quantifying-correlations-between-solar-w/specs/001-quantifying-correlations-between-solar-w/tasks.md
+  attempts: 1
+  canonical: Correlation results table row count is 30
+  claim_id: c_c3e80683
+  context: MUST verify artifacts/correlations.csv has 30 rows if all vars present,
+    or fewer if missing.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Correlation results table has 30 rows if all variables are present
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T16:09:44Z'
+- artifact_path: projects/PROJ-476-quantifying-correlations-between-solar-w/specs/001-quantifying-correlations-between-solar-w/tasks.md
+  attempts: 1
+  canonical: Full dataset time span is 1998 to 2020
+  claim_id: c_d5a41cea
+  context: MUST calculate the lag-1 autocorrelation ... for the full continuous series
+    (1998-2020).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Full dataset span is 1998-2020
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T16:10:17Z'
+- artifact_path: projects/PROJ-476-quantifying-correlations-between-solar-w/specs/001-quantifying-correlations-between-solar-w/tasks.md
+  attempts: 1
+  canonical: Training period 1998-2017 and test period 2018-2020
+  claim_id: c_1a9a8cf3
+  context: 'MUST define the following constants with exact values: TRAIN_START=1998,
+    TRAIN_END=2017, TEST_START=2018, TEST_END=2020'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: TRAIN_START=1998, TRAIN_END=2017, TEST_START=2018, TEST_END=2020
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T16:11:56Z'
+- artifact_path: projects/PROJ-476-quantifying-correlations-between-solar-w/specs/001-quantifying-correlations-between-solar-w/tasks.md
+  attempts: 2
+  canonical: NOAA variables Kp and Dst
+  claim_id: c_8804d049
+  context: 'MUST define the following constants with exact values: ... NOAA_VARS=[''Kp'',
+    ''Dst'']'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/NOAA_variables_Kp_and_Dst
+  kind: entity_fact
+  raw_text: NOAA_VARS=['Kp', 'Dst']
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T16:11:58Z'
+- artifact_path: projects/PROJ-476-quantifying-correlations-between-solar-w/specs/001-quantifying-correlations-between-solar-w/tasks.md
+  attempts: 1
+  canonical: Streaming chunk size 100000 rows
+  claim_id: c_cbf3c4b3
+  context: Add STREAMING_CHUNK_SIZE=100000 (rows) and MAX_MEMORY_GB=6
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: STREAMING_CHUNK_SIZE=100000
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T16:12:34Z'
+- artifact_path: projects/PROJ-476-quantifying-correlations-between-solar-w/specs/001-quantifying-correlations-between-solar-w/tasks.md
+  attempts: 1
+  canonical: Maximum memory limit 6 GB
+  claim_id: c_3e459672
+  context: Add STREAMING_CHUNK_SIZE=100000 (rows) and MAX_MEMORY_GB=6
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: MAX_MEMORY_GB=6
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T16:12:34Z'
+- artifact_path: projects/PROJ-476-quantifying-correlations-between-solar-w/specs/001-quantifying-correlations-between-solar-w/tasks.md
+  attempts: 1
+  canonical: Peak RAM usage limit 7 GB
+  claim_id: c_3377a3e4
+  context: assert peak RAM < 7GB
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Peak RAM usage must be \u2264 7GB"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T16:12:35Z'
+- artifact_path: projects/PROJ-476-quantifying-correlations-between-solar-w/specs/001-quantifying-correlations-between-solar-w/tasks.md
+  attempts: 1
+  canonical: Total runtime limit 6 hours
+  claim_id: c_ea8e08c7
+  context: "asserts total runtime is \u2264 6 hours (SC-001)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Total runtime must be \u2264 6 hours"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T16:12:36Z'
+- artifact_path: projects/PROJ-476-quantifying-correlations-between-solar-w/specs/001-quantifying-correlations-between-solar-w/tasks.md
+  attempts: 1
+  canonical: Bonferroni divisor 30
+  claim_id: c_72819b23
+  context: "MUST use a HARDCODED divisor of 30 (Several params \xD7 a set of indices\
+    \ \xD7 5 lags) to calculate \u03B1_adj = 0.05 / 30"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Bonferroni divisor is fixed at 30
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T16:12:38Z'
+- artifact_path: projects/PROJ-476-quantifying-correlations-between-solar-w/specs/001-quantifying-correlations-between-solar-w/tasks.md
+  attempts: 1
+  canonical: Bonferroni alpha adjustment 0.00166
+  claim_id: c_f9cd7ae3
+  context: "calculate \u03B1_adj = 0.05 / 30"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Bonferroni alpha adjustment is 0.05 / 30
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T16:12:46Z'
+- artifact_path: projects/PROJ-476-quantifying-correlations-between-solar-w/specs/001-quantifying-correlations-between-solar-w/tasks.md
+  attempts: 1
+  canonical: Effective sample size formula N_eff = N * (1 - rho_1) / (1 + rho_1)
+  claim_id: c_6d833ad4
+  context: apply the Pyper & Peterman formula ... formula N_eff = N \frac{1-\rho_1}{1+\rho_1}
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Neff formula is N_eff = N * (1 - rho_1) / (1 + rho_1)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T16:12:51Z'
+- artifact_path: projects/PROJ-476-quantifying-correlations-between-solar-w/specs/001-quantifying-correlations-between-solar-w/tasks.md
+  attempts: 1
+  canonical: ACE data source URL
+  claim_id: c_8b426f52
+  context: MUST add a constant NOAA_URL with the value ftp://ftp.ngdc.noaa.gov/STP/space-weather/interplanetary-data/ace/
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/ACE_data_source_URL
+  kind: entity_fact
+  raw_text: Data source for ACE is ftp://ftp.ngdc.noaa.gov/STP/space-weather/interplanetary-data/ace/
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T16:13:02Z'
+- artifact_path: projects/PROJ-476-quantifying-correlations-between-solar-w/specs/001-quantifying-correlations-between-solar-w/tasks.md
+  attempts: 1
+  canonical: NOAA Kp/Dst data source URL
+  claim_id: c_6fc88b0b
+  context: NOAA_KP_DST_URL with the value ftp://ftp.ngdc.noaa.gov/STP/space-weather/indices/kp/
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/NOAA_Kp/Dst_data_source_URL
+  kind: entity_fact
+  raw_text: Data source for NOAA Kp/Dst is ftp://ftp.ngdc.noaa.gov/STP/space-weather/indices/kp/
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T16:13:15Z'
+- artifact_path: projects/PROJ-476-quantifying-correlations-between-solar-w/specs/001-quantifying-correlations-between-solar-w/tasks.md
+  attempts: 1
+  canonical: ACE variable names N_p T_p He2+_ratio
+  claim_id: c_d634d864
+  context: ACE variable names MUST match N_p, T_p, He2+_ratio exactly or the pipeline
+    aborts
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/ACE_variable_names_N_p_T_p_He2+_ratio
+  kind: entity_fact
+  raw_text: ACE variable names must be N_p, T_p, He2+_ratio
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T16:13:28Z'
+- artifact_path: projects/PROJ-476-quantifying-correlations-between-solar-w/specs/001-quantifying-correlations-between-solar-w/tasks.md
+  attempts: 1
+  canonical: Gap interpolation limit 6 hours
+  claim_id: c_a5618c53
+  context: "MUST perform linear interpolation for gaps \u2264 6h"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Gap interpolation limit is 6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T16:13:53Z'
+- artifact_path: projects/PROJ-476-quantifying-correlations-between-solar-w/specs/001-quantifying-correlations-between-solar-w/tasks.md
+  attempts: 1
+  canonical: Visualization file size limit 5 MB
+  claim_id: c_dc5ca5eb
+  context: "verify PNG generation \u2264 5MB"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Visualization file size limit is 5MB
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T16:14:31Z'
+- artifact_path: projects/PROJ-476-quantifying-correlations-between-solar-w/specs/001-quantifying-correlations-between-solar-w/tasks.md
+  attempts: 1
+  canonical: Correlation effect size threshold 0.5
+  claim_id: c_10a5f524
+  context: flags pairs with |r| > 0.5
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Correlation significance threshold is |r| > 0.5
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T16:14:31Z'
+- artifact_path: projects/PROJ-476-quantifying-correlations-between-solar-w/specs/001-quantifying-correlations-between-solar-w/tasks.md
+  attempts: 1
+  canonical: Bonferroni p-value threshold 0.05
+  claim_id: c_f6e478d3
+  context: Bonferroni p < 0.05
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Correlation significance p-value threshold is < 0.05
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T16:14:32Z'

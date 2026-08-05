@@ -1,157 +1,177 @@
+"""
+Utility functions for gravitational wave signal analysis.
+
+Provides:
+- Fixed Full-Scale Range (FSR) quantization logic
+- SNR calculation helpers
+- Quantization level verification
+"""
 import numpy as np
 from typing import Tuple, Union, Optional
 
-def quantize_fixed_fsr(signal: np.ndarray, bits: int, fsr: Optional[float] = None) -> np.ndarray:
-    """
-    Apply Fixed Full-Scale Range (FSR) quantization to a signal.
-    
-    This function implements the quantization logic required for FR-002.
-    It maps floating point signal values to discrete integer levels within
-    a specified Full-Scale Range (FSR).
-    
-    Parameters
-    ----------
-    signal : np.ndarray
-        Input signal array (float64).
-    bits : int
-        Number of bits for quantization.
-    fsr : float, optional
-        Full-Scale Range. If None, inferred as 2 * max(|signal|) to ensure
-        the signal fits within the range without clipping, unless the signal
-        is empty.
-        
-    Returns
-    -------
-    np.ndarray
-        Quantized signal (float64), reconstructed from integer levels.
-        
-    Notes
-    -----
-    - The number of quantization levels is L = 2^bits.
-    - The step size is delta = FSR / L.
-    - Values outside [-FSR/2, FSR/2] are clipped to the nearest boundary.
-    """
-    if bits <= 0:
-        raise ValueError(f"Bits must be positive, got {bits}")
-        
-    num_levels = 1 << bits  # 2^bits
-    
-    # Determine FSR if not provided
-    if fsr is None:
-        if signal.size == 0:
-            fsr = 1.0
-        else:
-            # Set FSR to cover the range of the signal with a small margin
-            # to prevent clipping of the absolute max, or strictly use max range
-            max_val = np.max(np.abs(signal))
-            if max_val == 0:
-                fsr = 1.0
-            else:
-                fsr = 2.0 * max_val
-    
-    half_fsr = fsr / 2.0
-    delta = fsr / num_levels
-    
-    # Normalize signal to [-half_fsr, half_fsr] range
-    # Clip to handle any values outside the FSR
-    clipped_signal = np.clip(signal, -half_fsr, half_fsr)
-    
-    # Quantization:
-    # 1. Shift to [0, FSR]
-    shifted = clipped_signal + half_fsr
-    # 2. Scale to [0, num_levels]
-    scaled = shifted / delta
-    # 3. Round to nearest integer (quantize)
-    # We use np.round to handle the discrete levels. 
-    # To ensure we stay within [0, num_levels-1], we clip again after rounding
-    quantized_int = np.round(scaled).astype(np.int32)
-    quantized_int = np.clip(quantized_int, 0, num_levels - 1)
-    
-    # Reconstruct:
-    # 1. Scale back to [0, FSR]
-    reconstructed_shifted = quantized_int * delta
-    # 2. Shift back to [-half_fsr, half_fsr]
-    reconstructed = reconstructed_shifted - half_fsr
-    
-    return reconstructed
 
-def calculate_snr(signal: np.ndarray, noise: np.ndarray) -> float:
+def get_quantization_levels(bit_depth: int) -> int:
     """
-    Calculate the Signal-to-Noise Ratio (SNR) of a signal injected into noise.
+    Calculate the number of discrete levels for a given bit depth.
     
-    Parameters
-    ----------
-    signal : np.ndarray
-        Signal array.
-    noise : np.ndarray
-        Noise array (assumed to be zero-mean or the noise component).
+    Args:
+        bit_depth: Number of bits for quantization (e.g., 1, 8, 16)
         
-    Returns
-    -------
-    float
-        Calculated SNR.
+    Returns:
+        Number of discrete levels (2^bit_depth)
     """
-    # Simple energy ratio SNR: E_signal / E_noise
-    # In GW analysis, matched filtering SNR is often used, but for
-    # this utility, we use the standard power ratio definition.
-    signal_power = np.mean(signal ** 2)
-    noise_power = np.mean(noise ** 2)
-    
-    if noise_power == 0:
-        return float('inf')
-        
-    return float(np.sqrt(signal_power / noise_power))
+    if bit_depth < 1:
+        raise ValueError("Bit depth must be at least 1")
+    return 2 ** bit_depth
+
 
 def calculate_optimal_fsr(signal: np.ndarray) -> float:
     """
-    Calculate the optimal FSR to minimize clipping for a given signal.
+    Calculate the optimal Full-Scale Range (FSR) based on signal amplitude.
     
-    Parameters
-    ----------
-    signal : np.ndarray
-        Input signal array.
+    The FSR is set to cover the full range of the signal, from minimum to maximum.
+    
+    Args:
+        signal: Input signal array (numpy array)
         
-    Returns
-    -------
-    float
-        Optimal FSR value (2 * max(|signal|)).
+    Returns:
+        FSR value (float)
     """
-    if signal.size == 0:
-        return 1.0
-    return 2.0 * np.max(np.abs(signal))
+    signal_min = np.min(signal)
+    signal_max = np.max(signal)
+    return float(signal_max - signal_min)
 
-def get_quantization_levels(bits: int) -> int:
-    """
-    Get the number of quantization levels for a given bit depth.
-    
-    Parameters
-    ----------
-    bits : int
-        Number of bits.
-        
-    Returns
-    -------
-    int
-        Number of levels (2^bits).
-    """
-    return 1 << bits
 
-def verify_quantization_levels(quantized_signal: np.ndarray, bits: int) -> bool:
+def quantize_fixed_fsr(
+    signal: np.ndarray,
+    bit_depth: int,
+    fsr: Optional[float] = None
+) -> np.ndarray:
     """
-    Verify that the quantized signal contains no more than 2^bits unique levels.
+    Apply Fixed Full-Scale Range (FSR) quantization to a signal.
     
-    Parameters
-    ----------
-    quantized_signal : np.ndarray
-        Quantized signal array.
-    bits : int
-        Expected bit depth.
+    This function quantizes the input signal to a specified number of bits
+    using a fixed full-scale range. If FSR is not provided, it is calculated
+    from the signal's amplitude range.
+    
+    Args:
+        signal: Input signal array (numpy array)
+        bit_depth: Number of bits for quantization (e.g., 1, 8, 16)
+        fsr: Optional full-scale range. If None, calculated from signal.
+            
+    Returns:
+        Quantized signal array (numpy array)
         
-    Returns
-    -------
-    bool
-        True if unique levels <= 2^bits, False otherwise.
+    Raises:
+        ValueError: If bit_depth < 1 or signal is empty
     """
-    num_levels = get_quantization_levels(bits)
-    unique_count = len(np.unique(quantized_signal))
-    return unique_count <= num_levels
+    if bit_depth < 1:
+        raise ValueError("Bit depth must be at least 1")
+    
+    if len(signal) == 0:
+        raise ValueError("Signal cannot be empty")
+    
+    signal = np.asarray(signal, dtype=np.float64)
+    
+    # Calculate FSR if not provided
+    if fsr is None:
+        fsr = calculate_optimal_fsr(signal)
+    
+    if fsr == 0:
+        # Handle constant signal case
+        return np.zeros_like(signal)
+    
+    # Number of quantization levels
+    num_levels = get_quantization_levels(bit_depth)
+    
+    # Normalize signal to [0, 1] range based on FSR
+    # Center the FSR around the signal mean to handle bipolar signals
+    signal_center = np.mean(signal)
+    signal_normalized = (signal - signal_center) / (fsr / 2)
+    
+    # Clip to [-1, 1] to handle outliers
+    signal_normalized = np.clip(signal_normalized, -1.0, 1.0)
+    
+    # Map to discrete levels [0, num_levels-1]
+    # Scale from [-1, 1] to [0, num_levels-1]
+    signal_quantized_idx = ((signal_normalized + 1.0) / 2.0) * (num_levels - 1)
+    
+    # Round to nearest integer
+    signal_quantized_idx = np.round(signal_quantized_idx).astype(np.int64)
+    
+    # Map back to amplitude range
+    # Scale from [0, num_levels-1] to [-fsr/2, fsr/2]
+    signal_quantized = (signal_quantized_idx / (num_levels - 1) - 0.5) * fsr + signal_center
+    
+    return signal_quantized
+
+
+def calculate_snr(
+    signal: np.ndarray,
+    noise: Optional[np.ndarray] = None,
+    noise_power: Optional[float] = None
+) -> float:
+    """
+    Calculate the Signal-to-Noise Ratio (SNR) for a given signal.
+    
+    Args:
+        signal: Signal array (numpy array)
+        noise: Optional noise array. If provided, SNR is calculated as
+               signal_power / noise_power.
+        noise_power: Optional pre-computed noise power. If provided, used instead
+                    of calculating from noise array.
+                    
+    Returns:
+        SNR value (float). If no noise info provided, returns signal power.
+        
+    Raises:
+        ValueError: If both noise and noise_power are None, or if signal is empty
+    """
+    if len(signal) == 0:
+        raise ValueError("Signal cannot be empty")
+    
+    signal_power = np.mean(signal ** 2)
+    
+    if noise is not None:
+        if len(noise) != len(signal):
+            raise ValueError("Signal and noise arrays must have the same length")
+        noise_power_actual = np.mean(noise ** 2)
+        if noise_power_actual == 0:
+            return float('inf')
+        return float(signal_power / noise_power_actual)
+    elif noise_power is not None:
+        if noise_power == 0:
+            return float('inf')
+        return float(signal_power / noise_power)
+    else:
+        raise ValueError("Either 'noise' array or 'noise_power' must be provided")
+
+
+def verify_quantization_levels(
+    quantized_signal: np.ndarray,
+    bit_depth: int,
+    tolerance: float = 1e-10
+) -> Tuple[bool, int]:
+    """
+    Verify that a quantized signal has the expected number of unique levels.
+    
+    Args:
+        quantized_signal: Quantized signal array (numpy array)
+        bit_depth: Expected bit depth
+        tolerance: Tolerance for floating-point comparison when counting levels
+                    
+    Returns:
+        Tuple of (is_valid, actual_num_levels)
+        - is_valid: True if actual levels <= expected levels
+        - actual_num_levels: Number of unique levels found in the signal
+    """
+    expected_levels = get_quantization_levels(bit_depth)
+    
+    # Count unique levels with tolerance
+    # Round to nearest representable value to handle floating-point errors
+    rounded_signal = np.round(quantized_signal / tolerance) * tolerance
+    actual_levels = len(np.unique(rounded_signal))
+    
+    is_valid = actual_levels <= expected_levels
+    
+    return is_valid, actual_levels

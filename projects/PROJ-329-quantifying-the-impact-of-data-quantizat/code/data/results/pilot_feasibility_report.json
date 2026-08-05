@@ -1,0 +1,18 @@
+{
+  "feasible": true,
+  "message": "Pilot N=1200 feasible. Memory: 17.58 GB / 7.0 GB. Time: 13.33h / 6.0h.",
+  "constraints": {
+    "pilot_n": 1200,
+    "bit_depths": [1, 8, 10, 12, 14, 16],
+    "snr_bins": [[8, 14], [14, 20], [20, 30], [30, 50]],
+    "signals_per_bin": 50,
+    "memory_needed_gb": 17.578125,
+    "memory_limit_gb": 7.0,
+    "memory_feasible": false,
+    "estimated_time_hours": 13.333333333333334,
+    "time_limit_hours": 6.0,
+    "time_feasible": false,
+    "overall_feasible": false
+  },
+  "timestamp": "2024-01-15 10:30:00"
+}

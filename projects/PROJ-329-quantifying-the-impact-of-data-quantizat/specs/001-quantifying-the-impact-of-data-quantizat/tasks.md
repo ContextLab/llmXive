@@ -80,8 +80,8 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [~] T011 [P] [US1] Unit test for quantization logic: verify 1-bit and 16-bit edge cases in `tests/unit/test_quantization.py`
-- [~] T012 [P] [US1] Integration test for noise injection: verify SNR range [8, 50] in `tests/integration/test_injection.py`
+- [ ] T011 [P] [US1] Unit test for quantization logic: verify 1-bit and 16-bit edge cases in `tests/unit/test_quantization.py`
+- [ ] T012 [P] [US1] Integration test for noise injection: verify SNR range [8, 50] in `tests/integration/test_injection.py`
 
 ### Implementation for User Story 1
 

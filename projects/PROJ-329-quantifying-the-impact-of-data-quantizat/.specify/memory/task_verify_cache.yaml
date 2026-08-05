@@ -1,0 +1,39 @@
+T005:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, scripts, or documentation implementing checksumming for the `data/raw/`\
+    \ and `data/processed/` directories was provided. The required data\u2011hygiene\
+    \ utilities are missing, so the task is not satisfied."
+T008:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration files, tests, or documentation were provided that show\
+    \ error handling for missing or corrupted noise files has been added. The claim\
+    \ lacks any tangible artifact demonstrating the required graceful\u2011failure\
+    \ behavior, so the task is not satisfied."
+T009:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No configuration files, scripts, or documentation were provided that set random\
+    \ seeds, define CI resource limits (2\u202FCPU, 7\u202FGB RAM), or contain the\
+    \ calculated batch\u2011size constraints for a pilot of N\u202F=\u202F1200. The\
+    \ required artifacts are missing, so the task is not satisfied."
+T010:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No calculation, table, or written documentation showing that the batch size\
+    \ N\u202F=\u202F1200 fits within the 6\u2011hour CI time limit and 7\u202FGB RAM\
+    \ constraint is present. The implementer supplied only the task description without\
+    \ any quantitative analysis or evidence, so the required artifact is missing."
+T011:
+  c: false
+  h: 0cda5cc333025863c49bb3240eaaf3bbf9d003922d3c5b31d014b9b4b791acbc
+  r: "The required artifact `tests/unit/test_quantization.py` is missing entirely,\
+    \ so no unit test code exists to verify the 1\u2011bit and 16\u2011bit edge cases.\
+    \ Without this file, the task\u2019s deliverable is not present."
+T012:
+  c: false
+  h: 7311d8f863048d58dfda2d11d796e6816cb3fbefcb25beb458cc69cdd982d3e0
+  r: "The required artifact `tests/integration/test_injection.py` does not exist,\
+    \ so no integration test verifying the SNR range [8,\u202F50] is present. The\
+    \ task\u2019s core deliverable is missing."
