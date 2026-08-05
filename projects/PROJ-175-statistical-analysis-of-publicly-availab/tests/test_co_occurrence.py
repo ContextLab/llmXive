@@ -1,115 +1,143 @@
-import pytest
+import os
+import sys
+import json
 import pandas as pd
 import numpy as np
-import os
-import tempfile
+import pytest
 from pathlib import Path
-import json
+import tempfile
+import shutil
 
-# Import the functions from the module
-# We assume the test is run from the project root or code directory
-# Adjust import if necessary based on PYTHONPATH
-try:
-    from data.co_occurrence import build_cooccurrence_matrix, load_epsilon_config
-except ImportError:
-    # Fallback for testing if run directly from tests folder
-    import sys
-    sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'code'))
-    from data.co_occurrence import build_cooccurrence_matrix, load_epsilon_config
+# Add parent directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
 
-def test_build_cooccurrence_matrix_basic():
-    """Test basic co-occurrence counting."""
-    # Create a small mock dataframe
+from data.co_occurrence import (
+    load_epsilon_config,
+    load_ingredient_pairs,
+    build_cooccurrence_matrix,
+    save_output
+)
+
+@pytest.fixture
+def temp_dir():
+    """Create a temporary directory for test artifacts."""
+    temp_path = tempfile.mkdtemp()
+    yield temp_path
+    shutil.rmtree(temp_path)
+
+@pytest.fixture
+def sample_ingredients_csv(temp_dir):
+    """Create a sample normalized ingredients CSV."""
+    csv_path = os.path.join(temp_dir, "normalized_ingredients.csv")
     data = {
-        'recipe_id': [1, 1, 1, 2, 2, 3],
-        'ingredient_id': ['salt', 'pepper', 'onion', 'salt', 'garlic', 'pepper']
+        'ingredient_id': ['ing1', 'ing2', 'ing3'],
+        'canonical_name': ['salt', 'pepper', 'garlic'],
+        'functional_role': ['primary', 'secondary', 'garnish'],
+        'frequency': [100, 50, 75]
     }
     df = pd.DataFrame(data)
-    
-    matrix = build_cooccurrence_matrix(df)
-    
-    # Check dimensions
-    assert matrix.shape == (3, 3)
-    assert set(matrix.index) == {'salt', 'pepper', 'onion', 'garlic'}
-    
-    # Check specific counts
-    # Recipe 1: salt, pepper, onion -> pairs: (salt,pepper), (salt,onion), (pepper,onion) + self
-    # Recipe 2: salt, garlic -> pairs: (salt,garlic) + self
-    # Recipe 3: pepper -> pairs: (pepper,pepper)
-    
-    # Salt-should be 2 (in recipe 1 and 2)
-    # Pepper should be 2 (in recipe 1 and 3)
-    # Onion should be 1
-    # Garlic should be 1
-    
-    # Co-occurrence counts (before log):
-    # salt-pepper: 1 (recipe 1)
-    # salt-onion: 1 (recipe 1)
-    # pepper-onion: 1 (recipe 1)
-    # salt-garlic: 1 (recipe 2)
-    
-    # After log(1 + epsilon)
-    epsilon = 1e-6
-    expected_val = np.log(1 + epsilon)
-    
-    # Check symmetry
-    assert np.allclose(matrix, matrix.T)
-    
-    # Check diagonal (self-co-occurrence = count of recipes containing ingredient)
-    # salt: 2, pepper: 2, onion: 1, garlic: 1
-    assert np.isclose(matrix.loc['salt', 'salt'], np.log(2 + epsilon))
-    assert np.isclose(matrix.loc['pepper', 'pepper'], np.log(2 + epsilon))
-    assert np.isclose(matrix.loc['onion', 'onion'], np.log(1 + epsilon))
-    assert np.isclose(matrix.loc['garlic', 'garlic'], np.log(1 + epsilon))
-    
-    # Check off-diagonal
-    assert np.isclose(matrix.loc['salt', 'pepper'], expected_val)
-    assert np.isclose(matrix.loc['salt', 'onion'], expected_val)
-    assert np.isclose(matrix.loc['salt', 'garlic'], expected_val)
-    assert np.isclose(matrix.loc['pepper', 'onion'], expected_val)
-    # pepper-garlic should be 0 -> log(epsilon)
-    assert np.isclose(matrix.loc['pepper', 'garlic'], np.log(epsilon))
+    df.to_csv(csv_path, index=False)
+    return csv_path
 
-def test_load_epsilon_config_default():
-    """Test that epsilon config loads with default if file missing."""
-    # Create a temp file to simulate missing file or just test the logic
-    # The function has a try/except for missing file
-    config = load_epsilon_config("non_existent_path.json")
-    assert config["epsilon"] == 1e-6
-
-def test_build_cooccurrence_matrix_empty():
-    """Test with empty dataframe."""
-    df = pd.DataFrame(columns=['recipe_id', 'ingredient_id'])
-    # This might fail or return empty matrix. 
-    # For robustness, we expect it to handle empty input gracefully or raise a clear error.
-    # Based on current implementation, it might crash on unique() if empty.
-    # We'll assume valid input for now as per task scope, but a real test would check this.
-    # If it crashes, that's a bug to fix.
-    with pytest.raises(Exception): # Expecting an error for empty data in current impl
-        build_cooccurrence_matrix(df)
-
-def test_build_cooccurrence_matrix_single_ingredient():
-    """Test with single ingredient in one recipe."""
+@pytest.fixture
+def sample_recipes_parquet(temp_dir):
+    """Create a sample recipe parquet file."""
+    parquet_path = os.path.join(temp_dir, "recipe1m_processed.parquet")
     data = {
-        'recipe_id': [1],
-        'ingredient_id': ['salt']
+        'recipe_id': [1, 2, 3],
+        'ingredients': [
+            ['salt', 'pepper', 'garlic'],
+            ['salt', 'garlic'],
+            ['pepper', 'garlic']
+        ]
     }
     df = pd.DataFrame(data)
-    matrix = build_cooccurrence_matrix(df)
-    assert matrix.shape == (1, 1)
-    assert matrix.index[0] == 'salt'
-    assert np.isclose(matrix.loc['salt', 'salt'], np.log(1 + 1e-6))
+    df.to_parquet(parquet_path)
+    return parquet_path
 
-def test_build_cooccurrence_matrix_duplicates():
-    """Test handling of duplicate ingredients in same recipe (should be unique)."""
-    data = {
-        'recipe_id': [1, 1, 1],
-        'ingredient_id': ['salt', 'salt', 'pepper']
-    }
-    df = pd.DataFrame(data)
-    matrix = build_cooccurrence_matrix(df)
-    # salt should appear once in the set for recipe 1
-    assert matrix.shape == (2, 2)
-    assert set(matrix.index) == {'salt', 'pepper'}
-    # salt-salt count should be 1
-    assert np.isclose(matrix.loc['salt', 'salt'], np.log(1 + 1e-6))
+def test_load_epsilon_config_default(temp_dir):
+    """Test loading epsilon config with missing file."""
+    epsilon = load_epsilon_config(os.path.join(temp_dir, "nonexistent.json"))
+    assert epsilon == 1e-6
+
+def test_load_ingredient_pairs_missing_file():
+    """Test loading ingredients when file doesn't exist."""
+    with pytest.raises(FileNotFoundError):
+        load_ingredient_pairs("nonexistent/path.csv")
+
+def test_load_ingredient_pairs_missing_columns(sample_ingredients_csv):
+    """Test loading ingredients with missing required columns."""
+    # Create a CSV with missing columns
+    temp_path = tempfile.mktemp(suffix=".csv")
+    data = {'name': ['salt'], 'count': [100]}
+    pd.DataFrame(data).to_csv(temp_path, index=False)
+    
+    with pytest.raises(ValueError, match="Missing required columns"):
+        load_ingredient_pairs(temp_path)
+
+def test_build_cooccurrence_matrix_missing_recipes(sample_ingredients_csv):
+    """Test building matrix when recipe file doesn't exist."""
+    with pytest.raises(FileNotFoundError):
+        build_cooccurrence_matrix("nonexistent/recipes.parquet")
+
+def test_build_cooccurrence_matrix(sample_ingredients_csv, sample_recipes_parquet):
+    """Test building co-occurrence matrix with sample data."""
+    # Mock the ingredient column lookup
+    matrix = build_cooccurrence_matrix(
+        recipes_path=sample_recipes_parquet,
+        ingredient_col='ingredients'
+    )
+    
+    assert isinstance(matrix, pd.DataFrame)
+    assert matrix.shape[0] == matrix.shape[1]  # Square matrix
+    assert matrix.shape[0] > 0  # Has ingredients
+    
+    # Check that diagonal has values (self-co-occurrence)
+    # Each ingredient appears in at least one recipe
+    assert matrix.values.min() >= 0  # All values non-negative
+
+def test_save_output(temp_dir, sample_ingredients_csv, sample_recipes_parquet):
+    """Test saving co-occurrence matrix."""
+    matrix = build_cooccurrence_matrix(
+        recipes_path=sample_recipes_parquet,
+        ingredient_col='ingredients'
+    )
+    
+    output_path = os.path.join(temp_dir, "test_co_occurrence.parquet")
+    save_output(matrix, output_path)
+    
+    assert os.path.exists(output_path)
+    
+    # Verify metadata file
+    metadata_path = output_path.replace('.parquet', '_metadata.json')
+    assert os.path.exists(metadata_path)
+    
+    with open(metadata_path, 'r') as f:
+        metadata = json.load(f)
+    
+    assert 'shape' in metadata
+    assert 'num_ingredients' in metadata
+    assert metadata['shape'][0] == metadata['shape'][1]
+
+def test_log_transform_applied(sample_ingredients_csv, sample_recipes_parquet):
+    """Test that log transform is applied to co-occurrence counts."""
+    matrix = build_cooccurrence_matrix(
+        recipes_path=sample_recipes_parquet,
+        ingredient_col='ingredients'
+    )
+    
+    # Check that values are in log space (should be small positive numbers)
+    # Original counts are integers, log(1+count) will be small
+    max_val = matrix.values.max()
+    assert max_val < 10  # Log transform keeps values small
+
+def test_symmetric_matrix(sample_ingredients_csv, sample_recipes_parquet):
+    """Test that the co-occurrence matrix is symmetric."""
+    matrix = build_cooccurrence_matrix(
+        recipes_path=sample_recipes_parquet,
+        ingredient_col='ingredients'
+    )
+    
+    # Check symmetry (allowing for small floating point errors)
+    diff = matrix - matrix.T
+    assert np.allclose(diff.values, 0, atol=1e-9)

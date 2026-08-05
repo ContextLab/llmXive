@@ -1,81 +1,99 @@
-"""
-Spec Amendment Ratification Logic.
-
-Implements T012c: Check plan.md for "Critical Reframe" and create
-amendment_ratification_log.json if missing.
-"""
 import os
 import sys
 import json
 from pathlib import Path
+from datetime import datetime
 
-# Project root relative to code/
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-PLAN_PATH = PROJECT_ROOT / "plan.md"
-DATA_DIR = PROJECT_ROOT / "data"
-RATIFICATION_LOG_PATH = DATA_DIR / "amendment_ratification_log.json"
-
-REQUIRED_AMENDMENT_MARKER = "Critical Reframe"
-
-
-def check_plan_for_amendment() -> bool:
+def check_plan_for_amendment(download_status_path: str) -> dict:
     """
-    Reads plan.md and checks for the required amendment marker.
-    Returns True if found, False otherwise.
+    Reads data/download_status.json and determines the required methodology
+    and proxy source based on the Critical Reframe logic.
+    
+    Logic:
+    1. If recipe1m is "FAILED", raise error (Pipeline Halt).
+    2. If flavordb or counterfactual is "FAILED" or "INVALID_SCHEMA",
+       set methodology to "Correlational Analysis" and proxy_source to "Recipe1M".
+    3. If all "SUCCESS", set methodology to "Causal Independence" and proxy_source to null.
     """
-    if not PLAN_PATH.exists():
-        print(f"ERROR: plan.md not found at {PLAN_PATH}", file=sys.stderr)
-        return False
-
-    try:
-        with open(PLAN_PATH, "r", encoding="utf-8") as f:
-            content = f.read()
-        return REQUIRED_AMENDMENT_MARKER in content
-    except Exception as e:
-        print(f"ERROR reading plan.md: {e}", file=sys.stderr)
-        return False
-
-
-def create_ratification_log() -> bool:
-    """
-    Creates the amendment_ratification_log.json if it does not exist,
-    provided the plan.md contains the required marker.
-    Returns True on success, False on failure.
-    """
-    # Ensure data directory exists
-    DATA_DIR.mkdir(parents=True, exist_ok=True)
-
-    # Check if log already exists
-    if RATIFICATION_LOG_PATH.exists():
-        print(f"Ratification log already exists at {RATIFICATION_LOG_PATH}. Skipping creation.")
-        return True
-
-    # Verify plan.md has the marker
-    if not check_plan_for_amendment():
-        print("ERROR: plan.md does not contain 'Critical Reframe'. Execution blocked.", file=sys.stderr)
-        return False
-
-    log_content = {
-        "status": "BOOTSTRAPPED",
-        "amendment": "FR-001/FR-004/FR-008",
-        "rationale": "Plan Critical Reframe detected"
+    if not os.path.exists(download_status_path):
+        raise FileNotFoundError(f"Verification report not found: {download_status_path}. Run T012a first.")
+    
+    with open(download_status_path, 'r') as f:
+        status_data = json.load(f)
+    
+    recipe1m_status = status_data.get('recipe1m', {}).get('status')
+    flavordb_status = status_data.get('flavordb', {}).get('status')
+    counterfactual_status = status_data.get('counterfactual', {}).get('status')
+    
+    # Critical Check: Recipe1M is mandatory
+    if recipe1m_status == "FAILED":
+        raise RuntimeError("Pipeline Halt: Recipe1M download failed. No proxy source available.")
+    
+    methodology = "Causal Independence"
+    proxy_source = None
+    
+    # Check for fallback conditions
+    if flavordb_status in ["FAILED", "INVALID_SCHEMA"] or counterfactual_status in ["FAILED", "INVALID_SCHEMA"]:
+        methodology = "Correlational Analysis"
+        proxy_source = "Recipe1M"
+    
+    return {
+        "methodology": methodology,
+        "proxy_source": proxy_source
     }
 
-    try:
-        with open(RATIFICATION_LOG_PATH, "w", encoding="utf-8") as f:
-            json.dump(log_content, f, indent=2)
-        print(f"Successfully created ratification log at {RATIFICATION_LOG_PATH}")
-        return True
-    except Exception as e:
-        print(f"ERROR writing ratification log: {e}", file=sys.stderr)
-        return False
-
+def create_ratification_log(amendment_path: str, methodology: str, proxy_source: str) -> None:
+    """
+    Writes the amendment log to data/amendment_log.json with status "PENDING".
+    
+    Output Schema:
+    {
+      "status": "PENDING",
+      "methodology": str,
+      "proxy_source": str | null,
+      "timestamp": ISO8601
+    }
+    """
+    log_data = {
+        "status": "PENDING",
+        "methodology": methodology,
+        "proxy_source": proxy_source,
+        "timestamp": datetime.utcnow().isoformat() + "Z"
+    }
+    
+    # Ensure directory exists
+    Path(amendment_path).parent.mkdir(parents=True, exist_ok=True)
+    
+    with open(amendment_path, 'w') as f:
+        json.dump(log_data, f, indent=2)
 
 def main():
-    """Main entry point for T012c."""
-    success = create_ratification_log()
-    sys.exit(0 if success else 1)
-
+    # Define paths relative to project root
+    project_root = Path(__file__).resolve().parent.parent.parent
+    download_status_path = project_root / "data" / "download_status.json"
+    amendment_log_path = project_root / "data" / "amendment_log.json"
+    
+    try:
+        # 1. Read status and determine logic
+        decision = check_plan_for_amendment(str(download_status_path))
+        
+        # 2. Write the log (status remains PENDING for manual review or automated gate)
+        create_ratification_log(
+            str(amendment_log_path),
+            decision["methodology"],
+            decision["proxy_source"]
+        )
+        
+        print(f"Amendment log created at {amendment_log_path}")
+        print(f"Methodology: {decision['methodology']}")
+        print(f"Proxy Source: {decision['proxy_source']}")
+        
+    except FileNotFoundError as e:
+        print(f"Error: {e}", file=sys.stderr)
+        sys.exit(1)
+    except RuntimeError as e:
+        print(f"Critical Error: {e}", file=sys.stderr)
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

@@ -6,136 +6,171 @@ from pathlib import Path
 import pandas as pd
 import numpy as np
 from datasets import load_dataset
+import logging
 
-# Ensure directories exist
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+
 def ensure_directories():
-    data_dir = Path("data")
-    data_dir.mkdir(exist_ok=True)
-    (data_dir / "raw").mkdir(exist_ok=True)
-    (data_dir / "processed").mkdir(exist_ok=True)
+    """Ensure output directories exist."""
+    output_dir = Path("data")
+    output_dir.mkdir(parents=True, exist_ok=True)
+    return output_dir
 
-def download_pilot_sample(output_path: Path, max_recipes: int = 5000):
+def download_pilot_sample(pilot_size=1000):
     """
-    Streams a small pilot sample from Recipe1M to estimate variance.
-    Uses Recipe1M-Ratings as the proxy source for ingredient/rating data
-    as per the Plan's Critical Reframe (T012a logic).
-    """
-    print(f"Downloading pilot sample (max {max_recipes} recipes)...")
+    Download a small pilot sample of Recipe1M to estimate variance.
+    Uses streaming to avoid loading the full dataset into memory.
     
-    # Use the verified source: Recipe1M-Ratings from HuggingFace
-    # This is the real, programmatically accessible source.
-    dataset = load_dataset("thiagob/recipe1m-ratings", split="train", streaming=True)
-    
-    samples = []
-    count = 0
-    
-    for row in dataset:
-        if count >= max_recipes:
-            break
+    Args:
+        pilot_size (int): Number of recipes to sample for pilot analysis.
         
-        # Extract relevant fields for pilot analysis
-        # The dataset typically has 'ingredients' (list) and 'rating' (float)
-        if 'ingredients' in row and 'rating' in row:
-            samples.append({
-                'recipe_id': count,
-                'num_ingredients': len(row['ingredients']),
-                'rating': float(row['rating']) if row['rating'] is not None else 0.0
-            })
-            count += 1
-        
-        if count % 1000 == 0:
-            print(f"  Fetched {count} recipes...")
-
-    if not samples:
-        raise RuntimeError("Failed to fetch any pilot samples from Recipe1M-Ratings.")
-    
-    df = pd.DataFrame(samples)
-    df.to_parquet(output_path, index=False)
-    print(f"Pilot sample saved to {output_path} ({len(df)} recipes).")
-    return df
-
-def calculate_variance_estimate(df: pd.DataFrame, target_column: str = 'num_ingredients') -> float:
+    Returns:
+        pd.DataFrame: Pilot sample dataframe.
     """
-    Calculates the variance of the target column from the pilot sample.
-    """
-    if target_column not in df.columns:
-        raise ValueError(f"Target column '{target_column}' not found in pilot data.")
-    
-    var = df[target_column].var()
-    if pd.isna(var):
-        return 0.0
-    return float(var)
-
-def calculate_sample_size(variance: float, effect_size: float = 0.1, power: float = 0.8, alpha: float = 0.05) -> int:
-    """
-    Calculates the required sample size for a statistical test (t-test approximation).
-    
-    Formula: n = 2 * ((Z_alpha + Z_beta)^2 * sigma^2) / delta^2
-    Where:
-      sigma^2 = variance
-      delta = effect_size * sigma (Cohen's d logic, but here we assume effect_size is absolute difference if provided, 
-      or we treat effect_size as the standardized difference. 
-      The task specifies "effect size >= 0.1". In power analysis contexts, 'effect size' usually refers to Cohen's d.
-      If effect_size is Cohen's d, then delta = d * sigma.
-      Then n = 2 * ((Z_alpha + Z_beta)^2 * sigma^2) / (d^2 * sigma^2) = 2 * (Z_alpha + Z_beta)^2 / d^2.
-      
-      Let's assume effect_size = 0.1 is the standardized difference (Cohen's d).
-    """
-    # Z values for normal distribution
-    # Z_alpha for two-tailed 0.05 is approx 1.96
-    # Z_beta for power 0.8 (beta=0.2) is approx 0.84
-    from scipy.stats import norm
-    
-    z_alpha = norm.ppf(1 - alpha / 2)
-    z_beta = norm.ppf(power)
-    
-    # If effect_size is Cohen's d (standardized), the sigma cancels out in the numerator/denominator
-    # n = 2 * (z_alpha + z_beta)^2 / d^2
-    if effect_size <= 0:
-        raise ValueError("Effect size must be positive.")
-    
-    n = 2 * ((z_alpha + z_beta) ** 2) / (effect_size ** 2)
-    return int(math.ceil(n))
-
-def main():
-    ensure_directories()
-    
-    pilot_path = Path("data/pilot_sample.parquet")
-    output_path = Path("data/pilot_stats.json")
+    logger.info(f"Downloading pilot sample of {pilot_size} recipes from Recipe1M...")
     
     try:
-        # 1. Download pilot sample
-        df = download_pilot_sample(pilot_path)
+        # Load Recipe1M dataset in streaming mode
+        dataset = load_dataset("recipe1m", split="train", streaming=True)
         
-        # 2. Estimate variance (using number of ingredients as a proxy for complexity/size)
-        variance = calculate_variance_estimate(df, 'num_ingredients')
-        print(f"Estimated variance (num_ingredients): {variance}")
+        # Sample a small subset
+        pilot_data = []
+        count = 0
+        for item in dataset:
+            if count >= pilot_size:
+                break
+            pilot_data.append(item)
+            count += 1
         
-        # 3. Calculate required sample size
-        # Parameters from task: effect_size >= 0.1, power >= 0.8
-        required_n = calculate_sample_size(variance, effect_size=0.1, power=0.8)
+        if not pilot_data:
+            raise ValueError("Failed to retrieve any recipes from the dataset.")
         
-        # 4. Save results
-        stats = {
-            "pilot_sample_size": len(df),
-            "variance_estimate": variance,
-            "effect_size_target": 0.1,
-            "power_target": 0.8,
-            "sample_size_required": required_n,
-            "pilot_file": str(pilot_path),
-            "timestamp": pd.Timestamp.now().isoformat()
-        }
-        
-        with open(output_path, 'w') as f:
-            json.dump(stats, f, indent=2)
-        
-        print(f"Power analysis complete. Required sample size: {required_n}")
-        print(f"Results saved to {output_path}")
+        df = pd.DataFrame(pilot_data)
+        logger.info(f"Successfully downloaded {len(df)} recipes for pilot analysis.")
+        return df
         
     except Exception as e:
-        # Fail loudly as per constraints
-        print(f"ERROR: Pilot download or analysis failed: {e}")
+        logger.error(f"Failed to download pilot sample: {e}")
         raise
+
+def calculate_variance_estimate(df):
+    """
+    Calculate variance estimate from the pilot sample.
+    Uses the variance of the 'rating' column (or a proxy if unavailable).
+    
+    Args:
+        df (pd.DataFrame): Pilot dataset.
+        
+    Returns:
+        float: Estimated variance.
+    """
+    # Identify a numeric column for variance estimation
+    # Prefer 'rating' if available, otherwise use a proxy like recipe length
+    if 'rating' in df.columns:
+        target_col = 'rating'
+    elif 'calories' in df.columns:
+        target_col = 'calories'
+    else:
+        # Fallback: use length of ingredients list as a proxy for variability
+        if 'ingredients' in df.columns:
+            df['ingredient_count'] = df['ingredients'].apply(lambda x: len(x) if isinstance(x, list) else 0)
+            target_col = 'ingredient_count'
+        else:
+            raise ValueError("No suitable numeric column found for variance estimation.")
+    
+    # Calculate variance, handling non-numeric data
+    numeric_series = pd.to_numeric(df[target_col], errors='coerce').dropna()
+    if len(numeric_series) < 2:
+        raise ValueError("Insufficient data points to calculate variance.")
+    
+    variance = numeric_series.var()
+    logger.info(f"Estimated variance for column '{target_col}': {variance:.4f}")
+    return variance
+
+def calculate_sample_size(variance, alpha=0.05, beta=0.2, effect_size=0.1):
+    """
+    Calculate the required sample size for a power analysis.
+    Uses the formula for a two-sample t-test (or logistic regression approximation):
+    n = 2 * ((Z_alpha + Z_beta) / effect_size)^2 * variance
+    
+    Args:
+        variance (float): Estimated variance from pilot data.
+        alpha (float): Significance level (default 0.05).
+        beta (float): Type II error rate (default 0.2, power=0.8).
+        effect_size (float): Minimum detectable effect size (Cohen's d approx).
+        
+    Returns:
+        int: Required sample size.
+    """
+    # Z-scores for alpha and beta
+    z_alpha = 1.96  # For two-tailed alpha=0.05
+    z_beta = 0.84   # For power=0.8 (beta=0.2)
+    
+    # Calculate sample size per group (simplified formula)
+    # n = 2 * ( (Z_alpha + Z_beta)^2 * variance ) / (effect_size^2)
+    # Note: For logistic regression, this is an approximation.
+    # A more precise formula involves the proportion of outcomes, but this serves as a pilot estimate.
+    
+    numerator = 2 * ( (z_alpha + z_beta)**2 * variance )
+    denominator = effect_size**2
+    
+    n = numerator / denominator
+    n = math.ceil(n)
+    
+    logger.info(f"Calculated required sample size: {n}")
+    return n
+
+def main():
+    """Main entry point for T013b: Pilot Download & Power Analysis."""
+    logger.info("Starting T013b: Pilot Download & Power Analysis")
+    
+    # 1. Ensure directories
+    output_dir = ensure_directories()
+    
+    # 2. Download pilot sample
+    try:
+        pilot_df = download_pilot_sample(pilot_size=1000)
+    except Exception as e:
+        logger.error(f"Pilot download failed: {e}")
+        sys.exit(1)
+    
+    # 3. Calculate variance estimate
+    try:
+        variance = calculate_variance_estimate(pilot_df)
+    except Exception as e:
+        logger.error(f"Variance calculation failed: {e}")
+        sys.exit(1)
+    
+    # 4. Calculate required sample size
+    try:
+        sample_size = calculate_sample_size(variance, alpha=0.05, beta=0.2, effect_size=0.1)
+    except Exception as e:
+        logger.error(f"Sample size calculation failed: {e}")
+        sys.exit(1)
+    
+    # 5. Save results
+    result = {
+        "pilot_sample_size": len(pilot_df),
+        "variance_estimate": float(variance),
+        "sample_size_required": sample_size,
+        "parameters": {
+            "alpha": 0.05,
+            "power": 0.8,
+            "effect_size": 0.1
+        },
+        "timestamp": pd.Timestamp.now().isoformat()
+    }
+    
+    output_path = output_dir / "pilot_stats.json"
+    with open(output_path, 'w') as f:
+        json.dump(result, f, indent=2)
+    
+    logger.info(f"Results saved to {output_path}")
+    logger.info(f"Required sample size: {sample_size}")
+    
+    return result
 
 if __name__ == "__main__":
     main()

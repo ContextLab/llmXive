@@ -1,94 +1,125 @@
-import os
 import pytest
 import pandas as pd
 import numpy as np
 from pathlib import Path
 import json
-
-# Add parent directory to path for imports
+import os
 import sys
-sys.path.insert(0, str(Path(__file__).parent.parent / 'code'))
 
-from data.derive_roles import (
+# Add code to path if needed
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
+from code.data.derive_roles import (
+    ensure_directories,
+    load_marginal_frequencies,
+    load_positional_ranks,
     calculate_functional_role,
     verify_exclusion_of_co_occurrence,
-    load_marginal_frequencies,
-    load_positional_ranks
+    save_output
 )
 
 @pytest.fixture
-def sample_marginal_freq():
-    return pd.DataFrame({
-        'ingredient_normalized': ['flour', 'sugar', 'salt', 'vanilla'],
-        'marginal_frequency': [0.8, 0.6, 0.4, 0.2]
-    })
+def temp_data_dir(tmp_path):
+    """Create a temporary directory structure for testing."""
+    dirs = ['data/processed', 'data/logs']
+    for d in dirs:
+        (tmp_path / d).mkdir(parents=True, exist_ok=True)
+    return tmp_path
 
 @pytest.fixture
-def sample_positional_ranks():
-    return pd.DataFrame({
-        'ingredient_normalized': ['flour', 'sugar', 'salt', 'vanilla'],
-        'positional_rank': [1, 2, 3, 4]
-    })
+def mock_freq_data(temp_data_dir):
+    """Create mock normalized_ingredients.csv."""
+    data = {
+        'ingredient_id': ['ing_1', 'ing_2', 'ing_3', 'ing_4', 'ing_5'],
+        'canonical_name': ['salt', 'pepper', 'oil', 'garlic', 'basil'],
+        'functional_role': ['primary', 'secondary', 'garnish', 'primary', 'garnish'],
+        'frequency': [1000, 500, 200, 800, 100]
+    }
+    df = pd.DataFrame(data)
+    path = temp_data_dir / 'data' / 'processed' / 'normalized_ingredients.csv'
+    df.to_csv(path, index=False)
+    return path
 
 @pytest.fixture
-def sample_co_occurrence():
-    return pd.DataFrame({
-        'ingredient_normalized': ['flour', 'sugar', 'salt', 'vanilla'],
-        'log_co_occurrence': [2.5, 2.0, 1.5, 1.0]
-    })
+def mock_rank_data(temp_data_dir):
+    """Create mock positional_ranks.csv."""
+    data = {
+        'ingredient_id': ['ing_1', 'ing_2', 'ing_3', 'ing_4', 'ing_5'],
+        'positional_rank': [1, 3, 5, 2, 4]
+    }
+    df = pd.DataFrame(data)
+    path = temp_data_dir / 'data' / 'processed' / 'positional_ranks.csv'
+    df.to_csv(path, index=False)
+    return path
 
-def test_calculate_functional_role_primary():
-    """Test that high frequency and early rank result in primary role."""
-    role = calculate_functional_role(
-        marginal_freq=0.9,
-        positional_rank=1,
-        co_occurrence_count=0
-    )
-    assert role == 'primary'
+@pytest.fixture
+def mock_co_occ_data(temp_data_dir):
+    """Create mock co_occurrence_matrix.parquet."""
+    data = {
+        'ingredient_a': ['ing_1', 'ing_1', 'ing_2', 'ing_3'],
+        'ingredient_b': ['ing_2', 'ing_3', 'ing_3', 'ing_4'],
+        'count': [500, 100, 200, 300]
+    }
+    df = pd.DataFrame(data)
+    path = temp_data_dir / 'data' / 'processed' / 'co_occurrence_matrix.parquet'
+    df.to_parquet(path, index=False)
+    return path
 
-def test_calculate_functional_role_secondary():
-    """Test that medium frequency/rank result in secondary role."""
-    role = calculate_functional_role(
-        marginal_freq=0.5,
-        positional_rank=3,
-        co_occurrence_count=0
-    )
-    assert role == 'secondary'
+def test_ensure_directories(temp_data_dir):
+    # Change to temp dir context
+    old_cwd = os.getcwd()
+    os.chdir(temp_data_dir)
+    try:
+        ensure_directories()
+        assert Path('data/processed').exists()
+        assert Path('data/logs').exists()
+    finally:
+        os.chdir(old_cwd)
 
-def test_calculate_functional_role_garnish():
-    """Test that low frequency and late rank result in garnish role."""
-    role = calculate_functional_role(
-        marginal_freq=0.1,
-        positional_rank=10,
-        co_occurrence_count=0
-    )
-    assert role == 'garnish'
+def test_load_marginal_frequencies(mock_freq_data, temp_data_dir):
+    old_cwd = os.getcwd()
+    os.chdir(temp_data_dir)
+    try:
+        df = load_marginal_frequencies()
+        assert 'ingredient_id' in df.columns
+        assert 'frequency' in df.columns
+        assert len(df) == 5
+    finally:
+        os.chdir(old_cwd)
 
-def test_verify_exclusion_of_co_occurrence():
-    """Test that verification function works correctly."""
-    df_result = pd.DataFrame({
-        'ingredient_normalized': ['a', 'b', 'c'],
-        'functional_role': ['primary', 'secondary', 'garnish'],
-        'log_co_occurrence': [2.5, 2.0, 1.5]
-    })
-    
-    co_occurrence_matrix = pd.DataFrame({
-        'ingredient_normalized': ['a', 'b', 'c'],
-        'log_co_occurrence': [2.5, 2.0, 1.5]
-    })
-    
-    result = verify_exclusion_of_co_occurrence(df_result, co_occurrence_matrix)
-    
-    assert 'correlation' in result
-    assert 'passed' in result
-    assert isinstance(result['correlation'], (float, type(None)))
+def test_calculate_functional_role(mock_freq_data, mock_rank_data, temp_data_dir):
+    old_cwd = os.getcwd()
+    os.chdir(temp_data_dir)
+    try:
+        df_freq = load_marginal_frequencies()
+        df_ranks = load_positional_ranks()
+        
+        result = calculate_functional_role(df_freq, df_ranks)
+        
+        assert 'functional_role' in result.columns
+        assert 'composite_score' in result.columns
+        assert all(r in ['primary', 'secondary', 'garnish'] for r in result['functional_role'])
+        
+        # Check that high frequency/low rank gets 'primary'
+        ing_1_role = result[result['ingredient_id'] == 'ing_1']['functional_role'].values[0]
+        assert ing_1_role == 'primary', f"Expected 'primary' for ing_1, got {ing_1_role}"
+    finally:
+        os.chdir(old_cwd)
 
-def test_load_marginal_frequencies_missing_file():
-    """Test that missing file raises FileNotFoundError."""
-    with pytest.raises(FileNotFoundError):
-        load_marginal_frequencies('nonexistent_path.csv')
-
-def test_load_positional_ranks_missing_file():
-    """Test that missing file raises FileNotFoundError."""
-    with pytest.raises(FileNotFoundError):
-        load_positional_ranks('nonexistent_path.csv')
+def test_verify_exclusion_of_co_occurrence(mock_freq_data, mock_rank_data, mock_co_occ_data, temp_data_dir):
+    old_cwd = os.getcwd()
+    os.chdir(temp_data_dir)
+    try:
+        df_freq = load_marginal_frequencies()
+        df_ranks = load_positional_ranks()
+        roles_df = calculate_functional_role(df_freq, df_ranks)
+        co_occ_df = pd.read_parquet(mock_co_occ_data)
+        
+        # Should not raise
+        result = verify_exclusion_of_co_occurrence(roles_df, co_occ_df)
+        assert result is True
+        
+        # Check audit log exists
+        assert Path('data/logs/role_independence_audit.json').exists()
+    finally:
+        os.chdir(old_cwd)

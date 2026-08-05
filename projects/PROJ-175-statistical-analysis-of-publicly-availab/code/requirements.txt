@@ -10,6 +10,8 @@ seaborn
 pyyaml
 pytest
 python-Levenshtein
+pingouin
 datasets
 requests
 torch
+sentence-transformers

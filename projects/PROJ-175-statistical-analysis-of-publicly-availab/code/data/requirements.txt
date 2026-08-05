@@ -1,14 +1,7 @@
-pandas
-numpy
-scikit-learn
-pyarrow
-statsmodels
-pymc
-scipy
-requests
-tqdm
-huggingface_hub
-sentence-transformers
-arviz
-psutil
-torch
+# Dependencies for T013a: Stream & Validate Recipe1M
+datasets>=2.14.0
+pandas>=2.0.0
+pyarrow>=12.0.0
+psutil>=5.9.0
+python-Levenshtein>=0.21.0
+requests>=2.31.0

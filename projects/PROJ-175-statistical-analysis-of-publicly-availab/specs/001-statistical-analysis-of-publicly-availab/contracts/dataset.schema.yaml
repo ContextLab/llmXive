@@ -1,87 +1,80 @@
-%YAML 1.2
----
-title: Recipe Ingredient Substitution Dataset Schema
-version: 1.0.0
-description: >
-  Schema for the processed recipe dataset containing ingredient pairs,
-  co-occurrence statistics, semantic similarity, and functional roles.
-  Used to validate data produced by code/data/preprocess.py.
+# Dataset Schema for Statistical Analysis of Recipe Data
+# Defines the structure of processed ingredient and pairwise data
+version: "1.0.0"
+description: "Schema for ingredient pairs and derived features used in modeling"
 
-type: object
-required:
-  - ingredient_a
-  - ingredient_b
-  - log_cooccurrence
-  - flavor_similarity
-  - functional_role
-  - functional_role_raw_rank
-  - functional_role_residual
-  - source_dataset
-  - is_train
-
-properties:
-  ingredient_a:
+fields:
+  - name: ingredient_id
     type: string
-    description: Canonical ID of the first ingredient (normalized).
-    minLength: 1
-
-  ingredient_b:
+    description: "Unique identifier for the ingredient (normalized name)"
+    required: true
+    example: "onion"
+    
+  - name: log_co_occurrence
+    type: float
+    description: "Log-transformed co-occurrence frequency with partner ingredient"
+    required: true
+    example: 4.52
+    
+  - name: flavor_similarity
+    type: float
+    description: "Cosine similarity between ingredient embeddings (FlavorDB or Recipe1M)"
+    required: true
+    example: 0.78
+    
+  - name: functional_role
     type: string
-    description: Canonical ID of the second ingredient (normalized).
-    minLength: 1
-
-  log_cooccurrence:
-    type: number
-    format: float
-    description: Log-transformed co-occurrence count: log(C_ij + 1).
-    minimum: 0
-
-  flavor_similarity:
-    type: number
-    format: float
-    description: Cosine similarity between Recipe1M visual/text embeddings (proxy for flavor).
-    minimum: -1.0
-    maximum: 1.0
-
-  functional_role:
-    type: string
-    description: Discretized functional role derived from orthogonalized rank.
+    description: "Functional role of the ingredient in the recipe"
+    required: true
     enum:
-      - Primary
-      - Secondary
-      - Garnish
-      - Unknown
-
-  functional_role_raw_rank:
+      - primary
+      - secondary
+      - garnish
+    example: "primary"
+    
+  - name: compatibility_label
     type: integer
-    description: Original global frequency rank of the ingredient pair context.
-    minimum: 1
-
-  functional_role_residual:
-    type: number
-    format: float
-    description: Residual from OLS regression of raw rank on global log-frequency (orthogonalized role).
-
-  source_dataset:
-    type: string
-    description: Source of the recipe data (e.g., Recipe1M).
+    description: "Binary label indicating compatibility (1=compatible, 0=not compatible)"
+    required: true
     enum:
-      - Recipe1M
-
-  is_train:
-    type: boolean
-    description: Flag indicating if the row belongs to the training set (stratified split).
-
-  pair_id:
+      - 0
+      - 1
+    example: 1
+    
+  - name: partner_ingredient_id
     type: string
-    description: Unique identifier for the ingredient pair (generated).
-
-  missing_role_flag:
-    type: boolean
-    description: True if functional role was imputed as 'Unknown'.
-
-  missing_sim_flag:
-    type: boolean
-    description: True if flavor similarity was imputed with median.
-
-additionalProperties: false
+    description: "Unique identifier for the partner ingredient in the pair"
+    required: true
+    example: "garlic"
+    
+  - name: recipe_count
+    type: integer
+    description: "Number of recipes containing this ingredient pair"
+    required: false
+    example: 1523
+    
+  - name: source_methodology
+    type: string
+    description: "Source of the data (Causal Independence or Correlational Analysis)"
+    required: false
+    example: "Correlational Analysis"
+    
+validation_rules:
+  - rule: "ingredient_id must not be empty"
+    type: string_length
+    min: 1
+  - rule: "log_co_occurrence must be non-negative"
+    type: range
+    min: 0.0
+  - rule: "flavor_similarity must be between -1 and 1"
+    type: range
+    min: -1.0
+    max: 1.0
+  - rule: "compatibility_label must be binary"
+    type: set
+    values: [0, 1]
+    
+notes:
+  - "This schema supports both original Spec requirements and the Ratified Amendment path (Recipe1M proxy)"
+  - "When using Recipe1M proxy, flavor_similarity is computed from Recipe1M embeddings"
+  - "When using Causal Independence path, flavor_similarity is computed from FlavorDB chemical vectors"
