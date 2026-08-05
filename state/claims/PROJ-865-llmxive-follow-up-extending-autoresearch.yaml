@@ -2526,3 +2526,674 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-04T15:04:44Z'
+- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
+  attempts: 1
+  canonical: Reference validator verifies citation metadata against primary sources
+  claim_id: c_078d8198
+  context: 'T002 [Gate] Reference-Validator Execution: Implement and execute the Reference-Validator
+    Agent as a blocking gate against plan.md and spec.md.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Reference_validator_verifies_citation_metadata_against_prima
+  kind: entity_fact
+  raw_text: The validator MUST verify that each citation matches the metadata (title,
+    authors, year) retrieved from the primary source.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T11:01:38Z'
+- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
+  attempts: 1
+  canonical: Rule coverage threshold set to 90 percent
+  claim_id: c_94649c7e
+  context: "T011d [US1] Implement Rule Coverage Validation & Gate (FR-002): Calculate\
+    \ the percentage of held-out patterns covered by the generated rules and enforce\
+    \ the \u226590% threshold."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If coverage < 90%, fail the pipeline.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T11:01:38Z'
+- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
+  attempts: 1
+  canonical: Mixed-effects logistic regression formula includes failure type method
+    interaction and task ID random effect
+  claim_id: c_1a1e7eb3
+  context: 'T026a [US3] Model Fitting: Mixed-Effects Logistic Regression: Fit the
+    model with Task ID as random effect and Failure Type * Method as interaction term.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The model formula is success ~ failure_type * method + (1|task_id).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T11:02:37Z'
+- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
+  attempts: 1
+  canonical: Interaction term significance threshold set to p less than 0.05
+  claim_id: c_1aeb2c00
+  context: 'T026c [US3] Verify Interaction Term Significance (SC-003): Explicitly
+    check if the interaction term (Failure Type * Method) has p-value < 0.05.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Interaction_term_significance_threshold_set_to_p_less_than_0
+  kind: magnitude
+  raw_text: Explicitly check if the interaction term (Failure Type * Method) has p-value
+    < 0.05.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T11:02:56Z'
+- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
+  attempts: 1
+  canonical: Full-scale execution dataset size is 500
+  claim_id: c_d3fd65c5
+  context: 'T085 [US1/US2/US3] Full-Scale Execution with All Revision Fixes: Execute
+    the full pipeline on the full dataset (N=500) with all revision fixes applied.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execute the full pipeline on the full dataset (N=500).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T11:03:45Z'
+- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
+  attempts: 1
+  canonical: Pilot distillation dataset size is 10
+  claim_id: c_1712a877
+  context: 'T082 [US1] Run Pilot Distillation on Small Subset: Execute the distillation
+    pipeline on a small subset (N=10) of the ARC-Bench dataset to verify the rule
+    generation logic.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execute the distillation pipeline on a small subset (N=10) of the ARC-Bench
+    dataset.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T11:04:29Z'
+- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
+  attempts: 1
+  canonical: Pilot execution dataset size is 10
+  claim_id: c_dff93283
+  context: 'T083 [US2] Run Pilot Execution on Small Subset: Execute the rule engine
+    and baseline agent on the same small subset (N=10) used in T082.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execute the rule engine and baseline agent on the same small subset (N=10).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T11:04:53Z'
+- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
+  attempts: 1
+  canonical: Reference validator verifies citation metadata against primary source
+  claim_id: c_1280a859
+  context: 'Phase 0: Constitutional Gates - T002 [Gate] Reference-Validator Execution'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Reference_validator_verifies_citation_metadata_against_prima
+  kind: entity_fact
+  raw_text: The validator MUST verify that each citation matches the metadata (title,
+    authors, year) retrieved from the primary source (not just internal markdown).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T11:06:00Z'
+- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
+  attempts: 1
+  canonical: Pipeline fails if citation validation fails
+  claim_id: c_58d652e0
+  context: 'Phase 0: Constitutional Gates - T002 [Gate] Reference-Validator Execution'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_fails_if_citation_validation_fails
+  kind: entity_fact
+  raw_text: The pipeline MUST fail and block all subsequent tasks if any citation
+    is unreachable or mismatch against the primary source.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T11:06:22Z'
+- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
+  attempts: 1
+  canonical: Requirements file pins versions for specific scientific Python libraries
+  claim_id: c_3e472e1f
+  context: 'Phase 1: Setup (Shared Infrastructure) - T005 [Setup]'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Requirements_file_pins_versions_for_specific_scientific_Pyth
+  kind: entity_fact
+  raw_text: The requirements.txt includes pinned versions for pandas, numpy, scikit-learn,
+    statsmodels, pydantic, datasets, torch-cpu, transformers, psutil, scipy, and lifelines.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T11:06:36Z'
+- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
+  attempts: 1
+  canonical: 'Configuration sets resource limits: 2 cores, 7GB RAM, 3600s timeout,
+    500 rows, 50 sample size'
+  claim_id: c_c3575e47
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - T007 [Setup]'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The configuration file sets MAX_CPU_CORES=2, MAX_MEMORY_GB=7, TIMEOUT_SECONDS=3600,
+    MAX_STREAMING_ROWS=500, and DEFAULT_SAMPLE_SIZE=50.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T11:06:56Z'
+- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
+  attempts: 1
+  canonical: Model priority list includes Llama-8B-INT4, Llama-3-4B-INT4, TinyLlama-1.1B-INT4
+  claim_id: c_b7f1d4ef
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - T007 [Setup]'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The MODEL_PRIORITY_LIST includes Llama-8B-INT4, Llama-3-4B-INT4, and TinyLlama-1.1B-INT4.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T11:07:19Z'
+- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
+  attempts: 1
+  canonical: Memory watchdog triggers shutdown if RAM exceeds 7GB
+  claim_id: c_361f3bb7
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - T007c [Setup]'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Memory_watchdog_triggers_shutdown_if_RAM_exceeds_7GB
+  kind: entity_fact
+  raw_text: The watchdog function check_memory_limit() triggers shutdown if RAM usage
+    exceeds 7GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T11:07:48Z'
+- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
+  attempts: 1
+  canonical: Human annotator interface has 5 enum values for structural features
+  claim_id: c_9d7383a2
+  context: 'Phase 3: User Story 1 - T005d [US1]'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The human annotator interface provides a dropdown with exactly 5 enum
+    values: Syntactic Error, Logical Loop, Semantic Ambiguity, Missing Context, and
+    Unstructured.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T11:08:00Z'
+- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
+  attempts: 1
+  canonical: Syntactic error annotation uses SyntaxError and IndentationError regex
+    patterns
+  claim_id: c_9694d193
+  context: 'Phase 3: User Story 1 - T009a [US1]'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Syntactic_error_annotation_uses_SyntaxError_and_IndentationE
+  kind: entity_fact
+  raw_text: The annotation logic uses regex patterns r'SyntaxError.*' and r'IndentationError.*'
+    for Syntactic errors.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T11:08:23Z'
+- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
+  attempts: 1
+  canonical: Rule coverage validation enforces 90% threshold
+  claim_id: c_72222a59
+  context: 'Phase 3: User Story 1 - T011d [US1]'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The rule coverage validation enforces a threshold of \u226590% coverage\
+    \ of held-out patterns."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T11:08:23Z'
+- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
+  attempts: 1
+  canonical: Coverage validation uses 80/20 stratified held-out split
+  claim_id: c_2009982c
+  context: 'Phase 3: User Story 1 - T011d [US1]'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The coverage validation script creates a stratified held-out split of
+    80/20 from the labeled dataset.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T11:08:41Z'
+- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
+  attempts: 1
+  canonical: Baseline CI job configured with 4 CPU and 16 GB RAM
+  claim_id: c_b4a6fe9c
+  context: 'Phase 4: User Story 2 - T058c [US2]'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The CI job matrix defines baseline_job.yml with 4 CPU and 16 GB RAM.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T11:09:20Z'
+- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
+  attempts: 1
+  canonical: Rule engine CI job configured with 2 CPU and 7 GB RAM
+  claim_id: c_7d1451a0
+  context: 'Phase 4: User Story 2 - T058c [US2]'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The CI job matrix defines rule_engine_job.yml with 2 CPU and 7 GB RAM.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T11:09:50Z'
+- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
+  attempts: 1
+  canonical: Time-to-pivot capped at TIMEOUT_SECONDS if exceeded
+  claim_id: c_67f6cb94
+  context: 'Phase 4: User Story 2 - T021b [US2]'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Time-to-pivot_capped_at_TIMEOUT_SECONDS_if_exceeded
+  kind: entity_fact
+  raw_text: The time-to-pivot censoring logic sets time_to_pivot = TIMEOUT_SECONDS
+    if a task exceeds the limit.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T11:09:57Z'
+- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
+  attempts: 1
+  canonical: Mixed-effects model uses Task ID random effect and Failure Type times
+    Method interaction
+  claim_id: c_722852ce
+  context: 'Phase 5: User Story 3 - T026a [US3]'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Mixed-effects_model_uses_Task_ID_random_effect_and_Failure_T
+  kind: entity_fact
+  raw_text: The statistical model uses 'Task ID' as a random effect and 'Failure Type
+    * Method' as an interaction term.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T11:10:09Z'
+- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
+  attempts: 1
+  canonical: Tobit regression implemented using lifelines library
+  claim_id: c_8ecb35fd
+  context: 'Phase 5: User Story 3 - T026a [US3]'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Tobit_regression_implemented_using_lifelines_library
+  kind: entity_fact
+  raw_text: The model uses the lifelines library for Tobit regression.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T11:10:16Z'
+- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
+  attempts: 1
+  canonical: Interaction term significance requires p-value less than 0.05
+  claim_id: c_c3aad006
+  context: 'Phase 5: User Story 3 - T026c [US3]'
+  evidence:
+    entailment_evidence: Interaction term significance requires p-value less than
+      0.
+    entailment_status: contradicted
+    source_url: https://en.wikipedia.org/wiki/Interaction_term_significance_requires_p-value_less_than_0.0
+  kind: magnitude
+  raw_text: The interaction term significance check requires a p-value < 0.05.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-08-05T11:10:24Z'
+- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
+  attempts: 1
+  canonical: Pilot distillation uses subset of 10 cases
+  claim_id: c_3ef0cbdd
+  context: 'Phase 7: Execution Orchestration & Final Validation - T082 [US1]'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pilot distillation uses a small subset of N=10 from the ARC-Bench
+    dataset.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T11:10:32Z'
+- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
+  attempts: 1
+  canonical: Pilot execution uses subset of 10 cases
+  claim_id: c_741c1fa6
+  context: 'Phase 7: Execution Orchestration & Final Validation - T083 [US2]'
+  evidence:
+    asserted: '10.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The pilot execution uses the same small subset of N=10.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-08-05T11:10:32Z'
+- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
+  attempts: 1
+  canonical: Full-scale execution uses dataset of 500 cases
+  claim_id: c_bf29665b
+  context: 'Phase 7: Execution Orchestration & Final Validation - T085 [US1/US2/US3]'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The full-scale execution runs on the full dataset of N=500.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T11:10:38Z'
+- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/docs/research_report.md
+  attempts: 1
+  canonical: Rule Engine 92.4% success rate on syntactic failure modes vs Baseline
+    84.1%
+  claim_id: c_fdf98d7a
+  context: Key Findings section comparing Rule Engine and Baseline Agent performance
+    on ARC-Bench tasks.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Rule Engine achieved a 92.4% success rate on syntactic failure modes,
+    significantly outperforming the Baseline (84.1%) in this category.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T11:16:11Z'
+- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/docs/research_report.md
+  attempts: 1
+  canonical: Baseline 78.5% success rate on Semantic Ambiguity vs Rule Engine 45.2%
+  claim_id: c_e6ac4f43
+  context: Key Findings section discussing performance on semantic ambiguity.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: For Semantic Ambiguity, the Baseline outperformed the Rule Engine (78.5%
+    vs 45.2%).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T11:16:12Z'
+- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/docs/research_report.md
+  attempts: 1
+  canonical: ARC-Bench dataset topic subset contains 500 reasoning traces
+  claim_id: c_2e8e1255
+  context: Methodology section describing data source.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The analysis utilized the ARC-Bench dataset specifically the topic subset
+    containing 500 reasoning traces.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T11:16:29Z'
+- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/docs/research_report.md
+  attempts: 1
+  canonical: Rule Engine average CPU usage 1.8 cores memory peak 6.2 GB
+  claim_id: c_87bdb81f
+  context: Results section on Resource Efficiency.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Rule Engine achieved an average CPU usage of 1.8/2 cores and a memory
+    peak of 6.2 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T11:16:49Z'
+- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/docs/research_report.md
+  attempts: 1
+  canonical: Baseline Agent average CPU usage 3.5 cores memory peak 14.5 GB
+  claim_id: c_59a62ac8
+  context: Results section on Resource Efficiency.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Baseline Agent achieved an average CPU usage of 3.5/4 cores and a
+    memory peak of 14.5 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T11:17:12Z'
+- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/docs/research_report.md
+  attempts: 1
+  canonical: Interaction term p-value 0.003
+  claim_id: c_a9b2abfd
+  context: Results section on Statistical Significance.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The interaction term (Failure Type * Method) had a p-value of 0.003.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T11:17:37Z'
+- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/docs/research_report.md
+  attempts: 1
+  canonical: Effect Size Cohen's d 0.65
+  claim_id: c_dcbb6334
+  context: Results section on Statistical Significance.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Effect Size (Cohen's d) for the interaction term was 0.65.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T11:19:45Z'
+- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/docs/research_report.md
+  attempts: 1
+  canonical: Post-hoc power greater than 0.90 for interaction term
+  claim_id: c_5f29b0b3
+  context: Results section on Statistical Significance.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Post-hoc_power_greater_than_0.90_for_interaction_term
+  kind: magnitude
+  raw_text: Post-hoc power was greater than 0.90 for the interaction term.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T11:20:12Z'
+- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/docs/research_report.md
+  attempts: 1
+  canonical: Rule Engine 50% less resource consumption compared to Baseline
+  claim_id: c_43047605
+  context: Results section conclusion on Resource Efficiency.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Rule Engine achieved comparable or better performance on specific
+    failure types with approximately 50% less resource consumption.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T11:20:12Z'
+- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/docs/research_report.md
+  attempts: 1
+  canonical: Rule library covers 90% of held-out patterns
+  claim_id: c_b0227d92
+  context: Discussion section on Limitations regarding Rule Coverage.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The rule library covers 90% of held-out patterns.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T11:20:13Z'
+- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/docs/research_report.md
+  attempts: 1
+  canonical: Unstructured failures constitute 10% of held-out patterns
+  claim_id: c_e3204a93
+  context: Discussion section on Limitations regarding Rule Coverage.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The remaining 10% of held-out patterns are Unstructured failures.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T11:20:13Z'
+- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/docs/research_report.md
+  attempts: 1
+  canonical: Logical Loop success rate Rule Engine 88.5% Baseline 86.0%
+  claim_id: c_b9a3fd65
+  context: Results table showing success rates by failure type.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Logical Loop failure type had a success rate of 88.5% for the Rule
+    Engine and 86.0% for the Baseline.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T11:20:13Z'
+- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/docs/research_report.md
+  attempts: 1
+  canonical: Missing Context success rate Rule Engine 62.1% Baseline 70.3%
+  claim_id: c_9c9adef6
+  context: Results table showing success rates by failure type.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Missing Context failure type had a success rate of 62.1% for the Rule
+    Engine and 70.3% for the Baseline.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T11:20:14Z'
+- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/docs/research_report.md
+  attempts: 1
+  canonical: Unstructured success rate Rule Engine 15.0% Baseline 55.0%
+  claim_id: c_b6e7b9d0
+  context: Results table showing success rates by failure type.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Unstructured failure type had a success rate of 15.0% for the Rule
+    Engine and 55.0% for the Baseline.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T11:20:14Z'

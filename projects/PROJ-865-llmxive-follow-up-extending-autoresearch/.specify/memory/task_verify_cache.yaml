@@ -58,15 +58,6 @@ T028:
     \ that the script has been modified to use ground\u2011truth resolution for arbitrating\
     \ failure categorization. The required artifact is missing, so the task is not\
     \ satisfied."
-T029a:
-  c: false
-  h: 29ae00c2ab0ecb72b4339f32b58a3db573b5230cd0d6ee095f43bce33e2dc395
-  r: "The required output file `data/derived/time_diff_results.json` does not exist,\
-    \ so the task\u2019s output artifact is missing. Additionally, the provided `time_diff_test.py`\
-    \ is truncated and does not clearly show that it performs the Tobit regression\
-    \ and writes the JSON with the specified keys. The next implementer must ensure\
-    \ the script generates the JSON file containing `p_value`, `ci_lower`, `ci_upper`,\
-    \ and `statistic`."
 T036:
   c: false
   h: fd73b4585321232af74c366909a4d1469172728c9b854450c6c1ca1cc2776b76
@@ -75,25 +66,30 @@ T036:
     also saves the fetched data to `data/raw/arc_bench.json` instead of processing
     it into `data/derived/parsed_traces.json`, and that target file is missing. Consequently
     the required behavior and output are not fulfilled.
-T043:
+T083:
   c: false
-  h: 1c4812f1050fbf8ef29565a858405c4878448421b621f26917429b870c99c7be
-  r: The provided `verify_quantization.py` is only a partial stub (truncated) that
-    never loads a model, checks INT4 quantization, or writes `data/artifacts/quantization_verification.json`.
-    The required JSON output file is missing, and the script lacks the logic to raise
-    an error on failure. The task is therefore not fully implemented.
-T067:
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No execution logs, metric files, or any other artifacts showing that the rule\
+    \ engine and baseline agent were run on the 10\u2011item subset, nor any evidence\
+    \ of data\u2011flow verification, metric logging, or censored\u2011data handling\
+    \ is present. The claim lacks the required concrete outputs."
+T084:
   c: false
-  h: 6a3afaeb89f082bd7c97d9d79f84b9834eedd60634ec2e57e742f7457b298f11
-  r: "The script `code/04_analysis/calculate_effect_size.py` exists, but the required\
-    \ input `data/derived/results.csv` is missing, and the expected output `data/derived/effect_size_results.json`\
-    \ was not generated. Without the results CSV the effect\u2011size calculation\
-    \ cannot be performed, so the task is not fully satisfied."
-T068:
+  h: af0e0f39e25150a962c2b2b8b48f5714a3ca5d9ed143f1fc92f70a22f9dd6b96
+  r: "The required script `code/analysis/statistical_model.py` is missing, and the\
+    \ provided output files reference a sample size of 100 despite the input CSV containing\
+    \ only 10 rows, with no evidence of censored\u2011data handling. Consequently\
+    \ the task\u2019s core execution and verification requirements are not satisfied."
+T085:
   c: false
-  h: 4b132711abb1f8b8dc7d2bbf21a34ed66166327dcd68253db7086435c793fb79
-  r: "The repository contains `code/04_analysis/analyze_resource_correlation.py`,\
-    \ but the script is truncated and never writes `data/derived/resource_correlation_report.json`.\
-    \ Moreover, the expected output file `data/derived/resource_correlation_report.json`\
-    \ is absent from the project. The task\u2019s core deliverable \u2013 a generated\
-    \ correlation report \u2013 is therefore missing."
+  h: 447e0864dd5dd7b656eef6add93f04505714934088ec2dca343c3f0a4d77c9df
+  r: "The required output files `data/derived/full_rules_library.json` and `data/derived/full_regression_results.json`\
+    \ are missing, so the full pipeline execution is not demonstrated. The existing\
+    \ `full_results.csv` alone does not satisfy the task\u2019s output requirements."
+T086:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No research report file or its contents are present; the implementer provided
+    only a textual claim without delivering the compiled document that should contain
+    the hypothesis discussion, interaction term significance, error taxonomy, and
+    sensitivity analysis. The required artifact is missing.

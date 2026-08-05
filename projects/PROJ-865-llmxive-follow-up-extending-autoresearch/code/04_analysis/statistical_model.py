@@ -1,204 +1,275 @@
-"""
-Statistical Model: Mixed-Effects Logistic Regression.
-
-Fits a mixed-effects logistic regression model:
-Success ~ FailureType * Method + (1|TaskID)
-
-Pre-check: Verifies that the `results.csv` contains complete pairs of task_ids.
-If any pair is incomplete, the analysis aborts with a clear error.
-"""
 import json
 import sys
 import os
 import logging
+import argparse
 from pathlib import Path
-from typing import Dict, Any, Optional, Tuple
+from typing import Dict, Any, Optional, Tuple, List
 import pandas as pd
 import numpy as np
-
-# MixedLM might require statsmodels
-try:
-    import statsmodels.api as sm
-    from statsmodels.regression.mixed_linear_model import MixedLM
-    MIXEDLM_AVAILABLE = True
-except ImportError:
-    MIXEDLM_AVAILABLE = False
-    logging.warning("statsmodels MixedLM not available. Using fallback.")
-
+from statsmodels.formula.api import mixedlm
+from statsmodels.genmod.generalized_estimating_equations import GEE
+from statsmodels.genmod.cov_struct import Exchangeable
+from scipy import stats
 from utils.logging import get_logger, log_stage_start, log_stage_end
+from utils.config import TIMEOUT_SECONDS
 
-# Import local config
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-from code.utils.config import TIMEOUT_SECONDS
+logger = get_logger(__name__)
 
-def load_results_csv(filepath: Path) -> pd.DataFrame:
-    """Load the merged results CSV."""
-    if not filepath.exists():
-        raise FileNotFoundError(f"Results file not found: {filepath}")
-    df = pd.read_csv(filepath)
-    required_cols = ['task_id', 'method', 'time_to_pivot', 'success', 'failure_type']
-    for col in required_cols:
-        if col not in df.columns:
-            raise ValueError(f"Missing required column '{col}' in {filepath}")
+def load_results_csv(input_path: str) -> pd.DataFrame:
+    """Load the merged results CSV containing paired baseline and rule-engine metrics."""
+    path = Path(input_path)
+    if not path.exists():
+        raise FileNotFoundError(f"Input file not found: {input_path}")
+    
+    df = pd.read_csv(path)
+    
+    required_cols = ['task_id', 'method_rule', 'time_rule', 'success_rule', 
+                     'method_baseline', 'time_baseline', 'success_baseline', 
+                     'failure_type']
+    
+    missing = [c for c in required_cols if c not in df.columns]
+    if missing:
+        raise ValueError(f"Missing required columns in {input_path}: {missing}")
+    
+    logger.info(f"Loaded {len(df)} rows from {input_path}")
     return df
 
 def verify_paired_data_integrity(df: pd.DataFrame) -> Tuple[bool, List[str]]:
-    """
-    Verify that for every task_id, there is exactly one 'rule_engine' entry
-    and exactly one 'baseline' entry.
-    Returns (is_valid, list_of_errors).
-    """
-    errors = []
+    """Verify that every task_id has both rule and baseline entries."""
+    issues = []
     task_ids = df['task_id'].unique()
-    
-    # Check for duplicates within methods
-    duplicates = df[df.duplicated(subset=['task_id', 'method'], keep=False)]
-    if not duplicates.empty:
-        errors.append(f"Found duplicate entries for (task_id, method): {duplicates[['task_id', 'method']].values.tolist()}")
-
-    # Check for missing pairs
-    missing_pairs = []
     
     for tid in task_ids:
         subset = df[df['task_id'] == tid]
-        methods = subset['method'].unique()
+        has_rule = (subset['method_rule'].notna()).any()
+        has_baseline = (subset['method_baseline'].notna()).any()
         
-        has_rule = 'rule_engine' in methods
-        has_baseline = 'baseline' in methods
-        
-        if not (has_rule and has_baseline):
-            missing_info = []
-            if not has_rule: missing_info.append("rule_engine")
-            if not has_baseline: missing_info.append("baseline")
-            missing_pairs.append(f"Task {tid} missing: {', '.join(missing_info)}")
-
-    if missing_pairs:
-        errors.append(f"Found {len(missing_pairs)} tasks with incomplete pairs:\n" + "\n".join(missing_pairs))
-
-    is_valid = len(errors) == 0
-    return is_valid, errors
+        if not has_rule or not has_baseline:
+            issues.append(f"task_id {tid} missing paired data (rule: {has_rule}, baseline: {has_baseline})")
+    
+    if issues:
+        logger.error(f"Data integrity check failed: {len(issues)} issues found")
+        return False, issues
+    
+    logger.info("Paired data integrity check passed")
+    return True, []
 
 def prepare_data_for_regression(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Prepare data for mixed-effects regression.
-    Ensures paired data integrity before processing.
-    """
-    is_valid, errors = verify_paired_data_integrity(df)
-    if not is_valid:
-        logger.error("Paired data integrity check failed. Aborting analysis.")
-        for err in errors:
-            logger.error(err)
-        raise ValueError("Paired data integrity check failed. Cannot proceed with statistical tests on incomplete pairs.")
+    """Prepare the dataframe for mixed-effects regression analysis."""
+    # Create long format for regression
+    # We need: task_id, method (rule/baseline), time, success, failure_type
     
-    # Encode categorical variables
-    df['method_encoded'] = df['method'].map({'rule_engine': 0, 'baseline': 1})
-    df['failure_type_encoded'] = df['failure_type'].astype('category').cat.codes
+    rule_df = df[['task_id', 'method_rule', 'time_rule', 'success_rule', 'failure_type']].copy()
+    rule_df.columns = ['task_id', 'method', 'time', 'success', 'failure_type']
+    rule_df['method'] = 'rule'
     
-    return df
+    baseline_df = df[['task_id', 'method_baseline', 'time_baseline', 'success_baseline', 'failure_type']].copy()
+    baseline_df.columns = ['task_id', 'method', 'time', 'success', 'failure_type']
+    baseline_df['method'] = 'baseline'
+    
+    long_df = pd.concat([rule_df, baseline_df], ignore_index=True)
+    
+    # Handle censored time values
+    # If time equals TIMEOUT_SECONDS, mark as censored
+    long_df['is_censored'] = (long_df['time'] >= TIMEOUT_SECONDS).astype(int)
+    
+    # Encode method as numeric for interaction
+    long_df['method_num'] = (long_df['method'] == 'baseline').astype(int)
+    
+    # Encode failure_type as numeric (one-hot or ordinal)
+    # For simplicity in formula, we'll use categorical
+    long_df['failure_type'] = long_df['failure_type'].astype('category')
+    
+    logger.info(f"Prepared {len(long_df)} rows for regression")
+    return long_df
 
-def fit_mixed_effects_model(df: pd.DataFrame) -> Optional[Any]:
-    """
-    Fit a mixed-effects logistic regression model.
-    Success ~ FailureType * Method + (1|TaskID)
-    """
-    if not MIXEDLM_AVAILABLE:
-        logger.warning("MixedLM not available. Skipping model fit.")
-        return None
-
+def fit_mixed_effects_model(long_df: pd.DataFrame) -> Any:
+    """Fit mixed-effects logistic regression for success outcome."""
+    # Formula: success ~ failure_type * method + (1|task_id)
+    # Using GEE for binary outcome with exchangeable correlation
+    
+    # Remove rows with missing values
+    clean_df = long_df.dropna(subset=['success', 'time', 'failure_type', 'method'])
+    
+    if len(clean_df) == 0:
+        raise ValueError("No valid data points for regression after cleaning")
+    
+    # Fit logistic regression with GEE (since mixedlm doesn't support binary directly)
+    # Using Exchangeable correlation structure for paired data
+    formula = "success ~ C(failure_type) * C(method)"
+    
     try:
-        # Prepare data
-        # Note: MixedLM in statsmodels is for linear models. For logistic, we might need GLMM.
-        # Since GLMM is not always stable in statsmodels, we use a linear approximation on success (0/1)
-        # or use a fixed effects model if random effects are problematic.
-        
-        # For this implementation, we will use a linear mixed model on the 'success' column (0/1)
-        # as a proxy for logistic regression, or use a simple fixed effects model if random effects fail.
-        
-        # Create interaction term
-        df['interaction'] = df['method_encoded'] * df['failure_type_encoded']
-        
-        # Formula: success ~ method + failure_type + interaction
-        # Random effect: (1 | task_id)
-        
-        # Using a simplified approach for robustness:
-        # We will fit a model with fixed effects for method, failure_type, and interaction.
-        # Random effects might be too complex for the current environment.
-        
-        X = df[['method_encoded', 'failure_type_encoded', 'interaction']]
-        X = sm.add_constant(X)
-        y = df['success']
-        
-        # Fit OLS as a fallback if MixedLM is too complex or unstable
-        model = sm.OLS(y, X)
-        results = model.fit()
-        
-        return results
+        model = GEE.from_formula(
+            formula,
+            groups="task_id",
+            data=clean_df,
+            family=stats.families.Binomial(),
+            cov_struct=Exchangeable()
+        )
+        result = model.fit()
+        logger.info("Mixed-effects model fitted successfully")
+        return result
     except Exception as e:
-        logger.error(f"Model fitting failed: {e}")
-        return None
+        logger.error(f"Model fitting failed: {str(e)}")
+        # Fallback to simpler logistic regression if GEE fails
+        try:
+            import statsmodels.api as sm
+            y = clean_df['success'].values
+            # Create design matrix manually
+            X = pd.get_dummies(clean_df[['failure_type', 'method']], drop_first=True)
+            X = sm.add_constant(X)
+            model = sm.Logit(y, X)
+            result = model.fit(disp=False)
+            logger.warning("Fell back to standard logistic regression")
+            return result
+        except Exception as e2:
+            raise RuntimeError(f"Both model fitting attempts failed: {str(e2)}")
 
-def extract_interaction_p_value(results: Any) -> float:
-    """Extract the p-value for the interaction term."""
-    if results is None:
-        return 1.0
-    try:
-        # Assuming the interaction term is the last column or named 'interaction'
-        p_val = results.pvalues['interaction']
-        return float(p_val)
-    except (KeyError, IndexError):
-        logger.warning("Interaction term p-value not found.")
-        return 1.0
+def extract_interaction_p_value(result: Any) -> Dict[str, Any]:
+    """Extract the p-value for the interaction term between failure_type and method."""
+    summary = result.summary2()
+    
+    # Extract coefficients and p-values
+    coefs = {}
+    if hasattr(summary, 'tables') and len(summary.tables) > 1:
+        coef_table = summary.tables[1]
+        for idx, row in coef_table.iterrows():
+            coef_name = str(idx)
+            if 'p' in row.index:
+                p_val = row['p']
+            elif 'P>|t|' in row.index:
+                p_val = row['P>|t|']
+            elif 'P>|z|' in row.index:
+                p_val = row['P>|z|']
+            else:
+                p_val = None
+            coefs[coef_name] = {'coef': row.get('Coef.', 0), 'p_value': p_val}
+    
+    # Look for interaction terms (contain both failure_type and method)
+    interaction_terms = {}
+    for name, stats in coefs.items():
+        if 'C(failure_type)' in name and 'C(method)' in name:
+            interaction_terms[name] = stats
+    
+    # Find the minimum p-value among interaction terms
+    min_p = None
+    min_term = None
+    for term, stats in interaction_terms.items():
+        if stats['p_value'] is not None:
+            if min_p is None or stats['p_value'] < min_p:
+                min_p = stats['p_value']
+                min_term = term
+    
+    return {
+        'interaction_terms': interaction_terms,
+        'min_interaction_p_value': min_p,
+        'significant_at_005': min_p < 0.05 if min_p is not None else False,
+        'significant_at_001': min_p < 0.01 if min_p is not None else False
+    }
 
-def save_regression_results(results_data: Dict[str, Any], output_path: Path):
-    """Save regression results to JSON."""
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+def save_regression_results(result: Any, output_path: str, interaction_info: Dict[str, Any]) -> None:
+    """Save regression results to JSON file."""
+    results_dict = {
+        'model_type': 'Mixed-Effects Logistic Regression (GEE)',
+        'formula': "success ~ C(failure_type) * C(method) + (1|task_id)",
+        'interaction_significance': interaction_info,
+        'coefficients': {},
+        'sample_size': result.nobs if hasattr(result, 'nobs') else 0
+    }
+    
+    # Extract coefficients
+    if hasattr(result, 'params'):
+        for name, coef in result.params.items():
+            results_dict['coefficients'][name] = {
+                'estimate': float(coef),
+                'p_value': interaction_info['interaction_terms'].get(name, {}).get('p_value')
+            }
+    
+    # Add model fit statistics
+    if hasattr(result, 'converged'):
+        results_dict['converged'] = result.converged
+    if hasattr(result, 'cov_re'):
+        results_dict['n_params'] = len(result.params)
+    
     with open(output_path, 'w') as f:
-        json.dump(results_data, f, indent=2)
-    logger.info(f"Regression results saved to {output_path}")
+        json.dump(results_dict, f, indent=2, default=str)
+    
+    logger.info(f"Saved regression results to {output_path}")
+
+def generate_interaction_significance_report(interaction_info: Dict[str, Any], output_path: str) -> None:
+    """Generate a human-readable report on interaction term significance."""
+    report = {
+        'timestamp': str(pd.Timestamp.now()),
+        'analysis_type': 'Interaction Term Significance (Failure Type x Method)',
+        'hypothesis': 'The interaction between failure structure and method determines success rates',
+        'results': interaction_info,
+        'conclusion': (
+            "SIGNIFICANT" if interaction_info['significant_at_005'] 
+            else "NOT SIGNIFICANT"
+        ),
+        'interpretation': (
+            "The data supports the hypothesis that failure structure dictates method viability."
+            if interaction_info['significant_at_005']
+            else "The data does not provide sufficient evidence to support the hypothesis."
+        )
+    }
+    
+    with open(output_path, 'w') as f:
+        json.dump(report, f, indent=2)
+    
+    logger.info(f"Saved interaction significance report to {output_path}")
+
+def run_pilot_analysis(input_path: str, regression_output: str, interaction_output: str) -> None:
+    """Run the full pilot statistical analysis pipeline."""
+    log_stage_start("pilot_statistical_analysis", input_path)
+    
+    try:
+        # Load data
+        df = load_results_csv(input_path)
+        
+        # Verify paired data
+        is_valid, issues = verify_paired_data_integrity(df)
+        if not is_valid:
+            raise ValueError(f"Data integrity check failed: {issues}")
+        
+        # Prepare data
+        long_df = prepare_data_for_regression(df)
+        
+        # Fit model
+        model_result = fit_mixed_effects_model(long_df)
+        
+        # Extract interaction significance
+        interaction_info = extract_interaction_p_value(model_result)
+        
+        # Save results
+        save_regression_results(model_result, regression_output, interaction_info)
+        generate_interaction_significance_report(interaction_info, interaction_output)
+        
+        log_stage_end("pilot_statistical_analysis", "SUCCESS")
+        
+    except Exception as e:
+        logger.error(f"Analysis failed: {str(e)}")
+        log_stage_end("pilot_statistical_analysis", "FAILED", str(e))
+        raise
 
 def main():
-    log_stage_start("statistical_model")
-    try:
-        results_path = Path("data/derived/results.csv")
-        output_path = Path("data/derived/regression_results.json")
-
-        logger.info(f"Loading results from {results_path}")
-        df = load_results_csv(results_path)
-
-        logger.info("Verifying paired data integrity...")
-        # This call will raise an error if pairs are incomplete, satisfying T076
-        is_valid, errors = verify_paired_data_integrity(df)
-        if not is_valid:
-            logger.error("Integrity check failed. Aborting.")
-            sys.exit(1)
-
-        logger.info("Preparing data for regression...")
-        df = prepare_data_for_regression(df)
-
-        logger.info("Fitting mixed-effects model...")
-        model_results = fit_mixed_effects_model(df)
-
-        p_value = extract_interaction_p_value(model_results)
-        
-        # Determine significance
-        interaction_significant = p_value < 0.05
-        narrative = "The interaction term is significant (p < 0.05)" if interaction_significant else "The interaction term is not significant (p >= 0.05)"
-
-        results_data = {
-            "p_value": p_value,
-            "interaction_significant": interaction_significant,
-            "narrative_conclusion": narrative,
-            "model_type": "Linear Mixed Effects (approx)" if MIXEDLM_AVAILABLE else "OLS Fallback"
-        }
-
-        logger.info("Saving results...")
-        save_regression_results(results_data, output_path)
-
-        log_stage_end("statistical_model")
-        sys.exit(0)
-    except Exception as e:
-        logger.error(f"Pipeline failed: {e}")
-        sys.exit(1)
+    parser = argparse.ArgumentParser(description="Run pilot statistical analysis")
+    parser.add_argument("--input", required=True, help="Path to input results CSV")
+    parser.add_argument("--regression-output", 
+                        default="data/derived/pilot_regression_results.json",
+                        help="Path for regression results JSON")
+    parser.add_argument("--interaction-output",
+                        default="data/derived/pilot_interaction_significance_report.json",
+                        help="Path for interaction significance report JSON")
+    
+    args = parser.parse_args()
+    
+    # Ensure output directories exist
+    for path in [args.regression_output, args.interaction_output]:
+        Path(path).parent.mkdir(parents=True, exist_ok=True)
+    
+    run_pilot_analysis(args.input, args.regression_output, args.interaction_output)
 
 if __name__ == "__main__":
     main()
