@@ -45,3 +45,25 @@ T055:
   r: The required file `src/analysis/stats.py` is missing, so there is no batched
     variance calculation function nor any use of `psutil` for memory monitoring. The
     task deliverable is absent.
+T063:
+  c: false
+  h: 401d66b603330968bfdc615d1bd53ab9e477a50e4f2d56dc860efa7c92ab3334
+  r: "The provided `src/environment/runner.py` does not contain any logic that checks\
+    \ for the presence or non\u2011emptiness of `data/processed/full_sweep_results.json`,\
+    \ nor does it exit with code\u202F1 and the required error message. Additionally,\
+    \ the expected data file is missing from the repository. Consequently, the task\u2019\
+    s verification requirement is not satisfied."
+T065:
+  c: false
+  h: 4b78ca31f156e68f76cf342c2ad21c9e304aad00d37514fa4af52d5ea711e6b5
+  r: "The required output file `data/processed/heavy_tailed_results.json` does not\
+    \ exist, and the supporting `full_sweep_results.json` is also missing, so the\
+    \ heavy\u2011tailed validation was not run nor verified as independent. The task\u2019\
+    s deliverable is therefore not satisfied."
+T067:
+  c: false
+  h: 8869202cf142cfb916c18a1861ba529497c7a0e1ead6c9a93ca56e8607c5ee9b
+  r: "The required `scripts/run_full_suite.sh` script is absent, and the expected\
+    \ output file `data/processed/statistical_report.json` does not exist, so the\
+    \ end\u2011to\u2011end test cannot be run nor verified. The task\u2019s deliverables\
+    \ are missing."
