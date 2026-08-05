@@ -73,68 +73,56 @@ def log_operation(*args: Any, **kwargs: Any) -> Any:
     return get_logger().log(op, **kwargs)
 
 
-def log_error_details(error: Any, context: Optional[Dict[str, Any]] = None) -> None:
-    """
-    Log error details. Tolerant of missing context.
-    """
-    logger = get_logger()
-    entry = logger.log("error_details", error=str(error), context=context or {})
-    logger.log("error_logged", entry_id=id(entry))
+def log_error_details(*args: Any, **kwargs: Any) -> None:
+    """Tolerant error logging helper."""
+    get_logger().log("error_details", **kwargs)
 
 
 def setup_logging(*args: Any, **kwargs: Any) -> None:
-    """No-op setup for compatibility."""
-    pass
+    """Tolerant setup logging helper."""
+    get_logger().log("setup_logging", **kwargs)
 
 
 def log_simulation_params(*args: Any, **kwargs: Any) -> None:
-    """Log simulation parameters."""
-    logger = get_logger()
-    logger.log("simulation_params", **kwargs)
+    """Tolerant simulation params logging helper."""
+    get_logger().log("simulation_params", **kwargs)
 
 
 def log_seed_usage(*args: Any, **kwargs: Any) -> None:
-    """Log seed usage."""
-    logger = get_logger()
-    logger.log("seed_usage", **kwargs)
+    """Tolerant seed usage logging helper."""
+    get_logger().log("seed_usage", **kwargs)
 
 
 def log_iteration_status(*args: Any, **kwargs: Any) -> None:
-    """Log iteration status."""
-    logger = get_logger()
-    logger.log("iteration_status", **kwargs)
+    """Tolerant iteration status logging helper."""
+    get_logger().log("iteration_status", **kwargs)
 
 
 def log_test_result(*args: Any, **kwargs: Any) -> None:
-    """Log test result."""
-    logger = get_logger()
-    logger.log("test_result", **kwargs)
+    """Tolerant test result logging helper."""
+    get_logger().log("test_result", **kwargs)
 
 
 def log_warning_assumption_violated(*args: Any, **kwargs: Any) -> None:
-    """Log warning about assumption violation."""
-    logger = get_logger()
-    logger.log("assumption_violated", **kwargs)
+    """Tolerant warning logging helper."""
+    get_logger().log("warning_assumption_violated", **kwargs)
 
 
 def log_fallback_triggered(*args: Any, **kwargs: Any) -> None:
-    """Log fallback trigger."""
-    logger = get_logger()
-    logger.log("fallback_triggered", **kwargs)
+    """Tolerant fallback logging helper."""
+    get_logger().log("fallback_triggered", **kwargs)
 
 
 def log_output_file_written(*args: Any, **kwargs: Any) -> None:
-    """Log output file written."""
-    logger = get_logger()
-    logger.log("output_file_written", **kwargs)
+    """Tolerant output file logging helper."""
+    get_logger().log("output_file_written", **kwargs)
 
 
 def log_shutdown(*args: Any, **kwargs: Any) -> None:
-    """Log shutdown."""
-    logger = get_logger()
-    logger.log("shutdown", **kwargs)
+    """Tolerant shutdown logging helper."""
+    get_logger().log("shutdown", **kwargs)
 
 
 def get_log_file_path() -> str:
-    """Get log file path."""
-    return "data/simulation.log"
+    """Return the path to the log file (placeholder)."""
+    return "data/logs/reproducibility.log"

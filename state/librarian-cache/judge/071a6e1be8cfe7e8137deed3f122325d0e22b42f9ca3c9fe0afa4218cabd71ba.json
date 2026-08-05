@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1509.05213",
+  "judged_at": "2026-08-05T21:47:15Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting the impact of composition on the band gap of perovskite materials materials science",
+  "rationale": "The paper investigates band-gaps in generic \"laminated media\" (phononic and photonic composites) and focuses on universal structural properties of layered geometries, whereas the user's question specifically targets the prediction of band-gaps in \"Perovskite Materials\" based on chemical \"composition.\" This falls under the rejection rule for \"Distinct construct sharing only homonym keywords\" (band-gaps in wave propagation vs. electronic band-gaps in specific crystal chemistry) and \"Off-domain ent",
+  "relevant": false
+}

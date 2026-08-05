@@ -7555,3 +7555,261 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-02T10:17:53Z'
+- artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/specs/001-evaluating-the-sensitivity-of-common-sta/tasks.md
+  attempts: 1
+  canonical: plot error rate vs sample size with horizontal line at 0.05
+  claim_id: c_c57d603d
+  context: 'Independent Test: The system can be tested by feeding it the output CSV
+    from User Story 1 and generatinga plot where the X-axis is sample size and the
+    Y-axis is error rate, with a horizontal line at 0.05 and a highlighted vertical
+    line indicating the calculated threshold.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system can be tested by feeding it the output CSV from User Story
+    1 and generatinga plot where the X-axis is sample size and the Y-axis is error
+    rate, with a horizontal line at 0.05 and a highlighted vertical line indicating
+    the calculated threshold.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T21:38:36Z'
+- artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/specs/001-evaluating-the-sensitivity-of-common-sta/tasks.md
+  attempts: 1
+  canonical: identify smallest sample size where Type I error lower CI bound exceeds
+    0.05
+  claim_id: c_453f5e6d
+  context: T021 [US2] Implement logic in `code/analysis/threshold_finder.py` to The
+    system will identify the smallest sample size where the Type I error lower confidence
+    interval bound exceeds 0.05. (FR-004)
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Identify_smallest_sample_size_where_Type_I_error_lower_CI_bo
+  kind: magnitude
+  raw_text: The system will identify the smallest sample size where the Type I error
+    lower confidence interval bound exceeds 0.05.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T21:39:41Z'
+- artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/specs/001-evaluating-the-sensitivity-of-common-sta/tasks.md
+  attempts: 1
+  canonical: identify smallest n where power CI remains below 0.80 for 3 consecutive
+    increments
+  claim_id: c_cb30e933
+  context: T022 [US2] Implement logic in `code/analysis/threshold_finder.py` to identify
+    the smallest n where power CI remains < 0.80) for 3 consecutive increments (FR-004)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Identify_smallest_n_where_power_CI_remains_below_0.80_for_3
+  kind: magnitude
+  raw_text: Implement logic in `code/analysis/threshold_finder.py` to identify the
+    smallest n where power CI remains < 0.80) for 3 consecutive increments
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T21:40:06Z'
+- artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/specs/001-evaluating-the-sensitivity-of-common-sta/tasks.md
+  attempts: 1
+  canonical: verify Kolmogorov-Smirnov distance less than or equal to 0.10 for bootstrapped
+    power estimation
+  claim_id: c_3f32cbef
+  context: T032 [US3] Implement bootstrapped power estimation on real datasets, calculate
+    Kolmogorov-Smirnov (KS) distance against simulated predictions, Bootstrapped power
+    estimation on real datasets must verify Kolmogorov-Smirnov distance less than
+    or equal to 0.10., and save results to `data/simulation/real_data_power.json`
+    (FR-006, SC-003)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_Kolmogorov-Smirnov_distance_less_than_or_equal_to_0.1
+  kind: magnitude
+  raw_text: Bootstrapped power estimation on real datasets must verify Kolmogorov-Smirnov
+    distance less than or equal to 0.10.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T21:40:39Z'
+- artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/specs/001-evaluating-the-sensitivity-of-common-sta/tasks.md
+  attempts: 1
+  canonical: simulation RAM usage less than 7GB during full run
+  claim_id: c_f517c68a
+  context: T036 [P] Optimize `code/main.py` for memory usage to The simulation must
+    ensure less than 7GB RAM usage during full simulation run.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Simulation_RAM_usage_less_than_7GB_during_full_run
+  kind: magnitude
+  raw_text: The simulation must ensure less than 7GB RAM usage during full simulation
+    run.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T21:41:01Z'
+- artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/specs/001-evaluating-the-sensitivity-of-common-sta/tasks.md
+  attempts: 3
+  canonical: UCI datasets fetched using IDs 197, 198, and 522 via ucimlrepo
+  claim_id: c_db05c32c
+  context: 'Real-Data Constraint: T029a/T029b/T029c must explicitly use `ucimlrepo`
+    and specific numeric IDs (197, 198, 522) to fetch datasets, not generic "download
+    from UCI" instructions.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: T029a/T029b/T029c must explicitly use `ucimlrepo` and specific numeric
+    IDs (197, 198, 522) to fetch datasets
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T21:41:18Z'
+- artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/specs/001-evaluating-the-sensitivity-of-common-sta/tasks.md
+  attempts: 1
+  canonical: fallback logic triggers for expected cell counts less than 5
+  claim_id: c_b40166fb
+  context: Implement `code/simulation/test_runner.py` to execute t-test, ANOVA, and
+    chi-squared on generated data; The system must detect expected cell counts less
+    than 5 and route to fallback logic. (FR-007)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Fallback_logic_triggers_for_expected_cell_counts_less_than_5
+  kind: magnitude
+  raw_text: The system must detect expected cell counts less than 5 and route to fallback
+    logic.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T21:42:45Z'
+- artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/specs/001-evaluating-the-sensitivity-of-common-sta/tasks.md
+  attempts: 1
+  canonical: normality warnings flagged for sample sizes less than 30
+  claim_id: c_063bf06d
+  context: supports dynamic alpha (FR-002, FR-007); MUST flag n < 30 for normality
+    warnings
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Normality_warnings_flagged_for_sample_sizes_less_than_30
+  kind: magnitude
+  raw_text: The system must flag sample sizes n < 30 for normality warnings.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T21:43:34Z'
+- artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/specs/001-evaluating-the-sensitivity-of-common-sta/tasks.md
+  attempts: 1
+  canonical: threshold identified when Type I error lower CI bound exceeds 0.05
+  claim_id: c_7de702fa
+  context: Implement logic in `code/analysis/threshold_finder.py` to The system will
+    identify the smallest sample size where the Type I error lower confidence interval
+    bound exceeds 0.05. (FR-004)
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Threshold_identified_when_Type_I_error_lower_CI_bound_exceed
+  kind: magnitude
+  raw_text: The system will identify the smallest sample size where the Type I error
+    lower confidence interval bound exceeds 0.05.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T21:43:37Z'
+- artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/specs/001-evaluating-the-sensitivity-of-common-sta/tasks.md
+  attempts: 1
+  canonical: threshold identified when power CI remains below 0.80 for 3 consecutive
+    increments
+  claim_id: c_57461c90
+  context: Implement logic in `code/analysis/threshold_finder.py` to identify the
+    smallest n where power CI remains < 0.80) for 3 consecutive increments (FR-004)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Threshold_identified_when_power_CI_remains_below_0.80_for_3
+  kind: magnitude
+  raw_text: Identify the smallest n where power CI remains < 0.80 for 3 consecutive
+    increments.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T21:44:27Z'
+- artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/specs/001-evaluating-the-sensitivity-of-common-sta/tasks.md
+  attempts: 1
+  canonical: Kolmogorov-Smirnov distance must be less than or equal to 0.10
+  claim_id: c_21cdebf3
+  context: Implement bootstrapped power estimation on real datasets, calculate Kolmogorov-Smirnov
+    (KS) distance against simulated predictions, Bootstrapped power estimation on
+    real datasets must verify Kolmogorov-Smirnov distance less than or equal to 0.10.,
+    and save results
+  evidence:
+    entailment_evidence: Kolmogorov-Smirnov distance must be less than or equal to
+      0.
+    entailment_status: contradicted
+    source_url: https://en.wikipedia.org/wiki/Kolmogorov-Smirnov_distance_must_be_less_than_or_equal_to_0.
+  kind: magnitude
+  raw_text: Bootstrapped power estimation on real datasets must verify Kolmogorov-Smirnov
+    distance less than or equal to 0.10.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-08-05T21:44:30Z'
+- artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/specs/001-evaluating-the-sensitivity-of-common-sta/tasks.md
+  attempts: 1
+  canonical: RAM usage must be less than 7GB during full simulation
+  claim_id: c_84ae81f4
+  context: Optimize `code/main.py` for memory usage to The simulation must ensure
+    less than 7GB RAM usage during full simulation run.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/RAM_usage_must_be_less_than_7GB_during_full_simulation
+  kind: magnitude
+  raw_text: The simulation must ensure less than 7GB RAM usage during full simulation
+    run.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T21:44:33Z'
+- artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/specs/001-evaluating-the-sensitivity-of-common-sta/tasks.md
+  attempts: 1
+  canonical: UCI dataset IDs 197, 198, and 522 used to fetch datasets
+  claim_id: c_ea0cbd72
+  context: T029a/T029b/T029c must explicitly use `ucimlrepo` and specific numeric
+    IDs (197, 198, 522) to fetch datasets
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must use dataset IDs 197, 198, and 522 to fetch datasets from
+    UCI.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T21:44:58Z'

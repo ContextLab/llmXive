@@ -1,0 +1,777 @@
+{
+  "fetched_at": "2026-08-05T21:47:22Z",
+  "field": "materials science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "materials science",
+      "idea_body_excerpt": "Predicting the Impact of Composition on the Band Gap of Perovskite Materials",
+      "target_n": 5
+    },
+    "duration_seconds": 56.4,
+    "ended_at": "2026-08-05T21:47:22Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "compositional engineering of perovskite band gaps"
+        ],
+        [
+          2,
+          "band gap tuning in halide perovskites"
+        ],
+        [
+          3,
+          "composition-property relationships in perovskite semiconductors"
+        ],
+        [
+          4,
+          "machine learning prediction of perovskite electronic structure"
+        ],
+        [
+          5,
+          "high-throughput screening of perovskite band gaps"
+        ],
+        [
+          6,
+          "A-site and B-site cation effects on perovskite band structure"
+        ],
+        [
+          7,
+          "predicting optical band gaps of metal halide perovskites"
+        ],
+        [
+          8,
+          "density functional theory calculation of perovskite band gaps"
+        ],
+        [
+          9,
+          "structure-property mapping in hybrid perovskites"
+        ],
+        [
+          10,
+          "data-driven discovery of perovskite optoelectronic properties"
+        ],
+        [
+          11,
+          "compositional disorder effects on perovskite band edges"
+        ],
+        [
+          12,
+          "virtual screening of lead-free perovskite band gaps"
+        ],
+        [
+          13,
+          "band gap engineering via halide mixing in perovskites"
+        ],
+        [
+          14,
+          "computational prediction of perovskite absorption onset"
+        ],
+        [
+          15,
+          "composition-dependent electronic properties of ABX3 perovskites"
+        ],
+        [
+          16,
+          "neural network models for perovskite band gap estimation"
+        ],
+        [
+          17,
+          "quantum chemical modeling of perovskite composition effects"
+        ],
+        [
+          18,
+          "correlating crystal structure and band gap in perovskites"
+        ],
+        [
+          19,
+          "predictive modeling of ternary and quaternary perovskite band gaps"
+        ],
+        [
+          20,
+          "electronic structure prediction for perovskite solar cell materials"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Predicting the Impact of Composition on the Band Gap of Perovskite Materials materials science": 0,
+        "band gap tuning in halide perovskites": 3,
+        "compositional engineering of perovskite band gaps": 1
+      },
+      "total_queries_issued": 2
+    },
+    "extracted_queries": [
+      "high-throughput screening compositional space",
+      "ABX3 halide double perovskite",
+      "formation energy defect tolerance stability",
+      "optical absorption coefficient exciton binding",
+      "composition band gap mapping machine learning"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "1409.6478"
+      ]
+    },
+    "per_query_hit_count": {
+      "ABX3 halide double perovskite": 3,
+      "Predicting the Impact of Composition on the Band Gap of Perovskite Materials materials science": 3,
+      "composition band gap mapping machine learning": 3,
+      "formation energy defect tolerance stability": 3,
+      "high-throughput screening compositional space": 3,
+      "optical absorption coefficient exciton binding": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 1,
+      "rejections": [
+        {
+          "primary_pointer": "1509.05213",
+          "rationale": "The paper investigates band-gaps in generic \"laminated media\" (phononic and photonic composites) and focuses on universal structural properties of layered geometries, whereas the user's question specifically targets the prediction of band-gaps in \"Perovskite Materials\" based on chemical \"composition.\" This falls under the rejection rule for \"Distinct construct sharing only homonym keywords\" (band-gaps in wave propagation vs. electronic band-gaps in specific crystal chemistry) and \"Off-domain ent",
+          "title": "Universality and optimality of band-gaps in laminated media"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-08-05T21:46:26Z",
+    "term_input": {
+      "normalized": "predicting the impact of composition on the band gap of perovskite materials materials science",
+      "raw": "Predicting the Impact of Composition on the Band Gap of Perovskite Materials materials science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In the rapidly expanding field of two-dimensional materials, magnetic monolayers show great promise for the future applications in nanoelectronics, data storage, and sensing. The research in intrinsically magnetic two-dimensional materials mainly focuses on synthetic iodide and telluride based compounds, which inherently suffer from the lack of ambient stability. So far, naturally occurring layered magnetic materials have been vastly overlooked. These minerals offer a unique opportunity to explore air-stable complex layered systems with high concentration of local moment bearing ions. We demonstrate magnetic ordering in iron-rich two-dimensional phyllosilicates, focusing on mineral species of minnesotaite, annite, and biotite. These are naturally occurring van der Waals magnetic materials which integrate local moment baring ions of iron via magnesium/aluminium substitution in their octahedral sites. Due to self-inherent capping by silicate/aluminate tetrahedral groups, ultra-thin layers are air-stable. Chemical characterization, quantitative elemental analysis, and iron oxidation states were determined via Raman spectroscopy, wavelength disperse X-ray spectroscopy, X-ray absorption spectroscopy, and X-ray photoelectron spectroscopy. Superconducting quantum interference device magnetometry measurements were performed to examine the magnetic ordering. These layered materials exhibit paramagnetic or superparamagnetic characteristics at room temperature. At low temperature ferrimagnetic or antiferromagnetic ordering occurs, with the critical ordering temperature of 38.7 K for minnesotaite, 36.1 K for annite, and 4.9 K for biotite. In-field magnetic force microscopy on iron bearing phyllosilicates confirmed the paramagnetic response at room temperature, present down to monolayers.",
+          "claimed_authors": [
+            "Muhammad Zubair Khan",
+            "Oleg E. Peil",
+            "Apoorva Sharma",
+            "Oleksandr Selyshchev",
+            "Sergio Valencia",
+            "Florian Kronast",
+            "Maik Zimmermann",
+            "Muhammad Awais Aslam",
+            "Johann G. Raith",
+            "Christian Teichert",
+            "Dietrich R. T. Zahn",
+            "Georgeta Salvan",
+            "Aleksandar Matković",
+            "Chair of Physics",
+            "Department Physics",
+            " Mechanics",
+            "Electrical engineering",
+            "Montanuniversität Leoben",
+            " 8700",
+            " Leoben",
+            " Austria.",
+            "Materials Center Leoben Forschung GmbH",
+            " 8700",
+            " Leoben",
+            " Austria.",
+            "Semiconductor Physics",
+            "Chemnitz University of Technology",
+            " D-09107",
+            " Chemnitz",
+            " Germany.",
+            "Department of Spin",
+            "Topology in Quantum Materials",
+            "Helmholtz-Zentrum Berlin",
+            "Albert-Einstein-Str. 15",
+            " D-12489",
+            " Berlin",
+            " Germany.",
+            "Chair of Resource Mineralogy",
+            "Montanuniversität Leoben",
+            " 8700",
+            " Leoben",
+            " Austria.",
+            "Centre for Materials",
+            " Architecture",
+            "Integration of Nanomembranes",
+            "Chemnitz University of Technology",
+            " 09126",
+            " Chemnitz",
+            " Germany"
+          ],
+          "claimed_title": "Probing magnetic ordering in air stable iron-rich van der Waals minerals",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2304.06533"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Predicting the Impact of Composition on the Band Gap of Perovskite Materials mat', candidate_title='Probing magnetic ordering in air stable iron-rich van der Waals minerals')",
+        "failed_at": "2026-08-05T21:46:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Proposed as blanket structural materials for fusion power reactors, reduced activation ferritic/martensitic (RAFM) steel undergoes volume expanding and contracting in a cyclic mode under service environment. Particularly, being subjected to significant fluxes of fusion neutrons RAFM steel suffers considerable local volume variations in the radiation damage involved regions. It is necessary to study the structure properties of the alloying elements in contraction and expansion states. In this paper we studied local substitution structures of thirteen alloying elements Al, Co, Cr, Cu, Mn, Mo, Nb, Ni, Si, Ta, Ti, V, and W in bcc Fe and calculated their substitutional energies in the volume variation range from -1.0% to 1.0%. From the structure relaxation results of the first five neighbor shells around the substitutional atom we find the relaxation in each neighbor shell keeps approximately uniform within the volume variation from -1.0% to 1.0% except those of Mn and the relaxation of the fifth neighbor shell is stronger than that of the third and forth, indicating that the lattice distortion due to the substitution atom is easier to spread in <111> direction than in other direction. The relaxation pattern and intensity are related to the size and electron structure of the substitutional atom. For some alloying elements, such as Mo, Nb, Ni, Ta, Ti and W, the substitutional energy decreases noticeably when the volume increases. Further analysis show that the substitutional energy comprises the energy variation originated from local structure relaxation and the chemical potential difference of the substitutional atom between its elemental crystalline state and the solid solution phase in bcc Fe. We think the approximately uniform relaxation of each neighbor shell around a substitutional atom give rise to a linear decrease in the substitutional energy with the increasing volume.",
+          "claimed_authors": [
+            "Wei Liu",
+            "Wei-Lu Wang",
+            "C. S. Liu",
+            "Q. F. Fang",
+            "Qun-Ying Huang",
+            "Yi-Can Wu",
+            "Key Laboratory of Materials Physics",
+            "Institute of Solid State Physics",
+            "Chinese Academy of Sciences",
+            "P. O. Box 1129",
+            "Hefei 230031",
+            "P. R. China",
+            "Institute of Plasma Physics",
+            "Chinese Academy of Sciences",
+            "Hefei 230031",
+            "P. R. China"
+          ],
+          "claimed_title": "Contraction and expansion effects on the substitution-defect properties of thirteen alloying elements in bcc Fe",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1008.3001"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Predicting the Impact of Composition on the Band Gap of Perovskite Materials mat', candidate_title='Contraction and expansion effects on the substitution-defect properties of thirteen alloying elements in bcc Fe')",
+        "failed_at": "2026-08-05T21:46:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Phosphorus (P) is considered to be one of the key elements for life, making it an important element to look for in the abundance analysis of spectra of stellar systems. Yet, there exists only a handful of spectroscopic studies to estimate the P abundances and investigate its trend across a range of metallicities. We have observed full HK band spectra at a spectral resolving power of R=45,000 with IGRINS instrument. Abundances are determined using SME in combination with 1D MARCS stellar atmosphere models. The investigated sample of stars have reliable stellar parameters estimated using optical FIES spectra (GILD; Jönsson et al. in prep.). In order to determine the P abundances from the 16482.92 Angstrom P line, we take special care of the CO($ν=7-4$) blend. We determine the C, N, O abundances from atomic carbon and a range of non-blended molecular lines (CO, CN, OH) which are aplenty in the H band region of K giant stars, assuring an appropriate modelling of the blending CO($ν=7-4$) line. We present [P/Fe] vs [Fe/H] trend for 38 K giant stars in the metallicity range of -1.2 dex $<$ [Fe/H] $<$ 0.4 dex. We find that our trend matches well with the compiled literature sample of prominently dwarf stars and limited number of giant stars. Our trend is found to be higher by $\\sim$ 0.05 - 0.1 dex compared to the theoretical chemical evolution trend in Cescutti et al. 2012 resulting from core collapse supernova (type II) of massive stars with the P yields from Kobayashi et al. (2006) arbitrarily increased by a factor of 2.75. Thus the enhancement factor might need to be $\\sim$ 0.05 - 0.1 dex higher to match our trend. We also find an empirically determined primary behaviour for phosphorus. Furthermore, the phosphorus abundance is found to be elevated by $\\sim$ 0.6 - 0.9 dex in two metal poor s-enriched stars compared to the theoretical chemical evolution trend.",
+          "claimed_authors": [
+            "G. Nandakumar",
+            "N. Ryde",
+            "M. Montelius",
+            "B. Thorsbro",
+            "H. Jönsson",
+            "G. Mace",
+            "Lund Observatory",
+            "Department of Astronomy",
+            "Theoretical Physics",
+            "Lund University",
+            "Box 43",
+            "SE-221 00 Lund",
+            " Sweden",
+            "Kapteyn Astronomical Institute",
+            "University of Groningen",
+            "Landleven 12",
+            "NL-9747 AD Groningen",
+            "the Netherlands",
+            "Department of Astronomy",
+            "School of Science",
+            "The University of Tokyo",
+            "7-3-1 Hongo",
+            " Bunkyo-ku",
+            "Tokyo 113-0033",
+            " Japan",
+            "Materials Science",
+            "Applied Mathematics",
+            "Malmö University",
+            "SE-205 06 Malmö",
+            " Sweden",
+            "Department of Astronomy",
+            "McDonald Observatory",
+            "The University of Texas",
+            " Austin",
+            "TX 78712",
+            " USA"
+          ],
+          "claimed_title": "The Galactic Chemical Evolution of phosphorus observed with IGRINS",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2210.04940"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Predicting the Impact of Composition on the Band Gap of Perovskite Materials mat', candidate_title='The Galactic Chemical Evolution of phosphorus observed with IGRINS')",
+        "failed_at": "2026-08-05T21:46:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This article reviews the application of fragment descriptors at different stages of virtual screening: filtering, similarity search, and direct activity assessment using QSAR/QSPR models. Several case studies are considered. It is demonstrated that the power of fragment descriptors stems from their universality, very high computational efficiency, simplicity of interpretation and versatility.",
+          "claimed_authors": [
+            "Igor I. Baskin",
+            "Alexandre Varnek"
+          ],
+          "claimed_title": "Fragment Descriptors in Virtual Screening",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1311.3723"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting the Impact of Composition on the Band Gap of Perovskite Materials mat', candidate_title='Fragment Descriptors in Virtual Screening')",
+        "failed_at": "2026-08-05T21:46:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We describe the scientific motivations, the mission concept and the instrumentation of SPACE, a class-M mission proposed for concept study at the first call of the ESA Cosmic-Vision 2015-2025 planning cycle. SPACE aims to produce the largest three-dimensional evolutionary map of the Universe over the past 10 billion years by taking near-IR spectra and measuring redshifts for more than half a billion galaxies at 0<z<2 down to AB~23 over 3πsr of the sky. In addition, SPACE will also target a smaller sky field, performing a deep spectroscopic survey of millions of galaxies to AB~26 and at 2<z<10+. These goals are unreachable with ground-based observations due to the ~500 times higher sky background. To achieve the main science objectives, SPACE will use a 1.5m diameter Ritchey-Chretien telescope equipped with a set of arrays of Digital Micro-mirror Devices (DMDs) covering a total field of view of 0.4 deg2, and will perform large-multiplexing multi-object spectroscopy (e.g. ~6000 targets per pointing) at a spectral resolution of R~400 as well as diffraction-limited imaging with continuous coverage from 0.8mum to 1.8mum.",
+          "claimed_authors": [
+            "A. Cimatti",
+            "M. Robberto",
+            "C. M. Baugh",
+            "S. V. W. Beckwith",
+            "R. Content",
+            "E. Daddi",
+            "G. De Lucia",
+            "B. Garilli",
+            "L. Guzzo",
+            "G. Kauffmann",
+            "M. Lehnert",
+            "D. Maccagni",
+            "A. Martinez-Sansigre",
+            "F. Pasian",
+            "I. N. Reid",
+            "P. Rosati",
+            "R. Salvaterra",
+            "M. Stiavelli",
+            "Y. Wang",
+            "M. Zapatero Osorio",
+            "the SPACE team"
+          ],
+          "claimed_title": "SPACE: the SPectroscopic All-sky Cosmic Explorer",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2008,
+          "primary_pointer": "0804.4433"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Predicting the Impact of Composition on the Band Gap of Perovskite Materials mat', candidate_title='SPACE: the SPectroscopic All-sky Cosmic Explorer')",
+        "failed_at": "2026-08-05T21:46:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present a community-wide effort to develop a strategy and action plan to advance heliophysics and space weather modeling through open science. While open science has the potential to enhance the quality and pace of scientific discovery, its application to scientific modeling requires more careful consideration regarding open data and open software guidelines, as scientific models differ significantly from data analysis software. We gathered feedback from modeling teams worldwide through a living survey and discussion sessions at the 2024 Open Science Workshop in College Park, USA, and at the 2025 COSPAR ISWAT Working Meeting in Cape Canaveral, USA. We complement these findings with lessons learned from almost 25 years of experience at the Community Coordinated Modeling Center in enabling open use of models. We identify key roadblocks in current open science practices and guidelines and offer recommendations for future progress across four overlapping themes: open use of models and simulation results, open validation, open development, and open collaboration. An essential outcome of the discussion is the need for model developers and model users to speak with a united voice and promote the role of models in future open science efforts. We introduce a new cross-domain community initiative called the Heliophysics Open Modeling Environment (HOME), which will be integrated as an overarching activity within COSPAR ISWAT. HOME will serve as a platform for modelers and model users to work together, facilitate community modeling, improve the scientific return on modeling investment, and advance understanding, modeling, and forecasting in heliophysics and space weather.",
+          "claimed_authors": [
+            "C. Corti",
+            "M. M. Kuznetsova",
+            "M. A. Reiss",
+            "J. Yue",
+            "J. Karpen",
+            "C. N. Arge",
+            "F. Bacchini",
+            "C. Bard",
+            "S. Bruinsma",
+            "R. M. Caplan",
+            "L. K. S. Daldorff",
+            "P. J. Deka",
+            "C. R. DeVore",
+            "S. Elvidge",
+            "N. Ganushkina",
+            "J. D. Huba",
+            "B. V. Jackson",
+            "V. Jordanova",
+            "J. A. Linker",
+            "H. Liu",
+            "J. G. Luhmann",
+            "S. Markidis",
+            "P. Mayank",
+            "V. Merkin",
+            "N. Moens",
+            "D. Odstrcil",
+            "Y. A. Omelchenko",
+            "M. Palmroth",
+            "S. Poedts",
+            "A. J. Ridley",
+            "Y. Shou",
+            "V. Tenishev",
+            "D. R. Themens",
+            "G. Toth",
+            "W. Wang",
+            "R. -P. Wilhelm",
+            "M. A. Young",
+            "B. Cecconi",
+            "M. -Y. Chou",
+            "D. De Zeeuw",
+            "G. L. Delzanno",
+            "C. Didigu",
+            "M. El Alaoui",
+            "S. Fung",
+            "J. Green",
+            "Z. Huang",
+            "L. K. Jian",
+            "L. J. Landwer",
+            "M. Lesko",
+            "P. MacNeice",
+            "A. Masson",
+            "M. L. Mays",
+            "P. M. Mehta",
+            "M. S. Miesch",
+            "E. Palmerio",
+            "M. Petrenko",
+            "E. Provornikova",
+            "L. Rastätter",
+            "L. Rusaitis",
+            "N. Sachdeva",
+            "E. Samara",
+            "D. Sur",
+            "A. Taktakishvili",
+            "J. Topper",
+            "T. Tsui",
+            "C. Verbeke",
+            "J. Wang",
+            "C. Wiegand",
+            "M. Wiltberger",
+            "Y. Zheng",
+            "M. M. Bisi",
+            "M. K. Georgoulis",
+            "T. Kodikara",
+            "T. Pulkkinen",
+            "A. Chartier",
+            "D. da Silva",
+            "A. Faturahman",
+            "K. Garcia-Sage",
+            "D. Kondrashov",
+            "V. E. Ledvina",
+            "W. Liu",
+            "C. Pandey",
+            "E. Resnick",
+            "C. Shi",
+            "R. S. Weigel",
+            "K. Whitman",
+            "I. Zakharenkova",
+            "K. Zhang"
+          ],
+          "claimed_title": "Advancing Heliophysics and Space Weather Modeling through Open Science",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2605.30626"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Predicting the Impact of Composition on the Band Gap of Perovskite Materials mat', candidate_title='Advancing Heliophysics and Space Weather Modeling through Open Science')",
+        "failed_at": "2026-08-05T21:46:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Emissive metal halide perovskites (MHPs) have emerged as excellent candidates for next-generation optoelectronics due to their sharp color purity, inexpensive processing, and bandgap tunability. However, the development of violet and ultraviolet light-emitting MHPs has lagged behind due to challenges related to material and device stability, charge carrier transport, tunability into the ultraviolet spectrum, toxicity, and scalability. Here, we review the progress of both violet and ultraviolet MHP nanomaterials and light-emitting diodes, including materials synthesis and device fabrication across various crystal structures and dimensions (e.g., bulk thin films, 2D thin films, nanoplatelets, colloidal nanocrystals, and more) as well as lead-free platforms (e.g., rare-earth metal halide perovskites). By highlighting several pathways to continue the development of violet and ultraviolet light-emitting MHPs while also proposing tactics to overcome their outstanding challenges, we demonstrate the potential of state-of-the-art violet and ultraviolet MHP materials and devices for important applications in public health, 3D printing, nanofabrication, and more.",
+          "claimed_authors": [
+            "Sebastian Fernández",
+            "Manchen Hu",
+            "Tyler K. Colenbrander",
+            "Divine Mbachu",
+            "Daniel N. Congreve"
+          ],
+          "claimed_title": "Metal Halide Perovskites for Violet and Ultraviolet Light Emission",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2601.21270"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Predicting the Impact of Composition on the Band Gap of Perovskite Materials mat', candidate_title='Metal Halide Perovskites for Violet and Ultraviolet Light Emission')",
+        "failed_at": "2026-08-05T21:46:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We describe the Dark Energy Survey (DES), a proposed optical-near infrared survey of 5000 sq. deg of the South Galactic Cap to ~24th magnitude in SDSS griz, that would use a new 3 sq. deg CCD camera to be mounted on the Blanco 4-m telescope at Cerro Telolo Inter-American Observatory (CTIO). The survey data will allow us to measure the dark energy and dark matter densities and the dark energy equation of state through four independent methods: galaxy clusters, weak gravitational lensing tomography, galaxy angular clustering, and supernova distances. These methods are doubly complementary: they constrain different combinations of cosmological model parameters and are subject to different systematic errors. By deriving the four sets of measurements from the same data set with a common analysis framework, we will obtain important cross checks of the systematic errors and thereby make a substantial and robust advance in the precision of dark energy measurements.",
+          "claimed_authors": [
+            " The Dark Energy Survey Collaboration"
+          ],
+          "claimed_title": "The Dark Energy Survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2005,
+          "primary_pointer": "astro-ph/0510346"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting the Impact of Composition on the Band Gap of Perovskite Materials mat', candidate_title='The Dark Energy Survey')",
+        "failed_at": "2026-08-05T21:46:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Predicting the Impact of Composition on the Band Gap of Perovskite Materials mat', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-08-05T21:46:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In dynamic systems that adapt to users' needs and changing environments, dependability needs cannot be avoided. This paper proposes an orthogonal fault tolerance model as a means to manage and reason about multiple fault tolerance mechanisms that co-exist in dynamically adaptive systems. One of the key challenges associated with dynamically evolving fault tolerance needs is the feature interaction problem arising from the integration of fault tolerance features. The proposed approach provides a separation of fault tolerance concerns to study the effects of integrated fault tolerance on the system. This approach uses state machine and operational semantics to reason about these interactions and inconsistencies. The proposed approach is supported by the tool NuSMV to simulate and verify the state machines against logic statements.",
+          "claimed_authors": [
+            "Sobia K Khan"
+          ],
+          "claimed_title": "Orthogonal Fault Tolerance for Dynamically Adaptive Systems",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1404.6830"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting the Impact of Composition on the Band Gap of Perovskite Materials mat', candidate_title='Orthogonal Fault Tolerance for Dynamically Adaptive Systems')",
+        "failed_at": "2026-08-05T21:46:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The attraction between electrons and holes in semiconductors forms excitons, which largely determine the optical properties of the hosting material, and hence the device performance, especially for low-dimensional systems. Mono- and few-layer black phosphorus (BP) are emerging two-dimensional (2D) semiconductors. Despite its fundamental importance and technological interest, experimental investigation of exciton physics has been rather limited. Here, we report the first systematic measurement of exciton binding energies in ultrahigh quality few-layer BP by infrared absorption spectroscopy, with layer (L) thickness ranging from 2-6 layers. Our experiments allow us to determine the exciton binding energy, decreasing from 213 meV (2L) to 106 meV (6L). The scaling behavior with layer number can be well described by an analytical model, which takes into account the nonlocal screening effect. Extrapolation to free-standing monolayer yields a large binding energy of ~800 meV. Our study provides insights into 2D excitons and their crossover from 2D to 3D, and demonstrates that few-layer BP is a promising high-quality optoelectronic material for potential infrared applications.",
+          "claimed_authors": [
+            "Guowei Zhang",
+            "Andrey Chaves",
+            "Shenyang Huang",
+            "Fanjie Wang",
+            "Qiaoxia Xing",
+            "Tony Low",
+            "Hugen Yan"
+          ],
+          "claimed_title": "Determination of layer-dependent exciton binding energies in few-layer black phosphorus",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1711.01713"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting the Impact of Composition on the Band Gap of Perovskite Materials mat', candidate_title='Determination of layer-dependent exciton binding energies in few-layer black phosphorus')",
+        "failed_at": "2026-08-05T21:46:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Following how the electrical transistor revolutionized the field of electronics,the realization of an optical transistor in which the flow of light is controlled optically should open the long-sought era of optical computing and new data processing possibilities. However, such function requires photons to influence each other, an effect which is unnatural in free space. Here it is shown that a ferroelectric and photovoltaic crystal gated optically at the onset of its bandgap energy can act as a photonic transistor. The light-induced charge generation and distribution processes alter the internal electric field and therefore impact the optical transmission with a memory effect and pronounced nonlinearity. The latter results in an optical computing possibility, which does not need to operate coherently. These findings advance efficient room temperature optical transistors, memristors, modulators and all-optical logic circuits.",
+          "claimed_authors": [
+            "A. Makhort",
+            "R. Gumeniuk",
+            "J. -F. Dayen",
+            "P. Dunne",
+            "U. Burkhardt",
+            "M. Viret",
+            "B. Doudin",
+            "B. Kundys"
+          ],
+          "claimed_title": "Photovoltaic-ferroelectric materials for the realization of all-optical devices",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2203.06515"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Predicting the Impact of Composition on the Band Gap of Perovskite Materials mat', candidate_title='Photovoltaic-ferroelectric materials for the realization of all-optical devices')",
+        "failed_at": "2026-08-05T21:46:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this work, we have simulated the processes of broadening the first exciton band in optical absorption spectra (OA) for InP/ZnS ensembles of colloidal quantum dots (QDs). A phenomenological model has been proposed that takes into account the effects of the exciton-phonon interaction and allows one to analyze the influence of the static and dynamic types of atomic disorder on the temperature changes in the spectral characteristics in question. To vary the degree of static disorder in the model system, we have used a parameter $δ$, which characterizes the QD dispersion in size over the ensemble. Also, we have calculated the temperature shifts of the maxima and changes in the half-width for the exciton peaks in single nanocrystals ($δ$ = 0), as well as for the integrated OA bands in the QD ensembles with different values of $δ$ = 0.6 - 17%. The simulation results and the OA spectra data measured for InP/ZnS nanocrystals of 2.1 nm ($δ$ = 11.1%) and 2.3 nm ($δ$ = 17.3%) are in good mutual agreement in the temperature range of 6.5 K - RT. It has been shown that the contribution of static disorder to the observed inhomogeneous broadening of the OA bands for the QDs at room temperature exceeds 90%. The computational experiments performed indicate that the temperature shift of the maximum for the integrated OA band coincides with that for the exciton peak in a single nanocrystal. In this case, a reliable estimate of the parameters of the fundamental exciton-phonon interaction can be made. Simultaneously, the values of the specified parameters, calculated from the temperature broadening of the OA spectra, can be significantly different from the true ones due to the effects of static atomic disorder in real QD ensembles.",
+          "claimed_authors": [
+            "Sergey S. Savchenko",
+            "Ilya A. Weinstein"
+          ],
+          "claimed_title": "Inhomogeneous Broadening of the Exciton Band in Optical Absorption Spectra of InP/ZnS Nanocrystals",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1906.06539"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Predicting the Impact of Composition on the Band Gap of Perovskite Materials mat', candidate_title='Inhomogeneous Broadening of the Exciton Band in Optical Absorption Spectra of InP/ZnS Nanocrystals')",
+        "failed_at": "2026-08-05T21:46:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Data science has become increasingly essential for the production of official statistics, as it enables the automated collection, processing, and analysis of large amounts of data. With such data science practices in place, it enables more timely, more insightful and more flexible reporting. However, the quality and integrity of data-science-driven statistics rely on the accuracy and reliability of the data sources and the machine learning techniques that support them. In particular, changes in data sources are inevitable to occur and pose significant risks that are crucial to address in the context of machine learning for official statistics.\n  This paper gives an overview of the main risks, liabilities, and uncertainties associated with changing data sources in the context of machine learning for official statistics. We provide a checklist of the most prevalent origins and causes of changing data sources; not only on a technical level but also regarding ownership, ethics, regulation, and public perception. Next, we highlight the repercussions of changing data sources on statistical reporting. These include technical effects such as concept drift, bias, availability, validity, accuracy and completeness, but also the neutrality and potential discontinuation of the statistical offering. We offer a few important precautionary measures, such as enhancing robustness in both data sourcing and statistical techniques, and thorough monitoring. In doing so, machine learning-based official statistics can maintain integrity, reliability, consistency, and relevance in policy-making, decision-making, and public discourse.",
+          "claimed_authors": [
+            "Cedric De Boom",
+            "Michael Reusens"
+          ],
+          "claimed_title": "Changing Data Sources in the Age of Machine Learning for Official Statistics",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.04338"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Predicting the Impact of Composition on the Band Gap of Perovskite Materials mat', candidate_title='Changing Data Sources in the Age of Machine Learning for Official Statistics')",
+        "failed_at": "2026-08-05T21:46:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Modern biology frequently relies on machine learning to provide predictions and improve decision processes. There have been recent calls for more scrutiny on machine learning performance and possible limitations. Here we present a set of community-wide recommendations aiming to help establish standards of supervised machine learning validation in biology. Adopting a structured methods description for machine learning based on data, optimization, model, evaluation (DOME) will aim to help both reviewers and readers to better understand and assess the performance and limitations of a method or outcome. The recommendations are formulated as questions to anyone wishing to pursue implementation of a machine learning algorithm. Answers to these questions can be easily included in the supplementary material of published papers.",
+          "claimed_authors": [
+            "Ian Walsh",
+            "Dmytro Fishman",
+            "Dario Garcia-Gasulla",
+            "Tiina Titma",
+            "Gianluca Pollastri",
+            "The ELIXIR Machine Learning focus group",
+            "Jen Harrow",
+            "Fotis E. Psomopoulos",
+            "Silvio C. E. Tosatto"
+          ],
+          "claimed_title": "DOME: Recommendations for supervised machine learning validation in biology",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2006.16189"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting the Impact of Composition on the Band Gap of Perovskite Materials mat', candidate_title='DOME: Recommendations for supervised machine learning validation in biology')",
+        "failed_at": "2026-08-05T21:46:56Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Kashif Murad",
+            "G. Murtaza",
+            "Muhammad Noman",
+            "Shamim Khan"
+          ],
+          "title": "To study the structural, electronic and optical properties of predicted stable halide perovskites ABX3",
+          "venue": "arXiv",
+          "year": 2021
+        },
+        "primary_pointer": "2102.11577",
+        "summary": "Structure, optical and electronic properties of predicted stables Perovskites ABX3 are calculated using DFT approach. The modified Becke-Johnson potential is also used to investigate electrical and optical properties. The density of states and electronic band structure calculations reveal that the predicted stable halides Perovskites ABX3 have a direct as well as indirect band gap, with dielectric function, optical reflectivity, absorption coefficient, optical conductivity, extinction coefficient, refractive index are calculated in different ranges of energy. The maximum value of static dielectric function is observed for KNiI3 and RbIrBr3 are 3.5 and 3 respectively. The highest absorption peak among the all is observed at 26eV for SrLiF3, while refractive index of that SrLiF3 gives peak at 24eV then refractive index decreases below the unity as energy increases up to 27.5eV. The maximum peaks of optical conductivity of predicted stables halides Perovskites are observed in visible to ultraviolet range (1.7eV to 30eV). The maximum peaks of optical conductivity are observed for SrLiF3 at 24eV. For the first time, all of the properties evaluated for predicted stable halides ABX3Perovskites are reported, because no theoretical work is reported yet on most of the physical properties.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2102.11577",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-05T21:46:55Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Li Lang",
+            "Ji-Hui Yang",
+            "Heng-Rui Liu",
+            "H. J. Xiang",
+            "X. G. Gong"
+          ],
+          "title": "First-principles Study On The Electronic And Optical Properties Of Cubic ABX3 Halide Perovskites",
+          "venue": "arXiv",
+          "year": 2013
+        },
+        "primary_pointer": "1309.0070",
+        "summary": "The electronic properties of ABX3 (A = Cs, CH3NH3, NH2CHNH2; B = Sn, Pb; X = Cl, Br, I) type compounds in the cubic phase are systematically studied using the first-principles calculations. We find that these compounds have direct band gaps at R point where the valance band maximum is an anti-bonding state of B s-X p coupling, while the conduction band minimum is a non-bonding state with B p characters. The chemical trend of their properties as A or B or X varies is fully investigated, which is of great importance to understand and optimize this kind of solar cell materials. We find that: (i) as the size of A increases, the band gap of ABX3 will increase; (ii) as B varies from Sn to Pb, the band gap of ABX3 will increase; and (iii) as X ranges from Cl to Br to I, the band gap will decrease. We explained these trends by analyzing their band structures. Furthermore, optical properties of the ABX3 compounds are investigated. Our calculations show that taking into account the spin-orbit coupling effect is crucial for predicting the accurate band gap of these halide perovskites. We predict that CH3NH3SnBr3 is a promising material for solar cells absorber with a perfect band gap and good optical absorption.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1309.0070",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-05T21:46:55Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Chadawan Khamdang",
+            "Mengen Wang"
+          ],
+          "title": "Machine learning insights into band gap properties in halide-based perovskites",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2606.17186",
+        "summary": "Halide perovskites show great promise for applications in optoelectronic devices. The lead-free perovskites are attracting increasing interest due to their low toxicity and motivate the exploration of alternative compositions and structures, including A$_2$BX$_6$, A$_2$BB$^\\prime$X$_6$, A$_3$B$_2$X$_9$, and A$_4$BX$_6$. Accurate predictions of a wide range of band gap energies are important for designing new materials. It is also desired to generate a direct relationship between the structural and elemental descriptors and the band gap energies. In this work, we develop machine learning models to predict band gap energies across various types of halide perovskites based on atomic and structural properties. Algorithms including ensemble tree-based methods, random forest regression (RFR), gradient boosted regression trees (GBRT), and extreme gradient boosting (XGB) showed strong predictive accuracy. We also analyzed feature importance to identify key descriptors, including B-site and X-site elemental properties, as well as the number of A- and B-site atoms, as primary factors influencing band gap energies. These results improve our understanding of the ML models and provide guidance for designing new halide perovskite materials.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2606.17186",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.8,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-05T21:47:07Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Marina R. Filip",
+            "Giles E. Eperon",
+            "Henry J. Snaith",
+            "Feliciano Giustino"
+          ],
+          "title": "Steric engineering of metal-halide perovskites with tunable optical band gaps",
+          "venue": "arXiv",
+          "year": 2014
+        },
+        "primary_pointer": "1409.6478",
+        "summary": "Owing to their high energy-conversion efficiency and inexpensive fabrication routes, solar cells based on metal-organic halide perovskites have rapidly gained prominence as a disruptive technology. An attractive feature of perovskite absorbers is the possibility of tailoring their properties by changing the elemental composition through the chemical precursors. In this context, rational in silico design represents a powerful tool for mapping the vast materials landscape and accelerating discovery. Here we show that the optical band gap of metal-halide perovskites, a key design parameter for solar cells, strongly correlates with a simple structural feature, the largest metal-halide-metal bond angle. Using this descriptor we suggest continuous tunability of the optical gap from the mid-infrared to the visible. Precise band gap engineering is achieved by controlling the bond angles through the steric size of the molecular cation. Based on these design principles we predict novel low-gap perovskites for optimum photovoltaic efficiency, and we demonstrate the concept of band gap modulation by synthesising and characterising novel mixed-cation perovskites.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1409.6478",
+          "http_status": 200,
+          "pdf_sample_score": 0.2232,
+          "query_relevance_score": 0.8,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-05T21:47:07Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Anthony Ruth",
+            "Halyna Okrepka",
+            "Prashant Kamat",
+            "Masaru Kuno"
+          ],
+          "title": "A thermodynamic band gap model for photoinduced phase segregation in mixed-halide perovskites",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2307.06268",
+        "summary": "Provided is a comprehensive description of a band gap thermodynamic model, which predicts and explains key features of photosegregation in lead-based, mixed-halide perovskites. The model provides a prescription for illustrating halide migration driven by photocarrier energies. Where possible, model predictions are compared to experimental results. Free energy derivations are provided for three assumptions: (1) halide mixing in the dark, (2) a fixed number of photogenerated carriers funneling to and localizing in low band gap inclusions of the alloy, and (3) the statistical occupancy of said inclusions from a bath of thermalized photocarriers in the parent material. Model predictions include: excitation intensity ($I_{\\textrm{exc}}$)-dependent terminal halide stoichiometries ($x_{\\textrm{terminal}}$), excitation intensity thresholds ($I_{\\textrm{exc,threshold}}$) below which photosegregation is suppressed, reduced segregation in nanocrystals as compared to thin films, the possibility to kinetically manipulate photosegregation rates via control of underlying mediators, asymmetries in forward and reverse photosegregation rate constants/activation energies, and a preference for high band gap products to recombine with the parent phase. What emerges is a cohesive framework for understanding ubiquitous photosegregation in mixed-halide perovskites and a rational basis by which to manage the phenomenon.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2307.06268",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.8,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-05T21:47:08Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "predicting the impact of composition on the band gap of perovskite materials materials science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

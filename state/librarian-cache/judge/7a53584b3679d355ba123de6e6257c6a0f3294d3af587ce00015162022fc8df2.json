@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1409.6478",
+  "judged_at": "2026-08-05T21:47:19Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting the impact of composition on the band gap of perovskite materials materials science",
+  "rationale": "This paper directly addresses the user's question by establishing a specific mechanism (steric engineering via bond angles) that links material composition to the optical band gap in perovskites, satisfying acceptance criteria (a) for same-mechanism evidence and (b) for measuring the dependent variable (band gap) as a function of the independent variable (composition/structural features).",
+  "relevant": true
+}

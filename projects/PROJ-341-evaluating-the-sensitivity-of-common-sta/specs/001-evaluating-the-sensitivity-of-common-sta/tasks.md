@@ -54,7 +54,7 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T005 [P] Create `data/simulation_metadata.json` schema for storing seeds, config, and timestamps (Constitution Principle VI, Principle V) <!-- FAILED: unspecified -->
+- [X] T005 [P] Create `data/simulation_metadata.json` schema for storing seeds, config, and timestamps (Constitution Principle VI, Principle V) <!-- FAILED: unspecified -->
 - [X] T006 [P] Implement deterministic random seed manager in `code/simulation/__init__.py` to enforce reproducibility across all modules
 - [X] T007 [P] Create base data generator utilities in `code/simulation/data_generator.py` supporting Normal and Multinomial distributions
 - [X] T008 [P] Setup CI workflow (`.github/workflows/sim.yml`) with modest CPU and RAM constraints and a 6h timeout
@@ -66,7 +66,7 @@
 
 ## Phase 3: User Story 1 - Core Simulation Engine for Type I/II Error Estimation (Priority: P1) 🎯 MVP
 
-**Goal**: Run a simulation that generates synthetic data with known ground truth across sample sizes (n=5 to n=500) [UNRESOLVED-CLAIM: c_00dbcbd0 — status=not_enough_info] to empirically calculate Type I and Type II error rates for t-test, ANOVA, and chi-squared tests with ≥10,000 iterations [UNRESOLVED-CLAIM: c_c13b60b7 — status=not_enough_info].
+**Goal**: Run a simulation that generates synthetic data with known ground truth across sample sizes (n=5 to n=500) to empirically calculate Type I and Type II error rates for t-test, ANOVA, and chi-squared tests with ≥10,000 iterations.
 
 **Independent Test**: {{claim:c_46a368b8}}
 
@@ -76,17 +76,17 @@
 
 - [X] T010 [P] [US1] Unit test for synthetic data generation in `tests/unit/test_data_generator.py` verifying distribution parameters
 - [X] T011a [P] [US1] Write unit test `test_chi_squared_fallback_2x2` in `tests/unit/test_chi_squared_fallback.py` verifying Yates/Fisher triggers for 2x2 table with expected count=3
-- [X] T011b [P] [US1] Write unit test to verify binomial variance check logic in `tests/unit/test_data_generator.py` using formula: observed_variance <= 1.96 * sqrt(p*(1-p)/N) [UNRESOLVED-CLAIM: c_30f855e7 — status=not_enough_info]
+- [X] T011b [P] [US1] Write unit test to verify binomial variance check logic in `tests/unit/test_data_generator.py` using formula: observed_variance <= 1.96 * sqrt(p*(1-p)/N)
 
 ### Implementation for User Story 1
 
 - [X] T012b [US1] Refactor `code/simulation/test_runner.py` to accept `alpha` as a dynamic parameter instead of hardcoding 0.05; this enables SC-004 sensitivity analysis (FR-002, SC-004)
-- [X] T015a [US1] Implement vectorized numpy operations in `code/simulation/test_runner.py` to handle [deferred] iterations per condition efficiently; The runtime of the full simulation grid must be < 6h on CI. [UNRESOLVED-CLAIM: c_2aa13f31 — status=not_enough_info] via benchmark step in `.github/workflows/sim.yml` (FR-001, Constitution VI)
-- [X] T012 [US1] Implement `code/simulation/test_runner.py` to execute t-test, ANOVA, and chi-squared on generated data; The system must detect expected cell counts less than 5 and route to fallback logic. [UNRESOLVED-CLAIM: c_7f35111b — status=not_enough_info] (FR-007); MUST flag n < 30 for normality warnings [UNRESOLVED-CLAIM: c_3b5d5adb — status=not_enough_info]; supports dynamic alpha (FR-002, FR-007)
+- [X] T015a [US1] Implement vectorized numpy operations in `code/simulation/test_runner.py` to handle [deferred] iterations per condition efficiently; The runtime of the full simulation grid must be < 6h on CI. via benchmark step in `.github/workflows/sim.yml` (FR-001, Constitution VI)
+- [X] T012 [US1] Implement `code/simulation/test_runner.py` to execute t-test, ANOVA, and chi-squared on generated data; The system must detect expected cell counts less than 5 and route to fallback logic. [UNRESOLVED-CLAIM: c_b40166fb — status=not_enough_info] (FR-007); MUST flag n < 30 for normality warnings; supports dynamic alpha (FR-002, FR-007)
 - [X] T013 [US1] Implement logic in `code/simulation/chi_squared_utils.py` to {{claim:c_61a9fcdd}} (1405.1250, https://arxiv.org/abs/1405.1250) (FR-007, Edge Cases)
 - [X] T013b [US1] Implement logic in `code/simulation/test_runner.py` to flag sample sizes n < 30 as "small sample warning" where normality assumptions are severely violated (Edge Cases)
 - [X] T014a [US1] Create `code/main.py` skeleton with argument parsing for sample size, effect size, test type, and alpha
-- [ ] T014b [US1] Implement parameter loop logic in `code/main.py` to iterate through n=5..500 (step 5), effect sizes, and hypotheses, enforcing a hard constraint of [deferred] iterations per condition (FR-001) <!-- FAILED: unspecified -->
+- [X] T014b [US1] Implement parameter loop logic in `code/main.py` to iterate through n=5..500 (step 5), effect sizes, and hypotheses, enforcing a hard constraint of [deferred] iterations per condition (FR-001) <!-- FAILED: unspecified -->
 - [ ] T016 [US1] Write output results to `data/simulation/p_values_raw.csv` containing sample size, effect size, test type, raw p-values, and hypothesis state
 - [X] T017 [US1] Implement aggregation logic to calculate empirical Type I (p < alpha when null true) and Type II (p > alpha when alt true) error rates per condition (FR-002)
 - [ ] T018 [US1] Save aggregated error rates to `data/simulation/error_rates_summary.csv` <!-- FAILED: unspecified -->
@@ -108,10 +108,10 @@
 ### Implementation for User Story 2
 
 - [X] T020 [US2] Implement `code/analysis/threshold_finder.py` to compute binomial confidence intervals (Wilson score) for all error rates (FR-003); depends on T018
-- [X] T021 [US2] Implement logic in `code/analysis/threshold_finder.py` to The system will identify the smallest sample size where the Type I error lower confidence interval bound exceeds 0.05. [UNRESOLVED-CLAIM: c_855740f4 — status=not_enough_info] (FR-004)
+- [X] T021 [US2] Implement logic in `code/analysis/threshold_finder.py` to The system will identify the smallest sample size where the Type I error lower confidence interval bound exceeds 0.05. [UNRESOLVED-CLAIM: c_7de702fa — status=not_enough_info] (FR-004)
 - [X] T022 [US2] Implement logic in `code/analysis/threshold_finder.py` to identify the smallest n where power CI remains < 0.80) for 3 consecutive increments (FR-004)
 - [X] T023 [US2] Save threshold metrics to `data/simulation/thresholds.json` including test type, effect size, and identified n <!-- FAILED: unspecified -->
-- [X] T024 [US2] Implement `code/visualization/plotter.py` to generate line plots with 95% CI bands for sample size vs. error rate [UNRESOLVED-CLAIM: c_35b6b5f6 — status=not_enough_info] (FR-005)
+- [X] T024 [US2] Implement `code/visualization/plotter.py` to generate line plots with 95% CI bands for sample size vs. error rate (FR-005)
 - [X] T025 [US2] Add annotations to plots marking the identified reliability thresholds and nominal alpha/power lines
 - [X] T026 [US2] Generate comparative plots for t-test, ANOVA, and chi-squared divergence at low sample sizes (n < 30)
 - [X] T027 [US2] Save all plots to `data/visualization/` directory with descriptive filenames
@@ -138,7 +138,7 @@
 - [X] T029d [US3] Implement checksum verification for all downloaded datasets (Breast Cancer, Wine, Adult) in `code/analysis/validator.py` and record checksums in `data/simulation_metadata.json` (Constitution Principle III) <!-- FAILED: unspecified -->
 - [X] T030 [US3] Implement data preprocessing in `code/analysis/validator.py` to prepare small-sample datasets for t-test, ANOVA, and chi-squared
 - [ ] T031 [US3] Run t-test, ANOVA, and chi-squared on real datasets and save observed p-value distributions to `data/simulation/real_data_pvalues.csv` (FR-006)
-- [ ] T032 [US3] Implement bootstrapped power estimation on real datasets, calculate Kolmogorov-Smirnov (KS) distance against simulated predictions, Bootstrapped power estimation on real datasets must verify Kolmogorov-Smirnov distance less than or equal to 0.10. [UNRESOLVED-CLAIM: c_f3b28796 — status=not_enough_info], and save results to `data/simulation/real_data_power.json` (FR-006, SC-003) <!-- FAILED: unspecified -->
+- [ ] T032 [US3] Implement bootstrapped power estimation on real datasets, calculate Kolmogorov-Smirnov (KS) distance against simulated predictions, Bootstrapped power estimation on real datasets must verify Kolmogorov-Smirnov distance less than or equal to 0.10. [UNRESOLVED-CLAIM: c_21cdebf3 — status=refuted], and save results to `data/simulation/real_data_power.json` (FR-006, SC-003) <!-- FAILED: unspecified -->
 - [ ] T034 [US3] Save validation metrics and KS statistics to `data/simulation/validation_metrics.json` <!-- FAILED: unspecified -->
 - [X] T033 [US3] Generate validation report in `data/reports/validation_report.md` stating whether simulation held true or deviations were observed (US-3 Scenario 3)
 
@@ -151,7 +151,7 @@
 **Purpose**: Improvements that affect multiple user stories
 
 - [X] T035 [US1] Implement sensitivity analysis for alpha thresholds across standard significance levels. to observe critical sample size shifts (SC-004); depends on T012b refactored for dynamic alpha
-- [ ] T036 [P] Optimize `code/main.py` for memory usage to The simulation must ensure less than 7GB RAM usage during full simulation run. <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
+- [ ] T036 [P] Optimize `code/main.py` for memory usage to The simulation must ensure less than 7GB RAM usage during full simulation run. [UNRESOLVED-CLAIM: c_84ae81f4 — status=not_enough_info] <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
 - [X] T037 [P] Add comprehensive logging to all simulation steps for debugging reproducibility issues
 - [X] T038 [P] Update `quickstart.md` with instructions to run the full simulation and generate the validation report
 - [X] T039 [P] Run `pytest` suite to ensure all unit and integration tests pass
