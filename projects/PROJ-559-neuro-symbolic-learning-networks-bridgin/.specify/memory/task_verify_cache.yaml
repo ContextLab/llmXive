@@ -24,8 +24,10 @@ T031c:
     \ script logs the required warning."
 T033:
   c: false
-  h: 644822dfdc781b2edb28421187b87cfd1b2eee5d086ed7890afb3bdb26e11d08
-  r: "The `update_bkt_params.py` file is truncated (ends mid\u2011line) and would\
-    \ not run, and there is no evidence that `code/simulate/bkt_params.yaml` has been\
-    \ updated based on calibration metrics \u2013 it only contains static default\
-    \ values. The required functional script and the updated YAML output are missing."
+  h: 7c520474a2c698514457b8fd8aa6522b8bbd06059343825d8e6d1b8374f4b04f
+  r: The repository contains `code/simulate/bkt_params.yaml`, but its contents are
+    static defaults and there is no evidence the file was actually updated based on
+    T032 calibration metrics. Moreover, `update_bkt_params.py` is truncated and lacks
+    code that writes the adjusted parameters back to the YAML file, so the required
+    update behavior is not demonstrated. The deliverable of an updated `bkt_params.yaml`
+    is therefore missing.

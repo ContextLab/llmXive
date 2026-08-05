@@ -71,7 +71,7 @@
 - [X] T016 [US1] Implement Docker wrappers in `code/01_data_acquisition.py` to execute SonarQube, DeepSource, CodeClimate (using `code/versions.yaml`)
 - [X] T017 [US1] Implement JSON report parsing and normalization for all three tools into a unified schema in `code/01_data_acquisition.py` (FR-003)
 - [ ] T018 [US1] Add logic to handle repositories with no merged PRs (skip and log) and tool execution failures (FR-Edge Cases)
-- [~] T019 [US1] Save raw JSON reports to `data/raw/` with checksums and metadata (owner, language, commit hash)
+- [ ] T019 [US1] Save raw JSON reports to `data/raw/` with checksums and metadata (owner, language, commit hash)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -86,11 +86,11 @@
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
 - [X] T020 [P] [US2] Contract test for keyword heuristic extraction in `code/tests/test_baseline.py`
-- [ ] T021 [P] [US2] Integration test for alignment logic (AST + semantic) in `code/tests/test_alignment.py`
+- [X] T021 [P] [US2] Integration test for alignment logic (AST + semantic) in `code/tests/test_alignment.py`
 
 ### Implementation for User Story 2
 
-- [ ] T022 [US2] Implement `code/02_human_baseline.py` to fetch merged PR review comments via GitHub API
+- [X] T022 [US2] Implement `code/02_human_baseline.py` to fetch merged PR review comments via GitHub API
 - [ ] T023 [US2] Implement keyword heuristics (bug, security, style) and semantic search (using `all-MiniLM-L6-v2`) to generate candidate defect set `data/processed/heuristic_candidates.json` (FR-004)
 - [ ] T023b [US2] Implement expert manual validation logic for heuristic candidates: generate `data/processed/validated_heuristic_candidates.json` from `data/processed/heuristic_candidates.json` (FR-004, Plan Ground Truth Construction)
 - [ ] T024a [US2] Implement 'Random Stream' sampling logic (independent of keywords) to select a stratified random sample of ≥500 code changes/comments from the full pool, generating `data/processed/validation_sample_ids.json` (SC-005, Plan Ground Truth Construction)

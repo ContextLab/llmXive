@@ -131,24 +131,6 @@
   updated_at: '2026-07-15T10:03:18Z'
 - artifact_path: projects/PROJ-180-evaluating-the-effectiveness-of-automate/specs/001-evaluating-the-effectiveness-of-automate/tasks.md
   attempts: 1
-  canonical: query GitHub API for 30 to 40 repos stratified by language and activity
-  claim_id: c_53b4066d
-  context: "T013 [US1] Implement code/01_data_acquisition.py to query GitHub API for\
-    \ a representative set of 30\u201340 repos stratified by language (Java, Python,\
-    \ JS, Go) and activity (FR-001)"
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: "Implement code/01_data_acquisition.py to query GitHub API for a representative\
-    \ set of 30\u201340 repos stratified by language (Java, Python, JS, Go) and activity"
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-15T10:04:03Z'
-- artifact_path: projects/PROJ-180-evaluating-the-effectiveness-of-automate/specs/001-evaluating-the-effectiveness-of-automate/tasks.md
-  attempts: 1
   canonical: generate validated ground truth containing at least 500 validated annotations
   claim_id: c_b0a5bf51
   context: "T024b [US2] Implement expert manual validation for the random sample:\
@@ -207,23 +189,6 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-15T10:04:08Z'
-- artifact_path: projects/PROJ-180-evaluating-the-effectiveness-of-automate/specs/001-evaluating-the-effectiveness-of-automate/tasks.md
-  attempts: 1
-  canonical: verify peak process memory usage is less than 6 GB
-  claim_id: c_be13cae8
-  context: T044 Verify memory usage of peak processes < 6 GB (SC-004)
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Verify_peak_process_memory_usage_is_less_than_6_GB
-  kind: magnitude
-  raw_text: Verify memory usage of peak processes < 6 GB
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-15T10:04:10Z'
 - artifact_path: projects/PROJ-180-evaluating-the-effectiveness-of-automate/specs/001-evaluating-the-effectiveness-of-automate/tasks.md
   attempts: 1
   canonical: apply ridge regression fallback if variance inflation factor exceeds
@@ -387,3 +352,96 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-19T01:23:53Z'
+- artifact_path: projects/PROJ-180-evaluating-the-effectiveness-of-automate/specs/001-evaluating-the-effectiveness-of-automate/tasks.md
+  attempts: 2
+  canonical: query GitHub API for 30 to 40 repos stratified by language and activity
+  claim_id: c_53b4066d
+  context: "T013 [US1] Implement code/01_data_acquisition.py to query GitHub API for\
+    \ a representative set of 30\u201340 repos stratified by language (Java, Python,\
+    \ JS, Go) and activity (FR-001)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement code/01_data_acquisition.py to query GitHub API for a representative\
+    \ set of 30\u201340 repos stratified by language (Java, Python, JS, Go) and activity"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T10:34:18Z'
+- artifact_path: projects/PROJ-180-evaluating-the-effectiveness-of-automate/specs/001-evaluating-the-effectiveness-of-automate/tasks.md
+  attempts: 1
+  canonical: select stratified random sample of 500 or more code changes or comments
+  claim_id: c_0dd490d8
+  context: "T024a [US2] Implement 'Random Stream' sampling logic (independent of keywords)\
+    \ to select a stratified random sample of \u2265500 code changes/comments from\
+    \ the full pool, generating data/processed/validation_sample_ids.json (SC-005,\
+    \ Plan Ground Truth Construction)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement 'Random Stream' sampling logic to select a stratified random\
+    \ sample of \u2265500 code changes/comments from the full pool"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T10:34:18Z'
+- artifact_path: projects/PROJ-180-evaluating-the-effectiveness-of-automate/specs/001-evaluating-the-effectiveness-of-automate/tasks.md
+  attempts: 1
+  canonical: verify alignment accuracy threshold of 0.90 or higher
+  claim_id: c_93980961
+  context: "T029d [US2] Implement validation step to measure alignment accuracy on\
+    \ the expert-validated sample (T024b) using data/processed/aligned_pairs.json\
+    \ (T029a), generating results/alignment_accuracy_report.json (schema: { \"accuracy\"\
+    : float }) and verify \u22650.90 threshold (SC-005, FR-005). **BLOCKS T032**."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "verify \u22650.90 threshold for alignment accuracy on the expert-validated\
+    \ sample"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T10:34:18Z'
+- artifact_path: projects/PROJ-180-evaluating-the-effectiveness-of-automate/specs/001-evaluating-the-effectiveness-of-automate/tasks.md
+  attempts: 1
+  canonical: apply Family-Wise Error Rate correction to regression coefficients and
+    Wilcoxon results
+  claim_id: c_dbbd0803
+  context: T035b [US3] Apply FWER correction (from T033b) to the regression coefficients
+    and Wilcoxon results, generating results/corrected_statistical_summary.json (FR-008,
+    FR-009)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Apply_Family-Wise_Error_Rate_correction_to_regression_coeffi
+  kind: entity_fact
+  raw_text: Apply FWER correction to the regression coefficients and Wilcoxon results
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T10:34:36Z'
+- artifact_path: projects/PROJ-180-evaluating-the-effectiveness-of-automate/specs/001-evaluating-the-effectiveness-of-automate/tasks.md
+  attempts: 2
+  canonical: verify peak process memory usage is less than 6 GB
+  claim_id: c_be13cae8
+  context: T044 Verify memory usage of peak processes < 6 GB (SC-004)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_peak_process_memory_usage_is_less_than_6_GB
+  kind: magnitude
+  raw_text: Verify memory usage of peak processes < 6 GB
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T10:34:59Z'

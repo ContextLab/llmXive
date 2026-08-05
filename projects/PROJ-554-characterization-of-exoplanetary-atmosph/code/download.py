@@ -4,380 +4,243 @@ from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
 import requests
 from tqdm import tqdm
+import time
 import json
-import pandas as pd
-import numpy as np
-from config import get_config
-from utils import setup_logging, retry_on_failure, DataFetchError, ParsingError
 
-# Configure logging for this module
+from api_config import QUERY_PARAMS
+from config import get_config
+from utils import setup_logging, DataFetchError, retry_on_failure
+
+# Configure logger for this module
 logger = logging.getLogger(__name__)
 
-# Constants for NASA Exoplanet Archive query
-API_URL = "https://exoplanetarchive.ipac.caltech.edu/TAP/sync"
+# Base URL for NASA Exoplanet Archive API
+API_BASE_URL = "https://exoplanetarchive.ipac.caltech.edu/cgi-bin/Tbl/nph-exoplanetarchive"
 
-# Required columns for metadata extraction per FR-001 and Review Response
-REQUIRED_COLUMNS = [
-    'pl_name', 'pl_orbsnum', 'pl_contropf', 'pl_massj', 'pl_radj', 
-    'pl_eqt', 'pl_dens', 'pl_per', 'pl_snum', 'pl_discmethod',
-    'st_name', 'st_mass', 'st_rad', 'st_teff', 'st_met', 'st_logg',
-    'discoveryyear', 'pub_title', 'pub_doi'
-]
-
-# Specific columns needed for Review Response (SNR, Resolution)
-# Note: NASA Exoplanet Archive does not always provide direct SNR/R columns for every entry.
-# We will attempt to fetch 'transit_depth', 'transit_depth_err', and 'transit_depth_sig'
-# to derive SNR, and look for 'spectral_resolution' if available in extended metadata.
-# If not directly available, we will calculate proxy SNR from depth/error where possible.
-METADATA_COLUMNS = REQUIRED_COLUMNS + [
-    'transit_depth', 'transit_depth_err', 'transit_depth_sig',
-    'transit_duration', 'transit_duration_err',
-    'ra', 'dec', 'st_dist', 'st_age', 'st_met_err', 'st_logg_err'
-]
-
-def fetch_spectrum_data(
-    query_type: str = "hot_jupiters",
-    limit: Optional[int] = None
-) -> List[Dict[str, Any]]:
+@retry_on_failure(max_retries=3, backoff_factor=1.0)
+def fetch_spectrum_data(planet_name: str, output_dir: Path) -> Tuple[Optional[Path], Dict[str, Any]]:
     """
-    Fetch spectrum metadata from NASA Exoplanet Archive.
+    Fetch spectrum data and metadata for a specific planet from NASA Exoplanet Archive.
     
     Args:
-        query_type: Type of planets to fetch ('hot_jupiters' or 'super_earths')
-        limit: Maximum number of records to fetch (None for all)
+        planet_name: Name of the exoplanet
+        output_dir: Directory to save downloaded files
         
     Returns:
-        List of dictionaries containing spectrum metadata
+        Tuple of (path to saved file, metadata dict) or (None, {}) on failure
     """
     config = get_config()
-    
-    # Construct query based on type
-    if query_type == "hot_jupiters":
-        # Hot Jupiters: T_eq > 1000K, R_p > 0.8 R_jup
-        where_clause = "pl_eqt > 1000 AND pl_radj > 0.8"
-    elif query_type == "super_earths":
-        # Super Earths: 1.0 < R_p < 1.6 R_jup (approx), T_eq < 1000K (typical)
-        where_clause = "pl_radj > 0.3 AND pl_radj < 1.6 AND pl_eqt < 1000"
-    else:
-        where_clause = "1=1"  # Default: all planets with data
-    
-    # Build TAP query
-    columns_str = ", ".join(METADATA_COLUMNS)
-    query = f"SELECT {columns_str} FROM exoplanetarchive WHERE {where_clause}"
-    
-    if limit:
-        query += f" AND 1=1"  # TAP doesn't support LIMIT in WHERE, handled by fetch
-    
     params = {
-        "QUERY": query,
-        "FORMAT": "json",
-        "TAPFORMAT": "json"
+        'cmd': f"SELECT * FROM transit_spectra WHERE pl_name = '{planet_name}'",
+        'format': 'json',
+        'limit': 10
     }
     
-    logger.info(f"Fetching {query_type} data from NASA Exoplanet Archive...")
-    logger.debug(f"Query: {query}")
+    logger.info(f"Fetching spectrum data for {planet_name} from NASA Exoplanet Archive")
+    start_time = time.time()
     
     try:
-        response = requests.get(API_URL, params=params, timeout=60)
-        response.raise_for_status()
-        data = response.json()
+        response = requests.get(API_BASE_URL, params=params, timeout=30)
+        elapsed = time.time() - start_time
         
-        if not data or 'data' not in data:
-            logger.warning("No data returned from API")
-            return []
-        
-        records = data['data']
-        logger.info(f"Fetched {len(records)} records")
-        
-        return records
-        
+        if response.status_code == 200:
+            data = response.json()
+            logger.debug(f"API response received in {elapsed:.2f}s with {len(data.get('data', []))} records")
+            
+            if not data.get('data'):
+                logger.warning(f"No spectrum data found for {planet_name}")
+                return None, {}
+            
+            # Save raw response
+            output_dir.mkdir(parents=True, exist_ok=True)
+            filename = f"spectrum_{planet_name.replace(' ', '_')}.json"
+            filepath = output_dir / filename
+            
+            with open(filepath, 'w') as f:
+                json.dump(data, f, indent=2)
+            
+            logger.info(f"Saved spectrum data for {planet_name} to {filepath} ({elapsed:.2f}s)")
+            return filepath, data['data'][0]  # Return first record metadata
+        else:
+            error_msg = f"API request failed for {planet_name}: HTTP {response.status_code}"
+            logger.error(error_msg)
+            raise DataFetchError(error_msg)
+            
+    except requests.exceptions.Timeout:
+        logger.error(f"Timeout fetching data for {planet_name}")
+        raise
     except requests.exceptions.RequestException as e:
-        logger.error(f"API request failed: {e}")
-        raise DataFetchError(f"Failed to fetch spectrum data: {e}")
+        logger.error(f"Network error fetching data for {planet_name}: {str(e)}")
+        raise
+    except json.JSONDecodeError as e:
+        logger.error(f"JSON decode error for {planet_name}: {str(e)}")
+        raise DataFetchError(f"Invalid JSON response for {planet_name}")
 
-def parse_spectrum_metadata(
-    raw_records: List[Dict[str, Any]]
-) -> List[Dict[str, Any]]:
+def parse_spectrum_metadata(raw_data: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """
-    Parse raw API records into structured metadata.
-    
-    Extracts:
-    - Equilibrium Temperature (K)
-    - Host Star Metallicity ([Fe/H])
-    - Spectral Resolution (R) - derived or from metadata
-    - Signal-to-Noise Ratio (SNR) - derived from transit depth errors
+    Parse raw API response into structured metadata.
     
     Args:
-        raw_records: List of raw API response records
+        raw_data: List of raw API records
         
     Returns:
         List of parsed metadata dictionaries
     """
+    logger.info("Parsing spectrum metadata from raw API data")
     parsed_records = []
     
-    for i, record in enumerate(raw_records):
+    for idx, record in enumerate(tqdm(raw_data, desc="Parsing metadata", unit="record")):
         try:
-            # Extract basic fields
-            planet_name = record.get('pl_name', 'Unknown')
-            eq_temp = record.get('pl_eqt')
-            host_met = record.get('st_met')
-            
-            # Parse Equilibrium Temperature
-            temp_k = float(eq_temp) if eq_temp is not None and eq_temp != '' else None
-            
-            # Parse Host Star Metallicity
-            metallicity = float(host_met) if host_met is not None and host_met != '' else None
-            
-            # Calculate SNR from transit depth and error
-            # SNR = depth / error (if error exists)
-            depth = record.get('transit_depth')
-            depth_err = record.get('transit_depth_err')
-            snr = None
-            
-            if depth is not None and depth_err is not None:
-                try:
-                    d = float(depth)
-                    e = float(depth_err)
-                    if e > 0:
-                        snr = d / e
-                    else:
-                        snr = None
-                except (ValueError, TypeError):
-                    snr = None
-            
-            # Determine Spectral Resolution (R)
-            # NASA Exoplanet Archive does not always provide 'R' directly.
-            # We check for 'spectral_resolution' or derive proxy from instrument info if available.
-            # For this implementation, we attempt to read from a hypothetical extended field
-            # or set to None if not available, logging the status.
-            resolution_r = record.get('spectral_resolution')
-            if resolution_r is None or resolution_r == '':
-                # Try to infer from instrument if available (not in standard columns)
-                # For now, we mark as 'N/A' or attempt a proxy based on typical values
-                # if specific instrument data were present. Since we rely on standard columns,
-                # we default to None and log.
-                resolution_r = None
-            
-            # Construct parsed record
             parsed = {
-                'planet_name': planet_name,
-                'equilibrium_temp_k': temp_k,
-                'host_metallicity': metallicity,
-                'snr': snr,
-                'spectral_resolution_r': resolution_r,
-                'raw_record': record  # Keep raw for reference
+                'planet_name': record.get('pl_name'),
+                'host_name': record.get('pl_host'),
+                'equilibrium_temp': record.get('pl_eqt'),
+                'host_star_metallicity': record.get('pl_met'),
+                'spectral_resolution': record.get('sp_res'),
+                'signal_to_noise': record.get('snr'),
+                'category': _categorize_planet(record.get('pl_massj'), record.get('pl_orbper')),
+                'raw_data': record
             }
+            
+            # Log individual record processing
+            if parsed['planet_name']:
+                logger.debug(f"Parsed metadata for {parsed['planet_name']}: "
+                           f"Temp={parsed['equilibrium_temp']}K, "
+                           f"Metallicity={parsed['host_star_metallicity']}, "
+                           f"Resolution={parsed['spectral_resolution']}")
             
             parsed_records.append(parsed)
             
         except Exception as e:
-            logger.warning(f"Failed to parse record {i}: {e}")
+            logger.warning(f"Failed to parse record {idx}: {str(e)}")
             continue
     
+    logger.info(f"Successfully parsed {len(parsed_records)} records")
     return parsed_records
 
-def validate_parsed_metadata(
-    records: List[Dict[str, Any]]
-) -> List[Dict[str, Any]]:
+def _categorize_planet(mass_jup: Optional[float], period_days: Optional[float]) -> str:
     """
-    Validate parsed metadata ensuring critical fields are present.
-    
-    Per FR-001 and Review Response, we must log and store R and SNR.
-    If R is missing, we log a warning but proceed (do not raise error).
-    If SNR is missing, we log a warning.
+    Categorize planet as Hot Jupiter or Super-Earth based on mass and period.
     
     Args:
-        records: List of parsed metadata records
+        mass_jup: Planet mass in Jupiter masses
+        period_days: Orbital period in days
         
     Returns:
-        Validated list of records
+        Planet category string
     """
-    validated = []
+    if mass_jup is None or period_days is None:
+        return "Unknown"
     
-    for i, record in enumerate(records):
-        planet = record.get('planet_name', 'Unknown')
-        snr = record.get('snr')
-        resolution = record.get('spectral_resolution_r')
-        
-        # Log status for Review Response compliance
-        if snr is None:
-            logger.warning(f"Planet {planet}: SNR could not be derived from available data.")
-        else:
-            logger.debug(f"Planet {planet}: SNR = {snr:.2f}")
-        
-        if resolution is None:
-            logger.warning(f"Planet {planet}: Spectral Resolution (R) not available in archive metadata.")
-        else:
-            logger.debug(f"Planet {planet}: Resolution R = {resolution}")
-        
-        # We do NOT discard records even if R/SNR are missing, per FR-001 "download ALL"
-        # We just ensure the fields exist (even if None) for downstream handling
-        validated.append(record)
+    # Hot Jupiter: Mass > 0.3 MJ and Period < 10 days
+    if mass_jup > 0.3 and period_days < 10:
+        return "Hot Jupiter"
     
-    return validated
+    # Super-Earth: Mass < 10 M_earth (~0.03 MJ) and Period < 100 days
+    if mass_jup < 0.03 and period_days < 100:
+        return "Super-Earth"
+    
+    return "Other"
 
-def process_download_metadata(
-    records: List[Dict[str, Any]],
-    output_dir: Path
-) -> Path:
+def validate_parsed_metadata(parsed_records: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """
-    Save metadata to CSV and raw spectrum files to disk.
-    
-    Creates:
-    - data/processed/metadata.csv (with SNR, R columns)
-    - data/raw/ directory for any associated spectrum files (if URLs available)
+    Validate parsed metadata for required fields.
     
     Args:
-        records: List of validated metadata records
-        output_dir: Base output directory (data/)
+        parsed_records: List of parsed metadata dictionaries
         
     Returns:
-        Path to the generated metadata CSV
+        Filtered list of valid records
     """
-    processed_dir = output_dir / "processed"
-    raw_dir = output_dir / "raw"
+    logger.info("Validating parsed metadata")
+    valid_records = []
+    required_fields = ['planet_name', 'equilibrium_temp', 'host_star_metallicity', 
+                     'spectral_resolution', 'signal_to_noise', 'category']
     
-    processed_dir.mkdir(parents=True, exist_ok=True)
-    raw_dir.mkdir(parents=True, exist_ok=True)
-    
-    metadata_csv_path = processed_dir / "metadata.csv"
-    
-    # Flatten records for CSV
-    csv_rows = []
-    for i, record in enumerate(records):
-        row = {
-            'planet_name': record.get('planet_name'),
-            'equilibrium_temp_k': record.get('equilibrium_temp_k'),
-            'host_metallicity': record.get('host_metallicity'),
-            'snr': record.get('snr'),
-            'spectral_resolution_r': record.get('spectral_resolution_r'),
-            'has_spectrum': False,  # Placeholder for future file linking
-            'source': 'NASA_Exoplanet_Archive'
-        }
-        csv_rows.append(row)
-        
-        # If raw record has a URL for spectrum, we would download it here.
-        # For now, we just log the intent.
-        raw_rec = record.get('raw_record', {})
-        # Example check if a spectrum URL exists (hypothetical field)
-        # if 'spectrum_url' in raw_rec:
-        #     ... download ...
-        #     row['has_spectrum'] = True
-    
-    # Write CSV
-    df = pd.DataFrame(csv_rows)
-    df.to_csv(metadata_csv_path, index=False)
-    
-    logger.info(f"Saved metadata to {metadata_csv_path}")
-    logger.info(f"Total records processed: {len(csv_rows)}")
-    
-    # Log summary for Review Response
-    snr_count = df['snr'].notna().sum()
-    r_count = df['spectral_resolution_r'].notna().sum()
-    logger.info(f"Records with SNR: {snr_count}/{len(df)}")
-    logger.info(f"Records with Resolution R: {r_count}/{len(df)}")
-    
-    return metadata_csv_path
-
-def validate_sample_size(
-    metadata_path: Path,
-    min_count: int = 30,
-    max_count: int = 45
-) -> Tuple[int, bool]:
-    """
-    Validate sample size against targets.
-    
-    Per T013 logic:
-    - If count < 30 or > 45, log warning but proceed (do not raise error).
-    - If count is absent or null, raise RuntimeError.
-    
-    Args:
-        metadata_path: Path to the metadata CSV
-        min_count: Minimum expected unique planets
-        max_count: Maximum expected unique planets
-        
-    Returns:
-        Tuple of (count, is_valid)
-    """
-    if not metadata_path.exists():
-        raise RuntimeError(f"Metadata file not found: {metadata_path}")
-    
-    df = pd.read_csv(metadata_path)
-    unique_planets = df['planet_name'].nunique()
-    
-    if unique_planets == 0:
-        raise RuntimeError("No unique planets found in metadata.")
-    
-    is_valid = min_count <= unique_planets <= max_count
-    
-    if not is_valid:
-        if unique_planets < min_count:
-            logger.warning(f"Sample size ({unique_planets}) is below target ({min_count}). Proceeding per FR-001.")
+    for record in tqdm(parsed_records, desc="Validating records", unit="record"):
+        if all(record.get(field) is not None for field in required_fields):
+            valid_records.append(record)
         else:
-            logger.warning(f"Sample size ({unique_planets}) exceeds target ({max_count}). Proceeding per FR-001.")
-    else:
-        logger.info(f"Sample size ({unique_planets}) is within target range [{min_count}, {max_count}].")
+            missing = [f for f in required_fields if record.get(f) is None]
+            logger.debug(f"Record missing fields {missing}: {record.get('planet_name', 'Unknown')}")
     
-    return unique_planets, is_valid
+    logger.info(f"Validation complete: {len(valid_records)} valid records out of {len(parsed_records)}")
+    return valid_records
+
+def process_download_metadata(parsed_records: List[Dict[str, Any]], output_path: Path) -> None:
+    """
+    Process and save validated metadata to CSV.
+    
+    Args:
+        parsed_records: List of validated metadata dictionaries
+        output_path: Path to save CSV file
+    """
+    import pandas as pd
+    
+    logger.info(f"Saving {len(parsed_records)} metadata records to {output_path}")
+    
+    # Prepare DataFrame
+    df = pd.DataFrame(parsed_records)
+    
+    # Log summary statistics
+    logger.info(f"Metadata summary: {len(df)} records")
+    logger.info(f"  - Hot Jupiters: {(df['category'] == 'Hot Jupiter').sum()}")
+    logger.info(f"  - Super-Earths: {(df['category'] == 'Super-Earth').sum()}")
+    logger.info(f"  - Temperature range: {df['equilibrium_temp'].min():.1f}K - {df['equilibrium_temp'].max():.1f}K")
+    logger.info(f"  - Resolution range: {df['spectral_resolution'].min():.1f} - {df['spectral_resolution'].max():.1f}")
+    
+    # Save to CSV
+    df.to_csv(output_path, index=False)
+    logger.info(f"Successfully saved metadata to {output_path}")
 
 def main():
-    """
-    Main entry point for data acquisition.
+    """Main entry point for download module."""
+    setup_logging()
+    logger.info("Starting exoplanet spectrum download process")
     
-    Executes the full pipeline:
-    1. Fetch data for Hot Jupiters and Super-Earths
-    2. Parse metadata (extracting T_eq, Metallicity, SNR, R)
-    3. Validate and log quality metrics
-    4. Save to data/processed/metadata.csv
-    5. Validate sample size
-    """
-    # Setup logging
-    log_file = Path("logs/download.log")
-    log_file.parent.mkdir(parents=True, exist_ok=True)
-    setup_logging(level=logging.INFO, log_file=log_file)
-    
-    logger.info("Starting data acquisition pipeline...")
     config = get_config()
-    data_dir = Path(config.get('data_dir', 'data'))
+    output_dir = Path(config['data_dir']) / 'raw'
+    processed_dir = Path(config['data_dir']) / 'processed'
     
-    all_records = []
+    # Ensure directories exist
+    output_dir.mkdir(parents=True, exist_ok=True)
+    processed_dir.mkdir(parents=True, exist_ok=True)
     
-    # Fetch Hot Jupiters
-    try:
-        hjs = fetch_spectrum_data("hot_jupiters")
-        all_records.extend(hjs)
-        logger.info(f"Fetched {len(hjs)} Hot Jupiters")
-    except DataFetchError as e:
-        logger.error(f"Failed to fetch Hot Jupiters: {e}")
+    # Fetch data for each planet in QUERY_PARAMS
+    all_metadata = []
+    planets = QUERY_PARAMS.get('planet_filters', [])
     
-    # Fetch Super-Earths
-    try:
-        ses = fetch_spectrum_data("super_earths")
-        all_records.extend(ses)
-        logger.info(f"Fetched {len(ses)} Super-Earths")
-    except DataFetchError as e:
-        logger.error(f"Failed to fetch Super-Earths: {e}")
+    logger.info(f"Processing {len(planets)} planets from query parameters")
     
-    if not all_records:
-        logger.error("No data fetched. Exiting.")
+    for planet in tqdm(planets, desc="Downloading spectra", unit="planet"):
+        try:
+            filepath, metadata = fetch_spectrum_data(planet, output_dir)
+            if filepath and metadata:
+                all_metadata.append(metadata)
+        except DataFetchError as e:
+            logger.error(f"Skipping planet {planet} due to error: {str(e)}")
+            continue
+        except Exception as e:
+            logger.error(f"Unexpected error processing {planet}: {str(e)}")
+            continue
+    
+    if not all_metadata:
+        logger.error("No metadata collected. Check API connectivity and query parameters.")
         return
     
-    # Parse metadata
-    parsed = parse_spectrum_metadata(all_records)
-    logger.info(f"Parsed metadata for {len(parsed)} planets")
-    
-    # Validate metadata (logs SNR/R status)
+    # Parse and validate metadata
+    parsed = parse_spectrum_metadata(all_metadata)
     validated = validate_parsed_metadata(parsed)
     
-    # Save to disk
-    metadata_path = process_download_metadata(validated, data_dir)
+    if not validated:
+        logger.error("No valid metadata after parsing and validation")
+        return
     
-    # Validate sample size
-    count, is_valid = validate_sample_size(metadata_path)
+    # Save processed metadata
+    metadata_path = processed_dir / 'metadata.csv'
+    process_download_metadata(validated, metadata_path)
     
-    logger.info(f"Pipeline completed. Processed {count} unique planets.")
-    if not is_valid:
-        logger.warning("Sample size warning issued, but pipeline continued.")
+    logger.info("Download process completed successfully")
 
 if __name__ == "__main__":
     main()

@@ -41,3 +41,50 @@ T021:
     \ error\u2011handling logic (logging failures, attempting upper\u2011limit derivation,\
     \ and continuing execution). Without concrete artifacts, we cannot verify that\
     \ the requirement has been implemented."
+T025c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, notebook, script, or other artifact implementing a bootstrap resampling\
+    \ loop (e.g., a function that runs 1000 iterations to compute confidence intervals\
+    \ for Kendall\u2019s tau) was supplied. Without any tangible implementation, the\
+    \ requirement cannot be verified as met. The next implementer must provide the\
+    \ actual bootstrap loop code and demonstrate its output (e.g., confidence interval\
+    \ values)."
+T026:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact containing the computed percentage confidence\u2011interval width\
+    \ of the water mixing\u2011ratio distribution is present; there is no code, data\
+    \ file, or report that shows the calculation or its result, so the task\u2019\
+    s requirement is not satisfied."
+T027:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, notebook, script, or output files implementing a Tobit regression (using
+    `lifelines` or `statsmodels`) with water abundance as the dependent variable and
+    temperature, mass, and metallicity as predictors were provided. The claim lacks
+    any tangible artifact (e.g., Python file, Jupyter notebook, saved model, or result
+    summary) to verify that the required regression was actually built and run. The
+    missing implementation must be supplied for the task to be considered complete.
+T028:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, script, or documentation was presented that shows a Tobit regression
+    with L2 (Ridge) regularization being invoked when variance inflation factors exceed
+    5, nor any evidence that L1 or Elastic Net were avoided. The required fallback
+    implementation is missing.
+T029:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No plot files or code generating the required diagnostic figures are present
+    in the `results/plots/` directory, nor is there any evidence (e.g., image files,
+    scripts, or documentation) showing that water abundance vs. temperature plots
+    with error bars/limits, residuals, or a correlation matrix were created. The task
+    therefore remains unfulfilled.
+T031:
+  c: false
+  h: 98064a84e4c080bfcc4c2f3008164a5fed720d78c687a09ceb34564b9a2e4495
+  r: The repository lacks a `calculate_statistical_power` function in `code/analysis.py`
+    (the file shows other analysis utilities but no such implementation), and the
+    required `results/quality_report.md` file is absent. Both the core code change
+    and the generated report are missing.

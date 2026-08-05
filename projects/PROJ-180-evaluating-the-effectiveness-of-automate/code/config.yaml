@@ -1,8 +1,59 @@
-# Project Configuration
+# Configuration for the Automated Code Review Effectiveness Study
+# Project: PROJ-180-evaluating-the-effectiveness-of-automate
+
+# Data Directories (relative to project root)
+paths:
+  raw: "../data/raw"
+  processed: "../data/processed"
+  results: "../results"
+  specs: "../specs"
+
+# GitHub API Configuration
 github:
   api_base_url: "https://api.github.com"
-data:
-  raw_dir: "data/raw"
-  processed_dir: "data/processed"
-logging:
-  level: "INFO"
+  rate_limit_check_interval: 60  # seconds
+  max_repos_per_query: 100
+  target_languages:
+    - python
+    - java
+    - javascript
+    - go
+  target_languages_count: 10  # repos per language
+
+# Tool Versions (referenced in code/versions.yaml)
+tools:
+  sonarqube: "latest"
+  deepsource: "latest"
+  codeclimate: "latest"
+
+# Processing Parameters
+processing:
+  max_repos_total: 40
+  min_stars: 100
+  min_forks: 10
+  allowed_licenses:
+    - MIT
+    - Apache-2.0
+    - BSD-3-Clause
+    - BSD-2-Clause
+    - ISC
+  ci_required: true
+  issues_required: true
+
+# Embedding Configuration
+embeddings:
+  model: "all-MiniLM-L6-v2"
+  device: "cpu"
+  max_length: 512
+
+# Alignment Thresholds
+alignment:
+  ast_similarity_threshold: 0.85
+  semantic_similarity_threshold: 0.75
+  line_tolerance: 5
+
+# Statistical Analysis
+statistics:
+  alpha: 0.05
+  fwer_method: "max-t"
+  mixed_effects_formula: "f1_score ~ tool + language + project_size + (1|project_id)"

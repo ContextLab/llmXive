@@ -1,15 +1,13 @@
 """
-Correlation Analysis Module for Alpha Oscillations and Working Memory Capacity Study.
+Correlation Analysis Module for Alpha Oscillations and Working Memory Capacity.
 
-This module implements statistical analysis including VIF calculation, collinearity
-detection, partial correlations, FDR correction, LOSO cross-validation, and split-half
-reliability analysis.
-
-IMPORTANT: This analysis uses discrete electrode-metric pairs. Per plan.md Complexity
-Tracking section, Cluster-Based Permutation Testing is explicitly REJECTED for this
-study design. We use Benjamini-Hochberg FDR correction instead.
+Implements:
+- VIF calculation and collinearity detection
+- Partial correlation and PCA fallback
+- FDR correction
+- LOSO cross-validation
+- Split-half reliability analysis (T033)
 """
-
 import os
 import sys
 import json
@@ -19,461 +17,388 @@ from typing import Dict, List, Any, Optional, Tuple
 import numpy as np
 import pandas as pd
 from scipy import stats
+from sklearn.linear_model import LinearRegression
 from statsmodels.stats.multitest import multipletests
 
-# Import from project utilities
-sys.path.insert(0, str(Path(__file__).parent))
-from utils.logging_config import setup_logging, get_logger
-from utils.validation import load_and_validate_csv, exit_on_validation_failure
+# Import local utilities
+try:
+    from utils.validation import load_and_validate_csv
+except ImportError:
+    # Fallback for direct execution or different import context
+    import sys
+    sys.path.append(str(Path(__file__).parent / 'utils'))
+    from validation import load_and_validate_csv
 
 # Setup logger
-logger = get_logger(__name__)
+logger = logging.getLogger(__name__)
 
-def load_metric_data(file_path: str, required_columns: List[str]) -> pd.DataFrame:
-    """
-    Load and validate metric data from CSV file.
+def load_config() -> Dict[str, Any]:
+    """Load configuration from code/config.yaml."""
+    config_path = Path(__file__).parent / 'config.yaml'
+    if not config_path.exists():
+        # Fallback if config.yaml is in root
+        config_path = Path(__file__).parent.parent / 'config.yaml'
+    
+    import yaml
+    with open(config_path, 'r') as f:
+        return yaml.safe_load(f)
 
-    Args:
-        file_path: Path to the CSV file
-        required_columns: List of columns that must be present
-
-    Returns:
-        DataFrame with the metric data
-    """
-    logger.info(f"Loading metric data from {file_path}")
-    df = load_and_validate_csv(file_path, required_columns)
-    logger.info(f"Loaded {len(df)} records with columns: {list(df.columns)}")
+def load_metric_data(filepath: str) -> pd.DataFrame:
+    """Load metric data from CSV file."""
+    if not os.path.exists(filepath):
+        raise FileNotFoundError(f"Metric file not found: {filepath}")
+    
+    df = pd.read_csv(filepath)
+    if df.empty:
+        raise ValueError(f"Metric file is empty: {filepath}")
     return df
 
-def merge_metrics(alpha_power_file: str, plv_file: str, wm_file: str) -> pd.DataFrame:
-    """
-    Merge alpha power, PLV, and working memory capacity metrics.
-
-    Args:
-        alpha_power_file: Path to alpha power CSV
-        plv_file: Path to PLV CSV
-        wm_file: Path to WM capacity CSV
-
-    Returns:
-        Merged DataFrame with all metrics per subject
-    """
-    logger.info("Merging metrics from multiple sources")
-
-    alpha_df = load_metric_data(alpha_power_file, ['subject_id', 'electrode', 'alpha_power'])
-    plv_df = load_metric_data(plv_file, ['subject_id', 'pair_id', 'plv_value'])
-    wm_df = load_metric_data(wm_file, ['subject_id', 'k_score'])
-
-    # Pivot alpha power to have one column per electrode
-    alpha_pivot = alpha_df.pivot(index='subject_id', columns='electrode', values='alpha_power').reset_index()
-    alpha_pivot.columns.name = None
-
-    # Pivot PLV to have one column per pair
-    plv_pivot = plv_df.pivot(index='subject_id', columns='pair_id', values='plv_value').reset_index()
-    plv_pivot.columns.name = None
-
-    # Merge all dataframes
-    merged = alpha_pivot.merge(plv_pivot, on='subject_id', how='inner')
-    merged = merged.merge(wm_df[['subject_id', 'k_score']], on='subject_id', how='inner')
-
-    logger.info(f"Merged dataset has {len(merged)} subjects and {len(merged.columns)} features")
+def merge_metrics(alpha_power_path: str, plv_path: str, wm_path: str) -> pd.DataFrame:
+    """Merge alpha power, PLV, and WM capacity metrics by subject."""
+    alpha_df = load_metric_data(alpha_power_path)
+    plv_df = load_metric_data(plv_path)
+    wm_df = load_metric_data(wm_path)
+    
+    # Ensure subject column exists and is consistent
+    for df in [alpha_df, plv_df, wm_df]:
+        if 'subject' not in df.columns:
+            # Try to infer from filename or use index
+            if 'subject_id' in df.columns:
+                df.rename(columns={'subject_id': 'subject'}, inplace=True)
+            else:
+                raise ValueError("Missing 'subject' or 'subject_id' column in metric data")
+    
+    # Merge on subject
+    merged = alpha_df.merge(plv_df, on='subject', how='inner')
+    merged = merged.merge(wm_df, on='subject', how='inner')
+    
+    logger.info(f"Merged {len(merged)} subjects from all metric sources")
     return merged
 
-def calculate_vif(df: pd.DataFrame, feature_columns: List[str]) -> Dict[str, float]:
-    """
-    Calculate Variance Inflation Factor for each feature.
-
-    Args:
-        df: DataFrame with features
-        feature_columns: List of column names to calculate VIF for
-
-    Returns:
-        Dictionary mapping feature names to VIF values
-    """
-    logger.info("Calculating Variance Inflation Factors")
-
+def calculate_vif(df: pd.DataFrame, features: List[str]) -> Dict[str, float]:
+    """Calculate Variance Inflation Factor for given features."""
+    if len(features) < 2:
+        return {}
+    
+    X = df[features].values
     vif_data = {}
-    X = df[feature_columns].values
-
-    for i, col in enumerate(feature_columns):
-        # Create design matrix with this column as dependent
-        y = X[:, i]
-        X_other = np.column_stack([X[:, j] for j in range(X.shape[1]) if j != i])
-
-        if X_other.shape[1] == 0:
-            vif_data[col] = 1.0
-            continue
-
-        # Fit linear model
-        try:
-            # Add intercept
-            X_other_with_intercept = np.column_stack([np.ones(X_other.shape[0]), X_other])
-            beta = np.linalg.lstsq(X_other_with_intercept, y, rcond=None)[0]
-            y_pred = X_other_with_intercept @ beta
-
-            # Calculate R-squared
-            ss_res = np.sum((y - y_pred) ** 2)
-            ss_tot = np.sum((y - np.mean(y)) ** 2)
-            r_squared = 1 - (ss_res / ss_tot)
-
-            # VIF = 1 / (1 - R^2)
-            if r_squared >= 1.0:
-                vif_data[col] = float('inf')
-            else:
-                vif_data[col] = 1.0 / (1 - r_squared)
-        except Exception as e:
-            logger.warning(f"Could not calculate VIF for {col}: {e}")
-            vif_data[col] = float('inf')
-
+    
+    for i, feature in enumerate(features):
+        # Regress feature against all other features
+        X_other = np.delete(X, i, axis=1)
+        model = LinearRegression()
+        model.fit(X_other, X[:, i])
+        r_squared = model.score(X_other, X[:, i])
+        vif = 1.0 / (1.0 - r_squared) if r_squared < 1.0 else np.inf
+        vif_data[feature] = vif
+    
     return vif_data
 
 def detect_collinearity(vif_data: Dict[str, float], threshold: float = 5.0) -> List[str]:
-    """
-    Detect features with high collinearity based on VIF threshold.
+    """Detect features with VIF above threshold."""
+    return [feat for feat, vif in vif_data.items() if vif > threshold]
 
-    Args:
-        vif_data: Dictionary of VIF values
-        threshold: VIF threshold for flagging (default 5.0)
-
-    Returns:
-        List of feature names with VIF > threshold
-    """
-    collinear_features = [k for k, v in vif_data.items() if v > threshold]
-    if collinear_features:
-        logger.warning(f"Detected collinearity in features: {collinear_features} (VIF > {threshold})")
-    else:
-        logger.info("No significant collinearity detected (all VIF <= 5.0)")
-    return collinear_features
-
-def prepare_pca_components(df: pd.DataFrame, feature_columns: List[str], n_components: int = 2) -> Tuple[np.ndarray, List[str]]:
-    """
-    Prepare PCA components for collinear features.
-
-    Args:
-        df: DataFrame with features
-        feature_columns: List of feature column names
-        n_components: Number of PCA components to extract
-
-    Returns:
-        Tuple of (component matrix, component names)
-    """
+def prepare_pca_components(df: pd.DataFrame, features: List[str], n_components: int = 1):
+    """Prepare PCA components for collinear features."""
     from sklearn.decomposition import PCA
-
-    logger.info(f"Preparing {n_components} PCA components for collinear features")
-    X = df[feature_columns].values
-
-    # Standardize
-    X_std = (X - X.mean(axis=0)) / X.std(axis=0)
-
+    
+    X = df[features].values
     pca = PCA(n_components=n_components)
-    components = pca.fit_transform(X_std)
+    components = pca.fit_transform(X)
+    
+    logger.info(f"PCA components explained variance: {pca.explained_variance_ratio_}")
+    return components, pca
 
-    component_names = [f'PC{i+1}' for i in range(n_components)]
-    logger.info(f"PCA explained variance: {pca.explained_variance_ratio_}")
+def calculate_partial_correlation(df: pd.DataFrame, x: str, y: str, controls: List[str]) -> Tuple[float, float]:
+    """Calculate partial correlation between x and y, controlling for controls."""
+    if not controls:
+        return stats.pearsonr(df[x], df[y])
+    
+    # Residualize x and y against controls
+    X_controls = df[controls].values
+    x_vals = df[x].values
+    y_vals = df[y].values
+    
+    # Regress x on controls
+    model_x = LinearRegression()
+    model_x.fit(X_controls, x_vals)
+    residuals_x = x_vals - model_x.predict(X_controls)
+    
+    # Regress y on controls
+    model_y = LinearRegression()
+    model_y.fit(X_controls, y_vals)
+    residuals_y = y_vals - model_y.predict(X_controls)
+    
+    # Correlation of residuals
+    r, p = stats.pearsonr(residuals_x, residuals_y)
+    return r, p
 
-    return components, component_names
-
-def calculate_partial_correlation(df: pd.DataFrame, x_col: str, y_col: str, control_cols: List[str]) -> Dict[str, Any]:
-    """
-    Calculate partial correlation between x and y, controlling for other variables.
-
-    Args:
-        df: DataFrame with all variables
-        x_col: Name of first variable
-        y_col: Name of second variable
-        control_cols: List of control variable names
-
-    Returns:
-        Dictionary with correlation coefficient, p-value, and sample size
-    """
-    logger.info(f"Calculating partial correlation: {x_col} vs {y_col} (controlling for {control_cols})")
-
-    # Get data
-    x = df[x_col].values
-    y = df[y_col].values
-    controls = df[control_cols].values if control_cols else np.array([]).reshape(len(df), 0)
-
-    # Calculate residuals
-    if controls.shape[1] > 0:
-        # Regress x on controls
-        X_control = np.column_stack([np.ones(len(df)), controls])
-        beta_x = np.linalg.lstsq(X_control, x, rcond=None)[0]
-        x_resid = x - X_control @ beta_x
-
-        # Regress y on controls
-        beta_y = np.linalg.lstsq(X_control, y, rcond=None)[0]
-        y_resid = y - X_control @ beta_y
-    else:
-        x_resid = x
-        y_resid = y
-
-    # Calculate correlation of residuals
-    r, p_value = stats.pearsonr(x_resid, y_resid)
-
-    result = {
-        'correlation': float(r),
-        'p_value': float(p_value),
-        'n': len(df),
-        'control_variables': control_cols
-    }
-
-    logger.info(f"Partial correlation: r={r:.4f}, p={p_value:.4f}")
-    return result
-
-def apply_fdr_correction(p_values: List[float], method: str = 'fdr_bh') -> Tuple[List[float], List[bool]]:
-    """
-    Apply False Discovery Rate (Benjamini-Hochberg) correction to p-values.
-
-    Per plan.md Complexity Tracking section: Cluster-Based Permutation Testing is
-    explicitly REJECTED for discrete electrode-metric pairs. We use FDR correction
-    instead to handle multiple comparisons.
-
-    Args:
-        p_values: List of raw p-values from hypothesis tests
-        method: Correction method (default 'fdr_bh' for Benjamini-Hochberg)
-
-    Returns:
-        Tuple of (adjusted p-values, boolean mask of significant results)
-    """
-    logger.info(f"Applying FDR correction ({method}) to {len(p_values)} tests")
-
-    if len(p_values) == 0:
+def apply_fdr_correction(p_values: List[float]) -> Tuple[List[bool], List[float]]:
+    """Apply Benjamini-Hochberg FDR correction."""
+    if not p_values:
         return [], []
+    
+    reject, p_corrected, _, _ = multipletests(p_values, method='fdr_bh')
+    return list(reject), list(p_corrected)
 
-    # Use statsmodels for FDR correction
-    rejected, p_corrected, _, _ = multipletests(p_values, alpha=0.05, method=method)
-
-    logger.info(f"FDR correction complete: {sum(rejected)} of {len(p_values)} tests significant at q < 0.05")
-
-    return list(p_corrected), list(rejected)
-
-def run_loso_cross_validation(df: pd.DataFrame, X_cols: List[str], y_col: str, 
-                              correlation_func) -> Dict[str, Any]:
+def run_loso_cross_validation(df: pd.DataFrame, x_col: str, y_col: str, 
+                              control_cols: List[str] = None) -> Dict[str, Any]:
     """
-    Run Leave-One-Subject-Out cross-validation for correlation analysis.
-
-    Per FR-008: This implements subject-level LOSO (not trial-level) as specified in Plan.
-
-    Args:
-        df: DataFrame with features and target
-        X_cols: List of feature column names
-        y_col: Target variable column name
-        correlation_func: Function to calculate correlation (e.g., calculate_partial_correlation)
-
+    Run Leave-One-Subject-Out cross-validation for correlation model.
+    
     Returns:
-        Dictionary with cross-validation results
+      Dictionary with mean correlation, std, and per-fold results
     """
-    logger.info(f"Running LOSO cross-validation with {len(df)} subjects")
-
-    n_subjects = len(df)
+    subjects = df['subject'].unique()
     correlations = []
-    p_values = []
-
-    for i in range(n_subjects):
-        # Leave one subject out
-        train_idx = [j for j in range(n_subjects) if j != i]
-        test_idx = [i]
-
-        train_df = df.iloc[train_idx]
-        test_df = df.iloc[test_idx]
-
-        if len(train_df) < 10:  # Minimum sample size for correlation
-            logger.warning(f"Skipping fold {i}: only {len(train_df)} training samples")
+    
+    for test_subject in subjects:
+        train_df = df[df['subject'] != test_subject]
+        test_df = df[df['subject'] == test_subject]
+        
+        if len(train_df) < 3:
             continue
-
-        # Calculate correlation on training set
-        result = correlation_func(train_df, X_cols[0], y_col, X_cols[1:] if len(X_cols) > 1 else [])
-        correlations.append(result['correlation'])
-        p_values.append(result['p_value'])
-
-        if i % 10 == 0:
-            logger.info(f"LOSO fold {i}/{n_subjects} complete")
-
-    # Calculate cross-validated statistics
-    mean_r = np.mean(correlations)
-    std_r = np.std(correlations)
-    mean_p = np.mean(p_values)
-
-    result = {
-        'n_subjects': n_subjects,
-        'mean_correlation': float(mean_r),
-        'std_correlation': float(std_r),
-        'mean_p_value': float(mean_p),
-        'all_correlations': correlations,
-        'all_p_values': p_values
+        
+        if control_cols:
+            r, _ = calculate_partial_correlation(train_df, x_col, y_col, control_cols)
+        else:
+            r, _ = stats.pearsonr(train_df[x_col], train_df[y_col])
+        
+        correlations.append(r)
+    
+    if not correlations:
+        return {
+            'mean_r': 0.0,
+            'std_r': 0.0,
+            'n_folds': 0,
+            'status': 'INSUFFICIENT_DATA'
+        }
+    
+    return {
+        'mean_r': float(np.mean(correlations)),
+        'std_r': float(np.std(correlations)),
+        'n_folds': len(correlations),
+        'per_fold_r': correlations,
+        'status': 'SUCCESS'
     }
 
-    logger.info(f"LOSO CV complete: mean r={mean_r:.4f} (SD={std_r:.4f})")
-    return result
-
-def run_split_half_reliability(df: pd.DataFrame, X_col: str, y_col: str) -> Dict[str, Any]:
+def run_split_half_reliability(df: pd.DataFrame, x_col: str, y_col: str, 
+                               control_cols: List[str] = None, 
+                               n_iterations: int = 100, 
+                               random_seed: int = 42) -> Dict[str, Any]:
     """
-    Calculate split-half reliability for the correlation analysis.
-
+    Implement split-half reliability analysis.
+    
+    Splits subjects into two random halves, computes correlation in each half,
+    then calculates the correlation between the two halves (Spearman-Brown corrected).
+    Repeats multiple times to get a robust estimate.
+    
     Args:
-        df: DataFrame with features and target
-        X_col: Feature column name
-        y_col: Target column name
-
+        df: DataFrame with subject data
+        x_col: Independent variable column name
+        y_col: Dependent variable column name
+        control_cols: Optional list of control variables for partial correlation
+        n_iterations: Number of random splits to perform
+        random_seed: Random seed for reproducibility
+    
     Returns:
-        Dictionary with reliability metrics
+        Dictionary with reliability metrics including Spearman-Brown corrected coefficient
     """
-    logger.info("Calculating split-half reliability")
-
-    n = len(df)
-    indices = np.arange(n)
-    np.random.shuffle(indices)
-
-    # Split data in half
-    half1_idx = indices[:n//2]
-    half2_idx = indices[n//2:]
-
-    df1 = df.iloc[half1_idx]
-    df2 = df.iloc[half2_idx]
-
-    if len(df1) < 5 or len(df2) < 5:
-        logger.warning("Insufficient data for split-half reliability")
-        return {'status': 'INSUFFICIENT_DATA', 'reliability': None}
-
-    # Calculate correlation in each half
-    r1, p1 = stats.pearsonr(df1[X_col], df1[y_col])
-    r2, p2 = stats.pearsonr(df2[X_col], df2[y_col])
-
-    # Spearman-Brown prophecy formula
-    reliability = (2 * r1 * r2) / (r1 * r2 + 1) if (r1 * r2 + 1) != 0 else 0
-
-    result = {
-        'half1_correlation': float(r1),
-        'half2_correlation': float(r2),
-        'reliability_coefficient': float(reliability),
-        'n_half1': len(df1),
-        'n_half2': len(df2)
+    np.random.seed(random_seed)
+    subjects = df['subject'].unique()
+    n_subjects = len(subjects)
+    
+    if n_subjects < 4:
+        logger.warning(f"Insufficient subjects ({n_subjects}) for split-half reliability")
+        return {
+            'reliability_coeff': 0.0,
+            'std_reliability': 0.0,
+            'n_iterations': 0,
+            'status': 'INSUFFICIENT_SUBJECTS',
+            'message': f'Need at least 4 subjects for split-half reliability, got {n_subjects}'
+        }
+    
+    correlations_half1 = []
+    correlations_half2 = []
+    
+    for i in range(n_iterations):
+        # Shuffle and split subjects
+        np.random.shuffle(subjects)
+        mid = len(subjects) // 2
+        half1_subjects = subjects[:mid]
+        half2_subjects = subjects[mid:]
+        
+        df_half1 = df[df['subject'].isin(half1_subjects)]
+        df_half2 = df[df['subject'].isin(half2_subjects)]
+        
+        # Ensure both halves have enough data
+        if len(df_half1) < 3 or len(df_half2) < 3:
+            continue
+        
+        # Calculate correlation for each half
+        if control_cols:
+            r1, _ = calculate_partial_correlation(df_half1, x_col, y_col, control_cols)
+            r2, _ = calculate_partial_correlation(df_half2, x_col, y_col, control_cols)
+        else:
+            r1, _ = stats.pearsonr(df_half1[x_col], df_half1[y_col])
+            r2, _ = stats.pearsonr(df_half2[x_col], df_half2[y_col])
+        
+        # Handle NaN correlations
+        if np.isnan(r1) or np.isnan(r2):
+            continue
+        
+        correlations_half1.append(r1)
+        correlations_half2.append(r2)
+    
+    if len(correlations_half1) < 5:
+        logger.warning(f"Could not complete enough iterations for split-half reliability")
+        return {
+            'reliability_coeff': 0.0,
+            'std_reliability': 0.0,
+            'n_iterations': len(correlations_half1),
+            'status': 'LOW_ITERATIONS',
+            'message': f'Only completed {len(correlations_half1)} valid iterations'
+        }
+    
+    # Calculate correlation between the two halves
+    r_split_half, p_value = stats.pearsonr(correlations_half1, correlations_half2)
+    
+    # Apply Spearman-Brown prophecy formula to correct for half-length
+    # r_sb = (2 * r_split) / (1 + r_split)
+    if r_split_half < -1.0:
+        r_split_half = -1.0
+    if r_split_half > 1.0:
+        r_split_half = 1.0
+        
+    reliability_coeff = (2 * r_split_half) / (1 + r_split_half) if (1 + r_split_half) != 0 else 0.0
+    
+    # Calculate standard deviation of reliability estimates across iterations
+    # (using bootstrapped reliability from the split correlations)
+    reliability_estimates = [(2 * r) / (1 + r) if (1 + r) != 0 else 0.0 
+                             for r in correlations_half1]
+    std_reliability = float(np.std(reliability_estimates))
+    
+    logger.info(f"Split-half reliability: {reliability_coeff:.4f} (SD: {std_reliability:.4f})")
+    
+    return {
+        'reliability_coeff': float(reliability_coeff),
+        'std_reliability': std_reliability,
+        'n_iterations': len(correlations_half1),
+        'correlation_half1_mean': float(np.mean(correlations_half1)),
+        'correlation_half2_mean': float(np.mean(correlations_half2)),
+        'split_half_correlation': float(r_split_half),
+        'p_value': float(p_value),
+        'status': 'SUCCESS'
     }
-
-    logger.info(f"Split-half reliability: r={reliability:.4f}")
-    return result
 
 def main():
-    """
-    Main function to run correlation analysis pipeline.
-
-    This function:
-    1. Loads alpha power, PLV, and WM capacity metrics
-    2. Merges datasets by subject
-    3. Calculates VIF and handles collinearity
-    4. Computes partial correlations
-    5. Applies FDR correction (Benjamini-Hochberg)
-    6. Runs LOSO cross-validation
-    7. Calculates split-half reliability
-    8. Saves results to data/results/
-    """
-    logger.info("=" * 60)
-    logger.info("Starting Correlation Analysis Pipeline")
-    logger.info("=" * 60)
-
-    # Configuration
-    base_dir = Path(__file__).parent.parent
-    metrics_dir = base_dir / "data" / "metrics"
-    results_dir = base_dir / "data" / "results"
-    results_dir.mkdir(parents=True, exist_ok=True)
-
-    alpha_file = metrics_dir / "alpha_power.csv"
-    plv_file = metrics_dir / "plv.csv"
-    wm_file = metrics_dir / "wm_capacity.csv"
-
-    # Check for required files
-    if not alpha_file.exists() or not plv_file.exists() or not wm_file.exists():
-        logger.error("Missing required metric files. Run metric extraction first.")
-        sys.exit(1)
-
-    # Load and merge data
-    merged_df = merge_metrics(str(alpha_file), str(plv_file), str(wm_file))
-
-    if len(merged_df) < 30:
-        logger.error(f"Insufficient subjects for analysis (N={len(merged_df)}). Minimum 30 required.")
-        sys.exit(1)
-
-    # Identify feature columns (exclude subject_id and target)
-    feature_cols = [col for col in merged_df.columns if col not in ['subject_id', 'k_score']]
-
-    if not feature_cols:
-        logger.error("No feature columns found in merged dataset")
-        sys.exit(1)
-
-    # Calculate VIF
-    vif_data = calculate_vif(merged_df, feature_cols)
-    collinear_features = detect_collinearity(vif_data)
-
-    # Handle collinearity
-    if collinear_features:
-        logger.warning("Collinearity detected. Preparing PCA components.")
-        pca_components, pca_names = prepare_pca_components(merged_df, collinear_features, n_components=2)
-        # Add PCA components to dataframe
-        for i, name in enumerate(pca_names):
-            merged_df[name] = pca_components[:, i]
-        # Use PCA components instead of collinear features
-        analysis_features = [col for col in feature_cols if col not in collinear_features] + pca_names
-    else:
-        analysis_features = feature_cols
-
-    # Calculate partial correlations for each feature
-    correlation_results = []
-    p_values_raw = []
-
-    for feature in analysis_features:
-        result = calculate_partial_correlation(merged_df, feature, 'k_score', 
-                                             [f for f in analysis_features if f != feature])
-        result['feature'] = feature
-        correlation_results.append(result)
-        p_values_raw.append(result['p_value'])
-
-    # Apply FDR correction
-    # NOTE: Per plan.md Complexity Tracking section, Cluster-Based Permutation Testing
-    # is explicitly REJECTED for discrete electrode-metric pairs. We use FDR correction.
-    p_values_corrected, is_significant = apply_fdr_correction(p_values_raw)
-
-    # Update results with corrected p-values
-    for i, result in enumerate(correlation_results):
-        result['p_value_fdr'] = p_values_corrected[i]
-        result['is_significant_fdr'] = is_significant[i]
-
-    # Run LOSO cross-validation
-    if len(analysis_features) >= 1:
-        loso_results = run_loso_cross_validation(
-            merged_df, 
-            analysis_features[:3] if len(analysis_features) >= 3 else analysis_features, 
-            'k_score',
-            calculate_partial_correlation
+    """Main entry point for correlation analysis with split-half reliability."""
+    # Setup logging
+    log_dir = Path(__file__).parent.parent / 'data' / 'results'
+    log_dir.mkdir(parents=True, exist_ok=True)
+    
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        handlers=[
+            logging.FileHandler(log_dir / 'correlation_analysis.log'),
+            logging.StreamHandler(sys.stdout)
+        ]
+    )
+    
+    logger.info("Starting correlation analysis with split-half reliability")
+    
+    try:
+        config = load_config()
+        
+        # Paths to metric files (adjust based on actual output from previous steps)
+        base_path = Path(__file__).parent.parent / 'data'
+        alpha_power_path = base_path / 'metrics' / 'alpha_power.csv'
+        plv_path = base_path / 'metrics' / 'plv.csv'
+        wm_path = base_path / 'metrics' / 'wm_capacity.csv'
+        
+        # Verify files exist
+        for path in [alpha_power_path, plv_path, wm_path]:
+            if not path.exists():
+                logger.error(f"Required metric file not found: {path}")
+                sys.exit(1)
+        
+        # Merge metrics
+        merged_df = merge_metrics(
+            str(alpha_power_path), 
+            str(plv_path), 
+            str(wm_path)
         )
-    else:
-        loso_results = {'status': 'NO_FEATURES'}
+        
+        if merged_df.empty:
+            logger.error("No data after merging metrics")
+            sys.exit(1)
+        
+        logger.info(f"Loaded {len(merged_df)} subjects for analysis")
+        
+        # Select variables for analysis
+        # Assuming 'alpha_power' and 'wm_k' are the main variables
+        # Adjust column names based on actual data structure
+        x_col = 'alpha_power'
+        y_col = 'wm_k'
+        control_cols = ['plv']  # Example control variable
+        
+        # Check if columns exist
+        if x_col not in merged_df.columns:
+            # Try to find similar column
+            possible_x = [c for c in merged_df.columns if 'alpha' in c.lower()]
+            if possible_x:
+                x_col = possible_x[0]
+                logger.info(f"Using {x_col} as x variable")
+            else:
+                raise ValueError(f"Could not find alpha power column. Available: {merged_df.columns.tolist()}")
+        
+        if y_col not in merged_df.columns:
+            possible_y = [c for c in merged_df.columns if 'wm' in c.lower() or 'capacity' in c.lower()]
+            if possible_y:
+                y_col = possible_y[0]
+                logger.info(f"Using {y_col} as y variable")
+            else:
+                raise ValueError(f"Could not find WM capacity column. Available: {merged_df.columns.tolist()}")
+        
+        # Run split-half reliability analysis
+        logger.info(f"Running split-half reliability for {x_col} vs {y_col}")
+        
+        reliability_results = run_split_half_reliability(
+            merged_df, 
+            x_col, 
+            y_col, 
+            control_cols=control_cols,
+            n_iterations=100,
+            random_seed=config.get('random_seed', 42)
+        )
+        
+        # Save results
+        results_path = log_dir / 'split_half_reliability.json'
+        with open(results_path, 'w') as f:
+            json.dump(reliability_results, f, indent=2)
+        
+        logger.info(f"Split-half reliability results saved to {results_path}")
+        
+        # Print summary
+        print("\n" + "="*50)
+        print("SPLIT-HALF RELIABILITY ANALYSIS RESULTS")
+        print("="*50)
+        print(f"Reliability Coefficient (Spearman-Brown): {reliability_results['reliability_coeff']:.4f}")
+        print(f"Standard Deviation: {reliability_results['std_reliability']:.4f}")
+        print(f"Number of Valid Iterations: {reliability_results['n_iterations']}")
+        print(f"Status: {reliability_results['status']}")
+        
+        if reliability_results['status'] == 'SUCCESS':
+            if reliability_results['reliability_coeff'] >= 0.7:
+                print("Status: PASS - Reliability meets threshold (≥0.7)")
+            else:
+                print("Status: LOW - Reliability below threshold (<0.7)")
+        print("="*50)
+        
+    except Exception as e:
+        logger.error(f"Analysis failed: {str(e)}", exc_info=True)
+        sys.exit(1)
 
-    # Run split-half reliability
-    if len(analysis_features) > 0:
-        reliability_results = run_split_half_reliability(merged_df, analysis_features[0], 'k_score')
-    else:
-        reliability_results = {'status': 'NO_FEATURES'}
-
-    # Save results
-    results = {
-        'correlation_results': correlation_results,
-        'vif_analysis': vif_data,
-        'collinear_features': collinear_features,
-        'loso_cv': loso_results,
-        'split_half_reliability': reliability_results,
-        'fdr_method': 'benjamini-hochberg',
-        'note': 'Cluster-Based Permutation Testing explicitly rejected per plan.md'
-    }
-
-    output_file = results_dir / "correlation_analysis_results.json"
-    with open(output_file, 'w') as f:
-        json.dump(results, f, indent=2, default=str)
-
-    logger.info(f"Results saved to {output_file}")
-    logger.info("=" * 60)
-    logger.info("Correlation Analysis Pipeline Complete")
-    logger.info("=" * 60)
-
-    return results
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

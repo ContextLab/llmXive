@@ -1,217 +1,156 @@
 """
-Configuration management for the exoplanetary atmosphere characterization pipeline.
-Handles environment variable loading, API key retrieval, and random seed setting
-for reproducible research.
-"""
+Configuration management module for the exoplanetary atmosphere characterization pipeline.
 
+Handles environment variable loading, API key retrieval, and random seed initialization.
+"""
 import os
 import random
 import logging
 from pathlib import Path
 from typing import Optional, Dict, Any
 import numpy as np
+from dotenv import load_dotenv
 
-# Configure logging for this module
+# Initialize logger
 logger = logging.getLogger(__name__)
 
-# Default configuration values
-DEFAULT_SEED = 42
-DEFAULT_CPU_THREADS = 4
-DEFAULT_MEMORY_LIMIT_GB = 14.0
-
-# Environment variable names for API keys
-API_KEY_VARS = {
-    'NASA_EXOPLANET_ARCHIVE': 'NASA_EXOPLANET_ARCHIVE_KEY',
-    'HETDEX_API': 'HETDEX_API_KEY',
-    'ESO_API': 'ESO_API_KEY',
-}
-
-def load_env_vars() -> Dict[str, Optional[str]]:
+def load_env_vars(env_path: Optional[str] = None) -> bool:
     """
-    Load environment variables for API keys and configuration.
+    Load environment variables from a .env file if it exists.
     
+    Args:
+        env_path: Path to the .env file. If None, looks for .env in project root.
+        
     Returns:
-        Dict mapping variable names to their values (or None if not set).
-    
-    Raises:
-        ConfigurationError: If critical API keys are missing when required.
+        True if file was loaded and processed, False if file not found or error.
     """
-    env_vars = {}
+    if env_path is None:
+        # Default to project root
+        env_path = str(Path(__file__).parent.parent / ".env")
     
-    # Load API keys
-    for service, var_name in API_KEY_VARS.items():
-        value = os.getenv(var_name)
-        env_vars[var_name] = value
-        if value is None:
-            logger.warning(f"API key environment variable {var_name} is not set. "
-                         f"Service {service} may be unavailable.")
+    if os.path.exists(env_path):
+        loaded = load_dotenv(env_path)
+        if loaded:
+            logger.info(f"Loaded environment variables from {env_path}")
+            return True
         else:
-            logger.info(f"API key for {service} loaded from environment.")
-    
-    # Load configuration environment variables
-    config_vars = [
-        ('PIPELINE_SEED', 'PIPELINE_SEED'),
-        ('CPU_THREADS', 'CPU_THREADS'),
-        ('MEMORY_LIMIT_GB', 'MEMORY_LIMIT_GB'),
-        ('DATA_DIR', 'DATA_DIR'),
-        ('RESULTS_DIR', 'RESULTS_DIR'),
-    ]
-    
-    for env_name, config_name in config_vars:
-        value = os.getenv(env_name)
-        env_vars[env_name] = value
-        if value is not None:
-            logger.info(f"Configuration {env_name} loaded from environment: {value}")
-    
-    return env_vars
+            logger.warning(f"Could not load environment variables from {env_path}")
+            return False
+    else:
+        logger.info(f"No .env file found at {env_path}, skipping load")
+        return False
 
 def set_random_seed(seed: Optional[int] = None) -> int:
     """
-    Set random seeds for reproducibility across all libraries.
+    Set random seeds for reproducibility across all relevant libraries.
     
     Args:
-        seed: The random seed to use. If None, uses DEFAULT_SEED or
-             the value from PIPELINE_SEED environment variable.
-    
+        seed: The seed value. If None, reads from 'RANDOM_SEED' environment variable.
+              If env var is not set, uses a default value of 42.
+              
     Returns:
         The seed value that was set.
-    
-    Raises:
-        ValueError: If the seed is negative or not an integer.
     """
     if seed is None:
-        # Try to get from environment first
-        env_seed = os.getenv('PIPELINE_SEED')
-        if env_seed is not None:
+        seed_str = os.getenv("RANDOM_SEED")
+        if seed_str is not None:
             try:
-                seed = int(env_seed)
+                seed = int(seed_str)
+                logger.info(f"Using seed {seed} from RANDOM_SEED environment variable")
             except ValueError:
-                logger.warning(f"Invalid PIPELINE_SEED value '{env_seed}', using default {DEFAULT_SEED}")
-                seed = DEFAULT_SEED
+                logger.warning(f"Invalid RANDOM_SEED value '{seed_str}', using default 42")
+                seed = 42
         else:
-            seed = DEFAULT_SEED
+            seed = 42
+            logger.info("No RANDOM_SEED set, using default value 42")
     
-    # Validate seed
-    if not isinstance(seed, int):
-        raise ValueError(f"Seed must be an integer, got {type(seed)}")
-    if seed < 0:
-        raise ValueError(f"Seed must be non-negative, got {seed}")
-    
-    # Set seeds for all relevant libraries
+    # Set seeds for reproducibility
     random.seed(seed)
     np.random.seed(seed)
     
-    # Set PYTHONHASHSEED for hash reproducibility
-    os.environ['PYTHONHASHSEED'] = str(seed)
+    # Note: If using tensorflow or torch, add their seed settings here
+    # os.environ['PYTHONHASHSEED'] = str(seed)
     
-    logger.info(f"Random seed set to {seed} for reproducibility")
+    logger.debug(f"Random seeds set to {seed}")
     return seed
 
 def get_config() -> Dict[str, Any]:
     """
-    Get the complete configuration dictionary.
+    Retrieve the current configuration state.
     
     Returns:
-        Dictionary containing all configuration values including:
-        - api_keys: Dict of API key names to values
-        - seed: Random seed value
-        - cpu_threads: Number of CPU threads to use
-        - memory_limit_gb: Memory limit in GB
-        - data_dir: Path to data directory
-        - results_dir: Path to results directory
+        Dictionary containing configuration values including paths, seeds, and API keys.
     """
-    # Load environment variables
-    env_vars = load_env_vars()
-    
-    # Extract API keys
-    api_keys = {
-        service: env_vars.get(var_name)
-        for service, var_name in API_KEY_VARS.items()
-    }
-    
-    # Extract configuration values
-    seed = None
-    if env_vars.get('PIPELINE_SEED') is not None:
-        try:
-            seed = int(env_vars['PIPELINE_SEED'])
-        except ValueError:
-            seed = DEFAULT_SEED
-    else:
-        seed = DEFAULT_SEED
-    
-    cpu_threads = DEFAULT_CPU_THREADS
-    if env_vars.get('CPU_THREADS') is not None:
-        try:
-            cpu_threads = int(env_vars['CPU_THREADS'])
-        except ValueError:
-            logger.warning(f"Invalid CPU_THREADS value, using default {DEFAULT_CPU_THREADS}")
-    
-    memory_limit_gb = DEFAULT_MEMORY_LIMIT_GB
-    if env_vars.get('MEMORY_LIMIT_GB') is not None:
-        try:
-            memory_limit_gb = float(env_vars['MEMORY_LIMIT_GB'])
-        except ValueError:
-            logger.warning(f"Invalid MEMORY_LIMIT_GB value, using default {DEFAULT_MEMORY_LIMIT_GB}")
-    
-    data_dir = os.getenv('DATA_DIR', 'data')
-    results_dir = os.getenv('RESULTS_DIR', 'results')
+    # Ensure environment variables are loaded
+    load_env_vars()
     
     config = {
-        'api_keys': api_keys,
-        'seed': seed,
-        'cpu_threads': cpu_threads,
-        'memory_limit_gb': memory_limit_gb,
-        'data_dir': Path(data_dir),
-        'results_dir': Path(results_dir),
+        "random_seed": os.getenv("RANDOM_SEED", "42"),
+        "api_keys": {
+            "nasa_exoplanet_archive": os.getenv("NASA_EXOPLANET_ARCHIVE_KEY"),
+            "hubble_archive": os.getenv("HUBBLE_ARCHIVE_KEY"),
+            "jwst_archive": os.getenv("JWST_ARCHIVE_KEY")
+        },
+        "paths": {
+            "project_root": str(Path(__file__).parent.parent),
+            "data_raw": str(Path(__file__).parent.parent / "data" / "raw"),
+            "data_processed": str(Path(__file__).parent.parent / "data" / "processed"),
+            "results": str(Path(__file__).parent.parent / "results"),
+            "figures": str(Path(__file__).parent.parent / "results" / "plots")
+        },
+        "cpu_threads": int(os.getenv("CPU_THREADS", "4")),
+        "memory_limit_gb": float(os.getenv("MEMORY_LIMIT_GB", "8.0"))
     }
     
+    # Log sensitive info safely (mask keys)
+    masked_keys = {k: "****" if v else "None" for k, v in config["api_keys"].items()}
+    config["masked_api_keys"] = masked_keys
+    
+    logger.debug(f"Configuration loaded: {config}")
     return config
 
-def validate_config(config: Dict[str, Any]) -> bool:
+def validate_config(config: Optional[Dict[str, Any]] = None) -> bool:
     """
-    Validate the configuration dictionary.
+    Validate that required configuration values are present and valid.
     
     Args:
-        config: Configuration dictionary to validate
-    
+        config: Configuration dictionary. If None, loads from get_config().
+                
     Returns:
-        True if configuration is valid
-    
-    Raises:
-        ConfigurationError: If configuration is invalid
+        True if configuration is valid, False otherwise.
     """
-    from utils import ConfigurationError
+    if config is None:
+        config = get_config()
     
-    # Check required keys
-    required_keys = ['api_keys', 'seed', 'cpu_threads', 'memory_limit_gb', 'data_dir', 'results_dir']
-    for key in required_keys:
-        if key not in config:
-            raise ConfigurationError(f"Missing required configuration key: {key}")
+    errors = []
     
-    # Validate seed
-    if not isinstance(config['seed'], int) or config['seed'] < 0:
-        raise ConfigurationError(f"Invalid seed value: {config['seed']}")
+    # Check paths exist
+    for key, path_str in config["paths"].items():
+        if key != "project_root":  # project_root is guaranteed to exist
+            path = Path(path_str)
+            if not path.exists():
+                errors.append(f"Path does not exist: {path}")
     
-    # Validate CPU threads
-    if not isinstance(config['cpu_threads'], int) or config['cpu_threads'] < 1:
-        raise ConfigurationError(f"Invalid CPU threads value: {config['cpu_threads']}")
+    # Check random seed is valid integer
+    try:
+        int(config["random_seed"])
+    except ValueError:
+        errors.append(f"Invalid random_seed value: {config['random_seed']}")
     
-    # Validate memory limit
-    if not isinstance(config['memory_limit_gb'], (int, float)) or config['memory_limit_gb'] <= 0:
-        raise ConfigurationError(f"Invalid memory limit value: {config['memory_limit_gb']}")
+    # Check CPU threads is positive
+    if config["cpu_threads"] <= 0:
+        errors.append(f"CPU threads must be positive: {config['cpu_threads']}")
     
-    # Validate directories
-    if not isinstance(config['data_dir'], Path):
-        config['data_dir'] = Path(config['data_dir'])
-    if not isinstance(config['results_dir'], Path):
-        config['results_dir'] = Path(config['results_dir'])
+    # Check memory limit is positive
+    if config["memory_limit_gb"] <= 0:
+        errors.append(f"Memory limit must be positive: {config['memory_limit_gb']}")
     
-    if not config['data_dir'].is_absolute():
-        config['data_dir'] = Path.cwd() / config['data_dir']
-    if not config['results_dir'].is_absolute():
-        config['results_dir'] = Path.cwd() / config['results_dir']
+    if errors:
+        for error in errors:
+            logger.error(f"Configuration error: {error}")
+        return False
     
-    logger.info("Configuration validated successfully")
+    logger.info("Configuration validation passed")
     return True
 
 def main():
@@ -219,30 +158,22 @@ def main():
     Main function to demonstrate configuration loading and validation.
     """
     print("Loading configuration...")
+    load_env_vars()
+    
     config = get_config()
+    print(f"Random Seed: {config['random_seed']}")
+    print(f"CPU Threads: {config['cpu_threads']}")
+    print(f"Memory Limit: {config['memory_limit_gb']} GB")
+    print(f"API Keys Status: {config['masked_api_keys']}")
+    print(f"Paths: {config['paths']}")
     
-    print(f"Random seed: {config['seed']}")
-    print(f"CPU threads: {config['cpu_threads']}")
-    print(f"Memory limit: {config['memory_limit_gb']} GB")
-    print(f"Data directory: {config['data_dir']}")
-    print(f"Results directory: {config['results_dir']}")
-    
-    print("\nAPI Keys:")
-    for service, key in config['api_keys'].items():
-        if key is not None:
-            print(f"  {service}: [REDACTED]")
-        else:
-            print(f"  {service}: [NOT SET]")
-    
-    print("\nValidating configuration...")
-    try:
-        validate_config(config)
-        print("Configuration is valid!")
-    except Exception as e:
-        print(f"Configuration validation failed: {e}")
+    if validate_config(config):
+        print("Configuration is valid.")
+    else:
+        print("Configuration validation failed.")
         return 1
     
     return 0
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     exit(main())

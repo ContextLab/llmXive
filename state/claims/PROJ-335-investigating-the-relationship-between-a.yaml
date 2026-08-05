@@ -307,3 +307,97 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-02T15:02:27Z'
+- artifact_path: projects/PROJ-335-investigating-the-relationship-between-a/specs/001-investigating-the-relationship-between-a/tasks.md
+  attempts: 1
+  canonical: Dataset ds000248 downloaded from OpenNeuro
+  claim_id: c_47eceb4d
+  context: Implement code/01_download_preprocess.py to fetch ds000248 from OpenNeuro
+    and save to data/raw/
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset_ds000248_downloaded_from_OpenNeuro
+  kind: entity_fact
+  raw_text: The dataset ds000248 is downloaded from OpenNeuro.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T10:18:54Z'
+- artifact_path: projects/PROJ-335-investigating-the-relationship-between-a/specs/001-investigating-the-relationship-between-a/tasks.md
+  attempts: 1
+  canonical: Data bandpass filtered 1-40 Hz
+  claim_id: c_037edb76
+  context: Verify that data is bandpass-filtered (1-40 Hz) and epochs are segmented
+    with behavioral scores extracted.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Data is bandpass-filtered between 1-40 Hz.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T10:19:18Z'
+- artifact_path: projects/PROJ-335-investigating-the-relationship-between-a/specs/001-investigating-the-relationship-between-a/tasks.md
+  attempts: 1
+  canonical: Alpha power extracted from F3 F4 Fz P3 P4 Pz
+  claim_id: c_19f9ed3a
+  context: Verify that alpha power is extracted from F3, F4, Fz, P3, P4, Pz, PLV is
+    computed via Hilbert transform for frontal-parietal pairs, and metrics are stored
+    per participant.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Alpha_power_extracted_from_F3_F4_Fz_P3_P4_Pz
+  kind: entity_fact
+  raw_text: Alpha power is extracted from electrodes F3, F4, Fz, P3, P4, and Pz.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T10:19:33Z'
+- artifact_path: projects/PROJ-335-investigating-the-relationship-between-a/specs/001-investigating-the-relationship-between-a/tasks.md
+  attempts: 1
+  canonical: PLV computed via Hilbert transform for frontal-parietal pairs
+  claim_id: c_500abffe
+  context: Verify that alpha power is extracted from F3, F4, Fz, P3, P4, Pz, (2) PLV
+    is computed via Hilbert transform for frontal-parietal pairs, and (3) metrics
+    are stored per participant.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/PLV_computed_via_Hilbert_transform_for_frontal-parietal_pair
+  kind: entity_fact
+  raw_text: PLV is computed via Hilbert transform for frontal-parietal electrode pairs.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T10:19:50Z'
+- artifact_path: projects/PROJ-335-investigating-the-relationship-between-a/specs/001-investigating-the-relationship-between-a/tasks.md
+  attempts: 1
+  canonical: Cluster-Based Permutation Testing rejected for discrete electrode-metric
+    pairs
+  claim_id: c_b0b1bd5b
+  context: "Implement FDR (Benjamini-Hochberg) correction for multiple tests (electrodes\
+    \ \xD7 metrics) in code/03_correlation_analysis.py; include a comment referencing\
+    \ plan.md Complexity Tracking section which explicitly rejects Cluster-Based Permutation\
+    \ Testing for discrete electrode-metric pairs."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Cluster-Based_Permutation_Testing_rejected_for_discrete_elec
+  kind: entity_fact
+  raw_text: Cluster-Based Permutation Testing is rejected for discrete electrode-metric
+    pairs in the plan.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T10:20:38Z'

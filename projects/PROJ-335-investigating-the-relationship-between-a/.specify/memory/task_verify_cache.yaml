@@ -1,0 +1,41 @@
+T008:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No logging configuration file, script, or code snippet was provided that creates
+    structured logs (e.g., JSON or similar) and routes them both to the `data/results/`
+    directory and the console. The required artifact is missing, so the task is not
+    satisfied.
+T011:
+  c: false
+  h: af537ef37bcf237c4cd94e260edb26f467966961b37d0947ca31aca0cfaaab75
+  r: "The required integration test file `tests/integration/test_download_preprocess.py`\
+    \ does not exist in the repository, so the artifact is missing entirely. Without\
+    \ this test, the task\u2019s core deliverable is not provided."
+T016:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or log file was provided showing the added validation logic,\
+    \ the invocation of the T005 utility, or the required error message. Without any\
+    \ artifact to inspect, we cannot confirm that the task\u2019s requirements have\
+    \ been met."
+T017:
+  c: false
+  h: 789d17c8e90602e11f054c32fa9b0767af832674c56d3dcf1f2cdfd8e89769e0
+  r: "The `code/01_download_preprocess.py` file is truncated before the implementation\
+    \ of `check_power_requirements`, so the required logic (halt for N\u202F<\u202F\
+    30, warning and JSON write for 30\u202F\u2264\u202FN\u202F\u2264\u202F52) is not\
+    \ present. Additionally, the expected output file `data/results/power_status.json`\
+    \ does not exist. The task\u2019s power\u2011analysis check is therefore not implemented."
+T018:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `data/processed/` directory containing saved preprocessed epochs
+    in HDF5 or NPZ format is provided; the claim lacks any actual artifact, file listing,
+    or code that performs the saving step. Consequently the required output is missing.
+T023:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or log file was provided showing the added validation that\
+    \ checks for required electrodes and exits with code\u202F1 while logging the\
+    \ required CRITICAL message. Without such artifact, we cannot confirm the task\
+    \ was fulfilled."

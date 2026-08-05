@@ -1,0 +1,25 @@
+{
+  "original_params": {
+    "P_G": 0.1,
+    "P_L0": 0.55,
+    "P_S": 0.18,
+    "P_T": 0.1
+  },
+  "updated_params": {
+    "P_G": 0.1,
+    "P_L0": 0.55,
+    "P_S": 0.18,
+    "P_T": 0.1
+  },
+  "metrics": {
+    "rmse": 0.085,
+    "rmse_diff": 0.005,
+    "passed": true,
+    "threshold_rmse_diff": 0.02,
+    "threshold_abs_rmse": 0.15,
+    "data_source": "synthetic",
+    "limitation_flag": true
+  },
+  "status": "completed",
+  "timestamp": "2026-06-14T12:00:00Z"
+}

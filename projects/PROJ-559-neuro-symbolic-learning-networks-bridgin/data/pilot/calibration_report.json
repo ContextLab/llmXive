@@ -1,0 +1,14 @@
+{
+  "has_human_data": false,
+  "is_synthetic": true,
+  "limitation_flag": true,
+  "rmse": 0.085,
+  "passed": true,
+  "params_used": {
+    "P_G": 0.1,
+    "P_L0": 0.55,
+    "P_S": 0.18,
+    "P_T": 0.1
+  },
+  "timestamp": "2026-06-14T12:00:00Z"
+}

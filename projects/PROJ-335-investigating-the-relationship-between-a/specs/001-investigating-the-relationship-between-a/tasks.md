@@ -76,18 +76,18 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T010 [P] [US1] Unit test for dataset validation logic in `tests/unit/test_validation.py` (tests validation utility from T005 for missing behavioral measures)
-- [ ] T011 [US1] Integration test for full download and preprocessing pipeline in `tests/integration/test_download_preprocess.py` (Depends on T012-T018 completion) <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
+- [X] T010 [P] [US1] Unit test for dataset validation logic in `tests/unit/test_validation.py` (tests validation utility from T005 for missing behavioral measures)
+- [ ] T011 [US1] Integration test for full download and preprocessing pipeline in `tests/integration/test_download_preprocess.py` (Depends on T012-T018 completion) <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
 
 ### Implementation for User Story 1
 
-- [ ] T012 [P] [US1] Implement `code/01_download_preprocess.py` to fetch ds000248 from OpenNeuro and save to `data/raw/`
-- [ ] T013 [US1] Implement bandpass filtering (1-40 Hz) and re-reference to average mastoids in `code/01_download_preprocess.py`
-- [ ] T014 [US1] Implement ICA artifact removal in `code/01_download_preprocess.py` using MNE-Python
+- [X] T012 [P] [US1] Implement `code/01_download_preprocess.py` to fetch ds000248 from OpenNeuro and save to `data/raw/`
+- [X] T013 [US1] Implement bandpass filtering (1-40 Hz) and re-reference to average mastoids in `code/01_download_preprocess.py`
+- [X] T014 [US1] Implement ICA artifact removal in `code/01_download_preprocess.py` using MNE-Python
 - [X] T015 [US1] Implement trial epoching aligned to task events and extraction of behavioral performance scores (k-scores/d') in `code/01_download_preprocess.py`
-- [~] T016 [US1] Add validation logic to exit with a failure code if required variables (channels, k-scores) are missing, invoking the utility from T005, and logging 'ERROR: Missing behavioral measures...'
-- [~] T017 [US1] Add power analysis check to `code/01_download_preprocess.py`: if N < 30, halt with 'INSUFFICIENT POWER' message; if N=30-52, log warning, write `data/results/power_status.json` with keys `n_count` and `status` set to 'LIMITED', and continue; otherwise proceed.
-- [~] T018 [US1] Save preprocessed epochs to `data/processed/` in HDF5/npz format
+- [ ] T016 [US1] Add validation logic to exit with a failure code if required variables (channels, k-scores) are missing, invoking the utility from T005, and logging 'ERROR: Missing behavioral measures...'
+- [ ] T017 [US1] Add power analysis check to `code/01_download_preprocess.py`: if N < 30, halt with 'INSUFFICIENT POWER' message; if N=30-52, log warning, write `data/results/power_status.json` with keys `n_count` and `status` set to 'LIMITED', and continue; otherwise proceed.
+- [ ] T018 [US1] Save preprocessed epochs to `data/processed/` in HDF5/npz format
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -108,7 +108,7 @@
 
 - [X] T021 [P] [US2] Implement alpha-band power extraction from frontal and parietal electrodes, including Fz, Pz, and bilateral homologs. in `code/02_extract_metrics.py`
 - [X] T022 [US2] Implement Hilbert transform-based PLV calculation for frontal-parietal electrode pairs in `code/02_extract_metrics.py`
-- [~] T023 [US2] Add validation to exit with code 1 if required electrodes (e.g., Pz) are missing, logging 'CRITICAL: Missing required electrode data...'
+- [ ] T023 [US2] Add validation to exit with code 1 if required electrodes (e.g., Pz) are missing, logging 'CRITICAL: Missing required electrode data...'
 - [~] T024 [US2] Store alpha power metrics per participant in `data/metrics/alpha_power.csv`
 - [~] T025 [US2] Store PLV metrics per participant in `data/metrics/plv.csv` with electrode pair identifiers
 
@@ -135,7 +135,7 @@
 - [X] T031 [US3] Implement FDR (Benjamini-Hochberg) correction for multiple tests (electrodes × metrics) in `code/03_correlation_analysis.py`; include a comment referencing `plan.md` Complexity Tracking section which explicitly rejects Cluster-Based Permutation Testing for discrete electrode-metric pairs.
 - [X] T031a [US3] Verify Cluster-Based Permutation is NOT implemented by checking for absence of specific libraries/functions in `code/03_correlation_analysis.py` and ensuring the code comment from T031 is present.
 - [X] T032 [US3] Implement Leave-One-Subject-Out (LOSO) cross-validation (Subject-Level only, replacing trial-level per Plan) for correlation model in `code/03_correlation_analysis.py` [FR-008]; note that split-half reliability is handled in T033.
-- [ ] T033 [US3] Implement split-half reliability analysis and output robustness metrics in `code/03_correlation_analysis.py`
+- [X] T033 [US3] Implement split-half reliability analysis and output robustness metrics in `code/03_correlation_analysis.py`
 - [ ] T034 [US3] Compare correlation coefficients to |r| ≥ 0.3 threshold and reliability to ≥0.7 threshold; output JSON to `data/results/threshold_results.json` with keys `threshold_status` (PASS/FAIL), `reliability_status` (PASS/LOW), `r_value`, and `reliability_coeff`.
 - [ ] T035 [US3] Generate final report in `data/results/analysis_report.md` summarizing findings, limitations, and associational nature
 
@@ -147,9 +147,9 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T036a [P] Documentation updates: Create `docs/quickstart.md` with run instructions
-- [ ] T036b [P] Documentation updates: Create `docs/api.md` with script parameter descriptions
-- [ ] T037 Run linter (ruff) and fix all violations in `code/` scripts to ensure clean code state
+- [X] T036a [P] Documentation updates: Create `docs/quickstart.md` with run instructions
+- [X] T036b [P] Documentation updates: Create `docs/api.md` with script parameter descriptions
+- [~] T037 Run linter (ruff) and fix all violations in `code/` scripts to ensure clean code state
 - [ ] T038 [P] Additional unit tests for edge cases (e.g., N < 30, missing electrodes) in `tests/unit/`
 - [ ] T039 [P] Run `quickstart.md` validation to ensure full pipeline executes on GitHub Actions free tier
 

@@ -1,10 +1,8 @@
 """
-Script to initialize the Git repository and Python virtual environment.
+Environment Initialization Script for llmXive Project.
 
-This script performs the following actions:
-1. Initializes a Git repository if one does not exist.
-2. Creates a Python virtual environment (venv) in the project root.
-3. Installs dependencies from requirements.txt into the virtual environment.
+This script initializes the git repository, creates a Python virtual environment,
+and installs dependencies from requirements.txt.
 
 Usage:
     python code/scripts/init_env.py
@@ -14,61 +12,124 @@ import subprocess
 import sys
 from pathlib import Path
 
-def run_command(cmd, cwd=None, check=True):
-    """Run a shell command and print it."""
-    print(f"Running: {' '.join(cmd)}")
+def run_command(command: list, cwd: Path = None, check: bool = True) -> subprocess.CompletedProcess:
+    """
+    Execute a shell command and return the result.
+
+    Args:
+        command: List of command arguments.
+        cwd: Working directory for the command.
+        check: If True, raise CalledProcessError on non-zero exit.
+
+    Returns:
+        CompletedProcess instance.
+    """
     try:
-        subprocess.run(cmd, cwd=cwd, check=check, shell=False)
+        result = subprocess.run(
+            command,
+            cwd=cwd,
+            check=check,
+            capture_output=True,
+            text=True
+        )
+        return result
     except subprocess.CalledProcessError as e:
-        print(f"Error running command: {e}")
+        print(f"Command failed: {' '.join(command)}")
+        print(f"stdout: {e.stdout}")
+        print(f"stderr: {e.stderr}")
         raise
 
-def init_git():
-    """Initialize git repository if not already initialized."""
-    if (Path(".git")).exists():
-        print("Git repository already exists.")
-        return
-    
-    print("Initializing Git repository...")
-    run_command(["git", "init"])
-    run_command(["git", "config", "user.name", "llmXive-bot"])
-    run_command(["git", "config", "user.email", "bot@llmxive.ai"])
-    print("Git repository initialized.")
+def init_git(project_root: Path) -> None:
+    """
+    Initialize a git repository if one does not already exist.
 
-def create_venv():
-    """Create virtual environment if it does not exist."""
-    venv_path = Path("venv")
+    Args:
+        project_root: Path to the project root directory.
+    """
+    git_dir = project_root / ".git"
+    if git_dir.exists():
+        print("Git repository already initialized.")
+        return
+
+    print("Initializing git repository...")
+    run_command(["git", "init"], cwd=project_root)
+    print("Git repository initialized successfully.")
+
+def create_venv(project_root: Path, venv_name: str = "venv") -> Path:
+    """
+    Create a Python virtual environment in the project root.
+
+    Args:
+        project_root: Path to the project root directory.
+        venv_name: Name of the virtual environment directory.
+
+    Returns:
+        Path to the created virtual environment.
+    """
+    venv_path = project_root / venv_name
     if venv_path.exists():
-        print("Virtual environment 'venv' already exists.")
+        print(f"Virtual environment '{venv_name}' already exists.")
+        return venv_path
+
+    print(f"Creating virtual environment '{venv_name}'...")
+    run_command([sys.executable, "-m", "venv", str(venv_name)], cwd=project_root)
+    print(f"Virtual environment '{venv_name}' created successfully.")
+    return venv_path
+
+def install_dependencies(project_root: Path, venv_path: Path, requirements_path: Path) -> None:
+    """
+    Install dependencies from requirements.txt into the virtual environment.
+
+    Args:
+        project_root: Path to the project root directory.
+        venv_path: Path to the virtual environment.
+        requirements_path: Path to requirements.txt.
+    """
+    if not requirements_path.exists():
+        raise FileNotFoundError(f"Requirements file not found: {requirements_path}")
+
+    # Determine the pip executable path based on OS
+    if sys.platform == "win32":
+        pip_executable = venv_path / "Scripts" / "pip.exe"
     else:
-        print("Creating virtual environment...")
-        run_command([sys.executable, "-m", "venv", "venv"])
-        print("Virtual environment created.")
+        pip_executable = venv_path / "bin" / "pip"
 
-def install_dependencies():
-    """Install dependencies from requirements.txt."""
-    req_file = Path("requirements.txt")
-    if not req_file.exists():
-        print("Warning: requirements.txt not found. Skipping dependency installation.")
-        return
-
-    venv_python = Path("venv/bin/python") if os.name != "nt" else Path("venv\\Scripts\\python.exe")
-    
-    if not venv_python.exists():
-        print("Error: Virtual environment not found. Run init_env.py again.")
-        sys.exit(1)
+    if not pip_executable.exists():
+        raise RuntimeError(f"Pip executable not found at {pip_executable}")
 
     print("Installing dependencies...")
-    run_command([str(venv_python), "-m", "pip", "install", "--upgrade", "pip"])
-    run_command([str(venv_python), "-m", "pip", "install", "-r", "requirements.txt"])
-    print("Dependencies installed.")
+    run_command([str(pip_executable), "install", "-r", str(requirements_path)], cwd=project_root)
+    print("Dependencies installed successfully.")
 
-def main():
-    print("Starting project environment initialization...")
-    init_git()
-    create_venv()
-    install_dependencies()
-    print("Initialization complete.")
+def main() -> None:
+    """
+    Main entry point for the environment initialization script.
+    """
+    # Determine project root (assuming script is in code/scripts/)
+    script_dir = Path(__file__).resolve().parent
+    project_root = script_dir.parent.parent
+
+    print(f"Project root: {project_root}")
+
+    # 1. Initialize Git
+    init_git(project_root)
+
+    # 2. Create Virtual Environment
+    venv_path = create_venv(project_root)
+
+    # 3. Install Dependencies
+    requirements_path = project_root / "requirements.txt"
+    if requirements_path.exists():
+        install_dependencies(project_root, venv_path, requirements_path)
+    else:
+        print("Warning: requirements.txt not found. Skipping dependency installation.")
+        print("Please run 'pip install -r requirements.txt' manually after activating the venv.")
+
+    print("\nSetup complete. To activate the environment:")
+    if sys.platform == "win32":
+        print(f"  {venv_path}\\Scripts\\activate")
+    else:
+        print(f"  source {venv_path}/bin/activate")
 
 if __name__ == "__main__":
     main()

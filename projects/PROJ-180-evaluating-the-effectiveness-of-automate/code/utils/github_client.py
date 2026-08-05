@@ -5,111 +5,210 @@ from typing import Any, Dict, Generator, List, Optional, Union
 from pathlib import Path
 import requests
 
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 class GitHubRateLimitExceeded(Exception):
-    """Raised when GitHub API rate limit is exceeded."""
+    """Exception raised when GitHub API rate limit is exceeded."""
     pass
 
 class GitHubClient:
-    def __init__(self, token: str):
+    """
+    GitHub REST API client with rate limit handling and pagination.
+    """
+    
+    def __init__(self, token: str, base_url: str = "https://api.github.com"):
+        """
+        Initialize the GitHub client.
+        
+        Args:
+            token: GitHub personal access token
+            base_url: GitHub API base URL
+        """
         self.token = token
+        self.base_url = base_url.rstrip('/')
         self.session = requests.Session()
         self.session.headers.update({
-            "Authorization": f"token {token}",
-            "Accept": "application/vnd.github.v3+json"
+            'Authorization': f'Bearer {token}',
+            'Accept': 'application/vnd.github.v3+json',
+            'User-Agent': 'llmXive-research-agent'
         })
-        self.base_url = "https://api.github.com"
+        self.rate_limit_remaining = 5000
+        self.rate_limit_reset = 0
     
-    def _handle_response(self, response: requests.Response) -> Dict[str, Any]:
-        if response.status_code == 403:
-            if "rate limit" in response.text.lower():
-                raise GitHubRateLimitExceeded("GitHub API rate limit exceeded")
-        response.raise_for_status()
-        return response.json()
-
-    def search_repos(self, query: str, per_page: int = 10) -> Generator[Dict[str, Any], None, None]:
-        """Search for repositories based on a query."""
-        url = f"{self.base_url}/search/repositories"
-        params = {"q": query, "per_page": per_page}
-        
-        while url:
-            response = self.session.get(url, params=params)
-            data = self._handle_response(response)
-            for item in data.get('items', []):
-                yield item
+    def _check_rate_limit(self):
+        """Check and handle rate limits."""
+        response = self.session.get(f'{self.base_url}/rate_limit')
+        if response.status_code == 200:
+            data = response.json()
+            self.rate_limit_remaining = data['resources']['core']['remaining']
+            self.rate_limit_reset = data['resources']['core']['reset']
             
-            # Pagination
-            if 'next' in data.get('links', {}):
-                url = data['links']['next']['href']
-                params = {} # Next URL already contains params
+            if self.rate_limit_remaining < 10:
+                logger.warning(f"Rate limit low: {self.rate_limit_remaining} requests remaining")
+                if self.rate_limit_remaining == 0:
+                    reset_time = time.time() + (self.rate_limit_reset - time.time())
+                    raise GitHubRateLimitExceeded(
+                        f"Rate limit exceeded. Reset in {reset_time:.0f} seconds"
+                    )
+        else:
+            logger.warning(f"Could not check rate limit: {response.status_code}")
+    
+    def _wait_for_rate_limit(self):
+        """Wait if rate limit is exceeded."""
+        if self.rate_limit_remaining < 10:
+            wait_time = max(0, self.rate_limit_reset - time.time())
+            if wait_time > 0:
+                logger.info(f"Waiting {wait_time:.0f} seconds for rate limit reset")
+                time.sleep(wait_time + 1)
+            self._check_rate_limit()
+    
+    def _paginate(self, url: str, params: Dict[str, Any] = None) -> Generator[Dict[str, Any], None, None]:
+        """
+        Paginate through GitHub API results.
+        
+        Args:
+            url: API endpoint URL
+            params: Query parameters
+        
+        Yields:
+            Individual items from the paginated results
+        """
+        self._wait_for_rate_limit()
+        
+        page = 1
+        per_page = 100
+        
+        while True:
+            params = params or {}
+            params['page'] = page
+            params['per_page'] = per_page
+            
+            response = self.session.get(url, params=params)
+            
+            if response.status_code == 200:
+                data = response.json()
+                if not data:
+                    break
+                
+                for item in data:
+                    yield item
+                
+                # Check if there are more pages
+                if len(data) < per_page:
+                    break
+                page += 1
+            elif response.status_code == 403:
+                raise GitHubRateLimitExceeded("Rate limit exceeded")
             else:
-                url = None
-
-    def get_repo_details(self, full_name: str) -> Dict[str, Any]:
-        """Get detailed information about a repository."""
-        url = f"{self.base_url}/repos/{full_name}"
-        response = self.session.get(url)
-        return self._handle_response(response)
-
-    def has_merged_prs(self, full_name: str) -> bool:
+                logger.error(f"API error: {response.status_code} - {response.text}")
+                break
+    
+    def get_repos(self, owner: str, per_page: int = 100) -> Generator[Dict[str, Any], None, None]:
         """
-        Check if the repository has any merged pull requests.
-        This implements the logic for T018 to skip repos with no merged PRs.
-        """
-        url = f"{self.base_url}/repos/{full_name}/pulls"
-        params = {"state": "closed", "per_page": 1}
+        Get all repositories for a user/organization.
         
-        try:
-            response = self.session.get(url, params=params)
-            if response.status_code == 404:
-                logger.warning(f"Repo {full_name} not found or private.")
-                return False
-            
-            data = self._handle_response(response)
-            if not data:
-                return False
-            
-            # Check if the first returned PR is merged
-            # The API returns closed PRs, we need to check 'merged_at'
-            for pr in data:
-                if pr.get('merged_at') is not None:
-                    return True
-            
-            return False
-        except Exception as e:
-            logger.error(f"Error checking PRs for {full_name}: {e}")
-            # If we can't check, we might want to be conservative and skip?
-            # Or assume true? For safety in T018, let's assume we can't verify and skip if error?
-            # Actually, if we can't verify, we might want to proceed or skip. 
-            # Given the requirement "handle repositories with no merged PRs", 
-            # if we can't confirm, it's safer to skip to avoid false positives in data quality.
-            return False
+        Args:
+            owner: GitHub username or organization name
+            per_page: Number of repos per page
+        
+        Yields:
+            Repository dictionaries
+        """
+        url = f'{self.base_url}/users/{owner}/repos'
+        yield from self._paginate(url)
+    
+    def get_pulls(self, owner: str, repo: str, state: str = 'all') -> Generator[Dict[str, Any], None, None]:
+        """
+        Get pull requests for a repository.
+        
+        Args:
+            owner: Repository owner
+            repo: Repository name
+            state: PR state (open, closed, all)
+        
+        Yields:
+            Pull request dictionaries
+        """
+        url = f'{self.base_url}/repos/{owner}/{repo}/pulls'
+        params = {'state': state}
+        yield from self._paginate(url, params)
+    
+    def get_review_comments(self, owner: str, repo: str, pr_number: int) -> List[Dict[str, Any]]:
+        """
+        Get review comments for a specific pull request.
+        
+        Args:
+            owner: Repository owner
+            repo: Repository name
+            pr_number: Pull request number
+        
+        Returns:
+            List of review comment dictionaries
+        """
+        url = f'{self.base_url}/repos/{owner}/{repo}/pulls/{pr_number}/comments'
+        comments = []
+        for comment in self._paginate(url):
+            comments.append(comment)
+        return comments
+    
+    def get_repo(self, owner: str, repo: str) -> Dict[str, Any]:
+        """
+        Get detailed information about a repository.
+        
+        Args:
+            owner: Repository owner
+            repo: Repository name
+        
+        Returns:
+            Repository dictionary
+        """
+        url = f'{self.base_url}/repos/{owner}/{repo}'
+        response = self.session.get(url)
+        if response.status_code == 200:
+            return response.json()
+        else:
+            logger.error(f"Failed to get repo: {response.status_code}")
+            return {}
 
-def create_client(token: Optional[str] = None) -> GitHubClient:
-    """Create a GitHub client instance."""
-    if not token:
-        token = os.getenv("GITHUB_TOKEN")
-    if not token:
-        raise ValueError("GitHub token not found in environment or arguments")
-    return GitHubClient(token)
+def create_client(token: Optional[str] = None, base_url: Optional[str] = None) -> GitHubClient:
+    """
+    Create a GitHub client instance.
+    
+    Args:
+        token: GitHub token (defaults to GITHUB_TOKEN env var)
+        base_url: GitHub API base URL (defaults to env var or GitHub default)
+    
+    Returns:
+        GitHubClient instance
+    """
+    if token is None:
+        token = os.getenv('GITHUB_TOKEN')
+        if not token:
+            raise ValueError("GITHUB_TOKEN not found in environment variables")
+    
+    if base_url is None:
+        base_url = os.getenv('GITHUB_API_BASE_URL', 'https://api.github.com')
+    
+    return GitHubClient(token, base_url)
 
 def main():
-    """Test the GitHub Client."""
-    token = os.getenv("GITHUB_TOKEN")
-    if not token:
-        print("No token found")
-        return
+    """Main entry point for testing the GitHub client."""
+    client = create_client()
     
-    client = create_client(token)
+    # Test: Get rate limit info
     try:
-        for repo in client.search_repos("language:python stars:>1000", per_page=5):
-            print(f"Found: {repo['full_name']}")
-            has_prs = client.has_merged_prs(repo['full_name'])
-            print(f"  Has Merged PRs: {has_prs}")
-    except GitHubRateLimitExceeded as e:
-        print(f"Rate limit hit: {e}")
+        client._check_rate_limit()
+        logger.info(f"Rate limit: {client.rate_limit_remaining} requests remaining")
+    except Exception as e:
+        logger.error(f"Rate limit check failed: {e}")
+    
+    # Test: Fetch some repos (example)
+    try:
+        repos = list(client.get_repos('facebook', per_page=5))
+        logger.info(f"Found {len(repos)} repos for facebook")
+    except Exception as e:
+        logger.error(f"Failed to fetch repos: {e}")
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
     main()

@@ -10,3 +10,5 @@ A separate model checked the artifacts you produced for the tasks below and judg
 - **T010** — No directory structure or checksum validation code for `data/raw` and `data/processed` was presented; the response contains no files, scripts, or documentation demonstrating that the required artifacts exist or function as specified.
 - **T012** — declared artifact(s) missing/empty/invalid: code/tests/test_acquisition.py
 - **T018** — No code, script, or documentation was provided showing added logic to detect repositories with zero merged PRs, skip them, log the event, or to catch and log tool execution failures. Without any artifact demonstrating these edge‑case handlers, the task requirement is not satisfied.
+- **T019** — No evidence of a `data/raw/` directory containing JSON report files, nor any accompanying checksum files or metadata (owner, language, commit hash) was provided. The implementer did not supply the required artifacts, so the task is not satisfied.
+- **T023** — declared artifact(s) missing/empty/invalid: data/processed/heuristic_candidates.json

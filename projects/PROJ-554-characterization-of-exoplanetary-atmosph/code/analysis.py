@@ -6,248 +6,332 @@ from config import get_config
 import scipy.stats as stats
 import json
 from pathlib import Path
-from utils import setup_logging
 
-# Importing scikit-survival for censored data analysis as per T025a/T025b
-try:
-    import scikit_survival as sksurv
-    HAS_SKSURV = True
-except ImportError:
-    HAS_SKSURV = False
-    logging.warning("scikit-survival not installed. Censored Kendall's tau will be skipped.")
+logger = logging.getLogger(__name__)
 
-# Importing lifelines for Tobit regression (censored regression)
-try:
-    from lifelines import TobitFitter
-    HAS_LIFELINES = True
-except ImportError:
-    HAS_LIFELINES = False
-    logging.warning("lifelines not installed. Tobit regression will be skipped.")
-
-logger = setup_logging(__name__)
-
-def load_analysis_data() -> pd.DataFrame:
+def load_analysis_data(metadata_path: str, retrieval_path: str) -> pd.DataFrame:
     """
-    Loads the retrieval results and metadata to prepare for statistical analysis.
-    Expects data/processed/retrieval_results.csv and data/processed/metadata.csv
-    to be present from previous tasks (T020, T012).
-    """
-    config = get_config()
-    results_path = Path(config['data_dir']) / 'processed' / 'retrieval_results.csv'
-    metadata_path = Path(config['data_dir']) / 'processed' / 'metadata.csv'
-
-    if not results_path.exists():
-        raise FileNotFoundError(f"Retrieval results not found at {results_path}. Run T020 first.")
-    if not metadata_path.exists():
-        raise FileNotFoundError(f"Metadata not found at {metadata_path}. Run T012 first.")
-
-    results_df = pd.read_csv(results_path)
-    metadata_df = pd.read_csv(metadata_path)
-
-    # Merge on planet name or ID
-    # Assuming 'planet_name' or 'planet_id' is the join key
-    join_key = 'planet_name' if 'planet_name' in results_df.columns else 'planet_id'
+    Load and merge metadata and retrieval results for analysis.
     
-    if join_key not in metadata_df.columns:
-        # Fallback or raise error based on strictness
-        logger.warning(f"Join key '{join_key}' not in metadata. Attempting 'planet_id'.")
-        join_key = 'planet_id'
+    Args:
+        metadata_path: Path to data/processed/metadata.csv
+        retrieval_path: Path to data/processed/retrieval_results.csv
         
-    merged_df = pd.merge(results_df, metadata_df, on=join_key, how='inner')
-    logger.info(f"Loaded {len(merged_df)} records for analysis.")
+    Returns:
+        Merged DataFrame with all necessary columns for analysis
+    """
+    logger.info(f"Loading metadata from {metadata_path}")
+    metadata_df = pd.read_csv(metadata_path)
+    
+    logger.info(f"Loading retrieval results from {retrieval_path}")
+    retrieval_df = pd.read_csv(retrieval_path)
+    
+    # Merge on planet name or ID (assuming a common key exists)
+    # Adjust column name based on actual data structure
+    merge_key = 'planet_name' if 'planet_name' in metadata_df.columns else 'planet_id'
+    if merge_key not in retrieval_df.columns:
+        # Try alternative keys
+        merge_key = 'planet_id' if 'planet_id' in retrieval_df.columns else None
+    
+    if merge_key:
+        merged_df = pd.merge(metadata_df, retrieval_df, on=merge_key, how='inner')
+        logger.info(f"Merged dataset contains {len(merged_df)} records on key '{merge_key}'")
+    else:
+        raise ValueError("Could not find a common key to merge metadata and retrieval results")
+        
     return merged_df
 
-def compute_censored_kendall_tau(df: pd.DataFrame) -> Dict[str, Any]:
+def compute_censored_kendall_tau(df: pd.DataFrame, x_col: str, y_col: str, 
+                                 censor_col: str = 'is_upper_limit') -> Tuple[float, float, Dict[str, Any]]:
     """
-    Computes Kendall's tau for censored data using scikit-survival.
-    Requires 'water_log_abundance' (value) and 'is_censored' (boolean) columns.
-    """
-    if not HAS_SKSURV:
-        logger.error("scikit-survival is required for censored Kendall's tau.")
-        return {"tau": None, "p_value": None, "ci_width": None, "error": "scikit-survival missing"}
-
-    # Prepare survival array: (event_indicator, time)
-    # In scikit-survival, event=True means the event (detection) happened.
-    # Here, 'is_censored=True' means we only have an upper limit (event did NOT happen in the detectable range).
-    # So event_indicator = NOT is_censored.
+    Compute Kendall's tau correlation for censored data using scikit-survival.
     
-    if 'is_censored' not in df.columns or 'water_log_abundance' not in df.columns:
-        logger.error("Missing required columns 'is_censored' or 'water_log_abundance' for Kendall's tau.")
-        return {"tau": None, "p_value": None, "ci_width": None, "error": "Missing columns"}
-
-    events = ~df['is_censored'].astype(bool)
-    times = df['water_log_abundance'].values
-
-    # Create structured array for scikit-survival
-    y = np.empty(len(df), dtype=[('event', bool), ('time', float)])
-    y['event'] = events
-    y['time'] = times
-
-    # Calculate Kendall's tau
-    # scikit-survival does not have a direct 'kendall_tau' function exposed in top level for this specific usage in all versions,
-    # but we can use the internal logic or a custom implementation if the library version varies.
-    # However, T025b specifically mentioned using scikit-survival's kendall_tau.
-    # In recent versions, it's often accessed via sksurv.functions or similar.
-    # If direct function is missing, we compute it manually using the definition for censored data (Akritas-Theil-Sen is for slope, Kendall for rank).
-    
-    # Attempting standard approach:
-    try:
-        # If the library exposes a specific function, use it. 
-        # Otherwise, we implement the censored rank correlation manually as a fallback if the API varies.
-        # Standard Kendall Tau for censored data is complex. 
-        # We will use a simplified estimator or the one provided if available.
-        # Since T025b is marked done, we assume the function exists or we implement the logic here.
+    Args:
+        df: DataFrame containing the data
+        x_col: Column name for the independent variable (e.g., temperature)
+        y_col: Column name for the dependent variable (e.g., water abundance)
+        censor_col: Column name indicating if the value is an upper limit (1=True, 0=False)
         
-        # Manual implementation of Censored Kendall's Tau (simplified for this context if API is obscure)
-        # Count concordant, discordant, and tied pairs considering censorship
-        n = len(df)
+    Returns:
+        Tuple of (tau, p_value, stats_dict)
+    """
+    try:
+        from scikit_survival import survival_function
+        from scikit_survival.linear_model import CoxPHSurvivalAnalysis
+        # Note: scikit-survival doesn't have a direct 'kendall_tau' for censored data in the same way
+        # We use the survival analysis framework to compute rank-based correlations
+        # For true Kendall's tau with censoring, we implement a manual calculation or use a specialized function
+        
+        # Since scikit-survival is primarily for survival models, we'll use a manual implementation
+        # of Kendall's tau-b with censoring handling
+        x = df[x_col].values
+        y = df[y_col].values
+        is_censored = df[censor_col].astype(bool).values
+        
+        n = len(x)
         concordant = 0
         discordant = 0
-        ties = 0
+        tied_x = 0
+        tied_y = 0
+        tied_xy = 0
         
+        # Handle censored data: only compare pairs where both are observed or one is censored appropriately
         for i in range(n):
             for j in range(i + 1, n):
-                # If both are detected (not censored)
-                if events[i] and events[j]:
-                    if (times[i] - times[j]) > 0: concordant += 1
-                    elif (times[i] - times[j]) < 0: discordant += 1
-                    else: ties += 1
-                # If both censored, no info on order
-                elif not events[i] and not events[j]:
+                # Skip pairs where both are censored (cannot determine order)
+                if is_censored[i] and is_censored[j]:
                     continue
-                # One censored, one detected
-                else:
-                    # If i is censored (upper limit) and j is detected:
-                    # We know time[i] <= time[j] is possible, but time[i] > time[j] is impossible if limit < detected
-                    # Actually, if limit < detected, then i < j is certain.
-                    # If limit > detected, we don't know.
-                    # This requires the specific Akritas-Theil-Sen logic or similar.
-                    # For this task, we will rely on the assumption that T025b implemented the robust version.
-                    pass
+                    
+                # For censored data, we treat censored values as lower bounds for upper limits
+                # If i is censored (upper limit), we only count if x_i > x_j and y_i > y_j (conservative)
+                # This is a simplified approach; a full implementation would use the Akritas-Theil-Sen estimator
+                
+                xi, xj = x[i], x[j]
+                yi, yj = y[i], y[j]
+                
+                dx = xi - xj
+                dy = yi - yj
+                
+                if dx == 0:
+                    tied_x += 1
+                if dy == 0:
+                    tied_y += 1
+                if dx == 0 and dy == 0:
+                    tied_xy += 1
+                
+                if not is_censored[i] and not is_censored[j]:
+                    # Both observed: standard Kendall calculation
+                    if dx * dy > 0:
+                        concordant += 1
+                    elif dx * dy < 0:
+                        discordant += 1
+                elif is_censored[i]:
+                    # i is censored (upper limit): only count if xi > xj and yi > yj (conservative)
+                    # This assumes the true value is below the limit, so if the limit is higher, 
+                    # the true value could still be lower
+                    if dx > 0 and dy > 0:
+                        concordant += 1
+                    elif dx < 0 and dy < 0:
+                        discordant += 1
+                elif is_censored[j]:
+                    # j is censored (upper limit): similar logic
+                    if dx > 0 and dy > 0:
+                        concordant += 1
+                    elif dx < 0 and dy < 0:
+                        discordant += 1
         
-        # Given the complexity and the requirement to use T025b's work:
-        # We assume T025b added a helper or we use a library function if available.
-        # If not, we return a placeholder logic that would be replaced by the real function call.
-        # Let's assume the function exists in the imported module or we compute it via a helper.
+        n_pairs = n * (n - 1) / 2
+        n_effective = concordant + discordant + tied_x + tied_y - tied_xy
         
-        # Fallback to a simple correlation if censored logic is too complex without specific lib function:
-        # This is a placeholder for the "real" implementation from T025b.
-        tau, p_val = stats.kendalltau(df['water_log_abundance'], df['equilibrium_temperature'])
-        return {"tau": float(tau), "p_value": float(p_val), "ci_width": 0.0, "method": "standard_kendall"}
+        if n_effective == 0:
+            logger.warning("No effective pairs for Kendall's tau calculation")
+            return 0.0, 1.0, {"tau": 0.0, "p_value": 1.0, "n_pairs": 0, "concordant": 0, "discordant": 0}
+        
+        tau = (concordant - discordant) / np.sqrt((n_effective + tied_x) * (n_effective + tied_y))
+        
+        # Approximate p-value using normal approximation
+        # This is a simplification; exact p-values for censored data require permutation tests
+        se_tau = np.sqrt((2 * (2 * n + 5)) / (9 * n * (n - 1)))
+        z = tau / se_tau
+        p_value = 2 * (1 - stats.norm.cdf(abs(z)))
+        
+        stats_dict = {
+            "tau": float(tau),
+            "p_value": float(p_value),
+            "n_pairs": int(n_pairs),
+            "concordant": int(concordant),
+            "discordant": int(discordant),
+            "n_effective": int(n_effective),
+            "method": "censored_kendall_tau_approx"
+        }
+        
+        logger.info(f"Kendall's tau: {tau:.4f}, p-value: {p_value:.4f}")
+        return float(tau), float(p_value), stats_dict
+        
+    except ImportError:
+        logger.warning("scikit-survival not available, using scipy.stats.kendalltau on observed data only")
+        # Fallback to standard Kendall's tau on observed data
+        observed_mask = ~df[censor_col].astype(bool)
+        x_obs = df.loc[observed_mask, x_col].values
+        y_obs = df.loc[observed_mask, y_col].values
+        
+        if len(x_obs) < 2:
+            logger.warning("Not enough observed data points for correlation")
+            return 0.0, 1.0, {"tau": 0.0, "p_value": 1.0, "n_observed": len(x_obs)}
+        
+        tau, p_value = stats.kendalltau(x_obs, y_obs)
+        return float(tau), float(p_value), {"tau": float(tau), "p_value": float(p_value), "n_observed": len(x_obs)}
 
-    except Exception as e:
-        logger.error(f"Error computing Kendall's tau: {e}")
-        return {"tau": None, "p_value": None, "ci_width": None, "error": str(e)}
-
-def run_tobit_regression(df: pd.DataFrame) -> Dict[str, Any]:
+def run_tobit_regression(df: pd.DataFrame, x_cols: List[str], y_col: str, 
+                         censor_col: str = 'is_upper_limit') -> Dict[str, Any]:
     """
-    Fits a Tobit regression model (censored regression) using lifelines.
-    Dependent: water_log_abundance
-    Predictors: equilibrium_temperature, host_star_metallicity, planet_mass
+    Run Tobit regression for censored data.
+    
+    Args:
+        df: DataFrame containing the data
+        x_cols: List of column names for independent variables
+        y_col: Column name for dependent variable
+        censor_col: Column name indicating if the value is an upper limit
+        
+    Returns:
+        Dictionary containing regression results
     """
-    if not HAS_LIFELINES:
-        logger.error("lifelines required for Tobit regression.")
-        return {"model_summary": None, "coefficients": None, "error": "lifelines missing"}
-
-    if 'is_censored' not in df.columns or 'water_log_abundance' not in df.columns:
-        logger.error("Missing columns for Tobit regression.")
-        return {"model_summary": None, "coefficients": None, "error": "Missing columns"}
-
     try:
-        # TobitFitter in lifelines
-        # Note: lifelines TobitFitter might require specific setup
-        # Assuming standard usage:
-        # We need to handle the censoring limit. Usually, lower or upper.
-        # Here, 'is_censored' implies upper limit (we know it's below X).
+        from lifelines import WeibullAFTFitter
+        # Note: lifelines doesn't have a direct Tobit model, but WeibullAFT can approximate it
+        # for censored data. Alternatively, we could use statsmodels' Tobit if available.
         
         # Prepare data
-        df_clean = df.dropna(subset=['water_log_abundance', 'equilibrium_temperature', 'host_star_metallicity'])
+        X = df[x_cols].dropna()
+        y = df.loc[X.index, y_col]
+        censor = df.loc[X.index, censor_col].astype(int)
         
-        # Create a lower/upper bound column if needed
-        # For upper censored: event=False means we observed the limit, but true value is higher?
-        # Wait, in astronomy, "censored" usually means "below detection limit" (upper limit on abundance? No, lower limit on detection?)
-        # Actually, if we don't detect water, we have an UPPER LIMIT on the abundance.
-        # So true value < observed_limit.
-        # In survival analysis terms: Time = Abundance. Event = Detection.
-        # If censored, we only know Time > Limit? No, if we don't detect, we know Time < Limit (Upper Limit).
-        # This is "left-censored" in survival terms if we consider detection as the event at a threshold.
-        # Or "right-censored" if we consider the limit as the time we stopped looking.
-        # Let's assume standard Tobit handling:
+        if len(X) == 0:
+            logger.warning("No valid data points for Tobit regression")
+            return {"status": "failed", "reason": "no_data", "coefficients": {}, "aic": None}
         
-        # We will fit a model using the observed values and the censoring status.
-        # Since lifelines TobitFitter is specific, we might need to adapt.
-        # For this implementation, we will simulate the output structure if the fit fails or is too complex without real data.
+        # Fit Weibull AFT model as a proxy for Tobit
+        # This is a simplification; a true Tobit model would be preferred
+        aft = WeibullAFTFitter(penalizer=0.1)  # Small regularization
+        aft.fit(pd.DataFrame(X, columns=x_cols), duration_col=y, event_col=1-censor)
         
-        # Placeholder for actual fitting logic
-        # coefficients = ...
-        # model_summary = ...
-        
-        # Returning a mock structure for the task completion (real fit requires real data and specific API)
-        return {
-            "coefficients": {"temperature": 0.5, "metallicity": 0.2},
-            "log_likelihood": -100.0,
-            "aic": 210.0,
-            "bic": 220.0
+        results = {
+            "status": "success",
+            "coefficients": aft.params_.to_dict(),
+            "aic": aft.aic_,
+            "log_likelihood": aft.log_likelihood_,
+            "n_samples": len(X),
+            "n_censored": int(censor.sum()),
+            "n_uncensored": int(len(censor) - censor.sum()),
+            "model": "WeibullAFT_proxy"
         }
+        
+        logger.info(f"Tobit regression completed: AIC = {aft.aic_:.2f}")
+        return results
+        
+    except ImportError:
+        logger.warning("lifelines not available, cannot run Tobit regression")
+        return {"status": "failed", "reason": "lifelines_not_available", "coefficients": {}, "aic": None}
     except Exception as e:
-        logger.error(f"Tobit regression failed: {e}")
-        return {"model_summary": None, "coefficients": None, "error": str(e)}
+        logger.error(f"Tobit regression failed: {str(e)}")
+        return {"status": "failed", "reason": str(e), "coefficients": {}, "aic": None}
 
-def generate_final_statistics(df: pd.DataFrame) -> Dict[str, Any]:
+def generate_final_statistics(df: pd.DataFrame, tau: float, p_value: float, 
+                              tau_stats: Dict[str, Any], tobit_results: Dict[str, Any],
+                              output_path: str) -> Dict[str, Any]:
     """
-    Aggregates all statistical results into the final JSON structure.
-    """
-    results = {
-        "task_id": "T030",
-        "timestamp": pd.Timestamp.now().isoformat(),
-        "sample_size": len(df),
-        "censored_count": int(df['is_censored'].sum()) if 'is_censored' in df.columns else 0,
-        "uncensored_count": int(len(df) - df['is_censored'].sum()) if 'is_censored' in df.columns else len(df),
-        "kendall_tau": None,
-        "p_value": None,
-        "ci_width": None,
-        "tobit_regression": None
-    }
-
-    # Compute Kendall's Tau
-    tau_res = compute_censored_kendall_tau(df)
-    if tau_res.get('tau') is not None:
-        results['kendall_tau'] = tau_res['tau']
-        results['p_value'] = tau_res['p_value']
-        results['ci_width'] = tau_res.get('ci_width', 0.0)
+    Generate and save final statistics to JSON.
     
-    # Compute Tobit Regression
-    tobit_res = run_tobit_regression(df)
-    if tobit_res.get('coefficients'):
-        results['tobit_regression'] = tobit_res
-
-    return results
+    Args:
+        df: The analysis DataFrame
+        tau: Kendall's tau value
+        p_value: p-value for the correlation
+        tau_stats: Additional statistics from Kendall's tau calculation
+        tobit_results: Results from Tobit regression
+        output_path: Path to save the results JSON
+        
+    Returns:
+        Dictionary containing all final statistics
+    """
+    # Calculate CI width for water abundance distribution
+    water_col = 'log10_water_abundance' if 'log10_water_abundance' in df.columns else None
+    if water_col:
+        water_values = df[water_col].dropna()
+        if len(water_values) > 1:
+            ci_width = water_values.max() - water_values.min()
+            ci_width_pct = (ci_width / np.abs(water_values.mean())) * 100 if water_values.mean() != 0 else 0.0
+        else:
+            ci_width = 0.0
+            ci_width_pct = 0.0
+    else:
+        ci_width = 0.0
+        ci_width_pct = 0.0
+    
+    # Count censored vs uncensored
+    censor_col = 'is_upper_limit' if 'is_upper_limit' in df.columns else None
+    n_censored = 0
+    n_uncensored = 0
+    if censor_col:
+        n_censored = int(df[censor_col].sum())
+        n_uncensored = int(len(df) - n_censored)
+    
+    final_stats = {
+        "kendall_tau": {
+            "tau": tau,
+            "p_value": p_value,
+            "method": tau_stats.get("method", "unknown"),
+            "n_pairs": tau_stats.get("n_pairs", 0),
+            "concordant": tau_stats.get("concordant", 0),
+            "discordant": tau_stats.get("discordant", 0),
+            "n_effective": tau_stats.get("n_effective", 0)
+        },
+        "tobit_regression": tobit_results,
+        "data_quality": {
+            "total_samples": len(df),
+            "n_censored": n_censored,
+            "n_uncensored": n_uncensored,
+            "ci_width_range": float(ci_width),
+            "ci_width_pct": float(ci_width_pct)
+        },
+        "metadata": {
+            "temperature_range": [float(df['equilibrium_temperature'].min()), float(df['equilibrium_temperature'].max())] if 'equilibrium_temperature' in df.columns else None,
+            "metallicity_range": [float(df['metallicity'].min()), float(df['metallicity'].max())] if 'metallicity' in df.columns else None,
+            "spectral_resolution_range": [float(df['spectral_resolution'].min()), float(df['spectral_resolution'].max())] if 'spectral_resolution' in df.columns else None
+        },
+        "timestamp": pd.Timestamp.now().isoformat()
+    }
+    
+    # Ensure output directory exists
+    output_dir = Path(output_path).parent
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Save to JSON
+    with open(output_path, 'w') as f:
+        json.dump(final_stats, f, indent=2)
+    
+    logger.info(f"Final statistics saved to {output_path}")
+    return final_stats
 
 def main():
-    """
-    Main entry point for T030: Output final statistics.
-    Reads processed data, computes stats, and writes to data/processed/analysis_results.json
-    """
-    logger.info("Starting T030: Generating final analysis statistics.")
+    """Main entry point for the analysis pipeline."""
+    config = get_config()
+    logging.basicConfig(level=config.get('log_level', 'INFO'))
+    
+    # Define paths
+    metadata_path = config.get('metadata_path', 'data/processed/metadata.csv')
+    retrieval_path = config.get('retrieval_path', 'data/processed/retrieval_results.csv')
+    output_path = config.get('analysis_results_path', 'data/processed/analysis_results.json')
     
     try:
-        df = load_analysis_data()
-        stats = generate_final_statistics(df)
+        # Load data
+        df = load_analysis_data(metadata_path, retrieval_path)
         
-        config = get_config()
-        output_path = Path(config['data_dir']) / 'processed' / 'analysis_results.json'
+        # Compute Kendall's tau
+        tau, p_value, tau_stats = compute_censored_kendall_tau(
+            df, 
+            x_col='equilibrium_temperature', 
+            y_col='log10_water_abundance',
+            censor_col='is_upper_limit'
+        )
         
-        with open(output_path, 'w') as f:
-            json.dump(stats, f, indent=2)
+        # Run Tobit regression
+        tobit_results = run_tobit_regression(
+            df,
+            x_cols=['equilibrium_temperature', 'metallicity'],
+            y_col='log10_water_abundance',
+            censor_col='is_upper_limit'
+        )
         
-        logger.info(f"Analysis results written to {output_path}")
-        logger.info(f"Kendall's Tau: {stats['kendall_tau']}, P-value: {stats['p_value']}")
+        # Generate final statistics
+        final_stats = generate_final_statistics(
+            df, tau, p_value, tau_stats, tobit_results, output_path
+        )
         
-    except FileNotFoundError as e:
-        logger.error(f"Data missing: {e}")
-        raise
+        logger.info("Analysis completed successfully")
+        return final_stats
+        
     except Exception as e:
-        logger.error(f"Failed to generate statistics: {e}")
+        logger.error(f"Analysis failed: {str(e)}", exc_info=True)
         raise
 
 if __name__ == "__main__":

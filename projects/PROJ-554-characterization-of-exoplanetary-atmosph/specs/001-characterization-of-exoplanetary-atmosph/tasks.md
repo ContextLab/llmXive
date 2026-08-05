@@ -103,7 +103,7 @@
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
 - [X] T016 [P] [US2] Contract test for retrieval output schema in `tests/contract/test_retrieval_schema.py`
-- [ ] T017 [P] [US2] Integration test for retrieval on sample spectrum in `tests/integration/test_retrieval.py`
+- [X] T017 [P] [US2] Integration test for retrieval on sample spectrum in `tests/integration/test_retrieval.py`
 
 ### Implementation for User Story 2
 
@@ -134,13 +134,13 @@
 
 - [X] T025a [P] [US3] Import `scikit-survival` in `code/analysis.py` and verify import availability
 - [X] T025b [US3] Implement `compute_censored_kendall_tau` in `code/analysis.py` using `scikit-survival`'s `kendall_tau` function for censored data (Hot Jupiters vs Super-Earths). **Note**: This supersedes the "Akritas-Theil-Sen" mention in plan.md Complexity Tracking; plan.md must be updated to reflect Kendall's tau as the primary estimator for FR-003.
-- [~] T025c [US3] Implement a bootstrap resampling loop to estimate confidence intervals
-- [~] T026 [US3] Compute and report the % CI width of the water mixing ratio distribution as a measure of robustness per SC-003
-- [~] T027 [US3] Implement Tobit regression model (using `lifelines` or `statsmodels`) with water abundance as dependent variable and temperature, mass, metallicity as predictors. **Depends on T020**.
-- [~] T028 [US3] Implement fallback to Tobit regression with L2 (Ridge) regularization if VIF > 5 to handle collinearity while maintaining censored-data validity. **Note**: Do NOT use L1 (Lasso) or Elastic Net; only L2 is authorized by plan.md.
-- [~] T029 [US3] Implement diagnostic plot generation (water abundance vs. temperature with error bars/limits, residuals, correlation matrix) to `results/plots/`
-- [ ] T030 [US3] Output final statistics: Kendall's tau, p-values, CI width, model fit statistics to `data/processed/analysis_results.json`
-- [~] T031 [US3] Implement `calculate_statistical_power` in `code/analysis.py` using the **actual** sample size (N) from `metadata.csv` and observed effect size (or conservative estimate) to verify power ≥ 0.8 per SC-004. Generate `results/quality_report.md` with resolved vs. upper limits count and power verification.
+- [ ] T025c [US3] Implement a bootstrap resampling loop to estimate confidence intervals
+- [ ] T026 [US3] Compute and report the % CI width of the water mixing ratio distribution as a measure of robustness per SC-003
+- [ ] T027 [US3] Implement Tobit regression model (using `lifelines` or `statsmodels`) with water abundance as dependent variable and temperature, mass, metallicity as predictors. **Depends on T020**.
+- [ ] T028 [US3] Implement fallback to Tobit regression with L2 (Ridge) regularization if VIF > 5 to handle collinearity while maintaining censored-data validity. **Note**: Do NOT use L1 (Lasso) or Elastic Net; only L2 is authorized by plan.md.
+- [ ] T029 [US3] Implement diagnostic plot generation (water abundance vs. temperature with error bars/limits, residuals, correlation matrix) to `results/plots/`
+- [X] T030 [US3] Output final statistics: Kendall's tau, p-values, CI width, model fit statistics to `data/processed/analysis_results.json`
+- [ ] T031 [US3] Implement `calculate_statistical_power` in `code/analysis.py` using the **actual** sample size (N) from `metadata.csv` and observed effect size (or conservative estimate) to verify power ≥ 0.8 per SC-004. Generate `results/quality_report.md` with resolved vs. upper limits count and power verification.
 
 **Checkpoint**: All user stories should now be independently functional
 
