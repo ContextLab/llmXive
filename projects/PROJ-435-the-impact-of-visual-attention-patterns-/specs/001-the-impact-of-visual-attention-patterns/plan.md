@@ -79,7 +79,7 @@ state/
 |-----------|------------|-------------------------------------|
 | Mixed-Effects Regression | Required by FR-004 to account for random intercepts (participants, headlines) | Standard OLS regression would violate statistical assumptions due to non-independence of observations within participants and stimuli. |
 | Single-Tool Valence (VADER fallback) | Required by FR-003 to handle low coverage without introducing a confound | Dual-lexicon fallback (NRC then VADER) creates a systematic confound correlated with headline complexity. |
-| Robustness Sweep (50/100/150ms) | Required by FR-005 to ensure findings are not artifacts | Single threshold analysis would fail to demonstrate robustness, violating FR-005 and SC-003. |
+| Robustness Sweep (/100/150ms) | Required by FR-005 to ensure findings are not artifacts | Single threshold analysis would fail to demonstrate robustness, violating FR-005 and SC-003. |
 | Runtime Measurement | Required by SC-005 to ensure feasibility | Without explicit measurement, the 300-minute limit cannot be verified. |
 | Headline Length Control | Required by FR-005 (US-3) to control for stimulus complexity | Omitting this control would leave a confound between headline length and belief susceptibility. |
 

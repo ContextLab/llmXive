@@ -1,18 +1,3 @@
-"""
-Preprocess Gaze Data: Apply I-VT, ROI Mapping, and Edge Case Handling.
-
-This script implements the full pipeline for User Story 1:
-1. Load raw eye-tracking data (from T005).
-2. Apply I-VT fixation detection (from T006).
-3. Map gaze points to ROIs (from T015).
-4. Filter low-quality participants (data_loss > 20%).
-5. Handle edge cases:
-   - Exclude trials with missing ROI coordinates.
-   - Log exclusion counts to the exclusion logger and state file.
-   - Treat zero fixations on source ROI as valid (duration=0).
-6. Output: data/derived/preprocessed_gaze.csv
-"""
-
 import os
 import sys
 import logging
@@ -23,222 +8,182 @@ from typing import Dict, Any, Optional, Tuple, List
 import pandas as pd
 import numpy as np
 
-# Import utilities from the project structure
-from utils.data_loading import fetch_eye_tracking_data
-from utils.fixation_detection import process_gaze_data, load_fixation_config
-from utils.roi_mapping import map_gaze_to_rois, load_roi_config
-from utils.logging_config import get_quality_logger, get_exclusion_logger, get_pipeline_logger, log_exclusion, log_pipeline_progress
-from utils.environment_manager import load_config, get_paths, setup_reproducibility
+# Add project root to path for imports
+project_root = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(project_root))
 
-# Ensure the code directory is in the path for imports if running as script
-CODE_DIR = Path(__file__).parent
-if str(CODE_DIR) not in sys.path:
-    sys.path.insert(0, str(CODE_DIR))
+from utils.config_loader import load_config
+from utils.fixation_detection import detect_fixations_ivt, process_gaze_data
+from utils.roi_mapping import map_gaze_to_rois, handle_zero_fixation_roi as roi_handle_zero
+from utils.roi_edge_cases import exclude_trials_with_missing_roi, handle_zero_fixation_roi as edge_handle_zero, aggregate_exclusion_stats
+from utils.logging_config import get_pipeline_logger, get_exclusion_logger
 
-def load_raw_eye_tracking_data() -> pd.DataFrame:
+# Initialize loggers
+pipeline_logger = get_pipeline_logger()
+exclusion_logger = get_exclusion_logger()
+
+def get_project_root() -> Path:
+    return project_root
+
+def load_raw_eye_tracking_data(raw_data_path: Path) -> pd.DataFrame:
     """
-    Loads the raw eye-tracking data fetched in T005.
-    Returns a DataFrame with columns: participant_id, headline_id, timestamp, x, y, ...
+    Load raw eye-tracking data from parquet file.
     """
-    paths = get_paths()
-    raw_data_path = paths['raw_data']
-    
     if not raw_data_path.exists():
-        logger = get_pipeline_logger()
-        logger.error(f"Raw data file not found at {raw_data_path}. Please run T005 first.")
         raise FileNotFoundError(f"Raw data file not found: {raw_data_path}")
     
-    # Attempt to load as parquet first, then csv
-    if raw_data_path.suffix == '.parquet':
-        return pd.read_parquet(raw_data_path)
-    else:
-        return pd.read_csv(raw_data_path)
+    try:
+        df = pd.read_parquet(raw_data_path)
+        pipeline_logger.info(f"Loaded raw data from {raw_data_path}: {len(df)} rows")
+        return df
+    except Exception as e:
+        pipeline_logger.error(f"Failed to load raw data: {e}")
+        raise
 
 def validate_raw_data(df: pd.DataFrame) -> bool:
     """
-    Validates that the raw data contains necessary columns for processing.
+    Validate that the dataframe contains required columns.
     """
     required_cols = ['participant_id', 'headline_id', 'timestamp', 'x', 'y']
     missing = [col for col in required_cols if col not in df.columns]
     if missing:
-        logger = get_quality_logger()
-        logger.error(f"Raw data missing required columns: {missing}")
-        return False
+        raise ValueError(f"Missing required columns in raw data: {missing}")
     return True
 
-def calculate_data_loss(df: pd.DataFrame, threshold: float = 20.0) -> Tuple[pd.DataFrame, int]:
+def calculate_data_loss(df: pd.DataFrame, max_loss_threshold: float = 0.20) -> pd.DataFrame:
     """
-    Calculates data loss per participant and filters out those exceeding the threshold.
-    Returns filtered DataFrame and count of excluded participants.
+    Calculate data loss per participant and filter out low-quality participants.
+    Data loss is calculated as (1 - (valid_gaze_points / expected_gaze_points)).
+    For this implementation, we assume valid gaze points are those with finite coordinates.
     """
-    logger = get_quality_logger()
+    # Count valid gaze points per participant
+    df['is_valid'] = df['x'].notna() & df['y'].notna() & df['x'].apply(np.isfinite) & df['y'].apply(np.isfinite)
     
-    # Group by participant to calculate total points vs valid points
-    # Assuming 'valid' is a boolean column or we infer from missing coordinates
-    # For this implementation, we assume missing x/y or NaNs indicate loss
-    total_points = df.groupby('participant_id').size()
-    valid_points = df.groupby('participant_id').apply(lambda g: g[['x', 'y']].dropna().shape[0])
+    participant_stats = df.groupby('participant_id').agg({
+        'is_valid': ['sum', 'count']
+    }).reset_index()
+    participant_stats.columns = ['participant_id', 'valid_count', 'total_count']
     
-    data_loss_df = pd.DataFrame({
-        'participant_id': total_points.index,
-        'total_points': total_points.values,
-        'valid_points': valid_points.values
-    })
+    participant_stats['data_loss_percent'] = 1 - (participant_stats['valid_count'] / participant_stats['total_count'])
     
-    data_loss_df['loss_percent'] = ((data_loss_df['total_points'] - data_loss_df['valid_points']) / data_loss_df['total_points']) * 100
+    # Merge back to main dataframe
+    df = df.merge(participant_stats[['participant_id', 'data_loss_percent']], on='participant_id', how='left')
     
-    # Filter participants with > 20% loss
-    excluded_participants = data_loss_df[data_loss_df['loss_percent'] > threshold]['participant_id'].tolist()
-    excluded_count = len(excluded_participants)
+    return df
+
+def filter_low_quality_participants(df: pd.DataFrame, threshold: float = 0.20) -> pd.DataFrame:
+    """
+    Filter participants with data_loss_percent >= threshold.
+    """
+    if 'data_loss_percent' not in df.columns:
+        raise ValueError("Data loss not calculated. Run calculate_data_loss first.")
+    
+    filtered_df = df[df['data_loss_percent'] < threshold].copy()
+    excluded_count = len(df) - len(filtered_df)
     
     if excluded_count > 0:
-        logger.warning(f"Excluding {excluded_count} participants with data loss > {threshold}%")
-        for pid in excluded_participants:
-            log_exclusion(f"Participant {pid} excluded due to data loss > {threshold}%")
+        exclusion_logger.warning(f"Excluded {excluded_count} rows from participants with data loss >= {threshold*100}%")
     
-    filtered_df = df[~df['participant_id'].isin(excluded_participants)]
-    return filtered_df, excluded_count
+    return filtered_df
 
-def handle_edge_cases(df: pd.DataFrame) -> Tuple[pd.DataFrame, Dict[str, int]]:
+def handle_edge_cases(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Handles edge cases:
+    Handle edge cases:
     1. Exclude trials with missing ROI coordinates.
-    2. Log exclusion counts.
-    3. Treat zero fixations on source ROI as valid (duration=0).
-    
-    Returns:
-        Tuple of (cleaned DataFrame, exclusion_counts_dict)
+    2. Treat zero fixations on source ROI as valid (duration=0).
     """
-    logger = get_exclusion_logger()
-    exclusion_counts = {
-        'missing_roi_coords': 0,
-        'zero_source_fixations': 0,
-        'total_rows_before': len(df)
-    }
-
     # 1. Exclude trials with missing ROI coordinates
-    # Assuming 'roi_x', 'roi_y' or similar are added by ROI mapping, or we check for NaN in ROI columns
-    # If ROI mapping hasn't happened yet, we check for NaN in x/y which implies no ROI could be mapped
-    # However, T015 (ROI Mapping) is a dependency. We assume ROI columns exist or are created here.
-    # Let's assume the input 'df' has 'roi_type' from T015. If 'roi_type' is NaN, it's a missing ROI.
+    # We assume 'source_attribution_roi' column exists after ROI mapping
+    # If not, we might need to map ROI first, but per task order, we do this after mapping
+    # However, for T016, we are specifically handling the exclusion logic.
+    # We will assume the ROI mapping step (T015) has added the 'source_attribution_roi' column.
     
-    if 'roi_type' in df.columns:
-        missing_roi_mask = df['roi_type'].isna()
-        if missing_roi_mask.any():
-            count = missing_roi_mask.sum()
-            exclusion_counts['missing_roi_coords'] = count
-            logger.warning(f"Excluding {count} rows with missing ROI coordinates (unmapped gaze points).")
-            df = df.dropna(subset=['roi_type'])
-            log_exclusion(f"{count} rows excluded: missing ROI coordinates")
+    if 'source_attribution_roi' in df.columns:
+        df, excluded_count, excluded_ids = exclude_trials_with_missing_roi(
+            df, 
+            roi_column='source_attribution_roi', 
+            roi_type='source_attribution'
+        )
+        
+        if excluded_count > 0:
+            exclusion_logger.warning(f"Excluded {excluded_count} trials due to missing source_attribution ROI coordinates.")
+            # Log to output/exclusion_log.txt as per task requirement
+            output_dir = get_project_root() / 'output'
+            output_dir.mkdir(parents=True, exist_ok=True)
+            log_path = output_dir / 'exclusion_log.txt'
+            
+            # Aggregate stats and write to log
+            total_trials_before = len(df) + excluded_count
+            stats = aggregate_exclusion_stats(total_trials_before, excluded_count, log_path)
+            exclusion_logger.info(f"Exclusion log updated at {log_path}")
+    else:
+        pipeline_logger.warning("Column 'source_attribution_roi' not found. Skipping ROI coordinate exclusion.")
 
-    # 2. Treat zero fixations on source ROI as valid
-    # This is a data integrity check. If a participant has 0 fixations on source, 
-    # we do NOT exclude them. We just ensure the duration is 0.
-    # This logic is mostly informational for the log, as we don't exclude.
-    # We count how many participants have 0 duration on source ROI to log it.
-    if 'roi_type' in df.columns and 'fixation_duration' in df.columns:
-        source_fixations = df[df['roi_type'] == 'source']
-        if len(source_fixations) == 0:
-            # No source fixations at all in the dataset? Unlikely but possible.
-            logger.warning("No fixations found on 'source' ROI for any participant.")
-            exclusion_counts['zero_source_fixations'] = len(df['participant_id'].unique())
-        else:
-            # Check per participant
-            participants_with_zero_source = source_fixations.groupby('participant_id')['fixation_duration'].sum()
-            zero_source_pids = participants_with_zero_source[participants_with_zero_source == 0].index.tolist()
-            if zero_source_pids:
-                exclusion_counts['zero_source_fixations'] = len(zero_source_pids)
-                logger.info(f"Found {len(zero_source_pids)} participants with 0 total duration on source ROI. Retained as valid data.")
-                # Ensure their duration is explicitly 0 if they exist in the dataframe (they should be 0 by aggregation)
+    # 2. Handle zero fixations on source ROI
+    # This is handled by ensuring duration is 0, not NaN
+    df = handle_zero_fixation_roi(df, roi_type='source_attribution', duration_col='fixation_duration')
     
-    exclusion_counts['total_rows_after'] = len(df)
-    return df, exclusion_counts
+    return df
 
-def preprocess_gaze_data() -> pd.DataFrame:
+def preprocess_gaze_data(df: pd.DataFrame, config: Dict[str, Any]) -> pd.DataFrame:
     """
-    Main pipeline function to preprocess gaze data.
+    Main preprocessing pipeline:
+    1. Apply I-VT fixation detection
+    2. Map gaze to ROIs
+    3. Filter low quality participants
+    4. Handle edge cases (T016, T017)
     """
-    logger = get_pipeline_logger()
-    logger.info("Starting gaze data preprocessing (T016: Edge Case Handling).")
+    # 1. I-VT Detection
+    pipeline_logger.info("Starting I-VT fixation detection...")
+    df_fixated = process_gaze_data(df, config)
     
-    # Load config
-    config = load_config()
-    setup_reproducibility(config)
-    paths = get_paths()
+    # 2. ROI Mapping
+    pipeline_logger.info("Mapping gaze to ROIs...")
+    df_roi = map_gaze_to_rois(df_fixated, config)
     
-    # 1. Load Raw Data
-    logger.info("Loading raw eye-tracking data...")
-    raw_df = load_raw_eye_tracking_data()
-    if not validate_raw_data(raw_df):
-        raise ValueError("Raw data validation failed.")
+    # 3. Filter Low Quality
+    pipeline_logger.info("Filtering low quality participants...")
+    df_filtered = filter_low_quality_participants(df_roi)
     
-    # 2. Apply I-VT Fixation Detection
-    logger.info("Applying I-VT fixation detection...")
-    config_fix = load_fixation_config()
-    # process_gaze_data expects raw gaze and returns fixations
-    fixation_df = process_gaze_data(raw_df, config_fix)
+    # 4. Handle Edge Cases (T016, T017)
+    pipeline_logger.info("Handling edge cases (missing ROI, zero fixations)...")
+    df_final = handle_edge_cases(df_filtered)
     
-    # 3. Map to ROIs
-    logger.info("Mapping gaze to ROIs...")
-    config_roi = load_roi_config()
-    # map_gaze_to_rois expects fixation data and ROI config
-    # We assume it adds 'roi_type' column
-    mapped_df = map_gaze_to_rois(fixation_df, config_roi)
-    
-    # 4. Filter Low Quality Participants
-    logger.info("Filtering low-quality participants...")
-    filtered_df, loss_count = calculate_data_loss(mapped_df, threshold=20.0)
-    
-    # 5. Handle Edge Cases (T016 Specific)
-    logger.info("Handling edge cases (missing ROI, zero source fixations)...")
-    cleaned_df, edge_counts = handle_edge_cases(filtered_df)
-    
-    # 6. Ensure Output Schema
-    required_cols = ['participant_id', 'headline_id', 'fixation_duration', 'roi_type']
-    for col in required_cols:
-        if col not in cleaned_df.columns:
-            # Fallback for missing columns if logic above didn't create them
-            if col == 'fixation_duration' and 'duration' in cleaned_df.columns:
-                cleaned_df['fixation_duration'] = cleaned_df['duration']
-            elif col == 'roi_type':
-                # If ROI mapping failed to assign, we might have NaNs, which we already dropped
-                pass
-    
-    # Final cleanup: drop NaNs in critical columns just in case
-    cleaned_df = cleaned_df.dropna(subset=required_cols)
-    
-    # Save exclusion stats to state
-    state_dir = paths['state']
-    state_dir.mkdir(parents=True, exist_ok=True)
-    exclusion_log_path = state_dir / 'exclusion_stats.json'
-    
-    stats = {
-        'data_loss_excluded': loss_count,
-        'edge_case_exclusions': edge_counts
-    }
-    
-    with open(exclusion_log_path, 'w') as f:
-        json.dump(stats, f, indent=2)
-    
-    logger.info(f"Exclusion statistics saved to {exclusion_log_path}")
-    
-    return cleaned_df
+    return df_final
 
 def main():
     """
-    Entry point for the script.
+    Main entry point for the preprocessing script.
     """
+    logging.basicConfig(level=logging.INFO)
+    
+    # Load config
+    config = load_config()
+    
+    # Define paths
+    raw_data_path = get_project_root() / 'data' / 'raw' / 'eye_tracking_raw.parquet'
+    output_path = get_project_root() / 'data' / 'derived' / 'preprocessed_gaze.csv'
+    
+    # Ensure output directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
     try:
-        output_df = preprocess_gaze_data()
-        paths = get_paths()
-        output_path = paths['derived_gaze']
+        # Load data
+        df_raw = load_raw_eye_tracking_data(raw_data_path)
         
-        output_df.to_csv(output_path, index=False)
-        logging.getLogger().info(f"Preprocessed gaze data saved to {output_path}")
-        print(f"Successfully wrote {len(output_df)} rows to {output_path}")
+        # Validate
+        validate_raw_data(df_raw)
+        
+        # Preprocess
+        df_processed = preprocess_gaze_data(df_raw, config)
+        
+        # Save output
+        df_processed.to_csv(output_path, index=False)
+        pipeline_logger.info(f"Preprocessing complete. Output saved to {output_path}")
+        pipeline_logger.info(f"Total rows in output: {len(df_processed)}")
         
     except Exception as e:
-        logging.getLogger().error(f"Preprocessing failed: {e}")
+        pipeline_logger.error(f"Preprocessing failed: {e}")
         raise
 
 if __name__ == "__main__":

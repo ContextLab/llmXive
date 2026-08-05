@@ -1,69 +1,50 @@
-T001:
+T005:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No directory listings or other evidence were provided showing that the required\
-    \ folders (`code/`, `data/raw/`, `data/derived/`, `data/processed/`, `tests/`,\
-    \ `state/`) actually exist in the repository. The implementer\u2019s claim cannot\
-    \ be verified without concrete artifacts."
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No linting or formatting configuration files (e.g., .ruff.toml, .flake8, pyproject.toml\
-    \ with black settings) or related setup scripts were provided, so the requirement\
-    \ to configure ruff/flake8 and black is not demonstrated. The implementer must\
-    \ add the appropriate config files and ensure they are non\u2011empty and correctly\
-    \ set up."
-T004:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence was presented that the required directories (`data/raw/`, `data/derived/`,
-    `data/processed/`) actually exist in the repository; the claim is unsupported
-    and the artifact is missing.
-T004b:
-  c: false
-  h: b25b7ca5c9ee5ebb9d85908f60d0819117ee09249c58d18ee1dadff0c0bb7334
-  r: The required output file `data/derived/empirical_outcomes.csv` does not exist,
-    and the provided script is truncated (e.g., incomplete `verify_schema` function)
-    so it cannot be confirmed to generate the CSV with the specified columns. The
-    task therefore remains unfinished.
+  h: 7443f2e3a49bf50d9dd9e441a1262551652a88c6907d3459fb4026e3692750e7
+  r: "The provided `code/utils/data_loading.py` is incomplete (truncated) and does\
+    \ not show a function that actually downloads the dataset, computes its checksum,\
+    \ updates `state/data_hashes.json`, and writes `data/raw/eye_tracking_raw.parquet`.\
+    \ Moreover, the expected output file `data/raw/eye_tracking_raw.parquet` is missing,\
+    \ and the script looks for a \u201CVERIFIED REAL DATA SOURCE\u201D block rather\
+    \ than the required \u201CVerified datasets\u201D block, so it may not read the\
+    \ correct URL. The task therefore remains unfinished."
 T006:
   c: false
   h: e30bdf942c129971709ed90b64852b01bc687a74e25fb9ad9163ae63907f754b
   r: "The required file `code/utils/fixation_detection.py` does not exist, so no implementation\
     \ of I\u2011VT/I\u2011DT, no config\u2011reading logic, and no documentation of\
     \ fallback behavior are present. The task is therefore not satisfied."
-T007:
+T009:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `code/models/` directory or model files (`Participant`, `Stimulus`, `GazeEvent`)
-    are present in the provided evidence; thus the required data model classes are
-    missing. The implementer must add the three model definitions with the specified
-    fields in the correct location.
-T008:
+  r: "No environment configuration files (e.g., `requirements.txt`, `environment.yml`,\
+    \ Dockerfile) or code that sets and documents random seeds for reproducibility\
+    \ are present. The claim provides only high\u2011level user story descriptions,\
+    \ not the concrete artifacts required to satisfy task T009."
+T015:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No logging configuration files, code changes, or documentation were provided\
-    \ to demonstrate that a logging infrastructure capturing data\u2011quality warnings\
-    \ and exclusion counts has been set up. The artifact required by task T008 is\
-    \ missing, so the requirement is not satisfied."
-T017:
+  r: "No code, script, or data implementing the ROI mapping logic is present; the\
+    \ only material provided is the specification text. The required artifact\u2014\
+    a functional implementation that assigns gaze points to the \u201Csource attribution\u201D\
+    \ and other bounding boxes\u2014is missing."
+T016:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, documentation, or test output was provided that demonstrates\
-    \ the preprocessing pipeline now treats zero fixations on the source ROI as valid\
-    \ data with a duration of\u202F0 instead of marking it missing. Without an artifact\
-    \ showing this logic change (e.g., updated function, unit test, or log example),\
-    \ the requirement is not satisfied. The implementer must supply the modified implementation\
-    \ and evidence (e.g., a test case confirming a trial with zero source fixations\
-    \ yields duration\u202F0)."
+  r: "No evidence of a script or function that checks for missing \u201Csource_attribution\u201D\
+    \ ROI coordinates, excludes those trials, and writes the exclusion count to `output/exclusion_log.txt`\
+    \ was provided. The required log file and corresponding implementation are missing."
 T018:
   c: false
-  h: 096ed4611e21421769a2d83c444155dc54e91ee10ba77b548b86750277fe529b
-  r: "The repository contains `code/02_preprocess_gaze.py`, but the required output\
-    \ file `data/derived/preprocessed_gaze.csv` is absent, and the provided script\
-    \ is truncated so we cannot confirm it generates the specified columns or applies\
-    \ the I\u2011VT detection, data\u2011loss filtering, and ROI mapping as required.\
-    \ The missing output file means the task\u2019s deliverable is not satisfied."
+  h: 27503bcc5e3e739b84979bc65d40b635d1b75d531731a6fc6e7309c583d008fe
+  r: "The provided `code/02_preprocess_gaze.py` is truncated and does not show the\
+    \ full implementation (e.g., the I\u2011VT detection with a 100\u202Fms threshold,\
+    \ participant filtering, ROI mapping, logging, and writing `data/derived/preprocessed_gaze.csv`\
+    \ with the required columns). Additionally, the required input file `data/raw/eye_tracking_raw.parquet`\
+    \ and the expected output CSV are missing, so the script cannot be verified as\
+    \ functional. The next implementer must supply the complete script logic and ensure\
+    \ the input and output files exist (or can be generated) and meet the specified\
+    \ schema."
 T020:
   c: false
   h: b16b552bd50c30bf0d3765252607a5c2aa63d15725801054d91cfd3baef8a163
@@ -84,3 +65,10 @@ T025:
     \ calculation is present, nor any verification that the estimated coefficient\
     \ matches ground\u2011truth values. The required artifact (e.g., a regression\
     \ script and its results) is missing, so the task is not satisfied."
+T030:
+  c: false
+  h: 97969afb6fd11006fdfe02724132e75522ce35ffa7753f183cc1fe045cb09565
+  r: The required artifact `tests/integration/test_sensitivity_analysis.py` does not
+    exist on disk, so the integration test for threshold sweep stability is missing.
+    The task cannot be considered completed until this file is created with appropriate
+    test code.

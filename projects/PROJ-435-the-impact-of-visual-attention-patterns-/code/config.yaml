@@ -1,33 +1,37 @@
-# Project Configuration for Visual Attention Study
-# This file controls random seeds and environment parameters for reproducibility.
+# Project Configuration
+# This file contains all configurable parameters for the eye-tracking analysis pipeline.
 
-# Reproducibility Settings
+# I-VT Fixation Detection Parameters
+# Per spec FR-001: Only duration threshold is used.
+ivt_duration_threshold: 100  # milliseconds
+
+# Data Quality Thresholds
+data_loss_threshold_percent: 20.0
+
+# Reproducibility
 random_seed: 42
-numpy_seed: 42
-python_seed: 42
 
-# Data Paths (relative to project root)
-paths:
-  raw_data_dir: "data/raw"
-  derived_data_dir: "data/derived"
-  processed_data_dir: "data/processed"
-  state_dir: "state"
-  figures_dir: "figures"
+# ROI Configuration
+roi_types:
+  - source_attribution
+  - other
 
-# Fixation Detection Parameters (I-VT / I-DT)
-fixation_detection:
-  ivt_duration_threshold: 60  # ms, minimum duration for a fixation
-  idt_dispersion_threshold: 30  # pixels
-  velocity_threshold: 30  # deg/s (secondary check)
-
-# Analysis Parameters
-analysis:
-  outlier_cap_percentile_low: 1
-  outlier_cap_percentile_high: 99
-  regression_confidence_level: 0.95
+# ROI Definitions (coordinates in pixels, assuming 1000x1000 screen)
+rois:
+  source_attribution:
+    x_min: 0
+    x_max: 200
+    y_min: 0
+    y_max: 100
+  other:
+    x_min: 200
+    x_max: 1000
+    y_min: 0
+    y_max: 1000
 
 # Logging Configuration
 logging:
-  level: "INFO"
-  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-  file: "state/pipeline.log"
+  level: INFO
+  pipeline_log: logs/pipeline.log
+  quality_log: logs/quality.log
+  exclusion_log: logs/exclusions.log

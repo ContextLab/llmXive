@@ -1,11 +1,7 @@
-"""
-Participant data model.
-Represents a study participant with their cognitive traits and random intercepts.
-"""
+"""Participant data model."""
 from dataclasses import dataclass, field
 from typing import Optional
 import numpy as np
-
 
 @dataclass
 class Participant:
@@ -13,15 +9,20 @@ class Participant:
     Represents a study participant.
 
     Attributes:
-        id: Unique identifier for the participant.
-        crt_score: Cognitive Reflection Test score (float).
+        id: Unique participant identifier.
+        crt_score: Cognitive Reflection Test score.
         random_intercept: Random intercept term for mixed-effects modeling.
     """
     id: str
     crt_score: float
-    random_intercept: float = 0.0
+    random_intercept: Optional[float] = None
 
     def __post_init__(self):
-        """Ensure random_intercept is a float."""
-        if not isinstance(self.random_intercept, (int, float)):
-            self.random_intercept = float(self.random_intercept)
+        """Ensure random intercept is initialized if not provided."""
+        if self.random_intercept is None:
+            self.random_intercept = 0.0
+
+    @staticmethod
+    def generate_random_intercept() -> float:
+        """Generate a random intercept from a standard normal distribution."""
+        return float(np.random.normal(0, 1))

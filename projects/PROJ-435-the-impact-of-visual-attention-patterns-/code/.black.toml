@@ -1,17 +1,22 @@
+# Black configuration for llmXive project
+# Enforces consistent code formatting
+
 [tool.black]
 line-length = 88
 target-version = ['py311']
 include = '\.pyi?$'
-extend-exclude = '''
+exclude = '''
 /(
     \.git
-    | \.hg
-    | \.mypy_cache
-    | \.tox
-    | \.venv
-    | _build
-    | buck-out
-    | build
-    | dist
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
 )/
 '''
+# Skip formatting for generated files or specific directories if needed
+force-exclude = ""

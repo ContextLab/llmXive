@@ -1,71 +1,76 @@
 import os
 import sys
-from pathlib import Path
 import logging
+from pathlib import Path
 
-# Configure logging for the setup process
-def setup_logging():
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
-    return logging.getLogger(__name__)
+# Ensure the project root is in the path for imports if running as script
+# The project structure assumes this file is in code/
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
-def create_directories(base_path: Path, directories: list):
-    """
-    Creates the specified directories under the base_path.
-    
-    Args:
-        base_path (Path): The root directory for the project.
-        directories (list): List of relative directory paths to create.
-    """
-    logger = logging.getLogger(__name__)
-    created_count = 0
-    
-    for dir_name in directories:
-        dir_path = base_path / dir_name
-        try:
-            if not dir_path.exists():
-                dir_path.mkdir(parents=True, exist_ok=True)
-                logger.info(f"Created directory: {dir_path}")
-                created_count += 1
-            else:
-                logger.info(f"Directory already exists: {dir_path}")
-        except OSError as e:
-            logger.error(f"Failed to create directory {dir_path}: {e}")
-            raise e
-    
-    logger.info(f"Successfully created {created_count} directories.")
+def get_project_root() -> Path:
+    """Returns the absolute path to the project root."""
+    return PROJECT_ROOT
 
-def main():
+def setup_logging() -> logging.Logger:
+    """Configures and returns a logger for the setup process."""
+    logger = logging.getLogger("setup_data_structure")
+    logger.setLevel(logging.INFO)
+    
+    if not logger.handlers:
+        handler = logging.StreamHandler(sys.stdout)
+        handler.setLevel(logging.INFO)
+        formatter = logging.Formatter(
+            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        )
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)
+    
+    return logger
+
+def create_directories(base_path: Path, logger: logging.Logger) -> None:
     """
-    Main entry point for setting up the project data directory structure.
-    Creates the following directories relative to the project root:
+    Creates the required directory structure for the project.
+    
+    Required directories:
     - data/raw/
     - data/derived/
     - data/processed/
+    - code/ (already exists as parent of this script, but ensures existence)
+    - tests/
+    - state/
     """
-    logger = setup_logging()
-    logger.info("Starting data directory structure setup...")
-
-    # Determine the project root (assuming script is in code/)
-    script_dir = Path(__file__).resolve().parent
-    project_root = script_dir.parent
-
-    # Define the required directories relative to project root
-    required_dirs = [
+    directories = [
         "data/raw",
         "data/derived",
-        "data/processed"
+        "data/processed",
+        "tests",
+        "state",
+        "output" # Added for exclusion logs and other outputs mentioned in tasks
     ]
+    
+    created_count = 0
+    for dir_name in directories:
+        dir_path = base_path / dir_name
+        if not dir_path.exists():
+            dir_path.mkdir(parents=True, exist_ok=True)
+            logger.info(f"Created directory: {dir_path.relative_to(base_path)}")
+            created_count += 1
+        else:
+            logger.debug(f"Directory already exists: {dir_path.relative_to(base_path)}")
+    
+    logger.info(f"Directory setup complete. Created {created_count} new directories.")
 
-    try:
-        create_directories(project_root, required_dirs)
-        logger.info("Data directory structure setup completed successfully.")
-        return 0
-    except Exception as e:
-        logger.error(f"Setup failed: {e}")
-        return 1
+def main() -> None:
+    """Main entry point for the setup script."""
+    logger = setup_logging()
+    logger.info("Starting data directory structure setup...")
+    
+    root = get_project_root()
+    logger.info(f"Project root identified at: {root}")
+    
+    create_directories(root, logger)
+    
+    logger.info("Setup finished successfully.")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()
