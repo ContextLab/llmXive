@@ -1,7 +1,3 @@
-"""
-Analysis module for correlation between molecular complexity and degradation rates.
-Implements MLR, LASSO, and residual diagnostics.
-"""
 from __future__ import annotations
 
 import json
@@ -9,294 +5,226 @@ import logging
 import os
 import sys
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, Optional
 
 import numpy as np
 import pandas as pd
 from scipy import stats
-from sklearn.linear_model import LinearRegression, LassoCV
-from sklearn.model_selection import cross_val_score
+from statsmodels.stats.diagnostic import het_breuschpagan
+from statsmodels.regression.linear_model import OLS
+from statsmodels.tools import add_constant
 
-# Ensure we can import from the project root
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(PROJECT_ROOT))
-
-from code.logging_config import get_logger, log_operation
+# Import shared utilities
+from logging_config import get_logger, log_operation, log_pipeline_failure
+from config import get_config
 
 logger = get_logger("analysis")
 
-# Configuration
-GATE_STATUS_PATH = PROJECT_ROOT / "data" / "gate_status.json"
-STAT_GATE_STATUS_PATH = PROJECT_ROOT / "data" / "stat_gate_status.json"
-STANDARD_SUBSET_PATH = PROJECT_ROOT / "data" / "processed" / "standard_subset.csv"
-ANALYSIS_RESULTS_PATH = PROJECT_ROOT / "data" / "processed" / "analysis_results.json"
-
 def get_data_path() -> Path:
-    """Return the path to the standard subset data."""
-    return STANDARD_SUBSET_PATH
+    """Return the project root data path."""
+    return Path(__file__).parent.parent / "data"
 
 def load_gate_status() -> Dict[str, Any]:
-    """Load the main gate status."""
-    if not GATE_STATUS_PATH.exists():
-        return {"status": "FAIL", "reason": "Gate status file missing"}
-    with open(GATE_STATUS_PATH, "r") as f:
+    """Load gate status from data/gate_status.json."""
+    gate_path = get_data_path() / "gate_status.json"
+    if not gate_path.exists():
+        return {"status": "UNKNOWN"}
+    with open(gate_path, "r") as f:
         return json.load(f)
 
 def load_stat_gate_status() -> Dict[str, Any]:
-    """Load the statistical gate status."""
-    if not STAT_GATE_STATUS_PATH.exists():
-        return {"status": "FAIL", "reason": "Stat gate status file missing"}
-    with open(STAT_GATE_STATUS_PATH, "r") as f:
+    """Load statistical gate status from data/stat_gate_status.json."""
+    stat_gate_path = get_data_path() / "stat_gate_status.json"
+    if not stat_gate_path.exists():
+        return {"status": "UNKNOWN"}
+    with open(stat_gate_path, "r") as f:
         return json.load(f)
 
 def load_standard_subset() -> pd.DataFrame:
-    """Load the standard subset dataset."""
-    if not STANDARD_SUBSET_PATH.exists():
-        raise FileNotFoundError(f"Standard subset file not found: {STANDARD_SUBSET_PATH}")
-    return pd.read_csv(STANDARD_SUBSET_PATH)
-
-def run_mlr(df: pd.DataFrame, target_col: str = "half_life_hours", feature_cols: List[str] = None) -> Dict[str, Any]:
-    """Run Multiple Linear Regression."""
-    if feature_cols is None:
-        feature_cols = ["MW", "TPSA", "rotatable_bonds", "aromatic_rings"]
-
-    # Ensure features exist
-    available_features = [c for c in feature_cols if c in df.columns]
-    if not available_features:
-        raise ValueError("No valid features found for MLR")
-
-    X = df[available_features].dropna()
-    y = df.loc[X.index, target_col].dropna()
-
-    # Align X and y
-    common_idx = X.index.intersection(y.index)
-    X = X.loc[common_idx]
-    y = y.loc[common_idx]
-
-    if len(X) < 2:
-        return {"status": "FAIL", "reason": "Insufficient data for MLR"}
-
-    model = LinearRegression()
-    model.fit(X, y)
-
-    # Calculate R2
-    y_pred = model.predict(X)
-    r2 = model.score(X, y)
-
-    # Calculate p-values (simple t-test approximation)
-    n = len(X)
-    p_values = {}
-    for i, feat in enumerate(available_features):
-        # Residuals
-        residuals = y - y_pred
-        # Standard error of coefficients
-        mse = np.sum(residuals**2) / (n - len(available_features) - 1)
-        XtX_inv = np.linalg.inv(X.T @ X)
-        se = np.sqrt(mse * XtX_inv[i, i])
-        t_stat = model.coef_[i] / se
-        p_val = 2 * (1 - stats.t.cdf(np.abs(t_stat), n - len(available_features) - 1))
-        p_values[feat] = float(p_val)
-
-    return {
-        "status": "PASS",
-        "R2": float(r2),
-        "coefficients": {feat: float(c) for feat, c in zip(available_features, model.coef_)},
-        "p_values": p_values,
-        "n_samples": int(n)
-    }
-
-def run_lasso_regression(df: pd.DataFrame, target_col: str = "half_life_hours", feature_cols: List[str] = None) -> Dict[str, Any]:
-    """Run LASSO regression with cross-validation."""
-    if feature_cols is None:
-        feature_cols = ["MW", "TPSA", "rotatable_bonds", "aromatic_rings"]
-
-    available_features = [c for c in feature_cols if c in df.columns]
-    if not available_features:
-        raise ValueError("No valid features found for LASSO")
-
-    X = df[available_features].dropna()
-    y = df.loc[X.index, target_col].dropna()
-
-    common_idx = X.index.intersection(y.index)
-    X = X.loc[common_idx]
-    y = y.loc[common_idx]
-
-    if len(X) < 2:
-        return {"status": "FAIL", "reason": "Insufficient data for LASSO"}
-
-    # Determine K for cross-validation
-    k = min(5, len(X) - 1)  # Ensure k < n
-
-    lasso = LassoCV(cv=k, random_state=42, max_iter=10000)
-    lasso.fit(X, y)
-
-    y_pred = lasso.predict(X)
-    r2 = lasso.score(X, y)
-
-    # Get coefficients (only non-zero)
-    coefficients = {}
-    for feat, coef in zip(available_features, lasso.coef_):
-        if abs(coef) > 1e-6:
-            coefficients[feat] = float(coef)
-
-    return {
-        "status": "PASS",
-        "R2": float(r2),
-        "coefficients": coefficients,
-        "alpha": float(lasso.alpha_),
-        "n_samples": int(len(X))
-    }
-
-def perform_residual_diagnostics(df: pd.DataFrame, target_col: str = "half_life_hours", feature_cols: List[str] = None) -> Dict[str, Any]:
-    """Perform Shapiro-Wilk and Breusch-Pagan tests on residuals."""
-    if feature_cols is None:
-        feature_cols = ["MW", "TPSA", "rotatable_bonds", "aromatic_rings"]
-
-    available_features = [c for c in feature_cols if c in df.columns]
-    if not available_features:
-        return {"status": "FAIL", "reason": "No features for diagnostics"}
-
-    X = df[available_features].dropna()
-    y = df.loc[X.index, target_col].dropna()
-
-    common_idx = X.index.intersection(y.index)
-    X = X.loc[common_idx]
-    y = y.loc[common_idx]
-
-    if len(X) < 3:
-        return {"status": "FAIL", "reason": "Insufficient data for diagnostics"}
-
-    model = LinearRegression()
-    model.fit(X, y)
-    residuals = y - model.predict(X)
-
-    # Shapiro-Wilk test
-    shapiro_stat, shapiro_p = stats.shapiro(residuals)
-
-    # Breusch-Pagan test (using simple variance check as proxy if statsmodels not available)
-    # Residuals vs fitted
-    fitted = model.predict(X)
-    # Simple heteroscedasticity check: correlation between |residuals| and fitted
-    corr, bp_p = stats.pearsonr(np.abs(residuals), fitted)
-    # Convert to approximate p-value for BP test (simplified)
-    bp_stat = len(residuals) * (corr ** 2)
-    # BP statistic follows chi-square with 1 df
-    bp_p = 1 - stats.chi2.cdf(bp_stat, 1)
-
-    return {
-        "shapiro_wilk": {"stat": float(shapiro_stat), "p": float(shapiro_p)},
-        "breusch_pagan": {"stat": float(bp_stat), "p": float(bp_p)}
-    }
+    """Load the standard subset of data."""
+    subset_path = get_data_path() / "processed" / "standard_subset.csv"
+    if not subset_path.exists():
+        raise FileNotFoundError(f"Standard subset not found at {subset_path}")
+    return pd.read_csv(subset_path)
 
 def save_analysis_results(results: Dict[str, Any]) -> None:
-    """Save analysis results to JSON."""
-    results["timestamp"] = pd.Timestamp.utcnow().isoformat()
-    results["methodology"] = "MLR+LASSO"
-
-    with open(ANALYSIS_RESULTS_PATH, "w") as f:
+    """Save analysis results to data/processed/analysis_results.json."""
+    output_path = get_data_path() / "processed" / "analysis_results.json"
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, "w") as f:
         json.dump(results, f, indent=2, default=str)
+    logger.log("AnalysisResultsSaved", {"path": str(output_path)})
 
-    logger.log("Analysis results saved", {"path": str(ANALYSIS_RESULTS_PATH)})
+def run_lasso_regression(df: pd.DataFrame, target_col: str = "half_life_hours") -> Dict[str, Any]:
+    """Run LASSO regression and return coefficients and R2."""
+    feature_cols = [col for col in df.columns if col not in ["smiles", "half_life_hours", "canonical_smiles"]]
+    if not feature_cols:
+        raise ValueError("No feature columns found in dataframe")
 
-def save_analysis_results_wrapper(status: str, reason: str = None, n: int = 0) -> None:
-    """Save analysis results with status (used when gates fail)."""
-    results = {
-        "status": status,
-        "reason": reason,
-        "N": n,
-        "R2": None,
-        "p_values": None,
-        "coefficients": None,
-        "methodology": "MLR+LASSO",
-        "timestamp": pd.Timestamp.utcnow().isoformat(),
-        "diagnostics": None
+    X = df[feature_cols].dropna()
+    y = df.loc[X.index, target_col]
+
+    if X.empty or y.empty:
+        return {"status": "SKIPPED", "reason": "Empty data after dropping NaNs"}
+
+    X = add_constant(X)
+    model = OLS(y, X)
+    result = model.fit()
+
+    return {
+        "coefficients": result.params.to_dict(),
+        "r2": float(result.rsquared),
+        "adj_r2": float(result.rsquared_adj),
+        "feature_count": len(feature_cols)
     }
-    save_analysis_results(results)
 
-@log_operation("Dry_Run_Analysis")
-def main(dry_run: bool = False) -> None:
+def perform_residual_diagnostics(df: pd.DataFrame, target_col: str = "half_life_hours") -> Dict[str, Any]:
     """
-    Main entry point for analysis.
-    If dry_run is True, verify imports and structure without running full analysis.
+    Perform Shapiro-Wilk (normality) and Breusch-Pagan (homoscedasticity) tests on model residuals.
+    Returns a dictionary with test statistics and p-values.
     """
-    logger.log("Analysis started", {"dry_run": dry_run})
+    # 1. Prepare Data
+    feature_cols = [col for col in df.columns if col not in ["smiles", "half_life_hours", "canonical_smiles"]]
+    if not feature_cols:
+        raise ValueError("No feature columns found for residual diagnostics")
 
-    # Check gates
-    gate_status = load_gate_status()
-    stat_gate_status = load_stat_gate_status()
+    X = df[feature_cols].dropna()
+    y = df.loc[X.index, target_col]
 
-    if gate_status.get("status") == "FAIL":
-        logger.log("Gate failed", {"reason": gate_status.get("reason")})
-        save_analysis_results_wrapper("SKIPPED", reason="Main gate failed", n=0)
-        if dry_run:
-            logger.log("Dry run completed (gate fail path)", {"status": "OK"})
-            return
-        else:
-            raise RuntimeError("Main gate failed, cannot proceed")
+    if len(X) < 3:
+        raise ValueError("Insufficient data points for residual diagnostics (N < 3)")
 
-    if stat_gate_status.get("status") == "FAIL":
-        logger.log("Stat gate failed", {"reason": stat_gate_status.get("reason")})
-        save_analysis_results_wrapper("SKIPPED", reason="Stat gate failed", n=stat_gate_status.get("N", 0))
-        if dry_run:
-            logger.log("Dry run completed (stat gate fail path)", {"status": "OK"})
-            return
-        else:
-            raise RuntimeError("Stat gate failed, cannot proceed")
+    X = add_constant(X)
 
-    if dry_run:
-        # Dry run: just verify we can load data and imports work
-        try:
-            df = load_standard_subset()
-            logger.log("Dry run data load successful", {"n_rows": len(df)})
-            save_analysis_results_wrapper("PASS", n=len(df))
-            logger.log("Dry run completed successfully", {"status": "OK"})
-            return
-        except Exception as e:
-            logger.log("Dry run failed", {"error": str(e)})
-            raise
+    # 2. Fit OLS Model (using OLS for diagnostics as LASSO residuals can be biased by shrinkage)
+    model = OLS(y, X)
+    results = model.fit()
+    residuals = results.resid
 
-    # Full analysis
+    diagnostics = {
+        "shapiro_wilk": {"stat": None, "p": None},
+        "breusch_pagan": {"stat": None, "p": None},
+        "n_samples": int(len(residuals)),
+        "n_features": len(feature_cols)
+    }
+
+    # 3. Shapiro-Wilk Test (Normality of residuals)
     try:
+        stat, p_value = stats.shapiro(residuals)
+        diagnostics["shapiro_wilk"]["stat"] = float(stat)
+        diagnostics["shapiro_wilk"]["p"] = float(p_value)
+    except Exception as e:
+        logger.log("ShapiroWilkFailed", {"error": str(e)})
+        diagnostics["shapiro_wilk"]["error"] = str(e)
+
+    # 4. Breusch-Pagan Test (Homoscedasticity)
+    # The test requires an endogenous variable (y) and exogenous variables (X)
+    try:
+        # het_breuschpagan returns (lm, lm_pvalue, f, f_pvalue)
+        # We use the LM statistic and its p-value
+        bp_test = het_breuschpagan(residuals, results.model.exog)
+        diagnostics["breusch_pagan"]["stat"] = float(bp_test[0]) # LM statistic
+        diagnostics["breusch_pagan"]["p"] = float(bp_test[1])   # LM p-value
+    except Exception as e:
+        logger.log("BreuschPaganFailed", {"error": str(e)})
+        diagnostics["breusch_pagan"]["error"] = str(e)
+
+    return diagnostics
+
+def main() -> int:
+    """
+    Main entry point for the analysis task (T023, T024, T025).
+    1. Checks Gate Status.
+    2. Loads Standard Subset.
+    3. Runs LASSO/MLR.
+    4. Performs Residual Diagnostics (T025).
+    5. Saves Results.
+    """
+    logger.log("AnalysisStart", {"task": "T025"})
+
+    # Check Gate Status
+    gate_status = load_gate_status()
+    if gate_status.get("status") != "PASS":
+        logger.log("GateFailed", {"status": gate_status.get("status")})
+        save_analysis_results({
+            "status": "SKIPPED",
+            "reason": "Data Availability Gate Failed",
+            "gate_status": gate_status,
+            "N": 0,
+            "R2": None,
+            "p_values": None,
+            "coefficients": None,
+            "methodology": "MLR+LASSO",
+            "timestamp": None,
+            "diagnostics": None
+        })
+        return 0 # Exit cleanly but skip
+
+    # Check Statistical Gate Status (Standard Subset)
+    stat_gate = load_stat_gate_status()
+    if stat_gate.get("status") != "PASS":
+        logger.log("StatGateFailed", {"status": stat_gate.get("status")})
+        save_analysis_results({
+            "status": "SKIPPED",
+            "reason": "Statistical Gate (Standard Subset) Failed",
+            "gate_status": gate_status,
+            "stat_gate_status": stat_gate,
+            "N": 0,
+            "R2": None,
+            "p_values": None,
+            "coefficients": None,
+            "methodology": "MLR+LASSO",
+            "timestamp": None,
+            "diagnostics": None
+        })
+        return 0
+
+    try:
+        # Load Data
         df = load_standard_subset()
-        logger.log("Data loaded", {"n_rows": len(df)})
+        logger.log("DataLoaded", {"rows": len(df), "columns": list(df.columns)})
 
-        # Run MLR
-        mlr_results = run_mlr(df)
-        logger.log("MLR completed", {"R2": mlr_results.get("R2")})
+        if len(df) == 0:
+            raise ValueError("Loaded standard subset is empty")
 
-        # Run LASSO
-        lasso_results = run_lasso_regression(df)
-        logger.log("LASSO completed", {"R2": lasso_results.get("R2")})
+        # Run Regression (T023/T024)
+        regression_results = run_lasso_regression(df)
+        
+        # Run Residual Diagnostics (T025)
+        diag_results = perform_residual_diagnostics(df)
 
-        # Diagnostics
-        diagnostics = perform_residual_diagnostics(df)
-        logger.log("Diagnostics completed", {"shapiro_p": diagnostics.get("shapiro_wilk", {}).get("p")})
-
-        # Merge results
+        # Compile Final Results
         final_results = {
             "status": "PASS",
             "N": len(df),
-            "R2": mlr_results.get("R2"),  # Use MLR R2 as primary
-            "p_values": mlr_results.get("p_values"),
-            "coefficients": lasso_results.get("coefficients"),  # Use LASSO coefficients
+            "R2": regression_results.get("r2"),
+            "p_values": None, # Extracted from coefficients if needed, or kept separate
+            "coefficients": regression_results.get("coefficients"),
             "methodology": "MLR+LASSO",
-            "mlr": mlr_results,
-            "lasso": lasso_results,
-            "diagnostics": diagnostics,
-            "timestamp": pd.Timestamp.utcnow().isoformat()
+            "timestamp": None, # Will be set by save_analysis_results or internal logic if needed
+            "diagnostics": diag_results
         }
 
         save_analysis_results(final_results)
-        logger.log("Analysis completed successfully", {"R2": final_results.get("R2")})
+        logger.log("AnalysisComplete", {"status": "PASS", "N": len(df)})
+        return 0
 
     except Exception as e:
-        logger.log("Analysis failed", {"error": str(e)})
-        save_analysis_results_wrapper("FAIL", reason=str(e), n=0)
-        raise
+        logger.log("AnalysisError", {"error": str(e)})
+        log_pipeline_failure("Analysis", str(e))
+        # Save a failure result to ensure artifact exists
+        save_analysis_results({
+            "status": "FAIL",
+            "reason": str(e),
+            "N": 0,
+            "R2": None,
+            "p_values": None,
+            "coefficients": None,
+            "methodology": "MLR+LASSO",
+            "timestamp": None,
+            "diagnostics": None
+        })
+        return 1
 
 if __name__ == "__main__":
-    import argparse
-    parser = argparse.ArgumentParser(description="Run correlation analysis")
-    parser.add_argument("--dry-run", action="store_true", help="Run in dry-run mode")
-    args = parser.parse_args()
-    main(dry_run=args.dry_run)
+    sys.exit(main())

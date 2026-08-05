@@ -9,4 +9,3 @@ requests
 datasets
 statsmodels
 scipy
-pyarrow

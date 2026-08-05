@@ -1,158 +1,60 @@
-# Output Schema for PROJ-071: Molecular Complexity vs Degradation
-# This file defines the expected structure of all generated data artifacts.
-# Used for validation and reproducibility auditing.
-
-version: "1.0"
-generated_at: "2023-10-27T10:00:00Z" # Placeholder, updated by pipeline
+# Data Output Schema Definition for PROJ-071
+# This file defines the expected structure for all output artifacts.
 
 schemas:
-  # -------------------------------------------------------------------
-  # Raw Data Ingestion
-  # -------------------------------------------------------------------
-  fda_structures:
-    file: data/raw/fda_structures.parquet
-    format: parquet
-    description: FDA-approved drug structures fetched from Synthyra/FDA-Approved-Drugs
-    columns:
-      - name: canonical_smiles
-        type: string
-        required: true
-        description: Canonical SMILES string for the molecule
-      - name: drug_name
-        type: string
-        required: false
-        description: Common name of the drug
-      - name: approval_date
-        type: string
-        required: false
-        description: FDA approval date
-      - name: source
-        type: string
-        required: true
-        description: Source dataset identifier
-
-  # -------------------------------------------------------------------
-  # Merged Data (Post-Gate)
-  # -------------------------------------------------------------------
   merged_drugs:
-    file: data/processed/merged_drugs.csv
-    format: csv
-    description: Merged dataset of structures and degradation data
-    columns:
-      - name: canonical_smiles
-        type: string
-        required: true
-        description: Key for merging
-      - name: tpsa
-        type: float
-        required: true
-        description: Topological Polar Surface Area
-      - name: rotatable_bonds
-        type: integer
-        required: true
-        description: Count of rotatable bonds
-      - name: molecular_weight
-        type: float
-        required: true
-        description: Molecular weight
-      - name: aromatic_rings
-        type: integer
-        required: true
-        description: Count of aromatic rings
-      - name: wiener_index
-        type: float
-        required: true
-        description: Wiener index (topological descriptor)
-      - name: zagreb_index
-        type: float
-        required: true
-        description: Zagreb index (topological descriptor)
-      - name: half_life_hours
-        type: float
-        required: false
-        description: Degradation half-life in hours (standardized)
-      - name: degradation_condition
-        type: string
-        required: false
-        description: Conditions under which degradation was measured
-
-  # -------------------------------------------------------------------
-  # Standardized Data (Statistical Gate)
-  # -------------------------------------------------------------------
-  standard_subset:
-    file: data/processed/standard_subset.csv
-    format: csv
-    description: Subset of data meeting standard condition criteria (Temp ~25C, pH neutral)
-    columns:
-      - name: canonical_smiles
-        type: string
-        required: true
-      - name: tpsa
-        type: float
-        required: true
-      - name: rotatable_bonds
-        type: integer
-        required: true
-      - name: molecular_weight
-        type: float
-        required: true
-      - name: aromatic_rings
-        type: integer
-        required: true
-      - name: wiener_index
-        type: float
-        required: true
-      - name: zagreb_index
-        type: float
-        required: true
-      - name: half_life_hours
-        type: float
-        required: true
-      - name: ph
-        type: float
-        required: false
-      - name: temperature_celsius
-        type: float
-        required: false
-
-  # -------------------------------------------------------------------
-  # Excluded Molecules (Valence Errors)
-  # -------------------------------------------------------------------
-  excluded_molecules:
-    file: data/processed/excluded_molecules.csv
-    format: csv
-    description: Log of molecules excluded due to valence errors during descriptor calculation
+    description: "Merged dataset of structural and degradation data"
+    file: "data/processed/merged_drugs.csv"
     columns:
       - name: smiles
         type: string
         required: true
-        description: The SMILES string that failed validation
+      - name: canonical_smiles
+        type: string
+        required: false
+      - name: half_life
+        type: float
+        required: false
+      - name: rate_constant
+        type: float
+        required: false
+      - name: temperature
+        type: float
+        required: false
+      - name: ph
+        type: float
+        required: false
+
+  excluded_molecules:
+    description: "Log of molecules excluded due to calculation errors"
+    file: "data/processed/excluded_molecules.csv"
+    columns:
+      - name: smiles
+        type: string
+        required: true
+        description: "The SMILES string of the excluded molecule"
       - name: error_type
         type: string
         required: true
-        description: Type of error (e.g., 'AtomValenceException')
+        description: "Type of error encountered (e.g., AtomValenceException)"
       - name: timestamp
         type: string
         required: true
-        description: ISO8601 timestamp of the error
+        description: "ISO8601 timestamp of the error"
       - name: source_hash
         type: string
         required: true
-        description: SHA256 hash of the source file (merged_drugs.csv) at time of processing
+        description: "SHA256 hash of the source data file at the time of processing"
 
-  # -------------------------------------------------------------------
-  # Analysis Results
-  # -------------------------------------------------------------------
   analysis_results:
-    file: data/processed/analysis_results.json
-    format: json
-    description: Statistical analysis results (MLR, LASSO, diagnostics)
+    description: "JSON file containing statistical analysis results"
+    file: "data/processed/analysis_results.json"
     structure:
-      status: string (PASS|FAIL|WARN|SKIPPED)
-      N: integer (sample size)
-      R2: float (coefficient of determination)
-      p_values: object (keyed by feature)
-      coefficients: object (keyed by feature)
+      status: "PASS|FAIL|WARN|SKIPPED"
+      N: integer
+      R2: float (nullable)
+      p_values: object (nullable)
+      coefficients: object (nullable)
       methodology: string
       timestamp: string (ISO8601)
       diagnostics:
@@ -163,58 +65,22 @@ schemas:
           stat: float
           p: float
 
-  # -------------------------------------------------------------------
-  # Gate Status Files
-  # -------------------------------------------------------------------
   gate_status:
-    file: data/gate_status.json
-    format: json
-    description: Status of the Data Availability Gate
+    description: "Status of the data availability gate"
+    file: "data/gate_status.json"
     structure:
-      status: string (PASS|FAIL)
+      status: "PASS|FAIL"
       reason: string (optional, if FAIL)
-      column_found: string (optional, if PASS)
-      N: integer (optional, count of valid records)
+      N: integer (optional, if FAIL)
+      column_found: string (optional)
 
-  stat_gate_status:
-    file: data/stat_gate_status.json
-    format: json
-    description: Status of the Statistical Gate (N >= 30 for standard subset)
-    structure:
-      status: string (PASS|FAIL)
-      reason: string (optional, if FAIL)
-      N: integer (count of valid records in standard subset)
-
-  # -------------------------------------------------------------------
-  # Reports & Logs
-  # -------------------------------------------------------------------
   reproducibility_log:
-    file: reproducibility_log.json
-    format: json
-    description: Machine-readable log of all artifacts, versions, and hashes
+    description: "Machine-readable log for reproducibility"
+    file: "reproducibility_log.json"
     structure:
       artifacts:
         - path: string
-          hash: string (SHA256)
+          hash: string
           lineage:
             source_path: string
             transformation: string
-
-  results_report:
-    file: results_report.md
-    format: markdown
-    description: Human-readable summary of findings
-
-  data_insufficiency_report:
-    file: data_insufficiency_report.md
-    format: markdown
-    description: Report generated when data gates fail
-
-  pipeline_metrics:
-    file: data/output/pipeline_metrics.json
-    format: json
-    description: Execution metrics for the full pipeline run
-    structure:
-      total_duration_seconds: float
-      status: string (PASS|FAIL|WARN)
-      error_message: string (optional)

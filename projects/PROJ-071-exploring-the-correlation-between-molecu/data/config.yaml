@@ -1,0 +1,10 @@
+# Data Configuration for PROJ-071
+# T080: Pin dataset version
+dataset_id: "fda_approved_drugs_with_degradation"
+dataset_version: "v1.0.0"
+
+# T081: Standard Condition Definitions
+temp_min: 20.0
+temp_max: 30.0
+ph_min: 7.35
+ph_max: 7.45

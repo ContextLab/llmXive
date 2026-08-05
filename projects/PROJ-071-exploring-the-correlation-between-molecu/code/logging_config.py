@@ -73,55 +73,51 @@ def log_operation(*args: Any, **kwargs: Any) -> Any:
     return get_logger().log(op, **kwargs)
 
 
-def log_error(error_message: str, operation: str = "unknown") -> None:
-    """Log an error message to the global logger."""
-    get_logger().log(operation, error=error_message)
+def log_error(error_type: str, message: str, **kwargs: Any) -> None:
+    """Log an error to the global logger."""
+    get_logger().log("error", error_type=error_type, message=message, **kwargs)
 
 
-def handle_pipeline_exception(operation: str, exception: Exception) -> None:
+def handle_pipeline_exception(exc: Exception, context: str = "") -> None:
     """Handle a pipeline exception by logging it."""
-    get_logger().log(operation, exception=str(exception))
+    log_error("PipelineException", str(exc), context=context)
 
 
-def log_pipeline_start(operation: str, parameters: dict = None) -> None:
+def log_pipeline_start(operation: str, parameters: Optional[Dict] = None) -> LogEntry:
     """Log the start of a pipeline operation."""
-    get_logger().log(operation, parameters=parameters or {})
+    if parameters is None:
+        parameters = {}
+    return get_logger().log(f"start_{operation}", **parameters)
 
 
-def log_pipeline_complete(operation: str, parameters: dict = None) -> None:
+def log_pipeline_complete(operation: str, result: Optional[Dict] = None) -> LogEntry:
     """Log the completion of a pipeline operation."""
-    get_logger().log(operation, parameters=parameters or {})
+    if result is None:
+        result = {}
+    return get_logger().log(f"complete_{operation}", **result)
 
 
-def log_pipeline_failure(operation: str, reason: str = None) -> None:
-    """Log a pipeline failure.
-
-    Accepts multiple call shapes:
-    - log_pipeline_failure("operation_name", "reason")
-    - log_pipeline_failure(reason="reason")
-    - log_pipeline_failure(str(e))
-    - log_pipeline_failure(logger, "op", "reason")
-    """
-    # Handle all call shapes
-    if reason is None:
-        # If reason is None, check if operation is actually the reason
-        if isinstance(operation, str):
-            # Could be log_pipeline_failure("op", "reason") where reason was passed as op
-            # or log_pipeline_failure("reason")
-            # We'll assume the first string is the operation and if there's a second arg it's the reason
-            pass
-        elif hasattr(operation, 'log'):
-            # It's a logger object: log_pipeline_failure(logger, "op", "reason")
-            # This shouldn't happen based on our signature, but handle gracefully
-            return
+def log_pipeline_failure(operation: str, reason: str, **kwargs: Any) -> None:
+    """Log a pipeline failure. Accepts flexible arguments."""
+    # Handle various call shapes:
+    # log_pipeline_failure("op", "reason")
+    # log_pipeline_failure(reason="reason")
+    # log_pipeline_failure(str(e))
+    # log_pipeline_failure(logger, "op", "reason")
     
-    # Normalize to operation and reason
-    if isinstance(operation, str):
-        op_name = operation
-        failure_reason = reason or "Unknown failure"
-    else:
-        # Fallback
-        op_name = "pipeline"
-        failure_reason = str(operation) if operation else "Unknown failure"
+    args = [operation, reason] if operation and reason else []
+    if not args:
+        # Try to extract from kwargs or positional
+        if 'reason' in kwargs:
+            reason = kwargs.pop('reason')
+        else:
+            # Assume first arg was the reason if operation was missing
+            if operation and not reason:
+                reason = operation
+                operation = "pipeline"
+        
+    # Normalize
+    op = operation if operation else "pipeline"
+    msg = reason if reason else "Unknown failure"
     
-    get_logger().log(op_name, failure=failure_reason)
+    get_logger().log(f"fail_{op}", operation=op, reason=msg, **kwargs)

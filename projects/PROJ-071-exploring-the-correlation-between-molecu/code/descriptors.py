@@ -1,3 +1,10 @@
+"""
+Molecular Descriptor Calculation Module (Task T014).
+
+Calculates molecular descriptors (TPSA, Rotatable Bonds, MW, Aromatic Rings,
+Wiener Index, Zagreb Index) using RDKit. Implements robust error handling
+to log invalid molecules to data/processed/excluded_molecules.csv.
+"""
 from __future__ import annotations
 
 import csv
@@ -7,93 +14,88 @@ import os
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 import pandas as pd
 from rdkit import Chem
 from rdkit.Chem import Descriptors, rdMolDescriptors
-from rdkit import RDLogger
+from rdkit.Chem.rdchem import AtomValenceException, MolSanitizeException
 
-# Disable RDKit warnings to keep logs clean
-RDLogger.DisableLog('rdApp.*')
+# Local imports (API surface provided)
+from logging_config import get_logger, log_operation, log_pipeline_start, log_pipeline_complete
+from error_handlers import AtomValenceException as CustomAtomValenceException, DescriptorCalculationError
 
-# Import shared logging utilities
-from logging_config import get_logger, log_operation, LogEntry
-
-# Import error handling types
-from error_handlers import AtomValenceException
-
-# Project root and data paths
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
+# Constants
+PROJECT_ROOT = Path(__file__).parent.parent
 DATA_DIR = PROJECT_ROOT / "data"
 PROCESSED_DIR = DATA_DIR / "processed"
+EXCLUDED_FILE = PROCESSED_DIR / "excluded_molecules.csv"
+MERGED_FILE = PROCESSED_DIR / "merged_drugs.csv"
+GATE_STATUS_FILE = DATA_DIR / "gate_status.json"
 
-def get_data_path() -> Path:
-    return PROCESSED_DIR / "merged_drugs.csv"
+# Initialize logger
+logger = get_logger("descriptors")
 
-def calculate_file_hash(file_path: Path) -> str:
+def calculate_file_hash(filepath: Path) -> str:
     """Calculate SHA256 hash of a file."""
-    if not file_path.exists():
-        return "FILE_NOT_FOUND"
     sha256_hash = hashlib.sha256()
-    with open(file_path, "rb") as f:
-        for byte_block in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(byte_block)
-    return sha256_hash.hexdigest()
+    try:
+        with open(filepath, "rb") as f:
+            for byte_block in iter(lambda: f.read(4096), b""):
+                sha256_hash.update(byte_block)
+        return sha256_hash.hexdigest()
+    except FileNotFoundError:
+        return "FILE_NOT_FOUND"
 
-def log_error_to_file(
-    smiles: str,
-    error_type: str,
-    timestamp: str,
-    source_hash: str,
-    output_path: Optional[Path] = None
-) -> None:
+def get_source_hash() -> str:
+    """Get hash of the source data file (merged_drugs.csv)."""
+    if not MERGED_FILE.exists():
+        return "NO_SOURCE_FILE"
+    return calculate_file_hash(MERGED_FILE)
+
+def log_error_to_file(smiles: str, error_type: str, source_hash: str) -> None:
     """
     Log a molecule error to the excluded_molecules.csv file.
-    Schema: smiles, error_type, timestamp, source_hash
+    Ensures the file header exists if the file is new.
     """
-    if output_path is None:
-        output_path = PROCESSED_DIR / "excluded_molecules.csv"
-    
-    # Ensure directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
+    timestamp = datetime.utcnow().isoformat()
 
-    file_exists = output_path.exists() and output_path.stat().st_size > 0
+    file_exists = EXCLUDED_FILE.exists()
+    header = ["smiles", "error_type", "timestamp", "source_hash"]
 
-    with open(output_path, mode='a', newline='', encoding='utf-8') as f:
+    with open(EXCLUDED_FILE, mode="a", newline="", encoding="utf-8") as f:
         writer = csv.writer(f)
         if not file_exists:
-            writer.writerow(['smiles', 'error_type', 'timestamp', 'source_hash'])
+            writer.writerow(header)
         writer.writerow([smiles, error_type, timestamp, source_hash])
 
 def validate_molecule(smiles: str) -> Optional[Chem.Mol]:
     """
-    Convert SMILES to RDKit Mol object.
-    Raises AtomValenceException if valence is non-standard.
+    Convert SMILES to RDKit Mol object and sanitize.
+    Raises custom exceptions on failure.
     """
+    if not smiles or not isinstance(smiles, str):
+        raise CustomAtomValenceException("Invalid SMILES format: None or empty")
+
+    mol = Chem.MolFromSmiles(smiles)
+    if mol is None:
+        raise CustomAtomValenceException(f"RDKit failed to parse SMILES: {smiles}")
+
+    # Sanitize to catch valence errors
     try:
-        mol = Chem.MolFromSmiles(smiles)
-        if mol is None:
-            # RDKit returns None for unparseable SMILES, but we want to be explicit
-            # about valence errors specifically.
-            return None
-        
-        # Check for valence errors explicitly
-        # rdchem.AtomValenceException is raised when sanitization fails due to valence
         Chem.SanitizeMol(mol)
-        return mol
-    except Exception as e:
-        # Check if it's a valence exception
-        if "valence" in str(e).lower() or isinstance(e, Chem.rdchem.AtomValenceException):
-            raise AtomValenceException(f"Valence error for SMILES: {smiles}") from e
-        # Re-raise other errors
-        raise
+    except ValueError as e:
+        # RDKit raises ValueError for sanitization issues, map to our custom exception
+        raise CustomAtomValenceException(f"Sanitization failed: {str(e)}")
+
+    return mol
 
 def calculate_tpsa(mol: Chem.Mol) -> float:
     return Descriptors.TPSA(mol)
 
 def calculate_rotatable_bonds(mol: Chem.Mol) -> int:
-    return Descriptors.NumRotatableBonds(mol)
+    return rdMolDescriptors.CalcNumRotatableBonds(mol)
 
 def calculate_mw(mol: Chem.Mol) -> float:
     return Descriptors.MolWt(mol)
@@ -102,156 +104,180 @@ def calculate_aromatic_rings(mol: Chem.Mol) -> int:
     return rdMolDescriptors.CalcNumAromaticRings(mol)
 
 def calculate_wiener_index(mol: Chem.Mol) -> float:
-    # Wiener index is not directly in Descriptors, use CalcWienerNumber
-    return rdMolDescriptors.CalcWienerNumber(mol)
+    # Wiener index is the sum of distances between all pairs of atoms
+    # RDKit does not have a direct 'Wiener' descriptor in Descriptors,
+    # but we can calculate it via the distance matrix.
+    try:
+        dists = rdMolDescriptors.GetDistanceMatrix(mol)
+        # Sum of upper triangle (excluding diagonal)
+        total = 0.0
+        n = len(dists)
+        for i in range(n):
+            for j in range(i + 1, n):
+                total += dists[i][j]
+        return float(total)
+    except Exception:
+        return float('nan')
 
 def calculate_zagreb_index(mol: Chem.Mol) -> float:
-    return Descriptors.Zagreb(mol)
+    # First Zagreb Index: Sum of squared degrees of all vertices
+    try:
+        adj = mol.GetAdjacencyMatrix()
+        total = 0.0
+        for row in adj:
+            degree = sum(row)
+            total += degree ** 2
+        return float(total)
+    except Exception:
+        return float('nan')
 
-def calculate_descriptors_for_molecule(
-    mol: Chem.Mol,
-    smiles: str,
-    source_hash: str,
-    excluded_path: Path
-) -> Dict[str, Any]:
+def calculate_descriptors_for_molecule(smiles: str, source_hash: str) -> Dict[str, Any]:
     """
     Calculate all descriptors for a single molecule.
-    Handles AtomValenceException by logging to excluded_molecules.csv.
+    Returns a dict with results or logs an error if calculation fails.
     """
     try:
-        tpsa = calculate_tpsa(mol)
-        rot_bonds = calculate_rotatable_bonds(mol)
-        mw = calculate_mw(mol)
-        arom_rings = calculate_aromatic_rings(mol)
-        wiener = calculate_wiener_index(mol)
-        zagreb = calculate_zagreb_index(mol)
-
+        mol = validate_molecule(smiles)
         return {
             "smiles": smiles,
-            "tpsa": tpsa,
-            "rotatable_bonds": rot_bonds,
-            "mw": mw,
-            "aromatic_rings": arom_rings,
-            "wiener_index": wiener,
-            "zagreb_index": zagreb,
+            "tpsa": calculate_tpsa(mol),
+            "rotatable_bonds": calculate_rotatable_bonds(mol),
+            "mw": calculate_mw(mol),
+            "aromatic_rings": calculate_aromatic_rings(mol),
+            "wiener_index": calculate_wiener_index(mol),
+            "zagreb_index": calculate_zagreb_index(mol),
             "status": "success"
         }
-    except AtomValenceException as e:
-        timestamp = datetime.utcnow().isoformat()
-        error_type = "AtomValenceException"
-        log_error_to_file(smiles, error_type, timestamp, source_hash, excluded_path)
+    except (CustomAtomValenceException, AtomValenceException, MolSanitizeException, ValueError) as e:
+        error_type = type(e).__name__
+        error_msg = str(e)
+        log_error_to_file(smiles, f"{error_type}: {error_msg}", source_hash)
         return {
             "smiles": smiles,
-            "status": "failed",
+            "status": "error",
             "error_type": error_type,
-            "reason": str(e)
+            "error_message": error_msg
         }
     except Exception as e:
-        timestamp = datetime.utcnow().isoformat()
+        # Catch-all for unexpected errors
         error_type = type(e).__name__
-        log_error_to_file(smiles, error_type, timestamp, source_hash, excluded_path)
+        log_error_to_file(smiles, f"UnexpectedError: {str(e)}", source_hash)
         return {
             "smiles": smiles,
-            "status": "failed",
+            "status": "error",
             "error_type": error_type,
-            "reason": str(e)
+            "error_message": str(e)
         }
 
-def calculate_descriptors_batch(
-    df: pd.DataFrame,
-    smiles_col: str = "canonical_smiles",
-    excluded_path: Optional[Path] = None
-) -> pd.DataFrame:
+def calculate_descriptors_batch(df: pd.DataFrame, source_hash: str) -> pd.DataFrame:
     """
-    Calculate descriptors for a batch of molecules.
-    Returns a DataFrame with original columns + descriptors.
-    Excludes failed molecules from the main result but logs them.
+    Calculate descriptors for a batch of molecules in a DataFrame.
+    Adds descriptor columns to the dataframe.
     """
-    if excluded_path is None:
-        excluded_path = PROCESSED_DIR / "excluded_molecules.csv"
-
-    source_hash = calculate_file_hash(get_data_path())
-    
     results = []
-    valid_rows = []
-
     for idx, row in df.iterrows():
-        smiles = row[smiles_col]
-        if not isinstance(smiles, str) or pd.isna(smiles):
+        smiles = row.get("smiles") or row.get("canonical_smiles")
+        if not smiles:
+            log_error_to_file("N/A", "MissingSMILES", source_hash)
             continue
 
-        try:
-            mol = validate_molecule(smiles)
-            if mol is None:
-                # Invalid SMILES, log and skip
-                timestamp = datetime.utcnow().isoformat()
-                log_error_to_file(smiles, "InvalidSMILES", timestamp, source_hash, excluded_path)
-                continue
-
-            res = calculate_descriptors_for_molecule(mol, smiles, source_hash, excluded_path)
-            results.append(res)
-            
-            if res["status"] == "success":
-                valid_rows.append(idx)
-        except Exception as e:
-            # Catch-all for unexpected errors
-            timestamp = datetime.utcnow().isoformat()
-            error_type = type(e).__name__
-            log_error_to_file(smiles, error_type, timestamp, source_hash, excluded_path)
-
-    # Create result DataFrame
-    if not results:
-        return pd.DataFrame()
+        res = calculate_descriptors_for_molecule(smiles, source_hash)
+        results.append(res)
 
     result_df = pd.DataFrame(results)
-    
-    # Merge back with original data for successful rows only
-    # Filter original df to valid indices
-    valid_df = df.iloc[valid_rows].reset_index(drop=True)
-    
-    # Ensure result_df has same order (it should if we appended in order)
-    # Join descriptors to valid rows
-    final_df = pd.concat([valid_df, result_df[result_df['status'] == 'success'].drop(columns=['status', 'smiles'])], axis=1)
-    
-    return final_df
+
+    # Filter out errors from the main calculation result if we want a clean DF,
+    # but for this task we return the full result set.
+    # We will return the DF with descriptor columns filled where possible.
+    return result_df
 
 def check_gate_status() -> bool:
     """Check if the data availability gate passed."""
-    gate_file = DATA_DIR / "gate_status.json"
-    if not gate_file.exists():
+    if not GATE_STATUS_FILE.exists():
         return False
-    with open(gate_file, 'r') as f:
-        data = json.load(f)
-    return data.get("status") == "PASS"
+    try:
+        with open(GATE_STATUS_FILE, "r") as f:
+            status = json.load(f)
+        return status.get("status") == "PASS"
+    except (json.JSONDecodeError, KeyError):
+        return False
 
-def main():
-    """Main entry point for descriptor calculation."""
-    logger = get_logger("descriptors")
-    log_operation("calculate_descriptors", task="T015")
+def get_data_path() -> Path:
+    return MERGED_FILE
 
+@log_operation
+def main() -> int:
+    """
+    Main entry point for descriptor calculation.
+    1. Checks gate status.
+    2. Loads merged_drugs.csv.
+    3. Calculates descriptors.
+    4. Saves output to data/processed/descriptors.csv (or updates merged).
+    """
+    log_pipeline_start("T014_Descriptor_Calculation", {"task": "T014"})
+
+    # Ensure output directory exists
+    PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
+
+    # Check Gate
     if not check_gate_status():
-        logger.info("Gate not passed, skipping descriptor calculation.")
-        sys.exit(0)
+        logger.log("GateCheck", {"status": "FAIL", "reason": "Gate not passed or missing"})
+        print("Data Availability Gate failed. Skipping descriptor calculation.")
+        return 0
 
-    input_path = get_data_path()
-    if not input_path.exists():
-        logger.error(f"Input file not found: {input_path}")
-        sys.exit(1)
+    # Load Data
+    if not MERGED_FILE.exists():
+        logger.log("LoadData", {"status": "FAIL", "reason": "merged_drugs.csv not found"})
+        print(f"Error: {MERGED_FILE} not found.")
+        return 1
 
-    logger.info(f"Loading data from {input_path}")
-    df = pd.read_csv(input_path)
+    try:
+        df = pd.read_csv(MERGED_FILE)
+    except Exception as e:
+        logger.log("LoadData", {"status": "FAIL", "error": str(e)})
+        print(f"Error reading {MERGED_FILE}: {e}")
+        return 1
 
-    logger.info("Calculating descriptors...")
-    result_df = calculate_descriptors_batch(df)
+    if df.empty:
+        logger.log("LoadData", {"status": "WARN", "reason": "DataFrame is empty"})
+        print("Warning: Merged dataset is empty.")
+        return 0
 
-    output_path = PROCESSED_DIR / "descriptors_calculated.csv"
-    if not result_df.empty:
-        result_df.to_csv(output_path, index=False)
-        logger.info(f"Saved descriptors to {output_path}")
+    # Calculate Source Hash
+    source_hash = get_source_hash()
+    logger.log("SourceHash", {"hash": source_hash})
+
+    # Calculate Descriptors
+    print(f"Calculating descriptors for {len(df)} molecules...")
+    descriptor_df = calculate_descriptors_batch(df, source_hash)
+
+    # Merge results back or save separately
+    # The task implies we produce the calculated metrics.
+    # We will save a new file: data/processed/descriptors.csv
+    output_path = PROCESSED_DIR / "descriptors.csv"
+
+    # Ensure we have a clean output with only successful calculations for the main analysis
+    # Or save the full log including errors? The spec says "log error to excluded...".
+    # Let's save the successful ones to descriptors.csv and errors are in excluded_molecules.csv
+    successful = descriptor_df[descriptor_df["status"] == "success"]
+
+    if not successful.empty:
+        # Select columns for output
+        output_cols = ["smiles", "tpsa", "rotatable_bonds", "mw", "aromatic_rings", "wiener_index", "zagreb_index"]
+        # Ensure all cols exist
+        for col in output_cols:
+            if col not in successful.columns:
+                successful[col] = None
+
+        successful[output_cols].to_csv(output_path, index=False)
+        logger.log("SaveOutput", {"path": str(output_path), "count": len(successful)})
+        print(f"Saved {len(successful)} successful descriptor records to {output_path}")
     else:
-        logger.warning("No valid molecules found to calculate descriptors.")
+        logger.log("SaveOutput", {"status": "FAIL", "reason": "No successful calculations"})
+        print("No successful descriptor calculations to save.")
 
-    logger.info("Descriptor calculation complete.")
+    log_pipeline_complete("T014_Descriptor_Calculation")
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
