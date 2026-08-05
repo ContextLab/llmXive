@@ -1,1 +1,1 @@
-# Tests package for llmXive Polymer Degradation Pipeline
+# Tests package

@@ -1,64 +1,57 @@
 """
 Integration tests for the pytest framework setup.
-
-These tests verify that the testing infrastructure works end-to-end,
-including interaction with the temporary file system and mock objects.
+Verifies that the test framework can execute a simple integration scenario.
 """
 import os
-import tempfile
-from pathlib import Path
+import sys
 import pytest
+from pathlib import Path
 
-@pytest.mark.integration
-def test_full_workflow_with_temp_dir(temp_project_dir):
-    """
-    Simulate a full workflow where a script would write to the temp directories.
-    """
-    # Create a dummy file in raw data
-    raw_file = temp_project_dir / "data" / "raw" / "test_data.csv"
-    raw_file.write_text("id,smiles,label\n1,CCO,hydrolysis\n")
-    
-    assert raw_file.exists()
-    assert raw_file.read_text() == "id,smiles,label\n1,CCO,hydrolysis\n"
-    
-    # Process the file
-    processed_dir = temp_project_dir / "data" / "processed"
-    processed_file = processed_dir / "test_data_processed.csv"
-    processed_file.write_text("id,smiles,label,graph_id\n1,CCO,hydrolysis,graph_001\n")
-    
-    assert processed_file.exists()
+project_root = Path(__file__).parent.parent.parent
+code_dir = project_root / "code"
 
-@pytest.mark.integration
-def test_mock_rdkit_usage(mock_rdkit_mol):
-    """
-    Verify that the mock RDKit molecule behaves as expected in a test scenario.
-    """
-    assert mock_rdkit_mol.GetNumAtoms() == 5
-    assert mock_rdkit_mol.GetNumBonds() == 4
+if str(code_dir) not in sys.path:
+    sys.path.insert(0, str(code_dir))
+
+def test_integration_directory_exists():
+    """Verify integration directory exists."""
+    integration_dir = project_root / "tests" / "integration"
+    assert integration_dir.exists()
+    assert integration_dir.is_dir()
+
+def test_utils_integration():
+    """Test that utils functions work correctly in an integration context."""
+    from utils import get_project_paths
     
-    # Test method chaining
-    atom = mock_rdkit_mol.GetAtomWithIdx(0)
-    assert atom.GetSymbol.return_value == "C"
+    paths = get_project_paths()
+    assert 'code' in paths
+    assert 'data' in paths
+    assert 'tests' in paths
+    
+    # Verify paths exist
+    code_path = project_root / paths['code']
+    data_path = project_root / paths['data']
+    tests_path = project_root / paths['tests']
+    
+    assert code_path.exists()
+    assert data_path.exists()
+    assert tests_path.exists()
 
-@pytest.mark.integration
-def test_config_loading_via_env(temp_project_dir):
-    """
-    Test that configuration loading (simulated) respects the environment setup.
-    """
-    # This test ensures that the environment variables set by conftest
-    # are accessible to the code being tested.
-    raw_path = os.environ.get("DATA_RAW_DIR")
-    assert raw_path is not None
-    assert "data" in raw_path
-    assert "raw" in raw_path
-
-@pytest.mark.integration
-def test_logging_configuration(setup_test_environment):
-    """
-    Verify that logging is configured correctly for the test run.
-    """
-    import logging
-    logger = logging.getLogger("test_logger")
-    # Check that the logger has handlers (configured by conftest)
-    # Note: The root logger is configured, so child loggers inherit.
-    assert len(logging.getLogger().handlers) > 0
+def test_data_models_integration():
+    """Test that data models can be instantiated and used."""
+    from data_models import PolymerRecord
+    import numpy as np
+    
+    # Create a minimal valid record
+    record = PolymerRecord(
+        smiles="CC(=O)O",
+        temperature=25.0,
+        ph=7.0,
+        uv=0.0,
+        degradation_pathway="hydrolysis",
+        source_id="test_001"
+    )
+    
+    assert record.smiles == "CC(=O)O"
+    assert record.temperature == 25.0
+    assert record.degradation_pathway == "hydrolysis"

@@ -13,13 +13,6 @@ T003:
     \ linting settings and a `[format]` section aligning with Black\u2019s defaults,\
     \ fulfilling the requirement to configure linting/formatting in the specified\
     \ location."
-T008:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No pytest configuration files (e.g., `pytest.ini` or `conftest.py`) or the required\
-    \ `tests/unit` and `tests/integration` directories with test modules are present\
-    \ in the provided evidence. The task\u2019s core deliverable \u2013 a functional\
-    \ pytest framework and the specified directory structure \u2013 is missing."
 T012:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -34,15 +27,21 @@ T014:
     of the required functionality without the actual script, so the required artifact
     is missing. The task cannot be considered completed until a concrete implementation
     that converts SMILES to RDKit molecular graphs and handles valid records is present.
-T015:
+T017b:
   c: false
-  h: 9e641233e218333c81b884b8d38d0f9ac07b3ce8d1c7a1592f96ab1df0bbdc40
-  r: "The required output file `data/processed/graphs.parquet` does not exist, so\
-    \ the core artifact of the task is missing. Without this file (and any accompanying\
-    \ `preprocess.py` implementation), the conversion, filtering, and feature\u2011\
-    encoding steps cannot be verified. The implementer must provide a functioning\
-    \ script that creates the specified Parquet file containing the processed molecular\
-    \ graphs."
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, data files, model artifacts, logs, or test results were provided; the
+    claim contains only a textual description of the required user stories without
+    any concrete implementation or output. Consequently, the required artifacts (ingestion
+    script, generated CSV, training script, model checkpoints, Integrated Gradients
+    outputs, etc.) are missing.
+T017c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The implementer did not provide any actual artifacts (e.g., ingestion script,\
+    \ dataset CSV, GNN training code, or attribution outputs) to demonstrate that\
+    \ the data pipeline, model training, and augmentation requirements are met. Without\
+    \ concrete files or results, the task\u2019s mandatory deliverables are missing."
 T023:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -51,6 +50,19 @@ T023:
     one\u2011out) training loop, seed pinning, macro\u2011F1 reporting, or convergence\
     \ check. The implementer must supply a non\u2011empty `train.py` that fulfills\
     \ all specified behaviors."
+T024:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `model.py` file or any code defining the required GCN\u2011style GNN (\u2264\
+    3 layers, hidden dim \u2264128, ReLU activation, mean pooling, CPU\u2011only)\
+    \ was provided; thus the artifact the task demands is missing. The implementer\u2019\
+    s claim cannot be verified without the actual model implementation."
+T025a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `state/augmentation_trigger.json` file or any code that reads it was supplied;\
+    \ therefore the required artifact does not exist or is empty, and the task\u2019\
+    s requirement (reading that JSON) is not satisfied."
 T028:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

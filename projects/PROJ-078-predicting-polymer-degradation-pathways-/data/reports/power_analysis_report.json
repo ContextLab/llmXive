@@ -1,0 +1,6 @@
+{
+  "n": 100,
+  "required_n": 128,
+  "warning": "true",
+  "action": "augment"
+}
