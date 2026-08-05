@@ -1,12 +1,3 @@
-T010:
-  c: false
-  h: 4c4d3141aacc2addbe782951ab5aa0e5e399696d104d2dd21f1986d29f3fbd26
-  r: "The provided `code/download.py` stops after reading the CSV header and does\
-    \ not contain the required logic to check for fatigue rating columns, count participants,\
-    \ exit with code\u202F1, write the exact `validation_report.json`, or generate\
-    \ `data/processed/participant_exclusion_log.csv`. Moreover, the exclusion log\
-    \ file is absent from the repository. These critical artifacts and behaviors are\
-    \ missing, so the task is not satisfied."
 T011:
   c: false
   h: 0e4480e12ca3457e7c3ed8e3f6a2c312cbd732b361add669c968fdc4ceb269ba
@@ -24,14 +15,14 @@ T014:
     \ and is truncated). Consequently the script does not meet the specification of\
     \ calculating LZC per channel and writing the results to the CSV. The missing\
     \ CSV and absent LZC logic must be added."
-T015:
+T016:
   c: false
-  h: c26ce5a36ebb31b95d02ee5dadfb30245e6dd0b558997740f56010bd58132352
-  r: "The required output file `data/processed/lzc_metrics.csv` is missing, and the\
-    \ input file `data/processed/cleaned_eeg.fif` that the script must process also\
-    \ does not exist. Consequently the script cannot be executed to produce the mandated\
-    \ CSV, and no unit\u2011test artifacts are present. The implementation therefore\
-    \ does not satisfy the task requirements."
+  h: ca8010c83e5283cb69677de748e38b8d3808ab9ca5f4ac249eaad789f57dbad8
+  r: The required output file `data/processed/pe_metrics.csv` does not exist, and
+    the input file `data/processed/cleaned_eeg.fif` is also missing. Moreover, the
+    provided `code/features.py` is truncated before completing the permutation entropy
+    calculation and never writes the CSV, so the implementation does not meet the
+    specification.
 T020:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -54,11 +45,12 @@ T024:
     that any documentation covering pipeline parameters, data sources, or statistical
     interpretation guidelines exists. The required artifact is missing, so the task
     is not satisfied.
-T026a:
+T045:
   c: false
-  h: 8a7930f89d0e0b5374ce983e9a45edffb189ce6b9034033b6bf399a2bcfa26ab
-  r: "The provided unit test only checks the boolean return value of `check_sample_size`\
-    \ and does not verify that the script exits with code\u202F1 or writes `validation_report.json`\
-    \ containing the required message. Moreover, the actual implementation file (`check_sample_size.py`)\
-    \ is not shown, and the required data file `data/processed/lzc_metrics.csv` is\
-    \ missing. The task\u2019s verification criteria are therefore not satisfied."
+  h: efb814733c8f713e801d802463cf022522618a5599ffe7eadda6e356db09c41c
+  r: The repository contains a `code/profile_memory.py` file, but it does not import
+    and run the pipeline functions directly nor use `memory_profiler` as required;
+    it instead invokes other scripts via `subprocess` and relies on `/usr/bin/time`.
+    Moreover, the expected output file `data/analysis/memory_report.json` is absent,
+    indicating the script does not produce the required report. The implementation
+    therefore fails to meet the task specifications.

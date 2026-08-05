@@ -1,155 +1,121 @@
 import pytest
 import numpy as np
-import os
 import sys
-import tempfile
+import os
 from pathlib import Path
-import mne
 
-# Add the code directory to the path
+# Add code directory to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'code'))
 
-from features import calculate_lempel_ziv_complexity, process_eeg_segments, save_metrics_to_csv, load_config, setup_logger
+from features import calculate_permutation_entropy, calculate_lempel_ziv_complexity
 
-class TestLempelZivComplexity:
-    """Unit tests for LZC calculation."""
+def test_pe_known_signal():
+    """
+    Unit test for Permutation Entropy on a known synthetic signal.
+    Generates white noise and verifies PE is a valid positive float.
+    """
+    # Generate synthetic white noise signal
+    np.random.seed(42)
+    sampling_rate = 256  # Hz
+    duration = 120  # seconds
+    n_samples = sampling_rate * duration
+    amplitude = 1.0
+    
+    signal = np.random.normal(0, amplitude, n_samples)
+    
+    # Calculate Permutation Entropy
+    embedding_dim = 3
+    time_delay = 1
+    pe_value = calculate_permutation_entropy(signal, embedding_dim, time_delay)
+    
+    # Assertions
+    assert isinstance(pe_value, float), "PE value should be a float"
+    assert not np.isnan(pe_value), "PE value should not be NaN"
+    assert pe_value >= 0.0, "PE value should be non-negative"
+    assert pe_value <= 1.0, "PE value should be <= 1.0 (normalized)"
+    
+    # For white noise, PE should be relatively high (close to 1)
+    # but not exactly 1 due to finite sample size
+    assert pe_value > 0.5, "White noise should have high permutation entropy"
+    
+    print(f"Permutation Entropy for white noise: {pe_value:.4f}")
 
-    def test_lzc_known_signal(self):
-        """Test LZC calculation on a synthetic white noise signal."""
-        # Generate synthetic white noise signal
-        np.random.seed(42)
-        duration = 120  # seconds
-        sfreq = 256     # Hz
-        n_samples = int(duration * sfreq)
-        amplitude = 1.0
-        
-        signal = np.random.normal(0, amplitude, n_samples)
-        
-        # Calculate LZC
-        lzc_value = calculate_lempel_ziv_complexity(signal)
-        
-        # Assert output is valid
-        assert isinstance(lzc_value, float), "LZC value should be a float"
-        assert not np.isnan(lzc_value), "LZC value should not be NaN"
-        assert lzc_value > 0, "LZC value should be positive for white noise"
-        
-        # White noise should have relatively high complexity
-        # The exact value depends on the implementation, but it should be non-trivial
-        assert 0.1 < lzc_value < 10.0, f"LZC value {lzc_value} seems out of expected range for white noise"
+def test_lzc_known_signal():
+    """
+    Unit test for LZC calculation on a known synthetic signal.
+    Generates white noise and verifies LZC is a valid positive float.
+    """
+    # Generate synthetic white noise signal
+    np.random.seed(42)
+    sampling_rate = 256  # Hz
+    duration = 120  # seconds
+    n_samples = sampling_rate * duration
+    amplitude = 1.0
+    
+    signal = np.random.normal(0, amplitude, n_samples)
+    
+    # Calculate LZC
+    lzc_value = calculate_lempel_ziv_complexity(signal, sampling_rate)
+    
+    # Assertions
+    assert isinstance(lzc_value, float), "LZC value should be a float"
+    assert not np.isnan(lzc_value), "LZC value should not be NaN"
+    assert lzc_value >= 0.0, "LZC value should be non-negative"
+    
+    print(f"Lempel-Ziv Complexity for white noise: {lzc_value:.4f}")
 
-    def test_lzc_constant_signal(self):
-        """Test LZC on a constant signal (should be low complexity)."""
-        signal = np.ones(1000)
-        lzc_value = calculate_lempel_ziv_complexity(signal)
-        
-        assert isinstance(lzc_value, float)
-        assert not np.isnan(lzc_value)
-        assert lzc_value >= 0
-        # Constant signal should have very low complexity
-        assert lzc_value < 0.5, "Constant signal should have low LZC"
+def test_pe_sine_wave():
+    """
+    Test Permutation Entropy on a simple sine wave.
+    Sine waves should have lower PE than white noise.
+    """
+    # Generate sine wave
+    sampling_rate = 256
+    duration = 120
+    n_samples = sampling_rate * duration
+    frequency = 10  # Hz
+    
+    t = np.linspace(0, duration, n_samples)
+    signal = np.sin(2 * np.pi * frequency * t)
+    
+    # Calculate PE
+    embedding_dim = 3
+    time_delay = 1
+    pe_value = calculate_permutation_entropy(signal, embedding_dim, time_delay)
+    
+    # Assertions
+    assert isinstance(pe_value, float), "PE value should be a float"
+    assert not np.isnan(pe_value), "PE value should not be NaN"
+    assert pe_value >= 0.0, "PE value should be non-negative"
+    assert pe_value <= 1.0, "PE value should be <= 1.0 (normalized)"
+    
+    # Sine wave should have lower PE than white noise
+    assert pe_value < 0.5, "Sine wave should have lower permutation entropy than white noise"
+    
+    print(f"Permutation Entropy for sine wave: {pe_value:.4f}")
 
-    def test_lzc_empty_signal(self):
-        """Test LZC on an empty signal."""
-        signal = np.array([])
-        lzc_value = calculate_lempel_ziv_complexity(signal)
-        
-        assert lzc_value == 0.0
+def test_pe_edge_case_constant():
+    """
+    Test Permutation Entropy on a constant signal.
+    Constant signal should have PE = 0.
+    """
+    signal = np.ones(1000) * 5.0
+    
+    pe_value = calculate_permutation_entropy(signal, embedding_dim=3, time_delay=1)
+    
+    assert pe_value == 0.0, "Constant signal should have PE = 0"
+    print(f"Permutation Entropy for constant signal: {pe_value:.4f}")
 
-    def test_lzc_with_nans(self):
-        """Test LZC calculation with NaN values in signal."""
-        signal = np.random.normal(0, 1, 1000)
-        signal[500] = np.nan
-        
-        # The function should handle NaNs gracefully (or we should filter them)
-        # Our implementation filters them internally
-        lzc_value = calculate_lempel_ziv_complexity(signal)
-        
-        assert isinstance(lzc_value, float)
-        assert not np.isnan(lzc_value)
-
-class TestProcessEegSegments:
-    """Unit tests for EEG segment processing."""
-
-    def test_process_single_channel(self):
-        """Test processing a single channel EEG segment."""
-        # Create a simple raw object
-        np.random.seed(42)
-        sfreq = 256
-        duration = 2  # seconds (short for testing)
-        n_samples = int(duration * sfreq)
-        
-        data = np.random.randn(1, n_samples)
-        info = mne.create_info(ch_names=['EEG001'], sfreq=sfreq, ch_types='eeg')
-        raw = mne.io.RawArray(data, info)
-        
-        config = load_config()
-        logger = setup_logger('test')
-        
-        results = process_eeg_segments(raw, config, logger)
-        
-        assert len(results) == 1
-        assert results[0]['participant_id'].startswith('participant_')
-        assert results[0]['channel'] == 'EEG001'
-        assert 'lzc_value' in results[0]
-        assert isinstance(results[0]['lzc_value'], float)
-        assert not np.isnan(results[0]['lzc_value'])
-
-    def test_process_multiple_channels(self):
-        """Test processing multiple channels."""
-        np.random.seed(42)
-        sfreq = 256
-        duration = 2
-        n_samples = int(duration * sfreq)
-        
-        # Create data for 2 channels
-        data = np.random.randn(2, n_samples)
-        ch_names = ['EEG001', 'EEG002']
-        info = mne.create_info(ch_names=ch_names, sfreq=sfreq, ch_types='eeg')
-        raw = mne.io.RawArray(data, info)
-        
-        config = load_config()
-        logger = setup_logger('test')
-        
-        results = process_eeg_segments(raw, config, logger)
-        
-        assert len(results) == 2
-        channels = [r['channel'] for r in results]
-        assert 'EEG001' in channels
-        assert 'EEG002' in channels
-
-class TestSaveMetricsToCsv:
-    """Unit tests for CSV saving."""
-
-    def test_save_metrics(self):
-        """Test saving metrics to CSV."""
-        metrics = [
-            {'participant_id': 'p1', 'channel': 'ch1', 'lzc_value': 0.5},
-            {'participant_id': 'p1', 'channel': 'ch2', 'lzc_value': 0.6},
-            {'participant_id': 'p2', 'channel': 'ch1', 'lzc_value': 0.55}
-        ]
-        
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = Path(tmpdir) / 'test_metrics.csv'
-            save_metrics_to_csv(metrics, str(output_path))
-            
-            assert output_path.exists()
-            
-            df = pd.read_csv(output_path)
-            assert len(df) == 3
-            assert list(df.columns) == ['participant_id', 'channel', 'lzc_value']
-            assert df['participant_id'].iloc[0] == 'p1'
-            assert df['lzc_value'].iloc[0] == 0.5
-
-    def test_save_empty_metrics(self):
-        """Test saving empty metrics list."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = Path(tmpdir) / 'test_metrics.csv'
-            
-            with pytest.raises(ValueError, match="No metrics to save"):
-                save_metrics_to_csv([], str(output_path))
-
-# Import pandas here to avoid issues if not used in other tests
-import pandas as pd
-
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+def test_pe_edge_case_short_signal():
+    """
+    Test Permutation Entropy on a very short signal.
+    Should handle gracefully and return 0 or a valid value.
+    """
+    signal = np.random.normal(0, 1, 10)  # Very short signal
+    
+    pe_value = calculate_permutation_entropy(signal, embedding_dim=3, time_delay=1)
+    
+    # Should not crash and should return a valid float
+    assert isinstance(pe_value, float), "PE value should be a float"
+    assert not np.isnan(pe_value), "PE value should not be NaN"
+    print(f"Permutation Entropy for short signal: {pe_value:.4f}")

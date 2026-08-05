@@ -1,0 +1,14 @@
+{
+  "error": "ERROR: Paired pre/post fatigue data required by FR-004 not found. No cross-sectional fallback authorized.",
+  "available_columns": [
+    "participant_id",
+    "baseline_fatigue"
+  ],
+  "expected_columns": [
+    "pre_fatigue",
+    "post_fatigue",
+    "fatigue_pre",
+    "fatigue_post"
+  ],
+  "status": "failed"
+}

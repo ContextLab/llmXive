@@ -1,6 +1,6 @@
 """
-Analysis module for correlating complexity metrics with fatigue scores.
-Implements Pearson/Spearman correlation per FR-004.
+Analysis module for correlating EEG complexity metrics with fatigue scores.
+Implements Pearson/Spearman correlation as per FR-004.
 """
 import os
 import sys
@@ -8,269 +8,313 @@ import json
 import yaml
 import pandas as pd
 import numpy as np
+from scipy import stats
 from pathlib import Path
 import logging
-from scipy import stats
+
+# Import logging utilities
+from utils.logging import get_logger
 
 def load_config(config_path="code/config.yaml"):
+    """Load configuration from YAML file."""
     with open(config_path, 'r') as f:
         return yaml.safe_load(f)
 
-def setup_logger(name):
+def setup_logger(name, log_file='logs/analysis.log', level=logging.INFO):
+    """Setup logging infrastructure."""
+    Path(log_file).parent.mkdir(parents=True, exist_ok=True)
     logger = logging.getLogger(name)
-    if not logger.handlers:
-        handler = logging.StreamHandler()
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        handler.setFormatter(formatter)
-        logger.addHandler(handler)
-        logger.setLevel(logging.INFO)
+    logger.setLevel(level)
+    
+    # File handler
+    fh = logging.FileHandler(log_file)
+    fh.setLevel(level)
+    
+    # Console handler
+    ch = logging.StreamHandler()
+    ch.setLevel(level)
+    
+    # Formatter
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    fh.setFormatter(formatter)
+    ch.setFormatter(formatter)
+    
+    logger.addHandler(fh)
+    logger.addHandler(ch)
+    
     return logger
 
-def validate_metadata(metadata_path):
-    """Validate metadata has required fatigue columns."""
-    if not os.path.exists(metadata_path):
-        return False, "Metadata file not found."
-    
-    df = pd.read_csv(metadata_path)
-    # Check for paired or baseline fatigue columns
-    paired_cols = ['pre_fatigue', 'fatigue_pre', 'baseline_fatigue', 
-                   'post_fatigue', 'fatigue_post', 'end_fatigue']
-    baseline_cols = ['baseline_fatigue', 'fatigue_baseline']
-    
-    has_paired = any(col in df.columns for col in paired_cols)
-    has_baseline = any(col in df.columns for col in baseline_cols)
-    
-    if not has_paired and not has_baseline:
-        return False, "No fatigue rating columns found in metadata."
-    
-    return True, "Valid."
+def write_validation_report(report_path, status, message):
+    """Write validation report to JSON file."""
+    Path(report_path).parent.mkdir(parents=True, exist_ok=True)
+    report = {
+        "status": status,
+        "message": message,
+        "timestamp": pd.Timestamp.now().isoformat()
+    }
+    with open(report_path, 'w') as f:
+        json.dump(report, f, indent=2)
 
-def run_correlation_analysis(lzc_path, metadata_path, pe_path=None):
-    """Run Pearson/Spearman correlation between complexity and fatigue.
-    
-    Handles paired (delta) analysis if pre/post ratings exist,
-    otherwise falls back to cross-sectional (baseline) analysis.
-    Excludes participants with missing fatigue ratings.
+def validate_metadata(metadata_path):
     """
-    if not os.path.exists(lzc_path):
-        raise FileNotFoundError(f"Features file not found: {lzc_path}")
-    
+    Validate that metadata contains required paired fatigue ratings.
+    Exits with code 1 if paired data is missing (per T019 requirements).
+    """
     logger = setup_logger("analysis")
     
-    # Load complexity metrics
+    if not os.path.exists(metadata_path):
+        logger.error(f"Metadata file not found: {metadata_path}")
+        write_validation_report(
+            "data/analysis/validation_report.json",
+            "ERROR",
+            f"Metadata file not found: {metadata_path}"
+        )
+        sys.exit(1)
+    
+    try:
+        metadata = pd.read_csv(metadata_path)
+    except Exception as e:
+        logger.error(f"Failed to read metadata: {e}")
+        write_validation_report(
+            "data/analysis/validation_report.json",
+            "ERROR",
+            f"Failed to read metadata: {e}"
+        )
+        sys.exit(1)
+    
+    # Check for paired fatigue columns
+    paired_columns = ['pre_fatigue', 'post_fatigue', 'fatigue_pre', 'fatigue_post']
+    available_pairs = [col for col in paired_columns if col in metadata.columns]
+    
+    if len(available_pairs) < 2:
+        logger.error("ERROR: Paired pre/post fatigue data required by FR-004 not found.")
+        logger.error(f"Available columns: {list(metadata.columns)}")
+        write_validation_report(
+            "data/analysis/validation_report.json",
+            "ERROR",
+            "ERROR: Paired pre/post fatigue data required by FR-004 not found. No cross-sectional fallback authorized."
+        )
+        sys.exit(1)
+    
+    # Determine which pair to use (prefer standard naming)
+    if 'pre_fatigue' in available_pairs and 'post_fatigue' in available_pairs:
+        pre_col, post_col = 'pre_fatigue', 'post_fatigue'
+    elif 'fatigue_pre' in available_pairs and 'fatigue_post' in available_pairs:
+        pre_col, post_col = 'fatigue_pre', 'fatigue_post'
+    else:
+        # Fallback to any available pair
+        pre_col = available_pairs[0]
+        post_col = available_pairs[1]
+    
+    logger.info(f"Using paired columns: {pre_col}, {post_col}")
+    return pre_col, post_col
+
+def run_correlation_analysis(lzc_path, pe_path, metadata_path, pre_col, post_col):
+    """
+    Run Pearson/Spearman correlation analysis between complexity metrics and fatigue delta.
+    
+    Args:
+        lzc_path: Path to LZC metrics CSV
+        pe_path: Path to Permutation Entropy metrics CSV
+        metadata_path: Path to metadata CSV
+        pre_col: Name of pre-fatigue column
+        post_col: Name of post-fatigue column
+    
+    Returns:
+        Dictionary containing correlation results
+    """
+    logger = setup_logger("analysis")
+    
+    # Load data
+    logger.info(f"Loading LZC metrics from {lzc_path}")
     lzc_df = pd.read_csv(lzc_path)
     
-    # Load metadata
-    if not os.path.exists(metadata_path):
-        raise FileNotFoundError(f"Metadata file not found: {metadata_path}")
+    logger.info(f"Loading PE metrics from {pe_path}")
+    pe_df = pd.read_csv(pe_path)
+    
+    logger.info(f"Loading metadata from {metadata_path}")
     metadata = pd.read_csv(metadata_path)
     
-    # Identify fatigue columns
-    paired_cols = ['pre_fatigue', 'fatigue_pre', 'baseline_fatigue', 
-                   'post_fatigue', 'fatigue_post', 'end_fatigue']
-    baseline_cols = ['baseline_fatigue', 'fatigue_baseline']
+    # Calculate fatigue delta
+    metadata['fatigue_delta'] = metadata[post_col] - metadata[pre_col]
     
-    # Determine analysis mode
-    has_paired = any(col in metadata.columns for col in paired_cols)
-    has_baseline = any(col in metadata.columns for col in baseline_cols)
+    # Merge with LZC metrics (aggregating by participant if multiple channels)
+    # We'll use the mean across channels for the correlation
+    lzc_agg = lzc_df.groupby('participant_id')['lzc_value'].mean().reset_index()
+    lzc_agg.rename(columns={'lzc_value': 'lzc_mean'}, inplace=True)
     
-    if not has_paired and not has_baseline:
-        raise ValueError("No valid fatigue columns found for analysis.")
+    # Merge with PE metrics
+    pe_agg = pe_df.groupby('participant_id')['pe_value'].mean().reset_index()
+    pe_agg.rename(columns={'pe_value': 'pe_mean'}, inplace=True)
     
-    # Prepare fatigue data
-    if has_paired:
-        # Find pre and post columns
-        pre_col = next((c for c in paired_cols if c in metadata.columns and 'pre' in c.lower()), None)
-        post_col = next((c for c in paired_cols if c in metadata.columns and 'post' in c.lower()), None)
-        
-        if not pre_col or not post_col:
-            # Fallback to any paired-looking columns
-            pre_candidates = [c for c in metadata.columns if 'pre' in c.lower()]
-            post_candidates = [c for c in metadata.columns if 'post' in c.lower()]
-            if pre_candidates and post_candidates:
-                pre_col = pre_candidates[0]
-                post_col = post_candidates[0]
-            else:
-                raise ValueError("Could not identify paired fatigue columns.")
-        
-        # Merge with metadata to get fatigue scores
-        merged = lzc_df.merge(metadata[['participant_id', pre_col, post_col]], on='participant_id', how='inner')
-        
-        # Exclude participants with missing ratings
-        initial_count = len(merged)
-        merged = merged.dropna(subset=[pre_col, post_col])
-        excluded_count = initial_count - len(merged)
-        
-        if excluded_count > 0:
-            logger.warning(f"Excluded {excluded_count} participants with missing fatigue ratings.")
-            # Log exclusions
-            excluded_participants = lzc_df[~lzc_df['participant_id'].isin(merged['participant_id'])]['participant_id'].tolist()
-            exclusion_log_path = "data/processed/analysis_exclusions.csv"
-            Path(exclusion_log_path).parent.mkdir(parents=True, exist_ok=True)
-            exclusion_df = pd.DataFrame({
-                'participant_id': excluded_participants,
-                'exclusion_reason': 'missing_paired_fatigue_ratings',
-                'timestamp': pd.Timestamp.now().isoformat()
-            })
-            exclusion_df.to_csv(exclusion_log_path, index=False)
-        
-        if len(merged) == 0:
-            raise ValueError("No participants with complete paired fatigue data after exclusion.")
-        
-        # Calculate delta fatigue
-        merged['fatigue_delta'] = merged[post_col] - merged[pre_col]
-        
-        # Calculate complexity metrics per participant (average across channels)
-        complexity_avg = merged.groupby('participant_id')['lzc_value'].mean().reset_index()
-        complexity_avg.columns = ['participant_id', 'avg_lzc']
-        
-        # Merge back
-        analysis_df = complexity_avg.merge(merged[['participant_id', 'fatigue_delta']].drop_duplicates(), on='participant_id')
-        
-        # Run correlation
-        if len(analysis_df) < 3:
-            raise ValueError("Insufficient data for correlation analysis.")
-        
-        r, p = stats.pearsonr(analysis_df['avg_lzc'], analysis_df['fatigue_delta'])
-        method = "Pearson (Paired Delta)"
-        
-    else:
-        # Cross-sectional analysis
-        baseline_col = next((c for c in baseline_cols if c in metadata.columns), None)
-        if not baseline_col:
-            raise ValueError("Could not identify baseline fatigue column.")
-        
-        merged = lzc_df.merge(metadata[['participant_id', baseline_col]], on='participant_id', how='inner')
-        
-        # Exclude participants with missing ratings
-        initial_count = len(merged)
-        merged = merged.dropna(subset=[baseline_col])
-        excluded_count = initial_count - len(merged)
-        
-        if excluded_count > 0:
-            logger.warning(f"Excluded {excluded_count} participants with missing fatigue ratings.")
-            exclusion_log_path = "data/processed/analysis_exclusions.csv"
-            Path(exclusion_log_path).parent.mkdir(parents=True, exist_ok=True)
-            excluded_participants = lzc_df[~lzc_df['participant_id'].isin(merged['participant_id'])]['participant_id'].tolist()
-            exclusion_df = pd.DataFrame({
-                'participant_id': excluded_participants,
-                'exclusion_reason': 'missing_baseline_fatigue_rating',
-                'timestamp': pd.Timestamp.now().isoformat()
-            })
-            exclusion_df.to_csv(exclusion_log_path, index=False)
-        
-        if len(merged) == 0:
-            raise ValueError("No participants with baseline fatigue data after exclusion.")
-        
-        # Calculate complexity metrics per participant (average across channels)
-        complexity_avg = merged.groupby('participant_id')['lzc_value'].mean().reset_index()
-        complexity_avg.columns = ['participant_id', 'avg_lzc']
-        
-        # Merge back
-        analysis_df = complexity_avg.merge(merged[['participant_id', baseline_col]].drop_duplicates(), on='participant_id')
-        analysis_df.columns = ['participant_id', 'avg_lzc', 'baseline_fatigue']
-        
-        # Run correlation
-        if len(analysis_df) < 3:
-            raise ValueError("Insufficient data for correlation analysis.")
-        
-        r, p = stats.pearsonr(analysis_df['avg_lzc'], analysis_df['baseline_fatigue'])
-        method = "Pearson (Cross-Sectional)"
+    # Merge all data
+    merged = metadata.merge(lzc_agg, on='participant_id', how='inner')
+    merged = merged.merge(pe_agg, on='participant_id', how='inner')
     
-    # Prepare results
+    # Exclude participants with missing fatigue ratings
+    initial_count = len(merged)
+    merged = merged.dropna(subset=['fatigue_delta', 'lzc_mean', 'pe_mean'])
+    excluded_count = initial_count - len(merged)
+    
+    if excluded_count > 0:
+        logger.warning(f"Excluded {excluded_count} participants with missing fatigue ratings")
+    
+    if len(merged) < 2:
+        logger.error("Insufficient data after excluding missing values")
+        write_validation_report(
+            "data/analysis/validation_report.json",
+            "ERROR",
+            f"Insufficient data after excluding missing values: {len(merged)} participants"
+        )
+        sys.exit(1)
+    
+    logger.info(f"Running correlation analysis on {len(merged)} participants")
+    
+    # Calculate correlations
     results = {
-        'method': method,
-        'correlation_coefficient': float(r),
-        'p_value': float(p),
-        'n_participants': len(analysis_df),
-        'excluded_count': excluded_count if 'excluded_count' in locals() else 0,
-        'interpretation': 'associational'
+        'lzc': {},
+        'pe': {},
+        'n_participants': len(merged),
+        'method': 'paired'
     }
+    
+    # LZC correlation
+    lzc_pearson_r, lzc_pearson_p = stats.pearsonr(merged['fatigue_delta'], merged['lzc_mean'])
+    lzc_spearman_r, lzc_spearman_p = stats.spearmanr(merged['fatigue_delta'], merged['lzc_mean'])
+    
+    results['lzc']['pearson'] = {
+        'r': float(lzc_pearson_r),
+        'p': float(lzc_pearson_p)
+    }
+    results['lzc']['spearman'] = {
+        'r': float(lzc_spearman_r),
+        'p': float(lzc_spearman_p)
+    }
+    
+    # PE correlation
+    pe_pearson_r, pe_pearson_p = stats.pearsonr(merged['fatigue_delta'], merged['pe_mean'])
+    pe_spearman_r, pe_spearman_p = stats.spearmanr(merged['fatigue_delta'], merged['pe_mean'])
+    
+    results['pe']['pearson'] = {
+        'r': float(pe_pearson_r),
+        'p': float(pe_pearson_p)
+    }
+    results['pe']['spearman'] = {
+        'r': float(pe_spearman_r),
+        'p': float(pe_spearman_p)
+    }
+    
+    logger.info(f"LZC Pearson: r={lzc_pearson_r:.4f}, p={lzc_pearson_p:.4f}")
+    logger.info(f"LZC Spearman: r={lzc_spearman_r:.4f}, p={lzc_spearman_p:.4f}")
+    logger.info(f"PE Pearson: r={pe_pearson_r:.4f}, p={pe_pearson_p:.4f}")
+    logger.info(f"PE Spearman: r={pe_spearman_r:.4f}, p={pe_spearman_p:.4f}")
     
     return results
 
-def run_benjamini_hochberg(p_values, alpha=0.05):
-    """Apply BH correction for multiple comparisons."""
+def run_benjamini_hochberg(p_values):
+    """
+    Apply Benjamini-Hochberg correction for multiple comparisons.
+    
+    Args:
+        p_values: List of p-values to correct
+    
+    Returns:
+        List of adjusted p-values
+    """
+    p_values = np.array(p_values)
     n = len(p_values)
     sorted_indices = np.argsort(p_values)
-    sorted_p = np.array(p_values)[sorted_indices]
+    sorted_p = p_values[sorted_indices]
     
-    adjusted_p = np.zeros(n)
-    for i, p in enumerate(sorted_p):
-        adjusted_p[i] = p * n / (i + 1)
+    # BH correction
+    ranks = np.arange(1, n + 1)
+    adjusted = sorted_p * n / ranks
+    adjusted = np.minimum.accumulate(adjusted[::-1])[::-1]  # Ensure monotonicity
+    adjusted = np.clip(adjusted, 0, 1)
     
-    adjusted_p = np.minimum.accumulate(adjusted_p[::-1])[::-1]
-    adjusted_p = np.minimum(adjusted_p, 1.0)
+    # Restore original order
+    final_adjusted = np.empty(n)
+    final_adjusted[sorted_indices] = adjusted
     
-    return {
-        'original_p': p_values,
-        'adjusted_p': adjusted_p.tolist(),
-        'significant': (adjusted_p <= alpha).tolist()
-    }
+    return final_adjusted.tolist()
 
-def calculate_vif(data):
-    """Calculate Variance Inflation Factor."""
+def calculate_vif(features_df):
+    """
+    Calculate Variance Inflation Factor for multicollinearity detection.
+    
+    Args:
+        features_df: DataFrame with features (excluding target)
+    
+    Returns:
+        Dictionary of VIF values for each feature
+    """
     from statsmodels.stats.outliers_influence import variance_inflation_factor
-    from statsmodels.tools.tools import add_constant
     
-    if len(data.columns) < 2:
-        return {}
+    # Add constant for intercept
+    X = features_df.copy()
+    X['intercept'] = 1.0
     
-    X = add_constant(data)
     vif_data = {}
-    for i, col in enumerate(X.columns):
-        if col != 'const':
-            vif_data[col] = variance_inflation_factor(X.values, i)
+    for col in X.columns:
+        if col == 'intercept':
+            continue
+        try:
+            vif = variance_inflation_factor(X.values, list(X.columns).index(col))
+            vif_data[col] = float(vif)
+        except Exception:
+            vif_data[col] = float('inf')
     
     return vif_data
 
 def main():
+    """Main entry point for analysis pipeline."""
     logger = setup_logger("analysis")
     logger.info("Starting analysis pipeline.")
-
-    lzc_path = "data/processed/lzc_metrics.csv"
-    metadata_path = "data/raw/metadata.csv"
-
-    if not os.path.exists(lzc_path):
-        logger.error(f"Features file not found: {lzc_path}")
-        sys.exit(1)
-
+    
+    # Load config
     try:
-        # Validate metadata
-        valid, msg = validate_metadata(metadata_path)
-        if not valid:
-            logger.error(f"Metadata validation failed: {msg}")
-            # Write validation report
-            report = {
-                'status': 'fail',
-                'message': msg,
-                'timestamp': pd.Timestamp.now().isoformat()
-            }
-            with open('validation_report.json', 'w') as f:
-                json.dump(report, f)
-            sys.exit(1)
-
-        # Run analysis
-        result = run_correlation_analysis(lzc_path, metadata_path)
-        logger.info(f"Analysis complete: {result}")
-        
-        # Save results
-        output_path = "data/analysis/correlation_results.json"
-        Path(output_path).parent.mkdir(parents=True, exist_ok=True)
-        with open(output_path, 'w') as f:
-            json.dump(result, f, indent=2)
-            
+        config = load_config()
     except Exception as e:
-        logger.error(f"Analysis failed: {e}")
-        # Write error to validation report
-        report = {
-            'status': 'error',
-            'message': str(e),
-            'timestamp': pd.Timestamp.now().isoformat()
-        }
-        with open('validation_report.json', 'w') as f:
-            json.dump(report, f)
+        logger.error(f"Failed to load config: {e}")
         sys.exit(1)
+    
+    # Define paths
+    metadata_path = config.get('metadata_path', 'data/raw/metadata.csv')
+    lzc_path = config.get('lzc_path', 'data/processed/lzc_metrics.csv')
+    pe_path = config.get('pe_path', 'data/processed/pe_metrics.csv')
+    
+    # Validate metadata
+    pre_col, post_col = validate_metadata(metadata_path)
+    
+    # Run correlation analysis
+    results = run_correlation_analysis(lzc_path, pe_path, metadata_path, pre_col, post_col)
+    
+    # Apply BH correction
+    all_p_values = [
+        results['lzc']['pearson']['p'],
+        results['lzc']['spearman']['p'],
+        results['pe']['pearson']['p'],
+        results['pe']['spearman']['p']
+    ]
+    adjusted_p = run_benjamini_hochberg(all_p_values)
+    
+    results['adjusted_p'] = {
+        'lzc_pearson': adjusted_p[0],
+        'lzc_spearman': adjusted_p[1],
+        'pe_pearson': adjusted_p[2],
+        'pe_spearman': adjusted_p[3]
+    }
+    
+    # Save results
+    results_path = "data/analysis/correlation_results.json"
+    Path(results_path).parent.mkdir(parents=True, exist_ok=True)
+    with open(results_path, 'w') as f:
+        json.dump(results, f, indent=2)
+    
+    logger.info(f"Results saved to {results_path}")
+    logger.info("Analysis pipeline completed successfully.")
+    
+    return results
 
 if __name__ == "__main__":
     main()
