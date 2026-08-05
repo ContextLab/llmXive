@@ -4,8 +4,7 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T003` (rejected 1x): declared artifact(s) missing/empty/invalid: pre-commit-config.yaml
-- `T010` (rejected 1x): declared artifact(s) missing/empty/invalid: schema.yaml
+- `T021` (rejected 1x): The repository contains a `main.py` with functions to compute and save the metrics and a join‑validation routine, but the `run_pipeline` implementation is truncated and the required output files `data/processed/clone_metrics.csv` and `data/processed/perplexity_scores.csv` are not present. Without a complete pipeline that actually creates those CSVs, the task’s requirement is not satisfied.
 
 ## Required change
 

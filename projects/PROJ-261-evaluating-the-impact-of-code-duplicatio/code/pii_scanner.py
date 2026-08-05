@@ -1,251 +1,227 @@
-"""
-PII Scanner Module
+from __future__ import annotations
 
-Scans code files for personally identifiable information patterns.
 """
+PII Scanner
+
+Scans every file under the project's ``data`` directory for patterns that may
+contain personally identifiable information (PII).  The scanner is driven by
+``run_pii_scan`` which is used as the entry‑point for both the command line
+interface and the integration test ``tests/integration/test_pii_validation.py``.
+
+The implementation follows the specification for **Constitution Principle III**,
+using a set of regular‑expression patterns to locate common PII types such as
+email addresses, IP addresses, phone numbers, SSNs, credit‑card numbers, AWS
+access keys and GitHub tokens.
+
+The script writes its findings to ``data/pii_findings.csv`` (creating the
+file and its parent directories if necessary) and returns a list of dictionaries
+describing each finding.
+
+The module is deliberately defensive:
+
+* If ``config.get_data_root`` cannot be imported (e.g. during isolated test
+  execution) it falls back to ``Path("data")``.
+* Missing directories are created automatically.
+* Any unexpected exception while scanning a file is logged but does not abort
+  the whole run – this matches the project's “robust logging” policy.
+"""
+
 import csv
 import logging
 import re
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import List, Optional
+from typing import List, Dict, Any
 
-from config import get_pii_scan_enabled
+# --------------------------------------------------------------------------- #
+# Configuration helpers – import from ``code.config`` if available, otherwise
+# fall back to a sensible default.  This keeps the module usable in isolation
+# (e.g. when the test suite imports it without the full project configuration
+# having been loaded first).
+# --------------------------------------------------------------------------- #
+try:
+    from config import get_data_root  # type: ignore
+except Exception:  # pragma: no cover – defensive fallback
+    def get_data_root() -> Path:  # pylint: disable=function-redefined
+        """Fallback ``get_data_root`` returning the conventional data directory."""
+        return Path("data")
 
+# --------------------------------------------------------------------------- #
+# Logging configuration
+# --------------------------------------------------------------------------- #
 logger = logging.getLogger(__name__)
 
-# PII patterns per Constitution Principle III
-PII_PATTERNS = {
-    'email': r'[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}',
-    'phone': r'\+?1?[-.\s]?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}',
-    'ssn': r'\d{3}[-.]?\d{2}[-.]?\d{4}',
-    'ip_address': r'\b(?:\d{1,3}\.){3}\d{1,3}\b',
-    'credit_card': r'\b(?:\d{4}[-\s]?){3}\d{4}\b',
-    'api_key': r'[A-Za-z0-9_-]{32,}',
-    'aws_key': r'AKIA[0-9A-Z]{16}'
+
+# --------------------------------------------------------------------------- #
+# PII regular‑expression patterns (Constitution Principle III)
+# --------------------------------------------------------------------------- #
+PII_PATTERNS: Dict[str, re.Pattern] = {
+    "email": re.compile(r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}"),
+    "ipv4": re.compile(
+        r"\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}"
+        r"(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b"
+    ),
+    "ipv6": re.compile(
+        r"\b(?:[0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}\b"
+        r"|(?:[0-9a-fA-F]{1,4}:){1,7}:"
+        r"|:(?:[0-9a-fA-F]{1,4}:){1,7}"
+        r"|(?:(?:[0-9a-fA-F]{1,4}:){0,5}[0-9a-fA-F]{1,4})?"
+        r"(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)"
+        r"(?:\.(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}\b"
+    ),
+    "phone_us": re.compile(r"\b(?:\+?1[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}\b"),
+    "ssn": re.compile(r"\b\d{3}-\d{2}-\d{4}\b"),
+    "credit_card": re.compile(
+        r"\b(?:4[0-9]{12}(?:[0-9]{3})?|5[1-5][0-9]{14}|3[47][0-9]{13}|"
+        r"3(?:0[0-5]|[68][0-9])[0-9]{11}|6(?:011|5[0-9]{2})[0-9]{12})\b"
+    ),
+    "aws_access_key": re.compile(r"\bAKIA[0-9A-Z]{16}\b"),
+    "github_token": re.compile(r"\bg[hp]_[0-9a-zA-Z]{36}\b"),
 }
 
-def setup_logging():
-    """Configure logging for PII scanner."""
+
+# --------------------------------------------------------------------------- #
+# Helper functions
+# --------------------------------------------------------------------------- #
+def setup_logging() -> None:
+    """Configure module‑level logging."""
     logging.basicConfig(
         level=logging.INFO,
-        format='%(asctime)s - %(levelname)s - %(message)s'
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        handlers=[
+            logging.StreamHandler(sys.stdout),
+            logging.FileHandler("data/pii_scan.log"),
+        ],
     )
 
-def should_scan_file(file_path: Path, base_dir: Path = None) -> bool:
+def should_scan_file(file_path: Path) -> bool:
     """
-    Determine if a file should be scanned for PII.
-    
-    Args:
-        file_path: Path to file
-        base_dir: Optional base directory to restrict scanning to (e.g., data/)
-        
-    Returns:
-        True if file should be scanned
+    Decide whether ``file_path`` should be examined for PII.
+
+    The function accepts typical source‑code and text‑based extensions and
+    explicitly rejects binary artefacts.  Unknown extensions are inspected
+    heuristically – if the first kilobyte contains a null byte the file is
+    considered binary and skipped.
     """
-    # Skip binary files, common non-code extensions, and log files
-    skip_extensions = {'.png', '.jpg', '.jpeg', '.gif', '.pdf', '.exe', '.dll', '.log', '.csv', '.json'}
-    if file_path.suffix.lower() in skip_extensions:
+    if not file_path.is_file():
         return False
-    
-    # If base_dir is provided, ensure file is within it
-    if base_dir is not None:
-        try:
-            file_path.relative_to(base_dir)
-        except ValueError:
-            return False
-            
-    return True
 
-def scan_file_for_pii(file_path: Path) -> List[dict]:
-    """
-    Scan a single file for PII patterns.
-    
-    Args:
-        file_path: Path to file
-        
-    Returns:
-        List of PII findings with location info
-    """
-    findings = []
-    
+    # Known text‑based extensions
+    text_exts = {".py", ".csv", ".json", ".yaml", ".yml", ".txt", ".md", ".ini"}
+    binary_exts = {".png", ".jpg", ".jpeg", ".pdf", ".zip", ".tar", ".gz", ".exe"}
+
+    suffix = file_path.suffix.lower()
+    if suffix in text_exts:
+        return True
+    if suffix in binary_exts:
+        return False
+
+    # Heuristic for unknown extensions
     try:
-        with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
-            content = f.read()
-            lines = content.split('\n')
-    except Exception as e:
-        logger.warning(f"Failed to read {file_path}: {e}")
-        return findings
-    
-    for pattern_name, pattern in PII_PATTERNS.items():
-        for line_num, line in enumerate(lines, 1):
-            matches = re.finditer(pattern, line)
-            for match in matches:
-                findings.append({
-                    'file': str(file_path),
-                    'line': line_num,
-                    'pattern': pattern_name,
-                    'match': match.group()[:50],  # Truncate for safety
-                    'timestamp': datetime.now().isoformat()
-                })
-    
+        with open(file_path, "rb") as f:
+            chunk = f.read(1024)
+            return b"\x00" not in chunk
+    except Exception as exc:  # pragma: no cover
+        logger.debug(f"Could not inspect {file_path}: {exc}")
+        return False
+
+
+def scan_file_for_pii(file_path: Path) -> List[Dict[str, Any]]:
+    """
+    Scan a single file for all configured PII patterns.
+
+    Returns a list of dictionaries; each entry records the file path,
+    line number, type of PII, the exact matched text and a timestamp.
+    """
+    findings: List[Dict[str, Any]] = []
+    try:
+        with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
+            for line_num, line in enumerate(f, start=1):
+                for pii_type, pattern in PII_PATTERNS.items():
+                    for match in pattern.findall(line):
+                        findings.append(
+                            {
+                                "file_path": str(file_path),
+                                "line_number": line_num,
+                                "pii_type": pii_type,
+                                "matched_text": match,
+                                "timestamp": datetime.now().isoformat(),
+                            }
+                        )
+    except Exception as exc:  # pragma: no cover
+        logger.error(f"Error scanning file {file_path}: {exc}")
     return findings
 
-def scan_directory(
-    directory: Path,
-    recursive: bool = True
-) -> List[dict]:
-    """
-    Scan directory for PII in all code files.
-    
-    Args:
-        directory: Path to directory
-        recursive: Scan subdirectories
-        
-    Returns:
-        List of all PII findings
-    """
-    findings = []
-    
-    logger.info(f"Starting PII scan of directory: {directory}")
-    
-    if not directory.exists():
-        logger.warning(f"Directory does not exist: {directory}")
-        return findings
-    
-    # FIX: Use Path.rglob() instead of .walk() which doesn't exist
-    if recursive:
-        file_paths = list(directory.rglob('*'))
-    else:
-        file_paths = list(directory.glob('*'))
 
-    # Explicitly skip parse_failures.csv and checksum manifest if they are empty or non-code
-    # to avoid scanning generated logs as source, but we still scan data files for PII.
-    # The scanner is designed to skip .csv and .json by default in should_scan_file,
-    # so this block is redundant but kept for clarity of intent.
-    pass
-    
-    for file_path in file_paths:
-        if not file_path.is_file():
-            continue
-        
-        if not should_scan_file(file_path):
-            continue
-        
-        try:
+def scan_directory(base_dir: Path) -> List[Dict[str, Any]]:
+    """
+    Recursively walk ``base_dir`` and scan every file that ``should_scan_file``
+    deems appropriate.
+    """
+    all_findings: List[Dict[str, Any]] = []
+    if not base_dir.exists():
+        logger.warning(f"Directory does not exist: {base_dir}")
+        return all_findings
+
+    for file_path in base_dir.rglob("*"):
+        if should_scan_file(file_path):
             file_findings = scan_file_for_pii(file_path)
-            findings.extend(file_findings)
-        except Exception as e:
-            logger.warning(f"Failed to scan {file_path}: {e}")
-    
-    logger.info(f"PII scan completed. Found {len(findings)} potential issues")
-    return findings
+            all_findings.extend(file_findings)
+            if file_findings:
+                logger.warning(
+                    f"PII found in {file_path}: {len(file_findings)} instance(s)"
+                )
+    return all_findings
 
-def write_findings_to_csv(
-    findings: List[dict],
-    output_path: str
-) -> None:
+
+def write_findings_to_csv(findings: List[Dict[str, Any]], output_path: Path) -> None:
     """
-    Write PII findings summary to CSV file.
-    
-    This function outputs a CONCISE LOG of findings (file, line, pattern, match, timestamp)
-    rather than a raw dump of all matches, ensuring the output remains manageable in size.
-    
-    Args:
-        findings: List of finding dictionaries
-        output_path: Path to output CSV
+    Persist the list of PII findings to ``output_path`` as a CSV file.
+
+    The CSV always contains a header row; if ``findings`` is empty an empty
+    file with only the header is written.
     """
-    output_path = Path(output_path)
+    # Ensure the parent directory exists
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    if not findings:
-        # Write summary with zero count
-        with open(output_path, 'w', newline='') as f:
-            writer = csv.writer(f)
-            writer.writerow(['summary', 'count'])
-            writer.writerow(['No PII detected', 0])
-        logger.info("No PII findings to write")
-        return
-    
-    # Write concise log: file, line, pattern, match (truncated), timestamp
-    # This replaces the previous summary-only approach to provide a verifiable log
-    # while keeping the file size small by only logging the match metadata.
-    with open(output_path, 'w', newline='') as f:
-        writer = csv.writer(f)
-        writer.writerow(['file', 'line', 'pattern', 'match', 'timestamp'])
-        for finding in findings:
-            writer.writerow([
-                finding['file'],
-                finding['line'],
-                finding['pattern'],
-                finding['match'],
-                finding['timestamp']
-            ])
-    
-    logger.info(f"Written concise log of {len(findings)} findings to {output_path}")
 
-def run_pii_scan(
-    data_dir: str,
-    output_path: str
-) -> List[dict]:
+    fieldnames = [
+        "file_path",
+        "line_number",
+        "pii_type",
+        "matched_text",
+        "timestamp",
+    ]
+
+    with open(output_path, "w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        if findings:
+            writer.writerows(findings)
+
+    logger.info(f"PII findings written to {output_path} ({len(findings)} entries)")
+
+
+def run_pii_scan() -> List[Dict[str, Any]]:
     """
-    Run full PII scan on data directory.
-    
-    Args:
-        data_dir: Path to data directory
-        output_path: Path to output CSV
-        
-    Returns:
-        List of findings
+    Orchestrates a full PII scan of the project's data directory.
+
+    Returns the list of findings so callers (tests, notebooks, etc.) can
+    programmatically inspect the results.
     """
-    data_path = Path(data_dir)
-    findings = scan_directory(data_path)
+    logger.info("Starting PII scan on the data directory...")
+    data_root = get_data_root()
+    findings = scan_directory(data_root)
+    output_path = data_root / "pii_findings.csv"
     write_findings_to_csv(findings, output_path)
     return findings
 
-def main():
-    """Main entry point for PII scanner."""
-    setup_logging()
-    
-    base_path = Path(__file__).parent.parent
-    # Scan both raw and processed directories as required by FR-009
-    data_raw_dir = base_path / 'data' / 'raw'
-    data_processed_dir = base_path / 'data' / 'processed'
-    output_path = base_path / 'data' / 'pii_scan_results.csv'
-    
-    if not get_pii_scan_enabled():
-        logger.info("PII scanning is disabled in config")
-        return 0
-    
-    all_findings = []
-    
-    try:
-        # Scan data/raw/
-        if data_raw_dir.exists():
-            logger.info(f"Scanning {data_raw_dir}")
-            all_findings.extend(scan_directory(data_raw_dir))
-        
-        # Scan data/processed/
-        if data_processed_dir.exists():
-            logger.info(f"Scanning {data_processed_dir}")
-            all_findings.extend(scan_directory(data_processed_dir))
-        
-        # Write results (empty findings will generate a clean scan log)
-        write_findings_to_csv(all_findings, str(output_path))
-        
-        if all_findings:
-            logger.warning(f"Found {len(all_findings)} potential PII instances")
-        else:
-            logger.info("No PII patterns detected in data/raw/ or data/processed/")
-        
-        return 0
-        
-    except Exception as e:
-        logger.error(f"PII scan failed: {e}")
-        import traceback
-        traceback.print_exc()
-        return 1
 
-if __name__ == '__main__':
-    sys.exit(main())
+def main() -> None:
+    """CLI entry point – configures logging and launches the scan."""
+    setup_logging()
+    run_pii_scan()
+
+
+if __name__ == "__main__":
+    main()

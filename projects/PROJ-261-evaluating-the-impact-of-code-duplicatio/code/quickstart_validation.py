@@ -1,37 +1,42 @@
-"""
-quickstart_validation.py
-------------------------
-Validates that the required output files exist after the pipeline runs.
-"""
 from __future__ import annotations
 
 import logging
+import sys
 from pathlib import Path
-
-from config import get_all_config
-
-logger = logging.getLogger(__name__)
-
-REQUIRED_FILES = [
-    Path("data/processed/clone_metrics.csv"),
-    Path("data/processed/perplexity_scores.csv"),
-]
+from config import get_all_config, get_processed_dir, get_raw_dir
 
 def validate_output_files() -> None:
-    missing = [p for p in REQUIRED_FILES if not p.is_file()]
+    """
+    Validates that all required output files exist after pipeline execution.
+    This is a critical check for T022 and T021.
+    """
+    required_files = [
+        get_processed_dir() / "clone_metrics.csv",
+        get_processed_dir() / "perplexity_scores.csv",
+        get_raw_dir() / "github-code-sample.csv"
+    ]
+    
+    missing = []
+    for f in required_files:
+        if not f.exists():
+            missing.append(f)
+            
     if missing:
+        logging.error(f"Missing required output files: {missing}")
         raise FileNotFoundError(f"Missing required output files: {missing}")
-    logger.info("All required output files are present.")
+        
+    logging.info("All required output files are present.")
 
-def main() -> int:
+def main():
+    """Main entry point for validation."""
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+    
     try:
         validate_output_files()
-        logger.info("Quickstart validation succeeded.")
-        return 0
-    except Exception as exc:  # pragma: no cover
-        logger.exception("Quickstart validation failed: %s", exc)
-        return 1
+        logging.info("Quickstart validation PASSED.")
+    except FileNotFoundError as e:
+        logging.error(f"Quickstart validation FAILED: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO)
-    raise SystemExit(main())
+    main()

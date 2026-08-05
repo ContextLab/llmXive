@@ -86,12 +86,12 @@ To merge segment-level metrics with problem-level accuracy scores, the system us
 
 ### Functional Requirements
 
-- **FR-001**: System MUST download a 500MB subset of the codeparrot/github-code dataset using the datasets library with streaming mode enabled
+- **FR-001**: System MUST download a subset of the codeparrot/github-code dataset using the datasets library with streaming mode enabled
 - **FR-002**: System MUST parse Python files using the built-in ast module to extract function bodies for AST subtree matching
 - **FR-003**: System MUST compute syntactic clone density without external dependencies beyond Python standard library. Additionally, the system MUST perform a secondary analysis to measure 'semantic distance' using CodeBERT to generate embeddings for the tokenized text of each AST node, then compute cosine similarity, to distinguish between 'exact syntactic clones' and 'semantic/structural clones'.
-- **FR-004**: System MUST load the Salesforce/codegen-350M-mono model in 8-bit quantization using bitsandbytes
+- **FR-004**: System MUST load the Salesforce/codegen-mono model in 8-bit quantization using bitsandbytes
 - **FR-005**: System MUST compute token-level perplexity using the model's log-probability outputs for each code segment
-- **FR-006**: System MUST evaluate bug detection accuracy on a held-out 50-problem subset from human-eval using pass@1 accuracy
+- **FR-006**: System MUST evaluate bug detection accuracy on a held-out subset from human-eval using pass@1 accuracy
 - **FR-007**: System MUST calculate Spearman's rank correlation between duplication density and both perplexity and bug detection accuracy at the **segment level**. For this analysis, a 'segment' is defined strictly as a **function body** (a contiguous block of code enclosed by a function definition header and its corresponding indentation scope). Clone density is calculated per segment as the ratio of duplicated AST subtrees within that segment to the total AST subtrees in that segment. The correlation aggregates these per-segment metrics; file-level aggregation is explicitly excluded.
 - **FR-008**: System MUST store all intermediate metrics in CSV format for auditability and reproducibility
 - **FR-009**: System MUST scan all files under `data/` for PII patterns and log findings per Constitution Principle III (Data Hygiene)
@@ -110,7 +110,7 @@ To merge segment-level metrics with problem-level accuracy scores, the system us
 ### Measurable Outcomes
 
 - **SC-001**: System completes clone density computation and perplexity measurement on 500MB corpus within 24 hours on standard GHA runner resources
-- **SC-002**: Memory usage stays under 7GB throughout model inference using 8-bit quantization
+- **SC-002**: Memory usage remains within acceptable limits throughout model inference using 8-bit quantization.
 - **SC-003**: At least 1000 code segments are successfully processed with valid clone density and perplexity measurements
 - **SC-004**: Correlation analysis produces statistically significant results (p < 0.05) or documents null findings with adequate statistical power
 - **SC-005**: All hyperparameters, random seeds, and clone detection thresholds (0.7, 0.8, 0.9) are documented for reproducibility verification

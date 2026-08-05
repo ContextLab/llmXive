@@ -5,7 +5,7 @@
 
 ## Summary
 
-This feature implements a research pipeline to measure the correlation between syntactic code duplication density and LLM code understanding metrics. The technical approach involves: (1) streaming a 500MB subset of codeparrot/github-code via HuggingFace Datasets, (2) computing AST-based clone density using Python's built-in ast module, (3) measuring token-level perplexity using Salesforce/codegen-350M-mono in 8-bit quantization, (4) evaluating bug detection accuracy on human-eval, and (5) calculating Spearman's rank correlation between duplication density and model performance metrics.
+This feature implements a research pipeline to measure the correlation between syntactic code duplication density and LLM code understanding metrics. The technical approach involves: (1) streaming a sizable subset of codeparrot/github-code via HuggingFace Datasets, (2) computing AST-based clone density using Python's built-in ast module, (3) measuring token-level perplexity using Salesforce/codegen-350M-mono in 8-bit quantization, (4) evaluating bug detection accuracy on human-eval, and (5) calculating Spearman's rank correlation between duplication density and model performance metrics.
 
 ## Technical Context
 
@@ -17,7 +17,7 @@ This feature implements a research pipeline to measure the correlation between s
 **Project Type**: computational research pipeline  
 **Performance Goals**: Complete 500MB corpus processing within 24 hours; memory under 7GB  
 **Constraints**: 8-bit quantization required; streaming mode for dataset; no external clone detection dependencies  
-**Scale/Scope**: 500MB code corpus, 1000+ code segments, 50 human-eval problems  
+**Scale/Scope**: A substantial code corpus., A substantial set of code segments., Multiple human‑eval problems  
 **Clone-Detection Thresholds**: 0.7, 0.8, 0.9 (used for sensitivity analysis in User Story 3)  
 **Linting Tools**: black, flake8, isort configured via pre-commit  
 **PII Scanning**: Enabled per Constitution Principle III (Data Hygiene) via tasks T014, T017  

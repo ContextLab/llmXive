@@ -1,7 +1,42 @@
-T021:
+T017:
   c: false
-  h: 65a20ca1e7f2b7d7c2191721be1b246550515d13be2fe68b86d968c7d5ff3f65
-  r: "The provided `main.py` orchestrates the pipeline but the required output file\
-    \ `data/processed/clone_metrics.csv` does not exist (and there is no evidence\
-    \ that `perplexity_scores.csv` was created). Since the core CSV artifacts are\
-    \ missing, the task\u2019s requirement is not satisfied."
+  h: 8433bb7dfa531c751a44189884c29452d57870c382c858ea0614f867b7514ae2
+  r: "The `code/pii_scanner.py` implementation is present, but the required input\
+    \ file `data/raw/github-code-sample.csv` does not exist, so the scanner cannot\
+    \ actually scan the specified dataset. Without this file the task\u2019s core\
+    \ requirement (scanning that CSV for PII) cannot be fulfilled."
+T021b#1:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `main.py` file or diff showing the fix is present, and there is no evidence
+    (e.g., generated CSV files, logs, or tests) that the script now reliably creates
+    both required CSV outputs. The required artifact is missing, so the task is not
+    satisfied.
+T023:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, test, log file, or documentation was provided that demonstrates a memory\u2011\
+    monitoring mechanism during inference, nor any evidence (e.g., test results, screenshots,\
+    \ metrics) showing that the model stays within the required memory limit. The\
+    \ required artifact is missing."
+T024:
+  c: false
+  h: 6221dc857b4b8ed7c6a6ee49bfcc2faf2bc3474ac0a64fcf1378d52b5b5c76f8
+  r: The required artifact `tests/integration/test_performance.py` does not exist
+    in the repository, so the performance validation test cannot be verified. The
+    task remains unfinished until the test file is added with the appropriate logic.
+T025:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The submission provides no `artifact_hashes` manifest or any evidence of computed\
+    \ checksums for output or intermediate files. Without a file containing these\
+    \ hashes, the task requirement is not satisfied. The implementer must generate\
+    \ and include a non\u2011empty `artifact_hashes` state manifest that records checksums\
+    \ for all relevant artifacts."
+T062:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, test files, or log output demonstrating that a segment\u2011count threshold\
+    \ is checked and recorded are present. The claim consists only of a textual description\
+    \ without any concrete artifact (e.g., implementation, unit test, or logged evidence),\
+    \ so the requirement is not satisfied."

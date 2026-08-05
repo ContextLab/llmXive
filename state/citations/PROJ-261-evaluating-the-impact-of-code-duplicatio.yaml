@@ -66,3 +66,14 @@
   verification_status: verified
   verified_against_url: https://www.wikidata.org/wiki/Q20748093
   verified_at: '2026-07-02T08:45:02.012080Z'
+- artifact_hash: 5d9b90731579bf77056f9932b03754cbefbeeca4c4ec480fe9190e3c0602b16b
+  artifact_path: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/001-evaluating-the-impact-of-code-duplicatio/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: '[1601.06805] P-values: misunderstood and misused'
+  kind: url
+  value: https://arxiv.org/abs/1601.06805
+  verification_status: pending
+  verified_against_url: https://arxiv.org/abs/1601.06805
+  verified_at: '2026-08-05T19:37:14.997229Z'
