@@ -1,0 +1,61 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "GAMM Results Schema"
+description: "Schema for the output of the Generalized Additive Mixed Models."
+type: object
+properties:
+  species_id:
+    type: string
+    description: "Species identifier."
+  climate_variable:
+    type: string
+    enum:
+      - "mean_temperature"
+      - "total_precipitation"
+      - "extreme_weather_index"
+    description: "The climate variable used as a predictor."
+  coefficient:
+    type: number
+    description: "Estimated effect size."
+  p_value:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Raw p-value from the model."
+  p_value_fdr:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "FDR-corrected p-value."
+  is_significant:
+    type: boolean
+    description: "True if p_value_fdr < 0.05."
+  convergence_status:
+    type: string
+    enum:
+      - "converged"
+      - "failed"
+      - "timeout"
+    description: "Status of the model fitting process."
+  model_aic:
+    type: number
+    description: "Akaike Information Criterion value."
+  residual_morans_i:
+    type: number
+    description: "Moran's I statistic for spatial autocorrelation in residuals (post-hoc validation only)."
+  random_slope_present:
+    type: boolean
+    description: "True if the model includes a random slope for the climate variable."
+  gp_included:
+    type: boolean
+    description: "True if a Gaussian Process random effect was included (always true)."
+required:
+  - species_id
+  - climate_variable
+  - coefficient
+  - p_value
+  - p_value_fdr
+  - is_significant
+  - convergence_status
+  - random_slope_present
+  - gp_included
+additionalProperties: false

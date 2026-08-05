@@ -18,21 +18,22 @@ properties:
     description: "Coefficient or smooth effect estimate."
   p_value:
     type: "float"
- description: "Permutation‑derived p‑value based on [deferred] shuffles."
+    description: "Permutation‑derived p‑value based on 10000 shuffles."
   fdr_q_value:
     type: "float"
     description: "Benjamini–Hochberg corrected q‑value."
   aic:
     type: "float"
-    description: "Axiom Akaike Information Criterion (A2)."
+    description: "Akaike Information Criterion (AIC)."
   r_squared:
     type: "float"
-    description: "Coefficient of  R  2  ​  “  “  "  "  "  "
-
-
-
-```json
-{
-  "type": "object"
-}
-```
+    description: "Coefficient of determination (R²)."
+required:
+  - species_id
+  - model_id
+  - term
+  - estimate
+  - p_value
+  - fdr_q_value
+  - aic
+additionalProperties: false

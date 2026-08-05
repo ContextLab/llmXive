@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Synthetic Bird Migration and Climate Dataset Schema"
-description: "Schema for the synthetic dataset used to validate the pipeline. Matches the structure of eBird and NOAA/PRISM data."
+description: "Schema for the synthetic dataset used to validate the pipeline. Matches the structure of eBird and Daymet data."
 type: "object"
 properties:
   migration_records:
@@ -88,3 +88,4 @@ properties:
 required:
   - migration_records
   - climate_records
+

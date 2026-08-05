@@ -1,161 +1,130 @@
-# Implementation Plan: Statistical Analysis of Bird Migration and Climate Change
+# Implementation Plan: Statistical Analysis of Publicly Available Bird Migration Patterns and Climate Change
 
-**Branch**: `001-bird-migration-climate-correlation` | **Date**: 2024-05-22 | **Spec**: `spec.md`  
+**Branch**: `001-bird-migration-climate-correlation` | **Date**: 2024-05-21 | **Spec**: `specs/001-bird-migration-climate-correlation/spec.md`
 **Input**: Feature specification from `/specs/001-bird-migration-climate-correlation/spec.md`
 
 ## Summary
-A reproducible, CPU‑only pipeline that (1) downloads or synthesises eBird and NOAA/PRISM data, (2) aggregates observations onto a 0.5° × 0.5° weekly grid, (3) computes phenology metrics, (4) fits a **Unified Spatial Model** (GAMM with a Matérn Gaussian Process spatial smooth), (5) conducts full permutation tests with early‑stop flagging, (6) analyses migration‑route shifts on a spherical manifold, and (7) produces validated outputs that satisfy all functional requirements (FR‑001‑FR‑007) and success criteria (SC‑001‑SC‑005).
+
+This project implements a reproducible statistical pipeline to analyze the correlation between bird migration phenology (arrival dates, stopover duration) and climate variables (temperature, precipitation) using the eBird Basic Dataset (EBD) and Daymet climate data. The core analytical engine utilizes Generalized Additive Mixed Models (GAMMs) with species-specific random slopes for temperature and a **mandatory a priori** Gaussian Process (GP) random effect for spatial autocorrelation. The pipeline prioritizes CPU-tractable methods (streaming large datasets, block bootstrapping for uncertainty) while maintaining statistical rigor through FDR correction and explicit power analysis.
+
+**Critical Data Scope Note**: The project utilizes the verified `vvud/eb-data` sample and `Daymet` climate data (recent years). The full 2020-2024 continental eBird archive is not available via the verified open-source URLs provided. The analysis is explicitly scoped to the available verified data, and success criteria include transparent reporting of power limitations if the sample size is insufficient to detect small effect sizes. FR-001 is interpreted as downloading the full *available* verified dataset for the period, not the entire continental archive.
 
 ## Technical Context
-- **Environment**: GitHub Actions free tier (2 CPU cores, ~7 GB RAM, ≤ 6 h runtime).  
-- **Language**: Python 3.11.  
-- **Dependencies** (pinned in `requirements.txt`):  
-  `pandas==2.2.1`, `numpy==1.26.4`, `scikit-learn==1.4.2`, `pygam==0.9.0`, `statsmodels==0.14.2`, `geopandas==0.14.2`, `shapely==2.0.3`, `pyyaml==6.0.1`, `tqdm==4.66.2`, `pytest==8.2.0`.
 
-## Phase 1 – Data Acquisition & Archiving (FR‑001)
+**Language/Version**: Python 3.11  
+**Primary Dependencies**: `pandas`, `polars` (for efficient streaming), `scikit-learn`, `pygam` (or `statsmodels` with `patsy`), `geopy`, `scipy`, `numpy`, `matplotlib`, `seaborn`, `filelock`, `datasets` (from Hugging Face).  
+**Storage**: Local file system (`data/raw`, `data/processed`, `data/provenance`) with checksums; no database required for this CI-run analysis.  
+**Testing**: `pytest` with fixtures for synthetic data validation.  
+**Target Platform**: GitHub Actions Free Tier (CPU, ~7 GB RAM) with automatic offload to Kaggle GPU for heavy GAMM/Manifold steps if CPU fails.  
+**Project Type**: Data Science Pipeline / Statistical Analysis  
+**Performance Goals**: Pipeline completion within 6 hours on CPU; GAMM convergence < 600s per species; Block Bootstrap < 1800s.  
+**Constraints**: No local GPU; memory < 7 GB (requires streaming/chunking); no external authentication (public datasets only).  
+**Scale/Scope**: Sampled eBird data (2020-2024 subset), filtered to migratory species in North America; grid resolution of moderate spatial scale.
 
-| Step | Action | Artifact |
-|------|--------|----------|
-| 1.1 | **Real‑Data Mode**: Download eBird Basic Dataset (‑2024) and NOAA/PRISM climate data into `data/raw/ebird/` and `data/raw/climate/`. Abort with clear error if files are missing. | `data/raw/ebird/ebird_2020_2024.csv`, `data/raw/climate/prism_2020_2024.parquet` |
-| 1.2 | **Synthetic‑Data Fallback**: If the above files are absent, generate a synthetic dataset matching `contracts/dataset.schema.yaml` (a substantial number of rows, seeded 42). | `data/raw/synthetic_ebird.csv`, `data/raw/synthetic_climate.parquet` |
-| 1.3 | Compute SHA‑256 checksums for all raw files and record them in `state/projects/PROJ-132-statistical-analysis-of-publicly-availab.yaml`. | `artifact_hashes` entry |
-| 1.4 | Archive raw files unchanged (Principle VI). | No modification of raw files |
-
-## Phase 2 – Preprocessing (FR‑002, FR‑003)
-
-1. **Filtering** – Keep only migratory species (Cornell Lab list) and records from 2020‑2024.  
-2. **Grid Assignment** – Convert lat/lon to 0.5° × 0.5° cells (`grid_cell = "lat_lon"`).  
-3. **Weekly Aggregation** – Count observations per species‑grid‑week.  
-4. **Phenology Metrics** –  
-   - *First arrival*: 5th percentile DOY.  
-   - *Median arrival*: 50th percentile DOY.  
-   - *Stopover duration*: 90th – 10th percentile DOY.  
-5. **Climate Averages** – Compute mean temperature, total precipitation, and extreme‑weather index for March‑May (spring) per grid‑week.  
-6. **Sparse‑Data Handling** – Cells with `< 5` observations are flagged `data_quality="insufficient"` and excluded from modeling. **Sensitivity analysis** will re‑run the pipeline with thresholds of 3 and 7 to assess bias.  
-7. **Tail‑Preserving Stratified Sampling** (new sub‑requirement **FR‑002‑S**) –  
-   - Quantile‑bin `first_arrival` into deciles.  
- - Oversample cells in the lowest [deferred] decile by a significant factor.
-   - Assign inverse‑probability weights (`weight = 0.5` for oversampled cells, `1.0` otherwise).  
-   - Weights are passed to the GAMM via `sample_weight`.  
-
-All transformations write new files under `data/processed/`; originals remain untouched (Principle III).
-
-## Phase 3 – Unified Spatial Model (FR‑004, FR‑005, FR‑007)
-
-### Model Specification (Principle VII – full transparency)
-
-```
-phenology_metric ~
-    s(temp) + s(precip) + s(extreme_idx) + s(effort) +
-    (1 + temp | species) +
-    GP_spatial(lon, lat; kernel=Matérn(nu=1.5))
-```
-
-- **Fixed smooth terms** (`s()`) are fitted with `pygam`.  
-- **Random intercepts & slopes** are implemented via `statsmodels.MixedLM`.  
-- **Spatial GP** uses `sklearn.gaussian_process.GaussianProcessRegressor` with a Matérn kernel (ν = 1.5). This satisfies the spec’s Matérn requirement without a conditional Moran’s I check.  
-- **Observer effort** (e.g., checklist duration, number of observers) is mandatory; **habitat change** is optional if ancillary land‑cover data become available.  
-- **Collinearity**: Variance Inflation Factor (VIF) calculated for climate covariates; any VIF > 5 triggers orthogonalization or removal, logged, and the model proceeds.
-
-### Permutation Testing & FDR (FR‑005)
-
-- **Full [deferred] shuffles** are performed for each coefficient to generate an empirical null distribution.
-- **Early‑stop flag**: after 100 shuffles, if interim p < 0.001 the term is flagged “highly significant” for reporting, but the remaining shuffles continue so the final p‑value always reflects all 10,000 permutations.  
-- **Benjamini–Hochberg (BH) FDR** is applied to the final p‑values; early‑stop does not affect BH assumptions because the final set of p‑values is unchanged.  
-- **Power justification**: With 10,000 permutations, a medium effect size (Cohen’s f² ≈ 0.15) yields > 80 % power at α = 0.05 given the typical sample sizes (> 10 000 grid‑cell‑species combos).  
-
-### Model Outputs (FR‑006, FR‑007)
-
-- Coefficient estimates, p‑values, q‑values, AIC, R², convergence flag, and GP metadata are written to `data/processed/model_results.parquet`.  
-- Convergence rate is calculated and reported.  
-- Moran’s I of residuals is computed **only for diagnostics** (not for conditional GP selection) and stored in the output.
-
-## Phase 4 – Route Shift & Uncertainty (FR‑006, FR‑007)
-
-1. **Centroid Construction** – Weekly centroids per species‑year (mean lat/lon of all observations in a cell).  
-2. **Manifold Distance** – Geodesic distances on a spherical Earth (`geopy.distance.geodesic`).  
-3. **Permutation Test** – A large number of label shuffles generate a null distribution of shift magnitudes; p‑values reported.  
-4. **Bootstrap CI** – Bootstrap resamples of the centroid estimation process produce confidence intervals for shift magnitude and direction.  
-5. **Validity Note** – Centroids are a simplification; an optional kernel‑density trajectory analysis (KDE on weekly occurrence maps) is implemented for species with ≥ 500 observations to verify robustness.
-
-## Phase 5 – Validation, Reporting & CI Constraints (SC‑005)
-
-- **Runtime budget**: Estimated total ≤ 5.5 h (Preprocess ≈ 1 h, GAMM ≈ 3 h, Permutations ≈ 1.5 h, Trajectories ≈ 0.5 h). All steps respect the 2‑CPU, ≤ 7 GB RAM limit via chunked I/O and `concurrent.futures` limited to 2 workers.  
-- **Contract Tests**: `pytest tests/contract/test_schemas.py` validates all output files against `contracts/*.schema.yaml`.  
-- **CI Job** `validate_quickstart` asserts total runtime < 4 h and that all contract tests pass.
+### Data Access Strategy
+- **eBird**: Streamed using the `datasets` library (`load_dataset(..., streaming=True)`) from the verified HuggingFace URL. This ensures consistent caching and versioning.
+- **Daymet**: Loaded via `datasets.load_dataset('daymet/annual', ...)` or verified multi-year parquet stream covering 2020-2024.
+- **Locking**: The `filelock` library is used to create `data/.pipeline.lock` to serialize access to shared data directories.
 
 ## Constitution Check
 
-| Principle | Status | Evidence / Action |
-|-----------|--------|-------------------|
-| I. Reproducibility | PASS | Random seeds pinned (`seed=42`); deterministic synthetic generator; `requirements.txt` version‑pinned. |
-| II. Verified Accuracy | PASS | No external citations beyond verified URLs (none required for synthetic mode). |
-| III. Data Hygiene | PASS | Checksums recorded; transformations write new files; no in‑place edits. |
-| IV. Single Source of Truth | PASS | All figures/statistics derived from `data/processed/*`. |
-| V. Versioning Discipline | PASS | Artifact hashes stored; any change updates `updated_at`. |
-| VI. Ecological Data Provenance | **PENDING** | Real data must be placed under `data/raw/` and archived unchanged; synthetic mode does not satisfy this principle. |
-| VII. Statistical Model Transparency | PASS | Full model formula provided; `statsmodels`, `sklearn` versions pinned; GP Matérn kernel explicitly documented. |
+*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-## Traceability Matrix (FR / SC → Plan Elements)
-
-| ID | Requirement | Plan Element |
-|----|-------------|--------------|
-| FR‑001 | Download & cache raw data | Phase 1 (real‑data mode) |
-| FR‑002 | Filter & aggregate | Phase 2 (Filtering, Grid Assignment) |
-| FR‑002‑S | Tail‑Preserving Stratified Sampling | Phase 2 (Sampling subsection) |
-| FR‑003 | Compute phenology & climate averages | Phase 2 (Metrics) |
-| FR‑004 | Fit GAMM with spatial autocorrelation | Phase 3 (Unified Spatial Model) |
-| FR‑004‑U | Unified Spatial Model (GP always applied) | Phase 3 (Model Specification) |
-| FR‑005 | 10,000 permutation shuffles & FDR | Phase 3 (Permutation Testing) |
-| FR‑006 | Route shift analysis on manifold | Phase 4 |
-| FR‑007 | Bootstrap 95 % CI for predictions | Phase 4 |
-| SC‑001 | Power & effect‑size stability | Phase 3 (Power justification) |
-| SC‑002 | Proportion of “insufficient data” cells | Phase 2 (Sparse‑data handling) |
-| SC‑003 | GAMM convergence rate | Phase 3 (Convergence monitoring) |
-| SC‑004 | CI width for phenology shift | Phase 4 (Bootstrap CI) |
-| SC‑005‑A | Full [deferred] shuffles despite early‑stop | Phase 3 (Permutation Testing) |
-| SC‑005‑B | Runtime ≤ 6 h on free‑tier CI | Phase 5 (Runtime budget) |
+- **I. Reproducibility**: Plan mandates `random_seed` pinning in `config.py` and strict versioned data directories. All scripts are runnable end-to-end.
+- **II. Verified Accuracy**: **Explicitly Mapped**. A pre-run validation step checks the integrity (checksum) and reachability of all dataset URLs against the "Verified Accuracy" gate before processing begins.
+- **III. Data Hygiene**: Plan includes checksumming raw downloads and logging derivation steps in `data/provenance/row_mapping.json`. No in-place modification.
+- **IV. Single Source of Truth**: All figures and stats trace to `data/processed` CSVs and `code/` scripts. No hand-typed numbers.
+- **V. Versioning**: **Explicitly Mapped**. A dedicated "Phase 0.5: State Synchronization" step generates and updates `state/projects/PROJ-132-statistical-analysis-of-publicly-availab.yaml` with artifact hashes after every major step.
+- **VI. Ecological Data Provenance**: Raw eBird/Daymet files stored in `data/raw` with metadata; filtering logic recorded in `data/provenance/row_mapping.json` which links processed rows back to original `checklist_id`s.
+- **VII. Statistical Model Transparency**: GAMM formulae, random effects (including species-specific temperature slopes), and smoothing parameters explicitly defined in `code/models/gamm.py` with pinned versions. GP included a priori.
 
 ## Project Structure
 
-```
+### Documentation (this feature)
+
+```text
 specs/001-bird-migration-climate-correlation/
-├── plan.md
-├── research.md
-├── data-model.md
-├── quickstart.md
-├── contracts/
-│   ├── dataset.schema.yaml
-│   └── output.schema.yaml
-└── tasks.md
+├── plan.md              # This file
+├── research.md          # Phase 0 output
+├── data-model.md        # Phase 1 output
+├── quickstart.md        # Phase 1 output
+├── contracts/           # Phase 1 output
+└── tasks.md             # Phase 2 output
+```
 
+### Source Code (repository root)
+
+```text
 src/
+├── config.py            # Central config, seeds, paths, locks
 ├── data/
-│   ├── download.py          # Synthetic generator + real‑data loader
-│   ├── preprocess.py        # Grid, phenology, sampling, weights
-│   └── impute.py            # Spatial interpolation (1° radius)
+│   ├── download.py      # Data acquisition (HuggingFace/Daymet)
+│   ├── preprocess.py    # Filtering, grid aggregation, phenology calc
+│   └── stream_utils.py  # Chunked loading for memory constraints
 ├── models/
-│   ├── gamm.py              # Unified Spatial Model implementation
-│   ├── trajectory.py        # Manifold trajectory & optional KDE
-│   └── utils.py             # Permutation test with early‑stop flag
-├── cli/
-│   └── run_pipeline.py      # Entry point (`--mode synthetic|real`)
-└── lib/
-    └── config.py            # Global constants, seeds, thresholds
-
-data/
-├── raw/                     # Archived eBird & PRISM files (when available)
-├── processed/               # Phenology, model results, trajectory shifts
-└── interim/                 # Intermediate objects (weights, centroids)
+│   ├── gamm.py          # GAMM fitting, diagnostics, convergence checks
+│   └── manifold.py      # Discrete Centroid Trajectory Analysis (S2)
+├── analysis/
+│   ├── correlation.py   # FDR correction, effect size stability
+│   └── routes.py        # Route shift detection, block bootstrapping
+├── utils/
+│   ├── locks.py         # File-based locking implementation (filelock)
+│   └── logging.py       # Runtime logs, error handling
+└── cli/
+    └── run_pipeline.py  # Entry point for CI execution
 
 tests/
 ├── contract/
-│   └── test_schemas.py
 ├── integration/
-│   └── test_quickstart.py
 └── unit/
-    ├── test_preprocess.py
-    └── test_models.py
 ```
 
---- End of Plan ---
+**Structure Decision**: Single-project structure (`src/`) chosen for simplicity and direct integration with the CI runner. No microservices or complex frontend required.
+
+## Complexity Tracking
+
+| Violation | Why Needed | Simpler Alternative Rejected Because |
+|-----------|------------|-------------------------------------|
+| Discrete Centroid Trajectory Analysis | Required by FR-006 and US-3 to detect spatial route shifts. Continuous manifold statistics (Fréchet means) are invalid for sparse grid data. | Linear regression on lat/lon fails to capture spherical geometry and great-circle distances, leading to biased shift vectors. |
+| File-based Locking (`filelock`) | Required by T045/T046 to serialize parallel tasks (if any) and prevent race conditions in shared `data/` writes. | Simple file writes without locking risk corruption if the pipeline is re-triggered or if multiple processes access the same intermediate files. |
+| Streaming Data Loading | Required by T051 to handle datasets exceeding 7 GB RAM on the CI runner. | Loading full EBD/NOAA datasets into memory would cause OOM crashes on the 2-core/7GB runner. |
+| Block Bootstrap | Required by T054 to preserve temporal autocorrelation in trajectory analysis. | Simple permutation destroys the temporal structure of migration routes, leading to invalid p-values. |
+
+## Phase Breakdown
+
+### Phase 0: Validation & Synchronization
+- **0.1**: Pre-run validation of dataset URLs and checksums (Constitution Principle II).
+- **0.2**: Download raw data to `data/raw/` with checksumming.
+- **0.3**: **State Synchronization**: Generate/update `state/projects/PROJ-132-statistical-analysis-of-publicly-availab.yaml` with raw data hashes.
+
+### Phase 1: Preprocessing
+- **1.1**: Stream eBird data, filter for migratory species (2020-2024), aggregate to 0.5° grid.
+- **1.2**: Compute phenology metrics (th-90th percentile for stopover, median for arrival).
+- **1.3**: Join with Daymet climate data (2020-2024 stream).
+- **1.4**: **Provenance Generation**: Create `data/provenance/row_mapping.json` linking processed rows to original `checklist_id`s.
+- **1.5**: **State Synchronization**: Update state file with processed data hashes.
+
+### Phase 2: Modeling
+- **2.1**: Fit GAMMs with species-specific random slopes for temperature and **a priori** GP random effect (Matérn).
+- **2.2**: Post-hoc Moran's I diagnostic on residuals (validation only, no model selection).
+- **2.3**: Apply FDR correction to p-values.
+- **2.4**: **State Synchronization**: Update state file with model result hashes.
+
+### Phase 3: Route Analysis
+- **3.1**: Compute migration centroids on S² (Discrete method).
+- **3.2**: Perform Block Bootstrap (block size 4 weeks) for uncertainty quantification.
+- **3.3**: Generate shift vectors (mean displacement) and p-values.
+- **3.4**: **State Synchronization**: Update state file with trajectory result hashes.
+
+### Phase 4: Reporting
+- **4.1**: Calculate success metrics (SC-001 to SC-005) with fallback criteria.
+- **4.2**: Generate final report and figures.
+
+## Success Criteria & Fallbacks
+
+- **SC-001 (Power)**: Measured against total species. **Fallback**: If underpowered, report MDES and state "Study underpowered to detect effects < X".
+- **SC-002 (Data Coverage)**: Target ≥95% cells with sufficient data. **Fallback**: If <95%, report the actual proportion and the resulting power loss.
+- **SC-003 (Convergence)**: Target ≥90% convergence. **Fallback**: If <90%, report the convergence rate and diagnostic summary of failures.
+- **SC-004 (CI Width)**: Target ≤7 days. **Fallback**: If >7 days, report actual width and MDES.
+- **SC-005 (Runtime)**: Must complete within 6 hours. **Fallback**: If exceeded, report the step that failed and the estimated time.
+

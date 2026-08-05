@@ -1,1 +1,22 @@
-[]
+- artifact_hash: 5a6afbb126fd0d8f336757cc2b9414bdf4a952dfa59dc5c9724e803e732e5eed
+  artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: train.csv
+  kind: url
+  value: https://huggingface.co/datasets/vvud/eb-data/resolve/main/data/train.csv`
+  verification_status: pending
+  verified_against_url: https://huggingface.co/api/resolve-cache/datasets/vvud/eb-data/2a43595fc8316fcc74f31502d058fd7d0902085c/data%2Ftrain.csv?%2Fdatasets%2Fvvud%2Feb-data%2Fresolve%2Fmain%2Fdata%2Ftrain.csv=&etag=%22df6b8aabd8d77ba7bc9ec75e2e8cadc6467e184a%22
+  verified_at: '2026-08-05T14:11:48.933818Z'
+- artifact_hash: 5a6afbb126fd0d8f336757cc2b9414bdf4a952dfa59dc5c9724e803e732e5eed
+  artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://huggingface.co/datasets/daymet/annual`
+  verification_status: pending
+  verified_against_url: https://huggingface.co/datasets/daymet/annual
+  verified_at: '2026-08-05T14:11:48.933818Z'

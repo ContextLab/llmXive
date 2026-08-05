@@ -1,0 +1,15 @@
+status: none
+intent: eBird Basic Dataset PRISM Climate Group download python package dataset
+required_fields:
+- species
+- grid_cell
+- year
+- week
+- first_arrival
+- median_arrival
+- stopover_duration
+- climate_temp
+- climate_precip
+cache_key: cc83ee2d377f5fb801ad8cb0edacf7490700ef3f956195b152c3741bab23d6aa
+searched_at: '2026-08-05T13:57:21.680300+00:00'
+retry_count: 1

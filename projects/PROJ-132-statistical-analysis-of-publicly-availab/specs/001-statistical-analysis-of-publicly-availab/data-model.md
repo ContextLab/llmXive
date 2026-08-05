@@ -1,74 +1,65 @@
-# Data Model: Bird Migration and Climate Analysis
+# Data Model: Statistical Analysis of Publicly Available Bird Migration Patterns and Climate Change
 
-## Overview
+## 1. Entity Definitions
 
-This document defines the data structures used throughout the pipeline. All data is stored in CSV or Parquet format, with checksums recorded in the project state.
-
-## Entity Definitions
-
-### 1. MigrationRecord (Raw)
-Represents a single bird observation.
-- `species` (str): Scientific name (e.g., "Turdus migratorius").
-- `latitude` (float): Decimal degrees (WGS84).
-- `longitude` (float): Decimal degrees.
-- `date` (date): YYYY-MM-DD.
+### MigrationRecord
+Represents a single bird observation from the eBird dataset.
+- `species_id` (str): Unique identifier for the species (e.g., "TURDUS-MIGRATORIOUS").
+- `latitude` (float): Latitude of the observation (WGS84).
+- `longitude` (float): Longitude of the observation (WGS84).
+- `date` (date): Date of observation (YYYY-MM-DD).
 - `count` (int): Number of individuals observed.
-- `checklist_id` (str): Unique eBird checklist ID.
-- `grid_cell` (str): "lat_lon" string (e.g., "45.5_-122.0").
+- `checklist_id` (str): Unique checklist ID from eBird.
+- `grid_cell` (str): "lat_lon" formatted string (e.g., "45.5_-75.0") derived from 0.5° grid.
 
-### 2. ClimateVariable (Raw/Interim)
-Represents climate measurements for a grid cell and week.
-- `grid_cell` (str): "lat_lon" string.
-- `week` (int): ISO week number (1-52).
-- `year` (int): Year (2020-2024).
-- `mean_temp` (float): Mean temperature (°C).
-- `total_precip` (float): Total precipitation (mm).
-- `extreme_idx` (float): Extreme weather index (0-1).
-- `imputed` (bool): True if value was interpolated.
+### PhenologyMetric
+Computed metric for a species-grid cell-year combination.
+- `species_id` (str)
+- `grid_cell` (str)
+- `year` (int)
+- `first_arrival_date` (date): First arrival in spring window. **Note**: Retained for archival, excluded from stopover modeling.
+- `median_arrival_date` (date): Median arrival date.
+- `stopover_duration` (float): Days between 10th and 90th percentile arrival dates.
+- `observation_count` (int): Total observations in the cell/year.
+- `data_quality` (str): "sufficient" or "insufficient" (if count < 5).
 
-### 3. PhenologyMetric (Processed)
-Computed metrics per species, grid cell, year.
-- `species` (str).
-- `grid_cell` (str).
-- `year` (int).
-- `first_arrival` (int): Day of year (1-365).
-- `median_arrival` (int): Day of year.
-- `stopover_duration` (float): Days between 10th and 90th percentile.
-- `n_obs` (int): Number of observations used.
-- `data_quality` (str): "sufficient" or "insufficient".
+### ClimateVariable
+Climate measurements for a grid cell-week.
+- `grid_cell` (str)
+- `week_start` (date): Start of the week.
+- `mean_temperature` (float): Average temperature (°C).
+- `total_precipitation` (float): Total precipitation (mm).
+- `extreme_weather_index` (float): Derived index (e.g., days > 30°C).
+- `source` (str): "Daymet".
 
-### 4. ModelOutput (Result)
-Results from the Unified Spatial Model.
-- `species` (str).
-- `term` (str): "temp_smooth", "precip_smooth".
-- `estimate` (float): Coefficient or smooth effect estimate.
-- `p_value` (float): Permutation p-value.
-- `fdr_q_value` (float): FDR corrected p-value.
-- `converged` (bool).
-- `spatial_smooth_k` (int): Complexity parameter used.
+### Trajectory
+Weekly centroid sequence for a species-year (Discrete Method).
+- `species_id` (str)
+- `year` (int)
+- `centroids` (list[dict]): List of `{"lat": float, "lon": float}` for each week.
+- `shift_vector` (dict): `{"magnitude": float, "direction": float}` (radians, mean displacement).
+- `p_value` (float): Significance from block bootstrap.
 
-### 5. TrajectoryShift (Result)
-Spatial route shift analysis.
-- `species` (str).
-- `year_start` (int).
-- `year_end` (int).
-- `shift_magnitude` (float): Distance in km.
-- `shift_direction` (float): Degrees (0-360).
-- `p_value` (float): Permutation p-value.
-- `ci_lower` (float): 95% CI lower bound.
-- `ci_upper` (float): 95% CI upper bound.
+### ProvenanceFile
+Links processed data to original sources.
+- `processed_row_id` (str): Unique ID in processed dataset.
+- `original_checklist_id` (str): Original eBird checklist ID.
+- `original_row_index` (int): Row index in the raw file.
+- `filter_reason` (str): "sufficient", "insufficient", "date_filter", "species_filter".
 
-## Data Flow
+## 2. Data Flow
 
-1.  **Input**: `data/raw/synthetic_ebird.csv`, `data/raw/synthetic_climate.parquet` (or real data if available).
-2.  **Preprocess**: `src/data/preprocess.py` -> `data/processed/phenology_metrics.csv`, `data/processed/climate_aligned.parquet`.
-3.  **Model**: `src/models/gamm.py` -> `data/processed/model_results.parquet`.
-4.  **Trajectory**: `src/models/trajectory.py` -> `data/processed/trajectory_shifts.parquet`.
-5.  **Output**: `data/processed/final_analysis_report.csv`.
+1. **Raw Ingestion**: `download.py` fetches EBD (CSV) and Daymet (Parquet stream) to `data/raw/`.
+2. **Preprocessing**: `preprocess.py` reads raw data, filters for migratory species (2020-2024), aggregates to 0.5° grid, and computes `PhenologyMetric`.
+3. **Climate Join**: `preprocess.py` joins `PhenologyMetric` with `ClimateVariable` on `grid_cell` and `week`.
+4. **Provenance Generation**: `preprocess.py` generates `data/provenance/row_mapping.json` linking processed rows to original `checklist_id`s.
+5. **Model Input**: `gamm.py` reads filtered `PhenologyMetric` (data_quality="sufficient") and fits models.
+6. **Output**: `analysis/correlation.py` generates final statistics; `analysis/routes.py` generates trajectory shifts.
 
-## Assumptions
+## 3. Validation Rules
 
-- All coordinates are in WGS84.
-- Dates are UTC.
-- Missing climate data is imputed using spatial interpolation within 1° radius.
-- "Insufficient data" threshold is < 5 observations per cell/year.
+- **Grid Cell**: Must be "lat_lon" with 1 decimal precision (0.5°).
+- **Date Range**: All dates must be between 2020-01-01 and 2024-12-31.
+- **Missing Data**: `first_arrival_date` is NULL if `observation_count` < 5.
+- **Geographic Bounds**: Latitude [-90, 90], Longitude [-180, 180].
+

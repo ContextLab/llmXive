@@ -1,0 +1,60 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Trajectory Schema"
+description: "Schema for migration route shift analysis results (Discrete Centroid Method)."
+type: object
+properties:
+  species_id:
+    type: string
+    description: "Species identifier."
+  year:
+    type: integer
+    description: "Year of the trajectory."
+  centroids:
+    type: array
+    items:
+      type: object
+      properties:
+        week:
+          type: integer
+        lat:
+          type: number
+          minimum: -90
+          maximum: 90
+        lon:
+          type: number
+          minimum: -180
+          maximum: 180
+      required:
+        - week
+        - lat
+        - lon
+      additionalProperties: false
+    description: "Weekly centroid coordinates."
+  shift_vector:
+    type: object
+    properties:
+      magnitude:
+        type: number
+        description: "Magnitude of the mean displacement in kilometers."
+      direction:
+        type: number
+        description: "Direction of the mean displacement in radians."
+    required:
+      - magnitude
+      - direction
+  p_value:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "P-value from the block bootstrap permutation test."
+  is_shift_significant:
+    type: boolean
+    description: "True if p_value < 0.05."
+required:
+  - species_id
+  - year
+  - centroids
+  - shift_vector
+  - p_value
+  - is_shift_significant
+additionalProperties: false

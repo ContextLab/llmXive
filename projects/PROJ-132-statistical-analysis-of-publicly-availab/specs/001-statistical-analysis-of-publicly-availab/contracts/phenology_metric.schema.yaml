@@ -1,0 +1,45 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "PhenologyMetric Schema"
+description: "Schema for the aggregated phenology metrics dataset."
+type: object
+properties:
+  species_id:
+    type: string
+    description: "Unique identifier for the species."
+  grid_cell:
+    type: string
+    pattern: "^[+-]?\\d+\\.\\d+_[+-]?\\d+\\.\\d+$"
+    description: "Grid cell identifier in 'lat_lon' format (0.5° resolution)."
+  year:
+    type: integer
+    minimum: 2020
+    maximum: 2024
+    description: "Observation year."
+  first_arrival_date:
+    type: string
+    format: date
+    description: "Date of first arrival in spring window."
+  median_arrival_date:
+    type: string
+    format: date
+    description: "Date of median arrival."
+  stopover_duration:
+    type: number
+    description: "Duration in days between 10th and 90th percentile arrival dates."
+  observation_count:
+    type: integer
+    minimum: 0
+    description: "Total number of observations in the cell/year."
+  data_quality:
+    type: string
+    enum:
+      - "sufficient"
+      - "insufficient"
+    description: "Flag indicating if observation count meets the minimum threshold (>= 5)."
+required:
+  - species_id
+  - grid_cell
+  - year
+  - observation_count
+  - data_quality
+additionalProperties: false
