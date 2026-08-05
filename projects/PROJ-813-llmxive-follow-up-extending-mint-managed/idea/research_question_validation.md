@@ -1,31 +1,21 @@
 ## Research-question validation
 
 ### Phenomenon-vs-method check
-
 **Verdict**: pass
-
-The question investigates a specific system-level phenomenon: the causal relationship between structural parameter similarity in LoRA adapters and the efficiency of memory scheduling policies. It asks how a physical property of the data (weight overlap) influences a system outcome (latency/eviction), rather than asking whether a specific algorithm (e.g., "Can a GNN scheduler...") works. The methodology (simulation) is a tool to measure this relationship, not the subject of the inquiry itself.
+The question asks about the fundamental relationship between structural parameter overlap in LoRA adapters and scheduling efficiency, specifically investigating the conditions (burstiness patterns) under which this structural signal loses predictive power. It is framed as an inquiry into system behavior and workload characteristics rather than a benchmark of a specific model architecture or a feasibility check of a single tool.
 
 ### Circularity check
-
 **Verdict**: pass
-
-The predictor (parameter overlap matrix derived from weight deltas) and the predicted variable (cold-start latency and eviction counts derived from the simulation's event timeline and memory state) are sourced from independent computational processes. While the overlap metric is used to *inform* the scheduler's decision, the resulting latency is an emergent property of the simulation's I/O and memory constraints, not a direct mathematical function of the overlap score. The simulation explicitly models the cost of loading data, ensuring the outcome is not mechanically guaranteed by the input.
+The predictor (structural parameter overlap) is derived from the static weight deltas of the LoRA adapters, while the predicted variable (scheduling efficiency/cold-start latency) is derived from the dynamic interaction of request traces and memory constraints in the simulation. These are independent signals: the static topology of the weights does not mechanically guarantee the temporal performance outcome under varying burstiness patterns.
 
 ### Triviality check
-
 **Verdict**: pass
-
-A null result (overlap does not reduce latency) would be scientifically significant, suggesting that access patterns or memory fragmentation dominate over weight similarity, challenging the assumption that "similar models share context." A positive result would validate a new class of optimization for multi-tenant systems. Both outcomes provide actionable insights for infrastructure design, and the magnitude of improvement (e.g., 15% vs. 0%) is not predetermined by current domain knowledge.
+A positive result (overlap-aware scheduling significantly reduces latency) would provide a novel, high-value strategy for multi-tenant serving that current heuristics miss. A null result (overlap is useless under high burstiness) is equally informative, as it would establish a critical boundary condition for the utility of topological analysis, preventing systems from wasting compute on similarity matrices when they are ineffective.
 
 ### Question-narrowing check
-
 **Verdict**: pass
-
-The question names a clear domain relationship: the influence of "parameter overlap" on "scheduling sequence" within the context of "multi-tenant LLM serving." It does not frame the inquiry around a specific implementation constraint like "Can we fit this on 4 GPUs?" or "Will this code run in 6 hours?" Instead, it seeks to understand a fundamental trade-off in system design, making it a substantive scientific question about the behavior of distributed inference infrastructure.
+The question explicitly names domain relationships ("parameter overlap," "scheduling efficiency," "request burstiness") and asks how they interact. It does not frame the inquiry around whether a specific implementation (e.g., "Can Python SimPy handle 10k adapters?") can meet a budget constraint, but rather what the underlying system dynamics dictate.
 
 ### Overall verdict
-
 **Verdict**: validated
-
-All four checks pass. The research question successfully isolates a novel, non-circular relationship between adapter topology and system performance. It avoids implementation-method narrowing by focusing on the *effect* of overlap rather than the *performance of a specific scheduler implementation*. The project is ready to advance to project initialization.
+All four checks pass; the research question identifies a substantive gap in systems knowledge regarding the interplay between static model topology and dynamic workload patterns. The question is well-scoped to determine the limits of a specific optimization strategy, making it a strong candidate for project initialization.
