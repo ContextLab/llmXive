@@ -1,21 +1,23 @@
 {
   "project_id": "PROJ-894-llmxive-follow-up-extending-memory-is-re",
   "ok": false,
-  "reason": "2 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/benchmark_full_traversal.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026rategy.  This script: 1. Generates a synthetic memory graph of varying\u2026\u201d; code/benchmark_full_traversal.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026nx.DiGraph:     \"\"\"     Generates a synthetic directed graph for bench\u2026\u201d; 3 run-book script(s) missing (plan/impl path mismatch): python code/analysis.py --results data/processed/results/; python code/analysis.py --results data/processed/results/; python code/utils/hash_artifacts.py; 1 command(s) failed: python code/data_loader.py --download --generate-graphs --seed 42 (rc=1); 8 declared deliverable(s) absent: data/processed/baseline_results.csv; data/processed/greedy_results.csv; data/processed/lazy_results.csv",
-  "artifacts": [],
+  "reason": "2 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/benchmark_full_traversal.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026rategy.  This script: 1. Generates a synthetic memory graph of varying\u2026\u201d; code/benchmark_full_traversal.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026nx.DiGraph:     \"\"\"     Generates a synthetic directed graph for bench\u2026\u201d; every produced artifact is gitignored (data/processed/test_results.csv) \u2014 the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 3 run-book script(s) missing (plan/impl path mismatch): python code/analysis.py --results data/processed/results/; python code/analysis.py --results data/processed/results/; python code/utils/hash_artifacts.py; 1 command(s) failed: python code/data_loader.py --download --generate-graphs --seed 42 (rc=1); 11 declared deliverable(s) absent: data/audit/streaming_log.json; data/processed/baseline_results.csv; data/processed/graphs/graph_noise_42.json",
+  "artifacts": [
+    "data/processed/test_results.csv"
+  ],
   "failures": [
-    "python code/data_loader.py --download --generate-graphs --seed 42 -> rc=1\n    3.11/site-packages/datasets/load.py\", line 1166, in dataset_module_factory\n    raise DatasetNotFoundError(f\"Dataset '{path}' doesn't exist on the Hub or cannot be accessed.\") from e\ndatasets.exceptions.DatasetNotFoundError: Dataset 'locomo/locomo-benchmark' doesn't exist on the Hub or cannot be accessed.\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/data_",
+    "python code/data_loader.py --download --generate-graphs --seed 42 -> rc=1\n    /python3.11/site-packages/datasets/load.py\", line 1166, in dataset_module_factory\n    raise DatasetNotFoundError(f\"Dataset '{path}' doesn't exist on the Hub or cannot be accessed.\") from e\ndatasets.exceptions.DatasetNotFoundError: Dataset 'locomo/locomo-benchmark' doesn't exist on the Hub or cannot be accessed.\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/cod",
     "python code/analysis.py --results data/processed/results/ -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/analysis.py': [Errno 2] No such file or directory",
     "python code/analysis.py --results data/processed/results/ -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/analysis.py': [Errno 2] No such file or directory",
     "python code/utils/hash_artifacts.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/utils/hash_artifacts.py': [Errno 2] No such file or directory"
   ],
-  "fix_rounds": 1,
+  "fix_rounds": 2,
   "model_tier": 0,
-  "total_attempts": 1,
+  "total_attempts": 2,
   "replan_rounds": 0,
   "failure_class": "data_unreachable",
   "evidence": [
     "python code/data_loader.py --download --generate-graphs --seed 42"
   ],
-  "updated_at": "2026-07-29T10:34:37Z"
+  "updated_at": "2026-08-05T00:08:12Z"
 }

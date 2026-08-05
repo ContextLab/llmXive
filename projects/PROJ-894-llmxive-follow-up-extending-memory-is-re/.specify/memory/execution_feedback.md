@@ -11,6 +11,17 @@ The gate detected that your reported numbers are NOT real measurements: they are
 - code/benchmark_full_traversal.py: synthetic/fake INPUT data not authorized by the spec — “…rategy.  This script: 1. Generates a synthetic memory graph of varying…”
 - code/benchmark_full_traversal.py: synthetic/fake INPUT data not authorized by the spec — “…nx.DiGraph:     """     Generates a synthetic directed graph for bench…”
 
+## ⛔ HOLLOW RESULTS — the analysis RAN but MEASURED NOTHING
+
+Every command exited 0 and the files were written — but the numbers in them are missing. A result that is `null`, `NaN`, an empty `[]`, a header-only CSV, or a column left blank in every row is NOT a measurement. Writing an empty result file is not 'done' — it is the same failure as fabrication, just quieter. You MUST:
+
+1. Find WHY the value is missing. A `null`/`NaN` correlation almost always means the inputs were empty, misaligned, or the wrong column was read — fix the computation, do NOT paper over it with a default.
+2. Verify you loaded the REAL dataset the spec names. If the study is about behavioural confidence ratings, a stand-in dataset (a bundled sklearn toy set, a random frame) is NOT the data — it will produce exactly these null/NaN results.
+3. Make sure the key measure is actually POPULATED before you compute on it: if the column the study depends on is blank in every row, the extraction step is broken and that is the real bug.
+4. NEVER self-certify. A `{"status": "PASS"}` written by your own code proves nothing; the numbers must be there.
+
+- every produced artifact is gitignored (data/processed/test_results.csv) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.
+
 ## ⚠ DATA-UNAVAILABLE failure — switch to a REAL, REACHABLE data source
 
 These commands failed because the external dataset is NOT reachable AS WRITTEN on the free CI runner: a Hugging Face dataset that was renamed (canonical names like `openai_humaneval` now require a `namespace/name`), had its loading script removed (`datasets` >= 3 dropped `trust_remote_code` script datasets), is gated, or needs network the runner lacks. RE-TRYING THE DOWNLOAD AS-IS WILL NEVER SUCCEED. Fix it with REAL data, in this order:
@@ -24,24 +35,24 @@ These commands failed because the external dataset is NOT reachable AS WRITTEN o
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 2 fabricated/simulated-result signal(s) — results are not real measurements: code/benchmark_full_traversal.py: synthetic/fake INPUT data not authorized by the spec — “…rategy.  This script: 1. Generates a synthetic memory graph of varying…”; code/benchmark_full_traversal.py: synthetic/fake INPUT data not authorized by the spec — “…nx.DiGraph:     """     Generates a synthetic directed graph for bench…”; 3 run-book script(s) missing (plan/impl path mismatch): python code/analysis.py --results data/processed/results/; python code/analysis.py --results data/processed/results/; python code/utils/hash_artifacts.py; 1 command(s) failed: python code/data_loader.py --download --generate-graphs --seed 42 (rc=1); 8 declared deliverable(s) absent: data/processed/baseline_results.csv; data/processed/greedy_results.csv; data/processed/lazy_results.csv
+**Summary**: 2 fabricated/simulated-result signal(s) — results are not real measurements: code/benchmark_full_traversal.py: synthetic/fake INPUT data not authorized by the spec — “…rategy.  This script: 1. Generates a synthetic memory graph of varying…”; code/benchmark_full_traversal.py: synthetic/fake INPUT data not authorized by the spec — “…nx.DiGraph:     """     Generates a synthetic directed graph for bench…”; every produced artifact is gitignored (data/processed/test_results.csv) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 3 run-book script(s) missing (plan/impl path mismatch): python code/analysis.py --results data/processed/results/; python code/analysis.py --results data/processed/results/; python code/utils/hash_artifacts.py; 1 command(s) failed: python code/data_loader.py --download --generate-graphs --seed 42 (rc=1); 11 declared deliverable(s) absent: data/audit/streaming_log.json; data/processed/baseline_results.csv; data/processed/graphs/graph_noise_42.json
 
 ## Failing / missing run-book commands
 
 - python code/data_loader.py --download --generate-graphs --seed 42 -> rc=1
-    3.11/site-packages/datasets/load.py", line 1166, in dataset_module_factory
+    /python3.11/site-packages/datasets/load.py", line 1166, in dataset_module_factory
     raise DatasetNotFoundError(f"Dataset '{path}' doesn't exist on the Hub or cannot be accessed.") from e
 datasets.exceptions.DatasetNotFoundError: Dataset 'locomo/locomo-benchmark' doesn't exist on the Hub or cannot be accessed.
 
 During handling of the above exception, another exception occurred:
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/data_loader.py", line 198, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/data_loader.py", line 351, in <module>
     main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/data_loader.py", line 186, in main
-    tasks = fetch_locomo_dataset(subset=5) # Small subset for testing
-            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/data_loader.py", line 67, in fetch_locomo_dataset
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/data_loader.py", line 325, in main
+    tasks = fetch_locomo_dataset(subset=args.subset)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/data_loader.py", line 97, in fetch_locomo_dataset
     raise RuntimeError(f"Cannot proceed without real data. Fetch failed: {e}")
 RuntimeError: Cannot proceed without real data. Fetch failed: Dataset 'locomo/locomo-benchmark' doesn't exist on the Hub or cannot be accessed.
 - python code/analysis.py --results data/processed/results/ -> rc=2 [script missing]
@@ -53,7 +64,9 @@ RuntimeError: Cannot proceed without real data. Fetch failed: Dataset 'locomo/lo
 
 ## Declared deliverables still missing
 
+- data/audit/streaming_log.json
 - data/processed/baseline_results.csv
+- data/processed/graphs/graph_noise_42.json
 - data/processed/greedy_results.csv
 - data/processed/lazy_results.csv
 - data/processed/noisy_baseline_results.csv
@@ -61,17 +74,29 @@ RuntimeError: Cannot proceed without real data. Fetch failed: Dataset 'locomo/lo
 - data/processed/noisy_lazy_results.csv
 - data/processed/stats_report.json
 - data/processed/sweep_results.csv
+- data/raw/locomo.csv
 
 ## Declared deliverables NOT produced — make the run-book produce them
 
 Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
 
+- `data/audit/streaming_log.json` is declared but was NOT written. Scripts referencing it:
+    - `code/utils/validate_streaming.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/audit/streaming_log.json` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/baseline_results.csv` is declared but was NOT written. Scripts referencing it:
     - `code/quickstart_validator.py` — NOT invoked by the run-book
     - `code/utils/validate_results.py` — NOT invoked by the run-book
     - `code/analysis/stats.py` — NOT invoked by the run-book
+    - `code/strategies/noisy_baseline_runner.py` — NOT invoked by the run-book
     - `code/strategies/baseline_runner.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/baseline_results.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
+- `data/processed/graphs/graph_noise_42.json` is declared but was NOT written. Scripts referencing it:
+    - `code/utils/generate_audit_report.py` — NOT invoked by the run-book
+    - `code/strategies/noisy_lazy_runner.py` — NOT invoked by the run-book
+    - `code/strategies/noisy_baseline_runner.py` — NOT invoked by the run-book
+    - `code/strategies/baseline_runner.py` — NOT invoked by the run-book
+    - `code/strategies/noisy_greedy_runner.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/processed/graphs/graph_noise_42.json` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/greedy_results.csv` is declared but was NOT written. Scripts referencing it:
     - `code/quickstart_validator.py` — NOT invoked by the run-book
     - `code/utils/validate_results.py` — NOT invoked by the run-book
@@ -90,6 +115,7 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/quickstart_validator.py` — NOT invoked by the run-book
     - `code/utils/validate_results.py` — NOT invoked by the run-book
     - `code/analysis/stats.py` — NOT invoked by the run-book
+    - `code/strategies/noisy_baseline_runner.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/noisy_baseline_results.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/noisy_greedy_results.csv` is declared but was NOT written. Scripts referencing it:
     - `code/quickstart_validator.py` — NOT invoked by the run-book
@@ -111,6 +137,15 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
   Make ONE of these WRITE `data/processed/stats_report.json` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/sweep_results.csv` is declared but was NOT written. Scripts referencing it:
     - `code/quickstart_validator.py` — NOT invoked by the run-book
-    - `code/analysis/stats.py` — NOT invoked by the run-book
     - `code/strategies/sweep_runner.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/sweep_results.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
+- `data/raw/locomo.csv` is declared but was NOT written. Scripts referencing it:
+    - `code/quickstart_validator.py` — NOT invoked by the run-book
+    - `code/data_loader.py` — IS a run-book command
+    - `code/utils/generate_audit_report.py` — NOT invoked by the run-book
+    - `code/utils/validate_streaming.py` — NOT invoked by the run-book
+    - `code/strategies/noisy_lazy_runner.py` — NOT invoked by the run-book
+    - `code/strategies/lazy_runner.py` — NOT invoked by the run-book
+    - `code/strategies/baseline_runner.py` — NOT invoked by the run-book
+    - `code/strategies/noisy_greedy_runner.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/raw/locomo.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
