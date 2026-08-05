@@ -1,0 +1,20 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory listings or file system evidence were provided showing that `data/raw`,
+    `data/processed`, `code`, `tests/unit`, and `state/projects` exist under `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/`.
+    Without concrete proof of these folders, the requirement is not satisfied.
+T013:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, data, or documentation for the Fine store construction is present; the
+    claim lacks any artifact showing object captions and bounding boxes are stored
+    as metadata only and excluded from similarity calculations. The required implementation
+    and verification are missing.
+T021:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: 'No code, configuration, or test files were presented that show the stratification
+    logic has been added to filter out samples with `detection_status: fallback` and
+    `detection_status: zero_detection`. The required implementation artifact is missing,
+    so the task cannot be confirmed as completed.'

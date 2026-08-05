@@ -6,6 +6,9 @@ pandas
 numpy
 openneuro-py
 dipy
+ruff
+black
+pytest
 matplotlib
 seaborn
-pytest
+scipy

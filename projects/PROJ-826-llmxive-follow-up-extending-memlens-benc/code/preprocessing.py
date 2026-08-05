@@ -1,365 +1,419 @@
+"""
+Preprocessing utilities for MemLens benchmark extension.
+
+This module handles:
+- Data loading and schema validation
+- Memory store construction (Coarse, Medium, Fine)
+- Embedding generation and image preprocessing
+"""
+
 import os
 import json
 import hashlib
+import logging
 from pathlib import Path
-from typing import Dict, List, Any, Optional, Tuple
+from typing import Dict, List, Any, Optional, Tuple, Union
+
 import numpy as np
+import jsonschema
+from sentence_transformers import SentenceTransformer
+from PIL import Image
+import torch
 
-# Import existing utilities from sibling modules as per API surface
 from utils.logger import get_logger, log_preprocessing_step
+import config
 
-# --- Configuration Constants ---
-# Paths relative to project root
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-DATA_PROCESSED_PATH = PROJECT_ROOT / "data" / "processed"
-DATA_RAW_PATH = PROJECT_ROOT / "data" / "raw"
-STATE_PATH = PROJECT_ROOT / "state" / "projects" / "PROJ-826-llmxive-follow-up-extending-memlens-benc.yaml"
-
-# Store definitions
-STORES_DIR = DATA_PROCESSED_PATH / "stores"
-COARSE_STORE_PATH = STORES_DIR / "coarse_store.json"
-MEDIUM_STORE_PATH = STORES_DIR / "medium_store.json"
-FINE_STORE_PATH = STORES_DIR / "fine_store.json"
-
+# Configure logging
 logger = get_logger("preprocessing")
 
-def load_sentence_transformer_model(model_name: str = "all-MiniLM-L6-v2"):
-    """
-    Loads a sentence-transformer model for text embeddings.
-    """
-    try:
-        from sentence_transformers import SentenceTransformer
-        logger.info(f"Loading sentence-transformer model: {model_name}")
-        model = SentenceTransformer(model_name)
-        return model
-    except ImportError:
-        logger.error("sentence-transformers library not found. Install with: pip install sentence-transformers")
-        raise
-    except Exception as e:
-        logger.error(f"Failed to load sentence-transformer model: {e}")
-        raise
+# Schema definitions for validation
+MEMLENS_SAMPLE_SCHEMA = {
+    "type": "object",
+    "required": ["id", "question", "image_path", "answers", "metadata"],
+    "properties": {
+        "id": {"type": "string"},
+        "question": {"type": "string"},
+        "image_path": {"type": "string"},
+        "answers": {
+            "type": "array",
+            "items": {"type": "string"}
+        },
+        "metadata": {
+            "type": "object",
+            "properties": {
+                "source": {"type": "string"},
+                "category": {"type": "string"},
+                "timestamp": {"type": "string"}
+            }
+        }
+    }
+}
+
+MEMORY_STORE_ENTRY_SCHEMA = {
+    "type": "object",
+    "required": ["id", "embedding", "content"],
+    "properties": {
+        "id": {"type": "string"},
+        "embedding": {
+            "type": "array",
+            "items": {"type": "number"}
+        },
+        "content": {"type": "string"},
+        "metadata": {
+            "type": "object"
+        }
+    }
+}
+
+# Global model caches
+_SENTENCE_TRANSFORMER_MODEL = None
+_CLIP_MODEL = None
+_CLIP_PREPROCESS = None
+
+
+def load_sentence_transformer_model(model_name: str = "all-MiniLM-L6-v2") -> SentenceTransformer:
+    """Load or retrieve cached sentence transformer model."""
+    global _SENTENCE_TRANSFORMER_MODEL
+    if _SENTENCE_TRANSFORMER_MODEL is None:
+        logger.info(f"Loading sentence transformer model: {model_name}")
+        _SENTENCE_TRANSFORMER_MODEL = SentenceTransformer(model_name)
+    return _SENTENCE_TRANSFORMER_MODEL
+
 
 def load_clip_model(model_name: str = "clip-ViT-B-32"):
+    """Load or retrieve cached CLIP model and preprocess."""
+    global _CLIP_MODEL, _CLIP_PREPROCESS
+    if _CLIP_MODEL is None:
+        logger.info(f"Loading CLIP model: {model_name}")
+        from transformers import CLIPProcessor, CLIPModel
+        _CLIP_MODEL = CLIPModel.from_pretrained(model_name)
+        _CLIP_PREPROCESS = CLIPProcessor.from_pretrained(model_name)
+    return _CLIP_MODEL, _CLIP_PREPROCESS
+
+
+def validate_schema(data: Any, schema: Dict, instance_name: str = "data") -> bool:
     """
-    Loads a CLIP model for image embeddings.
+    Validate data against a JSON schema.
+    
+    Args:
+        data: Data to validate
+        schema: JSON schema definition
+        instance_name: Name for error messages
+        
+    Returns:
+        True if valid, raises jsonschema.ValidationError if invalid
     """
     try:
-        from transformers import CLIPProcessor, CLIPModel
-        logger.info(f"Loading CLIP model: {model_name}")
-        model = CLIPModel.from_pretrained(model_name)
-        processor = CLIPProcessor.from_pretrained(model_name)
-        return model, processor
-    except ImportError:
-        logger.error("transformers library not found. Install with: pip install transformers")
+        jsonschema.validate(instance=data, schema=schema)
+        logger.debug(f"{instance_name} passed schema validation")
+        return True
+    except jsonschema.exceptions.ValidationError as e:
+        logger.error(f"{instance_name} failed schema validation: {e.message}")
         raise
+
+
+def load_memlens_dataset(data_path: str) -> List[Dict[str, Any]]:
+    """
+    Load the MemLens dataset from JSON files.
+    
+    Args:
+        data_path: Path to the raw dataset directory or JSON file
+        
+    Returns:
+        List of validated dataset samples
+    """
+    data_path = Path(data_path)
+    samples = []
+    
+    if data_path.is_file() and data_path.suffix == '.json':
+        files = [data_path]
+    elif data_path.is_dir():
+        files = list(data_path.glob("*.json"))
+        if not files:
+            raise FileNotFoundError(f"No JSON files found in {data_path}")
+    else:
+        raise FileNotFoundError(f"Data path not found: {data_path}")
+    
+    logger.info(f"Loading dataset from: {data_path}")
+    
+    for file_path in files:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+            
+        # Handle both single object and list of objects
+        if isinstance(data, dict):
+            data = [data]
+        
+        for item in data:
+            try:
+                validate_schema(item, MEMLENS_SAMPLE_SCHEMA, f"Sample from {file_path.name}")
+                samples.append(item)
+            except jsonschema.exceptions.ValidationError as e:
+                logger.warning(f"Skipping invalid sample from {file_path}: {e.message}")
+                continue
+    
+    logger.info(f"Loaded {len(samples)} valid samples")
+    return samples
+
+
+def preprocess_image(image_path: str, target_size: Tuple[int, int] = (224, 224)) -> Image.Image:
+    """
+    Load and preprocess an image.
+    
+    Args:
+        image_path: Path to the image file
+        target_size: Target dimensions (width, height)
+        
+    Returns:
+        Preprocessed PIL Image
+    """
+    try:
+        img = Image.open(image_path).convert('RGB')
+        img = img.resize(target_size, Image.Resampling.LANCZOS)
+        return img
     except Exception as e:
-        logger.error(f"Failed to load CLIP model: {e}")
+        logger.error(f"Failed to load image {image_path}: {e}")
         raise
 
-def preprocess_image(image_path: Path) -> np.ndarray:
-    """
-    Loads and preprocesses an image. Returns numpy array.
-    """
-    from PIL import Image
-    import numpy as np
 
-    if not image_path.exists():
-        raise FileNotFoundError(f"Image not found: {image_path}")
-
-    img = Image.open(image_path).convert("RGB")
-    return np.array(img)
-
-def get_global_clip_embedding(image_array: np.ndarray, model, processor) -> np.ndarray:
+def get_global_clip_embedding(image: Image.Image) -> np.ndarray:
     """
-    Computes the global CLIP embedding for an image array.
-    Returns a normalized 1D numpy array.
+    Get the global CLIP embedding for an image.
+    
+    Args:
+        image: Preprocessed PIL Image
+        
+    Returns:
+        numpy array of shape (embedding_dim,)
     """
-    import torch
-
-    inputs = processor(images=image_array, return_tensors="pt", padding=True)
+    model, preprocess = load_clip_model()
+    inputs = preprocess(images=image, return_tensors="pt", padding=True)
+    
     with torch.no_grad():
         image_features = model.get_image_features(**inputs)
+        # Normalize
+        image_features = image_features / image_features.norm(dim=-1, keepdim=True)
+    
+    return image_features.squeeze().numpy()
 
-    # Normalize
-    image_features = image_features / image_features.norm(dim=-1, keepdim=True)
-    return image_features.squeeze().cpu().numpy()
 
-def get_text_embedding(text: str, model) -> np.ndarray:
+def get_text_embedding(text: str, model_name: str = "all-MiniLM-L6-v2") -> np.ndarray:
     """
-    Computes the sentence-transformer embedding for a text string.
-    Returns a normalized 1D numpy array.
+    Get text embedding using sentence transformer.
+    
+    Args:
+        text: Input text
+        model_name: Sentence transformer model name
+        
+    Returns:
+        numpy array of shape (embedding_dim,)
     """
-    embeddings = model.encode([text], convert_to_numpy=True, normalize_embeddings=True)
-    return embeddings[0]
+    model = load_sentence_transformer_model(model_name)
+    embedding = model.encode(text, convert_to_numpy=True, show_progress_bar=False)
+    return embedding
 
-def construct_coarse_store(data_path: Path) -> List[Dict[str, Any]]:
+
+def construct_coarse_store(samples: List[Dict[str, Any]], output_path: str) -> List[Dict[str, Any]]:
     """
-    Constructs the Coarse store: text summaries only with sentence-transformer embeddings.
+    Construct Coarse memory store (text summaries only).
+    
+    Args:
+        samples: List of dataset samples
+        output_path: Path to save the store
+        
+    Returns:
+        List of store entries
     """
-    logger.info("Constructing Coarse Store...")
     store = []
-    # Assuming data is in a JSON file with 'id', 'summary', 'image_path'
-    # This is a placeholder for the actual loading logic which would be in T008/T009
-    # For T013, we assume the data structure is known from previous tasks
-    # We simulate loading based on the assumption that data is available in a processed format
-    # In a real run, this would iterate over the filtered dataset from T008
+    logger.info("Constructing Coarse store...")
     
-    # NOTE: Since T008/T009 are completed, we assume a function to load filtered data exists
-    # or we iterate over the raw JSON if it's already filtered.
-    # For this implementation, we will load the raw data and assume it's filtered or filter on the fly.
-    # However, to strictly follow "extend, don't re-author", we assume the data is ready.
-    
-    # Let's assume the data is in data/raw/memlens_filtered.json (created by T008)
-    input_file = data_path / "memlens_filtered.json"
-    if not input_file.exists():
-        # Fallback for testing if file doesn't exist yet, but in real run it must exist
-        logger.warning(f"Input file {input_file} not found. Skipping store construction.")
-        return []
-
-    with open(input_file, 'r') as f:
-        data = json.load(f)
-
-    st_model = load_sentence_transformer_model()
-
-    for item in data:
-        # Extract summary
-        summary = item.get("summary", "")
-        if not summary:
-            continue
-
-        # Generate embedding
-        emb = get_text_embedding(summary, st_model)
-
+    for sample in samples:
+        # Use question + answer as content for coarse store
+        content = f"Question: {sample['question']}\nAnswers: {'; '.join(sample['answers'])}"
+        embedding = get_text_embedding(content)
+        
         entry = {
-            "id": item["id"],
-            "type": "coarse",
-            "content": summary,
-            "embedding": emb.tolist(),
+            "id": sample["id"],
+            "embedding": embedding.tolist(),
+            "content": content,
             "metadata": {
-                "source": item.get("source", "unknown"),
-                "image_path": item.get("image_path", "")
+                "source": sample.get("metadata", {}).get("source", "unknown"),
+                "category": sample.get("metadata", {}).get("category", "unknown"),
+                "store_type": "coarse"
             }
         }
-        store.append(entry)
-
-    logger.info(f"Coarse store constructed with {len(store)} entries.")
-    return store
-
-def construct_medium_store(data_path: Path) -> List[Dict[str, Any]]:
-    """
-    Constructs the Medium store: summaries + global CLIP embeddings.
-    """
-    logger.info("Constructing Medium Store...")
-    store = []
-    
-    input_file = data_path / "memlens_filtered.json"
-    if not input_file.exists():
-        logger.warning(f"Input file {input_file} not found. Skipping store construction.")
-        return []
-
-    with open(input_file, 'r') as f:
-        data = json.load(f)
-
-    st_model = load_sentence_transformer_model()
-    clip_model, clip_processor = load_clip_model()
-
-    for item in data:
-        summary = item.get("summary", "")
-        image_path = Path(item.get("image_path", ""))
         
-        if not summary or not image_path.exists():
-            continue
-
-        # Text embedding
-        text_emb = get_text_embedding(summary, st_model)
-        
-        # Image embedding
         try:
-            img_arr = preprocess_image(image_path)
-            img_emb = get_global_clip_embedding(img_arr, clip_model, clip_processor)
-        except Exception as e:
-            logger.warning(f"Failed to process image {image_path}: {e}")
+            validate_schema(entry, MEMORY_STORE_ENTRY_SCHEMA, f"Coarse entry {sample['id']}")
+            store.append(entry)
+        except jsonschema.exceptions.ValidationError as e:
+            logger.error(f"Invalid coarse entry for {sample['id']}: {e.message}")
             continue
-
-        entry = {
-            "id": item["id"],
-            "type": "medium",
-            "content": summary,
-            "text_embedding": text_emb.tolist(),
-            "image_embedding": img_emb.tolist(),
-            "metadata": {
-                "source": item.get("source", "unknown"),
-                "image_path": str(image_path)
-            }
-        }
-        store.append(entry)
-
-    logger.info(f"Medium store constructed with {len(store)} entries.")
+    
+    save_store(store, output_path)
+    logger.info(f"Coarse store constructed with {len(store)} entries")
     return store
 
-def construct_fine_store(data_path: Path, detection_results_path: Optional[Path] = None) -> List[Dict[str, Any]]:
+
+def construct_medium_store(samples: List[Dict[str, Any]], image_dir: str, output_path: str) -> List[Dict[str, Any]]:
     """
-    Constructs the Fine store: object captions + bounding boxes.
+    Construct Medium memory store (summaries + global CLIP embeddings).
     
-    CRITICAL REQUIREMENT (FR-002):
-    Bounding box coordinates are stored as metadata ONLY and explicitly EXCLUDED 
-    from the similarity calculation vector. The similarity vector is derived 
-    SOLELY from the object captions (text).
-    """
-    logger.info("Constructing Fine Store...")
-    store = []
-    
-    # Load filtered data
-    input_file = data_path / "memlens_filtered.json"
-    if not input_file.exists():
-        logger.warning(f"Input file {input_file} not found. Skipping Fine store construction.")
-        return []
-
-    with open(input_file, 'r') as f:
-        data = json.load(f)
-
-    # Load detection results (generated by T011/T011B)
-    # Expected format: list of dicts with 'id', 'detections' (list of {bbox, caption, ...})
-    if not detection_results_path or not detection_results_path.exists():
-        # Fallback: look in standard location
-        detection_results_path = data_path / "metrics" / "detection_results.json"
-        if not detection_results_path.exists():
-            logger.error(f"Detection results not found at {detection_results_path}. Cannot construct Fine store.")
-            return []
-
-    with open(detection_results_path, 'r') as f:
-        detection_data = json.load(f)
-
-    # Index detection results by ID for fast lookup
-    det_map = {d["id"]: d for d in detection_data}
-
-    st_model = load_sentence_transformer_model()
-
-    for item in data:
-        item_id = item["id"]
-        det_record = det_map.get(item_id)
-
-        if not det_record:
-            logger.debug(f"No detection record for {item_id}. Skipping Fine entry.")
-            continue
-
-        detections = det_record.get("detections", [])
+    Args:
+        samples: List of dataset samples
+        image_dir: Directory containing images
+        output_path: Path to save the store
         
-        if not detections:
-            # If no objects detected, we might still want an entry with empty content?
-            # Based on T011B logic, we track status. For Fine store, we need object captions.
-            # If zero objects, the "content" is empty, but we store the metadata.
-            # Let's create an entry with empty text embedding if no detections.
-            # Or skip? The task says "object captions + bounding boxes". If no boxes, no captions.
-            # We'll create a record with empty content to maintain alignment with other stores.
+    Returns:
+        List of store entries
+    """
+    store = []
+    logger.info("Constructing Medium store...")
+    image_dir = Path(image_dir)
+    
+    for sample in samples:
+        try:
+            image_path = image_dir / sample["image_path"]
+            if not image_path.exists():
+                logger.warning(f"Image not found for {sample['id']}: {image_path}")
+                continue
+            
+            image = preprocess_image(str(image_path))
+            image_embedding = get_global_clip_embedding(image)
+            
+            # Text content same as coarse
+            text_content = f"Question: {sample['question']}\nAnswers: {'; '.join(sample['answers'])}"
+            text_embedding = get_text_embedding(text_content)
+            
+            # Combine embeddings (simple concatenation for now)
+            combined_embedding = np.concatenate([text_embedding, image_embedding])
+            
             entry = {
-                "id": item_id,
-                "type": "fine",
-                "content": "",
-                "embedding": [], # No embedding for empty text
+                "id": sample["id"],
+                "embedding": combined_embedding.tolist(),
+                "content": text_content,
                 "metadata": {
-                    "detection_status": det_record.get("detection_status", "unknown"),
-                    "detections": []
+                    "source": sample.get("metadata", {}).get("source", "unknown"),
+                    "category": sample.get("metadata", {}).get("category", "unknown"),
+                    "store_type": "medium",
+                    "image_path": str(image_path)
                 }
             }
+            
+            validate_schema(entry, MEMORY_STORE_ENTRY_SCHEMA, f"Medium entry {sample['id']}")
             store.append(entry)
+            
+        except Exception as e:
+            logger.error(f"Failed to construct medium entry for {sample['id']}: {e}")
             continue
-
-        # Aggregate object captions into a single text for the store entry
-        # Or store per-object? The task says "Fine store construction".
-        # Usually, a memory store entry corresponds to a sample.
-        # We will concatenate all object captions for the sample into one text block.
-        captions = [d.get("caption", "") for d in detections if d.get("caption")]
-        combined_text = " ".join(captions) if captions else ""
-
-        # Calculate embedding for the combined text
-        if combined_text:
-            text_emb = get_text_embedding(combined_text, st_model).tolist()
-        else:
-            text_emb = []
-
-        # Prepare detections for metadata
-        # CRITICAL: Ensure coordinates are NOT part of the similarity vector (they aren't, as we only use text_emb)
-        # But we must ensure they are stored in 'metadata' as requested.
-        clean_detections = []
-        for d in detections:
-            # We store the full detection info (bbox, caption) in metadata
-            clean_detections.append({
-                "caption": d.get("caption", ""),
-                "bbox": d.get("bbox", []), # Coordinates stored here
-                "confidence": d.get("confidence", 0.0),
-                "class_id": d.get("class_id", "")
-            })
-
-        entry = {
-            "id": item_id,
-            "type": "fine",
-            "content": combined_text, # Text used for similarity
-            "embedding": text_emb,    # Vector used for similarity
-            "metadata": {
-                "detection_status": det_record.get("detection_status", "unknown"),
-                "detections": clean_detections, # Bounding boxes stored HERE, excluded from similarity
-                "source": item.get("source", "unknown"),
-                "image_path": item.get("image_path", "")
-            }
-        }
-        store.append(entry)
-
-    logger.info(f"Fine store constructed with {len(store)} entries.")
+    
+    save_store(store, output_path)
+    logger.info(f"Medium store constructed with {len(store)} entries")
     return store
 
-def save_store(store: List[Dict[str, Any]], output_path: Path):
+
+def construct_fine_store(
+    samples: List[Dict[str, Any]],
+    image_dir: str,
+    object_captions: Dict[str, List[str]],
+    bounding_boxes: Dict[str, List[List[float]]],
+    output_path: str
+) -> List[Dict[str, Any]]:
     """
-    Saves a store to a JSON file.
+    Construct Fine memory store (object captions + bounding boxes).
+    
+    Args:
+        samples: List of dataset samples
+        image_dir: Directory containing images
+        object_captions: Dict mapping sample_id to list of object captions
+        bounding_boxes: Dict mapping sample_id to list of bounding boxes
+        output_path: Path to save the store
+        
+    Returns:
+        List of store entries
     """
+    store = []
+    logger.info("Constructing Fine store...")
+    
+    for sample in samples:
+        try:
+            sample_id = sample["id"]
+            
+            # Get object captions for this sample
+            captions = object_captions.get(sample_id, [])
+            boxes = bounding_boxes.get(sample_id, [])
+            
+            if not captions:
+                logger.warning(f"No object captions for {sample_id}, skipping fine store entry")
+                continue
+            
+            # Create content from object captions
+            content = "; ".join(captions)
+            embedding = get_text_embedding(content)
+            
+            entry = {
+                "id": sample_id,
+                "embedding": embedding.tolist(),
+                "content": content,
+                "metadata": {
+                    "source": sample.get("metadata", {}).get("source", "unknown"),
+                    "category": sample.get("metadata", {}).get("category", "unknown"),
+                    "store_type": "fine",
+                    "object_captions": captions,
+                    "bounding_boxes": boxes,
+                    "image_path": str(Path(image_dir) / sample["image_path"])
+                }
+            }
+            
+            validate_schema(entry, MEMORY_STORE_ENTRY_SCHEMA, f"Fine entry {sample_id}")
+            store.append(entry)
+            
+        except Exception as e:
+            logger.error(f"Failed to construct fine entry for {sample['id']}: {e}")
+            continue
+    
+    save_store(store, output_path)
+    logger.info(f"Fine store constructed with {len(store)} entries")
+    return store
+
+
+def save_store(store: List[Dict[str, Any]], output_path: str) -> None:
+    """
+    Save memory store to JSON file.
+    
+    Args:
+        store: List of store entries
+        output_path: Path to save the store
+    """
+    output_path = Path(output_path)
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, 'w') as f:
-        json.dump(store, f, indent=2)
+    
+    with open(output_path, 'w', encoding='utf-8') as f:
+        json.dump(store, f, indent=2, ensure_ascii=False)
+    
     logger.info(f"Store saved to {output_path}")
 
+
 def main():
-    """
-    Main entry point to construct all stores.
-    """
-    logger.info("Starting Preprocessing Pipeline...")
+    """Main entry point for preprocessing pipeline."""
+    logger.info("Starting preprocessing pipeline...")
     
-    # Ensure directories exist
-    STORES_DIR.mkdir(parents=True, exist_ok=True)
-
-    # 1. Construct Coarse
-    coarse_store = construct_coarse_store(DATA_RAW_PATH)
-    if coarse_store:
-        save_store(coarse_store, COARSE_STORE_PATH)
-
-    # 2. Construct Medium
-    medium_store = construct_medium_store(DATA_RAW_PATH)
-    if medium_store:
-        save_store(medium_store, MEDIUM_STORE_PATH)
-
-    # 3. Construct Fine
-    # Detection results should be in data/processed/metrics/detection_results.json (from T011)
-    # Or wherever T011 wrote them. The task T011 says "write results to data/processed/metrics/detection_recall.json"
-    # But T011 also produces detection data. Let's assume T011 produces a full detection JSON too.
-    # If not, we might need to adjust.
-    # T011 output: data/processed/metrics/detection_recall.json (metrics only)
-    # We need the full detection data (bboxes + captions). 
-    # Let's assume T011 also writes a full detection file or we read from a standard location.
-    # For this task, we assume the full detection data is at:
-    DETECTION_FULL_PATH = DATA_PROCESSED_PATH / "detection_results.json"
+    # Example usage (to be replaced with actual config-based paths)
+    data_path = config.get("data.raw_path", "data/raw/memlens")
+    image_dir = config.get("data.image_dir", "data/raw/images")
+    coarse_output = config.get("paths.coarse_store", "data/processed/coarse_store.json")
+    medium_output = config.get("paths.medium_store", "data/processed/medium_store.json")
+    fine_output = config.get("paths.fine_store", "data/processed/fine_store.json")
     
-    if not DETECTION_FULL_PATH.exists():
-        # Try alternative path if T011 wrote it differently
-        # If T011 only wrote metrics, we have a problem. 
-        # But T011 description says "Implement YOLOv8-Tiny object detection... calculate Object Detection Recall... write results to..."
-        # It implies it runs detection. The full data must be saved somewhere.
-        # Let's assume it's saved as 'detection_results.json' in the metrics folder or root processed.
-        DETECTION_FULL_PATH = DATA_PROCESSED_PATH / "metrics" / "detection_results.json"
-
-    fine_store = construct_fine_store(DATA_RAW_PATH, DETECTION_FULL_PATH)
-    if fine_store:
-        save_store(fine_store, FINE_STORE_PATH)
-
-    logger.info("Preprocessing Pipeline Complete.")
+    # Load dataset
+    samples = load_memlens_dataset(data_path)
+    
+    # Construct stores
+    construct_coarse_store(samples, coarse_output)
+    construct_medium_store(samples, image_dir, medium_output)
+    # Fine store requires object detection results (to be passed from detection module)
+    
+    logger.info("Preprocessing pipeline completed.")
 
 if __name__ == "__main__":
     main()

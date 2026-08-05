@@ -1,68 +1,50 @@
 import os
 import sys
 from pathlib import Path
+from typing import List
 
-def create_directories():
+def create_directories(base_path: Path, directories: List[str]) -> None:
     """
-    Create the required project directory structure.
-    
-    Creates:
-    - data/raw, data/interim, data/processed
-    - code (already exists per T001c)
-    - tests/unit, tests/integration (already exists per T001d)
-    - reports (NEW for T001e)
+    Create a list of directories under the given base path.
+    Creates parent directories as needed.
     """
-    root = Path(".")
-    
-    directories = [
-        root / "data" / "raw",
-        root / "data" / "interim",
-        root / "data" / "processed",
-        root / "reports",
-    ]
-    
-    created = []
-    for dir_path in directories:
+    for dir_name in directories:
+        dir_path = base_path / dir_name
         dir_path.mkdir(parents=True, exist_ok=True)
-        created.append(str(dir_path))
         print(f"Created directory: {dir_path}")
-    
-    return created
 
-def create_init_files():
+def create_init_files(base_path: Path, directories: List[str]) -> None:
     """
-    Create __init__.py files in code and tests directories if they don't exist.
+    Create __init__.py files in the specified directories to make them Python packages.
     """
-    root = Path(".")
-    
-    init_paths = [
-        root / "code" / "__init__.py",
-        root / "tests" / "__init__.py",
-        root / "tests" / "unit" / "__init__.py",
-        root / "tests" / "integration" / "__init__.py",
-    ]
-    
-    created = []
-    for init_path in init_paths:
-        if not init_path.exists():
-            init_path.parent.mkdir(parents=True, exist_ok=True)
-            init_path.touch()
-            created.append(str(init_path))
-            print(f"Created __init__.py: {init_path}")
-        else:
-            print(f"__init__.py already exists: {init_path}")
-    
-    return created
+    for dir_name in directories:
+        dir_path = base_path / dir_name
+        init_file = dir_path / "__init__.py"
+        if not init_file.exists():
+            init_file.touch()
+            print(f"Created __init__.py in: {dir_path}")
 
-def main():
+def main() -> None:
     """
-    Main entry point to setup the project directory structure.
+    Main entry point to set up the project directory structure.
+    Creates reports/ directory and initializes it as a package.
     """
-    print("Setting up project directories...")
-    dirs = create_directories()
-    inits = create_init_files()
-    print(f"Setup complete. Created {len(dirs)} directories and {len(inits)} init files.")
-    return 0
+    # Define the project root (current working directory or explicit path)
+    project_root = Path.cwd()
+
+    # Directories to create
+    # Based on T001e: Create 'reports/' directory for final outputs
+    directories_to_create = ["reports"]
+
+    print(f"Setting up directories in: {project_root}")
+
+    # Create directories
+    create_directories(project_root, directories_to_create)
+
+    # Create __init__.py for reports to make it a package (optional but good practice)
+    create_init_files(project_root, directories_to_create)
+
+    print("Directory setup complete.")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

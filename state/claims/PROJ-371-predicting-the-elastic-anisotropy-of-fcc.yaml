@@ -181,3 +181,474 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-25T07:55:36Z'
+- artifact_path: projects/PROJ-371-predicting-the-elastic-anisotropy-of-fcc/specs/001-predicting-the-elastic-anisotropy-of-fcc/tasks.md
+  attempts: 1
+  canonical: merge MP/AFLOW results using reference 2409.02789
+  claim_id: c_24516a6d
+  context: Implement src/data/validate_ingest.py to merge MP/AFLOW results, {{claim:c_c00f8a07}}
+    (2409.02789, https://arxiv.org/abs/2409.02789) (SC-001), and log skipped IDs.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: '2409.02789'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T00:58:31Z'
+- artifact_path: projects/PROJ-371-predicting-the-elastic-anisotropy-of-fcc/specs/001-predicting-the-elastic-anisotropy-of-fcc/tasks.md
+  attempts: 1
+  canonical: Merge MP/AFLOW results using arXiv paper 2409.02789
+  claim_id: c_da61520e
+  context: Implement src/data/validate_ingest.py to merge MP/AFLOW results, {{claim:c_c00f8a07}}
+    (2409.02789, https://arxiv.org/abs/2409.02789) (SC-001), and log skipped IDs.
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: 2409.02789, https://arxiv.org/abs/2409.02789
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T01:00:11Z'
+- artifact_path: projects/PROJ-371-predicting-the-elastic-anisotropy-of-fcc/specs/001-predicting-the-elastic-anisotropy-of-fcc/tasks.md
+  attempts: 1
+  canonical: arXiv citation 2409.02789
+  claim_id: c_80b99b55
+  context: Implement src/data/validate_ingest.py to merge MP/AFLOW results, {{claim:c_c00f8a07}}
+    (2409.02789, https://arxiv.org/abs/2409.02789) (SC-001), and log skipped IDs.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: '2409.02789'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T01:03:24Z'
+- artifact_path: projects/PROJ-371-predicting-the-elastic-anisotropy-of-fcc/specs/001-predicting-the-elastic-anisotropy-of-fcc/tasks.md
+  attempts: 1
+  canonical: test-mode uses static fixtures from manifest.json
+  claim_id: c_18a16a2d
+  context: T012a [US1] Implement src/data/ingest_mp.py to fetch C11, C12, C44 from
+    Materials Project API... For --test-mode, load static fixtures from data/raw/manifest.json
+    (real data subset), NOT synthetic mocks.
+  evidence:
+    entailment_evidence: Test-mode uses static fixtures from manifest.
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Test-mode_uses_static_fixtures_from_manifest.json
+  kind: entity_fact
+  raw_text: For --test-mode, load static fixtures from data/raw/manifest.json (real
+    data subset), NOT synthetic mocks.
+  resolved_value: test-mode uses static fixtures from manifest.json
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-05T01:05:33Z'
+- artifact_path: projects/PROJ-371-predicting-the-elastic-anisotropy-of-fcc/specs/001-predicting-the-elastic-anisotropy-of-fcc/tasks.md
+  attempts: 1
+  canonical: ingest scripts raise explicit error on API failure
+  claim_id: c_b856c987
+  context: 'T012a [US1] Implement src/data/ingest_mp.py... CRITICAL: Do NOT implement
+    fallback to synthetic/mock data. If API key missing or fetch fails, raise explicit
+    error.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Ingest_scripts_raise_explicit_error_on_API_failure
+  kind: entity_fact
+  raw_text: If API key missing or fetch fails, raise explicit error.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T01:08:01Z'
+- artifact_path: projects/PROJ-371-predicting-the-elastic-anisotropy-of-fcc/specs/001-predicting-the-elastic-anisotropy-of-fcc/tasks.md
+  attempts: 1
+  canonical: filter single-phase FCC entries by crystal system cubic
+  claim_id: c_ea5803eb
+  context: T013 [US1] Implement src/data/clean.py to filter for single-phase FCC entries
+    (check structure['symmetry']['crystal_system'] == 'cubic' for MP; check tags['fss']
+    or equivalent cubic flag for AFLOW)...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Filter_single-phase_FCC_entries_by_crystal_system_cubic
+  kind: entity_fact
+  raw_text: Filter for single-phase FCC entries (check structure['symmetry']['crystal_system']
+    == 'cubic' for MP; check tags['fss'] or equivalent cubic flag for AFLOW).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T01:11:03Z'
+- artifact_path: projects/PROJ-371-predicting-the-elastic-anisotropy-of-fcc/specs/001-predicting-the-elastic-anisotropy-of-fcc/tasks.md
+  attempts: 1
+  canonical: exclude entries where C11 equals C12
+  claim_id: c_3bfe2c37
+  context: T013 [US1] Implement src/data/clean.py to... exclude entries where C11=C12
+    (preventing division by zero in A1)...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Exclude_entries_where_C11_equals_C12
+  kind: entity_fact
+  raw_text: Exclude entries where C11=C12 to prevent division by zero in A1.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T01:11:28Z'
+- artifact_path: projects/PROJ-371-predicting-the-elastic-anisotropy-of-fcc/specs/001-predicting-the-elastic-anisotropy-of-fcc/tasks.md
+  attempts: 1
+  canonical: calculate A1 using formula 2*C44 divided by C11 minus C12
+  claim_id: c_b269649b
+  context: T013 [US1] Implement src/data/clean.py to... calculate A1 = 2*C44 / (C11-C12)
+    (Edge Case 2, Edge Case 3)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate A1 = 2*C44 / (C11-C12).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T01:11:31Z'
+- artifact_path: projects/PROJ-371-predicting-the-elastic-anisotropy-of-fcc/specs/001-predicting-the-elastic-anisotropy-of-fcc/tasks.md
+  attempts: 1
+  canonical: compute atomic radius variance electronegativity standard deviation and
+    valence electron concentration
+  claim_id: c_5e4d71df
+  context: T014 [US1] Implement src/data/features.py to compute atomic radius variance,
+    electronegativity standard deviation, and valence electron concentration using
+    mendeleev or pymatgen (FR-002)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Compute_atomic_radius_variance_electronegativity_standard_de
+  kind: entity_fact
+  raw_text: Compute atomic radius variance, electronegativity standard deviation,
+    and valence electron concentration using mendeleev or pymatgen.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T01:11:40Z'
+- artifact_path: projects/PROJ-371-predicting-the-elastic-anisotropy-of-fcc/specs/001-predicting-the-elastic-anisotropy-of-fcc/tasks.md
+  attempts: 1
+  canonical: train Random Forest Gradient Boosting and Linear Regression models using
+    CPU-only resources
+  claim_id: c_823cff7c
+  context: T020 [US2] Implement src/models/train.py to train Random Forest, Gradient
+    Boosting, and Linear Regression models using CPU-only resources (no GPU/CUDA).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Train_Random_Forest_Gradient_Boosting_and_Linear_Regression
+  kind: entity_fact
+  raw_text: Train Random Forest, Gradient Boosting, and Linear Regression models using
+    CPU-only resources (no GPU/CUDA).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T01:15:13Z'
+- artifact_path: projects/PROJ-371-predicting-the-elastic-anisotropy-of-fcc/specs/001-predicting-the-elastic-anisotropy-of-fcc/tasks.md
+  attempts: 1
+  canonical: flag predictions where A1 is less than or equal to 0 or greater than
+    or equal to 3
+  claim_id: c_cce4c93c
+  context: T028 [US3] Implement src/models/evaluate.py physical consistency check
+    to flag predictions where A1 <= 0 or A1 >= 3 (SC-003, US-3 Acceptance 1).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_predictions_where_A1_is_less_than_or_equal_to_0_or_grea
+  kind: magnitude
+  raw_text: Flag predictions where A1 <= 0 or A1 >= 3.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T01:16:04Z'
+- artifact_path: projects/PROJ-371-predicting-the-elastic-anisotropy-of-fcc/specs/001-predicting-the-elastic-anisotropy-of-fcc/tasks.md
+  attempts: 1
+  canonical: log warning if aggregate violation rate exceeds 5 percent
+  claim_id: c_0aff3180
+  context: T028b [US3] Implement logic in src/models/evaluate.py to calculate the
+    aggregate violation rate percentage and compare it against a predefined significance
+    threshold defined in SC-003; log a warning if rate > 5% (SC-003, coverage-a9a2778d)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Log a warning if aggregate violation rate > 5%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T01:16:04Z'
+- artifact_path: projects/PROJ-371-predicting-the-elastic-anisotropy-of-fcc/specs/001-predicting-the-elastic-anisotropy-of-fcc/tasks.md
+  attempts: 1
+  canonical: sweep outlier removal thresholds over standard deviation values 2.5 3.0
+    3.5
+  claim_id: c_cf374160
+  context: 'T027 [US3] Implement src/models/sensitivity.py to sweep outlier removal
+    thresholds over a configurable range of standard deviation values (loaded from
+    src/utils/config.py, default: [2.5, 3.0, 3.5]).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Sweep outlier removal thresholds over a configurable range of standard
+    deviation values (default: [2.5, 3.0, 3.5]).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T01:16:29Z'
+- artifact_path: projects/PROJ-371-predicting-the-elastic-anisotropy-of-fcc/specs/001-predicting-the-elastic-anisotropy-of-fcc/tasks.md
+  attempts: 1
+  canonical: log warning if variance of R squared across sweeps exceeds 0.1
+  claim_id: c_990bc2e1
+  context: "T027 [US3] Implement src/models/sensitivity.py to... Calculate the variance\
+    \ of R\xB2 across these sweeps... and log a warning if variance > 0.1 (US-3 Acceptance\
+    \ 2, FR-005, coverage-f3d78a40, coverage-6955ef8c, coverage-4e26fac5)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Log a warning if variance of R\xB2 across sweeps > 0.1."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T01:16:29Z'
+- artifact_path: projects/PROJ-371-predicting-the-elastic-anisotropy-of-fcc/specs/001-predicting-the-elastic-anisotropy-of-fcc/tasks.md
+  attempts: 1
+  canonical: report findings reflect correlations not causal mechanisms
+  claim_id: c_b0853e40
+  context: 'T029 [US3] Generate output/validation_report.md including... explicit
+    associational framing (FR-004: ''findings reflect correlations, not causal mechanisms'')...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Report_findings_reflect_correlations_not_causal_mechanisms
+  kind: entity_fact
+  raw_text: 'Include explicit associational framing: ''findings reflect correlations,
+    not causal mechanisms''.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T01:17:10Z'
+- artifact_path: projects/PROJ-371-predicting-the-elastic-anisotropy-of-fcc/specs/001-predicting-the-elastic-anisotropy-of-fcc/tasks.md
+  attempts: 1
+  canonical: report contains exact phrase associational not causal
+  claim_id: c_d0757bc3
+  context: 'T029 [US3] Generate output/validation_report.md... Verification: Ensure
+    report contains the exact phrase ''associational, not causal''. (FR-004, US-3
+    Acceptance 2, coverage-e01bcda2)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Report_contains_exact_phrase_associational_not_causal
+  kind: entity_fact
+  raw_text: Ensure report contains the exact phrase 'associational, not causal'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T01:18:09Z'
+- artifact_path: projects/PROJ-371-predicting-the-elastic-anisotropy-of-fcc/specs/001-predicting-the-elastic-anisotropy-of-fcc/tasks.md
+  attempts: 1
+  canonical: check if R squared is greater than or equal to 0.5 and log benchmark
+    status
+  claim_id: c_523ec2ec
+  context: "T041 [US2] Implement logic in output/metrics.json generation... to explicitly\
+    \ check if R\xB2 >= 0.5 and log a boolean benchmark_met and a string benchmark_status\
+    \ (e.g., 'Met', 'Not Met') to satisfy SC-004. (SC-004)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Check_if_R_squared_is_greater_than_or_equal_to_0.5_and_log_b
+  kind: magnitude
+  raw_text: "Check if R\xB2 >= 0.5 and log a boolean benchmark_met and a string benchmark_status."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T01:19:09Z'
+- artifact_path: projects/PROJ-371-predicting-the-elastic-anisotropy-of-fcc/specs/001-predicting-the-elastic-anisotropy-of-fcc/tasks.md
+  attempts: 1
+  canonical: verify output CSV exists with greater than 0 rows
+  claim_id: c_bc6e95bb
+  context: 'T015 [US1] Create src/cli/run_pipeline.py orchestration script... Verification:
+    Verify output CSV exists at data/processed/elastic_anisotropy.csv with >0 rows.
+    (FR-001, US-1 Acceptance 2, executability-41ed0ce7)'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_output_CSV_exists_with_greater_than_0_rows
+  kind: magnitude
+  raw_text: Verify output CSV exists at data/processed/elastic_anisotropy.csv with
+    >0 rows.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T01:19:37Z'
+- artifact_path: projects/PROJ-371-predicting-the-elastic-anisotropy-of-fcc/specs/001-predicting-the-elastic-anisotropy-of-fcc/tasks.md
+  attempts: 1
+  canonical: log warning and flag timeout if runtime exceeds 1 hour
+  claim_id: c_bdd82345
+  context: T037 [US2] Implement timing instrumentation in src/cli/run_pipeline.py
+    to measure total runtime and log the result to output/timing.json. If runtime
+    > 1 hour, log a warning (do not crash/assert) and flag the run as 'timeout_warning'.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If runtime > 1 hour, log a warning and flag the run as 'timeout_warning'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T01:19:37Z'
+- artifact_path: projects/PROJ-371-predicting-the-elastic-anisotropy-of-fcc/specs/001-predicting-the-elastic-anisotropy-of-fcc/tasks.md
+  attempts: 1
+  canonical: verify LOEO split logic ensures no element overlap between train and
+    test sets
+  claim_id: c_4347854b
+  context: T018 [P] [US2] Add tests/unit/test_train.py::test_loeo_split_no_element_overlap
+    to verify the LOEO split logic ensures no element overlap between train and test
+    sets
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P31: cross-validation'
+      source_id: Q117753662
+      url: https://www.wikidata.org/wiki/Q117753662
+      value: P31
+    filled: true
+  kind: entity_fact
+  raw_text: Verify the LOEO split logic ensures no element overlap between train and
+    test sets.
+  resolved_value: P31
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-05T01:20:07Z'
+- artifact_path: projects/PROJ-371-predicting-the-elastic-anisotropy-of-fcc/specs/001-predicting-the-elastic-anisotropy-of-fcc/tasks.md
+  attempts: 1
+  canonical: verify R squared MAE and RMSE calculations match scikit-learn standards
+  claim_id: c_49519995
+  context: "T040 [P] [US2] Add tests/unit/test_evaluate.py::test_metrics_calculation_matches_scikit_learn\
+    \ to verify R\xB2, MAE, and RMSE calculations match scikit-learn standards."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verify_R_squared_MAE_and_RMSE_calculations_match_scikit-lear
+  kind: entity_fact
+  raw_text: "Verify R\xB2, MAE, and RMSE calculations match scikit-learn standards."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T01:21:00Z'
+- artifact_path: projects/PROJ-371-predicting-the-elastic-anisotropy-of-fcc/specs/001-predicting-the-elastic-anisotropy-of-fcc/tasks.md
+  attempts: 1
+  canonical: verify consistency check flags predictions outside 0 less than A1 less
+    than 3
+  claim_id: c_49c8c087
+  context: "T025 [P] [US3] Add tests/unit/test_evaluate.py::test_physical_bounds_flags_out_of_range\
+    \ to verify the consistency check flags predictions outside 0 < A\u2081 < 3"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_consistency_check_flags_predictions_outside_0_less_th
+  kind: magnitude
+  raw_text: "Verify the consistency check flags predictions outside 0 < A\u2081 <\
+    \ 3."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T01:21:50Z'
+- artifact_path: projects/PROJ-371-predicting-the-elastic-anisotropy-of-fcc/specs/001-predicting-the-elastic-anisotropy-of-fcc/tasks.md
+  attempts: 1
+  canonical: verify variance calculation across sweep and threshold check less than
+    or equal to 0.1
+  claim_id: c_ac4a38ee
+  context: T026 [P] [US3] Add tests/unit/test_sensitivity.py::test_sensitivity_sweep_variance_calculation
+    to verify the variance calculation across the sweep and the threshold check (<=
+    0.1)
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_variance_calculation_across_sweep_and_threshold_check
+  kind: magnitude
+  raw_text: Verify the variance calculation across the sweep and the threshold check
+    (<= 0.1).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T01:23:12Z'
+- artifact_path: projects/PROJ-371-predicting-the-elastic-anisotropy-of-fcc/specs/001-predicting-the-elastic-anisotropy-of-fcc/tasks.md
+  attempts: 1
+  canonical: verify skipping and logging for missing C11
+  claim_id: c_0d7dff7a
+  context: T035a [P] Add tests/unit/test_ingest.py::test_ingest_handles_missing_C11
+    to verify skipping and logging (Edge Case 1)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verify_skipping_and_logging_for_missing_C11
+  kind: entity_fact
+  raw_text: Verify skipping and logging for missing C11.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T01:23:49Z'
+- artifact_path: projects/PROJ-371-predicting-the-elastic-anisotropy-of-fcc/specs/001-predicting-the-elastic-anisotropy-of-fcc/tasks.md
+  attempts: 1
+  canonical: verify division by zero handling when C11 equals C12
+  claim_id: c_6c861d59
+  context: T035b [P] Add tests/unit/test_clean.py::test_clean_excludes_C11_equals_C12
+    to verify division-by-zero handling (Edge Case 2)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verify_division_by_zero_handling_when_C11_equals_C12
+  kind: entity_fact
+  raw_text: Verify division-by-zero handling when C11 equals C12.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T01:24:30Z'

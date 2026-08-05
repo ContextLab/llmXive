@@ -1,3 +1,1 @@
-"""
-llmXive research-implementer pipeline code package.
-"""
+# llmXive automated science pipeline - code module

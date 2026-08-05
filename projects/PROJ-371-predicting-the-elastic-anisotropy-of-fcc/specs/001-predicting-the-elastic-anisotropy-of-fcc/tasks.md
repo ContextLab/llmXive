@@ -36,7 +36,7 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [ ] T002-new [P] **Implement LOEO Splitter Function**: Implement the core Leave-One-Element-Out (LOEO) *algorithm* (function logic) in `src/models/loeo_split.py`. This task creates the reusable function that accepts a list of element groups and returns train/test indices. **Note**: This task implements the *logic* only; it does NOT generate split artifacts. The execution of this logic to create artifacts is handled in T021. (Plan: Complexity Tracking, Constitution Principle VII Mitigation)
-- [ ] T004-new [P] Create `src/utils/config.py` to manage paths (data/raw, data/processed, output), random seeds (fixed for reproducibility), constants, and **configurable sensitivity analysis thresholds** (default: [2.5, 3.0, 3.5] std devs [UNRESOLVED-CLAIM: c_2278f5ca — status=not_enough_info]).
+- [ ] T004-new [P] Create `src/utils/config.py` to manage paths (data/raw, data/processed, output), random seeds (fixed for reproducibility), constants, and **configurable sensitivity analysis thresholds** (default: [2.5, 3.0, 3.5] std devs).
 - [ ] T005-new [P] Implement `src/utils/logging.py` for structured logging and error tracking
 - [ ] T006-new [P] [US1] Add `tests/unit/test_config.py` to verify configuration loading and seed reproducibility (Depends on T004-new)
 - [ ] T007-new [P] Setup `data/raw/` and `data/processed/` directory structures with `.gitkeep`
@@ -56,7 +56,7 @@
 ### Implementation for User Story 1
 
 - [ ] T011-new [P] [US1] Create and populate `data/raw/manifest.json` with a curated list of known FCC material IDs (e.g., MP-123, AFLOW-456) to serve as the input source for the ingestion script. This task ensures T012a/b have a defined input artifact. (FR-001, SC-001, F001)
-- [ ] T012a [US1] Implement `src/data/ingest_mp.py` to fetch C11, C12, C44 from Materials Project API (endpoint: `/materials/v1/elasticity`) for IDs in `manifest.json`. **CRITICAL**: Do NOT implement fallback to synthetic/mock data. If API key missing or fetch fails, raise explicit error. For `--test-mode`, load static fixtures from `data/raw/manifest.json` (real data subset), NOT synthetic mocks. (FR-001, Edge Case 1)
+- [X] T012a [US1] Implement `src/data/ingest_mp.py` to fetch C11, C12, C44 from Materials Project API (endpoint: `/materials/v1/elasticity`) for IDs in `manifest.json`. **CRITICAL**: Do NOT implement fallback to synthetic/mock data. If API key missing or fetch fails, raise explicit error. [UNRESOLVED-CLAIM: c_b856c987 — status=not_enough_info] For `--test-mode`, load static fixtures from `data/raw/manifest.json` (real data subset), NOT synthetic mocks. (FR-001, Edge Case 1)
 - [ ] T012b [US1] Implement `src/data/ingest_aflow.py` to fetch C11, C12, C44 from AFLOWlib API for IDs in `manifest.json`. **CRITICAL**: If API key missing or fetch fails,raise explicit error. For `--test-mode`, load static fixtures. (FR-001, Edge Case 1) <!-- FAILED: unspecified -->
 - [ ] T012c [US1] Implement `src/data/validate_ingest.py` to merge MP/AFLOW results, {{claim:c_c00f8a07}} (2409.02789, https://arxiv.org/abs/2409.02789) (SC-001), and log skipped IDs. (FR-001, SC-001)
 - [ ] T013 [US1] Implement `src/data/clean.py` to filter for single-phase FCC entries (check `structure['symmetry']['crystal_system'] == 'cubic'` for MP; check `tags['fss']` or equivalent cubic flag for AFLOW), exclude entries where C11=C12 (preventing division by zero in A1), and calculate A1 = 2*C44 / (C11-C12) (Edge Case 2, Edge Case 3)
@@ -80,7 +80,7 @@
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
 - [X] T018 [P] [US2] Add `tests/unit/test_train.py::test_loeo_split_no_element_overlap` to verify the LOEO split logic ensures no element overlap between train and test sets
-- [ ] T040 [P] [US2] Add `tests/unit/test_evaluate.py::test_metrics_calculation_matches_scikit_learn` to verify R², MAE, and RMSE calculations match scikit-learn standards. **Also verify**: This task must check if R² >= 0.5 [UNRESOLVED-CLAIM: c_e5be8298 — status=not_enough_info] and log the result as 'benchmark_status' in `output/metrics.json` to satisfy SC-004. (SC-004, US-2 Acceptance 2)
+- [ ] T040 [P] [US2] Add `tests/unit/test_evaluate.py::test_metrics_calculation_matches_scikit_learn` to verify R², MAE, and RMSE calculations match scikit-learn standards. **Also verify**: This task must check if R² >= 0.5 and log the result as 'benchmark_status' in `output/metrics.json` to satisfy SC-004. (SC-004, US-2 Acceptance 2)
 
 ### Implementation for User Story 2
 
@@ -103,17 +103,17 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T025 [P] [US3] Add `tests/unit/test_evaluate.py::test_physical_bounds_flags_out_of_range` to verify the consistency check flags predictions outside 0 < A₁ < 3 [UNRESOLVED-CLAIM: c_bb0e106e — status=not_enough_info]
+- [ ] T025 [P] [US3] Add `tests/unit/test_evaluate.py::test_physical_bounds_flags_out_of_range` to verify the consistency check flags predictions outside 0 < A₁ < 3
 - [ ] T026 [P] [US3] Add `tests/unit/test_sensitivity.py::test_sensitivity_sweep_variance_calculation` to verify the variance calculation across the sweep and the threshold check (<= 0.1)
 
 ### Implementation for User Story 3
 
-- [ ] T028 [US3] Implement `src/models/evaluate.py` physical consistency check to flag predictions where A1 <= 0 or A1 >= 3 [UNRESOLVED-CLAIM: c_532b2d67 — status=not_enough_info] (SC-003, US-3 Acceptance 1). **Output**: Update `data/processed/residuals_and_flags.json` with physical violation flags.
-- [ ] T028b [US3] Implement logic in `src/models/evaluate.py` to **calculate the aggregate violation rate percentage** and compare it against a predefined significance threshold defined in SC-003; log a warning if rate > 5% [UNRESOLVED-CLAIM: c_ba424b2b — status=not_enough_info] (SC-003, coverage-a9a2778d)
-- [ ] T027 [US3] Implement `src/models/sensitivity.py` to sweep outlier removal thresholds over a **configurable range of standard deviation values** (loaded from `src/utils/config.py`, default: [2.5, 3.0, 3.5] [UNRESOLVED-CLAIM: c_c6498073 — status=not_enough_info]). Calculate the variance of R² across these sweeps using the residuals from T022, **save the variance value to `output/sensitivity.json` and `output/metrics.json`**, and log a warning if variance > 0.1 [UNRESOLVED-CLAIM: c_746c8067 — status=not_enough_info] (US-3 Acceptance 2, FR-005, coverage-f3d78a40, coverage-6955ef8c, coverage-4e26fac5)
+- [ ] T028 [US3] Implement `src/models/evaluate.py` physical consistency check to flag predictions where A1 <= 0 or A1 >= 3 (SC-003, US-3 Acceptance 1). **Output**: Update `data/processed/residuals_and_flags.json` with physical violation flags.
+- [ ] T028b [US3] Implement logic in `src/models/evaluate.py` to **calculate the aggregate violation rate percentage** and compare it against a predefined significance threshold defined in SC-003; log a warning if rate > 5% (SC-003, coverage-a9a2778d)
+- [ ] T027 [US3] Implement `src/models/sensitivity.py` to sweep outlier removal thresholds over a **configurable range of standard deviation values** (loaded from `src/utils/config.py`, default: [2.5, 3.0, 3.5]). Calculate the variance of R² across these sweeps using the residuals from T022, **save the variance value to `output/sensitivity.json` and `output/metrics.json`**, and log a warning if variance > 0.1 (US-3 Acceptance 2, FR-005, coverage-f3d78a40, coverage-6955ef8c, coverage-4e26fac5)
 - [ ] T029 [US3] Generate `output/validation_report.md` including feature importance, sensitivity analysis results (variance <= 0.1 check), explicit **associational framing** (FR-004: "findings reflect correlations, not causal mechanisms"), and the violation rate percentage from T028b. **Verification**: Ensure report contains the exact phrase "associational, not causal". (FR-004, US-3 Acceptance 2, coverage-e01bcda2)
 - [ ] T030 [US3] Implement Verification Gate logic in `src/cli/run_pipeline.py` to ensure all citations in the report are resolvable and metrics match `output/metrics.json` (Constitution Principle II)
-- [ ] T041 [US2] Implement logic in `output/metrics.json` generation (or `src/models/evaluate.py`) to explicitly check if R² >= 0.5 [UNRESOLVED-CLAIM: c_e5be8298 — status=not_enough_info] and log a boolean `benchmark_met` and a string `benchmark_status` (e.g., "Met", "Not Met") to satisfy SC-004. (SC-004)
+- [ ] T041 [US2] Implement logic in `output/metrics.json` generation (or `src/models/evaluate.py`) to explicitly check if R² >= 0.5 and log a boolean `benchmark_met` and a string `benchmark_status` (e.g., "Met", "Not Met") to satisfy SC-004. (SC-004)
 
 **Checkpoint**: All user stories should now be independently functional
 

@@ -62,7 +62,7 @@
 
 - [X] T100 [P] [US1] Contract test for molecule schema (`tests/contract/test_molecule_schema.py`) – Implement `test_molecule_schema_validates_missing_coordinates` to assert that molecules with missing 3D coordinates are flagged and excluded.
 - [X] T101 [P] [US1] Contract test for feature_set schema (`tests/contract/test_feature_set_schema.py`) – Implement `test_feature_set_schema_validates_nan_values` to assert that feature vectors contain no NaN values.
-- [X] T102 [P] [US1] Integration test for QM9 download pipeline with memory profiling (`tests/integration/test_qm9_download.py`) – Implement `test_qm9_download_memory_under_8gb` to verify memory usage stays within 8GB limit during download.
+- [X] T102 [P] [US1] Integration test for QM9 download pipeline with memory profiling (`tests/integration/test_qm9_download.py`) – Implement `test_qm9_download_memory_under_8gb` to verify memory usage stays within 8GB limit during download [UNRESOLVED-CLAIM: c_b7527477 — status=not_enough_info].
 - [X] T103 [P] [US1] Unit test for 3D coordinate extraction (`tests/unit/test_extract_3d_coords.py`) – Implement `test_extract_3d_coords_handles_nan_and_missing_atoms` to assert correct handling of NaN values and missing atoms.
 - [X] T104 [P] [US1] Unit test for 2D descriptor generation (`tests/unit/test_extract_2d_descriptors.py`) – Implement `test_2d_descriptors_verify_fingerprint_length_and_matrix_symmetry` to assert Morgan fingerprint length and Coulomb matrix symmetry.
 
@@ -88,9 +88,9 @@
 
 ### Tests for User Story 2
 
-- [ ] T106 [P] [US2] Contract test for model_output schema (`tests/contract/test_model_output_schema.py`) – Implement `test_model_output_schema_validates_prediction_range` to assert predicted dipoles are within physical bounds.
-- [ ] T107 [P] [US2] Integration test for GNN training pipeline (`tests/integration/test_gnn_training.py`) – Implement `test_gnn_training_converges_within_50_epochs` to assert convergence criteria.
-- [ ] T108 [P] [US2] Integration test for Random Forest training pipeline (`tests/integration/test_rf_training.py`) – Implement `test_rf_training_rmse_variance_under_10_percent` to assert stability across seeds.
+- [X] T106 [P] [US2] Contract test for model_output schema (`tests/contract/test_model_output_schema.py`) – Implement `test_model_output_schema_validates_prediction_range` to assert predicted dipoles are within physical bounds.
+- [X] T107 [P] [US2] Integration test for GNN training pipeline (`tests/integration/test_gnn_training.py`) – Implement `test_gnn_training_converges_within_50_epochs` to assert convergence criteria.
+- [X] T108 [P] [US2] Integration test for Random Forest training pipeline (`tests/integration/test_rf_training.py`) – Implement `test_rf_training_rmse_variance_under_10_percent` to assert stability across seeds.
 - [ ] T109 [P] [US2] Unit test for MAE/RMSE metric computation (`tests/unit/test_metrics.py`) – Implement `test_metrics_handles_empty_input_and_nan` to assert correct edge case handling.
 
 ### Implementation for User Story 2
@@ -101,7 +101,7 @@
 - [X] T029 [US2] Train Random Forest baseline with seeds in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/training/train_rf.py` – also records RMSE variance.
 - [X] T030 [US2] Implement identical train/test split generation across seeds in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/training/split_data.py`
 - [X] T031 [US2] Implement MAE and RMSE metric computation in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/training/evaluate.py` (FR‑006)
-- [X] T032 [US2] Compute MAE/RMSE against QM9 dipole‑moment reference values on the held‑out test split (fulfills FR‑011 without external data).
+- [X] T032 [US2] Compute MAE/RMSE against QM9 dipole‑moment reference values (fulfills FR‑011 without external data).
 - [X] T033 [US2] Save model checkpoints to `data/checkpoints/model_seed_{N}.pt` and `rf_seed_{N}.pkl` – each checkpoint includes model state dict, training config, seed, and timestamp.
 - [X] T034 [US2] Generate `results/metrics.csv` with columns `seed`, `model`, `mae`, `rmse`, `mae_ci_lower`, `mae_ci_upper`, `rmse_ci_lower`, `rmse_ci_upper` – CI computed via bootstrap (95 % confidence) within this task.
 

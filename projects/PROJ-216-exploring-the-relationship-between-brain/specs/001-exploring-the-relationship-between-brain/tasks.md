@@ -96,8 +96,8 @@ Examples of foundational tasks (adjust based on your project):
 - [X] T022 [US2] Implement connectivity matrix generation using `nilearn` and a Schaefer atlas with a variable number of ROIs in `code/graph_metrics.py`; read preprocessed NIfTI files from `data/processed/` (output of T015)
 - [X] T023 [US2] Implement global efficiency and clustering coefficient calculation using `networkx` in `code/graph_metrics.py`
 - [X] T024 [US2] Implement modularity calculation (Louvain) with resolution parameter sweep fallback in `code/graph_metrics.py`
-- [~] T025 [US2] Aggregate results into `data/processed/graph_metrics.csv` with subject ID, metric name, and value
-- [ ] T026 [US2] Validate numerical ranges (e.g., efficiency 0-1) and write anomalies to `data/processed/graph_metric_validation.log` with format: `[SUBJECT_ID] [METRIC] [VALUE] [REASON]`
+- [ ] T025 [US2] Aggregate results into `data/processed/graph_metrics.csv` with subject ID, metric name, and value
+- [X] T026 [US2] Validate numerical ranges (e.g., efficiency 0-1) and write anomalies to `data/processed/graph_metric_validation.log` with format: `[SUBJECT_ID] [METRIC] [VALUE] [REASON]`
 
 ---
 
@@ -108,10 +108,10 @@ Examples of foundational tasks (adjust based on your project):
 - [X] T027 [P] [US3] Unit test for Bonferroni correction logic in `tests/unit/test_stats.py`
 - [X] T028 [P] [US3] Unit test for Cohen's d and 95% CI calculation in `tests/unit/test_stats.py`
 - [X] T029 [P] [US3] Integration test for full analysis report generation in `tests/integration/test_pipeline.py`
-- [~] T030 [US3] Implement multiple linear regression analysis (controlling for age/gender) and Pearson/Spearman correlation between graph metrics and Fluid Intelligence scores in `code/stats.py`; requires `data/processed/graph_metrics.csv` (T025) and validated behavioral data (T014) <!-- FAILED: unspecified -->
+- [ ] T030 [US3] Implement multiple linear regression analysis (controlling for age/gender) and Pearson/Spearman correlation between graph metrics and Fluid Intelligence scores in `code/stats.py`; requires `data/processed/graph_metrics.csv` (T025) and validated behavioral data (T014) <!-- FAILED: unspecified -->
 - [X] T031 [US3] Implement Bonferroni correction for multiple comparisons (Overrides Spec FR-005 per Constitution Principle VII) in `code/stats.py`
-- [~] T032 [US3] Calculate effect sizes (Cohen's d) and 95% confidence intervals; append columns `cohens_d`, `ci_95_lower`, `ci_95_upper` to `data/processed/graph_metrics.csv`
-- [~] T033 [US3] Generate scatter plots with regression lines and confidence intervals using `matplotlib`/`seaborn`
+- [ ] T032 [US3] Calculate effect sizes (Cohen's d) and 95% confidence intervals; append columns `cohens_d`, `ci_95_lower`, `ci_95_upper` to `data/processed/graph_metrics.csv`
+- [ ] T033 [US3] Generate scatter plots with regression lines and confidence intervals using `matplotlib`/`seaborn`
 - [ ] T034 [US3] Generate `reports/summary.pdf` containing scatter plots, regression lines, correlation coefficients, p-values, effect sizes (Cohen's d), and 95% CIs for all significant correlations
 - [ ] T035 [US3] Generate `data/processed/analysis_resource_profile.json` with peak RAM and total runtime for SC-005 verification
 

@@ -1,42 +1,3 @@
-T001b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence was provided that a `data/` directory with the required `raw`, `interim`,
-    and `processed` subfolders actually exists; the artifact list is empty, so the
-    implementer has not demonstrated that the directories were created.
-T001c:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence was provided that a `code/` directory containing an `__init__.py`
-    file and a `tests/` subdirectory actually exists; the submission includes only
-    specification text and no filesystem artifacts.
-T001d:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required `tests/unit/` or `tests/integration/` directories
-    was provided; the implementer did not include any file listings, screenshots,
-    or code showing these folders exist. The task therefore remains unfinished.
-T001e:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of a `reports/` directory (or any files within it) was provided;\
-    \ the implementer\u2019s claim is unsupported by any visible artifact. The required\
-    \ directory must be created and contain the final output files for the task to\
-    \ be considered complete."
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No linting/formatting configuration files (e.g., `pyproject.toml` with Black\
-    \ settings, `.ruff.toml` or `ruff.toml`, or a pre\u2011commit config) are present\
-    \ in the repository, nor any documentation showing that Ruff and Black have been\
-    \ set up and integrated. Without these artifacts the requirement to configure\
-    \ the tools is not satisfied."
-T005:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No script, code file, or documentation for a system\u2011level dependency check\
-    \ of FSL/AFNI is present; the only provided material is the project specification,\
-    \ which does not include the required artifact. The task remains undone."
 T008:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -80,3 +41,37 @@ T018:
   r: No `preprocess.py` file or modified code was provided, and there is no evidence
     that RAM usage logging per subject was added or that the `ResourceMonitor` from
     T009 is used. The required artifact is missing.
+T025:
+  c: false
+  h: bfe60c921f1461a0b55dd7f329d1c35400bdd4897abb4bb1e2b25bbcc102f3c2
+  r: The required output file `data/processed/graph_metrics.csv` does not exist, so
+    the aggregation step has not been delivered. No artifact can be inspected to verify
+    correct columns or content.
+T030:
+  c: false
+  h: 4eb9decfafdd416f223f073305f16ea082105332eaf2f7cf8f2a94563bcccde4
+  r: The required `data/processed/graph_metrics.csv` file is absent, and `code/stats.py`
+    does not contain the requested multiple linear regression (with age/gender covariates);
+    it only provides loading and correlation functions, with the regression portion
+    missing. These gaps prevent the task from being fulfilled.
+T032:
+  c: false
+  h: bfe60c921f1461a0b55dd7f329d1c35400bdd4897abb4bb1e2b25bbcc102f3c2
+  r: "The required output file `data/processed/graph_metrics.csv` is missing, so no\
+    \ columns could be added and the effect size calculations cannot be verified.\
+    \ The implementer must generate the CSV (or ensure it exists) and append the three\
+    \ specified columns with correct Cohen's\u202Fd and confidence interval values."
+T033:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, notebook, image files, or any other artifact showing generated scatter
+    plots with regression lines and confidence intervals is present. The claim cannot
+    be verified because the required output (matplotlib/seaborn figures) is missing.
+T036:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No README.md or quickstart.md files were presented, nor any excerpts showing
+    the claimed documentation updates. Without the actual files or their contents,
+    we cannot confirm that the required documentation artifacts exist or have been
+    modified as requested. The implementer must provide the updated markdown files
+    (or their relevant sections) to satisfy the task.

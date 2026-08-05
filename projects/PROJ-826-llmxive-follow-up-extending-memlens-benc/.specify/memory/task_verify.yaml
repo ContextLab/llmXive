@@ -1,12 +1,7 @@
-? 'T001 [P] Create project directories: `data/raw`, `data/processed`, `code`, `tests/unit`,
-  `state/projects` in `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/`'
-: 1
-'T002 [P] Create empty placeholder files: `code/__init__.py`, `tests/__init__.py`, `README.md`, `requirements.txt`': 1
-? 'T003 [P] Populate `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/requirements.txt`
-  with pinned dependencies: torch-cpu, transformers, ultralytics, sentence-transformers,
-  scipy, pandas, datasets, pytest'
-: 1
-? T005 Implement state update logic in `download.py` to write artifact hashes to `state/projects/PROJ-826-llmxive-follow-up-extending-memlens-benc.yaml`
-: 1
-? T006 Create base data loading utilities and schema validators in `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/code/preprocessing.py`
-: 1
+T001: 1
+T003: 1
+T005: 1
+T011: 1
+T013: 1
+T019: 1
+T021: 1

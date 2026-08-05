@@ -1,3 +1,1 @@
-"""
-Unit test package for llmXive research-implementer pipeline.
-"""
+# llmXive automated science pipeline - tests module

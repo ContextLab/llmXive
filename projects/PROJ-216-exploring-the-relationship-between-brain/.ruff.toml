@@ -1,2 +1,3 @@
-# Standalone ruff config for CLI usage if pyproject.toml is not picked up
+# This file exists to ensure ruff works in editors that look for .ruff.toml
+# The actual configuration is in pyproject.toml
 extend = "pyproject.toml"

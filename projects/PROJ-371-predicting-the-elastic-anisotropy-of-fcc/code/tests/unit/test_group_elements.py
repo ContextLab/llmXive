@@ -1,7 +1,6 @@
 """
-Unit tests for the group_elements module.
+Unit tests for the element grouping functionality (T014b).
 """
-
 import os
 import sys
 import json
@@ -10,190 +9,252 @@ from pathlib import Path
 from unittest.mock import patch, MagicMock
 import pytest
 import pandas as pd
+import numpy as np
 
 from src.data.group_elements import (
-    load_cleaned_data,
+    parse_formula_simple,
     build_element_groups,
+    load_cleaned_data,
     save_element_groups,
-    group_elements_pipeline,
-    parse_formula_simple
+    group_elements_pipeline
 )
 from src.utils.config import get_path
-
 
 @pytest.fixture
 def sample_dataframe():
     """Create a sample DataFrame for testing."""
     data = {
-        "formula": ["Fe", "Cu", "Fe2O3", "Al", "CuAl2", "NiFe"],
-        "material_id": ["MP-1", "MP-2", "MP-3", "MP-4", "MP-5", "MP-6"],
-        "C11": [200, 150, 250, 100, 180, 220],
-        "C12": [100, 50, 120, 40, 80, 110],
-        "C44": [80, 40, 90, 30, 70, 85],
-        "A1": [1.6, 1.33, 1.5, 1.5, 1.75, 1.65]
+        "material_id": ["MP-1", "MP-2", "MP-3", "MP-4"],
+        "formula": ["Fe", "Ni", "Fe2O3", "AlCu"],
+        "C11": [200, 250, 180, 150],
+        "C12": [100, 120, 90, 80],
+        "C44": [80, 90, 70, 60],
+        "A1": [1.6, 1.8, 1.5, 1.7]
     }
     return pd.DataFrame(data)
-
 
 @pytest.fixture
 def temp_csv_file(sample_dataframe):
     """Create a temporary CSV file with sample data."""
     with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
-        sample_dataframe.to_csv(f.name, index=False)
-        yield f.name
-    os.unlink(f.name)
-
+        sample_dataframe.to_csv(f, index=False)
+        temp_path = f.name
+    yield temp_path
+    os.unlink(temp_path)
 
 @pytest.fixture
 def temp_output_dir():
-    """Create a temporary directory for output."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        yield tmpdir
-
+    """Create a temporary directory for output files."""
+    temp_dir = tempfile.mkdtemp()
+    yield temp_dir
+    import shutil
+    shutil.rmtree(temp_dir)
 
 class TestParseFormula:
-    def test_simple_element(self):
-        assert parse_formula_simple("Fe") == {"Fe"}
+    """Tests for parse_formula_simple function."""
 
-    def test_compound(self):
+    def test_single_element(self):
+        """Test parsing a single element formula."""
+        result = parse_formula_simple("Fe")
+        assert result == ["Fe"]
+
+    def test_compound_with_numbers(self):
+        """Test parsing a compound formula with stoichiometry."""
         result = parse_formula_simple("Fe2O3")
-        assert "Fe" in result
-        assert "O" in result
-        assert len(result) == 2
+        assert result == ["Fe", "O"]
+
+    def test_multiple_elements(self):
+        """Test parsing a formula with multiple elements."""
+        result = parse_formula_simple("AlCu")
+        assert result == ["Al", "Cu"]
 
     def test_complex_formula(self):
-        result = parse_formula_simple("CuAl2")
-        assert result == {"Cu", "Al"}
+        """Test parsing a complex formula."""
+        result = parse_formula_simple("Ni3Al")
+        assert result == ["Ni", "Al"]
 
-    def test_invalid_input(self):
-        assert parse_formula_simple(None) == set()
-        assert parse_formula_simple(123) == set()
-        assert parse_formula_simple("") == set()
+    def test_empty_formula(self):
+        """Test parsing an empty formula."""
+        result = parse_formula_simple("")
+        assert result == []
 
+    def test_none_formula(self):
+        """Test parsing a None formula."""
+        result = parse_formula_simple(None)
+        assert result == []
+
+    def test_duplicate_elements_in_formula(self):
+        """Test that duplicate elements in formula are deduplicated."""
+        # This is an edge case, but should return unique elements
+        result = parse_formula_simple("FeFe")
+        assert result == ["Fe"]
 
 class TestLoadCleanedData:
-    def test_load_valid_csv(self, temp_csv_file):
-        df = load_cleaned_data(temp_csv_file)
-        assert len(df) == 6
-        assert "formula" in df.columns
-        assert "material_id" in df.columns
+    """Tests for load_cleaned_data function."""
 
-    def test_missing_file_raises(self):
+    def test_load_existing_file(self, temp_csv_file):
+        """Test loading an existing CSV file."""
+        df = load_cleaned_data(temp_csv_file)
+        assert len(df) == 4
+        assert "material_id" in df.columns
+        assert "formula" in df.columns
+
+    def test_load_nonexistent_file(self):
+        """Test that loading a nonexistent file raises an error."""
         with pytest.raises(FileNotFoundError):
             load_cleaned_data("/nonexistent/path/file.csv")
 
-    def test_missing_columns_raises(self, temp_output_dir):
-        csv_path = os.path.join(temp_output_dir, "bad.csv")
-        pd.DataFrame({"bad_col": [1]}).to_csv(csv_path, index=False)
-        with pytest.raises(ValueError):
-            load_cleaned_data(csv_path)
+    def test_load_empty_file(self):
+        """Test that loading an empty file raises an error."""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
+            f.write("material_id,formula\n")  # Header only
+            temp_path = f.name
 
-    def test_handles_nulls(self, temp_output_dir):
-        data = {
-            "formula": ["Fe", None, "Cu"],
-            "material_id": ["MP-1", "MP-2", None]
-        }
-        df = pd.DataFrame(data)
-        csv_path = os.path.join(temp_output_dir, "nulls.csv")
-        df.to_csv(csv_path, index=False)
+        try:
+            with pytest.raises(ValueError):
+                load_cleaned_data(temp_path)
+        finally:
+            os.unlink(temp_path)
 
-        result_df = load_cleaned_data(csv_path)
-        # Should drop rows with nulls in key columns
-        assert len(result_df) == 1
-        assert result_df.iloc[0]["formula"] == "Fe"
+    def test_load_missing_columns(self):
+        """Test that loading a file with missing columns raises an error."""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
+            f.write("material_id,C11\n")  # Missing formula column
+            f.write("MP-1,200\n")
+            temp_path = f.name
 
+        try:
+            with pytest.raises(ValueError):
+                load_cleaned_data(temp_path)
+        finally:
+            os.unlink(temp_path)
 
 class TestBuildElementGroups:
-    def test_basic_grouping(self, sample_dataframe):
+    """Tests for build_element_groups function."""
+
+    def test_build_basic_groups(self, sample_dataframe):
+        """Test building element groups from sample data."""
         groups = build_element_groups(sample_dataframe)
 
         assert "Fe" in groups
-        assert "Cu" in groups
+        assert "Ni" in groups
         assert "O" in groups
         assert "Al" in groups
+        assert "Cu" in groups
 
-        # Check specific memberships
-        assert "MP-1" in groups["Fe"]
-        assert "MP-3" in groups["Fe"]
-        assert "MP-6" in groups["Fe"]
-        assert "MP-2" in groups["Cu"]
-        assert "MP-5" in groups["Cu"]
-        assert "MP-4" in groups["Al"]
-        assert "MP-5" in groups["Al"]
+        assert set(groups["Fe"]) == {"MP-1", "MP-3"}
+        assert groups["Ni"] == ["MP-2"]
+        assert groups["O"] == ["MP-3"]
+        assert set(groups["Al"]) == {"MP-4"}
+        assert groups["Cu"] == ["MP-4"]
 
-    def test_duplicate_elements_in_formula(self):
-        # Formula like "FeFe" should still just result in {"Fe"}
-        data = {
-            "formula": ["FeFe"],
-            "material_id": ["MP-1"]
-        }
-        df = pd.DataFrame(data)
-        groups = build_element_groups(df)
-        assert groups["Fe"] == ["MP-1"]
-
-    def test_empty_dataframe(self):
-        df = pd.DataFrame(columns=["formula", "material_id"])
+    def test_build_empty_dataframe(self):
+        """Test building groups from an empty DataFrame."""
+        df = pd.DataFrame(columns=["material_id", "formula"])
         groups = build_element_groups(df)
         assert groups == {}
 
+    def test_build_with_duplicate_elements(self):
+        """Test that duplicate elements across materials are handled."""
+        data = {
+            "material_id": ["MP-1", "MP-2"],
+            "formula": ["Fe", "Fe"]
+        }
+        df = pd.DataFrame(data)
+        groups = build_element_groups(df)
+
+        assert len(groups["Fe"]) == 2
+        assert set(groups["Fe"]) == {"MP-1", "MP-2"}
 
 class TestSaveElementGroups:
-    def test_save_and_load(self, temp_output_dir):
-        groups = {"Fe": ["MP-1", "MP-2"], "Cu": ["MP-3"]}
-        output_path = os.path.join(temp_output_dir, "groups.json")
+    """Tests for save_element_groups function."""
 
-        saved = save_element_groups(groups, output_path)
-        assert os.path.exists(saved)
+    def test_save_to_file(self, temp_output_dir):
+        """Test saving element groups to a JSON file."""
+        groups = {
+            "Fe": ["MP-1", "MP-3"],
+            "Ni": ["MP-2"],
+            "O": ["MP-3"]
+        }
+        output_path = os.path.join(temp_output_dir, "test_groups.json")
 
-        with open(saved, 'r') as f:
-            loaded = json.load(f)
+        save_element_groups(groups, output_path)
 
-        assert loaded == groups
+        assert os.path.exists(output_path)
 
-    def test_creates_directories(self, temp_output_dir):
+        with open(output_path, 'r') as f:
+            loaded_groups = json.load(f)
+
+        assert loaded_groups == groups
+
+    def test_save_creates_directories(self, temp_output_dir):
+        """Test that save creates parent directories if needed."""
         groups = {"Fe": ["MP-1"]}
-        nested_path = os.path.join(temp_output_dir, "sub", "groups.json")
+        nested_path = os.path.join(temp_output_dir, "subdir", "groups.json")
 
-        saved = save_element_groups(groups, nested_path)
-        assert os.path.exists(saved)
+        save_element_groups(groups, nested_path)
 
+        assert os.path.exists(nested_path)
 
 class TestGroupElementsPipeline:
-    def test_full_pipeline(self, temp_csv_file, temp_output_dir):
-        output_path = os.path.join(temp_output_dir, "result.json")
+    """Tests for the full pipeline function."""
+
+    def test_pipeline_end_to_end(self, temp_csv_file, temp_output_dir):
+        """Test the full pipeline from CSV to JSON."""
+        output_path = os.path.join(temp_output_dir, "element_groups.json")
+
         result = group_elements_pipeline(temp_csv_file, output_path)
 
-        assert os.path.exists(result)
-        with open(result, 'r') as f:
-            data = json.load(f)
+        assert os.path.exists(output_path)
+        assert isinstance(result, dict)
+        assert "Fe" in result
+        assert "Ni" in result
 
-        assert "Fe" in data
-        assert "Cu" in data
+        with open(output_path, 'r') as f:
+            saved_groups = json.load(f)
 
-    def test_pipeline_uses_defaults(self, temp_csv_file, monkeypatch, temp_output_dir):
-        # Mock get_path to return our temp dir
-        def mock_get_path(key, sub=None):
-            if key == "data_processed":
-                return Path(temp_output_dir)
-            return Path(temp_output_dir)
+        assert saved_groups == result
 
-        monkeypatch.setattr("src.data.group_elements.get_path", mock_get_path)
+    def test_pipeline_default_paths(self, sample_dataframe, temp_output_dir):
+        """Test pipeline with default paths (using temp directory)."""
+        # Create a CSV in temp directory
+        csv_path = os.path.join(temp_output_dir, "cleaned_data.csv")
+        sample_dataframe.to_csv(csv_path, index=False)
 
-        # We need to ensure the input file is found, so we pass it explicitly
-        # The output path should default to temp_output_dir/element_groups.json
-        result = group_elements_pipeline(temp_csv_file)
-        assert os.path.exists(result)
+        # Mock get_path to return our temp directory
+        with patch('src.data.group_elements.get_path') as mock_get_path:
+            mock_get_path.side_effect = lambda section, filename: {
+                ("data_processed", "elastic_anisotropy.csv"): csv_path,
+                ("data_processed", "element_groups.json"): os.path.join(temp_output_dir, "element_groups.json")
+            }[(section, filename)]
 
+            result = group_elements_pipeline()
+
+            assert result is not None
+            assert "Fe" in result
 
 class TestMainFunction:
-    @patch('src.data.group_elements.group_elements_pipeline')
-    def test_main_success(self, mock_pipeline, temp_csv_file, temp_output_dir):
-        mock_pipeline.return_value = os.path.join(temp_output_dir, "out.json")
-        exit_code = main()
-        assert exit_code == 0
+    """Tests for the CLI main function."""
 
-    @patch('src.data.group_elements.load_cleaned_data')
-    def test_main_file_not_found(self, mock_load, temp_output_dir):
-        mock_load.side_effect = FileNotFoundError("Not found")
-        exit_code = main()
-        assert exit_code == 1
+    def test_main_with_args(self, temp_csv_file, temp_output_dir, capsys):
+        """Test main function with command line arguments."""
+        output_path = os.path.join(temp_output_dir, "output.json")
+
+        with patch('sys.argv', ['group_elements.py', '--input', temp_csv_file, '--output', output_path]):
+            from src.data.group_elements import main
+            main()
+
+        assert os.path.exists(output_path)
+
+    def test_main_with_verbose(self, temp_csv_file, temp_output_dir, capsys):
+        """Test main function with verbose flag."""
+        output_path = os.path.join(temp_output_dir, "output.json")
+
+        with patch('sys.argv', ['group_elements.py', '--input', temp_csv_file, '--output', output_path, '--verbose']):
+            from src.data.group_elements import main
+            main()
+
+        assert os.path.exists(output_path)
+        captured = capsys.readouterr()
+        # Should have some log output
+        assert "Starting" in captured.out or "Starting" in captured.err

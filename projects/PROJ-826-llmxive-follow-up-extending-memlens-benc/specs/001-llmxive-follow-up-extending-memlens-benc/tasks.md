@@ -44,7 +44,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 [P] Create project directories: `data/raw`, `data/processed`, `code`, `tests/unit`, `state/projects` in `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/`
-- [ ] T002 [P] Create empty placeholder files: `code/__init__.py`, `tests/__init__.py`, `README.md`, `requirements.txt`
+- [X] T002 [P] Create empty placeholder files: `code/__init__.py`, `tests/__init__.py`, `README.md`, `requirements.txt`
 - [ ] T003 [P] Populate `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/requirements.txt` with pinned dependencies: torch-cpu, transformers, ultralytics, sentence-transformers, scipy, pandas, datasets, pytest
 
 ---
@@ -57,7 +57,7 @@
 
 - [X] T004 Implement `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/code/download.py` to fetch MemLens dataset from HuggingFace and compute SHA-256 checksums
 - [ ] T005 Implement state update logic in `download.py` to write artifact hashes to `state/projects/PROJ-826-llmxive-follow-up-extending-memlens-benc.yaml`
-- [ ] T006 Create base data loading utilities and schema validators in `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/code/preprocessing.py`
+- [X] T006 Create base data loading utilities and schema validators in `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/code/preprocessing.py`
 - [X] T007 Configure logging infrastructure to track `detection_status` and fallback events in `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/code/utils/logger.py`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -78,13 +78,13 @@
 - [ ] T011 [US1] Implement YOLOv8-Tiny object detection and fallback logic; check for existence of ground-truth bounding boxes in MemLens dataset (log 'N/A' if missing); calculate Object Detection Recall (TP/(TP+FN)) only if GT exists; write results to `data/processed/metrics/detection_recall.json` (FR-008, FR-009, Edge Case)
 - [ ] T011B [US1] Implement logic to explicitly set `detection_status` for ALL samples: 'success' if YOLO detects ≥1 object, 'zero_detection' if YOLO runs but detects 0 objects, 'fallback' if YOLO fails; ensure this flag is written to the Fine store for all entries (Edge Case, Plan Complexity Tracking)
 - [X] T012 [US1] Implement LLM-based natural language captioning for detected objects (NO templates) in `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/code/preprocessing.py` <!-- ATOMIZE: requested -->
-- [~] T013 [US1] Implement Fine store construction (object captions + bounding boxes) ensuring coordinates are stored as metadata ONLY and explicitly excluded from similarity calculation (Plan Phase 2, FR-002)
+- [ ] T013 [US1] Implement Fine store construction (object captions + bounding boxes) ensuring coordinates are stored as metadata ONLY and explicitly excluded from similarity calculation (Plan Phase 2, FR-002)
 - [ ] T013B [US1] Configure top-k retrieval parameter to `k=5` in `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/code/config.py` (Spec Assumptions: fixed for fair comparison)
 - [X] T014 [P] [US1] Implement retrieval logic using cosine similarity on text embeddings for Coarse/Medium in `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/code/retrieval.py` (Depends: T009, T010)
 - [X] T015 [US1] Implement retrieval logic using cosine similarity on text-only object captions for Fine store (coordinates stored as metadata but excluded from similarity vector per Plan Phase 2) in `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/code/retrieval.py` (FR-003 corrected, Depends: T012, T013, T013B)
-- [ ] T016 [US1] Implement CPU-optimized LLM inference (Phi-3-mini or Llama-3-8B 4-bit/16-bit CPU) in `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/code/inference.py` (FR-004, US-3)
-- [ ] T017 [US1] Implement context window management (truncation/sliding window) in `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/code/inference.py` (Edge Case)
-- [ ] T018 [US1] Implement resource monitoring (RAM, CPU time) and raw latency recording per strategy in `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/code/evaluation.py` (FR-005)
+- [X] T016 [US1] Implement CPU-optimized LLM inference (Phi-3-mini or Llama-3-8B 4-bit/16-bit CPU) in `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/code/inference.py` (FR-004, US-3)
+- [X] T017 [US1] Implement context window management (truncation/sliding window) in `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/code/inference.py` (Edge Case)
+- [X] T018 [US1] Implement resource monitoring (RAM, CPU time) and raw latency recording per strategy in `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/code/evaluation.py` (FR-005)
 - [ ] T019 [US1] Implement main orchestrator `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/code/main.py` to run Coarse, Medium, and Fine pipelines sequentially or in parallel (FR-001, Depends: T014, T015, T016)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -99,10 +99,10 @@
 
 ### Implementation for User Story 2
 
-- [ ] T020 [US2] Implement accuracy calculation against ground truth answers in `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/code/evaluation.py` (Depends: T016)
+- [X] T020 [US2] Implement accuracy calculation against ground truth answers in `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/code/evaluation.py` (Depends: T016)
 - [ ] T021 [US2] Implement stratification logic to filter out `detection_status: fallback` AND `detection_status: zero_detection` samples for the primary test in the codebase.
-- [ ] T022 [US2] Implement paired Wilcoxon signed-rank test for Fine vs. Coarse accuracy distributions in `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/code/stats.py` (FR-006, Depends: T020)
-- [ ] T024 [US2] Implement significance flagging (p < 0.05) and effect size calculation in `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/code/stats.py`
+- [X] T022 [US2] Implement paired Wilcoxon signed-rank test for Fine vs. Coarse accuracy distributions in `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/code/stats.py` (FR-006, Depends: T020)
+- [X] T024 [US2] Implement significance flagging (p < 0.05) and effect size calculation in `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/code/stats.py`
 - [ ] T025 [US2] Implement handling for insufficient sample size (n < 30) to report descriptive stats only in `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/code/stats.py` (Edge Case)
 - [ ] T026 [US2] Generate final comparison report (mean accuracy, std, p-value, effect size) in `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/code/evaluation.py`
 
