@@ -1,39 +1,37 @@
-# Implementation Plan: Social Memory Networks: Modeling Collective Remembering in Multi‑Agent LLMs
+# Implementation Plan: Social Memory Networks
 
-**Branch**: `001-social-memory-networks` | **Date**: 2026-06-25 | **Spec**: `specs/001-social-memory-networks/spec.md`
+**Branch**: `001-social-memory-networks` | **Date**: 2026-06-25 | **Spec**: `spec.md`
 **Input**: Feature specification from `/specs/001-social-memory-networks/spec.md`
 
 ## Summary
 
-This project implements a multi-agent LLM simulation framework to test transactive-memory dynamics (specialization and cue-driven retrieval) and their robustness to context-window truncation. The technical approach uses decoder-only LLMs via `transformers` with a shared external memory buffer, computing specialization index and cue-retrieval efficiency metrics across full vs. limited context conditions.
+This feature implements a multi-agent simulation framework to model "collective remembering" in Large Language Models (LLMs). The system simulates a shared external memory buffer where multiple decoder-only LLM agents interact, write facts, and retrieve information using cues. The primary goal is to quantify **Transactive Memory Dynamics** (Specialization Index and Cue-Retrieval Efficiency) and test their robustness against **Context-Window Truncation**. The implementation will run on CPU-first infrastructure, utilizing a scalable dataset strategy (streaming/sampling) to fit within GitHub Actions constraints (CPU, ~7GB RAM), with a defined escape hatch to Kaggle GPU for any necessary heavy lifting (though the plan prioritizes CPU-tractable inference).
 
 ## Technical Context
 
-**Language/Version**: Python 3.11  
-**Primary Dependencies**: `transformers`, `torch` (CPU-only), `scikit-learn`, `pandas`, `pytest`, `numpy`, `matplotlib`  
-**Storage**: File-based memory buffer (JSON/Parquet), CSV output logs  
-**Testing**: pytest with contract tests against YAML schemas  
-**Target Platform**: Linux (GitHub Actions free-tier runner)  
-**Project Type**: CLI research experiment  
-**Performance Goals**: ≤6 h total runtime, ≤7 GB RAM peak, ≤14 GB disk usage  
-**Constraints**: CPU-only inference, no CUDA, default float32 precision, sampled dataset subsets  
-**Scale/Scope**: Multiple games per context condition (reduced from a higher baseline for CPU feasibility), multiple agent population sizes, multiple truncation thresholds (varying token lengths)
+**Language/Version**: Python 3.11
+**Primary Dependencies**: `transformers` (CPU mode), `datasets`, `pandas`, `scikit-learn`, `numpy`, `pytest`, `jsonschema`
+**Storage**: Local filesystem (`data/` for raw/derived data, `logs/` for execution traces); JSON/Parquet for memory buffers.
+**Testing**: `pytest` with contract tests validating schema adherence and statistical output bounds.
+**Target Platform**: Linux (GitHub Actions runner); fallback to Kaggle GPU kernel if CUDA requirement is detected.
+**Project Type**: CLI-based research simulation.
+**Performance Goals**: Complete a feasible sample of games (N=200 per condition) within 6 hours on CPU for the initial run; multiple games per condition via GPU offload or extended sampling. Generate ANOVA and scaling plots automatically.
+**Constraints**: No local GPU; strict memory limits (~GB RAM); no access to gated datasets (ADNI, etc.); must handle context truncation gracefully.
+**Scale/Scope**: agent counts (small, medium, large); Multiple context conditions (full, limited); Multiple truncation levels (, 256, 512 tokens); A sufficient number of games per configuration (sampled).
 
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase.
+> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-| Constitution Principle | Compliance Status | Implementation Note |
-|------------------------|-------------------|---------------------|
-| I. Reproducibility | PASS | Random seed pinned (); `requirements.txt` at `code/`; isolated venv per task |
-| II. Verified Accuracy | PASS | All dataset URLs from verified block only; Reference-Validator gate at research_review→research_accepted |
-| III. Data Hygiene | PASS | Raw data checksummed under `data/`; derivations written to new files with documented derivation |
-| IV. Single Source of Truth | PASS | All figures/statistics trace to one row in `data/` and one block in `code/`; no hand-typed numbers |
-| V. Versioning Discipline | PASS | Content hash for all artifacts stored in `state/projects/PROJ-586-social-memory-networks-modeling-collecti.yaml` `artifact_hashes` map; `state/*.yaml` updated on artifact change |
-| VI. Transactive‑Memory Evaluation | PASS | Specialization index and cue-retrieval efficiency computed from interaction logs; code version-controlled and referenced in manuscript |
-| VII. Context‑Window Robustness | PASS | Systematic window-size sweep (across a range of token counts); raw logs stored unchanged; truncated variants saved as derived files with checksums |
+1. **Reproducibility (NON-NEGOTIABLE)**: Plan mandates fixed random seeds (`seed=42`) in `run_experiment.py`. All external datasets will be fetched via programmatic loaders (`datasets.load_dataset`) with checksums recorded in `data/` manifest. The `spec.md` hash will be dynamically inserted at build time.
+2. **Verified Accuracy**: All citations in `research.md` will be restricted to the verified dataset URLs provided in the spec. A dataset manifest verification step will run before simulation.
+3. **Data Hygiene**: Raw interaction logs will be saved to `data/raw/` unmodified. Derived metrics (CSVs, plots) will be written to `data/derived/` with checksums. No in-place modification of raw logs.
+4. **Single Source of Truth**: The `results_full.csv` and `results_limited.csv` generated by the CLI will be the sole source for the ANOVA and scaling plots. No hand-typed numbers in the final report.
+5. **Versioning Discipline**: Every artifact (code, data, plan) will carry a content hash. The `plan.md` itself will reference the specific `spec.md` hash (inserted dynamically).
+6. **Transactive-Memory Evaluation**: The plan explicitly defines the calculation logic for the **Specialization Index** and **Cue-Retrieval Efficiency** in `data-model.md` and `contracts/`, ensuring they are the only metrics used for claims.
+7. **Context-Window Robustness**: The plan includes a systematic sweep of token limits {, 256, 512} as required by FR-008, with derived files saved for each condition.
 
 ## Project Structure
 
@@ -41,127 +39,153 @@ This project implements a multi-agent LLM simulation framework to test transacti
 
 ```text
 specs/001-social-memory-networks/
-├── plan.md              # This file (/speckit-plan command output)
-├── research.md          # Phase 0 output (/speckit-plan command)
-├── data-model.md        # Phase 1 output (/speckit-plan command)
-├── quickstart.md        # Phase 1 output (/speckit-plan command)
-├── contracts/           # Phase 1 output (/speckit-plan command)
-│   ├── game-result.schema.yaml
-│   ├── memory-action.schema.yaml
-│   └── analysis-output.schema.yaml
-└── tasks.md             # Phase 2 output (/speckit-tasks command - NOT created by /speckit-plan)
+├── plan.md # This file
+├── research.md # Phase 0 output
+├── data-model.md # Phase 1 output
+├── quickstart.md # Phase 1 output
+├── contracts/ # Phase 1 output
+└── tasks.md # Phase 2 output
 ```
 
 ### Source Code (repository root)
 
 ```text
 projects/PROJ-586-social-memory-networks-modeling-collecti/code/
-├── run_experiment.py          # CLI entry point (FR-001)
-├── agent/
-│   ├── __init__.py
-│   ├── base_agent.py          # Agent abstraction (FR-002)
-│   └── memory_actions.py      # <MEMORY_ACTION> token handling (FR-003)
-├── memory/
-│   ├── __init__.py
-│   └── buffer.py              # Shared external memory buffer (FR-003, FR-012)
-├── metrics/
-│   ├── __init__.py
-│   ├── specialization.py      # Specialization index computation (FR-004)
-│   └── retrieval.py           # Cue-retrieval efficiency (FR-005)
+├── run_experiment.py # CLI entry point (FR-001)
+├── simulation/
+│ ├── __init__.py
+│ ├── agent.py # LLM Agent wrapper (FR-002)
+│ ├── memory_buffer.py # Shared memory with queue serialization (FR-003, FR-012)
+│ ├── game_loop.py # Simulation engine (T011b logic)
+│ └── metrics.py # Specialization & Retrieval calc (FR-004, FR-005)
 ├── analysis/
-│   ├── __init__.py
-│   ├── anova.py               # Separate ANOVAs per metric (FR-006, FR-007)
-│   ├── sensitivity.py         # Token threshold sweep (FR-008)
-│   ├── power.py               # Power analysis (FR-009)
-│   └── scaling.py             # Power-law fitting (US-3)
+│ ├── __init__.py
+│ ├── stats.py # ANOVA, Bonferroni, Power analysis (FR-006, FR-007, FR-009)
+│ └── scaling.py # Power-law fitting (FR-003, US-3)
 ├── data/
-│   ├── loaders.py             # Dataset loading with verified URLs only
-│   └── synthetic.py           # Synthetic cue generator fallback (FR-011)
-├── utils/
-│   ├── __init__.py
-│   ├── logging.py             # Error logging to experiment.log (FR-010)
-│   └── serialization.py       # Queue-based conflict handling (FR-012)
-├── contracts/
-│   ├── game-result.schema.yaml
-│   ├── memory-action.schema.yaml
-│   └── analysis-output.schema.yaml
-└── tests/
-    ├── contract/
-    ├── integration/
-    └── unit/
-
-projects/PROJ-586-social-memory-networks-modeling-collecti/data/
-├── raw/                        # Raw dataset downloads (checksummed)
-├── derived/                    # Transformed data (documented derivation)
-└── logs/                       # Interaction logs, experiment.log
-
-projects/PROJ-586-social-memory-networks-modeling-collecti/results/
-├── results_full.csv            # US-1 output
-├── results_limited.csv         # US-2 output
-├── scaling_plot.pdf            # US-3 output
-└── power_analysis_report.md    # FR-009 output
+│ ├── raw/ # Downloaded datasets (checksummed)
+│ ├── derived/ # CSVs, Plots, Logs
+│ └── manifest.json # Data hygiene manifest
+├── tests/
+│ ├── test_metrics.py
+│ └── test_contract.py # Loads contracts/*.yaml and validates outputs
+└── requirements.txt
 ```
 
-**Structure Decision**: Single project structure under `code/` with modular subpackages for agent logic, memory management, metrics computation, and analysis. This minimizes overhead while supporting clear separation of concerns for the Implementer Agent.
+**Structure Decision**: Single project structure selected. This aligns with the CLI nature of the tool and the need for tight integration between the simulation loop and the analysis module. The separation of `simulation/` and `analysis/` ensures that the metrics are calculated deterministically from the logs, satisfying the "Single Source of Truth" principle.
 
-## Phase Schedule (Computational Task Ordering)
+## Complexity Tracking
 
-| Phase | Task | Dependency | Output | FR/SC Coverage |
-|-------|------|------------|--------|----------------|
-| 0 | Dataset verification & download | None | `data/raw/` | FR-001, FR-011 |
-| 1 | Memory buffer & agent instantiation | Phase 0 | Agent instances, buffer | FR-002, FR-003 |
-| 2 | Game simulation (full context) | Phase 1 | `results_full.csv` | US-1, FR-004, FR-005, SC-001 |
-| 3 | Game simulation (limited context) | Phase 1 | `results_limited.csv` | US-2, FR-004, FR-005, SC-001 |
-| 4 | Separate ANOVA per metric (Context × Metric) | Phase 2, 3 | ANOVA tables, p-values | FR-006, FR-007, SC-002 |
-| 5 | Sensitivity analysis (token sweep) | Phase 2, 3 | Trend report | FR-008, SC-003 |
-| 6 | Power analysis report | Phase 4 | `power_analysis_report.md` | FR-009, SC-004 |
-| 7 | Scaling analysis (varying agent counts) - exploratory trend | Phase 0 | `scaling_plot.pdf` | US-3, FR-004, FR-005, SC-005 |
-| 8 | Error handling & logging validation | All phases | `experiment.log` | FR-010, FR-012 |
+| Violation | Why Needed | Simpler Alternative Rejected Because |
+|-----------|------------|-------------------------------------|
+| Shared Memory Buffer with Queue Serialization (FR-012) | Required to ensure **deterministic ordering** of memory writes in a single-threaded environment. While race conditions don't exist on a single CPU, the queue ensures that if multiple agents attempt to write to the same key, the order is strictly defined by the game loop turn, simulating logical contention and ensuring reproducibility. | A simple global list would fail to model the logical ordering of writes, leading to non-deterministic results if dictionary ordering changes, and would not simulate the "contention" aspect of transactive memory. |
+| Power-Law Scaling Analysis (US-3) | Required to test the hypothesis that collective memory fidelity scales sublinearly (Geoffrey West feedback). | A simple linear regression would miss the non-linear efficiency gains characteristic of complex networks. |
+| Synthetic Cue Generator (FR-011) | Required because the verified datasets (MultiAgent) may lack explicit cue annotations. | Relying solely on dataset cues would result in zero data if the dataset is incomplete, violating the "Data Availability" constraint. |
+| Fact Extraction (NLP) | Required to parse raw dialogue into discrete facts for the memory buffer. | Raw dialogue is unstructured and cannot be directly used as "facts" for the simulation logic. |
 
-## FR/SC Coverage Matrix
+## Tasks & Phases
 
-| ID | Description | Plan Phase(s) | Implementation Artifact |
-|----|-------------|---------------|------------------------|
-| FR-001 | CLI `run_experiment.py` with flags | Phase 0 | `code/run_experiment.py` |
-| FR-002 | Multiple decoder-only LLMs via `transformers` | Phase 1 | `code/agent/base_agent.py` |
-| FR-003 | Shared external memory buffer with `<MEMORY_ACTION>` tokens | Phase 1 | `code/memory/buffer.py`, `code/agent/memory_actions.py` |
-| FR-004 | Specialization index (to log₂(N_agents)) | Phase 2, 3, 7 | `code/metrics/specialization.py` |
-| FR-005 | Cue-retrieval efficiency (proportion vs. 1/N_agents baseline) | Phase 2, 3, 7 | `code/metrics/retrieval.py` |
-| FR-006 | Separate ANOVAs per metric (Context) with p-values | Phase 4 | `code/analysis/anova.py` |
-| FR-007 | Bonferroni correction for family-wise tests | Phase 4 | `code/analysis/anova.py` |
-| FR-008 | Sensitivity analysis (various token lengths) | Phase 5 | `code/analysis/sensitivity.py` |
-| FR-009 | Power analysis report (N=500-1000, α=0.05, power=0.80; flag if <0.70) | Phase 6 | `code/analysis/power.py` |
-| FR-010 | Error logging to `experiment.log` with timestamps | Phase 8 | `code/utils/logging.py` |
-| FR-011 | Synthetic cue generator fallback | Phase 0 | `code/data/synthetic.py` |
-| FR-012 | Queue-based serialization for write-conflicts | Phase 8 | `code/utils/serialization.py` |
-| SC-001 | Baseline metrics computed for ≥95% of games | Phase 2, 3 | `results_full.csv`, `results_limited.csv`; validation computes success_rate = (games with metrics / total games) and compares to 0.95 threshold |
-| SC-002 | ANOVA interaction p-value reported with significance flag | Phase 4 | ANOVA table output |
-| SC-003 | Sensitivity trend report with max absolute change [deferred] | Phase 5 | Sensitivity report |
-| SC-004 | Power analysis with [deferred] power or "Power limitation" flag | Phase 6 | `power_analysis_report.md` |
-| SC-005 | Scaling plot with fitted power-law curves, 95% CI, sublinearity note | Phase 7 | `scaling_plot.pdf` |
+### Phase 0: Research & Design
+- [ ] T001: Finalize dataset selection and verify URLs (research.md).
+- [ ] T002: Define statistical analysis plan (ANOVA, Bootstrapping) (research.md).
+- [ ] T003: Define ground-truth mechanism for retrieval success.
 
-## Compute Feasibility Assessment
+### Phase 1: Data Model & Contracts
+- [ ] T010: Define `game_result.schema.yaml` and `analysis-output.schema.yaml`.
+- [ ] T011: Define `interaction_log.schema.yaml` and `memory-action.schema.yaml`.
+- [ ] T012: Implement data model classes (Agent, MemoryBuffer, GameResult).
 
-| Constraint | Plan Mitigation |
-|------------|-----------------|
-| No GPU / CUDA | All `transformers` calls use CPU inference, default float32 precision |
-| ≤7 GB RAM peak | Sample dataset to a representative subset of rows; load models sequentially per turn; use a distilled GPT model as default model |
-| ≤14 GB disk | Raw data checksummed; derived files compressed; logs rotated |
-| ≤6 h runtime | A sufficient number of games per condition × 3 agent counts × 3 truncation thresholds = Multiple game simulations (reduced from a substantial initial number); batched with parallelization where safe |
-| Library compatibility | Pin `torch` CPU wheel, `transformers` 4.35+, `scikit-learn` 1.3+ |
+### Phase 2: Core Simulation Engine
+- [ ] T020: Implement `run_experiment.py` CLI (FR-001).
+- [ ] T021: Implement `agent.py` (FR-002).
+- [ ] T022: Implement `memory_buffer.py` with queue serialization (FR-003, FR-012, T026).
+- [ ] T023: Implement `game_loop.py` (T011b).
+- [ ] T024: Implement `metrics.py` (FR-004, FR-005).
+- [ ] T025: Implement error handling and logging to `experiment.log` (FR-010).
+- [ ] T026: Implement queue-based serialization mechanism and conflict logging (FR-012).
 
-## Dataset Constraint Acknowledgement
+### Phase 3: Dataset & Cue Generation
+- [ ] T030: Implement dataset loading and streaming (T011c).
+- [ ] T031: Implement NLP-based fact extraction from dialogue.
+- [ ] T032: Implement Synthetic Cue Generator (FR-011, T030 in plan context).
+- [ ] T033: Implement fallback logic for missing cues.
 
-The spec requires `--dataset {hanabi,coqa}` (FR-001), but the verified datasets block contains NO verified source for Hanabi or CoQA. Per the planning rules, I MUST state this mismatch explicitly rather than fabricate URLs. The implementation will:
-1. Attempt to load from verified URLs in the block (US-1, US-2, US-3 parquet/CSV/jsonl sources)
-2. For any dataset lacking explicit cue annotations or game-state facts, invoke the synthetic cue generator (FR-011) with minimum 10 synthetic cues per game
-3. Document the dataset-variable fit gap in `research.md`
-4. Validate synthetic-generated metrics against any available real multi-agent interaction data from verified datasets (US-100K, WINNIE-US2) as sensitivity analysis to assess construct validity
+### Phase 4: Analysis & Reporting
+- [ ] T040: Implement ANOVA and Bonferroni correction (FR-006, FR-007).
+- [ ] T041: Implement Power Analysis and report generation (FR-009, T060).
+- [ ] T042: Implement Scaling Analysis (log-log regression with bootstrapping).
+- [ ] T043: Generate `scaling_plot.pdf` with 3-point limitation note (T030 in task list).
 
-## Reviewer Feedback Integration
+### Phase 5: Integration & Testing
+- [ ] T050: Run end-to-end test with small sample (N=10).
+- [ ] T051: Validate outputs against `contracts/*.yaml` (test_contract.py).
+- [ ] T052: Verify reproducibility with fixed seed.
 
-| Reviewer | Comment | Integration Decision |
-|----------|---------|---------------------|
-| geoffrey-west-simulated | Scaling analysis for memory accuracy/retrieval speed vs. agent count | Phase 7 implements scaling analysis (US-3) with power-law fitting as descriptive only; acknowledges that a limited number of data points limit power-law reliability and reframes as exploratory trend analysis (per methodology concern fd007e52) |
-| david-krakauer-simulated | Memory as adaptation mechanism; forgetting critical | Note added to `research.md` on forgetting as potential future work; current scope focuses on remembering fidelity |
-| eric-kandel-simulated | Computational equivalent of CREB-mediated transcription | Note added to `research.md` on memory consolidation mechanisms as future work; current scope focuses on transactive-memory metrics |
+### Phase 6: Final Execution
+- [ ] T060: Run full experiment (N=200 or 1000) and generate final reports.
+- [ ] T061: Generate `scaling_plot.pdf` (T030 task).
+- [ ] T062: Generate Power Analysis Report (T060 task).
+
+**Task Dependencies**:
+- T011b (Game Simulation) depends on T011c (Dataset Loading) and T004 (Environment Setup).
+- T040 (ANOVA) depends on T040 (Data Generation).
+- T043 (Scaling Plot) depends on T042 (Scaling Analysis).
+- T060 (Power Report) depends on T040 (ANOVA).
+
+**Removed Tasks**:
+- Phase 7 tasks (Blind Agent, etc.) were removed as they were not defined in the spec.md.
+
+## Compute Feasibility & GPU Escape Hatch
+
+- **CPU-First**: All LLM inference will use `transformers` in CPU mode (default float32). Models will be loaded sequentially per turn to stay within ~7GB RAM.
+- **Sampling**: To ensure completion within 6 hours on CPU, the default run will use a sample of N=200 games per condition. A full run (N=1000) is scheduled for GPU offload if time permits or if the CPU run is too slow.
+- **GPU Escape Hatch**: If a specific model requires CUDA (e.g., quantized 8-bit inference for larger models), the execution script will detect the error and offload to a Kaggle GPU kernel (scaled to sufficient VRAM capacity, few hundred examples).
+- **Time Budget**: 200 games per condition must complete within 6 hours on CPU. If this is not feasible, the sample size will be reduced further or the GPU offload will be triggered.
+
+## Dataset Strategy
+
+The project relies on **open, directly-downloadable datasets** to ensure reproducibility on CI runners. The spec identifies the following verified sources:
+
+| Dataset Name | Source URL | Usage in Project |
+|:--- |:--- |:--- |
+| MultiAgent Bidding Dialogue | ` | Primary source for "facts" and dialogue context. Used to seed the memory buffer with discrete facts. |
+| Multi-Agent Scam Conversation | ` | Secondary source for diverse interaction patterns and synthetic cue generation. |
+| Multi-Agent Structure | ` | Structural reference for agent roles if explicit role annotation is missing. |
+
+**Dataset Selection Rationale**:
+1. **Accessibility**: All sources are Hugging Face datasets accessible via `datasets.load_dataset()` or direct parquet/CSV download. No credentials or data-use agreements are required, satisfying the "Data Availability" constraint.
+2. **Variable Fit**: The datasets contain dialogue turns and agent interactions. While they may not explicitly label "facts" or "cues," the text spans can be parsed into discrete memory entries via NLP.
+3. **Fallback Strategy**: If the selected dataset lacks explicit cue annotations (as anticipated in FR-011), the system will invoke a **Synthetic Cue Generator**. This generator extracts context spans from the dialogue and creates synthetic cue-response pairs, ensuring a minimum of 10 cues per game (per spec assumption).
+
+**Data Processing Plan**:
+- **Streaming**: For large files, `datasets.load_dataset(..., streaming=True)` will be used to iterate over rows without loading the full dataset into RAM.
+- **Sampling**: If the full dataset exceeds the memory budget, a fixed-seed random sample (N=200 games equivalent) will be drawn.
+- **Checksumming**: Every downloaded file will be checksummed and recorded in `data/manifest.json`.
+
+## Methodology
+
+### Experimental Design
+A 2 (Context: Full vs. Limited) x (Agent Count: varied levels) factorial design.
+- **Independent Variables**:
+ - `Context`: Full (unlimited window) vs. Limited (truncated to variable token lengths, such as small or medium sizes).
+ - `Agent Count`: , 5, 7 agents.
+- **Dependent Variables**:
+ - **Specialization Index**: Distribution-based metric of per-agent fact contribution (0 to log₂(N)).
+ - **Cue-Retrieval Efficiency**: Proportion of successful retrievals relative to uniform chance (1/N).
+
+### Statistical Analysis Plan
+1. **ANOVA**:
+ - **Separate One-Way ANOVAs**: One for Specialization Index and one for Cue-Retrieval Efficiency, with `Context` as the factor.
+ - **Mixed-Design ANOVA**: To test the interaction between `Context` (between-subjects) and `Metric` (within-subjects), a Mixed-Design ANOVA will be performed. This correctly models the interaction term `Context x Metric` without the category error of treating Metric as an independent factor.
+2. **Multiple Comparison Correction**: Bonferroni correction applied to all family-wise tests (FR-007).
+3. **Power Analysis**: Sensitivity analysis to determine detectable effect size for N=200 games, α=0.05, power=0.80 (FR-009). If power < 0.70, a "Power limitation" flag is raised.
+4. **Scaling Analysis**: Log-log linear regression (Y = a + b*log(N)) for metrics vs. agent count. Bootstrapping (a sufficient number of resamples) will be used to estimate the 95% confidence interval for the slope (beta). A note will be included that the 3 data points limit the reliability of the exponent estimate.
+
+### Computational Feasibility
+- **CPU-First**: All LLM inference will use `transformers` in CPU mode (default float32). Models will be loaded sequentially per turn to stay within ~7GB RAM.
+- **GPU Escape Hatch**: If a specific model requires CUDA (e.g., quantized 8-bit inference for larger models), the execution script will detect the error and offload to a Kaggle GPU kernel (scaled to substantial VRAM capacity, few hundred examples).
+- **Time Budget**: 200 games per condition must complete within 6 hours on CPU. This necessitates using smaller models (e.g., `phi-2`, `distilbert`) or aggressive sampling if larger models are too slow.
+
+## Ethical Considerations
+- **Bias**: The datasets may contain biases (e.g., scam conversations). The analysis will focus on *structural* dynamics (memory efficiency) rather than the *content* of the dialogue.
+- **Reproducibility**: All random seeds are fixed. No synthetic data will be used to replace real data; synthetic cues are only used to *augment* missing annotations.

@@ -44,7 +44,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [X] T001 [P] Create `code/` directory structure with subpackages (agent, memory, metrics, analysis, data, utils, tests)
-- [X] T002 [P] Create `code/requirements.txt` pinning `transformers>=4.35.0`, `torch>=2.1.0+cpu`, `scikit-learn>=1.3.0`, `pandas>=2.1.0`, `pytest>=7.4.0`, `numpy>=1.24.0`, `matplotlib>=3.8.0`, `statsmodels>=0.14.0`.
+- [X] T002 [P] Initialize Python virtual environment and install dependencies from `requirements.txt`.
 - [X] T003 [P] Configure linting (flake8) and formatting (black) tools in `code/.pre-commit-config.yaml`
 
 ---
@@ -56,9 +56,9 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T004 [P] Implement dataset loaders in `code/data/loaders.py`: Verify URLs against a whitelist. If the dataset (Hanabi/CoQA) lacks a verified URL in the `verified_datasets` block, raise a clear error and trigger the synthetic fallback. (FR-001, FR-011)
-- [X] T004b [P] Implement synthetic fallback generator in `code/data/synthetic.py`: Create a set of synthetic cue-response pairs (minimum 10 per game) from available context spans if explicit cues are missing. (FR-011)
-- [X] T005 [P] Implement base Agent abstraction using CPU-only `transformers` (model: `facebook/optm`, precision: standard floating-point format) in `code/agent/base_agent.py`. Ensure no CUDA imports. (FR-002)
-- [X] T006 [P] Implement shared external memory buffer in `code/memory/buffer.py`: Support `<MEMORY_ACTION>` tokens with JSON schema `{"type": "write"|"read", "key": str, "value": str}`. Implement queue-based write conflict resolution. Raw logs must be immutable; derived logs written to new files. (FR-003, FR-012)
+- [X] T004b [P] Implement synthetic fallback generator in `code/data/synthetic.py`: Create a set of synthetic cue-response pairs (minimum 10) from available context spans if explicit cues are missing. (FR-011)
+- [X] T005 [P] Implement base Agent abstraction using CPU-only `transformers` (model: `facebook/opt-*`, precision: standard floating-point) in `code/agent/base_agent.py`. Ensure no CUDA imports. (FR-002)
+- [X] T006 [P] Implement shared external memory buffer in `code/memory/buffer.py`: Support `<MEMORY_ACTION>` tokens with JSON schema `{"type": "write"|"read", "key": str, "value": str}`. Implement queue-based write conflict resolution. (FR-003, FR-012)
 - [X] T007 [P] Configure error logging with timestamps to `experiment.log` in `code/utils/logging.py`. Log format: `[TIMESTAMP] [LEVEL] [MODULE] Message`. (FR-010)
 - [X] T008 [P] Create `code/utils/config.py` with explicit configuration: `seed=42`, `device="cpu"`, `model_name="facebook/opt-125m"`. Ensure these are the default values used by all agents. (FR-002)
 
@@ -81,19 +81,12 @@
 
 ### Implementation for User Story 1
 
-- [X] T011 [P] [US-1] Implement CLI flag parsing in `code/run_experiment.py`: Accept `--context {full,limited}`, `--agents N`, and `--dataset {hanabi,coqa}`. If dataset is missing, invoke synthetic fallback. (FR-001)
-- [X] T011b [US-1] Implement the main game loop in `code/run_experiment.py`:
-  1. **Initialization**: Instantiate N agents based on `config.py`. Function signature: `def init_agents(n: int, config: Config) -> List[Agent]`. Return a list of initialized Agent objects.
-  2. **Turn Loop**: Orchestrate agent turns. Terminate when a game end signal is received or max turns (e.g., a predefined limit) is reached. Pass a `GameState` object (containing `current_turn`, `memory_snapshot`, `agent_hands`) between turns.
-  3. **Memory Interaction**: Handle `<MEMORY_ACTION>` tokens. Use `fcntl` for file locking when writing to the shared buffer. Serialization format: JSON.
-  (FR-002, FR-003, FR-004, FR-005)
-- [X] T011c [P] [US-1] Implement dataset loading logic in `code/run_experiment.py`: Integrate `loaders.py` and `synthetic.py`, ensuring data is checksummed before use. Explicitly call `synthetic.generate_cues()` if `loaders.check_cues()` returns false. (FR-011)
-- [X] T012 [P] [US-1] Implement specialization index computation in `code/metrics/specialization.py`: Calculate distribution-based metric of per-agent fact contribution, bounded within a defined non-negative range. (FR-004)
-- [X] T013 [P] [US-1] Implement cue-retrieval efficiency in `code/metrics/retrieval.py`: Calculate proportion of successful retrievals vs. a theoretical baseline derived from the number of agents. (FR-005)
-- [X] T014 [P] [US-1] Implement validation logic in `code/metrics/validator.py`: Validate game results against schema; log errors for failed games. (SC-001)
-- [X] T015 [US-1] Output `results_full.csv` to `projects/PROJ-586-social-memory-networks-modeling-collecti/results/` with `game_id`, `specialization_index`, `retrieval_efficiency`, `context_condition`, `agent_count`.
-  **Target**: N=1000 games.
-  **Constraint**: Do NOT reduce sample size unless the total runtime exceeds 6 hours. If reduction is necessary, reduce to a sufficient number of games, set `sample_size_flag=True` in the output, and log a warning. The output must contain ≥950 rows (≥95% success rate) if N=1000, or ≥475 rows if N=500. (US-1, FR-004, FR-005, SC-001)
+- [X] T011 [S] [US-1] Implement CLI flag parsing in `code/run_experiment.py`: Accept `--context {full,limited}`, `--agents N`, and `--dataset {hanabi,coqa}`. If dataset is missing or URL not in verified block, raise ValueError and trigger synthetic fallback with explicit error logging. (FR-001)
+- [X] T011c [S] [US-1] **DEPENDENCY: T011c must complete before T011b.** Implement dataset loading logic in `code/run_experiment.py`: Integrate `loaders.py` and `synthetic.py`, ensuring data is checksummed before use. **Specifics**: Compute sha256 checksum of the downloaded dataset file and write the hash and source URL to `data/manifest.json`. This task prepares the data stream required by the simulation loop. Dependencies: T004, T004b.
+- [X] T011b [S] [US-1] Implement game simulation loop in `code/run_experiment.py`: Orchestrate agents, memory buffer, and turn-based interaction for a single game. Protocol: (1) Agent observes state, (2) Agent generates action/memory, (3) Buffer updates, (4) Next agent. Output a single game result row with `game_id`, `specialization_index`, `retrieval_efficiency`. Dependencies: T011c. (FR-004, FR-005)
+- [X] T012 [P] [US-1] Implement specialization index computation in `code/metrics/specialization.py`: Calculate distribution-based metric of per-agent fact contribution, bounded within a non-negative range. Include validation logic to log failures if bounds are violated. (FR-004)
+- [X] T013 [P] [US-1] Implement cue-retrieval efficiency in `code/metrics/retrieval.py`: Calculate proportion of successful retrievals vs. a theoretical baseline derived from the number of agents. Include validation logic to log failures if metric is out of bounds [0, 1]. (FR-005)
+- [X] T015 [S] [US-1] Output `results_full.csv` to `projects/PROJ-social-memory-networks-modeling-collecti/results/` with `game_id`, `specialization_index`, `retrieval_efficiency`, `context_condition`, `agent_count` for N games. **Game Count Logic**: Read `N` from `os.environ.get('SIMULATION_GAME_COUNT', '200')`. If `SIMULATION_GAME_COUNT` is not set, default to 200 (CPU budget). If set to 1000, run 1000 (GPU budget). (US-1, FR-004, FR-005, SC-001). Dependencies: T011b, T012, T013.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -112,20 +105,17 @@
 
 ### Implementation for User Story 2
 
-- [X] T018 [US-2] Implement limited-context simulation in `code/run_experiment.py`: Truncate context to a specified token limit before passing to the model.
-  **Truncation Strategy**: Truncate from the START of the context window, preserving the most recent tokens. If a token boundary is hit, split at the nearest whitespace to the left.
-  Run a target of 1000 games (may be reduced to 500 only if runtime > 6h, with explicit flag). (US-2)
-- [X] T019 [US-2] Output `results_limited.csv` with same metrics to `projects/PROJ-586-social-memory-networks-modeling-collecti/results/` for a target of 1000 games (may be reduced to 500 only if runtime > 6h, with explicit flag). Output must contain ≥950 rows (≥95% success rate) if N=1000, or ≥475 if N=500. (US-2)
-- [X] T020 [P] [US-2] Implement a single two-way independent-samples ANOVA in `code/analysis/anova.py` using `statsmodels.stats.anova.anova_lm`.
+- [X] T018 [S] [US-2] Implement limited-context simulation and systematic sweep in `code/run_experiment.py`. **Sweep Logic**: Explicitly iterate over token limits {128, 256, 512} as mandated by FR-008. For each limit, run the simulation and accumulate raw results. **Output**: Write a raw CSV `results_sweep_raw.csv` to `projects/PROJ-social-memory-networks-modeling-collecti/results/` containing all game results for all limits. Do not generate the trend report here; T022 will process this file. Dependencies: T011b, T011c. (FR-008, US-2)
+- [X] T019 [S] [US-2] Output `results_limited.csv` with same metrics to `projects/PROJ-social-memory-networks-modeling-collecti/results/` for N games. **Game Count Logic**: Read `N` from `os.environ.get('SIMULATION_GAME_COUNT', '200')`. If `SIMULATION_GAME_COUNT` is not set, default to 200 (CPU budget). If set to 1000, run 1000 (GPU budget). (US-2). Dependencies: T011b, T018.
+- [X] T015 [S] [US-1] Output `results_full.csv` to `projects/PROJ-social-memory-networks-modeling-collecti/results/` with `game_id`, `specialization_index`, `retrieval_efficiency`, `context_condition`, `agent_count` for N games. **Game Count Logic**: Read `N` from `os.environ.get('SIMULATION_GAME_COUNT', '200')`. If `SIMULATION_GAME_COUNT` is not set, default to 200 (CPU budget). If set to 1000, run 1000 (GPU budget). (US-1, FR-004, FR-005, SC-001). Dependencies: T011b, T012, T013.
+- [X] T020 [S] [US-2] Implement a Mixed-Design ANOVA in `code/analysis/anova.py` using `statsmodels`.
  - **Data Structure**: Combine `results_full.csv` and `results_limited.csv` into a single long-format DataFrame with columns: `game_id`, `context_condition` (full/limited), `metric_name` (specialization/retrieval), and `metric_value`.
  - **Model Formula**: `metric_value ~ C(context_condition) * C(metric_name)`.
- - **Output**: Compute and report the interaction p-value for the term `C(context_condition):C(metric_name)`.
- - **Dependency**: MUST run after T015 and T019 are complete. (FR-006)
+ - **Output**: Compute and report the interaction p-value for the term `C(context_condition):C(metric_name)`. Dependencies: T011b (Full Context Sim), T018 (Limited Context Sim), T015, T019. (FR-006)
 - [X] T021 [P] [US-2] Apply Bonferroni correction to all family‑wise hypothesis tests and report corrected α in `code/analysis/anova.py`. (FR-007)
-- [X] T022 [US-2] Implement sensitivity analysis in `code/analysis/sensitivity.py`: Sweep token thresholds explicitly across a range of values and record how specialization and retrieval metrics vary for each threshold. (FR-008)
-- [X] T023 [US-2] Implement power analysis in `code/analysis/power.py`: Estimate detectable effect size for N=1000, alpha=0.05, power=0.80; flag if power < 0.70. (FR-009)
-- [X] T023b [US-2] Validate sample size for power analysis: Read `results_full.csv` and `results_limited.csv`. If `sample_size_flag` is True (indicating N=500), log a warning that the power analysis is based on a reduced sample and adjust the N input for the power calculation to 500. (FR-009)
-- [X] T024 [US-2] Generate `power_analysis_report.md` in `projects/PROJ-586-social-memory-networks-modeling-collecti/results/` with results from T023 and T023b. (SC-004)
+- [X] T022 [S] [US-2] Implement sensitivity analysis in `code/analysis/sensitivity.py`: Read `results_sweep_raw.csv` generated by T018. Aggregate metrics by token limit {128, 256, 512}. Output CSV trend report `results/sensitivity_trend.csv` with columns: `token_limit`, `mean_specialization`, `mean_retrieval`. (FR-008). Dependencies: T018.
+- [X] T023 [S] [US-2] Implement power analysis in `code/analysis/power.py`: Estimate detectable effect size for N=1000, alpha=0.05, power=0.80. Flag if power < 0.70. (FR-009)
+- [X] T024 [US-2] Generate `power_analysis_report.md` in `projects/PROJ-586-social-memory-networks-modeling-collecti/results/` with results from T023. (SC-004)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -144,50 +134,12 @@
 
 ### Implementation for User Story 3
 
-- [X] T027 [US-3] Implement game simulation for varying agent counts in `code/run_experiment.py`.
-  **Agent Counts**: Explicitly test N=3, N=5, N=7.
-  **Loop Structure**: Iterate through the list [3, 5, 7]. For each count, run 800 games (may be reduced to 400 only if runtime > 6h, with explicit flag).
-  (US-3)
-- [X] T028 [P] [US-3] Implement power-law fitting in `code/analysis/scaling.py`: Fit log-log curves for metric trends vs. agent count (small to medium cohorts) for specialization index and retrieval efficiency. (US-3)
+- [X] T027 [S] [US-3] Implement game simulation for varying agent counts in `code/run_experiment.py`. Run multiple games for varying agent counts. (US-3)
+- [X] T028 [P] [US-3] Implement power-law fitting in `code/analysis/scaling.py`: Fit log-log curves for metric trends vs. agent count (a small set of discrete values) for specialization index and retrieval efficiency. (US-3)
 - [X] T029 [P] [US-3] Compute confidence intervals for fitted exponents using bootstrapping and output results to `projects/PROJ-586-social-memory-networks-modeling-collecti/results/scaling_confidence_intervals.json`. (US-3, SC-005)
-- [X] T030 [US-3] Generate `scaling_plot.pdf` with fitted power‑law curves for specialization index and retrieval efficiency using matplotlib, and include an explicit text note stating that "3 data points limit power-law reliability". (US-3, SC-005)
+- [X] T030 [US-3] Generate `scaling_plot.pdf` with fitted power‑law curves for specialization index and retrieval efficiency. **Verification**: Verify PDF contains the exact string: "a limited number of data points limits power-law reliability" in the figure caption or footnote. (US-3, SC-005)
 
 **Checkpoint**: All user stories should now be independently functional
-
----
-
-## Phase 6: Reviewer-Driven Extensions (OUT OF SCOPE - REMOVED)
-
-**Note**: This phase has been removed. The features listed below (Blind Agents, Forgetting, Noise, Consolidation, Topology, Metabolic Cost) are explicitly marked as "Future Work (Out of Scope)" in `spec.md` and are not authorized for this iteration.
-
----
-
-## Phase 7: Future Work (Out of Scope)
-
-**Note**: The following mechanisms were proposed in prior reviews but are explicitly OUT OF SCOPE for this version as they are not defined in spec.md or plan.md:
-- Blind Agent mode
-- Peer-Specific Cue metric
-- Time-decay mechanism / Forgetting
-- Noise Injection
-- Consolidation Protocol
-- Scaling Limit check
-- Topology Analysis
-- Metabolic Cost calculation
-- Scaling Law Report (beyond the plot in T030)
-
-These will be addressed in a future iteration if explicitly added to the spec.
-
----
-
-## Phase 8: Polish & Cross-Cutting Concerns
-
-**Purpose**: Improvements that affect multiple user stories and address remaining requirements
-
-- [X] T031 [P] Run `quickstart.md` validation: Execute all commands listed, verify exit code 0 for each. (FR-001)
-- [X] T032 [P] Remove all 8-bit/4-bit quantization imports, verify no CUDA imports in all Python files (compute feasibility)
-- [X] T033 [P] Implement file-locking with fcntl and add conflict retry logic in `code/utils/serialization.py` (FR-012)
-- [X] T034 [P] Update `research.md` with reviewer feedback integration notes
-- [X] T035 [P] Run full pipeline on CI runner, record runtime (seconds), peak RAM (GB), and disk usage (GB) in `projects/PROJ-586-social-memory-networks-modeling-collecti/results/compute_metrics.json`. (FR-001)
 
 ---
 
@@ -200,14 +152,12 @@ These will be addressed in a future iteration if explicitly added to the spec.
 - **User Stories (Phase 3-5)**: All depend on Foundational phase completion
  - User stories can then proceed in parallel (if staffed)
  - Or sequentially in priority order (P1 → P2 → P3)
-- **Reviewer Extensions (Phase 6)**: REMOVED.
-- **Polish (Phase 8)**: Depends on all user stories and reviewer extensions being complete
 
 ### User Story Dependencies
 
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - **CRITICAL**: T020 (ANOVA) depends on the completion of T015 (results_full.csv) and T019 (results_limited.csv). T018 and T019 must run before T020.
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - May integrate with US-1/US-2 but should be independently testable
+- **User Story 1 (P1)**: Can start after Foundational (Phase 2).
+- **User Story 2 (P2)**: Can start after Foundational (Phase 2). **CRITICAL**: T018 (Sweep) must be completed before T022 (Sensitivity Analysis).
+- **User Story 3 (P3)**: Can start after Foundational (Phase 2).
 
 ### Within Each Phase
 
@@ -222,7 +172,32 @@ These will be addressed in a future iteration if explicitly added to the spec.
 - All Setup tasks marked [P] can run in parallel
 - All Foundational tasks marked [P] can run in parallel (within Phase 2)
 - Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- Tasks in Phase 8 (Polish) can be developed in parallel with US-3 and Phase 6 completion
+- All tests for a user story marked [P] can run in parallel
+- Models within a story marked [P] can run in parallel
+- Different user stories can be worked on in parallel by different team members
+
+---
+
+## Parallel Example: User Story 1
+
+```bash
+# Launch all models for User Story 1 together:
+Task: "Implement CLI flag parsing in code/run_experiment.py"
+Task: "Implement specialization index computation in code/metrics/specialization.py"
+Task: "Implement cue-retrieval metric in code/metrics/retrieval.py"
+```
+
+---
+
+## Parallel Example: User Story 2
+
+```bash
+# Launch all models for User Story 2 together:
+Task: "Implement Mixed-Design ANOVA analysis in code/analysis/anova.py"
+Task: "Implement sensitivity analysis in code/analysis/sensitivity.py"
+Task: "Implement power analysis in code/analysis/power.py"
+Task: "Implement limited-context simulation and sweep in code/run_experiment.py"
+```
 
 ---
 
@@ -233,15 +208,15 @@ These will be addressed in a future iteration if explicitly added to the spec.
 1. Complete Phase 1: Setup
 2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
 3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently
+4. **STOP and VALIDATE**: Test User Story 1 independently.
 5. Deploy/demo if ready
 
 ### Incremental Delivery
 
 1. Complete Setup + Foundational → Foundation ready
 2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test with ANOVA/Sensitivity → Deploy/Demo
-4. Add User Story 3 → Test with scaling → Deploy/Demo
+3. Add User Story 2 → Test independently → Deploy/Demo (includes Sweep & ANOVA)
+4. Add User Story 3 → Test independently → Deploy/Demo (includes Scaling)
 5. Each story adds value without breaking previous stories
 
 ### Parallel Team Strategy
@@ -251,8 +226,8 @@ With multiple developers:
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
  - Developer A: User Story 1
- - Developer B: User Story 2
- - Developer C: User Story 3
+ - Developer B: User Story 2 (Sweep & ANOVA)
+ - Developer C: User Story 3 (Scaling)
 3. Stories complete and integrate independently
 
 ---
@@ -267,9 +242,10 @@ With multiple developers:
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Compute Constraint**: CPU-only inference, no CUDA, default float32 precision
-- **Game Counts**: US-1/US-2 = target 1000 games per condition (may be reduced to 500 only if runtime > 6h); US-3 = target 800 games per agent count (3, 5, 7; may be reduced to 400 only if runtime > 6h)
+- **Game Counts**: Controlled by `SIMULATION_GAME_COUNT` env var (Default 200 for CPU, 1000 for GPU).
 - **Dataset Constraint**: Hanabi/CoQA URLs are not in the verified block; synthetic fallback is mandatory if URLs are missing.
-- **ANOVA Design**: Single two-way ANOVA with Context × Metric interaction (FR-006).
-- **Power Analysis**: N=1000 (FR-009 spec requirement); if reduced to 500, must be flagged.
+- **ANOVA Design**: Mixed-Design ANOVA with Context × Metric interaction (FR-006), NOT separate ANOVAs.
+- **Power Analysis**: N=1000 (FR-009 spec requirement)
 - **Scaling Analysis**: Strictly plots specialization index and retrieval efficiency (SC-005).
-- **Out of Scope**: Blind Agents, Forgetting, Noise, Consolidation, Topology, Metabolic Cost.
+- **Scope Integrity**: The project scope is strictly limited to User Stories 1, 2, and 3 as defined in `spec.md` and `FR-001` through `FR-012`. No unauthorized features (Blind Cue, Topology, Forgetting, Noise) are included.
+- **Sweep Logic**: T018 performs the systematic sweep over {128, 256, 512} and outputs raw data. T022 analyzes this data.

@@ -1,66 +1,66 @@
-- artifact_hash: c9af1231de90a46aab0785932789e178a451dea467c6d9c6fd66bbffa7a1c49c
+- artifact_hash: 3696d5ddd4b28e6f4bbc2726ca7aa0f5e12e86524051a83334a7f4c6634b0a28
+  artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/plan.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: train-00000-of-00001-6735fa23570cec83.parquet
+  kind: url
+  value: https://huggingface.co/datasets/LangChainDatasets/multiagent-bidding-dialogue/resolve/main/data/train-00000-of-00001-6735fa23570cec83.parquet`
+  verification_status: pending
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/6454a7aefe2f48cb4b5c649c/4b90ce5039a3a7c898aa9d95fc7f020f6824992cd2f70d1a81f68b01bec96fb3?X-Xet-Cas-Uid=public&user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00001-6735fa23570cec83.parquet%3B+filename%3D%22train-00000-of-00001-6735fa23570cec83.parquet%22%3B&Expires=1785930113&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjQ1NGE3YWVmZTJmNDhjYjRiNWM2NDljLzRiOTBjZTUwMzlhM2E3Yzg5OGFhOWQ5NWZjN2YwMjBmNjgyNDk5MmNkMmY3MGQxYTgxZjY4YjAxYmVjOTZmYjNcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZ1c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dHJhaW4tMDAwMDAtb2YtMDAwMDEtNjczNWZhMjM1NzBjZWM4My5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydHJhaW4tMDAwMDAtb2YtMDAwMDEtNjczNWZhMjM1NzBjZWM4My5wYXJxdWV0JTIyJTNCIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODU5MzAxMTN9fX1dfQ__&Signature=MEUCIQDqCvIR7dfx6O1viAW60Fzl65K9f5Kv7F9m9HZ7k6%7EMmAIgdu5G192WVTli4bkQ-ggmSqnpRIi98%7E8TJDltLVU98IU_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F
+  verified_at: '2026-08-05T10:41:52.914791Z'
+- artifact_hash: 3696d5ddd4b28e6f4bbc2726ca7aa0f5e12e86524051a83334a7f4c6634b0a28
+  artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/plan.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: agent_conversation_all.csv
+  kind: url
+  value: https://huggingface.co/datasets/BothBosu/multi-agent-scam-conversation/resolve/main/agent_conversation_all.csv`
+  verification_status: pending
+  verified_against_url: https://huggingface.co/api/resolve-cache/datasets/BothBosu/multi-agent-scam-conversation/709db2b6c37f424c3070f29138abb33971e21ab9/agent_conversation_all.csv?%2Fdatasets%2FBothBosu%2Fmulti-agent-scam-conversation%2Fresolve%2Fmain%2Fagent_conversation_all.csv=&etag=%22f561b3c22ba84ace12c5732026e2084c350ee49e%22
+  verified_at: '2026-08-05T10:41:52.914791Z'
+- artifact_hash: 3696d5ddd4b28e6f4bbc2726ca7aa0f5e12e86524051a83334a7f4c6634b0a28
+  artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/plan.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: multi_agent_structure.json
+  kind: url
+  value: https://huggingface.co/datasets/genaiarchitect/multi_agent_structure/resolve/main/multi_agent_structure.json`
+  verification_status: pending
+  verified_against_url: https://huggingface.co/api/resolve-cache/datasets/genaiarchitect/multi_agent_structure/08927b256b126fe1467ae374aa5c94106264ffb1/multi_agent_structure.json?%2Fdatasets%2Fgenaiarchitect%2Fmulti_agent_structure%2Fresolve%2Fmain%2Fmulti_agent_structure.json=&etag=%22aaadc95acafc6a58fea724235d9db02c768e2df8%22
+  verified_at: '2026-08-05T10:41:52.914791Z'
+- artifact_hash: fbfc82e127eb82aeff69538e1ef148b0cb1d6b296cc06a9d6dce72f2ecc42253
   artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/research.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: null
+  fetched_title: train-00000-of-00001-6735fa23570cec83.parquet
   kind: url
-  value: https://huggingface.co/datasets/Mustafaege/qwen-toolcalling-v2/resolve/main/data/test-00000-of-00001.parquet
-  verification_status: unreachable
-  verified_against_url: https://huggingface.co/datasets/Mustafaege/qwen-toolcalling-v2/resolve/main/data/test-00000-of-00001.parquet
-  verified_at: '2026-06-26T22:53:36.631629Z'
-- artifact_hash: c9af1231de90a46aab0785932789e178a451dea467c6d9c6fd66bbffa7a1c49c
+  value: https://huggingface.co/datasets/LangChainDatasets/multiagent-bidding-dialogue/resolve/main/data/train-00000-of-00001-6735fa23570cec83.parquet`
+  verification_status: pending
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/6454a7aefe2f48cb4b5c649c/4b90ce5039a3a7c898aa9d95fc7f020f6824992cd2f70d1a81f68b01bec96fb3?X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00001-6735fa23570cec83.parquet%3B+filename%3D%22train-00000-of-00001-6735fa23570cec83.parquet%22%3B&user_id=public&Expires=1785930141&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjQ1NGE3YWVmZTJmNDhjYjRiNWM2NDljLzRiOTBjZTUwMzlhM2E3Yzg5OGFhOWQ5NWZjN2YwMjBmNjgyNDk5MmNkMmY3MGQxYTgxZjY4YjAxYmVjOTZmYjNcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dHJhaW4tMDAwMDAtb2YtMDAwMDEtNjczNWZhMjM1NzBjZWM4My5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydHJhaW4tMDAwMDAtb2YtMDAwMDEtNjczNWZhMjM1NzBjZWM4My5wYXJxdWV0JTIyJTNCJnVzZXJfaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODU5MzAxNDF9fX1dfQ__&Signature=MEYCIQDQ0IxsbGwerGOWmgszvRlSadIAlfstunu1-2ThUb0tbwIhANeCGRYpgsxdVagektrXeQzSdo1q2foQzVWgPgcTaPGV&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F
+  verified_at: '2026-08-05T10:42:21.028698Z'
+- artifact_hash: fbfc82e127eb82aeff69538e1ef148b0cb1d6b296cc06a9d6dce72f2ecc42253
   artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/research.md
   cite_id: c-002
   cited_authors: []
   cited_title: null
-  fetched_title: null
+  fetched_title: agent_conversation_all.csv
   kind: url
-  value: https://huggingface.co/datasets/kudo-research/mustc-en-es-text-only/resolve/main/data/dev-{shard}-of-00001.parquet
-  verification_status: mismatch
-  verified_against_url: https://huggingface.co/datasets/kudo-research/mustc-en-es-text-only/resolve/main/data/dev-%7Bshard%7D-of-00001.parquet
-  verified_at: '2026-06-26T22:53:36.631629Z'
-- artifact_hash: c9af1231de90a46aab0785932789e178a451dea467c6d9c6fd66bbffa7a1c49c
+  value: https://huggingface.co/datasets/BothBosu/multi-agent-scam-conversation/resolve/main/agent_conversation_all.csv`
+  verification_status: pending
+  verified_against_url: https://huggingface.co/api/resolve-cache/datasets/BothBosu/multi-agent-scam-conversation/709db2b6c37f424c3070f29138abb33971e21ab9/agent_conversation_all.csv?%2Fdatasets%2FBothBosu%2Fmulti-agent-scam-conversation%2Fresolve%2Fmain%2Fagent_conversation_all.csv=&etag=%22f561b3c22ba84ace12c5732026e2084c350ee49e%22
+  verified_at: '2026-08-05T10:42:21.028698Z'
+- artifact_hash: fbfc82e127eb82aeff69538e1ef148b0cb1d6b296cc06a9d6dce72f2ecc42253
   artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/research.md
   cite_id: c-003
   cited_authors: []
   cited_title: null
-  fetched_title: tx_log.csv
+  fetched_title: multi_agent_structure.json
   kind: url
-  value: https://huggingface.co/datasets/AMLGentex/us_100K_difficult/resolve/main/tx_log.csv
-  verification_status: verified
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/68d4f8bd5fa7380f4d09d22a/01839676db47bac25c2d154832c12506264de4710f43321dbfddcaf465369d34?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27tx_log.csv%3B+filename%3D%22tx_log.csv%22%3B&X-Xet-Cas-Uid=public&response-content-type=text%2Fcsv&user_id=public&Expires=1782518016&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjhkNGY4YmQ1ZmE3MzgwZjRkMDlkMjJhLzAxODM5Njc2ZGI0N2JhYzI1YzJkMTU0ODMyYzEyNTA2MjY0ZGU0NzEwZjQzMzIxZGJmZGRjYWY0NjUzNjlkMzRcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dHhfbG9nLmNzdiUzQitmaWxlbmFtZSUzRCUyMnR4X2xvZy5jc3YlMjIlM0ImWC1YZXQtQ2FzLVVpZD1wdWJsaWMmcmVzcG9uc2UtY29udGVudC10eXBlPXRleHQlMkZjc3YmdXNlcl9pZD1wdWJsaWMiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4MjUxODAxNn19fV19&Signature=MEUCIHmELEOOuCozOFWjG66KTzy2Bs9YfhUogFjOOcOLl95AAiEArUO8f3aEFVG6zyFWM3pKCM6%7EYgLwZe60aIaXBP8vIU8_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
-  verified_at: '2026-06-26T22:53:36.631629Z'
-- artifact_hash: c9af1231de90a46aab0785932789e178a451dea467c6d9c6fd66bbffa7a1c49c
-  artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/research.md
-  cite_id: c-004
-  cited_authors: []
-  cited_title: null
-  fetched_title: tx_log.csv
-  kind: url
-  value: https://huggingface.co/datasets/AMLGentex/us_100K_easy/resolve/main/tx_log.csv
-  verification_status: verified
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/68d4fcd0e3331eea5409c3ec/0c1e529af57e22d2bf886fb2728faf484fcea023ab6acd516ee908ea480e2656?user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27tx_log.csv%3B+filename%3D%22tx_log.csv%22%3B&response-content-type=text%2Fcsv&X-Xet-Cas-Uid=public&Expires=1782518034&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjhkNGZjZDBlMzMzMWVlYTU0MDljM2VjLzBjMWU1MjlhZjU3ZTIyZDJiZjg4NmZiMjcyOGZhZjQ4NGZjZWEwMjNhYjZhY2Q1MTZlZTkwOGVhNDgwZTI2NTZcXD91c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dHhfbG9nLmNzdiUzQitmaWxlbmFtZSUzRCUyMnR4X2xvZy5jc3YlMjIlM0ImcmVzcG9uc2UtY29udGVudC10eXBlPXRleHQlMkZjc3YmWC1YZXQtQ2FzLVVpZD1wdWJsaWMiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4MjUxODAzNH19fV19&Signature=MEUCIQCuN0H85n1i-B0cvcVcw4Ix4vJYefrlsVHIXGv8nzUMEwIgD-3ApuwSxztu%7E06D80xFG8L1sItPdZ5Uy2MuUXbuE3c_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
-  verified_at: '2026-06-26T22:53:36.631629Z'
-- artifact_hash: c9af1231de90a46aab0785932789e178a451dea467c6d9c6fd66bbffa7a1c49c
-  artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/research.md
-  cite_id: c-005
-  cited_authors: []
-  cited_title: null
-  fetched_title: file-000.parquet
-  kind: url
-  value: https://huggingface.co/datasets/gimarchetti/winnie-us2/resolve/main/data/chunk-000/file-000.parquet
-  verification_status: verified
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/68bdf6d30b4efecdf538b689/01ffaa591a4be3e61523d52725af036dbf05d953c62274675067b8eaf9ee73c1?X-Xet-Cas-Uid=public&user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27file-000.parquet%3B+filename%3D%22file-000.parquet%22%3B&Expires=1782518051&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjhiZGY2ZDMwYjRlZmVjZGY1MzhiNjg5LzAxZmZhYTU5MWE0YmUzZTYxNTIzZDUyNzI1YWYwMzZkYmYwNWQ5NTNjNjIyNzQ2NzUwNjdiOGVhZjllZTczYzFcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZ1c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3ZmlsZS0wMDAucGFycXVldCUzQitmaWxlbmFtZSUzRCUyMmZpbGUtMDAwLnBhcnF1ZXQlMjIlM0IiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4MjUxODA1MX19fV19&Signature=MEQCIGq2JpIzClF8DjyDkRbGI58yfmzaxKuqCwYwcYH0bDT3AiAoz0F48aTMhmNMogHfb5-PSrZ-hKZ9ZmznTWOVfB0xcw__&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
-  verified_at: '2026-06-26T22:53:36.631629Z'
-- artifact_hash: c9af1231de90a46aab0785932789e178a451dea467c6d9c6fd66bbffa7a1c49c
-  artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/research.md
-  cite_id: c-006
-  cited_authors: []
-  cited_title: null
-  fetched_title: prompt.json
-  kind: url
-  value: https://huggingface.co/datasets/JasonXF/US3D-Enhanced/resolve/main/prompt.json
-  verification_status: verified
-  verified_against_url: https://huggingface.co/api/resolve-cache/datasets/JasonXF/US3D-Enhanced/7f60acedd7f2c766cdc27a1e9e62bcc9c7d3428e/prompt.json?%2Fdatasets%2FJasonXF%2FUS3D-Enhanced%2Fresolve%2Fmain%2Fprompt.json=&etag=%22b1e79c038446025d54f94493aedb58c848fe8d2c%22
-  verified_at: '2026-06-26T22:53:36.631629Z'
+  value: https://huggingface.co/datasets/genaiarchitect/multi_agent_structure/resolve/main/multi_agent_structure.json`
+  verification_status: pending
+  verified_against_url: https://huggingface.co/api/resolve-cache/datasets/genaiarchitect/multi_agent_structure/08927b256b126fe1467ae374aa5c94106264ffb1/multi_agent_structure.json?%2Fdatasets%2Fgenaiarchitect%2Fmulti_agent_structure%2Fresolve%2Fmain%2Fmulti_agent_structure.json=&etag=%22aaadc95acafc6a58fea724235d9db02c768e2df8%22
+  verified_at: '2026-08-05T10:42:21.028698Z'

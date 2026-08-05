@@ -1,17 +1,19 @@
 status: none
-intent: download Hanabi learning environment python package dataset with cue retrieval
-  annotations
+intent: Hanabi learning environment python package dataset with CoQA, USK-difficult,
+  USK-easy, WINNIE-US2, MUST-EN-ES python package dataset
 required_fields:
 - game_id
-- episode_id
 - agent_id
 - specialization_index
-- retrieval_efficiency
-- cue_annotation
-- fact_annotation
-- language
+- cue_retrieval_efficiency
+- game_state_facts
+- cue_annotations
+- tool_calling_data
+- cross_lingual_text_en
+- cross_lingual_text_es
 - transaction_log
-- prompt_text
-cache_key: d1c2e010a40b3b5ce7f8d0fcc99788cf12b9e14f772bdb7e783eb0afb100a56d
-searched_at: '2026-08-05T10:20:48.084342+00:00'
+- episode_id
+- multi_agent_interaction
+cache_key: 1c83295888930df20c25d9597c8a09606e6f16d2fe8563ca88efae92cae13fbf
+searched_at: '2026-08-05T10:30:23.020367+00:00'
 retry_count: 1
