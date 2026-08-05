@@ -1,11 +1,55 @@
-- artifact_hash: b1f402166a44feeec219962236aae09f791bed567028a0020e619a163584d911
+- artifact_hash: 31e1e998cfe40ae96987414fc954e36731d8dc873c66021bea30ddbdda2056bb
   artifact_path: projects/PROJ-135-identifying-predictive-biomarkers-of-che/specs/001-identifying-predictive-biomarkers-of-che/research.md
   cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: TCGA-OR-A5J1-01Z-00-DX1.h5
+  kind: url
+  value: https://huggingface.co/datasets/W8Yi/tcga-wsi-uni2h-features/resolve/main/TCGA-ACC/features/TCGA-OR-A5J1-01Z-00-DX1.h5`
+  verification_status: pending
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/69ab2f5fd30bf17ee28d1892/048e02896e61235e3e39391f71754d50aafc3d42f39fb92d736e7b1192163273?X-Xet-Cas-Uid=public&user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27TCGA-OR-A5J1-01Z-00-DX1.h5%3B+filename%3D%22TCGA-OR-A5J1-01Z-00-DX1.h5%22%3B&Expires=1785938159&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjlhYjJmNWZkMzBiZjE3ZWUyOGQxODkyLzA0OGUwMjg5NmU2MTIzNWUzZTM5MzkxZjcxNzU0ZDUwYWFmYzNkNDJmMzlmYjkyZDczNmU3YjExOTIxNjMyNzNcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZ1c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3VENHQS1PUi1BNUoxLTAxWi0wMC1EWDEuaDUlM0IrZmlsZW5hbWUlM0QlMjJUQ0dBLU9SLUE1SjEtMDFaLTAwLURYMS5oNSUyMiUzQiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzg1OTM4MTU5fX19XX0_&Signature=MEYCIQC7dUCvxTMhiAZwUTC45989MS4fQsR2GVd9NWrYe0CLdAIhAItrWFyS-rZsnPoAz5v6CK-3-ayIyOH0r4h2vqLBVEH0&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F
+  verified_at: '2026-08-05T12:55:59.215202Z'
+- artifact_hash: 31e1e998cfe40ae96987414fc954e36731d8dc873c66021bea30ddbdda2056bb
+  artifact_path: projects/PROJ-135-identifying-predictive-biomarkers-of-che/specs/001-identifying-predictive-biomarkers-of-che/research.md
+  cite_id: c-002
   cited_authors: []
   cited_title: null
   fetched_title: metadata.csv
   kind: url
   value: https://huggingface.co/datasets/farrell236/TCGA-OV-AS/resolve/main/metadata.csv`
-  verification_status: verified
+  verification_status: pending
   verified_against_url: https://huggingface.co/api/resolve-cache/datasets/farrell236/TCGA-OV-AS/e11ff6a6d23d4f9bd34c85f9ef7f71ecc7493201/metadata.csv?%2Fdatasets%2Ffarrell236%2FTCGA-OV-AS%2Fresolve%2Fmain%2Fmetadata.csv=&etag=%2284cd66cc4f4b1cd46730bf802edeb8e5604edef1%22
-  verified_at: '2026-07-04T19:14:18.011889Z'
+  verified_at: '2026-08-05T12:55:59.215202Z'
+- artifact_hash: 31e1e998cfe40ae96987414fc954e36731d8dc873c66021bea30ddbdda2056bb
+  artifact_path: projects/PROJ-135-identifying-predictive-biomarkers-of-che/specs/001-identifying-predictive-biomarkers-of-che/research.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: TCGA-05-4244-01Z-00-DX1.h5
+  kind: url
+  value: https://huggingface.co/datasets/RJKiseki/TCGA/resolve/main/TCGA-05-4244-01Z-00-DX1.h5`
+  verification_status: pending
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/647fee15cbb8294ed8104e3f/1274fa3ae1ba53c8f4940d6bfee8b4599a655cc521ea3f4c3315b796c4ac1686?X-Xet-Cas-Uid=public&user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27TCGA-05-4244-01Z-00-DX1.h5%3B+filename%3D%22TCGA-05-4244-01Z-00-DX1.h5%22%3B&Expires=1785938164&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjQ3ZmVlMTVjYmI4Mjk0ZWQ4MTA0ZTNmLzEyNzRmYTNhZTFiYTUzYzhmNDk0MGQ2YmZlZThiNDU5OWE2NTVjYzUyMWVhM2Y0YzMzMTViNzk2YzRhYzE2ODZcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZ1c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3VENHQS0wNS00MjQ0LTAxWi0wMC1EWDEuaDUlM0IrZmlsZW5hbWUlM0QlMjJUQ0dBLTA1LTQyNDQtMDFaLTAwLURYMS5oNSUyMiUzQiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzg1OTM4MTY0fX19XX0_&Signature=MEUCIDKgXiHNrhw-stuMV-dQAqEJMxJD3lZap0tzdVgcWmCMAiEA1CW7OlVYy6yfjkZQv-%7EdHBPVEMK7LevzrRP7RY6O6tM_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F
+  verified_at: '2026-08-05T12:55:59.215202Z'
+- artifact_hash: 31e1e998cfe40ae96987414fc954e36731d8dc873c66021bea30ddbdda2056bb
+  artifact_path: projects/PROJ-135-identifying-predictive-biomarkers-of-che/specs/001-identifying-predictive-biomarkers-of-che/research.md
+  cite_id: c-004
+  cited_authors: []
+  cited_title: null
+  fetched_title: test-00000-of-00001-a7e7bddd8e1781d9.parquet
+  kind: url
+  value: https://huggingface.co/datasets/vaishali/geoQuery-tableQA/resolve/main/data/test-00000-of-00001-a7e7bddd8e1781d9.parquet`
+  verification_status: pending
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/65d4f9362efe146315a4351d/cf1a42cdb2dd5fabc2dcf9ab8f7cbd52df1271c74dc8b369de9e5c325964fef6?X-Xet-Cas-Uid=public&user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00001-a7e7bddd8e1781d9.parquet%3B+filename%3D%22test-00000-of-00001-a7e7bddd8e1781d9.parquet%22%3B&Expires=1785938165&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjVkNGY5MzYyZWZlMTQ2MzE1YTQzNTFkL2NmMWE0MmNkYjJkZDVmYWJjMmRjZjlhYjhmN2NiZDUyZGYxMjcxYzc0ZGM4YjM2OWRlOWU1YzMyNTk2NGZlZjZcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZ1c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGVzdC0wMDAwMC1vZi0wMDAwMS1hN2U3YmRkZDhlMTc4MWQ5LnBhcnF1ZXQlM0IrZmlsZW5hbWUlM0QlMjJ0ZXN0LTAwMDAwLW9mLTAwMDAxLWE3ZTdiZGRkOGUxNzgxZDkucGFycXVldCUyMiUzQiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzg1OTM4MTY1fX19XX0_&Signature=MEQCIHFblvMwudEN9G5cuZtMILLVNf-cG%7Ed306IKzaUAdKugAiBK3NKQbx7awREYUQJzTV6g25IXs4kLjJ5WQEehyWjh9w__&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F
+  verified_at: '2026-08-05T12:55:59.215202Z'
+- artifact_hash: 31e1e998cfe40ae96987414fc954e36731d8dc873c66021bea30ddbdda2056bb
+  artifact_path: projects/PROJ-135-identifying-predictive-biomarkers-of-che/specs/001-identifying-predictive-biomarkers-of-che/research.md
+  cite_id: c-005
+  cited_authors: []
+  cited_title: null
+  fetched_title: data.zip
+  kind: url
+  value: https://huggingface.co/datasets/DARELab/geoquery/resolve/main/data.zip`
+  verification_status: pending
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/65e9a4f3a539d8b51a8dd9a3/871309de8473fae1201d7f8e8e526fe3a63484f40aa9f6df0b8483fbaa0b8a29?user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27data.zip%3B+filename%3D%22data.zip%22%3B&X-Xet-Cas-Uid=public&response-content-type=application%2Fzip&Expires=1785938165&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjVlOWE0ZjNhNTM5ZDhiNTFhOGRkOWEzLzg3MTMwOWRlODQ3M2ZhZTEyMDFkN2Y4ZThlNTI2ZmUzYTYzNDg0ZjQwYWE5ZjZkZjBiODQ4M2ZiYWEwYjhhMjlcXD91c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3ZGF0YS56aXAlM0IrZmlsZW5hbWUlM0QlMjJkYXRhLnppcCUyMiUzQiZYLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LXR5cGU9YXBwbGljYXRpb24lMkZ6aXAiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4NTkzODE2NX19fV19&Signature=MEQCIEVtCwoqqIa9CDOEBjX4eD8FckNSHNE55%7ENE0O7m6DMdAiBoVBMhZosviM2EHlzE8zK0-%7EQ73lHHydLylIbUWKKdwA__&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F
+  verified_at: '2026-08-05T12:55:59.215202Z'

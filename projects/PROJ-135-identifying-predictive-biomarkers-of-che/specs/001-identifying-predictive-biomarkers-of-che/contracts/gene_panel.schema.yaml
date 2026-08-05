@@ -1,26 +1,51 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Gene Panel Schema"
-description: "Schema for the meta‑analyzed biomarker gene panel."
-type: object
-required:
-  - gene_symbol
-  - meta_p_value
-  - log2FC_mean
-  - selected
-  - rank
+description: "Schema for the meta-analyzed biomarker gene panel."
+type: "object"
 properties:
-  gene_symbol:
-    type: string
-    description: "HGNC gene symbol."
-  meta_p_value:
-    type: number
-    description: "Combined p‑value from Stouffer's method."
-  log2FC_mean:
-    type: number
-    description: "Mean log2 fold change across tumor types."
-  selected:
-    type: boolean
-    description: "Whether the gene is included in the final panel."
-  rank:
-    type: integer
-    description: "Rank by meta_p_value (1‑based)."
+  genes:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        gene_symbol:
+          type: "string"
+          description: "HGNC gene symbol"
+        meta_p_value:
+          type: "number"
+          description: "Combined p-value from Stouffer's method"
+        log2FC_mean:
+          type: "number"
+          description: "Mean log2 fold change"
+        selected:
+          type: "boolean"
+          description: "Whether included in final panel"
+        panel_rank:
+          type: "integer"
+          description: "Rank based on meta_p_value"
+      required:
+        - gene_symbol
+        - meta_p_value
+        - log2FC_mean
+        - selected
+        - panel_rank
+  summary:
+    type: "object"
+    properties:
+      total_genes_tested:
+        type: "integer"
+        description: "Total genes in meta-analysis"
+      panel_size:
+        type: "integer"
+        description: "Number of genes in final panel"
+      fallback_reason:
+        type: "string"
+        enum: ["none", "intersection_empty"]
+        description: "Reason for panel selection method"
+    required:
+      - total_genes_tested
+      - panel_size
+      - fallback_reason
+required:
+  - genes
+  - summary

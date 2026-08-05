@@ -1,0 +1,19 @@
+status: none
+intent: "TCGA RNA\u2011seq and GEO transcriptomic datasets unified python package\
+  \ dataset"
+required_fields:
+- sample_id
+- cancer_type
+- gene_symbol
+- ensembl_id
+- raw_count
+- cpm
+- variance_stabilized_expression
+- clinical_age
+- clinical_gender
+- clinical_stage
+- clinical_survival_time
+- clinical_survival_status
+cache_key: eefe85710e0f0161dd7638880de78a623e079d2c44d2ecf0de44224312711b60
+searched_at: '2026-08-05T12:40:51.835053+00:00'
+retry_count: 1

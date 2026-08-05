@@ -1,128 +1,55 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Model Output Schema
-description: |
-  Schema for predictive model outputs, including metrics, coefficients,
-  and validation results for tumor-type-specific models.
-type: object
-required:
-  - metadata
-  - model_info
-  - performance_metrics
-  - coefficients
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Output Schema"
+description: "Schema for the trained model and evaluation metrics."
+type: "object"
 properties:
-  metadata:
-    type: object
-    required:
-      - tumor_type
-      - model_type
-      - gene_panel_source
-      - training_date
-    properties:
-      tumor_type:
-        type: string
-        description: Tumor type code (e.g., 'BRCA')
-      model_type:
-        type: string
-        enum: ["ElasticNet", "LogisticRegression"]
-        description: Type of model used
-      gene_panel_source:
-        type: string
-        description: Path to the gene panel JSON used for training
-      training_date:
-        type: string
-        format: date-time
-        description: ISO 8601 timestamp
-      cv_folds:
-        type: integer
-        minimum: 2
-        description: Number of CV folds used
   model_info:
-    type: object
-    required:
-      - alpha
-      - l1_ratio
-      - final_alpha
-      - final_l1_ratio
+    type: "object"
     properties:
+      cancer_type:
+        type: "string"
+        description: "Tumor type or 'pan-cancer'"
       alpha:
-        type: number
-        description: Best alpha from inner CV
-      l1_ratio:
-        type: number
-        description: Best l1_ratio from inner CV
-      final_alpha:
-        type: number
-        description: Alpha used for final model
-      final_l1_ratio:
-        type: number
-        description: L1 ratio used for final model
-      n_features:
-        type: integer
-        description: Number of features in the fixed panel
-  performance_metrics:
-    type: object
+        type: "number"
+        description: "Elastic-net mixing parameter"
+      lambda:
+        type: "number"
+        description: "Regularization parameter"
+      coefficients:
+        type: "object"
+        additionalProperties:
+          type: "number"
+        description: "Gene -> Coefficient mapping"
     required:
-      - auc_roc
-      - auc_pr
-      - accuracy
-      - precision
-      - recall
-      - f1_score
+      - cancer_type
+      - alpha
+      - lambda
+      - coefficients
+  performance:
+    type: "object"
     properties:
-      auc_roc:
-        type: number
-        minimum: 0.0
-        maximum: 1.0
-        description: Area Under ROC Curve
-      auc_pr:
-        type: number
-        minimum: 0.0
-        maximum: 1.0
-        description: Area Under Precision-Recall Curve
-      accuracy:
-        type: number
-        minimum: 0.0
-        maximum: 1.0
-      precision:
-        type: number
-        minimum: 0.0
-        maximum: 1.0
-      recall:
-        type: number
-        minimum: 0.0
-        maximum: 1.0
-      f1_score:
-        type: number
-        minimum: 0.0
-        maximum: 1.0
-      calibration_slope:
-        type: number
-        description: Slope from calibration curve
-      calibration_intercept:
-        type: number
-        description: Intercept from calibration curve
-  coefficients:
-    type: array
-    description: List of gene coefficients in the final model
-    items:
-      type: object
-      required:
-        - gene_symbol
-        - coefficient
-      properties:
-        gene_symbol:
-          type: string
-        coefficient:
-          type: number
-  validation_results:
-    type: object
-    description: Results from external validation if available
-    properties:
-      dataset_id:
-        type: string
-      auc_roc:
-        type: number
-      auc_pr:
-        type: number
-      sample_size:
-        type: integer
+      cross_val_auc:
+        type: "number"
+        description: "Internal nested CV AUC"
+      external_auc:
+        type: "number"
+        description: "External validation AUC"
+      calibration_error:
+        type: "number"
+        description: "Mean calibration error for deciles with N>=20"
+      delong_p_value:
+        type: "number"
+        description: "P-value from DeLong's test vs baseline"
+    required:
+      - cross_val_auc
+      - external_auc
+      - calibration_error
+      - delong_p_value
+  validation_status:
+    type: "string"
+    enum: ["passed", "failed", "underpowered"]
+    description: "Overall validation status"
+required:
+  - model_info
+  - performance
+  - validation_status

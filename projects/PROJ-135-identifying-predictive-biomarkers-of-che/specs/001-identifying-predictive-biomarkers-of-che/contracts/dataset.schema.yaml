@@ -1,28 +1,66 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Cancer Biomarker Dataset Schema"
-description: "Schema for the processed cancer dataset used in biomarker discovery."
+title: "Harmonized Dataset Schema"
+description: "Schema for the harmonized, normalized expression matrix and metadata."
 type: "object"
 properties:
-  sample_id:
-    type: "string"
-    description: "Unique identifier for the sample (e.g., TCGA barcode)."
-  tumor_type:
-    type: "string"
-    description: "Cancer type code (e.g., BRCA, LUAD)."
-  response_label:
-    type: "string"
-    description: "Chemotherapy response status (e.g., Responder, Non-Responder)."
-  expression_vector:
+  samples:
     type: "array"
     items:
-      type: "number"
-    description: "Normalized gene expression values."
-  set_type:
-    type: "string"
-    description: "Data split type (e.g., discovery, training, external_validation)."
+      type: "object"
+      properties:
+        sample_id:
+          type: "string"
+          description: "Unique sample identifier"
+        tumor_type:
+          type: "string"
+          description: "TCGA/GEO tumor type code"
+        response_label:
+          type: "integer"
+          enum: [0, 1]
+          description: "0=Non-responder, 1=Responder"
+        set_type:
+          type: "string"
+          enum: ["discovery", "training"]
+          description: "Partition type"
+        source:
+          type: "string"
+          enum: ["TCGA", "GEO"]
+          description: "Data source"
+        expression_vector:
+          type: "object"
+          additionalProperties:
+            type: "number"
+          description: "Gene symbol -> VST value mapping"
+      required:
+        - sample_id
+        - tumor_type
+        - response_label
+        - set_type
+        - source
+        - expression_vector
+  metadata:
+    type: "object"
+    properties:
+      total_samples:
+        type: "integer"
+        description: "Total number of samples"
+      tumor_types:
+        type: "array"
+        items:
+          type: "string"
+        description: "List of tumor types included"
+      normalization_method:
+        type: "string"
+        const: "DESeq2_VST"
+        description: "Normalization method used"
+      checksum:
+        type: "string"
+        description: "SHA256 checksum of the raw data source"
+    required:
+      - total_samples
+      - tumor_types
+      - normalization_method
+      - checksum
 required:
-  - sample_id
-  - tumor_type
-  - response_label
-  - expression_vector
-  - set_type
+  - samples
+  - metadata

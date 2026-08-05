@@ -78,26 +78,27 @@
 > **Dependency**: T010/T011 depend on T006 (Schema) being complete.
 
 - [ ] T010 [P] [US1] Contract test for data schema validation in `tests/contract/test_data_schema.py`. **Requirement**: Verify that `dataset.schema.yaml` (output of T006) is valid. **Logic**: 1) `try`: Load `dataset.schema.yaml`. 2) `except FileNotFoundError`: Raise explicit error stating T006 must run first. 3) Validate a synthetic sample conforming to the schema. **Assert**: Schema validation passes for valid data and fails for invalid data. **Dependency**: T006.
-- [ ] T011 [P] [US1] Integration test for Feasibility Gate logic in `tests/integration/test_feasibility_gate.py`. **Requirement**: **Assert** that T014 writes `data/feasibility_gate.json` correctly in two specific scenarios: 1) **TCGA < 3**: Write `status: "halted"`, `reason: "insufficient_tcga_types"`. 2) **GEO < 2** (but TCGA >= 3): Write `status: "halted"`, `reason: "insufficient_geo_datasets"` and **proceed** (do not halt) to internal validation. **Assert**: The file content matches the specific Plan T011/T013 outcomes exactly. **Logical Dependency**: T014 (implementation of the gate logic).
+- [ ] T011 [P] [US1] Integration test for Feasibility Gate logic in `tests/integration/test_feasibility_gate.py`. **Requirement**: **Assert** that T014 writes `data/feasibility_gate.json` correctly in two specific scenarios: 1) **TCGA < 3**: Write `status: "halted"`, `reason: "insufficient_tcga_types"`. 2) **GEO < 2** (but TCGA ≥ 3): Write `status: "proceed"`, `reason: "insufficient_geo_datasets"` and **proceed** (do not halt) to internal validation. **Assert**: The file content matches the specific Plan T011/T013 outcomes exactly. **Logical Dependency**: T014 (implementation of the gate logic).
 - [X] T011b [P] [US1] Integration test for internal validation path in `tests/integration/test_internal_path.py`. **Requirement**: Verify that when GEO is missing (<2), the pipeline continues to US2/US3 using only internal TCGA data and logs `external_validation_status: "skipped"`. **Assert**: The pipeline does not terminate but skips external validation tasks. **Logical Dependency**: T014.
 
 ### Implementation for User Story 1
 
-- [ ] T012 [US1] Implement `src/data_acquisition.py`: Download TCGA RNA-seq HTSeq-Counts and clinical metadata for **≥3 tumor types** via TCGAbiolinks (FR-001). **Requirement**: Dynamically discover available tumor types. **Checksum**: Compute a cryptographic hash for each downloaded file and immediately append the checksum and source (`real`) to `state/projects/PROJ-135-identifying-predictive-biomarkers-of-che.yaml` in the `artifact_hashes` map. **Atomicity**: Ensure checksums are written atomically to prevent partial state if the gate fails. **Do NOT** store in memory only.
-- [ ] T013 [US1] Implement `src/data_acquisition.py`: Download GEO datasets via GEOquery (FR-002). **Requirement**:
- 1. If a dataset file cannot be fetched, log an error, compute a checksum of the error (or skip), and exclude it from the count.
- 2. If a dataset exists but lacks response labels (RECIST/CR/PR), **skip that specific dataset**, log a warning, **decrement the `valid_geo_count` variable**, and proceed.
- 3. **Checksum**: Compute SHA256 for each successfully downloaded GEO file and immediately append to `state/projects/PROJ-135-identifying-predictive-biomarkers-of-che.yaml`. **Atomicity**: Ensure checksums are written atomically.
+- [ ] T012 [US1] Implement `src/data_acquisition.py`: Download TCGA RNA-seq HTSeq-Counts and clinical metadata for **≥3 tumor types** via TCGAbiolinks (FR‑001). **Requirement**: Dynamically discover available tumor types. **Checksum**: Compute a cryptographic hash **only after** the file is fully downloaded, verified, and deemed valid. **Atomicity**: Ensure checksums are written atomically to `state/projects/PROJ-135-identifying-predictive-biomarkers-of-che.yaml` in the `artifact_hashes` map **only for successful downloads**. **Do NOT** store in memory only. **Do NOT** write checksums for failed or skipped files.
+- [ ] T013 [US1] Implement `src/data_acquisition.py`: Download GEO datasets via GEOquery (FR‑002). **Requirement**:
+ 1. If a dataset file cannot be fetched, log an error, skip the file, and **DO NOT** write a checksum to the state file.
+ 2. If a dataset exists but lacks response labels (RECIST/CR/PR), **skip that specific dataset**, log a warning, **decrement the `valid_geo_count` variable**, and proceed. **Do NOT** write a checksum for skipped files.
+ 3. **Checksum**: Compute SHA256 for each successfully downloaded and **verified** GEO file and append to `state/projects/PROJ-135-identifying-predictive-biomarkers-of-che.yaml` **only after verification is complete**. **Atomicity**: Ensure checksums are written atomically.
  4. Proceed to the Feasibility Gate (T014) using the **updated** `valid_geo_count` variable.
 - [ ] T014 [US1] Implement **Data Feasibility Gate** in `src/data_acquisition.py`:
  1. **TCGA Gate**: If the count of valid TCGA tumor types is **< 3**, **Terminate execution** with exit code 1 and write `data/feasibility_gate.json` with `status: "halted"` and `reason: "insufficient_tcga_types"`.
- 2. **GEO Gate**: If the `valid_geo_count` (datasets with labels) is **< 2**, **DO NOT terminate**. Instead, write `data/feasibility_gate.json` with `status: "halted"`, `reason: "insufficient_geo_datasets"`, and **proceed** to internal validation only (skip external GEO validation tasks). Log a warning that external validation is skipped.
- 3. **Proceed**: If TCGA >= 3 AND `valid_geo_count` >= 2, write `data/feasibility_gate.json` with `status: "ready"`.
- 4. **Checksum Finalization**: Ensure all checksums from T012/T013 are atomically written to `state/projects/PROJ-135-identifying-predictive-biomarkers-of-che.yaml` before exiting or proceeding.
-- [ ] T015 [US1] Implement `src/preprocessing.py`: Harmonize Ensembl/Entrez to HGNC symbols using `mygene`/`biomaRt`; filter if coverage <95% (FR-003).
-- [ ] T016 [US1] Implement `src/preprocessing.py`: Filter low-expression genes (CPM < 1 in >80% samples) and apply DESeq2 Variance-Stabilizing Transformation (VST) (FR-004). **Output**: VST-normalized matrix.
-- [ ] T017 [US1] **Cross-Platform Alignment**: Implement `src/preprocessing.py` to apply **ComBat-seq** (via `rpy2`/`sva`) on the **combined raw count matrix** (TCGA + GEO) to correct for batch effects and align platforms (FR-014). **Input**: TCGA raw counts (from T012) and GEO raw counts (if available). **Fallback Logic**: 1) If GEO data is available as raw counts, combine with TCGA raw counts and apply ComBat-seq. 2) If GEO data is only log2 intensities (microarray), **fall back immediately** to **Quantile Matching** on the **VST-normalized data** (output of T016). **Log**: Record which method was used (`batch_correction: "ComBat-seq"` or `"Quantile"`) in `results/summary.md`. **Atomization**: 1) Implement ComBat-seq logic for raw counts, 2) Implement Quantile fallback logic for log2 intensities, 3) Implement logging.
-- [ ] T020 [US1] Implement `src/preprocessing.py`: **Split data** for each tumor type into a `discovery_set` (for gene selection) and `training_set` (for model fitting) with a **stratified split maintaining the original class distribution** (FR-013, Plan T020). **Output**: Save distinct CSV/Parquet files to `data/processed/{tumor_type}_discovery_set.csv` and `data/processed/{tumor_type}_training_set.csv`.
+ 2. **GEO Gate**: If the `valid_geo_count` (datasets with labels) is **< 2**, **DO NOT terminate**. Instead, write `data/feasibility_gate.json` with `status: "proceed"`, `reason: "insufficient_geo_datasets"`, and **proceed** to internal validation only (skip external GEO validation); log a warning that external validation is skipped.
+ 3. **Proceed**: If TCGA ≥ 3 **AND** `valid_geo_count` ≥ 2, write `data/feasibility_gate.json` with `status: "ready"`.
+ 4. **Logging**: Explicitly **log a warning if total download size > 5 GB** as specified in Spec FR‑001 before proceeding.
+ 5. **Checksum Finalization**: Ensure all checksums from T012/T013 are atomically written to `state/projects/PROJ-135-identifying-predictive-biomarkers-of-che.yaml` before exiting or proceeding.
+- [ ] T015 [US1] Implement `src/preprocessing.py`: Harmonize Ensembl/Entrez to HGNC symbols using `mygene`/`biomaRt`; filter if coverage <95% (FR‑003).
+- [ ] T016 [US1] **Batch Correction**: Implement `src/preprocessing.py` to apply **ComBat‑seq** (via `rpy2`/`sva`) on the **combined raw count matrix** (TCGA + GEO) to correct for batch effects and align platforms (FR‑014). **Fallback Logic**: 1) If GEO raw counts are available, combine with TCGA raw counts and apply ComBat‑seq. 2) If ComBat‑seq fails, **fallback immediately** to **Quantile Matching** on the **combined raw count matrix** (NOT VST data). **Log**: Record which method was used (`batch_correction: "ComBat-seq"` or `"Quantile"`) in `results/summary.md`. **Atomization**: Implement ComBat‑seq logic for raw counts, then Quantile fallback logic for raw counts, and logging.
+- [ ] T017 [US1] Implement `src/preprocessing.py`: Filter low‑expression genes (CPM < 1 in > 80 % samples) **after** batch correction and apply DESeq2 Variance‑Stabilizing Transformation (VST) via rpy2 (FR‑004). **Output**: VST‑normalized matrix saved to `data/processed/`.
+- [ ] T020 [US1] Implement `src/preprocessing.py`: **Split data** for each tumor type into a `discovery_set` (for gene selection) and `training_set` (for model fitting) with a **stratified split maintaining the original class distribution** (FR‑013, Plan T020). **Output**: Save distinct CSV/Parquet files to `data/processed/{tumor_type}_discovery_set.csv` and `data/processed/{tumor_type}_training_set.csv`.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -105,7 +106,7 @@
 
 ## Phase 4: User Story 2 - Cross-Cancer Biomarker Identification (Priority: P2)
 
-**Goal**: Perform static differential expression on the full discovery set to generate a fixed gene panel, then meta-analyze across tumor types.
+**Goal**: Perform static differential expression on the full discovery set to generate a fixed gene panel, then meta‑analyze across tumor types.
 
 **Independent Test**: Verify the selection logic (intersection/union) can be executed on a small sample of discovery sets.
 
@@ -116,11 +117,11 @@
 
 ### Implementation for User Story 2
 
-- [ ] T023 [US2] Implement `src/differential_expression.py`: **Run DESeq2 Wald test on the discovery set**. **Input**: `data/processed/{tumor_type}_discovery_set.csv` (produced by T020). **Constraint**: **DO NOT** use the training_set or full dataset. Run on the **discovery_set only** (FR-005, Plan T022). **Data Leakage Prevention**: Explicitly verify input files end in `_discovery_set.csv`. **Output**: Significant genes (FDR < 0.05, |log2FC| > 1.0) per tumor type.
-- [ ] T025 [US2] Implement `src/meta_analysis.py`: Define function to compute intersection of significant genes across ≥2 tumor types (FR-006).
-- [ ] T026 [US2] Implement `src/meta_analysis.py`: Define function to fallback to union of top-ranked genes (≤50) if intersection is empty; **ensure this function writes `fallback_reason: "intersection_empty"` to `results/summary.md`** (FR-006).
-- [ ] T027 [US2] Implement `src/meta_analysis.py`: Define function to compute Stouffer's meta-analysis p-values and rank genes (FR-006).
-- [ ] T028 [US2] Implement `src/meta_analysis.py`: Save **the final selected gene panel** (post-intersection/union/fallback) to `results/meta_analysis/gene_panel.json` (conforms to `contracts/gene_panel.schema.yaml`) (FR-006, Plan T028). **Do NOT save only logic**.
+- [ ] T023 [US2] Implement `src/differential_expression.py`: **Run DESeq2 Wald test on the discovery set**. **Input**: `data/processed/{tumor_type}_discovery_set.csv` (produced by T020). **Constraint**: **DO NOT** use the training_set or full dataset. Run on the **discovery_set only** (FR‑005, Plan T022). **Data Leakage Prevention**: Explicitly verify input files end in `_discovery_set.csv`. **Output**: Significant genes (FDR < 0.05, |log2FC| > 1.0) per tumor type.
+- [ ] T025 [US2] Implement `src/meta_analysis.py`: Define function to compute intersection of significant genes across ≥2 tumor types (FR‑006).
+- [ ] T026 [US2] Implement `src/meta_analysis.py`: Define function to fallback to **union of top‑ranked genes (≤50)** if intersection is empty; **must write `fallback_reason: "intersection_empty"` to `results/summary.md`** as a hard requirement (FR‑006).
+- [ ] T027 [US2] Implement `src/meta_analysis.py`: Define function to compute Stouffer's meta‑analysis p‑values and rank genes (FR‑006).
+- [ ] T028 [US2] Implement `src/meta_analysis.py`: Save **the final selected gene panel** (post‑intersection/union/fallback) to `results/meta_analysis/gene_panel.json` (conforms to `contracts/gene_panel.schema.yaml`) (FR‑006, Plan T028). **Do NOT save only logic**.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently (logic defined and panel generated)
 
@@ -128,35 +129,34 @@
 
 ## Phase 5: User Story 3 - Predictive Model Training and Validation (Priority: P3)
 
-**Goal**: Build tumor-type-specific models using the fixed gene panel, perform nested CV, external validation, and statistical significance testing.
+**Goal**: Build tumor‑type‑specific models using the fixed gene panel, perform nested CV, external validation, and statistical significance testing.
 
-**Independent Test**: Train tumor-specific models; run k-fold nested CV on training set; validate on ≥2 GEO datasets; verify AUC ≥0.75 and calibration.
+**Independent Test**: Train tumor‑specific models; run k‑fold nested CV on training set; validate on ≥2 GEO datasets; verify AUC ≥0.75 and calibration.
 
 ### Tests for User Story 3 (MANDATORY) ⚠️
 
 - [ ] T029 [P] [US3] Contract test for model output schema in `tests/contract/test_model_schema.py`. **Requirement**: Verify that model output conforms to `model_output.schema.yaml` including all required fields. **Functions to test**: `validate_model_output`, `check_schema_compliance`.
-- [ ] T030 [P] [US3] Integration test for full modeling and validation pipeline in `tests/integration/test_modeling.py`. **Requirement**: Use a small subset of `data/processed/` to verify end-to-end training, LOO, and external validation logic. **Functions to test**: `test_full_pipeline`, `test_loo_validation`.
+- [ ] T030 [P] [US3] Integration test for full modeling and validation pipeline in `tests/integration/test_modeling.py`. **Requirement**: Use a small subset of `data/processed/` to verify end‑to‑end training, LOO, and external validation logic. **Functions to test**: `test_full_pipeline`, `test_loo_validation`.
 
 ### Implementation for User Story 3
 
-- [ ] T031 [US3] Implement `src/modeling.py`: Build **Tumor-type-specific** Elastic-Net Logistic Regression models using the **fixed gene panel** derived from Phase 2 (FR-007). **Requirement**: Train one model per tumor type on the `training_set`. Do NOT pool data. **Dependency**: Depends on T028 success. **Input**: Load `results/meta_analysis/gene_panel.json` before training.
-- [ ] T032 [US3] Implement `src/modeling.py`: Perform **Nested Cross-Validation** on the **training_set** (FR-007). **Logic**: **Load the fixed gene panel from `results/meta_analysis/gene_panel.json` (T028) BEFORE the CV loop begins**. **DO NOT perform any gene selection or panel generation logic inside the nested CV loop**. Use the fixed panel for all folds to prevent data leakage (FR-013). **Dependency**: Depends on T028 success.
-- [ ] T033 [US3] Implement `src/validation.py`: **Leave-One-Cancer-Type-Out (LOO) Validation**.
- 1. **Pre-Check**: Count distinct tumor types (N) present in the loaded training sets. **If N < 2**, **Terminate execution** with exit code 1 and write `data/feasibility_gate.json` (`status: "halted"`, `reason: "insufficient_loo_types"`). **Do NOT start the loop**.
- 2. **Loop**: If N >= 2, for each tumor type: Train on N-1 types, test on the held-out type.
- 3. **Post-Hold-Out Check**: **After** each hold-out, count the remaining types (N-1). **If N-1 < 2**, **Terminate execution** with exit code 1 and write `data/feasibility_gate.json` (`status: "halted"`, `reason: "insufficient_loo_types_after_holdout"`). **This enforces FR-008**: The system must halt if fewer than 2 tumor types remain *after* the hold-out.
- 4. **Output**: Record LOO AUC for each held-out type.
- 5. **Constraint**: **FR-008 Compliance**: If N=2, the loop runs, hold-out leaves 1 type (N-1=1 < 2), and the system halts *after* the attempt, matching the spec.
-- [ ] T034 [US3] Implement `src/validation.py`: **External GEO Validation**. For each successfully downloaded GEO dataset, re-normalize to the TCGA VST scale (using the same batch-correction method recorded in T017), apply the trained per-type model, and compute ROC-AUC. If no GEO datasets are available, set `external_validation_status: "skipped"` in `results/summary.md`.
-- [ ] T035 [US3] Implement `src/validation.py`: Compute ROC-AUC, Precision-PR, and Calibration Curves (deciles) (FR-009, SC-001).
-- [ ] T036 [US3] Implement `src/validation.py`: Perform DeLong's test against clinical covariates-only baseline (FR-011).
-- [ ] T037 [US3] Implement `src/validation.py`: Handle class imbalance: **use stratified k-fold for ALL cases**; apply cost-sensitive learning **only if** responder ratio <20% (Edge Cases).
-- [ ] T038 [US3] Implement `src/validation.py`: Apply **Bonferroni Correction** (Single Source of Truth):
- 1. **Meta-Analysis**: Read `results/meta_analysis/gene_panel.json`. Calculate `m_meta = len(gene_panel)` (the **actual** count of the **final** panel, post-fallback). Apply correction where `m = m_meta`.
- 2. **DeLong's Test**: Calculate `m_delong = number of model comparisons`. Apply correction where `m = m_delong`.
- 3. **Threshold**: Adjusted p-value must be < 0.01 (FR-010). **Explicitly implement both distinct m calculations within this task**, ensuring `m_meta` is read from the final panel JSON.
-- [ ] T039 [US3] Implement `src/main.py`: Enforce runtime timeout and memory limit using `psutil` and watchdog; **write `results/runtime_metrics.json`** with `timeout_triggered` and `peak_memory_mb` (FR-012, SC-004, SC-005).
-- [ ] T040 [US3] Generate `results/summary.md` with final metrics, panel size, validation results, and fallback flags (FR-006, FR-009).
+- [ ] T031 [US3] Implement `src/modeling.py`: Build **Tumor‑type‑specific** Elastic‑Net Logistic Regression models using the **fixed gene panel** derived from Phase 2 (FR‑007). **Requirement**: Train one model per tumor type on the `training_set`. Do NOT pool data. **Dependency**: Depends on T028 success. **Input**: Load `results/meta_analysis/gene_panel.json` before training.
+- [ ] T032 [US3] Implement `src/modeling.py`: Perform **Nested Cross‑Validation** on the **training_set** (FR‑007). **Logic**: **Load the fixed gene panel from `results/meta_analysis/gene_panel.json` (T028) BEFORE the CV loop begins**. **DO NOT** perform any gene selection or panel generation logic inside the nested CV loop. Use the fixed panel for all folds to prevent data leakage (FR‑013). **Dependency**: Depends on T028 success.
+- [ ] T033 [US3] Implement `src/validation.py`: **Leave‑One‑Cancer‑Type‑Out (LOO) Validation**.
+ 1. **Pre‑Check**: Count distinct tumor types (N) present in the loaded training sets. **If N < 3**, **Terminate execution immediately** with exit code 1 and write `data/feasibility_gate.json` (`status: "halted"`, `reason: "insufficient_loo_types"`). This ensures that after hold‑out, at least 2 types remain (N‑1 ≥ 2).
+ 2. **Loop**: If N ≥ 3, for each tumor type: Train on N‑1 types, test on the held‑out type.
+ 3. **Output**: Record LOO AUC for each held‑out type.
+- [ ] T034 [US3] Implement `src/validation.py`: **External GEO Validation**. For each successfully downloaded GEO dataset, re‑normalize to the TCGA VST scale (using the same batch‑correction method recorded in T016), apply the trained per‑type model, and compute ROC‑AUC. If no GEO datasets are available, set `external_validation_status: "skipped"` in `results/summary.md`.
+- [ ] T035 [US3] Implement `src/validation.py`: Compute ROC‑AUC, Precision‑PR, and Calibration Curves (deciles) (FR‑009). For deciles with ≥20 samples, ensure deviation ≤ ±10 %; otherwise report CI and flag as ‘underpowered’.
+- [ ] T036 [US3] Implement `src/validation.py`: Perform DeLong's test against clinical covariates‑only baseline (FR‑011).
+- [ ] T037 [US3] Implement `src/validation.py`: Handle class imbalance: **use stratified k‑fold for ALL cases**; apply cost‑sensitive learning **only if** responder ratio <20% (Edge Cases).
+- [ ] T038 [US3] Implement `src/validation.py`: **Bonferroni Correction** (Single Source of Truth):
+ 1. **Pre‑Check**: Verify that `results/meta_analysis/gene_panel.json` exists and contains a non‑empty `selected` list. If missing or empty, raise an error and halt.
+ 2. **Meta‑Analysis**: Read `results/meta_analysis/gene_panel.json`. Calculate `m_meta = len(gene_panel)` (the **actual** count of the **final** panel, post‑fallback). Apply correction where `m = m_meta`.
+ 3. **DeLong's Test**: Calculate `m_delong = number of model comparisons`. Apply correction where `m = m_delong`.
+ 4. **Threshold**: Adjusted p‑value must be < 0.01 (FR‑010). **Explicitly implement both distinct m calculations**, ensuring `m_meta` is read from the final panel JSON.
+- [ ] T039 [US3] Implement `src/main.py`: Enforce runtime timeout and memory limit using `psutil` and watchdog; **write `results/runtime_metrics.json`** with `timeout_triggered` and `peak_memory_mb` (FR‑012, SC‑004, SC‑005).
+- [ ] T040 [US3] Generate `results/summary.md` with final metrics, panel size, validation results, and fallback flags (FR‑006, FR‑009).
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -172,7 +172,7 @@
 - [ ] T044a [P] Unit tests for `train_model` in `tests/unit/test_modeling.py`. **Requirement**: Implement unit tests for `train_model` function with ≥80% line coverage.
 - [ ] T044b [P] Unit tests for `nested_cv` in `tests/unit/test_modeling.py`. **Requirement**: Implement unit tests for `nested_cv` function with ≥80% line coverage.
 - [ ] T044c [P] Unit tests for `loo_validation` in `tests/unit/test_modeling.py`. **Requirement**: Implement unit tests for `loo_validation` function with ≥80% line coverage.
-- [ ] T045 Run `quickstart.md` validation to ensure full pipeline execution on CPU-only runner
+- [ ] T045 Run `quickstart.md` validation to ensure full pipeline execution on CPU‑only runner
 
 ---
 
@@ -199,8 +199,8 @@
 - Data acquisition before preprocessing
 - Preprocessing before splitting (T020)
 - Splitting before Differential Expression (T023)
-- Differential Expression before meta-analysis
-- Meta-analysis before modeling
+- Differential Expression before meta‑analysis
+- Meta‑analysis before modeling
 - Modeling before validation
 
 ### Parallel Opportunities
@@ -243,7 +243,7 @@ Task: "Implement ID harmonization and splitting in src/preprocessing.py"
 1. Complete Setup + Foundational → Foundation ready
 2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
 3. Add User Story 2 → Test independently → Deploy/Demo (Candidate Gene Panel Logic)
-4. Add User Story 3 → Test independently → Deploy/Demo (Tumor-specific Models & Validation)
+4. Add User Story 3 → Test independently → Deploy/Demo (Tumor‑specific Models & Validation)
 5. Each story adds value without breaking previous stories
 
 ### Parallel Team Strategy
@@ -267,11 +267,11 @@ With multiple developers:
 - Verify tests fail before implementing
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
+- Avoid: vague tasks, same file conflicts, cross‑story dependencies that break independence
 - **CPU Constraint**: All tasks must be implementable on a limited number of CPU cores, a constrained amount of RAM, and no GPU.
 - **Data Integrity**: Never fabricate data; use real TCGA/GEO sources via verified mirrors. **Fallback to verified mock data only if real API fails verification**.
-- **FR-013 Compliance**: Strict separation of discovery (gene selection) and training (model fitting) sets is mandatory. DE is performed ONCE on the full discovery set.
-- **FR-007 Compliance**: Models must be tumor-type-specific, not pooled.
-- **FR-014 Compliance**: ComBat-seq on combined matrix (TCGA+GEO) as primary; Quantile Matching as fallback. No uncorrected fallback.
-- **FR-008 Compliance**: LOO validation must halt if N < 2 *after* the hold-out; proceed if N >= 2 and N-1 >= 2.
-- **FR-010 Compliance**: Distinct Bonferroni correction logic for meta-analysis (m=final panel size) vs DeLong's test (m=comparisons).
+- **FR‑013 Compliance**: Strict separation of discovery (gene selection) and training (model fitting) sets is mandatory. DE is performed ONCE on the full discovery set.
+- **FR‑007 Compliance**: Models must be tumor‑type‑specific, not pooled.
+- **FR‑014 Compliance**: ComBat‑seq on combined matrix (TCGA+GEO) as primary; Quantile Matching as fallback on raw counts. No uncorrected fallback.
+- **FR‑008 Compliance**: LOO validation must halt if the dataset drops to a minimal number of types where LOO is invalid. The task logic permits the generation of invalid results (training on 1 type) before catching the error, weakening the 'halt' constraint.
+- **FR‑010 Compliance**: Distinct Bonferroni correction logic for meta‑analysis (m=final panel size) vs DeLong's test (m=comparisons). Ensure both are correctly calculated and applied.
