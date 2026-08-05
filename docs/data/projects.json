@@ -122625,7 +122625,7 @@
       },
       "authors": [
         {
-          "contributions": 4937,
+          "contributions": 4927,
           "kind": "llm",
           "name": "qwen.qwen3.5-122b",
           "roles": [
@@ -122685,83 +122685,83 @@
       "last_run_log": [
         {
           "agent": "implementer",
-          "duration_s": 0.582782,
-          "ended_at": "2026-08-05T20:44:25.070908Z",
+          "duration_s": 0.616385,
+          "ended_at": "2026-08-05T19:44:25.254222Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-08-05T20:44:24.488126Z"
+          "started_at": "2026-08-05T19:44:24.637837Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 0.673361,
-          "ended_at": "2026-08-05T20:44:24.427146Z",
+          "duration_s": 0.605214,
+          "ended_at": "2026-08-05T19:44:24.577876Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-08-05T20:44:23.753785Z"
+          "started_at": "2026-08-05T19:44:23.972662Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 0.527458,
-          "ended_at": "2026-08-05T20:44:23.692436Z",
+          "duration_s": 0.533121,
+          "ended_at": "2026-08-05T19:44:23.912332Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-08-05T20:44:23.164978Z"
+          "started_at": "2026-08-05T19:44:23.379211Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 0.589784,
-          "ended_at": "2026-08-05T20:44:23.103604Z",
+          "duration_s": 0.580392,
+          "ended_at": "2026-08-05T19:44:23.318404Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-08-05T20:44:22.513820Z"
+          "started_at": "2026-08-05T19:44:22.738012Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 0.481357,
-          "ended_at": "2026-08-05T20:44:22.452150Z",
+          "duration_s": 0.523023,
+          "ended_at": "2026-08-05T19:44:22.677808Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-08-05T20:44:21.970793Z"
+          "started_at": "2026-08-05T19:44:22.154785Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 0.534491,
-          "ended_at": "2026-08-05T20:44:21.908586Z",
+          "duration_s": 0.550577,
+          "ended_at": "2026-08-05T19:44:22.093913Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-08-05T20:44:21.374095Z"
+          "started_at": "2026-08-05T19:44:21.543336Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 0.557988,
-          "ended_at": "2026-08-05T20:44:21.312541Z",
+          "duration_s": 0.551257,
+          "ended_at": "2026-08-05T19:44:21.482689Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-08-05T20:44:20.754553Z"
+          "started_at": "2026-08-05T19:44:20.931432Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 0.69626,
-          "ended_at": "2026-08-05T20:44:20.583353Z",
+          "duration_s": 0.535145,
+          "ended_at": "2026-08-05T19:44:20.791250Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-08-05T20:44:19.887093Z"
+          "started_at": "2026-08-05T19:44:20.256105Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 0.866308,
-          "ended_at": "2026-08-05T20:44:19.824038Z",
+          "duration_s": 0.620074,
+          "ended_at": "2026-08-05T19:44:20.195351Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-08-05T20:44:18.957730Z"
+          "started_at": "2026-08-05T19:44:19.575277Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 3.617541,
-          "ended_at": "2026-08-05T20:44:18.891815Z",
+          "duration_s": 2.993839,
+          "ended_at": "2026-08-05T19:44:19.510302Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-08-05T20:44:15.274274Z"
+          "started_at": "2026-08-05T19:44:16.516463Z"
         }
       ],
       "paper_status": null,
@@ -153678,7 +153678,7 @@
       },
       "authors": [
         {
-          "contributions": 1274,
+          "contributions": 1264,
           "kind": "llm",
           "name": "qwen.qwen3.5-122b",
           "roles": [
@@ -153722,83 +153722,83 @@
       "last_run_log": [
         {
           "agent": "implementer",
-          "duration_s": 0.635139,
-          "ended_at": "2026-08-05T20:43:29.304618Z",
+          "duration_s": 0.686889,
+          "ended_at": "2026-08-05T19:35:44.263637Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-08-05T20:43:28.669479Z"
+          "started_at": "2026-08-05T19:35:43.576748Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 0.594404,
-          "ended_at": "2026-08-05T20:43:28.596979Z",
+          "duration_s": 0.614791,
+          "ended_at": "2026-08-05T19:35:43.522286Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-08-05T20:43:28.002575Z"
+          "started_at": "2026-08-05T19:35:42.907495Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 0.599369,
-          "ended_at": "2026-08-05T20:43:27.930605Z",
+          "duration_s": 0.768362,
+          "ended_at": "2026-08-05T19:35:42.520911Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-08-05T20:43:27.331236Z"
+          "started_at": "2026-08-05T19:35:41.752549Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 0.546946,
-          "ended_at": "2026-08-05T20:43:27.259033Z",
+          "duration_s": 0.752214,
+          "ended_at": "2026-08-05T19:35:41.694964Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-08-05T20:43:26.712087Z"
+          "started_at": "2026-08-05T19:35:40.942750Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 0.522236,
-          "ended_at": "2026-08-05T20:43:26.640363Z",
+          "duration_s": 0.580529,
+          "ended_at": "2026-08-05T19:35:40.888182Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-08-05T20:43:26.118127Z"
+          "started_at": "2026-08-05T19:35:40.307653Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 3.597253,
-          "ended_at": "2026-08-05T20:43:26.045511Z",
+          "duration_s": 0.779983,
+          "ended_at": "2026-08-05T19:35:40.252082Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-08-05T20:43:22.448258Z"
+          "started_at": "2026-08-05T19:35:39.472099Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 0.495249,
-          "ended_at": "2026-08-05T20:43:22.376660Z",
+          "duration_s": 0.701657,
+          "ended_at": "2026-08-05T19:35:39.417668Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-08-05T20:43:21.881411Z"
+          "started_at": "2026-08-05T19:35:38.716011Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 2.837729,
-          "ended_at": "2026-08-05T20:43:21.743603Z",
+          "duration_s": 0.767059,
+          "ended_at": "2026-08-05T19:35:38.585140Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-08-05T20:43:18.905874Z"
+          "started_at": "2026-08-05T19:35:37.818081Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 0.504367,
-          "ended_at": "2026-08-05T20:43:18.832658Z",
+          "duration_s": 1.372856,
+          "ended_at": "2026-08-05T19:35:37.763694Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-08-05T20:43:18.328291Z"
+          "started_at": "2026-08-05T19:35:36.390838Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 3.824018,
-          "ended_at": "2026-08-05T20:43:18.249079Z",
+          "duration_s": 2.833394,
+          "ended_at": "2026-08-05T19:35:36.245371Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-08-05T20:43:14.425061Z"
+          "started_at": "2026-08-05T19:35:33.411977Z"
         }
       ],
       "paper_status": null,
