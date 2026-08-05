@@ -42,29 +42,42 @@ T008b:
     nor shown, and no content with the three required sections (Hypothesis, Pilot
     Results, Rationale) is provided. Without this document, the pilot comparison and
     baseline hypothesis are not documented.
-T013a:
+T012a:
   c: false
-  h: b06886a3db7bd82f6ca9384088261d006e1e154c5d1c9ea6eaadc63bb6ddbb01
-  r: "The required input file `data/processed/filtered_splits.json` does not exist,\
-    \ and the expected output artifact `data/processed/convergence_results.csv` is\
-    \ missing. Moreover, the provided `code/src/inference.py` is truncated and does\
-    \ not show the full implementation of the k\u2011loop, Docker sandbox execution,\
-    \ or CSV writing logic. Consequently the task\u2019s specifications are not satisfied."
-T013e:
+  h: 7035ceeb6283f736a5c86aa6e81fdf1470948baf8934387fab0c62f0576c7839
+  r: "The `entropy_results.csv` contains only tiny placeholder values (~1e\u20119)\
+    \ for every row and includes task IDs (human_eval_1\u201150) that are not present\
+    \ in the provided `filtered_splits.json` (which lists far fewer tasks). Moreover,\
+    \ the shown portion of `code/src/entropy.py` stops after sample generation and\
+    \ never demonstrates the required clustering, entropy computation, exclusion logging,\
+    \ or direct CSV writing. The artifact therefore does not reflect a genuine execution\
+    \ of the specified pipeline."
+T013b:
   c: false
-  h: b45f8d54f9739d6aea7399bb5805a586c41a1a1bfb53c38d8ada496194c27238
-  r: "The required dataset `data/processed/filtered_splits.json` is absent, and the\
-    \ expected output file `data/processed/convergence_results_k4.csv` was not generated.\
-    \ Moreover, the provided `code/src/inference.py` snippet stops after `generate_solution`\
-    \ and does not contain the full sensitivity\u2011inference logic (loading the\
-    \ dataset, running k=4, sandbox execution, recording results, and saving the CSV).\
-    \ These missing artifacts and incomplete implementation mean the task is not satisfied."
-T026:
+  h: 6d1f5db42cddddb4cfa0383fe40ece99c609b442ebd30b04f04d0b5d2187d4ab
+  r: "The repository does not contain `data/processed/convergence_results_sensitivity.csv`\
+    \ (the required output file is missing). Moreover, `code/src/inference.py` is\
+    \ truncated and lacks the implementation for running the model with\u202Fk=4,\
+    \ sandbox execution, correctness checking, and writing the results to the specified\
+    \ CSV. Both the artifact and the required logic are absent."
+T019:
   c: false
-  h: 927e8b21dbd05d10858b08fe3357185fc9b2ab436b9130b5722f61fe579a3485
-  r: "The repository lacks the required input files (`data/processed/convergence_results.csv`\
-    \ and `convergence_results_k4.csv`) and the output `sensitivity_sweep.json`. Moreover,\
-    \ the provided `robustness.py` does not contain any implementation of the sensitivity\u2011\
-    sweep loop, missing the logic to filter k=1, iterate over thresholds {2,3,4},\
-    \ compute \u03C1 and p\u2011values, or handle the missing k=4 file with a warning.\
-    \ These artifacts must be added and the script completed to satisfy the task."
+  h: 757dcde7a4506a0f03b85f17b209fb2a01ccd2ce2466be97b717585caf93d44a
+  r: "The repository lacks `data/processed/convergence_results_core.csv`, and the\
+    \ required outputs `router_model.pkl` and `router_metrics.json` are not present.\
+    \ Moreover, the shown `analysis.py` does not contain the logistic\u2011regression\
+    \ training logic or model saving code needed for the task. These missing files\
+    \ and functionality prevent the task from being genuinely completed."
+T019b:
+  c: false
+  h: d0f9d64f1afa80926390f77def254bcb409834314e80da9ab405438cce76fa9b
+  r: The required files `data/processed/router_model.pkl`, `data/processed/convergence_results_core.csv`,
+    and the output `data/processed/router_results.csv` are all missing, so the router
+    predictions could not have been generated nor saved.
+T030:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a `quickstart.md` file (or its contents) was provided, and therefore\
+    \ we cannot confirm that the required sections \u201CCPU Validation Mode (N=50)\u201D\
+    \ and \u201CGPU Full Analysis Mode\u201D are present. The implementer must supply\
+    \ the updated `quickstart.md` showing both sections."

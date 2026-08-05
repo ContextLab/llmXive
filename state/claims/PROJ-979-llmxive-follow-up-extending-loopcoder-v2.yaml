@@ -379,25 +379,6 @@
   updated_at: '2026-07-27T17:31:01Z'
 - artifact_path: projects/PROJ-979-llmxive-follow-up-extending-loopcoder-v2/specs/001-llmxive-follow-up-extending-loopcoder-v2/tasks.md
   attempts: 1
-  canonical: 'FLOPs formula: parameters * sequence_length * k'
-  claim_id: c_ba4e47c8
-  context: 'Define FLOPs utility function in code/src/utils.py: Implement formula
-    FLOPs = parameters * sequence_length * k for baseline calculation.'
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/FLOPs_formula:_parameters_*_sequence_length_*_k
-  kind: entity_fact
-  raw_text: The FLOPs calculation uses the formula parameters multiplied by sequence_length
-    multiplied by k.
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-27T17:32:42Z'
-- artifact_path: projects/PROJ-979-llmxive-follow-up-extending-loopcoder-v2/specs/001-llmxive-follow-up-extending-loopcoder-v2/tasks.md
-  attempts: 1
   canonical: Router predicts optimal loop count as multi-class target
   claim_id: c_e907eb28
   context: 'Implement logistic regression router training in code/src/analysis.py:
@@ -627,3 +608,543 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-29T04:56:28Z'
+- artifact_path: projects/PROJ-979-llmxive-follow-up-extending-loopcoder-v2/specs/001-llmxive-follow-up-extending-loopcoder-v2/tasks.md
+  attempts: 1
+  canonical: Project substitutes LoopCoder with CodeLlama-1.3b for CPU and CodeLlama-3b/7b
+    for GPU
+  claim_id: c_28061ea0
+  context: This project substitutes a variant of LoopCoder with CodeLlama-1.3b-Instruct
+    (CPU validation) and CodeLlama-3b/7b-Instruct (GPU full analysis).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: This project substitutes a variant of LoopCoder with CodeLlama-1.3b-Instruct
+    for CPU validation and CodeLlama-3b/7b-Instruct for GPU full analysis.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T12:49:52Z'
+- artifact_path: projects/PROJ-979-llmxive-follow-up-extending-loopcoder-v2/specs/001-llmxive-follow-up-extending-loopcoder-v2/tasks.md
+  attempts: 1
+  canonical: Null hypothesis re-framed as no correlation between entropy and convergence
+    for CodeLlama
+  claim_id: c_30cb71d8
+  context: The null hypothesis is re-framed as No correlation between entropy and
+    convergence for CodeLlama rather than LoopCoder-v2.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Null_hypothesis_re-framed_as_no_correlation_between_entropy
+  kind: entity_fact
+  raw_text: The null hypothesis is re-framed as No correlation between entropy and
+    convergence for CodeLlama rather than LoopCoder-v2.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T12:50:10Z'
+- artifact_path: projects/PROJ-979-llmxive-follow-up-extending-loopcoder-v2/specs/001-llmxive-follow-up-extending-loopcoder-v2/tasks.md
+  attempts: 1
+  canonical: FLOPs formula is parameters multiplied by sequence length multiplied
+    by k
+  claim_id: c_9e1a2e4a
+  context: 'Define FLOPs utility function in code/src/utils.py: Implement formula
+    FLOPs = parameters * sequence_length * k for baseline calculation.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/FLOPs_formula_is_parameters_multiplied_by_sequence_length_mu
+  kind: entity_fact
+  raw_text: The FLOPs utility function implements the formula FLOPs = parameters *
+    sequence_length * k.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T12:50:31Z'
+- artifact_path: projects/PROJ-979-llmxive-follow-up-extending-loopcoder-v2/specs/001-llmxive-follow-up-extending-loopcoder-v2/tasks.md
+  attempts: 1
+  canonical: Validation run uses 50 samples
+  claim_id: c_e9c3e400
+  context: Run code/src/entropy.py and code/src/inference.py on a stratified sample
+    (N=50 for CPU validation)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The validation run uses N=50 samples for CPU validation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T12:51:16Z'
+- artifact_path: projects/PROJ-979-llmxive-follow-up-extending-loopcoder-v2/specs/001-llmxive-follow-up-extending-loopcoder-v2/tasks.md
+  attempts: 1
+  canonical: Core convergence inference runs for k equals 1, 2, and 3
+  claim_id: c_874e6238
+  context: "Run model for k \u2208 {1, 2, 3} on each input from data/processed/filtered_splits.json."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The core convergence inference runs for k in the set {1, 2, 3}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T12:52:36Z'
+- artifact_path: projects/PROJ-979-llmxive-follow-up-extending-loopcoder-v2/specs/001-llmxive-follow-up-extending-loopcoder-v2/tasks.md
+  attempts: 1
+  canonical: Sensitivity convergence inference runs for k equals 4
+  claim_id: c_ce6fd2f7
+  context: Run model for k=4 on each input from data/processed/filtered_splits.json.
+  evidence:
+    asserted: '4.0'
+    authority: scipy.constants.k (CODATA 2018, exact by SI definition)
+    constant: boltzmann
+    corrected: true
+    mode: approximate
+    true_value: 1.380649e-23
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?k
+  kind: numeric
+  raw_text: The sensitivity convergence inference runs for k=4.
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2bfb0d3513311088eea23af05f5f28fc2ef73a6a80811bbb243001626363f07f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-05T12:52:36Z'
+- artifact_path: projects/PROJ-979-llmxive-follow-up-extending-loopcoder-v2/specs/001-llmxive-follow-up-extending-loopcoder-v2/tasks.md
+  attempts: 1
+  canonical: Non-inferiority margin default is 0.02
+  claim_id: c_bd726332
+  context: Set default value to 0.02, representing a [deferred] accuracy drop (domain
+    standard for code generation tasks).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The non-inferiority margin is set to a default value of 0.02, representing
+    a deferred accuracy drop.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T12:52:58Z'
+- artifact_path: projects/PROJ-979-llmxive-follow-up-extending-loopcoder-v2/specs/001-llmxive-follow-up-extending-loopcoder-v2/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis sweeps k thresholds 2, 3, and 4
+  claim_id: c_61cd5fd4
+  context: Sweep convergence threshold $k \in \{2, 3, 4\}$ to compute variation in
+    $\rho$.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis sweeps convergence thresholds for k in the set
+    {2, 3, 4}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T12:54:17Z'
+- artifact_path: projects/PROJ-979-llmxive-follow-up-extending-loopcoder-v2/specs/001-llmxive-follow-up-extending-loopcoder-v2/tasks.md
+  attempts: 1
+  canonical: Full validation suite runs within 6 hours
+  claim_id: c_86212d9e
+  context: 'Run full validation suite on CPU (N=50) to verify pipeline within 6-hour
+    limit (Assumption: Compute feasibility).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The full validation suite is verified to run within a 6-hour limit.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T12:54:36Z'
+- artifact_path: projects/PROJ-979-llmxive-follow-up-extending-loopcoder-v2/specs/001-llmxive-follow-up-extending-loopcoder-v2/tasks.md
+  attempts: 0
+  canonical: Sensitivity convergence inference k value is 4
+  claim_id: c_0bafadb8
+  context: Run model for k=4 on each input from data/processed/filtered_splits.json.
+  evidence:
+    asserted: '4.0'
+    authority: scipy.constants.k (CODATA 2018, exact by SI definition)
+    constant: boltzmann
+    corrected: true
+    mode: approximate
+    true_value: 1.380649e-23
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?k
+  kind: numeric
+  raw_text: Sensitivity convergence inference runs for k=4.
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2bfb0d3513311088eea23af05f5f28fc2ef73a6a80811bbb243001626363f07f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-05T12:55:58Z'
+- artifact_path: projects/PROJ-979-llmxive-follow-up-extending-loopcoder-v2/specs/001-llmxive-follow-up-extending-loopcoder-v2/tasks.md
+  attempts: 0
+  canonical: Underpowered strata threshold is 50 samples
+  claim_id: c_a31d720b
+  context: Flag strata with <50 samples as 'underpowered' in data/processed/strata_log.json.
+  evidence:
+    entailment_evidence: 'Strata threshold for underpowered flag: 50 samples'
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Strata_threshold_for_underpowered_flag:_50_samples
+  kind: magnitude
+  raw_text: Strata with fewer than 50 samples are flagged as 'underpowered'.
+  resolved_value: 'Strata threshold for underpowered flag: 50 samples'
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-05T12:55:58Z'
+- artifact_path: projects/PROJ-979-llmxive-follow-up-extending-loopcoder-v2/specs/001-llmxive-follow-up-extending-loopcoder-v2/tasks.md
+  attempts: 1
+  canonical: Project substitutes CodeLlama-1.3b/3b/7b for LoopCoder-v2
+  claim_id: c_36b1ce8e
+  context: This project substitutes a variant of LoopCoder with CodeLlama-1.3b-Instruct
+    (CPU validation) and CodeLlama-3b/7b-Instruct (GPU full analysis).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: This project substitutes a variant of LoopCoder with CodeLlama-1.3b-Instruct
+    for CPU validation and CodeLlama-3b/7b-Instruct for GPU full analysis.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T12:55:59Z'
+- artifact_path: projects/PROJ-979-llmxive-follow-up-extending-loopcoder-v2/specs/001-llmxive-follow-up-extending-loopcoder-v2/tasks.md
+  attempts: 1
+  canonical: Null hypothesis re-framed for CodeLlama architecture
+  claim_id: c_87b9b3c6
+  context: The null hypothesis is re-framed as 'No correlation between entropy and
+    convergence for CodeLlama' rather than LoopCoder-v2.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Null_hypothesis_re-framed_for_CodeLlama_architecture
+  kind: entity_fact
+  raw_text: The null hypothesis is re-framed as 'No correlation between entropy and
+    convergence for CodeLlama' rather than LoopCoder-v2.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T12:56:00Z'
+- artifact_path: projects/PROJ-979-llmxive-follow-up-extending-loopcoder-v2/specs/001-llmxive-follow-up-extending-loopcoder-v2/tasks.md
+  attempts: 2
+  canonical: 'FLOPs formula: parameters * sequence_length * k'
+  claim_id: c_ba4e47c8
+  context: 'Define FLOPs utility function in code/src/utils.py: Implement formula
+    FLOPs = parameters * sequence_length * k for baseline calculation.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/FLOPs_formula:_parameters_*_sequence_length_*_k
+  kind: entity_fact
+  raw_text: The FLOPs calculation uses the formula parameters multiplied by sequence_length
+    multiplied by k.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T12:57:23Z'
+- artifact_path: projects/PROJ-979-llmxive-follow-up-extending-loopcoder-v2/specs/001-llmxive-follow-up-extending-loopcoder-v2/tasks.md
+  attempts: 1
+  canonical: Entropy extraction uses N=10 samples per input
+  claim_id: c_cbe56d62
+  context: Generate N=10 samples per input from data/processed/filtered_splits.json.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline generates N=10 samples per input for entropy extraction.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T12:57:39Z'
+- artifact_path: projects/PROJ-979-llmxive-follow-up-extending-loopcoder-v2/specs/001-llmxive-follow-up-extending-loopcoder-v2/tasks.md
+  attempts: 1
+  canonical: Core convergence inference k range is 1 to 3
+  claim_id: c_cd4b904f
+  context: "Run model for k \u2208 {1, 2, 3} on each input from data/processed/filtered_splits.json."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Core convergence inference runs for k values of 1, 2, and 3.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T12:58:56Z'
+- artifact_path: projects/PROJ-979-llmxive-follow-up-extending-loopcoder-v2/specs/001-llmxive-follow-up-extending-loopcoder-v2/tasks.md
+  attempts: 1
+  canonical: Statistical significance threshold p < 0.05
+  claim_id: c_32723fda
+  context: Perform a paired t-test or bootstrap test to confirm statistical significance
+    (p < 0.05) (FR-006).
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: In 1925, Ronald Fisher advanced the idea of statistical hypothesis testing,
+        which he called "tests of significance", in his publication Statistical Methods
+        for Research Workers. Fisher suggested a probability of one in twenty (0.05)
+        as a convenient cutoff level to reject the null hypothesis. In a 1933 paper,
+        Jerzy Neyman and Egon Pearson called this cutoff the significance level, which
+        they named
+      source_id: Statistical significance
+      url: https://en.wikipedia.org/wiki/Statistical_significance
+      value: '0.05'
+    filled: true
+  kind: magnitude
+  raw_text: Statistical significance is confirmed with a p-value threshold of less
+    than 0.05.
+  resolved_value: '0.05'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-05T12:59:07Z'
+- artifact_path: projects/PROJ-979-llmxive-follow-up-extending-loopcoder-v2/specs/001-llmxive-follow-up-extending-loopcoder-v2/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis sweeps k values 2, 3, 4
+  claim_id: c_76287854
+  context: "Sweep convergence threshold k \u2208 {2, 3, 4} to compute variation in\
+    \ \u03C1 (SC-004)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis sweeps convergence thresholds for k in {2, 3,
+    4}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T13:00:28Z'
+- artifact_path: projects/PROJ-979-llmxive-follow-up-extending-loopcoder-v2/specs/001-llmxive-follow-up-extending-loopcoder-v2/tasks.md
+  attempts: 1
+  canonical: CPU validation uses N=50 samples
+  claim_id: c_72cd1937
+  context: Run full validation suite on CPU (N=50) to verify pipeline within 6-hour
+    limit.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The full validation suite runs on CPU with N=50 samples.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T13:01:14Z'
+- artifact_path: projects/PROJ-979-llmxive-follow-up-extending-loopcoder-v2/specs/001-llmxive-follow-up-extending-loopcoder-v2/tasks.md
+  attempts: 1
+  canonical: Full GPU analysis uses full dataset
+  claim_id: c_95bfc187
+  context: Execute full dataset on GPU, capture metrics via T005e (mode='full_analysis').
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Full_GPU_analysis_uses_full_dataset
+  kind: entity_fact
+  raw_text: The full GPU analysis runs on the full dataset.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T13:01:51Z'
+- artifact_path: projects/PROJ-979-llmxive-follow-up-extending-loopcoder-v2/specs/001-llmxive-follow-up-extending-loopcoder-v2/tasks.md
+  attempts: 1
+  canonical: Logistic regression uses multinomial multiclass and lbfgs solver
+  claim_id: c_e45d71b0
+  context: Train on entropy proxies using sklearn.linear_model.LogisticRegression
+    (multi_class='multinomial', solver='lbfgs').
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Logistic_regression_uses_multinomial_multiclass_and_lbfgs_so
+  kind: entity_fact
+  raw_text: The logistic regression router uses multi_class='multinomial' and solver='lbfgs'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T13:02:14Z'
+- artifact_path: projects/PROJ-979-llmxive-follow-up-extending-loopcoder-v2/specs/001-llmxive-follow-up-extending-loopcoder-v2/tasks.md
+  attempts: 1
+  canonical: Non-inferiority test uses one-sided t-test
+  claim_id: c_9ac06de0
+  context: Perform a one-sided t-test to verify accuracy difference is within margin
+    (delta from T021c) against static k=2 baseline.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Non-inferiority_test_uses_one-sided_t-test
+  kind: entity_fact
+  raw_text: The non-inferiority test uses a one-sided t-test.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T13:02:35Z'
+- artifact_path: projects/PROJ-979-llmxive-follow-up-extending-loopcoder-v2/specs/001-llmxive-follow-up-extending-loopcoder-v2/tasks.md
+  attempts: 1
+  canonical: Project substitutes LoopCoder with CodeLlama-1.3b for CPU and CodeLlama-3b/7b
+    for GPU
+  claim_id: c_cc4b2ff9
+  context: The spec's Assumptions and FR-001/FR-002 mandate LoopCoder-v2-2B, but the
+    checkpoint is not verified/available.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: This project substitutes a variant of LoopCoder with CodeLlama-1.3b-Instruct
+    (CPU validation) and CodeLlama-3b/7b-Instruct (GPU full analysis).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T13:04:12Z'
+- artifact_path: projects/PROJ-979-llmxive-follow-up-extending-loopcoder-v2/specs/001-llmxive-follow-up-extending-loopcoder-v2/tasks.md
+  attempts: 1
+  canonical: Null hypothesis re-framed to no correlation between entropy and convergence
+    for CodeLlama
+  claim_id: c_357a98a1
+  context: All success criteria are RE-BASELINED for the CodeLlama architecture due
+    to model substitution.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Null_hypothesis_re-framed_to_no_correlation_between_entropy
+  kind: entity_fact
+  raw_text: The null hypothesis is re-framed as 'No correlation between entropy and
+    convergence for CodeLlama' rather than LoopCoder-v2.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T13:04:14Z'
+- artifact_path: projects/PROJ-979-llmxive-follow-up-extending-loopcoder-v2/specs/001-llmxive-follow-up-extending-loopcoder-v2/tasks.md
+  attempts: 1
+  canonical: Methodology and metrics remain identical applied to new CodeLlama model
+  claim_id: c_544515f6
+  context: The substitution changes the model weights used for inference, which changes
+    the entropy distribution and convergence behavior.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Methodology_and_metrics_remain_identical_applied_to_new_Code
+  kind: entity_fact
+  raw_text: The methodology (entropy extraction, convergence tracking) remains identical,
+    and the metrics (correlation coefficient, FLOPs savings) must satisfy the original
+    spec's requirements but applied to the new model.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T13:04:37Z'
+- artifact_path: projects/PROJ-979-llmxive-follow-up-extending-loopcoder-v2/specs/001-llmxive-follow-up-extending-loopcoder-v2/tasks.md
+  attempts: 1
+  canonical: Core convergence loops range is 1 to 3
+  claim_id: c_84528610
+  context: This range is used for FR-002 core loops.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The core loops for convergence analysis are defined as k in the range
+    [1, 2, 3].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T13:05:22Z'
+- artifact_path: projects/PROJ-979-llmxive-follow-up-extending-loopcoder-v2/specs/001-llmxive-follow-up-extending-loopcoder-v2/tasks.md
+  attempts: 1
+  canonical: FLOPs formula is parameters times sequence length times k
+  claim_id: c_7b0ccdb1
+  context: This formula is defined for baseline calculation in the resource monitoring
+    utility.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/FLOPs_formula_is_parameters_times_sequence_length_times_k
+  kind: entity_fact
+  raw_text: The FLOPs utility function uses the formula FLOPs = parameters * sequence_length
+    * k.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T13:05:41Z'
+- artifact_path: projects/PROJ-979-llmxive-follow-up-extending-loopcoder-v2/specs/001-llmxive-follow-up-extending-loopcoder-v2/tasks.md
+  attempts: 1
+  canonical: Non-inferiority test uses one-sided t-test against static k=2 baseline
+  claim_id: c_538e3680
+  context: This test verifies if the accuracy difference is within the defined delta
+    margin.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The non-inferiority test uses a one-sided t-test to verify accuracy difference
+    is within margin against static k=2 baseline.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T13:06:00Z'
+- artifact_path: projects/PROJ-979-llmxive-follow-up-extending-loopcoder-v2/specs/001-llmxive-follow-up-extending-loopcoder-v2/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis sweeps convergence thresholds 2, 3, and 4
+  claim_id: c_f7ff759a
+  context: This sweep computes variation in rho for SC-004.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis sweeps convergence thresholds k in the set {2,
+    3, 4}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T13:06:00Z'
+- artifact_path: projects/PROJ-979-llmxive-follow-up-extending-loopcoder-v2/specs/001-llmxive-follow-up-extending-loopcoder-v2/tasks.md
+  attempts: 1
+  canonical: CPU validation suite runs with 50 samples
+  claim_id: c_59926640
+  context: This is executed to verify the pipeline within the 6-hour compute feasibility
+    limit.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The full validation suite on CPU is run with N=50 samples.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T13:06:00Z'
