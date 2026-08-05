@@ -1,0 +1,43 @@
+# generated using pymatgen
+data_Li5AlO4
+_symmetry_space_group_name_H-M   Pbca
+_cell_length_a   8.94700000
+_cell_length_b   9.12000000
+_cell_length_c   9.08700000
+_cell_angle_alpha   90.00000000
+_cell_angle_beta   90.00000000
+_cell_angle_gamma   90.00000000
+_symmetry_Int_Tables_number   61
+_chemical_formula_structural   Li5AlO4
+_chemical_formula_sum   'Li40 Al8 O32'
+_cell_volume   741.46866768
+_cell_formula_units_Z   8
+loop_
+ _symmetry_equiv_pos_site_id
+ _symmetry_equiv_pos_as_xyz
+  1  'x, y, z'
+  2  '-x, -y, -z'
+  3  '-x+1/2, -y, z+1/2'
+  4  'x+1/2, y, -z+1/2'
+  5  'x+1/2, -y+1/2, -z'
+  6  '-x+1/2, y+1/2, z'
+  7  '-x, y+1/2, -z+1/2'
+  8  'x, -y+1/2, z+1/2'
+loop_
+ _atom_site_type_symbol
+ _atom_site_label
+ _atom_site_symmetry_multiplicity
+ _atom_site_fract_x
+ _atom_site_fract_y
+ _atom_site_fract_z
+ _atom_site_occupancy
+  Li  Li0  8  0.07164366  0.16681596  0.61375507  1.0
+  Li  Li1  8  0.08959347  0.65419819  0.34952679  1.0
+  Li  Li2  8  0.11341944  0.12328298  0.35605488  1.0
+  Li  Li3  8  0.15504151  0.58413322  0.08848528  1.0
+  Li  Li4  8  0.17751600  0.10436865  0.90254703  1.0
+  Al  Al5  8  0.10066046  0.62341314  0.64573022  1.0
+  O  O6  8  0.00836803  0.24087737  0.96889219  1.0
+  O  O7  8  0.02510810  0.00865176  0.75587525  1.0
+  O  O8  8  0.23276587  0.74053323  0.75178090  1.0
+  O  O9  8  0.24944522  0.54957266  0.49479442  1.0

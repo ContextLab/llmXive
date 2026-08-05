@@ -1,0 +1,49 @@
+# generated using pymatgen
+data_Sr2Li2Al(PO4)3
+_symmetry_space_group_name_H-M   P2_1/c
+_cell_length_a   4.94500000
+_cell_length_b   22.08800000
+_cell_length_c   9.83739779
+_cell_angle_alpha   90.00000000
+_cell_angle_beta   118.69607713
+_cell_angle_gamma   90.00000000
+_symmetry_Int_Tables_number   14
+_chemical_formula_structural   Sr2Li2Al(PO4)3
+_chemical_formula_sum   'Sr8 Li8 Al4 P12 O48'
+_cell_volume   942.52128974
+_cell_formula_units_Z   4
+loop_
+ _symmetry_equiv_pos_site_id
+ _symmetry_equiv_pos_as_xyz
+  1  'x, y, z'
+  2  '-x, -y, -z'
+  3  '-x, y+1/2, -z+1/2'
+  4  'x, -y+1/2, z+1/2'
+loop_
+ _atom_site_type_symbol
+ _atom_site_label
+ _atom_site_symmetry_multiplicity
+ _atom_site_fract_x
+ _atom_site_fract_y
+ _atom_site_fract_z
+ _atom_site_occupancy
+  Sr  Sr0  4  0.01899000  0.66034000  0.73597000  1
+  Sr  Sr1  4  0.01994000  0.16090000  0.25642000  1
+  Li  Li2  4  0.32500000  0.06920000  0.59680000  1
+  Li  Li3  4  0.33090000  0.73560000  0.56970000  1
+  Al  Al4  4  0.01198000  0.00881000  0.74988000  1
+  P  P5  4  0.32364000  0.57627000  0.56534000  1
+  P  P6  4  0.33275000  0.22719000  0.58995000  1
+  P  P7  4  0.37359000  0.56615000  0.09699000  1
+  O  O8  4  0.04840000  0.24418000  0.60600000  1
+  O  O9  4  0.14900000  0.54760000  0.40570000  1
+  O  O10  4  0.14960000  0.57027000  0.92010000  1
+  O  O11  4  0.22850000  0.55262000  0.68320000  1
+  O  O12  4  0.25210000  0.51694000  0.16270000  1
+  O  O13  4  0.25600000  0.64440000  0.54450000  1
+  O  O14  4  0.30190000  0.24668000  0.93790000  1
+  O  O15  4  0.30630000  0.04671000  0.38280000  1
+  O  O16  4  0.32570000  0.06717000  0.86320000  1
+  O  O17  4  0.35110000  0.15765000  0.58410000  1
+  O  O18  4  0.37250000  0.74952000  0.27120000  1
+  O  O19  4  0.40310000  0.62667000  0.17310000  1

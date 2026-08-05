@@ -1,5 +1,5 @@
-'|brown parameter':
-  quote: Brown
-  source_id: Q13421990
-  url: https://www.wikidata.org/wiki/Q13421990
-  value: Brown
+'|collinearity indicate vif':
+  quote: '10'
+  source_id: Variance inflation factor
+  url: https://en.wikipedia.org/wiki/Variance_inflation_factor
+  value: '10'

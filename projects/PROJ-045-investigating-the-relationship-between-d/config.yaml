@@ -1,0 +1,23 @@
+# Project Configuration for PROJ-045
+# This file can be overridden by environment variables prefixed with PROJ_045_
+
+# Data Directories
+data_dir: "data"
+processed_dir: "data/processed"
+raw_dir: "data/raw"
+
+# Logging
+log_level: "INFO"
+
+# API Configuration
+api_timeout: 30
+max_retries: 5
+
+# Computation Settings
+use_gpu: false
+
+# External API URLs
+obelix_api_url: "https://api.obelix-db.org/v1"
+
+# Materials Project API Key (if available)
+# mp_api_key: "YOUR_API_KEY_HERE"

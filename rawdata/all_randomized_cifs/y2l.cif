@@ -1,0 +1,37 @@
+# generated using pymatgen
+data_Li5AlS4
+_symmetry_space_group_name_H-M   P2_1/m
+_cell_length_a   6.24880000
+_cell_length_b   7.83690000
+_cell_length_c   6.85830000
+_cell_angle_alpha   90.00000000
+_cell_angle_beta   90.33300000
+_cell_angle_gamma   90.00000000
+_symmetry_Int_Tables_number   11
+_chemical_formula_structural   Li5AlS4
+_chemical_formula_sum   'Li10 Al2 S8'
+_cell_volume   335.85365063
+_cell_formula_units_Z   2
+loop_
+ _symmetry_equiv_pos_site_id
+ _symmetry_equiv_pos_as_xyz
+  1  'x, y, z'
+  2  '-x, -y, -z'
+  3  '-x, y+1/2, -z'
+  4  'x, -y+1/2, z'
+loop_
+ _atom_site_type_symbol
+ _atom_site_label
+ _atom_site_symmetry_multiplicity
+ _atom_site_fract_x
+ _atom_site_fract_y
+ _atom_site_fract_z
+ _atom_site_occupancy
+  Li  Li0  4  0.34855398  0.51430093  0.34208988  1.0
+  Li  Li1  2  0.00000000  0.00000000  0.00000000  1.0
+  Li  Li2  2  0.00751386  0.25000000  0.46699333  1.0
+  Li  Li3  2  0.32481799  0.25000000  0.83537354  1.0
+  Al  Al4  2  0.36751577  0.75000000  0.84799434  1.0
+  S  S5  4  0.24179863  0.50542225  0.67740688  1.0
+  S  S6  2  0.24774328  0.75000000  0.13506528  1.0
+  S  S7  2  0.27441521  0.25000000  0.16362743  1.0

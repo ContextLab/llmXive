@@ -1,0 +1,52 @@
+# generated using pymatgen
+data_LiGaGeO4
+_symmetry_space_group_name_H-M   R-3
+_cell_length_a   13.94100000
+_cell_length_b   13.94100000
+_cell_length_c   9.30200000
+_cell_angle_alpha   90.00000000
+_cell_angle_beta   90.00000000
+_cell_angle_gamma   120.00000000
+_symmetry_Int_Tables_number   148
+_chemical_formula_structural   LiGaGeO4
+_chemical_formula_sum   'Li18 Ga18 Ge18 O72'
+_cell_volume   1565.65050086
+_cell_formula_units_Z   18
+loop_
+ _symmetry_equiv_pos_site_id
+ _symmetry_equiv_pos_as_xyz
+  1  'x, y, z'
+  2  '-x, -y, -z'
+  3  '-y, x-y, z'
+  4  'y, -x+y, -z'
+  5  '-x+y, -x, z'
+  6  'x-y, x, -z'
+  7  'x+2/3, y+1/3, z+1/3'
+  8  '-x+2/3, -y+1/3, -z+1/3'
+  9  '-y+2/3, x-y+1/3, z+1/3'
+  10  'y+2/3, -x+y+1/3, -z+1/3'
+  11  '-x+y+2/3, -x+1/3, z+1/3'
+  12  'x-y+2/3, x+1/3, -z+1/3'
+  13  'x+1/3, y+2/3, z+2/3'
+  14  '-x+1/3, -y+2/3, -z+2/3'
+  15  '-y+1/3, x-y+2/3, z+2/3'
+  16  'y+1/3, -x+y+2/3, -z+2/3'
+  17  '-x+y+1/3, -x+2/3, z+2/3'
+  18  'x-y+1/3, x+2/3, -z+2/3'
+loop_
+ _atom_site_type_symbol
+ _atom_site_label
+ _atom_site_symmetry_multiplicity
+ _atom_site_fract_x
+ _atom_site_fract_y
+ _atom_site_fract_z
+ _atom_site_occupancy
+  Li  Li0  18  0.01102437  0.21191553  0.76317178  1.0
+  Ga  Ga1  18  0.00578294  0.79456228  0.91843122  0.5
+  Ge  Ge2  18  0.00578294  0.79456228  0.91843122  0.5
+  Ga  Ga3  18  0.02156729  0.22329618  0.38940262  0.5
+  Ge  Ge4  18  0.02156729  0.22329618  0.38940262  0.5
+  O  O5  18  0.00398410  0.64844080  0.26441853  1.0
+  O  O6  18  0.08175706  0.18856619  0.24373171  1.0
+  O  O7  18  0.09247830  0.19800092  0.54735980  1.0
+  O  O8  18  0.09559187  0.20438881  0.91878782  1.0

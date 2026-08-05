@@ -1,20 +1,24 @@
 {
   "project_id": "PROJ-045-investigating-the-relationship-between-d",
   "ok": false,
-  "reason": "1 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/dft_runner.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026ger(__name__)          # Mock data for demonstration     mo\u2026\u201d; 5 command(s) failed: python code/download.py (rc=1); python code/validate.py (rc=1); python code/dft_runner.py --test-system Li7La3Zr2O12 (rc=1); 1 declared deliverable(s) absent: data/processed/analysis_results.json",
-  "artifacts": [],
-  "failures": [
-    "python code/download.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-045-investigating-the-relationship-between-d/code/download.py\", line 7, in <module>\n    import requests\nModuleNotFoundError: No module named 'requests'",
-    "python code/validate.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-045-investigating-the-relationship-between-d/code/validate.py\", line 5, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'",
-    "python code/dft_runner.py --test-system Li7La3Zr2O12 -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-045-investigating-the-relationship-between-d/code/dft_runner.py\", line 9, in <module>\n    from pymatgen.core import Structure\nModuleNotFoundError: No module named 'pymatgen'",
-    "python code/semi_empirical.py --all -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-045-investigating-the-relationship-between-d/code/semi_empirical.py\", line 5, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'",
-    "python code/analysis.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-045-investigating-the-relationship-between-d/code/analysis.py\", line 7, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'"
+  "reason": "2 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/semi_empirical.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026d the crash (by removing synthetic data and using real structure\u2026\u201d; code/semi_empirical.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026xed the rc=1 by removing synthetic data and using real structure\u2026\u201d; every produced artifact is gitignored (data/processed/download_summary.json) \u2014 the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 5 command(s) failed: python code/download.py (rc=1); python code/validate.py (rc=1); python code/dft_runner.py --test-system Li7La3Zr2O12 (rc=1); 2 declared deliverable(s) absent: data/processed/analysis_results.json; data/processed/citation_status.json",
+  "artifacts": [
+    "data/processed/download_summary.json"
   ],
-  "fix_rounds": 1,
+  "failures": [
+    "python code/download.py -> rc=1\n    7.50s...\n2026-08-05 06:01:53,038 - __main__ - INFO - Attempt 5/5 for https://api.obelix-db.org/v1/structures/OBEL-002\n2026-08-05 06:01:53,050 - __main__ - WARNING - Network error (HTTPSConnectionPool(host='api.obelix-db.org', port=443): Max retries exceeded with url: /v1/structures/OBEL-002 (Caused by NameResolutionError(\"HTTPSConnection(host='api.obelix-db.org', port=443): Failed to resolve 'api.obelix-db.org' ([Errno -2] Name or service not known)\"))). Retrying in 33.25s...\n2026-08-05 06:02:26,299 - __main__ - ERROR - Failed to fetch https://api.obelix-db.",
+    "python code/validate.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-045-investigating-the-relationship-between-d/code/validate.py\", line 17, in <module>\n    logger = setup_logging(__name__)\n             ^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-045-investigating-the-relationship-between-d/code/utils.py\", line 30, in setup_logging\n    logger.setLevel(log_level)\n  File \"/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/logging/__init__.py\", line 1464, in setLevel\n    self.level = _checkLevel(lev",
+    "python code/dft_runner.py --test-system Li7La3Zr2O12 -> rc=1\n    mXive/llmXive/projects/PROJ-045-investigating-the-relationship-between-d/code/dft_runner.py\", line 570, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-045-investigating-the-relationship-between-d/code/dft_runner.py\", line 523, in main\n    logger = setup_dft_logging(log_file)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-045-investigating-the-relationship-between-d/code/dft_runner.py\", line 61, in setup_dft_logging\n    file_handler = logging.FileHan",
+    "python code/semi_empirical.py --all -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-045-investigating-the-relationship-between-d/code/semi_empirical.py\", line 7, in <module>\n    from pymatgen.analysis.defects.core import Defect\nModuleNotFoundError: No module named 'pymatgen.analysis.defects'",
+    "python code/analysis.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-045-investigating-the-relationship-between-d/code/analysis.py\", line 21, in <module>\n    logger = setup_logging(__name__)\n             ^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-045-investigating-the-relationship-between-d/code/utils.py\", line 30, in setup_logging\n    logger.setLevel(log_level)\n  File \"/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/logging/__init__.py\", line 1464, in setLevel\n    self.level = _checkLevel(lev"
+  ],
+  "fix_rounds": 2,
   "model_tier": 0,
-  "total_attempts": 1,
+  "total_attempts": 2,
   "replan_rounds": 0,
-  "failure_class": "fabrication",
-  "evidence": [],
-  "updated_at": "2026-07-18T00:27:06Z"
+  "failure_class": "data_unreachable",
+  "evidence": [
+    "python code/download.py"
+  ],
+  "updated_at": "2026-08-05T06:02:31Z"
 }

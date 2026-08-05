@@ -1,0 +1,66 @@
+# generated using pymatgen
+data_Li7La3Hf2O12
+_symmetry_space_group_name_H-M   I4_1/acd
+_cell_length_a   13.10560000
+_cell_length_b   13.10560000
+_cell_length_c   12.63030000
+_cell_angle_alpha   90.00000000
+_cell_angle_beta   90.00000000
+_cell_angle_gamma   90.00000000
+_symmetry_Int_Tables_number   142
+_chemical_formula_structural   Li7La3Hf2O12
+_chemical_formula_sum   'Li56 La24 Hf16 O96'
+_cell_volume   2169.33929670
+_cell_formula_units_Z   8
+loop_
+ _symmetry_equiv_pos_site_id
+ _symmetry_equiv_pos_as_xyz
+  1  'x, y, z'
+  2  '-y, x+1/2, z+1/4'
+  3  '-x+1/2, -y+1/2, z+1/2'
+  4  'y+1/2, -x, z+3/4'
+  5  'x+1/2, -y, -z+1/4'
+  6  '-y+1/2, -x+1/2, -z'
+  7  '-x, y+1/2, -z+3/4'
+  8  'y, x, -z+1/2'
+  9  '-x, -y+1/2, -z+1/4'
+  10  'y, -x, -z'
+  11  'x+1/2, y, -z+3/4'
+  12  '-y+1/2, x+1/2, -z+1/2'
+  13  '-x+1/2, y+1/2, z'
+  14  'y+1/2, x, z+1/4'
+  15  'x, -y, z+1/2'
+  16  '-y, -x+1/2, z+3/4'
+  17  'x+1/2, y+1/2, z+1/2'
+  18  '-y+1/2, x, z+3/4'
+  19  '-x, -y, z'
+  20  'y, -x+1/2, z+1/4'
+  21  'x, -y+1/2, -z+3/4'
+  22  '-y, -x, -z+1/2'
+  23  '-x+1/2, y, -z+1/4'
+  24  'y+1/2, x+1/2, -z'
+  25  '-x+1/2, -y, -z+3/4'
+  26  'y+1/2, -x+1/2, -z+1/2'
+  27  'x, y+1/2, -z+1/4'
+  28  '-y, x, -z'
+  29  '-x, y, z+1/2'
+  30  'y, x+1/2, z+3/4'
+  31  'x+1/2, -y+1/2, z'
+  32  '-y+1/2, -x, z+1/4'
+loop_
+ _atom_site_type_symbol
+ _atom_site_label
+ _atom_site_symmetry_multiplicity
+ _atom_site_fract_x
+ _atom_site_fract_y
+ _atom_site_fract_z
+ _atom_site_occupancy
+  Li  Li0  32  0.06853172  0.16434330  0.44567452  1.0
+  Li  Li1  16  0.18721184  0.18721184  0.25000000  1.0
+  Li  Li2  8  0.00000000  0.00000000  0.00000000  1.0
+  La  La3  16  0.13302802  0.25000000  0.87500000  1.0
+  La  La4  8  0.00000000  0.00000000  0.25000000  1.0
+  Hf  Hf5  16  0.00000000  0.25000000  0.12500000  1.0
+  O  O6  32  0.05479631  0.18595068  0.27943225  1.0
+  O  O7  32  0.07528633  0.38940736  0.14869801  1.0
+  O  O8  32  0.15370776  0.23594184  0.07088907  1.0

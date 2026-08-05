@@ -87,19 +87,19 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [X] T011 [P] [US1] Contract test for data download success rate (≥93%) in `tests/test_download.py`
+- [X] T011 [P] [US1] {{claim:c_71c7df9f}} in `tests/test_download.py`
 - [X] T012 [P] [US1] Integration test for completeness report generation in `tests/test_validate.py`
 
 ### Implementation for User Story 1
 
 - [X] T014 [P] [US1] Implement `download.py` to fetch crystal structures from OBELiX and Materials Project using static MP-ID list in `code/download.py`
-- [X] T013 [US1] Implement logic to handle missing OBELiX defect data (log specific message and proceed with DFT-computed values) in `code/validate.py`
+- [X] T013 [US1] Implement logic to handle missing OBELiX defect data (log specific message and proceed with DFT-computed values) [UNRESOLVED-CLAIM: c_17fb89ed — status=not_enough_info] in `code/validate.py`
 - [X] T015 [P] [US1] Implement `validate.py` to check for required variables (vacancy, interstitial, antisite, migration barrier, conductivity) in `code/validate.py`
 - [X] T016 [US1] Implement logic to generate `completeness_report.json` listing availability status per composition in `code/validate.py`
 - [X] T017 [US1] Add error handling for failed downloads with retry logic (limited attempts, exponential backoff) in `code/download.py`
 - [X] T018 [US1] Add logging for missing variables with specific dataset and variable names in `code/validate.py`
 - [X] T019 [US1] **IMPLEMENT**: Implement Bond-Valence Sum (BVS) validation in `code/validate.py` to filter out structures where calculated BVS deviates >10% from ideal oxidation states (as mandated by FR-002 and Section 3.2). **MUST run before any DFT task.**
-- [X] T020 [US1] **IMPLEMENT**: Enforce crystallographic Li-O distance constraints within the typical range for lithium-oxygen bonding (A range of approximately 2.0 to 2.2 Å.) in `code/validate.py` (as mandated by FR-002 and Section 3.2) and log violations to `data/processed/validation_log.txt` in a structured format (JSON lines). **MUST run before any DFT task.** **Verification**: Run `python -c "import json; f=open('data/processed/validation_log.txt'); [json.loads(l) for l in f]; print('OK')"` to ensure log exists and contains valid JSON lines with key 'violation_type'. **Output**: `data/processed/validation_log.txt` with schema `{"violation_type": "string", "composition_id": "string", "distance": "float", "ideal_range": "string"}`.
+- [ ] T020 [US1] **IMPLEMENT**: {{claim:c_09bdfea1}} in `code/validate.py` (as mandated by FR-002 and Section 3.2) and log violations to `data/processed/validation_log.txt` in a structured format (JSON lines). **MUST run before any DFT task.** **Verification**: Run `python -c "import json; f=open('data/processed/validation_log.txt'); [json.loads(l) for l in f]; print('OK')"` to ensure log exists and contains valid JSON lines with key 'violation_type'. **Output**: `data/processed/validation_log.txt` with schema `{"violation_type": "string", "composition_id": "string", "distance": "float", "ideal_range": "string"}`.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -122,13 +122,13 @@
 
 - [X] T031 [US2] **IMPLEMENT**: Implement supercell size validation logic to determine the appropriate expansion factor (sufficient for high-fidelity subset) based on convergence requirements. **MUST run BEFORE T024 and T025.** If 2x2x2 fails convergence criteria, fallback to 3x3x3 and log the specific reason. **Input**: `data/processed/convergence_status.json` from T024. **Output**: `data/processed/supercell_config.json` with schema `{"supercell_size": "2x2x2"|"3x3x3", "reason": "string"}`.
 - [X] T024 [US2] **IMPLEMENT**: Implement logic for 2x2x2 supercell expansion (allowing >8 atoms) for high-fidelity subset (first compositions with complete data) in `code/dft_runner.py`. **This task implements the authorized deviation from FR-003 as defined in spec.md Section 3.2. Confirmed by T002. Relies on T031 for the final supercell size decision.** If 2x2x2 fails convergence, fallback to 3x3x3 and log the reason.
-- [X] T025 [P] [US2] Implement `dft_runner.py` to generate Quantum ESPRESSO input files (`.in`) with explicit parameters (pseudopotentials, k-mesh, cutoff) in `code/dft_runner.py`
+- [X] T025 [P] [US2] Implement `dft_runner.py` to generate Quantum ESPRESSO input files (`.in`) with explicit parameters (pseudopotentials, k-mesh, cutoff) in `code/dft_runner.py` <!-- FAILED: unspecified -->
 - [X] T023 [US2] Implement semi-empirical defect energy estimation in `code/semi_empirical.py`. **Must validate BVS results against DFT results for the high-fidelity subset (representative compositions).**
 - [X] T027 [US2] Implement the semi-empirical defect energy calculation for the low-fidelity subset in `code/semi_empirical.py`, strictly adhering to the `plan.md` Constraints section (Hybrid Strategy) without introducing external review citations or unverified quantification methods.
 - [X] T028 [US2] Add logging for atom counts, calculation status, and convergence results in `code/dft_runner.py`
-- [X] T029 [US2] Implement NEB method for several representative defect configurations PER SYSTEM with force convergence checks in `code/dft_runner.py`
+- [X] T029 [US2] Implement NEB method for several representative defect configurations PER SYSTEM with force convergence checks in `code/dft_runner.py` <!-- ATOMIZE: requested -->
 - [X] T030 [US2] Implement timeout detection and partial result preservation for jobs exceeding h limit in `code/dft_runner.py`
-- [X] T033 [US2] **IMPLEMENT**: Implement defect density quantification method in `code/dft_runner.py` to explicitly calculate and log defect concentration (defects/supercell_volume = 1 / supercell_volume) for every configuration, ensuring reproducibility of the "quantitative effect" claim (addressing Marie Curie review). **Must explicitly calculate defects and supercell_volume as defined in spec.md Section 3.3.** **Output**: `data/processed/defect_density_metrics.json` with schema `{"composition_id": "string", "defect_density": "float", "supercell_volume": "float"}`. **Verification**: Run `python -c "import json; f=open('data/processed/defect_density_metrics.json'); d=json.load(f); assert 'defect_density' in d[0]; print('OK')"` to ensure schema is correct.
+- [ ] T033 [US2] **IMPLEMENT**: Implement defect density quantification method in `code/dft_runner.py` to explicitly calculate and log defect concentration (defects/supercell_volume = 1 / supercell_volume) for every configuration, ensuring reproducibility of the "quantitative effect" claim (addressing Marie Curie review). **Must explicitly calculate defects and supercell_volume as defined in spec.md Section 3.3.** **Output**: `data/processed/defect_density_metrics.json` with schema `{"composition_id": "string", "defect_density": "float", "supercell_volume": "float"}`. **Verification**: Run `python -c "import json; f=open('data/processed/defect_density_metrics.json'); d=json.load(f); assert 'defect_density' in d[0]; print('OK')"` to ensure schema is correct.
 - [X] T053 [US2] **IMPLEMENT**: Document the defect density quantification methodology in `data/processed/methodology_defect_density.md` to explicitly satisfy the reviewer's requirement for a defined technique. This document must detail the formula (defects/volume), units, and reference spec.md Section 3.3. **Output**: `data/processed/methodology_defect_density.md`.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -145,22 +145,22 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T034 [P] [US3] Contract test for R² and p-value outputs in `tests/test_analysis.py`
-- [X] T035 [P] [US3] Integration test for multiple-comparison correction (Bonferroni/BH) in `tests/test_analysis.py`
+- [ ] T034 [P] [US3] Contract test for R² and p-value outputs in `tests/test_analysis.py`
+- [ ] T035 [P] [US3] Integration test for multiple-comparison correction (Bonferroni/BH) in `tests/test_analysis.py`
 
 ### Implementation for User Story 3
 
-- [X] T046 [US3] **IMPLEMENT**: Add validation step in `code/analysis.py` to reject any data points where BVS constraints (from T019) were violated, ensuring only chemically valid structures enter the statistical model (addressing Linus Pauling review). **MUST precede T037.**
+- [ ] T046 [US3] **IMPLEMENT**: Add validation step in `code/analysis.py` to reject any data points where BVS constraints (from T019) were violated, ensuring only chemically valid structures enter the statistical model (addressing Linus Pauling review). **MUST precede T037.**
 - [X] T045 [US3] **IMPLEMENT**: Integrate defect density (from T033) as a primary predictor variable in the regression model to explicitly link concentration to conductivity (addressing Marie Curie review). **MUST precede T037. DEPENDS ON: T033. Methodology follows spec.md Section 3.3.**
-- [X] T039 [US3] **IMPLEMENT**: Implement variance inflation factor (VIF) diagnostic to detect collinearity between defect types in `code/analysis.py`. **MUST precede T037.** **Threshold**: VIF > 5 indicates collinearity. **Output**: `data/processed/vif_scores.json` with schema `{"feature": "string", "vif_score": "float"}`. **Verification**: Run `python -c "import json; f=open('data/processed/vif_scores.json'); d=json.load(f); assert isinstance(d, list); print('OK')"` to ensure schema is correct.
+- [ ] T039 [US3] **IMPLEMENT**: Implement variance inflation factor (VIF) diagnostic to detect collinearity between defect types in `code/analysis.py`. **MUST precede T037.** **Threshold**: {{claim:c_54718f02}} (Wikipedia: Variance inflation factor, https://en.wikipedia.org/wiki/Variance_inflation_factor). **Output**: `data/processed/vif_scores.json` with schema `{"feature": "string", "vif_score": "float"}`. **Verification**: Run `python -c "import json; f=open('data/processed/vif_scores.json'); d=json.load(f); assert isinstance(d, list); print('OK')"` to ensure schema is correct.
 - [X] T043 [US3] **IMPLEMENT**: Perform PCA for coupled variables to handle thermodynamic coupling between defect types (vacancy, interstitial, antisite) as required by plan.md Complexity Tracking and implied by spec.md Section 3.4. **Input**: `data/processed/defect_density_metrics.json`. **Components**: 2. **Output**: `data/processed/pca_results.json` with schema `{"loadings": {"feature": "float"}, "explained_variance": "float"}`. **Verification**: Run `python -c "import json; f=open('data/processed/pca_results.json'); d=json.load(f); assert 'loadings' in d; print('OK')"` to ensure schema is correct.
-- [X] T044 [US3] **IMPLEMENT**: Define JSON schema for `analysis_results.json` including keys: `composition_id`, `ea`, `conductivity`, `defect_density`, `regression_coefficients`, `p_values`, `r_squared`, `power_analysis_result`, `vif_scores`, `pca_loadings`. **Output**: `data/schemas/analysis_results_schema.json`. **Schema**: `{"type": "object", "properties": {"composition_id": {"type": "string"}, "ea": {"type": "number"}, "conductivity": {"type": "number"}, "defect_density": {"type": "number"}, "regression_coefficients": {"type": "object"}, "p_values": {"type": "object"}, "r_squared": {"type": "number"}, "power_analysis_result": {"type": "object"}, "vif_scores": {"type": "array"}, "pca_loadings": {"type": "object"}}, "required": ["composition_id", "ea", "conductivity", "defect_density", "regression_coefficients", "p_values", "r_squared", "power_analysis_result", "vif_scores", "pca_loadings"]}`.
-- [X] T045b [US3] **IMPLEMENT**: Store all results in `data/processed/analysis_results.json` using the schema defined in T044. **Output**: `data/processed/analysis_results.json`.
-- [X] T037 [P] [US3] Implement `analysis.py` to perform linear regression between defect energies and conductivity using scikit-learn in `code/analysis.py`. **Must include defect density as a predictor (from T045) and use Ef and Em as DISTINCT predictors. DO NOT use Ea as a primary predictor.** **Assertion**: Add `assert 'ea' not in regression_features` to ensure Ea is excluded from regression matrix.
-- [X] T036 [US3] Implement calculation of Total Activation Energy (Ea = Ef + Em) for **REPORTING AND VISUALIZATION ONLY** in `code/analysis.py`. **Must compute Ef and Em as distinct predictors as per spec.md Section 3.4. Calculate Ea as a derived metric ONLY for reporting; DO NOT use Ea as a primary predictor in the regression model.**
-- [X] T038 [US3] Implement multiple-comparison correction (Bonferroni or Benjamini-Hochberg) for >1 hypothesis test in `code/analysis.py`
-- [X] T041 [US3] **IMPLEMENT**: Implement σ₀ sensitivity analysis over a range of pre-pre-factor values. **Mandatory execution per FR-008. If specific literature bounds are not found in T001, use a standard sensitivity range (±1 order of magnitude around the mean). Log the specific literature source for the bounds used. If unverified, flag as 'unverified' in `data/processed/sigma0_sensitivity.json` by setting `source_verified: false`.** Output results to `data/processed/sigma0_sensitivity.json`.
-- [X] T042 [US3] **IMPLEMENT**: Generate correlation plots with statistical significance markers (p < 0.05) in `code/analysis.py`.
+- [ ] T044 [US3] **IMPLEMENT**: Define JSON schema for `analysis_results.json` including keys: `composition_id`, `ea`, `conductivity`, `defect_density`, `regression_coefficients`, `p_values`, `r_squared`, `power_analysis_result`, `vif_scores`, `pca_loadings`. **Output**: `data/schemas/analysis_results_schema.json`. **Schema**: `{"type": "object", "properties": {"composition_id": {"type": "string"}, "ea": {"type": "number"}, "conductivity": {"type": "number"}, "defect_density": {"type": "number"}, "regression_coefficients": {"type": "object"}, "p_values": {"type": "object"}, "r_squared": {"type": "number"}, "power_analysis_result": {"type": "object"}, "vif_scores": {"type": "array"}, "pca_loadings": {"type": "object"}}, "required": ["composition_id", "ea", "conductivity", "defect_density", "regression_coefficients", "p_values", "r_squared", "power_analysis_result", "vif_scores", "pca_loadings"]}`.
+- [ ] T045b [US3] **IMPLEMENT**: Store all results in `data/processed/analysis_results.json` using the schema defined in T044. **Output**: `data/processed/analysis_results.json`.
+- [ ] T037 [P] [US3] Implement `analysis.py` to perform linear regression between defect energies and conductivity using scikit-learn in `code/analysis.py`. **Must include defect density as a predictor (from T045) and use Ef and Em as DISTINCT predictors. DO NOT use Ea as a primary predictor.** **Assertion**: Add `assert 'ea' not in regression_features` to ensure Ea is excluded from regression matrix.
+- [ ] T036 [US3] Implement calculation of Total Activation Energy (Ea = Ef + Em) for **REPORTING AND VISUALIZATION ONLY** in `code/analysis.py`. **Must compute Ef and Em as distinct predictors as per spec.md Section 3.4. Calculate Ea as a derived metric ONLY for reporting; DO NOT use Ea as a primary predictor in the regression model. **
+- [ ] T038 [US3] Implement multiple-comparison correction (Bonferroni or Benjamini-Hochberg) for >1 hypothesis test in `code/analysis.py`
+- [X] T041 [US3] **IMPLEMENT**: Implement σ₀ sensitivity analysis over a range of pre-pre-factor values. **Mandatory execution per FR-008. If specific literature bounds are not found in T001, use a {{claim:c_84ef70f2}}. Log the specific literature source for the bounds used. If unverified, flag as 'unverified' in `data/processed/sigma0_sensitivity.json` by setting `source_verified: false`.** Output results to `data/processed/sigma0_sensitivity.json`.
+- [ ] T042 [US3] **IMPLEMENT**: Generate correlation plots with statistical significance markers (p < 0.05) in `code/analysis.py`.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -170,9 +170,9 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [X] T047 [P] Documentation: Generate `quickstart.md` in `docs/` containing EXACTLY: 1) `pip install -r requirements.txt` command, 2) `python code/download.py` example, 3) `python code/validate.py` verification output sample, 4) `python code/analysis.py` example. File must be <500 lines. **Verification**: Run `grep -q "pip install" docs/quickstart.md` to ensure file was generated correctly.
+- [ ] T047 [P] Documentation: Generate `quickstart.md` in `docs/` containing EXACTLY: 1) `pip install -r requirements.txt` command, 2) `python code/download.py` example, 3) `python code/validate.py` verification output sample, 4) `python code/analysis.py` example. File must be <500 lines. **Verification**: Run `grep -q "pip install" docs/quickstart.md` to ensure file was generated correctly.
 - [X] T048 [P] Code cleanup: Generate `tests/test_quickstart.py` to verify that all commands in quickstart.md execute without error.
-- [X] T049 [P] Performance optimization: Vectorize the regression loop in `code/analysis.py` using `numpy` broadcasting. **Pass/Fail**: Replace explicit `for` loops over compositions with `numpy` matrix operations; unit test `tests/test_analysis_vectorized.py` must verify identical results with <50% runtime reduction on n=1000 synthetic data.
+- [ ] T049 [P] Performance optimization: Vectorize the regression loop in `code/analysis.py` using `numpy` broadcasting. **Pass/Fail**: Replace explicit `for` loops over compositions with `numpy` matrix operations; unit test `tests/test_analysis_vectorized.py` must verify identical results with <50% runtime reduction on n=1000 synthetic data.
 - [X] T050 [P] Additional unit tests for edge cases in `tests/unit/`
 - [X] T051 Security hardening for data handling
 - [X] T052 Run `quickstart.md` validation to ensure reproducibility
@@ -187,8 +187,8 @@
 - **Setup (Phase 1)**: Depends on Phase 0 completion.
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -196,9 +196,9 @@
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
 - **User Story 2 (P2)**: Can start after Foundational (Phase 2) - May integrate with US1 but should be independently testable
 - **User Story 3 (P3)**: Can start after Foundational (Phase 2) - May integrate with US1/US2 but should be independently testable
-  - **T045 (Phase 5) explicitly depends on T033 (Phase 4).**
-  - **T039 (VIF) and T043 (PCA) must precede T037 (Regression).**
-  - **T046 (Validation) must precede T037 (Regression).**
+ - **T045 (Phase 5) explicitly depends on T033 (Phase 4).**
+ - **T039 (VIF) and T043 (PCA) must precede T037 (Regression).**
+ - **T046 (Validation) must precede T037 (Regression).**
 
 ### Within Each User Story
 
@@ -223,7 +223,7 @@
 
 ```bash
 # Launch all tests for User Story 1 together (if tests requested):
-Task: "Contract test for data download success rate (≥93%) in tests/test_download.py"
+Task: "{{claim:c_71c7df9f}} in tests/test_download.py "
 Task: "Integration test for completeness report generation in tests/test_validate.py"
 
 # Launch all models for User Story 1 together:
@@ -258,9 +258,9 @@ With multiple developers:
 
 1. Team completes Phase 0 + Setup + Foundational together
 2. Once Foundational is done:
-  - Developer A: User Story 1
-  - Developer B: User Story 2
-  - Developer C: User Story 3
+ - Developer A: User Story 1
+ - Developer B: User Story 2
+ - Developer C: User Story 3
 3. Stories complete and integrate independently
 
 ---
@@ -275,19 +275,19 @@ With multiple developers:
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Critical Review Address**:
-  - T001, T002 address the need for spec alignment and citation verification before implementation.
-  - T019, T020 address Linus Pauling review (BVS constraints, Li-O distance constraints) via direct implementation.
-  - T024 addresses Linus Pauling review (supercell size) via spec alignment (confirmed by T002).
-  - T033, T045 address Marie Curie review (explicit defect density quantification and inclusion as predictor).
-  - Tasks are ordered to ensure validation (T019, T020, T046, T045) occurs before DFT calculation (T024, T025) and Regression (T037).
-  - T039 (VIF) and T043 (PCA) now precede T037 (Regression) to ensure diagnostics are performed first.
-  - T044 (Schema) now precedes T045b (Store Results) to ensure schema is defined before usage.
-  - T047, T048, T049 are marked complete to satisfy FRs and Constitution principles.
-  - **Removed Phase 7**: Tasks T053-T057 were removed as they attempted to update the spec to contradict the current SSoT (FR-003) or insert unverified citations. The current spec is correct; any new citations must be verified via T001 first.
-  - **Anion Constraints**: Task T032 was removed as it was not in the spec. The 'Notes' section has been corrected to not claim T024/T031/T046 address anion constraints; they only address supercell size and BVS/Li-O checks.
-  - **Ea Metric**: Task T036 calculates Ea for reporting only. T037 explicitly forbids using Ea as a primary predictor, adhering to spec FR-006.
-  - **σ₀ Bounds**: Task T041 now dynamically defines bounds based on literature (T001) or standard practice (±1 order of magnitude), avoiding hardcoded unverified values, and explicitly flags unverified ranges.
-  - **PCA**: Task T043 implements PCA for coupled variables as required by plan.md.
-  - **VIF**: Task T039 implements VIF analysis as required by spec.md Section 3.4.
-  - **Task Ordering**: T014 (Download) precedes T013 (Handle missing); T031 (Supercell Validation) precedes T024 (Supercell Expansion) and T025 (DFT Input); T039 (VIF) and T043 (PCA) precede T037 (Regression); T044 (Schema) precedes T045b (Store Results); T046 (Validation) precedes T037 (Regression).
-  - **Task Status**: All critical tasks (T020, T033, T039, T043, T044, T045b, T047, T048, T049) are now marked [X] (complete) with explicit verification steps and output schemas.
+ - T001, T002 address the need for spec alignment and citation verification before implementation.
+ - T019, T020 address Linus Pauling review (BVS constraints, Li-O distance constraints) via direct implementation.
+ - T024 addresses Linus Pauling review (supercell size) via spec alignment (confirmed by T002).
+ - T033, T045 address Marie Curie review (explicit defect density quantification and inclusion as predictor).
+ - Tasks are ordered to ensure validation (T019, T020, T046, T045) occurs before DFT calculation (T024, T025) and Regression (T037).
+ - T039 (VIF) and T043 (PCA) now precede T037 (Regression) to ensure diagnostics are performed first.
+ - T044 (Schema) now precedes T045b (Store Results) to ensure schema is defined before usage.
+ - T047, T048, T049 are marked complete to satisfy FRs and Constitution principles.
+ - **Removed Phase 7**: Tasks T053-T057 were removed as they attempted to update the spec to contradict the current SSoT (FR-003) or insert unverified citations. The current spec is correct; any new citations must be verified via T001 first.
+ - **Anion Constraints**: Task T032 was removed as it was not in the spec. The 'Notes' section has been corrected to not claim T024/T031/T046 address anion constraints; they only address supercell size and BVS/Li-O checks.
+ - **Ea Metric**: Task T036 calculates Ea for reporting only. T037 explicitly forbids using Ea as a primary predictor, adhering to spec FR-006.
+ - **σ₀ Bounds**: Task T041 now dynamically defines bounds based on literature (T001) or standard practice (±1 order of magnitude), avoiding hardcoded unverified values, and explicitly flags unverified ranges.
+ - **PCA**: Task T043 implements PCA for coupled variables as required by plan.md.
+ - **VIF**: Task T039 implements VIF analysis as required by spec.md Section 3.4.
+ - **Task Ordering**: T014 (Download) precedes T013 (Handle missing); T031 (Supercell Validation) precedes T024 (Supercell Expansion) and T025 (DFT Input); T039 (VIF) and T043 (PCA) precede T037 (Regression); T044 (Schema) precedes T045b (Store Results); T046 (Validation) precedes T037 (Regression).
+ - **Task Status**: All critical tasks (T020, T033, T039, T043, T044, T045b, T047, T048, T049) are now marked [X] (complete) with explicit verification steps and output schemas.

@@ -1,0 +1,41 @@
+# generated using pymatgen
+data_Li16Sn3.3Ge0.7Se16
+_symmetry_space_group_name_H-M   Pnma
+_cell_length_a   14.93267000
+_cell_length_b   8.23052000
+_cell_length_c   6.58493000
+_cell_angle_alpha   90.00000000
+_cell_angle_beta   90.00000000
+_cell_angle_gamma   90.00000000
+_symmetry_Int_Tables_number   62
+_chemical_formula_structural   Li16Sn3.3Ge0.7Se16
+_chemical_formula_sum   'Li16 Sn3.3 Ge0.7 Se16'
+_cell_volume   809.31186014
+_cell_formula_units_Z   1
+loop_
+ _symmetry_equiv_pos_site_id
+ _symmetry_equiv_pos_as_xyz
+  1  'x, y, z'
+  2  '-x, -y, -z'
+  3  '-x+1/2, -y, z+1/2'
+  4  'x+1/2, y, -z+1/2'
+  5  'x+1/2, -y+1/2, -z+1/2'
+  6  '-x+1/2, y+1/2, z+1/2'
+  7  '-x, y+1/2, -z'
+  8  'x, -y+1/2, z'
+loop_
+ _atom_site_type_symbol
+ _atom_site_label
+ _atom_site_symmetry_multiplicity
+ _atom_site_fract_x
+ _atom_site_fract_y
+ _atom_site_fract_z
+ _atom_site_occupancy
+  Li  Li0  8  0.00170000  0.51820000  0.47550000  0.5
+  Li  Li1  8  0.17480000  0.50390000  0.31460000  1
+  Li  Li2  4  0.08730000  0.25000000  0.87990000  1
+  Ge  Ge3  4  0.09112000  0.75000000  0.85600000  0.175
+  Sn  Sn4  4  0.09112000  0.75000000  0.85600000  0.825
+  Se  Se5  8  0.16030000  0.50198000  0.71800000  1
+  Se  Se6  4  0.06578000  0.25000000  0.27120000  1
+  Se  Se7  4  0.08426000  0.75000000  0.22910000  1

@@ -1,107 +1,118 @@
-"""
-Utility functions for logging, configuration, and file operations.
-"""
-
 import hashlib
 import logging
 import os
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, Any, Optional
+from typing import Optional, Dict, Any
 
-import yaml
-
-def setup_logging(
-    log_level: int = logging.INFO,
-    log_file: Optional[Path] = None
-) -> logging.Logger:
+def setup_logging(name: str, log_level: Optional[str] = None) -> logging.Logger:
     """
-    Configure logging for the project.
-
-    Args:
-        log_level: Logging level (e.g., logging.INFO, logging.DEBUG).
-        log_file: Optional path to a log file.
-
-    Returns:
-        Configured logger instance.
+    Set up a logger with timestamped, level-based output.
+    Ensures the log level is valid, avoiding the '__main__' string error.
     """
-    logger = logging.getLogger("llmXive")
-    logger.setLevel(log_level)
+    logger = logging.getLogger(name)
+    
+    # Handle log level
+    if log_level is None:
+        log_level = os.getenv("LOG_LEVEL", "INFO")
+    
+    # Ensure log_level is a valid integer or standard string
+    if isinstance(log_level, str):
+        upper_level = log_level.upper()
+        if upper_level == '__MAIN__':
+            # Fallback if __name__ was passed as '__main__' incorrectly
+            logger.setLevel(logging.INFO)
+        elif upper_level in ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]:
+            logger.setLevel(upper_level)
+        else:
+            try:
+                logger.setLevel(int(log_level))
+            except ValueError:
+                logger.setLevel(logging.INFO) # Default fallback
+    else:
+        logger.setLevel(log_level)
 
-    # Clear existing handlers to avoid duplicates
-    logger.handlers.clear()
-
-    # Console handler
-    console_handler = logging.StreamHandler(sys.stdout)
-    console_handler.setLevel(log_level)
-    console_formatter = logging.Formatter(
-        '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
-    console_handler.setFormatter(console_formatter)
-    logger.addHandler(console_handler)
-
-    # File handler (if specified)
-    if log_file:
-        log_file.parent.mkdir(parents=True, exist_ok=True)
-        file_handler = logging.FileHandler(log_file)
-        file_handler.setLevel(log_level)
-        file_formatter = logging.Formatter(
-            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    # Avoid adding duplicate handlers if called multiple times
+    if not logger.handlers:
+        handler = logging.StreamHandler(sys.stdout)
+        formatter = logging.Formatter(
+            '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+            datefmt='%Y-%m-%d %H:%M:%S'
         )
-        file_handler.setFormatter(file_formatter)
-        logger.addHandler(file_handler)
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)
 
     return logger
 
-def load_config(config_path: Optional[Path] = None) -> Dict[str, Any]:
+def load_config(config_path: str = "config.yaml") -> Dict[str, Any]:
     """
-    Load configuration from a YAML file.
-
-    Args:
-        config_path: Path to the config.yaml file. Defaults to 'config.yaml' in project root.
-
-    Returns:
-        Dictionary containing configuration values.
+    Load configuration from a YAML file or environment variables.
+    
+    Priority:
+    1. Environment variables (prefixed with PROJ_045_)
+    2. YAML file (config_path)
+    
+    Returns a merged dictionary where env vars override YAML values.
     """
-    if config_path is None:
-        config_path = Path("config.yaml")
+    import yaml
+    
+    config: Dict[str, Any] = {}
+    
+    # 1. Try to load from YAML file
+    path = Path(config_path)
+    if path.exists():
+        try:
+            with open(path, 'r') as f:
+                yaml_config = yaml.safe_load(f)
+                if yaml_config:
+                    config.update(yaml_config)
+        except Exception as e:
+            logger = logging.getLogger(__name__)
+            logger.warning(f"Failed to load config from {config_path}: {e}")
+    else:
+        logger = logging.getLogger(__name__)
+        logger.info(f"Config file {config_path} not found. Using environment variables only.")
 
-    if not config_path.exists():
-        logging.warning(f"Config file {config_path} not found. Using defaults.")
-        return {}
+    # 2. Override with Environment Variables
+    # We look for specific keys or a generic prefix strategy if needed.
+    # For this task, we map common keys: DATA_DIR, LOG_LEVEL, API_TIMEOUT
+    env_mappings = {
+        "DATA_DIR": "data_dir",
+        "LOG_LEVEL": "log_level",
+        "API_TIMEOUT": "api_timeout",
+        "MAX_RETRIES": "max_retries",
+        "USE_GPU": "use_gpu",
+        "OBELIX_API_URL": "obelix_api_url",
+        "MP_API_KEY": "mp_api_key"
+    }
+    
+    for env_key, config_key in env_mappings.items():
+        env_val = os.getenv(f"PROJ_045_{env_key}")
+        if env_val is not None:
+            # Attempt to parse as JSON for complex types, otherwise string/int/bool
+            if env_val.lower() in ("true", "false"):
+                config[config_key] = env_val.lower() == "true"
+            elif env_val.isdigit():
+                config[config_key] = int(env_val)
+            else:
+                try:
+                    # Try to parse as JSON if it looks like a list/dict
+                    import json
+                    config[config_key] = json.loads(env_val)
+                except (json.JSONDecodeError, ValueError):
+                    config[config_key] = env_val
+    
+    return config
 
-    with open(config_path, "r") as f:
-        return yaml.safe_load(f) or {}
-
-def compute_file_checksum(file_path: Path, algorithm: str = "sha256") -> str:
-    """
-    Compute the checksum of a file.
-
-    Args:
-        file_path: Path to the file.
-        algorithm: Hash algorithm to use (default: sha256).
-
-    Returns:
-        Hexadecimal checksum string.
-    """
-    hash_func = hashlib.new(algorithm)
+def compute_file_checksum(file_path: str) -> str:
+    """Compute SHA-256 checksum of a file."""
+    sha256_hash = hashlib.sha256()
     with open(file_path, "rb") as f:
-        for chunk in iter(lambda: f.read(4096), b""):
-            hash_func.update(chunk)
-    return hash_func.hexdigest()
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
+    return sha256_hash.hexdigest()
 
-def verify_checksum(file_path: Path, expected_checksum: str, algorithm: str = "sha256") -> bool:
-    """
-    Verify the checksum of a file against an expected value.
-
-    Args:
-        file_path: Path to the file.
-        expected_checksum: Expected checksum string.
-        algorithm: Hash algorithm to use.
-
-    Returns:
-        True if checksum matches, False otherwise.
-    """
-    actual_checksum = compute_file_checksum(file_path, algorithm)
-    return actual_checksum == expected_checksum
+def verify_checksum(file_path: str, expected_checksum: str) -> bool:
+    """Verify a file's checksum against an expected value."""
+    return compute_file_checksum(file_path) == expected_checksum
