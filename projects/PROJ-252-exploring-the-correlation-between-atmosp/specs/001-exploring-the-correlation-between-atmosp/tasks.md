@@ -74,7 +74,7 @@
 
 **Goal**: Download verified test pressure data and USGS earthquake catalog, align them spatially/temporally, and produce a clean analysis-ready dataset.
 
-**Independent Test**: The script MUST exit with code 0. The output CSV row count MUST match the expected count of earthquakes in the 2018 Alaska subset (N=12) within a 1% tolerance. [UNRESOLVED-CLAIM: c_7aad7bfe — status=not_enough_info] The output MUST contain a validation report confirming all required fields are present. [UNRESOLVED-CLAIM: c_0862833e — status=not_enough_info] **New**: The script MUST also verify that the global NOAA NCEP/NCAR download is explicitly blocked and log this state, referencing the deviation record in `docs/deviations.md`.
+**Independent Test**: The script MUST exit with code 0. The output CSV row count MUST match the expected count of earthquakes in the 2018 Alaska subset (N=12) within a 1% tolerance. [UNRESOLVED-CLAIM: c_7aad7bfe — status=not_enough_info] The output MUST contain a validation report confirming all required fields are present. **New**: The script MUST also verify that the global NOAA NCEP/NCAR download is explicitly blocked and log this state, referencing the deviation record in `docs/deviations.md`.
 
 ### Tests for User Story 1 (MANDATORY) ⚠️
 
@@ -85,7 +85,7 @@
 
 ### Implementation for User Story 1
 
-- [X] T011a [US1] Implement `code/download.py` to fetch **verified test pressure data** and **USGS 2018 Alaska subset** (M≥4.0, depth≤70km) from `https://earthquake.usgs.gov/fdsnws/event/1/query`. **Explicitly check for absence of global NOAA NCEP/NCAR source (FR-001)**, confirm that the global 2013-2023 download is blocked, reference the deviation record ID **DEV-001** in `docs/deviations.md` (T011b), and log this state. **Do NOT attempt to fetch global data**. Process only the 2018 Alaska subset (N=12) as test data. [UNRESOLVED-CLAIM: c_f1c776dc — status=not_enough_info] This implements the **Pilot Scope** of FR-001. **(Dependency: T011b)**
+- [X] T011a [US1] Implement `code/download.py` to fetch **verified test pressure data** and **USGS 2018 Alaska subset** (M≥4.0, depth≤70km) from `https://earthquake.usgs.gov/fdsnws/event/1/query`. **Explicitly check for absence of global NOAA NCEP/NCAR source (FR-001)**, confirm that the global 2013-2023 download is blocked, reference the deviation record ID **DEV-001** in `docs/deviations.md` (T011b), and log this state. **Do NOT attempt to fetch global data**. Process only the 2018 Alaska subset (N=12) as test data. [UNRESOLVED-CLAIM: c_4a9e21d3 — status=not_enough_info] This implements the **Pilot Scope** of FR-001. **(Dependency: T011b)**
 - [X] T012 [US1] Implement checksumming and raw data immutability checks in `code/download.py`
 - [X] T013 [US1] Implement `code/preprocess.py` to interpolate a coarse pressure grid to a finer resolution and extract nearest grid points for earthquake epicenters.
 - [ ] T014 [US1] Implement logic in `code/preprocess.py` to calculate daily pressure anomalies using a left-censored moving average. **Configuration**: Read `moving_average_days` from `data/processed/config.yaml` (T011d). **Verification**: Assert `config.MOVING_AVERAGE_DAYS` is a positive integer and matches the value in `config.yaml` to ensure the parameter is applied. Explicitly EXCLUDE the period immediately preceding the event window (t-N to t-0) from the moving average calculation to prevent bias. **(Dependency: T011d)**
@@ -127,7 +127,7 @@
 
 **Goal**: Validate primary findings across magnitude thresholds, geographic regions, and anomaly definition cutoffs to ensure robustness.
 
-**Independent Test**: The robustness module can be tested by executing the stratified analysis loop. The system MUST output separate p-values and effect sizes for each subset. The system MUST vary the cutoff by multiples of the background standard deviation (σ). [UNRESOLVED-CLAIM: c_5d805201 — status=not_enough_info]
+**Independent Test**: The robustness module can be tested by executing the stratified analysis loop. The system MUST output separate p-values and effect sizes for each subset. The system MUST vary the cutoff by multiples of the background standard deviation (σ).
 
 ### Tests for User Story 3 (MANDATORY) ⚠️
 
@@ -151,7 +151,7 @@
 **Purpose**: Improvements that affect multiple user stories. **Dependencies**: T033, T034, T035 depend on T032 completion.
 
 - [X] T033 [P] Documentation updates in `README.md`, `docs/quickstart.md`, and `docs/` regarding pilot limitations and deviation records
-- [ ] T034 Code cleanup and refactoring for memory efficiency on CPU-only runners. **Metric**: Peak RAM usage must be < 6GB. [UNRESOLVED-CLAIM: c_845a00af — status=not_enough_info] **Verification**: Run `python -m memory_profiler code/main.py` using the **full test dataset** as input and assert peak memory < 6GB in output log. **(Dependency: T032, T037b)**
+- [ ] T034 Code cleanup and refactoring for memory efficiency on CPU-only runners. **Metric**: Peak RAM usage must be < 6GB. **Verification**: Run `python -m memory_profiler code/main.py` using the **full test dataset** as input and assert peak memory < 6GB in output log. **(Dependency: T032, T037b)**
 - [ ] T035 Run quickstart.md validation to ensure full pipeline execution on the test dataset within a reasonable timeframe. (as defined in plan.md), and document that global dataset feasibility remains unverified per plan.md. **Command**: `timeout python code/main.py`. **Artifact**: Log file `logs/quickstart_validation.log` must contain "Pipeline completed successfully within 6 hours". **(Dependency: T032, T037b)**
 - [X] T036 [P] Additional unit tests for ocean masking and missing data exclusion logic in `tests/unit/`
 - [ ] T037b [P] Implement `code/main.py` as the deterministic entry point for the full pipeline, orchestrating download, preprocess, analysis, and report generation. **(Dependency: T011a, T014, T016, T021, T023, T024, T025, T028, T029, T030, T037a)**

@@ -1,0 +1,30 @@
+# Pre-commit configuration for automated linting and formatting
+# Install with: pip install pre-commit && pre-commit install
+# Run manually: pre-commit run --all-files
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.4.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-added-large-files
+        args: ['--maxkb=1024'] # Prevent committing large files
+
+  - repo: https://github.com/psf/black
+    rev: 23.3.0
+    hooks:
+      - id: black
+        language_version: python3.9
+        args: [--config=code/pyproject.toml]
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.0.285
+    hooks:
+      - id: ruff
+        args: [--config=code/.ruff.toml, --fix]
+      - id: ruff-format
+        # Uses black configuration if not specified, but ruff can format too
+        # We prefer black for formatting consistency, so this is optional
+        # args: [--config=code/.ruff.toml]

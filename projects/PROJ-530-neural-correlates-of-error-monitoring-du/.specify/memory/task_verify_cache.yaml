@@ -1,0 +1,43 @@
+T002:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence was provided that the two required directories (`.../data/raw/`\
+    \ and `.../data/processed/`) actually exist or contain any files; the implementer\u2019\
+    s claim is unsubstantiated. The task remains incomplete until the directories\
+    \ are created and verified."
+T012:
+  c: false
+  h: 445d2d266366dbcfe10c27c27beb55ef840d2ffeec5ddcf75ea31e3a616e736d
+  r: The repository contains a `code/preprocess.py` file, but the shown portion ends
+    before the `run_ica` implementation is completed, and there is no `data/preprocessing.yaml`
+    file to log removed components. Both required artifacts (full ICA removal logic
+    and the YAML log) are missing, so the task is not genuinely fulfilled.
+T018:
+  c: false
+  h: 0288f90f1dd7ce2f46ccfd43b67642067ba350c75b3ed02cde96ba91a29a36ff
+  r: The `results/diagnostics/feasibility_report.json` file does not exist, and the
+    provided `code/analysis.py` excerpt shows no logic for saving a model summary
+    to `results/models/` or for recording runtime/memory metrics and raising `FeasibilityError`
+    when limits are exceeded. The required artifacts and behavior are missing.
+T021:
+  c: false
+  h: 06d73eb9c860469102ef318df7e9596ffd7f209b38d380ae02cdca64b1bca51c
+  r: "The repository contains the integration test file, but the required output artifacts\
+    \ are absent: `data/preprocessing.yaml` does not exist, and there is no evidence\
+    \ that `data/processed/` contains any epoch files (the test would skip or fail\
+    \ otherwise). The task\u2019s verification conditions are therefore not met."
+T025:
+  c: false
+  h: 423240b3061c05b29b4fd9357632263722b21b64e45840b6efa174e05c459dcc
+  r: The `results/diagnostics/sensitivity_summary.csv` file does not exist, and the
+    provided `code/analysis.py` excerpt shows no implementation that writes sensitivity
+    results to that path (the file is truncated before any such logic). Consequently,
+    the required artifact is missing and the task is not fulfilled.
+T027:
+  c: false
+  h: 9f56ed895f94bd3a796d63829be8759c3cbe0b25c1dd22a55ec97bd250f1be82
+  r: The integration test expects `results/diagnostics/sensitivity_summary.csv` to
+    exist and contain four rows with the required columns, but the file is missing
+    from the repository (and the test code appears truncated). Without this output
+    file, the test cannot verify the required format, so the task is not genuinely
+    completed.

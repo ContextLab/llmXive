@@ -1,46 +1,68 @@
 """
-Script to initialize the project directory structure for the LLM Carbon Footprint study.
-Creates the necessary folders for code, data (raw, processed, outputs), tests, and output.
+Project Structure Initialization Script.
+
+This module creates the necessary directory structure for the llmXive
+carbon footprint research project. It ensures that all required folders
+exist at the project root level.
 """
+
 import os
 import sys
+from pathlib import Path
 
-# Define the directory structure relative to the project root
-DIRS = [
-    "code",
-    "data/raw",
-    "data/processed",
-    "data/outputs",
-    "tests",
-    "tests/unit",
-    "tests/contract",
-    "output",
-    "figures",
-    "specs",
-]
 
-def main():
-    base_dir = os.getcwd()
+def create_directory_structure(root_path: Path) -> None:
+    """
+    Create the required directory structure for the project.
+
+    Args:
+        root_path: The root directory where the structure should be created.
+    """
+    required_dirs = [
+        "code",
+        "data/raw",
+        "data/processed",
+        "data/outputs",
+        "tests",
+        "output",
+    ]
+
     created_count = 0
-    existing_count = 0
+    for dir_name in required_dirs:
+        full_path = root_path / dir_name
+        if not full_path.exists():
+            full_path.mkdir(parents=True, exist_ok=True)
+            print(f"Created directory: {full_path}")
+            created_count += 1
+        else:
+            print(f"Directory already exists: {full_path}")
 
-    print(f"Initializing project structure in: {base_dir}")
+    if created_count > 0:
+        print(f"Successfully created {created_count} new directories.")
+    else:
+        print("All required directories already exist.")
 
-    for dir_path in DIRS:
-        full_path = os.path.join(base_dir, dir_path)
-        try:
-            if not os.path.exists(full_path):
-                os.makedirs(full_path)
-                print(f"  Created: {dir_path}")
-                created_count += 1
-            else:
-                print(f"  Exists:  {dir_path}")
-                existing_count += 1
-        except OSError as e:
-            print(f"  Error creating {dir_path}: {e}")
-            sys.exit(1)
 
-    print(f"\nSetup complete. Created {created_count} directories, skipped {existing_count}.")
+def main() -> int:
+    """
+    Main entry point for the project structure setup.
+
+    Returns:
+        0 on success, 1 on failure.
+    """
+    # Determine project root (assumed to be the directory containing this script's parent)
+    # Or explicitly use the current working directory if run as a script
+    root = Path.cwd()
+
+    print(f"Initializing project structure in: {root}")
+
+    try:
+        create_directory_structure(root)
+        return 0
+    except Exception as e:
+        print(f"Error creating directory structure: {e}", file=sys.stderr)
+        return 1
+
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

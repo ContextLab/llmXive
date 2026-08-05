@@ -1,7 +1,8 @@
-? 'T002 [P] Create data directories: `projects/PROJ-530-neural-correlates-of-error-monitoring-du/data/raw/`,
-  `projects/PROJ-530-neural-correlates-of-error-monitoring-du/data/processed/`'
-: 2
-? 'T002 [P] Create data directories: `projects/PROJ-530-neural-correlates-of-error-monitoring-du/data/raw/`,
-  `projects/PROJ-530-neural-correlates-of-error-monitoring-du/data/processed/` <!--
-  ATOMIZE: requested -->'
-: 1
+T002: 1
+T009: 1
+T010: 1
+T012: 1
+T018: 1
+T021: 1
+T025: 1
+T027: 1

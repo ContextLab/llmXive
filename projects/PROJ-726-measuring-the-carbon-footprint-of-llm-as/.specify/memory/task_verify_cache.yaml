@@ -1,0 +1,45 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory structure was presented in the evidence; the response contains only
+    the feature specification and no listing or screenshots of the required `code/`,
+    `data/raw/`, `data/processed/`, `data/outputs/`, `tests/`, or `output/` folders.
+    The implementer must provide proof that these directories exist in the repository
+    root.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No configuration files (e.g., `pyproject.toml` with Black settings, `.ruff.toml`
+    or `ruff.toml`, or CI workflow steps invoking ruff/black) or any other artifact
+    demonstrating that linting and formatting tools have been set up are present.
+    Without such files or scripts, the requirement to configure ruff and black is
+    not satisfied. The next implementer should add the appropriate configuration files
+    and ensure they are integrated into the project's workflow.
+T004:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `download_data.py` file or its contents were provided; without the script\
+    \ fetching the CodeXGLUE Python code\u2011generation subset via the HuggingFace\
+    \ `datasets` library, the task requirement is unmet. The implementer must add\
+    \ the script with functional code that downloads the specified dataset."
+T005:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a modified `download_data.py` is provided; the claim that fallback
+    logic now avoids switching to HumanEval/MBPP, proceeds with a reduced sample size,
+    logs the reason, or raises a clear error is unsupported. The required code changes
+    and logging statements are missing.
+T008:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `download_data.py` file containing checksum validation was provided;
+    the claim lacks any artifact (code, tests, or documentation) demonstrating that
+    the checksum validation was implemented. The required implementation is therefore
+    missing.
+T011:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `run_inference.py` script is present, nor any JSON result containing the\
+    \ generated code string. The required artifact (a CPU\u2011only inference script\
+    \ loading GPT\u20112\u2011medium and emitting the code string for LOC counting)\
+    \ is missing entirely."

@@ -81,7 +81,7 @@
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
 - [X] T009 [P] [US1] Contract test for feature matrix schema in `tests/contract/test_feature_matrix_schema.py`
-- [~] T010 [P] [US1] Unit test for isolate filtering logic in `tests/unit/test_ingest.py` <!-- SKIPPED: YAML+regex parse failed (while scanning a simple key
+- [ ] T010 [P] [US1] Unit test for isolate filtering logic in `tests/unit/test_ingest.py` <!-- SKIPPED: YAML+regex parse failed (while scanning a simple key
  in "<unicode string>", line 3, column 1:
  1. **Basic filtering** - Verifie...
  ^
@@ -95,12 +95,12 @@ could not find expected ':'
 - [X] T011 [US1] Implement `code/01_ingest/download_ncbi.py` to fetch FASTA sequences for specified BioProjects (e.g., PRJNA[Accession Number]) using NCBI E-utilities, enforcing the `MAX_ISOLATES` limit (A large-scale dataset for specification, with a subset reserved for continuous integration.)
 - [X] T012 [US1] Implement `code/01_ingest/ingest_metadata.py` to parse susceptibility metadata, handle missing values, and log exclusion counts (Edge Case: missing metadata)
 - [X] T013 [US1] Implement `code/01_ingest/download_card.py` to fetch resistance gene reference data
-- [ ] T014 [US1] Implement `code/02_process/run_snippy.sh` wrapper to align sequences and call SNPs (CPU-limited, multiple threads) <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
+- [ ] T014 [US1] Implement `code/02_process/run_snippy.sh` wrapper to align sequences and call SNPs (CPU-limited, multiple threads) <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified -->
 - [X] T015 [US1] Implement `code/02_process/run_ariba.sh` wrapper to identify resistance genes
 - [X] T016 [US1] Implement `code/02_process/build_feature_matrix.py` to aggregate SNPs, resistance gene presence, and **extract copy number variations (CNVs)** into a single CSV (Binary gene columns, Numeric SNP counts, Numeric CNV counts)
-- [~] T017 [US1] Implement logic in `build_feature_matrix.py` to handle Edge Case: antibiotic classes with <50 isolates (exclude and log warning)
-- [~] T018 [US1] Implement logic in `build_feature_matrix.py` to handle Edge Case: ALL classes have <50 isolates -> Abort execution with Error E004 and log message
-- [~] T020 [US1] Add validation in `build_feature_matrix.py` to ensure no missing values in `resistance_phenotype` and row count matches isolate count
+- [ ] T017 [US1] Implement logic in `build_feature_matrix.py` to handle Edge Case: antibiotic classes with <50 isolates (exclude and log warning)
+- [ ] T018 [US1] Implement logic in `build_feature_matrix.py` to handle Edge Case: ALL classes have <50 isolates -> Abort execution with Error E004 and log message
+- [ ] T020 [US1] Add validation in `build_feature_matrix.py` to ensure no missing values in `resistance_phenotype` and row count matches isolate count
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently (including T019 tree generation)
 
@@ -115,14 +115,14 @@ could not find expected ':'
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
 - [X] T021 [P] [US2] Contract test for model output schema in `tests/contract/test_model_output_schema.py`
-- [~] T022 [P] [US2] Integration test for mechanism-blind filtering in `tests/integration/test_mechanism_blind.py`
+- [ ] T022 [P] [US2] Integration test for mechanism-blind filtering in `tests/integration/test_mechanism_blind.py`
 
 ### Implementation for User Story 2
 
 - [X] T023a [US2] Implement `code/03_model/mechanism_blind_filter.py` to exclude known resistance genes for the target antibiotic class from the feature set (FR-008) using **CARD database categories** to map target class to genes
 - [X] T023b [US2] Implement `code/03_model/split_data.py` to perform the **initial stratified split** of data into training, validation, and test sets as required by FR-003
 - [X] T023c [US2] Implement `code/03_model/train_models.py` to train separate Logistic Regression (L1-regularized) and Random Forest models per antibiotic class (FR-009) using **Phylogenetically-Blocked CV** (split by clade ID from T019 tree) and consuming input from T023a (mechanism-blind filtered features)
-- [~] T024 [US2] Implement stratified cross-validation within `train_models.py` ensuring no data leakage (Strictly use Phylogenetically-Blocked CV logic as per plan)
+- [ ] T024 [US2] Implement stratified cross-validation within `train_models.py` ensuring no data leakage (Strictly use Phylogenetically-Blocked CV logic as per plan)
 - [X] T025 [US2] Implement `code/03_model/evaluate.py` to calculate AUC-ROC, precision-recall curves, and confusion matrices on the held-out test set
 - [~] T026 [US2] Implement logic in `evaluate.py` to rank and export top genomic features (excluding target gene) to a summary table
 - [~] T027 [US2] Save trained model weights and evaluation metrics to `data/models/` with version hashes
@@ -146,9 +146,9 @@ could not find expected ':'
 
 - [X] T030 [US3] Implement `code/validate/phylo_permutation.py` to perform phylogenetically-aware permutation testing. (PGLS residual permutation) respecting clonal lineages using the tree from T019
 - [ ] T031 [US3] Implement logic in `phylo_permutation.py` to calculate p-value, **write p-value and significance flag to `data/processed/permutation_results.json`**, and **flag result as 'not significant' if p >= 0.05 without crashing the pipeline**
-- [ ] T032 [US3] Implement `code/04_validate/sensitivity_analysis.py` to sweep classification thresholds across a range of values
-- [ ] T033 [US3] Report false-positive and false-negative rate variations across thresholds in `sensitivity_analysis.py`
-- [ ] T034 [US3] Implement `code/05_viz/generate_plots.py` to generate ROC curves, precision-recall curves, and feature importance bar plots using matplotlib/seaborn (FR-007)
+- [X] T032 [US3] Implement `code/04_validate/sensitivity_analysis.py` to sweep classification thresholds across a range of values
+- [~] T033 [US3] Report false-positive and false-negative rate variations across thresholds in `sensitivity_analysis.py`
+- [X] T034 [US3] Implement `code/05_viz/generate_plots.py` to generate ROC curves, precision-recall curves, and feature importance bar plots using matplotlib/seaborn (FR-007)
 - [ ] T035 [US3] Implement `code/main_reproducible.py` to re-execute the **full pipeline** (ingestion → processing → modeling → validation) from raw data to final figures, **verify W003 warning log and confirm feature set excludes plasmid features if data missing**, and verify checksums match, ensuring 'Single Source of Truth'
 
 **Checkpoint**: All user stories should now be independently functional
@@ -159,9 +159,9 @@ could not find expected ':'
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T036 [P] Documentation updates in `docs/` (README, quickstart)
-- [ ] T037 Code cleanup and refactoring for CPU efficiency (batch processing)
-- [ ] T038 Performance optimization: Ensure N=1000 isolate limit is strictly enforced in CI to meet -hour constraint while supporting N=5000 spec target
+- [~] T036 [P] Documentation updates in `docs/` (README, quickstart)
+- [~] T037 Code cleanup and refactoring for CPU efficiency (batch processing)
+- [~] T038 Performance optimization: Ensure N=1000 isolate limit is strictly enforced in CI to meet -hour constraint while supporting N=5000 spec target
 - [ ] T039 [P] Run `pytest` full suite and verify all contract tests pass
 - [ ] T040 Run `hash_artifacts.py` to finalize `state/` and mark research complete
 

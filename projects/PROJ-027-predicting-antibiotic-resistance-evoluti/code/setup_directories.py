@@ -1,74 +1,84 @@
 """
-Directory Setup for llmXive Project PROJ-027
-Creates the standard pipeline directory structure and verifies existence.
+Setup script to create the core project directory structure.
+Creates utils, tests, and data directories as specified in T001b.
 """
 import os
 import sys
 from pathlib import Path
+from utils.logging import get_logger
 
 # Define the directories to create relative to the project root
-DIRECTORIES = [
-    "code/01_ingest",
-    "code/02_process",
-    "code/03_model",
-    "code/04_validate",
-    "code/05_viz",
+DIRECTORIES_TO_CREATE = [
+    "code/utils",
+    "tests",
+    "data/raw",
+    "data/processed",
+    "data/models",
 ]
 
-def create_directories(base_path: Path) -> int:
+def create_directories(base_path: Path, dirs: list) -> None:
     """
-    Create the required directories if they do not exist.
-    Returns the number of directories created.
+    Create a list of directories under the base path.
+    Raises an error if creation fails.
     """
+    logger = get_logger(__name__)
     created_count = 0
-    for dir_name in DIRECTORIES:
-        target_dir = base_path / dir_name
-        if not target_dir.exists():
-            target_dir.mkdir(parents=True, exist_ok=True)
-            created_count += 1
-    return created_count
+    for dir_name in dirs:
+        target_path = base_path / dir_name
+        if not target_path.exists():
+            try:
+                target_path.mkdir(parents=True, exist_ok=True)
+                logger.info(f"Created directory: {target_path}")
+                created_count += 1
+            except OSError as e:
+                logger.error(f"Failed to create directory {target_path}: {e}")
+                raise
+        else:
+            logger.debug(f"Directory already exists: {target_path}")
+    
+    logger.info(f"Directory creation complete. Created {created_count} new directories.")
 
-def verify_directories(base_path: Path) -> bool:
+def verify_directories(base_path: Path, dirs: list) -> bool:
     """
     Verify that all required directories exist.
-    Prints verification status to stdout.
+    Returns True if all exist, False otherwise.
     """
+    logger = get_logger(__name__)
     all_exist = True
-    missing = []
-    for dir_name in DIRECTORIES:
-        target_dir = base_path / dir_name
-        if target_dir.exists():
-            print(f"✓ Directory exists: {dir_name}")
-        else:
-            print(f"✗ Directory missing: {dir_name}")
+    for dir_name in dirs:
+        target_path = base_path / dir_name
+        if not target_path.is_dir():
+            logger.error(f"Verification failed: Directory missing - {target_path}")
             all_exist = False
-            missing.append(dir_name)
+        else:
+            logger.debug(f"Verified: {target_path}")
     
-    if not all_exist:
-        print(f"\nError: {len(missing)} directories are missing.")
-        return False
+    if all_exist:
+        logger.info("All required directories verified successfully.")
+    else:
+        logger.error("Directory verification failed. Some directories are missing.")
     
-    print(f"\nSuccess: All {len(DIRECTORIES)} directories verified.")
-    return True
+    return all_exist
 
 def main():
-    """Main entry point for directory setup."""
-    # Determine project root (parent of 'code' directory)
-    current_file = Path(__file__).resolve()
-    code_dir = current_file.parent
-    project_root = code_dir.parent
-
-    print(f"Project Root: {project_root}")
-    print(f"Creating directories under: {project_root}")
-
-    created = create_directories(project_root)
-    if created > 0:
-        print(f"Created {created} new directories.")
+    logger = get_logger(__name__)
+    logger.info("Starting directory setup (T001b)...")
     
-    is_valid = verify_directories(project_root)
+    # Determine project root (assumed to be the parent of 'code')
+    # If running from code/setup_directories.py, project root is parent of this file
+    script_path = Path(__file__).resolve()
+    project_root = script_path.parent.parent
     
-    if not is_valid:
-        sys.exit(1)
+    logger.info(f"Project root detected at: {project_root}")
+    
+    create_directories(project_root, DIRECTORIES_TO_CREATE)
+    
+    if verify_directories(project_root, DIRECTORIES_TO_CREATE):
+        logger.info("Task T001b completed successfully.")
+        return 0
+    else:
+        logger.error("Task T001b failed verification.")
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

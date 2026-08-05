@@ -1,35 +1,26 @@
-"""
-Setup script to configure linting (ruff) and formatting (black) tools.
-This script ensures the necessary configuration files exist in the project root
-and provides a CLI entry point to run formatting and linting checks.
-"""
-
 import os
 import subprocess
 import sys
 from pathlib import Path
 
-
-def write_config_file(filepath: str, content: str) -> None:
-    """Write configuration content to a file."""
-    path = Path(filepath)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with open(path, "w", encoding="utf-8") as f:
+def write_config_file(project_root: Path, filename: str, content: str) -> None:
+    """Writes a configuration file to the project root."""
+    filepath = project_root / filename
+    with open(filepath, 'w', encoding='utf-8') as f:
         f.write(content)
-    print(f"Created: {filepath}")
+    print(f"Created {filepath}")
 
-
-def setup_ruff_config() -> None:
-    """Create .ruff.toml configuration."""
+def setup_ruff_config(project_root: Path) -> None:
+    """Creates a .ruff.toml configuration file."""
     content = """[lint]
 select = [
-    "E",   # pycodestyle errors
-    "W",   # pycodestyle warnings
-    "F",   # Pyflakes
-    "I",   # isort
-    "B",   # flake8-bugbear
-    "C4",  # flake8-comprehensions
-    "UP",  # pyupgrade
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # Pyflakes
+    "I",  # isort
+    "B",  # flake8-bugbear
+    "C4", # flake8-comprehensions
+    "UP", # pyupgrade
 ]
 ignore = [
     "E501", # line too long (handled by black)
@@ -38,104 +29,106 @@ ignore = [
 
 [lint.isort]
 known-first-party = ["code"]
-force-sort-within-sections = true
 
 [format]
-line-length = 88
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
 """
-    write_config_file(".ruff.toml", content)
+    write_config_file(project_root, ".ruff.toml", content)
 
+def setup_black_config(project_root: Path) -> None:
+    """Creates a pyproject.toml section for Black configuration if not present,
+    or appends the section."""
+    pyproject_path = project_root / "pyproject.toml"
+    
+    # Read existing content if file exists
+    existing_content = ""
+    if pyproject_path.exists():
+        with open(pyproject_path, 'r', encoding='utf-8') as f:
+            existing_content = f.read()
 
-def setup_black_config() -> None:
-    """Create .black.toml configuration."""
-    content = """[tool.black]
+    # Check if [tool.black] already exists
+    if "[tool.black]" not in existing_content:
+        black_section = """
+[tool.black]
 line-length = 88
 target-version = ['py311']
 include = '\\.pyi?$'
-exclude = '''
-/(
-    \\.git
-    | \\.hg
-    | \\.mypy_cache
-    | \\.tox
-    | \\.venv
-    | _build
-    | buck-out
-    | build
-    | dist
-)/
-'''
 """
-    write_config_file(".black.toml", content)
+        with open(pyproject_path, 'a', encoding='utf-8') as f:
+            f.write(black_section)
+        print(f"Added [tool.black] section to {pyproject_path}")
+    else:
+        print(f"[tool.black] section already exists in {pyproject_path}")
 
+def run_format(project_root: Path) -> int:
+    """Runs black formatter on the code directory."""
+    code_dir = project_root / "code"
+    if not code_dir.exists():
+        print(f"Error: {code_dir} does not exist.")
+        return 1
 
-def run_format() -> None:
-    """Run black formatter on the codebase."""
     try:
         result = subprocess.run(
-            ["black", "."],
-            check=True,
+            [sys.executable, "-m", "black", str(code_dir)],
             capture_output=True,
             text=True,
-            cwd=Path(__file__).parent,
+            check=True
         )
         print(result.stdout)
-        print("Formatting completed successfully.")
+        return 0
     except subprocess.CalledProcessError as e:
-        print(f"Formatting failed:\n{e.stderr}")
-        sys.exit(1)
+        print(f"Black formatting failed:\n{e.stderr}")
+        return 1
     except FileNotFoundError:
-        print("Error: 'black' not found. Please install it via: pip install black")
-        sys.exit(1)
+        print("Error: 'black' is not installed. Please run 'pip install black'.")
+        return 1
 
+def run_lint(project_root: Path) -> int:
+    """Runs ruff linter on the code directory."""
+    code_dir = project_root / "code"
+    if not code_dir.exists():
+        print(f"Error: {code_dir} does not exist.")
+        return 1
 
-def run_lint() -> None:
-    """Run ruff linter on the codebase."""
     try:
         result = subprocess.run(
-            ["ruff", "check", "."],
-            check=True,
+            [sys.executable, "-m", "ruff", "check", str(code_dir)],
             capture_output=True,
             text=True,
-            cwd=Path(__file__).parent,
+            check=True
         )
         print(result.stdout)
-        print("Linting completed successfully (no issues found).")
+        return 0
     except subprocess.CalledProcessError as e:
-        print(f"Linting found issues:\n{e.stdout}")
-        # Exit with 0 for linting issues to allow CI to handle it, 
-        # but for this script we might want to fail. 
-        # Following standard CI practice: fail on lint errors.
-        sys.exit(1)
+        print(f"Ruff linting found issues:\n{e.stdout}")
+        return 1
     except FileNotFoundError:
-        print("Error: 'ruff' not found. Please install it via: pip install ruff")
-        sys.exit(1)
-
+        print("Error: 'ruff' is not installed. Please run 'pip install ruff'.")
+        return 1
 
 def main() -> None:
-    """Main entry point for the setup script."""
-    if len(sys.argv) < 2:
-        print("Usage: python setup_linting.py [format|lint|check]")
-        print("  format: Run black formatter")
-        print("  lint:   Run ruff linter")
-        print("  check:  Run both (format then lint)")
+    """Main entry point to configure and run linting/formatting."""
+    project_root = Path(__file__).resolve().parent.parent
+    
+    print("Configuring linting (ruff) and formatting (black)...")
+    setup_ruff_config(project_root)
+    setup_black_config(project_root)
+    
+    print("\n--- Running Formatter (Black) ---")
+    format_exit_code = run_format(project_root)
+    
+    print("\n--- Running Linter (Ruff) ---")
+    lint_exit_code = run_lint(project_root)
+
+    if format_exit_code != 0 or lint_exit_code != 0:
+        print("\nConfiguration complete, but formatting or linting found issues.")
         sys.exit(1)
-
-    command = sys.argv[1].lower()
-
-    if command == "format":
-        run_format()
-    elif command == "lint":
-        run_lint()
-    elif command == "check":
-        print("Running formatter...")
-        run_format()
-        print("Running linter...")
-        run_lint()
     else:
-        print(f"Unknown command: {command}")
-        sys.exit(1)
-
+        print("\nAll checks passed successfully.")
+        sys.exit(0)
 
 if __name__ == "__main__":
     main()

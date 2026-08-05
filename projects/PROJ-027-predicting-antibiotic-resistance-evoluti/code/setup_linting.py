@@ -1,55 +1,57 @@
-"""
-Setup script to configure linting (ruff) and formatting (black) tools.
-This script installs the tools (if not present) and generates configuration files.
-"""
 import os
 import subprocess
 import sys
 from pathlib import Path
 
-def run_command(cmd, description):
-    """Run a shell command and print status."""
+# Ensure the code directory exists before writing configs
+CODE_ROOT = Path(__file__).resolve().parent
+PROJECT_ROOT = CODE_ROOT.parent
+
+def run_command(cmd: list, description: str) -> bool:
+    """Run a shell command and return True if successful."""
     print(f"Running: {description}")
-    print(f"Command: {' '.join(cmd)}")
     try:
-        subprocess.run(cmd, check=True)
-        print(f"✓ {description} completed successfully.\n")
+        result = subprocess.run(
+            cmd,
+            cwd=PROJECT_ROOT,
+            check=True,
+            capture_output=True,
+            text=True
+        )
+        if result.stdout:
+            print(result.stdout)
+        if result.stderr:
+            print(result.stderr, file=sys.stderr)
         return True
     except subprocess.CalledProcessError as e:
-        print(f"✗ {description} failed with error: {e}\n")
+        print(f"Error running {description}: {e}")
+        if e.stdout:
+            print(e.stdout)
+        if e.stderr:
+            print(e.stderr, file=sys.stderr)
         return False
 
-def check_config_files(project_root):
-    """Verify that configuration files exist."""
-    config_files = [
-        project_root / "pyproject.toml",
-        project_root / ".ruff.toml",
-    ]
-    missing = [f for f in config_files if not f.exists()]
-    if missing:
-        print(f"Warning: Missing configuration files: {missing}")
+def check_config_files() -> bool:
+    """Verify that configuration files exist after creation."""
+    ruff_config = PROJECT_ROOT / "ruff.toml"
+    black_config = PROJECT_ROOT / "pyproject.toml"
+    
+    if not ruff_config.exists():
+        print("Error: ruff.toml not created")
         return False
-    print("✓ All configuration files present.")
+    if not black_config.exists():
+        print("Error: pyproject.toml (for black) not created")
+        return False
     return True
 
-def create_ruff_config(project_root):
-    """Create .ruff.toml configuration file."""
-    config_path = project_root / ".ruff.toml"
-    if config_path.exists():
-        print(f"File {config_path} already exists. Skipping creation.")
-        return True
-
-    content = """
-# Ruff configuration for llmXive project
-
-target-version = "py311"
-line-length = 88
-
+def create_ruff_config() -> bool:
+    """Create a ruff.toml configuration file."""
+    config_content = """# Ruff configuration for llmXive project
 [lint]
 select = [
     "E",  # pycodestyle errors
     "W",  # pycodestyle warnings
-    "F",  # Pyflakes
+    "F",  # pyflakes
     "I",  # isort
     "B",  # flake8-bugbear
     "C4", # flake8-comprehensions
@@ -57,103 +59,116 @@ select = [
 ]
 ignore = [
     "E501", # line-too-long (handled by black)
-    "B008", # do-not-perform-function-calls-in-argument-defaults (often needed for config)
+    "B008", # do-not-perform-argument-default-lookup-in-function-definition
 ]
-
-[lint.per-file-ignores]
-"__init__.py" = ["F401"]
 
 [lint.isort]
 known-first-party = ["utils", "01_ingest", "02_process", "03_model", "04_validate", "05_viz"]
+section-order = ["future", "standard-library", "third-party", "first-party", "local-folder"]
+
+[format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
 """
-    with open(config_path, "w") as f:
-        f.write(content)
-    print(f"Created {config_path}")
-    return True
+    config_path = PROJECT_ROOT / "ruff.toml"
+    try:
+        with open(config_path, "w", encoding="utf-8") as f:
+            f.write(config_content)
+        print(f"Created: {config_path}")
+        return True
+    except IOError as e:
+        print(f"Failed to create ruff config: {e}")
+        return False
 
-def create_black_config(project_root):
-    """Ensure Black configuration exists in pyproject.toml."""
-    pyproject_path = project_root / "pyproject.toml"
+def create_black_config() -> bool:
+    """Create or update pyproject.toml with Black configuration."""
+    config_path = PROJECT_ROOT / "pyproject.toml"
     
-    if pyproject_path.exists():
-        with open(pyproject_path, "r") as f:
-            content = f.read()
-        if "[tool.black]" in content:
-            print(f"Black config already present in {pyproject_path}")
-            return True
-    else:
-        content = ""
-
     black_section = """
 [tool.black]
 line-length = 88
 target-version = ['py311']
-include = 'code/.*\\.pyi?$'
+include = '\\.pyi?$'
+exclude = '''
+/(
+    \.git
+    | \.mypy_cache
+    | \.pytest_cache
+    | __pycache__
+    | build
+    | dist
+)/
+'''
 """
-    if pyproject_path.exists():
-        with open(pyproject_path, "a") as f:
-            f.write(black_section)
-    else:
-        with open(pyproject_path, "w") as f:
-            f.write(black_section)
-    print(f"Updated {pyproject_path} with Black configuration.")
+    
+    # Check if file exists and has [tool.black]
+    needs_update = True
+    if config_path.exists():
+        with open(config_path, "r", encoding="utf-8") as f:
+            content = f.read()
+            if "[tool.black]" in content:
+                print("pyproject.toml already contains [tool.black], skipping update.")
+                needs_update = False
+            else:
+                # Append to existing file
+                with open(config_path, "a", encoding="utf-8") as f:
+                    f.write(black_section)
+                print(f"Appended Black config to: {config_path}")
+                return True
+    
+    if needs_update:
+        # Create new file with minimal content + black
+        initial_content = """[project]
+name = "llmXive-antibiotic-resistance"
+version = "0.1.0"
+description = "Predicting Antibiotic Resistance Evolution from Genomic Sequences"
+requires-python = ">=3.11"
+"""
+        try:
+            with open(config_path, "w", encoding="utf-8") as f:
+                f.write(initial_content)
+                f.write(black_section)
+            print(f"Created: {config_path} with Black configuration")
+            return True
+        except IOError as e:
+            print(f"Failed to create pyproject.toml: {e}")
+            return False
+    
     return True
 
 def main():
-    """Main entry point for linting setup."""
-    project_root = Path(__file__).resolve().parent.parent
-    print(f"Setting up linting and formatting tools for project at: {project_root}")
-
-    # 1. Ensure tools are installed
-    print("\n--- Step 1: Installing Tools ---")
-    install_success = True
-    if not run_command([sys.executable, "-m", "pip", "install", "-q", "ruff"], "Install ruff"):
-        install_success = False
-    if not run_command([sys.executable, "-m", "pip", "install", "-q", "black"], "Install black"):
-        install_success = False
-
-    if not install_success:
-        print("Failed to install tools. Please install manually: pip install ruff black")
+    """Main entry point for setting up linting and formatting."""
+    print("Setting up linting (Ruff) and formatting (Black)...")
+    
+    # 1. Create Ruff config
+    if not create_ruff_config():
         sys.exit(1)
-
-    # 2. Create configuration files
-    print("\n--- Step 2: Creating Configuration Files ---")
-    create_ruff_config(project_root)
-    create_black_config(project_root)
-
-    # 3. Verify configurations
-    print("\n--- Step 3: Verifying Configurations ---")
-    check_config_files(project_root)
-
-    # 4. Run initial format check (dry run)
-    print("\n--- Step 4: Running Initial Format Check (Check Only) ---")
-    # We run black --check on the code directory to see if it passes
-    code_dir = project_root / "code"
-    if code_dir.exists():
-        if not run_command(
-            [sys.executable, "-m", "black", "--check", "--diff", str(code_dir)],
-            "Black check (no auto-fix)"
-        ):
-            print("Note: Code formatting issues detected. Run 'black code/' to fix.")
-    else:
-        print("Warning: 'code/' directory not found, skipping format check.")
-
-    # 5. Run initial lint check
-    print("\n--- Step 5: Running Initial Lint Check ---")
-    if code_dir.exists():
-        if not run_command(
-            [sys.executable, "-m", "ruff", "check", str(code_dir)],
-            "Ruff check"
-        ):
-            print("Note: Linting issues detected. Run 'ruff check --fix code/' to attempt fixes.")
-    else:
-        print("Warning: 'code/' directory not found, skipping lint check.")
-
-    print("\n--- Setup Complete ---")
-    print("Linting (ruff) and Formatting (black) are configured.")
-    print("To format code:   black code/")
-    print("To lint code:     ruff check code/")
-    print("To fix lint issues: ruff check --fix code/")
+    
+    # 2. Create/Update Black config
+    if not create_black_config():
+        sys.exit(1)
+    
+    # 3. Verify files exist
+    if not check_config_files():
+        sys.exit(1)
+    
+    # 4. Install tools if not present (optional, but good practice)
+    print("\nChecking for ruff and black installation...")
+    tools = ["ruff", "black"]
+    for tool in tools:
+        try:
+            subprocess.run([tool, "--version"], check=True, capture_output=True)
+            print(f"  ✓ {tool} is installed")
+        except (subprocess.CalledProcessError, FileNotFoundError):
+            print(f"  ✗ {tool} not found. Installing...")
+            if not run_command([sys.executable, "-m", "pip", "install", tool], f"Install {tool}"):
+                print(f"Warning: Could not install {tool}. Please install manually.")
+    
+    print("\nLinting and formatting configuration complete.")
+    print("Run 'ruff check .' to lint and 'black .' to format.")
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

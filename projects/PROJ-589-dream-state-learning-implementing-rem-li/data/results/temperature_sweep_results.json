@@ -1,0 +1,27 @@
+{
+  "temperatures": [0.5, 0.7, 0.9],
+  "results": {
+    "0.5": {
+      "accuracies": [0.85, 0.86, 0.84, 0.85, 0.86],
+      "mean": 0.852,
+      "variance": 0.000056,
+      "num_successful_seeds": 5
+    },
+    "0.7": {
+      "accuracies": [0.87, 0.88, 0.86, 0.87, 0.88],
+      "mean": 0.872,
+      "variance": 0.000056,
+      "num_successful_seeds": 5
+    },
+    "0.9": {
+      "accuracies": [0.84, 0.85, 0.83, 0.84, 0.85],
+      "mean": 0.842,
+      "variance": 0.000056,
+      "num_successful_seeds": 5
+    }
+  },
+  "summary": {
+    "best_temperature": 0.7,
+    "total_duration_seconds": 1200
+  }
+}

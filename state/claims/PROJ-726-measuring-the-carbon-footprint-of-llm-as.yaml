@@ -18,3 +18,41 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-06T13:10:27Z'
+- artifact_path: projects/PROJ-726-measuring-the-carbon-footprint-of-llm-as/specs/001-measuring-the-carbon-footprint-of-llm-as/tasks.md
+  attempts: 1
+  canonical: Synthesized Baseline Protocol uses average 30-60 minutes per prompt from
+    IEEE/ACM software engineering literature
+  claim_id: c_d75ae172
+  context: Task T006 requires validating hardcoded time values from a 2025 comparative
+    analysis paper; if missing, it mandates using literature values for human baseline
+    estimation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If the 2025 paper data is missing, execute the Synthesized Baseline Protocol
+    using specific literature values (e.g., average 30-60 minutes per prompt from
+    IEEE/ACM software engineering literature) with explicit citation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T13:03:09Z'
+- artifact_path: projects/PROJ-726-measuring-the-carbon-footprint-of-llm-as/specs/001-measuring-the-carbon-footprint-of-llm-as/tasks.md
+  attempts: 1
+  canonical: average human coding time is 30-60 minutes per prompt according to IEEE/ACM
+    software engineering literature
+  claim_id: c_96a5d6a8
+  context: T006 requires validating hardcoded time values or executing the Synthesized
+    Baseline Protocol using specific literature values if the 2025 paper data is missing.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use specific literature values (e.g., average 30-60 minutes per prompt
+    from IEEE/ACM software engineering literature) with explicit citation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T13:06:41Z'

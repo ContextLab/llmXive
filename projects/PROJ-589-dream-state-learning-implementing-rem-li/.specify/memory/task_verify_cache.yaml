@@ -33,3 +33,18 @@ T025:
     \ across the five seed accuracies. The required artifact (e.g., a function or\
     \ report containing the computed difference and p\u2011value) is missing, so the\
     \ task is not satisfied."
+T037:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The provided evidence contains only the Dream-State Learning feature specification\
+    \ and no code, script, or report that implements \u201Creporting for variance\
+    \ in final accuracy across temperature sweep.\u201D There is no artifact (e.g.,\
+    \ a generated report, logging output, or function) that computes or displays the\
+    \ variance of final accuracies over different temperature settings, so the task\
+    \ requirement is unmet."
+T051:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `docs/` directory or updated `quickstart.md` file was provided; the claim
+    lacks any tangible documentation artifacts, so the required documentation updates
+    are missing.

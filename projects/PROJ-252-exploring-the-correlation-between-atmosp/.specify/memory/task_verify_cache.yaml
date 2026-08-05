@@ -8,28 +8,28 @@ T009:
     so the task is not genuinely fulfilled.
 T014:
   c: false
-  h: 648a44827140a05d3e18e98839bece56a912c43822fe8ae9cbff8110dd3e1752
-  r: "The repository lacks the required `data/processed/config.yaml` (and a top\u2011\
-    level `config.yaml`), so the code cannot read `moving_average_days` nor perform\
-    \ the asserted validation. Moreover, the provided excerpt of `code/preprocess.py`\
-    \ shows only data loading and interpolation functions; there is no visible implementation\
-    \ of a left\u2011censored moving\u2011average anomaly calculation or the exclusion\
-    \ of the t\u2011N to t\u20110 period. The task\u2019s core logic and configuration\
-    \ handling are therefore missing."
+  h: e4117203360505b3af6106a145bd78639b0dbff4df7c46ca63b03a4359362bc6
+  r: "The provided `preprocess.py` is truncated and does not show any implementation\
+    \ of a left\u2011censored moving\u2011average pressure anomaly calculation, nor\
+    \ does it contain the required assertion that `config.MOVING_AVERAGE_DAYS` is\
+    \ a positive integer and matches a top\u2011level `config.yaml`. Moreover, the\
+    \ referenced `config.yaml` file is missing entirely, so the verification step\
+    \ cannot be performed. The task\u2019s core logic and required configuration file\
+    \ are absent."
 T016:
   c: false
-  h: a01a406d85d1d03a0fff0af256873d588ec8ff3cf76ff1cb99d7231e4a683c0b
-  r: "The repository lacks the required output file `data/interim/deduplicated_with_anomalies.csv`,\
-    \ and the shown portion of `code/preprocess.py` does not contain any deduplication\
-    \ implementation (no function that groups by USGS ID and keeps the most recent\
-    \ revision). Consequently the task\u2019s core requirement is not satisfied."
+  h: 16108849caf57c05b2226f25fdf2ccec29937f1b4baf267d4de854e605f459a1
+  r: "The required output file `data/interim/deduplicated_with_anomalies.csv` is absent,\
+    \ and the provided `code/preprocess.py` excerpt is truncated before any deduplication\
+    \ logic or write\u2011out code can be verified. Consequently the task\u2019s core\
+    \ deliverable is missing."
 T017:
   c: false
-  h: d98609393ce1f736a10926dc12eadee8e0b0565893b0bcd142706cdc3c721788
-  r: "The required output `data/processed/master_dataset.csv` (and its checksum) does\
-    \ not exist, nor do its inputs (`data/interim/deduplicated_with_anomalies.csv`,\
-    \ `data/processed/config.yaml`) or the schema files needed for validation. Consequently\
-    \ the task\u2019s verification steps cannot be performed."
+  h: 0d0257ee826a61c168b657d403475511174e26050ac056aaf26d67ef705f2cb4
+  r: "The required output file `data/processed/master_dataset.csv` (and its SHA\u2011\
+    256 checksum) are absent, as is the prerequisite input `data/interim/deduplicated_with_anomalies.csv`\
+    \ and the schema files referenced for validation. Consequently the verification\
+    \ steps cannot be performed."
 T017b:
   c: false
   h: 10cae2444d6ca03a7762c80ae92c3285918a231f3e797812ce188ecac594d597

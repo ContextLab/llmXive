@@ -44,7 +44,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project root structure per implementation plan (repository root) including `code/`, `data/raw/`, `data/processed/`, `data/outputs/`, `tests/`, `output/`
-- [ ] T002 Initialize Python 3.11 project with `requirements.txt` (pinned versions for `transformers`, `codecarbon`, `datasets`, `scikit-learn`, `pandas`, `matplotlib`, `seaborn`)
+- [X] T002 Initialize Python 3.11 project with `requirements.txt` (pinned versions for `transformers`, `codecarbon`, `datasets`, `scikit-learn`, `pandas`, `matplotlib`, `seaborn`)
 - [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
 
 ---
@@ -60,7 +60,7 @@
 - [ ] T005.1 [P] Define exclusion criteria for unmatched prompts: Create logic to exclude any prompt from `human_baseline_times.json` that does not have a corresponding entry in the downloaded CodeXGLUE dataset. **MUST** explicitly state that no mapping logic for alternative datasets (HumanEval/MBPP) is required or permitted. **T005.1 must be completed before T005 implementation begins.**
 - [ ] T006 [P] Implement `validate_baseline.py` to synthesize local human baseline data: **MUST validate that hardcoded time values from the 2025 comparative analysis paper (Table X, Section Y) represent raw developer time (minutes/hours), not pre-calculated CO₂**. If the 2025 paper data is missing, **execute the Synthesized Baseline Protocol** using specific literature values (e.g., average 30-60 minutes per prompt from IEEE/ACM software engineering literature) with explicit citation. **The task MUST fail ONLY if the Synthesized Baseline Protocol cannot identify a valid literature source.** Load into `data/raw/human_baseline_times.json` with exact structure `{"prompt_id": <string>, "time_minutes": <float>}`. **Depends on T004** to ensure the downloaded prompt IDs exist for matching. **Includes a verification step that fails if the data does not match the raw time schema.**
 - [X] T007 [P] Setup environment configuration for regional CO2 conversion factors and power model constants in `config.yaml`
-- [~] T008 [P] Implement checksum validation for downloaded raw data in `download_data.py`
+- [ ] T008 [P] Implement checksum validation for downloaded raw data in `download_data.py`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -81,12 +81,12 @@
 
 ### Implementation for User Story 1
 
-- [~] T011 [US1] Implement `run_inference.py` to load **GPT-2-medium** (not GPT-medium) in default precision (no reduced-bit quantization) on CPU. **MUST output the generated code string in the result JSON to allow LOC counting.**
+- [ ] T011 [US1] Implement `run_inference.py` to load **GPT-2-medium** (not GPT-medium) in default precision (no reduced-bit quantization) on CPU. **MUST output the generated code string in the result JSON to allow LOC counting.**
 - [~] T012 [US1] Wrap inference loop in `run_inference.py` with `codecarbon.EmissionsTracker` configured for CPU
-- [ ] T013 [US1] Implement error handling in `run_inference.py`: log CodeCarbon failures, skip specific prompt, and continue to next
-- [ ] T014 [US1] Implement batch processing loop (targeting a scalable number of prompts) in `run_inference.py` with progress logging
+- [~] T013 [US1] Implement error handling in `run_inference.py`: log CodeCarbon failures, skip specific prompt, and continue to next
+- [~] T014 [US1] Implement batch processing loop (targeting a scalable number of prompts) in `run_inference.py` with progress logging
 - [ ] T015 [US1] Generate `data/processed/llm_inference_results.json` containing `prompt_id`, `model_used`, `energy_kWh`, `co2_kg`, and **calculated `loc_count`** (count lines of the generated code string immediately after generation, do not use placeholders like 0 or -1).
-- [ ] T016 [US1] Add validation to exclude prompts that failed to generate code or resulted in empty strings from the output file
+- [~] T016 [US1] Add validation to exclude prompts that failed to generate code or resulted in empty strings from the output file
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -100,15 +100,15 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T017 [P] [US2] Unit test for human baseline conversion logic (time to CO2) in `tests/unit/test_baseline_conversion.py`
-- [ ] T018 [P] [US2] Unit test for LOC normalization and 0-LOC exclusion logic in `tests/unit/test_normalization.py`
+- [X] T017 [P] [US2] Unit test for human baseline conversion logic (time to CO2) in `tests/unit/test_baseline_conversion.py`
+- [X] T018 [P] [US2] Unit test for LOC normalization and 0-LOC exclusion logic in `tests/unit/test_normalization.py`
 
 ### Implementation for User Story 2
 
 - [ ] T019 [US2] Implement logic in `calculate_emissions.py` to join `llm_inference_results.json` with `data/raw/human_baseline_times.json`. **Depends on T006 and T016.**
-- [ ] T020 [US2] Implement LOC counting for LLM-generated code in `calculate_emissions.py`. **Depends on T006, T016, and T011 (to access raw code strings).**
-- [ ] T021 [US2] Implement human baseline CO2 calculation using mean of reported time range and standard laptop power model in `calculate_emissions.py`
-- [ ] T022 [US2] Implement normalization logic to calculate `co2_per_loc` for both LLM and human baselines
+- [~] T020 [US2] Implement LOC counting for LLM-generated code in `calculate_emissions.py`. **Depends on T006, T016, and T011 (to access raw code strings).**
+- [~] T021 [US2] Implement human baseline CO2 calculation using mean of reported time range and standard laptop power model in `calculate_emissions.py`
+- [~] T022 [US2] Implement normalization logic to calculate `co2_per_loc` for both LLM and human baselines
 - [ ] T023 [US2] Implement exclusion logic in `calculate_emissions.py` to drop any record where LLM LOC or Human LOC is 0
 - [ ] T024 [US2] Generate `data/processed/paired_emissions.csv` with columns: `prompt_id`, `loc_count`, `llm_co2_per_loc`, `human_co2_per_loc`
 - [ ] T025 [US2] Implement sensitivity analysis script to recalculate human emissions using low, medium, and high power draws. **MUST perform a statistical comparison of the stability results:** calculate the variance of the significance flags (p < 0.05) and effect direction across the three power models. **MUST generate a stability assessment artifact** (`data/outputs/stability_assessment.json`) containing the variance of p-values, the boolean stability flag (stable if no flip in direction or p-value crossing 0.05), and the explicit conclusion. **Output schema: `{"low_p": float, "med_p": float, "high_p": float, "variance": float, "stable": bool, "conclusion": "string"}`. **Depends on T024.**

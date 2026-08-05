@@ -1,22 +1,42 @@
+# Ruff configuration for llmXive Dream-State Learning project
+# Enforces PEP 8 style and project-specific rules
+
 [lint]
+# Select specific rule sets
 select = [
-  "E",  # pycodestyle errors
-  "W",  # pycodestyle warnings
-  "F",  # Pyflakes
-  "I",  # isort
-  "B",  # flake8-bugbear
-  "C4", # flake8-comprehensions
-  "UP", # pyupgrade
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # Pyflakes
+    "I",   # isort
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "UP",  # pyupgrade
 ]
+
+# Ignore specific rules that conflict with project style or are too noisy
 ignore = [
-  "E501", # line too long (handled by black)
-  "B008", # do not perform function calls in argument defaults (common in config)
+    "E501", # Line too long (handled by Black)
+    "B008", # Do not perform function call in argument defaults (common in PyTorch)
 ]
+
+# Allow automatic fixes for safe issues
 fixable = ["ALL"]
 unfixable = []
 
-[format]
-quote-style = "double"
-indent-style = "space"
-skip-magic-trailing-comma = false
-line-ending = "auto"
+# Exclude generated or third-party directories
+extend-exclude = [
+    "__pycache__",
+    ".git",
+    "data/",
+    "venv",
+    ".venv",
+]
+
+[lint.per-file-ignores]
+# Allow specific deviations in test files if necessary
+"tests/*" = ["S101"] # Allow assert statements in tests
+
+[lint.isort]
+# Configure import sorting to match project expectations
+known-first-party = ["config", "data", "models", "utils", "eval", "main"]
+force-to-top = ["config"]

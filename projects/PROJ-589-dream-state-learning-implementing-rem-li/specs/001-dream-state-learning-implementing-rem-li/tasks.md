@@ -112,7 +112,7 @@
 - [X] T023 [US2] Implement `code/models/trainer.py` Baseline mode: Continuous SFT with identical total token count (not just steps) and data tokens as the experimental run
 - [X] T024 [US2] Implement `code/main.py` logic to orchestrate parallel runs (Experimental vs. Baseline) with same seeds (depends on T014-T017 and T023)
 - [ ] T025 [US2] Implement statistical analysis: Compute accuracy difference and Wilcoxon signed-rank test (α=0.05) p-value across 5 seeds (per Plan Constitution Principle VII); input data structure is list of 5 accuracy floats per model; use `scipy.stats.wilcoxon`
-- [ ] T026 [US2] Implement result reporting: Save comparative report to `data/results/comparison_report.json`
+- [X] T026 [US2] Implement result reporting: Save comparative report to `data/results/comparison_report.json`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -131,9 +131,9 @@
 
 ### Implementation for User Story 3
 
-- [ ] T031 [US3] Implement `code/main.py` time monitoring and abort logic if wall-clock > 5 hours (read `MAX_WALL_CLOCK_HOURS` from `config.py`, raise `TimeLimitExceeded`)
-- [ ] T032 [US3] Implement `code/main.py` memory monitoring integration with `memory_monitor` (T005) to enforce GB limit
-- [ ] T033 [US3] Create `code/scripts/verify_feasibility.sh` to run a dry-run with resource limits
+- [X] T031 [US3] Implement `code/main.py` time monitoring and abort logic if wall-clock > 5 hours (read `MAX_WALL_CLOCK_HOURS` from `config.py`, raise `TimeLimitExceeded`)
+- [X] T032 [US3] Implement `code/main.py` memory monitoring integration with `memory_monitor` (T005) to enforce GB limit
+- [X] T033 [US3] Create `code/scripts/verify_feasibility.sh` to run a dry-run with resource limits
 
 The research question remains: [Research Question]
 The method remains: [Method]
@@ -151,7 +151,7 @@ References: [References]
 
 ### Implementation for User Story 1 (Sensitivity Extension)
 
-- [ ] T036 [US1] Implement temperature sweep logic in `code/main.py` for dream phase: execute a grid search running the full training pipeline for each temperature value in a set of representative hyperparameters, collect final accuracy for each run, and compute variance using `scikit-learn`'s `var` function
+- [X] T036 [US1] Implement temperature sweep logic in `code/main.py` for dream phase: execute a grid search running the full training pipeline for each temperature value in a set of representative hyperparameters, collect final accuracy for each run, and compute variance using `scikit-learn`'s `var` function
 - [ ] T037 [US1] Implement reporting for variance in final accuracy across temperature sweep
 
 **Checkpoint**: Sensitivity analysis complete
