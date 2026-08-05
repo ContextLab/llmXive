@@ -20,3 +20,36 @@
   verification_status: pending
   verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/64f001241df52444a5030250/fc3fae8afda653eb4365ac15b00470b3c3f6ad73cdcdbafc71da8762134da1ff?X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00001-d20b0e7149fa6eeb.parquet%3B+filename%3D%22test-00000-of-00001-d20b0e7149fa6eeb.parquet%22%3B&user_id=public&Expires=1785028804&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjRmMDAxMjQxZGY1MjQ0NGE1MDMwMjUwL2ZjM2ZhZThhZmRhNjUzZWI0MzY1YWMxNWIwMDQ3MGIzYzNmNmFkNzNjZGNkYmFmYzcxZGE4NzYyMTM0ZGExZmZcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGVzdC0wMDAwMC1vZi0wMDAwMS1kMjBiMGU3MTQ5ZmE2ZWViLnBhcnF1ZXQlM0IrZmlsZW5hbWUlM0QlMjJ0ZXN0LTAwMDAwLW9mLTAwMDAxLWQyMGIwZTcxNDlmYTZlZWIucGFycXVldCUyMiUzQiZ1c2VyX2lkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzg1MDI4ODA0fX19XX0_&Signature=MEUCIACCt7jqcOG1vlIGjEyabeEevnLifzyZ31FXgIurAxsdAiEAnpDjSE4GbRTV1l-TugagvOd24blBLTwmX7Kk-OSFMXI_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F
   verified_at: '2026-07-26T00:20:03.491666Z'
+- artifact_hash: 35dc975dbd902f939f26b91bb30099cdfd39dc236c8cbfe50902fd678584e721
+  artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://github.com/nist/juliet.git`
+  verification_status: mismatch
+  verified_against_url: https://github.com/nist/juliet
+  verified_at: '2026-08-05T19:38:31.766272Z'
+- artifact_hash: 35dc975dbd902f939f26b91bb30099cdfd39dc236c8cbfe50902fd678584e721
+  artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://github.com/BigVul/BigVul/raw/main/data/...`
+  verification_status: mismatch
+  verified_against_url: https://github.com/BigVul/BigVul/raw/main/data/
+  verified_at: '2026-08-05T19:38:31.766272Z'
+- artifact_hash: 35dc975dbd902f939f26b91bb30099cdfd39dc236c8cbfe50902fd678584e721
+  artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://services.nvd.nist.gov/rest/json/cves/2.0?lastModStartDate=2020-01-01T00:00:00&lastModEndDate=2025-12-31T23:59:59`
+  verification_status: mismatch
+  verified_against_url: https://services.nvd.nist.gov/rest/json/cves/2.0?lastModStartDate=2020-01-01T00:00:00&lastModEndDate=2025-12-31T23:59:59
+  verified_at: '2026-08-05T19:38:31.766272Z'

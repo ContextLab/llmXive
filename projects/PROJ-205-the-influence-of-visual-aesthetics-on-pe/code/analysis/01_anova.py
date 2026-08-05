@@ -63,7 +63,7 @@ def run_repeated_measures_anova(df: pd.DataFrame, dv_prefix: str = "Credibility"
         df,
         id_vars=['participant_id'],
         value_vars=[f"{dv_prefix}_Professional", f"{dv_prefix}_Minimalist", 
-                    f"{dv_prefix}_Low-Quality", f"{dv_prefix}_Neural"],
+                    f"{dv_prefix}_Low-Quality", f"{dv_prefix}_Neutral"],
         var_name='condition',
         value_name='score'
     )
@@ -121,6 +121,74 @@ def run_repeated_measures_anova(df: pd.DataFrame, dv_prefix: str = "Credibility"
         "significant": bool(p_val < 0.05)
     }
 
+def run_conditional_pairwise_tests(df: pd.DataFrame, dv_prefix: str = "Credibility", 
+                                   alpha: float = 0.05) -> list:
+    """
+    Run pairwise t-tests if the ANOVA is significant.
+    
+    Args:
+        df: Wide-format dataframe.
+        dv_prefix: Prefix for the dependent variable columns.
+        alpha: Significance level for Bonferroni correction.
+        
+    Returns:
+        List of dictionaries containing pairwise test results, or empty list if not significant.
+    """
+    # Check if ANOVA was significant by re-running it (or we could pass the result in)
+    # Since this function is called from main after ANOVA, we assume we check the ANOVA result
+    # However, to keep this pure, we re-run the ANOVA check here or rely on the caller.
+    # The task requires conditional logic: "if p < 0.05, trigger pairwise t-tests".
+    # We will run the ANOVA here to determine significance.
+    
+    anova_results = run_repeated_measures_anova(df, dv_prefix)
+    
+    if not anova_results['significant']:
+        print("ANOVA not significant (p >= 0.05). Skipping pairwise t-tests.")
+        return []
+    
+    print("ANOVA significant (p < 0.05). Running Bonferroni-corrected pairwise t-tests.")
+    
+    conditions = ["Professional", "Minimalist", "Low-Quality", "Neutral"]
+    comparisons = []
+    
+    # Perform pairwise t-tests
+    for i in range(len(conditions)):
+        for j in range(i + 1, len(conditions)):
+            cond_a = conditions[i]
+            cond_b = conditions[j]
+            
+            col_a = f"{dv_prefix}_{cond_a}"
+            col_b = f"{dv_prefix}_{cond_b}"
+            
+            # Paired t-test
+            from scipy import stats
+            t_stat, p_val = stats.ttest_rel(df[col_a], df[col_b])
+            
+            comparisons.append({
+                "condition_a": cond_a,
+                "condition_b": cond_b,
+                "t_statistic": float(t_stat),
+                "p_value_raw": float(p_val),
+                "p_value_corrected": None, # To be filled by multipletests
+                "significant_raw": p_val < alpha
+            })
+    
+    # Apply Bonferroni correction
+    if comparisons:
+        raw_p_values = [c["p_value_raw"] for c in comparisons]
+        # Number of comparisons
+        n_comparisons = len(raw_p_values)
+        
+        # Use multipletests for Bonferroni correction
+        # method='bonferroni' multiplies p-values by n_comparisons
+        reject, pvals_corrected, _, _ = multipletests(raw_p_values, alpha=alpha, method='bonferroni')
+        
+        for i, corr_p in enumerate(pvals_corrected):
+            comparisons[i]["p_value_corrected"] = float(corr_p)
+            comparisons[i]["significant_corrected"] = bool(reject[i])
+    
+    return comparisons
+
 def main():
     """Main entry point for the ANOVA script."""
     parser = argparse.ArgumentParser(description="Run Repeated-Measures ANOVA on credibility data.")
@@ -136,20 +204,42 @@ def main():
     print(f"Loaded {len(df)} participants.")
 
     print("Running Repeated-Measures ANOVA...")
-    results = run_repeated_measures_anova(df, dv_prefix="Credibility")
+    anova_results = run_repeated_measures_anova(df, dv_prefix="Credibility")
+
+    # Conditional logic: if p < 0.05, trigger pairwise t-tests
+    pairwise_results = []
+    if anova_results['significant']:
+        pairwise_results = run_conditional_pairwise_tests(df, dv_prefix="Credibility")
+    else:
+        print(f"ANOVA p-value ({anova_results['p_value']:.4f}) >= 0.05. Skipping pairwise tests.")
+
+    # Compile final results
+    final_results = {
+        "anova": anova_results,
+        "pairwise_comparisons": pairwise_results
+    }
 
     # Ensure output directory exists
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
     # Save results
     with open(output_path, 'w') as f:
-        json.dump(results, f, indent=2)
+        json.dump(final_results, f, indent=2)
 
     print(f"ANOVA results saved to {output_path}")
-    print(f"F({results['df_numerator']}, {results['df_denominator']}) = {results['f_statistic']:.4f}, "
-          f"p = {results['p_value']:.4f}, η² = {results['partial_eta_squared']:.4f}")
+    print(f"F({anova_results['df_numerator']}, {anova_results['df_denominator']}) = {anova_results['f_statistic']:.4f}, "
+          f"p = {anova_results['p_value']:.4f}, η² = {anova_results['partial_eta_squared']:.4f}")
     
-    return results
+    if pairwise_results:
+        print(f"Performed {len(pairwise_results)} pairwise comparisons.")
+        for comp in pairwise_results:
+            print(f"  {comp['condition_a']} vs {comp['condition_b']}: "
+                  f"t={comp['t_statistic']:.4f}, p_raw={comp['p_value_raw']:.4f}, "
+                  f"p_corr={comp['p_value_corrected']:.4f} (sig: {comp['significant_corrected']})")
+    else:
+        print("No pairwise comparisons performed (ANOVA not significant).")
+    
+    return final_results
 
 if __name__ == "__main__":
     main()

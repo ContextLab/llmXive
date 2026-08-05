@@ -1,67 +1,66 @@
-"""
-Configuration management for the Visual Aesthetics Credibility Study.
-
-This module handles environment variable loading and validation for critical
-project paths, specifically the IRB consent form source.
-"""
 import os
 from pathlib import Path
 
-# Default relative path from project root for the IRB consent file
-DEFAULT_CONSENT_PATH = "data/consent/irb_approved.txt"
+# Environment variable name for the IRB consent file path
 ENV_VAR_NAME = "IRB_CONSENT_FILE_PATH"
 
-def get_consent_file_path() -> str:
+# Default relative path from project root
+DEFAULT_CONSENT_PATH = "data/consent/irb_approved.txt"
+
+def get_project_root() -> Path:
     """
-    Retrieves the path to the IRB approved consent file.
+    Returns the project root directory.
+    Assumes the code structure is:
+    project_root/
+        code/
+            utils/
+                config.py
+    """
+    return Path(__file__).resolve().parent.parent.parent
 
-    Checks for the environment variable `IRB_CONSENT_FILE_PATH`.
-    If not set, defaults to `data/consent/irb_approved.txt` relative to the
-    project root.
-
-    Returns:
-        str: Absolute path to the consent file.
-
+def get_consent_file_path() -> Path:
+    """
+    Returns the path to the IRB-approved consent text file.
+    Priority:
+    1. Environment variable defined by ENV_VAR_NAME
+    2. Default path relative to project root
+    
     Raises:
-        FileNotFoundError: If the resolved file path does not exist on disk.
+        FileNotFoundError: If the file does not exist at the resolved path.
     """
-    # Determine the project root (assuming code/utils/config.py is 2 levels deep)
-    # We use the location of this module to find the root relative to the standard structure
-    current_dir = Path(__file__).resolve().parent
-    project_root = current_dir.parent.parent
-
-    # Check environment variable
+    project_root = get_project_root()
+    
+    # Check for environment variable override
     env_path = os.getenv(ENV_VAR_NAME)
-
     if env_path:
-        # If env var is set, treat it as relative to project root or absolute
-        if os.path.isabs(env_path):
-            consent_path = Path(env_path)
-        else:
-            consent_path = project_root / env_path
+        path_obj = Path(env_path)
+        # If it's an absolute path, use it directly; otherwise, resolve relative to CWD or project root
+        if not path_obj.is_absolute():
+            # Prefer relative to project root if not absolute
+            path_obj = project_root / path_obj
     else:
-        # Default fallback
-        consent_path = project_root / DEFAULT_CONSENT_PATH
-
-    # Validate existence
-    if not consent_path.exists():
+        # Default path relative to project root
+        path_obj = project_root / DEFAULT_CONSENT_PATH
+    
+    if not path_obj.exists():
         raise FileNotFoundError(
-            f"IRB Consent file not found at: {consent_path}. "
+            f"Consent file not found at {path_obj}. "
             f"Please ensure the file exists or set the {ENV_VAR_NAME} environment variable."
         )
-
-    return str(consent_path)
+    
+    return path_obj
 
 def load_consent_text() -> str:
     """
-    Loads the full text content of the IRB approved consent form.
-
+    Loads the full text of the IRB-approved consent form.
+    
     Returns:
-        str: The raw text content of the consent file.
-
+        str: The complete text content of the consent file.
+        
     Raises:
         FileNotFoundError: If the consent file is missing.
+        PermissionError: If the file cannot be read.
     """
-    path = get_consent_file_path()
-    with open(path, "r", encoding="utf-8") as f:
+    file_path = get_consent_file_path()
+    with open(file_path, "r", encoding="utf-8") as f:
         return f.read()

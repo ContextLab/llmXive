@@ -1,0 +1,41 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `plan.md` file or any directory structure under `projects/PROJ-205-.../`\
+    \ is present; the required project scaffold was not provided. The task\u2019s\
+    \ core deliverable is missing."
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`,
+    `.flake8`, or `black` settings) or setup instructions were provided, so the requirement
+    to configure ruff/flake8 and black is not satisfied.
+T004:
+  c: false
+  h: df4fccaea3f53363fca8f204f5106aaf6c3d3754a10bfe3fb2689185dfd464f7
+  r: The required source file `docs/NEUTRAL_TEXT_V1.txt` is missing, so the content
+    in `code/stimuli/text_content.txt` cannot be verified as the correct neutral text.
+    Moreover, the existing text appears unrelated to the expected neutral source,
+    indicating the task was not fulfilled.
+T009:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence was provided that the `data/raw/` and `data/processed/` directories\
+    \ actually exist in the repository (or that they contain any placeholder files).\
+    \ The implementer\u2019s claim lacks the required filesystem artifacts, so the\
+    \ directory structure setup cannot be confirmed."
+T011c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, configuration file, or log examples were provided showing an `IRB_PROTOCOL_ID`
+    environment variable defined or its inclusion in consent log entries. The required
+    artifact (environment variable definition and logging implementation) is missing.
+T012:
+  c: false
+  h: 97c66457007ddf2a70ac74f4d2b2e4f4fdab9431d1be9f51b2fbfdb5f3dd10ca
+  r: "The `code/survey/app.py` contains a consent form that attempts to read the consent\
+    \ text, but the required source file `data/consent/irb_approved.txt` does not\
+    \ exist, so the app falls back to a placeholder message instead of displaying\
+    \ the actual IRB\u2011approved text. Consequently the task\u2019s core requirement\
+    \ (displaying the IRB text from that file) is not satisfied. The missing consent\
+    \ file must be added (and the path verified) for the implementation to be complete."

@@ -1,0 +1,38 @@
+# Ruff configuration for PROJ-133
+# Linting rules and settings
+
+[lint]
+# Enable pycodestyle (`E`), Pyflakes (`F`), and isort (`I`)
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # Pyflakes
+    "I",  # isort (import sorting)
+    "C90", # mccabe (complexity)
+    "N",  # pep8-naming
+    "UP", # pyupgrade
+    "B",  # flake8-bugbear
+    "SIM",# flake8-simplify
+    "ARG",# flake8-unused-arguments
+    "PTH",# flake8-use-pathlib
+]
+ignore = [
+    "E501", # Line too long (handled by black)
+    "B008", # Do not perform function call in argument defaults (common in dataclasses)
+    "ARG001", # Allow unused arguments in function definitions (common in interfaces)
+]
+
+[lint.per-file-ignores]
+"tests/*" = ["ARG001", "S101"] # Allow assert in tests
+
+[lint.isort]
+known-first-party = ["simulation", "analysis", "statistics", "viz", "models", "utils", "config"]
+force-to-top = ["numpy", "scipy"]
+
+[lint.mccabe]
+max-complexity = 12
+
+[format]
+# Black-compatible formatting settings
+line-length = 88
+indent-width = 4

@@ -1,117 +1,147 @@
-import pytest
 import os
-import sys
 import csv
-from pathlib import Path
 import tempfile
 import shutil
+from pathlib import Path
+from datetime import datetime
 
-# Add code directory to path
-code_dir = Path(__file__).resolve().parent.parent.parent / "code"
-if str(code_dir) not in sys.path:
-    sys.path.insert(0, str(code_dir))
+# We need to mock the get_project_root to point to a temp directory
+# so we don't write to the actual project data during tests.
+import utils.helpers as helpers_module
+from utils.helpers import prepare_submission_row, append_to_submissions_csv, save_submission, ensure_data_dirs
 
-from utils.helpers import (
-    prepare_submission_row,
-    append_to_submissions_csv,
-    ensure_data_dirs,
-    truncate_user_agent
-)
-
-@pytest.fixture
-def temp_data_dir():
-    """Create a temporary directory for data/raw."""
-    temp_root = tempfile.mkdtemp()
-    original_raw = Path("data/raw")
-    
-    # Mock the DATA_RAW_DIR in helpers
-    import utils.helpers
-    original_dir = utils.helpers.DATA_RAW_DIR
-    utils.helpers.DATA_RAW_DIR = Path(temp_root)
-    utils.helpers.CONSENT_LOG_PATH = Path(temp_root) / "consent_log.csv"
-    utils.helpers.SUBMISSIONS_PATH = Path(temp_root) / "submissions.csv"
-    
-    yield Path(temp_root)
-    
-    # Restore
-    utils.helpers.DATA_RAW_DIR = original_dir
-    utils.helpers.CONSENT_LOG_PATH = Path("data/raw/consent_log.csv")
-    utils.helpers.SUBMISSIONS_PATH = Path("data/raw/submissions.csv")
-    shutil.rmtree(temp_root)
-
-def test_prepare_submission_row_basic(temp_data_dir):
-    """Test that prepare_submission_row creates a valid dictionary."""
-    ratings = {
-        "cred_Professional": 5.0,
-        "prof_Professional": 6.0,
-        "cred_Minimalist": 3.0,
-        "prof_Minimalist": 4.0,
-        "cred_Low-Quality": 2.0,
-        "prof_Low-Quality": 2.0,
-        "cred_Neutral": 4.0,
-        "prof_Neutral": 5.0
-    }
-    
+def test_prepare_submission_row():
+    """Test that prepare_submission_row creates a correctly formatted dictionary."""
     row = prepare_submission_row(
-        user_id="test-uuid",
-        stimulus_condition="Professional;Minimalist;Low-Quality;Neutral",
-        ratings=ratings,
-        demographic_age=30,
-        demographic_education=3,
-        hashed_ip="hashed_ip_value",
-        user_agent="Mozilla/5.0 (Test)",
+        user_id="test-123",
+        stimulus_condition="Professional",
+        credibility_rating=5,
+        professionalism_rating=6,
+        hashed_ip="abc123hash",
+        duplicate_flag=False,
+        age=25,
+        education=2,
+        user_agent="Mozilla/5.0 Test",
+        timestamp=datetime(2023, 1, 1, 12, 0, 0),
         submission_status="complete",
         session_timeout=False
     )
     
-    assert row["user_id"] == "test-uuid"
-    assert row["age"] == 30
-    assert row["education"] == 3
-    assert row["hashed_ip"] == "hashed_ip_value"
+    assert row["user_id"] == "test-123"
+    assert row["stimulus_condition"] == "Professional"
+    assert row["credibility_rating"] == 5
+    assert row["professionalism_rating"] == 6
+    assert row["hashed_ip"] == "abc123hash"
+    assert row["duplicate_flag"] == False
+    assert row["age"] == 25
+    assert row["education"] == 2
+    assert row["user_agent"] == "Mozilla/5.0 Test"
+    assert row["timestamp"] == "2023-01-01T12:00:00"
     assert row["submission_status"] == "complete"
-    assert row["rating_count"] == 8
-    assert "cred_Professional" in row
-    assert row["cred_Professional"] == 5.0
+    assert row["session_timeout"] == False
 
-def test_truncate_user_agent():
-    """Test that user agent is truncated correctly."""
-    long_ua = "A" * 300
-    truncated = truncate_user_agent(long_ua, max_length=100)
-    assert len(truncated) == 100
+def test_append_to_submissions_csv():
+    """Test that append_to_submissions_csv writes to the correct file with headers."""
+    # Create a temporary directory to simulate project root
+    temp_dir = tempfile.mkdtemp()
+    data_raw_path = os.path.join(temp_dir, "data", "raw")
+    os.makedirs(data_raw_path, exist_ok=True)
     
-    short_ua = "Short UA"
-    assert truncate_user_agent(short_ua) == short_ua
+    # Mock the get_project_root function temporarily
+    original_get_project_root = helpers_module.get_project_root
+    
+    def mock_get_project_root():
+        return Path(temp_dir)
+    
+    helpers_module.get_project_root = mock_get_project_root
+    
+    try:
+        csv_path = os.path.join(data_raw_path, "submissions.csv")
+        
+        # First write (should create header)
+        row1 = prepare_submission_row(
+            user_id="user-1",
+            stimulus_condition="Neutral",
+            credibility_rating=4,
+            professionalism_rating=4,
+            hashed_ip="hash1",
+            duplicate_flag=False,
+            timestamp=datetime(2023, 1, 1, 10, 0, 0)
+        )
+        append_to_submissions_csv(row1)
+        
+        # Verify file exists and content
+        assert os.path.exists(csv_path)
+        with open(csv_path, 'r', newline='', encoding='utf-8') as f:
+            reader = csv.DictReader(f)
+            rows = list(reader)
+            assert len(rows) == 1
+            assert rows[0]["user_id"] == "user-1"
+            assert "user_id" in reader.fieldnames
+            assert "stimulus_condition" in reader.fieldnames
+        
+        # Second write (should append, no new header)
+        row2 = prepare_submission_row(
+            user_id="user-2",
+            stimulus_condition="Minimalist",
+            credibility_rating=3,
+            professionalism_rating=3,
+            hashed_ip="hash2",
+            duplicate_flag=True,
+            timestamp=datetime(2023, 1, 1, 11, 0, 0)
+        )
+        append_to_submissions_csv(row2)
+        
+        with open(csv_path, 'r', newline='', encoding='utf-8') as f:
+            reader = csv.DictReader(f)
+            rows = list(reader)
+            assert len(rows) == 2
+            assert rows[1]["user_id"] == "user-2"
+            assert rows[1]["duplicate_flag"] == "True"
+            
+    finally:
+        # Restore original function
+        helpers_module.get_project_root = original_get_project_root
+        # Cleanup
+        shutil.rmtree(temp_dir)
 
-def test_append_to_submissions_csv(temp_data_dir):
-    """Test that data is appended to CSV correctly."""
-    row_data = {
-        "user_id": "uuid-1",
-        "age": 25,
-        "education": 2,
-        "hashed_ip": "hash1",
-        "user_agent": "Agent1",
-        "submission_status": "complete",
-        "session_timeout": "false",
-        "rating_count": 8,
-        "cred_Professional": 5.0
-    }
+def test_save_submission_integration():
+    """Test the high-level save_submission function."""
+    temp_dir = tempfile.mkdtemp()
+    data_raw_path = os.path.join(temp_dir, "data", "raw")
+    os.makedirs(data_raw_path, exist_ok=True)
     
-    # First write (creates file)
-    append_to_submissions_csv(row_data)
+    original_get_project_root = helpers_module.get_project_root
     
-    # Second write (appends)
-    row_data["user_id"] = "uuid-2"
-    append_to_submissions_csv(row_data)
+    def mock_get_project_root():
+        return Path(temp_dir)
     
-    # Verify file content
-    csv_path = temp_data_dir / "submissions.csv"
-    assert csv_path.exists()
+    helpers_module.get_project_root = mock_get_project_root
     
-    with open(csv_path, 'r') as f:
-        reader = csv.DictReader(f)
-        rows = list(reader)
-    
-    assert len(rows) == 2
-    assert rows[0]["user_id"] == "uuid-1"
-    assert rows[1]["user_id"] == "uuid-2"
-    assert "cred_Professional" in rows[0].keys()
+    try:
+        csv_path = os.path.join(data_raw_path, "submissions.csv")
+        
+        save_submission(
+            user_id="final-test",
+            stimulus_condition="Low-Quality",
+            credibility_rating=2,
+            professionalism_rating=1,
+            hashed_ip="final_hash",
+            age=30,
+            education=4,
+            user_agent="TestAgent/1.0",
+            timestamp=datetime(2023, 5, 5, 15, 30, 0)
+        )
+        
+        assert os.path.exists(csv_path)
+        with open(csv_path, 'r', newline='', encoding='utf-8') as f:
+            reader = csv.DictReader(f)
+            rows = list(reader)
+            assert len(rows) == 1
+            assert rows[0]["user_id"] == "final-test"
+            assert rows[0]["age"] == "30"
+            assert rows[0]["education"] == "4"
+            
+    finally:
+        helpers_module.get_project_root = original_get_project_root
+        shutil.rmtree(temp_dir)

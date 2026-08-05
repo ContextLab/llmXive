@@ -2,8 +2,16 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T001** — No project structure files or a populated `plan.md` were provided; the only content shown is the task description and user scenarios, with no evidence that a directory hierarchy or plan document was created. The required artifact is missing.
-- **T002** — No `requirements.txt` file (or any other project initialization artifact) is present; the only evidence is a feature specification unrelated to the requested Python 3.11 project setup. The required file listing `streamlit`, `pandas`, `numpy`, `scipy`, `statsmodels`, and `pyyaml` is missing.
-- **T003** — No linting or formatting configuration files (e.g., pyproject.toml, .ruff.toml, .flake8, or black settings) or documentation of their setup are present. The required artifacts to demonstrate that ruff/flake8 and black have been configured are missing.
-- **T004** — The required file `code/stimuli/text_content.txt` exists and is non‑empty, but there is no evidence that its contents are exactly the text from `docs/NEUTRAL_TEXT_V1.txt` as the task demands; the provided excerpt appears unrelated to a “neutral” stimulus. The implementer must supply the correct neutral text or show a diff confirming it matches the source file.
-- **T009** — No directory listings or screenshots were provided to demonstrate that `data/raw/` and `data/processed/` actually exist in the repository; the implementer supplied no concrete artifact confirming the required folder structure.
+- **T001** — No `plan.md` file or any directory structure under `projects/PROJ-205-.../` is present; the required project scaffold was not provided. The task’s core deliverable is missing.
+- **T003** — No linting or formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`, `.flake8`, or `black` settings) or setup instructions were provided, so the requirement to configure ruff/flake8 and black is not satisfied.
+- **T004** — The required source file `docs/NEUTRAL_TEXT_V1.txt` is missing, so the content in `code/stimuli/text_content.txt` cannot be verified as the correct neutral text. Moreover, the existing text appears unrelated to the expected neutral source, indicating the task was not fulfilled.
+- **T009** — No evidence was provided that the `data/raw/` and `data/processed/` directories actually exist in the repository (or that they contain any placeholder files). The implementer’s claim lacks the required filesystem artifacts, so the directory structure setup cannot be confirmed.
+- **T011b** — declared artifact(s) missing/empty/invalid: data/consent/irb_approved.txt, docs/IRB_PROTO_V1.txt
+- **T011c** — No code, configuration file, or log examples were provided showing an `IRB_PROTOCOL_ID` environment variable defined or its inclusion in consent log entries. The required artifact (environment variable definition and logging implementation) is missing.
+- **T011** — declared artifact(s) missing/empty/invalid: data/consent/irb_approved.txt
+- **T011a** — declared artifact(s) missing/empty/invalid: docs/IRB_PROTO_V1.txt
+- **T012** — The `code/survey/app.py` contains a consent form that attempts to read the consent text, but the required source file `data/consent/irb_approved.txt` does not exist, so the app falls back to a placeholder message instead of displaying the actual IRB‑approved text. Consequently the task’s core requirement (displaying the IRB text from that file) is not satisfied. The missing consent file must be added (and the path verified) for the implementation to be complete.
+- **T022** — declared artifact(s) missing/empty/invalid: data/raw/submissions.csv
+- **T023c** — declared artifact(s) missing/empty/invalid: data/raw/submissions.csv
+- **T023d** — declared artifact(s) missing/empty/invalid: data/raw/submissions.csv
+- **T023e** — declared artifact(s) missing/empty/invalid: data/raw/submissions.csv

@@ -116,10 +116,10 @@
 
 - [X] T020 [P] [US2] Implement phase-winding vortex detection algorithm in `code/analysis/vortex_detector.py` (FR-003, handle vortex-antivortex pairs)
 - [X] T021 [US2] Implement stability metric calculation: Vortex Density, Radial Variance, Structure Factor Sharpness in `code/analysis/metrics.py` (FR-004). (Depends on T021b).
-- [ ] T022 [US2] Implement sensitivity analysis sweep for instability threshold over the EXACT discrete values {, 0.30, 0.35} in `code/analysis/metrics.py` (FR-006, SC-005) and explicitly calculate/report variation in false-positive/negative rates.
-- [ ] T023 [US2] Integrate vortex detection and metric calculation into a processing pipeline in `code/analysis/pipeline.py`
-- [ ] T024 [US2] Add logic to handle metastable boundary (drop >30%) as binary threshold while recording exact percentage in `code/analysis/metrics.py`
-- [ ] T025 [P] [US2] Create unit test `tests/unit/test_edge_cases.py::test_zero_initial_vortices` for edge cases (zero initial vortices, annihilation events)
+- [X] T022 [US2] Implement sensitivity analysis sweep for instability threshold over the EXACT discrete values {, 0.30, 0.35} in `code/analysis/metrics.py` (FR-006, SC-005) and explicitly calculate/report variation in false-positive/negative rates.
+- [X] T023 [US2] Integrate vortex detection and metric calculation into a processing pipeline in `code/analysis/pipeline.py`
+- [X] T024 [US2] Add logic to handle metastable boundary (drop >30%) as binary threshold while recording exact percentage in `code/analysis/metrics.py`
+- [X] T025 [P] [US2] Create unit test `tests/unit/test_edge_cases.py::test_zero_initial_vortices` for edge cases (zero initial vortices, annihilation events)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -137,15 +137,15 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T026 [P] [US3] Unit test `tests/unit/test_statistics.py::test_two_way_anova` for Two-Way ANOVA calculation
-- [ ] T027 [P] [US3] Integration test `tests/integration/test_aggregation.py::test_full_aggregation_pipeline` for full aggregation pipeline
+- [X] T026 [P] [US3] Unit test `tests/unit/test_statistics.py::test_two_way_anova` for Two-Way ANOVA calculation
+- [X] T027 [P] [US3] Integration test `tests/integration/test_aggregation.py::test_full_aggregation_pipeline` for full aggregation pipeline
 
 ### Implementation for User Story 3
 
-- [ ] T028 [P] [US3] Implement data aggregation logic (multiple repeats per point) in `code/statistics/aggregators.py`
-- [ ] T029 [US3] Implement Two-Way ANOVA (Ω × ε_dd) and Dunnett's post-hoc test in `code/statistics/aggregators.py` (Per Plan correction to FR-005). (Depends on T029b).
-- [ ] T030 [US3] Implement statistical significance flagging (α=0.05) against null hypothesis in `code/statistics/aggregators.py`
-- [ ] T031 [US3] Implement 3D parameter space contour map generation (Ω vs ε_dd vs Stability) in `code/viz/plotter.py`
+- [X] T028 [P] [US3] Implement data aggregation logic (multiple repeats per point) in `code/statistics/aggregators.py`
+- [X] T029 [US3] Implement Two-Way ANOVA (Ω × ε_dd) and Dunnett's post-hoc test in `code/statistics/aggregators.py` (Per Plan correction to FR-005). (Depends on T029b).
+- [X] T030 [US3] Implement statistical significance flagging (α=0.05) against null hypothesis in `code/statistics/aggregators.py`
+- [X] T031 [US3] Implement 3D parameter space contour map generation (Ω vs ε_dd vs Stability) in `code/viz/plotter.py`
 - [ ] T032 [US3] Generate representative density/phase plots for stable, metastable, and unstable regimes in `code/viz/plotter.py`
 - [ ] T033 [US3] Create summary table of ANOVA p-values and export to `data/aggregated/` in `code/viz/reporter.py`
 - [ ] T034 [P] [US3] Validate that the statistical design handles the "zero initial vortex" case without division errors in `tests/unit/test_zero_vortex_stats.py::test_no_division_by_zero`

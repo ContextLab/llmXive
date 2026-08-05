@@ -1,106 +1,60 @@
 # Project Plan: The Influence of Visual Aesthetics on Perceived Credibility of Online Information
 
-## Project Overview
-**Project ID**: PROJ-205
-**Title**: The Influence of Visual Aesthetics on Perceived Credibility of Online Information
-**Goal**: To investigate how visual design quality affects the perceived credibility of online content through a controlled online experiment.
+## Overview
+This project investigates how visual design quality (Professional, Minimalist, Low-Quality, Neutral) affects users' perceived credibility and professionalism ratings of identical online information.
 
 ## Research Questions
-1. Does visual aesthetic quality significantly impact perceived credibility ratings?
-2. Which specific design elements (layout, typography, color scheme) have the strongest effect?
+1. Does visual aesthetics significantly impact perceived credibility?
+2. Which design condition yields the highest credibility ratings?
 3. Do demographic factors (age, education) moderate the relationship between aesthetics and credibility?
 
 ## Methodology
-- **Design**: Between-subjects experiment with Latin Square counterbalancing
-- **Stimuli**: 4 versions of the same text content with varying visual aesthetics:
- - Professional (High-fidelity)
- - Minimalist (Low-fidelity)
- - Low-Quality (Broken CSS)
- - Neutral (Standard browser default)
+- **Design**: Within-subjects repeated measures (Latin Square counterbalancing)
+- **Stimuli**: 4 HTML conditions with identical text content
 - **Measures**: 7-point Likert scales for Credibility and Professionalism
 - **Sample Size**: Target N=250 participants
-- **Statistical Analysis**: Repeated-measures ANOVA with post-hoc pairwise comparisons
+- **Analysis**: Repeated-measures ANOVA, pairwise t-tests with Bonferroni correction, Mixed-Effects models
 
 ## Project Structure
 ```
-projects/PROJ-205-the-influence-of-visual-aesthetics-on-pe/
-├── plan.md # This file
-├── specs/
-│ ├── 001-visual-aesthetics-credibility/
-│ │ ├── spec.md # Feature specification
-│ │ ├── research.md # Research background
-│ │ └── data-model.md # Data model definition
-│ └── contracts/ # API contracts
+PROJ-205-the-influence-of-visual-aesthetics-on-pe/
 ├── code/
-│ ├── stimuli/ # HTML stimulus files
-│ │ ├── professional.html
-│ │ ├── minimalist.html
-│ │ ├── low_quality.html
-│ │ ├── neutral.html
-│ │ ├── text_content.txt
-│ │ └── check_irb_env.py
-│ ├── survey/
-│ │ └── app.py # Streamlit survey application
-│ ├── utils/
-│ │ ├── config.py # Configuration management
-│ │ ├── helpers.py # Utility functions
-│ │ └── setup_data_dirs.py
-│ └── analysis/
-│ ├── 01_preprocess.py
-│ ├── 01_anova.py
-│ ├── 02_pairwise.py
-│ ├── 03_report.py
-│ ├── 04_mixed_effects.py
-│ └── 05_robustness_report.py
+│ ├── analysis/ # Statistical analysis scripts
+│ ├── stimuli/ # HTML stimuli and text content
+│ ├── survey/ # Streamlit survey application
+│ └── utils/ # Helper functions and configuration
 ├── data/
-│ ├── raw/
-│ │ ├── submissions.csv
-│ │ └── consent_log.csv
-│ ├── processed/
-│ │ ├── excluded_audit.csv
-│ │ ├── analysis_results.json
-│ │ └── robustness_results.json
-│ └── consent/
-│ └── irb_approved.txt
+│ ├── raw/ # Raw submission data (CSV)
+│ ├── processed/ # Cleaned and analyzed data
+│ └── consent/ # IRB consent documents
 ├── tests/
-│ ├── unit/
-│ │ └── test_randomization.py
-│ ├── integration/
-│ │ └── test_survey_flow.py
-│ └── contract/
-│ └── test_csv_schema.py
-├── docs/
-│ ├── NEUTRAL_TEXT_V1.txt
-│ ├── STIMULI_DESIGN_V1.json
-│ └── IRB_PROTO_V1.txt
-├── requirements.txt
-├── README.md
-└── quickstart.md
+│ ├── unit/ # Unit tests
+│ ├── integration/ # Integration tests
+│ └── contract/ # Schema validation tests
+├── docs/ # Design documents and protocols
+├── specs/ # Feature specifications
+├── requirements.txt # Python dependencies
+├── plan.md # This project plan
+└── README.md # Setup and execution instructions
 ```
 
-## Implementation Phases
-1. **Setup**: Project initialization and structure
-2. **Foundational**: Core infrastructure (stimuli, data directories, utilities)
-3. **US0**: Informed Consent Workflow
-4. **US1**: Participant Survey Data Collection (MVP)
-5. **US2**: Statistical Analysis Pipeline
-6. **US3**: Robustness and Validation Checks
-7. **Polish**: Testing and documentation
-
-## Dependencies
-- Python 3.11+
-- Streamlit (web interface)
-- pandas, numpy, scipy, statsmodels (analysis)
-- pyyaml (configuration)
+## Phases
+1. **Setup**: Project initialization and structure (T001-T003)
+2. **Foundational**: Core infrastructure (T004-T011)
+3. **US0 - Informed Consent**: Consent workflow (T012-T015)
+4. **US1 - Data Collection**: Survey and stimuli delivery (T016-T023)
+5. **US2 - Analysis**: ANOVA and pairwise tests (T024-T031)
+6. **US3 - Robustness**: Mixed-effects models (T032-T036)
+7. **Polish**: Testing and documentation (T037-T042)
 
 ## Ethical Considerations
 - IRB-approved consent process
-- IP address hashing for privacy
-- No client-side storage of PII
-- Transparent data exclusion criteria
+- IP hashing for anonymity
+- No client-side PII storage
+- Transparent data exclusion logging
 
 ## Success Criteria
-- Complete data collection from 250 participants
-- Statistically significant results (p < 0.05)
-- Robustness confirmed via mixed-effects models
-- Full audit trail for reproducibility
+- Complete data collection from 250+ participants
+- Statistically significant ANOVA results (p < 0.05)
+- Reproducible analysis pipeline
+- Full test coverage for critical paths

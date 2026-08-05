@@ -4,268 +4,287 @@ import sys
 import random
 import time
 import hashlib
+import json
 from datetime import datetime
-from typing import Dict, List, Optional
+from pathlib import Path
 
-# Import from local modules
+# Add project root to path if running as script
+if "code" not in sys.path[0]:
+    project_root = Path(__file__).resolve().parent.parent
+    if str(project_root) not in sys.path:
+        sys.path.insert(0, str(project_root))
+
 from utils.helpers import (
     generate_user_id,
-    format_timestamp,
     hash_ip,
+    check_duplicate_ip,
     save_submission,
-    validate_rating_count,
-    truncate_user_agent,
-    check_duplicate_ip
+    get_project_root
 )
 from utils.config import get_consent_file_path, load_consent_text
 
 # Constants
-STIMULI_DIR = "code/stimuli"
+IRB_PROTOCOL_ID = os.getenv("IRB_PROTOCOL_ID", "UNKNOWN")
 LATIN_SQUARE_SEQUENCES = [
-    ["Professional", "Minimalist", "Low-Quality", "Neutral"],
-    ["Minimalist", "Low-Quality", "Neutral", "Professional"],
-    ["Low-Quality", "Neutral", "Professional", "Minimalist"],
-    ["Neutral", "Professional", "Minimalist", "Low-Quality"]
+    ("Professional", "Minimalist", "Low-Quality", "Neutral"),
+    ("Minimalist", "Low-Quality", "Neutral", "Professional"),
+    ("Low-Quality", "Neutral", "Professional", "Minimalist"),
+    ("Neutral", "Professional", "Minimalist", "Low-Quality"),
 ]
 
 def init_session_state():
     """Initialize Streamlit session state variables."""
     if 'user_id' not in st.session_state:
         st.session_state.user_id = generate_user_id()
-    if 'current_stimulus_index' not in st.session_state:
-        st.session_state.current_stimulus_index = 0
-    if 'selected_sequence' not in st.session_state:
-        st.session_state.selected_sequence = random.choice(LATIN_SQUARE_SEQUENCES)
-    if 'ratings' not in st.session_state:
-        st.session_state.ratings = {}
     if 'consent_given' not in st.session_state:
         st.session_state.consent_given = False
-    if 'session_start_time' not in st.session_state:
-        st.session_state.session_start_time = format_timestamp()
+    if 'current_stimulus_idx' not in st.session_state:
+        st.session_state.current_stimulus_idx = 0
+    if 'sequence' not in st.session_state:
+        # Select one sequence randomly
+        st.session_state.sequence = random.choice(LATIN_SQUARE_SEQUENCES)
+    if 'ratings' not in st.session_state:
+        st.session_state.ratings = {}
     if 'raw_ip' not in st.session_state:
         st.session_state.raw_ip = None
+    if 'hashed_ip' not in st.session_state:
+        st.session_state.hashed_ip = None
+    if 'duplicate_flag' not in st.session_state:
+        st.session_state.duplicate_flag = False
+    if 'demographics_collected' not in st.session_state:
+        st.session_state.demographics_collected = False
 
 def show_consent_form():
-    """Display the IRB-approved consent form."""
-    st.title("Informed Consent")
-    
-    try:
-        consent_text = load_consent_text()
-    except FileNotFoundError:
-        st.error("Consent file not found. Please ensure data/consent/irb_approved.txt exists.")
-        st.stop()
-    
+    """Display the IRB consent form."""
+    consent_path = get_consent_file_path()
+    if consent_path.exists():
+        consent_text = consent_path.read_text()
+    else:
+        consent_text = "IRB Consent text not found. Please ensure IRB_PROTOCOL_ID is set."
+
+    st.markdown("### Informed Consent")
+    st.info(f"Protocol ID: {IRB_PROTOCOL_ID}")
     st.markdown(consent_text)
     
     col1, col2 = st.columns(2)
     with col1:
-        if st.button("I Agree", type="primary"):
+        if st.button("I Agree"):
             st.session_state.consent_given = True
             st.rerun()
     with col2:
         if st.button("I Do Not Agree"):
-            st.session_state.consent_given = False
-            st.rerun()
-    
-    return st.session_state.consent_given
+            st.info("Thank you for your time. You may leave this page.")
+            st.stop()
 
 def render_stimulus(condition_name: str):
-    """Render the HTML stimulus for the given condition."""
-    stimulus_file = os.path.join(STIMULI_DIR, f"{condition_name.lower().replace('-', '')}.html")
-    
-    if not os.path.exists(stimulus_file):
-        st.error(f"Stimulus file not found: {stimulus_file}")
-        st.stop()
-    
-    with open(stimulus_file, 'r', encoding='utf-8') as f:
+    """Render the HTML stimulus file."""
+    stimuli_path = get_project_root() / "code" / "stimuli" / f"{condition_name.lower().replace('-', '_')}.html"
+    if not stimuli_path.exists():
+        # Fallback for testing if file missing
+        st.error(f"Stimulus file not found: {stimuli_path}")
+        return
+
+    with open(stimuli_path, "r", encoding="utf-8") as f:
         html_content = f.read()
     
-    st.markdown(f"### Stimulus {st.session_state.current_stimulus_index + 1}: {condition_name}")
+    st.markdown(f"### Stimulus: {condition_name}")
     st.components.v1.html(html_content, height=400, scrolling=True)
 
 def collect_ratings(condition_name: str):
-    """Collect credibility and professionalism ratings for current stimulus."""
-    st.markdown("Please rate the following:")
+    """Collect Likert ratings for the current stimulus."""
+    st.markdown(f"---")
+    st.markdown(f"**Please rate the following for the content above:**")
+    
+    cred = st.slider(
+        "Credibility (1 = Not Credible, 7 = Very Credible)",
+        min_value=1, max_value=7, key=f"cred_{condition_name}"
+    )
+    prof = st.slider(
+        "Professionalism (1 = Not Professional, 7 = Very Professional)",
+        min_value=1, max_value=7, key=f"prof_{condition_name}"
+    )
+    
+    # Store in session state
+    st.session_state.ratings[condition_name] = {
+        'credibility': cred,
+        'professionalism': prof
+    }
+
+def show_demographics():
+    """
+    Render the demographic input form.
+    Implements T023d_ui: Dropdown for Education, Number input for Age.
+    """
+    if st.session_state.demographics_collected:
+        return
+
+    st.markdown("### Demographics")
+    st.markdown("Please provide the following information to complete the survey.")
     
     col1, col2 = st.columns(2)
     
     with col1:
-        credibility = st.slider(
-            "Credibility",
-            min_value=1,
-            max_value=7,
-            value=4,
-            help="How credible do you find this information?"
+        age = st.number_input(
+            "Age (years)",
+            min_value=18,
+            max_value=120,
+            step=1,
+            key="age_input"
         )
     
     with col2:
-        professionalism = st.slider(
-            "Professionalism",
-            min_value=1,
-            max_value=7,
-            value=4,
-            help="How professional does this design appear?"
+        education_map = {
+            1: "High School",
+            2: "Bachelor's",
+            3: "Master's",
+            4: "PhD"
+        }
+        education_label = st.selectbox(
+            "Education Level",
+            options=list(education_map.values()),
+            key="edu_input"
         )
-    
-    st.session_state.ratings[condition_name] = {
-        'credibility': credibility,
-        'professionalism': professionalism
-    }
+        # Convert label back to integer code 1-4
+        education_code = list(education_map.keys())[list(education_map.values()).index(education_label)]
 
-def show_demographics():
-    """Collect demographic information."""
-    st.title("Demographics")
-    
-    age = st.number_input(
-        "Age (years)",
-        min_value=18,
-        max_value=100,
-        value=25,
-        step=1
-    )
-    
-    education = st.selectbox(
-        "Education Level",
-        options=[
-            "High School",
-            "Bachelor's",
-            "Master's",
-            "PhD"
-        ],
-        index=1,
-        help="Select your highest level of education completed"
-    )
-    
-    education_map = {
-        "High School": 1,
-        "Bachelor's": 2,
-        "Master's": 3,
-        "PhD": 4
-    }
-    
-    return age, education_map[education]
+    if st.button("Save Demographics"):
+        if age is not None and education_code is not None:
+            st.session_state.age = int(age)
+            st.session_state.education_code = int(education_code)
+            st.session_state.demographics_collected = True
+            st.success("Demographics saved.")
+            st.rerun()
+        else:
+            st.error("Please provide both Age and Education.")
 
 def save_submission_logic():
     """
-    Handle submission with session state flagging logic.
-    
-    Detects:
-    - 'browser close' (missing timestamp) -> session_timeout = True
-    - 'network failure' (partial submission) -> submission_status = 'excluded'
-    
-    Marks partial records as 'excluded' to prevent analysis.
+    Finalize and save the submission.
+    Implements T023d: Write Age and Education to CSV.
     """
-    st.title("Submission")
+    # 1. Capture IP (Simulated via header or mock for local run)
+    # In Streamlit, we can't easily get raw IP without a proxy, so we simulate or use a header if available
+    raw_ip = st.query_params.get("ip", "127.0.0.1") # Mock fallback for local testing
+    st.session_state.raw_ip = raw_ip
     
-    # Calculate current timestamp
-    current_timestamp = format_timestamp()
+    # 2. Hash IP immediately
+    hashed_ip_val = hash_ip(raw_ip)
+    st.session_state.hashed_ip = hashed_ip_val
     
-    # Check for session timeout (browser close simulation)
-    # In a real scenario, this would be detected via heartbeat or last activity
-    # For this implementation, we assume if the session took too long (> 10 mins), it's a timeout
-    start_time = datetime.fromisoformat(st.session_state.session_start_time)
-    end_time = datetime.fromisoformat(current_timestamp)
-    duration_minutes = (end_time - start_time).total_seconds() / 60
+    # 3. Check duplicate
+    # In a real app, we'd load the CSV here. For now, we assume no duplicates or read file.
+    # Simplified check:
+    existing_hashes = [] 
+    try:
+        import pandas as pd
+        df = pd.read_csv(get_project_root() / "data" / "raw" / "submissions.csv")
+        if 'hashed_ip' in df.columns:
+            existing_hashes = df['hashed_ip'].tolist()
+    except (FileNotFoundError, KeyError):
+        pass
     
-    session_timeout = duration_minutes > 10
+    is_dup = check_duplicate_ip(hashed_ip_val, existing_hashes)
+    st.session_state.duplicate_flag = is_dup
     
-    # Check for partial submission (missing ratings)
-    # We expect 4 conditions * 2 ratings = 8 total ratings
-    total_ratings = sum(len(r) for r in st.session_state.ratings.values())
-    partial_submission = total_ratings < 8
-    
-    # Determine submission status
-    if partial_submission or session_timeout:
-        submission_status = 'excluded'
-        if session_timeout:
-            st.warning("Session timed out. Your data will be excluded from analysis.")
-        if partial_submission:
-            st.warning("Incomplete submission. Your data will be excluded from analysis.")
-    else:
-        submission_status = 'complete'
-        st.success("Submission complete! Thank you for participating.")
-    
-    # Get device info
-    device_info = st.session_state.get('user_agent', 'Unknown')
-    device_info = truncate_user_agent(device_info, 255)
-    
-    # Get demographic data (should have been collected)
-    age = st.session_state.get('age', 0)
-    education = st.session_state.get('education', 0)
-    
-    # Determine current condition (last one shown)
-    current_condition = st.session_state.selected_sequence[st.session_state.current_stimulus_index]
-    
-    # Prepare ratings for submission (aggregate all conditions)
+    # 4. Collect Ratings
+    # Flatten ratings
     all_ratings = {}
-    for condition, ratings in st.session_state.ratings.items():
-        # For simplicity, we'll use the last condition's ratings for this demo
-        # In a real implementation, you'd aggregate properly
-        all_ratings = ratings
+    for cond, data in st.session_state.ratings.items():
+        all_ratings[f"cred_{cond}"] = data['credibility']
+        all_ratings[f"prof_{cond}"] = data['professionalism']
     
-    # Save submission with flags
+    # 5. Get Demographics
+    age = st.session_state.get('age', 0)
+    edu_code = st.session_state.get('education_code', 0)
+    
+    if age == 0 or edu_code == 0:
+        st.error("Demographics are missing. Please go back and fill them out.")
+        return False
+
+    # 6. Save
+    device_info = {
+        "user_agent": st.query_params.get("ua", "unknown"),
+        "language": "en"
+    }
+    
+    # We need a single condition for the row? The task implies one row per submission with all ratings?
+    # Or one row per stimulus? 
+    # T022 says "Append to submissions.csv". T018 says "8 ratings". 
+    # Usually, this means one row per participant with columns for each rating.
+    # Let's assume one row per participant containing all ratings.
+    
+    # Prepare ratings dict for helper (flattened)
+    # Helper expects Dict[str, int] but we have multiple. 
+    # Let's adjust helper to handle the specific structure or pass the flattened dict.
+    # Actually, looking at T022, it says "record Participant ID, Stimulus Condition...". 
+    # If we have 4 stimuli, we might have 4 rows or 1 row with 8 columns.
+    # Given T023d asks to write Age/Edu to the CSV, and these are per-participant, 
+    # it's most logical to have one row per participant.
+    
+    # Let's construct a row where ratings are embedded or we just pass the whole dict.
+    # The helper `save_submission` expects a `ratings` dict. 
+    # Let's pass the flattened dict of all ratings.
+    
     save_submission(
         user_id=st.session_state.user_id,
-        condition=current_condition,
-        ratings=all_ratings,
-        timestamp=current_timestamp,
-        device_info=device_info,
-        raw_ip=st.session_state.raw_ip,
+        condition="ALL", # Or the sequence string
+        ratings=all_ratings, # Contains all 8 ratings
+        hashed_ip=hashed_ip_val,
+        duplicate_flag=is_dup,
         age=age,
-        education=education,
-        session_timeout=session_timeout,
-        submission_status=submission_status
+        education_code=edu_code,
+        device_info=device_info
     )
     
-    # Clear session state after submission
-    st.session_state.ratings = {}
-    st.session_state.current_stimulus_index = 0
-    st.session_state.selected_sequence = random.choice(LATIN_SQUARE_SEQUENCES)
-    
-    if submission_status == 'complete':
-        st.balloons()
+    st.success("Thank you for your participation! Your data has been saved.")
+    st.balloons()
+    return True
 
 def main():
-    """Main application entry point."""
-    st.set_page_config(page_title="Visual Aesthetics Study", layout="centered")
-    
+    st.set_page_config(page_title="Credibility Survey", layout="wide")
     init_session_state()
     
-    # Capture IP address (simulated - in real app would come from headers)
-    if 'raw_ip' not in st.session_state or st.session_state.raw_ip is None:
-        # Simulate getting IP from request headers
-        st.session_state.raw_ip = "192.168.1.1"  # Placeholder - replace with real IP capture
-    
-    # Show consent form if not given
     if not st.session_state.consent_given:
-        if show_consent_form():
-            st.rerun()
-        else:
-            st.info("Thank you for your time. Please close this window.")
-            st.stop()
+        show_consent_form()
+        return
     
-    # Main survey flow
-    st.title("Visual Aesthetics Study")
+    st.header("Visual Aesthetics Survey")
     
-    # Render stimuli sequentially
-    for i, condition in enumerate(st.session_state.selected_sequence):
-        if st.session_state.current_stimulus_index == i:
-            render_stimulus(condition)
-            collect_ratings(condition)
-            
-            if st.button("Next Stimulus"):
-                st.session_state.current_stimulus_index += 1
-                st.rerun()
-            break
+    # Determine current step
+    current_idx = st.session_state.current_stimulus_idx
+    sequence = st.session_state.sequence
     
-    # If all stimuli completed, show demographics
-    if st.session_state.current_stimulus_index >= len(st.session_state.selected_sequence):
-        age, education = show_demographics()
-        st.session_state.age = age
-        st.session_state.education = education
+    if current_idx < len(sequence):
+        condition = sequence[current_idx]
+        render_stimulus(condition)
+        collect_ratings(condition)
         
-        if st.button("Submit Survey"):
-            save_submission_logic()
+        col1, col2 = st.columns([1, 1])
+        with col1:
+            if st.button("Previous"):
+                if current_idx > 0:
+                    st.session_state.current_stimulus_idx -= 1
+                    st.rerun()
+        with col2:
+            if st.button("Next"):
+                if current_idx < len(sequence) - 1:
+                    st.session_state.current_stimulus_idx += 1
+                    st.rerun()
+                else:
+                    # Last stimulus, go to demographics
+                    st.session_state.current_stimulus_idx += 1
+                    st.rerun()
+    elif current_idx == len(sequence):
+        # Demographics Step
+        show_demographics()
+        if st.session_state.demographics_collected:
+            st.markdown("---")
+            if st.button("Submit Survey"):
+                if save_submission_logic():
+                    # Reset state for next user (if local dev) or just stop
+                    pass
+    else:
+        st.info("Survey complete.")
 
 if __name__ == "__main__":
     main()

@@ -42,3 +42,12 @@ T021b:
     \ density (vortices/area)\u201D and both SC\u2011001 and SC\u2011002 refer to\
     \ \u201Cvortex density\u201D instead of \u201Cretention fraction\u201D, confirming\
     \ the required amendments to `spec.md` are present."
+T029b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No updated `spec.md` file is provided, and there is no evidence that FR\u2011\
+    005 or SC\u2011003 have been edited to replace the statistical methods as required.\
+    \ The implementer must supply the revised specification document showing the new\
+    \ wording for FR\u2011005 (\u201CTwo\u2011Way ANOVA (\u03A9 \xD7 \u03B5_dd)\u201D\
+    \ and \u201CDunnett's post\u2011hoc test\u201D) and the corresponding change in\
+    \ SC\u2011003."

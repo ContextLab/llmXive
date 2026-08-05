@@ -1,287 +1,246 @@
-"""
-Stability Metrics Calculation Module.
-
-Implements the calculation of stability metrics for Rotating Bose-Einstein Condensates:
-- Vortex Density (vortices per unit area)
-- Radial Variance (spread of density distribution)
-- Structure Factor Sharpness (peakiness of the structure factor)
-
-Dependencies:
-- code/analysis/vortex_detector.py (for vortex detection)
-- code/utils/io_helpers.py (for loading data)
-- code/models/entities.py (for StabilityMetric dataclass)
-- code/config/grid_config.py (for grid parameters)
-"""
-
 import numpy as np
 from typing import Dict, Any, Optional, Tuple, List
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+import os
+import json
 
 from models.entities import StabilityMetric
 from analysis.vortex_detector import detect_vortices_phase_winding
 from utils.io_helpers import load_array, load_simulation_snapshot
-from config.grid_config import get_domain_size, get_grid_resolution
 from utils.logger import get_logger
 
 logger = get_logger(__name__)
 
+# Metastability threshold constants
+METASTABLE_VORTEX_DROP_THRESHOLD = 0.30  # 30% drop defines metastable boundary
 
-def calculate_vortex_density(vortex_positions: List[Tuple[float, float]], 
-                             grid_size: Tuple[int, int], 
-                             domain_size: Tuple[float, float]) -> float:
+def calculate_vortex_density(vortices: List[Tuple[float, float]], area: float) -> float:
     """
     Calculate vortex density (vortices per unit area).
     
     Args:
-        vortex_positions: List of (x, y) coordinates of detected vortices.
-        grid_size: Tuple (Nx, Ny) of grid dimensions.
-        domain_size: Tuple (Lx, Ly) of physical domain size.
+        vortices: List of (x, y) coordinates of detected vortices.
+        area: Total area of the simulation domain.
         
     Returns:
-        Vortex density (number of vortices / area).
+        Vortex density (float). Returns 0.0 if area is zero or no vortices.
     """
-    if not vortex_positions:
+    if area <= 0.0:
+        logger.warning("Area is zero or negative, returning 0.0 for vortex density.")
         return 0.0
-    
-    num_vortices = len(vortex_positions)
-    area = domain_size[0] * domain_size[1]
-    
-    if area <= 0:
-        logger.warning("Invalid domain size, returning 0 density")
+    if not vortices:
         return 0.0
-        
-    return num_vortices / area
+    return len(vortices) / area
 
-
-def calculate_radial_variance(density: np.ndarray, 
-                              grid_size: Tuple[int, int], 
-                              domain_size: Tuple[float, float]) -> float:
+def calculate_radial_variance(density_grid: np.ndarray, coords: np.ndarray) -> float:
     """
     Calculate radial variance of the density distribution.
     
-    This measures the spread of the density from the center of the trap.
+    Measures how spread out the density is radially from the center.
     
     Args:
-        density: 2D numpy array of density values |psi|^2.
-        grid_size: Tuple (Nx, Ny) of grid dimensions.
-        domain_size: Tuple (Lx, Ly) of physical domain size.
+        density_grid: 2D array of density values.
+        coords: 2D array of coordinates (x, y) for each grid point.
         
     Returns:
-        Radial variance (mean squared distance from center weighted by density).
+        Radial variance (float).
     """
-    if density.size == 0:
-        logger.warning("Empty density array, returning 0 variance")
+    if density_grid.size == 0:
+        return 0.0
+    
+    # Calculate center of mass
+    total_mass = np.sum(density_grid)
+    if total_mass == 0:
         return 0.0
         
-    Nx, Ny = grid_size
-    Lx, Ly = domain_size
+    x_coords = coords[:, 0]
+    y_coords = coords[:, 1]
     
-    # Create coordinate grids centered at (0, 0)
-    x = np.linspace(-Lx/2, Lx/2, Nx)
-    y = np.linspace(-Ly/2, Ly/2, Ny)
-    X, Y = np.meshgrid(x, y, indexing='ij')
+    cx = np.sum(density_grid * x_coords) / total_mass
+    cy = np.sum(density_grid * y_coords) / total_mass
     
-    # Calculate radial distance squared
-    R2 = X**2 + Y**2
+    # Calculate radial distance from center of mass for each point
+    r_sq = (x_coords - cx)**2 + (y_coords - cy)**2
     
-    # Normalize density to sum to 1 (probability distribution)
-    total_mass = np.sum(density)
-    if total_mass <= 0:
-        logger.warning("Non-positive total mass, returning 0 variance")
-        return 0.0
-        
-    prob_dist = density / total_mass
-    
-    # Calculate mean squared radius (variance)
-    radial_variance = np.sum(R2 * prob_dist)
-    
-    return float(radial_variance)
+    # Weighted variance
+    variance = np.sum(density_grid * r_sq) / total_mass
+    return variance
 
-
-def calculate_structure_factor_sharpness(density: np.ndarray, 
-                                         grid_size: Tuple[int, int], 
-                                         threshold: float = 0.1) -> float:
+def calculate_structure_factor_sharpness(density_grid: np.ndarray) -> float:
     """
-    Calculate the sharpness of the structure factor peak.
+    Calculate the sharpness of the structure factor.
     
-    The structure factor is the Fourier transform of the density.
-    Sharpness is defined as the ratio of the peak value to the mean of the 
-    non-peak region (excluding the zero-frequency component).
+    This is a proxy for order: higher sharpness indicates more structured
+    vortex arrangements (e.g., lattice-like).
     
     Args:
-        density: 2D numpy array of density values.
-        grid_size: Tuple (Nx, Ny) of grid dimensions.
-        threshold: Threshold to exclude low values from the mean calculation.
+        density_grid: 2D array of density values.
         
     Returns:
-        Structure factor sharpness ratio.
+        Sharpness metric (float).
     """
-    if density.size == 0:
-        logger.warning("Empty density array, returning 0 sharpness")
+    if density_grid.size == 0:
         return 0.0
         
     # Compute 2D FFT
-    fft_result = np.fft.fft2(density)
-    structure_factor = np.abs(fft_result)**2
+    fft_result = np.fft.fft2(density_grid)
+    spectrum = np.abs(fft_result)**2
     
-    # Shift zero-frequency component to center
-    structure_factor_shifted = np.fft.fftshift(structure_factor)
+    # Shift zero frequency to center
+    spectrum_shifted = np.fft.fftshift(spectrum)
     
-    Nx, Ny = grid_size
-    center_x, center_y = Nx // 2, Ny // 2
+    # Calculate sharpness as the ratio of peak intensity to mean intensity
+    # excluding the central peak (zero frequency)
+    h, w = spectrum_shifted.shape
+    center_h, center_w = h // 2, w // 2
     
-    # Define a small region around the center to exclude (peak region)
-    exclude_radius = max(2, min(Nx, Ny) // 8)
+    # Mask out the central region to avoid DC component dominance
+    mask = np.ones((h, w), dtype=bool)
+    mask[center_h-5:center_h+5, center_w-5:center_w+5] = False
     
-    # Create mask for non-peak region
-    Y_idx, X_idx = np.ogrid[:Ny, :Nx]
-    dist_from_center = np.sqrt((X_idx - center_x)**2 + (Y_idx - center_y)**2)
-    mask = dist_from_center > exclude_radius
-    
-    # Calculate peak value (at center)
-    peak_value = structure_factor_shifted[center_y, center_x]
-    
-    # Calculate mean of non-peak region
-    non_peak_values = structure_factor_shifted[mask]
-    
-    if len(non_peak_values) == 0:
-        logger.warning("No non-peak values found, returning 0 sharpness")
+    if np.sum(mask) == 0:
         return 0.0
         
-    mean_non_peak = np.mean(non_peak_values)
+    peak_intensity = np.max(spectrum_shifted)
+    mean_intensity = np.mean(spectrum_shifted[mask])
     
-    if mean_non_peak <= 0:
-        logger.warning("Non-positive mean non-peak value, returning 0 sharpness")
+    if mean_intensity == 0:
         return 0.0
         
-    sharpness = peak_value / mean_non_peak
-    
-    return float(sharpness)
+    return peak_intensity / mean_intensity
 
-
-def calculate_all_metrics(snapshot_data: Dict[str, Any], 
-                          grid_config: Optional[Dict[str, Any]] = None) -> StabilityMetric:
+def calculate_all_metrics(
+    density_grid: np.ndarray,
+    phase_grid: np.ndarray,
+    coords: np.ndarray,
+    area: float
+) -> Dict[str, float]:
     """
-    Calculate all stability metrics from a simulation snapshot.
+    Calculate all stability metrics for a given snapshot.
     
     Args:
-        snapshot_data: Dictionary containing 'density' (2D array) and optionally 'phase' (2D array).
-        grid_config: Optional dictionary with grid configuration parameters. 
-                     If None, defaults from grid_config.py are used.
-                     
+        density_grid: 2D array of density values.
+        phase_grid: 2D array of phase values.
+        coords: 2D array of coordinates (x, y) for each grid point.
+        area: Total area of the simulation domain.
+        
     Returns:
-        StabilityMetric dataclass instance with calculated metrics.
+        Dictionary containing all calculated metrics.
     """
-    logger.info("Calculating stability metrics from snapshot")
+    # Detect vortices
+    vortices = detect_vortices_phase_winding(phase_grid, coords)
     
-    if 'density' not in snapshot_data:
-        raise ValueError("Snapshot data must contain 'density' key")
-        
-    density = snapshot_data['density']
-    phase = snapshot_data.get('phase', None)
-    
-    # Get grid parameters
-    if grid_config is None:
-        grid_size = get_grid_resolution()
-        domain_size = get_domain_size()
-    else:
-        grid_size = (grid_config.get('Nx', 64), grid_config.get('Ny', 64))
-        domain_size = (grid_config.get('Lx', 20.0), grid_config.get('Ly', 20.0))
-        
-    # Detect vortices if phase is available
-    vortex_positions = []
-    if phase is not None:
-        logger.debug("Detecting vortices from phase winding")
-        try:
-            vortex_positions = detect_vortices_phase_winding(phase, grid_size)
-            logger.info(f"Detected {len(vortex_positions)} vortices")
-        except Exception as e:
-            logger.warning(f"Vortex detection failed: {e}. Setting vortex density to 0.")
-    else:
-        logger.warning("Phase data not available, skipping vortex detection")
-        
     # Calculate metrics
-    vortex_density = calculate_vortex_density(vortex_positions, grid_size, domain_size)
-    radial_variance = calculate_radial_variance(density, grid_size, domain_size)
-    structure_factor_sharpness = calculate_structure_factor_sharpness(density, grid_size)
+    vortex_density = calculate_vortex_density(vortices, area)
+    radial_variance = calculate_radial_variance(density_grid, coords)
+    structure_sharpness = calculate_structure_factor_sharpness(density_grid)
     
-    logger.info(f"Metrics calculated - Vortex Density: {vortex_density:.4f}, "
-               f"Radial Variance: {radial_variance:.4f}, "
-               f"Structure Factor Sharpness: {structure_factor_sharpness:.4f}")
-               
-    return StabilityMetric(
-        vortex_density=vortex_density,
-        radial_variance=radial_variance,
-        structure_factor_sharpness=structure_factor_sharpness
-    )
+    return {
+        'vortex_density': vortex_density,
+        'radial_variance': radial_variance,
+        'structure_factor_sharpness': structure_sharpness,
+        'vortex_count': len(vortices)
+    }
 
-
-def process_snapshot_file(snapshot_path: str, 
-                          output_path: Optional[str] = None) -> StabilityMetric:
+def process_snapshot_file(
+    snapshot_path: str,
+    initial_vortex_count: Optional[int] = None
+) -> StabilityMetric:
     """
-    Load a simulation snapshot from file and calculate stability metrics.
+    Process a single simulation snapshot file and calculate stability metrics.
     
     Args:
-        snapshot_path: Path to the snapshot file (.npy or .npz).
-        output_path: Optional path to save the metrics as a JSON file.
-                    
+        snapshot_path: Path to the snapshot file (.npy or .csv).
+        initial_vortex_count: Optional count of vortices at t=0 for metastability analysis.
+        
     Returns:
-        StabilityMetric dataclass instance.
+        StabilityMetric dataclass with calculated metrics.
     """
-    logger.info(f"Processing snapshot file: {snapshot_path}")
+    logger.info(f"Processing snapshot: {snapshot_path}")
     
-    # Load snapshot
-    snapshot_data = load_simulation_snapshot(snapshot_path)
+    # Load data
+    try:
+        snapshot_data = load_simulation_snapshot(snapshot_path)
+        density_grid = snapshot_data['density']
+        phase_grid = snapshot_data['phase']
+        coords = snapshot_data['coords']
+        area = snapshot_data.get('area', 1.0)
+    except Exception as e:
+        logger.error(f"Failed to load snapshot {snapshot_path}: {e}")
+        raise
     
     # Calculate metrics
-    metrics = calculate_all_metrics(snapshot_data)
+    metrics_dict = calculate_all_metrics(density_grid, phase_grid, coords, area)
     
-    # Save if output path provided
-    if output_path:
-        logger.info(f"Saving metrics to: {output_path}")
-        import json
-        with open(output_path, 'w') as f:
-            json.dump({
-                'vortex_density': float(metrics.vortex_density),
-                'radial_variance': float(metrics.radial_variance),
-                'structure_factor_sharpness': float(metrics.structure_factor_sharpness)
-            }, f, indent=2)
+    # Handle metastability boundary logic
+    current_vortex_count = metrics_dict['vortex_count']
+    metastable_drop_percent = None
+    is_metastable = False
+    
+    if initial_vortex_count is not None and initial_vortex_count > 0:
+        if current_vortex_count < initial_vortex_count:
+            drop_ratio = (initial_vortex_count - current_vortex_count) / initial_vortex_count
+            metastable_drop_percent = drop_ratio * 100.0
             
-    return metrics
-
+            # Check if drop > 30%
+            if drop_ratio > METASTABLE_VORTEX_DROP_THRESHOLD:
+                is_metastable = True
+                logger.info(
+                    f"Metastable boundary detected: {drop_ratio*100:.2f}% vortex loss "
+                    f"(threshold: {METASTABLE_VORTEX_DROP_THRESHOLD*100:.0f}%)"
+                )
+    
+    # Create StabilityMetric object
+    metric = StabilityMetric(
+        vortex_density=metrics_dict['vortex_density'],
+        radial_variance=metrics_dict['radial_variance'],
+        structure_factor_sharpness=metrics_dict['structure_factor_sharpness'],
+        vortex_count=current_vortex_count,
+        is_metastable=is_metastable,
+        metastable_drop_percent=metastable_drop_percent
+    )
+    
+    return metric
 
 def main():
     """
-    Main entry point for running metrics calculation on a provided snapshot.
-    Usage: python -m analysis.metrics --snapshot <path> [--output <path>]
+    Main entry point for metrics calculation script.
+    Processes a snapshot file and prints metrics to stdout.
     """
     import argparse
     
-    parser = argparse.ArgumentParser(description='Calculate stability metrics from simulation snapshot')
-    parser.add_argument('--snapshot', required=True, help='Path to snapshot file (.npy or .npz)')
-    parser.add_argument('--output', help='Optional path to save metrics JSON')
-    parser.add_argument('--Nx', type=int, default=None, help='Grid size X (overrides default)')
-    parser.add_argument('--Ny', type=int, default=None, help='Grid size Y (overrides default)')
-    parser.add_argument('--Lx', type=float, default=None, help='Domain size X (overrides default)')
-    parser.add_argument('--Ly', type=float, default=None, help='Domain size Y (overrides default)')
+    parser = argparse.ArgumentParser(description="Calculate stability metrics from snapshot")
+    parser.add_argument("snapshot_path", help="Path to snapshot file")
+    parser.add_argument("--initial-vortices", type=int, default=None,
+                      help="Initial vortex count for metastability analysis")
+    parser.add_argument("--output", type=str, default=None,
+                      help="Output JSON file path")
     
     args = parser.parse_args()
     
-    grid_config = {}
-    if args.Nx: grid_config['Nx'] = args.Nx
-    if args.Ny: grid_config['Ny'] = args.Ny
-    if args.Lx: grid_config['Lx'] = args.Lx
-    if args.Ly: grid_config['Ly'] = args.Ly
-    
-    metrics = process_snapshot_file(args.snapshot, args.output)
-    
-    print(f"Stability Metrics:")
-    print(f"  Vortex Density: {metrics.vortex_density:.6f}")
-    print(f"  Radial Variance: {metrics.radial_variance:.6f}")
-    print(f"  Structure Factor Sharpness: {metrics.structure_factor_sharpness:.6f}")
-    
-    return metrics
+    try:
+        metric = process_snapshot_file(args.snapshot_path, args.initial_vortices)
+        
+        # Convert to dict for output
+        result = {
+            'vortex_density': metric.vortex_density,
+            'radial_variance': metric.radial_variance,
+            'structure_factor_sharpness': metric.structure_factor_sharpness,
+            'vortex_count': metric.vortex_count,
+            'is_metastable': metric.is_metastable,
+            'metastable_drop_percent': metric.metastable_drop_percent
+        }
+        
+        print(json.dumps(result, indent=2))
+        
+        if args.output:
+            with open(args.output, 'w') as f:
+                json.dump(result, f, indent=2)
+            logger.info(f"Results saved to {args.output}")
+            
+    except Exception as e:
+        logger.error(f"Error processing snapshot: {e}")
+        raise
 
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

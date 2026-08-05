@@ -44,7 +44,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project structure per `projects/PROJ-205-.../` in `plan.md` <!-- FAILED: unspecified -->
-- [ ] T002 Initialize Python 3.11 project with `requirements.txt` (streamlit, pandas, numpy, scipy, statsmodels, pyyaml)
+- [X] T002 Initialize Python 3.11 project with `requirements.txt` (streamlit, pandas, numpy, scipy, statsmodels, pyyaml)
 - [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
 
 ---
@@ -62,8 +62,8 @@
 - [X] T008 [P] Create `code/stimuli/neutral.html` (Standard default browser styling, plain text; source: `docs/STIMULI_DESIGN_V1.json`)
 - [ ] T009 Setup `data/raw/` and `data/processed/` directory structure
 - [X] T010 Create `code/utils/helpers.py` for CSV export formatting, ID generation, and IP hashing (`hash_ip` function)
-- [ ] T011b [US0] Create `data/consent/irb_approved.txt` with the full, verbatim IRB-approved consent text (source: paste content from `docs/IRB_PROTO_V1.txt`) <!-- FAILED: unspecified -->
-- [~] T011c [US0] Define `IRB_PROTOCOL_ID` environment variable and ensure it is captured in every consent log entry (Constitution Principle VI compliance)
+- [ ] T011b [US0] Create `data/consent/irb_approved.txt` with the full, verbatim IRB-approved consent text (source: paste content from `docs/IRB_PROTO_V1.txt`) <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [ ] T011c [US0] Define `IRB_PROTOCOL_ID` environment variable and ensure it is captured in every consent log entry (Constitution Principle VI compliance)
 - [ ] T011 [US0] Configure environment variables to point to `data/consent/irb_approved.txt` for the consent form source
 - [ ] T011a [US0] Implement verification logic to validate `docs/IRB_PROTO_V1.txt` content against the `IRB_PROTOCOL_ID` before use
 
@@ -79,7 +79,7 @@
 
 ### Implementation for User Story 0
 
-- [~] T012 [US0] Implement consent modal in `code/survey/app.py` displaying IRB text from `data/consent/irb_approved.txt` and including the `IRB_PROTOCOL_ID` in the header
+- [ ] T012 [US0] Implement consent modal in `code/survey/app.py` displaying IRB text from `data/consent/irb_approved.txt` and including the `IRB_PROTOCOL_ID` in the header
 - [X] T013 [US0] Implement "I Agree" / "I Do Not Agree" logic in `code/survey/app.py`
 - [X] T014 [US0] Create consent logging function in `code/utils/helpers.py` to write `consent_log.csv` (timestamp, user_id, decision, IRB_PROTOCOL_ID)
 - [~] T015 [US0] Implement redirect logic to withdrawal page on "I Do Not Agree"
@@ -131,12 +131,12 @@
 
 - [~] T024 [US2] Create `code/analysis/01_preprocess.py` to load `data/raw/submissions.csv`. Filter rows where: `submission_status != 'complete'` OR `session_timeout == true` OR `rating_count < 8`. Log all excluded rows to `data/processed/excluded_audit.csv` for transparency. Reshape valid data to wide format for ANOVA.
 - [X] T025 [US2] Implement Repeated-Measures ANOVA in `code/analysis/01_anova.py` (factor: design condition, DV: credibility)
-- [ ] T026 [US2] Implement partial η² calculation in `code/analysis/01_anova.py`
-- [ ] T027 [US2] Implement conditional logic in `code/analysis/01_anova.py`: if p < 0.05, trigger pairwise t-tests
-- [ ] T028 [US2] Implement Bonferroni-corrected pairwise t-tests in `code/analysis/02_pairwise.py` (comparisons)
-- [ ] T029 [US2] Implement Cohen's d calculation for pairwise comparisons in `code/analysis/02_pairwise.py`
-- [ ] T030 [US2] Create `code/analysis/03_report.py` to generate a summary table (F-stat, df, p, η², pairwise p-values, effect sizes) and save to `data/processed/analysis_results.json`
-- [ ] T031 [US2] Add seed pinning to ALL analysis scripts: `numpy.random.seed`, `random.seed`, `statsmodels` (via global numpy seed), and `scipy` optimization parameters. Ensure reproducibility for Mixed-Effects models (US-3) and ANOVA.
+- [X] T026 [US2] Implement partial η² calculation in `code/analysis/01_anova.py`
+- [X] T027 [US2] Implement conditional logic in `code/analysis/01_anova.py`: if p < 0.05, trigger pairwise t-tests
+- [X] T028 [US2] Implement Bonferroni-corrected pairwise t-tests in `code/analysis/02_pairwise.py` (comparisons)
+- [X] T029 [US2] Implement Cohen's d calculation for pairwise comparisons in `code/analysis/02_pairwise.py`
+- [~] T030 [US2] Create `code/analysis/03_report.py` to generate a summary table (F-stat, df, p, η², pairwise p-values, effect sizes) and save to `data/processed/analysis_results.json`
+- [~] T031 [US2] Add seed pinning to ALL analysis scripts: `numpy.random.seed`, `random.seed`, `statsmodels` (via global numpy seed), and `scipy` optimization parameters. Ensure reproducibility for Mixed-Effects models (US-3) and ANOVA.
 
 **Checkpoint**: Primary hypothesis test results are generated and saved.
 
