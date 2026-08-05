@@ -1,0 +1,49 @@
+T004:
+  c: false
+  h: 914774bc2fc562a1747c87b334aadc68abef2111bdd0653c34694def784fdc3f
+  r: The `code/00_feasibility_check.py` file exists but the required schema contract
+    `contracts/dataset.schema.yaml` is missing, and there is no evidence of a `logs/schema_validation.log`
+    being created. Without the schema file the validation cannot run, and the logging
+    requirement is unmet.
+T005a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No directory structure is shown in the provided evidence; there is no listing\
+    \ or screenshot confirming that `projects/PROJ-453-.../data/raw`, `data/processed`,\
+    \ `code`, `results/models`, `results/figures`, `tests`, and `contracts` actually\
+    \ exist. The implementer\u2019s claim cannot be verified without these artifacts."
+T013:
+  c: false
+  h: 3cd21794b85db8594844ee1a2fa4557cb3719a6e66e8718d73d7666f93039b0b
+  r: The test implementation exists, but the required contract file `contracts/dataset.schema.yaml`
+    is missing, so the test cannot actually validate the schema as specified. The
+    missing schema file must be added for the task to be complete.
+T015c:
+  c: false
+  h: 8cd210e898c5aa53c41a6ffb70184ad8438a3ab1cec75c925bcf4a87d81cc110
+  r: The repository lacks the required `contracts/dataset.schema.yaml` file, so the
+    validation logic cannot actually reference the schema. Moreover, the shown portion
+    of `code/01_ingest.py` ends abruptly (truncated) and never demonstrates applying
+    the loaded schema to the parsed DataFrames, indicating the validation step is
+    not fully implemented. The task therefore remains unfinished.
+T016b:
+  c: false
+  h: 453e696bb1167cd296bf0a79c32f675ea4808e3dc25804b0e8290895c4f2475f
+  r: The `code/02_engineer.py` file exists but is truncated (e.g., `validate_and_save`
+    is incomplete) and the required schema file `contracts/dataset.schema.yaml` is
+    missing, so the script cannot actually validate raw data against the contract
+    as the task demands. The missing schema and incomplete code must be provided/fixed.
+T019:
+  c: false
+  h: 1439dd2622833997ec9a2f9aa26a7700378f070e659ee675f9a38f7f26024799
+  r: "The required output file `data/processed/participants_cleaned.csv` does not\
+    \ exist, and the provided `code/02_engineer.py` is truncated (ends mid\u2011function),\
+    \ indicating the implementation is unfinished and cannot produce the expected\
+    \ CSV. The task therefore remains incomplete."
+T020:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, configuration file, or log output was presented showing that logging
+    with level INFO, stdout destination, and the specified format has been added to
+    the data ingestion and variable engineering steps. The required logging implementation
+    is missing.

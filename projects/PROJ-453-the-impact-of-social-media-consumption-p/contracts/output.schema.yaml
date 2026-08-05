@@ -1,0 +1,126 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Model Output Schema
+description: >
+  Schema defining the structure of the regression model output, including
+  coefficients, p-values, VIF scores, diagnostics, and associational interpretation.
+  This schema is used to validate the output of code/03_model.py.
+type: object
+required:
+  - coefficients
+  - p_values
+  - vif_scores
+  - diagnostics
+  - interpretation
+properties:
+  coefficients:
+    type: object
+    description: >
+      Dictionary mapping predictor variable names to their estimated regression coefficients.
+      Includes intercept and interaction terms.
+    additionalProperties:
+      type: number
+    example:
+      intercept: 25.4
+      switching_index: -0.03
+      total_screen_time: -0.01
+      age: 0.15
+      switching_index_x_age: 0.002
+
+  p_values:
+    type: object
+    description: >
+      Dictionary mapping predictor variable names to their p-values.
+      Also includes FDR-corrected p-values if applicable.
+    properties:
+      raw:
+        type: object
+        description: Raw p-values for each coefficient.
+        additionalProperties:
+          type: number
+      fdr_corrected:
+        type: object
+        description: Benjamini-Hochberg corrected p-values.
+        additionalProperties:
+          type: number
+    required:
+      - raw
+      - fdr_corrected
+    example:
+      raw:
+        switching_index: 0.045
+        total_screen_time: 0.12
+      fdr_corrected:
+        switching_index: 0.058
+        total_screen_time: 0.15
+
+  vif_scores:
+    type: object
+    description: >
+      Variance Inflation Factor scores for all predictors to assess multicollinearity.
+      A VIF > 5 or 10 typically indicates high multicollinearity.
+    additionalProperties:
+      type: number
+    example:
+      switching_index: 1.2
+      total_screen_time: 1.5
+      age: 1.1
+      switching_index_x_age: 1.8
+
+  diagnostics:
+    type: object
+    description: >
+      Additional model diagnostics including correlation matrix, model fit statistics,
+      and flags for potential issues (e.g., mathematical coupling).
+    required:
+      - correlation_matrix
+    properties:
+      correlation_matrix:
+        type: object
+        description: >
+          Pairwise correlation matrix of predictors. Keys are "var1_var2" or nested structure.
+          Used to detect potential mathematical coupling (>0.7 correlation).
+        additionalProperties:
+          type: number
+        example:
+          switching_index_total_screen_time: 0.72
+          switching_index_age: 0.05
+          total_screen_time_age: 0.12
+
+      model_fit:
+        type: object
+        description: Overall model fit statistics.
+        properties:
+          r_squared:
+            type: number
+          adj_r_squared:
+            type: number
+          f_statistic:
+            type: number
+          f_p_value:
+            type: number
+        required:
+          - r_squared
+          - adj_r_squared
+          - f_statistic
+          - f_p_value
+
+      flags:
+        type: array
+        description: List of diagnostic flags (e.g., warnings about collinearity).
+        items:
+          type: string
+        example:
+          - "Potential Mathematical Coupling: switching_index and total_screen_time correlation > 0.7"
+
+  interpretation:
+    type: string
+    description: >
+      Natural language summary of the results.
+      MUST strictly use associational language (e.g., "associated with", "correlated with").
+      MUST NOT contain causal terms (e.g., "causes", "leads to", "impacts", "affects").
+      Validation is performed by code/utils.py::causal_language_scanner.
+    minLength: 1
+    example: >
+      Higher switching_index is negatively associated with cognitive_flexibility_score
+      (beta = -0.03, p = 0.045), while age shows a positive association.
+      No evidence of causal direction is implied.

@@ -1,0 +1,10 @@
+pandas
+numpy
+statsmodels
+scikit-learn
+pyyaml
+requests
+datasets
+pytest
+ruff
+black

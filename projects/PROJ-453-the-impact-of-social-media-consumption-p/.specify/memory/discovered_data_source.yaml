@@ -1,0 +1,10 @@
+status: none
+intent: AddHealth HILDA ESS public survey data python package dataset
+required_fields:
+- switching_index
+- cognitive_score
+- age
+- total_time
+cache_key: 33fc6e6c835fb22edb3db7d65a43080dc282f62b0fce6360e7a7468caf45228c
+searched_at: '2026-08-05T08:04:45.937371+00:00'
+retry_count: 1

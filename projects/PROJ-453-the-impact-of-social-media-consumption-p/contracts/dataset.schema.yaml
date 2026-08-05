@@ -1,0 +1,18 @@
+required_columns:
+  - switching_index
+  - cognitive_flexibility_score
+  - age
+  - total_screen_time
+  - num_platforms
+  - switching_frequency
+
+type_mapping:
+  switching_index: numeric
+  cognitive_flexibility_score: numeric
+  age: integer
+  total_screen_time: numeric
+  num_platforms: integer
+  switching_frequency: numeric
+
+description: "Schema contract for the raw dataset ingestion and engineering phase."
+version: "1.0"

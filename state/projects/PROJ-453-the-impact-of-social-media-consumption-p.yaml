@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-08T18:41:10.229556Z'
-current_stage: specified
+current_stage: in_progress
 failed_stage: null
 field: psychology
 human_escalation_reason: null
 id: PROJ-453-the-impact-of-social-media-consumption-p
-last_run_id: 44e9a419-0bc1-49ff-9760-ca17840fb15c
+last_run_id: f4379cd8-6bf0-4c6b-bca3-cd86f85a5c4e
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-453-the-impact-of-social-media-consumption-p/specs/001-the-impact-of-social-media-consumption-p
 title: The Impact of Social Media Consumption Patterns on Cognitive Flexibility
-updated_at: '2026-07-14T21:32:22.961388Z'
+updated_at: '2026-08-05T08:37:26.759491Z'

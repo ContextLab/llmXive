@@ -1,0 +1,42 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: "Participant Dataset Schema"
+description: "Schema for the cleaned participant dataset used in regression analysis."
+type: object
+properties:
+  participant_id:
+    type: string
+    description: "Unique identifier for the respondent."
+  age:
+    type: integer
+    description: "Age in years."
+  total_screen_time:
+    type: number
+    description: "Total daily screen time in hours."
+  num_platforms:
+    type: integer
+    description: "Number of social media platforms used."
+  switching_frequency:
+    type: integer
+    description: "Self-reported frequency of switching (e.g., 1-5 scale)."
+  switching_index:
+    type: number
+    description: "Derived index: num_platforms * switching_frequency."
+  cognitive_flexibility_score:
+    type: number
+    description: "Standardized score from cognitive test (e.g., WCST)."
+  exclusion_flag:
+    type: boolean
+    description: "True if cognitive_flexibility_score is missing."
+  instrument_source:
+    type: string
+    description: "Documentation of the survey instrument used for the cognitive measure (e.g., 'WCST-64')."
+required:
+  - participant_id
+  - age
+  - total_screen_time
+  - num_platforms
+  - switching_frequency
+  - switching_index
+  - cognitive_flexibility_score
+  - exclusion_flag
+  - instrument_source
