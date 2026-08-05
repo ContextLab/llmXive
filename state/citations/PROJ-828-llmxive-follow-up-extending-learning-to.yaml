@@ -42,15 +42,3 @@
   verification_status: pending
   verified_against_url: https://download.pytorch.org/whl/cpu
   verified_at: '2026-07-12T01:02:15.486794Z'
-- artifact_hash: d396f2f11d1859914603d9a03bb33a644f1bb3133a0ce44e703df8f62bc78050
-  artifact_path: projects/PROJ-828-llmxive-follow-up-extending-learning-to/specs/001-llmxive-follow-up-extending-learning-to/tasks.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: '[2303.06480] Knowledge Distillation for Efficient Sequences of Training
-    Runs'
-  kind: url
-  value: https://arxiv.org/abs/2303.06480
-  verification_status: pending
-  verified_against_url: https://arxiv.org/abs/2303.06480
-  verified_at: '2026-08-03T04:45:11.633285Z'

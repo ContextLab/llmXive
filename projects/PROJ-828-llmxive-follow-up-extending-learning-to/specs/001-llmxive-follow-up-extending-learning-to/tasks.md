@@ -20,32 +20,27 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!--
- ============================================================================
- IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-
- The /speckit-tasks command MUST replace these with actual tasks based on:
- - User stories from spec.md (with their priorities P1, P2, P3...)
- - Feature requirements from plan.md
- - Entities from data-model.md
- - Endpoints from contracts/
-
- Tasks MUST be organized by user story so each story can be:
- - Implemented independently
- - Tested independently
- - Delivered as an MVP increment
-
- DO NOT keep these sample tasks in the generated tasks.md file.
- ============================================================================
--->
+---
 
 ## Implementation Notes
 
-**Historical Context (T004, T005)**: Previous runs flagged `src/utils/seeds.py` (T004) and `src/utils/memory_monitor.py` (T005) as missing/invalid. The current tasks (T004, T005) are explicitly defined to implement these artifacts with strict determinism and memory enforcement. Implementers must ensure these are fully functional before proceeding to Phase 5 orchestration.
+**Time Budget & Abort Strategy**: The time limit is strict. T053 implements a "Hard Abort" strategy. If the pre-flight estimation (T052a/b) indicates the N=3 runs will exceed 6 hours, the entire pipeline aborts immediately. NO variant reduction is permitted. All 6 variants defined in the spec must run, or the experiment is declared 'Inconclusive due to time'.
 
-**Time Budget & Reduction**: The time limit is strict. [UNRESOLVED-CLAIM: c_0fded012 — status=not_enough_info] T056 implements a "Variant Reduction Strategy" that triggers at [deferred] of the time budget. If a critical baseline (Standard RL) is dropped, the experiment flags 'Inconclusive'.
+**Early Window Definition**: The "early trajectory" window is defined dynamically as the first 10% of the total training trajectory (or a fixed minimum of 50 steps if total steps < 500). This is calculated in T018c-gen. The value is configurable via `--early-window-fraction` CLI argument.
 
-**Early Window Definition**: The "early trajectory" window is defined as `max(50, ceil(total_steps * 0.10))` (T018c). This value is calculated in T018c and used by T030c and T040.
+**Data Integrity & Fail-Loud**: All data loading tasks (T007, T033, T034, T035) MUST raise an exception if the real GSM8K dataset cannot be fetched from the verified HuggingFace source. NO synthetic fallbacks, mocks, or random data generation are permitted. A failed fetch must cause the run to fail immediately.
+
+**Memory Management**: All SVD and training operations must strictly adhere to the available RAM limit. Layer-wise processing and streaming are mandatory. T022a and T029 enforce hard assertions that raise exceptions if limits are violated.
+
+**Model Pruning**: T009 must generate a valid `transformers.PretrainedConfig` object. It selects the closest available layer count to 300M parameters without a strict 5% tolerance band, adhering to the spec's "M parameter model" approximation.
+
+**Streaming & Sampling**: T007 implements streaming for GSM8K to avoid OOM. If a full sample is required for a specific variant, T007b implements a deterministic sampling strategy (`itertools.islice` with seed) to ensure reproducibility and honesty about sample size limitations.
+
+**Statistical Rigor**: The experiment enforces N=3 independent seeds per variant as the strict baseline (FR-006). No dynamic increase to N=10 is permitted in this implementation. If N=3 cannot be completed within the time budget, the experiment aborts (T053) rather than weakening the design.
+
+**Non-Convergence Handling**: Tb explicitly handles cases where a variant does not reach the 80% accuracy threshold. The output CSV uses a string sentinel "Did Not Converge" for such cases, and the analysis script (T038b-d) handles this via `dtype=object`.
+
+**Alignment Threshold**: The alignment threshold for "Early Trajectory Alignment" is not hardcoded. It is read from the CLI argument `--early-alignment-threshold` (default 0.95) and stored in the config, ensuring it is not a silent narrowing of the spec.
 
 ---
 
@@ -67,10 +62,11 @@
 - [X] T005 Implement `src/utils/memory_monitor.py` to track RAM usage and enforce a memory limit
 - [X] T006 Implement `src/utils/hasher.py` to compute SHA-256 hashes of all derived artifacts
 - [X] T007 Create `src/data/loader.py` to fetch GSM8K subset (≥1,000 problems) from HuggingFace `datasets` with checksum verification
+- [X] T007b [P] Implement streaming logic in `src/data/loader.py` using `load_dataset(..., streaming=True)` and `itertools.islice` for deterministic sampling if full dataset exceeds RAM. **Constraint**: Must raise exception if real fetch fails; NO synthetic fallback.
 - [X] T008 Create `src/data/checksums.py` for data integrity verification
-- [X] T009 Implement `src/models/config.py` to programmatically prune `TinyLlama` to a reduced parameter scale. **Logic**: Detect source model layer count. Remove layers from the end until the total parameter count is within 5 (2303.06480, https://arxiv.org/abs/2303.06480)% of 300M. **Include verification logic** to validate the pruned model architecture (layer count, attention heads, hidden size) matches TinyLlama-300M specifications before training begins.
+- [ ] T009 Implement `src/models/config.py` to programmatically prune `TinyLlama` to a reduced parameter scale. **Logic**: Create a function `generate_pruned_config(base_model_name)` that returns a valid `transformers.PretrainedConfig` object. **Requirement**: Detect source model layer count. Select the layer count that results in a parameter count **closest** to 300M (no strict 5% tolerance band). **Include verification logic** to validate the pruned model architecture (layer count, hidden size, attention heads) matches TinyLlama-300M specifications before training begins.
 - [X] T010 Implement `src/models/backbone.py` with hooks to capture attention projection updates
-- [X] T012 Create `src/cli/run_experiment.py` as the single entry point orchestrating all training and analysis. **Requirement**: Must define a `--rerun-seeds` CLI flag for adaptive sample size logic.
+- [X] T012 Create `src/cli/run_experiment.py` as the single entry point orchestrating all training and analysis. **Requirement**: Must define `--early-window-fraction`, `--early-alignment-threshold`, and `--num-seeds` CLI arguments.
 - [X] T013 [P] Create `tests/unit/test_svd.py` to verify SVD on small matrices fits memory constraints
 - [X] T014 [P] Create `tests/unit/test_projection.py` to verify projection math (cosine similarity ≥ 0.99)
 
@@ -91,10 +87,11 @@
 
 ### Implementation for User Story 1
 
-- [ ] T017 [US1] Implement `src/training/opd_baseline.py` runner for GSM8K subset (capped steps)
-- [ ] T018 [US1] Implement logic in `src/training/opd_baseline.py` to record $\Delta W$ matrices for the initial phase of training (after every optimizer step). Save list of tensors to `results/opd/updates_seed_{i}.pt`
+- [ ] T017 [US1] Implement `src/training/opd_baseline.py` runner for GSM8K subset (capped steps). **Deliverable**: Script must accept `--seed` and `--steps` arguments. **Output**: Must save `results/opd/updates_seed_{i}.pt` (list of tensors) and `results/opd/logs_seed_{i}.json`. **Verification**: Script must exit with code 0 only if output files exist and contain valid tensors.
+- [ ] T018 [US1] Implement logic in `src/training/opd_baseline.py` to record $\Delta W$ matrices for the initial phase of training (after every optimizer step). **Verification**: Add a post-run check to verify `results/opd/updates_seed_{i}.pt` exists and contains a list of tensors with shapes matching the model's layer dimensions.
 - [ ] T018b [US1] Implement per-step update direction logging in `src/training/opd_baseline.py`. **Storage**: Save per-layer update vectors to separate files `results/opd/updates_seed_{i}/layer_{l}.pt` (NOT a single stacked array) to ensure memory compliance.
-- [ ] T018c [US1] Implement logic in `src/analysis/metrics.py` to define the 'early' window. **Logic**: Calculate as `max(50, ceil(total_steps * 0.10))`. **Note**: This formula is a provisional default pending researcher approval. Write the resolved window size to `results/early_window_config.json`.
+- [ ] T018c-impl [US1] Implement logic in `src/analysis/metrics.py` to define the 'early' window dynamically. **Logic**: Calculate `early_window_steps = max(50, int(total_steps * early_window_fraction))`. **Configuration**: Read `early_window_fraction` from CLI (default 0.1). **Action**: Write the resolved window size and fraction to `results/early_window_config.json`.
+- [ ] T018c-gen [US1] **Execute** T018c-impl logic to generate `results/early_window_config.json` with the calculated window size (default [deferred] of total, min 50) before any training starts. **Depends on**: T018c-impl implementation. **Note**: This task calculates the specific step count corresponding to the '[deferred]' fraction of the trajectory.
 - [ ] T019 [US1] Implement **layer-wise SVD logic** in `src/training/projection_utils.py` for accumulated updates
 - [ ] T020 [US1] Implement logic to select $k$ such that cumulative explained variance ≥ 80% (default $k=10$ if none)
 - [ ] T021 [US1] Save stable subspace matrix (shape $k \times n_{params}$) to `results/opd_subspace.npy`
@@ -118,14 +115,14 @@
 
 ### Implementation for User Story 2
 
-- [ ] T025 [US2] Implement `src/training/rl_baseline.py` with **lightweight PPO loop using torch.optim** (no external RL libs) and logging schema: steps, accuracy, loss.
-- [ ] T026 [US2] Implement `src/training/low_rank_rl.py` loading subspace from `results/opd_subspace.npy` (Depends on T021)
+- [ ] T025 [US2] Implement `src/training/rl_baseline.py` with **lightweight PPO loop using torch.optim** (no external RL libs) and logging schema: steps, accuracy, loss. **Deliverable**: Script must save `results/rl_baseline/logs_seed_{i}.json`.
+- [ ] T026 [US2] Implement `src/training/low_rank_rl.py` loading subspace from `results/opd_subspace.npy`. **Requirement**: This task MUST wait for T021 completion. **Verification**: Assert subspace file exists and loads correctly before starting training. **Depends on**: T021.
 - [ ] T027 [US2] Implement **gradient projection logic** in `low_rank_rl.py` to constrain raw RL gradients to top-$k$ vectors
 - [ ] T028 [US2] Add logging to verify update vector lies entirely within span of top-$k$ vectors
 - [ ] T029 [US2] Log cosine similarity between applied update and subspace basis and **Assert cosine similarity >= 0.99 **; raise exception if violated.
 - [ ] T030 [US2] Save Low-Rank RL training logs and checkpoints to `results/low_rank_rl/`
 - [ ] T030b [US2] Implement per-step update direction logging in `src/training/low_rank_rl.py`. **Storage**: Save per-layer update vectors to separate files `results/low_rank_rl/updates_seed_{i}/layer_{l}.pt` (NOT a single stacked array).
-- [ ] T030c [US2] Implement real-time "Early Trajectory Alignment" logging in `src/training/low_rank_rl.py`. **Logic**: During the first `early_window` steps (from T018c), calculate cosine similarity between current update and OPD trajectory. **Action**: Log to `results/low_rank_rl/early_alignment_log.json` and **Flag run as 'Low Alignment'** if alignment < 0.95 (do NOT abort).
+- [ ] T030c-impl [US2] Implement real-time "Early Trajectory Alignment" logging logic in `src/training/low_rank_rl.py`. **Logic**: During the first `early_window` steps (from T018c-gen config), calculate cosine similarity between current update and OPD trajectory. **Configuration**: Read alignment threshold from CLI `--early-alignment-threshold` (default 0.95). **Action**: Log to `results/low_rank_rl/early_alignment_log.json` and **Flag run as 'Low Alignment'** if alignment < threshold (do NOT abort). **Dependency**: Requires `results/early_window_config.json` from T018c-gen.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -144,38 +141,37 @@
 
 ### Implementation for User Story 3
 
-- [ ] T033 [P] [US3] Implement `src/training/random_projection.py` (Random Baseline)
-- [ ] T034 [P] [US3] Implement `src/training/random_walk_prior.py` with random walk subspace projection logic
-- [ ] T035 [P] [US3] Implement `src/training/opd_initialized_rl.py` with OPD weight initialization and no projection
-- [ ] T036 [US3] Implement `src/analysis/metrics.py` to calculate steps-to-threshold-accuracy for **ACTIVE variants** (read list from `results/active_variants.json` generated by T056). **Requirement**: Explicitly iterate over the list of active variant keys to ensure all are included in the comparison table.
+- [ ] T033 [P] [US3] Implement `src/training/random_projection.py` (Random Baseline). **Note**: Mandatory control per Plan's Complexity Tracking.
+- [ ] T034 [P] [US3] Implement `src/training/random_walk_prior.py` with random walk subspace projection logic. **Note**: Mandatory control per Plan's Complexity Tracking.
+- [ ] T035 [P] [US3] Implement `src/training/opd_initialized_rl.py` with OPD weight initialization and no projection. **Note**: Mandatory control per Plan's Complexity Tracking.
+- [ ] T036-impl [US3] Implement `src/analysis/metrics.py` to calculate steps-to-threshold-accuracy for **ALL variants**. **Output**: Write a CSV file `results/metrics/steps_to_threshold.csv` with columns `variant`, `seed`, `steps`. **Format**: Use `dtype=object` for the `steps` column to support mixed integers and string sentinels. **Threshold**: Explicitly use 0.80 (80%) as the accuracy threshold.
+- [ ] T036b [US3] Implement non-convergence logic in `src/analysis/metrics.py`. **Logic**: If a variant never reaches the 80% threshold, record the string "Did Not Converge" in the CSV. **Requirement**: Ensure T036-impl calls this logic.
 - [ ] T037 [US3] Implement `src/analysis/metrics.py` to compute cosine similarity between final update directions and PPO proxy
 - [ ] T038a [US3] Implement `src/analysis/power_analysis.py` to perform pre-experiment/post-hoc power analysis and sample size estimation. **Constraint**: Must NOT allow N < 3.
-- [ ] T038b-a [US3] Implement Wilcoxon signed-rank test logic in `src/analysis/metrics.py` (N=3 minimum) with dynamic power calculation and conditional re-run flagging.
+- [ ] T038b-d [US3] **Execute** Wilcoxon signed-rank test on N=3 seeds per variant (FR-006), calculate **p-values and effect sizes**, and write results to `results/statistical_test_results.json`. **Depends on**: T036-exec (Metrics Calculation), T040 (Early Alignment), T038a implementation. **Note**: Handles "Did Not Converge" strings by filtering or imputing as max_steps + 1.
+- [ ] T038c [US3] Generate statistical report artifact in `results/statistical_report.md` containing p-values and effect sizes. **Depends on**: T038b-d (which outputs p-values and effect sizes), T036-exec.
 - [ ] T039 [US3] Implement `src/analysis/plots.py` to generate convergence curves and alignment plots
-- [ ] T041 [US3] Generate final comparison table and statistical report in `results/analysis_report.md` covering **ACTIVE variants**. **Requirement**: Verify that the table includes rows for Random Walk Prior and OPD-Initialized RL if they are in the active list. If a variant was skipped (due to T056), mark as 'Skipped' and update report status to 'Inconclusive' if critical baselines are missing.
+- [ ] T041-impl [US3] Implement `src/analysis/plots.py` to generate final comparison table and statistical report artifact `results/analysis_report.md` covering **ALL variants**. **Requirement**: Verify that the table includes rows for all 6 variants. If the pipeline aborted early, mark status as 'Inconclusive due to time' and list all variants as 'Not Run'.
+- [ ] T041-exec [US3] **Execute** T041-impl logic to generate `results/analysis_report.md`. **Depends on**: T041-impl, T036-exec, T038c.
 
-### Execution Tasks (N=3 Seeds per Variant, Adaptive to N=10)
+### Execution Tasks (N=3 Seeds per Variant, Strict Abort Policy)
 
-- [ ] T056 [US3] [P] Implement `src/utils/variant_reducer.py` to dynamically disable non-essential training variants (e.g., Random Walk Prior) based on elapsed time thresholds (85% of 6-hour budget). **Constraint**: Only allow reduction if N=3 for all *remaining* variants is still achievable; if a critical baseline (Standard RL) is dropped, flag 'inconclusive'. Output list of active variants to `results/active_variants.json`.
-- [ ] T057 [US3] Update `src/cli/run_experiment.py` to integrate `variant_reducer` logic, ensuring it aborts pending runs and triggers the "inconclusive" flag if the time budget is exceeded before statistical significance is reached.
-- [ ] T058 [US3] [P] Implement a "Time Budget Monitor" thread in `src/cli/run_experiment.py` (not `memory_monitor.py`) that logs a warning at [deferred] of the 6-hour limit and triggers the reduction strategy. **Constraint**: Must enforce minimum N=3; if N=3 cannot be completed, flag 'inconclusive' and stop.
-
-- [ ] T042-a [US3] **Orchestrate** initial training runs for **ACTIVE variants** (filtered by T056) with **N=3 seeds**. **Depends on**: T056 (Variant Reducer) to determine which variants to run. **Manage** T043-T047.
-- [ ] T043 [US3] Execute training runs for OPD Baseline (N=3 seeds) via CLI (Managed by T042-a)
-- [ ] T043b [US3] Execute training runs for Low-Rank RL (N=3 seeds) via CLI (Managed by T042-a)
-- [ ] T044 [US3] Execute training runs for Standard RL (N=3 seeds) via CLI (Managed by T042-a)
-- [ ] T045 [US3] Execute training runs for Random Projection Baseline (N=3 seeds) via CLI (Managed by T042-a)
-- [ ] T046 [US3] Execute training runs for Random Walk Prior Baseline (N=3 seeds) via CLI (Managed by T042-a)
-- [ ] T047 [US3] Execute training runs for OPD-Initialized RL (N=3 seeds) via CLI (Managed by T042-a)
-- [ ] T036-exec [US3] Execute metrics calculation (T036 logic) on generated logs from T043-T047
-- [ ] T040 [US3] Compute Early Trajectory Alignment (first `early_window` steps, min) between Low-Rank RL and OPD using logged $\Delta W_t$ vectors (Depends on T018c config, T030c implementation, and T043/T043b execution logs). **Output**: Write alignment scores to `results/early_alignment_scores.json`.
-- [ ] T038b-d [US3] Execute Wilcoxon signed-rank test on N=3 seeds per variant (FR-006) and generate p-values (Depends on T036-exec, T040)
-- [ ] T038c [US3] Generate statistical report artifact in `results/statistical_report.md` containing p-values and effect sizes
+- [ ] T052a [US3] [P] **Pre-flight Estimation**: Run a quick estimation script to calculate `Estimated_N3_Time` for the 6 variants and write to `results/time_estimates.json`. **Depends on**: T009 (Model Config), T007 (Data).
+- [ ] T052b [US3] [P] **Write Estimates**: Write `results/time_estimates.json` with the calculated time. **Depends on**: T052a.
+- [ ] T053 [US3] **Hard Abort Check**: Implement logic in `src/cli/run_experiment.py` to check `Estimated_N3_Time` from T052b. **Logic**: If `Estimated_N3_Time > 6 hours`, abort the entire pipeline immediately with a clear error message "Experiment aborted: N=3 runs exceed 6-hour budget. All variants required." **Constraint**: NO variant reduction. **Dependency**: Must run before T042-a.
+- [ ] T042-a [US3] [P] **Implement Orchestration**: Implement orchestration logic in `src/cli/run_experiment.py` to manage N=3 seeds for all 6 variants. **Depends on**: T053.
+- [ ] T042-b [US3] **Execute Initial Runs**: Execute training runs for all 6 variants with **N=3 seeds** via CLI. **Triggered by**: T042-a logic. **Constraint**: Must abort if T053 triggers. **Depends on**: T042-a, T053.
+- [ ] T043 [US3] Execute training runs for OPD Baseline (N=3 seeds) via CLI (Managed by T042-b)
+- [ ] T043b [US3] Execute training runs for Low-Rank RL (N=3 seeds) via CLI (Managed by T042-b). **Includes**: Execution of T030c-impl logic during training (Early Trajectory Alignment).
+- [ ] T044 [US3] Execute training runs for Standard RL (N=3 seeds) via CLI (Managed by T042-b)
+- [ ] T045 [US3] Execute training runs for Random Projection Baseline (N=3 seeds) via CLI (Managed by T042-b)
+- [ ] T046 [US3] Execute training runs for Random Walk Prior Baseline (N=3 seeds) via CLI (Managed by T042-b)
+- [ ] T047 [US3] Execute training runs for OPD-Initialized RL (N=3 seeds) via CLI (Managed by T042-b). **Dependency**: Explicitly managed by T042-b.
+- [ ] T036-exec [US3] Execute metrics calculation (T036-impl logic) on generated logs from T043-T047. **Depends on**: T042-b completion, T036b.
+- [ ] T040 [US3] Compute Early Trajectory Alignment (first `early_window` steps, min) between Low-Rank RL and OPD using logged $\Delta W_t$ vectors (Depends on T018c-gen config, T030c-impl logs, and T043/T043b execution logs). **Output**: Write alignment scores to `results/early_alignment_scores.json`. **Depends on**: Completion of T043b (which includes T030c-impl execution).
 - [ ] T048a [US3] Implement power analysis calculation in `src/analysis/power_analysis.py` to check effect size and sample size.
-- [ ] T048b [US3] Implement conditional branching logic in `src/analysis/power_analysis.py` to check: (1) time remaining, (2) effect size < 0.5. If both conditions met AND N < 10, prepare for re-run.
-- [ ] T048c [US3] Execute conditional branching: if effect size < 0.5 AND N < 10 AND time permits, trigger re-run logic. **Depends on**: T048b, T040, T038b-d.
-- [ ] T042-b [US3] **Orchestrate** conditional re-run for **ACTIVE variants** with **N=10 seeds** if T048c triggers. **Triggered by**: T048c.
-- [ ] T048d [US3] Re-run analysis (T036-exec, T038b-d, T038c) on new data if re-run occurred (Depends on T042-b completion).
+- [ ] T048b [US3] Implement conditional branching logic in `src/analysis/power_analysis.py` to check: (1) time remaining, (2) effect size < 0.5. **Note**: Since N=10 is removed, this logic only flags 'Inconclusive' if effect size is low but N=3 is the max possible.
+- [ ] T048c [US3] **Report** conditional branching: if effect size < 0.5 AND N=3 is max possible, flag 'Inconclusive due to low power' in the final report. **Depends on**: T048b, T040, T038b-d, T052. **Output**: Flag for report. **Note**: No re-run logic; this is a reporting task only.
 - [ ] T055 [US3] Verify all `results/` artifacts have SHA-256 hashes recorded in `state/`
 
 **Checkpoint**: All user stories should now be independently functional
@@ -186,14 +182,18 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T050a [P] Update `quickstart.md` with CLI usage examples and variant reduction explanation.
-- [ ] T050b [P] Add API docs for `src/training/projection_utils.py` and `src/utils/variant_reducer.py`.
+- [ ] T050a [P] Update `quickstart.md` with CLI usage examples and hard abort explanation.
+- [ ] T050b [P] Add API docs for `src/training/projection_utils.py` and `src/utils/memory_monitor.py`.
 - [ ] T050c [P] Update `README.md` with experiment status and data availability notes.
 - [ ] T051a [P] Extract logging logic to `src/utils/logger.py`.
 - [ ] T051b [P] Remove unused imports and refactor training loops for clarity.
 - [ ] T052 Performance optimization for CPU execution (batching, mixed precision)
 - [ ] T053 [P] Additional unit tests in `tests/unit/`
-- [ ] T054 Run quickstart.md validation to ensure 6-hour limit compliance (with N=3 seed count and active variants)
+- [ ] T054 Run quickstart.md validation to ensure 6-hour limit compliance (with N=3 seed count and all variants)
+- [ ] T061 [P] **Data Loader Fail-Loud Verification**: Run T007, T033, T034, T035 with simulated network failure to verify they raise exceptions and do NOT fall back to synthetic data. **Output**: `results/verification/fail_loud_test_report.md`.
+- [ ] T062 [P] **Memory Assertion Verification**: Run T022a and T029 with artificially inflated memory usage to verify they raise exceptions and do NOT silently degrade.
+- [ ] T063 [P] **Streaming Validation**: Execute a dry-run of T007b with a simulated large dataset to verify `streaming=True` and `islice` logic correctly processes chunks without OOM.
+- [ ] T064 [P] **Reproducibility Audit**: Run the full pipeline twice with the same seed and verify `results/` artifacts match exactly (bit-for-bit) to confirm deterministic behavior.
 
 ---
 
@@ -211,7 +211,7 @@
 ### User Story Dependencies
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 output (`opd_subspace.npy`)
+- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - **Depends on US1 completion (T021 output)**.
 - **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US1 and US2 outputs
 
 ### Within Each User Story
@@ -289,11 +289,14 @@ With multiple developers:
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **CRITICAL**: All training must run on CPU-only (2 vCPU, 7GB RAM) within 6 hours. No GPU, no low-precision quantization.
 - **CRITICAL**: Use real GSM data from HuggingFace; no synthetic data or fabrication.
-- **NOTE**: T042-a orchestrates N=3 pilot runs for ACTIVE variants (filtered by T056). T042-b handles conditional re-runs to N=10 if power analysis requires and time permits.
-- **NOTE**: T018b and T030b explicitly log per-step vectors **layer-wise** to separate files to satisfy FR-008 and memory constraints.
-- **NOTE**: T056 and T058 explicitly resolve the hardware constraint by implementing a 'Variant Reduction Strategy' to ensure completion within 6 hours, flagging 'inconclusive' if statistical power cannot be achieved within time limits.
-- **NOTE**: T018c defines the 'early' window as `max(50, ceil(total_steps * 0.10))` (provisional default) and writes it to `results/early_window_config.json` for T030c and T040 to consume.
-- **NOTE**: T030c logs 'Early Trajectory Alignment' during training and flags runs with alignment < 0.95 (does NOT abort) to preserve experimental protocol.
-- **NOTE**: T040 (Compute Early Trajectory Alignment) is executed BEFORE T048c (Conditional Branching) to ensure the metric is available for the re-run decision.
-- **NOTE**: T048 and T048b enforce a hard constraint: N must be at least 3. If time limits prevent achieving N=3, the experiment flags 'inconclusive' rather than weakening statistical validity.
-- **NOTE**: T042-b is triggered by T048c and managed by the CLI orchestration logic, not by itself.
+- **NOTE**: T053 enforces a hard abort if N=3 runs exceed 6 hours. NO variant reduction is permitted.
+- **NOTE**: T018c-gen calculates the 'early' window dynamically ([deferred] of total steps, min 50).
+- **NOTE**: T030c-impl uses a CLI-configurable alignment threshold (default 0.95), not hardcoded.
+- **NOTE**: T036b handles non-convergence with a string sentinel "Did Not Converge".
+- **NOTE**: T040 depends on the completion of T043b (which includes T030c-impl execution).
+- **NOTE**: T048c flags 'Inconclusive due to low power' if N=3 is max possible and effect size is low.
+- **NOTE**: T061 and T062 ensure that data loaders and memory assertions strictly raise exceptions on failure, preventing any silent degradation.
+- **NOTE**: T063 and T064 verify streaming integrity and reproducibility, ensuring the experiment is robust against OOM and stochastic variance.
+- **NOTE**: T052a/b and T053 ensure the time budget is respected before any training starts.
+- **NOTE**: T042-b orchestrates N=3 runs for ALL 6 variants. If T053 triggers, no runs occur.
+- **NOTE**: T041-impl reports 'Inconclusive due to time' if T053 aborts, rather than listing skipped variants.

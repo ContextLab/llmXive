@@ -3151,3 +3151,273 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-03T04:45:11Z'
+- artifact_path: projects/PROJ-828-llmxive-follow-up-extending-learning-to/specs/001-llmxive-follow-up-extending-learning-to/tasks.md
+  attempts: 1
+  canonical: Experiment enforces N=3 independent seeds per variant
+  claim_id: c_dbdd4fae
+  context: 'Statistical Rigor: The experiment enforces N=3 independent seeds per variant
+    as the strict baseline (FR-006).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The experiment enforces N=3 independent seeds per variant as the strict
+    baseline.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T11:42:41Z'
+- artifact_path: projects/PROJ-828-llmxive-follow-up-extending-learning-to/specs/001-llmxive-follow-up-extending-learning-to/tasks.md
+  attempts: 1
+  canonical: Early trajectory window defined as first 10% of total training trajectory
+  claim_id: c_288febdd
+  context: 'Early Window Definition: The ''early trajectory'' window is defined dynamically
+    as the first 10% of the total training trajectory (or a fixed minimum of 50 steps
+    if total steps < 500).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The 'early trajectory' window is defined dynamically as the first 10%
+    of the total training trajectory.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T11:42:41Z'
+- artifact_path: projects/PROJ-828-llmxive-follow-up-extending-learning-to/specs/001-llmxive-follow-up-extending-learning-to/tasks.md
+  attempts: 1
+  canonical: Early trajectory window minimum 50 steps if total steps < 500
+  claim_id: c_a41467a4
+  context: 'Early Window Definition: The ''early trajectory'' window is defined dynamically
+    as the first 10% of the total training trajectory (or a fixed minimum of 50 steps
+    if total steps < 500).'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Early_trajectory_window_minimum_50_steps_if_total_steps_%3C_50
+  kind: magnitude
+  raw_text: The early trajectory window has a fixed minimum of 50 steps if total steps
+    are less than 500.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T11:43:40Z'
+- artifact_path: projects/PROJ-828-llmxive-follow-up-extending-learning-to/specs/001-llmxive-follow-up-extending-learning-to/tasks.md
+  attempts: 1
+  canonical: Model pruning selects layer count closest to 300M parameters
+  claim_id: c_b77cd9cd
+  context: 'Model Pruning: T009 must generate a valid `transformers.PretrainedConfig`
+    object. It selects the closest available layer count to 300M parameters without
+    a strict 5% tolerance band, adhering to the spec''s ''M parameter model'' approximation.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address causal claim
+    source_url: https://en.wikipedia.org/wiki/Model_pruning_selects_layer_count_closest_to_300M_parameters
+  kind: causal
+  raw_text: The model pruning logic selects the layer count that results in a parameter
+    count closest to 300M.
+  resolved_value: null
+  resolver: resolve_causal
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T11:43:42Z'
+- artifact_path: projects/PROJ-828-llmxive-follow-up-extending-learning-to/specs/001-llmxive-follow-up-extending-learning-to/tasks.md
+  attempts: 1
+  canonical: T018c-impl calculates early_window_steps as max(50, int(total_steps *
+    early_window_fraction))
+  claim_id: c_bec45b4a
+  context: 'T018c-impl [US1] Implement logic in `src/analysis/metrics.py` to define
+    the ''early'' window dynamically. **Logic**: Calculate `early_window_steps = max(50,
+    int(total_steps * early_window_fraction))`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: T018c-impl calculates early_window_steps as max(50, int(total_steps *
+    early_window_fraction)).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T11:43:54Z'
+- artifact_path: projects/PROJ-828-llmxive-follow-up-extending-learning-to/specs/001-llmxive-follow-up-extending-learning-to/tasks.md
+  attempts: 1
+  canonical: Early Trajectory Alignment threshold default is 0.95
+  claim_id: c_df85d9f4
+  context: 'Alignment Threshold: The alignment threshold for ''Early Trajectory Alignment''
+    is not hardcoded. It is read from the CLI argument `--early-alignment-threshold`
+    (default 0.95) and stored in the config, ensuring it is not a silent narrowing
+    of the spec.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The alignment threshold for Early Trajectory Alignment has a default value
+    of 0.95.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T11:44:18Z'
+- artifact_path: projects/PROJ-828-llmxive-follow-up-extending-learning-to/specs/001-llmxive-follow-up-extending-learning-to/tasks.md
+  attempts: 1
+  canonical: Default k value for cumulative explained variance is 10
+  claim_id: c_695d3c91
+  context: "T020 [US1] Implement logic to select $k$ such that cumulative explained\
+    \ variance \u2265 80% (default $k=10$ if none)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default k value for cumulative explained variance is 10 if none is
+    found.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T11:46:00Z'
+- artifact_path: projects/PROJ-828-llmxive-follow-up-extending-learning-to/specs/001-llmxive-follow-up-extending-learning-to/tasks.md
+  attempts: 1
+  canonical: T022a asserts memory usage < 7GB
+  claim_id: c_93804b0b
+  context: T022a [US1] Log memory usage during SVD and **Assert memory usage < 7GB
+    **; raise exception if limit exceeded.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/T022a_asserts_memory_usage_%3C_7GB
+  kind: magnitude
+  raw_text: T022a asserts memory usage is less than 7GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T11:46:11Z'
+- artifact_path: projects/PROJ-828-llmxive-follow-up-extending-learning-to/specs/001-llmxive-follow-up-extending-learning-to/tasks.md
+  attempts: 1
+  canonical: Non-convergence recorded as 'Did Not Converge' string
+  claim_id: c_559cec07
+  context: 'T036b [US3] Implement non-convergence logic in `src/analysis/metrics.py`.
+    **Logic**: If a variant never reaches the 80% threshold, record the string ''Did
+    Not Converge'' in the CSV. **Requirement**: Ensure T036-impl calls this logic.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If a variant never reaches the 80% threshold, the string 'Did Not Converge'
+    is recorded in the CSV.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T11:46:12Z'
+- artifact_path: projects/PROJ-828-llmxive-follow-up-extending-learning-to/specs/001-llmxive-follow-up-extending-learning-to/tasks.md
+  attempts: 1
+  canonical: T038a must not allow N < 3
+  claim_id: c_b77ad23e
+  context: 'T038a [US3] Implement `src/analysis/power_analysis.py` to perform pre-experiment/post-hoc
+    power analysis and sample size estimation. **Constraint**: Must NOT allow N <
+    3.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/T038a_must_not_allow_N_%3C_3
+  kind: magnitude
+  raw_text: T038a must not allow a sample size (N) less than 3.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T11:46:59Z'
+- artifact_path: projects/PROJ-828-llmxive-follow-up-extending-learning-to/specs/001-llmxive-follow-up-extending-learning-to/tasks.md
+  attempts: 1
+  canonical: T038b-d executes Wilcoxon test on N=3 seeds per variant
+  claim_id: c_7e7cac28
+  context: T038b-d [US3] **Execute** Wilcoxon signed-rank test on N=3 seeds per variant
+    (FR-006), calculate **p-values and effect sizes**, and write results to `results/statistical_test_results.json`.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: T038b-d executes Wilcoxon signed-rank test on N=3 seeds per variant.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T11:47:51Z'
+- artifact_path: projects/PROJ-828-llmxive-follow-up-extending-learning-to/specs/001-llmxive-follow-up-extending-learning-to/tasks.md
+  attempts: 1
+  canonical: T052a calculates Estimated_N3_Time for 6 variants
+  claim_id: c_8089a98d
+  context: 'T052a [US3] [P] **Pre-flight Estimation**: Run a quick estimation script
+    to calculate `Estimated_N3_Time` for the 6 variants and write to `results/time_estimates.json`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: T052a calculates Estimated_N3_Time for the 6 variants.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T11:49:33Z'
+- artifact_path: projects/PROJ-828-llmxive-follow-up-extending-learning-to/specs/001-llmxive-follow-up-extending-learning-to/tasks.md
+  attempts: 1
+  canonical: Pipeline aborts if Estimated_N3_Time > 6 hours
+  claim_id: c_5ebacb3f
+  context: 'T053 [US3] **Hard Abort Check**: Implement logic in `src/cli/run_experiment.py`
+    to check `Estimated_N3_Time` from T052b. **Logic**: If `Estimated_N3_Time > 6
+    hours`, abort the entire pipeline immediately with a clear error message ''Experiment
+    aborted: N=3 runs exceed 6-hour budget. All variants required.'''
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If Estimated_N3_Time exceeds 6 hours, the pipeline aborts immediately.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T11:51:01Z'
+- artifact_path: projects/PROJ-828-llmxive-follow-up-extending-learning-to/specs/001-llmxive-follow-up-extending-learning-to/tasks.md
+  attempts: 1
+  canonical: Training runs on 2 vCPU 7GB RAM within 6 hours
+  claim_id: c_a6ccfa28
+  context: 'Notes: **CRITICAL**: All training must run on CPU-only (2 vCPU, 7GB RAM)
+    within 6 hours. No GPU, no low-precision quantization.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: All training must run on CPU-only with 2 vCPU and 7GB RAM within 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T11:51:55Z'
+- artifact_path: projects/PROJ-828-llmxive-follow-up-extending-learning-to/specs/001-llmxive-follow-up-extending-learning-to/tasks.md
+  attempts: 1
+  canonical: T048c flags inconclusive if effect size < 0.5 and N=3 max
+  claim_id: c_b805dd9b
+  context: 'T048c [US3] **Report** conditional branching: if effect size < 0.5 AND
+    N=3 is max possible, flag ''Inconclusive due to low power'' in the final report.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/T048c_flags_inconclusive_if_effect_size_%3C_0.5_and_N=3_max
+  kind: magnitude
+  raw_text: T048c flags 'Inconclusive due to low power' if effect size is less than
+    0.5 and N=3 is the max possible.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T11:52:20Z'
