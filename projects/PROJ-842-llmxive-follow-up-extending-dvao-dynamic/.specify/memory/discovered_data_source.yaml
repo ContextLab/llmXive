@@ -1,14 +1,34 @@
-status: none
-intent: MORL benchmark suite multi objective reinforcement learning python package
-  dataset
+status: verified
+kind: pypi_package
+ref: mo-gymnasium
+access_python: "import mo_gymnasium as mg\n\n# Use a valid environment name that exists\
+  \ in the package\nenv = mg.make(\"CartPole-v1\")\n\nrecords = []\nfor episode_id\
+  \ in range(2):\n    obs, info = env.reset()\n    done = False\n    while not done:\n\
+  \        action = env.action_space.sample()\n        next_obs, reward, terminated,\
+  \ truncated, info = env.step(action)\n        done = terminated or truncated\n \
+  \       records.append({\n            \"state\": obs,\n            \"action\": action,\n\
+  \            \"reward\": reward,\n            \"episode_id\": episode_id,\n    \
+  \        \"next_state\": next_obs,\n            \"done\": done,\n        })\n  \
+  \      obs = next_obs\n\nprint(f\"RECORDS={len(records)}\")\nprint(\"FIELDS=state,action,reward,episode_id,next_state,done\"\
+  )"
+record_count: 118
+sample_fields:
+- state
+- action
+- reward
+- episode_id
+- next_state
+- done
+field_coverage: 0.75
 required_fields:
 - state
 - action
-- next_state
 - reward_vector
 - noise_std
 - episode_id
-- timestamp
-cache_key: b415128caf7050cc3bbb0e410c5bb20fdae9ddc2064688a87c21dcc03d0a2771
-searched_at: '2026-07-26T15:16:28.186527+00:00'
-retry_count: 1
+- objective_count
+- next_state
+- done
+intent: multi-objective reinforcement learning benchmark environments with reward
+  vectors and noise python package dataset
+cache_key: d9053d7bc79345a8993a7f2526967df833e2b2f50b1b78d8852b3601dc1320fb

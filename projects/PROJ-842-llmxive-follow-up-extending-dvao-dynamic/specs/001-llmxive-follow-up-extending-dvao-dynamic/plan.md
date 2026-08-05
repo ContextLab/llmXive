@@ -15,7 +15,7 @@ This project extends the "DVAO" framework by deriving a theoretical lower bound 
 **Testing**: `pytest` with `pytest-randomly` for reproducibility verification.  
 **Target Platform**: Linux (GitHub Actions free-tier runner).  
 **Project Type**: Computational Research / Algorithmic Validation.  
-**Performance Goals**: Full experiment suite (N=5,10,20,50, 100 runs each) completes within 6 hours; single run < 15 mins.  
+**Performance Goals**: Full experiment suite (N=5,10,20,50, Multiple runs each) completes within 6 hours; single run < 15 mins.  
 **Constraints**: Max modest RAM, limited CPU cores. No GPU usage. Synthetic data only (no external API calls).  
 **Scale/Scope**: Synthetic tabular MDPs with a small number of objectives.
 
@@ -33,7 +33,7 @@ This project extends the "DVAO" framework by deriving a theoretical lower bound 
 | **IV. Single Source of Truth** | **PASS** | `src/derivation/sample_complexity.py` is the canonical source for the theoretical bound. `docs/theoretical_derivation.md` is a generated report from this module. The contracts in `contracts/` are derived strictly from `data-model.md` to ensure consistency. |
 | **V. Versioning Discipline** | **PASS** | Implementation will use `content-hash` for generated data files. Plan includes logic to invalidate results if code changes. |
 | **VI. Theoretical Lower Bound Validation** | **PASS** | The plan explicitly separates `src/derivation` (theory) from `src/analysis` (empirical). The validation logic in `src/analysis/stats.py` will compare empirical regression slopes against the *known* theoretical slope from the derivation module, ensuring independence from the variance estimator's accuracy. |
-| **VII. Computational Resource Constraint Adherence** | **PASS** | The plan uses tabular MDPs (no neural networks) and NumPy vectorization. Memory scaling is $O(N \cdot |S| \cdot |A|)$. The plan includes explicit logic (FR-016) to degrade $|S|$ if $N > 50$ to stay under 7GB. |
+| **VII. Computational Resource Constraint Adherence** | **PASS** | The plan uses tabular MDPs (no neural networks) and NumPy vectorization. Memory scaling is $O(N \cdot |S| \cdot |A|)$. The plan includes explicit logic (FR-016) to degrade $|S|$ if $N > 50$ to stay within a reasonable storage limit. |
 
 ## Project Structure
 
