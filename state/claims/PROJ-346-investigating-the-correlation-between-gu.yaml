@@ -1,0 +1,464 @@
+- artifact_path: projects/PROJ-346-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: qiita-client used to query AGP study data
+  claim_id: c_b9624a85
+  context: 'T011 [US1] Implement `code/_ingest.py` to fetch microbiome data. **Source
+    Logic**: Use `qiita-client` library to query Study ID (AGP) via endpoint ` Name
+    or service not known)")).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Qiita-client_used_to_query_AGP_study_data
+  kind: entity_fact
+  raw_text: Use `qiita-client` library to query Study ID (AGP) via endpoint.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T03:24:42Z'
+- artifact_path: projects/PROJ-346-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: UK Biobank field 20002_2_1 and NHANES variables CXT/CXT1/CXT2 used for
+    cognitive data
+  claim_id: c_a2b9ccbc
+  context: T012 [US1] Implement code logic to fetch cognitive data from **UK Biobank**
+    (Field 20002, specifically `20002_2_1` for cognitive function) or **NHANES** (Cognitive
+    Function Battery variables `CXT`, `CXT1`, `CXT2`) using `ukbiobank` package or
+    NHANES API.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Fetch cognitive data from UK Biobank (Field 20002, specifically `20002_2_1`
+    for cognitive function) or NHANES (Cognitive Function Battery variables `CXT`,
+    `CXT1`, `CXT2`).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T03:25:52Z'
+- artifact_path: projects/PROJ-346-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Pooled effect size computed using DerSimonian-Laird random-effects model
+  claim_id: c_69f978ff
+  context: 'T017c [US1] Implement `code/08_meta_analysis.py` to execute the **FR-008
+    Meta-Analytic Fallback**. **Logic**: 1) Aggregate summary statistics (correlation
+    coefficients, p-values, N) from the synthetic literature data. 2) Compute pooled
+    effect size using a random-effects model (DerSimonian-Laird).'
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: DL 0.6990 (0.5437; 0.8542) 0.1532
+      source_id: '2104.03394'
+      url: https://arxiv.org/abs/2104.03394
+      value: '0.6990'
+    filled: true
+  kind: entity_fact
+  raw_text: Compute pooled effect size using a random-effects model (DerSimonian-Laird).
+  resolved_value: '0.6990'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-05T03:27:10Z'
+- artifact_path: projects/PROJ-346-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Meta-analysis report contains pooled_r, pooled_p, I_squared, k_studies,
+    n_total
+  claim_id: c_5a03fa30
+  context: "T017c [US1] Implement `code/08_meta_analysis.py` to execute the **FR-008\
+    \ Meta-Analytic Fallback**. **Logic**: 1) Aggregate summary statistics (correlation\
+    \ coefficients, p-values, N) from the synthetic literature data. 2) Compute pooled\
+    \ effect size using a random-effects model (DerSimonian-Laird). 3) Calculate heterogeneity\
+    \ (I\xB2). 4) Generate `data/processed/meta_analysis_report.json` with keys: `pooled_r`,\
+    \ `pooled_p`, `I_squared`, `k_studies`, `n_total`."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Meta-analysis_report_contains_pooled_r,_pooled_p,_I_squared,
+  kind: entity_fact
+  raw_text: 'Generate `data/processed/meta_analysis_report.json` with keys: `pooled_r`,
+    `pooled_p`, `I_squared`, `k_studies`, `n_total`.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T03:28:11Z'
+- artifact_path: projects/PROJ-346-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Elastic Net model configured with l1_ratio=0.5
+  claim_id: c_0699c0e6
+  context: 'T023 [US2] Implement `code/04_regression.py` to fit LASSO/Elastic Net
+    models with **CLR-transformed microbial taxa** as predictors, age, sex, BMI (FR-005).
+    **Implementation Logic**: Use `sklearn.linear_model.ElasticNet` with `l1_ratio=0.5`
+    for Elastic Net.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use `sklearn.linear_model.ElasticNet` with `l1_ratio=0.5` for Elastic
+    Net.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T03:28:39Z'
+- artifact_path: projects/PROJ-346-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Correlations stratified by age groups <40, 40-60, and >=60
+  claim_id: c_b3f97e56
+  context: "T029 [US3] Implement `code/05_sensitivity.py` to stratify correlations\
+    \ by age groups (<40, \u226540-<60, \u226560) (FR-006)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Stratify correlations by age groups (<40, \u226540-<60, \u226560)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T03:28:39Z'
+- artifact_path: projects/PROJ-346-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Significant taxa counts compared between DESeq2 and rarefaction normalization
+  claim_id: c_9cd29174
+  context: T030 [US3] Implement `code/05_sensitivity.py` to compare significant taxa
+    counts across normalization methods (DESeq2 vs rarefaction).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Significant_taxa_counts_compared_between_DESeq2_and_rarefact
+  kind: entity_fact
+  raw_text: Compare significant taxa counts across normalization methods (DESeq2 vs
+    rarefaction).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T03:29:12Z'
+- artifact_path: projects/PROJ-346-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: SCFAs mapped to HDAC inhibition in the hippocampus
+  claim_id: c_e23af71e
+  context: 'T041 [US4] Implement `code/08_mechanistic_synthesis.py` to generate a
+    **Mechanistic Hypothesis Report**. **Output**: `reports/mechanistic_hypothesis.md`.
+    **Required Content**: 2. Map SCFAs to histone acetylation (HDAC inhibition) in
+    the hippocampus.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/SCFAs_mapped_to_HDAC_inhibition_in_the_hippocampus
+  kind: entity_fact
+  raw_text: Map SCFAs to histone acetylation (HDAC inhibition) in the hippocampus.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T03:29:59Z'
+- artifact_path: projects/PROJ-346-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Histone acetylation linked to BDNF/CREB expression and synaptic plasticity
+  claim_id: c_4c04e52e
+  context: 'T041 [US4] Implement `code/08_mechanistic_synthesis.py` to generate a
+    **Mechanistic Hypothesis Report**. **Output**: `reports/mechanistic_hypothesis.md`.
+    **Required Content**: 3. Link histone acetylation to BDNF/CREB expression and
+    synaptic plasticity.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Histone_acetylation_linked_to_BDNF/CREB_expression_and_synap
+  kind: entity_fact
+  raw_text: Link histone acetylation to BDNF/CREB expression and synaptic plasticity.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T03:32:20Z'
+- artifact_path: projects/PROJ-346-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: ChIP-seq for H3K27ac at Bdnf promoter proposed as metric
+  claim_id: c_53c6437e
+  context: 'T042 [US4] Implement `code/09_future_design.py` to generate a **Proposed
+    Experimental Protocol**. **Content**: Define a hypothetical study design (e.g.,
+    ''Gnotobiotic Mouse Model + Cognitive Flexibility Task + Hippocampal Transcriptomics'')
+    that would allow measurement of the proposed molecular pathway. Include specific
+    metrics (e.g., ''ChIP-seq for H3K27ac at Bdnf promoter'').'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/ChIP-seq_for_H3K27ac_at_Bdnf_promoter_proposed_as_metric
+  kind: entity_fact
+  raw_text: Include specific metrics (e.g., 'ChIP-seq for H3K27ac at Bdnf promoter').
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T03:33:32Z'
+- artifact_path: projects/PROJ-346-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Pipeline benchmarked on N=10000 samples
+  claim_id: c_c5766799
+  context: 'T036b [P] **Performance Benchmark**: Run the full analysis pipeline on
+    a subset of N=10,000 samples (or the maximum feasible sample size) and measure
+    total runtime.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run the full analysis pipeline on a subset of N=10,000 samples (or the
+    maximum feasible sample size) and measure total runtime.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T03:34:32Z'
+- artifact_path: projects/PROJ-346-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Performance benchmark passes if runtime is under 21600 seconds
+  claim_id: c_1fedd3e9
+  context: 'T036b [P] **Performance Benchmark**: Run the full analysis pipeline on
+    a subset of N=10,000 samples (or the maximum feasible sample size) and measure
+    total runtime. **Verification**: Script must validate JSON schema and report ''pass''
+    if runtime < 21600 seconds.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Report 'pass' if runtime < 21600 seconds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T03:34:32Z'
+- artifact_path: projects/PROJ-346-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Synthetic benchmark run on N=10000 literature metadata
+  claim_id: c_9a04c008
+  context: 'T036d [P] **Synthetic Benchmark**: Run the correlation/regression pipeline
+    on `data/raw/literature_metadata.json` (synthetic N=10,000) to measure performance
+    when real data linkage fails.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run the correlation/regression pipeline on `data/raw/literature_metadata.json`
+    (synthetic N=10,000) to measure performance when real data linkage fails.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T03:35:56Z'
+- artifact_path: projects/PROJ-346-investigating-the-correlation-between-gu/reports/mechanistic_hypothesis.md
+  attempts: 1
+  canonical: commensal bacteria ferment dietary fiber into SCFAs including butyrate
+    propionate and acetate
+  claim_id: c_8f175c6b
+  context: 2.1 Microbial Production of Short-Chain Fatty Acids (SCFAs) - Specific
+    commensal bacteria are known to ferment dietary fiber into SCFAs, primarily butyrate,
+    propionate, and acetate.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Commensal_bacteria_ferment_dietary_fiber_into_SCFAs_includin
+  kind: entity_fact
+  raw_text: Specific commensal bacteria are known to ferment dietary fiber into SCFAs,
+    primarily butyrate, propionate, and acetate.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T03:40:37Z'
+- artifact_path: projects/PROJ-346-investigating-the-correlation-between-gu/reports/mechanistic_hypothesis.md
+  attempts: 1
+  canonical: Faecalibacterium prausnitzii produces butyrate with cognitive correlation
+    r 0.15
+  claim_id: c_5369fd97
+  context: Table in Section 2.1 listing Faecalibacterium prausnitzii as a primary
+    metabolite producer of Butyrate with a positive cognitive correlation (r ~ 0.15).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Faecalibacterium_prausnitzii_produces_butyrate_with_cognitiv
+  kind: entity_fact
+  raw_text: Faecalibacterium prausnitzii is a primary producer of Butyrate with a
+    positive cognitive correlation (r ~ 0.15).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T03:41:14Z'
+- artifact_path: projects/PROJ-346-investigating-the-correlation-between-gu/reports/mechanistic_hypothesis.md
+  attempts: 1
+  canonical: Roseburia intestinalis produces butyrate with cognitive correlation r
+    0.12
+  claim_id: c_2fa7f3a3
+  context: Table in Section 2.1 listing Roseburia intestinalis as a primary metabolite
+    producer of Butyrate with a positive cognitive correlation (r ~ 0.12).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Roseburia_intestinalis_produces_butyrate_with_cognitive_corr
+  kind: entity_fact
+  raw_text: Roseburia intestinalis is a primary producer of Butyrate with a positive
+    cognitive correlation (r ~ 0.12).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T03:41:53Z'
+- artifact_path: projects/PROJ-346-investigating-the-correlation-between-gu/reports/mechanistic_hypothesis.md
+  attempts: 1
+  canonical: Bifidobacterium longum produces acetate with cognitive correlation r
+    0.10
+  claim_id: c_d3fd4ad0
+  context: Table in Section 2.1 listing Bifidobacterium longum as a primary metabolite
+    producer of Acetate with a positive cognitive correlation (r ~ 0.10).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Bifidobacterium_longum_produces_acetate_with_cognitive_corre
+  kind: entity_fact
+  raw_text: Bifidobacterium longum is a primary producer of Acetate with a positive
+    cognitive correlation (r ~ 0.10).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T03:43:24Z'
+- artifact_path: projects/PROJ-346-investigating-the-correlation-between-gu/reports/mechanistic_hypothesis.md
+  attempts: 1
+  canonical: Bacteroides thetaiotaomicron produces propionate with neutral or complex
+    cognitive correlation
+  claim_id: c_070e5ff4
+  context: Table in Section 2.1 listing Bacteroides thetaiotaomicron as a primary
+    metabolite producer of Propionate with a neutral/complex cognitive correlation.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Bacteroides_thetaiotaomicron_produces_propionate_with_neutra
+  kind: entity_fact
+  raw_text: Bacteroides thetaiotaomicron is a primary producer of Propionate with
+    a neutral or complex cognitive correlation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T03:44:43Z'
+- artifact_path: projects/PROJ-346-investigating-the-correlation-between-gu/reports/mechanistic_hypothesis.md
+  attempts: 1
+  canonical: butyrate inhibits class I and II HDACs including HDAC1 HDAC2 and HDAC3
+  claim_id: c_68b6a6bf
+  context: Section 2.2 states that upon crossing the blood-brain barrier, SCFAs specifically
+    butyrate inhibit class I and II histone deacetylases (HDACs) and lists HDAC1,
+    HDAC2, HDAC3 as examples.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Butyrate_inhibits_class_I_and_II_HDACs_including_HDAC1_HDAC2
+  kind: entity_fact
+  raw_text: Butyrate inhibits class I and II histone deacetylases (HDACs) such as
+    HDAC1, HDAC2, and HDAC3.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T03:45:37Z'
+- artifact_path: projects/PROJ-346-investigating-the-correlation-between-gu/reports/mechanistic_hypothesis.md
+  attempts: 1
+  canonical: butyrate induced HDAC inhibition causes hyperacetylation of histones
+    H3 and H4 at H3K9 and H3K27
+  claim_id: c_03d69a1a
+  context: Section 2.2 Mechanism step 4 states that inhibition prevents removal of
+    acetyl groups resulting in hyperacetylation of histones H3 and H4, particularly
+    at H3K9 and H3K27.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address causal claim
+    source_url: https://en.wikipedia.org/wiki/Butyrate_induced_HDAC_inhibition_causes_hyperacetylation_of
+  kind: causal
+  raw_text: Butyrate inhibition of HDACs results in hyperacetylation of histones H3
+    and H4, particularly at H3K9 and H3K27.
+  resolved_value: null
+  resolver: resolve_causal
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T03:45:42Z'
+- artifact_path: projects/PROJ-346-investigating-the-correlation-between-gu/reports/mechanistic_hypothesis.md
+  attempts: 1
+  canonical: HDAC inhibition increases H3K27ac at Bdnf promoter IV and IX
+  claim_id: c_408efb0d
+  context: Section 2.3 Molecular Cascade step 1 states that HDAC Inhibition leads
+    to increased H3K27ac at the Bdnf promoter (specifically Promoter IV and IX).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address causal claim
+    source_url: https://en.wikipedia.org/wiki/HDAC_inhibition_increases_H3K27ac_at_Bdnf_promoter_IV_and_IX
+  kind: causal
+  raw_text: HDAC inhibition leads to increased H3K27ac at the Bdnf promoter, specifically
+    at Promoter IV and IX.
+  resolved_value: null
+  resolver: resolve_causal
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T03:45:48Z'
+- artifact_path: projects/PROJ-346-investigating-the-correlation-between-gu/reports/mechanistic_hypothesis.md
+  attempts: 1
+  canonical: AGP UK Biobank and NHANES datasets lack SCFA measurements hippocampal
+    tissue and transcriptomics
+  claim_id: c_1cc60d1b
+  context: Section 3.1 states that public datasets AGP, UK Biobank, NHANES contain
+    16S rRNA sequencing and cognitive task scores but do not contain SCFA measurements,
+    hippocampal tissue, or transcriptomics.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/AGP_UK_Biobank_and_NHANES_datasets_lack_SCFA_measurements_hi
+  kind: entity_fact
+  raw_text: Public datasets AGP, UK Biobank, and NHANES contain 16S rRNA sequencing
+    and cognitive task scores but lack SCFA measurements, hippocampal tissue, and
+    transcriptomics data.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T03:46:32Z'
+- artifact_path: projects/PROJ-346-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Aggregate correlation coefficients, p-values, and sample sizes from synthetic
+    literature data
+  claim_id: c_2115ef2d
+  context: "Implement code/08_meta_analysis.py to execute the FR-008 Meta-Analytic\
+    \ Fallback. Input: data/raw/literature_metadata.json (produced by T039a). Logic:\
+    \ 1) Aggregate summary statistics (correlation coefficients, p-values, N) from\
+    \ the synthetic literature data. 2) {{claim:c_69f978ff}} (2104.03394, https://arxiv.org/abs/2104.03394)\
+    \ 3) Calculate heterogeneity (I\xB2)."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Aggregate_correlation_coefficients,_p-values,_and_sample_siz
+  kind: entity_fact
+  raw_text: Aggregate summary statistics (correlation coefficients, p-values, N) from
+    the synthetic literature data.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T03:48:11Z'

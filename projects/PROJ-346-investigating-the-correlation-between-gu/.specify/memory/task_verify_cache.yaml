@@ -50,3 +50,11 @@ T030:
     \ of comparing significant taxa counts across methods is not fulfilled. The script\
     \ needs the missing implementation (DESeq2 processing, significance testing, and\
     \ output generation)."
+T041:
+  c: false
+  h: 4df2b840be502e4326edfa42e4d63070980b5e13932ec5d5e28b38da49fd98e2
+  r: "The `reports/mechanistic_hypothesis.md` file does not exist, so the required\
+    \ output is missing. Consequently the task\u2019s core deliverable (the hypothesis\
+    \ report with the specified mappings and statements) is not present, regardless\
+    \ of the presence of `code/08_mechanistic_synthesis.py`. The implementer must\
+    \ create the markdown report containing all required content."
