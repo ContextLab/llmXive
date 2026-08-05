@@ -1,96 +1,118 @@
 # Quickstart: Investigating the Relationship Between Brain Network Topology and Susceptibility to Visual Illusions
 
-## Prerequisites
+## 1. Prerequisites
 
-- Python 3.11+
-- Docker (for fMRIPrep)
-- Substantial Disk Space
+- **Python**: 3.11+
+- **System Dependencies**: Docker (for fMRIPrep), Git
+- **Memory**: ~7 GB RAM (minimum)
+- **Disk**: ~14 GB free space
 
-The research question remains: [Research Question].
-The method remains: [Method].
-References: [References].
-- Sufficient RAM (Recommended for full batch; minimum threshold for streaming)
-- OpenNeuro Account (optional, for larger downloads, though public access is available)
+## 2. Installation
 
-## Installation
-
-1.  **Clone the repository**:
-    ```bash
-    git clone <repo-url>
-    cd projects/PROJ-361-investigating-the-relationship-between-b
-    ```
-
-2.  **Create and activate virtual environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
-
-3.  **Install dependencies**:
-    ```bash
-    pip install -r code/requirements.txt
-    ```
-
-4.  **Install Git Hooks (for Versioning)**:
-    To ensure Constitution Principle V (Versioning) is met, install the pre-commit hook:
-    ```bash
-    cp git_hooks/pre-commit .git/hooks/pre-commit
-    chmod +x .git/hooks/pre-commit
-    ```
-    *This hook triggers `code/utils/update_state.py` on every commit to update the `state/` file.*
-
-5.  **Pull fMRIPrep container** (if not already cached):
-    ```bash
-    docker pull poldracklab/fmriprep:23.1.0
-    ```
-
-## Running the Pipeline
-
-### Step 1: Download Data (OpenNeuro ds004285)
-Download the dataset using the OpenNeuro Python library.
+### 2.1 Clone the Repository
 ```bash
-python code/preprocessing/download_openneuro.py --dataset ds004285 --subjects sub-001,sub-002,sub-003,sub-004,sub-005
-```
-*Note: For CI, a small number of subjects are downloaded. For full analysis, specify all subjects.*
-
-### Step 2: Preprocessing (fMRIPrep)
-Run the preprocessing pipeline. This step is CPU-intensive.
-```bash
-# For a subset of subjects (recommended for CI)
-python code/preprocessing/run_fmriprep.sh --subjects sub-001,sub-002,sub-003,sub-004,sub-005
-```
-*Note: For a full run of a substantial number of subjects, this should be executed on a local machine or a cloud VM, not the GitHub Actions free tier, due to the time limit.*
-
-### Step 3: Extract Time Series & Compute Metrics
-```bash
-python code/topology/compute_connectivity.py --input-dir data/processed/
-python code/topology/compute_metrics.py --input-dir data/processed/
-python code/topology/reduce_dimensions.py --input-dir data/processed/
+git clone
+cd proj-361-brain-illusion-topology
 ```
 
-### Step 4: Extract Behavioral Data
-Extract illusion scores from the OpenNeuro behavioral files.
+### 2.2 Create Virtual Environment
 ```bash
-python code/behavioral/export_scores.py --dataset-dir data/raw/ds004285/
+python -m venv venv
+source venv/bin/activate # On Windows: venv\Scripts\activate
 ```
 
-### Step 5: Run Correlation Analysis
+### 2.3 Install Dependencies
 ```bash
-python code/analysis/correlation_analysis.py
-python code/analysis/generate_plots.py
+pip install -r requirements.txt
 ```
 
-## Verification
+### 2.4 Verify Setup
+```bash
+python -m pytest tests/unit/test_seeds.py -v
+```
 
-To verify the pipeline:
-1.  Check `data/processed/` for `sub-XXX_metrics.json` and `sub-XXX_components.json`.
-2.  Verify `results/correlation_table.csv` contains FDR-adjusted p-values.
-3.  Ensure no `NaN` values exist in the final metrics table (except where expected for disconnected graphs).
-4.  Confirm `state/projects/PROJ-361-investigating-the-relationship-between-b.yaml` has been updated with the latest artifact hashes.
+## 3. Data Acquisition
 
-## Troubleshooting
+### 3.1 Download Dataset
+The project uses the OpenNeuro ds004285 dataset via a HuggingFace mirror.
 
-- **fMRIPrep fails**: Ensure Docker is running and you have sufficient disk space. Use the pinned version `poldracklab/fmriprep:23.1.0`.
-- **Memory Error**: Reduce the number of subjects processed in parallel. The pipeline is designed to process one subject at a time by default.
-- **No Significant Results**: This is a valid outcome. Check the `results/analysis_report.md` for the "No significant correlations found" message.
-- **Git Hook Error**: If the `state/` file is not updating, check that the `pre-commit` hook is executable and `update_state.py` is in `code/utils/`.
+```bash
+python code/io/data_loader.py --download
+```
+This script:
+1. Downloads the dataset to `data/raw/`.
+2. Computes checksums and saves them to `data/metadata/checksums.json`.
+3. Verifies file integrity.
+
+### 3.2 Verify Data
+```bash
+python code/io/data_loader.py --verify
+```
+
+## 4. Preprocessing
+
+### 4.1 Run fMRIPrep
+Ensure Docker is running.
+
+```bash
+python code/preprocessing/pipeline.py --run-fmriprep
+```
+This step:
+1. Invokes fMRIPrep container.
+2. Processes raw BOLD data.
+3. Outputs preprocessed nifti files to `data/interim/`.
+
+### 4.2 Motion QC and Exclusion
+```bash
+python code/preprocessing/motion_qc.py --threshold 0.5
+```
+This step:
+1. Calculates Mean FD for each subject.
+2. Generates `data/processed/excluded_subjects.csv`.
+3. Logs excluded subjects.
+
+## 5. Topology Computation
+
+### 5.1 Compute Connectivity
+```bash
+python code/topology/connectivity.py --atlas schaefer-400
+```
+Outputs: `data/processed/connectivity_matrices.npz`.
+
+### 5.2 Compute Metrics
+```bash
+python code/topology/metrics.py
+```
+Outputs: `data/processed/topology_metrics_raw.json`.
+
+## 6. Statistical Analysis
+
+### 6.1 Merge Data
+```bash
+python code/io/schema_registry.py --merge
+```
+Outputs: `data/processed/merged_dataset.csv`.
+
+### 6.2 Run Correlation
+```bash
+python code/statistics/correlation.py --fdr
+```
+Outputs: `data/processed/results.json` with FDR-corrected p-values.
+
+## 7. Validation
+
+### 7.1 Run Tests
+```bash
+pytest tests/ -v --cov=code
+```
+
+### 7.2 Validate Schemas
+```bash
+pytest tests/contract/test_schemas.py -v
+```
+
+## 8. Troubleshooting
+
+- **Docker Errors**: Ensure Docker daemon is running and user has permissions.
+- **Memory Errors**: Reduce the number of subjects or use `streaming=True` in data loader.
+- **fMRIPrep Failures**: Check logs in `data/logs/fmriprep.log`.
