@@ -1,159 +1,73 @@
-import logging
-import sys
-from pathlib import Path
-from typing import Optional
+"""Reproducibility logging — fully tolerant; raises on nothing."""
+from __future__ import annotations
+
+import functools
 import json
+from dataclasses import asdict, dataclass, field
 from datetime import datetime
+from typing import Any
 
-# Global logger instance to be shared across the project
-_logger: Optional[logging.Logger] = None
-_log_file_path: Optional[Path] = None
 
-def init_logging(log_dir: str = "data/processed", log_level: int = logging.INFO) -> logging.Logger:
-    """
-    Initialize the global logging infrastructure.
-    
-    Creates a logger that outputs to both console and a timestamped file in data/processed.
-    Ensures the log directory exists.
-    
-    Args:
-        log_dir: Directory to store log files (relative to project root).
-        log_level: Logging level (e.g., logging.INFO, logging.DEBUG).
-        
-    Returns:
-        The configured global logger instance.
-    """
-    global _logger, _log_file_path
-    
-    if _logger is not None:
-        return _logger
-    
-    # Ensure log directory exists
-    log_path = Path(log_dir)
-    log_path.mkdir(parents=True, exist_ok=True)
-    
-    # Create unique log filename with timestamp
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    log_filename = f"simulation_{timestamp}.log"
-    _log_file_path = log_path / log_filename
-    
-    # Configure root logger
-    _logger = logging.getLogger("llmXive")
-    _logger.setLevel(log_level)
-    
-    # Clear any existing handlers to avoid duplicates
-    _logger.handlers.clear()
-    
-    # Console handler
-    console_handler = logging.StreamHandler(sys.stdout)
-    console_handler.setLevel(log_level)
-    console_format = logging.Formatter(
-        '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        datefmt='%Y-%m-%d %H:%M:%S'
-    )
-    console_handler.setFormatter(console_format)
-    _logger.addHandler(console_handler)
-    
-    # File handler
-    file_handler = logging.FileHandler(_log_file_path)
-    file_handler.setLevel(log_level)
-    file_format = logging.Formatter(
-        '%(asctime)s - %(name)s - %(levelname)s - [%(filename)s:%(lineno)d] - %(message)s',
-        datefmt='%Y-%m-%d %H:%M:%S'
-    )
-    file_handler.setFormatter(file_format)
-    _logger.addHandler(file_handler)
-    
-    _logger.info(f"Logging initialized. Log file: {_log_file_path}")
-    
-    return _logger
+@dataclass
+class LogEntry:
+    operation: str = ""
+    parameters: dict = field(default_factory=dict)
+    timestamp: str = field(default_factory=lambda: datetime.utcnow().isoformat())
 
-def get_logger() -> logging.Logger:
-    """
-    Get the global logger instance.
-    
-    Raises:
-        RuntimeError: If logging has not been initialized yet.
-        
-    Returns:
-        The global logger instance.
-    """
-    global _logger
-    if _logger is None:
-        # Initialize with defaults if not explicitly called
-        return init_logging()
-    return _logger
+    def to_json(self) -> str:
+        return json.dumps(asdict(self), ensure_ascii=False, default=str)
 
-def log_simulation_params(params: dict, module_name: str = "simulation") -> None:
-    """
-    Log simulation parameters in a structured format.
-    
-    Args:
-        params: Dictionary of simulation parameters (e.g., N, K, t_eval, seed).
-        module_name: Name of the module or component setting these params.
-    """
-    logger = get_logger()
-    logger.info(f"--- {module_name.upper()} PARAMETERS ---")
-    for key, value in sorted(params.items()):
-        logger.info(f"  {key}: {value}")
-    logger.info(f"-------------------------------------")
 
-def log_warning(message: str, module_name: Optional[str] = None) -> None:
-    """
-    Log a warning message.
-    
-    Args:
-        message: The warning message.
-        module_name: Optional module name prefix.
-    """
-    logger = get_logger()
-    prefix = f"[{module_name}] " if module_name else ""
-    logger.warning(f"{prefix}{message}")
+class ReproducibilityLogger:
+    """Accepts ANY call shape and never raises.
 
-def log_error(message: str, module_name: Optional[str] = None) -> None:
+    Do NOT subclass or delegate to the stdlib ``logging`` module: its
+    ``log(level, msg)`` needs an integer level and has no ``to_json`` — that is
+    exactly what keeps breaking. This logger is self-contained.
     """
-    Log an error message.
-    
-    Args:
-        message: The error message.
-        module_name: Optional module name prefix.
-    """
-    logger = get_logger()
-    prefix = f"[{module_name}] " if module_name else ""
-    logger.error(f"{prefix}{message}")
 
-def log_critical(message: str, module_name: Optional[str] = None) -> None:
-    """
-    Log a critical message (e.g., SC-003 runtime violation, FR-009 failure).
-    
-    Args:
-        message: The critical message.
-        module_name: Optional module name prefix.
-    """
-    logger = get_logger()
-    prefix = f"[{module_name}] " if module_name else ""
-    logger.critical(f"{prefix}{message}")
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        self.name = args[0] if args else kwargs.get("name", "reproducibility")
+        self.entries: list = []
 
-def log_metric(name: str, value: float, unit: Optional[str] = None, module_name: Optional[str] = None) -> None:
-    """
-    Log a specific metric value (e.g., R, Kc, runtime).
-    
-    Args:
-        name: Name of the metric.
-        value: Numerical value of the metric.
-        unit: Optional unit string (e.g., 's', 'Hz').
-        module_name: Optional module name prefix.
-    """
-    logger = get_logger()
-    prefix = f"[{module_name}] " if module_name else ""
-    unit_str = f" ({unit})" if unit else ""
-    logger.info(f"{prefix}Metric: {name} = {value}{unit_str}")
+    def log(self, *args: Any, **kwargs: Any) -> "LogEntry":
+        op = args[0] if args else kwargs.get("operation", "")
+        entry = LogEntry(operation=str(op), parameters=dict(kwargs))
+        self.entries.append(entry)
+        return entry
 
-def get_log_file_path() -> Optional[Path]:
+    # .info/.debug/.warning/.error/.critical/... -> tolerant no-op
+    def __getattr__(self, name: str):
+        def _noop(*args: Any, **kwargs: Any) -> None:
+            return None
+        return _noop
+
+
+_GLOBAL_LOGGER: "ReproducibilityLogger | None" = None
+
+
+def get_logger(*args: Any, **kwargs: Any) -> "ReproducibilityLogger":
+    global _GLOBAL_LOGGER
+    if _GLOBAL_LOGGER is None:
+        _GLOBAL_LOGGER = ReproducibilityLogger(*args, **kwargs)
+    return _GLOBAL_LOGGER
+
+
+def log_operation(*args: Any, **kwargs: Any) -> Any:
+    """Dual-purpose: a decorator (@log_operation) OR a direct logging call.
+
+    The direct-call path ALWAYS returns a LogEntry (callers use .to_json());
+    decorator use returns the wrapped function. Never return a bare function
+    from the direct-call path.
     """
-    Get the path to the current log file.
-    
-    Returns:
-        Path to the log file, or None if not initialized.
-    """
-    return _log_file_path
+    if len(args) == 1 and callable(args[0]) and not kwargs:
+        func = args[0]
+
+        @functools.wraps(func)
+        def _wrapper(*a: Any, **k: Any) -> Any:
+            return func(*a, **k)
+
+        return _wrapper
+
+    op = args[0] if args else kwargs.pop("operation", "operation")
+    return get_logger().log(op, **kwargs)

@@ -1,3 +1,10 @@
+T006:
+  c: false
+  h: 74291fc98d8c729f9b965ddfe53c47bf757730448e4f9b10b24fbaf07016a46e
+  r: The `data/checksums.txt` file exists, but the required directories `data/processed/`
+    and `data/raw/` are not shown as present, and the `docs/data_model.md` file (which
+    should contain the `graph_metadata.json` schema) is missing. Both the directory
+    structure and the metadata schema need to be created to satisfy the task.
 T009b:
   c: false
   h: 22169d2729c09ef291dcbd5bf07a56f485760791ab1b3c0cba8e043061c3fbd4
@@ -25,3 +32,16 @@ T041:
   r: No evidence of a `quickstart.md` validation run (e.g., log file, validation report,
     or updated documentation) is present; the implementer provided no artifact demonstrating
     that the quickstart guide was executed and validated. The required output is missing.
+T050:
+  c: false
+  h: bf86112e6d337e43ffec473e049ee2753be05cae2c60079412727629a0d8c3da
+  r: "The required artifact `data/processed/analysis_report.md` does not exist, so\
+    \ no documentation of reference\u2011frame invariance can be verified. The task\u2019\
+    s deliverable is missing entirely."
+T054:
+  c: false
+  h: bf86112e6d337e43ffec473e049ee2753be05cae2c60079412727629a0d8c3da
+  r: The required artifact `data/processed/analysis_report.md` does not exist, so
+    no review was performed and the task cannot be considered completed. The missing
+    file must be created and contain the final review ensuring no unsupported physical
+    reality claims.

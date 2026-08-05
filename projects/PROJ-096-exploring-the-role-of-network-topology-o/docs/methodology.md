@@ -1,73 +1,90 @@
-# Methodology: Rotational Invariance of the Critical Coupling Strength
+# Methodology: Exploring the Role of Network Topology on Synchronization in Coupled Oscillators
 
-This document details the theoretical basis, implementation, and interpretation of the rotational invariance verification performed in this study (Task T026). The verification addresses the requirement that the critical coupling strength ($K_c$), as a physical property of the network topology, must correspond to an element of reality independent of the observer's coordinate frame.
+This document outlines the theoretical basis, implementation details, and interpretation of results for the study of Kuramoto oscillator synchronization on Watts-Strogatz small-world networks.
 
-## Theoretical Basis: Rotational Invariance of the Order Parameter
+## 1. Theoretical Background
 
-The Kuramoto model describes the dynamics of $N$ coupled phase oscillators:
+### 1.1 The Kuramoto Model
+The Kuramoto model describes the dynamics of a population of coupled phase oscillators. The phase $\theta_i$ of the $i$-th oscillator evolves according to:
 
 $$ \frac{d\theta_i}{dt} = \omega_i + \frac{K}{N} \sum_{j=1}^{N} A_{ij} \sin(\theta_j - \theta_i) $$
 
-where $\theta_i$ is the phase of oscillator $i$, $\omega_i$ is its natural frequency, $K$ is the global coupling strength, and $A_{ij}$ is the adjacency matrix of the network.
+where:
+- $\omega_i$ is the natural frequency of oscillator $i$ (drawn from a distribution $g(\omega)$).
+- $K$ is the global coupling strength.
+- $A_{ij}$ is the adjacency matrix of the underlying network topology.
+- $N$ is the total number of oscillators.
 
-The state of synchronization is quantified by the complex order parameter $z = R e^{i\psi}$:
+### 1.2 Order Parameter and Synchronization
+Synchronization is quantified by the complex order parameter $re^{i\psi}$:
+$$ re^{i\psi} = \frac{1}{N} \sum_{j=1}^{N} e^{i\theta_j} $$
+The magnitude $r \in [0, 1]$ measures the phase coherence of the population. $r \approx 0$ indicates incoherence, while $r \approx 1$ indicates full synchronization. The critical coupling strength $K_c$ is the threshold above which a macroscopic fraction of oscillators synchronizes.
 
-$$ z = \frac{1}{N} \sum_{j=1}^{N} e^{i\theta_j} $$
+## 2. Network Topology: Watts-Strogatz Small-World Model
 
-Here, $R \in [0, 1]$ measures the phase coherence (with $R \approx 1$ indicating full synchronization and $R \approx 0$ indicating incoherence), and $\psi$ is the average phase.
+### 2.1 Construction
+We generate network instances using the Watts-Strogatz (WS) model, starting from a regular ring lattice of $N=500$ nodes with degree $k=2$. Each edge is rewired with probability $p \in [0, 1]$.
+- **$p=0$**: Regular ring lattice (high clustering, long path length).
+- **$p=1$**: Random graph (low clustering, short path length).
+- **$0 < p < 1$**: Small-world networks (high clustering, short path length).
 
-### Coordinate Frame Independence
+### 2.2 Physical Interpretation of $p$ and $K_c$
+A critical aspect of this study is the physical interpretation of the parameters involved, particularly in response to concerns regarding observer independence (EPR criterion).
 
-The physical phenomenon of synchronization is a relative property; it depends on the differences between phases ($\theta_j - \theta_i$), not on the absolute values of the phases themselves. Consequently, the order parameter $R$ (the modulus of $z$) is invariant under a global rotation of the phase reference frame.
+**The Rewiring Probability ($p$):**
+The parameter $p$ is a **topological invariant** of the graph structure. It defines the statistical ensemble from which a specific network instance is drawn. Once a graph is generated and fixed, its structural properties (degree distribution, clustering coefficient, path length) are intrinsic to the graph and do not depend on the state of the oscillators or the observer's coordinate system. $p$ represents the "disorder" in the connectivity pattern, which directly influences the ease with which information (phase synchronization) propagates through the network.
 
-If we transform to a new reference frame rotating with angular velocity $\Omega$, such that $\theta'_i = \theta_i - \Omega t$, the relative phase differences remain unchanged:
+**The Critical Coupling Strength ($K_c$):**
+The critical coupling $K_c$ is the **dynamical threshold** required to overcome the dispersion in natural frequencies ($\omega_i$) and establish global phase coherence. It is a property of the interaction between the network topology and the oscillator dynamics.
+- **Dependence on Topology:** $K_c$ is determined by the spectral properties of the adjacency matrix $A$ (specifically, the eigenvalue gap or the algebraic connectivity). A more connected network (lower $p$, higher clustering) typically requires a different $K_c$ compared to a more random network (higher $p$).
+- **Independence from Observer:** Crucially, $K_c$ must be an **observer-invariant** quantity. The physical phenomenon of synchronization—where a macroscopic fraction of oscillators locks to a common frequency—occurs regardless of the phase reference frame chosen by an observer. Whether one measures phases relative to a single oscillator, the center-of-mass of the population, or an arbitrary rotating frame, the *threshold* $K$ at which the transition from incoherence to synchronization occurs must remain the same. If $K_c$ varied with the reference frame, it would be a coordinate artifact rather than a physical element of reality.
 
-$$ \theta'_j - \theta'_i = (\theta_j - \Omega t) - (\theta_i - \Omega t) = \theta_j - \theta_i $$
+This study explicitly verifies this invariance (see Section 3) to ensure that the observed relationship between $p$ and $K_c$ reflects a genuine physical law of the system, not a mathematical artifact of the coordinate system.
 
-Since the Kuramoto dynamics depend only on these relative differences, the critical coupling strength $K_c$—the threshold at which the system transitions from incoherence to synchronization—must be identical regardless of the observer's frame of reference.
+## 3. Rotational Invariance Verification (FR-009)
 
-## Implementation: Verification Protocol
+To address the requirement that physical quantities correspond to elements of reality independent of the observer, we perform a rigorous invariance check on the critical coupling strength $K_c$.
 
-To empirically verify this invariance, we implemented a comparative analysis using two distinct reference frames for the same network topologies and natural frequency sets.
+### 3.1 Reference Frames
+We evaluate $K_c$ using three distinct phase reference frames:
+1. **Single Oscillator Frame:** Phases are measured relative to a fixed oscillator $\theta_0(t)$. Relative phase: $\phi_i(t) = \theta_i(t) - \theta_0(t)$.
+2. **Center-of-Mass (COM) Frame:** Phases are measured relative to the average phase of the population $\bar{\theta}(t)$. Relative phase: $\phi_i(t) = \theta_i(t) - \bar{\theta}(t)$.
+3. **Perturbed Frames:** To ensure robustness against specific choices, we generate $N_{perturb}=5$ random reference frames constructed as weighted averages of the phases.
 
-### 1. Single Oscillator Frame
+### 3.2 Methodology
+For each valid topology generated in User Story 1:
+1. Run the Kuramoto simulation with the binary search algorithm to determine $K_c$ in the Single Oscillator Frame.
+2. Repeat the determination of $K_c$ in the COM Frame.
+3. Repeat for the Perturbed Frames.
+4. Repeat the entire process over multiple seeds (as defined in `config.json`) to account for stochasticity in natural frequencies.
 
-In this frame, the phase of a specific reference oscillator (typically $i=0$) is used as the origin. The relative phases are calculated as:
+### 3.3 Success Criteria
+A topology is considered to exhibit **Physical Invariance** if:
+- The variance of $K_c$ estimates across seeds within a specific frame is below a numerical threshold (indicating stability).
+- The absolute difference between the mean $K_c$ of the Single Oscillator frame and the COM frame is negligible (within numerical tolerance).
+- The maximum deviation of $K_c$ in any Perturbed frame from the mean is sufficiently small.
 
-$$ \phi_i^{(0)}(t) = \theta_i(t) - \theta_0(t) $$
+If these conditions are met, we conclude that $K_c$ is a robust, observer-independent property of the system, satisfying the EPR criterion.
 
-The order parameter $R$ is then computed from these relative phases. This frame effectively "pins" the observer to the motion of one specific node in the network.
+## 4. Stability and Sensitivity Analysis
 
-### 2. Center-of-Mass (COM) Frame
+### 4.1 Stability (SC-001)
+We verify that the simulation results are stable across multiple runs with different random seeds for natural frequencies. A high variance in the order parameter $R$ or the estimated $K_c$ would indicate numerical instability or insufficient averaging. The pipeline enforces a minimum `run_count` of 10 to ensure statistical validity.
 
-In this frame, the origin is defined by the average phase of the entire population:
+### 4.2 Sensitivity Analysis (FR-007)
+We perform a threshold sweep to ensure that the correlation between rewiring probability $p$ and critical coupling $K_c$ is robust to the specific definition of the synchronization threshold used in the binary search. The correlation coefficient (Spearman) and p-value are calculated for a range of thresholds, and the variation in these metrics is reported.
 
-$$ \bar{\theta}(t) = \frac{1}{N} \sum_{j=1}^{N} \theta_j(t) $$
+## 5. Statistical Model
 
-The relative phases are:
+The primary statistical analysis employs the **Spearman rank correlation** to assess the monotonic relationship between the topological parameter $p$ and the dynamical threshold $K_c$.
+- **Model Type:** Single regression (non-parametric).
+- **Correction:** Bonferroni correction is applied if multiple independent tests are performed (e.g., across different threshold definitions), as defined in `analysis_config.yaml`.
+- **Justification:** The relationship between network structure and synchronization threshold is expected to be monotonic but not necessarily linear, making Spearman correlation appropriate.
 
-$$ \phi_i^{(COM)}(t) = \theta_i(t) - \bar{\theta}(t) $$
+## 6. Computational Constraints and Scope
 
-This frame represents an observer moving with the "center of mass" of the phase distribution.
+The experiment is constrained by the available compute budget (6 hours on a 2-core CPU). A feasibility study (T009) determines the maximum number of time steps and topologies. If the feasible scope is below the target, a contingency plan is enacted, and the resulting sparsity in $p$-space is documented. The final report explicitly states the scope reduction factor and its potential impact on statistical power.
 
-### Experimental Procedure
+## 7. Conclusion
 
-1. **Topology Selection**: A representative subset of 5 topologies was selected, covering the full range of rewiring probabilities ($p \in \{0.0, 0.25, 0.5, 0.75, 1.0\}$).
-2. **Seed Variation**: For each topology, the simulation was run with multiple distinct random seeds for the natural frequencies ($\omega_i$) to ensure statistical robustness (as defined in `data/processed/config.json`).
-3. **Binary Search**: For each seed and topology, the critical coupling $K_c$ was determined independently using the binary search algorithm in both the Single Oscillator Frame and the COM Frame.
-4. **Comparison**: The resulting $K_c$ values were compared across frames.
-
-## Interpretation of Results
-
-The results of this verification are stored in `data/processed/invariance_verification.json`. The status of each topology is determined by two criteria:
-
-1. **Stability**: The variance of $K_c$ across different seeds within the same frame must be below a threshold (e.g., $0.01$), indicating that $K_c$ is a stable property of the topology and not an artifact of a specific frequency configuration.
-2. **Invariance**: The absolute difference between the mean $K_c$ calculated in the Single Oscillator Frame and the mean $K_c$ calculated in the COM Frame must be less than a strict tolerance (e.g., $10^{-4}$).
-
-* **Status: "invariant"**: Both stability and invariance criteria are met. This confirms that $K_c$ is an observer-independent physical quantity for the given topology.
-* **Status: "variant"**: The mean $K_c$ differs significantly between frames. This would indicate a fundamental flaw in the simulation or a violation of the rotational symmetry of the model.
-* **Status: "unstable"**: The variance across seeds is too high, suggesting that the binary search did not converge reliably or that the specific frequency set leads to chaotic behavior near the transition.
-
-## Connection to Physical Reality
-
-This verification directly addresses the requirement that scientific quantities must correspond to "elements of reality" that exist independently of the observer. By demonstrating that $K_c$ is identical whether measured from the perspective of a single node or the collective center of mass, we validate that the critical coupling is a true property of the network's topological structure, not an artifact of the coordinate system used to describe it. This satisfies the EPR criterion for physical reality in the context of the Kuramoto model.
+This methodology ensures that the observed dependence of synchronization on network topology is not only statistically significant but also physically robust. By explicitly verifying the rotational invariance of $K_c$, we establish that the critical coupling is a genuine element of physical reality, independent of the observer's coordinate choice, and intrinsically linked to the topological invariant $p$.

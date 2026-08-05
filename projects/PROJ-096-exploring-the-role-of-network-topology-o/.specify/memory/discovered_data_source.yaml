@@ -1,0 +1,25 @@
+status: verified
+kind: pypi_package
+ref: networkx
+access_python: "import networkx as nx\nn = 30  # number of nodes\nk = 4   # each node\
+  \ is joined with its k nearest neighbors in ring topology\np = 0.1 # rewiring probability\n\
+  G = nx.watts_strogatz_graph(n, k, p, seed=42)\n# degree of each node\ndeg = dict(G.degree())\n\
+  # build records: one per edge, include source node degree and map fields\nrecords\
+  \ = [\n    {\n        \"node_id\": u,\n        \"edge_source\": u,\n        \"edge_target\"\
+  : v,\n        \"degree\": deg[u]\n    }\n    for u, v in G.edges()\n]\nprint(f\"\
+  RECORDS={len(records)}\")\nprint(\"FIELDS=node_id,edge_source,edge_target,degree\"\
+  )"
+record_count: 60
+sample_fields:
+- node_id
+- edge_source
+- edge_target
+- degree
+field_coverage: 1.0
+required_fields:
+- node_id
+- edge_source
+- edge_target
+- degree
+intent: NetworkX Watts-Strogatz synthetic ring lattice generator python package dataset
+cache_key: fc7cc03a7ff6d7cc5b9f471f7e34feed2912deeeaf19c631dd681318464482b6
