@@ -7,5 +7,5 @@ scipy
 pyyaml
 pytest
 nolds
-pyrly
-topy
+pyRly
+memory_profiler

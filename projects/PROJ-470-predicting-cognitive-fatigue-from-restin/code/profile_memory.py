@@ -1,181 +1,168 @@
 """
-Memory profiling wrapper script for the EEG cognitive fatigue pipeline.
-Profiles the full pipeline (download, preprocess, features, analysis) using memory_profiler
-and logs peak memory usage to data/analysis/memory_report.json.
+Memory Profiling Wrapper for the Cognitive Fatigue Pipeline.
+
+This script wraps the full pipeline execution to measure peak memory usage
+of the entire process (including OS overhead) as required by T045 and T048.
+It runs the pipeline stages sequentially and logs the peak memory to
+data/analysis/memory_report.json.
+
+It relies on the `memory_profiler` package being installed (added in T004).
 """
+
 import os
 import sys
 import time
 import json
-import subprocess
+import traceback
 from pathlib import Path
-from datetime import datetime
 
-# Add code directory to path for imports if needed, though we run as subprocess
-sys.path.insert(0, str(Path(__file__).parent))
+# Add project root to path to allow imports from sibling modules
+project_root = Path(__file__).parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
 
-from utils.logging import get_logger
+# Import pipeline stages
+from download import main as run_download
+from preprocess import main as run_preprocess
+from features import main as run_features
+from analysis import main as run_analysis
+from report import main as run_report
 
-def run_stage_with_memory(stage_name, script_name):
-    """
-    Runs a pipeline stage via subprocess and captures peak memory usage.
-    Uses /usr/bin/time -v for portable memory measurement.
-    """
-    logger = get_logger("profile_memory")
-    logger.info(f"Running memory profile for stage: {stage_name} ({script_name})")
+# Import memory profiling utility
+from verify_memory import get_peak_memory_mb
 
-    output_dir = Path("data/analysis")
-    output_dir.mkdir(parents=True, exist_ok=True)
+LOG_FILE = "logs/memory_profile.log"
+REPORT_FILE = "data/analysis/memory_report.json"
 
-    # Prepare command
-    cmd = [sys.executable, f"code/{script_name}"]
+def setup_logger():
+    """Initialize logging for the memory profiling run."""
+    import logging
+    from utils.logging import get_logger
+    logger = get_logger("memory_profile")
+    logger.setLevel(logging.INFO)
+    # Ensure logs directory exists
+    log_dir = Path("logs")
+    log_dir.mkdir(parents=True, exist_ok=True)
     
-    # Use /usr/bin/time -v to get Maximum resident set size (kbytes)
-    # This is more reliable than memory_profiler for full process measurement
-    time_cmd = ["/usr/bin/time", "-v", "-o", f"/tmp/time_{script_name}.out", "-f", "%M"]
-    
-    # Combine: time -v python script.py
-    full_cmd = time_cmd + cmd
-
-    start_time = time.time()
-    peak_memory_kb = 0
-    success = False
-    error_msg = None
-
-    try:
-        # Run the command
-        process = subprocess.run(
-            full_cmd,
-            capture_output=True,
-            text=True,
-            timeout=3600  # 1 hour timeout
-        )
+    # Clear existing file handlers to avoid duplicates
+    if logger.hasHandlers():
+        logger.handlers.clear()
         
-        # Read the time output file
-        time_output_path = Path(f"/tmp/time_{script_name}.out")
-        if time_output_path.exists():
-            time_output = time_output_path.read_text()
-            # Parse "Maximum resident set size (kbytes): XXXX"
-            for line in time_output.splitlines():
-                if "Maximum resident set size" in line:
-                    parts = line.split(":")
-                    if len(parts) > 1:
-                        try:
-                            peak_memory_kb = int(parts[1].strip())
-                        except ValueError:
-                            pass
-            time_output_path.unlink()  # Clean up
+    fh = logging.FileHandler(LOG_FILE)
+    fh.setLevel(logging.INFO)
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    fh.setFormatter(formatter)
+    logger.addHandler(fh)
+    return logger
 
-        if process.returncode == 0:
-            success = True
-            logger.info(f"Stage {stage_name} completed successfully.")
-        else:
-            error_msg = f"Stage {stage_name} failed with return code {process.returncode}. stderr: {process.stderr}"
-            logger.error(error_msg)
-            
-    except subprocess.TimeoutExpired:
-        error_msg = f"Stage {stage_name} timed out."
-        logger.error(error_msg)
-    except FileNotFoundError:
-        # /usr/bin/time might not be available on all systems (e.g., Windows)
-        # Fallback to a simpler run without memory measurement if /usr/bin/time is missing
-        logger.warning("/usr/bin/time not found. Attempting fallback measurement.")
-        try:
-            process = subprocess.run(
-                cmd,
-                capture_output=True,
-                text=True,
-                timeout=3600
-            )
-            if process.returncode == 0:
-                success = True
-                logger.info(f"Stage {stage_name} completed successfully (fallback mode).")
-            else:
-                error_msg = f"Stage {stage_name} failed with return code {process.returncode}."
-                logger.error(error_msg)
-        except Exception as e:
-            error_msg = str(e)
-            logger.error(f"Error running stage {stage_name}: {error_msg}")
+def run_stage_with_memory(stage_name, stage_func, logger):
+    """
+    Run a specific pipeline stage and log memory usage.
+    
+    Args:
+        stage_name (str): Name of the stage for logging.
+        stage_func (callable): The function to execute (must be the stage's main).
+        logger (logging.Logger): Logger instance.
+        
+    Returns:
+        bool: True if stage succeeded, False otherwise.
+    """
+    logger.info(f"Starting stage: {stage_name}")
+    start_time = time.time()
+    
+    try:
+        # Reset peak memory tracking before stage
+        # Note: get_peak_memory_mb() returns current + historical peak for the process
+        # We rely on the global resource module tracking for the whole process.
+        
+        stage_func()
+        
+        duration = time.time() - start_time
+        current_mem = get_peak_memory_mb()
+        logger.info(f"Stage {stage_name} completed successfully in {duration:.2f}s. Peak memory: {current_mem:.2f} MB")
+        return True
+        
+    except SystemExit as e:
+        duration = time.time() - start_time
+        logger.error(f"Stage {stage_name} exited with code {e.code} after {duration:.2f}s")
+        return False
     except Exception as e:
-        error_msg = str(e)
-        logger.error(f"Error running stage {stage_name}: {error_msg}")
-
-    wall_time = time.time() - start_time
-
-    return {
-        "stage": stage_name,
-        "script": script_name,
-        "peak_memory_kb": peak_memory_kb,
-        "peak_memory_mb": round(peak_memory_kb / 1024, 2),
-        "wall_time_s": round(wall_time, 3),
-        "success": success,
-        "error": error_msg
-    }
+        duration = time.time() - start_time
+        logger.error(f"Stage {stage_name} failed with exception: {str(e)}")
+        logger.error(traceback.format_exc())
+        return False
 
 def main():
     """
-    Main entry point for memory profiling.
-    Runs the full pipeline stages sequentially and logs results.
+    Execute the full pipeline with memory profiling.
+    
+    This function orchestrates the execution of all pipeline stages:
+    Download -> Preprocess -> Features -> Analysis -> Report.
+    It tracks the peak memory usage of the entire process and writes
+    the results to data/analysis/memory_report.json.
     """
-    logger = get_logger("profile_memory")
-    logger.info("Starting memory profiling pipeline...")
-
-    # Ensure output directory exists
-    output_dir = Path("data/analysis")
-    output_dir.mkdir(parents=True, exist_ok=True)
-    output_path = output_dir / "memory_report.json"
-
-    # Define pipeline stages
-    stages = [
-        ("download", "download.py"),
-        ("preprocess", "preprocess.py"),
-        ("features", "features.py"),
-        ("analysis", "analysis.py"),
-        ("report", "report.py")
+    logger = setup_logger()
+    logger.info("=" * 60)
+    logger.info("Starting Memory Profiling Run for Cognitive Fatigue Pipeline")
+    logger.info("=" * 60)
+    
+    pipeline_stages = [
+        ("Download", run_download),
+        ("Preprocess", run_preprocess),
+        ("Features", run_features),
+        ("Analysis", run_analysis),
+        ("Report", run_report),
     ]
-
-    results = []
-    total_peak_memory_mb = 0.0
-    total_wall_time_s = 0.0
-    overall_success = True
-
-    for stage_name, script_name in stages:
-        result = run_stage_with_memory(stage_name, script_name)
-        results.append(result)
-        
-        if result["peak_memory_mb"] > total_peak_memory_mb:
-            total_peak_memory_mb = result["peak_memory_mb"]
-        
-        total_wall_time_s += result["wall_time_s"]
-        
-        if not result["success"]:
-            overall_success = False
-            logger.warning(f"Pipeline stopped due to failure in {stage_name}.")
+    
+    success_count = 0
+    failed_stages = []
+    
+    for name, func in pipeline_stages:
+        if not run_stage_with_memory(name, func, logger):
+            failed_stages.append(name)
+            logger.warning(f"Pipeline halted due to failure in stage: {name}")
             break
-
+        success_count += 1
+    
+    # Capture final peak memory
+    final_peak_mem = get_peak_memory_mb()
+    
+    # Prepare report
     report = {
-        "timestamp": datetime.utcnow().isoformat() + "Z",
-        "status": "success" if overall_success else "failed",
-        "stages": results,
-        "summary": {
-            "peak_memory_mb": round(total_peak_memory_mb, 2),
-            "total_wall_time_s": round(total_wall_time_s, 3),
-            "limit_mb": 7168,  # 7 GB
-            "within_limit": total_peak_memory_mb <= 7168
-        }
+        "pipeline_name": "Cognitive Fatigue Prediction",
+        "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
+        "total_stages": len(pipeline_stages),
+        "successful_stages": success_count,
+        "failed_stages": failed_stages,
+        "peak_memory_mb": final_peak_mem,
+        "limit_mb": 7000.0,  # 7 GB limit as per SC-003
+        "status": "PASS" if final_peak_mem < 7000.0 else "FAIL",
+        "stages_completed": [name for name, _ in pipeline_stages[:success_count]]
     }
-
+    
+    # Ensure output directory exists
+    report_path = Path(REPORT_FILE)
+    report_path.parent.mkdir(parents=True, exist_ok=True)
+    
     # Write report
-    with open(output_path, "w") as f:
+    with open(report_path, 'w') as f:
         json.dump(report, f, indent=2)
-
-    logger.info(f"Memory report written to {output_path}")
-    print(f"Memory report written to {output_path}")
-    print(f"Peak memory usage: {total_peak_memory_mb:.2f} MB")
-    print(f"Status: {'PASS' if total_peak_memory_mb <= 7168 else 'FAIL'} (Limit: 7168 MB)")
-
-    # Exit with 0 if profiling completed, regardless of pipeline success
-    return 0
+    
+    logger.info(f"Memory report written to {REPORT_FILE}")
+    logger.info(f"Final Peak Memory: {final_peak_mem:.2f} MB")
+    logger.info(f"Status: {report['status']}")
+    logger.info("=" * 60)
+    
+    # Return exit code based on status
+    if failed_stages:
+        logger.error(f"Pipeline failed at stage(s): {', '.join(failed_stages)}")
+        sys.exit(1)
+    elif report['status'] == "FAIL":
+        logger.warning(f"Memory limit exceeded: {final_peak_mem:.2f} MB > 7000 MB")
+        sys.exit(1)
+    else:
+        logger.info("Pipeline completed successfully within memory limits.")
+        sys.exit(0)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

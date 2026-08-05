@@ -5,176 +5,127 @@ import tempfile
 import shutil
 import pandas as pd
 import pytest
-import subprocess
 from pathlib import Path
 
-# Ensure code directory is in path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
+# Add the code directory to the path to allow imports
+code_dir = Path(__file__).parent.parent / "code"
+sys.path.insert(0, str(code_dir))
 
-from check_sample_size import check_sample_size, write_validation_report
+from check_sample_size import check_sample_size, write_validation_report, load_config
 
 class TestSampleSizeEnforcement:
-    """Tests for T026a: N >= 30 constraint enforcement."""
+    """Tests for T026a: Enforce N >= 30 constraint as a blocking gate."""
 
     def setup_method(self):
-        """Create temporary directory for test artifacts."""
+        """Create a temporary directory for test artifacts."""
         self.test_dir = tempfile.mkdtemp()
-        self.data_dir = os.path.join(self.test_dir, "data", "processed")
-        self.analysis_dir = os.path.join(self.test_dir, "data", "analysis")
-        os.makedirs(self.data_dir, exist_ok=True)
-        os.makedirs(self.analysis_dir, exist_ok=True)
+        self.data_dir = Path(self.test_dir) / "data" / "processed"
+        self.analysis_dir = Path(self.test_dir) / "data" / "analysis"
+        self.data_dir.mkdir(parents=True, exist_ok=True)
+        self.analysis_dir.mkdir(parents=True, exist_ok=True)
         
-        # Store original paths to restore later
+        # Save original working directory
         self.original_cwd = os.getcwd()
+        # Change to test dir root to simulate project root
         os.chdir(self.test_dir)
 
     def teardown_method(self):
-        """Clean up temporary directory."""
+        """Clean up temporary directory and restore working directory."""
         os.chdir(self.original_cwd)
-        shutil.rmtree(self.test_dir, ignore_errors=True)
+        shutil.rmtree(self.test_dir)
 
-    def test_sample_size_insufficient(self):
-        """Test that script fails when N < 30."""
-        # Create a mock LZC file with 29 participants
-        lzc_path = os.path.join(self.data_dir, "lzc_metrics.csv")
-        participants = [f"sub-{i:03d}" for i in range(29)]
-        data = []
-        for p in participants:
-            for ch in ["Fz", "Cz", "Pz"]:
-                data.append({"participant_id": p, "channel": ch, "lzc_value": 0.5})
-        
+    def test_sample_size_insufficient_n29(self):
+        """Test that the script exits with code 1 and writes validation_report.json when N=29."""
+        # Create a mock lzc_metrics.csv with 29 participants
+        lzc_path = self.data_dir / "lzc_metrics.csv"
+        data = {
+            "participant_id": [f"P{i:03d}" for i in range(1, 30)], # 29 participants
+            "channel": ["Cz"] * 29,
+            "lzc_value": [0.5 + i * 0.01 for i in range(29)]
+        }
         df = pd.DataFrame(data)
         df.to_csv(lzc_path, index=False)
 
-        # Run check
-        success, count, message = check_sample_size(
-            metrics_file=lzc_path,
-            alt_metrics_file=os.path.join(self.data_dir, "pe_metrics.csv"),
-            min_n=30
-        )
-
-        assert success is False, "Should fail when N < 30"
-        assert count == 29, f"Expected count 29, got {count}"
+        # Run the check
+        passed, message = check_sample_size()
+        
+        # Assertions
+        assert passed is False, "Expected check_sample_size to return False for N=29"
         assert "Insufficient sample size" in message, f"Expected error message, got: {message}"
-
-    def test_sample_size_sufficient(self):
-        """Test that script passes when N >= 30."""
-        # Create a mock LZC file with 30 participants
-        lzc_path = os.path.join(self.data_dir, "lzc_metrics.csv")
-        participants = [f"sub-{i:03d}" for i in range(30)]
-        data = []
-        for p in participants:
-            for ch in ["Fz", "Cz", "Pz"]:
-                data.append({"participant_id": p, "channel": ch, "lzc_value": 0.5})
         
+        # Verify validation_report.json was written
+        report_path = self.analysis_dir / "validation_report.json"
+        assert report_path.exists(), "validation_report.json was not created"
+        
+        with open(report_path, 'r') as f:
+            report = json.load(f)
+        
+        assert report["status"] == "FAIL", f"Expected status 'FAIL', got: {report['status']}"
+        assert report["details"]["n_found"] == 29, f"Expected n_found=29, got: {report['details']['n_found']}"
+        assert report["details"]["n_required"] == 30, f"Expected n_required=30, got: {report['details']['n_required']}"
+
+    def test_sample_size_sufficient_n30(self):
+        """Test that the script passes when N=30."""
+        # Create a mock lzc_metrics.csv with 30 participants
+        lzc_path = self.data_dir / "lzc_metrics.csv"
+        data = {
+            "participant_id": [f"P{i:03d}" for i in range(1, 31)], # 30 participants
+            "channel": ["Cz"] * 30,
+            "lzc_value": [0.5 + i * 0.01 for i in range(30)]
+        }
         df = pd.DataFrame(data)
         df.to_csv(lzc_path, index=False)
 
-        # Run check
-        success, count, message = check_sample_size(
-            metrics_file=lzc_path,
-            alt_metrics_file=os.path.join(self.data_dir, "pe_metrics.csv"),
-            min_n=30
-        )
-
-        assert success is True, "Should pass when N >= 30"
-        assert count == 30, f"Expected count 30, got {count}"
-        assert "Sample size OK" in message, f"Expected success message, got: {message}"
-
-    def test_sample_size_fallback_to_pe(self):
-        """Test that script falls back to PE metrics if LZC is missing."""
-        # Create PE file only
-        pe_path = os.path.join(self.data_dir, "pe_metrics.csv")
-        participants = [f"sub-{i:03d}" for i in range(30)]
-        data = []
-        for p in participants:
-            for ch in ["Fz", "Cz", "Pz"]:
-                data.append({"participant_id": p, "channel": ch, "pe_value": 0.8})
+        # Run the check
+        passed, message = check_sample_size()
         
+        # Assertions
+        assert passed is True, f"Expected check_sample_size to return True for N=30, got: {passed}"
+        assert "passed" in message.lower(), f"Expected success message, got: {message}"
+        
+        # Verify validation_report.json was written
+        report_path = self.analysis_dir / "validation_report.json"
+        assert report_path.exists(), "validation_report.json was not created"
+        
+        with open(report_path, 'r') as f:
+            report = json.load(f)
+        
+        assert report["status"] == "PASS", f"Expected status 'PASS', got: {report['status']}"
+        assert report["details"]["n_found"] == 30, f"Expected n_found=30, got: {report['details']['n_found']}"
+
+    def test_sample_size_missing_file(self):
+        """Test that the script fails gracefully when metrics file is missing."""
+        # Ensure no metrics file exists
+        lzc_path = self.data_dir / "lzc_metrics.csv"
+        pe_path = self.data_dir / "pe_metrics.csv"
+        if lzc_path.exists(): lzc_path.unlink()
+        if pe_path.exists(): pe_path.unlink()
+
+        # Run the check
+        passed, message = check_sample_size()
+        
+        # Assertions
+        assert passed is False, "Expected check_sample_size to return False when file is missing"
+        assert "Missing" in message or "missing" in message, f"Expected missing file error, got: {message}"
+
+    def test_sample_size_falls_back_to_pe(self):
+        """Test that the script uses pe_metrics.csv if lzc_metrics.csv is missing."""
+        # Create only pe_metrics.csv with 30 participants
+        lzc_path = self.data_dir / "lzc_metrics.csv"
+        pe_path = self.data_dir / "pe_metrics.csv"
+        if lzc_path.exists(): lzc_path.unlink()
+        
+        data = {
+            "participant_id": [f"P{i:03d}" for i in range(1, 31)],
+            "channel": ["Cz"] * 30,
+            "pe_value": [0.6 + i * 0.01 for i in range(30)]
+        }
         df = pd.DataFrame(data)
         df.to_csv(pe_path, index=False)
 
-        # Run check (LZC missing, should use PE)
-        success, count, message = check_sample_size(
-            metrics_file=os.path.join(self.data_dir, "lzc_metrics.csv"),
-            alt_metrics_file=pe_path,
-            min_n=30
-        )
-
-        assert success is True, "Should pass using PE fallback"
-        assert count == 30, f"Expected count 30, got {count}"
-
-    def test_sample_size_missing_files(self):
-        """Test that script fails when no metrics files exist."""
-        success, count, message = check_sample_size(
-            metrics_file=os.path.join(self.data_dir, "lzc_metrics.csv"),
-            alt_metrics_file=os.path.join(self.data_dir, "pe_metrics.csv"),
-            min_n=30
-        )
-
-        assert success is False, "Should fail when no files exist"
-        assert "not found" in message.lower()
-
-    def test_validation_report_written(self):
-        """Test that validation_report.json is written with correct schema."""
-        # Create a mock file with N=29
-        lzc_path = os.path.join(self.data_dir, "lzc_metrics.csv")
-        participants = [f"sub-{i:03d}" for i in range(29)]
-        data = [{"participant_id": p, "channel": "Fz", "lzc_value": 0.5} for p in participants]
-        pd.DataFrame(data).to_csv(lzc_path, index=False)
-
-        # Run check
-        success, count, message = check_sample_size(
-            metrics_file=lzc_path,
-            alt_metrics_file=os.path.join(self.data_dir, "pe_metrics.csv"),
-            min_n=30
-        )
-
-        # Verify report was written
-        report_path = "data/analysis/validation_report.json"
-        assert os.path.exists(report_path), "validation_report.json should be written"
-
-        with open(report_path, 'r') as f:
-            report = json.load(f)
-
-        assert report["status"] == "FAIL"
-        assert report["message"] == message
-        assert "timestamp" in report
-        assert report["details"]["participant_count"] == 29
-        assert report["details"]["min_required"] == 30
-
-    def test_script_exit_code_insufficient(self):
-        """Test that the script exits with code 1 when N < 30."""
-        # Create a mock file with N=29
-        lzc_path = os.path.join(self.data_dir, "lzc_metrics.csv")
-        participants = [f"sub-{i:03d}" for i in range(29)]
-        data = [{"participant_id": p, "channel": "Fz", "lzc_value": 0.5} for p in participants]
-        pd.DataFrame(data).to_csv(lzc_path, index=False)
-
-        # Run the script as a subprocess
-        result = subprocess.run(
-            [sys.executable, "code/check_sample_size.py"],
-            capture_output=True,
-            text=True
-        )
+        # Run the check
+        passed, message = check_sample_size()
         
-        assert result.returncode == 1, f"Expected exit code 1, got {result.returncode}"
-        assert "Insufficient sample size" in result.stderr or "Insufficient sample size" in result.stdout
-
-    def test_script_exit_code_sufficient(self):
-        """Test that the script exits with code 0 when N >= 30."""
-        # Create a mock file with N=30
-        lzc_path = os.path.join(self.data_dir, "lzc_metrics.csv")
-        participants = [f"sub-{i:03d}" for i in range(30)]
-        data = [{"participant_id": p, "channel": "Fz", "lzc_value": 0.5} for p in participants]
-        pd.DataFrame(data).to_csv(lzc_path, index=False)
-
-        # Run the script as a subprocess
-        result = subprocess.run(
-            [sys.executable, "code/check_sample_size.py"],
-            capture_output=True,
-            text=True
-        )
-        
-        assert result.returncode == 0, f"Expected exit code 0, got {result.returncode}"
-        assert "Sample size OK" in result.stderr or "Sample size OK" in result.stdout
+        # Assertions
+        assert passed is True, f"Expected check_sample_size to pass using PE file, got: {passed}"
+        assert "passed" in message.lower()

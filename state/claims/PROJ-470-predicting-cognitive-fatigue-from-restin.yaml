@@ -1528,3 +1528,543 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-03T08:46:10Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/specs/001-predicting-cognitive-fatigue-from-restin/tasks.md
+  attempts: 1
+  canonical: Line noise attenuation at 50Hz must be at least 20dB
+  claim_id: c_29492950
+  context: 'Independent Test: Run preprocessing on a single sample EEG file; verify
+    50Hz line noise peak is attenuated by >20dB in output spectrum.'
+  evidence:
+    candidates:
+    - - Line noise attenuation at
+      - 50.0
+    - - Hz must be at least
+      - 20.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Line_noise_attenuation_at_50Hz_must_be_at_least_20dB
+  kind: magnitude
+  raw_text: Assert that the peak power at 50Hz in the filtered signal is at least
+    20dB lower than the peak power at 50Hz in the raw synthetic signal.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-08-05T20:41:48Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/specs/001-predicting-cognitive-fatigue-from-restin/tasks.md
+  attempts: 1
+  canonical: Feature extraction output must contain data for at least 30 participants
+  claim_id: c_f25961a7
+  context: "T015: Verification: Assert data/processed/lzc_metrics.csv exists, is non\u2011\
+    empty, and contains the three columns in the specified order. The output MUST\
+    \ contain data for N\u226530 participants when run on the full dataset."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Feature_extraction_output_must_contain_data_for_at_least_30
+  kind: magnitude
+  raw_text: "The output MUST contain data for N\u226530 participants when run on the\
+    \ full dataset."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T20:42:25Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/specs/001-predicting-cognitive-fatigue-from-restin/tasks.md
+  attempts: 1
+  canonical: Sample size must be at least 30 before analysis
+  claim_id: c_6c35e59b
+  context: "T026a: Enforce N \u2265 30 constraint as a blocking gate before analysis.\
+    \ This task runs after T010 and T015/T016. It MUST read data/processed/lzc_metrics.csv\
+    \ (or pe_metrics.csv if LZC is missing) and count unique participant_id entries.\
+    \ If count < 30, it MUST exit with code 1."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Sample_size_must_be_at_least_30_before_analysis
+  kind: magnitude
+  raw_text: "Enforce N \u2265 30 constraint as a blocking gate before analysis."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T20:43:25Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/specs/001-predicting-cognitive-fatigue-from-restin/tasks.md
+  attempts: 1
+  canonical: Lempel-Ziv complexity calculated per channel per participant
+  claim_id: c_c7cd8cc4
+  context: 'T015: Implementation Detail: The script MUST iterate over each participant
+    in the preprocessed data (from data/processed/cleaned_eeg.fif), then over each
+    channel, and calculate the LZC value. It MUST write each result to the CSV file.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Lempel-Ziv_complexity_calculated_per_channel_per_participant
+  kind: entity_fact
+  raw_text: The script MUST iterate over each participant in the preprocessed data
+    (from data/processed/cleaned_eeg.fif), then over each channel, and calculate the
+    LZC value.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T20:43:49Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/specs/001-predicting-cognitive-fatigue-from-restin/tasks.md
+  attempts: 1
+  canonical: Permutation entropy calculated per channel per participant
+  claim_id: c_d3fc2f0b
+  context: 'T016: Implementation Detail: The script MUST iterate over each participant
+    in the preprocessed data (from data/processed/cleaned_eeg.fif), then over each
+    channel, and calculate the PE value. It MUST write each result to the CSV file.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Permutation_entropy_calculated_per_channel_per_participant
+  kind: entity_fact
+  raw_text: The script MUST iterate over each participant in the preprocessed data
+    (from data/processed/cleaned_eeg.fif), then over each channel, and calculate the
+    PE value.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T20:44:09Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/specs/001-predicting-cognitive-fatigue-from-restin/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis table contains threshold and count_significant columns
+  claim_id: c_2cf4bdce
+  context: "T022: Implement sensitivity analysis at p\u22640.05 and p\u22640.01 thresholds\
+    \ with result table per FR-006. Output table to data/analysis/sensitivity_table.csv.\
+    \ Schema Requirement: The CSV MUST contain columns: threshold (float), count_significant\
+    \ (int)."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_analysis_table_contains_threshold_and_count_sign
+  kind: entity_fact
+  raw_text: 'The CSV MUST contain columns: threshold (float), count_significant (int).'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T20:44:30Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/specs/001-predicting-cognitive-fatigue-from-restin/tasks.md
+  attempts: 1
+  canonical: Memory profiling skipped if real dataset has fewer than 30 participants
+  claim_id: c_70af3d64
+  context: 'T048: If the available real dataset yields N<30, this task MUST SKIP the
+    full memory profile and log a warning indicating insufficient real data for profiling,
+    without failing the pipeline.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Memory_profiling_skipped_if_real_dataset_has_fewer_than_30_p
+  kind: magnitude
+  raw_text: If the available real dataset yields N<30, this task MUST SKIP the full
+    memory profile and log a warning indicating insufficient real data for profiling,
+    without failing the pipeline.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T20:45:12Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/specs/001-predicting-cognitive-fatigue-from-restin/tasks.md
+  attempts: 1
+  canonical: Line noise attenuation at 50Hz is at least 20dB
+  claim_id: c_ca8fa9fb
+  context: 'Independent Test: Run preprocessing on a single sample EEG file; verify
+    50Hz line noise peak is attenuated by >20dB in output spectrum.'
+  evidence:
+    candidates:
+    - - Line noise attenuation at
+      - 50.0
+    - - Hz is at least
+      - 20.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Line_noise_attenuation_at_50Hz_is_at_least_20dB
+  kind: magnitude
+  raw_text: Assert that the peak power at 50Hz in the filtered signal is at least
+    20dB lower than the peak power at 50Hz in the raw synthetic signal.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-08-05T21:09:41Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/specs/001-predicting-cognitive-fatigue-from-restin/tasks.md
+  attempts: 1
+  canonical: Lempel-Ziv complexity calculated per channel per participant
+  claim_id: c_1a42575a
+  context: "T015 [US2] [Depends: T011] Implement code/features.py to calculate Lempel\u2011\
+    Ziv complexity per channel per FR-003."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Lempel-Ziv_complexity_calculated_per_channel_per_participant
+  kind: entity_fact
+  raw_text: The script MUST iterate over each participant in the preprocessed data
+    (from data/processed/cleaned_eeg.fif), then over each channel, and calculate the
+    LZC value.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T21:09:43Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/specs/001-predicting-cognitive-fatigue-from-restin/tasks.md
+  attempts: 1
+  canonical: Integration test skipped if participant count is less than 30
+  claim_id: c_4d0c1c8a
+  context: '4. Count unique participant_id entries. If count < 30, SKIP the integration
+    test, log a warning ''Insufficient sample size: N < 30'', and do NOT fail.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Integration_test_skipped_if_participant_count_is_less_than_3
+  kind: magnitude
+  raw_text: 'If count < 30, SKIP the integration test, log a warning ''Insufficient
+    sample size: N < 30'', and do NOT fail.'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T21:12:06Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/specs/001-predicting-cognitive-fatigue-from-restin/tasks.md
+  attempts: 1
+  canonical: Analysis blocked if sample size is less than 30
+  claim_id: c_13f6b352
+  context: "T026a [US3] [Depends: T015, T016] Enforce N \u2265 30 constraint as a\
+    \ blocking gate before analysis."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Analysis_blocked_if_sample_size_is_less_than_30
+  kind: magnitude
+  raw_text: 'The script MUST read data/processed/lzc_metrics.csv (or pe_metrics.csv
+    if LZC is missing) and count unique participant_id entries. If count < 30, it
+    MUST exit with code 1 and log validation_report.json with message ''Insufficient
+    sample size: N < 30''.'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T21:12:13Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/specs/001-predicting-cognitive-fatigue-from-restin/tasks.md
+  attempts: 1
+  canonical: HTTP HEAD request performed on metadata URL before download
+  claim_id: c_095309bf
+  context: 'Implementation Detail: The script MUST perform an HTTP HEAD request or
+    a partial read of the metadata file at the specified URL.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/HTTP_HEAD_request_performed_on_metadata_URL_before_download
+  kind: entity_fact
+  raw_text: The script MUST perform an HTTP HEAD request or a partial read of the
+    metadata file at the specified URL.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T21:12:23Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/specs/001-predicting-cognitive-fatigue-from-restin/tasks.md
+  attempts: 1
+  canonical: Missing values identified as NaN, empty string, or N/A
+  claim_id: c_b30971f6
+  context: 'The script MUST check for ANY of the following column name variations
+    for pre/post fatigue ratings: pre_fatigue, fatigue_pre, baseline_fatigue, post_fatigue,
+    fatigue_post, end_fatigue. The script MUST identify missing values as NaN, empty
+    string, or ''N/A''.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Missing_values_identified_as_NaN,_empty_string,_or_N/A
+  kind: entity_fact
+  raw_text: The script MUST identify missing values as NaN, empty string, or 'N/A'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T21:12:35Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/specs/001-predicting-cognitive-fatigue-from-restin/tasks.md
+  attempts: 1
+  canonical: Sampling rate read from preprocessed data or config
+  claim_id: c_70c6a0b5
+  context: "T015 [US2] [Depends: T011] Implement code/features.py to calculate Lempel\u2011\
+    Ziv complexity per channel per FR-003."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sampling_rate_read_from_preprocessed_data_or_config
+  kind: entity_fact
+  raw_text: The sampling rate MUST be read from the preprocessed data file or config
+    (default value unspecified).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T21:12:45Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/specs/001-predicting-cognitive-fatigue-from-restin/tasks.md
+  attempts: 1
+  canonical: Sampling rate default set to 256 Hz
+  claim_id: c_162e8316
+  context: 'T016 [US2] [Depends: T011] Implement code/features.py to calculate Permutation
+    Entropy per channel per FR-003. ... The sampling rate MUST be read from the preprocessed
+    data file or config (default 256 Hz).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sampling rate MUST be read from the preprocessed data file or config
+    (default 256 Hz).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T21:12:46Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/specs/001-predicting-cognitive-fatigue-from-restin/tasks.md
+  attempts: 1
+  canonical: 'Synthetic white noise signal parameters: seed 42, amplitude 1, 256 Hz,
+    120s'
+  claim_id: c_77cc6378
+  context: 'T014 [P] [US2] Unit test for permutation entropy on known signal in tests/unit/test_features.py.
+    Implementation Detail: Generate a synthetic white noise signal (seed=42, amplitude=1,
+    256 Hz, 120s, embedding dimension=3, time delay=1).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate a synthetic white noise signal (seed=42, amplitude=1, 256 Hz,
+    120s, embedding dimension=3, time delay=1).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T21:12:52Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/specs/001-predicting-cognitive-fatigue-from-restin/tasks.md
+  attempts: 1
+  canonical: Script exits with code 1 on structural validation failure
+  claim_id: c_bcd40184
+  context: 'Structural Validation: If the dataset *structurally* lacks the required
+    variables (i.e., the columns are missing entirely from the metadata file), the
+    script MUST exit with code 1 (halt) and print a clear error message to stderr
+    listing available variables.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The script MUST exit with code 1 and print a clear error message to stderr
+    listing available variables if the dataset structurally lacks the required variables.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T21:12:58Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/specs/001-predicting-cognitive-fatigue-from-restin/tasks.md
+  attempts: 1
+  canonical: Download manifest schema includes status, dataset_id, participant_count,
+    variables_found, timestamp
+  claim_id: c_ea8ee5d5
+  context: 'Output Artifact (Success): The script MUST write data/raw/download_manifest.json
+    with schema: { ''status'': ''success'', ''dataset_id'': ''sleep-edf'', ''participant_count'':
+    int, ''variables_found'': list, ''timestamp'': str }.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Download_manifest_schema_includes_status,_dataset_id,_partic
+  kind: entity_fact
+  raw_text: 'The script MUST write data/raw/download_manifest.json with schema: {
+    ''status'': ''success'', ''dataset_id'': ''sleep-edf'', ''participant_count'':
+    int, ''variables_found'': list, ''timestamp'': str }.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T21:13:05Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/specs/001-predicting-cognitive-fatigue-from-restin/tasks.md
+  attempts: 1
+  canonical: Participant exclusion log schema includes participant_id, reason, timestamp
+  claim_id: c_e0ebe48a
+  context: 'AND data/processed/participant_exclusion_log.csv with schema: [participant_id,
+    reason, timestamp].'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Participant_exclusion_log_schema_includes_participant_id,_re
+  kind: entity_fact
+  raw_text: 'The script MUST write data/processed/participant_exclusion_log.csv with
+    schema: [participant_id, reason, timestamp].'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T21:15:12Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/specs/001-predicting-cognitive-fatigue-from-restin/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis table schema includes threshold and count_significant
+  claim_id: c_9aa7f177
+  context: "T022 [US3] Implement sensitivity analysis at p\u22640.05 and p\u22640.01\
+    \ thresholds with result table per FR-006. Output table to data/analysis/sensitivity_table.csv.\
+    \ Schema Requirement: The CSV MUST contain columns: threshold (float), count_significant\
+    \ (int)."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_analysis_table_schema_includes_threshold_and_cou
+  kind: entity_fact
+  raw_text: 'The CSV MUST contain columns: threshold (float), count_significant (int).'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T21:15:14Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/specs/001-predicting-cognitive-fatigue-from-restin/tasks.md
+  attempts: 1
+  canonical: Memory report schema includes peak_memory_mb, limit_mb, status
+  claim_id: c_becabe53
+  context: 'It MUST write the result to data/analysis/memory_report.json with schema
+    { ''peak_memory_mb'': float, ''limit_mb'': float, ''status'': ''PASS/FAIL'' }.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Memory_report_schema_includes_peak_memory_mb,_limit_mb,_stat
+  kind: entity_fact
+  raw_text: 'The script MUST write the result to data/analysis/memory_report.json
+    with schema { ''peak_memory_mb'': float, ''limit_mb'': float, ''status'': ''PASS/FAIL''
+    }.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T21:15:26Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/specs/001-predicting-cognitive-fatigue-from-restin/tasks.md
+  attempts: 1
+  canonical: Runtime report schema includes total_runtime_hours and unit
+  claim_id: c_d55df3fa
+  context: 'The script MUST write the result to data/analysis/runtime_report.json
+    with schema { ''total_runtime_hours'': float, ''unit'': ''hours'' }.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Runtime_report_schema_includes_total_runtime_hours_and_unit
+  kind: entity_fact
+  raw_text: 'The script MUST write the result to data/analysis/runtime_report.json
+    with schema { ''total_runtime_hours'': float, ''unit'': ''hours'' }.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T21:15:38Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/specs/001-predicting-cognitive-fatigue-from-restin/tasks.md
+  attempts: 1
+  canonical: Findings framed as associational rather than causal
+  claim_id: c_f975aec4
+  context: The analysis MUST frame findings as associational rather than causal.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Findings_framed_as_associational_rather_than_causal
+  kind: entity_fact
+  raw_text: The analysis MUST frame findings as associational rather than causal.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T21:15:52Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/specs/001-predicting-cognitive-fatigue-from-restin/tasks.md
+  attempts: 1
+  canonical: Fabrication of data or use of synthetic data to fill gaps is prohibited
+  claim_id: c_056357aa
+  context: 'NO FALLBACK: The script MUST NOT attempt to fabricate data or use synthetic
+    data to fill gaps.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fabrication_of_data_or_use_of_synthetic_data_to_fill_gaps_is
+  kind: entity_fact
+  raw_text: The script MUST NOT attempt to fabricate data or use synthetic data to
+    fill gaps.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T21:16:02Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/specs/001-predicting-cognitive-fatigue-from-restin/tasks.md
+  attempts: 1
+  canonical: Documentation values must match config.yaml values exactly
+  claim_id: c_4300e031
+  context: 'Verification: Assert docs/README.md contains a section ''Pipeline Parameters''
+    with a table of values from code/config.yaml. The verification MUST parse code/config.yaml
+    and assert that the values in docs/README.md match the parsed YAML values exactly.'
+  evidence:
+    entailment_evidence: Documentation values must match config.
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Documentation_values_must_match_config.yaml_values_exactly
+  kind: entity_fact
+  raw_text: The verification MUST parse code/config.yaml and assert that the values
+    in docs/README.md match the parsed YAML values exactly.
+  resolved_value: Documentation values must match config.yaml values exactly
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-05T21:16:04Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/specs/001-predicting-cognitive-fatigue-from-restin/tasks.md
+  attempts: 1
+  canonical: PII scan uses Python re module to search for email and SSN patterns
+  claim_id: c_431f15dd
+  context: 'Verification: Create tests/unit/test_pii_scan.py that runs a PII scan
+    on data/raw and data/processed using Python''s re module to search for common
+    PII patterns (e.g., email, SSN patterns) and asserts pii_scan_report.txt is generated
+    with no findings.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/PII_scan_uses_Python_re_module_to_search_for_email_and_SSN_p
+  kind: entity_fact
+  raw_text: Create tests/unit/test_pii_scan.py that runs a PII scan on data/raw and
+    data/processed using Python's re module to search for common PII patterns (e.g.,
+    email, SSN patterns) and asserts pii_scan_report.txt is generated with no findings.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T21:16:11Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/specs/001-predicting-cognitive-fatigue-from-restin/tasks.md
+  attempts: 1
+  canonical: Peak RSS captured using Python resource module
+  claim_id: c_d7c24e58
+  context: It MUST use Python's built-in resource module (or equivalent system-level
+    monitoring) to capture peak RSS (Resident Set Size) of the main process.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Peak_RSS_captured_using_Python_resource_module
+  kind: entity_fact
+  raw_text: The script MUST use Python's built-in resource module (or equivalent system-level
+    monitoring) to capture peak RSS (Resident Set Size) of the main process.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T21:18:59Z'

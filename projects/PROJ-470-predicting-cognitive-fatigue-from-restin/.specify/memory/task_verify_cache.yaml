@@ -15,14 +15,13 @@ T014:
     \ and is truncated). Consequently the script does not meet the specification of\
     \ calculating LZC per channel and writing the results to the CSV. The missing\
     \ CSV and absent LZC logic must be added."
-T016:
+T015:
   c: false
-  h: ca8010c83e5283cb69677de748e38b8d3808ab9ca5f4ac249eaad789f57dbad8
-  r: The required output file `data/processed/pe_metrics.csv` does not exist, and
-    the input file `data/processed/cleaned_eeg.fif` is also missing. Moreover, the
-    provided `code/features.py` is truncated before completing the permutation entropy
-    calculation and never writes the CSV, so the implementation does not meet the
-    specification.
+  h: 7232310c42a0297d96a3b0f4762850f6c54c8c1382caa7fe4dff602a75f4d7bb
+  r: The repository lacks the required `data/processed/cleaned_eeg.fif` input file
+    and the output `data/processed/lzc_metrics.csv`. Moreover, `code/features.py`
+    does not contain any logic that iterates over participants, computes LZC per channel,
+    and writes the results to the specified CSV, so the core task is unimplemented.
 T020:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -45,12 +44,13 @@ T024:
     that any documentation covering pipeline parameters, data sources, or statistical
     interpretation guidelines exists. The required artifact is missing, so the task
     is not satisfied.
-T045:
+T026a:
   c: false
-  h: efb814733c8f713e801d802463cf022522618a5599ffe7eadda6e356db09c41c
-  r: The repository contains a `code/profile_memory.py` file, but it does not import
-    and run the pipeline functions directly nor use `memory_profiler` as required;
-    it instead invokes other scripts via `subprocess` and relies on `/usr/bin/time`.
-    Moreover, the expected output file `data/analysis/memory_report.json` is absent,
-    indicating the script does not produce the required report. The implementation
-    therefore fails to meet the task specifications.
+  h: 3d557eb67b6120501a342f4490675b126872d7004d88ce116f1c73a8a381d049
+  r: "The repository lacks the required `data/processed/lzc_metrics.csv` (the task\
+    \ expects the script to read this real file) and does not include the implementation\
+    \ module (`check_sample_size.py`) that performs the sample\u2011size check, exits\
+    \ with code\u202F1, and writes `validation_report.json`. The provided test file\
+    \ is incomplete (truncated) and only checks return values, not the required exit\
+    \ code or fallback to `pe_metrics.csv`. The necessary enforcement code and full\
+    \ verification tests are missing."
