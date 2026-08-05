@@ -1,14 +1,17 @@
 status: none
-intent: Hanabi game interaction dataset USK-difficult USK-easy WINNIE-US2 USD-Enhanced
-  CoQA python package dataset
+intent: download Hanabi learning environment python package dataset with cue retrieval
+  annotations
 required_fields:
 - game_id
 - episode_id
 - agent_id
-- action
-- cue
-- retrieved_fact
 - specialization_index
-- cue_retrieval_efficiency
-- timestamp
-- context_state
+- retrieval_efficiency
+- cue_annotation
+- fact_annotation
+- language
+- transaction_log
+- prompt_text
+cache_key: d1c2e010a40b3b5ce7f8d0fcc99788cf12b9e14f772bdb7e783eb0afb100a56d
+searched_at: '2026-08-05T10:20:48.084342+00:00'
+retry_count: 1

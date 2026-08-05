@@ -115,7 +115,7 @@ projects/PROJ-586-social-memory-networks-modeling-collecti/results/
 | 4 | Separate ANOVA per metric (Context × Metric) | Phase 2, 3 | ANOVA tables, p-values | FR-006, FR-007, SC-002 |
 | 5 | Sensitivity analysis (token sweep) | Phase 2, 3 | Trend report | FR-008, SC-003 |
 | 6 | Power analysis report | Phase 4 | `power_analysis_report.md` | FR-009, SC-004 |
-| 7 | Scaling analysis (3, 5, 7 agents) - exploratory trend | Phase 0 | `scaling_plot.pdf` | US-3, FR-004, FR-005, SC-005 |
+| 7 | Scaling analysis (varying agent counts) - exploratory trend | Phase 0 | `scaling_plot.pdf` | US-3, FR-004, FR-005, SC-005 |
 | 8 | Error handling & logging validation | All phases | `experiment.log` | FR-010, FR-012 |
 
 ## FR/SC Coverage Matrix

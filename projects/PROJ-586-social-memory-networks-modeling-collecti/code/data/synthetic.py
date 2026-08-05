@@ -15,6 +15,7 @@ from pathlib import Path
 from typing import List, Dict, Any, Optional
 from dataclasses import dataclass, asdict
 import json
+import csv
 
 
 @dataclass
@@ -105,7 +106,6 @@ def verify_datasets(dataset_path: Path) -> bool:
 
     try:
         if dataset_path.suffix == ".csv":
-            import csv
             with dataset_path.open(newline="") as f:
                 reader = csv.DictReader(f)
                 rows = list(reader)
@@ -170,3 +170,90 @@ def save_synthetic_dataset(output_path: Path, records: List[Dict[str, Any]]) -> 
             writer = csv.DictWriter(f, fieldnames=fieldnames)
             writer.writeheader()
             writer.writerows(records)
+
+
+def generate_synthetic_cue_response_pairs(
+    num_pairs: int = 10,
+    agent_count: int = 5,
+    context_spans: Optional[List[str]] = None,
+    seed: int = 42
+) -> List[Dict[str, Any]]:
+    """
+    Generate synthetic cue-response pairs as a fallback when explicit cues are missing.
+
+    Per FR-011, this function creates a set of synthetic cue-response pairs
+    (minimum 10 per game) from available context spans if explicit cues are missing.
+    The generated pairs are marked as synthetic and must not be used for research.
+
+    Parameters
+    ----------
+    num_pairs : int
+        Number of cue-response pairs to generate (minimum 10).
+    agent_count : int
+        Number of agents in the simulation (used to diversify responses).
+    context_spans : List[str], optional
+        Available context spans to draw from. If None, uses default spans.
+    seed : int
+        Random seed for reproducibility.
+
+    Returns
+    -------
+    List[Dict[str, Any]]
+        List of synthetic cue-response pairs, each marked with 'is_synthetic': True.
+
+    Raises
+    ------
+    ValueError
+        If num_pairs is less than 10.
+    """
+    if num_pairs < 10:
+        raise ValueError(f"num_pairs must be at least 10, got {num_pairs}")
+
+    if context_spans is None:
+        context_spans = [
+            "The capital of France is Paris.",
+            "Water boils at 100 degrees Celsius at sea level.",
+            "The speed of light is approximately 299,792,458 meters per second.",
+            "Photosynthesis converts carbon dioxide and water into glucose and oxygen.",
+            "The human body has 206 bones in adulthood.",
+            "The Earth orbits the Sun in approximately 365.25 days.",
+            "DNA stands for deoxyribonucleic acid.",
+            "The largest planet in our solar system is Jupiter.",
+            "Newton's first law states that an object at rest stays at rest.",
+            "The chemical symbol for gold is Au."
+        ]
+
+    rng = random.Random(seed)
+    pairs = []
+
+    for i in range(num_pairs):
+        # Select a context span
+        context_span = rng.choice(context_spans)
+
+        # Generate a cue based on the context
+        words = context_span.split()
+        if len(words) > 3:
+            cue_start = rng.randint(0, len(words) - 3)
+            cue = " ".join(words[cue_start:cue_start + 2])
+        else:
+            cue = words[0] if words else "unknown"
+
+        # Generate a response (the full context or a variation)
+        response = context_span
+
+        # Assign to a random agent
+        agent_id = rng.randint(0, agent_count - 1)
+
+        pair = {
+            "cue": cue,
+            "response": response,
+            "agent_id": agent_id,
+            "context_span": context_span,
+            "is_synthetic": True,
+            "source": "synthetic_fallback",
+            "pair_id": f"synthetic_pair_{i:04d}",
+            "warning": "DO NOT USE FOR RESEARCH. This is synthetic fallback data."
+        }
+        pairs.append(pair)
+
+    return pairs
