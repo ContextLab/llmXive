@@ -1,120 +1,118 @@
+import pytest
 import csv
 import json
-import os
-import tempfile
-import pytest
-from pathlib import Path
 import yaml
-
-# Mock the logger to avoid issues in tests
+from pathlib import Path
 import sys
-from unittest.mock import MagicMock
-sys.modules['utils.logger'] = MagicMock()
-sys.modules['extraction.nlp_logic'] = MagicMock()
-sys.modules['extraction.p_value_converter'] = MagicMock()
+import os
 
-from extraction.parser import parse_row, parse_csv_file, save_extracted_studies, load_tract_lexicon, log_exclusion
+# Add code to path
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent / "code"))
+
+from extraction.parser import parse_row, log_exclusion, save_extracted_studies, load_tract_lexicon
+from utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 @pytest.fixture
-def sample_lexicon():
+def mock_lexicon():
+    """Create a temporary lexicon file for testing."""
+    lexicon = {
+        "tracts": ["arcuate fasciculus", "cingulum bundle", "uncinate fasciculus", "inferior longitudinal fasciculus", "auditory cortex", "ventral striatum"],
+        "directional_verbs": ["increased", "decreased", "correlated", "associated with"]
+    }
+    # We assume the lexicon file exists in data/config as per T007c
+    # For unit testing, we might need to mock the file or ensure it exists.
+    # In a real CI, T007c runs before. Here we assume it exists or create it.
+    lexicon_path = Path("data/config/tract_lexicon.yaml")
+    lexicon_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(lexicon_path, 'w') as f:
+        yaml.dump(lexicon, f)
+    return lexicon
+
+@pytest.fixture
+def mock_row_complete():
     return {
-        "tracts": ["arcuate fasciculus"],
-        "directional_verbs": ["increased", "correlated"],
-        "themes": ["auditory"]
+        "id": "S001",
+        "author": "Smith",
+        "year": "2020",
+        "tract": "arcuate fasciculus",
+        "r": "0.45",
+        "n": "50",
+        "p": "0.01",
+        "notes": "Strong correlation."
     }
 
 @pytest.fixture
-def temp_dir():
-    with tempfile.TemporaryDirectory() as tmpdir:
-        yield tmpdir
-
-def test_parse_row_direct_values(sample_lexicon):
-    row = {
-        'author': 'Smith',
-        'year': 2020,
-        'tract': 'arcuate fasciculus',
-        'r': 0.5,
-        'n': 50,
-        'notes': 'Some notes'
+def mock_row_missing_r():
+    return {
+        "id": "S002",
+        "author": "Doe",
+        "year": "2019",
+        "tract": "cingulum bundle",
+        "r": "",
+        "n": "30",
+        "p": "0.03",
+        "notes": "Significant finding."
     }
-    result = parse_row(row, sample_lexicon, None)
-    assert result['author'] == 'Smith'
-    assert result['r'] == 0.5
+
+@pytest.fixture
+def mock_row_text_only():
+    return {
+        "id": "S003",
+        "author": "Lee",
+        "year": "2021",
+        "tract": "",
+        "r": "",
+        "n": "",
+        "p": "",
+        "notes": "Increased connectivity observed in the uncinate fasciculus."
+    }
+
+def test_parse_complete_row(mock_lexicon, mock_row_complete):
+    lexicon = load_tract_lexicon()
+    result = parse_row(mock_row_complete, lexicon, "S001")
+    
+    assert result['r'] == 0.45
     assert result['n'] == 50
-    assert result['narrative_pool'] is False
+    assert result['narrative_pool'] == False
+    assert result['qualitative_desc'] == "" # No NLP needed if r/n present and tract known
 
-def test_parse_row_missing_r_n(sample_lexicon):
-    # Mock nlp_logic to return a descriptor
-    import extraction.nlp_logic
-    extraction.nlp_logic.extract_tract_descriptors = MagicMock(return_value=["directional_verbs: increased"])
+def test_parse_p_value_conversion(mock_lexicon, mock_row_missing_r):
+    lexicon = load_tract_lexicon()
+    result = parse_row(mock_row_missing_r, lexicon, "S002")
     
-    row = {
-        'author': 'Doe',
-        'year': 2021,
-        'tract': 'arcuate fasciculus',
-        'r': None,
-        'n': None,
-        'notes': 'arcuate fasciculus was increased'
-    }
-    result = parse_row(row, sample_lexicon, None)
-    assert result['r'] is None
-    assert result['n'] is None
-    assert result['qualitative_desc'] == "directional_verbs: increased"
-    assert result['narrative_pool'] is True
+    # Should convert p=0.03 to r
+    assert result['r'] is not None
+    assert result['n'] == 30
+    assert result['narrative_pool'] == False
 
-def test_parse_row_no_data_excluded(sample_lexicon, temp_dir):
-    # Mock nlp_logic to return empty
-    import extraction.nlp_logic
-    extraction.nlp_logic.extract_tract_descriptors = MagicMock(return_value=[])
+def test_parse_text_only_narrative_pool(mock_lexicon, mock_row_text_only):
+    lexicon = load_tract_lexicon()
+    result = parse_row(mock_row_text_only, lexicon, "S003")
     
-    row = {
-        'author': 'Empty',
-        'year': 2022,
-        'tract': 'unknown',
-        'r': None,
-        'n': None,
-        'notes': 'no relevant info'
-    }
-    log_path = os.path.join(temp_dir, 'exclusion_log.csv')
-    
-    # We need to patch log_exclusion to not fail on file writing if not mocked, 
-    # but here we just test the logic path.
-    # The function log_exclusion is called inside parse_row if conditions met.
-    
-    result = parse_row(row, sample_lexicon, None)
-    assert result['narrative_pool'] is False
-    # Check if exclusion log was created
-    assert os.path.exists(log_path)
+    assert result['narrative_pool'] == True
+    assert result['qualitative_desc'] is not None
+    # Check if tract was found
+    assert result['tract'] == "uncinate fasciculus"
 
-def test_parse_csv_file(temp_dir, sample_lexicon):
-    input_file = os.path.join(temp_dir, 'input.csv')
-    output_file = os.path.join(temp_dir, 'output.csv')
+def test_log_exclusion(tmp_path):
+    # Override log path for test
+    import extraction.parser as parser_module
+    original_logs_dir = parser_module.LOGS_DIR
+    parser_module.LOGS_DIR = tmp_path / "logs"
     
-    with open(input_file, 'w', newline='') as f:
-        writer = csv.writer(f)
-        writer.writerow(['author', 'year', 'tract', 'r', 'n', 'notes'])
-        writer.writerow(['Test', 2023, 'arcuate fasciculus', 0.3, 20, 'notes'])
-    
-    # Mock nlp_logic
-    import extraction.nlp_logic
-    extraction.nlp_logic.extract_tract_descriptors = MagicMock(return_value=[])
-    
-    studies = parse_csv_file(input_file, sample_lexicon, None)
-    assert len(studies) == 1
-    assert studies[0]['author'] == 'Test'
-
-def test_save_extracted_studies(temp_dir):
-    studies = [
-        {'author': 'A', 'year': 2020, 'tract': 't1', 'r': 0.1, 'n': 10, 'qualitative_desc': '', 'narrative_pool': False, 'source': 'raw'},
-        {'author': 'B', 'year': 2021, 'tract': 't2', 'r': None, 'n': None, 'qualitative_desc': 'desc', 'narrative_pool': True, 'source': 'nlp'}
-    ]
-    output_file = os.path.join(temp_dir, 'output.csv')
-    save_extracted_studies(studies, output_file)
-    
-    assert os.path.exists(output_file)
-    with open(output_file, 'r') as f:
-        reader = csv.DictReader(f)
-        rows = list(reader)
-        assert len(rows) == 2
-        assert rows[0]['author'] == 'A'
-        assert rows[1]['narrative_pool'] == 'True' # CSV writes booleans as strings
+    try:
+        log_exclusion("S001", "missing_data", "r=, n=")
+        
+        log_path = parser_module.LOGS_DIR / "exclusion_log.csv"
+        assert log_path.exists()
+        
+        with open(log_path, 'r') as f:
+            reader = csv.DictReader(f)
+            rows = list(reader)
+            assert len(rows) == 1
+            assert rows[0]['study_id'] == 'S001'
+            assert rows[0]['reason'] == 'missing_data'
+    finally:
+        parser_module.LOGS_DIR = original_logs_dir

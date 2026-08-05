@@ -935,3 +935,264 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-19T23:49:47Z'
+- artifact_path: projects/PROJ-082-investigating-the-correlation-between-st/specs/001-investigating-the-correlation-between-st/tasks.md
+  attempts: 1
+  canonical: generate mock data with n between 10 and 30
+  claim_id: c_5ab03989
+  context: 'Task T000-gen: Generate mock data for Fallback Testing (N=5)... Logic:
+    Use a fixed seed to generate random r values within a small, non-zero range and
+    n between 10 and 30.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use a fixed seed to generate random r values within a small, non-zero
+    range and n between 10 and 30.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T04:41:24Z'
+- artifact_path: projects/PROJ-082-investigating-the-correlation-between-st/specs/001-investigating-the-correlation-between-st/tasks.md
+  attempts: 1
+  canonical: generate mock data with n between 20 and 100
+  claim_id: c_3ece3561
+  context: 'Task T000b-gen: Generate mock data for Quantitative Testing (N=15)...
+    Logic: Use a fixed seed to generate random r values within a plausible positive
+    range and n between 20 and 100.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use a fixed seed to generate random r values within a plausible positive
+    range and n between 20 and 100.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T04:43:17Z'
+- artifact_path: projects/PROJ-082-investigating-the-correlation-between-st/specs/001-investigating-the-correlation-between-st/tasks.md
+  attempts: 1
+  canonical: require python version 3.11 or higher
+  claim_id: c_0524fd77
+  context: 'Task T002a: Create requirements.txt... Constraint: Must specify python>=3.11.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Must specify python>=3.11
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T04:43:48Z'
+- artifact_path: projects/PROJ-082-investigating-the-correlation-between-st/specs/001-investigating-the-correlation-between-st/tasks.md
+  attempts: 1
+  canonical: skip meta-analysis if N is less than 10
+  claim_id: c_525105ec
+  context: 'Task T014: Gate Logic... If N < 10: Set status: skipped, reason: Insufficient
+    studies, and include N in the output.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Skip_meta-analysis_if_N_is_less_than_10
+  kind: magnitude
+  raw_text: If N < 10, set status skipped and reason Insufficient studies
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T04:44:40Z'
+- artifact_path: projects/PROJ-082-investigating-the-correlation-between-st/specs/001-investigating-the-correlation-between-st/tasks.md
+  attempts: 1
+  canonical: calculate I-squared and Egger's p-value if N is 10 or more
+  claim_id: c_3d1e8662
+  context: 'Task T014: If N >= 10: Set status: completed, run model, and output data/derived/results_quant.json
+    (which MUST include i_squared and egger_p if N>=10).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If N >= 10, run model and output results including i_squared and egger_p
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T04:46:01Z'
+- artifact_path: projects/PROJ-082-investigating-the-correlation-between-st/specs/001-investigating-the-correlation-between-st/tasks.md
+  attempts: 1
+  canonical: perform thematic aggregation by frequency counting
+  claim_id: c_6e17ad44
+  context: 'Task T015a: Implement narrative logic... Aggregate qualitative_desc fields
+    by theme and count frequency.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Perform_thematic_aggregation_by_frequency_counting
+  kind: entity_fact
+  raw_text: Implement thematic aggregation by counting frequency of qualitative descriptors
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T04:46:21Z'
+- artifact_path: projects/PROJ-082-investigating-the-correlation-between-st/specs/001-investigating-the-correlation-between-st/tasks.md
+  attempts: 1
+  canonical: report I-squared with two decimal places
+  claim_id: c_0a9d480e
+  context: 'Task T021b: Implement I-squared calculation... Precision Requirement:
+    The output MUST report the I-squared statistic with exactly two decimal places.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Report_I-squared_with_two_decimal_places
+  kind: entity_fact
+  raw_text: Report the I-squared statistic with exactly two decimal places
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T04:47:02Z'
+- artifact_path: projects/PROJ-082-investigating-the-correlation-between-st/specs/001-investigating-the-correlation-between-st/tasks.md
+  attempts: 1
+  canonical: apply Bonferroni correction if tract count is 2 or more and study count
+    is 10 or more
+  claim_id: c_5539a8f1
+  context: 'Task T022: Implement correction for multiple comparison... Decision Logic:
+    1. Apply Bonferroni correction ONLY if k >= 2 tracts AND N >= 10.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Apply Bonferroni correction only if k >= 2 tracts AND N >= 10
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T04:48:58Z'
+- artifact_path: projects/PROJ-082-investigating-the-correlation-between-st/specs/001-investigating-the-correlation-between-st/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction is conservative due to non-independence of tract
+    measurements
+  claim_id: c_e0e393af
+  context: 'Task T022: Output Requirement... Exact Text: Limitations: Bonferroni correction
+    is conservative due to potential non-independence of tract measurements.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Bonferroni_correction_is_conservative_due_to_non-independenc
+  kind: entity_fact
+  raw_text: Bonferroni correction is conservative due to potential non-independence
+    of tract measurements
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T04:49:29Z'
+- artifact_path: projects/PROJ-082-investigating-the-correlation-between-st/specs/001-investigating-the-correlation-between-st/tasks.md
+  attempts: 1
+  canonical: validate PNG file size is under 5MB
+  claim_id: c_4646dbad
+  context: 'Task T031: Implement file size validation logic... Add a function to verify
+    generated PNGs are < 5MB.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Validate_PNG_file_size_is_under_5MB
+  kind: magnitude
+  raw_text: Verify that generated PNGs are less than 5MB
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T04:50:08Z'
+- artifact_path: projects/PROJ-082-investigating-the-correlation-between-st/specs/001-investigating-the-correlation-between-st/tasks.md
+  attempts: 1
+  canonical: ensure font sizes are greater than 8pt
+  claim_id: c_6e3fb16f
+  context: 'Task T027d: Readability Check: After regeneration, verify that axis labels
+    and font sizes are > 8pt to ensure scientific clarity.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Ensure_font_sizes_are_greater_than_8pt
+  kind: magnitude
+  raw_text: Verify axis labels and font sizes are greater than 8pt
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T04:50:42Z'
+- artifact_path: projects/PROJ-082-investigating-the-correlation-between-st/specs/001-investigating-the-correlation-between-st/tasks.md
+  attempts: 1
+  canonical: maximum plot regeneration retries is 2
+  claim_id: c_0e00d443
+  context: 'Task T027d: Constraint: Max retries = 2. If validation still fails after
+    2 retries, raise an exception.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Max retries equals 2 for plot regeneration
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T04:51:12Z'
+- artifact_path: projects/PROJ-082-investigating-the-correlation-between-st/specs/001-investigating-the-correlation-between-st/tasks.md
+  attempts: 1
+  canonical: verify weighted mean within 0.001 tolerance
+  claim_id: c_7588be70
+  context: 'Tests for User Story 1: T011... verify weighted mean within 0.001 tolerance.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify weighted mean within 0.001 tolerance
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T04:51:37Z'
+- artifact_path: projects/PROJ-082-investigating-the-correlation-between-st/specs/001-investigating-the-correlation-between-st/tasks.md
+  attempts: 1
+  canonical: verify I-squared precision to two decimal places
+  claim_id: c_d4076e8c
+  context: 'Tests for User Story 2: T019... verify precision to exactly two decimal
+    places as required by SC-002, e.g. 52.34.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verify_I-squared_precision_to_two_decimal_places
+  kind: entity_fact
+  raw_text: Verify I-squared calculation precision to exactly two decimal places
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T04:51:56Z'
+- artifact_path: projects/PROJ-082-investigating-the-correlation-between-st/specs/001-investigating-the-correlation-between-st/tasks.md
+  attempts: 1
+  canonical: verify peak memory usage is under 6GB
+  claim_id: c_12421cb8
+  context: 'Tests for User Story 3: T025... verify file existence, size < 5MB, peak
+    memory < 6GB using tracemalloc.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_peak_memory_usage_is_under_6GB
+  kind: magnitude
+  raw_text: Verify peak memory is less than 6GB
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T04:52:33Z'

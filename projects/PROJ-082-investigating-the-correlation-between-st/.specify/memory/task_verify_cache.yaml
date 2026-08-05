@@ -22,6 +22,24 @@ T007c:
     the required tract names and verbs, but the required output file `data/config/tract_lexicon.yaml`
     does not exist on disk. The task demands that this YAML file be generated; its
     absence means the requirement is not satisfied.
+T008c:
+  c: false
+  h: cd6d224b198faa442ec3f6d895132e8de7e52cad38f5c285afff917443b2ffb7
+  r: "The provided `code/analysis/tract_counting.py` is truncated (the `run_tract_counting`\
+    \ function ends abruptly) and lacks a runnable entry point, so it does not demonstrably\
+    \ perform the full read\u2011process\u2011write flow required. Additionally, there\
+    \ is no evidence that the script actually creates `data/processed/tract_count.json`.\
+    \ The task\u2019s core artifact (a complete, executable script) is therefore missing\
+    \ or incomplete."
+T013:
+  c: false
+  h: bb5fe022c8ba35df0f81f7e4939bbfc9e20bc4ddbb91e445825a9edf7515ab5e
+  r: The repository contains `code/extraction/parser.py`, but the file is truncated
+    and does not show any logic that reads input CSV/JSON files and writes the required
+    `data/processed/extracted_studies.csv`. Moreover, the essential dependency `data/config/tract_lexicon.yaml`
+    is missing, and the expected output files `data/logs/exclusion_log.csv` and `data/processed/extracted_studies.csv`
+    do not exist. Without these files the parser cannot run successfully nor produce
+    the mandated intermediate CSV, so the task is not fully completed.
 T015a:
   c: false
   h: c7ed5a7a6c364dda9c886f45529af70fedeed0455e51c428223ee7ede71f6225
@@ -30,24 +48,6 @@ T015a:
     are absent, and the expected output `data/derived/narrative_themes.json` was not
     generated. Without these files the script cannot be run or verified, so the task
     is not fully satisfied.
-T016a:
-  c: false
-  h: 2225198cf2415f253135fd4d99e91f537035fd6da9cefbe2c3734ebbe6dfc951
-  r: "The required input files `data/processed/study_count.json` and `data/processed/meta_status.json`\
-    \ are absent, and the expected output files `data/derived/narrative_summary.md`\
-    \ and `data/derived/results.json` were not generated. Moreover, the provided `code/main.py`\
-    \ snippet is truncated and does not demonstrate the required gate\u2011logic that\
-    \ decides between narrative and quantitative synthesis. The task therefore remains\
-    \ unfinished."
-T016b:
-  c: false
-  h: c218815fdd77191a330a3b264fe3cb071a68bea570dc9d010432a93048dfd86e
-  r: "The repository contains a `code/main.py` file, but the provided excerpt is truncated\
-    \ and does not show the required conditional logic (checking N\u202F\u2265\u202F\
-    10, running T014, then T027a/b/c and T031) nor any code that writes a `data/derived/results.json`.\
-    \ Moreover, the expected output file `data/derived/results.json` is absent from\
-    \ the project. Both the orchestrator implementation and the required result artifact\
-    \ are missing."
 T040:
   c: false
   h: 5321985311e7b4dcc173f179f6e7c9b2fd190fb069716594c6400fb0da79720b
