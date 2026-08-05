@@ -1,3 +1,10 @@
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No linting, formatting, or type\u2011checking configuration files (e.g., .flake8,\
+    \ pyproject.toml/black settings, mypy.ini) are present, nor any evidence that\
+    \ flake8, black, and mypy have been set up for the project. The required artifacts\
+    \ are missing."
 T007:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -5,3 +12,23 @@ T007:
     \ provided evidence; the required hook that would trigger state updates on artifact\
     \ changes is missing. The implementer must add a functional pre\u2011commit hook\
     \ at the specified path."
+T009:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No Python files or dataclass definitions were presented in `code/models/`; the
+    required `Subject`, `ConnectivityMatrix`, `TopologyMetrics`, and `IllusionScore`
+    classes are absent, so the task is not satisfied.
+T010:
+  c: false
+  h: 192c3288764f23d44f875f50fe7cb203b29c0ef3550cb0bbdf542b91c4a1b65a
+  r: The required unit test file `tests/unit/test_download.py` and the simulated input
+    file `data/raw/dataset_description.json` are both missing, so no test code or
+    data exists to verify the specified behavior. The task is therefore not satisfied.
+T016:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, test, or documentation was provided that adds or demonstrates a validation\
+    \ step checking T\xD7N output matrices for NaN values. Without an artifact showing\
+    \ the implementation (e.g., a function, unit test, or log output), we cannot confirm\
+    \ the requirement was met. The implementer must supply the relevant source code\
+    \ or test results."

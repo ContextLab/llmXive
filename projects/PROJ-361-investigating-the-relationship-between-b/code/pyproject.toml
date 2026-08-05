@@ -3,21 +3,11 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "llmxive-brain-topology"
+name = "llmxive-proj-361"
 version = "0.1.0"
 description = "Investigating the relationship between brain network topology and visual illusions"
 requires-python = ">=3.11"
-dependencies = [
-    "numpy>=1.24.0",
-    "pandas>=2.0.0",
-    "scipy>=1.10.0",
-    "nibabel>=5.0.0",
-    "bctpy>=0.6.0",
-    "matplotlib>=3.7.0",
-    "seaborn>=0.12.0",
-    "requests>=2.28.0",
-    "tqdm>=4.65.0",
-]
+dependencies = []
 
 [tool.black]
 line-length = 88
@@ -37,10 +27,6 @@ exclude = '''
 )/
 '''
 
-[tool.isort]
-profile = "black"
-line_length = 88
-known_first_party = ["utils", "preprocessing", "topology", "behavioral", "analysis", "models", "setup_linting"]
-
 [tool.setuptools]
-packages = ["utils", "preprocessing", "topology", "behavioral", "analysis", "models"]
+packages = ["models", "utils", "preprocessing", "topology", "behavioral", "analysis"]
+package-dir = {"" = "."}

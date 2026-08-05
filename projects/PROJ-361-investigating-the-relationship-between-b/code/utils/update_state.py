@@ -1,336 +1,482 @@
 """
-State tracking and versioning utilities for the llmXive pipeline.
-Implements Constitution Principle V: Versioning and Hash Tracking.
+State Management Utility for llmXive Pipeline.
 
-This module provides functions to:
-- Calculate file hashes for integrity verification
-- Register artifacts in the SQLite metadata registry
-- Track pipeline state across execution stages
-- Trigger state updates from pre-commit hooks
+Implements Constitution Principle III: YAML-based Single Source of Truth.
+Handles artifact versioning, hash tracking, and pipeline state management
+using YAML files instead of SQLite.
+
+This module replaces the previous SQLite-based approach to ensure:
+1. Human-readable state files
+2. Git-friendly diffing
+3. No database dependencies
+4. Transparent artifact tracking
 """
 
 import hashlib
-import os
 import json
+import os
+import sys
 from pathlib import Path
 from datetime import datetime
 from typing import Optional, Dict, Any, List
-import sys
 
-# Import database utilities
-# Note: We use a relative import pattern that works when run as a script or module
+# Import from local config module
 try:
-    from utils.db_schema import get_schema, init_db, register_file, update_file_status, calculate_file_hash as db_calculate_hash
+    from utils.config import get_project_root, get_state_dir
 except ImportError:
-    # Fallback for direct execution without package structure
-    import sqlite3
+    # Fallback for direct execution
+    import sys
     from pathlib import Path
+    sys.path.insert(0, str(Path(__file__).parent.parent))
+    from utils.config import get_project_root, get_state_dir
 
-    def init_db(db_path: str) -> sqlite3.Connection:
-        """Initialize the SQLite database with the required schema."""
-        conn = sqlite3.connect(db_path)
-        cursor = conn.cursor()
-        
-        # Create subjects table
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS subjects (
-                subject_id TEXT PRIMARY KEY,
-                created_at TEXT NOT NULL,
-                status TEXT DEFAULT 'active'
-            )
-        ''')
-        
-        # Create files table
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS files (
-                file_id INTEGER PRIMARY KEY AUTOINCREMENT,
-                subject_id TEXT,
-                file_path TEXT NOT NULL,
-                checksum TEXT,
-                status TEXT DEFAULT 'pending',
-                file_type TEXT,
-                created_at TEXT NOT NULL,
-                updated_at TEXT NOT NULL,
-                FOREIGN KEY (subject_id) REFERENCES subjects(subject_id)
-            )
-        ''')
-        
-        conn.commit()
-        return conn
 
-    def get_schema() -> Dict[str, Any]:
-        """Return the database schema definition."""
-        return {
-            "tables": {
-                "subjects": ["subject_id", "created_at", "status"],
-                "files": ["file_id", "subject_id", "file_path", "checksum", "status", "file_type", "created_at", "updated_at"]
-            }
-        }
+def calculate_file_hash(file_path: Path, algorithm: str = "sha256") -> str:
+    """
+    Calculate the hash of a file for integrity verification.
 
-    def register_file(conn: sqlite3.Connection, subject_id: str, file_path: str, checksum: str, file_type: str = "artifact") -> int:
-        """Register a new file in the database."""
-        cursor = conn.cursor()
-        now = datetime.utcnow().isoformat()
-        cursor.execute('''
-            INSERT INTO files (subject_id, file_path, checksum, status, file_type, created_at, updated_at)
-            VALUES (?, ?, ?, 'registered', ?, ?, ?)
-        ''', (subject_id, file_path, checksum, file_type, now, now))
-        conn.commit()
-        return cursor.lastrowid
+    Args:
+        file_path: Path to the file to hash
+        algorithm: Hash algorithm to use (default: sha256)
 
-    def update_file_status(conn: sqlite3.Connection, file_path: str, status: str, checksum: Optional[str] = None) -> bool:
-        """Update the status of a file."""
-        cursor = conn.cursor()
-        now = datetime.utcnow().isoformat()
-        if checksum:
-            cursor.execute('''
-                UPDATE files SET status = ?, checksum = ?, updated_at = ? WHERE file_path = ?
-            ''', (status, checksum, now, file_path))
-        else:
-            cursor.execute('''
-                UPDATE files SET status = ?, updated_at = ? WHERE file_path = ?
-            ''', (status, now, file_path))
-        conn.commit()
-        return cursor.rowcount > 0
+    Returns:
+        Hexadecimal hash string
+    """
+    if not file_path.exists():
+        raise FileNotFoundError(f"File not found for hashing: {file_path}")
 
-    def calculate_file_hash(file_path: str) -> str:
-        """Calculate SHA-256 hash of a file."""
-        sha256_hash = hashlib.sha256()
-        with open(file_path, "rb") as f:
-            for byte_block in iter(lambda: f.read(4096), b""):
-                sha256_hash.update(byte_block)
-        return sha256_hash.hexdigest()
-
-    def get_project_root() -> Path:
-        """Get the project root directory."""
-        # Try to find .git directory
-        current = Path(__file__).resolve()
-        while current.parent != current:
-            if (current / ".git").exists():
-                return current
-            current = current.parent
-        # Fallback to parent of utils
-        return Path(__file__).resolve().parent.parent.parent
-
-    def get_db_path() -> Path:
-        """Get the path to the SQLite database."""
-        return get_project_root() / "data" / "metadata.db"
-
-    def ensure_directories():
-        """Ensure required directories exist."""
-        db_path = get_db_path()
-        db_path.parent.mkdir(parents=True, exist_ok=True)
-
-def get_project_root() -> Path:
-    """Get the project root directory."""
-    current = Path(__file__).resolve()
-    while current.parent != current:
-        if (current / ".git").exists():
-            return current
-        current = current.parent
-    return Path(__file__).resolve().parent.parent.parent
-
-def get_db_path() -> Path:
-    """Get the path to the SQLite database."""
-    return get_project_root() / "data" / "metadata.db"
-
-def calculate_file_hash(file_path: str) -> str:
-    """Calculate SHA-256 hash of a file."""
-    sha256_hash = hashlib.sha256()
+    hash_obj = hashlib.new(algorithm)
     with open(file_path, "rb") as f:
-        for byte_block in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(byte_block)
-    return sha256_hash.hexdigest()
+        # Read in chunks to handle large files
+        for chunk in iter(lambda: f.read(8192), b""):
+            hash_obj.update(chunk)
+    return hash_obj.hexdigest()
+
 
 def get_file_metadata(file_path: Path) -> Dict[str, Any]:
-    """Extract metadata from a file."""
+    """
+    Extract metadata from a file for state tracking.
+
+    Args:
+        file_path: Path to the file
+
+    Returns:
+        Dictionary containing file metadata
+    """
+    if not file_path.exists():
+        raise FileNotFoundError(f"File not found: {file_path}")
+
     stat = file_path.stat()
     return {
-        "path": str(file_path),
-        "size": stat.st_size,
-        "modified": datetime.fromtimestamp(stat.st_mtime).isoformat(),
-        "created": datetime.fromtimestamp(stat.st_ctime).isoformat(),
-        "extension": file_path.suffix,
-        "name": file_path.name
+        "path": str(file_path.relative_to(get_project_root())),
+        "size_bytes": stat.st_size,
+        "modified_at": datetime.fromtimestamp(stat.st_mtime).isoformat(),
+        "created_at": datetime.fromtimestamp(stat.st_ctime).isoformat(),
+        "hash_sha256": calculate_file_hash(file_path),
     }
 
-def register_artifact(file_path: Path, subject_id: Optional[str] = None, file_type: str = "artifact") -> Dict[str, Any]:
-    """Register an artifact in the metadata registry."""
-    db_path = get_db_path()
-    ensure_directories()
-    conn = init_db(str(db_path))
-    
+
+def load_yaml_state(state_file: Path) -> Dict[str, Any]:
+    """
+    Load state from a YAML file.
+
+    Args:
+        state_file: Path to the YAML state file
+
+    Returns:
+        Dictionary containing the state
+    """
+    # Lazy import yaml to avoid hard dependency if not needed
     try:
-        checksum = calculate_file_hash(str(file_path))
-        rel_path = str(file_path.relative_to(get_project_root()))
-        
-        if subject_id is None:
-            # Try to extract subject_id from path pattern sub-*/...
-            parts = rel_path.split("/")
-            for i, part in enumerate(parts):
-                if part.startswith("sub-"):
-                    subject_id = part
-                    break
-            if subject_id is None:
-                subject_id = "global"
-        
-        file_id = register_file(conn, subject_id, rel_path, checksum, file_type)
-        metadata = get_file_metadata(file_path)
-        
+        import yaml
+    except ImportError:
+        raise ImportError(
+            "PyYAML is required for state management. "
+            "Install with: pip install pyyaml"
+        )
+
+    if not state_file.exists():
         return {
-            "success": True,
-            "file_id": file_id,
-            "subject_id": subject_id,
-            "checksum": checksum,
-            "metadata": metadata
+            "version": "1.0",
+            "project_id": "PROJ-361-investigating-the-relationship-between-b",
+            "created_at": datetime.now().isoformat(),
+            "updated_at": datetime.now().isoformat(),
+            "artifacts": {},
+            "pipeline_state": {
+                "current_phase": "foundational",
+                "completed_tasks": [],
+                "failed_tasks": [],
+                "pending_tasks": [],
+            },
         }
-    finally:
-        conn.close()
 
-def update_artifact_status(file_path: Path, status: str, checksum: Optional[str] = None) -> bool:
-    """Update the status of a registered artifact."""
-    db_path = get_db_path()
-    conn = init_db(str(db_path))
-    
-    try:
-        rel_path = str(file_path.relative_to(get_project_root()))
-        if checksum is None:
-            checksum = calculate_file_hash(str(file_path))
-        
-        return update_file_status(conn, rel_path, status, checksum)
-    finally:
-        conn.close()
+    with open(state_file, "r", encoding="utf-8") as f:
+        return yaml.safe_load(f)
 
-def verify_artifact_integrity(file_path: Path) -> bool:
-    """Verify that a file's current hash matches its registered hash."""
-    db_path = get_db_path()
-    conn = init_db(str(db_path))
-    
+
+def save_yaml_state(state_file: Path, state: Dict[str, Any]) -> None:
+    """
+    Save state to a YAML file.
+
+    Args:
+        state_file: Path to the YAML state file
+        state: State dictionary to save
+    """
     try:
-        cursor = conn.cursor()
-        rel_path = str(file_path.relative_to(get_project_root()))
-        
-        cursor.execute("SELECT checksum FROM files WHERE file_path = ?", (rel_path,))
-        result = cursor.fetchone()
-        
-        if not result:
-            print(f"WARNING: File {rel_path} not found in registry")
-            return False
-        
-        registered_hash = result[0]
-        current_hash = calculate_file_hash(str(file_path))
-        
-        return registered_hash == current_hash
-    finally:
-        conn.close()
+        import yaml
+    except ImportError:
+        raise ImportError(
+            "PyYAML is required for state management. "
+            "Install with: pip install pyyaml"
+        )
+
+    # Update timestamp
+    state["updated_at"] = datetime.now().isoformat()
+
+    # Ensure directory exists
+    state_file.parent.mkdir(parents=True, exist_ok=True)
+
+    with open(state_file, "w", encoding="utf-8") as f:
+        yaml.dump(state, f, default_flow_style=False, sort_keys=False, allow_unicode=True)
+
+
+def get_state_file_path() -> Path:
+    """
+    Get the path to the project state YAML file.
+
+    Returns:
+        Path to the state file
+    """
+    state_dir = get_state_dir()
+    project_root = get_project_root()
+    project_id = project_root.name.replace(" ", "-").lower()
+    return state_dir / f"{project_id}.yaml"
+
+
+def register_artifact(
+    file_path: Path,
+    artifact_type: str,
+    task_id: str,
+    status: str = "completed",
+    metadata: Optional[Dict[str, Any]] = None,
+) -> Dict[str, Any]:
+    """
+    Register a new artifact in the state file.
+
+    Args:
+        file_path: Path to the artifact file
+        artifact_type: Type of artifact (e.g., 'code', 'data', 'figure', 'report')
+        task_id: ID of the task that produced this artifact
+        status: Status of the artifact ('pending', 'completed', 'failed')
+        metadata: Optional additional metadata
+
+    Returns:
+        The updated artifact record
+    """
+    state_file = get_state_file_path()
+    state = load_yaml_state(state_file)
+
+    file_path = Path(file_path).resolve()
+    relative_path = str(file_path.relative_to(get_project_root()))
+
+    artifact_key = f"{task_id}:{artifact_type}:{relative_path}"
+
+    # Calculate hash and metadata
+    file_metadata = get_file_metadata(file_path)
+
+    artifact_record = {
+        "type": artifact_type,
+        "task_id": task_id,
+        "path": relative_path,
+        "status": status,
+        "hash_sha256": file_metadata["hash_sha256"],
+        "size_bytes": file_metadata["size_bytes"],
+        "created_at": datetime.now().isoformat(),
+        "metadata": metadata or {},
+    }
+
+    state["artifacts"][artifact_key] = artifact_record
+    save_yaml_state(state_file, state)
+
+    return artifact_record
+
+
+def update_artifact_status(
+    file_path: Path,
+    task_id: str,
+    new_status: str,
+    notes: Optional[str] = None,
+) -> Dict[str, Any]:
+    """
+    Update the status of an existing artifact.
+
+    Args:
+        file_path: Path to the artifact file
+        task_id: ID of the task associated with this artifact
+        new_status: New status ('pending', 'completed', 'failed')
+        notes: Optional notes about the status change
+
+    Returns:
+        Updated artifact record
+    """
+    state_file = get_state_file_path()
+    state = load_yaml_state(state_file)
+
+    # Find the artifact
+    relative_path = str(Path(file_path).resolve().relative_to(get_project_root()))
+    artifact_key = f"{task_id}:*:{relative_path}"
+
+    found_key = None
+    for key in state["artifacts"]:
+        if key.startswith(f"{task_id}:") and relative_path in key:
+            found_key = key
+            break
+
+    if not found_key:
+        raise ValueError(f"Artifact not found: {task_id} -> {relative_path}")
+
+    # Update the record
+    artifact = state["artifacts"][found_key]
+    artifact["status"] = new_status
+    artifact["updated_at"] = datetime.now().isoformat()
+
+    if notes:
+        if "notes" not in artifact:
+            artifact["notes"] = []
+        artifact["notes"].append({
+            "timestamp": datetime.now().isoformat(),
+            "note": notes,
+        })
+
+    # Re-calculate hash if file still exists
+    if Path(file_path).exists():
+        artifact["hash_sha256"] = calculate_file_hash(Path(file_path))
+        artifact["size_bytes"] = Path(file_path).stat().st_size
+
+    save_yaml_state(state_file, state)
+
+    return artifact
+
+
+def verify_artifact_integrity(file_path: Path, task_id: str) -> bool:
+    """
+    Verify that an artifact's current hash matches the stored hash.
+
+    Args:
+        file_path: Path to the artifact file
+        task_id: ID of the task associated with this artifact
+
+    Returns:
+        True if integrity check passes, False otherwise
+    """
+    state_file = get_state_file_path()
+    state = load_yaml_state(state_file)
+
+    relative_path = str(Path(file_path).resolve().relative_to(get_project_root()))
+
+    # Find the artifact
+    found_key = None
+    for key in state["artifacts"]:
+        if key.startswith(f"{task_id}:") and relative_path in key:
+            found_key = key
+            break
+
+    if not found_key:
+        raise ValueError(f"Artifact not found in state: {task_id} -> {relative_path}")
+
+    stored_hash = state["artifacts"][found_key]["hash_sha256"]
+    current_hash = calculate_file_hash(Path(file_path))
+
+    if stored_hash != current_hash:
+        print(
+            f"⚠️  Integrity check failed for {relative_path}: "
+            f"stored={stored_hash[:16]}..., current={current_hash[:16]}..."
+        )
+        return False
+
+    return True
+
 
 def get_pipeline_state() -> Dict[str, Any]:
-    """Get the current state of the pipeline from the database."""
-    db_path = get_db_path()
-    conn = init_db(str(db_path))
-    
-    try:
-        cursor = conn.cursor()
-        
-        # Get counts by status
-        cursor.execute("SELECT status, COUNT(*) FROM files GROUP BY status")
-        status_counts = dict(cursor.fetchall())
-        
-        cursor.execute("SELECT COUNT(*) FROM subjects")
-        subject_count = cursor.fetchone()[0]
-        
-        return {
-            "subjects": subject_count,
-            "files": status_counts,
-            "timestamp": datetime.utcnow().isoformat()
+    """
+    Get the current pipeline state from the state file.
+
+    Returns:
+        Dictionary containing pipeline state information
+    """
+    state_file = get_state_file_path()
+    state = load_yaml_state(state_file)
+    return state.get("pipeline_state", {})
+
+
+def update_pipeline_state(
+    phase: Optional[str] = None,
+    completed_tasks: Optional[List[str]] = None,
+    failed_tasks: Optional[List[str]] = None,
+    pending_tasks: Optional[List[str]] = None,
+) -> Dict[str, Any]:
+    """
+    Update the pipeline state in the state file.
+
+    Args:
+        phase: Current phase name
+        completed_tasks: List of completed task IDs
+        failed_tasks: List of failed task IDs
+        pending_tasks: List of pending task IDs
+
+    Returns:
+        Updated pipeline state
+    """
+    state_file = get_state_file_path()
+    state = load_yaml_state(state_file)
+
+    if "pipeline_state" not in state:
+        state["pipeline_state"] = {
+            "current_phase": "initializing",
+            "completed_tasks": [],
+            "failed_tasks": [],
+            "pending_tasks": [],
         }
-    finally:
-        conn.close()
+
+    if phase is not None:
+        state["pipeline_state"]["current_phase"] = phase
+    if completed_tasks is not None:
+        state["pipeline_state"]["completed_tasks"] = completed_tasks
+    if failed_tasks is not None:
+        state["pipeline_state"]["failed_tasks"] = failed_tasks
+    if pending_tasks is not None:
+        state["pipeline_state"]["pending_tasks"] = pending_tasks
+
+    save_yaml_state(state_file, state)
+
+    return state["pipeline_state"]
+
+
+def initialize_project_state() -> Dict[str, Any]:
+    """
+    Initialize a new project state file if it doesn't exist.
+
+    Returns:
+        The initialized state dictionary
+    """
+    state_file = get_state_file_path()
+
+    if not state_file.exists():
+        state = {
+            "version": "1.0",
+            "project_id": "PROJ-361-investigating-the-relationship-between-b",
+            "title": "Investigating the Relationship Between Brain Network Topology and Susceptibility to Visual Illusions",
+            "created_at": datetime.now().isoformat(),
+            "updated_at": datetime.now().isoformat(),
+            "artifacts": {},
+            "pipeline_state": {
+                "current_phase": "setup",
+                "completed_tasks": ["T001a", "T001b", "T001c", "T002", "T003", "T005"],
+                "failed_tasks": [],
+                "pending_tasks": [
+                    "T006", "T007", "T008", "T009",
+                    "T010", "T011", "T012", "T013", "T014", "T015", "T016", "T017",
+                    "T018", "T019", "T020", "T021", "T022", "T023", "T024", "T026",
+                    "T044", "T045", "T046",
+                    "T052", "T053", "T054", "T055", "T056", "T057", "T058", "T059",
+                    "T060", "T061", "T062", "T063", "T064", "T065", "T066", "T067", "T068", "T069"
+                ],
+            },
+        }
+        save_yaml_state(state_file, state)
+        print(f"Initialized project state at: {state_file}")
+    else:
+        state = load_yaml_state(state_file)
+        print(f"Loaded existing project state from: {state_file}")
+
+    return state
+
 
 def main():
-    """Main entry point for pre-commit hook execution."""
-    import argparse
-    
-    parser = argparse.ArgumentParser(description="Update artifact state tracking")
-    parser.add_argument("--mode", choices=["pre-commit", "full-scan"], default="pre-commit",
-                      help="Mode of operation")
-    parser.add_argument("--verbose", action="store_true", help="Enable verbose output")
-    args = parser.parse_args()
-    
-    project_root = get_project_root()
-    db_path = get_db_path()
-    
-    if args.verbose:
-        print(f"Project root: {project_root}")
-        print(f"Database path: {db_path}")
-    
-    # Ensure directories exist
-    ensure_directories()
-    
-    # Initialize database
-    conn = init_db(str(db_path))
-    conn.close()
-    
-    if args.mode == "pre-commit":
-        # Process staged files
-        import subprocess
-        try:
-            result = subprocess.run(
-                ["git", "diff", "--cached", "--name-only", "--diff-filter=ACM"],
-                capture_output=True, text=True, check=True, cwd=project_root
-            )
-            staged_files = result.stdout.strip().split("\n")
-            staged_files = [f for f in staged_files if f]
-            
-            if args.verbose:
-                print(f"Staged files: {staged_files}")
-            
-            processed = 0
-            for file_str in staged_files:
-                file_path = project_root / file_str
-                if file_path.exists() and file_path.is_file():
-                    # Only process relevant directories
-                    rel_path = file_path.relative_to(project_root)
-                    if any(str(rel_path).startswith(d) for d in ["code/", "data/", "tests/", "specs/"]):
-                        try:
-                            result = register_artifact(file_path)
-                            if args.verbose:
-                                print(f"Registered: {file_str} (ID: {result['file_id']}, Hash: {result['checksum'][:16]}...)")
-                            processed += 1
-                        except Exception as e:
-                            print(f"ERROR registering {file_str}: {e}")
-            
-            print(f"Processed {processed} staged artifacts")
-            
-        except subprocess.CalledProcessError as e:
-            print(f"ERROR: Could not get staged files: {e}")
+    """
+    Main entry point for command-line usage.
+
+    Usage:
+        python -m utils.update_state init          # Initialize state file
+        python -m utils.update_state register <file_path> <type> <task_id>  # Register artifact
+        python -m utils.update_state verify <file_path> <task_id>           # Verify integrity
+        python -m utils.update_state status                               # Show pipeline status
+    """
+    if len(sys.argv) < 2:
+        print("Usage: python -m utils.update_state <command> [args...]")
+        print("Commands:")
+        print("  init                                    - Initialize project state")
+        print("  register <file> <type> <task_id>        - Register an artifact")
+        print("  verify <file> <task_id>                 - Verify artifact integrity")
+        print("  status                                  - Show pipeline status")
+        print("  update-phase <phase>                    - Update current phase")
+        sys.exit(1)
+
+    command = sys.argv[1]
+
+    if command == "init":
+        state = initialize_project_state()
+        print(f"State initialized. Phase: {state['pipeline_state']['current_phase']}")
+
+    elif command == "register":
+        if len(sys.argv) < 5:
+            print("Usage: register <file_path> <artifact_type> <task_id>")
             sys.exit(1)
-    
-    elif args.mode == "full-scan":
-        # Scan all files in relevant directories
-        relevant_dirs = ["code", "data", "tests", "specs"]
-        processed = 0
-        
-        for dir_name in relevant_dirs:
-            dir_path = project_root / dir_name
-            if dir_path.exists():
-                for file_path in dir_path.rglob("*"):
-                    if file_path.is_file():
-                        try:
-                            result = register_artifact(file_path)
-                            if args.verbose:
-                                print(f"Registered: {file_path.relative_to(project_root)}")
-                            processed += 1
-                        except Exception as e:
-                            print(f"ERROR registering {file_path}: {e}")
-        
-        print(f"Full scan complete: {processed} artifacts processed")
-    
-    # Print pipeline state summary
-    state = get_pipeline_state()
-    print(f"Pipeline state: {json.dumps(state, indent=2)}")
-    
-    return 0
+        file_path = Path(sys.argv[2])
+        artifact_type = sys.argv[3]
+        task_id = sys.argv[4]
+
+        if not file_path.exists():
+            print(f"Error: File not found: {file_path}")
+            sys.exit(1)
+
+        try:
+            artifact = register_artifact(file_path, artifact_type, task_id)
+            print(f"Registered artifact: {artifact['path']} (hash: {artifact['hash_sha256'][:16]}...)")
+        except Exception as e:
+            print(f"Error registering artifact: {e}")
+            sys.exit(1)
+
+    elif command == "verify":
+        if len(sys.argv) < 4:
+            print("Usage: verify <file_path> <task_id>")
+            sys.exit(1)
+        file_path = Path(sys.argv[2])
+        task_id = sys.argv[3]
+
+        if not file_path.exists():
+            print(f"Error: File not found: {file_path}")
+            sys.exit(1)
+
+        try:
+            if verify_artifact_integrity(file_path, task_id):
+                print(f"✓ Integrity verified for: {file_path}")
+            else:
+                print(f"✗ Integrity check FAILED for: {file_path}")
+                sys.exit(1)
+        except Exception as e:
+            print(f"Error verifying artifact: {e}")
+            sys.exit(1)
+
+    elif command == "status":
+        state = get_pipeline_state()
+        print(f"Current Phase: {state.get('current_phase', 'unknown')}")
+        print(f"Completed Tasks: {len(state.get('completed_tasks', []))}")
+        print(f"Failed Tasks: {len(state.get('failed_tasks', []))}")
+        print(f"Pending Tasks: {len(state.get('pending_tasks', []))}")
+
+    elif command == "update-phase":
+        if len(sys.argv) < 3:
+            print("Usage: update-phase <phase_name>")
+            sys.exit(1)
+        phase = sys.argv[2]
+        update_pipeline_state(phase=phase)
+        print(f"Updated phase to: {phase}")
+
+    else:
+        print(f"Unknown command: {command}")
+        sys.exit(1)
+
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

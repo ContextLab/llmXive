@@ -1,44 +1,36 @@
 #!/bin/bash
-# Pre-commit hook for PROJ-361
-# Triggers state updates on artifact changes to ensure versioning and hash tracking
-# per Constitution Principle V (T006 implementation)
+# Pre-commit hook for llmXive project PROJ-361
+# Runs code/utils/update_state.py to track artifact changes via YAML state file.
+# This enforces Constitution Principle III: YAML as the Single Source of Truth.
 
 set -e
 
-# Determine project root (assuming this script is at git_hooks/pre-commit)
+# Determine project root (assume hook is at git_hooks/pre-commit)
 PROJECT_ROOT="$(git rev-parse --show-toplevel)"
-HOOK_SCRIPT="${PROJECT_ROOT}/code/utils/update_state.py"
+UPDATE_SCRIPT="$PROJECT_ROOT/code/utils/update_state.py"
 
-# Verify the update_state script exists
-if [ ! -f "$HOOK_SCRIPT" ]; then
-    echo "ERROR: State update script not found at $HOOK_SCRIPT"
-    echo "Please ensure T006 has been completed."
+# Verify the update script exists
+if [ ! -f "$UPDATE_SCRIPT" ]; then
+    echo "ERROR: State update script not found at $UPDATE_SCRIPT"
     exit 1
 fi
 
-# Check if Python is available
+# Check if Python 3 is available
 if ! command -v python3 &> /dev/null; then
-    echo "ERROR: python3 is required but not found in PATH"
+    echo "ERROR: python3 is required but not installed or not in PATH."
     exit 1
 fi
 
-# Run the state update script
-# This will:
-# 1. Scan staged artifacts in code/, data/, tests/, specs/
-# 2. Calculate hashes for changed files
-# 3. Register/update artifacts in the SQLite metadata registry
-# 4. Update pipeline state tracking
 echo "Running artifact state update..."
-python3 "$HOOK_SCRIPT" --mode pre-commit
+# Execute the update script. It will:
+# 1. Scan the git staged/modified files relevant to the project.
+# 2. Calculate hashes for changed artifacts.
+# 3. Update state/projects/PROJ-361-*.yaml with new checksums and metadata.
+python3 "$UPDATE_SCRIPT" --update-staged
 
-# Capture exit status
-STATUS=$?
-
-if [ $STATUS -eq 0 ]; then
-    echo "State update completed successfully."
+if [ $? -eq 0 ]; then
+    echo "Artifact state updated successfully."
 else
-    echo "ERROR: State update failed with exit code $STATUS"
-    echo "Commit blocked. Please fix the state tracking issue."
+    echo "ERROR: Artifact state update failed. Commit aborted."
+    exit 1
 fi
-
-exit $STATUS

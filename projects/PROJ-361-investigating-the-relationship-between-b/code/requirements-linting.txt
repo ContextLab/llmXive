@@ -1,0 +1,6 @@
+# Linting, Formatting, and Type Checking dependencies
+flake8>=6.0.0
+black>=23.0.0
+mypy>=1.0.0
+types-requests>=2.0.0
+types-pyyaml>=6.0.0

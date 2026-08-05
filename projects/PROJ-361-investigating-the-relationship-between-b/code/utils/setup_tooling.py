@@ -1,75 +1,64 @@
-"""
-Utility to ensure linting, formatting, and type-checking tools are installed
-and configured for the project.
-"""
 import subprocess
 import sys
 import os
 from pathlib import Path
 
-REQUIRED_TOOLS = [
-    ("flake8", "flake8"),
-    ("black", "black"),
-    ("isort", "isort"),
-    ("mypy", "mypy"),
-]
-
-CONFIG_FILES = [
-    ".flake8",
-    "pyproject.toml",
-    "mypy.ini",
-]
-
-def run_command(cmd: list[str], check: bool = True) -> subprocess.CompletedProcess:
-    """Run a shell command and return the result."""
-    return subprocess.run(cmd, check=check)
-
-def ensure_config_files_exist(project_root: Path) -> None:
-    """Ensure configuration files exist in the project root."""
-    missing = []
-    for filename in CONFIG_FILES:
-        if not (project_root / filename).exists():
-            missing.append(filename)
-    
-    if missing:
-        raise FileNotFoundError(
-            f"Configuration files missing in project root {project_root}: {missing}. "
-            "Please ensure .flake8, pyproject.toml, and mypy.ini are present."
-        )
-
-def install_tools() -> None:
-    """Install required linting, formatting, and type-checking tools."""
-    print("Checking and installing required tools...")
-    for package, _ in REQUIRED_TOOLS:
-        try:
-            __import__(package.replace("-", "_"))
-            print(f"  ✓ {package} is already installed")
-        except ImportError:
-            print(f"  Installing {package}...")
-            run_command([sys.executable, "-m", "pip", "install", package])
-    print("All tools installed successfully.")
-
-def main() -> None:
-    """Main entry point for tooling setup."""
-    project_root = Path(__file__).resolve().parent.parent.parent
-    print(f"Project root: {project_root}")
-
-    # Ensure config files exist
+def run_command(command: list[str]) -> bool:
+    """Run a shell command and return True if successful."""
     try:
-        ensure_config_files_exist(project_root)
-        print("Configuration files verified.")
-    except FileNotFoundError as e:
-        print(f"Error: {e}")
+        result = subprocess.run(command, check=True, capture_output=True, text=True)
+        return True
+    except subprocess.CalledProcessError as e:
+        print(f"Command failed: {' '.join(command)}")
+        print(f"Error: {e.stderr}")
+        return False
+
+def ensure_config_files_exist():
+    """Ensure that configuration files for black, flake8, and mypy exist."""
+    base_dir = Path(__file__).parent.parent
+    config_files = [
+        base_dir / ".flake8",
+        base_dir / "pyproject.toml",
+        base_dir / "mypy.ini",
+    ]
+
+    missing = []
+    for file_path in config_files:
+        if not file_path.exists():
+            missing.append(file_path.name)
+
+    if missing:
+        print(f"Missing configuration files: {', '.join(missing)}")
+        print("Please ensure these files are created manually or by the setup script.")
+        return False
+    
+    print("All configuration files found.")
+    return True
+
+def install_tools():
+    """Install linting tools (black, flake8, mypy) if not already installed."""
+    tools = ["black", "flake8", "mypy"]
+    for tool in tools:
+        try:
+            subprocess.check_call([sys.executable, "-m", "pip", "install", tool])
+            print(f"Successfully installed {tool}")
+        except subprocess.CalledProcessError:
+            print(f"Failed to install {tool}. Please install manually.")
+            return False
+    return True
+
+def main():
+    """Main entry point for tooling setup."""
+    print("Setting up linting and formatting tools...")
+    
+    if not install_tools():
         sys.exit(1)
-
-    # Ensure tools are installed
-    install_tools()
-
-    print("\nTooling setup complete. You can now run:")
-    print("  - black code/ tests/            # Format code")
-    print("  - isort code/ tests/            # Sort imports")
-    print("  - flake8 code/ tests/           # Lint code")
-    print("  - mypy code/ tests/             # Type check code")
+    
+    if not ensure_config_files_exist():
+        sys.exit(1)
+    
+    print("Tooling setup complete.")
+    sys.exit(0)
 
 if __name__ == "__main__":
     main()

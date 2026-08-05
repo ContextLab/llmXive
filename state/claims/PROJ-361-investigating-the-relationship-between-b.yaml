@@ -1489,26 +1489,6 @@
   updated_at: '2026-08-02T15:37:39Z'
 - artifact_path: projects/PROJ-361-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
   attempts: 1
-  canonical: "extract M\xFCller-Lyer and Ponzo illusion scores from OpenNeuro ds004285"
-  claim_id: c_36d00fc9
-  context: "Phase 5: User Story 4 - Behavioral Data Extraction (Priority: P1) Goal:\
-    \ Extract existing visual illusion susceptibility scores (M\xFCller-Lyer and Ponzo)\
-    \ from the OpenNeuro ds004285 dataset and link them to Subject IDs."
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Extract_M%C3%BCller-Lyer_and_Ponzo_illusion_scores_from_OpenNeuro
-  kind: entity_fact
-  raw_text: "extract existing visual illusion susceptibility scores (M\xFCller-Lyer\
-    \ and Ponzo) from the OpenNeuro ds004285 dataset"
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-02T15:38:05Z'
-- artifact_path: projects/PROJ-361-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
-  attempts: 1
   canonical: compute Pearson and Spearman correlations between raw five topology metrics
     and illusion scores
   claim_id: c_cdc003c9
@@ -1922,26 +1902,6 @@
   updated_at: '2026-08-02T21:39:53Z'
 - artifact_path: projects/PROJ-361-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
   attempts: 1
-  canonical: fetch ds004285 data for at least 50 subjects
-  claim_id: c_6e745c5a
-  context: Implement code/preprocessing/download_openneuro.py to fetch ds004285 data
-    for at least 50 subjects to data/raw/. Must handle credentials, verify checksums,
-    and ensure output NIfTI files are stored in data/raw/{subject_id}/.
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Fetch_ds004285_data_for_at_least_50_subjects
-  kind: magnitude
-  raw_text: Implement code/preprocessing/download_openneuro.py to fetch ds004285 data
-    for at least 50 subjects
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-02T21:40:45Z'
-- artifact_path: projects/PROJ-361-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
-  attempts: 1
   canonical: exclude subjects with mean fractional displacement greater than 0.5mm
   claim_id: c_ef19edd4
   context: Implement motion quality control logic in code/utils/quality_control.py
@@ -1959,27 +1919,6 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-02T21:40:47Z'
-- artifact_path: projects/PROJ-361-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
-  attempts: 1
-  canonical: flag subjects with global efficiency greater than 1.0 or path length
-    less than or equal to 0
-  claim_id: c_80ddf2ac
-  context: 'Implement code/topology/compute_metrics.py using bctpy to calculate: modularity
-    (Louvain, fixed seed), path length, clustering, efficiency, small-worldness. Input:
-    adjacency matrix (numpy array); Output: JSON object with metrics. Must flag subjects
-    where global_efficiency > 1.0 or path_length <= 0.'
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Flag_subjects_with_global_efficiency_greater_than_1.0_or_pat
-  kind: magnitude
-  raw_text: flag subjects where global_efficiency > 1.0 or path_length <= 0
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-02T21:41:06Z'
 - artifact_path: projects/PROJ-361-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
   attempts: 2
   canonical: identify p-value less than 0.05
@@ -2152,3 +2091,812 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-02T21:44:21Z'
+- artifact_path: projects/PROJ-361-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: fetch ds004285 data for at least 50 subjects
+  claim_id: c_3b092578
+  context: Task T012 [US1] Implement code/preprocessing/download_openneuro.py to fetch
+    ds004285 data for at least 50 subjects to data/raw/.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Fetch_ds004285_data_for_at_least_50_subjects
+  kind: magnitude
+  raw_text: Implement code/preprocessing/download_openneuro.py to fetch ds004285 data
+    for at least 50 subjects to data/raw/.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T06:22:15Z'
+- artifact_path: projects/PROJ-361-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: exclude subjects with mean FD > 0.5mm
+  claim_id: c_5b204230
+  context: Task T015 [US1] Implement motion quality control logic in code/utils/quality_control.py
+    to calculate mean FD for ALL subjects, record the value, and exclude subjects
+    with mean FD > 0.5mm (per Spec Constraints).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Exclude subjects with mean FD > 0.5mm
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T06:22:15Z'
+- artifact_path: projects/PROJ-361-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: flag subjects with global_efficiency > 1.0 or path_length <= 0
+  claim_id: c_d1efb997
+  context: Task T021 [US2] ... Must flag subjects where global_efficiency > 1.0 or
+    path_length <= 0.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Flag subjects where global_efficiency > 1.0 or path_length <= 0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T06:23:05Z'
+- artifact_path: projects/PROJ-361-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: flag metrics with VIF > 5.0
+  claim_id: c_63d9eee8
+  context: Task T064 [P] ... Must include logic to flag metrics with VIF > 5.0.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Flag metrics with VIF > 5.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T06:23:05Z'
+- artifact_path: projects/PROJ-361-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: assert reproducibility tolerance difference < 0.01
+  claim_id: c_99d38e3a
+  context: Task T059 [US3] ... compare correlation coefficients, and assert tolerance
+    (difference < 0.01).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Assert tolerance (difference < 0.01) when re-running analysis on a random
+    seed subset
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T06:23:05Z'
+- artifact_path: projects/PROJ-361-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: verify 50 subjects have valid NIfTI files
+  claim_id: c_cf84477a
+  context: "Independent Test: Verify that data/raw/ contains valid NIfTI files for\
+    \ at least 50 subjects and that code/preprocessing/extract_timeseries.py produces\
+    \ a T\xD7N matrix with no NaN values for a single subject."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_50_subjects_have_valid_NIfTI_files
+  kind: magnitude
+  raw_text: Verify that data/raw/ contains valid NIfTI files for at least 50 subjects
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T06:23:32Z'
+- artifact_path: projects/PROJ-361-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: fetch ds004285 data for at least 50 subjects
+  claim_id: c_971df011
+  context: Implement code/preprocessing/download_openneuro.py to fetch ds004285 data
+    for at least 50 subjects to data/raw/.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Fetch_ds004285_data_for_at_least_50_subjects
+  kind: magnitude
+  raw_text: download_openneuro.py to fetch ds004285 data for at least 50 subjects
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T06:26:07Z'
+- artifact_path: projects/PROJ-361-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 2
+  canonical: flag subjects with global efficiency greater than 1.0 or path length
+    less than or equal to 0
+  claim_id: c_80ddf2ac
+  context: 'Implement code/topology/compute_metrics.py using bctpy to calculate: modularity
+    (Louvain, fixed seed), path length, clustering, efficiency, small-worldness. Input:
+    adjacency matrix (numpy array); Output: JSON object with metrics. Must flag subjects
+    where global_efficiency > 1.0 or path_length <= 0.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_subjects_with_global_efficiency_greater_than_1.0_or_pat
+  kind: magnitude
+  raw_text: flag subjects where global_efficiency > 1.0 or path_length <= 0
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T06:26:30Z'
+- artifact_path: projects/PROJ-361-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: flag metrics with Variance Inflation Factors greater than 5.0
+  claim_id: c_1ff28e9e
+  context: Implement code/topology/check_collinearity.py to calculate Variance Inflation
+    Factors (VIF) for the raw metrics. Must include logic to flag metrics with VIF
+    > 5.0.
+  evidence:
+    entailment_evidence: Flag metrics with Variance Inflation Factors greater than
+      5.
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Flag_metrics_with_Variance_Inflation_Factors_greater_than_5.
+  kind: magnitude
+  raw_text: flag metrics with VIF > 5.0
+  resolved_value: flag metrics with Variance Inflation Factors greater than 5.0
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-05T06:26:32Z'
+- artifact_path: projects/PROJ-361-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: assert tolerance difference less than 0.01 for reproducibility check
+  claim_id: c_c5d5547c
+  context: Implement code/analysis/reproducibility_check.py to re-run analysis on
+    a [deferred] random seed subset, compare correlation coefficients, and assert
+    tolerance (difference < 0.01).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Assert_tolerance_difference_less_than_0.01_for_reproducibili
+  kind: magnitude
+  raw_text: assert tolerance difference < 0.01 for reproducibility check
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T06:26:52Z'
+- artifact_path: projects/PROJ-361-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: use containerized fMRIPrep version poldracklab/fmriprep:23.1.0
+  claim_id: c_c73d8e58
+  context: Implement code/preprocessing/run_fmriprep.sh to execute containerized fMRIPrep
+    (pinned version poldracklab/fmriprep:23.1.0) with HCP configuration.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: use containerized fMRIPrep version poldracklab/fmriprep:23.1.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T06:27:17Z'
+- artifact_path: projects/PROJ-361-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: download and preprocess resting-state fMRI data from OpenNeuro
+  claim_id: c_db6f0427
+  context: 'Phase 3: User Story 1 - Data Acquisition and Preprocessing Pipeline (Priority:
+    P1) Goal: Download and preprocess resting-state fMRI data from OpenNeuro, extract
+    BOLD time series.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Download_and_preprocess_resting-state_fMRI_data_from_OpenNeu
+  kind: entity_fact
+  raw_text: Download and preprocess resting-state fMRI data from OpenNeuro, extract
+    BOLD time series.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T06:29:42Z'
+- artifact_path: projects/PROJ-361-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: 50 subjects with valid NIfTI files in data/raw
+  claim_id: c_918d3170
+  context: "Independent Test: Verify that data/raw/ contains valid NIfTI files for\
+    \ at least 50 subjects and that code/preprocessing/extract_timeseries.py produces\
+    \ a T\xD7N matrix with no NaN values for a single subject."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/50_subjects_with_valid_NIfTI_files_in_data/raw
+  kind: magnitude
+  raw_text: Verify that data/raw/ contains valid NIfTI files for at least 50 subjects
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T06:29:45Z'
+- artifact_path: projects/PROJ-361-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: exclude subjects with mean fractional displacement greater than 0.5mm
+  claim_id: c_887c5dd9
+  context: Implement motion quality control logic in code/utils/quality_control.py
+    to calculate mean FD for ALL subjects, record the value, and exclude subjects
+    with mean FD > 0.5mm (per Spec Constraints).
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exclude_subjects_with_mean_fractional_displacement_greater_t
+  kind: magnitude
+  raw_text: exclude subjects with mean FD > 0.5mm
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T06:29:46Z'
+- artifact_path: projects/PROJ-361-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: 'derive five graph theory metrics: modularity, path length, clustering,
+    efficiency, small-worldness'
+  claim_id: c_faa0113b
+  context: 'Goal: Compute functional connectivity matrices and derive five graph theory
+    metrics (modularity, path length, clustering, efficiency, small-worldness).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Derive_five_graph_theory_metrics:_modularity,_path_length,_c
+  kind: entity_fact
+  raw_text: derive five graph theory metrics (modularity, path length, clustering,
+    efficiency, small-worldness)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T06:30:13Z'
+- artifact_path: projects/PROJ-361-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: "extract M\xFCller-Lyer and Ponzo scores from OpenNeuro ds004285"
+  claim_id: c_fbe052a3
+  context: "Phase 5: User Story 4 - Behavioral Data Extraction (Priority: P1) Goal:\
+    \ Extract existing visual illusion susceptibility scores (M\xFCller-Lyer and Ponzo)\
+    \ from the OpenNeuro ds004285 dataset and link them to Subject IDs."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Extract_M%C3%BCller-Lyer_and_Ponzo_scores_from_OpenNeuro_ds004285
+  kind: entity_fact
+  raw_text: "extract existing visual illusion susceptibility scores (M\xFCller-Lyer\
+    \ and Ponzo) from the OpenNeuro ds004285 dataset"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T06:30:39Z'
+- artifact_path: projects/PROJ-361-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: assert correlation coefficient difference less than 0.01 on random seed
+    subset
+  claim_id: c_f45e3c81
+  context: Implement code/analysis/reproducibility_check.py to re-run analysis on
+    a [deferred] random seed subset, compare correlation coefficients, and assert
+    tolerance (difference < 0.01).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Assert_correlation_coefficient_difference_less_than_0.01_on
+  kind: magnitude
+  raw_text: assert tolerance (difference < 0.01) when comparing correlation coefficients
+    on a random seed subset
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T06:31:27Z'
+- artifact_path: projects/PROJ-361-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: apply Benjamini-Hochberg FDR correction to p-values
+  claim_id: c_3f3f21d0
+  context: Implement code/analysis/correlation_analysis.py to compute Pearson/Spearman
+    correlations between the raw five metrics (from T024) and illusion scores. Apply
+    FDR correction (Benjamini-Hochberg) to p-values.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: correlation analysis (CCA) is a statistical technique that is used to
+      source_id: '1705.04312'
+      url: https://arxiv.org/abs/1705.04312
+      value: q
+    filled: true
+  kind: entity_fact
+  raw_text: apply FDR correction (Benjamini-Hochberg) to p-values
+  resolved_value: q
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-05T06:31:55Z'
+- artifact_path: projects/PROJ-361-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: flag significant correlations after FDR correction
+  claim_id: c_d0c27b71
+  context: The analysis can be tested by injecting a synthetic dataset where a known
+    correlation exists, verifying that the script correctly identifies the p-value
+    < 0.05 and flags it as significant after FDR correction.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Flag_significant_correlations_after_FDR_correction
+  kind: entity_fact
+  raw_text: flag it as significant after FDR correction
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T06:32:21Z'
+- artifact_path: projects/PROJ-361-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: use real OpenNeuro ds004285 data
+  claim_id: c_f23117b8
+  context: 'Data Integrity: No synthetic data generation for hypothesis testing; use
+    real OpenNeuro ds004285 data for fMRI and behavioral scores.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_real_OpenNeuro_ds004285_data
+  kind: entity_fact
+  raw_text: use real OpenNeuro ds004285 data for fMRI and behavioral scores
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T06:32:52Z'
+- artifact_path: projects/PROJ-361-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 0
+  canonical: apply Benjamini-Hochberg FDR correction to p-values
+  claim_id: c_de009304
+  context: T054 [US3] Implement code/analysis/correlation_analysis.py to compute Pearson/Spearman
+    correlations between the raw five metrics (from T024) and illusion scores. Apply
+    FDR correction (Benjamini-Hochberg) to p-values.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: correlation analysis (CCA) is a statistical technique that is used to
+      source_id: '1705.04312'
+      url: https://arxiv.org/abs/1705.04312
+      value: q
+    filled: true
+  kind: entity_fact
+  raw_text: Apply FDR correction (Benjamini-Hochberg) to p-values
+  resolved_value: q
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-05T06:33:30Z'
+- artifact_path: projects/PROJ-361-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: resting-state fMRI data from OpenNeuro ds004285
+  claim_id: c_064a4b1e
+  context: 'Phase 3: User Story 1 - Data Acquisition and Preprocessing Pipeline (Priority:
+    P1) Goal: Download and preprocess resting-state fMRI data from OpenNeuro, extract
+    BOLD time series.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Resting-state_fMRI_data_from_OpenNeuro_ds004285
+  kind: entity_fact
+  raw_text: Download and preprocess resting-state fMRI data from OpenNeuro, extract
+    BOLD time series.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T06:33:33Z'
+- artifact_path: projects/PROJ-361-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: fetch ds004285 data for 50 subjects
+  claim_id: c_a9656bf7
+  context: T012 [US1] Implement code/preprocessing/download_openneuro.py to fetch
+    ds004285 data for at least 50 subjects to data/raw/.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Fetch_ds004285_data_for_50_subjects
+  kind: magnitude
+  raw_text: fetch ds004285 data for at least 50 subjects
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T06:33:55Z'
+- artifact_path: projects/PROJ-361-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: execute fMRIPrep version 23.1.0
+  claim_id: c_37fbb0ef
+  context: T013 [US1] Implement code/preprocessing/run_fmriprep.sh to execute containerized
+    fMRIPrep (pinned version poldracklab/fmriprep:23.1.0) with HCP configuration.
+  evidence:
+    asserted: '23.1'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: execute containerized fMRIPrep (pinned version poldracklab/fmriprep:23.1.0)
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-05T06:33:56Z'
+- artifact_path: projects/PROJ-361-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: exclude subjects with mean FD greater than 0.5mm
+  claim_id: c_36ece141
+  context: T015 [US1] Implement motion quality control logic in code/utils/quality_control.py
+    to calculate mean FD for ALL subjects, record the value, and exclude subjects
+    with mean FD > 0.5mm (per Spec Constraints).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exclude_subjects_with_mean_FD_greater_than_0.5mm
+  kind: magnitude
+  raw_text: exclude subjects with mean FD > 0.5mm
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T06:33:58Z'
+- artifact_path: projects/PROJ-361-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: 'compute five graph theory metrics: modularity, path length, clustering,
+    efficiency, small-worldness'
+  claim_id: c_141fe529
+  context: 'Goal: Compute functional connectivity matrices and derive five graph theory
+    metrics (modularity, path length, clustering, efficiency, small-worldness).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Compute_five_graph_theory_metrics:_modularity,_path_length,
+  kind: entity_fact
+  raw_text: compute modularity, path length, clustering, efficiency, small-worldness
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T06:34:20Z'
+- artifact_path: projects/PROJ-361-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 2
+  canonical: "extract M\xFCller-Lyer and Ponzo illusion scores from OpenNeuro ds004285"
+  claim_id: c_36d00fc9
+  context: "Phase 5: User Story 4 - Behavioral Data Extraction (Priority: P1) Goal:\
+    \ Extract existing visual illusion susceptibility scores (M\xFCller-Lyer and Ponzo)\
+    \ from the OpenNeuro ds004285 dataset and link them to Subject IDs."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Extract_M%C3%BCller-Lyer_and_Ponzo_illusion_scores_from_OpenNeuro
+  kind: entity_fact
+  raw_text: "extract existing visual illusion susceptibility scores (M\xFCller-Lyer\
+    \ and Ponzo) from the OpenNeuro ds004285 dataset"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T06:34:23Z'
+- artifact_path: projects/PROJ-361-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: assert correlation coefficient difference less than 0.01 for reproducibility
+  claim_id: c_1aabb3aa
+  context: 'T059 [US3] Mandatory: Implement code/analysis/reproducibility_check.py
+    to re-run analysis on a [deferred] random seed subset, compare correlation coefficients,
+    and assert tolerance (difference < 0.01).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Assert_correlation_coefficient_difference_less_than_0.01_for
+  kind: magnitude
+  raw_text: Assert tolerance (difference < 0.01) for correlation coefficients on a
+    random seed subset
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T06:35:24Z'
+- artifact_path: projects/PROJ-361-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: calculate Variance Inflation Factors for raw metrics
+  claim_id: c_4c8077b2
+  context: 'T064 [P] Collinearity Check: Implement code/topology/check_collinearity.py
+    to calculate Variance Inflation Factors (VIF) for the raw metrics.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Calculate_Variance_Inflation_Factors_for_raw_metrics
+  kind: entity_fact
+  raw_text: calculate Variance Inflation Factors (VIF) for the raw metrics
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T06:35:47Z'
+- artifact_path: projects/PROJ-361-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: verify valid NIfTI files for 50 subjects in data/raw
+  claim_id: c_aae35806
+  context: "Independent Test: Verify that data/raw/ contains valid NIfTI files for\
+    \ at least 50 subjects and that code/preprocessing/extract_timeseries.py produces\
+    \ a T\xD7N matrix with no NaN values for a single subject."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_valid_NIfTI_files_for_50_subjects_in_data/raw
+  kind: magnitude
+  raw_text: Verify that data/raw/ contains valid NIfTI files for at least 50 subjects
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T06:35:49Z'
+- artifact_path: projects/PROJ-361-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 2
+  canonical: fetch ds004285 data for at least 50 subjects
+  claim_id: c_6e745c5a
+  context: Implement code/preprocessing/download_openneuro.py to fetch ds004285 data
+    for at least 50 subjects to data/raw/. Must handle credentials, verify checksums,
+    and ensure output NIfTI files are stored in data/raw/{subject_id}/.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Fetch_ds004285_data_for_at_least_50_subjects
+  kind: magnitude
+  raw_text: Implement code/preprocessing/download_openneuro.py to fetch ds004285 data
+    for at least 50 subjects
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T06:39:32Z'
+- artifact_path: projects/PROJ-361-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 2
+  canonical: exclude subjects with mean FD greater than 0.5mm
+  claim_id: c_495be758
+  context: Implement motion quality control logic in code/utils/quality_control.py
+    to calculate mean FD for ALL subjects, record the value, and exclude subjects
+    with mean FD > 0.5mm (per Spec Constraints).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exclude_subjects_with_mean_FD_greater_than_0.5mm
+  kind: magnitude
+  raw_text: exclude subjects with mean FD > 0.5mm
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T06:39:33Z'
+- artifact_path: projects/PROJ-361-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: assert correlation coefficient difference less than 0.01
+  claim_id: c_9a468b14
+  context: Implement code/analysis/reproducibility_check.py to re-run analysis on
+    a [deferred] random seed subset, compare correlation coefficients, and assert
+    tolerance (difference < 0.01).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Assert_correlation_coefficient_difference_less_than_0.01
+  kind: magnitude
+  raw_text: Assert tolerance (difference < 0.01) when comparing correlation coefficients
+    on a random seed subset.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T06:39:36Z'
+- artifact_path: projects/PROJ-361-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: use fmriprep version 23.1.0
+  claim_id: c_88713bec
+  context: Implement code/preprocessing/run_fmriprep.sh to execute containerized fMRIPrep
+    (pinned version poldracklab/fmriprep:23.1.0) with HCP configuration.
+  evidence:
+    asserted: '23.1'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Use pinned version poldracklab/fmriprep:23.1.0.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-05T06:39:36Z'
+- artifact_path: projects/PROJ-361-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Download 50 subjects from ds004285 with checksum verification
+  claim_id: c_30c8a01f
+  context: T012 [US1] Implement code/preprocessing/download_openneuro.py to fetch
+    ds004285 data for at least 50 subjects to data/raw/.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Download_50_subjects_from_ds004285_with_checksum_verificatio
+  kind: magnitude
+  raw_text: The script must handle credentials, verify checksums, and ensure output
+    NIfTI files are stored in data/raw/{subject_id}/ for at least 50 subjects.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T06:43:36Z'
+- artifact_path: projects/PROJ-361-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Exclude subjects with mean FD greater than 0.5mm
+  claim_id: c_c756d46b
+  context: T015 [US1] Implement motion quality control logic in code/utils/quality_control.py
+    to calculate mean FD for ALL subjects, record the value, and exclude subjects
+    with mean FD > 0.5mm (per Spec Constraints).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exclude_subjects_with_mean_FD_greater_than_0.5mm
+  kind: magnitude
+  raw_text: The motion quality control logic must exclude subjects with mean FD >
+    0.5mm.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T06:43:57Z'
+- artifact_path: projects/PROJ-361-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Use fMRIPrep version 23.1.0
+  claim_id: c_79f8e823
+  context: T013 [US1] Implement code/preprocessing/run_fmriprep.sh to execute containerized
+    fMRIPrep (pinned version poldracklab/fmriprep:23.1.0) with HCP configuration.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The script must execute containerized fMRIPrep with version poldracklab/fmriprep:23.1.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T06:44:16Z'
+- artifact_path: projects/PROJ-361-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Flag subjects with global_efficiency greater than 1.0 or path_length
+    less than or equal to 0
+  claim_id: c_5a3e6907
+  context: T021 [US2] Implement code/topology/compute_metrics.py using bctpy to calculate
+    metrics... Must flag subjects where global_efficiency > 1.0 or path_length <=
+    0.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_subjects_with_global_efficiency_greater_than_1.0_or_pat
+  kind: magnitude
+  raw_text: The system must flag subjects where global_efficiency > 1.0 or path_length
+    <= 0.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T06:44:41Z'
+- artifact_path: projects/PROJ-361-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Assert correlation coefficient tolerance difference less than 0.01
+  claim_id: c_ffc64a36
+  context: 'T059 [US3] Mandatory: Implement code/analysis/reproducibility_check.py
+    to re-run analysis on a [deferred] random seed subset, compare correlation coefficients,
+    and assert tolerance (difference < 0.01).'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Assert_correlation_coefficient_tolerance_difference_less_tha
+  kind: magnitude
+  raw_text: The reproducibility check must assert a tolerance difference of less than
+    0.01 for correlation coefficients.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T06:45:27Z'
+- artifact_path: projects/PROJ-361-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Findings anchored at systems/network level excluding synaptic plasticity
+    mechanisms
+  claim_id: c_38974765
+  context: 'T061 [P] Reviewer Address: Update docs/research_limitations.md to explicitly
+    anchor findings at the systems/network level of explanation. Clearly state that
+    while the study correlates topology with behavior, it does not claim to trace
+    mechanisms to synaptic plasticity or molecular genetics.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Findings_anchored_at_systems/network_level_excluding_synapti
+  kind: entity_fact
+  raw_text: The analysis must be anchored at the systems/network level of explanation
+    and not claim to trace mechanisms to synaptic plasticity or molecular genetics.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T06:46:06Z'
+- artifact_path: projects/PROJ-361-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Project uses YAML-only state tracking without SQLite
+  claim_id: c_fc127b15
+  context: 'Phase 2: Foundational... Note: The Plan''s mention of SQLite in Phase
+    2 is a legacy artifact; this project uses YAML-only state tracking per Constitution
+    Principle III and Plan Notes (No SQLite database is used).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Project_uses_YAML-only_state_tracking_without_SQLite
+  kind: entity_fact
+  raw_text: The project uses YAML-only state tracking and does not use an SQLite database.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T06:46:37Z'
+- artifact_path: projects/PROJ-361-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Project targets Python 3.11
+  claim_id: c_50d0c9dc
+  context: T002 [P] Initialize Python 3.11 project with pinned dependencies in requirements.txt
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project targets Python 3.11.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T06:50:26Z'
