@@ -42,3 +42,14 @@
   verification_status: mismatch
   verified_against_url: https://github.com/your-org/llmxive-geometry-extension
   verified_at: '2026-08-04T12:05:03.431341Z'
+- artifact_hash: 34c7466aae66cd29a86af246260a035f3c555ace5b0399e6c9136b028524f0ff
+  artifact_path: projects/PROJ-902-llmxive-follow-up-extending-on-the-geome/README.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: "https://github.com/your\u2011org/llmxive-geometry-extension.git"
+  verification_status: mismatch
+  verified_against_url: https://github.com/your%E2%80%91org/llmxive-geometry-extension
+  verified_at: '2026-08-04T23:52:07.036267Z'

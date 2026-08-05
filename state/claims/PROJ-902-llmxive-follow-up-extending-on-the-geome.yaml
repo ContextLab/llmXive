@@ -1,0 +1,461 @@
+- artifact_path: projects/PROJ-902-llmxive-follow-up-extending-on-the-geome/README.md
+  attempts: 1
+  canonical: full-parameter OPD baseline trained with 30 random seeds
+  claim_id: c_6d9f2c31
+  context: "Running the full experiment pipeline will train the Full\u2011Parameter\
+    \ OPD baseline (30 seeds) and generate OPD masks via SVD."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Train the Full\u2011Parameter OPD baseline (30 seeds)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T23:40:55Z'
+- artifact_path: projects/PROJ-902-llmxive-follow-up-extending-on-the-geome/README.md
+  attempts: 1
+  canonical: frozen-subspace OPD and SFT runs each trained with 30 random seeds
+  claim_id: c_22932caa
+  context: "The pipeline will generate OPD masks via SVD, then train Frozen\u2011\
+    Subspace OPD and SFT runs (30 seeds each) and evaluate held\u2011out generalization\
+    \ accuracy."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Train Frozen\u2011Subspace OPD and SFT runs (30 seeds each)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T23:41:37Z'
+- artifact_path: projects/PROJ-902-llmxive-follow-up-extending-on-the-geome/specs/001-llmxive-follow-up-extending-on-the-geome/tasks.md
+  attempts: 1
+  canonical: paired TOST equivalence test with delta 0.02 and alpha 0.05
+  claim_id: c_19473199
+  context: "Goal: Demonstrate that the OPD\u2011identified low\u2011dimensional subspace\
+    \ is sufficient to recover full\u2011parameter performance. Independent Test:\
+    \ Run a set of seeds ... using a paired TOST equivalence test (\u03B4\u202F=\u202F\
+    0.02, \u03B1\u202F=\u202F0.05)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "paired TOST equivalence test (\u03B4\u202F=\u202F0.02, \u03B1\u202F=\u202F\
+    0.05)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T23:43:54Z'
+- artifact_path: projects/PROJ-902-llmxive-follow-up-extending-on-the-geome/specs/001-llmxive-follow-up-extending-on-the-geome/tasks.md
+  attempts: 1
+  canonical: power at least 0.80
+  claim_id: c_a7eae1c4
+  context: "Independent Test: Run a set of seeds ... using a paired TOST equivalence\
+    \ test (\u03B4\u202F=\u202F0.02, \u03B1\u202F=\u202F0.05). Verify power\u202F\u2265\
+    \u202F0.80; otherwise flag \u201Cinconclusive\u201D."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Power_at_least_0.80
+  kind: magnitude
+  raw_text: "Verify power\u202F\u2265\u202F0.80"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T23:44:55Z'
+- artifact_path: projects/PROJ-902-llmxive-follow-up-extending-on-the-geome/specs/001-llmxive-follow-up-extending-on-the-geome/tasks.md
+  attempts: 1
+  canonical: 30 independent seeds
+  claim_id: c_2de3ff64
+  context: Implement Seed Loop Orchestrator for the OPD baseline that iterates T015
+    over **N=30 independent seeds**, manages the RNG state for each seed, and aggregates
+    the output deltas...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: N=30 independent seeds
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T23:45:38Z'
+- artifact_path: projects/PROJ-902-llmxive-follow-up-extending-on-the-geome/specs/001-llmxive-follow-up-extending-on-the-geome/tasks.md
+  attempts: 1
+  canonical: error raised when RAM exceeds 7 GB
+  claim_id: c_91631b7c
+  context: "Add contract test that the monitor raises an error if RAM\u202F>\u202F\
+    7\u202FGB or wall\u2011clock\u202F>\u202F360\u202Fmin for a single run."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "resource\u2011monitor raises an error if RAM\u202F>\u202F7\u202FGB"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T23:46:10Z'
+- artifact_path: projects/PROJ-902-llmxive-follow-up-extending-on-the-geome/specs/001-llmxive-follow-up-extending-on-the-geome/tasks.md
+  attempts: 1
+  canonical: "error raised when wall\u2011clock exceeds 360 minutes"
+  claim_id: c_8c1fd77f
+  context: "Add contract test that the monitor raises an error if RAM\u202F>\u202F\
+    7\u202FGB or wall\u2011clock\u202F>\u202F360\u202Fmin for a single run."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "resource\u2011monitor raises an error if wall\u2011clock\u202F>\u202F\
+    360\u202Fmin"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T23:46:55Z'
+- artifact_path: projects/PROJ-902-llmxive-follow-up-extending-on-the-geome/specs/001-llmxive-follow-up-extending-on-the-geome/tasks.md
+  attempts: 1
+  canonical: cumulative variance at least 95 percent
+  claim_id: c_47169caa
+  context: "Implement SVD computation script ... determines the minimal *k* achieving\
+    \ \u2265\u202F95% cumulative variance."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Cumulative_variance_at_least_95_percent
+  kind: magnitude
+  raw_text: "cumulative variance \u2265\u202F95\u202F%"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T23:48:26Z'
+- artifact_path: projects/PROJ-902-llmxive-follow-up-extending-on-the-geome/specs/001-llmxive-follow-up-extending-on-the-geome/tasks.md
+  attempts: 1
+  canonical: loss plateau when loss change less than 0.001 over two epochs
+  claim_id: c_060db8ef
+  context: "Extend src/eval/stats.py to ... detect loss plateau (\u0394loss\u202F\
+    <\u202F0.001 over two epochs) and record epoch of plateau."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Loss_plateau_when_loss_change_less_than_0.001_over_two_epoch
+  kind: magnitude
+  raw_text: "loss plateau defined as \u0394loss\u202F<\u202F0.001 over two epochs"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T23:49:02Z'
+- artifact_path: projects/PROJ-902-llmxive-follow-up-extending-on-the-geome/specs/001-llmxive-follow-up-extending-on-the-geome/tasks.md
+  attempts: 1
+  canonical: mean accuracy drop less than 3 percentage points for OPD mask SFT
+  claim_id: c_b8565f51
+  context: "Checkpoint: After run_us2.py, the summary must show (i) OPD\u2011mask\
+    \ SFT mean drop\u202F<\u202F3\u202Fpp with non\u2011significant t\u2011test."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Mean_accuracy_drop_less_than_3_percentage_points_for_OPD_mas
+  kind: magnitude
+  raw_text: "mean accuracy drop\u202F<\u202F3\u202Fpercentage points for OPD\u2011\
+    mask SFT"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T23:49:23Z'
+- artifact_path: projects/PROJ-902-llmxive-follow-up-extending-on-the-geome/specs/001-llmxive-follow-up-extending-on-the-geome/tasks.md
+  attempts: 1
+  canonical: mean accuracy drop at least 3 percentage points for random mask SFT
+  claim_id: c_75e3fd07
+  context: "Checkpoint: After run_us2.py, the summary must show (ii) random\u2011\
+    mask drop\u202F\u2265\u202F3\u202Fpp with significant t\u2011test."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Mean_accuracy_drop_at_least_3_percentage_points_for_random_m
+  kind: magnitude
+  raw_text: "mean accuracy drop\u202F\u2265\u202F3\u202Fpercentage points for random\u2011\
+    mask SFT"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T23:49:59Z'
+- artifact_path: projects/PROJ-902-llmxive-follow-up-extending-on-the-geome/specs/001-llmxive-follow-up-extending-on-the-geome/tasks.md
+  attempts: 1
+  canonical: peak RAM less than or equal to 7 GB in CI
+  claim_id: c_7975aeab
+  context: "Independent Test: CI job completes with exit code\u202F0, logs show peak\
+    \ RAM\u202F\u2264\u202F7\u202FGB and total runtime\u202F\u2264\u202F360\u202F\
+    min."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Peak_RAM_less_than_or_equal_to_7_GB_in_CI
+  kind: magnitude
+  raw_text: "peak RAM\u202F\u2264\u202F7\u202FGB for CI run"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T23:50:44Z'
+- artifact_path: projects/PROJ-902-llmxive-follow-up-extending-on-the-geome/specs/001-llmxive-follow-up-extending-on-the-geome/tasks.md
+  attempts: 1
+  canonical: total runtime less than or equal to 360 minutes in CI
+  claim_id: c_9b15a181
+  context: "Independent Test: CI job completes with exit code\u202F0, logs show peak\
+    \ RAM\u202F\u2264\u202F7\u202FGB and total runtime\u202F\u2264\u202F360\u202F\
+    min."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Total_runtime_less_than_or_equal_to_360_minutes_in_CI
+  kind: magnitude
+  raw_text: "total runtime\u202F\u2264\u202F360\u202Fminutes for CI run"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T23:51:15Z'
+- artifact_path: projects/PROJ-902-llmxive-follow-up-extending-on-the-geome/README.md
+  attempts: 1
+  canonical: pipeline runs on CPU-only CI runner within 7 GB RAM and 6 hours wall-clock
+  claim_id: c_041d3247
+  context: "US\u20113 \u2013 Demonstrate that the entire pipeline runs on a CPU\u2011\
+    only CI runner within 7\u202FGB RAM and 6\u202Fh wall\u2011clock limits."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "the entire pipeline runs on a CPU\u2011only CI runner within 7\u202F\
+    GB RAM and 6\u202Fh wall\u2011clock limits."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T23:52:31Z'
+- artifact_path: projects/PROJ-902-llmxive-follow-up-extending-on-the-geome/README.md
+  attempts: 1
+  canonical: GSM8K dataset size is approximately 2 GB
+  claim_id: c_ce93339c
+  context: "The quick\u2011start guide instructs to download the GSM8K dataset (\u2248\
+    \ 2\u202FGB)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Download the GSM8K dataset (\u2248 2\u202FGB)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T23:54:39Z'
+- artifact_path: projects/PROJ-902-llmxive-follow-up-extending-on-the-geome/specs/001-llmxive-follow-up-extending-on-the-geome/tasks.md
+  attempts: 1
+  canonical: resource monitor error if RAM exceeds 7 GB
+  claim_id: c_7fa5c0c2
+  context: "Add contract test that the monitor raises an error if RAM\u202F>\u202F\
+    7\u202FGB or wall\u2011clock\u202F>\u202F360\u202Fmin for a single run (file:\
+    \ tests/contract/test_resource_limits.py)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The resource\u2011monitor raises an error if RAM\u202F>\u202F7\u202F\
+    GB for a single run"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T23:55:28Z'
+- artifact_path: projects/PROJ-902-llmxive-follow-up-extending-on-the-geome/specs/001-llmxive-follow-up-extending-on-the-geome/tasks.md
+  attempts: 1
+  canonical: resource monitor error if wall clock exceeds 360 minutes
+  claim_id: c_fad51361
+  context: "Add contract test that the monitor raises an error if RAM\u202F>\u202F\
+    7\u202FGB or wall\u2011clock\u202F>\u202F360\u202Fmin for a single run (file:\
+    \ tests/contract/test_resource_limits.py)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The resource\u2011monitor raises an error if wall\u2011clock\u202F>\u202F\
+    360\u202Fmin for a single run"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T23:56:06Z'
+- artifact_path: projects/PROJ-902-llmxive-follow-up-extending-on-the-geome/specs/001-llmxive-follow-up-extending-on-the-geome/tasks.md
+  attempts: 1
+  canonical: paired TOST equivalence margin delta 0.02
+  claim_id: c_a05817fa
+  context: "Run a set of seeds of the Frozen\u2011Subspace OPD protocol and compare\
+    \ against a comparable set of seeds of the Full\u2011Parameter OPD baseline using\
+    \ a paired TOST equivalence test (\u03B4\u202F=\u202F0.02, \u03B1\u202F=\u202F\
+    0.05). Verify power\u202F\u2265\u202F0.80"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The paired TOST equivalence test uses equivalence margin \u03B4\u202F\
+    =\u202F0.02"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T23:56:31Z'
+- artifact_path: projects/PROJ-902-llmxive-follow-up-extending-on-the-geome/specs/001-llmxive-follow-up-extending-on-the-geome/tasks.md
+  attempts: 1
+  canonical: paired TOST significance level alpha 0.05
+  claim_id: c_594425d5
+  context: "Run a set of seeds of the Frozen\u2011Subspace OPD protocol and compare\
+    \ against a comparable set of seeds of the Full\u2011Parameter OPD baseline using\
+    \ a paired TOST equivalence test (\u03B4\u202F=\u202F0.02, \u03B1\u202F=\u202F\
+    0.05). Verify power\u202F\u2265\u202F0.80"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The paired TOST equivalence test uses significance level \u03B1\u202F\
+    =\u202F0.05"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T23:57:17Z'
+- artifact_path: projects/PROJ-902-llmxive-follow-up-extending-on-the-geome/specs/001-llmxive-follow-up-extending-on-the-geome/tasks.md
+  attempts: 1
+  canonical: required statistical power at least 0.80
+  claim_id: c_ccc7acfe
+  context: "Run a set of seeds of the Frozen\u2011Subspace OPD protocol ... Verify\
+    \ power\u202F\u2265\u202F0.80; otherwise flag \u201Cinconclusive\u201D."
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "Indeed, although there are no formal standards for power, many researchers\
+        \ and funding bodies assess power using 0.80 (or 80%) as a standard for adequacy.\
+        \ This convention implies a four-to-one trade off between \u03B2-risk and\
+        \ \u03B1-risk, as the probability of a type II error \u03B2 is set as 1 -\
+        \ 0.8 = 0.2, while \u03B1, the probability of a type I error, is commonly\
+        \ set at 0.05. Some applications require much higher levels of power. Medical\
+        \ tests may be designed to minimise the number of false negatives (type II\
+        \ errors) produced by loosening the threshold of significance, raising the\
+        \ risk of obtaining a false positive (a type I error). The rationale is that\
+        \ it is better to tell a healthy patient \"we may have found something\u2014\
+        let's test further,\" than to tell a diseased patient \"all is well.\""
+      source_id: Power (statistics)
+      url: https://en.wikipedia.org/wiki/Power_(statistics)
+      value: '0.80'
+    filled: true
+  kind: magnitude
+  raw_text: "The statistical analysis requires power\u202F\u2265\u202F0.80"
+  resolved_value: '0.80'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-04T23:57:36Z'
+- artifact_path: projects/PROJ-902-llmxive-follow-up-extending-on-the-geome/specs/001-llmxive-follow-up-extending-on-the-geome/tasks.md
+  attempts: 1
+  canonical: experiment runs with 30 independent seeds
+  claim_id: c_9631046f
+  context: "Seed Loop Orchestrator for the OPD baseline that iterates T015 over N=30\
+    \ independent seeds ... Seed Loop Orchestrator for Frozen\u2011Subspace OPD that\
+    \ iterates T019 over N=30 independent seeds"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The baseline and frozen\u2011subspace experiments run N\u202F=\u202F\
+    30 independent seeds"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T23:58:06Z'
+- artifact_path: projects/PROJ-902-llmxive-follow-up-extending-on-the-geome/specs/001-llmxive-follow-up-extending-on-the-geome/tasks.md
+  attempts: 1
+  canonical: SVD cumulative variance threshold 95 percent
+  claim_id: c_f1c658f2
+  context: "Implement SVD computation script ... determines the minimal k achieving\
+    \ \u2265\u202F95% cumulative variance (file: src/data/svd_compute.py)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The SVD computation determines the minimal k achieving \u2265\u202F95%\
+    \ cumulative variance"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T23:58:06Z'
+- artifact_path: projects/PROJ-902-llmxive-follow-up-extending-on-the-geome/specs/001-llmxive-follow-up-extending-on-the-geome/tasks.md
+  attempts: 1
+  canonical: loss plateau detection threshold delta loss less than 0.001 over two
+    epochs
+  claim_id: c_967ff20a
+  context: "Extend src/eval/stats.py to ... detect loss plateau (\u0394loss\u202F\
+    <\u202F0.001 over two epochs) and record epoch of plateau"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Loss_plateau_detection_threshold_delta_loss_less_than_0.001
+  kind: magnitude
+  raw_text: "The loss\u2011plateau detection triggers when \u0394loss\u202F<\u202F\
+    0.001 over two epochs"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T23:58:36Z'
+- artifact_path: projects/PROJ-902-llmxive-follow-up-extending-on-the-geome/specs/001-llmxive-follow-up-extending-on-the-geome/tasks.md
+  attempts: 1
+  canonical: CI peak RAM limit 7 GB
+  claim_id: c_b4bf4c4d
+  context: "CI job completes with exit code\u202F0, logs show peak RAM\u202F\u2264\
+    \u202F7\u202FGB and total runtime\u202F\u2264\u202F360\u202Fmin."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The CI job must complete with peak RAM\u202F\u2264\u202F7\u202FGB"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T23:59:09Z'
+- artifact_path: projects/PROJ-902-llmxive-follow-up-extending-on-the-geome/specs/001-llmxive-follow-up-extending-on-the-geome/tasks.md
+  attempts: 1
+  canonical: "CI wall\u2011clock limit 360 minutes"
+  claim_id: c_caf1c9bb
+  context: "CI job completes with exit code\u202F0, logs show peak RAM\u202F\u2264\
+    \u202F7\u202FGB and total runtime\u202F\u2264\u202F360\u202Fmin."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The CI job must complete with total runtime\u202F\u2264\u202F360\u202F\
+    min"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T23:59:41Z'

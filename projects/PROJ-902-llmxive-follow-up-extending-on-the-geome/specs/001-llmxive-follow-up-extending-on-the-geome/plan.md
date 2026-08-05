@@ -24,7 +24,7 @@ All steps are designed for CPU‑first execution; no GPU is required.  The TinyL
 - **Storage**: Project‑local `data/` directory (cached dataset files, intermediate SVD results, model checkpoints).  
 - **Testing**: `pytest==8.2.2` with contract validation against `contracts/experiment.schema.yaml`.  
 - **Target Platform**: Linux (`ubuntu-latest`) GitHub Actions runner (multiple vCPU cores, ~7 GB RAM).  
-- **Performance Goals**: Peak RAM ≤ 7 GB, wall‑clock ≤ 6 h per full experiment set (30 seeds × Multiple protocols).  
+- **Performance Goals**: Peak RAM ≤ 7 GB, wall‑clock ≤ 6 h per full experiment set (Multiple seeds × Multiple protocols).  
 - **Constraints**: CPU‑only, no external GPU; all data must be fetched from the verified URLs listed in the spec.  
 - **Scale/Scope**: Multiple random seeds per condition, subspace dimensionality determined by ≥ 95 % variance threshold (sensitivity sweep included).
 

@@ -1,0 +1,13 @@
+# RUFF LINTER CONFIGURATION
+# This file configures the ruff linter for the project.
+# It enforces a consistent coding style and catches common issues.
+
+[lint]
+# Select error codes to enable. Adjust as needed for the project's standards.
+select = ["E", "F", "W", "C90"]
+# No rules are ignored by default; add any you wish to silence.
+ignore = []
+# Keep line length consistent with Black formatting.
+line-length = 88
+# Target Python version for linting.
+target-version = "py311"

@@ -1,0 +1,28 @@
+# PYPROJECT TOML
+# Project configuration, including Black formatting settings.
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.black]
+# Black code formatter configuration.
+line-length = 88
+target-version = ["py311"]
+# Include all Python source files.
+include = '\.pyi?$'
+# Exclude typical non-source directories.
+exclude = '''
+/(
+    \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''
