@@ -1,29 +1,15 @@
-status: verified
-kind: pypi_package
-ref: transformers
-access_python: "from transformers import AutoConfig\n\nmodels = [\n    \"bert-base-uncased\"\
-  ,\n    \"distilbert-base-uncased\",\n    \"gpt2\",\n]\n\nrecords = []\nfor name\
-  \ in models:\n    cfg = AutoConfig.from_pretrained(name)\n    rec = {\n        \"\
-  model_name\": name,\n        \"embedding_dim\": getattr(cfg, \"hidden_size\", None),\n\
-  \        \"vocab_size\": getattr(cfg, \"vocab_size\", None),\n        \"model_architecture\"\
-  : getattr(cfg, \"model_type\", None),\n        \"download_url\": f\"https://huggingface.co/{name}\"\
-  ,\n    }\n    records.append(rec)\n\nprint(f\"RECORDS={len(records)}\")\nprint(\"\
-  FIELDS=\" + \",\".join(records[0].keys()))"
-record_count: 3
-sample_fields:
-- model_name
-- embedding_dim
-- vocab_size
-- model_architecture
-- download_url
-field_coverage: 0.833
+status: none
+intent: download Llama-3, Mistral, BLOOM model weights unembedding matrices python
+  package dataset
 required_fields:
 - model_name
-- unembedding_matrix (W_U)
-- embedding_dim
+- model_version
+- architecture
 - vocab_size
-- model_architecture
-- download_url
-intent: download pretrained Llama-3, Mistral, and BLOOM model weights from HuggingFace
-  python package dataset
-cache_key: 9190c9de378afb2cb690bfa46c49feee33045c07a433a4ccfe516ec39d705f0f
+- hidden_size
+- unembedding_weight_matrix
+- tokenizer_vocab
+- license
+cache_key: d081bfd5221729e5dca788c86ed0956f02fe654072181e6b97add232300422c9
+searched_at: '2026-08-05T17:53:38.631542+00:00'
+retry_count: 1

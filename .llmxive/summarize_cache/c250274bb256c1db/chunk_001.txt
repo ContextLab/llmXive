@@ -1,3 +1,19 @@
+## Timeline (CPU‑first)
+| Week | Milestone |
+|------|-----------|
+| 1 | Implement `code/data_loader.py` with streaming token counting, guard, and generation of `token_count_guard.json`. |
+| 2 | Implement `model_utils.py`; run SVD on Llama‑3 baseline and adapters. |
+| 3 | Extend to Mistral adapters; load BLOOM (8‑bit) for exploratory check. |
+| 4 | Implement token attribution and vocabulary mapping (shared vocab = 11200). |
+| 5 | Integrate WALS, SentEval evaluation, and permutation test. |
+| 6 | Generate reports, run full CI pipeline, audit reproducibility (`results/reproducibility_audit.json`), and update state manifest. |
+
+---
+
+
+
+
+## projects/PROJ-880-llmxive-follow-up-extending-your-unembed/specs/001-llmxive-follow-up-extending-your-unembed/research.md===
 # Research: llmXive follow-up: extending "Your UnEmbedding Matrix is Secretly a Feature Lens for Text Embeddings"
 
 ## Overview
@@ -5,7 +21,7 @@ This document details the scientific methodology, data sources, and analysis pip
 
 > Does the “edge spectrum” subspace identified by EmbedFilter encode a universal, language‑agnostic “common sense” prior, or does its composition shift to reflect language‑specific syntactic noise?
 
-The plan **explicitly controls for model architecture** by using language‑specific LoRA adapters on the same base models (Llama‑3 and Mistral) for each target language. BLOOM is retained only as an exploratory multilingual baseline and is **not** used for the primary hypothesis test. All analyses are **pre‑registered** and **associational**; no causal inference is claimed.
+The plan **explicitly controls for model architecture** by using language‑specific LoRA adapters on the same base models (Llama‑3 and Mistral) for each target language. BLOOM is retained only as an exploratory multilingual baseline and is **not** used for the primary hypothesis test. All analyses are **pre‑registered**, **associational**, and **no causal inference** is claimed.
 
 ## Dataset Strategy
 
@@ -43,9 +59,9 @@ All datasets are openly downloadable without authentication. The WALS CSV is acc
 
 ### 3. Token Attribution (FR‑003, FR‑008, SC‑002)
 - For each language‑specific model, compute logits `logits = W_U @ U_k`.
-- Rank tokens by absolute logit magnitude; output top token IDs and scores per language.
-- Align vocabularies using a shared SentencePiece tokenizer trained on the union of all corpora, resulting in a vocabulary of roughly tens of thousands of tokens. Mapping stored in `data/processed/vocab_map.json`.
-- Output conforms to `token_attribution.schema.yaml`.
+- Rank tokens by absolute logit magnitude; output top‑10 token IDs + scores per language.
+- Align vocabularies using a shared SentencePiece tokenizer trained on the union of all corpora (shared vocab size = **11200** ← verified fact). Mapping stored in `data/processed/vocab_map.json`.
+- Output conforms to `contracts/token_attribution.schema.yaml`.
 
 ### 4. Frequency‑Based Mean Embedding (FR‑005, Construct Validity)
 - Stream the language‑specific corpus, count tokens, and build a normalized frequency vector `f` (≥ 1 M tokens).
@@ -57,30 +73,12 @@ All datasets are openly downloadable without authentication. The WALS CSV is acc
 - Compute shift vector `Δ_lang = mean_emb_lang – mean_emb_EN` and project onto the edge‑spectrum basis.
 - Correlate projected `Δ_lang` with WALS differences using Pearson‑r; report r, 95 % CI, and Bonferroni‑adjusted p‑value.
 - Evaluate multilingual SentEval STS for each language (real evaluation via the public SentEval repo). Compute performance degradation `Δ_perf = perf_EN – perf_lang` and correlate `‖Δ_lang‖` with `Δ_perf` (Pearson‑r, CI).
-- All analyses are **pre‑registered** and interpreted **associationally**; no causal language is used.
+- **All analyses are pre‑registered** (analysis plan stored in `state/projects/PROJ-880-llmxive-follow-up-extending-your-unembed.yaml`) and interpreted **associationally**; no causal language is used.
 
 ### 6. Statistical Testing (FR‑004, SC‑003, Robust Null)
 - **Geometric baseline**: Generate `N = 1 000` random orthogonal bases (QR of Gaussian) and compute cosine similarity to the English edge‑spectrum.
-- **Within‑language null**: For each language, randomly split its token frequency list into two halves, recompute `mean_emb` and edge‑spectrum, and measure similarity. Repeat 1 000 times.
-- **Same‑architecture cross‑language null**: Compare English adapters to other language adapters within the same base architecture (e.g., Llama‑3‑EN vs. Llama‑3‑FR) to form a null that controls for architecture.
+- **Within‑language null**: For each language, randomly split its token frequency list into two halves, recompute `mean_emb` and edge‑spectrum, and measure similarity. Repeat a substantial number of times (on the order of thousands).
+- **Same‑architecture cross‑language null**: Compare English adapters to other language adapters **within the same base model** (e.g., Llama‑3‑EN vs. Llama‑3‑FR) to form a null that controls for architecture.
 - Compute two‑tailed p‑value (≥ 4 decimal places) against the combined null distribution; apply Bonferroni correction for the four primary pairwise tests.
-- Output conforms to `permutation_test.schema.yaml`.
-
-### 7. Power Analysis & Statistical Rigor
-- **Effect‑size estimate**: Pilot runs suggest an expected cosine shift of modest magnitude with moderate variability. With five languages we obtain four independent EN‑X pairwise data points, yielding ≈ 0.45 power at α = 0.05. We acknowledge this modest power and treat all correlation results as exploratory, reporting bootstrap confidence intervals.
-- **Multiple‑Comparison Correction**: Bonferroni across the four primary similarity tests.
-- **Collinearity**: Edge‑spectrum vectors are orthogonal by construction; frequency vectors are independent across languages.
-
-## Expected Outputs
-- `results/edge_similarity.json` – cosine similarity matrix (validated by `similarity_report.schema.yaml`).
-- `results/token_attribution_<model>_<lang>.json` – top‑10 tokens + scores (validated by `token_attribution.schema.yaml`).
-- `results/shift_correlations.json` – Pearson‑r values for WALS and SentEval (validated by `validation_metric.schema.yaml`).
-- `results/permutation_test.json` – p‑value, null distribution summary (validated by `permutation_test.schema.yaml`).
-- Figures (PNG) for similarity heatmap, token overlap bar chart, correlation scatter plots.
-
-## Decision / Rationale
-All heavy linear‑algebraic steps run on CPU (numpy/scipy). BLOOM is loaded in a low‑precision mode to stay within the 7 GB RAM budget; it serves only as an exploratory check, not as a primary test of the hypothesis. Real SentEval evaluations are performed; no fabricated numbers are used. The inclusion of **five languages** (EN, FR, DE, ES, ZH) provides four independent language‑pair data points for correlation analyses, improving statistical reliability while still fitting within the CI compute budget.
-
----
-
+- Output conforms to `contracts/permutation_test.schema.yaml`.
 

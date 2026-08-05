@@ -29,13 +29,13 @@ properties:
           description: "The cosine similarity of the observed average vector."
         p_value_n100:
           type: "number"
-          description: "P-value from 100 permutations."
+          description: "P-value from a series of permutations."
         p_value_n1000:
           type: "number"
-          description: "P-value from 1000 permutations."
+          description: "P-value from a sufficiently large number of permutations."
         p_value_n10000:
           type: "number"
-          description: "P-value from 10000 permutations."
+          description: "P-value from a large number of permutations."
         convergence_status:
           type: "string"
           enum: ["converged", "inconclusive"]

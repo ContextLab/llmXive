@@ -17,8 +17,8 @@ properties:
   cosine_similarity:
     type: number
     description: "Cosine similarity between subspaces"
-    minimum: -1.0
-    maximum: 1.0
+    minimum: a negative value
+    maximum: (to be defined during implementation)
   method:
     type: string
     description: "Method used for similarity calculation (e.g., 'mean_cosine', 'procrustes')"

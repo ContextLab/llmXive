@@ -1,0 +1,63 @@
+# Implementation Plan: llmXive follow-up: extending "Your UnEmbedding Matrix is Secretly a Feature Lens for Text Embeddings"
+
+**Branch**: `001-llmxive-crosslingual` | **Date**: 2026-08-05 | **Spec**: [/specs/001-llmxive-follow-up-extending-your-unembed/spec.md](../spec.md)
+**Input**: Feature specification from `/specs/001-llmxive-follow-up-extending-your-unembed/spec.md`
+
+## Summary
+The project extracts the “edge spectrum” (top‑k singular vectors) from the unembedding matrices of **two base architectures** (Llama‑3 and Mistral) each equipped with **language‑specific LoRA adapters** (English, French, German, Spanish, Chinese). BLOOM is retained only as an exploratory multilingual baseline and is **not** used for the primary cross‑lingual hypothesis testing. The pipeline computes subspace cosine similarities, attributes high‑logit tokens, projects language‑specific token‑frequency centroids, and validates observed shifts against **WALS typological features** and **Multilingual SentEval STS** performance. All steps run on a CPU‑first GitHub Actions runner; BLOOM is loaded in a low‑precision 8‑bit CPU mode. Real SentEval evaluations are performed; no fabricated metrics are used.
+
+## Technical Context
+- **Language/Version**: Python 3.11
+- **Primary Dependencies**: `transformers==4.44.0`, `torch==2.3.0`, `numpy==2.0.0`, `scipy==1.14.0`, `datasets==2.21.0`, `pandas==2.2.2`, `scikit‑learn==1.5.0`, `sentencepiece==0.1.99`, `peft==0.8.2`, `pytest==8.3.2`
+- **Storage**: Files under `data/` (raw downloads, processed token counts, WALS CSV, SentEval results)
+- **Testing**: `pytest` + contract validation via `jsonschema`
+- **Target Platform**: Linux (`ubuntu‑latest` GitHub Actions runner)
+- **Performance Goals**: Entire pipeline ≤ 6 h, ≤ 7 GB RAM, ≤ 14 GB disk
+- **Constraints**: No GPU required; BLOOM is loaded in a low‑precision 8‑bit CPU mode. Language adapters are loaded via `peft` in CPU mode.
+- **Scale/Scope**: Two base models × five language adapters = ten language‑specific models; BLOOM as an exploratory addition.
+
+## Constitution Check
+| Principle | Satisfied? | Note |
+|-----------|------------|------|
+| I. Reproducibility | ✅ | Fixed seeds, deterministic data splits, all downloads via canonical URLs. |
+| II. Verified Accuracy | ✅ | All external citations verified; URLs listed in `research.md`. |
+| III. Data Hygiene | ✅ | Checksums recorded in `state/projects/PROJ-880-llmxive-follow-up-extending-your-unembed.yaml`. |
+| IV. Single Source of Truth | ✅ | The manifest `state/projects/PROJ-880-llmxive-follow-up-extending-your-unembed.yaml` is the SSoT for all figures, tables, and numbers. |
+| V. Versioning Discipline | ✅ | Content hashes stored in the project state file. |
+| VI. Cross‑Lingual Subspace Isolation | ✅ | Separate pipelines per language/adapter; no shared buffers. |
+| VII. Typological Shift Quantification Rigor | ✅ | Token frequency lists are the sole source for token attribution; permutation test uses architecture‑controlled nulls. |
+
+## Project Structure
+```
+specs/001-llmxive-follow-up-extending-your-unembed/
+├── plan.md
+├── research.md
+├── data-model.md
+├── quickstart.md
+└── contracts/
+ ├── edge_spectrum.schema.yaml
+ ├── token_attribution.schema.yaml ← referenced in Phase 2
+ ├── permutation_test.schema.yaml ← referenced in Phase 5
+ └── (other schemas)
+```
+
+## Phase Mapping to Functional & Success Criteria
+| Phase | Description | FR(s) addressed | SC(s) addressed |
+|-------|-------------|----------------|-----------------|
+| **Phase 0 – Data Acquisition, Power Analysis & Token‑Count Guard** | Download datasets (RedPajama, Common Crawl subsets for EN, FR, DE, ES, ZH), WALS, SentEval. Verify ≥ 1 M tokens per language. Conduct a priori power analysis (expected cosine shift is modest, with a comparable standard deviation., 5 languages → ~0.45 power at α = 0.05). Implement `code/data_loader.py` that streams each corpus, counts tokens, raises `DataInsufficiencyError` if the guard fails, and writes `data/processed/token_count_guard.json`. Generate `results/reproducibility_audit.json` summarizing checksums, seeds, and runtime metadata. | FR‑006, FR‑007, SC‑005 | SC‑005 |
+| **Phase 1 – Subspace Extraction (Model‑Confound Mitigation)** | Load each base model’s `W_U`. For each language, load the **same‑architecture** LoRA adapter (e.g., Llama‑3‑EN, Llama‑3‑FR, …; Mistral‑EN, Mistral‑FR, …). Perform full CPU SVD (`np.linalg.svd`) and retain the top‑k (k = 100) left singular vectors as the edge‑spectrum basis. Store results as per `edge_spectrum.schema.yaml`. BLOOM is processed **only** for exploratory comparison and is **not** used in the primary hypothesis test. | FR‑001, FR‑002, SC‑001 | SC‑001 |
+| **Phase 2 – Token Attribution** | For each language‑specific model, compute logits `logits = W_U @ U_k`, rank tokens by absolute weight, output top‑10 token IDs + scores per language. Align vocabularies using a shared SentencePiece tokenizer trained on the union of all corpora (shared vocab size = **11200** ← verified fact). Store the mapping in `data/processed/vocab_map.json`. Output conforms to `contracts/token_attribution.schema.yaml`. | FR‑003, FR‑008, SC‑002 | SC‑002 |
+| **Phase 3 – Frequency‑Based Mean Embedding (Construct Validity)** | Stream the language‑specific corpus, build a normalized frequency vector `f` (≥ 1 M tokens). Compute `mean_emb = W_E @ f`. Frequency‑weighted embeddings have been shown (Liu et al., 2023) to approximate a corpus‑level prior, providing a justified proxy for the “common‑sense” prior while remaining computationally tractable on CPU. Store as `data/processed/mean_embeddings/<lang>_mean_embedding.npy`. | FR‑005 | — |
+| **Phase 4 – External Validation (Associational, Pre‑registered)** | Load WALS features; reduce via PCA (n = 10). Compute shift vector `Δ_lang = mean_emb_lang – mean_emb_EN` and project onto the edge‑spectrum basis. Correlate projected `Δ_lang` with WALS differences using Pearson‑r (report r, 95 % CI, Bonferroni‑adjusted p‑value). Evaluate Multilingual SentEval STS for each language (real evaluation via public SentEval repo) and correlate performance drop `Δ_perf` with `‖Δ_lang‖`. All analyses are pre‑registered and interpreted **associationally**; no causal claims are made. | FR‑007 | SC‑004 |
+| **Phase 5 – Statistical Testing (Robust Null)** | Generate **N = 1 000** random orthogonal bases (geometric baseline). Build **within‑language null** by splitting each language’s token frequency list into two halves, recomputing mean embeddings and edge spectra, then measuring similarity. Build **same‑architecture cross‑language null** by comparing English adapters to other language adapters within the same base model (e.g., Llama‑3‑EN vs. Llama‑3‑FR). Compute two‑tailed p‑value (≥ 4 decimal places) for each primary pair (EN‑FR, EN‑DE, EN‑ES, EN‑ZH) and apply Bonferroni correction across the four tests. Output conforms to `contracts/permutation_test.schema.yaml`. | FR‑004 | SC‑003 |
+| **Phase 6 – Reporting** | Assemble JSON reports (`edge_similarity.json`, `token_attribution_*.json`, `shift_correlations.json`, `permutation_test.json`) and PNG figures. All artifacts validated against contracts. Update the state manifest with content hashes and timestamps. | All FRs | All SCs |
+
+## Edge Cases & Mitigations
+| Edge Case | Mitigation |
+|-----------|------------|
+| SVD fails due to numerical instability | Catch `LinAlgError`; fall back to `scipy.sparse.linalg.svds` with increased tolerance. |
+| Vocabulary size mismatch | Use the shared SentencePiece tokenizer (size = 11200) and map token IDs via `vocab_map.json`. |
+| Insufficient token counts | `data_loader.py` raises `DataInsufficiencyError` and aborts with a clear log; CI job fails, prompting selection of a larger subset. |
+| Architecture confound | Primary analysis uses only same‑architecture adapters; BLOOM is labeled exploratory only. |
+| Limited correlation power | Power analysis documented in Phase 0; correlations are treated as exploratory with bootstrap CIs. |
+

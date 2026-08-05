@@ -1,88 +1,66 @@
-# Quickstart: llmXive follow-up: extending "Your UnEmbedding Matrix is Secretly a Feature Lens for Text Embeddings"
+# Quickstart: llmXive follow-up – Edge Spectrum Cross‑Lingual Analysis
 
-## 1. Prerequisites
+This guide walks a new researcher from a fresh GitHub Actions runner to a complete set of results.
 
-- Python 3.11+
-- Git
-- Access to Hugging Face Hub (for model weights)
-- Internet connection (for dataset streaming)
-
-## 2. Installation
-
-1. **Clone the repository**:
-   ```bash
-   git clone <repo-url>
-   cd projects/PROJ-880-llmxive-follow-up-extending-your-unembed
-   ```
-
-2. **Create and activate a virtual environment**:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # Linux/Mac
-   # venv\Scripts\activate   # Windows
-   ```
-
-3. **Install dependencies**:
-   ```bash
-   pip install -r code/requirements.txt
-   ```
-
-## 3. Data Acquisition
-
-The pipeline is designed to fetch data on the fly. However, for local testing, you can pre-download the necessary models and datasets.
-
-1. **Download Models** (via Hugging Face CLI):
-   ```bash
-   huggingface-cli download meta-llama/Meta-Llama-3-8B
-   huggingface-cli download mistralai/Mistral-7B-v0.1
-   huggingface-cli download bigscience/bloom-7b1
-   ```
-
-2. **Verify Data Sources**:
-   Ensure you can access the RedPajama and Common Crawl datasets via `datasets`:
-   ```python
-   from datasets import load_dataset
-   ds = load_dataset("togethercomputer/RedPajama-Data-1T", split="train", streaming=True)
-   print(next(iter(ds)))
-   ```
-
-## 4. Running the Pipeline
-
-### 4.1. Feasibility Check (T060)
-Before running the full analysis, check if the SVD computation is feasible on your hardware.
+## 1. Clone & Setup
 ```bash
-python code/main.py --task check_feasibility
+git clone
+cd llmxive-crosslingual
+python -m venv.venv
+source.venv/bin/activate
+pip install -r requirements.txt
 ```
-This will generate `data/processed/feasibility_report.json`.
 
-### 4.2. Vocabulary Alignment Check (T065)
-Check for vocabulary overlap between models.
+## 2. Run the Full Pipeline
 ```bash
-python code/main.py --task check_vocab_alignment
+python -m src.cli run-all \
+ --models llama3 mistral \
+ --languages en fr de es zh \
+ --adapters llama3-fr llama3-de llama3-es mistral-fr \
+ --top_k 100 \
+ --perm_iters 1000 \
+ --seed 42
 ```
-This will generate `data/processed/vocab_alignment_warning.json`.
+The command performs:
+1. **Data download & token‑count guard** (fails if < 1 M tokens).
+ The guard creates `data/processed/token_count_guard.json` and aborts with a clear error if the threshold is not met.
+2. **Edge‑spectrum extraction** for each base model **and** language‑specific adapters (same architecture across languages). BLOOM is loaded in 8‑bit mode for an exploratory check only.
+3. **Subspace similarity matrix** generation.
+4. **Token attribution** and vocabulary mapping (shared vocab size = 11200).
+5. **Frequency‑based mean‑embedding** projection.
+6. **External validation** (WALS PCA, SentEval STS).
+7. **Permutation test** with architecture‑controlled nulls.
+All outputs are written under `data/results/`.
 
-### 4.3. Full Analysis
-Run the complete pipeline:
+## 3. Inspect Results
 ```bash
-python code/main.py --task full_analysis
+cat data/results/edge_similarity.json | jq.
+cat data/results/token_attribution_llama3_en.json | jq.
+cat data/results/permutation_test.json | jq.
 ```
-This will:
-1. Load models one by one.
-2. Extract edge spectrum subspaces.
-3. Compute similarities.
-4. Generate frequency distributions.
-5. Run permutation tests.
-6. Output `results/final_report.json`.
 
-## 5. Expected Outputs
+## 4. Re‑run Individual Steps (optional)
+| Step | CLI flag | Description |
+|------|----------|-------------|
+| Data download only | `--stage download` | Pull raw datasets, verify checksums, enforce token‑count guard, and generate `results/reproducibility_audit.json`. |
+| Edge spectrum only | `--stage edge` | Skip downstream validation. |
+| Validation only | `--stage validate` | Assumes `edge_spectrum` already exists. |
 
-- `data/processed/similarity/cosine_matrix.json`: Cosine similarity scores between models.
-- `data/processed/stats/permutation_results.json`: P-values and significance flags.
-- `results/final_report.json`: Comprehensive summary of findings.
+## 5. Testing
+```bash
+pytest -q
+```
+All contract tests must pass (`contracts/*.schema.yaml`).
 
-## 6. Troubleshooting
+## 6. Reproducibility Checklist
+- Seed fixed (`--seed 42`).
+- All URLs are hard‑coded in `src/data_loader.py`.
+- Checksums recorded in `state/projects/PROJ-880-llmxive-follow-up-extending-your-unembed.yaml`.
+- No manual file edits required.
+- The SSoT manifest `state/projects/PROJ-880-llmxive-follow-up-extending-your-unembed.yaml` is the authoritative source for all figures and tables.
+- `results/reproducibility_audit.json` contains a machine‑readable summary of dataset checksums, random seeds, and runtime metadata for full auditability.
 
-- **Memory Error**: If you encounter OOM errors, ensure you are using `streaming=True` for datasets and that models are unloaded after processing (`del model`, `torch.cuda.empty_cache()` if applicable, though this is CPU-only).
-- **Model Loading**: If a model fails to load, check the Hugging Face token and network connectivity.
-- **SVD Failure**: If `scipy.sparse.linalg.svds` fails, try increasing `k` or reducing the matrix size (not recommended for accuracy).
+---
+
+
+

@@ -733,3 +733,146 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-05T17:18:48Z'
+- artifact_path: projects/PROJ-880-llmxive-follow-up-extending-your-unembed/specs/001-llmxive-follow-up-extending-your-unembed/tasks.md
+  attempts: 1
+  canonical: system runs SVD on three models and outputs non-zero cosine similarity
+    scores
+  claim_id: c_6618967b
+  context: "User Story 1 aims to compute the edge\u2011spectrum subspace of W_U for\
+    \ Llama\u20113, Mistral, and BLOOM and then calculate cosine similarity between\
+    \ the subspaces."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/System_runs_SVD_on_three_models_and_outputs_non-zero_cosine
+  kind: entity_fact
+  raw_text: "The system runs SVD on three models and outputs a JSON report with non\u2011\
+    zero cosine similarity scores between model pairs."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T17:39:57Z'
+- artifact_path: projects/PROJ-880-llmxive-follow-up-extending-your-unembed/specs/001-llmxive-follow-up-extending-your-unembed/tasks.md
+  attempts: 1
+  canonical: pipeline uses MUSE library from facebookresearch/MUSE for alignment
+  claim_id: c_da6aa5aa
+  context: "If vocab_status.json reports 'INSUFFICIENT_OVERLAP' (<\u202F5000 tokens),\
+    \ T044\u2011Fallback implements translation\u2011map\u2011based alignment using\
+    \ the MUSE library."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_uses_MUSE_library_from_facebookresearch/MUSE_for_al
+  kind: entity_fact
+  raw_text: "The pipeline uses the MUSE library from facebookresearch/MUSE for translation\u2011\
+    map\u2011based alignment when vocab overlap is insufficient."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T17:40:45Z'
+- artifact_path: projects/PROJ-880-llmxive-follow-up-extending-your-unembed/specs/001-llmxive-follow-up-extending-your-unembed/tasks.md
+  attempts: 1
+  canonical: English frequency distribution from RedPajama contains at least 1,000,000
+    tokens
+  claim_id: c_e1bca2a8
+  context: T019a computes the English frequency distribution from the RedPajama dataset
+    and enforces a minimum of 1,000,000 tokens.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/English_frequency_distribution_from_RedPajama_contains_at_le
+  kind: magnitude
+  raw_text: The English frequency distribution is computed from the RedPajama dataset
+    and must contain at least 1,000,000 tokens.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T17:41:19Z'
+- artifact_path: projects/PROJ-880-llmxive-follow-up-extending-your-unembed/specs/001-llmxive-follow-up-extending-your-unembed/tasks.md
+  attempts: 1
+  canonical: WALS dataset contains WordOrder, Morphology, Phonology columns
+  claim_id: c_5646542d
+  context: T062 validates the downloaded WALS CSV to ensure it includes the required
+    columns WordOrder, Morphology, and Phonology.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/WALS_dataset_contains_WordOrder,_Morphology,_Phonology_colum
+  kind: entity_fact
+  raw_text: The WALS dataset must contain columns WordOrder, Morphology, and Phonology.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T17:41:56Z'
+- artifact_path: projects/PROJ-880-llmxive-follow-up-extending-your-unembed/specs/001-llmxive-follow-up-extending-your-unembed/tasks.md
+  attempts: 1
+  canonical: system outputs non-zero cosine similarity scores between model pairs
+    after SVD on three models
+  claim_id: c_557164ad
+  context: "Phase 3 describes an independent test where the system runs SVD on three\
+    \ models and outputs a JSON report with non\u2011zero cosine similarity scores\
+    \ between model pairs."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/System_outputs_non-zero_cosine_similarity_scores_between_mod
+  kind: entity_fact
+  raw_text: "The system runs SVD on three models and outputs a JSON report with non\u2011\
+    zero cosine similarity scores between model pairs."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T17:42:40Z'
+- artifact_path: projects/PROJ-880-llmxive-follow-up-extending-your-unembed/specs/001-llmxive-follow-up-extending-your-unembed/tasks.md
+  attempts: 1
+  canonical: permutation test outputs p-value and flags statistically significant
+    shift
+  claim_id: c_4e230f2d
+  context: "Phase 5 specifies that the permutation test loop generates a p\u2011value\
+    \ and flags \"Statistically Significant Shift\" in permutation_result.json."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Permutation_test_outputs_p-value_and_flags_statistically_sig
+  kind: entity_fact
+  raw_text: "The permutation test computes a p\u2011value and flags \"Statistically\
+    \ Significant Shift\" in permutation_result.json."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T17:43:14Z'
+- artifact_path: projects/PROJ-880-llmxive-follow-up-extending-your-unembed/specs/001-llmxive-follow-up-extending-your-unembed/tasks.md
+  attempts: 1
+  canonical: external validation computes Spearman correlation between shift vector
+    and WALS features and SentEval drop
+  claim_id: c_b013bd7b
+  context: Phase 5 details that external validation computes Spearman correlation
+    between the full shift vector and WALS feature differences, and between the shift
+    vector and SentEval performance drop, outputting the results in wals_validation.json
+    and senteval_correlation.json.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/External_validation_computes_Spearman_correlation_between_sh
+  kind: entity_fact
+  raw_text: The external validation computes Spearman correlation between the full
+    shift vector and WALS feature differences (and SentEval performance drop), outputting
+    wals_validation.json and senteval_correlation.json.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T17:43:37Z'

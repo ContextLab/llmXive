@@ -1,0 +1,25 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: Edge Spectrum Similarity Report
+type: object
+required:
+  - model_pairs
+  - similarity_matrix
+properties:
+  model_pairs:
+    type: array
+    description: "List of model name pairs (e.g., ['llama3', 'bloom'])."
+    items:
+      type: array
+      minItems: 2
+      maxItems: 2
+      items:
+        type: string
+  similarity_matrix:
+    type: object
+    description: "Mapping from model‑pair string to cosine similarity (float)."
+    patternProperties:
+      "^[a-z0-9_]+-[a-z0-9_]+$":
+        type: number
+        minimum: -1.0
+        maximum: 1.0
+    additionalProperties: false

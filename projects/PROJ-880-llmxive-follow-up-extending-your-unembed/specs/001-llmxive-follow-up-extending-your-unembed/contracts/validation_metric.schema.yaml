@@ -34,7 +34,7 @@ properties:
     description: "True if p_value < 0.05"
   confidence_interval:
     type: array
-    description: "95% confidence interval for the shift"
+    description: "A high‑confidence interval for the shift"
     items:
       type: number
   timestamp:

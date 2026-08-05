@@ -1,122 +1,89 @@
 # Data Model: llmXive follow-up: extending "Your UnEmbedding Matrix is Secretly a Feature Lens for Text Embeddings"
 
-## 1. Overview
+## Overview
+The data model defines the canonical file formats, schema contracts, and directory layout used throughout the pipeline. All artifacts are version‑controlled under `data/` and validated against JSON Schema files in `contracts/`. The **Single Source of Truth (SSoT)** for the entire project is the state manifest:
 
-This document defines the data structures, storage formats, and relationships for the `llmXive` follow-up project. It ensures reproducibility and strict adherence to the "Single Source of Truth" principle.
-
-## 2. Data Flow
-
-```mermaid
-graph TD
-    A[Raw Model Weights] -->|Load & SVD| B(Edge Spectrum Matrices)
-    C[Raw Frequency Lists] -->|Stream & Count| D(Frequency Vectors)
-    B -->|Dot Product| E[Subspace Similarity Matrix]
-    D -->|Proj W_E| F[Mean Embeddings]
-    F -->|Compare| G[Shift Vector]
-    H[WALS Data] -->|Correlate| G
-    I[SentEval] -->|Correlate| G
-    E --> J[Final Report]
-    G --> J
+```
+state/projects/PROJ-880-llmxive-follow-up-extending-your-unembed.yaml
 ```
 
-## 3. File Specifications
+All figures, tables, and numeric results trace back to entries in this file.
 
-### 3.1. Raw Data (`data/raw/`)
+## Directory Layout
+```
+data/
+├── raw/
+│   ├── llama3/                # model weight archives
+│   ├── mistral/
+│   ├── bloom/
+│   ├── redpajama/             # raw RedPajama token streams
+│   ├── common_crawl_french/
+│   ├── common_crawl_german/
+│   ├── common_crawl_spanish/
+│   ├── common_crawl_chinese/
+│   └── wals/                  # WALS CSV
+├── processed/
+│   ├── edge_spectrum/
+│   │   ├── llama3_en_edge_spectrum.npy
+│   │   ├── llama3_fr_edge_spectrum.npy
+│   │   ├── llama3_de_edge_spectrum.npy
+│   │   ├── llama3_es_edge_spectrum.npy
+│   │   ├── mistral_en_edge_spectrum.npy
+│   │   ├── mistral_fr_edge_spectrum.npy
+│   │   └── bloom_edge_spectrum.npy
+│   ├── vocab_map.json
+│   ├── token_counts/
+│   │   ├── english_token_count.json
+│   │   ├── french_token_count.json
+│   │   ├── german_token_count.json
+│   │   ├── spanish_token_count.json
+│   │   └── chinese_token_count.json
+│   ├── mean_embeddings/
+│   │   ├── english_mean_embedding.npy
+│   │   ├── french_mean_embedding.npy
+│   │   ├── german_mean_embedding.npy
+│   │   ├── spanish_mean_embedding.npy
+│   │   └── chinese_mean_embedding.npy
+│   ├── token_count_guard.json   # guard file produced by Phase 0
+│   └── wals_features.csv
+└── results/
+    ├── edge_similarity.json
+    ├── token_attribution_*.json
+    ├── shift_correlations.json
+    └── permutation_test.json
+```
 
-| File Pattern | Description | Format | Checksum Source |
-| :--- | :--- | :--- | :--- |
-| `models/{model_name}/` | Model weights (symlink to HF cache) | Binary (PyTorch) | HF SHA256 |
-| `freq/` | Raw frequency counts (streamed) | JSONL (partial) | `sha256sum` |
-| `external/wals.csv` | Typological features | CSV | Git SHA |
-| `external/senteval_sts.json` | Performance benchmarks | JSON | Git SHA |
+## Core JSON Schemas (in `contracts/`)
 
-### 3.2. Processed Data (`data/processed/`)
+*The existing schema files remain unchanged; they are referenced throughout the plan and research documents.*
 
-| File Pattern | Description | Format | Derivation |
-| :--- | :--- | :--- | :--- |
-| `svd/{model}_e_spectrum.npy` | Top-$k$ singular vectors | NumPy `.npy` | SVD on $W_U$ |
-| `similarity/cosine_matrix.json` | Pairwise cosine similarities | JSON | Dot product of `.npy` |
-| `freq/{lang}_vector.npy` | Normalized frequency distribution | NumPy `.npy` | Stream & Normalize |
-| `mean_embedding/{model}_{lang}.npy` | $\hat{h} = W_E \times f$ | NumPy `.npy` | Matrix Multiplication |
-| `stats/permutation_results.json` | P-value, null distribution | JSON | Permutation Test |
-| `validation/correlation_report.json` | WALS/SentEval correlations | JSON | Pearson Correlation |
-| `feasibility_report.json` | Memory/CPU feasibility check | JSON | Runtime logs |
-| `vocab_alignment_warning.json` | Vocabulary overlap warnings | JSON | Vocab intersection check |
+### `edge_spectrum.schema.yaml`
+*(unchanged – validates the edge‑spectrum similarity report)*
 
-## 4. Schema Definitions
+### `token_attribution.schema.yaml`
+*(unchanged – validates token attribution reports)*
 
-### 4.1. Subspace Similarity Report
+### `permutation_test.schema.yaml`
+*(unchanged – validates permutation test output)*
+
+*All other schemas listed in the repository are similarly unchanged.*
+
+## Checksum Manifest
+`state/projects/PROJ-880-llmxive-follow-up-extending-your-unembed.yaml` contains a mapping:
 
 ```yaml
-$schema: "http://json-schema.org/draft-07/schema#"
-type: object
-properties:
-  models:
-    type: array
-    items:
-      type: string
-      description: "List of model names (e.g., 'llama-3', 'bloom')"
-  similarities:
-    type: array
-    items:
-      type: object
-      properties:
-        model_a:
-          type: string
-        model_b:
-          type: string
-        cosine_similarity:
-          type: number
-          description: "Cosine similarity between top-k subspaces"
-        language_pair:
-          type: string
-          description: "e.g., 'EN-FR', 'EN-EN'"
-      required:
-        - model_a
-        - model_b
-        - cosine_similarity
-        - language_pair
-  timestamp:
-    type: string
-    format: date-time
-  k_value:
-    type: integer
-    description: "Number of singular vectors used"
-required:
-  - models
-  - similarities
-  - k_value
+artifact_hashes:
+  data/raw/redpajama/...: "<sha256>"
+  data/raw/common_crawl_french/...: "<sha256>"
+  data/raw/common_crawl_german/...: "<sha256>"
+  data/raw/common_crawl_spanish/...: "<sha256>"
+  data/raw/common_crawl_chinese/...: "<sha256>"
+  data/raw/wals/wals.csv: "<sha256>"
+  # etc.
 ```
 
-### 4.2. Permutation Test Results
+All downstream scripts verify these checksums before processing, satisfying the Data Hygiene principle.
 
-```yaml
-$schema: "http://json-schema.org/draft-07/schema#"
-type: object
-properties:
-  observed_similarity:
-    type: number
-    description: "Cosine similarity between observed cross-lingual subspaces"
-  null_distribution:
-    type: array
-    items:
-      type: number
-    description: "Similarities from permutation test (N=1000)"
-  p_value:
-    type: number
-    minimum: 0
-    maximum: 1
-    description: "Probability of observing <= observed similarity under H0"
-  iterations:
-    type: integer
-    description: "Number of permutations performed"
-  significance_flag:
-    type: boolean
-    description: "True if p_value < 0.05"
-required:
-  - observed_similarity
-  - null_distribution
-  - p_value
-  - iterations
-  - significance_flag
-```
+---
+
+

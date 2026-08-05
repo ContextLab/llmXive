@@ -13,10 +13,3 @@ T009:
     `similarity_report.schema.yaml`, but the required `similarity_report.schema.yaml`
     file is missing from the repository, so the contract test cannot actually validate
     anything. The missing schema file must be added for the task to be satisfied.
-T091:
-  c: false
-  h: cb396e95b4c7ca24ea3d703e56e4d6e88fe4f72529bc712dfedbae78bf9baa2e
-  r: "The provided `code/data_loader.py` does not contain any logic that streams RedPajama/OSCAR,\
-    \ counts tokens, checks against the 1,000,000 threshold, raises `DataInsufficiencyError`,\
-    \ or writes `data/processed/token_count_guard.json`. Moreover, the required JSON\
-    \ output file is absent. The task\u2019s core requirement is therefore unmet."

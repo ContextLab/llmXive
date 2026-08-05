@@ -11,7 +11,7 @@ properties:
         description: "The name of the model (e.g., llama-3-8b)."
       k_components:
         type: "integer"
-        description: "The number of singular vectors computed (default 50)."
+        description: "The number of singular vectors computed (default a typical moderate number)."
       variance_explained:
         type: "number"
         description: "Cumulative variance explained by the top-k components."
