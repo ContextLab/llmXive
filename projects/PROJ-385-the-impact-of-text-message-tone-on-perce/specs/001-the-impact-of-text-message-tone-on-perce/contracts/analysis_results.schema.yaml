@@ -57,6 +57,31 @@ properties:
               type: number
             effect_size:
               type: number
+      stability_index:
+        type: integer
+        enum: [0, 1]
+        description: "Consistency of effect (0=unstable, 1=stable)"
+      operationalization_correlation:
+        type: object
+        properties:
+          pearson_r:
+            type: number
+          p_value:
+            type: number
+      model_selection:
+        type: object
+        description: "AIC/BIC comparison results"
+        properties:
+          best_model_name:
+            type: string
+          aic_values:
+            type: object
+            additionalProperties:
+              type: number
+          bic_values:
+            type: object
+            additionalProperties:
+              type: number
   exclusion_summary:
     type: object
     description: "Summary of excluded participants"

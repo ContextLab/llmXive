@@ -1,41 +1,42 @@
-# Stimulus Schema Definition
-# Defines the structure for text message stimuli used in the study.
-# Verified against T006 requirements.
-
+$schema: "http://json-schema.org/draft-07/schema#"
+title: Stimulus Schema
+description: Schema for a single generated text message stimulus.
 type: object
 required:
-  - id
-  - text
-  - emoji_count
-  - punctuation_type
-  - length_category
+  - stimulus_id
+  - base_scenario
+  - emoji_level
+  - punctuation_level
+  - length_level
+  - cue_intensity
 properties:
-  id:
+  stimulus_id:
     type: string
-    description: Unique identifier for the stimulus (e.g., 'S001')
-    pattern: "^S[0-9]{3}$"
-  text:
+    description: "Unique identifier for the stimulus (e.g., stim_001)."
+  base_scenario:
     type: string
-    description: The actual text message content
-    minLength: 1
-  emoji_count:
+    description: "The core message text before paralinguistic modification."
+  emoji_level:
     type: integer
-    description: Number of emojis in the text
+    description: "Level of emoji usage (0=none, 1=moderate, 2=high)."
     minimum: 0
-  punctuation_type:
+    maximum: 2
+  punctuation_level:
     type: string
-    description: The primary punctuation mark used (e.g., '.', '!', '?', '...')
+    description: "Punctuation intensity level."
     enum:
-      - "."
-      - "!"
-      - "?"
-      - "..."
-      - ","
-      - "-"
-  length_category:
+      - "Low"
+      - "High"
+  length_level:
     type: string
-    description: Categorization of message length
+    description: "Message length category."
     enum:
-      - "short"
-      - "medium"
-      - "long"
+      - "Short"
+      - "Long"
+  cue_intensity:
+    type: string
+    description: "Derived categorical intensity (Low, Medium, High) based on feature combination."
+    enum:
+      - "Low"
+      - "Medium"
+      - "High"

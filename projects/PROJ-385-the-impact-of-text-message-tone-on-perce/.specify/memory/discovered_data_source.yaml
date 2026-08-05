@@ -1,17 +1,14 @@
 status: none
-intent: TextMessageStimuliDataset SMS Conversation Corpus EmpatheticDialogues downloadable
-  with emojis punctuation length relational context python package dataset
+intent: Prolific human emotional support rating dataset excluding cybersecurity signals
+  coding traces document QA python package dataset
 required_fields:
 - stimulus_id
-- base_scenario
-- emoji_level
-- punctuation_pattern
-- length_category
 - relationship_type
-- generated_text
+- emoji_level
+- punctuation_level
+- length_category
 - rating_score
-- participant_id
-- timestamp
-cache_key: 600dfb3e363732c69e85db0c0355af75d738a9d441a17422395257efa795032f
-searched_at: '2026-07-28T13:49:51.691759+00:00'
+- prolific_participant_id
+cache_key: f2f02e9387766602c9e928301454e027bff411dd11ae638704e156a891eaca44
+searched_at: '2026-08-05T20:21:10.428361+00:00'
 retry_count: 1

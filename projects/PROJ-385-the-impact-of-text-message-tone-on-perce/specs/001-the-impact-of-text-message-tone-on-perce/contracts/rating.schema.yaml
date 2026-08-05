@@ -1,30 +1,31 @@
-# Rating Schema Definition
-# Defines the structure for human ratings of emotional support.
-# Verified against T006 requirements.
-
+$schema: "http://json-schema.org/draft-07/schema#"
+title: Rating Schema
+description: Schema for human ratings of perceived emotional support.
 type: object
 required:
-  - participant_id
+  - rating_id
   - stimulus_id
-  - relationship
-  - rating
+  - participant_id
+  - relationship_context
+  - score
 properties:
-  participant_id:
+  rating_id:
     type: string
-    description: Unique identifier for the participant (e.g., Prolific ID)
-    pattern: "^P[A-Z0-9]{8}$"
+    description: "Unique identifier for the rating record."
   stimulus_id:
     type: string
-    description: Reference to the stimulus being rated
-    pattern: "^S[0-9]{3}$"
-  relationship:
+    description: "Foreign key referencing the stimulus."
+  participant_id:
     type: string
-    description: The relationship context of the message
+    description: "Anonymized participant identifier (e.g., P_001)."
+  relationship_context:
+    type: string
+    description: "The relational context for this rating."
     enum:
-      - "friend"
-      - "acquaintance"
-  rating:
+      - "Friend"
+      - "Acquaintance"
+  score:
     type: integer
-    description: Perceived emotional support rating on a 1-7 Likert scale
+    description: "Perceived emotional support rating on a 7-point Likert scale."
     minimum: 1
     maximum: 7
