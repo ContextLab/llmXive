@@ -1,0 +1,1121 @@
+- artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
+  attempts: 1
+  canonical: prime count pi(10^9) equals 50847534
+  claim_id: c_5fe1bfdb
+  context: "Independent Test: Execute the sieve script in isolation; verify output\
+    \ count matches \u03C0(10^9) = 50,847,534 within 1 second"
+  evidence:
+    fill:
+      channel: oeis
+      conflicts: []
+      quote: 9 50847534
+      source_id: A006880
+      url: https://oeis.org/A006880
+      value: '50847534'
+    filled: true
+  kind: numeric
+  raw_text: "verify output count matches \u03C0(10^9) = 50,847,534"
+  resolved_value: '50847534'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-05T18:46:23Z'
+- artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
+  attempts: 1
+  canonical: sieve peak memory usage less than 4 GB
+  claim_id: c_34eaa3f7
+  context: "Independent Test: Execute the sieve script in isolation; verify output\
+    \ count matches \u03C0(10^9) = 50,847,534 within 1 second; verify peak memory\
+    \ < 4 GB"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Sieve_peak_memory_usage_less_than_4_GB
+  kind: magnitude
+  raw_text: verify peak memory < 4 GB
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T18:46:36Z'
+- artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
+  attempts: 1
+  canonical: sieve runtime less than 120 minutes
+  claim_id: c_0b851afa
+  context: "Independent Test: Execute the sieve script in isolation; verify output\
+    \ count matches \u03C0(10^9) = 50,847,534 within 1 second; verify peak memory\
+    \ < 4 GB; verify runtime < 120 minutes"
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "The block featured five Hanna-Barbera series among its segments: The\
+        \ Scooby-Doo Show, Laff-A-Lympics, The Blue Falcon & Dynomutt, Captain Caveman\
+        \ and the Teen Angels, and reruns of Scooby-Doo, Where Are You!. During the\
+        \ second season in 1978\u201379, the show was re-titled Scooby's All-Stars\
+        \ and broadcast on ABC from September 9, 1978, to December 23, 1978. The runtime\
+        \ was reduced from 120 minutes to 90 minutes by dropping The Blue Falcon &\
+        \ Dynomutt and Scooby-Doo, Where Are You!."
+      source_id: Scooby's All-Star Laff-A-Lympics
+      url: https://en.wikipedia.org/wiki/Scooby's_All-Star_Laff-A-Lympics
+      value: 90 minutes
+    filled: true
+  kind: magnitude
+  raw_text: verify runtime < 120 minutes
+  resolved_value: 90 minutes
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-05T18:46:42Z'
+- artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
+  attempts: 0
+  canonical: prime count pi(10^9) is 50847534
+  claim_id: c_61c69708
+  context: "Execute the sieve script in isolation; verify output count matches \u03C0\
+    (10^9) = 50,847,534 within 1 second; verify peak memory < 4 GB"
+  evidence:
+    fill:
+      channel: oeis
+      conflicts: []
+      quote: 9 50847534
+      source_id: A006880
+      url: https://oeis.org/A006880
+      value: '50847534'
+    filled: true
+  kind: numeric
+  raw_text: "verify output count matches \u03C0(10^9) = 50,847,534"
+  resolved_value: '50847534'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-05T18:47:02Z'
+- artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
+  attempts: 1
+  canonical: prime count 50847534
+  claim_id: c_d10383f0
+  context: Implement test_prime_count_exact asserting count == 50847534 and test_sieve_runtime
+    asserting runtime_seconds < 7200
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: count == 50847534
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T18:47:12Z'
+- artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
+  attempts: 0
+  canonical: pi(10^9) equals 50847534
+  claim_id: c_2647d405
+  context: "Independent Test: Execute the sieve script in isolation; verify output\
+    \ count matches \u03C0(10^9) = 50,847,534 within 1 second"
+  evidence:
+    fill:
+      channel: oeis
+      conflicts: []
+      quote: 9 50847534
+      source_id: A006880
+      url: https://oeis.org/A006880
+      value: '50847534'
+    filled: true
+  kind: numeric
+  raw_text: "verify output count matches \u03C0(10^9) = 50,847,534"
+  resolved_value: '50847534'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-05T18:48:11Z'
+- artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
+  attempts: 1
+  canonical: prime count up to 10^9 is 50847534
+  claim_id: c_0f384ff1
+  context: 'Implement code/sieve.py: ...and a final check asserting runtime_seconds
+    < 7200 (120 minutes) and count == 50847534 (OEIS A006880, https://oeis.org/A006880)'
+  evidence:
+    fill:
+      channel: oeis
+      conflicts: []
+      quote: 9 50847534
+      source_id: A006880
+      url: https://oeis.org/A006880
+      value: '50847534'
+    filled: true
+  kind: numeric
+  raw_text: count == 50847534 (OEIS A006880, https://oeis.org/A006880)
+  resolved_value: '50847534'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-05T18:48:19Z'
+- artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
+  attempts: 0
+  canonical: pi(10^9) equals 50847534
+  claim_id: c_23187143
+  context: "Execute the sieve script in isolation; verify output count matches \u03C0\
+    (10^9) = 50,847,534 within 1 second; verify peak memory < 4 GB"
+  evidence:
+    fill:
+      channel: oeis
+      conflicts: []
+      quote: 9 50847534
+      source_id: A006880
+      url: https://oeis.org/A006880
+      value: '50847534'
+    filled: true
+  kind: numeric
+  raw_text: "verify output count matches \u03C0(10^9) = 50,847,534"
+  resolved_value: '50847534'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-05T18:48:36Z'
+- artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
+  attempts: 1
+  canonical: prime count pi(10^9) is 50847534
+  claim_id: c_6f14fa9d
+  context: "Independent Test: Execute the sieve script in isolation; verify output\
+    \ count matches \u03C0(10^9) = 50,847,534 within 1 second"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "verify output count matches \u03C0(10^9) = 50,847,534 within 1 second"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T18:50:08Z'
+- artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
+  attempts: 1
+  canonical: test asserts prime count equals 50847534
+  claim_id: c_fac8d04d
+  context: 'Integration test for prime count verification in tests/test_sieve.py:
+    Implement test_prime_count_exact asserting count == 50847534'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: implement test_prime_count_exact asserting count == 50847534
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T18:50:18Z'
+- artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
+  attempts: 2
+  canonical: sieve peak memory usage is less than 4 GB
+  claim_id: c_70f2bc7d
+  context: "Independent Test: Execute the sieve script in isolation; verify output\
+    \ count matches \u03C0(10^9) = 50,847,534 within 1 second; verify peak memory\
+    \ < 4 GB"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Sieve_peak_memory_usage_is_less_than_4_GB
+  kind: magnitude
+  raw_text: verify peak memory < 4 GB
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T18:50:49Z'
+- artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
+  attempts: 1
+  canonical: sieve runtime is less than 7200 seconds
+  claim_id: c_0bfefe86
+  context: 'Integration test for prime count verification in tests/test_sieve.py:
+    Implement test_prime_count_exact asserting count == 50847534 and test_sieve_runtime
+    asserting runtime_seconds < 7200 (120 minutes).'
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: 60 minStart 111 min
+      source_id: '2603.26441'
+      url: https://arxiv.org/abs/2603.26441
+      value: '111'
+    filled: true
+  kind: magnitude
+  raw_text: runtime_seconds < 7200 (120 minutes)
+  resolved_value: '111'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-05T18:51:02Z'
+- artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
+  attempts: 1
+  canonical: prime count is 50847534
+  claim_id: c_4a07d4a2
+  context: 'Integration test for prime count verification in tests/test_sieve.py:
+    Implement test_prime_count_exact asserting count == 50847534 and test_sieve_runtime
+    asserting runtime_seconds < 7200 (120 minutes).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: asserting count == 50847534
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T18:51:23Z'
+- artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
+  attempts: 1
+  canonical: primary grid parameters y in 100 1000 10000, x in 10^6 10^7 10^8 10^9,
+    h in 10^3 10^4 10^5 10^6
+  claim_id: c_39fcdca4
+  context: "Implement code/main.py orchestration to run the Plan-defined primary grid:\
+    \ y \u2208 {100, 1000, 10000}, x \u2208 {10^6, 10^7, 10^8, 10^9}, with fixed interval\
+    \ lengths h \u2208 {10^3, 10^4, 10^5, 10^6}."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Plan-defined primary grid: y \u2208 {100, 1000, 10000}, x \u2208 {10^6,\
+    \ 10^7, 10^8, 10^9}, with fixed interval lengths h \u2208 {10^3, 10^4, 10^5, 10^6}"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T18:53:13Z'
+- artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
+  attempts: 1
+  canonical: spec grid interval lengths h are x to power 0.1 0.3 0.5 0.7 0.9
+  claim_id: c_f8d49434
+  context: "Secondary: Include a validation run using the Spec-defined grid (h \u2208\
+    \ {x^0.1, x^0.3, x^0.5, x^0.7, x^0.9}) to satisfy Spec SC-001 if needed, but clearly\
+    \ mark it as Legacy Validation."
+  evidence:
+    asserted: '0.1'
+    authority: scipy.constants.h (CODATA 2018, exact by SI definition)
+    constant: planck
+    corrected: true
+    mode: approximate
+    true_value: 6.62607015e-34
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?h
+  kind: numeric
+  raw_text: "Spec-defined grid (h \u2208 {x^0.1, x^0.3, x^0.5, x^0.7, x^0.9})"
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2947ee0f33c8b64004b004e262a8ea3e9a1b9496056962e917f8a0745d5366a7
+  source_type: external
+  status: verified
+  updated_at: '2026-08-05T18:53:13Z'
+- artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
+  attempts: 1
+  canonical: regression recovers beta within margin on synthetic data
+  claim_id: c_bcc50c31
+  context: "Independent Test: Run analysis on synthetic data with known \u03B2; verify\
+    \ regression recovers \u03B2 within margin."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Regression_recovers_beta_within_margin_on_synthetic_data
+  kind: entity_fact
+  raw_text: "Verify regression recovers \u03B2 within margin"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T18:53:46Z'
+- artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
+  attempts: 1
+  canonical: synthetic test data has 10 points slope 2.0 noise 0.1
+  claim_id: c_0408f217
+  context: 'Unit test for WLS regression implementation in tests/test_analysis.py:
+    Implement test_wls_recovery using synthetic data: 10 points, slope=2.0, noise=0.1.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 10 points, slope=2.0, noise=0.1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T18:54:18Z'
+- artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
+  attempts: 1
+  canonical: beta estimated error is less than 0.05
+  claim_id: c_5cd4c875
+  context: 'Unit test for WLS regression implementation in tests/test_analysis.py:
+    Implement test_wls_recovery using synthetic data: 10 points, slope=2.0, noise=0.1.
+    Assert abs(beta_estimated - 2.0) < 0.05.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Beta_estimated_error_is_less_than_0.05
+  kind: magnitude
+  raw_text: abs(beta_estimated - 2.0) < 0.05
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T18:54:47Z'
+- artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
+  attempts: 1
+  canonical: reduce per-interval processing overhead by 50 percent
+  claim_id: c_bb319790
+  context: 'Performance Optimization: Profile code/smoothness.py loop using cProfile.
+    Vectorize operation using numpy. Target: Reduce per-interval processing overhead
+    by at least 50% compared to the baseline scalar implementation.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Reduce_per-interval_processing_overhead_by_50_percent
+  kind: magnitude
+  raw_text: Reduce per-interval processing overhead by at least 50% compared to the
+    baseline scalar implementation
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T18:55:11Z'
+- artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
+  attempts: 0
+  canonical: prime count pi(10^9) equals 50847534
+  claim_id: c_d5f342d2
+  context: "Execute the sieve script in isolation; verify output count matches \u03C0\
+    (10^9) = 50,847,534 within 1 second"
+  evidence:
+    fill:
+      channel: oeis
+      conflicts: []
+      quote: 9 50847534
+      source_id: A006880
+      url: https://oeis.org/A006880
+      value: '50847534'
+    filled: true
+  kind: numeric
+  raw_text: "verify output count matches \u03C0(10^9) = 50,847,534"
+  resolved_value: '50847534'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-05T18:55:26Z'
+- artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
+  attempts: 1
+  canonical: prime count equals 50847534
+  claim_id: c_eeb3f826
+  context: 'Integration test for prime count verification in tests/test_sieve.py:
+    Implement test_prime_count_exact asserting count == 50847534'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: asserting count == 50847534
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T18:55:26Z'
+- artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
+  attempts: 1
+  canonical: prime count pi(10^9) equals 50847534
+  claim_id: c_5ce14812
+  context: Execute the sieve script in isolation; verify output count matches pi(10^9)
+    = 50,847,534 within 1 second
+  evidence:
+    fill:
+      channel: oeis
+      conflicts: []
+      quote: 9 50847534
+      source_id: A006880
+      url: https://oeis.org/A006880
+      value: '50847534'
+    filled: true
+  kind: numeric
+  raw_text: verify output count matches pi(10^9) = 50,847,534
+  resolved_value: '50847534'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-05T18:57:34Z'
+- artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
+  attempts: 1
+  canonical: prime count assertion equals 50847534
+  claim_id: c_6759c79e
+  context: Implement test_prime_count_exact asserting count == 50847534 and test_sieve_runtime
+    asserting runtime_seconds < 7200
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: asserting count == 50847534
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T18:57:34Z'
+- artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
+  attempts: 1
+  canonical: OEIS sequence A006880
+  claim_id: c_6534249a
+  context: verify the generated prime list... strictly adhering to Constitution Principle
+    VI... {{claim:c_0f384ff1}} (OEIS A006880, https://oeis.org/A006880)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/OEIS_sequence_A006880
+  kind: entity_fact
+  raw_text: OEIS A006880
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T18:57:53Z'
+- artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
+  attempts: 1
+  canonical: y parameter grid values 100 1000 10000
+  claim_id: c_e8035ea9
+  context: 'run the Plan-defined primary grid: y in {100, 1000, 10000}'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: y in {100, 1000, 10000}
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T18:58:22Z'
+- artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
+  attempts: 1
+  canonical: x parameter grid values 10^6 10^7 10^8 10^9
+  claim_id: c_025539b5
+  context: 'run the Plan-defined primary grid: x in {10^6, 10^7, 10^8, 10^9}'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: x in {10^6, 10^7, 10^8, 10^9}
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T18:58:37Z'
+- artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
+  attempts: 1
+  canonical: h parameter grid values 10^3 10^4 10^5 10^6
+  claim_id: c_1b6a719b
+  context: with fixed interval lengths h in {10^3, 10^4, 10^5, 10^6}
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: h in {10^3, 10^4, 10^5, 10^6}
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T19:00:30Z'
+- artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
+  attempts: 1
+  canonical: 'synthetic data for WLS test: 10 points slope 2.0 noise 0.1'
+  claim_id: c_13c2fb60
+  context: 'Implement test_wls_recovery using synthetic data: 10 points, slope=2.0,
+    noise=0.1'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'test_wls_recovery using synthetic data: 10 points, slope=2.0, noise=0.1'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T19:01:45Z'
+- artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
+  attempts: 1
+  canonical: prime count equals 50847534
+  claim_id: c_e4fa8ca8
+  context: Implement test_prime_count_exact asserting count == 50847534 and test_sieve_runtime
+    asserting runtime_seconds < 7200
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: asserting count == 50847534
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T19:02:01Z'
+- artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
+  attempts: 0
+  canonical: number of primes up to 10^9 is 50847534
+  claim_id: c_f0dc44eb
+  context: "Execute the sieve script in isolation; verify output count matches \u03C0\
+    (10^9) = 50,847,534 within 1 second"
+  evidence:
+    fill:
+      channel: oeis
+      conflicts: []
+      quote: 9 50847534
+      source_id: A006880
+      url: https://oeis.org/A006880
+      value: '50847534'
+    filled: true
+  kind: numeric
+  raw_text: "verify output count matches \u03C0(10^9) = 50,847,534"
+  resolved_value: '50847534'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-05T19:03:37Z'
+- artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
+  attempts: 1
+  canonical: prime count up to 10^9 equals 50847534
+  claim_id: c_5c1aeffb
+  context: Implement test_prime_count_exact asserting count == 50847534 and test_sieve_runtime
+    asserting runtime_seconds < 7200
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: asserting count == 50847534
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T19:03:37Z'
+- artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
+  attempts: 1
+  canonical: Wikipedia article titled Scooby's All-Star Laff-A-Lympics exists
+  claim_id: c_b0283810
+  context: 'Independent Test: ... verify peak memory < 4 GB; {{claim:c_0b851afa}}
+    (Wikipedia: Scooby''s All-Star Laff-A-Lympics, https://en.wikipedia.org/wiki/Scooby''s_All-Star_Laff-A-Lympics).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Wikipedia_article_titled_Scooby's_All-Star_Laff-A-Lympics_ex
+  kind: entity_fact
+  raw_text: 'Wikipedia: Scooby''s All-Star Laff-A-Lympics'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T19:06:12Z'
+- artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
+  attempts: 1
+  canonical: OEIS sequence A006880 exists
+  claim_id: c_8e25b55b
+  context: Implement code/sieve.py ... and a final check asserting runtime_seconds
+    < 7200 (120 minutes) and {{claim:c_0f384ff1}} (OEIS A006880, https://oeis.org/A006880).
+  evidence:
+    entailment_evidence: Wikipedia does not have an article with this exact name.
+    entailment_status: contradicted
+    source_url: https://en.wikipedia.org/wiki/OEIS_sequence_A006880_exists
+  kind: entity_fact
+  raw_text: OEIS A006880
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-08-05T19:06:14Z'
+- artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
+  attempts: 1
+  canonical: Wikipedia entry for Scooby's All-Star Laff-A-Lympics
+  claim_id: c_5f66573d
+  context: 'verify peak memory < 4 GB; {{claim:c_0b851afa}} (Wikipedia: Scooby''s
+    All-Star Laff-A-Lympics, https://en.wikipedia.org/wiki/Scooby''s_All-Star_Laff-A-Lympics)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Wikipedia_entry_for_Scooby's_All-Star_Laff-A-Lympics
+  kind: entity_fact
+  raw_text: https://en.wikipedia.org/wiki/Scooby's_All-Star_Laff-A-Lympics
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T19:09:44Z'
+- artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
+  attempts: 1
+  canonical: test assertion prime count equals 50847534
+  claim_id: c_03c9ddef
+  context: Implement test_prime_count_exact asserting count == 50847534 and test_sieve_runtime
+    asserting runtime_seconds < 7200
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: asserting count == 50847534
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T19:09:44Z'
+- artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
+  attempts: 1
+  canonical: OEIS sequence A006880
+  claim_id: c_5478e4b7
+  context: asserting runtime_seconds < 7200 (120 minutes) and {{claim:c_0f384ff1}}
+    (OEIS A006880, https://oeis.org/A006880)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/OEIS_sequence_A006880
+  kind: entity_fact
+  raw_text: OEIS A006880
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T19:09:45Z'
+- artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
+  attempts: 2
+  canonical: prime count pi(10^9) is 50847534
+  claim_id: c_984411ae
+  context: "Independent Test: Execute the sieve script in isolation; verify output\
+    \ count matches \u03C0(10^9) = 50,847,534 within 1 second; verify peak memory\
+    \ < 4 GB"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "verify output count matches \u03C0(10^9) = 50,847,534 within 1 second"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T19:09:57Z'
+- artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
+  attempts: 1
+  canonical: prime count assertion 50847534
+  claim_id: c_4c6b7cb5
+  context: 'Integration test for prime count verification in tests/test_sieve.py:
+    Implement test_prime_count_exact asserting count == 50847534 and test_sieve_runtime
+    asserting runtime_seconds < 7200 (120 minutes).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: test_prime_count_exact asserting count == 50847534
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T19:10:10Z'
+- artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
+  attempts: 0
+  canonical: Prime count pi(10^9) equals 50847534
+  claim_id: c_9d66e7ba
+  context: "Execute the sieve script in isolation; verify output count matches \u03C0\
+    (10^9) = 50,847,534 within 1 second"
+  evidence:
+    fill:
+      channel: oeis
+      conflicts: []
+      quote: 9 50847534
+      source_id: A006880
+      url: https://oeis.org/A006880
+      value: '50847534'
+    filled: true
+  kind: numeric
+  raw_text: "verify output count matches \u03C0(10^9) = 50,847,534"
+  resolved_value: '50847534'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-05T19:10:28Z'
+- artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
+  attempts: 1
+  canonical: Prime count equals 50847534
+  claim_id: c_03d4ba22
+  context: Implement test_prime_count_exact asserting count == 50847534 and test_sieve_runtime
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: asserting count == 50847534
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T19:10:29Z'
+- artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
+  attempts: 1
+  canonical: Wikipedia article on Scooby's All-Star Laff-A-Lympics
+  claim_id: c_1d8ee59a
+  context: 'verify peak memory < 4 GB; {{claim:c_0b851afa}} (Wikipedia: Scooby''s
+    All-Star Laff-A-Lympics, https://en.wikipedia.org/wiki/Scooby''s_All-Star_Laff-A-Lympics)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Wikipedia_article_on_Scooby's_All-Star_Laff-A-Lympics
+  kind: entity_fact
+  raw_text: https://en.wikipedia.org/wiki/Scooby's_All-Star_Laff-A-Lympics
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T19:10:30Z'
+- artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
+  attempts: 1
+  canonical: OEIS sequence A006880
+  claim_id: c_5be0a96a
+  context: a final check asserting runtime_seconds < 7200 (120 minutes) and {{claim:c_0f384ff1}}
+    (OEIS A006880, https://oeis.org/A006880)
+  evidence:
+    fill:
+      channel: oeis
+      conflicts: []
+      quote: 9 50847534
+      source_id: A006880
+      url: https://oeis.org/A006880
+      value: '50847534'
+    filled: true
+  kind: entity_fact
+  raw_text: https://oeis.org/A006880
+  resolved_value: '50847534'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-05T19:10:39Z'
+- artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
+  attempts: 1
+  canonical: prime count equals 50847534 per OEIS A006880
+  claim_id: c_76894fc1
+  context: Implement test_prime_count_exact asserting count == 50847534 (OEIS A006880,
+    https://oeis.org/A006880)
+  evidence:
+    fill:
+      channel: oeis
+      conflicts: []
+      quote: 9 50847534
+      source_id: A006880
+      url: https://oeis.org/A006880
+      value: '50847534'
+    filled: true
+  kind: numeric
+  raw_text: count == 50847534 (OEIS A006880)
+  resolved_value: '50847534'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-05T19:13:26Z'
+- artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
+  attempts: 1
+  canonical: sieve peak memory less than 4 GB
+  claim_id: c_03c534fb
+  context: "verify output count matches \u03C0(10^9) = 50,847,534 within 1 second;\
+    \ verify peak memory < 4 GB"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Sieve_peak_memory_less_than_4_GB
+  kind: magnitude
+  raw_text: verify peak memory < 4 GB
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T19:14:59Z'
+- artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
+  attempts: 1
+  canonical: sieve runtime less than 7200 seconds
+  claim_id: c_54e40f2d
+  context: Implement test_sieve_runtime asserting runtime_seconds < 7200 (120 minutes)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Sieve_runtime_less_than_7200_seconds
+  kind: magnitude
+  raw_text: asserting runtime_seconds < 7200 (120 minutes)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T19:15:11Z'
+- artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
+  attempts: 2
+  canonical: prime count equals 50847534
+  claim_id: c_5244463d
+  context: Implement test_prime_count_exact asserting count == 50847534
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: asserting count == 50847534
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T19:15:12Z'
+- artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
+  attempts: 1
+  canonical: y parameter set contains 100 1000 and 10000
+  claim_id: c_ba335cf9
+  context: "run the Plan-defined primary grid: y \u2208 {100, 1000, 10000}"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "y \u2208 {100, 1000, 10000}"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T19:15:12Z'
+- artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
+  attempts: 1
+  canonical: x parameter set contains 10^6 10^7 10^8 and 10^9
+  claim_id: c_90463079
+  context: "x \u2208 {10^6, 10^7, 10^8, 10^9}, with fixed interval lengths"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "x \u2208 {10^6, 10^7, 10^8, 10^9}"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T19:15:12Z'
+- artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
+  attempts: 1
+  canonical: h parameter set contains 10^3 10^4 10^5 and 10^6
+  claim_id: c_f92bfe90
+  context: "with fixed interval lengths h \u2208 {10^3, 10^4, 10^5, 10^6}"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "h \u2208 {10^3, 10^4, 10^5, 10^6}"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T19:15:12Z'
+- artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
+  attempts: 1
+  canonical: beta estimated error less than 0.05 for slope 2.0
+  claim_id: c_6171c577
+  context: 'Implement test_wls_recovery using synthetic data: 10 points, slope=2.0,
+    noise=0.1. Assert abs(beta_estimated - 2.0) < 0.05'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Beta_estimated_error_less_than_0.05_for_slope_2.0
+  kind: magnitude
+  raw_text: Assert abs(beta_estimated - 2.0) < 0.05
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T19:15:44Z'
+- artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
+  attempts: 1
+  canonical: per-interval processing overhead reduction at least 50 percent
+  claim_id: c_9f8c4475
+  context: 'Target: Reduce per-interval processing overhead by at least 50% compared
+    to the baseline scalar implementation'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Per-interval_processing_overhead_reduction_at_least_50_perce
+  kind: magnitude
+  raw_text: Reduce per-interval processing overhead by at least 50%
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T19:16:18Z'
+- artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
+  attempts: 0
+  canonical: prime count up to 10^9 is 50847534
+  claim_id: c_d8405943
+  context: "Execute the sieve script in isolation; verify output count matches \u03C0\
+    (10^9) = 50,847,534 within 1 second"
+  evidence:
+    fill:
+      channel: oeis
+      conflicts: []
+      quote: 9 50847534
+      source_id: A006880
+      url: https://oeis.org/A006880
+      value: '50847534'
+    filled: true
+  kind: numeric
+  raw_text: "verify output count matches \u03C0(10^9) = 50,847,534"
+  resolved_value: '50847534'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-05T19:17:07Z'
+- artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
+  attempts: 1
+  canonical: peak memory usage of sieve is under 4 GB
+  claim_id: c_b382da33
+  context: "Execute the sieve script in isolation; verify output count matches \u03C0\
+    (10^9) = 50,847,534 within 1 second; verify peak memory < 4 GB"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: verify peak memory < 4 GB
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T19:17:08Z'
+- artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
+  attempts: 1
+  canonical: prime count verification asserts 50847534
+  claim_id: c_019b0024
+  context: Implement test_prime_count_exact asserting count == 50847534 (OEIS A006880,
+    https://oeis.org/A006880)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: asserting count == 50847534
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T19:17:08Z'
+- artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
+  attempts: 1
+  canonical: prime count up to 10^9 is 50847534
+  claim_id: c_3308c3bc
+  context: Implement test_prime_count_exact asserting count == 50847534 (OEIS A006880,
+    https://oeis.org/A006880)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: count == 50847534
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T19:18:48Z'
+- artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
+  attempts: 1
+  canonical: prime count up to 10^9 is 50847534 according to OEIS A006880
+  claim_id: c_75b31f3f
+  context: 'Integration test for prime count verification in tests/test_sieve.py:
+    Implement test_prime_count_exact asserting count == 50847534'
+  evidence:
+    fill:
+      channel: oeis
+      conflicts: []
+      quote: 9 50847534
+      source_id: A006880
+      url: https://oeis.org/A006880
+      value: '50847534'
+    filled: true
+  kind: numeric
+  raw_text: count == 50847534 (OEIS A006880, https://oeis.org/A006880)
+  resolved_value: '50847534'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-05T19:19:16Z'
+- artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
+  attempts: 0
+  canonical: prime count up to 10^9 is 50847534
+  claim_id: c_cc60b0e4
+  context: "Independent Test: Execute the sieve script in isolation; verify output\
+    \ count matches \u03C0(10^9) = 50,847,534 within 1 second"
+  evidence:
+    fill:
+      channel: oeis
+      conflicts: []
+      quote: 9 50847534
+      source_id: A006880
+      url: https://oeis.org/A006880
+      value: '50847534'
+    filled: true
+  kind: numeric
+  raw_text: "verify output count matches \u03C0(10^9) = 50,847,534"
+  resolved_value: '50847534'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-05T19:19:47Z'
+- artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
+  attempts: 1
+  canonical: prime sieve peak memory usage below 4 GB
+  claim_id: c_e407a411
+  context: "Independent Test: Execute the sieve script in isolation; verify output\
+    \ count matches \u03C0(10^9) = 50,847,534 within 1 second; verify peak memory\
+    \ < 4 GB"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: verify peak memory < 4 GB
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T19:19:48Z'
+- artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
+  attempts: 1
+  canonical: prime sieve runtime under 7200 seconds
+  claim_id: c_1097620f
+  context: Implement test_sieve_runtime asserting runtime_seconds < 7200 (120 minutes)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: asserting runtime_seconds < 7200
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T19:19:48Z'
+- artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
+  attempts: 1
+  canonical: smoothness processing overhead reduction of at least 50 percent
+  claim_id: c_d6667434
+  context: 'Target: Reduce per-interval processing overhead by at least 50% compared
+    to the baseline scalar implementation'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Smoothness_processing_overhead_reduction_of_at_least_50_perc
+  kind: magnitude
+  raw_text: reduce per-interval processing overhead by at least 50%
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T19:19:50Z'

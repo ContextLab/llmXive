@@ -18,7 +18,7 @@ The implementation strictly adheres to the project's constitutional requirement 
 **New Component**: `code/dickman.py` - Custom numerical implementation of the Dickman function $\rho(u)$ via integration of the delay-differential equation.  
 **Storage**: Local file system (CSV/JSON artifacts). No database.  
 **Testing**: `pytest` with unit tests for sieve logic, Dickman implementation, and the full pipeline on a small subset.  
-**Target Platform**: Linux (GitHub Actions free-tier: 2 vCPU, 7 GB RAM).  
+**Target Platform**: Linux (GitHub Actions free-tier: vCPU, 7 GB RAM).  
 **Project Type**: Computational research CLI / Scripting library.  
 **Performance Goals**: Total runtime < 6 hours; Peak RAM < 7 GB.  
 **Constraints**: Must run without GPU; must handle $x=10^9$ without memory overflow; must use deterministic algorithms.  

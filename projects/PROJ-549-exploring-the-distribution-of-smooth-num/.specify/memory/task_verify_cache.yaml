@@ -1,0 +1,17 @@
+T020:
+  c: true
+  h: acf160f5b4ae69f142a417c5844beaadcb982729bf9fe77fa11c038dde053f80
+  r: "The repository contains a non\u2011empty `code/smoothness.py` (\u224819\u202F\
+    KB) that defines `load_primes_from_csv`, `is_y_smooth`, and related functions,\
+    \ implementing trial\u2011division factorization against the primes loaded from\
+    \ `data/primes_1e9.csv`. The missing `data/primes_1e9.csv` is an external dependency,\
+    \ not part of the required code artifact."
+T023:
+  c: false
+  h: d1bbba51acb91d674423460e5eec482ea855f193b5953e12b1e94abb9efc796f
+  r: "The provided `code/main.py` only defines a CLI with generic `sieve` and `analyze`\
+    \ commands and does not contain any implementation that iterates over the required\
+    \ primary grid (fixed\u202Fh\u202Fvalues), computes the deviation ratio\u202F\
+    R, or writes results to `data/density_measurements.csv`. Moreover, the expected\
+    \ output file `data/density_measurements.csv` is absent. The task\u2019s core\
+    \ requirements are therefore not satisfied."
