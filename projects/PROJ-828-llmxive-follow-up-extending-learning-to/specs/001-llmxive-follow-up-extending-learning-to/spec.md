@@ -66,7 +66,7 @@ The researcher must be able to compare the sample efficiency (steps to [deferred
 - **FR-004**: System MUST track the number of training steps required for each variant (Standard RL, Low-Rank RL, OPD) to reach a fixed accuracy threshold on the GSM8K subset. (See US-3)
 - **FR-005**: System MUST compute the cosine similarity between the final accumulated update direction of each variant and the direction of the standard PPO baseline (used as the proxy for the optimal solution). (See US-3)
 - **FR-006**: System MUST perform a statistical significance test (paired t-test or Wilcoxon signed-rank) on the steps-to-convergence metric across three independent runs for each variant. (See US-3)
-- **FR-007**: System MUST ensure all training and analysis operations run on CPU-only hardware with a constrained memory footprint suitable for standard workstations., a total execution time of ≤ 6 hours, and use a small-scale language model (e.g., TinyLlama) with mixed precision (FP16) and layer-wise SVD (attention projections only). (See US-4)
+- **FR-007**: System MUST ensure all training and analysis operations run on CPU-only hardware with a memory footprint within standard computational limits., a total execution time of ≤ 6 hours, and use a 300M parameter model (e.g., TinyLlama-300M) with mixed precision (FP16) and layer-wise SVD (attention projections only). (See US-4)
 - **FR-008**: System MUST measure the cosine similarity between the Low-Rank RL trajectory and the OPD trajectory specifically during the first [deferred] of the training steps to validate early geometric alignment (foresight). (See US-3)
 
 ### Key Entities

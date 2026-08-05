@@ -1,5 +1,5 @@
-'|initial run seed training use variant':
-  quote: the labels associated with the data (Hinton et al., 2015). KD
-  source_id: '2303.06480'
-  url: https://arxiv.org/abs/2303.06480
-  value: '5'
+'|allow must not':
+  quote: 'P31: card game'
+  source_id: Q25503169
+  url: https://www.wikidata.org/wiki/Q25503169
+  value: '3'

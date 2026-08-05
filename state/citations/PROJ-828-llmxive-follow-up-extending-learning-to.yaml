@@ -42,3 +42,14 @@
   verification_status: pending
   verified_against_url: https://download.pytorch.org/whl/cpu
   verified_at: '2026-07-12T01:02:15.486794Z'
+- artifact_hash: 6e26f45d228aa63c30d9a3bf9c12967364b8a2c52bd171bb14071d902e74fbf5
+  artifact_path: projects/PROJ-828-llmxive-follow-up-extending-learning-to/specs/001-llmxive-follow-up-extending-learning-to/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Q25503169 - Wikidata
+  kind: url
+  value: https://www.wikidata.org/wiki/Q25503169
+  verification_status: pending
+  verified_against_url: https://www.wikidata.org/wiki/Q25503169
+  verified_at: '2026-08-05T12:38:10.108192Z'
