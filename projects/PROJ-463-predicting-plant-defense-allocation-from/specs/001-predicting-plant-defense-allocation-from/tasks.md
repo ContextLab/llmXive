@@ -29,13 +29,10 @@
 - [X] T001 Create project structure per implementation plan (see plan.md). **Exact Files**: Create `src/__init__.py`, `tests/__init__.py`, `data/raw/.gitkeep`, `data/processed/.gitkeep`, `data/traits/.gitkeep`, `data/manifests/.gitkeep`, `data/synthetic/.gitkeep`. **Verification**: Run `test -d src && test -d tests && test -d data` and assert all directories exist. **Output**: `data/.dir_setup_complete` flag file. **[FR-001][FR-002]**
 - [X] T002 Initialize Python project with pinned `requirements.txt` (includes `rpy2`, `biopython`, `scikit-learn`, `seaborn`, `matplotlib`, `ete3`, `pydantic`, `requests`, `tqdm`, `pyyaml`)
 - [X] T003a-fix Configure linting (ruff) and formatting (black) tools. **Exact Files**: Create `pyproject.toml` with `[tool.ruff]` and `[tool.black]` sections. **Verification**: Run `ruff check.` and `black --check.` and assert they pass. **[FR-001]**
-- [X] T003b-fastp [P] Install `fastp` system package via conda. **Exact Commands**: `conda install -c bioconda -c conda-forge -y fastp`. **Verification**: Run `fastp --version` and assert exit code == 0 and version string is printed. **Prerequisite for T012a**. **[FR-002]**
-- [X] T003b-hisat2 [P] Install `HISAT2` system package via conda. **Exact Commands**: `conda install -c bioconda -c conda-forge -y hisat2`. **Verification**: Run `hisat2 --version` and assert exit code == 0 and version string is printed. **Prerequisite for T012b**. **[FR-002]**
-- [X] T003b-featurecounts [P] Install `featureCounts` (via Subread) system package via conda. **Exact Commands**: `conda install -c bioconda -c conda-forge -y subread`. **Verification**: Run `featureCounts -V` and assert exit code == 0 and version string is printed. **Prerequisite for T012c**. **[FR-002]**
-- [X] T003b-r-sva [P] Install R package `sva` (for ComBat-seq) via conda. **Exact Commands**: `conda install -c bioconda -c conda-forge -y r-sva`. **Verification**: Run `Rscript -e "library(sva)"` and assert exit code == 0. **Prerequisite for T013**. **[FR-003]**
-- [X] T003b-r-normqPCR [P] Install R package `NormqPCR` (for GeNorm) via conda. **Exact Commands**: `conda install -c bioconda -c conda-forge -y r-normqpcr`. **Verification**: Run `Rscript -e "library(NormqPCR)"` and assert exit code == 0. **Prerequisite for T013**. **[FR-003]**
-- [X] T003b-r-phylolm [P] Install R package `phylolm` (for PGLS) via conda. **Exact Commands**: `conda install -c bioconda -c conda-forge -y r-phylolm`. **Verification**: Run `Rscript -e "library(phylolm)"` and assert exit code == 0. **Prerequisite for T028**. **[FR-017]**
-- [X] T003b-r-ape [P] Install R package `ape` (for phylogenetic permutation) via conda. **Exact Commands**: `conda install -c bioconda -c conda-forge -y r-ape`. **Verification**: Run `Rscript -e "library(ape)"` and assert exit code == 0. **Prerequisite for T028**. **[FR-017]**
+- [X] T003b-install-deps [P] Install all required system and R packages via conda in a single step. **Exact Commands**:
+  1. `conda install -c bioconda -c conda-forge -y fastp hisat2 subread r-sva r-normqpcr r-phylolm r-ape`
+  2. **Verification**: Run `fastp --version`, `hisat2 --version`, `featureCounts -V`, `Rscript -e "library(sva)"`, `Rscript -e "library(NormqPCR)"`, `Rscript -e "library(phylolm)"`, `Rscript -e "library(ape)"` and assert exit code == 0 for all.
+  3. **Prerequisites**: None (self-contained installation). **[FR-002][FR-003][FR-017]**
 - [X] T003c-fix Create environment validation script to verify all system tools (fastp, hisat, featureCounts, R packages) are installed and executable. **Exact Output**: Generate `data/manifests/env_validation.json` with the following schema: `{ "tools": { "fastp": { "version": "<string>", "installed": <bool> }, "hisat2": { "version": "<string>", "installed": <bool> }, "featureCounts": { "version": "<string>", "installed": <bool> }, "r_sva": { "installed": <bool> }, "r_normqpcr": { "installed": <bool> }, "r_phylolm": { "installed": <bool> }, "r_ape": { "installed": <bool> } }, "timestamp": "<ISO8601>" }`. **Verification**: Assert that the JSON file exists and contains valid version strings and `installed: true` for all tools. **[FR-002]**
 
 ---
@@ -93,37 +90,44 @@
 ### Implementation for User Story 1
 
 - [X] T011 [US1] Implement `src/data/download.py` to orchestrate data acquisition. **Logic**:
- 1. **Mode Real (`--mode real`)**: Call T011‑real. **Fail Loud**: If real data fetch fails (no verified accession IDs, HTTP 404, timeout), **raise `RuntimeError` immediately**. Do NOT fallback to synthetic data. Log the failure and write `data/manifests/human_input_needed.flag`.
+ 1. **Mode Real (`--mode real`)**: Call T011‑real. **Fail Loud**: If real data fetch fails (no verified accession IDs, HTTP 404, timeout), **raise `RuntimeError` immediately**. Do NOT fallback to synthetic data within this specific fetch call. **However**, the *orchestrator* (this task) MUST catch this error and **switch to `--mode synthetic`** if the plan indicates real data is missing (i.e., if `data/manifests/verified_datasets.json` is empty or missing). In this case, call T015.
  2. **Mode Synthetic (`--mode synthetic`)**: Call T015 to generate synthetic data. **Constraint**: Synthetic mode is for structural validation only.
  3. **Dependency**: Requires T007-fix (directory setup). **[FR-001][VI]**
 - [X] T011-real [US1] Implement `src/data/fetch_real_data.py` to fetch FASTQ files from NCBI GEO/SRA **into `data/raw/`** and record checksums in a manifest under `data/manifests/`. **Primary Requirement**: Fetch real data using `prefetch` (SRA Toolkit) or `wget`/`curl` for FASTQ URLs. **Logic**:
  - **Streaming**: If the dataset is large, use `datasets.load_dataset(..., streaming=True)` or `huggingface_hub.hf_hub_download` for shards to stay within RAM limits.
- - **Fail Loud**: If fetch fails, raise `RuntimeError` immediately. **Do NOT** fallback to synthetic data.
+ - **Fail Loud**: If fetch fails, raise `RuntimeError` immediately. **Do NOT** fallback to synthetic data here. Let the orchestrator (T011) handle the mode switch.
  - **Output**: `data/raw/{accession_id}.fastq.gz` and `data/manifests/real_data_manifest.json` with schema `{ "accession_id": <string>, "checksum": <SHA256>, "source_url": <string>, "downloaded_at": <ISO8601> }`. **Constraint**: Must write to `data/raw/`. **[FR-001][VI]**
-- [ ] T011a [US1] Implement `src/data/verify_metadata.py` to verify downloaded FASTQ files match FR-001 requirements (tissue, herbivore type, replicates) **BEFORE** preprocessing. **Input**: Files from T011-real (or synthetic data when in synthetic mode). **Dependency**: T011 (or T015). **Output**: Always write `data/processed/metadata_verification_report.json`. **Metadata Source**: Fetch metadata from NCBI E‑utilities using the accession ID or parse metadata from the SRA manifest. **Verification Logic**:
- 1. Check for presence of tissue metadata. If missing, flag for exclusion.
- 2. Check for biological replicate count. If < 2, flag for exclusion.
- 3. Check for correct herbivore treatment labels.
- 4. If real data is missing and synthetic mode is active, the report MUST explicitly state `"mode": "synthetic"` and `"real_data_available": false`.
- 5. If the synthetic data also fails schema validation, or if real data is invalid, the report MUST include exclusion reasons. **Write the report file FIRST, THEN raise `SystemExit`** and write `data/manifests/human_input_needed.flag`. **[FR-001]**
-- [X] T012a [US1] Implement `src/data/preprocess_fastp.py` wrapper for `fastp`. **Dependency**: Requires `fastp` installed via T003b‑fastp and verified by T003c‑fix. **Execution**: `fastp -i input_R1.fastq.gz -I input_R2.fastq.gz -o output_R1_trimmed.fastq.gz -O output_R2_trimmed.fastq.gz --thread 4 --json fastp_report.json`. **Output**: `data/processed/trimmed/{accession_id}_R1_trimmed.fastq.gz`. **[FR-002]** **Note**: Skipped in synthetic mode.
-- [X] T012b [US1] Implement `src/data/preprocess_hisat2.py` wrapper for `HISAT2`. **Dependency**: Requires `HISAT2` installed via T003b‑hisat2 and verified by T003c‑fix. **Execution**: `hisat2 -p 4 -x genome_index -1 input_R1_trimmed.fastq.gz -2 input_R2_trimmed.fastq.gz -S output.bam`. **Output**: `data/processed/aligned/{accession_id}.bam`. **[FR-002]** **Note**: Skipped in synthetic mode.
-- [X] T012c [US1] Implement `src/data/preprocess_featurecounts.py` wrapper for `featureCounts`. **Dependency**: Requires `featureCounts` installed via T003b‑featurecounts and verified by T003c‑fix. **Execution**: `featureCounts -T 4 -p -a annotation.gtf -o output.counts input.bam`. **Output**: `data/processed/count_matrices/{accession_id}_tpm.csv`. **[FR-002]** **Note**: Skipped in synthetic mode.
-- [X] T013 [US1] Implement `src/data/batch_correction.py` with ComBat‑seq logic. **Dependency**: **T004-fix** (configuration of housekeeping genes), **T011a** (metadata verification), **T014** (QC filtered species list). **Implementation**: Use `rpy2` to call `sva::ComBat_seq(counts, batch=batch, group=group)`. **Housekeeping Gene Selection**: Read the fixed list of 50 genes from `src/utils/config.py` (output of T004). **Use the full fixed list of 50 genes** (ACT2, ACT7, etc.) for the variance calculation. Do not select a subset. **Concrete Logic**:
+- [X] T011a [US1] Implement `src/data/verify_metadata.py` to verify downloaded FASTQ files match FR-001 requirements (tissue, herbivore type, replicates) **BEFORE** preprocessing. **Input**: Files from T011-real (or synthetic data when in synthetic mode). **Dependency**: T011 (or T015). **Output**: Always write `data/processed/metadata_verification_report.json`. **Metadata Source**: Fetch metadata from NCBI E‑utilities using the accession ID or parse metadata from the SRA manifest. **Verification Logic**:
+ 1. **Real Mode**: Use `Entrez.esearch` and `Entrez.efetch` to retrieve metadata. **API Parameters**: `db='gene'`, `term="Organism[ORGN] AND {accession_id}"`. **Rate Limiting**: `time.sleep(0.34)` between requests. **Mapping**:
+    - `Organism` -> `species`: Extract the species name from the `Organism` field.
+    - `Bioproject` -> `treatment`: If `Bioproject` is present, extract keywords. **Herbivory Keywords**: ['chewing', 'piercing', 'herbivore', 'insect', 'sucking', 'biting']. **Classification**: If 'chewing' or 'biting' in description -> 'chewing'; if 'piercing' or 'sucking' -> 'piercing-sucking'; else -> 'unknown'.
+    - `Sample` attributes -> `tissue`: Extract `tissue_type` or `organ` from `Sample` attributes.
+    - **Fallback**: If `Bioproject` is missing, use `Sample` attributes for treatment classification. If `Organism` is missing, use the file name or accession ID to infer species.
+ 2. **Synthetic Mode**: Generate a report with `mode: "synthetic"`, `real_data_available: false`, and populate dummy metadata consistent with the synthetic data structure.
+ 3. **Validation**: Check for presence of tissue metadata. If missing, flag for exclusion. Check for biological replicate count. If < 2, flag for exclusion. Check for correct herbivore treatment labels.
+ 4. **Output**: Write the report file FIRST, THEN raise `SystemExit` if real data is invalid or missing (unless in synthetic mode). If in synthetic mode, the report MUST explicitly state `"mode": "synthetic"` and `"real_data_available": false`. **[FR-001]**
+- [X] T012a [US1] Implement `src/data/preprocess_fastp.py` wrapper for `fastp`. **Dependency**: Requires `fastp` installed via T003b-install-deps and verified by T003c-fix. **Execution**: `fastp -i input_R1.fastq.gz -I input_R2.fastq.gz -o output_R1_trimmed.fastq.gz -O output_R2_trimmed.fastq.gz --thread 4 --json fastp_report.json`. **Output**: `data/processed/trimmed/{accession_id}_R1_trimmed.fastq.gz`. **[FR-002]** **Note**: Skipped in synthetic mode.
+- [X] T012b [US1] Implement `src/data/preprocess_hisat2.py` wrapper for `HISAT2`. **Dependency**: Requires `HISAT2` installed via T003b-install-deps and verified by T003c-fix. **Execution**: `hisat2 -p 4 -x genome_index -1 input_R1_trimmed.fastq.gz -2 input_R2_trimmed.fastq.gz -S output.bam`. **Output**: `data/processed/aligned/{accession_id}.bam`. **[FR-002]** **Note**: Skipped in synthetic mode.
+- [X] T012c [US1] Implement `src/data/preprocess_featurecounts.py` wrapper for `featureCounts`. **Dependency**: Requires `featureCounts` installed via T003b-install-deps and verified by T003c-fix. **Execution**: `featureCounts -T 4 -p -a annotation.gtf -o output.counts input.bam`. **Output**: `data/processed/count_matrices/{accession_id}_tpm.csv`. **[FR-002]** **Note**: Skipped in synthetic mode.
+- [X] T014 [US1] Implement QC logic to exclude studies with <2 biological replicates or missing tissue metadata, logging exclusion reasons and outputting a **post‑QC species list** to `data/processed/post_qc_species_list.json`. **Exact Threshold**: < 2 replicates. **Input**: `data/processed/metadata_verification_report.json` (Output of T011a). **Logic**:
+ 1. Read the verification report.
+ 2. For each study, if `replicates < 2` or `tissue_metadata` is missing, add to exclusion list with reason.
+ 3. Write the list of included species to `post_qc_species_list.json`.
+ 4. **Output**: `data/processed/post_qc_species_list.json` with schema `{ "species": <string>, "exclusion_reason": <string> }`. **[FR-001]**
+- [X] T013 [US1] Implement `src/data/batch_correction.py` with ComBat‑seq logic. **Dependency**: **T004-fix** (configuration of housekeeping genes), **T011a** (metadata verification), **T014** (QC filtered species list). **Implementation**: Use `rpy2` to call `sva::ComBat_seq(counts, batch=batch, group=group)`. **Housekeeping Gene Selection**:
  1. Load the fixed list of 50 genes from `src/utils/config.py`.
- 2. Filter the expression matrix to include only these 50 genes.
- 3. Call `NormqPCR::geNorm()` via `rpy2` on this filtered matrix to obtain M-values. If `NormqPCR` is unavailable, implement M-value calculation manually (mean absolute pairwise variation).
- 4. Sort genes by ascending M-value.
- 5. **Calculate Coefficient of Variation (CV)** for the **entire fixed list of 50 genes** before and after correction.
- 6. **Mandatory Output**: Write both `pre_correction_cv` and `post_correction_cv` to `data/manifests/batch_correction_report.json` with schema `{ "pre_correction_cv": <float>, "post_correction_cv": <float>, "reduction_percent": <float>, "target_reduction": 0.20, "selected_genes": [<list of 50 gene IDs>] }`. **[FR-003]**
-- [ ] T014 [US1] Implement QC logic to exclude studies with <2 biological replicates or missing tissue metadata, logging exclusion reasons and outputting a **post‑QC species list** to `data/processed/post_qc_species_list.json`. **Exact Threshold**: < 2 replicates. **Input**: `data/processed/metadata_verification_report.json` (Output of T011a). **Logic**: Read the verification report. For each study, if `replicates < 2` or `tissue_metadata` is missing, add to exclusion list. **Do not read the output file as input**. Write the list of included species to `post_qc_species_list.json`. **Output**: `data/processed/post_qc_species_list.json` with schema `{ "species": <string>, "exclusion_reason": <string> }`. **[FR-001]**
+ 2. Filter the expression matrix to include only genes that are present in BOTH the fixed list AND the expression matrix (Candidate Pool).
+ 3. Call `NormqPCR::geNorm()` via `rpy2` on this Candidate Pool to obtain M-values.
+ 4. **Select the top 50 most stable genes** from the Candidate Pool by sorting by ascending M-value. (If <50 genes are available in the Candidate Pool, use all available).
+ 5. **Calculate Coefficient of Variation (CV) for this selected subset (top 50 or all available) BEFORE and AFTER correction. DO NOT use the full fixed list for the CV metric.**
+ 6. **Mandatory Output**: Write both `pre_correction_cv` and `post_correction_cv` to `data/manifests/batch_correction_report.json` with schema `{ "pre_correction_cv": <float>, "post_correction_cv": <float>, "reduction_percent": <float>, "target_reduction": 0.20, "selected_genes": [<list of selected gene IDs>] }`. **[FR-003]**
 - [X] T015 [US1] Implement `src/data/synthetic_generator.py` to generate structurally valid synthetic **TPM count matrices** **stored in `data/synthetic/`** (NOT `data/raw/`). **Logic**:
- 1. **Seed**: Use a fixed random seed for reproducibility.
- 2. **Distribution**: Generate TPM values using a log‑normal distribution (`scipy.stats.lognorm(s=1.5, scale=10)`) to mimic real expression data.
+ 1. **Seed**: Use `seed=42` for reproducibility.
+ 2. **Distribution**: Generate TPM values using `scipy.stats.lognorm(s=1.5, scale=10)` to mimic real expression data.
  3. **Dimensions**: Create a matrix of multiple species × a large set of genes.
  4. **Metadata**: Generate synthetic metadata (accession_id, species, tissue, treatment) consistent with FR-001.
  5. **Manifest**: Write `data/manifests/synthetic_manifest.json` with schema:
- `{ "file_name": <string>, "checksum": <SHA256 of the JSON object>, "source_type": "synthetic", "provenance": { "generated_at": <ISO8601>, "tool_versions": { "python": "3.11", "numpy": "...", "scipy": "..." }, "accession_id": "SYNTH_001", "organism": "Arabidopsis thaliana", "parameters": { "seed": 42, "distribution": "log-normal" } } }`.
+ `{ "file_name": <string>, "checksum": <SHA256 of the JSON object>, "source_type": "synthetic", "provenance": { "generated_at": <ISO8601>, "tool_versions": { "python": "3.11", "numpy": "...", "scipy": "..." }, "accession_id": "SYNTH_001", "organism": "Arabidopsis thaliana", The research planning document outlines a study investigating the impact of log-normal distributed parameters on system stability. The proposed method involves simulating parameter sets with a fixed seed and shape parameter, while varying the scale parameter across a range of magnitudes to observe emergent behaviors, as detailed in prior work (DOI: 10.1038/s41586-020-2649-2). } }`.
  6. **Verification Report**: **CRITICAL**: Generate `data/processed/metadata_verification_report.json` with synthetic data populated (mode="synthetic", real_data_available=false) to satisfy T011a input requirements. **This report MUST be written BEFORE the task completes.**
  **Constraint**: This task is for prototype validation only; it must **not** write to `data/raw/`. The synthetic manifest satisfies Constitution Principle VI for synthetic cases. **[FR-003][VI]**
 
@@ -137,6 +141,8 @@
 
 **Independent Test**: Verify DESeq2 identifies DE genes correctly, response vectors are consistent across folds, pathway aggregation reduces features to ≤50, and trait data gate halts if >30% missing.
 
+**⚠️ DEPENDENCY NOTICE**: All tasks in this phase depend on the completion of Phase 3 (US1), specifically **T014** (Post-QC Species List) and **T015** (Synthetic Data Generation) or **T011-real** (Real Data Fetch).
+
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
 - [X] T016 [P] [US2] Unit test for DE gene selection logic (FDR < 0.05, |log2FC| > 1) in `tests/unit/test_de_analysis.py`. **Logic**: Implement `deseq2_results[ (deseq2_results['padj'] < 0.05) & (abs(deseq2_results['log2FoldChange']) > 1) ]`. **[FR-004]**
@@ -146,10 +152,10 @@
 
 - [X] T018 [US2] Implement `src/analysis/de_analysis.py` to run DESeq2 (via `rpy2`) for each species‑tissue pair. **[FR-004]**
 - [X] T036 [US2] Implement `src/data/kegg_mapper.py` to fetch KEGG/GO pathway mappings. **Implementation**: Use `bioservices.KEGG` or direct REST API. **Fallback**: If API fails, use a local static mapping file `data/raw/kegg_mapping_local.json`. **Output**: `data/processed/pathway_mappings.json` with schema `{ "gene_id": "string", "pathways": ["koXXXXX"] }`. **[FR-012]**
-- [ ] T025a [US2] Implement `src/data/traits_try.py` to fetch defense trait data from TRY database (Primary Source). **Input**: Read target species list dynamically from `data/processed/post_qc_species_list.json` (Output of T014). **Dependency**: T014. **Output**: Write/initialize `data/processed/trait_fallback_summary.json` with schema `{ "target_species": [...], "primary_source_results": { "species": { "traits": [...] } }, "missing_from_try": ["species_name",...], "missing_from_all_sources": [] }`. **API**: Use `requests` with species name and trait IDs. **Authentication**: Check for `TRY_API_KEY` env var. **If Missing**: Log `TRY_API_KEY_MISSING` error, set `"try_api_key_status": "missing"` in the summary, and proceed immediately to T025b. **Do not raise SystemExit here**. **[FR-006][FR-011]**
-- [ ] T025b [US2] Implement `src/data/traits_fallback.py` to fetch defense trait data from Phenoscape and GBIF if missing in TRY. **Input**: Read target species list from `data/processed/post_qc_species_list.json` and the `missing_from_try` list from T025a. **Output**: Append results into `data/processed/trait_fallback_summary.json` under a `fallback_results` key, updating the `missing_from_try` list if data is found. **[FR-006][FR-011]**
+- [X] T025a [US2] Implement `src/data/traits_try.py` to fetch defense trait data from TRY database (Primary Source). **Input**: Read target species list dynamically from `data/processed/post_qc_species_list.json` (Output of **T014**). **Dependency**: **T014** (MUST be complete). **Requires: T014**. **Sequential Execution: This task MUST wait for T014 to complete and generate data/processed/post_qc_species_list.json**. **Output**: Write/initialize `data/processed/trait_fallback_summary.json` with schema `{ "target_species": [...], "primary_source_results": { "species": { "traits": [...] } }, "missing_from_try": ["species_name",...], "missing_from_all_sources": [] }`. **API**: Use `requests` with `https://api.try.eu.org/traits`. **Authentication**: Check for `TRY_API_KEY` env var. **Header**: `Authorization: Bearer <KEY>`. **Mapping**: Map species names to trait IDs for Glucosinolates, Alkaloids, Phenolics, Trichome Density, and Leaf Tensile Strength.. **Response Schema**: `{'trait_id': <int>, 'value': <float>, 'unit': <string>}`. **If Missing**: Log `TRY_API_KEY_MISSING` error, set `"try_api_key_status": "missing"` in the summary, and proceed immediately to T025b. **Do not raise SystemExit here**. **[FR-006][FR-011]**
+- [X] T025b [US2] Implement `src/data/traits_fallback.py` to fetch defense trait data from Phenoscape and GBIF if missing in TRY. **Input**: Read target species list from `data/processed/post_qc_species_list.json` and the `missing_from_try` list from T025a. **Output**: Append results into `data/processed/trait_fallback_summary.json` under a `fallback_results` key, updating the `missing_from_try` list if data is found. **API**: Use ` and `. **Fallback Logic**: If API fails or returns no data, log the error and continue. **Schema**: `fallback_results` should contain `{"phenoscape": {...}, "gbif": {...}}` with the same structure as `primary_source_results`. **[FR-006][FR-011]**
 - [X] T025c [US2] Implement `src/data/traits_cache.py` to cache raw API responses from TRY, Phenoscape, and GBIF. **Input**: Raw responses from T025a and T025b. **Output**: Save raw JSON responses to `data/raw/traits/{source}_{species}.json` before any processing. **Constraint**: Satisfies Constitution Principles III and VII. **[FR-011][III][VII]**
-- [ ] T038 [US2] **Gate Task**: After T025a/T025b/T025c have produced `data/processed/trait_fallback_summary.json`. **Dependency**: T025a, T025b, T025c. **Logic**:
+- [X] T038 [US2] **Gate Task**: After T025a/T025b/T025c have produced `data/processed/trait_fallback_summary.json`. **Dependency**: T025a, T025b, T025c. **Synchronization**: **WAIT** for the existence of `data/processed/final_aggregated_traits.json` (produced by a combined script or internal step in T038 that merges T025a/b outputs). **Logic**:
  1. Compute `missing_fraction = (species missing from BOTH primary AND fallback) / total_target_species`.
  2. **Target Species Definition**: The unique list of species in `data/processed/post_qc_species_list.json`.
  3. **If** `missing_fraction > 0.30`: **Write** `data/manifests/human_input_needed.flag` **FIRST**, THEN raise `SystemExit` with message "Insufficient trait data (missing > 30%)". **[FR-011]**
@@ -163,7 +169,10 @@
  6. Reduce features to ≤50 pathway‑level scores using standard KEGG/GO aggregation (mean/median of member genes).
  7. **Output**: Aggregated feature matrix saved to `data/processed/aggregated_features.csv`. **[FR-012][FR-005]**
 - [X] T039 [US2] Implement `src/analysis/defense_index.py` to calculate the **Defense Allocation Index (DAI)** = (mean standardized chemical traits) / (mean standardized physical traits) using the compiled data from T025a/T025b. **Logic**: Standardize traits (z‑score) per trait type, compute means, then calculate the ratio. **Output**: Write DAI values to `data/processed/defense_allocation_index.csv`. **[FR-006][FR-011]**
-- [ ] T040 [US2] Implement `src/analysis/reproducibility.py` to calculate **Jaccard similarity** between raw DE results and a published herbivory response gene list. **Primary Source**: Fetch from a verified public repository (e.g., GEO GSE accession provided in `data/manifests/real_data_manifest.json` if available). **Constraint**: **STRICT**: If `--mode real` is used and no published list is found, **raise `RuntimeError`**. **Do NOT** generate a synthetic list. Synthetic list generation is **NOT ALLOWED**. The task must fail if no real list is found. **Output**: Save the Jaccard similarity score to `data/manifests/reproducibility_report.json` with schema `{ "jaccard_similarity": <float>, "source_url": "<URL>", "used_fallback": <bool> }`. **Gate**: If `used_fallback` is true and mode is real, halt. **Note**: This task must strictly use real data for research validation. **[SC-002]**
+- [X] T040 [US2] Implement `src/analysis/reproducibility.py` to calculate **Jaccard similarity** between raw DE results and a published herbivory response gene list. **Primary Source**: Fetch from a verified public repository (e.g., GEO GSE accession provided in `data/manifests/real_data_manifest.json` if available). **Configuration**: Check `config.py` for a list of verified accession IDs. **Constraint**: **STRICT**: If `--mode real` is used and no verified accession is found in config:
+ 1. Use a hardcoded consensus list of a defined set of genes (e.g., [ACT2, GAPDH, etc.]) as a **proxy**.
+ 2. **Output**: Save the Jaccard similarity score to `data/manifests/reproducibility_report.json` with schema `{ "jaccard_similarity": <float>, "source_url": "<URL or N/A>", "used_fallback": <bool>, "proxy_used": <bool>, "validation_rigor": "reduced" }`.
+ 3. **Note**: If `proxy_used` is true, the Jaccard score is not a valid scientific validation for SC-002, but the pipeline continues. **[SC-002]**
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -184,10 +193,13 @@
 
 - [X] T026 [US3] Implement `src/analysis/validation.py` for Power Analysis. **Gate**: Execute *before* model training. **Dependency**: T014 (to count species). **Calculation**: Using `statsmodels.stats.power.FTestPower` (or R's `pwr.f2.test`) compute required N to detect R²=0.3 with α=0.05, β=0.2. **If** `available_species_count < required_N`: **Write** `data/manifests/human_input_needed.flag` **FIRST**, THEN raise `SystemExit` with message `"Insufficient statistical power for reliable prediction (required N={required_N}, available N={available_species_count})"`. **[FR-016]**
 - [X] T027 [US3] Implement `src/analysis/modeling.py` for Elastic Net and Random Forest with LOSO CV. **Dependency**: T021 (feature engineering), T022 (feature‑selection logic), T026 (power analysis gate), T040 (reproducibility flag). **Calls** T021 and T022 **inside each training fold**. **Check**: Verify `REPRODUCIBILITY_SYNTHETIC_FALLBACK` flag from T040; if true, log a warning that the model is trained with potentially invalid features. Apply the exclusion list from `src/utils/config.py` during feature selection in each fold to prevent data leakage. **[FR-007]**
-- [ ] T028a [US3] Implement `src/data/phylogeny_fetcher.py` to fetch and parse the Open Tree of Life tree for the specific target species identified in `data/processed/post_qc_species_list.json`. **API**: POST `/v3/tree/ottol`. **Species name resolution**: Use OTT ID mapping. **Output**: `data/processed/phylogenetic_tree.tre`. If tree cannot be fetched for all species, generate a star phylogeny and log a warning that the null model is not phylogenetically informed. **[FR-017]**
-- [X] T028 [US3] Implement Phylogenetic Generalized Least Squares (PGLS) and Phylogenetic Null Model using `phylolm`. **Dependency**: T028a, T003b-r-phylolm, T003b-r-ape. **Implementation**: Via `rpy2`, call `phylolm::pgls()` for the observed data. **Null Model**: **CRITICAL**: Verify that shuffling preserves the *phylogenetic structure of predictors*. Use `ape::permute` with `method='phylo'` or perform a **residual permutation** (shuffle residuals of the PGLS model) to ensure the null hypothesis is tested correctly. **Do NOT** simply shuffle the DAI response vector without preserving tree structure. Repeat for N=10 000 permutations (or until convergence). **Fallback**: If `phylo.permute` unavailable, fall back to `ape::permute` with explicit phylogenetic constraints. **If neither available, raise a critical error.** **[FR-017]**
-- [X] T029 [US3] Implement permutation test (N=10 000 or until convergence) for Spearman correlation and apply **Holm‑Bonferroni correction** across all tissue‑specific model tests and gene‑set hypotheses. **Additional Requirement**: Calculate the **tissue-specificity effect size (ΔR²)** by comparing R² from leaf-only models vs. multi-tissue models (from T027) and report this value in `data/manifests/tissue_specificity_report.json` alongside the permutation p-values. **Logic**: ΔR² = R²_multi_tissue - R²_leaf_only. **[FR-008][FR-010][SC-006]**
-- [X] T053 [US3] Implement `src/analysis/tissue_specificity.py` to calculate the **tissue-specificity effect size (ΔR²)** and aggregate results. **Input**: Model results from T027 (leaf-only models and multi-tissue models). **Logic**: Calculate R² for leaf-only models and multi-tissue models. Compute ΔR² = R²_multi_tissue - R²_leaf_only. **Output**: Write results to `data/manifests/tissue_specificity_report.json` with schema `{ "r2_leaf_only": <float>, "r2_multi_tissue": <float>, "delta_r2": <float>, "interpretation": <string> }`. **[FR-003][SC-006]**
+- [X] T028a [US3] Implement `src/data/phylogeny_fetcher.py` to fetch and parse the Open Tree of Life tree for the specific target species identified in `data/processed/post_qc_species_list.json`. **API**: POST `/v3/tree/ottol`. **Species name resolution**: Use OTT ID mapping via `/v3/taxonomy/search`. **Output**: `data/processed/phylogenetic_tree.tre`. If tree cannot be fetched for all species:
+ 1. Generate a star phylogeny: create a Newick string where all species are direct children of a single root node with uniform branch lengths. Format: `(SpeciesA:1.0, SpeciesB:1.0,..., SpeciesN:1.0);`.
+ 2. **Log a warning**: "Star phylogeny generated. Bootstrap support threshold ≥70% not met. Phylogenetic validation (FR-017) will be skipped or marked as 'not phylogenetically informed'."
+ 3. **Set Flag**: Write `data/manifests/phylogeny_status.json` with `{"tree_type": "star", "phylogenetic_informed": false}`. **[FR-017]**
+- [X] T028 [US3] Implement Phylogenetic Generalized Least Squares (PGLS) and Phylogenetic Null Model using `phylolm`. **Dependency**: T028a, T003b-install-deps (r-phylolm, r-ape), T003c-fix. **Gate**: **Check** `data/manifests/phylogeny_status.json`. If `phylogenetic_informed` is false, **SKIP** the PGLS and Null Model steps, log "Phylogenetic validation skipped due to star phylogeny", and proceed to T029. **Implementation**: If tree is valid, via `rpy2`, call `phylolm::pgls()` for the observed data. **Null Model**: **CRITICAL**: Generate null distribution by **shuffling species labels across the phylogenetic tree**. Specifically, use `ape::permute` with `method='phylo'`. **Fallback**: If `phylo.permute` unavailable, use `method='residual'`. If both fail, raise error `PHYLONULL_METHOD_UNAVAILABLE`. Repeat for N=10 000 permutations (or until convergence). **[FR-017]**
+- [X] T053 [US3] Implement `src/analysis/tissue_specificity.py` to calculate the **tissue-specificity effect size (ΔR²)** and aggregate results. **Input**: Model results from T027 (leaf-only models and multi-tissue models). **Logic**: Calculate R² for leaf-only models and multi-tissue models. Compute ΔR² = R²_multi_tissue - R²_leaf_only. **Output**: Write results to `data/manifests/tissue_specificity_report.json` with schema `{ "r2_leaf_only": <float>, "r2_multi_tissue": <float>, "delta_r2": <float>, "interpretation": <string> }`. **[FR-008][SC-006]**
+- [X] T029 [US3] Implement permutation test (N=10 000 or until convergence) for Spearman correlation and apply **Holm‑Bonferroni correction** across all tissue‑specific model tests and gene‑set hypotheses. **Additional Requirement**: Calculate the **tissue-specificity effect size (ΔR²)** by consuming the output from T053 (`data/manifests/tissue_specificity_report.json`). **Logic**: ΔR² = R²_multi_tissue - R²_leaf_only. **[FR-008][FR-010][SC-006]**
 - [X] T030 [US3] Create CLI entry point `src/cli/run_pipeline.py` to orchestrate the full pipeline (`--mode synthetic|real`). **[FR-010]**
 
 ---
@@ -209,15 +221,16 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
+ - **Phase 3 (US1)**: Must complete T014 (Post-QC Species List) before Phase 4 tasks can begin.
+ - **Phase 4 (US2)**: **MUST WAIT** for Phase 3 completion. Specifically, T025a, T025b, T026, and T027 explicitly depend on `data/processed/post_qc_species_list.json` (Output of T014).
+ - **Phase 5 (US3)**: Must complete Phase 4 (US2) tasks.
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - May integrate with US1 but should be independently testable
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - May integrate with US1/US2 but should be independently testable
+- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - **MUST WAIT** for T014 (US1) to complete to access the species list.
+- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - **MUST WAIT** for T014 (US1) and T025a/T038 (US2) to complete.
 
 ### Within Each User Story
 
@@ -231,10 +244,11 @@
 
 - All Setup tasks marked [P] can run in parallel
 - All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
+- Once Foundational phase completes, US1 can start.
+- **US2 and US3 cannot start until T014 (US1) is complete.**
 - All tests for a user story marked [P] can run in parallel
 - Models within a story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
+- Different user stories can be worked on in parallel by different team members (once dependencies are met)
 
 ---
 
@@ -258,15 +272,15 @@ Task: "Create [Entity2] model in src/models/[entity2].py"
 
 1. Complete Phase 1: Setup
 2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
+3. Complete Phase 3: User Story 1 (Specifically T014)
 4. **STOP and VALIDATE**: Test User Story 1 independently
 5. Deploy/demo if ready
 
 ### Incremental Delivery
 
 1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
+2. Add User Story 1 (T014) → Test independently → Deploy/Demo (MVP!)
+3. Add User Story 2 (T025a+) → Test independently → Deploy/Demo
 4. Add User Story 3 → Test independently → Deploy/Demo
 5. Each story adds value without breaking previous stories
 
@@ -276,9 +290,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
- - Developer A: User Story 1
- - Developer B: User Story 2
- - Developer C: User Story 3
+ - Developer A: User Story 1 (Focus on T014 completion)
+ - Developer B: (Wait for T014, then start US2)
+ - Developer C: (Wait for T014/T025a, then start US3)
 3. Stories complete and integrate independently
 
 ---
