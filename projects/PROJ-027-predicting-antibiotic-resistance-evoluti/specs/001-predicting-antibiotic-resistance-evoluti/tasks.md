@@ -47,7 +47,7 @@
 - [ ] T001b Create `utils/`, `tests/`, `data/raw/`, `data/processed/`, `data/models/` directories
 - [ ] T001c Create `tests/contract/` and `tests/unit/` directories with `.gitkeep` files
 
-- [ ] T002 Initialize Python 3.11 project and create `code/requirements.txt` with `scikit-learn`, `pandas`, `numpy`, `matplotlib`, `seaborn`, `biopython`, `requests`, `pyyaml`, `dendropy`, `statsmodels`; verify installation with `pip check`
+- [X] T002 Initialize Python 3.11 project and create `code/requirements.txt` with `scikit-learn`, `pandas`, `numpy`, `matplotlib`, `seaborn`, `biopython`, `requests`, `pyyaml`, `dendropy`, `statsmodels`; verify installation with `pip check`
 - [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
 
 ---
@@ -61,8 +61,8 @@
 - [X] T004 Implement `code/utils/logging.py` for standardized logging across the pipeline
 - [X] T005 Implement `code/utils/config.py` to load paths, BioProject IDs, random seeds, and the `MAX_ISOLATES` limit (default a large sample size, CI limit 1000)
 - [X] T006 Implement `code/utils/hash_artifacts.py` to compute SHA256 hashes for `data/` and `code/` and update `state/` JSON (Constitution Principle V)
-- [~] T007 Create `data/raw/` and `data/processed/` directory structure with `.gitkeep`
-- [~] T008 Create `tests/contract/` directory and stub schema validation helpers
+- [ ] T007 Create `data/raw/` and `data/processed/` directory structure with `.gitkeep`
+- [ ] T008 Create `tests/contract/` directory and stub schema validation helpers
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -95,7 +95,7 @@ could not find expected ':'
 - [X] T011 [US1] Implement `code/01_ingest/download_ncbi.py` to fetch FASTA sequences for specified BioProjects (e.g., PRJNA[Accession Number]) using NCBI E-utilities, enforcing the `MAX_ISOLATES` limit (A large-scale dataset for specification, with a subset reserved for continuous integration.)
 - [X] T012 [US1] Implement `code/01_ingest/ingest_metadata.py` to parse susceptibility metadata, handle missing values, and log exclusion counts (Edge Case: missing metadata)
 - [X] T013 [US1] Implement `code/01_ingest/download_card.py` to fetch resistance gene reference data
-- [ ] T014 [US1] Implement `code/02_process/run_snippy.sh` wrapper to align sequences and call SNPs (CPU-limited, multiple threads) <!-- ATOMIZE: requested -->
+- [ ] T014 [US1] Implement `code/02_process/run_snippy.sh` wrapper to align sequences and call SNPs (CPU-limited, multiple threads) <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
 - [X] T015 [US1] Implement `code/02_process/run_ariba.sh` wrapper to identify resistance genes
 - [X] T016 [US1] Implement `code/02_process/build_feature_matrix.py` to aggregate SNPs, resistance gene presence, and **extract copy number variations (CNVs)** into a single CSV (Binary gene columns, Numeric SNP counts, Numeric CNV counts)
 - [~] T017 [US1] Implement logic in `build_feature_matrix.py` to handle Edge Case: antibiotic classes with <50 isolates (exclude and log warning)
@@ -122,10 +122,10 @@ could not find expected ':'
 - [X] T023a [US2] Implement `code/03_model/mechanism_blind_filter.py` to exclude known resistance genes for the target antibiotic class from the feature set (FR-008) using **CARD database categories** to map target class to genes
 - [X] T023b [US2] Implement `code/03_model/split_data.py` to perform the **initial stratified split** of data into training, validation, and test sets as required by FR-003
 - [X] T023c [US2] Implement `code/03_model/train_models.py` to train separate Logistic Regression (L1-regularized) and Random Forest models per antibiotic class (FR-009) using **Phylogenetically-Blocked CV** (split by clade ID from T019 tree) and consuming input from T023a (mechanism-blind filtered features)
-- [ ] T024 [US2] Implement stratified cross-validation within `train_models.py` ensuring no data leakage (Strictly use Phylogenetically-Blocked CV logic as per plan)
-- [ ] T025 [US2] Implement `code/03_model/evaluate.py` to calculate AUC-ROC, precision-recall curves, and confusion matrices on the held-out test set
-- [ ] T026 [US2] Implement logic in `evaluate.py` to rank and export top genomic features (excluding target gene) to a summary table
-- [ ] T027 [US2] Save trained model weights and evaluation metrics to `data/models/` with version hashes
+- [~] T024 [US2] Implement stratified cross-validation within `train_models.py` ensuring no data leakage (Strictly use Phylogenetically-Blocked CV logic as per plan)
+- [X] T025 [US2] Implement `code/03_model/evaluate.py` to calculate AUC-ROC, precision-recall curves, and confusion matrices on the held-out test set
+- [~] T026 [US2] Implement logic in `evaluate.py` to rank and export top genomic features (excluding target gene) to a summary table
+- [~] T027 [US2] Save trained model weights and evaluation metrics to `data/models/` with version hashes
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -139,12 +139,12 @@ could not find expected ':'
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T028 [P] [US3] Unit test for permutation null distribution logic in `tests/unit/test_phyl_permutation.py`
-- [ ] T029 [P] [US3] Integration test for sensitivity sweep output in `tests/integration/test_sensitivity.py`
+- [X] T028 [P] [US3] Unit test for permutation null distribution logic in `tests/unit/test_phyl_permutation.py`
+- [X] T029 [P] [US3] Integration test for sensitivity sweep output in `tests/integration/test_sensitivity.py`
 
 ### Implementation for User Story 3
 
-- [ ] T030 [US3] Implement `code/validate/phylo_permutation.py` to perform phylogenetically-aware permutation testing. (PGLS residual permutation) respecting clonal lineages using the tree from T019
+- [X] T030 [US3] Implement `code/validate/phylo_permutation.py` to perform phylogenetically-aware permutation testing. (PGLS residual permutation) respecting clonal lineages using the tree from T019
 - [ ] T031 [US3] Implement logic in `phylo_permutation.py` to calculate p-value, **write p-value and significance flag to `data/processed/permutation_results.json`**, and **flag result as 'not significant' if p >= 0.05 without crashing the pipeline**
 - [ ] T032 [US3] Implement `code/04_validate/sensitivity_analysis.py` to sweep classification thresholds across a range of values
 - [ ] T033 [US3] Report false-positive and false-negative rate variations across thresholds in `sensitivity_analysis.py`

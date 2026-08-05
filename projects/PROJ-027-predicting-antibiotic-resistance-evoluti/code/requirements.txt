@@ -8,5 +8,5 @@ requests
 pyyaml
 dendropy
 statsmodels
-joblib
-scipy
+ruff
+black

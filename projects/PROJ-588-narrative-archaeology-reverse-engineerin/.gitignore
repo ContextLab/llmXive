@@ -20,7 +20,7 @@ wheels/
 .installed.cfg
 *.egg
 
-# Virtual Environments
+# Virtual environments
 venv/
 ENV/
 env/
@@ -30,22 +30,28 @@ env/
 .vscode/
 *.swp
 *.swo
+*~
 
-# Data
+# Data (large files)
 data/raw/
-data/preprocessed/
 data/processed/
-data/*.nii.gz
-data/*.tsv
-data/*.json
-
-# Figures
-figures/*.png
-figures/*.pdf
+data/interim/
+*.nii
+*.nii.gz
+*.bvec
+*.bval
 
 # Logs
-data/errors.log
 *.log
+logs/
+
+# Jupyter
+.ipynb_checkpoints
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
 
 # OS
 .DS_Store

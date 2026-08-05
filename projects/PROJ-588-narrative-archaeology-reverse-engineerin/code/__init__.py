@@ -1,1 +1,2 @@
-"""Narrative Archaeology Research Pipeline."""
+# Narrative Archaeology Pipeline
+pass

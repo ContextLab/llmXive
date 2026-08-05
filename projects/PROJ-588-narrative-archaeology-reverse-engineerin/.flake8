@@ -1,8 +1,8 @@
 [flake8]
-max-line-length = 120
-exclude = .git,__pycache__,build,dist,.eggs
-ignore = E203,W503
+max-line-length = 88
+extend-ignore = E203, W503
+exclude = .git,__pycache__,build,dist,.eggs,*.egg-info
 per-file-ignores =
-    # Allow longer lines in docstrings
-    code/config.py:D100,D101
-extend-ignore = E203,W503
+    tests/*: S101
+import-order-style = google
+application-import-names = code,tests

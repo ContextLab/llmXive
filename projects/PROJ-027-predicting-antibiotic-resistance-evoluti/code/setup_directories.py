@@ -1,72 +1,74 @@
+"""
+Directory Setup for llmXive Project PROJ-027
+Creates the standard pipeline directory structure and verifies existence.
+"""
 import os
 import sys
 from pathlib import Path
 
-def create_directories():
-    """
-    Create the required directory structure for the llmXive research pipeline.
-    Returns a list of created paths.
-    """
-    base_dir = Path(__file__).resolve().parent.parent
-    code_dir = base_dir / "code"
-    
-    # Define the directories to create as per task T001a
-    directories = [
-        code_dir / "01_ingest",
-        code_dir / "02_process",
-        code_dir / "03_model",
-        code_dir / "04_validate",
-        code_dir / "05_viz",
-    ]
-    
-    created_paths = []
-    for dir_path in directories:
-        dir_path.mkdir(parents=True, exist_ok=True)
-        created_paths.append(dir_path)
-        print(f"Created directory: {dir_path.relative_to(base_dir)}")
-        
-    return created_paths
+# Define the directories to create relative to the project root
+DIRECTORIES = [
+    "code/01_ingest",
+    "code/02_process",
+    "code/03_model",
+    "code/04_validate",
+    "code/05_viz",
+]
 
-def verify_directories():
+def create_directories(base_path: Path) -> int:
+    """
+    Create the required directories if they do not exist.
+    Returns the number of directories created.
+    """
+    created_count = 0
+    for dir_name in DIRECTORIES:
+        target_dir = base_path / dir_name
+        if not target_dir.exists():
+            target_dir.mkdir(parents=True, exist_ok=True)
+            created_count += 1
+    return created_count
+
+def verify_directories(base_path: Path) -> bool:
     """
     Verify that all required directories exist.
-    Returns True if all exist, False otherwise.
+    Prints verification status to stdout.
     """
-    base_dir = Path(__file__).resolve().parent.parent
-    code_dir = base_dir / "code"
-    
-    required_dirs = [
-        "01_ingest",
-        "02_process",
-        "03_model",
-        "04_validate",
-        "05_viz",
-    ]
-    
     all_exist = True
-    for dir_name in required_dirs:
-        dir_path = code_dir / dir_name
-        if not dir_path.is_dir():
-            print(f"ERROR: Directory missing: {dir_path.relative_to(base_dir)}")
-            all_exist = False
+    missing = []
+    for dir_name in DIRECTORIES:
+        target_dir = base_path / dir_name
+        if target_dir.exists():
+            print(f"✓ Directory exists: {dir_name}")
         else:
-            print(f"Verified: {dir_path.relative_to(base_dir)}")
+            print(f"✗ Directory missing: {dir_name}")
+            all_exist = False
+            missing.append(dir_name)
     
-    return all_exist
+    if not all_exist:
+        print(f"\nError: {len(missing)} directories are missing.")
+        return False
+    
+    print(f"\nSuccess: All {len(DIRECTORIES)} directories verified.")
+    return True
 
 def main():
-    """
-    Entry point to create and verify directories.
-    """
-    print("=== llmXive Directory Setup (Task T001a) ===")
-    create_directories()
-    print("\n--- Verification ---")
-    if verify_directories():
-        print("All required directories exist.")
-        return 0
-    else:
-        print("Verification failed: Some directories are missing.")
-        return 1
+    """Main entry point for directory setup."""
+    # Determine project root (parent of 'code' directory)
+    current_file = Path(__file__).resolve()
+    code_dir = current_file.parent
+    project_root = code_dir.parent
+
+    print(f"Project Root: {project_root}")
+    print(f"Creating directories under: {project_root}")
+
+    created = create_directories(project_root)
+    if created > 0:
+        print(f"Created {created} new directories.")
+    
+    is_valid = verify_directories(project_root)
+    
+    if not is_valid:
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

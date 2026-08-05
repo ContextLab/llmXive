@@ -5,27 +5,75 @@ submitter: llmxive-preprint-followup
 
 # llmXive follow-up: extending "VLA-Corrector: Lightweight Detect-and-Correct Inference for Adaptive A"
 
-## Summary of the prior work
-The paper introduces VLA-Corrector, a lightweight inference framework that enhances Vision-Language-Action (VLA) models by dynamically adjusting their action horizon without retraining the backbone. It employs a Latent-space Vision Monitor (LVM) to detect deviations between predicted and actual visual dynamics, triggering an event-based replanning mechanism via Online Gradient Guidance (OGG) only when necessary. This approach mitigates the compounding errors inherent in static, open-loop action chunks while preserving the computational efficiency of long-horizon execution.
+**Field**: Computer Science (Robotics & Efficient Inference)
 
-## Proposed extension
-Can the Latent-space Vision Monitor (LVM) be distilled into a purely CPU-tractable, rule-based heuristic that approximates the "visual drift" signal using only low-dimensional kinematic residuals and sparse optical flow, thereby eliminating the need for any neural feature extraction during the monitoring phase? This direction matters because current LLM/VLA deployment on resource-constrained edge robots is often bottlenecked by the inference cost of even lightweight auxiliary monitors, and a non-neural detector would enable real-time, battery-operated adaptive control on microcontrollers without sacrificing the robustness benefits of VLA-Corrector.
+## Research question
+
+Can the latent-space visual deviation signal in adaptive VLA inference be reliably approximated by a non-neural, kinematic-consistency heuristic computed solely from sparse optical flow and joint-state residuals on resource-constrained edge devices?
+
+## Motivation
+
+Deploying adaptive inference loops on microcontrollers is currently bottlenecked by the compute cost of auxiliary neural monitors (like the Latent-space Vision Monitor in VLA-Corrector), which negates the efficiency gains of event-based replanning. Replacing this neural component with a lightweight, rule-based heuristic would enable real-time, battery-operated adaptive control for edge robots without requiring GPU acceleration or full model retraining.
+
+## Related work
+
+- [VLA-Corrector: Lightweight Detect-and-Correct Inference for Adaptive Action Horizon (2026)](https://arxiv.org/abs/2607.01804) — Establishes the baseline "detect-and-correct" paradigm using a neural Latent-space Vision Monitor (LVM) to trigger replanning, providing the theoretical framework and success metrics this project aims to approximate with non-neural methods.
+- [LLMs as High-Dimensional Nonlinear Autoregressive Models with Attention: Training, Alignment and Inference (2026)](https://arxiv.org/abs/2602.00426) — Provides a theoretical characterization of transformer-based autoregression that informs the expectation of error compounding in open-loop action chunks, justifying the need for a detection mechanism even if the specific implementation differs from the neural LVM.
+
+## Expected results
+
+The proposed heuristic detector will achieve sub-5ms inference latency on standard ARM CPUs while maintaining at least 85% of the long-horizon task success rate improvement observed in the original VLA-Corrector. This would demonstrate that high-dimensional visual feature extraction is not strictly necessary for detecting action-plan divergence in contact-rich manipulation tasks, provided kinematic residuals and optical flow are monitored with sufficient temporal resolution.
 
 ## Methodology sketch
-We will construct a synthetic dataset using a physics simulator (e.g., MuJoCo or Isaac Sim) to generate diverse contact-rich manipulation trajectories, recording both the VLA model's predicted action sequences and the resulting ground-truth joint states and sparse optical flow fields. The procedure involves training a simple, interpretable regression model (e.g., a small decision tree or linear SVM) to map the difference between predicted kinematics and observed sparse flow to a binary "drift" label, replacing the original neural LVM. We expect the resulting CPU-only "Heuristic-Corrector" to achieve a drift detection latency under 5ms on a standard ARM processor while maintaining over 85% of the success rate improvement of the original VLA-Corrector on long-horizon tasks, demonstrating that neural feature evolution monitoring can be replaced by efficient kinematic consistency checks.
 
-## Motivated by (source preprint — reviewed, not authored, by llmXive)
+- **Data Generation**: Use a physics simulator (e.g., MuJoCo or Isaac Sim) to generate 500+ diverse contact-rich manipulation trajectories, recording ground-truth joint states, predicted action sequences from a frozen VLA policy, and sparse optical flow fields between frames.
+- **Feature Engineering**: Compute low-dimensional kinematic residuals (difference between predicted and actual joint positions/velocities) and sparse optical flow magnitude/direction vectors for each time step.
+- **Labeling**: Generate binary "drift" labels based on the original VLA-Corrector's neural LVM output (or ground-truth task failure) to serve as the supervised target for the heuristic model.
+- **Model Training**: Train a lightweight, interpretable regression model (e.g., Decision Tree or Linear SVM) to map the engineered kinematic/optical flow features to the binary drift label, optimizing for F1-score and inference latency.
+- **Evaluation**: Deploy the trained heuristic model on a simulated ARM environment to measure inference latency (target <5ms) and compare task success rates against the baseline VLA-Corrector and a static open-loop policy.
+- **Statistical Analysis**: Apply a McNemar's test to determine if the difference in task success rates between the Heuristic-Corrector and the original VLA-Corrector is statistically non-significant, confirming the heuristic's viability.
 
-- **VLA-Corrector: Lightweight Detect-and-Correct Inference for Adaptive Action Horizon** — Yi Pan, Miao Pan, Qi Lu, Jiaming Huang, Man Zhang, Siteng Huang, Xin Li, Jie Zhang, Yongliang Shen, Xuhong Zhang, Wenqi Zhang. https://arxiv.org/abs/2607.01804.
+## Duplicate-check
 
-```bibtex
-@article{orig_arxiv_2607_01804,
-  title = {VLA-Corrector: Lightweight Detect-and-Correct Inference for Adaptive Action Horizon},
-  author = {Yi Pan and Miao Pan and Qi Lu and Jiaming Huang and Man Zhang and Siteng Huang and Xin Li and Jie Zhang and Yongliang Shen and Xuhong Zhang and Wenqi Zhang},
-  year = {2026},
-  eprint = {2607.01804},
-  archivePrefix = {arXiv},
-  journal = {arXiv preprint arXiv:2607.01804},
-  url = {https://arxiv.org/abs/2607.01804}
-}
-```
+- Reviewed existing ideas: VLA-Corrector (original), LLM Autoregression Analysis.
+- Closest match: VLA-Corrector (original) (similarity: high conceptual overlap, but distinct methodology).
+- Verdict: NOT a duplicate (This project specifically proposes replacing the neural monitor with a non-neural heuristic, a distinct contribution not present in the original work).
+
+
+## Search trail
+
+**Generated by**: librarian (prompt v1.6.0) on 2026-08-05T04:28:36Z
+**Outcome**: exhausted
+**Original term**: llmXive follow-up: extending "VLA-Corrector: Lightweight Detect-and-Correct Inference for Adaptive A" computer science
+**Verified citation count**: 2
+
+### Search terms used
+
+| Rank | Term | Hit count |
+|-|-|-|
+| 0 (initial) | llmXive follow-up: extending "VLA-Corrector: Lightweight Detect-and-Correct Inference for Adaptive A" computer science | 0 |
+| 1 | lightweight detect-and-correct inference for LLMs | 3 |
+| 2 | adaptive inference correction mechanisms | 2 |
+| 3 | runtime error correction for large language models | 0 |
+| 4 | LLM self-correction during inference | 0 |
+| 5 | lightweight adaptive inference strategies | 0 |
+| 6 | detect-and-fix inference pipelines | 0 |
+| 7 | real-time LLM hallucination correction | 0 |
+| 8 | inference-time adaptation for language models | 0 |
+| 9 | efficient error detection in generative AI | 0 |
+| 10 | dynamic inference correction for VLA models | 0 |
+| 11 | lightweight model refinement at inference | 0 |
+| 12 | adaptive decoding strategies for LLMs | 0 |
+| 13 | inference-time consistency correction | 0 |
+| 14 | automated error mitigation in LLM generation | 0 |
+| 15 | resource-efficient inference correction | 0 |
+| 16 | LLM output verification and correction | 0 |
+| 17 | adaptive inference for vision-language-action models | 0 |
+| 18 | on-the-fly error correction in neural inference | 0 |
+| 19 | lightweight post-processing for LLM outputs | 0 |
+| 20 | inference-time robustness in adaptive AI systems | 0 |
+
+### Verified citations
+
+1. **VLA-Corrector: Lightweight Detect-and-Correct Inference for Adaptive Action Horizon** (2026). Yi Pan, Miao Pan, Qi Lu, Jiaming Huang, Man Zhang, et al.. arXiv. [2607.01804](https://arxiv.org/abs/2607.01804). PDF-sampled: No.
+2. **LLMs as High-Dimensional Nonlinear Autoregressive Models with Attention: Training, Alignment and Inference** (2026). Vikram Krishnamurthy. arXiv. [2602.00426](https://arxiv.org/abs/2602.00426). PDF-sampled: No.

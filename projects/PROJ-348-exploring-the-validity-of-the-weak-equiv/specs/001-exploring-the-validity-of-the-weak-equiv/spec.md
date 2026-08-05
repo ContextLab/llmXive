@@ -1,83 +1,84 @@
 # Feature Specification: Exploring the Validity of the Weak Equivalence Principle with Publicly Available Planetary Orbital Data
 
 **Feature Branch**: `001-exploring-wep-validity`  
-**Created**: 2026-07-11  
+**Created**: 2026-08-04  
 **Status**: Draft  
 **Input**: User description: "Exploring the Validity of the Weak Equivalence Principle with Publicly Available Planetary Orbital Data"
 
 ## User Scenarios & Testing
 
-### User Story 1 - Data Acquisition and GR Baseline Construction (Priority: P1)
+### User Story 1 - Differential Ephemeris Construction and Residual Extraction (Priority: P1)
 
-As a researcher, I want to download high-precision positional and raw tracking data (range/range-rate) for Mercury, Venus, Earth, and Mars from the JPL Horizons system and generate a General Relativity (GR) predicted trajectory using a numerical integrator compliant with the project Constitution (`scipy.integrate.odeint` with LSODA), so that I have a validated baseline to compare against observed ephemerides.
+As a researcher, I want to download high-precision ephemeris data for Mercury, Venus, Earth, and Mars from two independent sources (JPL Horizons and INPOP19a) and compute the time-series difference vectors (position and velocity) between them, so that I can isolate potential discrepancies (Nordtvedt effect signals) without relying on a single model's internal assumptions or circular validation against a GR-only baseline.
 
-**Why this priority**: This is the foundational step; without accurate data ingestion and a correct GR reference model using a scientifically valid integrator, no residual analysis or hypothesis testing can occur. It establishes the "truth" against which deviations are measured.
+**Why this priority**: This addresses the core methodological flaw of the previous iteration. The Nordtvedt effect ($\eta$) manifests as a differential acceleration between bodies with different gravitational binding energies ($\Omega$). Comparing two independent ephemerides (JPL vs. INPOP) is the only valid approach using public data to detect such a signal, as it avoids the circularity of subtracting a GR-only simulation from an observation that already assumes GR. This step provides the raw dependent variable for the statistical test.
 
-**Independent Test**: The system can be tested by running the data acquisition and integration pipeline on a subset of dates (e.g., a historical interval) and verifying that the generated GR trajectory matches the expected precession rates for Mercury within the known numerical tolerance of the `scipy.integrate.odeint` integrator (e.g., relative energy error within a negligible tolerance of 1e-10).
+**Independent Test**: The system can be tested by running the download and differencing pipeline on a known "null" interval (e.g., a period with high data coverage) and verifying that the RMS of the difference vector for Earth matches the documented inter-ephemeris agreement (approx. 100m - 1km) within a tolerance of ±100m.
 
 **Acceptance Scenarios**:
 
-1. **Given** the JPL Horizons API is accessible, **When** the system requests positional and tracking data for Mercury, Venus, Earth, and Mars for the interval mid-20th century–2025 with a Short-interval sampling rate, **Then** the system successfully downloads and parses the data into a structured time-series format without data loss.
-2. **Given** the parsed observational data and planetary parameters (mass, semi-major axis), **When** the numerical integrator runs using `scipy.integrate.odeint` with the LSODA method and standard GR corrections (Schwarzschild), **Then** the output trajectory reproduces the known secular precession of Mercury's perihelion (approx. tens of arcseconds/century) within a tolerance of ±0.1 arcseconds/century.
+1. **Given** the JPL Horizons and INPOP19a public interfaces are accessible, **When** the system downloads positional and velocity data for Mercury, Venus, Earth, and Mars for the interval 1950–2025 with a daily sampling rate, **Then** the system successfully parses both datasets into aligned time-series structures with a timestamp tolerance of < 1 second.
+2. **Given** the aligned time-series for a specific planet (e.g., Earth), **When** the system computes the Euclidean distance difference between the JPL and INPOP position vectors for every timestamp, **Then** the system outputs a time-series of residual magnitudes where the mean RMS is within the range [100m, 1500m] (consistent with documented INPOP/JPL agreement) and no single outlier exceeds 5 km.
 
 ---
 
-### User Story 2 - Differential Ephemeris Analysis and SEP Testing (Priority: P2)
+### User Story 2 - Binding Energy Compilation and Variable Alignment (Priority: P2)
 
-As a physicist, I want to perform a differential analysis by comparing the difference vector between the JPL Horizons ephemeris and the INPOP19a ephemeris against the gravitational binding energy fractions ($\Omega$) of the planets, so that I can determine if Strong Equivalence Principle (SEP) violations exist at planetary scales without circularity.
+As a physicist, I want to retrieve the gravitational binding energy fractions ($\Omega$) for the target planets from peer-reviewed interior structure models (not bulk NASA Fact Sheets) and align them with the residual data, so that I can perform a regression analysis that accurately reflects the theoretical scaling of the Nordtvedt effect while minimizing systematic errors from core/mantle uncertainties.
 
-**Why this priority**: This addresses the core research question by using independent ephemerides to isolate the Nordtvedt effect signal, avoiding the circularity of residual-based tests against a single model. It transforms raw ephemeris differences into statistical evidence for SEP violations.
+**Why this priority**: The previous spec used bulk mass/radius, which introduces a significant systematic error in $\Omega$, swamping the expected signal. Using peer-reviewed interior models (e.g., *Seager et al.*, *Nimmo et al.*) is required for methodological validity. This step ensures the independent variable ($\Omega$) is scientifically defensible.
 
-**Independent Test**: The system can be tested by feeding it synthetic data where the "ephemeris difference" is explicitly generated with a known non-zero Nordtvedt parameter. The analysis module must recover this known value in the majority of synthetic runs, with a confidence interval that includes the true value.
+**Independent Test**: The system can be tested by verifying that the retrieved $\Omega$ values for Earth and Mars match the published values in the source literature (e.g., *Nimmo et al., 2004*) within a tolerance of ±0.5% relative error.
 
 **Acceptance Scenarios**:
 
-1. **Given** the JPL Horizons ephemeris and the INPOP19a ephemeris for the same time interval, **When** the system calculates the difference vector in position and velocity for each planet, **Then** the system outputs the time-series difference data and its uncertainty estimates, with a tolerance of within 1 km as per INPOP19a documentation.
-2. **Given** the difference vector and planetary gravitational binding energy fractions ($\Omega$), **When** the system performs a time-domain regression analysis to detect the polarization signature of the Nordtvedt effect, **Then** the system outputs the regression slope, p-value, and the upper bound on the Nordtvedt parameter $\eta$.
+1. **Given** the list of target planets, **When** the system queries the compiled dataset of peer-reviewed interior models for $\Omega$, **Then** the system returns a value for each planet with a source citation, and if a value is missing for a planet, the system excludes that planet from the regression and logs a warning with error code `E-OMEGA-MISSING`.
+2. **Given** the calculated $\Omega$ values and the residual time-series, **When** the system prepares the data for regression, **Then** the system ensures that the number of planets with valid $\Omega$ data and valid residual data is at least 3 (N ≥ 3), halting with `E-SAMPLE-SIZE-INSUFFICIENT` if this condition is not met.
 
 ---
 
-### User Story 3 - Statistical Validation and Constraint Derivation (Priority: P3)
+### User Story 3 - Statistical Significance and Constraint Derivation (Priority: P3)
 
-As a researcher, I want to run a Monte Carlo simulation that resamples the ephemeris difference vector uncertainties and re-runs the time-domain regression to generate a null distribution for the fitted parameters, so that I can robustly quantify the significance of the results and tighten constraints on alternative gravity theories.
+As a researcher, I want to perform a linear regression of the RMS of the ephemeris difference vectors against the gravitational binding energy fractions ($\Omega$) and conduct a Monte Carlo simulation to generate a null distribution, so that I can determine if the correlation is statistically significant (p < 0.05) and derive an upper bound on the Nordtvedt parameter $\eta$ if the null hypothesis cannot be rejected.
 
-**Why this priority**: This adds statistical rigor and handles the "null result" case, which is scientifically valuable. It ensures the findings are not artifacts of noise and provides a concrete bound on theoretical parameters.
+**Why this priority**: This addresses the "flawed Monte Carlo" concern by focusing the simulation on the *statistical significance of the correlation* rather than re-integrating the N-body system. The regression slope represents the scaling of the differential signal with $\Omega$. The Monte Carlo resampling of the residuals' uncertainties validates whether the observed slope could arise from noise, providing a robust p-value and confidence interval for the constraint.
 
-**Independent Test**: The system can be tested by running the Monte Carlo simulation on a dataset known to have zero violation. The resulting p-value distribution must pass a Kolmogorov-Smirnov test against a uniform distribution (p > 0.05) over 1000 runs, and the derived upper bound must be consistent with the input noise levels.
+**Independent Test**: The system can be tested by injecting a synthetic non-zero slope into the residual data (simulating a known $\eta$) and verifying that the regression recovers this slope with a 95% confidence interval that includes the injected value and a p-value < 0.05.
 
 **Acceptance Scenarios**:
 
-1. **Given** the fitted parameters and observational uncertainties, **When** the system runs a Monte Carlo simulation with a sufficient number of iterations (until the standard error of the p-value estimate is < 0.01 or a maximum of 10,000 iterations) resampling the uncertainties, **Then** it generates a null distribution of parameters and calculates a p-value for the observed violation.
-2. **Given** a non-significant p-value (p > 0.05), **When** the system calculates the upper bound on the scalar-tensor coupling parameter $\omega_{BD}$, **Then** it outputs a numerical lower bound for $\omega_{BD}$ (e.g., $\omega_{BD} > X$) with a specified confidence level.
+1. **Given** the paired data of RMS residuals and $\Omega$ for N ≥ 3 planets, **When** the system performs an Ordinary Least Squares (OLS) regression with heteroscedasticity-consistent standard errors, **Then** the system outputs the slope, intercept, p-value, and 95% confidence interval for the slope.
+2. **Given** the fitted slope and the observational uncertainties, **When** the system runs a Monte Carlo simulation with 10,000 iterations resampling the residuals within their uncertainty bounds, **Then** the system generates a null distribution of slopes, calculates the empirical p-value, and if p > 0.05, computes the [deferred] upper bound on the Nordtvedt parameter $\eta$.
 
 ### Edge Cases
 
-- What happens if the JPL Horizons API returns incomplete data for a specific date range (e.g., gaps in Mars tracking)? The system must interpolate missing points or exclude the planet from the regression for that specific epoch, logging the exclusion.
-- How does the system handle a scenario where the gravitational binding energy fraction ($\Omega$) for a planet is not available in the compiled peer-reviewed interior models? The system must retry the data fetch up to 3 times; if still missing, it must exclude the planet from the regression and log a warning with error code E-DATA-MISSING-BE.
-- What if the Monte Carlo simulation fails to converge due to numerical instability in the resampling? The system must retry with a reduced iteration count and report the reduced confidence level, or fail gracefully if convergence is impossible after attempts.
-- What happens if the minimum sample size of N >= 3 planets is not available for the regression? The system MUST halt and report a failure code E-SAMPLE-SIZE-INSUFFICIENT.
+- **What happens if the JPL Horizons or INPOP19a API returns incomplete data for a specific planet (e.g., Mars) for a significant portion of the 1950–2025 interval?** The system must interpolate missing points using a cubic spline if gaps are < 7 days; if gaps exceed 7 days, the system must exclude that planet from the regression and log `E-DATA-GAP-EXCEEDED`.
+- **How does the system handle a scenario where the peer-reviewed interior model for a planet is missing or outdated?** The system must retry fetching from alternative sources (e.g., *Seager* vs. *Nimmo*) up to 2 times; if all sources fail, the system excludes the planet and logs `E-OMEGA-SOURCE-FAIL`.
+- **What if the Monte Carlo simulation fails to converge (e.g., due to numerical instability in the resampling)?** The system must retry with a reduced iteration count ([deferred]) and a larger step size; if convergence is not achieved after 3 attempts, the system must report `E-MC-CONVERGENCE-FAIL` and output the results with a warning that the p-value is approximate.
+- **What happens if the minimum sample size of N ≥ 3 planets is not available?** The system MUST halt immediately and report a fatal error `E-SAMPLE-SIZE-INSUFFICIENT` with a message listing the available planets and the reason for exclusion.
 
 ## Requirements
 
 ### Functional Requirements
 
-- **FR-001**: System MUST download high-precision positional, velocity, and raw tracking data (range/range-rate) for Mercury, Venus, Earth, and Mars for the period starting in the midth century through 2025 from the JPL Horizons system using `astroquery` with a 1-day sampling interval. (See US-1)
-- **FR-002**: System MUST implement a numerical N-body integrator using the `scipy.integrate.odeint` library with the LSODA method that incorporates standard General Relativity corrections (Schwarzschild term only) and Newtonian N-body perturbations to generate a GR-predicted trajectory. Lense-Thirring effects are excluded as they are below the noise floor of current ephemerides. This choice is mandated by Constitution Principle VII. (See US-1)
-- **FR-003**: System MUST download the INPOP19a ephemeris data for the same time interval and planets via the `astroquery.imcce` module or direct file download to serve as an independent reference baseline. (See US-2)
-- **FR-004**: System MUST perform a time-domain regression analysis where the dependent variable is the difference vector between the JPL Horizons and INPOP19a ephemerides and the independent variable is the planetary gravitational binding energy fraction ($\Omega \approx -GM/Rc^2$), derived from peer-reviewed interior structure models (e.g., *Seager et al.*), controlling for mass and semi-major axis using the functional form: `difference_vector ~ $\Omega$ + $\log(Mass)$ + $\log(a)$` via Ordinary Least Squares (OLS) with heteroscedasticity-consistent standard errors. (See US-2)
-- **FR-005**: System MUST conduct a Monte Carlo simulation with a sufficient number of iterations (until the standard error of the p-value estimate is < 0.01 or a maximum of 10,000 iterations) resampling the ephemeris difference vector uncertainties to generate a null distribution for the fitted parameters and calculate the p-value. (See US-3)
-- **FR-006**: System MUST validate results by comparing the difference vector against the documented inter-ephemeris uncertainty bounds, with a tolerance of within 1 km (approx. sub-arcsecond precision at 1 AU) as per INPOP19a documentation. (See US-2)
-- **FR-007**: System MUST derive an upper bound on the scalar-tensor coupling parameter $\omega_{BD}$ if the correlation is not statistically significant (p > 0.05). (See US-3)
-- **FR-008**: System MUST exclude any planet from the regression analysis if its gravitational binding energy data is missing after 3 retry attempts, and MUST ensure a minimum sample size of N >= 3 planets is available for the regression to proceed; if N < 3, the system MUST halt and report a failure code E-SAMPLE-SIZE-INSUFFICIENT. (See US-1, US-2)
-- **FR-009**: System MUST validate extraction-selector coverage against a labelled sample to ensure the data acquisition logic correctly identifies and parses all required fields. (See US-1)
+- **FR-001**: System MUST download high-precision positional and velocity data for Mercury, Venus, Earth, and Mars for a multi-decadal historical period from the JPL Horizons system using `astroquery` with a 1-day sampling interval. (See US-1)
+- **FR-002**: System MUST download the INPOP19a ephemeris data for the same time interval and planets via the `astroquery.imcce` module or direct file download to serve as an independent reference baseline. (See US-1)
+- **FR-003**: System MUST compute the time-series difference vector (position and velocity) between the JPL Horizons and INPOP19a ephemerides for each planet to isolate differential signals. (See US-1)
+- **FR-004**: System MUST retrieve the gravitational binding energy fractions ($\Omega$) for the target planets from peer-reviewed interior structure models (e.g., *Seager et al.*, *Nimmo et al.*), NOT from bulk NASA Fact Sheets, to minimize systematic errors. (See US-2)
+- **FR-005**: System MUST perform a linear regression where the dependent variable is the Root-Mean-Square (RMS) of the ephemeris difference vectors and the independent variable is $\Omega$, using Ordinary Least Squares (OLS) with heteroscedasticity-consistent standard errors. (See US-3)
+- **FR-006**: System MUST conduct a Monte Carlo simulation with exactly 10,000 iterations (or until the standard error of the p-value estimate is < 0.01) resampling the ephemeris difference vector uncertainties to generate a null distribution for the regression slope. (See US-3)
+- **FR-007**: System MUST derive an upper bound on the Nordtvedt parameter $\eta$ (or the equivalent scalar-tensor coupling) if the p-value of the regression slope is > 0.05, reporting the 95% confidence interval. (See US-3)
+- **FR-008**: System MUST validate that the number of planets with valid $\Omega$ and residual data is at least 3 (N ≥ 3); if N < 3, the system MUST halt and report `E-SAMPLE-SIZE-INSUFFICIENT`. (See US-2, US-3)
+- **FR-009**: System MUST ensure that the entire pipeline (data download, differencing, regression, Monte Carlo) executes within 6 hours on a CPU-only environment with ≤7 GB RAM, using `scipy` for all numerical operations. (See Assumptions)
+- **FR-010**: System MUST log all data exclusions (due to gaps, missing $\Omega$, or sample size issues) with specific error codes and reasons in a `pipeline_log.txt` file. (See Edge Cases)
 
 ### Key Entities
 
-- **PlanetaryOrbit**: Represents the trajectory of a specific planet (Mercury, Venus, Earth, Mars) over time, containing attributes for position, velocity, and perihelion precession rate.
-- **GravitationalBindingEnergy**: Represents the calculated $\Omega$ fraction for a planet, derived from mass, radius, and peer-reviewed interior structure models. Defined as $\Omega \approx -GM/Rc^2$.
-- **EphemerisDifference**: Represents the difference vector between observed (JPL) and reference (INPOP) ephemerides, including uncertainty estimates.
-- **RegressionResult**: Contains the slope, intercept, p-value, and confidence intervals derived from the correlation analysis.
-- **PPNParameters**: Contains the fitted values and uncertainties for $\gamma, \beta$, and $\eta$.
+- **PlanetaryOrbit**: Represents the trajectory of a specific planet (Mercury, Venus, Earth, Mars) over time, containing attributes for position, velocity, and timestamps from a specific ephemeris source.
+- **EphemerisDifference**: Represents the difference vector between observed (JPL) and reference (INPOP) ephemerides, including the calculated RMS magnitude and timestamp.
+- **GravitationalBindingEnergy**: Represents the calculated $\Omega$ fraction for a planet, derived from peer-reviewed interior structure models (mass, radius, density profiles), defined as $\Omega \approx -GM/Rc^2$.
+- **RegressionResult**: Contains the slope, intercept, p-value, confidence intervals, and the derived constraint on $\eta$ from the correlation analysis.
+- **MonteCarloDistribution**: Represents the null distribution of slopes generated by the resampling simulation.
 
 ## Success Criteria
 
@@ -86,23 +87,23 @@ As a researcher, I want to run a Monte Carlo simulation that resamples the ephem
 > Planning docs state *what* will be measured and the *source/reference* it is
 > measured against; defer specific empirical values to the implementation phase.
 
-- **SC-001**: The accuracy of the GR baseline trajectory is measured against the known secular precession of Mercury's perihelion as established by standard astronomical tables, within a tolerance of ±0.1 arcseconds/century. (See US-1)
-- **SC-002**: The statistical significance of the correlation between the ephemeris difference vector and gravitational binding energy fractions is measured against a fixed p-value threshold of 0.05 derived from the Monte Carlo null distribution. (See US-2)
-- **SC-003**: The robustness of the results is measured against the INPOP19a ephemeris by comparing the derived difference values to ensure they fall within the documented inter-ephemeris uncertainty bounds as per INPOP19a documentation. (See US-3)
-- **SC-004**: The constraint on the scalar-tensor coupling parameter $\omega_{BD}$ is measured against the confidence interval derived from the residual uncertainty limits. (See US-3)
-- **SC-005**: The computational feasibility is measured against the constraint that the entire pipeline (data download, integration, regression, Monte Carlo) must complete within 6 hours on a CPU-only environment with ≤7 GB RAM. (See Assumptions)
+- **SC-001**: The accuracy of the differential ephemeris extraction is measured against the documented inter-ephemeris agreement (approx. 100m–1km) for Earth, ensuring the RMS of the difference vector falls within this range. (See US-1)
+- **SC-002**: The validity of the binding energy data is measured against the published values in peer-reviewed interior structure models (e.g., *Nimmo et al.*), ensuring the retrieved $\Omega$ values match within ±0.5% relative error. (See US-2)
+- **SC-003**: The statistical significance of the correlation is measured against a fixed p-value threshold of 0.05 derived from the Monte Carlo null distribution. (See US-3)
+- **SC-004**: The constraint on the Nordtvedt parameter $\eta$ is measured against the 95% confidence interval derived from the regression slope and the Monte Carlo null distribution. (See US-3)
+- **SC-005**: The computational feasibility is measured against the constraint that the entire pipeline must complete within 6 hours on a CPU-only environment with ≤7 GB RAM. (See Assumptions)
 
 ## Assumptions
 
 - The JPL Horizons API and the INPOP19a ephemeris data are accessible via public interfaces without requiring paid subscriptions or restricted authentication keys.
-- The gravitational binding energy fractions ($\Omega$) for Mercury, Venus, Earth, and Mars can be accurately derived from peer-reviewed interior structure models (e.g., *Seager et al.*) without requiring new interior modeling.
-- The `scipy.integrate.odeint` library with the LSODA method is sufficiently accurate to resolve the small secular precession effects of General Relativity within the mid-20th century to 2025 timeframe without requiring higher-order symplectic integrators that might exceed CPU time limits. This choice is mandated by Constitution Principle VII, despite `rebound` being scientifically superior for N-body dynamics.
+- The gravitational binding energy fractions ($\Omega$) for Mercury, Venus, Earth, and Mars can be accurately derived from peer-reviewed interior structure models (e.g., *Seager et al.*, *Nimmo et al.*) without requiring new interior modeling.
+- The linear relationship between the RMS of the ephemeris difference vector and the gravitational binding energy fraction ($\Omega$) is a valid proxy for testing the Nordtvedt effect in this differential analysis context, as the differential signal scales with $\Omega$.
+- The `scipy` library (specifically `scipy.stats` and `numpy`) provides sufficient numerical stability for the linear regression and Monte Carlo resampling within the 6-hour CPU limit.
+- The inter-ephemeris differences (JPL vs. INPOP) are dominated by modeling differences and potential SEP violations rather than random noise, making the RMS a suitable dependent variable for regression.
+- The minimum sample size of N ≥ 3 planets is sufficient to perform a statistically meaningful linear regression for this specific planetary regime.
 - The Monte Carlo simulation with a sufficient number of iterations will complete within the standard time limit on a standard 2-core CPU runner.
-- The planetary data sampling interval is sufficient to capture secular trends without introducing aliasing artifacts that would obscure the precession signal.
 - The correlation between ephemeris differences and binding energy, if present, is linear within the range of planetary parameters in the solar system.
-- The Nordtvedt effect (SEP violation) is the relevant phenomenon for self-gravitating bodies, and the signal-to-noise ratio is sufficient to establish upper bounds on $\eta$ even if a definitive detection is not possible.
-- The entire pipeline (data download, integration, regression, Monte Carlo) must complete within 6 hours on a CPU-only environment with ≤7 GB RAM.
-- While Lunar Laser Ranging (LLR) provides the primary constraint on the Nordtvedt parameter $\eta$, this project uses planetary differential ephemeris analysis as a complementary test using publicly available data, justified by the need to constrain $\eta$ across different mass scales and orbital configurations.
-- The 4-body model without a full force model (tides, asteroids) is insufficient for full precision but is justified as a complementary test for public data, acknowledging that residuals may be dominated by unmodeled physics.
 - The differential ephemeris analysis (JPL vs INPOP) is used to isolate potential discrepancies between independent models, which may reveal unmodeled physics or WEP violations, rather than comparing a single model to itself.
 - Peer-reviewed interior structure models are required for $\Omega$ to avoid systematic errors from bulk averages.
+- The 4-body model without a full force model (tides, asteroids) is insufficient for full precision but is justified as a complementary test for public data, acknowledging that residuals may be dominated by unmodeled physics, but the differential nature of the test (JPL vs INPOP) mitigates common-mode errors.
+- The entire pipeline (data download, integration, regression, Monte Carlo) must complete within 6 hours on a CPU-only environment with ≤7 GB RAM.

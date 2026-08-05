@@ -1,83 +1,92 @@
 # Narrative Archaeology: Reverse-Engineering Story Memories from Brain Data
 
-## Project Setup
+This project implements the analysis pipeline for reverse-engineering story memories from fMRI brain data, focusing on the distinction between early and late event patterns in the hippocampus and mPFC.
 
-This project uses Python 3.11+ with the following linting and formatting tools:
+## Prerequisites
 
-- **black**: Code formatter
-- **flake8**: Linter
-- **isort**: Import sorter
-- **pre-commit**: Git hooks for automated checks
+- Python 3.11 or higher
+- pip (Python package installer)
 
 ## Installation
 
-1. Create a virtual environment:
+1. Clone the repository:
+ ```bash
+ git clone <repository-url>
+ cd narrative-archaeology
+ ```
+
+2. Create a virtual environment (recommended):
  ```bash
  python -m venv venv
  source venv/bin/activate # On Windows: venv\Scripts\activate
  ```
 
-2. Install dependencies:
+3. Install dependencies:
  ```bash
  pip install -r requirements.txt
  ```
 
-3. Install pre-commit hooks:
+4. For development (optional):
  ```bash
- pre-commit install
+ pip install -e ".[dev]"
  ```
 
-## Development Workflow
+## Project Structure
 
-### Running Linters Manually
-
-```bash
-# Check formatting
-black --check code/ tests/
-
-# Fix formatting
-black code/ tests/
-
-# Check imports
-isort --check code/ tests/
-
-# Fix imports
-isort code/ tests/
-
-# Run linter
-flake8 code/ tests/
+```
+.
+├── code/ # Source code
+│ ├── config.py # Configuration and paths
+│ ├── data/ # Data ingestion and preprocessing
+│ ├── models/ # Analysis models (RSA, decoding)
+│ └── utils/ # Utilities (stats, visualization)
+├── data/ # Data storage (downloaded datasets, preprocessed files)
+├── tests/ # Test suite
+├── docs/ # Documentation
+├── requirements.txt # Python dependencies
+├── pyproject.toml # Project configuration
+└── README.md # This file
 ```
 
-### Using Pre-commit
+## Configuration
 
-Run all checks before committing:
+Before running any analysis, ensure `code/config.py` is properly configured with:
+- Random seeds for reproducibility
+- CPU-only constraints (no GPU usage)
+- Correct paths to data directories
+- Motion artifact thresholds
+
+## Running the Pipeline
+
+The pipeline consists of several stages:
+
+1. **Data Download**: Download OpenNeuro datasets (e.g., ds000234)
+2. **Preprocessing**: Run fMRIPrep or nilearn-based preprocessing
+3. **Segmentation**: Align story events to BOLD signal
+4. **ROI Extraction**: Extract timecourses from hippocampus, mPFC, PCC, etc.
+5. **Analysis**:
+ - RSA: Compare early vs. late event patterns
+ - Decoding: Predict narrative elements from neural patterns
+
+Example usage:
 ```bash
-pre-commit run --all-files
+# Run preprocessing
+python code/data/preprocess.py --subject sub-01
+
+# Run RSA analysis
+python code/models/rsa.py --roi mPFC
+
+# Run decoding analysis
+python code/models/decoder.py --category plot
 ```
-
-## Configuration Files
-
-- `.flake8`: Flake8 linting rules
-- `pyproject.toml`: Black, isort, and pytest configuration
-- `.pre-commit-config.yaml`: Pre-commit hook definitions
-- `requirements.txt`: Project dependencies
 
 ## Testing
 
-Run tests with pytest:
+Run the test suite:
 ```bash
-pytest
+pytest tests/
 ```
 
-Run with coverage:
-```bash
-pytest --cov=code --cov-report=html
-```
+## License
 
-## Architecture
-
-- `code/`: Source code for the research pipeline
-- `data/`: Data files and outputs
-- `tests/`: Test suite
-- `docs/`: Documentation
-- `specs/`: Feature specifications
+MIT License

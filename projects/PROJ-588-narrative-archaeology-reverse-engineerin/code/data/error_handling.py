@@ -1,241 +1,211 @@
-"""
-Error handling infrastructure for the Narrative Archaeology pipeline.
-
-Provides utilities to detect motion artifacts in fMRI data, skip problematic
-subjects, and log errors in a structured JSON format to data/errors.log.
-"""
 import os
 import json
 import logging
 import time
 from datetime import datetime
 from pathlib import Path
-from typing import Optional, Dict, Any, List
-
 import numpy as np
 
-import code.config as config
-
-# Configure logging
+# Configure logging for the module
 logger = logging.getLogger(__name__)
 
-# Ensure data directory exists
-DATA_DIR = Path(config.DATA_DIR)
-DATA_DIR.mkdir(parents=True, exist_ok=True)
+# Default motion threshold in mm (can be overridden in config)
+DEFAULT_MOTION_THRESHOLD_MM = 3.0
 
-ERROR_LOG_PATH = DATA_DIR / "errors.log"
-
-
-def calculate_motion_metrics(
-    displacement: np.ndarray,
-    rotation: np.ndarray,
-    voxel_size: float = 3.0
-) -> Dict[str, float]:
+def calculate_motion_metrics(translations: np.ndarray, rotations: np.ndarray) -> dict:
     """
-    Calculate motion metrics from displacement and rotation parameters.
+    Calculate motion metrics from fMRIPrep transformation parameters.
 
     Args:
-        displacement: Array of translational displacements (mm) per volume [N, 3]
-        rotation: Array of rotational displacements (radians) per volume [N, 3]
-        voxel_size: Approximate voxel size in mm for rotation conversion
+        translations: Array of shape (n_timepoints, 3) containing x, y, z translations (mm).
+        rotations: Array of shape (n_timepoints, 3) containing roll, pitch, yaw (radians).
 
     Returns:
         Dictionary containing:
-            - mean_displacement: Mean translational displacement (mm)
-            - max_displacement: Maximum translational displacement (mm)
-            - mean_rotation_mm: Mean rotational displacement converted to mm
-            - max_rotation_mm: Maximum rotational displacement converted to mm
-            - framewise_displacement: Sum of absolute motion metrics per frame
+            - 'max_displacement_mm': Maximum instantaneous displacement (mm).
+            - 'mean_displacement_mm': Mean instantaneous displacement (mm).
+            - 'max_rotation_deg': Maximum instantaneous rotation (degrees).
+            - 'mean_rotation_deg': Mean instantaneous rotation (degrees).
+            - 'framedrops': Number of timepoints exceeding the motion threshold.
     """
-    if displacement.shape[0] == 0:
-        return {
-            "mean_displacement": 0.0,
-            "max_displacement": 0.0,
-            "mean_rotation_mm": 0.0,
-            "max_rotation_mm": 0.0,
-            "framewise_displacement": np.array([])
-        }
+    if translations.shape[0] != rotations.shape[0]:
+        raise ValueError("Translations and rotations must have the same number of timepoints.")
 
-    # Translational metrics
-    translational_norm = np.linalg.norm(displacement, axis=1)
-    mean_disp = float(np.mean(translational_norm))
-    max_disp = float(np.max(translational_norm))
+    # Calculate instantaneous displacement (Friston et al. 1996)
+    # Displacement = sqrt(dx^2 + dy^2 + dz^2)
+    diffs = np.diff(translations, axis=0)
+    displacements = np.sqrt(np.sum(diffs**2, axis=1))
 
-    # Convert rotation to mm (approximate arc length at edge of brain)
-    # Assuming brain radius ~50mm, but using voxel_size as a proxy for local scale
-    rotation_mm = np.abs(rotation) * voxel_size * 50.0 / 3.0  # Approximate conversion
-    mean_rot_mm = float(np.mean(np.linalg.norm(rotation_mm, axis=1)))
-    max_rot_mm = float(np.max(np.linalg.norm(rotation_mm, axis=1)))
+    # Calculate instantaneous rotation (in mm, approximated for 50mm radius)
+    # Rotation = 50 * sqrt(droll^2 + dpitch^2 + dyaw^2)
+    rot_diffs = np.diff(rotations, axis=0)
+    rotations_mm = 50.0 * np.sqrt(np.sum(rot_diffs**2, axis=1))
 
-    # Framewise displacement (Power et al., 2012)
-    # FD = sum(|dX|) + sum(|dY|) + sum(|dZ|) + sum(|dPitch|*R) + ...
-    fd = (
-        np.sum(np.abs(np.diff(displacement, axis=0)), axis=1) +
-        np.sum(np.abs(np.diff(rotation, axis=0)) * voxel_size * 50.0 / 3.0, axis=1)
-    )
+    # Total instantaneous motion
+    total_motion = displacements + rotations_mm
+
+    # Convert rotation diffs to degrees for reporting
+    rot_diffs_deg = np.degrees(np.linalg.norm(rot_diffs, axis=1))
+
+    max_disp = float(np.max(total_motion))
+    mean_disp = float(np.mean(total_motion))
+    max_rot = float(np.max(rot_diffs_deg))
+    mean_rot = float(np.mean(rot_diffs_deg))
+
+    # Count frames exceeding threshold
+    framedrops = int(np.sum(total_motion > DEFAULT_MOTION_THRESHOLD_MM))
 
     return {
-        "mean_displacement": mean_disp,
-        "max_displacement": max_disp,
-        "mean_rotation_mm": mean_rot_mm,
-        "max_rotation_mm": max_rot_mm,
-        "framewise_displacement": fd
+        "max_displacement_mm": max_disp,
+        "mean_displacement_mm": mean_disp,
+        "max_rotation_deg": max_rot,
+        "mean_rotation_deg": mean_rot,
+        "framedrops": framedrops,
+        "motion_threshold_mm": DEFAULT_MOTION_THRESHOLD_MM
     }
 
-
-def check_motion_artifacts(
-    displacement: np.ndarray,
-    rotation: np.ndarray,
-    voxel_size: float = 3.0,
-    threshold_mm: Optional[float] = None
-) -> Dict[str, Any]:
+def check_motion_artifacts(metrics: dict, threshold_mm: float = None) -> tuple:
     """
-    Check if motion exceeds thresholds and determine if subject should be skipped.
+    Check if motion metrics exceed acceptable thresholds.
 
     Args:
-        displacement: Translational displacements [N, 3] in mm
-        rotation: Rotational displacements [N, 3] in radians
-        voxel_size: Voxel size in mm
-        threshold_mm: Motion threshold in mm (defaults to config.MOTION_THRESHOLD_MM)
+        metrics: Dictionary returned by calculate_motion_metrics.
+        threshold_mm: Optional override for the motion threshold.
 
     Returns:
-        Dictionary containing:
-            - is_rejected: True if subject should be skipped
-            - reason: String explaining rejection (or None)
-            - metrics: Dictionary of calculated motion metrics
+        Tuple (is_valid, reason):
+            - is_valid: True if motion is acceptable, False otherwise.
+            - reason: String explaining the decision.
     """
     if threshold_mm is None:
-        threshold_mm = config.MOTION_THRESHOLD_MM
+        threshold_mm = DEFAULT_MOTION_THRESHOLD_MM
 
-    metrics = calculate_motion_metrics(displacement, rotation, voxel_size)
+    max_disp = metrics.get("max_displacement_mm", 0.0)
+    framedrops = metrics.get("framedrops", 0)
+    total_frames = metrics.get("total_frames", 0) # Optional context
 
-    # Rejection criteria:
-    # 1. Mean FD > threshold
-    # 2. Any single frame FD > 3 * threshold
-    # 3. > 20% of frames have FD > threshold
+    # Criterion 1: Maximum displacement exceeds threshold
+    if max_disp > threshold_mm:
+        return False, f"Max displacement ({max_disp:.2f}mm) exceeds threshold ({threshold_mm}mm)"
 
-    mean_fd = float(np.mean(metrics["framewise_displacement"])) if len(metrics["framewise_displacement"]) > 0 else 0.0
-    max_fd = float(np.max(metrics["framewise_displacement"])) if len(metrics["framewise_displacement"]) > 0 else 0.0
-    high_motion_ratio = float(np.sum(metrics["framewise_displacement"] > threshold_mm) / len(metrics["framewise_displacement"])) if len(metrics["framewise_displacement"]) > 0 else 0.0
+    # Criterion 2: Excessive number of censored frames (>20% of total)
+    if total_frames > 0 and framedrops > 0.2 * total_frames:
+        return False, f"Excessive motion censoring: {framedrops} frames ({100*framedrops/total_frames:.1f}%) exceed threshold"
 
-    is_rejected = False
-    reason = None
+    return True, "Motion metrics within acceptable limits"
 
-    if mean_fd > threshold_mm:
-        is_rejected = True
-        reason = f"Mean FD ({mean_fd:.3f}mm) exceeds threshold ({threshold_mm}mm)"
-    elif max_fd > 3 * threshold_mm:
-        is_rejected = True
-        reason = f"Maximum FD ({max_fd:.3f}mm) exceeds 3x threshold ({3 * threshold_mm}mm)"
-    elif high_motion_ratio > 0.20:
-        is_rejected = True
-        reason = f"High motion ratio ({high_motion_ratio:.1%}) exceeds 20% threshold"
-
-    return {
-        "is_rejected": is_rejected,
-        "reason": reason,
-        "metrics": metrics
-    }
-
-
-def log_error(
-    subject_id: str,
-    error_code: str,
-    error_message: str,
-    additional_data: Optional[Dict[str, Any]] = None,
-    motion_mm: float = 0.0
-) -> None:
+def log_error(error_log_path: Path, subject_id: str, error_code: str, details: dict):
     """
-    Log an error to the structured JSON error log.
+    Log an error to a JSON-formatted log file.
 
     Args:
-        subject_id: Identifier for the subject
-        error_code: Short code for the error type (e.g., "MOTION_ARTIFACT")
-        error_message: Human-readable error description
-        additional_data: Optional dictionary of additional context
-        motion_mm: Motion metric value if applicable
+        error_log_path: Path to the error log file.
+        subject_id: Identifier for the subject.
+        error_code: Short code for the error type (e.g., 'MOTION', 'MISSING_FILE').
+        details: Dictionary of additional error details.
     """
-    error_entry = {
-        "timestamp": datetime.utcnow().isoformat() + "Z",
+    log_entry = {
+        "timestamp": datetime.now().isoformat(),
         "subject_id": subject_id,
         "error_code": error_code,
-        "error_message": error_message,
-        "motion_mm": motion_mm
+        **details
     }
 
-    if additional_data:
-        error_entry.update(additional_data)
+    # Ensure directory exists
+    error_log_path.parent.mkdir(parents=True, exist_ok=True)
 
     # Append to log file
-    with open(ERROR_LOG_PATH, "a") as f:
-        f.write(json.dumps(error_entry) + "\n")
+    with open(error_log_path, 'a', encoding='utf-8') as f:
+        f.write(json.dumps(log_entry) + '\n')
 
-    logger.warning(f"Error logged for {subject_id}: {error_code} - {error_message}")
+    logger.warning(f"Logged error for {subject_id}: {error_code} - {details}")
 
-
-def handle_subject_error(
-    subject_id: str,
-    error_code: str,
-    error_message: str,
-    motion_metrics: Optional[Dict[str, float]] = None,
-    skip: bool = True
-) -> bool:
+def handle_subject_error(subject_id: str, error_type: str, metrics: dict = None, error_log_path: Path = None):
     """
-    Handle an error for a subject, optionally skipping further processing.
+    Handle a subject error by checking motion and logging if necessary.
 
     Args:
-        subject_id: Subject identifier
-        error_code: Error code
-        error_message: Error description
-        motion_metrics: Motion metrics dictionary if applicable
-        skip: Whether to skip further processing (default True)
+        subject_id: Subject identifier.
+        error_type: Type of error (e.g., 'MOTION_ARTIFACT', 'PREPROCESSING_FAILED').
+        metrics: Optional motion metrics dictionary.
+        error_log_path: Path to the error log file. Defaults to 'data/errors.log'.
 
     Returns:
-        True if subject was skipped, False otherwise
+        bool: True if the subject should be skipped (error logged), False otherwise.
     """
-    motion_mm = motion_metrics.get("mean_displacement", 0.0) if motion_metrics else 0.0
+    if error_log_path is None:
+        error_log_path = Path("data/errors.log")
 
-    log_error(
-        subject_id=subject_id,
-        error_code=error_code,
-        error_message=error_message,
-        motion_mm=motion_mm
-    )
-
-    if skip:
-        logger.info(f"Skipping subject {subject_id} due to {error_code}")
+    if error_type == "MOTION_ARTIFACT" and metrics:
+        is_valid, reason = check_motion_artifacts(metrics)
+        if not is_valid:
+            log_error(
+                error_log_path,
+                subject_id,
+                "MOTION_ARTIFACT",
+                {
+                    "motion_mm": metrics.get("max_displacement_mm", 0.0),
+                    "framedrops": metrics.get("framedrops", 0),
+                    "reason": reason
+                }
+            )
+            return True
+    elif error_type:
+        # Log other errors without motion metrics
+        log_error(
+            error_log_path,
+            subject_id,
+            error_type,
+            {"reason": "Unspecified processing failure"}
+        )
         return True
 
     return False
 
-
-def get_error_summary() -> List[Dict[str, Any]]:
+def get_error_summary(error_log_path: Path) -> dict:
     """
-    Read and return all logged errors as a list of dictionaries.
+    Generate a summary of errors from the log file.
+
+    Args:
+        error_log_path: Path to the error log file.
 
     Returns:
-        List of error entries
+        Dictionary with counts of errors by type and subject list.
     """
-    if not ERROR_LOG_PATH.exists():
-        return []
+    if not error_log_path.exists():
+        return {"total_errors": 0, "by_code": {}, "subjects": []}
 
     errors = []
-    with open(ERROR_LOG_PATH, "r") as f:
+    with open(error_log_path, 'r', encoding='utf-8') as f:
         for line in f:
-            line = line.strip()
-            if line:
-                try:
-                    errors.append(json.loads(line))
-                except json.JSONDecodeError:
-                    logger.warning(f"Invalid JSON in error log: {line}")
+            if line.strip():
+                errors.append(json.loads(line))
 
-    return errors
+    by_code = {}
+    subjects = set()
+    for err in errors:
+        code = err.get("error_code", "UNKNOWN")
+        by_code[code] = by_code.get(code, 0) + 1
+        subjects.add(err.get("subject_id", "UNKNOWN"))
 
+    return {
+        "total_errors": len(errors),
+        "by_code": by_code,
+        "subjects": list(subjects)
+    }
 
-def clear_error_log() -> None:
+def clear_error_log(error_log_path: Path = None):
     """
     Clear the error log file.
+
+    Args:
+        error_log_path: Path to the error log file. Defaults to 'data/errors.log'.
     """
-    if ERROR_LOG_PATH.exists():
-        ERROR_LOG_PATH.unlink()
-        logger.info("Error log cleared")
+    if error_log_path is None:
+        error_log_path = Path("data/errors.log")
+
+    if error_log_path.exists():
+        error_log_path.unlink()
+        logger.info(f"Cleared error log at {error_log_path}")
+    else:
+        logger.info(f"No error log found at {error_log_path} to clear.")

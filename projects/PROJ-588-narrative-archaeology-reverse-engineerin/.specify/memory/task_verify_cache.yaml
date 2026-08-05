@@ -1,0 +1,29 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No project directory or file structure was presented; the implementer supplied
+    only the specification text without any actual folders, README, source code layout,
+    or other artifacts that would constitute a created project structure. Consequently
+    the required deliverable is missing.
+T002:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The implementer only supplied a feature specification and no concrete project\
+    \ initialization artifacts (e.g., a repository, `pyproject.toml`, `requirements.txt`,\
+    \ or any Python files). There is no evidence that a Python\u202F3.11 project was\
+    \ created or that the listed dependencies (transformers, pandas, numpy, openneuro\u2011\
+    cli) were added. The required initialization step is missing."
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No flake8 or black configuration files (e.g., `.flake8`, `pyproject.toml` with\
+    \ black settings, or a pre\u2011commit hook) were provided, so the required linting/formatting\
+    \ setup is missing. The implementer\u2019s claim cannot be verified without those\
+    \ artifacts."
+T009:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration, or documentation showing an error\u2011handling layer\
+    \ that detects motion\u2011artifact subjects, skips them, and logs the errors\
+    \ is present. The required artifact (implementation of the skip\u2011on\u2011\
+    artifact and logging infrastructure) is missing."

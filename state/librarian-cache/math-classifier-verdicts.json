@@ -1786,5 +1786,9 @@
   "PROJ-997-llmxive-follow-up-extending-the-mirage-o::1.6.0": {
     "classified_at": "2026-07-12T18:37:24Z",
     "verdict": false
+  },
+  "PROJ-999-llmxive-follow-up-extending-vla-correcto::1.6.0": {
+    "classified_at": "2026-08-05T04:27:56Z",
+    "verdict": false
   }
 }

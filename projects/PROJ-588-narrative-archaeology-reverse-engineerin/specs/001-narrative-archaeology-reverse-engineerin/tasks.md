@@ -44,7 +44,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project structure per implementation plan
-- [ ] T002 Initialize Python 3.11 project with dependencies (nilearn, scikit-learn, transformers, pandas, numpy, openneuro-cli)
+- [ ] T002 Initialize Python 3.11 project with dependencies , transformers, pandas, numpy (Wikipedia: Pandas (software), https://en.wikipedia.org/wiki/Pandas_(software)), openneuro-cli)
 - [ ] T003 [P] Configure linting (flake8/black) and formatting tools
 
 ---
@@ -56,7 +56,7 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [ ] T004 [P] Implement `code/config.py` with pinned random seeds, CPU-only constraints, and path definitions
-- [ ] T005 [P] Create `code/utils/stats.py` for permutation testing and FDR correction logic
+- [X] T005 [P] Create `code/utils/stats.py` for permutation testing and FDR correction logic
 - [X] T006 [P] Create `code/utils/viz.py` for plotting RSA matrices and decoding accuracy
 - [ ] T007-SKELETON [P] [US1] Create `code/data/download.py` file skeleton with checksum verification interface (Utility Skeleton)
 - [ ] T008-SKELETON [P] Create `code/data/preprocess.py` file skeleton for nilearn/niworkflows wrapper

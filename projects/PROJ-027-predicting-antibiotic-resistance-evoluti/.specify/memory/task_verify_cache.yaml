@@ -1,0 +1,36 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory listings, creation scripts, or verification output were provided
+    to show that `code/01_ingest/`, `code/02_process/`, `code/03_model/`, `code/04_validate/`,
+    and `code/05_viz/` actually exist, so the required artifact is missing.
+T001b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory listings or file system evidence were provided showing that `utils/`,
+    `tests/`, `data/raw/`, `data/processed/`, and `data/models/` actually exist and
+    contain any content. Without such artifacts, we cannot confirm the task was completed.
+T001c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the `tests/contract/` or `tests/unit/` directories or their `.gitkeep`
+    files is provided; without seeing those paths and files, we cannot confirm the
+    required artifacts exist.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., .ruff.toml, .flake8, pyproject.toml
+    with black settings) or setup scripts are present in the provided evidence. Consequently,
+    the requirement to configure ruff/flake8 and black is not satisfied.
+T007:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the `data/raw/` and `data/processed/` directories or the required\
+    \ `.gitkeep` placeholder files is present; the artifact list is empty, so the\
+    \ task\u2019s requirement is not satisfied."
+T008:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `tests/contract/` directory or any schema\u2011validation helper files are\
+    \ present in the repository; the claim lacks any concrete artifacts to verify\
+    \ that the required stubs were created. The task therefore remains unfinished."
