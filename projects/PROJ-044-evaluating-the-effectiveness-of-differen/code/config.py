@@ -10,7 +10,8 @@ import json
 from pathlib import Path
 
 
-VALID_DATASETS = Literal["femnist", "shakespeare"]
+# Valid dataset names restricted to FEMNIST per plan.md Gap Analysis
+VALID_DATASETS = Literal["femnist"]
 VALID_ALPHA_VALUES = [0.05, 0.1, 0.5, 1.0]
 VALID_EPSILON_VALUES = [0.01, 0.1, 0.5, 1.0, 5.0, 10.0]
 
@@ -25,7 +26,7 @@ class Config:
         alpha: Dirichlet distribution parameter for client heterogeneity.
                Lower values (e.g., 0.1) create high heterogeneity.
         epsilon: Target privacy budget (Differential Privacy).
-        dataset: Name of the dataset to use ('femnist' or 'shakespeare').
+        dataset: Name of the dataset to use. Only 'femnist' is supported.
     """
     seed: int = 42
     alpha: float = 0.5
@@ -46,9 +47,11 @@ class Config:
         if self.epsilon < 0:
             raise ValueError(f"Epsilon must be non-negative, got {self.epsilon}")
 
-        if self.dataset not in ["femnist", "shakespeare"]:
+        # Strict validation: Only 'femnist' is allowed.
+        # 'shakespeare' is explicitly excluded per plan.md Gap Analysis.
+        if self.dataset != "femnist":
             raise ValueError(
-                f"Dataset must be 'femnist' or 'shakespeare', got '{self.dataset}'"
+                "Shakespeare excluded per plan.md Gap Analysis (no verified source)."
             )
 
     @property
@@ -97,11 +100,13 @@ class Config:
             A new Config instance.
         """
         base = base_dir or Path(".")
+        # Enforce default to femnist if not provided, but validation will catch invalid ones
+        dataset_val = data.get("dataset", "femnist")
         return cls(
             seed=data.get("seed", 42),
             alpha=data.get("alpha", 0.5),
             epsilon=data.get("epsilon", 1.0),
-            dataset=data.get("dataset", "femnist"),
+            dataset=dataset_val,
         )
 
     @classmethod

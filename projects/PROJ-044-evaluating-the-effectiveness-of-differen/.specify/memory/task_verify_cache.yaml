@@ -1,3 +1,23 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `tree_output.txt` (or any directory listing) was supplied, and there is no
+    evidence that the required folder hierarchy was actually created under `projects/PROJ-044-evaluating-the-effectiveness-of-differen/`.
+    Without this artifact the completion criterion cannot be verified.
+T011:
+  c: false
+  h: 3be833e5366418bad18803c88a6b856d75e0fb2370d87a56ac33cb00fc920c7d
+  r: The required output files `data/raw/femnist.parquet` and `data/raw/femnist.sha256`
+    are not present on disk, and the provided `code/data/download.py` is truncated
+    and does not show a complete implementation of the download, conversion to Parquet,
+    and checksum generation. The task therefore remains unfinished.
+T026:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a `results/plots/` directory or any PNG files (300\u202FDPI)\
+    \ was provided; thus the required overlay plot of minority\u2011client degradation\
+    \ versus global accuracy curves is missing. The implementer must generate and\
+    \ supply the specified plot files in the correct location."
 T028:
   c: false
   h: e10705754bbf7e7fa31e20705c5ebca2046e84261380fbd1a08da78613b90922

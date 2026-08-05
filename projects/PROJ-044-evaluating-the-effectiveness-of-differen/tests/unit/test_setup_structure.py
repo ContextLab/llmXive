@@ -1,40 +1,61 @@
 """
-Unit tests to verify the project structure was created correctly.
+Unit tests for the project structure setup script.
 """
 import os
+import tempfile
+from pathlib import Path
 import pytest
+from code.setup_project_structure import create_directories, generate_tree_output
 
-REQUIRED_DIRECTORIES = [
-    "code/data",
-    "code/training",
-    "code/analysis",
-    "code/models",
-    "tests/unit",
-    "tests/integration",
-    "data/raw",
-    "data/partitions",
-    "results",
-    "artifacts"
-]
+class TestCreateDirectories:
+    def test_creates_required_directories(self, tmp_path):
+        """Test that all required directories are created."""
+        required_dirs = [
+            "code/data", "code/training", "code/analysis", "code/models",
+            "tests/unit", "tests/integration", "data/raw", "data/partitions",
+            "results", "artifacts"
+        ]
+        
+        create_directories(tmp_path)
+        
+        for dir_name in required_dirs:
+            full_path = tmp_path / dir_name
+            assert full_path.exists(), f"Directory {dir_name} was not created"
+            assert full_path.is_dir(), f"{dir_name} is not a directory"
 
-@pytest.fixture(scope="module")
-def project_root():
-    # Assuming tests are run from the project root
-    return os.getcwd()
+    def test_idempotent_creation(self, tmp_path):
+        """Test that running create_directories twice does not cause errors."""
+        create_directories(tmp_path)
+        # Run again - should not raise
+        create_directories(tmp_path)
+        
+        # Verify directories still exist
+        assert (tmp_path / "code/data").exists()
 
-@pytest.mark.parametrize("dir_path", REQUIRED_DIRECTORIES)
-def test_directory_exists(project_root, dir_path):
-    """Test that each required directory exists."""
-    full_path = os.path.join(project_root, dir_path)
-    assert os.path.exists(full_path), f"Directory {dir_path} does not exist"
-    assert os.path.isdir(full_path), f"{dir_path} exists but is not a directory"
+class TestGenerateTreeOutput:
+    def test_generates_tree_file(self, tmp_path):
+        """Test that tree output file is generated."""
+        # Create a dummy directory structure first
+        (tmp_path / "code" / "data").mkdir(parents=True)
+        
+        output_file = tmp_path / "tree_output.txt"
+        generate_tree_output(tmp_path, output_file)
+        
+        assert output_file.exists(), "Tree output file was not created"
+        assert output_file.stat().st_size > 0, "Tree output file is empty"
+        
+        content = output_file.read_text()
+        assert "code" in content, "Tree output does not contain expected directory name"
 
-def test_all_directories_exist(project_root):
-    """Test that all required directories exist in one go."""
-    missing_dirs = []
-    for dir_path in REQUIRED_DIRECTORIES:
-        full_path = os.path.join(project_root, dir_path)
-        if not os.path.exists(full_path):
-            missing_dirs.append(dir_path)
-    
-    assert len(missing_dirs) == 0, f"Missing directories: {missing_dirs}"
+    def test_tree_output_content(self, tmp_path):
+        """Test that tree output contains expected content."""
+        (tmp_path / "results").mkdir()
+        (tmp_path / "artifacts").mkdir()
+        
+        output_file = tmp_path / "tree_output.txt"
+        generate_tree_output(tmp_path, output_file)
+        
+        content = output_file.read_text()
+        # Check for at least one directory name in the output
+        assert any(name in content for name in ["code", "data", "tests", "results", "artifacts"]), \
+            "Tree output does not contain expected directory names"

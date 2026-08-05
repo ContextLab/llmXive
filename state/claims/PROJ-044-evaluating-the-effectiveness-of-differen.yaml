@@ -1,0 +1,91 @@
+- artifact_path: projects/PROJ-044-evaluating-the-effectiveness-of-differen/results/validation_report.md
+  attempts: 1
+  canonical: 150 total runs in raw logs
+  claim_id: c_c2852ab7
+  context: Data Filtering Summary section listing total run counts.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Total Runs in Raw Logs: 150'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T03:43:44Z'
+- artifact_path: projects/PROJ-044-evaluating-the-effectiveness-of-differen/results/validation_report.md
+  attempts: 1
+  canonical: 142 runs in filtered data
+  claim_id: c_8d42981d
+  context: Data Filtering Summary section listing run counts after filtering.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Runs in Filtered Data: 142'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T03:44:42Z'
+- artifact_path: projects/PROJ-044-evaluating-the-effectiveness-of-differen/results/validation_report.md
+  attempts: 1
+  canonical: 8 excluded runs
+  claim_id: c_dc942cb2
+  context: Data Filtering Summary section listing total excluded runs.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Excluded Runs: 8'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T03:45:27Z'
+- artifact_path: projects/PROJ-044-evaluating-the-effectiveness-of-differen/results/validation_report.md
+  attempts: 1
+  canonical: 5 runs excluded for time limited status
+  claim_id: c_47e6e5bf
+  context: Exclusion Breakdown section listing reasons for exclusion.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Time Limited (is_time_limited): 5'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T03:46:15Z'
+- artifact_path: projects/PROJ-044-evaluating-the-effectiveness-of-differen/results/validation_report.md
+  attempts: 1
+  canonical: 3 runs excluded for utility collapse
+  claim_id: c_cd6b7fb2
+  context: Exclusion Breakdown section listing reasons for exclusion.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Utility Collapse (is_utility_collapse): 3'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T03:46:47Z'
+- artifact_path: projects/PROJ-044-evaluating-the-effectiveness-of-differen/results/validation_report.md
+  attempts: 1
+  canonical: 0 runs with reduced power
+  claim_id: c_a321753a
+  context: Statistical Power section indicating count of runs with fewer than 3 valid
+    runs.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Runs with Reduced Power (n < 3): 0'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T03:48:03Z'

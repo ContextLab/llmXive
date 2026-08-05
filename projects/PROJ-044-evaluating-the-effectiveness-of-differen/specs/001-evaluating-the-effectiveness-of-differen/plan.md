@@ -105,5 +105,5 @@ projects/PROJ-044-evaluating-the-effectiveness-of-differen/
 - **Total Runs**: 60 runs.
 - **Time Budget**: 6 hours on GitHub Actions CPU.
 - **Convergence Check**: Each run monitors loss. If loss plateaus before a predefined maximum number of rounds, training stops early.
-- **Timeout Handling**: If a predefined time limit is approached (e.g., several hours), remaining rounds are reduced to 20 and the run is flagged as `is_time_limited=True` in the results CSV.
+- **Timeout Handling**: If a predefined time limit is approached (e.g., several hours), remaining rounds are reduced to a predefined threshold and the run is flagged as `is_time_limited=True` in the results CSV.
 - **Metric Exclusion**: Runs flagged as `is_time_limited=True` are **excluded** from SC-001 (Convergence Speed) analysis because the "rounds to reach target" cannot be accurately measured for incomplete runs. The analysis script will explicitly filter these rows.
