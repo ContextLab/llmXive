@@ -458,3 +458,45 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-03T17:42:45Z'
+- artifact_path: projects/PROJ-842-llmxive-follow-up-extending-dvao-dynamic/specs/001-llmxive-follow-up-extending-dvao-dynamic/tasks.md
+  attempts: 1
+  canonical: varying number of objectives influences trade-off performance
+  claim_id: c_37c71e47
+  context: 'The specific value to remove/generalize: ''a small number'' Rewritten
+    passage: The study will investigate how varying the number of objectives, from
+    a small set to a larger set, influences the trade-off performance. We will employ
+    a multi-objective evolutionary algorithm to generate Pareto-optimal fronts for
+    analysis (Smith et al., 2023).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Varying_number_of_objectives_influences_trade-off_performanc
+  kind: entity_fact
+  raw_text: The study will investigate how varying the number of objectives, from
+    a small set to a larger set, influences the trade-off performance.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T21:24:46Z'
+- artifact_path: projects/PROJ-842-llmxive-follow-up-extending-dvao-dynamic/docs/README.md
+  attempts: 1
+  canonical: Synthetic experiments confirm theoretical scaling law for N in {5, 10,
+    20, 50}
+  claim_id: c_08127a2b
+  context: "The core contribution is a closed-form derivation of the noise accumulation\
+    \ variance Var(A) as a function of N and independent noise \u03B5i. Synthetic\
+    \ experiments across N \u2208 {5, 10, 20, 50} confirm the theoretical scaling\
+    \ law."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Synthetic experiments across N \u2208 {5, 10, 20, 50} confirm the theoretical\
+    \ scaling law."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T21:26:45Z'
