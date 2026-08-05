@@ -1,0 +1,38 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "SWE-Bench Filtered Dataset Schema"
+description: "Schema for the filtered SWE-bench dataset containing instances with >500 lines of relevant history."
+type: "object"
+properties:
+  instance_id:
+    type: "string"
+    description: "Unique identifier for the task instance."
+  repo:
+    type: "string"
+    description: "Repository path (e.g., 'sphinx-doc/sphinx')."
+  problem_statement:
+    type: "string"
+    description: "The issue description text."
+  relevant_files:
+    type: "array"
+    items:
+      type: "string"
+    description: "List of file paths relevant to the issue."
+  file_history_length:
+    type: "integer"
+    description: "Total lines of relevant files. Must be >= 500."
+    minimum: 500
+  test_patch:
+    type: "string"
+    description: "Ground truth test patch (diff format)."
+  base_commit:
+    type: "string"
+    description: "Git commit hash for the base state."
+required:
+  - instance_id
+  - repo
+  - problem_statement
+  - relevant_files
+  - file_history_length
+  - test_patch
+  - base_commit
+additionalProperties: false

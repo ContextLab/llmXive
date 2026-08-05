@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2605.25435",
+  "judged_at": "2026-08-05T22:28:49Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"claw-swe-bench: a benchmark for evaluating openclaw-style agent harnes\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (d) as it provides the foundational security landscape, attack vectors, and defense mechanisms for the specific \"OpenClaw\" agent framework that the user's benchmark (\"Claw-SWE-Bench\") is designed to evaluate. A literature review for a new benchmark on this specific agent architecture must cite the canonical survey defining its security properties and vulnerabilities.",
+  "relevant": true
+}

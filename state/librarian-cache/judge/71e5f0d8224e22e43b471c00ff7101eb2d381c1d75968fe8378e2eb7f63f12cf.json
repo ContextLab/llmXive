@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2511.00197",
+  "judged_at": "2026-08-05T22:28:43Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"claw-swe-bench: a benchmark for evaluating openclaw-style agent harnes\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it provides an empirical study of the same domain (LLM agents on SWE-Bench) and measures the same underlying mechanisms (agent trajectories, success/failure patterns, and problem-solving strategies) that are central to evaluating and extending benchmarks like \"Claw-SWE-Bench.\" It offers the necessary baseline data on agent behavior and failure modes that a literature review for a new benchmark extension would require to contextualize its contributions",
+  "relevant": true
+}

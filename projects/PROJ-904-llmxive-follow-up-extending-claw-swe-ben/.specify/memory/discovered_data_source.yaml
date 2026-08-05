@@ -1,0 +1,12 @@
+status: none
+intent: download Claw-SWE-Bench dataset as pip-installable python package dataset
+required_fields:
+- instance_id
+- issue_description
+- file_history
+- ground_truth_patch
+- unit_tests
+- metadata
+cache_key: 8e9bc49c87ca17660c6facece40e8e41b3c5a125792a730e78edfec598de78d3
+searched_at: '2026-08-05T22:36:45.970877+00:00'
+retry_count: 1

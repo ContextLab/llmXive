@@ -1,0 +1,46 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "GLM Analysis Output Schema"
+description: "Schema for the Generalized Linear Model analysis results."
+type: "object"
+properties:
+  model_formula:
+    type: "string"
+    description: "The GLM formula used (e.g., 'Pass ~ Model_Size * Context_Strategy')."
+  coefficients:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        term:
+          type: "string"
+          description: "Name of the coefficient (e.g., 'Model_Size[T.7b]', 'Context_Strategy[TF-IDF]')."
+        estimate:
+          type: "number"
+          description: "Estimated coefficient value."
+        std_error:
+          type: "number"
+          description: "Standard error of the estimate."
+        p_value:
+          type: "number"
+          description: "P-value for the coefficient."
+        significant:
+          type: "boolean"
+          description: "True if p_value < 0.05."
+      required:
+        - term
+        - estimate
+        - std_error
+        - p_value
+        - significant
+  interaction_significant:
+    type: "boolean"
+    description: "True if the interaction term (Model_Size * Context_Strategy) is significant."
+  sample_size:
+    type: "integer"
+    description: "Total number of observations used in the model."
+required:
+  - model_formula
+  - coefficients
+  - interaction_significant
+  - sample_size
+additionalProperties: false
