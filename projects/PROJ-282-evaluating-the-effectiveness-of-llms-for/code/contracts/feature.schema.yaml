@@ -1,21 +1,41 @@
+# Contract for FeatureVector entity
+# Generated for PROJ-282
+# Priority: P1
 type: object
+required:
+  - feature_id
+  - snippet_id
+  - language
 properties:
+  feature_id:
+    type: string
+    description: Unique identifier for the feature vector
+  snippet_id:
+    type: string
+    description: Reference to the code snippet
+  language:
+    type: string
+    enum: [C, CPP, JavaScript, Python]
+    description: Programming language
   ast_depth:
     type: integer
+    description: Maximum depth of the AST
+  ast_node_count:
+    type: integer
+    description: Total number of nodes in the AST
   cyclomatic_complexity:
     type: integer
-  node_count:
-    type: integer
+    description: Cyclomatic complexity score
   taint_api_count:
     type: integer
+    description: Number of taint source APIs detected
   sanitization_present:
     type: boolean
+    description: Whether sanitization functions are present
   embedding_similarity_score:
     type: number
-required:
-  - ast_depth
-  - cyclomatic_complexity
-  - node_count
-  - taint_api_count
-  - sanitization_present
-  - embedding_similarity_score
+    description: Max cosine similarity to canonical patterns
+  created_at:
+    type: string
+    format: date-time
+    description: Timestamp of feature extraction

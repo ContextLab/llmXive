@@ -1,551 +1,320 @@
-"""
-Preprocessing module for security vulnerability datasets.
-
-Parses raw datasets (VulDeePecker, BigVul, NIST Juliet), extracts code snippets,
-maps them to the CodeSnippet entity, performs stratified sampling, and handles
-edge cases as per the project specifications.
-
-Outputs:
-  - data/processed/predictions.csv: Snippets with ground truth labels (excludes missing labels)
-  - data/processed/features.csv: Features for all snippets (includes missing labels with flag)
-"""
 import os
 import json
 import csv
 import re
-from pathlib import Path
-from typing import List, Dict, Optional, Tuple, Any, Set
 import logging
-from collections import Counter
+from pathlib import Path
+from typing import Dict, Any, List, Optional, Tuple
+import pandas as pd
+import pyarrow.parquet as pq
+from pydantic import ValidationError
 
-# Project imports based on API surface
+# Import existing models and utils from the project API surface
 from src.models.code_snippet import CodeSnippet, CodeSnippetLanguageEnum, create_codesnippet
-from src.utils.logger import get_logger
-from src.utils.config import get_project_root
+from src.utils.config import get_project_root, get_data_processed_path, get_data_logs_path
+from src.utils.logger import get_logger, log_stage_start, log_stage_complete, log_stage_failure
+from src.utils.memory_monitor import get_current_memory_usage_gb, check_memory_constraint, force_gc
 
 logger = get_logger(__name__)
 
-# Constants
-MAX_SAMPLES = 5000
-VALID_LANGUAGES = {"C", "Python", "JavaScript"}
-VALID_CATEGORIES = {"SQLi", "Buffer Overflow", "Command Injection", "XSS", "None", "Uncertain"}
-
-def detect_language_from_extension(filepath: str) -> Optional[str]:
+def detect_language_from_extension(filepath: str) -> Optional[CodeSnippetLanguageEnum]:
     """Detect language based on file extension."""
     ext_map = {
-        ".c": "C",
-        ".h": "C",
-        ".cpp": "C",
-        ".cc": "C",
-        ".py": "Python",
-        ".js": "JavaScript",
-        ".jsx": "JavaScript",
-        ".ts": "JavaScript",
-        ".tsx": "JavaScript"
+        '.c': CodeSnippetLanguageEnum.C,
+        '.cpp': CodeSnippetLanguageEnum.CPP,
+        '.cc': CodeSnippetLanguageEnum.CPP,
+        '.cxx': CodeSnippetLanguageEnum.CPP,
+        '.js': CodeSnippetLanguageEnum.JS,
+        '.jsx': CodeSnippetLanguageEnum.JS,
+        '.ts': CodeSnippetLanguageEnum.TS,
+        '.tsx': CodeSnippetLanguageEnum.TS,
+        '.py': CodeSnippetLanguageEnum.PYTHON,
     }
     ext = Path(filepath).suffix.lower()
     return ext_map.get(ext)
 
-def normalize_label(label: Optional[str]) -> str:
-    """Normalize ground truth label to standard format."""
-    if not label:
-        return "None"
-    
-    label_lower = label.lower().strip()
-    if "vulnerab" in label_lower or "vuln" in label_lower or "unsafe" in label_lower:
-        return "Vulnerable"
-    if "safe" in label_lower or "clean" in label_lower or "benign" in label_lower:
-        return "Safe"
-    if "none" in label_lower or "no" in label_lower:
-        return "Safe"
-    return "Uncertain"
+def normalize_label(label: Any) -> Optional[int]:
+    """Normalize ground truth label to 0/1 or None if missing/invalid."""
+    if label is None:
+        return None
+    if isinstance(label, bool):
+        return 1 if label else 0
+    if isinstance(label, (int, float)):
+        # Assume 1 is vulnerable, 0 is safe
+        return 1 if int(label) != 0 else 0
+    if isinstance(label, str):
+        label_lower = label.lower().strip()
+        if label_lower in ['vulnerable', '1', 'yes', 'true']:
+            return 1
+        elif label_lower in ['safe', '0', 'no', 'false']:
+            return 0
+    return None
 
-def extract_category_from_context(context: str, language: str) -> str:
-    """Extract vulnerability category from code context or comments."""
+def extract_category_from_context(context: str) -> Optional[str]:
+    """Extract vulnerability category from context or filename."""
     if not context:
-        return "None"
-    
+        return None
+    # Common patterns in BigVul context
+    patterns = [
+        r'(buffer_overflow|overflow)',
+        r'(sql_injection|injection)',
+        r'(use_after_free|uaf)',
+        r'(null_pointer|npe)',
+        r'(integer_overflow|overflow)',
+        r'(race_condition|race)',
+    ]
     context_lower = context.lower()
-    
-    # SQL Injection patterns
-    if any(kw in context_lower for kw in ["sql", "query", "select", "insert", "update", "delete", "database"]):
-        if any(kw in context_lower for kw in ["inject", "sanitize", "escape", "format", "concat"]):
-            return "SQLi"
-    
-    # Buffer Overflow patterns
-    if any(kw in context_lower for kw in ["buffer", "overflow", "strcpy", "strcat", "sprintf", "gets", "memcpy"]):
-        if language == "C":
-            return "Buffer Overflow"
-    
-    # Command Injection patterns
-    if any(kw in context_lower for kw in ["exec", "system", "popen", "subprocess", "shell"]):
-        if any(kw in context_lower for kw in ["inject", "sanitize", "escape"]):
-            return "Command Injection"
-    
-    # XSS patterns
-    if any(kw in context_lower for kw in ["script", "html", "xss", "document", "innerHTML"]):
-        if language == "JavaScript":
-            return "XSS"
-    
-    return "None"
+    for pattern in patterns:
+        if re.search(pattern, context_lower):
+            return pattern.strip('()')
+    return 'unknown'
 
-def parse_vuldeepecker_jsonl(filepath: Path) -> List[Dict[str, Any]]:
-    """Parse VulDeePecker JSONL dataset."""
-    snippets = []
-    try:
-        with open(filepath, 'r', encoding='utf-8', errors='ignore') as f:
-            for line_num, line in enumerate(f, 1):
-                if not line.strip():
-                    continue
-                try:
-                    data = json.loads(line)
-                    # VulDeePecker structure varies; adapt to common fields
-                    code = data.get('code', data.get('snippet', data.get('source_code', '')))
-                    label = data.get('label', data.get('ground_truth', 'None'))
-                    category = data.get('category', data.get('vuln_type', 'None'))
-                    
-                    if not code:
-                        continue
-                        
-                    snippets.append({
-                        'source': 'VulDeePecker',
-                        'code': code,
-                        'label': label,
-                        'category': category,
-                        'language': 'Python'  # VulDeePecker is primarily Python
-                    })
-                except json.JSONDecodeError as e:
-                    logger.warning(f"Skipping malformed JSON at line {line_num}: {e}")
-                    continue
-    except FileNotFoundError:
-        logger.error(f"VulDeePecker file not found: {filepath}")
-        raise
-    return snippets
-
-def parse_juliet_c_test_cases(filepath: Path) -> List[Dict[str, Any]]:
-    """Parse NIST Juliet C test cases."""
-    snippets = []
-    try:
-        with open(filepath, 'r', encoding='utf-8', errors='ignore') as f:
-            content = f.read()
-            
-        # Split by test case markers if present, otherwise treat as single snippet
-        # Juliet files often contain comments indicating vulnerability type
-        lines = content.split('\n')
-        code_lines = []
-        current_label = "None"
-        current_category = "None"
-        
-        for line in lines:
-            if 'BAD' in line and 'GOOD' not in line:
-                current_label = "Vulnerable"
-                # Extract category from filename or comments
-                if 'cwe-78' in str(filepath).lower():
-                    current_category = "Command Injection"
-                elif 'cwe-89' in str(filepath).lower():
-                    current_category = "SQLi"
-                elif 'cwe-120' in str(filepath).lower() or 'cwe-121' in str(filepath).lower():
-                    current_category = "Buffer Overflow"
-            elif 'GOOD' in line:
-                current_label = "Safe"
-            
-            code_lines.append(line)
-        
-        code = '\n'.join(code_lines)
-        if code.strip():
-            snippets.append({
-                'source': 'NIST Juliet',
-                'code': code,
-                'label': current_label,
-                'category': current_category,
-                'language': 'C'
-            })
-    except FileNotFoundError:
-        logger.error(f"Juliet C file not found: {filepath}")
-        raise
-    return snippets
-
-def parse_juliet_java_test_cases(filepath: Path) -> List[Dict[str, Any]]:
-    """Parse NIST Juliet Java test cases (mapped to appropriate language if needed)."""
-    # Juliet Java is not in our target languages (C, Python, JS), but we parse for completeness
-    # and map to a generic category if needed
-    snippets = []
-    try:
-        with open(filepath, 'r', encoding='utf-8', errors='ignore') as f:
-            content = f.read()
-        
-        # Similar parsing logic as C
-        lines = content.split('\n')
-        code_lines = []
-        current_label = "None"
-        current_category = "None"
-        
-        for line in lines:
-            if 'BAD' in line and 'GOOD' not in line:
-                current_label = "Vulnerable"
-            elif 'GOOD' in line:
-                current_label = "Safe"
-            code_lines.append(line)
-        
-        code = '\n'.join(code_lines)
-        if code.strip():
-            # Map Java to Python for our pipeline if needed, or skip
-            # For now, we'll include it but note the language mapping
-            snippets.append({
-                'source': 'NIST Juliet',
-                'code': code,
-                'label': current_label,
-                'category': current_category,
-                'language': 'Python'  # Mapping Java to Python for pipeline compatibility
-            })
-    except FileNotFoundError:
-        logger.error(f"Juliet Java file not found: {filepath}")
-        raise
-    return snippets
-
-def parse_bigvul_directory(directory_path: Path) -> List[Dict[str, Any]]:
-    """Parse BigVul dataset directory containing JSON files."""
-    snippets = []
-    try:
-        json_files = list(directory_path.glob('*.json'))
-        for json_file in json_files:
-            with open(json_file, 'r', encoding='utf-8', errors='ignore') as f:
-                data = json.load(f)
-            
-            # BigVul structure: list of vulnerabilities
-            if isinstance(data, list):
-                for item in data:
-                    code = item.get('code', '')
-                    label = item.get('label', item.get('vulnerability', 'None'))
-                    category = item.get('category', item.get('type', 'None'))
-                    language = item.get('language', 'C')
-                    
-                    if not code:
-                        continue
-                        
-                    # Normalize language
-                    if language not in VALID_LANGUAGES:
-                        if language.lower() == 'c':
-                            language = 'C'
-                        elif language.lower() == 'javascript':
-                            language = 'JavaScript'
-                        else:
-                            continue  # Skip unsupported languages
-                    
-                    snippets.append({
-                        'source': 'BigVul',
-                        'code': code,
-                        'label': label,
-                        'category': category,
-                        'language': language
-                    })
-            elif isinstance(data, dict):
-                # Single record format
-                code = data.get('code', '')
-                label = data.get('label', data.get('vulnerability', 'None'))
-                category = data.get('category', data.get('type', 'None'))
-                language = data.get('language', 'C')
-                
-                if code and language in VALID_LANGUAGES:
-                    snippets.append({
-                        'source': 'BigVul',
-                        'code': code,
-                        'label': label,
-                        'category': category,
-                        'language': language
-                    })
-    except FileNotFoundError:
-        logger.error(f"BigVul directory not found: {directory_path}")
-        raise
-    return snippets
-
-def parse_raw_directory(directory_path: Path) -> List[Dict[str, Any]]:
-    """Generic parser for raw code directories."""
-    snippets = []
-    for file_path in directory_path.rglob('*'):
-        if file_path.is_file() and file_path.suffix.lower() in ['.c', '.py', '.js', '.cpp', '.cc']:
+def parse_bigvul_directory(data_dir: Path) -> List[Dict[str, Any]]:
+    """Parse BigVul parquet files into raw dictionaries."""
+    raw_data = []
+    
+    # Check for language-specific parquet files
+    languages = ['c', 'cpp', 'js']
+    for lang in languages:
+        file_path = data_dir / f'bigvul_{lang}.parquet'
+        if file_path.exists():
             try:
-                with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
-                    code = f.read()
+                df = pd.read_parquet(file_path)
+                # Normalize column names if necessary
+                df.columns = [col.lower() for col in df.columns]
                 
-                if not code.strip():
+                # Determine label column name (varies by source)
+                label_col = None
+                for col in ['label', 'ground_truth_label', 'vulnerable', 'is_vulnerable']:
+                    if col in df.columns:
+                        label_col = col
+                        break
+                
+                # Determine code column name
+                code_col = 'code'
+                if 'code' not in df.columns:
+                    for col in ['snippet', 'code_snippet', 'source_code']:
+                        if col in df.columns:
+                            code_col = col
+                            break
+                
+                # Determine category column name
+                category_col = 'category'
+                if 'category' not in df.columns:
+                    for col in ['vul_type', 'vulnerability_type', 'type']:
+                        if col in df.columns:
+                            category_col = col
+                            break
+                
+                if label_col is None:
+                    logger.warning(f"No label column found in {file_path}")
                     continue
-                
-                language = detect_language_from_extension(str(file_path))
-                if not language:
-                    continue
-                
-                # Default label for raw code (no ground truth)
-                snippets.append({
-                    'source': 'Raw',
-                    'code': code,
-                    'label': None,  # Missing ground truth
-                    'category': 'None',
-                    'language': language
-                })
-            except Exception as e:
-                logger.warning(f"Error reading {file_path}: {e}")
-                continue
-    return snippets
 
-def create_code_snippets(raw_data: List[Dict[str, Any]]) -> List[CodeSnippet]:
-    """Convert raw data to CodeSnippet entities."""
-    snippets = []
-    for idx, item in enumerate(raw_data):
+                for idx, row in df.iterrows():
+                    raw_data.append({
+                        'id': f"{lang}_{idx}",
+                        'code': str(row.get(code_col, '')),
+                        'ground_truth_label': row.get(label_col),
+                        'category': str(row.get(category_col, '')) if category_col in row else None,
+                        'language': lang.upper(),
+                        'source_file': str(file_path),
+                    })
+            except Exception as e:
+                logger.error(f"Error reading {file_path}: {e}")
+        else:
+            logger.warning(f"File not found: {file_path}")
+    
+    return raw_data
+
+def parse_raw_directory(data_dir: Path) -> List[Dict[str, Any]]:
+    """Generic parser for raw data directory."""
+    return parse_bigvul_directory(data_dir)
+
+def create_code_snippets(raw_data: List[Dict[str, Any]], logger: logging.Logger) -> Tuple[List[CodeSnippet], List[Dict[str, Any]]]:
+    """Convert raw dictionaries to CodeSnippet entities, filtering invalid ones."""
+    valid_snippets = []
+    edge_cases = []
+
+    for idx, raw in enumerate(raw_data):
         try:
             # Normalize label
-            label = normalize_label(item.get('label'))
-            category = item.get('category', 'None')
+            label = normalize_label(raw.get('ground_truth_label'))
             
-            # Validate language
-            lang = item.get('language', 'Python')
-            if lang not in VALID_LANGUAGES:
-                logger.warning(f"Invalid language '{lang}' for snippet {idx}, skipping")
+            # Skip samples missing ground_truth_label (as per Spec US1 Acceptance 3)
+            if label is None:
+                edge_cases.append({
+                    'id': raw.get('id', f'unknown_{idx}'),
+                    'reason': 'missing_ground_truth_label',
+                    'raw_data': raw
+                })
                 continue
-            
+
+            # Detect language if not provided
+            lang_str = raw.get('language', 'C')
+            try:
+                lang_enum = CodeSnippetLanguageEnum(lang_str.upper())
+            except ValueError:
+                lang_enum = CodeSnippetLanguageEnum.C  # Default fallback
+
+            # Create CodeSnippet
             snippet = create_codesnippet(
-                id=f"snippet_{idx:06d}",
-                language=lang,
-                source_code=item['code'],
+                snippet_id=raw.get('id', f'snippet_{idx}'),
+                code=raw.get('code', ''),
+                language=lang_enum,
                 ground_truth_label=label,
-                ground_truth_category=category
+                ground_truth_category=raw.get('category', extract_category_from_context(raw.get('context', ''))),
+                source_file=raw.get('source_file', ''),
             )
-            snippets.append(snippet)
-        except Exception as e:
-            logger.warning(f"Failed to create snippet from item {idx}: {e}")
-            continue
-    return snippets
-
-def stratified_sample(snippets: List[CodeSnippet], 
-                     max_samples: int = MAX_SAMPLES) -> List[CodeSnippet]:
-    """
-    Perform stratified sampling by language and ground_truth_category.
-    Ensures proportional representation across strata.
-    """
-    if len(snippets) <= max_samples:
-        return snippets
-    
-    # Group by strata (language, category)
-    strata: Dict[Tuple[str, str], List[CodeSnippet]] = {}
-    for snippet in snippets:
-        key = (snippet.language, snippet.ground_truth_category)
-        if key not in strata:
-            strata[key] = []
-        strata[key].append(snippet)
-    
-    # Calculate sample size per stratum
-    total_strata = len(strata)
-    if total_strata == 0:
-        return []
-    
-    # Calculate proportional allocation
-    sample_sizes = {}
-    remaining = max_samples
-    sorted_strata = sorted(strata.keys(), key=lambda k: len(strata[k]), reverse=True)
-    
-    for i, key in enumerate(sorted_strata):
-        stratum_size = len(strata[key])
-        # Proportional allocation
-        if i < total_strata - 1:
-            allocation = max(1, int((stratum_size / len(snippets)) * max_samples))
-        else:
-            allocation = remaining  # Last stratum gets remainder
-        
-        sample_sizes[key] = min(allocation, stratum_size)
-        remaining -= sample_sizes[key]
-    
-    # Sample from each stratum
-    sampled = []
-    for key, size in sample_sizes.items():
-        if size > 0:
-            # Use deterministic sampling (first N) for reproducibility
-            sampled.extend(strata[key][:size])
-    
-    logger.info(f"Stratified sampling: {len(snippets)} -> {len(sampled)} samples")
-    return sampled
-
-def save_snippets_to_csv(snippets: List[CodeSnippet], 
-                        output_path: Path,
-                        include_missing: bool = True) -> int:
-    """
-    Save snippets to CSV.
-    
-    Args:
-        snippets: List of CodeSnippet objects
-        output_path: Output file path
-        include_missing: If True, include snippets with missing labels (for features.csv)
-                       If False, exclude them (for predictions.csv)
-    
-    Returns:
-        Number of snippets saved
-    """
-    if not snippets:
-        logger.warning(f"No snippets to save to {output_path}")
-        return 0
-    
-    # Ensure directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    fieldnames = [
-        'id', 'language', 'source_code', 'ground_truth_label', 
-        'ground_truth_category', 'label_missing'
-    ]
-    
-    count = 0
-    with open(output_path, 'w', newline='', encoding='utf-8') as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
-        writer.writeheader()
-        
-        for snippet in snippets:
-            # Skip missing labels if not including them
-            if not include_missing and snippet.ground_truth_label in ['None', 'Uncertain']:
-                # Check if this was a missing label (not just normalized)
-                # In our normalize_label, None -> "Safe", so we need to track original
-                # For simplicity, we assume "None" category with "Safe" label might be missing
-                # But per spec, we exclude based on missing ground_truth_label
-                # We'll assume if label was None in raw data, it's "Uncertain" after normalize
-                # and we exclude those for predictions.csv
-                if snippet.ground_truth_label == 'Uncertain':
-                    continue
             
-            row = {
-                'id': snippet.id,
-                'language': snippet.language,
-                'source_code': snippet.source_code,
-                'ground_truth_label': snippet.ground_truth_label,
-                'ground_truth_category': snippet.ground_truth_category,
-                'label_missing': snippet.ground_truth_label == 'Uncertain'
-            }
-            writer.writerow(row)
-            count += 1
-    
-    logger.info(f"Saved {count} snippets to {output_path}")
-    return count
+            valid_snippets.append(snippet)
+            
+            # Memory check every 500 snippets
+            if idx % 500 == 0:
+                check_memory_constraint(allowance_gb=2.0)
+                if idx % 1000 == 0:
+                    logger.info(f"Processed {idx} snippets, {len(valid_snippets)} valid, {len(edge_cases)} excluded")
 
-def log_edge_cases(snippets: List[CodeSnippet], log_path: Path):
-    """Log edge cases (malformed code, missing labels) for review."""
-    log_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    edge_cases = []
+        except ValidationError as ve:
+            edge_cases.append({
+                'id': raw.get('id', f'unknown_{idx}'),
+                'reason': f'validation_error: {ve}',
+                'raw_data': raw
+            })
+        except Exception as e:
+            edge_cases.append({
+                'id': raw.get('id', f'unknown_{idx}'),
+                'reason': f'processing_error: {e}',
+                'raw_data': raw
+            })
+
+    return valid_snippets, edge_cases
+
+def stratified_sample(
+    snippets: List[CodeSnippet], 
+    max_samples: int = 5000, 
+    seed: int = 42
+) -> List[CodeSnippet]:
+    """Perform stratified sampling by language and vulnerability category."""
+    import random
+    random.seed(seed)
+
+    # Group by language and category
+    groups = {}
     for snippet in snippets:
-        if not snippet.source_code.strip():
-            edge_cases.append({
-                'id': snippet.id,
-                'issue': 'Empty code',
-                'language': snippet.language
-            })
-        elif len(snippet.source_code) > 10000:
-            edge_cases.append({
-                'id': snippet.id,
-                'issue': 'Very long code (>10k chars)',
-                'language': snippet.language,
-                'length': len(snippet.source_code)
-            })
+        key = (snippet.language.value, snippet.ground_truth_category or 'unknown')
+        if key not in groups:
+            groups[key] = []
+        groups[key].append(snippet)
+
+    # Calculate sample size per group
+    total_groups = len(groups)
+    if total_groups == 0:
+        return []
+
+    samples_per_group = max_samples // total_groups
+    remainder = max_samples % total_groups
+
+    sampled_snippets = []
+    group_keys = list(groups.keys())
     
+    for i, key in enumerate(group_keys):
+        group_snippets = groups[key]
+        # Distribute remainder to first groups
+        current_sample_size = samples_per_group + (1 if i < remainder else 0)
+        current_sample_size = min(current_sample_size, len(group_snippets))
+        
+        sampled = random.sample(group_snippets, current_sample_size)
+        sampled_snippets.extend(sampled)
+
+    logger.info(f"Stratified sampling: {len(snippets)} total -> {len(sampled_snippets)} sampled across {total_groups} groups")
+    return sampled_snippets
+
+def save_snippets_to_parquet(snippets: List[CodeSnippet], output_path: Path) -> None:
+    """Save CodeSnippet list to Parquet file."""
+    data = []
+    for s in snippets:
+        data.append({
+            'snippet_id': s.snippet_id,
+            'code': s.code,
+            'language': s.language.value,
+            'ground_truth_label': s.ground_truth_label,
+            'ground_truth_category': s.ground_truth_category,
+            'source_file': s.source_file,
+        })
+    
+    df = pd.DataFrame(data)
+    df.to_parquet(output_path, index=False)
+    logger.info(f"Saved {len(snippets)} snippets to {output_path}")
+
+def save_labels_csv(snippets: List[CodeSnippet], output_path: Path) -> None:
+    """Save labels.csv with snippet_id, ground_truth_label, ground_truth_category."""
+    with open(output_path, 'w', newline='', encoding='utf-8') as f:
+        writer = csv.writer(f)
+        writer.writerow(['snippet_id', 'ground_truth_label', 'ground_truth_category'])
+        for s in snippets:
+            writer.writerow([s.snippet_id, s.ground_truth_label, s.ground_truth_category or 'unknown'])
+    logger.info(f"Saved labels for {len(snippets)} snippets to {output_path}")
+
+def log_edge_cases(edge_cases: List[Dict[str, Any]], log_path: Path) -> None:
+    """Log edge cases (excluded samples) to JSON."""
+    log_path.parent.mkdir(parents=True, exist_ok=True)
     with open(log_path, 'w', encoding='utf-8') as f:
-        json.dump(edge_cases, f, indent=2)
-    
+        json.dump(edge_cases, f, indent=2, default=str)
     logger.info(f"Logged {len(edge_cases)} edge cases to {log_path}")
 
 def main():
-    """Main preprocessing pipeline."""
+    """Main entry point for preprocessing task T012."""
+    log_stage_start("T012_Preprocess_Sampling")
     project_root = get_project_root()
-    data_raw = project_root / "data" / "raw"
-    data_processed = project_root / "data" / "processed"
-    data_logs = project_root / "data" / "logs"
     
-    # Ensure output directories exist
-    data_processed.mkdir(parents=True, exist_ok=True)
-    data_logs.mkdir(parents=True, exist_ok=True)
+    # Paths
+    raw_data_dir = project_root / "data" / "raw"
+    processed_dir = project_root / "data" / "processed"
+    logs_dir = project_root / "data" / "logs"
     
-    all_snippets = []
-    
-    # Parse VulDeePecker
-    vuldeepecker_path = data_raw / "vuldeepecker.parquet"
-    if vuldeepecker_path.exists():
-        logger.info("Parsing VulDeePecker dataset...")
-        # Note: Parquet requires pandas; we'll handle JSONL as fallback or convert
-        # For now, assume JSONL format if parquet fails
-        jsonl_path = data_raw / "vuldeepecker.jsonl"
-        if jsonl_path.exists():
-            raw_data = parse_vuldeepecker_jsonl(jsonl_path)
-            all_snippets.extend(raw_data)
-        else:
-            logger.warning("VulDeePecker parquet found but JSONL not available. Skipping.")
-    else:
-        logger.warning("VulDeePecker dataset not found. Skipping.")
-    
-    # Parse BigVul (C)
-    bigvul_c_path = data_raw / "bigvul_c.parquet"
-    if bigvul_c_path.exists():
-        logger.info("Parsing BigVul C dataset...")
-        # Assume directory structure or JSON
-        bigvul_c_dir = data_raw / "bigvul_c"
-        if bigvul_c_dir.exists():
-            raw_data = parse_bigvul_directory(bigvul_c_dir)
-            all_snippets.extend(raw_data)
-        else:
-            # Try direct JSON file
-            json_path = data_raw / "bigvul_c.json"
-            if json_path.exists():
-                with open(json_path, 'r') as f:
-                    data = json.load(f)
-                if isinstance(data, list):
-                    for item in data:
-                        item['language'] = 'C'
-                        all_snippets.append(item)
-    else:
-        logger.warning("BigVul C dataset not found. Skipping.")
-    
-    # Parse BigVul (JavaScript)
-    bigvul_js_path = data_raw / "bigvul_js.parquet"
-    if bigvul_js_path.exists():
-        logger.info("Parsing BigVul JavaScript dataset...")
-        bigvul_js_dir = data_raw / "bigvul_js"
-        if bigvul_js_dir.exists():
-            raw_data = parse_bigvul_directory(bigvul_js_dir)
-            all_snippets.extend(raw_data)
-    else:
-        logger.warning("BigVul JavaScript dataset not found. Skipping.")
-    
-    # Parse NIST Juliet (C)
-    juliet_c_path = data_raw / "juliet_c"
-    if juliet_c_path and juliet_c_path.exists():
-        logger.info("Parsing NIST Juliet C test cases...")
-        for test_file in juliet_c_path.glob("*.c"):
-            raw_data = parse_juliet_c_test_cases(test_file)
-            all_snippets.extend(raw_data)
-    else:
-        logger.warning("NIST Juliet C dataset not found. Skipping.")
-    
-    logger.info(f"Total raw snippets collected: {len(all_snippets)}")
-    
-    # Convert to CodeSnippet entities
-    snippets = create_code_snippets(all_snippets)
-    logger.info(f"Converted to CodeSnippet entities: {len(snippets)}")
-    
-    # Stratified sampling
-    sampled_snippets = stratified_sample(snippets, MAX_SAMPLES)
-    logger.info(f"After stratified sampling: {len(sampled_snippets)}")
-    
-    # Separate by label missing
-    predictions_snippets = [s for s in sampled_snippets if s.ground_truth_label != 'Uncertain']
-    features_snippets = sampled_snippets  # All snippets for features
-    
-    # Save predictions.csv (exclude missing labels)
-    predictions_path = data_processed / "predictions.csv"
-    save_snippets_to_csv(predictions_snippets, predictions_path, include_missing=False)
-    
-    # Save features.csv (include all with label_missing flag)
-    features_path = data_processed / "features.csv"
-    save_snippets_to_csv(features_snippets, features_path, include_missing=True)
-    
-    # Log edge cases
-    edge_cases_path = data_logs / "edge_cases.json"
-    log_edge_cases(sampled_snippets, edge_cases_path)
-    
-    logger.info("Preprocessing complete.")
-    return len(sampled_snippets)
+    processed_dir.mkdir(parents=True, exist_ok=True)
+    logs_dir.mkdir(parents=True, exist_ok=True)
+
+    output_snippets_path = processed_dir / "raw_snippets.parquet"
+    output_labels_path = processed_dir / "labels.csv"
+    edge_cases_log_path = logs_dir / "preprocess_edge_cases.json"
+
+    try:
+        # 1. Parse raw datasets (BigVul)
+        logger.info("Parsing raw BigVul datasets...")
+        raw_data = parse_raw_directory(raw_data_dir)
+        logger.info(f"Parsed {len(raw_data)} raw records")
+
+        # 2. Create CodeSnippet entities (filtering missing labels)
+        logger.info("Creating CodeSnippet entities...")
+        snippets, edge_cases = create_code_snippets(raw_data, logger)
+        log_edge_cases(edge_cases, edge_cases_log_path)
+        logger.info(f"Created {len(snippets)} valid snippets, excluded {len(edge_cases)}")
+
+        if not snippets:
+            raise ValueError("No valid snippets found after filtering. Check raw data.")
+
+        # 3. Stratified sampling
+        logger.info("Performing stratified sampling...")
+        sampled_snippets = stratified_sample(snippets, max_samples=5000, seed=42)
+        
+        # 4. Save outputs
+        logger.info("Saving outputs...")
+        save_snippets_to_parquet(sampled_snippets, output_snippets_path)
+        save_labels_csv(sampled_snippets, output_labels_path)
+
+        log_stage_complete("T012_Preprocess_Sampling", {
+            "total_raw": len(raw_data),
+            "valid_snippets": len(snippets),
+            "excluded": len(edge_cases),
+            "sampled": len(sampled_snippets),
+            "output_snippets": str(output_snippets_path),
+            "output_labels": str(output_labels_path)
+        })
+
+    except Exception as e:
+        log_stage_failure("T012_Preprocess_Sampling", str(e))
+        raise
 
 if __name__ == "__main__":
     main()

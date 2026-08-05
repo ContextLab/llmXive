@@ -1153,3 +1153,580 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-02T03:43:45Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: BigVul dataset used as substitute for NIST Juliet
+  claim_id: c_1caf3cba
+  context: 'T011 [US1] Dataset Download & Checksum Verification: Fetch the BigVul
+    dataset (C, C++, and JavaScript) as the confirmed substitute for NIST Juliet per
+    Plan ''Complexity Tracking''.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/BigVul_dataset_used_as_substitute_for_NIST_Juliet
+  kind: entity_fact
+  raw_text: Fetch the BigVul dataset (C, C++, and JavaScript) as the confirmed substitute
+    for NIST Juliet per Plan 'Complexity Tracking'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T04:23:24Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: Stratified sampling of 5000 samples
+  claim_id: c_8e2830b8
+  context: "T012 [US1] Preprocess & Sampling: Parse raw datasets into CodeSnippet\
+    \ entities. Perform stratified sampling (\u22645,000 samples) by language and\
+    \ vulnerability category."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Perform stratified sampling (\u22645,000 samples) by language and vulnerability\
+    \ category."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T04:23:24Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: NVD JSON feed API v2.0 retrieval
+  claim_id: c_84e267a5
+  context: 'T019a [US2] Vulnerability Pattern Corpus Download: Retrieve the NVD JSON
+    feed (API v2.0, specific date range) to data/raw/nvd_corpus.json.gz.'
+  evidence:
+    asserted: '2.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Retrieve the NVD JSON feed (API v2.0, specific date range) to data/raw/nvd_corpus.json.gz.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-05T04:23:24Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: Embedding generation using sentence-transformers/all-MiniLM-L6-v2
+  claim_id: c_825f1c46
+  context: 'T019b [US2] Pattern Filtering & Embedding Generation: Generate embeddings
+    for each pattern using sentence-transformers/all-MiniLM-L6-v2 and store vectors
+    alongside patterns.'
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: embedding (i.e., all-MiniLM-L6-v2) in an
+      source_id: '2607.07974'
+      url: https://arxiv.org/abs/2607.07974
+      value: all-MiniLM-L6-v2
+    filled: true
+  kind: entity_fact
+  raw_text: Generate embeddings for each pattern using sentence-transformers/all-MiniLM-L6-v2.
+  resolved_value: all-MiniLM-L6-v2
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-05T04:24:16Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis subset size of 100
+  claim_id: c_d392af0c
+  context: 'T035 [P] Sensitivity Analysis Setup: Select a random subset of n=100 samples
+    and export them to data/human_review/export.csv.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Select a random subset of n=100 samples for sensitivity analysis.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T04:25:17Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: Pipeline completion time limit of 6 hours
+  claim_id: c_4ab5af3b
+  context: "Notes: Time Constraint: The pipeline must complete within 6 hours; per-sample\
+    \ inference \u2264 4.32 seconds."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline must complete within 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T04:26:14Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: Per-sample inference time limit of 4.32 seconds
+  claim_id: c_db9301c4
+  context: "Notes: Time Constraint: The pipeline must complete within 6 hours; per-sample\
+    \ inference \u2264 4.32 seconds."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Per-sample inference must be \u2264 4.32 seconds."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T04:26:14Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: BigVul dataset contains C C++ and JavaScript code
+  claim_id: c_bdfa28bb
+  context: Fetch the BigVul dataset (C, C++, and JavaScript) as the confirmed substitute
+    for NIST Juliet per Plan 'Complexity Tracking'.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/BigVul_dataset_contains_C_C++_and_JavaScript_code
+  kind: entity_fact
+  raw_text: The BigVul dataset contains C, C++, and JavaScript code.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T04:27:43Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: pipeline runtime limit 6 hours
+  claim_id: c_eaead6ba
+  context: "If cumulative runtime exceeds 90 % of the 6\u2011hour limit, write data/logs/circuit_breaker_state.json\
+    \ with 'timeout_risk': true and abort execution."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline has a runtime limit of 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T04:28:23Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: per-sample inference limit 4.32 seconds
+  claim_id: c_e9057c73
+  context: "The pipeline must complete within 6 hours; per\u2011sample inference \u2264\
+    \ 4.32 seconds."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Per-sample inference must not exceed 4.32 seconds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T04:29:34Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: dataset sampling limit 5000 samples
+  claim_id: c_1abc99c1
+  context: "Perform stratified sampling (\u22645,000 samples) by language and vulnerability\
+    \ category."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sampling strategy limits the dataset to 5,000 samples.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T04:30:12Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis subset size 100 samples
+  claim_id: c_b1ab75c2
+  context: Select a random subset of n=100 samples and export them to data/human_review/export.csv.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: "c \u2208 {0, 0.1,..., 1.9, 2, 2.5, 3,..., 9.5, 10, 11,..., 29, 30, 40,...,\
+        \ 90, 100}."
+      source_id: '1809.06672'
+      url: https://arxiv.org/abs/1809.06672
+      value: '100'
+    filled: true
+  kind: numeric
+  raw_text: The sensitivity analysis uses a random subset of 100 samples.
+  resolved_value: '100'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-05T04:31:48Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: BigVul dataset contains C, C++, and JavaScript code
+  claim_id: c_63ab8c45
+  context: Fetch the BigVul dataset (C, C++, and JavaScript) as the confirmed substitute
+    for NIST Juliet per Plan Complexity Tracking.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/BigVul_dataset_contains_C,_C++,_and_JavaScript_code
+  kind: entity_fact
+  raw_text: The BigVul dataset contains C, C++, and JavaScript code.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T04:33:38Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 2
+  canonical: sentence-transformers/all-MiniLM-L6-v2 arXiv ID 2607.07974
+  claim_id: c_9a739fa2
+  context: Generate embeddings for each pattern using sentence-transformers/all-MiniLM-L6-v2
+    (2607.07974, https://arxiv.org/abs/2607.07974) and store vectors alongside patterns.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sentence-transformers/all-MiniLM-L6-v2 model corresponds to arXiv
+    ID 2607.07974.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T04:33:39Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis subset size 100 samples
+  claim_id: c_c748c5a0
+  context: Select a random subset of n=100 (1809.06672, https://arxiv.org/abs/1809.06672)
+    samples and export them to data/human_review/export.csv.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis setup selects a random subset of 100 samples.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T04:34:30Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: BigVul dataset used as substitute for NIST Juliet for C, C++, and JavaScript
+  claim_id: c_3e613882
+  context: 'T011 [US1] Dataset Download & Checksum Verification: Fetch the BigVul
+    dataset (C, C++, and JavaScript) as the confirmed substitute for NIST Juliet per
+    Plan ''Complexity Tracking''.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/BigVul_dataset_used_as_substitute_for_NIST_Juliet_for_C,_C++
+  kind: entity_fact
+  raw_text: Fetch the BigVul dataset (C, C++, and JavaScript) as the confirmed substitute
+    for NIST Juliet per Plan 'Complexity Tracking'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T04:37:02Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: sentence-transformers/all-MiniLM-L6-v2 model ID 2607.07974
+  claim_id: c_70e87e50
+  context: 'T019b [US2] Pattern Filtering & Embedding Generation: Generate embeddings
+    for each pattern using sentence-transformers/all-MiniLM-L6-v2 (2607.07974, https://arxiv.org/abs/2607.07974)
+    and store vectors alongside patterns.'
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: Generate embeddings for each pattern using sentence-transformers/all-MiniLM-L6-v2
+    (2607.07974, https://arxiv.org/abs/2607.07974)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-05T04:37:07Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis subset size 100 samples
+  claim_id: c_d444bc68
+  context: 'T035 [P] Sensitivity Analysis Setup: Select a random subset of n=100 (1809.06672,
+    https://arxiv.org/abs/1809.06672) samples and export them to data/human_review/export.csv.'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: Select a random subset of n=100 (1809.06672, https://arxiv.org/abs/1809.06672)
+    samples
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T04:37:29Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: BigVul dataset is confirmed substitute for NIST Juliet
+  claim_id: c_1f05e77e
+  context: Fetch the BigVul dataset (C, C++, and JavaScript) as the confirmed substitute
+    for NIST Juliet per Plan 'Complexity Tracking'.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/BigVul_dataset_is_confirmed_substitute_for_NIST_Juliet
+  kind: entity_fact
+  raw_text: The BigVul dataset (C, C++, and JavaScript) is the confirmed substitute
+    for NIST Juliet.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T04:38:53Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: pipeline must complete within 6 hours
+  claim_id: c_671b0f1f
+  context: "The pipeline must complete within 6 hours; per-sample inference \u2264\
+    \ 4.32 seconds."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline must complete within 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T04:38:54Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: per-sample inference must be less than or equal to 4.32 seconds
+  claim_id: c_de456def
+  context: "The pipeline must complete within 6 hours; per-sample inference \u2264\
+    \ 4.32 seconds."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Per-sample_inference_must_be_less_than_or_equal_to_4.32_seco
+  kind: magnitude
+  raw_text: "Per-sample inference must be \u2264 4.32 seconds."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T04:40:06Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: stratified sampling of 5000 samples
+  claim_id: c_1ae4bbbb
+  context: "Perform stratified sampling (\u22645,000 samples) by language and vulnerability\
+    \ category."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The dataset will be stratified sampled to 5,000 samples.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T04:40:27Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: embedding model is sentence-transformers/all-MiniLM-L6-v2
+  claim_id: c_eaf5c2c6
+  context: Generate embeddings for each pattern using sentence-transformers/all-MiniLM-L6-v2
+    (2607.07974, https://arxiv.org/abs/2607.07974) and store vectors alongside patterns.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: embedding (i.e., all-MiniLM-L6-v2) in an
+      source_id: '2607.07974'
+      url: https://arxiv.org/abs/2607.07974
+      value: all-MiniLM-L6-v2
+    filled: true
+  kind: entity_fact
+  raw_text: The embedding model used is sentence-transformers/all-MiniLM-L6-v2.
+  resolved_value: all-MiniLM-L6-v2
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-05T04:41:13Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: arXiv ID 2607.07974 for sentence-transformers/all-MiniLM-L6-v2
+  claim_id: c_8a5a2832
+  context: Generate embeddings for each pattern using sentence-transformers/all-MiniLM-L6-v2
+    (2607.07974, https://arxiv.org/abs/2607.07974) and store vectors alongside patterns.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The arXiv ID for the sentence-transformers/all-MiniLM-L6-v2 model is 2607.07974.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T04:41:38Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: random subset of 100 samples for sensitivity analysis
+  claim_id: c_f10d475d
+  context: Select a random subset of n=100 (1809.06672, https://arxiv.org/abs/1809.06672)
+    samples and export them to data/human_review/export.csv.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: A random subset of n=100 samples is selected for sensitivity analysis.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T04:42:59Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: arXiv ID 1809.06672 associated with sensitivity analysis
+  claim_id: c_bfb65e74
+  context: Select a random subset of n=100 (1809.06672, https://arxiv.org/abs/1809.06672)
+    samples and export them to data/human_review/export.csv.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The arXiv ID 1809.06672 is associated with the sensitivity analysis sample
+    size selection.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T04:43:40Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 0
+  canonical: Sensitivity analysis subset size 100
+  claim_id: c_2d932a41
+  context: Select a random subset of n=100 (1809.06672, https://arxiv.org/abs/1809.06672)
+    samples and export them to data/human_review/export.csv.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: "c \u2208 {0, 0.1,..., 1.9, 2, 2.5, 3,..., 9.5, 10, 11,..., 29, 30, 40,...,\
+        \ 90, 100}."
+      source_id: '1809.06672'
+      url: https://arxiv.org/abs/1809.06672
+      value: '100'
+    filled: true
+  kind: numeric
+  raw_text: The sensitivity analysis uses a random subset of 100 samples.
+  resolved_value: '100'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-05T04:44:34Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: BigVul dataset used as substitute for NIST Juliet
+  claim_id: c_aad932b6
+  context: Fetch the BigVul dataset (C, C++, and JavaScript) as the confirmed substitute
+    for NIST Juliet per Plan 'Complexity Tracking'.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/BigVul_dataset_used_as_substitute_for_NIST_Juliet
+  kind: entity_fact
+  raw_text: The BigVul dataset (C, C++, and JavaScript) is used as the confirmed substitute
+    for NIST Juliet.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T04:45:29Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: Stratified sampling limit of 5000 samples
+  claim_id: c_2d53a533
+  context: "Perform stratified sampling (\u22645,000 samples) by language and vulnerability\
+    \ category."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Stratified sampling is performed with a maximum of 5,000 samples.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T04:46:04Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: sentence-transformers/all-MiniLM-L6-v2 identifier 2607.07974
+  claim_id: c_3338a66d
+  context: Generate embeddings for each pattern using sentence-transformers/all-MiniLM-L6-v2
+    (2607.07974, https://arxiv.org/abs/2607.07974) and store vectors alongside patterns.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sentence-transformers/all-MiniLM-L6-v2 model has the identifier 2607.07974.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T04:46:11Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: Pipeline runtime limit 6 hours
+  claim_id: c_ef204741
+  context: "If cumulative runtime exceeds 90 % of the 6\u2011hour limit, write data/logs/circuit_breaker_state.json\
+    \ with 'timeout_risk': true and abort execution."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline has a cumulative runtime limit of 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T04:46:38Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: Per-sample inference time limit 4.32 seconds
+  claim_id: c_9f93993e
+  context: "The pipeline must complete within 6 hours; per\u2011sample inference \u2264\
+    \ 4.32 seconds."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Per-sample inference time is limited to 4.32 seconds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T04:47:32Z'

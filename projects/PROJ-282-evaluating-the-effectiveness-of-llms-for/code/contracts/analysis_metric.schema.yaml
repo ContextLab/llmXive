@@ -1,21 +1,29 @@
+# Contract for AnalysisMetric entity
+# Generated for PROJ-282
+# Priority: P1
 type: object
+required:
+  - metric_id
+  - metric_name
+  - value
 properties:
+  metric_id:
+    type: string
+    description: Unique identifier for the metric
   metric_name:
     type: string
-  feature_name:
-    type: string
+    description: Name of the metric (e.g., precision, recall)
   value:
     type: number
-  p_value:
-    type: number
-  adjusted_p_value:
-    type: number
-  method:
+    format: float
+    description: The calculated value
+  category:
     type: string
-required:
-  - metric_name
-  - feature_name
-  - value
-  - p_value
-  - adjusted_p_value
-  - method
+    description: Category or language this metric applies to
+  model_name:
+    type: string
+    description: Model this metric belongs to
+  timestamp:
+    type: string
+    format: date-time
+    description: When the metric was calculated

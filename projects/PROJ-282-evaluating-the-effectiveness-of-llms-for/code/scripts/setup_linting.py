@@ -1,64 +1,62 @@
-"""
-Script to verify and setup linting and formatting tools.
-This script ensures that ruff, black, and pre-commit are installed
-and configured correctly for the project.
-"""
 import os
 import sys
 import subprocess
 from pathlib import Path
 
-def check_command(cmd):
-    """Check if a command is available."""
+def check_command(cmd: str) -> bool:
+    """Check if a command is available in the system PATH."""
     try:
         subprocess.run([cmd, "--version"], capture_output=True, check=True)
         return True
     except (subprocess.CalledProcessError, FileNotFoundError):
         return False
 
-def install_if_missing(package):
-    """Install a package if it's missing."""
-    if not check_command(package.split(" ")[0].split("=")[0]):
-        print(f"Installing {package}...")
-        subprocess.run([sys.executable, "-m", "pip", "install", package], check=True)
+def install_if_missing(packages: list[str]) -> None:
+    """Install missing packages via pip if they are not found."""
+    missing = []
+    for pkg in packages:
+        # Simple check: try to import
+        try:
+            __import__(pkg.replace("-", "_"))
+        except ImportError:
+            missing.append(pkg)
 
-def main():
-    """Main entry point."""
-    print("Setting up linting and formatting tools...")
-    
-    # Ensure tools are installed
-    install_if_missing("ruff")
-    install_if_missing("black")
-    install_if_missing("pre-commit")
-    
-    # Verify configuration files exist
+    if missing:
+        print(f"Installing missing packages: {missing}")
+        subprocess.check_call([sys.executable, "-m", "pip", "install"] + missing)
+    else:
+        print("All required packages are already installed.")
+
+def main() -> None:
+    """Main entry point to setup linting and formatting tools."""
     project_root = Path(__file__).resolve().parent.parent
+    os.chdir(project_root)
+
+    # Ensure configuration files exist
     config_files = [
-        project_root / ".ruff.toml",
-        project_root / "pyproject.toml",
-        project_root / ".pre-commit-config.yaml",
+        "pyproject.toml",
+        ".ruff.toml",
+        ".pre-commit-config.yaml"
     ]
-    
-    for config_file in config_files:
-        if not config_file.exists():
-            print(f"ERROR: Configuration file missing: {config_file}")
-            sys.exit(1)
-        print(f"Found configuration: {config_file}")
-    
-    # Initialize pre-commit if not already done
+
+    for f in config_files:
+        if not (project_root / f).exists():
+            print(f"Warning: Configuration file {f} not found in project root.")
+            print("Please ensure T003 artifacts are committed.")
+
+    # Install Python dependencies
+    install_if_missing(["ruff", "black", "pre-commit"])
+
+    # Initialize pre-commit hooks
+    print("Installing pre-commit hooks...")
     try:
-        subprocess.run(
-            ["pre-commit", "install"],
-            cwd=project_root,
-            check=True,
-            capture_output=True
-        )
+        subprocess.run(["pre-commit", "install"], check=True, cwd=project_root)
         print("Pre-commit hooks installed successfully.")
-    except subprocess.CalledProcessError:
-        print("Warning: Could not install pre-commit hooks. You may need to run 'pre-commit install' manually.")
-    
-    print("Linting and formatting setup complete.")
-    print("Run 'pre-commit run --all-files' to check all files.")
+    except subprocess.CalledProcessError as e:
+        print(f"Failed to install pre-commit hooks: {e}")
+        sys.exit(1)
+
+    print("Linting and formatting tools configured.")
 
 if __name__ == "__main__":
     main()

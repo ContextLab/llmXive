@@ -1,0 +1,6 @@
+'|analysi random sample sensitivity subset use':
+  quote: "c \u2208 {0, 0.1,..., 1.9, 2, 2.5, 3,..., 9.5, 10, 11,..., 29, 30, 40,...,\
+    \ 90, 100}."
+  source_id: '1809.06672'
+  url: https://arxiv.org/abs/1809.06672
+  value: '100'

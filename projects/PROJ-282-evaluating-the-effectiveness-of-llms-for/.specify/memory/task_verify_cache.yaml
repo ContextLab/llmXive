@@ -6,15 +6,6 @@ T007b:
     \ contains manually\u2011written field definitions (and is truncated). Consequently\
     \ the artifact does not demonstrably satisfy the \u201Cgenerate from contract\u201D\
     \ requirement."
-T007c:
-  c: false
-  h: ef729a03e7e24ae0b154897db1de2a63e30534c75e9c31687b22c760a75e0a30
-  r: "The `src/models/code_snippet.py` file is present but is truncated and cannot\
-    \ be verified against the required schema because the referenced `contracts/dataset.schema.yaml`\
-    \ (or `schema.yaml`) is missing entirely. Without the schema file and a complete\
-    \ generated model, the task\u2019s requirement of \u201Crun the generator and\
-    \ verify the output matches the schema\u201D is not satisfied. The missing schema\
-    \ file and incomplete code need to be provided."
 T008b:
   c: false
   h: e5e24d993ba4ac4bb19063b7086554ccd764e20b146f7906e65a0f4d239ed2b9
@@ -37,13 +28,19 @@ T009e:
     `contracts/analysis_metric.schema.yaml` is missing, so we cannot confirm that
     the generated code matches the schema or that the generation script was actually
     run. Additionally, there is no evidence that the task was executed after T009d.
+T012:
+  c: false
+  h: 33fa882105dfd7809c160257519d05c90819ac424314d50ba720b4df24733af6
+  r: Both required output artifacts (`data/processed/raw_snippets.parquet` and `data/processed/labels.csv`)
+    are missing from the repository, so the preprocessing and sampling step has not
+    been delivered.
 T015:
   c: false
-  h: ba9e8abba09e732308e52ceded9a0431f505e62e03e37e30fea302e9dfebacf7
-  r: "The repository contains `src/data/ingest_pipeline.py`, but the file is truncated\
-    \ and does not show a complete orchestration (e.g., a `main` that runs T011, T012,\
-    \ T013 sequentially) nor full validation of the `PredictionResult` schema. Moreover,\
-    \ the required output `data/processed/predictions.csv` is absent, so the pipeline\u2019\
-    s end\u2011to\u2011end behavior cannot be verified. The next implementer should\
-    \ provide the full script (including a runnable entry point) and ensure that running\
-    \ it produces a `predictions.csv` that conforms to the schema."
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, configuration, or output files (e.g., an orchestrator that\
+    \ runs T011 \u2192 T012 \u2192 T013, a `predictions.csv` validated against the\
+    \ `PredictionResult` schema, or a memory\u2011monitor\u2011driven batch\u2011\
+    size controller) were provided. Without these concrete artifacts, the claim that\
+    \ the ingest pipeline orchestrator is implemented cannot be verified. The next\
+    \ implementer must supply the actual orchestrator implementation and evidence\
+    \ of its successful execution and validation."

@@ -1,314 +1,326 @@
+"""
+Feature extraction module using tree-sitter for structural metrics.
+Computes AST depth, node count, and cyclomatic complexity for code snippets.
+"""
 import os
 import logging
 import re
 from typing import Dict, Any, Optional, List, Tuple
 from pathlib import Path
+import json
 
-# Imports from existing project surface
-from src.utils.logger import get_logger
-from src.models.feature_vector import FeatureVector, create_feature_vector
-
-# Tree-sitter imports (dependency listed in T002 requirements.txt)
+# Tree-sitter imports
 try:
     from tree_sitter import Language, Parser
-    import tree_sitter_c
-    import tree_sitter_python
-    import tree_sitter_javascript
+    import tree_sitter_c as tsc
+    import tree_sitter_cpp as tscpp
+    import tree_sitter_javascript as tsjs
+    import tree_sitter_python as tspython
     TREE_SITTER_AVAILABLE = True
 except ImportError:
     TREE_SITTER_AVAILABLE = False
-    logging.warning("tree-sitter libraries not installed. Structural metrics will be 0.")
+    logging.warning("tree-sitter libraries not installed. Structural features will be unavailable.")
 
-# Logger setup
+import pandas as pd
+import numpy as np
+
+from src.utils.logger import get_logger
+from src.utils.config import get_data_processed_path, get_data_logs_path
+from src.models.feature_vector import FeatureVector, create_feature_vector
+
 logger = get_logger(__name__)
 
-# --- Semantic Metrics Configuration ---
-
-# Taint Source APIs (Common entry points for untrusted data)
-# C/C++
-TAINT_APIS_C = {
-    'gets', 'scanf', 'fscanf', 'sscanf', 'fgets', 'getenv',
-    'memcpy', 'memmove', 'strcpy', 'strncpy', 'strcat', 'strncat',
-    'sprintf', 'vsprintf', 'snprintf', 'vsnprintf',
-    'read', 'recv', 'recvfrom', 'readv', 'pread',
-    'fopen', 'freopen', 'fdopen',
-    'system', 'popen', 'execl', 'execle', 'execlp', 'execv', 'execve', 'execvp',
-    'shell_exec', 'system', 'popen' # PHP aliases often found in C contexts or mixed
+# Language mappings for tree-sitter
+LANGUAGE_MAP = {
+    'c': (tsc, 'c'),
+    'cpp': (tscpp, 'cpp'),
+    'javascript': (tsjs, 'javascript'),
+    'python': (tspython, 'python')
 }
 
-# Python
-TAINT_APIS_PY = {
-    'input', 'raw_input', 'open', 'file',
-    'eval', 'exec', 'execfile',
-    'pickle.loads', 'marshal.loads', 'yaml.load',
-    'os.system', 'os.popen', 'os.spawn', 'os.execl', 'os.execlp', 'os.execle', 'os.execv', 'os.execvp', 'os.execve',
-    'subprocess.call', 'subprocess.run', 'subprocess.Popen',
-    'socket.recv', 'socket.recvfrom', 'socket.recvfrom_into',
-    'cgi.FieldStorage',
-    'flask.request.form', 'flask.request.args', 'flask.request.json', 'flask.request.data',
-    'django.http.request.POST', 'django.http.request.GET', 'django.http.request.FILES',
-    'sqlite3.connect', 'MySQLdb.connect', 'psycopg2.connect' # DB connections often sources if not parameterized
-}
+# Initialize parsers (lazy loading to avoid memory bloat)
+_parsers: Dict[str, Parser] = {}
+_languages: Dict[str, Language] = {}
 
-# JavaScript
-TAINT_APIS_JS = {
-    'eval', 'setTimeout', 'setInterval', 'Function',
-    'document.write', 'document.writeln',
-    'innerHTML', 'outerHTML',
-    'location.href', 'location.search', 'location.hash',
-    'request.body', 'request.query', 'request.params', 'request.headers',
-    'fs.readFileSync', 'fs.readFile',
-    'child_process.exec', 'child_process.execFile', 'child_process.spawn',
-    'XMLHttpRequest', 'fetch',
-    'require' # Potential RCE if dynamic
-}
+def _get_parser(lang: str) -> Optional[Parser]:
+    """Get or create a tree-sitter parser for the specified language."""
+    if not TREE_SITTER_AVAILABLE:
+        return None
+    
+    if lang in _parsers:
+        return _parsers[lang]
+    
+    if lang not in LANGUAGE_MAP:
+        logger.warning(f"Unsupported language for tree-sitter: {lang}")
+        return None
+    
+    try:
+        module, lang_name = LANGUAGE_MAP[lang]
+        # Create language instance
+        lang_instance = Language(module.language())
+        _languages[lang] = lang_instance
+        
+        # Create parser
+        parser = Parser()
+        parser.set_language(lang_instance)
+        _parsers[lang] = parser
+        
+        return parser
+    except Exception as e:
+        logger.error(f"Failed to initialize parser for {lang}: {e}")
+        return None
 
-# Sanitization Functions (Escaping, Validation, Filtering)
-# C/C++
-SANITIZERS_C = {
-    'snprintf', 'strncpy', 'strncat', 'memcpy_s', 'memmove_s',
-    'strcpy_s', 'strcat_s', 'strtok_s',
-    'sscanf', 'fscanf', 'vsscanf', 'vfscanf', 'vfwscanf', 'vswscanf',
-    'gets_s',
-    'setenv', 'unsetenv',
-    'filter_input', 'filter_var', # PHP functions often seen in C-like syntax contexts
-    'htmlentities', 'htmlspecialchars', 'mysql_real_escape_string', 'mysqli_real_escape_string'
-}
+def _calculate_ast_depth(node, current_depth=0) -> int:
+    """Recursively calculate the maximum depth of the AST."""
+    if not node.children:
+        return current_depth
+    
+    max_depth = current_depth
+    for child in node.children:
+        child_depth = _calculate_ast_depth(child, current_depth + 1)
+        max_depth = max(max_depth, child_depth)
+    
+    return max_depth
 
-# Python
-SANITIZERS_PY = {
-    'escape', 'html.escape', 'cgi.escape',
-    'quote', 'quote_plus', 'urlencode',
-    'sanitize', 'validate',
-    'json.dumps', # Safe serialization
-    're.sub', # Filtering
-    'strip', 'lstrip', 'rstrip',
-    'mysql_real_escape_string', 'sqlite3.escape_string', # DB specific
-    'werkzeug.security.generate_password_hash',
-    'paramiko' # SSH handling
-}
-
-# JavaScript
-SANITIZERS_JS = {
-    'escape', 'encodeURI', 'encodeURIComponent',
-    'html.escape', 'he.encode', # 'he' library
-    'DOMPurify.sanitize',
-    'escapeHtml', 'escapeHtml2', 'escapeHtml3',
-    'sanitize', 'filter',
-    'replace', 'replaceAll',
-    'mysql_real_escape_string', # Node.js mysql lib
-    'escapeRegExp',
-    'JSON.stringify'
-}
-
-def _count_api_occurrences(code: str, apis: set) -> int:
-    """
-    Count occurrences of known taint APIs or sanitizers in code.
-    Uses regex word boundaries to avoid partial matches (e.g., 'input' vs 'inputs').
-    """
-    count = 0
-    for api in apis:
-        # Escape special regex characters in API names
-        escaped_api = re.escape(api)
-        # Match word boundaries or common separators (dot, space, start/end)
-        # We look for the API name followed by a non-identifier char or end of string
-        pattern = r'\b' + escaped_api + r'\b'
-        matches = re.findall(pattern, code, re.IGNORECASE)
-        count += len(matches)
+def _count_nodes(node) -> int:
+    """Count total number of nodes in the AST."""
+    count = 1  # Count current node
+    for child in node.children:
+        count += _count_nodes(child)
     return count
 
-def _detect_sanitization_present(code: str, language: str) -> bool:
+def _calculate_cyclomatic_complexity(node) -> int:
     """
-    Detect presence of sanitization functions using regex.
-    Returns True if at least one sanitizer is found.
+    Calculate cyclomatic complexity based on decision points.
+    Counts: if, elif, for, while, case, catch, logical operators (and, or).
     """
-    if language.lower() in ['c', 'cpp', 'c++']:
-        apis = SANITIZERS_C
-    elif language.lower() in ['python', 'py']:
-        apis = SANITIZERS_PY
-    elif language.lower() in ['javascript', 'js', 'ts']:
-        apis = SANITIZERS_JS
-    else:
-        # Fallback to union if language unknown, or empty
-        apis = SANITIZERS_C.union(SANITIZERS_PY).union(SANITIZERS_JS)
+    complexity = 1  # Base complexity
+    
+    # Decision point keywords for various languages
+    decision_keywords = {
+        'if', 'elif', 'else_if', 'for', 'while', 'case', 'catch', 
+        'except', 'match', '&&', '||', 'and', 'or', '?:'
+    }
+    
+    # Traverse the tree
+    stack = [node]
+    while stack:
+        current = stack.pop()
+        if current.type in decision_keywords:
+            complexity += 1
+        stack.extend(current.children)
+    
+    return complexity
 
-    for api in apis:
-        escaped_api = re.escape(api)
-        pattern = r'\b' + escaped_api + r'\b'
-        if re.search(pattern, code, re.IGNORECASE):
-            return True
-    return False
-
-def extract_semantic_features(code: str, language: str) -> Tuple[int, bool]:
+def extract_structural_features(code: str, language: str) -> Dict[str, Any]:
     """
-    Extract semantic metrics for a code snippet.
-
+    Extract structural features from code using tree-sitter.
+    
     Args:
-        code (str): The source code string.
-        language (str): The programming language (C, Python, JavaScript).
-
+        code: The source code string
+        language: Language identifier (c, cpp, javascript, python)
+        
     Returns:
-        Tuple[int, bool]: (taint_api_count, sanitization_present)
+        Dictionary with structural metrics
     """
+    if not TREE_SITTER_AVAILABLE:
+        return {
+            'ast_depth': None,
+            'node_count': None,
+            'cyclomatic_complexity': None,
+            'parse_error': 'tree-sitter not available'
+        }
+    
+    parser = _get_parser(language)
+    if not parser:
+        return {
+            'ast_depth': None,
+            'node_count': None,
+            'cyclomatic_complexity': None,
+            'parse_error': f'parser not available for {language}'
+        }
+    
+    try:
+        # Encode code to bytes
+        code_bytes = code.encode('utf-8')
+        
+        # Parse the code
+        tree = parser.parse(code_bytes)
+        root_node = tree.root_node
+        
+        # Calculate metrics
+        ast_depth = _calculate_ast_depth(root_node)
+        node_count = _count_nodes(root_node)
+        cyclomatic_complexity = _calculate_cyclomatic_complexity(root_node)
+        
+        return {
+            'ast_depth': ast_depth,
+            'node_count': node_count,
+            'cyclomatic_complexity': cyclomatic_complexity,
+            'parse_error': None
+        }
+        
+    except Exception as e:
+        logger.error(f"Parse error for language {language}: {e}")
+        return {
+            'ast_depth': None,
+            'node_count': None,
+            'cyclomatic_complexity': None,
+            'parse_error': str(e)
+        }
+
+def extract_semantic_features(code: str, language: str) -> Dict[str, Any]:
+    """
+    Extract semantic features (placeholder for T018b).
+    Currently returns None values as this is implemented in T018b.
+    """
+    return {
+        'taint_api_count': None,
+        'sanitization_present': None
+    }
+
+def extract_features_for_snippet(snippet: Dict[str, Any]) -> Optional[FeatureVector]:
+    """
+    Extract all features for a single code snippet.
+    
+    Args:
+        snippet: Dictionary containing 'code', 'language', and 'snippet_id'
+        
+    Returns:
+        FeatureVector object or None if extraction fails
+    """
+    code = snippet.get('code', '')
+    language = snippet.get('language', '').lower()
+    snippet_id = snippet.get('snippet_id', 'unknown')
+    
     if not code:
-        return 0, False
+        logger.warning(f"Empty code for snippet {snippet_id}")
+        return None
+    
+    # Extract structural features
+    structural = extract_structural_features(code, language)
+    
+    # Extract semantic features (placeholder)
+    semantic = extract_semantic_features(code, language)
+    
+    # Create FeatureVector
+    try:
+        feature_vector = create_feature_vector(
+            snippet_id=snippet_id,
+            language=language,
+            ast_depth=structural.get('ast_depth'),
+            node_count=structural.get('node_count'),
+            cyclomatic_complexity=structural.get('cyclomatic_complexity'),
+            taint_api_count=semantic.get('taint_api_count'),
+            sanitization_present=semantic.get('sanitization_present')
+        )
+        
+        return feature_vector
+        
+    except Exception as e:
+        logger.error(f"Failed to create FeatureVector for {snippet_id}: {e}")
+        return None
 
-    # 1. Taint Source Count
-    if language.lower() in ['c', 'cpp', 'c++']:
-        taint_apis = TAINT_APIS_C
-    elif language.lower() in ['python', 'py']:
-        taint_apis = TAINT_APIS_PY
-    elif language.lower() in ['javascript', 'js', 'ts']:
-        taint_apis = TAINT_APIS_JS
-    else:
-        # Default to empty set if language unknown to avoid false positives
-        taint_apis = set()
-
-    taint_count = _count_api_occurrences(code, taint_apis)
-
-    # 2. Sanitization Presence
-    sanitization_present = _detect_sanitization_present(code, language)
-
-    logger.debug(f"Semantic features for {language}: taint_count={taint_count}, sanitization={sanitization_present}")
-
-    return taint_count, sanitization_present
-
-def extract_features_for_snippet(
-    snippet_id: str,
-    code: str,
-    language: str,
-    structural_features: Optional[Dict[str, int]] = None,
-    embedding_score: Optional[float] = None
-) -> FeatureVector:
+def batch_extract_features(snippets: List[Dict[str, Any]], batch_size: int = 100) -> List[FeatureVector]:
     """
-    Extract all features (structural + semantic + embedding) for a single snippet.
-
+    Extract features for a batch of snippets.
+    
     Args:
-        snippet_id: Unique ID for the snippet.
-        code: Source code.
-        language: Programming language.
-        structural_features: Pre-computed structural metrics (optional).
-        embedding_score: Pre-computed embedding similarity (optional).
-
+        snippets: List of snippet dictionaries
+        batch_size: Number of snippets to process at once
+        
     Returns:
-        FeatureVector object.
-    """
-    # If structural features not provided, calculate them (or default to 0 if tree-sitter missing)
-    if structural_features is None:
-        if TREE_SITTER_AVAILABLE:
-            # Placeholder: In a real pipeline, we'd call extract_structural_features here
-            # For this specific task T018b, we assume structural features might be passed or calculated elsewhere.
-            # To ensure this function is self-contained for the semantic part, we default to 0 if not passed.
-            ast_depth = 0
-            node_count = 0
-            cyclomatic_complexity = 0
-        else:
-            ast_depth = 0
-            node_count = 0
-            cyclomatic_complexity = 0
-    else:
-        ast_depth = structural_features.get('ast_depth', 0)
-        node_count = structural_features.get('node_count', 0)
-        cyclomatic_complexity = structural_features.get('cyclomatic_complexity', 0)
-
-    # Extract Semantic Features (The core of T018b)
-    taint_api_count, sanitization_present = extract_semantic_features(code, language)
-
-    # Embedding score (default to 0 if not provided)
-    if embedding_score is None:
-        embedding_score = 0.0
-
-    return create_feature_vector(
-        snippet_id=snippet_id,
-        ast_depth=ast_depth,
-        cyclomatic_complexity=cyclomatic_complexity,
-        node_count=node_count,
-        taint_api_count=taint_api_count,
-        sanitization_present=sanitization_present,
-        embedding_similarity_score=embedding_score
-    )
-
-def batch_extract_features(
-    snippets: List[Dict[str, Any]],
-    structural_features_map: Optional[Dict[str, Dict[str, int]]] = None,
-    embedding_scores_map: Optional[Dict[str, float]] = None
-) -> List[FeatureVector]:
-    """
-    Batch extract features for a list of snippets.
-
-    Args:
-        snippets: List of dicts with 'id', 'code', 'language'.
-        structural_features_map: Map of snippet_id -> structural features.
-        embedding_scores_map: Map of snippet_id -> embedding score.
-
-    Returns:
-        List of FeatureVector objects.
+        List of FeatureVector objects
     """
     results = []
-    for snippet in snippets:
-        sid = snippet['id']
-        code = snippet['code']
-        lang = snippet['language']
-
-        s_feat = None
-        if structural_features_map:
-            s_feat = structural_features_map.get(sid)
-
-        e_score = None
-        if embedding_scores_map:
-            e_score = embedding_scores_map.get(sid)
-
-        feat_vec = extract_features_for_snippet(
-            snippet_id=sid,
-            code=code,
-            language=lang,
-            structural_features=s_feat,
-            embedding_score=e_score
-        )
-        results.append(feat_vec)
-
+    total = len(snippets)
+    
+    logger.info(f"Starting batch extraction for {total} snippets")
+    
+    for i in range(0, total, batch_size):
+        batch = snippets[i:i + batch_size]
+        batch_results = []
+        
+        for j, snippet in enumerate(batch):
+            try:
+                feature_vector = extract_features_for_snippet(snippet)
+                if feature_vector:
+                    batch_results.append(feature_vector)
+            except Exception as e:
+                logger.error(f"Error processing snippet {i+j}: {e}")
+                continue
+        
+        results.extend(batch_results)
+        
+        # Log progress
+        if (i + batch_size) % 500 == 0 or (i + batch_size) >= total:
+            logger.info(f"Processed {min(i + batch_size, total)}/{total} snippets")
+    
+    logger.info(f"Completed extraction: {len(results)}/{total} successful")
     return results
 
 def main():
-    """
-    Main entry point for testing feature extraction.
-    """
-    logger.info("Starting Feature Extractor (Semantic Metrics) Test")
-
-    # Test cases
-    test_snippets = [
-        {
-            "id": "test_py_1",
-            "code": "user_input = input('Enter name: ')\nsql = 'SELECT * FROM users WHERE name = ' + user_input\nexec(sql)",
-            "language": "python"
-        },
-        {
-            "id": "test_c_1",
-            "code": "char buffer[100];\ngets(buffer);\nsprintf(buffer, \"Hello %s\", buffer);",
-            "language": "c"
-        },
-        {
-            "id": "test_js_1",
-            "code": "var user = req.query.id;\ndocument.write('<h1>' + user + '</h1>');",
-            "language": "javascript"
-        },
-        {
-            "id": "test_safe_py",
-            "code": "import sqlite3\nconn = sqlite3.connect('db.sqlite')\ncursor = conn.cursor()\nuser = input('Enter name')\ncursor.execute('SELECT * FROM users WHERE name = ?', (user,))",
-            "language": "python"
-        }
-    ]
-
-    for snippet in test_snippets:
-        feat = extract_features_for_snippet(
-            snippet_id=snippet['id'],
-            code=snippet['code'],
-            language=snippet['language']
-        )
-        logger.info(f"Snippet {snippet['id']} ({snippet['language']}): "
-                    f"Taint={feat.taint_api_count}, Sanitized={feat.sanitization_present}")
-
-    logger.info("Feature Extractor Test Complete")
+    """Main entry point for feature extraction pipeline."""
+    logger.info("Starting feature extraction pipeline (T018a)")
+    
+    # Check for tree-sitter
+    if not TREE_SITTER_AVAILABLE:
+        logger.error("tree-sitter libraries not installed. Cannot proceed.")
+        logger.error("Install with: pip install tree-sitter tree-sitter-c tree-sitter-cpp tree-sitter-javascript tree-sitter-python")
+        return 1
+    
+    # Load processed snippets from T012
+    processed_path = get_data_processed_path()
+    input_file = processed_path / "raw_snippets.parquet"
+    
+    if not input_file.exists():
+        logger.error(f"Input file not found: {input_file}")
+        logger.error("Please run T012 (preprocess) first to generate raw_snippets.parquet")
+        return 1
+    
+    logger.info(f"Loading snippets from {input_file}")
+    df = pd.read_parquet(input_file)
+    
+    # Convert to list of dicts
+    snippets = df.to_dict('records')
+    logger.info(f"Loaded {len(snippets)} snippets")
+    
+    # Extract features
+    feature_vectors = batch_extract_features(snippets, batch_size=100)
+    
+    if not feature_vectors:
+        logger.error("No features extracted. Check logs for errors.")
+        return 1
+    
+    # Convert to DataFrame for saving
+    feature_data = []
+    for fv in feature_vectors:
+        feature_data.append({
+            'snippet_id': fv.snippet_id,
+            'language': fv.language,
+            'ast_depth': fv.ast_depth,
+            'node_count': fv.node_count,
+            'cyclomatic_complexity': fv.cyclomatic_complexity,
+            'taint_api_count': fv.taint_api_count,
+            'sanitization_present': fv.sanitization_present,
+            'embedding_similarity_score': None,  # Placeholder for T019c
+        })
+    
+    features_df = pd.DataFrame(feature_data)
+    
+    # Save to CSV
+    output_file = processed_path / "features.csv"
+    features_df.to_csv(output_file, index=False)
+    
+    logger.info(f"Saved features to {output_file}")
+    logger.info(f"Total features extracted: {len(features_df)}")
+    
+    # Log summary statistics
+    logger.info(f"Ast depth stats: min={features_df['ast_depth'].min()}, max={features_df['ast_depth'].max()}, mean={features_df['ast_depth'].mean():.2f}")
+    logger.info(f"Node count stats: min={features_df['node_count'].min()}, max={features_df['node_count'].max()}, mean={features_df['node_count'].mean():.2f}")
+    logger.info(f"Cyclomatic complexity stats: min={features_df['cyclomatic_complexity'].min()}, max={features_df['cyclomatic_complexity'].max()}, mean={features_df['cyclomatic_complexity'].mean():.2f}")
+    
+    return 0
 
 if __name__ == "__main__":
-    main()
+    exit(main())

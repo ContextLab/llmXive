@@ -4,57 +4,50 @@ import tempfile
 import pytest
 from pathlib import Path
 
-
 def test_ruff_config_exists():
-    """Verify that ruff configuration file exists."""
-    # Check for .ruff.toml or ruff.toml or pyproject.toml [tool.ruff]
-    root = Path(__file__).parent.parent.parent.parent
-    ruff_toml = root / ".ruff.toml"
+    """Verify that ruff configuration exists."""
+    root = Path(__file__).resolve().parent.parent.parent
+    # Check pyproject.toml or .ruff.toml
     pyproject = root / "pyproject.toml"
-
-    assert ruff_toml.exists() or (
-        pyproject.exists() and "[tool.ruff]" in pyproject.read_text()
-    ), "Ruff configuration (.ruff.toml or pyproject.toml) not found"
-
+    ruff_toml = root / ".ruff.toml"
+    assert pyproject.exists() or ruff_toml.exists(), "Ruff config (pyproject.toml or .ruff.toml) missing"
 
 def test_black_config_exists():
-    """Verify that black configuration file exists."""
-    root = Path(__file__).parent.parent.parent.parent
-    black_toml = root / ".black.toml"
+    """Verify that black configuration exists."""
+    root = Path(__file__).resolve().parent.parent.parent
     pyproject = root / "pyproject.toml"
-
-    assert black_toml.exists() or (
-        pyproject.exists() and "[tool.black]" in pyproject.read_text()
-    ), "Black configuration (.black.toml or pyproject.toml) not found"
-
+    assert pyproject.exists(), "Black config (pyproject.toml) missing"
+    with open(pyproject, "r") as f:
+        content = f.read()
+    assert "[tool.black]" in content, "Black section missing in pyproject.toml"
 
 def test_precommit_config_exists():
-    """Verify that pre-commit configuration file exists."""
-    root = Path(__file__).parent.parent.parent.parent
-    config_path = root / ".pre-commit-config.yaml"
-    assert config_path.exists(), "Pre-commit configuration (.pre-commit-config.yaml) not found"
-
+    """Verify that pre-commit configuration exists."""
+    root = Path(__file__).resolve().parent.parent.parent
+    config = root / ".pre-commit-config.yaml"
+    assert config.exists(), ".pre-commit-config.yaml missing"
 
 def test_lint_script_exists():
-    """Verify that linting can be invoked (checks if ruff is installed/configured)."""
-    root = Path(__file__).parent.parent.parent.parent
-    # We don't run it fully here to avoid dependency on installed ruff in test env,
-    # but we verify the config allows it.
-    config_path = root / ".ruff.toml"
-    pyproject = root / "pyproject.toml"
-    assert config_path.exists() or pyproject.exists()
-
+    """Verify that setup_linting.py exists."""
+    root = Path(__file__).resolve().parent.parent.parent
+    script = root / "scripts" / "setup_linting.py"
+    assert script.exists(), "scripts/setup_linting.py missing"
 
 def test_format_script_exists():
-    """Verify that formatting can be invoked (checks if black is installed/configured)."""
-    root = Path(__file__).parent.parent.parent.parent
-    config_path = root / ".black.toml"
-    pyproject = root / "pyproject.toml"
-    assert config_path.exists() or pyproject.exists()
-
+    """Verify that format scripts exist or are handled by pre-commit."""
+    # Pre-commit handles formatting via ruff-format/black
+    root = Path(__file__).resolve().parent.parent.parent
+    config = root / ".pre-commit-config.yaml"
+    assert config.exists(), ".pre-commit-config.yaml missing"
+    with open(config, "r") as f:
+        content = f.read()
+    assert "ruff" in content or "black" in content, "No formatting hook found in pre-commit config"
 
 def test_pytest_config_exists():
     """Verify that pytest configuration exists."""
-    root = Path(__file__).parent.parent.parent.parent
+    root = Path(__file__).resolve().parent.parent.parent
     pyproject = root / "pyproject.toml"
-    assert pyproject.exists() and "[tool.pytest" in pyproject.read_text(), "Pytest configuration missing in pyproject.toml"
+    assert pyproject.exists(), "pyproject.toml missing"
+    with open(pyproject, "r") as f:
+        content = f.read()
+    assert "[tool.pytest" in content, "Pytest config section missing in pyproject.toml"

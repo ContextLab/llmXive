@@ -1,14 +1,37 @@
+# Contract for CodeSnippet entity
+# Generated for PROJ-282
+# Priority: P1
 type: object
+required:
+  - snippet_id
+  - language
+  - code
+  - ground_truth_label
+  - ground_truth_category
 properties:
-  id: 
+  snippet_id:
     type: string
-  language: 
+    description: Unique identifier for the code snippet
+  language:
     type: string
-    enum: [C, Python, JavaScript]
-  source_code: 
+    enum: [C, CPP, JavaScript, Python]
+    description: Programming language of the snippet
+  code:
     type: string
-  ground_truth_label: 
+    description: The raw source code content
+  ground_truth_label:
     type: string
-  ground_truth_category: 
+    enum: [vulnerable, safe]
+    description: Ground truth vulnerability label
+  ground_truth_category:
     type: string
-required: [id, language, source_code, ground_truth_label, ground_truth_category]
+    description: Vulnerability category (e.g., CWE-ID)
+  source_file:
+    type: string
+    description: Original file path in the dataset
+  line_number:
+    type: integer
+    description: Starting line number in the source file
+  checksum:
+    type: string
+    description: SHA-256 hash of the code content

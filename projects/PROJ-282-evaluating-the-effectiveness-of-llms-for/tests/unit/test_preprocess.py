@@ -1,86 +1,212 @@
+"""
+Unit tests for the preprocessing module.
+"""
 import pytest
+import os
 import json
 import tempfile
-import os
 from pathlib import Path
 from unittest.mock import patch, MagicMock
+import pandas as pd
+
 from src.data.preprocess import (
-    detect_language_from_extension, normalize_label, extract_category_from_context,
-    parse_vuldeepecker_jsonl, parse_juliet_c_test_cases, parse_juliet_java_test_cases,
-    parse_raw_directory, create_code_snippets, save_snippets_to_csv, log_edge_cases, main
+    detect_language_from_extension,
+    normalize_label,
+    extract_category_from_context,
+    parse_bigvul_directory,
+    parse_raw_directory,
+    create_code_snippets,
+    stratified_sample,
+    save_snippets_to_parquet,
+    save_labels_csv,
+    log_edge_cases
 )
+from src.models.code_snippet import CodeSnippet, CodeSnippetLanguageEnum, create_codesnippet
 
-
-class TestNormalizeLabel:
-    def test_normalize_sql_injection(self):
-        assert normalize_label("SQL Injection") == "SQLi"
-        assert normalize_label("sqli") == "SQLi"
-
-    def test_normalize_buffer_overflow(self):
-        assert normalize_label("Buffer Overflow") == "Buffer Overflow"
-        assert normalize_label("overflow") == "Buffer Overflow"
-
-    def test_normalize_none(self):
-        assert normalize_label("No vulnerability") == "none"
-        assert normalize_label("Safe") == "none"
-
-class TestDetectLanguage:
-    def test_py_extension(self):
-        assert detect_language_from_extension("file.py") == "Python"
-        assert detect_language_from_extension("FILE.PY") == "Python"
-
+class TestLanguageDetection:
     def test_c_extension(self):
-        assert detect_language_from_extension("file.c") == "C"
-        assert detect_language_from_extension("file.cpp") == "C++"
-
+        assert detect_language_from_extension("test.c") == "C"
+    
+    def test_cpp_extension(self):
+        assert detect_language_from_extension("test.cpp") == "C++"
+        assert detect_language_from_extension("test.cc") == "C++"
+    
+    def test_js_extension(self):
+        assert detect_language_from_extension("test.js") == "JavaScript"
+    
     def test_unknown_extension(self):
-        assert detect_language_from_extension("file.xyz") == "Unknown"
+        assert detect_language_from_extension("test.xyz") is None
 
-class TestExtractCategory:
-    def test_context_contains_injection(self):
-        assert extract_category_from_context("This function handles SQL injection") == "SQLi"
+class TestLabelNormalization:
+    def test_valid_zero(self):
+        assert normalize_label(0) == 0
+    
+    def test_valid_one(self):
+        assert normalize_label(1) == 1
+    
+    def test_positive_int(self):
+        assert normalize_label(5) == 1
+    
+    def test_negative_int(self):
+        assert normalize_label(-1) is None
+    
+    def test_string_valid(self):
+        assert normalize_label("1") == 1
+        assert normalize_label("0") == 0
+    
+    def test_none(self):
+        assert normalize_label(None) is None
+    
+    def test_invalid_string(self):
+        assert normalize_label("vulnerable") is None
 
-    def test_no_category_found(self):
-        assert extract_category_from_context("General code snippet") == "Unknown"
+class TestCategoryExtraction:
+    def test_cwe_pattern(self):
+        assert extract_category_from_context("CWE-79: XSS") == "CWE-79"
+    
+    def test_cwe_lowercase(self):
+        assert extract_category_from_context("cwe-123: buffer overflow") == "CWE-123"
+    
+    def test_no_cwe(self):
+        assert extract_category_from_context("Some other text") is None
+    
+    def test_empty(self):
+        assert extract_category_from_context("") is None
 
-class TestParseVulDeePecker:
-    def test_parse_jsonl(self):
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.jsonl', delete=False) as f:
-            f.write('{"code": "print(1)", "label": "Safe"}\n')
-            f.flush()
-            snippets = parse_vuldeepecker_jsonl(Path(f.name))
-            assert len(snippets) == 1
-            assert snippets[0].code == "print(1)"
-        os.unlink(f.name)
-
-class TestParseJuliet:
-    def test_parse_c_test_case(self):
-        # Mock file content
-        with patch('builtins.open', mock_open(read_data="int main() { return 0; }")):
-            # This is a simplified test; real implementation parses C test cases
-            pass
-
-class TestCreateCodeSnippets:
-    def test_create_from_raw(self):
-        raw_data = [{"code": "x=1", "label": "Safe", "file": "test.py"}]
-        snippets = create_code_snippets(raw_data, source="test")
+class TestSnippetCreation:
+    def test_create_valid_snippet(self):
+        raw_data = [
+            {
+                'snippet_id': 'test_1',
+                'language': 'C',
+                'code': 'int main() { return 0; }',
+                'ground_truth_label': 1,
+                'ground_truth_category': 'CWE-119',
+                'source_file': 'test.c',
+                'line_number': 10,
+                'function_name': 'main',
+                'raw_context': None
+            }
+        ]
+        snippets = create_code_snippets(raw_data)
         assert len(snippets) == 1
-        assert snippets[0].code == "x=1"
+        assert snippets[0].snippet_id == 'test_1'
+        assert snippets[0].ground_truth_label == 1
+        assert snippets[0].language == CodeSnippetLanguageEnum.C
 
-class TestSaveSnippetsToCSV:
-    def test_save_to_csv(self):
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = Path(tmpdir) / "snippets.csv"
-            # Create dummy snippets
-            from src.models.code_snippet import create_snippet
-            snippets = [create_snippet("code", "py", "src")]
-            save_snippets_to_csv(snippets, output_path)
-            assert output_path.exists()
+    def test_skip_invalid_label(self):
+        raw_data = [
+            {
+                'snippet_id': 'test_1',
+                'language': 'C',
+                'code': 'int main() { return 0; }',
+                'ground_truth_label': None,  # Missing label
+                'ground_truth_category': None,
+                'source_file': None,
+                'line_number': None,
+                'function_name': None,
+                'raw_context': None
+            }
+        ]
+        snippets = create_code_snippets(raw_data)
+        assert len(snippets) == 0
 
-class TestLogEdgeCases:
-    def test_log_missing_label(self, caplog):
-        from src.utils.logger import get_logger
-        logger = get_logger("test")
-        log_edge_cases(logger, [{"code": "x", "label": None}])
-        # Check that a warning was logged
-        assert any("missing label" in str(record).lower() for record in caplog.records)
+    def test_unknown_language(self):
+        raw_data = [
+            {
+                'snippet_id': 'test_1',
+                'language': 'UnknownLang',
+                'code': 'int main() { return 0; }',
+                'ground_truth_label': 0,
+                'ground_truth_category': None,
+                'source_file': None,
+                'line_number': None,
+                'function_name': None,
+                'raw_context': None
+            }
+        ]
+        snippets = create_code_snippets(raw_data)
+        assert len(snippets) == 1
+        assert snippets[0].language == CodeSnippetLanguageEnum.OTHER
+
+class TestStratifiedSampling:
+    def test_empty_input(self):
+        assert stratified_sample([]) == []
+
+    def test_no_sampling_needed(self):
+        snippets = [
+            create_codesnippet('1', CodeSnippetLanguageEnum.C, 'code1', 1),
+            create_codesnippet('2', CodeSnippetLanguageEnum.C, 'code2', 0),
+        ]
+        sampled = stratified_sample(snippets, max_samples=10)
+        assert len(sampled) == 2
+
+    def test_sampling_reduction(self):
+        # Create 100 snippets
+        snippets = [
+            create_codesnippet(str(i), CodeSnippetLanguageEnum.C, f'code{i}', i % 2)
+            for i in range(100)
+        ]
+        sampled = stratified_sample(snippets, max_samples=10)
+        assert len(sampled) == 10
+
+    def test_language_stratification(self):
+        # Create balanced dataset
+        snippets = []
+        for i in range(50):
+            snippets.append(create_codesnippet(f'c_{i}', CodeSnippetLanguageEnum.C, f'c{i}', 1))
+        for i in range(50):
+            snippets.append(create_codesnippet(f'js_{i}', CodeSnippetLanguageEnum.JAVASCRIPT, f'js{i}', 0))
+        
+        sampled = stratified_sample(snippets, max_samples=20, by_language=True)
+        
+        # Should have roughly equal representation
+        c_count = sum(1 for s in sampled if s.language == CodeSnippetLanguageEnum.C)
+        js_count = sum(1 for s in sampled if s.language == CodeSnippetLanguageEnum.JAVASCRIPT)
+        
+        # Allow some variance due to random sampling
+        assert 5 <= c_count <= 15
+        assert 5 <= js_count <= 15
+
+class TestOutputFunctions:
+    def test_save_parquet(self, tmp_path):
+        snippets = [
+            create_codesnippet('1', CodeSnippetLanguageEnum.C, 'code1', 1),
+            create_codesnippet('2', CodeSnippetLanguageEnum.C, 'code2', 0),
+        ]
+        output_path = tmp_path / "test.parquet"
+        save_snippets_to_parquet(snippets, output_path)
+        
+        assert output_path.exists()
+        df = pd.read_parquet(output_path)
+        assert len(df) == 2
+        assert 'snippet_id' in df.columns
+        assert 'code' in df.columns
+
+    def test_save_labels_csv(self, tmp_path):
+        snippets = [
+            create_codesnippet('1', CodeSnippetLanguageEnum.C, 'code1', 1, 'CWE-119'),
+            create_codesnippet('2', CodeSnippetLanguageEnum.C, 'code2', 0),
+        ]
+        output_path = tmp_path / "labels.csv"
+        save_labels_csv(snippets, output_path)
+        
+        assert output_path.exists()
+        with open(output_path, 'r') as f:
+            content = f.read()
+            assert 'snippet_id,ground_truth_label,ground_truth_category' in content
+            assert '1,1,CWE-119' in content
+            assert '2,0,' in content
+
+    def test_log_edge_cases(self, tmp_path):
+        snippets = [
+            create_codesnippet('1', CodeSnippetLanguageEnum.C, 'code1', 1, 'CWE-119'),
+            create_codesnippet('2', CodeSnippetLanguageEnum.C, 'code2', 0),
+        ]
+        log_path = tmp_path / "stats.json"
+        stats = log_edge_cases(snippets, log_path)
+        
+        assert log_path.exists()
+        assert stats['total_snippets'] == 2
+        assert stats['by_label'][1] == 1
+        assert stats['by_label'][0] == 1

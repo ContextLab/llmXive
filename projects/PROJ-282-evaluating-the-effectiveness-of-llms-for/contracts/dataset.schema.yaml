@@ -1,8 +1,41 @@
-type: object
-properties:
-  id: {type: string}
-  language: {type: string, enum: [C, Python, JavaScript]}
-  source_code: {type: string}
-  ground_truth_label: {type: string}
-  ground_truth_category: {type: string}
-required: [id, language, source_code, ground_truth_label, ground_truth_category]
+# Contract for CodeSnippet data model
+# Generated for PROJ-282
+schema_name: CodeSnippet
+version: "1.0.0"
+fields:
+  - name: snippet_id
+    type: string
+    required: true
+    description: Unique identifier for the code snippet
+  - name: language
+    type: string
+    required: true
+    description: Programming language (C, C++, JavaScript, Python)
+  - name: code
+    type: string
+    required: true
+    description: The source code content
+  - name: ground_truth_label
+    type: integer
+    required: true
+    description: 1 for vulnerable, 0 for safe
+  - name: ground_truth_category
+    type: string
+    required: false
+    description: Vulnerability category (e.g., CWE-79)
+  - name: source_file
+    type: string
+    required: false
+    description: Original file path in the dataset
+  - name: line_number
+    type: integer
+    required: false
+    description: Line number in the original file
+  - name: function_name
+    type: string
+    required: false
+    description: Name of the function containing the snippet
+  - name: raw_context
+    type: string
+    required: false
+    description: Additional context surrounding the snippet

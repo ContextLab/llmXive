@@ -1,18 +1,40 @@
+# Contract for PredictionResult entity
+# Generated for PROJ-282
+# Priority: P1
 type: object
+required:
+  - prediction_id
+  - snippet_id
+  - model_name
+  - predicted_label
+  - confidence
+  - inference_time_ms
 properties:
+  prediction_id:
+    type: string
+    description: Unique identifier for the prediction
   snippet_id:
     type: string
+    description: Reference to the code snippet
+  model_name:
+    type: string
+    description: Name of the LLM used
   predicted_label:
     type: string
-  predicted_category:
-    type: string
+    enum: [vulnerable, safe, uncertain]
+    description: Predicted vulnerability label
+  confidence:
+    type: number
+    format: float
+    minimum: 0.0
+    maximum: 1.0
+    description: Model confidence score
+  inference_time_ms:
+    type: integer
+    description: Time taken for inference in milliseconds
   is_correct:
     type: boolean
-  inference_time_ms:
-    type: number
-required:
-  - snippet_id
-  - predicted_label
-  - predicted_category
-  - is_correct
-  - inference_time_ms
+    description: Whether prediction matches ground truth
+  error_message:
+    type: string
+    description: Error message if prediction failed
