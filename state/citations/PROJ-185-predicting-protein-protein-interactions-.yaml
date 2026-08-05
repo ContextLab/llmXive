@@ -1,14 +1,3 @@
-- artifact_hash: d3f35d5c1a502ee57733aa8a785d336d2606d10f0feae97d9ec87539a2bc1d80
-  artifact_path: projects/PROJ-185-predicting-protein-protein-interactions-/specs/001-predicting-protein-protein-interactions/tasks.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://oeis.org/A331313
-  verification_status: pending
-  verified_against_url: https://oeis.org/A331313
-  verified_at: '2026-07-28T19:28:47.643937Z'
 - artifact_hash: a330fe35d268acee93be6a3343a8562973c69be858cc2484837d984b69292fa1
   artifact_path: projects/PROJ-185-predicting-protein-protein-interactions-/specs/001-predicting-protein-protein-interactions/spec.md
   cite_id: c-001

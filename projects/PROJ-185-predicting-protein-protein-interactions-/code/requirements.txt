@@ -6,3 +6,6 @@ scikit-learn
 tqdm
 requests
 PyYAML
+GEOparse  # auto-added: verified real data source (discovery)
+jsonschema  # auto-added: imported by run-book but missing from venv
+pytest  # auto-added: imported by run-book but missing from venv

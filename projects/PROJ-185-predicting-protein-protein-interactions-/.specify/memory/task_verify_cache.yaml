@@ -81,23 +81,3 @@ T064:
   r: "The required `src/pipeline/download.py` file does not exist, and `state/artifact_hashes.yaml`\
     \ is empty (`{}`) with no recorded SHA\u2011256 hashes. Both the downloader implementation\
     \ and the hash recording are missing."
-T098:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code changes, configuration, or example `pipeline.log` file were provided\
-    \ that demonstrate the logger now records the exact command\u2011line invocation,\
-    \ software versions, and random seed. Without such artifacts, the requirement\
-    \ of FR\u2011035 cannot be verified."
-T099:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No test script, CI configuration, or code artifact was presented that runs the\
-    \ CLI validator with a threshold below\u202F0.75 and checks for rejection. The\
-    \ required CI test file (e.g., a pytest or GitHub Actions step) is missing, so\
-    \ the claim is unsupported."
-T100:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The implementer provided no CI configuration, script, or workflow file that\
-    \ runs a Reference\u2011Validator Agent, nor any evidence that the pipeline would\
-    \ fail on citation mismatches. Consequently, the required artifact is missing."
