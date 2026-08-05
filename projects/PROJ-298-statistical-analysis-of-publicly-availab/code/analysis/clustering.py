@@ -1,5 +1,5 @@
 """
-Clustering analysis module for tag co-occurrence analysis.
+Clustering analysis module for tag co-occurrence and taxonomy alignment.
 Implements Jaccard similarity, hierarchical clustering, and permutation tests.
 """
 import json
@@ -8,341 +8,435 @@ import time
 import math
 from pathlib import Path
 from typing import Dict, List, Any, Optional, Tuple, Set
+import numpy as np
 
-def load_processed_data(processed_dir: Path) -> Dict[str, Any]:
-    """Load processed tag frequency data."""
-    data_file = processed_dir / "monthly_tag_frequencies.json"
-    if not data_file.exists():
-        raise FileNotFoundError(f"Processed data file not found: {data_file}")
+
+def load_processed_data() -> Optional[Dict]:
+    """
+    Load processed tag frequency data.
     
+    Returns:
+        Dictionary containing processed data or None if not found
+    """
+    base_path = Path(__file__).parent.parent.parent
+    data_path = base_path / "data" / "processed"
+    data_file = data_path / "processed_data.json"
+    
+    if not data_file.exists():
+        return None
+        
     with open(data_file, 'r', encoding='utf-8') as f:
         return json.load(f)
 
-def load_taxonomy(taxonomy_dir: Path) -> Dict[str, Any]:
-    """Load survey taxonomy data."""
-    taxonomy_file = taxonomy_dir / "survey_2023.json"
-    if not taxonomy_file.exists():
-        return {"metadata": {"version": "unknown"}, "clusters": []}
+
+def load_taxonomy() -> Optional[Dict]:
+    """
+    Load survey taxonomy from file.
     
+    Returns:
+        Dictionary containing taxonomy or None if not found
+    """
+    base_path = Path(__file__).parent.parent.parent
+    taxonomy_path = base_path / "data" / "taxonomy"
+    taxonomy_file = taxonomy_path / "survey_2023.json"
+    
+    if not taxonomy_file.exists():
+        return None
+        
     with open(taxonomy_file, 'r', encoding='utf-8') as f:
         return json.load(f)
 
+
+def levenshtein_distance(s1: str, s2: str) -> int:
+    """
+    Calculate Levenshtein distance between two strings.
+    
+    Args:
+        s1: First string
+        s2: Second string
+        
+    Returns:
+        int: Minimum number of single-character edits
+    """
+    if len(s1) < len(s2):
+        return levenshtein_distance(s2, s1)
+    
+    if len(s2) == 0:
+        return len(s1)
+    
+    previous_row = range(len(s2) + 1)
+    for i, c1 in enumerate(s1):
+        current_row = [i + 1]
+        for j, c2 in enumerate(s2):
+            insertions = previous_row[j + 1] + 1
+            deletions = current_row[j] + 1
+            substitutions = previous_row[j] + (c1 != c2)
+            current_row.append(min(insertions, deletions, substitutions))
+        previous_row = current_row
+    
+    return previous_row[-1]
+
+
+def fuzzy_match_tags(tag: str, taxonomy_labels: List[str], max_distance: int = 2) -> Optional[str]:
+    """
+    Find best fuzzy match for a tag in taxonomy labels.
+    
+    Args:
+        tag: Tag to match
+        taxonomy_labels: List of taxonomy labels to search
+        max_distance: Maximum Levenshtein distance for a match
+        
+    Returns:
+        Matching label or None if no match found
+    """
+    tag_lower = tag.lower().strip()
+    best_match = None
+    best_distance = max_distance + 1
+    
+    for label in taxonomy_labels:
+        label_lower = label.lower().strip()
+        dist = levenshtein_distance(tag_lower, label_lower)
+        if dist < best_distance:
+            best_distance = dist
+            best_match = label
+    
+    return best_match if best_distance <= max_distance else None
+
+
+def calculate_cluster_label_alignment_score(
+    clusters: Dict[str, List[str]],
+    jaccard_matrix: Dict[str, Dict[str, float]]
+) -> float:
+    """
+    Calculate Cluster Label Alignment Score against survey taxonomy.
+    
+    Uses fuzzy matching (Levenshtein distance <= 2) to match cluster tags
+    to taxonomy labels, then computes alignment percentage.
+    
+    Args:
+        clusters: Dictionary of cluster_id -> [tag1, tag2, ...]
+        jaccard_matrix: Jaccard similarity matrix (not used directly but required for signature)
+        
+    Returns:
+        float: Alignment score (0.0 to 1.0)
+    """
+    taxonomy = load_taxonomy()
+    if not taxonomy or "labels" not in taxonomy:
+        return 0.0
+    
+    taxonomy_labels = taxonomy["labels"]
+    total_tags = 0
+    matched_tags = 0
+    
+    for cluster_id, tags in clusters.items():
+        for tag in tags:
+            total_tags += 1
+            if fuzzy_match_tags(tag, taxonomy_labels) is not None:
+                matched_tags += 1
+    
+    return matched_tags / total_tags if total_tags > 0 else 0.0
+
+
 def calculate_jaccard_similarity(set1: Set[str], set2: Set[str]) -> float:
-    """Calculate Jaccard similarity between two sets."""
+    """
+    Calculate Jaccard similarity between two sets.
+    
+    Args:
+        set1: First set of tags
+        set2: Second set of tags
+        
+    Returns:
+        float: Jaccard similarity coefficient (0.0 to 1.0)
+    """
+    if not set1 and not set2:
+        return 1.0
     if not set1 or not set2:
         return 0.0
-    intersection = len(set1 & set2)
-    union = len(set1 | set2)
+    
+    intersection = len(set1.intersection(set2))
+    union = len(set1.union(set2))
+    
     return intersection / union if union > 0 else 0.0
 
-def build_cooccurrence_matrix(posts_data: Dict[str, Any]) -> Dict[str, Set[str]]:
-    """Build co-occurrence matrix from posts data."""
-    tag_cooccurrence: Dict[str, Set[str]] = {}
-    
-    posts = posts_data.get('posts', [])
-    for post in posts:
-        tags = post.get('tags', [])
-        for i, tag1 in enumerate(tags):
-            if tag1 not in tag_cooccurrence:
-                tag_cooccurrence[tag1] = set()
-            for tag2 in tags[i+1:]:
-                tag_cooccurrence[tag1].add(tag2)
-                if tag2 not in tag_cooccurrence:
-                    tag_cooccurrence[tag2] = set()
-                tag_cooccurrence[tag2].add(tag1)
-    
-    return tag_cooccurrence
 
-def compute_jaccard_similarity_matrix(tag_cooccurrence: Dict[str, Set[str]]) -> Dict[str, float]:
-    """Compute Jaccard similarity matrix for all tag pairs."""
+def build_cooccurrence_matrix(processed_data: Dict) -> Dict[str, Set[str]]:
+    """
+    Build co-occurrence sets from processed data.
+    
+    For each post, collect all tags and create sets of co-occurring tags.
+    
+    Args:
+        processed_data: Processed data containing posts and tags
+        
+    Returns:
+        Dictionary mapping tag -> set of co-occurring tags
+    """
+    cooccurrence = {}
+    posts = processed_data.get("posts", [])
+    
+    for post in posts:
+        tags = post.get("tags", [])
+        if len(tags) < 2:
+            continue
+        
+        tag_set = set(tags)
+        for tag in tags:
+            if tag not in cooccurrence:
+                cooccurrence[tag] = set()
+            # Add all other tags in this post as co-occurring
+            cooccurrence[tag].update(tag_set - {tag})
+    
+    return cooccurrence
+
+
+def compute_jaccard_similarity_matrix(
+    cooccurrence: Dict[str, Set[str]]
+) -> Dict[str, Dict[str, float]]:
+    """
+    Compute Jaccard similarity matrix for all tag pairs.
+    
+    Args:
+        cooccurrence: Co-occurrence dictionary from build_cooccurrence_matrix
+        
+    Returns:
+        Nested dictionary of Jaccard similarities
+    """
+    tags = list(cooccurrence.keys())
     similarity_matrix = {}
-    tags = list(tag_cooccurrence.keys())
     
     for i, tag1 in enumerate(tags):
-        for j in range(i + 1, len(tags)):
-            tag2 = tags[j]
-            sim = calculate_jaccard_similarity(tag_cooccurrence[tag1], tag_cooccurrence[tag2])
-            # Store with both key formats for flexibility
-            key1 = f"{tag1}_{tag2}"
-            key2 = f"{tag2}_{tag1}"
-            key3 = (tag1, tag2)
-            key4 = (tag2, tag1)
-            
-            similarity_matrix[key1] = sim
-            similarity_matrix[key2] = sim
-            similarity_matrix[key3] = sim
-            similarity_matrix[key4] = sim
+        similarity_matrix[tag1] = {}
+        for j, tag2 in enumerate(tags):
+            if i == j:
+                similarity_matrix[tag1][tag2] = 1.0
+            elif tag2 in similarity_matrix and tag1 in similarity_matrix[tag2]:
+                # Use precomputed value
+                similarity_matrix[tag1][tag2] = similarity_matrix[tag2][tag1]
+            else:
+                sim = calculate_jaccard_similarity(cooccurrence[tag1], cooccurrence[tag2])
+                similarity_matrix[tag1][tag2] = sim
     
     return similarity_matrix
 
+
 def perform_hierarchical_clustering(
-    similarity_matrix: Dict[str, float],
-    tags: List[str],
-    threshold: float = 0.3
+    processed_data: Dict,
+    distance_threshold: float = 0.5
 ) -> Dict[str, Any]:
-    """Perform hierarchical clustering based on Jaccard similarity."""
-    # Simple agglomerative clustering implementation
-    clusters = {tag: {tag} for tag in tags}
-    cluster_id = 0
-    tag_to_cluster = {tag: cluster_id for tag in tags}
-    cluster_id += 1
+    """
+    Perform hierarchical clustering based on Jaccard similarity.
     
-    # Sort pairs by similarity (descending)
-    pairs = []
-    for key, sim in similarity_matrix.items():
-        if isinstance(key, tuple):
-            pairs.append((sim, key[0], key[1]))
-        else:
-            # Parse string key
-            parts = key.split('_')
-            if len(parts) == 2:
-                pairs.append((sim, parts[0], parts[1]))
+    Args:
+        processed_data: Processed data containing posts and tags
+        distance_threshold: Distance threshold for clustering (1 - Jaccard)
+        
+    Returns:
+        Dictionary containing clusters, Jaccard matrix, and metadata
+    """
+    # Build co-occurrence matrix
+    cooccurrence = build_cooccurrence_matrix(processed_data)
     
-    pairs.sort(reverse=True)
+    # Compute Jaccard similarity matrix
+    jaccard_matrix = compute_jaccard_similarity_matrix(cooccurrence)
     
-    # Merge clusters based on threshold
-    for sim, tag1, tag2 in pairs:
-        if sim < threshold:
+    # Perform simple hierarchical clustering using average linkage
+    tags = list(jaccard_matrix.keys())
+    n = len(tags)
+    
+    if n == 0:
+        return {"clusters": {}, "jaccard_matrix": {}, "total_tags": 0}
+    
+    # Convert similarity to distance
+    distance_matrix = {t1: {t2: 1.0 - jaccard_matrix[t1][t2] for t2 in tags} for t1 in tags}
+    
+    # Simple agglomerative clustering
+    clusters = {i: {tag} for i, tag in enumerate(tags)}
+    cluster_map = {tag: i for i, tag in enumerate(tags)}
+    
+    while True:
+        # Find closest pair
+        min_dist = float('inf')
+        pair = None
+        
+        cluster_ids = list(clusters.keys())
+        for i in range(len(cluster_ids)):
+            for j in range(i + 1, len(cluster_ids)):
+                c1, c2 = cluster_ids[i], cluster_ids[j]
+                
+                # Calculate average distance between clusters
+                total_dist = 0.0
+                count = 0
+                for t1 in clusters[c1]:
+                    for t2 in clusters[c2]:
+                        total_dist += distance_matrix[t1][t2]
+                        count += 1
+                
+                avg_dist = total_dist / count if count > 0 else float('inf')
+                
+                if avg_dist < min_dist:
+                    min_dist = avg_dist
+                    pair = (c1, c2)
+        
+        if pair is None or min_dist > distance_threshold:
             break
         
-        cluster1 = tag_to_cluster[tag1]
-        cluster2 = tag_to_cluster[tag2]
+        # Merge clusters
+        c1, c2 = pair
+        clusters[c1] = clusters[c1].union(clusters[c2])
+        del clusters[c2]
         
-        if cluster1 != cluster2:
-            # Merge smaller into larger
-            if len(clusters[cluster1]) < len(clusters[cluster2]):
-                target, source = cluster2, cluster1
-            else:
-                target, source = cluster1, cluster2
-            
-            clusters[target].update(clusters[source])
-            del clusters[source]
-            
-            # Update tag mappings
-            for tag in clusters[target]:
-                tag_to_cluster[tag] = target
+        # Update cluster_map
+        for tag in clusters[c1]:
+            cluster_map[tag] = c1
     
     # Format output
     result_clusters = {}
-    for cid, members in clusters.items():
-        result_clusters[f"cluster_{cid}"] = list(members)
+    for cluster_id, tag_set in clusters.items():
+        result_clusters[f"cluster_{cluster_id}"] = sorted(list(tag_set))
+    
+    # Perform permutation test for cluster coherence
+    perm_test = perform_permutation_test(jaccard_matrix, result_clusters)
     
     return {
         "clusters": result_clusters,
-        "num_clusters": len(clusters),
-        "threshold_used": threshold
+        "jaccard_matrix": jaccard_matrix,
+        "total_tags": n,
+        "permutation_test": perm_test
     }
 
-def fuzzy_match_tags(cluster_tags: List[str], taxonomy_clusters: List[Dict[str, Any]]) -> List[Tuple[str, str, float]]:
-    """
-    Match cluster tags to taxonomy clusters using fuzzy matching.
-    Returns list of (cluster_id, matched_taxonomy_label, confidence).
-    """
-    matches = []
-    
-    for cluster_tags in cluster_tags:
-        best_match = None
-        best_confidence = 0.0
-        
-        for tax_cluster in taxonomy_clusters:
-            tax_label = tax_cluster.get('label', '').lower()
-            tax_tags = [t.lower() for t in tax_cluster.get('tags', [])]
-            
-            # Simple overlap-based matching
-            overlap = len(set(cluster_tags) & set(tax_tags))
-            confidence = overlap / max(len(cluster_tags), len(tax_tags))
-            
-            if confidence > best_confidence:
-                best_confidence = confidence
-                best_match = tax_label
-        
-        if best_match and best_confidence > 0.3:
-            matches.append((best_match, best_confidence))
-    
-    return matches
 
-def calculate_cluster_label_alignment_score(clusters_data: Dict[str, Any], taxonomy_data: Dict[str, Any]) -> float:
-    """
-    Calculate Cluster Label Alignment Score using fuzzy matching.
-    Score is the average confidence of best matches for each cluster.
-    """
-    cluster_assignments = clusters_data.get('cluster_assignments', {})
-    if not cluster_assignments:
-        return 0.0
-    
-    # Group tags by cluster
-    cluster_groups = {}
-    for tag, cluster_id in cluster_assignments.items():
-        if cluster_id not in cluster_groups:
-            cluster_groups[cluster_id] = []
-        cluster_groups[cluster_id].append(tag)
-    
-    taxonomy_clusters = taxonomy_data.get('clusters', [])
-    if not taxonomy_clusters:
-        return 0.0
-    
-    total_confidence = 0.0
-    matched_clusters = 0
-    
-    for cluster_id, tags in cluster_groups.items():
-        matches = fuzzy_match_tags(tags, taxonomy_clusters)
-        if matches:
-            best_conf = max(conf for _, conf in matches)
-            if best_conf > 0.3:
-                total_confidence += best_conf
-                matched_clusters += 1
-    
-    if matched_clusters == 0:
-        return 0.0
-    
-    return total_confidence / matched_clusters
-
-def perform_permutation_test(clusters_data: Dict[str, Any], n_iterations: int = 1000) -> Dict[str, Any]:
+def perform_permutation_test(
+    jaccard_matrix: Dict[str, Dict[str, float]],
+    clusters: Dict[str, List[str]],
+    n_permutations: int = 1000
+) -> Dict[str, Any]:
     """
     Perform permutation test to validate cluster coherence.
-    Returns p-value and test statistics.
+    
+    Randomly shuffle tags and calculate intra-cluster similarity
+    to establish a null distribution.
+    
+    Args:
+        jaccard_matrix: Jaccard similarity matrix
+        clusters: Cluster assignments
+        n_permutations: Number of permutations
+        
+    Returns:
+        Dictionary containing p-value and significance
     """
-    import random
-    
-    similarity_matrix = clusters_data.get('jaccard_similarity', {})
-    cluster_assignments = clusters_data.get('cluster_assignments', {})
-    
-    if not similarity_matrix or not cluster_assignments:
-        return {"p_value": 1.0, "statistic": 0.0, "coherent": False}
-    
     # Calculate observed intra-cluster similarity
     observed_sim = 0.0
     count = 0
-    
-    cluster_groups = {}
-    for tag, cluster_id in cluster_assignments.items():
-        if cluster_id not in cluster_groups:
-            cluster_groups[cluster_id] = []
-        cluster_groups[cluster_id].append(tag)
-    
-    for cluster_id, tags in cluster_groups.items():
+    for cluster_id, tags in clusters.items():
         for i in range(len(tags)):
             for j in range(i + 1, len(tags)):
-                key = f"{tags[i]}_{tags[j]}"
-                if key in similarity_matrix:
-                    observed_sim += similarity_matrix[key]
+                t1, t2 = tags[i], tags[j]
+                if t1 in jaccard_matrix and t2 in jaccard_matrix[t1]:
+                    observed_sim += jaccard_matrix[t1][t2]
                     count += 1
     
-    observed_mean = observed_sim / count if count > 0 else 0.0
+    observed_sim = observed_sim / count if count > 0 else 0.0
     
-    # Permutation test
-    permuted_sims = []
-    all_tags = list(cluster_assignments.keys())
+    # Generate null distribution
+    all_tags = []
+    for tags in clusters.values():
+        all_tags.extend(tags)
     
-    for _ in range(n_iterations):
-        random.shuffle(all_tags)
-        perm_cluster_assignments = {tag: cluster_assignments[tag] for tag in all_tags}
-        
+    np.random.seed(42)  # For reproducibility
+    null_distribution = []
+    
+    for _ in range(n_permutations):
+        shuffled = np.random.permutation(all_tags)
         perm_sim = 0.0
         perm_count = 0
+        idx = 0
         
-        perm_cluster_groups = {}
-        for tag, cluster_id in perm_cluster_assignments.items():
-            if cluster_id not in perm_cluster_groups:
-                perm_cluster_groups[cluster_id] = []
-            perm_cluster_groups[cluster_id].append(tag)
-        
-        for cluster_id, tags in perm_cluster_groups.items():
-            for i in range(len(tags)):
-                for j in range(i + 1, len(tags)):
-                    key = f"{tags[i]}_{tags[j]}"
-                    if key in similarity_matrix:
-                        perm_sim += similarity_matrix[key]
+        for cluster_id, tags in clusters.items():
+            cluster_tags = shuffled[idx:idx + len(tags)]
+            idx += len(tags)
+            
+            for i in range(len(cluster_tags)):
+                for j in range(i + 1, len(cluster_tags)):
+                    t1, t2 = cluster_tags[i], cluster_tags[j]
+                    if t1 in jaccard_matrix and t2 in jaccard_matrix[t1]:
+                        perm_sim += jaccard_matrix[t1][t2]
                         perm_count += 1
         
         if perm_count > 0:
-            permuted_sims.append(perm_sim / perm_count)
+            null_distribution.append(perm_sim / perm_count)
     
     # Calculate p-value
-    p_value = sum(1 for s in permuted_sims if s >= observed_mean) / n_iterations
+    if null_distribution:
+        p_value = sum(1 for x in null_distribution if x >= observed_sim) / len(null_distribution)
+    else:
+        p_value = 1.0
     
     return {
         "p_value": p_value,
-        "observed_mean_similarity": observed_mean,
-        "mean_permuted_similarity": sum(permuted_sims) / len(permuted_sims) if permuted_sims else 0.0,
-        "coherent": p_value < 0.05
+        "significant": p_value < 0.05,
+        "observed_similarity": observed_sim,
+        "n_permutations": n_permutations
     }
 
-def run_clustering_pipeline(processed_dir: Path, taxonomy_dir: Path, output_dir: Path) -> Dict[str, Any]:
-    """Run the complete clustering pipeline."""
-    # Load data
-    posts_data = load_processed_data(processed_dir)
-    taxonomy_data = load_taxonomy(taxonomy_dir)
+
+def calculate_intra_cluster_similarity(
+    clusters: Dict[str, List[str]],
+    jaccard_matrix: Dict[str, Dict[str, float]]
+) -> float:
+    """
+    Calculate average intra-cluster similarity coefficient.
     
-    # Build co-occurrence matrix
-    tag_cooccurrence = build_cooccurrence_matrix(posts_data)
+    Args:
+        clusters: Cluster assignments
+        jaccard_matrix: Jaccard similarity matrix
+        
+    Returns:
+        float: Average intra-cluster similarity
+    """
+    total_sim = 0.0
+    total_pairs = 0
     
-    # Compute similarity matrix
-    similarity_matrix = compute_jaccard_similarity_matrix(tag_cooccurrence)
+    for cluster_id, tags in clusters.items():
+        for i in range(len(tags)):
+            for j in range(i + 1, len(tags)):
+                t1, t2 = tags[i], tags[j]
+                if t1 in jaccard_matrix and t2 in jaccard_matrix[t1]:
+                    total_sim += jaccard_matrix[t1][t2]
+                    total_pairs += 1
     
-    # Get all tags
-    all_tags = list(tag_cooccurrence.keys())
+    return total_sim / total_pairs if total_pairs > 0 else 0.0
+
+
+def run_clustering_pipeline(processed_data: Dict) -> Dict[str, Any]:
+    """
+    Run the full clustering analysis pipeline.
     
-    # Perform hierarchical clustering
-    clustering_result = perform_hierarchical_clustering(similarity_matrix, all_tags, threshold=0.3)
-    
-    # Build cluster assignments
-    cluster_assignments = {}
-    for cluster_id, members in clustering_result['clusters'].items():
-        for tag in members:
-            cluster_assignments[tag] = cluster_id
-    
-    # Perform permutation test
-    permutation_result = perform_permutation_test({
-        'cluster_assignments': cluster_assignments,
-        'jaccard_similarity': similarity_matrix
-    })
-    
-    # Calculate alignment score
-    alignment_score = calculate_cluster_label_alignment_score({
-        'cluster_assignments': cluster_assignments
-    }, taxonomy_data)
-    
-    # Prepare output
-    output = {
-        "metadata": {
-            "generated_at": time.strftime("%Y-%m-%dT%H:%M:%SZ"),
-            "version": "1.0",
-            "description": "Tag co-occurrence clustering results"
-        },
-        "clusters": clustering_result['clusters'],
-        "cluster_assignments": cluster_assignments,
-        "jaccard_similarity": similarity_matrix,
-        "taxonomy_matches": fuzzy_match_tags(list(clustering_result['clusters'].values()), taxonomy_data.get('clusters', [])),
-        "permutation_test": permutation_result,
-        "alignment_score": alignment_score,
-        "num_tags": len(all_tags),
-        "num_clusters": clustering_result['num_clusters']
-    }
-    
-    # Save results
-    output_file = output_dir / "clustering_results.json"
-    with open(output_file, 'w', encoding='utf-8') as f:
-        json.dump(output, f, indent=2, ensure_ascii=False)
-    
-    return output
+    Args:
+        processed_data: Processed data dictionary
+        
+    Returns:
+        Complete clustering results
+    """
+    result = perform_hierarchical_clustering(processed_data)
+    return result
+
 
 def main():
-    """Main entry point for clustering analysis."""
-    project_root = Path(__file__).resolve().parent.parent
-    processed_dir = project_root / "data" / "processed"
-    taxonomy_dir = project_root / "data" / "taxonomy"
-    output_dir = processed_dir
+    """
+    Demo/main entry point for clustering module.
+    """
+    print("Clustering Module")
+    print("-" * 40)
     
-    if not processed_dir.exists():
-        processed_dir.mkdir(parents=True, exist_ok=True)
-    
-    if not taxonomy_dir.exists():
-        taxonomy_dir.mkdir(parents=True, exist_ok=True)
-    
-    results = run_clustering_pipeline(processed_dir, taxonomy_dir, output_dir)
-    print(f"Clustering pipeline complete. Results saved to {output_dir / 'clustering_results.json'}")
-    return results
+    data = load_processed_data()
+    if data:
+        print(f"Loaded processed data with {len(data.get('posts', []))} posts")
+        result = run_clustering_pipeline(data)
+        print(f"Found {len(result.get('clusters', {}))} clusters")
+        print(f"Permutation test p-value: {result.get('permutation_test', {}).get('p_value', 'N/A')}")
+    else:
+        print("No processed data found. Run preprocessing first.")
+
 
 if __name__ == "__main__":
     main()

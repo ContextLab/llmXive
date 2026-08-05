@@ -2,38 +2,32 @@ import os
 import sys
 from pathlib import Path
 
-def ensure_directory(path: Path) -> None:
+def ensure_directory(directory: Path) -> None:
     """
-    Ensure a directory exists, creating it if necessary.
+    Ensure the specified directory exists. If it does not, create it.
     
     Args:
-        path: Path object representing the directory to create.
+        directory (Path): The path to the directory to ensure.
     """
-    if not path.exists():
-        path.mkdir(parents=True, exist_ok=True)
-        print(f"Directory created: {path}")
-    else:
-        print(f"Directory already exists: {path}")
+    directory.mkdir(parents=True, exist_ok=True)
 
-def create_gitkeep(path: Path) -> None:
+def create_gitkeep(gitkeep_path: Path) -> None:
     """
-    Create a .gitkeep file in a directory to ensure it is tracked by git.
+    Create a .gitkeep file in the specified directory to ensure it is tracked by git.
     
     Args:
-        path: Path object representing the .gitkeep file to create.
+        gitkeep_path (Path): The path to the .gitkeep file to create.
     """
-    if not path.exists():
-        path.touch()
-        print(f".gitkeep created: {path}")
-    else:
-        print(f".gitkeep already exists: {path}")
+    # Create an empty file
+    gitkeep_path.touch(exist_ok=True)
 
 def main():
-    """Entry point for the setup project script."""
-    print("Setup project module loaded.")
-    # This function is primarily a utility module entry point.
-    # Actual directory creation is handled by setup_directories.py
-    pass
+    """
+    Main entry point for setup_project module.
+    This is primarily used as an importable utility, but can be run directly.
+    """
+    print("setup_project module loaded successfully.")
+    print("Use ensure_directory() and create_gitkeep() to manage project structure.")
 
 if __name__ == "__main__":
     main()

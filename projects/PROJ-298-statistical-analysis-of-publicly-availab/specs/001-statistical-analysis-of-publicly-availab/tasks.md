@@ -43,7 +43,7 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001a Create `projects/PROJ-298-statistical-analysis-of-publicly-availab/` root directory <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
+- [ ] T001a Create `projects/PROJ-298-statistical-analysis-of-publicly-availab/` root directory <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
 - [X] T001b Create `projects/PROJ-298-statistical-analysis-of-publicly-availab/code/` directory
 - [X] T001c Create `projects/PROJ-298-statistical-analysis-of-publicly-availab/tests/` directory
 - [X] T001d Create `projects/PROJ-298-statistical-analysis-of-publicly-availab/data/` directory

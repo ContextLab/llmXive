@@ -1,26 +1,10 @@
-T001a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of a `projects/PROJ-298-statistical-analysis-of-publicly-availab/`
-    directory (or any files within it) is provided; the response only contains a feature
-    specification, not the required filesystem artifact. The required root directory
-    is missing.
-T007:
-  c: false
-  h: 1e3a968277abb6c1aae227849828d474f765ff19a14d4c70b7b797a05d73abc3
-  r: "The required output files `data/events/reference_calendar.json` and `data/taxonomy/survey_2023.json`\
-    \ are not present, and the script contains placeholder logic (empty calendar,\
-    \ no real validation) rather than a full implementation that generates and validates\
-    \ the taxonomy. The next implementer must ensure the script creates both JSON\
-    \ files with real data and implements proper taxonomy\u2011structure validation."
 T030:
   c: false
-  h: f3545099309a988f0278ef30ad7908ddf37d41b4538a651e0b78ac7d3d26941a
-  r: "The `code/analysis/clustering.py` file does not contain any implementation of\
-    \ a Cluster Label Alignment Score using fuzzy (Levenshtein \u2264\u202F2) matching,\
-    \ and it falls back to a dummy taxonomy when `data/taxonomy/survey_2023.json`\
-    \ is absent. Moreover, the required `data/taxonomy/survey_2023.json` file is missing\
-    \ entirely. Both the core logic and the necessary data file are absent."
+  h: d3f48f50ad898cd528dbe3b38e1b434bb88ae283c1e150c313e65f9ee10937b3
+  r: The `code/analysis/clustering.py` file is truncated and does not contain a complete
+    implementation of the Cluster Label Alignment Score logic, and the required `data/taxonomy/survey_2023.json`
+    file is missing entirely. Both the core function and its reference data are absent,
+    so the task is not satisfied.
 T033:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

@@ -1,0 +1,43 @@
+T017:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration, or log files were provided that show logging of per\u2011\
+    document processing time, nor any evidence (e.g., log excerpts, test output) confirming\
+    \ that the processing time stays under the 60\u2011second limit. The required\
+    \ artifact (logging implementation and its verification) is missing."
+T022:
+  c: false
+  h: 006426b41bf808f8a999b1f91943365a29ed373a162ced6f30c4691d56f103bc
+  r: "The `code/retrieval_sim.py` file is truncated (the `save_retrieval_scores` function\
+    \ is incomplete) and the required output file `data/results/retrieval_scores.csv`\
+    \ does not exist. Consequently the TF\u2011IDF ranking implementation and the\
+    \ generation of the ranked CSV are not fully realized."
+T027:
+  c: false
+  h: 8da1da84084b8830383f62360bb21bce9c30e9c673242cb145d52b2917106a10
+  r: "The required integration test file `tests/integration/test_statistical_validation.py`\
+    \ is missing from the repository, so no test code exists to verify end\u2011to\u2011\
+    end statistical validation. Without this artifact, the task\u2019s deliverable\
+    \ is not present."
+T029:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, data, or `metrics.json` file was provided showing a paired t\u2011\
+    test on precision metrics, the computation of the Graph\u202FRecall@10\u202F/\u202F\
+    Neural\u202FRecall@10 ratio, or the logging of whether this ratio meets the \u2265\
+    \u202F0.70 threshold. The required artifacts are missing, so the task is not satisfied."
+T031:
+  c: false
+  h: 03cbb4cdd71a5d98d34a4f5c920e3b4b5cbafdcb1e034715224a259973fff4b5
+  r: "The provided `metrics.json` contains placeholder values (zeros, wrong task_id,\
+    \ status \u201Cplaceholder\u201D) and does not include the required fields such\
+    \ as correlation coefficient\u202F(r), Recall@k scores, or latency measurements.\
+    \ Additionally, the required `data/results/correlation.csv` file is missing entirely."
+T032:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact (e.g., a log file, CSV, or code output) showing the computed correlation\
+    \ coefficient\u202Fr, its p\u2011value, and a status field (r\u202F>\u202F0.6)\
+    \ was provided. Without such evidence the requirement to log these metrics cannot\
+    \ be verified. The implementer must supply the actual logged results (or the code\
+    \ that generates them) to satisfy the task."

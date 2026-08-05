@@ -1,3 +1,4 @@
 """
-Evaluation module for running synthesized adapters on environments.
+Evaluation module for llmXive.
+Handles adapter application and environment logic execution.
 """

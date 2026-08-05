@@ -1,4 +1,4 @@
-- artifact_hash: 04da969bee76dc582cb8dae8af757ba94a0502b47f696dbbd6be1c3d874316e7
+- artifact_hash: b6e0d4b0658037cd8568d67c14f04ce652453e94f54891dbd0c6e4c1749ad1fe
   artifact_path: projects/PROJ-911-llmxive-follow-up-extending-mcompassrag/specs/001-llmxive-follow-up-extending-mcompassrag/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -7,6 +7,6 @@
     Apriori Approach'
   kind: url
   value: https://arxiv.org/abs/1406.5617
-  verification_status: verified
+  verification_status: pending
   verified_against_url: https://arxiv.org/abs/1406.5617
-  verified_at: '2026-07-14T17:40:33.565411Z'
+  verified_at: '2026-08-05T08:04:02.570331Z'

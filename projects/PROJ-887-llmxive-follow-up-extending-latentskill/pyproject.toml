@@ -3,7 +3,7 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "llmxive-follow-up-extending-latentskill"
+name = "llmXive-follow-up-extending-latentskill"
 version = "0.1.0"
 description = "Extending LatentSkill: From In-Context Textual Skills to In-Weight Latent Skills"
 requires-python = ">=3.9"
@@ -19,8 +19,27 @@ dependencies = [
     "pytest",
     "faiss-cpu",
     "ruff",
-    "black"
+    "black",
 ]
+
+[tool.black]
+line-length = 88
+target-version = ["py39", "py310", "py311"]
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+    \.eggs
+    | \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+)/
+'''
 
 [tool.ruff]
 line-length = 88
@@ -28,10 +47,10 @@ target-version = "py39"
 select = [
     "E",   # pycodestyle errors
     "W",   # pycodestyle warnings
-    "F",   # Pyflakes
+    "F",   # pyflakes
     "I",   # isort
-    "C",   # flake8-comprehensions
     "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
     "UP",  # pyupgrade
 ]
 ignore = [
@@ -39,33 +58,47 @@ ignore = [
     "B008", # do not perform function calls in argument defaults
     "C901", # too complex
 ]
-
-[tool.ruff.per-file-ignores]
-"tests/*" = ["S101"] # allow asserts in tests
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "venv",
+]
+per-file-ignores = {}
 
 [tool.ruff.isort]
 known-first-party = ["src"]
-
-[tool.black]
-line-length = 88
-target-version = ['py39']
-include = '\.pyi?$'
-extend-exclude = '''
-/(
-  \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | _build
-  | buck-out
-  | build
-  | dist
-)/
-'''
+force-sort-within-sections = false
+lines-after-imports = 2
+combine-as-imports = true
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-python_files = ["test_*.py"]
+python_files = ["test_*.py", "*_test.py"]
+python_classes = ["Test*"]
 python_functions = ["test_*"]
 addopts = "-v --tb=short"
+filterwarnings = [
+    "ignore::DeprecationWarning",
+    "ignore::PendingDeprecationWarning",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["src*"]
+exclude = ["tests*"]

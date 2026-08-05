@@ -1,3 +1,4 @@
 """
-Ingestion module for loading and processing LoRA weights and datasets.
+Ingestion module for llmXive.
+Handles downloading and flattening of LoRA weights.
 """

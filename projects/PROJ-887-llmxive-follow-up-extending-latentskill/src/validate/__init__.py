@@ -1,3 +1,4 @@
 """
-Pre-execution validation utilities (e.g., citation checks).
+Validate module for llmXive.
+Handles pre-execution checks (e.g., citation verification).
 """

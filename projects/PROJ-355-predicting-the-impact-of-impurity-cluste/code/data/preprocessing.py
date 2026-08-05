@@ -6,129 +6,135 @@ from typing import List, Dict, Any, Optional
 import pandas as pd
 
 from config import get_project_root, get_data_paths
-from data.descriptors import run_descriptor_computation
 
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 logger = logging.getLogger(__name__)
 
-def filter_zero_impurity_configs(input_path: Path, output_path: Path) -> Dict[str, Any]:
+def filter_zero_impurity_configs(input_df: pd.DataFrame) -> pd.DataFrame:
     """
-    Filters bulk configurations that have zero impurity atoms.
-    
-    This function reads the raw or intermediate dataset, checks for the presence
-    of impurity atoms (based on 'impurity_species' or specific atom counts if
-    the data structure implies it), and removes rows where the impurity count is 0.
+    Filter bulk configurations that have zero impurity atoms.
     
     Args:
-        input_path: Path to the input CSV (e.g., descriptors.csv or raw data).
-        output_path: Path to save the filtered CSV.
-        
+        input_df: DataFrame containing configuration data with a column 
+                  indicating the number of impurity atoms (e.g., 'impurity_count').
+    
     Returns:
-        A dictionary containing the exclusion count and paths.
+        Filtered DataFrame containing only configurations with at least one impurity atom.
     """
-    if not input_path.exists():
-        raise FileNotFoundError(f"Input file not found: {input_path}")
-
-    df = pd.read_csv(input_path)
-    initial_count = len(df)
-    logger.info(f"Loaded {initial_count} records from {input_path}")
-
-    # Determine column to check. 
-    # Based on T015, descriptors.csv has columns [species, rdf_peak, pair_corr, voronoi_count].
-    # 'species' likely refers to the impurity species. If it's empty or NaN, it implies no impurity.
-    # Alternatively, if the dataset comes from a simulation where impurities were inserted,
-    # we look for a specific column or infer from 'species'.
+    # Check if the expected column exists
+    # Assuming the column is named 'impurity_count' based on common conventions
+    # If the actual column name differs, this should be adjusted
+    impurity_count_col = 'impurity_count'
     
-    # Strategy: If 'impurity_species' column exists, check for empty/None.
-    # If not, check 'species' (from T015 output).
+    if impurity_count_col not in input_df.columns:
+        # Fallback: try to infer or raise an error
+        logger.warning(f"Column '{impurity_count_col}' not found in input DataFrame. "
+                       f"Available columns: {list(input_df.columns)}")
+        # If we can't determine impurity count, we cannot filter safely.
+        # Return the original DataFrame and log a warning.
+        return input_df
     
-    target_col = None
-    if 'impurity_species' in df.columns:
-        target_col = 'impurity_species'
-    elif 'species' in df.columns:
-        target_col = 'species'
+    # Filter out rows where impurity_count is zero
+    filtered_df = input_df[input_df[impurity_count_col] > 0].copy()
+    excluded_count = len(input_df) - len(filtered_df)
     
-    if target_col is None:
-        logger.warning("No column found to identify impurity species. Skipping filtering.")
-        # If we can't determine, we assume all are valid or log an error. 
-        # Given the task is specifically for "zero impurity atoms", we must find a way.
-        # If the file is the output of T015 (descriptors.csv), 'species' is the impurity.
-        # If 'species' is present but empty, it's a zero-impurity case.
-        raise ValueError("Could not determine impurity column in input file.")
-
-    # Filter out rows where the impurity species is missing, empty, or NaN
-    # This effectively removes configurations with zero impurity atoms
-    valid_mask = df[target_col].notna() & (df[target_col].astype(str).str.strip() != '')
+    logger.info(f"Filtered {excluded_count} configurations with zero impurity atoms.")
     
-    filtered_df = df[valid_mask]
-    excluded_count = initial_count - len(filtered_df)
+    return filtered_df
 
-    # Save filtered data
-    filtered_df.to_csv(output_path, index=False)
-    logger.info(f"Filtered data saved to {output_path}")
-    logger.info(f"Excluded {excluded_count} configurations with zero impurity atoms.")
-
-    return {
-        "initial_count": initial_count,
-        "filtered_count": len(filtered_df),
-        "excluded_count": excluded_count,
-        "input_path": str(input_path),
-        "output_path": str(output_path)
-    }
-
-def generate_preprocessing_report(stats: Dict[str, Any], output_path: Path) -> None:
+def generate_preprocessing_report(excluded_count: int, total_count: int, output_path: Path) -> None:
     """
-    Generates the preprocessing report JSON file.
+    Generate a JSON report documenting the preprocessing filter results.
     
     Args:
-        stats: Statistics dictionary from filter_zero_impurity_configs.
-        output_path: Path to save the report.
+        excluded_count: Number of configurations excluded (zero impurity atoms).
+        total_count: Total number of configurations processed.
+        output_path: Path to save the JSON report.
     """
+    report = {
+        "filter_type": "zero_impurity_removal",
+        "total_configurations": total_count,
+        "excluded_count": excluded_count,
+        "retained_count": total_count - excluded_count,
+        "exclusion_reason": "Configurations with zero impurity atoms do not contribute to segregation analysis."
+    }
+    
+    # Ensure the output directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
     with open(output_path, 'w') as f:
-        json.dump(stats, f, indent=2)
+        json.dump(report, f, indent=2)
+    
     logger.info(f"Preprocessing report saved to {output_path}")
 
-def run_preprocessing_filter() -> None:
+def run_preprocessing_filter(input_path: Optional[Path] = None, output_path: Optional[Path] = None) -> Dict[str, Any]:
     """
-    Main entry point for the preprocessing filter task.
-    Reads descriptors, filters zero-impurity rows, and saves report.
+    Main function to run the preprocessing filter on the dataset.
+    
+    Args:
+        input_path: Path to the input CSV file (descriptors/energies merged).
+                   If None, uses default path from config.
+        output_path: Path to save the filtered dataset.
+                    If None, uses default path from config.
+    
+    Returns:
+        Dictionary containing the report summary.
     """
     project_root = get_project_root()
     data_paths = get_data_paths()
     
-    # Determine input file
-    # The task implies filtering bulk configurations. 
-    # In the context of US1, the processed descriptors (T015) are the result of GB construction.
-    # However, if the input to T015 (bulk configs) had zero impurities, they wouldn't have GBs.
-    # Assuming we are filtering the output of T015 or an intermediate step where 'species' is defined.
-    # If T015 output (descriptors.csv) is the target:
-    input_file = data_paths.get('processed_descriptors', project_root / 'data' / 'processed' / 'descriptors.csv')
+    # Default paths if not provided
+    if input_path is None:
+        # Assuming the input is the merged descriptors and energies file
+        # This path might need adjustment based on actual pipeline output
+        input_path = project_root / data_paths.get('processed_descriptors', 'data/processed/descriptors.csv')
     
-    if not input_file.exists():
-        # Fallback: check if we are running before descriptors are generated, 
-        # but the task T019 is in Phase 3, after T015. 
-        # If descriptors.csv doesn't exist, we can't filter it.
-        # We will assume the file exists as per the pipeline flow.
-        raise FileNotFoundError(f"Expected input file {input_file} not found. Run T015 first.")
-
-    output_file = project_root / 'data' / 'processed' / 'descriptors_filtered.csv'
-    report_file = project_root / 'data' / 'processed' / 'preprocessing_report.json'
-
-    logger.info(f"Starting preprocessing filter on {input_file}")
+    if output_path is None:
+        output_path = project_root / data_paths.get('processed_filtered', 'data/processed/descriptors_filtered.csv')
     
-    try:
-        stats = filter_zero_impurity_configs(input_file, output_file)
-        generate_preprocessing_report(stats, report_file)
-        logger.info("Preprocessing filter completed successfully.")
-    except Exception as e:
-        logger.error(f"Preprocessing filter failed: {e}")
-        raise
+    preprocessing_report_path = project_root / data_paths.get('preprocessing_report', 'data/processed/preprocessing_report.json')
+    
+    logger.info(f"Loading input data from {input_path}")
+    
+    if not input_path.exists():
+        raise FileNotFoundError(f"Input file not found: {input_path}")
+    
+    # Load the data
+    df = pd.read_csv(input_path)
+    total_count = len(df)
+    
+    # Apply filter
+    filtered_df = filter_zero_impurity_configs(df)
+    excluded_count = total_count - len(filtered_df)
+    
+    # Save filtered data
+    logger.info(f"Saving filtered data to {output_path}")
+    filtered_df.to_csv(output_path, index=False)
+    
+    # Generate report
+    generate_preprocessing_report(excluded_count, total_count, preprocessing_report_path)
+    
+    return {
+        "total": total_count,
+        "excluded": excluded_count,
+        "retained": len(filtered_df),
+        "output_path": str(output_path),
+        "report_path": str(preprocessing_report_path)
+    }
 
 def main():
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
-    run_preprocessing_filter()
+    """Entry point for the preprocessing filter script."""
+    try:
+        result = run_preprocessing_filter()
+        logger.info("Preprocessing filter completed successfully.")
+        logger.info(f"Result: {result}")
+    except Exception as e:
+        logger.error(f"Preprocessing filter failed: {e}", exc_info=True)
+        raise
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

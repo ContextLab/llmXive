@@ -97,7 +97,7 @@ The system must compute the "Context Fidelity" delta between the baseline (full 
 
 - The IA-Bench and WISE-Verified datasets contain a sufficient number of prompts (≥ 2,000) to support statistically valid regression analysis and permutation testing.
 - The "simulated full agentic execution" can accurately approximate the latency and token consumption of the real Qwen-Image-Agent pipeline without requiring GPU resources, relying on token counting and mock generation times.
-- It is hypothesized that the frozen CLIP model (ViT-B) is CPU-tractable and can process the entire dataset within the 6-hour GitHub Actions free-tier limit, assuming the dataset is sampled or processed in batches; this will be validated during implementation.
+- It is hypothesized that the frozen CLIP model (ViT-B) is CPU-tractable and can process the entire dataset within the standard free-tier time limit of GitHub Actions, assuming the dataset is sampled or processed in batches.; this will be validated during implementation.
 - The syntactic complexity metrics (parse tree depth, clause count) are sufficient proxies for "ambiguity" in the context of image generation, independent of semantic meaning.
 - The "rule-based context expansion module" can generate plausible context for low-ambiguity prompts using fixed templates without degrading fidelity below the statistical noise floor.
 - The "knee point" in the fidelity curve is a real, non-linear phenomenon and not an artifact of the specific dataset or regression method used.

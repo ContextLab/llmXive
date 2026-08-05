@@ -1,0 +1,42 @@
+T008:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the required `data/raw/`, `data/processed/`, or `results/` directories\
+    \ (or accompanying `.gitkeep` files) was provided; without these artifacts the\
+    \ task\u2019s requirement is not satisfied."
+T009:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `tests/unit/` or `tests/integration/` directories (or any test files) are
+    present in the repository, so the required scaffolding does not exist. The implementer
+    must add these folders and populate them with appropriate placeholder test modules.
+T012:
+  c: false
+  h: 32227fcff35eb97d077095f3e9479443a481175fa01af3ba6ed43431ff5e5b31
+  r: "The required integration test file `tests/integration/test_data_pipeline.py`\
+    \ is missing from the repository, so the artifact does not exist and the task\u2019\
+    s requirement is not satisfied."
+T013b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact (e.g., test script, log output, or verification report) was provided\
+    \ showing that the `[DATA_UNAVAILABLE]` log format and the 3\u2011attempt limit\
+    \ behavior were examined and that the log output matches the exact required format.\
+    \ Consequently the task\u2019s requirement is not satisfied."
+T015:
+  c: false
+  h: b9fb044b9738df772a9c7d053e609aba683c05087d205e00d9059cf422b5c7d7
+  r: "The repository contains a partially\u2011implemented `code/data/descriptors.py`\
+    \ (the file is truncated and only defines interface detection and a placeholder\
+    \ RDF peak routine; it never computes pair\u2011correlation or Voronoi counts\
+    \ nor writes any CSV). Moreover, the required output file `data/processed/descriptors.csv`\
+    \ is absent. Consequently the task\u2019s specifications are not met."
+T017:
+  c: false
+  h: 77e6f7e3a5c2db22bc30249610b800ceb9534a9d48cdd3babf92ebab8b5b09f9
+  r: "The repository lacks the required `contracts/dataset.schema.yaml` file, so the\
+    \ validation cannot be performed against the specified contract. Moreover, the\
+    \ provided `download.py` only defines schema\u2011loading and validation helpers\
+    \ but does not show any call to validate the downloaded data before any grain\u2011\
+    boundary construction step. Both the missing schema file and the absence of integrated\
+    \ validation mean the task is not satisfied."

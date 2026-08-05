@@ -1,0 +1,28 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Fidelity Deltas Schema"
+description: "Schema for CLIP fidelity scores and deltas between baseline (original prompt) and hybrid (expanded prompt) paths against ground-truth images."
+type: object
+properties:
+  prompt_id:
+    type: string
+  base_fidelity:
+    type: number
+    description: "CLIP score for baseline (original prompt) against ground-truth image."
+  hybrid_fidelity:
+    type: number
+    description: "CLIP score for hybrid (expanded prompt) against ground-truth image."
+  fidelity_delta:
+    type: number
+    description: "Difference: hybrid_fidelity - base_fidelity."
+  domain:
+    type: string
+    description: "Visual domain for stratified analysis."
+  note:
+    type: string
+    description: "Optional note, e.g., 'High_Ambiguity_No_Expansion'."
+required:
+  - prompt_id
+  - base_fidelity
+  - hybrid_fidelity
+  - fidelity_delta
+  - domain

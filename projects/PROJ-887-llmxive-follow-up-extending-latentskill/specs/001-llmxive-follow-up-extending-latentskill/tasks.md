@@ -88,7 +88,7 @@
 
 ### Validation for User Story 2 (Blocking Gate for US3)
 
-- [ ] T030 [US2] Implement `src/validation/linearity_check.py` (FR-007) to calculate Pearson correlation between text-space and weight-space distances [UNRESOLVED-CLAIM: c_c6c15bb0 — status=not_enough_info]. **Output** the correlation value and a validity flag (True if >= 0.6, False otherwise) to `data/results/linearity_check.json`. **DO NOT** raise an error if the threshold is not met; the experiment must proceed to measure the impact of non-linearity. (Depends on T014, T019)
+- [ ] T030 [US2] Implement `src/validation/linearity_check.py` (FR-007) to calculate Pearson correlation between text-space and weight-space distances [UNRESOLVED-CLAIM: c_9661d5df — status=not_enough_info]. **Output** the correlation value and a validity flag (True if >= 0.6, False otherwise) to `data/results/linearity_check.json`. **DO NOT** raise an error if the threshold is not met; the experiment must proceed to measure the impact of non-linearity. (Depends on T014, T019)
 
 ### Tests for User Story 2
 
@@ -101,17 +101,17 @@
 
 ## Phase 5: User Story 3 - Validating Performance via Environment Logic (Priority: P3)
 
-**Goal**: Evaluate synthesized adapters on composite tasks using environment logic, run multiple trials (N≥5) [UNRESOLVED-CLAIM: c_9eb5c4cd — status=not_enough_info], and perform statistical testing with BH correction.
+**Goal**: Evaluate synthesized adapters on composite tasks using environment logic, run multiple trials (N≥5) [UNRESOLVED-CLAIM: c_b1ea3deb — status=not_enough_info], and perform statistical testing with BH correction [UNRESOLVED-CLAIM: c_23fa22b6 — status=not_enough_info].
 
 **Independent Test**: System runs evaluation, outputs success/failure logs, and generates a statistical report with p-values and BH correction.
 
 ### Implementation for User Story 3
 
 - [ ] T026 [US3] Implement `src/evaluation/runner.py` (FR-004) to apply adapters (from T022) to a frozen base LLM (via `llama-cpp-python` GGUF) and execute environment logic (ALFWorld/Search-QA). (Depends on T022, T030)
-- [ ] T026b [US3] Implement memory validation and streaming/chunking logic in `src/evaluation/runner.py` to ensure the base LLM inference fits within 7GB RAM [UNRESOLVED-CLAIM: c_0f50c311 — status=not_enough_info]. Explicitly log memory usage during the first run and fail loudly if it exceeds a significant memory threshold. (Depends on T026)
+- [ ] T026b [US3] Implement memory validation and streaming/chunking logic in `src/evaluation/runner.py` to ensure the base LLM inference fits within 7GB RAM [UNRESOLVED-CLAIM: c_39b77cc7 — status=not_enough_info]. Explicitly log memory usage during the first run and fail loudly if it exceeds a significant memory threshold. (Depends on T026)
 - [ ] T027 [US3] Implement `src/evaluation/runner.py` loop to execute multiple runs per task (FR-008) and record binary outcomes
 - [ ] T028 [US3] Implement `src/evaluation/stats.py` (FR-005) to {{claim:c_a23680b0}} (1812.08824, https://arxiv.org/abs/1812.08824)
-- [ ] T029 [US3] Implement `src/evaluation/stats.py` (FR-006) to apply Benjamini-Hochberg correction for multiple comparisons [UNRESOLVED-CLAIM: c_1f723124 — status=not_enough_info]
+- [ ] T029 [US3] Implement `src/evaluation/stats.py` (FR-006) to apply Benjamini-Hochberg correction for multiple comparisons [UNRESOLVED-CLAIM: c_cad8a17d — status=not_enough_info]
 - [ ] T031 [US3]Implement sensitivity analysis logic (SC-004) for **k in {3, 5} per SC-004 Measurable Outcomes** in `src/retrieval/strategies.py`. (Do not include k=10 unless SC-004 is updated). (Depends on T020)
 - [ ] T032 [US3] Generate final report in `data/results/stats_report.json` including p-values, BH-adjusted q-values, reconstruction errors (SC-005), and linearity correlation (from T030)
 
@@ -131,7 +131,7 @@
 - [ ] T033a Update `README.md` with installation instructions, usage examples, and data source details
 - [ ] T033b Create `docs/api.md` with function signatures and module descriptions
 - [ ] T034 Code cleanup and refactoring of `src/retrieval/strategies.py`
-- [ ] T035a Implement benchmark script `src/benchmark/latency_bench.py` to measure wall-clock latency for skill selection (retrieval + interpolation)
+- [ ] T035a Implement benchmark script `src/benchmark/latency_bench.py` to measure wall-clock latency for skill selection (retrieval + interpolation) [UNRESOLVED-CLAIM: c_396c955a — status=not_enough_info]
 - [ ] T035b Optimize retrieval logic in `src/retrieval/strategies.py` to meet <1s latency target per SC-003. **Techniques to attempt**: Switch to **FAISS** for indexing or implement **vector quantization (PQ)**. Record results in `data/results/latency_report.json`. (Depends on T035a)
 - [ ] T036 [P] Additional unit tests for edge cases in `tests/unit/`
 - [ ] T037 Run `src/validate/citation_check.py` to verify all dataset sources
@@ -228,7 +228,7 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - **Constraint**: All tasks MUST run on CPU-only free-tier CI (cores, 7GB RAM). No `bitsandbytes` CUDA usage. Use `llama-cpp-python` (GGUF) for inference.
-- **Data**: No fabrication. All datasets must be fetched from real sources (specifically the LatentSkill repository for weights). If real weights are unavailable, use a documented proxy with `is_proxy=true` flag, generated via `numpy.random.normal` with matching shapes.
+- **Data**: No fabrication. All datasets must be fetched from real sources (specifically the LatentSkill repository for weights) [UNRESOLVED-CLAIM: c_6a381eda — status=not_enough_info]. If real weights are unavailable, use a documented proxy with `is_proxy=true` flag, generated via `numpy.random.normal` with matching shapes.
 - **Critical Data Hygiene**: `src/ingestion/download_weights.py` (T012) MUST raise an exception only if the proxy generation logic fails; otherwise, it must log the unavailability and proceed with the proxy.
 - **Memory Management**: T012 and T013 must stream or chunk the LoRA weight loading to ensure the 7GB RAM limit is not exceeded during ingestion of large adapters. T026b must explicitly validate memory during inference.
 - **Statistical Rigor**: T030 must output the correlation value and validity flag to the report, not halt execution.

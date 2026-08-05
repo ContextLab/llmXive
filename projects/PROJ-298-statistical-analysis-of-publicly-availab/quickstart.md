@@ -1,180 +1,181 @@
 # Quick Start Guide
 
-## Prerequisites
+This guide walks you through the complete execution of the statistical analysis pipeline on a CPU-only environment.
 
-- Python 3.11 or higher
-- pip package manager
-- 64GB RAM recommended
-- ~50GB disk space for raw data
-- Internet connection for data fetching
+## Prerequisites Check
 
-## Step 1: Clone and Setup
+Before running, ensure:
+- Python 3.11+ is installed
+- At least 14 GB free disk space
+- At least 7 GB available RAM
+- Network access for data download and external API calls
+
+## Step 1: Environment Setup
 
 ```bash
 # Navigate to project root
 cd projects/PROJ-298-statistical-analysis-of-publicly-availab
 
-# Create virtual environment
+# Create and activate virtual environment
 python -m venv venv
-source venv/bin/activate # Linux/Mac
-# venv\\Scripts\\activate # Windows
+source venv/bin/activate # Windows: venv\Scripts\activate
 
 # Install dependencies
 pip install -r code/requirements.txt
 ```
 
-## Step 2: Initialize Data Structure
-
-This step creates the required directory structure and fetches taxonomy data.
+## Step 2: Initialize Project Structure
 
 ```bash
-python code/data/setup_data_structure.py
+# Create directories and initialize state
+python code/setup_root.py
+python code/setup_directories.py
+python code/setup_notebooks_dir.py
+python code/data/initialize_state.py
+```
+
+## Step 3: Generate Taxonomies
+
+```bash
+# Generate reference calendar and survey taxonomy
+python code/data/generate_taxonomies.py
 ```
 
 **Expected Output**:
 - `data/events/reference_calendar.json`
 - `data/taxonomy/survey_2023.json`
-- Directory structure: `data/raw/`, `data/processed/`, `data/events/`, `data/taxonomy/`
 
-## Step 3: Download Stack Overflow Data
-
-Fetches PostsTags data from Stack Exchange dump or HuggingFace fallback.
+## Step 4: Download and Preprocess Data
 
 ```bash
+# Download PostsTags data (streaming mode for memory efficiency)
 python code/data/download.py
-```
 
-**Expected Output**:
-- `data/raw/posts_tags.json` (or chunked files for large datasets)
-- Progress logs showing download status
-
-**Note**: This may take 30-60 minutes depending on network speed.
-
-## Step 4: Preprocess Data
-
-Aggregates raw data into monthly frequencies and filters tags with ≥12 months of data.
-
-```bash
+# Preprocess: normalize, aggregate monthly, filter
 python code/data/preprocess.py
 ```
 
 **Expected Output**:
-- `data/processed/monthly_frequencies.json`
-- Summary statistics of processed tags
+- `data/processed/tag_frequencies.csv`
+- `data/processed/tag_metadata.json`
 
-## Step 5: Run Analysis Pipelines
-
-Execute the three main analysis modules in sequence:
-
-### 5.1 Trend Analysis (User Story 1)
+## Step 5: Run Trend Analysis (US1)
 
 ```bash
-# Detect trends using Modified Mann-Kendall
+# Compute Mann-Kendall trends and Theil-Sen slopes
 python code/analysis/trends.py
 
-# Calculate confidence intervals via bootstrapping
+# Bootstrap confidence intervals
 python code/analysis/bootstrapping.py
 
-# Compute correlations with GitHub/NPM metrics
+# Fetch external metrics (GitHub stars, NPM downloads)
+python code/data/external.py
+
+# Calculate correlations
 python code/analysis/correlation.py
 
 # Generate final trend results
 python code/analysis/generate_trend_results.py
 ```
 
-**Expected Output**: `data/processed/trend_results.json`, `data/processed/confidence_interval.json`
+**Expected Output**:
+- `data/processed/trend_results.json`
+- `data/processed/confidence_interval.json`
 
-### 5.2 Decomposition (User Story 2)
+## Step 6: Run Decomposition Analysis (US2)
 
 ```bash
-# Perform STL/Hodrick-Prescott decomposition
+# Perform ADF tests, seasonality checks, and decomposition
 python code/analysis/decomposition.py
 
 # Generate decomposition results
 python code/analysis/generate_decomposition_results.py
 ```
 
-**Expected Output**: `data/processed/decomposition_results.json`
+**Expected Output**:
+- `data/processed/decomposition_results.json`
 
-### 5.3 Clustering (User Story 3)
+## Step 7: Run Clustering Analysis (US3)
 
 ```bash
-# Compute co-occurrence clusters
+# Compute Jaccard matrix, hierarchical clustering, and alignment scores
 python code/analysis/clustering.py
 
 # Generate cluster results
 python code/analysis/generate_cluster_results.py
 ```
 
-**Expected Output**: `data/processed/cluster_results.json`
+**Expected Output**:
+- `data/processed/cluster_results.json`
 
-## Step 6: Reproduce Notebooks
-
-Ensure all Jupyter notebooks execute successfully with the generated data:
+## Step 8: Verify Limitations and Contracts
 
 ```bash
-# Execute trend analysis notebook
-jupyter nbconvert --to notebook --execute notebooks/02_trend_analysis.ipynb --inplace
+# Verify all artifacts contain mandatory limitation disclosures
+python code/verification/verify_limitations.py
 
-# Execute decomposition notebook
-jupyter nbconvert --to notebook --execute notebooks/03_decomposition.ipynb --inplace
-
-# Execute clustering notebook
-jupyter nbconvert --to notebook --execute notebooks/04_clustering.ipynb --inplace
+# Validate all artifacts against schema contracts
+python -c "from utils.contract_validation import validate_all_artifacts; validate_all_artifacts()"
 ```
 
-**Validation**: Each notebook should complete without errors and display visualizations.
+## Step 9: Run Notebooks (Optional)
 
-## Step 7: Run Tests
+All analysis is reproducible via notebooks:
 
 ```bash
-# Contract tests
-pytest tests/contract/ -v
+# Start Jupyter
+jupyter notebook
 
-# Integration tests
-pytest tests/integration/ -v
+# Open and run each notebook in order:
+# notebooks/02_trend_analysis.ipynb
+# notebooks/03_decomposition.ipynb
+# notebooks/04_clustering.ipynb
 ```
 
-## Step 8: Verify State
-
-Check that all artifacts have valid checksums:
+## Step 10: Run Tests
 
 ```bash
-python code/utils/state_manager.py
-```
+# Run all tests
+pytest tests/ -v
 
-## Troubleshooting
-
-### Memory Issues
-If you encounter MemoryError:
-- Reduce the number of tags processed (modify `code/data/preprocess.py`)
-- Increase swap space
-- Use a machine with more RAM
-
-### API Rate Limits
-If GitHub/NPM API calls fail:
-- Add authentication tokens to environment variables
-- Implement retry logic with exponential backoff
-
-### Missing Dependencies
-Ensure all packages are installed:
-```bash
-pip install -r code/requirements.txt --upgrade
+# Run specific test suites
+pytest tests/contract/ -v # Contract tests
+pytest tests/integration/ -v # Integration tests
+pytest tests/unit/ -v # Unit tests
 ```
 
 ## Expected Runtime
 
-- Full pipeline (download → analysis → notebooks): ~4-6 hours on CPU-only runner
-- Individual analysis modules: 30-90 minutes each
-- Notebook execution: 15-30 minutes each
+- **Total execution time**: ~2-4 hours on CPU-only runner
+- **Memory usage**: Peak ~6 GB during streaming and bootstrapping
+- **Disk usage**: ~12 GB for all artifacts
+
+## Troubleshooting
+
+### Out of Memory Errors
+Ensure streaming mode is enabled in `download.py` and `preprocess.py`. The pipeline is designed for ~7 GB RAM.
+
+### Network Failures
+If HuggingFace or GitHub/NPM APIs are unreachable, the scripts will fail loudly (no synthetic fallback). Retry the step.
+
+### Contract Validation Failures
+Check `data/processed/` for incomplete or malformed JSON files. Re-run the corresponding analysis step.
 
 ## Output Verification
 
-After completion, verify these files exist:
-- `data/processed/trend_results.json`
-- `data/processed/confidence_interval.json`
-- `data/processed/decomposition_results.json`
-- `data/processed/cluster_results.json`
-- `state/projects/PROJ-298-statistical-analysis-of-publicly-availab.yaml`
+After completion, verify the following files exist in `data/processed/`:
+- `tag_frequencies.csv`
+- `tag_metadata.json`
+- `trend_results.json`
+- `confidence_interval.json`
+- `decomposition_results.json`
+- `cluster_results.json`
 
-All notebooks should have `.nbconvert.ipynb` or updated timestamps indicating successful execution.
+And in `state/`:
+- `projects/PROJ-298-statistical-analysis-of-publicly-availab.yaml` (updated with checksums)
+
+## Next Steps
+
+- Review `notebooks/` for visualizations and detailed analysis
+- Check `data/processed/` for statistical results
+- Refer to `README.md` for methodological details

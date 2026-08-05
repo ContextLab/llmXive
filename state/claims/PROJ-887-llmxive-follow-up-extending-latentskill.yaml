@@ -478,64 +478,6 @@
   updated_at: '2026-07-18T00:00:13Z'
 - artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
   attempts: 1
-  canonical: fetch LoRA weights from arXiv:2606.06087 for ALFWorld and Search-QA
-  claim_id: c_9cb4e596
-  context: T012 [US1] Implement src/ingestion/download_weights.py to fetch real LoRA
-    weights from the original LatentSkill repository (arXiv:2606.06087) for ALFWorld
-    and Search-QA benchmarks.
-  evidence:
-    ok: false
-    reason: claim not found in the cited source's full text
-    status: not_found
-  kind: citation
-  raw_text: fetch real LoRA weights from the original LatentSkill repository (arXiv:2606.06087)
-    for ALFWorld and Search-QA benchmarks
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-18T00:01:16Z'
-- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
-  attempts: 1
-  canonical: generate proxy weights using numpy.random.normal with dtype=float32
-  claim_id: c_b1b382bf
-  context: If real weights are unavailable, generate a documented proxy using numpy.random.normal
-    with shape matching the expected A/B matrices and dtype=float32, ensuring structural
-    identity.
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Generate_proxy_weights_using_numpy.random.normal_with_dtype%3D
-  kind: entity_fact
-  raw_text: generate a documented proxy using numpy.random.normal with shape matching
-    the expected A/B matrices and dtype=float32
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-18T00:01:22Z'
-- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
-  attempts: 1
-  canonical: calculate Pearson correlation between text-space and weight-space distances
-  claim_id: c_9661d5df
-  context: T030 [US2] Implement src/validation/linearity_check.py (FR-007) to calculate
-    Pearson correlation between text-space and weight-space distances.
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Calculate_Pearson_correlation_between_text-space_and_weight-
-  kind: entity_fact
-  raw_text: calculate Pearson correlation between text-space and weight-space distances
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-18T00:01:29Z'
-- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
-  attempts: 1
   canonical: output correlation validity flag if value >= 0.6
   claim_id: c_baa4a073
   context: Output the correlation value and a validity flag (True if >= 0.6, False
@@ -553,24 +495,6 @@
   updated_at: '2026-07-18T00:01:29Z'
 - artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
   attempts: 1
-  canonical: apply Benjamini-Hochberg correction for multiple comparisons
-  claim_id: c_cad8a17d
-  context: T029 [US3] Implement src/evaluation/stats.py (FR-006) to apply Benjamini-Hochberg
-    correction for multiple comparisons
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Apply_Benjamini-Hochberg_correction_for_multiple_comparisons
-  kind: entity_fact
-  raw_text: apply Benjamini-Hochberg correction for multiple comparisons
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-18T00:01:32Z'
-- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
-  attempts: 1
   canonical: run multiple trials with N >= 5
   claim_id: c_5ee80042
   context: "Goal: Evaluate synthesized adapters on composite tasks using environment\
@@ -586,24 +510,6 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-18T00:01:32Z'
-- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
-  attempts: 1
-  canonical: ensure base LLM inference fits within 7GB RAM
-  claim_id: c_39b77cc7
-  context: T026b [US3] Implement memory validation and streaming/chunking logic in
-    src/evaluation/runner.py to ensure the base LLM inference fits within 7GB RAM.
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Ensure_base_LLM_inference_fits_within_7GB_RAM
-  kind: entity_fact
-  raw_text: ensure the base LLM inference fits within 7GB RAM
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-18T00:01:37Z'
 - artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
   attempts: 1
   canonical: use FAISS or vector quantization to meet <1s latency target
@@ -840,3 +746,355 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-18T00:11:41Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 0
+  canonical: Fetch LoRA weights from arXiv:2606.06087 for ALFWorld and Search-QA benchmarks
+  claim_id: c_a99fe0bf
+  context: 'Task T012: Implement src/ingestion/download_weights.py to fetch real LoRA
+    weights from the original LatentSkill repository (arXiv:2606.06087) for ALFWorld
+    and Search-QA benchmarks.'
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: fetch real LoRA weights from the original LatentSkill repository (arXiv:2606.06087)
+    for ALFWorld and Search-QA benchmarks
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-05T07:17:47Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: fetch LoRA weights from arXiv:2606.06087 for ALFWorld and Search-QA
+  claim_id: c_9cb4e596
+  context: T012 [US1] Implement src/ingestion/download_weights.py to fetch real LoRA
+    weights from the original LatentSkill repository (arXiv:2606.06087) for ALFWorld
+    and Search-QA benchmarks.
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: fetch real LoRA weights from the original LatentSkill repository (arXiv:2606.06087)
+    for ALFWorld and Search-QA benchmarks
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-05T07:19:00Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 2
+  canonical: generate proxy weights using numpy.random.normal with dtype=float32
+  claim_id: c_b1b382bf
+  context: If real weights are unavailable, generate a documented proxy using numpy.random.normal
+    with shape matching the expected A/B matrices and dtype=float32, ensuring structural
+    identity.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Generate_proxy_weights_using_numpy.random.normal_with_dtype%3D
+  kind: entity_fact
+  raw_text: generate a documented proxy using numpy.random.normal with shape matching
+    the expected A/B matrices and dtype=float32
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T07:20:55Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: generate query vectors using all-MiniLM-L6-v2
+  claim_id: c_28b030b1
+  context: T019 [US2] Implement src/retrieval/query.py (FR-002) to generate query
+    vectors using all-MiniLM-L6-v2
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Generate_query_vectors_using_all-MiniLM-L6-v2
+  kind: entity_fact
+  raw_text: generate query vectors using all-MiniLM-L6-v2
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T07:21:08Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 2
+  canonical: calculate Pearson correlation between text-space and weight-space distances
+  claim_id: c_9661d5df
+  context: T030 [US2] Implement src/validation/linearity_check.py (FR-007) to calculate
+    Pearson correlation between text-space and weight-space distances.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Calculate_Pearson_correlation_between_text-space_and_weight-
+  kind: entity_fact
+  raw_text: calculate Pearson correlation between text-space and weight-space distances
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T07:21:35Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: linearity validity flag is true if correlation is greater than or equal
+    to 0.6
+  claim_id: c_50046d29
+  context: Output the correlation value and a validity flag (True if >= 0.6, False
+    otherwise) to data/results/linearity_check.json.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Linearity_validity_flag_is_true_if_correlation_is_greater_th
+  kind: magnitude
+  raw_text: validity flag is True if correlation is >= 0.6
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T07:22:26Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: run multiple trials with N greater than or equal to 5
+  claim_id: c_b1ea3deb
+  context: "Evaluate synthesized adapters on composite tasks using environment logic,\
+    \ run multiple trials (N\u22655), and perform statistical testing with BH correction."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Run_multiple_trials_with_N_greater_than_or_equal_to_5
+  kind: magnitude
+  raw_text: "run multiple trials (N\u22655)"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T07:23:04Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: perform statistical testing with Benjamini-Hochberg correction
+  claim_id: c_23fa22b6
+  context: "Evaluate synthesized adapters on composite tasks using environment logic,\
+    \ run multiple trials (N\u22655), and perform statistical testing with BH correction."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Perform_statistical_testing_with_Benjamini-Hochberg_correcti
+  kind: entity_fact
+  raw_text: perform statistical testing with BH correction
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T07:23:29Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: apply adapters to frozen base LLM using llama-cpp-python GGUF
+  claim_id: c_b9bf1ee2
+  context: T026 [US3] Implement src/evaluation/runner.py (FR-004) to apply adapters
+    (from T022) to a frozen base LLM (via llama-cpp-python GGUF) and execute environment
+    logic (ALFWorld/Search-QA).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Apply_adapters_to_frozen_base_LLM_using_llama-cpp-python_GGU
+  kind: entity_fact
+  raw_text: apply adapters to a frozen base LLM via llama-cpp-python GGUF
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T07:23:52Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: execute environment logic for ALFWorld and Search-QA
+  claim_id: c_a52a20a5
+  context: apply adapters (from T022) to a frozen base LLM (via llama-cpp-python GGUF)
+    and execute environment logic (ALFWorld/Search-QA).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Execute_environment_logic_for_ALFWorld_and_Search-QA
+  kind: entity_fact
+  raw_text: execute environment logic for ALFWorld and Search-QA
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T07:24:07Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 2
+  canonical: ensure base LLM inference fits within 7GB RAM
+  claim_id: c_39b77cc7
+  context: T026b [US3] Implement memory validation and streaming/chunking logic in
+    src/evaluation/runner.py to ensure the base LLM inference fits within 7GB RAM.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Ensure_base_LLM_inference_fits_within_7GB_RAM
+  kind: entity_fact
+  raw_text: ensure the base LLM inference fits within 7GB RAM
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T07:24:29Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 2
+  canonical: apply Benjamini-Hochberg correction for multiple comparisons
+  claim_id: c_cad8a17d
+  context: T029 [US3] Implement src/evaluation/stats.py (FR-006) to apply Benjamini-Hochberg
+    correction for multiple comparisons
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Apply_Benjamini-Hochberg_correction_for_multiple_comparisons
+  kind: entity_fact
+  raw_text: apply Benjamini-Hochberg correction for multiple comparisons
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T07:24:58Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis for k values 3 and 5
+  claim_id: c_8737013c
+  context: T031 [US3]Implement sensitivity analysis logic (SC-004) for k in {3, 5}
+    per SC-004 Measurable Outcomes in src/retrieval/strategies.py. (Do not include
+    k=10 unless SC-004 is updated).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: sensitivity analysis logic for k in {3, 5}
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T07:26:39Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: generate final report with p-values BH-adjusted q-values reconstruction
+    errors and linearity correlation
+  claim_id: c_7ff2ccb5
+  context: T032 [US3] Generate final report in data/results/stats_report.json including
+    p-values, BH-adjusted q-values, reconstruction errors (SC-005), and linearity
+    correlation (from T030)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Generate_final_report_with_p-values_BH-adjusted_q-values_rec
+  kind: entity_fact
+  raw_text: generate final report including p-values, BH-adjusted q-values, reconstruction
+    errors, and linearity correlation
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T07:26:57Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: measure wall-clock latency for skill selection
+  claim_id: c_396c955a
+  context: T035a Implement benchmark script src/benchmark/latency_bench.py to measure
+    wall-clock latency for skill selection (retrieval + interpolation)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Measure_wall-clock_latency_for_skill_selection
+  kind: entity_fact
+  raw_text: measure wall-clock latency for skill selection (retrieval + interpolation)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T07:27:13Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: optimize retrieval logic to meet less than 1 second latency target
+  claim_id: c_33728601
+  context: T035b Optimize retrieval logic in src/retrieval/strategies.py to meet <1s
+    latency target per SC-003.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Optimize_retrieval_logic_to_meet_less_than_1_second_latency
+  kind: magnitude
+  raw_text: optimize retrieval logic to meet <1s latency target
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T07:27:41Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: switch to FAISS for indexing or implement vector quantization PQ
+  claim_id: c_17c2c115
+  context: 'Techniques to attempt: Switch to FAISS for indexing or implement vector
+    quantization (PQ).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Switch_to_FAISS_for_indexing_or_implement_vector_quantizatio
+  kind: entity_fact
+  raw_text: Switch to FAISS for indexing or implement vector quantization (PQ)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T07:27:59Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: fetch datasets from real sources specifically the LatentSkill repository
+    for weights
+  claim_id: c_6a381eda
+  context: 'Data: No fabrication. All datasets must be fetched from real sources (specifically
+    the LatentSkill repository for weights).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetch_datasets_from_real_sources_specifically_the_LatentSkil
+  kind: entity_fact
+  raw_text: All datasets must be fetched from real sources (specifically the LatentSkill
+    repository for weights)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T07:28:15Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: proxy generated via numpy random normal with matching shapes
+  claim_id: c_823fbee3
+  context: If real weights are unavailable, use a documented proxy with is_proxy=true
+    flag, generated via numpy.random.normal with matching shapes.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Proxy_generated_via_numpy_random_normal_with_matching_shapes
+  kind: entity_fact
+  raw_text: proxy generated via numpy.random.normal with matching shapes
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T07:28:54Z'

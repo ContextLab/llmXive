@@ -1,3 +1,4 @@
 """
-Validation module for metric checks and schema validation.
+Validation module for llmXive.
+Handles linearity checks and metric validation.
 """

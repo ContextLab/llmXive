@@ -1,160 +1,154 @@
 # Statistical Analysis of Publicly Available Stack Overflow Question Tags
 
 **Project ID**: PROJ-298
-
-This project performs statistical analysis on publicly available Stack Overflow question tag data to identify technology growth/decline trajectories, seasonality, and co-occurrence clusters.
+**Status**: Production Ready
 
 ## Overview
 
-The pipeline analyzes tag frequencies over time using:
-- **Modified Mann-Kendall test** for trend detection
-- **Theil-Sen slope estimation** for magnitude of change
-- **STL/Hodrick-Prescott decomposition** for seasonality
-- **Hierarchical clustering** based on tag co-occurrence
+This project performs statistical analysis on publicly available Stack Overflow question tag data to identify technology growth/decline trajectories, seasonality patterns, and technology clusters.
 
-## Prerequisites
+## Features
 
-- Python 3.11+
-- CPU-only environment (no GPU required)
-- 64GB RAM recommended for full dataset processing
-- Internet access for external data fetching (GitHub/NPM APIs)
+- **Trend Analysis (US1)**: Modified Mann-Kendall tests with Theil-Sen slope estimation, Benjamini-Hochberg correction, and power analysis.
+- **Decomposition (US2)**: STL/Hodrick-Prescott decomposition with ADF stationarity pre-testing and event alignment validation.
+- **Clustering (US3)**: Co-occurrence analysis using Jaccard similarity, hierarchical clustering, and taxonomy alignment scoring.
+- **External Validation**: Correlation with GitHub stars and NPM download metrics.
 
 ## Project Structure
 
 ```
 projects/PROJ-298-statistical-analysis-of-publicly-availab/
 ├── code/
-│ ├── analysis/
-│ │ ├── bootstrapping.py
-│ │ ├── clustering.py
-│ │ ├── correlation.py
-│ │ ├── decomposition.py
-│ │ ├── trends.py
-│ │ └── generate_*.py
-│ ├── data/
-│ │ ├── download.py
-│ │ ├── external.py
-│ │ ├── generate_taxonomies.py
-│ │ ├── preprocess.py
-│ │ └── setup_data_structure.py
-│ ├── utils/
-│ │ ├── contract_validation.py
-│ │ └── state_manager.py
-│ ├── viz/
-│ │ ├── plots.py
-│ │ └── templates.py
-│ └── requirements.txt
+│ ├── analysis/ # Statistical analysis modules
+│ ├── data/ # Data ingestion and preprocessing
+│ ├── utils/ # Utility functions (hygiene, state management)
+│ ├── viz/ # Visualization and template generation
+│ └── requirements.txt # Python dependencies
 ├── data/
-│ ├── raw/
-│ ├── processed/
-│ ├── events/
-│ │ └── reference_calendar.json
-│ └── taxonomy/
-│ └── survey_2023.json
-├── notebooks/
-│ ├── 02_trend_analysis.ipynb
-│ ├── 03_decomposition.ipynb
-│ └── 04_clustering.ipynb
-├── tests/
-│ ├── contract/
-│ └── integration/
-└── state/
- └── projects/PROJ-298-statistical-analysis-of-publicly-availab.yaml
+│ ├── raw/ # Raw downloaded data
+│ ├── processed/ # Processed time-series data
+│ ├── events/ # Reference calendar for event alignment
+│ └── taxonomy/ # Survey-based taxonomy mappings
+├── notebooks/ # Reproducible Jupyter notebooks
+├── tests/ # Unit, contract, and integration tests
+├── state/ # Artifact state and checksums
+├── README.md
+└── quickstart.md
 ```
+
+## Prerequisites
+
+- Python 3.11+
+- CPU-only execution environment (compatible with GitHub Actions runners)
+- ~14 GB disk space for data artifacts
+- ~7 GB RAM for streaming processing
+
+## Installation
+
+1. Clone the repository and navigate to the project directory:
+ ```bash
+ cd projects/PROJ-298-statistical-analysis-of-publicly-availab
+ ```
+
+2. Create a virtual environment and install dependencies:
+ ```bash
+ python -m venv venv
+ source venv/bin/activate # On Windows: venv\Scripts\activate
+ pip install -r code/requirements.txt
+ ```
 
 ## Quick Start
 
-### 1. Environment Setup
+See [quickstart.md](./quickstart.md) for the full execution pipeline.
 
+### Running Individual Modules
+
+**Data Download & Preprocessing**:
 ```bash
-cd projects/PROJ-298-statistical-analysis-of-publicly-availab
-python -m venv venv
-source venv/bin/activate # On Windows: venv\Scripts\activate
-pip install -r code/requirements.txt
-```
-
-### 2. Initialize Project Structure
-
-```bash
-# Create data directories and fetch taxonomies
-python code/data/setup_data_structure.py
-```
-
-### 3. Download and Preprocess Data
-
-```bash
-# Fetch Stack Overflow PostsTags data
 python code/data/download.py
 python code/data/preprocess.py
 ```
 
-### 4. Run Analysis Pipelines
-
-#### Trend Analysis (User Story 1)
+**Trend Analysis**:
 ```bash
 python code/analysis/trends.py
 python code/analysis/bootstrapping.py
-python code/analysis/correlation.py
 python code/analysis/generate_trend_results.py
 ```
 
-#### Decomposition (User Story 2)
+**Decomposition**:
 ```bash
 python code/analysis/decomposition.py
 python code/analysis/generate_decomposition_results.py
 ```
 
-#### Clustering (User Story 3)
+**Clustering**:
 ```bash
 python code/analysis/clustering.py
 python code/analysis/generate_cluster_results.py
 ```
 
-### 5. Reproduce Notebooks
-
-All notebooks are reproducible with the generated data:
-
+**External Correlation**:
 ```bash
-# Install Jupyter if not already installed
-pip install jupyter nbconvert
-
-# Execute notebooks programmatically
-jupyter nbconvert --to notebook --execute notebooks/02_trend_analysis.ipynb
-jupyter nbconvert --to notebook --execute notebooks/03_decomposition.ipynb
-jupyter nbconvert --to notebook --execute notebooks/04_clustering.ipynb
+python code/data/external.py
+python code/analysis/correlation.py
 ```
 
-### 6. Validate Results
+### Running Notebooks
 
+All analysis is reproducible via Jupyter notebooks:
 ```bash
-# Run contract tests
-pytest tests/contract/
-
-# Run integration tests
-pytest tests/integration/
+jupyter notebook notebooks/02_trend_analysis.ipynb
+jupyter notebook notebooks/03_decomposition.ipynb
+jupyter notebook notebooks/04_clustering.ipynb
 ```
+
+## Data Sources
+
+- **Primary**: Stack Overflow Data Dump (PostsTags table) via HuggingFace datasets
+- **External Validation**: GitHub Search API (stars) and NPM Search API (downloads)
+- **Taxonomy**: Stack Overflow Developer Survey 2023
+
+## Statistical Methods
+
+- **Trend Detection**: Modified Mann-Kendall test with pre-whitening, Theil-Sen slope estimator
+- **Multiple Testing**: Benjamini-Hochberg false discovery rate correction
+- **Power Analysis**: Minimum Detectable Effect Size (MDES) calculation
+- **Decomposition**: STL (Seasonal-Trend decomposition using Loess) or Hodrick-Prescott filter
+- **Seasonality**: Augmented Dickey-Fuller (ADF) stationarity test, spectral analysis
+- **Clustering**: Jaccard similarity, hierarchical clustering with permutation validation
 
 ## Output Artifacts
 
-All results are stored in `data/processed/`:
+All outputs are stored in `data/processed/`:
 
-- `trend_results.json`: Trend classifications, slopes, p-values, and correlations
-- `confidence_interval.json`: 95% CIs for Theil-Sen slopes
-- `decomposition_results.json`: Seasonal components and statistical test results
-- `cluster_results.json`: Co-occurrence clusters and alignment scores
+- `trend_results.json`: Trend classifications, slopes, p-values, and external correlations
+- `confidence_interval.json`: 95% bootstrap confidence intervals for slopes
+- `decomposition_results.json`: Decomposition components, Ljung-Box and Rayleigh test results
+- `cluster_results.json`: Jaccard matrix, cluster assignments, alignment scores
 
-State checksums are tracked in `state/projects/PROJ-298-statistical-analysis-of-publicly-availab.yaml`.
+## Validation & Testing
+
+Run the full test suite:
+```bash
+pytest tests/ -v
+```
+
+Verify artifact contracts:
+```bash
+python code/verification/verify_limitations.py
+```
 
 ## Reproducibility
 
-This project ensures reproducibility through:
-- Deterministic random seeds where applicable
-- SHA-256 checksums for all data artifacts
-- Explicit dependency versions in `requirements.txt`
-- Automated notebook execution via `nbconvert`
+- All scripts write SHA-256 checksums to `state/projects/PROJ-298-statistical-analysis-of-publicly-availab.yaml`
+- Notebooks include mandatory limitation disclosures (FR-011)
+- Streaming processing ensures compatibility with limited RAM environments
 
-All notebooks include mandatory limitation disclosures per FR-011.
+## Limitations
+
+**Important**: All findings are associational and do not imply causality. External correlations are based on topic/keyword mapping and may not capture all relevant technologies.
 
 ## License
 
-This project uses publicly available data from Stack Overflow and follows their data license. Analysis code is provided for research purposes.
+MIT License

@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-03T17:07:08.937665Z'
-current_stage: clarified
+current_stage: planned
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-958-llmxive-follow-up-extending-qwen-image-a
-last_run_id: 4919628c-9a39-49c5-82ef-c1845a61d1cc
+last_run_id: 9143bbe4-6823-4aef-a0a2-3c8e857f2dd8
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-958-llmxive-follow-up-extending-qwen-image-a/specs/001-llmxive-follow-up-extending-qwen-image-a
 title: 'llmXive follow-up: extending "Qwen-Image-Agent: Bridging the Context Gap in
   Real-World Image Generat"'
-updated_at: '2026-08-04T18:58:58.705792Z'
+updated_at: '2026-08-05T07:53:18.812977Z'

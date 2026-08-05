@@ -1,0 +1,36 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Regression Results Schema"
+description: "Schema for piecewise regression results and knee point detection."
+type: object
+properties:
+  global_knee_point:
+    type: number
+    description: "The identified threshold where agentic advantage vanishes."
+  global_slope_change:
+    type: number
+    description: "Change in slope at the knee point."
+  f_test_p_value:
+    type: number
+    description: "P-value from F-test comparing piecewise vs. linear model."
+  permutation_p_value:
+    type: number
+    description: "P-value from permutation test."
+  domain_results:
+    type: array
+    items:
+      type: object
+      properties:
+        domain:
+          type: string
+        knee_point:
+          type: number
+        r_squared:
+          type: number
+      required:
+        - domain
+        - knee_point
+        - r_squared
+required:
+  - global_knee_point
+  - f_test_p_value
+  - permutation_p_value

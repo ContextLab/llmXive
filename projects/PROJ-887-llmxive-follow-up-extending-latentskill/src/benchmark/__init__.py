@@ -1,3 +1,4 @@
 """
-Benchmarking utilities for latency and performance profiling.
+Benchmark module for llmXive.
+Contains latency and performance benchmarking scripts.
 """

@@ -53,7 +53,7 @@
   verification_status: mismatch
   verified_against_url: https://github.com/your-org/llmxive-follow-up
   verified_at: '2026-07-13T20:57:36.300784Z'
-- artifact_hash: 7dbbf99b6978a25e176345496c5ab046dea938832ee42788a2d3e5d583f83a34
+- artifact_hash: 2073821308a289fe56361f2bdb099e6015bd4d0b21fc95bbb646e804ead79aee
   artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -64,8 +64,8 @@
   value: https://arxiv.org/abs/1812.08824
   verification_status: pending
   verified_against_url: https://arxiv.org/abs/1812.08824
-  verified_at: '2026-07-18T00:11:41.694533Z'
-- artifact_hash: 7dbbf99b6978a25e176345496c5ab046dea938832ee42788a2d3e5d583f83a34
+  verified_at: '2026-08-05T07:28:54.682501Z'
+- artifact_hash: 2073821308a289fe56361f2bdb099e6015bd4d0b21fc95bbb646e804ead79aee
   artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -75,4 +75,4 @@
   value: '2606.06087'
   verification_status: unreachable
   verified_against_url: null
-  verified_at: '2026-07-18T00:11:41.694533Z'
+  verified_at: '2026-08-05T07:28:54.682501Z'

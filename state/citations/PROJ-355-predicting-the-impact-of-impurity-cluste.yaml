@@ -42,7 +42,7 @@
   verification_status: verified
   verified_against_url: https://www.ctcms.nist.gov/potentials/
   verified_at: '2026-07-06T10:54:59.267013Z'
-- artifact_hash: 86f334fc304a1aebf3f4f5d3d7fd37ab6be4645db44d42ab5306c163a2c5f307
+- artifact_hash: 766b87d96164797dba6f7298371993d1d31cfb89a785e23a8e774c8bd46243a7
   artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -52,8 +52,8 @@
   value: https://materialsproject.org
   verification_status: pending
   verified_against_url: https://next-gen.materialsproject.org/
-  verified_at: '2026-07-11T21:35:34.009861Z'
-- artifact_hash: 86f334fc304a1aebf3f4f5d3d7fd37ab6be4645db44d42ab5306c163a2c5f307
+  verified_at: '2026-08-05T07:39:45.953145Z'
+- artifact_hash: 766b87d96164797dba6f7298371993d1d31cfb89a785e23a8e774c8bd46243a7
   artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -62,10 +62,10 @@
     factor: a redefined VIF and a test to detect statistical troubling multicollinearity'
   kind: url
   value: https://arxiv.org/abs/2005.02245
-  verification_status: verified
+  verification_status: pending
   verified_against_url: https://arxiv.org/abs/2005.02245
-  verified_at: '2026-07-11T21:35:34.009861Z'
-- artifact_hash: 86f334fc304a1aebf3f4f5d3d7fd37ab6be4645db44d42ab5306c163a2c5f307
+  verified_at: '2026-08-05T07:39:45.953145Z'
+- artifact_hash: 766b87d96164797dba6f7298371993d1d31cfb89a785e23a8e774c8bd46243a7
   artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
   cite_id: c-003
   cited_authors: []
@@ -75,6 +75,6 @@
     Analysis'
   kind: url
   value: https://arxiv.org/abs/2604.10702
-  verification_status: verified
+  verification_status: pending
   verified_against_url: https://arxiv.org/abs/2604.10702
-  verified_at: '2026-07-11T21:35:34.009861Z'
+  verified_at: '2026-08-05T07:39:45.953145Z'

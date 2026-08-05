@@ -4,83 +4,125 @@ from collections import Counter
 from typing import List, Dict, Any, Set
 
 from sklearn.feature_extraction.text import TfidfVectorizer
-from code.config import (
-    MIN_DF, MAX_DF, N_TOP_TERMS, PROCESSED_DIR, RANDOM_SEED, MAX_DOCS
-)
-from code.data_loader import load_hotpotqa_sample, load_wikipedia_sample
+
+from code.config import PROCESSED_DIR, RANDOM_SEED
+
 
 def clean_text(text: str) -> str:
-    """Basic text cleaning: lowercasing and removing non-alphanumeric chars."""
+    """
+    Clean and normalize text for vocabulary building.
+    - Lowercase
+    - Remove non-alphanumeric characters (keeping spaces)
+    - Collapse whitespace
+    """
+    if not text:
+        return ""
     text = text.lower()
     text = re.sub(r'[^a-z0-9\s]', ' ', text)
     text = re.sub(r'\s+', ' ', text).strip()
     return text
 
-def build_fixed_vocabulary() -> Dict[str, int]:
+
+def build_fixed_vocabulary(corpus: List[str], max_vocab_size: int = 10000) -> Set[str]:
     """
-    Implements TF-IDF filtering with a fixed reference vocabulary.
-    Loads real data from HotpotQA and Wikipedia, computes TF-IDF on the union,
-    and saves the top N terms to data/processed/fixed_vocab.json.
+    Build a fixed reference vocabulary from the corpus using TF-IDF filtering.
     
-    This ensures the vocabulary is derived from real data (FR-001) and versioned.
+    This function:
+    1. Cleans the text of all documents in the corpus.
+    2. Fits a TfidfVectorizer to identify terms with sufficient document frequency.
+    3. Selects the top `max_vocab_size` terms by total TF-IDF score (or frequency).
+    4. Returns the set of selected terms.
+    
+    Args:
+        corpus: List of raw text documents.
+        max_vocab_size: Maximum number of terms to include in the fixed vocabulary.
+        
+    Returns:
+        A set of term strings representing the fixed vocabulary.
     """
-    print("Loading real datasets...")
-    hotpot_docs = load_hotpotqa_sample()
-    wiki_docs = load_wikipedia_sample()
+    if not corpus:
+        return set()
     
-    all_docs = hotpot_docs + wiki_docs
-    print(f"Total documents loaded: {len(all_docs)} (Max allowed: {MAX_DOCS * 2})")
+    # Clean the corpus
+    cleaned_corpus = [clean_text(doc) for doc in corpus]
+    cleaned_corpus = [doc for doc in cleaned_corpus if doc] # Remove empty strings
     
-    # Extract text and clean
-    clean_texts = [clean_text(doc['text']) for doc in all_docs]
-    clean_titles = [clean_text(doc['title']) for doc in all_docs]
-    
-    # Combine title and text for better representation
-    combined_texts = [f"{t} {txt}" for t, txt in zip(clean_titles, clean_texts)]
-    
-    print("Computing TF-IDF to select fixed vocabulary...")
-    
-    # Initialize TfidfVectorizer
-    # Using MIN_DF and MAX_DF from config to filter noise
+    if not cleaned_corpus:
+        return set()
+
+    # Use TfidfVectorizer to identify relevant terms
+    # We use min_df=2 to avoid noise from terms appearing only once,
+    # and max_df=0.95 to avoid overly common stop words.
     vectorizer = TfidfVectorizer(
-        min_df=MIN_DF,
-        max_df=MAX_DF,
-        max_features=N_TOP_TERMS,
-        stop_words='english',
-        token_pattern=r"(?u)\b\w+\b"
+        max_features=max_vocab_size,
+        min_df=2,
+        max_df=0.95,
+        token_pattern=r'(?u)\b\w+\b', # Ensure we capture words correctly
+        lowercase=False # We already lowercased
     )
     
-    # Fit on the corpus
     try:
-        tfidf_matrix = vectorizer.fit_transform(combined_texts)
-    except ValueError as e:
-        # Fallback if no documents meet min_df or all are filtered
-        print(f"TF-IDF fit failed: {e}. Attempting with relaxed constraints...")
-        vectorizer = TfidfVectorizer(
-            min_df=1,
-            max_df=1.0,
-            max_features=N_TOP_TERMS,
-            stop_words='english',
-            token_pattern=r"(?u)\b\w+\b"
-        )
-        tfidf_matrix = vectorizer.fit_transform(combined_texts)
-
+        tfidf_matrix = vectorizer.fit_transform(cleaned_corpus)
+    except ValueError:
+        # Fallback if corpus is too small or invalid for vectorizer
+        return set()
+    
     feature_names = vectorizer.get_feature_names_out()
     
-    # Convert to a dictionary {term: index}
-    # The vectorizer already sorted features by the 'max_features' argument (top TF-IDF scores)
-    # or alphabetically if max_features is not used. Here max_features is used.
-    vocab_dict = {term: idx for idx, term in enumerate(feature_names)}
+    # Calculate total TF-IDF score for each term to rank them
+    # Summing the TF-IDF values across all documents gives a measure of importance
+    total_scores = tfidf_matrix.sum(axis=0).A1 # .A1 converts matrix to 1D array
     
-    print(f"Fixed vocabulary size: {len(vocab_dict)}")
+    # Sort terms by their total score
+    sorted_indices = total_scores.argsort()[::-1]
     
-    # Save to file
-    output_path = PROCESSED_DIR / "fixed_vocab.json"
-    with open(output_path, 'w', encoding='utf-8') as f:
-        json.dump(vocab_dict, f, indent=2)
+    # Select the top terms
+    top_terms = [feature_names[i] for i in sorted_indices]
     
-    print(f"Vocabulary saved to {output_path}")
-    return vocab_dict
+    return set(top_terms)
 
-if __name__ == "__main__":
-    build_fixed_vocabulary()
+
+def save_vocabulary(vocab_set: Set[str], output_path: str) -> None:
+    """
+    Save the vocabulary set to a JSON file.
+    
+    Args:
+        vocab_set: The set of vocabulary terms.
+        output_path: Path to the output JSON file.
+    """
+    # Convert set to sorted list for deterministic output
+    sorted_vocab = sorted(list(vocab_set))
+    
+    with open(output_path, 'w', encoding='utf-8') as f:
+        json.dump(sorted_vocab, f, indent=2)
+
+
+def run_pipeline(corpus: List[str], output_filename: str = "fixed_vocab.json") -> str:
+    """
+    Run the vocabulary building pipeline.
+    
+    Args:
+        corpus: List of raw text documents.
+        output_filename: Name of the output file (saved in PROCESSED_DIR).
+        
+    Returns:
+        Path to the created vocabulary file.
+    """
+    import logging
+    from pathlib import Path
+    
+    logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger(__name__)
+    
+    logger.info(f"Building fixed vocabulary from {len(corpus)} documents...")
+    
+    vocab_set = build_fixed_vocabulary(corpus)
+    
+    output_path = Path(PROCESSED_DIR) / output_filename
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    save_vocabulary(vocab_set, str(output_path))
+    
+    logger.info(f"Vocabulary saved to {output_path} with {len(vocab_set)} terms.")
+    
+    return str(output_path)

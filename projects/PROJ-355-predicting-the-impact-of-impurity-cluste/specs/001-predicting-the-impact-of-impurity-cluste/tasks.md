@@ -44,7 +44,7 @@
 **Purpose**: Project initialization, basic structure, and core validation utilities required by downstream tasks.
 
 - [X] T001 [P] Initialize project structure by creating root directory `projects/PROJ-355-predicting-the-impact-of-impurity-cluste/` and subdirectories `code/`, `data/raw/`, `data/processed/`, `results/`, `tests/unit/`, `tests/integration/` idempotently.
-- [ ] T002 Create `requirements.txt` with pinned versions: `The plan specifies using pymatgen version 2024.1.1. `, `{{claim:c_362e5c97}} `, `{{claim:c_80d0456f}} `, `{{claim:c_6971ed96}} `, `{{claim:c_2dfdce10}} `, `{{claim:c_a4cfd971}} `, `{{claim:c_82f22382}} `, `{{claim:c_a19926d3}} `
+- [X] T002 Create `requirements.txt` with pinned versions: `The plan specifies using pymatgen version 2024.1.1. [UNRESOLVED-CLAIM: c_75b43b49 — status=not_enough_info] `, `{{claim:c_362e5c97}} `, `{{claim:c_80d0456f}} `, `{{claim:c_6971ed96}} `, `{{claim:c_2dfdce10}} `, `{{claim:c_a4cfd971}} `, `{{claim:c_82f22382}} `, `{{claim:c_a19926d3}} `
 - [X] T003 [P] Configure linting (ruff) and formatting (black) tools in `projects/PROJ-355-predicting-the-impact-of-impurity-cluste/`
 - [X] T004a [P] Implement `contracts/dataset.schema.yaml` defining required fields: `bulk_config_id`, `impurity_species`, `segregation_energy`, `clustering_descriptors`
 - [X] T004b [P] Implement `contracts/output_schema.schema.yaml` defining required fields: `r2`, `rmse`, `p_values`, `confidence_intervals`
@@ -71,14 +71,14 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T007 [P] [US1] Implement `code/main.py` pipeline orchestration with error handling and logging. Logic:
+- [X] T007 [P] [US1] Implement `code/main.py` pipeline orchestration with error handling and logging. Logic:
  1. Define the *logical* sequence: `download_bulk_configs` -> `build_gb_supercells` -> `compute_descriptors` -> `run_simulation`.
  2. **Note**: This task defines the orchestration flow. The actual implementation of `download.py` (T013), `gb_builder.py` (T014), etc., occurs in Phase 3. The code in T007 will call these modules once they are implemented.
  3. Ensure the script handles the `[DATA_UNAVAILABLE]` error from T013 gracefully by logging and exiting cleanly.
-- [ ] T010 [P] [US1] Unit test for retry logic in `tests/unit/test_download_retry.py`
-- [ ] T011 [P] [US1] Unit test for interface-region descriptor filtering in `tests/unit/test_descriptor_interface.py`
-- [~] T012 [P] [US1] Integration test for full data pipeline in `tests/integration/test_data_pipeline.py` <!-- FAILED: unspecified -->
-- [ ] T012a [P] [US1] Unit test for segregation energy generation verification in `tests/unit/test_energy_generation.py`. Logic: Verify that `simulate_energy.py` produces non-empty results and logs the count of generated energies. Tag [FR-003]. <!-- FAILED: unspecified -->
+- [X] T010 [P] [US1] Unit test for retry logic in `tests/unit/test_download_retry.py`
+- [X] T011 [P] [US1] Unit test for interface-region descriptor filtering in `tests/unit/test_descriptor_interface.py`
+- [ ] T012 [P] [US1] Integration test for full data pipeline in `tests/integration/test_data_pipeline.py` <!-- FAILED: unspecified -->
+- [X] T012a [P] [US1] Unit test for segregation energy generation verification in `tests/unit/test_energy_generation.py`. Logic: Verify that `simulate_energy.py` produces non-empty results and logs the count of generated energies. Tag [FR-003]. <!-- FAILED: unspecified -->
 
 **Checkpoint**: Foundation and testing scaffolding ready.
 
@@ -96,10 +96,10 @@
  1. MUST invoke `validate_citations(url, 'data/metadata.yaml')` from `code/validators.py` (T004c) **after T004c is completed**.
  2. MUST log `[DATA_UNAVAILABLE] URL=<url> attempts=3` after 3 failed attempts.
  This task fetches bulk structures from MP/OQMD. **Dependency**: Requires T004c completion.
-- [~] T013b [US1] Verify the `[DATA_UNAVAILABLE]` log format and 3-attempt limit behavior in isolation; ensure log output matches exact format
-- [~] T017 [US1] Add contract validation in `code/data/download.py` to validate output against `contracts/dataset.schema.yaml` BEFORE GB construction
+- [ ] T013b [US1] Verify the `[DATA_UNAVAILABLE]` log format and 3-attempt limit behavior in isolation; ensure log output matches exact format
+- [ ] T017 [US1] Add contract validation in `code/data/download.py` to validate output against `contracts/dataset.schema.yaml` BEFORE GB construction
 - [X] T014 [P] [US1] Implement `code/data/gb_builder.py` to construct GB supercells and insert impurities at the interface
-- [~] T015 [US1] Implement `code/data/descriptors.py` to compute RDF peaks (using a defined cutoff from the GB plane), pair correlation statistics, and Voronoi-based neighbor counts specifically within the GB interface region (FR-002); Output: `data/processed/descriptors.csv` with columns [species, rdf_peak, pair_corr, voronoi_count].
+- [ ] T015 [US1] Implement `code/data/descriptors.py` to compute RDF peaks (using a defined cutoff from the GB plane), pair correlation statistics, and Voronoi-based neighbor counts specifically within the GB interface region (FR-002); Output: `data/processed/descriptors.csv` with columns [species, rdf_peak, pair_corr, voronoi_count].
  **Constraint**: Do NOT apply PCA. The Plan's mention of PCA in 'Phase 1' is an error; Spec FR-007 mandates retaining raw descriptors and reporting collinearity descriptively only. T015 takes precedence over the Plan's contradictory instruction.
 - [X] T015b Implement logic in `code/data/descriptors.py` or a new helper to extract and tag each configuration with its `alloy_system_id` based on impurity species and bulk crystal structure.
  **Logic**: Generate `alloy_system_id` as `f"{crystal_system}_{impurity_species}"` (e.g., 'BCC_Cr'). `crystal_system` must be derived deterministically from the bulk configuration file using pymatgen's `get_space_group_symbol` or `lattice` properties (e.g., 'BCC', 'FCC').
@@ -161,13 +161,13 @@
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
 - [X] T029 [P] [US3] Unit test for sensitivity sweep logic in `tests/unit/test_sensitivity.py`
-- [ ] T030 [P] [US3] Unit test for multiple-comparison correction (Bonferroni/FDR) in `tests/unit/test_hypothesis.py`
-- [ ] T031 [P] [US3] Integration test for full hypothesis and sensitivity analysis in `tests/integration/test_hypothesis_sensitivity.py`
+- [X] T030 [P] [US3] Unit test for multiple-comparison correction (Bonferroni/FDR) in `tests/unit/test_hypothesis.py`
+- [X] T031 [P] [US3] Integration test for full hypothesis and sensitivity analysis in `tests/integration/test_hypothesis_sensitivity.py`
 
 ### Implementation for User Story 3
 
 - [ ] T036 [US3] Add contract validation in `code/modeling/evaluate.py` to validate output against `contracts/output_schema.schema.yaml` BEFORE analysis
-- [ ] T032 [US3] Implement `code/modeling/evaluate.py` with sensitivity analysis sweeping over at least 3 concrete threshold values (e.g., lambda=[0.01, 0.1, 1.0]); report RMSE variance and R² stability; output format: JSON with keys [threshold, rmse_variance, r2_stability] [FR-006]
+- [ ] T032 [US3] Implement `code/modeling/evaluate.py` with sensitivity analysis {{claim:c_a2ce6442}}; report RMSE variance and R² stability; output format: JSON with keys [threshold, rmse_variance, r2_stability] [FR-006]
 - [ ] T033 [US3] Implement calculation of RMSE variance and R² stability across the threshold sweep
 - [ ] T034a [US3] Implement logic to extract predictor significance: If Linear Regression (T023), extract coefficients and standard errors; if RandomForest (not used), compute permutation importance. Output to `results/feature_importance.json`.
 - [ ] T034 [US3] Implement hypothesis testing for predictor coefficients (from T034a) with Bonferroni or FDR correction (FR-005) [FR-005]

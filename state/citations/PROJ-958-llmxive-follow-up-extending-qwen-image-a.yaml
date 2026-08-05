@@ -1,1 +1,22 @@
-[]
+- artifact_hash: 9dba4bc6297ebbd609275fd3bfbe26d0416cbe7d949a342082681258fa66bd91
+  artifact_path: projects/PROJ-958-llmxive-follow-up-extending-qwen-image-a/specs/001-llmxive-follow-up-extending-qwen-image-a/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: metadata.jsonl
+  kind: url
+  value: https://huggingface.co/datasets/irl-kit/IA-Bench/resolve/main/data/agibot_world/test/metadata.jsonl`
+  verification_status: pending
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/6a33aefc0411330f0c915a9b/5112b030a7a23676a2acbb302565597b472a6062712f7f7ba1aab32f32703389?X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27metadata.jsonl%3B+filename%3D%22metadata.jsonl%22%3B&user_id=public&Expires=1785919977&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNmEzM2FlZmMwNDExMzMwZjBjOTE1YTliLzUxMTJiMDMwYTdhMjM2NzZhMmFjYmIzMDI1NjU1OTdiNDcyYTYwNjI3MTJmN2Y3YmExYWFiMzJmMzI3MDMzODlcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3bWV0YWRhdGEuanNvbmwlM0IrZmlsZW5hbWUlM0QlMjJtZXRhZGF0YS5qc29ubCUyMiUzQiZ1c2VyX2lkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzg1OTE5OTc3fX19XX0_&Signature=MEQCIGRtsjkEfJxLtoMQPM8dqFJc5KwDT2TyriwH0BrJAhwBAiBKX0EoLwMMdiXBMbNQm%7E%7ExcY18M8Tt8LbINIZ4c8WKcw__&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F
+  verified_at: '2026-08-05T07:52:57.357933Z'
+- artifact_hash: 9dba4bc6297ebbd609275fd3bfbe26d0416cbe7d949a342082681258fa66bd91
+  artifact_path: projects/PROJ-958-llmxive-follow-up-extending-qwen-image-a/specs/001-llmxive-follow-up-extending-qwen-image-a/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: cultural_common_sense_verified.json
+  kind: url
+  value: https://huggingface.co/datasets/Yuwei-Niu/WISE_Verified/resolve/main/cultural_common_sense_verified.json`
+  verification_status: pending
+  verified_against_url: https://huggingface.co/api/resolve-cache/datasets/Yuwei-Niu/WISE_Verified/a6f353ba7b2bb39fb7ce24f02e0cc9ce9dd9b1bb/cultural_common_sense_verified.json?%2Fdatasets%2FYuwei-Niu%2FWISE_Verified%2Fresolve%2Fmain%2Fcultural_common_sense_verified.json=&etag=%22a58268bb4a29ed3c2ac44ca570868ab5393c9c04%22
+  verified_at: '2026-08-05T07:52:57.357933Z'
