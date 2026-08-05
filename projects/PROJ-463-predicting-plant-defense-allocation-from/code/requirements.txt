@@ -18,3 +18,4 @@ ete3
 requests>=2.31.0
 pytest  # auto-added: imported by run-book but missing from venv
 tomli  # auto-added: imported by run-book but missing from venv
+urllib3  # auto-added: imported by run-book but missing from venv

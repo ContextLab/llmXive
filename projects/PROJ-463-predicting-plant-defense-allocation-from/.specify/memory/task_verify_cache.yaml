@@ -12,6 +12,14 @@ T003b:
     any logs or commands showing they were run and that the binaries are now in the
     system PATH. The required artifacts (script files and execution evidence) are
     missing.
+T011a:
+  c: false
+  h: 4453c61b2dd66745b5c0b9a2118c82c58cbe1bb4da052861fe3000a2483e648b
+  r: "The repository contains a non\u2011empty `src/data/verify_metadata.py`, but\
+    \ the required output file `data/processed/metadata_verification_report.json`\
+    \ is absent, and the shown code is truncated before any logic that writes such\
+    \ a report. Without the JSON report the task\u2019s output requirement is not\
+    \ satisfied."
 T012a:
   c: true
   h: ad04fa7bb0894eef1cf2f3334e42ed196f160d90b91e82ba9c9b963681ec23d4
@@ -28,22 +36,6 @@ T015:
     \ `data/manifests/synthetic_manifest.json`. Moreover, the manifest file is absent\
     \ from the filesystem. The task\u2019s core requirement\u2014a manifest with the\
     \ specified schema and checksums\u2014is not satisfied."
-T025a:
-  c: false
-  h: 68659950661ee36e65943678474c23f03784faf6af264b6f7ca93237aed29153
-  r: The repository lacks the required `data/processed/post_qc_species_list.json`
-    file, causing `load_target_species_list` to raise a `FileNotFoundError`, and no
-    `data/processed/trait_fallback_summary.json` is present or generated. Consequently
-    the script cannot read the species list nor produce the mandated summary output.
-T025b:
-  c: false
-  h: 800e6d832f51c97e0c9d545d3f255e7de75d13c97f287d7e53e8bd2dd7d2c9d5
-  r: The repository contains `src/data/traits_fallback.py`, but the required input
-    file `data/processed/post_qc_species_list.json` and the output file `data/processed/trait_fallback_summary.json`
-    are absent, so the script cannot be exercised and does not demonstrate that it
-    appends a `fallback_results` key or updates `missing_from_try`. The implementer
-    must supply the missing JSON files (or generate them) and ensure the script writes
-    the expected summary structure.
 T036:
   c: false
   h: c57ad0c3c516cec45ef05d4cd27642d750d33ff6ded9c67703b5e1cd934fc7e5

@@ -1,216 +1,338 @@
+"""
+T025a: Fetch defense trait data from TRY database (Primary Source).
+
+This module implements the primary data acquisition for plant defense traits.
+It reads target species from the QC output, attempts to fetch data from the
+TRY database, and initializes the fallback summary report.
+"""
+
 import os
 import sys
 import json
 import logging
+import time
 from pathlib import Path
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any, Optional, Tuple
 import requests
 
 from src.utils.config import get_data_path
 from src.utils.logger import get_logger
-from src.data.traits_cache import cache_raw_response
 
-# Initialize logger
+# Configure logging
 logger = get_logger(__name__)
 
-def load_target_species_list() -> List[Dict[str, Any]]:
+# Constants
+TRY_BASE_URL = "https://www.try-db.org/api/v1"
+TRY_TIMEOUT = 30
+RATE_LIMIT_DELAY = 1.0  # seconds between requests
+
+# Trait mappings (TRY trait IDs or search terms)
+# Note: Actual IDs may vary; this uses a heuristic mapping based on common trait names
+TARGET_TRAITS = {
+    "Glucosinolates": {"trait_name": "Glucosinolates", "trait_id": None},
+    "Alkaloids": {"trait_name": "Alkaloids", "trait_id": None},
+    "Phenolics": {"trait_name": "Phenolics", "trait_id": None},
+    "Trichome Density": {"trait_name": "Trichome density", "trait_id": None},
+    "Leaf Tensile Strength": {"trait_name": "Leaf tensile strength", "trait_id": None},
+}
+
+def load_target_species_list() -> List[str]:
     """
-    Load target species list from the post-QC species list file.
-    
+    Load the target species list from the QC output file.
+
     Returns:
-        List of species dictionaries with 'species' key.
+        List[str]: List of species names.
+
+    Raises:
+        FileNotFoundError: If the QC output file is missing.
+        ValueError: If the file content is invalid.
     """
-    input_path = get_data_path() / "processed" / "post_qc_species_list.json"
+    qc_output_path = get_data_path("processed/post_qc_species_list.json")
     
-    if not input_path.exists():
-        raise FileNotFoundError(
-            f"Target species list not found at {input_path}. "
-            "Ensure T014 (QC logic) has been executed."
-        )
+    if not os.path.exists(qc_output_path):
+        logger.error(f"Target species list not found at {qc_output_path}. "
+                     "Ensure T014 (QC) has been completed successfully.")
+        raise FileNotFoundError(f"Target species list file not found: {qc_output_path}")
+
+    try:
+        with open(qc_output_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        
+        # Handle different possible structures
+        if isinstance(data, list):
+            return [item.get('species', item) if isinstance(item, dict) else item for item in data]
+        elif isinstance(data, dict) and 'species' in data:
+            return data['species']
+        elif isinstance(data, dict) and 'included_species' in data:
+            return data['included_species']
+        else:
+            # Try to extract species keys if it's a dict of species data
+            if all(isinstance(v, dict) for v in data.values()):
+                return list(data.keys())
+            else:
+                raise ValueError("Unexpected structure in post_qc_species_list.json")
+                
+    except json.JSONDecodeError as e:
+        logger.error(f"Invalid JSON in target species list: {e}")
+        raise
+    except Exception as e:
+        logger.error(f"Error reading target species list: {e}")
+        raise
+
+def create_retry_session(max_retries: int = 3) -> requests.Session:
+    """
+    Create a requests session with retry logic.
+
+    Args:
+        max_retries: Maximum number of retry attempts.
+
+    Returns:
+        requests.Session: Configured session.
+    """
+    session = requests.Session()
+    retry_config = {
+        'total': max_retries,
+        'backoff_factor': 0.5,
+        'status_forcelist': [429, 500, 502, 503, 504],
+    }
     
-    with open(input_path, 'r') as f:
-        data = json.load(f)
+    try:
+        from requests.adapters import HTTPAdapter
+        from urllib3.util.retry import Retry
+        
+        retry = Retry(**retry_config)
+        adapter = HTTPAdapter(max_retries=retry)
+        session.mount("http://", adapter)
+        session.mount("https://", adapter)
+    except ImportError:
+        logger.warning("urllib3 not available, retry logic disabled")
     
-    # Handle both list format and dict format
-    if isinstance(data, list):
-        return data
-    elif isinstance(data, dict) and 'species' in data:
-        return data['species']
-    else:
-        raise ValueError(f"Unexpected format in {input_path}")
+    return session
 
 def fetch_traits_for_species(
     species_name: str, 
+    session: requests.Session,
     api_key: Optional[str] = None
-) -> Optional[Dict[str, Any]]:
+) -> Tuple[Optional[List[Dict]], str]:
     """
-    Fetch defense trait data for a single species from the TRY database.
-    
+    Fetch defense traits for a single species from TRY database.
+
     Args:
         species_name: Scientific name of the species.
-        api_key: TRY API key (if available).
-        
+        session: Requests session with retry logic.
+        api_key: Optional API key for authentication.
+
     Returns:
-        Dictionary of trait data if found, None otherwise.
+        Tuple of (list of traits or None, status message)
     """
-    if not api_key:
-        logger.warning(f"TRY_API_KEY not set, skipping fetch for {species_name}")
-        return None
+    headers = {}
+    if api_key:
+        headers["Authorization"] = f"Bearer {api_key}"
     
-    # TRY Database API endpoint (example - adjust based on actual API)
-    # Note: The TRY database API structure may vary; this is a placeholder
-    # for the actual implementation based on the real API documentation.
-    base_url = "https://try-db.org/api/v1/species"
-    
-    headers = {
-        "Authorization": f"Bearer {api_key}",
-        "Accept": "application/json"
-    }
-    
-    params = {
-        "scientific_name": species_name,
-        "trait_ids": "1,2,3,4,5"  # Example trait IDs for defense traits
-    }
-    
-    try:
-        response = requests.get(
-            base_url, 
-            headers=headers, 
-            params=params, 
-            timeout=30
-        )
-        
-        if response.status_code == 200:
-            data = response.json()
-            # Cache the raw response
-            cache_raw_response("try", species_name, data)
-            return data
-        elif response.status_code == 404:
-            logger.info(f"Species {species_name} not found in TRY database")
-            return None
-        else:
-            logger.error(f"TRY API error for {species_name}: {response.status_code}")
-            return None
+    # Try multiple search strategies
+    search_terms = [
+        species_name,
+        species_name.replace('_', ' '),
+        species_name.split()[0] if ' ' in species_name else species_name, # Genus only
+    ]
+
+    for term in search_terms:
+        try:
+            # Attempt to search for traits
+            search_url = f"{TRY_BASE_URL}/traits/search"
+            params = {
+                "query": term,
+                "limit": 50,
+            }
             
-    except requests.exceptions.RequestException as e:
-        logger.error(f"Network error fetching traits for {species_name}: {str(e)}")
-        return None
+            logger.info(f"Searching TRY for species: {term}")
+            response = session.get(search_url, headers=headers, params=params, timeout=TRY_TIMEOUT)
+            
+            if response.status_code == 401:
+                logger.error("TRY API authentication failed. Check TRY_API_KEY.")
+                return None, "AUTH_FAILED"
+            elif response.status_code == 404:
+                continue  # Try next search term
+            elif response.status_code != 200:
+                logger.warning(f"TRY API returned {response.status_code} for {term}")
+                continue
+
+            data = response.json()
+            
+            # Extract traits if found
+            if 'data' in data and len(data['data']) > 0:
+                traits = []
+                for item in data['data']:
+                    # Map to our standard schema
+                    trait_entry = {
+                        "trait_id": item.get('id'),
+                        "trait_name": item.get('name', 'Unknown'),
+                        "value": item.get('value'),
+                        "unit": item.get('unit'),
+                        "source": "TRY",
+                        "species": species_name,
+                    }
+                    # Only include if value is present
+                    if trait_entry['value'] is not None:
+                        traits.append(trait_entry)
+                
+                if traits:
+                    return traits, "SUCCESS"
+            
+        except requests.exceptions.RequestException as e:
+            logger.warning(f"Network error searching TRY for {term}: {e}")
+            continue
+        except json.JSONDecodeError as e:
+            logger.warning(f"Invalid JSON response from TRY for {term}: {e}")
+            continue
+        except Exception as e:
+            logger.warning(f"Unexpected error searching TRY for {term}: {e}")
+            continue
+
+    return None, "NOT_FOUND"
 
 def compile_try_results(
-    target_species: List[Dict[str, Any]], 
-    try_results: Dict[str, Any]
-) -> Dict[str, Any]:
+    species_list: List[str],
+    api_key: Optional[str] = None
+) -> Tuple[Dict[str, List[Dict]], List[str], bool]:
     """
-    Compile TRY database results into the summary format.
-    
+    Compile TRY results for all target species.
+
     Args:
-        target_species: List of target species.
-        try_results: Dictionary mapping species names to trait data.
-        
+        species_list: List of species names to query.
+        api_key: Optional API key.
+
     Returns:
-        Compiled results dictionary.
+        Tuple of (results_dict, missing_species_list, api_key_status)
     """
-    missing_from_try = []
+    results = {}
+    missing_species = []
+    api_key_status = "present" if api_key else "missing"
+
+    session = create_retry_session()
     
-    for species_entry in target_species:
-        species_name = species_entry.get('species', species_entry)
+    for species in species_list:
+        logger.info(f"Fetching traits for {species} from TRY...")
         
-        if species_name in try_results and try_results[species_name] is not None:
-            # Successfully fetched
-            pass
+        traits, status = fetch_traits_for_species(species, session, api_key)
+        
+        if status == "AUTH_FAILED":
+            logger.error("Authentication failed for TRY API.")
+            api_key_status = "invalid"
+            # Continue with other species but note the auth failure
+            traits = None
+        
+        if traits:
+            results[species] = traits
+            logger.info(f"Found {len(traits)} traits for {species}")
         else:
-            missing_from_try.append(species_name)
-    
-    return {
-        "target_species": [s.get('species', s) if isinstance(s, dict) else s for s in target_species],
-        "primary_source_results": {
-            sp: tr for sp, tr in try_results.items() 
-            if tr is not None
-        },
-        "missing_from_try": missing_from_try,
-        "missing_from_all_sources": []  # Will be updated by fallback task
-    }
+            missing_species.append(species)
+            logger.info(f"No traits found for {species} in TRY")
+        
+        # Rate limiting
+        time.sleep(RATE_LIMIT_DELAY)
+
+    return results, missing_species, api_key_status
 
 def save_trait_fallback_summary(
-    summary_data: Dict[str, Any], 
-    api_key_status: str = "present"
-) -> None:
+    target_species: List[str],
+    primary_results: Dict[str, List[Dict]],
+    missing_from_try: List[str],
+    api_key_status: str
+) -> str:
     """
-    Save the trait fallback summary to the output file.
-    
+    Save the initial trait fallback summary with TRY results.
+
     Args:
-        summary_data: The compiled summary data.
-        api_key_status: Status of the API key ("present" or "missing").
+        target_species: List of all target species.
+        primary_results: Results from TRY database.
+        missing_from_try: List of species not found in TRY.
+        api_key_status: Status of the API key (present/missing/invalid).
+
+    Returns:
+        Path to the saved summary file.
     """
-    output_path = get_data_path() / "processed" / "trait_fallback_summary.json"
+    output_path = get_data_path("processed/trait_fallback_summary.json")
     
-    # Add API key status
-    summary_data["try_api_key_status"] = api_key_status
+    summary = {
+        "target_species": target_species,
+        "primary_source_results": primary_results,
+        "missing_from_try": missing_from_try,
+        "missing_from_all_sources": [],  # Will be updated by T025b
+        "try_api_key_status": api_key_status,
+        "metadata": {
+            "generated_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+            "source": "TRY",
+            "status": "initialized"
+        }
+    }
+
+    # Ensure directory exists
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
     
-    with open(output_path, 'w') as f:
-        json.dump(summary_data, f, indent=2)
+    with open(output_path, 'w', encoding='utf-8') as f:
+        json.dump(summary, f, indent=2)
     
     logger.info(f"Saved trait fallback summary to {output_path}")
+    return output_path
 
-def main() -> None:
+def main():
     """
-    Main function to fetch defense trait data from TRY database.
-    
-    This function:
-    1. Loads target species from post-QC list.
-    2. Checks for TRY_API_KEY.
-    3. Fetches traits for each species (if API key available).
-    4. Compiles results and saves summary.
-    5. Does NOT raise SystemExit if API key is missing (proceeds to fallback).
+    Main entry point for T025a: Fetch traits from TRY database.
     """
-    logger.info("Starting TRY database trait fetch (T025a)")
+    logger.info("Starting T025a: Fetch defense traits from TRY database")
     
-    # Load target species
     try:
+        # 1. Load target species
+        logger.info("Loading target species list...")
         target_species = load_target_species_list()
-        logger.info(f"Loaded {len(target_species)} target species")
+        logger.info(f"Found {len(target_species)} target species")
+        
+        if not target_species:
+            logger.warning("No target species found. Creating empty summary.")
+            save_trait_fallback_summary([], {}, [], "no_species")
+            return 0
+
+        # 2. Check for API key
+        api_key = os.environ.get("TRY_API_KEY")
+        if not api_key:
+            logger.warning("TRY_API_KEY environment variable not set. "
+                         "Fetching may fail or return limited data.")
+        
+        # 3. Fetch traits from TRY
+        logger.info("Fetching traits from TRY database...")
+        try_results, missing_species, api_key_status = compile_try_results(
+            target_species, api_key
+        )
+        
+        # 4. Save summary
+        logger.info("Saving trait fallback summary...")
+        output_path = save_trait_fallback_summary(
+            target_species,
+            try_results,
+            missing_species,
+            api_key_status
+        )
+        
+        logger.info(f"T025a completed successfully. Output: {output_path}")
+        
+        # Log summary stats
+        found_count = len(try_results)
+        missing_count = len(missing_species)
+        logger.info(f"Results: {found_count} species with traits, "
+                   f"{missing_count} species missing from TRY")
+        
+        return 0
+
     except FileNotFoundError as e:
-        logger.error(str(e))
-        # Create an empty summary to allow pipeline to continue
-        summary = {
-            "target_species": [],
-            "primary_source_results": {},
-            "missing_from_try": [],
-            "missing_from_all_sources": [],
-            "try_api_key_status": "missing"
-        }
-        save_trait_fallback_summary(summary, "missing")
-        return
-    
-    # Check for API key
-    api_key = os.getenv("TRY_API_KEY")
-    api_key_status = "present" if api_key else "missing"
-    
-    if not api_key:
-        logger.warning("TRY_API_KEY environment variable is not set")
-        logger.info("Proceeding without TRY data (will rely on fallback sources)")
-    
-    # Fetch traits for each species
-    try_results = {}
-    if api_key:
-        for species_entry in target_species:
-            species_name = species_entry.get('species', species_entry)
-            logger.info(f"Fetching traits for {species_name}...")
-            traits = fetch_traits_for_species(species_name, api_key)
-            try_results[species_name] = traits
-    else:
-        # If no API key, all species are "missing"
-        for species_entry in target_species:
-            species_name = species_entry.get('species', species_entry)
-            try_results[species_name] = None
-    
-    # Compile results
-    summary = compile_try_results(target_species, try_results)
-    
-    # Save summary
-    save_trait_fallback_summary(summary, api_key_status)
-    
-    logger.info(f"T025a completed. Missing from TRY: {len(summary['missing_from_try'])} species")
+        logger.error(f"Required input file missing: {e}")
+        logger.error("T014 (QC) must be completed first to generate post_qc_species_list.json")
+        return 1
+    except Exception as e:
+        logger.error(f"Unexpected error in T025a: {e}")
+        import traceback
+        logger.error(traceback.format_exc())
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

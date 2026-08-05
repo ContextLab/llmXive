@@ -1,17 +1,17 @@
 {
   "project_id": "PROJ-463-predicting-plant-defense-allocation-from",
   "ok": false,
-  "reason": "17 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/README.md: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026nifests  - `synthetic/`: Synthetic data for validation - `script\u2026\u201d; code/src/analysis/reproducibility.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026-> Set[str]:     \"\"\"     Generate a small synthetic list for structural vali\u2026\u201d; code/src/analysis/reproducibility.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026else:             # Generate synthetic             published_li\u2026\u201d; 2 run-book script(s) missing (plan/impl path mismatch): python src/cli/run_pipeline.py --mode synthetic --seed 42; python src/cli/run_pipeline.py --mode real --accession_ids GSE12345,GSE67890; 4 declared deliverable(s) absent: data/manifests/batch_correction_report.json; data/manifests/real_data_manifest.json; data/processed/post_qc_species_list.json",
+  "reason": "14 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/src/analysis/reproducibility.py: self-declared fabricated metric \u2014 \u201c\u2026dation only         # This is NOT a real measurement, just for pipeline structure\u2026\u201d; code/README.md: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026nifests  - `synthetic/`: Synthetic data for validation - `script\u2026\u201d; code/src/data/qc.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026input manifest (real or synthetic data)     2. Checks each stud\u2026\u201d; 2 run-book script(s) missing (plan/impl path mismatch): python src/cli/run_pipeline.py --mode synthetic --seed 42; python src/cli/run_pipeline.py --mode real --accession_ids GSE12345,GSE67890; 5 declared deliverable(s) absent: data/manifests/batch_correction_report.json; data/manifests/real_data_manifest.json; data/processed/metadata_verification_report.json",
   "artifacts": [],
   "failures": [
     "python src/cli/run_pipeline.py --mode synthetic --seed 42 -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-463-predicting-plant-defense-allocation-from/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-463-predicting-plant-defense-allocation-from/src/cli/run_pipeline.py': [Errno 2] No such file or directory",
     "python src/cli/run_pipeline.py --mode real --accession_ids GSE12345,GSE67890 -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-463-predicting-plant-defense-allocation-from/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-463-predicting-plant-defense-allocation-from/src/cli/run_pipeline.py': [Errno 2] No such file or directory"
   ],
-  "fix_rounds": 1,
+  "fix_rounds": 2,
   "model_tier": 0,
-  "total_attempts": 1,
+  "total_attempts": 2,
   "replan_rounds": 0,
   "failure_class": "fabrication",
   "evidence": [],
-  "updated_at": "2026-08-02T15:57:10Z"
+  "updated_at": "2026-08-05T14:59:15Z"
 }

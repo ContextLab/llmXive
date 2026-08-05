@@ -1,245 +1,195 @@
-import pandas as pd
-import numpy as np
-from typing import List, Dict, Optional, Tuple
-from pathlib import Path
-import sys
+"""
+Quality Control module for filtering RNA-seq studies.
+
+Implements logic to exclude studies with <2 biological replicates
+or missing tissue metadata, and outputs a post-QC species list.
+"""
 import json
 import logging
-from datetime import datetime
+import sys
+from pathlib import Path
+from typing import List, Dict, Any, Optional, Tuple
 
-# Import config to get paths if needed, though we rely on relative paths here
-# Import logger for consistent logging
-try:
-    from src.utils.logger import get_logger
-except ImportError:
-    # Fallback if logger not fully initialized in some contexts
-    logging.basicConfig(level=logging.INFO)
-    def get_logger(name): return logging.getLogger(name)
+# Import from local config to ensure consistency
+from src.utils.config import get_data_path
 
-logger = get_logger(__name__)
+# Setup logging
+logger = logging.getLogger(__name__)
 
-def check_replicates(study_metadata: Dict, min_replicates: int = 2) -> Tuple[bool, str]:
+def check_replicates(study_data: Dict[str, Any]) -> Tuple[bool, Optional[str]]:
     """
-    Check if a study meets the minimum biological replicate requirement.
-
+    Check if a study has at least 2 biological replicates.
+    
     Args:
-        study_metadata: Dictionary containing study information including 'replicates'
-        min_replicates: Minimum number of biological replicates required (default 2)
-
+        study_data: Dictionary containing study metadata.
+        
     Returns:
-        Tuple of (is_valid, exclusion_reason)
+        Tuple of (is_valid, exclusion_reason).
+        If valid, exclusion_reason is None.
     """
-    replicates = study_metadata.get('replicates')
-    if replicates is None:
-        return False, "Missing replicates count in metadata"
-    
-    if replicates < min_replicates:
-        return False, f"Insufficient biological replicates: {replicates} < {min_replicates}"
-    
-    return True, ""
+    replicates = study_data.get('replicates', 0)
+    if replicates < 2:
+        return False, f"Insufficient replicates: {replicates} (minimum 2 required)"
+    return True, None
 
-def check_metadata_completeness(study_metadata: Dict, required_fields: List[str] = None) -> Tuple[bool, str]:
+def check_metadata_completeness(study_data: Dict[str, Any]) -> Tuple[bool, Optional[str]]:
     """
-    Check if all required metadata fields are present.
-
+    Check if a study has required tissue metadata.
+    
     Args:
-        study_metadata: Dictionary containing study information
-        required_fields: List of required field names (default: ['tissue'])
-
+        study_data: Dictionary containing study metadata.
+        
     Returns:
-        Tuple of (is_valid, exclusion_reason)
+        Tuple of (is_valid, exclusion_reason).
+        If valid, exclusion_reason is None.
     """
-    if required_fields is None:
-        required_fields = ['tissue']
-    
-    missing_fields = []
-    for field in required_fields:
-        value = study_metadata.get(field)
-        if value is None or (isinstance(value, str) and value.strip() == ""):
-            missing_fields.append(field)
-    
-    if missing_fields:
-        return False, f"Missing required metadata fields: {', '.join(missing_fields)}"
-    
-    return True, ""
+    tissue = study_data.get('tissue')
+    if not tissue or tissue == 'unknown' or tissue == '':
+        return False, "Missing or invalid tissue metadata"
+    return True, None
 
-def run_qc_pipeline(input_manifest_path: Path, output_path: Path, min_replicates: int = 2) -> Dict:
+def run_qc_pipeline(verification_report_path: Optional[str] = None) -> Dict[str, Any]:
     """
-    Run the full QC pipeline on studies listed in the input manifest.
-
-    This function:
-    1. Loads the input manifest (real or synthetic data)
-    2. Checks each study for:
-       - Minimum biological replicates (default >= 2)
-       - Presence of required metadata (e.g., tissue)
-    3. Excludes studies that fail any check
-    4. Generates a post-QC species list
-    5. Logs all exclusion reasons
-
+    Run the full QC pipeline on the metadata verification report.
+    
     Args:
-        input_manifest_path: Path to the input manifest file (JSON)
-        output_path: Path where the post-QC species list will be written
-        min_replicates: Minimum required biological replicates
-
+        verification_report_path: Path to the metadata verification report.
+                                  If None, uses default path from config.
+                                  
     Returns:
-        Dictionary containing QC results summary
+        Dictionary containing QC results and the post-QC species list.
     """
-    logger.info(f"Starting QC pipeline with input manifest: {input_manifest_path}")
+    if verification_report_path is None:
+        data_path = get_data_path()
+        verification_report_path = str(data_path / "processed" / "metadata_verification_report.json")
     
-    # Load input manifest
-    if not input_manifest_path.exists():
-        logger.error(f"Input manifest not found: {input_manifest_path}")
-        raise FileNotFoundError(f"Input manifest not found: {input_manifest_path}")
+    input_path = Path(verification_report_path)
     
-    with open(input_manifest_path, 'r') as f:
-        manifest_data = json.load(f)
+    if not input_path.exists():
+        raise FileNotFoundError(f"Verification report not found: {input_path}")
     
-    # Handle both single entry and list formats
-    studies = manifest_data.get('studies', [manifest_data] if 'accession_id' in manifest_data else [])
+    # Load the verification report
+    with open(input_path, 'r') as f:
+        report = json.load(f)
     
-    if not studies:
-        logger.warning("No studies found in manifest")
-        studies = []
-    
-    qc_results = []
+    studies = report.get('studies', [])
+    included_species = []
     excluded_studies = []
-    passed_studies = []
     
     for study in studies:
         accession_id = study.get('accession_id', 'unknown')
         species = study.get('species', 'unknown')
-        tissue = study.get('tissue', None)
-        replicates = study.get('replicates', None)
-        
-        logger.info(f"Processing study: {accession_id} ({species})")
+        tissue = study.get('tissue')
+        replicates = study.get('replicates', 0)
         
         # Check replicates
-        replicates_valid, replicates_reason = check_replicates(study, min_replicates)
+        replicates_ok, replicate_reason = check_replicates(study)
+        # Check tissue metadata
+        tissue_ok, tissue_reason = check_metadata_completeness(study)
         
-        # Check metadata completeness (tissue is required)
-        metadata_valid, metadata_reason = check_metadata_completeness(study, required_fields=['tissue'])
-        
-        # Determine overall validity
-        if not replicates_valid or not metadata_valid:
-            exclusion_reasons = []
-            if not replicates_valid:
-                exclusion_reasons.append(replicates_reason)
-            if not metadata_valid:
-                exclusion_reasons.append(metadata_reason)
-            
-            exclusion_reason = "; ".join(exclusion_reasons)
+        if replicates_ok and tissue_ok:
+            # Study passes QC
+            included_species.append({
+                'species': species,
+                'accession_id': accession_id,
+                'tissue': tissue,
+                'replicates': replicates
+            })
+            logger.info(f"Study {accession_id} ({species}) PASSED QC")
+        else:
+            # Study fails QC
+            reasons = []
+            if not replicates_ok:
+                reasons.append(replicate_reason)
+            if not tissue_ok:
+                reasons.append(tissue_reason)
             
             excluded_studies.append({
-                "species": species,
-                "accession_id": accession_id,
-                "exclusion_reason": exclusion_reason
+                'species': species,
+                'accession_id': accession_id,
+                'exclusion_reason': "; ".join(reasons)
             })
-            
-            logger.warning(f"Excluding study {accession_id}: {exclusion_reason}")
-        else:
-            passed_studies.append({
-                "species": species,
-                "accession_id": accession_id,
-                "tissue": tissue,
-                "replicates": replicates
-            })
-            
-            logger.info(f"Study {accession_id} passed QC")
-        
-        # Record detailed result for this study
-        qc_results.append({
-            "accession_id": accession_id,
-            "species": species,
-            "tissue": tissue,
-            "replicates": replicates,
-            "replicates_valid": replicates_valid,
-            "metadata_valid": metadata_valid,
-            "excluded": not (replicates_valid and metadata_valid),
-            "exclusion_reason": exclusion_reason if not (replicates_valid and metadata_valid) else None
-        })
+            logger.warning(f"Study {accession_id} ({species}) EXCLUDED: {', '.join(reasons)}")
     
-    # Generate post-QC species list (unique species that passed QC)
-    passed_species = list(set([s["species"] for s in passed_studies if s["species"] != "unknown"]))
-    
-    # Prepare output in the required schema: { "species": <string>, "exclusion_reason": <string> }
-    # Note: The schema in the task description seems to imply listing EXCLUDED species with reasons.
-    # However, the task title says "post-QC species list", which usually means the INCLUDED ones.
-    # Given the schema explicitly asks for "exclusion_reason", we will output the EXCLUDED studies
-    # with their reasons, as that matches the schema structure provided in the task.
-    # If the intent was to list included species, the schema would likely not have "exclusion_reason".
-    # We will output the excluded list to match the schema exactly.
-    
-    post_qc_species_list = []
-    for excluded in excluded_studies:
-        post_qc_species_list.append({
-            "species": excluded["species"],
-            "exclusion_reason": excluded["exclusion_reason"]
-        })
-    
-    # Ensure output directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    # Write the post-QC species list (excluded studies with reasons)
-    with open(output_path, 'w') as f:
-        json.dump(post_qc_species_list, f, indent=2)
-    
-    logger.info(f"Post-QC species list (excluded studies) written to: {output_path}")
-    logger.info(f"Total studies processed: {len(studies)}")
-    logger.info(f"Studies passed QC: {len(passed_studies)}")
-    logger.info(f"Studies excluded: {len(excluded_studies)}")
-    
-    return {
-        "total_studies": len(studies),
-        "passed_count": len(passed_studies),
-        "excluded_count": len(excluded_studies),
-        "passed_species": passed_species,
-        "excluded_species_list": post_qc_species_list
+    # Prepare output
+    result = {
+        'total_studies': len(studies),
+        'included_count': len(included_species),
+        'excluded_count': len(excluded_studies),
+        'included_species': included_species,
+        'excluded_studies': excluded_studies
     }
+    
+    return result
+
+def save_post_qc_species_list(qc_results: Dict[str, Any], output_path: Optional[str] = None) -> str:
+    """
+    Save the post-QC species list to a JSON file.
+    
+    Args:
+        qc_results: Results dictionary from run_qc_pipeline.
+        output_path: Path for the output file. If None, uses default path.
+        
+    Returns:
+        Path to the saved file.
+    """
+    if output_path is None:
+        data_path = get_data_path()
+        output_path = str(data_path / "processed" / "post_qc_species_list.json")
+    
+    output_file = Path(output_path)
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Format output as list of species with exclusion reasons for excluded ones
+    # and just species info for included ones
+    species_list = []
+    
+    for item in qc_results.get('included_species', []):
+        species_list.append({
+            'species': item['species'],
+            'accession_id': item['accession_id'],
+            'status': 'included'
+        })
+    
+    for item in qc_results.get('excluded_studies', []):
+        species_list.append({
+            'species': item['species'],
+            'accession_id': item['accession_id'],
+            'status': 'excluded',
+            'exclusion_reason': item['exclusion_reason']
+        })
+    
+    with open(output_file, 'w') as f:
+        json.dump(species_list, f, indent=2)
+    
+    logger.info(f"Post-QC species list saved to {output_file}")
+    return str(output_file)
 
 def main():
     """
-    CLI entry point for the QC pipeline.
-    
-    Usage:
-        python -m src.data.qc --input data/manifests/real_data_manifest.json --output data/processed/post_qc_species_list.json
+    Main entry point for the QC pipeline.
     """
-    import argparse
-    
-    parser = argparse.ArgumentParser(description="Run QC pipeline on RNA-seq studies")
-    parser.add_argument(
-        "--input", 
-        type=Path, 
-        default=Path("data/manifests/real_data_manifest.json"),
-        help="Path to input manifest file"
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
     )
-    parser.add_argument(
-        "--output", 
-        type=Path, 
-        default=Path("data/processed/post_qc_species_list.json"),
-        help="Path to output post-QC species list"
-    )
-    parser.add_argument(
-        "--min-replicates", 
-        type=int, 
-        default=2,
-        help="Minimum required biological replicates"
-    )
-    
-    args = parser.parse_args()
     
     try:
-        results = run_qc_pipeline(
-            input_manifest_path=args.input,
-            output_path=args.output,
-            min_replicates=args.min_replicates
-        )
+        # Run QC pipeline
+        qc_results = run_qc_pipeline()
         
-        print(json.dumps(results, indent=2))
-        logger.info("QC pipeline completed successfully")
+        # Log summary
+        logger.info(f"QC Pipeline Complete: {qc_results['included_count']} included, "
+                   f"{qc_results['excluded_count']} excluded out of {qc_results['total_studies']}")
+        
+        # Save post-QC species list
+        output_path = save_post_qc_species_list(qc_results)
+        
+        return 0
         
     except Exception as e:
-        logger.error(f"QC pipeline failed: {str(e)}", exc_info=True)
-        sys.exit(1)
+        logger.error(f"QC Pipeline failed: {str(e)}")
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

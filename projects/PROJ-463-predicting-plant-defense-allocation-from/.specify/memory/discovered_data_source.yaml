@@ -1,19 +1,19 @@
 status: none
-intent: plant herbivory RNA-seq NCBI GEO SRA TRY database download python package
-  dataset
+intent: NCBI GEO SRA plant herbivory RNA-seq dataset with TRY defense traits python
+  package dataset
 required_fields:
 - sample_id
 - study_accession
-- sra_accession
-- geo_accession
-- species
+- organism
 - tissue_type
 - herbivore_type
+- herbivory_method
 - treatment
-- replicate_number
-- batch_id
+- replicate
 - fastq_url
-- gene_id
-cache_key: dc37c569247a9857a7a0637eaf2c4035e200a6e5ee8d6d81fb53cb18fe89f245
-searched_at: '2026-08-02T15:58:00.864927+00:00'
+- batch_id
+- raw_counts
+- tpm
+cache_key: a8c0bca3d8adf03624e4920aa21f81a0eceba2660e14ebb07afe9cf928f2c87f
+searched_at: '2026-08-05T15:00:02.990616+00:00'
 retry_count: 1

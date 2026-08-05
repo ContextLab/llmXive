@@ -4535,3 +4535,494 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-02T16:07:18Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: simulating parameter sets with fixed seed and shape varying scale magnitudes
+    observed emergent behaviors DOI 10.1038/s41586-020-2649-2
+  claim_id: c_20c90642
+  context: The synthetic manifest schema includes a provenance section describing
+    the generation method and citing prior work.
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: citation
+  raw_text: 'The proposed method involves simulating parameter sets with a fixed seed
+    and shape parameter, while varying the scale parameter across a range of magnitudes
+    to observe emergent behaviors, as detailed in prior work (DOI: 10.1038/s41586-020-2649-2).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T15:02:34Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: select top 50 most stable genes by ascending M-value
+  claim_id: c_b6227dc1
+  context: Housekeeping Gene Selection logic in T013 describes filtering the expression
+    matrix and using NormqPCR::geNorm() to select genes.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Select_top_50_most_stable_genes_by_ascending_M-value
+  kind: magnitude
+  raw_text: Select the top 50 most stable genes from the Candidate Pool by sorting
+    by ascending M-value.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T15:03:32Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: hardcode 50 housekeeping genes including ACT2 GAPDH UBQ10 EF1a TUB6 PP2A
+    SAND CYP79D16 CYP71A32
+  claim_id: c_341a5322
+  context: Task T004-fix implementation details for configuration management.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Hardcode the following 50 genes into src/utils/config.py: ACT2, ACT7,
+    GAPDH, UBQ10, EF1a, TUB6, TUB1, PP2A, SAND, CYP79D16, CYP79D15, CYP79D17, CYP83A1,
+    CYP83B1, CYP96A1, CYP96A2, CYP96A3, CYP71A1, CYP71A1, CYP71A3, CYP71A4, CYP71A5,
+    CYP71A6, CYP71A7, CYP71A8, CYP71A9, CYP71A10, CYP71A11, CYP71A12, CYP71A13, CYP71A14,
+    CYP71A15, CYP71A16, CYP71A17, CYP71A18, CYP71A19, CYP71A20, CYP71A21, CYP71A22,
+    CYP71A23, CYP71A24, CYP71A25, CYP71A26, CYP71A27, CYP71A28, CYP71A29, CYP71A30,
+    CYP71A31, CYP71A32.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T15:03:54Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: reduce features to 50 or fewer pathway-level scores
+  claim_id: c_09c7de14
+  context: Task T021 logic for feature engineering and pathway aggregation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Reduce features to \u226450 pathway-level scores using standard KEGG/GO\
+    \ aggregation."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T15:03:55Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: repeat for 10000 permutations for phylogenetic null model
+  claim_id: c_e4e0bdd0
+  context: Task T028 implementation details for PGLS and Null Model generation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Repeat for N=10 000 permutations (or until convergence) for the Phylogenetic
+    Null Model.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T15:04:12Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: halt if missing trait data fraction exceeds 30 percent
+  claim_id: c_f07cb221
+  context: Task T038 Gate Task logic for trait data availability.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'If missing_fraction > 0.30: Write data/manifests/human_input_needed.flag
+    FIRST, THEN raise SystemExit with message ''Insufficient trait data (missing >
+    30%)''.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T15:04:12Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: use seed 42 for reproducibility in synthetic data generation
+  claim_id: c_08518126
+  context: Task T015 logic for generating synthetic TPM count matrices.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use seed=42 for reproducibility in synthetic data generation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T15:04:30Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: generate TPM values using log-normal distribution with shape 1.5 and
+    scale 10
+  claim_id: c_08dc2c42
+  context: Task T015 logic for generating synthetic TPM count matrices.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate TPM values using scipy.stats.lognorm(s=1.5, scale=10) to mimic
+    real expression data.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T15:05:26Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: rate limit NCBI E-utilities requests with 0.34 second sleep
+  claim_id: c_fcd371f4
+  context: Task T011a logic for metadata verification using NCBI E-utilities.
+  evidence:
+    asserted: '0.34'
+    authority: math.e (IEEE-754 double, Python stdlib)
+    constant: e
+    corrected: true
+    mode: approximate
+    true_value: 2.718281828459045
+    url: https://en.wikipedia.org/wiki/E_(mathematical_constant)
+  kind: numeric
+  raw_text: 'Rate Limiting: time.sleep(0.34) between requests to NCBI E-utilities.'
+  resolved_value: '2.72'
+  resolver: approximate
+  source_hash: 43f9d428e4053c6b0833b38f4a75232c81cfb415f4e254a9b7852ef8bce7bafd
+  source_type: external
+  status: verified
+  updated_at: '2026-08-05T15:05:26Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: exclude studies with fewer than 2 biological replicates or missing tissue
+    metadata
+  claim_id: c_3a5396ef
+  context: Task T014 logic for QC to exclude studies.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exclude_studies_with_fewer_than_2_biological_replicates_or_m
+  kind: magnitude
+  raw_text: If replicates < 2 or tissue_metadata is missing, add to exclusion list
+    with reason.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T15:06:02Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: select top 50 most stable genes or all available if fewer than 50
+  claim_id: c_9721e64b
+  context: Task T013 logic for housekeeping gene selection and CV calculation.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Select_top_50_most_stable_genes_or_all_available_if_fewer_th
+  kind: magnitude
+  raw_text: Select the top 50 most stable genes from the Candidate Pool by sorting
+    by ascending M-value. (If <50 genes are available in the Candidate Pool, use all
+    available).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T15:06:04Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: study of log-normal distributed parameters on system stability detailed
+    in DOI 10.1038/s41586-020-2649-2
+  claim_id: c_63389043
+  context: 'The proposed method involves simulating parameter sets with a fixed seed
+    and shape parameter, while varying the scale parameter across a range of magnitudes
+    to observe emergent behaviors, as detailed in prior work (DOI: 10.1038/s41586-020-2649-2).'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: citation
+  raw_text: 'The research planning document outlines a study investigating the impact
+    of log-normal distributed parameters on system stability, as detailed in prior
+    work (DOI: 10.1038/s41586-020-2649-2).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T15:08:28Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: Fetch real data using prefetch or wget/curl for FASTQ URLs
+  claim_id: c_784d63e9
+  context: 'Primary Requirement: Fetch real data using prefetch (SRA Toolkit) or wget/curl
+    for FASTQ URLs. Logic: Streaming: If the dataset is large, use datasets.load_dataset(...,
+    streaming=True) or huggingface_hub.hf_hub_download for shards to stay within RAM
+    limits.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetch_real_data_using_prefetch_or_wget/curl_for_FASTQ_URLs
+  kind: entity_fact
+  raw_text: Fetch real data using prefetch (SRA Toolkit) or wget/curl for FASTQ URLs.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T15:13:52Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: Retrieve metadata using Entrez.esearch and Entrez.efetch with db gene
+    and term Organism[ORGN] AND accession_id
+  claim_id: c_7b6a4e09
+  context: 'Real Mode: Use Entrez.esearch and Entrez.efetch to retrieve metadata.
+    API Parameters: db=''gene'', term="Organism[ORGN] AND {accession_id}". Rate Limiting:
+    time.sleep(0.34) between requests.'
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P351: 6667'
+      source_id: Q14888082
+      url: https://www.wikidata.org/wiki/Q14888082
+      value: '6667'
+    filled: true
+  kind: entity_fact
+  raw_text: Use Entrez.esearch and Entrez.efetch to retrieve metadata with db='gene'
+    and term='Organism[ORGN] AND {accession_id}'.
+  resolved_value: '6667'
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-05T15:13:59Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: Generate TPM values using scipy.stats.lognorm with s=1.5 and scale=10
+  claim_id: c_d3d7a91d
+  context: "Distribution: Generate TPM values using scipy.stats.lognorm(s=1.5, scale=10)\
+    \ to mimic real expression data. Dimensions: Create a matrix of multiple species\
+    \ \xD7 a large set of genes."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate TPM values using scipy.stats.lognorm(s=1.5, scale=10) to mimic
+    real expression data.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T15:13:59Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: Simulate parameter sets with fixed seed and shape parameter varying scale
+    parameter as detailed in DOI 10.1038/s41586-020-2649-2
+  claim_id: c_d85aa834
+  context: 'The research planning document outlines a study investigating the impact
+    of log-normal distributed parameters on system stability. The proposed method
+    involves simulating parameter sets with a fixed seed and shape parameter, while
+    varying the scale parameter across a range of magnitudes to observe emergent behaviors,
+    as detailed in prior work (DOI: 10.1038/s41586-020-2649-2).'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: citation
+  raw_text: 'Simulate parameter sets with a fixed seed and shape parameter, while
+    varying the scale parameter across a range of magnitudes to observe emergent behaviors,
+    as detailed in prior work (DOI: 10.1038/s41586-020-2649-2).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T15:14:03Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: Repeat for 10000 permutations or until convergence
+  claim_id: c_b95c082f
+  context: 'Null Model: CRITICAL: Generate null distribution by shuffling species
+    labels across the phylogenetic tree. Specifically, use ape::permute with method=''phylo''.
+    Fallback: If phylo.permute unavailable, use method=''residual''. If both fail,
+    raise error PHYLONULL_METHOD_UNAVAILABLE. Repeat for N=10 000 permutations (or
+    until convergence).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Repeat for N=10 000 permutations (or until convergence).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T15:14:22Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: Generate star phylogeny with uniform branch lengths of 1.0
+  claim_id: c_dda85364
+  context: 'If tree cannot be fetched for all species: Generate a star phylogeny:
+    create a Newick string where all species are direct children of a single root
+    node with uniform branch lengths. Format: (SpeciesA:1.0, SpeciesB:1.0,..., SpeciesN:1.0);.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate a star phylogeny where all species are direct children of a single
+    root node with uniform branch lengths of 1.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T15:14:37Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: Select top 50 most stable genes by ascending M-value
+  claim_id: c_4e466246
+  context: Select the top 50 most stable genes from the Candidate Pool by sorting
+    by ascending M-value. (If <50 genes are available in the Candidate Pool, use all
+    available). Calculate Coefficient of Variation (CV) for this selected subset (top
+    50 or all available) BEFORE and AFTER correction.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Select_top_50_most_stable_genes_by_ascending_M-value
+  kind: magnitude
+  raw_text: Select the top 50 most stable genes from the Candidate Pool by sorting
+    by ascending M-value.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T15:14:39Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: Hardcode 50 housekeeping genes into config.py
+  claim_id: c_83c23cd3
+  context: 'Implement configuration management (src/utils/config.py) for paths, seeds,
+    thresholds, and the fixed list of housekeeping genes defined in FR-003. Hardcode
+    the following 50 genes into src/utils/config.py: ACT2, ACT7, GAPDH, UBQ10, EF1a,
+    TUB6, TUB1, PP2A, SAND, CYP79D16...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Hardcode a list of 50 housekeeping genes into src/utils/config.py.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T15:14:59Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: Reduce features to 50 pathway-level scores using KEGG/GO aggregation
+  claim_id: c_abe75d6a
+  context: "Aggregate DE genes to pathways using data/processed/pathway_mappings.json\
+    \ (output of T036). Reduce features to \u226450 pathway-level scores using standard\
+    \ KEGG/GO aggregation (mean/median of member genes). Output: Aggregated feature\
+    \ matrix saved to data/processed/aggregated_features.csv."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Reduce features to \u226450 pathway-level scores using standard KEGG/GO\
+    \ aggregation."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T15:14:59Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: Raise SystemExit if missing_fraction exceeds 0.30
+  claim_id: c_8301aa79
+  context: 'Compute missing_fraction = (species missing from BOTH primary AND fallback)
+    / total_target_species. Target Species Definition: The unique list of species
+    in data/processed/post_qc_species_list.json. If missing_fraction > 0.30: Write
+    data/manifests/human_input_needed.flag FIRST, THEN raise SystemExit with message
+    Insufficient trait data (missing > 30%).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If missing_fraction > 0.30, write data/manifests/human_input_needed.flag
+    FIRST, THEN raise SystemExit.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T15:15:00Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: simulation of log-normal distributed parameters on system stability detailed
+    in DOI 10.1038/s41586-020-2649-2
+  claim_id: c_088861d9
+  context: 'The research planning document outlines a study investigating the impact
+    of log-normal distributed parameters on system stability. The proposed method
+    involves simulating parameter sets with a fixed seed and shape parameter, while
+    varying the scale parameter across a range of magnitudes to observe emergent behaviors,
+    as detailed in prior work (DOI: 10.1038/s41586-020-2649-2).'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: citation
+  raw_text: 'The proposed method involves simulating parameter sets with a fixed seed
+    and shape parameter, while varying the scale parameter across a range of magnitudes
+    to observe emergent behaviors, as detailed in prior work (DOI: 10.1038/s41586-020-2649-2).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T15:17:40Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: study investigates impact of log-normal distributed parameters on system
+    stability
+  claim_id: c_5f24a600
+  context: 'The research planning document outlines a study investigating the impact
+    of log-normal distributed parameters on system stability. The proposed method
+    involves simulating parameter sets with a fixed seed and shape parameter, while
+    varying the scale parameter across a range of magnitudes to observe emergent behaviors,
+    as detailed in prior work (DOI: 10.1038/s41586-020-2649-2).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Study_investigates_impact_of_log-normal_distributed_paramete
+  kind: entity_fact
+  raw_text: The research planning document outlines a study investigating the impact
+    of log-normal distributed parameters on system stability.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T15:19:08Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: 'Study on log-normal distributed parameters and system stability detailed
+    in DOI: 10.1038/s41586-020-2649-2'
+  claim_id: c_fb2cfa59
+  context: 'The proposed method involves simulating parameter sets with a fixed seed
+    and shape parameter, while varying the scale parameter across a range of magnitudes
+    to observe emergent behaviors, as detailed in prior work (DOI: 10.1038/s41586-020-2649-2).'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: citation
+  raw_text: 'The research planning document outlines a study investigating the impact
+    of log-normal distributed parameters on system stability, as detailed in prior
+    work (DOI: 10.1038/s41586-020-2649-2).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T15:20:40Z'

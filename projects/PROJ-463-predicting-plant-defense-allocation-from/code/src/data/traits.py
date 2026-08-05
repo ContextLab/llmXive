@@ -1,122 +1,126 @@
-"""
-Trait data compilation module.
-
-Compiles defense trait data from TRY database and fallback sources.
-Calculates Defense Allocation Index (DAI).
-"""
 import pandas as pd
 import numpy as np
 import json
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 import sys
-import datetime
-
-# Add project root to path
-project_root = Path(__file__).resolve().parent.parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
-
-from src.utils.logger import get_logger
 from src.utils.config import get_data_path
+import logging
 
-logger = get_logger("traits")
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
-def compile_defense_traits(
-    species_list: List[str],
-    use_fallback: bool = True
-) -> Tuple[pd.DataFrame, Dict]:
+def compile_defense_traits(try_results: Dict, fallback_results: Dict) -> Dict:
     """
-    Compiles defense trait data for a list of species.
-    
-    Args:
-        species_list: List of species names.
-        use_fallback: Whether to use fallback sources (Phenoscape/GBIF) if TRY fails.
-        
-    Returns:
-        Tuple of (traits_df, summary_dict).
+    Compile defense traits from TRY and fallback sources into a unified structure.
+    This function is intended to be called after T025a and T025b to create
+    the final aggregated traits file.
     """
-    # Mock data generation since we cannot access TRY API in this environment
-    # In a real implementation, this would query the TRY database
+    species_data = {}
     
-    chemical_traits = []
-    physical_traits = []
-    missing_species = []
+    # Process TRY results
+    primary_results = try_results.get('primary_source_results', {})
+    for species, traits in primary_results.items():
+        if species not in species_data:
+            species_data[species] = {'try_data': None, 'fallback_data': None}
+        species_data[species]['try_data'] = traits
     
-    for species in species_list:
-        # Simulate data retrieval
-        # 30% chance of missing data to test fallback logic
-        if np.random.random() < 0.3:
-            missing_species.append(species)
-            if use_fallback:
-                # Fallback logic (mocked)
-                logger.info(f"Fallback data used for {species}")
-                chemical = np.random.uniform(10, 100)
-                physical = np.random.uniform(10, 100)
-            else:
-                continue
-        else:
-            chemical = np.random.uniform(10, 100)
-            physical = np.random.uniform(10, 100)
-        
-        chemical_traits.append(chemical)
-        physical_traits.append(physical)
+    # Process Fallback results
+    fallback_results_dict = fallback_results.get('fallback_results', {})
+    for source, source_results in fallback_results_dict.items():
+        for species, traits in source_results.items():
+            if species not in species_data:
+                species_data[species] = {'try_data': None, 'fallback_data': None}
+            
+            if species_data[species]['fallback_data'] is None:
+                species_data[species]['fallback_data'] = {}
+            
+            species_data[species]['fallback_data'][source] = traits
     
-    df = pd.DataFrame({
-        "species": [s for i, s in enumerate(species_list) if i not in missing_species or use_fallback],
-        "chemical_mean": chemical_traits,
-        "physical_mean": physical_traits
-    })
-    
-    # Calculate DAI
-    if len(df) > 0:
-        # Standardize
-        chem_std = (df["chemical_mean"] - df["chemical_mean"].mean()) / df["chemical_mean"].std()
-        phys_std = (df["physical_mean"] - df["physical_mean"].mean()) / df["physical_mean"].std()
-        df["DAI"] = chem_std / phys_std
-    else:
-        df["DAI"] = []
-    
-    # Summary
+    return {'species_data': species_data}
+
+def save_trait_fallback_summary(
+    target_species: List[str],
+    primary_results: Dict,
+    missing_from_try: List[str],
+    fallback_results: Dict,
+    missing_from_all: List[str],
+    output_path: Path
+) -> None:
+    """
+    Save the trait fallback summary to a JSON file.
+    This matches the output schema required by T025a/T025b.
+    """
     summary = {
-        "total_species": len(species_list),
-        "missing_species": len(missing_species),
-        "missing_fraction": len(missing_species) / len(species_list) if len(species_list) > 0 else 0,
-        "fallback_used": use_fallback
+        'target_species': target_species,
+        'primary_source_results': primary_results,
+        'missing_from_try': missing_from_try,
+        'fallback_results': fallback_results,
+        'missing_from_all': missing_from_all
     }
-    
-    return df, summary
-
-def save_trait_fallback_summary(summary: Dict, output_path: Optional[Path] = None):
-    """
-    Saves the trait fallback summary to a JSON file.
-    
-    Args:
-        summary: Dictionary containing summary statistics.
-        output_path: Path to save the JSON file.
-    """
-    if output_path is None:
-        output_path = Path(get_data_path()) / "processed" / "trait_fallback_summary.json"
-    
-    output_path.parent.mkdir(parents=True, exist_ok=True)
     
     with open(output_path, 'w') as f:
         json.dump(summary, f, indent=2)
     
-    logger.info(f"Trait fallback summary saved to {output_path}")
+    logger.info(f"Saved trait fallback summary to {output_path}")
 
 def check_fallback_threshold(summary: Dict, threshold: float = 0.30) -> bool:
     """
-    Checks if the missing fraction exceeds the threshold.
-    
-    Args:
-        summary: Dictionary from compile_defense_traits.
-        threshold: Maximum allowed missing fraction.
-        
-    Returns:
-        True if threshold is exceeded.
+    Check if the fraction of missing species exceeds the threshold.
+    Returns True if sufficient data, False otherwise.
     """
-    if summary["missing_fraction"] > threshold:
-        logger.error(f"Missing fraction ({summary['missing_fraction']:.2f}) exceeds threshold ({threshold}).")
-        return True
-    return False
+    total = len(summary.get('target_species', []))
+    missing_all = len(summary.get('missing_from_all', []))
+    
+    if total == 0:
+        return False
+    
+    fraction = missing_all / total
+    return fraction <= threshold
+
+def main() -> None:
+    """
+    Main entry point to compile traits and save the final aggregated file.
+    This is a helper script to be run between T025a/b and T038.
+    """
+    data_root = get_data_path()
+    processed_dir = Path(data_root) / 'processed'
+    
+    # Load inputs
+    try_results_path = processed_dir / 'trait_try_results.json' # Hypothetical intermediate
+    fallback_results_path = processed_dir / 'trait_fallback_results.json' # Hypothetical intermediate
+    
+    # If intermediate files don't exist, we might need to read from the summary
+    # For now, assume we are consolidating the outputs of T025a and T025b
+    # We will look for the summary file generated by T025a which might contain fallback updates
+    
+    # Since T025a and T025b update a single summary file, we read that
+    summary_path = processed_dir / 'trait_fallback_summary.json'
+    if not summary_path.exists():
+        logger.error(f"Trait fallback summary not found at {summary_path}")
+        sys.exit(1)
+    
+    with open(summary_path, 'r') as f:
+        summary = json.load(f)
+    
+    # Compile into final aggregated format
+    final_aggregated = compile_defense_traits(
+        {'primary_source_results': summary.get('primary_source_results', {})},
+        {'fallback_results': summary.get('fallback_results', {})}
+    )
+    
+    # Save final aggregated traits
+    output_path = processed_dir / 'final_aggregated_traits.json'
+    with open(output_path, 'w') as f:
+        json.dump(final_aggregated, f, indent=2)
+    
+    logger.info(f"Saved final aggregated traits to {output_path}")
+    
+    # Also verify the gate condition locally before exiting (optional, T038 does this officially)
+    if not check_fallback_threshold(summary):
+        logger.warning("Trait data is below threshold. T038 will likely fail.")
+    else:
+        logger.info("Trait data is sufficient.")
+
+if __name__ == "__main__":
+    main()
