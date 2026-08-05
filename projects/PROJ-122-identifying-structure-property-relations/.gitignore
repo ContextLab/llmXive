@@ -1,8 +1,12 @@
-# Python
+# Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
+
+# C extensions
 *.so
+
+# Distribution / packaging
 .Python
 build/
 develop-eggs/
@@ -20,34 +24,63 @@ wheels/
 .installed.cfg
 *.egg
 
-# Virtual Environments
-.venv/
+# PyInstaller
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis
+.pytest_cache
+
+# Translations
+*.mo
+*.pot
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# pyenv
+.python-version
+
+# Environments
+.env
+.venv
+env/
 venv/
 ENV/
-env/
+env.bak/
+venv.bak/
 
-# IDEs
+# Spyder project settings
+.spyderproject
+.spyproject
+
+# Rope project settings
+.ropeproject
+
+# mkdocs documentation
+/site
+
+# mypy
+.mypy_cache/
+
+# IDEs and editors
 .idea/
 .vscode/
 *.swp
 *.swo
 *~
-
-# Jupyter Notebook
-.ipynb_checkpoints
-
-# Data (Raw and Processed) - Do not commit large data files
-data/raw/
-data/processed/
-data/features/
-!data/raw/.gitkeep
-!data/processed/.gitkeep
-!data/features/.gitkeep
-
-# State and Logs
-state/
-logs/
-*.log
 
 # OS generated files
 .DS_Store
@@ -58,13 +91,14 @@ logs/
 ehthumbs.db
 Thumbs.db
 
-# Testing and Coverage
-.coverage
-htmlcov/
-.pytest_cache/
-.mypy_cache/
-.ruff_cache/
-
-# Secrets and Config (if any local overrides)
-.env
-.env.local
+# Project specific
+data/raw/*.csv
+data/raw/*.json
+data/raw/*.zip
+data/processed/*.csv
+data/features/*.csv
+data/features/*.json
+data/models/*.pkl
+state/projects/*.yaml
+logs/
+*.log

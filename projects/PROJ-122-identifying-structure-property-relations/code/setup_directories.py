@@ -1,52 +1,53 @@
-"""
-Setup script to initialize the project directory structure for llmXive.
-Creates all required directories for code, data, tests, and state management.
-"""
 import os
 from pathlib import Path
 
-
 def create_directories():
     """
-    Create the standard project directory structure.
+    Initialize the project directory structure required for the llmXive pipeline.
+    
+    Creates the following directories relative to the project root:
+    - code/
+    - data/raw/
+    - data/processed/
+    - data/features/
+    - tests/
+    - state/projects/
     """
-    # Define the root directory (assumed to be the project root)
-    root = Path.cwd()
-
-    # Define the directory structure to create
+    # Determine project root (assuming script is run from project root or code/ subdirectory)
+    # We assume the current working directory is the project root for this setup script
+    project_root = Path.cwd()
+    
+    # Define relative paths to create
     directories = [
         "code",
         "data/raw",
         "data/processed",
         "data/features",
         "tests",
-        "state/projects",
+        "state/projects"
     ]
-
-    created_count = 0
+    
+    created = []
     for dir_path in directories:
-        full_path = root / dir_path
+        full_path = project_root / dir_path
         if not full_path.exists():
             full_path.mkdir(parents=True, exist_ok=True)
+            created.append(str(full_path))
             print(f"Created directory: {full_path}")
-            created_count += 1
         else:
             print(f"Directory already exists: {full_path}")
-
-    print(f"\nSetup complete. {created_count} new directories created.")
-    return True
-
+    
+    return created
 
 def main():
-    """
-    Entry point for the script.
-    """
-    try:
-        create_directories()
-    except Exception as e:
-        print(f"Error during directory creation: {e}")
-        raise
-
+    """Entry point for directory creation."""
+    print("Initializing project directory structure...")
+    created_dirs = create_directories()
+    if created_dirs:
+        print(f"\nSuccessfully created {len(created_dirs)} directories.")
+    else:
+        print("\nNo new directories created (all already exist).")
+    print("Project structure initialization complete.")
 
 if __name__ == "__main__":
     main()

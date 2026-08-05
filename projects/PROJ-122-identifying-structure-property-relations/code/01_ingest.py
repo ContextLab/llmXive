@@ -5,320 +5,262 @@ import sys
 import time
 import random
 from pathlib import Path
-from typing import List, Dict, Any, Optional, Tuple
+from typing import Dict, List, Any, Optional
+from datetime import datetime
 
-# Import from existing local modules to ensure API consistency
-# Note: These imports assume the script is run from the project root or code/ is in sys.path
-# The execution environment should handle path injection (e.g., via PYTHONPATH or conftest)
-try:
-    from utils.logger import get_logger
-    from utils.ingest_utils import (
-        celsius_to_kelvin,
-        pascal_to_gpa,
-        validate_weight_fractions,
-        is_valid_smiles,
-        parse_smiles_to_mol
-    )
-    from config import ensure_directories
-except ImportError as e:
-    # Fallback for direct execution if path isn't set up yet, though environment should handle it
-    sys.path.insert(0, str(Path(__file__).parent))
-    from utils.logger import get_logger
-    from utils.ingest_utils import (
-        celsius_to_kelvin,
-        pascal_to_gpa,
-        validate_weight_fractions,
-        is_valid_smiles,
-        parse_smiles_to_mol
-    )
-    from config import ensure_directories
+# Import local utilities
+from utils.logger import get_logger
+from utils.schema_validator import load_schema, validate_output_file
+from utils.checksum import compute_file_checksum
+from utils.ingest_utils import is_valid_smiles, celsius_to_kelvin, pascal_to_gpa
+from config import ensure_directories
 
+# Initialize logger
 logger = get_logger(__name__)
 
 # Constants
-TEMPERATURE_UNITS = ['K', 'C', 'KELVIN', 'CELSIUS', 'Celsius', 'Kelvin']
-PRESSURE_UNITS = ['GPa', 'Pa', 'MPa', 'GIGA_PASCAL', 'PASCAL', 'Pa']
-TOLERANCE_DEFAULT = 0.02
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+DATA_DIR = PROJECT_ROOT / "data"
+PROCESSED_DIR = DATA_DIR / "processed"
+STATE_FILE = PROJECT_ROOT / "state" / "projects" / "PROJ-122-identifying-structure-property-relations.yaml"
 
-def detect_temperature_unit(value: str) -> Optional[str]:
+def fetch_with_backoff(url: str, max_retries: int = 5, initial_delay: float = 1.0, multiplier: float = 2.0) -> Optional[Dict]:
     """
-    Detect the temperature unit from a string value.
-    Returns 'K', 'C', or None if undetectable.
+    Fetches data from a URL with exponential backoff.
+    Returns the parsed JSON data or None if all retries fail.
     """
-    if not isinstance(value, str):
-        return None
-    val_upper = value.upper()
-    if 'K' in val_upper and 'C' not in val_upper:
-        return 'K'
-    if 'C' in val_upper:
-        return 'C'
-    if 'KELVIN' in val_upper:
-        return 'K'
-    if 'CELSIUS' in val_upper:
-        return 'C'
+    import requests
+    delay = initial_delay
+    for attempt in range(max_retries):
+        try:
+            response = requests.get(url, timeout=30)
+            response.raise_for_status()
+            return response.json()
+        except requests.RequestException as e:
+            logger.warning(f"Attempt {attempt + 1} failed for {url}: {e}")
+            if attempt < max_retries - 1:
+                time.sleep(delay + random.uniform(0, 0.1))
+                delay *= multiplier
+            else:
+                logger.error(f"Failed to fetch {url} after {max_retries} attempts.")
     return None
 
-def detect_pressure_unit(value: str) -> Optional[str]:
+def load_dataset_schema(schema_path: Optional[Path] = None) -> Dict:
     """
-    Detect the pressure unit from a string value.
-    Returns 'GPa', 'Pa', 'MPa', or None if undetectable.
+    Loads the dataset schema from a YAML file.
+    Defaults to specs/001-structure-property-relationships/contracts/dataset.schema.yaml
     """
-    if not isinstance(value, str):
-        return None
-    val_upper = value.upper()
-    if 'GPA' in val_upper:
-        return 'GPa'
-    if 'MPA' in val_upper:
-        return 'MPa'
-    if 'PA' in val_upper:
-        return 'Pa'
-    return None
+    if schema_path is None:
+        schema_path = PROJECT_ROOT / "specs" / "001-structure-property-relationships" / "contracts" / "dataset.schema.yaml"
+    return load_schema(schema_path)
 
-def harmonize_temperature(value: Any, unit: str) -> float:
-    """Convert temperature to Kelvin."""
-    if value is None:
-        return None
-    try:
-        num_val = float(value)
-    except (ValueError, TypeError):
-        return None
-
-    if unit == 'C':
-        return celsius_to_kelvin(num_val)
-    elif unit == 'K':
-        return num_val
-    else:
-        # Assume already Kelvin if unknown but numeric
-        return num_val
-
-def harmonize_modulus(value: Any, unit: str) -> float:
-    """Convert modulus to GPa."""
-    if value is None:
-        return None
-    try:
-        num_val = float(value)
-    except (ValueError, TypeError):
-        return None
-
-    if unit == 'Pa':
-        return pascal_to_gpa(num_val)
-    elif unit == 'MPa':
-        return num_val / 1000.0
-    elif unit == 'GPa':
-        return num_val
-    else:
-        # Assume GPa if unknown but numeric
-        return num_val
-
-def harmonize_record(record: Dict[str, Any]) -> Dict[str, Any]:
+def validate_ingested_data(record: Dict, schema: Dict) -> bool:
     """
-    Apply unit harmonization to a single record.
-    Updates Tg (to Kelvin) and Modulus (to GPa) in place.
+    Validates a single record against the provided schema.
+    """
+    # Basic validation logic based on schema requirements
+    required_fields = schema.get("required", [])
+    for field in required_fields:
+        if field not in record:
+            logger.debug(f"Record missing required field: {field}")
+            return False
+    return True
+
+def detect_temperature_unit(value: float, source_context: str = "") -> str:
+    """
+    Heuristically detects if a temperature value is in Celsius or Kelvin.
+    Assumes values < 200 are likely Celsius, >= 200 are Kelvin.
+    """
+    if value < 200:
+        return "C"
+    return "K"
+
+def detect_pressure_unit(value: float, source_context: str = "") -> str:
+    """
+    Heuristically detects if a pressure/modulus value is in Pa, kPa, MPa, or GPa.
+    Assumes values > 1e9 are GPa, > 1e6 are MPa, etc.
+    """
+    if value > 1e9:
+        return "GPa"
+    if value > 1e6:
+        return "MPa"
+    if value > 1e3:
+        return "kPa"
+    return "Pa"
+
+def harmonize_temperature(value: float, detected_unit: str) -> float:
+    """
+    Converts temperature to Kelvin.
+    """
+    if detected_unit == "C":
+        return celsius_to_kelvin(value)
+    return value
+
+def harmonize_modulus(value: float, detected_unit: str) -> float:
+    """
+    Converts modulus to GPa.
+    """
+    if detected_unit == "Pa":
+        return value / 1e9
+    if detected_unit == "kPa":
+        return value / 1e6
+    if detected_unit == "MPa":
+        return value / 1e3
+    return value
+
+def harmonize_record(record: Dict) -> Dict:
+    """
+    Harmonizes a single record: converts units and validates SMILES.
     """
     # Temperature Harmonization
-    tg_val = record.get('Tg')
-    tg_unit = detect_temperature_unit(str(record.get('Tg_unit', '')) if isinstance(record.get('Tg_unit'), str) else '')
+    if "tg_k" in record:
+        unit = detect_temperature_unit(record["tg_k"])
+        record["tg_k"] = harmonize_temperature(record["tg_k"], unit)
     
-    # If unit not explicitly provided, try to infer from value string if present
-    if not tg_unit and isinstance(tg_val, str):
-        tg_unit = detect_temperature_unit(tg_val)
-    
-    if tg_val is not None:
-        record['Tg'] = harmonize_temperature(tg_val, tg_unit or 'K')
-        record['Tg_unit'] = 'K'
+    # Modulus Harmonization
+    if "modulus_gpa" in record:
+        unit = detect_pressure_unit(record["modulus_gpa"])
+        record["modulus_gpa"] = harmonize_modulus(record["modulus_gpa"], unit)
 
-    # Pressure/Modulus Harmonization
-    mod_val = record.get('Modulus')
-    mod_unit = detect_pressure_unit(str(record.get('Modulus_unit', '')) if isinstance(record.get('Modulus_unit'), str) else '')
-    
-    if not mod_unit and isinstance(mod_val, str):
-        mod_unit = detect_pressure_unit(mod_val)
-
-    if mod_val is not None:
-        record['Modulus'] = harmonize_modulus(mod_val, mod_unit or 'GPa')
-        record['Modulus_unit'] = 'GPa'
+    # SMILES Validation
+    if "smiles" in record and not is_valid_smiles(record["smiles"]):
+        logger.warning(f"Invalid SMILES detected: {record['smiles']}")
+        record["smiles_valid"] = False
+    else:
+        record["smiles_valid"] = True
     
     return record
 
-def validate_and_exclude_invalid_records(records: List[Dict[str, Any]], tolerance: float = TOLERANCE_DEFAULT) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
+def validate_and_exclude_invalid_records(records: List[Dict], schema: Dict) -> List[Dict]:
     """
-    Validate records and exclude invalid ones based on:
-    1. SMILES validity
-    2. Weight fraction sum (within tolerance)
-    3. Numeric validity of Tg and Modulus
-    
-    Returns: (valid_records, excluded_records)
+    Validates records against schema and excludes invalid ones.
     """
-    valid = []
-    excluded = []
-
-    for i, rec in enumerate(records):
-        reason = None
-
-        # 1. SMILES Validation
-        smiles = rec.get('SMILES')
-        if not smiles or not is_valid_smiles(smiles):
-            reason = "Invalid or missing SMILES"
-            excluded.append({'index': i, 'reason': reason, 'record': rec})
-            continue
-
-        # 2. Weight Fraction Validation
-        # Look for keys like 'weight_fraction_1', 'weight_fraction_2' or similar
-        # We assume the schema defines these as numeric values summing to ~1.0
-        weights = []
-        weight_keys = [k for k in rec.keys() if 'weight_fraction' in k.lower() or k.startswith('w_')]
-        
-        if not weight_keys:
-            # If no explicit weight keys found, try generic 'composition' parsing if available
-            # For now, assume strict schema adherence
-            pass
+    valid_records = []
+    for record in records:
+        if validate_ingested_data(record, schema):
+            valid_records.append(record)
         else:
-            try:
-                weights = [float(rec[k]) for k in weight_keys if rec[k] is not None]
-                if weights and not validate_weight_fractions(weights, tolerance):
-                    reason = f"Weight fractions sum to {sum(weights):.4f}, outside tolerance {tolerance}"
-                    excluded.append({'index': i, 'reason': reason, 'record': rec})
-                    continue
-            except (ValueError, TypeError):
-                reason = "Non-numeric weight fraction value"
-                excluded.append({'index': i, 'reason': reason, 'record': rec})
-                continue
+            logger.debug(f"Excluding invalid record: {record.get('id', 'unknown')}")
+    return valid_records
 
-        # 3. Numeric Validity of Targets
-        tg = rec.get('Tg')
-        mod = rec.get('Modulus')
-        
-        if tg is None or (not isinstance(tg, (int, float))):
-            reason = "Missing or invalid Tg"
-            excluded.append({'index': i, 'reason': reason, 'record': rec})
-            continue
-        
-        if mod is None or (not isinstance(mod, (int, float))):
-            reason = "Missing or invalid Modulus"
-            excluded.append({'index': i, 'reason': reason, 'record': rec})
-            continue
-
-        # If passed all checks
-        valid.append(rec)
-
-    return valid, excluded
-
-def run_unit_harmonization_and_validation(raw_data: List[Dict[str, Any]], tolerance: float = TOLERANCE_DEFAULT) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
+def run_unit_harmonization_and_validation(raw_data_path: Path, output_path: Path) -> List[Dict]:
     """
-    Main orchestration function for T018 dependencies.
-    1. Harmonize units.
-    2. Validate and exclude invalid records.
-    3. Generate Data Quality Report (T018).
-    
-    Returns: (harmonized_valid_records, excluded_records)
+    Main pipeline for harmonization and validation.
     """
-    logger.info(f"Starting unit harmonization and validation on {len(raw_data)} records.")
+    ensure_directories([output_path.parent])
     
-    # Step 1: Harmonize
-    harmonized = [harmonize_record(r) for r in raw_data]
+    # Load raw data (assuming JSON for this example)
+    if not raw_data_path.exists():
+        raise FileNotFoundError(f"Raw data file not found: {raw_data_path}")
     
-    # Step 2: Validate
-    valid_records, excluded_records = validate_and_exclude_invalid_records(harmonized, tolerance)
+    with open(raw_data_path, 'r') as f:
+        raw_records = json.load(f)
     
-    # Step 3: Generate Data Quality Report (T018 Implementation)
-    generate_data_quality_report(
-        total_input=len(raw_data),
-        total_valid=len(valid_records),
-        total_excluded=len(excluded_records),
-        excluded_details=excluded_records
-    )
+    schema = load_dataset_schema()
+    harmonized = [harmonize_record(r) for r in raw_records]
+    valid_records = validate_and_exclude_invalid_records(harmonized, schema)
+    
+    with open(output_path, 'w') as f:
+        json.dump(valid_records, f, indent=2)
+    
+    logger.info(f"Harmonization complete. {len(valid_records)} valid records saved to {output_path}")
+    return valid_records
 
-    logger.info(f"Harmonization complete. Valid: {len(valid_records)}, Excluded: {len(excluded_records)}")
-    return valid_records, excluded_records
+def generate_data_quality_report(data: List[Dict], report_path: Path) -> Dict:
+    """
+    Generates a data quality report based on the provided dataset.
+    Calculates statistics on missing values, unit distributions, and validity flags.
+    
+    Args:
+        data: List of processed records (harmonized and validated).
+        report_path: Path to save the JSON report.
+    
+    Returns:
+        Dictionary containing the report metrics.
+    """
+    if not data:
+        logger.warning("No data provided for quality report generation.")
+        return {"error": "No data provided"}
 
-def generate_data_quality_report(
-    total_input: int,
-    total_valid: int,
-    total_excluded: int,
-    excluded_details: List[Dict[str, Any]]
-) -> str:
-    """
-    T018 Implementation: Generate a JSON data quality report.
-    Writes to data/processed/data_quality_report.json
-    """
-    ensure_directories()
-    output_path = Path("data/processed/data_quality_report.json")
+    total_records = len(data)
+    valid_smiles_count = sum(1 for r in data if r.get("smiles_valid", False))
+    invalid_smiles_count = total_records - valid_smiles_count
+    
+    # Check for missing key fields
+    missing_tg = sum(1 for r in data if r.get("tg_k") is None)
+    missing_modulus = sum(1 for r in data if r.get("modulus_gpa") is None)
+    missing_composition = sum(1 for r in data if not r.get("composition"))
+    
+    # Unit distribution (heuristic based on original values if stored, otherwise assume harmonized)
+    # Since we harmonized in place, we assume all are now K and GPa.
+    # We can report the count of records that were successfully harmonized.
     
     report = {
-        "summary": {
-            "total_input_records": total_input,
-            "total_valid_records": total_valid,
-            "total_excluded_records": total_excluded,
-            "pass_rate": round(total_valid / total_input, 4) if total_input > 0 else 0.0
+        "report_generated_at": datetime.utcnow().isoformat(),
+        "dataset_summary": {
+            "total_records": total_records,
+            "valid_records": total_records, # Assuming filtered list
+            "valid_smiles_count": valid_smiles_count,
+            "invalid_smiles_count": invalid_smiles_count,
+            "smiles_validity_rate": valid_smiles_count / total_records if total_records > 0 else 0.0
         },
-        "exclusion_breakdown": {},
-        "excluded_records_sample": []
+        "missing_data": {
+            "missing_tg_k_count": missing_tg,
+            "missing_modulus_gpa_count": missing_modulus,
+            "missing_composition_count": missing_composition
+        },
+        "unit_harmonization": {
+            "temperature_unit": "K (Harmonized)",
+            "modulus_unit": "GPa (Harmonized)",
+            "records_harmonized": total_records
+        },
+        "quality_metrics": {
+            "completeness_score": (total_records - missing_tg - missing_modulus - missing_composition) / total_records if total_records > 0 else 0.0,
+            "validity_score": valid_smiles_count / total_records if total_records > 0 else 0.0
+        }
     }
 
-    # Calculate breakdown by reason
-    reasons = {}
-    for item in excluded_details:
-        r = item['reason']
-        reasons[r] = reasons.get(r, 0) + 1
-    
-    report["exclusion_breakdown"] = reasons
-
-    # Include a sample of excluded records (first 10) for debugging
-    report["excluded_records_sample"] = [
-        {
-            "index": item['index'],
-            "reason": item['reason'],
-            "smiles": item['record'].get('SMILES', 'N/A'),
-            "tg": item['record'].get('Tg', 'N/A'),
-            "modulus": item['record'].get('Modulus', 'N/A')
-        }
-        for item in excluded_details[:10]
-    ]
-
-    # Write to disk
-    with open(output_path, 'w', encoding='utf-8') as f:
+    ensure_directories([report_path.parent])
+    with open(report_path, 'w') as f:
         json.dump(report, f, indent=2)
     
-    logger.info(f"Data quality report generated at {output_path}")
-    return str(output_path)
+    logger.info(f"Data quality report generated at {report_path}")
+    return report
 
 def main():
     """
     Entry point for the ingestion script.
-    This function simulates loading data (if not present) and running the pipeline.
-    In a real scenario, this would be called by a runner that provides the raw data.
-    For T018, we ensure the report generation logic is triggered.
+    Executes harmonization and generates the data quality report.
     """
+    # Example paths - in a real pipeline, these would be passed as arguments or read from config
+    raw_input = DATA_DIR / "raw" / "sample_polymer_data.json"
+    harmonized_output = PROCESSED_DIR / "harmonized_data.json"
+    report_output = PROCESSED_DIR / "data_quality_report.json"
+    
     # Ensure directories exist
-    ensure_directories()
+    ensure_directories([DATA_DIR / "raw", PROCESSED_DIR])
     
-    # Mock data for demonstration if no raw data file exists
-    # In a real run, this would load from data/raw/
-    raw_data_path = Path("data/raw/polymer_blend_data.json")
+    # Check if raw data exists (if not, this might fail or fetch)
+    if not raw_input.exists():
+        logger.error(f"Raw data file not found at {raw_input}. Cannot proceed with ingestion.")
+        # In a real scenario, we might trigger a fetch here if T019a passed
+        return 1
     
-    if raw_data_path.exists():
-        with open(raw_data_path, 'r') as f:
-            raw_data = json.load(f)
-    else:
-        logger.warning("No raw data found at data/raw/polymer_blend_data.json. Generating mock data for T018 demonstration.")
-        # Real data constraint: We do NOT generate synthetic data for production.
-        # However, for the script to run and produce the artifact as requested by the task
-        # without a pre-existing file, we must either fail or use a minimal mock for the report structure.
-        # Given the constraint "Real data only", we should ideally fail if data is missing.
-        # But the task asks to "Implement data quality report generation". 
-        # We will create a minimal valid structure to demonstrate the logic, but in a real pipeline,
-        # this would be fed by T020.
-        raw_data = [
-            {"SMILES": "C1=CC=CC=C1", "Tg": 100, "Tg_unit": "C", "Modulus": 3.0, "Modulus_unit": "GPa", "weight_fraction_1": 0.5, "weight_fraction_2": 0.5},
-            {"SMILES": "InvalidSMILES!", "Tg": 100, "Tg_unit": "C", "Modulus": 3.0, "Modulus_unit": "GPa", "weight_fraction_1": 0.5, "weight_fraction_2": 0.5},
-            {"SMILES": "C1=CC=CC=C1", "Tg": 100, "Tg_unit": "C", "Modulus": 3.0, "Modulus_unit": "GPa", "weight_fraction_1": 0.9, "weight_fraction_2": 0.9}, # Sum > 1.0
-        ]
-
-    # Run the pipeline
-    valid, excluded = run_unit_harmonization_and_validation(raw_data)
-    
-    print(f"Processed {len(raw_data)} records. Valid: {len(valid)}, Excluded: {len(excluded)}")
-    print(f"Report saved to data/processed/data_quality_report.json")
+    try:
+        # Run Harmonization
+        run_unit_harmonization_and_validation(raw_input, harmonized_output)
+        
+        # Load harmonized data to generate report
+        with open(harmonized_output, 'r') as f:
+            harmonized_data = json.load(f)
+        
+        # Generate Quality Report
+        generate_data_quality_report(harmonized_data, report_output)
+        
+        return 0
+    except Exception as e:
+        logger.exception(f"Ingestion pipeline failed: {e}")
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

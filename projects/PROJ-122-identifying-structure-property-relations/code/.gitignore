@@ -34,14 +34,15 @@ pip-delete-this-directory.txt
 
 # Unit test / coverage reports
 htmlcov/
+.tox/
 .coverage
 .coverage.*
-cache/
+.cache
 nosetests.xml
 coverage.xml
 *.cover
-.hypothesis/
-.pytest_cache/
+.hypothesis
+.pytest_cache
 
 # Translations
 *.mo
@@ -56,54 +57,38 @@ ENV/
 env.bak/
 venv.bak/
 
-# Spyder project settings
-.spyderproject
-.spyproject
-
-# Rope project settings
-.ropeproject
-
-# mkdocs documentation
-/site
-
-# Jupyter Notebook
-.ipynb_checkpoints
-
-# pyenv
-.python-version
-
-# IDEs and editors
+# IDE
 .idea/
 .vscode/
 *.swp
 *.swo
 *~
 
-# OS generated files
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
+# Jupyter Notebook
+.ipynb_checkpoints
 
-# Data files (raw and processed) - generated during execution
+# Data (keep raw, exclude processed if needed, but usually raw is gitignored in ML)
 data/raw/*
 !data/raw/.gitkeep
 data/processed/*
 !data/processed/.gitkeep
 data/features/*
 !data/features/.gitkeep
+data/models/*
+!data/models/.gitkeep
 
-# State files (generated during execution)
-state/projects/*.yaml
+# State
+state/projects/*
 !state/projects/.gitkeep
 
 # Logs
 *.log
 logs/
 
-# Figures
-figures/*
-!figures/.gitkeep
+# OS
+.DS_Store
+Thumbs.db
+
+# Local config
+local_config.py
+.env.local

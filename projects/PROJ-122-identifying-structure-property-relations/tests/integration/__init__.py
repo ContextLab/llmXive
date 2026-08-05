@@ -1,3 +1,5 @@
 """
-Integration tests for component interactions and workflows.
+Integration tests package.
+
+Tests that verify interactions between different components.
 """

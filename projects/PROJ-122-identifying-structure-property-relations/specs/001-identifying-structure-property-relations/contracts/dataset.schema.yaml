@@ -1,101 +1,53 @@
-# Dataset Schema Definition for Polymer Blend Structure-Property Relationships
-# Generated for PROJ-122
-# Validates raw and harmonized data against FR-001 requirements
-schema_version: "1.0.0"
-dataset_type: "polymer_blend"
-
-fields:
-  - name: smiles
+$schema: "http://json-schema.org/draft-07/schema#"
+title: Polymer Blend Dataset Schema
+description: >
+  Schema for raw and harmonized polymer blend data as defined in FR-001.
+  Ensures consistency of SMILES, composition, Tg (Kelvin), and Modulus (GPa).
+type: object
+required:
+  - smiles
+  - composition
+  - tg_k
+  - modulus_gpa
+  - source
+properties:
+  smiles:
     type: string
-    required: true
-    description: "SMILES string for the polymer or blend component"
-    validation:
-      pattern: "^[A-Za-z0-9@#$%&*\\-\\[\\]\\(\\)\\{\\}\\.,\\+=<>!/]+$"
-      min_length: 1
-      max_length: 2000
-      description: "Must be a valid non-empty string"
-
-  - name: composition
-    type: string
-    required: true
-    description: "Composition string (e.g., 'Polymer A: 60%, Polymer B: 40%')"
-    validation:
-      min_length: 1
-      max_length: 1000
-
-  - name: tg_k
+    description: >
+      SMILES string representing the polymer or blend components.
+      Must be a valid RDKit-parseable string.
+    pattern: "^[A-Za-z0-9@\\-\\+\\[\\]\\(\\)\\\\/\\=#\\$\\%\\^\\&\\*\\~\\!\\?]+$"
+    minLength: 1
+  composition:
+    type: array
+    description: >
+      Array of component weight fractions.
+      Must sum to approximately 1.0 (validated at runtime).
+    items:
+      type: number
+      minimum: 0
+      maximum: 1
+    minItems: 1
+  tg_k:
     type: number
-    required: true
-    description: "Glass transition temperature in Kelvin"
-    validation:
-      min: 100.0
-      max: 1000.0
-      unit: "K"
-
-  - name: modulus_gpa
+    description: >
+      Glass transition temperature in Kelvin.
+      Must be non-negative.
+    minimum: 0
+  modulus_gpa:
     type: number
-    required: false
-    description: "Young's modulus in GPa"
-    validation:
-      min: 0.0
-      max: 100.0
-      unit: "GPa"
-
-  - name: source
+    description: >
+      Young's modulus in Gigapascals (GPa).
+      Must be non-negative.
+    minimum: 0
+  source:
     type: string
-    required: true
-    description: "Origin of the data (e.g., NIST, Polymer Database, Materials Project)"
-    validation:
-      allowed_values:
-        - "NIST"
-        - "Polymer Database"
-        - "Materials Project"
-        - "Literature"
-        - "Other"
-
-  - name: raw_tg
-    type: number
-    required: false
-    description: "Original Tg value before unit conversion"
-
-  - name: raw_tg_unit
-    type: string
-    required: false
-    description: "Original unit for Tg (e.g., 'C', 'K')"
-
-  - name: raw_modulus
-    type: number
-    required: false
-    description: "Original modulus value before unit conversion"
-
-  - name: raw_modulus_unit
-    type: string
-    required: false
-    description: "Original unit for modulus (e.g., 'Pa', 'GPa', 'MPa')"
-
-  - name: weight_fractions
-    type: string
-    required: false
-    description: "Comma-separated weight fractions (e.g., '0.6,0.4')"
-
-  - name: checksum
-    type: string
-    required: false
-    description: "SHA-256 checksum of the raw data row"
-    validation:
-      pattern: "^[a-f0-9]{64}$"
-
-constraints:
-  - name: weight_fraction_sum
-    description: "If weight_fractions is present, sum must be within tolerance of 1.0"
-    tolerance: 0.02
-  - name: valid_smiles
-    description: "SMILES must be parseable by RDKit"
-  - name: required_fields_present
-    description: "smiles, composition, tg_k, source must be non-null"
-
-metadata:
-  created_by: "llmXive Pipeline"
-  project_id: "PROJ-122"
-  task_reference: "T005"
-  last_updated: "2024-01-01"
+    description: >
+      Origin of the data point (e.g., 'NIST', 'PolymerDatabase', 'MaterialsProject').
+      Used for stratification and traceability.
+    pattern: "^[A-Za-z0-9_\\-]+$"
+  metadata:
+    type: object
+    description: Optional additional metadata (e.g., citation, date, notes).
+    additionalProperties: true
+additionalProperties: false

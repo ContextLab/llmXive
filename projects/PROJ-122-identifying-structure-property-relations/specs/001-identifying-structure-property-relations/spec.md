@@ -59,7 +59,7 @@ A researcher needs to train Random Forest and XGBoost models to predict Tg_resid
 
 - What happens when the public API (Materials Project) returns a rate-limit error during data acquisition? (System must implement exponential backoff with initial=1s, multiplier=2, max=5 retries before failing the job).
 - How does the system handle polymer blends with more than 3 components where the SMILES strings are missing for minor constituents? (Rows with missing SMILES for any component > 0.05 weight fraction are excluded).
-- How does the system handle datasets where the number of samples is too small (< 100) to perform a meaningful 5-fold cross-validation? (The system must halt training and raise a "Data Insufficiency" error).
+- How does the system handle datasets where the number of samples is too small (< 100) to perform a meaningful K-fold cross-validation? (The system must halt training and raise a "Data Insufficiency" error).
 
 ## Requirements
 

@@ -1,181 +1,25 @@
-# Output Schema Definition for Processed Data and Model Artifacts
-# Generated for PROJ-122
-# Validates processed datasets, feature matrices, and model outputs per FR-001
-schema_version: "1.0.0"
-artifact_types:
-  - processed_dataset
-  - feature_matrix
-  - model_output
-  - report
-
-# Schema for processed datasets (e.g., data/processed/processed_data.csv)
-processed_dataset:
-  fields:
-    - name: smiles
-      type: string
-      required: true
-    - name: composition
-      type: string
-      required: true
-    - name: tg_k
+type: object
+required:
+  - features
+  - target
+  - metadata
+properties:
+  features:
+    type: array
+    items:
       type: number
-      required: true
-    - name: modulus_gpa
-      type: number
-      required: false
-    - name: source
-      type: string
-      required: true
-    - name: tg_fox
-      type: number
-      required: false
-      description: "Predicted Tg using Fox equation"
-    - name: tg_residual
-      type: number
-      required: false
-      description: "Target variable: Tg_measured - Tg_fox"
-    - name: descriptors
-      type: object
-      required: false
-      description: "Nested object containing molecular descriptors"
-    - name: features
-      type: object
-      required: false
-      description: "Nested object containing engineered features"
-
-# Schema for feature matrices (e.g., data/features/feature_matrix.csv)
-feature_matrix:
-  fields:
-    - name: id
-      type: integer
-      required: true
-      description: "Unique row identifier"
-    - name: source
-      type: string
-      required: true
-    - name: mw
-      type: number
-      required: true
-      description: "Molecular weight"
-    - name: tpsa
-      type: number
-      required: true
-      description: "Topological Polar Surface Area"
-    - name: logp
-      type: number
-      required: true
-      description: "Partition coefficient"
-    - name: num_rotatable_bonds
-      type: integer
-      required: true
-    - name: num_h_acceptors
-      type: integer
-      required: true
-    - name: num_h_donors
-      type: integer
-      required: true
-    - name: molecular_fraction_polymer_a
-      type: number
-      required: false
-    - name: molecular_fraction_polymer_b
-      type: number
-      required: false
-    - name: descriptor_diff_mw
-      type: number
-      required: false
-    - name: descriptor_diff_tpsa
-      type: number
-      required: false
-    - name: fox_prediction
-      type: number
-      required: true
-    - name: gt_prediction
-      type: number
-      required: false
-      description: "Gordon-Taylor prediction"
-    - name: tg_residual
-      type: number
-      required: true
-      description: "Target variable"
-
-# Schema for model outputs (e.g., data/models/model_artifact.json)
-model_output:
-  fields:
-    - name: model_type
-      type: string
-      required: true
-      allowed_values:
-        - "RandomForest"
-        - "XGBoost"
-        - "LinearRegression"
-    - name: metrics
-      type: object
-      required: true
-      properties:
-        mae:
-          type: number
-        r2:
-          type: number
-        rmse:
-          type: number
-    - name: hyperparameters
-      type: object
-      required: true
-    - name: feature_importance
-      type: array
-      required: false
-      items:
-        type: object
-        properties:
-          feature:
-            type: string
-          importance:
-            type: number
-    - name: shap_summary
-      type: object
-      required: false
-    - name: training_seed
-      type: integer
-      required: true
-    - name: timestamp
-      type: string
-      required: true
-      format: "ISO8601"
-
-# Schema for reports (e.g., data/reports/quality_report.json)
-report:
-  fields:
-    - name: report_type
-      type: string
-      required: true
-      allowed_values:
-        - "data_quality"
-        - "vif_diagnostic"
-        - "sensitivity_analysis"
-        - "stability_metrics"
-    - name: generated_at
-      type: string
-      required: true
-      format: "ISO8601"
-    - name: summary
-      type: object
-      required: true
-    - name: details
-      type: object
-      required: false
-    - name: warnings
-      type: array
-      required: false
-      items:
+    description: "List of numerical feature values"
+  target:
+    type: number
+    description: "Target value for regression (e.g., Tg_residual)"
+  metadata:
+    type: object
+    properties:
+      source:
         type: string
-    - name: errors
-      type: array
-      required: false
-      items:
+      version:
         type: string
-
-metadata:
-  created_by: "llmXive Pipeline"
-  project_id: "PROJ-122"
-  task_reference: "T006"
-  last_updated: "2024-01-01"
+      timestamp:
+        type: string
+        format: date-time
+    description: "Additional information about the record"

@@ -1,3 +1,5 @@
 """
-Unit tests for individual components and functions.
+Unit tests package.
+
+Tests for individual functions and classes.
 """
