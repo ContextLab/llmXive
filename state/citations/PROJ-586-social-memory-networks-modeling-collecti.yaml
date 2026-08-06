@@ -64,3 +64,25 @@
   verification_status: pending
   verified_against_url: https://huggingface.co/api/resolve-cache/datasets/genaiarchitect/multi_agent_structure/08927b256b126fe1467ae374aa5c94106264ffb1/multi_agent_structure.json?%2Fdatasets%2Fgenaiarchitect%2Fmulti_agent_structure%2Fresolve%2Fmain%2Fmulti_agent_structure.json=&etag=%22aaadc95acafc6a58fea724235d9db02c768e2df8%22
   verified_at: '2026-08-05T10:42:21.028698Z'
+- artifact_hash: ebe72ba513736487ae411e0a859473a5475bb240efa5c506cc5e630816a8ba75
+  artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://huggingface.co/datasets/hanabi`
+  verification_status: pending
+  verified_against_url: https://huggingface.co/datasets/hanabi
+  verified_at: '2026-08-06T01:10:51.898848Z'
+- artifact_hash: ebe72ba513736487ae411e0a859473a5475bb240efa5c506cc5e630816a8ba75
+  artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://huggingface.co/datasets/coqa`
+  verification_status: pending
+  verified_against_url: https://huggingface.co/datasets/coqa
+  verified_at: '2026-08-06T01:10:51.898848Z'

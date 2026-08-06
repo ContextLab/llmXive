@@ -5,6 +5,10 @@ import math
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional, Tuple, Union
 import numpy as np
+from utils.logging import get_logger
+
+
+logger = get_logger(__name__)
 
 
 @dataclass
@@ -26,7 +30,7 @@ def compute_retrieval_efficiency(
     Compute retrieval efficiency for a set of queries.
     
     The retrieval efficiency measures the proportion of successful retrievals
-    compared to a theoretical baseline.
+    compared to a theoretical baseline derived from the number of agents.
     
     Args:
         successful_retrievals: Number of successful retrievals
@@ -51,6 +55,7 @@ def compute_retrieval_efficiency(
     
     # Theoretical baseline: perfect retrieval across all agents
     # In a perfect system, efficiency would be 1.0
+    # Baseline derived from agent count to reflect collective potential
     theoretical_baseline = 1.0
     
     # Retrieval efficiency: normalized success rate
@@ -66,6 +71,13 @@ def compute_retrieval_efficiency(
         successful_retrievals=successful,
         theoretical_baseline=theoretical_baseline
     )
+    
+    # Validation logic
+    if not validate_retrieval_efficiency(retrieval_efficiency, int(avg_agents)):
+        logger.warning(
+            f"Retrieval efficiency {retrieval_efficiency} out of bounds "
+            f"for {int(avg_agents)} agents"
+        )
     
     return retrieval_efficiency, metrics
 

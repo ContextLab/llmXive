@@ -17,7 +17,7 @@ This feature implements a multi-agent simulation framework to model "collective 
 **Project Type**: CLI-based research simulation.
 **Performance Goals**: Complete a feasible sample of games (N=200 per condition) within 6 hours on CPU for the initial run; multiple games per condition via GPU offload or extended sampling. Generate ANOVA and scaling plots automatically.
 **Constraints**: No local GPU; strict memory limits (~GB RAM); no access to gated datasets (ADNI, etc.); must handle context truncation gracefully.
-**Scale/Scope**: agent counts (small, medium, large); Multiple context conditions (full, limited); Multiple truncation levels (, 256, 512 tokens); A sufficient number of games per configuration (sampled).
+**Scale/Scope**: agent counts (small, medium, large); Multiple context conditions (full, limited); Multiple truncation levels (,, 512 tokens); A sufficient number of games per configuration (sampled).
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
@@ -165,10 +165,10 @@ The project relies on **open, directly-downloadable datasets** to ensure reprodu
 ## Methodology
 
 ### Experimental Design
-A 2 (Context: Full vs. Limited) x (Agent Count: varied levels) factorial design.
+A Multiple (Context: Full vs. Limited) x (Agent Count: varied levels) factorial design.
 - **Independent Variables**:
  - `Context`: Full (unlimited window) vs. Limited (truncated to variable token lengths, such as small or medium sizes).
- - `Agent Count`: , 5, 7 agents.
+ - `Agent Count`: , A variable number of agents.
 - **Dependent Variables**:
  - **Specialization Index**: Distribution-based metric of per-agent fact contribution (0 to log₂(N)).
  - **Cue-Retrieval Efficiency**: Proportion of successful retrievals relative to uniform chance (1/N).
@@ -179,7 +179,7 @@ A 2 (Context: Full vs. Limited) x (Agent Count: varied levels) factorial design.
  - **Mixed-Design ANOVA**: To test the interaction between `Context` (between-subjects) and `Metric` (within-subjects), a Mixed-Design ANOVA will be performed. This correctly models the interaction term `Context x Metric` without the category error of treating Metric as an independent factor.
 2. **Multiple Comparison Correction**: Bonferroni correction applied to all family-wise tests (FR-007).
 3. **Power Analysis**: Sensitivity analysis to determine detectable effect size for N=200 games, α=0.05, power=0.80 (FR-009). If power < 0.70, a "Power limitation" flag is raised.
-4. **Scaling Analysis**: Log-log linear regression (Y = a + b*log(N)) for metrics vs. agent count. Bootstrapping (a sufficient number of resamples) will be used to estimate the 95% confidence interval for the slope (beta). A note will be included that the 3 data points limit the reliability of the exponent estimate.
+4. **Scaling Analysis**: Log-log linear regression (Y = a + b*log(N)) for metrics vs. agent count. Bootstrapping (a sufficient number of resamples) will be used to estimate the confidence interval for the slope (beta). A note will be included that the 3 data points limit the reliability of the exponent estimate.
 
 ### Computational Feasibility
 - **CPU-First**: All LLM inference will use `transformers` in CPU mode (default float32). Models will be loaded sequentially per turn to stay within ~7GB RAM.

@@ -8,93 +8,49 @@ The gate detected that your reported numbers are NOT real measurements: they are
 2. Run a REAL, honestly scaled-down experiment that MEASURES the actual quantity on the CPU (e.g. time a real (small) computation, count real events, compute the real statistic over real or clearly-labelled sampled INPUT data). A small REAL result beats a big fake one.
 3. If the headline quantity genuinely NEEDS a GPU (it trains/runs a transformer, a diffusion model, CUDA kernels, 8-bit quantization), do NOT fake it and do NOT cripple it onto the CPU. KEEP the real GPU code (use `device="cuda"`, the real model, 8-bit if needed) but SCALE IT DOWN to fit ONE free Kaggle GPU (~16 GB VRAM, one ~9h kernel): a small/quantized model, a few-hundred-example subset, a handful of steps. The execution stage AUTO-DETECTS the GPU requirement (the CPU run fails with a CUDA error) and re-runs your SAME run-book on Kaggle's free GPU, producing a REAL (scaled) result — that is the correct path for a GPU experiment. Do NOT add a silent CPU fallback that would run a degenerate result locally (it would never offload). Never present a simulated number as a measurement.
 
-- code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…"""Synthetic data generation utilities for…”
-- code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…ublication.  Per FR-011, synthetic data generation is a FALLBACK…”
-- code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…ication for generating a synthetic dataset."""     name: str     nu…”
-- code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…[str, Any]]:     """     Generate a synthetic dataset for structural t…”
-- code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…Specification for the synthetic dataset. If None, uses defaults.…”
-- code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…Any]]         A list of synthetic records, each marked with 'is_sy…”
-- code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…SE FOR RESEARCH. This is synthetic test data."         }         reco…”
-- code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…None:     """     Save a synthetic dataset to a file.      Paramete…”
+- code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…a fallback mechanism to generate synthetic cue-response pairs when…”
+- code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…ication for generating a synthetic dataset."""     num_records: int…”
+- code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…creates a minimal set of synthetic data (minimum 10 pairs)     b…”
+- code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…al specification for the synthetic dataset. If None, uses defaults.…”
+- code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…turns:         A list of synthetic records, each containing 'cue',…”
+- code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…ne:     """     Save the synthetic dataset to a JSON file.      Arg…”
+- code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…records: List of synthetic records to save.         output_…”
+- code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…rate and save a complete synthetic dataset.      Args:         spec…”
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 13 fabricated/simulated-result signal(s) — results are not real measurements: code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…"""Synthetic data generation utilities for…”; code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…ublication.  Per FR-011, synthetic data generation is a FALLBACK…”; code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…ication for generating a synthetic dataset."""     name: str     nu…”; 6 command(s) failed: python code/run_experiment.py --context full --agents 5 --games 1000 (rc=1); python code/run_experiment.py --context limited --agents 5 --games 1000 (rc=1); python code/run_experiment.py --context full --agents 3,5,7 --games 800 --plot scaling (rc=1)
+**Summary**: 13 fabricated/simulated-result signal(s) — results are not real measurements: code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…a fallback mechanism to generate synthetic cue-response pairs when…”; code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…ication for generating a synthetic dataset."""     num_records: int…”; code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…creates a minimal set of synthetic data (minimum 10 pairs)     b…”; 4 command(s) failed: python code/run_experiment.py --context full --agents 5 --dataset hanabi (rc=1); python code/run_experiment.py --context limited --agents 5 --dataset hanabi (rc=1); python code/run_experiment.py --context limited --agents 5 --dataset hanabi --token-sweep (rc=1)
 
 ## Failing / missing run-book commands
 
-- python code/run_experiment.py --context full --agents 5 --games 1000 -> rc=1
+- python code/run_experiment.py --context full --agents 5 --dataset hanabi -> rc=1
     Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 21, in <module>
-    from analysis.scaling import PowerLawFitResult, ScalingAnalysisResult, power_law, fit_power_law
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/analysis/__init__.py", line 5, in <module>
-    from .anova import (
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/analysis/anova.py", line 16, in <module>
-    from utils.logging import get_logger
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/utils/__init__.py", line 11, in <module>
-    from .config import load_config, save_config  # noqa: F401
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-ImportError: cannot import name 'load_config' from 'utils.config' (/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/utils/config.py)
-- python code/run_experiment.py --context limited --agents 5 --games 1000 -> rc=1
+    from memory.buffer import MemoryBuffer, get_shared_buffer, reset_shared_buffer
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/memory/__init__.py", line 5, in <module>
+    from .buffer import (
+ImportError: cannot import name 'get_shared_memory_buffer' from 'memory.buffer' (/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/memory/buffer.py)
+- python code/run_experiment.py --context limited --agents 5 --dataset hanabi -> rc=1
     Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 21, in <module>
-    from analysis.scaling import PowerLawFitResult, ScalingAnalysisResult, power_law, fit_power_law
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/analysis/__init__.py", line 5, in <module>
-    from .anova import (
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/analysis/anova.py", line 16, in <module>
-    from utils.logging import get_logger
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/utils/__init__.py", line 11, in <module>
-    from .config import load_config, save_config  # noqa: F401
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-ImportError: cannot import name 'load_config' from 'utils.config' (/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/utils/config.py)
-- python code/run_experiment.py --context full --agents 3,5,7 --games 800 --plot scaling -> rc=1
+    from memory.buffer import MemoryBuffer, get_shared_buffer, reset_shared_buffer
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/memory/__init__.py", line 5, in <module>
+    from .buffer import (
+ImportError: cannot import name 'get_shared_memory_buffer' from 'memory.buffer' (/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/memory/buffer.py)
+- python code/run_experiment.py --context limited --agents 5 --dataset hanabi --token-sweep -> rc=1
     Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 21, in <module>
-    from analysis.scaling import PowerLawFitResult, ScalingAnalysisResult, power_law, fit_power_law
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/analysis/__init__.py", line 5, in <module>
-    from .anova import (
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/analysis/anova.py", line 16, in <module>
-    from utils.logging import get_logger
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/utils/__init__.py", line 11, in <module>
-    from .config import load_config, save_config  # noqa: F401
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-ImportError: cannot import name 'load_config' from 'utils.config' (/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/utils/config.py)
-- python code/run_experiment.py --context limited --agents 5 --games 1000 --thresholds 128,256,512 -> rc=1
+    from memory.buffer import MemoryBuffer, get_shared_buffer, reset_shared_buffer
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/memory/__init__.py", line 5, in <module>
+    from .buffer import (
+ImportError: cannot import name 'get_shared_memory_buffer' from 'memory.buffer' (/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/memory/buffer.py)
+- python code/run_experiment.py --context full --agents 3,5,7 --dataset hanabi --scaling -> rc=1
     Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 21, in <module>
-    from analysis.scaling import PowerLawFitResult, ScalingAnalysisResult, power_law, fit_power_law
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/analysis/__init__.py", line 5, in <module>
-    from .anova import (
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/analysis/anova.py", line 16, in <module>
-    from utils.logging import get_logger
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/utils/__init__.py", line 11, in <module>
-    from .config import load_config, save_config  # noqa: F401
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-ImportError: cannot import name 'load_config' from 'utils.config' (/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/utils/config.py)
-- python code/run_experiment.py --context full --agents 5 --games 100 --seed 42 -> rc=1
-    Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 21, in <module>
-    from analysis.scaling import PowerLawFitResult, ScalingAnalysisResult, power_law, fit_power_law
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/analysis/__init__.py", line 5, in <module>
-    from .anova import (
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/analysis/anova.py", line 16, in <module>
-    from utils.logging import get_logger
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/utils/__init__.py", line 11, in <module>
-    from .config import load_config, save_config  # noqa: F401
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-ImportError: cannot import name 'load_config' from 'utils.config' (/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/utils/config.py)
-- python code/run_experiment.py --context full --agents 5 --games 100 --seed 42 -> rc=1
-    Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 21, in <module>
-    from analysis.scaling import PowerLawFitResult, ScalingAnalysisResult, power_law, fit_power_law
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/analysis/__init__.py", line 5, in <module>
-    from .anova import (
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/analysis/anova.py", line 16, in <module>
-    from utils.logging import get_logger
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/utils/__init__.py", line 11, in <module>
-    from .config import load_config, save_config  # noqa: F401
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-ImportError: cannot import name 'load_config' from 'utils.config' (/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/utils/config.py)
+    from memory.buffer import MemoryBuffer, get_shared_buffer, reset_shared_buffer
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/memory/__init__.py", line 5, in <module>
+    from .buffer import (
+ImportError: cannot import name 'get_shared_memory_buffer' from 'memory.buffer' (/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/memory/buffer.py)
 
 ## ⚠ SHARED-MODULE CONTRACT — fix the DEFINITION, tolerant of ALL callers
 
@@ -109,14 +65,13 @@ One or more failures are API-CONTRACT errors on a symbol YOUR OWN code defines a
 
 Make `__getattr__` in `code/utils/logging.py` accept ALL of the above.
 
-### `compute_retrieval_efficiency` — defined in `code/metrics/retrieval.py`; called 17 way(s):
+### `compute_retrieval_efficiency` — defined in `code/metrics/retrieval.py`; called 16 way(s):
 
-- code/run_experiment.py: ret_eff, ret_metrics = compute_retrieval_efficiency(successful_retrievals, total_queries, config.num_agents)
-- code/t015_generate_full_results.py: ret_eff, _ = compute_retrieval_efficiency(
-- code/analysis/sensitivity.py: ret_eff, ret_metrics = compute_retrieval_efficiency(
+- code/run_experiment.py: ret_eff, _ = compute_retrieval_efficiency(
+- code/t015_generate_full_results.py: ret_eff, _ = compute_retrieval_efficiency(successful_count, total_queries, agent_count)
 - code/tests/unit/test_retrieval.py: metrics, eff = compute_retrieval_efficiency(5, 10, [0, 1, 2])
 - code/tests/unit/test_retrieval.py: metrics, eff = compute_retrieval_efficiency(0, 0, 3)
-- code/metrics/retrieval.py: return compute_retrieval_efficiency(total_successful, total_queries, avg_agents)
+- code/metrics/retrieval.py: efficiency, metrics = compute_retrieval_efficiency(successful, total, num_agents)
 - code/metrics/tests/test_retrieval.py: metrics, efficiency = compute_retrieval_efficiency(10, 10, 3)
 - code/metrics/tests/test_retrieval.py: metrics, efficiency = compute_retrieval_efficiency(1, 3, 3)
 - code/metrics/tests/test_retrieval.py: metrics, efficiency = compute_retrieval_efficiency(0, 10, 3)
@@ -131,19 +86,17 @@ Make `__getattr__` in `code/utils/logging.py` accept ALL of the above.
 
 Make `compute_retrieval_efficiency` in `code/metrics/retrieval.py` accept ALL of the above.
 
-### `compute_specialization_index` — defined in `code/metrics/specialization.py`; called 16 way(s):
+### `compute_specialization_index` — defined in `code/metrics/specialization.py`; called 14 way(s):
 
-- code/run_experiment.py: spec_index, spec_metrics = compute_specialization_index(facts_list, num_agents=config.num_agents)
-- code/t015_generate_full_results.py: spec_index, _ = compute_specialization_index(facts_list, num_agents=config.num_agents)
-- code/analysis/sensitivity.py: spec_idx, spec_metrics = compute_specialization_index(
+- code/run_experiment.py: spec_index, _ = compute_specialization_index(
+- code/t015_generate_full_results.py: spec_index, _ = compute_specialization_index(facts_per_agent, num_agents=agent_count)
 - code/tests/unit/test_specialization.py: idx, metrics = compute_specialization_index(agent_skills)
 - code/tests/unit/test_specialization.py: idx, metrics = compute_specialization_index([])
 - code/tests/unit/test_specialization.py: idx, metrics = compute_specialization_index(agents=agent_skills, num_agents=2)
 - code/tests/unit/test_specialization.py: idx, metrics = compute_specialization_index(5, 10)
-- code/metrics/specialization.py: idx, metrics = compute_specialization_index(agent_facts, num_agents)
+- code/metrics/specialization.py: index, metrics = compute_specialization_index(agent_facts, num_agents)
 - code/metrics/specialization.py: """Legacy alias for compute_specialization_index (v1 compatibility)."""
 - code/metrics/specialization.py: return compute_specialization_index(agent_skills, num_agents)
-- code/metrics/specialization.py: return compute_specialization_index(facts_dict, num_agents)
 - code/metrics/tests/test_specialization.py: index, metrics = compute_specialization_index([])
 - code/metrics/tests/test_specialization.py: index, metrics = compute_specialization_index(None)
 - code/metrics/tests/test_specialization.py: index, metrics = compute_specialization_index(agent_facts)
@@ -152,32 +105,34 @@ Make `compute_retrieval_efficiency` in `code/metrics/retrieval.py` accept ALL of
 
 Make `compute_specialization_index` in `code/metrics/specialization.py` accept ALL of the above.
 
-### `get_logger` — defined in `code/utils/logging.py`; called 16 way(s):
+### `get_logger` — defined in `code/utils/logging.py`; called 19 way(s):
 
 - code/run_experiment.py: logger = get_logger(__name__)
 - code/output_full_results.py: logger = get_logger(__name__)
 - code/t015_generate_full_results.py: logger = get_logger(__name__)
 - code/run_full_pipeline_ci.py: logger = get_logger(__name__)
 - code/run_pipeline_profile.py: logger = get_logger(__name__)
-- code/utils/logging.py: logger = get_logger(func.__module__)
-- code/utils/logging.py: return get_logger().log(level, op, **kwargs)
+- code/utils/logging.py: return get_logger().log(op, **kwargs)
 - code/utils/tests/test_logging.py: logger = get_logger(name=logger_name)
 - code/utils/tests/test_logging.py: logger2 = get_logger(name="existing_logger")
 - code/analysis/scaling.py: logger = get_logger(__name__)
 - code/analysis/power.py: logger = get_logger(__name__)
 - code/analysis/sensitivity.py: logger = get_logger(__name__)
+- code/analysis/scaling_plot.py: logger = get_logger(__name__)
 - code/analysis/anova.py: logger = get_logger(__name__)
 - code/tests/integration/test_ci_pipeline.py: logger = get_logger(__name__)
 - code/tests/unit/test_logging.py: logger1 = get_logger(name="test1")
 - code/tests/unit/test_logging.py: logger2 = get_logger(name="test2")
+- code/memory/buffer.py: logger = get_logger(__name__)
+- code/metrics/retrieval.py: logger = get_logger(__name__)
+- code/metrics/specialization.py: logger = get_logger(__name__)
 
 Make `get_logger` in `code/utils/logging.py` accept ALL of the above.
 
-### `simulate_one_game` — defined in `code/run_experiment.py`; called 4 way(s):
+### `simulate_one_game` — defined in `code/run_experiment.py`; called 3 way(s):
 
-- code/run_experiment.py: result = simulate_one_game(config, game_id, dataset)
+- code/run_experiment.py: result = simulate_one_game(config, game_id_counter, dataset_name)
 - code/output_full_results.py: spec_idx, ret_eff = simulate_one_game(
-- code/t015_generate_full_results.py: result = simulate_one_game(game_config)
 - code/tests/unit/test_run_experiment.py: spec_metrics, ret_metrics, result = simulate_one_game(1, config)
 
 Make `simulate_one_game` in `code/run_experiment.py` accept ALL of the above.
@@ -198,7 +153,8 @@ Make `simulate_one_game` in `code/run_experiment.py` accept ALL of the above.
 
 Whichever you choose, every call site of `MemoryBuffer` across the codebase must stop raising `AttributeError`/`TypeError`.
 
-`MemoryBuffer.reset` call sites (4):
+`MemoryBuffer.reset` call sites (5):
+- code/run_experiment.py: memory_buffer.reset()
 - code/tests/unit/test_memory_buffer.py: buf.reset()  # should not raise
 - code/memory/buffer.py: self._conflict_resolver.reset()
 - code/memory/buffer.py: _SHARED_BUFFER.reset()

@@ -1,19 +1,15 @@
 status: none
-intent: Hanabi learning environment python package dataset with CoQA, USK-difficult,
-  USK-easy, WINNIE-US2, MUST-EN-ES python package dataset
+intent: download open source multi-agent bidding dialogue python package dataset
 required_fields:
 - game_id
 - agent_id
-- specialization_index
-- cue_retrieval_efficiency
-- game_state_facts
-- cue_annotations
-- tool_calling_data
-- cross_lingual_text_en
-- cross_lingual_text_es
-- transaction_log
-- episode_id
-- multi_agent_interaction
-cache_key: 1c83295888930df20c25d9597c8a09606e6f16d2fe8563ca88efae92cae13fbf
-searched_at: '2026-08-05T10:30:23.020367+00:00'
+- turn_number
+- dialogue_text
+- cue
+- action
+- reward
+- state_representation
+- timestamp
+cache_key: 76036191f3159f67671921d91e65e373041996b28cf9bf6100c141d9b0e00825
+searched_at: '2026-08-06T01:00:20.818986+00:00'
 retry_count: 1

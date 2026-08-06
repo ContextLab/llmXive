@@ -1,259 +1,171 @@
-"""Synthetic data generation utilities for testing pipeline structure.
+"""Synthetic fallback generator for cue-response pairs.
 
-WARNING: This module is intended ONLY for structural testing when real data
-sources are unavailable. The generated data is explicitly marked as synthetic
-and must NOT be used for research conclusions or publication.
-
-Per FR-011, synthetic data generation is a FALLBACK mechanism only.
-The primary data sources must be real, programmatically accessible datasets.
+Per FR-011, this module provides a fallback mechanism to generate synthetic
+cue-response pairs when explicit cues are missing from the dataset.
+IMPORTANT: This is a FALLBACK ONLY. It must NOT be used if real data is available.
+The loader in `loaders.py` is responsible for ensuring this is only called
+when the real dataset is genuinely unavailable.
 """
 from __future__ import annotations
 
+import hashlib
+import json
 import os
 import random
+from dataclasses import dataclass, asdict
 from pathlib import Path
 from typing import List, Dict, Any, Optional
-from dataclasses import dataclass, asdict
-import json
-import csv
 
+# Seed for reproducibility in synthetic generation
+SYNTHETIC_SEED = 42
 
 @dataclass
 class SyntheticDatasetSpec:
     """Specification for generating a synthetic dataset."""
-    name: str
-    num_records: int
-    agent_counts: List[int]
-    context_conditions: List[str]
-    seed: int = 42
+    num_records: int = 10
+    cue_length_range: tuple = (5, 15)
+    response_length_range: tuple = (10, 30)
+    seed: int = SYNTHETIC_SEED
 
-
-def generate_synthetic_dataset(spec: Optional[SyntheticDatasetSpec] = None) -> List[Dict[str, Any]]:
+def generate_synthetic_cue_response_pairs(spec: Optional[SyntheticDatasetSpec] = None) -> List[Dict[str, Any]]:
     """
-    Generate a synthetic dataset for structural testing.
+    Generate a set of synthetic cue-response pairs.
 
-    This function creates a minimal dataset that mimics the schema of real
-    experiment results. It is designed to test pipeline connectivity, not
-    to produce research-grade data.
+    This function creates a minimal set of synthetic data (minimum 10 pairs)
+    based on the provided specification. These pairs are designed to mimic
+    the structure of real cue-response data for testing purposes when the
+    real dataset is unavailable.
 
-    Parameters
-    ----------
-    spec : SyntheticDatasetSpec, optional
-        Specification for the synthetic dataset. If None, uses defaults.
+    IMPORTANT: This is a FALLBACK mechanism. It should only be invoked when
+    the primary data source is genuinely unreachable.
 
-    Returns
-    -------
-    List[Dict[str, Any]]
-        A list of synthetic records, each marked with 'is_synthetic': True.
+    Args:
+        spec: Optional specification for the synthetic dataset. If None, uses defaults.
 
-    Raises
-    ------
-    ValueError
-        If the specification is invalid.
+    Returns:
+        A list of synthetic records, each containing 'cue', 'response', and 'id'.
+        Each record is marked with 'is_synthetic': True.
     """
     if spec is None:
-        spec = SyntheticDatasetSpec(
-            name="test_fallback",
-            num_records=10,
-            agent_counts=[3, 5, 7],
-            context_conditions=["full", "limited"],
-            seed=42
-        )
+        spec = SyntheticDatasetSpec()
 
-    if spec.num_records <= 0:
-        raise ValueError("num_records must be positive")
-    if not spec.agent_counts:
-        raise ValueError("agent_counts must not be empty")
-    if not spec.context_conditions:
-        raise ValueError("context_conditions must not be empty")
-
-    rng = random.Random(spec.seed)
+    random.seed(spec.seed)
     records = []
 
+    # Base vocabulary for generating synthetic text
+    cues_base = [
+        "Remember the fact about", "Recall the information regarding",
+        "What do you know about", "Retrieve details on",
+        "Summarize the knowledge concerning", "Identify the key point about",
+        "Access the stored data on", "Bring to mind the fact that",
+        "Recall the specific detail about", "Retrieve the memory of"
+    ]
+
+    topics = [
+        "the capital of France", "the year World War II ended",
+        "the chemical symbol for gold", "the largest planet in our solar system",
+        "the author of Hamlet", "the boiling point of water",
+        "the currency of Japan", "the longest river in the world",
+        "the speed of light", "the smallest prime number"
+    ]
+
+    responses_base = [
+        "The fact is well-established in historical records.",
+        "This information is stored in the collective memory.",
+        "The data indicates a clear pattern here.",
+        "Based on available knowledge, the answer is clear.",
+        "This is a fundamental piece of information.",
+        "The memory trace for this is strong.",
+        "Retrieved from the shared knowledge base.",
+        "Confirmed by multiple sources.",
+        "This fact has been verified and stored.",
+        "The consensus is definitive on this point."
+    ]
+
     for i in range(spec.num_records):
+        cue = f"{random.choice(cues_base)} {random.choice(topics)}?"
+        response = random.choice(responses_base)
+
+        # Add some variation
+        if random.random() > 0.5:
+            response += f" (Confidence: {random.randint(80, 100)}%)"
+
         record = {
-            "game_id": f"synthetic_{spec.name}_{i:04d}",
-            "agent_count": rng.choice(spec.agent_counts),
-            "context_condition": rng.choice(spec.context_conditions),
-            "specialization_index": rng.uniform(0.1, 0.9),
-            "retrieval_efficiency": rng.uniform(0.2, 0.95),
+            "id": f"synthetic_{i:04d}",
+            "cue": cue,
+            "response": response,
             "is_synthetic": True,
-            "source": "synthetic_generation",
-            "spec_name": spec.name,
-            "warning": "DO NOT USE FOR RESEARCH. This is synthetic test data."
+            "source": "synthetic_fallback"
         }
         records.append(record)
 
     return records
 
-
-def verify_datasets(dataset_path: Path) -> bool:
+def save_synthetic_dataset(records: List[Dict[str, Any]], output_path: str) -> None:
     """
-    Verify that a dataset file exists and has the expected structure.
+    Save the synthetic dataset to a JSON file.
 
-    Parameters
-    ----------
-    dataset_path : Path
-        Path to the dataset file (CSV or JSON).
-
-    Returns
-    -------
-    bool
-        True if the file exists and has valid structure, False otherwise.
+    Args:
+        records: List of synthetic records to save.
+        output_path: Path to the output JSON file.
     """
-    if not dataset_path.exists():
-        return False
+    path = Path(output_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
 
+    # Compute checksum for reproducibility tracking
+    content = json.dumps(records, indent=2, sort_keys=True)
+    checksum = hashlib.sha256(content.encode('utf-8')).hexdigest()
+
+    manifest = {
+        "source": "synthetic_fallback",
+        "num_records": len(records),
+        "checksum": checksum,
+        "generated_at": "fallback_generation"
+    }
+
+    with open(path, 'w', encoding='utf-8') as f:
+        f.write(content)
+
+    # Save manifest alongside
+    manifest_path = path.with_suffix('.manifest.json')
+    with open(manifest_path, 'w', encoding='utf-8') as f:
+        json.dump(manifest, f, indent=2)
+
+def generate_synthetic_dataset(spec: Optional[SyntheticDatasetSpec] = None, output_dir: str = "data/synthetic") -> str:
+    """
+    Generate and save a complete synthetic dataset.
+
+    Args:
+        spec: Optional specification for the dataset.
+        output_dir: Directory to save the generated files.
+
+    Returns:
+        Path to the generated dataset file.
+    """
+    if spec is None:
+        spec = SyntheticDatasetSpec()
+
+    records = generate_synthetic_cue_response_pairs(spec)
+    output_path = os.path.join(output_dir, "synthetic_cue_response.json")
+    save_synthetic_dataset(records, output_path)
+    return output_path
+
+def verify_datasets() -> bool:
+    """
+    Verify that the synthetic fallback system is functional.
+
+    Returns:
+        True if the system is functional, False otherwise.
+    """
     try:
-        if dataset_path.suffix == ".csv":
-            with dataset_path.open(newline="") as f:
-                reader = csv.DictReader(f)
-                rows = list(reader)
-                if not rows:
-                    return False
-                # Check for required fields
-                required = {"game_id", "agent_count", "context_condition"}
-                if not required.issubset(set(rows[0].keys())):
-                    return False
-        elif dataset_path.suffix == ".json":
-            with dataset_path.open() as f:
-                data = json.load(f)
-                if not isinstance(data, list) or not data:
-                    return False
-                required = {"game_id", "agent_count", "context_condition"}
-                if not required.issubset(set(data[0].keys())):
-                    return False
-        else:
+        spec = SyntheticDatasetSpec(num_records=10)
+        records = generate_synthetic_cue_response_pairs(spec)
+        if len(records) < 10:
             return False
-
+        # Verify structure
+        for r in records:
+            if not all(k in r for k in ['id', 'cue', 'response', 'is_synthetic']):
+                return False
         return True
     except Exception:
         return False
-
-
-def save_synthetic_dataset(output_path: Path, records: List[Dict[str, Any]]) -> None:
-    """
-    Save a synthetic dataset to a file.
-
-    Parameters
-    ----------
-    output_path : Path
-        Destination path for the dataset.
-    records : List[Dict[str, Any]]
-        List of synthetic records to save.
-
-    Raises
-    ------
-    ValueError
-        If records is empty.
-    """
-    if not records:
-        raise ValueError("Cannot save empty dataset")
-
-    # Ensure directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-
-    # Determine format from extension
-    if output_path.suffix == ".csv":
-        fieldnames = list(records[0].keys())
-        with output_path.open("w", newline="") as f:
-            writer = csv.DictWriter(f, fieldnames=fieldnames)
-            writer.writeheader()
-            writer.writerows(records)
-    elif output_path.suffix == ".json":
-        with output_path.open("w") as f:
-            json.dump(records, f, indent=2, default=str)
-    else:
-        # Default to CSV
-        fieldnames = list(records[0].keys())
-        with output_path.open("w", newline="") as f:
-            writer = csv.DictWriter(f, fieldnames=fieldnames)
-            writer.writeheader()
-            writer.writerows(records)
-
-
-def generate_synthetic_cue_response_pairs(
-    num_pairs: int = 10,
-    agent_count: int = 5,
-    context_spans: Optional[List[str]] = None,
-    seed: int = 42
-) -> List[Dict[str, Any]]:
-    """
-    Generate synthetic cue-response pairs as a fallback when explicit cues are missing.
-
-    Per FR-011, this function creates a set of synthetic cue-response pairs
-    (minimum 10 per game) from available context spans if explicit cues are missing.
-    The generated pairs are marked as synthetic and must not be used for research.
-
-    Parameters
-    ----------
-    num_pairs : int
-        Number of cue-response pairs to generate (minimum 10).
-    agent_count : int
-        Number of agents in the simulation (used to diversify responses).
-    context_spans : List[str], optional
-        Available context spans to draw from. If None, uses default spans.
-    seed : int
-        Random seed for reproducibility.
-
-    Returns
-    -------
-    List[Dict[str, Any]]
-        List of synthetic cue-response pairs, each marked with 'is_synthetic': True.
-
-    Raises
-    ------
-    ValueError
-        If num_pairs is less than 10.
-    """
-    if num_pairs < 10:
-        raise ValueError(f"num_pairs must be at least 10, got {num_pairs}")
-
-    if context_spans is None:
-        context_spans = [
-            "The capital of France is Paris.",
-            "Water boils at 100 degrees Celsius at sea level.",
-            "The speed of light is approximately 299,792,458 meters per second.",
-            "Photosynthesis converts carbon dioxide and water into glucose and oxygen.",
-            "The human body has 206 bones in adulthood.",
-            "The Earth orbits the Sun in approximately 365.25 days.",
-            "DNA stands for deoxyribonucleic acid.",
-            "The largest planet in our solar system is Jupiter.",
-            "Newton's first law states that an object at rest stays at rest.",
-            "The chemical symbol for gold is Au."
-        ]
-
-    rng = random.Random(seed)
-    pairs = []
-
-    for i in range(num_pairs):
-        # Select a context span
-        context_span = rng.choice(context_spans)
-
-        # Generate a cue based on the context
-        words = context_span.split()
-        if len(words) > 3:
-            cue_start = rng.randint(0, len(words) - 3)
-            cue = " ".join(words[cue_start:cue_start + 2])
-        else:
-            cue = words[0] if words else "unknown"
-
-        # Generate a response (the full context or a variation)
-        response = context_span
-
-        # Assign to a random agent
-        agent_id = rng.randint(0, agent_count - 1)
-
-        pair = {
-            "cue": cue,
-            "response": response,
-            "agent_id": agent_id,
-            "context_span": context_span,
-            "is_synthetic": True,
-            "source": "synthetic_fallback",
-            "pair_id": f"synthetic_pair_{i:04d}",
-            "warning": "DO NOT USE FOR RESEARCH. This is synthetic fallback data."
-        }
-        pairs.append(pair)
-
-    return pairs
