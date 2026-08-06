@@ -1,57 +1,51 @@
-# Quick Start Guide
+# Quickstart: Predicting Molecular Properties from Quantum Chemical Calculations
 
 ## Prerequisites
-- Python 3.11+
-- DFTB+ installed and in PATH
-- Psi4 installed and in PATH
-- pip and virtual environment tools
+
+*   Python 3.11 or higher
+*   Git
+*   GitHub Actions runner (or a compatible environment)
 
 ## Installation
-1. Clone the repository.
-2. Create a virtual environment:
- ```bash
- python -m venv venv
- source venv/bin/activate
- ```
-3. Install Python dependencies:
- ```bash
- pip install -r code/requirements.txt
- ```
 
-## Data Download
-Run the data download script to fetch the experimental barrier dataset:
-```bash
-python code/download_data.py
-```
-This will create `data/raw/experimental_barriers.csv`.
+1.  Clone the repository:
 
-## Generate Descriptors
-Run the descriptor generation script for the semi-empirical method:
-```bash
-python code/generate_descriptors.py --method dftb --subset 50
-```
-This will create `data/processed/descriptors_semi.csv`.
+    ```bash
+    git clone https://github.com/your-username/predicting-molecular-properties-from-qua.git
+    cd predicting-molecular-properties-from-qua
+    ```
 
-## Train Models
-Train the Random Forest models:
-```bash
-python code/train_models.py
-```
-This will train models on both semi-empirical and DFT data (if available) and save results to `data/processed/model_outputs/`.
+2. Install dependencies using `pip`:
 
-## Evaluate
-Evaluate the models and generate the report:
-```bash
-python code/evaluate_models.py
-```
+   ```bash
+   pip install -r requirements.txt # or use conda environment, if set up
+   ```
 
-## Run Tests
-Run the test suite:
-```bash
-pytest tests/
-```
+## Running the Pipeline
+
+1.  Download the experimental barrier dataset:
+
+    ```bash
+    # The code automatically handles download from Hugging Face Datasets. No manual step needed
+    ```
+
+2. Execute the main script to run the entire pipeline:
+
+    ```bash
+    python src/main.py # or invoke a specific task with python src/<task>.py
+    ```
+
+## Output Files
+
+The following output files will be generated in the `data/` and `reports/` directories:
+
+*   `data/descriptors_semi.csv`: Semi-empirical descriptors.
+*   `data/descriptors_dft.csv`: DFT descriptors (stratified subset).
+*   `reports/evaluation.json`: Model evaluation metrics.
+*   `reports/sensitivity.csv`: Feature importance and sensitivity analysis results.
 
 ## Troubleshooting
-- **DFTB+ not found**: Ensure DFTB+ is installed and in your PATH.
-- **OOM Error**: Reduce the subset size or increase system memory.
-- **Convergence Failure**: Check log files in `logs/` for details.
+
+*   **Convergence Failures**: Check `logs/convergence_failures.log` for molecules that failed to converge during DFTB+ optimization.
+*   **Out-of-Memory Errors**: Reduce the dataset size or use streaming techniques if memory usage is excessive.
+*   **Invalid Geometry**: Ensure molecular structures are valid and geometries are properly optimized before performing calculations.
