@@ -1,0 +1,10 @@
+{
+  "chunk_size": 1000,
+  "max_samples": 1000,
+  "fallback_strategy": "full_batch",
+  "n_required": 1000,
+  "n_audit": 50,
+  "memory_required_gb": 18.24,
+  "max_ram_gb": 7.0,
+  "status": "NEEDS_REDUCTION"
+}

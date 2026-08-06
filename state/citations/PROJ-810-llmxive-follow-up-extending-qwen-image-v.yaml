@@ -20,9 +20,20 @@
   verification_status: verified
   verified_against_url: https://huggingface.co/Qwen/Qwen2-VL-2B-Instruct
   verified_at: '2026-07-12T14:21:15.638978Z'
-- artifact_hash: 65a14e8d13c65db3c56651977b6d78b52dc91272f20ee7591cf28f29b7319748
+- artifact_hash: 52bd95edc4f61730dd2cc860d353db246993be85cd3641fc2fce6befda87b90c
   artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
   cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: railway stop - Wikidata
+  kind: url
+  value: https://www.wikidata.org/wiki/Q55678
+  verification_status: pending
+  verified_against_url: https://www.wikidata.org/wiki/Q55678
+  verified_at: '2026-08-06T07:47:28.373428Z'
+- artifact_hash: 52bd95edc4f61730dd2cc860d353db246993be85cd3641fc2fce6befda87b90c
+  artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  cite_id: c-002
   cited_authors: []
   cited_title: null
   fetched_title: '[1605.03992] Fast Approximation of Small p-values in Permutation
@@ -31,4 +42,4 @@
   value: https://arxiv.org/abs/1605.03992
   verification_status: pending
   verified_against_url: https://arxiv.org/abs/1605.03992
-  verified_at: '2026-08-01T21:38:46.751874Z'
+  verified_at: '2026-08-06T07:47:28.373428Z'

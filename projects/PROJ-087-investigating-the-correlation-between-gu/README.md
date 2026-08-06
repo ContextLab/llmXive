@@ -1,75 +1,155 @@
 # Investigating the Correlation Between Gut Microbiome Composition and Sleep Quality
 
-This project implements an automated science pipeline to investigate the correlation between gut microbiome composition and sleep quality. It ingests raw data, performs statistical analysis (Spearman correlation with Benjamini-Hochberg correction), and generates visualizations and reports.
+A scientific research pipeline to analyze the relationship between gut microbiome alpha-diversity indices and sleep quality metrics.
+
+## Project Structure
+
+```
+.
+├── code/ # Source code
+│ ├── src/ # Main application modules
+│ │ ├── config.py
+│ │ ├── ingestion.py
+│ │ ├── diversity.py
+│ │ ├── correlation.py
+│ │ ├── viz.py
+│ │ ├── report.py
+│ │ ├── report_final.py
+│ │ ├── models/
+│ │ │ └── schemas.py
+│ │ └── utils/
+│ │ └── hashing.py
+│ ├── tests/
+│ │ └── unit/
+│ └──...
+├── data/
+│ ├── raw/ # Raw downloaded data
+│ └── processed/ # Cleaned data and results
+│ └── plots/ # Generated visualizations
+└── docs/ # Documentation
+```
 
 ## Data Source
 
-The pipeline relies on a verified external dataset containing microbiome OTU tables and sleep metadata. The specific source URL and access instructions are defined in the project's configuration environment variables (`DATA_URL`).
+This project utilizes the verified dataset described in `plan.md` under the "Verified datasets" section. The data source must be programmatically accessible via the `DATA_URL` environment variable.
 
-**Requirement**: The dataset must contain the following columns:
-- `antibiotic_use_last_3m`: Boolean or indicator for recent antibiotic use (samples with `True` are excluded).
-- `sleep_efficiency`: Float (0-100 or 0-1).
-- `sleep_duration_hours`: Float.
-- Microbiome feature columns (OTU counts).
+**Verification**: Before running the pipeline, ensure the data source exists by running:
+```bash
+export DATA_URL="your_verified_url_here"
+python code/src/ingestion.py --verify-only
+```
 
-If the `DATA_URL` is missing or the schema is invalid, the ingestion pipeline will halt with a `FileNotFoundError`.
+The pipeline will fail loudly with a clear error if the data source is missing or the schema is invalid. **No synthetic data is generated or used.**
 
 ## Usage Examples
 
 ### Prerequisites
-- Python 3.11+
-- Dependencies installed via `pip install -r requirements.txt`
+
+1. Python 3.11+
+2. Install dependencies:
+ ```bash
+ pip install -r requirements.txt
+ ```
+3. Set environment variables:
+ ```bash
+ export DATA_URL=""
+ export RANDOM_SEED=42
+ export LOG_LEVEL=INFO
+ ```
 
 ### Running the Full Pipeline
 
-Set the required environment variables:
+Execute the entire research pipeline from ingestion to final report:
+
 ```bash
-export DATA_URL=""
-export RANDOM_SEED=42
-export LOG_LEVEL=INFO
+# Step 1: Ingestion (Download, Filter, Merge)
+python code/src/ingestion.py
+
+# Step 2: Diversity Analysis (Rarefaction, Alpha-diversity)
+python code/src/diversity.py
+
+# Step 3: Correlation Analysis (Spearman, FDR)
+python code/src/correlation.py
+
+# Step 4: Visualization (Scatterplots, Boxplots)
+python code/src/viz.py
+
+# Step 5: Report Generation
+python code/src/report_final.py
 ```
 
-Execute the pipeline step-by-step or run the main entry points:
+Alternatively, run the `main` entry points if available in the respective modules, or use the unified runner if provided in `code/main.py`.
 
-1. **Ingestion**: Download, filter, and merge data.
- ```bash
- python -m src.ingestion
- ```
- Outputs: `data/processed/cleaned_microbiome_sleep.csv`, `data/processed/ingestion_report.json`
+### Running Individual Modules
 
-2. **Diversity Analysis**: Calculate alpha-diversity indices.
- ```bash
- python -m src.diversity
- ```
- Outputs: Appended diversity metrics to the processed dataset.
+**Ingestion**:
+```bash
+python code/src/ingestion.py
+# Output: data/processed/cleaned_microbiome_sleep.csv
+# Output: data/processed/ingestion_report.json
+```
 
-3. **Correlation Analysis**: Compute Spearman correlations and FDR correction.
- ```bash
- python -m src.correlation
- ```
- Outputs: `data/processed/correlation_results.csv`
+**Diversity**:
+```bash
+python code/src/diversity.py
+# Input: data/processed/cleaned_microbiome_sleep.csv
+# Output: data/processed/alpha_diversity_metrics.csv
+```
 
-4. **Visualization**: Generate scatterplots and boxplots.
- ```bash
- python -m src.viz
- ```
- Outputs: Plot files in `data/processed/plots/`
+**Correlation**:
+```bash
+python code/src/correlation.py
+# Input: data/processed/alpha_diversity_metrics.csv
+# Output: data/processed/correlation_results.csv
+```
 
-5. **Reporting**: Generate the final summary report.
- ```bash
- python -m src.report
- ```
- Outputs: `data/processed/report.txt`
+**Visualization**:
+```bash
+python code/src/viz.py
+# Input: data/processed/correlation_results.csv
+# Output: data/processed/plots/*.png
+```
+
+**Final Report**:
+```bash
+python code/src/report_final.py
+# Input: All processed data and plots
+# Output: data/processed/final_report.html (or.pdf)
+```
 
 ### Running Tests
+
 ```bash
-pytest tests/unit/ -v
+pytest code/tests/unit/ -v
 ```
 
-### Configuration
-Configuration is loaded from environment variables with sensible defaults:
-- `DATA_URL`: URL to the raw dataset.
-- `RANDOM_SEED`: Integer for reproducibility (default: 42).
-- `LOG_LEVEL`: Logging verbosity (default: INFO).
+### Reproducibility Check
 
-See `src/config.py` for implementation details.
+To verify pipeline reproducibility (SC-005), run the pipeline twice and compare SHA-256 hashes:
+
+```bash
+python code/tests/integration/test_reproducibility.py
+```
+
+## Configuration
+
+Configure the pipeline via environment variables or a `config.yaml` file:
+
+- `DATA_URL`: URL to the verified dataset.
+- `RANDOM_SEED`: Integer seed for reproducibility (default: 42).
+- `LOG_LEVEL`: Logging verbosity (DEBUG, INFO, WARNING, ERROR).
+
+## Output Artifacts
+
+The pipeline generates the following artifacts in `data/processed/`:
+
+- `cleaned_microbiome_sleep.csv`: Filtered and merged dataset.
+- `ingestion_report.json`: Exclusion statistics and counts.
+- `alpha_diversity_metrics.csv`: Calculated diversity indices.
+- `correlation_results.csv`: Statistical correlation results with FDR correction.
+- `plots/`: Directory containing scatterplots and boxplots.
+- `final_report.html`: Comprehensive HTML report of findings.
+
+## License
+
+This project is for research purposes.

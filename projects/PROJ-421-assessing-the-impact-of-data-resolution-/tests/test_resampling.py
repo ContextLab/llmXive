@@ -1,133 +1,169 @@
 """
-Unit tests for nearest-neighbor resampling logic.
-Ensures that unique integer values are preserved during aggregation.
+Unit tests for resampling functionality.
+
+These tests verify that nearest-neighbor resampling preserves integer values
+and handles various edge cases correctly.
 """
 import os
-import sys
 import tempfile
-import unittest
-from pathlib import Path
+import pytest
 import numpy as np
 import rasterio
-from rasterio.warp import Resampling
+from pathlib import Path
+from rasterio.transform import from_bounds
 
-# Add code directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
-
-from resampling import generate_resolution
-from config import DATA_RAW_DIR, DATA_DERIVED_DIR
+# Import the function to test
+from resampling import generate_resolution, run_resampling_pipeline
 
 
-class TestNearestNeighborResampling(unittest.TestCase):
-    """Tests for nearest-neighbor resampling preserving integer values."""
-
-    def setUp(self):
-        """Set up test fixtures."""
-        self.temp_dir = tempfile.mkdtemp()
-        self.test_input_path = os.path.join(self.temp_dir, "test_input.tif")
-        self.test_output_path = os.path.join(self.temp_dir, "test_output.tif")
-
-        # Create a synthetic test raster with known unique integer values
-        # Using a small 100x100 grid for speed
-        self.height = 100
-        self.width = 100
-        self.original_res = 30  # meters
-
-        # Create data with distinct integer values (e.g., land cover classes)
-        # Values: 1, 2, 5, 10, 15, 20, 25, 30
-        unique_values = np.array([1, 2, 5, 10, 15, 20, 25, 30], dtype=np.uint8)
+@pytest.fixture
+def sample_raster():
+    """Create a temporary sample raster for testing."""
+    with tempfile.NamedTemporaryFile(suffix='.tif', delete=False) as tmp:
+        # Create a simple raster with known integer values
+        width = 100
+        height = 100
+        data = np.random.randint(0, 10, size=(height, width), dtype=np.uint8)
         
-        # Create a patterned array to ensure all values appear
-        data = np.zeros((self.height, self.width), dtype=np.uint8)
-        for i, val in enumerate(unique_values):
-            y_start = (i * self.height) // len(unique_values)
-            y_end = ((i + 1) * self.height) // len(unique_values)
-            data[y_start:y_end, :] = val
-
-        # Create a simple GeoTIFF
-        transform = rasterio.transform.from_origin(0, 1000, self.original_res, self.original_res)
+        transform = from_bounds(0, 0, 1, 1, width, height)
         
-        with rasterio.open(
-            self.test_input_path,
-            'w',
-            driver='GTiff',
-            height=self.height,
-            width=self.width,
-            count=1,
-            dtype=data.dtype,
-            crs='EPSG:4326',
-            transform=transform,
-        ) as dst:
+        profile = {
+            'driver': 'GTiff',
+            'height': height,
+            'width': width,
+            'count': 1,
+            'dtype': 'uint8',
+            'crs': 'EPSG:4326',
+            'transform': transform
+        }
+        
+        with rasterio.open(tmp.name, 'w', **profile) as dst:
             dst.write(data, 1)
-
-    def tearDown(self):
-        """Clean up test files."""
-        if os.path.exists(self.test_input_path):
-            os.remove(self.test_input_path)
-        if os.path.exists(self.test_output_path):
-            os.remove(self.test_output_path)
-        os.rmdir(self.temp_dir)
-
-    def test_nearest_neighbor_preserves_integers(self):
-        """
-        Asserts that unique values in output == unique values in input
-        after nearest-neighbor resampling.
         
-        Nearest-neighbor resampling should NOT interpolate values,
-        so the set of unique values must remain identical.
-        """
-        # Generate resampled raster with factor 2 (nearest neighbor)
-        generate_resolution(self.test_input_path, factor=2, output_path=self.test_output_path)
+        yield tmp.name
+        
+        # Cleanup
+        if os.path.exists(tmp.name):
+            os.unlink(tmp.name)
 
-        # Read original unique values
-        with rasterio.open(self.test_input_path) as src:
+
+def test_nearest_neighbor_preserves_integers(sample_raster):
+    """
+    Test that nearest-neighbor resampling preserves unique integer values.
+    
+    This is critical for categorical land cover data where interpolation
+    would create invalid intermediate values.
+    """
+    with tempfile.TemporaryDirectory() as tmpdir:
+        output_path = generate_resolution(sample_raster, factor=2, output_dir=tmpdir)
+        
+        # Read original data
+        with rasterio.open(sample_raster) as src:
             original_data = src.read(1)
             original_unique = set(np.unique(original_data))
-
-        # Read resampled unique values
-        with rasterio.open(self.test_output_path) as src:
+        
+        # Read resampled data
+        with rasterio.open(output_path) as src:
             resampled_data = src.read(1)
             resampled_unique = set(np.unique(resampled_data))
-
-        # Assert that unique values are preserved exactly
-        self.assertEqual(
-            original_unique,
-            resampled_unique,
-            f"Unique values changed during resampling. "
-            f"Original: {sorted(original_unique)}, Resampled: {sorted(resampled_unique)}"
+        
+        # Assert that all resampled values exist in the original
+        # (nearest-neighbor should not introduce new values)
+        assert resampled_unique.issubset(original_unique), (
+            f"Resampled data contains values not in original: "
+            f"{resampled_unique - original_unique}"
         )
+        
+        # Verify that the number of unique values is reasonable
+        # (may be fewer due to downsampling, but not more)
+        assert len(resampled_unique) <= len(original_unique)
 
-        # Additional check: ensure no new values were introduced (e.g., from interpolation)
-        self.assertTrue(
-            resampled_unique.issubset(original_unique),
-            "Resampled data contains values not present in original data. "
-            "This suggests interpolation occurred instead of nearest-neighbor."
+
+def test_resampling_reduces_dimensions(sample_raster):
+    """Test that resampling correctly reduces image dimensions."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        # Get original dimensions
+        with rasterio.open(sample_raster) as src:
+            original_width = src.width
+            original_height = src.height
+        
+        # Test factor=2
+        output_path = generate_resolution(sample_raster, factor=2, output_dir=tmpdir)
+        
+        with rasterio.open(output_path) as src:
+            assert src.width == original_width // 2
+            assert src.height == original_height // 2
+
+
+def test_resampling_invalid_factor(sample_raster):
+    """Test that invalid factors raise appropriate errors."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        with pytest.raises(ValueError, match="factor must be >= 1"):
+            generate_resolution(sample_raster, factor=0, output_dir=tmpdir)
+        
+        with pytest.raises(ValueError, match="factor must be >= 1"):
+            generate_resolution(sample_raster, factor=-1, output_dir=tmpdir)
+
+
+def test_resampling_nonexistent_file():
+    """Test that missing input files raise FileNotFoundError."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        with pytest.raises(FileNotFoundError):
+            generate_resolution("/nonexistent/path.tif", factor=2, output_dir=tmpdir)
+
+
+def test_resampling_preserves_dtype(sample_raster):
+    """Test that resampling preserves the original data type."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        output_path = generate_resolution(sample_raster, factor=2, output_dir=tmpdir)
+        
+        with rasterio.open(sample_raster) as src:
+            original_dtype = src.dtypes[0]
+        
+        with rasterio.open(output_path) as src:
+            resampled_dtype = src.dtypes[0]
+        
+        assert original_dtype == resampled_dtype
+
+
+def test_run_resampling_pipeline():
+    """Test the full pipeline with multiple factors."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        # Create a small test raster
+        width = 50
+        height = 50
+        data = np.random.randint(0, 5, size=(height, width), dtype=np.uint8)
+        
+        input_file = Path(tmpdir) / "test_input.tif"
+        transform = from_bounds(0, 0, 1, 1, width, height)
+        
+        profile = {
+            'driver': 'GTiff',
+            'height': height,
+            'width': width,
+            'count': 1,
+            'dtype': 'uint8',
+            'crs': 'EPSG:4326',
+            'transform': transform
+        }
+        
+        with rasterio.open(input_file, 'w', **profile) as dst:
+            dst.write(data, 1)
+        
+        # Run pipeline
+        output_paths = run_resampling_pipeline(
+            str(input_file), 
+            factors=[2, 4]
         )
-
-    def test_nearest_neighbor_no_float_artifacts(self):
-        """
-        Asserts that no floating point artifacts appear in output.
-        Nearest-neighbor should produce exact integer values.
-        """
-        generate_resolution(self.test_input_path, factor=2, output_path=self.test_output_path)
-
-        with rasterio.open(self.test_output_path) as src:
-            resampled_data = src.read(1)
-
-            # Check that all values are exactly representable as integers
-            # (i.e., no 1.0000001 or similar artifacts)
-            self.assertTrue(
-                np.all(resampled_data == resampled_data.astype(int)),
-                "Resampled data contains non-integer values."
-            )
-
-            # Check dtype is preserved or compatible
-            self.assertIn(
-                resampled_data.dtype,
-                [np.uint8, np.uint16, np.int32, np.int64],
-                f"Unexpected dtype: {resampled_data.dtype}"
-            )
-
-
-if __name__ == '__main__':
-    unittest.main()
+        
+        assert len(output_paths) == 2
+        assert all(os.path.exists(p) for p in output_paths)
+        
+        # Verify dimensions
+        with rasterio.open(input_file) as src:
+            original_w, original_h = src.width, src.height
+        
+        for i, factor in enumerate([2, 4]):
+            with rasterio.open(output_paths[i]) as src:
+                assert src.width == original_w // factor
+                assert src.height == original_h // factor

@@ -1,10 +1,5 @@
-0.05|permutation test:
-  quote: 4 0.04 0.047520825 0.047520824 0.0495
-  source_id: '1603.05766'
-  url: https://arxiv.org/abs/1603.05766
-  value: '0.047520825'
-'|key matching point score':
-  quote: 'P1533: Q16871354'
-  source_id: Q97107363
-  url: https://www.wikidata.org/wiki/Q97107363
-  value: '4'
+'|alpha control error family less rate than wise':
+  quote: '0.05'
+  source_id: "Holm\u2013Bonferroni method"
+  url: "https://en.wikipedia.org/wiki/Holm\u2013Bonferroni_method"
+  value: '0.05'

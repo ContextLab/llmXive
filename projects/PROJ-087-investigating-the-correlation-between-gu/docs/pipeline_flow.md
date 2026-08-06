@@ -1,65 +1,110 @@
 # Pipeline Flow Documentation
 
-This document describes the data flow and processing stages of the `llmXive` automated science pipeline for the gut microbiome and sleep quality investigation.
+This document describes the data flow and dependencies between the modules in the Gut Microbiome and Sleep Quality research pipeline.
 
 ## Overview
 
-The pipeline is designed as a sequence of independent, testable stages. Each stage consumes specific inputs, performs a defined transformation, and produces artifacts that serve as inputs for subsequent stages.
+The pipeline consists of five main stages, executed sequentially to ensure data integrity and reproducibility.
 
-## Stage 1: Data Ingestion and Preprocessing
+```mermaid
+graph TD
+ A[Start: Environment Setup] --> B[Stage 1: Ingestion]
+ B --> C[Stage 2: Diversity Analysis]
+ C --> D[Stage 3: Correlation Analysis]
+ D --> E[Stage 4: Visualization]
+ E --> F[Stage 5: Final Report]
+ F --> G[End: Artifacts Generated]
+```
 
-**Input**: Raw data source defined by `DATA_URL`.
-**Module**: `src.ingestion`
+## Stage 1: Ingestion (`src/ingestion.py`)
 
-1. **Verification**: Checks for the existence of the data URL and validates the schema (presence of `antibiotic_use_last_3m`, `sleep_efficiency`, `sleep_duration_hours`).
-2. **Download**: Fetches the data with exponential backoff.
+**Input**:
+- Raw data source defined by `DATA_URL` environment variable.
+
+**Process**:
+1. **Verification**: Checks for the existence of the data source and validates the schema (columns: `antibiotic_use_last_3m`, `sleep_efficiency`, `sleep_duration_hours`).
+2. **Download**: Fetches data with exponential backoff.
 3. **Filtering**:
- - Excludes samples where `antibiotic_use_last_3m` is True.
+ - Excludes samples with `antibiotic_use_last_3m == True`.
  - Excludes samples with missing `sleep_efficiency` or `sleep_duration_hours`.
 4. **Merging**: Combines OTU tables with sleep metadata.
-5. **Output**:
- - `data/processed/cleaned_microbiome_sleep.csv`: The filtered, merged dataset.
- - `data/processed/ingestion_report.json`: Logs of exclusion counts and proportions.
+5. **Logging**: Records exclusion rates.
 
-## Stage 2: Alpha-Diversity Calculation
+**Output**:
+- `data/processed/cleaned_microbiome_sleep.csv`
+- `data/processed/ingestion_report.json`
 
-**Input**: `data/processed/cleaned_microbiome_sleep.csv`
-**Module**: `src.diversity`
+**Dependencies**: None (except external data source).
 
-1. **Rarefaction**: Subsamples OTU tables to a fixed sequencing depth to normalize for sequencing effort.
-2. **Index Calculation**: Computes Shannon, Simpson, and Observed OTUs indices.
-3. **Output**: Updates the processed dataset with diversity indices or prepares them for correlation.
+## Stage 2: Diversity Analysis (`src/diversity.py`)
 
-## Stage 3: Statistical Correlation Analysis
+**Input**:
+- `data/processed/cleaned_microbiome_sleep.csv`
 
-**Input**: Diversity indices and sleep metrics.
-**Module**: `src.correlation`
+**Process**:
+1. **Rarefaction**: Subsamples OTU tables to a fixed sequencing depth to normalize sequencing effort.
+2. **Alpha-Diversity Calculation**: Computes Shannon, Simpson, and Observed OTUs indices.
 
-1. **Spearman Correlation**: Computes rank correlation coefficients between each diversity index and sleep metrics.
+**Output**:
+- `data/processed/alpha_diversity_metrics.csv`
+
+**Dependencies**: Stage 1 (Ingestion).
+
+## Stage 3: Correlation Analysis (`src/correlation.py`)
+
+**Input**:
+- `data/processed/alpha_diversity_metrics.csv`
+
+**Process**:
+1. **Spearman Correlation**: Computes rank correlation between diversity indices and sleep metrics.
 2. **FDR Correction**: Applies Benjamini-Hochberg correction to p-values.
 3. **Flagging**: Marks correlations as `is_moderate` (|r| > 0.3) and `is_meaningful` (q < 0.05 AND |r| > 0.3).
-4. **Output**:
- - `data/processed/correlation_results.csv`: Detailed results including r, p, q, and flags.
 
-## Stage 4: Visualization
+**Output**:
+- `data/processed/correlation_results.csv`
 
-**Input**: `data/processed/correlation_results.csv` and cleaned data.
-**Module**: `src.viz`
+**Dependencies**: Stage 2 (Diversity Analysis).
 
-1. **Scatterplots**: Generates plots with regression lines for significant correlations.
-2. **Boxplots**: Generates boxplots of diversity indices grouped by sleep quartiles.
-3. **Output**: Plot images saved to `data/processed/plots/`.
+## Stage 4: Visualization (`src/viz.py`)
 
-## Stage 5: Reporting
+**Input**:
+- `data/processed/correlation_results.csv`
+- `data/processed/alpha_diversity_metrics.csv`
 
-**Input**: Correlation results, ingestion reports, and plots.
-**Module**: `src.report` (text) and `src.report_final` (HTML/PDF)
+**Process**:
+1. **Scatterplots**: Generates regression plots for significant correlations.
+2. **Boxplots**: Generates boxplots of diversity metrics grouped by sleep quartiles.
 
-1. **Compilation**: Aggregates findings into a summary table.
-2. **Generation**: Produces a human-readable text report and a formatted HTML/PDF report.
-3. **Output**: `data/processed/report.txt`, `data/processed/report.html` (or `.pdf`).
+**Output**:
+- `data/processed/plots/*.png`
 
-## Data Integrity and Reproducibility
+**Dependencies**: Stage 3 (Correlation Analysis).
 
-- **Hashing**: `src/utils/hashing.py` provides `compute_sha256` to verify artifact integrity.
-- **Reproducibility Test**: `tests/integration/test_reproducibility.py` runs the pipeline twice and compares hashes of key outputs to ensure deterministic behavior.
+## Stage 5: Final Report (`src/report_final.py`)
+
+**Input**:
+- `data/processed/correlation_results.csv`
+- `data/processed/ingestion_report.json`
+- `data/processed/plots/*.png`
+
+**Process**:
+1. **Compilation**: Aggregates all findings, statistics, and visualizations.
+2. **Generation**: Produces an HTML (and optionally PDF) report.
+
+**Output**:
+- `data/processed/final_report.html`
+
+**Dependencies**: Stage 3 & 4 (Correlation & Visualization).
+
+## Error Handling
+
+- **Data Source Missing**: The pipeline halts at Stage 1 with a clear `FileNotFoundError`.
+- **Schema Mismatch**: The pipeline halts at Stage 1 if required columns are missing.
+- **No Significant Associations**: Handled gracefully in Stage 3 and reflected in the final report.
+
+## Reproducibility
+
+The pipeline is designed for reproducibility:
+- Random seeds are fixed via `RANDOM_SEED`.
+- All processing steps are deterministic.
+- SHA-256 hashes of outputs are verified in `tests/integration/test_reproducibility.py`.

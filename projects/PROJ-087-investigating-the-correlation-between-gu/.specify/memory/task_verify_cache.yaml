@@ -1,41 +1,3 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No directory tree or `__init__.py` files were presented as evidence; the required\
-    \ folders (`src`, `data/raw`, `data/processed`, `tests/unit`, `tests/integration`,\
-    \ `docs`) and empty `__init__.py` files are not shown, so the task\u2019s deliverable\
-    \ is missing."
-T004:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence was provided showing that the `data/raw/`, `data/processed/`, and
-    `data/processed/plots/` directories actually exist, nor that each contains a `.gitkeep`
-    file. Without visible directory listings or file contents, the requirement cannot
-    be confirmed as satisfied.
-T017:
-  c: false
-  h: 9a5444b58b862a87ced97b46644030bcbd5e904691264627f160a431e5cbc3f5
-  r: The required artifact `data/processed/ingestion_report.json` does not exist,
-    so the exclusion counts and proportion are not logged as specified. The task therefore
-    remains unfinished.
-T020b:
-  c: false
-  h: 2a7c128f8d306830dc9f24b788dc6a655e0ee247283ea7ea72fdcb706b4f1a9c
-  r: "The required input file `data/processed/cleaned_microbiome_sleep.csv` is absent,\
-    \ and the `src/diversity.py` implementation is truncated (the `calculate_alpha_diversity`\
-    \ function is incomplete), so the alpha\u2011diversity computation using the rarefied\
-    \ table is not fully provided."
-T029:
-  c: false
-  h: 689e14f68494386f14f65eef68c893df48c38a6ced5a09a53745ca82a75de3a5
-  r: "The required `src/report.py` file does not exist, so no report or summary table\
-    \ of correlations is present. The task\u2019s core deliverable is missing."
-T030:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of any plot files (e.g., PNG, PDF, SVG) existing in the required
-    `data/processed/plots/` directory is provided; the implementer did not supply
-    the saved plot artifacts, so the task requirement is not met.
 T031:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -58,9 +20,26 @@ T033:
     \ Without concrete artifacts demonstrating the cleanup and refactoring, the claim\
     \ cannot be verified. The implementer must supply the updated source code (or\
     \ a patch/diff) that evidences the changes."
-T037:
+T034:
   c: false
-  h: 198ac684e91a93618e7c8af1729950f67bda90db0abfea83fc3b623ac7fe5a4f
-  r: The required file `src/models/schemas.py` does not exist, so no Pydantic models
-    (`MicrobiomeSample`, `SleepMetric`, `CorrelationResult`) are defined as required.
-    The artifact is missing, making the task unfinished.
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or benchmark evidence showing that the T015 merge step was\
+    \ rewritten to use chunked processing or that RAM usage was reduced is present.\
+    \ The required artifact\u2014a modified ingestion/merge implementation (and preferably\
+    \ performance metrics) demonstrating the optimization\u2014is missing."
+T035:
+  c: false
+  h: cbed33022bdf56e0edc728e3f093ac6635f8e10fd2240ce40479836ba9209622
+  r: "The repository contains a `tests/integration/test_reproducibility.py` file,\
+    \ but it is truncated (e.g., the `get_artifact_hashes` function ends abruptly\
+    \ and never computes hashes for the plot files or compares two runs). Moreover,\
+    \ the required artifact `data/processed/cleaned_microbiome_sleep.csv` does not\
+    \ exist, so the test cannot even locate the file it is supposed to hash. The task\u2019\
+    s requirements are therefore not met."
+T036:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No artifact showing that the `quickstart.md` file was actually validated (e.g.,
+    a validation report, log output, or an updated/confirmed `quickstart.md`) is present.
+    The provided material only describes unrelated user stories and contains no evidence
+    of the required quickstart validation step.

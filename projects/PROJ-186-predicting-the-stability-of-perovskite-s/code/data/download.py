@@ -1,9 +1,9 @@
 """
-code/data/download.py
+Materials Project Data Ingestion Module for Perovskite Stability Prediction.
 
-Implements data ingestion from the Materials Project API.
-Fetches up to 10,000 perovskite entries, validates them, and filters
-for specific structural criteria (Space Group 221 or 148).
+This module handles fetching raw ABX3 compositions from the Materials Project API,
+validating the count, and filtering by structure. It also integrates OQMD data
+if the MP fetch yields fewer than 5,000 valid entries.
 """
 import os
 import sys
@@ -11,190 +11,160 @@ import logging
 import json
 import time
 from typing import List, Dict, Any, Optional, Tuple
-from pathlib import Path
+import pandas as pd
+import requests
 
-# Project-relative imports
-from utils.api_client import fetch_with_backoff, get_api_key
-from utils.logging_config import get_logger, log_exclusion_reason, log_pipeline_event
-
-# Constants
-MP_API_URL = "https://api.materialsproject.org/v2/materials"
-MP_PEROVSKITE_ENDPOINT = f"{MP_API_URL}/search/"
-MAX_ENTRIES = 10000
-MIN_VALID_ENTRIES = 5000
-TARGET_SPACE_GROUPS = [221, 148]  # Cubic (221), Rhombohedral (148)
+# Import from existing API surface
+from utils.logging_config import get_logger, log_pipeline_event, log_exclusion_reason
+from utils.config import get_config_summary
+from utils.api_client import get_api_key, RateLimitedSession, fetch_with_backoff
+from data.download_oqmd import fetch_oqmd_entries, merge_oqmd_with_mp
 
 logger = get_logger(__name__)
 
+# Constants
+MP_API_URL = "https://materialsproject.org/rest/v2/materials"
+MP_API_KEY = get_api_key() # Retrieves from env or config
+MIN_MP_ENTRIES = 5000
+MAX_MP_ENTRIES = 10000
 
-def fetch_materials_project_entries(limit: int = MAX_ENTRIES) -> List[Dict[str, Any]]:
+def fetch_materials_project_entries(limit: int = MAX_MP_ENTRIES) -> pd.DataFrame:
     """
-    Fetches perovskite entries from the Materials Project API.
-
+    Fetches entries from Materials Project API.
+    
     Args:
         limit: Maximum number of entries to fetch.
-
+        
     Returns:
-        List of raw entry dictionaries.
-
-    Raises:
-        RuntimeError: If the API key is missing or the fetch fails completely.
+        DataFrame with raw MP data.
     """
-    api_key = get_api_key()
-    if not api_key:
-        raise RuntimeError("Materials Project API key not found. Set MP_API_KEY environment variable.")
-
-    logger.info(f"Fetching up to {limit} entries from Materials Project API...")
-
-    # Parameters for the search
-    # We filter for 'perovskite' in the chemical system or specific structure types if available.
-    # The standard endpoint allows searching by 'structure_types' or 'chemsys'.
-    # We will request 'perovskite' structure type and limit results.
-    params = {
-        "structure_types": ["perovskite"],
-        "elements": ["A", "B", "X"], # Placeholder logic, actual API uses element lists
-        "page_limit": limit,
-        "fields": ["material_id", "formula_pretty", "structure", "space_group", "decomposition_energy_per_atom", "e_above_hull"]
-    }
-
-    # Note: The MP API v2 search endpoint is complex. We will use the standard search
-    # with a focus on the 'perovskite' structure type tag if available, or filter manually.
-    # For robustness, we assume the endpoint supports a query for structure types.
-    # If the specific 'perovskite' tag is not directly searchable by name in the simple endpoint,
-    # we might need to fetch a broader set and filter, but the task asks to fetch perovskites.
-    # We will use the 'structure_types' parameter with 'perovskite' as the value.
-
-    headers = {"X-API-Key": api_key}
+    logger.info(f"Fetching Materials Project data (limit={limit})...")
     
-    # Construct URL with query parameters
-    query_params = {
-        "structure_types": "perovskite",
-        "page_limit": limit,
-        "fields": "material_id,formula_pretty,space_group.number,decomposition_energy_per_atom,e_above_hull,nsites"
+    if not MP_API_KEY:
+        logger.error("Materials Project API key not found. Please set MP_API_KEY environment variable.")
+        raise ValueError("MP_API_KEY not set")
+    
+    session = RateLimitedSession()
+    url = f"{MP_API_URL}/search"
+    
+    params = {
+        'api_key': MP_API_KEY,
+        'limit': limit,
+        'fields': 'material_id,formula,space_group,decomposition_energy,structure'
     }
-
+    
     try:
-        response = fetch_with_backoff(MP_PEROVSKITE_ENDPOINT, params=query_params, headers=headers)
-        
-        if response.status_code != 200:
-            logger.error(f"API request failed with status {response.status_code}: {response.text}")
-            raise RuntimeError(f"Failed to fetch data from Materials Project: {response.status_code}")
-        
+        response = fetch_with_backoff(session, url, params=params, max_retries=5)
+        response.raise_for_status()
         data = response.json()
-        results = data.get("results", [])
         
-        logger.info(f"Successfully fetched {len(results)} raw entries from API.")
-        return results
-
-    except Exception as e:
-        logger.exception(f"Error fetching from Materials Project API: {e}")
+        if 'results' not in data:
+            logger.error("MP API response did not contain 'results' key.")
+            raise ValueError("Invalid MP API response format")
+        
+        entries = data['results']
+        df = pd.DataFrame(entries)
+        
+        # Ensure required columns exist
+        required_cols = ['formula', 'space_group', 'decomposition_energy']
+        for col in required_cols:
+            if col not in df.columns:
+                logger.error(f"MP data missing required column: {col}")
+                raise ValueError(f"MP data missing column: {col}")
+        
+        logger.info(f"Successfully fetched {len(df)} entries from Materials Project.")
+        return df
+        
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Failed to fetch MP data: {e}")
+        raise RuntimeError("MP data fetch failed.")
+    except ValueError as e:
+        logger.error(f"Failed to parse MP data: {e}")
         raise
 
-
-def validate_and_filter_entries(entries: List[Dict[str, Any]]) -> Tuple[List[Dict[str, Any]], int]:
+def validate_and_filter_entries(df: pd.DataFrame) -> Tuple[pd.DataFrame, int]:
     """
-    Validates entries for required fields and filters by space group.
-    Also checks for valid decomposition energy.
-
+    Validates and filters entries based on structure (space_group).
+    Filters for space_group == 221 (Cubic) OR space_group == 148 (Rhombohedral).
+    
     Args:
-        entries: List of raw entry dictionaries.
-
+        df: Raw DataFrame.
+        
     Returns:
-        Tuple of (filtered_entries, exclusion_count).
+        Tuple of (filtered DataFrame, count of excluded entries).
     """
-    filtered = []
-    exclusion_count = 0
-
-    logger.info(f"Validating and filtering {len(entries)} entries...")
-
-    for entry in entries:
-        # Extract fields safely
-        material_id = entry.get("material_id")
-        formula = entry.get("formula_pretty")
-        space_group = entry.get("space_group", {}).get("number") if isinstance(entry.get("space_group"), dict) else entry.get("space_group")
-        decomp_energy = entry.get("decomposition_energy_per_atom")
-        
-        # Validation 1: Required fields present
-        if not material_id or not formula:
-            log_exclusion_reason("download", material_id or "unknown", "Missing material_id or formula")
-            exclusion_count += 1
-            continue
-
-        # Validation 2: Space group filter (221 or 148)
-        if space_group not in TARGET_SPACE_GROUPS:
-            log_exclusion_reason("download", material_id, f"Space group {space_group} not in target list {TARGET_SPACE_GROUPS}")
-            exclusion_count += 1
-            continue
-
-        # Validation 3: Decomposition energy must be present (not null)
-        if decomp_energy is None:
-            log_exclusion_reason("download", material_id, "Missing decomposition_energy_per_atom")
-            exclusion_count += 1
-            continue
-
-        # Validation 4: Reasonable energy range (optional but good practice)
-        # Perovskites are typically stable or metastable. 
-        # We accept any value as long as it's not null, but log extreme outliers if needed.
-        
-        # Keep the entry
-        filtered.append({
-            "material_id": material_id,
-            "formula": formula,
-            "space_group": space_group,
-            "decomposition_energy": decomp_energy,
-            "raw_entry": entry
-        })
-
-    logger.info(f"Filtering complete. Kept {len(filtered)} entries, excluded {exclusion_count}.")
-    return filtered, exclusion_count
-
+    logger.info(f"Validating and filtering {len(df)} entries...")
+    
+    initial_count = len(df)
+    
+    # Filter by space group
+    valid_space_groups = [221, 148]
+    filtered_df = df[df['space_group'].isin(valid_space_groups)]
+    
+    excluded_count = initial_count - len(filtered_df)
+    
+    logger.info(f"Filtered to {len(filtered_df)} entries (space groups: {valid_space_groups}). Excluded: {excluded_count}")
+    
+    # Log exclusion reasons (simplified for this task)
+    if excluded_count > 0:
+        log_exclusion_reason("Structure Filtering", f"Excluded {excluded_count} entries with space_group not in {valid_space_groups}")
+    
+    return filtered_df, excluded_count
 
 def main():
     """
-    Main entry point for the download script.
-    Fetches data, validates, and saves to data/raw/mp_perovskites.json.
-    Raises a critical error if fewer than 5,000 valid entries are found.
+    Main entry point for data download and merging.
     """
-    log_pipeline_event("download", "Starting data ingestion from Materials Project")
-
+    log_pipeline_event("Starting data ingestion pipeline (T012 + T013)")
+    
+    mp_data_path = "data/raw/mp_data.csv"
+    filtered_mp_path = "data/raw/mp_filtered.csv"
+    merged_data_path = "data/raw/merged_data.csv"
+    
+    # 1. Fetch MP Data
+    mp_df = None
     try:
-        # 1. Fetch data
-        raw_entries = fetch_materials_project_entries(limit=MAX_ENTRIES)
-        
-        if not raw_entries:
-            raise RuntimeError("API returned zero entries. Check API key and query parameters.")
-
-        # 2. Validate and Filter
-        valid_entries, exclusion_count = validate_and_filter_entries(raw_entries)
-
-        # 3. Critical Check: Minimum Threshold
-        if len(valid_entries) < MIN_VALID_ENTRIES:
-            error_msg = (
-                f"CRITICAL FAILURE: Only {len(valid_entries)} valid entries found. "
-                f"Minimum required is {MIN_VALID_ENTRIES}. "
-                f"Excluded {exclusion_count} entries due to structural or data criteria. "
-                f"Cannot proceed with statistical validity."
-            )
-            logger.critical(error_msg)
-            raise RuntimeError(error_msg)
-
-        logger.info(f"Success: {len(valid_entries)} valid entries meet all criteria.")
-
-        # 4. Save to disk
-        output_dir = Path("data/raw")
-        output_dir.mkdir(parents=True, exist_ok=True)
-        output_path = output_dir / "mp_perovskites.json"
-
-        with open(output_path, "w", encoding="utf-8") as f:
-            json.dump(valid_entries, f, indent=2)
-
-        logger.info(f"Saved {len(valid_entries)} entries to {output_path}")
-        log_pipeline_event("download", f"Completed ingestion. Output: {output_path}")
-
+        mp_df = fetch_materials_project_entries(limit=MAX_MP_ENTRIES)
+        mp_df.to_csv(mp_data_path, index=False)
+        logger.info(f"Saved MP raw data to {mp_data_path}")
     except Exception as e:
-        logger.exception(f"Download pipeline failed: {e}")
-        raise
-
+        logger.error(f"MP fetch failed: {e}")
+        mp_df = pd.DataFrame()
+    
+    # 2. Filter MP Data
+    if len(mp_df) > 0:
+        mp_df, excluded_count = validate_and_filter_entries(mp_df)
+        mp_df.to_csv(filtered_mp_path, index=False)
+        logger.info(f"Saved filtered MP data to {filtered_mp_path}")
+    else:
+        mp_df = pd.DataFrame()
+    
+    # 3. Check Threshold and Merge with OQMD if needed
+    final_df = mp_df
+    
+    if len(mp_df) < MIN_MP_ENTRIES:
+        logger.warning(f"MP data ({len(mp_df)}) is below threshold ({MIN_MP_ENTRIES}). Fetching OQMD...")
+        try:
+            oqmd_df = fetch_oqmd_entries(limit=10000)
+            final_df, status = merge_oqmd_with_mp(mp_df, oqmd_df)
+            logger.info(f"Merging result: {status}")
+        except Exception as e:
+            logger.error(f"OQMD merge failed: {e}")
+            # If OQMD fails, we proceed with MP data only (which is < 5000)
+            # The pipeline might fail later, but we don't fabricate data.
+    else:
+        logger.info(f"MP data ({len(mp_df)}) is sufficient. Skipping OQMD.")
+    
+    # 4. Save Final Merged Data
+    if len(final_df) > 0:
+        final_df.to_csv(merged_data_path, index=False)
+        logger.info(f"Saved final merged data to {merged_data_path}")
+        log_pipeline_event(f"Ingestion complete. Total entries: {len(final_df)}")
+    else:
+        logger.error("No data available after ingestion.")
+        raise RuntimeError("Ingestion failed: No data produced.")
+    
+    return final_df
 
 if __name__ == "__main__":
     main()

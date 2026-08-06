@@ -20,7 +20,7 @@
   verification_status: verified
   verified_against_url: https://github.com/your-org/your-repo
   verified_at: '2026-07-04T22:16:08.485447Z'
-- artifact_hash: 9bcff1adc0c30783776032218e52246d1427310e4f96d383a060c1b81ffac86b
+- artifact_hash: 5c3ffdb6156a0f84a3e82d0d3ae24c1e918afa82afca3d49a85d6c00c524c468
   artifact_path: projects/PROJ-087-investigating-the-correlation-between-gu/README.md
   cite_id: c-001
   cited_authors: []
@@ -30,4 +30,26 @@
   value: https://example.com/verified-dataset.csv
   verification_status: mismatch
   verified_against_url: https://example.com/verified-dataset.csv
-  verified_at: '2026-07-20T04:44:57.181711Z'
+  verified_at: '2026-08-06T07:37:26.103957Z'
+- artifact_hash: d0b019aba2f46e16cef4985e15e0afe7b336ac496396f890806f23944dc7b3a9
+  artifact_path: projects/PROJ-087-investigating-the-correlation-between-gu/docs/usage_examples.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://example.com/verified-gut-sleep-dataset.csv
+  verification_status: mismatch
+  verified_against_url: https://example.com/verified-gut-sleep-dataset.csv
+  verified_at: '2026-08-06T07:37:27.719837Z'
+- artifact_hash: d0b019aba2f46e16cef4985e15e0afe7b336ac496396f890806f23944dc7b3a9
+  artifact_path: projects/PROJ-087-investigating-the-correlation-between-gu/docs/usage_examples.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://custom-url.com/dataset.csv
+  verification_status: unreachable
+  verified_against_url: https://custom-url.com/dataset.csv
+  verified_at: '2026-08-06T07:37:27.719837Z'
