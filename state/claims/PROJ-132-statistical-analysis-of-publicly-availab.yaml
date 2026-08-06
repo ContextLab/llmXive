@@ -126,3 +126,387 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-27T07:33:24Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: CLO maintains migratory species list
+  claim_id: c_c7fceae0
+  context: Task T015a requires fetching and caching the Cornell Lab of Ornithology
+    list of migratory species to filter eBird records.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/CLO_maintains_migratory_species_list
+  kind: entity_fact
+  raw_text: The Cornell Lab of Ornithology (CLO) maintains a list of migratory species.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T04:16:15Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: vvud/eb-data dataset exists on HuggingFace
+  claim_id: c_79e21c32
+  context: Task T051a verifies the existence of the 'vvud/eb-data' dataset on HuggingFace
+    using datasets.load_dataset.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Vvud/eb-data_dataset_exists_on_HuggingFace
+  kind: entity_fact
+  raw_text: The eBird dataset is available on HuggingFace under the identifier 'vvud/eb-data'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T04:16:50Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Moran's I diagnostic for spatial autocorrelation
+  claim_id: c_59cdaf71
+  context: Task T023 specifies computing Moran's I on residuals to decide whether
+    to apply a Gaussian Process random effect.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Moran's_I_diagnostic_for_spatial_autocorrelation
+  kind: entity_fact
+  raw_text: Moran's I is used as a diagnostic for spatial autocorrelation in model
+    residuals.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T04:18:30Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: "Mat\xE9rn kernel nu=1.5 for GP random effects"
+  claim_id: c_46e13d96
+  context: "Task T023 specifies re-fitting the model with a Gaussian Process random\
+    \ effect using a Mat\xE9rn kernel (nu=1.5) if Moran's I > 0.15."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Mat%C3%A9rn_kernel_nu=1.5_for_GP_random_effects
+  kind: entity_fact
+  raw_text: "The Mat\xE9rn kernel with nu=1.5 is a valid kernel for Gaussian Process\
+    \ random effects in spatial models."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T04:19:47Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Benjamini-Hochberg for FDR correction
+  claim_id: c_343d5715
+  context: Task T025c requires applying Benjamini-Hochberg FDR correction to p-values
+    from the permutation test.
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "=== Benjamini\u2013Hochberg procedure ==="
+      source_id: False discovery rate
+      url: https://en.wikipedia.org/wiki/False_discovery_rate
+      value: "Benjamini\u2013Hochberg procedure"
+    filled: true
+  kind: entity_fact
+  raw_text: The Benjamini-Hochberg method is a valid procedure for False Discovery
+    Rate (FDR) correction of p-values.
+  resolved_value: "Benjamini\u2013Hochberg procedure"
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-06T04:20:56Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: 2-sphere S^2 for migration centroid trajectories
+  claim_id: c_d27f51f9
+  context: Task T031 implements trajectory analysis using Riemannian Manifold Statistics
+    on the 2-sphere (S^2) via geomstats.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/2-sphere_S%5E2_for_migration_centroid_trajectories
+  kind: entity_fact
+  raw_text: The 2-sphere (S^2) is a Riemannian manifold suitable for representing
+    migration centroids using geodesic distances.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T04:21:17Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: geomstats library supports S^2 geodesic distances
+  claim_id: c_e54ce17e
+  context: Task T031 requires using 'geomstats.geometry.sphere.Sphere' to calculate
+    geodesic distances for route shift detection.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The 'geomstats' library provides geometric operations for the 2-sphere
+    (S^2) including geodesic distance calculations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T04:22:02Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Sphere geodesic distance formula using arccos
+  claim_id: c_664773d4
+  context: '"Task T031 specifies a fallback using scipy with the explicit geodesic
+    formula ''acos(lat1*lat2 + lon1*lon2...)''.",'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sphere_geodesic_distance_formula_using_arccos
+  kind: entity_fact
+  raw_text: The geodesic distance on a sphere can be calculated using the formula
+    involving the arccosine of the dot product of coordinate vectors.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T04:22:51Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/code/plan.md
+  attempts: 1
+  canonical: Project analyzes eBird and NOAA data to investigate correlation between
+    climate change and bird migration patterns
+  claim_id: c_edb8a960
+  context: This project analyzes publicly available bird migration data (eBird) and
+    climate data (NOAA) to investigate correlations between climate change and bird
+    migration patterns.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Project_analyzes_eBird_and_NOAA_data_to_investigate_correlat
+  kind: entity_fact
+  raw_text: The project analyzes publicly available bird migration data (eBird) and
+    climate data (NOAA) to investigate correlations between climate change and bird
+    migration patterns.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T04:29:45Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/code/plan.md
+  attempts: 1
+  canonical: eBird data available as vvud/eb-data on HuggingFace
+  claim_id: c_0cc5089f
+  context: 'Data Sources - eBird Data: `vvud/eb-data` (HuggingFace Dataset)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/EBird_data_available_as_vvud/eb-data_on_HuggingFace
+  kind: entity_fact
+  raw_text: eBird Data is available as `vvud/eb-data` (HuggingFace Dataset).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T04:30:54Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/code/plan.md
+  attempts: 1
+  canonical: Climate data sourced from NOAA GHCN-Daily
+  claim_id: c_884bf8b4
+  context: 'Data Sources - Climate Data: NOAA GHCN-Daily (via verified mirror or direct
+    download)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Climate_data_sourced_from_NOAA_GHCN-Daily
+  kind: entity_fact
+  raw_text: Climate Data is sourced from NOAA GHCN-Daily.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T04:32:05Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/code/plan.md
+  attempts: 1
+  canonical: Migratory species list provided by Cornell Lab of Ornithology
+  claim_id: c_01757168
+  context: 'Data Sources - Migratory Species List: Cornell Lab of Ornithology (CLO)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Migratory_species_list_provided_by_Cornell_Lab_of_Ornitholog
+  kind: entity_fact
+  raw_text: Migratory Species List is provided by the Cornell Lab of Ornithology (CLO).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T04:33:29Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/code/plan.md
+  attempts: 1
+  canonical: Implementation requires Python 3.11 or higher
+  claim_id: c_97c3422f
+  context: Dependencies - Python 3.11+
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The implementation plan requires Python 3.11 or higher.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T04:33:44Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Cornell Lab of Ornithology maintains migratory species list
+  claim_id: c_5a64557c
+  context: 'Retrieve CLO Migratory List: Implement src/data/download.py::get_clo_migratory_list
+    to fetch and cache the Cornell Lab of Ornithology list of migratory species.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Cornell_Lab_of_Ornithology_maintains_migratory_species_list
+  kind: entity_fact
+  raw_text: The Cornell Lab of Ornithology maintains a list of migratory species.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T04:44:56Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: vvud/eb-data dataset available on HuggingFace
+  claim_id: c_761cfc1d
+  context: 'Verify the existence of the ''vvud/eb-data'' dataset on HuggingFace. Action:
+    Write a script src/data/verify_dataset.py that attempts to list the ''vvud/eb-data''
+    dataset using datasets.load_dataset.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Vvud/eb-data_dataset_available_on_HuggingFace
+  kind: entity_fact
+  raw_text: The dataset 'vvud/eb-data' is available on HuggingFace.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T04:45:52Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Moran's I detects spatial autocorrelation in residuals
+  claim_id: c_f89c1def
+  context: "Compute Moran's I on residuals. IF Moran's I > 0.15: Re-fit with a Gaussian\
+    \ Process (GP) random effect using a Mat\xE9rn kernel (nu=1.5)."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Moran's_I_detects_spatial_autocorrelation_in_residuals
+  kind: entity_fact
+  raw_text: Moran's I is used to detect spatial autocorrelation in model residuals.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T04:47:32Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Benjamini-Hochberg used for FDR correction
+  claim_id: c_da2b8eb2
+  context: Apply Benjamini-Hochberg FDR correction to the p-values from T025b.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: "We construct a factor model for which, at level\u03B1 = 0.01, a rigorous\
+        \ interval-arithmetic"
+      source_id: '2607.12208'
+      url: https://arxiv.org/abs/2607.12208
+      value: '0.01'
+    filled: true
+  kind: entity_fact
+  raw_text: The Benjamini-Hochberg procedure is used for False Discovery Rate (FDR)
+    correction of p-values.
+  resolved_value: '0.01'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-06T04:50:16Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: 2-sphere S^2 used for migration trajectory analysis
+  claim_id: c_495dffcc
+  context: Implement trajectory analysis using Riemannian Manifold Statistics on the
+    2-sphere (S^2) via geomstats.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/2-sphere_S%5E2_used_for_migration_trajectory_analysis
+  kind: entity_fact
+  raw_text: The 2-sphere (S^2) is a Riemannian manifold used for trajectory analysis
+    of migration centroids.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T04:51:17Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: geomstats library provides Riemannian geometry tools for S^2
+  claim_id: c_80b2a3eb
+  context: "Calculate geodesic distances on S\xB2 using geomstats.geometry.sphere.Sphere\
+    \ (or equivalent Riemannian metric)."
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: "Data on manifolds naturally arise in di\uFB00erent \uFB01elds.Hyperspheres\
+        \ model directional data in"
+      source_id: '2004.04667'
+      url: https://arxiv.org/abs/2004.04667
+      value: Hypersphere
+    filled: true
+  kind: numeric
+  raw_text: The geomstats library provides tools for Riemannian geometry calculations
+    on the 2-sphere.
+  resolved_value: Hypersphere
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-06T04:52:00Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: arccosine formula calculates geodesic distance on sphere
+  claim_id: c_c76e46d6
+  context: If geomstats is unavailable, use scipy with explicit geodesic formula acos(lat1*lat2
+    + lon1*lon2...) as a fallback with a warning.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Arccosine_formula_calculates_geodesic_distance_on_sphere
+  kind: entity_fact
+  raw_text: The arccosine formula acos(lat1*lat2 + lon1*lon2...) can be used to calculate
+    geodesic distances on a sphere.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T04:52:43Z'

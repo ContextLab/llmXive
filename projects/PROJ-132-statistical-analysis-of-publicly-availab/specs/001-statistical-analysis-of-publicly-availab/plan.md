@@ -7,7 +7,7 @@
 
 This project implements a reproducible statistical pipeline to analyze the correlation between bird migration phenology (arrival dates, stopover duration) and climate variables (temperature, precipitation) using the eBird Basic Dataset (EBD) and Daymet climate data. The core analytical engine utilizes Generalized Additive Mixed Models (GAMMs) with species-specific random slopes for temperature and a **mandatory a priori** Gaussian Process (GP) random effect for spatial autocorrelation. The pipeline prioritizes CPU-tractable methods (streaming large datasets, block bootstrapping for uncertainty) while maintaining statistical rigor through FDR correction and explicit power analysis.
 
-**Critical Data Scope Note**: The project utilizes the verified `vvud/eb-data` sample and `Daymet` climate data (recent years). The full 2020-2024 continental eBird archive is not available via the verified open-source URLs provided. The analysis is explicitly scoped to the available verified data, and success criteria include transparent reporting of power limitations if the sample size is insufficient to detect small effect sizes. FR-001 is interpreted as downloading the full *available* verified dataset for the period, not the entire continental archive.
+**Critical Data Scope Note**: The project utilizes the verified `vvud/eb-data` sample and `Daymet` climate data (recent years). The full -2024 continental eBird archive is not available via the verified open-source URLs provided. The analysis is explicitly scoped to the available verified data, and success criteria include transparent reporting of power limitations if the sample size is insufficient to detect small effect sizes. FR-001 is interpreted as downloading the full *available* verified dataset for the period, not the entire continental archive.
 
 ## Technical Context
 
@@ -19,7 +19,7 @@ This project implements a reproducible statistical pipeline to analyze the corre
 **Project Type**: Data Science Pipeline / Statistical Analysis  
 **Performance Goals**: Pipeline completion within 6 hours on CPU; GAMM convergence < 600s per species; Block Bootstrap < 1800s.  
 **Constraints**: No local GPU; memory < 7 GB (requires streaming/chunking); no external authentication (public datasets only).  
-**Scale/Scope**: Sampled eBird data (2020-2024 subset), filtered to migratory species in North America; grid resolution of moderate spatial scale.
+**Scale/Scope**: Sampled eBird data (-2024 subset), filtered to migratory species in North America; grid resolution of moderate spatial scale.
 
 ### Data Access Strategy
 - **eBird**: Streamed using the `datasets` library (`load_dataset(..., streaming=True)`) from the verified HuggingFace URL. This ensures consistent caching and versioning.
@@ -98,7 +98,7 @@ tests/
 - **0.3**: **State Synchronization**: Generate/update `state/projects/PROJ-132-statistical-analysis-of-publicly-availab.yaml` with raw data hashes.
 
 ### Phase 1: Preprocessing
-- **1.1**: Stream eBird data, filter for migratory species (2020-2024), aggregate to 0.5° grid.
+- **1.1**: Stream eBird data, filter for migratory species (2020-2024), aggregate to a fine-resolution grid.
 - **1.2**: Compute phenology metrics (th-90th percentile for stopover, median for arrival).
 - **1.3**: Join with Daymet climate data (2020-2024 stream).
 - **1.4**: **Provenance Generation**: Create `data/provenance/row_mapping.json` linking processed rows to original `checklist_id`s.
@@ -112,7 +112,7 @@ tests/
 
 ### Phase 3: Route Analysis
 - **3.1**: Compute migration centroids on S² (Discrete method).
-- **3.2**: Perform Block Bootstrap (block size 4 weeks) for uncertainty quantification.
+- **3.2**: Perform Block Bootstrap (block size weeks) for uncertainty quantification.
 - **3.3**: Generate shift vectors (mean displacement) and p-values.
 - **3.4**: **State Synchronization**: Update state file with trajectory result hashes.
 

@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-This project analyzes bird migration patterns and their correlation with climate change using publicly available data from eBird and NOAA.
+This project analyzes publicly available bird migration data (eBird) and climate data to investigate correlations between climate change and phenological shifts in bird migration patterns.
 
 ## Prerequisites
 
@@ -15,10 +15,10 @@ This project analyzes bird migration patterns and their correlation with climate
 1. Clone the repository:
 ```bash
 git clone <repository-url>
-cd PROJ-132-statistical-analysis-of-publicly-availab
+cd <project-directory>
 ```
 
-2. Create a virtual environment and activate it:
+2. Create a virtual environment:
 ```bash
 python -m venv venv
 source venv/bin/activate # On Windows: venv\Scripts\activate
@@ -34,19 +34,20 @@ pip install -r requirements.txt
 pre-commit install
 ```
 
+This will configure pre-commit to automatically run `black` and `ruff` on your code before each commit.
+
 ## Pre-commit Configuration
 
-This project uses `pre-commit` to enforce code quality standards before commits. The following hooks are configured:
+This project uses pre-commit with the following hooks:
+- **black**: Code formatter (line-length=88, target-version=['py311'])
+- **ruff**: Linter (select=['E','F','W','I'], ignore=[])
 
-- **black**: Code formatting (line-length=88, target-version=['py311'])
-- **ruff**: Linting (select=['E','F','W','I'], ignore=[])
-
-To run pre-commit manually on all files:
+To manually run pre-commit on all files:
 ```bash
 pre-commit run --all-files
 ```
 
-To update pre-commit hooks to the latest versions:
+To update pre-commit hooks:
 ```bash
 pre-commit autoupdate
 ```
@@ -57,27 +58,28 @@ pre-commit autoupdate
 .
 ├── code/
 │ ├── src/
+│ │ ├── config.py
 │ │ ├── data/
 │ │ │ ├── download.py
-│ │ │ ├── preprocess.py
-│ │ │ └── impute.py
-│ │ ├── models/
-│ │ │ ├── gamm_fit.py
-│ │ │ ├── trajectory.py
-│ │ │ └── utils.py
-│ │ └── lib/
-│ │ └── config.py
+│ │ │ ├── impute.py
+│ │ │ └── preprocess.py
+│ │ └── models/
+│ │ ├── gamm_fit.py
+│ │ ├── trajectory.py
+│ │ └── utils.py
 │ ├── tests/
 │ │ ├── contract/
-│ │ ├── unit/
-│ │ └── integration/
+│ │ ├── integration/
+│ │ └── unit/
+│ ├── benchmark_runtime.py
 │ ├── run_pipeline.py
-│ └── benchmark_runtime.py
+│ └── setup_project.py
 ├── data/
 │ ├── raw/
 │ ├── processed/
 │ └── interim/
 ├── docs/
+├── specs/
 ├──.pre-commit-config.yaml
 ├── pyproject.toml
 ├── requirements.txt
@@ -88,64 +90,38 @@ pre-commit autoupdate
 
 ### Running the Pipeline
 
-To run the complete data analysis pipeline:
-
 ```bash
 python code/run_pipeline.py
 ```
 
-For development with synthetic data:
-```bash
-python code/run_pipeline.py --mode=synthetic
-```
-
-For production with real data:
-```bash
-python code/run_pipeline.py --mode=real
-```
-
 ### Running Tests
 
-Run all tests:
 ```bash
 pytest code/tests/
 ```
 
-Run specific test suites:
-```bash
-pytest code/tests/unit/
-pytest code/tests/integration/
-pytest code/tests/contract/
-```
+### Data Requirements
 
-### Benchmarking
-
-To benchmark runtime performance:
-```bash
-python code/benchmark_runtime.py
-```
-
-## Configuration
-
-Key constants are defined in `code/src/lib/config.py`:
-- `SEED=42`: Random seed for reproducibility
-- `GRID_RES=0.5`: Spatial grid resolution in degrees
-- `PERMUTATIONS=10000`: Number of permutations for statistical tests
-
-## Data Sources
-
-- **eBird**: Bird observation data (real or synthetic)
-- **NOAA**: Climate data (real or synthetic)
+This project requires real eBird and NOAA climate data. Set the `DATA_PATH` environment variable to point to your data directory, or ensure real data files are present in `data/raw/`.
 
 See `code/src/data/download.py` for data acquisition details.
 
-## Contributing
+## Configuration
 
-1. Ensure pre-commit hooks pass before committing
-2. Write tests for new functionality
-3. Follow the existing code style (black + ruff)
-4. Update documentation as needed
+Project configuration is managed in `code/src/config.py`. Key parameters include:
+- `GRID_RES`: Spatial grid resolution (default: 0.5 degrees)
+- `PERMUTATIONS`: Number of permutation test shuffles (default: 10000)
+- `SEED`: Random seed for reproducibility (default: 42)
+- Statistical power and CI width targets
 
 ## License
 
-[License information]
+[Add license information here]
+
+## Contributing
+
+1. Create a feature branch
+2. Make your changes
+3. Run `pre-commit run --all-files` to ensure code quality
+4. Run tests: `pytest code/tests/`
+5. Submit a pull request

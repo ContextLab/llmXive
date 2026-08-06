@@ -1,3 +1,17 @@
+T001:
+  c: false
+  h: acee366a56b1bd3d6676fbfaf0e8088397368cd155bb7dc880794116fc9b7511
+  r: The required `src/config.py` file is missing entirely, and there is no evidence
+    that `plan.md` was updated with numeric assumption targets for SC-001 to SC-004.
+    Without these files containing the concrete values, the task is not satisfied.
+T002:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory listings or screenshots were provided to demonstrate that the specified
+    folders (`src/data`, `src/models`, `src/analysis`, `data/raw`, `data/processed`,
+    `data/interim`, `tests/contract`, `tests/unit`, `tests/integration`, `docs`) were
+    actually created. Without concrete evidence of these paths existing, the task
+    cannot be confirmed as completed.
 T014:
   c: false
   h: e54b4837935106f97bcc5c25898dc65a522cf61cfa2919768ebbeaa547451908
@@ -71,3 +85,10 @@ T047:
     \ files with concrete numeric values were supplied. The required artifacts are\
     \ missing or unchanged, so the success\u2011criteria thresholds have not been\
     \ defined."
+T051a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact (e.g., a URL, screenshot, API query result, or script output) was\
+    \ provided to demonstrate that the `vvud/eb-data` dataset actually exists on HuggingFace.\
+    \ Without concrete evidence of the dataset\u2019s presence, the requirement is\
+    \ not satisfied."

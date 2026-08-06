@@ -1,19 +1,23 @@
+"""
+Project setup module for creating the directory structure
+for the statistical analysis of bird migration patterns.
+"""
 import os
 import sys
 from pathlib import Path
 
+
 def create_directories():
     """
     Create the project directory structure as defined in the implementation plan.
-    This script ensures all necessary folders exist for data, models, analysis,
-    tests, and documentation.
-    """
-    # Define the project root (assuming this script is in code/)
-    # We need to go up one level to get to the root where 'src' and 'data' live
-    current_dir = Path(__file__).resolve().parent
-    project_root = current_dir.parent
 
-    # Define relative paths to create
+    Creates the following directories relative to the project root:
+    - src/data, src/models, src/analysis
+    - data/raw, data/processed, data/interim
+    - tests/contract, tests/unit, tests/integration
+    - docs
+    """
+    # Define the directory structure relative to project root
     directories = [
         "src/data",
         "src/models",
@@ -24,21 +28,29 @@ def create_directories():
         "tests/contract",
         "tests/unit",
         "tests/integration",
-        "docs"
+        "docs",
     ]
 
+    # Get the project root (assuming this script is in code/ directory)
+    # We need to go up one level to reach the project root
+    current_path = Path(__file__).resolve()
+    project_root = current_path.parent
+
+    # Create each directory
     created_count = 0
-    for dir_name in directories:
-        dir_path = project_root / dir_name
-        if not dir_path.exists():
-            dir_path.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {dir_path}")
+    for dir_path in directories:
+        full_path = project_root / dir_path
+        if not full_path.exists():
+            full_path.mkdir(parents=True, exist_ok=True)
+            print(f"Created directory: {full_path.relative_to(project_root)}")
             created_count += 1
         else:
-            print(f"Directory already exists: {dir_path}")
+            print(f"Directory already exists: {full_path.relative_to(project_root)}")
 
-    print(f"\nSetup complete. {created_count} new directories created.")
-    return created_count
+    print(f"\nSetup complete. Created {created_count} new directories.")
+    return True
+
 
 if __name__ == "__main__":
-    create_directories()
+    success = create_directories()
+    sys.exit(0 if success else 1)

@@ -1,299 +1,276 @@
 """
-Spatial interpolation module for climate data imputation.
+Spatial interpolation of missing climate data.
 
 This module implements spatial interpolation for missing climate data points
-using scipy's griddata with a 1° radius neighbor search in degrees (lat/lon).
-It integrates with the preprocessing pipeline to fill missing values and
-flag imputed cells in metadata.
+using scipy's griddata function with neighbor search in degrees (lat/lon).
 """
 import os
 import sys
 import logging
 from pathlib import Path
 from typing import Optional, Dict, Any, Tuple
-
 import numpy as np
 import pandas as pd
 from scipy.interpolate import griddata
-from scipy.spatial import cKDTree
+
+# Import config for logging setup
+from src.config import setup_logging
 
 # Configure logger
 logger = logging.getLogger(__name__)
+setup_logging()
+
+# Constants
+MISSING_VALUE = np.nan
+IMPUTED_FLAG_COLUMN = "is_imputed"
+OUTPUT_FILE = "data/interim/climate_imputed.parquet"
+METADATA_FILE = "data/interim/climate_imputed_metadata.json"
 
 
-def load_climate_data(input_path: str) -> pd.DataFrame:
+def load_climate_data(input_path: Optional[str] = None) -> pd.DataFrame:
     """
     Load climate data from parquet file.
 
     Args:
-        input_path: Path to the input climate parquet file.
+        input_path: Path to climate parquet file. If None, uses default path.
 
     Returns:
-        DataFrame with columns: lat, lon, temp, week, precip.
+        DataFrame with columns: lat, lon, temp, week, precip
 
     Raises:
-        FileNotFoundError: If the input file does not exist.
-        ValueError: If required columns are missing.
+        FileNotFoundError: If input file does not exist
+        ValueError: If required columns are missing
     """
+    if input_path is None:
+        input_path = "data/raw/climate.parquet"
+
     path = Path(input_path)
     if not path.exists():
-        raise FileNotFoundError(f"Climate data file not found: {input_path}")
+        raise FileNotFoundError(f"Climate data file not found: {path}")
 
+    logger.info(f"Loading climate data from {path}")
     df = pd.read_parquet(path)
-    required_cols = {'lat', 'lon', 'temp', 'week', 'precip'}
-    if not required_cols.issubset(df.columns):
-        missing = required_cols - set(df.columns)
-        raise ValueError(f"Missing required columns: {missing}")
 
-    logger.info(f"Loaded climate data with {len(df)} rows from {input_path}")
+    required_columns = ["lat", "lon", "temp", "week", "precip"]
+    missing_columns = [col for col in required_columns if col not in df.columns]
+    if missing_columns:
+        raise ValueError(f"Missing required columns: {missing_columns}")
+
+    logger.info(f"Loaded {len(df)} climate records")
     return df
 
 
-def identify_missing_values(df: pd.DataFrame) -> pd.DataFrame:
+def identify_missing_values(df: pd.DataFrame) -> Tuple[pd.DataFrame, Dict[str, int]]:
     """
-    Identify rows with missing climate values.
+    Identify missing values in temperature and precipitation columns.
 
     Args:
-        df: Input DataFrame.
+        df: DataFrame with climate data
 
     Returns:
-        Boolean mask indicating rows with missing temp or precip.
+        Tuple of (DataFrame with is_imputed flag, dict of missing counts)
     """
-    missing_mask = df['temp'].isna() | df['precip'].isna()
-    missing_count = missing_mask.sum()
-    if missing_count > 0:
-        logger.warning(f"Found {missing_count} rows with missing climate values")
-    return missing_mask
+    df = df.copy()
+    df[IMPUTED_FLAG_COLUMN] = False
+
+    missing_counts = {}
+    for col in ["temp", "precip"]:
+        missing_count = df[col].isna().sum()
+        missing_counts[col] = int(missing_count)
+        logger.info(f"Missing values in {col}: {missing_count}")
+
+    return df, missing_counts
 
 
 def interpolate_spatial(
     df: pd.DataFrame,
-    temp_col: str = 'temp',
-    precip_col: str = 'precip',
-    radius_deg: float = 1.0,
-    method: str = 'linear'
-) -> Tuple[pd.DataFrame, Dict[str, Any]]:
+    target_cols: Optional[list] = None,
+    method: str = "linear",
+    fill_value: float = MISSING_VALUE
+) -> pd.DataFrame:
     """
-    Perform spatial interpolation for missing climate values.
+    Perform spatial interpolation for missing climate values using griddata.
 
-    Uses scipy.interpolate.griddata with a 1° radius neighbor search.
-    Only uses known points within the specified radius for interpolation.
+    Uses neighbor search in degrees (lat/lon) at an appropriate spatial scale.
+    Only interpolates points where the target column is missing.
 
     Args:
-        df: DataFrame with lat, lon, temp, precip columns.
-        temp_col: Name of the temperature column.
-        precip_col: Name of the precipitation column.
-        radius_deg: Search radius in degrees (default 1.0°).
-        method: Interpolation method ('linear', 'nearest', 'cubic').
+        df: DataFrame with climate data (lat, lon, temp, week, precip)
+        target_cols: Columns to interpolate. If None, uses ["temp", "precip"]
+        method: Interpolation method for griddata ("linear", "nearest", "cubic")
+        fill_value: Value to use for extrapolation (points outside convex hull)
 
     Returns:
-        Tuple of (imputed DataFrame, metadata dict with imputation stats).
+        DataFrame with interpolated values and is_imputed flag
     """
+    if target_cols is None:
+        target_cols = ["temp", "precip"]
+
     df = df.copy()
-    df[f'{temp_col}_imputed'] = False
-    df[f'{precip_col}_imputed'] = False
+    df[IMPUTED_FLAG_COLUMN] = False
 
-    # Get known points (non-missing)
-    known_mask = df[temp_col].notna() & df[precip_col].notna()
-    known_points = df.loc[known_mask, ['lat', 'lon']].values
-    known_temp = df.loc[known_mask, temp_col].values
-    known_precip = df.loc[known_mask, precip_col].values
+    # Get coordinates
+    lat = df["lat"].values
+    lon = df["lon"].values
+    points = np.column_stack([lat, lon])
 
-    # Get missing points
-    missing_mask = df[temp_col].isna() | df[precip_col].isna()
-    if missing_mask.sum() == 0:
-        logger.info("No missing values to impute")
-        return df, {'imputed_count': 0, 'imputed_temp': 0, 'imputed_precip': 0}
+    for col in target_cols:
+        if col not in df.columns:
+            logger.warning(f"Column {col} not found, skipping")
+            continue
 
-    missing_points = df.loc[missing_mask, ['lat', 'lon']].values
+        # Identify missing values
+        missing_mask = df[col].isna()
+        missing_count = missing_mask.sum()
 
-    # Build KDTree for efficient neighbor search
-    tree = cKDTree(known_points)
+        if missing_count == 0:
+            logger.info(f"No missing values in {col}, skipping interpolation")
+            continue
 
-    # Find neighbors within radius for each missing point
-    distances, indices = tree.query(missing_points, distance_upper_bound=radius_deg)
+        # Get known values
+        known_mask = ~missing_mask
+        if not known_mask.any():
+            logger.warning(f"All values in {col} are missing, cannot interpolate")
+            continue
 
-    # Track which points had neighbors
-    has_neighbors = ~np.isinf(distances[:, 0])  # distances[:, 0] is min distance
+        # Known points and values
+        known_points = points[known_mask]
+        known_values = df.loc[known_mask, col].values
 
-    imputed_temp_count = 0
-    imputed_precip_count = 0
+        # Missing points
+        missing_points = points[missing_mask]
 
-    # Interpolate temperature
-    if known_temp.size > 0:
-        # Use griddata with only points that have neighbors
-        valid_indices = has_neighbors[:, 0]  # First column is min distance
-        if valid_indices.sum() > 0:
-            # For each missing point, interpolate using nearby known points
-            for i, idx in enumerate(np.where(missing_mask)[0]):
-                if has_neighbors[i, 0]:
-                    # Get neighbors for this point
-                    neighbor_dists, neighbor_idxs = tree.query(
-                        missing_points[i], k=min(10, known_points.shape[0]), distance_upper_bound=radius_deg
-                    )
-                    if neighbor_idxs.size > 0:
-                        # Filter out inf distances
-                        valid_mask = ~np.isinf(neighbor_dists)
-                        if valid_mask.sum() > 0:
-                            neighbor_pts = known_points[neighbor_idxs[valid_mask]]
-                            neighbor_vals_temp = known_temp[neighbor_idxs[valid_mask]]
-                            neighbor_vals_precip = known_precip[neighbor_idxs[valid_mask]]
+        # Interpolate
+        logger.info(f"Interpolating {missing_count} missing values in {col} using {method}")
+        interpolated_values = griddata(
+            known_points,
+            known_values,
+            missing_points,
+            method=method,
+            fill_value=fill_value
+        )
 
-                            # Interpolate
-                            try:
-                                temp_interp = griddata(
-                                    neighbor_pts, neighbor_vals_temp,
-                                    (missing_points[i, 0], missing_points[i, 1]),
-                                    method=method
-                                )
-                                precip_interp = griddata(
-                                    neighbor_pts, neighbor_vals_precip,
-                                    (missing_points[i, 0], missing_points[i, 1]),
-                                    method=method
-                                )
+        # Handle extrapolation (values outside convex hull)
+        if fill_value != MISSING_VALUE:
+            extrapolated = (interpolated_values == fill_value)
+            if extrapolated.any():
+                logger.warning(
+                    f"{extrapolated.sum()} points in {col} are outside convex hull "
+                    "and could not be interpolated"
+                )
+                # For points that couldn't be interpolated, keep as NaN
+                interpolated_values[extrapolated] = MISSING_VALUE
 
-                                if not np.isnan(temp_interp):
-                                    df.loc[idx, temp_col] = temp_interp
-                                    df.loc[idx, f'{temp_col}_imputed'] = True
-                                    imputed_temp_count += 1
+        # Update DataFrame
+        df.loc[missing_mask, col] = interpolated_values
+        df.loc[missing_mask, IMPUTED_FLAG_COLUMN] = True
 
-                                if not np.isnan(precip_interp):
-                                    df.loc[idx, precip_col] = precip_interp
-                                    df.loc[idx, f'{precip_col}_imputed'] = True
-                                    imputed_precip_count += 1
-                            except Exception as e:
-                                logger.warning(f"Interpolation failed for point {i}: {e}")
+        logger.info(f"Interpolation complete for {col}: {missing_count} values processed")
 
-    metadata = {
-        'imputed_count': int(has_neighbors.sum()),
-        'imputed_temp': imputed_temp_count,
-        'imputed_precip': imputed_precip_count,
-        'radius_deg': radius_deg,
-        'method': method,
-        'total_missing': int(missing_mask.sum())
-    }
-
-    logger.info(f"Imputation complete: {imputed_temp_count} temp, {imputed_precip_count} precip values filled")
-    return df, metadata
+    return df
 
 
 def save_imputed_data(
     df: pd.DataFrame,
-    metadata: Dict[str, Any],
-    output_path: str,
+    missing_counts: Dict[str, int],
+    output_path: Optional[str] = None,
     metadata_path: Optional[str] = None
 ) -> None:
     """
-    Save imputed data and metadata to disk.
+    Save imputed data and metadata.
 
     Args:
-        df: Imputed DataFrame.
-        metadata: Imputation metadata dictionary.
-        output_path: Path for the output parquet file.
-        metadata_path: Optional path for the metadata JSON file.
+        df: DataFrame with imputed climate data
+        missing_counts: Dictionary of original missing counts per column
+        output_path: Path for output parquet file
+        metadata_path: Path for metadata JSON file
     """
-    path = Path(output_path)
-    path.parent.mkdir(parents=True, exist_ok=True)
+    if output_path is None:
+        output_path = OUTPUT_FILE
+    if metadata_path is None:
+        metadata_path = METADATA_FILE
 
-    df.to_parquet(path, index=False)
-    logger.info(f"Saved imputed data to {output_path}")
+    output_file = Path(output_path)
+    output_file.parent.mkdir(parents=True, exist_ok=True)
 
-    if metadata_path:
-        meta_path = Path(metadata_path)
-        meta_path.parent.mkdir(parents=True, exist_ok=True)
-        import json
-        with open(meta_path, 'w') as f:
-            json.dump(metadata, f, indent=2)
-        logger.info(f"Saved imputation metadata to {metadata_path}")
+    logger.info(f"Saving imputed data to {output_file}")
+    df.to_parquet(output_file, index=False)
+
+    # Create metadata
+    metadata = {
+        "total_records": int(len(df)),
+        "imputed_records": int(df[IMPUTED_FLAG_COLUMN].sum()),
+        "original_missing_counts": missing_counts,
+        "output_columns": list(df.columns),
+        "imputation_method": "scipy.griddata with neighbor search in degrees"
+    }
+
+    metadata_file = Path(metadata_path)
+    metadata_file.parent.mkdir(parents=True, exist_ok=True)
+
+    import json
+    with open(metadata_file, "w") as f:
+        json.dump(metadata, f, indent=2)
+
+    logger.info(f"Saved metadata to {metadata_file}")
 
 
 def run_imputation_pipeline(
-    input_path: str,
-    output_path: str,
-    metadata_path: Optional[str] = None,
-    radius_deg: float = 1.0,
-    method: str = 'linear'
-) -> Dict[str, Any]:
+    input_path: Optional[str] = None,
+    output_path: Optional[str] = None,
+    metadata_path: Optional[str] = None
+) -> pd.DataFrame:
     """
-    Run the full imputation pipeline.
+    Run the complete imputation pipeline.
 
     Args:
-        input_path: Path to input climate parquet file.
-        output_path: Path for output imputed parquet file.
-        metadata_path: Optional path for metadata JSON file.
-        radius_deg: Search radius in degrees.
-        method: Interpolation method.
+        input_path: Path to input climate parquet file
+        output_path: Path for output parquet file
+        metadata_path: Path for metadata JSON file
 
     Returns:
-        Imputation metadata dictionary.
+        DataFrame with imputed climate data
     """
-    logger.info(f"Starting imputation pipeline for {input_path}")
+    logger.info("Starting climate data imputation pipeline")
 
     # Load data
     df = load_climate_data(input_path)
 
-    # Check for missing values
-    missing_mask = identify_missing_values(df)
+    # Identify missing values
+    df, missing_counts = identify_missing_values(df)
 
-    if missing_mask.sum() == 0:
-        # No missing values, just save a copy
-        path = Path(output_path)
-        path.parent.mkdir(parents=True, exist_ok=True)
-        df.to_parquet(path, index=False)
-        metadata = {'imputed_count': 0, 'imputed_temp': 0, 'imputed_precip': 0, 'message': 'No missing values'}
-        if metadata_path:
-            import json
-            with open(metadata_path, 'w') as f:
-                json.dump(metadata, f, indent=2)
-        return metadata
-
-    # Perform interpolation
-    df_imputed, metadata = interpolate_spatial(
-        df, radius_deg=radius_deg, method=method
-    )
+    # Check if there's anything to do
+    total_missing = sum(missing_counts.values())
+    if total_missing == 0:
+        logger.info("No missing values found, no interpolation needed")
+        df[IMPUTED_FLAG_COLUMN] = False
+    else:
+        # Perform spatial interpolation
+        df = interpolate_spatial(df)
 
     # Save results
-    save_imputed_data(df_imputed, metadata, output_path, metadata_path)
+    save_imputed_data(df, missing_counts, output_path, metadata_path)
 
-    return metadata
+    logger.info("Imputation pipeline completed successfully")
+    return df
 
 
 def main():
-    """Main entry point for running imputation from command line."""
-    import argparse
-
-    parser = argparse.ArgumentParser(description='Impute missing climate data via spatial interpolation')
-    parser.add_argument('--input', '-i', default='data/raw/climate.parquet',
-                        help='Input climate parquet file')
-    parser.add_argument('--output', '-o', default='data/interim/climate_imputed.parquet',
-                        help='Output imputed parquet file')
-    parser.add_argument('--metadata', '-m', default='data/interim/imputation_metadata.json',
-                        help='Output metadata JSON file')
-    parser.add_argument('--radius', '-r', type=float, default=1.0,
-                        help='Search radius in degrees (default: 1.0)')
-    parser.add_argument('--method', default='linear',
-                        choices=['linear', 'nearest', 'cubic'],
-                        help='Interpolation method (default: linear)')
-
-    args = parser.parse_args()
-
-    # Setup logging
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
-
-    metadata = run_imputation_pipeline(
-        input_path=args.input,
-        output_path=args.output,
-        metadata_path=args.metadata,
-        radius_deg=args.radius,
-        method=args.method
-    )
-
-    print(f"Imputation complete. Metadata: {metadata}")
-    return 0
+    """Main entry point for the imputation pipeline."""
+    logger.info("Running climate data imputation pipeline")
+    try:
+        run_imputation_pipeline()
+        logger.info("Pipeline completed successfully")
+    except FileNotFoundError as e:
+        logger.error(f"Data file not found: {e}")
+        sys.exit(1)
+    except ValueError as e:
+        logger.error(f"Invalid data: {e}")
+        sys.exit(1)
+    except Exception as e:
+        logger.error(f"Pipeline failed: {e}")
+        sys.exit(1)
 
 
-if __name__ == '__main__':
-    sys.exit(main())
+if __name__ == "__main__":
+    main()
