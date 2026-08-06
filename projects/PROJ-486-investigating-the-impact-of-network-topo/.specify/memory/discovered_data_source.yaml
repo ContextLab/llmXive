@@ -1,14 +1,11 @@
 status: none
-intent: Human Connectome Project S1200 resting-state fMRI download Schaefer atlas
-  python package dataset
+intent: human connectome project 1200 subjects resting state fMRI download python
+  package dataset
 required_fields:
 - subject_id
 - clustering_coefficient
 - characteristic_path_length
-- entrainment_strength
-- spearman_r
-- spearman_p
-- adjusted_p
-cache_key: 7dba7a03ff768bfdb09cf29388f1a68fbd99d4644cc2bbb67c6b66b7c2fdf589
-searched_at: '2026-07-27T21:37:13.877652+00:00'
+- entrainment_strength_metric
+cache_key: 09c9299cb902643e47b3f0367192ea17d431890dedc63d4f1b613118a5b97e2b
+searched_at: '2026-08-06T07:07:52.147786+00:00'
 retry_count: 1
