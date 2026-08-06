@@ -5,7 +5,7 @@
 
 ## Summary
 
-This project implements a computational chemistry pipeline to investigate the correlation between molecular flexibility (quantified via normal‑mode‑analysis‑derived torsional variance) and Caco‑2 membrane permeability (logPapp). The system retrieves raw data from ChEMBL, validates records, generates 3D conformers using RDKit, performs normal‑mode analysis with **PyVib** to derive torsional variance, computes flexibility descriptors (with bond/angle metrics used only for diagnostic purposes), validates conformer ensemble convergence via an iterative stability loop, and conducts statistical analyses controlling for known confounders, protocol heterogeneity, and molecular size. Results are evaluated with robust regression (Huber/Ridge) and 5‑fold cross‑validation, and visualizations are produced for publication.
+This project implements a computational chemistry pipeline to investigate the correlation between molecular flexibility (quantified via normal‑mode‑analysis‑derived torsional variance) and Caco‑2 membrane permeability (logPapp). The system retrieves raw data from ChEMBL, validates records, generates 3D conformers using RDKit, performs normal‑mode analysis with **PyVib** to derive torsional variance, computes flexibility descriptors (with bond/angle metrics used only for diagnostic purposes), validates conformer ensemble convergence via an iterative stability loop, and conducts statistical analyses controlling for known confounders, protocol heterogeneity, and molecular size. Results are evaluated with robust regression (Huber/Ridge) and k-fold cross-validation, and visualizations are produced for publication.
 
 ## Technical Context
 
@@ -17,7 +17,7 @@ This project implements a computational chemistry pipeline to investigate the co
 **Project Type**: Computational Research Pipeline / CLI Tool
 **Performance Goals**: Complete full pipeline (download → visualization) within 6 h on CPU; memory usage < 6 GB.
 **Constraints**: No external API credentials; all datasets fetched programmatically; strict adherence to spec (FR‑001 – FR‑010).
-**Scale/Scope**: Target ~600 raw records (based on preliminary ChEMBL query), ≥ 500 valid after filtering, ≥ 450 molecules with successful NMA-derived descriptors and converged variance.
+**Scale/Scope**: Target a representative set of raw records (based on preliminary ChEMBL query), ≥ 500 valid after filtering, ≥ 450 molecules with successful NMA-derived descriptors and converged variance.
 
 ## Constitution Check
 
@@ -117,7 +117,7 @@ projects/PROJ-266-exploring-the-correlation-between-molecu/
 ## Compute Feasibility
 
 - **CPU‑First**: All steps (RDKit conformer generation, PyVib NMA, statistical analysis) run comfortably on 2 CPU cores for ≤ 500 molecules using batch processing.
-- **Memory Management**: Process molecules in batches of 100; peak RAM < 5 GB.
+- **Memory Management**: Process molecules in batches; peak RAM < 5 GB.
 - **No GPU**: Removed optional GPU offload to guarantee reproducibility on a fresh GitHub Actions runner.
 
 ## Data Strategy

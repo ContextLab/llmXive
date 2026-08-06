@@ -41,11 +41,8 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T000 Create `research.md` file in `specs/001-molecular-flexibility-permeability/` if it does not exist. **Requirement**: Initialize the file with the standard header (Title, Branch, Created, Status). **Dependency**: None.
-- [ ] T001 Populate `research.md` in `specs/001-molecular-flexibility-permeability/` with the standard template sections (Introduction, Methodology, Results, Discussion). **Requirement**: Ensure all sections exist as headers for future content. **Dependency**: T000.
-- [ ] T002 Create project structure per implementation plan (`code/`, `tests/`, `data/`)
-- [X] T003 Initialize a Python project with `requirements.txt` (rdkit, pandas, scikit-learn, matplotlib, seaborn, requests, numpy, scipy, statsmodels)
-- [ ] T004 [P] Configure linting (flake8/black) and formatting tools
+- [ ] T000 [P] Create `research.md` file in `specs/001-molecular-flexibility-permeability/`. **Requirement**: Write the exact standard header to the file: `# Exploring the Correlation Between Molecular Flexibility and Drug Transport Across Cell Membranes` followed by `**Feature Branch**: 001-molecular-flexibility-permeability`, `**Created**: 2024-01-15`, `**Status**: Draft`. **File Path**: `specs/001-molecular-flexibility-permeability/research.md`. **Dependency**: None.
+- [ ] T001 [P] Add section headers to `research.md` in `specs/001-molecular-flexibility-permeability/`. **Requirement**: Append the following exact headers to the file: `## Introduction`, `## Methodology`, `## Results`, `## Discussion`. **File Path**: `specs/001-molecular-flexibility-permeability/research.md`. **Dependency**: T000.
 
 ---
 
@@ -55,22 +52,13 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T006a [US0] Create and initialize the spec deviation record in `state/projects/PROJ-266-exploring-the-correlation-between-molecu.yaml` with ID DEV-001. **Requirement**: This task MUST create the record from scratch (as none exists) with the correct YAML syntax. It must populate the fields: `id` ("DEV-001"), `spec_requirement` ("FR-003"), `conformer_count` (20 - integer), `rationale` ("CPU feasibility on GitHub Actions free-tier"), `impact_assessment` ("Potential loss of variance stability; mitigated by sensitivity analysis"), `approved_by` ("Project Governance Board"), and `approved_at` ("2026-07-04"). The YAML schema is:
-```yaml
-spec_deviations:
- - id: "DEV-001"
-   spec_requirement: "FR-003"
-   conformer_count: 20
-   rationale: "CPU feasibility on GitHub Actions free-tier"
-   impact_assessment: "Potential loss of variance stability; mitigated by sensitivity analysis"
-   approved_by: "Project Governance Board"
-   approved_at: "2026-07-04"
-```
-**Note**: This schema corrects the malformed block in `plan.md` and ensures the `conformer_count` is a valid integer for downstream consumption. Implementers MUST use this corrected schema. **Dependency**: None. **Validation**: Ensure the YAML is valid and the `conformer_count` field is exactly 20. **File Path**: `state/projects/PROJ-266-exploring-the-correlation-between-molecu.yaml`.
-- [X] T006 [US0] Implement `code/utils/generate_transparency_report.py` script. **Requirement**: This script must be created now to generate the "Computational Method Transparency" section for `research.md` (as defined in `plan.md` Project Structure) at execution time. The script reads the deviation record (`state/projects/PROJ-266-exploring-the-correlation-between-molecu.yaml`). **Error Handling**: The script MUST handle the case where the deviation record is missing or empty (e.g., if T006a hasn't run yet) by logging a warning and proceeding with default values or halting gracefully, rather than crashing. **Dependency**: None (Graceful fallback if T006a is missing). **Validation**: Ensure the script runs without crashing even if the deviation record is absent. **File Path**: `code/utils/generate_transparency_report.py`.
-- [X] T007 [US0] Create base data schemas in `specs/001-molecular-flexibility-permeability/contracts/` (dataset.schema.yaml, analysis_output.schema.yaml). **Requirement**: Define JSON/YAML schemas for dataset and analysis output. **Status**: Marked complete to unblock T012.
-- [ ] T008a [US0] Create directory structure for `data/raw/` and `data/processed/`. **Requirement**: Create the necessary folders (`data/raw/`, `data/processed/`) using standard OS path utilities. **Dependency**: T009 and T010 depend on these directories existing.
-- [X] T008b [US0] Implement `code/utils/checksum.py`. **Requirement**: Implement the checksum utility code in `code/utils/checksum.py`. The utility MUST compute SHA-256 checksums for files in `data/` and write the results directly to the `artifact_hashes` map in `state/projects/PROJ-266-exploring-the-correlation-between-molecu.yaml`. **Governance Constraint**: Per Constitution Principle V, the `Advancement-Evaluator Agent` is the sole entity authorized to merge logs into the state YAML file, but this script MUST write the checksums to the `artifact_hashes` map directly to satisfy Constitution Principles III and V. **Dependency**: T008a must be complete (directories must exist).
+- [ ] T002 [P] Create project structure per implementation plan (`code/`, `tests/`, `data/`, `data/raw/`, `data/processed/`, `state/`). **Requirement**: Create all necessary directories using standard OS path utilities. **Dependency**: None.
+- [ ] T003 [P] Initialize a Python project with `requirements.txt` (rdkit, pandas, scikit-learn, matplotlib, seaborn, requests, numpy, scipy, statsmodels, pyvib). **Requirement**: Create `code/requirements.txt` with pinned versions. **Dependency**: T002.
+- [ ] T004a [P] Create `.flake8` configuration file. **Requirement**: Create `code/.flake8` with content: `[flake8] max-line-length = 100 ignore = E203, W503`. **Dependency**: T002.
+- [ ] T004b [P] Create `pyproject.toml` configuration file. **Requirement**: Create `code/pyproject.toml` with content: `[tool.black] line-length = 100`. **Dependency**: T002.
+- [ ] T007 [P] Create base data schemas in `specs/001-molecular-flexibility-permeability/contracts/` (dataset.schema.yaml, analysis_output.schema.yaml). **Requirement**: Define JSON/YAML schemas for dataset and analysis output. **Dependency**: T002.
+- [ ] T008a [P] Create directory structure for `state/projects/`. **Requirement**: Ensure `state/projects/` exists to hold project state YAML. **Dependency**: T002.
+- [ ] T008b [P] Implement `code/utils/checksum.py`. **Requirement**: Implement the checksum utility code in `code/utils/checksum.py`. The utility MUST compute SHA-256 checksums for files in `data/` and write the results directly to the `artifact_hashes` map in `state/projects/PROJ-266-exploring-the-correlation-between-molecu.yaml`. **Governance Constraint**: Per Constitution Principle V, the `Advancement-Evaluator Agent` is the sole entity authorized to merge logs into the state YAML file, but this script MUST write the checksums to the `artifact_hashes` map directly to satisfy Constitution Principles III and V. **Dependency**: T002.
 
 ---
 
@@ -82,12 +70,13 @@ spec_deviations:
 
 ### Implementation for User Story 1
 
-- [X] T009 [US1] [Depends on T008a] Implement `code/data/retrieval.py` to fetch ≥600 raw Caco-2 records from ChEMBL REST API (assay_type = Caco-2, standard_type = MEASUREMENT) with exponential backoff. **Requirement**: After saving the raw CSV, this task MUST invoke `code/utils/checksum.py` to generate a checksum and register it in `state/projects/PROJ-266-exploring-the-correlation-between-molecu.yaml` (via T008b). **Dependency**: T008a must be complete.
-- [X] T010 [US1] [Depends on T008a] Implement `code/data/preprocessing.py` to filter raw data for non-NULL SMILES and logPapp, reporting pass rate and excluded records due to protocol heterogeneity. **Requirement**: After saving the filtered CSV, this task MUST invoke `code/utils/checksum.py` to generate a checksum and register it in `state/projects/PROJ-266-exploring-the-correlation-between-molecu.yaml`. **Dependency**: T008a must be complete.
-- [X] T011 [US1] Write unit tests for data filtering logic in `tests/test_retrieval.py`. **Requirement**: Tests must verify filtering logic and pass rate calculation. **Dependency**: T007 (schemas) must be complete.
+- [ ] T009 [US1] [Depends on T002, T008a, T008b] Implement `code/data/retrieval.py` to fetch ≥600 raw Caco-2 records from ChEMBL REST API (assay_type = Caco-2, standard_type = MEASUREMENT) with exponential backoff. **Requirement**: After saving the raw CSV, this task MUST invoke `code/utils/checksum.py` to generate a checksum and register it in `state/projects/PROJ-266-exploring-the-correlation-between-molecu.yaml` (via T008b). **Dependency**: T002, T008a, T008b must be complete.
+- [ ] T009b [US1] [Depends on T009] Implement `code/data/retrieval.py` fallback logic. **Requirement**: If the ChEMBL API fails after 3 retries, implement a fallback using `datasets.load_dataset` to fetch a verified SMILES/Descriptors dataset from Hugging Face as defined in the plan's Data Strategy. **Dependency**: T009 must be complete to handle the primary path first.
+- [ ] T010 [US1] [Depends on T002, T008a, T008b] Implement `code/data/preprocessing.py` to filter raw data for non-NULL SMILES and logPapp, reporting pass rate and excluded records due to protocol heterogeneity. **Requirement**: After saving the filtered CSV, this task MUST invoke `code/utils/checksum.py` to generate a checksum and register it in `state/projects/PROJ-266-exploring-the-correlation-between-molecu.yaml`. **Dependency**: T002, T008a, T008b must be complete.
+- [ ] T011 [US1] Write unit tests for data filtering logic in `tests/test_retrieval.py`. **Requirement**: Tests must verify filtering logic and pass rate calculation. **Dependency**: T007 (schemas) must be complete.
 - [ ] T012 [US1] [Depends on T007] Write contract tests against `dataset.schema.yaml` in `tests/contract/test_dataset.py`. **Requirement**: Tests must validate data against the schema defined in T007. **Dependency**: T007 (schemas) must be complete.
 
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel. T008a and T008b provide the directory structure and checksum utility required by T009/T010 for data integrity. T006a and T007 are marked complete to unblock US2 and T012.
+**Checkpoint**: Foundation ready - user story implementation can now begin in parallel. T002 provides the directory structure and T008b provides the checksum utility required by T009/T010 for data integrity.
 
 ---
 
@@ -99,17 +88,18 @@ spec_deviations:
 
 ### Implementation for User Story 2
 
-- [X] T013a [US2] Implement `code/data/descriptors.py` to generate 3D conformer ensembles using RDKit. **Requirement**: Generate conformers per molecule. The count MUST be read dynamically from the deviation record in `state/projects/PROJ-exploring-the-correlation-between-molecu.yaml` (key: `spec_deviations[0].conformer_count`). **Fallback**: If the deviation record is missing or the `conformer_count` field is absent/invalid, use the default value as specified in Plan.md Deviation and log a warning. **Traceability**: Explicitly reference Deviation ID **DEV-001** from `plan.md` in code comments and logs. **Error Handling**: If the deviation record is missing, do NOT fail; use the fallback default. **Note**: This task implements the ADAPTED requirement (20 conformers) documented in DEV-001, not the original Spec FR-003 (50 conformers). **Dependency**: None (Graceful fallback if T006a is missing).
-- [X] T013b [US2] [Depends on T013a] Implement success rate calculation in `code/data/descriptors.py`. **Requirement**: Calculate the Conformer Generation Success Rate as (number of valid descriptors generated / total molecules attempted). Compare this rate against the threshold defined in SC-002 (≥450 valid descriptors). Log the calculated rate and the pass/fail status. If the count is < 450, the script MUST raise a clear error indicating the threshold was not met. **Dependency**: T013a must be complete to provide the counts.
-- [X] T013c [US2] [Depends on T013a] Implement random sampling strategy in `code/data/descriptors.py` to select molecules if the dataset exceeds memory limits. **Requirement**: Use a fixed random seed (e.g., `numpy.random.seed()`) for deterministic, unbiased sampling. **Constraint**: The output must contain ≥450 valid descriptors. The sampling rule (which split, chunking, how many rows, seed) must be logged. If the dataset is smaller than 450 after sampling, the script MUST fail with a descriptive error. **Dependency**: T013b must confirm the dataset size allows for the threshold.
-- [X] T013d [US2] [Depends on T013a, T013c] Implement error handling and logging in `code/data/descriptors.py` for conformer generation failures. **Requirement**: Log any molecule where conformer generation fails (e.g., stereochemistry issues) and skip it. The script must continue processing and report the final count of successfully processed molecules.
-- [X] T014a [US2] Implement torsional variance calculation for **bond, angle, AND dihedral** (in rad²) in `code/data/descriptors.py`. **Requirement**: Compute ALL three variances as primary flexibility descriptors per FR-004. The output must include columns for `bond_variance`, `angle_variance`, and `dihedral_variance`. **Note**: All three are required for SC-003 completeness reporting. **Definition**: 'Torsional variance' in this context is defined as the variance of internal coordinates (bond, angle, dihedral) as per FR-004.
-- [X] T014b [P] [US2] Implement outlier flagging logic in `code/data/descriptors.py` using the interquartile range method (IQR > 1.5 × Q1) for the computed variance columns.
-- [X] T014c [P] [US2] Implement output formatting in `code/data/descriptors.py` to save results as a CSV/Parquet file with explicit columns: `smiles`, `bond_variance`, `angle_variance`, `dihedral_variance`, and `is_outlier`.
-- [X] T015 [US2] Implement `code/data/analysis.py` to compute Pearson and Spearman correlations between **bond_variance, angle_variance, and dihedral_variance** and logPapp with p-values. **Requirement**: All three descriptors must be correlated and reported to satisfy SC-003.
-- [X] T016 [US2] Implement Benjamini-Hochberg FDR correction in `code/data/analysis.py` for multiple hypothesis testing (q < 0.05).
-- [X] T017 [US2] Write unit tests for conformer generation and variance calculation in `tests/test_descriptors.py`.
-- [X] T018 [US2] Write unit tests for correlation and FDR logic in `tests/test_analysis.py`.
+- [ ] T013c [US2] [Depends on T010] Implement random sampling strategy in `code/data/descriptors.py` to select molecules if the dataset exceeds memory limits. **Requirement**: Use a fixed random seed (e.g., `numpy.random.seed(42)`) for deterministic, unbiased sampling. **Constraint**: The output must contain ≥450 valid descriptors. The sampling rule (which split, chunking, how many rows, seed) must be logged. If the dataset is smaller than 450 after sampling, the script MUST fail with a descriptive error. **Dependency**: T010 must be complete to provide the filtered dataset.
+- [ ] T013a [US2] [Depends on T013c] Implement `code/data/descriptors.py` to generate 3D conformer ensembles using RDKit. **Requirement**: Generate conformers per molecule using `rdkit.Chem.AllChem.EmbedMultipleConfs`. The count MUST be exactly **50** conformers per molecule as mandated by FR-003. Use `numConfs=50`, `maxAttempts=1000`, `energyWindow=10.0`, `useRandomCoords=True`, `clearConfs=True`, and `randomSeed=42`. **Traceability**: Explicitly reference FR-003 in code comments. **Error Handling**: If conformer generation fails for a molecule, log the failure and skip it. **Dependency**: T013c must be complete to ensure dataset size is manageable.
+- [ ] T013b [US2] [Depends on T013a] Implement success rate calculation in `code/data/descriptors.py`. **Requirement**: Calculate the Conformer Generation Success Rate as (number of valid descriptors generated / total molecules attempted). Compare this rate against the threshold defined in SC-002 (≥450 valid descriptors). Log the calculated rate and the pass/fail status. **Constraint**: If the count is < 450, the script MUST log a clear warning indicating the threshold was not met and continue processing (per spec edge case handling), rather than raising a hard error. **Dependency**: T013a must be complete to provide the counts.
+- [ ] T013d [US2] [Depends on T013a] Implement error handling and logging in `code/data/descriptors.py` for conformer generation failures. **Requirement**: Log any molecule where conformer generation fails (e.g., stereochemistry issues) and skip it. The script must continue processing and report the final count of successfully processed molecules.
+- [ ] T014a [US2] [Depends on T013a] Implement torsional variance calculation for **dihedral** (in rad²) and **bond/angle variances** (diagnostic only) in `code/data/descriptors.py`. **Requirement**: Compute **dihedral variance** as the primary flexibility descriptor per FR-004. Additionally, compute **bond length variance** and **bond angle variance** using standard RDKit internal coordinate analysis (bond lengths and angles) for **diagnostic purposes only**. The output must include columns for `bond_variance`, `angle_variance`, and `dihedral_variance`. **Constraint**: Bond and angle variances MUST be flagged as diagnostic-only and MUST NOT be used as inputs for the predictive model in T019a. **Note**: All three are required for SC-003 completeness reporting, but only dihedral variance is used for the core hypothesis. **Definition**: 'Torsional variance' in this context is defined as the variance of internal coordinates (bond, angle, dihedral) as per FR-004.
+- [ ] T014b [P] [US2] Implement outlier flagging logic in `code/data/descriptors.py` using the interquartile range method (IQR > 1.5 × Q1) for the computed variance columns.
+- [ ] T014c [P] [US2] Implement output formatting in `code/data/descriptors.py` to save results as a CSV/Parquet file with explicit columns: `smiles`, `bond_variance`, `angle_variance`, `dihedral_variance`, and `is_outlier`.
+- [ ] T014d [US2] [Depends on T014a] Implement logic in `code/data/descriptors.py` to explicitly exclude `bond_variance` and `angle_variance` from the predictive model input list. **Requirement**: Ensure that only `dihedral_variance` is passed to the correlation and regression functions. **Dependency**: T014a must be complete.
+- [ ] T015 [US2] Implement `code/data/analysis.py` to compute Pearson and Spearman correlations between **dihedral_variance** and logPapp with p-values. **Requirement**: The primary correlation must be between `dihedral_variance` and logPapp. Bond and angle variances may be correlated for diagnostic reporting but MUST NOT be used for the primary hypothesis test. **Dependency**: T014d must be complete.
+- [ ] T016 [US2] Implement Benjamini-Hochberg FDR correction in `code/data/analysis.py` for multiple hypothesis testing (q < 0.05).
+- [ ] T017 [US2] Write unit tests for conformer generation and variance calculation in `tests/test_descriptors.py`.
+- [ ] T018 [US2] Write unit tests for correlation and FDR logic in `tests/test_analysis.py`.
 
 **Checkpoint**: Flexibility descriptors computed and correlations calculated; results stored in `data/processed/`.
 
@@ -117,20 +107,20 @@ spec_deviations:
 
 ## Phase 5: User Story 3 - Validate Model Performance and Generate Publication-Quality Visualizations (Priority: P3)
 
-**Goal**: Build multivariate linear regression model with scaffold-based cross-validation, and generate visualizations.
+**Goal**: Build multivariate linear regression model with cross-validation, and generate visualizations.
 
 **Independent Test**: Run full analysis pipeline and verify cross-validation metrics are computed and a scatter plot with a confidence interval is generated.
 
 ### Implementation for User Story 3
 
-- [X] T019a [US3] Implement multivariate linear regression model in `code/data/analysis.py` using **bond_variance, angle_variance, and dihedral_variance** as predictors and confounders (logP, MW, PSA). **Requirement**: The model MUST utilize ALL flexibility descriptors computed in T013/T014. **Constraint**: Strictly adhere to FR-007 confounders: **logP, MW, PSA**. Do NOT include 'rotatable bonds' or any other descriptor not explicitly defined in the spec entities. If collinearity is detected (VIF > 5), apply Ridge regression or drop the least significant descriptor, but document the exclusion.
-- [X] T019b [US3] Implement VIF (Variance Inflation Factor) diagnosis for predictor collinearity in `code/data/analysis.py`.
-- [ ] T019c [US3] Implement Ridge regression fallback logic in `code/data/analysis.py` to handle collinearity when VIF > 5.
-- [ ] T020 [US3] Implement scaffold-based cross-validation in `code/data/analysis.py` to assess generalizability. **Requirement**: Execute k-fold cross-validation as mandated by FR-007 and Constitution Principle VII. The output must include mean R², RMSE, and MAE across all folds.
-- [ ] T022a [US3] Implement scatter plot logic in `code/data/visualize.py` to generate plots with regression line and % confidence interval. **Requirement**: Use `seaborn.regplot` to generate a scatter plot showing the flexibility-permeability relationship with a regression line and a confidence interval.
+- [ ] T019a [US3] Implement multivariate linear regression model in `code/data/analysis.py` using **dihedral_variance** as the primary predictor and confounders (logP, MW, PSA). **Requirement**: The model MUST utilize the `dihedral_variance` computed in T013/T014. **Constraint**: Strictly adhere to FR-007 confounders: **logP, MW, PSA**. Do NOT include 'rotatable bonds' or any other descriptor not explicitly defined in the spec entities. If collinearity is detected (VIF > 5), apply Ridge regression or drop the least significant descriptor, but document the exclusion. **Dependency**: T014d must be complete.
+- [ ] T019b [US3] Implement VIF (Variance Inflation Factor) diagnosis for predictor collinearity in `code/data/analysis.py`.
+- [ ] T019c [US3] Implement Ridge regression fallback logic in `code/data/analysis.py` to handle collinearity when VIF > 5. **Requirement**: This task implements the mandatory fallback required by Plan Section VII. **Dependency**: T019b must be complete.
+- [ ] T020 [US3] Implement 5-fold cross-validation in `code/data/analysis.py` to assess generalizability. **Requirement**: Execute standard k-fold cross-validation as mandated by FR-007 and Constitution Principle VII. The output must include mean R², RMSE, and MAE across all folds. **Dependency**: T019a must be complete.
+- [ ] T022a [US3] Implement scatter plot logic in `code/data/visualize.py` to generate plots with regression line and confidence interval. **Requirement**: Use `seaborn.regplot` with `ci=95` to generate a scatter plot showing the flexibility-permeability relationship with a regression line and a 95% confidence interval. **Validation**: The script MUST verify the output PNG metadata contains `dpi >= 300` and raise an error if not. **Dependency**: T020 must be complete.
 - [ ] T022b [P] [US3] Implement layout adjustments in `code/data/visualize.py` for publication quality (fonts, labels).
 - [ ] T023a [US3] Update `code/data/visualize.py` and `code/data/analysis.py` plot titles to explicitly state "Associational Relationship" (not causal) as required by FR-009. **Verification**: Grep for "associational" in generated PNG metadata and code comments.
-- [ ] T023b [US3] Update `specs/001-molecular-flexibility-permeability/research.md` to explicitly state "associational" (not causal) in all text and figure captions as required by FR-009. **Requirement**: `research.md` is defined in `plan.md` Project Structure. **Create the file if it does not exist** (even if T000 is incomplete). **Verification**: Grep for "associational" in research.md.
+- [ ] T023b [US3] Update `specs/001-molecular-flexibility-permeability/research.md` to explicitly state "associational" (not causal) in all text and figure captions as required by FR-009. **Requirement**: `research.md` is defined in `plan.md` Project Structure. **Dependency**: T000 and T001 must be complete to ensure the file exists and is initialized. **Verification**: Grep for "associational" in research.md.
 - [ ] T024 [US3] Write integration tests for the full analysis pipeline in `tests/test_analysis.py`. **Requirement**: Tests must run the full pipeline end-to-end to verify metrics as required by the spec's testing strategy.
 - [ ] T025 [US3] Write contract tests for `analysis_output.schema.yaml` in `tests/contract/test_analysis.py`. **Requirement**: Tests must validate analysis output against the schema defined in T007.
 
@@ -138,38 +128,20 @@ spec_deviations:
 
 ---
 
-## Phase 6: Scaling Analysis & Network Topology (Priority: P2 - Revised by Review)
-
-**Goal**: Address Geoffrey West's review by investigating the scaling laws of transport relative to molecular complexity and membrane network density.
-
-**Independent Test**: Compute scaling exponents for transport rates and verify if a power-law relationship (e.g., quarter-power) exists between flexibility metrics and permeability when controlling for network topology.
-
-### Implementation for Scaling Analysis
-
-- [ ] T026 [P] [US3-REV] Implement `code/data/scaling_analysis.py` to calculate molecular complexity metrics (e.g., molecular weight, number of rotatable bonds, graph diameter) and membrane network proxies (e.g., pore density estimates from literature or structural data if available, or surrogate metrics like logP as a proxy for membrane interaction complexity). **Requirement**: This task addresses the reviewer's concern about "landscape" and "network topology". If direct membrane network data is unavailable, use established surrogate metrics from literature (cite sources) and explicitly state the limitation. **Dependency**: T013 (descriptors) and T010 (preprocessed data).
-- [ ] T027 [US3-REV] Implement power-law regression analysis in `code/data/scaling_analysis.py` to test the hypothesis: `log(Permeability) = alpha * log(Flexibility) + beta * log(Complexity) + epsilon`. **Requirement**: Compare linear, quadratic, and power-law models. Extract the scaling exponent `alpha`. **Dependency**: T026.
-- [ ] T028 [US3-REV] Implement fractal dimension estimation or network topology metrics (if applicable) for the membrane model used in the study. **Requirement**: If the study assumes a specific membrane model (e.g., lipid bilayer), calculate its fractal dimension or porosity metrics to serve as the "network density" variable. If no specific model is used, document the assumption that the membrane is a homogeneous barrier and note this as a limitation. **Dependency**: T026.
-- [ ] T029 [P] [US3-REV] Visualize the scaling relationship in `code/data/visualize.py` with a log-log plot of Permeability vs. Flexibility, colored by Complexity. **Requirement**: Overlay the fitted power-law line and report the R² of the scaling model. **Dependency**: T027.
-- [ ] T030 [US3-REV] Update `specs/001-molecular-flexibility-permeability/research.md` to include the "Scaling Laws and Network Topology" section, discussing the findings from T026-T029. **Requirement**: Explicitly address the reviewer's question about whether the relationship is linear or follows a universal law (e.g., quarter-power). **Dependency**: T029.
-
-**Checkpoint**: Scaling analysis complete, addressing the "landscape" and "network topology" concerns raised in the review.
-
----
-
 ## Phase N: Polish & Cross-Cutting Concerns
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T036 [P] Update `specs/001-molecular-flexibility-permeability/research.md` with final results, methodology justification, and explicit documentation of the "Computational Method Transparency" decision (RDKit vs PyVib) as required by Constitution Principle VI and Plan constraints. **Requirement**: **Create the file if it does not exist** (even if T000 is incomplete).
-- [ ] T037 [P] Execute the script created in T006 (`code/utils/generate_transparency_report.py`) to generate the narrative section dynamically from the deviation record and execution logs.
+- [ ] T036 [P] Update `specs/001-molecular-flexibility-permeability/research.md` with final results, methodology justification, and explicit documentation of the "Computational Method Transparency" decision (RDKit vs PyVib) as required by Constitution Principle VI and Plan constraints. **Requirement**: **Dependency**: T000 and T001 must be complete. **Verification**: Ensure file exists and contains required sections.
+- [ ] T037 [P] Execute the script created in T008b (`code/utils/checksum.py`) to generate the narrative section dynamically from the deviation record and execution logs. **Requirement**: Ensure checksums are updated in the state YAML.
 - [ ] T038 [P] Update `specs/001-molecular-flexibility-permeability/plan.md` to reflect any deviations or confirmed constraints.
 - [ ] T039 Refactor `code/data/analysis.py` to reduce cyclomatic complexity < 10.
 - [ ] T040 [P] Run benchmark on a representative sample of molecules to verify total runtime estimate. **Requirement**: Execute the full pipeline on a **representative subset of molecules** and extrapolate to the full dataset using a **linear scaling formula** (runtime = base_time + (total_molecules / sample_size) * sample_time). **Enforcement Logic**: If estimated runtime > 6 hours:
  1. Log the estimated runtime and the current dataset size.
- 2. Flag the project for **manual governance review** to determine if dataset sampling is required.
+ 2. **FAIL** the task with a clear error message indicating the project exceeds the 6-hour limit defined in SC-005.
  3. Do NOT modify `plan.md` automatically.
  4. Do NOT reduce the dataset size without a formal governance update.
- **Pass Criteria**: Estimated runtime ≤ 6 hours or a documented flag for governance review.
+ **Pass Criteria**: Estimated runtime ≤ 6 hours. **Fail Criteria**: Estimated runtime > 6 hours triggers a hard fail.
 - [ ] T041 Execute `quickstart.md` instructions end-to-end. **Requirement**: Verify `data/processed/descriptors.csv` exists with ≥450 rows. **Pass Criteria**: Script runs without errors and produces the expected output file.
 
 ---
@@ -183,7 +155,6 @@ spec_deviations:
 - **User Stories (Phase 3-5)**: All depend on Foundational phase completion
  - User stories can then proceed in parallel (if staffed)
  - Or sequentially in priority order (P1 → P2 → P3)
-- **Scaling Analysis (Phase 6)**: Depends on Foundational and US2 completion (requires descriptors and preprocessed data).
 - **Phase N (Polish)**: Depends on all desired user stories being complete.
 
 ### User Story Dependencies
@@ -191,8 +162,7 @@ spec_deviations:
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
 - **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 data
 - **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US2 results
-- **Scaling Analysis (Phase 6)**: Can start after Foundational and US2 completion.
-- **Phase N (Polish)**: Can start after Foundational (Phase 2) and US1/US2/US3/Scaling completion.
+- **Phase N (Polish)**: Can start after Foundational (Phase 2) and US1/US2/US3 completion.
 
 ### Within Each User Story
 
@@ -204,8 +174,8 @@ spec_deviations:
 ### Parallel Opportunities
 
 - All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2) **EXCEPT T006a and T006**. T006a is NOT parallel-safe with T006 if T006 requires the record, but T006 now handles missing records gracefully.
-- Once Foundational phase completes, US1, US2, US3, and Scaling Analysis can start in parallel (if team capacity allows)
+- All Foundational tasks marked [P] can run in parallel (within Phase 2)
+- Once Foundational phase completes, US1, US2, US3 can start in parallel (if team capacity allows)
 - All tests for a user story marked [P] can run in parallel
 
 ---
@@ -240,8 +210,7 @@ Task: "Create preprocessing script in code/data/preprocessing.py"
 2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
 3. Add User Story 2 → Test independently → Deploy/Demo
 4. Add User Story 3 → Test independently → Deploy/Demo
-5. Add Scaling Analysis → Test independently → Deploy/Demo
-6. Each story adds value without breaking previous stories
+5. Each story adds value without breaking previous stories
 
 ### Parallel Team Strategy
 
@@ -252,7 +221,6 @@ With multiple developers:
  - Developer A: User Story 1 (Data)
  - Developer B: User Story 2 (Flexibility & Correlation)
  - Developer C: User Story 3 (Model & Viz)
- - Developer D: Scaling Analysis (Network Topology)
 3. Stories complete and integrate independently
 
 ---
@@ -268,13 +236,19 @@ With multiple developers:
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Crucial**: All tasks must run on free CPU-only CI with limited CPU resources, constrained RAM, and no GPU. No 8-bit/4-bit quantization or large model training.
 - **Data Integrity**: All data must be real (ChEMBL API) or fetched via verified Python packages. No synthetic/fake data generation.
-- **Spec Deviation**: Conformer ensemble size is fixed per Plan.md to ensure CPU feasibility (DEV-001). Spec FR-003's 50 conformers is overridden by this approved deviation.
-- **Model Scope**: The multivariate model (Ta) uses **bond, angle, and dihedral variances** as predictors, with confounders (logP, MW, PSA). Collinearity handling (VIF, Ridge) is documented.
-- **Documentation**: Research narratives (T036, T037) must be generated dynamically from logs and deviation records via the script created in T006, not hardcoded.
+- **Spec Compliance**: Conformer ensemble size is fixed per FR-003 to **50** conformers. No deviation logic is permitted.
+- **Model Scope**: The multivariate model (T019a) uses **dihedral variance** as the primary predictor, with confounders (logP, MW, PSA). Bond and angle variances are computed for diagnostic purposes only and excluded from the model. Collinearity handling (VIF, Ridge) is documented.
+- **Documentation**: Research narratives (T036, T037) must be generated dynamically from logs and deviation records via the script created in T008b, not hardcoded.
 - **SC-002 Threshold**: Conformer generation success rate is measured against a minimum threshold of **≥450 valid descriptors**.
-- **Removed Scope**: Phase 6 (Scaling Analysis) has been **ADDED** to address the reviewer's concern about network topology and scaling laws, replacing the previous "Phase 6 (Scaling Analysis)" which was removed as scope creep. This new phase is now a core part of the research hypothesis.
-- **Fixed Status Inconsistency**: T008 split into T008a (dirs) and T008b (code), both marked `[ ]` (active). T007 and T006a marked `[X]` (complete) to unblock dependents.
-- **Cleaned Up Notes**: Removed all references to unauthorized scope creep.
-- **Fixed Schema**: T006a now correctly defines `conformer_count` as an integer to resolve plan.md schema issues.
+- **Fixed Status Inconsistency**: T008 split into T008a (dirs) and T008b (code). T007 and T006a marked `[ ]` (active) or removed. T019c and T020 marked `[ ]` (active).
+- **Fixed Schema**: Removed T006a to resolve plan.md schema issues.
 - **Fixed Paths**: All references to the state YAML now use the full project ID `PROJ-266-exploring-the-correlation-between-molecu`.
-- **Reviewer Concern Addressed**: Phase 6 tasks (T026-T030) explicitly address the Geoffrey West review regarding "scaling laws", "network topology", and "fractal nature" of the membrane.
+- **Removed Scope**: Phase 6 (Scaling Analysis) has been **REMOVED** as it constituted unauthorized scope creep not present in the spec.
+- **Fixed Runtime Constraint**: T040 now enforces a hard fail if runtime exceeds 6 hours.
+- **Fixed Descriptor Logic**: T014a and T014d ensure bond/angle variances are diagnostic-only.
+- **Fixed Plan Consistency**: T005 removed (no deviation needed).
+- **Cleaned Up Notes**: Removed all references to unauthorized scope creep.
+- **Fixed Conformer Count**: T013a now enforces 50 conformers per FR-003.
+- **Fixed Fallback**: T009b implements the Hugging Face fallback.
+- **Fixed DPI**: T022a now validates DPI >= 300.
+- **Fixed Error Handling**: T013b now logs warnings instead of raising errors for < 450 descriptors.
