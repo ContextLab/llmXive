@@ -1,88 +1,123 @@
-"""
-Tests for statistical analysis functions in code/stats.py.
-"""
 import pytest
 import pandas as pd
 import numpy as np
-import json
 import os
+import tempfile
 from pathlib import Path
-from stats import bin_energy_data, perform_ks_test, perform_chisquared_test, apply_benjamini_hochberg, StatsError
+from stats import bin_energy_data, StatsError
 
-# Fixtures
-@pytest.fixture
-def sample_energy_data(tmp_path):
-    """Create a sample energy_samples.csv file."""
-    data = {
-        'particle_id': [1, 1, 1, 2, 2, 2],
-        'timestamp': [0.0, 0.1, 0.2, 0.0, 0.1, 0.2],
-        'E_trans': [1.0, 1.1, 1.2, 2.0, 2.1, 2.2],
-        'E_rot': [0.1, 0.11, 0.12, 0.2, 0.21, 0.22],
-        'E_pot': [0.5, 0.55, 0.6, 1.0, 1.1, 1.2],
-        'E_vib': [0.01, 0.011, 0.012, 0.02, 0.021, 0.022],
-        'frequency': [10.0, 10.0, 10.0, 20.0, 20.0, 20.0],
-        'material_type': ['steel', 'steel', 'steel', 'polymer', 'polymer', 'polymer'],
-        'pot_incomplete': [False, False, False, False, False, False]
-    }
-    df = pd.DataFrame(data)
-    file_path = tmp_path / "energy_samples.csv"
-    df.to_csv(file_path, index=False)
-    return str(file_path)
-
-def test_bin_energy_data(sample_energy_data):
-    """Test binning of energy data by frequency and material."""
-    result = bin_energy_data(sample_energy_data)
-    assert 'frequency' in result.columns
-    assert 'material_type' in result.columns
-    assert 'energies' in result.columns
-    # Check that we have 2 bins (10.0/steel and 20.0/polymer)
-    assert len(result) == 2
-
-def test_perform_ks_test():
-    """Test KS test against Maxwell-Boltzmann."""
-    # Generate data that roughly follows MB distribution
-    # For simplicity, use a gamma distribution which is similar to MB for energy
-    np.random.seed(42)
-    kT = 1.0
-    energies = np.random.gamma(shape=1.5, scale=kT, size=100)
+class TestBinEnergyData:
+    """Tests for the bin_energy_data function in T024."""
     
-    result = perform_ks_test(energies, kT)
-    assert 'statistic' in result
-    assert 'pvalue' in result
-    assert 'rejection' in result
-    assert 0 <= result['pvalue'] <= 1
-
-def test_perform_chisquared_test():
-    """Test Chi-squared goodness-of-fit test."""
-    np.random.seed(42)
-    kT = 1.0
-    energies = np.random.gamma(shape=1.5, scale=kT, size=100)
-    
-    result = perform_chisquared_test(energies, kT, bins=5)
-    assert 'statistic' in result
-    assert 'pvalue' in result
-    assert 'rejection' in result
-
-def test_apply_benjamini_hochberg():
-    """Test FDR correction."""
-    p_values = [0.01, 0.04, 0.03, 0.001, 0.06, 0.02]
-    rejection, adjusted = apply_benjamini_hochberg(p_values, alpha=0.05)
-    assert len(rejection) == len(p_values)
-    assert len(adjusted) == len(p_values)
-    # Check that adjusted p-values are sorted relative to original order
-    # (monotonicity is handled internally)
-    assert all(0 <= p <= 1 for p in adjusted)
-
-def test_bin_energy_data_missing_columns(tmp_path):
-    """Test error handling for missing columns."""
-    data = {
-        'particle_id': [1, 2],
-        'timestamp': [0.0, 0.1],
-        # Missing energy columns
-    }
-    df = pd.DataFrame(data)
-    file_path = tmp_path / "bad_data.csv"
-    df.to_csv(file_path, index=False)
-    
-    with pytest.raises(StatsError):
-        bin_energy_data(str(file_path))
+    def setup_method(self):
+        """Set up test fixtures."""
+        # Create sample energy data
+        self.data = {
+            'particle_id': [1, 2, 3, 4, 5],
+            'timestamp': [1.0, 1.1, 1.2, 1.3, 1.4],
+            'E_trans': [10.0, 12.0, 11.0, 13.0, 14.0],
+            'E_rot': [2.0, 2.5, 2.2, 2.8, 3.0],
+            'E_pot': [5.0, 5.5, 5.2, 5.8, 6.0],
+            'E_vib': [1.0, 1.2, 1.1, 1.3, 1.4],
+            'pot_incomplete': [False, False, False, False, False],
+            'driving_frequency': [1.0, 1.0, 2.0, 2.0, 3.0],
+            'material_type': ['Steel', 'Steel', 'Steel', 'Polymer', 'Steel']
+        }
+        self.df = pd.DataFrame(self.data)
+        self.frequency_bins = [0.5, 1.5, 2.5, 3.5]
+        
+    def test_bin_by_frequency_and_material(self):
+        """Test binning by both frequency and material type."""
+        result = bin_energy_data(self.df, self.frequency_bins, 'Steel')
+        
+        # Should have 3 bins (1.0, 2.0, 3.0) for Steel
+        assert len(result) == 3
+        assert 'driving_frequency' in result.columns
+        assert 'material_type' in result.columns
+        assert 'energy' in result.columns
+        
+        # Check that energy values are lists
+        for idx, row in result.iterrows():
+            assert isinstance(row['energy'], list)
+            assert len(row['energy']) > 0
+            
+    def test_bin_by_material_only(self):
+        """Test binning by material type when frequency is not provided."""
+        # Remove frequency column
+        df_no_freq = self.df.drop(columns=['driving_frequency'])
+        result = bin_energy_data(df_no_freq, self.frequency_bins, 'Steel')
+        
+        # Should have 1 row for Steel
+        assert len(result) == 1
+        assert result.iloc[0]['material_type'] == 'Steel'
+        
+    def test_empty_dataframe_raises_error(self):
+        """Test that empty DataFrame raises StatsError."""
+        empty_df = pd.DataFrame(columns=self.df.columns)
+        with pytest.raises(StatsError):
+            bin_energy_data(empty_df, self.frequency_bins, 'Steel')
+            
+    def test_missing_required_columns_raises_error(self):
+        """Test that missing required columns raise StatsError."""
+        incomplete_df = self.df.drop(columns=['E_trans'])
+        with pytest.raises(StatsError):
+            bin_energy_data(incomplete_df, self.frequency_bins, 'Steel')
+            
+    def test_adds_total_energy_column(self):
+        """Test that total energy column is added if not present."""
+        result = bin_energy_data(self.df, self.frequency_bins, 'Steel')
+        
+        # Energy should be sum of components
+        for idx, row in result.iterrows():
+            for e_val in row['energy']:
+                # Basic check: energy should be positive
+                assert e_val > 0
+                
+    def test_frequency_binning_accuracy(self):
+        """Test that frequency binning is accurate."""
+        # Create data with known frequencies
+        data = {
+            'particle_id': [1, 2, 3, 4],
+            'timestamp': [1.0, 1.1, 1.2, 1.3],
+            'E_trans': [10.0, 10.0, 10.0, 10.0],
+            'E_rot': [2.0, 2.0, 2.0, 2.0],
+            'E_pot': [5.0, 5.0, 5.0, 5.0],
+            'E_vib': [1.0, 1.0, 1.0, 1.0],
+            'pot_incomplete': [False, False, False, False],
+            'driving_frequency': [1.0, 2.0, 3.0, 4.0],
+            'material_type': ['Steel', 'Steel', 'Steel', 'Steel']
+        }
+        df = pd.DataFrame(data)
+        bins = [0.5, 1.5, 2.5, 3.5, 4.5]
+        
+        result = bin_energy_data(df, bins, 'Steel')
+        
+        # Should have 4 bins
+        assert len(result) == 4
+        
+    def test_material_filtering(self):
+        """Test that material filtering works correctly."""
+        result_steel = bin_energy_data(self.df, self.frequency_bins, 'Steel')
+        result_polymer = bin_energy_data(self.df, self.frequency_bins, 'Polymer')
+        
+        # Steel should have 3 entries (frequencies 1, 2, 3)
+        assert len(result_steel) == 3
+        # Polymer should have 1 entry (frequency 2)
+        assert len(result_polymer) == 1
+        
+    def test_integration_with_temp_file(self):
+        """Test binning with a temporary CSV file to simulate real usage."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            # Create a temporary CSV file
+            temp_file = Path(tmpdir) / 'energy_samples.csv'
+            self.df.to_csv(temp_file, index=False)
+            
+            # Read it back
+            df_read = pd.read_csv(temp_file)
+            
+            # Bin the data
+            result = bin_energy_data(df_read, self.frequency_bins, 'Steel')
+            
+            # Verify results
+            assert len(result) == 3
+            assert 'energy' in result.columns

@@ -31,30 +31,35 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
                [--stage {all,checksum_raw,hash_artifacts,ingest,stats,sensitivity,regression}]
                [--config CONFIG] [--verbose] [--sample-ratio SAMPLE_RATIO]
                [--alpha ALPHA] [--thresholds THRESHOLDS]
+               [--data-source DATA_SOURCE] [--local-only]
 main.py: error: unrecognized arguments: --step ingestion
 - python code/main.py --step stats --alpha 0.01 -> rc=2
     usage: main.py [-h]
                [--stage {all,checksum_raw,hash_artifacts,ingest,stats,sensitivity,regression}]
                [--config CONFIG] [--verbose] [--sample-ratio SAMPLE_RATIO]
                [--alpha ALPHA] [--thresholds THRESHOLDS]
+               [--data-source DATA_SOURCE] [--local-only]
 main.py: error: unrecognized arguments: --step stats
 - python code/main.py --step sensitivity --thresholds 0.01,0.05,0.10 -> rc=2
     usage: main.py [-h]
                [--stage {all,checksum_raw,hash_artifacts,ingest,stats,sensitivity,regression}]
                [--config CONFIG] [--verbose] [--sample-ratio SAMPLE_RATIO]
                [--alpha ALPHA] [--thresholds THRESHOLDS]
+               [--data-source DATA_SOURCE] [--local-only]
 main.py: error: unrecognized arguments: --step sensitivity
 - python code/main.py --step regression -> rc=2
     usage: main.py [-h]
                [--stage {all,checksum_raw,hash_artifacts,ingest,stats,sensitivity,regression}]
                [--config CONFIG] [--verbose] [--sample-ratio SAMPLE_RATIO]
                [--alpha ALPHA] [--thresholds THRESHOLDS]
+               [--data-source DATA_SOURCE] [--local-only]
 main.py: error: unrecognized arguments: --step regression
 - python code/main.py --full-run --sample-ratio 0.1 -> rc=2
     usage: main.py [-h]
                [--stage {all,checksum_raw,hash_artifacts,ingest,stats,sensitivity,regression}]
                [--config CONFIG] [--verbose] [--sample-ratio SAMPLE_RATIO]
                [--alpha ALPHA] [--thresholds THRESHOLDS]
+               [--data-source DATA_SOURCE] [--local-only]
 main.py: error: unrecognized arguments: --full-run
 
 ## Declared deliverables still missing
@@ -66,8 +71,7 @@ main.py: error: unrecognized arguments: --full-run
 Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
 
 - `data/derived/energy_samples.csv` is declared but was NOT written. Scripts referencing it:
-    - `code/main.py` — IS a run-book command
-    - `code/stats.py` — NOT invoked by the run-book
     - `code/ingestion.py` — NOT invoked by the run-book
+    - `code/stats.py` — NOT invoked by the run-book
     - `code/generate_statistical_results.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/derived/energy_samples.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.

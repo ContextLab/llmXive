@@ -5,14 +5,6 @@ T021:
     argument and never reads `data/derived/energy_samples.csv`. Moreover, the required
     CSV file is absent from the repository. Both the input data and the required reading
     logic are missing, so the task is not fulfilled.
-T024:
-  c: true
-  h: 4f3910960565ce83ad5473021687c2eb52c7ddef5eb04ef2881e28e7b6059044
-  r: "The `code/stats.py` file exists, is non\u2011empty, and defines `bin_energy_data`\
-    \ that reads `data/derived/energy_samples.csv`, raises `FileNotFoundError` with\
-    \ the required message when the file is missing or invalid, and returns a dictionary\
-    \ of DataFrames binned by driving frequency and material type. The missing CSV\
-    \ is acceptable because the function\u2019s error handling meets the specification."
 T025:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -49,3 +41,11 @@ T035:
     so it does not successfully create the predictor/target DataFrame. Moreover, the
     required `config.yaml` file is missing, preventing the roughness proxy mapping
     from material type. Both artifacts needed for the task are absent or broken.
+T054:
+  c: true
+  h: f53f8fa80f0ac30a20138ab8b601fd090c64666f56406f1c967b882de7766ef8
+  r: "The repository contains a non\u2011empty `code/main.py` that defines `check_dependency_energy_samples()`,\
+    \ which verifies the existence of `data/derived/energy_samples.csv` and logs the\
+    \ exact required error message, and the statistical task entry points (`run_statistics`,\
+    \ `run_sensitivity`, `run_regression`) call this check and exit with code\u202F\
+    1 on failure. No further artifacts are needed."

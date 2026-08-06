@@ -4,17 +4,17 @@
   "reason": "5 command(s) failed: python code/main.py --step ingestion --sample-ratio 0.1 (rc=2); python code/main.py --step stats --alpha 0.01 (rc=2); python code/main.py --step sensitivity --thresholds 0.01,0.05,0.10 (rc=2); 1 declared deliverable(s) absent: data/derived/energy_samples.csv",
   "artifacts": [],
   "failures": [
-    "python code/main.py --step ingestion --sample-ratio 0.1 -> rc=2\n    usage: main.py [-h]\n               [--stage {all,checksum_raw,hash_artifacts,ingest,stats,sensitivity,regression}]\n               [--config CONFIG] [--verbose] [--sample-ratio SAMPLE_RATIO]\n               [--alpha ALPHA] [--thresholds THRESHOLDS]\nmain.py: error: unrecognized arguments: --step ingestion",
-    "python code/main.py --step stats --alpha 0.01 -> rc=2\n    usage: main.py [-h]\n               [--stage {all,checksum_raw,hash_artifacts,ingest,stats,sensitivity,regression}]\n               [--config CONFIG] [--verbose] [--sample-ratio SAMPLE_RATIO]\n               [--alpha ALPHA] [--thresholds THRESHOLDS]\nmain.py: error: unrecognized arguments: --step stats",
-    "python code/main.py --step sensitivity --thresholds 0.01,0.05,0.10 -> rc=2\n    usage: main.py [-h]\n               [--stage {all,checksum_raw,hash_artifacts,ingest,stats,sensitivity,regression}]\n               [--config CONFIG] [--verbose] [--sample-ratio SAMPLE_RATIO]\n               [--alpha ALPHA] [--thresholds THRESHOLDS]\nmain.py: error: unrecognized arguments: --step sensitivity",
-    "python code/main.py --step regression -> rc=2\n    usage: main.py [-h]\n               [--stage {all,checksum_raw,hash_artifacts,ingest,stats,sensitivity,regression}]\n               [--config CONFIG] [--verbose] [--sample-ratio SAMPLE_RATIO]\n               [--alpha ALPHA] [--thresholds THRESHOLDS]\nmain.py: error: unrecognized arguments: --step regression",
-    "python code/main.py --full-run --sample-ratio 0.1 -> rc=2\n    usage: main.py [-h]\n               [--stage {all,checksum_raw,hash_artifacts,ingest,stats,sensitivity,regression}]\n               [--config CONFIG] [--verbose] [--sample-ratio SAMPLE_RATIO]\n               [--alpha ALPHA] [--thresholds THRESHOLDS]\nmain.py: error: unrecognized arguments: --full-run"
+    "python code/main.py --step ingestion --sample-ratio 0.1 -> rc=2\n    usage: main.py [-h]\n               [--stage {all,checksum_raw,hash_artifacts,ingest,stats,sensitivity,regression}]\n               [--config CONFIG] [--verbose] [--sample-ratio SAMPLE_RATIO]\n               [--alpha ALPHA] [--thresholds THRESHOLDS]\n               [--data-source DATA_SOURCE] [--local-only]\nmain.py: error: unrecognized arguments: --step ingestion",
+    "python code/main.py --step stats --alpha 0.01 -> rc=2\n    usage: main.py [-h]\n               [--stage {all,checksum_raw,hash_artifacts,ingest,stats,sensitivity,regression}]\n               [--config CONFIG] [--verbose] [--sample-ratio SAMPLE_RATIO]\n               [--alpha ALPHA] [--thresholds THRESHOLDS]\n               [--data-source DATA_SOURCE] [--local-only]\nmain.py: error: unrecognized arguments: --step stats",
+    "python code/main.py --step sensitivity --thresholds 0.01,0.05,0.10 -> rc=2\n    usage: main.py [-h]\n               [--stage {all,checksum_raw,hash_artifacts,ingest,stats,sensitivity,regression}]\n               [--config CONFIG] [--verbose] [--sample-ratio SAMPLE_RATIO]\n               [--alpha ALPHA] [--thresholds THRESHOLDS]\n               [--data-source DATA_SOURCE] [--local-only]\nmain.py: error: unrecognized arguments: --step sensitivity",
+    "python code/main.py --step regression -> rc=2\n    usage: main.py [-h]\n               [--stage {all,checksum_raw,hash_artifacts,ingest,stats,sensitivity,regression}]\n               [--config CONFIG] [--verbose] [--sample-ratio SAMPLE_RATIO]\n               [--alpha ALPHA] [--thresholds THRESHOLDS]\n               [--data-source DATA_SOURCE] [--local-only]\nmain.py: error: unrecognized arguments: --step regression",
+    "python code/main.py --full-run --sample-ratio 0.1 -> rc=2\n    usage: main.py [-h]\n               [--stage {all,checksum_raw,hash_artifacts,ingest,stats,sensitivity,regression}]\n               [--config CONFIG] [--verbose] [--sample-ratio SAMPLE_RATIO]\n               [--alpha ALPHA] [--thresholds THRESHOLDS]\n               [--data-source DATA_SOURCE] [--local-only]\nmain.py: error: unrecognized arguments: --full-run"
   ],
-  "fix_rounds": 2,
+  "fix_rounds": 3,
   "model_tier": 0,
-  "total_attempts": 2,
+  "total_attempts": 3,
   "replan_rounds": 0,
   "failure_class": "execution_bug",
   "evidence": [],
-  "updated_at": "2026-08-05T23:35:06Z"
+  "updated_at": "2026-08-06T13:50:38Z"
 }
