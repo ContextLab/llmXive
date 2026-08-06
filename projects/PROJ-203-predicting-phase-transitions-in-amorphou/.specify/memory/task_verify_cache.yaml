@@ -6,19 +6,11 @@ T012:
     \ flag, or related metadata. Additionally, the required `data/processed/metadata.json`\
     \ file is absent. These missing pieces mean the active timescale matching protocol\
     \ has not been implemented."
-T015:
-  c: true
-  h: 2ecc4a03464b042d62578a95b5a65cc826331eaad0c171b6b630cd005d570f30
-  r: "The repository contains a non\u2011empty `code/models/train.py` (\u224812\u202F\
-    KB) that defines `load_final_dataset()` to read `data/processed/final_dataset.parquet`\
-    \ and `split_data_stratified()` which performs a stratified split on the `chemical_family`\
-    \ column, fulfilling the task specification. The missing parquet file is external\
-    \ data, not part of the required implementation artifact."
-T018:
+T017:
   c: false
-  h: 48cb7f10b45ee17ffb1b8ef084f94f4db5b96ff34f75e5e73e32a0ae0e349289
-  r: "The repository contains a `train.py` file, but it is truncated and does not\
-    \ clearly show a k\u2011fold cross\u2011validation implementation, and the required\
-    \ output files `models/tg_regressor.pkl` and `models/crystallization_classifier.pkl`\
-    \ are absent from the project. The task\u2019s core deliverables are therefore\
-    \ missing."
+  h: 206cc9a4db256e47085035f2ad91b9fb5f3dccf27aa925b019db566306c56ae3
+  r: "The required `data/processed/final_dataset.parquet` file is absent, so the training\
+    \ script cannot load the labels. The expected confusion\u2011matrix image `docs/reports/confusion_matrix.png`\
+    \ is also missing. Moreover, the provided `code/models/train.py` is truncated\
+    \ and does not show the full Random Forest classifier training or the code that\
+    \ writes the PNG, indicating the implementation is incomplete."

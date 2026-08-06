@@ -2185,3 +2185,753 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-03T13:36:57Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: Project uses N=24 compositions
+  claim_id: c_d7ed745e
+  context: '**Small Sample Size Mitigation**: The project uses N=24 compositions.
+    Tasks T022 (Null Model/Permutation Test) and T023 (Collinearity Report) are mandatory
+    and MUST be executed in Phase 4 after data generation to ensure statistical validity.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses N=24 compositions.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T08:09:01Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: Target RMSE less than or equal to 15 K and ROC-AUC greater than 0.7 for
+    Random Forest models
+  claim_id: c_f3e8ad4a
+  context: "**Goal**: Train Random Forest regression and classification models on\
+    \ the generated dataset to predict Tg and crystallization propensity, achieving\
+    \ RMSE \u226415 K and ROC-AUC > 0.7. **Scope**: Pilot Sample of 24 compositions."
+  evidence:
+    asserted: '15.0'
+    authority: scipy.constants.k (CODATA 2018, exact by SI definition)
+    constant: boltzmann
+    corrected: true
+    mode: approximate
+    true_value: 1.380649e-23
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?k
+  kind: magnitude
+  raw_text: "Goal: Train Random Forest regression and classification models on the\
+    \ generated dataset to predict Tg and crystallization propensity, achieving RMSE\
+    \ \u226415 K and ROC-AUC > 0.7."
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2bfb0d3513311088eea23af05f5f28fc2ef73a6a80811bbb243001626363f07f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-06T08:09:01Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: Collinearity report flags predictors with VIF greater than 5
+  claim_id: c_34ddd3d6
+  context: '[ ] T023 [US2] **Implement Collinearity Report**: Calculate VIF for all
+    predictors (threshold VIF > 5). Output `docs/reports/collinearity_report.json`
+    with schema: `{ "feature": str, "vif": float, "flagged": bool }`.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Collinearity_report_flags_predictors_with_VIF_greater_than_5
+  kind: magnitude
+  raw_text: Calculate VIF for all predictors (threshold VIF > 5).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T08:09:29Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction applied with alpha 0.05 for SHAP importance rank
+    differences
+  claim_id: c_89b1fbff
+  context: '[ ] T027 [US3] **Implement Multiple-Comparison Correction**: Apply Bonferroni
+    correction (alpha=0.05) to the statistical significance of *differences* in SHAP
+    importance ranks across families.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Apply Bonferroni correction (alpha=0.05) to the statistical significance
+    of *differences* in SHAP importance ranks across families.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T08:09:55Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: pilot sample size is 24 compositions
+  claim_id: c_f92a71a4
+  context: 'Scope: Pilot Sample of 24 compositions (stratified by family). ... The
+    project uses N=24 compositions.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses a pilot sample of 24 compositions.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T08:11:12Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: scope reduction from 500 to 24 compositions
+  claim_id: c_2376e5ad
+  context: Verify that plan.md Summary section documents the reduction of FR-001 target
+    from 500 to 24 compositions due to compute constraints (Pilot Study T001).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project scope was reduced from 500 to 24 compositions due to compute
+    constraints.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T08:11:41Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: Random Forest regression target RMSE is 15 K
+  claim_id: c_3a42c5d4
+  context: "Train Random Forest regression and classification models on the generated\
+    \ dataset to predict Tg and crystallization propensity, achieving RMSE \u2264\
+    15 K and ROC-AUC > 0.7."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Random_Forest_regression_target_RMSE_is_15_K
+  kind: magnitude
+  raw_text: The model training target is an RMSE of less than or equal to 15 K for
+    Tg prediction.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T08:12:32Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: Random Forest classifier target ROC-AUC is 0.7
+  claim_id: c_4b694e09
+  context: "Train Random Forest regression and classification models on the generated\
+    \ dataset to predict Tg and crystallization propensity, achieving RMSE \u2264\
+    15 K and ROC-AUC > 0.7."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Random_Forest_classifier_target_ROC-AUC_is_0.7
+  kind: magnitude
+  raw_text: The model training target is a ROC-AUC greater than 0.7 for crystallization
+    propensity prediction.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T08:13:09Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: total pipeline time limit is 6 hours
+  claim_id: c_558b6e4a
+  context: "The training script executes on a 2-CPU runner within 6 hours... Verify\
+    \ \u22646 hour limit (SC-005)..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The total pipeline execution is constrained to a 6-hour wall-clock time
+    limit.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T08:13:55Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: crystallization label threshold is 50 K
+  claim_id: c_1b258006
+  context: Apply binary logic (1 if |Tx - Tg| <= 50K, else 0) to the merged dataset
+    from T013.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Crystallization_label_threshold_is_50_K
+  kind: magnitude
+  raw_text: The crystallization labeling logic defines a sample as crystalline if
+    the absolute difference between Tx and Tg is less than or equal to 50K.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T08:14:41Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: VIF threshold for collinearity is 5
+  claim_id: c_fd0074ce
+  context: Calculate VIF for all predictors (threshold VIF > 5). Output docs/reports/collinearity_report.json...
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/VIF_threshold_for_collinearity_is_5
+  kind: magnitude
+  raw_text: The collinearity report flags predictors with a VIF greater than 5.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T08:15:49Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction alpha is 0.05
+  claim_id: c_fb60b5e0
+  context: Apply Bonferroni correction (alpha=0.05) to the statistical significance
+    of differences in SHAP importance ranks across families.
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: '0.05'
+      source_id: Bonferroni correction
+      url: https://en.wikipedia.org/wiki/Bonferroni_correction
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: The multiple-comparison correction uses a Bonferroni correction with an
+    alpha of 0.05.
+  resolved_value: '0.05'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-06T08:15:59Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: pilot sample stratified by Oxides Sulfides and Organics
+  claim_id: c_4eeb38cf
+  context: Implement a script code/data/select_pilot.py to select a stratified set
+    of compositions (Oxides, Sulfides, Organics)...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pilot_sample_stratified_by_Oxides_Sulfides_and_Organics
+  kind: entity_fact
+  raw_text: The pilot sample is stratified by chemical family including Oxides, Sulfides,
+    and Organics.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T08:16:17Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 0
+  canonical: Bonferroni correction with alpha of 0.05
+  claim_id: c_ad1a23ad
+  context: 'Apply Bonferroni correction (alpha=0.05 (Wikipedia: Bonferroni correction,
+    https://en.wikipedia.org/wiki/Bonferroni_correction)) to the statistical significance
+    of differences in SHAP importance ranks across families.'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: '0.05'
+      source_id: Bonferroni correction
+      url: https://en.wikipedia.org/wiki/Bonferroni_correction
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: The multiple-comparison correction uses Bonferroni correction with alpha=0.05.
+  resolved_value: '0.05'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-06T08:18:15Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: pilot sample size of 24 compositions
+  claim_id: c_aa3d1ce7
+  context: 'Scope: Pilot Sample of 24 compositions (stratified by family). ... The
+    project uses N=24 compositions.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses a pilot sample of 24 compositions.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T08:18:16Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: Random Forest regression RMSE target of 15 K
+  claim_id: c_7ded982e
+  context: "Goal: Train Random Forest regression and classification models ... achieving\
+    \ RMSE \u226415 K and ROC-AUC > 0.7."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The target for Random Forest regression is RMSE \u226415 K."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T08:18:16Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: Random Forest classification ROC-AUC target of 0.7
+  claim_id: c_137a185a
+  context: "Goal: Train Random Forest regression and classification models ... achieving\
+    \ RMSE \u226415 K and ROC-AUC > 0.7."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The target for Random Forest classification is ROC-AUC > 0.7.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T08:18:17Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: crystallization labeling excludes rows with null T_x or null Tg
+  claim_id: c_607fb4fe
+  context: Apply binary logic (1 if |Tx - Tg| <= 50K, else 0) to the merged dataset
+    from T013. Exclude row if T_x is null OR Tg is null.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Crystallization_labeling_excludes_rows_with_null_T_x_or_null
+  kind: entity_fact
+  raw_text: The crystallization labeling logic excludes rows if T_x is null or Tg
+    is null.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T08:18:33Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: crystallization label 1 if absolute difference of Tx and Tg is less than
+    or equal to 50 K
+  claim_id: c_98058ea5
+  context: Apply binary logic (1 if |Tx - Tg| <= 50K, else 0) to the merged dataset
+    from T013.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Crystallization_label_1_if_absolute_difference_of_Tx_and_Tg
+  kind: magnitude
+  raw_text: The crystallization labeling logic defines a binary value of 1 if |Tx
+    - Tg| <= 50K, else 0.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T08:19:20Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: pipeline wall-clock time limit of 6 hours
+  claim_id: c_e515f6d0
+  context: If time > 6h, trigger graceful shutdown and save partial results. ... The
+    training script executes on a 2-CPU runner within 6 hours.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline has a wall-clock time limit of 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T08:19:45Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: Random Forest regression grid search time cap of 2 hours
+  claim_id: c_d3ddbca1
+  context: Implement Random Forest regression training in code/models/train.py with
+    hyperparameter grid search (capped to complete within 2 hours).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Random Forest regression training hyperparameter grid search is capped
+    to complete within 2 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T08:20:03Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: collinearity report flags features with VIF greater than 5
+  claim_id: c_e7d2bf4d
+  context: 'Calculate VIF for all predictors (threshold VIF > 5). Output docs/reports/collinearity_report.json
+    with schema: { ''feature'': str, ''vif'': float, ''flagged'': bool }.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Collinearity_report_flags_features_with_VIF_greater_than_5
+  kind: magnitude
+  raw_text: The collinearity report flags features with a Variance Inflation Factor
+    (VIF) greater than 5.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T08:21:09Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: target composition count reduced from 500 to 24
+  claim_id: c_4b88c784
+  context: Verify that plan.md Summary section documents the reduction of FR-001 target
+    from 500 to 24 compositions due to compute constraints (Pilot Study T001).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The target composition count was reduced from 500 to 24 due to compute
+    constraints.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T08:21:48Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: Study sample size is 24 compositions
+  claim_id: c_b2c81bcf
+  context: Notes section states the project uses a small sample size of 24 compositions
+    for the pilot study.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses N=24 compositions.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T08:25:35Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: Random Forest regression model achieves RMSE less than or equal to 15
+    K
+  claim_id: c_3ad07f5e
+  context: "Phase 4 goal states the model must achieve RMSE \u226415 K on the pilot\
+    \ sample of 24 compositions."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Random_Forest_regression_model_achieves_RMSE_less_than_or_eq
+  kind: magnitude
+  raw_text: "Training a Random Forest regression model on the dataset should achieve\
+    \ RMSE \u226415 K."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T08:28:04Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: Random Forest classifier achieves ROC-AUC greater than 0.7
+  claim_id: c_f201f03f
+  context: Phase 4 goal states the model must achieve ROC-AUC > 0.7 on the pilot sample
+    of 24 compositions.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Random_Forest_classifier_achieves_ROC-AUC_greater_than_0.7
+  kind: magnitude
+  raw_text: Training a Random Forest classifier on the dataset should achieve ROC-AUC
+    > 0.7.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T08:29:21Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: Training script runs on 2 CPUs within 6 hours
+  claim_id: c_0c491653
+  context: Independent test criteria for User Story 2 specifies execution on a 2-CPU
+    runner within a 6-hour limit.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The training script executes on a 2-CPU runner within 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T08:29:50Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: Crystallization label is 1 if absolute difference between Tx and Tg is
+    less than or equal to 50 K
+  claim_id: c_4fa23873
+  context: Task T013.1 defines the logic for applying binary crystallization labels
+    based on the temperature difference.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Crystallization_label_is_1_if_absolute_difference_between_Tx
+  kind: magnitude
+  raw_text: A binary logic is applied where crystallization label is 1 if |Tx - Tg|
+    <= 50K, else 0.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T08:30:42Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: Total pipeline wall-clock time limit is 6 hours
+  claim_id: c_d054d3db
+  context: Task T021.1 describes a timeout enforcer that triggers shutdown if time
+    exceeds 6 hours.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline enforces a wall-clock time limit of 6 hours for the entire
+    process.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T08:31:11Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: Variance Inflation Factor threshold is greater than 5
+  claim_id: c_dea045dd
+  context: Task T023 specifies calculating VIF and flagging predictors where VIF >
+    5.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Variance_Inflation_Factor_threshold_is_greater_than_5
+  kind: magnitude
+  raw_text: Collinearity report calculates VIF for all predictors with a threshold
+    of VIF > 5.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T08:32:28Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction applied with alpha of 0.05
+  claim_id: c_3f14e868
+  context: Task T027 describes implementing Bonferroni correction with a specific
+    alpha value for multiple-comparison correction.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Bonferroni correction is applied with alpha=0.05 to the statistical significance
+    of differences in SHAP importance ranks.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T08:33:13Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: pilot sample of 24 compositions stratified by family
+  claim_id: c_0fcc3fe1
+  context: 'Scope: Pilot Sample of 24 compositions (stratified by family). The project
+    uses N=24 compositions.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses a pilot sample of 24 compositions (stratified by family).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T08:40:25Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: scope reduction from 500 to 24 compositions due to compute constraints
+  claim_id: c_936e8599
+  context: Verify that plan.md Summary section documents the reduction of FR-001 target
+    from 500 to 24 compositions due to compute constraints (Pilot Study T001).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project scope was reduced from 500 to 24 compositions due to compute
+    constraints.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T08:40:25Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: training script execution on 2-CPU runner within 6 hours
+  claim_id: c_8f14ead6
+  context: The training script executes on a 2-CPU runner within 6 hours, outputting
+    a model file and performance report meeting the RMSE and ROC-AUC targets.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The training script is expected to execute on a 2-CPU runner within 6
+    hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T08:41:56Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: Random Forest regression target RMSE <= 15 K
+  claim_id: c_7ee4400a
+  context: "Target: RMSE \u226415 K. The goal is to train Random Forest regression\
+    \ and classification models... achieving RMSE \u226415 K and ROC-AUC > 0.7."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Random_Forest_regression_target_RMSE_%3C=_15_K
+  kind: magnitude
+  raw_text: The model training target is an RMSE of less than or equal to 15 K.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T08:42:28Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: Random Forest classification target ROC-AUC > 0.7
+  claim_id: c_0894d051
+  context: "Target: RMSE \u226415 K and ROC-AUC > 0.7. The goal is to train Random\
+    \ Forest regression and classification models... achieving RMSE \u226415 K and\
+    \ ROC-AUC > 0.7."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Random_Forest_classification_target_ROC-AUC_%3E_0.7
+  kind: magnitude
+  raw_text: The model training target is a ROC-AUC greater than 0.7.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T08:42:58Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: total pipeline wall-clock time <= 6 hours
+  claim_id: c_35072bc6
+  context: "Verify \u22646 hour limit (SC-005) and output docs/reports/pipeline_timing.json."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/total_pipeline_wall-clock_time_%3C=_6_hours
+  kind: magnitude
+  raw_text: The total end-to-end wall-clock time for the pipeline is verified to be
+    less than or equal to 6 hours.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T08:43:32Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: crystallization labeling logic |Tx - Tg| <= 50K
+  claim_id: c_16b773df
+  context: Apply binary logic (1 if |Tx - Tg| <= 50K, else 0) to the merged dataset
+    from T013.
+  evidence:
+    entailment_evidence: ''
+    entailment_status: not_found
+    object: <= 50K
+    relation: Tx - Tg
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/crystallization_labeling_logic_Tx_-_Tg_%3C=_50K
+    source_value: https://en.wikipedia.org/wiki/crystallization_labeling_logic_Tx_-_Tg_<=_50K
+    subject: crystallization labeling logic
+  kind: relational
+  raw_text: Crystallization labeling applies binary logic where 1 is assigned if |Tx
+    - Tg| <= 50K, and 0 otherwise.
+  resolved_value: null
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T08:43:51Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: collinearity report VIF threshold > 5
+  claim_id: c_8282c8c1
+  context: Calculate VIF for all predictors (threshold VIF > 5). Output docs/reports/collinearity_report.json.
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P1533: Q113107166'
+      source_id: Q113106917
+      url: https://www.wikidata.org/wiki/Q113106917
+      value: '33'
+    filled: true
+  kind: magnitude
+  raw_text: The collinearity report flags predictors with a VIF threshold greater
+    than 5.
+  resolved_value: '33'
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-06T08:43:55Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction alpha 0.05
+  claim_id: c_2d035ecd
+  context: 'Apply Bonferroni correction (alpha=0.05 (Wikipedia: Bonferroni correction,
+    https://en.wikipedia.org/wiki/Bonferroni_correction)) to the statistical significance
+    of differences in SHAP importance ranks across families.'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: '0.05'
+      source_id: Bonferroni correction
+      url: https://en.wikipedia.org/wiki/Bonferroni_correction
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: The Bonferroni correction is applied with an alpha of 0.05.
+  resolved_value: '0.05'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-06T08:44:25Z'

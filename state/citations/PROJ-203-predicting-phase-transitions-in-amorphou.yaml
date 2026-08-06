@@ -9,3 +9,14 @@
   verification_status: unreachable
   verified_against_url: https://openkim.org/id/KIM-XXXXX
   verified_at: '2026-07-15T23:07:50.677992Z'
+- artifact_hash: 426eca6745c66e5137198499ac792db908ec41ec995b449f08427004c0d34dc9
+  artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Bonferroni correction - Wikipedia
+  kind: url
+  value: https://en.wikipedia.org/wiki/Bonferroni_correction
+  verification_status: pending
+  verified_against_url: https://en.wikipedia.org/wiki/Bonferroni_correction
+  verified_at: '2026-08-06T08:39:42.627933Z'
