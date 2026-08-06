@@ -1,3 +1,3 @@
 """
-Contract tests package initialization.
+Contract tests for schema validation.
 """

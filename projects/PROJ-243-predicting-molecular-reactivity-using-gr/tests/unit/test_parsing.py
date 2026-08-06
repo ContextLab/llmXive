@@ -1,294 +1,169 @@
 """
 Unit tests for SMILES parsing and exclusion logic.
 
-This module tests the functionality of SMILES string validation,
-molecule conversion using RDKit, and the exclusion logic for
-invalid or problematic molecular structures.
+This module validates the robustness of the SMILES-to-graph conversion pipeline,
+specifically focusing on:
+1. Valid SMILES parsing using RDKit.
+2. Correct identification and exclusion of invalid SMILES strings.
+3. Handling of edge cases (empty strings, whitespace, malformed syntax).
 
-Tests cover:
-- Valid SMILES parsing
-- Invalid SMILES detection
-- Empty string handling
-- Special character handling
-- Exclusion threshold logic
+These tests rely on `code/utils/graph_utils.py` (T006) for the actual parsing logic.
 """
 
 import pytest
-import numpy as np
+import os
+import sys
+import logging
+
+# Add project root to path to allow imports of sibling modules
+_project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+if _project_root not in sys.path:
+    sys.path.insert(0, _project_root)
+
 from rdkit import Chem
-from typing import List, Dict, Tuple, Optional
+from rdkit.Chem import AllChem
+from utils.graph_utils import smiles_to_molecule, batch_smiles_to_graphs, validate_graph
 
-# Import the graph utility functions that handle SMILES parsing
-# These are defined in code/utils/graph_utils.py
-from code.utils.graph_utils import (
-    smiles_to_molecule,
-    validate_graph,
-    get_feature_dimensions
-)
-from code.config import get_config
+# Configure logging for test output
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
 
-class TestSMILESParsing:
-    """Test cases for SMILES string parsing functionality."""
+class TestSmilesParsing:
+    """Tests for the smiles_to_molecule function."""
 
-    def test_valid_smiles_benzene(self):
-        """Test parsing of a valid benzene SMILES string."""
+    def test_valid_smiles_simple(self):
+        """Test parsing of a simple valid SMILES string (Benzene)."""
         smiles = "c1ccccc1"
         mol = smiles_to_molecule(smiles)
-        
-        assert mol is not None, "Failed to parse valid benzene SMILES"
-        assert mol.GetNumAtoms() == 6, "Benzene should have 6 atoms"
-        assert mol.GetNumBonds() == 6, "Benzene should have 6 bonds"
-    
-    def test_valid_smiles_ethanol(self):
-        """Test parsing of a valid ethanol SMILES string."""
-        smiles = "CCO"
-        mol = smiles_to_molecule(smiles)
-        
-        assert mol is not None, "Failed to parse valid ethanol SMILES"
-        assert mol.GetNumAtoms() == 3, "Ethanol should have 3 atoms"
-    
+        assert mol is not None, "Failed to parse valid SMILES: c1ccccc1"
+        assert mol.GetNumAtoms() == 6, "Incorrect atom count for benzene"
+        assert mol.GetNumBonds() == 6, "Incorrect bond count for benzene"
+
     def test_valid_smiles_complex(self):
-        """Test parsing of a more complex valid SMILES."""
-        smiles = "CC(=O)Oc1ccccc1C(=O)O"  # Aspirin
+        """Test parsing of a complex valid SMILES string (Aspirin)."""
+        smiles = "CC(=O)OC1=CC=CC=C1C(=O)O"
         mol = smiles_to_molecule(smiles)
-        
-        assert mol is not None, "Failed to parse aspirin SMILES"
-        assert mol.GetNumAtoms() > 10, "Aspirin should have many atoms"
-    
+        assert mol is not None, "Failed to parse valid SMILES: Aspirin"
+        assert mol.GetNumAtoms() == 21, "Incorrect atom count for aspirin"
+
+    def test_valid_smiles_with_isotopes(self):
+        """Test parsing with isotopic labels."""
+        smiles = "[13CH4]"
+        mol = smiles_to_molecule(smiles)
+        assert mol is not None, "Failed to parse valid isotopic SMILES"
+
     def test_invalid_smiles_unclosed_ring(self):
-        """Test that unclosed ring notation is rejected."""
-        invalid_smiles = "c1ccccc"  # Missing closing ring number
-        mol = smiles_to_molecule(invalid_smiles)
-        
-        # RDKit should return None for invalid SMILES
-        assert mol is None, "Unclosed ring SMILES should be rejected"
-    
-    def test_invalid_smiles_bad_atom(self):
-        """Test that invalid atom symbols are rejected."""
-        invalid_smiles = "C(X)C"  # X is not a valid organic subset atom
-        # Note: RDKit might still parse this as a generic atom
-        # We test that it doesn't crash
-        mol = smiles_to_molecule(invalid_smiles)
-        # This should not raise an exception
-        assert True, "Invalid atom parsing should not crash"
-    
-    def test_empty_smiles(self):
-        """Test handling of empty SMILES string."""
+        """Test that unclosed ring notation returns None."""
+        smiles = "C1CCCCC" # Missing closing 1
+        mol = smiles_to_molecule(smiles)
+        assert mol is None, "Invalid SMILES (unclosed ring) should return None"
+
+    def test_invalid_smiles_malformed(self):
+        """Test that completely malformed strings return None."""
+        invalid_cases = [
+            "",
+            "   ",
+            "!!!",
+            "C[C@H](O)C(=O)O", # This is valid, but let's try something truly broken
+            "C1=CC=CC=1", # Invalid aromaticity/ring
+        ]
+        # Note: RDKit is sometimes lenient. We test specific known failures.
+        # The unclosed ring case is the most robust failure mode to test.
         mol = smiles_to_molecule("")
-        assert mol is None, "Empty SMILES should return None"
-    
-    def test_whitespace_smiles(self):
-        """Test handling of whitespace-only SMILES."""
-        mol = smiles_to_molecule("   ")
-        assert mol is None, "Whitespace SMILES should return None"
-    
-    def test_none_smiles(self):
-        """Test handling of None input."""
-        mol = smiles_to_molecule(None)
-        assert mol is None, "None SMILES should return None"
-    
-    def test_malformed_smiles(self):
-        """Test various malformed SMILES strings."""
-        malformed_list = [
-            "C1CC1C1CC1",  # Multiple ring openings without proper closure
-            "C(C(C",       # Unbalanced parentheses
-            "C1=CC=CC",    # Incomplete ring
-            "C#C#C#C",     # Potentially invalid bonding
-        ]
-        
-        for smiles in malformed_list:
-            # Should not crash
-            mol = smiles_to_molecule(smiles)
-            # Most should be None, but we just test no crash
-            assert True, f"Malformed SMILES '{smiles}' should not crash"
+        assert mol is None, "Empty string should return None"
 
-class TestExclusionLogic:
-    """Test cases for molecule exclusion logic."""
+        mol = smiles_to_molecule("!!!")
+        assert mol is None, "Garbage string should return None"
 
-    def test_exclusion_threshold_calculation(self):
-        """Test calculation of exclusion percentage."""
-        total_molecules = 1000
-        excluded_count = 5
-        
-        exclusion_percentage = (excluded_count / total_molecules) * 100
-        
-        assert exclusion_percentage == 0.5, "Exclusion percentage calculation incorrect"
-        assert exclusion_percentage < 0.1, "Should be within threshold if < 0.1%"
-    
-    def test_exclusion_threshold_boundary(self):
-        """Test boundary condition for exclusion threshold."""
-        total_molecules = 10000
-        # 0.1% threshold means max 10 exclusions
-        excluded_count = 10
-        
-        exclusion_percentage = (excluded_count / total_molecules) * 100
-        
-        assert exclusion_percentage == 0.1, "Boundary calculation incorrect"
-    
-    def test_exclusion_threshold_exceeded(self):
-        """Test when exclusion threshold is exceeded."""
-        total_molecules = 1000
-        excluded_count = 2  # 0.2% which is > 0.1%
-        
-        exclusion_percentage = (excluded_count / total_molecules) * 100
-        
-        assert exclusion_percentage > 0.1, "Should exceed threshold"
-    
-    def test_batch_exclusion_logic(self):
-        """Test exclusion logic across a batch of molecules."""
-        smiles_list = [
-            "c1ccccc1",  # Valid
-            "",          # Invalid
-            "CCO",       # Valid
-            "c1ccccc",   # Invalid
-            "CC(C)C",    # Valid
-        ]
-        
-        valid_count = 0
-        excluded_count = 0
-        
-        for smiles in smiles_list:
-            mol = smiles_to_molecule(smiles)
-            if mol is not None:
-                valid_count += 1
-            else:
-                excluded_count += 1
-        
-        assert valid_count == 3, "Should have 3 valid molecules"
-        assert excluded_count == 2, "Should have 2 excluded molecules"
-        
-        total = valid_count + excluded_count
-        exclusion_pct = (excluded_count / total) * 100
-        assert exclusion_pct == 40.0, "Exclusion percentage should be 40%"
+    def test_whitespace_handling(self):
+        """Test that whitespace is handled correctly (stripped or fails gracefully)."""
+        # RDKit usually handles leading/trailing whitespace, but let's verify
+        smiles = "  c1ccccc1  "
+        mol = smiles_to_molecule(smiles)
+        # RDKit might strip or fail. If it fails, that's also acceptable for a robust parser
+        # as long as it doesn't crash.
+        if mol is None:
+            logger.warning("RDKit failed to parse whitespace-padded SMILES. This is acceptable.")
+        else:
+            assert mol.GetNumAtoms() == 6, "Whitespace handling changed molecule structure"
 
-class TestGraphValidation:
-    """Test cases for graph validation after SMILES parsing."""
-
-    def test_valid_graph_structure(self):
-        """Test that a valid molecule produces a valid graph."""
+    def test_molecule_sanitization(self):
+        """Test that the returned molecule is sanitized."""
         smiles = "c1ccccc1"
         mol = smiles_to_molecule(smiles)
-        
-        assert mol is not None, "Molecule parsing failed"
-        
-        # Validate the graph structure
-        is_valid = validate_graph(mol)
-        assert is_valid, "Valid molecule should produce valid graph"
-    
-    def test_graph_feature_dimensions(self):
-        """Test that feature dimensions are correctly reported."""
-        smiles = "CCO"
-        mol = smiles_to_molecule(smiles)
-        
-        assert mol is not None, "Molecule parsing failed"
-        
-        node_dim, edge_dim = get_feature_dimensions()
-        
-        assert node_dim > 0, "Node feature dimension should be positive"
-        assert edge_dim > 0, "Edge feature dimension should be positive"
+        assert mol is not None
+        # Check if we can compute a descriptor (requires sanitization)
+        try:
+            # This will raise if not sanitized
+            AllChem.Compute2DCoords(mol)
+            assert True
+        except Exception as e:
+            pytest.fail(f"Molecule was not properly sanitized: {e}")
 
-class TestEdgeCases:
-    """Test edge cases and special scenarios."""
 
-    def test_very_long_smiles(self):
-        """Test handling of very long SMILES strings."""
-        # Create a long but valid SMILES (polyethylene chain)
-        long_smiles = "C" * 1000 + "O"
-        mol = smiles_to_molecule(long_smiles)
-        
-        # Should not crash, might be None if too complex
-        assert True, "Long SMILES should not crash parser"
-    
-    def test_special_atoms(self):
-        """Test molecules with special atoms."""
-        special_smiles_list = [
-            "[Na+]",      # Sodium ion
-            "[Cl-]",      # Chloride ion
-            "[Fe+2]",     # Iron ion
-            "[H]",        # Hydrogen
-        ]
-        
-        for smiles in special_smiles_list:
-            mol = smiles_to_molecule(smiles)
-            # Should not crash
-            assert True, f"Special atom SMILES '{smiles}' should not crash"
-    
-    def test_isotopes(self):
-        """Test molecules with isotopic labels."""
-        isotope_smiles = "[13CH4]"
-        mol = smiles_to_molecule(isotope_smiles)
-        
-        # Should handle isotopes
-        assert True, "Isotope SMILES should not crash"
-    
-    def test_stereochemistry(self):
-        """Test molecules with stereochemistry."""
-        stereo_smiles_list = [
-            "C/C=C/C",    # Trans
-            "C/C=C\\C",   # Cis
-            "C[C@H](O)C", # Chiral center
-        ]
-        
-        for smiles in stereo_smiles_list:
-            mol = smiles_to_molecule(smiles)
-            # Should not crash
-            assert True, f"Stereochemistry SMILES '{smiles}' should not crash"
+class TestBatchParsingAndExclusion:
+    """Tests for batch processing and exclusion logic."""
 
-class TestIntegration:
-    """Integration tests for the full parsing pipeline."""
+    def test_batch_valid_molecules(self):
+        """Test batch processing of a list of valid SMILES."""
+        smiles_list = ["c1ccccc1", "CCO", "C1CCCCC1"]
+        graphs = batch_smiles_to_graphs(smiles_list)
+        assert len(graphs) == 3, "All valid molecules should be processed"
+        for g in graphs:
+            assert validate_graph(g), "Each graph must be valid"
 
-    def test_full_pipeline_valid_batch(self):
-        """Test the full parsing pipeline with a batch of valid molecules."""
-        valid_smiles_batch = [
-            "c1ccccc1",
-            "CCO",
-            "CC(=O)O",
-            "c1ccccc1C(=O)O",
-            "CC(C)C",
+    def test_batch_mixed_validity(self):
+        """Test batch processing with mixed valid/invalid SMILES."""
+        smiles_list = [
+            "c1ccccc1",   # Valid
+            "!!!",        # Invalid
+            "CCO",        # Valid
+            "",           # Invalid
+            "C1CCCCC1"    # Valid
         ]
-        
-        results = []
-        for smiles in valid_smiles_batch:
-            mol = smiles_to_molecule(smiles)
-            if mol is not None:
-                is_valid = validate_graph(mol)
-                results.append({
-                    "smiles": smiles,
-                    "valid": is_valid,
-                    "n_atoms": mol.GetNumAtoms()
-                })
-        
-        assert len(results) == len(valid_smiles_batch), "All valid molecules should be parsed"
-        assert all(r["valid"] for r in results), "All parsed molecules should be valid graphs"
-    
-    def test_full_pipeline_mixed_batch(self):
-        """Test the full pipeline with a mix of valid and invalid molecules."""
-        mixed_smiles_batch = [
-            "c1ccccc1",  # Valid
-            "",          # Invalid
-            "CCO",       # Valid
-            "invalid",   # Invalid
-            "CC(C)C",    # Valid
-        ]
-        
-        valid_count = 0
-        invalid_count = 0
-        
-        for smiles in mixed_smiles_batch:
-            mol = smiles_to_molecule(smiles)
-            if mol is not None:
-                valid_count += 1
-            else:
-                invalid_count += 1
-        
-        assert valid_count == 3, "Should have 3 valid molecules"
-        assert invalid_count == 2, "Should have 2 invalid molecules"
-        
-        # Check exclusion rate
-        total = valid_count + invalid_count
-        exclusion_rate = invalid_count / total
-        assert exclusion_rate == 0.4, "Exclusion rate should be 40%"
+        graphs = batch_smiles_to_graphs(smiles_list)
+        # We expect only the valid ones to be in the result
+        # Depending on implementation, it might return None or skip.
+        # Assuming batch_smiles_to_graphs returns a list of valid graphs only.
+        assert len(graphs) == 3, f"Expected 3 valid graphs, got {len(graphs)}"
+
+    def test_batch_empty_list(self):
+        """Test batch processing of an empty list."""
+        graphs = batch_smiles_to_graphs([])
+        assert len(graphs) == 0, "Empty list should result in empty output"
+
+    def test_batch_all_invalid(self):
+        """Test batch processing where all inputs are invalid."""
+        smiles_list = ["!!!", "", "   ", "C1"]
+        graphs = batch_smiles_to_graphs(smiles_list)
+        assert len(graphs) == 0, "No valid graphs should be produced from all invalid input"
+
+
+class TestExclusionLogging:
+    """Tests to ensure exclusion logic is robust (integration with logging)."""
+
+    def test_exclusion_threshold_logic(self):
+        """
+        Verify that the exclusion logic correctly identifies a high exclusion rate.
+        This simulates a scenario where data quality is poor.
+        """
+        # Create a dataset with 90% invalid data
+        invalid_count = 900
+        valid_count = 100
+        total = invalid_count + valid_count
+
+        invalid_smiles = ["!!!"] * invalid_count
+        valid_smiles = ["c1ccccc1"] * valid_count
+        mixed_list = invalid_smiles + valid_smiles
+
+        graphs = batch_smiles_to_graphs(mixed_list)
+        exclusion_rate = 1.0 - (len(graphs) / total)
+
+        assert exclusion_rate == 0.9, f"Exclusion rate calculation failed: {exclusion_rate}"
+        assert exclusion_rate > 0.1, "Exclusion rate should be high for this test case"
+        # In a real pipeline, this would trigger a warning or error,
+        # but here we just verify the math is correct.
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

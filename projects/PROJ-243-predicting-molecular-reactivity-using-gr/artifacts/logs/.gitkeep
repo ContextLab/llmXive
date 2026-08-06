@@ -1,0 +1,2 @@
+# This file ensures the logs directory exists in version control.
+# Logs are generated at runtime by the logging infrastructure.

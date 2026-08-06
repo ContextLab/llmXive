@@ -1,3 +1,3 @@
-# This directory contains processed data files.
-# Derived from raw data after cleaning, transformation, and feature extraction.
-# Do not commit large binary files; use .gitkeep to track the directory.
+# This file ensures the `data/processed` directory is tracked by Git.
+# This directory is designated for intermediate and final processed datasets
+# (e.g., graph structures, feature matrices) used in the molecular reactivity pipeline.

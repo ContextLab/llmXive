@@ -1,41 +1,46 @@
+"""
+Unit tests to verify that the required project directory structure exists.
+These tests ensure that T001a, T001b, T001c, and T002 prerequisites are met.
+"""
 import os
 import pytest
-import sys
+from pathlib import Path
 
-# Add project root to path if running from tests/
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+# Root of the project (assumed to be the directory containing this test file's parent)
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 
-from config import get_config, ensure_directories
+REQUIRED_DIRS = [
+    "data/raw",
+    "data/processed",
+    "data/assets",
+    "code",
+    "artifacts",
+    "tests",
+]
 
-@pytest.fixture
-def config():
-    return get_config()
-
-def test_required_directories_exist(config):
+def test_required_directories_exist():
     """
-    Verify that the directories required by T001a and T001b exist.
-    T001a: data/raw, data/processed, data/assets
-    T001b: code, artifacts, tests
+    Asserts that all required directories defined in the project setup tasks
+    (T001a, T001b, T001c, T002) exist on the filesystem.
     """
-    required_paths = [
-        os.path.join(config.project_root, "data", "raw"),
-        os.path.join(config.project_root, "data", "processed"),
-        os.path.join(config.project_root, "data", "assets"),
-        os.path.join(config.project_root, "code"),
-        os.path.join(config.project_root, "artifacts"),
-        os.path.join(config.project_root, "tests"),
-    ]
+    missing_dirs = []
+    for dir_name in REQUIRED_DIRS:
+        full_path = PROJECT_ROOT / dir_name
+        if not full_path.exists():
+            missing_dirs.append(dir_name)
+        elif not full_path.is_dir():
+            missing_dirs.append(f"{dir_name} (exists but is not a directory)")
 
-    for path in required_paths:
-        assert os.path.exists(path), f"Required directory does not exist: {path}"
-        assert os.path.isdir(path), f"Path exists but is not a directory: {path}"
+    assert len(missing_dirs) == 0, f"The following required directories are missing: {missing_dirs}"
 
-def test_ensure_directories_creates_missing(config, tmp_path):
-    """Test that ensure_directories actually creates directories."""
-    test_dir = os.path.join(tmp_path, "new_dir")
-    assert not os.path.exists(test_dir)
+def test_data_processed_has_placeholder():
+    """
+    Specific check for T001b: Ensure data/processed is tracked (has .gitkeep).
+    """
+    processed_dir = PROJECT_ROOT / "data" / "processed"
+    assert processed_dir.exists(), "data/processed directory does not exist."
+    assert processed_dir.is_dir(), "data/processed is not a directory."
     
-    ensure_directories([test_dir])
-    
-    assert os.path.exists(test_dir)
-    assert os.path.isdir(test_dir)
+    # Check for the .gitkeep file to ensure the empty directory is committed
+    gitkeep = processed_dir / ".gitkeep"
+    assert gitkeep.exists(), "data/processed/.gitkeep is missing. Empty directories must be tracked via a placeholder."

@@ -1,2 +1,2 @@
-# This directory contains test suites for the project.
-# Tests are organized by type: unit, integration, contract.
+# This directory contains unit, integration, and contract tests.
+# See tasks.md for implementation details.

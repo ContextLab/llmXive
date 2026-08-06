@@ -1,5 +1,5 @@
 [project]
-name = "llmxive-molecular-reactivity"
+name = "llmxive-proj-243"
 version = "0.1.0"
 description = "Predicting Molecular Reactivity Using Graph Neural Networks"
 requires-python = ">=3.11"
@@ -11,19 +11,30 @@ dependencies = [
     "datasets",
     "networkx",
     "psutil",
+    "ruff",
+    "black",
+    "flake8",
+    "pytest",
+    "scipy",
+    "parquet",
+    "pyarrow"
 ]
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
 
 [tool.black]
 line-length = 88
 target-version = ['py311']
-include = '\\.pyi?$'
+include = '\.pyi?$'
 exclude = '''
 /(
-    \\.git
-  | \\.hg
-  | \\.mypy_cache
-  | \\.tox
-  | \\.venv
+    \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
   | _build
   | buck-out
   | build

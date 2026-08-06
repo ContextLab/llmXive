@@ -6,7 +6,6 @@ datasets
 networkx
 psutil
 scipy
+numpy
 pytest
-black
-ruff
-flake8
+pytest-cov

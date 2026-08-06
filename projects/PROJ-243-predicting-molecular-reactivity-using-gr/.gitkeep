@@ -1,2 +1,1 @@
-# Placeholder to ensure directory structure exists in version control.
-# This file is in the root to indicate the project structure is initialized.
+# This file ensures the data/assets directory is tracked by git

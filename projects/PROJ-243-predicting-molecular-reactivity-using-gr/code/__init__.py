@@ -1,2 +1,4 @@
-# Code package for PROJ-243-predicting-molecular-reactivity-using-gr
-# This file marks the code directory as a Python package.
+"""
+llmXive project code package.
+Contains all implementation scripts and utilities for molecular reactivity prediction.
+"""

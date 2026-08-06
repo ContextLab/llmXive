@@ -352,3 +352,61 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-03T20:12:25Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: invalid SMILES exclusion target is less than 0.1 percent
+  claim_id: c_b9419f19
+  context: '2. Invalid SMILES handling: Log and exclude molecules; target < 0.1% exclusion.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Invalid_SMILES_exclusion_target_is_less_than_0.1_percent
+  kind: magnitude
+  raw_text: target < 0.1% exclusion
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T02:05:14Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: end-to-end runtime is less than or equal to 6 hours and memory usage
+    is less than or equal to 4 GB on CI
+  claim_id: c_7611da1b
+  context: "- [ ] T035 Performance optimization: Verify end-to-end runtime \u2264\
+    \ 6 hours and memory \u2264 4 GB on CI"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/End-to-end_runtime_is_less_than_or_equal_to_6_hours_and_memo
+  kind: magnitude
+  raw_text: "Verify end-to-end runtime \u2264 6 hours and memory \u2264 4 GB on CI"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T02:05:24Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 2
+  canonical: external kinetic dataset contains at least 20 molecules with experimental
+    reaction rates from PubChem
+  claim_id: c_092ea696
+  context: "T010d [P] [FR-009] **FETCH KINETIC DATASET**: Fetch the external kinetic\
+    \ dataset of \u226520 molecules with experimental reaction rates from PubChem\
+    \ (Public Literature) using `code/data/download.py` with URL ` (or specific PubChem\
+    \ dataset ID)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/External_kinetic_dataset_contains_at_least_20_molecules_with
+  kind: magnitude
+  raw_text: "Fetch the external kinetic dataset of \u226520 molecules with experimental\
+    \ reaction rates from PubChem (Public Literature)"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T02:17:17Z'
