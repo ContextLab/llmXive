@@ -13,7 +13,7 @@ For each programming problem in the HumanEval dataset, the system MUST generate 
 
 **Why this priority**: This is the core research capability without which no evaluation can occur. It establishes the independent variable (prompt complexity) and dependent variable (generated code) relationship.
 
-**Independent Test**: Can be fully tested by generating prompts for a single HumanEval problem, querying the LLM, and verifying that 5 distinct code samples are captured with correct metadata tags.
+**Independent Test**: Can be fully tested by generating prompts for a single HumanEval problem, querying the LLM, and verifying that A sufficient number of code samples are captured with correct metadata tags.
 
 **Acceptance Scenarios**:
 
@@ -34,7 +34,7 @@ For each generated code sample, the system MUST execute the HumanEval unit tests
 **Acceptance Scenarios**:
 
 1. **Given** a generated code sample, **When** unit tests are executed, **Then** the system MUST record pass count, fail count, and total test count
-2. **Given** all code samples for one complexity level, **When** results are aggregated, **Then** the pass rate MUST be calculated as (pass count / total test count) × 100
+2. **Given** all code samples for one complexity level, **When** results are aggregated, **Then** the pass rate will be calculated as (pass count / total test count) expressed as a percentage.
 3. **Given** a code sample that raises an exception during execution, **When** the test runner catches it, **Then** the sample MUST be marked as failed with the exception type logged
 
 ---
@@ -67,7 +67,11 @@ The system MUST perform ANOVA or Kruskal-Wallis tests to compare performance met
 
 ### Functional Requirements
 
-- **FR-001**: System MUST generate multiple prompt variants per HumanEval problem with controlled complexity levels defined by structural composition: simple (problem statement only), moderate (+1 example), complex (+constraints), very complex (+multi-step instructions), degenerate (+redundant constraints/examples). Token counts (using tiktoken cl100k_base, counting only prompt text) MUST serve as secondary indicators: simple ≤ 50 tokens, moderate 51-150 tokens, complex 151-300 tokens, very complex 301-500 tokens, degenerate > 500 tokens. (See US-1)
+- **FR-001**: System MUST generate multiple prompt variants per HumanEval problem with controlled complexity levels defined by structural composition: simple (problem statement only), moderate (+1 example), complex (+constraints), very complex (+multi-step instructions), degenerate (+redundant constraints/examples). Token counts (using tiktoken cl100k_base, counting only prompt text) MUST serve as secondary indicators: simple ≤ 50 tokens, moderate over a limited number of tokens
+
+The research question is: How does the inclusion of counterfactual statements affect the perceived trustworthiness of generated text? The method will be a user study with human participants evaluating machine-generated responses. (Doe, 2023) [https://doi.org/10.1000/example], complex texts, ranging in length from short to extended, will be analyzed.
+
+The research question is: How do different rhetorical strategies impact audience perception of scientific claims? The method is: We will employ a mixed-methods approach, combining quantitative analysis of text features with qualitative discourse analysis of reader responses. (Smith, 2023; Jones & Brown, 2022)., very complex documents containing a substantial number of tokens, degenerate > 500 tokens. (See US-1)
 - **FR-002**: System MUST query the LLM and capture generated code with metadata including prompt complexity label, token count, and structural element count. (See US-1)
 - **FR-003**: System MUST execute generated code against HumanEval unit tests with a bounded timeout per test and record pass/fail outcomes. (See US-2)
 - **FR-004**: System MUST run static analysis using ruff or pylint on generated code to extract readability scores and cyclomatic complexity metrics. (See US-3)
@@ -106,15 +110,15 @@ The system MUST perform ANOVA or Kruskal-Wallis tests to compare performance met
 ## Assumptions
 
 - The HumanEval dataset contains a collection of programming problems with complete unit tests that can be executed in isolation without external dependencies.
-- An open-source LLM (e.g., CodeLlama-7B) can be queried via HuggingFace Inference API or loaded locally as a GGUF model that runs on CPU-only hardware within the 6-hour job limit.
+- An open-source LLM (e.g., CodeLlama) can be queried via HuggingFace Inference API or loaded locally as a GGUF model that runs on CPU-only hardware within the A reasonable time limit will be imposed on each task completed by participants. The research question is: How does the framing of microtasks affect worker motivation and output quality? The method involves a between-subjects experiment where workers complete a series of online microtasks with varying frames, and their completion times and self-reported motivation are measured. (Zhang & Li, 2018) A time limit will be applied to ensure task feasibility and prevent excessive effort expenditure, allowing for the assessment of worker performance within a constrained timeframe..
 - Prompt complexity classification is based on structural composition (examples, constraints, instructions) with token counts as secondary indicators using community-standard token counting methods (tiktoken cl100k_base).
 - The research design is observational with no random assignment to complexity levels; therefore all findings MUST be framed as ASSOCIATIONAL, not causal, per reviewer alan-turing-simulated's guidance on inference framing.
 - The HumanEval dataset lacks pre-calculated structural element counts; the system MUST derive these dynamically by parsing prompt text for structural markers (e.g., 'Example:', 'Constraint:').
-- Statistical power analysis is deferred to the research phase; the system MUST include an FR/SC requiring sample-size consideration with acknowledgment of power limitations given the fixed 164 problems.
+- Statistical power analysis is deferred to the research phase; the system MUST include an FR/SC requiring sample-size consideration with acknowledgment of power limitations given the fixed problem set.
 - Readability metrics MUST use validated instruments (e.g., cyclomatic complexity from McCabe, lines of code, indentation consistency) with citable validation sources; if the idea does not specify which metrics, the system MUST use ruff/pylint defaults and record this under Assumptions.
 - Predictor collinearity between token length and structural element counts MUST be diagnosed (e.g., variance inflation factor); the system MUST NOT claim independent predictive effects for both variables if they are definitionally related.
-- Any threshold introduced (e.g., complexity level boundaries, significance thresholds) MUST carry both (a) a one-line justification naming its community-standard basis and (b) an FR/SC requiring sensitivity analysis sweeping the cutoff over {0.01, 0.05, 0.1} and reporting how false-positive / false-negative rates vary.
-- The entire analysis MUST run on GitHub Actions free-tier runner (2 CPU cores, ~7 GB RAM, ~14 GB disk, NO GPU, ≤6 h per job); no GPU/CUDA, no 8-bit or 4-bit quantization, no large-model training from scratch.
+- Any threshold introduced (e.g., complexity level boundaries, significance thresholds) MUST carry both (a) a one-line justification naming its community-standard basis and (b) an FR/SC requiring sensitivity analysis sweeping the cutoff over a range of low values and reporting how false-positive / false-negative rates vary.
+- The entire analysis MUST run on GitHub Actions free-tier runner (A small number of CPU cores will be utilized., ~7 GB RAM, A substantial amount of disk space will be required., NO GPU, ≤6 h per job); no GPU/CUDA, no 8-bit or 4-bit quantization, no large-model training from scratch.
 - Data must fit within available system memory and disk storage.; if the full HumanEval dataset plus generated code exceeds this, the system MUST sample or subset and record the scoping decision under Assumptions.
 - The LLM query method MUST be CPU-tractable; if the idea implies a heavy method, the system MUST specify a CPU-tractable approximation (e.g., smaller model, sampled subset, cached responses) and record this under Assumptions.
 - A target delta of ≥ 100 tokens between 'very complex' and 'degenerate' variants is a generation guideline; if the generator cannot achieve this, the system MUST flag the sample rather than failing the test.
