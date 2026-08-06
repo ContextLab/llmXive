@@ -9,11 +9,16 @@ logger = logging.getLogger(__name__)
 def load_corrected_p_values(filepath: str) -> List[Dict[str, Any]]:
     """
     Load corrected p-values from a CSV file.
-    Expected columns: query_id, metric, raw_p, corrected_p, is_significant
+    
+    Args:
+        filepath: Path to the corrected p-values CSV file.
+        
+    Returns:
+        List of dictionaries containing query_id, metric, raw_p, corrected_p, is_significant.
     """
     if not os.path.exists(filepath):
         raise FileNotFoundError(f"Corrected p-values file not found: {filepath}")
-
+    
     results = []
     with open(filepath, 'r', newline='', encoding='utf-8') as f:
         reader = csv.DictReader(f)
@@ -29,95 +34,97 @@ def load_corrected_p_values(filepath: str) -> List[Dict[str, Any]]:
 
 def determine_significance(corrected_p: float, alpha: float) -> bool:
     """
-    Determine if a result is significant given an alpha threshold.
-    """
-    return corrected_p < alpha
-
-def run_sensitivity_analysis(
-    input_file: Optional[str] = None,
-    output_dir: Optional[str] = None,
-    alphas: Optional[List[float]] = None
-) -> Dict[str, Any]:
-    """
-    Run sensitivity analysis by iterating over alpha values.
+    Determine if a result is significant at the given alpha level.
     
     Args:
-        input_file: Path to the corrected p-values CSV. Defaults to 
-                    RESULTS_DIR/p_values/corrected_p_values.csv
-        output_dir: Directory to save the sensitivity report. Defaults to 
-                    RESULTS_DIR/sensitivity
-        alphas: List of alpha values to test. Defaults to [0.01, 0.05, 0.10]
-    
-    Returns:
-        Dictionary containing the analysis results.
-    """
-    if input_file is None:
-        input_file = os.path.join(RESULTS_DIR, "p_values", "corrected_p_values.csv")
-    
-    if output_dir is None:
-        output_dir = os.path.join(RESULTS_DIR, "sensitivity")
-    
-    if alphas is None:
-        alphas = [0.01, 0.05, 0.10]
-
-    # Ensure output directory exists
-    os.makedirs(output_dir, exist_ok=True)
-
-    logger.info(f"Loading corrected p-values from {input_file}")
-    data = load_corrected_p_values(input_file)
-    logger.info(f"Loaded {len(data)} records")
-
-    if not data:
-        logger.warning("No data found in corrected p-values file. Skipping analysis.")
-        return {"results": [], "error": "No data found"}
-
-    # Determine baseline significance (using 0.05 as reference, or first alpha)
-    # The task asks to report counts where significance status *changes* between alpha values.
-    # We will calculate the count of significant queries for EACH alpha.
-    # Then we can report the counts. The "change" metric is implicit in the sweep.
-    
-    analysis_results = []
-    
-    logger.info(f"Running sensitivity sweep for alphas: {alphas}")
-    
-    for alpha in alphas:
-        significant_count = 0
-        for record in data:
-            if determine_significance(record['corrected_p'], alpha):
-                significant_count += 1
+        corrected_p: The corrected p-value.
+        alpha: The significance threshold.
         
-        analysis_results.append({
-            'alpha': alpha,
-            'significant_count': significant_count
-        })
-        logger.info(f"Alpha={alpha}: {significant_count} significant queries")
+    Returns:
+        True if the result is significant, False otherwise.
+    """
+    return corrected_p <= alpha
 
-    # Write results to CSV
-    output_file = os.path.join(output_dir, "alpha_sweep.csv")
-    logger.info(f"Writing results to {output_file}")
+def run_sensitivity_analysis(alpha_values: Optional[List[float]] = None,
+                             input_file: Optional[str] = None,
+                             output_file: Optional[str] = None) -> Dict[str, int]:
+    """
+    Run sensitivity analysis by iterating over alpha values and counting significant queries.
     
+    This function reads corrected p-values, determines significance at each alpha level,
+    and counts how many query-metric pairs are significant at each threshold.
+    
+    Args:
+        alpha_values: List of alpha values to test. Defaults to [0.01, 0.05, 0.10].
+        input_file: Path to corrected p-values CSV. Defaults to results/p_values/corrected_p_values.csv.
+        output_file: Path to output sensitivity analysis CSV. Defaults to results/sensitivity/alpha_sweep.csv.
+        
+    Returns:
+        Dictionary mapping alpha values to significant counts.
+    """
+    if alpha_values is None:
+        alpha_values = [0.01, 0.05, 0.10]
+    
+    if input_file is None:
+        input_file = os.path.join(RESULTS_DIR, 'p_values', 'corrected_p_values.csv')
+    
+    if output_file is None:
+        output_dir = os.path.join(RESULTS_DIR, 'sensitivity')
+        os.makedirs(output_dir, exist_ok=True)
+        output_file = os.path.join(output_dir, 'alpha_sweep.csv')
+    
+    # Load corrected p-values
+    logger.info(f"Loading corrected p-values from {input_file}")
+    try:
+        p_values_data = load_corrected_p_values(input_file)
+    except FileNotFoundError as e:
+        logger.error(f"Failed to load corrected p-values: {e}")
+        raise
+    
+    if not p_values_data:
+        logger.warning("No corrected p-values found in the input file.")
+        # Write empty result with headers
+        with open(output_file, 'w', newline='', encoding='utf-8') as f:
+            writer = csv.writer(f)
+            writer.writerow(['alpha', 'significant_count'])
+        return {alpha: 0 for alpha in alpha_values}
+    
+    logger.info(f"Loaded {len(p_values_data)} corrected p-value records.")
+    
+    # Perform sensitivity analysis
+    results = {}
+    for alpha in alpha_values:
+        significant_count = sum(
+            1 for record in p_values_data 
+            if determine_significance(record['corrected_p'], alpha)
+        )
+        results[alpha] = significant_count
+        logger.info(f"Alpha={alpha}: {significant_count} significant queries/metrics")
+    
+    # Write results to CSV
+    os.makedirs(os.path.dirname(output_file), exist_ok=True)
     with open(output_file, 'w', newline='', encoding='utf-8') as f:
-        writer = csv.DictWriter(f, fieldnames=['alpha', 'significant_count'])
-        writer.writeheader()
-        writer.writerows(analysis_results)
-
-    return {
-        "results": analysis_results,
-        "output_file": output_file,
-        "total_queries": len(data)
-    }
+        writer = csv.writer(f)
+        writer.writerow(['alpha', 'significant_count'])
+        for alpha in alpha_values:
+            writer.writerow([alpha, results[alpha]])
+    
+    logger.info(f"Sensitivity analysis results written to {output_file}")
+    return results
 
 def main():
-    """
-    Entry point for running sensitivity analysis via command line or script.
-    """
-    logging.basicConfig(level=logging.INFO)
+    """Main entry point for sensitivity analysis."""
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+    
     try:
-        result = run_sensitivity_analysis()
+        results = run_sensitivity_analysis()
         logger.info("Sensitivity analysis completed successfully.")
-        logger.info(f"Output written to: {result.get('output_file')}")
+        return results
     except Exception as e:
-        logger.error(f"Sensitivity analysis failed: {e}", exc_info=True)
+        logger.error(f"Sensitivity analysis failed: {e}")
         raise
 
 if __name__ == "__main__":

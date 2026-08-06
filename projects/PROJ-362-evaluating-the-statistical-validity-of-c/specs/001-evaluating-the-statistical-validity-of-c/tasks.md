@@ -71,7 +71,7 @@ expected alphabetic or numeric character, but found '*'
 - [ ] T007 [P] Create `config.py` with constants for seeds, permutation counts (N=1000), batch sizes, and memory thresholds
 - [ ] T008 [P] Implement `metrics.py` with a CPU-only NDCG@k calculation function using IDCG normalization and explicit relevance label mapping
 - [ ] T008.1 [P] Implement `metrics.py` with CPU-only MAP calculation function using IDCG normalization and explicit relevance label mapping
-- [~] T009 Setup environment configuration management (paths for `data/raw/`, `results/`)
+- [ ] T009 Setup environment configuration management (paths for `data/raw/`, `results/`)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -86,15 +86,15 @@ expected alphabetic or numeric character, but found '*'
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
 - [X] T010 [P] [US1] Unit test for `metrics.py` NDCG@10 calculation with known ground truth in `tests/unit/test_metrics.py`
-- [~] T011 [P] [US1] Unit test for permutation logic (shuffle correctness) in `tests/unit/test_permutation.py`
+- [ ] T011 [P] [US1] Unit test for permutation logic (shuffle correctness) in `tests/unit/test_permutation.py`
 - [X] T012 [US1] Integration test: Verify p-value calculation `(r+1)/(N+1)` against a manual calculation in `tests/integration/test_permutation_flow.py`
 
 ### Implementation for User Story 1
 
-- [~] T013 [US1] Implement `permutation.py` core engine: shuffle relevance labels N=1000 times per query and **log the ACTUAL count of permutations executed (N_actual) used in the p-value calculation, not just the target**
-- [~] T014 [US1] Implement batch processing loop in `permutation.py` to handle memory limits (process queries in batches, log progress)
-- [~] T015 [US1] Implement runtime monitor in `main.py`: if runtime > 3.5h, trigger subsampling (random selection of 100 queries) per FR-011; runs concurrently or depends on T013 completion
-- [~] T016 [US1] Implement p-value calculation logic: rank observed score within null distribution (depends on T013 completion)
+- [ ] T013 [US1] Implement `permutation.py` core engine: shuffle relevance labels N=1000 times per query and **log the ACTUAL count of permutations executed (N_actual) used in the p-value calculation, not just the target**
+- [ ] T014 [US1] Implement batch processing loop in `permutation.py` to handle memory limits (process queries in batches, log progress)
+- [ ] T015 [US1] Implement runtime monitor in `main.py`: if runtime > 3.5h, trigger subsampling (random selection of 100 queries) per FR-011; runs concurrently or depends on T013 completion
+- [ ] T016 [US1] Implement p-value calculation logic: rank observed score within null distribution (depends on T013 completion)
 - [~] T017 [US1] Save null distribution CSVs to `results/null_distributions/` with headers `query_id, metric, score`
 - [ ] T018 [US1] Save raw p-values to `results/p_values/raw_p_values.csv`
 
@@ -143,7 +143,7 @@ expected alphabetic or numeric character, but found '*'
 
 - [~] T029 [P] [US3] Implement `visualization.py` to generate density plots comparing original vs. permuted scores
 - [~] T030 [US3] Annotate plots with MDES and significance thresholds: **Modify `visualization.py` to add a vertical dashed line at `mdes` value and text label "MDES={val}" to all density plots in `results/plots/`**
-- [ ] T031 [US3] Generate `results/summary.csv` aggregating all query-metric pairs, p-values, and MDES
+- [X] T031 [US3] Generate `results/summary.csv` aggregating all query-metric pairs, p-values, and MDES
 - [~] T032 [US3] Implement final runtime/memory guard in `main.py`: if > 5h or > 6GB RAM, force subsampling and log warning
 - [~] T033 [US3] Add error handling for network failures in `data_loader.py` (graceful exit with error code)
 
@@ -158,8 +158,8 @@ expected alphabetic or numeric character, but found '*'
 - [~] T034 [P] Documentation updates: Update `README.md` with sections: 'Installation', 'Usage', 'Output Artifacts'
 - [~] T035 Code cleanup: Remove debug prints and ensure logging levels are appropriate
 - [~] T036 Performance optimization: Verify batch processing logic is efficient; **Ensure memory < 6GB during batch of 50 queries**
-- [ ] T037 [P] Run `quickstart.md` validation to ensure all artifacts are generated correctly
-- [ ] T038 Add content checksums to `data/raw/` and `results/` artifacts for reproducibility (Constitution Principle V)
+- [~] T037 [P] Run `quickstart.md` validation to ensure all artifacts are generated correctly
+- [~] T038 Add content checksums to `data/raw/` and `results/` artifacts for reproducibility (Constitution Principle V)
 
 ---
 

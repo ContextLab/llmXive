@@ -1,24 +1,39 @@
+T005:
+  c: false
+  h: bbb26cd5459810221a7e024a8fd415623e8fc55fcb82dffa3e8dfac9f193d8a1
+  r: "The provided `code/logging_config.py` defines the setup functions, but the required\
+    \ output files (`code/logs/preprocess.log` and `results/quality_report.csv`) are\
+    \ not present, and there is no evidence of assertions verifying their creation\
+    \ and correct headers. The task\u2019s verification step is missing, so the requirement\
+    \ is not fulfilled."
 T010:
   c: false
   h: 000542c516a1e82fd3e02d8ec3f967521c4e8e3a24940d337bd8e7a5c0c928c6
   r: "The required artifact `tests/test_data_loader.py` does not exist on disk, so\
     \ no unit test for data loader validation is present. The task cannot be considered\
     \ completed until a non\u2011empty test file is added at the specified location."
+T013:
+  c: false
+  h: 8f617ce39d534d78e039cdf839aab26a4aad2099c355abad20fac0f10128821f
+  r: "The provided `load_data.py` is truncated (ends abruptly with an unfinished line)\
+    \ and contains no logic to write the unified CSV, nor does it fully handle configuration\
+    \ from `config.yaml`. Moreover, `config.yaml` itself is missing, so the required\
+    \ configuration source is unavailable. The task\u2019s core requirements are therefore\
+    \ not met."
 T016:
   c: false
-  h: 6239cbb31956f1b469d790dd9770fd429eb29ef9464b5f5eea24b080143d0a81
-  r: "The repository contains `code/analysis/correlations.py`, which appears to implement\
-    \ Pearson correlation and Benjamini\u2011Hochberg correction, but the required\
-    \ output file `results/correlations.csv` is absent, so the script\u2019s primary\
-    \ deliverable is not present. Without the CSV the task\u2019s requirement is not\
-    \ met."
+  h: ab0a38ee245733f8779fc34e0ff9d95c34fb8833d3676f77a693aaa5cf0d0401
+  r: "The provided `correlations.py` is truncated, lacks any implementation of Benjamini\u2011\
+    Hochberg FDR correction, does not write a `results/correlations.csv` file, and\
+    \ the `extract_pupil_metrics` function only returns a single metric (others are\
+    \ `None`). Moreover, the required output CSV is missing from the repository."
 T017:
   c: false
-  h: e9cf7bf121c785d795acfe6157bd56fd2c5d489480cad961e4c882ffc87b87f4
-  r: "The provided `code/preprocessing/filter.py` contains signal\u2011processing\
-    \ utilities but no logic that writes exclusion counts to `results/quality_report.csv`,\
-    \ nor does the repository contain the required `results/quality_report.csv` file.\
-    \ Consequently the quality\u2011report generation task is not fulfilled."
+  h: ab246fba6b603f4f673d190ec57455a0ee392b9b91d6407fc09a56faa863abe2
+  r: The `results/quality_report.csv` file does not exist, and the provided portion
+    of `code/preprocessing/filter.py` shows no implementation that writes exclusion
+    counts to that CSV (no code creating/appending rows with columns `exclusion_type,
+    count`). The required artifact and behavior are therefore missing.
 T023:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -28,11 +43,11 @@ T023:
     \ missing."
 T029:
   c: false
-  h: ffc744fc8ee5760742a059bffa8955805f6bef83a2b1fa3c0a90d84909e76534
-  r: "The required files `results/limitations.md` and `results/classification_metrics.csv`\
-    \ are missing, so the limitation note and the status column update cannot be verified.\
-    \ Consequently the ground\u2011truth labeling changes and removal of predictive\u2011\
-    validity claims are not demonstrated."
+  h: 9fc9bb6513ab97ffa5f82e733403095dd7ee94101cc5ffcd2028093a85f09680
+  r: The `results/limitations.md` file exists and contains the required limitation
+    note, but the required `results/classification_metrics.csv` file is missing, so
+    the `status` column cannot be set to `UNVALIDATED`. The task is therefore not
+    fully satisfied.
 T032:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -41,3 +56,9 @@ T032:
     description, which does not satisfy the requirement for a concrete output. The
     implementer must provide the actual correlation output (e.g., a figure or data
     file).
+T034a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No refactored versions of `preprocess.py` and `analysis.py` are present, and\
+    \ there is no radon cyclomatic\u2011complexity report showing all functions scoring\
+    \ below 15. The required code changes and verification output are missing."

@@ -5,34 +5,22 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).parent.parent
 
 # Directories
-DIR_CODE = PROJECT_ROOT / "code"
-DIR_TESTS = PROJECT_ROOT / "tests"
-DIR_DATA_RAW = PROJECT_ROOT / "data" / "raw"
-DIR_DATA_PROCESSED = PROJECT_ROOT / "data" / "processed"
-DIR_DATA_LOGS = PROJECT_ROOT / "data" / "logs"
-DIR_RESULTS = PROJECT_ROOT / "results"
-DIR_STATE = PROJECT_ROOT / "state"
-DIR_FIGURES = PROJECT_ROOT / "figures"
-
-# Seed
-RANDOM_SEED = 42
+DIRS = {
+    "code": PROJECT_ROOT / "code",
+    "tests": PROJECT_ROOT / "tests",
+    "data_raw": PROJECT_ROOT / "data" / "raw",
+    "data_processed": PROJECT_ROOT / "data" / "processed",
+    "data_logs": PROJECT_ROOT / "data" / "logs",
+    "results": PROJECT_ROOT / "results",
+    "state": PROJECT_ROOT / "state",
+}
 
 # Constants
-DEFAULT_DENSITY_THRESHOLD = 0.1
-MOTIF_SIZE = 3
-MAX_TIMEOUT_SECONDS = 100
+SEED = 42
+DEFAULT_DENSITY_THRESHOLDS = [0.1, 0.2, 0.3]
 
 def ensure_dirs():
-    """Create all required directories if they don't exist."""
-    dirs = [
-        DIR_CODE,
-        DIR_TESTS,
-        DIR_DATA_RAW,
-        DIR_DATA_PROCESSED,
-        DIR_DATA_LOGS,
-        DIR_RESULTS,
-        DIR_STATE,
-        DIR_FIGURES
-    ]
-    for d in dirs:
-        d.mkdir(parents=True, exist_ok=True)
+    """Creates all required project directories if they don't exist."""
+    for dir_path in DIRS.values():
+        dir_path.mkdir(parents=True, exist_ok=True)
+    return DIRS

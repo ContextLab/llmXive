@@ -121,7 +121,7 @@
 
 ### Tests for User Story 2 (MANDATORY - Interface Definition)
 
-- [ ] T019 [US2] Contract test for PMD CLI wrapper in `tests/contract/test_pmd_wrapper.py`:
+- [X] T019 [US2] Contract test for PMD CLI wrapper in `tests/contract/test_pmd_wrapper.py`:
  - **Interface**: Define tests for `run_pmd(file_path, ruleset_path)` returning `exit_code` and `stdout`.
  - **Interface**: Define tests for `parse_output(xml_content)` returning a list of `SmellMetric` objects.
  - **Constraint**: Must handle timeout and memory limit errors gracefully.
@@ -143,13 +143,13 @@
  - **Action**: Create a set of pre-validated clean code files (Python/Java) with known zero smells, or fetch a verified subset from a trusted source.
  - **Output**: Save to `data/raw/reference_set/`.
  - **Dependency**: Must run before T023.
-- [ ] T023 [US2] Implement `code/02_static_analysis/tool_validity_check.py`:
+- [X] T023 [US2] Implement `code/02_static_analysis/tool_validity_check.py`:
  - **Validity**: Run analysis on the "clean" reference set produced by T022.5 (`data/raw/reference_set/`).
  - **Threshold**: Calculate false-positive rate. If >5%, flag tool configuration as invalid in logs.
  - **Traceability**: Explicitly reference **Spec FR-005** for tool validity.
  - **Dependency**: Must run after T022 and T022.5 complete.
  - **Output**: Generate `data/intermediate/tool_validity_status.json` with keys `is_valid` (boolean) and `false_positive_rate` (float).
-- [ ] T024 [US2] Implement `code/02_static_analysis/aggregate_metrics.py`:
+- [X] T024 [US2] Implement `code/02_static_analysis/aggregate_metrics.py`:
  - **Aggregation**: Aggregate results into `data/processed/smell_metrics.csv` with columns: `sample_id`, `source_type`, `smell_type`, `count`, `continuous_metric_value` (e.g., cyclomatic complexity).
  - **Dependency**: Must run after T022 and T023 (validity check) complete.
 
@@ -165,8 +165,8 @@
 
 ### Tests for User Story 3 (MANDATORY - Interface Definition)
 
-- [ ] T025 [US3] Contract test for permutation test logic in `tests/contract/test_permutation_test_interface.py` (Defines interface for T027)
-- [ ] T026 [US3] Contract test for report generation in `tests/contract/test_report_interface.py` (Defines interface for T029)
+- [X] T025 [US3] Contract test for permutation test logic in `tests/contract/test_permutation_test_interface.py` (Defines interface for T027)
+- [X] T026 [US3] Contract test for report generation in `tests/contract/test_report_interface.py` (Defines interface for T029)
 
 ### Implementation for User Story 3
 

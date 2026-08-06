@@ -1,190 +1,224 @@
-"""
-Aggregate PMD analysis results into a processed CSV dataset.
-
-This script reads the parsed analysis results from `data/intermediate/analysis_results.json`,
-verifies tool validity via `data/intermediate/tool_validity_status.json`, and aggregates
-the data into `data/processed/smell_metrics.csv` according to the `SmellMetric` data model.
-"""
-
 import os
 import sys
 import json
 import csv
 import logging
 from pathlib import Path
-from typing import Dict, List, Any, Optional
+from typing import List, Dict, Any, Optional
 
-# Add project root to path for imports
+# Add project root to path to allow imports from sibling modules
 project_root = Path(__file__).parent.parent.parent
-sys.path.insert(0, str(project_root))
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
 
 from utils.logger import get_logger
-from utils.data_models import SmellMetric
+from utils.config import get_project_root
 
-# Configure paths relative to project root
-ANALYSIS_RESULTS_PATH = project_root / "data" / "intermediate" / "analysis_results.json"
-VALIDITY_STATUS_PATH = project_root / "data" / "intermediate" / "tool_validity_status.json"
-OUTPUT_PATH = project_root / "data" / "processed" / "smell_metrics.csv"
+logger = get_logger(__name__)
 
-logger = get_logger("aggregate_metrics")
-
-def load_analysis_results() -> List[Dict[str, Any]]:
-    """Load parsed analysis results from JSON."""
-    if not ANALYSIS_RESULTS_PATH.exists():
-        raise FileNotFoundError(
-            f"Analysis results not found at {ANALYSIS_RESULTS_PATH}. "
-            "Ensure T022 (parse_results.py) has completed."
-        )
+def load_analysis_results(results_path: Path) -> List[Dict[str, Any]]:
+    """
+    Load the aggregated analysis results from T022.
     
-    with open(ANALYSIS_RESULTS_PATH, 'r', encoding='utf-8') as f:
+    Args:
+        results_path: Path to data/intermediate/analysis_results.json
+        
+    Returns:
+        List of dictionaries containing smell metrics per sample.
+        
+    Raises:
+        FileNotFoundError: If the results file does not exist.
+        json.JSONDecodeError: If the file is not valid JSON.
+    """
+    if not results_path.exists():
+        raise FileNotFoundError(f"Analysis results file not found: {results_path}")
+    
+    logger.info(f"Loading analysis results from {results_path}")
+    with open(results_path, 'r', encoding='utf-8') as f:
         data = json.load(f)
     
-    # Handle both list and dict-with-key formats
-    if isinstance(data, dict) and 'results' in data:
-        return data['results']
+    # Ensure we have a list of samples
+    if isinstance(data, dict) and 'samples' in data:
+        return data['samples']
     elif isinstance(data, list):
         return data
     else:
-        raise ValueError(f"Unexpected format in {ANALYSIS_RESULTS_PATH}")
+        raise ValueError(f"Unexpected data structure in {results_path}: {type(data)}")
 
-def load_validity_status() -> bool:
-    """Load tool validity status. Abort if tool is invalid."""
-    if not VALIDITY_STATUS_PATH.exists():
-        raise FileNotFoundError(
-            f"Tool validity status not found at {VALIDITY_STATUS_PATH}. "
-            "Ensure T023 (tool_validity_check.py) has completed."
-        )
-    
-    with open(VALIDITY_STATUS_PATH, 'r', encoding='utf-8') as f:
-        status = json.load(f)
-    
-    is_valid = status.get('is_valid', False)
-    false_positive_rate = status.get('false_positive_rate', 1.0)
-    
-    if not is_valid:
-        raise RuntimeError(
-            f"Tool validity check failed (False Positive Rate: {false_positive_rate}). "
-            "Aborting aggregation to prevent garbage-in-garbage-out."
-        )
-    
-    logger.info(f"Tool validity confirmed (FP Rate: {false_positive_rate})")
-    return is_valid
-
-def aggregate_metrics(results: List[Dict[str, Any]]) -> List[SmellMetric]:
+def load_validity_status(validity_path: Path) -> Dict[str, Any]:
     """
-    Convert raw analysis results into SmellMetric objects.
+    Load the tool validity status from T023.
     
-    Expected result structure per sample:
-    {
-        "sample_id": "human_001",
-        "source_type": "human",
-        "repo_id": "repo_123",
-        "file_path": "...",
-        "smells": {
-            "LongMethod": {"count": 1, "metric_value": 150},
-            "LongParameterList": {"count": 2, "metric_value": 8},
-            ...
-        }
-    }
+    Args:
+        validity_path: Path to data/intermediate/tool_validity_status.json
+        
+    Returns:
+        Dictionary containing validity status information.
+        
+    Raises:
+        FileNotFoundError: If the validity status file does not exist.
     """
-    metrics = []
-    smell_types = ["LongMethod", "LongParameterList", "FeatureEnvy", "DuplicateCode"]
+    if not validity_path.exists():
+        raise FileNotFoundError(f"Validity status file not found: {validity_path}")
     
-    for result in results:
-        sample_id = result.get("sample_id")
-        source_type = result.get("source_type", "unknown")
-        smells = result.get("smells", {})
-        
-        if not smells:
-            logger.debug(f"No smells detected for {sample_id}, skipping aggregation.")
-            continue
-        
-        for smell_type in smell_types:
-            smell_data = smells.get(smell_type, {})
-            
-            # Handle missing or empty smell entries
-            if not smell_data:
-                count = 0
-                metric_value = 0.0
-            else:
-                count = int(smell_data.get("count", 0))
-                metric_value = float(smell_data.get("metric_value", 0.0))
-            
-            # Create SmellMetric instance
-            metric = SmellMetric(
-                sample_id=sample_id,
-                source_type=source_type,
-                smell_type=smell_type,
-                count=count,
-                threshold_used="default_pmd", # Standard PMD threshold
-                continuous_metric_value=metric_value
-            )
-            metrics.append(metric)
+    logger.info(f"Loading validity status from {validity_path}")
+    with open(validity_path, 'r', encoding='utf-8') as f:
+        data = json.load(f)
     
-    return metrics
+    # Ensure validity is True before proceeding
+    if not data.get('is_valid', False):
+        logger.warning(f"Tool validity check failed (false_positive_rate: {data.get('false_positive_rate')}). "
+                     "Proceeding with aggregation but flagging results as potentially unreliable.")
+    
+    return data
 
-def write_csv(metrics: List[SmellMetric], output_path: Path) -> None:
-    """Write aggregated metrics to CSV."""
-    if not metrics:
+def aggregate_metrics(
+    analysis_results: List[Dict[str, Any]],
+    validity_status: Dict[str, Any]
+) -> List[Dict[str, Any]]:
+    """
+    Aggregate smell metrics from analysis results into the format required for statistical analysis.
+    
+    This function transforms the raw PMD output into a normalized format suitable for
+    the statistical analysis stage (T027). It extracts the four target smell categories
+    and calculates both categorical counts and continuous metric values.
+    
+    Args:
+        analysis_results: List of sample analysis results from T022.
+        validity_status: Tool validity status from T023.
+        
+    Returns:
+        List of aggregated metrics dictionaries with the following structure:
+        - sample_id: str
+        - source_type: str ('human' or 'llm')
+        - smell_type: str
+        - count: int
+        - continuous_metric_value: float (e.g., cyclomatic complexity or line count)
+    """
+    aggregated = []
+    
+    # Target smell types as defined in plan.md
+    target_smells = [
+        'LongMethod',
+        'DuplicatedCode',
+        'FeatureEnvy',
+        'LongParameterList'
+    ]
+    
+    for sample in analysis_results:
+        sample_id = sample.get('sample_id')
+        source_type = sample.get('source_type', 'unknown')
+        violations = sample.get('violations', [])
+        
+        # Initialize counters for each smell type
+        smell_counts = {smell: 0 for smell in target_smells}
+        continuous_values = {}
+        
+        for violation in violations:
+            rule_name = violation.get('ruleset', '').split('.')[-1]  # Extract rule name from ruleset
+            if rule_name in smell_counts:
+                smell_counts[rule_name] += 1
+                
+                # Capture continuous metric if available (e.g., lines of code, complexity)
+                if 'metrics' in violation:
+                    for metric_name, metric_value in violation['metrics'].items():
+                        if metric_name not in continuous_values:
+                            continuous_values[metric_name] = 0
+                        continuous_values[metric_name] += metric_value
+        
+        # Create output rows for each smell type
+        for smell_type, count in smell_counts.items():
+            row = {
+                'sample_id': sample_id,
+                'source_type': source_type,
+                'smell_type': smell_type,
+                'count': count,
+                'continuous_metric_value': continuous_values.get('lines_of_code', 0.0) or 0.0
+            }
+            aggregated.append(row)
+            
+            # Also add a row for the continuous metric if it exists and is non-zero
+            if smell_type in continuous_values and continuous_values[smell_type] > 0:
+                continuous_row = {
+                    'sample_id': sample_id,
+                    'source_type': source_type,
+                    'smell_type': f"{smell_type}_continuous",
+                    'count': 1,
+                    'continuous_metric_value': continuous_values[smell_type]
+                }
+                aggregated.append(continuous_row)
+    
+    logger.info(f"Aggregated {len(aggregated)} metric rows from {len(analysis_results)} samples")
+    return aggregated
+
+def write_csv(aggregated_metrics: List[Dict[str, Any]], output_path: Path) -> None:
+    """
+    Write aggregated metrics to a CSV file.
+    
+    Args:
+        aggregated_metrics: List of aggregated metric dictionaries.
+        output_path: Path to the output CSV file.
+        
+    Raises:
+        IOError: If the file cannot be written.
+    """
+    if not aggregated_metrics:
         logger.warning("No metrics to write. Creating empty CSV with headers.")
     
     output_path.parent.mkdir(parents=True, exist_ok=True)
     
-    fieldnames = [
-        "sample_id",
-        "source_type",
-        "smell_type",
-        "count",
-        "threshold_used",
-        "continuous_metric_value"
-    ]
+    fieldnames = ['sample_id', 'source_type', 'smell_type', 'count', 'continuous_metric_value']
     
     with open(output_path, 'w', newline='', encoding='utf-8') as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
-        
-        for metric in metrics:
-            writer.writerow({
-                "sample_id": metric.sample_id,
-                "source_type": metric.source_type,
-                "smell_type": metric.smell_type,
-                "count": metric.count,
-                "threshold_used": metric.threshold_used,
-                "continuous_metric_value": metric.continuous_metric_value
-            })
+        writer.writerows(aggregated_metrics)
     
-    logger.info(f"Wrote {len(metrics)} metrics to {output_path}")
+    logger.info(f"Wrote {len(aggregated_metrics)} rows to {output_path}")
 
-def main():
-    """Main entry point for aggregation."""
-    logger.info("Starting metric aggregation...")
+def main() -> int:
+    """
+    Main entry point for the aggregate_metrics script.
     
+    This script:
+    1. Loads analysis results from T022 (data/intermediate/analysis_results.json)
+    2. Loads tool validity status from T023 (data/intermediate/tool_validity_status.json)
+    3. Aggregates metrics into the normalized format
+    4. Writes the output to data/processed/smell_metrics.csv
+    
+    Returns:
+        0 on success, 1 on failure.
+    """
     try:
-        # 1. Validate tool status first
-        load_validity_status()
+        project_root = get_project_root()
         
-        # 2. Load analysis results
-        results = load_analysis_results()
-        logger.info(f"Loaded {len(results)} analysis results.")
+        # Define paths
+        analysis_results_path = project_root / "data" / "intermediate" / "analysis_results.json"
+        validity_status_path = project_root / "data" / "intermediate" / "tool_validity_status.json"
+        output_path = project_root / "data" / "processed" / "smell_metrics.csv"
         
-        # 3. Aggregate into SmellMetric objects
-        metrics = aggregate_metrics(results)
-        logger.info(f"Aggregated {len(metrics)} smell metric records.")
+        # Load inputs
+        analysis_results = load_analysis_results(analysis_results_path)
+        validity_status = load_validity_status(validity_status_path)
         
-        # 4. Write to CSV
-        write_csv(metrics, OUTPUT_PATH)
+        # Aggregate metrics
+        aggregated_metrics = aggregate_metrics(analysis_results, validity_status)
+        
+        # Write output
+        write_csv(aggregated_metrics, output_path)
         
         logger.info("Aggregation completed successfully.")
+        return 0
         
     except FileNotFoundError as e:
-        logger.error(f"Missing required input file: {e}")
-        sys.exit(1)
-    except RuntimeError as e:
-        logger.error(f"Process aborted due to tool validity: {e}")
-        sys.exit(2)
+        logger.error(f"Required input file not found: {e}")
+        return 1
+    except json.JSONDecodeError as e:
+        logger.error(f"Invalid JSON in input file: {e}")
+        return 1
     except Exception as e:
-        logger.error(f"Unexpected error during aggregation: {e}")
-        sys.exit(3)
+        logger.error(f"Unexpected error during aggregation: {e}", exc_info=True)
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

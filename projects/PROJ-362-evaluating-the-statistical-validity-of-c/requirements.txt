@@ -1,27 +1,13 @@
-# Python dependencies for llmXive project
-# Project: PROJ-362-evaluating-the-statistical-validity-of-c
-# Task: T036 - Performance optimization and memory monitoring
+# Core dependencies
+datasets>=2.14.0
+numpy>=1.24.0
+pandas>=2.0.0
+matplotlib>=3.7.0
+scipy>=1.10.0
+statsmodels>=0.14.0
 
-# Core data processing
-datasets==2.14.0
-pandas==2.0.3
-
-# Statistical analysis
-numpy==1.24.3
-scipy==1.11.1
-statsmodels==0.14.0
-
-# Visualization
-matplotlib==3.7.2
-
-# Configuration and utilities
-pyyaml==6.0.1
-tqdm==4.65.0
-
-# Testing
-pytest==7.4.0
-pytest-cov==4.1.0
-
-# Code quality
-ruff==0.0.285
-black==23.7.0
+# Development and tooling
+ruff>=0.1.0
+black>=23.0.0
+pytest>=7.4.0
+pytest-cov>=4.1.0

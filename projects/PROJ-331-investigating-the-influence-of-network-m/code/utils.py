@@ -4,8 +4,7 @@ import json
 import hashlib
 import time
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
-import numpy as np
+from typing import Any, Dict, Optional, Union
 
 # Custom Exceptions
 class PipelineError(Exception):
@@ -24,95 +23,110 @@ class ConfigurationError(PipelineError):
     """Raised when configuration is invalid."""
     pass
 
-# Logging setup
-_logger = None
+# Logger Setup
+_logger_instance: Optional[logging.Logger] = None
 
 def get_logger(name: str = "pipeline") -> logging.Logger:
-    global _logger
-    if _logger is None:
-        _logger = logging.getLogger(name)
-        if not _logger.handlers:
-            _logger.setLevel(logging.DEBUG)
-            # Console handler
+    """
+    Returns a configured logger instance that writes to both console and file.
+    The file is always `data/logs/pipeline.log` relative to the project root.
+    """
+    global _logger_instance
+    if _logger_instance is None:
+        _logger_instance = logging.getLogger(name)
+        _logger_instance.setLevel(logging.DEBUG)
+        
+        # Prevent duplicate handlers if called multiple times
+        if not _logger_instance.handlers:
+            # Console Handler
             ch = logging.StreamHandler()
             ch.setLevel(logging.INFO)
-            # File handler
-            fh = logging.FileHandler("data/logs/pipeline.log")
+            ch_format = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+            ch.setFormatter(ch_format)
+            _logger_instance.addHandler(ch)
+
+            # File Handler (Absolute path resolution to ensure it lands in data/logs)
+            # We assume the script is run from the project root or we resolve relative to __file__
+            log_dir = Path(__file__).parent.parent / "data" / "logs"
+            log_dir.mkdir(parents=True, exist_ok=True)
+            log_file = log_dir / "pipeline.log"
+
+            fh = logging.FileHandler(log_file)
             fh.setLevel(logging.DEBUG)
-            
-            formatter = logging.Formatter(
-                '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-            )
-            ch.setFormatter(formatter)
-            fh.setFormatter(formatter)
-            
-            _logger.addHandler(ch)
-            _logger.addHandler(fh)
-    return _logger
+            fh_format = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+            fh.setFormatter(fh_format)
+            _logger_instance.addHandler(fh)
 
-def log_error(error: Exception, context: str = "") -> None:
+    return _logger_instance
+
+def log_error(e: Exception, context: str = "") -> None:
+    """Logs an exception with traceback context."""
     logger = get_logger()
-    logger.error(f"{context}: {str(error)}", exc_info=True)
+    logger.error(f"{context}: {str(e)}", exc_info=True)
 
-def log_execution_time(start_time: float, operation: str) -> float:
-    elapsed = time.time() - start_time
-    get_logger().info(f"{operation} took {elapsed:.2f} seconds")
-    return elapsed
+def log_execution_time(func):
+    """Decorator to log execution time of a function."""
+    import functools
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        start = time.time()
+        result = func(*args, **kwargs)
+        end = time.time()
+        logger = get_logger()
+        logger.info(f"Function {func.__name__} executed in {end - start:.4f} seconds")
+        return result
+    return wrapper
 
-# File I/O Helpers
+# Directory & File Utilities
 def safe_mkdir(path: Union[str, Path]) -> Path:
+    """Creates a directory if it doesn't exist."""
     p = Path(path)
     p.mkdir(parents=True, exist_ok=True)
     return p
 
-def safe_write_text(path: Union[str, Path], content: str) -> Path:
+def safe_write_text(path: Union[str, Path], content: str, encoding: str = "utf-8") -> Path:
+    """Writes text to a file, creating parent directories if needed."""
+    p = Path(path)
+    p.parent.mkdir(parents=True, exist_ok=True)
+    p.write_text(content, encoding=encoding)
+    return p
+
+def safe_read_text(path: Union[str, Path], encoding: str = "utf-8") -> str:
+    """Reads text from a file."""
+    return Path(path).read_text(encoding=encoding)
+
+def safe_write_json(path: Union[str, Path], data: Any, indent: int = 2) -> Path:
+    """Writes JSON to a file."""
     p = Path(path)
     p.parent.mkdir(parents=True, exist_ok=True)
     with open(p, 'w', encoding='utf-8') as f:
-        f.write(content)
+        json.dump(data, f, indent=indent)
     return p
 
-def safe_read_text(path: Union[str, Path]) -> str:
-    p = Path(path)
-    if not p.exists():
-        raise DataNotFoundError(f"File not found: {path}")
-    with open(p, 'r', encoding='utf-8') as f:
-        return f.read()
-
-def safe_write_json(path: Union[str, Path], data: Dict[str, Any]) -> Path:
-    p = Path(path)
-    p.parent.mkdir(parents=True, exist_ok=True)
-    with open(p, 'w', encoding='utf-8') as f:
-        json.dump(data, f, indent=2)
-    return p
-
-def safe_read_json(path: Union[str, Path]) -> Dict[str, Any]:
-    p = Path(path)
-    if not p.exists():
-        raise DataNotFoundError(f"JSON file not found: {path}")
-    with open(p, 'r', encoding='utf-8') as f:
+def safe_read_json(path: Union[str, Path]) -> Any:
+    """Reads JSON from a file."""
+    with open(path, 'r', encoding='utf-8') as f:
         return json.load(f)
 
-def save_npy(path: Union[str, Path], array: np.ndarray) -> Path:
+# Numpy Utilities
+def save_npy(path: Union[str, Path], array: Any) -> Path:
+    """Saves a numpy array to .npy format."""
+    import numpy as np
     p = Path(path)
     p.parent.mkdir(parents=True, exist_ok=True)
     np.save(p, array)
     return p
 
 def load_npy(path: Union[str, Path]) -> np.ndarray:
-    p = Path(path)
-    if not p.exists():
-        raise DataNotFoundError(f"Numpy file not found: {path}")
-    return np.load(p)
+    """Loads a numpy array from .npy format."""
+    import numpy as np
+    return np.load(path)
 
+# Hashing Utilities
 def compute_sha256(file_path: Union[str, Path]) -> str:
-    """Compute SHA256 hash of a file."""
-    p = Path(file_path)
-    if not p.exists():
-        raise DataNotFoundError(f"File not found for hashing: {file_path}")
-    
+    """Computes the SHA256 hash of a file."""
     sha256_hash = hashlib.sha256()
-    with open(p, "rb") as f:
+    with open(file_path, "rb") as f:
         for byte_block in iter(lambda: f.read(4096), b""):
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()

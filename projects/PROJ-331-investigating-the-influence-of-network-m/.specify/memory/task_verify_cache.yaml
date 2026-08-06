@@ -1,0 +1,31 @@
+T012:
+  c: false
+  h: 1e569817eb954940c02456d83dbce0165aba6124525bdc2c5f7aa2d412821319
+  r: "The required integration test file `tests/integration/test_pipeline.py` does\
+    \ not exist, and the expected log file `data/logs/pipeline.log` is also missing,\
+    \ so no evidence that the pipeline was run or that the required assertions were\
+    \ checked. The task\u2019s deliverables are absent."
+T014:
+  c: false
+  h: a04b26f96a9af15eff970ab17f3cff0a6c881348b9527ca2a9512934a8613c1e
+  r: "The repository contains a `code/preprocess.py` file, but it only contains simulated\
+    \ placeholder logic (random matrix generation, dummy atlas loading) and does not\
+    \ actually write the required `data/processed/binary_adjacency.npy` and `data/processed/weighted_adjacency.npy`\
+    \ files, which are absent from the filesystem. Consequently the task\u2019s functional\
+    \ and output requirements are not met."
+T015:
+  c: false
+  h: 296f78527f97dfb9ae643d989553b53e84bb0d2ecc2a084a8efac728a88f3a80
+  r: "The required input file `data/processed/weighted_adjacency.npy` is missing,\
+    \ and the provided `code/preprocess.py` does not contain any implementation for\
+    \ computing Pearson\u2011correlation rsFC or Global Efficiency on that matrix\
+    \ (it is truncated and focuses on streamlines/parcellation). Consequently the\
+    \ expected output files `data/processed/rsfc.npy` and `data/processed/global_efficiency.json`\
+    \ are also absent."
+T017:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the required `data/processed/` directory containing non\u2011\
+    empty `structural.npy` and `rsfc.npy` files (with accompanying provenance metadata)\
+    \ was provided. The implementer did not supply any artifacts or code demonstrating\
+    \ that the matrices are saved as specified, so the task is not satisfied."

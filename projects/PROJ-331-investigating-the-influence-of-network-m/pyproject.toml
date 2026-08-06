@@ -1,17 +1,55 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "motif-rsfc-pipeline"
+version = "0.1.0"
+description = "Investigating the Influence of Network Motifs on Resting-State Functional Connectivity"
+requires-python = ">=3.11"
+dependencies = [
+    "numpy",
+    "scipy",
+    "pandas",
+    "networkx",
+    "matplotlib",
+    "seaborn",
+    "nibabel",
+    "requests",
+    "reportlab",
+    "tqdm",
+    "joblib",
+    "dipy",
+    "flake8",
+    "black",
+    "pytest",
+]
+
 [tool.black]
-line-length = 100
+line-length = 88
 target-version = ['py311']
 include = '\.pyi?$'
 exclude = '''
 /(
     \.git
-    | \.hg
-    | \.mypy_cache
-    | \.tox
-    | \.venv
-    | _build
-    | buck-out
-    | build
-    | dist
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+  | data
+  | results
+  | state
 )/
 '''
+
+[tool.setuptools]
+packages = ["code", "tests", "scripts"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v --tb=short"

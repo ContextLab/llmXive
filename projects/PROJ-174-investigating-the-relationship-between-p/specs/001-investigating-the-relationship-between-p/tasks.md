@@ -88,7 +88,7 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T010 [P] [US1] Unit test for data loader validation in `tests/test_data_loader.py`
+- [X] T010 [P] [US1] Unit test for data loader validation in `tests/test_data_loader.py`
 - [X] T011 [P] [US1] Unit test for blink interpolation logic in `tests/test_preprocess.py`
 - [X] T012 [P] [US1] Integration test for full preprocessing pipeline in `tests/test_pipeline_us1.py`
 
@@ -127,7 +127,7 @@
 - [X] T022 [US2] Implement collinearity mitigation (VIF > 5 triggers Reduced Model for remaining predictors only) in `code/analysis/lme_model.py`
 - [ ] T023 [US2] Implement likelihood-ratio test logic comparing nested models
 - [ ] T024 [US2] Add validation for sufficient trials per subject (<20 triggers RuntimeError with message "Subject {id} has < 20 trials" unless `config.yaml` aggregation flag is true)
-- [ ] T025 [US2] Output fixed-effect estimates, SEs, p-values to `results/model_summary.csv`
+- [X] T025 [US2] Output fixed-effect estimates, SEs, p-values to `results/model_summary.csv`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -161,8 +161,8 @@
 **Purpose**: Improvements that affect multiple user stories
 
 - [X] T033 [P] Documentation updates: Create `docs/pipeline.md` and update `README.md` with CLI usage and limitations
-- [~] T034a [P] Refactor `code/` to reduce cyclomatic complexity of `preprocess.py` and `analysis.py` to < 15; verify by running `radon cc code/` and ensuring all functions score < 15
-- [ ] T035a [P] Create `scripts/profile_memory.py` that runs `preprocess.py` and logs peak RAM to `results/memory_profile.csv`; verify script exists and runs successfully <!-- FAILED: unspecified -->
+- [ ] T034a [P] Refactor `code/` to reduce cyclomatic complexity of `preprocess.py` and `analysis.py` to < 15; verify by running `radon cc code/` and ensuring all functions score < 15
+- [~] T035a [P] Create `scripts/profile_memory.py` that runs `preprocess.py` and logs peak RAM to `results/memory_profile.csv`; verify script exists and runs successfully <!-- FAILED: unspecified -->
 - [~] T036 [P] Additional unit tests for edge cases (corrupted timestamps, missing metadata)
 - [~] T037 [P] Run `docs/quickstart.sh` validation: execute `bash docs/quickstart.sh` and verify exit code 0 and presence of `results/correlations.csv`
 

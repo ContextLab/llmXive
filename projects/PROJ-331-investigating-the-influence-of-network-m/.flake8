@@ -1,6 +1,19 @@
 [flake8]
-max-line-length = 100
-ignore = E203, E266, W503
-exclude = .git,__pycache__,build,dist
+max-line-length = 88
+extend-ignore = E203, W503
+exclude =
+    .git,
+    __pycache__,
+    build,
+    dist,
+    .eggs,
+    *.egg-info,
+    data,
+    results,
+    state,
+    tests
 per-file-ignores =
-    */__init__.py:F401
+    # Allow long lines in data loading scripts if necessary
+    code/download.py: E501
+    code/preprocess.py: E501
+ignore = E203, W503

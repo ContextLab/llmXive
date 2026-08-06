@@ -44,7 +44,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 [P] Create project directory structure: `code/`, `tests/`, `data/raw/`, `data/processed/`, `data/logs/`, `results/`, `state/`
-- [ ] T002 [P] Initialize Python 3.11 project with `requirements.txt` (numpy, scipy, pandas, networkx, matplotlib, seaborn, nibabel, requests, reportlab, tqdm, joblib, dipy)
+- [X] T002 [P] Initialize Python 3.11 project with `requirements.txt` (numpy, scipy, pandas, networkx, matplotlib, seaborn, nibabel, requests, reportlab, tqdm, joblib, dipy)
 - [ ] T003 [P] Configure linting (flake8/black) and formatting tools
 
 ---
@@ -56,8 +56,8 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T004 [P] Implement `code/config.py` with paths, seeds (42), and constants
-- [ ] T005 [P] Implement `code/utils.py` for logging (to `pipeline.log`), error handling, and file I/O
-- [ ] T006 [P] Create `scripts/hash_artifacts.sh` to generate SHA256 checksums and update `state/...yaml`
+- [X] T005 [P] Implement `code/utils.py` for logging (to `pipeline.log`), error handling, and file I/O
+- [X] T006 [P] Create `scripts/hash_artifacts.sh` to generate SHA256 checksums and update `state/...yaml`
 - [X] T007 [P] Setup `tests/conftest.py` and mock data fixtures for CI-safe testing
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -74,9 +74,9 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [~] T010 [P] [US1] Unit test for data download logic in `tests/unit/test_download.py`: **Contract**: Verify `download_subject_data(subject_id)` returns a dict with keys `{'dwi_path', 'rsfmri_path'}` or raises `FileNotFoundError` if missing; assert SHA256 checksums match `data/raw/.checksums.json` for valid files.
+- [X] T010 [P] [US1] Unit test for data download logic in `tests/unit/test_download.py`: **Contract**: Verify `download_subject_data(subject_id)` returns a dict with keys `{'dwi_path', 'rsfmri_path'}` or raises `FileNotFoundError` if missing; assert SHA256 checksums match `data/raw/.checksums.json` for valid files.
 - [X] T011 [P] [US1] Unit test for parcellation logic in `tests/unit/test_preprocess.py`: **Contract**: Verify `parcellate_connectome(streamlines_path, atlas_path)` returns a numpy array of shape (N, N) with a floating-point data type, where N corresponds to the number of regions in the specified atlas.; assert values are non-negative and density is within the expected valid range.
-- [~] T012 [P] [US1] Integration test for full pipeline on 2 subjects in `tests/integration/test_pipeline.py`: **Contract**: Run end-to-end on 2 mock subjects; assert `data/processed/` contains `structural.npy` and `rsfc.npy` for both; assert `data/logs/pipeline.log` contains "Processed 2/2 subjects" without errors. <!-- ATOMIZE: requested -->
+- [ ] T012 [P] [US1] Integration test for full pipeline on 2 subjects in `tests/integration/test_pipeline.py`: **Contract**: Run end-to-end on 2 mock subjects; assert `data/processed/` contains `structural.npy` and `rsfc.npy` for both; assert `data/logs/pipeline.log` contains "Processed 2/2 subjects" without errors. <!-- ATOMIZE: requested -->
 
 ### Implementation for User Story 1
 
@@ -98,15 +98,15 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T019 [P] [US2] Unit test for motif enumeration correctness in `tests/unit/test_motifs.py`: **Contract**: Verify `count_motifs(adj_matrix)` returns a dict with counts for all directed k-node motifs; assert sum of counts equals `n * (n-1) * (n-2)` for a complete graph.
-- [ ] T020 [P] [US2] Unit test for null model generation (Maslov-Sneppen) in `tests/unit/test_motifs.py`: **Contract**: Verify `generate_null_model(adj_matrix, iterations=100)` preserves degree distribution; assert mean degree difference is < 1e-6.
-- [ ] T021 [P] [US2] Integration test for timeout handling on large graphs in `tests/integration/test_motifs.py`: **Contract**: Run on a large-scale graph with a 5s timeout; assert function raises `TimeoutError` and logs "Timeout warning" to `pipeline.log`.
+- [X] T019 [P] [US2] Unit test for motif enumeration correctness in `tests/unit/test_motifs.py`: **Contract**: Verify `count_motifs(adj_matrix)` returns a dict with counts for all directed k-node motifs; assert sum of counts equals `n * (n-1) * (n-2)` for a complete graph.
+- [X] T020 [P] [US2] Unit test for null model generation (Maslov-Sneppen) in `tests/unit/test_motifs.py`: **Contract**: Verify `generate_null_model(adj_matrix, iterations=100)` preserves degree distribution; assert mean degree difference is < 1e-6.
+- [X] T021 [P] [US2] Integration test for timeout handling on large graphs in `tests/integration/test_motifs.py`: **Contract**: Run on a large-scale graph with a 5s timeout; assert function raises `TimeoutError` and logs "Timeout warning" to `pipeline.log`.
 
 ### Implementation for User Story 2
 
-- [ ] T022 [US2] Implement `code/motifs.py` to enumerate all 3‑node subgraphs using `networkx` on the **binary adjacency matrix** `data/processed/binary_adjacency.npy` from T014; generate degree‑preserving null networks (**multiple iterations**, seed 42) using Maslov-Sneppen algorithm to satisfy SC-002 timeout while maintaining statistical validity
-- [ ] T023 [US2] Implement `code/motifs.py` to compute z‑score prevalence for every 3‑node motif type: `z = (observed - mean_null) / std_null`
-- [ ] T024 [US2] Implement timeout wrapper (time limit) for motif enumeration; abort gracefully and log warning if exceeded
+- [~] T022 [US2] Implement `code/motifs.py` to enumerate all 3‑node subgraphs using `networkx` on the **binary adjacency matrix** `data/processed/binary_adjacency.npy` from T014; generate degree‑preserving null networks (**multiple iterations**, seed 42) using Maslov-Sneppen algorithm to satisfy SC-002 timeout while maintaining statistical validity <!-- FAILED: unspecified -->
+- [X] T023 [US2] Implement `code/motifs.py` to compute z‑score prevalence for every 3‑node motif type: `z = (observed - mean_null) / std_null`
+- [~] T024 [US2] Implement timeout wrapper (time limit) for motif enumeration; abort gracefully and log warning if exceeded
 - [ ] T025a [US2] Compute z-scores at **10% density threshold** on the **binary adjacency matrix** from T014; enforce 100s timeout per subject; output `data/processed/motif_z_10p.json`
 - [ ] T025b [US2] Compute z-scores at **20% density threshold** on the **binary adjacency matrix** from T014; enforce 100s timeout per subject; output `data/processed/motif_z_20p.json`
 - [ ] T025c [US2] Compute z-scores at **30% density threshold** on the **binary adjacency matrix** from T014; enforce 100s timeout per subject; output `data/processed/motif_z_30p.json`

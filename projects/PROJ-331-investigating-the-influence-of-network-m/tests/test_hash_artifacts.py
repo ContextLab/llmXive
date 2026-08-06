@@ -1,92 +1,159 @@
+"""
+Test suite for scripts/hash_artifacts.sh
+Verifies that the hash generation script correctly computes checksums
+and updates the state manifest.
+"""
 import os
 import subprocess
-import yaml
 import tempfile
 import shutil
+import yaml
+import hashlib
 from pathlib import Path
 import pytest
 
-# We need to run the script in the context of the project
-# Since we are in tests/, we assume the project root is one level up
-PROJECT_ROOT = Path(__file__).parent.parent
-SCRIPT_PATH = PROJECT_ROOT / "scripts" / "hash_artifacts.sh"
-
 @pytest.fixture
-def temp_project_structure():
+def temp_project_root():
     """Create a temporary project structure for testing."""
-    # Create a temp dir
-    temp_dir = tempfile.mkdtemp()
-    # Copy necessary files structure
-    # We simulate the structure by creating dummy files in the temp dir
-    # But since we are testing the script, we need the script to exist
-    # So we run the script in the actual project root, but we can't easily 
-    # change the root without modifying the script or passing args.
-    # For this test, we assume the script runs successfully in the actual repo.
-    # We will test the output file existence and format.
+    temp_dir = tempfile.mkdtemp(prefix="hash_test_")
     
-    return PROJECT_ROOT
+    # Create directory structure
+    dirs = [
+        "code", "tests", "data/raw", "data/processed", 
+        "data/logs", "results", "state", "specs"
+    ]
+    for d in dirs:
+        os.makedirs(os.path.join(temp_dir, d), exist_ok=True)
+    
+    # Create some dummy files
+    test_files = {
+        "code/config.py": "PROJECT_NAME = 'test'",
+        "code/utils.py": "def dummy(): pass",
+        "data/processed/test.npy": "dummy binary content",
+        "results/report.pdf": "dummy pdf content",
+        "tests/test_dummy.py": "def test_dummy(): pass",
+    }
+    
+    for path, content in test_files.items():
+        full_path = os.path.join(temp_dir, path)
+        with open(full_path, 'w') as f:
+            f.write(content)
+    
+    yield temp_dir
+    
+    # Cleanup
+    shutil.rmtree(temp_dir)
 
 def test_script_exists():
-    assert SCRIPT_PATH.exists(), "hash_artifacts.sh must exist"
+    """Verify the hash script exists in the project."""
+    script_path = Path("scripts/hash_artifacts.sh")
+    assert script_path.exists(), "scripts/hash_artifacts.sh must exist"
 
 def test_script_executable():
-    assert os.access(SCRIPT_PATH, os.X_OK), "hash_artifacts.sh must be executable"
+    """Verify the script has executable permissions or can be run via bash."""
+    script_path = Path("scripts/hash_artifacts.sh")
+    if script_path.exists():
+        # Try to run with bash to verify syntax
+        result = subprocess.run(
+            ["bash", "-n", str(script_path)],
+            capture_output=True,
+            text=True
+        )
+        assert result.returncode == 0, f"Script has syntax errors: {result.stderr}"
 
-def test_manifest_generation(temp_project_structure):
-    """Test that running the script generates a valid manifest."""
-    # Ensure state directory exists
-    state_dir = temp_project_structure / "state"
-    state_dir.mkdir(exist_ok=True)
+def test_hash_generation(temp_project_root):
+    """Test that the script generates checksums correctly."""
+    script_path = Path("scripts/hash_artifacts.sh")
     
-    manifest_path = state_dir / "manifest.yaml"
-    checksum_path = state_dir / "checksums.txt"
-    
-    # Remove old files if they exist
-    if manifest_path.exists():
-        manifest_path.unlink()
-    if checksum_path.exists():
-        checksum_path.unlink()
-
-    # Run the script
+    # Run the script in the temp directory
     result = subprocess.run(
-        ["bash", str(SCRIPT_PATH)],
-        cwd=temp_project_structure,
+        ["bash", str(script_path)],
+        cwd=temp_project_root,
         capture_output=True,
         text=True
     )
-
+    
     assert result.returncode == 0, f"Script failed: {result.stderr}"
     
-    assert manifest_path.exists(), "Manifest file was not created"
-    assert checksum_path.exists(), "Checksums file was not created"
-
-    # Validate YAML structure
-    with open(manifest_path, 'r') as f:
-        data = yaml.safe_load(f)
+    # Verify checksums file was created
+    checksums_file = os.path.join(temp_project_root, "state", "checksums.txt")
+    assert os.path.exists(checksums_file), "Checksums file should be created"
     
-    assert "version" in data, "Manifest must have a version"
-    assert "files" in data, "Manifest must have a files list"
-    assert isinstance(data["files"], list), "Files must be a list"
-
-    if len(data["files"]) > 0:
-        first_file = data["files"][0]
-        assert "path" in first_file, "File entry must have a path"
-        assert "sha256" in first_file, "File entry must have a sha256"
-        assert len(first_file["sha256"]) == 64, "SHA256 must be 64 chars"
-
-def test_checksums_format(temp_project_structure):
-    """Test that checksums file has correct format."""
-    checksum_path = temp_project_structure / "state" / "checksums.txt"
+    # Verify manifest was created
+    manifest_file = os.path.join(temp_project_root, "state", "manifest.yaml")
+    assert os.path.exists(manifest_file), "Manifest file should be created"
     
-    if not checksum_path.exists():
-        # Run script first
-        subprocess.run(["bash", str(SCRIPT_PATH)], cwd=temp_project_structure, check=True)
-
-    with open(checksum_path, 'r') as f:
-        lines = f.readlines()
+    # Verify manifest is valid YAML
+    with open(manifest_file, 'r') as f:
+        manifest = yaml.safe_load(f)
     
-    for line in lines:
-        parts = line.strip().split("  ")
-        assert len(parts) == 2, "Checksum line format must be 'hash  path'"
-        assert len(parts[0]) == 64, "Hash must be 64 chars"
-        assert len(parts[1]) > 0, "Path must not be empty"
+    assert "artifacts" in manifest, "Manifest must contain 'artifacts' key"
+    assert manifest["project_id"] == "PROJ-331", "Project ID should match"
+    assert "generated_at" in manifest, "Timestamp should be present"
+
+def test_checksum_accuracy(temp_project_root):
+    """Verify that computed checksums match actual file hashes."""
+    script_path = Path("scripts/hash_artifacts.sh")
+    
+    # Run the script
+    subprocess.run(
+        ["bash", str(script_path)],
+        cwd=temp_project_root,
+        capture_output=True,
+        text=True
+    )
+    
+    # Read the manifest
+    manifest_file = os.path.join(temp_project_root, "state", "manifest.yaml")
+    with open(manifest_file, 'r') as f:
+        manifest = yaml.safe_load(f)
+    
+    # Verify each artifact's checksum
+    for artifact in manifest["artifacts"]:
+        if artifact["path"] == "(none)":
+            continue
+            
+        file_path = os.path.join(temp_project_root, artifact["path"])
+        assert os.path.exists(file_path), f"File {artifact['path']} should exist"
+        
+        # Compute actual hash
+        sha256_hash = hashlib.sha256()
+        with open(file_path, "rb") as f:
+            for byte_block in iter(lambda: f.read(4096), b""):
+                sha256_hash.update(byte_block)
+        actual_hash = sha256_hash.hexdigest()
+        
+        assert artifact["checksum"] == actual_hash, \
+            f"Checksum mismatch for {artifact['path']}: expected {actual_hash}, got {artifact['checksum']}"
+
+def test_empty_directory_handling():
+    """Test script behavior when directories are empty."""
+    temp_dir = tempfile.mkdtemp(prefix="hash_empty_")
+    try:
+        # Create only state directory
+        os.makedirs(os.path.join(temp_dir, "state"))
+        
+        script_path = Path("scripts/hash_artifacts.sh")
+        result = subprocess.run(
+            ["bash", str(script_path)],
+            cwd=temp_dir,
+            capture_output=True,
+            text=True
+        )
+        
+        # Should succeed even with no files
+        assert result.returncode == 0
+        
+        # Verify manifest exists
+        manifest_file = os.path.join(temp_dir, "state", "manifest.yaml")
+        assert os.path.exists(manifest_file)
+        
+        with open(manifest_file, 'r') as f:
+            manifest = yaml.safe_load(f)
+        
+        # Should have empty artifacts list
+        assert len(manifest["artifacts"]) == 1
+        assert manifest["artifacts"][0]["path"] == "(none)"
+        
+    finally:
+        shutil.rmtree(temp_dir)

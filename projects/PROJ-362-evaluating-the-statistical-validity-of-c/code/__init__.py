@@ -1,2 +1,3 @@
-# llmXive Research Pipeline - Project PROJ-362
-# This file marks the code directory as a Python package.
+"""
+llmXive Research Pipeline: Evaluating the Statistical Validity of Common Ranking Metrics
+"""
