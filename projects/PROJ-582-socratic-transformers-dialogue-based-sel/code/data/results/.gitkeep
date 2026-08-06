@@ -1,1 +1,2 @@
-# This file ensures the directory is tracked by git
+# This directory stores final evaluation metrics, ablation study results, and figures.
+# Output files from stats_analysis.py and benchmarking scripts go here.

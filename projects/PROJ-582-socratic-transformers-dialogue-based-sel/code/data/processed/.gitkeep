@@ -1,1 +1,2 @@
-# This file ensures the directory is tracked by git
+# This directory stores processed, cleaned, and tokenized datasets ready for training.
+# Intermediate artifacts like static QA tuples and dialogue tuples live here.

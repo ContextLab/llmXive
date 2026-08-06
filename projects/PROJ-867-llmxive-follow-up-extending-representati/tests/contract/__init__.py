@@ -1,2 +1,1 @@
-# Contract Tests
-# Contains tests verifying adherence to defined schemas and interfaces.
+"""Contract tests for API and schema compliance."""

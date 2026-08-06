@@ -1,78 +1,59 @@
-"""
-Project setup script for llmXive follow-up: extending Representation Forcing for Structured Text Generation.
-
-This script creates the required directory structure for the project:
-projects/PROJ-867-llmxive-follow-up-extending-representati/
-
-Subdirectories created:
-- code/
-- data/
-- tests/
-- docs/
-
-Additionally creates test subdirectory skeletons:
-- tests/unit/
-- tests/contract/
-- tests/integration/
-"""
 import os
 import sys
 from pathlib import Path
 
-
-def create_directory_structure():
-    """Create the project directory structure."""
-    # Define the base project directory
-    base_dir = Path("projects/PROJ-867-llmxive-follow-up-extending-representati")
-    
-    # Main subdirectories
-    main_dirs = ["code", "data", "tests", "docs"]
-    
-    # Test subdirectories
-    test_dirs = ["tests/unit", "tests/contract", "tests/integration"]
-    
-    # Create all directories
-    for dir_path in main_dirs + test_dirs:
-        full_path = base_dir / dir_path
-        full_path.mkdir(parents=True, exist_ok=True)
-        print(f"Created directory: {full_path}")
-    
-    # Create __init__.py files for Python package recognition
-    for dir_path in ["tests/unit", "tests/contract", "tests/integration", "code", "code/utils", "code/data", "code/models"]:
-        full_path = base_dir / dir_path / "__init__.py"
-        full_path.parent.mkdir(parents=True, exist_ok=True)
-        full_path.touch()
-        print(f"Created __init__.py: {full_path}")
-    
-    # Create README files for documentation
-    readme_content = """# {dir_name}
-    
-    This directory is part of the llmXive follow-up project.
+def create_directory_structure(project_root: Path) -> None:
     """
-    
-    for dir_path in main_dirs:
-        readme_file = base_dir / dir_path / "README.md"
-        readme_file.write_text(readme_content.format(dir_name=dir_path))
-        print(f"Created README.md: {readme_file}")
-    
-    print(f"\nProject structure created successfully at: {base_dir}")
-    return base_dir
+    Creates the required directory structure for the project.
+    Ensures code/, data/, tests/, docs/ exist under the project root.
+    Also creates subdirectories for tests: unit/, contract/, integration/.
+    """
+    # Define the required subdirectories relative to the project root
+    required_dirs = [
+        "code",
+        "data",
+        "tests/unit",
+        "tests/contract",
+        "tests/integration",
+        "docs",
+    ]
 
+    for dir_path in required_dirs:
+        full_path = project_root / dir_path
+        full_path.mkdir(parents=True, exist_ok=True)
+        # Create a .gitkeep file to ensure the directory is tracked by git
+        # even if it's empty
+        gitkeep_path = full_path / ".gitkeep"
+        if not gitkeep_path.exists():
+            gitkeep_path.touch()
 
-def main():
-    """Main entry point for the setup script."""
-    print("Starting project directory structure creation...")
-    print(f"Current working directory: {os.getcwd()}")
+def main() -> None:
+    """
+    Entry point for creating the project directory structure.
+    Expects to be run from the project root directory.
+    """
+    # The project root is the current working directory
+    project_root = Path.cwd()
+    
+    print(f"Creating directory structure at: {project_root}")
     
     try:
-        base_dir = create_directory_structure()
-        print(f"\nSetup completed successfully!")
-        print(f"Project root: {base_dir}")
-        return 0
+        create_directory_structure(project_root)
+        print("Directory structure created successfully.")
+        
+        # List the created structure for verification
+        print("\nCreated structure:")
+        for item in sorted(project_root.iterdir()):
+            if item.is_dir() and item.name in ["code", "data", "tests", "docs"]:
+                print(f"  {item.name}/")
+                if item.name == "tests":
+                    for sub in sorted(item.iterdir()):
+                        if sub.is_dir():
+                            print(f"    {sub.name}/")
+                
     except Exception as e:
-        print(f"Error during setup: {e}", file=sys.stderr)
-        return 1
-
+        print(f"Error creating directory structure: {e}", file=sys.stderr)
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

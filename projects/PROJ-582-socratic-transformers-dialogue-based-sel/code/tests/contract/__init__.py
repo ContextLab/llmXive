@@ -1,1 +1,1 @@
-"""Contract tests for schema and API validation."""
+"""Contract testing suite."""

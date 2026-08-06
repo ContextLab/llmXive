@@ -1,1 +1,1 @@
-"""Integration tests for end-to-end workflows."""
+"""Integration testing suite."""

@@ -1,1 +1,1 @@
-"""Evaluation and benchmarking utilities."""
+"""Evaluation modules."""

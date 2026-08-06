@@ -1,1 +1,1 @@
-"""Statistical analysis and ablation utilities."""
+"""Analysis modules."""

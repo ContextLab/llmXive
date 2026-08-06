@@ -1,64 +1,52 @@
 # Cognitive Load Optimization: Adaptive Complexity Scaling for Personalized Learning
 
 ## Overview
-This project implements an adaptive learning system that optimizes instructional content complexity
-based on real-time cognitive load estimation. The system uses behavioral proxies (latency, errors, hints)
-to estimate cognitive load and adjusts explanation complexity accordingly.
+This project implements an automated science pipeline to optimize cognitive load in personalized learning systems. It trains models to estimate cognitive load from interaction features and generates adaptive explanation tiers to maintain optimal learning difficulty.
 
-## Features
-- Cognitive Load Estimation Model using Gradient Boosting
-- Adaptive Complexity Tier Generation (Simple, Moderate, Complex)
-- Simulation of Adaptive vs Static Learning Conditions
-- Mixed-Effects Modeling for Learning Efficiency Analysis
+## Key Features
+- **Cognitive Load Estimation**: Predicts continuous load scores (0–100) using behavioral proxies (latency, errors, hints).
+- **Adaptive Complexity**: Generates three tiers of explanation (Simple, Moderate, Complex) validated by Flesch-Kincaid readability scores.
+- **Simulation Pipeline**: Compares adaptive vs. static delivery conditions using mixed-effects modeling.
+
+## Requirements
+- Python 3.11+
+- CPU-only execution (no GPU required)
+
+## Installation
+1. Clone the repository.
+2. Create a virtual environment:
+ ```bash
+ python -m venv venv
+ source venv/bin/activate # On Windows: venv\Scripts\activate
+ ```
+3. Install dependencies:
+ ```bash
+ pip install -r requirements.txt
+ ```
 
 ## Project Structure
 ```
-PROJ-553-cognitive-load-optimization-adaptive-com/
+.
+├── code/ # Core implementation modules
 ├── data/
-│ ├── raw/ # Raw datasets from HuggingFace
-│ ├── processed/ # Processed data and models
-│ ├── explanation_tiers/ # Generated explanation tiers
+│ ├── raw/ # Raw downloaded datasets
+│ ├── processed/ # Cleaned data and model artifacts
+│ ├── explanation_tiers/ # Generated text tiers
 │ └── simulation_results/ # Simulation outputs
-├── code/
-│ ├── load_data.py # Data loading and verification
-│ ├── train_load_model.py # Model training pipeline
-│ ├── generate_tiers.py # Explanation tier generation
-│ ├── simulate_sessions.py # Session simulation
-│ ├── analyze_results.py # Statistical analysis
-│ └── utils.py # Utility functions
 ├── tests/ # Test suite
 ├── docs/ # Documentation
-└── requirements.txt # Python dependencies
-```
-
-## Installation
-```bash
-pip install -r requirements.txt
+├── requirements.txt # Python dependencies
+└── README.md # This file
 ```
 
 ## Usage
+Run the full pipeline:
 ```bash
-# Load and verify datasets
-python code/load_data.py
-
-# Train cognitive load model
-python code/train_load_model.py
-
-# Generate explanation tiers
-python code/generate_tiers.py
-
-# Run simulation
-python code/simulate_sessions.py
-
-# Analyze results
-python code/analyze_results.py
+python code/run_pipeline.py
 ```
 
-## Key Concepts
-- **Cognitive Load**: Estimated from behavioral proxies (latency, errors, hints)
-- **Adaptive Complexity**: Adjusts explanation difficulty based on load estimates
-- **Golden Set**: Expert-labeled dataset for model validation
-- **Hysteresis Controller**: Prevents premature simplification in adaptive mode
+## Validation
+This project relies on a "Golden Set" of expert-labeled interactions for model validation. Ensure `data/processed/golden_set.csv` is populated before running training tasks.
 
 ## License
-MIT License
+[Insert License]

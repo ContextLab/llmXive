@@ -25,8 +25,8 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001a Create project directory structure: `data/raw/`, `data/processed/`, `data/explanation_tiers/`, `data/simulation_results/`, `code/`, `tests/`, `docs/`
-- [ ] T001b Create core files: `code/__init__.py`, `requirements.txt`, `README.md`, `tests/__init__.py`
-- [ ] T002 Initialize Python 3.11 project with requirements.txt (scikit-learn, lightgbm, pandas, numpy, textstat, datasets, statsmodels, pytest, requests)
+- [X] T001b Create core files: `code/__init__.py`, `requirements.txt`, `README.md`, `tests/__init__.py`
+- [X] T002 Initialize Python 3.11 project with requirements.txt (scikit-learn, lightgbm, pandas, numpy, textstat, datasets, statsmodels, pytest, requests)
 - [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
 
 ---
@@ -37,10 +37,10 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Implement `code/load_data.py` to fetch public datasets (ASSISTments/OULAD via HuggingFace `datasets.load_dataset`) and verify presence of timestamped responses, error logs, hint requests, and interaction features
+- [X] T004 Implement `code/load_data.py` to fetch public datasets (ASSISTments/OULAD via HuggingFace `datasets.load_dataset`) and verify presence of timestamped responses, error logs, hint requests, and interaction features
 - [ ] T005 Implement Phase 0 "Golden Set" validation in `code/load_data.py`: check for `data/processed/golden_set.csv` with `expert_load_score` OR concurrent self-reports; exit with specific error if missing
 - [ ] T006a [P] Fetch or Verify External Golden Set: Ensure `data/processed/golden_set.csv` exists with ≥50 expert-labeled interactions. If missing, the task is blocked until external data is manually fetched. DO NOT generate synthetic labels or templates. **Depends on T004, T005**
-- [~] T006b Implement `code/create_golden_set.py` to actively CREATE the Golden Set if external data is missing: generate a synthetic expert-labeled dataset based on a defined rubric (randomized expert scores mapped to interaction features) to satisfy the 'create' clause of FR-001. Output to `data/processed/golden_set.csv`.
+- [ ] T006b Implement `code/create_golden_set.py` to actively CREATE the Golden Set if external data is missing: generate a synthetic expert-labeled dataset based on a defined rubric (randomized expert scores mapped to interaction features) to satisfy the 'create' clause of FR-001. Output to `data/processed/golden_set.csv`.
 - [X] T006c Document Constitutional Conflict: Update `docs/README.md` and `docs/research.md` to explicitly state the deviation from Constitution Principle VI (NASA-TLX validation) and the reliance on the 'Golden Set' path, flagging this for human review before research acceptance.
 - [X] T007 Implement utility functions in `code/utils.py`: VIF calculation, Flesch-Kincaid scoring, Jaccard similarity, semantic similarity (using lightweight CPU-safe embeddings or cosine similarity on TF-IDF)
 - [X] T008 Setup environment configuration management and logging infrastructure in `code/utils.py`

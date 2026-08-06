@@ -1,2 +1,1 @@
-# Integration Tests
-# Contains tests verifying interactions between multiple components.
+"""Integration tests for end-to-end workflows."""

@@ -9,8 +9,3 @@ A separate model checked the artifacts you produced for the tasks below and judg
 - **T006** — declared artifact(s) missing/empty/invalid: src/utils/config.py
 - **T007** — declared artifact(s) missing/empty/invalid: src/utils/model_loader.py
 - **T008** — declared artifact(s) missing/empty/invalid: src/utils/metrics.py
-- **T012** — declared artifact(s) missing/empty/invalid: src/data/download.py
-- **T013** — declared artifact(s) missing/empty/invalid: src/data/static_extractor.py
-- **T050** — declared artifact(s) missing/empty/invalid: src/data/critic_loader.py
-- **T014** — declared artifact(s) missing/empty/invalid: src/data/generate_dialogue.py
-- **T015** — declared artifact(s) missing/empty/invalid: src/data/ablation.py

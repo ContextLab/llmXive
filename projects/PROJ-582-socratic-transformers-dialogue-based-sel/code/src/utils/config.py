@@ -1,347 +1,300 @@
 """
-Environment configuration management for random seeds and model paths.
+Environment configuration management for the Socratic Transformers project.
 
-This module provides the SocraticConfig dataclass and utility functions to
-manage project-wide configuration, including random seed initialization
-for reproducibility across numpy, torch, and python random modules.
+Handles random seeds, model paths, and global project configuration.
+Ensures reproducibility and centralized management of hyperparameters.
 """
 import os
 import random
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Optional, Dict, Any, List
-
 import numpy as np
 
-# Default paths relative to project root
-DEFAULT_PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent.parent
-DEFAULT_DATA_DIR = DEFAULT_PROJECT_ROOT / "data"
-DEFAULT_RESULTS_DIR = DEFAULT_DATA_DIR / "results"
-DEFAULT_LOGS_DIR = DEFAULT_DATA_DIR / "logs"
+# Global configuration instance (singleton pattern)
+_global_config: Optional["SocraticConfig"] = None
 
 @dataclass
 class SocraticConfig:
     """
-    Central configuration container for the Socratic Transformers project.
-
-    Attributes:
-        project_root: Root directory of the project.
-        data_dir: Base directory for data storage.
-        results_dir: Directory for output metrics and results.
-        logs_dir: Directory for log files.
-        seed: Random seed for reproducibility.
-        model_name: HuggingFace model identifier for the base model.
-        critic_model_name: HuggingFace model identifier for the frozen critic.
-        output_dir: Directory for generation outputs.
-        max_seq_length: Maximum sequence length for tokenization.
-        batch_size: Training/inference batch size.
-        device: Device to run models on ('cpu', 'cuda', 'mps').
-        use_4bit: Enable 4-bit quantization for memory efficiency.
-        lora_rank: Rank for LoRA adaptation.
-        lora_alpha: Alpha scaling for LoRA.
-        lora_dropout: Dropout for LoRA layers.
-        target_modules: List of module names to apply LoRA to.
-        num_train_epochs: Number of training epochs.
-        learning_rate: Optimizer learning rate.
-        weight_decay: Optimizer weight decay.
-        warmup_steps: Number of warmup steps.
-        logging_steps: Frequency of logging.
-        save_steps: Frequency of saving checkpoints.
-        eval_steps: Frequency of evaluation.
-        max_grad_norm: Maximum gradient norm for clipping.
-        gradient_accumulation_steps: Steps for gradient accumulation.
-    """
-    project_root: Path = field(default_factory=lambda: DEFAULT_PROJECT_ROOT)
-    data_dir: Path = field(default_factory=lambda: DEFAULT_DATA_DIR)
-    results_dir: Path = field(default_factory=lambda: DEFAULT_RESULTS_DIR)
-    logs_dir: Path = field(default_factory=lambda: DEFAULT_LOGS_DIR)
+    Central configuration for the Socratic Transformers project.
     
-    # Randomness
+    Attributes:
+        project_root: Root directory of the project
+        seed: Random seed for reproducibility
+        data_dir: Directory for data storage
+        model_dir: Directory for model checkpoints
+        log_dir: Directory for log files
+        results_dir: Directory for results and metrics
+        device: Device to run models on (cpu, cuda, mps)
+        max_tokens: Maximum number of tokens for generation
+        temperature: Sampling temperature
+        top_p: Nucleus sampling parameter
+        model_name: HuggingFace model identifier
+        critic_model_name: HuggingFace identifier for the frozen critic model
+        lora_rank: LoRA attention rank
+        lora_alpha: LoRA scaling factor
+        lora_dropout: LoRA dropout rate
+        batch_size: Training batch size
+        gradient_accumulation_steps: Gradient accumulation steps
+        learning_rate: Learning rate for optimization
+        num_epochs: Number of training epochs
+        max_length: Maximum sequence length
+        quantization_bits: Number of bits for quantization (4 or 8)
+        timeout_seconds: Hard timeout for training loops (seconds)
+        ablation_placeholder: Neutral placeholder text for ablation studies
+    """
+    # Project structure
+    project_root: Path = field(default_factory=lambda: Path(__file__).parent.parent.parent)
+    
+    # Reproducibility
     seed: int = 42
     
-    # Model paths
-    model_name: str = "meta-llama/Llama-3.2-1B"
-    critic_model_name: str = "meta-llama/Llama-3.2-1B"
-    output_dir: Path = field(default_factory=lambda: DEFAULT_PROJECT_ROOT / "data" / "results" / "dialogues")
+    # Directory paths (relative to project_root)
+    data_dir: Path = field(default_factory=lambda: Path("data"))
+    model_dir: Path = field(default_factory=lambda: Path("models"))
+    log_dir: Path = field(default_factory=lambda: Path("logs"))
+    results_dir: Path = field(default_factory=lambda: Path("results"))
     
-    # Hyperparameters
-    max_seq_length: int = 2048
-    batch_size: int = 2
+    # Model configuration
     device: str = "cpu"
-    use_4bit: bool = True
+    model_name: str = "meta-llama/Meta-Llama-3-8B"
+    critic_model_name: str = "meta-llama/Meta-Llama-3-8B"
+    max_tokens: int = 1024
+    temperature: float = 0.7
+    top_p: float = 0.9
+    max_length: int = 2048
+    quantization_bits: int = 4
     
-    # LoRA parameters
+    # Training hyperparameters
     lora_rank: int = 8
     lora_alpha: int = 16
-    lora_dropout: float = 0.05
-    target_modules: List[str] = field(default_factory=lambda: ["q_proj", "k_proj", "v_proj", "o_proj"])
-    
-    # Training parameters
-    num_train_epochs: int = 3
-    learning_rate: float = 2e-4
-    weight_decay: float = 0.01
-    warmup_steps: int = 50
-    logging_steps: int = 10
-    save_steps: int = 100
-    eval_steps: int = 100
-    max_grad_norm: float = 1.0
+    lora_dropout: float = 0.1
+    batch_size: int = 2
     gradient_accumulation_steps: int = 4
+    learning_rate: float = 2e-4
+    num_epochs: int = 3
+    
+    # Safety and constraints
+    timeout_seconds: int = 3600  # 1 hour default timeout
+    ablation_placeholder: str = "[CRITIQUE_REMOVED]"
+    
+    # Dataset configuration
+    datasets: List[str] = field(default_factory=lambda: ["gsm8k", "math"])
+    
+    # Statistical analysis
+    significance_level: float = 0.05
+    bonferroni_correction: bool = True
 
     def __post_init__(self):
-        """Ensure paths are Path objects and resolve relative paths."""
-        if isinstance(self.project_root, str):
-            self.project_root = Path(self.project_root)
-        if isinstance(self.data_dir, str):
-            self.data_dir = Path(self.data_dir)
-        if isinstance(self.results_dir, str):
-            self.results_dir = Path(self.results_dir)
-        if isinstance(self.logs_dir, str):
-            self.logs_dir = Path(self.logs_dir)
-        if isinstance(self.output_dir, str):
-            self.output_dir = Path(self.output_dir)
+        """Initialize paths relative to project root."""
+        self.data_dir = self.project_root / self.data_dir
+        self.model_dir = self.project_root / self.model_dir
+        self.log_dir = self.project_root / self.log_dir
+        self.results_dir = self.project_root / self.results_dir
 
-        # Resolve relative paths against project root if not absolute
-        if not self.project_root.is_absolute():
-            self.project_root = self.project_root.resolve()
-        
-        # Ensure data subdirectories are relative to data_dir if not absolute
-        if not self.data_dir.is_absolute():
-            self.data_dir = self.project_root / self.data_dir
-        
-        if not self.results_dir.is_absolute():
-            self.results_dir = self.data_dir / self.results_dir.relative_to(self.data_dir) if self.results_dir.is_relative_to(self.data_dir) else self.data_dir / self.results_dir
-        
-        if not self.logs_dir.is_absolute():
-            self.logs_dir = self.data_dir / self.logs_dir.relative_to(self.data_dir) if self.logs_dir.is_relative_to(self.data_dir) else self.data_dir / self.logs_dir
+    def get_data_path(self, subpath: str) -> Path:
+        """Get full path within data directory."""
+        return self.data_dir / subpath
 
-        if not self.output_dir.is_absolute():
-            self.output_dir = self.data_dir / self.output_dir.relative_to(self.data_dir) if self.output_dir.is_relative_to(self.data_dir) else self.data_dir / self.output_dir
+    def get_model_path(self, subpath: str) -> Path:
+        """Get full path within model directory."""
+        return self.model_dir / subpath
 
-# Global config instance (lazy initialization)
-_global_config: Optional[SocraticConfig] = None
+    def get_log_path(self, subpath: str) -> Path:
+        """Get full path within log directory."""
+        return self.log_dir / subpath
+
+    def get_results_path(self, subpath: str) -> Path:
+        """Get full path within results directory."""
+        return self.results_dir / subpath
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert config to dictionary for serialization."""
+        return {
+            "seed": self.seed,
+            "device": self.device,
+            "model_name": self.model_name,
+            "critic_model_name": self.critic_model_name,
+            "max_tokens": self.max_tokens,
+            "temperature": self.temperature,
+            "top_p": self.top_p,
+            "max_length": self.max_length,
+            "quantization_bits": self.quantization_bits,
+            "lora_rank": self.lora_rank,
+            "lora_alpha": self.lora_alpha,
+            "lora_dropout": self.lora_dropout,
+            "batch_size": self.batch_size,
+            "gradient_accumulation_steps": self.gradient_accumulation_steps,
+            "learning_rate": self.learning_rate,
+            "num_epochs": self.num_epochs,
+            "timeout_seconds": self.timeout_seconds,
+            "datasets": self.datasets,
+            "significance_level": self.significance_level,
+            "bonferroni_correction": self.bonferroni_correction,
+            "ablation_placeholder": self.ablation_placeholder,
+        }
 
 def load_config_from_env() -> SocraticConfig:
     """
-    Load configuration from environment variables, falling back to defaults.
+    Load configuration from environment variables.
     
-    Returns:
-        SocraticConfig instance populated from environment or defaults.
+    Environment variables override default values:
+        SOCRATIC_SEED: Random seed
+        SOCRATIC_DEVICE: Device (cpu, cuda, mps)
+        SOCRATIC_MODEL_NAME: Base model identifier
+        SOCRATIC_CRITIC_MODEL_NAME: Critic model identifier
+        SOCRATIC_MAX_TOKENS: Maximum generation tokens
+        SOCRATIC_TEMPERATURE: Sampling temperature
+        SOCRATIC_LORA_RANK: LoRA rank
+        SOCRATIC_BATCH_SIZE: Batch size
+        SOCRATIC_LEARNING_RATE: Learning rate
+        SOCRATIC_TIMEOUT_SECONDS: Training timeout
     """
-    env_vars = {
-        "PROJECT_ROOT": "DEFAULT_PROJECT_ROOT",
-        "DATA_DIR": "DEFAULT_DATA_DIR",
-        "SEED": "42",
-        "MODEL_NAME": "meta-llama/Llama-3.2-1B",
-        "CRITIC_MODEL_NAME": "meta-llama/Llama-3.2-1B",
-        "MAX_SEQ_LENGTH": "2048",
-        "BATCH_SIZE": "2",
-        "DEVICE": "cpu",
-        "USE_4BIT": "True",
-        "LORA_RANK": "8",
-        "LORA_ALPHA": "16",
-        "LORA_DROPOUT": "0.05",
-        "NUM_TRAIN_EPOCHS": "3",
-        "LEARNING_RATE": "2e-4",
-        "WEIGHT_DECAY": "0.01",
-        "WARMUP_STEPS": "50",
-        "LOGGING_STEPS": "10",
-        "SAVE_STEPS": "100",
-        "EVAL_STEPS": "100",
-        "MAX_GRAD_NORM": "1.0",
-        "GRADIENT_ACCUMULATION_STEPS": "4",
-    }
-
-    config_kwargs = {}
+    config = SocraticConfig()
     
-    # Handle path-specific overrides
-    if os.getenv("PROJECT_ROOT"):
-        config_kwargs["project_root"] = Path(os.getenv("PROJECT_ROOT"))
-    if os.getenv("DATA_DIR"):
-        config_kwargs["data_dir"] = Path(os.getenv("DATA_DIR"))
-
-    # Handle simple value overrides
-    seed_val = os.getenv("SEED")
-    if seed_val:
-        config_kwargs["seed"] = int(seed_val)
+    # Override with environment variables if set
+    if seed := os.getenv("SOCRATIC_SEED"):
+        config.seed = int(seed)
     
-    model_name = os.getenv("MODEL_NAME")
-    if model_name:
-        config_kwargs["model_name"] = model_name
+    if device := os.getenv("SOCRATIC_DEVICE"):
+        config.device = device
     
-    critic_model_name = os.getenv("CRITIC_MODEL_NAME")
-    if critic_model_name:
-        config_kwargs["critic_model_name"] = critic_model_name
+    if model_name := os.getenv("SOCRATIC_MODEL_NAME"):
+        config.model_name = model_name
     
-    max_seq = os.getenv("MAX_SEQ_LENGTH")
-    if max_seq:
-        config_kwargs["max_seq_length"] = int(max_seq)
+    if critic_model_name := os.getenv("SOCRATIC_CRITIC_MODEL_NAME"):
+        config.critic_model_name = critic_model_name
     
-    batch_size = os.getenv("BATCH_SIZE")
-    if batch_size:
-        config_kwargs["batch_size"] = int(batch_size)
+    if max_tokens := os.getenv("SOCRATIC_MAX_TOKENS"):
+        config.max_tokens = int(max_tokens)
     
-    device = os.getenv("DEVICE")
-    if device:
-        config_kwargs["device"] = device
+    if temperature := os.getenv("SOCRATIC_TEMPERATURE"):
+        config.temperature = float(temperature)
     
-    use_4bit = os.getenv("USE_4BIT")
-    if use_4bit:
-        config_kwargs["use_4bit"] = use_4bit.lower() in ("true", "1", "yes")
+    if top_p := os.getenv("SOCRATIC_TOP_P"):
+        config.top_p = float(top_p)
     
-    lora_rank = os.getenv("LORA_RANK")
-    if lora_rank:
-        config_kwargs["lora_rank"] = int(lora_rank)
+    if max_length := os.getenv("SOCRATIC_MAX_LENGTH"):
+        config.max_length = int(max_length)
     
-    lora_alpha = os.getenv("LORA_ALPHA")
-    if lora_alpha:
-        config_kwargs["lora_alpha"] = int(lora_alpha)
+    if quantization_bits := os.getenv("SOCRATIC_QUANTIZATION_BITS"):
+        config.quantization_bits = int(quantization_bits)
     
-    lora_dropout = os.getenv("LORA_DROPOUT")
-    if lora_dropout:
-        config_kwargs["lora_dropout"] = float(lora_dropout)
+    if lora_rank := os.getenv("SOCRATIC_LORA_RANK"):
+        config.lora_rank = int(lora_rank)
     
-    num_epochs = os.getenv("NUM_TRAIN_EPOCHS")
-    if num_epochs:
-        config_kwargs["num_train_epochs"] = int(num_epochs)
+    if lora_alpha := os.getenv("SOCRATIC_LORA_ALPHA"):
+        config.lora_alpha = int(lora_alpha)
     
-    lr = os.getenv("LEARNING_RATE")
-    if lr:
-        config_kwargs["learning_rate"] = float(lr)
+    if lora_dropout := os.getenv("SOCRATIC_LORA_DROPOUT"):
+        config.lora_dropout = float(lora_dropout)
     
-    wd = os.getenv("WEIGHT_DECAY")
-    if wd:
-        config_kwargs["weight_decay"] = float(wd)
+    if batch_size := os.getenv("SOCRATIC_BATCH_SIZE"):
+        config.batch_size = int(batch_size)
     
-    warmup = os.getenv("WARMUP_STEPS")
-    if warmup:
-        config_kwargs["warmup_steps"] = int(warmup)
+    if gradient_accumulation := os.getenv("SOCRATIC_GRADIENT_ACCUMULATION"):
+        config.gradient_accumulation_steps = int(gradient_accumulation)
     
-    log_steps = os.getenv("LOGGING_STEPS")
-    if log_steps:
-        config_kwargs["logging_steps"] = int(log_steps)
+    if learning_rate := os.getenv("SOCRATIC_LEARNING_RATE"):
+        config.learning_rate = float(learning_rate)
     
-    save_steps = os.getenv("SAVE_STEPS")
-    if save_steps:
-        config_kwargs["save_steps"] = int(save_steps)
+    if num_epochs := os.getenv("SOCRATIC_NUM_EPOCHS"):
+        config.num_epochs = int(num_epochs)
     
-    eval_steps = os.getenv("EVAL_STEPS")
-    if eval_steps:
-        config_kwargs["eval_steps"] = int(eval_steps)
+    if timeout_seconds := os.getenv("SOCRATIC_TIMEOUT_SECONDS"):
+        config.timeout_seconds = int(timeout_seconds)
     
-    max_grad = os.getenv("MAX_GRAD_NORM")
-    if max_grad:
-        config_kwargs["max_grad_norm"] = float(max_grad)
-    
-    grad_acc = os.getenv("GRADIENT_ACCUMULATION_STEPS")
-    if grad_acc:
-        config_kwargs["gradient_accumulation_steps"] = int(grad_acc)
-
-    return SocraticConfig(**config_kwargs)
+    return config
 
 def get_config() -> SocraticConfig:
     """
-    Get the global configuration instance, initializing it if necessary.
+    Get the global configuration instance.
     
     Returns:
-        The global SocraticConfig instance.
+        SocraticConfig: The global configuration object.
+        
+    Raises:
+        RuntimeError: If configuration has not been initialized.
     """
     global _global_config
     if _global_config is None:
         _global_config = load_config_from_env()
-        ensure_directories(_global_config)
     return _global_config
 
 def set_global_config(config: SocraticConfig) -> None:
     """
-    Set the global configuration instance explicitly.
+    Set the global configuration instance.
     
     Args:
-        config: The SocraticConfig instance to set as global.
+        config: The configuration to set as global.
     """
     global _global_config
     _global_config = config
+
+def ensure_directories(config: Optional[SocraticConfig] = None) -> None:
+    """
+    Ensure all required directories exist.
+    
+    Args:
+        config: Configuration object. If None, uses global config.
+    """
+    if config is None:
+        config = get_config()
+    
+    dirs = [
+        config.data_dir,
+        config.data_dir / "raw",
+        config.data_dir / "processed",
+        config.data_dir / "results",
+        config.model_dir,
+        config.log_dir,
+        config.results_dir,
+    ]
+    
+    for dir_path in dirs:
+        dir_path.mkdir(parents=True, exist_ok=True)
+
+def init_project() -> SocraticConfig:
+    """
+    Initialize the project by setting up global config and directories.
+    
+    Returns:
+        SocraticConfig: The initialized configuration.
+    """
+    config = load_config_from_env()
+    set_global_config(config)
     ensure_directories(config)
+    return config
 
 def set_seed(seed: Optional[int] = None) -> None:
     """
-    Set random seeds for reproducibility across all relevant libraries.
+    Set random seeds for reproducibility.
     
     Args:
-        seed: The seed value. If None, uses the seed from the global config.
+        seed: Random seed. If None, uses the seed from global config.
     """
     if seed is None:
-        config = get_config()
-        seed = config.seed
+        seed = get_config().seed
     
     random.seed(seed)
     np.random.seed(seed)
-    
     try:
         import torch
         torch.manual_seed(seed)
         if torch.cuda.is_available():
             torch.cuda.manual_seed_all(seed)
     except ImportError:
-        pass  # Torch might not be installed in all environments
+        pass
 
-def ensure_directories(config: Optional[SocraticConfig] = None) -> None:
-    """
-    Ensure all required directories exist based on the configuration.
-    
-    Args:
-        config: Optional config instance. If None, uses the global config.
-    """
-    if config is None:
-        config = get_config()
-    
-    directories = [
-        config.data_dir,
-        config.data_dir / "raw",
-        config.data_dir / "processed",
-        config.data_dir / "results",
-        config.logs_dir,
-        config.output_dir,
-    ]
-    
-    for directory in directories:
-        directory.mkdir(parents=True, exist_ok=True)
+def get_model_path() -> Path:
+    """Get the path to store/load models."""
+    return get_config().model_dir
 
-def init_project() -> None:
-    """
-    Initialize the project by loading config and ensuring directories exist.
-    This is typically called at the entry point of scripts.
-    """
-    config = get_config()
-    ensure_directories(config)
-    set_seed()
+def get_data_path() -> Path:
+    """Get the path to store/load data."""
+    return get_config().data_dir
 
-def merge_configs(base: SocraticConfig, overrides: Dict[str, Any]) -> SocraticConfig:
-    """
-    Create a new config by merging base config with override values.
-    
-    Args:
-        base: The base SocraticConfig instance.
-        overrides: Dictionary of attribute names to override values.
-        
-    Returns:
-        A new SocraticConfig instance with overrides applied.
-    """
-    import copy
-    new_config = copy.deepcopy(base)
-    for key, value in overrides.items():
-        if hasattr(new_config, key):
-            setattr(new_config, key, value)
-        else:
-            raise ValueError(f"Unknown config attribute: {key}")
-    return new_config
-
-# Convenience function for scripts that need immediate setup
-def setup_environment() -> SocraticConfig:
-    """
-    Full environment setup: load config, ensure dirs, set seeds.
-    
-    Returns:
-        The configured SocraticConfig instance.
-    """
-    init_project()
-    return get_config()
+def get_log_path() -> Path:
+    """Get the path to store logs."""
+    return get_config().log_dir

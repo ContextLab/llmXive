@@ -1,14 +1,14 @@
 """
-Project Structure Initialization Script.
+Project Structure Setup Script
 
-Creates the necessary directory hierarchy for the research pipeline.
-Ensures all required data and output folders exist before execution.
+This script creates the necessary directory structure for the
+Cognitive Load Optimization project.
 """
 import os
 from pathlib import Path
 
 def main():
-    """Create the standard project directory structure."""
+    """Create the project directory structure."""
     root = Path(__file__).parent.parent
     
     directories = [
@@ -18,8 +18,7 @@ def main():
         "data/simulation_results",
         "code",
         "tests",
-        "docs",
-        "figures"
+        "docs"
     ]
     
     created = []
@@ -41,5 +40,4 @@ def main():
     return 0
 
 if __name__ == "__main__":
-    import sys
-    sys.exit(main())
+    exit(main())

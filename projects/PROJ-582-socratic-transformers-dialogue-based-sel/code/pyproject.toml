@@ -1,39 +1,84 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "socratic-transformers"
+version = "0.1.0"
+description = "Dialogue-Based Selection on Belief"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "transformers",
+    "peft",
+    "bitsandbytes",
+    "datasets",
+    "scikit-learn",
+    "pandas",
+    "pytest",
+    "ruff",
+    "black",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["src*", "tests*"]
+
 [tool.ruff]
-line-length = 100
-target-version = "py310"
+# Same as Black.
+line-length = 88
+indent-width = 4
+target-version = "py39"
 
 [tool.ruff.lint]
 select = [
     "E",  # pycodestyle errors
     "W",  # pycodestyle warnings
-    "F",  # pyflakes
+    "F",  # Pyflakes
     "I",  # isort
     "C",  # flake8-comprehensions
     "B",  # flake8-bugbear
 ]
 ignore = [
-    "E501",  # line too long (handled by black)
-    "B008",  # do not perform function calls in argument defaults
-    "C901",  # too complex
+    "E501", # line too long (handled by black/ruff format)
+    "B008", # do not perform function calls in argument defaults (common in dataclasses)
+    "C901", # too complex (temporary relaxation for research code)
 ]
 
 [tool.ruff.lint.per-file-ignores]
-"__init__.py" = ["F401"]
+"tests/*" = ["S101"] # assert allowed in tests
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
 
 [tool.black]
-line-length = 100
-target-version = ['py310']
+line-length = 88
+target-version = ['py39']
 include = '\.pyi?$'
 exclude = '''
 /(
     \.git
-    | \.hg
-    | \.mypy_cache
-    | \.tox
-    | \.venv
-    | _build
-    | buck-out
-    | build
-    | dist
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
 )/
 '''
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v --strict-markers"
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "unit: unit tests",
+    "integration: integration tests",
+    "contract: contract tests",
+]

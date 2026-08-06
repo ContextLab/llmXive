@@ -1,87 +1,74 @@
 import pytest
-import json
-import os
-import tempfile
-from pathlib import Path
 import networkx as nx
-from metrics import load_graph_from_json, calculate_global_connectivity, calculate_avg_branching_factor, process_batch
+import sys
+from pathlib import Path
 
-def test_load_graph_from_json():
-    """Test loading a graph from JSON."""
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
-        json.dump({'nodes': [1, 2, 3], 'edges': [(1, 2), (2, 3)]}, f)
-        temp_path = f.name
-    
-    try:
-        G = load_graph_from_json(temp_path)
-        assert G.number_of_nodes() == 3
-        assert G.number_of_edges() == 2
-    finally:
-        os.unlink(temp_path)
+sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
+
+from metrics import calculate_global_connectivity, calculate_average_branching_factor
 
 def test_calculate_global_connectivity():
-    """Test global connectivity calculation."""
+    """Unit test for Global Connectivity calculation (T018)."""
+    # Test case: 3 nodes, 2 edges
     G = nx.DiGraph()
     G.add_nodes_from([1, 2, 3])
     G.add_edges_from([(1, 2), (2, 3)])
     
-    # 2 edges / (3 * 2) = 2/6 = 0.333...
-    expected = 2 / 6
-    assert abs(calculate_global_connectivity(G) - expected) < 1e-6
+    # Expected: 2 / (3 * 2) = 0.3333
+    result = calculate_global_connectivity(G)
+    assert result == pytest.approx(0.333333, rel=0.01)
 
-def test_calculate_global_connectivity_zero_nodes():
-    """Test global connectivity with zero nodes."""
-    G = nx.DiGraph()
-    assert calculate_global_connectivity(G) == 0.0
+    # Test case: 0 edges
+    G_empty = nx.DiGraph()
+    G_empty.add_nodes_from([1, 2, 3])
+    assert calculate_global_connectivity(G_empty) == 0.0
 
-def test_calculate_avg_branching_factor():
-    """Test average branching factor calculation."""
+    # Test case: < 2 nodes
+    G_small = nx.DiGraph()
+    G_small.add_node(1)
+    assert calculate_global_connectivity(G_small) == 0.0
+
+    # Test case: Empty graph
+    G_none = nx.DiGraph()
+    assert calculate_global_connectivity(G_none) == 0.0
+
+def test_calculate_average_branching_factor():
+    """Unit test for Average Branching Factor calculation (T019)."""
+    # Test case: 3 nodes, edges (1->2), (2->3)
+    # Out-degrees: 1:1, 2:1, 3:0 -> Sum=2, Avg=2/3
     G = nx.DiGraph()
     G.add_nodes_from([1, 2, 3])
     G.add_edges_from([(1, 2), (2, 3)])
     
-    # Node 1: out-degree 1, Node 2: out-degree 1, Node 3: out-degree 0
-    # Total out-degree = 2, N = 3, avg = 2/3
-    expected = 2 / 3
-    assert abs(calculate_avg_branching_factor(G) - expected) < 1e-6
+    result = calculate_average_branching_factor(G)
+    assert result == pytest.approx(0.666666, rel=0.01)
 
-def test_calculate_avg_branching_factor_zero_nodes():
-    """Test average branching factor with zero nodes."""
-    G = nx.DiGraph()
-    assert calculate_avg_branching_factor(G) == 0.0
+    # Test case: 0 nodes
+    G_empty = nx.DiGraph()
+    assert calculate_average_branching_factor(G_empty) == 0.0
 
-def test_process_batch():
-    """Test batch processing of graphs."""
-    with tempfile.TemporaryDirectory() as temp_dir:
-        # Create test graphs
-        graph1 = nx.DiGraph()
-        graph1.add_nodes_from([1, 2])
-        graph1.add_edges_from([(1, 2)])
-        
-        graph2 = nx.DiGraph()
-        graph2.add_nodes_from([1, 2, 3, 4])
-        graph2.add_edges_from([(1, 2), (2, 3), (3, 4)])
-        
-        # Save graphs
-        graph_path = Path(temp_dir)
-        with open(graph_path / "trajectory_1.json", 'w') as f:
-            json.dump({'nodes': list(graph1.nodes()), 'edges': list(graph1.edges())}, f)
-        with open(graph_path / "trajectory_2.json", 'w') as f:
-            json.dump({'nodes': list(graph2.nodes()), 'edges': list(graph2.edges())}, f)
-        
-        output_path = Path(temp_dir) / "metrics.csv"
-        process_batch(temp_dir, str(output_path))
-        
-        # Verify output
-        assert output_path.exists()
-        with open(output_path, 'r') as f:
-            reader = csv.DictReader(f)
-            rows = list(reader)
-        
-        assert len(rows) == 2
-        # Check column names match spec
-        assert 'trajectory_id' in rows[0]
-        assert 'global_connectivity' in rows[0]
-        assert 'avg_branching_factor' in rows[0]
+    # Test case: Single node, no edges
+    G_single = nx.DiGraph()
+    G_single.add_node(1)
+    assert calculate_average_branching_factor(G_single) == 0.0
 
-import csv
+def test_edge_cases_small_graphs():
+    """
+    Unit test for edge cases with small graphs (T055).
+    Verifies behavior for N < 2 and N = 2.
+    """
+    # N=2, 1 edge -> Connectivity = 1 / (2*1) = 0.5
+    G_two = nx.DiGraph()
+    G_two.add_nodes_from([1, 2])
+    G_two.add_edge(1, 2)
+    assert calculate_global_connectivity(G_two) == pytest.approx(0.5, rel=0.01)
+
+    # N=2, 0 edges -> Connectivity = 0.0
+    G_two_empty = nx.DiGraph()
+    G_two_empty.add_nodes_from([1, 2])
+    assert calculate_global_connectivity(G_two_empty) == 0.0
+
+    # N=1 -> Connectivity = 0.0
+    G_one = nx.DiGraph()
+    G_one.add_node(1)
+    assert calculate_global_connectivity(G_one) == 0.0

@@ -1,1 +1,1 @@
-"""Training loop and configuration utilities."""
+"""Training modules."""

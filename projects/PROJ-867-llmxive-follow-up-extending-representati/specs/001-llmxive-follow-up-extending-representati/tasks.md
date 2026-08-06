@@ -56,7 +56,7 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T004 [P] Implement `code/utils/resource_monitor.py` as a context manager/decorator to enforce a configurable memory limit (default 4GB) derived from the 7GB runner constraint [UNRESOLVED-CLAIM: c_0b1f09c8 — status=not_enough_info] (FR-007), with active monitoring, logging of resource trends, and process kill on overflow; include mock test for verification
+- [X] T004 [P] Implement `code/utils/resource_monitor.py` as a context manager/decorator to enforce a configurable memory limit (default 4GB) derived from the 7GB runner constraint (FR-007), with active monitoring, logging of resource trends, and process kill on overflow; include mock test for verification
 - [X] T005 [P] Implement `code/data/loaders.py` to fetch PubLayNet dataset from HuggingFace (`facebook/publaynet`) with SHA-256 checksum verification
 - [X] T006a [P] Implement `code/data/verify_schema.py` to perform semantic verification of PubLayNet annotations (confirming presence of structural boxes and text content) as required by Plan Phase 0 Step 1, before processing begins
 - [X] T007 [P] Create `docs/contracts/rf_token_sequence.yaml` schema definition
@@ -81,7 +81,7 @@
 > **NOTE**: Write these tests FIRST, ensure they FAIL before implementation
 
 - [X] T013 [P] [US1] Unit test for RF token shape validation in `tests/unit/test_rf_encoder.py`
-- [ ] T014 [P] [US1] Integration test for single-image extraction in `tests/integration/test_extraction.py`
+- [X] T014 [P] [US1] Integration test for single-image extraction in `tests/integration/test_extraction.py`
 
 ### Implementation for User Story 1
 
@@ -111,7 +111,7 @@
 - [ ] T022 [P] [US2] Implement `code/models/autoregressive.py` defining a lightweight transformer (~30M params) accepting RF tokens as embeddings
 - [ ] T023 [P] [US2] Implement `code/data/preprocessing.py` logic to create a `DataLoader` for RF token pairs (depends on T005 and T016)
 - [ ] T024 [US2] Implement `code/train.py` training loop (depends on T023) with configuration for max 2 epochs (Constitution VII)
-- [ ] T025 [US2] Implement `code/train.py` stopping logic (depends on T024) to enforce a hard limit of 2 epochs [UNRESOLVED-CLAIM: c_65be5dc7 — status=not_enough_info] (Plan override of FR-003/Constitution VII) and log convergence diagnostics
+- [ ] T025 [US2] Implement `code/train.py` stopping logic (depends on T024) to enforce a hard limit of 2 epochs (Plan override of FR-003/Constitution VII) and log convergence diagnostics
 - [ ] T026 [US2] Integrate `code/utils/resource_monitor.py` into training loop (depends on T004)
 - [ ] T027 [US2] Implement logic to generate structured text from RF tokens and validate syntax using `jsonschema` or `markdown` parsers (depends on T011)
 - [ ] T028 [US2] Implement `code/models/baseline.py` defining a simple CNN encoder for raw downsampled pixel inputs
@@ -140,7 +140,7 @@
 - [ ] T034 [US3] Implement `code/main.py` orchestration to run RF and Baseline training, evaluation, and statistical comparison sequentially across multiple random seeds (depends on T033, T036)
 - [ ] T035 [US3] Implement logic to aggregate per-seed results from `data/results/` into `data/results/aggregated_scores.json` (seed-level metrics)
 - [ ] T037 [US3] Log total runtime and memory peak usage to `data/results/metrics.json` (SC-005, FR-007)
-- [ ] T038 [US3] Implement verification logic to compare logged runtime against the 6-hour CI job threshold and raise `SystemExit(1)` if exceeded (SC-005)
+- [ ] T038 [US3] Implement verification logic to compare logged runtime against the 6-hour CI job threshold [UNRESOLVED-CLAIM: c_bcceaca3 — status=not_enough_info] and raise `SystemExit(1)` if exceeded (SC-005)
 
 **Checkpoint**: All user stories should now be independently functional; Statistical significance computed
 
@@ -270,4 +270,4 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **CRITICAL**: All tasks must run on CPU-only free-tier runners (≤4GB RAM, ≤6h). No GPU/CUDA tasks allowed. 
+- **CRITICAL**: {{claim:c_0d5459d4}}. No GPU/CUDA tasks allowed. 
