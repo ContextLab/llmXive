@@ -1,0 +1,81 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Output Schema"
+description: "Schema for the model metrics and SHAP analysis results."
+type: "object"
+properties:
+  metrics:
+    type: "object"
+    properties:
+      mae:
+        type: "number"
+        description: "Mean Absolute Error of residual prediction in g/cm³."
+      r_squared:
+        type: "number"
+        description: "R-squared value of residual prediction."
+      rmse:
+        type: "number"
+        description: "Root Mean Squared Error of residual prediction."
+    required:
+      - "mae"
+      - "r_squared"
+      - "rmse"
+  feature_importance:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        feature:
+          type: "string"
+        importance:
+          type: "number"
+      required:
+        - "feature"
+        - "importance"
+  sensitivity_analysis:
+    type: "object"
+    properties:
+      threshold_sweep:
+        type: "array"
+        items:
+          type: "object"
+          properties:
+            threshold:
+              type: "number"
+              description: "Density threshold (e.g., 0.01, 0.05)."
+            mae_variance:
+              type: "number"
+          required:
+            - "threshold"
+            - "mae_variance"
+    required:
+      - "threshold_sweep"
+  hypothesis_test:
+    type: "object"
+    description: "Analysis of radius mismatch and packing efficiency contribution."
+    properties:
+      mae_exceeded_threshold:
+        type: "boolean"
+        description: "True if MAE > 0.1 g/cm³."
+      radius_mismatch_variance:
+        type: "number"
+        description: "Variance explained by radius mismatch (from SHAP)."
+      packing_efficiency_variance:
+        type: "number"
+        description: "Variance explained by packing efficiency (from SHAP)."
+      nested_f_test_p_value:
+        type: "number"
+        description: "P-value from the Nested F-Test comparing Baseline vs Full Model."
+      pdp_data:
+        type: "array"
+        description: "Partial Dependence Plot data points."
+    required:
+      - "mae_exceeded_threshold"
+      - "radius_mismatch_variance"
+      - "packing_efficiency_variance"
+      - "nested_f_test_p_value"
+required:
+  - "metrics"
+  - "feature_importance"
+  - "sensitivity_analysis"
+  - "hypothesis_test"
+additionalProperties: false

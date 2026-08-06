@@ -1,1 +1,22 @@
-[]
+- artifact_hash: 151b93b20272717107d5187b5a6f5a4301ff8144be2630b423082f85efd4a10d
+  artifact_path: projects/PROJ-461-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/spec.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: doi
+  value: 10.5281/zenodo.10467348
+  verification_status: mismatch
+  verified_against_url: https://api.crossref.org/works/10.5281/zenodo.10467348
+  verified_at: '2026-08-06T04:01:35.389826Z'
+- artifact_hash: 151b93b20272717107d5187b5a6f5a4301ff8144be2630b423082f85efd4a10d
+  artifact_path: projects/PROJ-461-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/spec.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: doi
+  value: 10.24435/materialscloud:8v5z7
+  verification_status: mismatch
+  verified_against_url: https://api.crossref.org/works/10.24435/materialscloud:8v5z7
+  verified_at: '2026-08-06T04:01:35.389826Z'

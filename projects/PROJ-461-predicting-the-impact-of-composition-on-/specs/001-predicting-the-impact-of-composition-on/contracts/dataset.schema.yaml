@@ -1,0 +1,68 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Metallic Glass Dataset Schema"
+description: "Schema for the raw and processed metallic glass composition and density data."
+type: "object"
+properties:
+  id:
+    type: "string"
+    description: "Unique identifier for the record."
+  composition:
+    type: "object"
+    description: "Map of elemental symbols to mass fractions."
+    additionalProperties:
+      type: "number"
+      minimum: 0
+      maximum: 1
+    required:
+      - "Zr"
+      - "Cu"
+      - "Al"
+  bulk_density:
+    type: "number"
+    description: "Bulk density in g/cm³."
+    minimum: 0
+  baseline_density:
+    type: "number"
+    description: "Baseline density calculated via Linear Mixing Rule (g/cm³)."
+    minimum: 0
+  residual_density:
+    type: "number"
+    description: "Residual density (Actual - Baseline) in g/cm³."
+  derived_features:
+    type: "object"
+    description: "Computed atomic-level descriptors."
+    properties:
+      mean_atomic_mass:
+        type: "number"
+      mean_atomic_radius:
+        type: "number"
+      electronegativity_variance:
+        type: "number"
+      atomic_radius_mismatch:
+        type: "number"
+      packing_efficiency_proxy:
+        type: "number"
+      clr_composition:
+        type: "object"
+        description: "Centered Log-Ratio transformed composition."
+        additionalProperties:
+          type: "number"
+    required:
+      - "mean_atomic_mass"
+      - "mean_atomic_radius"
+      - "electronegativity_variance"
+      - "atomic_radius_mismatch"
+      - "packing_efficiency_proxy"
+  dominant_element:
+    type: "string"
+    pattern: "^[A-Z][a-z]?$"
+    description: "Element with the highest mass fraction."
+required:
+  - "id"
+  - "composition"
+  - "bulk_density"
+  - "baseline_density"
+  - "residual_density"
+  - "derived_features"
+  - "dominant_element"
+additionalProperties: false
