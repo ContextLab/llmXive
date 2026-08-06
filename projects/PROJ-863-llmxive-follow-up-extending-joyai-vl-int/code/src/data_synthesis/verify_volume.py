@@ -3,190 +3,205 @@ import os
 import sys
 from pathlib import Path
 from typing import Dict, Any, List
+
 from src.utils.logging import get_logger
 
-# Constants for duration thresholds (in seconds)
-NON_CI_TARGET_SECONDS = 180000  # 50 hours
-CI_SUBSET_SECONDS = 3600  # 1 hour (default subset for CI)
 
 def load_manifest(manifest_path: Path) -> Dict[str, Any]:
     """
-    Load and parse the manifest.jsonl file.
+    Load the manifest.jsonl file and return its parsed content.
     
     Args:
         manifest_path: Path to the manifest.jsonl file
         
     Returns:
-        List of manifest entries as dictionaries
+        Parsed manifest data as a dictionary
         
     Raises:
         FileNotFoundError: If manifest file does not exist
-        json.JSONDecodeError: If file contains invalid JSON
+        json.JSONDecodeError: If manifest file is not valid JSON
     """
     if not manifest_path.exists():
         raise FileNotFoundError(f"Manifest file not found: {manifest_path}")
         
-    entries = []
     with open(manifest_path, 'r', encoding='utf-8') as f:
-        for line_num, line in enumerate(f, 1):
-            line = line.strip()
-            if not line:
-                continue
-            try:
-                entry = json.loads(line)
-                entries.append(entry)
-            except json.JSONDecodeError as e:
-                raise json.JSONDecodeError(
-                    f"Invalid JSON at line {line_num}: {e.msg}",
-                    e.doc,
-                    e.pos
-                )
-                
-    return entries
+        content = f.read().strip()
+        if not content:
+            raise ValueError(f"Manifest file is empty: {manifest_path}")
+        # Handle JSONL format (one JSON object per line)
+        lines = content.split('\n')
+        if len(lines) == 1:
+            return json.loads(lines[0])
+        else:
+            # If multiple lines, return list of records
+            return [json.loads(line) for line in lines]
 
-def calculate_total_duration(entries: List[Dict[str, Any]]) -> float:
+
+def calculate_total_duration(manifest_data: Any) -> float:
     """
-    Calculate total video duration in seconds from manifest entries.
+    Calculate the total video duration in seconds from manifest data.
     
     Args:
-        entries: List of manifest entries (each should have 'duration_seconds')
+        manifest_data: Parsed manifest data (dict or list of dicts)
         
     Returns:
         Total duration in seconds
+        
+    Note:
+        Handles both single manifest entry and JSONL format with multiple entries.
+        Summing duration_seconds field from each entry.
     """
-    total = 0.0
+    total_seconds = 0.0
+    
+    if isinstance(manifest_data, dict):
+        # Single manifest entry
+        entries = [manifest_data]
+    elif isinstance(manifest_data, list):
+        # JSONL format with multiple entries
+        entries = manifest_data
+    else:
+        raise ValueError(f"Unexpected manifest data type: {type(manifest_data)}")
+    
     for entry in entries:
-        if 'duration_seconds' in entry:
-            total += float(entry['duration_seconds'])
-        elif 'duration' in entry:
-            # Handle alternative key name
-            total += float(entry['duration'])
-    return total
+        if not isinstance(entry, dict):
+            raise ValueError(f"Manifest entry is not a dictionary: {entry}")
+        
+        # Extract duration - try common field names
+        duration = entry.get('duration_seconds') or entry.get('duration') or entry.get('total_seconds', 0)
+        if isinstance(duration, (int, float)):
+            total_seconds += float(duration)
+        elif isinstance(duration, str):
+            # Try to parse string duration
+            try:
+                total_seconds += float(duration)
+            except ValueError:
+                pass
+                
+    return total_seconds
 
-def verify_volume(manifest_path: Path, is_ci_mode: bool = False) -> Dict[str, Any]:
+
+def verify_volume(manifest_path: Path, ci_mode: bool = False, ci_threshold_seconds: float = 3600.0) -> Dict[str, Any]:
     """
-    Verify that the generated video volume meets the required thresholds.
+    Verify that the generated video volume meets the requirements.
     
     Args:
         manifest_path: Path to the manifest.jsonl file
-        is_ci_mode: If True, verify against CI subset threshold; 
-                   if False, verify against 50-hour target
-                   
+        ci_mode: If True, verify against CI threshold (default 1 hour)
+        ci_threshold_seconds: Duration threshold for CI mode (default 3600 seconds)
+        
     Returns:
         Dictionary with verification results:
-        - 'success': bool indicating if verification passed
-        - 'total_seconds': float of total duration found
-        - 'expected_seconds': float of expected duration
-        - 'entries_count': int of number of entries in manifest
-        - 'message': str with detailed result message
-        
+            - 'success': bool indicating if verification passed
+            - 'total_seconds': float total duration found
+            - 'required_seconds': float required duration
+            - 'message': str human-readable result message
+            
     Raises:
         FileNotFoundError: If manifest file does not exist
-        ValueError: If manifest is empty or invalid
+        ValueError: If manifest is invalid or verification fails
     """
     logger = get_logger("verify_volume")
     
     # Load manifest
-    entries = load_manifest(manifest_path)
+    logger.info(f"Loading manifest from: {manifest_path}")
+    manifest_data = load_manifest(manifest_path)
     
-    if not entries:
-        raise ValueError(f"Manifest file is empty: {manifest_path}")
-        
     # Calculate total duration
-    total_seconds = calculate_total_duration(entries)
+    total_seconds = calculate_total_duration(manifest_data)
     
-    # Determine expected threshold
-    expected_seconds = CI_SUBSET_SECONDS if is_ci_mode else NON_CI_TARGET_SECONDS
-    threshold_name = "CI subset" if is_ci_mode else "50-hour target"
+    # Determine required threshold
+    if ci_mode:
+        required_seconds = ci_threshold_seconds
+        mode_str = "CI"
+    else:
+        required_seconds = 180000.0  # 50 hours = 180,000 seconds
+        mode_str = "Non-CI"
     
-    # Verification logic
-    success = total_seconds >= expected_seconds
+    logger.info(f"Verification mode: {mode_str}, Required: {required_seconds}s, Found: {total_seconds}s")
     
-    result = {
+    # Verify threshold
+    success = total_seconds >= required_seconds
+    
+    if success:
+        message = f"SUCCESS: {mode_str} verification passed. Total duration: {total_seconds:.2f}s ({total_seconds/3600:.2f} hours) >= {required_seconds}s ({required_seconds/3600:.2f} hours)"
+        logger.info(message)
+    else:
+        message = f"FAILURE: {mode_str} verification failed. Total duration: {total_seconds:.2f}s ({total_seconds/3600:.2f} hours) < {required_seconds}s ({required_seconds/3600:.2f} hours)"
+        logger.error(message)
+    
+    return {
         'success': success,
         'total_seconds': total_seconds,
-        'expected_seconds': expected_seconds,
-        'entries_count': len(entries),
-        'threshold_name': threshold_name,
-        'is_ci_mode': is_ci_mode
+        'required_seconds': required_seconds,
+        'message': message
     }
-    
-    # Format message
-    if success:
-        hours = total_seconds / 3600
-        result['message'] = (
-            f"✓ Volume verification PASSED: {total_seconds:,.0f} seconds "
-            f"({hours:.2f} hours) meets {threshold_name} ({expected_seconds:,.0f} seconds)."
-        )
-        logger.info(result['message'])
-    else:
-        hours = total_seconds / 3600
-        result['message'] = (
-            f"✗ Volume verification FAILED: {total_seconds:,.0f} seconds "
-            f"({hours:.2f} hours) is below {threshold_name} "
-            f"(expected >= {expected_seconds:,.0f} seconds)."
-        )
-        logger.error(result['message'])
-        
-    return result
+
 
 def main():
     """
-    CLI entry point for volume verification.
+    Command-line entry point for volume verification.
     
     Usage:
-        python -m src.data_synthesis.verify_volume --manifest <path> [--ci-mode]
+        python src/data_synthesis/verify_volume.py [--ci] [--threshold SECONDS] [manifest_path]
         
-    Environment variables:
-        DATA_MANIFEST_PATH: Optional default path to manifest.jsonl
-        CI_MODE: Set to 'true' or '1' to enable CI mode verification
+    Defaults:
+        manifest_path: data/manifest.jsonl
+        ci_mode: False (Non-CI mode, requires 50 hours)
+        ci_threshold_seconds: 3600.0 (1 hour for CI mode)
     """
     import argparse
     
     parser = argparse.ArgumentParser(
-        description='Verify generated video volume against required thresholds.'
+        description='Verify video generation volume meets requirements'
     )
     parser.add_argument(
-        '--manifest', '-m',
-        type=Path,
-        default=os.getenv('DATA_MANIFEST_PATH', 'data/manifest.jsonl'),
+        'manifest_path',
+        nargs='?',
+        default='data/manifest.jsonl',
         help='Path to manifest.jsonl file (default: data/manifest.jsonl)'
     )
     parser.add_argument(
-        '--ci-mode',
+        '--ci',
         action='store_true',
-        default=os.getenv('CI_MODE', '').lower() in ('true', '1', 'yes'),
-        help='Verify against CI subset threshold (1 hour) instead of 50-hour target'
+        help='Enable CI mode (verify against smaller threshold)'
+    )
+    parser.add_argument(
+        '--threshold',
+        type=float,
+        default=3600.0,
+        help='Duration threshold in seconds for CI mode (default: 3600.0)'
     )
     
     args = parser.parse_args()
     
-    logger = get_logger("verify_volume")
-    logger.info(f"Starting volume verification for: {args.manifest}")
-    logger.info(f"Mode: {'CI' if args.ci_mode else 'Non-CI'}")
+    manifest_path = Path(args.manifest_path)
     
     try:
-        result = verify_volume(args.manifest, is_ci_mode=args.ci_mode)
+        result = verify_volume(manifest_path, ci_mode=args.ci, ci_threshold_seconds=args.threshold)
         
-        if result['success']:
-            print(result['message'])
-            sys.exit(0)
-        else:
-            print(result['message'])
-            sys.exit(1)
-            
+        print(f"\n{'='*60}")
+        print(f"Volume Verification Results")
+        print(f"{'='*60}")
+        print(f"Mode: {'CI' if args.ci else 'Non-CI'}")
+        print(f"Total Duration: {result['total_seconds']:.2f} seconds ({result['total_seconds']/3600:.2f} hours)")
+        print(f"Required Duration: {result['required_seconds']:.2f} seconds ({result['required_seconds']/3600:.2f} hours)")
+        print(f"Status: {'PASSED' if result['success'] else 'FAILED'}")
+        print(f"Message: {result['message']}")
+        print(f"{'='*60}\n")
+        
+        # Exit with appropriate code
+        sys.exit(0 if result['success'] else 1)
+        
     except FileNotFoundError as e:
-        logger.error(f"File not found: {e}")
-        print(f"ERROR: {e}")
+        print(f"ERROR: {e}", file=sys.stderr)
         sys.exit(2)
     except ValueError as e:
-        logger.error(f"Validation error: {e}")
-        print(f"ERROR: {e}")
+        print(f"ERROR: {e}", file=sys.stderr)
         sys.exit(3)
     except Exception as e:
-        logger.error(f"Unexpected error: {e}", exc_info=True)
-        print(f"UNEXPECTED ERROR: {e}")
+        print(f"UNEXPECTED ERROR: {e}", file=sys.stderr)
         sys.exit(4)
+
 
 if __name__ == '__main__':
     main()

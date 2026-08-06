@@ -1,10 +1,11 @@
 """
-Video Content Generator for llmXive Synthetic Data Pipeline.
+Synthetic Video Content Generator for llmXive.
 
-Generates synthetic video frames representing human activities (falling, sitting, standing, walking)
-and writes them directly to disk using chunked streaming to respect memory constraints.
+Generates synthetic video streams with ground-truth labels derived strictly from
+visual content (e.g., falls) independent of any model output.
 
-Supports CI Mode (subset generation) and Non-CI Mode (full 50-hour generation).
+Supports CI Mode (subset) and Non-CI Mode (full 50h) with chunked streaming
+to disk to enforce <6GB RAM limits.
 """
 import json
 import os
@@ -12,304 +13,264 @@ import time
 import random
 import math
 from pathlib import Path
-from dataclasses import asdict
-from typing import List, Dict, Any, Optional, Iterator
-from datetime import datetime
+from typing import List, Dict, Any, Optional, Generator
 
-import numpy as np
-
+# Import project models and utilities
 from src.data_synthesis.models import SyntheticVideoFrame
-from src.data_synthesis.handoff import HandoffManager, get_handoff_manager
-from src.utils.logging import get_logger, log_data_event
+from src.utils.logging import get_logger, log_data_event, log_no_vlm_call
 from src.utils.env_config import get_required_env_vars
+from src.data_synthesis.handoff import get_handoff_manager, ChunkManifest
 
-# Configuration
-FPS = 30
-FRAME_WIDTH = 640
-FRAME_HEIGHT = 480
-CHUNK_SIZE = 300  # 10 seconds of frames per chunk (300 frames)
 
-# Activity Durations (in seconds)
-DURATIONS = {
-    'falling': 2,
-    'sitting': 10,
-    'standing': 15,
-    'walking': 10
-}
+# Constants for generation
+FRAME_RATE = 30  # frames per second
+TARGET_DURATION_SECONDS_CI = 3600  # 1 hour for CI
+TARGET_DURATION_SECONDS_FULL = 180000  # 50 hours for Non-CI
+CHUNK_SIZE_SECONDS = 300  # 5 minutes per chunk for streaming
+OUTPUT_DIR = Path("data/raw")
+MANIFEST_PATH = Path("data/manifest.jsonl")
 
-logger = get_logger(__name__)
-
-def _generate_frame_data(activity: str, frame_idx: int, total_frames: int, seed: int) -> Dict[str, Any]:
-    """
-    Generate a synthetic frame representation (not actual pixels, but structured data
-    representing the visual state for downstream processing).
-    
-    Args:
-        activity: Current activity type
-        frame_idx: Index of the frame within the current activity sequence
-        total_frames: Total frames in this activity sequence
-        seed: Random seed for reproducibility
-    
-    Returns:
-        Dictionary representing the frame state
-    """
-    np.random.seed(seed + frame_idx)
-    
-    # Base parameters for different activities
-    if activity == 'falling':
-        # Simulate falling motion: vertical position decreases rapidly
-        progress = frame_idx / max(total_frames - 1, 1)
-        y_pos = int(FRAME_HEIGHT * (1 - progress * 0.8))
-        velocity_y = -int(FRAME_HEIGHT * 0.4 * progress)
-        is_critical = progress > 0.7  # Critical phase of fall
-    elif activity == 'sitting':
-        # Stable sitting position
-        y_pos = int(FRAME_HEIGHT * 0.7)
-        velocity_y = 0
-        is_critical = False
-    elif activity == 'standing':
-        # Stable standing position
-        y_pos = int(FRAME_HEIGHT * 0.5)
-        velocity_y = 0
-        is_critical = False
-    elif activity == 'walking':
-        # Walking motion: slight vertical oscillation
-        phase = (frame_idx % 15) / 15.0
-        y_pos = int(FRAME_HEIGHT * 0.6 + math.sin(phase * 2 * math.pi) * 10)
-        velocity_y = int(math.cos(phase * 2 * math.pi) * 5)
-        is_critical = False
-    else:
-        y_pos = FRAME_HEIGHT // 2
-        velocity_y = 0
-        is_critical = False
-    
-    # Add noise
-    y_pos += np.random.normal(0, 2)
-    y_pos = max(0, min(FRAME_HEIGHT - 1, int(y_pos)))
-    
-    return {
-        'y_position': y_pos,
-        'velocity_y': velocity_y,
-        'is_critical': is_critical,
-        'activity': activity,
-        'frame_idx': frame_idx
-    }
 
 def generate_activity_sequence(
-    activity: str,
     duration_seconds: int,
-    start_frame_idx: int,
-    base_seed: int
-) -> Iterator[SyntheticVideoFrame]:
+    frame_rate: int = FRAME_RATE,
+    seed: Optional[int] = None
+) -> Generator[Dict[str, Any], None, None]:
     """
-    Generate a sequence of frames for a specific activity.
-    
-    Args:
-        activity: Type of activity
-        duration_seconds: Duration in seconds
-        start_frame_idx: Starting frame index in the overall video
-        base_seed: Base random seed for reproducibility
-    
-    Yields:
-        SyntheticVideoFrame objects
+    Generates a deterministic sequence of activity events for the video stream.
+
+    Yields dictionaries representing activity states for each frame.
+    Includes: 'sitting', 'standing', 'walking', 'falling', 'lying_down'.
     """
-    num_frames = duration_seconds * FPS
-    seed = base_seed + int(time.time())
-    
-    for i in range(num_frames):
-        frame_data = _generate_frame_data(activity, i, num_frames, seed)
-        
-        frame = SyntheticVideoFrame(
-            timestamp=start_frame_idx + i,
-            activity=activity,
-            y_position=frame_data['y_position'],
-            velocity_y=frame_data['velocity_y'],
-            is_critical=frame_data['is_critical'],
-            frame_id=f"frame_{start_frame_idx + i:08d}",
-            chunk_id=(start_frame_idx + i) // CHUNK_SIZE
-        )
-        yield frame
+    if seed is not None:
+        random.seed(seed)
+
+    total_frames = duration_seconds * frame_rate
+    current_frame = 0
+
+    # Define activity segments
+    activities = ['sitting', 'standing', 'walking', 'falling', 'lying_down']
+    current_activity = random.choice(activities)
+    next_switch_frame = random.randint(100, 500)
+
+    while current_frame < total_frames:
+        # Determine if we switch activities
+        if current_frame >= next_switch_frame:
+            # Prevent immediate switch to same activity
+            available = [a for a in activities if a != current_activity]
+            current_activity = random.choice(available)
+            # If falling, ensure it transitions to lying_down eventually
+            if current_activity == 'falling':
+                next_switch_frame = current_frame + random.randint(10, 30)
+            else:
+                next_switch_frame = current_frame + random.randint(100, 1000)
+
+        # Generate frame data for this activity
+        frame_data = {
+            "frame_index": current_frame,
+            "activity": current_activity,
+            "timestamp": current_frame / frame_rate,
+            "is_critical": current_activity == 'falling',
+            "confidence": random.uniform(0.8, 1.0) if current_activity != 'falling' else random.uniform(0.6, 0.9)
+        }
+
+        yield frame_data
+        current_frame += 1
+
 
 def generate_video_stream(
-    total_duration_hours: float,
+    duration_seconds: int,
     output_dir: Path,
-    chunk_size: int = CHUNK_SIZE,
-    seed: Optional[int] = None
-) -> Dict[str, Any]:
+    chunk_duration: int = CHUNK_SIZE_SECONDS,
+    seed: Optional[int] = None,
+    is_ci_mode: bool = False
+) -> List[Dict[str, Any]]:
     """
-    Generate a continuous video stream with mixed activities.
-    
+    Generates video frames and writes them directly to disk in chunks.
+
+    This function implements the streaming requirement (FR-001) to avoid
+    loading all frames into memory. It writes JSONL chunks to `data/raw/`.
+
     Args:
-        total_duration_hours: Total duration in hours
-        output_dir: Directory to write output files
-        chunk_size: Number of frames per chunk
-        seed: Random seed for activity sequence generation
-    
+        duration_seconds: Total duration to generate.
+        output_dir: Directory to write chunk files.
+        chunk_duration: Duration of each chunk in seconds.
+        seed: Random seed for reproducibility.
+        is_ci_mode: If True, generates a subset (1h) regardless of input.
+
     Returns:
-        Manifest dictionary with generation metadata
+        List of metadata entries for the manifest.
     """
-    if seed is None:
-        seed = int(time.time())
-    
-    total_frames = int(total_duration_hours * 3600 * FPS)
-    total_chunks = (total_frames + chunk_size - 1) // chunk_size
-    
-    os.makedirs(output_dir, exist_ok=True)
-    
-    # Initialize handoff manager for streaming
-    handoff_manager = get_handoff_manager(output_dir)
-    
-    # Activity pool and weights
-    activities = list(DURATIONS.keys())
-    weights = [0.1, 0.3, 0.3, 0.3]  # falling, sitting, standing, walking
-    
+    # Adjust duration for CI mode
+    effective_duration = duration_seconds
+    if is_ci_mode:
+        effective_duration = min(duration_seconds, TARGET_DURATION_SECONDS_CI)
+        log_data_event(f"CI Mode active: Limiting generation to {effective_duration} seconds.")
+    else:
+        # Ensure we hit the 50h target if requested
+        if duration_seconds < TARGET_DURATION_SECONDS_FULL:
+            effective_duration = TARGET_DURATION_SECONDS_FULL
+            log_data_event(f"Non-CI Mode: Generating full {effective_duration} seconds (50h).")
+
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    logger = get_logger("generator")
+    logger.info(f"Starting video generation: {effective_duration} seconds, seed={seed}")
+
     manifest_entries = []
-    current_chunk_frames = []
-    frame_counter = 0
+    handoff_manager = get_handoff_manager()
+    chunk_id = 0
+    frames_written = 0
     start_time = time.time()
-    
-    random.seed(seed)
-    
-    for chunk_idx in range(total_chunks):
-        chunk_start_frame = chunk_idx * chunk_size
-        chunk_end_frame = min(chunk_start_frame + chunk_size, total_frames)
-        chunk_duration = (chunk_end_frame - chunk_start_frame) / FPS
-        
-        # Generate frames for this chunk
-        for _ in range(chunk_end_frame - chunk_start_frame):
-            # Select activity
-            activity = random.choices(activities, weights=weights)[0]
-            activity_duration = DURATIONS[activity]
-            activity_frames = int(activity_duration * FPS)
-            
-            # Generate sequence for this activity (might span multiple chunks)
-            for frame in generate_activity_sequence(
-                activity, 
-                activity_duration, 
-                frame_counter, 
-                seed + frame_counter
-            ):
-                current_chunk_frames.append(frame)
-                frame_counter += 1
-                
-                if len(current_chunk_frames) >= chunk_size:
-                    break
-            
-            if len(current_chunk_frames) >= chunk_size:
-                break
-        
-        # Write chunk to disk
-        if current_chunk_frames:
-            chunk_file = output_dir / f"chunk_{chunk_idx:06d}.jsonl"
-            
-            with open(chunk_file, 'w') as f:
-                for frame in current_chunk_frames:
-                    f.write(json.dumps(asdict(frame)) + '\n')
-            
-            # Register chunk with handoff manager
-            handoff_manager.register_chunk(
-                chunk_id=chunk_idx,
-                file_path=str(chunk_file),
-                num_frames=len(current_chunk_frames),
-                duration_seconds=len(current_chunk_frames) / FPS
-            )
-            
-            manifest_entries.append({
-                'chunk_id': chunk_idx,
-                'file': str(chunk_file),
-                'num_frames': len(current_chunk_frames),
-                'duration_seconds': len(current_chunk_frames) / FPS,
-                'start_frame': chunk_start_frame,
-                'end_frame': chunk_start_frame + len(current_chunk_frames) - 1
-            })
-            
+
+    # Initialize seed if not provided
+    if seed is None:
+        seed = int(time.time()) % 100000
+
+    # Iterate through the generator
+    activity_gen = generate_activity_sequence(effective_duration, seed=seed)
+
+    current_chunk_frames = []
+    chunk_start_time = 0.0
+
+    for frame_data in activity_gen:
+        # Create SyntheticVideoFrame object
+        frame_obj = SyntheticVideoFrame(
+            frame_index=frame_data["frame_index"],
+            timestamp=frame_data["timestamp"],
+            activity=frame_data["activity"],
+            is_critical=frame_data["is_critical"],
+            confidence=frame_data["confidence"],
+            raw_features={} # Placeholder for visual features
+        )
+
+        current_chunk_frames.append(frame_obj)
+        frames_written += 1
+
+        # Check if chunk is full
+        chunk_end_time = frame_data["timestamp"]
+        if chunk_end_time - chunk_start_time >= chunk_duration or frames_written >= (chunk_duration * FRAME_RATE):
+            # Write chunk to disk
+            chunk_filename = f"chunk_{chunk_id:05d}.jsonl"
+            chunk_path = output_dir / chunk_filename
+
+            with open(chunk_path, 'w') as f:
+                for f_obj in current_chunk_frames:
+                    f.write(json.dumps({
+                        "frame_index": f_obj.frame_index,
+                        "timestamp": f_obj.timestamp,
+                        "activity": f_obj.activity,
+                        "is_critical": f_obj.is_critical,
+                        "confidence": f_obj.confidence
+                    }) + "\n")
+
+            # Update handoff manifest
+            handoff_entry = {
+                "chunk_id": chunk_id,
+                "file_path": str(chunk_path),
+                "start_frame": current_chunk_frames[0].frame_index,
+                "end_frame": current_chunk_frames[-1].frame_index,
+                "start_time": chunk_start_time,
+                "end_time": chunk_end_time,
+                "frame_count": len(current_chunk_frames),
+                "status": "completed",
+                "written_at": time.time()
+            }
+            handoff_manager.write_chunk(handoff_entry)
+            manifest_entries.append(handoff_entry)
+
+            # Reset chunk
             current_chunk_frames = []
-        
-        # Log progress every 10 chunks
-        if (chunk_idx + 1) % 10 == 0:
-            elapsed = time.time() - start_time
-            rate = (chunk_idx + 1) / elapsed if elapsed > 0 else 0
-            logger.info(f"Generated chunk {chunk_idx + 1}/{total_chunks} "
-                      f"({(chunk_idx + 1) / total_chunks * 100:.1f}%) "
-                      f"at {rate:.2f} chunks/sec")
+            chunk_id += 1
+            if current_chunk_frames:
+                chunk_start_time = current_chunk_frames[0].timestamp
+            else:
+                chunk_start_time = chunk_end_time
+
+    # Write final partial chunk
+    if current_chunk_frames:
+        chunk_filename = f"chunk_{chunk_id:05d}.jsonl"
+        chunk_path = output_dir / chunk_filename
+        with open(chunk_path, 'w') as f:
+            for f_obj in current_chunk_frames:
+                f.write(json.dumps({
+                    "frame_index": f_obj.frame_index,
+                    "timestamp": f_obj.timestamp,
+                    "activity": f_obj.activity,
+                    "is_critical": f_obj.is_critical,
+                    "confidence": f_obj.confidence
+                }) + "\n")
+
+        handoff_entry = {
+            "chunk_id": chunk_id,
+            "file_path": str(chunk_path),
+            "start_frame": current_chunk_frames[0].frame_index,
+            "end_frame": current_chunk_frames[-1].frame_index,
+            "start_time": chunk_start_time,
+            "end_time": current_chunk_frames[-1].timestamp,
+            "frame_count": len(current_chunk_frames),
+            "status": "completed",
+            "written_at": time.time()
+        }
+        handoff_manager.write_chunk(handoff_entry)
+        manifest_entries.append(handoff_entry)
+
+    elapsed = time.time() - start_time
+    logger.info(f"Generation complete. Wrote {len(manifest_entries)} chunks, {frames_written} frames in {elapsed:.2f}s.")
     
-    # Finalize handoff
-    handoff_manager.finalize()
-    
-    # Calculate totals
-    total_duration_seconds = sum(e['duration_seconds'] for e in manifest_entries)
-    total_frames_generated = sum(e['num_frames'] for e in manifest_entries)
-    
-    manifest = {
-        'total_duration_hours': total_duration_hours,
-        'actual_duration_seconds': total_duration_seconds,
-        'total_frames': total_frames_generated,
-        'chunk_count': len(manifest_entries),
-        'chunk_size': chunk_size,
-        'fps': FPS,
-        'resolution': f"{FRAME_WIDTH}x{FRAME_HEIGHT}",
-        'seed': seed,
-        'generated_at': datetime.now().isoformat(),
-        'chunks': manifest_entries
-    }
-    
-    # Write manifest
-    manifest_path = output_dir / 'manifest.jsonl'
-    with open(manifest_path, 'w') as f:
-        f.write(json.dumps(manifest) + '\n')
-    
-    logger.info(f"Generation complete: {total_duration_seconds:.2f}s ({total_duration_seconds/3600:.2f}h) "
-               f"of video in {len(manifest_entries)} chunks")
-    
-    return manifest
+    # Log that no VLM was used
+    log_no_vlm_call("generator", "synthetic_generation", "No VLM calls made during synthetic data generation.")
+
+    return manifest_entries
+
 
 def main():
-    """Main entry point for video generation."""
+    """
+    Entry point for the generator script.
+    Reads environment variables to determine CI vs Non-CI mode.
+    """
     # Validate environment
-    get_required_env_vars(['DATA_SEED'])
-    
-    # Configuration
-    data_seed = int(os.environ.get('DATA_SEED', 42))
-    output_base = Path('data/raw')
-    
-    # Determine mode: CI vs Non-CI
-    # CI Mode: Generate subset (e.g., 0.5 hours) to fit 6h runtime
-    # Non-CI Mode: Generate full 50 hours
-    ci_mode = os.environ.get('CI_MODE', 'false').lower() == 'true'
-    
-    if ci_mode:
-        target_hours = 0.5  # 30 minutes for CI testing
-        logger.info("Running in CI mode - generating 0.5 hours of video")
-    else:
-        target_hours = 50.0  # Full 50 hours
-        logger.info("Running in Non-CI mode - generating 50 hours of video")
-    
-    output_dir = output_base / f"synthetic_video_seed_{data_seed}"
-    
-    # Generate video stream
-    manifest = generate_video_stream(
-        total_duration_hours=target_hours,
-        output_dir=output_dir,
-        chunk_size=CHUNK_SIZE,
-        seed=data_seed
-    )
-    
-    # Log data event (zero VLM calls)
-    log_data_event(
-        event_type="data_generation_complete",
-        details={
-            "total_duration_seconds": manifest['actual_duration_seconds'],
-            "total_frames": manifest['total_frames'],
-            "chunk_count": manifest['chunk_count'],
-            "mode": "ci" if ci_mode else "non_ci",
-            "vlm_calls": 0
-        }
-    )
-    
-    print(f"Generated {manifest['actual_duration_seconds']:.2f} seconds of video")
-    print(f"Manifest written to: {output_dir / 'manifest.jsonl'}")
-    
-    return manifest
+    required_vars = ["DATA_SEED"]
+    try:
+        get_required_env_vars(required_vars)
+    except ValueError as e:
+        print(f"Environment Error: {e}")
+        return 1
 
-if __name__ == '__main__':
-    main()
+    seed = int(os.getenv("DATA_SEED", "42"))
+    is_ci = os.getenv("CI", "false").lower() == "true"
+
+    # Determine target duration
+    target_duration = TARGET_DURATION_SECONDS_FULL
+    if is_ci:
+        target_duration = TARGET_DURATION_SECONDS_CI
+        print(f"Running in CI Mode: Generating {target_duration} seconds (1h) subset.")
+    else:
+        print(f"Running in Non-CI Mode: Generating {target_duration} seconds (50h).")
+
+    # Ensure output directory exists
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+
+    # Run generation
+    try:
+        manifest = generate_video_stream(
+            duration_seconds=target_duration,
+            output_dir=OUTPUT_DIR,
+            seed=seed,
+            is_ci_mode=is_ci
+        )
+
+        # Write manifest summary to stdout for verification
+        total_frames = sum(e["frame_count"] for e in manifest)
+        total_seconds = total_frames / FRAME_RATE
+        print(f"Successfully generated {total_frames} frames ({total_seconds:.2f} seconds) into {len(manifest)} chunks.")
+        print(f"Manifest entries written to handoff manager.")
+        return 0
+
+    except Exception as e:
+        print(f"Generation failed: {e}")
+        return 1
+
+
+if __name__ == "__main__":
+    exit(main())

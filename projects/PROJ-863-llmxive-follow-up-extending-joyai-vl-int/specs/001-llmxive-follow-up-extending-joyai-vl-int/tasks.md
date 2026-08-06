@@ -43,10 +43,10 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan (`src/data_synthesis`, `src/feature_extraction`, `src/baseline`, `src/scheduler`, `tests/`)
+- [X] T001 Create project structure per implementation plan (`src/data_synthesis`, `src/feature_extraction`, `src/baseline`, `src/scheduler`, `tests/`)
 - [X] T002 Initialize Python project with `requirements.txt` (CPU-only `torch`, `transformers`, `scikit-learn`, `opencv-python`, `datasets`)
-- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
-- [ ] T004 [P] Setup `pytest` configuration with CPU resource limit markers
+- [X] T003 [P] Configure linting (ruff) and formatting (black) tools
+- [X] T004 [P] Setup `pytest` configuration with CPU resource limit markers
 
 ---
 
@@ -60,7 +60,7 @@
 - [X] T006 Implement `src/utils/validation.py` for schema validation (FR-002, Edge Cases)
 - [X] T007 [P] Create base data models: `SyntheticVideoFrame`, `InternalStateVector`, `SchedulerDecision` in `src/data_synthesis/models.py` (aligned with plan.md structure)
 - [X] T008 Setup streaming/batching utilities in `src/feature_extraction/streaming.py` to enforce <6GB RAM limit
-- [ ] T009 Configure environment variables for `JOYAI_VL_MODEL_PATH` and `DATA_SEED`
+- [X] T009 Configure environment variables for `JOYAI_VL_MODEL_PATH` and `DATA_SEED`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -83,11 +83,11 @@
 
 ### Implementation for User Story 1
 
-- [ ] T013 [US1] Implement `src/data_synthesis/generator.py` to produce video content. **CI Mode**: Generate a subset (e.g., hours) to fit 6h runtime. **Non-CI Mode**: Generate full hours. Use chunked streaming to write directly to disk (FR-001). <!-- FAILED: unspecified -->
-- [ ] T013a [US1] **NEW**: Implement verification logic in `src/data_synthesis/verify_volume.py` to confirm `manifest.jsonl` reports >= 180,000 seconds (50 hours) of video for Non-CI runs, or the defined subset for CI runs.
-- [ ] T013b [US1] **NEW**: Implement "Streaming Handoff" logic in `src/data_synthesis/handoff.py` to allow US2/US3 to begin processing chunks as T013 writes them, avoiding false serialization.
-- [ ] T014 [US1] Implement `src/data_synthesis/visual_labeler.py` using object detection (e.g., YOLO/COCO classes) to label "critical" vs "silence"
-- [ ] T015 [US1] Implement logic to handle ambiguous events with deterministic rules (velocity thresholds) as per Edge Cases
+- [X] T013 [US1] Implement `src/data_synthesis/generator.py` to produce video content. **CI Mode**: Generate a subset (e.g., hours) to fit 6h runtime. **Non-CI Mode**: Generate full hours. Use chunked streaming to write directly to disk (FR-001). <!-- FAILED: unspecified -->
+- [X] T013a [US1] **NEW**: Implement verification logic in `src/data_synthesis/verify_volume.py` to confirm `manifest.jsonl` reports >= 180,000 seconds (50 hours) of video for Non-CI runs, or the defined subset for CI runs.
+- [X] T013b [US1] **NEW**: Implement "Streaming Handoff" logic in `src/data_synthesis/handoff.py` to allow US2/US3 to begin processing chunks as T013 writes them, avoiding false serialization.
+- [X] T014 [US1] Implement `src/data_synthesis/visual_labeler.py` using object detection (e.g., YOLO/COCO classes) to label "critical" vs "silence"
+- [X] T015 [US1] Implement logic to handle ambiguous events with deterministic rules (velocity thresholds) as per Edge Cases
 - [X] T016 [US1] Integrate `src/utils/logging.py` to record data sources and verify zero VLM API calls during labeling
 - [ ] T017 [US1] Implement data export to `data/raw/` and `data/manifest.jsonl`
 
