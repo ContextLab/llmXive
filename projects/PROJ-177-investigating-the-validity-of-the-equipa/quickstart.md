@@ -1,61 +1,66 @@
 # Quickstart Guide
 
-This guide explains how to run the full analysis pipeline for investigating the validity of the equipartition theorem in driven granular systems.
-
 ## Prerequisites
 
 - Python 3.11+
-- Install dependencies: `pip install -r requirements.txt`
+- Dependencies installed: `pip install -r requirements.txt`
 
 ## Running the Pipeline
 
-The pipeline is orchestrated by `code/main.py`. You can run specific stages or the full pipeline.
+The pipeline is executed via `code/main.py`. Each stage can be run independently.
+
+### 1. Ingestion (Compute Energy Components)
+
+This stage ingests raw tracking data and computes energy components.
+
+```bash
+python code/main.py --stage ingest --sample-ratio 0.1
+```
+
+**Output**: `data/derived/energy_samples.csv`
+
+### 2. Statistical Analysis
+
+This stage performs statistical tests on the energy data.
+
+```bash
+python code/main.py --stage stats --alpha 0.01
+```
+
+**Output**: `artifacts/statistical_results.json`
+
+### 3. Sensitivity Analysis
+
+This stage performs sensitivity analysis on thresholds.
+
+```bash
+python code/main.py --stage sensitivity --thresholds 0.01,0.05,0.10
+```
+
+**Output**: `artifacts/sensitivity_analysis_report.json`
+
+### 4. Regression Analysis
+
+This stage performs regression analysis on deviation drivers.
+
+```bash
+python code/main.py --stage regression
+```
+
+**Output**: `artifacts/regression_results.json`
 
 ### Full Run
 
-To run the entire pipeline from raw data ingestion to regression analysis:
+To run the entire pipeline:
 
 ```bash
 python code/main.py --stage all --sample-ratio 0.1
 ```
 
-This command will:
-1. Generate checksums for raw data.
-2. Ingest data (sampling 10% of rows for speed).
-3. Run statistical analysis (KS and Chi-squared tests).
-4. Run sensitivity analysis.
-5. Run regression analysis.
-6. Hash artifacts.
+## Verification
 
-### Individual Stages
+After running, verify outputs:
 
-You can also run individual stages:
-
-```bash
-# Ingest data
-python code/main.py --stage ingest --sample-ratio 0.1
-
-# Run statistical analysis
-python code/main.py --stage stats --alpha 0.01
-
-# Run sensitivity analysis
-python code/main.py --stage sensitivity --thresholds 0.01,0.05,0.10
-
-# Run regression analysis
-python code/main.py --stage regression
-```
-
-## Output Artifacts
-
-After a successful run, you will find the following artifacts:
-
-- `data/derived/energy_samples.csv`: Calculated energy components per particle.
-- `artifacts/statistical_results.json`: Results of KS and Chi-squared tests.
-- `artifacts/sensitivity_analysis_report.json`: Sensitivity analysis results.
-- `artifacts/regression_results.json`: Regression model parameters.
-
-## Troubleshooting
-
-- **Missing Data**: Ensure `data/raw/` contains valid CSV files with the required columns (`particle_id`, `x`, `y`, `z`, `theta`, `timestamp`).
-- **Configuration Errors**: Check `data/config.yaml` for valid material properties and frequency bins.
-- **Memory Issues**: Use `--sample-ratio` to reduce data size if running out of memory.
+- `data/derived/energy_samples.csv` exists and has correct schema
+- `artifacts/energy_samples.hash` contains the SHA-256 hash of the CSV
+- Statistical and regression outputs are generated in `artifacts/`

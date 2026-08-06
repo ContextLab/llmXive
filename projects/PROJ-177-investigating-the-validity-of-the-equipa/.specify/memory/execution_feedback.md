@@ -6,19 +6,19 @@ These commands did not crash on a code bug — the script's own argparse REJECTE
 
 - run-book command: `python code/main.py --step ingestion --sample-ratio 0.1`
   - script usage: `main.py [-h]`
-  - argparse error: `main.py: error: unrecognized arguments: --step ingestion --sample-ratio 0.1`
+  - argparse error: `main.py: error: unrecognized arguments: --step ingestion`
 - run-book command: `python code/main.py --step stats --alpha 0.01`
   - script usage: `main.py [-h]`
-  - argparse error: `main.py: error: unrecognized arguments: --step stats --alpha 0.01`
+  - argparse error: `main.py: error: unrecognized arguments: --step stats`
 - run-book command: `python code/main.py --step sensitivity --thresholds 0.01,0.05,0.10`
   - script usage: `main.py [-h]`
-  - argparse error: `main.py: error: unrecognized arguments: --step sensitivity --thresholds 0.01,0.05,0.10`
+  - argparse error: `main.py: error: unrecognized arguments: --step sensitivity`
 - run-book command: `python code/main.py --step regression`
   - script usage: `main.py [-h]`
   - argparse error: `main.py: error: unrecognized arguments: --step regression`
 - run-book command: `python code/main.py --full-run --sample-ratio 0.1`
   - script usage: `main.py [-h]`
-  - argparse error: `main.py: error: unrecognized arguments: --full-run --sample-ratio 0.1`
+  - argparse error: `main.py: error: unrecognized arguments: --full-run`
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
@@ -29,28 +29,33 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 - python code/main.py --step ingestion --sample-ratio 0.1 -> rc=2
     usage: main.py [-h]
                [--stage {all,checksum_raw,hash_artifacts,ingest,stats,sensitivity,regression}]
-               [--config CONFIG] [--verbose]
-main.py: error: unrecognized arguments: --step ingestion --sample-ratio 0.1
+               [--config CONFIG] [--verbose] [--sample-ratio SAMPLE_RATIO]
+               [--alpha ALPHA] [--thresholds THRESHOLDS]
+main.py: error: unrecognized arguments: --step ingestion
 - python code/main.py --step stats --alpha 0.01 -> rc=2
     usage: main.py [-h]
                [--stage {all,checksum_raw,hash_artifacts,ingest,stats,sensitivity,regression}]
-               [--config CONFIG] [--verbose]
-main.py: error: unrecognized arguments: --step stats --alpha 0.01
+               [--config CONFIG] [--verbose] [--sample-ratio SAMPLE_RATIO]
+               [--alpha ALPHA] [--thresholds THRESHOLDS]
+main.py: error: unrecognized arguments: --step stats
 - python code/main.py --step sensitivity --thresholds 0.01,0.05,0.10 -> rc=2
     usage: main.py [-h]
                [--stage {all,checksum_raw,hash_artifacts,ingest,stats,sensitivity,regression}]
-               [--config CONFIG] [--verbose]
-main.py: error: unrecognized arguments: --step sensitivity --thresholds 0.01,0.05,0.10
+               [--config CONFIG] [--verbose] [--sample-ratio SAMPLE_RATIO]
+               [--alpha ALPHA] [--thresholds THRESHOLDS]
+main.py: error: unrecognized arguments: --step sensitivity
 - python code/main.py --step regression -> rc=2
     usage: main.py [-h]
                [--stage {all,checksum_raw,hash_artifacts,ingest,stats,sensitivity,regression}]
-               [--config CONFIG] [--verbose]
+               [--config CONFIG] [--verbose] [--sample-ratio SAMPLE_RATIO]
+               [--alpha ALPHA] [--thresholds THRESHOLDS]
 main.py: error: unrecognized arguments: --step regression
 - python code/main.py --full-run --sample-ratio 0.1 -> rc=2
     usage: main.py [-h]
                [--stage {all,checksum_raw,hash_artifacts,ingest,stats,sensitivity,regression}]
-               [--config CONFIG] [--verbose]
-main.py: error: unrecognized arguments: --full-run --sample-ratio 0.1
+               [--config CONFIG] [--verbose] [--sample-ratio SAMPLE_RATIO]
+               [--alpha ALPHA] [--thresholds THRESHOLDS]
+main.py: error: unrecognized arguments: --full-run
 
 ## Declared deliverables still missing
 

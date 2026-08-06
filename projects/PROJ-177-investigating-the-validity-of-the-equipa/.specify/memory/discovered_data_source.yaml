@@ -7,10 +7,11 @@ required_fields:
 - y
 - z
 - theta
-- driving_frequency
 - material_type
 - mass
 - moment_of_inertia
-cache_key: eaaa1773510995d35ec517d83e817574b2940a1e3ff135bc8b3036d1a6cc069f
-searched_at: '2026-08-03T21:54:08.970860+00:00'
+- driving_timestamp
+- driving_frequency
+cache_key: 4069824b2831b5992f526d028d1fdd34944f7fcca21fed5c39ac23b7fc77a1ba
+searched_at: '2026-08-05T23:36:02.193139+00:00'
 retry_count: 1
