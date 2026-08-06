@@ -1,23 +1,9 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No directory listing or screenshots were provided to confirm that `projects/PROJ-678-comparative-analysis-of-molecular-fingerprints/`\
-    \ (with the sub\u2011folders `data/raw`, `data/processed`, `code`, and `tests`)\
-    \ actually exists, nor that a sibling `specs/` directory was created. The implementer\u2019\
-    s claim cannot be verified without concrete filesystem evidence."
 T007:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
   r: No evidence was provided showing a `tests/` directory with the required `unit/`
     and `integration/` subfolders; the claim lacks any artifact confirming the directory
     structure exists.
-T008:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `specs/001-comparative-analysis-of-molecular-fingerprints/data-model.md` file
-    (or its contents) was presented; the required schema definitions for Compound,
-    Fingerprint, Model, and PerformanceMetric are absent. The task therefore lacks
-    the essential artifact.
 T013a:
   c: false
   h: 4fd5268ba41d568fbb400365296ea02c2c70be264cd8a1c89b49bbef2d2b28e4
@@ -27,14 +13,6 @@ T013a:
     \ logging a low\u2011sample\u2011size warning is not demonstrated. The missing\
     \ file and incomplete implementation must be added for the task to be considered\
     \ complete."
-T018b:
-  c: false
-  h: 3c5da6647df1efd3f9f666ab925105baab59e0f9577fa56bcbe089afd46140d5
-  r: "The provided `code/split.py` contains fingerprint\u2011splitting logic and never\
-    \ reads `data/processed/split_indices.json` nor checks a `\"status\"` field. Moreover,\
-    \ the required `data/processed/split_indices.json` file is absent from the repository.\
-    \ Both the script behavior and the needed data artifact are missing, so the task\
-    \ is not satisfied."
 T018c:
   c: false
   h: 8b019f3d9b2025644bde250f94405c5c3c610d792ca99cf39a517fb8c5297d76

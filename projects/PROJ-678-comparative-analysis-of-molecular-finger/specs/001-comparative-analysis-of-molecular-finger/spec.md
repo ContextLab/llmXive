@@ -47,7 +47,7 @@ The system MUST evaluate both models on a held-out test set, perform a corrected
 
 **Acceptance Scenarios**:
 
-1. **Given** the trained models and test set, **When** the system calculates ROC-AUC, **Then** the difference in performance between Morgan and MACCS is reported with a 95% confidence interval derived from 1,000 bootstrap resamples of the paired test-set predictions.
+1. **Given** the trained models and test set, **When** the system calculates ROC-AUC, **Then** the difference in performance between Morgan and MACCS is reported with a 95% confidence interval derived from bootstrap resamples of the paired test-set predictions.
 2. **Given** the test set predictions, **When** the system performs a corrected resampled t-test (Nadeau & Bengio), **Then** the output explicitly states whether the performance difference is statistically significant (p < 0.05).
 
 ---
@@ -72,8 +72,8 @@ The system MUST evaluate both models on a held-out test set, perform a corrected
 
 ### Key Entities
 
-- **Compound**: A chemical entity represented by its SMILES string, molecular graph, and binary toxicity labels for 12 endpoints.
-- **Fingerprint**: A binary vector representation of a compound, either as a 2048-bit Morgan fingerprint or a 166-bit MACCS key.
+- **Compound**: A chemical entity represented by its SMILES string, molecular graph, and binary toxicity labels for multiple endpoints.
+- **Fingerprint**: A binary vector representation of a compound, either as a 2048-bit Morgan fingerprint or a -bit MACCS key.
 - **Model**: A trained Random Forest classifier instance associated with a specific fingerprint type and toxicity endpoint.
 - **PerformanceMetric**: A quantitative measure (ROC-AUC, Balanced Accuracy) derived from model predictions against ground truth labels.
 

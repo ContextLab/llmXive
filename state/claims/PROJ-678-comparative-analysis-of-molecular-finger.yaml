@@ -1278,3 +1278,238 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-28T06:39:02Z'
+- artifact_path: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger/data-model.md
+  attempts: 1
+  canonical: Morgan fingerprints have 2048 bits and MACCS fingerprints have 166 bits
+  claim_id: c_f94f7e14
+  context: 'Fingerprint Consistency: Morgan fingerprints must have exactly 2048 bits;
+    MACCS must have 166 bits.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Morgan fingerprints must have exactly 2048 bits; MACCS must have 166 bits.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T03:45:15Z'
+- artifact_path: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger/data-model.md
+  attempts: 1
+  canonical: Tanimoto similarity between test and training compounds is less than
+    0.85
+  claim_id: c_740a5ab9
+  context: 'Split Integrity: The Tanimoto similarity between any compound in the test
+    set and any compound in the training set must be < 0.85 (Greedy Maximal Dissimilarity
+    constraint).'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Tanimoto_similarity_between_test_and_training_compounds_is_l
+  kind: magnitude
+  raw_text: The Tanimoto similarity between any compound in the test set and any compound
+    in the training set must be < 0.85.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T03:46:07Z'
+- artifact_path: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger/tasks.md
+  attempts: 1
+  canonical: Tox21 dataset source is HuggingFace deepchem/tox
+  claim_id: c_6f3f4ca5
+  context: Implement `code/download.py` to fetch Tox dataset from HuggingFace `datasets.load_dataset("deepchem/tox")`,
+    including checksum verification.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Tox21_dataset_source_is_HuggingFace_deepchem/tox
+  kind: entity_fact
+  raw_text: The Tox21 dataset is fetched from HuggingFace using 'datasets.load_dataset("deepchem/tox")'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T03:47:29Z'
+- artifact_path: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger/tasks.md
+  attempts: 1
+  canonical: Organophosphate SMARTS pattern is [P](=O)([O,SC])[O,SC]
+  claim_id: c_e34332e8
+  context: 'Create `code/constants.py` with exact variable definitions: `SMARTS_PATTERN
+    = "[P](=O)([O,SC])[O,SC]"` (str)...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Organophosphate_SMARTS_pattern_is_%5BP%5D(=O)(%5BO,SC%5D)%5BO,SC%5D
+  kind: entity_fact
+  raw_text: SMARTS pattern '[P](=O)([O,SC])[O,SC]' is used to filter for organophosphates.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T03:48:13Z'
+- artifact_path: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger/tasks.md
+  attempts: 1
+  canonical: K-Fold cross-validation uses 5 folds
+  claim_id: c_8d9e8bbf
+  context: 'Create `code/constants.py` with exact variable definitions: `N_FOLDS =
+    5` (int)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: K-Fold cross-validation uses 5 folds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T03:49:13Z'
+- artifact_path: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger/tasks.md
+  attempts: 1
+  canonical: Random seed is 42
+  claim_id: c_56a691e7
+  context: Implement `code/utils.py` with logging configuration, random seed initialization
+    (seed=42)...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Random seed for reproducibility is initialized to 42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T03:50:10Z'
+- artifact_path: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger/tasks.md
+  attempts: 1
+  canonical: Random Forest trees count is 100
+  claim_id: c_bc1c3eb0
+  context: Implement `code/train.py` to train Random Forest models (100 trees, max_depth=15)...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Random Forest models use 100 trees.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T03:51:03Z'
+- artifact_path: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger/tasks.md
+  attempts: 1
+  canonical: Single greedy split test set minimum size is 20
+  claim_id: c_639da79b
+  context: Verify test set size >= 20.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Single_greedy_split_test_set_minimum_size_is_20
+  kind: magnitude
+  raw_text: Test set size for single greedy split must be at least 20.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T03:51:47Z'
+- artifact_path: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger/tasks.md
+  attempts: 1
+  canonical: Single greedy split test set maximum is 20% of total
+  claim_id: c_909cf873
+  context: Add to test set if distance > threshold and test set size < 20% of total.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Single_greedy_split_test_set_maximum_is_20%25_of_total
+  kind: magnitude
+  raw_text: Test set size for single greedy split is limited to less than 20% of total.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T03:53:16Z'
+- artifact_path: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger/tasks.md
+  attempts: 1
+  canonical: Statistical tests skipped if sample size less than 50
+  claim_id: c_e446d882
+  context: 'If total sample size < 50, write the exact string "WARNING: Low Sample
+    Size (n < 50)" to `data/processed/filter_log.txt`.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Statistical_tests_skipped_if_sample_size_less_than_50
+  kind: magnitude
+  raw_text: Statistical tests are skipped if total sample size is less than 50.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T03:54:33Z'
+- artifact_path: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger/tasks.md
+  attempts: 1
+  canonical: Feature importance difference threshold is 15% of MACCS importance
+  claim_id: c_0152c596
+  context: Check if the difference is >= 15% of the MACCS total importance.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Feature importance difference threshold is 15% of MACCS total importance.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T03:54:33Z'
+- artifact_path: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger/tasks.md
+  attempts: 1
+  canonical: Report floating-point values rounded to 4 decimal places
+  claim_id: c_142026b6
+  context: 'Round all floating-point values to a consistent precision.. ... Confidence
+    interval format: `[lower, upper]` with 4 decimal places...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Floating-point values in reports are rounded to 4 decimal places.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T03:55:02Z'
+- artifact_path: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger/tasks.md
+  attempts: 1
+  canonical: P-values below 0.0001 reported as <0.0001
+  claim_id: c_ccf21bfe
+  context: 'P-Value format: "<0.0001" if < 0.0001, otherwise 4 decimals.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/P-values_below_0.0001_reported_as_%3C0.0001
+  kind: magnitude
+  raw_text: P-values less than 0.0001 are reported as '<0.0001'.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T03:55:49Z'
+- artifact_path: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger/tasks.md
+  attempts: 1
+  canonical: Pipeline execution limit is 60 minutes on 2-core CPU
+  claim_id: c_6e9c1ce7
+  context: '...completion within 60 minutes on 2-core CPU.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Pipeline execution must complete within 60 minutes on a 2-core CPU.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T03:56:27Z'
