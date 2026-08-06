@@ -1,0 +1,41 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "LeakageReport"
+description: "Schema for reaction template leakage report."
+type: "object"
+properties:
+  total_samples:
+    type: "integer"
+    description: "Total number of samples in dataset."
+  train_count:
+    type: "integer"
+    description: "Number of training samples."
+  val_count:
+    type: "integer"
+    description: "Number of validation samples."
+  test_count:
+    type: "integer"
+    description: "Number of test samples."
+  train_templates:
+    type: "array"
+    items:
+      type: "string"
+    description: "List of unique reaction template IDs in training set."
+  test_templates:
+    type: "array"
+    items:
+      type: "string"
+    description: "List of unique reaction template IDs in test set."
+  overlap_count:
+    type: "integer"
+    description: "Number of overlapping template IDs between train and test."
+  is_valid:
+    type: "boolean"
+    description: "True if overlap_count is 0."
+required:
+  - total_samples
+  - train_count
+  - val_count
+  - test_count
+  - overlap_count
+  - is_valid
+additionalProperties: false

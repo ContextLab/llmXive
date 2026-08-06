@@ -1,0 +1,44 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "EvaluationMetrics"
+description: "Schema for model evaluation metrics."
+type: "object"
+properties:
+  model_name:
+    type: "string"
+    description: "Name of the model (e.g., 'attention', 'baseline_fingerprint')."
+  rmse:
+    type: "number"
+    description: "Root Mean Squared Error."
+  mae:
+    type: "number"
+    description: "Mean Absolute Error."
+  r_squared:
+    type: "number"
+    description: "R-squared value."
+  p_value:
+    type: "number"
+    description: "P-value from paired t-test (if applicable)."
+  bonferroni_adjusted_p:
+    type: "number"
+    description: "Bonferroni-adjusted p-value."
+  permutation_r_squared:
+    type: "number"
+    description: "R-squared from permutation test (should be < 0.05)."
+  attention_peak_correlation:
+    type: "number"
+    description: "Pearson correlation between attention weights and yield residuals."
+  top_peaks_nist_match:
+    type: "number"
+    description: "Percentage of top 5 attention peaks matching NIST functional groups (within ±50 cm⁻¹)."
+  vif_score:
+    type: "number"
+    description: "Variance Inflation Factor between spectral and fingerprint inputs."
+  partial_correlation_coef:
+    type: "number"
+    description: "Partial correlation between spectra and yield, controlling for fingerprints."
+required:
+  - model_name
+  - rmse
+  - mae
+  - r_squared
+additionalProperties: false

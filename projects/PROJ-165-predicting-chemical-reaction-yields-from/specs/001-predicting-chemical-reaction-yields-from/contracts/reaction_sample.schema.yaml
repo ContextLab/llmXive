@@ -1,65 +1,59 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "ReactionSample"
-description: "Schema for a single chemical reaction sample with spectroscopic and structural features."
+description: "Schema for a single chemical reaction instance with spectral and structural data."
 type: "object"
 properties:
   reaction_smiles:
     type: "string"
     description: "Canonical SMILES of the reaction."
-    pattern: "^[A-Za-z0-9@+\\-\\[\\]\\(\\)\\{\\}\\.,#%\\*\\^\\&=<>~\\|]+$"
   yield_percent:
     type: "number"
-    description: "Reaction yield percentage (0-100)."
-    minimum: 0.0
-    maximum: 100.0
+    minimum: 0
+    maximum: 100
+    description: "Reaction yield (0-100)."
   ir_spectrum:
     type: "array"
-    description: "Resampled IR spectrum (400-4000 cm-1)."
     items:
       type: "number"
-    minItems: 200
-    maxItems: 200
+    description: "IR spectrum intensities (resampled to fixed grid)."
   nmr_spectrum:
     type: "array"
-    description: "Resampled NMR spectrum (0-10 ppm)."
     items:
       type: "number"
-    minItems: 200
-    maxItems: 200
-  fingerprint:
+    description: "NMR spectrum intensities (resampled to fixed grid)."
+  rfp:
     type: "array"
-    description: "ECFP4 fingerprint (1024 bits)."
     items:
-      type: "integer"
-      minimum: 0
-      maximum: 1
-    minItems: 1024
-    maxItems: 1024
+      type: "number"
+    description: "ECFP4 fingerprint (2048 bits)."
   reaction_template_id:
     type: "string"
-    description: "MD5 hash of the reaction center substructure."
-    pattern: "^[a-f0-9]{32}$"
+    description: "Hash of reaction center substructure."
   solvent_id:
     type: "integer"
-    description: "Encoded solvent ID (-1 if missing)."
-    minimum: -1
+    description: "Encoded solvent ID."
   catalyst_id:
     type: "integer"
-    description: "Encoded catalyst ID (-1 if missing)."
-    minimum: -1
+    description: "Encoded catalyst ID."
   temperature_k:
     type: "number"
     description: "Temperature in Kelvin."
-    minimum: 0.0
-  is_simulated:
-    type: "boolean"
-    description: "Flag indicating if data is from DFT simulation."
+  split:
+    type: "string"
+    enum:
+      - "train"
+      - "val"
+      - "test"
+    description: "Dataset split assignment."
 required:
   - reaction_smiles
   - yield_percent
   - ir_spectrum
   - nmr_spectrum
-  - fingerprint
+  - rfp
   - reaction_template_id
-  - is_simulated
+  - solvent_id
+  - catalyst_id
+  - temperature_k
+  - split
 additionalProperties: false

@@ -1,19 +1,19 @@
 status: none
-intent: download Open Reaction Database USPTO ZINC reaction spectra python package
-  dataset
+intent: download USPTO reaction dataset with spectra and conditions NIST ZINC python
+  package dataset
 required_fields:
 - reaction_id
 - reaction_smiles
 - reactant_smiles
 - product_smiles
-- ir_wavenumbers
-- ir_intensities
-- raman_wavenumbers
-- raman_intensities
-- nmr_shifts
-- nmr_intensities
-- solvent
-- catalyst
-cache_key: 01211a2193f57a12790daeca2246a45732b1e2ba349ba6feaae02b788635d312
-searched_at: '2026-08-04T04:47:32.834091+00:00'
+- ir_spectrum
+- raman_spectrum
+- nmr_spectrum
+- ir_wavenumber_grid
+- raman_wavenumber_grid
+- nmr_chemical_shift_grid
+- ir_intensity_normalized
+- raman_intensity_normalized
+cache_key: 8e259eb5ad877f34ddcd85ee208bcd5145421ec3175c78e156fd8ff909e476ee
+searched_at: '2026-08-06T13:39:04.480397+00:00'
 retry_count: 1
