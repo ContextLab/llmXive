@@ -129,7 +129,7 @@ The research question concerns the statistical significance of the observed effe
 2.  **Collinearity Check**: Compute VIF for all features. Flag VIF > 5 (FR-009).
 3.  **Model Training**:
     *   Split data into a standard majority training set and a held-out validation set. with fixed seed.
-    *   Train a -layer MLP (Input -> Hidden() -> Hidden(32) -> Output) with ≤100k parameters (FR-005).
+    *   Train a -layer MLP (Input -> Hidden() -> Hidden -> Output) with ≤100k parameters (FR-005).
     *   Save model weights (`models/mlp.pt`).
 
 ### Phase 2: Evaluation & Statistical Validation (Addresses FR-006, FR-015, FR-016, SC-002, SC-003)
