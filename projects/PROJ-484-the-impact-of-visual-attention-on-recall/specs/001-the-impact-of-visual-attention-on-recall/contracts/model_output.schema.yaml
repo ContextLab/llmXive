@@ -1,73 +1,268 @@
+# Model Output Schema Validation Contract
+# Defines the structure for model results JSON and power analysis output
+# Used by code/validate_schemas.py for runtime validation
+
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Model Output Schema"
-description: "Schema for the JSON output of the mixed-effects model fitting process."
+title: "Visual Attention Recall Model Output"
+description: "Schema for mixed-effects model results and power analysis output"
+
+definitions:
+  model_results:
+    type: object
+    description: "Results from the mixed-effects logistic regression"
+    required:
+      - model_formula
+      - convergence_status
+      - fixed_effects
+      - random_effects
+      - likelihood_ratio_test
+      - diagnostics
+    properties:
+      model_formula:
+        type: string
+        description: "The R-style formula used for the model"
+        example: "recall ~ fixation_duration * valence * trait_anxiety + (1|participant) + (1|stimulus_id)"
+      
+      convergence_status:
+        type: string
+        enum: ["OK", "WARNING", "FAILED"]
+        description: "Convergence status of the optimization"
+      
+      fixed_effects:
+        type: object
+        description: "Fixed effects coefficients and statistics"
+        required:
+          - coefficients
+          - standard_errors
+          - z_values
+          - p_values
+        properties:
+          coefficients:
+            type: object
+            additionalProperties:
+              type: number
+            description: "Map of term name to coefficient value"
+          standard_errors:
+            type: object
+            additionalProperties:
+              type: number
+            description: "Map of term name to standard error"
+          z_values:
+            type: object
+            additionalProperties:
+              type: number
+            description: "Map of term name to z-statistic"
+          p_values:
+            type: object
+            additionalProperties:
+              type: number
+              minimum: 0
+              maximum: 1
+            description: "Map of term name to p-value"
+      
+      random_effects:
+        type: object
+        description: "Random effects variance components"
+        required:
+          - participant_variance
+          - stimulus_variance
+          - residual_variance
+        properties:
+          participant_variance:
+            type: number
+            minimum: 0
+            description: "Variance of the random intercept for participant"
+          stimulus_variance:
+            type: number
+            minimum: 0
+            description: "Variance of the random intercept for stimulus"
+          residual_variance:
+            type: number
+            minimum: 0
+            description: "Residual variance (for GLMM, often derived)"
+      
+      likelihood_ratio_test:
+        type: object
+        description: "LRT comparing full model vs reduced model (without interaction)"
+        required:
+          - chi_square
+          - df
+          - p_value
+          - significant_at_alpha
+        properties:
+          chi_square:
+            type: number
+            description: "Chi-square statistic for the test"
+          df:
+            type: integer
+            minimum: 0
+            description: "Degrees of freedom"
+          p_value:
+            type: number
+            minimum: 0
+            maximum: 1
+            description: "P-value of the test"
+          significant_at_alpha:
+            type: boolean
+            description: "Whether p < alpha (default 0.05)"
+      
+      diagnostics:
+        type: object
+        description: "Model diagnostics and overdispersion check"
+        required:
+          - overdispersion_factor
+          - overdispersion_status
+        properties:
+          overdispersion_factor:
+            type: number
+            minimum: 0
+            description: "Ratio of Pearson chi-square to degrees of freedom"
+          overdispersion_status:
+            type: string
+            enum: ["OK", "WARNING", "CRITICAL"]
+            description: "Status based on overdispersion factor thresholds"
+      
+      metadata:
+        type: object
+        required:
+          - timestamp
+          - sample_size
+          - n_participants
+          - n_stimuli
+          - n_trials
+        properties:
+          timestamp:
+            type: string
+            format: date-time
+            description: "ISO 8601 timestamp of model execution"
+          sample_size:
+            type: integer
+            minimum: 1
+            description: "Total number of observations used"
+          n_participants:
+            type: integer
+            minimum: 1
+            description: "Number of unique participants"
+          n_stimuli:
+            type: integer
+            minimum: 1
+            description: "Number of unique stimuli"
+          n_trials:
+            type: integer
+            minimum: 1
+            description: "Number of trials after filtering"
+
+  power_analysis:
+    type: object
+    description: "Monte Carlo power analysis results"
+    required:
+      - simulation_parameters
+      - results
+      - conclusion
+    properties:
+      simulation_parameters:
+        type: object
+        required:
+          - n_iterations
+          - alpha_level
+          - true_effect_size
+          - variance_components
+        properties:
+          n_iterations:
+            type: integer
+            minimum: 100
+            description: "Number of Monte Carlo iterations"
+          alpha_level:
+            type: number
+            minimum: 0
+            maximum: 1
+            description: "Significance threshold (alpha)"
+          true_effect_size:
+            type: number
+            description: "The effect size used in the simulation (e.g., interaction coefficient)"
+          variance_components:
+            type: object
+            required:
+              - participant_variance
+              - stimulus_variance
+              - residual_variance
+            properties:
+              participant_variance:
+                type: number
+                minimum: 0
+              stimulus_variance:
+                type: number
+                minimum: 0
+              residual_variance:
+                type: number
+                minimum: 0
+      
+      results:
+        type: object
+        required:
+          - achieved_power
+          - confidence_interval
+          - convergence_rate
+        properties:
+          achieved_power:
+            type: number
+            minimum: 0
+            maximum: 1
+            description: "Proportion of simulations where H0 was rejected"
+          confidence_interval:
+            type: object
+            required:
+              - lower
+              - upper
+              - level
+            properties:
+              lower:
+                type: number
+              upper:
+                type: number
+              level:
+                type: number
+                description: "Confidence level (e.g., 0.95)"
+          convergence_rate:
+            type: number
+            minimum: 0
+            maximum: 1
+            description: "Proportion of bootstrap samples that converged"
+      
+      conclusion:
+        type: object
+        required:
+          - sufficient_power
+          - recommended_sample_size
+        properties:
+          sufficient_power:
+            type: boolean
+            description: "Whether achieved power meets the threshold (e.g., >= 0.80)"
+          recommended_sample_size:
+            type: integer
+            minimum: 1
+            description: "Estimated sample size needed for 80% power if current is insufficient"
+      
+      metadata:
+        type: object
+        required:
+          - timestamp
+          - seed
+        properties:
+          timestamp:
+            type: string
+            format: date-time
+          seed:
+            type: integer
+            description: "Random seed used for reproducibility"
+
+# Root schema for the combined output file
 type: object
 properties:
-  model_formula:
-    type: string
-    description: "The formula used for the model."
-  convergence_status:
-    type: string
-    description: "Convergence status of the model."
-    enum:
-      - "OK"
-      - "Warning"
-      - "Failed"
-  fixed_effects:
-    type: object
-    description: "Fixed effects coefficients and statistics."
-    additionalProperties:
-      type: object
-      properties:
-        estimate:
-          type: number
-        std_error:
-          type: number
-        z_value:
-          type: number
-        p_value:
-          type: number
-      required:
-        - estimate
-        - std_error
-        - z_value
-        - p_value
-  random_effects:
-    type: object
-    description: "Random effects variance components."
-    properties:
-      participant:
-        type: number
-        description: "Variance for participant random effect."
-      stimulus:
-        type: number
-        description: "Variance for stimulus random effect."
-  likelihood_ratio_test:
-    type: object
-    description: "Results of the LRT comparing full vs reduced model."
-    properties:
-      chi_squared:
-        type: number
-      degrees_of_freedom:
-        type: integer
-      p_value:
-        type: number
-  dispersion_parameter:
-    type: number
-    description: "Dispersion parameter for overdispersion check."
-  aic:
-    type: number
-    description: "Akaike Information Criterion."
-  bic:
-    type: number
-    description: "Bayesian Information Criterion."
+  model_results:
+    $ref: "#/definitions/model_results"
+  power_analysis:
+    $ref: "#/definitions/power_analysis"
 required:
-  - model_formula
-  - convergence_status
-  - fixed_effects
-  - random_effects
-  - likelihood_ratio_test
-  - dispersion_parameter
-  - aic
-  - bic
-additionalProperties: false
+  - model_results
+  - power_analysis

@@ -9,7 +9,7 @@
 
 ### User Story 1 - Data Ingestion and Preprocessing Pipeline (Priority: P1)
 
-The researcher MUST be able to download the raw RSVP dataset (OpenNeuro ds001435 or equivalent), extract gaze fixation metrics using a velocity-threshold algorithm, and map stimulus IDs to emotional valence labels (threat/neutral) to generate a clean analysis-ready CSV file.
+The researcher MUST be able to download the raw RSVP dataset (OpenNeuro dsXXXXXX or equivalent), extract gaze fixation metrics using a velocity-threshold algorithm, and map stimulus IDs to emotional valence labels (threat/neutral) to generate a clean analysis-ready CSV file.
 
 **Why this priority**: Without valid, cleaned data linking fixation duration, stimulus valence, and participant ID, no statistical modeling is possible. This is the foundational step for the entire research pipeline.
 
@@ -19,7 +19,7 @@ The researcher MUST be able to download the raw RSVP dataset (OpenNeuro ds001435
 
 1. **Given** the raw dataset is downloaded via `wget`, **When** the preprocessing script executes the velocity-threshold algorithm on the gaze data, **Then** the output CSV must contain a `fixation_duration_ms` column with ≥ 95% non-null values for valid trials.
 2. **Given** the stimulus ID mapping file, **When** the script joins stimulus IDs to the IAPS/NimStim database, **Then** every row in the output CSV must have a valid `valence` label (categorical: threat, neutral) with no unmapped IDs.
-3. **Given** the STAI inventory data, **When** the script merges participant scores, **Then** the output CSV must include a `trait_anxiety_score` column with integer values consistent with the STAI range (20-80).
+3. **Given** the STAI inventory data, **When** the script merges participant scores, **Then** the output CSV must include a `trait_anxiety_score` column with integer values consistent with the STAI range.
 
 ---
 
@@ -35,7 +35,7 @@ The researcher MUST be able to fit a mixed-effects logistic regression model (`r
 
 1. **Given** the cleaned analysis-ready CSV, **When** the model fitting script executes the `lme4` or `statsmodels` logistic regression, **Then** the process must complete within 4 hours on a 2-core CPU without GPU errors.
 2. **Given** the full model and a reduced model (without the three-way interaction), **When** the likelihood-ratio test is performed, **Then** the output must include a chi-squared statistic, degrees of freedom, and a p-value indicating the significance of the interaction.
-3. **Given** the model convergence diagnostics, **When** the script checks residuals, **Then** the output must report "Convergence: OK" or flag overdispersion if the dispersion parameter exceeds 1.2.
+3. **Given** the model convergence diagnostics, **When** the script checks residuals, **Then** the output must report "Convergence: OK" or flag overdispersion if the dispersion parameter exceeds unity.
 
 ---
 
@@ -50,8 +50,8 @@ The researcher MUST be able to generate marginal effect plots showing the slope 
 **Acceptance Scenarios**:
 
 1. **Given** the fitted model coefficients, **When** the plotting script generates the marginal effects graph, **Then** the output PNG must correctly render two distinct regression lines and shaded 95% CI regions for both high and low anxiety groups, regardless of the slope direction.
-2. **Given** the plot generation process, **When** the script runs, **Then** the total disk usage for the output artifacts (figures + logs) must remain under 500MB.
-3. **Given** the confidence interval calculation, **When** the plot is rendered, **Then** the shaded regions must represent the 95% CI derived from the model's standard errors.
+2. **Given** the plot generation process, **When** the script runs, **Then** the total disk usage for the output artifacts (figures + logs) must remain within a reasonable storage budget.
+3. **Given** the confidence interval calculation, **When** the plot is rendered, **Then** the shaded regions must represent the confidence interval derived from the model's standard errors.
 
 ---
 
@@ -66,9 +66,9 @@ The researcher MUST be able to generate marginal effect plots showing the slope 
 ### Functional Requirements
 
 - **FR-001**: System MUST download and unzip the RSVP dataset (target: OpenNeuro ds001435 or equivalent) via `wget`, verify available disk space is sufficient for the full dataset, and validate that the dataset contains required variables (STAI scores, recall responses) before proceeding. (See US-1)
-- **FR-002**: System MUST extract fixation duration from raw gaze coordinates using a standard velocity-threshold algorithm (e.g., I-VT) with a configurable threshold and a minimum fixation window of 100ms to align with RSVP stimulus duration. (See US-1)
+- **FR-002**: System MUST extract fixation duration from raw gaze coordinates using a standard velocity-threshold algorithm (e.g., I-VT) with a configurable threshold and a minimum fixation window sufficient to align with RSVP stimulus duration. (See US-1)
 - **FR-003**: System MUST map stimulus IDs to emotional valence categories (threat, neutral) using a verified lookup table (IAPS/NimStim) and reject any unmapped IDs. (See US-1)
-- **FR-004**: System MUST fit a mixed-effects logistic regression model with the formula `recall ~ fixation_duration * valence * trait_anxiety + (1|participant) + (1|stimulus_id)` using CPU-only libraries (e.g., `statsmodels` or `lme4`), assuming a fully crossed design. If the design is not fully crossed, the system must fallback to `(1|participant)` only. The model MUST use the 'logit' link function, 'bobyqa' optimizer, a sufficiently high maximum number of iterations to ensure convergence, and convergence tolerance of 1e-6. (See US-2)
+- **FR-004**: System MUST fit a mixed-effects logistic regression model with the formula `recall ~ fixation_duration * valence * trait_anxiety + (1|participant) + (1|stimulus_id)` using CPU-only libraries (e.g., `statsmodels` or `lme4`), assuming a fully crossed design. If the design is not fully crossed, the system must fallback to `(1|participant)` only. The model MUST use the 'logit' link function, 'bobyqa' optimizer, a sufficiently high maximum number of iterations to ensure convergence, and convergence tolerance of a sufficiently small threshold. (See US-2)
 - **FR-005**: System MUST perform a likelihood-ratio test comparing the full model against a reduced model lacking the three-way interaction term to assess the specific modulation by anxiety. (See US-2)
 - **FR-006**: System MUST generate a marginal effects plot visualizing the relationship between fixation duration and recall probability for high vs. low anxiety groups with 95% confidence intervals. (See US-3)
 - **FR-007**: System MUST report model convergence status and residual diagnostics (overdispersion check) in the final output log. (See US-2)
@@ -87,7 +87,7 @@ The researcher MUST be able to generate marginal effect plots showing the slope 
 - **SC-002**: Model convergence rate is measured against the total number of model fitting attempts; the system must achieve convergence for ≥ 95% of bootstrap samples or the full dataset without manual intervention. (See US-2)
 - **SC-003**: Statistical power is measured against the expected effect size (f2 ≥ 0.15) using a Monte Carlo simulation with alpha=0.05 and 1000 iterations; the system must report the achieved power to assess study sensitivity. (See US-2)
 - **SC-004**: Computational feasibility is measured against the 4-hour runtime limit on GitHub Actions ubuntu-latest; the total pipeline (download, preprocess, model, plot) must complete within 4 hours. (See US-2)
-- **SC-005**: Visual output validity is measured against the presence of confidence intervals; the generated plot must include shaded 95% CI regions for both high and low anxiety groups. (See US-3)
+- **SC-005**: Visual output validity is measured against the presence of confidence intervals; the generated plot must include shaded confidence interval regions for both high and low anxiety groups. (See US-3)
 
 ## Assumptions
 

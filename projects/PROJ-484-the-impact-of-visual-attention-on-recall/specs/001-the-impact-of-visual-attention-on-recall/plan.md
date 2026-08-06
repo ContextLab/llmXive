@@ -81,7 +81,7 @@ projects/PROJ-484-the-impact-of-visual-attention-on-recall/
 |-----------|------------|-------------------------------------|
 | Mixed-effects model (GLMM) | Required to handle crossed random effects (participant, stimulus) and test the 3-way interaction. | Fixed-effects models would ignore individual variability and stimulus-specific effects, inflating Type I error. |
 | I-VT Algorithm | Standard for extracting fixations from raw gaze coordinates in RSVP. | Simple thresholding on velocity is insufficient for noisy eye-tracking data; I-VT is robust. |
-| Streaming Data | **Defensive Pattern**: While a large number of trials (approximately a moderate amount of data) fit comfortably in 7GB RAM, streaming is retained to ensure robustness against unexpected dataset bloat or future scale-up without OOM. | Loading full dataset is feasible now, but streaming ensures the pipeline remains valid if the dataset grows to >1M trials. |
+| Streaming Data | **Defensive Pattern**: While a large number of trials (approximately a moderate amount of data) fit comfortably within available system memory, streaming is retained to ensure robustness against unexpected dataset bloat or future scale-up without OOM. | Loading full dataset is feasible now, but streaming ensures the pipeline remains valid if the dataset grows to >1M trials. |
 
 ## Phases & Tasks
 
