@@ -4,7 +4,7 @@
 
 ## Summary
 
-This project implements a multi-head self-attention neural network to predict chemical reaction yields using concatenated inputs: spectroscopic data (IR, NMR), ECFP4 fingerprints, and reaction condition vectors. The plan strictly adheres to the "CPU-first" compute constraint, utilizing a scaled-down dataset and quantized/efficient model architecture to fit within GitHub Actions limits (2 CPU, ~7GB RAM, 6h). The pipeline prioritizes rigorous data hygiene (leakage prevention via template splitting), statistical validity (Bonferroni-corrected t-tests, power analysis), and interpretability (attention heatmaps validated against simulation logic).
+This project implements a multi-head self-attention neural network to predict chemical reaction yields using concatenated inputs: spectroscopic data (IR, NMR), ECFP4 fingerprints, and reaction condition vectors. The plan strictly adheres to the "CPU-first" compute constraint, utilizing a scaled-down dataset and quantized/efficient model architecture to fit within GitHub Actions limits (limited CPU, ~7GB RAM, 6h). The pipeline prioritizes rigorous data hygiene (leakage prevention via template splitting), statistical validity (Bonferroni-corrected t-tests, power analysis), and interpretability (attention heatmaps validated against simulation logic).
 
 **Critical Pivot**: Due to the lack of verified experimental paired spectra/yield data, this plan pivots to using **DFT-simulated data** (sdmattpotter/dftest61523) exclusively. The research question is reframed to "Can a model learn the simulation logic mapping spectra to yield?" with a "Circularity Check" to reject the hypothesis if the simulation is too deterministic (R² > 0.95).
 
