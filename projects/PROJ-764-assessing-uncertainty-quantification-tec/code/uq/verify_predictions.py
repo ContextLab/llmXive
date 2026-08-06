@@ -1,132 +1,183 @@
-"""
-Task T018: Verify results/uq_predictions.csv generation and schema compliance.
-
-This script validates that the UQ predictions file exists, has the correct columns,
-and contains non-empty, valid data.
-"""
 import os
 import sys
 import json
 import pandas as pd
 import numpy as np
+from typing import Dict, Any, List
 
-# Define the expected file path and schema
-OUTPUT_PATH = "results/uq_predictions.csv"
+# Schema definition based on T016 requirements
 REQUIRED_COLUMNS = [
-    "sample_id", 
-    "method", 
-    "prediction", 
-    "variance", 
-    "lower_50", 
-    "upper_50", 
-    "lower_90", 
-    "upper_90"
+    'sample_id',
+    'method',
+    'prediction',
+    'variance',
+    'lower_50',
+    'upper_50',
+    'lower_90',
+    'upper_90'
 ]
 
-def verify_schema(df: pd.DataFrame) -> tuple[bool, list[str]]:
-    """Check if the DataFrame has the required columns."""
-    missing = [col for col in REQUIRED_COLUMNS if col not in df.columns]
-    extra = [col for col in df.columns if col not in REQUIRED_COLUMNS]
+def verify_schema(file_path: str) -> Dict[str, Any]:
+    """
+    Verifies that the CSV file exists and contains the required columns.
     
-    if missing:
-        return False, [f"Missing columns: {missing}"]
+    Args:
+        file_path: Path to the CSV file to verify.
+        
+    Returns:
+        Dictionary with verification results.
+    """
+    result = {
+        "file_exists": False,
+        "schema_valid": False,
+        "missing_columns": [],
+        "extra_columns": [],
+        "row_count": 0,
+        "errors": []
+    }
     
-    issues = []
-    if extra:
-        issues.append(f"Extra columns found (allowed but noted): {extra}")
+    if not os.path.exists(file_path):
+        result["errors"].append(f"File not found: {file_path}")
+        return result
+        
+    result["file_exists"] = True
     
-    # Check for data types
-    numeric_cols = ["prediction", "variance", "lower_50", "upper_50", "lower_90", "upper_90"]
-    for col in numeric_cols:
-        if not pd.api.types.is_numeric_dtype(df[col]):
-            issues.append(f"Column '{col}' is not numeric.")
-    
-    return len(issues) == 0, issues
+    try:
+        df = pd.read_csv(file_path)
+        result["row_count"] = len(df)
+        
+        # Check for required columns
+        present_columns = set(df.columns)
+        required_set = set(REQUIRED_COLUMNS)
+        
+        missing = required_set - present_columns
+        extra = present_columns - required_set
+        
+        result["missing_columns"] = list(missing)
+        result["extra_columns"] = list(extra)
+        
+        if not missing:
+            result["schema_valid"] = True
+        else:
+            result["errors"].append(f"Missing required columns: {missing}")
+            
+        # Verify numeric types for prediction and variance
+        for col in ['prediction', 'variance', 'lower_50', 'upper_50', 'lower_90', 'upper_90']:
+            if col in df.columns:
+                if not np.issubdtype(df[col].dtype, np.number):
+                    result["errors"].append(f"Column '{col}' is not numeric")
+                    
+    except Exception as e:
+        result["errors"].append(f"Failed to read CSV: {str(e)}")
+        
+    return result
 
-def verify_data_integrity(df: pd.DataFrame) -> tuple[bool, list[str]]:
-    """Check for NaNs, infinite values, and logical consistency."""
-    issues = []
+def verify_data_integrity(file_path: str) -> Dict[str, Any]:
+    """
+    Verifies data integrity: bounds consistency, non-negative variance, etc.
     
-    # Check for empty dataframe
-    if df.empty:
-        return False, ["DataFrame is empty."]
+    Args:
+        file_path: Path to the CSV file to verify.
+        
+    Returns:
+        Dictionary with integrity check results.
+    """
+    result = {
+        "integrity_valid": True,
+        "issues": [],
+        "stats": {}
+    }
     
-    # Check for NaNs
-    null_counts = df.isnull().sum()
-    if null_counts.any():
-        cols_with_nulls = null_counts[null_counts > 0].index.tolist()
-        issues.append(f"Columns with null values: {cols_with_nulls}")
-    
-    # Check for infinite values
-    numeric_cols = ["prediction", "variance", "lower_50", "upper_50", "lower_90", "upper_90"]
-    for col in numeric_cols:
-        if np.isinf(df[col]).any():
-            issues.append(f"Column '{col}' contains infinite values.")
-    
-    # Logical consistency: lower <= prediction <= upper
-    # 50% bounds
-    if not (df["lower_50"] <= df["prediction"]).all():
-        issues.append("lower_50 > prediction for some rows.")
-    if not (df["prediction"] <= df["upper_50"]).all():
-        issues.append("prediction > upper_50 for some rows.")
-    
-    # 90% bounds
-    if not (df["lower_90"] <= df["prediction"]).all():
-        issues.append("lower_90 > prediction for some rows.")
-    if not (df["prediction"] <= df["upper_90"]).all():
-        issues.append("prediction > upper_90 for some rows.")
-    
-    # 90% bounds should be wider than 50% bounds
-    if not (df["lower_90"] <= df["lower_50"]).all():
-        issues.append("lower_90 > lower_50 for some rows (invalid interval hierarchy).")
-    if not (df["upper_50"] <= df["upper_90"]).all():
-        issues.append("upper_50 > upper_90 for some rows (invalid interval hierarchy).")
-    
-    # Variance should be non-negative
-    if (df["variance"] < 0).any():
-        issues.append("Negative variance values found.")
-    
-    return len(issues) == 0, issues
+    if not os.path.exists(file_path):
+        result["issues"].append("File does not exist")
+        result["integrity_valid"] = False
+        return result
+        
+    try:
+        df = pd.read_csv(file_path)
+        
+        # Check variance is non-negative
+        if 'variance' in df.columns:
+            neg_variance = df[df['variance'] < 0]
+            if len(neg_variance) > 0:
+                result["issues"].append(f"Found {len(neg_variance)} rows with negative variance")
+                result["integrity_valid"] = False
+                
+        # Check bounds consistency: lower < prediction < upper
+        for interval in ['50', '90']:
+            lower_col = f'lower_{interval}'
+            upper_col = f'upper_{interval}'
+            
+            if lower_col in df.columns and upper_col in df.columns:
+                invalid_lower = df[df[lower_col] > df['prediction']]
+                invalid_upper = df[df[upper_col] < df['prediction']]
+                
+                if len(invalid_lower) > 0:
+                    result["issues"].append(f"Found {len(invalid_lower)} rows where lower_{interval} > prediction")
+                    result["integrity_valid"] = False
+                    
+                if len(invalid_upper) > 0:
+                    result["issues"].append(f"Found {len(invalid_upper)} rows where upper_{interval} < prediction")
+                    result["integrity_valid"] = False
+                    
+        # Check that 90% bounds are wider than 50% bounds
+        if 'lower_50' in df.columns and 'lower_90' in df.columns:
+            invalid_range = df[df['lower_90'] > df['lower_50']]
+            if len(invalid_range) > 0:
+                result["issues"].append(f"Found {len(invalid_range)} rows where lower_90 > lower_50")
+                result["integrity_valid"] = False
+                
+        if 'upper_50' in df.columns and 'upper_90' in df.columns:
+            invalid_range = df[df['upper_90'] < df['upper_50']]
+            if len(invalid_range) > 0:
+                result["issues"].append(f"Found {len(invalid_range)} rows where upper_90 < upper_50")
+                result["integrity_valid"] = False
+                
+        # Basic statistics
+        numeric_cols = ['prediction', 'variance', 'lower_50', 'upper_50', 'lower_90', 'upper_90']
+        available_cols = [c for c in numeric_cols if c in df.columns]
+        if available_cols:
+            result["stats"] = df[available_cols].describe().to_dict()
+            
+    except Exception as e:
+        result["issues"].append(f"Error during integrity check: {str(e)}")
+        result["integrity_valid"] = False
+        
+    return result
 
 def main():
-    print(f"Verifying {OUTPUT_PATH}...")
+    """Main entry point for verification."""
+    input_file = "results/uq_predictions.csv"
     
-    # 1. Check file existence
-    if not os.path.exists(OUTPUT_PATH):
-        print(f"ERROR: File not found: {OUTPUT_PATH}")
+    print(f"Verifying {input_file}...")
+    
+    # Schema verification
+    schema_result = verify_schema(input_file)
+    print("\n--- Schema Verification ---")
+    print(f"File exists: {schema_result['file_exists']}")
+    print(f"Schema valid: {schema_result['schema_valid']}")
+    print(f"Row count: {schema_result['row_count']}")
+    if schema_result['missing_columns']:
+        print(f"Missing columns: {schema_result['missing_columns']}")
+    if schema_result['errors']:
+        print(f"Errors: {schema_result['errors']}")
+        
+    # Data integrity verification
+    integrity_result = verify_data_integrity(input_file)
+    print("\n--- Data Integrity Verification ---")
+    print(f"Integrity valid: {integrity_result['integrity_valid']}")
+    if integrity_result['issues']:
+        print(f"Issues found: {integrity_result['issues']}")
+        
+    # Determine overall success
+    success = schema_result['file_exists'] and schema_result['schema_valid'] and integrity_result['integrity_valid']
+    
+    if success:
+        print("\n✅ Verification PASSED: All checks successful.")
+        sys.exit(0)
+    else:
+        print("\n❌ Verification FAILED: One or more checks failed.")
         sys.exit(1)
-    
-    # 2. Load data
-    try:
-        df = pd.read_csv(OUTPUT_PATH)
-        print(f"Loaded {len(df)} rows.")
-    except Exception as e:
-        print(f"ERROR: Failed to load CSV: {e}")
-        sys.exit(1)
-    
-    # 3. Verify Schema
-    schema_ok, schema_issues = verify_schema(df)
-    if not schema_ok:
-        print("Schema Verification FAILED:")
-        for issue in schema_issues:
-            print(f"  - {issue}")
-        sys.exit(1)
-    print("Schema Verification PASSED.")
-    
-    # 4. Verify Data Integrity
-    integrity_ok, integrity_issues = verify_data_integrity(df)
-    if not integrity_ok:
-        print("Data Integrity Verification FAILED:")
-        for issue in integrity_issues:
-            print(f"  - {issue}")
-        sys.exit(1)
-    print("Data Integrity Verification PASSED.")
-    
-    # 5. Summary
-    methods = df["method"].unique().tolist()
-    print(f"Verification Complete. Methods present: {methods}")
-    print("All checks passed.")
-    sys.exit(0)
 
 if __name__ == "__main__":
     main()

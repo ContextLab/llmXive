@@ -1,91 +1,131 @@
-# Dataset Schema for OULAD-based analysis
-# Used by code/schema.py for validation
-name: "learners_raw"
-description: "Raw learner records from OULAD with feedback timing and grades"
+# Dataset Schema for OULAD Feedback Timing Analysis
+# Aligns with data-model.md and research requirements
 version: "1.0"
+dataset_name: "oulad_feedback_analysis"
 
-fields:
-  - name: "student_id"
-    type: "string"
-    required: true
-    description: "Unique student identifier"
-    
-  - name: "code_module"
-    type: "string"
-    required: true
-    description: "Course/module code"
-    
-  - name: "region"
-    type: "string"
-    required: false
-    description: "Student's region"
-    
-  - name: "gender"
-    type: "string"
-    required: false
-    description: "Student's gender"
-    
-  - name: "age_band"
-    type: "string"
-    required: false
-    description: "Student's age band"
-    
-  - name: "disability"
-    type: "string"
-    required: false
-    description: "Disability status"
-    
-  - name: "num_assessments"
-    type: "integer"
-    required: true
-    description: "Number of assessments taken"
-    
-  - name: "num_forum_posts"
-    type: "integer"
-    required: true
-    description: "Number of forum posts made"
-    
-  - name: "first_feedback_interval"
-    type: "float"
-    required: true
-    description: "Time in hours from first submission to first feedback"
-    
-  - name: "final_grade"
-    type: "float"
-    required: true
-    description: "Final course grade (0-100)"
-    
-  - name: "is_complete"
-    type: "boolean"
-    required: true
-    description: "Whether student completed the course"
-    
-  - name: "has_forum_interaction"
-    type: "boolean"
-    required: true
-    description: "Whether student had at least one forum interaction"
-    
-  - name: "course_event_types"
-    type: "array"
-    required: true
-    description: "List of event types present in the course"
-    
-  - name: "processed_at"
-    type: "datetime"
-    required: true
-    description: "Timestamp of processing"
-    
-constraints:
-  - field: "num_assessments"
-    min: 0
-  - field: "num_forum_posts"
-    min: 1  # Enforced by T018 exclusion
-  - field: "first_feedback_interval"
-    min: 0
-  - field: "final_grade"
-    min: 0
-    max: 100
-  - field: "is_complete"
-    values: [true, false]
-  - field: "has_forum_interaction"
-    values: [true]  # All records must have this true after T018
+tables:
+  learners_raw:
+    description: "Raw learner records extracted from OULAD with feedback timestamps and grades"
+    required_columns:
+      - id_student
+      - id_course
+      - code_module
+      - code_presentation
+      - final_grade
+      - is_complete
+      - feedback_interval_hours
+      - forum_events_count
+      - assessment_events_count
+      - first_submission_time
+      - first_feedback_time
+    column_types:
+      id_student: int64
+      id_course: int64
+      code_module: string
+      code_presentation: string
+      final_grade: float64
+      is_complete: bool
+      feedback_interval_hours: float64
+      forum_events_count: int64
+      assessment_events_count: int64
+      first_submission_time: datetime64[ns]
+      first_feedback_time: datetime64[ns]
+    constraints:
+      final_grade:
+        min: 0.0
+        max: 100.0
+      feedback_interval_hours:
+        min: 0.0
+        nullable: false
+      is_complete:
+        nullable: false
+      forum_events_count:
+        min: 1  # Must have at least one forum event to be included
+      assessment_events_count:
+        min: 1  # Must have at least one assessment event
+
+  learners_binned:
+    description: "Learners with feedback intervals binned into timing groups"
+    required_columns:
+      - id_student
+      - id_course
+      - code_module
+      - code_presentation
+      - final_grade
+      - is_complete
+      - median_feedback_interval
+      - feedback_group
+    column_types:
+      id_student: int64
+      id_course: int64
+      code_module: string
+      code_presentation: string
+      final_grade: float64
+      is_complete: bool
+      median_feedback_interval: float64
+      feedback_group: string
+    constraints:
+      final_grade:
+        min: 0.0
+        max: 100.0
+      median_feedback_interval:
+        min: 0.0
+        nullable: false
+      feedback_group:
+        allowed_values:
+          - "Immediate"
+          - "Delayed"
+          - "Variable"
+        nullable: false
+
+  results_metrics:
+    description: "Model results including effect sizes and p-values"
+    required_columns:
+      - comparison
+      - cohen_d
+      - p_value
+      - significance
+      - stability_score
+      - flip_rate
+    column_types:
+      comparison: string
+      cohen_d: float64
+      p_value: float64
+      significance: bool
+      stability_score: float64
+      flip_rate: float64
+    constraints:
+      cohen_d:
+        nullable: false
+      p_value:
+        min: 0.0
+        max: 1.0
+        nullable: false
+      stability_score:
+        min: 0.0
+        max: 1.0
+      flip_rate:
+        min: 0.0
+        max: 1.0
+
+  significance_stability_report:
+    description: "Detailed stability analysis report"
+    required_columns:
+      - boundary_shift
+      - original_significance
+      - shifted_significance
+      - conclusion_changed
+      - timestamp
+    column_types:
+      boundary_shift: string
+      original_significance: bool
+      shifted_significance: bool
+      conclusion_changed: bool
+      timestamp: datetime64[ns]
+    constraints:
+      conclusion_changed:
+        nullable: false
+      original_significance:
+        nullable: false
+      shifted_significance:
+        nullable: false

@@ -1,93 +1,60 @@
-"""
-Download the OQMD Formation Energy dataset from HuggingFace.
-
-This script fetches the 'oqmd/formation-energy' dataset and saves it
-as a Parquet file in the data/raw directory.
-"""
 import os
 import sys
 import logging
 from pathlib import Path
+from datasets import load_dataset
+import pyarrow.parquet as pq
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(sys.stdout)
-    ]
-)
+# Setup logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-def download_oqmd_dataset():
+def download_oqmd_dataset(output_path: str):
     """
-    Fetches the OQMD Formation Energy dataset via HuggingFace and saves it to disk.
+    Downloads the OQMD Formation Energy dataset from HuggingFace and saves it as a Parquet file.
     
-    Raises:
-        ImportError: If the 'datasets' library is not installed.
-        Exception: If the download fails.
+    Args:
+        output_path: Path to save the parquet file.
     """
+    logger.info("Starting download of OQMD Formation Energy dataset...")
     try:
-        from datasets import load_dataset
-    except ImportError as e:
-        logger.error("The 'datasets' library is required. Install it via: pip install datasets")
-        raise e
-
-    output_dir = Path("data/raw")
-    output_dir.mkdir(parents=True, exist_ok=True)
-    output_path = output_dir / "oqmd.parquet"
-
-    logger.info(f"Starting download of 'oqmd/formation-energy' dataset...")
-    logger.info(f"Target path: {output_path}")
-
-    try:
-        # Load the dataset from HuggingFace
-        dataset = load_dataset("oqmd/formation-energy")
+        # Load dataset from HuggingFace
+        # The dataset name is 'oqmd/formation-energy' as specified in the task.
+        # We load the 'train' split. If the dataset is large, we stream it to avoid OOM,
+        # then convert to pandas to save as parquet.
+        ds = load_dataset("oqmd/formation-energy", split="train", streaming=True)
         
-        # The dataset usually comes as a Dict[str, Dataset]. 
-        # We assume the first split (often 'train' or the only split) is the target.
-        # If the dataset has multiple splits, we concatenate them or pick the main one.
-        # Based on typical OQMD HF datasets, it often has a 'train' split.
+        # Ensure output directory exists
+        output_dir = Path(output_path).parent
+        output_dir.mkdir(parents=True, exist_ok=True)
         
-        splits = list(dataset.keys())
-        if not splits:
-            raise ValueError("The loaded dataset has no splits.")
+        # Convert streaming dataset to pandas by iterating and collecting
+        # Since streaming=True returns a generator of rows, we need to materialize it.
+        # For large datasets, this might be memory intensive, but we need a parquet file.
+        # We convert to list of dicts then to DataFrame.
+        # Note: If the dataset is too large for RAM, this will fail, but the task requires
+        # saving to parquet which implies materialization or chunked writing.
+        # We assume the runner has enough memory for the full dataset or a representative slice
+        # if the dataset is massive, but the requirement is to fetch the REAL data.
         
-        # If there are multiple splits, we'll concatenate them to get the full raw data
-        if len(splits) > 1:
-            logger.info(f"Dataset has multiple splits: {splits}. Concatenating all.")
-            full_dataset = dataset[splits[0]]
-            for split in splits[1:]:
-                full_dataset = full_dataset.concatenate(dataset[split])
-        else:
-            full_dataset = dataset[splits[0]]
-            logger.info(f"Dataset has single split: {splits[0]}")
-
-        # Convert to Pandas DataFrame for efficient Parquet writing
-        df = full_dataset.to_pandas()
+        # Convert to pandas DataFrame
+        df = ds.to_pandas()
         
-        logger.info(f"Dataset loaded successfully. Shape: {df.shape}")
-        logger.info(f"Columns: {list(df.columns)}")
-
-        # Save to Parquet
+        # Save as parquet
         df.to_parquet(output_path, index=False)
         
-        logger.info(f"Successfully saved raw data to {output_path}")
-        return True
-
+        logger.info(f"Dataset saved successfully to {output_path}")
+        logger.info(f"Dataset shape: {df.shape}")
+        logger.info(f"Columns: {list(df.columns)}")
+        
     except Exception as e:
-        logger.error(f"Failed to download or save the dataset: {e}")
+        logger.error(f"Failed to download dataset: {e}")
         raise
 
 def main():
-    """Entry point for the download script."""
-    success = download_oqmd_dataset()
-    if success:
-        logger.info("Download task completed successfully.")
-        sys.exit(0)
-    else:
-        logger.error("Download task failed.")
-        sys.exit(1)
+    """Main entry point for downloading the dataset."""
+    output_path = "data/raw/oqmd.parquet"
+    download_oqmd_dataset(output_path)
 
 if __name__ == "__main__":
     main()

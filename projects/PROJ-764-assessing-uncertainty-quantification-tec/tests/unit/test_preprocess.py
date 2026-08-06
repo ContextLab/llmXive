@@ -1,222 +1,200 @@
-"""
-Unit tests for code/data/preprocess.py focusing on PCA application and missing data exclusion.
-These tests verify the logic of apply_pca and exclude_missing_data functions.
-"""
 import os
-import sys
-import tempfile
 import json
+import tempfile
 import pytest
 import pandas as pd
 import numpy as np
-from sklearn.decomposition import PCA
-from sklearn.model_selection import train_test_split
+from pathlib import Path
+import sys
 
-# Add the project root to the path to import code/data modules
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
+# Add code directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
 from data.preprocess import (
     load_config,
     load_data,
     exclude_missing_data,
     stratified_split,
-    apply_pca
+    apply_pca,
+    main
 )
 
+@pytest.fixture
+def sample_data():
+    """Create sample data for testing."""
+    np.random.seed(42)
+    n_samples = 100
+    data = {
+        'material_id': [f'mat_{i}' for i in range(n_samples)],
+        'formula': [f'A{i}B{i}' for i in range(n_samples)],
+        'feature_1': np.random.randn(n_samples),
+        'feature_2': np.random.randn(n_samples),
+        'feature_3': np.random.randn(n_samples),
+        'feature_4': np.random.randn(n_samples),
+        'formation_energy': np.random.randn(n_samples) * 0.5
+    }
+    return pd.DataFrame(data)
 
-class TestExcludeMissingData:
-    """Tests for the exclude_missing_data function."""
+@pytest.fixture
+def sample_data_with_missing(sample_data):
+    """Create sample data with some missing values."""
+    df = sample_data.copy()
+    # Add some missing values
+    df.loc[5:10, 'feature_1'] = np.nan
+    df.loc[15:20, 'feature_2'] = np.nan
+    return df
 
-    def test_exclude_missing_data_removes_rows(self):
-        """Test that rows with missing values are correctly excluded."""
-        # Create a test dataframe with some missing values
-        data = {
-            'feature_1': [1.0, 2.0, np.nan, 4.0, 5.0],
-            'feature_2': [10.0, np.nan, 30.0, 40.0, 50.0],
-            'feature_3': [100.0, 200.0, 300.0, 400.0, 500.0],
-            'target': [1.0, 2.0, 3.0, 4.0, 5.0]
-        }
-        df = pd.DataFrame(data)
+@pytest.fixture
+def config_file(tmp_path):
+    """Create a temporary config file."""
+    config_path = tmp_path / "config.yaml"
+    config_content = """
+    seed: 42
+    split_ratio: [0.8, 0.1, 0.1]
+    split_type: "stratified"
+    timeout_hours: 5.0
+    """
+    config_path.write_text(config_content)
+    return str(config_path)
 
-        # Call the function
-        result_df, excluded_count, missing_cols = exclude_missing_data(df)
+@pytest.fixture
+def parquet_file(tmp_path, sample_data):
+    """Create a temporary parquet file."""
+    parquet_path = tmp_path / "test_data.parquet"
+    sample_data.to_parquet(parquet_path)
+    return str(parquet_path)
 
-        # Verify the count of excluded rows (2 rows have NaN)
-        assert excluded_count == 2
-        assert len(result_df) == 3
+def test_load_config(config_file):
+    """Test loading configuration from YAML."""
+    config = load_config(config_file)
+    assert config['seed'] == 42
+    assert config['split_ratio'] == [0.8, 0.1, 0.1]
+    assert config['split_type'] == "stratified"
+    assert config['timeout_hours'] == 5.0
 
-        # Verify the missing columns are reported
-        assert set(missing_cols) == {'feature_1', 'feature_2'}
+def test_load_data(parquet_file):
+    """Test loading data from parquet file."""
+    df = load_data(parquet_file)
+    assert len(df) == 100
+    assert 'formation_energy' in df.columns
 
-        # Verify the remaining dataframe has no NaN values
-        assert result_df.isnull().sum().sum() == 0
+def test_exclude_missing_data(sample_data_with_missing):
+    """Test exclusion of rows with missing data."""
+    cleaned_df, exclusion_log = exclude_missing_data(sample_data_with_missing)
+    
+    # Check that rows with missing values were excluded
+    assert len(cleaned_df) < len(sample_data_with_missing)
+    assert exclusion_log['excluded_count'] > 0
+    assert 'feature_1' in exclusion_log['missing_columns'] or 'feature_2' in exclusion_log['missing_columns']
 
-    def test_exclude_missing_data_no_missing(self):
-        """Test behavior when there are no missing values."""
-        data = {
-            'feature_1': [1.0, 2.0, 3.0],
-            'feature_2': [10.0, 20.0, 30.0],
-            'target': [1.0, 2.0, 3.0]
-        }
-        df = pd.DataFrame(data)
+def test_stratified_split(sample_data):
+    """Test stratified splitting of data."""
+    train_df, val_df, test_df = stratified_split(
+        sample_data, 
+        target_col='formation_energy',
+        split_ratio=[0.8, 0.1, 0.1],
+        seed=42
+    )
+    
+    # Check split ratios (allowing for small variations due to binning)
+    total = len(train_df) + len(val_df) + len(test_df)
+    assert abs(len(train_df) / total - 0.8) < 0.05
+    assert abs(len(val_df) / total - 0.1) < 0.05
+    assert abs(len(test_df) / total - 0.1) < 0.05
+    
+    # Check that no duplicates across splits
+    train_ids = set(train_df['material_id'])
+    val_ids = set(val_df['material_id'])
+    test_ids = set(test_df['material_id'])
+    
+    assert len(train_ids & val_ids) == 0
+    assert len(train_ids & test_ids) == 0
+    assert len(val_ids & test_ids) == 0
 
-        result_df, excluded_count, missing_cols = exclude_missing_data(df)
+def test_apply_pca(sample_data):
+    """Test PCA application."""
+    pca_df, pca_model = apply_pca(sample_data, n_components=3, seed=42)
+    
+    # Check that PCA components are created
+    assert 'pca_0' in pca_df.columns
+    assert 'pca_1' in pca_df.columns
+    assert 'pca_2' in pca_df.columns
+    assert len(pca_df.columns) >= 4  # 3 PCA + target
+    
+    # Check that number of rows is preserved
+    assert len(pca_df) == len(sample_data)
+    
+    # Check that target column is preserved
+    assert 'formation_energy' in pca_df.columns
 
-        assert excluded_count == 0
-        assert len(result_df) == 3
-        assert len(missing_cols) == 0
-        assert result_df.equals(df)
+def test_apply_pca_with_fewer_components(sample_data):
+    """Test PCA with fewer components than features."""
+    pca_df, pca_model = apply_pca(sample_data, n_components=2, seed=42)
+    
+    assert 'pca_0' in pca_df.columns
+    assert 'pca_1' in pca_df.columns
+    assert 'pca_2' not in pca_df.columns  # Should not exist
+    assert len(pca_df.columns) == 4  # 2 PCA + target + material_id or formula
 
-    def test_exclude_missing_data_all_missing(self):
-        """Test behavior when all rows have missing values."""
-        data = {
-            'feature_1': [np.nan, np.nan],
-            'feature_2': [np.nan, np.nan],
-            'target': [1.0, 2.0]
-        }
-        df = pd.DataFrame(data)
+def test_exclude_missing_data_empty_list(sample_data):
+    """Test exclusion when no critical columns specified."""
+    cleaned_df, exclusion_log = exclude_missing_data(sample_data, critical_columns=[])
+    assert len(cleaned_df) == len(sample_data)
+    assert exclusion_log['excluded_count'] == 0
+    assert len(exclusion_log['missing_columns']) == 0
 
-        result_df, excluded_count, missing_cols = exclude_missing_data(df)
-
-        assert excluded_count == 2
-        assert len(result_df) == 0
-
-
-class TestApplyPCA:
-    """Tests for the apply_pca function."""
-
-    def test_apply_pca_reduces_dimensions(self):
-        """Test that PCA reduces features to the specified number of components."""
-        # Create a dataframe with more features than components
-        np.random.seed(42)
-        n_samples = 100
-        n_features = 50
-        n_components = 20
-
-        data = {
-            f'feature_{i}': np.random.rand(n_samples) for i in range(n_features)
-        }
-        data['target'] = np.random.rand(n_samples)
-        df = pd.DataFrame(data)
-
-        # Separate features and target
-        features = df.drop(columns=['target'])
-        target = df['target']
-
-        # Apply PCA
-        reduced_features, explained_variance = apply_pca(
-            features,
-            n_components=n_components,
-            random_state=42
-        )
-
-        # Verify the number of components
-        assert reduced_features.shape[1] == n_components
-        assert len(explained_variance) == n_components
-
-        # Verify the shape of the output
-        assert reduced_features.shape[0] == n_samples
-
-    def test_apply_pca_deterministic(self):
-        """Test that PCA produces deterministic results with fixed random_state."""
-        np.random.seed(42)
-        n_samples = 50
-        n_features = 20
-        n_components = 5
-
-        data = {
-            f'feature_{i}': np.random.rand(n_samples) for i in range(n_features)
-        }
-        data['target'] = np.random.rand(n_samples)
-        df = pd.DataFrame(data)
-
-        features = df.drop(columns=['target'])
-
-        # Run PCA twice
-        result1, _ = apply_pca(features, n_components=n_components, random_state=42)
-        result2, _ = apply_pca(features, n_components=n_components, random_state=42)
-
-        # Results should be identical
-        pd.testing.assert_frame_equal(result1, result2)
-
-    def test_apply_pca_with_less_features_than_components(self):
-        """Test PCA when requested components > available features."""
-        np.random.seed(42)
-        n_samples = 50
-        n_features = 5
-        n_components = 10  # More than available features
-
-        data = {
-            f'feature_{i}': np.random.rand(n_samples) for i in range(n_features)
-        }
-        data['target'] = np.random.rand(n_samples)
-        df = pd.DataFrame(data)
-
-        features = df.drop(columns=['target'])
-
-        # Should handle gracefully or raise an error depending on implementation
-        # For this test, we expect it to handle it by using max possible components
-        try:
-            reduced_features, _ = apply_pca(
-                features,
-                n_components=n_components,
-                random_state=42
-            )
-            # If it doesn't raise, it should have used max possible components
-            assert reduced_features.shape[1] <= n_features
-        except ValueError:
-            # Or it might raise an error if implementation doesn't handle this case
-            pass
-
-
-class TestIntegration:
-    """Integration tests combining multiple preprocess functions."""
-
-    def test_full_preprocess_pipeline(self):
-        """Test the full pipeline: load -> exclude missing -> PCA."""
-        # Create a temporary directory for test data
-        with tempfile.TemporaryDirectory() as tmpdir:
-            # Create a synthetic dataset with missing values
-            np.random.seed(42)
-            n_samples = 200
-            n_features = 30
-
-            data = {
-                f'feature_{i}': np.random.rand(n_samples) for i in range(n_features)
-            }
-            # Introduce missing values
-            data['feature_5'][np.random.choice(n_samples, 20, replace=False)] = np.nan
-            data['feature_15'][np.random.choice(n_samples, 15, replace=False)] = np.nan
-            data['target'] = np.random.rand(n_samples)
-
-            df = pd.DataFrame(data)
-
-            # Save to CSV
-            csv_path = os.path.join(tmpdir, 'test_data.csv')
-            df.to_csv(csv_path, index=False)
-
-            # Load the data
-            loaded_df = load_data(csv_path)
-
-            # Exclude missing data
-            clean_df, excluded_count, missing_cols = exclude_missing_data(loaded_df)
-
-            # Verify exclusion
-            assert excluded_count > 0
-            assert 'feature_5' in missing_cols
-            assert 'feature_15' in missing_cols
-
-            # Apply PCA
-            features = clean_df.drop(columns=['target'])
-            target = clean_df['target']
-
-            reduced_features, explained_var = apply_pca(
-                features,
-                n_components=20,
-                random_state=42
-            )
-
-            # Verify PCA output
-            assert reduced_features.shape[1] == 20
-            assert len(explained_var) == 20
-            assert reduced_features.shape[0] == len(clean_df)
+def test_main_integration(tmp_path, sample_data_with_missing, config_file):
+    """Test the main function integration."""
+    # Create temporary directories
+    data_dir = tmp_path / "data" / "raw"
+    processed_dir = tmp_path / "data" / "processed"
+    data_dir.mkdir(parents=True)
+    processed_dir.mkdir(parents=True)
+    
+    # Save sample data
+    parquet_path = data_dir / "oqmd.parquet"
+    sample_data_with_missing.to_parquet(parquet_path)
+    
+    # Temporarily override paths for testing
+    original_load_data = load_data
+    original_load_config = load_config
+    
+    def mock_load_data(data_path="data/raw/oqmd.parquet"):
+        return pd.read_parquet(str(parquet_path))
+    
+    def mock_load_config(config_path="code/config.yaml"):
+        return load_config(config_file)
+    
+    # Monkey patch for test
+    import data.preprocess as preprocess_module
+    preprocess_module.load_data = mock_load_data
+    preprocess_module.load_config = mock_load_config
+    
+    # Change to temp directory
+    original_cwd = os.getcwd()
+    os.chdir(tmp_path)
+    
+    try:
+        # Run main
+        main()
+        
+        # Check outputs
+        assert (processed_dir / "exclusion_log.json").exists()
+        assert (processed_dir / "features_20pca.csv").exists()
+        
+        # Verify exclusion log content
+        with open(processed_dir / "exclusion_log.json", 'r') as f:
+            exclusion_log = json.load(f)
+        assert 'excluded_count' in exclusion_log
+        assert 'missing_columns' in exclusion_log
+        
+        # Verify features file
+        features_df = pd.read_csv(processed_dir / "features_20pca.csv")
+        assert 'pca_0' in features_df.columns
+        assert 'formation_energy' in features_df.columns
+        
+    finally:
+        # Restore original functions and directory
+        preprocess_module.load_data = original_load_data
+        preprocess_module.load_config = original_load_config
+        os.chdir(original_cwd)

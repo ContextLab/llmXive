@@ -2,7 +2,7 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T009** — The `code/schema.py` file is present but its implementation is cut off (e.g., an unfinished line `valid =`), and the required `contracts/dataset.schema.yaml` file does not exist, so the utilities cannot be verified to align with the schema. Both the missing schema file and the incomplete code mean the task is not genuinely fulfilled.
+- **T009** — The `code/schema.py` file exists but is truncated (e.g., `validate_null_values` ends abruptly) and cannot be verified against the required `contracts/dataset.schema.yaml`, which is missing from the repository. Both the schema definition file and a complete implementation are needed to satisfy the task.
 - **T018** — No code, script, or log file was provided that shows learners without forum interactions are being filtered out and that the number excluded is being recorded. The required artifact (implementation of the exclusion logic and logging of the exclusion count) is missing.
 - **T019** — No code, script, or log file was provided that demonstrates the implementation of the exclusion logic for courses with fewer than 50 learners, nor any evidence that the number of excluded courses is being logged. Without such artifacts, the requirement cannot be confirmed as satisfied.
 - **T020** — declared artifact(s) missing/empty/invalid: data/processed/learners_raw.csv
@@ -16,3 +16,8 @@ A separate model checked the artifacts you produced for the tasks below and judg
 - **T035** — declared artifact(s) missing/empty/invalid: data/processed/results_metrics.csv
 - **T036** — declared artifact(s) missing/empty/invalid: data/processed/significance_stability_report.csv
 - **T037** — No code, results, or log file showing the computed “significance flip rate” and its verification against SC‑003 is present. The required artifact (evidence of the calculation and logged outcome) is missing, so the task is not satisfied.
+- **T038** — No artifact (e.g., a results table, CSV, notebook output, or report) was provided that shows the calculated effect sizes, compares them to the ≥0.3 threshold, and flags whether each meets the target. Without such concrete output, the requirement cannot be verified as satisfied.
+- **T039** — No artifact showing the Reference-Validator Agent was run on the candidate literature citations, nor any results confirming that “final grade” is a valid proxy for “skill acquisition.” The required validation output is missing.
+- **T041** — No README.md file with added usage instructions was provided; the evidence lacks the required documentation artifact, so the task’s deliverable cannot be confirmed as completed.
+- **T042** — No documentation files were found in a `docs/` directory, nor any content showing API or implementation details added. The required artifact (updated docs) is missing, so the task is not satisfied.
+- **T043** — No cleaned or refactored code files from `projects/PROJ-438-the-effect-of-personalized-feedback-timi/code/` are present; the evidence provides only the specification, with no actual artifacts to verify that the required code cleanup and refactoring was performed. The implementer must supply the updated script files (or a summary of changes) to satisfy the task.

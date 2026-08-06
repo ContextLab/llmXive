@@ -139,8 +139,8 @@
 - [ ] T035 [US3] Generate `data/processed/results_metrics.csv` with effect sizes, p-values, and sensitivity stats (SC-001)
 - [ ] T036 [US3] Generate `data/processed/significance_stability_report.csv` explicitly documenting the stability metric and flip rate (FR-007, SC-003)
 - [ ] T037 [US3] Verify "significance flip rate" against SC-003 and log the result (SC-003)
-- [~] T038 [US3] Compare calculated effect sizes against the ≥0.3 target and flag the result in the final output (SC-001)
-- [~] T039 [US3] Run Reference-Validator Agent on candidate literature citations to verify "final grade" as a proxy for "skill acquisition" (FR-008, Constitution Principle II) <!-- ATOMIZE: requested -->
+- [ ] T038 [US3] Compare calculated effect sizes against the ≥0.3 target and flag the result in the final output (SC-001)
+- [ ] T039 [US3] Run Reference-Validator Agent on candidate literature citations to verify "final grade" as a proxy for "skill acquisition" (FR-008, Constitution Principle II) <!-- ATOMIZE: requested -->
 - [X] T040 [US3] Implement `projects/PROJ-438-the-effect-of-personalized-feedback-timi/code/report.py` to generate final analysis report including the verified citation (FR-008)
 
 **Checkpoint**: All user stories should now be independently functional
@@ -151,12 +151,12 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [~] T041 [P] Documentation updates: Add usage instructions to `README.md`
-- [~] T042 [P] Documentation updates: Add API/implementation docs to `docs/` <!-- SKIPPED: YAML+regex parse failed (mapping values are not allowed here
+- [ ] T041 [P] Documentation updates: Add usage instructions to `README.md`
+- [ ] T042 [P] Documentation updates: Add API/implementation docs to `docs/` <!-- SKIPPED: YAML+regex parse failed (mapping values are not allowed here
  in "<unicode string>", line 2, column 13:
  contents: |
  ^) -->
-- [~] T043 Code cleanup and refactoring of `projects/PROJ-438-the-effect-of-personalized-feedback-timi/code/` scripts
+- [ ] T043 Code cleanup and refactoring of `projects/PROJ-438-the-effect-of-personalized-feedback-timi/code/` scripts
 - [~] T044 Performance optimization: verify pipeline runs ≤6h on 2 CPU cores (Assumptions)
 - [~] T045 [P] Additional unit tests for edge cases (missing timestamps, empty courses) in `tests/unit/`
 - [~] T046 Run `quickstart.md` validation to ensure reproducibility

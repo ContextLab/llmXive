@@ -60,8 +60,8 @@
 - [X] T006 [P] Create data directory structure (`data/raw`, `data/processed`, `data/results`)
 - [ ] T007 Create base schema definitions in `specs/001-phase-change-predictive-power/contracts/` (dataset.schema.yaml, model_output.schema.yaml)
 - [X] T008 Implement `code/utils/stability_checks.py` for NaN/Inf validation and memory monitoring
-- [X] T013 [P] [US1] Implement `code/data/load_external_validation.py` to fetch or load the 50 literature PCMs (DOI: 10.1016/j.matt.2024.01.001) [UNRESOLVED-CLAIM: c_02c1fa71 — status=not_enough_info] for later validation for later validation for later validation for later validation for later validation. Must handle mapping to Materials Project IDs. <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
-- [X] T013b [US1] Implement fallback logic in `code/data/load_external_validation.py` (or separate module) to handle failure case: if the NIST overlap (training data proxy validation) is < 500 compounds, switch target to `melting_point` [UNRESOLVED-CLAIM: c_447fe15d — status=not_enough_info] and flag the limitation as per Spec US-1 Acceptance Scenario 3. This task must execute AFTER T011/T012 produce the training data proxy validation stats.
+- [X] T013 [P] [US1] Implement `code/data/load_external_validation.py` to fetch or load the 50 literature PCMs (DOI: 10.1016/j.matt.2024.01.001) for later validation [UNRESOLVED-CLAIM: c_c20d11dc — status=not_enough_info] for later validation for later validation for later validation for later validation for later validation. Must handle mapping to Materials Project IDs. <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [X] T013b [US1] Implement fallback logic in `code/data/load_external_validation.py` (or separate module) to handle failure case: if the NIST overlap (training data proxy validation) is < 500 compounds [UNRESOLVED-CLAIM: c_906f553d — status=not_enough_info], switch target to `melting_point` and flag the limitation as per Spec US-1 Acceptance Scenario 3. This task must execute AFTER T011/T012 produce the training data proxy validation stats.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -71,7 +71,7 @@
 
 **Goal**: Retrieve a curated subset of Materials Project data, compute elemental/structural descriptors, and prepare a clean dataset for modeling within 7GB RAM.
 
-**Independent Test**: Execute the data retrieval script and verify that the output CSV contains at least 5,000 compounds [UNRESOLVED-CLAIM: c_77ddf1f7 — status=not_enough_info] (where available), and computed feature columns, fitting within 7 GB RAM.
+**Independent Test**: Execute the data retrieval script and verify that the output CSV contains at least 5,000 compounds [UNRESOLVED-CLAIM: c_a1e94920 — status=not_enough_info] (where available), and computed feature columns, fitting within 7 GB RAM [UNRESOLVED-CLAIM: c_2aaf8401 — status=not_enough_info].
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
@@ -80,8 +80,8 @@
 
 ### Implementation for User Story1
 
-- [ ] T011 [US1] Implement `code/data/fetch_materials_project.py` to query Materials Project API for compounds with melting points and heat capacity, handling rate limits and fallback strategies. {{claim:c_597d5715}} (Wikidata Q37499364, https://www.wikidata.org/wiki/Q37499364)
-- [ ] T012 [US1] Implement `code/data/compute_descriptors.py` to generate:
+- [X] T011 [US1] Implement `code/data/fetch_materials_project.py` to query Materials Project API for compounds with melting points and heat capacity, handling rate limits and fallback strategies. {{claim:c_597d5715}} (Wikidata Q37499364, https://www.wikidata.org/wiki/Q37499364) <!-- FAILED: unspecified -->
+- [X] T012 [US1] Implement `code/data/compute_descriptors.py` to generate:
  - Elemental descriptors (atomic number, electronegativity, radius)
  - Crystal graph representations using `pymatgen`'s `StructureGraph` module
  - Ensure output fits within 7GB RAM and handles missing structures via imputation or exclusion
@@ -96,7 +96,7 @@
 
 **Goal**: Train Random Forest, Gradient Boosting, SHAP-analyzed trees, and PySR symbolic regression models on CPU within the 6-hour window, ensuring R² > 0.0.
 
-**Independent Test**: Run the training pipeline and verify that models achieve R² > 0.0 on the validation set and that symbolic regression terminates within 4 hours [UNRESOLVED-CLAIM: c_8e6705e4 — status=not_enough_info].
+**Independent Test**: Run the training pipeline and verify that models achieve R² > 0.0 on the validation set and that symbolic regression terminates within 4 hours [UNRESOLVED-CLAIM: c_37f5fe3f — status=not_enough_info].
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
@@ -121,7 +121,7 @@
 
 **Goal**: Validate derived rules against external literature PCMs, perform sensitivity analysis on thresholds, and finalize associational framing.
 
-**Independent Test**: Apply derived rules to an external set of literature PCMs and performance drop ≤ 10% compared to test set [UNRESOLVED-CLAIM: c_22232466 — status=not_enough_info]; generate sensitivity analysis report.
+**Independent Test**: Apply derived rules to an external set of literature PCMs and performance drop ≤ 10% compared to test set [UNRESOLVED-CLAIM: c_a83de2c6 — status=not_enough_info]; generate sensitivity analysis report.
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
@@ -135,7 +135,7 @@
  - **Determine N dynamically** via Phase 0 research findings (do not hard-code 10) for the top-N highest-value PCMs.
  - Calculate ranking accuracy on the **top N** PCMs (resolving SC-003)
  - Adjust target metric based on Phase 0 feasibility (latent heat vs melting point)
- - Verify success criterion: ≥ 60% accuracy on top N [UNRESOLVED-CLAIM: c_c12f8f3b — status=not_enough_info] (SC-003)
+ - Verify success criterion: ≥ 60% accuracy on top N [UNRESOLVED-CLAIM: c_a3bb096d — status=not_enough_info] (SC-003)
 - [ ] T024 [US3] Implement sensitivity analysis in `code/utils/stability_checks.py` to {{claim:c_6682aa93}} and report false-positive/negative rates (FR-004, SC-004).
 - [ ] T025 [US3] Add final collinearity diagnostic in `code/utils/collinearity_utils.py` to flag any remaining definitional dependencies and adjust interpretation to descriptive/associational (FR-006)
 - [ ] T026a [US3] Generate correlation analysis report section in `research.md` summarizing SC-001 (Pearson correlation between structural features and phase-change suitability). **Explicitly calculate and publish the measured Pearson coefficient and the specific threshold value derived from the research phase**, replacing any '[deferred]' placeholders.

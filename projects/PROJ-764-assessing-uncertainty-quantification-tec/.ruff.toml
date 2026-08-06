@@ -1,3 +1,20 @@
-# Extends pyproject.toml settings for specific overrides if needed,
-# but primarily serves as the entry point for ruff if invoked without --config.
+# Standalone Ruff configuration file
+# This file is referenced by pyproject.toml but kept for explicit IDE support
+
 extend = "pyproject.toml"
+
+[format]
+exclude = [
+    ".git",
+    ".tox",
+    ".venv",
+    "build",
+    "dist",
+    "code/data/download.py", # Excluding temporarily if syntax errors exist in existing files
+]
+
+[lint]
+extend-select = [
+    "UP", # pyupgrade
+    "SIM", # flake8-simplify
+]

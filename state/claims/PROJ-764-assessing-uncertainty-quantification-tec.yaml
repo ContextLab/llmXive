@@ -1,0 +1,133 @@
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: Apply PCA to reduce features to exactly 20 components in data preprocessing
+  claim_id: c_ccda86fe
+  context: 'Phase 2: Foundational tasks including data preprocessing and configuration.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement code/data/preprocess.py to: 1) Read code/config.yaml for split_type
+    and seed, 2) Apply a stratified random split (train/validation/test) based on
+    the target variable if split_type is "stratified", 3) Apply PCA to reduce features
+    to exactly 20 components, 4) Exclude rows with missing critical features, 5) Output
+    data/processed/features_20pca.csv and generate a JSON log data/processed/exclusion_log.json
+    with schema {"excluded_count": int, "missing_columns": [str]}.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T00:50:45Z'
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: Default seed value is 42 for project configuration
+  claim_id: c_bf20eb0b
+  context: 'Phase 2: Foundational tasks including configuration setup.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement code/config.yaml with the following exact keys and values:
+    seed (int, default 42), split_ratio (list [0.8, 0.1, 0.1]), split_type (string,
+    MUST be "stratified"), and timeout_hours (float, 5.0).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T00:51:21Z'
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: Split ratio is set to 0.8, 0.1, 0.1 for train/validation/test
+  claim_id: c_76289e68
+  context: 'Phase 2: Foundational tasks including configuration setup.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement code/config.yaml with the following exact keys and values:
+    seed (int, default 42), split_ratio (list [0.8, 0.1, 0.1]), split_type (string,
+    MUST be "stratified"), and timeout_hours (float, 5.0).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T00:51:21Z'
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: Timeout limit for pipeline is set to 5.0 hours
+  claim_id: c_d5f67a4f
+  context: 'Phase 2: Foundational tasks including configuration setup.'
+  evidence:
+    asserted: '42.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'Implement code/config.yaml with the following exact keys and values:
+    seed (int, default 42), split_ratio (list [0.8, 0.1, 0.1]), split_type (string,
+    MUST be "stratified"), and timeout_hours (float, 5.0).'
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-08-06T00:51:22Z'
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: Baseline neural network has 2 hidden layers and at most 10,000 parameters
+  claim_id: c_7bab9fa6
+  context: 'Phase 3: User Story 1 Implementation tasks for model training.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Baseline_neural_network_has_2_hidden_layers_and_at_most_10,0
+  kind: magnitude
+  raw_text: "Implement code/models/baseline_nn.py: 2 hidden layers, \u226410k params,\
+    \ heteroscedastic output head."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T00:51:55Z'
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: Full pipeline evaluation run 3 times with seeds 42, 43, and 44
+  claim_id: c_6d57bf75
+  context: 'Phase 4: User Story 2 Implementation tasks for calibration and reliability
+    evaluation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run the full pipeline (data load -> train -> eval) exactly 3 times with
+    seeds 42, 43, 44 and aggregate the resulting ECE scores for each method into a
+    temporary file results/ece_scores_by_seed.json.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T00:52:33Z'
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: Robustness pass condition is Coefficient of Variation of ECE scores less
+    than or equal to 0.05
+  claim_id: c_c29a8fa9
+  context: 'Phase 4: User Story 2 Implementation tasks for robustness reporting.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Robustness_pass_condition_is_Coefficient_of_Variation_of_ECE
+  kind: magnitude
+  raw_text: "Compute Coefficient of Variation (CV) of ECE scores across the 3 runs\
+    \ from results/ece_scores_by_seed.json. MUST output results/robustness_report.json\
+    \ containing the CV value and a boolean pass (true if CV \u2264 0.05)."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T00:53:34Z'

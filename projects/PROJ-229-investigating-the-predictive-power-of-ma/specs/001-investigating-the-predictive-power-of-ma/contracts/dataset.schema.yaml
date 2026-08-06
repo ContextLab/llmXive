@@ -1,56 +1,161 @@
-# Dataset Schema Definition
-# Defines the structure of processed datasets used for training and validation
-$schema: "http://json-schema.org/draft-07/schema#"
-type: object
-properties:
-  metadata:
+# Dataset Schema for Phase-Change Material Predictive Pipeline
+# This schema defines the structure of the processed dataset used for training
+# and validation of machine learning models.
+# Generated for Project: PROJ-229
+# Task: T007
+
+schema_version: "1.0.0"
+description: >
+  Schema for the processed materials dataset containing elemental, structural,
+  and target properties for phase-change material prediction.
+
+metadata:
+  source: "Materials Project API + Literature Validation"
+  generated_by: "code/data/fetch_materials_project.py + code/data/compute_descriptors.py"
+  date_format: "ISO8601"
+
+fields:
+  - name: material_id
+    type: string
+    description: "Unique identifier from Materials Project (e.g., mp-12345)"
+    required: true
+    example: "mp-12345"
+
+  - name: formula
+    type: string
+    description: "Chemical formula (e.g., 'Li2O')"
+    required: true
+    example: "Li2O"
+
+  - name: elements
+    type: list[string]
+    description: "List of constituent elements"
+    required: true
+    example: ["Li", "O"]
+
+  - name: n_elements
+    type: integer
+    description: "Number of unique elements in the compound"
+    required: true
+    min_value: 1
+
+  - name: density
+    type: float
+    description: "Density in g/cm^3"
+    required: true
+    min_value: 0.0
+
+  - name: melting_point
+    type: float
+    description: "Melting point in Kelvin. May be NaN if unavailable."
+    required: false
+    nullable: true
+    unit: "K"
+
+  - name: heat_capacity
+    type: float
+    description: "Heat capacity at constant pressure in J/(mol*K). May be NaN."
+    required: false
+    nullable: true
+    unit: "J/(mol*K)"
+
+  - name: formation_energy
+    type: float
+    description: "Formation energy per atom in eV/atom"
+    required: true
+    unit: "eV/atom"
+
+  - name: band_gap
+    type: float
+    description: "Band gap in eV"
+    required: true
+    unit: "eV"
+
+  - name: elemental_electronegativity_mean
+    type: float
+    description: "Mean electronegativity of constituent elements (Pauling scale)"
+    required: true
+    source: "Pymatgen Element properties"
+
+  - name: elemental_radius_mean
+    type: float
+    description: "Mean atomic radius of constituent elements in Angstroms"
+    required: true
+    source: "Pymatgen Element properties"
+
+  - name: elemental_atomic_number_mean
+    type: float
+    description: "Mean atomic number of constituent elements"
+    required: true
+
+  - name: crystal_system
+    type: string
+    description: "Crystal system classification"
+    required: false
+    nullable: true
+    allowed_values:
+      - "cubic"
+      - "tetragonal"
+      - "orthorhombic"
+      - "hexagonal"
+      - "trigonal"
+      - "monoclinic"
+      - "triclinic"
+      - null
+
+  - name: space_group_number
+    type: integer
+    description: "Space group number (1-230)"
+    required: false
+    nullable: true
+    min_value: 1
+    max_value: 230
+
+  - name: volume_per_atom
+    type: float
+    description: "Volume per atom in Angstrom^3"
+    required: true
+    unit: "A^3"
+
+  - name: graph_features
     type: object
+    description: "Dictionary containing crystal graph representation features"
+    required: false
+    nullable: true
     properties:
-      dataset_name:
-        type: string
-      version:
-        type: string
-      created_at:
-        type: string
-        format: date-time
-      source:
-        type: string
-      total_compounds:
-        type: integer
-        minimum: 0
-      target_column:
-        type: string
-      features:
-        type: array
-        items:
-          type: string
-    required:
-      - dataset_name
-      - version
-      - created_at
-      - source
-      - total_compounds
-      - target_column
-      - features
-  data:
-    type: array
-    items:
-      type: object
-      properties:
-        material_id:
-          type: string
-        formula:
-          type: string
-        target_value:
-          type: number
-        features:
-          type: object
-          additionalProperties: true
-      required:
-        - material_id
-        - formula
-        - target_value
-        - features
-required:
-  - metadata
-  - data
+      node_features:
+        type: list[float]
+        description: "Flattened node feature matrix"
+      edge_features:
+        type: list[float]
+        description: "Flattened edge feature matrix"
+      connectivity_matrix:
+        type: list[list[int]]
+        description: "Adjacency list representation"
+
+  - name: vif_flags
+    type: object
+    description: "Flags indicating high Variance Inflation Factor for features"
+    required: false
+    nullable: true
+    properties:
+      is_highly_collinear:
+        type: boolean
+      collinear_features:
+        type: list[string]
+        description: "List of feature names with VIF > 10"
+
+constraints:
+  - name: non_empty_formula
+    rule: "formula must not be empty string"
+  - name: valid_density
+    rule: "density > 0.0"
+  - name: valid_energy
+    rule: "formation_energy is finite (not NaN or Inf)"
+
+target_variable:
+  primary: "melting_point"
+  fallback: "heat_capacity"
+  description: >
+    Primary target is melting_point. If melting_point is unavailable (NaN),
+    the pipeline may fall back to heat_capacity as per US-1 Acceptance Scenario 3.

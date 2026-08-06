@@ -1,31 +1,45 @@
 # Assessing Uncertainty Quantification Techniques for Machine-Learning Predicted Material Properties
 
-## Overview
-This project assesses various Uncertainty Quantification (UQ) techniques applied to machine learning models predicting material properties, specifically using the OQMD Formation Energy dataset. The goal is to evaluate the calibration and reliability of different UQ methods (Deep Ensembles, MC Dropout, Sparse GP) and demonstrate their utility in downstream material screening tasks.
+## Project Overview
+This project assesses various Uncertainty Quantification (UQ) techniques (Deep Ensembles, MC Dropout, Sparse GP) applied to machine learning models predicting material properties (specifically OQMD formation energy). The goal is to evaluate calibration, reliability, and practical utility in downstream screening tasks.
 
-## Project Structure
-- `code/`: Source code for data processing, model training, UQ inference, and evaluation.
-- `data/`: Raw and processed datasets.
-- `results/`: Output artifacts including predictions, reports, and figures.
-- `tests/`: Unit and contract tests.
-- `specs/`: Design documents and requirements.
+## Implementation Plan
+The project follows a phased approach:
+1. **Setup**: Project structure, dependencies, linting.
+2. **Foundational**: Data download, preprocessing (PCA, stratified split), config management.
+3. **User Story 1**: Baseline model training and UQ application.
+4. **User Story 2**: Calibration and reliability evaluation.
+5. **User Story 3**: Downstream screening case study.
+
+## Directory Structure
+```
+.
+├── code/ # Source code
+│ ├── data/ # Data loading and preprocessing
+│ ├── models/ # Model definitions and training
+│ ├── uq/ # Uncertainty quantification logic
+│ ├── utils/ # Utility functions
+│ ├── config.yaml # Configuration file
+│ └── main.py # Pipeline orchestrator
+├── data/ # Data artifacts
+│ ├── raw/ # Raw downloaded datasets
+│ └── processed/ # Preprocessed data splits
+├── results/ # Model outputs and evaluation results
+├── tests/ # Unit and contract tests
+├── specs/ # Feature specifications and design docs
+└── requirements.txt # Python dependencies
+```
+
+## Usage
+1. Install dependencies: `pip install -r requirements.txt`
+2. Configure settings in `code/config.yaml`.
+3. Run the pipeline: `python code/main.py`
+4. View results in `results/`.
 
 ## Prerequisites
 - Python 3.9+
-- pip
-
-## Installation
-1. Clone the repository.
-2. Install dependencies:
- ```bash
- pip install -r requirements.txt
- ```
-
-## Usage
-Run the main pipeline:
-```bash
-python code/main.py
-```
+- Access to HuggingFace datasets (for OQMD)
+- Sufficient disk space (~10GB for raw data)
 
 ## License
-MIT License
+MIT

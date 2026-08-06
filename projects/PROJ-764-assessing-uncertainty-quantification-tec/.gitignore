@@ -1,12 +1,13 @@
-# Python
+# Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
+
+# C extensions
 *.so
+
+# Distribution / packaging
 .Python
-env/
-venv/
-ENV/
 build/
 develop-eggs/
 dist/
@@ -23,18 +24,37 @@ wheels/
 .installed.cfg
 *.egg
 
-# Data and Results (Large files)
-data/raw/*.parquet
-data/raw/*.csv
-data/processed/*.csv
-data/processed/*.json
-results/models/*.pt
-results/models/*.pth
-results/*.csv
-results/*.json
-figures/*.png
-figures/*.pdf
-logs/*.log
+# PyInstaller
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+
+# Translations
+*.pot
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
 
 # IDE
 .idea/
@@ -43,6 +63,29 @@ logs/*.log
 *.swo
 *~
 
-# OS
-.DS_Store
-Thumbs.db
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# pyenv
+.python-version
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# Project specific
+data/raw/
+data/processed/
+results/
+logs/
+figures/
+*.parquet
+*.csv
+*.json
+*.pt
+*.png
+*.pdf

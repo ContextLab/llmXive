@@ -1,47 +1,93 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Material Sample
-description: Schema for material sample data used in the OQMD dataset.
+$schema: "http://json-schema.org/draft-07/schema#"
+title: Material Sample Schema
+description: >
+  Schema defining the structure of material sample data used as input
+  for uncertainty quantification models. This schema ensures consistency
+  across the OQMD dataset ingestion and preprocessing pipeline.
 type: object
 required:
-  - sample_id
+  - material_id
   - formula
   - elements
-  - crystal_system
-  - space_group
+  - n_elements
+  - structure_type
   - formation_energy
+  - features
 properties:
-  sample_id:
+  material_id:
     type: string
-    description: Unique identifier for the material sample.
+    description: Unique identifier for the material sample (e.g., from OQMD)
+    pattern: "^[a-zA-Z0-9_-]+$"
   formula:
     type: string
-    description: Chemical formula of the material (e.g., "Fe2O3").
+    description: Chemical formula of the material (e.g., "LiFePO4")
+    pattern: "^[A-Za-z0-9\\s\\(\\)\\[\\]\\{\\}\\-_\\.]+$"
   elements:
     type: array
+    description: List of unique chemical elements in the material
     items:
       type: string
-    description: List of constituent elements.
-  crystal_system:
+      pattern: "^[A-Z][a-z]?$"
+  n_elements:
+    type: integer
+    description: Number of unique elements in the material
+    minimum: 1
+  structure_type:
     type: string
+    description: Crystal structure type or space group category
     enum:
       - cubic
       - tetragonal
       - orthorhombic
+      - hexagonal
       - monoclinic
       - triclinic
-      - hexagonal
       - rhombohedral
-    description: Crystal system of the material.
-  space_group:
-    type: integer
-    description: Space group number (1-230).
+      - unknown
   formation_energy:
     type: number
-    description: Formation energy in eV/atom.
-  structure_id:
-    type: string
-    description: Optional external structure identifier.
-  metadata:
+    description: Formation energy per atom in eV/atom
+    minimum: -100.0
+    maximum: 100.0
+  features:
     type: object
-    description: Additional metadata fields.
-    additionalProperties: true
+    description: >
+      Dictionary of numerical features extracted for the material.
+      Expected to contain exactly 20 features after PCA reduction.
+    additionalProperties:
+      type: number
+    minProperties: 20
+    maxProperties: 20
+additionalProperties: false
+examples:
+  - material_id: "oqmd-123456"
+    formula: "LiFePO4"
+    elements:
+      - Li
+      - Fe
+      - P
+      - O
+    n_elements: 4
+    structure_type: "orthorhombic"
+    formation_energy: -1.234
+    features:
+      feature_0: 0.12345
+      feature_1: -0.67890
+      feature_2: 0.00123
+      feature_3: 1.45678
+      feature_4: -0.23456
+      feature_5: 0.78901
+      feature_6: -1.12345
+      feature_7: 0.56789
+      feature_8: -0.34567
+      feature_9: 0.90123
+      feature_10: -0.45678
+      feature_11: 0.23456
+      feature_12: -0.89012
+      feature_13: 0.67890
+      feature_14: -0.12345
+      feature_15: 0.45678
+      feature_16: -0.78901
+      feature_17: 0.34567
+      feature_18: -0.56789
+      feature_19: 0.89012

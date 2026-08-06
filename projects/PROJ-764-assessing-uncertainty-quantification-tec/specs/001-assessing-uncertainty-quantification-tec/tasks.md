@@ -41,7 +41,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project structure per implementation plan
-- [ ] T002 Initialize Python project with pinned dependencies in `requirements.txt`
+- [X] T002 Initialize Python project with pinned dependencies in `requirements.txt`
 - [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
 
 ---
@@ -80,9 +80,9 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Implementation for User Story 1
 
-- [~] T012 [P] [US1] Implement `code/models/baseline_nn.py`: 2 hidden layers, ≤10k params, heteroscedastic output head. Output artifact: `results/models/baseline_seed42.pt`.
+- [ ] T012 [P] [US1] Implement `code/models/baseline_nn.py`: 2 hidden layers, ≤10k params, heteroscedastic output head. Output artifact: `results/models/baseline_seed42.pt`.
 - [X] T013 [P] [US1] Implement `code/models/deep_ensemble.py`: Train multiple independent models, aggregate mean/variance. Output artifact: `results/models/ensemble_models/`.
-- [~] T014 [P] [US1] Implement `code/models/mc_dropout.py`: Enable dropout (p=0.2), run 30 stochastic forward passes. Output artifact: `results/models/mc_dropout_model.pt`.
+- [ ] T014 [P] [US1] Implement `code/models/mc_dropout.py`: Enable dropout (p=0.2), run 30 stochastic forward passes. Output artifact: `results/models/mc_dropout_model.pt`.
 - [~] T015 [P] [US1] Implement `code/models/sparse_gp.py`: **Consume** `data/processed/features_20pca.csv` (do not re-apply PCA), use a set of inducing points, fit with GPyTorch (CPU mode). Output artifact: `results/models/sparse_gp_model.pt`.
 - [~] T016 [US1] Implement `code/main.py` orchestrator to chain data load -> train -> UQ inference. Must generate `results/uq_predictions.csv` (base file) with columns: sample_id, method, prediction, variance, lower_50, upper_50, lower_90, upper_90, **exit with code 1 on timeout**, and generate `logs/pipeline.log`.
 - [~] T017 [US1] Add logging for model training times and UQ inference durations to monitor 5h budget.

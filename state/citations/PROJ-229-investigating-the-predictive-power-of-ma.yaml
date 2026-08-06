@@ -31,7 +31,7 @@
   verification_status: verified
   verified_against_url: https://doi.org/10.1016/j.matt.2024.01.001
   verified_at: '2026-07-13T17:58:14.348731Z'
-- artifact_hash: f11787139fea6b213a05079272bd61c18d0173f871ac5f9d17b2de2cfe8a8c9b
+- artifact_hash: 067a1a2ad1681ccae69b9f00fca5773c4c5220e91e697f170eff8925b0f6f5ec
   artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -41,8 +41,8 @@
   value: https://www.wikidata.org/wiki/Q37499364
   verification_status: pending
   verified_against_url: https://www.wikidata.org/wiki/Q37499364
-  verified_at: '2026-07-31T01:35:30.145406Z'
-- artifact_hash: f11787139fea6b213a05079272bd61c18d0173f871ac5f9d17b2de2cfe8a8c9b
+  verified_at: '2026-08-06T01:07:25.110350Z'
+- artifact_hash: 067a1a2ad1681ccae69b9f00fca5773c4c5220e91e697f170eff8925b0f6f5ec
   artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -52,4 +52,4 @@
   value: 10.1016/j.matt.2024.01.001
   verification_status: pending
   verified_against_url: https://doi.org/10.1016/j.matt.2024.01.001
-  verified_at: '2026-07-31T01:35:30.145406Z'
+  verified_at: '2026-08-06T01:07:25.110350Z'
