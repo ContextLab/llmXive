@@ -40,8 +40,8 @@
 - [X] T004 Implement `code/utils.py` for seed pinning, logging setup, and error handling wrappers
 - [X] T005 [P] Implement `code/data_loader.py` with OpenML fetch logic, binary-class validation, and SHA-256 checksum caching to `data/raw/`. **MUST** support direct URL fetch for UCI datasets if not available on OpenML. **MUST** explicitly select 15 binary classification datasets (OpenML IDs) defined in `code/config.py` (Constitution Principle VII). **Logic**:
  1. Validate each dataset: if `n_samples < 100` or `n_samples > 100000`, log a warning and **skip only that specific dataset** (do not fail the whole run).
- 2. Perform **programmatic spectrum validation**: verify the remaining valid datasets collectively span the 100-100k sample size range.
- 3. If the count of valid datasets is insufficient (e.g., < 15), raise a critical error.
+ 2. Perform **programmatic spectrum validation**: verify the remaining valid datasets collectively span a broad sample size range.
+ 3. If the count of valid datasets is insufficient (< 15), log the exact message: "CRITICAL: Insufficient valid datasets (< 15). Exiting." and exit with code 1.
  4. Implement **robust network error handling**: if a download fails, log the error, skip that dataset, and continue with the rest.
 - [X] T006 Implement `code/preprocessor.py` with leakage-safe imputation (median/mode) and scaling wrappers
 - [X] T007 [P] Create contract tests in `tests/contract/test_dataset_schema.py` and `tests/contract/test_evaluation_run_schema.py` to validate schemas defined in `specs/001-assess-model-stability/contracts/`
@@ -73,8 +73,13 @@
  - **Logic**: Check `n_samples < 100`. If true, log warning and return early (skip dataset). If valid, run `RepeatedStratifiedKFold(n_splits=10, n_repeats=10)`.
  - **Constraint**: It MUST NOT reduce the fold count or alter the dataset for valid cases.
 - [X] T012 [US1] Implement training loop for Logistic Regression, Random Forest (n_estimators=100), and Linear SVM in `code/evaluator.py` (Depends on T011 structure)
-- [ ] T013 [US1] Implement metric calculation (Accuracy, F1) inside the CV loop to prevent leakage
-- [ ] T014 [US1] Write raw evaluation results to `results/raw_evaluations.csv` with exact columns: `dataset_id` (OpenML ID), `model_name`, `fold_id`, `repeat_id`, `accuracy`, `f1_score`. (Output path must match Plan.md `results/` schema).
+- [X] T013 [US1] Implement metric calculation (Accuracy, F1) inside the CV loop to prevent leakage.
+ - **Function Name**: `calculate_metrics(y_true, y_pred)`
+ - **Return Type**: `pandas.DataFrame` with columns `['accuracy', 'f1_score']`.
+ - **Output**: Must be consumed by T014.
+- [X] T014 [US1] Write raw evaluation results to `results/raw_evaluations.csv` with exact columns and types:
+ - **Schema**: `dataset_id` (int), `model_name` (str), `fold_id` (int), `repeat_id` (int), `accuracy` (float), `f1_score` (float).
+ - **Dependency**: Must wait for T013 to produce the metrics dataframe.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -88,10 +93,7 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T016 [P] [US2] Unit test for `calculate_cv` function handling zero-variance cases in `tests/unit/test_analyser.py` <!-- SKIPPED: YAML+regex parse failed (expected '<document start>', but found '<block sequence start>'
- in "<unicode string>", line 6, column 1:
- - **File Created**: `tests/unit/...
- ^) -->
+- [X] T016 [P] [US2] Unit test for `calculate_cv` function handling zero-variance cases in `tests/unit/test_analyser.py`
 - [X] T017 [P] [US2] Unit test for Pearson correlation calculation in `tests/unit/test_analyser.py`
 
 ### Implementation for User Story 2
@@ -99,11 +101,16 @@
 - [X] T018 [US2] Implement aggregation logic in `code/analyser.py` to compute `mean_accuracy`, `cv_accuracy`, `mean_f1`, `cv_f1` per (dataset, model).
  - **Input**: Must consume `results/raw_evaluations.csv` (validated against schema from T007).
 - [X] T019 [US2] Implement **Pearson correlation** calculation in `code/analyser.py` to compute correlation coefficients between CV metrics and dataset properties (sample size, feature count) as required by FR-004.
- - **Primary Output**: Pearson r.
+ - **Primary Output**: Pearson r and p-value.
  - **Secondary**: Compute Spearman rho for robustness check.
  - **Verification**: Ensure `correlation_results.csv` contains non-null Pearson r values for all rows.
-- [ ] T020 [US2] Compute residuals from log-log linear regression of log(CV) against log(n_samples) and log(n_features) as a secondary metric; ensure Pearson r remains the primary output per FR-004
-- [ ] T021 [US2] Write summary tables to `results/stability_metrics.csv` and `results/correlation_results.csv` including Pearson r, p-values, and regression residuals <!-- FAILED: unspecified -->
+- [X] T020 [US2] Compute residuals from log-log linear regression of log(CV) against log(n_samples) and log(n_features) as a secondary metric.
+ - **Output Artifact**: Write residuals to `results/regression_residuals.csv`.
+ - **Dependency**: Must wait for T019.
+- [X] T021 [US2] Write summary tables to `results/stability_metrics.csv` and `results/correlation_results.csv`.
+ - **Schema `stability_metrics.csv`**: `dataset_id` (int), `model_name` (str), `mean_accuracy` (float), `cv_accuracy` (float), `mean_f1` (float), `cv_f1` (float).
+ - **Schema `correlation_results.csv`**: `dataset_id` (int), `model_name` (str), `pearson_r` (float), `pearson_p_value` (float), `spearman_rho` (float), `spearman_p_value` (float), `feature_count` (int), `sample_size` (int).
+ - **Primary Constraint**: `pearson_r` and `pearson_p_value` must be the primary columns used for decision making.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -118,22 +125,27 @@
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
 - [X] T023 [P] [US3] Unit test for permutation test logic in `tests/unit/test_analyser.py`
-- [X] T024 [P] [US3] Unit test for Bonferroni correction implementation in `tests/unit/test_analyser.py`
+- [X] T024 [P] [US3] Unit test for Benjamini-Hochberg correction implementation in `tests/unit/test_analyser.py`
 
 ### Implementation for User Story 3
 
 - [X] T025 [US3] Implement Permutation Test in `code/analyser.py` to compare variance distributions across LR, RF, and SVM.
  - **Test Statistic**: Calculate the absolute difference of the variances (|Var_A - Var_B|) derived from the squared deviations of accuracy scores for each model pair.
  - **Input**: Must consume variance values from T018 output.
-- [ ] T026 [US3] Implement **Bonferroni correction** globally across the set of ALL hypothesis tests (correlations and Permutation Tests) performed across the full collection of datasets to control the **family-wise error rate (FWER)** per FR-007.
+- [X] T026 [US3] Implement **Benjamini-Hochberg** correction globally across the set of ALL hypothesis tests (correlations and Permutation Tests) performed across the full collection of datasets to control the **False Discovery Rate (FDR)** per FR-007.
  - **Input**: Must consume p-values from `results/correlation_results.csv` (from T019) and `results/permutation_results.csv` (from T025). **Must wait for T025 completion**.
  - **Output**: Adjusted p-values.
-- [ ] T027 [US3] Write permutation test results (statistic, raw p-value, adjusted p-value, significance flag) to `results/permutation_results.csv`
-- [ ] T028 [US3] Generate a final summary report in `results/final_report.md` using a Markdown template containing sections:
- 1. 'Significant Variance Differences' (list datasets where adj_p < 0.05).
- 2. 'Model Comparison' (rank by mean CV).
- 3. 'Correction Methodology' (confirm Bonferroni application for FWER).
- 4. 'Achieved FWER' (calculate and report the effective alpha level).
+ - **Note**: Benjamini-Hochberg controls FDR, not FWER. This is the correct method for this exploratory analysis.
+- [X] T027 [US3] Write permutation test results to `results/permutation_results.csv`.
+ - **Schema**: `dataset_id` (int), `model_a` (str), `model_b` (str), `statistic` (float), `raw_p_value` (float), `adj_p_value` (float), `significant` (bool).
+ - **Dependency**: Must wait for T026 to produce adjusted p-values.
+- [X] T028 [US3] Generate a final summary report in `results/final_report.md`.
+ - **Content**: Must include the following sections:
+  1. 'Significant Variance Differences' (list datasets where adj_p < 0.05).
+  2. 'Model Comparison' (rank by mean CV).
+  3. 'Correction Methodology' (confirm Benjamini-Hochberg application for FDR).
+  4. 'Achieved FDR' (calculate and report the effective alpha level).
+ - **Dependency**: Must wait for T027.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -154,10 +166,9 @@
 
 **Purpose**: Address specific reviewer concerns regarding dataset diversity, statistical rigor, and CI reliability.
 
-- [ ] T035 [P] **Statistical Method Alignment**: Update `code/analyser.py` to explicitly prioritize **Pearson correlation** as the primary test for CV vs. Dataset Properties (n_samples, n_features) to satisfy Spec FR-004. Retain Spearman Rank Correlation as a secondary/robustness check. Update `results/correlation_results.csv` schema to reflect Pearson r and p-value as primary columns. (Addresses Plan T021 & FR-004 interpretation; Note: Plan T021 suggests Spearman, but Spec FR-004 mandates Pearson).
 - [ ] T036 [P] **CI Timeout Configuration**: Refactor `ci.yml` to include a specific `timeout-minutes` directive (e.g., 360) for the evaluation job and implement a `signal_handler` in `code/main.py` to gracefully shut down and save partial results if the runner is terminated early, ensuring no silent data loss. (Addresses Plan T008 & Edge Case: Network/Timeout failure).
 - [ ] T037 [P] **Zero-Variance Edge Case Handling**: Add explicit logic in `code/analyser.py` to detect datasets/models where `std=0` (perfect stability). Ensure these are handled gracefully in correlation calculations (e.g., excluded from Pearson but logged) and do not cause division-by-zero errors in CV calculation. (Addresses Spec Edge Case: Zero Variance).
-- [ ] T038 [P] **Multiple Comparison Correction Verification**: Add a unit test in `tests/unit/test_analyser.py` specifically for the Bonferroni implementation to verify that the adjusted p-values are correctly ordered and monotonic relative to raw p-values, ensuring the FWER control logic is mathematically sound before full pipeline execution. (Addresses FR-007 & SC-005).
+- [ ] T038 [P] **Multiple Comparison Correction Verification**: Add a unit test in `tests/unit/test_analyser.py` specifically for the Benjamini-Hochberg implementation to verify that the adjusted p-values are correctly ordered and monotonic relative to raw p-values, ensuring the FDR control logic is mathematically sound before full pipeline execution. (Addresses FR-007 & SC-005).
 
 ---
 
@@ -176,7 +187,7 @@
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
 - **User Story 2 (P2)**: Depends on T014 (raw data generation) - Must wait for US1 completion
-- **User Story 3 (P3)**: Depends on T018/T021 (aggregated metrics) - Must wait for US2 completion
+- **User Story 3 (P3)**: Depends on T018/T019 (aggregated metrics) - Must wait for US2 completion
 
 ### Within Each User Story
 

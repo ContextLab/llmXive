@@ -2,65 +2,74 @@
 
 ## Prerequisites
 
--   Python 3.11+
--   Git
--   GitHub Actions (for CI execution) or local environment for testing.
+- Python 3.11+
+- Git
+- Access to a GitHub Actions runner or a local machine with 7 GB+ RAM.
 
 ## Installation
 
-1.  **Clone the repository**:
-    ```bash
-    git clone <repo-url>
-    cd projects/PROJ-264-assessing-the-stability-of-statistical-m
-    ```
+1. **Clone the Repository**:
+ ```bash
+ git clone
+ cd your-project
+ ```
 
-2.  **Create a virtual environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
+2. **Create Virtual Environment**:
+ ```bash
+ python -m venv venv
+ source venv/bin/activate # On Windows: venv\Scripts\activate
+ ```
 
-3.  **Install dependencies**:
-    ```bash
-    pip install -r requirements.txt
-    ```
-    *Dependencies*: `pandas`, `numpy`, `scikit-learn`, `scipy`, `openml`, `requests`, `pyyaml`, `pytest`.
+3. **Install Dependencies**:
+ ```bash
+ pip install -r requirements.txt
+ ```
 
-## Running the Pipeline
+## Execution
 
-### 1. Data Preparation (Caching)
-The pipeline automatically downloads and caches datasets if they are not present in `data/raw/`.
-To force a refresh or validate checksums:
+### 1. Run the Full Pipeline (GitHub Actions)
+
+The pipeline is configured to run automatically on push to the `001-assess-model-stability` branch.
+- **Trigger**: `git push origin 001-assess-model-stability`
+- **Output**: Artifacts in `results/` and `data/` will be cached and downloadable from the Actions tab.
+
+### 2. Run Locally (Debug Mode)
+
+To run the pipeline locally on a subset of data:
+
 ```bash
-python code/dataset_loader.py --validate
-```
+# Set environment variables for debugging (optional)
+export DEBUG_MODE=true
+export DATASET_LIMIT=2 # Only process 2 datasets
 
-### 2. Execute Evaluation
-Run the full repeated cross-validation and analysis pipeline:
-```bash
-python code/main.py
+# Run the main pipeline script
+python code/pipeline.py
 ```
-This will:
--   Select multiple binary classification datasets (varying sample sizes).
--   Run multiple repeats for 3 models.
--   Calculate CV, correlations, and permutation tests.
--   Save results to `results/`.
 
 ### 3. Verify Results
-Check the generated reports:
-```bash
-cat results/statistical_tests.json
-```
 
-## Testing
+After completion, verify the outputs:
 
-Run unit and integration tests:
 ```bash
-pytest tests/ -v
+# Check for schema compliance
+pytest tests/contract/test_schemas.py
+
+# View the final report
+cat results/final_report.md
 ```
 
 ## Troubleshooting
 
--   **Runtime Error**: If the pipeline exceeds 6 hours, reduce `n_estimators` in `code/config.py` or the number of repeats.
--   **Memory Error**: Ensure large datasets are not loaded simultaneously. The code processes them sequentially.
--   **Missing Datasets**: If the `openml` API is unreachable, check network connectivity. The pipeline is designed to skip failed downloads and continue with remaining datasets.
+- **OOM Error**: If you encounter `MemoryError`, ensure `streaming=True` is enabled in `code/data_loader.py`.
+- **Dataset Download Failure**: Check network connectivity. The pipeline will skip failed datasets and log warnings.
+- **Zero Variance Warning**: If a model has 0 variance, it is handled gracefully; no action needed.
+
+## Output Artifacts
+
+| File | Description |
+|------|-------------|
+| `results/raw_evaluations.csv` | A substantial number of rows of individual fold results. |
+| `results/stability_metrics.csv` | A set of aggregated metrics spanning multiple datasets and models. |
+| `results/correlation_results.csv` | Correlation coefficients and p-values. |
+| `results/permutation_results.csv` | Variance comparison test results. |
+| `results/final_report.md` | Human-readable summary of findings. |

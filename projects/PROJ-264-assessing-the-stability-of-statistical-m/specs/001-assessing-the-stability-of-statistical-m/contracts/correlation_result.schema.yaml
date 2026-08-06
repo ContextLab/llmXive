@@ -1,0 +1,42 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "CorrelationResult"
+description: "Pearson correlation results between stability metrics and dataset properties."
+type: "object"
+properties:
+  metric_name:
+    type: "string"
+    enum: ["cv_accuracy", "cv_f1"]
+    description: "The stability metric being correlated."
+  property_name:
+    type: "string"
+    enum: ["n_samples", "n_features"]
+    description: "The dataset property being correlated."
+  correlation_coefficient:
+    type: "number"
+    description: "Pearson r value."
+  p_value:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Raw p-value."
+  adjusted_p_value:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Benjamini-Hochberg adjusted p-value."
+  method:
+    type: "string"
+    const: "Pearson"
+    description: "Correlation method used."
+  log_transformed:
+    type: "boolean"
+    description: "Whether log-log transformation was applied."
+required:
+  - metric_name
+  - property_name
+  - correlation_coefficient
+  - p_value
+  - adjusted_p_value
+  - method
+  - log_transformed
+additionalProperties: false

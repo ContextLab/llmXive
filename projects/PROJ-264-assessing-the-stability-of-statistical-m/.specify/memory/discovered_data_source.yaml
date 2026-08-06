@@ -1,0 +1,14 @@
+status: none
+intent: OpenML benchmark repeated cross validation results for binary classification
+  python package dataset
+required_fields:
+- dataset_id
+- dataset_name
+- model_name
+- fold
+- repeat
+- accuracy
+- f1_score
+cache_key: a8e57b9002a98dcd3132f69ad61f770ba8ffc2a73543592ae8ab4709d6ef14a6
+searched_at: '2026-08-06T04:54:20.775827+00:00'
+retry_count: 1

@@ -13,11 +13,11 @@ The system MUST execute a repeated k-fold cross-validation protocol (10 folds, 1
 
 **Why this priority**: This is the core data generation engine. Without the full distribution of performance metrics (not just the mean), the subsequent analysis of variance and stability is impossible. It delivers the raw empirical evidence required to answer the research question.
 
-**Independent Test**: The system can be tested by running the pipeline on a single small dataset (e.g., Iris or a subset of a larger one) and verifying that exactly 100 performance records are generated per model, with non-zero variance in the recorded metrics.
+**Independent Test**: The system can be tested by running the pipeline on a single small dataset (e.g., Iris or a subset of a larger one) and verifying that a complete set of performance records are generated per model, with non-zero variance in the recorded metrics.
 
 **Acceptance Scenarios**:
 
-1. **Given** a valid dataset URL and model configuration, **When** the evaluation loop completes 100 iterations, **Then** the system outputs a structured dataset containing 300 rows (100 per model) with columns for `model_name`, `fold_id`, `repeat_id`, `accuracy`, and `f1_score`.
+1. **Given** a valid dataset URL and model configuration, **When** the evaluation loop completes 100 iterations, **Then** the system outputs a structured dataset containing a representative number of rows (distributed across models) with columns for `model_name`, `fold_id`, `repeat_id`, `accuracy`, and `f1_score`.
 2. **Given** a dataset with missing values, **When** the preprocessing step runs, **Then** the system applies a standard imputation strategy (e.g., median for numeric, mode for categorical) consistent across all folds to prevent data leakage, and proceeds with evaluation.
 
 ---
@@ -52,7 +52,7 @@ The system MUST apply a Permutation Test on the absolute differences of squared 
 
 ### Edge Cases
 
-- **Dataset Size Limit**: What happens if a dataset has fewer than 100 samples, making 10-fold cross-validation (with 10 repeats) computationally unstable or impossible? The system must detect this and skip the dataset, logging a warning. It MUST NOT reduce the fold count. (See FR-001)
+- **Dataset Size Limit**: What happens if a dataset has insufficient samples, making 10-fold cross-validation (with 10 repeats) computationally unstable or impossible? The system must detect this and skip the dataset, logging a warning. It MUST NOT reduce the fold count. (See FR-001)
 - **Zero Variance**: How does the system handle a scenario where a model achieves [deferred] accuracy on every fold (std=0)? The correlation calculation must handle zero-variance predictors without crashing (e.g., by excluding them from the correlation matrix or treating them as a specific data point).
 - **Network Failure**: If a UCI dataset download fails due to network issues, the system must log the error, skip that specific dataset, and continue with the remaining datasets, rather than halting the entire 6-hour job.
 
@@ -60,7 +60,7 @@ The system MUST apply a Permutation Test on the absolute differences of squared 
 
 ### Functional Requirements
 
-- **FR-001**: System MUST download and preprocess multiple binary classification datasets from UCI/OpenML covering a range of sample sizes (100 to [deferred]) and feature dimensions, ensuring no data leakage during preprocessing. (See US-1)
+- **FR-001**: System MUST download and preprocess multiple binary classification datasets from UCI/OpenML covering a range of sample sizes and feature dimensions, ensuring no data leakage during preprocessing. (See US-1)
 - **FR-002**: System MUST execute repeated k-fold cross-validation evaluations for Logistic Regression, Random Forest, and Linear SVM on each dataset, recording accuracy and F1-scores for every iteration. (See US-1)
 - **FR-003**: System MUST calculate the Coefficient of Variation (CV = standard deviation / mean) of accuracy and F1-scores for each (dataset, model) pair to quantify performance stability. (See US-2)
 - **FR-004**: System MUST compute Pearson correlation coefficients between the calculated performance Coefficient of Variation (CV) and dataset metadata (sample size, feature count) to assess the relationship between data properties and stability. (See US-2)
@@ -86,14 +86,14 @@ The system MUST apply a Permutation Test on the absolute differences of squared 
 - **SC-001**: The Coefficient of Variation (CV) of accuracy scores across 100 repeats is measured against the sample size of the dataset to quantify the noise floor. (See US-2)
 - **SC-002**: The Pearson correlation coefficient between performance CV and dataset properties (sample size, feature count) is measured against the null hypothesis of zero correlation. (See US-2)
 - **SC-003**: The p-values from Permutation Tests comparing model variances are measured against the significance threshold (adjusted for multiplicity) to determine if variance differences are statistically significant. (See US-3)
-- **SC-004**: The total runtime of the full pipeline (multiple datasets × multiple models × 100 repeats) is measured against the 6-hour GitHub Actions free-tier limit to ensure feasibility. (See US-1)
+- **SC-004**: The total runtime of the full pipeline (multiple datasets × multiple models × numerous repeats) is measured against the GitHub Actions free-tier limit to ensure feasibility. (See US-1)
 - **SC-005**: The family-wise error rate (FWER) for the set of correlation and variance tests is measured against the target alpha level (e.g., 0.05) after applying the specified multiple-comparison correction. (See FR-007)
 
 ## Assumptions
 
 - **Dataset Availability**: The UCI Machine Learning Repository and OpenML will remain accessible via standard HTTP requests during the execution window, and the 15 selected datasets will be available in a format compatible with `pandas`/`scikit-learn` without extensive manual cleaning.
 - **Compute Constraints**: The total memory footprint of loading a representative set of datasets (including the largest ones) simultaneously or sequentially will remain within the free-tier runner's RAM limit., provided that large datasets (>10k samples) are processed with efficient chunking or sampling if necessary.
-- **Model Complexity**: Logistic Regression, Random Forest (with default `n_estimators=100`), and Linear SVM (with `LinearSVC`) will train within the 6-hour total time budget even with the 100-repetition requirement, assuming no datasets exceed 100,000 samples significantly or require complex hyperparameter tuning.
+- **Model Complexity**: Logistic Regression, Random Forest (with default `n_estimators=100`), and Linear SVM (with `LinearSVC`) will train within the 6-hour total time budget even with the 100-repetition requirement, assuming no datasets exceed a significantly large sample size or require complex hyperparameter tuning.
 - **Statistical Validity**: Pearson correlation tests the relationship between two variables and requires normality of the residuals, not the variables themselves. Levene's test is robust to non-normality, and the distribution of variances across the 15 datasets does not need to be normal for the Permutation Test to be valid. A sufficient number of repeats will be conducted to provide a distribution for the Permutation Test to approximate the null distribution accurately.
 - **Threshold Justification**: The significance threshold for Permutation Tests and correlation p-values is set to α = 0.05, adjusted for multiplicity using the Benjamini-Hochberg procedure, which is a community-standard approach for exploratory statistical analysis.
 - **Data Integrity**: The datasets selected contain no target leakage or inherent data quality issues that would artificially inflate or deflate performance variance beyond what is attributable to sampling noise.
