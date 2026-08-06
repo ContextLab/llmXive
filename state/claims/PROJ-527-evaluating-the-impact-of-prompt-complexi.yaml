@@ -437,3 +437,107 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-04T00:59:00Z'
+- artifact_path: projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/specs/001-evaluating-the-impact-of-prompt-complexi/tasks.md
+  attempts: 1
+  canonical: HumanEval dataset location at HuggingFace
+  claim_id: c_9b6d5b3c
+  context: 'T016 [US1] **Fetch HumanEval Dataset**: Implement `code/data/fetcher.py`
+    to download HumanEval dataset from `https://huggingface.co/datasets/openai/human-eval`
+    with checksum verification.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/HumanEval_dataset_location_at_HuggingFace
+  kind: entity_fact
+  raw_text: The HumanEval dataset is hosted at https://huggingface.co/datasets/openai/human-eval.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T12:04:33Z'
+- artifact_path: projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/specs/001-evaluating-the-impact-of-prompt-complexi/tasks.md
+  attempts: 1
+  canonical: Pipeline runtime target 6 hours on CPU
+  claim_id: c_e1c4bbcf
+  context: "T045 Performance optimization to ensure full pipeline runs within **\u2264\
+    6 hours** on CPU (subset if necessary): Profile `main.py` and implement caching\
+    \ for LLM queries in `code/llm/client.py` to reduce runtime to **\u22646 hours**."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The task specifies a target runtime of 6 hours or less for the full pipeline
+    on CPU.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T12:05:08Z'
+- artifact_path: projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/specs/001-evaluating-the-impact-of-prompt-complexi/tasks.md
+  attempts: 1
+  canonical: Cyclomatic complexity validation source McCabe 1976
+  claim_id: c_5e5c1a12
+  context: 'T027b [P] [US2] **Document Validation Sources**: Add comments in `static_analysis.py`
+    and entries in `research.md` citing ''McCabe 1976'' and ''Ruff Documentation v0.1.0''
+    as the validation sources for the extracted metrics (FR-008).'
+  evidence:
+    fill:
+      channel: paper
+      conflicts:
+      - channel: paper
+        source_id: '2410.10425'
+        url: https://arxiv.org/abs/2410.10425
+        value: '1976'
+      quote: matic Complexity (CC) introduced by McCabe [12] stands
+      source_id: '2410.06416'
+      url: https://arxiv.org/abs/2410.06416
+      value: '12'
+    filled: true
+  kind: numeric
+  raw_text: The task cites 'McCabe 1976' as the validation source for cyclomatic complexity
+    metrics.
+  resolved_value: '12'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-06T12:05:45Z'
+- artifact_path: projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/specs/001-evaluating-the-impact-of-prompt-complexi/tasks.md
+  attempts: 1
+  canonical: Static analysis validation source Ruff Documentation v0.1.0
+  claim_id: c_059937a3
+  context: 'T027b [P] [US2] **Document Validation Sources**: Add comments in `static_analysis.py`
+    and entries in `research.md` citing ''McCabe 1976'' and ''Ruff Documentation v0.1.0''
+    as the validation sources for the extracted metrics (FR-008).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The task cites 'Ruff Documentation v0.1.0' as the validation source for
+    extracted metrics.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T12:06:12Z'
+- artifact_path: projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/specs/001-evaluating-the-impact-of-prompt-complexi/tasks.md
+  attempts: 1
+  canonical: Prompt token counting uses tiktoken cl100k_base
+  claim_id: c_a4f0f913
+  context: "T015 [P] [US1] Implement `code/prompts/tokenizer.py` using `tiktoken cl100k_base`\
+    \ to count prompt tokens and validate thresholds (simple \u226450, moderate 51-150,\
+    \ etc.)."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Prompt_token_counting_uses_tiktoken_cl100k_base
+  kind: entity_fact
+  raw_text: The project uses the tiktoken cl100k_base tokenizer for counting prompt
+    tokens.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T12:07:07Z'

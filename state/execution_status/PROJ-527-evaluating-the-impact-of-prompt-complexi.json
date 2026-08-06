@@ -1,0 +1,17 @@
+{
+  "project_id": "PROJ-527-evaluating-the-impact-of-prompt-complexi",
+  "ok": false,
+  "reason": "2 run-book script(s) missing (plan/impl path mismatch): python projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/code/main.py; python projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/code/main.py --sample-size 10; 2 declared deliverable(s) absent: data/processed/prompt_variants.parquet; data/results/execution_outcomes.csv",
+  "artifacts": [],
+  "failures": [
+    "python projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/code/main.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/code/main.py': [Errno 2] No such file or directory",
+    "python projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/code/main.py --sample-size 10 -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/code/main.py': [Errno 2] No such file or directory"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "execution_bug",
+  "evidence": [],
+  "updated_at": "2026-08-06T11:59:28Z"
+}

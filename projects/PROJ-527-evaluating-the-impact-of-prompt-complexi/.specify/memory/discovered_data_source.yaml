@@ -1,0 +1,34 @@
+status: verified
+kind: pypi_package
+ref: datasets
+access_python: 'import json, sys
+
+  from datasets import load_dataset
+
+  # Load the HumanEval benchmark from Hugging Face Hub
+
+  ds = load_dataset(''openai/openai_humaneval'', split=''test'')
+
+  print(f''RECORDS={len(ds)}'')
+
+  # Print the available field names (columns)
+
+  print(''FIELDS='' + '',''.join(ds.column_names))'
+record_count: 164
+sample_fields:
+- task_id
+- prompt
+- canonical_solution
+- test
+- entry_point
+field_coverage: 0.833
+required_fields:
+- task_id
+- prompt
+- canonical_solution
+- test_cases
+- entry_point
+- language
+intent: download HumanEval programming problems dataset pip package or Hugging Face
+  python package dataset
+cache_key: 6c79ac6dbe22f202ae9b4c28cb7424ce3dd5162b4f57045e95defa0c33bf8bcd

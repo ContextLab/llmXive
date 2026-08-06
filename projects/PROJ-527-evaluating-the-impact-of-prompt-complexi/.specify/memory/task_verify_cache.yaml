@@ -1,13 +1,12 @@
 T018:
   c: true
-  h: fdf1b4b37498d25e34e8b2b2311d4f638fc7d115d31fd3456e8248682a9b1984
-  r: "The repository contains a fully\u2011implemented `code/data/storage.py` (6\u202F\
-    KB) with a `save_variants_to_parquet` function that writes a list of `GeneratedCode`\
-    \ objects to the default path `data/processed/prompt_variants.parquet`. The implementation\
-    \ follows the specification (creates parent directories, converts models to dicts,\
-    \ orders columns, writes via `pandas.to_parquet`). The absence of an already\u2011\
-    generated parquet file does not indicate a missing implementation, as the file\
-    \ is produced at runtime by the provided code."
+  h: 0552adef467193ea4cfec868ed725577d7c778f28c5eb0449a14b6cfa606906b
+  r: "The repository contains a non\u2011empty `code/data/storage.py` that defines\
+    \ `save_variants_to_parquet`, which converts `PromptVariant` objects to a DataFrame\
+    \ and writes them to `data/processed/prompt_variants.parquet`. The implementation\
+    \ fulfills the requirement to write generated code and metadata to that Parquet\
+    \ file. The absence of the actual Parquet file is expected until the function\
+    \ is invoked; the required code artifact is present and functional."
 T029:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

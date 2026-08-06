@@ -1,11 +1,8 @@
 """
-Execution Results Writer Module (T030)
+Write execution results to CSV.
 
-Implements the writing of execution results to data/results/execution_outcomes.csv
-with pass/fail counts, exception types, and static analysis scores.
-
-This module integrates execution outcomes from runner.py with static analysis
-metrics from static_analysis.py to produce a comprehensive results CSV.
+This script loads generated prompt variants, executes them against HumanEval unit tests,
+performs static analysis, and writes the aggregated results to data/results/execution_outcomes.csv.
 """
 
 import os
@@ -17,243 +14,183 @@ from datetime import datetime
 import pandas as pd
 
 from config import Paths
-from execution.runner import run_batch_execution, execute_sample, ExecutionError, ExecutionTimeoutError
-from execution.static_analysis import analyze_generated_code
-from data.storage import load_variants_from_parquet
 from utils.logger import get_logger
+from execution.runner import run_batch_execution, ExecutionError, ExecutionTimeoutError
+from execution.static_analysis import analyze_generated_code
+from prompts.generator import generate_prompt_variants
+from data.fetcher import load_human_eval
+from data.storage import save_variants_to_parquet, load_variants_from_parquet
 
 logger = get_logger(__name__)
 
 
 def load_execution_results_from_parquet() -> pd.DataFrame:
     """
-    Load generated prompt variants and code samples from the parquet file.
+    Load generated prompt variants from parquet file.
 
     Returns:
-        DataFrame containing all prompt variants with generated code metadata.
+        DataFrame with columns: problem_id, prompt, complexity_label, code, etc.
     """
-    variants_path = Paths.PROCESSED_DIR / "prompt_variants.parquet"
-    if not variants_path.exists():
-        logger.error(f"Parquet file not found: {variants_path}")
-        raise FileNotFoundError(f"Prompt variants file not found: {variants_path}")
+    parquet_path = Paths.PROCESSED_DATA / "prompt_variants.parquet"
 
-    logger.info(f"Loading prompt variants from {variants_path}")
-    df = pd.read_parquet(variants_path)
-    logger.info(f"Loaded {len(df)} prompt variants")
+    if not parquet_path.exists():
+        logger.warning(f"Parquet file not found at {parquet_path}. Generating variants first.")
+        # If parquet doesn't exist, we need to generate it first
+        # This should normally be done by a separate pipeline step
+        raise FileNotFoundError(
+            f"Prompt variants parquet file not found at {parquet_path}. "
+            "Please run the prompt generation pipeline first."
+        )
+
+    df = pd.read_parquet(parquet_path)
+    logger.info(f"Loaded {len(df)} prompt variants from {parquet_path}")
     return df
 
 
-def run_execution_and_analysis(
-    df: pd.DataFrame,
-    timeout_seconds: int = 30,
-    sample_limit: Optional[int] = None
-) -> List[Dict[str, Any]]:
+def run_execution_and_analysis(df: pd.DataFrame, sample_size: Optional[int] = None) -> pd.DataFrame:
     """
-    Execute code samples and run static analysis on each.
+    Execute generated code and perform static analysis.
 
     Args:
-        df: DataFrame containing prompt variants with generated code.
-        timeout_seconds: Timeout for code execution in seconds.
-        sample_limit: Optional limit on number of samples to process.
+        df: DataFrame with prompt variants and generated code
+        sample_size: Optional limit on number of samples to process
 
     Returns:
-        List of dictionaries containing execution results and analysis scores.
+        DataFrame with execution results and static analysis scores
     """
+    if sample_size:
+        df = df.head(sample_size)
+        logger.info(f"Processing sample of {sample_size} variants")
+
     results = []
 
-    # Apply sample limit if specified
-    if sample_limit is not None and sample_limit < len(df):
-        logger.info(f"Limiting execution to {sample_limit} samples")
-        df = df.head(sample_limit)
+    # Group by problem_id to ensure we process all variants for each problem
+    grouped = df.groupby('problem_id')
 
-    total = len(df)
-    logger.info(f"Starting execution and analysis for {total} samples")
+    for problem_id, group in grouped:
+        logger.info(f"Processing problem {problem_id} with {len(group)} variants")
 
-    for idx, row in df.iterrows():
-        problem_id = row['problem_id']
-        complexity_label = row['complexity_label']
-        generated_code = row['generated_code']
-        variant_id = row.get('variant_id', f"{problem_id}_{complexity_label}")
+        # Load the original HumanEval problem for test execution
+        human_eval_data = load_human_eval()
+        original_problem = human_eval_data.get(problem_id)
 
-        logger.debug(f"Processing {variant_id} ({idx+1}/{total})")
+        if not original_problem:
+            logger.warning(f"Could not find original problem {problem_id} in HumanEval dataset")
+            continue
 
-        result_entry = {
-            'variant_id': variant_id,
-            'problem_id': problem_id,
-            'complexity_label': complexity_label,
-            'timestamp': datetime.now().isoformat(),
-            'execution_status': None,
-            'pass_count': 0,
-            'fail_count': 0,
-            'timeout_count': 0,
-            'exception_type': None,
-            'exception_message': None,
-            'cyclomatic_complexity': None,
-            'lines_of_code': None,
-            'indentation_consistency': None,
-            'security_vulnerabilities': None,
-            'ruff_warnings': None
-        }
+        test_code = original_problem.get('test', '')
 
-        try:
-            # Execute the generated code
-            exec_result = execute_sample(
-                generated_code=generated_code,
-                test_code=row.get('test_code', ''),
-                timeout_seconds=timeout_seconds
-            )
+        for _, row in group.iterrows():
+            generated_code = row.get('code', '')
+            complexity_label = row.get('complexity_label', 'unknown')
 
-            result_entry['execution_status'] = exec_result['status']
-            result_entry['pass_count'] = exec_result['pass_count']
-            result_entry['fail_count'] = exec_result['fail_count']
-            result_entry['timeout_count'] = exec_result['timeout_count']
+            if not generated_code:
+                logger.warning(f"No generated code for {problem_id} variant {complexity_label}")
+                continue
 
-            if exec_result['status'] == 'error':
-                result_entry['exception_type'] = exec_result.get('exception_type', 'Unknown')
-                result_entry['exception_message'] = exec_result.get('exception_message', '')
+            # Run execution
+            try:
+                execution_result = run_batch_execution(
+                    code=generated_code,
+                    test_code=test_code,
+                    timeout_per_test=10
+                )
 
-        except ExecutionTimeoutError as e:
-            result_entry['execution_status'] = 'timeout'
-            result_entry['timeout_count'] = 1
-            result_entry['exception_type'] = 'TimeoutError'
-            result_entry['exception_message'] = str(e)
-            logger.warning(f"Timeout for {variant_id}: {e}")
+                pass_count = execution_result.get('pass_count', 0)
+                fail_count = execution_result.get('fail_count', 0)
+                exception_type = execution_result.get('exception_type', None)
+                timeout_flag = execution_result.get('timeout_flag', False)
 
-        except ExecutionError as e:
-            result_entry['execution_status'] = 'error'
-            result_entry['exception_type'] = e.exception_type
-            result_entry['exception_message'] = str(e)
-            logger.warning(f"Execution error for {variant_id}: {e}")
+            except ExecutionTimeoutError:
+                pass_count = 0
+                fail_count = len(original_problem.get('tests', []))
+                exception_type = 'TimeoutError'
+                timeout_flag = True
+            except ExecutionError as e:
+                pass_count = 0
+                fail_count = len(original_problem.get('tests', []))
+                exception_type = str(type(e).__name__)
+                timeout_flag = False
+            except Exception as e:
+                pass_count = 0
+                fail_count = len(original_problem.get('tests', []))
+                exception_type = str(type(e).__name__)
+                timeout_flag = False
 
-        except Exception as e:
-            result_entry['execution_status'] = 'error'
-            result_entry['exception_type'] = type(e).__name__
-            result_entry['exception_message'] = str(e)
-            logger.error(f"Unexpected error for {variant_id}: {e}", exc_info=True)
+            # Run static analysis
+            try:
+                static_scores = analyze_generated_code(generated_code)
+            except Exception as e:
+                logger.warning(f"Static analysis failed for {problem_id}: {e}")
+                static_scores = {
+                    'cyclomatic_complexity': None,
+                    'lines_of_code': None,
+                    'indentation_consistent': None,
+                    'security_vulnerable': None
+                }
 
-        # Run static analysis on the generated code
-        try:
-            analysis_result = analyze_generated_code(generated_code)
+            result_row = {
+                'problem_id': problem_id,
+                'complexity_label': complexity_label,
+                'pass_count': pass_count,
+                'fail_count': fail_count,
+                'exception_type': exception_type,
+                'timeout_flag': timeout_flag,
+                'static_analysis_scores': str(static_scores),
+                'timestamp': datetime.now().isoformat()
+            }
 
-            result_entry['cyclomatic_complexity'] = analysis_result.get('cyclomatic_complexity')
-            result_entry['lines_of_code'] = analysis_result.get('lines_of_code')
-            result_entry['indentation_consistency'] = analysis_result.get('indentation_consistency')
-            result_entry['security_vulnerabilities'] = analysis_result.get('security_vulnerabilities', [])
-            result_entry['ruff_warnings'] = analysis_result.get('ruff_warnings', [])
+            results.append(result_row)
 
-        except Exception as e:
-            logger.warning(f"Static analysis failed for {variant_id}: {e}")
-            result_entry['cyclomatic_complexity'] = None
-            result_entry['lines_of_code'] = None
-            result_entry['indentation_consistency'] = None
-            result_entry['security_vulnerabilities'] = []
-            result_entry['ruff_warnings'] = []
-
-        results.append(result_entry)
-
-        # Log progress every 10 samples
-        if (idx + 1) % 10 == 0:
-            logger.info(f"Processed {idx+1}/{total} samples")
-
-    return results
+    return pd.DataFrame(results)
 
 
-def write_results_to_csv(results: List[Dict[str, Any]], output_path: Optional[Path] = None) -> Path:
+def write_results_to_csv(results_df: pd.DataFrame, output_path: Optional[Path] = None):
     """
-    Write execution results to a CSV file.
+    Write execution results to CSV file.
 
     Args:
-        results: List of result dictionaries from run_execution_and_analysis.
-        output_path: Optional custom output path. Defaults to data/results/execution_outcomes.csv.
-
-    Returns:
-        Path to the written CSV file.
+        results_df: DataFrame with execution results
+        output_path: Optional output path (defaults to Paths.RESULTS / "execution_outcomes.csv")
     """
     if output_path is None:
-        output_path = Paths.RESULTS_DIR / "execution_outcomes.csv"
+        output_path = Paths.RESULTS / "execution_outcomes.csv"
 
     # Ensure output directory exists
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    logger.info(f"Writing {len(results)} results to {output_path}")
-
-    # Define column order for consistent output
-    columns = [
-        'variant_id',
-        'problem_id',
-        'complexity_label',
-        'timestamp',
-        'execution_status',
-        'pass_count',
-        'fail_count',
-        'timeout_count',
-        'exception_type',
-        'exception_message',
-        'cyclomatic_complexity',
-        'lines_of_code',
-        'indentation_consistency',
-        'security_vulnerabilities',
-        'ruff_warnings'
-    ]
-
-    # Flatten list fields for CSV compatibility
-    flattened_results = []
-    for result in results:
-        flat_result = result.copy()
-        # Convert lists to semicolon-separated strings for CSV
-        if isinstance(flat_result.get('security_vulnerabilities'), list):
-            flat_result['security_vulnerabilities'] = ';'.join(flat_result['security_vulnerabilities'])
-        if isinstance(flat_result.get('ruff_warnings'), list):
-            flat_result['ruff_warnings'] = ';'.join(map(str, flat_result['ruff_warnings']))
-        flattened_results.append(flat_result)
-
     # Write to CSV
-    with open(output_path, 'w', newline='', encoding='utf-8') as csvfile:
-        writer = csv.DictWriter(csvfile, fieldnames=columns, extrasaction='ignore')
-        writer.writeheader()
-        writer.writerows(flattened_results)
+    results_df.to_csv(output_path, index=False)
+    logger.info(f"Wrote {len(results_df)} execution results to {output_path}")
 
-    logger.info(f"Successfully wrote {len(flattened_results)} rows to {output_path}")
-    return output_path
+    # Verify file was created
+    if output_path.exists():
+        logger.info(f"Output file size: {output_path.stat().st_size} bytes")
+    else:
+        logger.error(f"Failed to create output file at {output_path}")
 
 
 def main():
-    """
-    Main entry point for execution results writer.
-
-    This function orchestrates the full pipeline:
-    1. Load prompt variants from parquet
-    2. Execute code samples and run static analysis
-    3. Write results to CSV
-    """
-    logger.info("Starting execution results writer (T030)")
+    """Main entry point for writing execution results."""
+    logger.info("Starting execution results writer")
 
     try:
-        # Load data
+        # Load prompt variants
         df = load_execution_results_from_parquet()
 
-        # Run execution and analysis
-        results = run_execution_and_analysis(
-            df=df,
-            timeout_seconds=30,
-            sample_limit=None  # Process all samples
-        )
+        # Execute and analyze
+        results_df = run_execution_and_analysis(df)
 
-        # Write results
-        output_path = write_results_to_csv(results)
+        # Write results to CSV
+        write_results_to_csv(results_df)
 
-        # Summary statistics
-        total = len(results)
-        passed = sum(1 for r in results if r['execution_status'] == 'success' and r['pass_count'] > 0)
-        failed = sum(1 for r in results if r['execution_status'] in ['error', 'timeout'])
+        logger.info("Execution results writer completed successfully")
 
-        logger.info(f"Execution complete: {total} total, {passed} passed, {failed} failed")
-        logger.info(f"Results written to: {output_path}")
-
-        return output_path
-
+    except FileNotFoundError as e:
+        logger.error(f"Required file not found: {e}")
+        raise
     except Exception as e:
-        logger.error(f"Execution results writer failed: {e}", exc_info=True)
+        logger.error(f"Error during execution results writing: {e}")
         raise
 
 
