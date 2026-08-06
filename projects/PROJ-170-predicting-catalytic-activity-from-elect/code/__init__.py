@@ -1,4 +1,3 @@
 """
-llmXive Project: code package
-Contains core pipeline logic for catalytic activity prediction.
+Code package for the Predicting Catalytic Activity project.
 """

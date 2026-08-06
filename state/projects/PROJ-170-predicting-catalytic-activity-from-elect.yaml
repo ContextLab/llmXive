@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-02T20:19:42.214324Z'
-current_stage: planned
+current_stage: in_progress
 failed_stage: null
 field: chemistry
 human_escalation_reason: null
 id: PROJ-170-predicting-catalytic-activity-from-elect
-last_run_id: ccb92235-f6fb-4891-84d2-c3abd24a1c57
+last_run_id: 14b68d03-6423-435e-8284-9c2ff34b6966
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-170-predicting-catalytic-activity-from-elect/specs/001-predicting-catalytic-activity-from-elect
 title: Predicting Catalytic Activity from Electronic Structure and Reaction Path Features
-updated_at: '2026-08-04T00:27:10.421447Z'
+updated_at: '2026-08-06T07:52:47.645782Z'

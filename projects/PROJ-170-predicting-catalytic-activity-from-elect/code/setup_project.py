@@ -5,7 +5,7 @@ from pathlib import Path
 from config import get_project_root
 
 def setup_verification_logging():
-    """Setup basic logging for directory verification."""
+    """Configure basic logging for verification scripts."""
     logging.basicConfig(
         level=logging.INFO,
         format='%(asctime)s - %(levelname)s - %(message)s'
@@ -13,90 +13,87 @@ def setup_verification_logging():
 
 def create_directories():
     """Create the required project directory structure."""
-    root = get_project_root()
-    dirs_to_create = [
-        "data/raw",
-        "data/processed",
-        "code",
-        "outputs",
-        "tests",
-        "state/projects",
-        "code/models"
+    project_root = get_project_root()
+    directories = [
+        'data/raw',
+        'data/processed',
+        'code',
+        'outputs',
+        'tests',
+        'state/projects',
+        'code/models'
     ]
 
-    created_count = 0
-    for dir_path in dirs_to_create:
-        full_path = root / dir_path
-        if not full_path.exists():
-            full_path.mkdir(parents=True, exist_ok=True)
-            logging.info(f"Created directory: {full_path}")
-            created_count += 1
-        else:
-            logging.info(f"Directory already exists: {full_path}")
-    
-    return created_count
+    created_paths = []
+    for dir_name in directories:
+        dir_path = project_root / dir_name
+        dir_path.mkdir(parents=True, exist_ok=True)
+        created_paths.append(dir_path)
+        logging.info(f"Created directory: {dir_path}")
+
+    return created_paths
 
 def verify_directories():
-    """Verify all required directories exist using os.path.isdir."""
-    root = get_project_root()
-    dirs_to_verify = [
-        "data/raw",
-        "data/processed",
-        "code",
-        "outputs",
-        "tests",
-        "state/projects",
-        "code/models"
+    """Verify that all required directories exist. Exit with error if any are missing."""
+    project_root = get_project_root()
+    required_dirs = [
+        'data/raw',
+        'data/processed',
+        'code',
+        'outputs',
+        'tests',
+        'state/projects',
+        'code/models'
     ]
 
-    all_exist = True
     missing_dirs = []
+    for dir_name in required_dirs:
+        dir_path = project_root / dir_name
+        if not os.path.isdir(dir_path):
+            missing_dirs.append(dir_path)
 
-    for dir_path in dirs_to_verify:
-        full_path = root / dir_path
-        if not os.path.isdir(full_path):
-            missing_dirs.append(str(full_path))
-            all_exist = False
-            logging.error(f"Directory missing: {full_path}")
-        else:
-            logging.info(f"Verified directory: {full_path}")
-
-    if not all_exist:
-        logging.error(f"Missing directories: {missing_dirs}")
+    if missing_dirs:
+        error_msg = "Directory initialization failed. Missing directories: " + ", ".join(str(p) for p in missing_dirs)
+        logging.error(error_msg)
         sys.exit(1)
-
+    
+    logging.info("All required directories verified successfully.")
     return True
 
 def create_init_files():
-    """Create __init__.py files in Python package directories."""
-    root = get_project_root()
+    """Create __init__.py files in all Python package directories."""
+    project_root = get_project_root()
     package_dirs = [
-        "code",
-        "tests",
-        "code/utils",
-        "code/models"
+        'code',
+        'tests',
+        'code/utils',
+        'code/models'
     ]
 
-    for pkg_dir in package_dirs:
-        pkg_path = root / pkg_dir
-        init_file = pkg_path / "__init__.py"
-        
+    for dir_name in package_dirs:
+        dir_path = project_root / dir_name
+        init_file = dir_path / '__init__.py'
         if not init_file.exists():
             init_file.touch()
-            logging.info(f"Created __init__.py: {init_file}")
+            logging.info(f"Created __init__.py in {dir_path}")
         else:
-            logging.info(f"__init__.py already exists: {init_file}")
+            logging.info(f"__init__.py already exists in {dir_path}")
 
 def main():
     """Main entry point for project setup and verification."""
     setup_verification_logging()
-    logging.info("Starting project directory setup and verification...")
+    logging.info("Starting project directory setup and verification.")
     
+    # Create directories
     create_directories()
-    create_init_files()
+    
+    # Verify directories exist
     verify_directories()
     
-    logging.info("Project directory structure verified successfully.")
+    # Create __init__.py files
+    create_init_files()
+    
+    logging.info("Project setup completed successfully.")
 
 if __name__ == "__main__":
     main()

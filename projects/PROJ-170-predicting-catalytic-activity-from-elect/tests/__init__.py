@@ -1,4 +1,3 @@
 """
-llmXive Project: tests package
-Contains unit and integration tests.
+Tests package for the Predicting Catalytic Activity project.
 """

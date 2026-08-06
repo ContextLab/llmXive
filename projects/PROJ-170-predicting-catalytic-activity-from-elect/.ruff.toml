@@ -1,36 +1,26 @@
-# Ruff configuration for llmXive project
-# Rules: E (pycodestyle errors), F (Pyflakes), W (pycodestyle warnings), I (isort)
+# Ruff configuration for llmXive catalytic activity project
+# Enforces rules: E (pycodestyle), F (Pyflakes), W (pycodestyle warnings), I (isort)
 
-select = ["E", "F", "W", "I"]
-
-# Ignore specific rules if needed (add here if project requires exceptions)
-ignore = []
-
-# Line length for formatting checks
 line-length = 88
+target-version = "py311"
 
-# Target Python version
-target-version = "py310"
-
-# Exclude directories
-exclude = [
-    ".git",
-    "__pycache__",
-    ".ruff_cache",
-    "build",
-    "dist",
-    "venv",
-    ".venv",
-    "data",
-    "outputs",
-    "state"
+[lint]
+select = [
+    "E", # pycodestyle errors
+    "F", # Pyflakes
+    "W", # pycodestyle warnings
+    "I", # isort
+]
+ignore = [
+    "E501", # Line too long (handled by black)
 ]
 
-# Per-file ignores (if any specific files need exceptions)
-[per-file-ignores]
+[lint.isort]
+known-first-party = ["code"]
+force-sort-within-sections = false
+lines-after-imports = 2
+combine-as-imports = true
+split-on-trailing-comma = false
 
-# Allow longer lines in specific contexts if needed
-[lint]
-# Enable specific rule fixes automatically
-fixable = ["ALL"]
-unfixable = []
+[lint.per-file-ignores]
+"__init__.py" = ["F401"] # Allow unused imports in __init__.py for package exposure
