@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-02T14:14:02.665031Z'
-current_stage: tasked
+current_stage: analyzed
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-873-llmxive-follow-up-extending-active-learn
-last_run_id: 499ecda9-f762-4cd3-ac45-cd78a178da61
+last_run_id: 0843215f-c4fa-495d-b24d-9d6551a6f032
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn
 title: 'llmXive follow-up: extending "Active Learners as Efficient PRP Rerankers"'
-updated_at: '2026-08-04T08:47:36.836872Z'
+updated_at: '2026-08-06T13:14:32.148079Z'

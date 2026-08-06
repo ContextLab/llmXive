@@ -24,7 +24,7 @@
 
 ### User Story 2 - Validate CPU-Tractable Pre-Clustering Recovery (Priority: P2)
 
-**User Journey**: A researcher needs to verify that a lightweight MinHash-LSH pre-clustering step can filter redundant comparisons, allowing the active ranker to focus on informative pairs, thereby restoring NDCG@10 performance without exceeding the 7GB RAM or 6-hour runtime limits of a CPU-only CI runner.
+**User Journey**: A researcher needs to verify that a lightweight MinHash-LSH pre-clustering step can filter redundant comparisons, allowing the active ranker to focus on informative pairs, thereby restoring NDCG performance without exceeding the 7GB RAM or 6-hour runtime limits of a CPU-only CI runner.
 
 **Why this priority**: This validates the proposed solution. It proves that the method is not only theoretically sound but also computationally feasible in the target environment (GitHub Actions free tier) and effectively mitigates the problem identified in US-1.
 
