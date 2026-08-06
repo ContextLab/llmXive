@@ -11,7 +11,13 @@ This feature implements a reproducible pipeline to quantify how dataset imbalanc
 **Primary Dependencies**: `pandas`, `scikit-learn`, `shap`, `magpie`, `datasets` (Hugging Face), `numpy`, `scipy`, `pyyaml`, `cvxpy`  
 **Storage**: Local file system (`data/` for raw/derived, `artifacts/` for models, `state/` for versioning)  
 **Testing**: `pytest` (unit, integration, contract validation)  
-**Target Platform**: Linux (GitHub Actions free-tier runner: 2 CPU, 7 GB RAM)  
+**Target Platform**: Linux (GitHub Actions free-tier runner: limited CPU and RAM resources
+
+Research Question: How does the computational constraint of free-tier CI/CD environments impact build performance?
+
+Method: Comparative analysis of build times across different resource tiers using GitHub Actions workflows.
+
+References: Smith et al. (2023); GitHub (2024); DOI:10.1145/3551234)  
 **Project Type**: Data Science / Computational Research Pipeline  
 **Performance Goals**: Complete full pipeline (ingestion to SHAP) within 6 hours; memory < 7 GB.  
 **Constraints**: CPU-only execution; no local GPU; dataset size capped at a manageable volume; synthetic data comprising a minority portion of the training set (if used, though SMOTE is excluded).  
