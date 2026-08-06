@@ -92,7 +92,7 @@
 - **SC-001**: The proportion of games successfully parsed and included in the dataset is measured against the number of valid PGN files in the requested subset (target ≥ 95% inclusion rate) (See US-1).
 - **SC-002**: The statistical significance of the regression coefficients is measured against the corrected p-value threshold (p < 0.01 after Benjamini-Hochberg FDR correction) to determine if systematic biases exist (See US-2).
 - **SC-003**: The model generalizability is measured against the variance in R² scores (scale [0.0, 1.0]) across the 5 cross-validation folds (target: standard deviation of R² < 0.05) (See US-3).
-- **SC-004**: The robustness of the findings is measured against the sensitivity analysis sweep (target: the set of "significant" predictors remains stable with a Jaccard index ≥ 0.8 across the {0.005, 0.01, 0.05} threshold range) (See US-2).
+- **SC-004**: The robustness of the findings is measured against the sensitivity analysis sweep (target: the set of "significant" predictors remains stable with a Jaccard index ≥ 0.8 across the {a low threshold, 0.01, 0.05} threshold range) (See US-2).
 - **SC-005**: The computational feasibility is measured against the GitHub Actions free-tier constraints (target: total job runtime ≤ 6 hours, RAM usage ≤ 7 GB, no GPU errors) (See US-1).
 
 ## Assumptions
