@@ -1,0 +1,221 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Analysis Output Schema
+description: >
+  Schema for analysis outputs including evaluation metrics, survival curves,
+  and statistical reports generated in Phases 3 and 4.
+type: object
+required:
+  - evaluation_metrics
+  - statistical_analysis
+properties:
+  evaluation_metrics:
+    type: object
+    required:
+      - lightweight_model
+      - baseline_model
+      - comparison
+    properties:
+      lightweight_model:
+        type: object
+        required:
+          - category_scores
+          - overall_validity
+        properties:
+          category_scores:
+            type: object
+            required:
+              - short
+              - medium
+              - long
+            properties:
+              short:
+                $ref: '#/properties/evaluation_metrics/properties/category_score_def'
+              medium:
+                $ref: '#/properties/evaluation_metrics/properties/category_score_def'
+              long:
+                $ref: '#/properties/evaluation_metrics/properties/category_score_def'
+          overall_validity:
+            $ref: '#/properties/evaluation_metrics/properties/overall_score_def'
+      baseline_model:
+        type: object
+        required:
+          - category_scores
+          - overall_validity
+        properties:
+          category_scores:
+            type: object
+            required:
+              - short
+              - medium
+              - long
+            properties:
+              short:
+                $ref: '#/properties/evaluation_metrics/properties/category_score_def'
+              medium:
+                $ref: '#/properties/evaluation_metrics/properties/category_score_def'
+              long:
+                $ref: '#/properties/evaluation_metrics/properties/category_score_def'
+          overall_validity:
+            $ref: '#/properties/evaluation_metrics/properties/overall_score_def'
+      comparison:
+        type: object
+        required:
+          - validity_gap
+          - inflection_point
+          - high_risk_threshold
+        properties:
+          validity_gap:
+            type: object
+            description: Map of route lengths to validity gaps
+            additionalProperties:
+              type: number
+              minimum: 0
+              maximum: 1
+          inflection_point:
+            type: integer
+            minimum: 1
+            description: Route length where validity drops >= 15% and is significant
+          high_risk_threshold:
+            type: integer
+            minimum: 1
+            description: Route length above which predictions are flagged high risk
+    definitions:
+      category_score_def:
+        type: object
+        required:
+          - validity_rate
+          - sample_count
+          - confidence_interval
+        properties:
+          validity_rate:
+            type: number
+            minimum: 0
+            maximum: 1
+          sample_count:
+            type: integer
+            minimum: 0
+          confidence_interval:
+            type: array
+            items:
+              type: number
+            minItems: 2
+            maxItems: 2
+      overall_score_def:
+        type: object
+        required:
+          - validity_rate
+          - sample_count
+        properties:
+          validity_rate:
+            type: number
+            minimum: 0
+            maximum: 1
+          sample_count:
+            type: integer
+            minimum: 0
+  statistical_analysis:
+    type: object
+    required:
+      - survival_analysis
+      - chi_squared_scan
+      - log_rank_test
+    properties:
+      survival_analysis:
+        type: object
+        required:
+          - curves
+          - median_survival_time
+        properties:
+          curves:
+            type: object
+            required:
+              - lightweight
+              - baseline
+            properties:
+              lightweight:
+                $ref: '#/properties/statistical_analysis/properties/survival_curve_def'
+              baseline:
+                $ref: '#/properties/statistical_analysis/properties/survival_curve_def'
+          median_survival_time:
+            type: object
+            required:
+              - lightweight
+              - baseline
+            properties:
+              lightweight:
+                type: number
+              baseline:
+                type: number
+      survival_curve_def:
+        type: object
+        required:
+          - times
+          - survival_probabilities
+          - confidence_intervals
+        properties:
+          times:
+            type: array
+            items:
+              type: integer
+          survival_probabilities:
+            type: array
+            items:
+              type: number
+          confidence_intervals:
+            type: array
+            items:
+              type: array
+              items:
+                type: number
+              minItems: 2
+              maxItems: 2
+      chi_squared_scan:
+        type: object
+        required:
+          - results
+          - significant_lengths
+          - bonferroni_adjusted_alpha
+        properties:
+          results:
+            type: array
+            items:
+              type: object
+              required:
+                - length
+                - chi2_statistic
+                - p_value
+                - is_significant
+              properties:
+                length:
+                  type: integer
+                chi2_statistic:
+                  type: number
+                p_value:
+                  type: number
+                  minimum: 0
+                  maximum: 1
+                is_significant:
+                  type: boolean
+          significant_lengths:
+            type: array
+            items:
+              type: integer
+          bonferroni_adjusted_alpha:
+            type: number
+            minimum: 0
+            maximum: 1
+      log_rank_test:
+        type: object
+        required:
+          - statistic
+          - p_value
+          - is_significant
+        properties:
+          statistic:
+            type: number
+          p_value:
+            type: number
+            minimum: 0
+            maximum: 1
+          is_significant:
+            type: boolean

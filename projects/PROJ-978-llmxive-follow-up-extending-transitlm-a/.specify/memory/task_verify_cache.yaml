@@ -1,0 +1,29 @@
+T008:
+  c: true
+  h: ffc0b4701650ac9d6063c008ea0a97ee26afad0345faf5920595c7155de1377b
+  r: "Both required files `data/contracts/dataset.schema.yaml` and `data/contracts/output.schema.yaml`\
+    \ are present, non\u2011empty, and contain full JSON\u2011Schema definitions appropriate\
+    \ for validating the dataset and analysis output, fulfilling the task\u2019s requirement."
+T010:
+  c: true
+  h: 21f09e3da1a022150ea77e9a8d7e8568f98605c97b92ee7c99ca50f73526e948
+  r: "The `tests/contract/test_preprocess_schema.py` file exists (8\u202FKB) and contains\
+    \ a full unittest suite that loads the processed dataset, loads the schema, and\
+    \ validates the output of `data/preprocess.py` against that schema, satisfying\
+    \ the task\u2019s requirement."
+T014:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `analysis/evaluation.py` file or its contents are provided, and there is\
+    \ no evidence that the required computations (route\u2011validity per category,\
+    \ chi\u2011squared scans with \u226515\u202F% drop and p\u202F<\u202F0.05, high\u2011\
+    risk flagging, and consumption of T015 topological metrics) have been implemented.\
+    \ The implementer must supply the actual Python module with the specified functionality."
+T017:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No logging implementation, configuration, or example log output is present;\
+    \ the only artifacts shown are high\u2011level user\u2011story specifications\
+    \ and evaluation requirements, which do not include any code or logs for model\
+    \ predictions, validity scores, or risk flags. The required logging artifact is\
+    \ missing."

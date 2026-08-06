@@ -1,0 +1,24 @@
+# Standalone Ruff configuration file for backward compatibility
+# This file mirrors the settings in pyproject.toml
+
+line-length = 88
+target-version = "py311"
+
+select = [
+    "E",
+    "W",
+    "F",
+    "I",
+    "C",
+    "B",
+    "UP",
+    "N",
+]
+
+ignore = [
+    "E501",
+    "B008",
+]
+
+[per-file-ignores]
+"tests/*" = ["S101"]

@@ -20,23 +20,23 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
@@ -44,7 +44,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project structure: directories `code/`, `data/raw/`, `data/processed/`, `data/analysis/`, `models/`, `analysis/`, `tests/`, `docs/` per implementation plan
-- [ ] T002 Initialize Python 3.11 project with `requirements.txt` (datasets, pandas, networkx, scikit-learn, lifelines, transformers, pytest)
+- [X] T002 Initialize Python 3.11 project with `requirements.txt` (datasets, pandas, networkx, scikit-learn, lifelines, transformers, pytest)
 - [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
 
 ---
@@ -55,13 +55,13 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete. T006 is a mandatory blocking gate for Phase 3.
 
-Examples of foundational tasks (adjust based on your project):
+Examples of foundational tasks (adjust based on plan.md):
 
-- [ ] T004 Implement `data/download.py` to fetch TransitLM SFT dataset from Hugging Face (`load_dataset` with `streaming=True`), apply SHA256 checksum verification, and save to `data/raw/`
-- [ ] T006 Implement `data/preprocess.py` to filter the dataset for four Chinese cities, apply top-N vocabulary restriction (with `<UNKNOWN>` token handling), stratify routes into short (<15), medium (15-30), and long (>30) categories, **AND** validate edge overlap (≥95%) against TransitLM ground truth (FR-008) as a mandatory gating step. **This task is a mandatory blocking gate: Phase 3 tasks (T011+) cannot start until T006 validation passes.**
-- [ ] T005 [P] Implement `data/graph_utils.py` to compute path-level betweenness centrality for **each individual route** in the dataset (FR-009) using the filtered data from T006. **Note: This task depends on T006 completion and cannot run in parallel with T006.**
-- [ ] T007 Create `data/contracts/dataset.schema.yaml` and `data/contracts/output.schema.yaml` to validate data integrity
-- [ ] T008 Implement `config.py` for environment configuration, random seeds, and city mapping constants
+- [X] T004 [P] Implement `data/download.py` to fetch TransitLM SFT dataset from Hugging Face (`load_dataset` with `streaming=True`), apply SHA256 checksum verification, and save to `data/raw/`
+- [ ] T006 [P] Implement `data/preprocess.py` to filter the dataset for four Chinese cities, apply top-N vocabulary restriction (with `<UNKNOWN>` token handling), and stratify routes into short (<15), medium (15-30), and long (>30) categories. **This task is a mandatory blocking gate: Phase 3 tasks (T011+) cannot start until T006 validation passes.**
+- [ ] T007 [P] Implement `data/graph_utils.py` to build the local adjacency graph and validate it against `data/raw/transitlm_ground_truth.json` for edge overlap (≥95%) (FR-008). **This task depends on T006 completion.**
+- [X] T008 Create `data/contracts/dataset.schema.yaml` and `data/contracts/output.schema.yaml` to validate data integrity
+- [ ] T009 [P] Implement `config.py` for environment configuration, random seeds, and city mapping constants
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel (only if T006 validation passed)
 
@@ -77,16 +77,17 @@ Examples of foundational tasks (adjust based on your project):
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T009 [P] [US1] Contract test for `data/preprocess.py` output schema in `tests/contract/test_preprocess_schema.py`
-- [ ] T010 [P] [US1] Integration test for stratified route validity scoring in `tests/integration/test_stratified_validity.py`
+- [X] T010 [P] [US1] Contract test for `data/preprocess.py` output schema in `tests/contract/test_preprocess_schema.py`
+- [X] T011 [P] [US1] Integration test for stratified route validity scoring in `tests/integration/test_stratified_validity.py`
 
 ### Implementation for User Story 1
 
-- [ ] T011 [P] [US1] Implement `models/lightweight.py` with a deterministic fixed-lookup strategy (retrieving top-N neighbors and selecting highest frequency transition) without GPU acceleration
-- [ ] T012 [P] [US1] Implement `models/baseline.py` to load the CPU-quantized baseline LLM (Qwen-1.5-1.8B or similar) and run inference on the stratified test set
-- [ ] T013 [US1] Implement `analysis/evaluation.py` to: (1) Compute route validity for each category; (2) Perform point-wise Chi-squared scans on **connectivity** (Constitution Principle VI) to identify the inflection point where validity drops ≥15% **AND is statistically significant (p < 0.05)**; (3) Flag predictions as "high risk" based on this inflection point and confidence intervals; (4) **Consume** per-route topological complexity metrics from T005 output.
-- [ ] T014 [US1] Add validation for `<UNKNOWN>` tokens in `data/preprocess.py` to exclude them from station validity metrics unless ground truth matches (FR-006)
-- [ ] T015 [US1] Add logging for model predictions, validity scores, and risk flags
+- [ ] T012 [P] [US1] Implement `models/lightweight.py` with a deterministic fixed-lookup strategy (retrieving top-N neighbors and selecting highest frequency transition) without GPU acceleration
+- [ ] T013 [P] [US1] Implement `models/baseline.py` to load the CPU-quantized baseline LLM (Qwen-1.8B or similar) and run inference on the stratified test set <!-- FAILED: unspecified -->
+- [ ] T014 [US1] Implement `analysis/evaluation.py` to: (1) Compute route validity for each category; (2) Perform point-wise Chi-squared scans on **connectivity** (Constitution Principle VI) to identify the inflection point where validity drops ≥15% **AND is statistically significant (p < 0.05)**; (3) Flag predictions as "high risk" based on this inflection point and confidence intervals; (4) **Consume** per-route topological complexity metrics from T015 output.
+- [ ] T015 [US1] [FR-009] Implement `data/graph_utils.py` to compute path-level betweenness centrality for **each individual route** in the dataset (FR-009) using the filtered data from T006. **Note: This task depends on T006 completion and cannot run in parallel with T006.**
+- [ ] T016 [US1] Add validation for `<UNKNOWN>` tokens in `data/preprocess.py` to exclude them from station validity metrics unless ground truth matches (FR-006)
+- [ ] T017 [US1] Add logging for model predictions, validity scores, and risk flags
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -100,18 +101,17 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T016 [P] [US2] Contract test for statistical output schema in `tests/contract/test_statistical_schema.py`
-- [ ] T017 [P] [US2] Integration test for survival analysis and log-rank test in `tests/integration/test_survival_analysis.py`
+- [ ] T018 [P] [US2] Contract test for statistical output schema in `tests/contract/test_statistical_schema.py`
+- [ ] T019 [P] [US2] Integration test for survival analysis and log-rank test in `tests/integration/test_survival_analysis.py`
 
 ### Implementation for User Story 2
 
-- [ ] T018 [P] [US2] Implement `analysis/survival.py` to execute Kaplan-Meier survival analysis on route validity decay across route lengths (FR-004)
-- [ ] T019 [US2] Implement `analysis/survival.py` to perform log-rank test comparing lightweight model and baseline survival curves (FR-004)
-- [ ] T020 [US2] Implement `analysis/survival.py` to handle censored data (routes truncated or reaching max hops) correctly (US-2, Scenario 1)
-- [ ] T021 [US2] Implement `analysis/statistics.py` to perform point-wise Chi-squared scans on **connectivity** metrics (Constitution Principle VI) across every route length (L=1 to L=max) to detect the % validity gap threshold (Plan: Dual-Method)
-- [ ] T022 [US2] Implement `analysis/statistics.py` to apply Bonferroni correction for multiple comparisons across city networks **as part of the Dual-Method strategy for topological threshold stratification** (FR-007)
-- [ ] T023 [US2] Add diagnostic checks for proportional hazards assumptions in `analysis/survival.py` and implement non-parametric fallback if violated (Edge Case)
-- [ ] T024 [US2] Generate `data/analysis/survival_curves.pdf` and `data/analysis/statistical_report.json` with p-values and confidence intervals
+- [ ] T020 [P] [US2] [FR-004] Implement `analysis/survival.py` to execute Kaplan-Meier survival analysis on route validity decay across route lengths (FR-004)
+- [ ] T021 [US2] [FR-004] Implement `analysis/survival.py` to perform log-rank test comparing lightweight model and baseline survival curves (FR-004)
+- [ ] T022 [US2] [FR-004] Implement `analysis/survival.py` to handle censored data (routes truncated or reaching max hops) correctly (US-2, Scenario 1)
+- [ ] T023 [US2] [FR-004] [FR-007] Implement `analysis/statistics.py` to perform point-wise Chi-squared scans on **connectivity** metrics (Constitution Principle VI) across every route length (L=1 to L=max) to detect the % validity gap threshold (Plan: Dual-Method) and apply Bonferroni correction for multiple comparisons (FR-007)
+- [ ] T024 [US2] Add diagnostic checks for proportional hazards assumptions in `analysis/survival.py` and implement non-parametric fallback if violated (Edge Case)
+- [ ] T025 [US2] Generate `data/analysis/survival_curves.pdf` and `data/analysis/statistical_report.json` with p-values and confidence intervals
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -125,16 +125,16 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T025 [P] [US3] Contract test for profiling output schema in `tests/contract/test_profiling_schema.py`
-- [ ] T026 [P] [US3] Integration test for memory and time constraints in `tests/integration/test_resource_constraints.py`
+- [ ] T026 [P] [US3] Contract test for profiling output schema in `tests/contract/test_profiling_schema.py`
+- [ ] T027 [P] [US3] Integration test for memory and time constraints in `tests/integration/test_resource_constraints.py`
 
 ### Implementation for User Story 3
 
-- [ ] T027 [P] [US3] Implement `analysis/profiling.py` to measure peak memory usage and inference latency on the lightweight model (FR-005)
-- [ ] T028 [US3] Implement `analysis/profiling.py` to enforce and log the -second time limit and a constrained RAM limit (US-3, Scenario 1)
-- [ ] T029 [US3] Implement logic to record "timeout/infeasible" status if the baseline LLM exceeds a predefined runtime or memory limit, marking divergence claims as "inconclusive" (Plan: Resource-Constrained Baseline)
-- [ ] T030 [US3] Generate `data/analysis/profiling_report.json` with latency, memory, and feasibility status
-- [ ] T031 [US3] Update `spec.md` **Assumptions section** to explicitly add: "The original LLM baseline performance metrics may be infeasible on CPU; if so, divergence claims are marked inconclusive" (Addressing tension in Plan vs Spec)
+- [ ] T028 [P] [US3] Implement `analysis/profiling.py` to measure peak memory usage and inference latency on the lightweight model (FR-005)
+- [ ] T029 [US3] Implement `analysis/profiling.py` to enforce and log a constrained time limit and a constrained RAM limit (US-3, Scenario 1)
+- [ ] T030 [US3] Implement logic to record "timeout/infeasible" status if the baseline LLM exceeds a predefined runtime or memory limit, marking divergence claims as "inconclusive" (Plan: Resource-Constrained Baseline)
+- [ ] T031 [US3] [Plan] [SC-003] Generate `data/analysis/profiling_report.json` with latency, memory, and feasibility status
+- [ ] T032 [US3] Update `docs/research.md` to document the feasibility findings and any "inconclusive" markers (Addressing tension in Plan vs Spec)
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -144,11 +144,11 @@ Examples of foundational tasks (adjust based on your project):
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T032 [P] Documentation updates: Update `docs/research.md` with the final inflection point value from `data/analysis/statistical_report.json` and `docs/quickstart.md` with execution steps
-- [ ] T033 Code cleanup: Refactor `data/preprocess.py` to extract city-filtering logic into a separate function
-- [ ] T034 Performance optimization: Profile and optimize the top-N neighbor retrieval in `models/lightweight.py` to reduce latency to <X ms
-- [ ] T035 [P] Additional unit tests: Add unit tests for `graph_utils.py::compute_betweenness_centrality` in `tests/unit/test_graph_utils.py`
-- [ ] T036 [P] Run `quickstart.md` validation: Execute the commands in `docs/quickstart.md` in a fresh virtualenv and verify that `data/analysis/profiling_report.json` is generated with no errors
+- [ ] T033 [P] Documentation updates: Update `docs/research.md` with the final inflection point value from `data/analysis/statistical_report.json` and `docs/quickstart.md` with execution steps
+- [ ] T034 Code cleanup: Refactor `data/preprocess.py` to extract city-filtering logic into a separate function
+- [ ] T035 [P] Performance optimization: Profile and optimize the top-N neighbor retrieval in `models/lightweight.py` to reduce latency to ≤60 seconds per batch
+- [ ] T036 [P] Additional unit tests: Add unit tests for `graph_utils.py::compute_betweenness_centrality` in `tests/unit/test_graph_utils.py`
+- [ ] T037 [P] Run `quickstart.md` validation: Execute the commands in `docs/quickstart.md` in a fresh virtualenv and verify that `data/analysis/profiling_report.json` is generated with no errors
 
 ---
 
@@ -158,16 +158,16 @@ Examples of foundational tasks (adjust based on your project):
 
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - **BLOCKS all user stories**
-  - **CRITICAL**: Task T006 is a **hard blocking gate**. If T006 validation fails, Phase 3 tasks (T011+) are strictly prohibited from starting.
-  - **Sequential Flow**: T004 (Download) → T006 (Preprocess & Validate) → T005 (Graph Metrics). T005 cannot run in parallel with T006.
+ - **CRITICAL**: Task T006 is a **hard blocking gate**. If T006 validation fails, Phase 3 tasks (T012+) are strictly prohibited from starting.
+ - **Sequential Flow**: T004 (Download) → T006 (Preprocess) → T007 (Graph Validation). T007 cannot run in parallel with T006.
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion (specifically T006 passing)
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
 
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - **Depends on T005 (per-route metrics) and T006 (valid graph)**
+- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - **Depends on T007 (graph validation) and T015 (per-route metrics)**
 - **User Story 2 (P2)**: Can start after Foundational (Phase 2) - May integrate with US1 but should be independently testable
 - **User Story 3 (P3)**: Can start after Foundational (Phase 2) - May integrate with US1/US2 but should be independently testable
 
@@ -182,7 +182,7 @@ Examples of foundational tasks (adjust based on your project):
 ### Parallel Opportunities
 
 - All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2) **EXCEPT T005 which depends on T006**
+- All Foundational tasks marked [P] can run in parallel (within Phase 2) **EXCEPT T007 which depends on T006**
 - Once Foundational phase completes (and T006 passes), all user stories can start in parallel (if team capacity allows)
 - All tests for a user story marked [P] can run in parallel
 - Models within a story marked [P] can run in parallel
@@ -228,9 +228,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1
-   - Developer B: User Story 2
-   - Developer C: User Story 3
+ - Developer A: User Story 1
+ - Developer B: User Story 2
+ - Developer C: User Story 3
 3. Stories complete and integrate independently
 
 ---
