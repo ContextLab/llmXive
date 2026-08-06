@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-07-12T18:37:43Z",
+  "fetched_at": "2026-08-05T23:27:22Z",
   "field": "computer science",
   "prompt_version": "1.6.0",
   "result": {
@@ -9,8 +9,8 @@
       "idea_body_excerpt": "llmXive follow-up: extending \"The Mirage of Optimizing Training Policies: Monotonic Inference Polici\"",
       "target_n": 5
     },
-    "duration_seconds": 46.618,
-    "ended_at": "2026-07-12T18:37:43Z",
+    "duration_seconds": 39.016,
+    "ended_at": "2026-08-05T23:27:22Z",
     "expansion": {
       "expanded_terms_ranked": [
         [
@@ -23,75 +23,75 @@
         ],
         [
           3,
-          "inference-time optimization versus training-time optimization in LLMs"
+          "inference-time optimization strategies for large language models"
         ],
         [
           4,
-          "training policy mirage in generative models"
+          "static versus dynamic inference policies in transformer models"
         ],
         [
           5,
-          "static inference policies for large language models"
+          "training-inference gap in large language models"
         ],
         [
           6,
-          "non-optimality of training-time alignment strategies"
+          "monotonicity constraints in language model decoding"
         ],
         [
           7,
-          "inference-only improvements for LLM performance"
+          "efficiency of inference-only optimization in LLMs"
         ],
         [
           8,
-          "disconnect between training objectives and inference outcomes in LLMs"
+          "re-evaluating training policy search for inference performance"
         ],
         [
           9,
-          "policy optimization failures in large language model training"
+          "decoding policy optimization without retraining"
         ],
         [
           10,
-          "monotonicity constraints in LLM inference strategies"
+          "theoretical bounds on inference policy improvement"
         ],
         [
           11,
-          "training-free optimization methods for large language models"
+          "cost-effective inference strategies for foundation models"
         ],
         [
           12,
-          "evaluating the efficacy of training policy adjustments in LLMs"
+          "search-free inference optimization for LLMs"
         ],
         [
           13,
-          "inference policy design without retraining"
+          "trade-offs between training investment and inference gains"
         ],
         [
           14,
-          "theoretical limits of training policy optimization in generative AI"
+          "monotonic decoding trajectories in autoregressive models"
         ],
         [
           15,
-          "stability of inference policies across different training regimes"
+          "zero-shot inference policy refinement"
         ],
         [
           16,
-          "alternative approaches to LLM alignment beyond training optimization"
+          "evaluating the efficacy of training policy heuristics"
         ],
         [
           17,
-          "robustness of monotonic inference strategies in LLMs"
+          "inference-centric model optimization techniques"
         ],
         [
           18,
-          "comparative analysis of training versus inference policy adjustments"
+          "diminishing returns in LLM training policy tuning"
         ],
         [
           19,
-          "diminishing returns in LLM training policy optimization"
+          "adaptive inference policies versus fixed training policies"
         ],
         [
           20,
-          "structural constraints on LLM inference policy improvement"
+          "algorithmic improvements for LLM inference latency"
         ]
       ],
       "original_term": "",
@@ -102,11 +102,11 @@
       "total_queries_issued": 1
     },
     "extracted_queries": [
-      "inference compute budget scaling laws",
-      "LLM training policy non-monotonic reward",
-      "test-time compute allocation strategies",
-      "inference-time scaling dynamic policy optimization",
-      "diminishing returns compute scaling regime"
+      "inference policy monotonicity training dynamics",
+      "greedy decoding beam search temperature scaling",
+      "autoregressive generation policy gradient instability",
+      "inference cost compute-accuracy trade-off benchmark",
+      "training-inference gap distributional shift"
     ],
     "failure_reason": null,
     "librarian_prompt_version": "1.6.0",
@@ -124,12 +124,12 @@
       ]
     },
     "per_query_hit_count": {
-      "LLM training policy non-monotonic reward": 3,
-      "diminishing returns compute scaling regime": 3,
-      "inference compute budget scaling laws": 3,
-      "inference-time scaling dynamic policy optimization": 3,
+      "autoregressive generation policy gradient instability": 2,
+      "greedy decoding beam search temperature scaling": 3,
+      "inference cost compute-accuracy trade-off benchmark": 3,
+      "inference policy monotonicity training dynamics": 3,
       "llmXive follow-up: extending \"The Mirage of Optimizing Training Policies: Monotonic Inference Polici\" computer science": 3,
-      "test-time compute allocation strategies": 3
+      "training-inference gap distributional shift": 3
     },
     "relevance_judge": {
       "enabled": true,
@@ -159,7 +159,7 @@
       ]
     },
     "schema_version": "1.0.0",
-    "started_at": "2026-07-12T18:36:56Z",
+    "started_at": "2026-08-05T23:26:43Z",
     "term_input": {
       "normalized": "llmxive follow-up: extending \"the mirage of optimizing training policies: monotonic inference polici\" computer science",
       "raw": "llmXive follow-up: extending \"The Mirage of Optimizing Training Policies: Monotonic Inference Polici\" computer science"
@@ -178,7 +178,7 @@
           "primary_pointer": "1211.0310"
         },
         "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"The Mirage of Optimizing Training Policies: Monoto', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
-        "failed_at": "2026-07-12T18:37:24Z",
+        "failed_at": "2026-08-05T23:27:13Z",
         "reason": "query_irrelevant"
       },
       {
@@ -197,7 +197,7 @@
           "primary_pointer": "2512.16152"
         },
         "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"The Mirage of Optimizing Training Policies: Monoto', candidate_title='Pulsar Science with the SKA Observatory')",
-        "failed_at": "2026-07-12T18:37:24Z",
+        "failed_at": "2026-08-05T23:27:13Z",
         "reason": "query_irrelevant"
       },
       {
@@ -215,346 +215,280 @@
           "primary_pointer": "1002.2191"
         },
         "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"The Mirage of Optimizing Training Policies: Monoto', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
-        "failed_at": "2026-07-12T18:37:24Z",
+        "failed_at": "2026-08-05T23:27:13Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Deep neural networks exhibit empirical neural scaling laws, with error decreasing as a power law with increasing model or data size, across a wide variety of architectures, tasks, and datasets. This universality suggests that scaling laws may result from general properties of natural learning tasks. We develop a mathematical model intended to describe natural datasets using percolation theory. Two distinct criticality regimes emerge, each yielding optimal power-law neural scaling laws. These regimes, corresponding to power-law-distributed discrete subtasks and a dominant data manifold, can be associated with previously proposed theories of neural scaling, thereby grounding and unifying prior works. We test the theory by training regression models on toy datasets derived from percolation theory simulations. We suggest directions for quantitatively predicting language model scaling.",
+          "claimed_abstract": "Explainability is highly-desired in Machine Learning (ML) systems supporting high-stakes policy decisions in areas such as health, criminal justice, education, and employment. While the field of explainable ML has expanded in recent years, much of this work has not taken real-world needs into account. A majority of proposed methods are designed with \\textit{generic} explainability goals without well-defined use-cases or intended end-users and evaluated on simplified tasks, benchmark problems/datasets, or with proxy users (e.g., AMT). We argue that these simplified evaluation settings do not capture the nuances and complexities of real-world applications. As a result, the applicability and effectiveness of this large body of theoretical and methodological work in real-world applications are unclear. In this work, we take steps toward addressing this gap for the domain of public policy. First, we identify the primary use-cases of explainable ML within public policy problems. For each use case, we define the end-users of explanations and the specific goals the explanations have to fulfill. Finally, we map existing work in explainable ML to these use-cases, identify gaps in established capabilities, and propose research directions to fill those gaps to have a practical societal impact through ML. The contribution is 1) a methodology for explainable ML researchers to identify use cases and develop methods targeted at them and 2) using that methodology for the domain of public policy and giving an example for the researchers on developing explainable ML methods that result in real-world impact.",
           "claimed_authors": [
-            "Ari Brill"
+            "Kasun Amarasinghe",
+            "Kit Rodolfa",
+            "Hemank Lamba",
+            "Rayid Ghani"
           ],
-          "claimed_title": "Neural Scaling Laws Rooted in the Data Distribution",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2024,
-          "primary_pointer": "2412.07942"
-        },
-        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"The Mirage of Optimizing Training Policies: Monoto', candidate_title='Neural Scaling Laws Rooted in the Data Distribution')",
-        "failed_at": "2026-07-12T18:37:24Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "We find that the cross-entropy loss curves of neural language models empirically adhere to a scaling law with learning rate (LR) annealing over training steps: $$L(s) = L_0 + A\\cdot S_1^{-α} - C\\cdot S_2,$$ where $L(s)$ is the validation loss at step $s$, $S_1$ is the area under the LR curve, $S_2$ is the LR annealing area, and $L_0$, $A$, $C$, $α$ are constant parameters. This formulation takes into account two factors: (1) power-law scaling over data size, and (2) the additional loss reduction during LR annealing. Therefore, this formulation can describe the full loss curve at each step, rather than the single loss point at the end of training. Applying the scaling law with LR annealing and fitting only one or two training curves, we can accurately predict the loss at any given step across any learning rate scheduler (LRS). This approach significantly reduces computational cost in formulating scaling laws while providing more accuracy and expressiveness for training dynamics. Extensive experiments demonstrate that our findings hold across a range of hyper-parameters and model architectures, and our equation can extend to scaling effect of model sizes. Moreover, our formulation provides accurate theoretical verification and explanation for empirical results observed in numerous previous studies, particularly those focusing on LR schedule and annealing. We believe that this work is promising to enhance the understanding of LLM training dynamics while greatly democratizing scaling laws, and it can guide researchers in refining training strategies (e.g. critical LRS) for further LLMs.",
-          "claimed_authors": [
-            "Howe Tissue",
-            "Venus Wang",
-            "Lu Wang"
-          ],
-          "claimed_title": "Scaling Law with Learning Rate Annealing",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2024,
-          "primary_pointer": "2408.11029"
-        },
-        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"The Mirage of Optimizing Training Policies: Monoto', candidate_title='Scaling Law with Learning Rate Annealing')",
-        "failed_at": "2026-07-12T18:37:24Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "In the era of Explainable Artificial Intelligence, there is a renewed focus on single trees for their ease of interpretation. This paper introduces Simultaneous Latent Budget Trees, a probabilistic machine learning framework for classification trees in the presence of a stratification factor such as a temporal, spatial, or demographic variable, acting as a control variable or potential confounder. Standard tree growth procedures are not designed to optimize a conditional split rule. A model-based split rule is proposed in which child nodes are interpreted as latent components of a simultaneous mixture model, such as the Simultaneous Latent Budget Model and its constrained versions, fitted to the parent node. Mixing parameters drive the observations, differently for each group, to the child nodes whereas latent budgets parameters update the response classes profile of each level of the control variable. Parameters are estimated by least squares considering a neural network perspective of the model. An informative tree structure can be interactively visualized with interpretation aids on the node and the paths, including visual pruning and decision tree selection procedure. Suitable measures are proposed to handle an unbalanced response class distribution. The proposed methodology is applied to investigate gender-related differences in disease progression of Amyotrophic Lateral Sclerosis. The SLBT library with the various tree-based algorithms is available in the linked GitHub repository.",
-          "claimed_authors": [
-            "Simultaneous Latent Budget Trees for Stratified Classification Cristian Buoncompagni",
-            "Stefano Pellegrino",
-            "Giulia Vannucci",
-            "Raffaele Dubbioso",
-            "Roberta Siciliano"
-          ],
-          "claimed_title": "Simultaneous Latent Budget Trees for Stratified Classification",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2026,
-          "primary_pointer": "2606.13295"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"The Mirage of Optimizing Training Policies: Monoto', candidate_title='Simultaneous Latent Budget Trees for Stratified Classification')",
-        "failed_at": "2026-07-12T18:37:24Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Inverse Reinforcement Learning (IRL) learns a reward function to explain expert demonstrations. Modern IRL methods often use the adversarial (minimax) formulation that alternates between reward and policy optimization, which often lead to unstable training. Recent non-adversarial IRL approaches improve stability by jointly learning reward and policy via energy-based formulations but lack formal guarantees. This work bridges this gap. We first present a unified view showing canonical non-adversarial methods explicitly or implicitly maximize the likelihood of expert behavior, which is equivalent to minimizing the expected return gap. This insight leads to our main contribution: Trust Region Reward Optimization (TRRO), a framework that guarantees monotonic improvement in this likelihood via a Minorization-Maximization process. We instantiate TRRO into Proximal Inverse Reward Optimization (PIRO), a practical and stable IRL algorithm. Theoretically, TRRO provides the IRL counterpart to the stability guarantees of Trust Region Policy Optimization (TRPO) in forward RL. Empirically, PIRO matches or surpasses state-of-the-art baselines in reward recovery, policy imitation with high sample efficiency on MuJoCo and Gym-Robotics benchmarks and a real-world animal behavior modeling task.",
-          "claimed_authors": [
-            "Yang Chen",
-            "Menglin Zou",
-            "Jiaqi Zhang",
-            "Yitan Zhang",
-            "Junyi Yang",
-            "Gael Gendron",
-            "Libo Zhang",
-            "Jiamou Liu",
-            "Michael J. Witbrock"
-          ],
-          "claimed_title": "Trust Region Reward Optimization and Proximal Inverse Reward Optimization Algorithm",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2509.23135"
-        },
-        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"The Mirage of Optimizing Training Policies: Monoto', candidate_title='Trust Region Reward Optimization and Proximal Inverse Reward Optimization Algorithm')",
-        "failed_at": "2026-07-12T18:37:24Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "The composition of training data, governed by the diversity of sources and their mixing strategy, is a cornerstone of Large Language Model (LLM) pre-training. Online Data Mixing (ODM), the technique of adaptively adjusting data mixtures during training, has emerged as a promising direction to improve efficiency. However, existing methods are constrained by their reliance on a singular optimization perspective, which fundamentally overlooks the need for complex LLM pre-training to consider the dynamic data composition from multiple dimensions. To overcome this limitation, we introduce the Holistic Data Scheduler (HDS), a novel online data mixing framework. HDS formulates the data scheduling challenge as a reinforcement learning problem in a continuous control space and leverages the Soft Actor-Critic (SAC) algorithm for its stability and sample efficiency in exploring the high-dimensional policy space. At the core of HDS lies a novel multi-objective, holistic reward function that integrates three critical perspectives: a data-driven reward for quality, a loss-driven reward capturing inter-domain influence, and a model-driven reward based on weight norms. To validate our design and determine its optimal configuration, we conducted systematic experiments on LLMs of various sizes. On The Pile benchmark, HDS reaches the final validation perplexity of the next best method with 44% fewer training iterations. Furthermore, it achieves a 7.2% improvement on the MMLU 0-shot task along with consistent gains on other benchmarks, showcasing its ability to enhance both training efficiency and final model capability.",
-          "claimed_authors": [
-            "Chenhao Dang",
-            "Jing Ma",
-            "Mingjie Liao"
-          ],
-          "claimed_title": "Holistic Data Scheduler for LLM Pre-training via Multi-Objective Reinforcement Learning",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2026,
-          "primary_pointer": "2606.24133"
-        },
-        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"The Mirage of Optimizing Training Policies: Monoto', candidate_title='Holistic Data Scheduler for LLM Pre-training via Multi-Objective Reinforcement Learning')",
-        "failed_at": "2026-07-12T18:37:24Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Large language models (LLMs) drive significant financial innovations, yet their high-concurrency deployment is severely bottlenecked by KV cache memory overhead, which inflates infrastructure costs and throttles scalability. To address this, we propose YouZhi-LLM, a highly efficient financial LLM empowered by a comprehensive structural transition and training pipeline natively built on the Huawei Ascend ecosystem. At its algorithmic core, YouZhi-LLM features a layer-adaptive GQA-to-MLA transition framework that dynamically assigns per-layer FreqFold sizes, maximizing KV-cache compression while minimizing perplexity degradation. To recover representation capacity and inject domain expertise, the Ascend-based training pipeline seamlessly integrates generalized knowledge distillation with financial-specific supervised fine-tuning. Evaluations demonstrate the superiority of this systematic approach, with the adaptive transition reducing perplexity degradation by up to 35% over uniform baselines. Crucially, when evaluated on Ascend NPUs via vLLM-Ascend, the massive KV-cache reduction translates directly into deployment efficiency. Compared to their respective base models, YouZhi-7B yields a 12.3% improvement in average financial benchmark score alongside a 2.69$\\times$ increase in maximum concurrency; similarly, YouZhi-14B achieves a 7.0% accuracy gain and a 2.43$\\times$ concurrency boost, establishing a new paradigm for cost-effective, high-throughput financial inference.",
-          "claimed_authors": [
-            " PSBC LLM Team",
-            " Huawei LLM Team",
-            "Ruihan Long",
-            "Junjie Wu",
-            "Tianan Zhang",
-            "Duo Zhang",
-            "Yaozong Wu",
-            "Jinbin Fu",
-            "Chang Liu",
-            "Zhentao Tang",
-            "Wenshuang Yang",
-            "Xin Wang",
-            "Zhihao Song",
-            "Ning Huang",
-            "Wenjing Xu",
-            "Shuai Zong",
-            "Shupei Sun",
-            "Sen Wang",
-            "Jing Hu",
-            "Bin Wang",
-            "Xinyu Wang",
-            "Junkui Ju",
-            "Zequn Ding",
-            "Jie Ran",
-            "Man Luo",
-            "Shixiong Kai",
-            "Linkai Hou",
-            "Kaichao Liang",
-            "Hu Zhao",
-            "Yang Zhao",
-            "Shucheng Lin",
-            "Wei Yu",
-            "Chenghan Jiang",
-            "Jingjing Ding",
-            "Jiahui Zhang",
-            "Tian Jin",
-            "Yuhang Zhang",
-            "Dong Guo",
-            "Wei Sun",
-            "Jun Xie",
-            "Jianwei Li",
-            "Lei Cao",
-            "Pei Li",
-            "Jiabin Li",
-            "Jia Yuan",
-            "Rui Yuan",
-            "Jing Zhu",
-            "Mingxuan Yuan",
-            "Zhangcheng Lv",
-            "Xin Jiang",
-            "Xiuhong Fei",
-            "Xiaozhe Ren",
-            "Yulong Li",
-            "Zhipeng Zhang",
-            "Hang Wang",
-            "Zhaohui Xu",
-            "Rui Zhao",
-            "Yibo He",
-            "Xinzhuang Niu"
-          ],
-          "claimed_title": "YouZhi: Towards High-Concurrency Financial LLMs via Adaptive GQA-to-MLA Transition",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2026,
-          "primary_pointer": "2606.05868"
-        },
-        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"The Mirage of Optimizing Training Policies: Monoto', candidate_title='YouZhi: Towards High-Concurrency Financial LLMs via Adaptive GQA-to-MLA Transition')",
-        "failed_at": "2026-07-12T18:37:24Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Scaling test-time compute has emerged as a key ingredient for enabling large language models (LLMs) to solve difficult problems, but comes with high latency and inference cost. We introduce sleep-time compute, which allows models to \"think\" offline about contexts before queries are presented: by anticipating what queries users might ask and pre-computing useful quantities, we can significantly reduce the compute requirements at test-time. To demonstrate the efficacy of our method, we create modified versions of two reasoning tasks - Stateful GSM-Symbolic and Stateful AIME. We find that sleep-time compute can reduce the amount of test-time compute needed to achieve the same accuracy by ~ 5x on Stateful GSM-Symbolic and Stateful AIME and that by scaling sleep-time compute we can further increase accuracy by up to 13% on Stateful GSM-Symbolic and 18% on Stateful AIME. Furthermore, we introduce Multi-Query GSM-Symbolic, which extends GSM-Symbolic by including multiple related queries per context. By amortizing sleep-time compute across related queries about the same context using Multi-Query GSM-Symbolic, we can decrease the average cost per query by 2.5x. We then conduct additional analysis to understand when sleep-time compute is most effective, finding the predictability of the user query to be well correlated with the efficacy of sleep-time compute. Finally, we conduct a case-study of applying sleep-time compute to a realistic agentic SWE task.",
-          "claimed_authors": [
-            "Kevin Lin",
-            "Charlie Snell",
-            "Yu Wang",
-            "Charles Packer",
-            "Sarah Wooders",
-            "Ion Stoica",
-            "Joseph E. Gonzalez"
-          ],
-          "claimed_title": "Sleep-time Compute: Beyond Inference Scaling at Test-time",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2504.13171"
-        },
-        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"The Mirage of Optimizing Training Policies: Monoto', candidate_title='Sleep-time Compute: Beyond Inference Scaling at Test-time')",
-        "failed_at": "2026-07-12T18:37:24Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Test-time training (TTT) adapts language models through gradient-based updates at inference. But is adaptation the right strategy? We study compute-optimal test-time strategies for verifiable execution-grounded (VEG) tasks, domains like GPU kernel optimization where a deterministic evaluator provides dense, continuous reward signals. Using KernelBench as our testbed and a 120B-parameter model (GPT-OSS-120B with LoRA adaptation), we find that search outperforms minimal adaptation (1-5 gradient steps): Best-of-N sampling achieves 90% task success (18/20 tasks) at K=64 across the full KernelBench L1 eval set while TTT's best checkpoint reaches only 30.6% (3-seed mean), with TTT's \"equivalent K\" falling below 1, worse than single-sample inference. The failure mode is over-sharpening: gradient updates collapse diversity toward mediocre solutions rather than discovering optimal ones. Our main contribution is surprisal-guided selection: selecting the highest-surprisal (lowest-confidence) correct sample yields 80% success vs. 50% for most-confident selection, a 30% improvement. Extending to surprisal-guided-top3 matches oracle performance at 100%. This zero-cost strategy, validated through length-controlled analysis, recovers oracle performance. For dense-reward VEG tasks, compute should be allocated to sample diversity and intelligent selection rather than gradient adaptation. The surprisal-guided selection principle may generalize to other execution-grounded domains where optimal solutions occupy the distribution tail.",
-          "claimed_authors": [
-            "Jarrod Barnes"
-          ],
-          "claimed_title": "Surprisal-Guided Selection: Compute-Optimal Test-Time Strategies for Execution-Grounded Code Generation",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2026,
-          "primary_pointer": "2602.07670"
-        },
-        "details": "query-relevance 0.250 < 0.3 (query='llmXive follow-up: extending \"The Mirage of Optimizing Training Policies: Monoto', candidate_title='Surprisal-Guided Selection: Compute-Optimal Test-Time Strategies for Execution-Grounded Code Generation')",
-        "failed_at": "2026-07-12T18:37:24Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "The Nancy Grace Roman Space Telescope is poised to revolutionize our scientific understanding of exoplanets, dark matter, dark energy, and general astrophysics, including through an innovative community approach to defining and executing sky surveys. The Roman Observations Time Allocation Committee (ROTAC) was convened to recommend time allocations for the three Core Community Surveys (CCS) using the Wide Field Instrument (WFI): the High Latitude Wide Area Survey, the High Latitude Time Domain Survey, and the Galactic Bulge Time Domain Survey, as well as balance the time allocation for the General Astrophysics Surveys. Each CCS had a corresponding Definition Committee that collected community input and designed proposals for a nominal (in-guide) survey, as well as underguide and overguide options with smaller and larger time allocations, respectively. These options explored different ways of fulfilling the mission science requirements while maximizing general astrophysics science goals enabled by the surveys. In this report, the ROTAC lays out its recommendations for the three CCS observing designs and the WFI time allotment for CCS (74.5%) and the General Astrophysics Surveys (25.5%).",
-          "claimed_authors": [
-            "Roman Observations Time Allocation Committee",
-            "Core Community Survey Definition Committees"
-          ],
-          "claimed_title": "Roman Observations Time Allocation Committee: Final Report and Recommendations",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2505.10574"
-        },
-        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"The Mirage of Optimizing Training Policies: Monoto', candidate_title='Roman Observations Time Allocation Committee: Final Report and Recommendations')",
-        "failed_at": "2026-07-12T18:37:24Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "We propose an inference-time scaling approach for pretrained flow models. Recently, inference-time scaling has gained significant attention in LLMs and diffusion models, improving sample quality or better aligning outputs with user preferences by leveraging additional computation. For diffusion models, particle sampling has allowed more efficient scaling due to the stochasticity at intermediate denoising steps. On the contrary, while flow models have gained popularity as an alternative to diffusion models--offering faster generation and high-quality outputs in state-of-the-art image and video generative models--efficient inference-time scaling methods used for diffusion models cannot be directly applied due to their deterministic generative process. To enable efficient inference-time scaling for flow models, we propose three key ideas: 1) SDE-based generation, enabling particle sampling in flow models, 2) Interpolant conversion, broadening the search space and enhancing sample diversity, and 3) Rollover Budget Forcing (RBF), an adaptive allocation of computational resources across timesteps to maximize budget utilization. Our experiments show that SDE-based generation, particularly variance-preserving (VP) interpolant-based generation, improves the performance of particle sampling methods for inference-time scaling in flow models. Additionally, we demonstrate that RBF with VP-SDE achieves the best performance, outperforming all previous inference-time scaling approaches.",
-          "claimed_authors": [
-            "Jaihoon Kim",
-            "Taehoon Yoon",
-            "Jisung Hwang",
-            "Minhyuk Sung"
-          ],
-          "claimed_title": "Inference-Time Scaling for Flow Models via Stochastic Generation and Rollover Budget Forcing",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2503.19385"
-        },
-        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"The Mirage of Optimizing Training Policies: Monoto', candidate_title='Inference-Time Scaling for Flow Models via Stochastic Generation and Rollover Budget Forcing')",
-        "failed_at": "2026-07-12T18:37:24Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Interest in components with detailed structures increased with the progress in advanced manufacturing techniques in recent years. Parts with graded lattice elements can provide interesting mechanical, thermal, and acoustic properties compared to parts where only coarse features are included. One of these improvements is better global buckling resistance of the component. However, thin features are prone to local buckling. Normally, analyses with high computational effort are conducted on high-resolution finite element meshes to optimize parts with good global and local stability. Until recently, works focused only on either global or local buckling behavior. We use two-scale optimization based on asymptotic homogenization of elastic properties and local buckling behavior to reduce the effort of full-scale analyses. For this, we present an approach for concurrent local and global buckling optimization of parameterized graded lattice structures. It is based on a worst-case model for the homogenized buckling load factor, which acts as a safeguard against pure local buckling. Cross-modes residing on both scales are not detected. We support our theory with numerical examples and validations on dehomogenized designs, which show the capabilities of our method, and discuss the advantages and limitations of the worst-case model.",
-          "claimed_authors": [
-            "Daniel Hübner",
-            "Fabian Wein",
-            "Michael Stingl"
-          ],
-          "claimed_title": "Two-Scale Optimization of Graded Lattice Structures respecting Buckling on Micro- and Macroscale",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2023,
-          "primary_pointer": "2303.08710"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"The Mirage of Optimizing Training Policies: Monoto', candidate_title='Two-Scale Optimization of Graded Lattice Structures respecting Buckling on Micro- and Macroscale')",
-        "failed_at": "2026-07-12T18:37:24Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Mass public quarantining, colloquially known as a lock-down, is a non-pharmaceutical intervention to check spread of disease. This paper presents ESOP (Epidemiologically and Socio-economically Optimal Policies), a novel application of active machine learning techniques using Bayesian optimization, that interacts with an epidemiological model to arrive at lock-down schedules that optimally balance public health benefits and socio-economic downsides of reduced economic activity during lock-down periods. The utility of ESOP is demonstrated using case studies with VIPER (Virus-Individual-Policy-EnviRonment), a stochastic agent-based simulator that this paper also proposes. However, ESOP is flexible enough to interact with arbitrary epidemiological simulators in a black-box manner, and produce schedules that involve multiple phases of lock-downs.",
-          "claimed_authors": [
-            "Amit Chandak",
-            "Debojyoti Dey",
-            "Bhaskar Mukhoty",
-            "Purushottam Kar"
-          ],
-          "claimed_title": "Epidemiologically and Socio-economically Optimal Policies via Bayesian Optimization",
+          "claimed_title": "Explainable Machine Learning for Public Policy: Use Cases, Gaps, and Research Directions",
           "claimed_venue": "arXiv",
           "claimed_year": 2020,
-          "primary_pointer": "2005.11257"
+          "primary_pointer": "2010.14374"
         },
-        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"The Mirage of Optimizing Training Policies: Monoto', candidate_title='Epidemiologically and Socio-economically Optimal Policies via Bayesian Optimization')",
-        "failed_at": "2026-07-12T18:37:24Z",
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"The Mirage of Optimizing Training Policies: Monoto', candidate_title='Explainable Machine Learning for Public Policy: Use Cases, Gaps, and Research Directions')",
+        "failed_at": "2026-08-05T23:27:13Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Dramatic increases in the capabilities of neural network models in recent years are driven by scaling model size, training data, and corresponding computational resources. To develop the exceedingly large networks required in modern applications, such as large language models (LLMs), model training is distributed across tens of thousands of hardware accelerators (e.g. GPUs), requiring orchestration of computation and communication across large computing clusters. In this work, we demonstrate that careful consideration of hardware configuration and parallelization strategy is critical for effective (i.e. compute- and cost-efficient) scaling of model size, training data, and total computation. We conduct an extensive empirical study of the performance of large-scale LLM training workloads across model size, hardware configurations, and distributed parallelization strategies. We demonstrate that: (1) beyond certain scales, overhead incurred from certain distributed communication strategies leads parallelization strategies previously thought to be sub-optimal in fact become preferable; and (2) scaling the total number of accelerators for large model training quickly yields diminishing returns even when hardware and parallelization strategies are properly optimized, implying poor marginal performance per additional unit of power or GPU-hour.",
+          "claimed_abstract": "Scientific research and engineering practice often require the modeling and decomposition of nonlinear systems. The Dynamic Mode Decomposition (DMD) is a novel Koopman-based technique that effectively dissects high-dimensional nonlinear systems into periodically distinct constituents on reduced-order subspaces. As a novel mathematical hatchling, the DMD bears vast potentials yet an equal degree of unknown. This serial effort investigates the nuances of DMD sampling with an engineering-oriented emphasis. This Part I aimed at elucidating how sampling range and resolution affect the convergence of DMD modes. We employed the most classical nonlinear system in fluid mechanics as the test subject--the turbulent free-shear flow over a prism--for optimal pertinency. We numerically simulated the flow by the dynamic-stress Large-Eddies Simulation with Near-Wall Resolution. With the large-quantity, high-fidelity data, we parametrized and identified four global convergence states: Initialization, Transition, Stabilization, and Divergence with increasing sampling range. Results showed that the Stabilization is the optimal state for modal convergence, in which DMD output becomes independent of the sampling range. The Initialization state also yields sufficient accuracy for most system reconstruction tasks. Moreover, defying popular beliefs, over-sampling causes algorithmic instability: as the temporal dimension, n, approaches and transcends the spatial dimension, m (i.e., m < n), the output diverges and becomes meaningless. Additionally, the convergence of the sampling resolution depends on the mode-specific dynamics, such that the resolution of 15 frames per cycle for target activities is suggested for most engineering implementations. Finally, a bi-parametric study revealed that the convergence of the sampling range and resolution are mutually independent.",
           "claimed_authors": [
-            "Jared Fernandez",
-            "Luca Wehrstedt",
-            "Leonid Shamis",
-            "Mostafa Elhoushi",
-            "Kalyan Saladi",
-            "Yonatan Bisk",
-            "Emma Strubell",
-            "Jacob Kahn"
+            "Cruz Y. Li",
+            "Zengshun Chen",
+            "Tim K. T. Tse",
+            "Asiri Umenga Weerasuriya",
+            "Xuelin Zhang",
+            "Yunfei Fu",
+            "Xisheng Lin"
           ],
-          "claimed_title": "Hardware Scaling Trends and Diminishing Returns in Large-Scale Distributed Training",
+          "claimed_title": "A Parametric and Feasibility Study for Data Sampling of the Dynamic Mode Decomposition--Range, Resolution, and Universal Convergence States",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2110.06573"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"The Mirage of Optimizing Training Policies: Monoto', candidate_title='A Parametric and Feasibility Study for Data Sampling of the Dynamic Mode Decomposition--Range, Resolution, and Universal Convergence States')",
+        "failed_at": "2026-08-05T23:27:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This study explores the potential of using training dynamics as an automated alternative to human annotation for evaluating the quality of training data. The framework used is Data Maps, which classifies data points into categories such as easy-to-learn, hard-to-learn, and ambiguous (Swayamdipta et al., 2020). Swayamdipta et al. (2020) highlight that difficult-to-learn examples often contain errors, and ambiguous cases significantly impact model training. To confirm the reliability of these findings, we replicated the experiments using a challenging dataset, with a focus on medical question answering. In addition to text comprehension, this field requires the acquisition of detailed medical knowledge, which further complicates the task. A comprehensive evaluation was conducted to assess the feasibility and transferability of the Data Maps framework to the medical domain. The evaluation indicates that the framework is unsuitable for addressing datasets' unique challenges in answering medical questions.",
+          "claimed_authors": [
+            "Laura Wenderoth"
+          ],
+          "claimed_title": "Diagnosing Medical Datasets with Training Dynamics",
           "claimed_venue": "arXiv",
           "claimed_year": 2024,
-          "primary_pointer": "2411.13055"
+          "primary_pointer": "2411.01653"
         },
-        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"The Mirage of Optimizing Training Policies: Monoto', candidate_title='Hardware Scaling Trends and Diminishing Returns in Large-Scale Distributed Training')",
-        "failed_at": "2026-07-12T18:37:24Z",
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"The Mirage of Optimizing Training Policies: Monoto', candidate_title='Diagnosing Medical Datasets with Training Dynamics')",
+        "failed_at": "2026-08-05T23:27:13Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "While deep neural networks have demonstrated groundbreaking performance in various settings, these models often suffer from \\emph{catastrophic forgetting} when trained on new tasks in sequence. Several works have empirically demonstrated that increasing the width of a neural network leads to a decrease in catastrophic forgetting but have yet to characterize the exact relationship between width and continual learning. We design one of the first frameworks to analyze Continual Learning Theory and prove that width is directly related to forgetting in Feed-Forward Networks (FFN). Specifically, we demonstrate that increasing network widths to reduce forgetting yields diminishing returns. We empirically verify our claims at widths hitherto unexplored in prior studies where the diminishing returns are clearly observed as predicted by our theory.",
+          "claimed_abstract": "We discuss the various beam dynamics problems in muon collider systems, starting from the proton accelerator needed to generate the muon beams and proceeding through the muon storage ring.",
           "claimed_authors": [
-            "Etash Guha",
-            "Vihan Lakshman"
+            "R. B. Palmer",
+            "J. C. Gallardo",
+            "R. C. Fernow",
+            "H. Kirk",
+            "I. Stumer",
+            "Y. Y. Lee",
+            "M. Syphers",
+            "Y. Torun",
+            "D. Winn",
+            "D. Neuffer",
+            "Y. Cho",
+            "J. Norem",
+            "N. Mokhov",
+            "R. Noble",
+            "A. Tollestrup",
+            "R. Scanlan",
+            "S. Caspi",
+            "O. Napoly"
           ],
-          "claimed_title": "On the Diminishing Returns of Width for Continual Learning",
+          "claimed_title": "Beam Dynamics problems in a muon collider",
           "claimed_venue": "arXiv",
-          "claimed_year": 2024,
-          "primary_pointer": "2403.06398"
+          "claimed_year": 1995,
+          "primary_pointer": "acc-phys/9503002"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"The Mirage of Optimizing Training Policies: Monoto', candidate_title='On the Diminishing Returns of Width for Continual Learning')",
-        "failed_at": "2026-07-12T18:37:24Z",
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"The Mirage of Optimizing Training Policies: Monoto', candidate_title='Beam Dynamics problems in a muon collider')",
+        "failed_at": "2026-08-05T23:27:13Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Maximal strength increases with body weight, this is why scoring methods have been developed in order to fairly scale powerlifting performances based on athletes' body weight. The International Powerlifting Federation (IPF) Good Lift (GL) system, introduced in 2020, is a scaling method based on a Von Bertalanffy function. It is specifically tailored to elite powerlifters; defined as those achieving at least 84% of the current world record in their weight class, according to the IPF's \"Golden Standard\". A key assumption of the GL system is a principle of diminishing returns, stating that performance gains decrease as body weight increases. However, data from the Open Powerlifting database reveals the presence of a phase of increasing returns below a certain body weight threshold. To capture this initial phase, we propose a new scoring system based on a logistic function. This approach is designed to establish strength standards for the general population and for athletes not specialised in powerlifting.",
+          "claimed_abstract": "One of the challenges for every optical system is preserving the quality of the used beam, which may be significantly reduced, due to the low condition of used optical elements or their misalignment. There are plenty of methods focused on the correction of the final beam, depending on the used entire optical system. The problem of efficient beam evaluation is just as important. So far, most of the measurements, are based on visual inspection, which is not always enough, especially when the high quality of the beam is required. Novel approaches use structured light to increase beam sensitivity for any imperfections. In this paper, we present an approach, which uses optical vortex shifted off-axis for a beam quality measurement. It uses SLM as a vortex generating element, which is shifted off-axis by proper hologram transformation. Tracking of the vortex trajectory may provide information about beam quality and aberration of an optical system. The new vortex localization algorithm will be presented.",
           "claimed_authors": [
-            "Jean C. Peyen",
-            "Ruheyan Nuermaimaiti",
-            "Joshua Cunningham"
+            "Mateusz Szatkowski",
+            "Agnieszka Popiołek-Masajada",
+            "Jan Masajada"
           ],
-          "claimed_title": "Discussing Diminishing Returns: A New Scoring System for Powerlifting",
+          "claimed_title": "Beam quality measurement through off-axis optical vortex",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1908.08879"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"The Mirage of Optimizing Training Policies: Monoto', candidate_title='Beam quality measurement through off-axis optical vortex')",
+        "failed_at": "2026-08-05T23:27:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Transducer models have emerged as a promising choice for end-to-end ASR systems, offering a balanced trade-off between recognition accuracy, streaming capabilities, and inference speed in greedy decoding. However, beam search significantly slows down Transducers due to repeated evaluations of key network components, limiting practical applications. This paper introduces a universal method to accelerate beam search for Transducers, enabling the implementation of two optimized algorithms: ALSD++ and AES++. The proposed method utilizes batch operations, a tree-based hypothesis structure, novel blank scoring for enhanced shallow fusion, and CUDA graph execution for efficient GPU inference. This narrows the speed gap between beam and greedy modes to only 10-20% for the whole system, achieves 14-30% relative improvement in WER compared to greedy decoding, and improves shallow fusion for low-resource up to 11% compared to existing implementations. All the algorithms are open sourced.",
+          "claimed_authors": [
+            "Lilit Grigoryan",
+            "Vladimir Bataev",
+            "Andrei Andrusenko",
+            "Hainan Xu",
+            "Vitaly Lavrukhin",
+            "Boris Ginsburg"
+          ],
+          "claimed_title": "Pushing the Limits of Beam Search Decoding for Transducer-based ASR models",
           "claimed_venue": "arXiv",
           "claimed_year": 2025,
-          "primary_pointer": "2503.13040"
+          "primary_pointer": "2506.00185"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"The Mirage of Optimizing Training Policies: Monoto', candidate_title='Discussing Diminishing Returns: A New Scoring System for Powerlifting')",
-        "failed_at": "2026-07-12T18:37:24Z",
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"The Mirage of Optimizing Training Policies: Monoto', candidate_title='Pushing the Limits of Beam Search Decoding for Transducer-based ASR models')",
+        "failed_at": "2026-08-05T23:27:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large-scale autoregressive models have demonstrated remarkable capabilities in image generation. However, their sequential raster-scan decoding relies on strictly next-token prediction, making inference prohibitively expensive. Existing acceleration methods typically either introduce entirely new generation paradigms that necessitate costly pre-training from scratch, or enable parallel generation at the expense of a training-inference gap or altered prediction objectives. In this paper, we introduce FlashAR, a lightweight post-training adaptation framework that efficiently adapts a pre-trained raster-scan autoregressive model into a highly parallel generator based on two-way next-token prediction. Our key insight is that effective adaptation should minimize modifications to the pre-trained model's original training objective to preserve its learned prior. Accordingly, we retain the original AR head as a horizontal head for row-wise prediction and introduce a complementary, lightweight vertical head for column-wise prediction. To facilitate efficient adaptation, we branch the vertical head from an intermediate layer rather than the final layer, bypassing the inherent horizontal head bias. Moreover, since horizontal and vertical predictions capture complementary dependencies whose relative importance varies across target positions, we employ a learnable fusion gate to dynamically combine the two predictions at each position. To further reduce adaptation cost, we propose a two-stage adaptation pipeline: the vertical head is first initialized through adaptation from the pre-trained autoregressive model before jointly fine-tuned with backbone to adapt to the new decoding paradigm. Extensive experiments on LlamaGen and Emu3.5 show that FlashAR achieves up to a 22.9x speedup for 512x512 image generation through a lightweight post-training with merely 0.05% of the original training data.",
+          "claimed_authors": [
+            "Junkang Zhou",
+            "Yefei He",
+            "Feng Chen",
+            "Weijie Wang",
+            "Bohan Zhuang"
+          ],
+          "claimed_title": "FlashAR: Efficient Post-Training Acceleration for Autoregressive Image Generation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2605.09430"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"The Mirage of Optimizing Training Policies: Monoto', candidate_title='FlashAR: Efficient Post-Training Acceleration for Autoregressive Image Generation')",
+        "failed_at": "2026-08-05T23:27:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper, we develop a continuous-time model-free reinforcement learning algorithm to learn deterministic equilibrium policies in general time-inconsistent control problems. Utilizing the extended Hamilton-Jacobi-Bellman system, we recast the original time-inconsistent problem into an equivalent two-stage problem. In the first stage, for given auxiliary functions, we employ the deterministic policy gradient approach to learn an optimal policy in an auxiliary time-consistent control problem. In the second stage, given the updated policy, we exploit the inner fixed point iterations and some martingale characterizations to learn the auxiliary functions. As a theoretical contribution, we provide some mild model assumptions and establish the convergence of inner fixed point iterations. By repeating this actor-critic style of iterations across two stages, our algorithm aims to learn the equilibrium under different sources of time-inconsistency in a unified manner. The superior effectiveness of the proposed algorithm are illustrated in two classical financial applications with time-inconsistency: mean-variance portfolio management and optimal tracking portfolio under non-exponential discounting.",
+          "claimed_authors": [
+            "Xin Guo",
+            "Yijie Huang",
+            "Xiang Yu"
+          ],
+          "claimed_title": "Deterministic Policy Gradient for Learning Equilibrium in Time-Inconsistent Control Problems",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.11798"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"The Mirage of Optimizing Training Policies: Monoto', candidate_title='Deterministic Policy Gradient for Learning Equilibrium in Time-Inconsistent Control Problems')",
+        "failed_at": "2026-08-05T23:27:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Many solutions to cost-sensitive classification (and regression) rely on some or all of the following assumptions: we have complete knowledge about the cost context at training time, we can easily re-train whenever the cost context changes, and we have technique-specific methods (such as cost-sensitive decision trees) that can take advantage of that information. In this paper we address the problem of selecting models and minimising joint cost (integrating both misclassification cost and test costs) without any of the above assumptions. We introduce methods and plots (such as the so-called JROC plots) that can work with any off-the-shelf predictive technique, including ensembles, such that we reframe the model to use the appropriate subset of attributes (the feature configuration) during deployment time. In other words, models are trained with the available attributes (once and for all) and then deployed by setting missing values on the attributes that are deemed ineffective for reducing the joint cost. As the number of feature configuration combinations grows exponentially with the number of features we introduce quadratic methods that are able to approximate the optimal configuration and model choices, as shown by the experimental results.",
+          "claimed_authors": [
+            "Celestine Periale Maguedong-Djoumessi",
+            "José Hernández-Orallo"
+          ],
+          "claimed_title": "Test cost and misclassification cost trade-off using reframing",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1305.7111"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"The Mirage of Optimizing Training Policies: Monoto', candidate_title='Test cost and misclassification cost trade-off using reframing')",
+        "failed_at": "2026-08-05T23:27:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We investigate the behaviour of quantum CHSH-nonlocality, $\\rm F_3$-steering, and usefulness for teleportation in an interacting two-qubit dissipative system. We show regimes where these three quantum correlations can be extracted by means of local filtering operations, despite them not being displayed in the bare natural time evolution. Moreover, we show the existence of local hidden state (LHS) and local hidden variable (LHV) models for some states during the dynamics and thus, showing that apparently-useless physical systems could still exhibit quantum correlations, which are hidden from us, but that can still be revealed by means of local filtering operations and therefore, displaying the phenomenon of \\emph{hidden} quantum correlations. We furthermore show that there actually exists a trade-off between the amount of quantum correlations which can be extracted and the filtering probability with which such protocol can be implemented. From a theoretical point of view, the existence of such trade-off imposes a fundamental limit to the extraction of quantum correlations by local filtering operations. From a practical point of view on the other hand, the results here presented determine the amount of resources that should be invested in order to extract such maximal hidden quantum correlations.",
+          "claimed_authors": [
+            "Andrés F. Ducuara",
+            "Cristian E. Susa",
+            "John H. Reina"
+          ],
+          "claimed_title": "Emergence of maximal hidden quantum correlations and its trade-off with the filtering probability in dissipative two-qubit systems",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2005.06339"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"The Mirage of Optimizing Training Policies: Monoto', candidate_title='Emergence of maximal hidden quantum correlations and its trade-off with the filtering probability in dissipative two-qubit systems')",
+        "failed_at": "2026-08-05T23:27:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In practical measurements, it is widely recognized that reducing the measurement time leads to decreased accuracy. However, whether an inherent speed-accuracy trade-off exists as a fundamental physical constraint for quantum measurements is not obvious, and the answer remains unknown. Here, we establish a fundamental speed-accuracy trade-off relation based on the energy conservation law and the locality. Our trade-off works as a no-go theorem that the zero-error measurement for the operators that are non-commutative with the Hamiltonian cannot be implemented with finite time. This relation universally applies to various existing errors and disturbances defined for quantum measurements. We furthermore apply our methods to quantum computations and provide another speed-accuracy trade-off relation for unitary gate implementations, which works as another no-go theorem that any error-less implementations of quantum computation gates changing energy cannot be implemented with finite time, and a speed-disturbance trade-off for general quantum operations.",
+          "claimed_authors": [
+            "Satoshi Nakajima",
+            "Hiroyasu Tajima"
+          ],
+          "claimed_title": "Speed-Accuracy Trade-Off Relations in Quantum Measurements and Computations",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2405.15291"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"The Mirage of Optimizing Training Policies: Monoto', candidate_title='Speed-Accuracy Trade-Off Relations in Quantum Measurements and Computations')",
+        "failed_at": "2026-08-05T23:27:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Time series prediction is often complicated by distribution shift which demands adaptive models to accommodate time-varying distributions. We frame time series prediction under distribution shift as a weighted empirical risk minimisation problem. The weighting of previous observations in the empirical risk is determined by a forgetting mechanism which controls the trade-off between the relevancy and effective sample size that is used for the estimation of the predictive model. In contrast to previous work, we propose a gradient-based learning method for the parameters of the forgetting mechanism. This speeds up optimisation and therefore allows more expressive forgetting mechanisms.",
+          "claimed_authors": [
+            "Stefanos Bennett",
+            "Jase Clarkson"
+          ],
+          "claimed_title": "Time Series Prediction under Distribution Shift using Differentiable Forgetting",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2207.11486"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"The Mirage of Optimizing Training Policies: Monoto', candidate_title='Time Series Prediction under Distribution Shift using Differentiable Forgetting')",
+        "failed_at": "2026-08-05T23:27:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Estimating the test performance of software AI-based medical devices under distribution shifts is crucial for evaluating the safety, efficiency, and usability prior to clinical deployment. Due to the nature of regulated medical device software and the difficulty in acquiring large amounts of labeled medical datasets, we consider the task of predicting the test accuracy of an arbitrary black-box model on an unlabeled target domain without modification to the original training process or any distributional assumptions of the original source data (i.e. we treat the model as a \"black-box\" and only use the predicted output responses). We propose a \"black-box\" test estimation technique based on conformal prediction and evaluate it against other methods on three medical imaging datasets (mammography, dermatology, and histopathology) under several clinically relevant types of distribution shift (institution, hardware scanner, atlas, hospital). We hope that by promoting practical and effective estimation techniques for black-box models, manufacturers of medical devices will develop more standardized and realistic evaluation procedures to improve the robustness and trustworthiness of clinical AI tools.",
+          "claimed_authors": [
+            "Charles Lu",
+            "Syed Rakin Ahmed",
+            "Praveer Singh",
+            "Jayashree Kalpathy-Cramer"
+          ],
+          "claimed_title": "Estimating Test Performance for AI Medical Devices under Distribution Shift with Conformal Prediction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2207.05796"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"The Mirage of Optimizing Training Policies: Monoto', candidate_title='Estimating Test Performance for AI Medical Devices under Distribution Shift with Conformal Prediction')",
+        "failed_at": "2026-08-05T23:27:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Deep learning based image reconstruction methods outperform traditional methods. However, neural networks suffer from a performance drop when applied to images from a different distribution than the training images. For example, a model trained for reconstructing knees in accelerated magnetic resonance imaging (MRI) does not reconstruct brains well, even though the same network trained on brains reconstructs brains perfectly well. Thus there is a distribution shift performance gap for a given neural network, defined as the difference in performance when training on a distribution $P$ and training on another distribution $Q$, and evaluating both models on $Q$. In this work, we propose a domain adaptation method for deep learning based compressive sensing that relies on self-supervision during training paired with test-time training at inference. We show that for four natural distribution shifts, this method essentially closes the distribution shift performance gap for state-of-the-art architectures for accelerated MRI.",
+          "claimed_authors": [
+            "Mohammad Zalbagi Darestani",
+            "Jiayu Liu",
+            "Reinhard Heckel"
+          ],
+          "claimed_title": "Test-Time Training Can Close the Natural Distribution Shift Performance Gap in Deep Learning Based Compressed Sensing",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2204.07204"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"The Mirage of Optimizing Training Policies: Monoto', candidate_title='Test-Time Training Can Close the Natural Distribution Shift Performance Gap in Deep Learning Based Compressed Sensing')",
+        "failed_at": "2026-08-05T23:27:13Z",
         "reason": "query_irrelevant"
       }
     ],
@@ -583,7 +517,7 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-07-12T18:37:30Z"
+          "verified_at": "2026-08-05T23:27:21Z"
         }
       }
     ]

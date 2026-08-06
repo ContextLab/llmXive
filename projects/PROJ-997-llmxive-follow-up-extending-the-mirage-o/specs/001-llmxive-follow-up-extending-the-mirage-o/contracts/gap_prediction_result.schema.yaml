@@ -1,0 +1,34 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "GapPredictionResult"
+description: "Represents the output of the Gap Predictor model."
+type: "object"
+properties:
+  input_id:
+    type: "string"
+    description: "Unique identifier for the sample."
+  predicted_gap:
+    type: "number"
+    description: "The predicted KL divergence from the model."
+    minimum: 0
+  actual_gap:
+    type: "number"
+    description: "The ground-truth KL divergence."
+    minimum: 0
+  absolute_error:
+    type: "number"
+    description: "Absolute error between predicted and actual gap."
+    minimum: 0
+  quantization_level:
+    type: "string"
+    enum:
+      - "INT4"
+      - "INT8"
+      - "FP8"
+    description: "The quantization level used."
+required:
+  - input_id
+  - predicted_gap
+  - actual_gap
+  - absolute_error
+  - quantization_level
+additionalProperties: false

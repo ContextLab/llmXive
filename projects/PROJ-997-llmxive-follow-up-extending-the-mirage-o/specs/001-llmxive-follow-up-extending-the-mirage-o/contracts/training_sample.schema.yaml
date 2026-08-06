@@ -1,0 +1,70 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "TrainingSample"
+description: "Represents a single input instance for feature extraction and gap calculation."
+type: "object"
+properties:
+  input_id:
+    type: "string"
+    description: "Unique identifier for the sample."
+  prompt:
+    type: "string"
+    description: "The input prompt text."
+  gradient_norm:
+    type: "number"
+    description: "The L2 norm of the gradients w.r.t. input embeddings."
+  local_curvature:
+    type: "number"
+    description: "The local curvature estimate via Hutchinson's estimator."
+  logits_magnitude:
+    type: "number"
+    description: "The L2 norm of the output logits vector (deprecated)."
+    nullable: true
+  quantization_level:
+    type: "string"
+    enum:
+      - "INT4"
+      - "INT8"
+      - "FP8"
+    description: "The quantization level used for the ground-truth measurement."
+  quantized_logits:
+    type: "array"
+    items:
+      type: "number"
+    description: "The logits output from the quantized engine."
+  full_precision_logits:
+    type: "array"
+    items:
+      type: "number"
+    description: "The logits output from the full-precision engine."
+  kl_divergence:
+    type: "number"
+    description: "The calculated KL divergence between full-precision and quantized logits."
+    minimum: 0
+  ground_truth_answer:
+    type: "string"
+    nullable: true
+    description: "The ground-truth answer for the prompt (only for GSM8K subset)."
+  is_reasoning_task:
+    type: "boolean"
+    description: "Indicates if the sample is from the GSM8K reasoning subset."
+  processing_status:
+    type: "string"
+    enum:
+      - "success"
+      - "skipped"
+      - "error"
+    description: "Status of the sample processing."
+  error_message:
+    type: "string"
+    nullable: true
+    description: "Error message if processing failed."
+required:
+  - input_id
+  - prompt
+  - gradient_norm
+  - local_curvature
+  - quantization_level
+  - kl_divergence
+  - processing_status
+  - is_reasoning_task
+additionalProperties: false

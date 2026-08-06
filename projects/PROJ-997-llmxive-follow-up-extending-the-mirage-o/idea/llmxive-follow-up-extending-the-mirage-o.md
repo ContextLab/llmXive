@@ -9,11 +9,11 @@ submitter: llmxive-preprint-followup
 
 ## Research question
 
-Can a lightweight, CPU-tractable analytical estimator, derived solely from training-engine logits and known quantization error bounds, accurately predict the inference-training policy gap in LLM reinforcement learning, thereby eliminating the need for expensive real-time inference-engine synchronization?
+To what extent do training-time logits and gradient norms contain sufficient information to theoretically bound the divergence between full-precision and quantized inference policies in LLMs, and does this bound hold empirically when validated against actual hardware inference engines rather than simulated noise models?
 
 ## Motivation
 
-Current Monotonic Inference Policy Update (MIPU) frameworks require synchronizing candidate models with a separate, high-cost inference engine (e.g., vLLM) for every policy update evaluation, creating a prohibitive bottleneck for real-time or large-scale deployment. Replacing this synchronous step with a static, analytical proxy would enable continuous, low-latency policy acceptance without sacrificing the stability gains of monotonic inference objectives, directly addressing the "training-inference mismatch" identified in prior work.
+Current Monotonic Inference Policy Update (MIPU) frameworks suffer from a "training-inference mismatch" where the theoretical guarantees of monotonicity rely on full-precision assumptions that break down under quantization. Replacing expensive, synchronous hardware inference checks with a lightweight, analytical bound derived from training signals would enable scalable, real-time policy acceptance. However, existing theoretical bounds often rely on simulated noise which may not capture the non-linearities of actual hardware quantization, creating a critical need for empirical validation against real inference engines.
 
 ## Literature gap analysis
 
@@ -24,26 +24,26 @@ We queried Semantic Scholar and arXiv for terms including "LLM inference quantiz
 - [Structured Inference with Large Language Gibbs (2026)](https://arxiv.org/abs/2606.19264) — This work establishes the theoretical substrate for using LLM knowledge in structured probabilistic reasoning but does not address the computational overhead or analytical modeling of the inference-training gap caused by quantization in RL loops.
 
 ### What is NOT known
-No published work has proposed or validated a method to approximate the "inference-side gap proxy" in MIPU using only training-engine logits and pre-computed quantization error bounds without executing the candidate model on the inference engine. Existing literature focuses on either the theoretical necessity of monotonic policies or the engineering of structured inference, but lacks a solution for the specific latency bottleneck of policy evaluation synchronization.
+No published work has proposed or validated a method to approximate the "inference-side gap proxy" in MIPU using only training-side signals and then verified those bounds against *actual* hardware inference engines. Existing literature focuses on either the theoretical necessity of monotonic policies or the engineering of structured inference, but lacks a solution for the specific latency bottleneck of policy evaluation synchronization or empirical evidence that training-side gradients can reliably predict hardware-induced quantization divergence.
 
 ### Why this gap matters
-Filling this gap is critical for scaling LLM reinforcement learning to environments requiring frequent policy updates or deployment on resource-constrained hardware, as the current synchronization requirement prevents the practical application of monotonic inference objectives in real-time systems. A successful analytical proxy would democratize access to stable RL training for LLMs by removing the dependency on expensive inference infrastructure for every update step.
+Filling this gap is critical for scaling LLM reinforcement learning to environments requiring frequent policy updates or deployment on resource-constrained hardware, as the current synchronization requirement prevents the practical application of monotonic inference objectives in real-time systems. A successful analytical bound validated against real hardware would democratize access to stable RL training for LLMs by removing the dependency on expensive inference infrastructure for every update step.
 
 ### How this project addresses the gap
-This project directly addresses the gap by constructing a synthetic dataset to train a regression model that predicts the policy gap using only training-side signals, effectively replacing the need for the synchronous inference engine step in the MIPU framework. The methodology involves simulating quantization noise on high-precision logits to generate ground truth, then validating if a lightweight model can learn the mapping from training signals to the gap, thus providing the first empirical evidence for a static, analytical estimator in this context.
+This project addresses the gap by constructing a dataset where training-side signals (logits, gradients) are paired with ground-truth divergence measurements obtained from *actual* hardware inference (using a quantized deployment engine), rather than simulated noise. The methodology involves training a lightweight regressor to predict this hardware-measured gap and statistically testing if the resulting bound holds across diverse quantization levels, thus providing the first empirical evidence for a hardware-validated static estimator.
 
 ## Expected results
 
-We expect the analytical estimator to achieve a strong correlation ($r > 0.85$) with the actual gap measured by a full inference engine, demonstrating that the inference-side proxy can be effectively approximated without synchronization. This would confirm that MIPU can operate with a 90% reduction in synchronization overhead while maintaining comparable training stability and final reasoning scores on standard math benchmarks, validating the feasibility of a CPU-only proxy.
+We expect to derive a theoretical bound on the divergence that correlates strongly ($r > 0.8$) with the actual divergence measured on hardware, demonstrating that training signals contain sufficient information to predict quantization-induced policy drift. This would confirm that MIPU can operate with a significant reduction in synchronization overhead (targeting >90% latency reduction) while maintaining comparable training stability, validating the feasibility of a hardware-agnostic proxy that remains robust to real-world quantization artifacts.
 
 ## Methodology sketch
 
-- **Data Simulation**: Generate a synthetic dataset of token-level probability distributions by sampling logits from a pre-trained LLM (e.g., Llama-3-8B) and applying simulated FP8 quantization noise using standard floating-point arithmetic on a CPU to create "ground truth" inference probabilities.
-- **Feature Engineering**: Extract training-side features for each sample, including raw logits, gradient norms, and a pre-computed quantization error vector derived from the known error bounds of the target inference engine.
-- **Model Training**: Train a lightweight regression model (e.g., a small MLP with <10k parameters or kernel ridge regression) on the synthetic dataset to predict the "inference gap" (divergence between training and quantized inference policies) using only the training-side features.
-- **Independent Validation**: Evaluate the trained estimator on a held-out test set of simulated distributions, comparing its predictions against the ground truth gap calculated via the same CPU-simulation method (ensuring independence from the training engine's internal state or the model's own gradients).
-- **Integration Test**: Integrate the trained estimator into the MIPU framework by replacing the inference-engine synchronization step, then run a standard RL training loop on a small-scale math benchmark (e.g., GSM8K subset) using the estimator for policy acceptance.
-- **Statistical Analysis**: Perform a paired t-test to compare the final reasoning scores and training stability metrics (e.g., reward variance) between the baseline MIPU (with sync) and the proposed estimator-based MIPU, ensuring the null hypothesis of no difference is not rejected at $p < 0.05$.
+- **Data Collection & Ground Truth Generation**: Select a pre-trained LLM (e.g., Llama-3-8B) and a representative dataset (e.g., GSM8K subset). Run inference on a CPU-based quantized engine (e.g., `llama.cpp` or `ONNX Runtime` with FP8/INT8) to generate ground-truth quantized logits, and compare them against full-precision training logits to calculate the exact "policy gap" (KL divergence) for each sample.
+- **Feature Extraction**: Extract training-side features for each sample, including raw logits, gradient norms, and local curvature estimates, ensuring these are computed *only* from the full-precision training state.
+- **Model Training**: Train a lightweight regression model (e.g., Kernel Ridge Regression or a small MLP) to predict the *hardware-measured* policy gap using only the extracted training features.
+- **Independent Validation**: Evaluate the trained estimator on a held-out test set. The validation target is the *actual* gap measured by the hardware engine, which is independent of the training features used to build the predictor (avoiding circularity where the predictor is validated against a simulation of itself).
+- **Bound Verification**: Compare the predicted values against the actual hardware measurements to determine if a consistent theoretical bound (e.g., $|predicted - actual| < \epsilon$) holds across different quantization bit-widths.
+- **Statistical Analysis**: Perform a paired t-test to compare the policy acceptance rates and final reasoning scores of a standard MIPU loop (using the proxy) versus a baseline MIPU loop (using full hardware sync) on a small-scale RL task, ensuring the null hypothesis of no performance degradation is not rejected at $p < 0.05$.
 
 ## Duplicate-check
 
@@ -54,7 +54,7 @@ We expect the analytical estimator to achieve a strong correlation ($r > 0.85$) 
 
 ## Search trail
 
-**Generated by**: librarian (prompt v1.6.0) on 2026-07-12T18:37:43Z
+**Generated by**: librarian (prompt v1.6.0) on 2026-08-05T23:27:22Z
 **Outcome**: exhausted
 **Original term**: llmXive follow-up: extending "The Mirage of Optimizing Training Policies: Monotonic Inference Polici" computer science
 **Verified citation count**: 1
@@ -66,24 +66,24 @@ We expect the analytical estimator to achieve a strong correlation ($r > 0.85$) 
 | 0 (initial) | llmXive follow-up: extending "The Mirage of Optimizing Training Policies: Monotonic Inference Polici" computer science | 0 |
 | 1 | monotonic inference policies in large language models | 5 |
 | 2 | limitations of training policy optimization for LLMs | 0 |
-| 3 | inference-time optimization versus training-time optimization in LLMs | 0 |
-| 4 | training policy mirage in generative models | 0 |
-| 5 | static inference policies for large language models | 0 |
-| 6 | non-optimality of training-time alignment strategies | 0 |
-| 7 | inference-only improvements for LLM performance | 0 |
-| 8 | disconnect between training objectives and inference outcomes in LLMs | 0 |
-| 9 | policy optimization failures in large language model training | 0 |
-| 10 | monotonicity constraints in LLM inference strategies | 0 |
-| 11 | training-free optimization methods for large language models | 0 |
-| 12 | evaluating the efficacy of training policy adjustments in LLMs | 0 |
-| 13 | inference policy design without retraining | 0 |
-| 14 | theoretical limits of training policy optimization in generative AI | 0 |
-| 15 | stability of inference policies across different training regimes | 0 |
-| 16 | alternative approaches to LLM alignment beyond training optimization | 0 |
-| 17 | robustness of monotonic inference strategies in LLMs | 0 |
-| 18 | comparative analysis of training versus inference policy adjustments | 0 |
-| 19 | diminishing returns in LLM training policy optimization | 0 |
-| 20 | structural constraints on LLM inference policy improvement | 0 |
+| 3 | inference-time optimization strategies for large language models | 0 |
+| 4 | static versus dynamic inference policies in transformer models | 0 |
+| 5 | training-inference gap in large language models | 0 |
+| 6 | monotonicity constraints in language model decoding | 0 |
+| 7 | efficiency of inference-only optimization in LLMs | 0 |
+| 8 | re-evaluating training policy search for inference performance | 0 |
+| 9 | decoding policy optimization without retraining | 0 |
+| 10 | theoretical bounds on inference policy improvement | 0 |
+| 11 | cost-effective inference strategies for foundation models | 0 |
+| 12 | search-free inference optimization for LLMs | 0 |
+| 13 | trade-offs between training investment and inference gains | 0 |
+| 14 | monotonic decoding trajectories in autoregressive models | 0 |
+| 15 | zero-shot inference policy refinement | 0 |
+| 16 | evaluating the efficacy of training policy heuristics | 0 |
+| 17 | inference-centric model optimization techniques | 0 |
+| 18 | diminishing returns in LLM training policy tuning | 0 |
+| 19 | adaptive inference policies versus fixed training policies | 0 |
+| 20 | algorithmic improvements for LLM inference latency | 0 |
 
 ### Verified citations
 

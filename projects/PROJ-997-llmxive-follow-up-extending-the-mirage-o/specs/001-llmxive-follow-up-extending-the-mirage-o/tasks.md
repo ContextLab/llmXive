@@ -1,0 +1,253 @@
+# Tasks: llmXive follow-up: extending "The Mirage of Optimizing Training Policies: Monotonic Inference Polici"
+
+**Input**: Design documents from `/specs/001-llmxive-mipu-gap-bounds/`
+**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
+
+**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
+
+**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
+
+## Format: `[ID] [P?] [Story] Description`
+
+- **[P]**: Can run in parallel (different files, no dependencies)
+- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
+- Include exact file paths in descriptions
+
+## Path Conventions
+
+- **Single project**: `src/`, `tests/` at repository root
+- **Web app**: `backend/src/`, `frontend/src/`
+- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
+- Paths shown below assume single project - adjust based on plan.md structure
+
+<!-- 
+  ============================================================================
+  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+  
+  The /speckit-tasks command MUST replace these with actual tasks based on:
+  - User stories from spec.md (with their priorities P1, P2, P3...)
+  - Feature requirements from plan.md
+  - Entities from data-model.md
+  - Endpoints from contracts/
+  
+  Tasks MUST be organized by user story so each story can be:
+  - Implemented independently
+  - Tested independently
+  - Delivered as an MVP increment
+  
+  DO NOT keep these sample tasks in the generated tasks.md file.
+  ============================================================================
+-->
+
+## Phase 1: Setup (Shared Infrastructure)
+
+**Purpose**: Project initialization and basic structure
+
+- [ ] T001 Create project structure per implementation plan
+- [ ] T002 Initialize Python project with `transformers`, `llama-cpp-python`, `scikit-learn`, `datasets`, `pandas`, `numpy`, `torch` (CPU-only), `pytest`, `einops` dependencies
+- [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
+
+---
+
+## Phase 2: Foundational (Blocking Prerequisites)
+
+**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+
+**⚠️ CRITICAL**: No user story work can begin until this phase is complete
+
+- [ ] T004 Setup data directory structure: `data/raw/`, `data/processed/`, `data/models/`
+- [ ] T005 [P] Implement `src/lib/streaming_utils.py` for chunked dataset loading and checksumming
+- [ ] T006 [P] Create `src/lib/error_handling.py` with strict failure modes (no synthetic fallbacks)
+- [ ] T007 Define `TrainingSample` and `GapPredictionResult` classes in `src/models/entities.py`
+- [ ] T008 Configure logging infrastructure to `logs/pipeline.log` with structured output
+- [ ] T009 Setup environment configuration management for model paths and dataset IDs
+
+**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
+
+---
+
+## Phase 3: User Story 1 - Hardware-Validated Gap Dataset Generation (Priority: P1) 🎯 MVP
+
+**Goal**: Generate a dataset pairing full-precision training signals with ground-truth policy divergence measured by CPU-based quantized inference.
+
+**Independent Test**: A CSV/Parquet file exists containing rows with `input_id`, `gradient_norms`, `local_curvature`, `quantized_logits`, and `calculated_kl_divergence`. The `calculated_kl_divergence` column must be non-zero for a statistically significant portion of the dataset.
+
+### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
+
+- [ ] T010 [P] [US1] Unit test for KL divergence calculation edge cases (zero-divergence) in `tests/unit/test_gap_calculator.py`
+- [ ] T011 [P] [US1] Integration test for data streaming and schema validation in `tests/integration/test_data_generation.py`
+
+### Implementation for User Story 1
+
+- [ ] T012 [P] [US1] Implement `src/services/feature_extractor.py`: Load full-precision Llama-8B, extract gradient norms (L2) and local curvature (Hutchinson's estimator) for GSM8K/Ultrachat samples
+- [ ] T013 [P] [US1] Implement `src/services/quantized_inference.py`: Wrap `llama-cpp-python` to run INT4, INT8, and FP8 inference on CPU; handle load errors by logging and skipping (no synthetic fallback)
+- [ ] T014 [US1] Implement `src/services/gap_calculator.py`: Compute exact KL divergence between full-precision and quantized logits; add epsilon for numerical stability
+- [ ] T015 [US1] Implement `src/cli/generate_dataset.py`: Orchestrate streaming of GSM8K/Ultrachat prompts, align features with inference results, and write `data/processed/training_sample.parquet`
+- [ ] T016 [US1] Add logging logic to record the **actual observed proportion** of samples with non-zero `calculated_kl_divergence` and report it in the pipeline log; do NOT enforce a hardcoded threshold (e.g., 5%) as this is a research observation to be analyzed later, not a task gate
+- [ ] T017 [US1] Add logging for data generation progress, skipped samples, and quantization errors
+
+**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
+
+---
+
+## Phase 4: User Story 2 - Training-Signal Predictor Model (Priority: P2)
+
+**Goal**: Train a lightweight regression model (KRR) to predict the hardware-measured policy gap using only training-side features.
+
+**Independent Test**: A trained model artifact exists that outputs a predicted divergence value. The model achieves a Pearson correlation coefficient (r) of > 0.8 on a held-out validation set.
+
+### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
+
+- [ ] T018 [P] [US2] Unit test for KRR training pipeline and hyperparameter grid in `tests/unit/test_predictor.py`
+- [ ] T019 [P] [US2] Integration test for model evaluation against test set in `tests/integration/test_model_training.py`
+
+### Implementation for User Story 2
+
+- [ ] T020 [P] [US2] Implement `src/models/gap_predictor.py`: Define Kernel Ridge Regression model with fixed hyperparameter grid (alpha=[low, medium, high], gamma=[low, medium, high])
+- [ ] T021A [US2] Implement `src/cli/prepare_data_split.py`: Load `training_sample.parquet`, **stratify by quantization level (INT4, INT8, FP8)**, and write train/val/test splits to `data/processed/split_{set}.parquet` to ensure FR-004 joint training representation; verify that each split contains samples from all three levels
+- [ ] T021 [US2] Implement `src/cli/train_predictor.py`: Load stratified `train.parquet` (output of T021A), train KRR, and save model artifact to `data/models/gap_predictor.pkl`
+- [ ] T022 [US2] Implement evaluation logic in `src/services/evaluator.py`: Calculate Pearson correlation (r) and MAE between predicted and actual divergence on test set
+- [ ] T023 [US2] Add VIF (Variance Inflation Factor) diagnostic to `src/services/evaluator.py` to check for collinearity between gradient norms and curvature
+- [ ] T024 [US2] Integrate with User Story 1 components (load generated dataset)
+
+**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
+
+---
+
+## Phase 5: User Story 3 - Bound Verification & Statistical Validation (Priority: P3)
+
+**Goal**: Verify theoretical bounds across quantization levels and statistically compare proxy vs. baseline MIPU loops.
+
+**Independent Test**: A report exists showing correlation > 0.8 for at least one quantization level and a paired t-test result (p > 0.05) comparing policy acceptance rates.
+
+### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
+
+- [ ] T025 [P] [US3] Contract test for report schema in `tests/contract/test_report_schema.py`
+- [ ] T026 [P] [US3] Integration test for end-to-end statistical validation in `tests/integration/test_validation.py`
+
+### Implementation for User Story 3
+
+- [ ] T027 [US3] Implement `src/cli/run_baseline_sync.py`: Execute the **full-hardware-sync baseline** by running actual quantized inference for every sample in the test set (using the same quantization levels as the dataset); calculate ground-truth acceptance rates and final reasoning scores; output results to `data/processed/baseline_metrics.json`; this task provides the ground-truth baseline for T028
+- [ ] T028 [US3] Implement `src/cli/run_proxy_loop.py`: Simulate MIPU loop (Proxy Policy vs. **Baseline from T027**) on test set; calculate acceptance rates and final reasoning scores; perform paired t-test comparing Proxy vs. Baseline (FR-006)
+- [ ] T029 [US3] Implement statistical comparison in `src/services/statistical_tester.py`: Perform paired t-test on acceptance rates and final scores; apply Bonferroni correction
+- [ ] T030 [US3] Implement latency instrumentation in `src/services/latency_meter.py`: Measure time for **policy evaluation step** (KRR prediction) vs. full hardware sync (quantized inference); calculate `latency_reduction_percentage` and record in `data/processed/latency_metrics.json` to verify SC-002 (≥90% reduction target)
+- [ ] T031 [US3] Implement `src/services/bound_verifier.py`: Verify `|predicted - actual| < 0.1` holds **separately for INT4, INT8, and FP8 levels**; calculate percentage of samples satisfying the bound per level
+- [ ] T032 [US3] Implement `src/cli/aggregate_consistency.py`: Aggregate results from T031 to **verify consistency** across all three levels (INT4, INT8, FP8); report correlation coefficient per level and a summary consistency metric (SC-004) in `data/processed/consistency_report.json`
+- [ ] T033 [US3] Generate final research report with all metrics, plots, and statistical conclusions in `docs/reports/001-llmxive-mipu-gap-bounds.md`, including **latency_reduction_percentage** for the **policy evaluation step** (SC-002) and consistency findings
+- [ ] T034 [US3] Update `state` YAML with completion timestamp and artifact checksums
+
+**Checkpoint**: All user stories should now be independently functional
+
+---
+
+## Phase N: Polish & Cross-Cutting Concerns
+
+**Purpose**: Improvements that affect multiple user stories
+
+- [ ] T035 [P] Documentation updates in `docs/` and `README.md`
+- [ ] T036 Code cleanup and refactoring (remove unused imports, optimize loops)
+- [ ] T037 Performance optimization (ensure streaming works correctly for large datasets)
+- [ ] T038 [P] Additional unit tests for edge cases (flat loss landscape, zero gradients) in `tests/unit/`
+- [ ] T039 Security hardening (ensure no PII in logs or datasets)
+- [ ] T040 Run `quickstart.md` validation to ensure reproducibility
+
+---
+
+## Dependencies & Execution Order
+
+### Phase Dependencies
+
+- **Setup (Phase 1)**: No dependencies - can start immediately
+- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
+- **User Stories (Phase 3+)**: All depend on Foundational phase completion
+  - User stories can then proceed in parallel (if staffed)
+  - Or sequentially in priority order (P1 → P2 → P3)
+- **Polish (Final Phase)**: Depends on all desired user stories being complete
+
+### User Story Dependencies
+
+- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
+- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 data output (`training_sample.parquet`)
+- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US2 model output (`gap_predictor.pkl`) and US1 data
+
+### Within Each User Story
+
+- Tests (if included) MUST be written and FAIL before implementation
+- Models before services
+- Services before endpoints
+- Core implementation before integration
+- Story complete before moving to next priority
+
+### Parallel Opportunities
+
+- All Setup tasks marked [P] can run in parallel
+- All Foundational tasks marked [P] can run in parallel (within Phase 2)
+- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
+- All tests for a user story marked [P] can run in parallel
+- Models within a story marked [P] can run in parallel
+- Different user stories can be worked on in parallel by different team members
+
+---
+
+## Parallel Example: User Story 1
+
+```bash
+# Launch all tests for User Story 1 together (if tests requested):
+Task: "Unit test for KL divergence calculation edge cases in tests/unit/test_gap_calculator.py"
+Task: "Integration test for data streaming and schema validation in tests/integration/test_data_generation.py"
+
+# Launch all models/services for User Story 1 together:
+Task: "Implement src/services/feature_extractor.py"
+Task: "Implement src/services/quantized_inference.py"
+Task: "Implement src/services/gap_calculator.py"
+```
+
+---
+
+## Implementation Strategy
+
+### MVP First (User Story 1 Only)
+
+1. Complete Phase 1: Setup
+2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
+3. Complete Phase 3: User Story 1
+4. **STOP and VALIDATE**: Test User Story 1 independently
+5. Deploy/demo if ready
+
+### Incremental Delivery
+
+1. Complete Setup + Foundational → Foundation ready
+2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
+3. Add User Story 2 → Test independently → Deploy/Demo
+4. Add User Story 3 → Test independently → Deploy/Demo
+5. Each story adds value without breaking previous stories
+
+### Parallel Team Strategy
+
+With multiple developers:
+
+1. Team completes Setup + Foundational together
+2. Once Foundational is done:
+   - Developer A: User Story 1 (Data Generation)
+   - Developer B: User Story 2 (Model Training)
+   - Developer C: User Story 3 (Validation)
+3. Stories complete and integrate independently
+
+---
+
+## Notes
+
+- [P] tasks = different files, no dependencies
+- [Story] label maps task to specific user story for traceability
+- Each user story should be independently completable and testable
+- Verify tests fail before implementing
+- Commit after each task or logical group
+- Stop at any checkpoint to validate story independently
+- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
+- **Critical Constraint**: Data loaders MUST fail loudly on fetch errors; no synthetic fallbacks allowed.
+- **Critical Constraint**: Streaming must be used for all dataset loading to avoid OOM on GitHub Actions runners.
+- **Critical Constraint**: Quantized inference must use `llama.cpp` on CPU; if too slow, reduce sample size, do not simulate.
+- **Critical Constraint**: Baseline comparison (T028) MUST use the full-hardware-sync execution from T027, not a static rule.
+- **Critical Constraint**: Data splitting (T021A) MUST stratify by quantization level to ensure joint training (FR-004).
+- **Critical Constraint**: Bound verification (T031/T032) MUST report consistency across all three levels (INT4, INT8, FP8).
+- **Critical Constraint**: Latency measurement (T030) MUST isolate the 'policy evaluation step' and record the specific metric for SC-002.
