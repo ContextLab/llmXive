@@ -1,3 +1,17 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory structure is presented in the provided evidence; there are no listings
+    or screenshots showing the required folders (`src/`, `tests/`, `data/`, `data/raw/`,
+    `data/processed/`, `data/results/`, `state/`). Without concrete proof that these
+    directories exist, the task requirement is not satisfied.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`,
+    or a `black` config) were presented, and there is no evidence of ruff/black being
+    set up in the repository. Without these artifacts, the requirement to configure
+    linting (ruff) and formatting (black) is not satisfied.
 T007b:
   c: false
   h: ef729a03e7e24ae0b154897db1de2a63e30534c75e9c31687b22c760a75e0a30
@@ -28,19 +42,3 @@ T009e:
     `contracts/analysis_metric.schema.yaml` is missing, so we cannot confirm that
     the generated code matches the schema or that the generation script was actually
     run. Additionally, there is no evidence that the task was executed after T009d.
-T012:
-  c: false
-  h: 33fa882105dfd7809c160257519d05c90819ac424314d50ba720b4df24733af6
-  r: Both required output artifacts (`data/processed/raw_snippets.parquet` and `data/processed/labels.csv`)
-    are missing from the repository, so the preprocessing and sampling step has not
-    been delivered.
-T015:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, configuration, or output files (e.g., an orchestrator that\
-    \ runs T011 \u2192 T012 \u2192 T013, a `predictions.csv` validated against the\
-    \ `PredictionResult` schema, or a memory\u2011monitor\u2011driven batch\u2011\
-    size controller) were provided. Without these concrete artifacts, the claim that\
-    \ the ingest pipeline orchestrator is implemented cannot be verified. The next\
-    \ implementer must supply the actual orchestrator implementation and evidence\
-    \ of its successful execution and validation."

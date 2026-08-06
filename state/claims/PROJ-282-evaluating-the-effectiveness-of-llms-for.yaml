@@ -1730,3 +1730,562 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-05T04:47:32Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: NIST Juliet repository is primary dataset source for C/C++
+  claim_id: c_7e34aa9d
+  context: 'Fetch the official NIST Juliet repository for C/C++ using git clone...
+    Fallback: ONLY if the NIST Juliet fetch fails, fetch the BigVul dataset.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/NIST_Juliet_repository_is_primary_dataset_source_for_C/C++
+  kind: entity_fact
+  raw_text: The official NIST Juliet repository for C/C++ is the primary dataset source.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T11:13:22Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: BigVul dataset contains C, C++, and JavaScript samples
+  claim_id: c_a2fd50ca
+  context: Fetch the BigVul dataset (C, C++, JavaScript) using wget.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/BigVul_dataset_contains_C,_C++,_and_JavaScript_samples
+  kind: entity_fact
+  raw_text: The BigVul dataset contains C, C++, and JavaScript samples.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T11:13:54Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: NVD JSON feed is used as vulnerability pattern corpus
+  claim_id: c_22a1fcde
+  context: Retrieve the NVD JSON feed using the exact endpoint... to data/raw/nvd_corpus.json.gz.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/NVD_JSON_feed_is_used_as_vulnerability_pattern_corpus
+  kind: entity_fact
+  raw_text: The NVD JSON feed is used as the vulnerability pattern corpus.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T11:14:25Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: sentence-transformers/all-MiniLM-L6-v2 used for embedding similarity
+  claim_id: c_e08c0295
+  context: Compute cosine similarity against the canonical pattern embeddings (generated
+    using sentence-transformers/all-MiniLM-L6-v2).
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: embedding (i.e., all-MiniLM-L6-v2) in an
+      source_id: '2607.07974'
+      url: https://arxiv.org/abs/2607.07974
+      value: all-MiniLM-L6-v2
+    filled: true
+  kind: entity_fact
+  raw_text: The sentence-transformers/all-MiniLM-L6-v2 model is used for embedding
+    similarity computation.
+  resolved_value: all-MiniLM-L6-v2
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-06T11:14:48Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: Pipeline completion time limit is 6 hours
+  claim_id: c_d257b824
+  context: "The pipeline must complete within 6 hours; per-sample inference \u2264\
+    \ 4.32s."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline must complete within 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T11:15:09Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: Per-sample inference time limit is 4.32 seconds
+  claim_id: c_65ac586d
+  context: "The pipeline must complete within 6 hours; per-sample inference \u2264\
+    \ 4.32s."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Per-sample inference is limited to 4.32 seconds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T11:15:55Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: Stratified sampling limit is 5000 samples
+  claim_id: c_b772a308
+  context: "Perform stratified sampling (\u22645,000 samples) by language and vulnerability\
+    \ category."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Stratified sampling is limited to 5,000 samples.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T11:16:12Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: Stratification bias threshold for abort is 5%
+  claim_id: c_3364a653
+  context: Compute distribution stats and log to data/logs/stratification_verification.json.
+    Abort if bias exceeds 5%.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Bias exceeding 5% in stratification verification triggers a pipeline abort.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T11:16:12Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: Circuit breaker triggers at 90% of 6-hour runtime limit
+  claim_id: c_22bbffad
+  context: "If cumulative runtime exceeds 90 % of the 6\u2011hour limit, reduce batch\
+    \ size to a minimal value."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Circuit breaker logic reduces batch size if cumulative runtime exceeds
+    90% of the 6-hour limit.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T11:16:13Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: SHA-256 checksum verification for dataset downloads
+  claim_id: c_253ed756
+  context: "T011: Fetch the official NIST Juliet repository or BigVul dataset. Compute\
+    \ SHA\u2011256 checksums and compare against data/raw/checksums.json. On mismatch,\
+    \ abort and log."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Compute SHA\u2011256 checksums and compare against `data/raw/checksums.json`."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T11:16:56Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: Stratified sampling of 5000 samples with random state 42
+  claim_id: c_ff4fa0ea
+  context: "T012: Parse raw datasets. Perform stratified sampling (\u22645,000 samples)\
+    \ by language and vulnerability category using sklearn.model_selection.StratifiedShuffleSplit\
+    \ with random_state=42."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Perform stratified sampling (\u22645,000 samples) by language and vulnerability\
+    \ category using `sklearn.model_selection.StratifiedShuffleSplit` with `random_state=42`."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T11:16:57Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: Abort stratification verification if bias exceeds 5 percent
+  claim_id: c_bef90ca6
+  context: 'T012a: Verify that the sampling logic preserves proportional representation.
+    Compute distribution stats and log to data/logs/stratification_verification.json.
+    Abort if bias exceeds 5%.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Abort if bias exceeds 5%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T11:16:57Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: Skip sample if inference time exceeds 4.32 seconds
+  claim_id: c_0558a85c
+  context: 'T013: Per-Sample Constraint: If a single sample exceeds 4.32 seconds,
+    skip that sample, log the timeout, and continue (do not abort the whole run).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If a single sample exceeds 4.32 seconds, skip that sample, log the timeout,
+    and continue.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T11:17:24Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: Reduce batch size if cumulative runtime exceeds 90 percent of 6 hour
+    limit
+  claim_id: c_5c3d62aa
+  context: 'T013: Circuit Breaker: If cumulative runtime exceeds 90% of the 6-hour
+    limit, reduce batch size to a minimal value and continue processing remaining
+    samples.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If cumulative runtime exceeds 90% of the 6-hour limit, reduce batch size
+    to a minimal value.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T11:17:24Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: Compute cosine similarity using sentence-transformers/all-MiniLM-L6-v2
+    model
+  claim_id: c_c28679d5
+  context: 'T019c: For each code snippet, compute cosine similarity against the canonical
+    pattern embeddings (generated using sentence-transformers/all-MiniLM-L6-v2 (2607.07974,
+    https://arxiv.org/abs/2607.07974)) and store the maximum similarity.'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: Compute cosine similarity against the canonical pattern embeddings (generated
+    using `sentence-transformers/all-MiniLM-L6-v2 (2607.07974, https://arxiv.org/abs/2607.07974)`).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T11:17:36Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: Apply Bonferroni correction per vulnerability category
+  claim_id: c_bf094b6c
+  context: 'T029: Implement correlation analysis. Constraint: Apply Bonferroni correction
+    per vulnerability category (family-wise error control for each category''s set
+    of features), not globally.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Apply_Bonferroni_correction_per_vulnerability_category
+  kind: entity_fact
+  raw_text: Apply Bonferroni correction per vulnerability category.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T11:18:05Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: Use statsmodels exact binomial McNemar test for LLM vs static analyzer
+    comparison
+  claim_id: c_844a6aa9
+  context: 'T031: Implement McNemar''s test in src/analysis/regression.py using statsmodels.stats.contingency.mcnemar
+    (exact binomial) to compare LLM vs. static analyzer predictions.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_statsmodels_exact_binomial_McNemar_test_for_LLM_vs_stati
+  kind: entity_fact
+  raw_text: Use `statsmodels.stats.contingency.mcnemar` (exact binomial) to compare
+    LLM vs. static analyzer predictions.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T11:18:40Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: Stratified sampling of 5000 samples with random_state 42
+  claim_id: c_b519c89d
+  context: "T012 [US1] Preprocess & Sampling: Parse raw datasets into CodeSnippet\
+    \ entities. Perform stratified sampling (\u22645,000 samples) by language and\
+    \ vulnerability category..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Perform stratified sampling (\u22645,000 samples) by language and vulnerability\
+    \ category using sklearn.model_selection.StratifiedShuffleSplit with random_state=42."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T11:20:28Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: Cosine similarity computed using sentence-transformers/all-MiniLM-L6-v2
+  claim_id: c_a9d6daad
+  context: 'T019c [US2] Embedding Similarity Computation: For each code snippet...
+    compute cosine similarity against the canonical pattern embeddings (generated
+    using sentence-transformers/all-MiniLM-L6-v2 (2607.07974, https://arxiv.org/abs/2607.07974))...'
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: Compute cosine similarity against the canonical pattern embeddings (generated
+    using sentence-transformers/all-MiniLM-L6-v2 (2607.07974, https://arxiv.org/abs/2607.07974)).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-06T11:20:30Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: Pipeline completion within 6 hours with per-sample inference limit of
+    4.32 seconds
+  claim_id: c_ef3b90ca
+  context: "Notes: Time Constraint: The pipeline must complete within 6 hours; per-sample\
+    \ inference \u2264 4.32s. Outliers exceeding this are skipped, not the whole run."
+  evidence:
+    asserted: '6.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: "The pipeline must complete within 6 hours; per-sample inference \u2264\
+    \ 4.32s."
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-08-06T11:20:31Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: Skip single sample if inference exceeds 4.32 seconds
+  claim_id: c_7d4a5f75
+  context: 'T013 [US1] Zero-Shot Inference Service: Per-Sample Constraint: If a single
+    sample exceeds 4.32 seconds, skip that sample, log the timeout, and continue (do
+    not abort the whole run).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If a single sample exceeds 4.32 seconds, skip that sample, log the timeout,
+    and continue.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T11:20:31Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: Reduce batch size if cumulative runtime exceeds 90% of 6-hour limit
+  claim_id: c_2695923a
+  context: "T013 [US1] Zero-Shot Inference Service: Circuit Breaker: If cumulative\
+    \ runtime exceeds 90 % of the 6\u2011hour limit, reduce batch size to a minimal\
+    \ value and continue processing remaining samples (do not abort)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If cumulative runtime exceeds 90% of the 6-hour limit, reduce batch size
+    to a minimal value and continue processing remaining samples.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T11:20:31Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: Abort stratification verification if bias exceeds 5%
+  claim_id: c_4832deb5
+  context: 'T012a [US1] Stratification Verification: Verify that the sampling logic
+    in T012 preserves the proportional representation... Abort if bias exceeds 5%.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Abort if bias exceeds 5% in stratification verification.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T11:20:32Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: pipeline completion time limit 6 hours
+  claim_id: c_45788efa
+  context: "Time Constraint: The pipeline must complete within 6 hours; per\u2011\
+    sample inference \u2264 4.32s."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline must complete within 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T11:21:23Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: per sample inference time limit 4.32 seconds
+  claim_id: c_286a3780
+  context: "Time Constraint: The pipeline must complete within 6 hours; per\u2011\
+    sample inference \u2264 4.32s."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Per-sample inference must not exceed 4.32 seconds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T11:21:40Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: dataset stratified sampling limit 5000 samples
+  claim_id: c_cb11600b
+  context: "Perform stratified sampling (\u22645,000 samples) by language and vulnerability\
+    \ category using sklearn.model_selection.StratifiedShuffleSplit with random_state=42."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The dataset sampling is limited to 5,000 samples.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T11:22:01Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: stratification sampling bias limit 5 percent
+  claim_id: c_af5474cd
+  context: Compute distribution stats and log to data/logs/stratification_verification.json.
+    Abort if bias exceeds 5%.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sampling bias must not exceed 5%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T11:22:01Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: circuit breaker triggers at 90 percent cumulative runtime
+  claim_id: c_c51373fb
+  context: "Circuit Breaker: If cumulative runtime exceeds 90 % of the 6\u2011hour\
+    \ limit, reduce batch size to a minimal value and continue processing remaining\
+    \ samples."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The circuit breaker triggers when cumulative runtime exceeds 90% of the
+    time limit.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T11:22:02Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: embedding similarity uses sentence-transformers/all-MiniLM-L6-v2
+  claim_id: c_486bb17b
+  context: Compute cosine similarity against the canonical pattern embeddings (generated
+    using sentence-transformers/all-MiniLM-L6-v2 (2607.07974, https://arxiv.org/abs/2607.07974))
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: embedding (i.e., all-MiniLM-L6-v2) in an
+      source_id: '2607.07974'
+      url: https://arxiv.org/abs/2607.07974
+      value: all-MiniLM-L6-v2
+    filled: true
+  kind: entity_fact
+  raw_text: The embedding similarity computation uses the model sentence-transformers/all-MiniLM-L6-v2.
+  resolved_value: all-MiniLM-L6-v2
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-06T11:22:31Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 0
+  canonical: cosine similarity sentence-transformers all-MiniLM-L6-v2
+  claim_id: c_628af6c5
+  context: For each code snippet (from data/processed/raw_snippets.parquet produced
+    by T012), compute cosine similarity against the canonical pattern embeddings (generated
+    using sentence-transformers/all-MiniLM-L6-v2 (2607.07974, https://arxiv.org/abs/2607.07974))
+    and store the maximum similarity as embedding_similarity_score in FeatureVector.
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: Compute cosine similarity against the canonical pattern embeddings (generated
+    using sentence-transformers/all-MiniLM-L6-v2 (2607.07974, https://arxiv.org/abs/2607.07974))
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-06T11:23:52Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: stratified sampling 5000 samples random_state 42
+  claim_id: c_ade511a1
+  context: "Perform stratified sampling (\u22645,000 samples) by language and vulnerability\
+    \ category using sklearn.model_selection.StratifiedShuffleSplit with random_state=42."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Perform stratified sampling (\u22645,000 samples) by language and vulnerability\
+    \ category using sklearn.model_selection.StratifiedShuffleSplit with random_state=42."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T11:23:52Z'

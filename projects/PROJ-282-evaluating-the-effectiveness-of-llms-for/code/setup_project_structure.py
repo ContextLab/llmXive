@@ -6,18 +6,18 @@ import logging
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    stream=sys.stdout
 )
 logger = logging.getLogger(__name__)
 
-def create_structure(root_dir: Path) -> None:
+def create_structure(root_path: Path) -> None:
     """
-    Create the required project directory structure.
+    Creates the required project directory structure.
     
     Args:
-        root_dir: The root directory of the project
+        root_path: The root directory of the project.
     """
-    # Define the required directories relative to root
     directories = [
         "src",
         "tests",
@@ -27,49 +27,55 @@ def create_structure(root_dir: Path) -> None:
         "data/results",
         "data/logs",
         "state",
+        "specs",
+        "contracts",
         "code",
         "code/src",
-        "code/src/utils",
-        "code/src/data",
-        "code/src/models",
-        "code/src/analysis",
         "code/tests",
-        "code/tests/unit",
         "code/data",
-        "code/specs",
-        "code/specs/001-evaluating-the-effectiveness-of-llms-for",
-        "code/contracts",
-        "code/figures"
+        "code/scripts",
+        "code/utils",
+        "code/models",
+        "code/analysis",
+        "code/results",
+        "code/logs",
+        "code/state",
     ]
     
     created_count = 0
-    existing_count = 0
-    
-    for dir_path in directories:
-        full_path = root_dir / dir_path
+    for dir_name in directories:
+        full_path = root_path / dir_name
         if not full_path.exists():
             full_path.mkdir(parents=True, exist_ok=True)
-            # Create __init__.py in Python package directories
-            if "src" in dir_path or "tests" in dir_path or "code" in dir_path:
-                init_file = full_path / "__init__.py"
-                if not init_file.exists():
-                    init_file.touch()
             logger.info(f"Created directory: {full_path}")
             created_count += 1
         else:
-            existing_count += 1
+            logger.debug(f"Directory already exists: {full_path}")
     
-    logger.info(f"Project structure setup complete. Created {created_count} directories, {existing_count} already existed.")
+    logger.info(f"Project structure setup complete. Created {created_count} new directories.")
 
 def main():
-    """Main entry point for the project structure setup."""
-    # Determine the root directory (parent of this script's location)
-    current_file = Path(__file__).resolve()
-    root_dir = current_file.parent.parent  # Go up two levels to project root
+    """
+    Main entry point for the project structure setup script.
+    Determines the project root and creates the directory structure.
+    """
+    # Determine project root: assume script is in code/ or root, look for 'code' or 'src'
+    current_dir = Path.cwd()
     
-    logger.info(f"Setting up project structure at: {root_dir}")
-    create_structure(root_dir)
-    logger.info("Task T001 completed successfully.")
+    # Heuristic: if we are in 'code/', go up one level. If not, assume current is root.
+    if current_dir.name == "code" and (current_dir.parent / "src").exists():
+        root = current_dir.parent
+    elif (current_dir / "src").exists():
+        root = current_dir
+    elif (current_dir / "code").exists():
+        root = current_dir
+    else:
+        # Fallback: use current directory
+        root = current_dir
+    
+    logger.info(f"Using project root: {root}")
+    
+    create_structure(root)
 
 if __name__ == "__main__":
     main()

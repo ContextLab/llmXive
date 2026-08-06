@@ -17,7 +17,7 @@ The system MUST ingest a dataset of code snippets (C, Python, JavaScript), run t
 
 **Acceptance Scenarios**:
 
-1. **Given** a batch of 50 code snippets with known `ground_truth_label` and `ground_truth_category`, **When** the system runs zero-shot inference using a selected LLM, **Then** the system outputs a structured result file containing the predicted label, the actual `ground_truth_label`, and a binary `is_correct` flag for every snippet.
+1. **Given** a a batch of code snippets with known `ground_truth_label` and `ground_truth_category`, **When** the system runs zero-shot inference using a selected LLM, **Then** the system outputs a structured result file containing the predicted label, the actual `ground_truth_label`, and a binary `is_correct` flag for every snippet.
 2. **Given** a code snippet containing a known SQL injection vulnerability, **When** the LLM processes it, **Then** the output must include either "SQLi" (or a mapped equivalent) or "none", and the system must correctly set the `is_correct` flag based on the `ground_truth_label`.
 3. **Given** the total dataset size exceeds the runner's memory limits, **When** the system processes the data, **Then** the system must automatically chunk the data into batches of ≤50 samples and aggregate results without data loss or memory overflow.
 

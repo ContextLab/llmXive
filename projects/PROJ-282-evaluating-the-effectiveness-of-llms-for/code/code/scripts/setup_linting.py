@@ -1,7 +1,7 @@
 """
-Script to configure and verify linting (ruff) and formatting (black) tools.
-This script checks for the presence of tools, installs them if missing,
-and validates the configuration files.
+Script to configure and validate linting (ruff) and formatting (black) tools.
+This script ensures the project is set up with the correct configuration files
+and that the tools are installed and runnable.
 """
 import os
 import sys
@@ -9,8 +9,16 @@ import subprocess
 from pathlib import Path
 
 def get_project_root() -> Path:
-    """Returns the project root directory (code/)."""
-    return Path(__file__).parent.parent.parent
+    """Return the root of the project (parent of 'code' directory)."""
+    current = Path(__file__).resolve()
+    # Assuming this script is at code/code/scripts/setup_linting.py
+    # We need to go up two levels to get to 'code' which is the project root for this task
+    # However, the task says "paths are relative to project root and MUST live under code/..."
+    # The pyproject.toml is expected at the root of the repository, which seems to be 'code' in this context
+    # based on the artifact path "code/pyproject.toml".
+    # Let's assume the repository root is the directory containing 'pyproject.toml'.
+    # If we are in code/code/scripts, we go up 2 to get to code/.
+    return current.parent.parent.parent
 
 def check_command(cmd: str) -> bool:
     """Check if a command is available in the system PATH."""
@@ -19,79 +27,75 @@ def check_command(cmd: str) -> bool:
             [cmd, "--version"],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
-            check=True
+            check=True,
         )
         return True
     except (subprocess.CalledProcessError, FileNotFoundError):
         return False
 
-def install_if_missing(cmd: str, package_name: str) -> None:
-    """Install a package if the command is not found."""
+def install_if_missing(cmd: str) -> None:
+    """Install a tool via pip if it is not available."""
     if not check_command(cmd):
-        print(f"Installing {package_name}...")
+        print(f"Installing {cmd}...")
         try:
-            subprocess.check_call([sys.executable, "-m", "pip", "install", package_name])
-            print(f"{package_name} installed successfully.")
+            subprocess.run(
+                [sys.executable, "-m", "pip", "install", cmd],
+                check=True,
+            )
+            print(f"{cmd} installed successfully.")
         except subprocess.CalledProcessError as e:
-            print(f"Failed to install {package_name}: {e}")
+            print(f"Failed to install {cmd}: {e}")
             sys.exit(1)
-    else:
-        print(f"{cmd} is already installed.")
 
-def validate_config_files(project_root: Path) -> bool:
-    """Validate that configuration files exist and are readable."""
-    config_files = [
-        project_root / "pyproject.toml",
-        project_root / ".ruff.toml",
-        project_root / ".pre-commit-config.yaml"
+def validate_config_files(root: Path) -> bool:
+    """Validate that required configuration files exist."""
+    required_files = [
+        root / "pyproject.toml",
+        root / ".ruff.toml",
+        root / ".pre-commit-config.yaml",
     ]
+    all_exist = True
+    for f in required_files:
+        if not f.exists():
+            print(f"Missing required file: {f}")
+            all_exist = False
+    return all_exist
 
-    all_valid = True
-    for config_file in config_files:
-        if not config_file.exists():
-            print(f"Error: Configuration file not found: {config_file}")
-            all_valid = False
-        else:
-            print(f"Found configuration: {config_file}")
-
-    return all_valid
-
-def run_precommit_install(project_root: Path) -> bool:
+def run_precommit_install(root: Path) -> None:
     """Install pre-commit hooks."""
     print("Installing pre-commit hooks...")
     try:
         subprocess.run(
             ["pre-commit", "install"],
-            cwd=project_root,
-            check=True
+            cwd=root,
+            check=True,
         )
         print("Pre-commit hooks installed.")
-        return True
-    except (subprocess.CalledProcessError, FileNotFoundError) as e:
-        print(f"Warning: Could not install pre-commit hooks: {e}")
-        print("Run 'pre-commit install' manually if needed.")
-        return False
+    except subprocess.CalledProcessError as e:
+        print(f"Failed to install pre-commit hooks: {e}")
+        # Non-fatal, but log it
+        print("You can run 'pre-commit install' manually later.")
 
-def main() -> int:
-    """Main entry point for linting setup."""
-    project_root = get_project_root()
-    print(f"Project root: {project_root}")
+def main() -> None:
+    """Main entry point for the setup script."""
+    root = get_project_root()
+    print(f"Project root detected at: {root}")
 
-    # Ensure dependencies are installed
-    install_if_missing("ruff", "ruff")
-    install_if_missing("black", "black")
-    install_if_missing("pre-commit", "pre-commit")
+    # Ensure tools are installed
+    install_if_missing("ruff")
+    install_if_missing("black")
+    install_if_missing("pre-commit")
 
-    # Validate configuration files
-    if not validate_config_files(project_root):
-        print("Configuration validation failed.")
-        return 1
+    # Validate configuration
+    if not validate_config_files(root):
+        print("Configuration validation failed. Please check the files.")
+        sys.exit(1)
 
-    # Install pre-commit hooks
-    run_precommit_install(project_root)
+    # Install hooks
+    run_precommit_install(root)
 
     print("Linting and formatting setup complete.")
-    return 0
+    print("Run 'pre-commit run --all-files' to check the entire codebase.")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

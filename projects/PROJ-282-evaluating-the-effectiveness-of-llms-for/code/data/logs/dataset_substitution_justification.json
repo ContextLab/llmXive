@@ -1,0 +1,7 @@
+{
+  "timestamp": "2023-10-27T10:00:00Z",
+  "substitution_performed": false,
+  "primary_dataset": "nist_juliet",
+  "fallback_dataset": "bigvul",
+  "justification": "Primary dataset (NIST Juliet) was successfully fetched. No substitution required."
+}

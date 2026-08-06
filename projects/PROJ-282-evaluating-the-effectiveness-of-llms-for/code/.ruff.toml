@@ -1,36 +1,4 @@
-# Ruff configuration file (alternative to pyproject.toml)
-# This file is provided for explicit configuration visibility.
-# Main configuration is in pyproject.toml under [tool.ruff]
-
-line-length = 100
-target-version = "py310"
-
-[lint]
-select = [
-    "E",
-    "W",
-    "F",
-    "I",
-    "B",
-    "C4",
-    "UP"
-]
-ignore = [
-    "E501",
-    "B008",
-    "C901"
-]
-
-exclude = [
-    ".git",
-    ".mypy_cache",
-    ".tox",
-    ".venv",
-    "_build",
-    "buck-out",
-    "build",
-    "dist",
-    "data",
-    "state",
-    "venv"
-]
+# Explicit ruff configuration file for the project root.
+# Extends the settings in pyproject.toml but allows for project-specific overrides
+# if needed in the future.
+extend = "pyproject.toml"

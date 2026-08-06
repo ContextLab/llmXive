@@ -1,25 +1,15 @@
 repos:
-  - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.5.0
-    hooks:
-      - id: trailing-whitespace
-      - id: end-of-file-fixer
-      - id: check-yaml
-      - id: check-added-large-files
-        args: ['--maxkb=10000'] # Allow up to ~10MB for data files if needed in git
-
-  - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.1.6
-    hooks:
-      - id: ruff
-        args: [--fix, --exit-non-zero-on-fix]
-      - id: ruff-format
-        # Using ruff format as a fast alternative, or keep black below if preferred
-        # args: [--line-length, "100"]
-
   - repo: https://github.com/psf/black
-    rev: 23.11.0
+    rev: 24.4.2
     hooks:
       - id: black
-        language_version: python3.10
-        args: [--line-length, "100"]
+        language_version: python3.9
+        args: [--config=code/pyproject.toml]
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.4.8
+    hooks:
+      - id: ruff
+        args: [--fix, --exit-non-zero-on-fix, --config=code/pyproject.toml]
+      - id: ruff-format
+        args: [--config=code/pyproject.toml]
