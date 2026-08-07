@@ -1,31 +1,10 @@
-T001:
+T001c:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory listing or file showing that the required root folders under `projects/PROJ-951-llmxive-follow-up-extending-physisforcin/code/`
-    exist was provided; the claim lacks any concrete artifact confirming the creation
-    of those directories.
-T001b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No directory listings or file system evidence were provided showing that `src/`,\
-    \ `tests/`, `data/` and the required sub\u2011directories (e.g., `data/raw`, `src/generation`,\
-    \ `tests/unit`, etc.) actually exist. Without concrete artifacts confirming the\
-    \ presence of these folders, the task requirement is not satisfied. The implementer\
-    \ must create the specified directory hierarchy and provide a view (e.g., tree\
-    \ output or file list) demonstrating its existence."
-T002:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No repository, configuration file, or code initializing a Python project with\
-    \ the listed CPU\u2011only packages is present. The required artifact (e.g., a\
-    \ `pyproject.toml`, `requirements.txt`, or `setup.py` that pins `torch` CPU, `pybullet`,\
-    \ `mujoco`, `diffusers`, `transformers`, `scikit-learn`, `opencv-python`, `pandas`,\
-    \ `numpy`, `requests`, and `datasets`) is missing, so the task is not satisfied."
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The implementer supplied only a high\u2011level feature specification for a\
-    \ physics\u2011filter pipeline; there is no evidence of any linting or formatting\
-    \ configuration (e.g., `pyproject.toml` with Black settings, `.ruff.toml` or a\
-    \ pre\u2011commit hook file). Consequently, the required artifact for task T003\
-    \ \u2013 the actual setup of Ruff and Black \u2013 is missing."
+  r: "No evidence of the required directory tree (`data/raw`, `data/curated`, `data/eval`,\
+    \ `data/validation`, `src/generation`, `src/filtering`, `src/training`, `src/evaluation`,\
+    \ `src/augmentation`, `src/utils`, `tests/unit`, `tests/integration`) was provided;\
+    \ without a directory listing or file system snapshot we cannot verify that the\
+    \ directories were actually created. The implementer must supply proof (e.g.,\
+    \ a tree view, manifest file, or screenshots) showing all listed folders exist\
+    \ and are non\u2011empty where appropriate."

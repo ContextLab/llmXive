@@ -1,5 +1,5 @@
 """
-Configuration management for the PhysisForcing training pipeline.
+Configuration management for the PhysisForcing pipeline.
 Handles hyperparameters, CPU-only flags, and schema validation.
 """
 import os
@@ -9,265 +9,242 @@ from pathlib import Path
 from typing import Any, Dict, Optional, List, Tuple
 from dataclasses import dataclass, field, asdict, fields
 
-from src.utils.logging import get_logger
+# Configure logger
+logger = logging.getLogger(__name__)
 
-logger = get_logger(__name__)
+@dataclass
+class EnvironmentConfig:
+    cpu_only: bool = True
+    cuda_enabled: bool = False
+    max_ram_gb: float = 6.0
+    max_disk_gb: float = 14.0
 
-# Default configuration values
-DEFAULT_CONFIG = {
-    "experiment_name": "physs_filter_experiment",
-    "seed": 42,
-    "cpu_only": True,
-    "max_memory_gb": 6.0,
-    "batch_size": 1,
-    "num_workers": 0,  # 0 for CPU-only to avoid multiprocessing overhead
-    "pin_memory": False,
-    "filter_discard_percent": 0.4,
-    "training_epochs": 10,
-    "learning_rate": 1e-4,
-    "weight_decay": 1e-2,
-    "model_params": {
-        "channels": 64,
-        "num_blocks": 4,
-        "attention_heads": 4,
-        "target_params_millions": 50.0
-    },
-    "paths": {
-        "data_root": "data",
-        "curated_dir": "data/curated",
-        "raw_dir": "data/raw",
-        "model_output_dir": "models",
-        "checkpoint_dir": "models/checkpoints"
-    },
-    "validation": {
-        "check_nan_loss": True,
-        "nan_retry_limit": 3,
-        "timeout_hours": 4.0
-    }
-}
+@dataclass
+class DataConfig:
+    root: str = "data"
+    raw: str = "data/raw"
+    curated: str = "data/curated"
+    eval: str = "data/eval"
+    validation: str = "data/validation"
+    control: str = "data/control"
+    prompts: str = "data/prompts.json"
+
+@dataclass
+class GenerationConfig:
+    model_id: str = "Wan-AI/Wan2.1-Turbo"
+    device: str = "cpu"
+    offload_to_kaggle: bool = True
+    max_videos: int = 100
+    frame_rate: int = 8
+    resolution: Dict[str, int] = field(default_factory=lambda: {"width": 512, "height": 512})
+    timeout_seconds: int = 3600
+
+@dataclass
+class FilteringConfig:
+    # Explicitly set to 0.4 to resolve FR-003
+    filter_discard_percent: float = 0.4
+    physics_engine: str = "pybullet"
+    simulation_steps: int = 100
+    continuity_threshold: float = 0.6
+    contact_threshold: float = 0.5
+    headless_mode: bool = True
 
 @dataclass
 class TrainingConfig:
-    """Dataclass representation of the training configuration."""
-    experiment_name: str = DEFAULT_CONFIG["experiment_name"]
-    seed: int = DEFAULT_CONFIG["seed"]
-    cpu_only: bool = DEFAULT_CONFIG["cpu_only"]
-    max_memory_gb: float = DEFAULT_CONFIG["max_memory_gb"]
-    batch_size: int = DEFAULT_CONFIG["batch_size"]
-    num_workers: int = DEFAULT_CONFIG["num_workers"]
-    pin_memory: bool = DEFAULT_CONFIG["pin_memory"]
-    filter_discard_percent: float = DEFAULT_CONFIG["filter_discard_percent"]
-    training_epochs: int = DEFAULT_CONFIG["training_epochs"]
-    learning_rate: float = DEFAULT_CONFIG["learning_rate"]
-    weight_decay: float = DEFAULT_CONFIG["weight_decay"]
-    
-    # Nested configurations as dataclasses or dicts
-    model_params: Dict[str, Any] = field(default_factory=lambda: DEFAULT_CONFIG["model_params"].copy())
-    paths: Dict[str, str] = field(default_factory=lambda: DEFAULT_CONFIG["paths"].copy())
-    validation: Dict[str, Any] = field(default_factory=lambda: DEFAULT_CONFIG["validation"].copy())
+    model_type: str = "unet"
+    base_channels: int = 64
+    down_blocks: int = 4
+    up_blocks: int = 4
+    attention_heads: int = 8
+    estimated_params_m: int = 50
+    batch_size: int = 4
+    learning_rate: float = 1e-4
+    epochs: int = 10
+    seed: int = 42
+    checkpoint_interval: int = 1000
+    timeout_hours: int = 4
 
-    def to_dict(self) -> Dict[str, Any]:
-        """Convert the config to a dictionary."""
-        return asdict(self)
+@dataclass
+class EvaluationConfig:
+    eval_set_size: int = 30
+    statistical_test: str = "mann_whitney_u"
+    significance_level: float = 0.05
+    baseline_source: str = "physisforcing_paper"
+    mu_joco_validation: bool = True
 
-    @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> 'TrainingConfig':
-        """Create a TrainingConfig instance from a dictionary."""
-        # Handle nested dicts for model_params, paths, validation
-        if "model_params" in data and isinstance(data["model_params"], dict):
-            data["model_params"] = {**DEFAULT_CONFIG["model_params"], **data["model_params"]}
-        if "paths" in data and isinstance(data["paths"], dict):
-            data["paths"] = {**DEFAULT_CONFIG["paths"], **data["paths"]}
-        if "validation" in data and isinstance(data["validation"], dict):
-            data["validation"] = {**DEFAULT_CONFIG["validation"], **data["validation"]}
-        
-        return cls(**data)
+@dataclass
+class LoggingConfig:
+    level: str = "INFO"
+    format: str = "json"
+    log_dir: str = "logs"
+    metrics_file: str = "metrics.jsonl"
+    rotation_max_mb: int = 10
+    rotation_backup_count: int = 5
 
-    def validate(self) -> Tuple[bool, List[str]]:
-        """Validate the configuration values."""
-        errors = []
-        
-        if not self.cpu_only:
-            logger.warning("Non-CPU-only mode detected. Ensure CUDA is available.")
-        
-        if self.filter_discard_percent < 0.0 or self.filter_discard_percent > 1.0:
-            errors.append(f"filter_discard_percent must be between 0.0 and 1.0, got {self.filter_discard_percent}")
-        
-        if self.batch_size < 1:
-            errors.append(f"batch_size must be at least 1, got {self.batch_size}")
-        
-        if self.learning_rate <= 0:
-            errors.append(f"learning_rate must be positive, got {self.learning_rate}")
-        
-        if self.max_memory_gb <= 0:
-            errors.append(f"max_memory_gb must be positive, got {self.max_memory_gb}")
+@dataclass
+class ProjectConfig:
+    project_id: str = "PROJ-951-llmxive-follow-up-extending-physisforcin"
+    version: str = "1.0.0"
+    description: str = "Physics-informed filtering for synthetic robotic video datasets"
+    environment: EnvironmentConfig = field(default_factory=EnvironmentConfig)
+    data: DataConfig = field(default_factory=DataConfig)
+    generation: GenerationConfig = field(default_factory=GenerationConfig)
+    filtering: FilteringConfig = field(default_factory=FilteringConfig)
+    training: TrainingConfig = field(default_factory=TrainingConfig)
+    evaluation: EvaluationConfig = field(default_factory=EvaluationConfig)
+    logging: LoggingConfig = field(default_factory=LoggingConfig)
 
-        return len(errors) == 0, errors
+def create_default_config() -> ProjectConfig:
+    """Create a default configuration object."""
+    return ProjectConfig()
 
-def create_default_config() -> TrainingConfig:
-    """Create a new configuration with default values."""
-    logger.info("Creating default training configuration.")
-    return TrainingConfig()
+def get_default_config() -> Dict[str, Any]:
+    """Return a dictionary representation of the default configuration."""
+    return asdict(create_default_config())
 
-def get_default_config() -> TrainingConfig:
-    """Get a fresh copy of the default configuration."""
-    return create_default_config()
-
-def validate_config_schema(data: Dict[str, Any]) -> Tuple[bool, List[str]]:
+def validate_config_schema(config_dict: Dict[str, Any]) -> Tuple[bool, List[str]]:
     """
-    Validate that a dictionary matches the expected schema for TrainingConfig.
+    Validate the configuration dictionary against the expected schema.
     Returns (is_valid, list_of_errors).
     """
     errors = []
-    
-    # Check top-level keys exist in DEFAULT_CONFIG
-    for key in DEFAULT_CONFIG:
-        if key not in data:
-            # Allow missing keys if they have defaults, but warn if critical
-            if key in ["cpu_only", "filter_discard_percent", "batch_size"]:
-                logger.warning(f"Missing critical config key: {key}, using default.")
-    
-    # Type checking for specific fields
-    if "filter_discard_percent" in data:
-        if not isinstance(data["filter_discard_percent"], (int, float)):
-            errors.append("filter_discard_percent must be a number")
-        elif not (0.0 <= data["filter_discard_percent"] <= 1.0):
-            errors.append("filter_discard_percent must be between 0.0 and 1.0")
-    
-    if "batch_size" in data:
-        if not isinstance(data["batch_size"], int) or data["batch_size"] < 1:
-            errors.append("batch_size must be a positive integer")
-    
-    if "cpu_only" in data:
-        if not isinstance(data["cpu_only"], bool):
-            errors.append("cpu_only must be a boolean")
+    required_keys = [
+        "project_id",
+        "environment.cpu_only",
+        "data.root",
+        "filtering.filter_discard_percent",
+        "training.seed"
+    ]
+
+    # Check required keys
+    for key in required_keys:
+        keys = key.split(".")
+        current = config_dict
+        for k in keys:
+            if isinstance(current, dict) and k in current:
+                current = current[k]
+            else:
+                errors.append(f"Missing required key: {key}")
+                break
+
+    # Type checks
+    type_checks = {
+        "filtering.filter_discard_percent": float,
+        "training.epochs": int,
+        "environment.max_ram_gb": float
+    }
+
+    for key, expected_type in type_checks.items():
+        keys = key.split(".")
+        current = config_dict
+        found = True
+        for k in keys:
+            if isinstance(current, dict) and k in current:
+                current = current[k]
+            else:
+                found = False
+                break
+        
+        if found and not isinstance(current, expected_type):
+            errors.append(f"Type mismatch for {key}: expected {expected_type.__name__}, got {type(current).__name__}")
+
+    # Value ranges
+    value_ranges = {
+        "filtering.filter_discard_percent": (0.0, 1.0),
+        "training.batch_size": (1, 128)
+    }
+
+    for key, (min_val, max_val) in value_ranges.items():
+        keys = key.split(".")
+        current = config_dict
+        found = True
+        for k in keys:
+            if isinstance(current, dict) and k in current:
+                current = current[k]
+            else:
+                found = False
+                break
+
+        if found:
+            if not (min_val <= current <= max_val):
+                errors.append(f"Value out of range for {key}: {current} not in [{min_val}, {max_val}]")
 
     return len(errors) == 0, errors
 
-def load_config(config_path: Optional[str] = None) -> TrainingConfig:
-    """
-    Load configuration from a YAML file.
-    If config_path is None, attempts to load from default locations.
-    Falls back to defaults if file is missing or invalid.
-    """
+def load_config(config_path: Optional[str] = None) -> ProjectConfig:
+    """Load configuration from a YAML file."""
     if config_path is None:
-        # Default search paths
-        possible_paths = [
-            "config.yaml",
-            "data/config.yaml",
-            "src/training/config.yaml",
-            os.path.join("projects", "PROJ-951-llmxive-follow-up-extending-physisforcin", "code", "config.yaml")
-        ]
-        for path in possible_paths:
-            if os.path.exists(path):
-                config_path = path
-                break
+        config_path = "code/config.yaml"
     
-    if config_path and os.path.exists(config_path):
-        try:
-            with open(config_path, 'r') as f:
-                data = yaml.safe_load(f)
-            
-            is_valid, errors = validate_config_schema(data)
-            if not is_valid:
-                logger.error(f"Config validation errors: {errors}")
-                # Continue with partial config or raise? Let's warn and merge with defaults.
-            
-            # Merge with defaults to ensure all fields exist
-            merged_data = {**DEFAULT_CONFIG, **data}
-            # Handle nested merges manually for model_params, paths, validation
-            if "model_params" in data:
-                merged_data["model_params"] = {**DEFAULT_CONFIG["model_params"], **data["model_params"]}
-            if "paths" in data:
-                merged_data["paths"] = {**DEFAULT_CONFIG["paths"], **data["paths"]}
-            if "validation" in data:
-                merged_data["validation"] = {**DEFAULT_CONFIG["validation"], **data["validation"]}
-            
-            logger.info(f"Loaded configuration from {config_path}")
-            return TrainingConfig.from_dict(merged_data)
+    path = Path(config_path)
+    if not path.exists():
+        logger.warning(f"Config file {config_path} not found. Using defaults.")
+        return create_default_config()
+
+    try:
+        with open(path, 'r') as f:
+            config_dict = yaml.safe_load(f)
         
-        except yaml.YAMLError as e:
-            logger.error(f"Failed to parse YAML config: {e}")
-            logger.warning("Using default configuration.")
-            return get_default_config()
-        except Exception as e:
-            logger.error(f"Unexpected error loading config: {e}")
-            logger.warning("Using default configuration.")
-            return get_default_config()
-    else:
-        if config_path:
-            logger.warning(f"Config file not found at {config_path}. Using defaults.")
-        else:
-            logger.info("No config file found. Using defaults.")
-        return get_default_config()
+        is_valid, errors = validate_config_schema(config_dict)
+        if not is_valid:
+            logger.error(f"Config validation failed: {errors}")
+            # Fallback to defaults if validation fails
+            return create_default_config()
 
-def save_config(config: TrainingConfig, output_path: str) -> None:
-    """Save the configuration to a YAML file."""
-    output_path = Path(output_path)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    data = config.to_dict()
-    with open(output_path, 'w') as f:
-        yaml.dump(data, f, default_flow_style=False, sort_keys=False)
-    
-    logger.info(f"Saved configuration to {output_path}")
+        # Map dictionary to dataclass
+        config = ProjectConfig()
+        
+        # Helper to set nested values
+        def set_nested(obj, keys, value):
+            if len(keys) == 1:
+                if hasattr(obj, keys[0]):
+                    setattr(obj, keys[0], value)
+            else:
+                child = getattr(obj, keys[0])
+                set_nested(child, keys[1:], value)
 
-def get_filter_discard_threshold(config: Optional[TrainingConfig] = None) -> float:
-    """
-    Get the discard threshold (percentile) for filtering.
-    Defaults to 0.4 (40% discard) if not provided.
-    """
-    if config is None:
-        config = get_default_config()
-    return config.filter_discard_percent
+        def process_dict(d, obj):
+            for key, value in d.items():
+                if hasattr(obj, key):
+                    attr = getattr(obj, key)
+                    if isinstance(attr, dict) and isinstance(value, dict):
+                        process_dict(value, attr)
+                    elif not isinstance(attr, dict):
+                        set_nested(obj, [key], value)
 
-def get_config(config_path: Optional[str] = None) -> TrainingConfig:
-    """
-    Convenience function to load and validate configuration.
-    Returns the config object, raising an error if validation fails critically.
-    """
-    config = load_config(config_path)
-    is_valid, errors = config.validate()
-    
-    if not is_valid:
-        # Log errors but return the config anyway for debugging, 
-        # unless critical fields are wrong.
-        logger.warning(f"Configuration validation warnings: {errors}")
-        # In a strict pipeline, we might raise ValueError here.
-        # For now, we return it but log the issues.
-    
-    return config
+        process_dict(config_dict, config)
+        return config
+
+    except Exception as e:
+        logger.error(f"Error loading config: {e}")
+        return create_default_config()
+
+def save_config(config: ProjectConfig, config_path: str) -> bool:
+    """Save configuration to a YAML file."""
+    try:
+        config_dict = asdict(config)
+        with open(config_path, 'w') as f:
+            yaml.dump(config_dict, f, default_flow_style=False)
+        return True
+    except Exception as e:
+        logger.error(f"Error saving config: {e}")
+        return False
+
+def get_filter_discard_threshold(config: ProjectConfig) -> float:
+    """Get the filter discard threshold from the configuration."""
+    return config.filtering.filter_discard_percent
+
+def get_config(config_path: Optional[str] = None) -> ProjectConfig:
+    """Convenience function to load and return the config."""
+    return load_config(config_path)
 
 def main():
-    """Main entry point for testing the config module."""
-    print("Testing TrainingConfig module...")
-    
-    # Test default creation
-    config = get_default_config()
-    print(f"Default config: {config.to_dict()}")
-    
-    # Test validation
-    is_valid, errors = config.validate()
-    print(f"Validation result: {is_valid}, Errors: {errors}")
-    
-    # Test schema validation
-    bad_data = {"filter_discard_percent": 1.5, "batch_size": -1}
-    is_valid_schema, schema_errors = validate_config_schema(bad_data)
-    print(f"Schema validation (bad data): {is_valid_schema}, Errors: {schema_errors}")
-    
-    # Test save and load
-    import tempfile
-    with tempfile.NamedTemporaryFile(suffix=".yaml", delete=False) as f:
-        temp_path = f.name
-    
-    save_config(config, temp_path)
-    loaded_config = load_config(temp_path)
-    
-    print(f"Loaded config matches: {config.to_dict() == loaded_config.to_dict()}")
-    
-    # Cleanup
-    os.unlink(temp_path)
-    print("Config module test complete.")
+    """Main entry point for testing configuration loading."""
+    config = get_config()
+    print(f"Loaded config for project: {config.project_id}")
+    print(f"Filter discard percent: {config.filtering.filter_discard_percent}")
+    print(f"CPU Only: {config.environment.cpu_only}")
+    print(f"Training epochs: {config.training.epochs}")
 
 if __name__ == "__main__":
     main()

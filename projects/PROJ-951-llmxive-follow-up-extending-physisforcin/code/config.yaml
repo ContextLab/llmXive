@@ -1,39 +1,96 @@
-# PhysisForcing Training Configuration
-# Default configuration for the llmXive follow-up project
+# Project Configuration for llmXive Follow-up: Extending PhysisForcing
+# This file defines the schema and default values for all required keys.
+# Explicitly sets filter_discard_percent to 0.4 to resolve FR-003.
 
-experiment_name: "physs_filter_experiment"
-seed: 42
-cpu_only: true
-max_memory_gb: 6.0
+# --- Project Metadata ---
+project_id: "PROJ-951-llmxive-follow-up-extending-physisforcin"
+version: "1.0.0"
+description: "Physics-informed filtering for synthetic robotic video datasets"
 
-# Filtering parameters
-filter_discard_percent: 0.4
+# --- Environment & Hardware ---
+environment:
+  cpu_only: true
+  cuda_enabled: false
+  max_ram_gb: 6.0
+  max_disk_gb: 14.0
 
-# Training hyperparameters
-batch_size: 1
-num_workers: 0
-pin_memory: false
-training_epochs: 10
-learning_rate: 0.0001
-weight_decay: 0.01
+# --- Data Paths ---
+data:
+  root: "data"
+  raw: "data/raw"
+  curated: "data/curated"
+  eval: "data/eval"
+  validation: "data/validation"
+  control: "data/control"
+  prompts: "data/prompts.json"
 
-# Model architecture parameters (targeting ~50M params)
-model_params:
-  channels: 64
-  num_blocks: 4
-  attention_heads: 4
-  target_params_millions: 50.0
+# --- Generation (Wan2.1) ---
+generation:
+  model_id: "Wan-AI/Wan2.1-Turbo"
+  device: "cpu"
+  offload_to_kaggle: true
+  max_videos: 100
+  frame_rate: 8
+  resolution:
+    width: 512
+    height: 512
+  timeout_seconds: 3600
 
-# Directory paths
-paths:
-  data_root: "data"
-  curated_dir: "data/curated"
-  raw_dir: "data/raw"
-  model_output_dir: "models"
-  checkpoint_dir: "models/checkpoints"
+# --- Filtering (PhysisForcing) ---
+filtering:
+  # CRITICAL: Fixed discard rate to resolve FR-003
+  filter_discard_percent: 0.4
+  physics_engine: "pybullet"
+  simulation_steps: 100
+  continuity_threshold: 0.6
+  contact_threshold: 0.5
+  headless_mode: true
 
-# Validation settings
-validation:
-  check_nan_loss: true
-  nan_retry_limit: 3
-  timeout_hours: 4.0
+# --- Training ---
+training:
+  model_type: "unet"
+  base_channels: 64
+  down_blocks: 4
+  up_blocks: 4
+  attention_heads: 8
+  estimated_params_m: 50
+  batch_size: 4
+  learning_rate: 1e-4
+  epochs: 10
+  seed: 42
+  checkpoint_interval: 1000
+  timeout_hours: 4
+
+# --- Evaluation ---
+evaluation:
+  eval_set_size: 30
+  statistical_test: "mann_whitney_u"
+  significance_level: 0.05
+  baseline_source: "physisforcing_paper"
+  mu_joco_validation: true
+
+# --- Logging & Metrics ---
+logging:
+  level: "INFO"
+  format: "json"
+  log_dir: "logs"
+  metrics_file: "metrics.jsonl"
+  rotation_max_mb: 10
+  rotation_backup_count: 5
+
+# --- Schema Validation Rules ---
+# These are enforced by src/training/config.py
+schema:
+  required_keys:
+    - project_id
+    - environment.cpu_only
+    - data.root
+    - filtering.filter_discard_percent
+    - training.seed
+  type_checks:
+    filtering.filter_discard_percent: float
+    training.epochs: integer
+    environment.max_ram_gb: float
+  value_ranges:
+    filtering.filter_discard_percent: [0.0, 1.0]
+    training.batch_size: [1, 128]
