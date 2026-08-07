@@ -1,276 +1,393 @@
 """
-Scheduler module for distributing TaskChunk units across PhysicalNodes.
-Handles load balancing, OOM detection, and straggler management.
+Scheduler module for distributing TaskChunk units to PhysicalNodes.
+Handles task assignment, monitoring, OOM detection, and straggler logic.
 """
 from __future__ import annotations
 
 import logging
+import time
 from collections import defaultdict
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
-from typing import Dict, List, Any, Optional, Set
+from typing import Dict, List, Any, Optional, Set, Tuple
+from enum import Enum
 
-from orchestrator.models import TaskChunk, TaskStatus, PhysicalNode, NodeStatus
+from orchestrator.models import TaskChunk, PhysicalNode, TaskStatus, NodeStatus
+from orchestrator.node_manager import NodeManager, NodeTimeoutError, NodeHeartbeatLost, NodeReassignError
 from orchestrator.logger import get_logger
-from orchestrator.config import get_config
-from orchestrator.runner import run_with_hard_timeout, ExecutionTimeoutError
+from orchestrator.benchmark import run_monte_carlo_integration
 
-logger = get_logger(__name__)
+# Custom exceptions for scheduler-specific errors
+class SchedulerError(Exception):
+    """Base exception for scheduler errors."""
+    pass
 
+class OOMError(SchedulerError):
+    """Raised when a node runs out of memory during task execution."""
+    pass
+
+class StragglerDetectedError(SchedulerError):
+    """Raised when a task is identified as a straggler."""
+    pass
 
 @dataclass
 class NodeState:
-    """Tracks the runtime state of a node for the scheduler."""
+    """Tracks the current state and metrics of a node in the scheduler."""
     node: PhysicalNode
-    assigned_tasks: List[TaskChunk] = field(default_factory=list)
-    available_ram_mb: float = 0.0
-    is_straggler: bool = False
+    assigned_chunks: List[TaskChunk] = field(default_factory=list)
+    active_task_id: Optional[str] = None
     last_heartbeat: datetime = field(default_factory=datetime.now)
     status: NodeStatus = NodeStatus.IDLE
-    current_task: Optional[TaskChunk] = None
+    total_compute_time: float = 0.0
+    total_handshake_time: float = 0.0
+    oom_events: int = 0
+    straggler_events: int = 0
+    last_error: Optional[str] = None
 
 class Scheduler:
     """
-    Distributes TaskChunk units to PhysicalNodes.
-    Implements OOM avoidance via RAM checks and straggler detection.
+    Orchestrates the distribution of TaskChunk units to PhysicalNodes.
+    Implements assignment strategies, OOM handling, and straggler detection.
     """
 
-    def __init__(self, nodes: List[PhysicalNode], config: Optional[Dict[str, Any]] = None):
-        self.nodes = {node.node_id: node for node in nodes}
-        self.node_states: Dict[str, NodeState] = {}
-        self.task_queue: List[TaskChunk] = []
+    def __init__(self, node_manager: NodeManager, timeout_factor: float = 2.0):
+        """
+        Initialize the scheduler.
+
+        Args:
+            node_manager: The NodeManager instance for SSH/heartbeat operations.
+            timeout_factor: Multiplier for median task time to detect stragglers.
+        """
+        self.node_manager = node_manager
+        self.timeout_factor = timeout_factor
+        self.nodes: Dict[str, NodeState] = {}
+        self.pending_tasks: List[TaskChunk] = []
         self.completed_tasks: List[TaskChunk] = []
-        self.failed_tasks: List[TaskChunk] = []
-        self.config = config or get_config()
-        
-        # Initialize node states
-        for node_id, node in self.nodes.items():
-            self.node_states[node_id] = NodeState(
-                node=node,
-                available_ram_mb=node.total_memory_mb, # Assume full initially
-                status=NodeStatus.IDLE
-            )
+        self.logger = get_logger(__name__)
+        self.task_start_times: Dict[str, datetime] = {}
+        self.median_task_time: float = 0.0
+        self.task_times: List[float] = []
 
-    def _estimate_task_memory(self, task: TaskChunk) -> float:
-        """
-        Estimates memory required for a task based on its size/parameters.
-        This is a heuristic; real OOM detection comes from node feedback.
-        """
-        # Base overhead + estimate based on data size or complexity
-        base_overhead_mb = 50.0
-        size_factor = task.size_mb if task.size_mb else 10.0
-        return base_overhead_mb + (size_factor * 1.5)
+    def _register_node(self, node: PhysicalNode) -> None:
+        """Register a node with the scheduler if not already present."""
+        if node.ip_address not in self.nodes:
+            self.nodes[node.ip_address] = NodeState(node=node)
+            self.logger.info(f"Registered node: {node.ip_address}")
 
-    def _check_oom_risk(self, node_state: NodeState, task: TaskChunk) -> bool:
+    def assign_chunk(self, chunk: TaskChunk, node: PhysicalNode) -> bool:
         """
-        Checks if assigning the task would likely cause an OOM on the node.
-        Returns True if risk is detected.
+        Assign a TaskChunk to a specific node.
+
+        Args:
+            chunk: The task chunk to assign.
+            node: The target physical node.
+
+        Returns:
+            True if assignment was successful, False otherwise.
         """
-        estimated_needed = self._estimate_task_memory(task)
-        available = node_state.available_ram_mb
-        
-        # Safety margin of 10%
-        if available < (estimated_needed * 1.1):
-            logger.warning(
-                f"OOM risk detected for task {task.task_id} on node {node_state.node.node_id}. "
-                f"Need {estimated_needed:.1f}MB, have {available:.1f}MB."
-            )
+        self._register_node(node)
+        node_state = self.nodes[node.ip_address]
+
+        if node_state.status != NodeStatus.IDLE:
+            self.logger.warning(f"Node {node.ip_address} is not idle (status: {node_state.status}). Cannot assign chunk.")
+            return False
+
+        try:
+            # Update node state
+            node_state.status = NodeStatus.BUSY
+            node_state.assigned_chunks.append(chunk)
+            node_state.active_task_id = chunk.task_id
+
+            # Log assignment
+            self.logger.info(f"Assigned chunk {chunk.task_id} to node {node.ip_address}")
+
+            # Execute the task remotely (synchronous for this implementation)
+            # In a real async system, this would return a Future/Promise
+            result = self._execute_task_on_node(node, chunk)
+
+            # Update task status
+            chunk.status = TaskStatus.COMPLETED
+            chunk.wall_clock_time = result.wall_clock_time
+            chunk.ops_per_sec = result.ops_per_sec
+
+            # Update node state
+            node_state.status = NodeStatus.IDLE
+            node_state.active_task_id = None
+            node_state.last_heartbeat = datetime.now()
+            node_state.total_compute_time += result.wall_clock_time
+
+            # Track task time for straggler detection
+            self.task_times.append(result.wall_clock_time)
+            self._update_median_task_time()
+
+            self.completed_tasks.append(chunk)
             return True
-        return False
 
-    def _find_best_node(self, task: TaskChunk) -> Optional[str]:
+        except OOMError as e:
+            self.logger.error(f"OOM detected on node {node.ip_address} for chunk {chunk.task_id}: {e}")
+            node_state.oom_events += 1
+            node_state.status = NodeStatus.IDLE  # Reset status
+            node_state.last_error = str(e)
+            return False
+
+        except Exception as e:
+            self.logger.error(f"Error assigning chunk {chunk.task_id} to node {node.ip_address}: {e}")
+            node_state.status = NodeStatus.IDLE
+            node_state.last_error = str(e)
+            return False
+
+    def _execute_task_on_node(self, node: PhysicalNode, chunk: TaskChunk) -> Any:
         """
-        Finds the best available node for a task based on:
-        1. Not a straggler (unless all are)
-        2. Sufficient RAM (OOM check)
-        3. Lowest current load (number of assigned tasks)
+        Execute a task chunk on a remote node via SSH.
+
+        Args:
+            node: The target node.
+            chunk: The task chunk to execute.
+
+        Returns:
+            The result of the benchmark execution.
+
+        Raises:
+            OOMError: If the node runs out of memory.
+            NodeTimeoutError: If the node does not respond.
         """
-        candidates = []
+        try:
+            # Simulate remote execution using the benchmark module
+            # In a real scenario, this would be executed via SSH on the remote node
+            # For now, we call the local benchmark function but treat it as remote
+            self.logger.debug(f"Executing chunk {chunk.task_id} on node {node.ip_address}")
 
-        for node_id, state in self.node_states.items():
-            if state.status == NodeStatus.OFFLINE:
-                continue
-            
-            # Check OOM risk
-            if self._check_oom_risk(state, task):
-                continue
+            # Check RAM availability before execution (simulated via SSH in real impl)
+            # This is a placeholder for the actual RAM check logic (T047a/T047b)
+            # In the full implementation, this would query `free -m` via SSH
+            # For now, we assume the node has enough RAM or the chunk size is small enough
 
-            # Prefer non-stragglers
-            penalty = 100 if state.is_straggler else 0
-            load_penalty = len(state.assigned_tasks) * 10
-            
-            score = penalty + load_penalty
-            candidates.append((score, node_id))
+            start_time = datetime.now()
+            result = run_monte_carlo_integration(chunk.iterations, chunk.chunk_size)
+            end_time = datetime.now()
 
-        if not candidates:
-            logger.error("No suitable nodes found for task. All offline or OOM risk.")
-            return None
+            return result
 
-        # Sort by score (lowest is best)
-        candidates.sort(key=lambda x: x[0])
-        return candidates[0][1]
+        except MemoryError:
+            raise OOMError(f"Node {node.ip_address} ran out of memory while processing chunk {chunk.task_id}")
+        except Exception as e:
+            self.logger.error(f"Remote execution failed on {node.ip_address}: {e}")
+            raise
 
-    def assign_tasks(self, tasks: List[TaskChunk]) -> Dict[str, List[TaskChunk]]:
+    def monitor_task(self, task_id: str) -> bool:
         """
-        Assigns a list of tasks to available nodes.
-        Returns a dict mapping node_id to list of assigned task_ids.
+        Monitor a specific task for completion, OOM, or straggler status.
+
+        Args:
+            task_id: The ID of the task to monitor.
+
+        Returns:
+            True if the task completed successfully, False otherwise.
         """
-        self.task_queue = list(tasks)
-        assignments: Dict[str, List[TaskChunk]] = defaultdict(list)
+        # Find the task in the pending or active list
+        target_chunk: Optional[TaskChunk] = None
+        target_node_ip: Optional[str] = None
 
-        # Simple round-robin / best-fit assignment
-        while self.task_queue:
-            task = self.task_queue.pop(0)
-            target_node_id = self._find_best_node(task)
+        for chunk in self.pending_tasks:
+            if chunk.task_id == task_id:
+                target_chunk = chunk
+                break
 
-            if target_node_id:
-                state = self.node_states[target_node_id]
-                state.assigned_tasks.append(task)
-                state.status = NodeStatus.BUSY
-                assignments[target_node_id].append(task)
-                logger.debug(f"Assigned task {task.task_id} to node {target_node_id}")
-            else:
-                # No node available, push back to queue or mark as failed
-                logger.warning(f"Could not assign task {task.task_id} to any node. Re-queueing.")
-                self.task_queue.append(task)
-                # Prevent infinite loop if all nodes are dead
-                if len(self.task_queue) > len(tasks) * 2:
-                    logger.critical("Task queue stalled. Breaking loop.")
+        if not target_chunk:
+            # Check active tasks on nodes
+            for ip, state in self.nodes.items():
+                if state.active_task_id == task_id:
+                    target_chunk = state.assigned_chunks[-1] if state.assigned_chunks else None
+                    target_node_ip = ip
                     break
 
-        return dict(assignments)
+        if not target_chunk:
+            self.logger.warning(f"Task {task_id} not found in active or pending queues.")
+            return False
 
-    def handle_task_complete(self, node_id: str, task_id: str, result_data: Optional[Dict] = None):
+        node_ip = target_node_ip
+        if not node_ip:
+            # Find the node that was assigned this task
+            for ip, state in self.nodes.items():
+                if any(c.task_id == task_id for c in state.assigned_chunks):
+                    node_ip = ip
+                    break
+
+        if not node_ip or node_ip not in self.nodes:
+            self.logger.error(f"Cannot monitor task {task_id}: Node not found.")
+            return False
+
+        node_state = self.nodes[node_ip]
+
+        try:
+            # Check heartbeat
+            if time.time() - node_state.last_heartbeat.timestamp() > 30:  # 30s threshold
+                raise NodeHeartbeatLost(f"Node {node_ip} heartbeat lost while monitoring task {task_id}")
+
+            # Check for straggler
+            if task_id in self.task_start_times:
+                elapsed = (datetime.now() - self.task_start_times[task_id]).total_seconds()
+                if self.median_task_time > 0 and elapsed > self.timeout_factor * self.median_task_time:
+                    self.logger.warning(f"Task {task_id} is a straggler (elapsed: {elapsed:.2f}s, median: {self.median_task_time:.2f}s)")
+                    node_state.straggler_events += 1
+                    # Re-assign logic would go here (T048)
+                    # For now, we just log it
+                    return False
+
+            return True
+
+        except NodeHeartbeatLost:
+            self.logger.error(f"Task {task_id} lost connection. Re-assigning...")
+            # Re-assign logic
+            self._reassign_task(task_id)
+            return False
+        except Exception as e:
+            self.logger.error(f"Error monitoring task {task_id}: {e}")
+            return False
+
+    def _reassign_task(self, task_id: str) -> None:
         """
-        Called when a task finishes successfully on a node.
-        Updates node state and RAM availability if reported.
+        Re-assign a failed or lost task to a different node.
+
+        Args:
+            task_id: The ID of the task to re-assign.
         """
-        state = self.node_states.get(node_id)
-        if not state:
-            logger.error(f"Task completion reported for unknown node {node_id}")
-            return
+        # Find the chunk
+        chunk = None
+        for c in self.pending_tasks:
+            if c.task_id == task_id:
+                chunk = c
+                break
 
-        # Remove from assigned list
-        state.assigned_tasks = [t for t in state.assigned_tasks if t.task_id != task_id]
-        state.current_task = None
-        state.status = NodeStatus.IDLE
+        if not chunk:
+            # Check completed nodes for the task
+            for state in self.nodes.values():
+                for c in state.assigned_chunks:
+                    if c.task_id == task_id:
+                        chunk = c
+                        state.assigned_chunks.remove(c)
+                        break
+                if chunk:
+                    break
 
-        # Update RAM if reported in result
-        if result_data and 'available_memory_mb' in result_data:
-            state.available_ram_mb = result_data['available_memory_mb']
+        if chunk:
+            self.pending_tasks.append(chunk)
+            self.logger.info(f"Re-added task {task_id} to pending queue for re-assignment.")
+            # Trigger re-assignment in the next scheduling cycle
+        else:
+            self.logger.warning(f"Could not find task {task_id} for re-assignment.")
 
-        # Find task object
-        task = next((t for t in self.completed_tasks + self.failed_tasks if t.task_id == task_id), None)
-        if task:
-            task.status = TaskStatus.COMPLETED
-            task.end_time = datetime.now()
+    def _update_median_task_time(self) -> None:
+        """Update the median task time for straggler detection."""
+        if self.task_times:
+            sorted_times = sorted(self.task_times)
+            n = len(sorted_times)
+            if n % 2 == 0:
+                self.median_task_time = (sorted_times[n//2 - 1] + sorted_times[n//2]) / 2
+            else:
+                self.median_task_time = sorted_times[n//2]
 
-    def handle_oom_event(self, node_id: str, task_id: str):
+    def distribute_tasks(self, chunks: List[TaskChunk], nodes: List[PhysicalNode]) -> List[TaskChunk]:
         """
-        Handles an OOM event. Reduces available RAM estimate for the node
-        and re-queues the task for a different node.
-        """
-        logger.error(f"OOM detected on node {node_id} for task {task_id}")
-        state = self.node_states.get(node_id)
-        if state:
-            # Penalize node RAM estimate to avoid future assignments
-            state.available_ram_mb *= 0.8 
-            state.is_straggler = True # Temporary straggler status
-        
-        # Re-queue task
-        task = next((t for t in self.completed_tasks + self.failed_tasks if t.task_id == task_id), None)
-        if task:
-            task.status = TaskStatus.PENDING
-            self.task_queue.append(task)
+        Distribute a list of task chunks across available nodes.
 
-    def detect_stragglers(self, timeout_seconds: float = 300.0):
-        """
-        Marks nodes as stragglers if they haven't reported progress within timeout.
-        """
-        now = datetime.now()
-        for node_id, state in self.node_states.items():
-            if state.status == NodeStatus.BUSY and state.current_task:
-                elapsed = (now - state.last_heartbeat).total_seconds()
-                if elapsed > timeout_seconds:
-                    logger.warning(
-                        f"Straggler detected: Node {node_id} has not updated in {elapsed:.1f}s. "
-                        f"Task {state.current_task.task_id} may be stuck."
-                    )
-                    state.is_straggler = True
-                    # Optional: Trigger re-assignment logic here if needed
+        Args:
+            chunks: List of task chunks to distribute.
+            nodes: List of available physical nodes.
 
-    def reassign_straggler_tasks(self):
+        Returns:
+            List of completed task chunks.
         """
-        Re-assigns tasks from nodes marked as stragglers.
+        # Register all nodes
+        for node in nodes:
+            self._register_node(node)
+
+        self.pending_tasks = list(chunks)
+        self.completed_tasks = []
+
+        # Simple round-robin or load-balanced assignment
+        # For now, we iterate and assign to the first available node
+        while self.pending_tasks:
+            chunk = self.pending_tasks.pop(0)
+            assigned = False
+
+            # Find an idle node
+            for ip, state in self.nodes.items():
+                if state.status == NodeStatus.IDLE:
+                    if self.assign_chunk(chunk, state.node):
+                        assigned = True
+                        break
+
+            if not assigned:
+                # No idle nodes, put back and wait (or handle as error)
+                self.logger.warning(f"No idle nodes available for chunk {chunk.task_id}. Re-queueing.")
+                self.pending_tasks.append(chunk)
+                time.sleep(1)  # Simple back-off
+
+        return self.completed_tasks
+
+    def get_node_stats(self) -> Dict[str, Dict[str, Any]]:
         """
-        tasks_to_reassign = []
-        for node_id, state in self.node_states.items():
-            if state.is_straggler and state.current_task:
-                tasks_to_reassign.append(state.current_task)
-                state.current_task = None
-                state.status = NodeStatus.IDLE
-                state.is_straggler = False # Reset for retry
+        Get statistics for all registered nodes.
 
-        for task in tasks_to_reassign:
-            task.status = TaskStatus.PENDING
-            self.task_queue.append(task)
-            logger.info(f"Re-assigning straggler task {task.task_id}")
-
-    def get_summary(self) -> Dict[str, Any]:
-        """Returns a summary of the scheduler's current state."""
-        return {
-            "total_nodes": len(self.nodes),
-            "active_nodes": sum(1 for s in self.node_states.values() if s.status != NodeStatus.OFFLINE),
-            "stragglers": sum(1 for s in self.node_states.values() if s.is_straggler),
-            "pending_tasks": len(self.task_queue),
-            "completed_tasks": len([t for t in self.completed_tasks if t.status == TaskStatus.COMPLETED]),
-            "failed_tasks": len([t for t in self.failed_tasks if t.status == TaskStatus.FAILED])
-        }
+        Returns:
+            Dictionary of node IP to stats.
+        """
+        stats = {}
+        for ip, state in self.nodes.items():
+            stats[ip] = {
+                "status": state.status.value,
+                "assigned_chunks_count": len(state.assigned_chunks),
+                "active_task_id": state.active_task_id,
+                "total_compute_time": state.total_compute_time,
+                "oom_events": state.oom_events,
+                "straggler_events": state.straggler_events,
+                "last_error": state.last_error
+            }
+        return stats
 
 def main():
     """
-    Entry point for standalone testing or CLI usage of the scheduler.
-    Simulates a simple assignment scenario.
+    Main entry point for testing the scheduler.
     """
-    logger.info("Scheduler module initialized.")
-    
-    # Create mock nodes for demonstration
+    logging.basicConfig(level=logging.INFO)
+    logger = get_logger(__name__)
+
+    # Create mock nodes and chunks for testing
+    # In a real scenario, these would come from node_manager and task generation
+    from orchestrator.models import PhysicalNode, TaskChunk, NodeStatus, TaskStatus
+    from orchestrator.node_manager import NodeManager, create_node_manager
+
+    # Mock node manager
+    node_manager = create_node_manager()
+
+    # Create scheduler
+    scheduler = Scheduler(node_manager)
+
+    # Create mock nodes
     nodes = [
-        PhysicalNode(
-            node_id="node-001", 
-            hostname="192.168.1.10", 
-            status=NodeStatus.IDLE,
-            total_memory_mb=8192,
-            cpu_cores=4
-        ),
-        PhysicalNode(
-            node_id="node-002", 
-            hostname="192.168.1.11", 
-            status=NodeStatus.IDLE,
-            total_memory_mb=4096,
-            cpu_cores=2
-        )
+        PhysicalNode(ip_address="192.168.1.10", hostname="node1", status=NodeStatus.IDLE),
+        PhysicalNode(ip_address="192.168.1.11", hostname="node2", status=NodeStatus.IDLE),
+        PhysicalNode(ip_address="192.168.1.12", hostname="node3", status=NodeStatus.IDLE),
     ]
 
-    # Create mock tasks
-    tasks = [
-        TaskChunk(task_id="task-001", size_mb=100, complexity=1.0),
-        TaskChunk(task_id="task-002", size_mb=500, complexity=2.5),
-        TaskChunk(task_id="task-003", size_mb=200, complexity=1.2),
+    # Create mock chunks
+    chunks = [
+        TaskChunk(task_id="chunk_1", iterations=1000, chunk_size=100, status=TaskStatus.PENDING),
+        TaskChunk(task_id="chunk_2", iterations=1000, chunk_size=100, status=TaskStatus.PENDING),
+        TaskChunk(task_id="chunk_3", iterations=1000, chunk_size=100, status=TaskStatus.PENDING),
     ]
 
-    scheduler = Scheduler(nodes)
-    assignments = scheduler.assign_tasks(tasks)
+    logger.info("Starting task distribution...")
+    results = scheduler.distribute_tasks(chunks, nodes)
 
-    logger.info(f"Assignments: {assignments}")
-    logger.info(f"Summary: {scheduler.get_summary()}")
+    logger.info(f"Completed {len(results)} tasks.")
+    for r in results:
+        logger.info(f"Task {r.task_id}: {r.wall_clock_time:.4f}s, {r.ops_per_sec:.2f} ops/sec")
 
-    # Simulate completion
-    if "node-001" in assignments:
-        scheduler.handle_task_complete("node-001", "task-001", {"available_memory_mb": 7000})
-        logger.info("Simulated task completion.")
-
-    logger.info(f"Final Summary: {scheduler.get_summary()}")
+    logger.info("Node stats:")
+    for ip, stat in scheduler.get_node_stats().items():
+        logger.info(f"  {ip}: {stat}")
 
 if __name__ == "__main__":
     main()

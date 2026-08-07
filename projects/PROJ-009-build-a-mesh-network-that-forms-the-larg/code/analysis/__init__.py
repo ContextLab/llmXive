@@ -1,4 +1,2 @@
-"""
-Analysis module for statistical modeling and regression analysis.
-Includes MLR, GAM, and theoretical bound validation.
-"""
+# Analysis Module
+# Statistical modeling, regression, and overhead calculation

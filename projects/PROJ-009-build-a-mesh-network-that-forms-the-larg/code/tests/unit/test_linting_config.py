@@ -1,68 +1,116 @@
+"""
+Unit tests to verify linting and formatting configuration.
+These tests ensure that pyproject.toml, .flake8, and ruff configurations
+are correctly set up as per T003.
+"""
 import os
 import tomli
 import pytest
 from pathlib import Path
-
-# Ensure we can import from the code root
 import sys
+import subprocess
+
+# Add code directory to path for imports if needed, though this test mostly checks files
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-ROOT_DIR = Path(__file__).parent.parent.parent.parent
+PROJECT_ROOT = Path(__file__).parent.parent.parent
+PYPROJECT_PATH = PROJECT_ROOT / "pyproject.toml"
+FLAKE8_PATH = PROJECT_ROOT / ".flake8"
+
 
 def test_pyproject_toml_exists():
-    """Verify pyproject.toml exists at the project root."""
-    assert (ROOT_DIR / "pyproject.toml").exists(), "pyproject.toml must exist at project root"
+    """Verify that pyproject.toml exists in the project root."""
+    assert PYPROJECT_PATH.exists(), f"pyproject.toml not found at {PYPROJECT_PATH}"
+
 
 def test_pyproject_toml_has_black_config():
-    """Verify black configuration is present in pyproject.toml."""
-    pyproject_path = ROOT_DIR / "pyproject.toml"
-    assert pyproject_path.exists()
-    
-    with open(pyproject_path, "rb") as f:
+    """Verify that pyproject.toml contains [tool.black] section with line-length=88."""
+    if not PYPROJECT_PATH.exists():
+        pytest.skip("pyproject.toml does not exist")
+
+    with open(PYPROJECT_PATH, "rb") as f:
         config = tomli.load(f)
-    
-    assert "tool" in config, "tool section missing"
-    assert "black" in config["tool"], "black configuration missing in [tool.black]"
+
+    assert "tool" in config, "Missing [tool] section in pyproject.toml"
+    assert "black" in config["tool"], "Missing [tool.black] section in pyproject.toml"
     
     black_config = config["tool"]["black"]
-    assert "line-length" in black_config, "black line-length not configured"
+    assert "line-length" in black_config, "Missing line-length in [tool.black]"
     assert black_config["line-length"] == 88, f"Expected line-length 88, got {black_config['line-length']}"
 
+
 def test_pyproject_toml_has_ruff_config():
-    """Verify ruff configuration is present in pyproject.toml."""
-    pyproject_path = ROOT_DIR / "pyproject.toml"
-    assert pyproject_path.exists()
-    
-    with open(pyproject_path, "rb") as f:
+    """Verify that pyproject.toml contains [tool.ruff] section with required rules."""
+    if not PYPROJECT_PATH.exists():
+        pytest.skip("pyproject.toml does not exist")
+
+    with open(PYPROJECT_PATH, "rb") as f:
         config = tomli.load(f)
-    
-    assert "tool" in config, "tool section missing"
-    assert "ruff" in config["tool"], "ruff configuration missing in [tool.ruff]"
+
+    assert "tool" in config, "Missing [tool] section in pyproject.toml"
+    assert "ruff" in config["tool"], "Missing [tool.ruff] section in pyproject.toml"
     
     ruff_config = config["tool"]["ruff"]
-    assert "line-length" in ruff_config, "ruff line-length not configured"
+    
+    # Check line-length
+    assert "line-length" in ruff_config, "Missing line-length in [tool.ruff]"
     assert ruff_config["line-length"] == 88, f"Expected line-length 88, got {ruff_config['line-length']}"
+    
+    # Check lint rules
+    assert "lint" in ruff_config, "Missing [tool.ruff.lint] section"
+    lint_config = ruff_config["lint"]
+    assert "select" in lint_config, "Missing 'select' in [tool.ruff.lint]"
+    select_rules = lint_config["select"]
+    
+    # Verify E, W, F, I are present
+    assert "E" in select_rules, "Missing 'E' (pycodestyle errors) in ruff select"
+    assert "W" in select_rules, "Missing 'W' (pycodestyle warnings) in ruff select"
+    assert "F" in select_rules, "Missing 'F' (Pyflakes) in ruff select"
+    assert "I" in select_rules, "Missing 'I' (isort) in ruff select"
+
 
 def test_flake8_config_exists():
-    """Verify .flake8 config file exists."""
-    assert (ROOT_DIR / ".flake8").exists(), ".flake8 config must exist at project root"
+    """Verify that .flake8 configuration file exists."""
+    assert FLAKE8_PATH.exists(), f".flake8 not found at {FLAKE8_PATH}"
+
 
 def test_flake8_config_valid():
-    """Verify .flake8 config has valid syntax and required settings."""
-    flake8_path = ROOT_DIR / ".flake8"
-    assert flake8_path.exists()
-    
-    content = flake8_path.read_text()
-    assert "[flake8]" in content, ".flake8 must have [flake8] section"
-    assert "max-line-length" in content, "max-line-length must be configured in .flake8"
-    assert "88" in content, "max-line-length should be 88 to match black"
+    """Verify that .flake8 file contains valid configuration with max-line-length=88."""
+    if not FLAKE8_PATH.exists():
+        pytest.skip(".flake8 does not exist")
+
+    content = FLAKE8_PATH.read_text()
+    assert "[flake8]" in content, "Missing [flake8] section in .flake8"
+    assert "max-line-length = 88" in content, "Missing or incorrect max-line-length in .flake8"
+
 
 def test_ruff_binary_available():
-    """Verify ruff binary is available in PATH."""
-    import shutil
-    assert shutil.which("ruff") is not None, "ruff binary must be available in PATH"
+    """Verify that ruff is installed and available."""
+    try:
+        result = subprocess.run(
+            ["ruff", "--version"],
+            capture_output=True,
+            text=True,
+            timeout=10
+        )
+        assert result.returncode == 0, f"ruff command failed: {result.stderr}"
+    except FileNotFoundError:
+        pytest.fail("ruff binary not found. Please install it: pip install ruff")
+    except subprocess.TimeoutExpired:
+        pytest.fail("ruff version check timed out")
+
 
 def test_black_binary_available():
-    """Verify black binary is available in PATH."""
-    import shutil
-    assert shutil.which("black") is not None, "black binary must be available in PATH"
+    """Verify that black is installed and available."""
+    try:
+        result = subprocess.run(
+            ["black", "--version"],
+            capture_output=True,
+            text=True,
+            timeout=10
+        )
+        assert result.returncode == 0, f"black command failed: {result.stderr}"
+    except FileNotFoundError:
+        pytest.fail("black binary not found. Please install it: pip install black")
+    except subprocess.TimeoutExpired:
+        pytest.fail("black version check timed out")

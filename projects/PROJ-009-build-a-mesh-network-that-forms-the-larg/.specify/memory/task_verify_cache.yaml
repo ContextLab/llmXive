@@ -1,23 +1,32 @@
-T013:
+T001:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `node_manager.py` file (or any non\u2011empty implementation) was presented\
-    \ in the evidence, and therefore there is no code handling SSH connections, heartbeat\
-    \ pings, or device discovery as required. The task remains undone."
-T014a:
+  r: The response contains only the task description and specifications; no directory
+    tree, `__init__.py` files, or a `.gitignore` file are shown. Consequently, the
+    required project structure and its contents cannot be confirmed as existing. The
+    implementer must create the listed directories with `__init__.py` in each and
+    provide the `.gitignore` file.
+T007:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `instrumentor_remote.py` file (or its contents) was presented in the evidence,\
-    \ and there is no indication that the required remote\u2011execution logic for\
-    \ `tcpdump` and `mpstat` via SSH has been added to `code/orchestrator/`. The task\u2019\
-    s core artifact is therefore missing."
-T014b:
+  r: No files or code were found under `code/tests/contract/` defining YAML schemas
+    for `ExecutionRun` or `RegressionModel`, nor any implementation using `jsonschema`/`pydantic`
+    to perform runtime validation. The required artifacts are missing, so the task
+    is not satisfied.
+T012a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `code/orchestrator/mpstat_parser.py` file or its contents were provided,\
-    \ so we cannot confirm that a parser was implemented, that it is non\u2011empty,\
-    \ or that it correctly extracts `cpu_utilization_pct` for the `PhysicalNode` entity.\
-    \ The required artifact is missing."
+  r: No `code/orchestrator/remote_tool_checker.py` file or its contents were presented,
+    so we cannot verify that it checks for `tcpdump` and `mpstat`, logs warnings,
+    marks nodes unavailable, or raises `ToolMissingError`. The required artifact is
+    missing, making the task unfulfilled.
+T012b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `code/orchestrator/remote_tool_installer.py` file was presented, and there
+    is no evidence that such a script exists, contains logic to detect missing `tcpdump`/`mpstat`,
+    attempts `apt-get`/`yum` installs with sudo handling, or marks a node unavailable
+    on failure. The required artifact is missing, so the task is not satisfied.
 T015:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

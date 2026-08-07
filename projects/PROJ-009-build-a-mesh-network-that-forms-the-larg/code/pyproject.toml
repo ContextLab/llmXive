@@ -3,7 +3,7 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "mesh-supercomputer"
+name = "mesh-network-supercomputer"
 version = "0.1.0"
 description = "Mesh Network Supercomputer Using Pooled Idle Computing Resources"
 requires-python = ">=3.11"
@@ -17,23 +17,27 @@ dependencies = [
     "pyyaml",
     "numpy",
     "simpy",
+    "scipy",
+    "jsonschema",
+    "tomli; python_version < '3.11'"
 ]
 
 [tool.black]
 line-length = 88
 target-version = ['py311']
 include = '\.pyi?$'
-exclude = '''
+extend-exclude = '''
 /(
-    \.git
-    | \.hg
-    | \.mypy_cache
-    | \.tox
-    | \.venv
-    | _build
-    | buck-out
-    | build
-    | dist
+  \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
 )/
 '''
 
@@ -42,53 +46,34 @@ exclude = '''
 line-length = 88
 target-version = "py311"
 
-# Assume Python 3.11
-[tool.ruff.lint]
-select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # Pyflakes
-    "I",  # isort
-    "C",  # flake8-comprehensions
-    "B",  # flake8-bugbear
-]
-ignore = [
-    "E501", # line too long (handled by black)
-    "B008", # do not perform function calls in argument defaults
-    "C901", # too complex
+# Exclude a few directories
+exclude = [
+    ".eggs",
+    ".git",
+    ".mypy_cache",
+    ".tox",
+    ".venv",
+    "build",
+    "dist",
 ]
 
-# Allow autofix for all enabled rules (when `--fix` is provided).
+[tool.ruff.lint]
+# Enable pycodestyle (`E`), Pyflakes (`F`), isort (`I`), and flake8 (`W`)
+select = ["E", "W", "F", "I"]
+ignore = []
+
+# Allow autofix for all enabled rules (when `--fix` is provided)
 fixable = ["ALL"]
 unfixable = []
 
-# Exclude a few files/directories.
-exclude = [
-    ".bzr",
-    ".direnv",
-    ".eggs",
-    ".git",
-    ".hg",
-    ".mypy_cache",
-    ".nox",
-    ".pants.d",
-    ".ruff_cache",
-    ".svn",
-    ".tox",
-    ".venv",
-    "__pypackages__",
-    "_build",
-    "buck-out",
-    "build",
-    "dist",
-    "node_modules",
-    "venv",
-]
+# Allow unused variables when underscore-prefixed.
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 
-# Per-rule configuration
 [tool.ruff.lint.per-file-ignores]
-"code/tests/*" = ["S101"] # Allow asserts in tests
+# Ignore specific rules in test files if necessary
+"code/tests/**/*.py" = ["E501"]
 
-[tool.ruff.lint.isort]
-known-first-party = ["orchestrator", "analysis", "simulation", "tests"]
-force-sort-within-sections = true
+[tool.pytest.ini_options]
+testpaths = ["code/tests"]
+pythonpath = ["code"]
+addopts = "-v --tb=short"

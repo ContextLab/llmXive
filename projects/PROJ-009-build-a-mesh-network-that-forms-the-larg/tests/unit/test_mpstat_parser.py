@@ -5,88 +5,72 @@ import pytest
 from orchestrator.mpstat_parser import parse_mpstat_output, get_aggregated_utilization
 
 
-class TestMpstatParser:
-    """Tests for the mpstat output parser."""
+# Mock output matching typical mpstat format
+MOCK_MPSTAT_OUTPUT = """
+Linux 5.15.0-76-generic (node01)  10/24/2023  _x86_64_  (4 CPU)
 
-    def test_parse_standard_output(self):
-        """Test parsing a standard mpstat output string."""
-        sample_output = """
-        Linux 5.15.0-46-generic (node1) 	10/25/2023 	_x86_64_	(4 CPU)
+10:23:45 AM     CPU     %usr     %nice      %sys %iowait    %irq   %soft  %steal  %guest  %gnice   %idle
+10:23:45 AM     all     12.50      0.00      3.25     0.50     0.00     0.10     0.00     0.00     0.00    83.65
+10:23:45 AM       0     15.20      0.00      4.10     1.00     0.00     0.20     0.00     0.00     0.00    79.50
+10:23:45 AM       1      9.80      0.00      2.40     0.00     0.00     0.00     0.00     0.00     0.00    87.80
+"""
 
-        10:00:00 AM  CPU    %usr   %nice    %sys %iowait    %irq   %soft  %steal  %guest  %gnice   %idle
-        10:00:01 AM  all    2.50    0.00    1.00    0.50    0.00    0.00    0.00    0.00    0.00   96.00
-        10:00:02 AM  all    5.00    0.00    2.00    1.00    0.00    0.00    0.00    0.00    0.00   92.00
+MOCK_MPSTAT_SINGLE_CPU = """
+Linux 5.15.0-76-generic (node02)  10/24/2023  _x86_64_  (1 CPU)
 
-        Average:      CPU    %usr   %nice    %sys %iowait    %irq   %soft  %steal  %guest  %gnice   %idle
-        Average:      all    3.75    0.00    1.50    0.75    0.00    0.00    0.00    0.00    0.00   94.00
-        """
-        
-        result = parse_mpstat_output(sample_output)
-        
-        assert len(result) == 2  # Two data lines (excluding Average)
-        
-        # Check first line
-        assert result[0]["cpu_id"] == "all"
-        assert result[0]["cpu_utilization_pct"] == 4.0  # 100 - 96
-        assert result[0]["idle_pct"] == 96.0
-        assert "10:00:01 AM" in result[0]["timestamp"]
+10:25:00 AM     CPU     %usr     %nice      %sys %iowait    %irq   %soft  %steal  %guest  %gnice   %idle
+10:25:00 AM       0     50.00      0.00     10.00     0.00     0.00     0.00     0.00     0.00     0.00    40.00
+"""
 
-    def test_parse_single_cpu(self):
-        """Test parsing output with specific CPU cores."""
-        sample_output = """
-        10:00:00 AM  CPU    %usr   %nice    %sys %iowait    %irq   %soft  %steal  %guest  %gnice   %idle
-        10:00:01 AM  0      10.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00   90.00
-        10:00:01 AM  1      20.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00   80.00
-        """
-        
-        result = parse_mpstat_output(sample_output)
-        
-        assert len(result) == 2
-        assert result[0]["cpu_id"] == "0"
-        assert result[0]["cpu_utilization_pct"] == 10.0
-        assert result[1]["cpu_id"] == "1"
-        assert result[1]["cpu_utilization_pct"] == 20.0
+def test_parse_mpstat_output_all_cpu():
+    """Test parsing when 'all' CPU entry is present."""
+    result = parse_mpstat_output(MOCK_MPSTAT_OUTPUT)
+    
+    assert result['cpu_id'] == 'all'
+    assert result['cpu_utilization_pct'] == pytest.approx(16.35, rel=1e-4) # 100 - 83.65
+    assert result['raw_stats']['idle'] == pytest.approx(83.65, rel=1e-4)
+    assert result['raw_stats']['usr'] == pytest.approx(12.50, rel=1e-4)
+    assert result['timestamp'] == '10:23:45 AM'
 
-    def test_parse_empty_output_raises(self):
-        """Test that empty output raises ValueError."""
-        with pytest.raises(ValueError):
-            parse_mpstat_output("")
-        
-        with pytest.raises(ValueError):
-            parse_mpstat_output("   \n  ")
+def test_parse_mpstat_output_single_cpu():
+    """Test parsing when only single CPU entry is present."""
+    result = parse_mpstat_output(MOCK_MPSTAT_SINGLE_CPU)
+    
+    assert result['cpu_id'] == '0'
+    assert result['cpu_utilization_pct'] == pytest.approx(60.00, rel=1e-4) # 100 - 40.00
+    assert result['raw_stats']['idle'] == pytest.approx(40.00, rel=1e-4)
 
-    def test_parse_no_data_lines_raises(self):
-        """Test that output with no data lines raises ValueError."""
-        sample_output = """
-        Linux 5.15.0-46-generic (node1) 	10/25/2023 	_x86_64_	(4 CPU)
-        """
-        with pytest.raises(ValueError):
-            parse_mpstat_output(sample_output)
+def test_get_aggregated_utilization():
+    """Test the helper function that returns just the float utilization."""
+    util = get_aggregated_utilization(MOCK_MPSTAT_OUTPUT)
+    assert util == pytest.approx(16.35, rel=1e-4)
 
-    def test_aggregated_utilization_all(self):
-        """Test aggregation when 'all' is present."""
-        data = [
-            {"cpu_id": "all", "cpu_utilization_pct": 10.0},
-            {"cpu_id": "all", "cpu_utilization_pct": 20.0}
-        ]
-        agg = get_aggregated_utilization(data)
-        assert agg["avg_utilization_pct"] == 15.0
-        assert agg["max_utilization_pct"] == 20.0
+def test_parse_empty_output():
+    """Test that empty output raises ValueError."""
+    with pytest.raises(ValueError, match="Empty mpstat output"):
+        parse_mpstat_output("")
 
-    def test_aggregated_utilization_multi_core(self):
-        """Test aggregation across multiple cores."""
-        data = [
-            {"cpu_id": "0", "cpu_utilization_pct": 10.0},
-            {"cpu_id": "1", "cpu_utilization_pct": 30.0},
-            {"cpu_id": "2", "cpu_utilization_pct": 20.0}
-        ]
-        agg = get_aggregated_utilization(data)
-        # Average of 10, 30, 20
-        assert agg["avg_utilization_pct"] == 20.0
-        assert agg["max_utilization_pct"] == 30.0
+def test_parse_no_data_lines():
+    """Test that output with only headers raises ValueError."""
+    header_only = """
+    Linux 5.15.0-76-generic (node01)  10/24/2023  _x86_64_  (4 CPU)
+    10:23:45 AM     CPU     %usr     %nice      %sys %iowait    %irq   %soft  %steal  %guest  %gnice   %idle
+    """
+    with pytest.raises(ValueError, match="No valid data lines found"):
+        parse_mpstat_output(header_only)
 
-    def test_aggregated_utilization_empty(self):
-        """Test aggregation of empty list."""
-        agg = get_aggregated_utilization([])
-        assert agg["avg_utilization_pct"] == 0.0
-        assert agg["max_utilization_pct"] == 0.0
+def test_parse_partial_idle():
+    """Test calculation when idle is 0 (100% utilization)."""
+    output_100 = """
+    10:00:00 AM     all     100.00      0.00      0.00     0.00     0.00     0.00     0.00     0.00     0.00     0.00
+    """
+    result = parse_mpstat_output(output_100)
+    assert result['cpu_utilization_pct'] == pytest.approx(100.0, rel=1e-4)
+
+def test_parse_partial_idle_zero():
+    """Test calculation when idle is 100 (0% utilization)."""
+    output_0 = """
+    10:00:00 AM     all       0.00      0.00      0.00     0.00     0.00     0.00     0.00     0.00     0.00   100.00
+    """
+    result = parse_mpstat_output(output_0)
+    assert result['cpu_utilization_pct'] == pytest.approx(0.0, rel=1e-4)

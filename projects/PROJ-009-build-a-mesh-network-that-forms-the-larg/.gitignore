@@ -20,43 +20,31 @@ wheels/
 .installed.cfg
 *.egg
 
-# Virtual environments
+# Virtual Environments
 venv/
 ENV/
 env/
-.venv/
+.venv
 
-# IDE
+# IDEs
 .idea/
 .vscode/
 *.swp
 *.swo
 *~
 
-# Testing
-.pytest_cache/
-.coverage
-htmlcov/
-coverage.xml
-*.cover
-
-# Logs
+# Data
+data/
 *.log
-data/raw/*.log
-
-# Data (generated)
-data/processed/*.csv
-data/processed/*.json
-figures/
 
 # OS
 .DS_Store
 Thumbs.db
 
-# Pre-commit
-.pre-commit-config.yaml
-.pre-commit-hooks.yaml
+# Logs
+*.log
 
-# Project specific
-state/
-contracts/*.yaml
+# Coverage
+htmlcov/
+.coverage
+coverage.xml

@@ -1,13 +1,7 @@
 [flake8]
 max-line-length = 88
-extend-ignore = E203, E501, W503
-exclude =
-    .git,
-    __pycache__,
-    build,
-    dist,
-    .eggs,
-    *.egg-info
-per-file-ignores =
-    code/tests/*: S101
-max-complexity = 10
+exclude = .git,__pycache__,build,dist,.eggs
+extend-ignore = E203, W503
+# E203 is ignored by Black
+# W503 is ignored by Black (line break before binary operator)
+ignore = E203, W503

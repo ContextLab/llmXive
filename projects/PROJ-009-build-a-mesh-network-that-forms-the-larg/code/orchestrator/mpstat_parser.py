@@ -1,194 +1,133 @@
 """
 mpstat_parser.py
 
-Parses raw mpstat output strings into structured CPU utilization data.
-Extracts the 'cpu_utilization_pct' field for the PhysicalNode entity.
-
-Dependencies:
-    - Standard library only (re, typing)
+Parses raw mpstat output strings into structured CPU utilization metrics.
+Extracts `cpu_utilization_pct` for the PhysicalNode entity.
 """
-
 import re
 from typing import Dict, List, Any, Optional, Union
 
 
-def parse_mpstat_output(output: str) -> List[Dict[str, Any]]:
+def parse_mpstat_output(output: str) -> Dict[str, Any]:
     """
-    Parses a raw mpstat command output string into a list of dictionaries.
+    Parses a raw mpstat command output string.
     
-    Each dictionary represents a CPU snapshot containing:
-      - timestamp: str (ISO format or raw string)
-      - cpu_id: int (0, 1, ..., or 'all')
-      - cpu_utilization_pct: float (0.0 to 100.0)
-      - idle_pct: float
-      - iowait_pct: float
-      - irq_pct: float
-      - softirq_pct: float
-      - steal_pct: float
+    Expected format (example):
+    Linux 5.15.0-76-generic (node01)  10/24/2023  _x86_64_  (4 CPU)
     
-    The parser handles standard mpstat output formats (Linux).
-    It looks for lines starting with a timestamp or CPU ID and extracts
-    the '%idle' column to calculate utilization (100 - idle).
+    10:23:45 AM     CPU     %usr     %nice      %sys %iowait    %irq   %soft  %steal  %guest  %gnice   %idle
+    10:23:45 AM     all     12.50      0.00      3.25     0.50     0.00     0.10     0.00     0.00     0.00    83.65
+    10:23:45 AM       0     15.20      0.00      4.10     1.00     0.00     0.20     0.00     0.00     0.00    79.50
+    10:23:45 AM       1      9.80      0.00      2.40     0.00     0.00     0.00     0.00     0.00     0.00    87.80
     
-    Args:
-        output (str): Raw stdout from an mpstat command (e.g., "mpstat 1 1").
-    
-    Returns:
-        List[Dict[str, Any]]: Parsed metrics. Empty list if no valid data found.
+    Returns a dictionary with:
+      - 'timestamp': str (parsed from output if available)
+      - 'cpu_id': str (e.g., 'all', '0', '1')
+      - 'cpu_utilization_pct': float (100 - %idle)
+      - 'raw_stats': dict (all parsed percentages)
     
     Raises:
-        ValueError: If the output is completely unparseable or empty.
+        ValueError: If the output cannot be parsed or no data lines are found.
     """
-    if not output or not output.strip():
-        raise ValueError("mpstat output string is empty or None")
-
-    results = []
     lines = output.strip().split('\n')
+    if not lines:
+        raise ValueError("Empty mpstat output provided.")
     
-    # Regex to match mpstat data lines.
-    # mpstat output typically looks like:
-    # 10:00:00 AM  CPU    %usr   %nice    %sys %iowait    %irq   %soft  %steal  %guest  %gnice   %idle
-    # 10:00:01 AM  all    0.50    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00   99.50
-    # 
-    # We need to capture:
-    # 1. Timestamp (optional but good for context)
-    # 2. CPU ID (all, 0, 1...)
-    # 3. %idle (last column usually, or explicitly labeled)
+    result = {
+        'timestamp': None,
+        'cpu_id': None,
+        'cpu_utilization_pct': None,
+        'raw_stats': {}
+    }
     
-    # Strategy: Find the header to identify column indices, then parse data rows.
-    header_line_idx = -1
-    header_cols = []
+    # Regex to match data lines
+    # Format: HH:MM:SS AM/PM  CPU  %usr ... %idle
+    # We look for lines that start with a time or contain 'all' / digits for CPU
+    data_pattern = re.compile(
+        r'^(?P<time>\d{2}:\d{2}:\d{2}\s+(?:AM|PM))?\s*'
+        r'(?P<cpu>all|\d+)\s+'
+        r'(?P<usr>[\d.]+)\s+'
+        r'(?P<nice>[\d.]+)\s+'
+        r'(?P<sys>[\d.]+)\s+'
+        r'(?P<iowait>[\d.]+)\s+'
+        r'(?P<irq>[\d.]+)\s+'
+        r'(?P<soft>[\d.]+)\s+'
+        r'(?P<steal>[\d.]+)\s+'
+        r'(?P<guest>[\d.]+)\s+'
+        r'(?P<gnice>[\d.]+)\s+'
+        r'(?P<idle>[\d.]+)\s*$'
+    )
     
-    # Heuristic for header: contains "CPU" and "%idle"
-    for i, line in enumerate(lines):
-        if "CPU" in line and "%idle" in line:
-            header_line_idx = i
-            header_cols = line.split()
-            break
+    parsed_lines = []
     
-    if header_line_idx == -1:
-        # Fallback: Try to parse assuming standard format if header not found explicitly
-        # This might happen if output is truncated or slightly different.
-        # We will try to find lines that look like data (start with time or 'all')
-        pass
-
-    # Determine index of CPU and %idle
-    cpu_idx = -1
-    idle_idx = -1
-    
-    if header_line_idx != -1:
-        if "CPU" in header_cols:
-            cpu_idx = header_cols.index("CPU")
-        if "%idle" in header_cols:
-            idle_idx = header_cols.index("%idle")
-    
-    # If we didn't find headers, try to infer from data structure (standard mpstat)
-    # Standard columns: Time, CPU, %usr, %nice, %sys, %iowait, %irq, %soft, %steal, %guest, %gnice, %idle
-    # Indices (approx): 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11
-    # If CPU is 'all', it's at index 1. %idle is usually the last column.
-    
-    for line in lines[header_line_idx + 1:]:
+    for line in lines:
         line = line.strip()
         if not line:
             continue
         
-        # Skip lines that look like headers or separators
-        if "CPU" in line or "Average" in line or "Linux" in line:
+        # Skip header lines
+        if line.startswith('Linux') or line.startswith('Average') or line.startswith('CPU'):
             continue
         
-        parts = line.split()
-        if len(parts) < 5:
-            continue
-        
-        try:
-            # Identify CPU ID
-            # Usually at index 1 (after time) or 0 if no time
-            current_cpu_id = "unknown"
-            current_idle = 0.0
-            current_timestamp = "unknown"
+        match = data_pattern.match(line)
+        if match:
+            groups = match.groupdict()
             
-            # Heuristic: If the second part is 'all' or a digit, it's the CPU
-            if len(parts) > 1:
-                if parts[1] in ['all', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9']:
-                    current_cpu_id = parts[1]
-                    # Timestamp is usually parts[0] and parts[1] (AM/PM)
-                    # But mpstat format varies. Let's assume parts[0] is time, parts[1] is AM/PM or CPU
-                    # If parts[1] is CPU, then parts[0] is time.
-                    # If parts[0] is CPU (rare), then adjust.
-                    # Standard: HH:MM:SS AM/PM CPU ...
-                    # So parts[0], parts[1] are time, parts[2] is CPU?
-                    # Let's check standard: "10:00:00 AM  CPU" -> parts[0]=10:00:00, parts[1]=AM, parts[2]=CPU
-                    # Wait, header says "CPU".
-                    # Data: "10:00:01 AM  all    0.50..."
-                    # parts[0]=10:00:01, parts[1]=AM, parts[2]=all
-                    
-                    if parts[1] == 'AM' or parts[1] == 'PM':
-                        current_timestamp = f"{parts[0]} {parts[1]}"
-                        current_cpu_id = parts[2]
-                        # %idle is typically the last column
-                        current_idle = float(parts[-1])
-                    else:
-                        # Maybe no AM/PM?
-                        current_cpu_id = parts[1]
-                        current_idle = float(parts[-1])
-                        current_timestamp = parts[0]
-                elif parts[0] in ['all', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9']:
-                    # No timestamp, starts with CPU
-                    current_cpu_id = parts[0]
-                    current_idle = float(parts[-1])
-                    current_timestamp = "unknown"
-                else:
-                    # Fallback: try to find 'all' or digit in the line
-                    for p in parts:
-                        if p in ['all', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9']:
-                            current_cpu_id = p
-                            break
-                    current_idle = float(parts[-1])
-            else:
+            # Parse idle percentage
+            try:
+                idle_pct = float(groups['idle'])
+            except (ValueError, TypeError):
                 continue
             
-            # Calculate utilization
-            cpu_utilization_pct = 100.0 - current_idle
-            # Clamp to 0-100 to handle floating point weirdness
-            cpu_utilization_pct = max(0.0, min(100.0, cpu_utilization_pct))
+            # Calculate utilization: 100 - idle
+            utilization = 100.0 - idle_pct
             
-            results.append({
-                "timestamp": current_timestamp,
-                "cpu_id": current_cpu_id,
-                "cpu_utilization_pct": round(cpu_utilization_pct, 2),
-                "idle_pct": round(current_idle, 2),
-                "raw_line": line
-            })
-            
-        except (ValueError, IndexError) as e:
-            # Skip malformed lines
-            continue
+            parsed_entry = {
+                'timestamp': groups['time'],
+                'cpu_id': groups['cpu'],
+                'cpu_utilization_pct': utilization,
+                'raw_stats': {
+                    'usr': float(groups['usr']),
+                    'nice': float(groups['nice']),
+                    'sys': float(groups['sys']),
+                    'iowait': float(groups['iowait']),
+                    'irq': float(groups['irq']),
+                    'soft': float(groups['soft']),
+                    'steal': float(groups['steal']),
+                    'guest': float(groups['guest']),
+                    'gnice': float(groups['gnice']),
+                    'idle': idle_pct,
+                }
+            }
+            parsed_lines.append(parsed_entry)
     
-    if not results:
-        # If we found no data lines, raise an error to indicate failure to parse
-        raise ValueError("No valid mpstat data lines found in output")
-        
-    return results
+    if not parsed_lines:
+        raise ValueError("No valid data lines found in mpstat output.")
+    
+    # If 'all' is present, prioritize it as the aggregate metric for the node
+    all_entry = next((entry for entry in parsed_lines if entry['cpu_id'] == 'all'), None)
+    if all_entry:
+        return all_entry
+    
+    # Otherwise, return the first entry (assuming single CPU or first available)
+    return parsed_lines[0]
 
 
-def get_aggregated_utilization(parsed_data: List[Dict[str, Any]]) -> Dict[str, float]:
+def get_aggregated_utilization(output: str) -> float:
     """
-    Aggregates parsed mpstat data into a single utilization metric per node.
-    
-    If 'all' CPU is present, use that. Otherwise, average all CPU cores.
+    Parses mpstat output and returns the aggregated CPU utilization percentage.
+    Prioritizes the 'all' CPU entry if available.
     
     Args:
-        parsed_data: List of dicts from parse_mpstat_output.
+        output: Raw mpstat output string.
     
     Returns:
-        Dict with 'avg_utilization_pct' and 'max_utilization_pct'.
+        float: The CPU utilization percentage (0.0 to 100.0).
+    
+    Raises:
+        ValueError: If parsing fails or no valid data is found.
     """
-    if not parsed_data:
-        return {"avg_utilization_pct": 0.0, "max_utilization_pct": 0.0}
-    
-    utilizations = [d["cpu_utilization_pct"] for d in parsed_data]
-    
-    return {
-        "avg_utilization_pct": sum(utilizations) / len(utilizations),
-        "max_utilization_pct": max(utilizations)
-    }
+    parsed = parse_mpstat_output(output)
+    if parsed['cpu_utilization_pct'] is None:
+        raise ValueError("Could not determine CPU utilization from output.")
+    return parsed['cpu_utilization_pct']

@@ -4,9 +4,9 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T001` (rejected 1x): No evidence of the required directory tree (`code/orchestrator`, `code/analysis`, `code/simulation`, `code/data`, `code/tests`) is presented; without a listing or screenshots of these folders, we cannot confirm the project structure was created. The implementer must provide proof that these directories exist and are non‑empty.
-- `T003` (rejected 1x): The implementer supplied no configuration files (e.g., `pyproject.toml`, `.ruff.toml`, `.flake8`, or `black` settings) or documentation showing that ruff/flake8 linting and black formatting have been set up. Without these artifacts, the task of configuring the linting and formatting tools is not satisfied.
-- `T007` (rejected 1x): No files or code were presented in `code/tests/contract/` that implement a schema‑validation framework using pyyaml, nor any definitions for `ExecutionRun` or `RegressionModel`. The required artifact is missing, so the task is not satisfied.
+- `T013` (rejected 1x): No `node_manager.py` file (or any non‑empty implementation) was presented in the evidence, and therefore there is no code handling SSH connections, heartbeat pings, or device discovery as required. The task remains undone.
+- `T014a` (rejected 1x): No `instrumentor_remote.py` file (or its contents) was presented in the evidence, and there is no indication that the required remote‑execution logic for `tcpdump` and `mpstat` via SSH has been added to `code/orchestrator/`. The task’s core artifact is therefore missing.
+- `T014b` (rejected 1x): No `code/orchestrator/mpstat_parser.py` file or its contents were provided, so we cannot confirm that a parser was implemented, that it is non‑empty, or that it correctly extracts `cpu_utilization_pct` for the `PhysicalNode` entity. The required artifact is missing.
 
 ## Required change
 

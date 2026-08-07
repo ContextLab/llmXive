@@ -13,7 +13,7 @@ The researcher MUST be able to deploy a dynamic scheduler to a physical mesh of 
 
 **Why this priority**: The research question explicitly demands "real execution logs" from a "physical testbed" to falsify linear scaling hypotheses. Without the ability to orchestrate real hardware and capture the specific metrics (network latency, CPU variance) required for the regression model, the core empirical investigation cannot proceed.
 
-**Independent Test**: The system can be tested by launching a single benchmark job across multiple physical nodes with injected latency, verifying that the system successfully distributes tasks, records `tcpdump` packet counts and `mpstat` CPU usage per node, and outputs a CSV file matching the schema defined in Key Entities (PhysicalNode, TaskChunk) within the 6-hour CI limit.
+**Independent Test**: The system can be tested by launching a single benchmark job across multiple physical nodes with injected latency, verifying that the system successfully distributes tasks, records `tcpdump` packet counts and `mpstat` CPU usage per node, and outputs a CSV file matching the schema defined in Key Entities (PhysicalNode, TaskChunk) within the specified CI time limit.
 
 **Acceptance Scenarios**:
 
