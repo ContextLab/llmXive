@@ -33,21 +33,32 @@
 
 ### Step 1: Provenance Creation & Definition (T001.x)
 
-- [ ] T001.1 [P] [Constitution] **Create Deviation Record (Principle II)**: Create `code/provenance/deviation_constitution_principle_ii.md` to formally record the deviation from Constitution Principle II (Verified Accuracy) regarding the lack of public injection campaigns. *Content Requirements*: Must include (1) The original principle text, (2) The specific deviation (use of synthetic injections), (3) Justification referencing Plan Complexity Tracking, (4) Mitigation strategy (LALSimulation + known ground truth). *Action*: Create file and update `state/projects/PROJ-273-quantifying-the-impact-of-data-compressi.yaml`.
+- [ ] T001.1 [P] [Constitution] **Create Deviation Record (Principle II)**: Create `code/provenance/deviation_constitution_principle_ii.md` to formally record the deviation from Constitution Principle II (Verified Accuracy) regarding the **use of synthetic injections** due to the lack of public injection campaigns. *Content Requirements*: Must include (1) The original principle text, (2) The specific deviation (use of synthetic injections instead of public data), (3) Justification referencing Plan Complexity Tracking, (4) Mitigation strategy (LALSimulation + known ground truth). *Action*: Create file and update `state/projects/PROJ-273-quantifying-the-impact-of-data-compressi.yaml`.
 - [ ] T001.2 [P] [Plan] **Update Constitution Check (Plan)**: Update the `Constitution Check` table in `plan.md` to reflect the status of Principle II and VII. *Edit Instruction*: Locate the `Constitution Check` table. Change Principle II status to "Pass (Modified)" and add a note: "Deviation recorded in code/provenance/deviation_constitution_principle_ii.md". Change Principle VII to "Pass (Modified)" with note: "Bilby/Dynesty authorized for pilot phase".
-- [ ] T001.3 [P] [Spec] **Define Amendment Text (FR-001)**: Define the exact text for the FR-001 amendment in a temporary file or comment block. *Text*: "FR-001: System MUST generate ≥15 synthetic CBC injections into real GW noise segments fetched from GWOSC, using `LALSimulation` with known ground truth parameters, replacing the requirement to download public injection campaigns. The system MUST iterate fetching noise segments and generating injections until ≥12 valid events with complete spin metadata are found, or a maximum of 20 attempts is reached. [UNRESOLVED-CLAIM: c_95dda9e2 — status=not_enough_info] If a sufficient number of valid events are not found after a reasonable number of attempts, the system MUST raise a RuntimeError and halt. "
-- [ ] T001.4 [P] [Spec] **Define Amendment Text (FR-005)**: Define the exact text for the FR-005 amendment. *Text*: "FR-005: System MUST run Parameter Estimation using `Bilby` with `Dynesty` (Fast PE) on both original and compressed datasets for ≥12 events, replacing LALInference due to CI constraints."
-- [ ] T001.5 [P] [Spec] **Define Amendment Text (JPEG2000)**: Define the exact text for the JPEG2000 deviation. *Text*: "FR-003: Wavelet-based image compression MUST be implemented via 1D-to-2D folding (Hilbert curve algorithm) to adapt 2D codecs to 1D strain data. The resulting artifacts are tagged as 'Transformation+Compression'."
-- [ ] T001.6 [P] [Spec] **Define Amendment Text (FR-007)**: Define the exact text for the FR-007 fallback. *Text*: "FR-007: System MUST attempt hierarchical Bayesian shift tests. If convergence fails (ESS < 100), the system MUST fallback to Paired t-tests (alpha=0.05) with Benjamini-Hochberg correction. [UNRESOLVED-CLAIM: c_1025897c — status=not_enough_info] This deviation is authorized by Plan Complexity Tracking."
-- [ ] T001.7 [P] [Spec] **Define Amendment Text (SC-003)**: Define the exact text for the SC-003 amendment. *Text*: "SC-003: Parameter estimation bias is measured against an external baseline (`Bias_Original`) using `Delta_Bias` (Posterior Mean - True Value)."
+- [ ] T001.3 [P] [Spec] **Define and Write Amendment Text (FR-001)**: Define the exact text for the FR-001 amendment and **write it to `spec.md`**. *Text*: "FR-001: System MUST generate ≥15 synthetic CBC injections into real GW noise segments fetched from GWOSC, using `LALSimulation` with known ground truth parameters, replacing the requirement to download public injection campaigns. The system MUST iterate fetching noise segments and generating injections until ≥12 valid events with complete spin metadata are found, or a maximum of 20 attempts is reached. [UNRESOLVED-CLAIM: c_b409cdd8 — status=not_enough_info] If a sufficient number of valid events are not found after a reasonable number of attempts, the system MUST proceed with the available events and log a warning."
+- [ ] T001.4 [P] [Spec] **Define and Write Amendment Text (FR-005)**: Define the exact text for the FR-005 amendment and **write it to `spec.md`**. *Text*: "FR-005: System MUST run Parameter Estimation using `Bilby` with `Dynesty` (Fast PE) on both original and compressed datasets for ≥12 events, replacing LALInference due to CI constraints."
+- [ ] T001.5 [P] [Spec] **Define and Write Amendment Text (JPEG2000)**: Define the exact text for the JPEG2000 deviation and **write it to `spec.md`**. *Text*: "FR-003: For wavelet-based image compression standards, a D-to-2D folding transformation (Hilbert curve) is applied to adapt 2D codecs to 1D strain data. The resulting artifacts are tagged as 'Transformation+Compression' as recorded in `code/provenance/deviation_JPEG2000_folding.md`."
+- [ ] T001.6 [P] [Spec] **Define and Write Amendment Text (FR-007)**: Define the exact text for the FR-007 fallback and **write it to `spec.md`**. *Text*: "FR-007: System MUST attempt hierarchical Bayesian shift tests. If convergence fails (ESS < 100), the system MUST fallback to Paired t-tests (alpha=0.05) with Benjamini-Hochberg correction. This deviation is authorized by Plan Complexity Tracking."
+- [ ] T001.7 [P] [Spec] **Define and Write Amendment Text (SC-003)**: Define the exact text for the SC-003 amendment and **write it to `spec.md`**. *Text*: "SC-003: Parameter estimation bias is measured against an external baseline (`Bias_Original`) using `Delta_Bias` (Posterior Mean - True Value)."
+- [ ] T001.8 [P] [Amendment] **Validate Amendment Feasibility (Smoke Test)**: Run a minimal smoke test to verify that the amended approach (Synthetic Injections + Bilby/Dynesty) is viable before full implementation. *Action*: Execute a single synthetic injection using a **hardcoded mock waveform** and a single Bilby/Dynesty run with **reduced iterations (maxiter=100)** using a **dummy config**. Log success/failure. This task must pass before T013 and T020 can begin. *Note: This task uses mocks to avoid circular dependency on T013/T026.*
+- [ ] T001.9 [P] [Constitution] **Create JPEG2000 Deviation Record**: Create `code/provenance/deviation_JPEG2000_folding.md` to formally record the 1D-to-2D folding deviation. *Content*: Hilbert curve algorithm details, transformation parameters (2048x1024), and validation strategy.
+- [ ] T001.10 [P] [Constitution] **Draft Constitution Amendment (Principle II)**: Draft the formal text for a Constitution Amendment to Principle II to replace the "Verified Accuracy" requirement for public data with "Verified Accuracy for Synthetic Data". *Action*: Create `code/provenance/constitution_amendment_principle_ii.md`.
+- [ ] T001.11 [P] [Constitution] **Draft Constitution Amendment (Principle VII)**: Draft the formal text for a Constitution Amendment to Principle VII to replace "LALInference CPU-mode" with "Bilby/Dynesty Fast PE for Pilot". *Action*: Create `code/provenance/constitution_amendment_principle_vii.md`.
 
 ### Step 2: Spec Amendment Execution (T002.x)
 
 - [ ] T002.0 [P] [Spec] **Update Spec (FR-001)**: Update `spec.md` to formally amend FR-001. *Edit Instruction*: Locate the `Functional Requirements` section. Replace the text for FR-001 with the text defined in T001.3.
 - [ ] T002.1 [P] [Spec] **Update Spec (FR-005)**: Update `spec.md` to formally amend FR-005. *Edit Instruction*: Locate the `Functional Requirements` section. Replace the text for FR-005 with the text defined in T001.4.
-- [ ] T002.2 [P] [Spec] **Update Spec (JPEG2000)**: Update `spec.md` to formally record the JPEG2000 folding deviation. *Edit Instruction*: Locate the `Functional Requirements` section. Update FR-003 to include the text defined in T001.5. Create `code/provenance/deviation_JPEG2000_folding.md` with the algorithm details (Hilbert curve).
+- [ ] T002.2 [P] [Spec] **Update Spec (JPEG2000)**: Update `spec.md` to formally record the JPEG2000 folding deviation. *Edit Instruction*: Locate the `Functional Requirements` section. Update FR-003 to include the text defined in T001.5. **Verify** that `code/provenance/deviation_JPEG2000_folding.md` exists (created by T001.9).
 - [ ] T002.3 [P] [Spec] **Update Spec (FR-007)**: Update `spec.md` to formally amend FR-007. *Edit Instruction*: Locate the `Functional Requirements` section. Replace the text for FR-007 with the text defined in T001.6.
 - [ ] T002.4 [P] [Spec] **Update Spec (SC-003)**: Update `spec.md` to formally amend SC-003. *Edit Instruction*: Locate the `Success Criteria` section. Replace the text for SC-003 with the text defined in T001.7.
+- [ ] T002.5 [P] [Spec] **Update Spec (US-1 Narrative)**: Update `spec.md` to reflect the synthetic injection strategy in User Story 1. *Edit Instruction*: Locate the `User Story 1` section. Replace "download compact binary coalescence (CBC) injection campaigns from GWOSC" with "generate synthetic CBC injections into real GW noise segments fetched from GWOSC". Ensure the narrative mentions "known true parameters" instead of "posteriors".
+- [ ] T002.6 [P] [Spec] **Update Spec (US-1 Acceptance)**: Update `spec.md` User Story 1 acceptance scenarios. *Edit Instruction*: Update Scenario 2 to reflect "synthetic injections" and "known true parameters" instead of "downloaded GWOSC files" and "posteriors".
+- [ ] T002.7 [P] [Spec] **Update Spec (US-3 Narrative)**: Update `spec.md` to reflect the Bilby/Dynesty strategy in User Story 3. *Edit Instruction*: Locate the `User Story 3` section. Replace "run LALInference CPU-mode" with "run `Bilby` with `Dynesty` (Fast PE)".
+- [ ] T002.8 [P] [Spec] **Update Spec (US-3 Acceptance)**: Update `spec.md` User Story 3 acceptance scenarios. *Edit Instruction*: Update Scenario 1 to reflect "Bilby/Dynesty" and "Fast PE" instead of "LALInference".
+- [ ] T002.9 [P] [Spec] **Update Spec (SC-005/SC-006)**: Update `spec.md` Success Criteria SC-005 and SC-006. *Edit Instruction*: Update SC-005 to explicitly mention "measured against known ground truth of **synthetic injections**". Update SC-006 to mention "measured against theoretical SNR of **synthetic injections**".
+- [ ] T002.10 [P] [Spec] **Update Spec (US-2 Narrative)**: Update `spec.md` User Story 2 narrative. *Edit Instruction*: Locate the `User Story 2` section. Update the description of JPEG2000 to include "via 1D-to-2D folding (Hilbert curve)".
+- [ ] T002.11 [P] [Spec] **Update Spec (US-3 Fallback)**: Update `spec.md` User Story 3 narrative. *Edit Instruction*: Locate the `User Story 3` section. Update the description of statistical testing to include "with a fallback to Paired t-tests if Hierarchical Bayesian tests fail".
 
 ---
 
@@ -55,10 +66,11 @@
 
 **Purpose**: Project initialization, basic structure, and required documentation artifacts.
 
-- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
-- [ ] T006 [P] Create `data/raw/`, `data/interim/`, `data/processed/`, `data/external/` directory structure
-- [ ] T007 [P] Create `tests/` directory structure (`unit/`, `integration/`, `contract/`)
-- [ ] T008 [P] Configure `pytest` with coverage thresholds and CI-compatible timeout settings (timeout=300s)
+- [ ] T003.1 [P] **Configure Linting**: Create `pyproject.toml` at repository root. Add `[tool.ruff]` section with `select = ["E", "W", "F"]` and `target-version = "py311"`.
+- [ ] T003.2 [P] **Configure Formatting**: Add `[tool.black]` section to `pyproject.toml` with `line-length = 88` and `target-version = ["py311"]`.
+- [ ] T006.1 [P] **Create Data Directories**: Create `data/raw/`, `data/interim/`, `data/processed/`, `data/external/` directories.
+- [ ] T007.1 [P] **Create Test Directories**: Create `tests/unit/`, `tests/integration/`, `tests/contract/` directories.
+- [ ] T008.1 [P] **Configure Pytest**: Create `pytest.ini` at repository root. Set `timeout = 300` and `addopts = "-v --cov=src --cov-report=term-missing"`.
 - [ ] T017.1 [P] [Docs] **Create quickstart.md**: Create `quickstart.md` in `specs/001-compression-impact-gw-reconstruction/` as required by the plan. *Content*: Step-by-step pipeline execution guide.
 - [ ] T017.2 [P] [Docs] **Create contracts directory**: Create `specs/contracts/` directory and initialize with a placeholder `README.md` describing the contract testing strategy.
 - [ ] T017.3 [P] [Docs] **Create data-model.md**: Create `data-model.md` in `specs/001-compression-impact-gw-reconstruction/` as required by the plan. *Content*: Schema definitions for GWOSCEvent, CompressionArtifact, ParameterPosterior.
@@ -96,11 +108,10 @@
 ### Implementation for User Story 1
 
 - [X] T012 [P] [US1] Implement `src/data/download.py` to fetch real GW noise segments from GWOSC API (e.g., O data) **only**. *Note: Operates under **Amended FR-001**. Fetches noise only; injection is handled in T013.*
-- [ ] T013 [P] [US1] Implement `src/data/inject.py` using `LALSimulation` to generate CBC waveforms with **known true parameters** (Mass, Spin, Distance) injected into the fetched noise for **a set of target events**. *Note: Operates under **Amended FR-001**. Generates metadata with 'true_parameters', not posteriors.*
+- [X] T013 [P] [US1] **Blocked until T002.x and T001.8 complete**. Implement `src/data/inject.py` using `LALSimulation` to generate CBC waveforms with **known true parameters** (Mass, Spin, Distance) injected into the fetched noise for **a set of target events**. *Note: Operates under **Amended FR-001**. Generates metadata with 'true_parameters', not posteriors.*
 - [X] T014 [US1] Implement `src/data/validate.py` to check for: strain time series, detector names, event timestamps, **known true parameters** (ground truth), and **spin metadata (tilt angles)** (FR-008, FR-009). *Note: Validates 'known true parameters' from synthetic injections, not posteriors.*
-- [ ] T019.0 [US1] **Validate Input**: Check that `data/raw/` contains noise segments generated by T012 before proceeding. *Note: Pre-condition for T019.1.*
-- [ ] T019.1 [US1] **Implement Fetch Loop**: Implement the logic in `src/data/fetch_loop.py` to fetch additional noise segments in batches and inject/validate until **≥12 valid events** with complete spin metadata are found. *Note: Implements a loop to ensure the final analysis set meets FR-009. **MUST include max_attempts=20 and timeout=300s**. **Loop Condition:** `while valid_count < 12 and attempts < 20`. If max attempts reached and valid_count < 12, **raise RuntimeError('Failed to find 12 valid events after 20 attempts')**.*
-- [ ] T020 [US1] Create `src/data/main.py` to orchestrate the **download-inject-validate** pipeline for **≥15 target events** (per **Amended FR-001**) and produce the validated dataset. *Note: Calls T019.1 logic.*
+- [ ] T019.1 [US1] **Implement Fetch Loop**: Implement the logic in `src/data/fetch_loop.py` to fetch noise segments **one by one** (`batch_size=1`) and inject/validate until **≥12 valid events** with complete spin metadata are found or `max_attempts=20` is reached. *Note: Implements a loop to ensure the final analysis set meets FR-009. **MUST include max_attempts=20 and timeout=300s**. **Loop Condition:** `while valid_count < 12 and attempts < 20`. **Batch Size:** `batch_size=1` (fetch one segment per attempt). **Attempt Counting:** Increment `attempts` on every API call (success or failure). **Post-Loop Validation:** After loop, filter for valid events. If `valid_count < 12`, **proceed with available events** (N>=1) and **log a warning** about the reduced sample size. Do NOT raise RuntimeError.*
+- [ ] T020 [US1] **Blocked until T002.x and T001.8 complete**. Create `src/data/main.py` to orchestrate the **download-inject-validate** pipeline for **≥15 target events** (per **Amended FR-001**) and produce the validated dataset. *Note: Calls T019.1 logic. **Dependency**: T019.1 must be implemented and tested.*
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -112,9 +123,9 @@
 **⚠️ CRITICAL**: This phase is the bridge between US1 (Data) and US3 (PE). It cannot run until T020 completes.
 
 - [ ] T040.1 [US3] **Select Representative Event**: Load the validated dataset from T020 and select the first event with complete spin metadata as the representative event for baseline generation. *Note: Output is the event ID.*
-- [ ] T040.2a [US3] **Check Baseline Availability**: Check if `data/external/baseline_bias_original.json` exists and is valid. *Note: If valid, skip to T040.3. If not, proceed to T040.2b.*
-- [ ] T040.2b [US3] **Fetch Versioned Baseline**: Attempt to fetch `Bias_Original` from a canonical, versioned source (e.g., Zenodo, GitHub Release) as defined in `code/config.py`. *Note: If fetch fails, proceed to T040.2c.*
-- [ ] T040.2c [US3] **Generate Baseline via CI Script**: Run a high-iteration `Bilby`/`Dynesty` run on the selected event (T040.1) using the script `code/scripts/generate_baseline.py`. *Note: Operates under **Amended FR-005** and **Plan Complexity Tracking: External Baseline**. **MUST use a CI-run with a timeout (e.g., 4 hours)**. If the run fails to converge or times out, generate a 'seed' baseline using a pre-computed set of samples and log a warning about the limitation. **Output**: `data/external/baseline_bias_original.json`.*
+- [ ] T040.2b [US3] **Fetch Versioned Baseline**: Attempt to fetch `Bias_Original` from a canonical, versioned source (e.g., Zenodo ID `` as defined in `code/config.py`). *Note: If fetch succeeds, skip to T040.3. If fetch fails, proceed to T040.2c.*
+- [ ] T040.2c [US3] **Generate Baseline Locally (Reduced Iterations)**: **Run a reduced-iteration `Bilby`/`Dynesty` run on the selected event (T040.1) locally on the CI runner**. *Note: Operates under **Amended FR-005** and **Plan Complexity Tracking: Local Baseline**. **MUST use reduced iterations (maxiter=500, nlive=200)** to ensure completion within CI time limits. If the run fails to converge, proceed to T040.2d.*
+- [ ] T040.2d [US3] **Generate Seed Baseline (Fallback)**: If T040.2b and T040.2c fail, generate a 'seed' baseline using pre-computed samples **specific to the selected event ID** (T040.1) to ensure schema compliance. *Note: Must generate `posterior_mean` and `covariance` for the specific event. Log a warning about the limitation.*
 - [ ] T040.3 [US3] **Save/Verify Baseline Artifact**: Save the posterior samples and calculated `Bias_Original` (Posterior Mean - True Value) to `data/external/baseline_bias_original.json`. *Note: Output schema must include keys: `event_id`, `true_parameters`, `posterior_mean`, `bias`, `covariance`. Verify checksum.*
 - [ ] T028.1 [US3] **Load/Verify** external baseline `Bias_Original` from `data/external/baseline_bias_original.json`. *Note: Dependent on T040.3 completion. Validates schema and checksum.*
 
@@ -138,10 +149,11 @@
 
 ### Implementation for User Story 2
 
-- [ ] T019 [P] [US2] Implement `src/compression/lossless.py` with wrappers for gzip, LZ4, bzip2 at levels 1, 5, 9
-- [ ] T020.1 [P] [US2] Implement `src/compression/lossy.py` - **Quantization**: Implement quantized floating-point (variable bit-widths, e.g., 8-bit, 4-bit) and corresponding unfold step. *Note: Output paths: `data/interim/compressed/quantization/{level}/`.*
+- [ ] T019 [P] [US2] Implement `src/compression/lossless.py` with wrappers for gzip, LZ, bzip2 at varied levels including 5 and 9
+- [ ] T020.1 [P] [US2] Implement `src/compression/lossy.py` - **Quantization**: Implement quantized floating-point (variable bit-widths, e.g., low-bit, 4-bit) and corresponding unfold step. *Note: Output paths: `data/interim/compressed/quantization/{level}/`.*
 - [ ] T020.2 [P] [US2] Implement `src/compression/lossy.py` - **Wavelet**: Implement Wavelet Thresholding and corresponding unfold step. *Note: Output paths: `data/interim/compressed/wavelet/{level}/`.*
-- [ ] T020.3 [P] [US2] Implement `src/compression/lossy.py` - **JPEG2000**: Implement JPEG2000 via **Hilbert curve 1D-to-2D folding** (using `pillow`; target dimensions **2048x1024**). **MUST use Hilbert curve algorithm exclusively as mandated by Amended FR-003**. *Note: Hilbert was chosen over row-major for better space-filling properties in 1D-to-2D folding, as per Plan Complexity Tracking.* **MUST implement** the corresponding **unfold** step to restore 1D data before computing reconstruction error (MSE/SNR). **MUST include** a validation step to ensure the "transformation artifact" does not invalidate the MSE/SNR comparison. *Note: Ensures SC-002 validity. Output paths: `data/interim/compressed/jpeg2000/{level}/`.*
+- [ ] T020.3 [P] [US2] Implement `src/compression/lossy.py` - **JPEG2000**: Implement JPEG2000 via **Hilbert curve 1D-to-2D folding** (using `hilbert_curve` package, function `points2keys`; target dimensions **2048x1024**). **MUST use Hilbert curve algorithm exclusively as mandated by Amended FR-003**. *Note: Hilbert was chosen over row-major for better space-filling properties in 1D-to-2D folding, as per Plan Complexity Tracking.* **MUST implement** the corresponding **unfold** step to restore 1D data before computing reconstruction error (MSE/SNR). **MUST use the validation metric defined in T020.4** to ensure the "transformation artifact" does not invalidate the MSE/SNR comparison. *Note: Ensures SC-002 validity. Output paths: `data/interim/compressed/jpeg2000/{level}/`.*
+- [ ] T020.4 [P] [US2] **Define JPEG2000 Validation Metric**: Define the specific metric and algorithm for the "validation step" in T020.3. *Action*: Create `src/compression/validation_jpeg2000.py` containing a function `validate_transformation_artifact(original, folded, compressed)` that compares the MSE of `original` vs `unfolded(compressed)` against the theoretical MSE of the folding transformation alone (calculated as `original` vs `unfolded(folded(original))`). This metric isolates compression error from folding artifacts. *Note: This task MUST be completed before T020.3.*
 - [ ] T021 [US2] Implement `src/compression/metrics.py` to compute MSE and SNR degradation (precision ≥ 0.1 dB)
 - [ ] T022 [US2] Implement `src/compression/main.py` to apply all methods to the validated events from US1. *Dependency: Must wait for T020.1, T020.2, T020.3 completion.*
 - [ ] T023 [US2] Add logic to flag compression levels with SNR degradation > 5% as 'unacceptable' (FR-002, FR-003, FR-004, SC-002)
@@ -166,12 +178,14 @@
 ### Implementation for User Story 3
 
 - [ ] T026 [US3] Implement `src/pe/run_bilby.py` wrapper for Bilby/Dynesty with **reduced iterations** (`maxiter=5000`, `nlive=200`, `dlogz_init=0.5`) **specifically chosen to meet the h/event constraint**. *Note: Uses Bilby/Dynesty per **Amended FR-005** and **Constitution Principle VII (Modified)** due to CI constraints. **Depends on T002.x** (Amendment) and **T040.3** (Baseline).*
+- [ ] T027.1 [US3] **Define Failure Detection Logic**: Create `src/pe/failure_detection.py` to explicitly define how Hierarchical Bayesian test failure is detected. *Action*: Implement function `check_hierarchical_convergence(ess_value)` that returns True if `ess_value < 100`. **Input Source**: The `ess_value` must be extracted from the Bilby/Dynesty output JSON (key: `effective_sample_size`) after the PE run. *Note: This task MUST be completed before T027.*
 - [ ] T027 [US3] Implement `src/pe/compare_posteriors.py` to:
  - Compute `Bias_Compressed` (Posterior Mean - True Value)
  - Calculate credible interval overlap between original and compressed posteriors
- - **Attempt Hierarchical Bayesian Shift Test** first (FR-007). **If convergence fails** (defined as ESS < 100), fallback to Paired t-tests (alpha=0.05) **APPLYING THE BENJAMINI-HOCHBERG CORRECTION**.
+ - **Attempt Hierarchical Bayesian Shift Test** first (FR-007). **If convergence fails** (defined as ESS < 100, **detected by calling `src/pe/failure_detection.py` with the ESS value from the Bilby output JSON**), fallback to Paired t-tests (alpha=0.05) **APPLYING THE BENJAMINI-HOCHBERG CORRECTION**.
  - **Implementation Detail**: This task MUST use the `statsmodels.stats.multitest.multipletests` function (method='fdr_bh') for the Benjamini-Hochberg correction. Do NOT implement the algorithm inline. Ensure `statsmodels` is installed.
- - **Dependency**: Depends on **T040.3** (Baseline) and **T026** (PE Run).
+ - **Clarification**: The Hierarchical test is an *additional* analysis. The primary comparison remains KL divergence (as per Constitution), with the fallback to Paired t-tests only if the Hierarchical test fails.
+ - **Dependency**: Depends on **T040.3** (Baseline), **T026** (PE Run), and **T027.1** (Failure Detection).
 - [ ] T028 [US3] Implement logic to load `Bias_Original` from `data/external/baseline_bias_original.json` (verified by T028.1) and calculate `Delta_Bias`. *Note: Operates under **Amended SC-003**. Hard dependency on T040.3.*
 - [ ] T030 [US3] Create `src/pe/main.py` to orchestrate PE runs for all compressed variants and generate final bias report
 
@@ -205,14 +219,14 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Spec Amendments (Phase 0.1)**: No dependencies - MUST complete before Phase 2
 - **Foundational (Phase 2)**: Depends on Phase 0.1 and Setup - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
+- **User Stories (Phase 3+)**: All depend on Foundational phase completion and Phase 0.1 completion (for T013, T020, T026)
  - User stories can then proceed in parallel (if staffed)
  - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
 
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
+- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories (except T013/T020 blocked by T002.x and T001.8)
 - **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 data availability
 - **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US1 data, US2 compressed data, and Phase 4.5 Baseline (T040.3)
 
@@ -250,4 +264,6 @@
 - **Compression**: T020.3 records JPEG2000 folding deviation in provenance per Constitution Principle VII (Modified).
 - **PE Method**: T026 uses Bilby/Dynesty per Amended FR-005 and Constitution Principle VII (Modified).
 - **Statistical Tests**: T027 attempts Hierarchical Bayesian tests; fallback to Paired t-tests is authorized by Plan Complexity Tracking.
-- **Amendments**: T001.1-T002.4 are mandatory formal amendment tasks to update spec artifacts in Phase 0.1 before implementation.
+- **Amendments**: T001.1-T002.11 are mandatory formal amendment tasks to update spec artifacts in Phase 0.1 before implementation.
+- **Blocking Status**: T013, T020, T026 are blocked until Phase 0.1 (T002.x and T001.8) is complete.
+- **CI Constraints**: T040.2c explicitly forbids CI execution for full PE; requires local reduced-iteration baseline generation.

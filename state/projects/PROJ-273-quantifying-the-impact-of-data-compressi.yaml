@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-04T21:30:47.216242Z'
-current_stage: planned
+current_stage: in_progress
 failed_stage: null
 field: physics
 human_escalation_reason: null
 id: PROJ-273-quantifying-the-impact-of-data-compressi
-last_run_id: 0f26d4d9-48e3-45c4-9ff4-d3296101248c
+last_run_id: 74a549fb-38eb-4219-80e8-9d1d9596dc54
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi
 title: Quantifying the Impact of Data Compression on Gravitational Wave Event Reconstruction
-updated_at: '2026-08-04T21:25:38.499551Z'
+updated_at: '2026-08-07T16:13:08.463755Z'
