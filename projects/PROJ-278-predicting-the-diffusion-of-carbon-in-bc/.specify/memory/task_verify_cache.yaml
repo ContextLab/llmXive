@@ -18,13 +18,6 @@ T005a:
     file does not exist (the only listed file is a missing `schema.yaml`). Consequently,
     no schema defining the specified keys and constraints is present. The implementer
     must create the requested schema file with the exact fields and enum constraint.
-T012:
-  c: false
-  h: 72405138f7b27e83cb6ff3ce96d97acbb7742a1acbcd80773369f514d12638d4
-  r: The test function `test_dataset_schema_validation` is present and correctly uses
-    `jsonschema.validate`, but the required schema file `specs/001-predict-carbon-diffusion-bcc/contracts/dataset.schema.yaml`
-    is missing, so the test cannot actually perform validation. Add the missing schema
-    file with the proper definition.
 T013b:
   c: false
   h: 372942c830de08a024fca98c272a62acce529c10f97d042fea9ec092577bca71
@@ -53,3 +46,10 @@ T023:
     verification script, or log confirming all contracts and checksums have been validated)
     is present; the implementer provided only the feature specification without any
     concrete validation output.
+T030:
+  c: true
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The task description explicitly states it is a placeholder and that no sub\u2011\
+    tasks or artifacts should be implemented until the `/speckit.analyze` pass is\
+    \ completed. No output files are required, and the absence of any artifacts therefore\
+    \ satisfies the task\u2019s stated requirement."

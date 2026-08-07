@@ -1,4 +1,3 @@
-"""Configuration management for the diffusion prediction pipeline."""
 import os
 import json
 import random
@@ -6,113 +5,144 @@ import numpy as np
 from pathlib import Path
 from typing import Any, Dict, Optional, Union
 
-# Global config instance
-_config: Optional[Dict[str, Any]] = None
+CONFIG_PATH = Path(__file__).parent / "config.yaml"
 
 class Config:
-    """Configuration object wrapper for type safety and path resolution."""
-    def __init__(self, config_dict: Dict[str, Any]):
-        self._data = config_dict
-        self.random_seed = config_dict.get('random_seed', 42)
-        self.data_path = config_dict.get('data_path', 'data/raw')
-        self.output_path = config_dict.get('output_path', 'data/outputs')
-        self.processed_path = config_dict.get('processed_path', 'data/processed')
-    
+    def __init__(self, data: Dict[str, Any]):
+        self._data = data
+        self._root = Path(__file__).parent
+        self._base_path = self._root.parent
+
+    @property
+    def random_seed(self) -> int:
+        return self._data.get("random_seed", 42)
+
+    @property
+    def data_path(self) -> Path:
+        return self._base_path / Path(self._data.get("data_path", "data"))
+
+    @property
+    def output_path(self) -> Path:
+        return self._base_path / Path(self._data.get("output_path", "data/outputs"))
+
     def get(self, key: str, default: Any = None) -> Any:
         return self._data.get(key, default)
 
-def load_config(config_path: str = "code/config.yaml") -> Dict[str, Any]:
-    """Load configuration from YAML file."""
-    global _config
-    if _config is None:
-        path = Path(config_path)
-        if not path.exists():
-            raise FileNotFoundError(f"Config file not found: {config_path}")
-        
-        import yaml
-        with open(path, 'r') as f:
-            _config = yaml.safe_load(f)
-    return _config
+    def __getitem__(self, key: str) -> Any:
+        return self._data[key]
+
+    def __contains__(self, key: str) -> bool:
+        return key in self._data
+
+_global_config: Optional[Config] = None
+
+def load_config(path: Optional[Path] = None) -> Config:
+    global _global_config
+    if path is None:
+        path = CONFIG_PATH
+    
+    if not path.exists():
+        raise FileNotFoundError(f"Config file not found at {path}")
+    
+    with open(path, 'r') as f:
+        data = yaml.safe_load(f)
+    
+    _global_config = Config(data)
+    return _global_config
 
 def set_global_seed(seed: Optional[int] = None) -> None:
-    """Set random seeds for reproducibility."""
+    config = get_config()
     if seed is None:
-        cfg = load_config()
-        seed = cfg.get('random_seed', 42)
+        seed = config.random_seed
     
     random.seed(seed)
     np.random.seed(seed)
     os.environ['PYTHONHASHSEED'] = str(seed)
 
-def get_config() -> Dict[str, Any]:
-    """Get the loaded configuration dictionary."""
-    return load_config()
+def get_config() -> Config:
+    global _global_config
+    if _global_config is None:
+        _global_config = load_config()
+    return _global_config
 
-def get_path(*args, **kwargs) -> Path:
+def get_path(*args: Any, create: bool = False, **kwargs: Any) -> Path:
     """
-    Flexible path resolution helper to support multiple calling conventions.
+    Flexible path resolver supporting multiple call signatures:
     
-    Conventions supported:
-    1. get_path("relative/path") -> Path("relative/path")
-    2. get_path("base_key", "sub_key") -> Path(config[base_key]) / sub_key
-    3. get_path(config_dict, "base_key", "sub_key") -> Path(config_dict[base_key]) / sub_key
-    4. get_path(config_obj, "base_key", "sub_key") -> Path(config_obj[base_key]) / sub_key
-    5. get_path("base_key", "sub_key", create=True) -> Creates directories if needed
-    6. get_path("logs") -> Returns Path for logs directory (special case for setup_logging.py)
+    1. get_path(config, "processed", "dataset_cleaned.csv") -> config.data_path / "processed" / "dataset_cleaned.csv"
+    2. get_path(config, "outputs", create=True) -> config.output_path / "outputs" (created if needed)
+    3. get_path("config.yaml") -> returns Path to config.yaml
+    4. get_path("data/processed") -> returns Path relative to project root
+    5. get_path("data/outputs") -> returns Path relative to project root
+    6. get_path() -> returns project root
     """
-    # Handle keyword argument 'create'
-    create_dirs = kwargs.get('create', False)
+    config = get_config()
     
-    # Case 1: Single string argument (direct path)
-    if len(args) == 1 and isinstance(args[0], str):
-        p = Path(args[0])
-        if create_dirs:
-            p.mkdir(parents=True, exist_ok=True)
-        return p
+    if not args:
+        return Path(__file__).parent.parent
     
-    # Case 2: First arg is a dict or Config object
-    if len(args) >= 2:
-        first_arg = args[0]
+    first_arg = args[0]
+    
+    # Case: get_path("config.yaml") or get_path("data/processed")
+    if isinstance(first_arg, str):
+        # Check if it's a config key lookup (e.g., "data_path", "output_path")
+        if first_arg in config:
+            val = config[first_arg]
+            base = Path(val) if isinstance(val, str) else val
+            if len(args) > 1:
+                return base / Path(args[1])
+            return base
         
-        # Extract config dict
-        if isinstance(first_arg, dict):
-            cfg = first_arg
-        elif isinstance(first_arg, Config):
-            cfg = first_arg._data
+        # Otherwise treat as relative path
+        base_path = Path(__file__).parent.parent
+        result = base_path / first_arg
+        if create:
+            result.mkdir(parents=True, exist_ok=True)
+        return result
+    
+    # Case: get_path(config, "processed", "dataset_cleaned.csv")
+    if isinstance(first_arg, Config):
+        base = config.data_path if len(args) == 1 else config.output_path
+        if len(args) == 1:
+            return base
+        
+        # Determine base from second argument if it looks like a subdirectory key
+        second_arg = args[1]
+        if second_arg in ["data_path", "output_path", "processed", "raw", "outputs", "logs"]:
+            if second_arg == "data_path":
+                base = config.data_path
+            elif second_arg == "output_path":
+                base = config.output_path
+            elif second_arg == "processed":
+                base = config.data_path / "processed"
+            elif second_arg == "raw":
+                base = config.data_path / "raw"
+            elif second_arg == "outputs":
+                base = config.output_path
+            elif second_arg == "logs":
+                base = config.data_path / "logs"
+            else:
+                base = config.data_path / second_arg
+            
+            if len(args) > 2:
+                result = base / args[2]
+            else:
+                result = base
         else:
-            # Try to load global config if first arg is not a dict/object
-            cfg = load_config()
+            # Fallback: treat second arg as subdirectory
+            base = config.data_path
+            result = base / second_arg
+            if len(args) > 2:
+                result = result / args[2]
         
-        base_key = args[1]
-        base_path = cfg.get(base_key, base_key)
-        
-        # If base_path is already a Path, convert to string for joining
-        if isinstance(base_path, Path):
-            base_path = str(base_path)
-        
-        # Build the final path
-        if len(args) > 2:
-            # Additional path components
-            final_path = Path(base_path) / os.path.join(*args[2:])
-        else:
-            final_path = Path(base_path)
-        
-        if create_dirs:
-            final_path.mkdir(parents=True, exist_ok=True)
-        
-        return final_path
+        if create:
+            result.mkdir(parents=True, exist_ok=True)
+        return result
     
-    # Fallback: treat all args as path components
-    p = Path(*args)
-    if create_dirs:
-        p.mkdir(parents=True, exist_ok=True)
-    return p
+    raise ValueError(f"Unsupported get_path signature with args: {args}")
 
-# Backward compatibility aliases for specific call patterns found in codebase
-def get_config_path(key: str) -> Path:
-    """Legacy helper for specific config key access."""
-    cfg = load_config()
-    val = cfg.get(key)
-    if val is None:
-        raise KeyError(f"Config key '{key}' not found")
-    return Path(val)
+def get_config_path() -> Path:
+    return CONFIG_PATH
+
+# Import yaml here to avoid circular issues if loaded at module level
+import yaml
