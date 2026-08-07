@@ -23,7 +23,7 @@ This project implements a reproducible statistical pipeline to analyze the corre
 
 ### Data Access Strategy
 - **eBird**: Streamed using the `datasets` library (`load_dataset(..., streaming=True)`) from the verified HuggingFace URL. This ensures consistent caching and versioning.
-- **Daymet**: Loaded via `datasets.load_dataset('daymet/annual', ...)` or verified multi-year parquet stream covering 2020-2024.
+- **Daymet**: Loaded via `datasets.load_dataset('daymet/annual', ...)` or verified multi-year parquet stream covering recent years.
 - **Locking**: The `filelock` library is used to create `data/.pipeline.lock` to serialize access to shared data directories.
 
 ## Constitution Check
