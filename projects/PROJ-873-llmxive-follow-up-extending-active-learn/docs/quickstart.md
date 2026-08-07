@@ -1,71 +1,53 @@
-# Quickstart Guide - llmXive Active Learning Pipeline
+# Quickstart Guide for llmXive Follow-up
+
+This guide explains how to run the full research pipeline for the "Active Learners as Efficient PRP Rerankers" extension.
 
 ## Prerequisites
 
-- Python 3.11+
-- pip installed
-- 7GB RAM available
-- No GPU required (CPU-only)
+1. Ensure you have Python 3.11+ installed.
+2. Install dependencies:
+ ```bash
+ pip install -r requirements.txt
+ ```
+3. Validate the environment:
+ ```bash
+ bash code/validate_env.sh
+ ```
 
-## Installation
+## Data Preparation
 
-```bash
-# Install dependencies
-pip install -r requirements.txt
+The pipeline requires BEIR datasets (`nfcorpus`, `scifact`, `trec-covid`) and injected redundancy datasets.
 
-# Verify environment
-bash code/validate_env.sh
-```
+### Step 1: Prepare Injected Datasets
 
-## Running the Pipeline
-
-### Step 1: Prepare Injected Datasets (T012)
-
-This generates synthetic redundancy in the datasets:
+Run the data loader to fetch BEIR data and inject synthetic redundancy.
+This generates `data/processed/injected_datasets.json`.
 
 ```bash
 python code/data_loader.py prepare
 ```
 
-This creates:
-- `data/processed/injected_datasets.json`
+### Step 2: Validate TREC-COVID (Optional)
 
-### Step 2: Validate TREC-COVID (T017)
-
-Check for real-world redundancy:
+If you specifically need to validate redundancy on TREC-COVID:
 
 ```bash
 python code/data_loader.py validate_trec_covid
 ```
 
-This creates:
-- `data/results/trec_covid_validation.json`
+## Running the Pipeline
 
-### Step 3: Calculate Sample Size (T013b)
+The main pipeline orchestrates the ranking experiments, sampling, and metric calculation.
 
-```bash
-python code/calculate_sample_size.py
-```
+### Basic Execution
 
-This creates:
-- `data/results/sample_config.json`
-
-### Step 4: Run Sampling Pipeline (T013c)
-
-```bash
-python code/run_sampling.py
-```
-
-This creates:
-- `data/results/consensus_sample.json`
-
-### Step 5: Run Main Pipeline
-
-Run the baseline variant:
+Run the baseline variant with default settings:
 
 ```bash
 python code/run_pipeline.py --variant baseline --budgets 20 50 100 --seeds 42
 ```
+
+### Clustering-Aided Variant
 
 Run the clustering-aided variant:
 
@@ -73,35 +55,43 @@ Run the clustering-aided variant:
 python code/run_pipeline.py --variant clustering_aided --budgets 20 50 100 --seeds 42
 ```
 
-This creates:
-- `data/results/pipeline_results_baseline.json`
-- `data/results/pipeline_results_clustering_aided.json`
+### Cross-Dataset Generalization
 
-## Output Artifacts
+To run the generalization check across `nfcorpus`, `scifact`, and `trec-covid`:
 
-| File | Description |
-|------|-------------|
-| `data/processed/injected_datasets.json` | Injected redundancy clusters |
-| `data/processed/clusters.json` | MinHash-LSH clusters |
-| `data/results/flagged_pairs_count.json` | Count of wasted calls |
-| `data/results/sample_config.json` | Sampling configuration |
-| `data/results/consensus_sample.json` | Selected sample indices |
-| `data/results/trec_covid_validation.json` | TREC-COVID validation results |
-| `data/results/pipeline_results_*.json` | Pipeline execution results |
+```bash
+python code/run_pipeline.py --variant baseline --budgets 100 --seeds 42 --cross-dataset
+```
+
+## Artifact Generation
+
+The pipeline produces the following key artifacts:
+
+- `data/processed/injected_datasets.json`: Redundancy-injected datasets.
+- `data/processed/clusters.json`: MinHash-LSH clusters.
+- `data/processed/unique_subset.json`: Deduplicated candidate lists.
+- `data/processed/comparison_log.json`: Pairwise comparison logs.
+- `data/results/flagged_pairs_count.json`: Count of "wasted" calls.
+- `data/results/consensus_sample.json`: Sampled pairs for LLM validation.
+- `data/results/consensus_ground_truth.json`: LLM ground truth labels.
+- `data/results/correction_factor.json`: Proxy accuracy correction factor.
+- `data/results/us1_efficiency_ratio.json`: Final efficiency metrics.
+- `data/results/statistical_report.md`: Final statistical analysis.
 
 ## Troubleshooting
 
 ### Missing Artifacts
 
-If you see `PipelineDependencyError`, ensure you've run the preparation steps in order:
-
-1. `python code/data_loader.py prepare`
-2. `python code/clustering.py` (to generate clusters.json)
-
-### Network Issues
-
-If BEIR download fails, check your internet connection. The pipeline will fail loudly (no synthetic fallback).
+If you see `FileNotFoundError` regarding `injected_datasets.json`, ensure you ran the `prepare` command in the Data Preparation section.
 
 ### Resource Limits
 
-The pipeline enforces 6-hour runtime and 7GB memory limits. If exceeded, it will terminate gracefully.
+If the pipeline terminates due to time or memory limits, check `code/config.py` for `MAX_RUNTIME_HOURS` and `MAX_MEMORY_GB` settings.
+
+## Validation
+
+To verify the constitution compliance of the generated artifacts:
+
+```bash
+python code/audit/validate_constitution.py
+```

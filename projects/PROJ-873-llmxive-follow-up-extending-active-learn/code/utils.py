@@ -1,8 +1,3 @@
-"""
-Utility functions for resource monitoring and enforcement.
-Implements watchdog/signal handler to terminate pipeline if runtime or memory limits are exceeded.
-Serves FR-006 enforcement and T061 Graceful Degradation.
-"""
 import os
 import signal
 import sys
@@ -10,163 +5,140 @@ import time
 import resource
 import logging
 import json
-from typing import Optional, Callable, Any
+from typing import Dict, Any, Optional, List
+from pathlib import Path
 
-# Custom exception for graceful termination
+logger = logging.getLogger(__name__)
+
 class PartialRunError(Exception):
-    """Raised when the pipeline must terminate gracefully due to approaching resource limits."""
-    def __init__(self, message: str, partial_data_path: Optional[str] = None):
-        super().__init__(message)
-        self.partial_data_path = partial_data_path
+    """Raised when the pipeline must stop gracefully due to resource limits."""
+    pass
+
+class DataFlowViolationError(Exception):
+    """Raised when a required data artifact is missing or schema-mismatched."""
+    pass
 
 class ResourceWatchdog:
-    """
-    Monitors resource usage and triggers termination if limits are exceeded.
-    Implements watchdog/signal handler for FR-006 and T061 Graceful Degradation.
-    """
-    def __init__(self, max_runtime_seconds: int, max_memory_mb: int, grace_period_seconds: int = 60):
-        self.max_runtime = max_runtime_seconds
-        self.max_memory = max_memory_mb * 1024 * 1024  # Convert to bytes
-        self.grace_period = grace_period_seconds
+    def __init__(self, max_runtime_seconds: float, max_memory_bytes: int):
+        self.max_runtime_seconds = max_runtime_seconds
+        self.max_memory_bytes = max_memory_bytes
         self.start_time = time.time()
-        self.logger = logging.getLogger(__name__)
-        self._alarm_set = False
-        self._grace_mode_active = False
+        self.running = True
 
-        # Setup signal handler for timeout
-        if hasattr(signal, 'SIGALRM'):
-            # Store old handler to restore later if needed
-            self._old_handler = signal.signal(signal.SIGALRM, self._timeout_handler)
-            signal.alarm(self.max_runtime)
-            self._alarm_set = True
-            self.logger.info(f"Watchdog started: Runtime limit {self.max_runtime}s, Memory limit {max_memory_mb}MB, Grace period {grace_period}s")
-        else:
-            self.logger.warning("SIGALRM not available on this platform. Runtime limit not enforced via signal.")
+    def check(self) -> bool:
+        """Returns True if limits are respected, False otherwise."""
+        elapsed = time.time() - self.start_time
+        if elapsed > self.max_runtime_seconds:
+            logger.warning(f"Runtime limit exceeded: {elapsed:.2f}s > {self.max_runtime_seconds}s")
+            return False
 
-    def _timeout_handler(self, signum, frame):
-        if self._grace_mode_active:
-            # We are already in grace mode, force exit
-            self.logger.error("Grace period exceeded. Force terminating.")
-            sys.exit(1)
-        else:
-            # First timeout: enter grace mode
-            self.logger.warning(f"Runtime limit approaching. Entering grace period of {self.grace_period}s to complete current batch.")
-            self._grace_mode_active = True
-            # Reset alarm for grace period
-            if hasattr(signal, 'SIGALRM'):
-                signal.alarm(self.grace_period)
-                signal.signal(signal.SIGALRM, self._timeout_handler)
-
-    def check_memory(self) -> bool:
-        """Check current memory usage against limit. Returns False if limit exceeded."""
         try:
             usage = resource.getrusage(resource.RUSAGE_SELF)
-            # ru_maxrss is in KB on Linux, convert to bytes
-            current_mem = usage.ru_maxrss * 1024
-            if current_mem > self.max_memory:
-                self.logger.error(f"Memory limit exceeded: {current_mem/1024/1024:.1f}MB > {self.max_memory/1024/1024:.1f}MB")
-                raise PartialRunError(f"Memory limit exceeded: {current_mem/1024/1024:.1f}MB")
-        except PartialRunError:
-            raise
+            mem_mb = usage.ru_maxrss / 1024  # Convert KB to MB on Linux/macOS
+            mem_bytes = mem_mb * 1024 * 1024
+            if mem_bytes > self.max_memory_bytes:
+                logger.warning(f"Memory limit exceeded: {mem_bytes:.2f}B > {self.max_memory_bytes}B")
+                return False
         except Exception as e:
-            self.logger.warning(f"Could not check memory: {e}")
+            logger.warning(f"Could not check memory usage: {e}")
+
         return True
 
-    def check_runtime(self) -> bool:
-        """Check if runtime limit exceeded. Returns False if limit exceeded or if in grace mode."""
-        elapsed = time.time() - self.start_time
-        if elapsed > self.max_runtime:
-            if self._grace_mode_active:
-                self.logger.error("Grace period exceeded. Terminating with partial results.")
-                raise PartialRunError("Runtime limit exceeded after grace period.")
-            else:
-                self.logger.warning(f"Runtime limit reached. Entering grace period to complete current batch.")
-                self._grace_mode_active = True
-                # Reset alarm for grace period if possible
-                if hasattr(signal, 'SIGALRM'):
-                    signal.alarm(self.grace_period)
-                    signal.signal(signal.SIGALRM, self._timeout_handler)
-                return True  # Allow current batch to finish
-        return True
+def enforce_resource_limits(watchdog: ResourceWatchdog):
+    if not watchdog.check():
+        raise PartialRunError("Resource limits exceeded, terminating gracefully.")
 
-    def trigger_graceful_shutdown(self, state_file_path: str, partial_data: Any = None) -> None:
-        """
-        Saves partial state and raises PartialRunError to halt execution gracefully.
-        Updates the state file with 'partial_run' flag.
-        """
-        self.logger.info("Triggering graceful shutdown and saving partial results.")
+def init_watchdog(max_runtime_hours: float, max_memory_gb: float) -> ResourceWatchdog:
+    max_runtime_seconds = max_runtime_hours * 3600
+    max_memory_bytes = max_memory_gb * 1024 * 1024 * 1024
+    return ResourceWatchdog(max_runtime_seconds, max_memory_bytes)
+
+def check_limits_periodically(watchdog: ResourceWatchdog, interval_seconds: float = 60):
+    while watchdog.running:
+        time.sleep(interval_seconds)
+        if not watchdog.check():
+            raise PartialRunError("Resource limits exceeded, terminating gracefully.")
+
+def stop_watchdog(watchdog: ResourceWatchdog):
+    watchdog.running = False
+
+def validate_artifact_chain(artifact_paths: List[str], schemas: Dict[str, Dict[str, Any]]):
+    """
+    Validates that all required artifacts exist and conform to their expected schemas.
+    
+    Args:
+        artifact_paths: List of file paths to check.
+        schemas: Dictionary mapping file paths to expected schema structures (dicts).
+    
+    Raises:
+        DataFlowViolationError: If a file is missing or schema mismatched.
+    """
+    for path in artifact_paths:
+        if not os.path.exists(path):
+            raise DataFlowViolationError(f"Required artifact missing: {path}")
         
-        # Update state file
-        if os.path.exists(state_file_path):
+        if path in schemas:
             try:
-                with open(state_file_path, 'r') as f:
-                    state = json.load(f)
-            except (json.JSONDecodeError, IOError):
-                state = {}
-        else:
-            state = {}
-        
-        state['partial_run'] = True
-        state['graceful_shutdown'] = True
-        state['shutdown_time'] = time.strftime("%Y-%m-%dT%H:%M:%S")
-        state['reason'] = "Runtime limit approached"
-        
-        if partial_data:
-            state['partial_data_summary'] = str(type(partial_data))
-        
-        # Ensure directory exists
-        os.makedirs(os.path.dirname(state_file_path), exist_ok=True)
-        
-        with open(state_file_path, 'w') as f:
-            json.dump(state, f, indent=2)
-        
-        self.logger.info(f"State file updated: {state_file_path}")
-        raise PartialRunError("Graceful shutdown triggered. Partial state saved.")
+                with open(path, 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+                
+                expected_schema = schemas[path]
+                # Simple schema check: ensure all expected keys exist at the top level
+                if isinstance(expected_schema, dict):
+                    for key in expected_schema:
+                        if key not in data:
+                            raise DataFlowViolationError(
+                                f"Artifact {path} missing required key: {key}"
+                            )
+                
+                logger.info(f"Artifact validated: {path}")
+            except json.JSONDecodeError as e:
+                raise DataFlowViolationError(f"Artifact {path} is not valid JSON: {e}")
+            except Exception as e:
+                raise DataFlowViolationError(f"Error validating artifact {path}: {e}")
 
-    def stop(self):
-        """Stop the watchdog."""
-        if self._alarm_set:
-            signal.alarm(0)
-            if hasattr(signal, 'SIGALRM'):
-                signal.signal(signal.SIGALRM, self._old_handler)
-            self._alarm_set = False
-            self.logger.info("Watchdog stopped.")
-
-def enforce_resource_limits(max_runtime: int, max_memory_mb: int) -> ResourceWatchdog:
+def get_config_schema_for_artifact(artifact_name: str) -> Dict[str, Any]:
     """
-    Convenience function to start a watchdog and check limits periodically.
-    Returns the watchdog instance for manual checks or context use.
+    Returns the expected schema for a given artifact name.
+    This centralizes schema definitions for consistency.
     """
-    return ResourceWatchdog(max_runtime, max_memory_mb)
-
-# Global watchdog instance for periodic checks
-_global_watchdog: Optional[ResourceWatchdog] = None
-
-def init_watchdog(max_runtime_hours: float = 6.0, max_memory_gb: float = 7.0, grace_period_seconds: int = 60):
-    """
-    Initialize the global watchdog with limits from config.
-    Serves FR-006 enforcement and T061 Graceful Degradation.
-    """
-    global _global_watchdog
-    max_runtime_seconds = int(max_runtime_hours * 3600)
-    max_memory_mb = int(max_memory_gb * 1024)
-    _global_watchdog = enforce_resource_limits(max_runtime_seconds, max_memory_mb)
-    # Note: Grace period is set in the class constructor now, but we can re-init if needed
-    # For now, the default grace period is used.
-    return _global_watchdog
-
-def check_limits_periodically():
-    """
-    Periodically check resource limits. Should be called in long-running loops.
-    """
-    global _global_watchdog
-    if _global_watchdog:
-        _global_watchdog.check_memory()
-        _global_watchdog.check_runtime()
-
-def stop_watchdog():
-    """Stop the global watchdog."""
-    global _global_watchdog
-    if _global_watchdog:
-        _global_watchdog.stop()
-        _global_watchdog = None
+    schemas = {
+        "data/processed/injected_datasets.json": {
+            "datasets": dict,
+            "injection_params": dict,
+            "validation_status": str
+        },
+        "data/processed/clusters.json": {
+            "clusters": list,
+            "threshold": float,
+            "algorithm": str
+        },
+        "data/processed/unique_subset.json": {
+            "subset": list,
+            "total_original": int,
+            "total_unique": int
+        },
+        "data/processed/comparison_log.json": {
+            "logs": list
+        },
+        "data/results/flagged_pairs_count.json": {
+            "wasted_count": int,
+            "total_pairs": int,
+            "wasted_ratio": float
+        },
+        "data/results/consensus_sample.json": list,
+        "data/results/consensus_ground_truth.json": list,
+        "data/results/correction_factor.json": {
+            "correction_factor": float,
+            "proxy_accuracy": float,
+            "sample_size": int,
+            "confusion_matrix": dict
+        },
+        "data/results/us1_efficiency_ratio.json": {
+            "wasted_ratio": float,
+            "wasted_ratio_corrected": float,
+            "wasted_count": int,
+            "total_budget": int
+        }
+    }
+    return schemas.get(artifact_name, {})
