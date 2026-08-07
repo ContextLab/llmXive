@@ -1,8 +1,3 @@
-"""
-Logging configuration module.
-
-Sets up logging to both file and stdout with appropriate formatting.
-"""
 import logging
 import os
 import sys
@@ -10,75 +5,57 @@ from pathlib import Path
 from typing import Optional
 from config.env_config import get_config, get_log_file_path, get_log_level
 
-def setup_logging(log_level: Optional[str] = None) -> logging.Logger:
+def setup_logging(log_file: Optional[Path] = None, log_level: Optional[int] = None) -> logging.Logger:
     """
-    Configure logging to output to both file and stdout.
-    
-    Args:
-        log_level: Optional log level override (e.g., 'DEBUG', 'INFO')
-        
-    Returns:
-        Root logger instance
+    Configure logging to output to both a file and stdout.
     """
+    if log_file is None:
+        log_file = get_log_file_path()
     if log_level is None:
         log_level = get_log_level()
-    
+
     # Ensure log directory exists
-    log_file_path = get_log_file_path()
-    log_file_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    # Create formatter
-    formatter = logging.Formatter(
-        '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        datefmt='%Y-%m-%d %H:%M:%S'
-    )
-    
+    log_file.parent.mkdir(parents=True, exist_ok=True)
+
+    # Create logger
+    logger = logging.getLogger()
+    logger.setLevel(log_level)
+
+    # Clear existing handlers to avoid duplicates in re-runs
+    logger.handlers.clear()
+
     # File handler
-    file_handler = logging.FileHandler(log_file_path)
-    file_handler.setLevel(getattr(logging, log_level))
-    file_handler.setFormatter(formatter)
-    
+    fh = logging.FileHandler(log_file)
+    fh.setLevel(log_level)
+    fh_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    fh.setFormatter(fh_formatter)
+
     # Console handler
-    console_handler = logging.StreamHandler(sys.stdout)
-    console_handler.setLevel(getattr(logging, log_level))
-    console_handler.setFormatter(formatter)
-    
-    # Configure root logger
-    root_logger = logging.getLogger()
-    root_logger.setLevel(getattr(logging, log_level))
-    
-    # Remove existing handlers to avoid duplicates
-    root_logger.handlers.clear()
-    
-    root_logger.addHandler(file_handler)
-    root_logger.addHandler(console_handler)
-    
-    return root_logger
+    ch = logging.StreamHandler(sys.stdout)
+    ch.setLevel(log_level)
+    ch_formatter = logging.Formatter('%(levelname)s: %(message)s')
+    ch.setFormatter(ch_formatter)
+
+    # Add handlers
+    logger.addHandler(fh)
+    logger.addHandler(ch)
+
+    return logger
 
 def get_logger(name: str) -> logging.Logger:
     """
-    Get a logger with the specified name.
-    
-    Args:
-        name: Logger name (usually __name__)
-        
-    Returns:
-        Logger instance
+    Get a logger with the specified name, ensuring logging is configured.
     """
+    # Ensure global logging is configured
+    if not logging.getLogger().handlers:
+        setup_logging()
+    
     return logging.getLogger(name)
 
 def main():
     """
-    Main entry point for logging configuration demonstration.
+    Entry point for logging configuration.
     """
-    setup_logging()
-    logger = get_logger(__name__)
-    
-    logger.debug("This is a debug message")
-    logger.info("This is an info message")
-    logger.warning("This is a warning message")
-    logger.error("This is an error message")
-    logger.critical("This is a critical message")
-
-if __name__ == "__main__":
-    main()
+    logger = setup_logging()
+    logger.info("Logging infrastructure configured.")
+    return 0

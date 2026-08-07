@@ -1,276 +1,177 @@
-"""
-Graph construction and sensitivity analysis for atomic configurations.
-
-Implements graph building from atomic coordinates and sensitivity analysis
-across different cutoff radii to study network structure impact.
-"""
 import json
 import logging
 from pathlib import Path
 from typing import Dict, List, Optional, Any, Tuple
 import networkx as nx
 import numpy as np
+
 from models.atomic_config import AtomicConfiguration
-from logging_config import get_logger
-from config.env_config import get_processed_dir
+from config.env_config import get_cutoff_radius, get_processed_dir
 
-logger = get_logger(__name__)
+logger = logging.getLogger(__name__)
 
-def build_graph_from_atoms(config: AtomicConfiguration, cutoff_radius: float) -> nx.Graph:
+def build_graph_from_atoms(config: AtomicConfiguration, cutoff_radius: Optional[float] = None) -> nx.Graph:
     """
-    Build a networkx graph from an atomic configuration using a distance cutoff.
+    Build a neighbor graph from an AtomicConfiguration.
+    Nodes are atom indices. Edges exist if distance < cutoff_radius.
+    """
+    if cutoff_radius is None:
+        cutoff_radius = get_cutoff_radius()
     
-    Args:
-        config: AtomicConfiguration object containing coordinates and species
-        cutoff_radius: Distance threshold in Angstroms for bond formation
+    positions = config.positions
+    num_atoms = len(positions)
+    
+    graph = nx.Graph()
+    graph.add_nodes_from(range(num_atoms))
+    
+    # Simple O(N^2) distance calculation for robustness
+    # In production, use ASE neighbor lists for speed
+    coords = np.array(positions)
+    if coords.shape[0] == 0:
+        return graph
         
-    Returns:
-        networkx.Graph object representing the atomic network
-    """
-    G = nx.Graph()
-    positions = config.coordinates  # numpy array of shape (N, 3)
-    n_atoms = len(positions)
+    # Calculate pairwise distances
+    # Using broadcasting: (N, 1, 3) - (1, N, 3) -> (N, N, 3)
+    diff = coords[:, np.newaxis, :] - coords[np.newaxis, :, :]
+    dists = np.sqrt(np.sum(diff**2, axis=2))
     
-    # Add nodes
-    for i in range(n_atoms):
-        G.add_node(i, species=config.species[i], position=positions[i].tolist())
+    # Mask for upper triangle excluding diagonal
+    mask = np.triu(np.ones((num_atoms, num_atoms), dtype=bool), k=1)
+    mask &= (dists < cutoff_radius)
     
-    # Add edges based on distance cutoff
-    # Using squared distances to avoid sqrt in comparisons
-    cutoff_sq = cutoff_radius ** 2
-    
-    for i in range(n_atoms):
-        for j in range(i + 1, n_atoms):
-            dist_sq = np.sum((positions[i] - positions[j]) ** 2)
-            if dist_sq < cutoff_sq:
-                G.add_edge(i, j, distance=np.sqrt(dist_sq))
-                
-    return G
-
-def build_graphs(
-    configs: List[AtomicConfiguration], 
-    cutoff_radius: float
-) -> Dict[str, nx.Graph]:
-    """
-    Build graphs for multiple configurations at a given cutoff radius.
-    
-    Args:
-        configs: List of AtomicConfiguration objects
-        cutoff_radius: Distance threshold in Angstroms
+    # Extract edges
+    edges = np.argwhere(mask)
+    for i, j in edges:
+        graph.add_edge(int(i), int(j))
         
-    Returns:
-        Dictionary mapping config_id to networkx.Graph
+    return graph
+
+def build_graphs(configs: List[AtomicConfiguration], cutoff_radius: Optional[float] = None) -> Dict[str, nx.Graph]:
     """
+    Build graphs for a list of configurations.
+    Returns a dictionary mapping config_id to graph.
+    """
+    if cutoff_radius is None:
+        cutoff_radius = get_cutoff_radius()
+        
     graphs = {}
     for config in configs:
-        try:
-            G = build_graph_from_atoms(config, cutoff_radius)
-            graphs[config.config_id] = G
-            logger.info(f"Built graph for {config.config_id} with {G.number_of_nodes()} nodes "
-                        f"and {G.number_of_edges()} edges at cutoff {cutoff_radius:.2f} Å")
-        except Exception as e:
-            logger.error(f"Failed to build graph for {config.config_id}: {e}")
-            continue
+        graph = build_graph_from_atoms(config, cutoff_radius)
+        graphs[config.id] = graph
     return graphs
 
-def validate_graph_connectivity(G: nx.Graph, config_id: str) -> Tuple[bool, List[int]]:
+def validate_graph_connectivity(graph: nx.Graph, config_id: str) -> Tuple[bool, List[int]]:
     """
-    Check if a graph is connected and identify largest component.
-    
-    Args:
-        G: networkx.Graph to validate
-        config_id: Identifier for logging
-        
-    Returns:
-        Tuple of (is_connected, list of nodes in largest component)
+    Check if the graph is connected.
+    Returns (is_connected, list_of_disconnected_component_sizes).
+    Logs warnings if disconnected components are found (Spec US-1, Scenario 3).
     """
-    if G.number_of_nodes() == 0:
-        logger.warning(f"Empty graph for {config_id}")
+    if graph.number_of_nodes() == 0:
+        logger.warning(f"Config {config_id}: Graph has no nodes.")
         return False, []
-        
-    largest_component = max(nx.connected_components(G), key=len)
-    is_connected = len(largest_component) == G.number_of_nodes()
     
-    if not is_connected:
-        logger.warning(f"Graph for {config_id} has {nx.number_connected_components(G)} "
-                       f"components. Largest has {len(largest_component)} nodes.")
-        
-    return is_connected, list(largest_component)
+    try:
+        components = list(nx.connected_components(graph))
+    except nx.NetworkXError as e:
+        logger.error(f"Config {config_id}: Error checking connectivity: {e}")
+        return False, []
+    
+    if len(components) == 1:
+        return True, []
+    
+    # Disconnected components found
+    component_sizes = [len(c) for c in components]
+    largest_size = max(component_sizes)
+    num_disconnected = len(components) - 1
+    total_nodes = graph.number_of_nodes()
+    
+    # Log specific warning as per Spec US-1 Scenario 3
+    logger.warning(
+        f"Config {config_id}: Disconnected components detected. "
+        f"Total nodes: {total_nodes}, Largest component: {largest_size}, "
+        f"Number of disconnected components: {num_disconnected}. "
+        f"Percentage in largest component: {(largest_size/total_nodes)*100:.2f}%. "
+        f"This configuration may represent fragmented structures or insufficient cutoff radius."
+    )
+    
+    # Return False and list of sizes of all components except the largest one
+    # to allow downstream logic to filter or weight appropriately
+    sorted_sizes = sorted(component_sizes, reverse=True)
+    disconnected_sizes = sorted_sizes[1:]
+    
+    return False, disconnected_sizes
 
 def run_sensitivity_analysis(
-    validated_configs: List[AtomicConfiguration],
-    cutoff_radii: List[float] = [2.8, 3.0, 3.2]
+    configs: List[AtomicConfiguration], 
+    radii: List[float]
 ) -> Dict[str, Any]:
     """
-    Run sensitivity analysis across different cutoff radii.
-    
-    Computes average degree and number of connected components for each
-    cutoff radius to understand how network structure metrics vary.
-    
-    Args:
-        validated_configs: List of AtomicConfiguration objects that passed validation
-        cutoff_radii: List of cutoff radii in Angstroms to test
-        
-    Returns:
-        Dictionary containing sensitivity analysis results
+    Run sensitivity analysis for different cutoff radii.
+    Calculates average degree and number of connected components for each radius.
     """
-    if not validated_configs:
-        logger.warning("No validated configurations provided for sensitivity analysis")
-        return {"cutoff_radii": cutoff_radii, "results": [], "note": "No data"}
-    
     results = []
-    
-    logger.info(f"Starting sensitivity analysis with {len(validated_configs)} configs "
-                f"and cutoffs: {cutoff_radii}")
-    
-    for cutoff in cutoff_radii:
-        logger.info(f"Processing cutoff radius: {cutoff:.2f} Å")
+    for radius in radii:
+        graphs = build_graphs(configs, cutoff_radius=radius)
         
-        # Build graphs for this cutoff
-        graphs = build_graphs(validated_configs, cutoff)
-        
-        if not graphs:
-            logger.warning(f"No graphs built for cutoff {cutoff:.2f} Å")
-            continue
-        
-        # Compute metrics
         total_degree = 0
+        total_nodes = 0
         total_components = 0
-        valid_count = 0
+        disconnected_count = 0
         
-        for config_id, G in graphs.items():
-            if G.number_of_nodes() == 0:
-                continue
-                
-            avg_degree = np.mean([d for n, d in G.degree()])
-            n_components = nx.number_connected_components(G)
+        for cid, graph in graphs.items():
+            total_nodes += graph.number_of_nodes()
+            total_degree += sum(dict(graph.degree()).values())
+            num_comp = nx.number_connected_components(graph)
+            total_components += num_comp
             
-            total_degree += avg_degree
-            total_components += n_components
-            valid_count += 1
-            
-            # Log disconnected components warning
-            is_connected, _ = validate_graph_connectivity(G, config_id)
-            if not is_connected and n_components > 1:
-                logger.debug(f"Config {config_id} at cutoff {cutoff:.2f} Å has {n_components} components")
+            if num_comp > 1:
+                disconnected_count += 1
         
-        if valid_count > 0:
-            avg_avg_degree = total_degree / valid_count
-            avg_components = total_components / valid_count
-            
-            results.append({
-                "cutoff_radius": cutoff,
-                "average_degree": float(avg_avg_degree),
-                "average_component_count": float(avg_components),
-                "configurations_processed": valid_count
-            })
-            logger.info(f"Cutoff {cutoff:.2f} Å: avg_degree={avg_avg_degree:.4f}, "
-                        f"avg_components={avg_components:.4f}")
+        avg_degree = total_degree / total_nodes if total_nodes > 0 else 0.0
+        avg_components = total_components / len(graphs) if graphs else 0.0
+        
+        results.append({
+            "cutoff_radius": radius,
+            "average_degree": avg_degree,
+            "average_components": avg_components,
+            "configs_with_disconnections": disconnected_count,
+            "total_configs": len(graphs)
+        })
+        
+        logger.info(f"Sensitivity Radius {radius} Å: Avg Degree={avg_degree:.2f}, Avg Components={avg_components:.2f}")
     
-    report = {
-        "cutoff_radii": cutoff_radii,
-        "results": results,
-        "analysis_timestamp": str(Path.cwd()),
-        "total_configs_analyzed": len(validated_configs)
-    }
-    
-    return report
+    return results
 
-def save_sensitivity_report(report: Dict[str, Any], output_path: Optional[Path] = None) -> Path:
+def save_sensitivity_report(results: List[Dict[str, Any]], output_path: Optional[Path] = None) -> Path:
     """
-    Save sensitivity analysis report to JSON file.
-    
-    Args:
-        report: Dictionary containing sensitivity analysis results
-        output_path: Optional path for output file. If None, uses default location.
-        
-    Returns:
-        Path to the saved file
+    Save sensitivity analysis results to a JSON file.
     """
     if output_path is None:
-        processed_dir = get_processed_dir()
-        output_path = Path(processed_dir) / "sensitivity_report.json"
-    
-    # Ensure directory exists
+        output_path = get_processed_dir() / "sensitivity_report.json"
+    else:
+        output_path = Path(output_path)
+        
     output_path.parent.mkdir(parents=True, exist_ok=True)
     
     with open(output_path, 'w') as f:
-        json.dump(report, f, indent=2)
-    
+        json.dump(results, f, indent=2)
+        
     logger.info(f"Sensitivity report saved to {output_path}")
     return output_path
 
 def main():
     """
-    Main entry point for sensitivity analysis execution.
-    
-    This function:
-    1. Loads validated configurations from data/processed/validation_report.json
-    2. Runs sensitivity analysis across cutoff radii {2.8, 3.0, 3.2} Å
-    3. Saves results to data/processed/sensitivity_report.json
+    Main entry point for testing graph builder and sensitivity analysis.
+    In a real pipeline, this would be called by main.py after data ingestion.
     """
     setup_logging()
+    logger.info("Graph Builder Module loaded.")
     
-    processed_dir = get_processed_dir()
-    validation_report_path = Path(processed_dir) / "validation_report.json"
-    output_path = Path(processed_dir) / "sensitivity_report.json"
-    
-    # Load validated configs
-    if not validation_report_path.exists():
-        logger.error(f"Validation report not found at {validation_report_path}. "
-                     "Run T007-exec first to generate validation data.")
-        raise FileNotFoundError(f"Validation report not found: {validation_report_path}")
-    
-    with open(validation_report_path, 'r') as f:
-        validation_data = json.load(f)
-    
-    validated_config_ids = validation_data.get('validated_configs', [])
-    
-    if not validated_config_ids:
-        logger.warning("No validated configurations found in validation report")
-        # Create empty report
-        report = {"cutoff_radii": [2.8, 3.0, 3.2], "results": [], "note": "No validated configs"}
-        save_sensitivity_report(report, output_path)
-        return
-    
-    logger.info(f"Found {len(validated_config_ids)} validated configurations")
-    
-    # Load atomic configurations from raw data
-    # Assuming configs are stored in data/raw/ as individual files or a single file
-    # This implementation assumes a standard format where we need to load them
-    from download import load_configurations_from_raw  # Import if available, else handle differently
-    
-    # For now, we'll assume configurations need to be loaded from a processed format
-    # In a real scenario, we'd load from the raw trajectory files
-    raw_dir = Path(processed_dir).parent / "raw"
-    
-    # Attempt to load configurations - this assumes a standard loading mechanism
-    # that would be implemented in the download module
-    try:
-        configs = load_configurations_from_raw(raw_dir, validated_config_ids)
-    except ImportError:
-        # Fallback: try to load from a JSON file if available
-        configs_json_path = raw_dir / "configs.json"
-        if configs_json_path.exists():
-            with open(configs_json_path, 'r') as f:
-                all_configs_data = json.load(f)
-            
-            configs = []
-            for config_data in all_configs_data:
-                if config_data['config_id'] in validated_config_ids:
-                    configs.append(AtomicConfiguration(**config_data))
-        else:
-            logger.error("No configuration data found. Please ensure raw data is loaded.")
-            raise
-    
-    # Run sensitivity analysis
-    cutoff_radii = [2.8, 3.0, 3.2]
-    report = run_sensitivity_analysis(configs, cutoff_radii)
-    
-    # Save report
-    save_sensitivity_report(report, output_path)
-    
-    logger.info(f"Sensitivity analysis complete. Report saved to {output_path}")
+    # Example usage (would be replaced by actual data loading in main.py)
+    # configs = load_configs(...)
+    # validate_graph_connectivity(...)
+    # run_sensitivity_analysis(...)
+    pass
 
 if __name__ == "__main__":
     main()

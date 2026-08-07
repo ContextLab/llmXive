@@ -38,3 +38,50 @@ T016:
     \ for detecting disconnected graph components was added or that warnings are logged\
     \ as required by US\u20111 Scenario\u202F3. The implementer\u2019s claim cannot\
     \ be verified without concrete implementation evidence."
+T017:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The submission provides only the task description; there is no code, test suite,\
+    \ or documentation showing that corrupted files are detected and cause an abort,\
+    \ nor that unexpected coordination numbers are flagged or dropped. Without concrete\
+    \ implementation artifacts, the edge\u2011case handling requirement cannot be\
+    \ verified."
+T018:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No files or code snippets were presented showing that constructed graphs (or
+    their metadata) are being written to `data/processed/graphs/` in JSON or GraphML
+    format. Without concrete artifacts (e.g., a script that performs the save, or
+    example output files in the specified directory), the requirement is not satisfied.
+    The next implementer must add the saving functionality and provide the resulting
+    files as evidence.
+T022:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `descriptors.py` file or `calculate_ring_statistics()` implementation is present
+    in the provided evidence; thus the required artifact does not exist or is empty.
+    The task remains undone until a module containing that function, returning a distribution
+    of ring sizes from 3 to 10, is added.
+T023:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, module, or documentation implementing `calculate_steinhardt_parameters()`\
+    \ or clustering\u2011coefficient calculations was provided; the evidence consists\
+    \ only of the task description and specifications, without any artifact to verify\
+    \ that the required functions exist or produce correct outputs. The implementer\
+    \ must supply the actual implementation (e.g., a Python file with the function\
+    \ definitions and any necessary tests or usage examples)."
+T025:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No CSV or JSON file linking configuration IDs to their full descriptor vectors
+    is present; the provided excerpt contains only project specifications and user
+    stories, with no actual dataset artifact. The required aggregated descriptor dataset
+    is missing, so the task is not satisfied.
+T026:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, test, or documentation was provided that demonstrates the system\
+    \ now skips configurations with missing thermal conductivity values and logs the\
+    \ count of such skips. The required artifact (implementation and evidence of the\
+    \ edge\u2011case handling) is missing."

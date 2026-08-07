@@ -5,27 +5,80 @@ submitter: llmxive-preprint-followup
 
 # llmXive follow-up: extending "TriSplat: Simulation-Ready Feed-Forward 3D Scene Reconstruction"
 
-## Summary of the prior work
-TriSplat introduces a feed-forward neural network that reconstructs 3D scenes directly into oriented triangle meshes from sparse, unposed images, bypassing the need for post-hoc conversion required by Gaussian-based methods. By constructing geometry normals from predicted point maps and refining them with an image-conditioned head, the method produces simulation-ready outputs suitable for physics engines in a single pass. This approach achieves geometry-faithful reconstructions on datasets like RealEstate10K and DL3DV while maintaining competitive novel-view synthesis quality.
+**Field**: Computer Science (Computer Vision, 3D Reconstruction)
 
-## Proposed extension
-How can we adapt TriSplat's triangle-based feed-forward architecture to run efficiently on CPU-only edge devices by replacing the heavy image-conditioned normal refinement head with a lightweight, differentiable ray-casting module that enforces geometric consistency without backpropagating through a deep CNN? This extension matters because it would democratize simulation-ready 3D reconstruction for robotics and embodied AI on low-power hardware where GPU inference is currently a bottleneck.
+## Research question
+
+How does replacing the learned, heavy normal-refinement head in TriSplat with a lightweight, differentiable geometric consistency module affect the trade-off between inference latency on CPU-only edge devices and the geometric fidelity of the resulting simulation-ready meshes?
+
+## Motivation
+
+Current feed-forward 3D reconstruction methods like TriSplat achieve high fidelity but rely on deep CNN heads that are computationally prohibitive for CPU-only edge robotics. There is a critical gap in understanding whether explicit, geometry-driven constraints can replace learned refinement to enable real-time, simulation-ready reconstruction on low-power hardware without sacrificing mesh quality for physics engines.
+
+## Related work
+
+- [TriSplat: Simulation-Ready Feed-Forward 3D Scene Reconstruction](https://arxiv.org/abs/2605.26115) — Establishes the baseline feed-forward architecture that produces simulation-ready triangle meshes directly from sparse images, highlighting the current reliance on heavy refinement heads.
+- [Advances in Feed-Forward 3D Reconstruction and View Synthesis: A Survey (2025)](https://arxiv.org/abs/2507.14501) — Contextualizes the shift from Gaussian-based to explicit mesh-based feed-forward methods and notes the emerging need for efficiency in edge deployment scenarios.
+- [XYZCylinder: Towards Compatible Feed-Forward 3D Gaussian Splatting for Driving Scenes via Unified Cylinder Lifting Method (2025)](https://arxiv.org/abs/2510.07856) — Demonstrates alternative geometric lifting strategies in feed-forward paradigms, offering precedent for simplifying implicit representations to improve compatibility with specific hardware constraints.
+- [Feed-Forward 3D Scene Modeling: A Problem-Driven Perspective (2026)](https://arxiv.org/abs/2604.14025) — Discusses the fundamental trade-offs in reconstructing 3D representations from 2D inputs, emphasizing the balance between geometric accuracy and computational feasibility.
+
+## Expected results
+
+We expect the modified architecture to achieve a 10-15x reduction in inference latency on CPU hardware compared to the GPU baseline while maintaining over 90% of the original mesh fidelity (measured by Chamfer Distance). The results will either confirm that explicit geometric constraints are sufficient for edge deployment or reveal that learned refinement is strictly necessary for high-quality mesh generation in sparse-view settings.
 
 ## Methodology sketch
-We will utilize the RealEstate10K validation set, downsampling images to 320x240 resolution to reduce computational load, and replace TriSplat's normal refinement head with a differentiable, CPU-optimized ray-surface intersection layer that calculates normals based on local triangle connectivity and depth gradients. The procedure involves training the modified model on a standard CPU cluster (e.g., 64-core AMD EPYC) using a curriculum that gradually introduces the ray-casting constraint while freezing the backbone to isolate the efficiency gains. We expect to observe a 10-15x reduction in inference latency compared to the GPU baseline while retaining over 90% of the original mesh fidelity (measured by Chamfer Distance) and novel-view rendering PSNR.
 
-## Motivated by (source preprint — reviewed, not authored, by llmXive)
+- Download and preprocess the RealEstate10K validation set, downscaling images to 320x240 resolution to simulate edge-device input constraints.
+- Implement a lightweight, differentiable ray-surface intersection layer that computes surface normals directly from local triangle connectivity and depth gradients, removing the learned refinement CNN.
+- Freeze the TriSplat backbone and train only the new geometric consistency module using a curriculum that gradually increases the weight of the ray-casting constraint.
+- Evaluate inference latency on a standard 2-core CPU environment (simulating GitHub Actions free-tier runners) to measure the reduction in compute time.
+- Compute Chamfer Distance against ground-truth meshes to quantify geometric fidelity and Peak Signal-to-Noise Ratio (PSNR) on novel views to assess rendering quality.
+- Perform statistical significance testing (paired t-test) on latency and fidelity metrics across 50 random test scenes to confirm the trade-off improvement.
+- Visualize the resulting meshes to qualitatively assess artifact reduction in high-curvature regions where the learned head previously dominated.
 
-- **TriSplat: Simulation-Ready Feed-Forward 3D Scene Reconstruction** — Weijie Wang, Zimu Li, Jinchuan Shi, Zeyu Zhang, Botao Ye, Marc Pollefeys, Donny Y. Chen, Bohan Zhuang. https://arxiv.org/abs/2605.26115.
+## Duplicate-check
 
-```bibtex
-@article{orig_arxiv_2605_26115,
-  title = {TriSplat: Simulation-Ready Feed-Forward 3D Scene Reconstruction},
-  author = {Weijie Wang and Zimu Li and Jinchuan Shi and Zeyu Zhang and Botao Ye and Marc Pollefeys and Donny Y. Chen and Bohan Zhuang},
-  year = {2026},
-  eprint = {2605.26115},
-  archivePrefix = {arXiv},
-  journal = {arXiv preprint arXiv:2605.26115},
-  url = {https://arxiv.org/abs/2605.26115}
-}
-```
+- Reviewed existing ideas: llmXive follow-up: extending "TriSplat...", TriSplat baseline analysis, Feed-forward 3D reconstruction efficiency survey.
+- Closest match: llmXive follow-up (original brainstorm) (similarity sketch: shares the same core hypothesis of replacing the refinement head for CPU efficiency).
+- Verdict: NOT a duplicate (This is the fleshed-out execution plan for the brainstormed seed, now grounded in specific methodology and literature).
+
+
+## Search trail
+
+**Generated by**: librarian (prompt v1.6.0) on 2026-08-07T04:17:38Z
+**Outcome**: exhausted
+**Original term**: llmXive follow-up: extending "TriSplat: Simulation-Ready Feed-Forward 3D Scene Reconstruction" computer science
+**Verified citation count**: 4
+
+### Search terms used
+
+| Rank | Term | Hit count |
+|-|-|-|
+| 0 (initial) | llmXive follow-up: extending "TriSplat: Simulation-Ready Feed-Forward 3D Scene Reconstruction" computer science | 0 |
+| 1 | feed-forward 3D scene reconstruction | 3 |
+| 2 | real-time 3D scene synthesis from images | 0 |
+| 3 | simulation-ready neural radiance fields | 0 |
+| 4 | 3D Gaussian splatting for simulation | 0 |
+| 5 | single-shot 3D reconstruction deep learning | 0 |
+| 6 | end-to-end 3D scene generation | 0 |
+| 7 | differentiable rendering for robotics simulation | 0 |
+| 8 | rapid 3D asset creation from monocular views | 0 |
+| 9 | feed-forward neural rendering pipelines | 0 |
+| 10 | 3D scene understanding for digital twins | 0 |
+| 11 | efficient 3D geometry prediction networks | 0 |
+| 12 | instant 3D reconstruction without optimization | 0 |
+| 13 | generative 3D models for virtual environments | 0 |
+| 14 | feed-forward volumetric reconstruction | 0 |
+| 15 | neural implicit surface reconstruction speed | 0 |
+| 16 | 3D scene representation for physics engines | 0 |
+| 17 | image-to-3D feed-forward networks | 0 |
+| 18 | scalable 3D scene generation for training | 0 |
+| 19 | direct 3D coordinate regression from images | 0 |
+| 20 | fast 3D reconstruction for autonomous systems | 0 |
+
+### Verified citations
+
+1. **Advances in Feed-Forward 3D Reconstruction and View Synthesis: A Survey** (2025). Jiahui Zhang, Yuelei Li, Anpei Chen, Muyu Xu, Kunhao Liu, et al.. arXiv. [2507.14501](https://arxiv.org/abs/2507.14501). PDF-sampled: No.
+2. **XYZCylinder: Towards Compatible Feed-Forward 3D Gaussian Splatting for Driving Scenes via Unified Cylinder Lifting Method** (2025). Haochen Yu, Qiankun Liu, Hongyuan Liu, Jianfei Jiang, Juntao Lyu, et al.. arXiv. [2510.07856](https://arxiv.org/abs/2510.07856). PDF-sampled: No.
+3. **TriSplat: Simulation-Ready Feed-Forward 3D Scene Reconstruction** (2026). Weijie Wang, Zimu Li, Jinchuan Shi, Zeyu Zhang, Botao Ye, et al.. arXiv. [2605.26115](https://arxiv.org/abs/2605.26115). PDF-sampled: No.
+4. **Feed-Forward 3D Scene Modeling: A Problem-Driven Perspective** (2026). Weijie Wang, Qihang Cao, Sensen Gao, Donny Y. Chen, Haofei Xu, et al.. arXiv. [2604.14025](https://arxiv.org/abs/2604.14025). PDF-sampled: Yes.

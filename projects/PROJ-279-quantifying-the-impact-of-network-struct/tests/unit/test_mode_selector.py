@@ -1,136 +1,146 @@
-import pytest
+"""
+Unit tests for the ModeSelector logic (T007b).
+
+These tests verify the logic of mode selection without requiring a full
+dataset download. They mock the file system interactions.
+"""
+
 import json
 import os
+import tempfile
 from pathlib import Path
 from unittest.mock import patch, MagicMock
 
-# Import the module under test
-from code.mode_selector import ModeSelector, check_mode_selector
-from code.logging_config import setup_logging
+import pytest
 
-# Setup logging for tests
-setup_logging()
+from mode_selector import ModeSelector
 
-class TestModeSelector:
-    """
-    Unit tests for the ModeSelector logic.
-    These tests verify the logic of mode selection without requiring
-    the full dataset to be present.
-    """
 
-    @pytest.fixture
-    def mock_data_dir(self, tmp_path):
-        """Create a temporary directory structure simulating data."""
-        vdos_dir = tmp_path / "vdos"
-        vdos_dir.mkdir()
-        metadata_dir = tmp_path / "metadata"
-        metadata_dir.mkdir()
-
-        # Create some fake VDOS files
-        (vdos_dir / "vdos_config_1.json").write_text("{}")
-        (vdos_dir / "vdos_config_2.json").write_text("{}")
-        # config_3 is missing
-
-        # Create a fake thermal conductivity manifest
-        manifest = {
-            "config_1": 1.5,
-            "config_2": 1.6,
-            "config_3": 1.7
+@pytest.fixture
+def temp_dirs():
+    """Creates temporary directories for raw and processed data."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        base = Path(tmpdir)
+        raw_dir = base / "raw"
+        processed_dir = base / "processed"
+        vdos_dir = processed_dir / "vdos"
+        
+        raw_dir.mkdir(parents=True)
+        processed_dir.mkdir(parents=True)
+        vdos_dir.mkdir(parents=True)
+        
+        yield {
+            'raw': raw_dir,
+            'processed': processed_dir,
+            'vdos': vdos_dir,
+            'base': base
         }
-        (metadata_dir / "thermal_conductivity_manifest.json").write_text(json.dumps(manifest))
 
-        return tmp_path
 
-    def test_check_mode_selector_importable(self):
-        """Verify the helper function works."""
-        assert check_mode_selector() is True
+def test_scan_config_ids(temp_dirs):
+    """Test that _scan_config_ids correctly identifies files in raw/."""
+    # Create dummy files
+    (temp_dirs['raw'] / "config1.xyz").touch()
+    (temp_dirs['raw'] / "config2.json").touch()
+    (temp_dirs['raw'] / "config3.dat").touch()
+    (temp_dirs['raw'] / "ignored.txt").touch() # Should be ignored
+    
+    selector = ModeSelector(data_dir=temp_dirs['base'])
+    ids = selector._scan_config_ids()
+    
+    assert len(ids) == 3
+    assert set(ids) == {"config1", "config2", "config3"}
 
-    def test_init_defaults(self):
-        """Test initialization with default paths."""
-        with patch('code.mode_selector.get_data_dir') as mock_get_data, \
-             patch('code.mode_selector.get_processed_dir') as mock_get_proc:
-            mock_get_data.return_value = Path("/fake/data")
-            mock_get_proc.return_value = Path("/fake/processed")
 
-            selector = ModeSelector()
-            assert selector.data_dir == Path("/fake/data")
-            assert selector.processed_dir == Path("/fake/processed")
+def test_check_vdos_availability_partial(temp_dirs):
+    """Test VDOS availability check with partial data."""
+    config_ids = ["config1", "config2", "config3"]
+    
+    # Create VDOS for only config1 and config3
+    (temp_dirs['vdos'] / "config1_vdos.json").touch()
+    (temp_dirs['vdos'] / "config3_vdos.json").touch()
+    
+    selector = ModeSelector(data_dir=temp_dirs['base'], processed_dir=temp_dirs['base'] / "processed")
+    status, fraction = selector._check_vdos_availability(config_ids)
+    
+    assert status["config1"] is True
+    assert status["config2"] is False
+    assert status["config3"] is True
+    assert fraction == pytest.approx(2/3)
 
-    def test_check_vdos_availability_partial(self, mock_data_dir):
-        """Test VDOS availability check with partial data."""
-        selector = ModeSelector(data_dir=mock_data_dir)
-        config_ids = ["config_1", "config_2", "config_3"]
 
-        avail_map, ratio = selector.check_vdos_availability(config_ids)
+def test_determine_mode_full(temp_dirs):
+    """Test Full mode determination when thresholds are met."""
+    config_ids = [f"config{i}" for i in range(100)]
+    
+    # Create VDOS and metadata for 90% (90 configs)
+    for i in range(90):
+        (temp_dirs['vdos'] / f"config{i}_vdos.json").touch()
+    
+    # Create metadata.json with k_values for 90 configs
+    metadata = [{"id": f"config{i}", "k_value": 1.5} for i in range(90)]
+    with open(temp_dirs['raw'] / "metadata.json", 'w') as f:
+        json.dump(metadata, f)
+    
+    # Create raw files for all 100
+    for i in range(100):
+        (temp_dirs['raw'] / f"config{i}.xyz").touch()
+        
+    selector = ModeSelector(data_dir=temp_dirs['base'], processed_dir=temp_dirs['base'] / "processed")
+    report = selector.determine_mode()
+    
+    assert report['mode'] == 'Full'
+    assert report['vdos_fraction'] == pytest.approx(0.90)
+    assert report['k_fraction'] == pytest.approx(0.90)
+    assert 'Full mode enabled' in report['reason']
 
-        assert avail_map["config_1"] is True
-        assert avail_map["config_2"] is True
-        assert avail_map["config_3"] is False
-        assert ratio == pytest.approx(2/3)
 
-    def test_check_vdos_availability_missing_dir(self, tmp_path):
-        """Test VDOS check when directory does not exist."""
-        selector = ModeSelector(data_dir=tmp_path)
-        config_ids = ["config_1"]
+def test_determine_mode_structure_only(temp_dirs):
+    """Test Structure-Only mode when VDOS is missing."""
+    config_ids = [f"config{i}" for i in range(100)]
+    
+    # Create VDOS for only 50% (50 configs)
+    for i in range(50):
+        (temp_dirs['vdos'] / f"config{i}_vdos.json").touch()
+    
+    # Create metadata for 100%
+    metadata = [{"id": f"config{i}", "k_value": 1.5} for i in range(100)]
+    with open(temp_dirs['raw'] / "metadata.json", 'w') as f:
+        json.dump(metadata, f)
+        
+    for i in range(100):
+        (temp_dirs['raw'] / f"config{i}.xyz").touch()
+        
+    selector = ModeSelector(data_dir=temp_dirs['base'], processed_dir=temp_dirs['base'] / "processed")
+    report = selector.determine_mode()
+    
+    assert report['mode'] == 'Structure-Only'
+    assert report['vdos_fraction'] == pytest.approx(0.50)
+    assert 'Structure-Only mode enabled' in report['reason']
 
-        avail_map, ratio = selector.check_vdos_availability(config_ids)
 
-        assert avail_map["config_1"] is False
-        assert ratio == 0.0
+def test_determine_mode_no_data(temp_dirs):
+    """Test default behavior when no data is present."""
+    selector = ModeSelector(data_dir=temp_dirs['base'], processed_dir=temp_dirs['base'] / "processed")
+    report = selector.determine_mode()
+    
+    assert report['mode'] == 'Structure-Only'
+    assert report['vdos_fraction'] == 0.0
+    assert 'No configurations found' in report['reason']
 
-    def test_check_k_availability_manifest(self, mock_data_dir):
-        """Test k availability check via manifest."""
-        selector = ModeSelector(data_dir=mock_data_dir)
-        config_ids = ["config_1", "config_2", "config_3"]
 
-        avail_map, ratio = selector.check_k_availability(config_ids)
-
-        assert avail_map["config_1"] is True
-        assert avail_map["config_2"] is True
-        assert avail_map["config_3"] is True
-        assert ratio == 1.0
-
-    def test_determine_mode_full(self, mock_data_dir):
-        """Test determination of Full mode when coverage is high."""
-        # In mock_data_dir: VDOS 2/3 (66%), k 3/3 (100%)
-        # This should trigger Structure-Only because VDOS < 80%
-        # Let's adjust the mock to have 4 configs, 4 VDOS, 4 k
-        vdos_dir = mock_data_dir / "vdos"
-        (vdos_dir / "vdos_config_4.json").write_text("{}")
-        (mock_data_dir / "metadata" / "thermal_conductivity_manifest.json").write_text(
-            json.dumps({"config_1": 1, "config_2": 1, "config_3": 1, "config_4": 1})
-        )
-
-        selector = ModeSelector(data_dir=mock_data_dir)
-        config_ids = ["config_1", "config_2", "config_3", "config_4"]
-
-        mode = selector.determine_mode(config_ids)
-        assert mode == ModeSelector.FULL_MODE
-
-    def test_determine_mode_structure_only(self, mock_data_dir):
-        """Test determination of Structure-Only mode when coverage is low."""
-        # Current mock: VDOS 2/3 (66%), k 3/3 (100%) -> Should be Structure-Only
-        selector = ModeSelector(data_dir=mock_data_dir)
-        config_ids = ["config_1", "config_2", "config_3"]
-
-        mode = selector.determine_mode(config_ids)
-        assert mode == ModeSelector.STRUCTURE_ONLY_MODE
-
-    def test_get_mode_config(self, mock_data_dir):
-        """Test the full configuration generation."""
-        selector = ModeSelector(data_dir=mock_data_dir)
-        config_ids = ["config_1", "config_2", "config_3"]
-
-        config = selector.get_mode_config(config_ids)
-
-        assert "mode" in config
-        assert "vdos_availability_ratio" in config
-        assert "k_availability_ratio" in config
-        assert "reason" in config
-        assert config["mode"] == ModeSelector.STRUCTURE_ONLY_MODE
-
-    def test_empty_config_ids(self):
-        """Test behavior with empty list of config IDs."""
-        selector = ModeSelector()
-        mode = selector.determine_mode([])
-        assert mode == ModeSelector.STRUCTURE_ONLY_MODE
+def test_save_mode_report(temp_dirs):
+    """Test that the report is saved correctly to JSON."""
+    # Setup minimal data
+    (temp_dirs['raw'] / "config1.xyz").touch()
+    selector = ModeSelector(data_dir=temp_dirs['base'], processed_dir=temp_dirs['base'] / "processed")
+    
+    output_path = selector.save_mode_report()
+    
+    assert output_path.exists()
+    with open(output_path, 'r') as f:
+        data = json.load(f)
+    
+    assert 'mode' in data
+    assert 'reason' in data
+    assert data['mode'] == 'Structure-Only' # Since no VDOS/k present

@@ -8,6 +8,3 @@ requests
 tqdm
 pyyaml
 python-dotenv
-ruff
-black
-pytest

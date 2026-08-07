@@ -1,135 +1,245 @@
+"""
+Generate synthetic local fallback data for the DFT-D3 transferability study.
+
+This script creates:
+1. data/IL-Benchmark-local.zip: Contains 20 ion pairs with XYZ coordinates and CCSD(T)/CBS reference energies.
+2. data/experimental_bulk_properties.csv: Contains density and viscosity for the same 20 pairs.
+
+The data is deterministic (fixed seed) to ensure reproducibility.
+Note: The dataset size (20) is required by Plan CI limits.
+"""
 import os
 import random
 import zipfile
 import csv
+import json
 from pathlib import Path
 import numpy as np
 
-from logger import get_logger
-from utils import calculate_metrics
+# Import existing utilities if available, otherwise define locally
+try:
+    from logger import get_logger
+    logger = get_logger(__name__)
+except ImportError:
+    import logging
+    logger = logging.getLogger(__name__)
+    logging.basicConfig(level=logging.INFO)
 
-logger = get_logger(__name__)
+# Fixed seed for reproducibility
+SEED = 42
 
-def set_seeds(seed: int = 42) -> None:
+# Define a set of representative ion pair names (20 unique pairs)
+# Format: "Cation_Anion"
+ION_PAIRS = [
+    "EMIM_BF4", "EMIM_TFSI", "EMIM_FAP",
+    "BMIM_BF4", "BMIM_TFSI", "BMIM_FAP",
+    "HMIM_BF4", "HMIM_TFSI", "HMIM_FAP",
+    "OMIM_BF4", "OMIM_TFSI", "OMIM_FAP",
+    "EMIM_NO3", "BMIM_NO3", "HMIM_NO3",
+    "EMIM_Cl", "BMIM_Cl", "HMIM_Cl",
+    "BMIM_Ac", "EMIM_Ac"
+]
+
+def set_seeds(seed: int = SEED):
     """Set random seeds for reproducibility."""
     random.seed(seed)
     np.random.seed(seed)
-    logger.info(f"Seeds set to {seed}")
 
-def generate_xyz_content(pair_id: int, seed_offset: int = 0) -> str:
+def generate_xyz_content(pair_id: str, cation_atoms: int, anion_atoms: int) -> str:
     """
-    Generate a synthetic XYZ file content for an ion pair.
-    The coordinates are deterministic based on pair_id and seed_offset.
-    Format:
-    N
-    Comment line
-    Element x y z
-    ...
+    Generate a deterministic but chemically plausible XYZ file content.
+    
+    Args:
+        pair_id: Unique identifier for the ion pair.
+        cation_atoms: Number of atoms in the cation.
+        anion_atoms: Number of atoms in the anion.
+        
+    Returns:
+        String content of the XYZ file.
     """
-    # Use a deterministic seed based on pair_id to ensure reproducibility
-    local_seed = 42 + pair_id * 1000 + seed_offset
-    rng = np.random.default_rng(local_seed)
+    total_atoms = cation_atoms + anion_atoms
+    lines = [str(total_atoms)]
+    lines.append(f"Ion pair {pair_id} - Synthetic XYZ")
+    
+    # Generate random coordinates within a bounding box (Angstroms)
+    # Using a deterministic seed ensures the same coordinates every time
+    np.random.seed(hash(pair_id) % (2**32))
+    
+    # Define element types for a generic imidazolium-based cation and common anions
+    # Simplified: C, H, N for cation; B, F, S, O, P, Cl for anions
+    cation_elements = ['C', 'H', 'N']
+    anion_elements_map = {
+        'BF4': ['B', 'F'],
+        'TFSI': ['C', 'F', 'N', 'O', 'S'],
+        'FAP': ['C', 'F', 'P'],
+        'NO3': ['N', 'O'],
+        'Cl': ['Cl'],
+        'Ac': ['C', 'H', 'O']
+    }
+    
+    # Determine anion elements based on pair_id suffix
+    anion_name = pair_id.split('_')[1]
+    anion_elements = anion_elements_map.get(anion_name, ['C', 'H', 'O'])
+    
+    all_elements = []
+    # Add cation atoms
+    for _ in range(cation_atoms):
+        all_elements.append(random.choice(cation_elements))
+    # Add anion atoms
+    for _ in range(anion_atoms):
+        all_elements.append(random.choice(anion_elements))
+    
+    # Generate coordinates
+    # Center cation roughly around (0,0,0) and anion shifted along Z
+    for i, element in enumerate(all_elements):
+        if i < cation_atoms:
+            # Cation coordinates
+            x = np.random.uniform(-3.0, 3.0)
+            y = np.random.uniform(-3.0, 3.0)
+            z = np.random.uniform(-2.0, 2.0)
+        else:
+            # Anion coordinates, shifted to simulate interaction
+            x = np.random.uniform(-2.0, 2.0)
+            y = np.random.uniform(-2.0, 2.0)
+            z = np.random.uniform(2.0, 6.0)
+        
+        lines.append(f"{element:<2} {x:10.5f} {y:10.5f} {z:10.5f}")
+    
+    return "\n".join(lines)
 
-    # Simulate a small ion pair: Cation (e.g., 3 atoms) + Anion (e.g., 3 atoms)
-    # Total 6 atoms
-    num_atoms = 6
-    elements = ["C", "H", "N", "B", "F", "O"]
+def generate_reference_energy(pair_id: str) -> float:
+    """
+    Generate a deterministic CCSD(T)/CBS reference energy (kcal/mol).
     
-    lines = [str(num_atoms)]
-    lines.append(f"Ion Pair {pair_id} - Synthetic XYZ")
+    Values are sampled from a realistic range for ionic liquid ion pairs (12-28 kcal/mol).
+    The values are negative (attractive interaction).
     
-    for i in range(num_atoms):
-        # Generate coordinates within a reasonable box (Angstroms)
-        x = rng.uniform(-2.0, 2.0)
-        y = rng.uniform(-2.0, 2.0)
-        z = rng.uniform(-2.0, 2.0)
-        elem = elements[i % len(elements)]
-        lines.append(f"{elem} {x:.6f} {y:.6f} {z:.6f}")
+    Args:
+        pair_id: Unique identifier for the ion pair.
+        
+    Returns:
+        Reference interaction energy in kcal/mol.
+    """
+    # Use a deterministic seed based on pair_id to generate the value
+    np.random.seed(hash(pair_id) % (2**32))
     
-    return "\n".join(lines) + "\n"
+    # Base energy range: -12 to -28 kcal/mol
+    # Add some variation based on ion types (simplified)
+    base = -20.0
+    variation = np.random.uniform(-5.0, 5.0)
+    energy = base + variation
+    
+    # Ensure it stays within realistic bounds
+    energy = max(-30.0, min(-10.0, energy))
+    
+    return round(energy, 6)
 
-def generate_reference_energy(pair_id: int, seed_offset: int = 0) -> float:
+def generate_bulk_properties(pair_id: str) -> dict:
     """
-    Generate a synthetic CCSD(T)/CBS reference energy (in Hartree).
-    Typical interaction energies for ILs are -0.3 to -0.6 Hartree.
-    """
-    local_seed = 42 + pair_id * 1000 + seed_offset + 1
-    rng = np.random.default_rng(local_seed)
+    Generate deterministic experimental bulk properties (density, viscosity).
     
-    # Base energy around -0.45 Hartree with some variance
-    base_energy = -0.45
-    variance = rng.uniform(-0.05, 0.05)
-    return base_energy + variance
-
-def generate_bulk_properties(pair_id: int, seed_offset: int = 0) -> dict:
+    Args:
+        pair_id: Unique identifier for the ion pair.
+        
+    Returns:
+        Dictionary with 'density' (g/cm3) and 'viscosity' (cP).
     """
-    Generate synthetic density (g/cm3) and viscosity (cP) for an ion pair.
-    Density: 1.1 - 1.6 g/cm3
-    Viscosity: 10 - 500 cP (highly variable for ILs)
-    """
-    local_seed = 42 + pair_id * 1000 + seed_offset + 2
-    rng = np.random.default_rng(local_seed)
+    np.random.seed(hash(pair_id + "_bulk") % (2**32))
     
-    density = rng.uniform(1.1, 1.6)
-    # Viscosity often follows a log-normal distribution roughly
-    log_visc = rng.normal(4.0, 1.0) # mean ~4, std ~1
-    viscosity = np.exp(log_visc)
+    # Density range: 1.1 - 1.6 g/cm3
+    density = np.random.uniform(1.1, 1.6)
+    
+    # Viscosity range: 20 - 500 cP (highly variable for ILs)
+    # Log-normal distribution might be more realistic, but uniform is sufficient for synthetic
+    viscosity = np.random.uniform(20.0, 500.0)
     
     return {
-        "pair_id": pair_id,
-        "density": density,
-        "viscosity": viscosity
+        "density": round(density, 4),
+        "viscosity": round(viscosity, 2)
     }
 
 def main():
-    """
-    Generate the synthetic local fallback data required for CI.
-    Creates:
-    1. data/IL-Benchmark-local.zip containing 20 XYZ files
-    2. data/experimental_bulk_properties.csv with 20 rows
-    """
-    set_seeds(42)
+    """Main function to generate all synthetic data artifacts."""
+    set_seeds(SEED)
     
-    data_dir = Path("data")
+    # Define output paths
+    project_root = Path(__file__).parent.parent
+    data_dir = project_root / "data"
     data_dir.mkdir(exist_ok=True)
     
-    num_pairs = 20
     zip_path = data_dir / "IL-Benchmark-local.zip"
     csv_path = data_dir / "experimental_bulk_properties.csv"
     
-    logger.info(f"Generating synthetic data for {num_pairs} ion pairs...")
+    logger.info(f"Generating synthetic data in {data_dir}")
     
-    # Prepare CSV data
-    csv_data = []
+    # Prepare data structures
+    xyz_files = {}
+    ref_energies = []
+    bulk_props = []
     
+    # Generate data for each ion pair
+    for pair_id in ION_PAIRS:
+        # Estimate atom counts (simplified)
+        # EMIM: ~13 atoms, BF4: 5, TFSI: ~15, etc.
+        # We'll use a heuristic based on the anion name
+        anion = pair_id.split('_')[1]
+        cation_atoms = 13  # Approx for EMIM/BMIM/HMIM
+        if anion == 'BF4':
+            anion_atoms = 5
+        elif anion == 'TFSI':
+            anion_atoms = 15
+        elif anion == 'FAP':
+            anion_atoms = 18
+        elif anion == 'NO3':
+            anion_atoms = 4
+        elif anion == 'Cl':
+            anion_atoms = 1
+        elif anion == 'Ac':
+            anion_atoms = 5
+        else:
+            anion_atoms = 10 # Default
+            
+        # Generate XYZ content
+        xyz_content = generate_xyz_content(pair_id, cation_atoms, anion_atoms)
+        xyz_filename = f"{pair_id}.xyz"
+        xyz_files[xyz_filename] = xyz_content
+        
+        # Generate reference energy
+        ref_energy = generate_reference_energy(pair_id)
+        ref_energies.append({
+            "pair_id": pair_id,
+            "reference_energy_kcal_mol": ref_energy
+        })
+        
+        # Generate bulk properties
+        props = generate_bulk_properties(pair_id)
+        bulk_props.append({
+            "pair_id": pair_id,
+            "density_g_cm3": props["density"],
+            "viscosity_cP": props["viscosity"]
+        })
+    
+    # Write ZIP file
+    logger.info(f"Writing {zip_path}")
     with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
-        for i in range(num_pairs):
-            # Generate XYZ
-            xyz_content = generate_xyz_content(i)
-            xyz_filename = f"pair_{i:03d}.xyz"
-            zipf.writestr(xyz_filename, xyz_content)
-            
-            # Generate Reference Energy (store in a metadata file or just rely on known generation logic)
-            # For this task, we store the reference energy in a separate metadata JSON inside the zip
-            # to ensure the loader can retrieve it without re-generating.
-            ref_energy = generate_reference_energy(i)
-            meta_filename = f"pair_{i:03d}_meta.json"
-            meta_content = f'{{"pair_id": {i}, "reference_energy": {ref_energy}}}'
-            zipf.writestr(meta_filename, meta_content)
-            
-            # Generate Bulk Properties
-            props = generate_bulk_properties(i)
-            csv_data.append(props)
+        for filename, content in xyz_files.items():
+            zipf.writestr(filename, content)
+        
+        # Also include the reference energies as a JSON file inside the zip
+        ref_json = json.dumps(ref_energies, indent=2)
+        zipf.writestr("reference_energies.json", ref_json)
     
-    # Write CSV
-    with open(csv_path, 'w', newline='') as f:
-        writer = csv.DictWriter(f, fieldnames=["pair_id", "density", "viscosity"])
+    # Write CSV file for bulk properties
+    logger.info(f"Writing {csv_path}")
+    with open(csv_path, 'w', newline='') as csvfile:
+        fieldnames = ['pair_id', 'density_g_cm3', 'viscosity_cP']
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         writer.writeheader()
-        writer.writerows(csv_data)
+        writer.writerows(bulk_props)
     
-    logger.info(f"Generated {zip_path}")
-    logger.info(f"Generated {csv_path}")
-    logger.info("Synthetic data generation complete.")
+    logger.info("Synthetic data generation completed successfully.")
+    logger.info(f"  - {zip_path}: Contains {len(ION_PAIRS)} ion pairs (XYZ) + reference energies")
+    logger.info(f"  - {csv_path}: Contains {len(ION_PAIRS)} bulk property records")
 
 if __name__ == "__main__":
     main()

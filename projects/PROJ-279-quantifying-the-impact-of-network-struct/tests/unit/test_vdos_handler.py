@@ -1,114 +1,201 @@
-"""
-Unit tests for VDOS Handling (Task T024).
-"""
-import json
-import os
-import tempfile
-from pathlib import Path
-import numpy as np
 import pytest
+import numpy as np
+from pathlib import Path
+import json
+import tempfile
+import os
 from unittest.mock import patch, MagicMock
 
-# Mock the environment config to avoid dependency on actual .env files during unit tests
-import sys
-from unittest.mock import MagicMock
+from vdos_handler import (
+    load_vdos,
+    calculate_participation_ratios,
+    process_configs_with_vdos,
+    save_vdos_missing_report,
+    check_vdos_availability
+)
+from models.atomic_config import AtomicConfiguration
+from config.env_config import get_processed_dir
 
-# Mock the config module
-mock_config = MagicMock()
-mock_config.get_processed_dir.return_value = Path("/tmp/test_project/data/processed")
-mock_config.get_logger = lambda name: MagicMock()
-
-# Inject mocks before importing the module
-sys.modules['config'] = MagicMock()
-sys.modules['config.env_config'] = mock_config
-sys.modules['validation_utils'] = MagicMock()
-
-from vdos_handler import load_vdos, calculate_participation_ratios, process_configs_with_vdos, save_vdos_missing_report
-
-class TestVDOSHandler:
-    def setup_method(self):
-        """Setup test fixtures."""
-        self.temp_dir = tempfile.mkdtemp()
-        self.vdos_dir = Path(self.temp_dir) / "vdos"
-        self.vdos_dir.mkdir(parents=True, exist_ok=True)
-
-    def test_load_vdos_success(self):
-        """Test loading VDOS when file exists."""
+class TestLoadVDOS:
+    """Tests for load_vdos function"""
+    
+    def test_load_vdos_success(self, tmp_path):
+        """Test successful loading of VDOS data"""
+        # Setup
+        vdos_dir = tmp_path / "vdos"
+        vdos_dir.mkdir()
         config_id = "test_config_001"
-        file_path = self.vdos_dir / f"{config_id}.npy"
+        vdos_file = vdos_dir / f"vdos_{config_id}.npy"
         
-        # Create a dummy VDOS array
-        dummy_vdos = np.array([1.0, 2.0, 3.0, 4.0])
-        np.save(file_path, dummy_vdos)
+        # Create dummy VDOS data
+        dummy_vdos = np.random.rand(100, 50)
+        np.save(vdos_file, dummy_vdos)
         
-        # Mock the get_processed_dir to point to our temp dir's parent
-        with patch('vdos_handler.get_processed_dir', return_value=Path(self.temp_dir)):
-            result = load_vdos(config_id, raw_dir=Path(self.temp_dir))
+        # Mock get_processed_dir to return our temp path
+        with patch('vdos_handler.get_processed_dir', return_value=tmp_path):
+            result = load_vdos(config_id)
             
-        assert result is not None
-        np.testing.assert_array_equal(result, dummy_vdos)
-
-    def test_load_vdos_missing(self, caplog):
-        """Test loading VDOS when file is missing."""
+            assert result is not None
+            assert result.shape == dummy_vdos.shape
+            np.testing.assert_array_equal(result, dummy_vdos)
+    
+    def test_load_vdos_missing_file(self, tmp_path):
+        """Test loading VDOS when file is missing"""
+        vdos_dir = tmp_path / "vdos"
+        vdos_dir.mkdir()
         config_id = "missing_config"
         
-        with patch('vdos_handler.get_processed_dir', return_value=Path(self.temp_dir)):
-            result = load_vdos(config_id, raw_dir=Path(self.temp_dir))
+        with patch('vdos_handler.get_processed_dir', return_value=tmp_path):
+            with pytest.raises(FileNotFoundError, match="VDOS data missing"):
+                load_vdos(config_id)
+    
+    def test_load_vdos_corrupted_file(self, tmp_path):
+        """Test loading VDOS when file is corrupted"""
+        vdos_dir = tmp_path / "vdos"
+        vdos_dir.mkdir()
+        config_id = "corrupted_config"
+        vdos_file = vdos_dir / f"vdos_{config_id}.npy"
+        
+        # Create a corrupted file (not a valid numpy array)
+        vdos_file.write_text("not a numpy file")
+        
+        with patch('vdos_handler.get_processed_dir', return_value=tmp_path):
+            with pytest.raises(Exception):
+                load_vdos(config_id)
+
+class TestCalculateParticipationRatios:
+    """Tests for calculate_participation_ratios function"""
+    
+    def test_calculate_pr_basic(self):
+        """Test basic PR calculation"""
+        # Create simple test data
+        vdos_data = np.array([
+            [1.0, 0.0, 0.0],  # Localized mode
+            [0.5, 0.5, 0.5],  # Extended mode
+        ])
+        frequencies = np.array([10.0, 20.0])
+        
+        pr_values = calculate_participation_ratios(vdos_data, frequencies)
+        
+        assert len(pr_values) == 2
+        assert pr_values[0] <= 1.0  # Localized mode should have low PR
+        assert pr_values[1] <= 1.0  # Extended mode should have higher PR
+        
+    def test_calculate_pr_zero_atoms(self):
+        """Test PR calculation with zero atoms"""
+        vdos_data = np.array([]).reshape(0, 0)
+        frequencies = np.array([])
+        
+        with pytest.raises(ValueError):
+            calculate_participation_ratios(vdos_data, frequencies)
             
-        assert result is None
-        # Verify error was logged (check caplog if configured, or just assert None)
-        # The function logs via logger, which is mocked in the import but we can check logic
-        # Since we mocked get_logger, we can't easily check logs, but we assert None.
+    def test_calculate_pr_1d_array(self):
+        """Test PR calculation with 1D array (should fail)"""
+        vdos_data = np.array([1.0, 2.0, 3.0])
+        frequencies = np.array([10.0])
+        
+        with pytest.raises(ValueError):
+            calculate_participation_ratios(vdos_data, frequencies)
 
-    def test_calculate_participation_ratios_1d(self):
-        """Test PR calculation on 1D array (assuming it's PR spectrum)."""
-        vdos = np.array([0.1, 0.2, 0.3, 0.4])
-        pr = calculate_participation_ratios(vdos, None)
+class TestProcessConfigsWithVDOS:
+    """Tests for process_configs_with_vdos function"""
+    
+    def test_process_configs_mixed_results(self, tmp_path):
+        """Test processing configs with some having VDOS and some missing"""
+        # Setup
+        vdos_dir = tmp_path / "vdos"
+        vdos_dir.mkdir()
         
-        # If input is PR per mode, mean is expected
-        expected_mean = np.mean(vdos)
-        assert np.isclose(pr, expected_mean)
+        # Create VDOS for one config
+        config_id_1 = "config_with_vdos"
+        vdos_file_1 = vdos_dir / f"vdos_{config_id_1}.npy"
+        np.save(vdos_file_1, np.random.rand(10, 5))
+        
+        # Create configs
+        config1 = AtomicConfiguration(
+            id=config_id_1,
+            atoms=np.random.rand(5, 3),
+            metadata={}
+        )
+        config2 = AtomicConfiguration(
+            id="config_without_vdos",
+            atoms=np.random.rand(5, 3),
+            metadata={}
+        )
+        
+        configs = [config1, config2]
+        
+        with patch('vdos_handler.get_processed_dir', return_value=tmp_path):
+            successful, missing_report = process_configs_with_vdos(configs)
+            
+            # Check results
+            assert len(successful) == 1
+            assert successful[0].id == config_id_1
+            assert 'vdos_loaded' in successful[0].metadata
+            assert successful[0].metadata['vdos_loaded'] is True
+            
+            assert len(missing_report['missing_ids']) == 1
+            assert missing_report['missing_ids'][0] == "config_without_vdos"
+    
+    def test_process_configs_all_missing(self, tmp_path):
+        """Test processing when all configs are missing VDOS"""
+        config1 = AtomicConfiguration(id="c1", atoms=np.random.rand(5, 3), metadata={})
+        config2 = AtomicConfiguration(id="c2", atoms=np.random.rand(5, 3), metadata={})
+        
+        with patch('vdos_handler.get_processed_dir', return_value=tmp_path):
+            successful, missing_report = process_configs_with_vdos([config1, config2])
+            
+            assert len(successful) == 0
+            assert len(missing_report['missing_ids']) == 2
 
-    def test_calculate_participation_ratios_zero_sum(self):
-        """Test PR calculation with zero sum."""
-        vdos = np.array([0.0, 0.0, 0.0])
-        pr = calculate_participation_ratios(vdos, None)
-        assert pr == 0.0
+class TestSaveVDOSMissingReport:
+    """Tests for save_vdos_missing_report function"""
+    
+    def test_save_report_creates_file(self, tmp_path):
+        """Test that report file is created"""
+        report_data = {
+            "total_configs": 5,
+            "missing_vdos": [{"config_id": "c1", "reason": "missing"}],
+            "missing_ids": ["c1"]
+        }
+        
+        output_path = tmp_path / "vdos_missing_report.json"
+        
+        with patch('vdos_handler.get_processed_dir', return_value=tmp_path):
+            result_path = save_vdos_missing_report(report_data, output_path)
+            
+            assert result_path.exists()
+            assert result_path == output_path
+            
+            # Verify content
+            with open(result_path, 'r') as f:
+                saved_data = json.load(f)
+                assert saved_data['total_configs'] == 5
+                assert len(saved_data['missing_ids']) == 1
 
-    def test_process_configs_with_vdos(self):
-        """Test processing multiple configs."""
-        # Setup files
-        config_ids = ["cfg_1", "cfg_2", "cfg_3"]
-        for cid in config_ids:
-            path = self.vdos_dir / f"{cid}.npy"
-            np.save(path, np.array([1.0, 1.0]))
+class TestCheckVDOSAvailability:
+    """Tests for check_vdos_availability function"""
+    
+    def test_check_availability_mixed(self, tmp_path):
+        """Test availability check with mixed results"""
+        vdos_dir = tmp_path / "vdos"
+        vdos_dir.mkdir()
         
-        # Remove one to simulate missing
-        missing_path = self.vdos_dir / "cfg_2.npy"
-        os.remove(missing_path)
+        # Create VDOS for one config
+        vdos_file = vdos_dir / "vdos_available.npy"
+        np.save(vdos_file, np.random.rand(10, 5))
         
-        with patch('vdos_handler.get_processed_dir', return_value=Path(self.temp_dir)):
-            successful, excluded = process_configs_with_vdos(config_ids, raw_dir=Path(self.temp_dir))
+        config1 = AtomicConfiguration(id="available", atoms=np.random.rand(5, 3), metadata={})
+        config2 = AtomicConfiguration(id="missing", atoms=np.random.rand(5, 3), metadata={})
         
-        assert "cfg_1" in successful
-        assert "cfg_3" in successful
-        assert len(excluded) == 1
-        assert excluded[0]["config_id"] == "cfg_2"
-        assert "ERR-VDOS-MISSING" in excluded[0]["reason"]
+        with patch('vdos_handler.get_processed_dir', return_value=tmp_path):
+            result = check_vdos_availability([config1, config2])
+            
+            assert result['available'] == 1
+            assert result['missing'] == 1
+            assert 'available' in result['available_ids']
+            assert 'missing' in result['missing_ids']
+            assert result['availability_rate'] == 0.5
 
-    def test_save_vdos_missing_report(self):
-        """Test saving the missing report."""
-        excluded = [
-            {"config_id": "bad_1", "reason": "Missing"},
-            {"config_id": "bad_2", "reason": "Invalid"}
-        ]
-        output_path = Path(self.temp_dir) / "vdos_missing_report.json"
-        
-        save_vdos_missing_report(excluded, output_path)
-        
-        assert output_path.exists()
-        with open(output_path, 'r') as f:
-            report = json.load(f)
-        
-        assert report["count"] == 2
-        assert report["excluded_configs"] == excluded
+if __name__ == "__main__":
+    pytest.main([__file__, "-v"])

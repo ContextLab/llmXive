@@ -1,197 +1,197 @@
-"""
-Data download and configuration loading module.
-
-Handles fetching MD trajectories from Zenodo/HuggingFace and loading
-atomic configurations for processing.
-"""
 import json
 import logging
 import os
+import hashlib
+import shutil
 from pathlib import Path
-from typing import Dict, List, Optional, Any, Tuple
-import numpy as np
-from tqdm import tqdm
+from typing import List, Optional, Dict, Any
 import requests
-from config.env_config import get_zenodo_url, get_data_dir
-from logging_config import get_logger
+from tqdm import tqdm
+
 from models.atomic_config import AtomicConfiguration
-from validation_utils import compute_file_checksum, verify_file_integrity
+from config.env_config import get_zenodo_url, get_data_dir, get_config
+from logging_config import get_logger
+from validation_utils import compute_file_checksum
 
 logger = get_logger(__name__)
 
-def download_file(url: str, output_path: Path, expected_checksum: Optional[str] = None) -> Path:
+def download_file(url: str, dest_path: Path, expected_checksum: Optional[str] = None) -> bool:
     """
-    Download a file from a URL with progress bar and optional checksum verification.
+    Download a file from URL to dest_path with optional checksum verification.
+    Returns True on success, raises exception on failure.
+    """
+    dest_path.parent.mkdir(parents=True, exist_ok=True)
     
-    Args:
-        url: Download URL
-        output_path: Local path to save the file
-        expected_checksum: Expected SHA256 checksum (optional)
+    logger.info(f"Downloading {url} to {dest_path}")
+    try:
+        response = requests.get(url, stream=True)
+        response.raise_for_status()
         
-    Returns:
-        Path to the downloaded file
-    """
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    logger.info(f"Downloading {url} to {output_path}")
-    
-    response = requests.get(url, stream=True)
-    response.raise_for_status()
-    
-    total_size = int(response.headers.get('content-length', 0))
-    
-    with open(output_path, 'wb') as f, tqdm(
-        desc=output_path.name,
-        total=total_size,
-        unit='B',
-        unit_scale=True,
-        unit_divisor=1024
-    ) as pbar:
-        for chunk in response.iter_content(chunk_size=8192):
-            f.write(chunk)
-            pbar.update(len(chunk))
-    
-    if expected_checksum:
-        actual_checksum = compute_file_checksum(output_path)
-        if not verify_file_integrity(output_path, expected_checksum, actual_checksum):
-            raise ValueError(f"Checksum mismatch for {output_path}")
-        logger.info(f"Checksum verified for {output_path}")
-    
-    return output_path
+        total_size = int(response.headers.get('content-length', 0))
+        with open(dest_path, 'wb') as f, tqdm(
+            desc=dest_path.name,
+            total=total_size,
+            unit='B',
+            unit_scale=True,
+            unit_divisor=1024,
+        ) as pbar:
+            for chunk in response.iter_content(chunk_size=8192):
+                if chunk:
+                    f.write(chunk)
+                    pbar.update(len(chunk))
+        
+        if expected_checksum:
+            actual_checksum = compute_file_checksum(dest_path)
+            if actual_checksum != expected_checksum:
+                raise ValueError(
+                    f"Checksum mismatch for {dest_path}. "
+                    f"Expected: {expected_checksum}, Got: {actual_checksum}"
+                )
+            logger.info(f"Checksum verified for {dest_path}")
+        
+        return True
+    except Exception as e:
+        logger.error(f"Failed to download {url}: {e}")
+        raise
 
 def load_zenodo_metadata() -> Dict[str, Any]:
     """
-    Load metadata about available datasets from Zenodo.
-    
-    Returns:
-        Dictionary containing dataset metadata
+    Load metadata about available datasets from Zenodo/HuggingFace.
+    This assumes a metadata file is available or fetched from a known URL.
+    For this implementation, we assume a local metadata file exists in data/raw/metadata.json
+    or we fetch it from a configured URL.
     """
-    zenodo_url = get_zenodo_url()
-    metadata_url = f"{zenodo_url}/metadata.json"
+    # In a real scenario, this might fetch from Zenodo API or a local manifest.
+    # Here we simulate loading a manifest that describes the files to download.
+    config = get_config()
+    metadata_url = config.get('metadata_url')
     
-    try:
-        response = requests.get(metadata_url)
-        response.raise_for_status()
-        return response.json()
-    except Exception as e:
-        logger.warning(f"Could not fetch metadata from {metadata_url}: {e}")
-        # Return default metadata if fetch fails
-        return {
-            "datasets": [
-                {
-                    "id": "as-si-trajectories-v1",
-                    "name": "Amorphous Silicon Trajectories",
-                    "files": [
-                        {
-                            "name": "configs.json",
-                            "url": f"{zenodo_url}/configs.json",
-                            "checksum": None,
-                            "description": "Atomic configurations in JSON format"
-                        }
-                    ]
-                }
-            ]
-        }
+    if metadata_url:
+        # Fetch metadata
+        try:
+            resp = requests.get(metadata_url)
+            resp.raise_for_status()
+            return resp.json()
+        except Exception as e:
+            logger.error(f"Failed to fetch metadata from {metadata_url}: {e}")
+            raise
+    else:
+        # Fallback to local file if URL not set
+        metadata_path = get_data_dir() / "raw" / "metadata.json"
+        if metadata_path.exists():
+            with open(metadata_path, 'r') as f:
+                return json.load(f)
+        else:
+            raise FileNotFoundError("No metadata URL configured and local metadata.json not found.")
 
-def download_configs(metadata: Dict[str, Any], raw_dir: Path) -> Path:
+def download_configs() -> List[Path]:
     """
-    Download configuration files based on metadata.
+    Download all configuration files listed in the metadata.
+    Returns list of paths to downloaded files.
+    """
+    metadata = load_zenodo_metadata()
+    raw_dir = get_data_dir() / "raw"
+    raw_dir.mkdir(parents=True, exist_ok=True)
     
-    Args:
-        metadata: Dataset metadata dictionary
-        raw_dir: Directory to save raw data
+    downloaded_files = []
+    
+    # Assume metadata has a list of files with urls and checksums
+    files_to_download = metadata.get('files', [])
+    
+    if not files_to_download:
+        logger.warning("No files found in metadata to download.")
+        return []
+    
+    for file_info in files_to_download:
+        url = file_info['url']
+        filename = file_info['filename']
+        checksum = file_info.get('checksum')
         
-    Returns:
-        Path to the downloaded configurations file
-    """
-    if not metadata.get("datasets"):
-        raise ValueError("No datasets found in metadata")
-    
-    # Assume first dataset is the one we want
-    dataset = metadata["datasets"][0]
-    
-    for file_info in dataset.get("files", []):
-        if file_info["name"] == "configs.json":
-            url = file_info["url"]
-            checksum = file_info.get("checksum")
-            output_path = raw_dir / "configs.json"
-            
-            if not output_path.exists():
-                download_file(url, output_path, checksum)
+        dest_path = raw_dir / filename
+        
+        if dest_path.exists():
+            logger.info(f"File {filename} already exists. Skipping download.")
+            # Optionally verify checksum if exists
+            if checksum:
+                if compute_file_checksum(dest_path) != checksum:
+                    logger.warning(f"Existing file {filename} has mismatched checksum. Re-downloading.")
+                    dest_path.unlink()
+                else:
+                    downloaded_files.append(dest_path)
+                    continue
             else:
-                logger.info(f"Configs already exist at {output_path}")
-            
-            return output_path
-    
-    raise FileNotFoundError("configs.json not found in dataset metadata")
-
-def load_configurations_from_raw(
-    raw_dir: Path, 
-    config_ids: Optional[List[str]] = None
-) -> List[AtomicConfiguration]:
-    """
-    Load atomic configurations from raw data directory.
-    
-    Args:
-        raw_dir: Directory containing raw configuration data
-        config_ids: Optional list of specific config IDs to load
+                downloaded_files.append(dest_path)
+                continue
         
-    Returns:
-        List of AtomicConfiguration objects
+        try:
+            download_file(url, dest_path, checksum)
+            downloaded_files.append(dest_path)
+        except Exception as e:
+            logger.error(f"Skipping {filename} due to error: {e}")
+            # Fail loudly as per constraints
+            raise e
+    
+    return downloaded_files
+
+def load_configurations_from_raw() -> List[AtomicConfiguration]:
     """
-    configs_path = raw_dir / "configs.json"
-    
-    if not configs_path.exists():
-        # Try to download if not exists
-        metadata = load_zenodo_metadata()
-        download_configs(metadata, raw_dir)
-    
-    with open(configs_path, 'r') as f:
-        all_configs_data = json.load(f)
-    
+    Load AtomicConfiguration objects from the downloaded raw files.
+    This function assumes the raw files are in a format that can be parsed
+    into AtomicConfiguration (e.g., XYZ, CIF, or custom JSON).
+    For this implementation, we assume a simple JSON format for demonstration.
+    """
+    raw_dir = get_data_dir() / "raw"
     configs = []
-    for config_data in all_configs_data:
-        # Filter by config_ids if specified
-        if config_ids and config_data['config_id'] not in config_ids:
+    
+    # Look for .json files in raw directory (adjust extension as needed)
+    for file_path in raw_dir.glob("*.json"):
+        if file_path.name == "metadata.json":
             continue
         
         try:
-            config = AtomicConfiguration(
-                config_id=config_data['config_id'],
-                coordinates=np.array(config_data['coordinates']),
-                species=config_data['species'],
-                source=config_data.get('source', 'unknown'),
-                system_size=len(config_data['species']),
-                metadata=config_data.get('metadata', {})
+            with open(file_path, 'r') as f:
+                data = json.load(f)
+            
+            # Map JSON fields to AtomicConfiguration
+            # Assuming the JSON has: id, positions, atomic_numbers, thermal_conductivity, source
+            cfg = AtomicConfiguration(
+                id=data['id'],
+                positions=np.array(data['positions']),
+                atomic_numbers=data['atomic_numbers'],
+                thermal_conductivity=data.get('thermal_conductivity'),
+                source=data.get('source', 'unknown'),
+                size=data.get('size', len(data['positions']))
             )
-            configs.append(config)
+            configs.append(cfg)
+            logger.info(f"Loaded configuration {cfg.id} from {file_path}")
         except Exception as e:
-            logger.error(f"Failed to load config {config_data.get('config_id', 'unknown')}: {e}")
-            continue
+            logger.error(f"Failed to load {file_path}: {e}")
+            # Fail loudly
+            raise e
     
-    logger.info(f"Loaded {len(configs)} configurations from {configs_path}")
+    if not configs:
+        logger.warning("No configurations found in raw directory.")
+    
     return configs
 
 def main():
     """
-    Main entry point for data download.
-    
-    Downloads MD trajectories from Zenodo and saves to data/raw/
+    Entry point for T014: Download and verify trajectories.
     """
-    setup_logging()
+    logger.info("Starting T014: Download Configurations")
+    try:
+        downloaded = download_configs()
+        logger.info(f"Downloaded {len(downloaded)} files.")
+        
+        # Optionally load them to verify structure
+        configs = load_configurations_from_raw()
+        logger.info(f"Loaded {len(configs)} configurations from raw files.")
+        
+    except Exception as e:
+        logger.error(f"Download process failed: {e}")
+        return 1
     
-    raw_dir = get_data_dir() / "raw"
-    raw_dir.mkdir(parents=True, exist_ok=True)
-    
-    logger.info(f"Downloading data to {raw_dir}")
-    
-    # Download metadata
-    metadata = load_zenodo_metadata()
-    
-    # Download configurations
-    configs_path = download_configs(metadata, raw_dir)
-    
-    logger.info(f"Download complete. Configurations saved to {configs_path}")
+    return 0
 
-if __name__ == "__main__":
-    main()
+# Import numpy locally to avoid global import if not used in main logic
+import numpy as np
