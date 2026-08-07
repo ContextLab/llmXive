@@ -149,3 +149,89 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-11T04:15:54Z'
+- artifact_path: projects/PROJ-890-llmxive-follow-up-extending-orca-the-wor/specs/001-llmxive-follow-up-extending-orca-the-wor/tasks.md
+  attempts: 1
+  canonical: 450 curated clips used for original physical outcomes extraction
+  claim_id: c_5738ceef
+  context: 'T020a [US2] **Extract Original Physical Outcomes (N=450)**: Implement
+    `code/data/extract_original_labels.py` to parse the video metadata from the N=450
+    curated clips and extract the *original* physical outcomes'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Extract Original Physical Outcomes (N=450): Implement code/data/extract_original_labels.py
+    to parse the video metadata from the N=450 curated clips'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T16:21:19Z'
+- artifact_path: projects/PROJ-890-llmxive-follow-up-extending-orca-the-wor/specs/001-llmxive-follow-up-extending-orca-the-wor/tasks.md
+  attempts: 1
+  canonical: 50 subset used for physics-verified labels generation
+  claim_id: c_241bda11
+  context: 'T020b [US2] **Generate Physics-Verified Labels (N=50)**: Implement `code/data/physics_verify.py`
+    to generate **Physics-Verified Labels** for the N=50 subset using full MuJoCo/PyBullet
+    simulation'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Generate Physics-Verified Labels (N=50): Implement code/data/physics_verify.py
+    to generate Physics-Verified Labels for the N=50 subset using full MuJoCo/PyBullet
+    simulation'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T16:21:50Z'
+- artifact_path: projects/PROJ-890-llmxive-follow-up-extending-orca-the-wor/specs/001-llmxive-follow-up-extending-orca-the-wor/tasks.md
+  attempts: 1
+  canonical: 90% accuracy threshold for vector arithmetic validation gate
+  claim_id: c_2517e9e2
+  context: 'T026a [US2] ... Output: Write `data/validation/gate_status.json` with
+    `status: "passed"` (if accuracy >= 90%) or `status: "blocked"`'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Write data/validation/gate_status.json with status: ''passed'' (if accuracy
+    >= 90%) or status: ''blocked'''
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T16:21:50Z'
+- artifact_path: projects/PROJ-890-llmxive-follow-up-extending-orca-the-wor/specs/001-llmxive-follow-up-extending-orca-the-wor/tasks.md
+  attempts: 1
+  canonical: 6 hour runtime target for end-to-end benchmark
+  claim_id: c_3bb61c95
+  context: 'T042 [P] **Performance Optimization**: Execute optimization strategies
+    ... **IF** T038a runtime > 6 hours to meet the 6h target'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execute optimization strategies IF T038a runtime > 6 hours to meet the
+    6h target
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T16:22:11Z'
+- artifact_path: projects/PROJ-890-llmxive-follow-up-extending-orca-the-wor/specs/001-llmxive-follow-up-extending-orca-the-wor/tasks.md
+  attempts: 1
+  canonical: Python 3.11 project initialization
+  claim_id: c_6ba427c4
+  context: T002 Initialize Python 3.11 project with pinned `requirements.txt`
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Initialize Python 3.11 project
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T16:22:34Z'

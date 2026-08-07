@@ -1,3 +1,1 @@
-"""
-Test suite for the calibration evaluation pipeline.
-"""
+# tests package initialization

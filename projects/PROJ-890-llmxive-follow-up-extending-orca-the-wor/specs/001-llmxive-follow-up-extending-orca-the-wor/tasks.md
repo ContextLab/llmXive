@@ -43,8 +43,8 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan (`projects/PROJ-890-llmxive-follow-up-extending-orca-the-wor/`) <!-- ATOMIZE: requested -->
-- [ ] T002 Initialize Python 3.11 project with pinned `requirements.txt` (CPU-only torch, scikit-learn, datasets, mujoco/pybullet)
+- [ ] T001 Create project structure per implementation plan (`projects/PROJ-890-llmxive-follow-up-extending-orca-the-wor/`) <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
+- [X] T002 Initialize Python 3.11 project with pinned `requirements.txt` (CPU-only torch, scikit-learn, datasets, mujoco/pybullet)
 - [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
 
 ---
@@ -55,11 +55,11 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Setup global config module (`code/config.py`) with paths, seeds, memory limits, and `OPTICAL_FLOW_THRESHOLD` parameter (default 0.5)
+- [X] T004 Setup global config module (`code/config.py`) with paths, seeds, memory limits, and `OPTICAL_FLOW_THRESHOLD` parameter (default 0.5)
 - [X] T005 [P] Implement audit logging infrastructure (`code/utils/audit_logger.py`) to capture skipped files and ambiguous prompts (FR-008)
-- [ ] T006 Create base data models/entities (`code/data/models.py`) for `PhysicalScenario`, `LatentVector`, `CounterfactualEdit`
+- [X] T006 Create base data models/entities (`code/data/models.py`) for `PhysicalScenario`, `LatentVector`, `CounterfactualEdit`
 - [X] T007 Setup memory profiling utility (`code/utils/memory_guard.py`) to dynamically adjust batch sizes based on `psutil` usage
-- [~] T008 Initialize `data/` directory structure (`raw/`, `processed/`, `validation/`) with checksum verification scripts
+- [ ] T008 Initialize `data/` directory structure (`raw/`, `processed/`, `validation/`) with checksum verification scripts
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -78,12 +78,12 @@
 
 ### Implementation for User Story 1
 
-- [ ] T011 [US1] Implement `code/data/download_orca.py` to fetch Orca dataset via HuggingFace `datasets` library (real URL only)
-- [ ] T012 [US1] Implement filtering logic in `code/data/download_orca.py` to exclude non-physical interaction clips using `optical_flow_magnitude` < `config.OPTICAL_FLOW_THRESHOLD` on `metadata` field (FR-001)
-- [ ] T013 [US1] Implement `code/data/extract_latents.py` to load frozen Orca model on CPU (float32, no quantization)
-- [ ] T014 [US1] Implement batch processing logic in `code/data/extract_latents.py` with dynamic batch size adjustment (FR-001, Edge Cases)
+- [X] T011 [US1] Implement `code/data/download_orca.py` to fetch Orca dataset via HuggingFace `datasets` library (real URL only)
+- [X] T012 [US1] Implement filtering logic in `code/data/download_orca.py` to exclude non-physical interaction clips using `optical_flow_magnitude` < `config.OPTICAL_FLOW_THRESHOLD` on `metadata` field (FR-001)
+- [X] T013 [US1] Implement `code/data/extract_latents.py` to load frozen Orca model on CPU (float32, no quantization)
+- [X] T014 [US1] Implement batch processing logic in `code/data/extract_latents.py` with dynamic batch size adjustment (FR-001, Edge Cases)
 - [ ] T015 [US1] Implement latent extraction loop to output `data/processed/latents.csv` with video IDs, prompts, and vector arrays
-- [ ] T016 [US1] Add error handling in `code/data/extract_latents.py` to log corrupted/missing files and continue processing (Edge Cases)
+- [X] T016 [US1] Add error handling in `code/data/extract_latents.py` to log corrupted/missing files and continue processing (Edge Cases)
 - [ ] T017 [US1] Verify output shape and validity of latent vectors in `tests/unit/test_latent_validation.py`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently

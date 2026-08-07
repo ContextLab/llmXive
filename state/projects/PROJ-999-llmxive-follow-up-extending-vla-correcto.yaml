@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-07T03:37:27.672661Z'
-current_stage: flesh_out_complete
+current_stage: flesh_out_in_progress
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-999-llmxive-follow-up-extending-vla-correcto
-last_run_id: de583334-f517-48dc-b3fa-8179d5bb56d5
+last_run_id: 873a992a-c8d2-4617-9b5a-579b407c7502
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: null
 title: 'llmXive follow-up: extending "VLA-Corrector: Lightweight Detect-and-Correct
   Inference for Adaptive A"'
-updated_at: '2026-08-05T04:28:51.368263Z'
+updated_at: '2026-08-07T16:25:10.012122Z'

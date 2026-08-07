@@ -1,6 +1,6 @@
 """
 Script to run the preprocessing pipeline.
-This script is invoked by the run-book to generate data/processed/alloys_raw.csv.
+This script is invoked by the quickstart run-book to generate data/processed/alloys_raw.csv.
 """
 import logging
 import sys
@@ -9,16 +9,16 @@ from src.preprocessing.preprocess_pipeline import main as run_pipeline
 from src.utils.logging_config import setup_logging
 
 def main():
-    """Entry point for the run-preprocessing script."""
+    """Main entry point for the preprocessing script."""
     setup_logging()
     logger = logging.getLogger(__name__)
-    logger.info("Executing preprocessing pipeline via run script...")
     
     try:
+        logger.info("Executing Preprocessing Pipeline via script wrapper...")
         run_pipeline()
-        logger.info("Preprocessing script finished successfully.")
+        logger.info("Preprocessing script completed successfully.")
     except Exception as e:
-        logger.error(f"Preprocessing script failed: {e}")
+        logger.error(f"Preprocessing script failed: {e}", exc_info=True)
         sys.exit(1)
 
 if __name__ == "__main__":

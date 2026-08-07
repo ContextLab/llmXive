@@ -1,0 +1,26 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the required `projects/PROJ-890-llmxive-follow-up-extending-orca-the-wor/`\
+    \ directory or any of its sub\u2011folders/files is provided; the claim lacks\
+    \ any artifact showing the project structure was created."
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., `pyproject.toml` with ruff/black
+    settings, `.flake8` file, or CI scripts invoking these tools) are present in the
+    provided evidence, nor any documentation showing they have been set up. The required
+    artifacts to satisfy task T003 are missing.
+T008:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The submission contains only the feature specification and user stories; there
+    is no evidence of a `data/` directory with the required `raw/`, `processed/`,
+    and `validation/` subfolders, nor any checksum verification scripts. The necessary
+    filesystem artifacts and scripts are missing, so the task is not satisfied.
+T010:
+  c: false
+  h: 5412ec9dd2fa2b700e834673028f6ec25bb194c2578e60314e173c7dfe377675
+  r: "The required file `tests/integration/test_latent_extraction.py` does not exist,\
+    \ so no integration test is provided to verify latent extraction on a sample clip.\
+    \ The task\u2019s core artifact is missing."

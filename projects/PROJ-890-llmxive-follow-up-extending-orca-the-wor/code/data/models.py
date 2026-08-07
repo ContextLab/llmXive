@@ -1,151 +1,89 @@
 """
-Base data models and entities for the llmXive Orca follow-up project.
+data/models.py
 
-This module defines the core data structures used throughout the pipeline:
-- PhysicalScenario: Represents a physical interaction scenario
-- LatentVector: Represents a frozen latent vector extracted from the Orca model
-- CounterfactualEdit: Represents a counterfactual modification to a scenario
+Defines base data models/entities for the Orca follow-up project.
+Includes Pydantic and dataclass versions for flexibility.
 """
+
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional, Tuple
 from uuid import uuid4
 import numpy as np
-
 from pydantic import BaseModel, Field, field_validator
 from typing import Union
 
-
+# Dataclass versions for internal use
 @dataclass
 class PhysicalScenario:
     """
-    Represents a physical interaction scenario from the Orca dataset.
-    
-    Attributes:
-        scenario_id: Unique identifier for the scenario
-        video_id: ID of the source video
-        prompt: Natural language prompt describing the scenario
-        original_outcome: The actual physical outcome observed
-        optical_flow_magnitude: Magnitude of optical flow in the video clip
-        metadata: Additional metadata about the scenario
+    Represents a physical scenario from the dataset.
     """
-    scenario_id: str = field(default_factory=lambda: str(uuid4()))
-    video_id: str = ""
-    prompt: str = ""
-    original_outcome: str = ""
-    optical_flow_magnitude: float = 0.0
+    video_id: str
+    original_outcome: str
+    counterfactual_prompt: str
     metadata: Dict[str, Any] = field(default_factory=dict)
-
-    def __post_init__(self):
-        if not self.scenario_id:
-            self.scenario_id = str(uuid4())
-
+    optical_flow_magnitude: float = 0.0
 
 @dataclass
 class LatentVector:
     """
-    Represents a frozen latent vector extracted from the Orca model.
-    
-    Attributes:
-        vector_id: Unique identifier for the latent vector
-        scenario_id: ID of the source PhysicalScenario
-        vector: Numpy array containing the latent vector values
-        vector_shape: Shape of the vector (for validation)
-        extraction_timestamp: When the vector was extracted
-        model_version: Version of the Orca model used
+    Represents a latent vector extracted from the model.
     """
-    vector_id: str = field(default_factory=lambda: str(uuid4()))
-    scenario_id: str = ""
-    vector: Optional[np.ndarray] = None
-    vector_shape: Tuple[int, ...] = ()
-    extraction_timestamp: str = ""
-    model_version: str = "orca-v1"
+    scenario_id: str
+    vector: np.ndarray
+    prompt: str
+    dim: int
 
     def __post_init__(self):
-        if self.vector is not None:
-            self.vector_shape = self.vector.shape
-        if not self.extraction_timestamp:
-            from datetime import datetime
-            self.extraction_timestamp = datetime.now().isoformat()
-
+        if not isinstance(self.vector, np.ndarray):
+            self.vector = np.array(self.vector)
+        if self.dim != len(self.vector):
+            raise ValueError(f"Dimension mismatch: expected {len(self.vector)}, got {self.dim}")
 
 @dataclass
 class CounterfactualEdit:
     """
-    Represents a counterfactual modification to a scenario.
-    
-    Attributes:
-        edit_id: Unique identifier for the edit
-        original_scenario_id: ID of the original PhysicalScenario
-        modified_latent_id: ID of the modified LatentVector
-        counterfactual_prompt: The counterfactual prompt describing the edit
-        expected_outcome: The expected physical outcome of the edit
-        edit_method: Method used to create the edit (e.g., "vector_arithmetic", "zero_mask")
-        ambiguity_flag: Whether the prompt was considered ambiguous (0=valid, 1=ambiguous)
+    Represents a counterfactual edit applied to a latent vector.
     """
-    edit_id: str = field(default_factory=lambda: str(uuid4()))
-    original_scenario_id: str = ""
-    modified_latent_id: str = ""
-    counterfactual_prompt: str = ""
-    expected_outcome: str = ""
-    edit_method: str = "vector_arithmetic"
-    ambiguity_flag: int = 0
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    original_latent: LatentVector
+    modified_latent: LatentVector
+    edit_vector: np.ndarray
+    edit_type: str  # e.g., "vector_arithmetic", "zero_mask"
+    ambiguous_flag: int = 0  # 0 = valid, 1 = ambiguous
 
     def __post_init__(self):
-        if not self.edit_id:
-            self.edit_id = str(uuid4())
+        if not isinstance(self.edit_vector, np.ndarray):
+            self.edit_vector = np.array(self.edit_vector)
 
-
-# Pydantic models for API serialization
+# Pydantic versions for serialization/API
 class PhysicalScenarioPydantic(BaseModel):
-    """Pydantic version of PhysicalScenario for API serialization."""
-    scenario_id: str
     video_id: str
-    prompt: str
     original_outcome: str
-    optical_flow_magnitude: float
-    metadata: Dict[str, Any] = {}
-
-    @field_validator('optical_flow_magnitude')
-    @classmethod
-    def validate_flow_magnitude(cls, v: float) -> float:
-        if v < 0:
-            raise ValueError('optical_flow_magnitude must be non-negative')
-        return v
-
+    counterfactual_prompt: str
+    metadata: Dict[str, Any] = Field(default_factory=dict)
+    optical_flow_magnitude: float = 0.0
 
 class LatentVectorPydantic(BaseModel):
-    """Pydantic version of LatentVector for API serialization."""
-    vector_id: str
     scenario_id: str
-    vector_shape: Tuple[int, ...]
-    extraction_timestamp: str
-    model_version: str
-    # Vector data as list for JSON serialization
-    vector_data: Optional[List[float]] = None
+    vector: List[float]  # JSON serializable
+    prompt: str
+    dim: int
 
-    @field_validator('vector_shape')
-    @classmethod
-    def validate_shape(cls, v: Tuple[int, ...]) -> Tuple[int, ...]:
-        if len(v) == 0:
-            raise ValueError('vector_shape cannot be empty')
+    @field_validator('vector')
+    def validate_vector(cls, v):
+        if not isinstance(v, list):
+            v = v.tolist()
         return v
 
-
 class CounterfactualEditPydantic(BaseModel):
-    """Pydantic version of CounterfactualEdit for API serialization."""
-    edit_id: str
-    original_scenario_id: str
+    original_latent_id: str
     modified_latent_id: str
-    counterfactual_prompt: str
-    expected_outcome: str
-    edit_method: str
-    ambiguity_flag: int
-    metadata: Dict[str, Any] = {}
+    edit_vector: List[float]
+    edit_type: str
+    ambiguous_flag: int = 0
 
-    @field_validator('ambiguity_flag')
-    @classmethod
-    def validate_ambiguity_flag(cls, v: int) -> int:
-        if v not in (0, 1):
-            raise ValueError('ambiguity_flag must be 0 or 1')
+    @field_validator('edit_vector')
+    def validate_edit_vector(cls, v):
+        if not isinstance(v, list):
+            v = v.tolist()
         return v

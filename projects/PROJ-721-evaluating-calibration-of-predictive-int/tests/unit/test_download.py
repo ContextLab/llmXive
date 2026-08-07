@@ -1,119 +1,120 @@
-"""
-Unit tests for the download module.
-
-These tests verify the checksum validation and download logic
-without actually downloading files from the internet.
-"""
-import hashlib
+"""Unit tests for download module."""
 import json
 import tempfile
 from pathlib import Path
-from unittest.mock import patch, MagicMock
-
 import pytest
+from unittest.mock import patch, MagicMock
+import hashlib
 
-from code.download import (
-    calculate_sha256,
-    validate_checksums,
+import sys
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'code'))
+
+from download import (
+    calculate_sha256, 
+    validate_checksums, 
     load_manifest,
+    DATA_DIR
 )
 
-
 def test_calculate_sha256():
-    """Test SHA256 calculation on a known string."""
-    with tempfile.NamedTemporaryFile(mode='w', delete=False) as f:
-        f.write("test data")
-        temp_path = Path(f.name)
+    """Test SHA256 calculation with known input."""
+    with tempfile.NamedTemporaryFile(delete=False) as tmp:
+        test_content = b"Hello, World!"
+        tmp.write(test_content)
+        tmp_path = Path(tmp.name)
     
     try:
-        # Known SHA256 for "test data"
-        expected = hashlib.sha256(b"test data").hexdigest()
-        actual = calculate_sha256(temp_path)
-        assert actual == expected
+        expected_hash = hashlib.sha256(test_content).hexdigest()
+        actual_hash = calculate_sha256(tmp_path)
+        assert actual_hash == expected_hash
     finally:
-        temp_path.unlink()
+        tmp_path.unlink()
 
 def test_validate_checksums_success():
-    """Test successful checksum validation."""
+    """Test checksum validation with matching hashes."""
     with tempfile.TemporaryDirectory() as tmpdir:
-        tmpdir = Path(tmpdir)
+        tmp_path = Path(tmpdir)
         
-        # Create a test file
-        test_file = tmpdir / "test.zip"
-        test_file.write_bytes(b"test content")
+        # Create test files
+        file1 = tmp_path / "file1.txt"
+        file1.write_text("content1")
         
-        # Calculate actual hash
-        actual_hash = hashlib.sha256(b"test content").hexdigest()
+        file2 = tmp_path / "file2.txt"
+        file2.write_text("content2")
         
-        # Create manifest with correct hash
+        # Create manifest
         manifest = {
-            "test.zip": {
-                "sha256": actual_hash,
-                "size": 12
-            }
+            "files": [
+                {
+                    "filename": "file1.txt",
+                    "sha256": hashlib.sha256(b"content1").hexdigest()
+                },
+                {
+                    "filename": "file2.txt", 
+                    "sha256": hashlib.sha256(b"content2").hexdigest()
+                }
+            ]
         }
         
-        manifest_path = tmpdir / "manifest.json"
-        with open(manifest_path, 'w') as f:
-            json.dump(manifest, f)
-        
-        # Should not raise
-        assert validate_checksums(manifest, test_file) is True
+        assert validate_checksums(manifest, tmp_path) is True
 
-def test_validate_checksums_mismatch():
-    """Test that checksum mismatch raises ValueError."""
+def test_validate_checksums_failure():
+    """Test checksum validation with mismatched hashes."""
     with tempfile.TemporaryDirectory() as tmpdir:
-        tmpdir = Path(tmpdir)
+        tmp_path = Path(tmpdir)
         
-        # Create a test file
-        test_file = tmpdir / "test.zip"
-        test_file.write_bytes(b"test content")
+        # Create test file
+        file1 = tmp_path / "file1.txt"
+        file1.write_text("content1")
         
         # Create manifest with wrong hash
         manifest = {
-            "test.zip": {
-                "sha256": "wronghash123",
-                "size": 12
-            }
+            "files": [
+                {
+                    "filename": "file1.txt",
+                    "sha256": "wronghash123"
+                }
+            ]
         }
         
-        with pytest.raises(ValueError, match="Checksum mismatch"):
-            validate_checksums(manifest, test_file)
+        assert validate_checksums(manifest, tmp_path) is False
 
-def test_validate_checksums_missing_hash():
-    """Test that missing hash in manifest raises ValueError."""
+def test_validate_checksums_missing_file():
+    """Test checksum validation with missing file."""
     with tempfile.TemporaryDirectory() as tmpdir:
-        tmpdir = Path(tmpdir)
+        tmp_path = Path(tmpdir)
         
-        # Create a test file
-        test_file = tmpdir / "test.zip"
-        test_file.write_bytes(b"test content")
-        
-        # Create manifest without hash
+        # Create manifest referencing non-existent file
         manifest = {
-            "test.zip": {
-                "size": 12
-            }
+            "files": [
+                {
+                    "filename": "missing.txt",
+                    "sha256": "anyhash"
+                }
+            ]
         }
         
-        with pytest.raises(ValueError, match="not found in manifest"):
-            validate_checksums(manifest, test_file)
+        assert validate_checksums(manifest, tmp_path) is False
 
-def test_load_manifest():
-    """Test loading a valid manifest file."""
+def test_load_manifest_valid():
+    """Test loading a valid manifest."""
     with tempfile.TemporaryDirectory() as tmpdir:
-        tmpdir = Path(tmpdir)
+        tmp_path = Path(tmpdir)
+        manifest_file = tmp_path / "manifest.json"
         
-        manifest_data = {
-            "file1.zip": {"sha256": "abc123"},
-            "file2.zip": {"sha256": "def456"}
-        }
+        manifest_data = {"files": [], "version": "1.0"}
+        manifest_file.write_text(json.dumps(manifest_data))
         
-        manifest_path = tmpdir / "manifest.json"
-        with open(manifest_path, 'w') as f:
-            json.dump(manifest_data, f)
-        
-        result = load_manifest(manifest_path)
+        result = load_manifest(manifest_file)
         assert result == manifest_data
-        assert "file1.zip" in result
-        assert result["file1.zip"]["sha256"] == "abc123"
+        assert result["version"] == "1.0"
+
+def test_load_manifest_invalid_json():
+    """Test loading an invalid JSON manifest."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tmp_path = Path(tmpdir)
+        manifest_file = tmp_path / "manifest.json"
+        manifest_file.write_text("not valid json")
+        
+        with pytest.raises(json.JSONDecodeError):
+            load_manifest(manifest_file)

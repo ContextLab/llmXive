@@ -1,3 +1,1 @@
-"""
-Data directory for datasets and intermediate results.
-"""
+# data package initialization

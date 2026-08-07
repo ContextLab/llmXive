@@ -12,14 +12,6 @@ T018:
     \ for `data/raw/manual_curated.csv`, logs a warning when it is absent, and returns\
     \ an empty DataFrame, fulfilling the graceful\u2011degradation requirement. The\
     \ required artifact is present and implements the specified behavior."
-T027:
-  c: false
-  h: 6bed187daabe286301abfb0592fa2ccc7f4c7bc6deb002ae859c052f4975b542
-  r: "The repository contains `code/src/preprocessing/preprocess_pipeline.py`, but\
-    \ the shown code is truncated before any step that writes a CSV, and the required\
-    \ output file `data/processed/alloys_raw.csv` is absent from the file system.\
-    \ Consequently the task\u2019s core requirement\u2014to generate and save that\
-    \ CSV\u2014is not satisfied."
 T028b:
   c: false
   h: 13ceee65977a9b32efa09f441387de6d20f154aed21f3c5444fb8f7cf0a7cde8
@@ -29,12 +21,3 @@ T028b:
     \ does not correctly call `check_and_warn` with the required arguments, and writes\
     \ a flag file containing extra fields instead of the exact `{\"n\": N, \"threshold\"\
     : 50}` JSON. These issues prevent the task\u2019s specifications from being satisfied."
-T032:
-  c: false
-  h: a63a350c4f5dcacb4750571b63e08c0e5710373611d57ac901dfbf00f914a726
-  r: "The provided `feature_engineering_pipeline.py` contains the loading and descriptor\u2011\
-    calculation logic, but the excerpt ends before any code that writes the resulting\
-    \ DataFrame to `data/processed/alloys_features.csv`. Moreover, the required input\
-    \ file `data/processed/alloys_raw.csv` is absent, so the pipeline cannot be exercised\
-    \ to confirm correct behavior. The implementation must include the step that saves\
-    \ the engineered features and be tested with an actual `alloys_raw.csv` file."

@@ -75,3 +75,14 @@
   verification_status: mismatch
   verified_against_url: https://github.com/your-org/llmxive-follow-up/releases/tag/v0.1.0
   verified_at: '2026-07-25T13:58:11.066141Z'
+- artifact_hash: 9e3bbead2cc729a45f6e27ef9bd43be4e7e2332ed5c06478b336e8d66525cad6
+  artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: '[2504.15325] Significativity Indices for Agreement Values'
+  kind: url
+  value: https://arxiv.org/abs/2504.15325
+  verification_status: pending
+  verified_against_url: https://arxiv.org/abs/2504.15325
+  verified_at: '2026-08-07T16:41:56.411915Z'

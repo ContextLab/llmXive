@@ -1,5 +1,6 @@
-'|all centroid embedding generated minilm model using v2':
-  quote: embedding (i.e., all-MiniLM-L6-v2) in an
-  source_id: '2607.07974'
-  url: https://arxiv.org/abs/2607.07974
-  value: all-MiniLM-L6-v2
+'|agreement indicate kappa substantial':
+  quote: "the 0.61 agreement to be \u201Csubstantial\u201D. A different scale suggests\
+    \ that values"
+  source_id: '2504.15325'
+  url: https://arxiv.org/abs/2504.15325
+  value: '0.61'

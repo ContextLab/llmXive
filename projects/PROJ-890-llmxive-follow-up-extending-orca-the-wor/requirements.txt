@@ -1,30 +1,25 @@
-# llmXive Project Dependencies
-# Python 3.11+ required
-# All packages pinned for reproducibility on CPU-only CI
+# Core dependencies for llmXive Orca Follow-up
+# CPU-only constraints enforced
+torch==2.1.0
+torchvision==0.16.0
+torchaudio==2.1.0
+# Note: Install CPU-only version via pip if not using conda
+# pip install torch --index-url https://download.pytorch.org/whl/cpu
 
-# Core ML & Data
-torch==2.2.0+cpu
---extra-index-url https://download.pytorch.org/whl/cpu
-
-scikit-learn==1.4.1.post1
-numpy==1.26.4
-pandas==2.2.1
-
-# HuggingFace Ecosystem
-datasets==2.17.1
-transformers==4.38.2
-huggingface-hub==0.21.4
-
-# Physics Simulation (CPU)
-mujoco==2.3.7
-dm_control==1.0.14
-pybullet==3.2.6
+numpy>=1.24.0,<2.0.0
+pandas>=2.0.0
+scikit-learn>=1.3.0
+datasets>=2.14.0
+transformers>=4.35.0
+accelerate>=0.24.0
 
 # Utilities
-psutil==5.9.8
-ruff==0.3.0
-black==24.3.0
-pytest==8.1.1
-pytest-cov==4.1.0
-tqdm==4.66.2
-Pillow==10.2.0
+psutil>=5.9.0
+pydantic>=2.0.0
+ruff>=0.1.0
+black>=23.0.0
+pytest>=7.4.0
+
+# Physics (Optional for later phases, but listed here)
+# mujoco>=3.0.0
+# pybullet>=3.2.0

@@ -1,3 +1,1 @@
-"""
-Results directory for final outputs and logs.
-"""
+# results package initialization

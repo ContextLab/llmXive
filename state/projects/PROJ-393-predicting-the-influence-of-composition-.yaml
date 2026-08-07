@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-07T10:50:38.083225Z'
-current_stage: in_progress
+current_stage: planned
 failed_stage: null
 field: materials science
 human_escalation_reason: null
 id: PROJ-393-predicting-the-influence-of-composition-
-last_run_id: 0efa4c21-6669-42b8-a969-8d37e3d9653d
+last_run_id: 2cd5d8fa-f3dd-45ed-9319-e8a5faef47f1
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition
 title: Predicting the Influence of Composition on the Magnetic Hysteresis of Heusler
   Alloys
-updated_at: '2026-07-24T22:45:54.187990Z'
+updated_at: '2026-08-07T15:55:47.825026Z'

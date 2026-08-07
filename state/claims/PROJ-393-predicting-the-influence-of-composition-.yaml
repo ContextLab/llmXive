@@ -4221,3 +4221,667 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-02T07:50:08Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 0
+  canonical: Set n_resamples to 1000 for bootstrap validation
+  claim_id: c_be625a9f
+  context: "T042 [US3] Implement code/src/validation/bootstrap_validation.py to compute\
+    \ a confidence interval for R\xB2 with a sufficient number of resamples (SC-002).\
+    \ Logic: Perform a sufficient number of bootstrap resamples to ensure robust statistical\
+    \ inference. Set n_resamples=1000 explicitly."
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: As an example, assume we are interested in the average (or mean) height
+        of people worldwide.  We cannot measure all the people in the global population,
+        so instead, we sample only a tiny part of it, and measure that.  Assume the
+        sample is of size N; that is, we measure the heights of N individuals.  From
+        that single sample, only one estimate of the mean can be obtained.  In order
+        to reason about the population, we need some sense of the variability of the
+        mean that we have computed. The simplest bootstrap method involves taking
+        the original data set of heights, and, using a computer, sampling from it
+        to form a new sample (called a 'resample' or bootstrap sample) that is also
+        of size N.  The bootstrap sample is taken from the original by using sampling
+        with replacement (e.g. we might 'resample' 5 times from [1,2,3,4,5] and get
+        [2,5,4,4,1]), so, assuming N is sufficiently large, for all practical purposes
+        there is virtually zero probability that it will be identical to the original
+        "real" sample.  This process is repeated a large number of times (typically
+        1,000 or 10,000 times), and for each of these bootstrap samples, we compute
+        its mean (each of these is called a "bootstrap estimate").  We now can create
+        a histogram of bootstrap means.  This histogram provides an estimate of the
+        shape of the distribution of the sample mean from which we can answer questions
+        about how much the mean varies across samples.  (The method here, described
+        for the mean, can be applied to almost any other statistic or estimator.)
+      source_id: Bootstrapping (statistics)
+      url: https://en.wikipedia.org/wiki/Bootstrapping_(statistics)
+      value: '1000'
+    filled: true
+  kind: numeric
+  raw_text: Set n_resamples=1000 explicitly
+  resolved_value: '1000'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-07T15:29:49Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 0
+  canonical: Scarcity warning triggered if data count N is less than 50
+  claim_id: c_dcf5d7f9
+  context: 'T028b-2 [US1] Scarcity Check - Write Flag: If N < 50, write data/.scarcity_warning
+    with content {"n": N, "threshold": 50}. Schema: JSON with keys n (int) and threshold
+    (int).'
+  evidence:
+    entailment_evidence: Scarcity warning triggered when data count is less than 50
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Scarcity_warning_triggered_when_data_count_is_less_than_50
+  kind: magnitude
+  raw_text: 'If N < 50, write data/.scarcity_warning with content {"n": N, "threshold":
+    50}'
+  resolved_value: Scarcity warning triggered when data count is less than 50
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-07T15:29:51Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Elemental properties for 20 elements sourced from Pyykko 1988
+  claim_id: c_41a0f558
+  context: 'T006 Create data/raw/elemental_properties.csv with fixed periodic table
+    data for all elements likely found in Heusler alloys including columns: element,
+    electronegativity, atomic_radii, valence_electrons, source_reference. Source:
+    Pyykko and standard references.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The file MUST contain the following exact rows (values are representative
+    of Pyykko and standard data). ... Mn,1.55,127,7,Pyykko 1988 ... Co,1.88,125,9,Pyykko
+    1988 ... Fe,1.83,126,8,Pyykko 1988 ... Ga,1.81,135,3,Pyykko 1988 ... Al,1.61,143,3,Pyykko
+    1988 ... Ni,1.91,124,10,Pyykko 1988 ... Cu,1.90,128,11,Pyykko 1988 ... Sn,1.96,145,4,Pyykko
+    1988 ... In,1.78,167,3,Pyykko 1988 ... Ti,1.54,147,4,Pyykko 1988 ... V,1.63,134,5,Pyykko
+    1988 ... Zn,1.65,134,12,Pyykko 1988 ... Si,1.90,111,4,Pyykko 1988 ... Ge,2.01,122,4,Pyykko
+    1988 ... Sb,2.05,140,5,Pyykko 1988 ... Pb,2.33,175,4,Pyykko 1988 ... Mg,1.31,160,2,Pyykko
+    1988 ... Cr,1.66,128,6,Pyykko 1988 ... Nb,1.60,146,5,Pyykko 1988 ... Ta,1.50,146,5,Pyykko
+    1988
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T15:32:18Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Imputation switches to listwise deletion when missing rate exceeds 15
+    percent
+  claim_id: c_359c5620
+  context: 'T015 [US1] Integration test for imputation logic... Test Logic: Implement
+    a function test_imputation_logic_switches_at_15_percent that calls the imputation
+    logic with a missing rate of 0.14 and asserts mean_imputation is used, then calls
+    with 0.16 and asserts listwise_deletion is used.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'If missing_rate > 0.15: assert listwise_deletion else: assert mean_imputation'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T15:32:19Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Bootstrapping requires at least 1000 resamples
+  claim_id: c_2a2e2126
+  context: 'T059 [P] [US3] Bootstrapping Resample Count Verification... Logic: If
+    n_resamples < 1000, raise a ValueError with the message ''Bootstrapping requires
+    at least 1000 resamples for robust CI estimation.'''
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Bootstrapping_requires_at_least_1000_resamples
+  kind: magnitude
+  raw_text: Bootstrapping requires at least 1000 resamples for robust CI estimation
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T15:32:26Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Pipeline execution time less than 6 hours and memory less than 7 GB
+  claim_id: c_6bc009ea
+  context: T055 [P] Verify pipeline execution time < 6 hours and memory < 7 GB on
+    local CPU (SC-005).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_execution_time_less_than_6_hours_and_memory_less_th
+  kind: magnitude
+  raw_text: Verify pipeline execution time < 6 hours and memory < 7 GB on local CPU
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T15:32:36Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Warning logged if fewer than 3 distinct data sources found
+  claim_id: c_d6817bf1
+  context: 'T028c [US1] FR-001 Hard Gate Enforcement... Logic: Check the counts from
+    T016, T017, T018. If the number of distinct sources with data > 0 is < 3, LOG
+    A WARNING with the message: ''FR-001 Warning: Fewer than 3 distinct sources found.
+    Proceeding with available data.'''
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P3879: 54'
+      source_id: Q39304236
+      url: https://www.wikidata.org/wiki/Q39304236
+      value: '54'
+    filled: true
+  kind: magnitude
+  raw_text: If the number of distinct sources with data > 0 is < 3, LOG A WARNING
+  resolved_value: '54'
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-07T15:32:47Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Critical warning logged if data count N is zero
+  claim_id: c_59f6be28
+  context: 'T028b-3 [US1] Scarcity Check - Trigger Warning: If N < 50, call function
+    check_and_warn() in code/src/validation/scarcity_warning.py. If N = 0, log a CRITICAL
+    warning and proceed (do not halt).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If N = 0, log a CRITICAL warning and proceed
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T15:32:55Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Descriptor robustness check perturbs descriptors by plus or minus 5 percent
+  claim_id: c_57432c06
+  context: "T064 [US2] Descriptor Robustness Check... Logic: Perturb each descriptor\
+    \ by \xB15% and re-run the model training (T035) to observe stability in R\xB2\
+    ."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Perturb each descriptor by \xB15% and re-run the model training"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T15:32:55Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Elemental properties for Mn, Co, Fe, Ga, Al, Ni, Cu, Sn, In, Ti, V, Zn,
+    Si, Ge, Sb, Pb, Mg, Cr, Nb, Ta sourced from Pyykko 1988
+  claim_id: c_331a83cc
+  context: 'T006 Create data/raw/elemental_properties.csv with fixed periodic table
+    data for all elements likely found in Heusler alloys... Source: Pyykko and standard
+    references.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The file MUST contain the following exact rows (values are representative
+    of Pyykko and standard data).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T15:34:21Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: 'Manganese properties: electronegativity 1.55, atomic radius 127, valence
+    electrons 7'
+  claim_id: c_d8e6c6f4
+  context: CSV content block for T006 listing Mn,1.55,127,7,Pyykko 1988
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Mn electronegativity is 1.55, atomic_radii is 127, valence_electrons is
+    7.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T15:37:07Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: 'Cobalt properties: electronegativity 1.88, atomic radius 125, valence
+    electrons 9'
+  claim_id: c_9d81a6b7
+  context: CSV content block for T006 listing Co,1.88,125,9,Pyykko 1988
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Co electronegativity is 1.88, atomic_radii is 125, valence_electrons is
+    9.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T15:40:01Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: 'Iron properties: electronegativity 1.83, atomic radius 126, valence
+    electrons 8'
+  claim_id: c_9e8a18c1
+  context: CSV content block for T006 listing Fe,1.83,126,8,Pyykko 1988
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Fe electronegativity is 1.83, atomic_radii is 126, valence_electrons is
+    8.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T15:40:09Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: 'Gallium properties: electronegativity 1.81, atomic radius 135, valence
+    electrons 3'
+  claim_id: c_97a9a315
+  context: CSV content block for T006 listing Ga,1.81,135,3,Pyykko 1988
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ga electronegativity is 1.81, atomic_radii is 135, valence_electrons is
+    3.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T15:40:16Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: 'Aluminum properties: electronegativity 1.61, atomic radius 143, valence
+    electrons 3'
+  claim_id: c_7381d234
+  context: CSV content block for T006 listing Al,1.61,143,3,Pyykko 1988
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Al electronegativity is 1.61, atomic_radii is 143, valence_electrons is
+    3.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T15:40:23Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: 'Nickel properties: electronegativity 1.91, atomic radius 124, valence
+    electrons 10'
+  claim_id: c_ee430523
+  context: CSV content block for T006 listing Ni,1.91,124,10,Pyykko 1988
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ni electronegativity is 1.91, atomic_radii is 124, valence_electrons is
+    10.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T15:40:29Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: 'Copper properties: electronegativity 1.90, atomic radius 128, valence
+    electrons 11'
+  claim_id: c_3a11b8c5
+  context: CSV content block for T006 listing Cu,1.90,128,11,Pyykko 1988
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Cu electronegativity is 1.90, atomic_radii is 128, valence_electrons is
+    11.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T15:40:36Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: 'Tin properties: electronegativity 1.96, atomic radius 145, valence electrons
+    4'
+  claim_id: c_e5c74917
+  context: CSV content block for T006 listing Sn,1.96,145,4,Pyykko 1988
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sn electronegativity is 1.96, atomic_radii is 145, valence_electrons is
+    4.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T15:40:42Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: 'Indium properties: electronegativity 1.78, atomic radius 167, valence
+    electrons 3'
+  claim_id: c_a5002ca6
+  context: CSV content block for T006 listing In,1.78,167,3,Pyykko 1988
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: In electronegativity is 1.78, atomic_radii is 167, valence_electrons is
+    3.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T15:40:48Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: 'Titanium properties: electronegativity 1.54, atomic radius 147, valence
+    electrons 4'
+  claim_id: c_ec978c69
+  context: CSV content block for T006 listing Ti,1.54,147,4,Pyykko 1988
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ti electronegativity is 1.54, atomic_radii is 147, valence_electrons is
+    4.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T15:40:55Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: 'Vanadium properties: electronegativity 1.63, atomic radius 134, valence
+    electrons 5'
+  claim_id: c_6d99dd17
+  context: CSV content block for T006 listing V,1.63,134,5,Pyykko 1988
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: V electronegativity is 1.63, atomic_radii is 134, valence_electrons is
+    5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T15:44:35Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: 'Zinc properties: electronegativity 1.65, atomic radius 134, valence
+    electrons 12'
+  claim_id: c_ba64954b
+  context: CSV content block for T006 listing Zn,1.65,134,12,Pyykko 1988
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Zn electronegativity is 1.65, atomic_radii is 134, valence_electrons is
+    12.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T15:51:18Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: 'Silicon properties: electronegativity 1.90, atomic radius 111, valence
+    electrons 4'
+  claim_id: c_b5c08a11
+  context: CSV content block for T006 listing Si,1.90,111,4,Pyykko 1988
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Si electronegativity is 1.90, atomic_radii is 111, valence_electrons is
+    4.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T15:51:38Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: 'Germanium properties: electronegativity 2.01, atomic radius 122, valence
+    electrons 4'
+  claim_id: c_86eb97c0
+  context: CSV content block for T006 listing Ge,2.01,122,4,Pyykko 1988
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ge electronegativity is 2.01, atomic_radii is 122, valence_electrons is
+    4.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T15:51:55Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: 'Antimony properties: electronegativity 2.05, atomic radius 140, valence
+    electrons 5'
+  claim_id: c_0cc8a9a5
+  context: CSV content block for T006 listing Sb,2.05,140,5,Pyykko 1988
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sb electronegativity is 2.05, atomic_radii is 140, valence_electrons is
+    5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T15:52:17Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: 'Lead properties: electronegativity 2.33, atomic radius 175, valence
+    electrons 4'
+  claim_id: c_72d346f8
+  context: CSV content block for T006 listing Pb,2.33,175,4,Pyykko 1988
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Pb electronegativity is 2.33, atomic_radii is 175, valence_electrons is
+    4.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T15:52:43Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: 'Magnesium properties: electronegativity 1.31, atomic radius 160, valence
+    electrons 2'
+  claim_id: c_4f4db711
+  context: CSV content block for T006 listing Mg,1.31,160,2,Pyykko 1988
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Mg electronegativity is 1.31, atomic_radii is 160, valence_electrons is
+    2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T15:52:57Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: 'Chromium properties: electronegativity 1.66, atomic radius 128, valence
+    electrons 6'
+  claim_id: c_621e769f
+  context: CSV content block for T006 listing Cr,1.66,128,6,Pyykko 1988
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Cr electronegativity is 1.66, atomic_radii is 128, valence_electrons is
+    6.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T15:53:13Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: 'Niobium properties: electronegativity 1.60, atomic radius 146, valence
+    electrons 5'
+  claim_id: c_6b610d82
+  context: CSV content block for T006 listing Nb,1.60,146,5,Pyykko 1988
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Nb electronegativity is 1.60, atomic_radii is 146, valence_electrons is
+    5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T15:53:30Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: 'Tantalum properties: electronegativity 1.50, atomic radius 146, valence
+    electrons 5'
+  claim_id: c_4f3c9127
+  context: CSV content block for T006 listing Ta,1.50,146,5,Pyykko 1988
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ta electronegativity is 1.50, atomic_radii is 146, valence_electrons is
+    5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T15:53:45Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: DOI extraction pattern for journal supplements is 10.1016/...
+  claim_id: c_1ed73d9c
+  context: 'T017 Logic: Use BeautifulSoup to parse search results... with regex to
+    extract DOI links matching 10.1016/...'
+  evidence:
+    reason: 'source unreachable: HTTP 404'
+    url: https://doi.org/10.1016/
+  kind: citation
+  raw_text: Journal supplement parser must extract DOI links matching the pattern
+    10.1016/...
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: b296c9c9852e9d51183f57271d9856a330afd878e06f41da6c692d77cc0c090d
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T15:53:46Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: 'Manual curation example Co2MnGa: coercivity 150 Oe, saturation 80 emu/g'
+  claim_id: c_3a33c6de
+  context: 'T057 Content: Include several example rows... Co2MnGa,150,80,Manual,Arc
+    Melting'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Manual curation template includes example row Co2MnGa with coercivity
+    150 Oe and saturation magnetization 80 emu/g.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T15:54:15Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: 'Manual curation example NiMnSn: coercivity 150 Oe, saturation 80 emu/g'
+  claim_id: c_5b08618b
+  context: 'T057 Content: Include several example rows... NiMnSn,150,80,Manual,Sputtering'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Manual curation template includes example row NiMnSn with coercivity 150
+    Oe and saturation magnetization 80 emu/g.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T15:54:37Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: 'Manual curation example Co2FeAl: coercivity 200 Oe, saturation 90 emu/g'
+  claim_id: c_d4020a9d
+  context: 'T057 Content: Include several example rows... Co2FeAl,200,90,Manual,Evaporation'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Manual curation template includes example row Co2FeAl with coercivity
+    200 Oe and saturation magnetization 90 emu/g.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T15:55:00Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: 'Manual curation example FeMnAl: coercivity 200 Oe, saturation 90 emu/g'
+  claim_id: c_19cc0009
+  context: 'T057 Content: Include several example rows... FeMnAl,200,90,Manual,Arc
+    Melting'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Manual curation template includes example row FeMnAl with coercivity 200
+    Oe and saturation magnetization 90 emu/g.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T15:55:25Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: 'Manual curation example Co2MnSi: coercivity 180 Oe, saturation 85 emu/g'
+  claim_id: c_37e2bc78
+  context: 'T057 Content: Include several example rows... Co2MnSi,180,85,Manual,Sputtering'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Manual curation template includes example row Co2MnSi with coercivity
+    180 Oe and saturation magnetization 85 emu/g.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T15:55:44Z'
