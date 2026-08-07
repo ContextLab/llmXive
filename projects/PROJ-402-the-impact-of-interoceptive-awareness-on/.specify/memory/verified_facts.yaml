@@ -1,7 +1,9 @@
-'|python':
-  quote: "Python 3.11 expanded exception handling functionality. Around this version,\
-    \ there has been a focus on making Python faster; 3.11 is claimed to be 10\u2013\
-    60% faster than 3.10, and 3.12 increases by an additional 5%."
-  source_id: History of Python
-  url: https://en.wikipedia.org/wiki/History_of_Python
-  value: "10\u201360%"
+'|full minute pipeline within':
+  quote: Suppose that assembling one car requires three tasks that take 20, 10, and
+    15 minutes, respectively. Then, if all three tasks were performed by a single
+    station, the factory would output one car every 45 minutes. By using a pipeline
+    of three stations, the factory would output the first car in 45 minutes, and then
+    a new one every 20 minutes.
+  source_id: Pipeline (computing)
+  url: https://en.wikipedia.org/wiki/Pipeline_(computing)
+  value: '45'

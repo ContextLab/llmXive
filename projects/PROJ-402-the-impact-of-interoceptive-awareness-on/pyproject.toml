@@ -3,74 +3,76 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "impact-interoceptive-awareness"
+name = "llmxive-interoceptive-awareness"
 version = "0.1.0"
-description = "The Impact of Interoceptive Awareness on Emotional Regulation During Simulated Stress"
+description = "Impact of interoceptive awareness on emotional regulation during simulated stress"
 readme = "README.md"
 requires-python = ">=3.9"
 dependencies = [
-    "pandas",
-    "numpy",
-    "scikit-learn",
-    "hrv-analysis",
-    "pybids",
-    "requests",
-    "pyyaml",
-    "jsonschema",
+    "pandas==2.0.3",
+    "numpy==1.24.3",
+    "scikit-learn==1.3.0",
+    "hrv-analysis==1.1.0",
+    "pybids==0.16.5",
+    "requests==2.31.0",
+    "pyyaml==6.0.1",
+    "jsonschema==4.19.0",
+    "statsmodels==0.14.0",
 ]
 
 [project.optional-dependencies]
 dev = [
-    "flake8",
-    "black",
-    "isort",
-    "pytest",
-    "pytest-cov",
+    "flake8==6.1.0",
+    "black==23.12.1",
+    "isort==5.13.2",
+    "pytest==7.4.3",
+    "pytest-cov==4.1.0",
 ]
+
+[tool.setuptools]
+packages = ["code", "code.utils"]
 
 [tool.black]
 line-length = 88
-target-version = ['py39']
+target-version = ["py39"]
 include = '\.pyi?$'
 exclude = '''
 /(
-    \.git
-    | \.hg
-    | \.mypy_cache
-    | \.tox
-    | \.venv
-    | _build
-    | buck-out
-    | build
-    | dist
+    \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
 )/
 '''
 
 [tool.isort]
 profile = "black"
 line_length = 88
-known_first_party = ["code"]
+skip = [".gitignore", "__init__.py"]
 
 [tool.flake8]
 max-line-length = 88
-extend-ignore = [
-    "E203",
-    "W503",
-]
+extend-ignore = ["E203", "W503"]
 exclude = [
     ".git",
     "__pycache__",
     "build",
     "dist",
     ".eggs",
+    "*.egg-info",
+]
+per-file-ignores = [
+    "__init__.py:F401",
 ]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
-python_classes = ["Test*"]
 python_functions = ["test_*"]
 addopts = "-v --tb=short"
-filterwarnings = [
-    "ignore::DeprecationWarning",
-]

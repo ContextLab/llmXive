@@ -1,33 +1,31 @@
-# Dataset Schema Contract for llmXive Research Pipeline
-# Used by T004 to validate downloaded datasets immediately after fetch.
-# This schema defines the expected structure for the primary WESAD/OpenNeuro derived data.
-
-type: csv
-description: "Expected schema for HRV metrics derived from physiological signals."
-required_columns:
-  - subject_id
-  - phase
-  - RMSSD
-  - SDNN
-  - timestamp
-optional_columns:
-  - valid_beats_percentage
-  - artifact_rejection_status
-constraints:
-  subject_id:
+$schema: http://json-schema.org/draft-07/schema#
+title: BIDS events.tsv Schema
+description: JSON Schema for validating BIDS events.tsv files.
+type: object
+properties:
+  task:
     type: string
-    pattern: "^sub-[0-9]+$"
-  phase:
-    type: string
+    description: The name of the task.
     enum:
-      - Baseline
-      - Stress
-  RMSSD:
+      - Schandry
+      - heartbeat
+      - TSST
+      - rest
+      - resting
+      - baseline
+  onset:
     type: number
-    min: 0
-  SDNN:
+    description: The onset time of the event in seconds.
+  duration:
     type: number
-    min: 0
-  timestamp:
+    description: The duration of the event in seconds.
+  value:
+    type: number
+    description: Optional value associated with the event.
+  trial_type:
     type: string
-    format: date-time
+    description: Optional trial type label.
+required:
+  - task
+  - onset
+  - duration

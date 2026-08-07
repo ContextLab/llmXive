@@ -1,6 +1,4 @@
 """
-llmXive Research Pipeline - Utilities Module
-
-This package contains utility functions and classes used across
-the research pipeline.
+llmXive research pipeline: utils package.
+Contains shared utilities for schema validation, HRV metrics, and error handling.
 """

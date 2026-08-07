@@ -1,17 +1,65 @@
-T012:
+T001:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, or function was provided that actually scans BIDS `events.tsv`\
-    \ files for a `task` column containing \u201CSchandry\u201D or \u201Cheartbeat\u201D\
-    \ (case\u2011insensitive). The required artifact is missing, so the task is not\
-    \ satisfied."
-T013:
+  r: "No evidence was provided that the required top\u2011level directories (`code/`,\
+    \ `tests/`, `data/`, `results/`) actually exist in the repository; the response\
+    \ contains only the task description and user scenarios, with no file or directory\
+    \ listings. The implementer must create and show these folders (and optionally\
+    \ populate them) to satisfy the task."
+T004:
+  c: false
+  h: 1a30d164a180193be13c5be75f78a4cc317b12242d4141e0aeef95e769cd7b2e
+  r: "The `schema_validator.py` file is truncated and does not contain the full validation\
+    \ logic (e.g., iterating rows, applying the schema, handling exit codes). Moreover,\
+    \ the required `contracts/dataset.schema.yaml` file is absent, so the validator\
+    \ cannot load the pre\u2011existing schema as specified. Both the implementation\
+    \ and the necessary schema artifact are missing."
+T007:
+  c: false
+  h: 1f2f3677069dfd670811f6d36716ce97fa03e3a23e5d025a8414310fe750a531
+  r: "The provided `code/05_update_state.py` is truncated and ends mid\u2011definition\
+    \ (`def compute_artifact_hashes(base_dir: P`), so the core logic for scanning\
+    \ `data/` and `results/`, computing hashes, and writing them to the YAML state\
+    \ file is absent. Additionally, the required state file `state/projects/001-impact-of-interoceptive-awareness.yaml`\
+    \ does not exist, indicating the script has not successfully created or updated\
+    \ it. The task therefore remains unfinished."
+T008:
+  c: false
+  h: dcb83beabe10efaa1a20783d8942e877b53c309f4f3c843ff17161594d7958f5
+  r: "The provided `code/01_download_data.py` is truncated and never shows writing\
+    \ the computed SHA\u2011256 values to `results/checksums.txt`, and the expected\
+    \ `results/checksums.txt` file is absent. Additionally, there is no artifact showing\
+    \ a pytest configuration that pins a random seed and logs `GITHUB_JOB_DURATION`.\
+    \ Consequently the task\u2019s specific requirement is not met."
+T009:
+  c: false
+  h: af180f6035f60951c9c716b5c9a11604587d68abf4c251e64a3fb3fa57d5f9bb
+  r: "The provided `tests/test_audit.py` file is present, but its contents (as shown)\
+    \ consist mainly of comments and import/setup code; the required test functions\
+    \ `test_parse_metadata_handles_missing_task` and `test_audit_flow_mock_data` with\
+    \ the specified assertions are not visible. Consequently the test suite does not\
+    \ demonstrably satisfy the task\u2019s requirements. The next implementer should\
+    \ add those two concrete test cases, ensuring they check the warning message for\
+    \ missing task labels and verify that `results/data_audit.md` is created containing\
+    \ the \u201CFeasibility Failure\u201D status."
+T010:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No script or code implementing the metadata scan for TSST stress markers is provided,
-    nor is a `data_audit.md` report generated. Without these artifacts, we cannot
-    verify that the required detection logic exists or works. The implementer must
-    supply the scanning implementation and its output file.
+  r: "The conversation contains no script, file, or log showing that the WESAD dataset\
+    \ was downloaded to `data/raw/wesad/` using `requests` with the required timeout\
+    \ and error\u2011handling behavior. Without any artifact (e.g., a Python script,\
+    \ download log, or the presence of the downloaded archive), the claim cannot be\
+    \ verified. The required download artifact is missing."
+T011:
+  c: false
+  h: bd635e3565e6c8205c2e3921d482c18b079797d2b250b0f111cb46ca84ee0757
+  r: "The repository lacks the required `contracts/dataset.schema.yaml` file, so the\
+    \ script cannot perform the schema validation it promises. Moreover, only a truncated\
+    \ portion of `code/02_audit_metadata.py` is shown; the implementation of the remote\
+    \ pre\u2011check, the specific \u201CFeasibility Failure: Missing Behavioral Task\u201D\
+    \ log, the exit\u2011on\u2011failure behavior, and the check for the T010 download\
+    \ flag are not present in the visible code. These missing pieces mean the script\
+    \ does not demonstrably meet the task\u2019s specifications."
 T015:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -19,13 +67,6 @@ T015:
     \ handling was added, that the script guarantees exit code\u202F0, that it logs\
     \ fetch failures, or that it completes within 15\u202Fminutes and produces the\
     \ required report. The required artifact is missing."
-T016:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `data_audit.md` (or any audit report) was provided, nor any evidence that
-    the implementer ran a scan of the full WESAD dataset and compared the results
-    to the report. Without the actual report file and validation output, the task
-    requirement is not satisfied.
 T020:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
