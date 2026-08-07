@@ -16,7 +16,7 @@ Crucially, the plan corrects the methodology to avoid circular definitions: $\xi
 **Storage**: Local file system (`data/`), HDF5 for large matrix/eigenstate dumps. No external database.  
 **Testing**: `pytest` with contract tests against schema definitions.  
 **Target Platform**: Linux (GitHub Actions Free Tier: 2 CPU, ~7 GB RAM, no GPU).  
-**Performance Goals**: Complete 1000 realizations (10 widths × 100 samples) within 6 h on CPU; peak RAM < 7 GB.  
+**Performance Goals**: Complete 1000 realizations (10 widths × A sample set will be collected for analysis.) within 6 h on CPU; peak RAM < 7 GB.  
 **Constraints**: No GPU usage; strict double‑precision arithmetic; open boundary conditions only.  
 **Scale/Scope**: System sizes $L$ ranging from small to large scales.; Disorder widths $W$ spanning a representative range of magnitudes; Multiple realizations per width.
 
