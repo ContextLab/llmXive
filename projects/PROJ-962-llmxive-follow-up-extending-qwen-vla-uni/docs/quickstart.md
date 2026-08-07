@@ -1,133 +1,141 @@
-# Quick Start Guide: Non-Neural Approximation of VLA Priors
+# Quickstart Guide: Non-Neural Approximation of VLA Priors
 
-This guide provides instructions for setting up the environment, running the pipeline, and generating results for the **llmXive** project (PROJ-962).
+This guide provides instructions for setting up and running the llmXive pipeline to approximate Qwen-VLA behaviors using non-neural models (Decision Trees and Conditional Gaussian Mixture Models).
 
 ## Prerequisites
 
 - Python 3.9+
-- pip
-- Sufficient disk space (~10GB for datasets and models)
-- CPU-only environment (no GPU required)
+- pip (package manager)
+- At least 14GB disk space for data artifacts
+- 7GB+ RAM recommended for clustering and training
 
-## 1. Installation
+## Installation
 
-Clone the repository and install dependencies:
+1. Clone the repository and navigate to the project root.
+2. Install dependencies:
 
 ```bash
-# Create a virtual environment (recommended)
-python -m venv venv
-source venv/bin/activate # On Windows: venv\Scripts\activate
-
-# Install dependencies
 pip install -r requirements.txt
 ```
 
-The `requirements.txt` includes:
-- `datasets`: For streaming HuggingFace datasets
-- `scikit-learn`, `sklearn-mixture`: For clustering and GMM
-- `transformers`: For BERT embeddings
-- `pandas`, `numpy`, `scipy`: Data processing
-- `pybullet`: Simulation engine
-- `pyyaml`: Configuration management
+## Pipeline Execution
 
-## 2. Directory Structure
+The pipeline is executed sequentially through a series of Python scripts located in the `code/` directory. Each script corresponds to a specific phase of the research workflow.
 
-The project uses the following structure (created automatically by `T001a`):
+### Step 1: Setup Directories
 
-```
-.
-├── code/
-│ ├── 01_ingest.py
-│ ├── 02_cluster.py
-│ ├── 03_train.py
-│ ├── 04_inference.py
-│ ├── 05_simulate.py
-│ ├── 06_evaluate.py
-│ ├── utils/
-│ └── tests/
-├── data/
-│ ├── raw/ # Downloaded raw datasets
-│ ├── processed/ # Intermediate artifacts (embeddings, clusters)
-│ └── results/ # Final simulation logs and reports
-├── artifacts/
-│ └── models/ # Trained CGMM and BERT models
-├── specs/ # Design documents
-└── docs/ # Documentation
-```
+Ensure the required directory structure exists:
 
-## 3. Configuration
-
-Edit `code/utils/config.py` or provide a `config.yaml` to adjust:
-- Dataset paths
-- Clustering parameters (silhouette threshold, k-decrement)
-- Simulation parameters (joint limits, task types)
-
-## 4. Running the Pipeline
-
-Execute the pipeline in sequential order. Each script reads from the previous step's outputs.
-
-### Step 1: Data Ingestion (User Story 1)
-Downloads the Qwen-VLA/Hy-Embodied dataset and extracts text-action pairs.
 ```bash
-python code/01_ingest.py
+python code/setup_directories.py
 ```
-*Output*: `data/processed/ingested_data.parquet`
 
-### Step 2: Clustering (User Story 1)
-Extracts kinematic features and clusters actions into behavioral groups.
+### Step 2: Ingest and Cluster Data
+
+Download the Qwen-VLA dataset, extract kinematic features, and perform clustering with adaptive k-reduction.
+
 ```bash
-python code/02_cluster.py
+python code/01_ingest.py --data-source Qwen/Qwen-VLA --streaming --max-clusters 50 --silhouette-threshold 0.25
 ```
-*Output*: `data/processed/clusters.json`, `data/processed/assignments.parquet`
 
-### Step 3: Model Training (User Story 2)
-Generates BERT embeddings and trains Conditional Gaussian Mixture Models (CGMM).
+**Flags:**
+- `--data-source`: HuggingFace dataset ID (default: `Qwen/Qwen-VLA`)
+- `--streaming`: Enable streaming mode for large datasets (default: True)
+- `--max-clusters`: Maximum number of clusters to attempt (default: 50)
+- `--silhouette-threshold`: Minimum silhouette score required to stop k-reduction (default: 0.25)
+
+### Step 3: Generate BERT Embeddings
+
+Generate text embeddings for the cluster instructions.
+
 ```bash
-python code/03_train.py
+python code/02_cluster.py --input data/processed/assignments.parquet --output data/processed/train_embeddings.parquet
 ```
-*Output*: `artifacts/models/` (CGMMs and BERT encoder)
 
-### Step 4: Inference (User Story 2)
-Generates trajectories for new prompts using the trained models.
+### Step 4: Train Models
+
+Train Decision Trees and Conditional GMMs per cluster with sequential fallback logic.
+
 ```bash
-python code/04_inference.py
+python code/03_train.py --embeddings data/processed/train_embeddings.parquet --clusters data/processed/clusters.json --r2-threshold 0.6 --time-threshold 2.0
 ```
-*Output*: `data/processed/inferred_trajectories.parquet`
 
-### Step 5: Simulation (User Story 3)
-Executes trajectories in PyBullet and compares against baselines.
+**Flags:**
+- `--embeddings`: Path to embedding file
+- `--clusters`: Path to cluster metadata
+- `--r2-threshold`: Minimum R² score for model selection (default: 0.6)
+- `--time-threshold`: Maximum inference time in seconds (default: 2.0)
+
+### Step 5: Inference
+
+Run the inference engine to generate trajectories.
+
 ```bash
-python code/05_simulate.py
+python code/04_inference.py --prompt "grasp the red block" --model-dir artifacts/models/ --output data/results/inference_output.parquet
 ```
-*Output*: `data/results/simulation_logs.csv`
 
-### Step 6: Evaluation (User Story 3)
-Performs McNemar's Test and calculates fidelity metrics.
+### Step 6: Simulation
+
+Execute trajectories in PyBullet (Mock) and generate baselines.
+
 ```bash
-python code/06_evaluate.py
+python code/05_simulate.py --trajectories data/results/inference_output.parquet --baseline data/processed/vla_proxy_baseline.parquet --random-seed 42
 ```
-*Output*: `data/results/evaluation_report.md`
 
-## 5. Verification
+**Flags:**
+- `--trajectories`: Path to generated trajectories
+- `--baseline`: Path to VLA Proxy baseline (generated by T032d)
+- `--random-seed`: Seed for random baseline generation (default: 42)
 
-To verify the pipeline end-to-end:
+### Step 7: Evaluation
+
+Perform paired t-tests and calculate metrics.
+
 ```bash
-# Run all tests
-python -m pytest code/tests/ -v
-
-# Check clustering coverage (T018)
-python code/07_verify_coverage.py
+python code/06_evaluate.py --simulation-data data/results/simulation_logs.csv --output data/results/evaluation_report.md
 ```
 
-## 6. Troubleshooting
+### Step 8: Fidelity Calculation
 
-- **Dataset Download Fails**: Ensure network access to HuggingFace. The script will fail loudly if data is missing (no synthetic fallback).
-- **Memory Errors**: The ingestion script uses `streaming=True` to handle large datasets. Ensure at least 7GB RAM is available.
-- **Clustering Quality**: If silhouette scores are low, check `config.yaml` for clustering parameters (T016).
+Calculate trajectory fidelity against the VLA proxy.
 
-## 7. Methodology Notes
+```bash
+python code/07_calculate_fidelity.py --sim-data data/results/simulation_logs.csv --vla-baseline data/processed/vla_proxy_baseline.parquet --output data/results/fidelity_metrics.json
+```
 
-See `docs/research.md` for detailed methodology on:
-- **Conditional Gaussian Mixture Models (CGMM)**: The primary non-neural model.
-- **McNemar's Test**: The statistical method for binary success rate comparison.
-- **Kinematic Feature Extraction**: Velocity, acceleration, and joint angle normalization.
+### Step 9: Final Report Generation
+
+Generate the final research report.
+
+```bash
+python code/08_generate_report.py --eval-data data/results/evaluation_report.md --fidelity data/results/fidelity_metrics.json --output data/results/final_report.md
+```
+
+### Step 10: Final Validation
+
+Run the complete validation suite.
+
+```bash
+python code/09_run_final_validation.py --config config.yaml
+```
+
+## Output Artifacts
+
+Upon successful completion, the following artifacts will be generated:
+
+- `data/processed/clusters.json`: Cluster metadata
+- `data/processed/assignments.parquet`: Sample-to-cluster assignments
+- `data/processed/train_embeddings.parquet`: BERT embeddings
+- `data/processed/vla_proxy_baseline.parquet`: Ground truth baseline
+- `artifacts/models/`: Trained model files (Decision Trees / GMMs)
+- `data/results/simulation_logs.csv`: Simulation results
+- `data/results/evaluation_report.md`: Statistical analysis report
+- `data/results/final_report.md`: Comprehensive research report
+
+## Troubleshooting
+
+- **Missing Baseline**: If `data/processed/vla_proxy_baseline.parquet` is missing, run the baseline generation step explicitly in `code/05_simulate.py`.
+- **Memory Errors**: If clustering fails due to memory constraints, enable `--streaming` and reduce `--max-clusters`.
+- **GPU Detected**: The pipeline enforces CPU-only execution. If a GPU is detected, the script will raise a `RuntimeError`.
+
+For more details, refer to `research.md`.

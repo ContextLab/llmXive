@@ -460,3 +460,174 @@
   source_type: external
   status: verified
   updated_at: '2026-08-07T04:48:48Z'
+- artifact_path: projects/PROJ-962-llmxive-follow-up-extending-qwen-vla-uni/docs/research.md
+  attempts: 1
+  canonical: Primary data source is Qwen/Qwen-VLA dataset from HuggingFace
+  claim_id: c_72e4feed
+  context: The primary data source is the `Qwen/Qwen-VLA` dataset from HuggingFace.
+    The dataset is ingested in streaming mode to handle large volumes of data without
+    exhausting RAM.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Primary_data_source_is_Qwen/Qwen-VLA_dataset_from_HuggingFac
+  kind: entity_fact
+  raw_text: The primary data source is the `Qwen/Qwen-VLA` dataset from HuggingFace.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T06:07:18Z'
+- artifact_path: projects/PROJ-962-llmxive-follow-up-extending-qwen-vla-uni/docs/research.md
+  attempts: 1
+  canonical: Initialize maximum clusters k to 50
+  claim_id: c_d80a1f7d
+  context: 'Algorithm: 1. Initialize $k = 50$ (maximum clusters). 2. Run K-Means clustering.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Initialize $k = 50$ (maximum clusters).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T06:07:36Z'
+- artifact_path: projects/PROJ-962-llmxive-follow-up-extending-qwen-vla-uni/docs/research.md
+  attempts: 1
+  canonical: Decrement k by 1 if Silhouette Score is less than 0.25 and k is greater
+    than 1
+  claim_id: c_20a6aea2
+  context: 3. Calculate the Silhouette Score. 4. If $Score < 0.25$ and $k > 1$, decrement
+    $k$ by 1 and repeat.
+  evidence:
+    asserted: '0.25'
+    authority: scipy.constants.k (CODATA 2018, exact by SI definition)
+    constant: boltzmann
+    corrected: true
+    mode: approximate
+    true_value: 1.380649e-23
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?k
+  kind: magnitude
+  raw_text: If $Score < 0.25$ and $k > 1$, decrement $k$ by 1 and repeat.
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2bfb0d3513311088eea23af05f5f28fc2ef73a6a80811bbb243001626363f07f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-07T06:07:36Z'
+- artifact_path: projects/PROJ-962-llmxive-follow-up-extending-qwen-vla-uni/docs/research.md
+  attempts: 1
+  canonical: Decision Tree selected if R2 greater than or equal to 0.60 and inference
+    time less than 2.0 seconds per prompt
+  claim_id: c_a3e765af
+  context: 'Selection Rule: If $R^2 \ge 0.60$ AND inference time $< 2.0$ seconds/prompt,
+    the Decision Tree is selected.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Decision_Tree_selected_if_R2_greater_than_or_equal_to_0.60_a
+  kind: magnitude
+  raw_text: If $R^2 \ge 0.60$ AND inference time $< 2.0$ seconds/prompt, the Decision
+    Tree is selected.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T06:07:56Z'
+- artifact_path: projects/PROJ-962-llmxive-follow-up-extending-qwen-vla-uni/docs/research.md
+  attempts: 1
+  canonical: Conditional Gaussian Mixture Model trained if Decision Tree R2 is less
+    than 0.60
+  claim_id: c_0916ef68
+  context: 'Fallback to Conditional GMM: If the Decision Tree fails to meet the $R^2
+    \ge 0.60$ threshold, a Conditional Gaussian Mixture Model (CGMM) is trained.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Conditional_Gaussian_Mixture_Model_trained_if_Decision_Tree
+  kind: magnitude
+  raw_text: If the Decision Tree fails to meet the $R^2 \ge 0.60$ threshold, a Conditional
+    Gaussian Mixture Model (CGMM) is trained.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T06:08:40Z'
+- artifact_path: projects/PROJ-962-llmxive-follow-up-extending-qwen-vla-uni/docs/research.md
+  attempts: 1
+  canonical: Model with highest R2 selected if neither model meets R2 threshold of
+    0.60
+  claim_id: c_c3f95d7d
+  context: 'Failure Case: If neither model meets the $R^2 \ge 0.60$ threshold, the
+    model with the highest $R^2$ is selected, and a ''Model Failure'' warning is logged
+    for that cluster.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Model_with_highest_R2_selected_if_neither_model_meets_R2_thr
+  kind: magnitude
+  raw_text: If neither model meets the $R^2 \ge 0.60$ threshold, the model with the
+    highest $R^2$ is selected.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T06:09:16Z'
+- artifact_path: projects/PROJ-962-llmxive-follow-up-extending-qwen-vla-uni/docs/research.md
+  attempts: 1
+  canonical: Confidence intervals of 95 percent are reported
+  claim_id: c_9b294920
+  context: p-values are calculated using `scipy.stats.ttest_rel`. Confidence intervals
+    (95%) are reported.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Confidence intervals (95%) are reported.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T06:09:16Z'
+- artifact_path: projects/PROJ-962-llmxive-follow-up-extending-qwen-vla-uni/docs/research.md
+  attempts: 1
+  canonical: Peak RAM usage remains under 7GB
+  claim_id: c_21b53277
+  context: 'Inference: The inference engine is profiled to ensure peak RAM usage remains
+    under 7GB.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Peak_RAM_usage_remains_under_7GB
+  kind: entity_fact
+  raw_text: The inference engine is profiled to ensure peak RAM usage remains under
+    7GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T06:09:38Z'
+- artifact_path: projects/PROJ-962-llmxive-follow-up-extending-qwen-vla-uni/docs/research.md
+  attempts: 1
+  canonical: Pipeline requires at least 98 percent clustering coverage
+  claim_id: c_278055d6
+  context: 'Data Coverage: The pipeline requires $\ge 98\%$ clustering coverage. If
+    this is not met, the pipeline aborts to prevent incomplete analysis.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_requires_at_least_98_percent_clustering_coverage
+  kind: magnitude
+  raw_text: The pipeline requires $\ge 98\%$ clustering coverage.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T06:09:53Z'

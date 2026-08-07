@@ -1,83 +1,115 @@
 # Research Methodology: Non-Neural Approximation of VLA Priors
 
-This document outlines the scientific methodology and statistical frameworks used in the llmXive project (PROJ-962) to approximate Vision-Language-Action (VLA) policies using non-neural methods.
+This document details the methodology, model selection rationale, and statistical evaluation procedures used in the llmXive pipeline for approximating Qwen-VLA behaviors.
 
 ## 1. Overview
 
-The goal is to replace computationally expensive neural network inference with a lightweight, interpretable, and statistically rigorous pipeline. The approach involves:
-1. **Behavioral Clustering**: Grouping similar action sequences.
-2. **Conditional Modeling**: Fitting probabilistic models to clusters based on text instructions.
-3. **Statistical Validation**: Rigorous comparison against neural baselines.
+The goal of this research is to approximate the behavior of a large Vision-Language-Action (VLA) model (Qwen-VLA) using lightweight, non-neural models (Decision Trees and Conditional Gaussian Mixture Models) that can run on CPU-only hardware. The approach involves clustering behavioral data, fitting local models to each cluster, and evaluating performance against a ground-truth baseline.
 
-## 2. Data Ingestion and Feature Engineering
+## 2. Data Ingestion and Clustering
 
 ### 2.1 Dataset Source
-The pipeline ingests the **Qwen-VLA/Hy-Embodied** dataset from HuggingFace.
-- **Format**: Text instructions paired with high-dimensional action trajectories.
-- **Preprocessing**: Text-action pairs are extracted, and missing data triggers a hard failure (no synthetic fallback).
+The primary data source is the `Qwen/Qwen-VLA` dataset from HuggingFace. [UNRESOLVED-CLAIM: c_72e4feed — status=not_enough_info] The dataset is ingested in streaming mode to handle large volumes of data without exhausting RAM.
 
 ### 2.2 Kinematic Feature Extraction
-Raw action sequences are transformed into physically meaningful features:
-- **Velocity**: First-order difference of joint positions.
-- **Acceleration**: Second-order difference.
-- **Normalization**: Features are normalized within physical bounds using min-max scaling derived from the dataset's statistical limits.
+From the raw action sequences, we extract the following kinematic features:
+- **Velocity**: First derivative of joint positions.
+- **Acceleration**: Second derivative of joint positions.
+- **Joint Angles**: Normalized angular positions.
 
-## 3. Behavioral Clustering (User Story 1)
+These features are normalized to physical bounds to ensure comparability across different robot configurations.
 
-### 3.1 Algorithm: K-Means
-Action sequences are clustered using K-Means to identify distinct behavioral modes.
-- **Initialization**: K is initialized to 50.
-- **Validation**: The **Silhouette Score** is calculated. If the score is < 0.25, K is decremented iteratively until a valid cluster structure is found or K=1.
-- **Coverage**: The pipeline ensures ≥ 98% of samples are assigned to exactly one cluster.
+### 2.3 Adaptive Clustering (K-Means with K-Reduction)
+We employ K-Means clustering with an adaptive reduction loop (FR-002a) to determine the optimal number of behavioral clusters.
 
-### 3.2 Output
-- Cluster centers (representative action profiles).
-- Assignments (mapping each sample to a cluster ID).
+**Algorithm:**
+1. Initialize $k = 50$ (maximum clusters). [UNRESOLVED-CLAIM: c_d80a1f7d — status=not_enough_info]
+2. Run K-Means clustering.
+3. Calculate the Silhouette Score.
+4. {{claim:c_20a6aea2}}
+5. If $k$ reaches 1 and the score is still $< 0.25$, log a "degenerate clustering" warning and proceed with $k=1$.
+6. **Fallback**: If the K-Means loop fails to find a valid cluster structure (k=1, score < 0.25), Hierarchical Agglomerative Clustering (HAC) with Ward linkage is triggered as a fallback to determine a valid cluster count.
 
-## 4. Non-Neural Model: Conditional Gaussian Mixture Model (CGMM) (User Story 2)
+The final clustering method (K-Means or HAC) and metrics are logged to `data/results/clustering_method_log.json`.
 
-Instead of a deep neural network, we fit a **Conditional Gaussian Mixture Model** to each behavioral cluster.
+## 3. Model Selection Rationale (Decision Tree vs. CGMM)
 
-### 4.1 Architecture
-- **Input**: Frozen BERT embeddings of text instructions.
-- **Conditioning**: The model learns the conditional distribution $P(\text{Actions} | \text{Cluster}, \text{Text})$.
-- **Implementation**: Utilizes `sklearn-mixture` to fit Gaussian components per cluster, conditioned on the text embedding space.
+A critical component of this pipeline is the sequential model training and selection process described in Task T022. For each behavioral cluster, we determine whether a Decision Tree (DT) or a Conditional Gaussian Mixture Model (CGMM) better approximates the VLA behavior.
 
-### 4.2 Training Objective
-The model maximizes the log-likelihood of the observed actions given the cluster assignment and text embedding.
-- **Validation**: Requires $R^2 \geq 0.6$ on held-out data.
+### 3.1 Selection Criteria
+The selection is based on a sequential fallback strategy designed to balance performance with computational efficiency:
 
-### 4.3 Inference
-1. **Cluster Selection**: For a new prompt, the nearest cluster is identified via BERT embedding distance.
-2. **Trajectory Sampling**: Actions are sampled from the fitted CGMM for the selected cluster.
-3. **OOD Handling**: If the prompt is far from any cluster center, the system defaults to the nearest cluster and flags "low-confidence".
+1. **Train Decision Tree**:
+ - A Decision Tree Regressor is trained to map BERT text embeddings to action sequences.
+ - **Evaluation**: Calculate $R^2$ score on a held-out validation set and measure inference time.
+ - **Selection Rule**: If $R^2 \ge 0.60$ AND inference time $< 2.0$ seconds/prompt, the Decision Tree is selected. [UNRESOLVED-CLAIM: c_a3e765af — status=not_enough_info]
+ - **Rationale**: Decision Trees are computationally cheaper to train and infer, making them the preferred choice if they meet the performance threshold.
 
-## 5. Statistical Evaluation (User Story 3)
+2. **Fallback to Conditional GMM**:
+ - If the Decision Tree fails to meet the $R^2 \ge 0.60$ threshold, a Conditional Gaussian Mixture Model (CGMM) is trained. [UNRESOLVED-CLAIM: c_0916ef68 — status=not_enough_info]
+ - **Evaluation**: Calculate $R^2$ score.
+ - **Selection Rule**: If $R^2 \ge 0.60$, the CGMM is selected.
+ - **Rationale**: CGMMs can capture multi-modal distributions in action spaces that Decision Trees might miss, providing higher fidelity at the cost of increased complexity.
 
-### 5.1 Simulation Environment
-Trajectories are executed in **PyBullet** (CPU-only).
-- **Tasks**: Grasp, Navigate, Place.
-- **Baselines**:
- - Random Uniform Sampling.
- - VLA Proxy (Neural baseline, if available).
+3. **Failure Case**:
+ - If neither model meets the $R^2 \ge 0.60$ threshold, the model with the highest $R^2$ is selected, and a "Model Failure" warning is logged for that cluster.
 
-### 5.2 Primary Statistical Test: McNemar's Test
-To compare the success rates of the non-neural model against baselines, we use **McNemar's Test**.
-- **Rationale**: McNemar's test is appropriate for paired nominal data (Success/Failure on the same set of prompts). It determines if the marginal frequencies of two outcomes are equal.
-- **Hypothesis**:
- - $H_0$: There is no significant difference in success rates between the non-neural model and the baseline.
- - $H_1$: There is a significant difference.
-- **Output**: P-values and 95% Confidence Intervals.
+### 3.2 Performance Comparison
+The final report (`data/results/model_selection_decision.md`) documents the trade-off analysis:
+- **Decision Trees**: Generally faster inference, suitable for unimodal or simple linear relationships.
+- **CGMMs**: Higher capacity for complex, multi-modal action distributions, but slower inference.
 
-### 5.3 Fidelity Metric
-We calculate the percentage of kinematic features (velocity, acceleration) that fall within a defined error margin of the VLA proxy trajectory, measuring how closely the non-neural model mimics the neural policy's dynamics.
+The pipeline ensures that the simplest model capable of explaining the data ($R^2 \ge 0.60$) is chosen, adhering to the principle of parsimony while maintaining predictive validity.
 
-## 6. Complexity Reduction
+## 4. Statistical Evaluation
 
-The pipeline reports a **Complexity Reduction Factor**, comparing the computational cost (FLOPs/Memory) of the CGMM approach versus the original VLA transformer. This metric highlights the efficiency gains of the non-neural approximation.
+### 4.1 Paired T-Tests
+To validate the non-neural model against baselines, we perform **Paired T-Tests** (Task T035b) on binary success rates.
 
-## 7. Reproducibility
+**Comparison Groups:**
+1. **Non-Neural Model**: Trajectories generated by the selected DT/CGMM.
+2. **Random Baseline**: Trajectories generated via uniform sampling within joint limits.
+3. **VLA Proxy**: Ground-truth action sequences from the Qwen-VLA dataset.
 
-- **Seeding**: Global seeds are set for Python, NumPy, and PyTorch to ensure deterministic results.
-- **Configuration**: All hyperparameters (clustering thresholds, simulation limits) are stored in `config.yaml`.
-- **Data Integrity**: Checksums are computed for all intermediate artifacts to prevent data drift.
+**Procedure:**
+- The same set of prompts is used for all three groups to ensure "paired" conditions.
+- We test the hypothesis: $H_0: \mu_{non-neural} = \mu_{baseline}$ vs $H_1: \mu_{non-neural} \neq \mu_{baseline}$.
+- $p$-values are calculated using `scipy.stats.ttest_rel`.
+- Confidence intervals (95%) are reported. [UNRESOLVED-CLAIM: c_9b294920 — status=not_enough_info]
+
+### 4.2 Trajectory Fidelity
+We calculate the percentage of kinematic features (velocity, acceleration, joint angles) that fall within a defined error margin of the VLA Proxy. This metric quantifies the physical similarity between the approximated and true trajectories.
+
+## 5. CPU-Only Constraint
+
+The entire pipeline is designed to run on CPU-only hardware.
+- **BERT Embeddings**: The `bert-base-uncased` model is forced to CPU (`torch.device("cpu")`).
+- **Simulation**: A mock PyBullet environment is used to avoid GPU dependencies while maintaining kinematic validity.
+- **Inference**: The inference engine is profiled to ensure peak RAM usage remains under 7GB. [UNRESOLVED-CLAIM: c_21b53277 — status=not_enough_info]
+
+## 6. Command-Line Interface Reference
+
+The pipeline scripts accept the following common flags:
+
+| Flag | Description | Default |
+|:--- |:--- |:--- |
+| `--data-source` | HuggingFace dataset ID | `Qwen/Qwen-VLA` |
+| `--streaming` | Enable streaming mode | `True` |
+| `--max-clusters` | Max clusters for K-Means | `50` |
+| `--silhouette-threshold` | Min Silhouette Score | `0.25` |
+| `--r2-threshold` | Min R² for model selection | `0.6` |
+| `--time-threshold` | Max inference time (s) | `2.0` |
+| `--random-seed` | Seed for reproducibility | `42` |
+| `--output` | Output file path | (Derived from input) |
+
+## 7. Limitations
+
+- **Clustering Heuristics**: The adaptive k-reduction relies on the Silhouette Score, which may not perfectly capture high-dimensional behavioral manifolds.
+- **CPU Constraints**: While the pipeline is CPU-optimized, complex CGMMs on large clusters may still approach the 2s inference threshold.
+- **Data Coverage**: The pipeline requires $\ge 98\%$ clustering coverage. [UNRESOLVED-CLAIM: c_278055d6 — status=not_enough_info] If this is not met, the pipeline aborts to prevent incomplete analysis.
+
+## 8. References
+
+- Qwen-VLA Dataset: https://huggingface.co/Qwen/Qwen-VLA
+- Scikit-learn: https://scikit-learn.org/
+- PyBullet (Mock): https://pybullet.org/

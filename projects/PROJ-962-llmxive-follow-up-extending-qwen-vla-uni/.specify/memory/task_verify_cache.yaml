@@ -6,12 +6,6 @@ T026:
     \ that 100 prompts are processed within 10\u202Fminutes and memory stays below\
     \ 7\u202FGB on a CPU runner. Without these evidential files, the requirement is\
     \ not verified."
-T027:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of a `artifacts/models/` directory containing the trained CGMM models
-    and the BERT encoder is provided; the claim lacks any actual files or listings
-    to verify that the models were saved. The required artifact is missing.
 T032b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -36,11 +30,10 @@ T036:
 T038:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `research.md` (or `quickstart.md`) file content was provided; therefore the\
-    \ required documentation updates\u2014including the explicit selection rationale\
-    \ comparing DT vs CGMM performance and the exact pipeline command\u2011line flags\u2014\
-    are missing. The implementer must supply the updated markdown files with the specified\
-    \ information."
+  r: "No `research.md` (or `quickstart.md`) content was provided; thus the required\
+    \ selection rationale, performance comparison, and command\u2011line flags are\
+    \ absent. The implementer must supply the updated markdown files containing the\
+    \ specified details."
 T039b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

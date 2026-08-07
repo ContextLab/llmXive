@@ -1,81 +1,124 @@
-# Quick Start Guide: Non-Neural VLA Approximation Pipeline
+# Quickstart Guide: Non-Neural VLA Approximation Pipeline
 
 ## Prerequisites
-- Python 3.9+
-- pip
-- System RAM ≥ 7GB
-- No GPU required (CPU-only execution)
 
-## Installation
-1. Clone the repository.
-2. Install dependencies:
- ```bash
- pip install -r requirements.txt
- ```
- Dependencies include: `datasets`, `scikit-learn`, `transformers`, `pybullet`, `pandas`, `numpy`, `scipy`, `pyyaml`.
+- **Python**: 3.9 or higher
+- **System**: CPU-only environment (GPU detection will cause scripts to fail)
+- **Dependencies**: Install via `pip install -r requirements.txt`
+ - Key packages: `datasets`, `scikit-learn`, `transformers`, `pandas`, `numpy`, `scipy`, `pybullet`, `psutil`
 
 ## Directory Structure
-The project uses the following structure:
-- `code/`: Pipeline scripts and utilities
-- `data/raw/`: Raw downloaded datasets
-- `data/processed/`: Intermediate processed data (embeddings, clusters)
-- `data/results/`: Final evaluation reports and logs
-- `artifacts/models/`: Trained model weights and encoders
 
-## Running the Pipeline
+Ensure the following structure exists (run `python code/setup_directories.py` if missing):
 
-### Option 1: Full End-to-End Validation (Recommended)
-Run the complete pipeline from ingestion to final report generation:
-```bash
-python code/09_run_final_validation.py --seed 42
 ```
-This will:
-1. Ingest and cluster the dataset.
-2. Train DT and CGMM models.
-3. Run inference and simulation.
-4. Generate evaluation reports.
-5. Verify all artifacts.
-
-Output logs are saved to `data/results/final_validation.log`.
-
-### Option 2: Individual Stages
-You can run stages independently if needed:
-
-**1. Ingestion & Clustering**
-```bash
-python code/01_ingest.py
-python code/02_cluster.py
+.
+├── code/
+│ ├── 01_ingest_cluster.py
+│ ├── 02_train_models.py
+│ ├── 03_inference.py
+│ ├── 04_simulate_eval.py
+│ └── utils/
+├── data/
+│ ├── raw/
+│ ├── processed/
+│ └── results/
+├── artifacts/
+│ └── models/
+└── research.md
 ```
 
-**2. Training**
+## Step-by-Step Execution
+
+### 1. Setup Environment
+
 ```bash
-python code/03_train.py
+# Install dependencies
+pip install -r requirements.txt
+
+# Initialize directory structure
+python code/setup_directories.py
 ```
 
-**3. Inference**
+### 2. Data Ingestion & Clustering
+
+Downloads the `Qwen/Qwen-VLA` dataset (streaming mode) and clusters action sequences.
+
 ```bash
-python code/04_inference.py
+python code/01_ingest_cluster.py \
+ --seed 42 \
+ --max-k 50 \
+ --silhouette-threshold 0.25
 ```
 
-**4. Simulation & Evaluation**
+**Expected Outputs**:
+- `data/processed/clusters.json`
+- `data/processed/assignments.parquet`
+- `data/results/clustering_method_log.json`
+
+### 3. Model Training (Sequential Selection)
+
+Generates BERT embeddings and trains Decision Trees or CGMMs per cluster based on $R^2$ performance.
+
 ```bash
-python code/05_simulate.py
-python code/06_evaluate.py
+# Generate embeddings
+python code/02_train_models.py --stage embeddings
+
+# Train models with sequential fallback logic
+python code/02_train_models.py --stage train
 ```
 
-**5. Report Generation**
+**Expected Outputs**:
+- `data/processed/train_embeddings.parquet`
+- `artifacts/models/cluster_{id}_selected.pkl`
+- `data/results/model_selection_decision.md`
+
+### 4. Inference
+
+Generates trajectories for text prompts using the trained non-neural models.
+
 ```bash
-python code/08_generate_report.py
+python code/03_inference.py \
+ --prompt "grasp the red cup" \
+ --output data/results/inference_output.parquet
 ```
 
-## Output Artifacts
-Upon successful completion, verify the following files:
-- `data/results/evaluation_report.md`: Final statistical comparison.
-- `data/results/fidelity_metrics.json`: Trajectory fidelity scores.
-- `data/results/simulation_logs.csv`: Detailed simulation outcomes.
-- `artifacts/models/`: Trained models for each cluster.
+### 5. Simulation & Evaluation
+
+Executes trajectories in PyBullet and runs paired t-tests against baselines.
+
+```bash
+python code/04_simulate_eval.py \
+ --baseline all \
+ --output data/results/evaluation_report.md
+```
+
+**Expected Outputs**:
+- `data/results/simulation_logs.csv`
+- `data/results/fidelity_metrics.json`
+- `data/results/evaluation_report.md`
+
+## Configuration
+
+Configuration can be overridden via command-line arguments or `code/utils/config.py`:
+
+- `--seed`: Global random seed (default: 42)
+- `--max-k`: Max clusters (default: 50)
+- `--silhouette-threshold`: Stop condition for k-reduction (default: 0.25)
+- `--cpu-only`: Enforce CPU execution (default: True)
 
 ## Troubleshooting
-- **Memory Errors**: Ensure you are running on a machine with ≥7GB RAM. The pipeline uses streaming for large datasets.
-- **Missing Data**: Ensure the HuggingFace dataset `Qwen-VLA/Hy-Embodied` is accessible.
-- **Clustering Failures**: If K-Means fails, the pipeline automatically switches to HAC. Check `data/results/clustering_method_log.json`.
+
+- **"VLA Proxy Baseline artifact not found"**: Ensure `code/04_simulate_eval.py` has run successfully to generate the baseline, or verify `data/processed/vla_proxy_baseline.parquet` exists.
+- **"GPU detected"**: The pipeline is CPU-only. If `torch.cuda.is_available()` is true, the script will raise a `RuntimeError`. Run with `CUDA_VISIBLE_DEVICES=""`.
+- **Clustering Coverage < 98%**: The pipeline aborts. Check input data integrity and streaming logic in `code/01_ingest_cluster.py`.
+
+## Verification
+
+To validate the entire pipeline:
+
+```bash
+python code/validate_quickstart.py
+```
+
+This script checks for the existence of all required artifacts and logs the validation status to `data/results/e2e_run_log.txt`.
