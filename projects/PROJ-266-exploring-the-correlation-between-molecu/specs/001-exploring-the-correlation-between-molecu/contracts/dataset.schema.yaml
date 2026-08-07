@@ -1,10 +1,10 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: Caco-2 Permeability Dataset Schema
 description: |
-  JSON Schema for the Caco-2 permeability dataset retrieved from ChEMBL.
-  Defines the structure for raw and processed data records used in the
-  correlation analysis between molecular flexibility and drug transport.
-  Traceability: US0, FR-001, FR-002.
+  JSON Schema for the Caco-2 permeability dataset used in the study of
+  molecular flexibility and drug transport across cell membranes.
+  This schema validates the structure of both raw and processed data files
+  generated during the retrieval and preprocessing phases.
 type: object
 required:
   - smiles
@@ -15,32 +15,29 @@ required:
 properties:
   smiles:
     type: string
-    description: >-
+    description: >
       Canonical SMILES string representing the molecular structure.
-      Must be non-null and valid for RDKit processing.
+      Must be a valid non-empty string representing a chemical structure.
     minLength: 1
   logPapp:
     type: number
-    description: >-
-      Apparent permeability coefficient (logPapp) in cm/s.
-      Derived from ChEMBL standard_value where standard_units is 'cm/s'.
-      Must be a numeric value (float).
+    description: >
+      Apparent permeability coefficient (log Papp) measured in cm/s.
+      This is the primary dependent variable for the study.
+      Represents the logarithm of the permeability coefficient.
   mw:
     type: number
-    description: >-
-      Molecular weight in g/mol.
-      Calculated from the SMILES string if not present in raw data.
-      Must be a positive number.
+    description: >
+      Molecular weight of the compound in g/mol.
+      Used as a confounder in multivariate analysis.
   psa:
     type: number
-    description: >-
-      Polar Surface Area in Å².
-      Calculated from the SMILES string if not present in raw data.
-      Must be a non-negative number.
+    description: >
+      Polar Surface Area (PSA) in Å².
+      Used as a confounder in multivariate analysis.
   assay_id:
     type: string
-    description: >-
-      Unique identifier for the source assay from ChEMBL (e.g., '1001234').
-      Used for traceability and deduplication.
-    pattern: '^[0-9]+$'
+    description: >
+      Unique identifier for the assay from the source database (e.g., ChEMBL).
+      Used for traceability and audit purposes.
 additionalProperties: false

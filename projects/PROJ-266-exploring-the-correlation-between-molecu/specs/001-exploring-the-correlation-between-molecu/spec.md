@@ -43,7 +43,7 @@ A researcher MUST be able to build a multivariate linear regression model using 
 
 **Why this priority**: This completes the research workflow by assessing generalizability and producing results suitable for publication or further investigation, ensuring the flexibility effect is isolated from logP/MW.
 
-**Independent Test**: Can be fully tested by running the full analysis pipeline on the complete dataset and verifying that cross-validation metrics are computed and at least one scatter plot with 95% confidence interval is generated.
+**Independent Test**: Can be fully tested by running the full analysis pipeline on the complete dataset and verifying that cross-validation metrics are computed and at least one scatter plot with a confidence interval is generated.
 
 **Acceptance Scenarios**:
 

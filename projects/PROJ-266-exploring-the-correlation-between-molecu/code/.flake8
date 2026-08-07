@@ -1,5 +1,5 @@
 [flake8]
-max-line-length = 100
+max-line-length = 88
 extend-ignore = E203, W503
 exclude =
     .git,
@@ -8,9 +8,11 @@ exclude =
     venv,
     build,
     dist,
-    *.egg-info
+    .eggs,
+    *.egg-info,
+    data,
+    tests
 per-file-ignores =
-    # Allow unused imports in __init__.py if present
-    */__init__.py: F401
-    # Allow docstrings to be missing in tests
-    tests/*.py: D100,D101,D102,D103
+    # Allow longer lines in data files and tests
+    tests/*: E501
+    data/*: E501

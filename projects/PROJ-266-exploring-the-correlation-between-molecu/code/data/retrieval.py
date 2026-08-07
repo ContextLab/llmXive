@@ -1,3 +1,18 @@
+"""
+Data retrieval module for fetching Caco-2 permeability data from ChEMBL.
+
+This module implements the retrieval of raw Caco-2 assay data using the ChEMBL
+REST API. It fetches at least 600 raw records with assay_type='Caco-2' and
+standard_type='MEASUREMENT', applies exponential backoff for rate limiting,
+and registers the output checksum in the project state file.
+
+Public API:
+    fetch_assay_page: Fetch a single page of assay results from ChEMBL.
+    extract_records: Parse ChEMBL JSON response into flat records.
+    fetch_all_caco2_data: Fetch all pages until minimum record count reached.
+    write_raw_data: Save fetched data to CSV.
+    main: Entry point for script execution.
+"""
 import csv
 import json
 import logging
@@ -5,225 +20,219 @@ import sys
 import time
 from pathlib import Path
 from typing import List, Dict, Any, Optional
+import requests
+from requests.exceptions import RequestException
 
-# Import from sibling modules as per API surface
+# Add parent to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 from utils.logging import get_logger, configure_root_logger
-from utils.checksum import register_checksum, compute_file_checksum, save_state_file, load_state_file
-
-# Configure logging
-logger = get_logger(__name__)
+from utils.checksum import register_checksum
+from utils.config import get_project_root, get_data_path
 
 # Constants
-CHEMBL_API_BASE = "https://www.ebi.ac.uk/chembl/api/data/assay.json"
-RAW_DATA_PATH = "data/raw/caco2_raw.csv"
-STATE_PATH = "state/projects/PROJ-266-exploring-the-correlation-between-molecu.yaml"
+CHEMBL_API_BASE = "https://www.ebi.ac.uk/chembl/api/data"
+ASSAY_TYPE = "Caco-2"
+STANDARD_TYPE = "MEASUREMENT"
+MIN_RECORDS = 600
+PAGE_SIZE = 100
+MAX_RETRIES = 5
+BASE_DELAY = 1.0  # seconds
+MAX_DELAY = 60.0  # seconds
 
-def fetch_assay_page(page: int = 0, page_size: int = 100) -> Optional[Dict[str, Any]]:
+# Output paths
+RAW_DATA_PATH = "data/raw/caco2_raw.csv"
+STATE_FILE_PATH = "state/projects/PROJ-266-exploring-the-correlation-between-molecu.yaml"
+
+logger = get_logger(__name__)
+
+
+def fetch_assay_page(page: int = 0) -> Optional[Dict[str, Any]]:
     """
-    Fetch a single page of assays from ChEMBL API with exponential backoff.
-    
+    Fetch a single page of Caco-2 assay data from ChEMBL API.
+
     Args:
-        page: Page number (0-indexed)
-        page_size: Number of results per page
-        
+        page: Page number (0-indexed).
+
     Returns:
-        JSON response dict or None if failed after retries
+        JSON response dict or None if fetch fails after retries.
     """
-    url = f"{CHEMBL_API_BASE}?assay_type=Caco-2&standard_type=MEASUREMENT&page={page}&page_size={page_size}"
-    max_retries = 5
-    base_delay = 1.0
-    
-    for attempt in range(max_retries):
+    url = f"{CHEMBL_API_BASE}/assay.json"
+    params = {
+        "assay_type": ASSAY_TYPE,
+        "standard_type": STANDARD_TYPE,
+        "page": page,
+        "page_size": PAGE_SIZE,
+        "format": "json"
+    }
+
+    for attempt in range(MAX_RETRIES):
         try:
-            import requests
-            response = requests.get(url, timeout=30)
+            logger.info(f"Fetching page {page} (attempt {attempt + 1}/{MAX_RETRIES})")
+            response = requests.get(url, params=params, timeout=30)
             response.raise_for_status()
             return response.json()
-        except requests.exceptions.RequestException as e:
-            delay = base_delay * (2 ** attempt)
-            logger.warning(f"Attempt {attempt + 1}/{max_retries} failed: {e}. Retrying in {delay:.1f}s...")
+        except RequestException as e:
+            delay = min(BASE_DELAY * (2 ** attempt), MAX_DELAY)
+            logger.warning(f"Request failed: {e}. Retrying in {delay:.1f}s...")
             time.sleep(delay)
-    
-    logger.error(f"Failed to fetch assay page {page} after {max_retries} attempts")
+
+    logger.error(f"Failed to fetch page {page} after {MAX_RETRIES} attempts")
     return None
+
 
 def extract_records(data: Dict[str, Any]) -> List[Dict[str, Any]]:
     """
-    Extract relevant records from ChEMBL API response.
-    
+    Extract relevant fields from ChEMBL assay JSON response.
+
     Args:
-        data: JSON response from ChEMBL API
-        
+        data: ChEMBL API JSON response.
+
     Returns:
-        List of extracted records
+        List of flat records with SMILES, logPapp, and metadata.
     """
     records = []
-    results = data.get("results", [])
-    
-    for item in results:
-        # Extract SMILES from molecule_structures if available
-        molecule_structures = item.get("molecule_structures", {})
-        smiles = molecule_structures.get("standard_inchi") or molecule_structures.get("canonical_smiles")
-        
-        # Extract logPapp (permeability) if available
-        # ChEMBL stores this in standard_value_text or similar fields
-        standard_value = item.get("standard_value")
-        standard_units = item.get("standard_units")
-        
-        # We need to find the permeability value
-        # Look for permeability related fields
-        permeability_value = None
-        
-        # Check standard_value if it's a number and units suggest permeability
-        if standard_value and standard_units:
-            if "log" in standard_value.lower() or "cm" in standard_value.lower():
-                try:
-                    permeability_value = float(standard_value)
-                except (ValueError, TypeError):
-                    pass
-        
-        # If not found in standard_value, check for specific permeability fields
-        # ChEMBL often stores this in the "pax" or similar fields for Caco-2
-        for field in ["standard_value", "assay_description", "comments"]:
-            field_value = item.get(field, "")
-            if field_value and isinstance(field_value, str):
-                # Try to extract numeric value
-                try:
-                    # This is a simplified extraction; real implementation might need parsing
-                    pass
-                except:
-                    pass
-        
-        record = {
-            "assay_id": item.get("assay_chembl_id"),
-            "smiles": smiles,
-            "logPapp": permeability_value,
-            "source": "chembl",
-            "raw_data": json.dumps(item)  # Store full raw data for debugging
-        }
-        
-        records.append(record)
-    
+    results = data.get("assays", [])
+
+    for assay in results:
+        # Extract assay ID
+        assay_id = assay.get("assay_id")
+        if not assay_id:
+            continue
+
+        # Extract standard values (logPapp)
+        standard_value = None
+        if "standard_values" in assay:
+            for sv in assay["standard_values"]:
+                if sv.get("standard_type") == "LOGPAPP":
+                    try:
+                        standard_value = float(sv.get("standard_value"))
+                        break
+                    except (ValueError, TypeError):
+                        continue
+
+        # Extract structure SMILES
+        structure_smiles = None
+        if "molecule_structures" in assay:
+            for ms in assay["molecule_structures"]:
+                if ms.get("standard_type") == "SMILES":
+                    structure_smiles = ms.get("smiles")
+                    break
+
+        # Only include if we have both SMILES and logPapp
+        if structure_smiles and standard_value is not None:
+            records.append({
+                "assay_id": str(assay_id),
+                "smiles": structure_smiles,
+                "logPapp": standard_value,
+                "molecule_chembl_id": assay.get("molecule_chembl_id"),
+                "assay_description": assay.get("assay_description", ""),
+                "cell_type_chembl_id": assay.get("cell_type_chembl_id"),
+                "tissue_chembl_id": assay.get("tissue_chembl_id")
+            })
+
     return records
 
-def fetch_all_caco2_data(target_count: int = 600) -> List[Dict[str, Any]]:
+
+def fetch_all_caco2_data() -> List[Dict[str, Any]]:
     """
-    Fetch Caco-2 assay data from ChEMBL until we have at least target_count records.
-    
-    Args:
-        target_count: Minimum number of records to fetch
-        
+    Fetch Caco-2 assay data from ChEMBL until minimum record count reached.
+
     Returns:
-        List of all fetched records
+        List of all extracted records.
     """
     all_records = []
     page = 0
-    page_size = 100
-    
-    logger.info(f"Starting fetch of Caco-2 data (target: {target_count} records)")
-    
-    while len(all_records) < target_count:
-        logger.info(f"Fetching page {page}...")
-        response = fetch_assay_page(page=page, page_size=page_size)
-        
+
+    while len(all_records) < MIN_RECORDS:
+        response = fetch_assay_page(page)
         if not response:
-            logger.error("Failed to fetch data from ChEMBL API")
+            if page == 0:
+                raise RuntimeError("Failed to fetch initial data from ChEMBL")
             break
-        
+
         records = extract_records(response)
         all_records.extend(records)
-        
-        logger.info(f"Fetched {len(records)} records from page {page}. Total: {len(all_records)}")
-        
-        # Check if we've reached the end of available data
-        if len(response.get("results", [])) < page_size:
-            logger.info("Reached end of available data")
+        logger.info(f"Page {page}: fetched {len(records)} records. Total: {len(all_records)}")
+
+        # Check if we have more pages
+        if "count" in response and len(all_records) >= response["count"]:
             break
-        
+
+        # Check if there are more results
+        if not records and page > 0:
+            break
+
         page += 1
-        
-        # Safety limit to prevent infinite loops
-        if page > 50:
-            logger.warning("Reached maximum page limit (50)")
-            break
-    
-    logger.info(f"Total records fetched: {len(all_records)}")
+
+    if len(all_records) < MIN_RECORDS:
+        logger.warning(f"Only fetched {len(all_records)} records (minimum: {MIN_RECORDS})")
+
     return all_records
 
-def write_raw_data(records: List[Dict[str, Any]], output_path: str = RAW_DATA_PATH) -> Path:
+
+def write_raw_data(records: List[Dict[str, Any]], output_path: str) -> None:
     """
     Write raw records to CSV file.
-    
+
     Args:
-        records: List of records to write
-        output_path: Path to output CSV file
-        
-    Returns:
-        Path to the created file
+        records: List of record dictionaries.
+        output_path: Path to output CSV file.
     """
-    output_file = Path(output_path)
+    if not records:
+        raise ValueError("No records to write")
+
+    output_file = Path(get_project_root()) / output_path
     output_file.parent.mkdir(parents=True, exist_ok=True)
-    
-    fieldnames = ["assay_id", "smiles", "logPapp", "source", "raw_data"]
-    
+
+    fieldnames = [
+        "assay_id", "smiles", "logPapp", "molecule_chembl_id",
+        "assay_description", "cell_type_chembl_id", "tissue_chembl_id"
+    ]
+
     with open(output_file, 'w', newline='', encoding='utf-8') as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(records)
-    
-    logger.info(f"Wrote {len(records)} records to {output_file}")
-    return output_file
 
-def register_artifact_checksum(file_path: Path) -> None:
-    """
-    Compute checksum and register it in the state file.
-    
-    Args:
-        file_path: Path to the file to checksum
-    """
-    logger.info(f"Computing checksum for {file_path}")
-    
-    checksum = compute_file_checksum(file_path)
-    logger.info(f"Checksum computed: {checksum}")
-    
-    # Load state file
-    state_file = Path(STATE_PATH)
-    if not state_file.exists():
-        logger.error(f"State file not found: {state_file}")
-        return
-    
-    state_data = load_state_file(state_file)
-    
-    # Register checksum
-    register_checksum(state_data, str(file_path), checksum)
-    
-    # Save updated state
-    save_state_file(state_file, state_data)
-    logger.info(f"Checksum registered in {state_file}")
+    logger.info(f"Wrote {len(records)} records to {output_file}")
+
 
 def main() -> None:
-    """Main entry point for data retrieval."""
+    """
+    Main entry point for data retrieval.
+
+    Fetches Caco-2 data, writes to CSV, and registers checksum.
+    """
     configure_root_logger()
-    
+    logger.info("Starting Caco-2 data retrieval")
+
     try:
         # Fetch data
-        records = fetch_all_caco2_data(target_count=600)
-        
-        if not records:
-            logger.error("No records fetched. Exiting.")
-            sys.exit(1)
-        
-        # Write raw data
-        output_path = write_raw_data(records)
-        
+        records = fetch_all_caco2_data()
+        logger.info(f"Total records fetched: {len(records)}")
+
+        # Write to CSV
+        write_raw_data(records, RAW_DATA_PATH)
+
         # Register checksum
-        register_artifact_checksum(output_path)
-        
-        logger.info(f"Data retrieval completed successfully. Output: {output_path}")
-        
+        state_path = Path(get_project_root()) / STATE_FILE_PATH
+        data_path = Path(get_project_root()) / RAW_DATA_PATH
+
+        if not data_path.exists():
+            raise FileNotFoundError(f"Output file not found: {data_path}")
+
+        register_checksum(
+            file_path=str(data_path),
+            state_file=str(state_path),
+            artifact_key="raw_caco2_data"
+        )
+        logger.info("Checksum registered successfully")
+
     except Exception as e:
-        logger.error(f"Data retrieval failed: {e}", exc_info=True)
-        sys.exit(1)
+        logger.error(f"Retrieval failed: {e}")
+        raise
+
 
 if __name__ == "__main__":
     main()

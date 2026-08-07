@@ -1,1 +1,1 @@
-# Data retrieval, preprocessing, descriptor generation, analysis, and visualization modules.
+# Data processing package

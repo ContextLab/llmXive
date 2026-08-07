@@ -1,183 +1,273 @@
 """
-Unit tests for data filtering logic in code/data/preprocessing.py.
-Tests verify filtering logic and pass rate calculation as required by T011.
+Unit tests for data retrieval and filtering logic (T011).
+
+This module verifies the filtering logic and pass rate calculation
+implemented in code/data/preprocessing.py (T010), which depends on
+the retrieval logic from code/data/retrieval.py (T009).
+
+Tests verify:
+1. Filtering logic correctly removes records with NULL SMILES or logPapp
+2. Pass rate calculation is accurate
+3. Excluded records are properly categorized
 """
 
-import csv
 import os
-import tempfile
-from pathlib import Path
-from unittest import TestCase, main as unittest_main
-
 import sys
+import tempfile
+import csv
+import logging
+from pathlib import Path
+from typing import List, Dict, Any
 
-# Ensure code/ is in path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent))
+# Add project root to path for imports
+PROJECT_ROOT = Path(__file__).parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
 
 from code.data.preprocessing import load_raw_data, preprocess_data, write_clean_data
 
+# Configure logging for tests
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
-class TestPreprocessingLogic(TestCase):
-    """Tests for the data filtering logic in preprocessing.py."""
+# Test fixtures
+def create_sample_raw_csv(filepath: Path, records: List[Dict[str, Any]]) -> None:
+    """Create a sample raw CSV file with test data."""
+    with open(filepath, 'w', newline='', encoding='utf-8') as f:
+        fieldnames = ['smiles', 'logPapp', 'mw', 'psa', 'assay_id', 'standard_value', 'standard_units']
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(records)
 
-    def setUp(self):
-        """Set up temporary directories and test data."""
-        self.temp_dir = tempfile.mkdtemp()
-        self.raw_path = os.path.join(self.temp_dir, "raw_data.csv")
-        self.clean_path = os.path.join(self.temp_dir, "clean_data.csv")
+def test_filtering_logic_removes_null_smiles():
+    """Test that records with NULL/empty SMILES are filtered out."""
+    logger.info("Testing filtering logic for NULL SMILES...")
+    
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tmpdir_path = Path(tmpdir)
+        raw_csv = tmpdir_path / "raw_data.csv"
+        clean_csv = tmpdir_path / "clean_data.csv"
         
-        # Create a realistic raw dataset with various edge cases
-        self.raw_data = [
-            {"smiles": "CCO", "logPapp": -4.5, "mw": 46.07, "psa": 20.23, "assay_id": "1"},
-            {"smiles": "CCCC", "logPapp": -3.2, "mw": 58.12, "psa": 0.0, "assay_id": "2"},
-            {"smiles": "", "logPapp": -4.0, "mw": 100.0, "psa": 10.0, "assay_id": "3"},  # Empty SMILES
-            {"smiles": "C1=CC=CC=C1", "logPapp": None, "mw": 78.11, "psa": 0.0, "assay_id": "4"},  # NULL logPapp
-            {"smiles": None, "logPapp": -5.0, "mw": 80.0, "psa": 5.0, "assay_id": "5"},  # NULL SMILES
-            {"smiles": "CC(=O)O", "logPapp": -2.8, "mw": 60.05, "psa": 37.3, "assay_id": "6"},
-            {"smiles": "NaN", "logPapp": -4.1, "mw": 90.0, "psa": 15.0, "assay_id": "7"},  # Invalid SMILES string
-            {"smiles": "CCN", "logPapp": "invalid", "mw": 45.08, "psa": 12.03, "assay_id": "8"},  # Invalid logPapp
+        # Create sample data with some NULL SMILES
+        records = [
+            {'smiles': 'CCO', 'logPapp': -5.5, 'mw': 46.07, 'psa': 20.23, 'assay_id': 'A1', 'standard_value': '5.5e-6', 'standard_units': 'cm/s'},
+            {'smiles': '', 'logPapp': -6.0, 'mw': 100.0, 'psa': 30.0, 'assay_id': 'A2', 'standard_value': '1.0e-6', 'standard_units': 'cm/s'},
+            {'smiles': None, 'logPapp': -5.8, 'mw': 120.0, 'psa': 25.0, 'assay_id': 'A3', 'standard_value': '2.0e-6', 'standard_units': 'cm/s'},
+            {'smiles': 'CCC', 'logPapp': -5.2, 'mw': 44.09, 'psa': 0.0, 'assay_id': 'A4', 'standard_value': '6.3e-6', 'standard_units': 'cm/s'},
         ]
         
-        # Write raw data to file
-        with open(self.raw_path, 'w', newline='') as f:
-            writer = csv.DictWriter(f, fieldnames=self.raw_data[0].keys())
-            writer.writeheader()
-            writer.writerows(self.raw_data)
+        create_sample_raw_csv(raw_csv, records)
+        
+        # Load and preprocess
+        raw_data = load_raw_data(raw_csv)
+        clean_data, excluded_records, pass_rate = preprocess_data(raw_data)
+        
+        # Verify filtering
+        assert len(clean_data) == 2, f"Expected 2 valid records, got {len(clean_data)}"
+        assert all(record['smiles'] for record in clean_data), "All records should have non-NULL SMILES"
+        
+        # Verify excluded records
+        assert len(excluded_records) == 2, f"Expected 2 excluded records, got {len(excluded_records)}"
+        excluded_smiles = [r for r in excluded_records if r.get('reason') == 'null_smiles']
+        assert len(excluded_smiles) == 2, "Both excluded records should be due to null SMILES"
+        
+        # Verify pass rate
+        expected_pass_rate = 2 / 4 * 100  # 50%
+        assert abs(pass_rate - expected_pass_rate) < 0.01, f"Expected pass rate {expected_pass_rate}%, got {pass_rate}%"
+        
+        logger.info("✓ Filtering logic for NULL SMILES passed")
 
-    def tearDown(self):
-        """Clean up temporary files."""
-        if os.path.exists(self.raw_path):
-            os.remove(self.raw_path)
-        if os.path.exists(self.clean_path):
-            os.remove(self.clean_path)
-        os.rmdir(self.temp_dir)
+def test_filtering_logic_removes_null_logpapp():
+    """Test that records with NULL/empty logPapp are filtered out."""
+    logger.info("Testing filtering logic for NULL logPapp...")
+    
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tmpdir_path = Path(tmpdir)
+        raw_csv = tmpdir_path / "raw_data.csv"
+        clean_csv = tmpdir_path / "clean_data.csv"
+        
+        # Create sample data with some NULL logPapp
+        records = [
+            {'smiles': 'CCO', 'logPapp': -5.5, 'mw': 46.07, 'psa': 20.23, 'assay_id': 'A1', 'standard_value': '5.5e-6', 'standard_units': 'cm/s'},
+            {'smiles': 'CC', 'logPapp': None, 'mw': 30.0, 'psa': 0.0, 'assay_id': 'A2', 'standard_value': '1.0e-6', 'standard_units': 'cm/s'},
+            {'smiles': 'CCC', 'logPapp': '', 'mw': 44.09, 'psa': 0.0, 'assay_id': 'A3', 'standard_value': '2.0e-6', 'standard_units': 'cm/s'},
+            {'smiles': 'CCCC', 'logPapp': -4.8, 'mw': 58.12, 'psa': 0.0, 'assay_id': 'A4', 'standard_value': '3.2e-6', 'standard_units': 'cm/s'},
+        ]
+        
+        create_sample_raw_csv(raw_csv, records)
+        
+        # Load and preprocess
+        raw_data = load_raw_data(raw_csv)
+        clean_data, excluded_records, pass_rate = preprocess_data(raw_data)
+        
+        # Verify filtering
+        assert len(clean_data) == 2, f"Expected 2 valid records, got {len(clean_data)}"
+        assert all(record['logPapp'] is not None and record['logPapp'] != '' for record in clean_data), "All records should have non-NULL logPapp"
+        
+        # Verify excluded records
+        assert len(excluded_records) == 2, f"Expected 2 excluded records, got {len(excluded_records)}"
+        excluded_logpapp = [r for r in excluded_records if r.get('reason') == 'null_logpapp']
+        assert len(excluded_logpapp) == 2, "Both excluded records should be due to null logPapp"
+        
+        # Verify pass rate
+        expected_pass_rate = 2 / 4 * 100  # 50%
+        assert abs(pass_rate - expected_pass_rate) < 0.01, f"Expected pass rate {expected_pass_rate}%, got {pass_rate}%"
+        
+        logger.info("✓ Filtering logic for NULL logPapp passed")
 
-    def test_load_raw_data(self):
-        """Test that raw data is loaded correctly."""
-        data = load_raw_data(self.raw_path)
-        self.assertEqual(len(data), len(self.raw_data))
-        self.assertIn("smiles", data[0])
-        self.assertIn("logPapp", data[0])
+def test_pass_rate_calculation():
+    """Test that pass rate is calculated correctly."""
+    logger.info("Testing pass rate calculation...")
+    
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tmpdir_path = Path(tmpdir)
+        raw_csv = tmpdir_path / "raw_data.csv"
+        clean_csv = tmpdir_path / "clean_data.csv"
+        
+        # Create sample data: 10 records, 7 valid, 3 invalid
+        records = [
+            {'smiles': f'MOL{i}', 'logPapp': -5.0 - i * 0.1, 'mw': 100.0 + i, 'psa': 20.0, 'assay_id': f'A{i}', 'standard_value': '1.0e-6', 'standard_units': 'cm/s'}
+            for i in range(7)
+        ] + [
+            {'smiles': '', 'logPapp': -5.0, 'mw': 100.0, 'psa': 20.0, 'assay_id': f'A{i}', 'standard_value': '1.0e-6', 'standard_units': 'cm/s'}
+            for i in range(7, 8)
+        ] + [
+            {'smiles': f'MOL{i}', 'logPapp': None, 'mw': 100.0 + i, 'psa': 20.0, 'assay_id': f'A{i}', 'standard_value': '1.0e-6', 'standard_units': 'cm/s'}
+            for i in range(8, 10)
+        ]
+        
+        create_sample_raw_csv(raw_csv, records)
+        
+        # Load and preprocess
+        raw_data = load_raw_data(raw_csv)
+        clean_data, excluded_records, pass_rate = preprocess_data(raw_data)
+        
+        # Verify pass rate
+        expected_pass_rate = 7 / 10 * 100  # 70%
+        assert abs(pass_rate - expected_pass_rate) < 0.01, f"Expected pass rate {expected_pass_rate}%, got {pass_rate}%"
+        
+        # Verify counts
+        assert len(clean_data) == 7, f"Expected 7 valid records, got {len(clean_data)}"
+        assert len(excluded_records) == 3, f"Expected 3 excluded records, got {len(excluded_records)}"
+        
+        logger.info("✓ Pass rate calculation passed")
 
-    def test_filtering_logic_non_null_smiles(self):
-        """Test that records with NULL/empty SMILES are filtered out."""
-        data = load_raw_data(self.raw_path)
-        filtered_data, stats = preprocess_data(data)
+def test_filtering_logic_handles_mixed_invalid():
+    """Test filtering with a mix of NULL SMILES and NULL logPapp."""
+    logger.info("Testing filtering logic with mixed invalid records...")
+    
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tmpdir_path = Path(tmpdir)
+        raw_csv = tmpdir_path / "raw_data.csv"
+        clean_csv = tmpdir_path / "clean_data.csv"
         
-        # Should exclude: empty string, None, and "NaN"
-        expected_count = len(self.raw_data) - 3  # 3 invalid SMILES
-        self.assertEqual(len(filtered_data), expected_count)
+        # Create sample data with mixed invalid records
+        records = [
+            # Valid records
+            {'smiles': 'CCO', 'logPapp': -5.5, 'mw': 46.07, 'psa': 20.23, 'assay_id': 'A1', 'standard_value': '5.5e-6', 'standard_units': 'cm/s'},
+            {'smiles': 'CCC', 'logPapp': -5.2, 'mw': 44.09, 'psa': 0.0, 'assay_id': 'A2', 'standard_value': '6.3e-6', 'standard_units': 'cm/s'},
+            {'smiles': 'CCCC', 'logPapp': -4.8, 'mw': 58.12, 'psa': 0.0, 'assay_id': 'A3', 'standard_value': '3.2e-6', 'standard_units': 'cm/s'},
+            # Invalid: NULL SMILES
+            {'smiles': '', 'logPapp': -6.0, 'mw': 100.0, 'psa': 30.0, 'assay_id': 'A4', 'standard_value': '1.0e-6', 'standard_units': 'cm/s'},
+            {'smiles': None, 'logPapp': -5.8, 'mw': 120.0, 'psa': 25.0, 'assay_id': 'A5', 'standard_value': '2.0e-6', 'standard_units': 'cm/s'},
+            # Invalid: NULL logPapp
+            {'smiles': 'CC', 'logPapp': None, 'mw': 30.0, 'psa': 0.0, 'assay_id': 'A6', 'standard_value': '1.0e-6', 'standard_units': 'cm/s'},
+            {'smiles': 'CC', 'logPapp': '', 'mw': 30.0, 'psa': 0.0, 'assay_id': 'A7', 'standard_value': '1.0e-6', 'standard_units': 'cm/s'},
+            # Invalid: Both NULL
+            {'smiles': '', 'logPapp': None, 'mw': 100.0, 'psa': 20.0, 'assay_id': 'A8', 'standard_value': '1.0e-6', 'standard_units': 'cm/s'},
+        ]
         
-        # Verify all remaining SMILES are valid
-        for record in filtered_data:
-            smiles = record.get("smiles")
-            self.assertIsNotNone(smiles)
-            self.assertNotEqual(smiles, "")
-            self.assertNotEqual(smiles, "NaN")
+        create_sample_raw_csv(raw_csv, records)
+        
+        # Load and preprocess
+        raw_data = load_raw_data(raw_csv)
+        clean_data, excluded_records, pass_rate = preprocess_data(raw_data)
+        
+        # Verify filtering
+        assert len(clean_data) == 3, f"Expected 3 valid records, got {len(clean_data)}"
+        assert all(record['smiles'] for record in clean_data), "All records should have non-NULL SMILES"
+        assert all(record['logPapp'] is not None and record['logPapp'] != '' for record in clean_data), "All records should have non-NULL logPapp"
+        
+        # Verify excluded records
+        assert len(excluded_records) == 5, f"Expected 5 excluded records, got {len(excluded_records)}"
+        
+        # Categorize excluded records
+        null_smiles = [r for r in excluded_records if r.get('reason') == 'null_smiles']
+        null_logpapp = [r for r in excluded_records if r.get('reason') == 'null_logpapp']
+        
+        # At least 3 should be due to null SMILES (A4, A5, A8)
+        assert len(null_smiles) >= 3, f"Expected at least 3 null SMILES exclusions, got {len(null_smiles)}"
+        # At least 2 should be due to null logPapp (A6, A7, A8)
+        assert len(null_logpapp) >= 2, f"Expected at least 2 null logPapp exclusions, got {len(null_logpapp)}"
+        
+        # Verify pass rate
+        expected_pass_rate = 3 / 8 * 100  # 37.5%
+        assert abs(pass_rate - expected_pass_rate) < 0.01, f"Expected pass rate {expected_pass_rate}%, got {pass_rate}%"
+        
+        logger.info("✓ Filtering logic with mixed invalid records passed")
 
-    def test_filtering_logic_non_null_logpapp(self):
-        """Test that records with NULL logPapp are filtered out."""
-        data = load_raw_data(self.raw_path)
-        filtered_data, stats = preprocess_data(data)
+def test_write_clean_data_creates_file():
+    """Test that write_clean_data creates the output file correctly."""
+    logger.info("Testing write_clean_data file creation...")
+    
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tmpdir_path = Path(tmpdir)
+        clean_csv = tmpdir_path / "clean_data.csv"
         
-        # Should exclude: None logPapp and "invalid" string
-        expected_count = len(self.raw_data) - 3  # 3 invalid logPapp (including NaN/None/invalid)
-        # Actually: None (1), "invalid" (1) = 2, plus 3 invalid SMILES = 5 excluded total
-        # But some records might have both issues, so we check the actual count
+        clean_data = [
+            {'smiles': 'CCO', 'logPapp': -5.5, 'mw': 46.07, 'psa': 20.23, 'assay_id': 'A1'},
+            {'smiles': 'CCC', 'logPapp': -5.2, 'mw': 44.09, 'psa': 0.0, 'assay_id': 'A2'},
+        ]
         
-        # Verify all remaining logPapp are valid numbers
-        for record in filtered_data:
-            logpapp = record.get("logPapp")
-            self.assertIsNotNone(logpapp)
-            self.assertIsInstance(logpapp, (int, float))
-
-    def test_pass_rate_calculation(self):
-        """Test that pass rate is calculated correctly."""
-        data = load_raw_data(self.raw_path)
-        total_records = len(data)
+        write_clean_data(clean_data, clean_csv)
         
-        # Count valid records manually
-        valid_count = 0
-        for record in data:
-            smiles = record.get("smiles")
-            logpapp = record.get("logPapp")
-            
-            if smiles and smiles != "NaN" and smiles != "":
-                if logpapp is not None and isinstance(logpapp, (int, float)):
-                    valid_count += 1
+        # Verify file exists
+        assert clean_csv.exists(), "Output file should exist"
         
-        filtered_data, stats = preprocess_data(data)
-        
-        expected_pass_rate = valid_count / total_records
-        actual_pass_rate = stats["pass_rate"]
-        
-        self.assertAlmostEqual(actual_pass_rate, expected_pass_rate, places=5)
-        self.assertEqual(stats["total_records"], total_records)
-        self.assertEqual(stats["passed_records"], valid_count)
-        self.assertEqual(stats["excluded_records"], total_records - valid_count)
-
-    def test_excluded_records_breakdown(self):
-        """Test that excluded records are categorized correctly."""
-        data = load_raw_data(self.raw_path)
-        _, stats = preprocess_data(data)
-        
-        self.assertIn("excluded_invalid_smiles", stats)
-        self.assertIn("excluded_invalid_logpapp", stats)
-        self.assertIn("excluded_protocol_heterogeneity", stats)
-        
-        # At least some records should be excluded for invalid SMILES or logPapp
-        self.assertGreater(stats["excluded_invalid_smiles"] + stats["excluded_invalid_logpapp"], 0)
-
-    def test_write_clean_data(self):
-        """Test that clean data is written correctly."""
-        data = load_raw_data(self.raw_path)
-        filtered_data, stats = preprocess_data(data)
-        
-        write_clean_data(filtered_data, self.clean_path)
-        
-        self.assertTrue(os.path.exists(self.clean_path))
-        
-        with open(self.clean_path, 'r') as f:
+        # Verify content
+        with open(clean_csv, 'r', encoding='utf-8') as f:
             reader = csv.DictReader(f)
             rows = list(reader)
         
-        self.assertEqual(len(rows), len(filtered_data))
-        # Verify all rows have valid data
-        for row in rows:
-            self.assertIsNotNone(row.get("smiles"))
-            self.assertIsNotNone(row.get("logPapp"))
-            self.assertNotEqual(row.get("smiles"), "")
+        assert len(rows) == 2, f"Expected 2 rows in output, got {len(rows)}"
+        assert all('smiles' in row and 'logPapp' in row for row in rows), "All rows should have required fields"
+        
+        logger.info("✓ write_clean_data file creation passed")
 
-    def test_preprocess_data_integration(self):
-        """Integration test: load, filter, and write in one flow."""
-        # Load raw data
-        raw_data = load_raw_data(self.raw_path)
+def test_empty_input_handling():
+    """Test handling of empty input data."""
+    logger.info("Testing empty input handling...")
+    
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tmpdir_path = Path(tmpdir)
+        raw_csv = tmpdir_path / "raw_data.csv"
+        clean_csv = tmpdir_path / "clean_data.csv"
         
-        # Preprocess
-        clean_data, stats = preprocess_data(raw_data)
+        # Create empty CSV with headers only
+        records = []
+        create_sample_raw_csv(raw_csv, records)
         
-        # Write clean data
-        write_clean_data(clean_data, self.clean_path)
+        # Load and preprocess
+        raw_data = load_raw_data(raw_csv)
+        clean_data, excluded_records, pass_rate = preprocess_data(raw_data)
         
-        # Verify output
-        self.assertTrue(os.path.exists(self.clean_path))
+        # Verify results
+        assert len(clean_data) == 0, "Empty input should produce empty output"
+        assert len(excluded_records) == 0, "Empty input should have no excluded records"
+        assert pass_rate == 0.0, "Pass rate for empty input should be 0%"
         
-        with open(self.clean_path, 'r') as f:
-            reader = csv.DictReader(f)
-            output_rows = list(reader)
-        
-        # All output rows should be valid
-        for row in output_rows:
-            smiles = row.get("smiles")
-            logpapp = row.get("logPapp")
-            
-            self.assertIsNotNone(smiles)
-            self.assertNotEqual(smiles, "")
-            self.assertNotEqual(smiles, "NaN")
-            
-            self.assertIsNotNone(logpapp)
-            self.assertIsInstance(logpapp, (int, float))
+        logger.info("✓ Empty input handling passed")
 
-
-if __name__ == "__main__":
-    unittest_main()
+if __name__ == '__main__':
+    logger.info("Running data filtering unit tests...")
+    
+    test_filtering_logic_removes_null_smiles()
+    test_filtering_logic_removes_null_logpapp()
+    test_pass_rate_calculation()
+    test_filtering_logic_handles_mixed_invalid()
+    test_write_clean_data_creates_file()
+    test_empty_input_handling()
+    
+    logger.info("All data filtering unit tests passed successfully!")

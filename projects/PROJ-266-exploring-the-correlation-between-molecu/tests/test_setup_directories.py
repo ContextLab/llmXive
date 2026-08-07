@@ -1,57 +1,63 @@
 """
-Unit tests for the directory creation script (T008a).
+Unit tests for the setup_directories module (T008a).
+Verifies that data/raw and data/processed directories are created.
 """
 import os
-import sys
 import tempfile
 import shutil
 from pathlib import Path
 import pytest
 
-# Add code directory to path for imports
-code_dir = Path(__file__).resolve().parents[1] / "code"
-sys.path.insert(0, str(code_dir))
+# Mock the get_project_root function to use a temporary directory
+# so we don't depend on the actual project root during testing
+class MockConfig:
+    @staticmethod
+    def get_project_root():
+        return Path(tempfile.mkdtemp())
 
-from data.setup_directories import create_directories, get_project_root, DATA_DIR, RAW_DIR, PROCESSED_DIR
+# We need to patch the import before importing the module
+import sys
+from unittest.mock import patch
 
-class TestDirectoryCreation:
-    """Tests for directory creation functionality."""
+def test_create_directories():
+    """Test that create_directories creates the required folders."""
+    # Create a temporary project root
+    temp_root = Path(tempfile.mkdtemp())
+    try:
+        # Patch the get_project_root to return our temp root
+        with patch('code.data.setup_directories.get_project_root', return_value=temp_root):
+            from code.data.setup_directories import create_directories
+            
+            # Execute the function
+            result = create_directories()
+            
+            # Verify return value
+            assert result is True, "create_directories should return True on success"
+            
+            # Verify directories exist
+            raw_dir = temp_root / "data" / "raw"
+            processed_dir = temp_root / "data" / "processed"
+            
+            assert raw_dir.is_dir(), f"Directory {raw_dir} was not created"
+            assert processed_dir.is_dir(), f"Directory {processed_dir} was not created"
+            
+    finally:
+        # Cleanup
+        shutil.rmtree(temp_root, ignore_errors=True)
 
-    def test_project_root_detection(self):
-        """Test that project root is detected correctly."""
-        root = get_project_root()
-        assert isinstance(root, Path)
-        assert root.exists()
-
-    def test_raw_directory_exists(self):
-        """Test that data/raw directory exists after creation."""
-        # Ensure directory exists
-        create_directories()
-        assert os.path.isdir(RAW_DIR), f"Expected directory {RAW_DIR} to exist"
-
-    def test_processed_directory_exists(self):
-        """Test that data/processed directory exists after creation."""
-        # Ensure directory exists
-        create_directories()
-        assert os.path.isdir(PROCESSED_DIR), f"Expected directory {PROCESSED_DIR} to exist"
-
-    def test_create_directories_idempotent(self):
-        """Test that creating directories multiple times doesn't fail."""
-        result1 = create_directories()
-        result2 = create_directories()
-        assert result1 is True
-        assert result2 is True
-
-    def test_directory_structure(self):
-        """Test the full directory structure is created."""
-        create_directories()
-        
-        # Check parent directory exists
-        assert os.path.isdir(DATA_DIR), f"Expected {DATA_DIR} to exist"
-        
-        # Check children exist
-        assert os.path.isdir(RAW_DIR), f"Expected {RAW_DIR} to exist"
-        assert os.path.isdir(PROCESSED_DIR), f"Expected {PROCESSED_DIR} to exist"
-
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+def test_create_directories_idempotent():
+    """Test that calling create_directories multiple times doesn't fail."""
+    temp_root = Path(tempfile.mkdtemp())
+    try:
+        with patch('code.data.setup_directories.get_project_root', return_value=temp_root):
+            from code.data.setup_directories import create_directories
+            
+            # Call twice
+            result1 = create_directories()
+            result2 = create_directories()
+            
+            assert result1 is True
+            assert result2 is True
+            
+    finally:
+        shutil.rmtree(temp_root, ignore_errors=True)

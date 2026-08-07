@@ -38,28 +38,21 @@ T008c:
     cannot be confirmed.
 T009:
   c: false
-  h: 3ceb9275a97e7eaee969821c9ddba3719b0b06102ad70d40783db79a811a1fc7
-  r: "The `retrieval.py` script is incomplete (truncated) and does not show saving\
-    \ a CSV or invoking the checksum utility, and the required state YAML file `state/projects/PROJ-266-exploring-the-correlation-between-molecu.yaml`\
-    \ is missing entirely. Consequently the task\u2019s core requirements are not\
-    \ satisfied."
+  h: ece54b34178dfaf48cc967f6063c1fcac359412117c25954a5e53a0a904e6dd5
+  r: "The `state/projects/PROJ-266-exploring-the-correlation-between-molecu.yaml`\
+    \ file does not exist, and the provided `checksum.py` only writes to a log file\
+    \ (and its implementation is incomplete), so the retrieval script cannot register\
+    \ a checksum in the required YAML. Consequently the task\u2019s core requirement\
+    \ is unmet."
 T010:
   c: false
-  h: 9fdb579305633fa86473dfd3cff9d0c0000fe387244f7ec8f92125a2a969334f
-  r: "The required state file `state/projects/PROJ-266-exploring-the-correlation-between-molecu.yaml`\
-    \ does not exist, so the checksum cannot be registered there. Moreover, `code/utils/checksum.py`\
-    \ is designed to write only to a log file, not to the YAML state file, and the\
-    \ provided `preprocessing.py` excerpt does not show any call to `register_checksum`\
-    \ after saving the filtered CSV. Both issues prevent the task\u2019s mandatory\
-    \ post\u2011processing step from being satisfied."
-T012:
-  c: false
-  h: 5cff7f5929b24a4a1295338ac308e2469d8d3e7471eeb49254b5fbf29d9c82f0
-  r: The `tests/contract/test_dataset.py` file exists but it references a schema at
-    `specs/.../dataset.schema.yaml` which is missing, so the tests cannot actually
-    validate anything. Additionally, the test code is truncated and contains an invalid
-    import (`import pand`), indicating it is not a functional, complete test suite.
-    The required schema artifact and a runnable test implementation are both absent.
+  h: be65f6d1b944185af7bf8decc081ddcf4996633dbc956e5bdee920f23c2f0957
+  r: The `state/projects/PROJ-266-exploring-the-correlation-between-molecu.yaml` file
+    is absent, and the shown portion of `code/data/preprocessing.py` never reaches
+    the part where it writes the filtered CSV or calls `register_checksum`. Consequently
+    the required checksum registration step cannot be performed. The task needs the
+    missing state file and the implementation to save the filtered data and invoke
+    the checksum utility.
 T023b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

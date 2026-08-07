@@ -1,3 +1,1 @@
-"""
-Contract tests package for validating data schemas.
-"""
+# Contract test package
