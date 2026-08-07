@@ -1,83 +1,82 @@
-# Quickstart: Predicting Avian Vocal Complexity from Environmental Noise Levels
+# Quickstart: Predicting Avian Vocal Complexity
 
 ## Prerequisites
 
 *   Python 3.11+
-*   Git
-*   Access to the project repository.
+*   pip
+*   Access to Xeno-canto API (public)
+*   14GB free disk space
 
-## Setup Instructions
+## Installation
 
-1.  **Clone the Repository**:
+1.  **Clone and Setup**:
     ```bash
     git clone <repo-url>
     cd projects/PROJ-255-predicting-avian-vocal-complexity-from-e
-    ```
-
-2.  **Create Virtual Environment**:
-    ```bash
     python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
+    source venv/bin/activate
+    pip install -r requirements.txt
     ```
 
-3.  **Install Dependencies**:
+2.  **Verify Dependencies**:
     ```bash
-    pip install -r code/requirements.txt
-    ```
-    *Note: This installs `librosa`, `statsmodels`, `pandas`, `scikit-learn`, `geopy`, `requests`, and `pytest`.*
-
-4.  **Verify Environment**:
-    ```bash
-    python -c "import librosa; import statsmodels; print('Environment OK')"
+    python -c "import librosa; import statsmodels; print('Dependencies OK')"
     ```
 
 ## Running the Pipeline
 
-The pipeline is executed via the main script in `code/`.
+### Option A: Full Pipeline (End-to-End)
 
-### 1. Data Acquisition (Subset Mode)
-To test with a small subset (e.g., 50 recordings) as per US-1:
+Execute the main orchestrator script:
 ```bash
-python code/main.py --mode acquisition --subset 50
+python src/main.py --config src/config/config.yaml --mode full
 ```
-*Output*: `data/raw/metadata_subset.csv`, `data/raw/audio_subset/`
+*This will download data, extract features, fit models, and generate reports.*
 
-### 2. Preprocessing & Feature Extraction
+### Option B: Step-by-Step
+
+1.  **Acquire Data**:
+    ```bash
+    python src/data/acquisition.py --species-list data/species_list.txt
+    ```
+2.  **Extract Features**:
+    ```bash
+    python src/data/extraction.py --input data/raw/xc_metadata.csv
+    ```
+3.  **Preprocess & Filter**:
+    ```bash
+    python src/data/preprocessing.py --input data/interim/extracted_features.csv
+    ```
+4.  **Model & Analyze**:
+    ```bash
+    python src/models/lmm.py --input data/processed/final_dataset.csv
+    ```
+5.  **Generate Visuals**:
+    ```bash
+    python src/viz/plots.py --results data/processed/model_results.csv
+    ```
+
+## Configuration
+
+Edit `src/config/config.yaml` to adjust:
+*   `snr_threshold`: Default 10.0 (dB)
+*   `random_seed`: Default 42
+*   `species_list`: Path to target species file
+
+## Verification
+
+Run the contract tests to ensure data integrity:
 ```bash
-python code/main.py --mode process --input data/raw/metadata_subset.csv
+pytest tests/contract/ -v
 ```
-*Output*: `data/processed/final_dataset.csv`, `data/processed/filtered_records.csv`
 
-### 3. Statistical Modeling
+Run unit tests:
 ```bash
-python code/main.py --mode model --input data/processed/final_dataset.csv
-```
-*Output*: `data/processed/model_results.csv`, `data/processed/sensitivity_analysis.csv`
-
-### 4. Visualization
-```bash
-python code/main.py --mode viz --input data/processed/model_results.csv
-```
-*Output*: `data/figures/scatter_plot.png`, `data/figures/heatmap.png`, `data/figures/residuals.png`
-
-### 5. Full Report Generation
-```bash
-python code/main.py --mode report
-```
-*Output*: `data/reports/summary_report.md`
-
-## Testing
-
-Run the contract and unit tests:
-```bash
-pytest tests/ -v
+pytest tests/unit/ -v
 ```
 
-*   **Contract Tests**: Validate that output CSVs match `contracts/*.schema.yaml`.
-*   **Unit Tests**: Verify `librosa` metric extraction logic and SNR calculation.
-
-## Troubleshooting
-
-*   **Audio File Not Found**: Ensure `data/raw/audio_subset/` contains the downloaded files. Re-run `--mode acquisition`.
-*   **Memory Error**: Reduce the `--subset` size or ensure `--chunk-size` is set correctly in `code/utils/config.py`.
-*   **Noise Interpolation Fallback**: If "Global Soundscapes" is unavailable, the script will automatically switch to nearest-neighbor interpolation and log the event. Check `data/interim/interpolated_noise.log`.
+Check for missing artifacts:
+*   `data/processed/final_dataset.csv`
+*   `data/processed/model_results.csv`
+*   `data/interim/filtered_records.csv`
+*   `data/interim/validation_log.csv`
