@@ -6,8 +6,9 @@ from pathlib import Path
 import tempfile
 import os
 
-# Import the function to test
+# Import the functions to test
 from code.main import apply_atp_iii_criteria, run_sensitivity_analysis
+from code.sensitivity_metrics import calculate_agreement_rate
 
 @pytest.fixture
 def sample_df():
@@ -118,3 +119,26 @@ def test_run_sensitivity_analysis_writes_files(sample_df):
         assert "metric_name" in metric
         assert metric["metric_name"] == "percent_reclassified"
         assert isinstance(metric["value"], float)
+
+def test_agreement_rate():
+    """Test that the agreement‑rate calculation returns the correct proportion."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tmpdir = Path(tmpdir)
+        
+        # Create a synthetic sensitivity CSV where 3 of 4 samples agree
+        data = {
+            "sample_id": ["A", "B", "C", "D"],
+            "baseline_label": ["MetS", "Control", "MetS", "Control"],
+            "varied_label":   ["MetS", "Control", "Control", "Control"],  # C differs
+            "reclassified":   [False, False, True, False],
+            "scenario":       ["baseline"] * 4
+        }
+        df = pd.DataFrame(data)
+        csv_path = tmpdir / "sensitivity_analysis.csv"
+        df.to_csv(csv_path, index=False)
+        
+        # Calculate agreement rate
+        agreement = calculate_agreement_rate(csv_path)
+        
+        # Expected agreement: 3 / 4 = 0.75
+        assert pytest.approx(agreement, 0.001) == 0.75

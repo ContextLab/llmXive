@@ -1,110 +1,150 @@
-import pytest
-import pandas as pd
-import numpy as np
-from pathlib import Path
-import tempfile
+"""
+Unit tests for the metabolic syndrome classifier (T014).
+
+These tests use a tiny synthetic phenotype DataFrame constructed on‑the‑fly.
+The classifier itself reads the phenotype from the loader; therefore we patch
+``load_gtex_phenotype_data`` and ``verify_clinical_columns`` to return the
+synthetic data.
+"""
+
+import builtins
+import io
 import json
+import types
+from pathlib import Path
 
-from data.classifier import classify_metabolic_status, store_baseline_labels
+import pandas as pd
+import pytest
 
-@pytest.fixture
-def sample_data():
-    """Create a sample DataFrame with clinical variables."""
+# Import the function under test
+from code.data.classifier import classify_metabolic_status
+
+# -------------------------------------------------------------------------
+# Helper – a minimal synthetic phenotype DataFrame
+# -------------------------------------------------------------------------
+def _make_synthetic_phenotype():
+    """Return a DataFrame with the exact columns required by the classifier."""
     data = {
-        'sample_id': ['S1', 'S2', 'S3', 'S4', 'S5', 'S6'],
-        'bmi': [31.0, 28.0, 35.0, 29.0, 30.0, 25.0],
-        'glucose': [105.0, 95.0, 110.0, 100.0, 98.0, 90.0],
-        'systolic_bp': [135.0, 120.0, 140.0, 130.0, 125.0, 110.0],
-        'diastolic_bp': [88.0, 75.0, 90.0, 85.0, 80.0, 70.0],
-        'triglycerides': [160.0, 140.0, 180.0, 150.0, 145.0, 100.0],
-        'hdl': [35.0, 55.0, 30.0, 45.0, 52.0, 60.0],
-        'sex': ['M', 'F', 'M', 'F', 'M', 'F']
+        "sample_id": ["S1", "S2", "S3", "S4"],
+        "bmi": [32.0, 28.0, 31.0, 29.5],
+        "fasting_glucose": [110.0, 95.0, 105.0, 99.0],
+        "triglycerides": [160.0, 140.0, 155.0, 145.0],
+        "hdl": [45.0, 55.0, 48.0, 52.0],
+        "systolic_bp": [135.0, 120.0, 128.0, 132.0],
+        "diastolic_bp": [88.0, 78.0, 84.0, 86.0],
     }
     return pd.DataFrame(data)
 
-def test_atp_iii_classifies_metabolic_syndrome(sample_data):
+# -------------------------------------------------------------------------
+# Fixtures – monkey‑patch the loader utilities
+# -------------------------------------------------------------------------
+@pytest.fixture(autouse=True)
+def patch_loader(monkeypatch):
+    """Replace the real loader functions with stubs returning synthetic data."""
+    from code.data import loader as loader_module
+
+    # Stub that returns our synthetic DataFrame
+    def fake_load():
+        return _make_synthetic_phenotype()
+
+    # Stub that pretends all required columns are present
+    def fake_verify(df, required):
+        return []  # no missing columns
+
+    monkeypatch.setattr(loader_module, "load_gtex_phenotype_data", fake_load)
+    monkeypatch.setattr(loader_module, "verify_clinical_columns", fake_verify)
+
+# -------------------------------------------------------------------------
+# Test – correct classification according to ATP‑III (≥3 criteria => MetS)
+# -------------------------------------------------------------------------
+def test_atp_iii_classifies_metabolic_syndrome(tmp_path, monkeypatch):
     """
-    Verify that samples meeting >= 3 criteria are classified as 'MetS'.
-    
-    S1: BMI>=30 (Y), Glucose>=100 (Y), SBP>=130 (Y), DBP>=85 (Y), TG>=150 (Y), HDL<40 (M) -> 5 criteria -> MetS
-    S2: BMI>=30 (N), Glucose>=100 (N), SBP>=130 (N), DBP>=85 (N), TG>=150 (N), HDL<50 (N) -> 0 criteria -> Control
-    S3: BMI>=30 (Y), Glucose>=100 (Y), SBP>=130 (Y), DBP>=85 (Y), TG>=150 (Y), HDL<40 (Y) -> 6 criteria -> MetS
-    S4: BMI>=30 (N), Glucose>=100 (N), SBP>=130 (Y), DBP>=85 (Y), TG>=150 (Y), HDL<50 (N) -> 3 criteria -> MetS
-    S5: BMI>=30 (Y), Glucose>=100 (N), SBP>=130 (N), DBP>=85 (N), TG>=150 (N), HDL<50 (N) -> 1 criteria -> Control
-    S6: BMI>=30 (N), Glucose>=100 (N), SBP>=130 (N), DBP>=85 (N), TG>=150 (N), HDL<50 (N) -> 0 criteria -> Control
+    Verify that donors meeting three or more criteria are labelled “MetS” and
+    others are labelled “Control”.
     """
-    result = classify_metabolic_status(sample_data)
-    
-    assert result.loc[result['sample_id'] == 'S1', 'metabolic_status'].values[0] == 'MetS'
-    assert result.loc[result['sample_id'] == 'S2', 'metabolic_status'].values[0] == 'Control'
-    assert result.loc[result['sample_id'] == 'S3', 'metabolic_status'].values[0] == 'MetS'
-    assert result.loc[result['sample_id'] == 'S4', 'metabolic_status'].values[0] == 'MetS'
-    assert result.loc[result['sample_id'] == 'S5', 'metabolic_status'].values[0] == 'Control'
-    assert result.loc[result['sample_id'] == 'S6', 'metabolic_status'].values[0] == 'Control'
+    # Run the classifier
+    classify_metabolic_status()
 
-def test_excludes_missing_data():
-    """Verify samples with null/NaN values are excluded and logged."""
-    data = {
-        'sample_id': ['S1', 'S2', 'S3'],
-        'bmi': [31.0, np.nan, 35.0],
-        'glucose': [105.0, 95.0, np.nan],
-        'systolic_bp': [135.0, 120.0, 140.0],
-        'diastolic_bp': [88.0, 75.0, 90.0],
-        'triglycerides': [160.0, 140.0, 180.0],
-        'hdl': [35.0, 55.0, 30.0],
-        'sex': ['M', 'F', 'M']
-    }
-    df = pd.DataFrame(data)
-    
-    result = classify_metabolic_status(df)
-    
-    # S2 and S3 have missing data, so only S1 should remain
-    assert len(result) == 1
-    assert result['sample_id'].iloc[0] == 'S1'
+    # Load the produced baseline labels
+    labels_path = Path("data/processed/baseline_labels.csv")
+    df = pd.read_csv(labels_path)
 
-def test_boundary_conditions():
-    """Verify strict thresholds (e.g., BMI=29.9 vs 30.0)."""
-    data = {
-        'sample_id': ['S1', 'S2', 'S3'],
-        'bmi': [29.9, 30.0, 30.1],
-        'glucose': [99.0, 100.0, 101.0],
-        'systolic_bp': [129.0, 130.0, 131.0],
-        'diastolic_bp': [84.0, 85.0, 86.0],
-        'triglycerides': [149.0, 150.0, 151.0],
-        'hdl': [40.0, 40.0, 39.0], # Male threshold is 40. <40 is low.
-        'sex': ['M', 'M', 'M']
+    # Expected labels based on the synthetic data above:
+    # S1 meets BMI, Glucose, TG, BP (4) -> MetS
+    # S2 meets none (0) -> Control
+    # S3 meets BMI, Glucose, TG (3) -> MetS
+    # S4 meets BMI, BP (2) -> Control
+    expected = {
+        "S1": ("MetS", 4),
+        "S2": ("Control", 0),
+        "S3": ("MetS", 3),
+        "S4": ("Control", 2),
     }
-    df = pd.DataFrame(data)
-    
-    result = classify_metabolic_status(df)
-    
-    # S1: 0 criteria (all just below threshold) -> Control
-    # S2: BMI>=30 (Y), Glucose>=100 (Y), SBP>=130 (Y), DBP>=85 (Y), TG>=150 (Y), HDL<40 (N, 40 is not <40) -> 5 criteria -> MetS
-    # S3: BMI>=30 (Y), Glucose>=100 (Y), SBP>=130 (Y), DBP>=85 (Y), TG>=150 (Y), HDL<40 (Y) -> 6 criteria -> MetS
-    
-    assert result.loc[result['sample_id'] == 'S1', 'metabolic_status'].values[0] == 'Control'
-    assert result.loc[result['sample_id'] == 'S2', 'metabolic_status'].values[0] == 'MetS'
-    assert result.loc[result['sample_id'] == 'S3', 'metabolic_status'].values[0] == 'MetS'
 
-def test_store_baseline_labels():
-    """Verify that store_baseline_labels writes a valid CSV."""
-    data = {
-        'sample_id': ['S1', 'S2'],
-        'metabolic_status': ['MetS', 'Control'],
-        'bmi': [31.0, 28.0]
-    }
-    df = pd.DataFrame(data)
-    
-    with tempfile.TemporaryDirectory() as tmpdir:
-        output_path = Path(tmpdir) / "baseline_labels.csv"
-        result_path = store_baseline_labels(df, output_path)
-        
-        assert result_path.exists()
-        assert result_path == output_path
-        
-        # Read back and verify content
-        loaded_df = pd.read_csv(result_path)
-        assert 'sample_id' in loaded_df.columns
-        assert 'metabolic_status' in loaded_df.columns
-        assert len(loaded_df) == 2
-        assert loaded_df.loc[loaded_df['sample_id'] == 'S1', 'metabolic_status'].values[0] == 'MetS'
+    for _, row in df.iterrows():
+        sid = row["sample_id"]
+        exp_label, exp_count = expected[sid]
+        assert row["label"] == exp_label
+        assert row["criteria_count"] == exp_count
+
+# -------------------------------------------------------------------------
+# Test – samples with missing data are excluded from both outputs
+# -------------------------------------------------------------------------
+def test_excludes_missing_data(monkeypatch):
+    """If any required column is NaN, the sample must not appear in outputs."""
+    # Create a phenotype where the second sample lacks HDL
+    df = _make_synthetic_phenotype()
+    df.loc[1, "hdl"] = float("nan")  # introduce missing value
+
+    # Patch loader to return this modified frame
+    from code.data import loader as loader_module
+
+    monkeypatch.setattr(loader_module, "load_gtex_phenotype_data", lambda: df)
+    monkeypatch.setattr(
+        loader_module, "verify_clinical_columns", lambda d, r: []
+    )
+
+    classify_metabolic_status()
+
+    # The excluded sample (S2) should be absent from both files
+    baseline = pd.read_csv(Path("data/processed/baseline_labels.csv"))
+    filtered = pd.read_csv(Path("data/processed/filtered_phenotype.csv"))
+
+    assert "S2" not in baseline["sample_id"].values
+    assert "S2" not in filtered["sample_id"].values
+
+# -------------------------------------------------------------------------
+# Test – boundary conditions (strict thresholds)
+# -------------------------------------------------------------------------
+def test_boundary_conditions(monkeypatch):
+    """
+    Verify that values exactly on the threshold are considered meeting the
+    criterion (e.g., BMI == 30, HDL == 50 is NOT a risk because HDL uses '<').
+    """
+    df = pd.DataFrame(
+        {
+            "sample_id": ["B1", "H1"],
+            "bmi": [30.0, 29.9],  # exactly at threshold -> meets
+            "fasting_glucose": [100.0, 99.9],
+            "triglycerides": [150.0, 149.9],
+            "hdl": [50.0, 50.1],  # 50.0 is NOT below threshold, 50.1 also not
+            "systolic_bp": [130.0, 129.9],
+            "diastolic_bp": [85.0, 84.9],
+        }
+    )
+
+    from code.data import loader as loader_module
+
+    monkeypatch.setattr(loader_module, "load_gtex_phenotype_data", lambda: df)
+    monkeypatch.setattr(
+        loader_module, "verify_clinical_columns", lambda d, r: []
+    )
+
+    classify_metabolic_status()
+
+    baseline = pd.read_csv(Path("data/processed/baseline_labels.csv"))
+    # B1 meets all 5 criteria (BMI, Glucose, TG, BP systolic, BP diastolic) -> MetS
+    # H1 meets none -> Control
+    label_map = dict(zip(baseline["sample_id"], baseline["label"]))
+    assert label_map["B1"] == "MetS"
+    assert label_map["H1"] == "Control"

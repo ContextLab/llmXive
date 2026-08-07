@@ -1,0 +1,1020 @@
+- artifact_path: projects/PROJ-110-investigating-the-correlation-between-ci/specs/001-investigating-the-correlation-between-ci/tasks.md
+  attempts: 1
+  canonical: List of core circadian genes includes PER1, PER2, PER3, CRY1, CRY2, BMAL1,
+    CLOCK, NR1D1, and RORA
+  claim_id: c_fb451c1b
+  context: "Define the core circadian gene list constant in code/data/config.py. Content:\
+    \ List of core clock genes with specific isoforms: PER1, PER2, PER3, CRY1, CRY2,\
+    \ BMAL1 (ARNTL), CLOCK, NR1D1, RORA (mapped from spec's ROR\u03B1)."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/List_of_core_circadian_genes_includes_PER1,_PER2,_PER3,_CRY1
+  kind: entity_fact
+  raw_text: "List of core clock genes with specific isoforms: PER1, PER2, PER3, CRY1,\
+    \ CRY2, BMAL1 (ARNTL), CLOCK, NR1D1, RORA (mapped from spec's ROR\u03B1)."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T14:38:33Z'
+- artifact_path: projects/PROJ-110-investigating-the-correlation-between-ci/specs/001-investigating-the-correlation-between-ci/tasks.md
+  attempts: 1
+  canonical: Reproducibility utility sets global seed to 42
+  claim_id: c_654932ac
+  context: "Add a reproducibility utility code/utils/random_seed.py that sets a global\
+    \ NumPy, Python, and scikit\u2011learn seed from a config entry (random_seed:\
+    \ 42)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "sets a global NumPy, Python, and scikit\u2011learn seed from a config\
+    \ entry (random_seed: 42)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T14:38:43Z'
+- artifact_path: projects/PROJ-110-investigating-the-correlation-between-ci/specs/001-investigating-the-correlation-between-ci/tasks.md
+  attempts: 1
+  canonical: GTEx v8 dataset used for RNA-seq and phenotype data
+  claim_id: c_2df9e6b7
+  context: Use datasets.load_dataset(..., streaming=True) to peek at the schema of
+    the GTEx v8 dataset (without downloading the full file).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/GTEx_v8_dataset_used_for_RNA-seq_and_phenotype_data
+  kind: entity_fact
+  raw_text: GTEx v8 dataset
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T14:39:20Z'
+- artifact_path: projects/PROJ-110-investigating-the-correlation-between-ci/specs/001-investigating-the-correlation-between-ci/tasks.md
+  attempts: 1
+  canonical: Expected effect size for power analysis is Cohen's d of 0.5
+  claim_id: c_d1b973e1
+  context: Perform formal power analysis based on expected effect size (Cohen's d
+    = 0.5), alpha = 0.05, and observed N.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Cohen's d = 0.5
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T14:41:16Z'
+- artifact_path: projects/PROJ-110-investigating-the-correlation-between-ci/specs/001-investigating-the-correlation-between-ci/tasks.md
+  attempts: 1
+  canonical: Alpha level for power analysis is 0.05
+  claim_id: c_38c95fa1
+  context: Perform formal power analysis based on expected effect size (Cohen's d
+    = 0.5), alpha = 0.05, and observed N.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: alpha = 0.05
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T14:41:35Z'
+- artifact_path: projects/PROJ-110-investigating-the-correlation-between-ci/specs/001-investigating-the-correlation-between-ci/tasks.md
+  attempts: 1
+  canonical: Study considered exploratory if power is below 0.8 or sample size is
+    below 100
+  claim_id: c_d0ad7678
+  context: "Constraint: If Power < 0.8 (N < 100): DO NOT attempt to fetch TCGA data\
+    \ (per FR\u2011001)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Power < 0.8 (N < 100)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T14:41:35Z'
+- artifact_path: projects/PROJ-110-investigating-the-correlation-between-ci/specs/001-investigating-the-correlation-between-ci/tasks.md
+  attempts: 1
+  canonical: Metabolic syndrome classified as meeting 3 or more of 5 ATP-III criteria
+  claim_id: c_c0220489
+  context: "Implement classify_metabolic_status in code/data/classifier.py applying\
+    \ strict ATP\u2011III thresholds (\u22653 of 5)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "ATP\u2011III criteria (\u22653 of 5)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T14:41:35Z'
+- artifact_path: projects/PROJ-110-investigating-the-correlation-between-ci/specs/001-investigating-the-correlation-between-ci/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis varies ATP-III thresholds by 5 percent
+  claim_id: c_90095980
+  context: "Implement run_sensitivity_analysis in code/main.py to vary ATP\u2011III\
+    \ thresholds by \xB15 % (SC\u2011005)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "vary ATP\u2011III thresholds by \xB15 %"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T14:41:59Z'
+- artifact_path: projects/PROJ-110-investigating-the-correlation-between-ci/specs/001-investigating-the-correlation-between-ci/tasks.md
+  attempts: 1
+  canonical: Tissues with fewer than 20 samples per group are excluded from analysis
+  claim_id: c_4b80f645
+  context: Implement filter_underpowered_tissues in code/analysis/differential.py
+    to exclude tissues with <20 samples per group.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Tissues_with_fewer_than_20_samples_per_group_are_excluded_fr
+  kind: magnitude
+  raw_text: exclude tissues with <20 samples per group
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T14:42:35Z'
+- artifact_path: projects/PROJ-110-investigating-the-correlation-between-ci/specs/001-investigating-the-correlation-between-ci/tasks.md
+  attempts: 1
+  canonical: Shapiro-Wilk test used to select correlation method
+  claim_id: c_c8c2e9e9
+  context: "Perform Shapiro\u2011Wilk test on the distribution of the variables (gene\
+    \ expression and continuous trait) for each gene\u2011trait pair."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Shapiro-Wilk_test_used_to_select_correlation_method
+  kind: entity_fact
+  raw_text: "Shapiro\u2011Wilk test on the distribution of the variables"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T14:43:17Z'
+- artifact_path: projects/PROJ-110-investigating-the-correlation-between-ci/specs/001-investigating-the-correlation-between-ci/tasks.md
+  attempts: 1
+  canonical: Benjamini-Hochberg procedure applied to differential expression p-values
+  claim_id: c_68d60a8a
+  context: "Implement apply_fdr_correction in code/analysis/differential.py using\
+    \ Benjamini\u2011Hochberg procedure on DE p-values only."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Benjamini-Hochberg_procedure_applied_to_differential_express
+  kind: entity_fact
+  raw_text: "Benjamini\u2011Hochberg procedure on DE p-values only"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T14:43:49Z'
+- artifact_path: projects/PROJ-110-investigating-the-correlation-between-ci/specs/001-investigating-the-correlation-between-ci/tasks.md
+  attempts: 1
+  canonical: Independent Benjamini-Hochberg FDR applied to correlation p-values
+  claim_id: c_e2b5736f
+  context: "Implement apply_correlation_fdr in code/analysis/correlation.py to apply\
+    \ independent Benjamini\u2011Hochberg FDR to correlation p-values."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Independent_Benjamini-Hochberg_FDR_applied_to_correlation_p-
+  kind: entity_fact
+  raw_text: "independent Benjamini\u2011Hochberg FDR to correlation p-values"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T14:44:09Z'
+- artifact_path: projects/PROJ-110-investigating-the-correlation-between-ci/specs/001-investigating-the-correlation-between-ci/tasks.md
+  attempts: 1
+  canonical: Mean AUC reported with 95 percent confidence intervals
+  claim_id: c_dda02489
+  context: "Implement run_cross_validation in code/analysis/modeling.py performing\
+    \ k\u2011fold CV and calculating mean AUC with 95 % confidence intervals."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 95 % confidence intervals
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T14:45:31Z'
+- artifact_path: projects/PROJ-110-investigating-the-correlation-between-ci/specs/001-investigating-the-correlation-between-ci/tasks.md
+  attempts: 1
+  canonical: Significant DE and correlation genes defined by FDR less than 0.05
+  claim_id: c_ebf50e0b
+  context: "Extend docs/report.md to include a table of significant DE genes (FDR\
+    \ < 0.05) to satisfy SC\u2011002, and a table of significant correlations (FDR\
+    \ < 0.05) to satisfy SC\u2011004."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Significant_DE_and_correlation_genes_defined_by_FDR_less_tha
+  kind: magnitude
+  raw_text: FDR < 0.05
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T14:45:57Z'
+- artifact_path: projects/PROJ-110-investigating-the-correlation-between-ci/specs/001-investigating-the-correlation-between-ci/tasks.md
+  attempts: 1
+  canonical: GTEx v8 dataset includes bmi, fasting_glucose, triglycerides, hdl, systolic_bp,
+    diastolic_bp, pmi, time_of_death columns
+  claim_id: c_d5317741
+  context: 'Implement inspect_gtex_schema to verify variable presence BEFORE downloading.
+    Verification checks for the presence of required columns: bmi, fasting_glucose,
+    triglycerides, hdl, systolic_bp, diastolic_bp, pmi, time_of_death.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/GTEx_v8_dataset_includes_bmi,_fasting_glucose,_triglycerides
+  kind: entity_fact
+  raw_text: 'GTEx v8 dataset contains the columns: bmi, fasting_glucose, triglycerides,
+    hdl, systolic_bp, diastolic_bp, pmi, time_of_death.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T14:48:49Z'
+- artifact_path: projects/PROJ-110-investigating-the-correlation-between-ci/specs/001-investigating-the-correlation-between-ci/tasks.md
+  attempts: 1
+  canonical: core circadian genes PER1 PER2 PER3 CRY1 CRY2 BMAL1 CLOCK NR1D1 RORA
+  claim_id: c_ea48fa62
+  context: 'Define the core circadian gene list constant. Content: List of core clock
+    genes with specific isoforms: PER1, PER2, PER3, CRY1, CRY2, BMAL1 (ARNTL), CLOCK,
+    NR1D1, RORA.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Core_circadian_genes_PER1_PER2_PER3_CRY1_CRY2_BMAL1_CLOCK_NR
+  kind: entity_fact
+  raw_text: The core circadian gene list consists of PER1, PER2, PER3, CRY1, CRY2,
+    BMAL1 (ARNTL), CLOCK, NR1D1, and RORA.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T14:49:23Z'
+- artifact_path: projects/PROJ-110-investigating-the-correlation-between-ci/specs/001-investigating-the-correlation-between-ci/tasks.md
+  attempts: 1
+  canonical: Core circadian genes PER1 PER2 PER3 CRY1 CRY2 BMAL1 CLOCK NR1D1 RORA
+  claim_id: c_4c893afc
+  context: T012 defines the core circadian gene list constant used throughout the
+    analysis.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Core_circadian_genes_PER1_PER2_PER3_CRY1_CRY2_BMAL1_CLOCK_NR
+  kind: entity_fact
+  raw_text: 'List of core clock genes with specific isoforms: PER1, PER2, PER3, CRY1,
+    CRY2, BMAL1 (ARNTL), CLOCK, NR1D1, RORA.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T14:50:03Z'
+- artifact_path: projects/PROJ-110-investigating-the-correlation-between-ci/specs/001-investigating-the-correlation-between-ci/tasks.md
+  attempts: 1
+  canonical: GTEx v8 dataset required columns bmi fasting_glucose triglycerides hdl
+    systolic_bp diastolic_bp pmi time_of_death
+  claim_id: c_23863f5f
+  context: T009a verifies the presence of these columns in the GTEx v8 dataset before
+    downloading.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/GTEx_v8_dataset_required_columns_bmi_fasting_glucose_triglyc
+  kind: entity_fact
+  raw_text: 'Required columns: bmi, fasting_glucose, triglycerides, hdl, systolic_bp,
+    diastolic_bp, pmi, time_of_death.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T14:50:25Z'
+- artifact_path: projects/PROJ-110-investigating-the-correlation-between-ci/specs/001-investigating-the-correlation-between-ci/tasks.md
+  attempts: 1
+  canonical: "ATP-III classification requires \u22653 of 5 criteria"
+  claim_id: c_7e5129ce
+  context: "T014 implements the metabolic syndrome classification based on ATP\u2011\
+    III criteria."
+  evidence:
+    entailment_evidence: "ATP-III classification requires \u22653 of 5 criteria"
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/ATP-III_classification_requires_%E2%89%A53_of_5_criteria
+  kind: magnitude
+  raw_text: "Classification applies strict ATP\u2011III thresholds requiring at least\
+    \ 3 of 5 criteria."
+  resolved_value: "ATP-III classification requires \u22653 of 5 criteria"
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-07T14:50:28Z'
+- artifact_path: projects/PROJ-110-investigating-the-correlation-between-ci/specs/001-investigating-the-correlation-between-ci/tasks.md
+  attempts: 1
+  canonical: Exclude tissues with <20 samples per group
+  claim_id: c_9e95687c
+  context: T024b filters out underpowered tissues before differential expression testing.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exclude_tissues_with_%3C20_samples_per_group
+  kind: magnitude
+  raw_text: Exclude tissues with fewer than 20 samples per group.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T14:51:09Z'
+- artifact_path: projects/PROJ-110-investigating-the-correlation-between-ci/specs/001-investigating-the-correlation-between-ci/tasks.md
+  attempts: 1
+  canonical: Global Benjamini-Hochberg FDR across all gene-trait pairs
+  claim_id: c_e5398c65
+  context: T050 aggregates all correlation p-values before applying the correction.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Global_Benjamini-Hochberg_FDR_across_all_gene-trait_pairs
+  kind: entity_fact
+  raw_text: "Apply Benjamini-Hochberg FDR correction globally across all gene\u2011\
+    trait pairs."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T14:51:33Z'
+- artifact_path: projects/PROJ-110-investigating-the-correlation-between-ci/specs/001-investigating-the-correlation-between-ci/tasks.md
+  attempts: 1
+  canonical: VIF > 5 flags collinearity
+  claim_id: c_49aac20c
+  context: T038 calculates VIF for predictors and flags those exceeding the threshold.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Flag collinearity issues if VIF > 5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T14:51:33Z'
+- artifact_path: projects/PROJ-110-investigating-the-correlation-between-ci/specs/001-investigating-the-correlation-between-ci/tasks.md
+  attempts: 1
+  canonical: Random classifier baseline AUC 0.5
+  claim_id: c_af7e5cd8
+  context: T059 reports the AUC of a random classifier as a benchmark in the final
+    report.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Baseline random classifier reference AUC = 0.5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T14:51:57Z'
+- artifact_path: projects/PROJ-110-investigating-the-correlation-between-ci/specs/001-investigating-the-correlation-between-ci/tasks.md
+  attempts: 1
+  canonical: Core circadian gene list includes PER1, PER2, PER3, CRY1, CRY2, BMAL1,
+    CLOCK, NR1D1, RORA
+  claim_id: c_8662fdeb
+  context: Define the core circadian gene list constant in code/data/config.py as
+    part of the foundational tasks.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Core_circadian_gene_list_includes_PER1,_PER2,_PER3,_CRY1,_CR
+  kind: entity_fact
+  raw_text: "List of core clock genes with specific isoforms: PER1, PER2, PER3, CRY1,\
+    \ CRY2, BMAL1 (ARNTL), CLOCK, NR1D1, RORA (mapped from spec's ROR\u03B1)."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T14:52:21Z'
+- artifact_path: projects/PROJ-110-investigating-the-correlation-between-ci/specs/001-investigating-the-correlation-between-ci/tasks.md
+  attempts: 1
+  canonical: core circadian gene list includes PER1 PER2 PER3 CRY1 CRY2 BMAL1 ARNTL
+    CLOCK NR1D1 RORA
+  claim_id: c_9997d6f1
+  context: 'Define the core circadian gene list constant in code/data/config.py. Content:
+    List of core clock genes with specific isoforms...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Core_circadian_gene_list_includes_PER1_PER2_PER3_CRY1_CRY2_B
+  kind: entity_fact
+  raw_text: 'List of core clock genes with specific isoforms: PER1, PER2, PER3, CRY1,
+    CRY2, BMAL1 (ARNTL), CLOCK, NR1D1, RORA'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T14:52:45Z'
+- artifact_path: projects/PROJ-110-investigating-the-correlation-between-ci/specs/001-investigating-the-correlation-between-ci/tasks.md
+  attempts: 1
+  canonical: metabolic syndrome classification requires at least three of five ATP-III
+    criteria
+  claim_id: c_fe99a82d
+  context: "Implement classify_metabolic_status in code/data/classifier.py applying\
+    \ strict ATP\u2011III thresholds (\u22653 of 5). Logic: Classify donors as \"\
+    MetS\" or \"Control\" based on BMI, Glucose, BP, TG, HDL."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Metabolic_syndrome_classification_requires_at_least_three_of
+  kind: magnitude
+  raw_text: "Classify donors as 'MetS' or 'Control' based on ATP\u2011III criteria,\
+    \ requiring \u22653 of the 5 clinical variables (BMI, Glucose, BP, TG, HDL)"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T14:53:12Z'
+- artifact_path: projects/PROJ-110-investigating-the-correlation-between-ci/specs/001-investigating-the-correlation-between-ci/tasks.md
+  attempts: 1
+  canonical: core circadian gene list includes PER1 PER2 PER3 CRY1 CRY2 BMAL1 CLOCK
+    NR1D1 RORA
+  claim_id: c_b8fe4ebf
+  context: Defined in task T012 as the core circadian gene list constant in code/data/config.py.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Core_circadian_gene_list_includes_PER1_PER2_PER3_CRY1_CRY2_B
+  kind: entity_fact
+  raw_text: 'List of core clock genes with specific isoforms: PER1, PER2, PER3, CRY1,
+    CRY2, BMAL1 (ARNTL), CLOCK, NR1D1, RORA.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T14:53:42Z'
+- artifact_path: projects/PROJ-110-investigating-the-correlation-between-ci/specs/001-investigating-the-correlation-between-ci/tasks.md
+  attempts: 1
+  canonical: GTEx v8 dataset contains columns bmi, fasting_glucose, triglycerides,
+    hdl, systolic_bp, diastolic_bp, pmi, time_of_death
+  claim_id: c_6132a3e1
+  context: The schema inspection task verifies that the GTEx v8 dataset includes these
+    clinical columns before downloading.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/GTEx_v8_dataset_contains_columns_bmi,_fasting_glucose,_trigl
+  kind: entity_fact
+  raw_text: 'Check for the presence of required columns: `bmi`, `fasting_glucose`,
+    `triglycerides`, `hdl`, `systolic_bp`, `diastolic_bp`, `pmi`, `time_of_death`.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T14:55:12Z'
+- artifact_path: projects/PROJ-110-investigating-the-correlation-between-ci/specs/001-investigating-the-correlation-between-ci/tasks.md
+  attempts: 1
+  canonical: Core circadian gene list includes PER1, PER2, PER3, CRY1, CRY2, BMAL1,
+    CLOCK, NR1D1, RORA
+  claim_id: c_5f975747
+  context: The core circadian gene list constant defines the set of genes used for
+    downstream analysis.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Core_circadian_gene_list_includes_PER1,_PER2,_PER3,_CRY1,_CR
+  kind: entity_fact
+  raw_text: "List of core clock genes with specific isoforms: `PER1`, `PER2`, `PER3`,\
+    \ `CRY1`, `CRY2`, `BMAL1` (ARNTL), `CLOCK`, `NR1D1`, `RORA` (mapped from spec's\
+    \ `ROR\u03B1`)."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T14:55:14Z'
+- artifact_path: projects/PROJ-110-investigating-the-correlation-between-ci/specs/001-investigating-the-correlation-between-ci/tasks.md
+  attempts: 1
+  canonical: core circadian gene list includes PER1 PER2 PER3 CRY1 CRY2 BMAL1 CLOCK
+    NR1D1 RORA
+  claim_id: c_fb160eb6
+  context: Defined in T012 as the constant CORE_CIRCADIAN_GENES accessible to the
+    loader.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Core_circadian_gene_list_includes_PER1_PER2_PER3_CRY1_CRY2_B
+  kind: entity_fact
+  raw_text: The core circadian gene list constant includes PER1, PER2, PER3, CRY1,
+    CRY2, BMAL1 (ARNTL), CLOCK, NR1D1, and RORA.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T14:56:09Z'
+- artifact_path: projects/PROJ-110-investigating-the-correlation-between-ci/specs/001-investigating-the-correlation-between-ci/tasks.md
+  attempts: 1
+  canonical: "ATP-III metabolic syndrome classification requires \u22653 of 5 components"
+  claim_id: c_edd2a3e7
+  context: Implemented in T014 for classifying GTEx donors based on BMI, Glucose,
+    BP, TG, HDL.
+  evidence:
+    entailment_evidence: "ATP-III metabolic syndrome classification requires \u2265\
+      3 of 5 c"
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/ATP-III_metabolic_syndrome_classification_requires_%E2%89%A53_of_5_c
+  kind: magnitude
+  raw_text: "Metabolic syndrome is classified using ATP\u2011III criteria when at\
+    \ least three of the five components are met."
+  resolved_value: "ATP-III metabolic syndrome classification requires \u22653 of 5\
+    \ components"
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-07T14:56:11Z'
+- artifact_path: projects/PROJ-110-investigating-the-correlation-between-ci/specs/001-investigating-the-correlation-between-ci/tasks.md
+  attempts: 1
+  canonical: GTEx v8 dataset includes bmi fasting_glucose triglycerides hdl systolic_bp
+    diastolic_bp pmi time_of_death columns
+  claim_id: c_a393ea85
+  context: Verified during schema inspection in T009a before downloading the dataset.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/GTEx_v8_dataset_includes_bmi_fasting_glucose_triglycerides_h
+  kind: entity_fact
+  raw_text: The GTEx v8 dataset contains the columns bmi, fasting_glucose, triglycerides,
+    hdl, systolic_bp, diastolic_bp, pmi, and time_of_death.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T14:56:14Z'
+- artifact_path: projects/PROJ-110-investigating-the-correlation-between-ci/specs/001-investigating-the-correlation-between-ci/tasks.md
+  attempts: 1
+  canonical: global Benjamini-Hochberg FDR correction applied to correlation p-values
+  claim_id: c_1825501a
+  context: Implemented in T050 after computing raw p-values in T029.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Global_Benjamini-Hochberg_FDR_correction_applied_to_correlat
+  kind: entity_fact
+  raw_text: "Correlation analysis applies a global Benjamini\u2011Hochberg FDR correction\
+    \ across all gene\u2011trait p\u2011values."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T14:56:38Z'
+- artifact_path: projects/PROJ-110-investigating-the-correlation-between-ci/specs/001-investigating-the-correlation-between-ci/tasks.md
+  attempts: 1
+  canonical: global Benjamini-Hochberg FDR correction applied to differential expression
+    p-values
+  claim_id: c_d62ab2a4
+  context: Implemented in T026 after Wilcoxon tests in T025.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Global_Benjamini-Hochberg_FDR_correction_applied_to_differen
+  kind: entity_fact
+  raw_text: "Differential expression analysis applies a global Benjamini\u2011Hochberg\
+    \ FDR correction across all tissues' p\u2011values."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T14:57:02Z'
+- artifact_path: projects/PROJ-110-investigating-the-correlation-between-ci/specs/001-investigating-the-correlation-between-ci/tasks.md
+  attempts: 1
+  canonical: random classifier AUC equals 0.5
+  claim_id: c_66da9c6a
+  context: Referenced in the reporting section T059 as baseline for model performance.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: A random classifier has an AUC of 0.5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T14:57:28Z'
+- artifact_path: projects/PROJ-110-investigating-the-correlation-between-ci/specs/001-investigating-the-correlation-between-ci/tasks.md
+  attempts: 1
+  canonical: global random seed set to 42 for reproducibility
+  claim_id: c_e3338633
+  context: Added in T053 to guarantee deterministic results across scripts.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The reproducibility utility sets a global random seed of 42 for NumPy,\
+    \ Python, and scikit\u2011learn."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T14:57:45Z'
+- artifact_path: projects/PROJ-110-investigating-the-correlation-between-ci/specs/001-investigating-the-correlation-between-ci/tasks.md
+  attempts: 1
+  canonical: core circadian gene list includes PER1 PER2 PER3 CRY1 CRY2 BMAL1 ARNTL
+    CLOCK NR1D1 RORA
+  claim_id: c_fd46889b
+  context: 'T012 defines the core circadian gene list constant in code/data/config.py.
+    Content: List of core clock genes with specific isoforms: PER1, PER2, PER3, CRY1,
+    CRY2, BMAL1 (ARNTL), CLOCK, NR1D1, RORA.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Core_circadian_gene_list_includes_PER1_PER2_PER3_CRY1_CRY2_B
+  kind: entity_fact
+  raw_text: "List of core clock genes with specific isoforms: PER1, PER2, PER3, CRY1,\
+    \ CRY2, BMAL1 (ARNTL), CLOCK, NR1D1, RORA (mapped from spec's ROR\u03B1)."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T14:58:05Z'
+- artifact_path: projects/PROJ-110-investigating-the-correlation-between-ci/specs/001-investigating-the-correlation-between-ci/tasks.md
+  attempts: 1
+  canonical: core circadian gene list includes PER1 PER2 PER3 CRY1 CRY2 BMAL1 ARNTL
+    CLOCK NR1D1 RORA
+  claim_id: c_e974ae81
+  context: T012 defines the core circadian gene list constant in code/data/config.py.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Core_circadian_gene_list_includes_PER1_PER2_PER3_CRY1_CRY2_B
+  kind: entity_fact
+  raw_text: Define the core circadian gene list constant includes PER1, PER2, PER3,
+    CRY1, CRY2, BMAL1 (ARNTL), CLOCK, NR1D1, RORA.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T14:59:36Z'
+- artifact_path: projects/PROJ-110-investigating-the-correlation-between-ci/specs/001-investigating-the-correlation-between-ci/tasks.md
+  attempts: 1
+  canonical: GTEx v8 dataset includes bmi, fasting_glucose, triglycerides, hdl, systolic_bp,
+    diastolic_bp, pmi, time_of_death columns
+  claim_id: c_d78dedcc
+  context: T009a inspects GTEx v8 schema to verify presence of required columns before
+    downloading.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/GTEx_v8_dataset_includes_bmi,_fasting_glucose,_triglycerides
+  kind: entity_fact
+  raw_text: GTEx v8 dataset must contain columns bmi, fasting_glucose, triglycerides,
+    hdl, systolic_bp, diastolic_bp, pmi, time_of_death.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T14:59:57Z'
+- artifact_path: projects/PROJ-110-investigating-the-correlation-between-ci/specs/001-investigating-the-correlation-between-ci/tasks.md
+  attempts: 1
+  canonical: "MetS classification uses ATP-III criteria with \u22653 of 5 thresholds"
+  claim_id: c_a2813bec
+  context: "T014 implements classify_metabolic_status applying strict ATP\u2011III\
+    \ thresholds (\u22653 of 5)."
+  evidence:
+    entailment_evidence: "MetS classification uses ATP-III criteria with \u22653 of\
+      \ 5 thres"
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/MetS_classification_uses_ATP-III_criteria_with_%E2%89%A53_of_5_thres
+  kind: magnitude
+  raw_text: "Metabolic syndrome status is classified using ATP\u2011III criteria,\
+    \ requiring at least three of five clinical thresholds to be met."
+  resolved_value: "MetS classification uses ATP-III criteria with \u22653 of 5 thresholds"
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-07T14:59:59Z'
+- artifact_path: projects/PROJ-110-investigating-the-correlation-between-ci/specs/001-investigating-the-correlation-between-ci/tasks.md
+  attempts: 1
+  canonical: core circadian gene list includes PER1 PER2 PER3 CRY1 CRY2 BMAL1 CLOCK
+    NR1D1 RORA
+  claim_id: c_7f0f4e20
+  context: Phase 2 foundational task T012 defines the core circadian gene list constant
+    in code/data/config.py.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Core_circadian_gene_list_includes_PER1_PER2_PER3_CRY1_CRY2_B
+  kind: entity_fact
+  raw_text: "List of core clock genes with specific isoforms: PER1, PER2, PER3, CRY1,\
+    \ CRY2, BMAL1 (ARNTL), CLOCK, NR1D1, RORA (mapped from spec's ROR\u03B1)."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T15:01:40Z'
+- artifact_path: projects/PROJ-110-investigating-the-correlation-between-ci/specs/001-investigating-the-correlation-between-ci/tasks.md
+  attempts: 1
+  canonical: core circadian gene list includes PER1 PER2 PER3 CRY1 CRY2 BMAL1 CLOCK
+    NR1D1 RORA
+  claim_id: c_76966452
+  context: T012 defines the core circadian gene list constant in code/data/config.py
+    with the specified genes.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Core_circadian_gene_list_includes_PER1_PER2_PER3_CRY1_CRY2_B
+  kind: entity_fact
+  raw_text: The core circadian gene list constant includes PER1, PER2, PER3, CRY1,
+    CRY2, BMAL1 (ARNTL), CLOCK, NR1D1, and RORA.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T15:02:43Z'
+- artifact_path: projects/PROJ-110-investigating-the-correlation-between-ci/specs/001-investigating-the-correlation-between-ci/tasks.md
+  attempts: 1
+  canonical: GTEx v8 dataset includes bmi fasting_glucose triglycerides hdl systolic_bp
+    diastolic_bp pmi time_of_death columns
+  claim_id: c_46b0e7fd
+  context: T009a inspects the GTEx v8 schema and verifies the presence of these required
+    columns before downloading.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/GTEx_v8_dataset_includes_bmi_fasting_glucose_triglycerides_h
+  kind: entity_fact
+  raw_text: The GTEx v8 dataset contains the columns bmi, fasting_glucose, triglycerides,
+    hdl, systolic_bp, diastolic_bp, pmi, and time_of_death.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T15:02:45Z'
+- artifact_path: projects/PROJ-110-investigating-the-correlation-between-ci/specs/001-investigating-the-correlation-between-ci/tasks.md
+  attempts: 1
+  canonical: exclude tissues with <20 samples per group from differential expression
+    analysis
+  claim_id: c_5cf55e45
+  context: T024b implements filter_underpowered_tissues to exclude tissues where the
+    count per group is less than 20.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/exclude_tissues_with_%3C20_samples_per_group_from_differential
+  kind: magnitude
+  raw_text: Tissues with fewer than 20 samples per group are excluded from differential
+    expression analysis.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T15:03:29Z'
+- artifact_path: projects/PROJ-110-investigating-the-correlation-between-ci/specs/001-investigating-the-correlation-between-ci/tasks.md
+  attempts: 1
+  canonical: GTEx v8 dataset contains bmi, fasting_glucose, triglycerides, hdl, systolic_bp,
+    diastolic_bp, pmi, time_of_death columns
+  claim_id: c_66fff99f
+  context: T009a implements schema inspection to verify required columns in the GTEx
+    v8 dataset.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/GTEx_v8_dataset_contains_bmi,_fasting_glucose,_triglycerides
+  kind: entity_fact
+  raw_text: The GTEx v8 dataset includes the columns bmi, fasting_glucose, triglycerides,
+    hdl, systolic_bp, diastolic_bp, pmi, and time_of_death.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T15:04:29Z'
+- artifact_path: projects/PROJ-110-investigating-the-correlation-between-ci/specs/001-investigating-the-correlation-between-ci/tasks.md
+  attempts: 1
+  canonical: core circadian gene list includes PER1 PER2 PER3 CRY1 CRY2 BMAL1 CLOCK
+    NR1D1 RORA
+  claim_id: c_6b03157b
+  context: T012 defines the core circadian gene list constant in code/data/config.py.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Core_circadian_gene_list_includes_PER1_PER2_PER3_CRY1_CRY2_B
+  kind: entity_fact
+  raw_text: The core circadian gene list consists of PER1, PER2, PER3, CRY1, CRY2,
+    BMAL1 (ARNTL), CLOCK, NR1D1, and RORA.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T15:04:31Z'
+- artifact_path: projects/PROJ-110-investigating-the-correlation-between-ci/specs/001-investigating-the-correlation-between-ci/tasks.md
+  attempts: 1
+  canonical: ATP-III classification requires at least three of five criteria for MetS
+  claim_id: c_c8e8ba5f
+  context: "T014 implements classify_metabolic_status applying strict ATP\u2011III\
+    \ thresholds (\u22653 of 5)."
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts:
+      - channel: wikipedia
+        source_id: Metabolic syndrome
+        url: https://en.wikipedia.org/wiki/Metabolic_syndrome
+        value: at least three
+      quote: 'disease diagnosed by a cluster of at least 3 out of the following conditions:
+        abdominal obesity, high blood pressure, high blood sugar, high serum triglycerides,
+        low serum high-density lipoprotein'
+      source_id: Q657193
+      url: https://www.wikidata.org/wiki/Q657193
+      value: at least 3
+    filled: true
+  kind: magnitude
+  raw_text: "Metabolic syndrome is classified using strict ATP\u2011III thresholds,\
+    \ requiring at least three of five criteria (BMI, Glucose, BP, TG, HDL)."
+  resolved_value: at least 3
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-07T15:04:51Z'
+- artifact_path: projects/PROJ-110-investigating-the-correlation-between-ci/specs/001-investigating-the-correlation-between-ci/tasks.md
+  attempts: 1
+  canonical: "sensitivity analysis varies ATP-III thresholds by \xB15%"
+  claim_id: c_e0d7e6f2
+  context: "T042 runs sensitivity analysis varying ATP\u2011III thresholds by \xB1\
+    5\u202F%."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Sensitivity analysis varies ATP\u2011III thresholds by plus or minus\
+    \ 5 percent."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T15:05:12Z'
+- artifact_path: projects/PROJ-110-investigating-the-correlation-between-ci/specs/001-investigating-the-correlation-between-ci/tasks.md
+  attempts: 1
+  canonical: exclude tissues with <20 samples per group
+  claim_id: c_6c0586bd
+  context: T024b filters underpowered tissues, excluding those with <20 samples per
+    group.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/exclude_tissues_with_%3C20_samples_per_group
+  kind: magnitude
+  raw_text: Tissues with fewer than 20 samples per group are excluded from differential
+    expression analysis.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T15:05:12Z'
+- artifact_path: projects/PROJ-110-investigating-the-correlation-between-ci/specs/001-investigating-the-correlation-between-ci/tasks.md
+  attempts: 1
+  canonical: use Pearson if Shapiro-Wilk p > 0.05 else Spearman
+  claim_id: c_42e05aeb
+  context: "T028 selects correlation method based on Shapiro\u2011Wilk test results."
+  evidence:
+    asserted: '0.05'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: "Pearson correlation is used when the Shapiro\u2011Wilk test p-value is\
+    \ greater than 0.05; otherwise Spearman correlation is used."
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-07T15:05:12Z'
+- artifact_path: projects/PROJ-110-investigating-the-correlation-between-ci/specs/001-investigating-the-correlation-between-ci/tasks.md
+  attempts: 1
+  canonical: random classifier AUC = 0.5
+  claim_id: c_c306c3c9
+  context: "T059 reports baseline random\u2011classifier reference (AUC\u202F=\u202F\
+    0.5) in the final report."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: A random classifier has an area under the curve (AUC) of 0.5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T15:05:37Z'
+- artifact_path: projects/PROJ-110-investigating-the-correlation-between-ci/specs/001-investigating-the-correlation-between-ci/tasks.md
+  attempts: 1
+  canonical: core circadian genes PER1 PER2 PER3 CRY1 CRY2 BMAL1 CLOCK NR1D1 RORA
+  claim_id: c_4d4eb46d
+  context: Task T012 defines the core circadian gene list constant in code/data/config.py.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Core_circadian_genes_PER1_PER2_PER3_CRY1_CRY2_BMAL1_CLOCK_NR
+  kind: entity_fact
+  raw_text: 'List of core clock genes with specific isoforms: PER1, PER2, PER3, CRY1,
+    CRY2, BMAL1 (ARNTL), CLOCK, NR1D1, RORA'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T15:06:07Z'
+- artifact_path: projects/PROJ-110-investigating-the-correlation-between-ci/specs/001-investigating-the-correlation-between-ci/tasks.md
+  attempts: 1
+  canonical: GTEx v8 dataset contains columns bmi fasting_glucose triglycerides hdl
+    systolic_bp diastolic_bp pmi time_of_death
+  claim_id: c_eb66eddd
+  context: Implemented schema inspection to verify required columns before downloading
+    GTEx v8 data.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/GTEx_v8_dataset_contains_columns_bmi_fasting_glucose_triglyc
+  kind: entity_fact
+  raw_text: The GTEx v8 dataset includes the columns bmi, fasting_glucose, triglycerides,
+    hdl, systolic_bp, diastolic_bp, pmi, and time_of_death.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T15:07:40Z'
+- artifact_path: projects/PROJ-110-investigating-the-correlation-between-ci/specs/001-investigating-the-correlation-between-ci/tasks.md
+  attempts: 1
+  canonical: core circadian gene list includes PER1 PER2 PER3 CRY1 CRY2 BMAL1 CLOCK
+    NR1D1 RORA
+  claim_id: c_99a4d981
+  context: Defined the core circadian gene list constant used for filtering expression
+    data.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Core_circadian_gene_list_includes_PER1_PER2_PER3_CRY1_CRY2_B
+  kind: entity_fact
+  raw_text: The core circadian gene list includes PER1, PER2, PER3, CRY1, CRY2, BMAL1
+    (ARNTL), CLOCK, NR1D1, and RORA.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T15:08:16Z'
