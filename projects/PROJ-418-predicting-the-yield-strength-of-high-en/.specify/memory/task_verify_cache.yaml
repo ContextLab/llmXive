@@ -32,3 +32,10 @@ T032b:
     formatted is present; the provided information contains only the task description
     and feature specification, with no formatted files, logs, or diff showing that
     `black` was applied. The required artifact (formatted Python code) is missing.
+T112:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No updated\u202FREADME.md was provided; there is no evidence that the file now\
+    \ contains an explicit \u201CUser\u2011Provided Dataset\u201D requirement description\
+    \ nor the exact error message shown when the file is missing. The required documentation\
+    \ is therefore missing."

@@ -1,8 +1,15 @@
 status: none
-intent: Materials Project HEA yield strength dataset download python package dataset
+intent: High Entropy Alloy yield strength dataset Materials Project AFLOW HEA-DB python
+  package dataset
 required_fields:
+- alloy_id
 - composition
 - yield_strength
-cache_key: a3d7ef4ad1a69d308c3c54bd4c04a746f421f94e95ee680285dd00f0a6e8feb1
-searched_at: '2026-07-31T02:09:42.413360+00:00'
+- mixing_entropy
+- atomic_size_mismatch_delta
+- electronegativity_difference_delta_chi
+- valence_electron_concentration_VEC
+- melting_temperature_variance
+cache_key: 3dbeed794719f1711e71417b9c6ff4be145a0746bee917f071b2748567c4aaeb
+searched_at: '2026-08-07T15:25:02.648057+00:00'
 retry_count: 1

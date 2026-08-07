@@ -1,45 +1,45 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Model Metrics Schema"
 description: "Schema for the model evaluation metrics output"
-type: "object"
+type: object
 properties:
   RF:
-    type: "object"
+    type: object
     properties:
       R2:
-        type: "number"
+        type: number
       MAE:
-        type: "number"
+        type: number
       RMSE:
-        type: "number"
+        type: number
       cv_mean:
-        type: "number"
+        type: number
       cv_std:
-        type: "number"
+        type: number
     required: [R2, MAE, RMSE, cv_mean, cv_std]
   GB:
-    type: "object"
+    type: object
     properties:
       R2:
-        type: "number"
+        type: number
       MAE:
-        type: "number"
+        type: number
       RMSE:
-        type: "number"
+        type: number
       cv_mean:
-        type: "number"
+        type: number
       cv_std:
-        type: "number"
+        type: number
     required: [R2, MAE, RMSE, cv_mean, cv_std]
   Linear:
-    type: "object"
+    type: object
     properties:
       R2:
-        type: "number"
+        type: number
       MAE:
-        type: "number"
+        type: number
       RMSE:
-        type: "number"
+        type: number
     required: [R2, MAE, RMSE]
 required:
   - RF

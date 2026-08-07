@@ -43,7 +43,7 @@ properties:
               type: object
               additionalProperties:
                 type: number
-              description: "P-values after multiple-comparison correction."
+              description: "P-values after multiple‑comparison correction."
             significant_descriptors:
               type: array
               items:

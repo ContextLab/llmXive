@@ -1,65 +1,57 @@
-# Quickstart: Predicting Yield Strength of High‑Entropy Alloys
+# Quickstart: Predicting HEA Yield Strength
 
-Follow these steps to reproduce the full analysis on a fresh GitHub Actions runner (or locally on Linux/macOS).
+These instructions assume you are running on a fresh GitHub Actions runner or a local Linux environment with **Python 3.11** and **git** installed.
 
-## 1. Clone the Repository
+## 1. Clone the repository
 ```bash
-git clone https://github.com/your-org/PROJ-418-predicting-the-yield-strength-of-high-en.git
-cd PROJ-418-predicting-the-yield-strength-of-high-en
+git clone
+cd heas-yield-predictor
 ```
 
-## 2. Set Up the Python Environment
+## 2. Set up the Python environment
 ```bash
-python -m venv .venv
-source .venv/bin/activate
-pip install -r code/requirements.txt
+python -m venv.venv
+source.venv/bin/activate
+pip install -r requirements.txt
 ```
 
-## 3. Verify Dataset Availability
-The pipeline will attempt to download the open HEA yield‑strength dataset (see `research.md`). **If a verified dataset cannot be fetched**, the script will abort with a clear error and the rest of the pipeline will not run. No manual download is required beyond this step.
+## 3. Provide the curated dataset
+Place the curated CSV (matching `contracts/dataset.schema.yaml`) at:
 
-## 4. Run the Full Pipeline
-```bash
-python code/run_pipeline.py
 ```
-`run_pipeline.py` orchestrates the following stages (see `plan.md` for mapping):
-1. `download_data.py` – downloads **and validates** the raw dataset against `contracts/dataset.schema.yaml`.  
-2. `compute_descriptors.py` – computes descriptors, validates elemental properties (`contracts/elemental_properties.schema.yaml`), and validates the merged composition (`contracts/hea_composition.schema.yaml`).  
-3. `train_model.py` – performs hyper‑parameter grid search and fits the final RandomForest.  
-4. `validate_cv.py` – outer k‑fold cross‑validation.  
-5. `bootstrap_ci.py` – bootstrap confidence intervals.  
-6. `perm_importance.py` – permutation importance with exactly 1000 permutations and Benjamini‑Hochberg FDR correction.  
-7. `shap_analysis.py` – Kernel SHAP on a representative set of samples (≤ 200).  
-8. `generate_report.py` – assembles `reports/report.md` with all metrics, CI, importance plots, and the conditional “Data Limitation Warning”.
-
-All intermediate artefacts are stored under `data/` and checksummed automatically.
-
-## 5. Inspect the Results
-- The final report is at `reports/report.md`.  
-- Figures are in `data/figures/` (permutation importance, SHAP summary).  
-- Checksums are listed in `state/projects/PROJ-418-predicting-the-yield-strength-of-high-en.yaml`.
-
-## 6. Run the Test Suite
-```bash
-pytest -q
-```
-The suite validates:
-- Schema compliance for all contracts (including the newly added elemental and HEA‑composition schemas).  
-- Reproducibility (fixed seeds, deterministic outputs).  
-- Success criteria (R² ≥ 0.6, CI width ≤ 0.1, etc.).
-
-## 7. (Optional) Re‑run with a Subsample
-If you wish to execute faster (e.g., for debugging), set `MAX_SAMPLES` in `code/config.yaml` to a lower number; the pipeline will respect this limit while still using 1000 permutations for importance.
-
-## 8. Clean Up
-```bash
-deactivate
-rm -rf .venv
+data/raw/heas_raw.csv
 ```
 
-All steps are fully automated; no manual intervention is required after cloning the repository.
+If you do not have the file, the pipeline will abort with a clear error (FR‑009).
+
+## 4. Run the full pipeline
+```bash
+python -m src.cli run \
+ --data data/raw/heas_raw.csv \
+ --elemental data/elemental_properties.csv \
+ --output-dir outputs/
+```
+
+The command performs:
+1. Validation of inputs (FR‑013, FR‑009).
+2. Descriptor computation (FR‑002).
+3. Train‑test split, Random Forest training (FR‑003).
+4. k‑fold cross‑validation and bootstrap confidence intervals (SC‑001, SC‑002).
+5. Permutation importance with many permutations (FR‑005, FR‑012) and t‑tests (FR‑006).
+6. Manifest generation (FR‑007) and markdown report creation (FR‑008).
+
+## 5. Inspect results
+- `outputs/report.md` – full analysis, performance metrics, top‑stable features, runtime summary.
+- `outputs/manifest.json` – reproducibility record.
+- `outputs/model.joblib` – trained model (can be loaded with `joblib.load`).
+
+## 6. Run the test suite (optional)
+```bash
+pytest -vv
+```
+All contract‑validation tests must pass; lint warnings must be ≤ 5 (SC‑008).
+
+## 7. Re‑run for stability check
+Execute the pipeline three times (e.g., via a loop) and compare the top feature rankings. The maximum rank difference must be ≤ 1 (SC‑006). The quickstart script `scripts/stability_check.sh` automates this.
 
 ---
-
-
-

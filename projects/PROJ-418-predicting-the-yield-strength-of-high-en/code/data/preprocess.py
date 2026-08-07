@@ -13,6 +13,7 @@ def preprocess_data(df: pd.DataFrame) -> pd.DataFrame:
     1. Single-phase alloys (based on phase column or heuristic)
     2. Room temperature measurements (20-25°C)
     3. Removes rows with missing yield strength values.
+    4. Removes duplicate rows based on composition and yield strength.
     
     Args:
         df: Raw DataFrame.
@@ -87,6 +88,42 @@ def preprocess_data(df: pd.DataFrame) -> pd.DataFrame:
         logger.info(f"Filtered to {len(df)} single-phase rows")
     else:
         logger.warning("No phase column found. Skipping phase filter.")
+    
+    # 4. Remove Duplicate Rows
+    # Define the columns to consider for duplication: composition columns + yield strength
+    # Composition columns are typically those with element symbols (e.g., 'Fe', 'Co', 'Ni')
+    # or a specific 'composition' string column if present.
+    # We will assume that numeric columns representing elemental fractions are the composition.
+    # Additionally, we include the yield strength column to ensure we don't drop distinct
+    # measurements of the same alloy if they have different YS.
+    
+    # Identify composition columns: numeric columns that are not 'yield_strength', 'temperature', etc.
+    exclude_dup_cols = [ys_col, 'temperature', 'temp', 'test_temp', 'temperature_celsius', 'phase', 'phase_type', 'microstructure', 'unit']
+    composition_cols = [col for col in df.columns if col not in exclude_dup_cols and pd.api.types.is_numeric_dtype(df[col])]
+    
+    # If no specific composition columns are found, we might rely on all columns except metadata
+    # But typically, HEA datasets have specific element columns.
+    # If composition_cols is empty, we might need a different strategy, but for now:
+    if not composition_cols:
+        logger.warning("No numeric composition columns found for duplicate detection. Skipping duplicate removal.")
+    else:
+        # Columns to check for duplicates: composition columns + yield strength
+        dup_check_cols = composition_cols + [ys_col]
+        
+        # Ensure all these columns exist
+        existing_dup_cols = [col for col in dup_check_cols if col in df.columns]
+        
+        if len(existing_dup_cols) < len(dup_check_cols):
+            logger.warning(f"Some columns for duplicate check missing: {set(dup_check_cols) - set(existing_dup_cols)}. Proceeding with available: {existing_dup_cols}")
+        
+        if existing_dup_cols:
+            initial_dup_count = len(df)
+            # Drop duplicates based on the selected columns
+            df = df.drop_duplicates(subset=existing_dup_cols)
+            removed_dup_count = initial_dup_count - len(df)
+            logger.info(f"Removed {removed_dup_count} duplicate rows based on composition and yield strength.")
+        else:
+            logger.warning("No columns available for duplicate detection.")
     
     logger.info(f"Preprocessing complete. Remaining rows: {len(df)}")
     return df

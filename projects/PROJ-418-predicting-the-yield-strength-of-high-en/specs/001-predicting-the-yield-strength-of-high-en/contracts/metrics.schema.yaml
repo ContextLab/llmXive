@@ -35,7 +35,7 @@ properties:
         type: object
         additionalProperties:
           type: number
-          description: "Multiple-comparison corrected p-values (Bonferroni k=5)."
+          description: "Multiple‑comparison corrected p-values (Bonferroni k=5)."
       bootstrap_ci:
         type: object
         properties:

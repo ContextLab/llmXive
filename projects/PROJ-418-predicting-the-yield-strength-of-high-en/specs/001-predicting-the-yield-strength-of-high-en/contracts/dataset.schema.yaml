@@ -1,49 +1,25 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "HEA Dataset Schema"
-description: "Schema for the processed HEA dataset with compositional descriptors."
-type: "object"
-properties:
-  composition:
-    type: "object"
-    additionalProperties:
-      type: "number"
-      minimum: 0
-      maximum: 1
-    description: "Atomic fractions of elements in the alloy."
-  yield_strength_mpa:
-    type: "number"
-    minimum: 0
-    description: "Yield strength in MPa."
-  phase:
-    type: "string"
-    enum: ["Single-phase", "BCC", "FCC", "HCP", "Multi-phase"]
-    description: "Phase structure of the alloy."
-  testing_temp_c:
-    type: "number"
-    description: "Testing temperature in Celsius."
-  delta:
-    type: "number"
-    description: "Atomic size mismatch."
-  delta_chi:
-    type: "number"
-    description: "Electronegativity variance."
-  vec:
-    type: "number"
-    description: "Valence electron concentration."
-  mixing_entropy:
-    type: "number"
-    description: "Mixing entropy."
-  delta_tm:
-    type: "number"
-    description: "Melting temperature variance."
+title: "HEA Yield‑Strength Dataset"
+type: object
 required:
+  - alloy_id
   - composition
-  - yield_strength_mpa
-  - phase
-  - testing_temp_c
-  - delta
-  - delta_chi
-  - vec
-  - mixing_entropy
-  - delta_tm
-additionalProperties: false
+  - yield_strength
+properties:
+  alloy_id:
+    type: string
+    description: "Unique identifier for the alloy sample."
+  composition:
+    type: object
+    description: "Elemental fractions; keys are element symbols (e.g., \"Fe\", \"Co\")."
+    patternProperties:
+      "^[A-Z][a-z]?$":
+        type: number
+        minimum: 0
+        maximum: 1
+    additionalProperties: false
+    minProperties: 1
+  yield_strength:
+    type: number
+    description: "Experimental yield strength in MPa."
+    minimum: 0

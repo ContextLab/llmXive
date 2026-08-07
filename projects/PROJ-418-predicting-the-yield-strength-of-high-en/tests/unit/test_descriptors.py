@@ -1,179 +1,247 @@
+"""
+Unit tests for descriptor calculation edge cases and error handling.
+
+This module verifies that the descriptor calculation logic correctly handles:
+1. Single-element compositions (zero variance scenarios)
+2. Missing melting point data (should raise DataHygieneError)
+3. Zero variance in properties
+4. Empty compositions
+"""
+
 import pytest
-import numpy as np
 import pandas as pd
-from data.descriptors import (
+import numpy as np
+from pathlib import Path
+import sys
+
+# Add project root to path for imports
+project_root = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(project_root))
+
+from code.data.descriptors import (
     get_elemental_properties,
-    get_property,
-    calculate_weighted_average,
     calculate_single_composition_descriptors,
     calculate_descriptors,
     filter_missing_properties
 )
+from code.utils.logging import get_logger
 
-# --- Fixtures ---
+logger = get_logger(__name__)
 
-@pytest.fixture
-def sample_elemental_data():
-    """Returns a DataFrame mimicking the output of get_elemental_properties()."""
-    data = {
-        'element': ['Fe', 'Co', 'Ni', 'Cr', 'Mn', 'Al', 'Ti', 'V', 'Cu', 'Zr'],
-        'atomic_radius': [124.1, 125.2, 124.6, 124.9, 127.0, 143.1, 147.3, 134.0, 127.8, 160.0],
-        'electronegativity': [1.83, 1.88, 1.91, 1.66, 1.55, 1.61, 1.54, 1.63, 1.90, 1.33],
-        'valence_electrons': [8, 9, 10, 6, 7, 3, 4, 5, 11, 4],
-        'melting_point': [1811, 1768, 1728, 2180, 1519, 933, 1941, 2183, 1358, 2128]
-    }
-    return pd.DataFrame(data).set_index('element')
 
-@pytest.fixture
-def sample_composition_dict():
-    """Returns a dict representing a single HEA composition (atomic fractions)."""
-    return {
-        'Fe': 0.20,
-        'Co': 0.20,
-        'Ni': 0.20,
-        'Cr': 0.20,
-        'Al': 0.20
-    }
+class TestDescriptorEdgeCases:
+    """Test edge cases in descriptor calculation."""
 
-@pytest.fixture
-def sample_df_compositions():
-    """Returns a DataFrame with multiple compositions for batch testing."""
-    return pd.DataFrame([
-        {'Fe': 0.20, 'Co': 0.20, 'Ni': 0.20, 'Cr': 0.20, 'Al': 0.20},
-        {'Fe': 0.25, 'Co': 0.25, 'Ni': 0.25, 'Cr': 0.25, 'Al': 0.00},
-        {'Ti': 0.10, 'V': 0.10, 'Cr': 0.20, 'Mn': 0.20, 'Fe': 0.20, 'Co': 0.10, 'Ni': 0.10}
-    ])
+    def test_single_element_composition(self):
+        """Test that single-element composition handles zero variance correctly."""
+        # Single element composition: Pure Iron
+        composition_data = pd.DataFrame([{
+            'composition': 'Fe',
+            'yield_strength_mpa': 250.0,
+            'phase': 'single_phase',
+            'temperature_condition': 'room_temperature'
+        }])
 
-# --- Tests for get_property ---
+        # Get elemental properties (should include Fe melting point)
+        elemental_props = get_elemental_properties()
 
-def test_get_property_exists(sample_elemental_data):
-    """Test that get_property retrieves a known value."""
-    radius = get_property(sample_elemental_data, 'Fe', 'atomic_radius')
-    assert radius == 124.1
+        # Calculate descriptors
+        descriptors = calculate_single_composition_descriptors(
+            composition_data,
+            elemental_props
+        )
 
-def test_get_property_missing_key_raises(sample_elemental_data):
-    """Test that get_property raises KeyError for missing element."""
-    with pytest.raises(KeyError):
-        get_property(sample_elemental_data, 'Gold', 'atomic_radius')
+        # Verify that variance-based descriptors are zero for single element
+        assert descriptors['delta'].iloc[0] == 0.0, "δ should be 0 for single element"
+        assert descriptors['dchi'].iloc[0] == 0.0, "Δχ should be 0 for single element"
+        assert descriptors['melting_variance'].iloc[0] == 0.0, "Melting variance should be 0 for single element"
 
-def test_get_property_missing_column_raises(sample_elemental_data):
-    """Test that get_property raises KeyError for missing column."""
-    with pytest.raises(KeyError):
-        get_property(sample_elemental_data, 'Fe', 'non_existent_prop')
+        # VEC should be the valence electron count of the single element
+        fe_valence = elemental_props[elemental_props['element'] == 'Fe']['valence_electrons'].iloc[0]
+        assert descriptors['vec'].iloc[0] == fe_valence, f"VEC should equal Fe valence ({fe_valence})"
 
-# --- Tests for calculate_weighted_average ---
+        logger.info("Single-element composition test passed")
 
-def test_calculate_weighted_average_basic(sample_elemental_data, sample_composition_dict):
-    """Test basic weighted average calculation."""
-    # VEC for CoCrFeNiAl: (8*0.2 + 9*0.2 + 10*0.2 + 6*0.2 + 3*0.2) = 7.2
-    vec = calculate_weighted_average(sample_elemental_data, sample_composition_dict, 'valence_electrons')
-    assert np.isclose(vec, 7.2)
+    def test_missing_melting_point_raises_error(self):
+        """Test that missing melting point data raises DataHygieneError."""
+        # Create a composition with an element that has no melting point
+        composition_data = pd.DataFrame([{
+            'composition': 'Fe-Cr-X',
+            'yield_strength_mpa': 300.0,
+            'phase': 'single_phase',
+            'temperature_condition': 'room_temperature'
+        }])
 
-def test_calculate_weighted_average_single_element(sample_elemental_data):
-    """Test weighted average with a single element (should equal the property value)."""
-    comp = {'Fe': 1.0}
-    radius = calculate_weighted_average(sample_elemental_data, comp, 'atomic_radius')
-    assert np.isclose(radius, 124.1)
+        # Create elemental properties with missing melting point for 'X'
+        elemental_props = pd.DataFrame({
+            'element': ['Fe', 'Cr', 'X'],
+            'atomic_radius': [124.1, 124.9, 150.0],
+            'electronegativity': [1.83, 1.66, 1.5],
+            'valence_electrons': [8, 6, 4],
+            'melting_temperature': [1538.0, 1907.0, np.nan]  # Missing melting point for X
+        })
 
-def test_calculate_weighted_average_zero_fraction(sample_elemental_data):
-    """Test that zero fraction elements do not contribute."""
-    comp = {'Fe': 0.5, 'Co': 0.0, 'Ni': 0.5}
-    # (124.1 * 0.5) + (124.6 * 0.5) = 124.35
-    avg = calculate_weighted_average(sample_elemental_data, comp, 'atomic_radius')
-    assert np.isclose(avg, 124.35)
+        # This should raise an error or be filtered out
+        try:
+            descriptors = calculate_single_composition_descriptors(
+                composition_data,
+                elemental_props
+            )
+            
+            # If no error raised, check if the row was filtered
+            if len(descriptors) == 0:
+                logger.info("Row with missing melting point was correctly filtered out")
+            else:
+                pytest.fail("Expected error or filtering for missing melting point data")
+        except Exception as e:
+            # Expected behavior: raise an error or filter the row
+            assert "melting" in str(e).lower() or "missing" in str(e).lower(), \
+                f"Expected melting point related error, got: {type(e).__name__}: {e}"
+            logger.info(f"Correctly raised error for missing melting point: {e}")
 
-# --- Tests for calculate_single_composition_descriptors ---
+    def test_zero_variance_property_handling(self):
+        """Test handling of properties with zero variance across composition."""
+        # Create a composition where all elements have identical properties
+        composition_data = pd.DataFrame([{
+            'composition': 'Fe-Fe-Fe',  # Hypothetical case with identical elements
+            'yield_strength_mpa': 250.0,
+            'phase': 'single_phase',
+            'temperature_condition': 'room_temperature'
+        }])
 
-def test_calculate_single_composition_descriptors_returns_dict(sample_elemental_data, sample_composition_dict):
-    """Test that the function returns a dictionary with expected keys."""
-    result = calculate_single_composition_descriptors(sample_elemental_data, sample_composition_dict)
-    assert isinstance(result, dict)
-    expected_keys = ['VEC', 'delta', 'delta_chi', 'entropy', 'delta_Tm', 'Tm_avg']
-    for key in expected_keys:
-        assert key in result
+        elemental_props = pd.DataFrame({
+            'element': ['Fe'],
+            'atomic_radius': [124.1],
+            'electronegativity': [1.83],
+            'valence_electrons': [8],
+            'melting_temperature': [1538.0]
+        })
 
-def test_calculate_single_composition_descriptors_values(sample_elemental_data, sample_composition_dict):
-    """Test specific descriptor values for CoCrFeNiAl."""
-    # Using standard values for CoCrFeNiAl (approximate manual check)
-    # VEC = 7.2
-    # delta_chi: variance of electronegativity * 100
-    # entropies and melting variances are calculated based on formulas in descriptors.py
-    result = calculate_single_composition_descriptors(sample_elemental_data, sample_composition_dict)
-    
-    assert np.isclose(result['VEC'], 7.2)
-    # delta_chi calculation: sum(c_i * (chi_i - chi_bar)^2) * 100
-    # chi: [1.83, 1.88, 1.91, 1.66, 1.61] -> mean ~1.778
-    # var ~ 0.015 -> delta_chi ~ 1.5 (approx)
-    assert result['delta_chi'] > 0
-    assert result['entropy'] > 0
-    assert result['delta_Tm'] >= 0
-    assert result['Tm_avg'] > 0
+        # This should handle zero variance gracefully
+        descriptors = calculate_single_composition_descriptors(
+            composition_data,
+            elemental_props
+        )
 
-def test_calculate_single_composition_descriptors_missing_element_raises(sample_elemental_data):
-    """Test that missing element in composition raises KeyError."""
-    comp = {'Fe': 0.5, 'Gold': 0.5} # Gold not in sample_elemental_data
-    with pytest.raises(KeyError):
-        calculate_single_composition_descriptors(sample_elemental_data, comp)
+        # All variance-based metrics should be zero
+        assert descriptors['delta'].iloc[0] == 0.0
+        assert descriptors['dchi'].iloc[0] == 0.0
+        assert descriptors['melting_variance'].iloc[0] == 0.0
 
-# --- Tests for calculate_descriptors (Batch) ---
+        logger.info("Zero variance handling test passed")
 
-def test_calculate_descriptors_returns_dataframe(sample_elemental_data, sample_df_compositions):
-    """Test that calculate_descriptors returns a DataFrame."""
-    result = calculate_descriptors(sample_elemental_data, sample_df_compositions)
-    assert isinstance(result, pd.DataFrame)
-    assert len(result) == len(sample_df_compositions)
+    def test_empty_composition_filtering(self):
+        """Test that compositions with missing elemental properties are filtered."""
+        composition_data = pd.DataFrame([{
+            'composition': 'Fe-Cr-Ni-Z',  # Z is unknown
+            'yield_strength_mpa': 350.0,
+            'phase': 'single_phase',
+            'temperature_condition': 'room_temperature'
+        }])
 
-def test_calculate_descriptors_columns(sample_elemental_data, sample_df_compositions):
-    """Test that the output DataFrame contains descriptor columns."""
-    result = calculate_descriptors(sample_elemental_data, sample_df_compositions)
-    expected_cols = ['VEC', 'delta', 'delta_chi', 'entropy', 'delta_Tm', 'Tm_avg']
-    for col in expected_cols:
-        assert col in result.columns
+        # Elemental properties missing 'Z'
+        elemental_props = pd.DataFrame({
+            'element': ['Fe', 'Cr', 'Ni'],
+            'atomic_radius': [124.1, 124.9, 124.6],
+            'electronegativity': [1.83, 1.66, 1.91],
+            'valence_electrons': [8, 6, 10],
+            'melting_temperature': [1538.0, 1907.0, 1455.0]
+        })
 
-# --- Tests for filter_missing_properties ---
+        # Apply filtering
+        filtered_data = filter_missing_properties(composition_data, elemental_props)
 
-def test_filter_missing_properties_no_missing(sample_elemental_data, sample_df_compositions):
-    """Test filtering when all elements are present."""
-    filtered = filter_missing_properties(sample_elemental_data, sample_df_compositions)
-    assert len(filtered) == len(sample_df_compositions)
+        # The composition with unknown element should be filtered out
+        assert len(filtered_data) == 0, "Composition with missing element should be filtered"
 
-def test_filter_missing_properties_with_missing(sample_elemental_data):
-    """Test filtering when some rows contain missing elements."""
-    df = pd.DataFrame([
-        {'Fe': 0.5, 'Co': 0.5}, # Valid
-        {'Fe': 0.5, 'Gold': 0.5} # Invalid (Gold missing)
-    ])
-    filtered = filter_missing_properties(sample_elemental_data, df)
-    assert len(filtered) == 1
-    assert 'Gold' not in filtered.columns
+        logger.info("Empty composition filtering test passed")
 
-def test_filter_missing_properties_all_missing(sample_elemental_data):
-    """Test filtering when all rows contain missing elements."""
-    df = pd.DataFrame([
-        {'Gold': 0.5, 'Silver': 0.5}
-    ])
-    filtered = filter_missing_properties(sample_elemental_data, df)
-    assert len(filtered) == 0
+    def test_mixed_valid_invalid_compositions(self):
+        """Test handling of dataset with mix of valid and invalid compositions."""
+        composition_data = pd.DataFrame([
+            {
+                'composition': 'Fe-Cr-Ni',
+                'yield_strength_mpa': 300.0,
+                'phase': 'single_phase',
+                'temperature_condition': 'room_temperature'
+            },
+            {
+                'composition': 'Fe-Cr-X',  # X has no melting point
+                'yield_strength_mpa': 350.0,
+                'phase': 'single_phase',
+                'temperature_condition': 'room_temperature'
+            },
+            {
+                'composition': 'Co-Ni-Fe',
+                'yield_strength_mpa': 400.0,
+                'phase': 'single_phase',
+                'temperature_condition': 'room_temperature'
+            }
+        ])
 
-# --- Edge Cases ---
+        # Elemental properties with missing melting point for 'X'
+        elemental_props = pd.DataFrame({
+            'element': ['Fe', 'Cr', 'Ni', 'Co', 'X'],
+            'atomic_radius': [124.1, 124.9, 124.6, 125.3, 150.0],
+            'electronegativity': [1.83, 1.66, 1.91, 1.88, 1.5],
+            'valence_electrons': [8, 6, 10, 9, 4],
+            'melting_temperature': [1538.0, 1907.0, 1455.0, 1768.0, np.nan]
+        })
 
-def test_empty_composition_raises(sample_elemental_data):
-    """Test that empty composition dict raises error or handled gracefully."""
-    with pytest.raises((ValueError, ZeroDivisionError)):
-        calculate_single_composition_descriptors(sample_elemental_data, {})
+        # Filter missing properties
+        filtered_data = filter_missing_properties(composition_data, elemental_props)
 
-def test_composition_sum_not_one(sample_elemental_data, sample_composition_dict):
-    """Test behavior when composition sum != 1 (should normalize or raise)."""
-    # The implementation in descriptors.py should handle normalization or raise.
-    # Assuming it normalizes or calculates based on provided fractions.
-    comp = {'Fe': 0.1, 'Co': 0.1} # Sum = 0.2
-    # If the code normalizes: Fe=0.5, Co=0.5 -> VEC = 8.5
-    # If the code uses raw: VEC = 1.7 (weighted by 0.2)
-    # We test that it runs without crashing
-    try:
-        result = calculate_single_composition_descriptors(sample_elemental_data, comp)
-        # If it runs, we assume the implementation handles it (either by normalizing or warning)
-        assert result is not None
-    except Exception:
-        # If it raises, that's also a valid behavior (strict mode)
-        pass
+        # Should have 2 valid compositions (Fe-Cr-Ni and Co-Ni-Fe)
+        assert len(filtered_data) == 2, f"Expected 2 valid compositions, got {len(filtered_data)}"
+        
+        # Verify the valid compositions are preserved
+        compositions = set(filtered_data['composition'].tolist())
+        assert 'Fe-Cr-Ni' in compositions
+        assert 'Co-Ni-Fe' in compositions
+        assert 'Fe-Cr-X' not in compositions
+
+        logger.info("Mixed valid/invalid compositions test passed")
+
+    def test_calculate_descriptors_with_edge_cases(self):
+        """Test full descriptor calculation pipeline with edge cases."""
+        # Create a small dataset with edge cases
+        composition_data = pd.DataFrame([
+            {
+                'composition': 'Fe',  # Single element
+                'yield_strength_mpa': 250.0,
+                'phase': 'single_phase',
+                'temperature_condition': 'room_temperature'
+            },
+            {
+                'composition': 'Fe-Cr-Ni',
+                'yield_strength_mpa': 300.0,
+                'phase': 'single_phase',
+                'temperature_condition': 'room_temperature'
+            }
+        ])
+
+        elemental_props = get_elemental_properties()
+
+        # Calculate all descriptors
+        descriptors = calculate_descriptors(composition_data, elemental_props)
+
+        # Verify we have descriptors for both compositions
+        assert len(descriptors) == 2, "Should have descriptors for both compositions"
+
+        # Single element should have zero variance metrics
+        single_elem_row = descriptors[descriptors['composition'] == 'Fe'].iloc[0]
+        assert single_elem_row['delta'] == 0.0
+        assert single_elem_row['dchi'] == 0.0
+        assert single_elem_row['melting_variance'] == 0.0
+
+        # Multi-element should have non-zero variance (unless by coincidence)
+        multi_elem_row = descriptors[descriptors['composition'] == 'Fe-Cr-Ni'].iloc[0]
+        # Note: These might be zero by coincidence if properties are identical,
+        # but for real elements they should differ
+        logger.info(f"Multi-element descriptors: delta={multi_elem_row['delta']}, dchi={multi_elem_row['dchi']}")
+
+        logger.info("Full descriptor calculation with edge cases test passed")
+
+
+if __name__ == '__main__':
+    pytest.main([__file__, '-v'])

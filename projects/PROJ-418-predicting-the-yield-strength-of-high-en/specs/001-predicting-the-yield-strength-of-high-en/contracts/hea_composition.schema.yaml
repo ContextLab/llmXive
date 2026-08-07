@@ -1,71 +1,71 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "HEA Composition and Descriptor Schema"
 description: "Schema for the processed HEA dataset including compositional descriptors."
-type: "object"
+type: object
 required:
-  - "composition_id"
-  - "elements"
-  - "phase_structure"
-  - "testing_temperature"
-  - "yield_strength"
-  - "delta"
-  - "delta_chi"
-  - "vec"
-  - "mixing_entropy"
-  - "melting_variance"
+  - composition_id
+  - elements
+  - phase_structure
+  - testing_temperature
+  - yield_strength
+  - delta
+  - delta_chi
+  - vec
+  - mixing_entropy
+  - melting_variance
 properties:
   composition_id:
-    type: "string"
+    type: string
     description: "Unique identifier for the alloy composition."
   elements:
-    type: "object"
+    type: object
     description: "Mapping of element symbols to atomic fractions."
     additionalProperties:
-      type: "number"
+      type: number
       minimum: 0
       maximum: 1
   phase_structure:
-    type: "string"
+    type: string
     description: "Phase structure of the alloy (e.g., 'Single-phase')."
   testing_temperature:
-    type: "number"
+    type: number
     description: "Testing temperature in Celsius."
   yield_strength:
-    type: "number"
+    type: number
     description: "Yield strength in MPa."
   delta:
-    type: "number"
+    type: number
     description: "Atomic size mismatch (δ)."
   delta_chi:
-    type: "number"
+    type: number
     description: "Electronegativity variance (Δχ)."
   vec:
-    type: "number"
+    type: number
     description: "Valence electron concentration (VEC)."
   mixing_entropy:
-    type: "number"
+    type: number
     description: "Configurational mixing entropy."
   melting_variance:
-    type: "number"
+    type: number
     description: "Variance of melting temperatures."
   vif_delta:
-    type: "number"
+    type: number
     description: "Variance Inflation Factor for delta."
   vif_delta_chi:
-    type: "number"
+    type: number
     description: "Variance Inflation Factor for delta_chi."
   vif_vec:
-    type: "number"
+    type: number
     description: "Variance Inflation Factor for vec."
   vif_entropy:
-    type: "number"
+    type: number
     description: "Variance Inflation Factor for mixing_entropy."
   vif_melting:
-    type: "number"
+    type: number
     description: "Variance Inflation Factor for melting_variance."
   source:
-    type: "string"
+    type: string
     description: "Source URL or DOI of the original data."
   disclaimer:
-    type: "string"
+    type: string
     const: "Associational analysis only; no causal inference"

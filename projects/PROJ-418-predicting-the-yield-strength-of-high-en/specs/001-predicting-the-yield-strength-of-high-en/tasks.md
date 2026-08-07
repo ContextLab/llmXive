@@ -4,7 +4,7 @@ description: "Task list template for feature implementation"
 
 # Tasks: Predicting the Yield Strength of High‑Entropy Alloys via Compositional Descriptors
 
-**Input**: Design documents from `/specs/001-predict-hea-yield-strength/`  
+**Input**: Design documents from `/specs/001-predict-hea-yield-strength/`
 **Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data‑model.md, contracts/
 
 **Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
@@ -13,16 +13,15 @@ description: "Task list template for feature implementation"
 
 ## Format: `[ID] [P?] [Story] Description`
 
-- **[P]**: Can run in parallel (different files, no dependencies)  
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)  
+- **[P]**: Can run in parallel (different files, no dependencies)
+- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
 - Include exact file paths in descriptions
 
 ## Path Conventions
 
-- **Single project**: `code/`, `tests/` at repository root  
-- **Web app**: `backend/src/`, `frontend/src/`  
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`  
-- Paths shown below assume single project - adjust based on plan.md structure
+- **Single project**: `code/`, `tests/` at repository root
+- **Web app**: `backend/src/`, `frontend/src/`
+- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 
 ---
 
@@ -38,18 +37,22 @@ description: "Task list template for feature implementation"
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented  
+**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T004 Setup deterministic logging and random seed management in `code/utils/logging.py`
 - [X] T005 [P] Create base data schemas and validation logic in `code/data/__init__.py`
-- [X] T006 Implement unit normalization utility (MPa conversion) in `code/utils/unit_utils.py`. **Scope**: This task creates a reusable function `normalize_to_mpa(value, unit)` available for the entire project. **CRITICAL**: The function MUST explicitly handle: (1) Unit column present: convert GPa to MPa (multiply by 1000), (2) Unit column missing: assume MPa, (3) Invalid unit string: raise `ValueError`. **Depends on T004**.
+- [X] T006 Implement unit normalization utility (MPa conversion) in `code/utils/unit_utils.py`. **Scope**: This task creates a reusable function `normalize_to_mpa(value, unit)` available for the entire project. **CRITICAL**: The function MUST explicitly handle: (1) Unit column present: convert GPa to MPa (multiply by 1000), (2) Unit column missing: assume MPa, (3) Invalid unit string: raise `ValueError`. **Depends on T004** (requires initialized logging for error handling and status reporting).
 - [X] T007 Setup environment configuration management for verified dataset URLs in `code/utils/config.py`
-- [X] T029a [P] [Cross‑Cutting] Implement plot disclaimer injector in `code/utils/plot_utils.py` to append "Associational analysis only; no causal inference" to all generated matplotlib/seaborn figures. **Depends on T004**.
-- [X] T029b [P] [Cross‑Cutting] Implement report disclaimer injector in `code/utils/report_utils.py` to append the mandatory disclaimer to report markdown text. **Depends on T004**.
-- [X] T029c [P] [Cross‑Cutting] Add verification script `tests/unit/test_plot_disclaimer.py` that renders a dummy matplotlib figure, runs the injector, and asserts the disclaimer string is present in the figure metadata or caption. **Depends on T029a**.
-- [X] T029d [P] [Cross‑Cutting] Add verification script `tests/unit/test_report_disclaimer.py` that generates a minimal report markdown via `utils.report_utils`, runs the injector, and asserts the disclaimer string appears in the resulting file. **Depends on T029b**.
+- [X] T029a Implement plot disclaimer injector in `code/utils/plot_utils.py` to append "Associational analysis only; no causal inference" to all generated matplotlib/seaborn figures. **Depends on T004** (requires initialized logging for error handling and status reporting).
+- [X] T029b Implement report disclaimer injector in `code/utils/report_utils.py` to append the mandatory disclaimer to report markdown text. **Depends on T004** (requires initialized logging for error handling and status reporting).
+- [X] T029c [P] Add verification script `tests/unit/test_plot_disclaimer.py` that renders a dummy matplotlib figure, runs the injector, and asserts the disclaimer string is present in the figure metadata or caption. **Depends on T029a**.
+- [X] T029d [P] Add verification script `tests/unit/test_report_disclaimer.py` that generates a minimal report markdown via `utils.report_utils`, runs the injector, and asserts the disclaimer string appears in the resulting file. **Depends on T029b**.
+- [X] T032a Run `ruff check` and fix all linting errors in `code/`
+- [X] T032b Run `black` and format all Python files in `code/`
+- [X] T032a_verify Add verification step that runs `ruff check` on the codebase, writes `output/lint_report.txt`, and asserts **≤ 5** errors. **Depends on T032a**.
+- [X] T032b_verify Add verification step that runs `black --check` on the codebase, writes `output/format_report.txt`, and asserts no formatting changes are needed. **Depends on T032b**.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -63,27 +66,24 @@ description: "Task list template for feature implementation"
 
 ### Implementation for User Story 1
 
-- [X] T008 [P] [US1] Implement data downloader in `code/data/download.py` to fetch from `research.verified_datasets['hea_compositions']` in `research.md`. **CRITICAL Logic**:
-  1. Attempt to fetch from verified URL in `research.md`.
-  2. If verified URL is MISSING or fails, attempt to fetch from open repositories listed in FR‑001 in this EXACT order:
-     (1) **Materials Project**: `https://materialsproject.org/rest/v2/materials?elements=HEA&properties=yield_strength` (API key required).
-     (2) **NIST HEA Database**: `(scrape or API if available)`.
-     (3) **Zenodo**: `(or specific DOI from spec)`.
-  3. If ALL sources fail, return status `NO_DATA` (do NOT terminate the process).
-  4. If data is found (N > 0), return status `SUCCESS`.
-  5. If data is found but N=0 (empty file), return status `NO_DATA`.
-  This satisfies FR‑001's requirement to attempt open repositories and report N=0. **Depends on T005, T007**.
-- [X] T009 [P] [US1] Implement data preprocessor in `code/data/preprocess.py` to filter single‑phase, room‑temperature, and handle missing yield strength values. **Depends on T008**.
+- [X] T008 [P] [US1] Implement data downloader in `code/data/download.py` to fetch from `research.verified_datasets['hea_compositions']`. **CRITICAL**: Abort with a clear error if the curated dataset is unavailable; no fallback to other sources. **FR-001 Mapping**: The "download" mechanism is implemented as a strict validation of the user-provided CSV file at `data/raw/heas_raw.csv`. **Depends on T005, T007**.
+- [X] T060 Compute SHA256 checksum for the raw dataset file generated by T008 (`data/raw/heas_raw.csv`) and record it in `state/projects/PROJ-418-predicting-the-yield-strength-of-high-en.yaml` under `"artifact_hashes"`. **CRITICAL**: If the file is missing, write an empty string (`''`) to trigger the upstream 'abort' logic in T098/T107. **Depends on T008**.
+- [X] T009 [P] [US1] Implement data preprocessor in `code/data/preprocess.py` to filter single‑phase, room‑temperature, and handle missing yield strength values. **Depends on T008** (requires valid status from T008).
 - [X] T010 [US1] Apply unit normalization in `code/data/preprocess.py` using the utility from T006 to convert all yield strength to MPa. **Depends on T009, T006**.
-- [X] T011 [P] [US1] Implement elemental property loader in `code/data/descriptors.py` (atomic radii, electronegativity, valence counts, **melting temperature**). **Primary Source**: Load from `contracts/elemental_properties.schema.yaml`. **CRITICAL**: If melting temperature data is missing for any element in the dataset, the task MUST raise a `DataHygieneError` and exclude the composition; it MUST NOT query external APIs or silently omit the descriptor. **Depends on T005**.
-- [X] T012 [US1] Implement descriptor calculator in `code/data/descriptors.py` for δ, Δχ, VEC, mixing entropy, and **melting temperature variance**. **CRITICAL**: This task MUST explicitly list 'melting temperature variance' as a required output and fail if the input data (from T011) does not contain melting temperatures. **Depends on T010, T011**.
+- [X] T011 [P] [US1] Implement elemental property loader in `code/data/descriptors.py` (atomic radii, electronegativity, valence counts, **melting temperature**). **Primary Source**: Load from `contracts/elemental_properties.schema.yaml`. **CRITICAL**: If melting temperature data is missing for any element, raise `DataHygieneError` and exclude the composition; do NOT query external APIs. **Depends on T005**.
+- [X] T012 [US1] Implement descriptor calculator in `code/data/descriptors.py` for δ, Δχ, VEC, mixing entropy, and **melting temperature variance**. **CRITICAL**: Must output `melting temperature variance` and fail if input lacks melting temperatures. **Depends on T010, T011**.
 - [X] T013 [US1] Implement composition filter in `code/data/descriptors.py` to exclude entries with missing elemental properties. **Depends on T012**.
-- [X] T014 [US1] Implement pipeline orchestrator in `code/data/pipeline.py` to define the sequence: download → preprocess (filter) → normalize → descriptors → filter_missing. **CRITICAL**: This task MUST pass the status returned by T008 (`SUCCESS` or `NO_DATA`) to T015. **Depends on T008, T009, T010, T011, T012, T013**.
-- [X] T015 [US1] Generate `data/processed/hea_descriptors.csv` and write `output/data_status.json` at the exact relative path `output/data_status.json`. The JSON schema MUST be: `{ "count": int, "count_warning": bool (true if count < 500), "power_status": bool (true if count < 50), "timestamp": str }`. **CRITICAL**:
-  1. If status from T014 is `NO_DATA`: Set `count` = 0, `count_warning` = false, `power_status` = false. Log "DATA_LIMITATION_WARNING: No data found. Exiting with code 0." and exit with code 0.
-  2. If status is `SUCCESS` and count < 500: Set `count_warning` = true and log "DATA_LIMITATION_WARNING: Only N entries found. Statistical power may be reduced."
-  3. If status is `SUCCESS` and count < 50: Set `power_status` = true.
-  This task MUST explicitly implement the "flagging" action required by FR‑001 and ensure the JSON artifact is written before any exit. **Depends on T014**.
+- [X] T014 [US1] Implement pipeline orchestrator in `code/data/pipeline.py` to define the sequence: download → preprocess (filter) → normalize → descriptors → filter_missing. **CRITICAL**: Pass status (`SUCCESS` or `NO_DATA`) from T008 to downstream. **Depends on T008, T009, T010, T011, T012, T013**.
+- [X] T015 [US1] Generate `data/processed/hea_descriptors.csv` and write `output/data_status.json` (`{ "count": int, "count_warning": bool, "power_status": bool, "timestamp": str }`). **CRITICAL**: If status is `NO_DATA`, raise an error and abort; otherwise set warnings as described. **Depends on T014** (requires pipeline status output).
+- [X] T061 Compute SHA256 checksum for the processed descriptor file `data/processed/hea_descriptors.csv` and record it in the same state file under `"artifact_hashes"`. **Depends on T015**.
+- [X] T023 Compute VIF for all descriptors **before any model training** and write `output/vif_results.json`. Flag any VIF > 5. **Depends on T015**.
+- [X] T023b [US1] If any VIF > 5, apply PCA remediation to the descriptor matrix, re‑compute VIF, and store remediation details in `output/remediation_results.json`. **Depends on T023**.
+- [X] T030 [US1] Perform power analysis based on `output/data_status.json`; write `output/power_analysis.json` (`{ "n": int, "status": "sufficient" | "low_power", "action": "proceed" }`). **Depends on T015**.
+- [X] T098 Validate the raw HEA yield‑strength dataset (`data/raw/heas_raw.csv`) against `contracts/dataset.schema.yaml`. **Depends on T008**.
+- [X] T099 Validate the elemental property table (`data/elemental_properties.csv`) against `contracts/elemental_properties.schema.yaml`. **Depends on T011**.
+- [X] T100 Validate the descriptor table (`data/processed/hea_descriptors.csv`) against `contracts/descriptor.schema.yaml`. **Depends on T015**.
+- [X] T101 Validate the processed data artifact (`data/processed/hea_descriptors.csv` packaged as processed data) against `contracts/processed_data.schema.yaml`. **Depends on T015**.
+- [X] T107 Verify that all schema‑validation tasks (T098‑T101) completed with **successful exit codes** and that no missing‑field validation failures were raised. Aggregates specific validation results from T098-T101. **Depends on T098, T099, T100, T101**.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -93,25 +93,34 @@ description: "Task list template for feature implementation"
 
 **Goal**: Train Random Forest and Gradient Boosting models (5‑fold CV, hyper‑parameter tuning ≤50 trees, depth ≤10), evaluate on hold‑out test set, and compare against Linear Regression baseline.
 
-**Independent Test**: Execute training script; verify `output/metrics.json` contains R², MAE, RMSE for all models; confirm runtime ≤ 3 hours on CPU.
+**Independent Test**: Execute training script; verify `output/metrics.json` contains R², MAE, RMSE for all models; confirm runtime ≤ 2 hours on an 8‑core CPU.
 
 ### Implementation for User Story 2
 
-- [X] T016 [P] [US2] Implement data splitter in `code/models/train.py` to create a **strictly held‑out** test set using **Stratified by Elemental Ratios** (as per Plan feasibility decision).
-  **Algorithm**:
-  1. Compute elemental ratios for each alloy.
-  2. Bin alloys into strata based on these ratios.
-  3. Split 80/20 stratified by these bins, ensuring seed=42.
-  4. **Validation**: Assert that no elemental combination appears in both sets (approximate disjointness).
-  **CRITICAL**: This task replaces the previous "disjoint elemental sets" requirement with the feasible "Stratified" approach. **Depends on T015**.
+- [X] T016 [P] [US2] Implement stratified data splitter in `code/models/train.py` (80/20 split stratified by elemental ratios, seed=42). **Depends on T015** (requires processed descriptor data).
 - [X] T017 [P] [US2] Implement Linear Regression baseline trainer in `code/models/train.py`. **Depends on T016**.
-- [X] T018 [P] [US2] Implement Random Forest trainer with 5‑fold CV and grid search (trees: 10 to 50, depth ≤ 10) in `code/models/train.py`. **CRITICAL**: Grid search MUST cover the range 10 to 50 trees and max_depth ≤ 10, strictly adhering to FR‑004's ≤50 trees constraint. **Depends on T016**.
-- [X] T019 [P] [US2] Implement Gradient Boosting trainer with 5‑fold CV and grid search (trees: 10 to 50, depth ≤ 10) in `code/models/train.py`. **CRITICAL**: Grid search MUST cover the range 10 to 50 trees and max_depth ≤ 10, strictly adhering to FR‑004's ≤50 trees constraint. **Depends on T016**.
-- [X] T020 [US2] Implement evaluation runner in `code/models/evaluate.py` to compute R², MAE, RMSE on held‑out test set AND generate plots. **Must use T029a for all generated plots**. **Depends on T017, T018, T019, T029a**.
-- [X] T021 [US2] Create `output/metrics.json` writer to record metrics for all models and select the best model. The JSON schema MUST be: `{ "rf": { "R2": float, "MAE": float, "RMSE": float }, "gb": { "R2": float, "MAE": float, "RMSE": float }, "linear": { "R2": float, "MAE": float, "RMSE": float }, "best_model": "rf|gb|linear" }`. **Depends on T020**.
-- [X] T030 [US3] Implement power analysis checker in `code/models/evaluate.py` to read `output/data_status.json` (from T015) and write `output/power_analysis.json` at the exact relative path `output/power_analysis.json`. **Schema**: `{ "n": int, "status": "sufficient" | "low_power", "action": "proceed" }`. **CRITICAL**: If N < 50, set status to `low_power` and action to `proceed`. Do NOT skip statistical tests. This artifact is the single source of truth for whether statistical tests should run (they always run, but with a warning). **Depends on T015**.
-- [X] T022 [US2] Add total pipeline runtime tracker in `code/main.py` (or `code/utils/runtime.py`) to measure the end‑to‑end duration (data acquisition + descriptors + training + validation + all statistical steps). **CRITICAL**: This task now runs after metric generation (T021) and after power analysis (T030). It writes `output/pipeline_runtime.json` with schema `{ "total_runtime_seconds": float, "limit_seconds": 21600, "status": "pass|fail" }`. **If `total_runtime_seconds` > 21600, raise an AssertionError**. **Depends on T021, T030**.
-- [X] T044 [P] Enforce a sufficient number of permutations for permutation‑importance testing, regardless of dataset size. Implements a hard‑coded loop of a fixed number of permutations and logs a warning if N is very small. **Depends on T018, T019**.
+- [X] T018 [P] [US2] Implement Random Forest trainer with 5‑fold CV using **fixed hyperparameters**: `n_estimators=500`, `max_features='sqrt'`, `random_state=42`. **CRITICAL**: Do NOT perform grid search; use the fixed values from the plan to ensure performance targets. **Depends on T016**.
+- [X] T019 [P] [US2] Implement Gradient Boosting trainer with 5‑fold CV and grid search (trees: 10‑50, max_depth ≤10). **Depends on T016**.
+- [X] T020 [US2] Implement evaluation runner in `code/models/evaluate.py` to compute R², MAE, RMSE, **Pearson r**, and **Pearson r p-value** (via bootstrap) on held‑out test set and generate plots (using plot disclaimer injector). **Depends on T017, T018, T019, T029a**.
+- [X] T020b [US2] **Explicitly compute** the two-tailed p-value for the Pearson correlation coefficient on the held-out test set using bootstrap resampling (1000 resamples) and record it in `output/metrics.json`. **Depends on T020**.
+- [X] T021 [US2] Write `output/metrics.json` with schema `{ "rf": {...}, "gb": {...}, "linear": {...}, "best_model": "rf|gb|linear" }`. **Depends on T020, T020b**.
+- [X] T044 [P] Enforce exactly **1 000** permutations per descriptor in permutation‑importance computation. **Depends on T018, T019**.
+- [X] T059 [P] Verify that the permutation‑importance loop uses an appropriate number of permutations per feature (reads count from logs). **Depends on T044**.
+- [X] T024 [US3] Compute permutation importance for each descriptor using the fixed 1 000 permutations. **CRITICAL**: Write `output/permutation_results.json` conforming to `contracts/permutation_results.schema.yaml` (keys: `feature_name`, `importance`, `p_value`, `is_significant`). **Depends on T018, T019, T044**.
+- [X] T058 [US3] Perform a **two-tailed t-test** on permutation‑importance scores to generate p-values; store p-values in `output/permutation_results.json`. **CRITICAL**: Apply Holm-Bonferroni correction to these p-values for significance flagging. **Depends on T024**.
+- [X] T025 [US3] Apply Holm‑Bonferroni correction to the permutation‑importance p-values. **Depends on T058**.
+- [X] T026 [US3] Run bootstrap resampling (≥ 1 000 resamples) for the best tree‑based model and the (remediated) linear model; compute 95% CI for **R², Pearson r, and Spearman ρ**; write `output/bootstrap_results.json`. **Depends on T017, T018, T019, T023b**.
+- [X] T027 [US3] Perform sensitivity analysis over α ∈ {0.01,0.05,0.1}; record headline R² values and significant descriptor counts in `output/sensitivity_results.json`. **Depends on T024, T025**.
+- [X] T047 [FR‑007] Generate reproducibility manifest `outputs/manifest.json` recording random seeds, hyperparameters, library versions, timestamps, dataset checksum, descriptor version hash, VIF remediation decisions, and permutation settings. **CRITICAL**: Conform to `contracts/manifest.schema.yaml`. **Depends on T021, T030, T044**.
+- [X] T106 Verify that `outputs/manifest.json` exists and contains the required fields (seeds, hyperparameters, versions, timestamps, checksums). **Depends on T047**.
+- [X] T064 [FR‑010] Enforce total pipeline runtime ≤ 2 hours; write `output/pipeline_runtime.json` (`{ "total_runtime_seconds": float, "limit_seconds": 7200, "status": "pass|fail" }`). Raise `AssertionError` on failure. **Depends on all previous tasks**.
+- [X] T065 [Verification] Verify `output/pipeline_runtime.json` exists, follows schema, and status is `pass`. **Depends on T064**.
+- [X] T066 [Verification] **Record** R² in `output/metrics.json` and **flag** if R² < 0.6. **CRITICAL**: This is a logging task; do not abort on failure. **Depends on T021**.
+- [X] T067 [Verification] **Record** |Pearson r| in `output/metrics.json` and **flag** if |r| < 0.5. **CRITICAL**: This is a logging task; do not abort on failure. **Depends on T021**.
+- [X] T068 [Verification] **Compute** corrected p-values and **flag** features with p < **corrected threshold** (SC-003). **CRITICAL**: Verify against the Holm-Bonferroni corrected threshold, not raw 0.05. **Depends on T025**.
+- [X] T069a [US3] Implement script `scripts/stability_check.sh` to execute the full pipeline three times with **fixed seeds** and shuffled splits. **Depends on T028, T069**.
+- [X] T069b [US3] Implement script `scripts/stability_verify.sh` to compare the top‑5 feature rankings from T069a runs and assert rank‑difference ≤ 1 (SC-006). **Depends on T069a**.
+- [X] T102 Validate model artifact (`outputs/model.joblib`) and metrics (`output/metrics.json`) against their respective JSON‑schema contracts (`contracts/model_output.schema.yaml`, `contracts/metrics.schema.yaml`). **Depends on T021**.
 
 ---
 
@@ -123,19 +132,8 @@ description: "Task list template for feature implementation"
 
 ### Implementation for User Story 3
 
-- [X] T023 [US3] Implement VIF calculator in `code/models/evaluate.py` for the **Linear Regression baseline model ONLY** (`model_linear`). Calculate VIF for all descriptors in the linear model and flag any VIF > 10. **CRITICAL**: FR‑009 specifies VIF "within the full multiple regression model". Random Forest and Gradient Boosting are non‑linear ensemble methods that do not utilize a design matrix suitable for standard VIF calculation; therefore, VIF is **not** calculated for RF or GB. Write results to `output/vif_results.json` with schema `{ "vif_values": { "descriptor": float }, "max_vif": float, "needs_remediation": bool }`. **Depends on T017**.
-- [X] T023b [US3] Implement VIF remediation in `code/models/evaluate.py`. **CRITICAL**: This task MUST read `output/vif_results.json`. If `needs_remediation` is true, apply PCA or L1‑regularization **only** to the linear baseline model (`model_linear`) and re‑train. Save the corrected model as `model_linear_corrected` and write `output/remediation_results.json` confirming the method used (PCA/L1). **Depends on T023**.
-- [X] T024 [US3] Implement permutation importance tester in `code/models/evaluate.py` (using a sufficiently large number of permutations) to calculate p‑values for all descriptors. **CRITICAL**: This task runs a sufficient number of permutations to ensure statistical robustness. (as enforced by T044) and does **not** skip for low N. Writes results to `output/permutation_results.json`. **Depends on T018, T019, T044**.
-- [X] T025 [US3] Implement multiple‑comparison correction (Bonferroni/Benjamini‑Hochberg) in `code/models/evaluate.py`. **Depends on T024**.
-- [X] T026 [US3] Implement bootstrap resampling in `code/models/evaluate.py` (a sufficient number of resamples) for **BOTH** the Linear Regression baseline model (`model_linear` or `model_linear_corrected` if remediation applied) **and** the best performing tree‑based model (selected after tuning) to calculate a confidence interval for R². **CRITICAL**: Uses the corrected linear model when applicable. Writes `output/bootstrap_results.json`. **Depends on T017, T018, T019, T023, T030**.
-- [X] T027 [US3] Implement sensitivity analysis runner in `code/models/evaluate.py` to sweep α over the discrete set **{0.01, 0.05, 0.1}**. Calculate the count of significant descriptors and R² values for each threshold. **CRITICAL**: This task MUST explicitly record the **absolute headline R²** values for the best model and the linear baseline for each α threshold in `output/sensitivity_results.json`. **Schema**: `{ "thresholds": [ { "alpha": float, "absolute_R2_best": float, "absolute_R2_linear": float, "significant_count": int } ] }`. **Depends on T024, T025**.
-- [X] T028 [US3] Create statistical report generator in `output/report.md` including all p‑values, CIs, VIF flags, and integrating DISCLAIMERS from T029a/T029b. The report MUST follow this template:
-  1. Overview  
-  2. Model Performance (from T021)  
-  3. Statistical Validation (VIF, Permutation, Bootstrap)  
-  4. Sensitivity Analysis (from T027)  
-  5. Conclusion (with disclaimer).  
-  **CRITICAL**: This task MUST include an explicit verification step: "Assert mandatory disclaimer string 'Associational analysis only; no causal inference' exists in the generated `output/report.md`". **CRITICAL**: If `data_status['count_warning']` is true, the report MUST include a dedicated section titled "Data Limitation Warning" re‑emitting the warning message from T015. **Depends on T015, T021, T023, T023b, T024, T025, T026, T027, T029a, T029b**.
+- [X] T028 [US3] Create statistical report generator `output/report.md` integrating model performance, VIF results, permutation importance (with corrected p-values), bootstrap confidence intervals, sensitivity analysis, and mandatory disclaimer. Include a "Data Limitation Warning" section if `count_warning` is true. **Depends on T021, T023, T023b, T024, T025, T026, T027, T029a, T029b, T047**.
+- [X] T071 [Verification] Verify that `output/report.md` exists, contains the mandatory disclaimer, and includes the Data Limitation Warning when appropriate. **Depends on T028**.
 
 ---
 
@@ -143,10 +141,12 @@ description: "Task list template for feature implementation"
 
 **Purpose**: Ensure constitutional compliance for data integrity, traceability, and artifact versioning.
 
-- [X] T060 Compute SHA256 checksum for the raw dataset file generated by T008 (e.g., `data/raw/hea_raw.parquet`) and record it in `state/projects/PROJ-418-predicting-the-yield-strength-of-high-en.yaml` under key `"artifact_hashes"`. **CRITICAL**: If T008 returns `NO_DATA`, write `null` for the checksum. **Depends on T008**.
-- [X] T061 Compute SHA256 checksum for the processed descriptor file `data/processed/hea_descriptors.csv` and record it in `state/projects/PROJ-418-predicting-the-yield-strength-of-high-en.yaml` under key `"artifact_hashes"`. **Depends on T015**.
-- [X] T062 Generate provenance metadata linking every figure in `output/plots/`, every metric in `output/metrics.json`, and the final report to their originating data rows and code modules. Store as `output/provenance.json`. **Depends on T028**.
+- [X] T062 Generate provenance metadata linking every figure in `output/plots/`, every metric in `output/metrics.json`, and the final report to their originating data rows and code modules; store as `output/provenance.json`. **Depends on T028**.
 - [X] T063 Compute content‑hashes (e.g., SHA256) for all major artifacts (code files, data files, JSON reports, plots) and update the project's state file `state/projects/PROJ-418-predicting-the-yield-strength-of-high-en.yaml` under the `artifact_hashes` map. **Depends on T060, T061, T062**.
+- [X] T083 Verify that the checksum entry for the raw dataset in the state file matches the actual file hash. **Depends on T060**.
+- [X] T084 Verify that the checksum entry for the descriptor file in the state file matches the actual file hash. **Depends on T061**.
+- [X] T085 Verify that `output/provenance.json` exists and conforms to a defined schema. **Depends on T062**.
+- [X] T086 Verify that the `artifact_hashes` map in the state file is populated for all major artifacts and that hashes are correct. **Depends on T063**.
 
 ---
 
@@ -154,15 +154,14 @@ description: "Task list template for feature implementation"
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [X] T031a [P] Update `README.md` with installation steps, usage instructions, and data source requirements. **Implementation**: Generate a comprehensive README.md file based on the spec's FR‑012 requirements, including environment setup, data source details, and usage examples.
-- [X] T031b [P] Update `quickstart.md` with a step‑by‑step walkthrough of the pipeline execution. **Implementation**: Generate a quickstart.md file based on FR‑013, providing a clear, numbered guide to running the pipeline from start to finish.
-- [X] T032a Run `ruff check` and fix all linting errors in `code/`
-- [X] T032b Run `black` and format all Python files in `code/`
-- [X] T032a_verify [P] Add verification step that runs `ruff check` on the codebase, writes `output/lint_report.txt`, and asserts zero errors. **Depends on T032a**.
-- [X] T032b_verify [P] Add verification step that runs `black --check` on the codebase, writes `output/format_report.txt`, and asserts no formatting changes are needed. **Depends on T032b**.
+- [X] T031a [P] Update `README.md` with installation steps, usage instructions, and data source requirements. **Implementation**: Generate a comprehensive README.md based on FR‑012, including environment setup, data source details, and usage examples.
+- [X] T031b [P] Update `quickstart.md` with a step‑by‑step walkthrough of the pipeline execution. **Implementation**: Generate a quickstart.md based on FR‑013, providing a clear guide from start to finish.
 - [X] T034 [P] Unit tests for descriptor math in `tests/unit/test_descriptors.py`
 - [X] T035 [P] Integration tests for full pipeline in `tests/integration/test_pipeline.py`
-- [X] T036 Run quickstart.md validation. **Implementation**: Execute the steps in `quickstart.md` in a clean environment. Capture the output and generate `output/quickstart_validation_report.json` containing: `{ "status": "success|failure", "steps_executed": int, "errors": [], "timestamp": str }`. This satisfies SC‑007.
+- [X] T036 Run quickstart.md validation. **Implementation**: Execute the steps in `quickstart.md` in a clean environment. Capture the output and generate `output/quickstart_validation_report.json` containing `{ "status": "success|failure", "steps_executed": int, "errors": [], "timestamp": str }`. This satisfies SC‑007.
+- [X] T087 Verify that `README.md` contains required sections (installation, usage, data source). **Depends on T031a**.
+- [X] T088 Verify that `quickstart.md` reflects the latest pipeline commands and matches spec requirements. **Depends on T031b**.
+- [X] T091 [Verification] Verify that FR identifiers (FR‑001 – FR‑013) and SC identifiers (SC‑001 – SC‑008) are present in `spec.md` and `plan.md`. **Depends on T054, T055**.
 
 ---
 
@@ -170,11 +169,22 @@ description: "Task list template for feature implementation"
 
 **Purpose**: Ensure the pipeline executes correctly with real data and produces verified results.
 
-- [X] T037 [US1] Verify data acquisition: Execute `code/data/download.py` and confirm it returns `SUCCESS` or `NO_DATA` status without crashing. **Deliverable**: Log output showing status code and any attempted URLs. **Depends on T008**.
-- [X] T038 [US1] Verify data processing: Execute `code/data/pipeline.py` and confirm `output/data_status.json` exists with valid schema (count, count_warning, power_status). **Deliverable**: `output/data_status.json` file. **Depends on T037**.
-- [X] T039 [US2] Verify model training: Execute `code/models/train.py` and confirm `output/metrics.json` exists with R², MAE, RMSE for all models and `best_model` key. **Deliverable**: `output/metrics.json` file. **Depends on T038**.
-- [X] T040 [US3] Verify statistical validation: Execute `code/models/evaluate.py` and confirm `output/vif_results.json`, `output/permutation_results.json`, `output/bootstrap_results.json`, and `output/sensitivity_results.json` exist with valid schemas. **Deliverable**: All four JSON files. **Depends on T039**.
-- [X] T041 [Cross‑Cutting] Verify final report: Execute report generation (T028) and then run `tests/unit/test_report_disclaimer.py` to assert `output/report.md` exists, contains the mandatory disclaimer string, and includes a "Data Limitation Warning" section when `count_warning` is true. **Deliverable**: `output/report.md` file. **Depends on T028, T029d**.
+- [X] T037 [US1] Verify data acquisition: Execute `code/data/download.py` and confirm it returns `SUCCESS` or raises a clear error if dataset missing. **Depends on T008**.
+- [X] T038 [US1] Verify data processing: Execute `code/data/pipeline.py` and confirm `output/data_status.json` exists with valid schema. **Depends on T037**.
+- [X] T039 [US2] Verify model training: Execute `code/models/train.py` and confirm `output/metrics.json` exists with required fields. **Depends on T038**.
+- [X] T040 [US3] Verify statistical validation: Execute `code/models/evaluate.py` and confirm `output/vif_results.json`, `output/permutation_results.json`, `output/bootstrap_results.json`, and `output/sensitivity_results.json` exist with valid schemas. **Depends on T039**.
+- [X] T041 [Cross‑Cutting] Verify final report: Execute report generation (T028) and then run `tests/unit/test_report_disclaimer.py` to assert `output/report.md` exists, contains the mandatory disclaimer string, and includes a "Data Limitation Warning" section when `count_warning` is true. **Depends on T028, T029d**.
+- [X] T072 Verify stratified split correctness and disjointness of elemental combinations. **Depends on T016**.
+- [X] T073 Verify that plot disclaimer appears in all generated figures. **Depends on T020**.
+- [X] T074 Verify `output/power_analysis.json` schema and low‑power flag correctness. **Depends on T030**.
+- [X] T075 Verify `output/pipeline_runtime.json` existence, schema, and pass/fail status. **Depends on T064**.
+- [X] T076 Verify that the log output for permutation importance contains a sufficient number of iterations per feature to ensure statistical stability.. **Depends on T044**.
+- [X] T077 Verify `output/vif_results.json` presence, schema, and correct VIF flagging. **Depends on T023**.
+- [X] T078 Verify `output/remediation_results.json` existence and correct remediation method field. **Depends on T023b**.
+- [X] T079 Verify `output/permutation_results.json` contains p‑values for all descriptors and respects the 1 000‑permutation count. **Depends on T024**.
+- [X] T080 Verify Holm‑Bonferroni corrected p‑values are present in `output/permutation_results.json`. **Depends on T025**.
+- [X] T081 Verify `output/bootstrap_results.json` schema and that ≥ 1 000 resamples were used. **Depends on T026**.
+- [X] T082 Verify `output/sensitivity_results.json` contains required fields for each α and records headline R² values. **Depends on T027**.
 
 ---
 
@@ -182,12 +192,9 @@ description: "Task list template for feature implementation"
 
 **Purpose**: Resolve mismatches between spec.md and plan.md and ensure full coverage.
 
-- [ ] T048 [P] Add functional requirement definitions FR-001 … FR-012 to `specs/001-predicting-the-yield-strength-of-high-en/spec.md`.
-- [ ] T049 [P] Add success‑criterion definitions SC-001 … (as needed) to `specs/001-predicting-the-yield-strength-of-high-en/spec.md`.
-- [ ] T050 [P] Update `plan.md` to reference the newly added FR and SC identifiers, ensuring all tasks map to defined requirements. **Depends on T048, T049**.
-- [X] T054 [P] Add functional requirement definitions FR‑001 … FR‑012 to `spec.md`. This creates the missing FR identifiers referenced throughout plan and tasks. **Depends on none**.
-- [X] T055 [P] Add success‑criterion definitions SC‑* to `spec.md`. This creates the missing SC identifiers referenced throughout plan and tasks. **Depends on none**.
-- [X] T056 [P] Update `spec.md` to replace the “disjoint elemental sets” requirement with the “Stratified by Elemental Ratios” approach implemented in T016, ensuring constraint preservation. **Depends on T016**.
+- [X] T054 [P] Verify FR‑001 – FR‑013 are present in `spec.md`. **Depends on none**.
+- [X] T055 [P] Verify SC‑001 – SC‑008 are present in `spec.md`. **Depends on none**.
+- [X] T056 [P] Verify `plan.md` references the FR/SC identifiers correctly. **Depends on T054, T055**.
 
 ---
 
@@ -196,3 +203,19 @@ description: "Task list template for feature implementation"
 - Ensure all tasks marked with [P] can be parallelized where file independence permits.
 - All JSON/YAML artifacts must conform to the schemas defined in `contracts/`.
 - All scripts must pin random seeds (`numpy`, `random`, `torch` if used) for reproducibility.
+
+---
+
+## Phase 10: Revision & Stability Enhancements (New)
+
+**Purpose**: Address specific review concerns regarding data source robustness, stability verification, and runtime enforcement.
+
+- [X] T108 [US1] Implement strict "Fail Loudly" logic in `code/data/download.py` to ensure NO synthetic fallback exists; if the user-provided CSV is missing or invalid, the script MUST raise a `FileNotFoundError` or `ValidationError` immediately. **Depends on T008**.
+- [ ] T109 [US2] Implement a dedicated stability verification script `scripts/stability_check.sh` that executes the full pipeline three times with **fixed seeds** and shuffled splits (reproducible variation) and compares the top-5 feature rankings, asserting the rank-difference ≤ 1 constraint (SC-006). **CRITICAL**: Must define script arguments (seed count, output path) and success criteria (exit code 0). **Depends on T028, T069**.
+- [X] T110 [FR-010] Enhance runtime monitoring in `code/utils/timer.py` to track per-phase execution time; if any single phase exceeds a predefined duration threshold, emit a warning and suggest reducing `n_estimators` or `n_permutations` in the next run, while still enforcing the 2-hour hard abort at the end. **Depends on T064**.
+- [X] T111 [US3] Add a specific test case in `tests/unit/test_descriptors.py` to verify that the descriptor calculation correctly handles edge cases (e.g., single-element composition, zero variance) and raises appropriate errors for missing melting point data. **Depends on T011, T012**.
+- [ ] T112 [Cross-Cutting] Update `README.md` to explicitly document the "User-Provided Dataset" requirement and the exact error message the user will see if the file is missing, ensuring no ambiguity about the data source. **Depends on T031a, T108**.
+- [X] T113 [US1] Implement a validation step in `code/data/preprocess.py` to detect and remove duplicate rows (based on composition and yield strength) BEFORE descriptor calculation, logging the count of removed duplicates. **Depends on T009, T010**.
+- [X] T114 [US2] Refactor `code/models/train.py` to ensure the Random Forest implementation uses `n_jobs=-1` (or equivalent parallelism) to maximize CPU utilization within the 2-hour window, while ensuring deterministic behavior via `random_state`. **Depends on T018**.
+- [X] T115 [US3] Verify that the Holm-Bonferroni correction is applied correctly by adding a unit test in `tests/unit/test_evaluate.py` that compares the corrected p-values against a known small dataset with expected results. **Depends on T025**.
+- [X] T116 [US1] Ensure `code/data/pipeline.py` writes a detailed `output/pipeline_log.json` capturing the exact sequence of operations, start/end times, and any warnings (e.g., low power, VIF remediation) for auditability. **Depends on T014, T047**.

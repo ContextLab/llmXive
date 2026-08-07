@@ -1,114 +1,74 @@
 # Predicting the Yield Strength of High-Entropy Alloys via Compositional Descriptors
 
-This project implements an automated scientific pipeline to predict the yield strength of High-Entropy Alloys (HEAs) using compositional descriptors (δ, Δχ, VEC, mixing entropy, etc.). The pipeline follows a strict data-driven approach, ensuring all results are derived from real, verified datasets with appropriate statistical validation and disclaimers.
+This project implements an automated scientific pipeline to predict the yield strength of High-Entropy Alloys (HEAs) using compositional descriptors (δ, Δχ, VEC, mixing entropy, melting temperature variance).
 
-## Features
+## ⚠️ CRITICAL: Data Source Requirement
 
-- **Data Acquisition**: Downloads verified HEA composition datasets from pre-configured URLs.
-- **Descriptor Engineering**: Calculates atomic-level descriptors (δ, Δχ, VEC, entropy, melting variance).
-- **Model Training**: Trains and tunes Random Forest, Gradient Boosting, and Linear Regression baselines.
-- **Statistical Validation**: Performs permutation testing, bootstrap resampling, VIF diagnostics, and sensitivity analysis.
-- **Reporting**: Generates comprehensive reports with mandatory associational disclaimers.
+**This pipeline does NOT download data automatically.** It requires a **user-provided dataset** to function.
 
-## Prerequisites
+### How to Provide the Dataset
 
-- Python 3.9+
-- pip
+1. Obtain the raw HEA yield strength dataset (CSV format).
+2. Place the file at the exact path: `data/raw/heas_raw.csv` relative to the project root.
+3. Ensure the file contains the required columns as defined in `contracts/dataset.schema.yaml` (typically: `composition`, `yield_strength`, `unit`, `phase`, `temperature`).
+
+### What Happens if the File is Missing?
+
+If `data/raw/heas_raw.csv` is missing or invalid, the pipeline will **abort immediately** with a clear error message. **No synthetic data will be generated.**
+
+You will see an error similar to:
+
+```
+FileNotFoundError: Dataset file not found: data/raw/heas_raw.csv
+The pipeline requires a user-provided dataset. Please place the raw CSV file at the expected path and re-run.
+```
+
+Or, if the file exists but fails schema validation:
+
+```
+ValidationError: Dataset validation failed.
+Missing required fields: ['phase', 'temperature']
+Please ensure the CSV conforms to the schema defined in contracts/dataset.schema.yaml.
+```
 
 ## Installation
 
-1. **Clone the repository**:
- ```bash
- git clone <repository-url>
- cd PROJ-418-predicting-the-yield-strength-of-high-en
- ```
-
-2. **Create a virtual environment** (recommended):
+1. Clone the repository.
+2. Create a virtual environment (recommended):
  ```bash
  python -m venv venv
  source venv/bin/activate # On Windows: venv\Scripts\activate
  ```
-
-3. **Install dependencies**:
+3. Install dependencies:
  ```bash
  pip install -r requirements.txt
  ```
 
-## Configuration
-
-Before running the pipeline, you must ensure the verified dataset URL is configured.
-
-1. Check `code/utils/config.py` or the project's configuration file for `research.verified_datasets['hea_compositions']`.
-2. If the URL is missing, the pipeline will terminate immediately with `DATA_SOURCE_MISSING` error code.
-3. **Do not** attempt to run the pipeline without a valid, verified data source URL.
-
 ## Usage
 
-### Full Pipeline Execution
+### Quick Start
 
-Run the entire pipeline from data download to report generation:
-
-```bash
-python code/profiler.py
-```
-
-This script will:
-1. Download the dataset (if not cached).
-2. Preprocess and calculate descriptors.
-3. Train models and evaluate performance.
-4. Run statistical validation tests.
-5. Generate `output/report.md` and other artifacts.
-
-### Individual Stages
-
-You can run specific stages of the pipeline independently:
-
-- **Data Pipeline**:
+1. **Verify Data**: Ensure `data/raw/heas_raw.csv` exists.
+2. **Run the Pipeline**:
  ```bash
- python code/data/pipeline.py
+ python code/main.py
  ```
+3. **Check Outputs**:
+ - Processed data: `data/processed/hea_descriptors.csv`
+ - Metrics: `output/metrics.json`
+ - Report: `output/report.md`
+ - Plots: `output/plots/`
 
-- **Model Training**:
- ```bash
- python code/models/train.py
- ```
+### Step-by-Step Execution
 
-- **Evaluation & Validation**:
- ```bash
- python code/models/evaluate.py
- ```
+The pipeline consists of the following stages, executed sequentially by `main.py`:
 
-### Output Artifacts
-
-Upon successful execution, the following files will be generated:
-
-- `data/processed/hea_descriptors.csv`: Processed dataset with calculated descriptors.
-- `output/data_status.json`: Data count and power status.
-- `output/metrics.json`: Model performance metrics (R², MAE, RMSE).
-- `output/power_analysis.json`: Sample size power analysis results.
-- `output/permutation_results.json`: Permutation importance p-values.
-- `output/bootstrap_results.json`: Bootstrap confidence intervals.
-- `output/sensitivity_results.json`: Sensitivity analysis across α levels.
-- `output/report.md`: Final statistical report with disclaimers.
-
-## Data Source Requirements
-
-This project relies on **real, verified datasets** for scientific validity.
-
-- **No Synthetic Data**: The pipeline strictly forbids synthetic or placeholder data.
-- **Verified URL**: The dataset URL must be defined in `code/utils/config.py` under `research.verified_datasets['hea_compositions']`.
-- **Failure Policy**: If the verified URL is missing or the download fails, the pipeline terminates with a clear error. No fallback to public/unverified sources is permitted.
-
-## Testing
-
-Run the test suite to verify implementation:
-
-```bash
-pytest tests/
-```
-
-- **Unit Tests**: `tests/unit/test_descriptors.py`
-- **Integration Tests**: `tests/integration/test_pipeline.py`
+1. **Data Acquisition**: Validates the user-provided CSV (`code/data/download.py`).
+2. **Preprocessing**: Filters single-phase, room-temperature alloys; normalizes units (`code/data/preprocess.py`).
+3. **Descriptor Engineering**: Calculates δ, Δχ, VEC, entropy, melting variance (`code/data/descriptors.py`).
+4. **Model Training**: Trains Random Forest, Gradient Boosting, and Linear Regression (`code/models/train.py`).
+5. **Evaluation**: Computes metrics, permutation importance, bootstrap CI (`code/models/evaluate.py`).
+6. **Reporting**: Generates the final markdown report with disclaimers (`code/models/report_generator.py`).
 
 ## Project Structure
 
@@ -116,39 +76,44 @@ pytest tests/
 .
 ├── code/
 │ ├── data/
-│ │ ├── download.py
-│ │ ├── preprocess.py
-│ │ ├── descriptors.py
-│ │ ├── pipeline.py
-│ │ └── status_writer.py
+│ │ ├── download.py # Data validation (user-provided)
+│ │ ├── preprocess.py # Cleaning and filtering
+│ │ ├── descriptors.py # Feature engineering
+│ │ └── pipeline.py # Orchestration
 │ ├── models/
-│ │ ├── train.py
-│ │ ├── evaluate.py
-│ │ ├── metrics_writer.py
-│ │ ├── power_analysis.py
+│ │ ├── train.py # Model training
+│ │ ├── evaluate.py # Metrics and validation
 │ │ └── report_generator.py
-│ ├── utils/
-│ │ ├── config.py
-│ │ ├── logging.py
-│ │ ├── unit_utils.py
-│ │ ├── plot_utils.py
-│ │ └── report_utils.py
-│ ├── profiler.py
+│ └── utils/
+│ ├── logging.py
+│ ├── config.py
 │ └──...
 ├── data/
 │ ├── raw/
+│ │ └── heas_raw.csv # <--- USER MUST PROVIDE THIS FILE
 │ └── processed/
 ├── output/
-│ ├── plots/
-│ └──...
+│ ├── metrics.json
+│ ├── report.md
+│ └── plots/
+├── contracts/ # Schema definitions
 ├── tests/
-│ ├── unit/
-│ └── integration/
 ├── requirements.txt
 └── README.md
 ```
 
+## Dependencies
+
+- Python >= 3.8
+- pandas, numpy, scikit-learn, matplotlib, seaborn
+- pyyaml, joblib
+
+See `requirements.txt` for the full list.
+
 ## Disclaimer
 
-**Associational analysis only; no causal inference.**
-All results generated by this pipeline are based on correlational data and statistical modeling. No causal relationships between compositional descriptors and yield strength are claimed or implied.
+This project is for research purposes only. All plots and reports include a mandatory disclaimer stating that the analysis is associational and does not imply causal inference.
+
+## License
+
+[Insert License Here]

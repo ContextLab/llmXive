@@ -1,40 +1,48 @@
 # Research: Predicting the Yield Strength of High‑Entropy Alloys
 
-## Objective
-Develop a reproducible pipeline that predicts the yield strength of high‑entropy alloys (HEAs) from compositional descriptors and additional covariates, and quantifies model performance with rigorous statistical validation.
-
 ## Dataset Strategy
-| Dataset | Source (Verified URL) | Variables Required | Availability |
-|---------|----------------------|--------------------|--------------|
-| **HEA Yield‑Strength Collection** | *No verified URL provided in the user message.* | - `composition` (string) <br> - `yield_strength` (float) <br> - `phase` (string) <br> - `testing_temperature` (float) <br> - All descriptor variables (mixing entropy, δ, Δχ, VEC, melting‑temperature variance) | No open, programmatically downloadable source has been verified for these variables. |
 
-> **Important**: At present there is **no verified open dataset** that supplies experimentally measured yield‑strength values together with the required compositional descriptors. Consequently, the pipeline will **abort early** with a clear error message if an appropriate dataset cannot be fetched. The specification must be amended to either (a) point to a verified dataset that meets these requirements, or (b) adjust the research question to a feasible target variable present in an available dataset.
+| Need | Candidate | Availability | Action |
+|------|-----------|--------------|--------|
+| Curated experimental HEA yield‑strength dataset (‑020‑00374‑5) | DOI ‑020‑00374‑5 (internal repository) | **Not publicly downloadable** (no verified URL) | Attempt download; if HTTP 404 or authentication required, abort with clear error and request user‑provided CSV. |
+| Elemental property reference table | `elemental_properties.csv` (included in repo) | Open, version‑controlled | Use directly for descriptor calculations. |
 
-## Methodology Overview
-| Step | Description | Tools / Libraries | Rationale (CPU vs GPU) |
-|------|-------------|-------------------|------------------------|
-| **0. Data Acquisition & Validation** | Attempt to download the HEA yield‑strength dataset, store under `data/raw/`, and validate against `contracts/dataset.schema.yaml`. If the dataset is unavailable, abort with an informative error. | `datasets` (HuggingFace, when a verified source exists) | CPU‑first; dataset size expected to be a few megabytes. |
-| **1. Descriptor & Covariate Engineering** | Compute mixing entropy, atomic size mismatch δ, electronegativity variance Δχ, VEC, melting‑temperature variance **and** add `phase` and `testing_temperature` as covariates using a locked elemental property table (`data/element_properties.csv`). | `pandas`, `numpy` | Pure CPU; deterministic, lightweight. |
-| **2. Model Training with Hyper‑parameter Tuning** | Perform a lightweight grid search (n_estimators ∈ {[deferred]}, max_depth ∈ {10,None}) evaluated via inner 3‑fold CV; select best hyper‑parameters and fit a `RandomForestRegressor` (random_state = 42). | `scikit-learn` | CPU‑first; grid search over a tiny space runs < 1 min. |
-| **3. Validation** | 5‑fold outer cross‑validation; compute mean R². | `scikit-learn` | CPU‑first; standard CV routine. |
-| **4. Power Analysis** | Estimate that ~1 k samples give >80 % power to detect an R² increase of 0.1 at α = 0.05 (standard linear‑model power formula). | Analytic calculation (documented in plan) | CPU‑first; no runtime cost. |
-| **5. Bootstrap CI** | A large number of bootstrap resamples of outer CV R² to obtain a 95 % confidence interval. | `numpy` | CPU‑first; resampling fast on small dataset. |
-| **6. Permutation Importance** | Compute importance for each descriptor with **exactly 1000 permutations** (hard‑coded). Apply Benjamini‑Hochberg FDR correction. | `sklearn.inspection.permutation_importance` | CPU‑first; 1000 permutations complete within budget. |
-| **7. SHAP Analysis** | Generate Kernel SHAP values for a random subset of samples (≤ 200) to produce a summary plot. | `shap` (KernelExplainer) | CPU‑first; feasible on 200 samples. |
-| **8. Reporting** | Assemble `reports/report.md` with metrics, CI, importance plots, and conditional “Data Limitation Warning”. Include a correlation matrix and VIF analysis for descriptors. | `markdown`, `matplotlib` for figures | CPU‑first; all rendering done locally. |
+> **Note:** No verified open dataset containing experimental HEA yield strength exists. The plan therefore treats the curated dataset as a *user‑supplied* asset. If the asset cannot be supplied, the pipeline will terminate early (FR‑001) and report the data gap.
 
-## Decision / Rationale
-- **CPU‑first** is adopted for all steps because the dataset, if available, is modest (< 5 MB) and the chosen algorithms (RandomForest, permutation importance, Kernel SHAP on a small subset) comfortably fit within the GitHub Actions compute limits (2 CPU cores, ~7 GB RAM, ≤ 6 h).  
-- No GPU‑required method is needed; therefore no off‑load to Kaggle GPU is planned.
+## Methodology Decisions & Rationale
+
+| Decision | Rationale | Compute Mode |
+|----------|-----------|--------------|
+| **Random Forest Regressor** (scikit‑learn) | Non‑parametric, robust to multicollinearity among compositional descriptors; fast CPU training; easy to extract permutation importance. | CPU‑first (fits comfortably on GitHub Actions runner). |
+| **5‑fold Cross‑Validation** | Provides unbiased out‑of‑fold performance estimate; aligns with Principle VII (statistical rigor). | CPU‑first. |
+| **Bootstrap CI (1 000 resamples)** | Generates confidence intervals for R² and r without analytic assumptions; complies with Principle VII. | CPU‑first (vectorized). |
+| **Permutation Importance – 1 000 permutations** | Fixed count mandated by FR‑012; enables robust importance distributions for t‑tests. | CPU‑first; parallelized across features via `joblib`. |
+| **Multiple‑Comparison Correction** | Permutation importance yields a p‑value per feature; we apply Benjamini‑Hochberg FDR (α = 0.05) to control false discoveries. | CPU‑first (simple sorting). |
+| **Power / Sample‑Size Justification** | Dataset size is unknown until user supplies the CSV. The plan will report the actual N and note that power may be limited for small N (< 30). | N/A – descriptive. |
+| **Causal Claims** | The study is purely observational; all claims are associative. | N/A. |
+| **Collinearity Handling** | Descriptors are known to be correlated (e.g., δ and Δχ). We will report variance inflation factors (VIF) and avoid interpreting individual coefficients; importance is reported instead. | CPU‑first. |
 
 ## Statistical Rigor Checklist
-- **Multiple‑Comparison Correction**: Permutation importance p‑values are corrected using the Benjamini‑Hochberg FDR procedure (implemented in `perm_importance.py`).  
-- **Power / Sample‑Size**: The HEA yield‑strength dataset (when available) contains a large number of alloys; analytic power analysis confirms adequate power for the targeted effect size.  
-- **Causal Claims**: All statements are strictly associative; no causal inference is attempted.  
-- **Measurement Validity**: Yield‑strength values will be taken from a verified experimental HEA dataset (to be cited once a verified source is identified).  
-- **Collinearity**: Descriptors (including phase & temperature) are known to be partially correlated; a correlation matrix and VIF analysis will be reported, and permutation importance will be interpreted accordingly.
+
+- **Multiple‑comparison correction** – Benjamini‑Hochberg on permutation‑importance p‑values.  
+- **Sample‑size / power** – Report N, compute Cohen’s f² for R²; flag if N < 50 as low power.  
+- **Causal‑inference** – Explicitly label results as *associational*.  
+- **Measurement validity** – Dataset documentation (curated experimental measurements) will be cited; if missing, the plan records the limitation.  
+- **Collinearity** – Compute VIF for each descriptor; if VIF > 5, note high collinearity in report.  
+
+## Compute Feasibility Statement
+
+All steps are implementable on the free GitHub Actions runner (multiple CPU cores, sufficient RAM). No GPU‑only libraries are required. The only potential bottleneck is the permutation‑importance loop; we parallelize across 2 cores and limit memory by streaming descriptors from parquet.
+
+If runtime exceeds the 2 h budget, the pipeline will automatically down‑scale `n_estimators` (from 500 to 300) and re‑measure; this adaptation is *allowed* because it does not violate any FR (the model architecture remains Random Forest).
+
+## Risks & Mitigations
+
+| Risk | Impact | Mitigation |
+|------|--------|------------|
+| Curated dataset not accessible | Fatal (FR‑001) | Abort early with informative error; request user‑provided CSV. |
+| High descriptor collinearity → unstable importance | May affect SC‑006 | Compute VIF; report stability; if VIF > 10, combine correlated descriptors. |
+| Runtime > 2 h | Violates SC‑004 | Parallelize permutation importance; fallback to fewer trees; early‑stop and report violation. |
+| Missing element fields in user CSV | FR‑009 violation | Schema validation will catch and abort with clear message. |
 
 ---
-
-
-

@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Processed HEA Dataset"
-description: "Schema for the filtered and descriptor-engineered HEA dataset."
+description: "Schema for the filtered and descriptor‑engineered HEA dataset."
 type: object
 properties:
   meta:
@@ -14,7 +14,7 @@ properties:
         properties:
           phase:
             type: string
-            description: "Filter applied for single-phase alloys."
+            description: "Filter applied for single‑phase alloys."
           temperature_range:
             type: string
             description: "Filter applied for room temperature (20-25°C)."
