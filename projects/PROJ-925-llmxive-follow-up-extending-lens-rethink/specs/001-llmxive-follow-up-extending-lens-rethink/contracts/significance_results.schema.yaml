@@ -1,27 +1,42 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Significance Results Schema"
-description: "Schema for the stability metrics and significance test results."
-type: "object"
+description: "Schema for feature importance and significance testing results."
+type: object
 properties:
   feature_name:
-    type: "string"
+    type: string
     description: "Name of the linguistic feature."
-  mean_rank:
-    type: "number"
-    description: "Mean rank of the feature across 5 random seeds."
-  std_rank:
-    type: "number"
-    description: "Standard deviation of the rank."
+  importance_score:
+    type: number
+    description: "XGBoost importance score (gain)."
+    minimum: 0
   p_value:
-    type: "number"
-    description: "P-value from the permutation test (1,000 iterations)."
+    type: number
+    description: "P-value from feature permutation test."
+    minimum: 0
+    maximum: 1
+  adjusted_p_value:
+    type: number
+    description: "Benjamini-Hochberg adjusted p-value."
+    minimum: 0
+    maximum: 1
   is_significant:
-    type: "boolean"
-    description: "True if p-value < 0.05 after Benjamini-Hochberg correction."
+    type: boolean
+    description: "True if adjusted p-value < 0.05."
+  stability_rank:
+    type: integer
+    description: "Mean rank across multiple seeds."
+    minimum: 1
+  stability_spearman:
+    type: number
+    description: "Spearman rank correlation of importance across noise levels (FR-008)."
+    minimum: -1
+    maximum: 1
 required:
-  - "feature_name"
-  - "mean_rank"
-  - "std_rank"
-  - "p_value"
-  - "is_significant"
+  - feature_name
+  - importance_score
+  - p_value
+  - adjusted_p_value
+  - is_significant
+  - stability_spearman
 additionalProperties: false

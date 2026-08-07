@@ -1,86 +1,72 @@
 # Research: llmXive follow-up: extending "Lens: Rethinking Training Efficiency for Foundational Text-to-Image Mo"
 
 ## Research Question
+Can linguistic features (uncertainty, syntactic complexity, visual token density) extracted from text captions predict the "alignment deviation" (discrepancy between CLIP scores and human preferences) in text-to-image generation?
 
-Which linguistic features of text captions (BERT Perplexity, syntactic complexity, noun-phrase density) are statistically significant predictors of the "human-model disagreement" between CLIP scores and human preference ratings in text-to-image generation?
+## Methodological Rigor & Statistical Plan
 
-## Dataset Strategy
+### 1. Dataset Strategy
+**Target Dataset**: The specification requires the 'pick-a-pic' dataset, which contains paired CLIP scores and human preference ratings.
+**Constraint Check**: The provided "Verified datasets" block for this project contains URLs for CLIP (jsonl), COCO, and BERT tokenized data, but **NO verified source for 'pick-a-pic'**.
+**Resolution**:
+- **Primary Plan**: Attempt to load a dataset with **pre-computed CLIP scores** (e.g., a derived subset of LAION or similar HuggingFace dataset) to avoid the infeasibility of downloading and processing 100k+ images on a 2-CPU runner.
+- **Strict Fallback Policy**: If no verified dataset containing both `clip_score` and `human_rating` is available, the pipeline **MUST halt immediately** with a `DataSchemaError`. 
+- **NO Synthetic Data**: The proposal to use 'COCO captions with synthetic human ratings' is **REJECTED**. Synthetic ratings cannot validate the 'alignment gap' between CLIP and *actual* human preference, rendering the research question unanswerable. This violates Principle II (Verified Accuracy) and Principle III (Data Hygiene).
+- **Data Processing**:
+  - **Streaming**: Use `datasets.load_dataset(..., streaming=True)` to process the dataset in chunks.
+  - **Filtering**: Exclude samples where `human_rating` is missing (NaN) as per FR-003.
+  - **Normalization**: Normalize `clip_score` and `human_rating` to [0, 1] before calculating deviation.
 
-The project relies on open, programmatically accessible datasets verified for direct download on CI runners.
+### 2. Feature Extraction (Predictors)
+- **Linguistic Uncertainty Proxy**: Calculated as `ln(perplexity)` using a pre-trained BERT model (e.g., `bert-base-uncased`).
+  - *Constraint*: Must complete within 5s/caption on CPU. If a batch takes longer, the batch size is reduced.
+  - **Construct Validity**: We acknowledge that BERT perplexity measures token prediction probability, not direct semantic entropy. However, in the context of LLM-generated captions, higher perplexity is operationally defined as a proxy for "linguistic uncertainty" or "ambiguity" that correlates with model instability. This is a computable indicator, not a direct measure of the theoretical construct, but is sufficient for the correlational study design.
+- **Syntactic Complexity**: Maximum depth of the dependency parse tree using `spaCy`.
+- **Noun-Phrase Density**: Ratio of noun phrases to total tokens.
+- **Visual Token Density (FR-007 Proxy)**: Ratio of noun phrases to total tokens. This serves as a text-derived proxy for "image complexity" (more complex descriptions often imply more complex images) without violating Principle VI (Text-Only).
+- **Controls**: Caption length (token count).
 
-### Verified Datasets
+### 3. Target Variable (Outcome)
+- **Deviation Score**: $| \text{Normalized}(\text{CLIP\_Score}) - \text{Normalized}(\text{Human\_Rating}) |$.
+- **Handling Missing Data**: Samples with missing `human_rating` are dropped, not imputed (FR-003).
+- **Zero Variance Check**: If the target column has zero variance, the pipeline halts with `ValueError("Target not learnable")`.
+- **Circularity Resolution**: The target variable is a function of the text (via CLIP). The study reframes the hypothesis: we are not predicting "error" in an absolute sense, but "text-driven metric instability". The analysis identifies which linguistic properties cause the CLIP metric to deviate from human consensus. A **Text Permutation Null Model** is included to validate that the observed importance is due to specific text content, not just length/structure.
 
-| Dataset Name | Verified URL | Usage | Notes |
-| :--- | :--- | :--- | :--- |
-| **Pick-a-Pic** | `https://huggingface.co/datasets/pick-a-pic/pick-a-pic` | Source of raw captions, image IDs, and human preference scores (`preference_score`). | Primary source for human ratings. Must verify presence of `preference_score` column. |
-| **COCO Validation** | `https://huggingface.co/datasets/vikhyatk/coco-val/resolve/main/data/validation-00000-of-00001.parquet` | Hold-out test set for final evaluation (if Pick-a-Pic lacks sufficient test data). | Used to ensure no data leakage. |
+### 4. Modeling & Statistical Tests
+- **Model**: XGBoost Regressor (CPU-only).
+- **Hypothesis**: Linguistic complexity positively correlates with alignment deviation.
+- **Significance Testing (FR-006)**:
+  - **Feature Permutation Importance**: To assess the significance of specific features, we perform a **permutation test on the feature columns (X)**, not the target (Y). For each feature $X_j$, we shuffle its values $N=1000$ times while keeping the target $Y$ fixed. We calculate the drop in model performance (e.g., MSE) for each shuffle to generate a null distribution for that feature's importance. This directly tests if $X_j$ contributes to prediction, satisfying FR-006.
+  - **Target Permutation (Global Model Check)**: Permuting the target $Y$ is performed separately to verify that the model is not predicting random noise (global significance), but this is distinct from feature-level testing.
+  - **Text Permutation Null**: Permute text captions relative to image/human rating pairs to break the text-image dependency.
+  - **FDR Control**: Benjamini-Hochberg procedure applied to p-values at $\alpha = 0.05$.
+  - **Reproducibility**: Random seed pinned (e.g., 42) and logged.
+- **Sensitivity Analysis (FR-008)**:
+  - **Noise Injection**: Inject Gaussian noise ($\sigma \in \{0.01, 0.05, 0.1\}$) into human ratings.
+  - **Re-training**: Re-fit the XGBoost model for each noise level.
+  - **Aggregation**: Compute the **Spearman rank correlation** of the feature importance vectors across the noise levels to assess stability.
+- **Multiple Comparison Correction**: Applied via Benjamini-Hochberg as part of the feature permutation test.
 
-**Critical Data Availability Note**: The study requires a "Human Rating" to compute the disagreement score. The verified dataset **Pick-a-Pic** is the primary candidate and contains the `preference_score` column. If this column is absent, the project **cannot** proceed with the current spec. The `loader.py` script will raise a `ValueError` ("Dataset missing required 'preference_score' column"), preventing fabrication.
+### 5. Compute Feasibility & Profiling
+- **CPU-First**: All tasks run on CPU.
+  - `transformers` (BERT): Use `device="cpu"`, `torch.set_num_threads(1)`.
+  - `xgboost`: Native CPU support.
+- **Memory Management**:
+  - Stream dataset to avoid loading full 100k+ rows into RAM.
+  - Process features in batches (e.g., 500 captions/batch).
+- **Profiling Tools (SC-002, SC-003)**:
+  - **Memory**: Use Python's `tracemalloc` module in `main.py` to log peak RSS to `results/memory_profile.json`.
+  - **Time**: Use Python's `time` module in `main.py` to log wall-clock duration to `results/timing_profile.json`.
+- **GPU Escape Hatch**: Not applicable. The methodology is fully CPU-tractable.
 
-### Data Processing Strategy
+### 6. Limitations & Assumptions
+- **Observational Nature**: Claims are associational, not causal.
+- **Measurement Validity**: BERT perplexity is used as a proxy for semantic uncertainty, acknowledging it differs from strict semantic entropy.
+- **Target Noise**: Human ratings are treated as ground truth despite known noise; robustness is assessed via sensitivity analysis.
+- **Data Constraints**: If pre-computed dataset is unavailable, the study **halts** rather than using unverified data.
 
-1. **Streaming**: Use `datasets.load_dataset(..., streaming=True)` to iterate over shards without loading the full dataset into RAM.
-2. **Sampling**: A stratified random sample of **[deferred] rows** will be drawn to ensure the feature extraction phase completes within the 6-hour CI limit. The random seed for sampling will be logged.
-3. **Target Calculation**: The target variable is the **raw absolute difference** $Y = | \text{CLIP\_Score} - \text{Human\_Rating} |$. No normalization is applied to preserve the magnitude of the deviation.
-
-## Methodological Rigor
-
-### Statistical Approach
-
-1. **Target Variable**: $Y = | \text{CLIP\_Score} - \text{Human\_Rating} |$.
-   - **Raw Difference**: The absolute difference is calculated on the raw scale. This avoids the mathematical invalidity of subtracting two independently normalized distributions.
-   - **Handling Missing Data**: Samples with `NaN` in `human_rating` are **excluded** (not imputed) to prevent bias.
-   - **Zero Variance Check**: If the calculated $Y$ has zero variance (all deviations are 0), the training script halts with `ValueError("Target not learnable")`.
-   - **Framing**: The model predicts "human-model disagreement" (a composite of model error and human noise), not pure "alignment gap", acknowledging the limitation.
-
-2. **Predictors ($X$)**:
-   - **BERT Perplexity**: $\ln(\text{Perplexity})$ from a pre-trained DistilBERT model (CPU inference). *Note: This is a proxy for linguistic complexity/uncertainty, distinct from the strict semantic entropy definition (Farquhar et al., 2024).*
-   - **Syntactic Complexity**: Max depth of the dependency parse tree (spaCy).
-   - **Noun-Phrase Density**: Count of noun phrases / total tokens.
-   - **Token Diversity**: Type-Token Ratio.
-   - **Confounders**: Caption length and image complexity (if available) are included as covariates to isolate linguistic effects.
-
-3. **Model**: XGBoost Regressor (CPU-only, `tree_method='hist'`).
-   - **Confounding Control**: Caption length and image complexity (if available) will be included as covariates in the model to isolate the effect of linguistic features.
-   - **Multiple Comparison Correction**: Benjamini-Hochberg procedure applied to p-values from permutation importance tests (FR-006).
-   - **Significance Threshold**: FDR < 0.05.
-   - **Permutation Iterations**: **1,000 iterations** explicitly mandated for the null distribution.
-
-4. **Stability Loop (SC-005)**:
-   - The model will be trained and evaluated over **5 distinct random seeds**: `0, 42, 123, 2024, 9999`.
-   - For each seed:
-     1. Re-sample the data (stratified random sample).
-     2. Retrain the model.
-     3. Calculate feature importance rankings.
-   - Aggregate results: Compute mean rank and standard deviation of ranks across the 5 seeds.
-   - Output: `results/stability_metrics.json`.
-
-### Causal Inference & Assumptions
-
-- **Observational Nature**: This study is purely observational. Claims will be framed as "associational" (e.g., "Higher syntactic complexity is associated with higher disagreement") rather than causal.
-- **Measurement Validity**: BERT Perplexity is operationalized as $\ln(\text{Perplexity})$. This is an approximation of the strict "semantic entropy" definition but is the only computable proxy available within the CPU constraints.
-- **Collinearity**: Predictors like "Token Diversity" and "Noun-Phrase Density" may be correlated. The plan acknowledges this and uses permutation importance (which accounts for correlation) rather than raw coefficient magnitude.
-- **Human Noise**: The target variable $Y$ conflates CLIP model error and human rating noise. The research question is reframed to "predicting human-model disagreement" rather than "alignment gap" to acknowledge this limitation.
-
-## Compute Feasibility
-
-### CPU-First Strategy
-
-- **Feature Extraction**: DistilBERT inference on CPU is fast. Estimated time: [deferred] for 50k samples, but limited to 10k samples to ensure < 6h runtime.
-- **Model Training**: XGBoost on 2 cores is fast (< 10 minutes for 10k rows).
-- **Memory**: Streaming ensures peak RAM usage < 4 GB.
-- **GPU Escape Hatch**: Not required. The entire pipeline is designed to run on CPU.
-
-### Decision/Rationale
-
-The choice of XGBoost and DistilBERT (CPU) is driven by the **CPU-Tractability Constraint** (Constitution Principle VII). No GPU is needed for this specific research question (predicting deviation from text features). Using a GPU would violate the "democratize access" goal and is unnecessary for the method.
-
-## Risk Mitigation
-
-| Risk | Mitigation |
-| :--- | :--- |
-| **Dataset lacks Human Ratings** | `loader.py` checks for the `preference_score` column immediately. If missing, the pipeline exits with a clear error message. No synthetic data is generated. |
-| **DistilBERT Inference too slow** | Limit sample size to 10k to ensure < 6h runtime. |
-| **Zero Variance in Target** | `preprocess.py` checks variance before training. If zero, raises `ValueError`. |
-| **Feature Extraction Fails** | `features.py` wraps extraction in `try/except`. Failed rows are logged and excluded, not imputed. |
-| **Confounding Variables** | Include caption length and image complexity as covariates in the XGBoost model to isolate linguistic effects. |
+## Decision/Rationale
+- **Why XGBoost?**: It is the most efficient tree-based model for tabular data on CPU, offering high performance with low memory overhead compared to deep learning models for this specific regression task.
+- **Why Streaming?**: The dataset may exceed the RAM limit of the CI runner. Streaming ensures the full dataset can be processed or a representative sample drawn without OOM errors.
+- **Why Feature Permutation?**: Standard p-values from XGBoost are not directly available; permuting features (X) provides a robust, non-parametric method to assess feature significance and control for false discoveries, distinguishing it from target permutation (Y) which tests global model significance.
+- **Why Visual Token Density?**: It satisfies FR-007 (control for image complexity) using only text-derived features, maintaining compliance with Principle VI (Linguistic Feature Isolation).

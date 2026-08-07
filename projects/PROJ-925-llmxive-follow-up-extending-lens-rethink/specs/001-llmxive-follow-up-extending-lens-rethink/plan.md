@@ -1,129 +1,128 @@
 # Implementation Plan: llmXive follow-up: extending "Lens: Rethinking Training Efficiency for Foundational Text-to-Image Mo"
 
-**Branch**: `001-llmxive-lens-extension` | **Date**: 2026-07-16 | **Spec**: `spec.md`
-**Input**: Feature specification from `specs/001-llmxive-follow-up-extending-lens-rethink/spec.md`
+**Branch**: `001-llmxive-lens-extension` | **Date**: 2026-07-16 | **Spec**: `specs/001-llmxive-follow-up-extending-lens-rethink/spec.md`
 
 ## Summary
-
-This feature implements a CPU-tractable research pipeline to quantify the "human-model disagreement" between CLIP scores and human preference ratings in text-to-image captions. The primary requirement is to extract linguistic features (BERT Perplexity, syntactic complexity) from raw text, compute a deviation target variable ($| \text{CLIP\_Score} - \text{Human\_Rating} |$), and train a Gradient Boosted Trees model (XGBoost) to predict this disagreement. The technical approach strictly adheres to CPU-only constraints, open-data availability (Pick-a-Pic), and rigorous statistical testing (Benjamini-Hochberg correction, 1,000 iteration permutation importance) to ensure reproducibility on free-tier CI runners. The analysis operates on a stratified random sample of **[deferred] rows** to ensure the feature extraction phase completes within the 6-hour CI limit.
+This feature implements a CPU-tractable research pipeline to investigate the "alignment gap" between CLIP scores and human preferences. The system extracts linguistic features (uncertainty proxy, syntactic complexity, visual token density) from captions, calculates an alignment deviation score using a dataset with pre-computed CLIP scores (or a small-scale on-the-fly subset), and trains a Gradient Boosted Trees model (XGBoost) to predict this deviation. The plan strictly adheres to the "CPU-Tractability" and "Linguistic Feature Isolation" constitution principles, ensuring all operations run on standard CPU hardware without GPU dependencies.
 
 ## Technical Context
 
-**Language/Version**: Python 3.11  
-**Primary Dependencies**: `transformers` (for DistilBERT perplexity), `spacy` (for dependency parsing), `xgboost` (CPU-only training), `scikit-learn` (metrics/permutation), `pandas`, `pyarrow` (for parquet streaming), `ruff`, `black`.  
-**Storage**: Local file system (`data/raw`, `data/processed`, `results`).  
-**Testing**: `pytest` with `hypothesis` for edge cases (short captions, missing values).  
-**Target Platform**: GitHub Actions free-tier runner (2 CPU, 7 GB RAM, no GPU).  
-**Project Type**: Research CLI / Data Pipeline.  
-**Performance Goals**: Feature extraction < 5s/caption for 10k samples; Full pipeline < 6h; Memory < 6 GB peak.  
-**Constraints**: No GPU usage; No access-gated data (must use open HuggingFace datasets like Pick-a-Pic); Strict separation of text-feature extraction from image/rating metadata.  
-**Scale/Scope**: Stratified random sample of [deferred] rows from Pick-a-Pic to fit memory/disk limits while maintaining statistical power.
-
-> **Note on Dataset Strategy**: The plan explicitly uses the **Pick-a-Pic** dataset (verified via HuggingFace) which contains both captions and human preference scores (`preference_score`). If this column is missing, the pipeline halts with a loud error. No unverified sources or derivations are permitted.
+**Language/Version**: Python 3.11
+**Primary Dependencies**: `transformers` (for BERT perplexity), `spacy` (for syntactic parsing), `xgboost` (for CPU training), `pandas`, `numpy`, `scikit-learn` (for metrics/permutation), `datasets` (Hugging Face), `tracemalloc` (built-in for memory profiling), `time` (built-in for timing).
+**Storage**: Local file system (`data/raw`, `data/processed`, `results`).
+**Testing**: `pytest` with contract validation against YAML schemas.
+**Target Platform**: Linux (GitHub Actions Free Tier: 2 CPU, ~7 GB RAM).
+**Project Type**: Research Data Pipeline / Machine Learning.
+**Performance Goals**: Feature extraction < 5s/caption; Training < 6h total; Memory < 7 GB.
+**Constraints**: No GPU imports; No synthetic data substitution; Strict separation of text-only feature extraction from image/metadata processing.
+**Scale/Scope**: 
+- **Primary**: Dataset with pre-computed CLIP scores (e.g., LAION-CLIP-Subset) or verified pick-a-pic subset.
+- **Fallback**: If no verified dataset is available, the pipeline halts with `DataSchemaError`. No synthetic data or alternative datasets are used.
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research.*
-
-| Principle | Status | Action Required (Implementation Detail) |
+| Principle | Status | Enforcement Mechanism |
 | :--- | :--- | :--- |
-| **I. Reproducibility** | **Pass** | Pin `transformers`, `spacy`, `xgboost` versions in `requirements.txt`. Use `datasets` streaming to ensure same source. |
-| **II. Verified Accuracy** | **Pass** | All dataset URLs strictly from the provided "Verified datasets" block (Pick-a-Pic). No invented URLs. |
-| **III. Data Hygiene** | **Pass** | Raw data downloaded to `data/raw` with checksums. Processed data written to `data/processed` with new filenames. |
-| **IV. Single Source of Truth** | **Pass** | All metrics in `results/` trace to specific CSV rows. No hand-typed numbers in paper. |
-| **V. Versioning** | **Pass** | Content hashes recorded in `state/...yaml` for all data artifacts. |
-| **VI. Linguistic Feature Isolation** | **Pass** | Enforced by restricting imports in `features.py` to text-processing libraries only. No image data or ratings passed to the feature extractor. |
-| **VII. CPU-Tractability** | **Pass** | XGBoost configured with `tree_method='hist'` (CPU optimized). No CUDA devices. DistilBERT inference on CPU with `device="cpu"`. |
+| **I. Reproducibility** | PASS | Seeds pinned in `config.yaml`; `requirements.txt` pins versions; CI runs isolated; N=1000 permutation count pinned in `config.yaml`. |
+| **II. Verified Accuracy** | PASS | Citations validated against primary sources; no hallucinated URLs; data source fallback is explicit (halt on error). |
+| **III. Data Hygiene** | PASS | Checksums recorded; raw data immutable; derived data in new files. |
+| **IV. Single Source of Truth** | PASS | All results trace to `data/processed` via `code/` scripts. |
+| **V. Versioning Discipline** | PASS | `main.py` includes a post-run hook that computes SHA-256 of `data/processed` and updates `state/projects/...yaml` `updated_at` timestamp. |
+| **VI. Linguistic Feature Isolation** | PASS | `features.py` explicitly blocks image/CLIP imports; inputs are text-only. 'Image Complexity' is replaced by 'visual_token_density' (text-derived). |
+| **VII. CPU-Tractability** | PASS | `train.py` sets `torch.set_num_threads(1)`; XGBoost used (CPU-native); no CUDA; on-the-fly CLIP limited to N=1000. |
 
 ## Project Structure
 
-### Documentation (this feature)
-
-```text
-specs/001-llmxive-follow-up-extending-lens-rethink/
-├── plan.md              # This file
-├── research.md          # Phase 0 output
-├── data-model.md        # Phase 1 output
-├── quickstart.md        # Phase 1 output
-├── contracts/           # Phase 1 output
-│   ├── dataset.schema.yaml
-│   ├── feature_vector.schema.yaml
-│   ├── deviation_target.schema.yaml
-│   └── significance_results.schema.yaml
-└── tasks.md             # Phase 2 output (generated later)
-```
-
-### Source Code (repository root)
-
+### Directory Tree
 ```text
 projects/PROJ-925-llmxive-follow-up-extending-lens-rethink/
 ├── code/
-│   ├── __init__.py
 │   ├── data/
 │   │   ├── __init__.py
-│   │   ├── loader.py          # Handles streaming/download, raises on failure
-│   │   ├── features.py        # Extracts perplexity, depth, density (Text -> Vector)
-│   │   └── preprocess.py      # Computes deviation, handles missing values
+│   │   ├── loader.py          # Fetches dataset (with pre-computed scores or small subset)
+│   │   ├── features.py        # Extracts linguistic vectors (Text only)
+│   │   └── preprocess.py      # Calculates deviation, handles missing data
 │   ├── models/
 │   │   ├── __init__.py
-│   │   └── train.py           # XGBoost training, permutation importance, stability loop
+│   │   └── train.py           # XGBoost CPU training & permutation test
 │   ├── utils/
-│   │   └── stats.py           # Benjamini-Hochberg, p-value calculation
-│   └── tests/
-│       ├── test_features.py
-│       ├── test_preprocess.py
-│       └── test_train.py
+│   │   ├── config.py          # Seeding, paths, constants (N=1000 pinned)
+│   │   └── validation.py      # Schema validation helpers
+│   └── main.py                # Orchestration, profiling, versioning hook
 ├── data/
-│   ├── raw/                   # Downloaded parquet shards (immutable)
-│   └── processed/             # features.csv, deviation.csv, stability_metrics.json
-├── results/
-│   └── model_artifacts/       # Trained XGBoost model, logs
+│   ├── raw/                   # Downloaded datasets (immutable)
+│   └── processed/             # features.csv, deviation.csv, results/
+├── tests/
+│   ├── contract/              # Tests for schema validation (pytest)
+│   ├── integration/           # End-to-end pipeline tests
+│   └── unit/                  # Feature extraction logic tests
 ├── docs/
-│   └── README.md
-├── pyproject.toml             # Linting config (Black, Ruff)
-└── requirements.txt           # Pinned dependencies
+├── results/                   # Model outputs, logs, stability metrics
+├── requirements.txt
+├── .ruff.toml
+├── pyproject.toml
+└── README.md
 ```
 
-**Structure Decision**: Chosen structure separates data ingestion (`loader`), feature engineering (`features`), target engineering (`preprocess`), and modeling (`train`). This enforces Constitution Principle VI (Linguistic Feature Isolation) by ensuring `features.py` has no dependency on image data or ratings. The `data/` directory is at the project root, not nested under `code/`, resolving the conflict in T001/T009.
+**Structure Decision**: Standard research pipeline structure. `code/data` handles ingestion and transformation, `code/models` handles training. Strict separation ensures Principle VI compliance. `main.py` handles profiling and versioning. Note: `specs/.../contracts/` contains the YAML schema definitions, while `tests/contract/` contains the Python pytest fixtures that validate data against these schemas.
+
+### Linting & Formatting
+- **Tooling**: `ruff` for linting, `black` for formatting.
+- **Config**: `pyproject.toml` contains Black settings; `.ruff.toml` contains linting rules.
+- **Enforcement**: CI runs `ruff check` and `black --check` before tests.
 
 ## Complexity Tracking
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 | :--- | :--- | :--- |
-| **Permutation Significance Test** | Required by FR-006 and SC-004 to validate feature importance against random chance. | A simple model accuracy metric does not prove *which* features are significant; it only measures overall performance. |
-| **Streaming Data Loading** | Dataset size (large-scale) exceeds CI RAM (7GB). | Loading the full dataset into memory would crash the runner. Streaming allows processing row-by-row. |
-| **Stability Loop (SC-005)** | Required to prove results are not artifacts of a single random seed. | A single train/test split cannot guarantee robustness; the loop is mandatory for the research claim. |
-| **Confounding Control** | Required to address methodology concerns about spurious correlations. | Without controlling for caption length or image complexity, observed correlations may be confounded. |
+| **Permutation Test (N=1000)** | Required by FR-006 for significance. Pinned in `config.yaml` for reproducibility (Principle I). | Random sampling of features is insufficient; null distribution requires rigorous resampling to control FDR. |
+| **BERT Perplexity** | Required by FR-001 for uncertainty proxy. | Simple token counts (e.g., entropy) do not capture semantic uncertainty; BERT provides necessary depth. |
+| **Streaming Data** | Dataset may exceed available RAM. | Loading full dataset into memory risks OOM; streaming allows processing of full scale within limits. |
+| **Visual Token Density** | Required by FR-007 to control for image complexity. | Direct image processing violates Principle VI; text-derived proxy is the only compliant alternative. |
+| **Strict Data Fallback** | Required to satisfy Principle II. | Using synthetic data or unverified datasets would invalidate the research question and violate data hygiene. |
 
-## Implementation Phases & Task Dependencies
+## Implementation Phases
 
-### Phase 0: Research & Data Strategy
-- **T001**: Define dataset strategy (Pick-a-Pic) and verify column presence.
-- **T002**: Define statistical methodology (raw difference, permutation testing).
+### Phase 1: Data Ingestion & Validation
+- **Action**: `loader.py` fetches the dataset.
+- **Constraint**: If 'pick-a-pic' is used, limit to N=1000 samples for on-the-fly CLIP inference. If pre-computed dataset available, load full.
+- **Validation**: Check for `clip_score` and `human_rating` columns. Raise `DataSchemaError` if missing. **If the dataset source is unreachable or missing required columns, the pipeline halts immediately with a loud error.** No synthetic fallbacks are permitted.
 
-### Phase 1: Data Engineering & Contracts
-- **T004**: Define and validate `contracts/*.schema.yaml` files. **(Hard Dependency for T018)**
-- **T009**: Implement `code/data/loader.py` with strict column checks.
-- **T018**: Implement `code/data/features.py` (DistilBERT perplexity) and validate against `feature_vector.schema.yaml`.
+### Phase 2: Feature Extraction (Text-Only)
+- **Action**: `features.py` extracts:
+  - `linguistic_uncertainty_proxy` (ln(perplexity))
+  - `syntactic_depth` (max dependency depth)
+  - `noun_phrase_density`
+  - `visual_token_density` (ratio of noun phrases to total tokens, proxy for image complexity per FR-007)
+  - `caption_length`
+- **Constraint**: No image imports. `torch.set_num_threads(1)` enforced.
+- **Logic**: Stream dataset in batches. Validate output against `feature_vector.schema.yaml`. Handle short captions by assigning default minimum depth or excluding with logging.
 
-### Phase 2: Target Engineering
-- **T025**: Implement `code/data/preprocess.py` (raw difference, zero variance check) and validate against `deviation_target.schema.yaml`.
+### Phase 3: Target Calculation & Profiling
+- **Action**: `preprocess.py` calculates `deviation_score` = |normalized(clip) - normalized(human)|.
+- **Validation**: Check for zero variance in target; raise `ValueError("Target not learnable")` if found.
+- **Profiling**:
+  - **Memory**: `tracemalloc` in `main.py` logs peak RSS to `results/memory_profile.json` (SC-002).
+  - **Time**: `time` module in `main.py` logs wall-clock duration to `results/timing_profile.json` (SC-003).
 
-### Phase 3: Modeling & Stability
-- **T033**: Implement `code/models/train.py` with:
-  - **Stability Loop**: Iterate over **5 seeds** (0, 42, 123, 2024, 9999).
-  - **Inside Loop**: Re-sample data (T013b logic), retrain model, calculate feature importance.
-  - **Permutation**: 1,000 iterations for null distribution.
-  - **Correction**: Apply Benjamini-Hochberg.
-  - **Output**: `results/stability_metrics.json`.
+### Phase 4: Modeling & Significance
+- **Action**: `train.py` trains XGBoost.
+- **Significance**:
+  - **Feature Permutation**: For each feature $X_j$, shuffle values $N=1000$ times (keeping $Y$ fixed) to generate null distribution for importance. Calculate p-values and apply Benjamini-Hochberg correction.
+  - **Stability Analysis**: Iterate over multiple random seeds (e.g., a small set of seeds). For each seed, train model and record feature importance ranks. Compute mean rank and standard deviation. Output `results/stability_metrics.json`.
+  - **Sensitivity (FR-008)**: Inject Gaussian noise (sigma=0.01, 0.05, 0.1) into human ratings. Re-train model for each noise level. Aggregate: Compute Spearman rank correlation of feature importance vectors across noise levels.
+- **Output**: `results/significance_results.json`, `results/stability_metrics.json`.
+
+### Phase 5: Versioning & Output
+- **Action**: `main.py` post-run hook.
+- **Mechanism**: Compute SHA-256 of `data/processed` files. Update `state/projects/...yaml` `updated_at` and `artifact_hashes`.
+- **Output**: Final results files.
 
 ## Risk Mitigation
 
 | Risk | Mitigation |
 | :--- | :--- |
-| **Dataset lacks Human Ratings** | `loader.py` checks for `preference_score` column immediately. If missing, the pipeline exits with a clear error message. No synthetic data is generated. |
-| **BERT Inference too slow** | Use `distilbert-base-uncased` instead of `bert-base`. Limit sample size to 10k to ensure < 6h runtime. |
-| **Zero Variance in Target** | `preprocess.py` checks variance before training. If zero, raises `ValueError`. |
-| **Feature Extraction Fails** | `features.py` wraps extraction in `try/except`. Failed rows are logged and excluded, not imputed. |
-| **Data Loader Errors** | `loader.py` removes `try/except` blocks that suppress errors. Fetch errors now raise explicit exceptions. |
-| **Confounding Variables** | Include caption length and image complexity as covariates in the XGBoost model to isolate linguistic effects. |
+| **Data Unavailability** | **HALT**: If verified dataset is missing, raise `DataSchemaError` and exit. No fallback to synthetic data. |
+| **Circularity** | Reframe as 'text-driven metric instability'; use Text Permutation Null Model. |
+| **OOM/Time Out** | Streaming data; strict N=1000 limit for on-the-fly CLIP; `tracemalloc` monitoring. |
+| **Confounds** | Use `visual_token_density` (text-derived) to satisfy FR-007 without violating Principle VI. |

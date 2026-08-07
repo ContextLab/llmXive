@@ -1,12 +1,13 @@
 status: none
-intent: Pick-a-Pic caption preference dataset and COCO image dataset python package
+intent: Pick-a-Pic caption dataset download with preference_score column python package
   dataset
 required_fields:
-- image_id
 - caption
-- human_preference_label
-- winner_caption
-- loser_caption
-cache_key: 13a29d852343351a0668d1a70a3fd5d99a06486facebd62266ed5953a40e4494
-searched_at: '2026-07-17T18:39:50.373144+00:00'
+- preference_score
+- linguistic_uncertainty_proxy
+- syntactic_complexity
+- noun_phrase_density
+- token_diversity
+cache_key: 8c7578bf5fbead50cc3f67e7368bbc6495d856c084245481f74e5961516bae9f
+searched_at: '2026-08-07T01:34:24.554405+00:00'
 retry_count: 1

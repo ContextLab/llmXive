@@ -1,90 +1,70 @@
 # Quickstart: llmXive follow-up: extending "Lens: Rethinking Training Efficiency for Foundational Text-to-Image Mo"
 
 ## Prerequisites
-
 - Python 3.11+
-- `pip`
-- At least 15 GB of free disk space (for raw data and processed artifacts)
-- A GitHub Actions runner (or local machine) with CPU access.
+- Git
+- Access to Hugging Face Hub (for datasets)
 
 ## Installation
 
-1. **Clone the repository**:
+1. **Clone and Setup Environment**
    ```bash
-   git clone https://github.com/your-org/llmxive-follow-up.git
-   cd llmxive-follow-up
-   ```
-
-2. **Create a virtual environment**:
-   ```bash
-   python -m venv .venv
-   source .venv/bin/activate  # On Windows: .venv\Scripts\activate
-   ```
-
-3. **Install dependencies**:
-   ```bash
+   git clone <repo-url>
+   cd projects/PROJ-925-llmxive-follow-up-extending-lens-rethink
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
    pip install -r requirements.txt
    ```
-   *Note: `requirements.txt` pins `transformers`, `spacy`, `xgboost`, `scikit-learn`, `pandas`, `pyarrow`, `ruff`, `black`.*
 
-4. **Download spaCy model**:
+2. **Verify Dependencies**
    ```bash
-   python -m spacy download en_core_web_sm
+   python -c "import torch; import xgboost; import spacy; import transformers; print('All dependencies OK')"
    ```
 
-5. **Configure Linting (Optional but recommended)**:
-   The project uses `pyproject.toml` for Black and Ruff configuration.
-   ```bash
-   # Format code
-   black code/
-   # Lint code
-   ruff check code/
-   ```
+3. **Download Data**
+   The pipeline will automatically download the dataset on first run if not present in `data/raw`.
+   - Ensure you have sufficient disk space for the raw dataset.
+   - **Note**: If 'pick-a-pic' is used, the run will be limited to N=1000 samples for on-the-fly CLIP inference. If no verified dataset is found, the pipeline will halt with an error.
 
 ## Running the Pipeline
 
-**Note**: All commands below assume you are running from the **repository root** (the directory containing `code/`, `data/`, etc.).
-
-### Step 1: Download Data
-The script downloads the verified Pick-a-Pic dataset to `data/raw`.
+### 1. Feature Extraction
+Extract linguistic features from the dataset.
 ```bash
-python code/data/loader.py
+python code/data/features.py --input data/raw/pick-a-pic.jsonl --output data/processed/features.csv
 ```
-*Output*: `data/raw/pick-a-pic.parquet` (or streaming cache).
-*Error Handling*: If the dataset lacks `preference_score`, the script raises a `ValueError` and exits. No synthetic data is generated.
+- **Expected Output**: `data/processed/features.csv` with columns: `caption_id`, `linguistic_uncertainty_proxy`, `syntactic_depth`, `visual_token_density`, etc.
 
-### Step 2: Extract Features
-Computes linguistic features from raw text.
+### 2. Target Calculation
+Compute the alignment deviation scores.
 ```bash
-python code/data/features.py
+python code/data/preprocess.py --features data/processed/features.csv --input data/raw/pick-a-pic.jsonl --output data/processed/deviation.csv
 ```
-*Output*: `data/processed/features.csv`
+- **Expected Output**: `data/processed/deviation.csv` with `deviation_score`.
 
-### Step 3: Compute Deviation
-Calculates the target variable (using raw difference).
+### 3. Model Training & Evaluation
+Train the XGBoost model and run permutation tests.
 ```bash
-python code/data/preprocess.py
+python code/models/train.py --features data/processed/features.csv --target data/processed/deviation.csv --output results/
 ```
-*Output*: `data/processed/deviation.csv`
-*Error Handling*: If the target has zero variance, the script raises `ValueError("Target not learnable")`.
-
-### Step 4: Train Model & Run Sensitivity
-Trains XGBoost and runs the stability loop (5 seeds).
-```bash
-python code/models/train.py
-```
-*Output*: `results/stability_metrics.json`, `results/model.pkl`
+- **Expected Output**:
+  - `results/model.pkl` (trained model)
+  - `results/feature_importance.json`
+  - `results/stability_metrics.json`
+  - `results/significance_results.csv`
+  - `results/memory_profile.json` (Peak RSS via `tracemalloc`)
+  - `results/timing_profile.json` (Wall-clock time via `time`)
 
 ## Verification
-
-Run the test suite to ensure the pipeline is healthy:
+Run the test suite to ensure contract compliance:
 ```bash
-pytest code/tests/ -v
+pytest tests/ -v
 ```
+- Check that `tests/contract/test_schemas.py` passes (validates YAML schemas).
+- Check that `tests/integration/test_pipeline.py` passes (end-to-end run).
 
 ## Troubleshooting
-
-- **"Dataset missing required 'preference_score' column"**: The verified dataset does not contain human ratings. The pipeline has halted to prevent fabrication. Check the dataset schema in `data/raw`.
-- **"Memory limit exceeded"**: Ensure `streaming=True` is used in `loader.py`. If running locally, reduce the sample size in the config.
-- **"CUDA error"**: The code is designed for CPU. If you see CUDA errors, ensure `device="cpu"` is set in `transformers` and `xgboost`.
-- **"Zero Variance in Target"**: The human ratings and CLIP scores are identical for the sample. Check data quality.
+- **OOM Error**: If you encounter MemoryError, reduce the batch size in `code/data/features.py` or enable streaming (default).
+- **Missing Data**: If 'pick-a-pic' cannot be downloaded, the script will raise `DataSchemaError`. Check internet connection or Hugging Face token. **The pipeline will not proceed with synthetic data.**
+- **CPU Slowness**: Ensure `torch.set_num_threads(1)` is set (done automatically in `train.py`).
+- **Versioning**: The `main.py` script automatically updates `state/projects/...yaml` with the new hash after a successful run.

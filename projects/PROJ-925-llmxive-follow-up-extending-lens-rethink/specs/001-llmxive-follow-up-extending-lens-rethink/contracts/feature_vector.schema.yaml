@@ -1,38 +1,44 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Feature Vector Schema"
-description: "Schema for the extracted linguistic features."
-type: "object"
+title: "Linguistic Feature Vector Schema"
+description: "Schema for extracted linguistic features from caption text."
+type: object
 properties:
-  id:
-    type: "string"
-    description: "Foreign key to the original record."
-  textual_perplexity:
-    type: "number"
-    description: "Natural log of perplexity (ln(perplexity)). Proxy for linguistic uncertainty."
+  caption_id:
+    type: string
+    description: "Foreign key to the raw caption."
+  linguistic_uncertainty_proxy:
+    type: number
+    description: "Natural log of perplexity (ln(perplexity))."
+    minimum: 0
   syntactic_depth:
-    type: "integer"
+    type: integer
     description: "Maximum depth of the dependency parse tree."
+    minimum: 0
   noun_phrase_density:
-    type: "number"
+    type: number
     description: "Ratio of noun phrases to total tokens."
+    minimum: 0
+    maximum: 1
   token_diversity:
-    type: "number"
-    description: "Type-Token Ratio (TTR)."
+    type: number
+    description: "Unique tokens divided by total tokens."
+    minimum: 0
+    maximum: 1
   caption_length:
-    type: "integer"
-    description: "Number of tokens in the caption (used as confounder)."
-  status:
-    type: "string"
-    enum:
-      - "valid"
-      - "failed"
-    description: "Processing status."
+    type: integer
+    description: "Number of tokens in the caption."
+    minimum: 1
+  visual_token_density:
+    type: number
+    description: "Ratio of noun phrases to total tokens (proxy for image complexity)."
+    minimum: 0
+    maximum: 1
 required:
-  - "id"
-  - "textual_perplexity"
-  - "syntactic_depth"
-  - "noun_phrase_density"
-  - "token_diversity"
-  - "caption_length"
-  - "status"
+  - caption_id
+  - linguistic_uncertainty_proxy
+  - syntactic_depth
+  - noun_phrase_density
+  - token_diversity
+  - caption_length
+  - visual_token_density
 additionalProperties: false

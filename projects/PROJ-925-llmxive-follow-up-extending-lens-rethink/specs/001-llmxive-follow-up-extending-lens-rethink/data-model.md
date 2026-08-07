@@ -1,56 +1,50 @@
 # Data Model: llmXive follow-up: extending "Lens: Rethinking Training Efficiency for Foundational Text-to-Image Mo"
 
-## Entities
+## Entity Definitions
 
 ### 1. CaptionRecord (Raw Input)
-Represents a single row from the source dataset.
-- `id`: string (unique identifier)
-- `text`: string (raw caption)
-- `image_id`: string (optional, for reference)
-- `clip_score`: float (pre-computed or computed on the fly)
-- `preference_score`: float (0.0 to 1.0) or null (mapped from `preference_score`)
+Represents a single data point from the source dataset before transformation.
+- `caption_id`: Unique string identifier.
+- `caption_text`: Raw string of the text prompt.
+- `clip_score`: Float (raw, unnormalized).
+- `human_rating`: Float (raw, unnormalized) or null.
+- `image_url`: String (metadata, not used for feature extraction).
 
-### 2. LinguisticFeatureVector (Derived)
-The output of the feature extraction step.
-- `id`: string (foreign key to CaptionRecord)
-- `textual_perplexity`: float (ln(perplexity)) - *Proxy for linguistic uncertainty*
-- `syntactic_depth`: int (max dependency tree depth)
-- `noun_phrase_density`: float (ratio)
-- `token_diversity`: float (type-token ratio)
-- `caption_length`: int (number of tokens, used as confounder)
-- `status`: string ("valid" or "failed")
+### 2. LinguisticFeatureVector (Derived Input)
+The structured set of predictors extracted from `caption_text`.
+- `caption_id`: String (FK to CaptionRecord).
+- `linguistic_uncertainty_proxy`: Float (ln(perplexity)).
+- `syntactic_depth`: Integer (max dependency tree depth).
+- `noun_phrase_density`: Float (ratio).
+- `token_diversity`: Float (unique tokens / total tokens).
+- `caption_length`: Integer (token count).
+- `visual_token_density`: Float (ratio of noun phrases to total tokens; proxy for image complexity per FR-007).
 
-### 3. DeviationTarget (Derived)
-The target variable for the model.
-- `id`: string (foreign key)
-- `deviation_score`: float (absolute difference of raw scores)
-- `clip_score`: float (raw CLIP score)
-- `human_rating`: float (raw Human rating)
+### 3. DeviationTarget (Derived Output)
+The target variable for the regression model.
+- `caption_id`: String (FK).
+- `normalized_clip_score`: Float (0.0 to 1.0).
+- `normalized_human_rating`: Float (0.0 to 1.0).
+- `deviation_score`: Float (absolute difference).
+- `exclusion_reason`: String (if excluded, e.g., "missing_human_rating").
 
-### 4. StabilityMetrics (Aggregated)
-Results of the sensitivity analysis.
-- `feature_name`: string
-- `mean_rank`: float
-- `std_rank`: float
-- `p_value`: float
-- `is_significant`: boolean (after BH correction)
+### 4. FeatureImportanceRanking (Model Output)
+Sorted list of features by predictive power.
+- `feature_name`: String.
+- `importance_score`: Float (XGBoost gain/split).
+- `p_value`: Float (from feature permutation test).
+- `is_significant`: Boolean (after BH correction).
 
 ## Data Flow
+1. **Ingestion**: `loader.py` fetches raw `CaptionRecord` data.
+2. **Feature Engineering**: `features.py` consumes `caption_text` only (Principle VI) and outputs `LinguisticFeatureVector`.
+3. **Target Calculation**: `preprocess.py` consumes `clip_score` and `human_rating` to generate `DeviationTarget`.
+4. **Training**: `train.py` joins `LinguisticFeatureVector` and `DeviationTarget` (excluding nulls) to train the model.
+5. **Evaluation**: `train.py` outputs `FeatureImportanceRanking` and stability metrics.
 
-1. **Ingestion**: `loader.py` reads from `data/raw` (streaming).
-2. **Feature Extraction**: `features.py` transforms `text` -> `LinguisticFeatureVector`. Includes `try/except` for failed extractions; logs and excludes failures.
-3. **Target Engineering**: `preprocess.py` transforms `clip_score` + `human_rating` -> `DeviationTarget` (using raw difference). Checks for zero variance; raises `ValueError` if unlearnable.
-4. **Join**: Records are joined on `id`. Rows with missing `human_rating` or failed features are dropped.
-5. **Modeling**: `train.py` ingests the joined dataframe.
-   - **Stability Loop**: Iterates over 5 seeds. Inside loop: re-sample data, retrain model, calculate importance.
-   - **Permutation**: 1,000 iterations.
-   - **Correction**: Benjamini-Hochberg.
-6. **Output**: `results/stability_metrics.json` and `results/model.pkl`.
-
-## Constraints
-
-- **No Circular Data**: `features.py` must not receive `clip_score` or `human_rating`.
-- **No In-Place Modification**: Raw data is read-only. All derived data is written to new files.
-- **Null Handling**: Missing `human_rating` results in row exclusion, not imputation.
-- **Normalization**: No normalization is applied to the target variable. Raw difference is used.
-- **Confounding**: `caption_length` must be included as a predictor to control for length bias.
+## Constraints & Validations
+- **Null Handling**: `human_rating` must not be null for inclusion in training.
+- **Normalization**: Both CLIP and Human ratings must be in [0, 1] before subtraction.
+- **Type Safety**: All numeric fields must be floats/ints; no strings in numeric columns.
+- **Immutability**: Raw data in `data/raw` is never modified. All derived files are new.
+- **Image Complexity**: Replaced by `visual_token_density` (text-derived) to satisfy FR-007 without violating Principle VI.
