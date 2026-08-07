@@ -8,8 +8,9 @@ The gate detected that your reported numbers are NOT real measurements: they are
 2. Run a REAL, honestly scaled-down experiment that MEASURES the actual quantity on the CPU (e.g. time a real (small) computation, count real events, compute the real statistic over real or clearly-labelled sampled INPUT data). A small REAL result beats a big fake one.
 3. If the headline quantity genuinely NEEDS a GPU (it trains/runs a transformer, a diffusion model, CUDA kernels, 8-bit quantization), do NOT fake it and do NOT cripple it onto the CPU. KEEP the real GPU code (use `device="cuda"`, the real model, 8-bit if needed) but SCALE IT DOWN to fit ONE free Kaggle GPU (~16 GB VRAM, one ~9h kernel): a small/quantized model, a few-hundred-example subset, a handful of steps. The execution stage AUTO-DETECTS the GPU requirement (the CPU run fails with a CUDA error) and re-runs your SAME run-book on Kaggle's free GPU, producing a REAL (scaled) result — that is the correct path for a GPU experiment. Do NOT add a silent CPU fallback that would run a degenerate result locally (it would never offload). Never present a simulated number as a measurement.
 
-- code/04_regression.py: self-declared fabricated metric — “…Gap")             # Create a placeholder result file indicating the gap…”
-- code/05_sensitivity.py: self-declared fabricated metric — “…gap exists         # Create a placeholder result indicating N/A         qc_dir…”
+- code/03_correlation.py: self-declared fabricated metric — “…ta Gap).")         # Create a placeholder result indicating N/A to satisfy the…”
+- code/08_literature_synthesis.py: self-declared fabricated metric — “…t instructions, we should not fake results.         # We will write an…”
+- code/08_literature_synthesis.py: synthetic/fake INPUT data not authorized by the spec — “…:             # Create a synthetic evidence record based on the abstract…”
 
 ## ⛔ HOLLOW RESULTS — the analysis RAN but MEASURED NOTHING
 
@@ -20,44 +21,47 @@ Every command exited 0 and the files were written — but the numbers in them ar
 3. Make sure the key measure is actually POPULATED before you compute on it: if the column the study depends on is blank in every row, the extraction step is broken and that is the real bug.
 4. NEVER self-certify. A `{"status": "PASS"}` written by your own code proves nothing; the numbers must be there.
 
-- every produced artifact is gitignored (data/processed/data_gap_report.json, data/processed/regression_results.json) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.
+- every produced artifact is gitignored (data/processed/correlation_results.json) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.
+
+## ⚠ REGRESSIONS — your last fix BROKE these (they passed before)
+
+These commands were NOT failing in the previous round and ARE failing now — your last edit broke previously-working code. REVERT or correct whatever change broke each one BEFORE touching anything else; do not trade one passing script for another (that oscillation is what burns the fix-round budget toward escalation):
+
+- `python code/07_gap_report.py`
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 2 fabricated/simulated-result signal(s) — results are not real measurements: code/04_regression.py: self-declared fabricated metric — “…Gap")             # Create a placeholder result file indicating the gap…”; code/05_sensitivity.py: self-declared fabricated metric — “…gap exists         # Create a placeholder result indicating N/A         qc_dir…”; every produced artifact is gitignored (data/processed/data_gap_report.json, data/processed/regression_results.json) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 3 command(s) failed: python code/02_preprocess.py (rc=1); python code/03_correlation.py (rc=1); python code/05_sensitivity.py (rc=1); 1 declared deliverable(s) absent: data/qc/filtering_log.json
+**Summary**: 3 fabricated/simulated-result signal(s) — results are not real measurements: code/03_correlation.py: self-declared fabricated metric — “…ta Gap).")         # Create a placeholder result indicating N/A to satisfy the…”; code/08_literature_synthesis.py: self-declared fabricated metric — “…t instructions, we should not fake results.         # We will write an…”; code/08_literature_synthesis.py: synthetic/fake INPUT data not authorized by the spec — “…:             # Create a synthetic evidence record based on the abstract…”; every produced artifact is gitignored (data/processed/correlation_results.json) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 2 command(s) failed: python code/02_preprocess.py (rc=1); python code/07_gap_report.py (rc=1); 1 declared deliverable(s) absent: data/raw/literature_metadata.json
 
 ## Failing / missing run-book commands
 
 - python code/02_preprocess.py -> rc=1
-    Raw cognitive data not found at /home/runner/work/llmXive/llmXive/projects/PROJ-346-investigating-the-correlation-between-gu/data/raw/cognitive_data.parquet. Run T012 first.
-- python code/03_correlation.py -> rc=1
-    2026-08-04 12:11:36,079 - correlation_analysis - INFO - Starting correlation analysis (T036 optimized).
+    Raw data files missing. Cannot perform preprocessing.
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-346-investigating-the-correlation-between-gu/code/02_preprocess.py", line 130, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-346-investigating-the-correlation-between-gu/code/02_preprocess.py", line 106, in main
+    raise FileNotFoundError("Raw data files missing.")
+FileNotFoundError: Raw data files missing.
+- python code/07_gap_report.py -> rc=1
+    Generating Data Gap Report (FR-008 fallback)...
+2026-08-07 20:47:28,852 - gap_report - INFO - Writing gap report to /home/runner/work/llmXive/llmXive/projects/PROJ-346-investigating-the-correlation-between-gu/data/processed/data_gap_report.json
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-346-investigating-the-correlation-between-gu/code/03_correlation.py", line 259, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-346-investigating-the-correlation-between-gu/code/07_gap_report.py", line 81, in <module>
     main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-346-investigating-the-correlation-between-gu/code/03_correlation.py", line 230, in main
-    df = load_merged_data()
-         ^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-346-investigating-the-correlation-between-gu/code/03_correlation.py", line 32, in load_merged_data
-    data_dir = get_data_processed_path(root)
-               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-TypeError: get_data_processed_path() takes 0 positional arguments but 1 was given
-- python code/05_sensitivity.py -> rc=1
-    2026-08-04 12:11:38,528 - 05_sensitivity - INFO - Starting T030: Sensitivity Analysis (Normalization Comparison)
-2026-08-04 12:11:38,528 - 05_sensitivity - WARNING - Merged dataset not found at /home/runner/work/llmXive/llmXive/projects/PROJ-346-investigating-the-correlation-between-gu/data/processed/merged_dataset.parquet. Skipping sensitivity analysis (Data Gap).
-
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-346-investigating-the-correlation-between-gu/code/05_sensitivity.py", line 297, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-346-investigating-the-correlation-between-gu/code/05_sensitivity.py", line 279, in main
-    with open(output_path, 'w') as f:
-         ^^^^^^^^^^^^^^^^^^^^^^
-FileNotFoundError: [Errno 2] No such file or directory: '/home/runner/work/llmXive/llmXive/projects/PROJ-346-investigating-the-correlation-between-gu/data/qc/sensitivity_analysis_results.json'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-346-investigating-the-correlation-between-gu/code/07_gap_report.py", line 77, in main
+    generate_gap_report(reason=reason)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-346-investigating-the-correlation-between-gu/code/07_gap_report.py", line 65, in generate_gap_report
+    write_json_log(report_data, report_file)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-346-investigating-the-correlation-between-gu/code/utils.py", line 125, in write_json_log
+    with open(path, 'w') as f:
+         ^^^^^^^^^^^^^^^
+IsADirectoryError: [Errno 21] Is a directory: '/home/runner/work/llmXive/llmXive/projects/PROJ-346-investigating-the-correlation-between-gu/data/processed/data_gap_report.json'
 
 ## Declared deliverables still missing
 
-- data/qc/filtering_log.json
+- data/raw/literature_metadata.json
 
 ## ⚠ SHARED-MODULE CONTRACT — fix the DEFINITION, tolerant of ALL callers
 
@@ -67,16 +71,20 @@ One or more failures are API-CONTRACT errors on a symbol YOUR OWN code defines a
 
 **This list is CUMULATIVE across every fix round** — it includes contracts you may have ALREADY satisfied in an earlier round. Keep satisfying them while you fix the rest. Do NOT remove a method or parameter merely because it is absent from this round's traceback; if it is listed here, some script still depends on it.
 
-### `get_data_processed_path` — defined in `code/utils.py`; called 8 way(s):
+### `get_data_processed_path` — defined in `code/utils.py`; called 12 way(s):
 
 - code/03_correlation.py: data_dir = get_data_processed_path(root)
-- code/03_correlation.py: processed_dir = get_data_processed_path(root)
+- code/03_correlation.py: data_dir = get_data_processed_path()
 - code/06_visualize.py: data_path = get_data_processed_path()
-- code/04_regression.py: PROCESSED_DATA_DIR = get_data_processed_path()
+- code/04_regression.py: processed_dir = get_data_processed_path()
+- code/04_regression.py: output_dir = get_data_processed_path()
 - code/02_preprocess.py: processed_dir = get_data_processed_path()
 - code/05_save_results.py: processed_dir = get_data_processed_path()
-- code/05_sensitivity.py: data_dir = get_data_processed_path()
+- code/05_sensitivity.py: processed_dir = get_data_processed_path()
 - code/07_gap_report.py: processed_path = get_data_processed_path()
+- code/utils.py: - get_data_processed_path()
+- code/utils.py: - get_data_processed_path(root)
+- code/utils.py: - get_data_processed_path(root, sub_dir)
 
 Make `get_data_processed_path` in `code/utils.py` accept ALL of the above.
 
@@ -84,9 +92,9 @@ Make `get_data_processed_path` in `code/utils.py` accept ALL of the above.
 
 Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
 
-- `data/qc/filtering_log.json` is declared but was NOT written. Scripts referencing it:
-    - `code/02_preprocess.py` — IS a run-book command
-  Make ONE of these WRITE `data/qc/filtering_log.json` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
+- `data/raw/literature_metadata.json` is declared but was NOT written. Scripts referencing it:
+    - `code/08_mechanistic_synthesis.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/raw/literature_metadata.json` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
 
 ## ⚠ CROSS-SCRIPT DATA CONTRACT — make the PRODUCER write what consumers read
 

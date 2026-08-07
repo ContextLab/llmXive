@@ -1,159 +1,148 @@
-"""
-Shared utilities for the Gut Microbiome and Cognitive Flexibility project.
-"""
-
 import logging
 import sys
 import os
 import time
 import json
 import hashlib
-import requests
 from pathlib import Path
-from typing import Optional, Dict, Any
-import numpy as np
+from typing import Optional, List, Dict, Any, Union
+import requests
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 
-# Constants
-READ_THRESHOLD = 10000
-ABUNDANCE_FILTER = 0.001
-AGE_STRATA = {'young': '<40', 'middle': '40-60', 'senior': '>=60'}
+# Configuration for project paths
+# We assume the project root is the parent of 'code'
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+DATA_DIR = PROJECT_ROOT / "data"
+CODE_DIR = PROJECT_ROOT / "code"
+CONTRACTS_DIR = PROJECT_ROOT / "contracts"
+FIGURES_DIR = PROJECT_ROOT / "figures"
+SPECS_DIR = PROJECT_ROOT / "specs"
 
-# Logger setup
-def setup_logger(name, level=logging.INFO):
+def setup_logger(name: str, level: int = logging.INFO) -> logging.Logger:
+    """Set up a logger with a specific name and level."""
     logger = logging.getLogger(name)
-    if logger.handlers:
-        return logger
     logger.setLevel(level)
-    handler = logging.StreamHandler(sys.stdout)
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    handler.setFormatter(formatter)
-    logger.addHandler(handler)
+    if not logger.handlers:
+        handler = logging.StreamHandler(sys.stdout)
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)
     return logger
 
-logger = setup_logger("utils")
+def get_project_root_path() -> Path:
+    """Return the project root path."""
+    return PROJECT_ROOT
 
-def get_project_root_path():
-    """Returns the absolute path to the project root."""
-    # Assume script is in code/ or code/subdir/
-    current = Path(__file__).resolve()
-    return current.parent.parent
+def get_code_path() -> Path:
+    """Return the code directory path."""
+    return CODE_DIR
 
-def get_code_path():
-    """Returns the path to the code directory."""
-    return get_project_root_path() / "code"
+def get_data_path(sub_dir: Optional[str] = None) -> Path:
+    """Return the data directory path."""
+    if sub_dir:
+        return DATA_DIR / sub_dir
+    return DATA_DIR
 
-def get_data_path():
-    """Returns the path to the data directory."""
-    return get_project_root_path() / "data"
+def get_data_raw_path(filename: Optional[str] = None) -> Path:
+    """Return the raw data directory path or a specific file path."""
+    raw_dir = DATA_DIR / "raw"
+    if filename:
+        return raw_dir / filename
+    return raw_dir
 
-def get_data_raw_path():
-    """Returns the path to the raw data directory."""
-    return get_data_path() / "raw"
-
-def get_data_processed_path(*args, **kwargs):
+def get_data_processed_path(root: Optional[Path] = None, sub_dir: Optional[str] = None) -> Path:
     """
-    Returns the path to the processed data directory.
-    Accepts flexible arguments to satisfy various call signatures across the project.
-    
-    Call signatures observed:
-    - get_data_processed_path()
-    - get_data_processed_path(root)
-    - get_data_processed_path(root, sub_dir)
+    Return the processed data directory path.
+    Handles multiple calling conventions:
+    1. get_data_processed_path()
+    2. get_data_processed_path(root)
+    3. get_data_processed_path(root, sub_dir)
     """
-    root = get_project_root_path()
+    # Determine base processed directory
+    base_processed = DATA_DIR / "processed"
     
-    # Handle positional arguments if passed (e.g., from code/03_correlation.py)
-    if args:
-        # If first arg is a Path or string, treat as root override
-        if isinstance(args[0], (str, Path)):
-            root = Path(args[0])
-        # If second arg is provided, treat as subdirectory
-        if len(args) > 1:
-            return root / "data" / "processed" / args[1]
+    # Handle arguments flexibly
+    if root is not None:
+        # If root is provided, use it as the base for the processed dir
+        # But we still want to respect the global DATA_DIR structure usually
+        # However, to support the signature (root, sub_dir), we treat 'root' as the parent of 'processed'
+        # if it looks like a path, otherwise treat it as a sub_dir if sub_dir is None
+        if isinstance(root, str) and not Path(root).is_absolute():
+            # Likely passed as a sub_dir by mistake or convention
+            if sub_dir is None:
+                return base_processed / root
+            else:
+                return base_processed / root / sub_dir
+        elif isinstance(root, Path):
+            if sub_dir:
+                return root / "processed" / sub_dir
+            else:
+                return root / "processed"
+        else:
+            # Fallback to default if type is unexpected
+            pass
     
-    # Handle keyword arguments if passed
-    if 'root' in kwargs:
-        root = Path(kwargs['root'])
-    if 'sub_dir' in kwargs:
-        return root / "data" / "processed" / kwargs['sub_dir']
-    
-    return root / "data" / "processed"
+    # Default behavior: return base_processed or base_processed/sub_dir
+    if sub_dir:
+        return base_processed / sub_dir
+    return base_processed
 
-def get_data_qc_path():
-    """Returns the path to the QC data directory."""
-    return get_project_root_path() / "data" / "qc"
+def get_data_qc_path(filename: Optional[str] = None) -> Path:
+    """Return the QC data directory path or a specific file path."""
+    qc_dir = DATA_DIR / "qc"
+    if filename:
+        return qc_dir / filename
+    return qc_dir
 
-def get_specs_path():
-    """Returns the path to the specs directory."""
-    return get_project_root_path() / "specs"
+def get_specs_path() -> Path:
+    """Return the specs directory path."""
+    return SPECS_DIR
 
-def get_contracts_path():
-    """Returns the path to the contracts directory."""
-    return get_project_root_path() / "contracts"
+def get_contracts_path() -> Path:
+    """Return the contracts directory path."""
+    return CONTRACTS_DIR
 
-def get_figures_path():
-    """Returns the path to the figures directory."""
-    return get_project_root_path() / "figures"
+def get_figures_path() -> Path:
+    """Return the figures directory path."""
+    return FIGURES_DIR
 
-def ensure_directory(path):
-    """Creates a directory if it does not exist."""
-    path = Path(path)
-    if not path.exists():
-        path.mkdir(parents=True, exist_ok=True)
-    return path
-
-def filter_low_read_samples(df, column='read_count', threshold=READ_THRESHOLD):
-    """Filters out samples with read counts below the threshold."""
-    return df[df[column] >= threshold]
-
-def filter_rare_taxa(df, column='relative_abundance', threshold=ABUNDANCE_FILTER):
-    """Filters out taxa with relative abundance below the threshold."""
-    return df[df[column] >= threshold]
-
-def get_age_group(age, strata=AGE_STRATA):
-    """Categorizes age into predefined strata."""
-    if age < 40:
-        return strata['young']
-    elif age < 60:
-        return strata['middle']
-    else:
-        return strata['senior']
-
-def write_json_log(data, path):
-    """Writes data to a JSON log file."""
-    ensure_directory(path)
-    with open(path, 'w') as f:
-        json.dump(data, f, indent=2)
-
-def read_json_log(path):
-    """Reads data from a JSON log file."""
-    if not os.path.exists(path):
-        return {}
-    with open(path, 'r') as f:
-        return json.load(f)
-
-def sanitize_url(url):
-    """Sanitizes a URL string."""
-    # Basic sanitization to prevent injection
-    if not url.startswith(('http://', 'https://')):
-        raise ValueError("Invalid URL scheme")
-    return url
-
-def sanitize_file_path(path):
-    """Sanitizes a file path string."""
+def ensure_directory(path: Union[str, Path]) -> Path:
+    """Ensure a directory exists, creating it if necessary."""
     p = Path(path)
-    if '..' in p.parts:
-        raise ValueError("Invalid path: contains '..'")
+    p.mkdir(parents=True, exist_ok=True)
     return p
 
-def get_retry_session(max_retries=3, backoff_factor=0.5):
-    """Returns a requests Session with retry logic."""
+def write_json_log(data: Dict[str, Any], path: Union[str, Path]) -> None:
+    """Write a dictionary to a JSON file."""
+    p = Path(path)
+    ensure_directory(p.parent)
+    with open(p, 'w') as f:
+        json.dump(data, f, indent=2)
+
+def read_json_log(path: Union[str, Path]) -> Dict[str, Any]:
+    """Read a JSON file into a dictionary."""
+    p = Path(path)
+    if not p.exists():
+        return {}
+    with open(p, 'r') as f:
+        return json.load(f)
+
+def compute_file_hash(path: Union[str, Path]) -> str:
+    """Compute SHA256 hash of a file."""
+    sha256_hash = hashlib.sha256()
+    with open(path, "rb") as f:
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
+    return sha256_hash.hexdigest()
+
+def get_retry_session(retries: int = 3, backoff_factor: float = 0.5) -> requests.Session:
+    """Create a requests session with retry logic."""
     session = requests.Session()
-    from requests.adapters import HTTPAdapter
-    from urllib3.util.retry import Retry
-    
     retry = Retry(
-        total=max_retries,
+        total=retries,
+        read=retries,
+        connect=retries,
         backoff_factor=backoff_factor,
         status_forcelist=[429, 500, 502, 503, 504]
     )
@@ -162,29 +151,57 @@ def get_retry_session(max_retries=3, backoff_factor=0.5):
     session.mount("https://", adapter)
     return session
 
-def load_data_with_retry(url, session=None, timeout=30):
-    """Loads data from a URL with retry logic."""
+def load_data_with_retry(url: str, session: Optional[requests.Session] = None) -> Optional[requests.Response]:
+    """Load data from a URL with retry logic."""
     if session is None:
         session = get_retry_session()
-    
-    for attempt in range(3):
-        try:
-            response = session.get(url, timeout=timeout)
-            response.raise_for_status()
-            return response
-        except requests.RequestException as e:
-            if attempt == 2:
-                raise
-            time.sleep(2 ** attempt)
+    try:
+        response = session.get(url, timeout=30)
+        response.raise_for_status()
+        return response
+    except Exception as e:
+        logger = setup_logger("utils")
+        logger.error(f"Failed to load data from {url}: {e}")
+        return None
 
-def compute_file_hash(path, algorithm='sha256'):
-    """Computes the hash of a file."""
-    h = hashlib.new(algorithm)
-    with open(path, 'rb') as f:
-        while chunk := f.read(8192):
-            h.update(chunk)
-    return h.hexdigest()
+def get_logger(name: str) -> logging.Logger:
+    """Get a logger instance."""
+    return setup_logger(name)
 
-def get_logger(name):
-    """Returns a logger instance."""
-    return logging.getLogger(name)
+# Utility functions for filtering (from T004)
+def filter_low_read_samples(df: pd.DataFrame, threshold: int = 10000) -> pd.DataFrame:
+    """Filter samples with read counts below threshold."""
+    if 'read_count' in df.columns:
+        return df[df['read_count'] >= threshold]
+    return df
+
+def filter_rare_taxa(df: pd.DataFrame, threshold: float = 0.001) -> pd.DataFrame:
+    """Filter taxa with relative abundance below threshold."""
+    if 'relative_abundance' in df.columns:
+        return df[df['relative_abundance'] >= threshold]
+    return df
+
+def get_age_group(age: float) -> str:
+    """Categorize age into groups."""
+    if age < 40:
+        return "<40"
+    elif age < 60:
+        return "40-<60"
+    else:
+        return "≥60"
+
+def sanitize_url(url: str) -> str:
+    """Sanitize a URL string."""
+    # Basic sanitization
+    return url.strip()
+
+def sanitize_file_path(path: str) -> str:
+    """Sanitize a file path string."""
+    # Basic sanitization
+    return path.strip()
+
+# Import pandas here to avoid circular imports if this file is imported before pandas is available in some contexts
+# However, since this is a utility file, we assume pandas is available in the environment.
+# To be safe, we can import inside functions if needed, but for type hints we need it at top level if used in signatures.
+# We will use type: ignore for pandas if it's not strictly needed in signatures.
+import pandas as pd

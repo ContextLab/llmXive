@@ -11,6 +11,13 @@ T010a:
     repository, so the integration tests for `test_linkage_failure_detection` and
     `test_gap_report_trigger` are missing. The task cannot be considered completed
     until this file is added with the specified tests.
+T015:
+  c: false
+  h: 5777b498d657eadac3acd680a5fa7e2afe2df5ea5e36019bbe9e6700d7d99e39
+  r: "The repository lacks the required `data/qc/filtering_log.json` file, and the\
+    \ shown portion of `code/02_preprocess.py` contains no implementation of z\u2011\
+    score outlier filtering or logging to that JSON path. Consequently the script\
+    \ does not meet the task\u2019s output and logging requirements."
 T020:
   c: false
   h: ea0a908338222d8597ae90b3617458b6cde9c3b0d75575748cd3a6e3851d0e80
@@ -50,6 +57,15 @@ T030:
     \ of comparing significant taxa counts across methods is not fulfilled. The script\
     \ needs the missing implementation (DESeq2 processing, significance testing, and\
     \ output generation)."
+T040a:
+  c: false
+  h: e8387026566f7272bf48063d95346c0158a3b255c99176d7586eb3787d152fda
+  r: "The repository contains a partially shown `code/09_literature_extraction.py`\
+    \ that stops mid\u2011function and does not include the logic for NER extraction,\
+    \ median selection, or writing `data/raw/literature_metadata.json`. Moreover,\
+    \ the required output file `data/raw/literature_metadata.json` is absent. The\
+    \ task\u2019s core deliverable \u2013 a populated JSON metadata file \u2013 is\
+    \ missing."
 T041:
   c: false
   h: 4df2b840be502e4326edfa42e4d63070980b5e13932ec5d5e28b38da49fd98e2

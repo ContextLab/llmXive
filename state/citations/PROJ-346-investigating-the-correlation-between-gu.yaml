@@ -42,15 +42,3 @@
   verification_status: verified
   verified_against_url: https://huggingface.co/api/resolve-cache/datasets/HHS-Official/dqs-nhanes-select-chronic-conditions-prevalence-es/d0c7f0efbae76834d2f9c546a18ffd81401e7354/data%2Fdataset.csv?%2Fdatasets%2FHHS-Official%2Fdqs-nhanes-select-chronic-conditions-prevalence-es%2Fresolve%2Fmain%2Fdata%2Fdataset.csv=&etag=%220cb0d7ac254f8744e1fbe3606e380b600943843c%22
   verified_at: '2026-07-07T14:49:35.952227Z'
-- artifact_hash: 08b0faf29617aaa6a8f9a9acc9538f96337dae69fbdf4410d0ccd2a836ae44b0
-  artifact_path: projects/PROJ-346-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: '[2104.03394] A bivariate likelihood approach for estimation of a
-    pooled continuous effect size from a heteroscedastic meta-analysis study'
-  kind: url
-  value: https://arxiv.org/abs/2104.03394
-  verification_status: pending
-  verified_against_url: https://arxiv.org/abs/2104.03394
-  verified_at: '2026-08-05T03:48:11.610607Z'

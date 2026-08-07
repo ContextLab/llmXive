@@ -1,21 +1,19 @@
 {
   "project_id": "PROJ-346-investigating-the-correlation-between-gu",
   "ok": false,
-  "reason": "2 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/04_regression.py: self-declared fabricated metric \u2014 \u201c\u2026Gap\")             # Create a placeholder result file indicating the gap\u2026\u201d; code/05_sensitivity.py: self-declared fabricated metric \u2014 \u201c\u2026gap exists         # Create a placeholder result indicating N/A         qc_dir\u2026\u201d; every produced artifact is gitignored (data/processed/data_gap_report.json, data/processed/regression_results.json) \u2014 the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 3 command(s) failed: python code/02_preprocess.py (rc=1); python code/03_correlation.py (rc=1); python code/05_sensitivity.py (rc=1); 1 declared deliverable(s) absent: data/qc/filtering_log.json",
+  "reason": "3 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/03_correlation.py: self-declared fabricated metric \u2014 \u201c\u2026ta Gap).\")         # Create a placeholder result indicating N/A to satisfy the\u2026\u201d; code/08_literature_synthesis.py: self-declared fabricated metric \u2014 \u201c\u2026t instructions, we should not fake results.         # We will write an\u2026\u201d; code/08_literature_synthesis.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026:             # Create a synthetic evidence record based on the abstract\u2026\u201d; every produced artifact is gitignored (data/processed/correlation_results.json) \u2014 the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 2 command(s) failed: python code/02_preprocess.py (rc=1); python code/07_gap_report.py (rc=1); 1 declared deliverable(s) absent: data/raw/literature_metadata.json",
   "artifacts": [
-    "data/processed/data_gap_report.json",
-    "data/processed/regression_results.json"
+    "data/processed/correlation_results.json"
   ],
   "failures": [
-    "python code/02_preprocess.py -> rc=1\n    Raw cognitive data not found at /home/runner/work/llmXive/llmXive/projects/PROJ-346-investigating-the-correlation-between-gu/data/raw/cognitive_data.parquet. Run T012 first.",
-    "python code/03_correlation.py -> rc=1\n    2026-08-04 12:11:36,079 - correlation_analysis - INFO - Starting correlation analysis (T036 optimized).\n\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-346-investigating-the-correlation-between-gu/code/03_correlation.py\", line 259, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-346-investigating-the-correlation-between-gu/code/03_correlation.py\", line 230, in main\n    df = load_merged_data()\n         ^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-346",
-    "python code/05_sensitivity.py -> rc=1\n    2026-08-04 12:11:38,528 - 05_sensitivity - INFO - Starting T030: Sensitivity Analysis (Normalization Comparison)\n2026-08-04 12:11:38,528 - 05_sensitivity - WARNING - Merged dataset not found at /home/runner/work/llmXive/llmXive/projects/PROJ-346-investigating-the-correlation-between-gu/data/processed/merged_dataset.parquet. Skipping sensitivity analysis (Data Gap).\n\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-346-investigating-the-correlation-between-gu/code/05_sensitivity.py\", line 297, in <module>\n    ma"
+    "python code/02_preprocess.py -> rc=1\n    Raw data files missing. Cannot perform preprocessing.\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-346-investigating-the-correlation-between-gu/code/02_preprocess.py\", line 130, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-346-investigating-the-correlation-between-gu/code/02_preprocess.py\", line 106, in main\n    raise FileNotFoundError(\"Raw data files missing.\")\nFileNotFoundError: Raw data files missing.",
+    "python code/07_gap_report.py -> rc=1\n    Generating Data Gap Report (FR-008 fallback)...\n2026-08-07 20:47:28,852 - gap_report - INFO - Writing gap report to /home/runner/work/llmXive/llmXive/projects/PROJ-346-investigating-the-correlation-between-gu/data/processed/data_gap_report.json\n\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-346-investigating-the-correlation-between-gu/code/07_gap_report.py\", line 81, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-346-investigating-the-correlation-between-gu/code/07_gap_report.p"
   ],
-  "fix_rounds": 1,
+  "fix_rounds": 2,
   "model_tier": 0,
-  "total_attempts": 1,
+  "total_attempts": 2,
   "replan_rounds": 0,
   "failure_class": "fabrication",
   "evidence": [],
-  "updated_at": "2026-08-04T12:11:42Z"
+  "updated_at": "2026-08-07T20:47:30Z"
 }
