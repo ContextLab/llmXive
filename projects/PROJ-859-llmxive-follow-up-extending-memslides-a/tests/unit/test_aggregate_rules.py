@@ -1,128 +1,196 @@
 """
-Unit tests for the rule aggregation logic (T026b).
+Unit tests for rule aggregation functionality (Task T026b).
 """
-
 import json
 import os
-import tempfile
-from pathlib import Path
-from unittest.mock import patch, MagicMock
-
 import pytest
+from pathlib import Path
+from unittest.mock import MagicMock, patch
+
+import sys
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'code'))
 
 from models.aggregate_rules import RuleAggregator
-from config import get_config
+
 
 @pytest.fixture
-def mock_config(tmp_path):
-    """Create a temporary config with valid paths for testing."""
-    rules_dir = tmp_path / "rules"
-    rules_dir.mkdir()
-    global_rules_file = tmp_path / "global_rules.json"
-
-    return {
+def sample_config(tmp_path):
+    """Create a temporary config for testing."""
+    processed_rules_dir = tmp_path / 'processed' / 'rules'
+    processed_rules_dir.mkdir(parents=True)
+    
+    config = {
         'paths': {
-            'processed_rules': str(rules_dir),
-            'global_rules': str(global_rules_file),
-            'training': str(tmp_path / "training"),
-            'held_out': str(tmp_path / "held_out"),
-            'processed': str(tmp_path / "processed")
+            'processed_rules': str(processed_rules_dir)
+        },
+        'rule_aggregation': {
+            'min_support': 2
         }
     }
+    return config
+
 
 @pytest.fixture
-def sample_per_trace_rules(mock_config):
-    """Create sample per-trace rule files in the mock config directory."""
-    rules_dir = Path(mock_config['paths']['processed_rules'])
-
-    # Trace 1 rules
-    trace1_rules = [
-        {"condition": "tool == 'edit'", "action": "compress", "trace_id": "t1"},
-        {"condition": "tool == 'delete'", "action": "skip", "trace_id": "t1"}
+def sample_per_trace_rules(tmp_path, sample_config):
+    """Create sample per-trace rule files for testing."""
+    input_dir = Path(sample_config['paths']['processed_rules'])
+    
+    # Create sample rules for trace_001
+    trace_001_rules = [
+        {
+            'conditions': [{'field': 'tool', 'op': 'eq', 'value': 'edit'}],
+            'actions': [{'type': 'compress', 'ratio': 0.5}]
+        },
+        {
+            'conditions': [{'field': 'tool', 'op': 'eq', 'value': 'delete'}],
+            'actions': [{'type': 'compress', 'ratio': 0.3}]
+        }
     ]
-    with open(rules_dir / "trace_t1_rules.json", 'w') as f:
-        json.dump({"rules": trace1_rules}, f)
-
-    # Trace 2 rules (includes a duplicate of trace1 rule 1)
-    trace2_rules = [
-        {"condition": "tool == 'edit'", "action": "compress", "trace_id": "t2"},
-        {"condition": "tool == 'format'", "action": "apply", "trace_id": "t2"}
+    
+    with open(input_dir / 'trace_trace_001_rules.json', 'w') as f:
+        json.dump(trace_001_rules, f)
+    
+    # Create sample rules for trace_002 (some overlap)
+    trace_002_rules = [
+        {
+            'conditions': [{'field': 'tool', 'op': 'eq', 'value': 'edit'}],
+            'actions': [{'type': 'compress', 'ratio': 0.5}]
+        },
+        {
+            'conditions': [{'field': 'tool', 'op': 'eq', 'value': 'move'}],
+            'actions': [{'type': 'compress', 'ratio': 0.7}]
+        }
     ]
-    with open(rules_dir / "trace_t2_rules.json", 'w') as f:
-        json.dump({"rules": trace2_rules}, f)
+    
+    with open(input_dir / 'trace_trace_002_rules.json', 'w') as f:
+        json.dump(trace_002_rules, f)
+    
+    # Create sample rules for trace_003 (unique rule)
+    trace_003_rules = [
+        {
+            'conditions': [{'field': 'tool', 'op': 'eq', 'value': 'unique'}],
+            'actions': [{'type': 'compress', 'ratio': 0.9}]
+        }
+    ]
+    
+    with open(input_dir / 'trace_trace_003_rules.json', 'w') as f:
+        json.dump(trace_003_rules, f)
+    
+    return list(input_dir.glob('trace_*_rules.json'))
 
-    return rules_dir
 
-def test_load_per_trace_rules(mock_config, sample_per_trace_rules):
-    """Test loading rules from multiple files."""
-    aggregator = RuleAggregator(mock_config)
-    rules = aggregator.load_per_trace_rules()
+def test_canonicalize_rule(sample_config):
+    """Test that rules are canonicalized correctly."""
+    aggregator = RuleAggregator(sample_config)
+    
+    rule1 = {
+        'conditions': [{'field': 'tool', 'op': 'eq', 'value': 'edit'}],
+        'actions': [{'type': 'compress', 'ratio': 0.5}]
+    }
+    
+    rule2 = {
+        'conditions': [{'field': 'tool', 'op': 'eq', 'value': 'edit'}],
+        'actions': [{'type': 'compress', 'ratio': 0.5}]
+    }
+    
+    rule3 = {
+        'conditions': [{'field': 'tool', 'op': 'eq', 'value': 'delete'}],
+        'actions': [{'type': 'compress', 'ratio': 0.5}]
+    }
+    
+    # Same rules should have same canonical key
+    assert aggregator._canonicalize_rule(rule1) == aggregator._canonicalize_rule(rule2)
+    
+    # Different rules should have different canonical keys
+    assert aggregator._canonicalize_rule(rule1) != aggregator._canonicalize_rule(rule3)
 
-    assert len(rules) == 4, "Should load 4 rules total (2 from each file)"
-    assert rules[0]['condition'] == "tool == 'edit'"
-    assert rules[2]['condition'] == "tool == 'edit'" # Duplicate
 
-def test_deduplicate_rules(mock_config, sample_per_trace_rules):
-    """Test that duplicate rules are merged and support count incremented."""
-    aggregator = RuleAggregator(mock_config)
-    raw_rules = aggregator.load_per_trace_rules()
-    unique_rules = aggregator.deduplicate_rules(raw_rules)
+def test_load_per_trace_rules(sample_config, sample_per_trace_rules):
+    """Test loading per-trace rules."""
+    aggregator = RuleAggregator(sample_config)
+    
+    trace_ids = ['trace_001', 'trace_002', 'trace_003']
+    per_trace_rules = aggregator._load_per_trace_rules(trace_ids)
+    
+    assert len(per_trace_rules) == 3
+    assert 'trace_001' in per_trace_rules
+    assert 'trace_002' in per_trace_rules
+    assert 'trace_003' in per_trace_rules
+    
+    assert len(per_trace_rules['trace_001']) == 2
+    assert len(per_trace_rules['trace_002']) == 2
+    assert len(per_trace_rules['trace_003']) == 1
 
-    assert len(unique_rules) == 3, "Should have 3 unique rules (2 from t1, 1 new from t2, 1 duplicate)"
 
-    # Check support counts
-    edit_rule = next(r for r in unique_rules if r['condition'] == "tool == 'edit'")
-    assert edit_rule['support_count'] == 2, "The 'edit' rule should have support 2"
+def test_aggregate_rules(sample_config, sample_per_trace_rules):
+    """Test rule aggregation with min_support filtering."""
+    aggregator = RuleAggregator(sample_config)
+    
+    # Load rules
+    trace_ids = ['trace_001', 'trace_002', 'trace_003']
+    per_trace_rules = aggregator._load_per_trace_rules(trace_ids)
+    
+    # Aggregate
+    global_rules = aggregator._aggregate_rules(per_trace_rules)
+    
+    # With min_support=2:
+    # - 'edit' rule appears in trace_001 and trace_002 (support=2) -> INCLUDED
+    # - 'delete' rule appears only in trace_001 (support=1) -> EXCLUDED
+    # - 'move' rule appears only in trace_002 (support=1) -> EXCLUDED
+    # - 'unique' rule appears only in trace_003 (support=1) -> EXCLUDED
+    
+    assert len(global_rules) == 1
+    assert global_rules[0]['support_count'] == 2
+    assert global_rules[0]['support_traces'] == ['trace_001', 'trace_002']
 
-    delete_rule = next(r for r in unique_rules if r['condition'] == "tool == 'delete'")
-    assert delete_rule['support_count'] == 1
 
-def test_sort_rules(mock_config, sample_per_trace_rules):
-    """Test that rules are sorted by support count descending."""
-    aggregator = RuleAggregator(mock_config)
-    raw_rules = aggregator.load_per_trace_rules()
-    unique_rules = aggregator.deduplicate_rules(raw_rules)
-    sorted_rules = aggregator.sort_rules(unique_rules)
+def test_aggregate_with_min_support_1(sample_config, sample_per_trace_rules):
+    """Test rule aggregation with min_support=1 (no filtering)."""
+    config = sample_config.copy()
+    config['rule_aggregation']['min_support'] = 1
+    aggregator = RuleAggregator(config)
+    
+    trace_ids = ['trace_001', 'trace_002', 'trace_003']
+    per_trace_rules = aggregator._load_per_trace_rules(trace_ids)
+    
+    global_rules = aggregator._aggregate_rules(per_trace_rules)
+    
+    # All rules should be included
+    assert len(global_rules) == 4  # edit, delete, move, unique
 
-    # The 'edit' rule should be first
-    assert sorted_rules[0]['condition'] == "tool == 'edit'"
-    assert sorted_rules[0]['support_count'] == 2
 
-    # The next two should have support 1
-    assert sorted_rules[1]['support_count'] == 1
-    assert sorted_rules[2]['support_count'] == 1
-
-def test_aggregate_full_pipeline(mock_config, sample_per_trace_rules):
-    """Test the full aggregation pipeline and output file creation."""
-    aggregator = RuleAggregator(mock_config)
-    result = aggregator.aggregate()
-
-    assert 'global_rules' in result
-    assert 'metadata' in result
-    assert result['metadata']['total_raw_rules'] == 4
-    assert result['metadata']['unique_rules'] == 3
-
-    # Verify file was written
-    output_path = Path(mock_config['paths']['global_rules'])
-    assert output_path.exists(), "Global rules file should be created"
-
+def test_save_global_rules(sample_config, sample_per_trace_rules, tmp_path):
+    """Test saving global rules to file."""
+    aggregator = RuleAggregator(sample_config)
+    
+    trace_ids = ['trace_001', 'trace_002', 'trace_003']
+    result = aggregator.aggregate(trace_ids)
+    
+    output_path = aggregator.save(result)
+    
+    assert output_path.exists()
+    
     with open(output_path, 'r') as f:
         saved_data = json.load(f)
-
+    
     assert 'global_rules' in saved_data
-    assert len(saved_data['global_rules']) == 3
+    assert 'metadata' in saved_data
+    assert len(saved_data['global_rules']) == 1  # With min_support=2
 
-def test_aggregate_empty_directory(mock_config):
-    """Test that aggregation fails gracefully if no rule files exist."""
-    aggregator = RuleAggregator(mock_config)
-    with pytest.raises(FileNotFoundError, match="No rule files found"):
-        aggregator.load_per_trace_rules()
 
-def test_aggregate_invalid_json(mock_config, tmp_path):
-    """Test handling of invalid JSON in rule files."""
-    rules_dir = Path(mock_config['paths']['processed_rules'])
-    (rules_dir / "bad.json").write_text("not valid json")
+def test_aggregate_no_files(sample_config, tmp_path):
+    """Test aggregation when no rule files exist."""
+    config = sample_config.copy()
+    config['paths']['processed_rules'] = str(tmp_path / 'empty')
+    aggregator = RuleAggregator(config)
+    
+    with pytest.raises(ValueError, match="No trace rule files found"):
+        aggregator.aggregate()
 
-    aggregator = RuleAggregator(mock_config)
-    with pytest.raises(ValueError, match="Invalid JSON"):
-        aggregator.load_per_trace_rules()
+
+def test_aggregate_missing_file(sample_config):
+    """Test aggregation when a specific trace file is missing."""
+    aggregator = RuleAggregator(sample_config)
+    
+    with pytest.raises(FileNotFoundError, match="Per-trace rule file not found"):
+        aggregator._load_per_trace_rules(['nonexistent_trace'])

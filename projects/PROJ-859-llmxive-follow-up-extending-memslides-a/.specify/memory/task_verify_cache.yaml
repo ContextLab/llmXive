@@ -19,29 +19,20 @@ T012:
     incomplete (truncated) and contains no logic to write `session_{uuid}.json` files
     with the required `exact_tool_sequence` and `raw_arg_variance` fields, nor does
     it enforce a fixed random seed by default. These essential deliverables are missing.
-T020:
-  c: false
-  h: ef4a14b0eb402218227fcc5ba302633638a4a7857b6be843d94e89946b45eb2d
-  r: The repository contains a partially shown `code/metrics/extract.py`, but the
-    required output file `data/processed/feature_matrix.csv` is absent, so the core
-    deliverable of generating the feature matrix was not produced. Additionally, the
-    shown portion of the script ends abruptly, suggesting the implementation may be
-    incomplete. The missing CSV must be created for the task to be considered complete.
 T027a:
   c: false
-  h: 8e7e42517b1b7f6486914aa542f275c4d9cd363030f576822fbf584edf4e0526
-  r: The `sweep_thresholds.py` script is present but the provided excerpt shows only
-    loading and pruning helpers; there is no implementation that iterates thresholds,
-    writes compressed rule sets to `data/processed/rules/sweeps/`, or creates the
-    required `data/processed/sweep_config.json` (the file is missing). Hence the deliverables
-    are not fully realized.
+  h: 6af67f1096a2741695341446f6883e3d8f149e16f444d1cd77139d42a2bd6da3
+  r: "The provided `sweep_thresholds.py` is incomplete (truncated) and does not contain\
+    \ logic to iterate over thresholds, write multiple rule\u2011set files to `data/processed/rules/sweeps/`,\
+    \ or generate the required `data/processed/sweep_config.json` (which is missing).\
+    \ Consequently the deliverables specified in the task are not present."
 T027b:
   c: false
-  h: 5e6471d35941c186d3a1509d3a301e0bc091574721f0225419b15eaf9b7334ca
-  r: "The required output file `data/processed/trade_off_curve.csv` does not exist,\
-    \ and the provided `calculate_compression_ratio.py` is only partially shown (truncated)\
-    \ with no evidence that it actually writes the CSV. Without the generated CSV\
-    \ mapping `threshold`, `compression_ratio`, and `fidelity_loss`, the task\u2019\
+  h: 664f2d99e7700fe7f7c4221e5b8e243a0d5e6fb8b98a6ff9cc942a760009e8d3
+  r: "The repository contains `code/evaluation/calculate_compression_ratio.py`, but\
+    \ the file is truncated and does not show logic that writes the required `data/processed/trade_off_curve.csv`.\
+    \ Moreover, the CSV file itself is absent from the project directory. Without\
+    \ the generated CSV (or evidence that the script produces it), the task\u2019\
     s deliverable is not satisfied."
 T031:
   c: false
@@ -63,3 +54,10 @@ T034:
     \ stories; there is no concrete artifact (e.g., latency logs, CSV/table, benchmark\
     \ report) showing the measured \u201Ctime to context\u2011ready\u201D for either\
     \ agent. Consequently the required retrieval\u2011latency data is missing."
+T035b:
+  c: false
+  h: fd8cdac9f7774781ef068146690c31c7f12d1b5535913eba516229f6b60862ff
+  r: The repository contains a partially shown `code/evaluation/calculate_deltas.py`,
+    but the file is truncated and does not demonstrate that it writes `data/processed/accuracy_deltas.csv`.
+    Moreover, the required CSV file is absent from the project. The deliverable is
+    therefore not present.

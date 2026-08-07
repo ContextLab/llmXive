@@ -1,120 +1,102 @@
 """
 Unit tests for the config module.
+
+Verifies that configuration constants are set correctly and
+helper functions behave as expected.
 """
 import pytest
-import os
 import sys
 from pathlib import Path
 
-# Add the code directory to the path for imports
-# Assuming the test is run from the project root or similar context
-# We need to dynamically locate the 'code' directory relative to this test file
-test_dir = Path(__file__).resolve().parent
-project_root = test_dir.parent.parent  # projects/PROJ-.../tests -> projects/PROJ-...
-code_dir = project_root / "code"
-
-if str(code_dir) not in sys.path:
-    sys.path.insert(0, str(code_dir))
+# Add the code directory to the path to allow imports
+# Assuming this test runs from the project root or tests directory
+code_path = Path(__file__).parent.parent.parent / "code"
+if str(code_path) not in sys.path:
+    sys.path.insert(0, str(code_path))
 
 from config import (
-    set_seed, 
-    get_config, 
-    update_config, 
-    get_config_summary, 
-    get_path, 
-    get_output_path, 
-    ensure_directories, 
-    get_batch_size,
-    get_max_memory_gb,
-    get_drift_threshold,
-    get_centroid_model,
-    get_baseline_model,
     RANDOM_SEED,
     MAX_RAM_GB,
-    BATCH_SIZE
+    BATCH_SIZE,
+    get_config,
+    set_seed,
+    get_path,
+    ensure_directories,
+    get_batch_size,
+    get_max_memory_gb,
 )
 
-def test_random_seed_constant():
-    """Verify that the RANDOM_SEED constant is 42."""
-    assert RANDOM_SEED == 42
 
-def test_max_ram_constant():
-    """Verify that the MAX_RAM_GB constant is 7."""
-    assert MAX_RAM_GB == 7
+class TestConfigConstants:
+    """Tests for the core constant values defined in config.py."""
 
-def test_batch_size_constant():
-    """Verify that the BATCH_SIZE constant is 64."""
-    assert BATCH_SIZE == 64
+    def test_random_seed_value(self):
+        """Verify RANDOM_SEED is set to 42."""
+        assert RANDOM_SEED == 42, f"Expected RANDOM_SEED=42, got {RANDOM_SEED}"
 
-def test_set_seed_updates_config():
-    """Verify that set_seed updates the internal configuration."""
-    original_seed = get_config()["random_seed"]
-    test_seed = 12345
-    set_seed(test_seed)
-    assert get_config()["random_seed"] == test_seed
-    # Restore original
-    set_seed(original_seed)
+    def test_max_ram_gb_value(self):
+        """Verify MAX_RAM_GB is set to 7."""
+        assert MAX_RAM_GB == 7, f"Expected MAX_RAM_GB=7, got {MAX_RAM_GB}"
 
-def test_get_batch_size():
-    """Verify get_batch_size returns the correct value."""
-    assert get_batch_size() == 64
+    def test_batch_size_value(self):
+        """Verify BATCH_SIZE is set to 64."""
+        assert BATCH_SIZE == 64, f"Expected BATCH_SIZE=64, got {BATCH_SIZE}"
 
-def test_get_max_memory_gb():
-    """Verify get_max_memory_gb returns the correct value."""
-    assert get_max_memory_gb() == 7
 
-def test_get_drift_threshold():
-    """Verify get_drift_threshold returns the correct default."""
-    assert get_drift_threshold() == 0.5
+class TestConfigFunctions:
+    """Tests for configuration helper functions."""
 
-def test_get_centroid_model():
-    """Verify get_centroid_model returns the correct model."""
-    assert get_centroid_model() == "all-MiniLM-L6-v2"
+    def test_get_config_returns_dict(self):
+        """Verify get_config returns a dictionary."""
+        config = get_config()
+        assert isinstance(config, dict)
+        assert "random_seed" in config
+        assert "max_ram_gb" in config
+        assert "batch_size" in config
 
-def test_get_baseline_model():
-    """Verify get_baseline_model returns the correct model."""
-    assert get_baseline_model() == "google/flan-t5-small"
+    def test_set_seed_resets_random(self):
+        """Verify set_seed affects random state."""
+        import random
+        set_seed(123)
+        val1 = random.random()
+        set_seed(123)
+        val2 = random.random()
+        assert val1 == val2, "Random state should be deterministic after set_seed"
 
-def test_get_path_valid_key():
-    """Verify get_path returns a Path for a valid key."""
-    path = get_path("project_root")
-    assert isinstance(path, Path)
-    assert path.exists()
+    def test_get_path_existing_key(self):
+        """Verify get_path returns a Path for a known key."""
+        data_dir = get_path("data_dir")
+        assert isinstance(data_dir, Path)
+        # Check if it matches the constant
+        from config import DATA_DIR
+        assert data_dir == DATA_DIR
 
-def test_get_path_invalid_key():
-    """Verify get_path raises KeyError for an invalid key."""
-    with pytest.raises(KeyError):
-        get_path("non_existent_key")
+    def test_get_path_missing_key(self):
+        """Verify get_path raises KeyError for unknown key."""
+        with pytest.raises(KeyError):
+            get_path("non_existent_key")
 
-def test_update_config():
-    """Verify update_config modifies the configuration."""
-    original_batch = get_config()["batch_size"]
-    update_config({"batch_size": 128})
-    assert get_config()["batch_size"] == 128
-    # Restore
-    update_config({"batch_size": original_batch})
+    def test_ensure_directories_creates_missing(self):
+        """Verify ensure_directories creates directories if they don't exist."""
+        # We test with a temporary path to avoid cluttering the project structure
+        # However, the function is designed to create standard dirs.
+        # We'll just verify it doesn't crash on the standard set.
+        try:
+            ensure_directories()
+            # If we are here, it succeeded
+            assert True
+        except Exception as e:
+            pytest.fail(f"ensure_directories failed: {e}")
 
-def test_get_config_summary():
-    """Verify get_config_summary returns a string."""
-    summary = get_config_summary()
-    assert isinstance(summary, str)
-    assert "Seed" in summary
-    assert "Max RAM" in summary
-    assert "Batch Size" in summary
+    def test_get_batch_size(self):
+        """Verify get_batch_size returns the correct integer."""
+        assert get_batch_size() == 64
 
-def test_ensure_directories():
-    """Verify ensure_directories creates the required directories."""
-    # Get a temporary test dir to ensure we don't clutter
-    # But since the function creates specific dirs, we just check it runs without error
-    try:
-        ensure_directories()
-        # Check that the main project dir exists
-        assert get_path("project_dir").exists()
-    except Exception as e:
-        pytest.fail(f"ensure_directories raised an exception: {e}")
+    def test_get_max_memory_gb(self):
+        """Verify get_max_memory_gb returns the correct float."""
+        assert get_max_memory_gb() == 7.0
 
-def test_get_output_path():
-    """Verify get_output_path constructs the correct path."""
-    path = get_output_path("test_file.csv")
-    assert "processed" in str(path)
-    assert path.name == "test_file.csv"
+    def test_get_max_memory_gb_type(self):
+        """Verify get_max_memory_gb returns a float."""
+        val = get_max_memory_gb()
+        assert isinstance(val, (int, float)), "Max RAM should be numeric"

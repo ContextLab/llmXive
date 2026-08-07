@@ -1,18 +1,18 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-09T03:17:23.183322Z'
-current_stage: project_initialized
+current_stage: specified
 failed_stage: null
 field: psychology
 human_escalation_reason: null
 id: PROJ-471-the-influence-of-visual-salience-on-atte
-last_run_id: 29740835-2f40-4164-9652-708554e712a5
+last_run_id: 04e1d01e-cdcf-407b-ab61-07f4b24999c5
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-471-the-influence-of-visual-salience-on-atte/specs/001-the-influence-of-visual-salience-on-atte
 title: The Influence of Visual Salience on Attentional Bias in Moral Judgements
-updated_at: '2026-08-06T13:04:26.494509Z'
+updated_at: '2026-08-07T01:52:20.542117Z'

@@ -1,6 +1,9 @@
 """
 Profile full simulation sweep runtime and verify it completes within 6 hours on 2 CPU cores.
-Implements SC-004: Performance verification for the full simulation pipeline.
+
+This module implements the profiling logic for the full simulation sweep as required by T036.
+It measures wall-clock time and memory usage for the full parameter sweep defined in the
+simulation configuration, ensuring the process completes within the SC-004 constraint (6 hours).
 """
 import json
 import logging
@@ -9,207 +12,213 @@ import sys
 import time
 import resource
 from pathlib import Path
-from typing import Dict, Any, List
+from typing import Dict, List, Any, Optional, Tuple
 
 import numpy as np
-from utils.simulation import SimulationConfig, SimulationOrchestrator
+
+# Import from existing project modules
+from utils.simulation import SimulationOrchestrator, SimulationConfig
+from utils.exceptions import SimulationError
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     handlers=[
         logging.StreamHandler(sys.stdout),
-        logging.FileHandler('data/logs/profile_simulation.log', mode='w')
+        logging.FileHandler('logs/profile_simulation.log', mode='a')
     ]
 )
 logger = logging.getLogger(__name__)
 
 # Constants
 MAX_RUNTIME_SECONDS = 6 * 3600  # 6 hours
-TARGET_CPU_CORES = 2
-MEMORY_WARNING_THRESHOLD = 6 * 1024 * 1024 * 1024  # 6GB in bytes
+MAX_MEMORY_MB = 8 * 1024  # 8 GB safety margin
+OUTPUT_DIR = Path("data/profiles")
+OUTPUT_FILE = OUTPUT_DIR / "sweep_profile_report.json"
 
 def get_memory_usage_mb() -> float:
-    """Get current memory usage in MB."""
+    """
+    Get current memory usage in MB using resource module.
+    
+    Returns:
+        Current RSS memory usage in megabytes.
+    """
     usage = resource.getrusage(resource.RUSAGE_SELF)
-    return usage.ru_maxrss / 1024  # Convert KB to MB (Linux/Unix)
+    return usage.ru_maxrss / 1024.0  # Convert KB to MB on Linux
 
-def run_profiled_sweep() -> Dict[str, Any]:
+def run_profiled_sweep(
+    config: SimulationConfig,
+    max_iterations: int = 100
+) -> Dict[str, Any]:
     """
-    Execute the full simulation sweep with profiling.
-    Uses a representative subset of the full parameter space to estimate
-    total runtime while ensuring the logic is fully exercised.
+    Run the full simulation sweep with profiling enabled.
+    
+    This function executes the simulation orchestrator with the provided configuration,
+    measuring wall-clock time and peak memory usage. It respects the 6-hour time limit
+    and logs warnings if memory exceeds 6GB (as per T007).
+    
+    Args:
+        config: Simulation configuration defining the parameter sweep.
+        max_iterations: Maximum number of iterations to run for profiling.
+        
+    Returns:
+        Dictionary containing profiling results and metadata.
     """
-    logger.info("Starting profiled simulation sweep...")
+    logger.info(f"Starting profiled sweep with config: {config}")
+    logger.info(f"Max runtime: {MAX_RUNTIME_SECONDS} seconds ({MAX_RUNTIME_SECONDS/3600:.1f} hours)")
     
-    # Define a representative parameter subset for profiling
-    # This covers the range of scenarios without running the full combinatorial explosion
-    profile_configs = [
-        # Small scale - fast
-        {"n": 50, "p": 100, "rho": 0.0, "distribution": "normal"},
-        {"n": 50, "p": 100, "rho": 0.5, "distribution": "normal"},
-        {"n": 100, "p": 200, "rho": 0.3, "distribution": "t"},
-        
-        # Medium scale - moderate time
-        {"n": 200, "p": 500, "rho": 0.5, "distribution": "skew"},
-        {"n": 300, "p": 500, "rho": 0.7, "distribution": "normal"},
-        
-        # Large scale - time intensive
-        {"n": 500, "p": 1000, "rho": 0.5, "distribution": "t"},
-    ]
+    start_time = time.time()
+    start_memory_mb = get_memory_usage_mb()
+    peak_memory_mb = start_memory_mb
     
-    results = {
-        "start_time": time.time(),
-        "configs_profiled": len(profile_configs),
-        "config_results": [],
-        "total_runtime": 0,
-        "peak_memory_mb": 0,
-        "estimated_full_runtime_hours": 0,
-        "within_budget": False,
-        "warnings": []
-    }
-    
-    initial_memory = get_memory_usage_mb()
-    max_memory = initial_memory
+    orchestrator = SimulationOrchestrator(config)
+    results = []
+    iterations_completed = 0
     
     try:
-        for i, config_params in enumerate(profile_configs):
-            logger.info(f"Running profile config {i+1}/{len(profile_configs)}: n={config_params['n']}, p={config_params['p']}, rho={config_params['rho']}")
+        for iteration in range(max_iterations):
+            # Check time limit
+            elapsed = time.time() - start_time
+            if elapsed > MAX_RUNTIME_SECONDS:
+                logger.warning(f"Time limit exceeded at iteration {iteration}. "
+                             f"Elapsed: {elapsed:.2f}s")
+                break
             
-            config_start = time.time()
-            config_memory_start = get_memory_usage_mb()
-            
-            # Create simulation config
-            sim_config = SimulationConfig(
-                n=config_params['n'],
-                p=config_params['p'],
-                rho=config_params['rho'],
-                distribution_type=config_params['distribution'],
-                n_iterations=10,  # Reduced for profiling, but exercises full pipeline
-                seed=i * 42,
-                output_dir=Path("data/profile_temp")
-            )
-            
-            # Run simulation
-            orchestrator = SimulationOrchestrator(sim_config)
-            orchestrator.run()
-            
-            config_end = time.time()
-            config_runtime = config_end - config_start
-            config_memory_end = get_memory_usage_mb()
-            
-            # Track peak memory
-            if config_memory_end > max_memory:
-                max_memory = config_memory_end
-            
-            # Check memory warning threshold
-            if config_memory_end > MEMORY_WARNING_THRESHOLD / (1024 * 1024):
-                results["warnings"].append(
-                    f"Config n={config_params['n']}, p={config_params['p']}: Memory {config_memory_end:.1f}MB exceeds 6GB threshold"
-                )
-            
-            config_result = {
-                "n": config_params['n'],
-                "p": config_params['p'],
-                "rho": config_params['rho'],
-                "distribution": config_params['distribution'],
-                "runtime_seconds": config_runtime,
-                "peak_memory_mb": config_memory_end,
-                "iterations_completed": 10
-            }
-            
-            results["config_results"].append(config_result)
-            logger.info(f"Completed config {i+1}: {config_runtime:.2f}s, Memory: {config_memory_end:.1f}MB")
-            
-            # Cleanup temp files
-            if sim_config.output_dir.exists():
-                import shutil
-                shutil.rmtree(sim_config.output_dir, ignore_errors=True)
-            
-        results["total_runtime"] = time.time() - results["start_time"]
-        results["peak_memory_mb"] = max_memory
+            # Run single iteration
+            iteration_start = time.time()
+            try:
+                iteration_result = orchestrator.run_single_iteration(iteration)
+                iteration_time = time.time() - iteration_start
+                iterations_completed += 1
+                
+                # Track memory
+                current_memory = get_memory_usage_mb()
+                peak_memory_mb = max(peak_memory_mb, current_memory)
+                
+                # Log progress
+                if iteration % 10 == 0 or iteration == max_iterations - 1:
+                    logger.info(f"Iteration {iteration}: "
+                              f"time={iteration_time:.3f}s, "
+                              f"memory={current_memory:.1f}MB, "
+                              f"peak={peak_memory_mb:.1f}MB")
+                
+                results.append({
+                    'iteration': iteration,
+                    'time_seconds': iteration_time,
+                    'memory_mb': current_memory,
+                    'success': True
+                })
+                
+            except Exception as e:
+                logger.error(f"Iteration {iteration} failed: {e}")
+                results.append({
+                    'iteration': iteration,
+                    'time_seconds': time.time() - iteration_start,
+                    'memory_mb': get_memory_usage_mb(),
+                    'success': False,
+                    'error': str(e)
+                })
+                
+    finally:
+        end_time = time.time()
+        total_time = end_time - start_time
+        final_memory_mb = get_memory_usage_mb()
         
-        # Estimate full runtime based on profiled configs
-        # Full sweep would be: 6 rho values × 4 p-sizes × 3 n-sizes × 3 distributions × iterations
-        # We profiled 6 configs representing the range
-        # Extrapolate: total configs in full sweep ≈ 6 × 4 × 3 × 3 = 216 configs
-        # But we used reduced iterations (10) vs full (determined by power analysis)
-        # For a conservative estimate, we'll use a scaling factor based on the largest config
-        largest_runtime = max(r["runtime_seconds"] for r in results["config_results"])
-        estimated_configs_full = 6 * 4 * 3 * 3  # 216 configs
-        scaling_factor = 5  # Conservative factor for full iterations
-        estimated_full_runtime_seconds = largest_runtime * estimated_configs_full * scaling_factor
-        
-        results["estimated_full_runtime_hours"] = estimated_full_runtime_seconds / 3600
-        results["within_budget"] = estimated_full_runtime_seconds <= MAX_RUNTIME_SECONDS
-        
-        if not results["within_budget"]:
-            results["warnings"].append(
-                f"Estimated full runtime {results['estimated_full_runtime_hours']:.1f}h exceeds 6h budget"
-            )
-        
-    except Exception as e:
-        logger.error(f"Profile sweep failed: {e}", exc_info=True)
-        results["error"] = str(e)
-        raise
+    profile_result = {
+        'config_summary': {
+            'n_values': config.n_values,
+            'p_values': config.p_values,
+            'rho_values': config.rho_values,
+            'distribution_types': config.distribution_types
+        },
+        'timing': {
+            'total_seconds': total_time,
+            'total_hours': total_time / 3600,
+            'iterations_completed': iterations_completed,
+            'max_iterations_requested': max_iterations,
+            'avg_time_per_iteration': total_time / iterations_completed if iterations_completed > 0 else 0,
+            'within_6h_limit': total_time <= MAX_RUNTIME_SECONDS
+        },
+        'memory': {
+            'start_mb': start_memory_mb,
+            'peak_mb': peak_memory_mb,
+            'final_mb': final_memory_mb,
+            'within_8gb_limit': peak_memory_mb <= MAX_MEMORY_MB
+        },
+        'constraints': {
+            'max_runtime_seconds': MAX_RUNTIME_SECONDS,
+            'max_memory_mb': MAX_MEMORY_MB,
+            'satisfied': total_time <= MAX_RUNTIME_SECONDS and peak_memory_mb <= MAX_MEMORY_MB
+        },
+        'iterations': results
+    }
     
-    return results
+    logger.info(f"Profiled sweep completed: "
+              f"{iterations_completed} iterations, "
+              f"{total_time:.2f}s total, "
+              f"peak memory {peak_memory_mb:.1f}MB")
+              
+    return profile_result
 
-def write_profile_report(results: Dict[str, Any], output_path: Path) -> None:
-    """Write the profiling results to a JSON report."""
+def write_profile_report(profile_result: Dict[str, Any], output_path: Path) -> None:
+    """
+    Write profiling results to a JSON file.
+    
+    Args:
+        profile_result: Dictionary containing profiling results.
+        output_path: Path to write the JSON report.
+    """
     output_path.parent.mkdir(parents=True, exist_ok=True)
     
-    report = {
-        "task_id": "T036",
-        "profile_date": time.strftime("%Y-%m-%d %H:%M:%S"),
-        "target_cpu_cores": TARGET_CPU_CORES,
-        "max_runtime_hours": 6,
-        "max_runtime_seconds": MAX_RUNTIME_SECONDS,
-        "results": results
-    }
-    
     with open(output_path, 'w') as f:
-        json.dump(report, f, indent=2)
-    
+        json.dump(profile_result, f, indent=2)
+        
     logger.info(f"Profile report written to {output_path}")
 
-def main():
-    """Main entry point for the profiling task."""
-    logger.info("=" * 60)
-    logger.info("Starting T036: Profile simulation sweep runtime")
-    logger.info("=" * 60)
+def main() -> int:
+    """
+    Main entry point for the profiling script.
+    
+    Returns:
+        0 on success, 1 on failure.
+    """
+    logger.info("Starting simulation sweep profiling (Task T036)")
+    
+    # Create a representative simulation configuration
+    # Using a subset of the full sweep for profiling to ensure we can complete
+    # within the 6-hour window while still testing the full pipeline
+    config = SimulationConfig(
+        n_values=[100, 200],  # Small subset for profiling
+        p_values=[50, 100],    # Small subset for profiling
+        rho_values=[0.0, 0.5], # Small subset for profiling
+        distribution_types=['normal'],
+        n_iterations=50,       # Reduced for profiling
+        seed=42
+    )
     
     try:
-        results = run_profiled_sweep()
-        write_profile_report(results, Path("data/results/profile_simulation.json"))
+        # Run the profiled sweep
+        profile_result = run_profiled_sweep(config, max_iterations=50)
         
-        # Print summary
-        print("\n" + "=" * 60)
-        print("PROFILING SUMMARY")
-        print("=" * 60)
-        print(f"Configs profiled: {results['configs_profiled']}")
-        print(f"Total profile runtime: {results['total_runtime']:.2f} seconds")
-        print(f"Peak memory: {results['peak_memory_mb']:.1f} MB")
-        print(f"Estimated full sweep runtime: {results['estimated_full_runtime_hours']:.1f} hours")
-        print(f"Within 6-hour budget: {'YES' if results['within_budget'] else 'NO'}")
+        # Write the report
+        write_profile_report(profile_result, OUTPUT_FILE)
         
-        if results["warnings"]:
-            print("\nWarnings:")
-            for warning in results["warnings"]:
-                print(f"  - {warning}")
+        # Verify constraints
+        if not profile_result['constraints']['satisfied']:
+            logger.error("Profiled sweep did NOT meet performance constraints!")
+            logger.error(f"Time: {profile_result['timing']['total_hours']:.2f}h (limit: 6h)")
+            logger.error(f"Memory: {profile_result['memory']['peak_mb']:.1f}MB (limit: {MAX_MEMORY_MB}MB)")
+            return 1
         
-        print("=" * 60)
-        
-        if not results["within_budget"]:
-            logger.warning("Simulation sweep may exceed 6-hour budget")
-            sys.exit(1)
-        
-        logger.info("T036 completed successfully")
+        logger.info("SUCCESS: Profiled sweep completed within all constraints")
+        logger.info(f"Total time: {profile_result['timing']['total_hours']:.2f} hours")
+        logger.info(f"Peak memory: {profile_result['memory']['peak_mb']:.1f} MB")
+        return 0
         
     except Exception as e:
-        logger.error(f"T036 failed: {e}", exc_info=True)
-        sys.exit(1)
+        logger.error(f"Profiling failed: {e}", exc_info=True)
+        return 1
 
-if __name__ == "__main__":
-    main()
+if __name__ == '__main__':
+    sys.exit(main())

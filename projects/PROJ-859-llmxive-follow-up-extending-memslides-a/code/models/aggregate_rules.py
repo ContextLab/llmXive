@@ -1,177 +1,233 @@
 """
-Aggregate per-trace rule sets into a global rule set.
+Module for aggregating per-trace rule sets into a global rule set.
 
-This module implements the logic to combine symbolic rules generated during
-per-trace induction (T023) into a unified global rule bank. This global set
-is required for the benchmarking phase (T031, T032).
-
-The aggregation strategy:
-1. Load all per-trace rule sets from the output directory of T023.
-2. Parse rules into a canonical format (Condition -> Action).
-3. Deduplicate rules based on exact string representation of condition and action.
-4. Calculate global statistics (support, confidence) if metadata is available.
-5. Save the aggregated set to `data/processed/rules/global_rules.json`.
+This implements Task T026b: Combine per-trace rule sets from T023 into a 
+global rule set required for the benchmarking phase (FR-004).
 """
-
 import json
 import os
 from pathlib import Path
 from typing import Dict, Any, List, Optional, Set, Tuple
 from collections import defaultdict
+import hashlib
 
 from config import get_config
-from utils.validators import SchemaValidator
+
 
 class RuleAggregator:
-    """Aggregates per-trace rule sets into a global rule set."""
-
+    """
+    Aggregates per-trace rule sets into a global rule set.
+    
+    Logic:
+    1. Load per-trace rule sets from the output of T023 (rule_induction).
+    2. Normalize rules to a canonical form to detect duplicates.
+    3. Aggregate rules by frequency of occurrence across traces.
+    4. Filter rules based on minimum support (frequency) if configured.
+    5. Save the global rule set to `data/processed/rules/global_rules.json`.
+    """
+    
     def __init__(self, config: Dict[str, Any]):
         self.config = config
-        self.rules_dir = Path(config['paths']['processed_rules'])
-        self.output_path = Path(config['paths']['global_rules'])
-        self.validator = SchemaValidator()
-
-    def load_per_trace_rules(self) -> List[Dict[str, Any]]:
+        self.min_support = config.get('rule_aggregation', {}).get('min_support', 2)
+        self.output_path = Path(config['paths']['processed_rules']) / 'global_rules.json'
+        self.input_dir = Path(config['paths']['processed_rules'])
+        
+    def _canonicalize_rule(self, rule: Dict[str, Any]) -> str:
         """
-        Loads all rule sets from the per-trace output directory.
-        Expects files named `trace_<id>_rules.json` or similar in the rules directory.
+        Convert a rule dict to a canonical string for hashing/deduplication.
+        
+        This ensures that rules with the same logical meaning but different 
+        ordering of conditions are treated as identical.
         """
-        if not self.rules_dir.exists():
-            raise FileNotFoundError(
-                f"Per-trace rules directory not found: {self.rules_dir}. "
-                "Ensure T023 (rule_induction.py) has completed successfully."
+        # Sort conditions and actions for consistent hashing
+        conditions = rule.get('conditions', [])
+        actions = rule.get('actions', [])
+        
+        # Sort conditions by their string representation
+        sorted_conditions = sorted(
+            [json.dumps(c, sort_keys=True) for c in conditions]
+        )
+        sorted_actions = sorted(
+            [json.dumps(a, sort_keys=True) for a in actions]
+        )
+        
+        return f"COND:{'|'.join(sorted_conditions)}|ACT:{'|'.join(sorted_actions)}"
+    
+    def _load_per_trace_rules(self, trace_ids: List[str]) -> Dict[str, List[Dict[str, Any]]]:
+        """
+        Load per-trace rule sets from the output of T023.
+        
+        Expected file naming: `data/processed/rules/trace_{trace_id}_rules.json`
+        """
+        per_trace_rules = {}
+        
+        for trace_id in trace_ids:
+            rule_file = self.input_dir / f'trace_{trace_id}_rules.json'
+            
+            if not rule_file.exists():
+                raise FileNotFoundError(
+                    f"Per-trace rule file not found for trace {trace_id}: {rule_file}"
+                )
+            
+            with open(rule_file, 'r') as f:
+                rules = json.load(f)
+            
+            per_trace_rules[trace_id] = rules
+        
+        return per_trace_rules
+    
+    def _aggregate_rules(
+        self, 
+        per_trace_rules: Dict[str, List[Dict[str, Any]]]
+    ) -> List[Dict[str, Any]]:
+        """
+        Aggregate rules across all traces, counting support and merging.
+        
+        Returns a list of global rules with support counts.
+        """
+        rule_support = defaultdict(lambda: {'count': 0, 'traces': set()})
+        rule_templates = {}  # canonical_key -> rule template
+        
+        for trace_id, rules in per_trace_rules.items():
+            for rule in rules:
+                canonical_key = self._canonicalize_rule(rule)
+                
+                # Store the rule template if not already seen
+                if canonical_key not in rule_templates:
+                    rule_templates[canonical_key] = rule
+                
+                # Increment support
+                rule_support[canonical_key]['count'] += 1
+                rule_support[canonical_key]['traces'].add(trace_id)
+        
+        # Build global rule list
+        global_rules = []
+        for canonical_key, support_data in rule_support.items():
+            # Filter by minimum support
+            if support_data['count'] < self.min_support:
+                continue
+            
+            rule_template = rule_templates[canonical_key]
+            
+            # Create global rule with support metadata
+            global_rule = {
+                **rule_template,
+                'support_count': support_data['count'],
+                'support_traces': sorted(list(support_data['traces'])),
+                'rule_id': hashlib.md5(canonical_key.encode()).hexdigest()[:12]
+            }
+            
+            global_rules.append(global_rule)
+        
+        # Sort by support count (descending) for interpretability
+        global_rules.sort(key=lambda x: x['support_count'], reverse=True)
+        
+        return global_rules
+    
+    def aggregate(self, trace_ids: Optional[List[str]] = None) -> Dict[str, Any]:
+        """
+        Main aggregation method.
+        
+        Args:
+            trace_ids: Optional list of trace IDs to aggregate. If None, 
+                       discovers all trace rule files in the input directory.
+        
+        Returns:
+            Dictionary containing the global rule set and metadata.
+        """
+        # Discover trace IDs if not provided
+        if trace_ids is None:
+            trace_ids = []
+            for file in self.input_dir.glob('trace_*_rules.json'):
+                # Extract trace_id from filename
+                trace_id = file.stem.replace('trace_', '').replace('_rules', '')
+                trace_ids.append(trace_id)
+        
+        if not trace_ids:
+            raise ValueError(
+                "No trace rule files found. Ensure T023 has completed and "
+                "generated per-trace rule files in the processed rules directory."
             )
-
-        all_rules = []
-        rule_files = list(self.rules_dir.glob("*.json"))
-
-        if not rule_files:
-            raise FileNotFoundError(
-                f"No rule files found in {self.rules_dir}. "
-                "T023 must generate per-trace rule files before aggregation."
-            )
-
-        for file_path in rule_files:
-            try:
-                with open(file_path, 'r', encoding='utf-8') as f:
-                    data = json.load(f)
-                    # Handle both single rule list and dict with 'rules' key
-                    if isinstance(data, list):
-                        all_rules.extend(data)
-                    elif isinstance(data, dict) and 'rules' in data:
-                        all_rules.extend(data['rules'])
-                    else:
-                        # If it's a single rule object, wrap it
-                        if 'condition' in data and 'action' in data:
-                            all_rules.append(data)
-            except json.JSONDecodeError as e:
-                raise ValueError(f"Invalid JSON in {file_path}: {e}")
-
-        return all_rules
-
-    def deduplicate_rules(self, rules: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-        """
-        Deduplicates rules based on (condition, action) pairs.
-        Keeps the first occurrence and aggregates metadata (e.g., support count).
-        """
-        seen: Dict[Tuple[str, str], Dict[str, Any]] = {}
-        global_id_counter = 0
-
-        for rule in rules:
-            condition = rule.get('condition', '')
-            action = rule.get('action', '')
-            key = (condition, action)
-
-            if key not in seen:
-                # New unique rule
-                rule['global_id'] = global_id_counter
-                global_id_counter += 1
-                rule['support_count'] = 1
-                seen[key] = rule
-            else:
-                # Duplicate found, increment support
-                seen[key]['support_count'] += 1
-
-        return list(seen.values())
-
-    def sort_rules(self, rules: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-        """
-        Sorts rules by support count (descending) to prioritize high-frequency patterns.
-        """
-        return sorted(rules, key=lambda x: x.get('support_count', 0), reverse=True)
-
-    def validate_global_rules(self, rules: List[Dict[str, Any]]) -> bool:
-        """Validates the aggregated rules against the global rules schema."""
-        # Basic structural validation
-        if not rules:
-            return False
-
-        for rule in rules:
-            if 'condition' not in rule or 'action' not in rule:
-                return False
-            if 'global_id' not in rule:
-                return False
-        return True
-
-    def aggregate(self) -> Dict[str, Any]:
-        """
-        Main aggregation pipeline: Load -> Deduplicate -> Sort -> Validate -> Save.
-        """
-        print(f"Loading per-trace rules from {self.rules_dir}...")
-        raw_rules = self.load_per_trace_rules()
-        print(f"Loaded {len(raw_rules)} raw rules.")
-
-        if not raw_rules:
-            raise ValueError("No rules loaded to aggregate. T023 may have produced no rules.")
-
-        print("Deduplicating rules...")
-        unique_rules = self.deduplicate_rules(raw_rules)
-        print(f"Found {len(unique_rules)} unique rules.")
-
-        print("Sorting rules by support...")
-        sorted_rules = self.sort_rules(unique_rules)
-
-        if not self.validate_global_rules(sorted_rules):
-            raise ValueError("Aggregated rules failed validation.")
-
-        global_set = {
-            "global_rules": sorted_rules,
-            "metadata": {
-                "total_raw_rules": len(raw_rules),
-                "unique_rules": len(sorted_rules),
-                "deduplication_rate": 1.0 - (len(sorted_rules) / len(raw_rules) if len(raw_rules) > 0 else 0),
-                "generated_at": "auto-generated", # Placeholder for actual timestamp logic if needed
-                "source": "T026b_aggregation"
+        
+        # Load per-trace rules
+        per_trace_rules = self._load_per_trace_rules(trace_ids)
+        
+        # Aggregate rules
+        global_rules = self._aggregate_rules(per_trace_rules)
+        
+        # Build result
+        result = {
+            'global_rules': global_rules,
+            'metadata': {
+                'total_traces_processed': len(trace_ids),
+                'total_rules_before_filter': sum(
+                    len(rules) for rules in per_trace_rules.values()
+                ),
+                'total_rules_after_filter': len(global_rules),
+                'min_support_threshold': self.min_support,
+                'aggregation_timestamp': str(Path().absolute().resolve())  # Placeholder for actual timestamp
             }
         }
-
+        
+        return result
+    
+    def save(self, result: Dict[str, Any]) -> Path:
+        """
+        Save the aggregated global rules to the output file.
+        
+        Args:
+            result: The aggregated rule set from `aggregate()`.
+        
+        Returns:
+            Path to the saved file.
+        """
         # Ensure output directory exists
         self.output_path.parent.mkdir(parents=True, exist_ok=True)
+        
+        with open(self.output_path, 'w') as f:
+            json.dump(result, f, indent=2)
+        
+        return self.output_path
 
-        print(f"Saving global rules to {self.output_path}...")
-        with open(self.output_path, 'w', encoding='utf-8') as f:
-            json.dump(global_set, f, indent=2)
-
-        print(f"Aggregation complete. Saved {len(sorted_rules)} rules.")
-        return global_set
 
 def main():
-    """Entry point for rule aggregation."""
+    """
+    Main entry point for rule aggregation.
+    
+    Usage:
+        python -m models.aggregate_rules
+    """
     config = get_config()
-    aggregator = RuleAggregator(config)
-
+    
     try:
+        aggregator = RuleAggregator(config)
+        
+        print(f"Starting rule aggregation with min_support={aggregator.min_support}")
+        print(f"Input directory: {aggregator.input_dir}")
+        print(f"Output file: {aggregator.output_path}")
+        
+        # Perform aggregation
         result = aggregator.aggregate()
-        print(f"Success: Global rules saved to {config['paths']['global_rules']}")
+        
+        # Save results
+        output_path = aggregator.save(result)
+        
+        # Log summary
+        metadata = result['metadata']
+        print(f"\nAggregation complete:")
+        print(f"  - Traces processed: {metadata['total_traces_processed']}")
+        print(f"  - Rules before filtering: {metadata['total_rules_before_filter']}")
+        print(f"  - Rules after filtering: {metadata['total_rules_after_filter']}")
+        print(f"  - Output saved to: {output_path}")
+        
     except FileNotFoundError as e:
-        print(f"Error: {e}")
-        raise
-    except ValueError as e:
-        print(f"Validation Error: {e}")
+        print(f"ERROR: {e}")
+        print("Ensure T023 (rule_induction.py) has completed successfully.")
         raise
     except Exception as e:
-        print(f"Unexpected error during aggregation: {e}")
+        print(f"ERROR during aggregation: {e}")
         raise
 
-if __name__ == "__main__":
+
+if __name__ == '__main__':
     main()

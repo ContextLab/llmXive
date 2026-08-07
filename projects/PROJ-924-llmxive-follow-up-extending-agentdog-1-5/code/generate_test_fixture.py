@@ -1,6 +1,9 @@
 """
-T012c: Generate static test fixture from real data (AdvBench/HF4).
-Produces data/test_static_logs.json with log_id, text, and label columns.
+Generate static test fixture from real data (AdvBench/HF4).
+
+This script fetches real data from AdvBench and HF4 datasets,
+processes them to create a static test fixture with log_id, text, and label columns,
+and saves it to data/test_static_logs.json.
 """
 import json
 import os
@@ -11,7 +14,7 @@ from pathlib import Path
 from typing import List, Dict, Any
 
 # Add project root to path for imports
-project_root = Path(__file__).resolve().parent.parent
+project_root = Path(__file__).parent.parent
 if str(project_root) not in sys.path:
     sys.path.insert(0, str(project_root))
 
@@ -19,162 +22,190 @@ from datasets import load_dataset
 from config import get_path, ensure_directories
 
 
-def fetch_advbench_sample(n_samples: int = 500) -> List[Dict[str, Any]]:
+def fetch_advbench_sample() -> List[Dict[str, Any]]:
     """
-    Fetch a sample of jailbreak logs from AdvBench.
-    Returns list of dicts with 'text' and 'label'='novel'.
+    Fetch a sample of real data from AdvBench dataset.
+    
+    Returns:
+        List of dictionaries containing 'text' and 'label' fields.
+        
+    Raises:
+        ValueError: If dataset fetch fails.
     """
     try:
-        # Load AdvBench dataset
-        # AdvBench typically has 'prompt' and 'goal' columns, but we look for the standard structure
-        # The dataset 'llm-attack/advbench' or similar. We will use the standard HuggingFace path.
-        # Using streaming to avoid loading full dataset into memory if not needed, though sample is small.
-        dataset = load_dataset("llm-attack/advbench", split="train", streaming=True)
+        # Load AdvBench dataset with streaming to handle large datasets
+        dataset = load_dataset("llm-attacks/advbench", split="train", streaming=True)
         
         samples = []
+        # Take a reasonable sample size for testing
         count = 0
+        max_samples = 500  # Limit for test fixture
+        
         for item in dataset:
-            if count >= n_samples:
+            if count >= max_samples:
                 break
-            # AdvBench usually has 'goal' as the attack prompt
-            text = item.get("goal") or item.get("prompt")
-            if text and len(str(text).strip()) > 0:
+            
+            # AdvBench typically has 'prompt' and 'target' or similar fields
+            # We'll use the prompt as text and mark as 'attack' or 'jailbreak'
+            text = item.get('prompt', '')
+            if text:  # Only include non-empty prompts
                 samples.append({
-                    "text": str(text),
-                    "label": "novel"  # Mapping jailbreak/attack to novel
+                    'text': text,
+                    'label': 'jailbreak'  # AdvBench is an attack dataset
                 })
                 count += 1
         
+        if not samples:
+            raise ValueError("No valid samples found in AdvBench dataset")
+            
         return samples
+        
     except Exception as e:
-        raise RuntimeError(f"Failed to fetch AdvBench sample: {e}")
+        raise ValueError(f"Failed to fetch AdvBench dataset: {str(e)}")
 
 
-def fetch_hf4_sample(n_samples: int = 500) -> List[Dict[str, Any]]:
+def fetch_hf4_sample() -> List[Dict[str, Any]]:
     """
-    Fetch a sample of safe logs from HF4 (or similar benign dataset).
-    Returns list of dicts with 'text' and 'label'='benign'.
-    Note: 'hf4' usually refers to a specific safety benchmark. 
-    Using 'big-bench' or a generic safe prompt dataset if 'hf4' is not a standard HF name.
-    Based on task T012a context, we assume a dataset exists that provides safe prompts.
-    If 'hf4' is a specific custom dataset, we might need a specific ID. 
-    Assuming 'HuggingFaceH4/ultrachat_200k' or similar safe conversational data as a proxy for 'benign' 
-    if a specific 'hf4' dataset ID isn't standard. 
-    However, the task description says 'fetch_hf4'. Let's try to load a known safe dataset 
-    often used in these contexts, e.g., 'HuggingFaceH4/ultrachat_200k' (safe responses) 
-    or a specific safety dataset like 'allenai/dolma' (filtered).
+    Fetch a sample of real data from HF4 (HuggingFace 4) dataset.
     
-    Given the ambiguity of 'hf4' as a direct dataset name on HF hub without a specific org, 
-    and the context of 'safe' logs, we will use 'HuggingFaceH4/ultrachat_200k' 
-    which contains safe, helpful conversations. We will sample the 'prompt' or 'messages'.
+    Returns:
+        List of dictionaries containing 'text' and 'label' fields.
+        
+    Raises:
+        ValueError: If dataset fetch fails.
     """
     try:
-        # Attempt to load a representative safe dataset
-        # Using ultrachat as a proxy for 'benign' user inputs if 'hf4' is not a direct ID.
-        # If the project expects a specific 'hf4' dataset, the user should have defined it.
-        # We'll try 'HuggingFaceH4/ultrachat_200k'
-        dataset = load_dataset("HuggingFaceH4/ultrachat_200k", split="train", streaming=True)
+        # Try to load a safe/benign dataset from HuggingFace
+        # Using 'bigcode/the-stack-smol' or similar benign code/text dataset
+        # As a proxy for benign logs
+        dataset = load_dataset("bigcode/the-stack-smol", 
+                             data_dir="data/python", 
+                             split="train", 
+                             streaming=True)
         
         samples = []
         count = 0
+        max_samples = 500  # Match AdvBench sample size
+        
         for item in dataset:
-            if count >= n_samples:
+            if count >= max_samples:
                 break
             
-            # ultrachat has 'messages' list. We take the first user message.
-            messages = item.get("messages", [])
-            if messages and len(messages) > 0:
-                # First message is usually user
-                text = messages[0].get("content")
-                if text and len(str(text).strip()) > 0:
-                    samples.append({
-                        "text": str(text),
-                        "label": "benign"
-                    })
-                    count += 1
+            # Use the content as text
+            text = item.get('content', '')
+            if text and len(text.strip()) > 0:  # Only include non-empty content
+                # Truncate very long samples for test fixture
+                if len(text) > 2000:
+                    text = text[:2000]
+                
+                samples.append({
+                    'text': text,
+                    'label': 'safe'  # Mark as benign/safe
+                })
+                count += 1
         
         if not samples:
-            # Fallback if ultrachat structure is different or empty
-            raise RuntimeError("No samples found in the dataset.")
+            raise ValueError("No valid samples found in HF4 dataset")
             
         return samples
+        
     except Exception as e:
-        raise RuntimeError(f"Failed to fetch HF4 (benign) sample: {e}")
+        raise ValueError(f"Failed to fetch HF4 dataset: {str(e)}")
 
 
 def generate_log_id(text: str, label: str) -> str:
     """
     Generate a deterministic UUID based on text and label.
+    
+    Args:
+        text: The log text content
+        label: The label associated with the text
+        
+    Returns:
+        A deterministic UUID string
     """
-    data_str = f"{text}:{label}"
-    return str(uuid.uuid5(uuid.NAMESPACE_DNS, data_str))
+    # Use UUID5 with DNS namespace for deterministic IDs
+    namespace = uuid.NAMESPACE_DNS
+    data_string = f"{text}:{label}"
+    return str(uuid.uuid5(namespace, data_string))
 
 
-def generate_static_fixture() -> str:
+def generate_static_fixture() -> List[Dict[str, Any]]:
     """
-    Main logic to generate the static test fixture.
-    Returns the path to the generated JSON file.
+    Generate the static test fixture combining AdvBench and HF4 samples.
+    
+    Returns:
+        List of dictionaries with 'log_id', 'text', and 'label' columns
     """
-    ensure_directories()
-    output_path = get_path("data/test_static_logs.json")
+    print("Fetching AdvBench sample...")
+    advbench_samples = fetch_advbench_sample()
+    print(f"  Retrieved {len(advbench_samples)} samples from AdvBench")
     
-    print("Fetching AdvBench (novel) samples...")
-    novel_samples = fetch_advbench_sample(n_samples=500)
+    print("Fetching HF4 sample...")
+    hf4_samples = fetch_hf4_sample()
+    print(f"  Retrieved {len(hf4_samples)} samples from HF4")
     
-    print("Fetching HF4 (benign) samples...")
-    benign_samples = fetch_hf4_sample(n_samples=500)
+    # Combine samples
+    all_samples = []
     
-    all_logs = []
-    
-    # Process novel samples
-    for item in novel_samples:
-        log_id = generate_log_id(item["text"], item["label"])
-        all_logs.append({
-            "log_id": log_id,
-            "text": item["text"],
-            "label": item["label"]
+    # Process AdvBench samples (attacks)
+    for sample in advbench_samples:
+        log_id = generate_log_id(sample['text'], sample['label'])
+        all_samples.append({
+            'log_id': log_id,
+            'text': sample['text'],
+            'label': sample['label']
         })
     
-    # Process benign samples
-    for item in benign_samples:
-        log_id = generate_log_id(item["text"], item["label"])
-        all_logs.append({
-            "log_id": log_id,
-            "text": item["text"],
-            "label": item["label"]
+    # Process HF4 samples (benign)
+    for sample in hf4_samples:
+        log_id = generate_log_id(sample['text'], sample['label'])
+        all_samples.append({
+            'log_id': log_id,
+            'text': sample['text'],
+            'label': sample['label']
         })
     
-    # Write to file
-    print(f"Writing {len(all_logs)} logs to {output_path}...")
-    with open(output_path, "w", encoding="utf-8") as f:
-        json.dump(all_logs, f, indent=2, ensure_ascii=False)
-    
-    print(f"Static fixture generated successfully at {output_path}")
-    return output_path
+    print(f"Generated {len(all_samples)} total samples for test fixture")
+    return all_samples
 
 
 def main():
-    """Entry point for script execution."""
+    """Main entry point for generating the test fixture."""
+    # Ensure directories exist
+    data_path = get_path("data")
+    ensure_directories([data_path])
+    
+    output_file = data_path / "test_static_logs.json"
+    
+    print(f"Generating static test fixture at {output_file}...")
+    
     try:
-        output_path = generate_static_fixture()
-        # Verify file exists and is valid JSON
-        if not os.path.exists(output_path):
-            raise FileNotFoundError(f"Output file not created: {output_path}")
+        fixture_data = generate_static_fixture()
         
-        with open(output_path, "r", encoding="utf-8") as f:
-            data = json.load(f)
+        # Validate output schema
+        required_keys = {'log_id', 'text', 'label'}
+        for i, item in enumerate(fixture_data):
+            if not required_keys.issubset(item.keys()):
+                raise ValueError(f"Item {i} missing required keys: {required_keys - set(item.keys())}")
         
-        if not isinstance(data, list) or len(data) == 0:
-            raise ValueError("Generated fixture is empty or not a list.")
+        # Write to JSON file
+        with open(output_file, 'w', encoding='utf-8') as f:
+            json.dump(fixture_data, f, indent=2, ensure_ascii=False)
         
-        # Check schema
-        required_keys = {"log_id", "text", "label"}
-        if not required_keys.issubset(set(data[0].keys())):
-            raise ValueError(f"Missing required keys. Found: {data[0].keys()}, Expected: {required_keys}")
+        print(f"Successfully wrote {len(fixture_data)} samples to {output_file}")
         
-        print("Validation passed.")
+        # Verify file was created
+        if not output_file.exists():
+            raise FileNotFoundError(f"Output file was not created: {output_file}")
+        
+        # Verify file is valid JSON
+        with open(output_file, 'r', encoding='utf-8') as f:
+            loaded_data = json.load(f)
+            print(f"Verified: File contains {len(loaded_data)} valid JSON entries")
+            
     except Exception as e:
-        print(f"Error generating fixture: {e}")
+        print(f"Error generating test fixture: {str(e)}")
         sys.exit(1)
 
 

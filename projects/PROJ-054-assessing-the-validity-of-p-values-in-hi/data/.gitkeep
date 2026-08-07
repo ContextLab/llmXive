@@ -1,1 +1,2 @@
-# Data directory placeholder
+# This directory stores generated datasets, trajectories, and analysis results.
+# Do not commit large data files to git.

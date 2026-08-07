@@ -73,8 +73,8 @@ Examples of foundational tasks (adjust based on your plan):
 - [X] T005 [P] Implement `code/utils/memory_monitor.py` to track peak RAM usage and enforce ≤7GB limit: Implement a `check_memory_limit()` function that raises `MemoryLimitExceeded` if current RSS > 7GB. **Verify**: `pytest` must raise `MemoryLimitExceeded` when a mock dataset > 7GB is passed to the monitor.
 - [X] T006 [P] Setup logging infrastructure in `code/utils/logging.py` with structured output
 - [ ] T007 [P] Create base data models (`Subject`, `ConnectivityMatrix`) in `code/data/models.py`: Define classes with attributes `subject_id`, `group`, `years_of_training`, `age`, `sex`, `motion_score`, `ses_score` for Subject. **Mandatory**: Implement validation logic to ensure instances match `contracts/subject.schema.yaml`.
-- [ ] T008 Implement `code/data/synthetic_generator.py` for Null-First validation (no injected effects). **SIMULATION MODE ONLY**: This generator is ONLY for Verification Mode. It creates **simulated** data, not raw data. It must NOT be used in Analysis Mode.
-- [ ] T009 Implement `code/data/mock_nifti.py` to generate valid NIfTI headers for format testing
+- [X] T008 Implement `code/data/synthetic_generator.py` for Null-First validation (no injected effects). **SIMULATION MODE ONLY**: This generator is ONLY for Verification Mode. It creates **simulated** data, not raw data. It must NOT be used in Analysis Mode.
+- [X] T009 Implement `code/data/mock_nifti.py` to generate valid NIfTI headers for format testing
 - [X] T010 Implement `code/main.py` entry point with `--mode` flag (verification vs analysis)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -93,7 +93,7 @@ Examples of foundational tasks (adjust based on your plan):
 
 - [X] T011 [P] [US1] Unit test for filtering logic (≥1 year threshold) in `tests/unit/test_preprocess.py`: Implement `test_filter_by_training_years` with assertion `assert len(df[df['years_of_training'] >= 1]) == expected_count` and `assert 'years_of_training' in df.columns`.
 - [X] T012 [P] [US1] Unit test for confounder matching (propensity score or regression) in `tests/unit/test_matching.py`: Implement `test_matching_balance` with assertion `assert abs(df['age'].mean() - expected_age) < 0.1` and `assert df['sex'].value_counts()['M'] > 0`.
-- [~] T013 [P] [US1] Integration test for full ingestion pipeline on synthetic data in `tests/integration/test_ingestion.py`: Implement `test_full_ingestion` with assertion `assert os.path.exists('data/processed/subjects_cleaned.csv')` and `assert len(pd.read_csv('data/processed/subjects_cleaned.csv')) == 10`.
+- [ ] T013 [P] [US1] Integration test for full ingestion pipeline on synthetic data in `tests/integration/test_ingestion.py`: Implement `test_full_ingestion` with assertion `assert os.path.exists('data/processed/subjects_cleaned.csv')` and `assert len(pd.read_csv('data/processed/subjects_cleaned.csv')) == 10`.
 
 ### Implementation for User Story 1
 
@@ -148,9 +148,9 @@ Examples of foundational tasks (adjust based on your plan):
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T032 [P] [US3] Unit test for correlation (Pearson/Spearman) calculation in `tests/unit/test_correlation.py`
-- [ ] T033 [P] [US3] Unit test for sensitivity threshold sweep logic in `tests/unit/test_sensitivity.py`
-- [ ] T034 [P] [US3] Integration test for correlation + sensitivity on synthetic data in `tests/integration/test_correlation_analysis.py`
+- [X] T032 [P] [US3] Unit test for correlation (Pearson/Spearman) calculation in `tests/unit/test_correlation.py`
+- [X] T033 [P] [US3] Unit test for sensitivity threshold sweep logic in `tests/unit/test_sensitivity.py`
+- [X] T034 [P] [US3] Integration test for correlation + sensitivity on synthetic data in `tests/integration/test_correlation_analysis.py`
 
 ### Implementation for User Story 3
 
