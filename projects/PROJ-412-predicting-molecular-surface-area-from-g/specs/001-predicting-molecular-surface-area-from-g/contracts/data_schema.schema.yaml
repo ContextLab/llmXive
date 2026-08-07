@@ -1,0 +1,40 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Processed Data Schema"
+description: "Schema for the intermediate processed dataset (Parquet) containing graphs and labels."
+type: "object"
+properties:
+  columns:
+    type: "array"
+    items:
+      type: "string"
+    description: "List of column names in the dataset."
+  sample_record:
+    type: "object"
+    properties:
+      smiles:
+        type: "string"
+        description: "Canonical SMILES string."
+      molecular_weight:
+        type: "number"
+        description: "Molecular weight in g/mol."
+      num_atoms:
+        type: "integer"
+        description: "Number of atoms."
+      sasa_label:
+        type: "number"
+        description: "Computed SASA in Å²."
+      graph_features:
+        type: "array"
+        description: "Flattened node and edge features."
+      conformer_success:
+        type: "boolean"
+        description: "Whether 3D conformer was generated."
+    required:
+      - smiles
+      - sasa_label
+      - graph_features
+      - conformer_success
+required:
+  - columns
+  - sample_record
+additionalProperties: false

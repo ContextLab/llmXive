@@ -1,0 +1,96 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "GCN Output Schema"
+description: "Schema for the final prediction results and metrics output by the GCN pipeline."
+type: "object"
+properties:
+  metadata:
+    type: "object"
+    properties:
+      run_id:
+        type: "string"
+        description: "Unique identifier for the pipeline run."
+      timestamp:
+        type: "string"
+        format: "date-time"
+        description: "ISO 8601 timestamp of the run."
+      dataset_source:
+        type: "string"
+        description: "URL of the dataset used."
+      seed:
+        type: "integer"
+        description: "Random seed used for reproducibility."
+  metrics:
+    type: "object"
+    properties:
+      gcn:
+        type: "object"
+        properties:
+          mae:
+            type: "number"
+            description: "Mean Absolute Error for GCN."
+          rmse:
+            type: "number"
+            description: "Root Mean Squared Error for GCN."
+          r2:
+            type: "number"
+            description: "R-squared for GCN."
+      baseline:
+        type: "object"
+        properties:
+          mae:
+            type: "number"
+            description: "Mean Absolute Error for Geometry Oracle/Baseline."
+          rmse:
+            type: "number"
+            description: "Root Mean Squared Error for Baseline."
+          r2:
+            type: "number"
+            description: "R-squared for Baseline."
+      comparison:
+        type: "object"
+        properties:
+          t_statistic:
+            type: "number"
+            description: "Paired t-test statistic."
+          p_value:
+            type: "number"
+            description: "Paired t-test p-value."
+          effect_size_cohen_d:
+            type: "number"
+            description: "Cohen's d effect size."
+  sensitivity_analysis:
+    type: "object"
+    properties:
+      thresholds:
+        type: "array"
+        items:
+          type: "number"
+        description: "List of MAE thresholds tested (e.g., 0.01, 0.05, 0.1)."
+      success_rates:
+        type: "array"
+        items:
+          type: "number"
+        description: "Success rates corresponding to each threshold."
+      adjusted_p_values:
+        type: "array"
+        items:
+          type: "number"
+        description: "Bonferroni/FDR corrected p-values for threshold tests."
+  runtime:
+    type: "object"
+    properties:
+      total_seconds:
+        type: "number"
+        description: "Total pipeline execution time in seconds."
+      data_ingestion_seconds:
+        type: "number"
+      model_training_seconds:
+        type: "number"
+      evaluation_seconds:
+        type: "number"
+required:
+  - metadata
+  - metrics
+  - sensitivity_analysis
+  - runtime
+additionalProperties: false

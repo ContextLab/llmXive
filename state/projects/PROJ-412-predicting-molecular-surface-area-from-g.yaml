@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-07T21:27:32.737989Z'
-current_stage: clarified
+current_stage: analyzed
 failed_stage: null
 field: chemistry
 human_escalation_reason: null
 id: PROJ-412-predicting-molecular-surface-area-from-g
-last_run_id: c335824b-544e-46cb-a317-6f163a5d34cf
+last_run_id: 435a5794-82db-4c9d-abe7-d785fb8b2a02
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g
 title: Predicting Molecular Surface Area from Graph Convolutional Networks
-updated_at: '2026-07-31T07:03:51.394350Z'
+updated_at: '2026-08-07T23:00:19.325681Z'

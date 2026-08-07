@@ -1,59 +1,37 @@
-- artifact_hash: 4bf9b172706d7f7e9cff1a17b48091f74b7eea941b5154821e91fa283ef8f6a4
-  artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/plan.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: cpu
-  kind: url
-  value: https://download.pytorch.org/whl/cpu`
-  verification_status: pending
-  verified_against_url: https://download.pytorch.org/whl/cpu
-  verified_at: '2026-07-28T09:12:45.457253Z'
-- artifact_hash: 5a88ac344116aa8e8b712e3d671bafe16bf6be899a6ab67ccf5059383a63d0f1
+- artifact_hash: 732f28356dfe6037fd414709bd90118c5be8bb6de6f00d746c9a98fbcfd2401a
   artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/research.md
   cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: test-00000-of-00001.parquet
-  kind: url
-  value: https://huggingface.co/datasets/fabikru/chembl-2025-randomized-smiles-cleaned-rdkit-descriptors/resolve/main/data/test-00000-of-00001.parquet`
-  verification_status: pending
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/67f936282a27347d7152f248/fdee916ffc0fe277c8fc069720c777adc7315d078281cb4dc3f709675b0c437e?X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00001.parquet%3B+filename%3D%22test-00000-of-00001.parquet%22%3B&user_id=public&Expires=1785233574&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjdmOTM2MjgyYTI3MzQ3ZDcxNTJmMjQ4L2ZkZWU5MTZmZmMwZmUyNzdjOGZjMDY5NzIwYzc3N2FkYzczMTVkMDc4MjgxY2I0ZGMzZjcwOTY3NWIwYzQzN2VcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTIyJTNCJnVzZXJfaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODUyMzM1NzR9fX1dfQ__&Signature=MEQCICxwofcv6QJUnxvUbp6X-ImnNSOiwtRGXAkgDUFpnLwDAiA7y-BilentMRw2EGjKUWWiu1vROEqXq2KW0Q4vsXEsHg__&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F
-  verified_at: '2026-07-28T09:12:54.287056Z'
-- artifact_hash: 5a88ac344116aa8e8b712e3d671bafe16bf6be899a6ab67ccf5059383a63d0f1
-  artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/research.md
-  cite_id: c-002
   cited_authors: []
   cited_title: null
   fetched_title: zinc_processed.parquet
   kind: url
   value: https://huggingface.co/datasets/jonghyunlee/ZINC15/resolve/main/zinc_processed.parquet`
   verification_status: pending
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/67477b7584129b7116d4843c/205b314bc5769b38bb9ff59c4a2be2b89db7303894f08535cd7d2aa9e5fd0cd4?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27zinc_processed.parquet%3B+filename%3D%22zinc_processed.parquet%22%3B&user_id=public&X-Xet-Cas-Uid=public&Expires=1785233577&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjc0NzdiNzU4NDEyOWI3MTE2ZDQ4NDNjLzIwNWIzMTRiYzU3NjliMzhiYjlmZjU5YzRhMmJlMmI4OWRiNzMwMzg5NGYwODUzNWNkN2QyYWE5ZTVmZDBjZDRcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3emluY19wcm9jZXNzZWQucGFycXVldCUzQitmaWxlbmFtZSUzRCUyMnppbmNfcHJvY2Vzc2VkLnBhcnF1ZXQlMjIlM0ImdXNlcl9pZD1wdWJsaWMmWC1YZXQtQ2FzLVVpZD1wdWJsaWMiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4NTIzMzU3N319fV19&Signature=MEQCIHQeEABZ3SKady7uet9S64RRLETxVvzEuBeUER2zRO%7ENAiBhjT8rHzGchVjuUL%7E2oT2FNN9Zm-4wU8PocHd0VnHisw__&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F
-  verified_at: '2026-07-28T09:12:54.287056Z'
-- artifact_hash: 5a88ac344116aa8e8b712e3d671bafe16bf6be899a6ab67ccf5059383a63d0f1
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/67477b7584129b7116d4843c/205b314bc5769b38bb9ff59c4a2be2b89db7303894f08535cd7d2aa9e5fd0cd4?X-Xet-Cas-Uid=public&user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27zinc_processed.parquet%3B+filename%3D%22zinc_processed.parquet%22%3B&Expires=1786145529&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjc0NzdiNzU4NDEyOWI3MTE2ZDQ4NDNjLzIwNWIzMTRiYzU3NjliMzhiYjlmZjU5YzRhMmJlMmI4OWRiNzMwMzg5NGYwODUzNWNkN2QyYWE5ZTVmZDBjZDRcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZ1c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3emluY19wcm9jZXNzZWQucGFycXVldCUzQitmaWxlbmFtZSUzRCUyMnppbmNfcHJvY2Vzc2VkLnBhcnF1ZXQlMjIlM0IiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4NjE0NTUyOX19fV19&Signature=MEYCIQC61-7cTffYGDR9MxbUulFvXCok3T%7ELeaARfeg7BgiFzQIhAKfLEUsJ-5ROXrWXJMWfdjndv54fb%7EarqSXPzYkniaTN&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F
+  verified_at: '2026-08-07T22:32:09.140735Z'
+- artifact_hash: 732f28356dfe6037fd414709bd90118c5be8bb6de6f00d746c9a98fbcfd2401a
+  artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: test-00000-of-00015-27ed436361d9186e.parquet
+  kind: url
+  value: https://huggingface.co/datasets/maykcaldas/smiles-transformers/resolve/main/data/test-00000-of-00015-27ed436361d9186e.parquet`
+  verification_status: pending
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/642c21d86c11a741c521acc3/05f01d12e9eebd2f505bdbe0e04adf1b38d046376106167292c9c772a6fc9a2f?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00015-27ed436361d9186e.parquet%3B+filename%3D%22test-00000-of-00015-27ed436361d9186e.parquet%22%3B&user_id=public&X-Xet-Cas-Uid=public&Expires=1786145568&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjQyYzIxZDg2YzExYTc0MWM1MjFhY2MzLzA1ZjAxZDEyZTllZWJkMmY1MDViZGJlMGUwNGFkZjFiMzhkMDQ2Mzc2MTA2MTY3MjkyYzljNzcyYTZmYzlhMmZcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGVzdC0wMDAwMC1vZi0wMDAxNS0yN2VkNDM2MzYxZDkxODZlLnBhcnF1ZXQlM0IrZmlsZW5hbWUlM0QlMjJ0ZXN0LTAwMDAwLW9mLTAwMDE1LTI3ZWQ0MzYzNjFkOTE4NmUucGFycXVldCUyMiUzQiZ1c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzg2MTQ1NTY4fX19XX0_&Signature=MEUCIEZE6Y3vnyRWeSxVqsi-CnrjT-AWCgYTv5y3dy8E0m3HAiEAubD%7EyX-uEn1vwQS9I-PmiUZtY-hUWh8op7lUohYk0bI_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F
+  verified_at: '2026-08-07T22:32:09.140735Z'
+- artifact_hash: 732f28356dfe6037fd414709bd90118c5be8bb6de6f00d746c9a98fbcfd2401a
   artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/research.md
   cite_id: c-003
   cited_authors: []
   cited_title: null
-  fetched_title: train-00000-of-00001.parquet
+  fetched_title: test-00000-of-00001.parquet
   kind: url
-  value: https://huggingface.co/datasets/nglebm19/rdkit_chemical/resolve/main/data/train-00000-of-00001.parquet`
+  value: https://huggingface.co/datasets/fabikru/chembl-2025-randomized-smiles-cleaned-rdkit-descriptors/resolve/main/data/test-00000-of-00001.parquet`
   verification_status: pending
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/67f2270fbb64c89707694e08/832a2c80df4a784516e31954e66295f25517c311a4cf433720ad5c6ef062538a?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00001.parquet%3B+filename%3D%22train-00000-of-00001.parquet%22%3B&X-Xet-Cas-Uid=public&user_id=public&Expires=1785233612&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjdmMjI3MGZiYjY0Yzg5NzA3Njk0ZTA4LzgzMmEyYzgwZGY0YTc4NDUxNmUzMTk1NGU2NjI5NWYyNTUxN2MzMTFhNGNmNDMzNzIwYWQ1YzZlZjA2MjUzOGFcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dHJhaW4tMDAwMDAtb2YtMDAwMDEucGFycXVldCUzQitmaWxlbmFtZSUzRCUyMnRyYWluLTAwMDAwLW9mLTAwMDAxLnBhcnF1ZXQlMjIlM0ImWC1YZXQtQ2FzLVVpZD1wdWJsaWMmdXNlcl9pZD1wdWJsaWMiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4NTIzMzYxMn19fV19&Signature=MEUCIQCDMvTfClkuAV2kaKLWice5zb4BmMMTD-Z2CBRhs7xmSwIgTo84TiOJHi2xMGWSM2EcA7UUFvY1mlOAWv1dZ%7EbBa90_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F
-  verified_at: '2026-07-28T09:12:54.287056Z'
-- artifact_hash: 5396cc95b4c88283bab8e70c01d7e793e085abbd05dd3f35df4afbbd6d082b00
-  artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/quickstart.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: cpu
-  kind: url
-  value: https://download.pytorch.org/whl/cpu
-  verification_status: pending
-  verified_against_url: https://download.pytorch.org/whl/cpu
-  verified_at: '2026-07-28T09:13:33.937283Z'
-- artifact_hash: 6af9ad7f9ce0297e5aa03338a1055c013518a5d0c5c335c2dc9f2f26831f7b4a
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/67f936282a27347d7152f248/fdee916ffc0fe277c8fc069720c777adc7315d078281cb4dc3f709675b0c437e?X-Xet-Cas-Uid=public&user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00001.parquet%3B+filename%3D%22test-00000-of-00001.parquet%22%3B&Expires=1786145572&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjdmOTM2MjgyYTI3MzQ3ZDcxNTJmMjQ4L2ZkZWU5MTZmZmMwZmUyNzdjOGZjMDY5NzIwYzc3N2FkYzczMTVkMDc4MjgxY2I0ZGMzZjcwOTY3NWIwYzQzN2VcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZ1c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTIyJTNCIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODYxNDU1NzJ9fX1dfQ__&Signature=MEUCIQDRDHQuvHjMvxhFalZj7oB89g%7EfZ8HmcxESqGmXNQuQRQIgXfzRJyDbxBw89-fJbr9pbcZY64malA9bIFjZtu7RZAQ_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F
+  verified_at: '2026-08-07T22:32:09.140735Z'
+- artifact_hash: 3f349a1491ece3006226365f202bb55d04ad6d16b02327836b2023a0dbefec2e
   artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -63,4 +41,4 @@
   value: https://download.pytorch.org/whl/cpu`
   verification_status: pending
   verified_against_url: https://download.pytorch.org/whl/cpu
-  verified_at: '2026-07-31T06:38:00.554837Z'
+  verified_at: '2026-08-07T22:46:40.951918Z'

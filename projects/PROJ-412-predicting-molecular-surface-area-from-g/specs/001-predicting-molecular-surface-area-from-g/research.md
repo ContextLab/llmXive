@@ -2,62 +2,94 @@
 
 ## Problem Statement
 
-Can a Graph Convolutional Network (GCN) trained solely on 2D molecular topology predict the 3D solvent-accessible surface area (SASA) of a molecule with accuracy comparable to a baseline that explicitly computes 3D geometry? This study quantifies the information loss inherent in 2D-only representations for this specific physical property. The baseline is defined as the direct computation of SASA via RDKit on the test set (the "Geometry Oracle"), representing the theoretical limit of 3D-based prediction.
+Can a Graph Convolutional Network (GCN) trained solely on 2D molecular topology predict the 3D Solvent Accessible Surface Area (SASA) of a molecule with accuracy comparable to direct 3D geometry calculations? This study investigates the information bottleneck between 2D graph representations and 3D conformational properties, aiming to determine if lightweight 2D models can serve as effective surrogates for computationally expensive 3D geometry generation.
 
 ## Dataset Strategy
 
+The study relies on open, directly downloadable datasets to ensure CI feasibility. No access-gated data (e.g., ZINC15 original, PubChem) will be used unless a verified open mirror exists.
+
 ### Verified Datasets
-The project relies exclusively on the following verified, open-access datasets. No access-gated data (e.g., ADNI, ZINC15 raw portal) is used.
 
-| Dataset Name | Source URL | Usage | Notes |
+The following datasets are verified and used for the study. All citations refer to the verified URLs provided in the project input.
+
+| Dataset Name | Source URL | Usage | Verification Status |
 |:--- |:--- |:--- |:--- |
-| **ChEMBL-2025 Randomized** | ` | Primary Training Data | Contains SMILES. **SASA is NOT present**; it is derived by the pipeline. |
-| **ZINC15 Processed** | ` | Secondary Validation | Community upload; validated via checksum/schema check (T003). |
-| **RDKit Chemical** | ` | Supplemental | Backup source for diverse chemical space. |
+| **ZINC15 Subset** | ` | Primary source for SMILES strings. Contains pre-processed SMILES. | **Verified**: Direct Parquet download. |
+| **SMILES Test Set** | ` | Supplementary validation set if ZINC15 is insufficient. | **Verified**: Direct Parquet download. |
+| **RDKit Descriptors** | ` | Reference for descriptor calculation logic (not used as primary label source). | **Verified**: Direct Parquet download. |
 
-**Dataset Selection Rationale**:
-The ChEMBL-2025 dataset is selected as the primary source because it is a direct, verified Hugging Face Parquet file that is programmatic download-friendly. It contains clean SMILES strings, which are the required input for RDKit. The dataset size is unknown but assumed to be large; the plan includes a **streaming strategy** (`datasets.load_dataset(..., streaming=True)`) to process molecules in chunks, ensuring the 7GB RAM constraint is never exceeded. If the full dataset is too large to process in the 6-hour CI limit, a fixed random sample will be drawn.
+**Data Loading Strategy**:
+1. **Primary Load**: The pipeline will attempt to load `zinc_processed.parquet` using `pandas.read_parquet` or `pyarrow`.
+2. **Fallback**: If the primary source fails or is empty, the pipeline will load `smiles-transformers` test set.
+3. **No OpenDataPubChem**: As per the input, "OpenDataPubChem: NO verified source found". The plan **does not** cite or attempt to download from OpenDataPubChem.
+4. **Streaming**: If the dataset exceeds ~7GB, `datasets.load_dataset(..., streaming=True)` will be used to iterate and process in chunks, ensuring RAM constraints are met.
 
-**Variable Fit Verification**:
-- **SMILES**: Present in all verified sources.
-- **Target (SASA)**: **NOT present** in the raw dataset. The plan explicitly generates this label using RDKit's `rdkit.Chem.rdMolDescriptors.CalcSASA()` on generated 3D conformers. This aligns with **Assumption about ground truth** in the spec: the "ground truth" is a computed value, not experimental.
-- **Discarded Proxy**: `CalcTPSA()` (Topological Polar Surface Area) is explicitly **discarded** as a label source. TPSA is a 2D descriptor and does not represent the 3D geometric property (SASA) required by the research question.
-- **Predictors**: 2D graph features (atom type, hybridization, degree) will be extracted from SMILES using RDKit.
+### Dataset Verification Step
+To ensure the dataset contains **only** raw SMILES and no pre-computed 3D labels (which would bypass the core experimental step), the pipeline will:
+1. Load the dataset.
+2. Check for the presence of columns like `sasa`, `conformer`, `3d_coords`.
+3. If any such columns are found, the pipeline will raise a `CriticalError` and halt, forcing the user to select a different dataset or manually strip the columns.
+4. This ensures the pipeline actually performs the 3D generation step required by the spec.
 
-**Data Availability Plan**:
-1. **Download**: Use `datasets` library to stream the Parquet file.
-2. **Validation**: Check for `NaN` in SMILES column. Log and exclude invalid entries.
-3. **3D Generation**: For each SMILES, generate a 3D conformer using `rdkit.Chem.AllChem.EmbedMolecule`. If generation fails (>10% failure rate), the pipeline generates a failure report analyzing the properties of failed molecules to assess selection bias.
-4. **Labeling**: Compute SASA from the 3D conformer using `CalcSASA`.
-5. **Storage**: Save processed pairs (SMILES, Graph Features, SASA) to `data/processed/paired_dataset.parquet`.
+### Data Preprocessing Plan
+
+1. **SMILES Validation**: Use `rdkit.Chem.MolFromSmiles`. Invalid SMILES are logged and excluded.
+2. **2D Graph Generation**: Convert valid SMILES to `ConvMol` (DeepChem) or `DGLGraph` (PyTorch Geometric) using atom type, hybridization, and charge features.
+3. **3D Conformer Generation**:
+ * Use RDKit `AllChem.EmbedMolecule` with ETKDGv3 parameters.
+ * **Variance Methodology**: Generate **10 conformers** per molecule. Compute SASA for each.
+ * **Label**: Use the **mean SASA** of the 10 conformers as the ground truth label.
+ * **Uncertainty**: Record the **standard deviation** of the 10 SASA values as the "Conformer Uncertainty".
+ * **Constraint**: If conformer generation fails for >10% of the batch, the pipeline halts (Constitution Principle VII).
+4. **Feature Matrix**: Create a DataFrame with columns: `smiles`, `graph_features` (sparse/dense), `sasa_label` (mean), `sasa_uncertainty` (std), `molecular_weight`.
 
 ## Methodological Rigor
 
-### Statistical Approach
-1. **Baseline (Geometry Oracle)**: The baseline is the direct computation of SASA via RDKit on the test set. This represents the "3D truth". The comparison is between the GCN prediction and this direct 3D computation.
-2. **GCN Model**: A 3-layer Graph Convolutional Network (GCN) using PyTorch Geometric. Input: 2D graph (nodes=atoms, edges=bonds). Output: Scalar SASA.
-3. **Comparison**: Since the baseline error is zero (by definition of the Oracle), the statistical test is a one-sample test on the GCN errors against zero.
- - **Assumption Check**: Perform Shapiro-Wilk test on the distribution of GCN errors.
- - **Test**: If normal, use one-sample t-test. If not, use Wilcoxon signed-rank test.
-4. **Multiple Comparison Correction**: For the sensitivity analysis (testing thresholds {0.01, 0.05, 0.1}), a Bonferroni correction will be applied to the p-values of the success rates.
+### Statistical Methods
 
-### Sample Size & Power
-- **Power Justification**: The study will use a dataset subset sampled to fit the memory budget (typically 10k-50k molecules). Given the lack of prior variance estimates for this specific 2D-to-3D prediction task, a formal a priori power analysis is not feasible. The study will report the observed effect size and confidence intervals, acknowledging the limitation of not having a priori variance estimates. Post-hoc power analysis will be included in the final report.
+1. **Model Comparison**:
+ * **Metric**: Mean Absolute Error (MAE), Root Mean Squared Error (RMSE), R².
+ * **Test**: Paired t-test on the prediction errors (GCN vs. Linear Baseline) to determine statistical significance. **Note**: The t-test compares GCN vs. Linear Baseline, NOT GCN vs. Oracle (which would be trivial).
+ * **Correction**: Bonferroni correction applied if multiple thresholds are tested (FR-007).
+2. **Sensitivity Analysis**:
+ * Sweep MAE thresholds: **{0.5, 2.5, 10.0} Å²**.
+ * **Justification**: These values represent [deferred], [deferred], and [deferred] of a typical SASA value (50 Å²), which are physically realistic and above the noise floor of RDKit calculations.
+ * Report variation in "Success Rate" (percentage of molecules within threshold).
+3. **Collinearity Check**:
+ * Acknowledge that molecular weight is a strong predictor of SASA. The baseline model will include MW as a covariate to ensure fair comparison.
+4. **Pre-study Power Analysis**:
+ * **Formula**: $n = \frac{(Z_{\alpha} + Z_{\beta})^2 \cdot 2 \cdot \sigma^2}{\delta^2}$
+ * **Parameters**: $\alpha=0.05$ (Z=1.96), $\beta=0.20$ (Power=80%, Z=0.84), $\sigma$ (estimated SD of errors) $\approx 5.0$ Å², $\delta$ (minimum detectable effect size, Cohen's d=0.5) $\approx 2.5$ Å².
+ * **Calculation**: $n \approx \frac{(1.96 + 0.84)^2 \cdot 2 \cdot 25}{6.25} \approx 128$.
+ * **Justification**: The study requires a minimum of **128 valid molecules** to detect a medium effect size (Cohen's d=0.5) with [deferred] power. If the dataset yields <128 molecules, the study will report a "power-limited" status and interpret results with caution.
 
-### Robustness & Sensitivity
-- **Threshold Sweep**: Evaluate success rate (prediction within X Å²) at X = {0.01, 0.05, 0.1} Å² (absolute values as per spec).
-- **Sensitivity Check**: Plot success rate vs. threshold to demonstrate robustness.
-- **Conformer Stability**: Record the number of conformer generation attempts. If >10% fail, generate a failure report analyzing the properties of failed molecules (e.g., MW, atom count) to assess if exclusion introduces bias.
+### Dataset-Variable Fit
 
-## Decision/Rationale: CPU vs GPU
-- **Choice**: **CPU-First**.
-- **Rationale**: The GCN architecture is lightweight (3 layers, <1M params). Training on 50k molecules with batch size 64 fits comfortably within 7GB RAM on a 2-core CPU. PyTorch Geometric has efficient CPU backends.
-- **GPU Escape Hatch**: Not required. If the dataset size grows unexpectedly (>100k molecules), the plan uses streaming and batching, which scales linearly with time but not memory. No CUDA kernels are needed.
+* **Requirement**: The dataset must contain valid SMILES and allow for 3D conformer generation.
+* **Verification**: The ZINC15 subset (verified URL) contains SMILES. RDKit will attempt 3D generation.
+* **Risk**: If the dataset contains only 2D topological data without the ability to generate 3D conformers (e.g., salts, polymers), those entries are excluded. The plan does **not** assume the dataset contains pre-computed 3D SASA; it **generates** it via RDKit. This is a computed ground truth, not an experimental one (Spec Assumption).
 
-## Risk Mitigation
-- **Risk**: RDKit 3D conformer generation fails for >10% of molecules.
- - **Mitigation**: Increase `maxAttempts` and `numThreads` in RDKit. If failure rate remains high, generate a failure report analyzing the properties of failed molecules. If >10%, the pipeline halts with a warning, but the report is generated to document the bias.
-- **Risk**: Memory overflow during graph extraction.
- - **Mitigation**: Process molecules in chunks of [deferred]. Clear memory after each chunk. Use `streaming=True` for dataset loading.
-- **Risk**: Dataset lacks sufficient chemical diversity.
- - **Mitigation**: Verify molecular weight distribution in the test set against the training set (KS test p-value > 0.05). If failed, re-sample.
+## Compute Feasibility
+
+### CPU-First Strategy
+
+* **Hardware**: GitHub Actions free-tier (2 CPU, ~7 GB RAM).
+* **Model**: Lightweight GCN (2-3 layers, hidden dim ≤ 256).
+* **Training**: Batch size adjusted to fit RAM (e.g., 32 or 64). Early stopping (patience=5) prevents overfitting and saves time.
+* **3D Generation**: RDKit 3D generation is CPU-bound but parallelizable. Chunked processing (e.g., 100 molecules at a time) prevents OOM.
+* **Fallback Strategy**: If the full dataset exceeds the 6-hour CPU limit, the pipeline will automatically sample a subset (e.g., [deferred] molecules) to ensure completion. No automated GPU offload is planned to avoid CI failure risks; manual offload is an optional user step.
+
+### Decision/Rationale
+
+| Method | Run Location | Rationale |
+|:--- |:--- |:--- |
+| Data Ingestion/Preprocessing | CPU | I/O and RDKit 3D generation are CPU-optimized. |
+| GCN Training | CPU (Default) | Small GCN fits in CPU RAM. |
+| Baseline (Linear Reg) | CPU | Trivial for CPU. |
+| Sensitivity Analysis | CPU | Simple arithmetic on prediction arrays. |
+
+## Ethical and Safety Considerations
+
+* **No Causal Claims**: The study is associative. No claim is made that 2D topology *causes* surface area; rather, it predicts it.
+* **Ground Truth Definition**: SASA is defined as the mean of 10 RDKit-computed conformers. This is a computational approximation, not a physical measurement. The plan explicitly states this limitation.
+* **Conformer Uncertainty**: The standard deviation of the 10 conformers is reported to quantify the heuristic variance of ETKDG.

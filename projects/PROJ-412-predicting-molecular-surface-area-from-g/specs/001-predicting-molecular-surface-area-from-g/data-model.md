@@ -1,88 +1,76 @@
 # Data Model: Predicting Molecular Surface Area from Graph Convolutional Networks
 
-## Overview
-
-This document defines the data structures, schemas, and transformation logic for the project. All data artifacts are stored in `data/` and must be checksummed.
-
 ## Entity Definitions
 
-### Molecule
-A chemical compound represented by its SMILES string and derived features.
+### 1. Molecule
+Represents a single chemical compound in the dataset.
 - **Attributes**:
-  - `smiles`: string (canonicalized)
-  - `molecular_weight`: float
-  - `num_atoms`: int
-  - `num_bonds`: int
-  - `sasa`: float (Solvent Accessible Surface Area in Å², computed from 3D conformer)
-  - `graph_features`: dict (node features, edge features)
-  - `conformer_failed`: boolean
-  - `conformer_params`: dict (metadata: numThreads, maxAttempts, energy_min_steps)
+  - `smiles` (string): Canonical SMILES string.
+  - `molecular_weight` (float): Calculated molecular weight (g/mol).
+  - `num_atoms` (int): Number of atoms in the molecule.
+  - `sasa_label` (float): Solvent Accessible Surface Area in Å² (computed via RDKit 3D).
+  - `conformer_success` (bool): True if 3D conformer was successfully generated.
+  - `exclusion_reason` (string, optional): Reason for exclusion (e.g., "Invalid SMILES", "Conformer Fail").
 
-### Graph
-A 2D molecular topology representation.
-- **Nodes**: Atoms. Features: [Atomic Number, Degree, Hybridization, Formal Charge, Aromaticity].
-- **Edges**: Bonds. Features: [Bond Type, Conjugated, Ring].
+### 2. GraphFeature
+Represents the 2D topological representation of a Molecule.
+- **Attributes**:
+  - `molecule_id` (string): Reference to Molecule SMILES.
+  - `node_features` (array): Flattened array of atom features (type, hybridization, charge, etc.).
+  - `edge_index` (array): Connectivity matrix (source, target).
+  - `edge_features` (array): Bond features (type, conjugation, etc.).
 
-### Model Artifact
-- **GCN Model**: Weights and hyperparameters.
-- **Evaluation Metrics**: MAE, RMSE, R², P-value, Effect Size.
+### 3. PredictionResult
+Represents the output of a model inference.
+- **Attributes**:
+  - `molecule_id` (string): Reference to Molecule SMILES.
+  - `model_type` (string): "GCN" or "Baseline".
+  - `predicted_sasa` (float): Predicted surface area.
+  - `error` (float): Absolute error (`|predicted - actual|`).
+  - `threshold_status` (string): "Pass" or "Fail" based on current threshold.
 
-## Data Flow
+### 4. TrainingConfig
+Represents the hyperparameters used for a specific run.
+- **Attributes**:
+  - `seed` (int): Random seed.
+  - `epochs` (int): Max epochs.
+  - `batch_size` (int): Batch size.
+  - `learning_rate` (float).
+  - `conformer_params` (dict): RDKit parameters used (attempts, energy minimization steps).
 
-1.  **Raw Ingestion**: `data/raw/chembl_raw.parquet` (Downloaded from Hugging Face).
-2.  **Preprocessing**: `data/processed/paired_dataset.parquet` (SMILES + 2D Graph + 3D SASA).
-3.  **Splits**: `data/processed/train.parquet`, `data/processed/test.parquet`.
-4.  **Results**: `data/results/metrics.json`, `data/results/sensitivity_analysis.csv`.
-5.  **Metadata**: `data/processed/conformer_params.json` (RDKit parameters used).
+## Data Flow Diagram
 
-## Schema Definitions
+```mermaid
+graph TD
+    A[Raw SMILES Parquet] -->|Ingest & Validate| B[Valid SMILES List]
+    B -->|2D Graph Featurization| C[Graph Features]
+    B -->|3D Conformer Gen| D[3D Conformers]
+    D -->|SASA Calc| E[SASA Labels]
+    C & E -->|Merge & Split| F[Processed Dataset]
+    F -->|Train| G[GCN Model]
+    F -->|Baseline| H[Linear Reg Model]
+    G & H -->|Evaluate| I[Prediction Results]
+    I -->|Sensitivity Sweep| J[Sensitivity Report]
+    I -->|Stats Test| K[Final Metrics Report]
+```
 
-### Input Schema (Raw Dataset)
-- Source: Hugging Face Parquet.
-- Columns: `smiles`, `mol_wt`, `logp`, `...` (various RDKit descriptors).
+## Storage Schema
 
-### Processed Schema (Intermediate)
-- File: `data/processed/paired_dataset.parquet`
-- Columns:
-  - `smiles`: string
-  - `atom_features`: list[float] (flattened or list of lists)
-  - `bond_features`: list[float]
-  - `sasa`: float
-  - `molecular_weight`: float
-  - `num_atoms`: int
-  - `conformer_failed`: boolean
-  - `conformer_params`: dict (stored as JSON string or separate file reference)
+### Raw Data (`data/raw/`)
+- `zinc_processed.parquet`: Original downloaded file.
+- `checksums.json`: SHA256 hashes of raw files.
 
-### Output Schema (Results)
-- File: `data/results/metrics.json`
-- Structure:
-  ```json
-  {
-    "gcn": { "mae": float, "rmse": float, "r2": float },
-    "oracle": { "mae": 0.0, "rmse": 0.0, "r2": 1.0 },
-    "comparison": { "p_value": float, "statistic": float, "test_type": "t-test" | "wilcoxon" },
-    "sensitivity": [ ... ]
-  }
-  ```
+### Processed Data (`data/processed/`)
+- `graphs_with_features.parquet`: Merged SMILES, Graph Features, and SASA Labels.
+- `conformer_params.json`: JSON file recording RDKit parameters used.
+- `failure_report.csv`: Log of molecules excluded due to conformer failure.
 
-## Transformation Logic
+### Splits (`data/splits/`)
+- `train_indices.csv`: List of SMILES in training set.
+- `test_indices.csv`: List of SMILES in test set.
+- `split_report.json`: KS test p-value, distribution stats.
 
-1.  **SMILES to Graph**:
-    - Use `rdkit.Chem.rdmolfiles.MolFromSmiles`.
-    - Extract atom/bond features.
-    - Handle invalid SMILES: Log and exclude.
-2.  **SMILES to SASA**:
-    - Generate 3D conformer: `rdkit.Chem.AllChem.EmbedMolecule`.
-    - Minimize: `rdkit.Chem.AllChem.UFFOptimizeMolecule`.
-    - Calculate SASA: `rdkit.Chem.rdMolDescriptors.CalcSASA`.
-    - Handle failure: If `EmbedMolecule` returns -1, mark `conformer_failed=True` and exclude from training. Log parameters to `conformer_params.json`.
-3.  **Data Split**:
-    - Stratify by `molecular_weight`.
-    - Ensure KS test p-value > 0.05 between train/test distributions.
-
-## Data Hygiene Rules
-
-- **Checksums**: Every file in `data/` must have a corresponding `.sha256` file.
-- **Immutability**: Raw files are never modified. Processed files are new versions.
-- **PII**: No PII in chemical data.
-- **Versioning**: All data files include a `version` field in metadata (e.g., `v1.0.0`).
+### Results (`results/`)
+- `final_metrics.json`: MAE, RMSE, R², t-test p-value, effect size.
+- `sensitivity_analysis.csv`: Success rates at each threshold.
+- `runtime_verification.md`: Total pipeline runtime.

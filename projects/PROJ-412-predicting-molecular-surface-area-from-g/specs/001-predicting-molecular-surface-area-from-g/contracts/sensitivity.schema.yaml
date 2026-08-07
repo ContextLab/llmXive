@@ -1,15 +1,15 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Sensitivity Analysis Result"
-description: "Schema for sensitivity analysis results across absolute MAE thresholds (0.01, 0.05, 0.1 Å²) as required by spec."
+description: "Schema for sensitivity analysis results across absolute MAE thresholds (0.5, 2.5, 10.0 Å²) as required by spec."
 type: "object"
 properties:
   threshold:
     type: "number"
-    description: "MAE cutoff value in Å² (absolute values: 0.01, 0.05, 0.1)."
+    description: "MAE cutoff value in Å² (absolute values: 0.5, 2.5, 10.0)."
     enum:
-      - 0.01
-      - 0.05
-      - 0.1
+      - 0.5
+      - 2.5
+      - 10.0
   gcn_success_rate:
     type: "number"
     description: "Percentage of molecules predicted within the threshold by GCN."

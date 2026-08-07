@@ -2,75 +2,81 @@
 
 ## Prerequisites
 
-- Python 3.11+
-- Git
-- 7GB+ RAM available
-- Internet access (for dataset download)
+- Python 3.10+
+- `pip`
+- 8 GB RAM (recommended for processing)
+- Access to Hugging Face (for dataset download)
 
 ## Installation
 
-1.  **Clone and Setup**:
-    ```bash
-    git clone <repo-url>
-    cd projects/PROJ-412-predicting-molecular-surface-area-from-g
-    ```
+1. **Clone the repository**:
+   ```bash
+   git clone <repo-url>
+   cd projects/PROJ-412-predicting-molecular-surface-area-from-g
+   ```
 
-2.  **Create Virtual Environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
+2. **Create and activate virtual environment**:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
 
-3.  **Install Dependencies**:
-    ```bash
-    # Install CPU-only PyTorch and Torch Geometric
-    pip install torch --index-url https://download.pytorch.org/whl/cpu
-    pip install torch-geometric==2.5.3
-    pip install -r code/requirements.txt
-    ```
-    *Note: `requirements.txt` includes `rdkit`, `pandas`, `scikit-learn`, `datasets`.*
+3. **Install dependencies**:
+   ```bash
+   pip install -r code/requirements.txt
+   ```
+   *Note: `requirements.txt` includes `rdkit`, `torch`, `pandas`, `pyarrow`, `scikit-learn`, `deepchem`.*
 
-## Running the Pipeline
+## Data Setup
 
-### 1. Data Ingestion & Preprocessing
-Generates 2D graphs and 3D SASA labels.
+The pipeline automatically downloads the verified dataset from Hugging Face on the first run.
+
+1. **Run the data ingestion script**:
+   ```bash
+   python code/data/ingest.py
+   ```
+   This will:
+   - Download `zinc_processed.parquet` to `data/raw/`.
+   - Validate SMILES.
+   - Generate 2D graphs and 3D conformers.
+   - Compute SASA labels.
+   - Save processed data to `data/processed/graphs_with_features.parquet`.
+
+2. **Verify data generation**:
+   Check that `data/processed/graphs_with_features.parquet` exists and contains columns: `smiles`, `sasa_label`, `graph_features`.
+
+## Training & Evaluation
+
+1. **Run the full pipeline**:
+   ```bash
+   python code/main.py
+   ```
+   This executes:
+   - Data splitting (stratified by MW).
+   - GCN Training (CPU, max 50 epochs).
+   - Baseline Training (Linear Regression).
+   - Evaluation (MAE, RMSE, R², t-test).
+   - Sensitivity Analysis (threshold sweep).
+
+2. **View results**:
+   - **Metrics**: `results/reports/final_metrics.json`
+   - **Sensitivity**: `results/reports/sensitivity_analysis.csv`
+   - **Runtime**: `results/reports/runtime_verification.md`
+
+## Testing
+
+Run the test suite to verify contract compliance:
+
 ```bash
-python code/main.py --stage preprocess
-```
-- **Output**: `data/processed/paired_dataset.parquet`
-- **Logs**: `logs/preprocess.log` (includes invalid SMILES count, conformer failure rate).
-
-### 2. Model Training
-Trains GCN model.
-```bash
-python code/main.py --stage train
-```
-- **Output**: `models/gcn_model.pt`
-- **Logs**: `logs/train.log` (loss curves, early stopping info).
-
-### 3. Evaluation & Sensitivity Analysis
-Compares models and runs threshold sweeps.
-```bash
-python code/main.py --stage evaluate
-```
-- **Output**: `data/results/metrics.json`, `data/results/sensitivity_analysis.csv`
-- **Logs**: `logs/evaluate.log` (t-test/wilcoxon results, p-values).
-
-### 4. Full Run
-Runs the entire pipeline end-to-end.
-```bash
-python code/main.py --stage full
+pytest tests/ -v
 ```
 
-## Verification
-
-To verify the pipeline ran correctly:
-1.  Check `data/processed/paired_dataset.parquet` exists and has no `NaN` in the `sasa` column.
-2.  Check `data/results/metrics.json` contains `p_value` and `statistic`.
-3.  Verify `logs/preprocess.log` shows conformer failure rate < 10% (or a failure report generated).
+Specific contract tests:
+- `tests/contract/test_schema.py`: Validates output against `contracts/`.
+- `tests/integration/test_pipeline.py`: End-to-end run on a small subset.
 
 ## Troubleshooting
 
-- **Memory Error**: Reduce `--batch-size` in `config.py` or enable `--streaming` flag.
-- **Conformer Failure**: Increase `--max-attempts` in `config.py`. If >10% fail, check input SMILES quality.
-- **Import Error**: Ensure `torch` and `torch-geometric` versions match (see `requirements.txt`).
+- **Conformer Generation Failure**: If >10% of molecules fail 3D generation, the pipeline halts. Check `data/processed/failure_report.csv` for reasons.
+- **OOM (Out of Memory)**: Reduce `BATCH_SIZE` in `code/config.py` or enable streaming in `code/data/ingest.py`.
+- **GPU Offload**: If CPU training fails, the script will attempt to re-run on a Kaggle GPU (requires `KAGGLE_USERNAME` and `KAGGLE_KEY` environment variables).
