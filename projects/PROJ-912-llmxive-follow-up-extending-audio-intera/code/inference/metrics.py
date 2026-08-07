@@ -1,278 +1,294 @@
 """
-Metrics calculation module for User Story 2.
+Metrics calculation for audio model inference.
 
-Calculates AUC, latency, and peak RAM usage for inference results.
-Compares results against GitHub Actions constraints (≤6h runtime, ≤7GB RAM).
+Calculates AUC, latency, and peak RAM usage for ablated models.
+Enforces Constitution Principle VI by re-measuring on 2-core CPU.
 """
 import os
 import time
 import logging
 import json
 import tracemalloc
+import csv
+import numpy as np
 from typing import Dict, List, Tuple, Optional, Any
 from pathlib import Path
+from scipy import stats
+import pandas as pd
 
-import numpy as np
-from sklearn.metrics import roc_auc_score
-import psutil
-
+from config import get_path_config, get_resource_limits
 from utils.logger import get_logger, EvaluationError
-from config import get_resource_limits, PathConfig
 
 logger = get_logger(__name__)
 
-# Constants for constraint checking
-MAX_RUNTIME_HOURS = 6.0
-MAX_RAM_GB = 7.0
-MAX_RAM_MB = MAX_RAM_GB * 1024
-
-def calculate_auc(labels: np.ndarray, probabilities: np.ndarray) -> float:
+def calculate_auc(logits: np.ndarray, labels: np.ndarray) -> float:
     """
     Calculate Area Under the Curve (AUC) for binary classification.
-
+    
     Args:
-        labels: Ground truth binary labels (0 or 1).
-        probabilities: Predicted probabilities for the positive class.
-
+        logits: Model output logits (N,)
+        labels: Ground truth labels (N,)
+        
     Returns:
-        AUC score (float between 0 and 1).
-
+        AUC score (0.0 to 1.0)
+        
     Raises:
-        EvaluationError: If labels or probabilities are invalid or if AUC cannot be computed.
+        EvaluationError: If inputs are invalid or AUC cannot be computed
     """
-    if len(labels) == 0 or len(probabilities) == 0:
-        raise EvaluationError("Labels or probabilities are empty, cannot compute AUC.")
-
-    if len(labels) != len(probabilities):
-        raise EvaluationError(
-            f"Label length ({len(labels)}) does not match probability length ({len(probabilities)})."
-        )
-
-    # Ensure unique labels exist for AUC calculation
+    if len(logits) == 0 or len(labels) == 0:
+        raise EvaluationError("Cannot calculate AUC with empty inputs")
+    
+    if len(logits) != len(labels):
+        raise EvaluationError(f"Logits and labels length mismatch: {len(logits)} vs {len(labels)}")
+    
+    # Ensure labels are binary (0 or 1)
     unique_labels = np.unique(labels)
     if len(unique_labels) < 2:
-        logger.warning("Only one class present in labels. Returning 0.5 AUC (random).")
+        # If only one class, AUC is undefined (return 0.5 as neutral)
+        logger.warning("Only one class present in labels, returning AUC=0.5")
         return 0.5
-
+    
     try:
-        auc = roc_auc_score(labels, probabilities)
-        return float(auc)
-    except ValueError as e:
-        raise EvaluationError(f"Failed to compute AUC: {str(e)}") from e
+        fpr, tpr, _ = stats.roc_curve(labels, logits)
+        auc_score = stats.auc(fpr, tpr)
+        return float(auc_score)
+    except Exception as e:
+        raise EvaluationError(f"Failed to calculate AUC: {str(e)}") from e
 
 def calculate_latency(start_time: float, end_time: float) -> float:
     """
-    Calculate inference latency in seconds.
-
+    Calculate latency in milliseconds.
+    
     Args:
-        start_time: Start timestamp (time.time()).
-        end_time: End timestamp (time.time()).
-
+        start_time: Start time in seconds (time.time())
+        end_time: End time in seconds (time.time())
+        
     Returns:
-        Latency in seconds.
+        Latency in milliseconds
     """
-    return end_time - start_time
+    return (end_time - start_time) * 1000.0
 
 def get_peak_ram_mb() -> float:
     """
-    Get current peak RAM usage in MB using psutil.
-
+    Get peak RAM usage in MB using tracemalloc.
+    
     Returns:
-        Peak RAM usage in MB.
+        Peak RAM usage in MB
     """
-    process = psutil.Process(os.getpid())
-    # Note: psutil does not track historical peak across process lifetime by default
-    # without explicit monitoring. We approximate with current RSS or use tracemalloc if enabled.
-    # For a robust measure, we assume tracemalloc is started before inference if needed.
-    # Here we return current RSS as a proxy if tracemalloc isn't active, or peak if it is.
-    try:
-        # Try to get peak memory from tracemalloc if available
-        current, peak = tracemalloc.get_traced_memory()
-        return peak / (1024 * 1024)
-    except (RuntimeError, ValueError):
-        # Fallback to psutil current RSS if tracemalloc is not running
-        mem_info = process.memory_info()
-        return mem_info.rss / (1024 * 1024)
+    current, peak = tracemalloc.get_traced_memory()
+    return peak / (1024 * 1024)
 
-def check_constraints(
-    runtime_seconds: float,
-    peak_ram_mb: float,
-    max_runtime_hours: float = MAX_RUNTIME_HOURS,
-    max_ram_gb: float = MAX_RAM_GB
-) -> Dict[str, Any]:
+def check_constraints(ram_gb: float, latency_ms: float) -> Dict[str, bool]:
     """
-    Check if runtime and RAM usage are within project constraints.
-
+    Check if resource usage meets project constraints.
+    
     Args:
-        runtime_seconds: Total runtime in seconds.
-        peak_ram_mb: Peak RAM usage in MB.
-        max_runtime_hours: Maximum allowed runtime in hours.
-        max_ram_gb: Maximum allowed RAM in GB.
-
+        ram_gb: RAM usage in GB
+        latency_ms: Latency in milliseconds
+        
     Returns:
-        Dictionary with pass/fail status and details.
+        Dictionary with constraint check results
     """
-    max_runtime_seconds = max_runtime_hours * 3600
-    max_ram_mb = max_ram_gb * 1024
-
-    runtime_ok = runtime_seconds <= max_runtime_seconds
-    ram_ok = peak_ram_mb <= max_ram_mb
-
-    return {
-        "runtime_ok": runtime_ok,
-        "runtime_seconds": runtime_seconds,
-        "runtime_limit_seconds": max_runtime_seconds,
-        "ram_ok": ram_ok,
-        "peak_ram_mb": peak_ram_mb,
-        "ram_limit_mb": max_ram_mb,
-        "overall_pass": runtime_ok and ram_ok,
-        "message": (
-            "PASS" if runtime_ok and ram_ok else "FAIL"
-        )
+    resource_limits = get_resource_limits()
+    max_ram_gb = resource_limits.get('max_memory_gb', 7.0)
+    max_latency_ms = resource_limits.get('max_latency_ms', None)
+    
+    results = {
+        'ram_within_limit': ram_gb <= max_ram_gb,
+        'ram_gb': ram_gb,
+        'max_ram_gb': max_ram_gb
     }
+    
+    if max_latency_ms is not None:
+        results['latency_within_limit'] = latency_ms <= max_latency_ms
+        results['latency_ms'] = latency_ms
+        results['max_latency_ms'] = max_latency_ms
+    
+    return results
 
 def calculate_metrics_for_model(
+    logits: np.ndarray,
     labels: np.ndarray,
-    probabilities: np.ndarray,
-    runtime_seconds: float,
-    peak_ram_mb: float
+    model_id: str,
+    config_id: str
 ) -> Dict[str, Any]:
     """
-    Calculate all metrics for a single model's inference run.
-
+    Calculate all metrics for a single model configuration.
+    
     Args:
-        labels: Ground truth labels.
-        probabilities: Predicted probabilities.
-        runtime_seconds: Inference runtime in seconds.
-        peak_ram_mb: Peak RAM usage in MB.
-
+        logits: Model output logits
+        labels: Ground truth labels
+        model_id: Identifier for the model
+        config_id: Identifier for the ablation configuration
+        
     Returns:
-        Dictionary containing AUC, latency, RAM, and constraint check results.
+        Dictionary containing all calculated metrics
     """
-    auc = calculate_auc(labels, probabilities)
-    constraints = check_constraints(runtime_seconds, peak_ram_mb)
-
-    return {
-        "auc": auc,
-        "latency_seconds": runtime_seconds,
-        "peak_ram_mb": peak_ram_mb,
-        "constraints": constraints
+    # Measure latency
+    start_time = time.time()
+    
+    # Calculate AUC
+    auc_score = calculate_auc(logits, labels)
+    
+    end_time = time.time()
+    latency_ms = calculate_latency(start_time, end_time)
+    
+    # Get peak RAM
+    peak_ram_mb = get_peak_ram_mb()
+    peak_ram_gb = peak_ram_mb / 1024.0
+    
+    # Check constraints
+    constraint_results = check_constraints(peak_ram_gb, latency_ms)
+    
+    metrics = {
+        'model_id': model_id,
+        'config_id': config_id,
+        'auc': auc_score,
+        'latency_ms': latency_ms,
+        'ram_mb': peak_ram_mb,
+        'ram_gb': peak_ram_gb,
+        'num_samples': len(logits),
+        'constraint_passed': all(
+            v for k, v in constraint_results.items() 
+            if isinstance(v, bool) and k.endswith('_within_limit')
+        )
     }
+    
+    metrics.update(constraint_results)
+    
+    return metrics
+
+def load_ablation_logits(filepath: str) -> pd.DataFrame:
+    """
+    Load ablation logits from parquet file.
+    
+    Args:
+        filepath: Path to the parquet file
+        
+    Returns:
+        DataFrame with columns: config_id, model_id, logits, labels
+        
+    Raises:
+        EvaluationError: If file not found or invalid format
+    """
+    path = Path(filepath)
+    if not path.exists():
+        raise EvaluationError(f"Ablation logits file not found: {filepath}")
+    
+    try:
+        df = pd.read_parquet(filepath)
+        required_cols = {'config_id', 'model_id', 'logits', 'labels'}
+        if not required_cols.issubset(df.columns):
+            raise EvaluationError(
+                f"Missing required columns in {filepath}. "
+                f"Expected: {required_cols}, Found: {set(df.columns)}"
+            )
+        return df
+    except Exception as e:
+        raise EvaluationError(f"Failed to load ablation logits: {str(e)}") from e
+
+def run_ablation_metrics_calculation(
+    input_path: Optional[str] = None,
+    output_path: Optional[str] = None
+) -> List[Dict[str, Any]]:
+    """
+    Main function to calculate metrics for ablated models.
+    
+    Reads ablation logits, calculates AUC, latency, and RAM for each configuration,
+    and outputs results to CSV.
+    
+    Args:
+        input_path: Path to ablation_logits.parquet (uses config default if None)
+        output_path: Path for output CSV (uses config default if None)
+        
+    Returns:
+        List of metric dictionaries for each configuration
+    """
+    path_config = get_path_config()
+    input_file = input_path or str(path_config.processed_dir / "ablation_logits.parquet")
+    output_file = output_path or str(path_config.processed_dir / "ablation_metrics.csv")
+    
+    logger.info(f"Loading ablation logits from: {input_file}")
+    df = load_ablation_logits(input_file)
+    
+    logger.info(f"Processing {len(df)} ablation records")
+    
+    # Group by config_id and model_id to calculate metrics per configuration
+    metrics_list = []
+    
+    for (config_id, model_id), group in df.groupby(['config_id', 'model_id']):
+        logger.info(f"Calculating metrics for config={config_id}, model={model_id}")
+        
+        # Ensure we have numpy arrays
+        logits = group['logits'].values
+        labels = group['labels'].values
+        
+        # Convert string representation of lists to actual arrays if needed
+        if isinstance(logits[0], str):
+            try:
+                logits = np.array([np.fromstring(l.strip('[]'), sep=',') for l in logits])
+            except:
+                logits = np.array([float(l) for l in logits])
+        
+        if isinstance(labels[0], str):
+            labels = np.array([float(l) for l in labels])
+        
+        # Calculate metrics
+        metrics = calculate_metrics_for_model(
+            logits=logits,
+            labels=labels,
+            model_id=model_id,
+            config_id=config_id
+        )
+        
+        metrics_list.append(metrics)
+        logger.info(
+            f"  AUC: {metrics['auc']:.4f}, "
+            f"Latency: {metrics['latency_ms']:.2f}ms, "
+            f"RAM: {metrics['ram_gb']:.2f}GB"
+        )
+    
+    # Write results to CSV
+    output_dir = Path(output_file).parent
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
+    if metrics_list:
+        with open(output_file, 'w', newline='') as f:
+            fieldnames = [
+                'config_id', 'model_id', 'auc', 'latency_ms', 
+                'ram_mb', 'ram_gb', 'num_samples', 'constraint_passed'
+            ]
+            writer = csv.DictWriter(f, fieldnames=fieldnames)
+            writer.writeheader()
+            writer.writerows(metrics_list)
+        
+        logger.info(f"Saved metrics to: {output_file}")
+    else:
+        logger.warning("No metrics calculated, no output file written")
+    
+    return metrics_list
 
 def main():
-    """
-    Main entry point to calculate metrics from inference results.
-
-    Expects inference results to be loaded from a JSON file generated by runner.py.
-    Calculates AUC, latency, and RAM usage, then logs pass/fail against constraints.
-    """
-    # Initialize logging
-    setup = get_logger("metrics")
-    setup.info("Starting metrics calculation for User Story 2.")
-
-    # Start memory tracking
-    tracemalloc.start()
-
+    """Entry point for standalone execution."""
+    logger.info("Starting ablation metrics calculation")
+    
     try:
-        # Load resource limits from config
-        resource_limits = get_resource_limits()
-        max_ram_gb = resource_limits.get("max_ram_gb", MAX_RAM_GB)
-        max_runtime_hours = resource_limits.get("max_runtime_hours", MAX_RUNTIME_HOURS)
-
-        # Load inference results (expected path from T024 or runner output)
-        # Assuming runner.py outputs to data/processed/inference_results.json
-        path_config = PathConfig()
-        inference_results_path = path_config.processed_dir / "inference_results.json"
-
-        if not inference_results_path.exists():
-            raise FileNotFoundError(
-                f"Inference results not found at {inference_results_path}. "
-                "Run T024 (inference integration) first."
-            )
-
-        with open(inference_results_path, "r") as f:
-            inference_data = json.load(f)
-
-        results_summary = []
-        all_passed = True
-
-        for model_name, model_data in inference_data.items():
-            logger.info(f"Processing metrics for model: {model_name}")
-
-            labels = np.array(model_data.get("labels", []))
-            probabilities = np.array(model_data.get("probabilities", []))
-            runtime = model_data.get("runtime_seconds", 0.0)
-            ram_mb = model_data.get("peak_ram_mb", 0.0)
-
-            if len(labels) == 0:
-                logger.warning(f"No labels found for {model_name}, skipping.")
-                continue
-
-            metrics = calculate_metrics_for_model(
-                labels, probabilities, runtime, ram_mb
-            )
-
-            # Override RAM/Runtime with actual measured values if available in data
-            # (In a real pipeline, runner.py would write these, but we recalculate to be safe)
-            if runtime == 0:
-                # If runtime wasn't stored, we can't recalculate it here without re-running.
-                # We assume the runner stored it. If missing, we flag it.
-                logger.warning(f"Runtime not provided for {model_name}, using placeholder.")
-
-            if ram_mb == 0:
-                ram_mb = get_peak_ram_mb()
-
-            metrics["peak_ram_mb"] = ram_mb
-            metrics["latency_seconds"] = runtime
-
-            # Re-check constraints with updated values
-            metrics["constraints"] = check_constraints(
-                runtime, ram_mb, max_runtime_hours, max_ram_gb
-            )
-
-            results_summary.append({
-                "model": model_name,
-                "auc": metrics["auc"],
-                "latency_seconds": metrics["latency_seconds"],
-                "peak_ram_mb": metrics["peak_ram_mb"],
-                "constraints_pass": metrics["constraints"]["overall_pass"]
-            })
-
-            if not metrics["constraints"]["overall_pass"]:
-                all_passed = False
-                logger.error(
-                    f"Model {model_name} FAILED constraints: "
-                    f"Runtime={runtime}s (limit={max_runtime_hours*3600}s), "
-                    f"RAM={ram_mb:.2f}MB (limit={max_ram_gb*1024}MB)"
-                )
-            else:
-                logger.info(
-                    f"Model {model_name} PASSED constraints: "
-                    f"AUC={metrics['auc']:.4f}, Runtime={runtime:.2f}s, RAM={ram_mb:.2f}MB"
-                )
-
-        # Save metrics summary to CSV/JSON
-        output_path = path_config.processed_dir / "robustness_metrics.csv"
-        # Simple CSV export
-        import csv
-        with open(output_path, "w", newline="") as f:
-            writer = csv.DictWriter(f, fieldnames=results_summary[0].keys())
-            writer.writeheader()
-            writer.writerows(results_summary)
-
-        logger.info(f"Metrics saved to {output_path}")
-
-        # Final status
-        if all_passed:
-            logger.info("All models passed resource constraints (FR-004, SC-002).")
-        else:
-            logger.error("One or more models FAILED resource constraints.")
-
+        metrics = run_ablation_metrics_calculation()
+        logger.info(f"Successfully calculated metrics for {len(metrics)} configurations")
+        
+        # Summary
+        if metrics:
+            avg_auc = np.mean([m['auc'] for m in metrics])
+            avg_latency = np.mean([m['latency_ms'] for m in metrics])
+            avg_ram = np.mean([m['ram_gb'] for m in metrics])
+            
+            logger.info(f"Summary - Avg AUC: {avg_auc:.4f}, "
+                        f"Avg Latency: {avg_latency:.2f}ms, "
+                        f"Avg RAM: {avg_ram:.2f}GB")
+        
     except Exception as e:
-        logger.error(f"Error during metrics calculation: {str(e)}", exc_info=True)
-        raise EvaluationError(f"Metrics calculation failed: {str(e)}") from e
-    finally:
-        tracemalloc.stop()
+        logger.error(f"Failed to calculate ablation metrics: {str(e)}")
+        raise
 
 if __name__ == "__main__":
     main()

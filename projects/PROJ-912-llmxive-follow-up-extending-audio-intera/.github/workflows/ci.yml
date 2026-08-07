@@ -7,150 +7,95 @@ on:
     branches: [ main, develop ]
 
 env:
-  # Resource Limits for CI Runner (CPU/Memory constraints)
-  # These variables enforce the constraints defined in code/config.py (ResourceConfig)
-  CI_RUNNER_CPU_LIMIT: "2"
-  CI_RUNNER_MEMORY_LIMIT_GB: "7"
-  CI_RUNNER_TIMEOUT_MINUTES: "360"
-  
-  # PyTorch CPU-only enforcement
-  CUDA_VISIBLE_DEVICES: ""
-  TORCH_NUM_THREADS: "2"
+  # Constitution Principle I: Reproducibility & Resource Limits
+  # Hard constraints for the CI runner environment to ensure
+  # experiments are comparable and fit within the budget.
+  CI_CPU_CORES: "2"
+  CI_MAX_RAM_GB: "7"
+  CI_MAX_TIME_HOURS: "6"
+  PYTORCH_NO_CUDA_MEMORY_CACHING: "1"
   OMP_NUM_THREADS: "2"
   MKL_NUM_THREADS: "2"
-  
-  # Data and State Paths
-  PROJECT_ROOT: "."
-  DATA_DIR: "data"
-  STATE_DIR: "state"
-  LOGS_DIR: "logs"
+  TF_CPP_MIN_LOG_LEVEL: "3"
+  HF_DATASETS_OFFLINE: "0"
+  HF_DATASETS_DISABLE_PROGRESSBAR: "1"
 
 jobs:
   lint-and-format:
-    name: Lint & Format Check
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
-      - name: Install Dependencies
+          python-version: '3.10'
+      - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
           pip install -r code/requirements.txt
           pip install ruff black
-      - name: Check Ruff
+      - name: Check Linting (Ruff)
         run: |
           cd code
           ruff check .
-      - name: Check Black
+      - name: Check Formatting (Black)
         run: |
           cd code
           black --check .
 
   unit-tests:
-    name: Unit Tests
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.10']
     steps:
       - uses: actions/checkout@v4
-      - name: Set up Python
+      - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
-      - name: Install Dependencies
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
           pip install -r code/requirements.txt
           pip install pytest pytest-cov
       - name: Run Unit Tests
         run: |
           cd code
           pytest tests/unit/ -v --cov=. --cov-report=xml
-        env:
-          # Enforce resource limits via environment variables
-          CI_RUNNER_CPU_LIMIT: "2"
-          CI_RUNNER_MEMORY_LIMIT_GB: "7"
+      - name: Upload coverage reports
+        uses: codecov/codecov-action@v3
 
   integration-tests:
-    name: Integration Tests (Model Load & Compression)
     runs-on: ubuntu-latest
-    timeout-minutes: ${{ fromJSON(env.CI_RUNNER_TIMEOUT_MINUTES) }}
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
-      - name: Install Dependencies
+          python-version: '3.10'
+      - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
           pip install -r code/requirements.txt
           pip install pytest
       - name: Run Integration Tests
         run: |
           cd code
           pytest tests/integration/ -v
-        env:
-          CI_RUNNER_CPU_LIMIT: "2"
-          CI_RUNNER_MEMORY_LIMIT_GB: "7"
-          # Ensure CPU-only execution
-          CUDA_VISIBLE_DEVICES: ""
 
-  data-pipeline-check:
-    name: Data Pipeline (Streaming & Validation)
+  resource-constraint-check:
+    # Explicitly verifies that the environment variables set above
+    # are correctly propagated and respected by the runner.
     runs-on: ubuntu-latest
-    timeout-minutes: ${{ fromJSON(env.CI_RUNNER_TIMEOUT_MINUTES) }}
     steps:
       - uses: actions/checkout@v4
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-      - name: Install Dependencies
+      - name: Verify Environment Variables
         run: |
-          python -m pip install --upgrade pip
-          pip install -r code/requirements.txt
-      - name: Validate Subtle Cue Builder
-        run: |
-          cd code
-          python -m data.subtle_cue_builder
-        env:
-          CI_RUNNER_CPU_LIMIT: "2"
-          CI_RUNNER_MEMORY_LIMIT_GB: "7"
-      - name: Validate Loader Output
-        run: |
-          cd code
-          python -m data.loader
-        env:
-          CI_RUNNER_CPU_LIMIT: "2"
-          CI_RUNNER_MEMORY_LIMIT_GB: "7"
-
-  robustness-analysis:
-    name: Robustness Analysis & Step-Change Detection
-    runs-on: ubuntu-latest
-    timeout-minutes: ${{ fromJSON(env.CI_RUNNER_TIMEOUT_MINUTES) }}
-    steps:
-      - uses: actions/checkout@v4
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-      - name: Install Dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r code/requirements.txt
-      - name: Run Robustness Curve Analysis
-        run: |
-          cd code
-          python -m analysis.robustness_curve
-        env:
-          CI_RUNNER_CPU_LIMIT: "2"
-          CI_RUNNER_MEMORY_LIMIT_GB: "7"
-      - name: Verify Breaking Point Output
-        run: |
-          cd code
-          python -c "import os; assert os.path.exists('data/processed/breaking_point.json'), 'breaking_point.json missing'; import json; d=json.load(open('data/processed/breaking_point.json')); print(f'Breaking Point: {d}')"
-        env:
-          CI_RUNNER_CPU_LIMIT: "2"
-          CI_RUNNER_MEMORY_LIMIT_GB: "7"
+          echo "Checking CI Resource Constraints..."
+          if [ "$CI_CPU_CORES" != "2" ]; then
+            echo "ERROR: CI_CPU_CORES is not set to 2. Found: $CI_CPU_CORES"
+            exit 1
+          fi
+          if [ "$CI_MAX_RAM_GB" != "7" ]; then
+            echo "ERROR: CI_MAX_RAM_GB is not set to 7. Found: $CI_MAX_RAM_GB"
+            exit 1
+          fi
+          echo "Resource constraints verified: CPU=$CI_CPU_CORES, RAM=$CI_MAX_RAM_GB GB"

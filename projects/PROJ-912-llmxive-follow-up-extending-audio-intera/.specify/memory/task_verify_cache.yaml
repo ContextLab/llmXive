@@ -1,16 +1,38 @@
+T001d:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a `state/__init__.py` file was provided; the claim lacks any\
+    \ artifact showing the file\u2019s existence or its contents, so the required\
+    \ module has not been demonstrated. The implementer must add the `state/__init__.py`\
+    \ file (non\u2011empty) to the repository."
 T003b:
   c: true
   h: bb7754ad1bd4466cc1ec2f3963eb5762a5a4e2bf5f5707e6d78442228abff126
   r: "The `code/.black.toml` file exists, is non\u2011empty, and contains a full Black\
     \ configuration (line length, target version, include/exclude patterns, and formatting\
     \ options), fulfilling the requirement to configure formatting in that location."
-T030:
+T008b:
   c: false
-  h: 2b40b113fb9feee13ad2c789d4136bca01a8b66cab04cb26b84e9047ee6fcbdc
-  r: "The `robustness_curve.py` file is truncated, contains syntax errors, and never\
-    \ reads `correlation_data.json` nor implements the >10\u202F% AUC drop detection\
-    \ or writes `data/processed/breaking_point.json` (the file is missing). Hence\
-    \ the required step\u2011change detection and output artifact are not present."
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No configuration files, scripts, or documentation defining CI runner environment
+    variables for resource limits were provided. The only artifacts shown relate to
+    audio model compression and evaluation, not to the required CI runner setup. The
+    task therefore lacks the necessary artifact.
+T020:
+  c: false
+  h: 49df5a539eaed60eb27a5d246ffe9d8341c6a97be32e3c35f6a1215e6dbbe099
+  r: "The repository lacks the required `data/processed/class_config.yaml` that the\
+    \ loader must read, and the expected output file `data/processed/subtle_cue_subset.parquet`\
+    \ (with its checksum) is not present. Without these artifacts the loader cannot\
+    \ fulfill the task\u2019s specifications."
+T029:
+  c: false
+  h: d98c2878caf681e408b6d921acdb4cbc6e6b9067bd0b4933bcf528b4258315a7
+  r: "The repository contains a partially\u2011implemented `robustness_curve.py` that\
+    \ loads the CSV and computes a correlation list, but the script never writes the\
+    \ results to `data/processed/correlation_data.json` (the file is missing) and\
+    \ the code is truncated before any output logic. Consequently the required JSON\
+    \ artifact is not produced, so the task is not fulfilled."
 T033:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -19,3 +41,19 @@ T033:
     Without such evidence, we cannot confirm the requirement was met. The implementer
     must provide the implemented validation logic (e.g., a linting rule, unit tests,
     or documentation) and demonstrate it works on sample outputs.
+T039a:
+  c: false
+  h: c90c54347faa0f05310b6e8df089017459c292929631fd44bf8af0f0f0f59e38
+  r: The required input file `data/processed/subtle_cue_subset.parquet` and the expected
+    output `data/processed/ablation_logits.parquet` are absent. Moreover, the provided
+    `code/analysis/ablation.py` is truncated, contains errors (e.g., `load_studen`),
+    and does not demonstrably load ablated models from T037/T038 or write logits to
+    the specified parquet file.
+T039b:
+  c: false
+  h: 4a7fc5adc6e701ee8b2eebcb269bc7ab4302c06f9f6bf9f0e3c306a55d6df42c
+  r: "The repository lacks the required `data/processed/ablation_metrics.csv` output\
+    \ file, and the provided `code/inference/metrics.py` is incomplete (truncated,\
+    \ missing logic to read `ablation_logits.parquet`, perform per\u2011configuration\
+    \ latency/RAM measurements on a 2\u2011core CPU, and write the CSV). These core\
+    \ requirements are not met."
