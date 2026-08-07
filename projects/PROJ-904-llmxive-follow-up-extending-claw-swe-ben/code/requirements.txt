@@ -1,0 +1,20 @@
+# Python 3.11+ dependencies for llmXive Context Fidelity vs. Model Scaling Trade-offs
+# Project: PROJ-904-llmxive-follow-up-extending-claw-swe-ben
+
+# Core ML & NLP
+transformers>=4.40.0
+datasets>=2.18.0
+huggingface_hub>=0.21.0
+
+# Data Processing & Analysis
+scikit-learn>=1.4.0
+statsmodels>=0.14.0
+networkx>=3.2.0
+
+# Testing
+pytest>=8.0.0
+
+# Utilities (pinned to ensure compatibility with statsmodels/scikit-learn)
+numpy>=1.24.0
+pandas>=2.0.0
+scipy>=1.11.0

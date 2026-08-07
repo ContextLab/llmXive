@@ -1,0 +1,32 @@
+T029:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `context_processors.py` file or code changes were presented showing the required\
+    \ fallback logic, nor any logging statements indicating the edge\u2011case handling.\
+    \ The artifact needed to verify the implementation is missing."
+T033:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `glm_analyzer.py` file was presented in the provided evidence, nor any code\
+    \ snippet showing a GLMM or Firth\u2019s penalized likelihood GLM with a binomial\
+    \ link that tests the interaction between \u201Ccontext strategy\u201D and \u201C\
+    model size\u201D. The required artifact is missing, so the task is not satisfied."
+T035:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The claim provides no evidence that `docs/quickstart.md` and `docs/data-model.md`
+    actually exist or contain updated content; no files or excerpts are shown. Without
+    these documentation artifacts, the requirement cannot be confirmed as satisfied.
+T036:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `context_processors.py` file or diff showing cleanup/refactoring was provided;
+    without the actual code artifact we cannot confirm that any code cleanup was performed.
+    The claim lacks the required evidence.
+T037:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a modified `batch_executor.py` or any performance tuning results\
+    \ is provided; the required artifact (the fine\u2011tuned code and validation\
+    \ that it keeps the total wall\u2011clock time within the 72\u2011hour budget)\
+    \ is missing."

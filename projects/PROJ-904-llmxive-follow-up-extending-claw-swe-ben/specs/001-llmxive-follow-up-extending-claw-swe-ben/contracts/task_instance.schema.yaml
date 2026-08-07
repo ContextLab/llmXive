@@ -1,0 +1,68 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: TaskInstance
+description: >
+  Schema for a specific task instance derived from the Claw-SWE-Bench dataset.
+  Represents a single software engineering issue to be resolved by an LLM.
+type: object
+required:
+  - issue_id
+  - repo_state
+  - tests
+properties:
+  issue_id:
+    type: string
+    description: Unique identifier for the issue (e.g., "sphinx-doc__sphinx-12345").
+    pattern: "^[a-z0-9-_]+__([a-z0-9-_]+)-[0-9]+$"
+  repo_state:
+    type: object
+    description: Snapshot of the repository state relevant to this task.
+    required:
+      - files
+      - base_commit
+    properties:
+      base_commit:
+        type: string
+        description: The SHA of the base commit for this task.
+        minLength: 40
+        maxLength: 40
+      files:
+        type: array
+        description: List of file paths and their content (or path to content) included in the context.
+        items:
+          type: object
+          required:
+            - path
+          properties:
+            path:
+              type: string
+              description: Relative path of the file in the repository.
+            content_hash:
+              type: string
+              description: Optional SHA256 hash of the file content for integrity verification.
+  tests:
+    type: object
+    description: The test suite associated with this issue.
+    required:
+      - test_patch
+      - patch
+    properties:
+      test_patch:
+        type: string
+        description: The git patch containing the test modifications.
+      patch:
+        type: string
+        description: The proposed solution patch (if available in the dataset ground truth).
+      pass_regex:
+        type: string
+        description: Regex pattern to identify a passing test run in logs.
+        default: "PASSED|OK"
+  metadata:
+    type: object
+    description: Additional metadata derived during filtering (e.g., complexity).
+    properties:
+      complexity_score:
+        type: integer
+        description: Calculated complexity metric (e.g., lines of code in dependency graph).
+      relevant_file_count:
+        type: integer
+        description: Number of files identified as relevant to the issue.

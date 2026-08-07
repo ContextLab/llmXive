@@ -1,0 +1,49 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: ContextConfiguration
+description: >
+  Schema defining the configuration for how context is constructed and processed
+  for a specific model run. This includes the strategy and model size parameters.
+type: object
+required:
+  - model_size
+  - strategy
+properties:
+  model_size:
+    type: string
+    description: The parameter size of the model being used.
+    enum:
+      - "1B"
+      - "7B"
+      - "13B"
+      - "other"
+  strategy:
+    type: string
+    description: The context processing strategy employed.
+    enum:
+      - "baseline"
+      - "tfidf"
+      - "diff_aware"
+      - "semantic_summarization"
+  quantization:
+    type: string
+    description: The quantization level applied to the model weights.
+    enum:
+      - "Q4_K_M"
+      - "Q8_0"
+      - "FP16"
+      - "FP32"
+    default: "Q4_K_M"
+  max_tokens:
+    type: integer
+    description: Maximum context window size in tokens.
+    minimum: 1
+    default: 8192
+  budget_minutes:
+    type: number
+    description: Maximum allowed runtime for a single instance execution in minutes.
+    minimum: 0.1
+    default: 60.0
+  seed:
+    type: integer
+    description: Random seed for reproducibility.
+    default: 42

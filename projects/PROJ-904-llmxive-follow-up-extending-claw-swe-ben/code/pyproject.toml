@@ -1,0 +1,48 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmxive-follow-up-extending-claw-swe-ben"
+version = "0.1.0"
+description = "Context Fidelity vs. Model Scaling Trade-offs research pipeline"
+requires-python = ">=3.11"
+dependencies = [
+    "transformers>=4.40.0",
+    "datasets>=2.18.0",
+    "scikit-learn>=1.4.0",
+    "statsmodels>=0.14.0",
+    "networkx>=3.2",
+    "pytest>=8.0.0",
+    "huggingface_hub>=0.22.0",
+    "ruff>=0.3.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["*"]
+
+[tool.black]
+line-length = 100
+target-version = ['py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short"
