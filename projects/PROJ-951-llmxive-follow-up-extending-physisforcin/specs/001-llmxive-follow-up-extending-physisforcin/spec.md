@@ -17,7 +17,7 @@
 
 **Acceptance Scenarios**:
 
-1. **Given** the Wan2.1 model is initialized and prompts are loaded, **When** the system generates [deferred] videos and runs the PyBullet physics filter, **Then** the bottom [deferred] of videos are removed, and the remaining [deferred] are saved to the curated dataset directory with a physics score ≥ the 60th percentile of the batch distribution.
+1. **Given** the Wan2.1 model is initialized and prompts are loaded, **When** the system generates [deferred] videos and runs the PyBullet physics filter, **Then** the bottom [deferred] of videos are removed, and the remaining [deferred] are saved to the curated dataset directory with a physics score ≥ the upper percentile of the batch distribution.
 2. **Given** a generated video contains a physically impossible trajectory (e.g., object passing through a wall), **When** the PyBullet filter analyzes the video, **Then** the video is assigned a low consistency score and excluded from the final dataset.
 3. **Given** the system runs on a CPU-only environment with 7 GB RAM, **When** the filtering process completes, **Then** the process finishes within 2 hours and consumes less than 6 GB of RAM.
 

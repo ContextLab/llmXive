@@ -1,16 +1,25 @@
-'|availability model verify wan2':
-  quote: In November 2024, QwQ-32B-Preview, a model focusing on reasoning similar
-    to OpenAI's o1, was released under the Apache 2.0 License, although only the weights
-    were released, not the dataset or training method.  This model, developed by Alibaba's
-    Qwen team, can process prompts up to 32,000 words long and features a unique self-fact-checking
-    mechanism that allows it to solve complex logic puzzles and mathematical problems.
-    The model is not without limitations, as it may unexpectedly switch languages,
-    get stuck in reasoning loops, and struggle with common sense reasoning. Notably,
-    the model is available under an Apache 2.0 license on Hugging Face, making it
-    commercially accessible, though only certain components have been released. Its
-    development comes amid growing skepticism about traditional AI scaling laws and
-    represents a new approach to AI reasoning that involves giving models more processing
-    time to complete tasks.
-  source_id: Alibaba Group
-  url: https://en.wikipedia.org/wiki/Alibaba_Group
-  value: Apache 2.0
+'|60th curated dataset minimum must percentile raw score set':
+  quote: "References 1. Walker BF. The prevalence of low back pain: a systematic review\
+    \ of the literature from 1966 to 1998. J Spinal Disord 2000;13:205\u201317. 2.\
+    \ Fatoye F, Gebrye T, Mbada CE, et al. Clinical and economic burden of low back\
+    \ pain in low- and middle-income countries: a systematic review. BMJ Open 2023;13:e064119.\
+    \ 3. Herzog R, Elgort DR, Flanders AE, et al. Variability in diagnostic error\
+    \ rates of 10 MRI centers performing lumbar spine MRI examinations on the same\
+    \ patient within a 3-week period. Spine J 2017;17:554\u201361. 4. Lurie JD, Tosteson\
+    \ AN, Tosteson TD, et al. Reliability of Readings of Magnetic Resonance Imaging\
+    \ Features of Lumbar Spinal Stenosis. Spine 2008;33:1605\u201310. 5. Won D, Lee\
+    \ H-J, Lee S-J, et al. Spinal Stenosis Grading in Magnetic Resonance Imaging Using\
+    \ Deep Convolutional Neural Networks. Spine 2020;45:804\u201312. 6. Ishimoto Y,\
+    \ Jamaludin A, Cooper C, et al. Could automated machine-learned MRI grading aid\
+    \ epidemiological studies of lumbar spinal stenosis? Validation within the Wakayama\
+    \ spine study. BMC Musculoskelet Disord 2020;21:158. 7. Hallinan JTPD, Zhu L,\
+    \ Yang K, et al. Deep Learning Model for Automated Detection and Classification\
+    \ of Central Canal, Lateral Recess, and Neural Foraminal Stenosis at Lumbar Spine\
+    \ MRI. Radiology 2021;300:130\u20138. 8. Burton CV, Kirkaldy-Willis W, Yong-Hing\
+    \ K, et al. Causes of failure of surgery on the lumbar spine. Clin Orthop Relat\
+    \ Res 1976-2007 1981;157:191\u20139. 9. Batti\xE9 MC, Laz\xE1ry A, Fairbank J,\
+    \ et al. Disc degeneration-related clinical phenotypes. Eur Spine J Off Publ Eur\
+    \ Spine Soc Eur Spinal Deform Soc Eur Sect Cerv Spine Res Soc 2014;23 Suppl 3:S305-314."
+  source_id: '2506.09162'
+  url: https://arxiv.org/abs/2506.09162
+  value: '60'

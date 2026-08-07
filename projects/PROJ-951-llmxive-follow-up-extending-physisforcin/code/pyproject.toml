@@ -1,17 +1,17 @@
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
+requires = ["setuptools>=45", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "llmxive-physs-filter"
+name = "llmxive-physisforcin"
 version = "0.1.0"
-description = "Physics-based filtering pipeline for synthetic robotic video data"
+description = "llmXive follow-up: extending PhysisForcing (Physics Filter)"
 requires-python = ">=3.9"
 dependencies = [
     "torch>=2.0.0",
-    "pybullet>=3.2.6",
-    "mujoco>=3.0.0",
-    "diffusers>=0.24.0",
+    "pybullet>=3.2.5",
+    "mujoco>=3.1.0",
+    "diffusers>=0.25.0",
     "transformers>=4.35.0",
     "scikit-learn>=1.3.0",
     "opencv-python>=4.8.0",
@@ -21,16 +21,12 @@ dependencies = [
     "datasets>=2.14.0",
     "pyyaml>=6.0",
     "pytest>=7.4.0",
-    "black>=23.0.0",
-    "ruff>=0.1.0",
 ]
 
 [project.optional-dependencies]
 dev = [
-    "black>=23.0.0",
     "ruff>=0.1.0",
-    "pytest>=7.4.0",
-    "pytest-cov>=4.1.0",
+    "black>=23.1.0",
 ]
 
 [tool.black]
@@ -39,7 +35,8 @@ target-version = ['py39', 'py310', 'py311']
 include = '\.pyi?$'
 exclude = '''
 /(
-    \.git
+    \.eggs
+    | \.git
     | \.hg
     | \.mypy_cache
     | \.tox
@@ -55,37 +52,45 @@ exclude = '''
 line-length = 100
 target-version = "py39"
 select = [
-    "E",   # pycodestyle errors
-    "W",   # pycodestyle warnings
-    "F",   # pyflakes
-    "I",   # isort
-    "C",   # flake8-comprehensions
-    "B",   # flake8-bugbear
-    "UP",  # pyupgrade
-    "ANN", # flake8-annotations
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # Pyflakes
+    "I",  # isort
+    "B",  # flake8-bugbear
+    "C4", # flake8-comprehensions
+    "UP", # pyupgrade
 ]
 ignore = [
-    "E501",  # line too long (handled by black)
-    "B008",  # do not perform function calls in argument defaults
-    "ANN101", # missing type annotation for self in method
-    "ANN102", # missing type annotation for cls in classmethod
+    "E501", # Line too long (black handles this)
+    "B008", # Do not perform function call in argument defaults (common in Pydantic/attrs)
+    "C408", # Unnecessary dict call (often stylistic)
+]
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "venv",
 ]
 
 [tool.ruff.per-file-ignores]
-"__init__.py" = ["F401", "F403"]
-"tests/*" = ["ANN"]
-
-[tool.ruff.isort]
-known-first-party = ["src", "tests"]
-force-sort-within-sections = true
+"__init__.py" = ["F401"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
-python_classes = ["Test*"]
-python_functions = ["test_*"]
 addopts = "-v --tb=short"
-filterwarnings = [
-    "ignore::DeprecationWarning",
-    "ignore::PendingDeprecationWarning",
-]

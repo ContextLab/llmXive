@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-03T14:57:22.800556Z'
-current_stage: planned
+current_stage: in_progress
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-951-llmxive-follow-up-extending-physisforcin
-last_run_id: f5cd2689-3f34-4a49-922b-10919f5a77b8
+last_run_id: 68fa5c26-bca3-4123-85bd-096510ea922e
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin
 title: 'llmXive follow-up: extending "PhysisForcing: Physics Reinforced World Simulator
   for Robotic Manipula"'
-updated_at: '2026-08-04T22:30:11.599056Z'
+updated_at: '2026-08-07T17:17:53.287541Z'
