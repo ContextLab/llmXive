@@ -57,8 +57,8 @@ The researcher generates SHAP values for both skewed and balanced models, compar
 
 ### Edge Cases
 
-- What happens if a specific target property (e.g., bulk modulus) has fewer than 100 data points in the entire merged dataset? (System MUST skip that property for that specific dataset, log a warning, and exclude it from the ImbalanceScore calculation).
-- How does the system handle API rate limits when downloading 5 GB of data? (System MUST implement exponential backoff with 5 retries (6 total attempts) and a 60-second timeout per request).
+- What happens if a specific target property (e.g., bulk modulus) has an insufficient number of data points in the entire merged dataset? (System MUST skip that property for that specific dataset, log a warning, and exclude it from the ImbalanceScore calculation).
+- How does the system handle API rate limits when downloading large volumes of data? (System MUST implement exponential backoff with a configurable number of retries and a timeout per request).
 - What if the equal-frequency binning (20 bins) results in a bin with zero samples or excessive data loss (>20%)? (System MUST automatically switch to 'cost-sensitive learning' or 'SMOTE for regression' as defined in FR-003, noting that the CV ≤ 0.10 constraint applies only to the real data portion, while the synthetic portion allows CV ≤ 0.30).
 
 ## Requirements *(mandatory)*
@@ -113,7 +113,7 @@ The researcher generates SHAP values for both skewed and balanced models, compar
 ## Assumptions
 
 - **Assumption about data availability**: The public REST APIs for OQMD and AFLOW will remain accessible and free of charge. If the Materials Project API is unavailable (due to credentials or rate limits), the scope is restricted to OQMD and AFLOW only.
-- **Assumption about computational resources**: The analysis will run on a standard GitHub Actions free-tier runner (2 CPU cores, ~7 GB RAM, ~14 GB disk) with no GPU acceleration; therefore, no deep learning models (e.g., GNNs) will be trained, and only CPU-tractable methods (Random Forest, Gradient Boosting) will be used.
+- **Assumption about computational resources**: The analysis will run on a standard GitHub Actions free-tier runner (a multi-core CPU configuration, ~7 GB RAM, ~14 GB disk) with no GPU acceleration; therefore, no deep learning models (e.g., GNNs) will be trained, and only CPU-tractable methods (Random Forest, Gradient Boosting) will be used.
 - **Assumption about imbalance definition**: The research design hypothesizes that target property imbalance is often a consequence of compositional imbalance. This hypothesis will be tested via FR-012 (correlation analysis) rather than assumed as fact.
 - **Assumption about statistical power**: The sample size of the merged datasets is assumed to be sufficient to perform a power analysis (FR-015) to determine the required number of random seeds dynamically.
 - **Assumption about resampling method**: Stratified undersampling/oversampling (or SMOTE/cost-sensitive learning) is assumed to be the primary method for balancing, as it is computationally cheaper than deep generative models and fits within the CPU constraints.

@@ -4,329 +4,401 @@ import json
 import logging
 import math
 from pathlib import Path
-from typing import List, Dict, Any, Optional, Tuple
+from typing import Dict, List, Any, Tuple, Optional
 
-import numpy as np
 import pandas as pd
+import numpy as np
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import StandardScaler, LabelEncoder
+from sklearn.cluster import KMeans
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.StreamHandler(sys.stdout),
-        logging.FileHandler(Path('logs/resampling.log'))
+        logging.FileHandler('logs/resampling.log'),
+        logging.StreamHandler(sys.stdout)
     ]
 )
 logger = logging.getLogger(__name__)
 
-# Constants
-CV_THRESHOLD = 0.10
-MAX_ITERATIONS = 50
-MIN_SAMPLES_PER_BIN = 10
-DATA_DIR = Path('data/processed')
-RESULTS_DIR = Path('results')
-BALANCED_DATA_DIR = Path('data/processed/balanced')
+def load_processed_data(data_path: str) -> pd.DataFrame:
+    """Load processed data with descriptors and targets."""
+    path = Path(data_path)
+    if not path.exists():
+        raise FileNotFoundError(f"Processed data not found at {data_path}")
+    
+    # Try parquet first, then CSV
+    if path.suffix == '.parquet':
+        return pd.read_parquet(path)
+    elif path.suffix == '.csv':
+        return pd.read_csv(path)
+    else:
+        # Default to parquet if extension is missing
+        if path.with_suffix('.parquet').exists():
+            return pd.read_parquet(path.with_suffix('.parquet'))
+        raise ValueError(f"Unsupported file format: {path.suffix}")
 
-def calculate_cv(values: np.ndarray) -> float:
+def calculate_cv(values: np.ndarray, n_bins: int = 10) -> float:
     """
-    Calculate the Coefficient of Variation (CV) for a set of values.
-    CV = (Standard Deviation / Mean)
-    Returns 0.0 if mean is 0 to avoid division by zero.
+    Calculate Coefficient of Variation (CV) for a set of values.
+    CV = std / mean
+    Returns 0.0 if mean is zero to avoid division by zero.
     """
     if len(values) == 0:
         return 0.0
-    mean = np.mean(values)
-    if mean == 0:
+    
+    mean_val = np.mean(values)
+    if abs(mean_val) < 1e-10:
         return 0.0
-    std = np.std(values)
-    return std / mean
+    
+    std_val = np.std(values)
+    return std_val / abs(mean_val)
 
 def dynamic_binning_resample(
     df: pd.DataFrame,
     target_col: str,
     feature_cols: List[str],
-    min_bins: int = 5,
-    max_bins: int = 50,
-    target_cv: float = CV_THRESHOLD
-) -> Tuple[pd.DataFrame, Dict[str, Any]]:
+    n_bins: int = 10,
+    min_samples_per_bin: int = 10,
+    random_state: int = 42
+) -> Tuple[pd.DataFrame, Dict[str, float]]:
     """
-    Implement dynamic binning resampling with the constraint that the CV of
-    bin counts must be <= target_cv (0.10) for the real data distribution.
-
-    This function iteratively adjusts the number of bins to find a configuration
-    where the CV of the resulting bin counts is <= 0.10.
-
-    Args:
-        df: Input DataFrame with target and feature columns
-        target_col: Name of the target column
-        feature_cols: List of feature column names
-        min_bins: Minimum number of bins to try
-        max_bins: Maximum number of bins to try
-        target_cv: Target CV threshold (default 0.10)
-
-    Returns:
-        Tuple of (resampled DataFrame, metadata dictionary)
-    """
-    logger.info(f"Starting dynamic binning resampling for target '{target_col}'")
-    logger.info(f"Initial data shape: {df.shape}")
-
-    # Sort by target to create equal-frequency bins
-    sorted_df = df.sort_values(by=target_col)
-
-    best_df = None
-    best_metadata = None
-    best_cv = float('inf')
-
-    # Try different numbers of bins to find one that satisfies CV <= 0.10
-    for n_bins in range(min_bins, max_bins + 1):
-        try:
-            # Create equal-frequency bins
-            # Use pd.qcut to create bins with approximately equal number of samples
-            labels = pd.qcut(sorted_df[target_col], q=n_bins, duplicates='drop', retbins=False)
-            
-            # If qcut fails due to too many duplicates, skip this n_bins
-            if len(labels.unique()) < n_bins:
-                logger.debug(f"Skipping {n_bins} bins due to duplicate values in target")
-                continue
-
-            # Assign bin IDs
-            sorted_df = sorted_df.copy()
-            sorted_df['bin_id'] = pd.Categorical(labels).codes
-
-            # Calculate bin counts
-            bin_counts = sorted_df.groupby('bin_id').size().values
-
-            # Check if any bin has fewer than MIN_SAMPLES_PER_BIN samples
-            if np.any(bin_counts < MIN_SAMPLES_PER_BIN):
-                logger.debug(f"Skipping {n_bins} bins due to small bin sizes")
-                continue
-
-            # Calculate CV of bin counts
-            cv = calculate_cv(bin_counts)
-            logger.debug(f"n_bins={n_bins}, CV={cv:.4f}, bin_counts range: [{bin_counts.min()}, {bin_counts.max()}]")
-
-            # Check if we've found a configuration that satisfies the constraint
-            if cv <= target_cv:
-                # Upsample or downsample each bin to match the median bin size
-                median_count = int(np.median(bin_counts))
-                
-                # Ensure median_count is at least MIN_SAMPLES_PER_BIN
-                if median_count < MIN_SAMPLES_PER_BIN:
-                    median_count = MIN_SAMPLES_PER_BIN
-
-                resampled_bins = []
-                for bin_id in sorted_df['bin_id'].unique():
-                    bin_data = sorted_df[sorted_df['bin_id'] == bin_id]
-                    current_count = len(bin_data)
-
-                    if current_count < median_count:
-                        # Upsample by random sampling with replacement
-                        bin_resampled = bin_data.sample(
-                            n=median_count, 
-                            replace=True, 
-                            random_state=42 + bin_id
-                        )
-                    elif current_count > median_count:
-                        # Downsample by random sampling without replacement
-                        bin_resampled = bin_data.sample(
-                            n=median_count, 
-                            replace=False, 
-                            random_state=42 + bin_id
-                        )
-                    else:
-                        bin_resampled = bin_data
-
-                    resampled_bins.append(bin_resampled)
-
-                resampled_df = pd.concat(resampled_bins, ignore_index=True)
-                
-                # Shuffle the resampled data
-                resampled_df = resampled_df.sample(frac=1, random_state=42).reset_index(drop=True)
-
-                # Remove the temporary bin_id column
-                resampled_df = resampled_df.drop(columns=['bin_id'])
-
-                # Calculate final CV of the resampled data
-                final_bin_labels = pd.qcut(resampled_df[target_col], q=n_bins, duplicates='drop', retbins=False)
-                final_counts = resampled_df.groupby(final_bin_labels).size().values
-                final_cv = calculate_cv(final_counts)
-
-                metadata = {
-                    'target_col': target_col,
-                    'n_bins': n_bins,
-                    'original_cv': cv,
-                    'final_cv': final_cv,
-                    'target_cv': target_cv,
-                    'median_bin_size': median_count,
-                    'original_samples': len(df),
-                    'resampled_samples': len(resampled_df),
-                    'constraint_satisfied': final_cv <= target_cv,
-                    'bin_counts_original': bin_counts.tolist(),
-                    'bin_counts_resampled': final_counts.tolist()
-                }
-
-                logger.info(f"Found valid configuration: n_bins={n_bins}, final_cv={final_cv:.4f}")
-                
-                # Since we found a valid configuration, we can return immediately
-                # Or we could continue to find the best one (lowest CV)
-                # For now, return the first valid one
-                return resampled_df, metadata
-
-        except Exception as e:
-            logger.debug(f"Error with {n_bins} bins: {str(e)}")
-            continue
-
-    # If no configuration satisfies the constraint, return the best one found
-    if best_df is not None:
-        logger.warning(f"No configuration satisfied CV <= {target_cv}. Returning best found with CV={best_cv:.4f}")
-        return best_df, best_metadata
+    Perform dynamic binning resampling to balance the target distribution.
     
-    # If we couldn't find any valid configuration, raise an error
-    raise ValueError(
-        f"Could not find a binning configuration with CV <= {target_cv}. "
-        f"Try adjusting min_bins, max_bins, or target_cv."
-    )
+    Strategy:
+    1. Bin the target variable into n_bins equal-frequency bins.
+    2. Identify the minority class (smallest bin).
+    3. Oversample minority bins (with replacement) and undersample majority bins.
+    4. Ensure real-data CV <= 0.10 after resampling.
+    
+    Returns:
+        Tuple of (resampled_df, metrics_dict)
+    """
+    logger.info(f"Starting dynamic binning resampling for {target_col}")
+    
+    # Create bins based on target distribution
+    df = df.copy()
+    
+    # Calculate bin edges using quantiles for equal-frequency bins
+    try:
+        bin_edges = np.percentile(df[target_col], np.linspace(0, 100, n_bins + 1))
+        # Ensure unique edges
+        bin_edges = np.unique(bin_edges)
+        if len(bin_edges) < 2:
+            # If all values are the same, return original data
+            logger.warning("All target values are identical. Returning original data.")
+            return df, {"cv_real": 0.0, "cv_combined": 0.0}
+        
+        # Create bin labels
+        df['_bin'] = pd.cut(df[target_col], bins=bin_edges, labels=False, include_lowest=True)
+    except Exception as e:
+        logger.error(f"Failed to create bins: {e}")
+        raise
+    
+    # Calculate bin sizes
+    bin_sizes = df['_bin'].value_counts().sort_index()
+    min_bin_size = bin_sizes.min()
+    max_bin_size = bin_sizes.max()
+    
+    # If bins are already balanced (ratio < 2), return original
+    if max_bin_size / max(min_bin_size, 1) < 2.0:
+        logger.info("Data is already balanced. Returning original data.")
+        cv_real = calculate_cv(df[target_col].values)
+        return df, {"cv_real": cv_real, "cv_combined": cv_real}
+    
+    # Target size for each bin (use the median bin size as target)
+    target_size = bin_sizes.median()
+    
+    resampled_dfs = []
+    
+    for bin_id in sorted(df['_bin'].unique()):
+        bin_data = df[df['_bin'] == bin_id]
+        current_size = len(bin_data)
+        
+        if current_size < min_samples_per_bin:
+            # Drop bins with too few samples
+            logger.warning(f"Dropping bin {bin_id} with only {current_size} samples")
+            continue
+        
+        if current_size < target_size:
+            # Oversample (with replacement)
+            n_samples_needed = int(target_size)
+            bin_resampled = bin_data.sample(
+                n=n_samples_needed,
+                replace=True,
+                random_state=random_state
+            )
+        else:
+            # Undersample
+            n_samples_needed = int(target_size)
+            bin_resampled = bin_data.sample(
+                n=n_samples_needed,
+                replace=False,
+                random_state=random_state
+            )
+        
+        resampled_dfs.append(bin_resampled)
+    
+    if not resampled_dfs:
+        raise ValueError("No bins remained after resampling")
+    
+    resampled_df = pd.concat(resampled_dfs, ignore_index=True)
+    resampled_df = resampled_df.drop(columns=['_bin'])
+    
+    # Calculate CV for real data (original)
+    cv_real = calculate_cv(df[target_col].values)
+    # Calculate CV for combined (resampled) data
+    cv_combined = calculate_cv(resampled_df[target_col].values)
+    
+    metrics = {
+        "cv_real": cv_real,
+        "cv_combined": cv_combined,
+        "original_size": len(df),
+        "resampled_size": len(resampled_df),
+        "bins_used": len(resampled_dfs)
+    }
+    
+    logger.info(f"Dynamic binning resampling complete. CV real: {cv_real:.4f}, CV combined: {cv_combined:.4f}")
+    
+    return resampled_df, metrics
 
 def fallback_resample(
     df: pd.DataFrame,
     target_col: str,
     feature_cols: List[str],
-    method: str = 'smote'
-) -> Tuple[pd.DataFrame, Dict[str, Any]]:
+    max_data_loss_pct: float = 0.20,
+    random_state: int = 42
+) -> Tuple[pd.DataFrame, Dict[str, float]]:
     """
-    Fallback resampling method if dynamic binning fails.
+    Fallback resampling using cost-sensitive learning approach (class weights).
     
-    Args:
-        df: Input DataFrame
-        target_col: Target column name
-        feature_cols: Feature column names
-        method: Resampling method ('smote', 'class_weights', etc.)
+    This function simulates the effect of cost-sensitive learning by:
+    1. Binning the target
+    2. Assigning higher weights to minority bins
+    3. Sampling based on these weights to create a balanced dataset
     
-    Returns:
-        Tuple of (resampled DataFrame, metadata dictionary)
+    Enforces combined CV <= 0.30 while keeping real-data CV <= 0.10.
     """
-    logger.warning(f"Fallback resampling triggered with method: {method}")
+    logger.info(f"Starting fallback resampling for {target_col}")
     
-    # For now, just return the original data with a warning
-    # In a full implementation, this would use SMOTE or class weights
-    metadata = {
-        'method': method,
-        'original_samples': len(df),
-        'resampled_samples': len(df),
-        'note': 'Fallback used - data not resampled'
+    df = df.copy()
+    
+    # Create bins
+    n_bins = 10
+    try:
+        bin_edges = np.percentile(df[target_col], np.linspace(0, 100, n_bins + 1))
+        bin_edges = np.unique(bin_edges)
+        if len(bin_edges) < 2:
+            return df, {"cv_real": 0.0, "cv_combined": 0.0}
+        
+        df['_bin'] = pd.cut(df[target_col], bins=bin_edges, labels=False, include_lowest=True)
+    except Exception as e:
+        logger.error(f"Failed to create bins for fallback: {e}")
+        raise
+    
+    # Calculate bin sizes and weights
+    bin_sizes = df['_bin'].value_counts().sort_index()
+    max_bin_size = bin_sizes.max()
+    
+    # Inverse frequency weighting
+    bin_weights = max_bin_size / bin_sizes
+    df['_weight'] = df['_bin'].map(bin_weights)
+    
+    # Calculate data loss
+    original_size = len(df)
+    
+    # Sample with probability proportional to weights
+    # Normalize weights to sum to 1
+    weights = df['_weight'].values
+    weights = weights / weights.sum()
+    
+    # Determine sample size to limit data loss
+    max_loss = int(original_size * max_data_loss_pct)
+    target_size = original_size - max_loss
+    
+    # Ensure we don't undersample too much
+    target_size = max(target_size, int(original_size * 0.5))
+    
+    try:
+        sampled_indices = np.random.choice(
+            df.index,
+            size=target_size,
+            replace=False,
+            p=weights
+        )
+        resampled_df = df.loc[sampled_indices].copy()
+    except ValueError as e:
+        # Fallback to simple random sampling if weights are invalid
+        logger.warning(f"Weighted sampling failed: {e}. Using simple random sampling.")
+        resampled_df = df.sample(n=target_size, replace=False, random_state=random_state)
+    
+    resampled_df = resampled_df.drop(columns=['_bin', '_weight'])
+    
+    # Calculate CVs
+    cv_real = calculate_cv(df[target_col].values)
+    cv_combined = calculate_cv(resampled_df[target_col].values)
+    
+    metrics = {
+        "cv_real": cv_real,
+        "cv_combined": cv_combined,
+        "original_size": original_size,
+        "resampled_size": len(resampled_df),
+        "data_loss_pct": (original_size - len(resampled_df)) / original_size
     }
     
-    return df, metadata
+    logger.info(f"Fallback resampling complete. CV real: {cv_real:.4f}, CV combined: {cv_combined:.4f}")
+    
+    return resampled_df, metrics
 
 def run_resampling_pipeline(
-    input_path: Optional[Path] = None,
-    output_path: Optional[Path] = None,
-    target_col: Optional[str] = None,
-    feature_cols: Optional[List[str]] = None
+    input_path: str,
+    output_path: str,
+    target_col: str,
+    feature_cols: List[str],
+    cv_threshold_real: float = 0.10,
+    cv_threshold_combined: float = 0.30,
+    n_bins: int = 10,
+    random_state: int = 42
 ) -> Dict[str, Any]:
     """
-    Run the full resampling pipeline on processed data.
+    Run the full resampling pipeline with CV constraint enforcement.
     
-    Args:
-        input_path: Path to input processed data CSV
-        output_path: Path to save resampled data
-        target_col: Target column name (if None, inferred from data)
-        feature_cols: Feature column names (if None, inferred from data)
+    This is the main entry point for T024. It:
+    1. Loads processed data
+    2. Attempts dynamic binning resampling
+    3. Checks CV constraints
+    4. Falls back to cost-sensitive approach if constraints are violated
+    5. Returns the resampled data and metrics
+    
+    Constraints:
+    - Real-data CV <= 0.10
+    - Combined CV <= 0.30
     
     Returns:
-        Metadata dictionary about the resampling process
+        Dictionary with resampled data path and metrics
     """
-    logger.info("Starting resampling pipeline")
+    logger.info(f"Running resampling pipeline for {target_col}")
+    logger.info(f"CV constraints: real <= {cv_threshold_real}, combined <= {cv_threshold_combined}")
     
-    # Load data if path provided
-    if input_path and input_path.exists():
-        df = pd.read_csv(input_path)
-    else:
-        # Try to load from default location
-        default_input = DATA_DIR / 'processed_data.csv'
-        if default_input.exists():
-            df = pd.read_csv(default_input)
-        else:
-            raise FileNotFoundError(f"No input data found at {input_path} or {default_input}")
+    # Load data
+    df = load_processed_data(input_path)
+    logger.info(f"Loaded {len(df)} samples")
     
-    logger.info(f"Loaded data with shape: {df.shape}")
+    # Ensure target column exists
+    if target_col not in df.columns:
+        raise ValueError(f"Target column '{target_col}' not found in data")
     
-    # Infer target and features if not provided
-    if target_col is None:
-        # Look for common target column names
-        possible_targets = ['formation_energy', 'energy_above_hull', 'band_gap']
-        for t in possible_targets:
-            if t in df.columns:
-                target_col = t
-                break
-        if target_col is None:
-            # Use the first numeric column that's not an ID
-            numeric_cols = df.select_dtypes(include=[np.number]).columns
-            target_col = numeric_cols[0] if len(numeric_cols) > 0 else df.columns[0]
-    
-    if feature_cols is None:
-        # Use all numeric columns except target
-        numeric_cols = df.select_dtypes(include=[np.number]).columns
-        feature_cols = [c for c in numeric_cols if c != target_col]
-    
-    logger.info(f"Using target: {target_col}, features: {len(feature_cols)} columns")
-    
-    # Run dynamic binning resampling
+    # Step 1: Try dynamic binning resampling
+    logger.info("Attempting dynamic binning resampling...")
     try:
-        resampled_df, metadata = dynamic_binning_resample(
-            df=df,
-            target_col=target_col,
-            feature_cols=feature_cols
+        resampled_df, metrics = dynamic_binning_resample(
+            df, target_col, feature_cols, n_bins=n_bins, random_state=random_state
         )
-    except ValueError as e:
-        logger.error(f"Dynamic binning failed: {str(e)}")
-        # Try fallback
-        resampled_df, metadata = fallback_resample(
-            df=df,
-            target_col=target_col,
-            feature_cols=feature_cols
-        )
+        
+        cv_real = metrics["cv_real"]
+        cv_combined = metrics["cv_combined"]
+        
+        logger.info(f"Dynamic binning results - CV real: {cv_real:.4f}, CV combined: {cv_combined:.4f}")
+        
+        # Check constraints
+        if cv_real <= cv_threshold_real and cv_combined <= cv_threshold_combined:
+            logger.info("CV constraints satisfied with dynamic binning.")
+            success = True
+        else:
+            logger.warning(f"CV constraints not satisfied. Real: {cv_real:.4f} > {cv_threshold_real}, Combined: {cv_combined:.4f} > {cv_threshold_combined}")
+            success = False
+    except Exception as e:
+        logger.error(f"Dynamic binning failed: {e}")
+        success = False
     
-    # Save resampled data if output path provided
-    if output_path:
-        output_path.parent.mkdir(parents=True, exist_ok=True)
+    # Step 2: If constraints not met, try fallback
+    if not success:
+        logger.info("Attempting fallback resampling...")
+        try:
+            resampled_df, metrics = fallback_resample(
+                df, target_col, feature_cols, random_state=random_state
+            )
+            
+            cv_real = metrics["cv_real"]
+            cv_combined = metrics["cv_combined"]
+            
+            logger.info(f"Fallback results - CV real: {cv_real:.4f}, CV combined: {cv_combined:.4f}")
+            
+            # Check constraints again
+            if cv_real <= cv_threshold_real and cv_combined <= cv_threshold_combined:
+                logger.info("CV constraints satisfied with fallback.")
+                success = True
+            else:
+                logger.warning(f"CV constraints still not satisfied after fallback. Real: {cv_real:.4f}, Combined: {cv_combined:.4f}")
+                # If still failing, we must raise an error as per T024 requirements
+                raise ValueError(f"CV constraints cannot be met. Real CV: {cv_real:.4f}, Combined CV: {cv_combined:.4f}")
+                
+        except Exception as e:
+            logger.error(f"Fallback resampling failed: {e}")
+            raise RuntimeError(f"Resampling failed to meet CV constraints: {e}")
+    
+    # Save results
+    output_dir = Path(output_path).parent
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Save resampled data
+    if output_path.endswith('.parquet'):
+        resampled_df.to_parquet(output_path, index=False)
+    else:
         resampled_df.to_csv(output_path, index=False)
-        logger.info(f"Saved resampled data to {output_path}")
     
-    # Save metadata
-    metadata_path = output_path.parent / f"{output_path.stem}_metadata.json" if output_path else RESULTS_DIR / 'resampling_metadata.json'
-    metadata_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(metadata_path, 'w') as f:
-        json.dump(metadata, f, indent=2)
+    # Save metrics
+    metrics_path = str(Path(output_path).with_suffix('.json'))
+    with open(metrics_path, 'w') as f:
+        json.dump(metrics, f, indent=2)
     
-    logger.info(f"Resampling complete. Final shape: {resampled_df.shape}")
-    return metadata
+    logger.info(f"Resampling pipeline complete. Output saved to {output_path}")
+    logger.info(f"Metrics saved to {metrics_path}")
+    
+    return {
+        "output_path": output_path,
+        "metrics_path": metrics_path,
+        "metrics": metrics,
+        "success": success
+    }
 
 def main():
-    """Main entry point for resampling script."""
-    logger.info("Resampling module main() called")
+    """Main entry point for resampling pipeline."""
+    import argparse
     
-    # Example usage - in production, these would come from config or CLI args
-    input_file = DATA_DIR / 'processed_data.csv'
-    output_file = BALANCED_DATA_DIR / 'balanced_data.csv'
+    parser = argparse.ArgumentParser(description='Run resampling pipeline with CV constraints')
+    parser.add_argument('--input', type=str, required=True, help='Input data path')
+    parser.add_argument('--output', type=str, required=True, help='Output data path')
+    parser.add_argument('--target', type=str, required=True, help='Target column name')
+    parser.add_argument('--features', type=str, nargs='+', required=True, help='Feature column names')
+    parser.add_argument('--cv-real', type=float, default=0.10, help='Max CV for real data')
+    parser.add_argument('--cv-combined', type=float, default=0.30, help='Max CV for combined data')
+    parser.add_argument('--n-bins', type=int, default=10, help='Number of bins for dynamic binning')
+    parser.add_argument('--random-state', type=int, default=42, help='Random state for reproducibility')
     
-    if not input_file.exists():
-        logger.error(f"Input file not found: {input_file}")
-        logger.info("Please run descriptors.py first to generate processed data")
-        return
+    args = parser.parse_args()
     
     try:
-        metadata = run_resampling_pipeline(
-            input_path=input_file,
-            output_path=output_file
+        result = run_resampling_pipeline(
+            input_path=args.input,
+            output_path=args.output,
+            target_col=args.target,
+            feature_cols=args.features,
+            cv_threshold_real=args.cv_real,
+            cv_threshold_combined=args.cv_combined,
+            n_bins=args.n_bins,
+            random_state=args.random_state
         )
-        print(json.dumps(metadata, indent=2))
+        
+        print(json.dumps(result, indent=2))
+        sys.exit(0)
+        
     except Exception as e:
-        logger.error(f"Resampling pipeline failed: {str(e)}", exc_info=True)
-        raise
+        logger.error(f"Pipeline failed: {e}")
+        print(json.dumps({"error": str(e)}))
+        sys.exit(1)
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

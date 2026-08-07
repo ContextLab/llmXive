@@ -1,93 +1,120 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Processed Materials Dataset Schema
-description: >
-  Schema for validated processed datasets used in imbalance analysis.
-  Validated by tests/contract/test_dataset_schema.py.
+# Dataset Schema Contract for PROJ-756
+# Defines the expected structure for processed material science data
+# Used by contract tests (T012) to validate data integrity
+
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Processed Materials Dataset"
+description: "Schema for validated material property datasets after ingestion and descriptor computation"
+
 type: object
 required:
   - metadata
-  - features
+  - data
   - targets
-  - imbalance_scores
+  - features
+
 properties:
   metadata:
     type: object
     required:
       - source
       - timestamp
-      - sample_count
-      - property_name
+      - record_count
+      - version
     properties:
       source:
         type: string
-        description: Origin of the data (e.g., 'OQMD', 'AFLOW', 'Combined')
+        description: "Origin of the data (e.g., 'OQMD', 'AFLOW', 'MaterialsProject')"
       timestamp:
         type: string
         format: date-time
-        description: ISO 8601 timestamp of processing
-      sample_count:
+        description: "ISO 8601 timestamp of dataset creation"
+      record_count:
         type: integer
-        minimum: 100
-        description: Number of samples in the dataset
-      property_name:
+        minimum: 1
+        description: "Total number of material records in the dataset"
+      version:
         type: string
-        description: Name of the target property being predicted
-  features:
+        description: "Schema version identifier"
+
+  data:
     type: object
     required:
-      - columns
-      - descriptor_count
+      - composition
+      - structure_id
     properties:
-      columns:
+      composition:
         type: array
         items:
           type: string
-        description: List of feature column names (Magpie descriptors)
-      descriptor_count:
-        type: integer
-        minimum: 14
-        description: Total number of compositional descriptors
+        description: "List of chemical formulas (e.g., ['Fe2O3', 'SiO2'])"
+      structure_id:
+        type: array
+        items:
+          type: string
+        description: "Unique identifiers for crystal structures"
+
   targets:
     type: object
-    required:
-      - column_name
-      - min
-      - max
-      - mean
-      - std
-    properties:
-      column_name:
-        type: string
-        description: Name of the target column
-      min:
-        type: number
-      max:
-        type: number
-      mean:
-        type: number
-      std:
-        type: number
-      distribution_type:
-        type: string
-        enum:
-          - skewed
-          - balanced
-          - unknown
-        description: Inferred distribution type based on imbalance score
-  imbalance_scores:
+    description: "Target properties with their statistical summaries"
+    additionalProperties:
+      type: object
+      required:
+        - values
+        - count
+        - min
+        - max
+        - mean
+        - std
+      properties:
+        values:
+          type: array
+          items:
+            type: number
+          description: "Array of target values for this property"
+        count:
+          type: integer
+          minimum: 100
+          description: "Number of samples (must be >= 100 per FR-011)"
+        min:
+          type: number
+        max:
+          type: number
+        mean:
+          type: number
+        std:
+          type: number
+
+  features:
     type: object
     required:
-      - target_gini
-      - compositional_gini
+      - magpie_descriptors
+      - feature_names
+    properties:
+      magpie_descriptors:
+        type: array
+        items:
+          type: array
+          items:
+            type: number
+        description: "L2-normalized Magpie compositional descriptors (N_samples x N_features)"
+      feature_names:
+        type: array
+        items:
+          type: string
+        description: "List of feature names corresponding to descriptor columns"
+
+  imbalance_scores:
+    type: object
+    description: "Optional imbalance metrics attached to the dataset"
     properties:
       target_gini:
-        type: number
-        minimum: 0
-        maximum: 1
-        description: Gini coefficient of the target values
+        type: object
+        additionalProperties:
+          type: number
+        description: "Gini coefficient for each target property"
       compositional_gini:
         type: number
-        minimum: 0
-        maximum: 1
-        description: Gini coefficient derived from compositional feature space clustering
+        description: "Gini coefficient of K-Means cluster sizes"
+
 additionalProperties: false

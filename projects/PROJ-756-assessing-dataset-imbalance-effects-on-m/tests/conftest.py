@@ -1,36 +1,39 @@
+"""
+Pytest configuration and shared fixtures for the project.
+
+Provides common fixtures for test data paths, temporary directories,
+and mock configurations.
+"""
 import os
-import sys
-from pathlib import Path
 import pytest
+from pathlib import Path
 
-# Add the code directory to the path for imports
-code_dir = Path(__file__).parent.parent / "code"
-sys.path.insert(0, str(code_dir))
 
 @pytest.fixture
-def tmp_output_dir(tmp_path):
-    """Create a temporary output directory for tests."""
-    output_dir = tmp_path / "output"
-    output_dir.mkdir()
-    return output_dir
+def project_root():
+    """Return the root directory of the project."""
+    return Path(__file__).parent.parent
+
 
 @pytest.fixture
-def sample_data():
-    """Provide sample data for testing."""
-    import pandas as pd
-    return pd.DataFrame({
-        'id': [1, 2, 3, 4, 5],
-        'value': [10, 20, 30, 40, 50],
-        'category': ['A', 'B', 'A', 'B', 'A']
-    })
+def data_root(project_root):
+    """Return the data directory."""
+    return project_root / "data"
+
 
 @pytest.fixture
-def mock_api_response():
-    """Provide a mock API response for testing."""
-    return {
-        'status': 'success',
-        'data': [
-            {'id': 1, 'name': 'Item 1'},
-            {'id': 2, 'name': 'Item 2'}
-        ]
-    }
+def results_root(project_root):
+    """Return the results directory."""
+    return project_root / "results"
+
+
+@pytest.fixture
+def code_root(project_root):
+    """Return the code directory."""
+    return project_root / "code"
+
+
+@pytest.fixture
+def temp_dir(tmp_path):
+    """Provide a temporary directory for test artifacts."""
+    return tmp_path

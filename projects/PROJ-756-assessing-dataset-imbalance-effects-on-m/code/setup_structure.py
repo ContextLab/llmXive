@@ -1,3 +1,9 @@
+"""
+Setup script to create the required project directory structure.
+This script implements task T001c (and related setup tasks) by ensuring
+the 'code', 'data', 'tests', 'artifacts', 'results', and 'state' directories
+exist under the project root.
+"""
 import os
 import sys
 from pathlib import Path
@@ -5,51 +11,83 @@ from pathlib import Path
 def create_directories():
     """
     Creates the necessary directory structure for the project.
-    Ensures all required directories exist before any processing begins.
+    
+    Creates:
+        - code/
+        - data/
+        - tests/
+        - artifacts/
+        - results/
+        - state/
+        - logs/
+        - logs/archive/
+        - data/raw/
+        - data/processed/
+        - data/synthetic/
+        - results/shap_analysis/
+        - figures/
     """
-    base_dir = Path(__file__).parent.parent
-    project_name = "PROJ-756-assessing-dataset-imbalance-effects-on-m"
+    # Determine the project root. 
+    # We assume the script is run from the project root or the 'code' directory.
+    # If running from 'code', we go up one level.
+    current_path = Path(__file__).resolve()
     
-    # Define the project root
-    project_root = base_dir / project_name
+    # Try to find the project root by looking for the 'code' directory relative to this file
+    # or by checking if we are inside 'code'.
+    if current_path.name == 'code':
+        project_root = current_path.parent
+    elif current_path.parent.name == 'code':
+        project_root = current_path.parent.parent
+    else:
+        # Fallback: assume current working directory is project root
+        project_root = Path.cwd()
     
-    # Define all required directories
+    # Define relative paths to create
     directories = [
-        project_root,
-        project_root / "data",
-        project_root / "data" / "raw",
-        project_root / "data" / "processed",
-        project_root / "code",
-        project_root / "tests",
-        project_root / "tests" / "unit",
-        project_root / "tests" / "contract",
-        project_root / "tests" / "integration",
-        project_root / "artifacts",
-        project_root / "results",
-        project_root / "results" / "shap_analysis",
-        project_root / "state",
-        project_root / "logs",
-        project_root / "contracts"
+        "code",
+        "data",
+        "data/raw",
+        "data/processed",
+        "data/synthetic",
+        "tests",
+        "tests/unit",
+        "tests/contract",
+        "tests/integration",
+        "artifacts",
+        "results",
+        "results/shap_analysis",
+        "state",
+        "logs",
+        "logs/archive",
+        "figures",
+        "contracts"
     ]
     
-    # Create directories
-    for directory in directories:
-        directory.mkdir(parents=True, exist_ok=True)
-        print(f"Created directory: {directory}")
+    created_count = 0
+    existing_count = 0
     
-    # Create a .gitkeep file in empty directories to ensure they are tracked
-    for directory in directories:
-        gitkeep = directory / ".gitkeep"
-        if not gitkeep.exists():
-            gitkeep.touch()
-            print(f"Created .gitkeep in: {directory}")
+    for dir_path in directories:
+        full_path = project_root / dir_path
+        if not full_path.exists():
+            full_path.mkdir(parents=True, exist_ok=True)
+            print(f"Created directory: {full_path}")
+            created_count += 1
+        else:
+            # print(f"Directory already exists: {full_path}")
+            existing_count += 1
+    
+    print(f"Directory setup complete. Created: {created_count}, Existing: {existing_count}")
+    return True
 
 def main():
-    """
-    Main entry point for the setup script.
-    """
-    create_directories()
-    print("Project structure setup complete.")
+    """Entry point for the script."""
+    success = create_directories()
+    if success:
+        print("Task T001c (and related setup) completed successfully.")
+        sys.exit(0)
+    else:
+        print("Failed to complete directory setup.")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()
