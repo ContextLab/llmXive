@@ -1,19 +1,17 @@
 status: none
-intent: downloadable EvoPolicyGym python package environments dataset with dynamic
-  shift mode
+intent: EvoPolicyGym python package environments dataset PyPI download latest python
+  package dataset
 required_fields:
 - environment_id
 - environment_name
-- total_interaction_budget
-- shift_step
-- reward_function_pre_shift
-- reward_function_post_shift
-- transition_probabilities_pre_shift
-- transition_probabilities_post_shift
-- shift_configuration_parameters
-- observation_space_spec
-- action_space_spec
+- observation_space
+- action_space
+- reward_function
+- transition_probabilities
+- dynamic_shift_step
+- dynamic_shift_type
 - metadata_version
-cache_key: f2559d3a75d644b68f2346691d3cc0d52cc587d7514cfd411b1a650b380c95ba
-searched_at: '2026-08-04T22:32:34.085951+00:00'
+- description
+cache_key: 53f1bdff86ec1db82890d4ea0b8b6973fc7db06f7936a72ef7fe26ca6f84f966
+searched_at: '2026-08-07T18:39:11.627335+00:00'
 retry_count: 1

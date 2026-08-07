@@ -1,0 +1,17 @@
+{
+  "project_id": "PROJ-993-llmxive-follow-up-extending-evopolicygym",
+  "ok": false,
+  "reason": "1 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/main.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026xist_ok=True)          # Mock data for demonstration - in r\u2026\u201d; 2 command(s) failed: python code/main.py --mode full --runs-per-condition 5 --seed 42 (rc=2); python code/main.py --mode analyze (rc=2); 3 declared deliverable(s) absent: data/evolution_results.csv; data/shift_validation.json; data/stats_results.json",
+  "artifacts": [],
+  "failures": [
+    "python code/main.py --mode full --runs-per-condition 5 --seed 42 -> rc=2\n    usage: main.py [-h] [--run-evolution] [--run-shift-analysis] [--config CONFIG]\nmain.py: error: unrecognized arguments: --mode full --runs-per-condition 5 --seed 42",
+    "python code/main.py --mode analyze -> rc=2\n    usage: main.py [-h] [--run-evolution] [--run-shift-analysis] [--config CONFIG]\nmain.py: error: unrecognized arguments: --mode analyze"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "fabrication",
+  "evidence": [],
+  "updated_at": "2026-08-07T18:38:55Z"
+}

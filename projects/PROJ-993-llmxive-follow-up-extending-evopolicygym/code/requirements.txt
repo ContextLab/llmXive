@@ -8,3 +8,7 @@ numpy>=1.24.0
 pyyaml>=6.0.0
 torch>=2.0.0
 accelerate>=0.24.0
+psutil  # auto-added: imported by run-book but missing from venv
+pydantic  # auto-added: imported by run-book but missing from venv
+pytest  # auto-added: imported by run-book but missing from venv
+scipy  # auto-added: imported by run-book but missing from venv
