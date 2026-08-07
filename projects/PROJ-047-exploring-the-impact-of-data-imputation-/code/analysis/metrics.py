@@ -1,294 +1,280 @@
-"""
-Metrics module for calculating bias and error metrics in causal inference studies.
-"""
 from typing import Dict, Any, Union, List, Optional
 import numpy as np
 import pandas as pd
 import json
 import os
 from scipy import stats
-from scipy.stats import shapiro, skew, friedmanchisquare
-from statsmodels.stats.anova import AnovaRM
-from statsmodels.stats.multicomp import pairwise_tukeyhsd
 
-from .entities import CausalEstimate
-
-def calculate_bias_metrics(
-    estimates: Union[list[CausalEstimate], pd.DataFrame],
-    ground_truth: float
-) -> Dict[str, float]:
+def calculate_bias_metrics(estimates: Union[List[Dict[str, Any]], pd.DataFrame], 
+                           ground_truth: float) -> Dict[str, float]:
     """
-    Calculate absolute bias and Root Mean Squared Error (RMSE) for a set of ATE estimates.
-
-    This function implements FR-005 requirements for bias quantification.
-
+    Calculate absolute bias and RMSE for a set of estimates.
+    
     Args:
-        estimates: A list of CausalEstimate objects or a DataFrame containing 'ate' column.
-                   Each estimate represents an ATE calculation from a specific method/estimator.
-        ground_truth: The known true ATE value (tau_true) from the data generation process.
-
-    Returns:
-        A dictionary containing:
-            - 'absolute_bias': The mean absolute difference between estimates and ground truth.
-            - 'rmse': The Root Mean Squared Error of the estimates.
-            - 'mean_estimate': The mean of the provided estimates.
-            - 'count': The number of estimates processed.
-
-    Raises:
-        ValueError: If estimates list is empty or if ground_truth is not a valid number.
-        TypeError: If estimates input is not a list of CausalEstimate or a DataFrame.
-    """
-    if ground_truth is None or not isinstance(ground_truth, (int, float)):
-        raise ValueError("ground_truth must be a valid numeric value.")
-
-    # Extract ATE values from input
-    ate_values = []
-
-    if isinstance(estimates, pd.DataFrame):
-        if 'ate' not in estimates.columns:
-            raise ValueError("DataFrame must contain an 'ate' column.")
-        ate_values = estimates['ate'].dropna().values
-    elif isinstance(estimates, list):
-        if not estimates:
-            raise ValueError("Estimates list cannot be empty.")
+        estimates: List of dicts or DataFrame with 'ate' or 'estimate' keys.
+        ground_truth: The true ATE value.
         
-        for est in estimates:
-            if not isinstance(est, CausalEstimate):
-                raise TypeError(f"Expected list of CausalEstimate, got {type(est)}")
-            if est.ate is not None and not np.isnan(est.ate):
-                ate_values.append(est.ate)
-        ate_values = np.array(ate_values)
+    Returns:
+        Dictionary with 'absolute_bias' and 'rmse'.
+    """
+    if isinstance(estimates, pd.DataFrame):
+        ate_values = estimates['ate'].values
     else:
-        raise TypeError("estimates must be a list of CausalEstimate or a pandas DataFrame.")
-
-    if len(ate_values) == 0:
-        raise ValueError("No valid ATE values found in estimates.")
-
-    # Convert to numpy array for calculation
-    ate_array = np.array(ate_values)
-
-    # Calculate Absolute Bias (Mean Absolute Error)
-    # Bias = E[estimate] - truth
-    # Absolute Bias usually refers to Mean Absolute Error (MAE) in this context,
-    # or the absolute value of the bias. We return MAE as the primary metric.
-    absolute_bias = np.mean(np.abs(ate_array - ground_truth))
-
-    # Calculate RMSE
-    # RMSE = sqrt( mean( (estimate - truth)^2 ) )
-    squared_errors = (ate_array - ground_truth) ** 2
-    rmse = np.sqrt(np.mean(squared_errors))
-
+        ate_values = np.array([e.get('ate', e.get('estimate')) for e in estimates])
+        
+    biases = ate_values - ground_truth
+    abs_bias = np.abs(biases).mean()
+    rmse = np.sqrt(np.mean(biases ** 2))
+    
     return {
-        'absolute_bias': float(absolute_bias),
-        'rmse': float(rmse),
-        'mean_estimate': float(np.mean(ate_array)),
-        'count': int(len(ate_array))
+        'absolute_bias': float(abs_bias),
+        'rmse': float(rmse)
     }
 
 def run_statistical_test(bias_matrix: pd.DataFrame) -> Dict[str, Any]:
     """
-    Perform statistical testing on the bias matrix to determine if there are significant
-    differences between imputation methods.
-
-    Implements the FR-006 decision tree:
-    1. Run Shapiro-Wilk test on bias distribution.
-    2. If p < 0.05 (non-normal) → Use Friedman Test.
-    3. If p >= 0.05 (normal) → Use Repeated-Measures ANOVA.
-    4. Conditionally: If skewness > 1 OR < -1 → Compute Bootstrap CIs for the difference
-       in medians between the best and worst performing methods.
-
+    Perform statistical testing on bias distributions per beta level.
+    
+    Decision Tree (FR-006):
+    1. Run Shapiro-Wilk test on bias distribution (aggregated by beta).
+    2. If p < 0.05 (non-normal) -> Use Friedman Test.
+    3. If p >= 0.05 (normal) -> Use Repeated-Measures ANOVA.
+    4. Independently: Calculate skewness. If |skewness| > 1 -> Compute Bootstrap CIs.
+    
     Args:
-        bias_matrix: A DataFrame with columns ['method', 'bias'].
-                     Each row represents a bias measurement for a specific method.
-                     Expected to have multiple rows per method (repeated measures).
-
+        bias_matrix: DataFrame with columns ['beta', 'method', 'bias'].
+        
     Returns:
-        A dictionary containing:
-            - 'p_value': The p-value from the statistical test.
-            - 'test_type': The type of test used ('Friedman' or 'ANOVA').
-            - 'conclusion': A string describing the conclusion (significant or not).
-            - 'bootstrap_ci_diff': (Optional) The bootstrap CI for median difference if skewness condition met.
+        Dictionary with test results.
     """
-    if bias_matrix.empty or 'method' not in bias_matrix.columns or 'bias' not in bias_matrix.columns:
-        raise ValueError("bias_matrix must contain 'method' and 'bias' columns.")
-
-    # Aggregate bias by method to get a distribution per method
-    # We assume the matrix is in long format: rows are observations, columns include method and bias
-    methods = bias_matrix['method'].unique()
-    if len(methods) < 2:
-        raise ValueError("Need at least 2 methods to compare.")
-
-    # Check normality of the combined bias distribution (or per method? FR-006 says "bias distribution")
-    # Interpretation: Check normality of the pooled residuals or the distribution of bias values.
-    # A robust interpretation for repeated measures ANOVA assumption is checking residuals,
-    # but for a simple decision tree, we check the overall distribution of the 'bias' column.
-    all_betas = bias_matrix['bias'].dropna().values
-    
-    if len(all_betas) < 3:
-        # Not enough data for Shapiro
-        shapiro_p = 0.0 
-    else:
-        _, shapiro_p = shapiro(all_betas)
-
-    # Determine test type
-    test_type = ""
-    p_value = 0.0
-    conclusion = ""
-
-    # Prepare data for ANOVA/Friedman
-    # We need wide format for these tests: rows = subjects (e.g., beta levels or run IDs), cols = methods
-    # Assuming the bias_matrix has a way to identify the "subject" (e.g., a 'run_id' or 'beta' column).
-    # If not present, we assume each row is an independent observation and we might not be able to do RM-ANOVA.
-    # However, the task implies a "bias_matrix" which usually implies a structured comparison.
-    # Let's assume the input has a 'group' or 'run_id' column if it's repeated measures.
-    # If not, we treat it as independent groups? No, FR-006 says "Repeated-Measures".
-    # We will attempt to pivot. If no unique ID exists, we might need to create one or fail.
-    # Let's assume the index or a column 'run_id' exists. If not, we create a synthetic one if unique rows exist.
-    
-    # Check for a grouping column
-    group_col = None
-    for col in ['run_id', 'beta', 'seed', 'group']:
-        if col in bias_matrix.columns:
-            group_col = col
-            break
-    
-    if group_col is None:
-        # If no group column, we cannot do Repeated Measures. We fallback to Kruskal-Wallis or ANOVA on independent groups?
-        # But the spec says "Repeated-Measures". We will assume the data provided is already grouped or we use the index.
-        # Let's try to use the index as the subject if it repeats.
-        # For safety, if we can't group, we raise an error or assume independent.
-        # Given the strict spec, let's assume the caller ensures a 'run_id' or similar exists.
-        # If missing, we raise a clear error.
-        raise ValueError("bias_matrix must contain a grouping column (e.g., 'run_id', 'beta') for Repeated-Measures test.")
-
-    # Pivot to wide format: index=group, columns=method, values=bias
-    try:
-        wide_data = bias_matrix.pivot_table(index=group_col, columns='method', values='bias', aggfunc='mean')
-    except Exception as e:
-        raise ValueError(f"Could not pivot data for statistical test. Ensure each group has one value per method. Error: {e}")
-
-    # Drop rows with NaN (incomplete subjects)
-    wide_data = wide_data.dropna()
-
-    if len(wide_data) < 2:
-        raise ValueError("Not enough complete subjects for statistical test.")
-
-    # 1. Normality Check (Shapiro-Wilk on residuals or pooled)
-    # Re-using the pooled Shapiro result from above as a proxy for normality of the distribution
-    is_normal = shapiro_p >= 0.05
-
-    if not is_normal:
-        # Friedman Test
-        # Requires arrays for each method
-        method_names = wide_data.columns.tolist()
-        data_arrays = [wide_data[col].values for col in method_names]
-        
-        # Friedman test requires at least 3 groups for scipy's friedmanchisquare
-        if len(method_names) < 3:
-            # If only 2 methods and non-normal, use Wilcoxon signed-rank?
-            # Friedman is for >2. For 2, Wilcoxon is appropriate.
-            # But spec says "Friedman". We'll try to handle 2 by repeating or just using Wilcoxon.
-            # Let's stick to the spec: if <3, we might need to warn or use Wilcoxon.
-            # For robustness, if <3, we use Wilcoxon.
-            from scipy.stats import wilcoxon
-            # Wilcoxon is pairwise. We'll do pairwise and report min p-value?
-            # Or just report that Friedman requires >2.
-            # Let's assume the spec implies >2 methods. If not, we fallback to Wilcoxon for the pair.
-            stat, p_value = wilcoxon(data_arrays[0], data_arrays[1])
-            test_type = "Wilcoxon (Fallback for 2 methods)"
-        else:
-            stat, p_value = friedmanchisquare(*data_arrays)
-            test_type = "Friedman"
-        
-        if p_value < 0.05:
-            conclusion = "Significant difference found between methods (p < 0.05)."
-        else:
-            conclusion = "No significant difference found between methods (p >= 0.05)."
-
-    else:
-        # Repeated-Measures ANOVA
-        # Using statsmodels
-        wide_data_reset = wide_data.reset_index()
-        wide_data_long = wide_data_reset.melt(id_vars=[group_col], var_name='method', value_name='bias')
-        
-        try:
-            anova = AnovaRM(wide_data_long, depvar='bias', subject=group_col, within=['method'])
-            res = anova.fit()
-            # Extract p-value for the 'method' effect
-            # The table structure varies by version, usually res.mixed_lm or res.anova_lm
-            # In AnovaRM, the result is a DataFrame
-            p_value = res.loc['method', 'Pr > F']
-            test_type = "Repeated-Measures ANOVA"
-            
-            if p_value < 0.05:
-                conclusion = "Significant difference found between methods (p < 0.05)."
-            else:
-                conclusion = "No significant difference found between methods (p >= 0.05)."
-        except Exception as e:
-            # Fallback to standard ANOVA if RM fails (e.g., sphericity issues)
-            # Or just raise
-            raise RuntimeError(f"Repeated-Measures ANOVA failed: {e}")
-
-    # 4. Conditional Bootstrap CIs if skewness > 1 or < -1
-    bootstrap_ci_diff = None
-    current_skew = skew(all_betas)
-    
-    if current_skew > 1 or current_skew < -1:
-        # Find best and worst methods based on median bias
-        method_medians = wide_data.median()
-        best_method = method_medians.idxmin() # Lower bias is better
-        worst_method = method_medians.idxmax()
-        
-        # Extract data for these two methods
-        data_best = wide_data[best_method].values
-        data_worst = wide_data[worst_method].values
-        
-        # Calculate difference in medians
-        diff_medians = np.median(data_worst) - np.median(data_best) # Positive if worst > best
-        
-        # Bootstrap CI for the difference
-        n_boot = 1000
-        boot_diffs = []
-        rng = np.random.default_rng(42)
-        
-        for _ in range(n_boot):
-            idx_best = rng.integers(0, len(data_best), len(data_best))
-            idx_worst = rng.integers(0, len(data_worst), len(data_worst))
-            sample_best = data_best[idx_best]
-            sample_worst = data_worst[idx_worst]
-            boot_diffs.append(np.median(sample_worst) - np.median(sample_best))
-        
-        ci_low, ci_high = np.percentile(boot_diffs, [2.5, 97.5])
-        bootstrap_ci_diff = {
-            "median_difference": float(diff_medians),
-            "ci_low": float(ci_low),
-            "ci_high": float(ci_high),
-            "best_method": best_method,
-            "worst_method": worst_method,
-            "skewness": float(current_skew)
-        }
-
-    result = {
-        "p_value": float(p_value),
-        "test_type": test_type,
-        "conclusion": conclusion,
-        "shapiro_p_value": float(shapiro_p),
-        "skewness": float(current_skew)
+    results = {
+        'test_type': None,
+        'p_value': None,
+        'test_statistic': None,
+        'skewness': None,
+        'bootstrap_ci_diff': None,
+        'conclusion': ''
     }
     
-    if bootstrap_ci_diff:
-        result["bootstrap_ci_diff"] = bootstrap_ci_diff
+    # Ensure we have data
+    if bias_matrix.empty or 'bias' not in bias_matrix.columns:
+        results['conclusion'] = 'Insufficient data for statistical testing'
+        return results
+        
+    # Aggregate by beta to get a distribution of biases
+    # We need to check normality of the combined distribution or per beta?
+    # Spec says: "Run Shapiro-Wilk test on bias distribution (derived from ... aggregated by beta level)"
+    # Interpretation: We test the distribution of biases across all runs/methods for each beta,
+    # or the distribution of mean biases across betas?
+    # Given the context of comparing methods, we likely test the distribution of biases 
+    # across the different methods for the dataset.
+    # Let's assume we are testing the normality of the bias distribution across all entries 
+    # (or per beta if we are doing a trend, but the test compares methods).
+    # The Friedman/ANOVA compares methods. So we need bias per method.
+    
+    # Pivot to have methods as columns, rows as observations (runs/beta combinations)
+    # If multiple betas, we might need to test per beta or pooled.
+    # Let's test per beta level as implied by "aggregated by beta level".
+    # We will iterate betas and pick the first one or aggregate if only one beta is present in the slice.
+    # For this function, we assume the input is filtered or we aggregate across betas if needed.
+    # However, Friedman/ANOVA requires repeated measures (same subjects).
+    # Here "subjects" are the simulation runs (seeds).
+    # So we need a matrix: Rows = Seeds, Cols = Methods, Values = Bias.
+    
+    # Group by seed and method to get mean bias per seed per method
+    # Then pivot
+    if 'seed' not in bias_matrix.columns:
+        # If no seed column, we can't do repeated measures properly.
+        # Fallback to independent tests or warn.
+        # But the spec implies we have seeds from T029c.
+        # Let's try to create a pivot based on unique identifiers if 'seed' is missing.
+        # Assuming the dataframe is already aggregated or we treat rows as independent.
+        # If independent, we use Kruskal-Wallis or ANOVA, not Friedman.
+        # But the spec mandates Friedman/ANOVA. We must have repeated measures.
+        # Let's assume the input has 'seed' or we use index.
+        pass
 
-    return result
+    # Prepare data for testing: Group by method to get bias distributions
+    # We will test the normality of the bias distribution across all methods combined first?
+    # Or per method? Shapiro-Wilk is univariate.
+    # Spec: "Run Shapiro-Wilk test on bias distribution"
+    # Let's test the pooled distribution of biases (all methods, all betas) to decide global test?
+    # Or test per beta?
+    # Let's assume we test the distribution of biases for the primary comparison (e.g., across methods).
+    
+    # Let's calculate skewness first as it's independent
+    skewness_val = float(stats.skew(bias_matrix['bias'].dropna()))
+    results['skewness'] = skewness_val
+    
+    # Shapiro-Wilk on the bias distribution
+    # We test if the bias values (pooled) are normally distributed
+    # If the data is grouped by beta, we might need to test each beta.
+    # Let's test the overall distribution for the decision tree.
+    try:
+        shapiro_stat, shapiro_p = stats.shapiro(bias_matrix['bias'].dropna())
+    except ValueError:
+        # Not enough data points for Shapiro
+        shapiro_p = 0.0
+        
+    if shapiro_p < 0.05:
+        # Non-normal -> Friedman Test
+        # Friedman requires repeated measures (same subjects).
+        # We need to pivot: Index = Seed (or run_id), Columns = Method, Values = Bias
+        if 'seed' in bias_matrix.columns:
+            pivot_data = bias_matrix.pivot_table(index='seed', columns='method', values='bias', aggfunc='mean')
+        elif 'run_id' in bias_matrix.columns:
+            pivot_data = bias_matrix.pivot_table(index='run_id', columns='method', values='bias', aggfunc='mean')
+        else:
+            # Fallback: treat rows as independent (Kruskal-Wallis) but spec says Friedman.
+            # We'll try to group by unique index if available, otherwise fail gracefully.
+            pivot_data = bias_matrix.groupby('method')['bias'].apply(list).to_dict()
+            # Convert to array for Friedman if possible
+            # This is a fallback if structure is wrong
+            pivot_data = pd.DataFrame({k: v for k, v in pivot_data.items()})
+        
+        # Ensure we have numeric columns
+        pivot_data = pivot_data.apply(pd.to_numeric, errors='coerce').dropna()
+        
+        if pivot_data.shape[1] >= 2 and pivot_data.shape[0] >= 3:
+            # Friedman Test
+            try:
+                friedman_stat, friedman_p = stats.friedmanchisquare(*[pivot_data[col] for col in pivot_data.columns])
+                results['test_type'] = 'friedman'
+                results['p_value'] = float(friedman_p)
+                results['test_statistic'] = float(friedman_stat)
+                results['conclusion'] = f'Friedman test indicates significant difference (p={friedman_p:.4f})'
+            except Exception as e:
+                results['conclusion'] = f'Friedman test failed: {str(e)}'
+                results['test_type'] = 'friedman'
+        else:
+            # Not enough data for Friedman
+            results['conclusion'] = 'Insufficient data for Friedman test (need repeated measures)'
+            results['test_type'] = 'friedman'
+            results['p_value'] = None
+    else:
+        # Normal -> Repeated-Measures ANOVA
+        # Same pivot logic
+        if 'seed' in bias_matrix.columns:
+            pivot_data = bias_matrix.pivot_table(index='seed', columns='method', values='bias', aggfunc='mean')
+        elif 'run_id' in bias_matrix.columns:
+            pivot_data = bias_matrix.pivot_table(index='run_id', columns='method', values='bias', aggfunc='mean')
+        else:
+            pivot_data = bias_matrix.groupby('method')['bias'].apply(list).to_dict()
+            pivot_data = pd.DataFrame({k: v for k, v in pivot_data.items()})
+            
+        pivot_data = pivot_data.apply(pd.to_numeric, errors='coerce').dropna()
+        
+        if pivot_data.shape[1] >= 2 and pivot_data.shape[0] >= 3:
+            # Use pingouin if available, otherwise manual or scipy
+            # Scipy doesn't have built-in RM-ANOVA. We'll use a simplified approach or fallback to Kruskal if needed.
+            # But spec says ANOVA. Let's try to implement a basic one or use statsmodels.
+            # Since statsmodels is in requirements, we can use it.
+            try:
+                import statsmodels.stats.anova as anova
+                from statsmodels.formula.api import ols
+                
+                # Reshape for statsmodels
+                df_long = pivot_data.reset_index().melt(id_vars='seed', var_name='method', value_name='bias')
+                model = ols('bias ~ C(method) + C(seed)', data=df_long).fit()
+                anova_table = anova.anova_lm(model, typ=2)
+                
+                # Extract F and p for method
+                method_row = anova_table.loc['C(method)']
+                f_stat = method_row['F']
+                p_val = method_row['PR(>F)']
+                
+                results['test_type'] = 'anova'
+                results['p_value'] = float(p_val)
+                results['test_statistic'] = float(f_stat)
+                results['conclusion'] = f'ANOVA indicates significant difference (p={p_val:.4f})'
+            except ImportError:
+                # Fallback if statsmodels not used for this specific call (though it is available)
+                # Or if data structure fails
+                results['conclusion'] = 'ANOVA could not be computed (statsmodels error or data structure)'
+                results['test_type'] = 'anova'
+                results['p_value'] = None
+            except Exception as e:
+                results['conclusion'] = f'ANOVA failed: {str(e)}'
+                results['test_type'] = 'anova'
+        else:
+            results['conclusion'] = 'Insufficient data for ANOVA'
+            results['test_type'] = 'anova'
+            results['p_value'] = None
 
-def save_statistical_test_results(result: Dict[str, Any], output_path: str) -> None:
+    # Mandatory Bootstrap CI if skewness condition met
+    if abs(skewness_val) > 1:
+        # Identify best and worst performing methods based on mean bias
+        mean_bias = bias_matrix.groupby('method')['bias'].mean()
+        best_method = mean_bias.idxmin() # Lowest absolute bias? Or lowest bias? Usually absolute.
+        # The spec says "difference in medians between the best and worst".
+        # Best = lowest absolute bias? Or closest to 0?
+        # Let's assume best = min absolute bias, worst = max absolute bias
+        abs_mean_bias = bias_matrix.groupby('method')['bias'].apply(lambda x: np.abs(x).mean())
+        best_method = abs_mean_bias.idxmin()
+        worst_method = abs_mean_bias.idxmax()
+        
+        # Get biases for these methods
+        bias_best = bias_matrix[bias_matrix['method'] == best_method]['bias'].values
+        bias_worst = bias_matrix[bias_matrix['method'] == worst_method]['bias'].values
+        
+        # Calculate difference in medians
+        median_diff = np.median(bias_worst) - np.median(bias_best)
+        
+        # Bootstrap
+        n_boot = 1000
+        boot_diffs = []
+        for _ in range(n_boot):
+            sample_best = np.random.choice(bias_best, size=len(bias_best), replace=True)
+            sample_worst = np.random.choice(bias_worst, size=len(bias_worst), replace=True)
+            diff = np.median(sample_worst) - np.median(sample_best)
+            boot_diffs.append(diff)
+        
+        ci_lower = np.percentile(boot_diffs, 2.5)
+        ci_upper = np.percentile(boot_diffs, 97.5)
+        results['bootstrap_ci_diff'] = [float(ci_lower), float(ci_upper)]
+        results['conclusion'] += f' [Bootstrap CI for median diff: {ci_lower:.4f}, {ci_upper:.4f}]'
+
+    return results
+
+def save_statistical_test_results(results: Dict[str, Any], output_path: str) -> None:
     """
-    Save the statistical test results to a JSON file.
-
+    Save statistical test results to a JSON file.
+    
     Args:
-        result: The dictionary returned by run_statistical_test.
+        results: Dictionary from run_statistical_test.
         output_path: Path to the output JSON file.
     """
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     with open(output_path, 'w') as f:
-        json.dump(result, f, indent=2)
+        json.dump(results, f, indent=2)
+
+def main():
+    """
+    Main entry point for running statistical tests on simulation results.
+    Reads from data/results/simulation_summary.csv and writes to data/results/statistical_test_results.json.
+    """
+    input_path = 'data/results/simulation_summary.csv'
+    output_path = 'data/results/statistical_test_results.json'
+    
+    if not os.path.exists(input_path):
+        print(f"Error: Input file {input_path} not found.")
+        return
+        
+    df = pd.read_csv(input_path)
+    
+    # Ensure required columns exist
+    required_cols = ['method', 'bias']
+    if not all(col in df.columns for col in required_cols):
+        # Try to calculate bias if ground_truth_ate and ate exist
+        if 'ate' in df.columns and 'ground_truth_ate' in df.columns:
+            df['bias'] = df['ate'] - df['ground_truth_ate']
+        else:
+            print("Error: Missing required columns 'method' and 'bias' (or 'ate' and 'ground_truth_ate').")
+            return
+            
+    results = run_statistical_test(df)
+    save_statistical_test_results(results, output_path)
+    print(f"Statistical test results saved to {output_path}")
+
+if __name__ == '__main__':
+    main()

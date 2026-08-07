@@ -1,0 +1,12 @@
+status: none
+intent: causalml synthetic MNAR dataset with ground truth ATE python package dataset
+required_fields:
+- treatment
+- outcome
+- confounders
+- missing_indicator
+- true_ate
+- mnar_beta
+cache_key: 7460f7f646c48d765189ee4aec6cbf23aa6f4472f1495aa751339bb7717749fb
+searched_at: '2026-08-07T07:04:05.711382+00:00'
+retry_count: 1

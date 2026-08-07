@@ -26,25 +26,6 @@
   updated_at: '2026-08-04T12:56:04Z'
 - artifact_path: projects/PROJ-047-exploring-the-impact-of-data-imputation-/specs/001-exploring-the-impact-of-data-imputation/tasks.md
   attempts: 1
-  canonical: 'Simulation hyperparameters: beta sweep 0.0 to 1.0, sample size 1000,
-    200 replications per beta'
-  claim_id: c_be528b91
-  context: 'Create code/simulation/config.py defining hyperparameters: beta sweep
-    [0.0, 0.2, 0.5, 0.8, 1.0], sample size N=1000, replications per beta 200, and
-    random seed management'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: beta sweep [0.0, 0.2, 0.5, 0.8, 1.0], sample size N=1000, replications
-    per beta 200
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-04T12:56:46Z'
-- artifact_path: projects/PROJ-047-exploring-the-impact-of-data-imputation-/specs/001-exploring-the-impact-of-data-imputation/tasks.md
-  attempts: 1
   canonical: Deterministic regeneration for seed 42 and beta 0.5 returns tau_true
     0.5 and beta 0.5
   claim_id: c_399152d3
@@ -451,3 +432,351 @@
   source_type: external
   status: verified
   updated_at: '2026-08-04T13:07:55Z'
+- artifact_path: projects/PROJ-047-exploring-the-impact-of-data-imputation-/specs/001-exploring-the-impact-of-data-imputation/tasks.md
+  attempts: 0
+  canonical: 'Python dependencies: numpy 1.26.0, pandas 2.1.0, scikit-learn 1.3.0,
+    statsmodels 0.14.0, matplotlib 3.8.0, seaborn 0.13.0, pytest 7.4.0, causalgraphicalmodels
+    0.0.1'
+  claim_id: c_d505412c
+  context: 'Initialize Python 3.11 project with pinned dependencies in code/requirements.txt.
+    Required packages: numpy==1.26.0, pandas==2.1.0, scikit-learn==1.3.0, statsmodels==0.14.0,
+    matplotlib==3.8.0, seaborn==0.13.0, pytest==7.4.0, causalgraphicalmodels==0.0.1.'
+  evidence:
+    asserted: '1.26'
+    authority: (1+sqrt(5))/2 (IEEE-754 double, Python stdlib math.sqrt)
+    constant: golden_ratio
+    corrected: true
+    mode: approximate
+    true_value: 1.618033988749895
+    url: https://en.wikipedia.org/wiki/Golden_ratio
+  kind: numeric
+  raw_text: 'Required packages: numpy==1.26.0, pandas==2.1.0, scikit-learn==1.3.0,
+    statsmodels==0.14.0, matplotlib==3.8.0, seaborn==0.13.0, pytest==7.4.0, causalgraphicalmodels==0.0.1.'
+  resolved_value: '1.62'
+  resolver: approximate
+  source_hash: 65f02f5f3cf60bd189ad0ddf5cdcfee285a894ef110a68bc37d5236b11303740
+  source_type: external
+  status: verified
+  updated_at: '2026-08-07T07:06:26Z'
+- artifact_path: projects/PROJ-047-exploring-the-impact-of-data-imputation-/specs/001-exploring-the-impact-of-data-imputation/tasks.md
+  attempts: 0
+  canonical: Regenerate ground truth for seed 42 and beta 0.5 returns tau_true 0.5
+  claim_id: c_a6b775e0
+  context: The test must verify that for seed=42 and beta=0.5, the function returns
+    tau_true=0.5 (hardcoded constant) and beta=0.5 exactly.
+  evidence:
+    asserted: '42.0'
+    authority: math.tau (IEEE-754 double, Python stdlib)
+    constant: tau
+    corrected: true
+    mode: approximate
+    true_value: 6.283185307179586
+    url: https://en.wikipedia.org/wiki/Turn_(angle)#Tau_proposals
+  kind: numeric
+  raw_text: for seed=42 and beta=0.5, the function returns tau_true=0.5 and beta=0.5
+    exactly
+  resolved_value: '6'
+  resolver: approximate
+  source_hash: d0a1b8a5b40995feb696dbce9ae211b0e3e5520e8676d5fd1b9d8448cdea0647
+  source_type: external
+  status: verified
+  updated_at: '2026-08-07T07:06:26Z'
+- artifact_path: projects/PROJ-047-exploring-the-impact-of-data-imputation-/specs/001-exploring-the-impact-of-data-imputation/tasks.md
+  attempts: 2
+  canonical: 'Simulation hyperparameters: beta sweep 0.0 to 1.0, sample size 1000,
+    200 replications per beta'
+  claim_id: c_be528b91
+  context: 'Create code/simulation/config.py defining hyperparameters: beta sweep
+    [0.0, 0.2, 0.5, 0.8, 1.0], sample size N=1000, replications per beta 200, and
+    random seed management'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: beta sweep [0.0, 0.2, 0.5, 0.8, 1.0], sample size N=1000, replications
+    per beta 200
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T07:06:48Z'
+- artifact_path: projects/PROJ-047-exploring-the-impact-of-data-imputation-/specs/001-exploring-the-impact-of-data-imputation/tasks.md
+  attempts: 1
+  canonical: Bootstrap confidence interval uses 1000 resamples
+  claim_id: c_7886a687
+  context: 'Create code/analysis/se_combination.py with two functions: apply_rubins_rules(estimates_list)
+    for MICE and apply_bootstrap_ci(ate_estimates, n_boot=1000) for Mean/KNN.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: apply_bootstrap_ci uses n_boot=1000
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T07:07:03Z'
+- artifact_path: projects/PROJ-047-exploring-the-impact-of-data-imputation-/specs/001-exploring-the-impact-of-data-imputation/tasks.md
+  attempts: 1
+  canonical: Variance Inflation Factor warning threshold is 10
+  claim_id: c_1e6c1070
+  context: If VIF > 10, log a warning but DO NOT discard the run; store the VIF value
+    in the run metadata.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If VIF > 10, log a warning
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T07:07:04Z'
+- artifact_path: projects/PROJ-047-exploring-the-impact-of-data-imputation-/specs/001-exploring-the-impact-of-data-imputation/tasks.md
+  attempts: 1
+  canonical: Bootstrap CIs computed with 1000 iterations if skewness exceeds 1 or
+    is less than -1
+  claim_id: c_cf341133
+  context: 'Independently and MANDATORILY: Calculate skewness via scipy.stats.skew.
+    If skewness > 1 OR < -1 -> Compute Bootstrap CIs (1000 iterations) for the difference
+    in medians between the best and worst performing methods.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Bootstrap_CIs_computed_with_1000_iterations_if_skewness_exce
+  kind: magnitude
+  raw_text: If skewness > 1 OR < -1, compute Bootstrap CIs with 1000 iterations
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T07:07:19Z'
+- artifact_path: projects/PROJ-047-exploring-the-impact-of-data-imputation-/specs/001-exploring-the-impact-of-data-imputation/tasks.md
+  attempts: 1
+  canonical: Imputation failure flag triggered if bias vs oracle exceeds 0.1
+  claim_id: c_56e9f072
+  context: 'Success Criterion: If bias_vs_oracle > 0.1, flag the run as imputation_failure
+    in the output JSON.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Flag run as imputation_failure if bias_vs_oracle > 0.1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T07:07:19Z'
+- artifact_path: projects/PROJ-047-exploring-the-impact-of-data-imputation-/specs/001-exploring-the-impact-of-data-imputation/tasks.md
+  attempts: 1
+  canonical: Power analysis uses Cohen's d 0.5 and target power 0.8
+  claim_id: c_64feffbd
+  context: Calculate post-hoc power using statsmodels.stats.power.tt_ind_solve_power
+    with effect size Cohen's d = 0.5 and target power 0.8. Flag if power < 80%.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate post-hoc power with effect size Cohen's d = 0.5 and target power
+    0.8
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T07:09:53Z'
+- artifact_path: projects/PROJ-047-exploring-the-impact-of-data-imputation-/specs/001-exploring-the-impact-of-data-imputation/tasks.md
+  attempts: 1
+  canonical: Regression test covers extreme missingness greater than 50 percent
+  claim_id: c_f597e20b
+  context: Run full regression test suite on the complete pipeline to ensure no runtime
+    errors under extreme missingness (>50%) missingness.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Regression_test_covers_extreme_missingness_greater_than_50_p
+  kind: magnitude
+  raw_text: Test regression test suite under extreme missingness (>50%) missingness
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T07:10:29Z'
+- artifact_path: projects/PROJ-047-exploring-the-impact-of-data-imputation-/specs/001-exploring-the-impact-of-data-imputation/tasks.md
+  attempts: 0
+  canonical: 'Python dependencies for project: numpy 1.26.0, pandas 2.1.0, scikit-learn
+    1.3.0, statsmodels 0.14.0, matplotlib 3.8.0, seaborn 0.13.0, pytest 7.4.0, causalgraphicalmodels
+    0.0.1'
+  claim_id: c_1ee61fee
+  context: 'Phase 1: Setup (Shared Infrastructure) - T002 Initialize Python 3.11 project
+    with pinned dependencies in code/requirements.txt.'
+  evidence:
+    asserted: '1.26'
+    authority: (1+sqrt(5))/2 (IEEE-754 double, Python stdlib math.sqrt)
+    constant: golden_ratio
+    corrected: true
+    mode: approximate
+    true_value: 1.618033988749895
+    url: https://en.wikipedia.org/wiki/Golden_ratio
+  kind: numeric
+  raw_text: 'Required packages: numpy==1.26.0, pandas==2.1.0, scikit-learn==1.3.0,
+    statsmodels==0.14.0, matplotlib==3.8.0, seaborn==0.13.0, pytest==7.4.0, causalgraphicalmodels==0.0.1'
+  resolved_value: '1.62'
+  resolver: approximate
+  source_hash: 65f02f5f3cf60bd189ad0ddf5cdcfee285a894ef110a68bc37d5236b11303740
+  source_type: external
+  status: verified
+  updated_at: '2026-08-07T07:12:08Z'
+- artifact_path: projects/PROJ-047-exploring-the-impact-of-data-imputation-/specs/001-exploring-the-impact-of-data-imputation/tasks.md
+  attempts: 0
+  canonical: Deterministic ground truth regeneration for seed 42 and beta 0.5 yields
+    tau_true 0.5
+  claim_id: c_f2c28bd7
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - T006 unit tests for regenerate_ground_truth
+    function'
+  evidence:
+    asserted: '42.0'
+    authority: math.tau (IEEE-754 double, Python stdlib)
+    constant: tau
+    corrected: true
+    mode: approximate
+    true_value: 6.283185307179586
+    url: https://en.wikipedia.org/wiki/Turn_(angle)#Tau_proposals
+  kind: numeric
+  raw_text: For seed=42 and beta=0.5, the function returns tau_true=0.5 and beta=0.5
+    exactly
+  resolved_value: '6'
+  resolver: approximate
+  source_hash: d0a1b8a5b40995feb696dbce9ae211b0e3e5520e8676d5fd1b9d8448cdea0647
+  source_type: external
+  status: verified
+  updated_at: '2026-08-07T07:12:09Z'
+- artifact_path: projects/PROJ-047-exploring-the-impact-of-data-imputation-/specs/001-exploring-the-impact-of-data-imputation/tasks.md
+  attempts: 1
+  canonical: 'Simulation hyperparameters: beta values 0.0, 0.2, 0.5, 0.8, 1.0; sample
+    size 1000; 200 replications per beta'
+  claim_id: c_9441e4bd
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - T004 Create code/simulation/config.py
+    defining hyperparameters'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: beta sweep [0.0, 0.2, 0.5, 0.8, 1.0], sample size N=1000, replications
+    per beta 200
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T07:12:10Z'
+- artifact_path: projects/PROJ-047-exploring-the-impact-of-data-imputation-/specs/001-exploring-the-impact-of-data-imputation/tasks.md
+  attempts: 1
+  canonical: Variance Inflation Factor threshold for warning is 10
+  claim_id: c_81d02bc0
+  context: 'Phase 3: User Story 1 - T013 Add collinearity diagnostic check'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If VIF > 10, log a warning but DO NOT discard the run
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T07:12:10Z'
+- artifact_path: projects/PROJ-047-exploring-the-impact-of-data-imputation-/specs/001-exploring-the-impact-of-data-imputation/tasks.md
+  attempts: 1
+  canonical: KNN imputation uses k=5 neighbors
+  claim_id: c_9a6bb8a9
+  context: 'Phase 4: User Story 2 - T018 Implement apply_knn_imputation function'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: apply_knn_imputation(data, k=5) using sklearn.impute.KNNImputer
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T07:14:03Z'
+- artifact_path: projects/PROJ-047-exploring-the-impact-of-data-imputation-/specs/001-exploring-the-impact-of-data-imputation/tasks.md
+  attempts: 1
+  canonical: Bootstrap confidence intervals use 1000 resampling iterations
+  claim_id: c_417084d1
+  context: 'Phase 4: User Story 2 - T020 Implement Standard Error & CI Combination
+    Logic'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: apply_bootstrap_ci(ate_estimates, n_boot=1000) for Mean/KNN
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T07:14:42Z'
+- artifact_path: projects/PROJ-047-exploring-the-impact-of-data-imputation-/specs/001-exploring-the-impact-of-data-imputation/tasks.md
+  attempts: 1
+  canonical: Bootstrap CIs computed if skewness > 1 or < -1 using 1000 iterations
+  claim_id: c_e6a562cb
+  context: 'Phase 5: User Story 3 - T028 Implement run_statistical_test function'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate skewness via scipy.stats.skew. If skewness > 1 OR < -1 -> Compute
+    Bootstrap CIs (1000 iterations)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T07:14:42Z'
+- artifact_path: projects/PROJ-047-exploring-the-impact-of-data-imputation-/specs/001-exploring-the-impact-of-data-imputation/tasks.md
+  attempts: 1
+  canonical: Imputation failure flag triggered if bias relative to oracle exceeds
+    0.1
+  claim_id: c_1eff9e8a
+  context: 'Phase 5: User Story 3 - T036 Oracle Benchmark'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If bias_vs_oracle > 0.1, flag the run as imputation_failure
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T07:14:42Z'
+- artifact_path: projects/PROJ-047-exploring-the-impact-of-data-imputation-/specs/001-exploring-the-impact-of-data-imputation/tasks.md
+  attempts: 1
+  canonical: Power analysis flags results if statistical power is below 80%
+  claim_id: c_9df69729
+  context: 'Phase 5: User Story 3 - T037 Power Sensitivity Analysis'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Flag if power < 80% in data/results/power_analysis.json
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T07:14:43Z'
+- artifact_path: projects/PROJ-047-exploring-the-impact-of-data-imputation-/specs/001-exploring-the-impact-of-data-imputation/tasks.md
+  attempts: 1
+  canonical: Regression testing covers extreme missingness scenarios exceeding 50%
+  claim_id: c_813dda02
+  context: 'Phase 6: Polish & Cross-Cutting Concerns - T043 Run full regression test
+    suite'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run full regression test suite on the complete pipeline to ensure no runtime
+    errors under extreme missingness (>50%) missingness
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T07:14:43Z'

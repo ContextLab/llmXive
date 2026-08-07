@@ -1,10 +1,11 @@
 T014:
   c: false
-  h: e882cc9f4825e90974916b03f651794b57b57e8128c91fddc12e7737509d5a04
-  r: The `verify_us1.py` file is truncated and does not contain code that writes the
-    required JSON output, and the expected `data/results/us1_verification.json` file
-    is absent. Both the generation of the result file and the complete verification
-    logic are missing, so the task is not fulfilled.
+  h: 3afe920382a3ec6614aad9be7e8acec477ec60b6e427fb2f0b586c525468631b
+  r: "The provided `verify_us1.py` defines the correlation logic but the required\
+    \ output file `data/results/us1_verification.json` does not exist, and the truncated\
+    \ `run_verification_and_save` function does not show that results are written\
+    \ in the specified schema. Consequently the task\u2019s core requirement of persisting\
+    \ verification results is unmet."
 T024:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -15,12 +16,12 @@ T024:
     \ messages."
 T028:
   c: false
-  h: 4d4f03cd571994d2d4f61b9b034ddadc83c69770c711c3d66dc74eaa13bc06ff
-  r: "The provided `metrics.py` excerpt shows only the `calculate_bias_metrics` function;\
-    \ there is no `run_statistical_test(bias_matrix)` implementation, nor any code\
-    \ that writes to `data/results/statistical_test_results.json`. Additionally, the\
-    \ required JSON results file is absent from the repository. The task\u2019s core\
-    \ function and its output are therefore missing."
+  h: d1f6bb604787cc5b2467d50ba97569bfd8ce9618b38f2b35424c9db685f3fd0a
+  r: "The provided `run_statistical_test` function is only partially implemented (truncated),\
+    \ never reads `data/results/simulation_summary.csv`, does not write the required\
+    \ JSON output, and the referenced `simulation_summary.csv` and `statistical_test_results.json`\
+    \ files are absent. The task\u2019s full decision\u2011tree logic and mandatory\
+    \ bootstrap CI handling are not present."
 T029b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -33,3 +34,17 @@ T029c:
   r: "The required output file `data/results/simulation_summary.csv` is missing, so\
     \ no aggregation, schema compliance, or coverage_rate calculation can be verified.\
     \ The task\u2019s core artifact does not exist."
+T042a:
+  c: false
+  h: becadc0e6307c863c79050f1cb9bf1974c115833068b3721d4702d8fd661278a
+  r: "The required `data/results/simulation_summary.csv` is absent, so the script\
+    \ cannot read any data, and the claimed `docs/paper/bias_vs_beta.png` is only\
+    \ a placeholder text (401\u202Fbytes) rather than a real plot image generated\
+    \ from the CSV. Both essential artifacts are missing or invalid."
+T042b:
+  c: false
+  h: aea3d388711abdc669eb1bcb5bde3fad36eab55d1c4332ca5ad3a16817748489
+  r: The required output artifacts (`docs/paper/coverage_vs_beta.pdf`, `data/results/simulation_summary.csv`,
+    and `docs/paper/coverage_regression.json`) are all absent, so the regression test
+    and figure generation have not been produced. The script exists, but without the
+    data and generated files the task is not fulfilled.

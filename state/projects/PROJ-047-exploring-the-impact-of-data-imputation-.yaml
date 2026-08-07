@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-04-30T17:38:04.358881Z'
-current_stage: planned
+current_stage: in_progress
 failed_stage: null
 field: statistics
 human_escalation_reason: null
 id: PROJ-047-exploring-the-impact-of-data-imputation-
-last_run_id: 6b1e1cb3-3b3d-4d1e-91a4-624b0211958b
+last_run_id: b5c5ba6c-193e-45a4-b30c-c6ce39d0f141
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-047-exploring-the-impact-of-data-imputation-/specs/001-exploring-the-impact-of-data-imputation
 title: Exploring the Impact of Data Imputation Methods on Causal Inference
-updated_at: '2026-08-04T13:08:07.320526Z'
+updated_at: '2026-08-07T07:01:57.203467Z'

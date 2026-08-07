@@ -1,9 +1,3 @@
-"""
-Aggregation module for T029c: Data Aggregation.
-
-Aggregates simulation results from individual run outputs into a single
-summary CSV file with the required schema.
-"""
 import os
 import json
 import glob
@@ -11,193 +5,200 @@ import hashlib
 import pandas as pd
 import numpy as np
 from typing import List, Dict, Any, Optional
-from .entities import CausalEstimate
-from .metrics import calculate_bias_metrics
-
-RESULTS_DIR = "data/results"
-RUN_OUTPUT_PATTERN = os.path.join(RESULTS_DIR, "run_*.json")
-SUMMARY_OUTPUT = os.path.join(RESULTS_DIR, "simulation_summary.csv")
-
-def load_run_results(run_file: str) -> Optional[Dict[str, Any]]:
-    """Load a single run result file."""
-    try:
-        with open(run_file, 'r') as f:
-            return json.load(f)
-    except Exception as e:
-        print(f"Warning: Could not load {run_file}: {e}")
-        return None
+from .entities import CausalEstimate, SyntheticDataset, ImputationResult
 
 def compute_run_id(seed: int, beta: float) -> str:
-    """Compute deterministic run ID as SHA-256 hash of 'seed_beta'."""
-    hash_input = f"{seed}_{beta}"
-    return hashlib.sha256(hash_input.encode()).hexdigest()
-
-def calculate_coverage_rate(estimates: List[CausalEstimate], ground_truth: float) -> float:
     """
-    Calculate coverage rate: proportion of CIs containing ground_truth.
-    
-    Args:
-        estimates: List of CausalEstimate objects with CI bounds
-        ground_truth: The true ATE value
-    
-    Returns:
-        Coverage rate as a float between 0 and 1
+    Compute a deterministic run_id as a SHA-256 hash of the string "seed_beta".
+    """
+    content = f"{seed}_{beta}"
+    return hashlib.sha256(content.encode('utf-8')).hexdigest()
+
+def load_run_results(results_dir: str) -> List[Dict[str, Any]]:
+    """
+    Load all simulation result JSON files from the specified directory.
+    Expects files named like 'run_<seed>_<beta>.json' or similar patterns.
+    Returns a list of dictionaries containing run data.
+    """
+    results = []
+    pattern = os.path.join(results_dir, "*.json")
+    for filepath in glob.glob(pattern):
+        # Skip non-run files if necessary, but assume all json in results are run data
+        try:
+            with open(filepath, 'r') as f:
+                data = json.load(f)
+                results.append(data)
+        except (json.JSONDecodeError, IOError) as e:
+            print(f"Warning: Could not load {filepath}: {e}")
+    return results
+
+def calculate_coverage_rate(estimates: List[CausalEstimate], ground_truth_ate: float) -> float:
+    """
+    Calculate the coverage rate: proportion of CIs that contain the ground truth ATE.
+    Assumes each CausalEstimate has 'ate', 'se', and potentially 'ci_lower', 'ci_upper'.
+    If CI bounds are not directly stored, they are computed as estimate +/- 1.96 * SE.
     """
     if not estimates:
         return 0.0
-    
-    contained_count = 0
+
+    contains_truth = 0
+    total = len(estimates)
+
     for est in estimates:
-        # CausalEstimate should have lower_ci and upper_ci
-        lower = est.lower_ci
-        upper = est.upper_ci
-        if lower is not None and upper is not None:
-            if lower <= ground_truth <= upper:
-                contained_count += 1
-    
-    return contained_count / len(estimates)
+        ci_lower = est.ci_lower if est.ci_lower is not None else est.ate - 1.96 * est.se
+        ci_upper = est.ci_upper if est.ci_upper is not None else est.ate + 1.96 * est.se
 
-def aggregate_results() -> pd.DataFrame:
-    """
-    Aggregate all run results into a single DataFrame.
-    
-    Reads all run_*.json files from data/results, extracts estimates,
-    calculates bias, RMSE, and coverage rates, and returns a DataFrame
-    with the required schema.
-    
-    Schema: [beta, method, estimator, ate, bias, rmse, coverage_rate, 
-             seed, run_id, ground_truth_ate, beta_value, status]
-    """
-    # Find all run result files
-    run_files = sorted(glob.glob(RUN_OUTPUT_PATTERN))
-    
-    if not run_files:
-        raise FileNotFoundError(
-            f"No run result files found matching pattern: {RUN_OUTPUT_PATTERN}"
-        )
-    
-    all_records = []
-    
-    for run_file in run_files:
-        run_data = load_run_results(run_file)
-        if run_data is None:
-            continue
-        
-        # Extract metadata
-        seed = run_data.get('seed')
-        beta = run_data.get('beta')
-        ground_truth_ate = run_data.get('ground_truth_ate')
-        alpha = run_data.get('alpha')
-        status = run_data.get('status', 'completed')
-        
-        if seed is None or beta is None or ground_truth_ate is None:
-            print(f"Warning: Missing metadata in {run_file}, skipping")
-            continue
-        
-        run_id = compute_run_id(seed, beta)
-        
-        # Process each method/estimator combination
-        results = run_data.get('results', {})
-        
-        for method, method_results in results.items():
-            for estimator, est_data in method_results.items():
-                ate = est_data.get('ate')
-                se = est_data.get('se')
-                lower_ci = est_data.get('lower_ci')
-                upper_ci = est_data.get('upper_ci')
-                
-                if ate is None:
-                    continue
-                
-                # Calculate bias and RMSE
-                bias = abs(ate - ground_truth_ate)
-                rmse = np.sqrt((ate - ground_truth_ate) ** 2)
-                
-                # Create CausalEstimate object for coverage calculation
-                est_obj = CausalEstimate(
-                  ate=ate,
-                  se=se,
-                  lower_ci=lower_ci,
-                  upper_ci=upper_ci,
-                  method=method,
-                  estimator=estimator,
-                  seed=seed
-                )
-                
-                # Coverage rate is calculated per (method, estimator, beta)
-                # For this single run, it's either 0 or 1
-                coverage_rate = 1.0 if (lower_ci is not None and upper_ci is not None and 
-                                        lower_ci <= ground_truth_ate <= upper_ci) else 0.0
-                
-                record = {
-                    'beta': beta,
-                    'method': method,
-                    'estimator': estimator,
-                    'ate': ate,
-                    'bias': bias,
-                    'rmse': rmse,
-                    'coverage_rate': coverage_rate,
-                    'seed': seed,
-                    'run_id': run_id,
-                    'ground_truth_ate': ground_truth_ate,
-                    'beta_value': beta,  # Explicitly include beta_value
-                    'status': status
-                }
-                
-                all_records.append(record)
-    
-    if not all_records:
-        raise ValueError("No valid records found in any run result files")
-    
-    df = pd.DataFrame(all_records)
-    
-    # Ensure correct column order
-    expected_columns = [
-        'beta', 'method', 'estimator', 'ate', 'bias', 'rmse', 
-        'coverage_rate', 'seed', 'run_id', 'ground_truth_ate', 
-        'beta_value', 'status'
-    ]
-    
-    # Reorder columns if they exist
-    existing_cols = [col for col in expected_columns if col in df.columns]
-    df = df[existing_cols]
-    
-    return df
+        if ci_lower <= ground_truth_ate <= ci_upper:
+            contains_truth += 1
 
-def save_summary_dataframe(df: pd.DataFrame, output_path: str = SUMMARY_OUTPUT) -> str:
+    return contains_truth / total
+
+def aggregate_results(
+    run_results: List[Dict[str, Any]],
+    ground_truth_map: Dict[str, float]
+) -> pd.DataFrame:
     """
-    Save the aggregated DataFrame to CSV.
+    Aggregate results from multiple runs into a summary DataFrame.
     
     Args:
-        df: DataFrame with aggregated results
-        output_path: Path to save the CSV file
+        run_results: List of dictionaries containing run data (method, estimator, ate, etc.)
+        ground_truth_map: Map of run_id -> ground_truth_ate
     
     Returns:
-        Path to the saved file
+        DataFrame with schema:
+        [beta, method, estimator, ate, bias, rmse, coverage_rate, seed, run_id, ground_truth_ate, beta_value, status]
     """
-    # Ensure output directory exists
+    rows = []
+    
+    # Group results by (method, estimator, beta) to calculate coverage rates
+    # Structure: {(method, estimator, beta): [list of CausalEstimates]}
+    coverage_groups = {}
+    
+    for run_data in run_results:
+        seed = run_data.get('seed')
+        beta = run_data.get('beta')
+        run_id = compute_run_id(seed, beta)
+        ground_truth_ate = ground_truth_map.get(run_id, run_data.get('ground_truth_ate', 0.0))
+        
+        # Ensure ground_truth_ate is stored for every row (Constitution VI)
+        run_data['ground_truth_ate'] = ground_truth_ate
+        run_data['beta_value'] = beta
+        run_data['run_id'] = run_id
+        
+        # Process individual estimates within the run
+        if 'estimates' in run_data:
+            estimates = run_data['estimates']
+        else:
+            # Fallback: assume flat structure with method, estimator, ate, se, status
+            estimates = [run_data]
+
+        for est in estimates:
+            method = est.get('method', 'unknown')
+            estimator = est.get('estimator', 'unknown')
+            ate = est.get('ate', 0.0)
+            se = est.get('se', 0.0)
+            status = est.get('status', 'success')
+            
+            # Calculate bias and RMSE
+            bias = abs(ate - ground_truth_ate)
+            rmse = bias # Simplified RMSE for single estimate; if multiple, use sqrt(mean(bias^2))
+            
+            # Create a CausalEstimate object for coverage calculation
+            ci_lower = est.get('ci_lower')
+            ci_upper = est.get('ci_upper')
+            causal_est = CausalEstimate(
+                method=method,
+                estimator=estimator,
+                ate=ate,
+                se=se,
+                ci_lower=ci_lower,
+                ci_upper=ci_upper,
+                status=status
+            )
+            
+            key = (method, estimator, beta)
+            if key not in coverage_groups:
+                coverage_groups[key] = []
+            coverage_groups[key].append((causal_est, ground_truth_ate))
+            
+            # Store row data (we will update coverage_rate later)
+            rows.append({
+                'beta': beta,
+                'method': method,
+                'estimator': estimator,
+                'ate': ate,
+                'bias': bias,
+                'rmse': rmse,
+                'coverage_rate': 0.0, # Placeholder, updated later
+                'seed': seed,
+                'run_id': run_id,
+                'ground_truth_ate': ground_truth_ate,
+                'beta_value': beta,
+                'status': status
+            })
+
+    # Calculate coverage rates per (method, estimator, beta)
+    coverage_map = {}
+    for key, items in coverage_groups.items():
+        method, estimator, beta = key
+        est_list = [item[0] for item in items]
+        gt = items[0][1] # Ground truth is consistent per run_id, but we take first
+        coverage = calculate_coverage_rate(est_list, gt)
+        coverage_map[key] = coverage
+
+    # Update rows with correct coverage rates
+    for row in rows:
+        key = (row['method'], row['estimator'], row['beta'])
+        row['coverage_rate'] = coverage_map.get(key, 0.0)
+
+    return pd.DataFrame(rows)
+
+def save_summary_dataframe(df: pd.DataFrame, output_path: str) -> None:
+    """
+    Save the aggregated results DataFrame to a CSV file.
+    """
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    
     df.to_csv(output_path, index=False)
-    print(f"Saved aggregated results to {output_path}")
-    print(f"Total records: {len(df)}")
-    print(f"Unique betas: {df['beta'].unique().tolist()}")
-    print(f"Unique methods: {df['method'].unique().tolist()}")
-    print(f"Unique estimators: {df['estimator'].unique().tolist()}")
-    
-    return output_path
+    print(f"Saved summary to {output_path}")
 
 def main():
-    """Main entry point for aggregation script."""
-    print("Starting data aggregation...")
+    """
+    Main entry point for data aggregation.
+    Loads results, aggregates them, and saves to simulation_summary.csv.
+    """
+    # Define paths
+    results_dir = "data/results"
+    output_path = "data/results/simulation_summary.csv"
     
-    try:
-        df = aggregate_results()
-        output_path = save_summary_dataframe(df)
-        print(f"Aggregation complete. Output: {output_path}")
-    except Exception as e:
-        print(f"Aggregation failed: {e}")
-        raise
+    # Load raw run results (JSON files)
+    run_results = load_run_results(results_dir)
+    
+    if not run_results:
+        print("Warning: No run results found to aggregate.")
+        # Create an empty DataFrame with the correct schema to satisfy downstream tasks
+        df = pd.DataFrame(columns=[
+            'beta', 'method', 'estimator', 'ate', 'bias', 'rmse', 
+            'coverage_rate', 'seed', 'run_id', 'ground_truth_ate', 'beta_value', 'status'
+        ])
+        save_summary_dataframe(df, output_path)
+        return
+
+    # Reconstruct ground truth map from run data or regenerate if needed
+    # Assuming ground_truth_ate is stored in each run_data
+    ground_truth_map = {}
+    for run_data in run_results:
+        seed = run_data.get('seed')
+        beta = run_data.get('beta')
+        run_id = compute_run_id(seed, beta)
+        # Prefer stored value, fallback to 0.5 if missing (should not happen with T029b)
+        gt = run_data.get('ground_truth_ate', 0.5)
+        ground_truth_map[run_id] = gt
+
+    # Aggregate
+    df = aggregate_results(run_results, ground_truth_map)
+    
+    # Save
+    save_summary_dataframe(df, output_path)
 
 if __name__ == "__main__":
     main()

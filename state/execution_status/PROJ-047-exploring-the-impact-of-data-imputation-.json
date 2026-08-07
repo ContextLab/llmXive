@@ -1,0 +1,21 @@
+{
+  "project_id": "PROJ-047-exploring-the-impact-of-data-imputation-",
+  "ok": false,
+  "reason": "6 run-book script(s) missing (plan/impl path mismatch): python code/run_simulation.py --runs 200 --beta-sweep 0.0,0.2,0.5,0.8,1.0; python code/analysis.py --validate-schema --input data/results/simulation_summary.csv; python code/visualization.py --plot bias_vs_beta --input data/results/simulation_summary.csv --output docs/paper/figures/bias_vs_beta.png; 2 declared deliverable(s) absent: data/results/simulation_summary.csv; data/results/us1_verification.json",
+  "artifacts": [],
+  "failures": [
+    "python code/run_simulation.py --runs 200 --beta-sweep 0.0,0.2,0.5,0.8,1.0 -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-047-exploring-the-impact-of-data-imputation-/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-047-exploring-the-impact-of-data-imputation-/code/run_simulation.py': [Errno 2] No such file or directory",
+    "python code/analysis.py --validate-schema --input data/results/simulation_summary.csv -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-047-exploring-the-impact-of-data-imputation-/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-047-exploring-the-impact-of-data-imputation-/code/analysis.py': [Errno 2] No such file or directory",
+    "python code/visualization.py --plot bias_vs_beta --input data/results/simulation_summary.csv --output docs/paper/figures/bias_vs_beta.png -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-047-exploring-the-impact-of-data-imputation-/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-047-exploring-the-impact-of-data-imputation-/code/visualization.py': [Errno 2] No such file or directory",
+    "python code/visualization.py --plot coverage_vs_beta --input data/results/simulation_summary.csv --output docs/paper/figures/coverage_vs_beta.png -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-047-exploring-the-impact-of-data-imputation-/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-047-exploring-the-impact-of-data-imputation-/code/visualization.py': [Errno 2] No such file or directory",
+    "python code/visualization.py --plot bias_distributions --input data/results/simulation_summary.csv --output docs/paper/figures/bias_distributions.png -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-047-exploring-the-impact-of-data-imputation-/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-047-exploring-the-impact-of-data-imputation-/code/visualization.py': [Errno 2] No such file or directory",
+    "python code/analysis.py --verify-sensitivity --input data/results/sensitivity_analysis.json -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-047-exploring-the-impact-of-data-imputation-/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-047-exploring-the-impact-of-data-imputation-/code/analysis.py': [Errno 2] No such file or directory"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "execution_bug",
+  "evidence": [],
+  "updated_at": "2026-08-07T07:02:41Z"
+}
