@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-05T13:44:49.200792Z'
-current_stage: in_progress
+current_stage: planned
 failed_stage: null
 field: materials science
 human_escalation_reason: null
 id: PROJ-314-predicting-the-impact-of-composition-on-
-last_run_id: f9950c5e-3380-4a48-a97d-d2d4b9fe4300
+last_run_id: 7df9692e-4e3b-4b6a-8a47-52990c4f016e
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-314-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on
 title: Predicting the Impact of Composition on the Weibull Modulus of Ceramics
-updated_at: '2026-08-01T16:10:11.621611Z'
+updated_at: '2026-08-07T12:56:15.620106Z'

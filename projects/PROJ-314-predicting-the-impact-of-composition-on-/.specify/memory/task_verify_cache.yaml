@@ -1,13 +1,12 @@
 T017b:
   c: false
-  h: 527b0ca256bbf789e07afa8767aebc42c54ffe133d46c4e38a7be3f064fda585
-  r: "The `generate_data_availability_report()` function is present and writes the\
-    \ required fields, but the expected output file `data/reports/data_availability_report.json`\
-    \ does not exist on disk (the directory may be missing, causing a write failure).\
-    \ Consequently the task\u2019s core requirement\u2014producing the JSON report\
-    \ before halting\u2014is not satisfied. The implementer must ensure the `data/reports`\
-    \ directory is created (or use a safe path) and that the function is actually\
-    \ executed so the file is written."
+  h: f89227315978e063dba592e815f32baf6d6112c4a7a0b5077e341a9788d8ede3
+  r: The repository contains a `generate_data_availability_report` function that writes
+    the required JSON, but the `data/reports/data_availability_report.json` file is
+    absent, indicating the report was never actually generated. Additionally, the
+    function is called with a placeholder `total_sources=0`, which may not meet the
+    intended semantics. The required output file is missing, so the task is not fully
+    satisfied.
 T020:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -27,13 +26,6 @@ T021:
     \ but no concrete artifact (such as modified source files, logging statements,\
     \ or example log entries) to verify the requirement. The missing implementation\
     \ must be supplied and demonstrated."
-T025:
-  c: false
-  h: 4e75caf2a2c7cdfe41a51df07044ba9eb0adcb01a821d170fc2d6fb31a997632
-  r: "The required artifact `tests/integration/test_modeling.py` does not exist in\
-    \ the repository, so the integration test for the 5\u2011fold CV workflow is missing.\
-    \ The task cannot be considered completed until this file is added with appropriate\
-    \ test code."
 T028:
   c: false
   h: 8cf42a5b444dc57939ae6a8fb3c1dd11b519510f946e0bcfd87404352441ada8
@@ -41,6 +33,13 @@ T028:
     (the file only shows imports and a `prepare_splits` implementation), and the required
     output file `data/results/model_metrics.json` is absent. Both the core function
     and its expected JSON output are missing, so the task is not satisfied.
+T028b:
+  c: false
+  h: 7b879f24bf5210da7792d5893f3b645dba888d833da34edfd423098e81bff9d8
+  r: "The provided `code/modeling.py` excerpt does not contain a `run_baseline_predictor()`\
+    \ implementation, and the required output file `data/results/baseline_metrics.json`\
+    \ is absent. Consequently the task\u2019s core requirement\u2014creating the baseline\
+    \ predictor and saving its MAE\u2014is not satisfied."
 T032:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

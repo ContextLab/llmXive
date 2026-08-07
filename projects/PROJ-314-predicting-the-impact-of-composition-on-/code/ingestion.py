@@ -49,27 +49,45 @@ def fetch_data(url):
         raise
 
 def generate_data_availability_report(total_sources, valid_entries):
-    """Generates a report on data availability."""
+    """Generates a report on data availability.
+    
+    Creates the data/reports directory if it doesn't exist and writes
+    the JSON report file before halting the process.
+    """
+    # Ensure the output directory exists
+    report_dir = Path("data/reports")
+    report_dir.mkdir(parents=True, exist_ok=True)
+    
+    report_path = report_dir / "data_availability_report.json"
+    
     report = {
         'total_sources': total_sources,
         'valid_entries': valid_entries,
         'reason_code': 'InsufficientData',
         'timestamp': pd.Timestamp.now().isoformat()
     }
-    with open("data/reports/data_availability_report.json", "w") as f:
-        json.dump(report, f)
+    
+    with open(report_path, "w") as f:
+        json.dump(report, f, indent=2)
+    
+    logger.info(f"Data availability report written to {report_path}")
 
 def validate_data_gap(df):
     """Checks for data gaps and halts if necessary."""
     N = len(df)
     if N < 30:
-        generate_data_availability_report(total_sources=100, valid_entries=N)  # Replace with real values
+        # Pass 0 for total_sources as we don't have that context here, 
+        # but the function signature requires it. 
+        # In a real flow, this would be passed from the fetch stage.
+        generate_data_availability_report(total_sources=0, valid_entries=N)
         logger.info("PROJECT_HALTED: Insufficient data (N={})".format(N))
         raise ValueError("Insufficient data")
     return df
 
 def clean_data(df):
     """Cleans and filters the ceramic entry data."""
+    initial_len = len(df)
+    excluded_indices = []
 
     # Filter for N >= 30 (already handled in validate_data_gap, but kept here for clarity)
     if len(df) < 30:
@@ -92,6 +110,29 @@ def clean_data(df):
     df[['weibull_modulus', 'is_range_flag', 'range_original']] = df.apply(extract_range_values, axis=1, result_type='expand')
     df['weibull_modulus'] = pd.to_numeric(df['weibull_modulus'], errors='coerce') # convert to numeric after range extraction
 
+    # Filter out rows with missing stoichiometry (composition is NaN or empty)
+    # Assuming 'composition' is the column to check for stoichiometry
+    missing_stoich_mask = df['composition'].isna() | (df['composition'].astype(str).str.strip() == '')
+    missing_stoich_indices = df[missing_stoich_mask].index.tolist()
+    for idx in missing_stoich_indices:
+        excluded_indices.append((idx, 'missing_stoichiometry'))
+    df = df[~missing_stoich_mask]
+
+    # Handle non-stoichiometric phases (placeholder logic for exclusion)
+    # In a real implementation, this would involve checking a specific column or flag
+    # For this task, we assume there's a column 'is_non_stoichiometric' or similar logic
+    # If such a column exists and is True, exclude the row.
+    if 'is_non_stoichiometric' in df.columns:
+        non_stoich_mask = df['is_non_stoichiometric'] == True
+        non_stoich_indices = df[non_stoich_mask].index.tolist()
+        for idx in non_stoich_indices:
+            excluded_indices.append((idx, 'non_stoichiometric_phase'))
+        df = df[~non_stoich_mask]
+    
+    # Log all exclusions
+    for idx, reason in excluded_indices:
+        logger.info(f"Excluded row {idx} due to {reason}")
+
     # Impute missing processing parameters (group median -> global median) - Placeholder for now
     # In a real implementation, this would involve calculating the medians and applying them
     df = df.fillna(df.median())
@@ -108,14 +149,28 @@ def compute_descriptors(df):
     return df
 
 def validate_no_missing_predictors(df):
-  """Validates that no primary predictors contain NaN values."""
-  required_columns = ['mean_atomic_radius', 'electronegativity_std', 'valence_electron_concentration']
-  missing_cols = [col for col in required_columns if df[col].isnull().any()]
+    """Validates that no primary predictors contain NaN values.
+    
+    Args:
+        df: DataFrame containing the computed descriptors.
+        
+    Raises:
+        ValueError: If any of the primary predictor columns contain NaN values.
+    """
+    required_columns = ['mean_atomic_radius', 'electronegativity_std', 'valence_electron_concentration']
+    
+    # Check which columns are missing or contain NaN
+    missing_cols = []
+    for col in required_columns:
+        if col not in df.columns:
+            missing_cols.append(col)
+        elif df[col].isnull().any():
+            missing_cols.append(col)
 
-  if missing_cols:
-    raise ValueError(f"Missing values in primary predictors: {missing_cols}")
-
-
+    if missing_cols:
+        raise ValueError(f"Missing values in primary predictors: {missing_cols}")
+    
+    logger.info("Validation passed: No missing values in primary predictors.")
 
 def main():
     """Main function to demonstrate the data cleaning process."""
@@ -134,3 +189,4 @@ def main():
 
     except Exception as e:
       logger.error(f"Error during data processing: {e}")
+      raise

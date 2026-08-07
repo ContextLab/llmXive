@@ -1,24 +1,26 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Model Result Schema"
-description: "Schema for the output of the predictive modeling pipeline (US2). Defines the structure of model metrics, cross-validation results, and baseline comparisons."
+$schema: http://json-schema.org/draft-07/schema#
+title: ModelResult
+description: >-
+  Schema for the output of the predictive modeling pipeline (US2).
+  Captures model performance metrics, hyperparameters, and stratification details.
 type: object
 required:
   - model_type
   - metrics
-  - cross_validation
+  - stratification_info
   - timestamp
   - data_version
 properties:
   model_type:
     type: string
-    description: "Type of model (e.g., 'RandomForest', 'GradientBoosting')"
+    description: Type of model trained (e.g., "RandomForest", "GradientBoosting").
     enum:
       - RandomForest
       - GradientBoosting
       - Baseline
   metrics:
     type: object
-    description: "Primary performance metrics on the test set"
+    description: Performance metrics calculated on the validation set.
     required:
       - mae
       - r2
@@ -26,90 +28,69 @@ properties:
     properties:
       mae:
         type: number
-        description: "Mean Absolute Error"
+        description: Mean Absolute Error.
       r2:
         type: number
-        description: "Coefficient of Determination (R-squared)"
+        description: R-squared (coefficient of determination).
       rmse:
         type: number
-        description: "Root Mean Squared Error"
-      mape:
-        type: number
-        description: "Mean Absolute Percentage Error (optional)"
-  cross_validation:
-    type: object
-    description: "Cross-validation results"
-    required:
-      - mean_score
-      - std_score
-      - scores
-    properties:
-      mean_score:
-        type: number
-        description: "Mean R2 score across folds"
-      std_score:
-        type: number
-        description: "Standard deviation of R2 scores"
-      scores:
+        description: Root Mean Squared Error.
+      cv_scores:
         type: array
-        description: "Individual R2 scores for each fold"
+        description: List of scores from cross-validation folds.
         items:
           type: number
-      fold_count:
-        type: integer
-        description: "Number of CV folds used"
-  baseline_comparison:
+        nullable: true
+      cv_mean:
+        type: number
+        description: Mean of cross-validation scores.
+        nullable: true
+      cv_std:
+        type: number
+        description: Standard deviation of cross-validation scores.
+        nullable: true
+  stratification_info:
     type: object
-    description: "Comparison against the global mean baseline"
+    description: Details about the stratification used during splitting.
     required:
-      - baseline_mae
-      - model_mae
-      - improvement_percent
+      - strategy
+      - base_column
     properties:
-      baseline_mae:
-        type: number
-        description: "MAE of the global mean baseline predictor"
-      model_mae:
-        type: number
-        description: "MAE of the trained model"
-      improvement_percent:
-        type: number
-        description: "Percentage improvement over baseline"
-  stratification_report:
-    type: object
-    description: "Details of the stratified split used"
-    required:
-      - train_size
-      - test_size
-      - groups
-    properties:
-      train_size:
+      strategy:
+        type: string
+        description: Strategy used (e.g., "kfold", "holdout").
+      base_column:
+        type: string
+        description: Column used for stratification (e.g., "primary_anion_cation_group").
+      folds:
         type: integer
-        description: "Number of samples in training set"
-      test_size:
-        type: integer
-        description: "Number of samples in test set"
-      groups:
+        description: Number of folds if k-fold was used.
+        nullable: true
+      distribution:
         type: object
-        description: "Distribution of primary_anion_cation_group in train/test"
+        description: Distribution of classes in the target variable before split.
         additionalProperties:
-          type: object
-          properties:
-            train_count:
-              type: integer
-            test_count:
-              type: integer
+          type: integer
+        nullable: true
   hyperparameters:
     type: object
-    description: "Best hyperparameters found during tuning"
+    description: Final hyperparameters used for the trained model.
     additionalProperties: true
   timestamp:
     type: string
     format: date-time
-    description: "ISO 8601 timestamp of when the model was evaluated"
+    description: ISO 8601 timestamp of when the model was trained.
   data_version:
     type: string
-    description: "Version hash of the input data used for training"
-  pipeline_version:
+    description: Hash or version identifier of the input dataset used.
+  feature_names:
+    type: array
+    description: List of feature names used in the model.
+    items:
+      type: string
+    nullable: true
+  best_params_source:
     type: string
-    description: "Version of the modeling pipeline code"
+    description: Source of the best parameters (e.g., "grid_search", "manual", "default").
+    nullable: true
+additionalProperties: false

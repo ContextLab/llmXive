@@ -1,108 +1,123 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "CharacterAxis"
-description: |
-  JSON Schema for defining Character Psychological Axes in the ArcANE framework.
-  Defines the structure for both Coarse (broad traits) and Fine (nuanced behavioral) axes.
-type: "object"
+title: CharacterAxis
+description: >
+  JSON Schema for defining CharacterAxis specifications, including
+  distinct Coarse and Fine psychological axes for character analysis.
+type: object
 required:
   - character_name
   - coarse_axis
   - fine_axis
-  - metadata
+  - source_text_segment
+  - validation_metrics
+  - created_at
 properties:
   character_name:
-    type: "string"
-    description: "The name of the character being analyzed."
+    type: string
+    description: The name of the character being analyzed.
     minLength: 1
+    pattern: "^[A-Za-z0-9_\\- ]+$"
+  
   coarse_axis:
-    type: "object"
-    description: |
-      Broad psychological dimensions (e.g., Introversion/Extraversion, Moral Alignment).
-      Must be distinct from the fine axis.
+    type: object
+    description: >
+      Coarse psychological axis: Broad, high-level psychological trait or dimension
+      (e.g., "Extraversion vs. Introversion", "Aggression vs. Pacifism").
     required:
-      - name
       - definition
-      - scale_min
-      - scale_max
-      - description
+      - labels
     properties:
-      name:
-        type: "string"
-        description: "Short identifier for the axis (e.g., 'Aggression_Level')."
       definition:
-        type: "string"
-        description: "High-level definition of the psychological dimension."
-      scale_min:
-        type: "number"
-        description: "Lower bound of the measurement scale."
-      scale_max:
-        type: "number"
-        description: "Upper bound of the measurement scale."
-      description:
-        type: "string"
-        description: "Detailed explanation of what the axis measures."
+        type: string
+        description: A clear, concise definition of the coarse axis.
+        minLength: 10
+      labels:
+        type: array
+        description: The two opposing ends of the coarse axis.
+        minItems: 2
+        maxItems: 2
+        items:
+          type: string
+          minLength: 1
+  
   fine_axis:
-    type: "object"
-    description: |
-      Nuanced, specific behavioral tendencies derived from independent narrative observations.
-      Must be semantically distinct from the coarse axis.
+    type: object
+    description: >
+      Fine psychological axis: A more granular, nuanced dimension derived from
+      specific narrative observations, independent of the coarse axis.
     required:
-      - name
       - definition
-      - scale_min
-      - scale_max
-      - description
-      - source_observation_id
+      - labels
+      - source_observation
     properties:
-      name:
-        type: "string"
-        description: "Short identifier for the fine-grained axis."
       definition:
-        type: "string"
-        description: "Specific definition of the behavioral tendency."
-      scale_min:
-        type: "number"
-        description: "Lower bound of the measurement scale."
-      scale_max:
-        type: "number"
-        description: "Upper bound of the measurement scale."
-      description:
-        type: "string"
-        description: "Detailed explanation of the nuance captured by this axis."
-      source_observation_id:
-        type: "string"
-        description: "Reference to the specific narrative segment or observation ID that generated this axis."
-  metadata:
-    type: "object"
-    description: "Additional validation and provenance data."
+        type: string
+        description: A detailed definition of the fine axis.
+        minLength: 10
+      labels:
+        type: array
+        description: The two opposing ends of the fine axis.
+        minItems: 2
+        maxItems: 2
+        items:
+          type: string
+          minLength: 1
+      source_observation:
+        type: string
+        description: >
+          The specific narrative observation or text segment from which this
+          fine axis was derived. Used to verify independence.
+        minLength: 1
+  
+  source_text_segment:
+    type: string
+    description: >
+      The original text segment from the narrative used to validate the
+      independence of the fine axis.
+    minLength: 1
+  
+  validation_metrics:
+    type: object
+    description: >
+      Metrics resulting from the validation process (lexical overlap, semantic similarity).
     required:
-      - created_at
-      - validation_status
       - lexical_overlap_score
-      - semantic_distance_score
+      - semantic_similarity_score
+      - is_valid
     properties:
-      created_at:
-        type: "string"
-        format: "date-time"
-        description: "ISO 8601 timestamp of creation."
-      validation_status:
-        type: "string"
-        enum:
-          - "pending"
-          - "passed"
-          - "failed"
-        description: "Result of the semantic overlap validation."
       lexical_overlap_score:
-        type: "number"
+        type: number
+        description: >
+          Lexical overlap score between coarse and fine axis definitions.
+          Must be <= 0.4 to pass validation.
         minimum: 0.0
         maximum: 1.0
-        description: "Calculated lexical overlap between coarse and fine definitions."
-      semantic_distance_score:
-        type: "number"
-        minimum: 0.0
-        maximum: 2.0
-        description: "Calculated cosine distance between coarse and fine embeddings."
+      semantic_similarity_score:
+        type: number
+        description: >
+          Cosine similarity score between coarse and fine axis embeddings.
+          Must be < 0.3 to pass validation.
+        minimum: -1.0
+        maximum: 1.0
+      is_valid:
+        type: boolean
+        description: True if all validation constraints are satisfied.
+      validation_message:
+        type: string
+        description: Human-readable message explaining the validation result.
+  
+  created_at:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp of when the axis definition was created.
+  
+  metadata:
+    type: object
+    description: Optional metadata for the axis definition.
+    properties:
+      generator_version:
+        type: string
+      model_used:
+        type: string
       notes:
-        type: "string"
-        description: "Optional notes regarding the axis generation or validation."
-additionalProperties: false
+        type: string

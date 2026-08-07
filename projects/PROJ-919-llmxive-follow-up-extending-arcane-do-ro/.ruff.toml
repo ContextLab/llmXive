@@ -1,0 +1,13 @@
+# Explicit ruff configuration file for IDE integration
+# Extends the settings in pyproject.toml
+
+extend = "pyproject.toml"
+line-length = 100
+target-version = "py311"
+
+[lint]
+select = ["E", "W", "F", "I", "C", "B", "UP"]
+ignore = ["E501"]
+
+[lint.isort]
+known-first-party = ["src", "tests"]

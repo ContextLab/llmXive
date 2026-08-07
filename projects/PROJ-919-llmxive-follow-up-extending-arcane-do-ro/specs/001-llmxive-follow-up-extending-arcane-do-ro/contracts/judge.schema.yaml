@@ -1,0 +1,31 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: JudgeEvaluationResult
+description: Schema for the output of the Judge Service evaluation.
+type: object
+required:
+  - score
+  - adherence_flag
+  - details
+properties:
+  score:
+    type: integer
+    minimum: 1
+    maximum: 5
+    description: Likert scale score from the judge.
+  adherence_flag:
+    type: boolean
+    description: True if the response adheres to the target phase semantics.
+  details:
+    type: object
+    properties:
+      sentiment_score:
+        type: number
+        description: VADER compound sentiment score.
+      coherence_score:
+        type: number
+        description: Semantic coherence score (0-1).
+      error:
+        type: string
+        description: Error message if evaluation failed.
+    required: []
+additionalProperties: false

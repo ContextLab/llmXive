@@ -1,45 +1,3 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory listings or file contents were provided showing that `src/`, `tests/`,
-    `data/`, and `specs/001-gene-regulation/` actually exist in the repository. Without
-    concrete evidence of these folders (and any files within them), the claim that
-    the required project structure has been created cannot be verified. The implementer
-    must add the missing directory structure (and optionally placeholder files) to
-    satisfy the task.
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No linting or formatting configuration files (e.g., `pyproject.toml` with ruff/black
-    settings, `.ruff.toml`, or a `requirements-dev.txt` including these tools) were
-    provided, nor any documentation or scripts showing they have been set up and integrated
-    into the project. The required artifacts are missing.
-T004:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required directories (`data/raw/`, `data/derived/`, `data/gold_standard/`,
-    `artifacts/`) is provided; the claim lacks any artifact listing or screenshots
-    confirming their existence or contents.
-T008:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, configuration, or documentation was provided that creates or demonstrates\
-    \ logging of experiment run IDs, timestamps, and parameter hashes. The evidence\
-    \ consists only of a high\u2011level feature specification unrelated to state\u2011\
-    tracking, so the required artifact is missing."
-T009a:
-  c: false
-  h: 45892bc3b9ad00ffd526d136044dd4654f39475ddf7ce3f5aafc380c047debd0
-  r: "The `human_annotations.json` file exists and contains the required fields, but\
-    \ the referenced `calibration.schema.yaml` is missing, so compliance cannot be\
-    \ verified, and no SHA\u2011256 checksum or project\u2011state entry is provided.\
-    \ Both the schema validation and checksum recording are absent."
-T010:
-  c: false
-  h: a171dffefa1639578c25955eede05a554655c7128e206e9072477adfaba5187e
-  r: "The required file `specs/001-gene-regulation/contracts/axis.schema.yaml` (or\
-    \ `schema.yaml`) does not exist, so no JSON schema for `CharacterAxis` (Coarse/Fine)\
-    \ is provided. The task\u2019s primary artifact is missing."
 T016:
   c: false
   h: a171dffefa1639578c25955eede05a554655c7128e206e9072477adfaba5187e
@@ -47,3 +5,11 @@ T016:
     any `schema.yaml` defining the Probe JSON schema) is missing, so no schema was
     provided to satisfy the task. The implementer must create the specified schema
     file with the appropriate JSON schema content.
+T021:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration, or log files implementing the \u201CGeneration Limit\
+    \ Exceeded\u201D error handling were provided. Consequently we cannot confirm\
+    \ that an error is logged and that the system proceeds when \u2265\u202F50 valid\
+    \ probes exist, as required by the task. The missing implementation must be added\
+    \ and demonstrated."

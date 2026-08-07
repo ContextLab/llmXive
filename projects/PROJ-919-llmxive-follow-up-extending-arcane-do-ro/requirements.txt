@@ -8,4 +8,9 @@ numpy
 tiktoken
 hypothesis
 pytest
+vaderSentiment
 sentence-transformers
+pyyaml
+ruff
+black
+jsonschema

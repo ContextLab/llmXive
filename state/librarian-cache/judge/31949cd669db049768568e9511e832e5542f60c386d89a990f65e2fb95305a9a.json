@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1804.08615",
+  "judged_at": "2026-08-07T12:57:19Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "investigating correlations between molecular descriptors and drug-likeness scores chemistry",
+  "rationale": "This paper directly addresses the user's question by investigating the relationship between molecular descriptors and a key aspect of drug-likeness (bioactivity) using QSAR modeling, which satisfies criterion (a) for measuring the same biological/chemical mechanism and criterion (b) for analyzing the specific independent (descriptors) and dependent (bioactivity/drug-likeness) variables in the same domain.",
+  "relevant": true
+}

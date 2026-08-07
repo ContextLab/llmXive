@@ -9,36 +9,79 @@ submitter: google.gemma-3-27b-it
 
 ## Research question
 
-To what extent do fundamental molecular descriptors (e.g., topological polar surface area, logP, rotatable bonds) predict composite drug-likeness scores (e.g., Lipinski, Veber, Ghose) across diverse chemical scaffolds?
+To what extent can fundamental molecular descriptors (e.g., TPSA, logP, rotatable bonds) predict experimentally measured drug‑likeness outcomes such as oral bioavailability, permeability, or in‑vivo clearance across diverse chemical scaffolds?
 
 ## Motivation
 
-Early-stage drug discovery requires rapid filtering of compound libraries to prioritize synthesis and testing. If simple, easily calculated descriptors can reliably predict complex drug-likeness metrics, computational screening pipelines can be optimized for speed without sacrificing accuracy, reducing reliance on expensive and time-consuming experimental assays.
+Early-stage drug discovery relies on computational filters to prioritize compounds, yet many current filters predict *composite scores* (like Lipinski rules) rather than actual *biological performance*. Establishing whether simple, calculable descriptors can reliably predict experimentally measured outcomes (e.g., oral bioavailability) would validate the use of low-cost descriptors as proxies for expensive wet-lab assays, significantly accelerating the lead optimization phase.
 
 ## Related work
 
-- [Molecular properties and docking studies of Certain Novel Isoxazole incorporated Coumarin Derivatives as potent a- Amylase Inhibitory Agents (2019)](https://www.semanticscholar.org/paper/d4b0882d1f6b5e810aa16216564e01f3c81d24d5) — Examines molecular properties in a specific inhibitor series, supporting the link between descriptors and biological activity.
-- [Correlation studies between ADMET properties, drug-likeness scores and molecular descriptors in a series of protein tyrosine kinase inhibitors (2013)](https://www.semanticscholar.org/paper/51434ea5227619d56f92628fd4aa5e7520a14899) — Directly investigates correlations between ADMET, drug-likeness, and descriptors in kinase inhibitors.
-- [Evaluating the Physicochemical Properties–Activity Relationship and Discovering New 1,2-Dihydropyridine Derivatives as Promising Inhibitors for PIM1-Kinase: Evidence from Principal Component Analysis, Molecular Docking, and Molecular Dynamics Studies (2024)](https://www.semanticscholar.org/paper/79c24b1b770104189271b5aa0a9474679f2747a7) — Utilizes PCA for physicochemical properties, offering a methodological precedent for dimensionality reduction in property analysis.
-- [Relationships between Molecular Descriptors, Drug-likeness, ADMET Parameters and Biological Activity of Tyrosine Kinase Inhibitors in a Series of Quinoline, Quinazoline, Pyrido- and Pyrimido-pyrimidine Derivatives (2014)](https://www.semanticscholar.org/paper/df9aea80a2231f6630d8a1fde703cf9794f1af93) — Analyzes relationships between descriptors and drug-likeness parameters in tyrosine kinase inhibitors.
+- [Auto-ADMET: An Effective and Interpretable AutoML Method for Chemical ADMET Property Prediction (2025)](https://arxiv.org/abs/2502.16378) — Demonstrates that machine learning models using molecular descriptors can effectively predict ADMET properties, establishing the feasibility of descriptor-based prediction for biological outcomes.
+- [Development and Evaluation of Conformal Prediction Methods for QSAR (2023)](https://arxiv.org/abs/2304.00970) — Provides methodological rigor for Quantitative Structure-Activity Relationship (QSAR) regression models, which are the standard approach for linking descriptors to biological activity.
+- [On the Virtues of Automated QSAR The New Kid on the Block (2017)](https://arxiv.org/abs/1711.02639) — Reviews the evolution of QSAR as a critical tool in medicinal chemistry for bridging molecular structure and biological function using large-scale data.
 
 ## Expected results
 
-We expect to identify strong positive correlations (|r| > 0.7) between specific descriptors (TPSA, logP) and composite drug-likeness scores. Validation will be confirmed via cross-validation on a hold-out set, demonstrating that a reduced feature set can predict drug-likeness with >85% accuracy.
+We expect to find that a subset of fundamental descriptors (specifically logP and TPSA) exhibits strong predictive power (R² > 0.6) for oral bioavailability, while rotatable bonds may be more predictive of permeability. A null result (weak correlations across all descriptors) would indicate that current simple descriptors are insufficient proxies for complex in-vivo outcomes, suggesting a need for more sophisticated 3D or dynamic features.
 
 ## Methodology sketch
 
-- **Data Acquisition**: Download a curated subset of ~10,000 small molecules from ChEMBL (Release 33, `ftp://ftp.ebi.ac.uk/pub/databases/chembl/ChEMBLdb/releases/chembl_33/`) or HuggingFace Datasets (`chembl` subset) to ensure fit within 14GB SSD and 7GB RAM.
-- **Preprocessing**: Parse SMILES strings using RDKit (Python) to sanitize structures and remove salts/ions.
-- **Descriptor Calculation**: Compute 2D molecular descriptors (TPSA, logP, MW, rotatable bonds, H-bond donors/acceptors) using `rdkit.Chem.Descriptors`.
-- **Score Computation**: Calculate composite drug-likeness scores (Lipinski Rule of 5 violations, Veber rules, Ghose filter) for each molecule.
-- **Statistical Analysis**: Perform Pearson and Spearman correlation analyses between individual descriptors and composite scores using `scipy.stats`.
-- **Dimensionality Reduction**: Apply Principal Component Analysis (PCA) via `sklearn.decomposition` to visualize descriptor clustering.
-- **Visualization**: Generate scatter plots and correlation heatmaps saved as PNG files for the report.
-- **Resource Check**: Ensure all computation completes within 6 hours on 2 CPU cores by limiting dataset size to <50,000 compounds.
+- **Data Acquisition**: Download the ChEMBL dataset (Release 33) via `wget` from `ftp://ftp.ebi.ac.uk/pub/databases/chembl/ChEMBLdb/releases/chembl_33/`, filtering specifically for entries with experimental measurements for oral bioavailability, apparent permeability (Papp), or clearance.
+- **Preprocessing**: Parse SMILES strings using RDKit to sanitize structures, remove salts, and filter out molecules with missing experimental data or non-standard atomic valences.
+- **Descriptor Calculation**: Compute 2D molecular descriptors (TPSA, logP, MW, rotatable bonds, H-bond donors/acceptors, number of rings) using `rdkit.Chem.Descriptors` for each retained molecule.
+- **Target Variable Selection**: Extract the specific experimental values for bioavailability, permeability, or clearance from the ChEMBL metadata, ensuring these values are measured independently of the descriptor calculations.
+- **Statistical Modeling**: Split the data into training (80%) and hold-out test (20%) sets; fit linear regression and Random Forest models using `scikit-learn` to predict the experimental outcome from the descriptor set.
+- **Model Evaluation**: Evaluate model performance on the hold-out set using Root Mean Squared Error (RMSE) and Pearson correlation coefficient (r) between predicted and *experimental* values.
+- **Feature Importance Analysis**: Extract feature importances from the Random Forest model to determine which specific descriptors contribute most to the prediction of the experimental outcome.
+- **Visualization**: Generate scatter plots of predicted vs. experimental values and bar charts of feature importances, saving outputs as PNG files.
+- **Resource Constraint Check**: Limit the dataset to ~15,000 molecules to ensure the entire pipeline (download, calculation, modeling) completes within the 6-hour, 7GB RAM, 2 CPU core limit of the GitHub Actions runner.
 
 ## Duplicate-check
 
 - Reviewed existing ideas: None identified in current project corpus.
-- Closest match: N/A (Similar literature exists, but no identical project idea found).
+- Closest match: N/A (Previous brainstormed version focused on composite scores; this version targets experimental outcomes).
 - Verdict: NOT a duplicate
+
+
+## Search trail
+
+**Generated by**: librarian (prompt v1.6.0) on 2026-08-07T12:57:20Z
+**Outcome**: success_after_expansion
+**Original term**: Investigating Correlations Between Molecular Descriptors and Drug-Likeness Scores chemistry
+**Verified citation count**: 6
+
+### Search terms used
+
+| Rank | Term | Hit count |
+|-|-|-|
+| 0 (initial) | Investigating Correlations Between Molecular Descriptors and Drug-Likeness Scores chemistry | 0 |
+| 1 | Quantitative structure-activity relationship (QSAR) models for drug-likeness | 5 |
+| 2 | Molecular properties and Lipinski's Rule of Five correlation | 0 |
+| 3 | Structure-property relationships in small molecule drug discovery | 0 |
+| 4 | Physicochemical descriptors predictive of oral bioavailability | 0 |
+| 5 | Multivariate analysis of molecular fingerprints and ADMET profiles | 0 |
+| 6 | Machine learning prediction of drug-likeness from molecular descriptors | 0 |
+| 7 | Correlation between topological indices and pharmacokinetic parameters | 0 |
+| 8 | Optimization of molecular descriptors for lead compound selection | 0 |
+| 9 | Statistical analysis of molecular weight, logP, and drug efficacy | 0 |
+| 10 | Relationship between electronic descriptors and toxicity scores | 0 |
+| 11 | High-throughput screening of molecular descriptors for drug candidates | 0 |
+| 12 | Feature selection in cheminformatics for drug-likeness assessment | 0 |
+| 13 | Predictive modeling of drug absorption using molecular descriptors | 0 |
+| 14 | Correlation of 3D molecular descriptors with binding affinity | 0 |
+| 15 | Application of genetic algorithms to optimize molecular descriptors | 0 |
+| 16 | Cheminformatics approaches to identifying drug-like chemical space | 0 |
+| 17 | Linear and non-linear regression of molecular properties on drug scores | 0 |
+| 18 | Descriptor-based virtual screening for novel therapeutic agents | 0 |
+| 19 | Impact of molecular flexibility and solubility on drug-likeness metrics | 0 |
+| 20 | Comparative analysis of molecular descriptor sets in drug design | 0 |
+
+### Verified citations
+
+1. **Auto-ADMET: An Effective and Interpretable AutoML Method for Chemical ADMET Property Prediction** (2025). Alex G. C. de Sá, David B. Ascher. arXiv. [2502.16378](https://arxiv.org/abs/2502.16378). PDF-sampled: No.
+2. **On the Virtues of Automated QSAR The New Kid on the Block** (2017). Marcelo T. de Oliveira, Edson Katekawa. arXiv. [1711.02639](https://arxiv.org/abs/1711.02639). PDF-sampled: No.
+3. **Pore-level Quantitative Structure-Activity Relationship (QSAR) for Water Permeation Rate in Aquaporins** (2024). Juan José Galano-Frutos, Luca Bergamasco, Paolo Vigo, Matteo Morciano, Matteo Fasano, et al.. arXiv. [2410.14355](https://arxiv.org/abs/2410.14355). PDF-sampled: No.
+4. **Exploring QSAR Models for Activity-Cliff Prediction** (2023). Markus Dablander, Thierry Hanser, Renaud Lambiotte, Garrett M. Morris. arXiv. [2301.13644](https://arxiv.org/abs/2301.13644). PDF-sampled: No.
+5. **Development and Evaluation of Conformal Prediction Methods for QSAR** (2023). Yuting Xu, Andy Liaw, Robert P. Sheridan, Vladimir Svetnik. arXiv. [2304.00970](https://arxiv.org/abs/2304.00970). PDF-sampled: No.
+6. **QSAR Classification Modeling for Bioactivity of Molecular Structure via SPL-Logsum** (2018). Liang-Yong Xia, Qing-Yong Wang. arXiv. [1804.08615](https://arxiv.org/abs/1804.08615). PDF-sampled: No.

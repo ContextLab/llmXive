@@ -1,73 +1,65 @@
-"""
-Script to initialize the llmXive project directory structure.
-Creates all required directories for src, tests, data, and specs as per the implementation plan.
-"""
 import os
 from pathlib import Path
+import sys
 
 def setup_directories():
     """
-    Creates the full project directory structure required for llmXive.
-    Includes src, tests, data (with subdirs), and specs.
-    """
-    root = Path(".")
+    Creates the required project directory structure as per the implementation plan.
+    This satisfies Task T001: Create project structure per implementation plan.
     
-    # Define all required directories
+    Required directories:
+    - src/ (source code)
+    - tests/ (unit and integration tests)
+    - data/ (raw, derived, gold_standard, artifacts)
+    - specs/001-gene-regulation/ (design documents and contracts)
+    """
+    base_dir = Path(__file__).parent.parent
+    
+    # Define the directory structure relative to the project root
     directories = [
-        # Source code
-        "code/src",
-        "code/src/lib",
-        "code/src/services",
-        "code/src/cli",
-        "code/src/models",
-        "code/src/analysis",
-        
-        # Tests
-        "code/tests",
-        "code/tests/unit",
-        "code/tests/integration",
-        
-        # Data directories (Phase 2 prerequisites)
-        "code/data/raw",
-        "code/data/derived",
-        "code/data/gold_standard",
-        "code/artifacts",
-        
-        # Specifications
-        "code/specs/001-gene-regulation",
-        "code/specs/001-gene-regulation/contracts",
+        "src",
+        "src/lib",
+        "src/services",
+        "src/cli",
+        "src/models",
+        "src/analysis",
+        "tests",
+        "tests/unit",
+        "tests/integration",
+        "data",
+        "data/raw",
+        "data/derived",
+        "data/gold_standard",
+        "artifacts",
+        "specs",
+        "specs/001-gene-regulation",
+        "specs/001-gene-regulation/contracts",
     ]
     
     created_count = 0
+    existing_count = 0
+    
+    print(f"Setting up project structure in: {base_dir}")
+    
     for dir_path in directories:
-        full_path = root / dir_path
+        full_path = base_dir / dir_path
         if not full_path.exists():
             full_path.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {full_path}")
+            print(f"  Created: {dir_path}")
             created_count += 1
         else:
-            print(f"Directory exists: {full_path}")
+            # Check if it's a directory
+            if full_path.is_dir():
+                existing_count += 1
+            else:
+                # It's a file with the same name, which is an error
+                print(f"  ERROR: Path exists but is not a directory: {dir_path}")
+                sys.exit(1)
     
-    # Create placeholder __init__.py files to make them Python packages
-    init_files = [
-        "code/src/__init__.py",
-        "code/src/lib/__init__.py",
-        "code/src/services/__init__.py",
-        "code/src/cli/__init__.py",
-        "code/src/models/__init__.py",
-        "code/src/analysis/__init__.py",
-        "code/tests/__init__.py",
-        "code/tests/unit/__init__.py",
-        "code/tests/integration/__init__.py",
-    ]
+    print(f"\nProject structure setup complete.")
+    print(f"  Created: {created_count} directories")
+    print(f"  Existing: {existing_count} directories")
     
-    for init_file in init_files:
-        full_path = root / init_file
-        if not full_path.exists():
-            full_path.touch()
-            print(f"Created package init: {full_path}")
-    
-    print(f"\nSetup complete. Created {created_count} new directories.")
     return True
 
 if __name__ == "__main__":

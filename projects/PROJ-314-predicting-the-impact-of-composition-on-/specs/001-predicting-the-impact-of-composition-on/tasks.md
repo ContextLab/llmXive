@@ -99,16 +99,16 @@
  3. Impute missing processing params (group median -> global median).
  4. Handle non-stoichiometric phases: **Exclude** if the specific class has < 5 samples; otherwise, impute using global median.
  5. **Output Schema**: Ensure output CSV contains columns: `composition`, `weibull_modulus`, `sample_count`, `is_range_flag`, `range_original`, `primary_anion_cation_group` (derived grouping feature, not elemental descriptor), `sintering_temp`, `is_imputed`. (Descriptors like `mean_atomic_radius` are populated by T019).
-- [ ] T018b [US1] Implement `compute_range_uncertainty()` in `code/descriptors.py`:
+- [X] T018b [US1] Implement `compute_range_uncertainty()` in `code/descriptors.py`:
  1. Extract midpoint from `range_original` if `is_range_flag` is true.
  2. Calculate `range_uncertainty` as (max - min) / 2.
  3. Add `range_uncertainty` column to the dataset. (Addresses Plan Phase 1, Task 1.4)
-- [ ] T019 [US1] Implement `compute_descriptors()` in `code/descriptors.py`:
+- [X] T019 [US1] Implement `compute_descriptors()` in `code/descriptors.py`:
  1. Calculate mean atomic radius and electronegativity std.
  2. Calculate Cation Size Variance.
  3. **Explicitly Calculate Valence Electron Concentration (VEC)** as: `sum(valence electrons of all atoms) / total number of atoms in formula unit` (FR-002).
-- [ ] T020 [US1] Implement `validate_no_missing_primary_predictors()` in `code/ingestion.py` that raises `ValueError` with message "Missing values in primary predictors: {col_names}" if any primary predictor column (mean_atomic_radius, electronegativity_std, valence_electron_concentration) contains NaN, and add unit test `tests/test_ingestion.py::test_validate_no_missing`.
-- [ ] T021 [US1] Implement logging for data exclusion reasons in `code/ingestion.py`: Log format `INFO: Excluded row {row_index} due to {reason}` where `{row_index}` is the pandas index and `{reason}` is one of: 'N<30', 'missing_stoichiometry', 'non_stoichiometric_phase'. Log to `logs/ingestion.log`.
+- [X] T020 [US1] Implement `validate_no_missing_primary_predictors()` in `code/ingestion.py` that raises `ValueError` with message "Missing values in primary predictors: {col_names}" if any primary predictor column (mean_atomic_radius, electronegativity_std, valence_electron_concentration) contains NaN, and add unit test `tests/test_ingestion.py::test_validate_no_missing`.
+- [X] T021 [US1] Implement logging for data exclusion reasons in `code/ingestion.py`: Log format `INFO: Excluded row {row_index} due to {reason}` where `{row_index}` is the pandas index and `{reason}` is one of: 'N<30', 'missing_stoichiometry', 'non_stoichiometric_phase'. Log to `logs/ingestion.log`.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -139,7 +139,7 @@
  3. **Logic**: Calculate performance drop = (Original MAE - New MAE) / Original MAE. Retrieve `Original MAE` from `data/results/model_metrics.json` (key: `best_model_mae`).
  4. **Mandatory Output**: If performance drop < 10% (i.e., MAE increases by less than 10%), write a "Potential Leakage" warning to `data/results/leakage_report.json` (FR-005.5).
 - [X] T031 [US2] Generate `data/results/model_metrics.json` with all scores and stratification reports
-- [ ] T032 [US2] Implement `filter_rare_classes()` in `code/modeling.py` to drop classes with < 5 samples before splitting, and verify via `tests/test_modeling.py::test_rare_class_exclusion`
+- [X] T032 [US2] Implement `filter_rare_classes()` in `code/modeling.py` to drop classes with < 5 samples before splitting, and verify via `tests/test_modeling.py::test_rare_class_exclusion`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -168,7 +168,7 @@
  1. Cluster features with VIF > 5 for *interpretive grouping*.
  2. **Constraint**: Suppress individual causal claims for clustered features in the final report (T040). Report aggregate importance for clusters instead to prevent invalid claims (SC-003).
  3. Do NOT suppress individual VIF scores in the diagnostic report (T037), only in the interpretive summary.
-- [ ] T038b [US3] Implement `report_cluster_importance()` in `code/report.py`: Calculate and report aggregate importance scores for correlated feature clusters identified in T038, ensuring these are used in the final ranking instead of individual features for correlated groups. (Addresses Plan Phase 3, Task 3.3)
+- [X] T038b [US3] Implement `report_cluster_importance()` in `code/report.py`: Calculate and report aggregate importance scores for correlated feature clusters identified in T038, ensuring these are used in the final ranking instead of individual features for correlated groups. (Addresses Plan Phase 3, Task 3.3)
 - [X] T039 [US3] Implement `calculate_cv_stability()` in `code/report.py`: Calculate Coefficient of Variation for top features across folds (FR-009, SC-002)
 - [X] T040 [US3] Implement `generate_interpretation()` in `code/report.py`:
  1. Rank features.
@@ -176,7 +176,7 @@
  3. Include correlation matrix between top descriptors and Weibull modulus.
  4. **Consume clustered data from T038** to suppress individual causal claims for correlated features.
 - [ ] T041 [US3] Generate SHAP summary plots and feature ranking tables: Create `data/results/shap_summary.png` and `data/results/feature_ranking_table.csv` using `shap.summary_plot` and `pandas.DataFrame.to_csv`. **Also**: Export Coefficient of Variation (CV) stability scores to `data/results/stability_metrics.json` to satisfy SC-002 evidence requirements.
-- [ ] T042 [US3] Implement disclaimer logic: Create `sanitize_conclusion(text)` function in `code/report.py` to remove 'cause' (case-insensitive, whole word) and append "These results represent statistical associations only and do not imply causal relationships." to **all text outputs** (logs, CLI, reports) as required by FR-008, and add unit test `tests/test_report.py::test_disclaimer_removal`.
+- [X] T042 [US3] Implement disclaimer logic: Create `sanitize_conclusion(text)` function in `code/report.py` to remove 'cause' (case-insensitive, whole word) and append "These results represent statistical associations only and do not imply causal relationships." to **all text outputs** (logs, CLI, reports) as required by FR-008, and add unit test `tests/test_report.py::test_disclaimer_removal`.
 
 **Checkpoint**: All user stories should now be independently functional
 

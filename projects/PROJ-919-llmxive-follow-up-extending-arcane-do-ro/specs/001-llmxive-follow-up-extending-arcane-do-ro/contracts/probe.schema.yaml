@@ -1,97 +1,84 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: Probe
-description: >
-  Schema for an "Out-of-World" probe scenario used in the ArcANE
-  gene-regulation consistency evaluation. A probe must be semantically
-  distant from the source text (cosine similarity < 0.3) and contain
-  no direct quotes or specific plot points from the original narrative.
+description: |
+  JSON Schema for an "Out-of-World" character probe.
+  A probe is a scenario prompt generated to test character consistency
+  in a context semantically distant from the source narrative.
 type: object
 required:
   - probe_id
   - character_name
-  - scenario_text
-  - generation_metadata
-  - validation_status
-  - similarity_metrics
+  - scenario_description
+  - source_axes_coarse
+  - source_axes_fine
+  - semantic_similarity_score
+  - generation_status
+  - created_at
 properties:
   probe_id:
     type: string
-    description: Unique identifier for the probe (e.g., 'probe_charX_001').
-    pattern: '^probe_[a-zA-Z0-9_]+_\d+$'
+    description: Unique identifier for the probe (e.g., UUID or hash).
+    pattern: "^[a-zA-Z0-9_-]+$"
+  
   character_name:
     type: string
-    description: Name of the character this probe targets.
+    description: Name of the character this probe is designed for.
     minLength: 1
-  scenario_text:
+  
+  scenario_description:
     type: string
-    description: The generated "Out-of-World" scenario prompt text.
-    minLength: 20
-  generation_metadata:
+    description: The full text of the "Out-of-World" scenario prompt.
+    minLength: 10
+  
+  source_axes_coarse:
+    type: array
+    description: List of coarse psychological axes used to generate this probe.
+    items:
+      type: string
+    minItems: 1
+  
+  source_axes_fine:
+    type: array
+    description: List of fine-grained psychological axes used to generate this probe.
+    items:
+      type: string
+    minItems: 1
+  
+  semantic_similarity_score:
+    type: number
+    description: |
+      Cosine similarity score between the probe text and the source narrative corpus.
+      Must be < 0.3 to be considered valid "Out-of-World".
+    minimum: 0.0
+    maximum: 1.0
+  
+  generation_status:
+    type: string
+    description: Status of the generation attempt.
+    enum:
+      - success
+      - regenerated
+      - failed_limit_exceeded
+      - failed_similarity_threshold
+  
+  similarity_check_passed:
+    type: boolean
+    description: True if semantic_similarity_score < 0.3 threshold.
+  
+  generated_at:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp of when the probe was generated.
+  
+  metadata:
     type: object
-    description: Metadata regarding how this probe was generated.
-    required:
-      - source_axes_id
-      - generation_timestamp
-      - attempt_count
-      - model_version
+    description: Additional metadata for the probe generation process.
     properties:
-      source_axes_id:
-        type: string
-        description: Reference to the character axes used for generation.
-      generation_timestamp:
-        type: string
-        format: date-time
-        description: ISO 8601 timestamp of generation.
-      attempt_count:
-        type: integer
-        description: Number of attempts made to generate a valid probe (for regeneration loops).
-        minimum: 1
       model_version:
         type: string
-        description: Version or hash of the generator model used.
-  validation_status:
-    type: string
-    description: Status of the probe validation process.
-    enum:
-      - pending
-      - valid
-      - invalid_too_similar
-      - invalid_contains_quotes
-      - invalid_redundant
-      - generation_limit_exceeded
-  similarity_metrics:
-    type: object
-    description: Quantitative metrics validating the "Out-of-World" constraint.
-    required:
-      - cosine_similarity_score
-      - lexical_overlap_score
-    properties:
-      cosine_similarity_score:
+      temperature:
         type: number
-        format: float
-        description: Cosine similarity between probe embedding and source text corpus embedding.
-        minimum: 0.0
-        maximum: 1.0
-      lexical_overlap_score:
-        type: number
-        format: float
-        description: Jaccard or overlap coefficient of n-grams with source text.
-        minimum: 0.0
-        maximum: 1.0
-      quote_check:
-        type: boolean
-        description: True if the probe was checked for direct quotes (should be false for valid probes).
-  constraints:
-    type: object
-    description: Thresholds used to validate this specific probe.
-    properties:
-      max_cosine_similarity:
-        type: number
-        default: 0.3
-      max_lexical_overlap:
-        type: number
-        default: 0.4
-      min_length_chars:
+      attempt_count:
         type: integer
-        default: 20
-additionalProperties: false
+        minimum: 1
+    additionalProperties: true

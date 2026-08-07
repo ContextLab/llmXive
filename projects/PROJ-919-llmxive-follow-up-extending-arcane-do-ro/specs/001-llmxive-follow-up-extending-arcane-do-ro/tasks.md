@@ -92,7 +92,7 @@ expected <block end>, but found ':'
 - [ ] T016 [P] [US2] Define JSON schema for `Probe` in `specs/001-gene-regulation/contracts/probe.schema.yaml`
 - [X] T017 [US2] Implement `src/services/probe_generator.py` with logic to generate novel scenarios based on character axes
 - [X] T018 [US2] Implement semantic similarity check (cosine similarity < 0.3) against source text corpus in `src/services/probe_generator.py`
-- [ ] T019 [US2] Implement regeneration loop (max reasonable attempts) with discard logic for invalid probes in `src/services/probe_generator.py`, including specific error handling: implement logic to log 'Generation Limit Exceeded' and proceed with available valid probes (if >= 50) or mark character as invalid if attempts > 150 (Edge Cases, FR-002)
+- [X] T019 [US2] Implement regeneration loop (max reasonable attempts) with discard logic for invalid probes in `src/services/probe_generator.py`, including specific error handling: implement logic to log 'Generation Limit Exceeded' and proceed with available valid probes (if >= 50) or mark character as invalid if attempts > 150 (Edge Cases, FR-002)
 - [ ] T020 [US2] Create `data/derived/probes.jsonl` writer to store validated out-of-world probes
 - [ ] T021 [US2] Implement error handling for "Generation Limit Exceeded" (log error, proceed if >= 50 valid probes)
 
@@ -108,14 +108,14 @@ expected <block end>, but found ':'
 
 ### Tests for User Story 3 (OPTIONAL) ⚠️
 
-- [ ] T022 [P] [US3] Contract test for Judge output format and clamping in `tests/unit/test_judge_clamp.py`
-- [ ] T023 [P] [US3] Integration test for full experiment flow in `tests/integration/test_experiment_flow.py`
+- [X] T022 [P] [US3] Contract test for Judge output format and clamping in `tests/unit/test_judge_clamp.py`
+- [X] T023 [P] [US3] Integration test for full experiment flow in `tests/integration/test_experiment_flow.py`
 
 ### Implementation for User Story 3
 
-- [ ] T024 [P] [US3] Implement model loading utilities in `src/models/loader.py` (CPU-quantized small language models, 4-bit)
-- [ ] T025 [US3] Implement `src/services/judge_service.py` for LLM-based consistency scoring using a standard Likert scale, with output validation, clamping, and implementation of logic to extract and return `adherence_flag` (bool) alongside the score. The `adherence_flag` MUST be determined using VADER or BERT-based sentiment/coherence analysis of the response against the target phase, NOT by keyword presence (FR-004, US-3).
-- [ ] T026 [US3] Implement rule-based scoring metric in `src/services/judge_service.py`: `calculate_rule_score(response, keywords)` returning a discrete score based on sentiment alignment and coherence (using VADER or BERT, NOT keyword presence) per FR-004 (distinct from Judge).
+- [X] T024 [P] [US3] Implement model loading utilities in `src/models/loader.py` (CPU-quantized small language models, 4-bit)
+- [X] T025 [US3] Implement `src/services/judge_service.py` for LLM-based consistency scoring using a standard Likert scale, with output validation, clamping, and implementation of logic to extract and return `adherence_flag` (bool) alongside the score. The `adherence_flag` MUST be determined using VADER or BERT-based sentiment/coherence analysis of the response against the target phase, NOT by keyword presence (FR-004, US-3).
+- [X] T026 [US3] Implement rule-based scoring metric in `src/services/judge_service.py`: `calculate_rule_score(response, keywords)` returning a discrete score based on sentiment alignment and coherence (using VADER or BERT, NOT keyword presence) per FR-004 (distinct from Judge).
 - [ ] T026a [US3] Implement `aggregate_consistency_scores` in `src/analysis/stats_engine.py` to combine the Judge score (T025) and rule-based score (T026) into a single 'Consistency Score' artifact and write it to `data/derived/results.jsonl` (FR-005, SC-001).
 - [ ] T027 [US3] Implement Judge Calibration step in `src/services/judge_service.py` (Kappa > 0.6 against `data/gold_standard/human_annotations.json`) AND implement `validate_against_gold_standard(results, gold_data)` in `src/analysis/stats_engine.py` to compute correlation/error metrics against `data/gold_standard/human_annotations.json` and validate consistency scores against the external Gold Standard dataset (FR-006)
 - [ ] T028 [US3] Implement `src/services/experiment_runner.py` to run target model under Coarse, Fine, and Hybrid conditions

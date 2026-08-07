@@ -13,18 +13,18 @@ The researcher MUST be able to download molecular dynamics (MD) snapshots of dis
 
 **Why this priority**: This is the foundational step. Without a correctly constructed graph derived from the raw atomic coordinates, no subsequent analysis of topology or correlation with thermal conductivity can occur. It defines the "predictor" variables for the entire study.
 
-**Independent Test**: The system can be tested by running the ingestion script on a known small subset of the dataset and verifying that the resulting NetworkX graph object contains the expected number of nodes and edges, and that edge weights (if used) correctly reflect species mismatch.
+**Independent Test**: The system can be tested by running the ingestion script on a known small subset of the dataset and verifying that the resulting NetworkX graph object contains the expected number of nodes and edges, and that edges exist ONLY between mismatched species pairs.
 
 **Acceptance Scenarios**:
 
-1. **Given** a valid MD snapshot file from the OpenKim or Materials Cloud repository containing atomic positions and species for a Cu-Ni alloy, **When** the ingestion script is executed, **Then** a NetworkX graph object is generated where nodes correspond to atomic indices and edges exist only between nearest neighbors with different species.
+1. **Given** a valid MD snapshot file from the OpenKim or Materials Cloud repository containing atomic positions and species for a Cu-Ni alloy, **When** the ingestion script is executed, **Then** a NetworkX graph object is generated where nodes correspond to atomic indices and edges exist ONLY between nearest neighbors with different species.
 2. **Given** a snapshot file with missing metadata or corrupted coordinate data, **When** the ingestion script is executed, **Then** the system halts with a descriptive error message identifying the specific file and the nature of the data failure, preventing silent corruption of the analysis pipeline.
 
 ---
 
 ### User Story 2 - Topological Metric Extraction (Priority: P2)
 
-The researcher MUST be able to compute a vector of network descriptors (clustering coefficient, average path length, degree distribution moments, percolation threshold) for each constructed defect network.
+The researcher MUST be able to compute a vector of network descriptors (clustering coefficient, mean degree, degree distribution moments (mean, variance), percolation threshold) for each constructed defect network.
 
 **Why this priority**: This step transforms the raw graph into the quantitative features required for statistical analysis. It is the core "feature engineering" phase that enables the research question to be tested.
 
@@ -32,8 +32,8 @@ The researcher MUST be able to compute a vector of network descriptors (clusteri
 
 **Acceptance Scenarios**:
 
-1. **Given** a constructed defect graph for a specific alloy snapshot, **When** the metric extraction module runs, **Then** it outputs a structured record containing the clustering coefficient (C), average path length (L), and percolation threshold (p_c) as floating-point numbers.
-2. **Given** a graph that is disconnected (multiple components), **When** the average path length is calculated, **Then** the system calculates the metric only over the largest connected component (or reports NaN with a warning) to ensure mathematical validity, rather than failing or returning infinity.
+1. **Given** a constructed defect graph for a specific alloy snapshot, **When** the metric extraction module runs, **Then** it outputs a structured record containing the clustering coefficient (C), mean degree, degree distribution moments (mean, variance), and percolation threshold (p_c) as floating-point numbers.
+2. **Given** a graph that is disconnected (multiple components), **When** the percolation threshold is calculated, **Then** the system calculates the metric only over the largest connected component; if the metric remains undefined (e.g., no edges), it reports NaN with a warning to ensure mathematical validity, rather than failing or returning infinity.
 
 ---
 
@@ -56,40 +56,42 @@ The researcher MUST be able to correlate the extracted topological metrics with 
 
 - What happens if the dataset contains only a single atomic configuration (N=1)? The system must detect this and report that statistical correlation is impossible, exiting gracefully rather than attempting division by zero or returning NaN.
 - How does the system handle a dataset where the thermal conductivity metadata is missing for a specific snapshot? The system must skip that sample during correlation but log the exclusion count, ensuring the analysis proceeds on valid data without crashing.
-- What if the percolation threshold calculation fails due to numerical instability in a highly sparse graph? The system must catch the exception, assign a default "undefined" value, and flag the sample for manual review in the final report.
+- What if the percolation threshold calculation fails due to numerical instability in a highly sparse graph? The system must catch the exception, assign a default "undefined" value (NaN), and flag the sample for manual review in the final report.
 
 ## Requirements *(mandatory)*
 
 ### Functional Requirements
 
-- **FR-001**: System MUST download and parse MD snapshot files from the specified public repositories (OpenKim/Materials Cloud) for Cu-Ni and Au-Ag alloys, extracting atomic species and 3D coordinates. (See US-1)
-- **FR-002**: System MUST construct a defect network graph where nodes represent lattice sites and edges connect nearest-neighbor atoms of mismatched species, using a cutoff distance derived from the average nearest-neighbor distance in the pure crystal. (See US-1)
-- **FR-003**: System MUST compute the clustering coefficient, average path length, degree distribution moments (mean, variance), and percolation threshold for every constructed graph. (See US-2)
+- **FR-001**: System MUST download and parse MD snapshot files from the specified public repositories (OpenKim/Materials Cloud) for Cu-Ni and Au-Ag alloys, extracting atomic species, 3D coordinates, and pre-calculated thermal conductivity values. (See US-1)
+- **FR-002**: System MUST construct a defect network graph where nodes represent lattice sites and edges exist ONLY between nearest-neighbor atoms of mismatched species, identified via Voronoi tessellation. (See US-1)
+- **FR-003**: System MUST compute the clustering coefficient, mean degree, degree distribution moments (mean, variance), and percolation threshold for every constructed graph. If the graph is disconnected, percolation threshold is calculated on the largest connected component; if undefined, report NaN with a warning. (See US-2)
 - **FR-004**: System MUST perform Pearson and Spearman correlation analysis between each network metric and the corresponding thermal conductivity value, calculating p-values for all tests. (See US-3)
 - **FR-005**: System MUST generate scatter plots with regression lines and a correlation heatmap, saving them as PNG files with a resolution of at least 300 DPI. (See US-3)
-- **FR-006**: System MUST apply a Bonferroni correction (or similar family-wise error rate control) to the p-values when reporting significance, given that multiple hypotheses (metrics) are tested simultaneously. (See US-3)
+- **FR-006**: System MUST apply a Bonferroni correction to the p-values when reporting significance, given that multiple hypotheses (metrics) are tested simultaneously. This is required to prevent false positives in high-dimensional topological analysis. (See US-3)
+- **FR-007**: System MUST perform a post-hoc power analysis or report the minimum detectable effect size for the correlation results, given the sample size constraints. (See US-3)
 
 ### Key Entities
 
 - **AtomicSnapshot**: Represents a single MD configuration; attributes include atomic positions (3D vector), species (string/enum), and thermal conductivity (float).
-- **DefectGraph**: Represents the topological structure of disorder; attributes include nodes (atomic indices), edges (nearest-neighbor pairs), and computed metrics (clustering, path length, etc.).
+- **DefectGraph**: Represents the topological structure of disorder; attributes include nodes (atomic indices), edges (nearest-neighbor pairs of mismatched species), and computed metrics (clustering, mean degree, etc.).
 - **CorrelationResult**: Represents the statistical outcome; attributes include metric name, correlation coefficient, p-value, corrected p-value, and significance flag.
 
 ## Success Criteria *(mandatory)*
 
 ### Measurable Outcomes
 
-> Planning docs state *what* will be measured and the *source/reference* it is measured against; defer specific empirical values (counts, dataset sizes, measured quantities, percentages) to the implementation/research phase.
+> Planning docs state *what* will be measured and the *source/reference* it is
+> measured against; defer specific empirical values (counts, dataset sizes, measured quantities, percentages) to the implementation/research phase.
 
 - **SC-001**: The correlation coefficient between network metrics and thermal conductivity is measured against the null hypothesis of zero correlation (random chance), with significance determined by the corrected p-value. (See FR-004)
-- **SC-002**: The accuracy of the extracted network metrics (clustering, path length) is measured against theoretical values for known graph topologies (e.g., random graphs, lattices) to ensure computational validity. (See FR-003)
-- **SC-003**: The validity of the dataset-variable fit is measured by confirming that every required variable (atomic species, position, thermal conductivity) is present in the source data for ≥ 95% of the available snapshots. (See FR-001)
-- **SC-004**: The robustness of the statistical inference is measured by the consistency of correlation results when the significance threshold is swept (e.g., p < 0.01, p < 0.05, p < 0.10), ensuring no single arbitrary cutoff drives the conclusion. (See FR-006)
+- **SC-002**: The accuracy of the extracted network metrics (clustering, mean degree) is measured against theoretical values for known graph topologies (e.g., random graphs, lattices) to ensure computational validity. (See FR-003)
+- **SC-003**: The validity of the dataset-variable fit is measured by confirming that every required variable (atomic species, position, thermal conductivity) is present in the source data for ≥ 90% of the available snapshots (community standard for exploratory MD studies). (See FR-001)
+- **SC-004**: The robustness of the statistical inference is measured by the consistency of correlation results when the significance threshold is swept (e.g., p < 0.01, p < 0.05, p < 0.10) on the corrected p-values, ensuring no single arbitrary cutoff drives the conclusion. Consistency is defined as: the rank order of correlation coefficients must remain stable and no correlation coefficient magnitude must change by > 0.1. (See FR-006)
 
 ## Assumptions
 
-- **Dataset Availability**: The OpenKim or Materials Cloud repositories contain at least 20 distinct atomic configurations for both Cu-Ni and Au-Ag alloys with associated thermal conductivity metadata, sufficient to perform a basic correlation analysis.
-- **Metric Definition**: The "nearest neighbor" relationship is defined by the Voronoi tessellation or a fixed cutoff distance of 3.5 Å, which is a standard community default for metallic alloys and will be applied uniformly across all samples.
+- **Dataset Availability**: The OpenKim or Materials Cloud repositories contain at least 20 distinct atomic configurations for both Cu-Ni and Au-Ag alloys with associated thermal conductivity metadata (pre-calculated via NEMD/Green-Kubo), sufficient to perform an exploratory correlation analysis.
+- **Metric Definition**: The "nearest neighbor" relationship is defined by Voronoi tessellation. Edges are drawn ONLY between mismatched species. This ensures the graph topology reflects the defect arrangement.
 - **Computational Feasibility**: The total number of atomic configurations in the dataset is ≤ 50, ensuring that the graph construction and metric extraction (O(N log N) or O(N^2) depending on algorithm) will complete within the 6-hour CPU limit of the GitHub Actions free tier.
-- **Statistical Validity**: The dataset is assumed to be representative of the alloy system, and any observed correlations are interpreted as associational (observational) rather than causal, consistent with the lack of randomization in the source data.
+- **Statistical Validity**: The dataset is assumed to be representative of the alloy system, and any observed correlations are interpreted as associational (observational) rather than causal, consistent with the lack of randomization in the source data. N=20 is the minimum for exploratory analysis; results will be qualified by power analysis (FR-007).
 - **Threshold Justification**: The significance threshold of p < 0.05 is adopted as the standard community default for physics literature; a sensitivity analysis will sweep this value to {0.01, 0.05, 0.10} to confirm result stability.

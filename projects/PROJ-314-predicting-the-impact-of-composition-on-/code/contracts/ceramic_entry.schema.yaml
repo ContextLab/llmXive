@@ -1,90 +1,79 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: CeramicEntry
-description: |
-  Schema for a single ceramic material entry.
-  Represents a row in the raw or processed dataset before model training.
-  Includes composition, processing parameters, and target variable.
+description: >
+  Schema for a single ceramic material entry containing composition,
+  processing parameters, and measured Weibull modulus.
 type: object
 required:
   - composition
   - weibull_modulus
+  - source_id
+  - primary_anion_cation_group
 properties:
   composition:
     type: string
-    description: |
-      Chemical formula string (e.g., "Al2O3", "Y3Al5O12").
+    description: >
+      Chemical formula string (e.g., "Al2O3", "BaTiO3").
       Must be parseable by chemparse.
     minLength: 1
   weibull_modulus:
     type: number
-    description: |
-      The target variable: Weibull modulus (m).
+    description: >
+      The measured Weibull modulus (m) for the material.
       Must be a positive real number.
     minimum: 0
   sample_count:
     type: integer
-    description: |
-      Number of samples (N) used to calculate the Weibull modulus.
-      Used for filtering (N >= 30) and weighting.
+    description: >
+      Number of samples (N) used to derive the Weibull modulus.
+      Used for data gap validation.
     minimum: 1
-  sintering_temp:
-    type: number
-    description: |
-      Sintering temperature in Celsius.
-      Can be null if not reported.
-    nullable: true
-  sintering_time:
-    type: number
-    description: |
-      Sintering time in hours.
-      Can be null if not reported.
-    nullable: true
+  source_id:
+    type: string
+    description: >
+      Unique identifier for the source publication (DOI or URL).
+    pattern: '^(doi:|https?://)'
+  title:
+    type: string
+    description: Title of the source publication.
   primary_anion_cation_group:
     type: string
-    description: |
-      Derived grouping feature based on the primary anion and cation.
-      Used for stratified splitting.
-      Example: "Oxide-Al", "Nitride-Si".
-    nullable: true
+    description: >
+      Derived grouping feature based on the primary anion and cation groups.
+      Format: "Group_Anion-Group_Cation" (e.g., "16-2").
+  sintering_temp:
+    type: number
+    description: Sintering temperature in Celsius.
+    minimum: 0
   is_range_flag:
     type: boolean
-    description: |
-      Indicates if the original Weibull modulus was a range (e.g., "10-12").
-      If true, the value stored in weibull_modulus is the midpoint.
-    default: false
+    description: >
+      Indicates if the Weibull modulus was originally reported as a range.
   range_original:
     type: string
-    description: |
-      Original string value of the Weibull modulus if it was a range.
-      Null if not a range.
-    nullable: true
+    description: >
+      Original string representation if the value was a range (e.g., "10-15").
   range_uncertainty:
     type: number
-    description: |
-      Calculated uncertainty from range: (max - min) / 2.
-      Null if is_range_flag is false.
-    nullable: true
+    description: >
+      Calculated uncertainty for range values: (max - min) / 2.
   is_imputed:
     type: boolean
-    description: |
-      Indicates if any missing values in this row were imputed.
-    default: false
-  source_url:
-    type: string
-    description: |
-      URL or DOI of the source paper for this entry.
-      Used for citation validation.
-    format: uri
-    nullable: true
-  material_class:
-    type: string
-    description: |
-      Broad classification of the material (e.g., "Oxide", "Nitride", "Carbide").
-      Used for filtering rare classes.
-    nullable: true
-  notes:
-    type: string
-    description: |
-      Any additional notes or flags associated with this entry.
-    nullable: true
+    description: >
+      True if any missing values in this row were imputed.
+  # Elemental descriptors (computed in T019)
+  mean_atomic_radius:
+    type: number
+    description: Mean atomic radius of the constituent elements.
+  electronegativity_std:
+    type: number
+    description: Standard deviation of electronegativity of constituent elements.
+  cation_size_variance:
+    type: number
+    description: Variance in cation sizes.
+  valence_electron_concentration:
+    type: number
+    description: >
+      Valence Electron Concentration (VEC).
+      Calculated as sum(valence electrons) / total atoms.
 additionalProperties: false

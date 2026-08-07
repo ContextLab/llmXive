@@ -1,8 +1,6 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: Human Annotation for Judge Calibration
-description: >
-  Schema for gold standard human annotations used to calibrate the Judge model.
-  Each record represents a human-verified score for a specific character in a specific scenario.
+description: Schema for gold standard human annotations used to calibrate and validate the Judge model (FR-006, FR-007).
 type: object
 required:
   - character
@@ -12,34 +10,22 @@ required:
 properties:
   character:
     type: string
-    description: Name or identifier of the character being evaluated.
+    description: The name or identifier of the character being evaluated.
     minLength: 1
   scenario:
     type: string
-    description: The unique identifier or text of the scenario/probe being evaluated.
+    description: A unique identifier or description of the specific scenario/probe.
     minLength: 1
   ground_truth_score:
     type: number
-    description: >
-      The human-verified consistency score. 
-      Expected range: 0.0 to 5.0 (Likert scale) or 0.0 to 1.0 normalized.
-      Must be a valid float.
+    description: The human-annotated consistency score (Likert scale, e.g., 1.0 to 5.0).
     minimum: 0.0
     maximum: 5.0
   ground_truth_phase:
     type: string
-    description: >
-      The psychological phase or condition under which this score applies.
-      Valid values: 'Coarse', 'Fine', 'Hybrid'.
+    description: The psychological phase or condition associated with this annotation (e.g., 'Coarse', 'Fine', 'Hybrid').
     enum:
       - Coarse
       - Fine
       - Hybrid
-  annotator_id:
-    type: string
-    description: Optional ID of the human annotator.
-  timestamp:
-    type: string
-    format: date-time
-    description: Optional timestamp of the annotation.
 additionalProperties: false

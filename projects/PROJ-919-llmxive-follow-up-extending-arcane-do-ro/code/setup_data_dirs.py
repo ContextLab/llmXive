@@ -1,14 +1,6 @@
 """
-Setup script to initialize the data directory structure for the llmXive project.
-
-This script creates the following directories under the project root:
-- data/raw: For raw, unprocessed external data
-- data/derived: For processed/generated data (axes, probes, results)
-- data/gold_standard: For human annotations and validation sets
-- artifacts: For model checkpoints, logs, and experiment artifacts
-
-Usage:
-    python code/setup_data_dirs.py
+Setup script for llmXive data directory structure.
+Creates the required directories for raw, derived, gold standard data and artifacts.
 """
 import os
 from pathlib import Path
@@ -16,46 +8,48 @@ import sys
 
 def setup_directories():
     """
-    Creates the required data directory structure.
+    Creates the standard data directory structure for the project.
+    Directories created:
+      - data/raw/
+      - data/derived/
+      - data/gold_standard/
+      - artifacts/
     
     Returns:
-        dict: A dictionary mapping directory names to their absolute paths.
+        dict: Mapping of directory names to their Path objects.
     """
-    # Determine project root (assuming this script is in code/)
-    script_path = Path(__file__).resolve()
-    project_root = script_path.parent.parent
+    base_path = Path.cwd()
     
-    # Define the required directories relative to project root
+    # Define required directories relative to project root
     data_dirs = [
-        "data/raw",
-        "data/derived",
-        "data/gold_standard",
-        "artifacts"
+        base_path / "data" / "raw",
+        base_path / "data" / "derived",
+        base_path / "data" / "gold_standard",
+        base_path / "artifacts"
     ]
     
-    created_dirs = {}
-    
+    created_dirs = []
     for dir_path in data_dirs:
-        full_path = project_root / dir_path
-        try:
-            full_path.mkdir(parents=True, exist_ok=True)
-            created_dirs[dir_path] = str(full_path)
-            print(f"✓ Created/Verified directory: {full_path}")
-        except OSError as e:
-            print(f"✗ Failed to create directory {full_path}: {e}", file=sys.stderr)
-            raise
+        if not dir_path.exists():
+            dir_path.mkdir(parents=True, exist_ok=True)
+            created_dirs.append(str(dir_path))
+            print(f"Created directory: {dir_path}")
+        else:
+            print(f"Directory already exists: {dir_path}")
     
-    # Create a .gitkeep file in each directory to ensure they are tracked by git
-    for dir_path in data_dirs:
-        full_path = project_root / dir_path
-        keep_file = full_path / ".gitkeep"
-        try:
-            keep_file.touch(exist_ok=True)
-        except OSError as e:
-            print(f"Warning: Could not create .gitkeep in {full_path}: {e}", file=sys.stderr)
+    # Verify all directories exist
+    missing_dirs = [str(d) for d in data_dirs if not d.exists()]
+    if missing_dirs:
+        print(f"ERROR: Failed to create directories: {missing_dirs}")
+        sys.exit(1)
     
-    print(f"\nSuccessfully initialized {len(created_dirs)} directories under {project_root}")
-    return created_dirs
+    print(f"\nSuccessfully set up {len(created_dirs)} directories.")
+    return {
+        "raw": data_dirs[0],
+        "derived": data_dirs[1],
+        "gold_standard": data_dirs[2],
+        "artifacts": data_dirs[3]
+    }
 
 if __name__ == "__main__":
     setup_directories()

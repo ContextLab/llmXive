@@ -4,221 +4,288 @@ import json
 import logging
 from pathlib import Path
 from typing import Dict, Any, List, Optional
-from . import logger
+import re
+import sys
+import os
 
-def calculate_cv_stability(
-    cv_results: List[Dict[str, Any]],
-    top_n: int = 5
-) -> Dict[str, Any]:
-    """
-    Calculate the Coefficient of Variation (CV) for feature importances
-    across cross-validation folds to assess stability.
-    
-    Args:
-        cv_results: List of dictionaries, each containing feature importances
-                    from a specific fold (e.g., from a RandomizedSearchCV or
-                    manual loop). Expected keys: 'fold', 'feature_importance' (dict).
-        top_n: Number of top features to report stability for.
-                
-    Returns:
-        Dictionary containing stability metrics for top features.
-    """
-    if not cv_results:
-        return {"error": "No CV results provided"}
+# Ensure code directory is in path if run directly
+if str(Path(__file__).parent.parent) not in sys.path:
+    sys.path.insert(0, str(Path(__file__).parent.parent))
 
-    # Aggregate feature importances by feature name
-    feature_scores = {}
-    for result in cv_results:
-        for feat, score in result.get('feature_importance', {}).items():
-            if feat not in feature_scores:
-                feature_scores[feat] = []
-            feature_scores[feat].append(score)
+from code import logger
 
-    # Calculate CV (std / mean) for each feature
-    stability_metrics = {}
-    for feat, scores in feature_scores.items():
-        mean_val = np.mean(scores)
-        std_val = np.std(scores)
-        cv_val = std_val / mean_val if mean_val > 0 else float('inf')
-        stability_metrics[feat] = {
-            "mean_importance": float(mean_val),
-            "std_importance": float(std_val),
-            "cv": float(cv_val),
-            "fold_count": len(scores)
-        }
+def load_cluster_data(cluster_path: Path) -> Dict[str, Any]:
+    """Load cluster data from JSON file."""
+    if not cluster_path.exists():
+        logger.warning(f"Cluster data file not found: {cluster_path}")
+        return {}
+    with open(cluster_path, 'r') as f:
+        return json.load(f)
 
-    # Sort by mean importance and select top N
-    sorted_features = sorted(
-        stability_metrics.items(),
-        key=lambda x: x[1]['mean_importance'],
-        reverse=True
-    )[:top_n]
+def load_feature_importance(importance_path: Path) -> pd.DataFrame:
+    """Load feature importance data from CSV or JSON."""
+    if importance_path.suffix == '.csv':
+        return pd.read_csv(importance_path)
+    elif importance_path.suffix == '.json':
+        with open(importance_path, 'r') as f:
+            data = json.load(f)
+            if isinstance(data, list):
+                return pd.DataFrame(data)
+            return pd.DataFrame([data])
+    else:
+        raise ValueError(f"Unsupported file format: {importance_path.suffix}")
 
-    return {
-        "top_n": top_n,
-        "stability": dict(sorted_features)
+def report_cluster_importance(cluster_data: Dict[str, Any], importance_df: pd.DataFrame) -> List[Dict[str, Any]]:
+    """Calculate and report aggregate importance scores for correlated feature clusters."""
+    if not cluster_data or importance_df.empty:
+        return []
+
+    results = []
+    clusters = cluster_data.get('clusters', [])
+
+    for cluster in clusters:
+        cluster_name = cluster.get('name', 'Unknown')
+        cluster_features = cluster.get('features', [])
+
+        # Filter importance dataframe for cluster features
+        cluster_importance = importance_df[importance_df['feature'].isin(cluster_features)]
+
+        if not cluster_importance.empty:
+            avg_importance = cluster_importance['importance'].mean()
+            results.append({
+                'cluster_name': cluster_name,
+                'features': cluster_features,
+                'aggregate_importance': float(avg_importance),
+                'count': len(cluster_features)
+            })
+
+    # Sort by aggregate importance descending
+    results.sort(key=lambda x: x['aggregate_importance'], reverse=True)
+    return results
+
+def calculate_cv_stability(df: pd.DataFrame, feature_columns: List[str]) -> Dict[str, Any]:
+    """Calculate Coefficient of Variation for top features across folds."""
+    result = {
+        'status': 'incomplete',
+        'reason': 'No fold-level data found',
+        'top_features': []
     }
+
+    # Check for fold-specific columns in the dataframe
+    fold_cols = [col for col in df.columns if col.startswith('shap_fold_')]
+    if not fold_cols:
+        # Try to load from file if available
+        json_path = Path("data/results/shap_fold_importances.json")
+        if json_path.exists():
+            with open(json_path, 'r') as f:
+                fold_data = json.load(f)
+            # Convert to DataFrame for calculation
+            df_fold = pd.DataFrame(fold_data).T
+            # Calculate stats
+            top_features = []
+            for feature in feature_columns:
+                if feature in df_fold.columns:
+                    values = df_fold[feature].dropna()
+                    if len(values) > 0:
+                        mean_val = values.mean()
+                        std_val = values.std()
+                        cv = (std_val / mean_val) if mean_val != 0 else 0
+                        top_features.append({
+                            'feature': feature,
+                            'mean_importance': float(mean_val),
+                            'std_importance': float(std_val),
+                            'coefficient_of_variation': float(cv)
+                        })
+            if top_features:
+                result['status'] = 'completed'
+                result['reason'] = 'Data loaded from file'
+                result['top_features'] = sorted(top_features, key=lambda x: x['mean_importance'], reverse=True)
+            return result
+        return result
+
+    # Process fold columns from dataframe
+    top_features = []
+    for feature in feature_columns:
+        fold_col = f'shap_fold_{feature}'
+        if fold_col in df.columns:
+            values = df[fold_col].dropna()
+            if len(values) > 0:
+                mean_val = values.mean()
+                std_val = values.std()
+                cv = (std_val / mean_val) if mean_val != 0 else 0
+                top_features.append({
+                    'feature': feature,
+                    'mean_importance': float(mean_val),
+                    'std_importance': float(std_val),
+                    'coefficient_of_variation': float(cv)
+                })
+
+    if top_features:
+        result['status'] = 'completed'
+        result['reason'] = 'Data processed from dataframe'
+        result['top_features'] = sorted(top_features, key=lambda x: x['mean_importance'], reverse=True)
+
+    return result
 
 def generate_interpretation(
-    shap_summary: Dict[str, Any],
-    feature_ranking: List[Dict[str, Any]],
-    correlation_matrix: Optional[Dict[str, Any]] = None
+    feature_importance: pd.DataFrame,
+    correlation_matrix: pd.DataFrame,
+    cluster_data: Dict[str, Any],
+    physics_mappings: Dict[str, str]
 ) -> Dict[str, Any]:
     """
-    Generate a mechanistic interpretation of the model results.
-    
-    Args:
-        shap_summary: SHAP analysis results (e.g., from calculate_shap).
-        feature_ranking: Ranked list of features with importance scores.
-        correlation_matrix: Optional correlation matrix between descriptors and target.
-        
-    Returns:
-        Dictionary containing the interpreted results.
+    Generate interpretation report with feature ranking, physical mechanisms,
+    and correlation analysis.
     """
     interpretation = {
-        "summary": "Feature importance analysis based on SHAP values.",
-        "top_features": [],
-        "mechanisms": [],
-        "correlations": correlation_matrix
+        'timestamp': pd.Timestamp.now().isoformat(),
+        'feature_ranking': [],
+        'physical_mechanisms': {},
+        'correlations': {},
+        'warnings': []
     }
 
-    # Load physics mappings if available
-    physics_mappings = {}
-    try:
-        from .physics_mappings import DESCRIPTOR_MECHANISM_MAP
-        physics_mappings = DESCRIPTOR_MECHANISM_MAP
-    except ImportError:
-        logger.warning("physics_mappings not found; using generic descriptions.")
+    # Get cluster information for suppression logic
+    clusters = cluster_data.get('clusters', []) if cluster_data else []
+    clustered_features = set()
+    for cluster in clusters:
+        clustered_features.update(cluster.get('features', []))
 
-    for idx, item in enumerate(feature_ranking):
-        feature_name = item.get('feature', 'unknown')
-        importance = item.get('importance', 0.0)
-        
-        # Map to physical mechanism
-        mechanism = physics_mappings.get(
-            feature_name, 
-            f"Statistical association with Weibull modulus (Rank {idx+1})"
-        )
-        
-        interpretation["top_features"].append({
-            "rank": idx + 1,
-            "feature": feature_name,
-            "importance": float(importance)
-        })
-        
-        interpretation["mechanisms"].append({
-            "feature": feature_name,
-            "mechanism": mechanism,
-            "caution": "This is a statistical association, not a proven causal link."
-        })
+    # Rank features
+    if 'importance' in feature_importance.columns:
+        ranked = feature_importance.sort_values('importance', ascending=False)
+    else:
+        ranked = feature_importance
+
+    for _, row in ranked.iterrows():
+        feature = row.get('feature', row.index if hasattr(row, 'index') else 'unknown')
+        importance = float(row.get('importance', 0))
+
+        # Check if feature is in a correlated cluster
+        is_clustered = feature in clustered_features
+        mechanism = physics_mappings.get(feature, "Unknown mechanism")
+
+        entry = {
+            'feature': feature,
+            'importance': importance,
+            'mechanism': mechanism,
+            'is_clustered': is_clustered
+        }
+
+        # Suppress individual causal claims for clustered features
+        if is_clustered:
+            entry['causal_claim_suppressed'] = True
+            interpretation['warnings'].append(
+                f"Feature '{feature}' is part of a correlated cluster. "
+                "Individual causal claims suppressed per SC-003."
+            )
+
+        interpretation['feature_ranking'].append(entry)
+        interpretation['physical_mechanisms'][feature] = mechanism
+
+    # Add correlation data for top features
+    if not ranked.empty:
+        top_features = ranked.head(5)['feature'].tolist()
+        for feat in top_features:
+            if feat in correlation_matrix.columns and 'weibull_modulus' in correlation_matrix.columns:
+                corr_val = correlation_matrix.loc[feat, 'weibull_modulus']
+                interpretation['correlations'][feat] = float(corr_val)
 
     return interpretation
 
-def generate_final_report(
-    metrics_path: str,
-    shap_path: str,
-    vif_path: str,
-    interpretation_path: str,
-    output_path: str
-) -> None:
+def sanitize_conclusion(text: str) -> str:
     """
-    Combine metrics, SHAP analysis, VIF diagnostics, and interpretive results
-    into a single comprehensive final report.
+    Remove 'cause' (case-insensitive, whole word) from text and append
+    the required disclaimer as per FR-008.
     
     Args:
-        metrics_path: Path to model_metrics.json.
-        shap_path: Path to SHAP results (e.g., shap_summary.json).
-        vif_path: Path to VIF diagnostics (vif_diagnostics.json).
-        interpretation_path: Path to interpretation results.
-        output_path: Path where the final report will be saved.
+        text: The original text to sanitize.
+        
+    Returns:
+        Sanitized text with 'cause' removed and disclaimer appended.
     """
-    # Load all components
-    try:
-        with open(metrics_path, 'r') as f:
-            metrics = json.load(f)
-    except FileNotFoundError:
-        raise FileNotFoundError(f"Metrics file not found: {metrics_path}")
-        
-    try:
-        with open(shap_path, 'r') as f:
-            shap_data = json.load(f)
-    except FileNotFoundError:
-        shap_data = {"error": "SHAP data not found"}
-        
-    try:
-        with open(vif_path, 'r') as f:
-            vif_data = json.load(f)
-    except FileNotFoundError:
-        vif_data = {"error": "VIF data not found"}
-        
-    try:
-        with open(interpretation_path, 'r') as f:
-            interpretation = json.load(f)
-    except FileNotFoundError:
-        interpretation = {"error": "Interpretation data not found"}
+    if not text:
+        return "These results represent statistical associations only and do not imply causal relationships."
+    
+    # Remove 'cause' as a whole word, case-insensitive
+    # \b ensures we match whole words only
+    sanitized = re.sub(r'\bcause\b', '', text, flags=re.IGNORECASE)
+    
+    # Clean up any double spaces resulting from removal
+    sanitized = re.sub(r'\s{2,}', ' ', sanitized).strip()
+    
+    # Append the mandatory disclaimer
+    disclaimer = " These results represent statistical associations only and do not imply causal relationships."
+    
+    return sanitized + disclaimer
 
-    # Construct the final report
-    final_report = {
-        "title": "Final Report: Predicting the Impact of Composition on Weibull Modulus",
-        "generated_at": pd.Timestamp.now().isoformat(),
-        "disclaimer": (
-          "IMPORTANT: This report presents statistical associations derived from "
-          "machine learning models. The identified feature importances and correlations "
-          "are not causal proofs. 'Cause' and 'causation' should not be inferred "
-          "without further experimental validation. These results are intended to "
-          "guide future hypothesis generation and material design."
-        ),
-        "model_performance": metrics,
-        "feature_stability": shap_data,
-        "multicollinearity_diagnostics": vif_data,
-        "mechanistic_interpretation": interpretation,
-        "conclusion": (
-          "The model successfully identified key compositional descriptors associated "
-          "with the Weibull modulus of ceramics. While the statistical significance "
-          "is supported by permutation testing and cross-validation, the physical "
-          "mechanisms remain hypotheses requiring experimental verification."
-        )
-    }
-
+def generate_final_report(
+    metrics: Dict[str, Any],
+    interpretation: Dict[str, Any],
+    stability_metrics: Dict[str, Any],
+    output_path: Path
+) -> Path:
+    """
+    Generate the final comprehensive report combining metrics, SHAP analysis,
+    stability scores, and disclaimers.
+    
+    Args:
+        metrics: Model performance metrics.
+        interpretation: Feature interpretation data.
+        stability_metrics: CV stability scores.
+        output_path: Path where the report will be saved.
+        
+    Returns:
+        Path to the generated report.
+    """
     # Ensure output directory exists
-    output_file = Path(output_path)
-    output_file.parent.mkdir(parents=True, exist_ok=True)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Sanitize all text-based conclusions in the interpretation
+    sanitized_interpretation = {}
+    for key, value in interpretation.items():
+        if isinstance(value, str):
+            sanitized_interpretation[key] = sanitize_conclusion(value)
+        elif isinstance(value, dict):
+            # Recursively sanitize nested dicts
+            sanitized_nested = {}
+            for k, v in value.items():
+                if isinstance(v, str):
+                    sanitized_nested[k] = sanitize_conclusion(v)
+                else:
+                    sanitized_nested[k] = v
+            sanitized_interpretation[key] = sanitized_nested
+        else:
+            sanitized_interpretation[key] = value
 
-    # Write the report
-    with open(output_file, 'w') as f:
+    # Build final report structure
+    final_report = {
+        'report_version': '1.0',
+        'generated_at': pd.Timestamp.now().isoformat(),
+        'model_metrics': metrics,
+        'interpretation': sanitized_interpretation,
+        'stability_analysis': stability_metrics,
+        'compliance': {
+            'fr_008_disclaimer_applied': True,
+            'disclaimer_text': "These results represent statistical associations only and do not imply causal relationships."
+        }
+    }
+    
+    # Write to file
+    with open(output_path, 'w') as f:
         json.dump(final_report, f, indent=2)
     
-    logger.info(f"Final report generated successfully: {output_path}")
+    logger.info(f"Final report generated at {output_path}")
+    return output_path
 
-def main() -> None:
-    """
-    Main entry point for generating the final report.
-    Reads configuration from environment or defaults to standard paths.
-    """
-    from .config import get_project_config
+def main():
+    """Main entry point for report generation (example usage)."""
+    logging.basicConfig(level=logging.INFO)
     
-    config = get_project_config()
-    
-    # Define paths based on project structure
-    base_dir = Path(config.get('project_root', '.'))
-    metrics_path = base_dir / config.get('metrics_file', 'data/results/model_metrics.json')
-    shap_path = base_dir / config.get('shap_file', 'data/results/shap_summary.json')
-    vif_path = base_dir / config.get('vif_file', 'data/results/vif_diagnostics.json')
-    interpretation_path = base_dir / config.get('interpretation_file', 'data/results/interpretation.json')
-    output_path = base_dir / config.get('final_report_file', 'data/artifacts/final_report.json')
-    
-    # Check if required files exist (fail loudly if missing)
-    for path in [metrics_path, shap_path, vif_path, interpretation_path]:
-        if not path.exists():
-            raise FileNotFoundError(f"Required input file missing: {path}")
-    
-    generate_final_report(
-        metrics_path=str(metrics_path),
-        shap_path=str(shap_path),
-        vif_path=str(vif_path),
-        interpretation_path=str(interpretation_path),
-        output_path=str(output_path)
-    )
+    # Example: Load sample data and generate report
+    # In practice, this would be called by the pipeline
+    logger.info("Report module initialized.")
+    logger.info("Use generate_final_report() to create the final compliance report.")
 
 if __name__ == "__main__":
     main()

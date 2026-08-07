@@ -638,3 +638,42 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-16T12:31:02Z'
+- artifact_path: projects/PROJ-301-predicting-molecular-descriptors-from-qu/specs/001-predicting-molecular-descriptors-from-qu/tasks.md
+  attempts: 1
+  canonical: QM9 dataset source is lisn/QM9 on HuggingFace
+  claim_id: c_ee8bb72f
+  context: 'Source: Download QM9 dataset strictly from the verified HuggingFace source
+    lisn/QM9 as mandated by plan.md (T009.1 Amendment).'
+  evidence:
+    entailment_evidence: QM9 dataset source is lisn/QM9 on HuggingFace
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/QM9_dataset_source_is_lisn/QM9_on_HuggingFace
+  kind: entity_fact
+  raw_text: Download QM9 dataset strictly from the verified HuggingFace source lisn/QM9
+  resolved_value: QM9 dataset source is lisn/QM9 on HuggingFace
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-07T12:28:36Z'
+- artifact_path: projects/PROJ-301-predicting-molecular-descriptors-from-qu/specs/001-predicting-molecular-descriptors-from-qu/tasks.md
+  attempts: 1
+  canonical: QM9 dataset schema includes columns dipole, HOMO, LUMO matching Harvard
+    Dataverse
+  claim_id: c_671215b0
+  context: 'Verification: Verify the dataset schema (column names: dipole, HOMO, LUMO)
+    and a random sample count match the known Harvard Dataverse record structure.
+    If mismatch, fail with error.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/QM9_dataset_schema_includes_columns_dipole,_HOMO,_LUMO_match
+  kind: entity_fact
+  raw_text: 'Verify the dataset schema (column names: dipole, HOMO, LUMO) and a random
+    sample count match the known Harvard Dataverse record structure'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T12:28:58Z'

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2410.14355",
+  "judged_at": "2026-08-07T12:57:12Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "investigating correlations between molecular descriptors and drug-likeness scores chemistry",
+  "rationale": "This paper satisfies acceptance criteria (a) and (b) because it explicitly employs a Quantitative Structure-Activity Relationship (QSAR) framework to correlate specific molecular/structural descriptors (pore descriptors) with a functional activity score (water permeation rate), which is the exact mechanism and variable relationship the user is investigating, even though the specific biological target (aquaporins) and property (permeation) differ from the general \"drug-likeness\" context.",
+  "relevant": true
+}

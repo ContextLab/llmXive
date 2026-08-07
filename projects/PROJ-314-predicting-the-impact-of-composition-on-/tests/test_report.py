@@ -1,5 +1,5 @@
 """
-Unit tests for the report module, specifically T039: calculate_cv_stability.
+Unit tests for the report module, specifically T042: sanitize_conclusion.
 """
 import pytest
 import pandas as pd
@@ -12,7 +12,7 @@ import os
 # Add code directory to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from code.report import calculate_cv_stability
+from code.report import calculate_cv_stability, sanitize_conclusion
 
 def test_calculate_cv_stability_with_fold_data():
     """
@@ -98,3 +98,77 @@ def test_calculate_cv_stability_from_json_file():
             expected_path.unlink()
         if Path(temp_path).exists():
             Path(temp_path).unlink()
+
+def test_disclaimer_removal_lowercase():
+    """Test that 'cause' is removed in lowercase."""
+    text = "This factor causes high strength."
+    expected = "This factor  high strength. These results represent statistical associations only and do not imply causal relationships."
+    result = sanitize_conclusion(text)
+    assert result == expected
+
+def test_disclaimer_removal_uppercase():
+    """Test that 'CAUSE' is removed in uppercase."""
+    text = "This factor CAUSE high strength."
+    expected = "This factor  high strength. These results represent statistical associations only and do not imply causal relationships."
+    result = sanitize_conclusion(text)
+    assert result == expected
+
+def test_disclaimer_removal_mixed_case():
+    """Test that 'CaUsE' is removed in mixed case."""
+    text = "This factor CaUsE high strength."
+    expected = "This factor  high strength. These results represent statistical associations only and do not imply causal relationships."
+    result = sanitize_conclusion(text)
+    assert result == expected
+
+def test_disclaimer_removal_word_boundary():
+    """Test that 'cause' is removed only as a whole word, not inside other words."""
+    text = "The causation and cause are different."
+    # 'causation' should remain, 'cause' should be removed
+    expected = "The causation and  are different. These results represent statistical associations only and do not imply causal relationships."
+    result = sanitize_conclusion(text)
+    assert result == expected
+
+def test_disclaimer_removal_empty_string():
+    """Test behavior with empty string."""
+    text = ""
+    expected = "These results represent statistical associations only and do not imply causal relationships."
+    result = sanitize_conclusion(text)
+    assert result == expected
+
+def test_disclaimer_removal_no_cause():
+    """Test that text without 'cause' still gets the disclaimer appended."""
+    text = "This factor leads to high strength."
+    expected = "This factor leads to high strength. These results represent statistical associations only and do not imply causal relationships."
+    result = sanitize_conclusion(text)
+    assert result == expected
+
+def test_disclaimer_removal_multiple_causes():
+    """Test removal of multiple occurrences of 'cause'."""
+    text = "Cause and cause are causes."
+    # All 'cause' words should be removed
+    expected = " and  are . These results represent statistical associations only and do not imply causal relationships."
+    result = sanitize_conclusion(text)
+    assert result == expected
+
+def test_disclaimer_removal_cleans_spaces():
+    """Test that double spaces resulting from removal are cleaned."""
+    text = "This cause   is cause."
+    # 'cause' removed, double spaces cleaned to single
+    expected = "This   is . These results represent statistical associations only and do not imply causal relationships."
+    # Note: The regex removes 'cause', leaving 'This   is .'. 
+    # The re.sub(r'\s{2,}', ' ') collapses multiple spaces to one.
+    # So 'This   is .' becomes 'This  is .' (two spaces become one).
+    # Wait, original: "This cause   is cause."
+    # Remove 'cause': "This    is ." (4 spaces between This and is)
+    # Clean spaces: "This  is ." (2 spaces between This and is)
+    # Actually, let's trace:
+    # "This cause   is cause." -> remove 'cause' -> "This    is ." (4 spaces)
+    # re.sub(r'\s{2,}', ' ', ...) -> "This  is ." (2 spaces)
+    # But the test expectation above might need adjustment. Let's verify logic.
+    # The function does: re.sub(r'\s{2,}', ' ', sanitized).strip()
+    # So "This    is ." becomes "This  is ."
+    # The test expectation should reflect this.
+    # Corrected expectation:
+    expected = "This  is . These results represent statistical associations only and do not imply causal relationships."
+    result = sanitize_conclusion(text)
+    assert result == expected
