@@ -1,0 +1,258 @@
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: fGn series with H=0.8 verified to have H approx 0.8 plus or minus 0.05
+    and mean approx 0 plus or minus 0.01
+  claim_id: c_93adc3e0
+  context: "Independent Test: Generate fGn series with H=0.8, verify H \u2248 0.8\
+    \ (\xB10.05) and mean \u2248 0 (\xB10.01); verify shuffled versions have ACF lag-1\
+    \ \u2248 0."
+  evidence:
+    asserted: '0.8'
+    authority: scipy.constants.h (CODATA 2018, exact by SI definition)
+    constant: planck
+    corrected: true
+    mode: approximate
+    true_value: 6.62607015e-34
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?h
+  kind: numeric
+  raw_text: "Generate fGn series with H=0.8, verify H \u2248 0.8 (\xB10.05) and mean\
+    \ \u2248 0 (\xB10.01)"
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2947ee0f33c8b64004b004e262a8ea3e9a1b9496056962e917f8a0745d5366a7
+  source_type: external
+  status: verified
+  updated_at: '2026-08-07T11:03:59Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: shuffled versions have ACF lag-1 approx 0
+  claim_id: c_c06b5be1
+  context: "Independent Test: Generate fGn series with H=0.8, verify H \u2248 0.8\
+    \ (\xB10.05) and mean \u2248 0 (\xB10.01); verify shuffled versions have ACF lag-1\
+    \ \u2248 0."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "verify shuffled versions have ACF lag-1 \u2248 0"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T11:04:18Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: 10000 trials on H=0.5 synthetic data confirm rejection rate within 95%
+    Clopper-Pearson interval of nominal alpha 0.05
+  claim_id: c_f3549a67
+  context: "Implement src/synthesis/validation.py to verify baseline validity: Run\
+    \ 10,000 trials on H=0.5 synthetic data; confirm rejection rate is within 95%\
+    \ Clopper-Pearson interval of nominal \u03B1=0.05. Block further analysis if this\
+    \ fails."
+  evidence:
+    asserted: '10.0'
+    authority: scipy.constants.h (CODATA 2018, exact by SI definition)
+    constant: planck
+    corrected: true
+    mode: approximate
+    true_value: 6.62607015e-34
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?h
+  kind: numeric
+  raw_text: "Run 10,000 trials on H=0.5 synthetic data; confirm rejection rate is\
+    \ within 95% Clopper-Pearson interval of nominal \u03B1=0.05"
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2947ee0f33c8b64004b004e262a8ea3e9a1b9496056962e917f8a0745d5366a7
+  source_type: external
+  status: verified
+  updated_at: '2026-08-07T11:04:18Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: analysis on H=0.5 data shows error rate approx 0.05
+  claim_id: c_b2dbb2ba
+  context: "Independent Test: Run analysis on H=0.5 data (error rate \u2248 0.05)\
+    \ and H=0.9 data (report slope, p-value, VIF, N_eff)."
+  evidence:
+    asserted: '0.5'
+    authority: scipy.constants.h (CODATA 2018, exact by SI definition)
+    constant: planck
+    corrected: true
+    mode: approximate
+    true_value: 6.62607015e-34
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?h
+  kind: numeric
+  raw_text: "Run analysis on H=0.5 data (error rate \u2248 0.05) and H=0.9 data (report\
+    \ slope, p-value, VIF, N_eff)"
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2947ee0f33c8b64004b004e262a8ea3e9a1b9496056962e917f8a0745d5366a7
+  source_type: external
+  status: verified
+  updated_at: '2026-08-07T11:04:18Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: full pipeline completes in 6 hours or less on GitHub Actions free tier
+  claim_id: c_988ab42f
+  context: "Performance optimization: Ensure full pipeline (ingestion, 10k trials,\
+    \ regression) completes in \u2264 6 hours on GitHub Actions free tier."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ensure full pipeline (ingestion, 10k trials, regression) completes in\
+    \ \u2264 6 hours on GitHub Actions free tier"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T11:04:51Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: download and cache 5+ datasets from NOAA, Yahoo Finance, and UK National
+    Grid
+  claim_id: c_e3f7c82e
+  context: Implement src/data/ingestion.py to download/cache 5+ datasets (NOAA, Yahoo
+    Finance, UK National Grid) with verified URLs. Must fail loudly if real fetch
+    fails (no synthetic fallback).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement src/data/ingestion.py to download/cache 5+ datasets (NOAA, Yahoo
+    Finance, UK National Grid) with verified URLs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T11:13:49Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: generate fGn and ARFIMA processes with H values 0.5, 0.7, 0.8, 0.9 and
+    N values 100, 500, 1000, 5000, 10000
+  claim_id: c_34c06c17
+  context: "Implement src/synthesis/generators.py to generate fractional Gaussian\
+    \ noise (fGn) and ARFIMA processes with H \u2208 {0.5, 0.7, 0.8, 0.9} and N \u2208\
+    \ {100, 500, 1k, 5k, 10k} (N-variation grid). Lengths must be \u2265 1,000 for\
+    \ the 1k, 5k, 10k sets."
+  evidence:
+    asserted: '0.5'
+    authority: scipy.constants.h (CODATA 2018, exact by SI definition)
+    constant: planck
+    corrected: true
+    mode: approximate
+    true_value: 6.62607015e-34
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?h
+  kind: numeric
+  raw_text: "Generate fractional Gaussian noise (fGn) and ARFIMA processes with H\
+    \ \u2208 {0.5, 0.7, 0.8, 0.9} and N \u2208 {100, 500, 1k, 5k, 10k} (N-variation\
+    \ grid)."
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2947ee0f33c8b64004b004e262a8ea3e9a1b9496056962e917f8a0745d5366a7
+  source_type: external
+  status: verified
+  updated_at: '2026-08-07T11:13:49Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: run validation test for H=0.5 baseline with 10000 trials
+  claim_id: c_37fe49a6
+  context: Unit test for fGn/ARFIMA generation accuracy in tests/unit/test_synthesis.py;
+    Unit test for shuffling null distribution logic in tests/unit/test_synthesis.py;
+    Validation test for H=0.5 baseline (10k trials) in tests/unit/test_validation.py
+  evidence:
+    asserted: '0.5'
+    authority: scipy.constants.h (CODATA 2018, exact by SI definition)
+    constant: planck
+    corrected: true
+    mode: approximate
+    true_value: 6.62607015e-34
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?h
+  kind: numeric
+  raw_text: Validation test for H=0.5 baseline (10k trials) in tests/unit/test_validation.py
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2947ee0f33c8b64004b004e262a8ea3e9a1b9496056962e917f8a0745d5366a7
+  source_type: external
+  status: verified
+  updated_at: '2026-08-07T11:13:49Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: compute ACF lag 20, Hurst exponent via DFA, and spectral density peak
+    ratio for every real loaded series
+  claim_id: c_79b96417
+  context: Implement src/data/metrics.py to compute ACF (lag 20), Hurst exponent (DFA),
+    and spectral density peak ratio for every REAL loaded series (US1). Do not include
+    synthetic series here (see T023).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Compute ACF (lag 20), Hurst exponent (DFA), and spectral density peak
+    ratio for every REAL loaded series.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T11:14:07Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: apply tests to synthetic series with H values 0.7, 0.8, 0.9 and N values
+    100, 500, 1000, 5000, 10000 and real processed series
+  claim_id: c_d5b77c5a
+  context: "Implement src/analysis/hypothesis_tests.py Monte Carlo loop: Apply tests\
+    \ to synthetic series (H \u2208 {, 0.7, 0.8, 0.9}, N \u2208 {100, 500, 1k, 5k,\
+    \ 10k}) and real processed series. Calculate observed rejection rate at \u03B1\
+    =0.05."
+  evidence:
+    asserted: '0.7'
+    authority: scipy.constants.h (CODATA 2018, exact by SI definition)
+    constant: planck
+    corrected: true
+    mode: approximate
+    true_value: 6.62607015e-34
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?h
+  kind: numeric
+  raw_text: "Apply tests to synthetic series (H \u2208 {0.7, 0.8, 0.9}, N \u2208 {100,\
+    \ 500, 1k, 5k, 10k}) and real processed series."
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2947ee0f33c8b64004b004e262a8ea3e9a1b9496056962e917f8a0745d5366a7
+  source_type: external
+  status: verified
+  updated_at: '2026-08-07T11:14:07Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: ensure full pipeline completes in 6 hours on GitHub Actions free tier
+  claim_id: c_8ab7e524
+  context: "Performance optimization: Ensure full pipeline (ingestion, 10k trials,\
+    \ regression) completes in \u2264 6 hours on GitHub Actions free tier."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ensure full pipeline (ingestion, 10k trials, regression) completes in\
+    \ \u2264 6 hours on GitHub Actions free tier."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T11:14:07Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: skip datasets with fewer than 25 points
+  claim_id: c_cb76f89b
+  context: 'Implement edge case handling in src/data/preprocessing.py: Skip datasets
+    < 25 points with warning; handle numerical instability in spectral density by
+    falling back to variance metric.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Skip_datasets_with_fewer_than_25_points
+  kind: magnitude
+  raw_text: Skip datasets < 25 points with warning.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T11:14:32Z'

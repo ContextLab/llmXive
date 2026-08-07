@@ -1,0 +1,10 @@
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T001** — No artifact showing a `src/` directory at the repository root was provided; the evidence list is empty, so we cannot confirm that the required directory exists. The implementer must add the `src/` folder (non‑empty) to satisfy task T001.
+- **T001b** — No evidence of a `tests/` directory at the repository root was provided; the artifact list is empty, so we cannot confirm that the required directory exists or contains any test files. The implementer must add the `tests/` folder (with at least one test file) to satisfy the task.
+- **T001c** — No evidence of the required `data/`, `results/`, or `specs/` directories is provided; the implementer did not include any artifact showing that these folders exist at the repository root. The task remains undone until the directories are created and visible.
+- **T001d** — No evidence was provided that the `data/raw/` and `data/processed/` directories actually exist in the repository; the response contains only the task description and no file listings or screenshots showing those subfolders. The implementer must create the two directories (and ensure they are non‑empty or at least present) for the task to be considered complete.
+- **T003** — I looked for linting/formatting configuration artifacts (e.g., `pyproject.toml` with Black settings, `.ruff.toml` or `ruff.toml`, `.flake8` or equivalent) and any setup scripts, but none were presented. Without those files the task of configuring ruff/flake8 and Black is not demonstrated. The implementer must add the actual configuration files and ensure they are non‑empty and correctly set up.
+- **T007** — declared artifact(s) missing/empty/invalid: state/projects/PROJ-369-evaluating-the-robustness-of-statistical.yaml

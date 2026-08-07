@@ -1,0 +1,8 @@
+project_id: PROJ-369-evaluating-the-robustness-of-statistical
+checksums:
+  data/raw: {}
+  data/processed: {}
+  results: {}
+  src: {}
+  tests: {}
+last_updated: null
