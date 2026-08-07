@@ -1,0 +1,10 @@
+# Core dependencies for Planck CMB analysis
+healpy==1.16.5
+numpy==1.24.3
+scipy==1.11.1
+astropy==5.3
+requests==2.31.0
+pyyaml==6.0.1
+# Additional dependencies
+tqdm==4.65.0
+pytest==7.4.0

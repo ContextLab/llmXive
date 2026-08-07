@@ -56,10 +56,10 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T004 Create project directories: `mkdir -p code tests data/raw data/processed data/simulations data/reports docs`
-- [ ] T005 Create `pyproject.toml` in root with a compatible Python version and pinned dependencies: `healpy`, `numpy`, `scipy`, `astropy`, `requests`, `pyyaml`
-- [ ] T006 [P] Configure linting (flake/black) and formatting tools in `pyproject.toml`
+- [X] T005 Create `pyproject.toml` in root with a compatible Python version and pinned dependencies: `healpy`, `numpy`, `scipy`, `astropy`, `requests`, `pyyaml`
+- [X] T006 [P] Configure linting (flake/black) and formatting tools in `pyproject.toml`
 - [X] T007 Create `code/config.py` defining paths, random seeds, Nside constants, and simulation counts.
-- [~] T008 [P] Initialize git repository and add `.gitignore` for `data/`, `__pycache__/`, `*.pyc`
+- [ ] T008 [P] Initialize git repository and add `.gitignore` for `data/`, `__pycache__/`, `*.pyc`
 - [X] T009 [P] Create `code/logging_config.py` implementing JSON format logging at INFO level
 - [X] T010 Create `tests/test_config.py` to validate configuration constants and paths
 
@@ -83,10 +83,10 @@
 
 ### Implementation for User Story 1
 
-- [ ] T014 [US1] Implement `download_planck_map()` in `code/data_loader.py` to fetch Nside=2048 SMICA map from ESA archive with SHA-256 validation
-- [ ] T015 [US1] Implement `apply_galactic_mask()` in `code/data_loader.py` using Commander mask to exclude foregrounds. **Deliverable**: Log mask statistics to `data/processed/mask_stats.json` and raise `ValueError` if unmasked sky retention < 95%. Verify both: (1) ≥95% of masked pixels are excluded, AND (2) remaining unmasked region is ≥95% of the sky.
-- [ ] T016 [US1] Implement `downgrade_resolution()` in `code/data_loader.py` to convert masked map to Nside=128 using healpy
-- [ ] T017 [US1] Add error handling for URL unavailability and checksum mismatches in `code/data_loader.py`
+- [X] T014 [US1] Implement `download_planck_map()` in `code/data_loader.py` to fetch Nside=2048 SMICA map from ESA archive with SHA-256 validation
+- [ ] T015 [US1] Implement `apply_galactic_mask()` in `code/data_loader.py` using Commander mask to exclude foregrounds. **Deliverable**: Log mask statistics to `data/processed/mask_stats.json` and raise `ValueError` if unmasked sky retention < 95%. Verify both: (1) ≥95% of masked pixels are excluded, AND (2) remaining unmasked region is ≥95% of the sky. <!-- FAILED: unspecified -->
+- [X] T016 [US1] Implement `downgrade_resolution()` in `code/data_loader.py` to convert masked map to Nside=128 using healpy
+- [X] T017 [US1] Add error handling for URL unavailability and checksum mismatches in `code/data_loader.py`
 - [ ] T018 [US1] Add logging for data ingestion steps in `code/data_loader.py`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently

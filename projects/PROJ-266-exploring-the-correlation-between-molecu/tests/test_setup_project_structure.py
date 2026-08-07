@@ -1,76 +1,77 @@
 import os
 import tempfile
-from pathlib import Path
 import pytest
-
-# Import the functions to test
-# Assuming the module is in the same directory or added to sys.path
-# For testing, we might need to adjust the import path
+from pathlib import Path
 import sys
-sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from setup_project_structure import create_directory_structure, get_project_root
+# Add the code directory to the path so we can import the module
+sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
 
-def test_create_directory_structure():
-    """Test that the directory structure is created correctly."""
-    with tempfile.TemporaryDirectory() as tmp_dir:
-        root = Path(tmp_dir)
-        
-        # Call the function
-        created_dirs = create_directory_structure(root)
-        
-        # Verify that the directories were created
-        expected_dirs = [
-            "code",
-            "tests",
-            "data",
-            "data/raw",
-            "data/processed",
-            "state",
-            "state/projects",
-            "specs",
-            "specs/001-molecular-flexibility-permeability",
-            "specs/001-molecular-flexibility-permeability/contracts",
-            "figures",
-        ]
-        
-        for dir_name in expected_dirs:
-            full_path = root / dir_name
-            assert full_path.exists(), f"Directory {full_path} was not created"
-            assert full_path.is_dir(), f"{full_path} is not a directory"
-        
-        # Verify that the returned list contains the created paths
-        for created_dir in created_dirs:
-            assert created_dir.exists(), f"Created directory {created_dir} does not exist"
-            assert created_dir in [root / d for d in expected_dirs], f"Created directory {created_dir} is not expected"
-
-def test_create_directory_structure_already_exists():
-    """Test that the function handles existing directories gracefully."""
-    with tempfile.TemporaryDirectory() as tmp_dir:
-        root = Path(tmp_dir)
-        
-        # Pre-create some directories
-        (root / "code").mkdir()
-        (root / "data").mkdir()
-        
-        # Call the function
-        created_dirs = create_directory_structure(root)
-        
-        # Verify that no new directories were created for the existing ones
-        # But the function should still return the list of all expected directories
-        # (or only the new ones, depending on implementation)
-        # In this implementation, it returns only newly created directories
-        assert len(created_dirs) <= len([d for d in ["code", "data"] if not (root / d).exists()]), \
-            "Function returned more directories than expected"
-        
-        # Verify that the existing directories still exist
-        assert (root / "code").exists()
-        assert (root / "data").exists()
+from setup_project_structure import get_project_root, create_directory_structure
 
 def test_get_project_root():
-    """Test that the project root is correctly identified."""
-    # This is a simple test; in a real scenario, you might want to test
-    # the logic for identifying the project root more thoroughly
+    """Test that get_project_root returns a valid Path object."""
     root = get_project_root()
-    assert root.exists(), "Project root does not exist"
-    assert root.is_dir(), "Project root is not a directory"
+    assert isinstance(root, Path)
+    assert root.exists()
+
+def test_create_directory_structure_creates_dirs():
+    """Test that create_directory_structure creates all required directories."""
+    # Create a temporary directory to simulate a project root
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        tmp_path = Path(tmp_dir)
+        
+        # Mock the project root by creating the expected subdirectories
+        # We'll test the function by passing our temp path
+        required_dirs = [
+            "code",
+            "tests",
+            "data/raw",
+            "data/processed",
+            "data/figures",
+            "specs/001-molecular-flexibility-permeability"
+        ]
+        
+        # Verify directories don't exist initially
+        for dir_name in required_dirs:
+            dir_path = tmp_path / dir_name
+            assert not dir_path.exists(), f"Directory {dir_path} should not exist initially"
+        
+        # Create the structure
+        created = create_directory_structure(tmp_path)
+        
+        # Verify all directories were created
+        for dir_name in required_dirs:
+            dir_path = tmp_path / dir_name
+            assert dir_path.exists(), f"Directory {dir_path} should exist after creation"
+            assert dir_path.is_dir(), f"{dir_path} should be a directory"
+        
+        # Verify the returned list contains the created directories
+        assert len(created) == len(required_dirs)
+        for created_dir in created:
+            assert created_dir.exists()
+
+def test_create_directory_structure_skips_existing():
+    """Test that create_directory_structure does not fail if directories already exist."""
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        tmp_path = Path(tmp_dir)
+        
+        # Pre-create some directories
+        (tmp_path / "code").mkdir()
+        (tmp_path / "data").mkdir()
+        (tmp_path / "data" / "raw").mkdir()
+        
+        # This should not raise an exception
+        created = create_directory_structure(tmp_path)
+        
+        # Only the missing directories should be in the created list
+        # In this case, 'tests', 'data/processed', 'data/figures', 'specs/...'
+        assert len(created) > 0
+        
+        # Verify all required directories exist
+        assert (tmp_path / "code").exists()
+        assert (tmp_path / "tests").exists()
+        assert (tmp_path / "data" / "raw").exists()
+        assert (tmp_path / "data" / "processed").exists()
+        assert (tmp_path / "data" / "figures").exists()
+        assert (tmp_path / "specs" / "001-molecular-flexibility-permeability").exists()

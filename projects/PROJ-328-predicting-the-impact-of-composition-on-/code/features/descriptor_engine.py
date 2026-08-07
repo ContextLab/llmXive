@@ -1,207 +1,241 @@
 """
-Descriptor Engine for Solder Alloys.
+Descriptor engineering for compositional data.
 
-Computes weighted mean atomic mass, electronegativity variance, atomic radius variance,
-weighted average melting point, and valence electron concentration.
-
-Workflow:
-1. Apply CLR to raw composition vector to get coefficients.
-2. Use CLR coefficients to weight original raw elemental property tables.
+Calculates weighted atomic properties and derived descriptors
+from compositional data using CLR coefficients.
 """
 import numpy as np
 import pandas as pd
 import logging
 from pathlib import Path
 from typing import Dict, Any, Optional, List, Tuple
-
 from features.transformer import CLRTransformer
 from utils.logging_config import get_logger
 
 logger = get_logger(__name__)
 
-# Standard elemental properties (approximate values for common solder elements)
-# In a real pipeline, this might be loaded from a CSV or database
-ELEMENT_PROPERTIES = {
-    "Sn": {"atomic_mass": 118.71, "electronegativity": 1.96, "atomic_radius": 140, "melting_point": 231.93, "valence_electrons": 4},
-    "Pb": {"atomic_mass": 207.2, "electronegativity": 2.33, "atomic_radius": 175, "melting_point": 327.46, "valence_electrons": 4},
-    "Ag": {"atomic_mass": 107.87, "electronegativity": 1.93, "atomic_radius": 144, "melting_point": 961.78, "valence_electrons": 1},
-    "Cu": {"atomic_mass": 63.55, "electronegativity": 1.90, "atomic_radius": 128, "melting_point": 1084.62, "valence_electrons": 1},
-    "Bi": {"atomic_mass": 208.98, "electronegativity": 2.02, "atomic_radius": 156, "melting_point": 271.36, "valence_electrons": 5},
-    "In": {"atomic_mass": 114.82, "electronegativity": 1.78, "atomic_radius": 166, "melting_point": 156.60, "valence_electrons": 3},
-    "Zn": {"atomic_mass": 65.38, "electronegativity": 1.65, "atomic_radius": 134, "melting_point": 419.53, "valence_electrons": 2},
-    "Sb": {"atomic_mass": 121.76, "electronegativity": 2.05, "atomic_radius": 140, "melting_point": 630.63, "valence_electrons": 5},
-    "Au": {"atomic_mass": 196.97, "electronegativity": 2.54, "atomic_radius": 144, "melting_point": 1064.18, "valence_electrons": 1},
-    "Ni": {"atomic_mass": 58.69, "electronegativity": 1.91, "atomic_radius": 124, "melting_point": 1455.00, "valence_electrons": 2},
-    "Fe": {"atomic_mass": 55.85, "electronegativity": 1.83, "atomic_radius": 126, "melting_point": 1538.00, "valence_electrons": 2},
-    "Co": {"atomic_mass": 58.93, "electronegativity": 1.88, "atomic_radius": 125, "melting_point": 1495.00, "valence_electrons": 2},
-    "Mn": {"atomic_mass": 54.94, "electronegativity": 1.55, "atomic_radius": 127, "melting_point": 1246.00, "valence_electrons": 2},
-    "Al": {"atomic_mass": 26.98, "electronegativity": 1.61, "atomic_radius": 143, "melting_point": 660.32, "valence_electrons": 3},
-    "Mg": {"atomic_mass": 24.31, "electronegativity": 1.31, "atomic_radius": 160, "melting_point": 650.00, "valence_electrons": 2},
-    "Ca": {"atomic_mass": 40.08, "electronegativity": 1.00, "atomic_radius": 197, "melting_point": 842.00, "valence_electrons": 2},
-}
-
 
 class DescriptorEngine:
     """
-    Computes physical property descriptors from solder compositions.
+    Engine for computing compositional descriptors.
+
+    This class calculates various atomic and electronic properties
+    from compositional data, using CLR-transformed coefficients
+    as weights for the original elemental properties.
+
+    Descriptors computed:
+    - Weighted mean atomic mass
+    - Electronegativity variance
+    - Atomic radius variance
+    - Weighted average melting point
+    - Valence electron concentration (VEC)
     """
 
-    def __init__(self):
-        self.element_properties = pd.DataFrame(ELEMENT_PROPERTIES).T
+    # Element property tables (simplified for demonstration)
+    # In production, these would be loaded from external databases
+    ELEMENT_PROPERTIES = {
+        'atomic_mass': {
+            'Sn': 118.71, 'Ag': 107.87, 'Cu': 63.55, 'In': 114.82,
+            'Bi': 208.98, 'Sb': 121.76, 'Pb': 207.2, 'Zn': 65.38,
+            'Ni': 58.69, 'Au': 196.97, 'Fe': 55.85, 'Co': 58.93,
+            'Mn': 54.94, 'Cr': 52.00, 'Al': 26.98, 'Ga': 69.72,
+            'Ge': 72.63, 'Ti': 47.87, 'Mo': 95.95, 'W': 183.84
+        },
+        'electronegativity': {
+            'Sn': 1.96, 'Ag': 1.93, 'Cu': 1.90, 'In': 1.78,
+            'Bi': 2.02, 'Sb': 2.05, 'Pb': 2.33, 'Zn': 1.65,
+            'Ni': 1.91, 'Au': 2.54, 'Fe': 1.83, 'Co': 1.88,
+            'Mn': 1.55, 'Cr': 1.66, 'Al': 1.61, 'Ga': 1.81,
+            'Ge': 2.01, 'Ti': 1.54, 'Mo': 2.16, 'W': 2.36
+        },
+        'atomic_radius': {
+            'Sn': 140, 'Ag': 144, 'Cu': 128, 'In': 166,
+            'Bi': 156, 'Sb': 140, 'Pb': 175, 'Zn': 134,
+            'Ni': 124, 'Au': 144, 'Fe': 126, 'Co': 125,
+            'Mn': 127, 'Cr': 128, 'Al': 143, 'Ga': 135,
+            'Ge': 122, 'Ti': 147, 'Mo': 139, 'W': 139
+        },
+        'melting_point': {
+            'Sn': 231.93, 'Ag': 961.78, 'Cu': 1084.62, 'In': 156.60,
+            'Bi': 271.40, 'Sb': 630.63, 'Pb': 327.46, 'Zn': 419.53,
+            'Ni': 1455.00, 'Au': 1064.18, 'Fe': 1538.00, 'Co': 1495.00,
+            'Mn': 1246.00, 'Cr': 1907.00, 'Al': 660.32, 'Ga': 29.76,
+            'Ge': 938.25, 'Ti': 1668.00, 'Mo': 2623.00, 'W': 3422.00
+        },
+        'valence_electrons': {
+            'Sn': 4, 'Ag': 1, 'Cu': 1, 'In': 3,
+            'Bi': 5, 'Sb': 5, 'Pb': 4, 'Zn': 2,
+            'Ni': 10, 'Au': 1, 'Fe': 8, 'Co': 9,
+            'Mn': 7, 'Cr': 6, 'Al': 3, 'Ga': 3,
+            'Ge': 4, 'Ti': 4, 'Mo': 6, 'W': 6
+        }
+    }
 
-    def compute_descriptors(self, df: pd.DataFrame, composition_cols: List[str]) -> pd.DataFrame:
+    def __init__(self):
+        """Initialize the descriptor engine."""
+        self._element_names = list(self.ELEMENT_PROPERTIES['atomic_mass'].keys())
+        self._element_to_idx = {name: i for i, name in enumerate(self._element_names)}
+        logger.debug(f"DescriptorEngine initialized with {len(self._element_names)} elements")
+
+    def _get_element_indices(self, elements: List[str]) -> List[int]:
         """
-        Compute descriptors for a dataframe of solder compositions.
+        Map element symbols to indices in the property tables.
 
         Args:
-            df: DataFrame containing composition data (weight fractions).
-            composition_cols: List of column names representing elements.
+            elements: List of element symbols
 
         Returns:
-            DataFrame with original columns plus new descriptor columns.
+            List of indices
         """
-        logger.info(f"Computing descriptors for {len(df)} samples using elements: {composition_cols}")
+        indices = []
+        for elem in elements:
+            if elem in self._element_to_idx:
+                indices.append(self._element_to_idx[elem])
+            else:
+                logger.warning(f"Element {elem} not found in property tables, skipping")
+                indices.append(-1)
+        return indices
 
-        # Filter to only elements we have properties for
-        valid_elements = [e for e in composition_cols if e in self.element_properties.index]
-        if len(valid_elements) != len(composition_cols):
-            missing = set(composition_cols) - set(valid_elements)
-            logger.warning(f"Missing property data for elements: {missing}. Skipping these in descriptor calculation.")
+    def _compute_weighted_mean(self, weights: np.ndarray, property_values: np.ndarray) -> float:
+        """Compute weighted mean of a property."""
+        valid_mask = weights >= 0  # CLR weights can be negative, but we use them as-is
+        if not np.any(valid_mask):
+            return 0.0
+        return np.sum(weights[valid_mask] * property_values[valid_mask]) / np.sum(weights[valid_mask])
 
-        if len(valid_elements) == 0:
-            raise ValueError("No valid elements found for descriptor calculation.")
+    def _compute_weighted_variance(self, weights: np.ndarray, property_values: np.ndarray) -> float:
+        """Compute weighted variance of a property."""
+        if np.sum(weights) == 0:
+            return 0.0
+        mean = self._compute_weighted_mean(weights, property_values)
+        variance = np.sum(weights * (property_values - mean) ** 2) / np.sum(weights)
+        return variance
 
-        # 1. Apply CLR transform to get coefficients
-        # The CLR transformer expects a matrix of compositions
-        comp_matrix = df[valid_elements].values
+    def compute(self, clr_data: np.ndarray, raw_composition: pd.DataFrame) -> pd.DataFrame:
+        """
+        Compute descriptors from CLR-transformed data and raw composition.
 
-        # Handle potential zeros (add small epsilon if necessary, though cleaner should handle this)
-        # For robustness, we'll add a tiny value if any are exactly zero to avoid log(0)
-        epsilon = 1e-10
-        comp_matrix = np.where(comp_matrix == 0, epsilon, comp_matrix)
+        The CLR coefficients are used as weights for the original elemental properties.
 
-        clr_transformer = CLRTransformer()
-        clr_matrix, _ = clr_transformer.fit_transform(comp_matrix)
+        Args:
+            clr_data: CLR-transformed data array of shape (n_samples, n_components)
+            raw_composition: DataFrame with raw composition columns (element symbols as columns)
 
-        # 2. Compute descriptors using CLR coefficients as weights
-        # Note: The spec says "Using the resulting CLR coefficients to weight the original raw elemental property tables"
-        # This implies: Descriptors = sum(CLR_coeff * Property_Value) for each element
+        Returns:
+            DataFrame with computed descriptors
+        """
+        if clr_data.shape[0] != len(raw_composition):
+            raise ValueError(f"clr_data rows ({clr_data.shape[0]}) != raw_composition rows ({len(raw_composition)})")
 
         descriptors = {}
 
-        # Weighted Mean Atomic Mass
-        mass_weights = clr_matrix[:, [valid_elements.index(e) for e in valid_elements]]
-        mass_values = np.array([self.element_properties.loc[e, "atomic_mass"] for e in valid_elements])
-        descriptors["weighted_mean_atomic_mass"] = np.sum(mass_weights * mass_values, axis=1)
+        # Get element names from raw_composition columns
+        element_cols = [col for col in raw_composition.columns if col in self._element_to_idx]
+        if not element_cols:
+            logger.error("No valid element columns found in raw_composition")
+            raise ValueError("No valid element columns found")
 
-        # Weighted Mean Electronegativity
-        en_weights = clr_matrix[:, [valid_elements.index(e) for e in valid_elements]]
-        en_values = np.array([self.element_properties.loc[e, "electronegativity"] for e in valid_elements])
-        descriptors["weighted_mean_electronegativity"] = np.sum(en_weights * en_values, axis=1)
+        element_indices = self._get_element_indices(element_cols)
 
-        # Electronegativity Variance (weighted by CLR coefficients squared? or just variance of weighted values?)
-        # Standard approach in materials informatics: Variance of properties weighted by atomic fraction or CLR weight.
-        # We'll compute the weighted variance of electronegativity.
-        # Var = sum(w * (x - mean)^2)
-        # However, since we are using CLR weights which sum to 0, we might interpret this as a moment.
-        # Let's stick to the prompt's likely intent: variance of the property values weighted by the composition magnitude.
-        # Alternative interpretation: Variance of the property distribution in the alloy.
-        # Let's use: sum( (clr_coef * property)^2 ) as a proxy for variance contribution, or standard weighted variance.
-        # Given the prompt says "electronegativity variance", let's calculate the variance of the property values
-        # weighted by the absolute CLR weights or just the raw composition if we were using raw.
-        # But the prompt specifically says "Using the resulting CLR coefficients to weight...".
-        # Let's calculate the variance of the property values, weighted by the CLR coefficients.
-        # Since CLR coefficients can be negative, variance is usually calculated on the raw composition or using a different weighting.
-        # Let's assume the prompt implies: Variance = sum( (w_i * x_i)^2 ) - (sum(w_i * x_i))^2? No.
-        # Let's use the standard weighted variance formula where weights are the absolute values of CLR coefficients or the raw composition.
-        # However, to strictly follow "weighting with CLR coefficients", we will compute the second moment.
-        # Let's try: Variance = sum( (CLR_i * Property_i)^2 ) - (sum(CLR_i * Property_i))^2
-        # This is the variance of the property distribution where the "probability" is defined by CLR weights.
-        # Note: CLR weights sum to 0, so the mean is 0. Thus Variance = sum( (CLR_i * x_i)^2 ).
-        descriptors["electronegativity_variance"] = np.sum((en_weights * en_values) ** 2, axis=1)
+        for i, (prop_name, prop_dict) in enumerate(self.ELEMENT_PROPERTIES.items()):
+            prop_values = np.array([prop_dict.get(elem, 0.0) for elem in element_cols])
+            prop_values = np.array([prop_dict.get(element_cols[j], 0.0) for j in range(len(element_cols))])
 
-        # Atomic Radius Variance (similar logic)
-        radius_weights = clr_matrix[:, [valid_elements.index(e) for e in valid_elements]]
-        radius_values = np.array([self.element_properties.loc[e, "atomic_radius"] for e in valid_elements])
-        descriptors["atomic_radius_variance"] = np.sum((radius_weights * radius_values) ** 2, axis=1)
+            # Compute descriptor for each sample
+            desc_values = []
+            for sample_idx in range(clr_data.shape[0]):
+                clr_weights = clr_data[sample_idx]
+                # Use CLR weights as-is (they can be negative)
+                desc = np.sum(clr_weights * prop_values)
+                desc_values.append(desc)
 
-        # Weighted Average Melting Point
-        mp_weights = clr_matrix[:, [valid_elements.index(e) for e in valid_elements]]
-        mp_values = np.array([self.element_properties.loc[e, "melting_point"] for e in valid_elements])
-        descriptors["weighted_avg_melting_point"] = np.sum(mp_weights * mp_values, axis=1)
+            descriptors[f"{prop_name}_weighted"] = desc_values
 
-        # Valence Electron Concentration (VEC)
-        # VEC is typically sum(atomic_fraction * valence_electrons)
-        # We will use CLR weights here as per the "weighting" instruction, though physically VEC is usually based on atomic fraction.
-        # If the prompt strictly demands CLR weighting, we do so.
-        vec_weights = clr_matrix[:, [valid_elements.index(e) for e in valid_elements]]
-        vec_values = np.array([self.element_properties.loc[e, "valence_electrons"] for e in valid_elements])
-        descriptors["weighted_valence_electron_concentration"] = np.sum(VEC_weights * vec_values, axis=1)
+        # Compute variance-based descriptors
+        for prop_name in ['electronegativity', 'atomic_radius']:
+            prop_dict = self.ELEMENT_PROPERTIES[prop_name]
+            prop_values = np.array([prop_dict.get(elem, 0.0) for elem in element_cols])
 
-        # Create new dataframe with descriptors
-        desc_df = pd.DataFrame(descriptors)
-        desc_df.index = df.index
+            variance_values = []
+            for sample_idx in range(clr_data.shape[0]):
+                clr_weights = clr_data[sample_idx]
+                # Weighted variance
+                mean_val = np.sum(clr_weights * prop_values) / (np.sum(clr_weights) + 1e-10)
+                variance = np.sum(clr_weights * (prop_values - mean_val) ** 2) / (np.sum(clr_weights) + 1e-10)
+                variance_values.append(variance)
 
-        # Merge back to original dataframe
-        result = pd.concat([df, desc_df], axis=1)
+            descriptors[f"{prop_name}_variance"] = variance_values
 
-        logger.info(f"Computed {len(descriptors)} descriptors.")
-        return result
+        # Valence electron concentration (VEC) - weighted average
+        vec_values = []
+        for sample_idx in range(clr_data.shape[0]):
+            clr_weights = clr_data[sample_idx]
+            vec = np.sum(clr_weights * self.ELEMENT_PROPERTIES['valence_electrons'])
+            vec_values.append(vec)
+        descriptors['vec'] = vec_values
 
-    def get_element_properties_df(self) -> pd.DataFrame:
-        """Returns the internal elemental properties dataframe."""
-        return self.element_properties
+        return pd.DataFrame(descriptors, index=raw_composition.index)
 
+    def compute_all(self, raw_composition: pd.DataFrame) -> pd.DataFrame:
+        """
+        Compute all descriptors directly from raw composition data.
+
+        This method handles the full pipeline: closure -> CLR -> descriptor computation.
+
+        Args:
+            raw_composition: DataFrame with raw composition columns
+
+        Returns:
+            DataFrame with all computed descriptors
+        """
+        # Ensure closure (sum to 1)
+        composition_closed = raw_composition.div(raw_composition.sum(axis=1), axis=0)
+
+        # Apply CLR transformation
+        transformer = CLRTransformer()
+        clr_data = transformer.fit_transform(composition_closed.values)
+
+        # Compute descriptors
+        descriptors = self.compute(clr_data, raw_composition)
+
+        logger.info(f"Computed {len(descriptors.columns)} descriptors for {len(descriptors)} samples")
+        return descriptors
 
 def main():
     """
-    Main entry point for standalone execution of descriptor engineering.
-    Loads validated data, computes descriptors, and saves the result.
+    Main function for testing the descriptor engine.
     """
     from seed import init_reproducibility
-    from config import get_data_processed_dir, get_data_outputs_dir
-    import json
-
     init_reproducibility()
 
-    processed_dir = get_data_processed_dir()
-    output_dir = get_data_outputs_dir()
+    logger.info("Testing DescriptorEngine")
 
-    input_file = processed_dir / "solder_hardness_validated.csv"
-    if not input_file.exists():
-        logger.error(f"Input file not found: {input_file}. Run ingestion pipeline first.")
-        return
-
-    logger.info(f"Loading data from {input_file}")
-    df = pd.read_csv(input_file)
-
-    # Identify composition columns (usually all columns except 'hardness', 'alloy_id', etc.)
-    # We'll assume columns with element symbols in them
-    possible_elements = list(ELEMENT_PROPERTIES.keys())
-    composition_cols = [c for c in df.columns if c in possible_elements]
-
-    if not composition_cols:
-        logger.error("No composition columns found in the dataset.")
-        return
-
-    logger.info(f"Detected composition columns: {composition_cols}")
+    # Sample raw composition data
+    sample_composition = pd.DataFrame({
+        'Sn': [0.5, 0.6, 0.4],
+        'Ag': [0.3, 0.3, 0.4],
+        'Cu': [0.2, 0.1, 0.2],
+    })
 
     engine = DescriptorEngine()
-    result_df = engine.compute_descriptors(df, composition_cols)
+    descriptors = engine.compute_all(sample_composition)
 
-    output_file = output_dir / "solder_hardness_with_descriptors.csv"
-    result_df.to_csv(output_file, index=False)
-    logger.info(f"Saved descriptors to {output_file}")
+    logger.info(f"Sample composition:\n{sample_composition}")
+    logger.info(f"Computed descriptors:\n{descriptors}")
 
-    # Save metadata
-    metadata = {
-        "input_file": str(input_file),
-        "output_file": str(output_file),
-        "elements_used": composition_cols,
-        "descriptors_computed": list(engine.compute_descriptors(df.head(1), composition_cols).columns[len(df.columns):])
-    }
-    with open(output_dir / "descriptor_engine_metadata.json", "w") as f:
-        json.dump(metadata, f, indent=2)
+    # Verify descriptors are computed
+    expected_cols = [
+        'atomic_mass_weighted', 'electronegativity_weighted',
+        'atomic_radius_weighted', 'melting_point_weighted',
+        'valence_electrons_weighted', 'electronegativity_variance',
+        'atomic_radius_variance', 'vec'
+    ]
+
+    for col in expected_cols:
+        if col in descriptors.columns:
+            logger.info(f"✓ Descriptor {col} computed")
+        else:
+            logger.warning(f"✗ Descriptor {col} missing")
 
 if __name__ == "__main__":
     main()

@@ -388,3 +388,178 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-14T20:37:06Z'
+- artifact_path: projects/PROJ-368-assessing-the-validity-of-the-cosmologic/specs/001-assessing-the-validity-of-the-cosmologic/tasks.md
+  attempts: 1
+  canonical: Mask application excludes 95% of masked pixels and retains 95% unmasked
+    sky region
+  claim_id: c_b0a5ef08
+  context: 'Implement apply_galactic_mask() in code/data_loader.py using Commander
+    mask to exclude foregrounds. Deliverable: Log mask statistics to data/processed/mask_stats.json
+    and raise ValueError if unmasked sky retention < 95%.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify both: (1) \u226595% of masked pixels are excluded, AND (2) remaining\
+    \ unmasked region is \u226595% of the sky."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T07:25:19Z'
+- artifact_path: projects/PROJ-368-assessing-the-validity-of-the-cosmologic/specs/001-assessing-the-validity-of-the-cosmologic/tasks.md
+  attempts: 1
+  canonical: Power validation requires greater than 80% detection rate for injected
+    anisotropy
+  claim_id: c_3d3b803d
+  context: 'Independent Test: Run analysis on simulated isotropic data to verify uniform
+    p-value distribution; inject anisotropy to verify power (>80% detection).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Power_validation_requires_greater_than_80%25_detection_rate_fo
+  kind: magnitude
+  raw_text: Run analysis on simulated isotropic data to verify uniform p-value distribution;
+    inject anisotropy to verify power (>80% detection).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T07:25:58Z'
+- artifact_path: projects/PROJ-368-assessing-the-validity-of-the-cosmologic/specs/001-assessing-the-validity-of-the-cosmologic/tasks.md
+  attempts: 1
+  canonical: C_l recovery from isotropic simulation verified within 1% error
+  claim_id: c_3dd83b55
+  context: 'Independent Test: Compute C_l from a known isotropic simulation and verify
+    recovery within 1% error; verify hemispherical splits produce valid spectra.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Compute C_l from a known isotropic simulation and verify recovery within
+    1% error
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T07:25:58Z'
+- artifact_path: projects/PROJ-368-assessing-the-validity-of-the-cosmologic/specs/001-assessing-the-validity-of-the-cosmologic/tasks.md
+  attempts: 1
+  canonical: synalm generation speed is less than 30 seconds per simulation
+  claim_id: c_15eed503
+  context: Unit test for synalm generation speed (<30s per sim) in tests/test_simulations.py
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Synalm_generation_speed_is_less_than_30_seconds_per_simulati
+  kind: magnitude
+  raw_text: Unit test for synalm generation speed (<30s per sim)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T07:26:24Z'
+- artifact_path: projects/PROJ-368-assessing-the-validity-of-the-cosmologic/specs/001-assessing-the-validity-of-the-cosmologic/tasks.md
+  attempts: 1
+  canonical: CMB map downgraded to Nside 128
+  claim_id: c_78a0a451
+  context: Implement downgrade_resolution() in code/data_loader.py to convert masked
+    map to Nside=128 using healpy
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: downgraded map to Nside=128
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T07:26:37Z'
+- artifact_path: projects/PROJ-368-assessing-the-validity-of-the-cosmologic/specs/001-assessing-the-validity-of-the-cosmologic/tasks.md
+  attempts: 1
+  canonical: Fetch Planck SMICA map with Nside 2048 from ESA archive
+  claim_id: c_d006f8c6
+  context: Implement download_planck_map() in code/data_loader.py to fetch Nside=2048
+    SMICA map from ESA archive with SHA-256 validation
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: fetch Nside=2048 SMICA map from ESA archive
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T07:27:27Z'
+- artifact_path: projects/PROJ-368-assessing-the-validity-of-the-cosmologic/specs/001-assessing-the-validity-of-the-cosmologic/tasks.md
+  attempts: 1
+  canonical: Downloaded map exists with Nside 2048
+  claim_id: c_bdb387bf
+  context: 'Independent Test: Verify the downloaded map exists with correct Nside=2048,
+    mask application excludes correct regions, and the Nside=128 downgraded map fits
+    in <100MB RAM and has no NaN/inf values.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: verify the downloaded map exists with correct Nside=2048
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T07:27:46Z'
+- artifact_path: projects/PROJ-368-assessing-the-validity-of-the-cosmologic/specs/001-assessing-the-validity-of-the-cosmologic/tasks.md
+  attempts: 1
+  canonical: Nside 128 downgraded map fits in less than 100 MB RAM
+  claim_id: c_cf37d301
+  context: 'Independent Test: Verify the downloaded map exists with correct Nside=2048,
+    mask application excludes correct regions, and the Nside=128 downgraded map fits
+    in <100MB RAM and has no NaN/inf values.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Nside_128_downgraded_map_fits_in_less_than_100_MB_RAM
+  kind: magnitude
+  raw_text: the Nside=128 downgraded map fits in <100MB RAM
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T07:28:18Z'
+- artifact_path: projects/PROJ-368-assessing-the-validity-of-the-cosmologic/specs/001-assessing-the-validity-of-the-cosmologic/tasks.md
+  attempts: 1
+  canonical: Compute alm coefficients using healpy map2alm with 3 iterations
+  claim_id: c_ef468fc0
+  context: "Implement compute_alm() in code/harmonics.py using healpy map2alm with\
+    \ iter=3 for l \u2208 [low, 128]. DEPENDS ON T016 (downgraded map must be ready)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "using healpy map2alm with iter=3 for l \u2208 [low, 128]"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T07:28:45Z'
+- artifact_path: projects/PROJ-368-assessing-the-validity-of-the-cosmologic/specs/001-assessing-the-validity-of-the-cosmologic/tasks.md
+  attempts: 1
+  canonical: Generate simulations using Planck 2018 best-fit Lambda CDM power spectrum
+  claim_id: c_8e10e959
+  context: "Implement generate_isotropic_sims() in code/simulations.py using Planck\
+    \ 2018 best-fit \u039BCDM power spectrum and fixed seed"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Generate_simulations_using_Planck_2018_best-fit_Lambda_CDM_p
+  kind: magnitude
+  raw_text: "using Planck 2018 best-fit \u039BCDM power spectrum and fixed seed"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T07:30:10Z'

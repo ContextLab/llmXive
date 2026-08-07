@@ -1,10 +1,26 @@
-T000:
+T001:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of a `research.md` file in `specs/001-molecular-flexibility-permeability/`
-    was provided, nor any content showing the required sections (Introduction, Methodology,
-    Results, Discussion). The implementer must create the file with the specified
-    template.
+  r: No evidence of a `specs/001-molecular-flexibility-permeability/research.md` file
+    was provided, nor any excerpt showing the required headers and placeholder text.
+    Without the actual artifact, we cannot confirm the task was fulfilled. The implementer
+    must add the file with the exact sections listed.
+T002:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the required `code/`, `tests/`, or `data/` directories (or any\
+    \ files within them) was provided; without a directory listing or actual files,\
+    \ we cannot confirm that the project structure was created as specified. The implementer\
+    \ must supply the filesystem layout showing these three top\u2011level folders\
+    \ (and ideally non\u2011empty placeholder files) to satisfy the task."
+T004:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No linting or formatting configuration files (e.g., .flake8, pyproject.toml,\
+    \ setup.cfg) or setup scripts are present in the provided evidence, so the requirement\
+    \ to configure flake8/black is not satisfied. The implementer must add the appropriate\
+    \ configuration files and any integration steps (e.g., pre\u2011commit hooks)\
+    \ to complete the task."
 T006:
   c: false
   h: 9914aae3ece5fb48343f57249c7f1395fe8fe5d86fea31a1482bcaab2398bc8b
@@ -13,23 +29,29 @@ T006:
     \ section to `research.md`, and the shown code contains a typo (`DEFAULT_DEVIA`)\
     \ that would raise a `NameError` if a YAML parse error occurs. Consequently the\
     \ script does not fully meet the task\u2019s functional requirement."
-T008a:
+T008c:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: The submission provides no evidence of the `data/raw/` and `data/processed/`
-    directories being created (no file listings, scripts, or commands are shown).
-    Without such artifacts, the requirement to create the folder structure using OS
-    path utilities is not satisfied. The next implementer must add the actual directory
-    creation (e.g., a Python script using `os.makedirs` or a shell command) and verify
-    the folders exist.
+  r: No artifact (script, test output, or directory listing) was provided showing
+    that `data/raw` and `data/processed` exist or that the required `assert` statements
+    were executed. Consequently the requirement to verify the directory structure
+    cannot be confirmed.
 T009:
   c: false
-  h: 4392adad10389c9747709b186cc0d84d9a71d95da01dcd1ed660c51334ebf87e
-  r: "The `code/data/retrieval.py` file contains only placeholder functions that raise\
-    \ `NotImplementedError` and never fetch data, write a CSV, or call the checksum\
-    \ utility. No raw CSV file is present, and the required state file `state/projects/PROJ-266-exploring-the-correlation-between-molecu.yaml`\
-    \ is missing, so the checksum cannot be registered. The task\u2019s core requirements\
-    \ are therefore unmet."
+  h: 3ceb9275a97e7eaee969821c9ddba3719b0b06102ad70d40783db79a811a1fc7
+  r: "The `retrieval.py` script is incomplete (truncated) and does not show saving\
+    \ a CSV or invoking the checksum utility, and the required state YAML file `state/projects/PROJ-266-exploring-the-correlation-between-molecu.yaml`\
+    \ is missing entirely. Consequently the task\u2019s core requirements are not\
+    \ satisfied."
+T010:
+  c: false
+  h: 9fdb579305633fa86473dfd3cff9d0c0000fe387244f7ec8f92125a2a969334f
+  r: "The required state file `state/projects/PROJ-266-exploring-the-correlation-between-molecu.yaml`\
+    \ does not exist, so the checksum cannot be registered there. Moreover, `code/utils/checksum.py`\
+    \ is designed to write only to a log file, not to the YAML state file, and the\
+    \ provided `preprocessing.py` excerpt does not show any call to `register_checksum`\
+    \ after saving the filtered CSV. Both issues prevent the task\u2019s mandatory\
+    \ post\u2011processing step from being satisfied."
 T012:
   c: false
   h: 5cff7f5929b24a4a1295338ac308e2469d8d3e7471eeb49254b5fbf29d9c82f0

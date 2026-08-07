@@ -1,22 +1,24 @@
 [tool.black]
-line-length = 120
-target-version = ['py38', 'py39', 'py310']
+line-length = 88
+target-version = ['py38', 'py39', 'py310', 'py311']
 include = '\.pyi?$'
 exclude = '''
 /(
     \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | _build
-  | buck-out
-  | build
-  | dist
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+    | data
+    | models
 )/
 '''
 
 [tool.isort]
 profile = "black"
-line_length = 120
-known_first_party = ["seed", "config", "utils", "models", "features", "ingestion", "evaluation", "visualization"]
+line_length = 88
+skip = [".git", ".hg", ".mypy_cache", ".tox", ".venv", "_build", "buck-out", "build", "dist", "data", "models"]

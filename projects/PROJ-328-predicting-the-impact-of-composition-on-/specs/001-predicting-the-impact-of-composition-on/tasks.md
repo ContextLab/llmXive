@@ -89,7 +89,7 @@
 - [X] T014 [US1] Implement validation logic in `code/ingestion/validator.py` to check for non-null hardness and complete composition, emitting power limitation warning if 50 ≤ N < 100
 - [ ] T015 [US1] Save raw immutable data to `data/raw/solder_hardness_raw.csv` with checksums in `data/checksums.txt`
 - [ ] T016 [US1] Save validated dataset to `data/processed/solder_hardness_validated.csv`
-- [~] T017 [US1] Add logging for ingestion operations and data source citations in `code/ingestion/`
+- [ ] T017 [US1] Add logging for ingestion operations and data source citations in `code/ingestion/`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -113,13 +113,13 @@
 - [X] T022 [US2] Implement VIF calculation in `code/features/collinearity.py` to flag predictors with VIF ≥ 5
 - [X] T023 [US2] Implement XGBoost training with grid search (≤10 combinations) in `code/models/xgboost_trainer.py`
 - [X] T024 [US2] Implement Linear Regression baseline training in `code/models/linear_trainer.py`
-- [ ] T025 [US2] Implement k-fold cross-validation for both models in `code/evaluation/cv.py`
+- [X] T025 [US2] Implement k-fold cross-validation for both models in `code/evaluation/cv.py`
 - [X] T026 [US2] Implement bootstrap resampling for confidence intervals on held-out test set in `code/evaluation/bootstrap.py`
 - [X] T027 [US2] Implement paired t-test comparison on CV folds in `code/evaluation/model_comparison.py`
 - [X] T028 [US2] Implement SHAP value calculation and top-3 feature ranking in `code/evaluation/shap_analysis.py`
-- [~] T029 [US2] Implement sensitivity analysis in `code/evaluation/sensitivity.py` sweeping R² thresholds over the specific set {0.3, 0.5, 0.6, 0.7} and saving the fraction of bootstrap samples exceeding each threshold to `data/processed/sensitivity_analysis.yaml` as per SC-005
-- [~] T030 [US2] Save model artifacts, metrics, and diagnostics to `models/` and `data/processed/`
-- [~] T031 [US2] Add associational framing warnings in ALL model outputs, visualizations, and the final report per FR-007
+- [ ] T029 [US2] Implement sensitivity analysis in `code/evaluation/sensitivity.py` sweeping R² thresholds over the specific set {0.3, 0.5, 0.6, 0.7} and saving the fraction of bootstrap samples exceeding each threshold to `data/processed/sensitivity_analysis.yaml` as per SC-005
+- [ ] T030 [US2] Save model artifacts, metrics, and diagnostics to `models/` and `data/processed/`
+- [ ] T031 [US2] Add associational framing warnings in ALL model outputs, visualizations, and the final report per FR-007
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -139,8 +139,8 @@
 ### Implementation for User Story 3
 
 - [ ] T034 [US3] Implement scatter plot generation in `code/visualization/scatter.py` with 95% CI error bars
-- [ ] T035 [US3] Implement partial dependence plot generation in `code/visualization/pdp.py` for top 3 SHAP-ranked features
-- [ ] T036 [US3] Implement sensitivity analysis plot in `code/visualization/sensitivity_plot.py`
+- [X] T035 [US3] Implement partial dependence plot generation in `code/visualization/pdp.py` for top 3 SHAP-ranked features
+- [X] T036 [US3] Implement sensitivity analysis plot in `code/visualization/sensitivity_plot.py`
 - [ ] T037 [US3] Save all plots to `data/outputs/` with correct labels and units
 - [ ] T038 [US3] Add axis labels, titles, and legends to all visualizations
 

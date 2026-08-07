@@ -1,64 +1,73 @@
 """
-Entry point for testing the logging and error handling utilities.
-Run with: python -m code.utils
+Main entry point for the utils package.
+
+This script serves as a demonstration and validation runner for the
+error handling and logging infrastructure.
 """
 import sys
 import logging
-
-# Add project root to path if running as script
-if __name__ == "__main__":
-    sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
-
 from pathlib import Path
 from utils.logging_config import setup_logging, get_logger
 from utils.error_handlers import (
     SolderPipelineError,
     DataValidationError,
     IngestionError,
+    ModelTrainingError,
+    ConfigurationError
 )
+from utils.fr007_warnings import main as run_warning_tests
+from utils.__init__ import * # Import all public names
+
 
 def main():
-    """Test the logging and error handling infrastructure."""
-    # Setup logging to both console and a test log file
-    log_file = Path("logs/test_run.log")
-    setup_logging(level="DEBUG", log_file=str(log_file), console=True)
-
-    logger = get_logger("T008_TEST")
-    logger.info("Testing logging configuration...")
-
-    # Test different log levels
-    logger.debug("This is a DEBUG message")
-    logger.info("This is an INFO message")
-    logger.warning("This is a WARNING message")
-    logger.error("This is an ERROR message")
-
-    # Test custom exceptions
+    """
+    Main entry point for validating the utility infrastructure.
+    """
+    # Setup logging
+    log_path = "data/outputs/utils_validation.log"
+    logger = setup_logging(log_path)
+    logger = get_logger(__name__)
+    
+    logger.info("Starting validation of error handling and logging infrastructure...")
+    
+    # Test 1: Exception hierarchy
     try:
-        raise DataValidationError(
-            "Invalid hardness value",
-            field="hardness",
-            value="-5.0",
-            expected="positive number",
-        )
-    except DataValidationError as e:
-        logger.error(f"Caught DataValidationError: {e}")
-
-    try:
-        raise IngestionError(
-            "Failed to fetch data from source",
-            source="https://example.com/api",
-            status_code=404,
-        )
-    except IngestionError as e:
-        logger.error(f"Caught IngestionError: {e}")
-
-    try:
-        raise SolderPipelineError("General pipeline failure")
+        raise DataValidationError("Test validation error", {"field": "hardness"})
     except SolderPipelineError as e:
-        logger.error(f"Caught SolderPipelineError: {e}")
+        logger.info(f"Caught expected SolderPipelineError: {e}")
+    except Exception as e:
+        logger.error(f"Unexpected exception type: {type(e)}, {e}")
+    
+    try:
+        raise IngestionError("Test ingestion error")
+    except SolderPipelineError as e:
+        logger.info(f"Caught expected IngestionError: {e}")
+    
+    try:
+        raise ModelTrainingError("Test model error")
+    except SolderPipelineError as e:
+        logger.info(f"Caught expected ModelTrainingError: {e}")
+    
+    try:
+        raise ConfigurationError("Test config error")
+    except SolderPipelineError as e:
+        logger.info(f"Caught expected ConfigurationError: {e}")
+    
+    # Test 2: Logger functionality
+    test_logger = get_logger("test.module")
+    test_logger.debug("Debug message")
+    test_logger.info("Info message")
+    test_logger.warning("Warning message")
+    test_logger.error("Error message")
+    
+    # Test 3: FR-007 Warnings
+    logger.info("Running FR-007 warning tests...")
+    run_warning_tests()
+    
+    logger.info("Validation of error handling and logging infrastructure completed successfully.")
+    
+    print(f"Validation log written to: {log_path}")
 
-    logger.info("All tests passed successfully!")
-    print(f"\nLogs written to: {log_file.resolve()}")
 
 if __name__ == "__main__":
     main()

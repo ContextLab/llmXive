@@ -18,7 +18,7 @@ This project implements a physical testbed for a mesh network supercomputer that
 **Target Platform**: Linux (GitHub Actions runner) for orchestration; remote Linux/ARM devices for workers  
 **Project Type**: Research CLI / Orchestration System  
 **Performance Goals**: Complete full parameter sweep and analysis within 6 hours; minimize coordination overhead in scheduling  
-**Constraints**: Multiple CPU cores, sufficient RAM, ~14 GB disk on CI; no GPU required (statistical analysis is CPU-tractable); physical testbed availability assumed for local runs but mocked for CI validation  
+**Constraints**: Multiple CPU cores, sufficient RAM, Substantial disk space on CI; no GPU required (statistical analysis is CPU-tractable); physical testbed availability assumed for local runs but mocked for CI validation  
 **Scale/Scope**: A heterogeneous set of nodes; multiple granularity settings (fine/medium/coarse); Multiple independent runs (Multiple replicates per Multiple configs + stress tests)  
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.

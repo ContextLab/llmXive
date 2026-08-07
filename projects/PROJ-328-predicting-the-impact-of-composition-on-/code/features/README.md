@@ -1,13 +1,34 @@
-# Feature Engineering Module
+# Features Module
 
-This directory contains the logic for transforming raw solder compositions into machine learning-ready descriptors.
+This directory contains the descriptor engineering infrastructure for the solder hardness prediction pipeline.
 
 ## Components
 
-- `transformer.py`: Implements the Centered Log-Ratio (CLR) transform to handle the compositional nature of the data (closure problem).
-- `descriptor_engine.py`: Calculates physical property descriptors (atomic mass, electronegativity, etc.) weighted by composition.
-- `collinearity.py`: Calculates Variance Inflation Factors (VIF) to detect and handle multicollinearity among features.
+- `transformer.py`: Implements CLR (Centered Log-Ratio) transformation for compositional data
+- `descriptor_engine.py`: Calculates weighted atomic properties and derived descriptors
+- `collinearity.py`: Variance Inflation Factor (VIF) calculation and collinearity detection
 
 ## Usage
 
-These modules are typically invoked by `descriptor_engine_main.py` or integrated into the model training pipeline.
+```python
+from features.transformer import CLRTransformer
+from features.descriptor_engine import DescriptorEngine
+from features.collinearity import calculate_vif
+
+# Transform compositional data
+transformer = CLRTransformer()
+clr_data = transformer.fit_transform(compositional_df)
+
+# Engine descriptors
+engine = DescriptorEngine()
+descriptors = engine.compute(clr_data, raw_composition_df)
+
+# Check collinearity
+vif_scores = calculate_vif(descriptors)
+```
+
+## Dependencies
+
+- `compositional`: For CLR transformation
+- `numpy`, `pandas`: Data manipulation
+- `statsmodels`: VIF calculation

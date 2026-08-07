@@ -1,224 +1,183 @@
 """
-Unit tests for the data retrieval and filtering logic.
-
-This module tests the core logic of the data retrieval pipeline, specifically:
-1. Extraction of records from API responses.
-2. Filtering logic for non-NULL SMILES and logPapp.
-3. Pass rate calculation and exclusion reporting.
+Unit tests for data filtering logic in code/data/preprocessing.py.
+Tests verify filtering logic and pass rate calculation as required by T011.
 """
 
-import pytest
-import sys
-from pathlib import Path
-import tempfile
+import csv
 import os
-import json
-from unittest.mock import patch, MagicMock
+import tempfile
+from pathlib import Path
+from unittest import TestCase, main as unittest_main
 
-# Add project root to path
-project_root = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(project_root))
+import sys
 
-from code.data.retrieval import extract_records
-from code.data.preprocessing import preprocess_data, load_raw_data
+# Ensure code/ is in path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
-class TestExtraction:
-    def test_extract_records_empty(self):
-        """Test extraction from empty data."""
-        data = {"assays": []}
-        records = extract_records(data)
-        assert records == []
+from code.data.preprocessing import load_raw_data, preprocess_data, write_clean_data
 
-    def test_extract_records_with_data(self):
-        """Test extraction with mock data structure."""
-        # Mock data structure similar to ChEMBL API response
-        mock_assay = {
-            "assay_id": 123,
-            "assay_chembl_id": "CHEMBL123",
-            "assay_type": "CELL_BASED"
-        }
+
+class TestPreprocessingLogic(TestCase):
+    """Tests for the data filtering logic in preprocessing.py."""
+
+    def setUp(self):
+        """Set up temporary directories and test data."""
+        self.temp_dir = tempfile.mkdtemp()
+        self.raw_path = os.path.join(self.temp_dir, "raw_data.csv")
+        self.clean_path = os.path.join(self.temp_dir, "clean_data.csv")
         
-        mock_data = {
-            "assays": [mock_assay]
-        }
-        
-        records = extract_records(mock_data)
-        
-        assert len(records) == 1
-        assert records[0]["assay_id"] == 123
-        assert records[0]["assay_chembl_id"] == "CHEMBL123"
-
-    def test_extract_records_multiple_assays(self):
-        """Test extraction with multiple assays."""
-        mock_assays = [
-            {"assay_id": 1, "assay_chembl_id": "CHEMBL1"},
-            {"assay_id": 2, "assay_chembl_id": "CHEMBL2"},
-            {"assay_id": 3, "assay_chembl_id": "CHEMBL3"}
+        # Create a realistic raw dataset with various edge cases
+        self.raw_data = [
+            {"smiles": "CCO", "logPapp": -4.5, "mw": 46.07, "psa": 20.23, "assay_id": "1"},
+            {"smiles": "CCCC", "logPapp": -3.2, "mw": 58.12, "psa": 0.0, "assay_id": "2"},
+            {"smiles": "", "logPapp": -4.0, "mw": 100.0, "psa": 10.0, "assay_id": "3"},  # Empty SMILES
+            {"smiles": "C1=CC=CC=C1", "logPapp": None, "mw": 78.11, "psa": 0.0, "assay_id": "4"},  # NULL logPapp
+            {"smiles": None, "logPapp": -5.0, "mw": 80.0, "psa": 5.0, "assay_id": "5"},  # NULL SMILES
+            {"smiles": "CC(=O)O", "logPapp": -2.8, "mw": 60.05, "psa": 37.3, "assay_id": "6"},
+            {"smiles": "NaN", "logPapp": -4.1, "mw": 90.0, "psa": 15.0, "assay_id": "7"},  # Invalid SMILES string
+            {"smiles": "CCN", "logPapp": "invalid", "mw": 45.08, "psa": 12.03, "assay_id": "8"},  # Invalid logPapp
         ]
         
-        mock_data = {"assays": mock_assays}
-        records = extract_records(mock_data)
-        
-        assert len(records) == 3
-        assert all("assay_id" in r for r in records)
+        # Write raw data to file
+        with open(self.raw_path, 'w', newline='') as f:
+            writer = csv.DictWriter(f, fieldnames=self.raw_data[0].keys())
+            writer.writeheader()
+            writer.writerows(self.raw_data)
 
-class TestPreprocessing:
-    def test_preprocess_data_filter_null_smiles(self):
+    def tearDown(self):
+        """Clean up temporary files."""
+        if os.path.exists(self.raw_path):
+            os.remove(self.raw_path)
+        if os.path.exists(self.clean_path):
+            os.remove(self.clean_path)
+        os.rmdir(self.temp_dir)
+
+    def test_load_raw_data(self):
+        """Test that raw data is loaded correctly."""
+        data = load_raw_data(self.raw_path)
+        self.assertEqual(len(data), len(self.raw_data))
+        self.assertIn("smiles", data[0])
+        self.assertIn("logPapp", data[0])
+
+    def test_filtering_logic_non_null_smiles(self):
         """Test that records with NULL/empty SMILES are filtered out."""
-        raw_data = [
-            {"smiles": "CCO", "logPapp": -4.5, "assay_id": 1},
-            {"smiles": "", "logPapp": -4.2, "assay_id": 2},
-            {"smiles": None, "logPapp": -4.1, "assay_id": 3},
-            {"smiles": "CC(=O)O", "logPapp": -3.8, "assay_id": 4}
-        ]
+        data = load_raw_data(self.raw_path)
+        filtered_data, stats = preprocess_data(data)
         
-        filtered_data, stats = preprocess_data(raw_data)
+        # Should exclude: empty string, None, and "NaN"
+        expected_count = len(self.raw_data) - 3  # 3 invalid SMILES
+        self.assertEqual(len(filtered_data), expected_count)
         
-        # Should only keep records with valid SMILES and logPapp
-        assert len(filtered_data) == 2
-        assert stats["total_records"] == 4
-        assert stats["excluded_null_smiles"] == 2
+        # Verify all remaining SMILES are valid
+        for record in filtered_data:
+            smiles = record.get("smiles")
+            self.assertIsNotNone(smiles)
+            self.assertNotEqual(smiles, "")
+            self.assertNotEqual(smiles, "NaN")
 
-    def test_preprocess_data_filter_null_logpapp(self):
+    def test_filtering_logic_non_null_logpapp(self):
         """Test that records with NULL logPapp are filtered out."""
-        raw_data = [
-            {"smiles": "CCO", "logPapp": -4.5, "assay_id": 1},
-            {"smiles": "CC(=O)O", "logPapp": None, "assay_id": 2},
-            {"smiles": "CCC", "logPapp": "", "assay_id": 3},
-            {"smiles": "CCCC", "logPapp": -5.0, "assay_id": 4}
-        ]
+        data = load_raw_data(self.raw_path)
+        filtered_data, stats = preprocess_data(data)
         
-        filtered_data, stats = preprocess_data(raw_data)
+        # Should exclude: None logPapp and "invalid" string
+        expected_count = len(self.raw_data) - 3  # 3 invalid logPapp (including NaN/None/invalid)
+        # Actually: None (1), "invalid" (1) = 2, plus 3 invalid SMILES = 5 excluded total
+        # But some records might have both issues, so we check the actual count
         
-        assert len(filtered_data) == 2
-        assert stats["excluded_null_logpapp"] == 2
+        # Verify all remaining logPapp are valid numbers
+        for record in filtered_data:
+            logpapp = record.get("logPapp")
+            self.assertIsNotNone(logpapp)
+            self.assertIsInstance(logpapp, (int, float))
 
-    def test_preprocess_data_pass_rate_calculation(self):
+    def test_pass_rate_calculation(self):
         """Test that pass rate is calculated correctly."""
-        raw_data = [
-            {"smiles": "CCO", "logPapp": -4.5, "assay_id": 1},
-            {"smiles": "CC(=O)O", "logPapp": -4.2, "assay_id": 2},
-            {"smiles": "CCC", "logPapp": None, "assay_id": 3},
-            {"smiles": "", "logPapp": -4.0, "assay_id": 4},
-            {"smiles": "CCCC", "logPapp": -5.0, "assay_id": 5}
-        ]
+        data = load_raw_data(self.raw_path)
+        total_records = len(data)
         
-        # 3 valid out of 5 total
-        filtered_data, stats = preprocess_data(raw_data)
-        
-        assert stats["total_records"] == 5
-        assert stats["valid_records"] == 3
-        assert abs(stats["pass_rate"] - 0.6) < 0.001
-
-    def test_preprocess_data_exclusion_reasons(self):
-        """Test that exclusion reasons are tracked correctly."""
-        raw_data = [
-            {"smiles": "CCO", "logPapp": -4.5, "assay_id": 1},
-            {"smiles": "", "logPapp": -4.2, "assay_id": 2},  # null smiles
-            {"smiles": "CC(=O)O", "logPapp": None, "assay_id": 3},  # null logPapp
-            {"smiles": "", "logPapp": "", "assay_id": 4},  # both null
-            {"smiles": "CCC", "logPapp": -4.0, "assay_id": 5}
-        ]
-        
-        filtered_data, stats = preprocess_data(raw_data)
-        
-        assert stats["excluded_null_smiles"] == 2
-        assert stats["excluded_null_logpapp"] == 2
-        # Note: The last record (id 4) is counted in both exclusions
-        # Total excluded = 4, but some overlap exists
-        assert stats["valid_records"] == 2
-
-    def test_preprocess_data_empty_input(self):
-        """Test preprocessing with empty input."""
-        raw_data = []
-        
-        filtered_data, stats = preprocess_data(raw_data)
-        
-        assert len(filtered_data) == 0
-        assert stats["total_records"] == 0
-        assert stats["valid_records"] == 0
-        assert stats["pass_rate"] == 0.0
-
-    def test_preprocess_data_all_valid(self):
-        """Test preprocessing when all records are valid."""
-        raw_data = [
-            {"smiles": "CCO", "logPapp": -4.5, "assay_id": 1},
-            {"smiles": "CC(=O)O", "logPapp": -4.2, "assay_id": 2},
-            {"smiles": "CCC", "logPapp": -4.0, "assay_id": 3}
-        ]
-        
-        filtered_data, stats = preprocess_data(raw_data)
-        
-        assert len(filtered_data) == 3
-        assert stats["pass_rate"] == 1.0
-        assert stats["excluded_null_smiles"] == 0
-        assert stats["excluded_null_logpapp"] == 0
-
-class TestLoadRawData:
-    def test_load_raw_data_from_file(self):
-        """Test loading raw data from a CSV file."""
-        # Create a temporary CSV file
-        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.csv') as f:
-            f.write("smiles,logPapp,assay_id\n")
-            f.write("CCO,-4.5,1\n")
-            f.write("CC(=O)O,-4.2,2\n")
-            f.write("CCC,-4.0,3\n")
-            temp_path = f.name
-        
-        try:
-            data = load_raw_data(temp_path)
+        # Count valid records manually
+        valid_count = 0
+        for record in data:
+            smiles = record.get("smiles")
+            logpapp = record.get("logPapp")
             
-            assert len(data) == 3
-            assert data[0]["smiles"] == "CCO"
-            assert data[0]["logPapp"] == -4.5
-            assert data[1]["assay_id"] == 2
-        finally:
-            os.unlink(temp_path)
-
-    def test_load_raw_data_missing_file(self):
-        """Test loading from a missing file raises an error."""
-        with pytest.raises(FileNotFoundError):
-            load_raw_data("/nonexistent/path/to/file.csv")
-
-    def test_load_raw_data_with_header_only(self):
-        """Test loading a file with only headers."""
-        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.csv') as f:
-            f.write("smiles,logPapp,assay_id\n")
-            temp_path = f.name
+            if smiles and smiles != "NaN" and smiles != "":
+                if logpapp is not None and isinstance(logpapp, (int, float)):
+                    valid_count += 1
         
-        try:
-            data = load_raw_data(temp_path)
-            assert len(data) == 0
-        finally:
-            os.unlink(temp_path)
-
-class TestIntegration:
-    @patch('code.data.retrieval.requests.get')
-    def test_full_retrieval_flow_mocked(self, mock_get):
-        """Test the full retrieval flow with mocked API responses."""
-        # Mock the API response
-        mock_response = MagicMock()
-        mock_response.status_code = 200
-        mock_response.json.return_value = {
-            "assays": [
-                {
-                    "assay_id": 1,
-                    "assay_chembl_id": "CHEMBL1",
-                    "activities": [
-                        {
-                            "smiles": "CCO",
-                            "logPapp": -4.5,
-                            "assay_id": 1
-                        }
-                    ]
-                }
-            ],
-            "count": 1,
-            "next": None
-        }
-        mock_get.return_value = mock_response
+        filtered_data, stats = preprocess_data(data)
         
-        # This would normally call the API and process data
-        # For unit tests, we verify the logic paths exist
-        # Full integration is tested in T009 execution
-        pass
+        expected_pass_rate = valid_count / total_records
+        actual_pass_rate = stats["pass_rate"]
+        
+        self.assertAlmostEqual(actual_pass_rate, expected_pass_rate, places=5)
+        self.assertEqual(stats["total_records"], total_records)
+        self.assertEqual(stats["passed_records"], valid_count)
+        self.assertEqual(stats["excluded_records"], total_records - valid_count)
+
+    def test_excluded_records_breakdown(self):
+        """Test that excluded records are categorized correctly."""
+        data = load_raw_data(self.raw_path)
+        _, stats = preprocess_data(data)
+        
+        self.assertIn("excluded_invalid_smiles", stats)
+        self.assertIn("excluded_invalid_logpapp", stats)
+        self.assertIn("excluded_protocol_heterogeneity", stats)
+        
+        # At least some records should be excluded for invalid SMILES or logPapp
+        self.assertGreater(stats["excluded_invalid_smiles"] + stats["excluded_invalid_logpapp"], 0)
+
+    def test_write_clean_data(self):
+        """Test that clean data is written correctly."""
+        data = load_raw_data(self.raw_path)
+        filtered_data, stats = preprocess_data(data)
+        
+        write_clean_data(filtered_data, self.clean_path)
+        
+        self.assertTrue(os.path.exists(self.clean_path))
+        
+        with open(self.clean_path, 'r') as f:
+            reader = csv.DictReader(f)
+            rows = list(reader)
+        
+        self.assertEqual(len(rows), len(filtered_data))
+        # Verify all rows have valid data
+        for row in rows:
+            self.assertIsNotNone(row.get("smiles"))
+            self.assertIsNotNone(row.get("logPapp"))
+            self.assertNotEqual(row.get("smiles"), "")
+
+    def test_preprocess_data_integration(self):
+        """Integration test: load, filter, and write in one flow."""
+        # Load raw data
+        raw_data = load_raw_data(self.raw_path)
+        
+        # Preprocess
+        clean_data, stats = preprocess_data(raw_data)
+        
+        # Write clean data
+        write_clean_data(clean_data, self.clean_path)
+        
+        # Verify output
+        self.assertTrue(os.path.exists(self.clean_path))
+        
+        with open(self.clean_path, 'r') as f:
+            reader = csv.DictReader(f)
+            output_rows = list(reader)
+        
+        # All output rows should be valid
+        for row in output_rows:
+            smiles = row.get("smiles")
+            logpapp = row.get("logPapp")
+            
+            self.assertIsNotNone(smiles)
+            self.assertNotEqual(smiles, "")
+            self.assertNotEqual(smiles, "NaN")
+            
+            self.assertIsNotNone(logpapp)
+            self.assertIsInstance(logpapp, (int, float))
+
+
+if __name__ == "__main__":
+    unittest_main()

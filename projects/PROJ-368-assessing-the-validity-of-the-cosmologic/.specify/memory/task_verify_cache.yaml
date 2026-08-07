@@ -1,0 +1,14 @@
+T008:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a Git repository being initialized or a `.gitignore` file containing\
+    \ the required entries (`data/`, `__pycache__/`, `*.pyc`) was provided. The implementer\
+    \ must supply the repository (e.g., a `.git` folder) and a non\u2011empty `.gitignore`\
+    \ with the specified patterns."
+T015:
+  c: false
+  h: 698d577d7768a8320e4786ee25c7f4384a4616db468aad2e2087c685e8f9ed42
+  r: "The repository lacks an `apply_galactic_mask()` implementation in `code/data_loader.py`\
+    \ (the file is truncated and does not contain such a function), and the required\
+    \ output file `data/processed/mask_stats.json` is missing. Consequently the mask\u2011\
+    statistics logging and the 95\u202F% sky\u2011retention check are not present."

@@ -1,33 +1,46 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Caco-2 Permeability Dataset Schema"
-description: "Schema for the raw and cleaned Caco-2 permeability dataset from ChEMBL."
-type: "object"
-properties:
-  smi:
-    type: "string"
-    description: "Canonical SMILES string of the molecule."
-  logPapp:
-    type: "number"
-    description: "Caco-2 permeability value (logPapp)."
-  mw:
-    type: "number"
-    description: "Molecular weight (g/mol)."
-  psa:
-    type: "number"
-    description: "Polar surface area (Å²)."
-  lab_id:
-    type: "string"
-    description: "Identifier for the laboratory that performed the assay."
-  temperature:
-    type: "number"
-    description: "Assay temperature in Celsius."
-  passage_number:
-    type: "integer"
-    description: "Cell passage number used in the assay."
-  num_rotatable_bonds:
-    type: "integer"
-    description: "Number of rotatable bonds (computed)."
+$schema: http://json-schema.org/draft-07/schema#
+title: Caco-2 Permeability Dataset Schema
+description: |
+  JSON Schema for the Caco-2 permeability dataset retrieved from ChEMBL.
+  Defines the structure for raw and processed data records used in the
+  correlation analysis between molecular flexibility and drug transport.
+  Traceability: US0, FR-001, FR-002.
+type: object
 required:
-  - "smi"
-  - "logPapp"
+  - smiles
+  - logPapp
+  - mw
+  - psa
+  - assay_id
+properties:
+  smiles:
+    type: string
+    description: >-
+      Canonical SMILES string representing the molecular structure.
+      Must be non-null and valid for RDKit processing.
+    minLength: 1
+  logPapp:
+    type: number
+    description: >-
+      Apparent permeability coefficient (logPapp) in cm/s.
+      Derived from ChEMBL standard_value where standard_units is 'cm/s'.
+      Must be a numeric value (float).
+  mw:
+    type: number
+    description: >-
+      Molecular weight in g/mol.
+      Calculated from the SMILES string if not present in raw data.
+      Must be a positive number.
+  psa:
+    type: number
+    description: >-
+      Polar Surface Area in Å².
+      Calculated from the SMILES string if not present in raw data.
+      Must be a non-negative number.
+  assay_id:
+    type: string
+    description: >-
+      Unique identifier for the source assay from ChEMBL (e.g., '1001234').
+      Used for traceability and deduplication.
+    pattern: '^[0-9]+$'
 additionalProperties: false

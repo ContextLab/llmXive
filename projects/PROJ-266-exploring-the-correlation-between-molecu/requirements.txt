@@ -6,5 +6,6 @@ seaborn
 requests
 numpy
 scipy
-pyyaml
-jsonschema
+statsmodels
+flake8
+black
