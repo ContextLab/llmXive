@@ -1,3 +1,11 @@
+T024:
+  c: false
+  h: ebfc41495226a588246af1a3ece7b989c1b7426e0c65112f7cb541206a184fc7
+  r: "The `calculate_rank_ols` function in `code/analysis/model.py` is truncated and\
+    \ never fits a regression, extracts coefficients/p\u2011values, or writes results\
+    \ to a CSV. Moreover, the required output file `code/data/processed/rank_ols_results.csv`\
+    \ does not exist. Both the implementation and the expected result artifact are\
+    \ missing."
 T027:
   c: false
   h: eca5992662b913324ddd32d3e787ba2792ddc04cb8727401f97deff5019c542f
@@ -5,13 +13,14 @@ T027:
     \ coefficients or p\u2011values are recorded as specified. The implementer must\
     \ create this log file and write the secondary OLS model\u2019s coefficient and\
     \ p\u2011value entries into it."
-T043:
+T033:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No artifacts (e.g., profiling logs, benchmark results, updated streaming code,\
-    \ or documentation) were provided to demonstrate that VCF streaming stays under\
-    \ the 7\u202FGB RAM limit. Without concrete evidence of memory usage measurements\
-    \ or code changes, the requirement cannot be confirmed."
+  h: cf63d721b608601e5884c3c27de45f49ddc1ff7a04511791e366c8ad651e8c52
+  r: "The `subgroup_results.csv` file contains only the header (and an extra `n_samples`\
+    \ column) with no actual results, and the provided portion of `sensitivity.py`\
+    \ shows no implementation of a continental\u2011ancestry subgroup analysis or\
+    \ code that writes the required `ancestry`, `coefficient`, `p_value` rows. The\
+    \ task\u2019s core functionality is therefore missing."
 T044:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

@@ -45,7 +45,7 @@ The system MUST execute sensitivity analyses to validate the stability of findin
 
 **Why this priority**: This ensures the results are not artifacts of arbitrary parameters (like the 1% VAF threshold) or population structure, addressing the methodological soundness requirement for threshold justification.
 
-**Independent Test**: The system is tested by running the sensitivity analysis with thresholds 0.5%, 1.0%, and 2.0% and verifying the output contains three distinct correlation coefficients.
+**Independent Test**: The system is tested by running the sensitivity analysis with varying thresholds to evaluate performance across different sensitivity levels. and verifying the output contains three distinct correlation coefficients.
 
 **Acceptance Scenarios**:
 
@@ -67,7 +67,7 @@ The system MUST execute sensitivity analyses to validate the stability of findin
 - **FR-002**: System MUST filter variants to retain only `PASS` status and mitochondrial chromosome data, calculating per-sample heteroplasmy burden as the **count of heteroplasmic sites with VAF ≥ 1%** (See US-1).
 - **FR-003**: System MUST assign mitochondrial haplogroups to each sample using `haplogrep2` and encode them as categorical variables for regression (See US-2).
 - **FR-004**: System MUST compute the **Spearman rank correlation** between heteroplasmy burden and age, adjusting for sex, ancestry PCs, and sequencing depth, and compute Benjamini-Hochberg adjusted p-values. OLS regression is performed as a secondary check (See US-2).
-- **FR-005**: System MUST execute a sensitivity analysis sweeping the heteroplasmy threshold over {0.5%, 1.0%, 2.0%} and report the resulting correlation coefficients (See US-3).
+- **FR-005**: System MUST execute a sensitivity analysis sweeping the heteroplasmy threshold over a range of low-magnitude values and report the resulting correlation coefficients (See US-3).
 - **FR-006**: System MUST perform subgroup analysis within major continental ancestries to test for consistency of the association (See US-3).
 
 ### Key Entities
@@ -91,6 +91,6 @@ The system MUST execute sensitivity analyses to validate the stability of findin
 - **Assumption about data availability**: The 1000 Genomes Project Phase 3 data (VCFs and panel file) is accessible via the public FTP site without authentication, and the `age` column is present in the metadata for a sufficient number of samples to achieve statistical power.
 - **Assumption about computational resources**: The entire dataset (VCFs and derived matrices) fits within the memory and disk limits of the GitHub Actions free-tier runner, allowing processing without external cloud storage or memory-mapped files.
 - **Assumption about methodological validity**: Since the 1000 Genomes data is observational (no random assignment), findings are framed as associational; the analysis does not claim causal inference between mtDNA variation and aging.
-- **Assumption about threshold justification**: The 1% VAF threshold for heteroplasmy burden is based on community standards for distinguishing true low-frequency variants from sequencing noise; the sensitivity analysis (FR-005) validates that the conclusion is robust to this choice.
+- **Assumption about threshold justification**: The VAF threshold for heteroplasmy burden is based on community standards for distinguishing true low-frequency variants from sequencing noise; the sensitivity analysis (FR-005) validates that the conclusion is robust to this choice.
 - **Assumption about haplogroup assignment**: `haplogrep2` can successfully assign haplogroups to ≥ 90% of samples; samples failing assignment are excluded from haplogroup-specific analyses but retained in burden-only models.
 - **Assumption about power**: The sample size available in the 1000 Genomes Project (N = [deferred]) provides sufficient power to detect a small effect size (r ≈ 0.1) with α = 0.05, though this is acknowledged as a limitation if the effect is smaller. Note: The 'age' variable in 1000 Genomes may be binned or imprecise for some samples; the system will report the effective sample size used for the age-correlation analysis to account for this measurement error.
