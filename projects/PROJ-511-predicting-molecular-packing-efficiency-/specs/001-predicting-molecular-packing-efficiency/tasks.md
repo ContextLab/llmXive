@@ -58,8 +58,8 @@
 > **NOTE**: Write these tests FIRST (TDD).
 > **Dependency Note**: While code can be written in parallel, execution depends on T004 (schema) and T012-T018 (implementation).
 
-- [X] T010 [US1] Contract test for dataset schema validation in `tests/contract/test_dataset_schema.py` (Depends on T004; must run after T018 completes)
-- [X] T011 [P] [US1] Integration test for download and parse pipeline in `tests/integration/test_download_parse.py`
+- [ ] T010 [US1] Contract test for dataset schema validation in `tests/contract/test_dataset_schema.py` (Depends on T004; must run after T018 completes)
+- [ ] T011 [P] [US1] Integration test for download and parse pipeline in `tests/integration/test_download_parse.py`
 
 ### Implementation for User Story 1
 
@@ -68,10 +68,10 @@
  - Extract SMILES from `_chemical_structure_SMILES` if present; else generate from 3D geometry.
  - **Confounders**: Extract `lattice_system` from `_symmetry_space_group_name_H-M`, `temperature_K` from `_exptl_temperature` or `_cell_measurement_reflns_temperature` (or default K), and `has_solvent` by checking `_chemical_formula_sum` for solvent patterns.
  - **Output**: `data/dataset_intermediate.csv` with columns: `cod_id`, `smiles`, `smiles_source`, `unit_cell_volume`, `n_atoms`, `lattice_system`, `temperature_K`, `has_solvent`. (FR-002, FR-013)
-- [ ] T015 [US1] Implement `code/compute_RAW_metrics.py` to calculate **Raw Packing Coefficient (PC)** (diagnostic only) and **CAPE** (target) using Bondi radii (FR-003, FR-011, FR-018). **Logic**: Calculate PC_raw = Unit-cell volume / Sum(V_vdW). Calculate CAPE using the formula from FR-011: `CAPE = (Unit-cell volume / Sum(V_vdW)) / (Sum(V_vdW) / N_atoms)`. **Reads `data/dataset_intermediate.csv` and produces `data/dataset_with_metrics.csv`.** (FR-003, FR-011)
+- [ ] T015 [US1] Implement `code/compute_RAW_metrics.py` to calculate **Raw Packing Coefficient (PC)** (diagnostic only) and **CAPE** (target) using Bondi radii (FR-003, FR-011, FR-018). **Logic**: Calculate PC_raw = Unit-cell volume / Sum(V_vdW). Calculate CAPE using the formula from FR-011: `CAPE = PC_raw / (Sum(V_vdW) / N_atoms)`. **Reads `data/dataset_intermediate.csv` and produces `data/dataset_with_metrics.csv`.** (FR-003, FR-011)
 - [ ] T016 [US1] Implement `code/filter_dataset.py` to filter records with missing SMILES, invalid CAPE, or invalid Raw PC from `data/dataset_with_metrics.csv`, producing `data/dataset_filtered.csv` (FR-003, SC-001). Explicitly ensure CAPE is valid before filtering.
 - [ ] T017 [US1] Add logging for download statistics, parsing failures, and filtering counts (FR-001, FR-017). **Specific Logic**: Log the results of T016 filtering (counts of removed records and reasons) to ensure traceability.
-- [ ] T018 [US1] Implement `code/add_3d_descriptors.py` to calculate 3D descriptors (radius of gyration, asphericity, principal moments) using **gas-phase minimized conformations**. **Logic**: Read `cod_id` from `data/dataset_filtered.csv`. Re-load the original CIF file from `data/raw_cif/` using `pymatgen`. Generate a gas-phase minimized conformation using RDKit ETKDG (do NOT use CIF coordinates directly). Compute descriptors from the minimized conformation. **Reads `data/dataset_filtered.csv` to get `cod_id` and merges 3D descriptors to produce final `data/dataset.csv`.** **Output columns must include**: `cod_id`, `smiles`, `smiles_source`, `unit_cell_volume`, `n_atoms`, `lattice_system`, `temperature_K`, `has_solvent`, `radius_of_gyration`, `asphericity`, `principal_moments`, `cape`, `raw_pc`. (FR-004, FR-012, FR-017)
+- [ ] T018 [US1] Implement `code/add_3d_descriptors.py` to calculate 3D descriptors (radius of gyration, asphericity, principal moments) using **CIF coordinates**. **Logic**: Read `cod_id` from `data/dataset_filtered.csv`. Re-load the original CIF file from `data/raw_cif/` using `pymatgen`. **Verify existence and validity of CIF file for each cod_id; raise FileNotFoundError if missing.** Compute descriptors from the CIF coordinates (do NOT generate gas-phase conformations). **Reads `data/dataset_filtered.csv` to get `cod_id` and merges 3D descriptors to produce final `data/dataset.csv`.** **Output columns must include**: `cod_id`, `smiles`, `smiles_source`, `unit_cell_volume`, `n_atoms`, `lattice_system`, `temperature_K`, `has_solvent`, `radius_of_gyration`, `asphericity`, `principal_moments`, `cape`, `raw_pc`. (FR-004, FR-012, FR-017)
 - [ ] T019 [US1] Implement `code/validate_dataset.py` to check `data/dataset.csv` against `contracts/dataset.schema.yaml` (SC-001). **Includes**: 1) Cross-referencing COD IDs in the CSV against the list of downloaded CIF files to ensure data integrity per FR-017. 2) Explicitly recording and verifying the COD source URL and version identifier used for the download (FR-017). (FR-017)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -92,7 +92,7 @@
 ### Implementation for User Story 2
 
 - [ ] T024 [US2] Implement `code/feature_assembly.py` to encode SMILES using frozen `seyonec/PubChem10M_SMILES_BPE_60k` (CPU) and **assemble the final feature matrix**. **Inputs**: `data/dataset.csv`. **Features**: `smiles_transformer_embedding` + `radius_of_gyration`, `asphericity`, `principal_moments` + confounders (`lattice_system`, `temperature_K`, `has_solvent`). **Output**: `data/features_matrix.npy` and `data/targets.npy`. (FR-004, FR-013)
-- [ ] T025 [US2] Implement `code/train.py` to train a **2-layer MLP** (Input -> Hidden(64) -> Hidden(32) -> Output) to predict CAPE. **Architecture**: Two hidden layers with varying numbers of units, ReLU activation, Dropout 0.1. **Optimizer**: Adam (lr=1e-3), Batch Size 32. **Inputs**: `data/features_matrix.npy`, `data/targets.npy`. **Outputs**: `models/mlp.pt`. **Constraint**: Total trainable parameters must be ≤ 100k. (FR-005)
+- [ ] T025 [US2] Implement `code/train.py` to train a **2-layer MLP** (Input -> Hidden(64) -> Output) to predict CAPE. **Architecture**: One hidden layer with 64 units, ReLU activation, Dropout 0.1. **Optimizer**: Adam (lr=1e-3), Batch Size 32. **Inputs**: `data/features_matrix.npy`, `data/targets.npy`. **Outputs**: `models/mlp.pt`. **Constraint**: Total trainable parameters must be ≤ 100k. (FR-005)
 - [ ] T026 [US2] Implement `code/evaluate.py` to compute MAE, Pearson r, Spearman ρ on validation set. (FR-006, FR-015)
 - [ ] T027 [US2] Implement `code/evaluate.py` to run a **fixed two-sided permutation test** with **10,000 shuffles** (FR-006, FR-016). **Logic**: Shuffle labels [deferred] times, compute correlation for each, calculate the two-sided p-value as the fraction of shuffled correlations with absolute value ≥ observed absolute correlation. **Output**: Final p-value and total shuffle count in `results/validation_report.json`. (FR-016, SC-005)
 - [ ] T028 [US2] Implement `code/evaluate.py` to perform VIF diagnostics on **ALL predictor variables** (fingerprint dimensions, 3D descriptors, confounders) as mandated by FR-009. **Use `statsmodels.stats.outliers_influence.variance_inflation_factor` on the full feature matrix. Do NOT omit any raw dimensions.** (FR-009)
@@ -122,7 +122,7 @@
 
 ---
 
-## Phase 7: Polish & Cross-Cutting Concerns
+## Phase 6: Polish & Cross-Cutting Concerns
 
 **Purpose**: Improvements that affect multiple user stories
 
@@ -209,9 +209,10 @@ With multiple developers:
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
    - Developer A: User Story 1
-   - Developer B: User Story 2
-   - Developer C: User Story 3
-3. Stories complete and integrate independently
+   - Developer B: User Story 2 (initial implementation)
+   - Developer C: User Story 3 (initial implementation)
+3. Integrate and test each story independently
+4. Stories complete and integrate independently
 
 ---
 
@@ -224,3 +225,7 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
+- **Critical Revision Note**: Phase 6 (Research Review Integration) has been removed as it implemented features not authorized by the spec. The tasks now strictly adhere to the functional requirements defined in spec.md.
+- **Critical Revision Note**: T018 now correctly uses CIF coordinates as per FR-004.
+- **Critical Revision Note**: T025 now correctly implements a 2-layer MLP (1 hidden layer) as per FR-005.
+- **Critical Revision Note**: T027 now correctly mandates [deferred] shuffles as per FR-016.

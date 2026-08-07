@@ -94,13 +94,13 @@
 
 ### Implementation for User Story 2
 
-- [ ] T017 [P] [US2] Implement `code/04_modeling.py`: Fit Multiple Linear Regression with 5-fold CV (depends on `data/processed/features.csv`) (FR-005). **Must run after T016 completes**.
-- [~] T018 [US2] Implement LASSO regression with lambda tuning to minimize RMSE (FR-005). **Must run after T017 completes**.
-- [~] T019 [US2] Calculate and log Adjusted R² and optimal lambda to `data/processed/model_results.json`. **Must run after T018 completes**.
+- [ ] T017 [P] [US2] Implement `code/04_modeling.py`: Fit Multiple Linear Regression with 5-fold CV (depends on `data/processed/features.csv`) (FR-005). **Must run after T016 completes**. <!-- FAILED: unspecified -->
+- [ ] T018 [US2] Implement LASSO regression with lambda tuning to minimize RMSE (FR-005). **Must run after T017 completes**.
+- [ ] T019 [US2] Calculate and log Adjusted R² and optimal lambda to `data/processed/model_results.json`. **Must run after T018 completes**.
 - [ ] T020 [P] [US2] Implement Pearson correlation tests between relative band powers and median RT (depends on `data/processed/features.csv`) (FR-006). **Must run after T016 completes**.
-- [~] T021 [US2] Apply Bonferroni correction for 6 bands (0.05/6 = 0.0083) as per Spec FR-006 and flag significant results. **Must run after T020 completes**.
+- [ ] T021 [US2] Apply Bonferroni correction for 6 bands (0.05/6 = 0.0083) as per Spec FR-006 and flag significant results. **Must run after T020 completes**.
 - [ ] T022 [US2] Implement permutation test (sufficient shuffles) on held-out test set ONLY (using split indices from `data/processed/split_indices.json`, seed from config.py) to prevent data leakage (per Plan feasibility constraint) for R² significance (FR-007). **Must run after T017 completes**.
-- [~] T023 [US2] Perform post-hoc power analysis to estimate the required sample size (N) for R²=0.10 with power ≥ 0.80 and report in results (FR-011). **Must run after T019 completes**.
+- [ ] T023 [US2] Perform post-hoc power analysis to estimate the required sample size (N) for R²=0.10 with power ≥ 0.80 and report in results (FR-011). **Must run after T019 completes**.
 - [ ] T024 [P] [US2] Implement non-linear interaction analysis (polynomial alpha/beta) and F-test comparison (FR-012). **Must run after T019 completes**.
 - [ ] T025 [US2] Generate `data/processed/correlations.csv` and `data/processed/non_linear_comparison.json`. **Must run after T021 and T024 complete**.
 
@@ -116,10 +116,10 @@
 
 ### Implementation for User Story 3
 
-- [ ] T026 [US3] Implement `code/05_robustness_analysis.py`: Re-run pipeline with shorter time windows (vs primary 4s) and without ICA cleaning (depends on US1 completion). **Must run after T016 completes**.
-- [ ] T027 [US3] Compare R² stability and report percentage difference in alpha power means (FR-008). **Must run after T026 completes**.
-- [ ] T028 [P] [US3] Implement `code/06_sensitivity_analysis.py`: Sweep p-value threshold from a stringent to a lenient level. (FR-009). **Must run after T021 completes**.
-- [ ] T029 [US3] Generate sensitivity plot and report exact threshold where result becomes non-significant (FR-009). **Must run after T028 completes**.
+- [X] T026 [US3] Implement `code/05_robustness_analysis.py`: Re-run pipeline with shorter time windows (vs primary 4s) and without ICA cleaning (depends on US1 completion). **Must run after T016 completes**.
+- [~] T027 [US3] Compare R² stability and report percentage difference in alpha power means (FR-008). **Must run after T026 completes**.
+- [X] T028 [P] [US3] Implement `code/06_sensitivity_analysis.py`: Sweep p-value threshold from a stringent to a lenient level. (FR-009). **Must run after T021 completes**.
+- [~] T029 [US3] Generate sensitivity plot and report exact threshold where result becomes non-significant (FR-009). **Must run after T028 completes**.
 - [ ] T030 [US3] Generate `data/processed/robustness_report.csv` and `data/processed/sensitivity_plot.png`. **Must run after T027 and T029 complete**.
 
 **Checkpoint**: All user stories should now be independently functional

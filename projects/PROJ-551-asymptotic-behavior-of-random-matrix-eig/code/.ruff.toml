@@ -1,19 +1,27 @@
-# Ruff configuration extending pyproject.toml defaults
-# Specific overrides for this project
+# Ruff configuration file (standalone)
+# This file is used for editor integration and local checks.
+# Project-wide settings are also defined in pyproject.toml.
+
+target-version = "py311"
+line-length = 88
+src = ["."]
 
 [lint]
-# Enable specific rules that might be too strict globally
-select = ["ALL"]
+select = [
+    "E",
+    "W",
+    "F",
+    "I",
+    "C",
+    "B",
+]
 ignore = [
-    "D",    # pydocstyle (docstrings enforced by black/ruff format, not strict here)
-    "ANN",  # flake8-annotations (typing hints enforced by mypy/pyright separately if needed)
-    "S101", # Use of assert detected (allowed in tests)
-    "PLR",  # Pylint refactor
-    "C901", # Complex functions (handled by complexity thresholds)
+    "E501",
+    "C901",
+    "B008",
 ]
 
-[format]
-quote-style = "double"
-indent-style = "space"
-skip-magic-trailing-comma = false
-line-ending = "auto"
+[lint.isort]
+known-first-party = ["generators", "analysis", "utils", "data_models"]
+force-single-line = true
+lines-after-imports = 2

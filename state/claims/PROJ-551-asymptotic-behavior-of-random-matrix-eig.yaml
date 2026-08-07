@@ -166,3 +166,158 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-18T07:11:23Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/specs/001-asymptotic-behavior-of-random-matrix-eig/research.md
+  attempts: 1
+  canonical: Wigner matrix eigenvalues follow semicircle law with support [-2, 2]
+    as N approaches infinity
+  claim_id: c_79180f1c
+  context: Theoretical Background section describing the baseline behavior of Wigner
+    matrices.
+  evidence:
+    fill:
+      channel: theorem
+      conflicts: []
+      quote: '[-2, 2]'
+      source_id: '1301.6224'
+      url: https://arxiv.org/abs/1301.6224
+      value: '[-2, 2]'
+    filled: true
+  kind: numeric
+  raw_text: The eigenvalues of large Wigner matrices follow the Wigner semicircle
+    law, with support on [-2, 2] in the limit N to infinity.
+  resolved_value: '[-2, 2]'
+  resolver: fill:theorem
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-07T18:32:58Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/specs/001-asymptotic-behavior-of-random-matrix-eig/research.md
+  attempts: 1
+  canonical: BBP transition critical threshold for outlier emergence is 1 under standard
+    scaling
+  claim_id: c_ff0b6d36
+  context: Theoretical Background section discussing low-rank perturbations and the
+    BBP transition.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The BBP transition predicts that outliers emerge if the perturbation norm
+    theta exceeds a critical threshold theta_c = 1 (for standard scaling).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T18:34:29Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/data/processed/threshold_comparison_report.md
+  attempts: 1
+  canonical: Mean critical threshold across 3 sparsity patterns is 2.0833
+  claim_id: c_44011f1e
+  context: Overall Statistics table reporting mean, std, range, min, and max of theta_c.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Mean \u03B8_c across patterns 2.0833"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T18:43:39Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/data/processed/threshold_comparison_report.md
+  attempts: 1
+  canonical: Standard deviation of critical threshold across 3 sparsity patterns is
+    0.0351
+  claim_id: c_1e1707b4
+  context: Overall Statistics table reporting mean, std, range, min, and max of theta_c.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Std \u03B8_c 0.0351"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T18:44:10Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/data/processed/threshold_comparison_report.md
+  attempts: 1
+  canonical: Range of critical threshold across 3 sparsity patterns is 0.0700
+  claim_id: c_51e8711f
+  context: Overall Statistics table reporting mean, std, range, min, and max of theta_c.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Range 0.0700
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T18:44:39Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/data/processed/threshold_comparison_report.md
+  attempts: 1
+  canonical: Minimum critical threshold across 3 sparsity patterns is 2.0500
+  claim_id: c_b5f52c1d
+  context: Overall Statistics table reporting mean, std, range, min, and max of theta_c.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Min \u03B8_c 2.0500"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T18:45:16Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/data/processed/threshold_comparison_report.md
+  attempts: 1
+  canonical: Maximum critical threshold across 3 sparsity patterns is 2.1200
+  claim_id: c_3ed21da1
+  context: Overall Statistics table reporting mean, std, range, min, and max of theta_c.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Max \u03B8_c 2.1200"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T18:45:58Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/data/processed/threshold_comparison_report.md
+  attempts: 1
+  canonical: random_sparse pattern critical threshold is 2.1200 with 3.41% relative
+    shift and p-value 0.0672
+  claim_id: c_dd56d431
+  context: Pairwise Comparisons table listing statistics for random_sparse pattern
+    compared to diagonal reference.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "random_sparse \u03B8_c 2.1200, Std 0.0300, Difference 0.0700, Rel. Shift\
+    \ 3.41%, Z-score 1.830, P-value 0.0672"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T18:46:22Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/data/processed/threshold_comparison_report.md
+  attempts: 1
+  canonical: block_sparse pattern critical threshold is 2.0800 with 1.46% relative
+    shift and p-value 0.3898
+  claim_id: c_15572186
+  context: Pairwise Comparisons table listing statistics for block_sparse pattern
+    compared to diagonal reference.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "block_sparse \u03B8_c 2.0800, Std 0.0250, Difference 0.0300, Rel. Shift\
+    \ 1.46%, Z-score 0.860, P-value 0.3898"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T18:46:45Z'

@@ -5,17 +5,18 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, Optional, Union
 
-from .config import get_project_paths
+from utils.config import get_project_paths
 
 
 class SimulationJsonFormatter(logging.Formatter):
     """
-    Custom JSON formatter for simulation logs.
-    Ensures all log records are valid JSON objects with consistent structure.
+    Custom formatter that outputs log records as structured JSON.
+    Ensures all log entries satisfy Constitution Principle I (Reproducibility)
+    by including timestamps, seed states, and parameter snapshots.
     """
 
     def format(self, record: logging.LogRecord) -> str:
-        log_entry = {
+        log_entry: Dict[str, Any] = {
             "timestamp": datetime.now(timezone.utc).isoformat(),
             "level": record.levelname,
             "message": record.getMessage(),
@@ -24,23 +25,28 @@ class SimulationJsonFormatter(logging.Formatter):
             "line": record.lineno,
         }
 
-        # Add extra fields if present
-        if hasattr(record, "extra_data"):
-            log_entry["data"] = record.extra_data
+        # Attach extra structured data if present
+        if hasattr(record, "simulation_params"):
+            log_entry["simulation_params"] = record.simulation_params
+        if hasattr(record, "seed_state"):
+            log_entry["seed_state"] = record.seed_state
+        if hasattr(record, "data_path"):
+            log_entry["data_path"] = record.data_path
 
         return json.dumps(log_entry)
 
 
 def setup_simulation_logger(
-    log_file_path: Optional[str] = None,
+    log_file_path: Optional[Union[str, Path]] = None,
     level: int = logging.INFO,
 ) -> logging.Logger:
     """
-    Set up a structured JSON logger for simulation runs.
+    Configure a dedicated logger for simulation runs that writes structured
+    JSON logs to the specified file path.
 
     Args:
-        log_file_path: Path to the log file. If None, uses default from config.
-        level: Logging level.
+        log_file_path: Path to the log file. Defaults to data/logs/simulation_run.log.
+        level: Logging level (default: INFO).
 
     Returns:
         Configured logger instance.
@@ -49,19 +55,19 @@ def setup_simulation_logger(
         paths = get_project_paths()
         log_dir = paths["data"] / "logs"
         log_dir.mkdir(parents=True, exist_ok=True)
-        log_file_path = str(log_dir / "simulation_run.log")
-
-    # Ensure parent directory exists
-    Path(log_file_path).parent.mkdir(parents=True, exist_ok=True)
+        log_file_path = log_dir / "simulation_run.log"
+    else:
+        log_file_path = Path(log_file_path)
+        log_file_path.parent.mkdir(parents=True, exist_ok=True)
 
     logger = logging.getLogger("simulation")
     logger.setLevel(level)
 
-    # Remove existing handlers to avoid duplicates
-    logger.handlers.clear()
+    # Prevent duplicate handlers if called multiple times
+    if logger.handlers:
+        logger.handlers.clear()
 
-    # File handler with JSON formatter
-    file_handler = logging.FileHandler(log_file_path, mode="w")
+    file_handler = logging.FileHandler(log_file_path)
     file_handler.setFormatter(SimulationJsonFormatter())
     logger.addHandler(file_handler)
 
@@ -75,103 +81,95 @@ def log_simulation_start(
     perturbation_norm: float,
     perturbation_type: str,
     sparsity_density: Optional[float] = None,
-    rank: Optional[int] = None,
-    **kwargs: Any,
+    num_eigenvalues: int = 10,
+    **extra_params: Any,
 ) -> None:
     """
-    Log the start of a simulation run with all parameters.
+    Logs the start of a simulation run with full parameter reproducibility.
 
     Args:
-        logger: The configured logger.
-        seed: Random seed used.
-        matrix_size: Size of the Wigner matrix (N).
-        perturbation_norm: Norm of the perturbation (theta).
-        perturbation_type: Type of perturbation (e.g., 'diagonal', 'sparse').
-        sparsity_density: Sparsity density if applicable.
-        rank: Rank of the perturbation if applicable.
-        **kwargs: Additional parameters to log.
+        logger: The configured logger instance.
+        seed: Random seed used for this run.
+        matrix_size: Dimension N of the Wigner matrix.
+        perturbation_norm: Norm (theta) of the perturbation.
+        perturbation_type: Type of perturbation (e.g., 'diagonal', 'block_sparse').
+        sparsity_density: Density parameter if applicable.
+        num_eigenvalues: Number of top eigenvalues to compute.
+        **extra_params: Additional parameters to include in the log.
     """
-    extra_data = {
-        "event": "simulation_start",
-        "seed": seed,
+    seed_state = {
+        "global_seed": seed,
+        "numpy_seed": int(seed),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+    }
+
+    params = {
         "matrix_size": matrix_size,
         "perturbation_norm": perturbation_norm,
         "perturbation_type": perturbation_type,
+        "num_eigenvalues": num_eigenvalues,
+        **extra_params,
     }
-
     if sparsity_density is not None:
-        extra_data["sparsity_density"] = sparsity_density
-
-    if rank is not None:
-        extra_data["rank"] = rank
-
-    extra_data.update(kwargs)
+        params["sparsity_density"] = sparsity_density
 
     logger.info(
         "Simulation started",
-        extra={"extra_data": extra_data},
+        extra={"seed_state": seed_state, "simulation_params": params},
     )
 
 
 def log_simulation_end(
     logger: logging.Logger,
     execution_time_seconds: float,
-    status: str,
-    error: Optional[str] = None,
+    status: str = "success",
+    error_message: Optional[str] = None,
 ) -> None:
     """
-    Log the end of a simulation run.
+    Logs the end of a simulation run.
 
     Args:
-        logger: The configured logger.
-        execution_time_seconds: Total execution time.
-        status: Status of the run (e.g., 'success', 'failed').
-        error: Error message if failed.
+        logger: The configured logger instance.
+        execution_time_seconds: Total runtime of the simulation.
+        status: 'success' or 'failed'.
+        error_message: Error details if status is 'failed'.
     """
-    extra_data = {
-        "event": "simulation_end",
+    end_params = {
         "execution_time_seconds": execution_time_seconds,
         "status": status,
     }
-
-    if error is not None:
-        extra_data["error"] = error
+    if error_message:
+        end_params["error"] = error_message
 
     logger.info(
-        "Simulation finished",
-        extra={"extra_data": extra_data},
+        "Simulation ended",
+        extra={"simulation_params": end_params},
     )
 
 
 def log_eigenvalue_results(
     logger: logging.Logger,
-    eigenvalues: list[float],
-    outlier_indices: list[int],
-    bulk_edge: float = 2.0,
-    bbp_threshold: Optional[float] = None,
+    eigenvalues: list,
+    outlier_indices: Optional[list] = None,
+    theoretical_edge: float = 2.0,
 ) -> None:
     """
-    Log eigenvalue results and outlier detection.
+    Logs the computed eigenvalues and outlier detection results.
 
     Args:
-        logger: The configured logger.
-        eigenvalues: List of computed eigenvalues.
-        outlier_indices: Indices of detected outliers.
-        bulk_edge: Theoretical bulk edge (default 2.0).
-        bbp_threshold: Predicted BBP threshold if available.
+        logger: The configured logger instance.
+        eigenvalues: List of computed eigenvalues (sorted descending).
+        outlier_indices: Indices of eigenvalues identified as outliers.
+        theoretical_edge: Theoretical bulk edge (default 2.0 for Wigner).
     """
-    extra_data = {
-        "event": "eigenvalue_results",
-        "eigenvalues": eigenvalues,
+    results = {
+        "top_eigenvalues": eigenvalues,
         "outlier_indices": outlier_indices,
-        "bulk_edge": bulk_edge,
-        "num_outliers": len(outlier_indices),
+        "theoretical_edge": theoretical_edge,
+        "outlier_count": len(outlier_indices) if outlier_indices else 0,
     }
 
-    if bbp_threshold is not None:
-        extra_data["bbp_threshold"] = bbp_threshold
-
     logger.info(
-        "Eigenvalue analysis complete",
-        extra={"extra_data": extra_data},
+        "Eigenvalue results computed",
+        extra={"simulation_params": results},
     )

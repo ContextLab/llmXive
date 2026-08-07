@@ -1,1 +1,2 @@
-# Placeholder to ensure directory exists
+# Placeholder for simulation logs
+# Structured JSON logs will be written here for reproducibility.

@@ -8,5 +8,5 @@ datasets
 numpy
 pandas
 matplotlib
-scipy
 pillow
+scipy

@@ -1,1 +1,3 @@
-# Placeholder to ensure directory exists
+# Placeholder for raw matrix data
+# This directory will store generated Wigner matrices and perturbation instances.
+# Files will be checksummed before processing.

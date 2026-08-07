@@ -31,6 +31,22 @@ T019:
   r: No `data/raw/` directory or any generated matrix files with checksums are present
     in the provided evidence; the claim lacks any tangible artifacts demonstrating
     raw matrix instances or their verification. The task therefore remains unfulfilled.
+T021:
+  c: false
+  h: 17dfbef67847662bc54cec93cdcd9c262abf8741c98f1ffcdff3ef94a64a378f
+  r: "The required output file `data/processed/mc_results.csv` is missing, and the\
+    \ provided snippet of `monte_carlo_runner.py` does not show any code that writes\
+    \ results to that CSV. Without evidence of the runner actually generating and\
+    \ saving the results, the task\u2019s core requirement is not satisfied."
+T023:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, data files, figures, or statistical tables were provided showing a\
+    \ comparison of\u202F\u03B8_c\u202Fbetween diagonal and random\u2011sparse perturbations.\
+    \ Without any artifact containing the computed\u202F\u03B8_c\u202Fvalues or a\
+    \ statistical analysis (e.g., mean, variance, hypothesis test), the requirement\
+    \ cannot be verified. The implementer must supply the simulation results and the\
+    \ comparative statistical output."
 T040:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

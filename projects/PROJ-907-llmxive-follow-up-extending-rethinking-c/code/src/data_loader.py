@@ -4,78 +4,67 @@ from datasets import load_dataset
 import torch
 from PIL import Image
 import io
+import numpy as np
 
 logger = logging.getLogger(__name__)
 
-def load_imagenet_subset(num_images: int, start_idx: int = 0) -> List[Dict[str, Any]]:
+def load_imagenet_subset(split: str = "validation", streaming: bool = True, shuffle: bool = False) -> Iterator[Dict[str, Any]]:
     """
-    Fetches a subset of ImageNet-1k validation images using the HuggingFace datasets library.
+    Loads ImageNet-1k subset using the HuggingFace datasets library.
     
-    This function streams the dataset to avoid loading everything into memory.
-    It strictly adheres to the "fail loud" policy: if the real source is unreachable,
-    it raises an exception and does NOT fallback to synthetic data.
+    CRITICAL (T035): This loader MUST fail loudly if the real source is unreachable.
+    No synthetic fallback is allowed.
     
     Args:
-        num_images: Number of images to retrieve.
-        start_idx: Starting index in the validation split.
+        split: The dataset split to load (default: "validation").
+        streaming: If True, streams data without downloading the full dataset.
+        shuffle: If True, shuffles the dataset.
     
     Returns:
-        A list of dictionaries containing 'image' (PIL Image) and 'label'.
+        An iterator yielding dictionaries with 'image' and 'label' keys.
     
     Raises:
-        RuntimeError: If the dataset cannot be fetched or is unreachable.
+        Exception: If the dataset cannot be loaded (e.g., network error, missing package).
     """
-    logger.info(f"Attempting to load ImageNet-1k validation subset: indices {start_idx} to {start_idx + num_images}")
+    logger.info(f"Loading ImageNet-1k dataset: split={split}, streaming={streaming}")
     
     try:
-        # Load the dataset in streaming mode
-        # This fetches real data from the HuggingFace Hub
-        dataset = load_dataset("imagenet-1k", split="validation", streaming=True)
+        # Real source: HuggingFace datasets
+        # If this fails, it raises an exception (network error, auth error, etc.)
+        # We do NOT catch and fallback to synthetic data.
+        dataset = load_dataset(
+            "imagenet-1k", 
+            split=split, 
+            streaming=streaming,
+            trust_remote_code=True
+        )
         
-        # Iterate and collect the required subset
-        images_data = []
-        count = 0
+        if shuffle:
+            dataset = dataset.shuffle(seed=42)
         
-        # We need to skip 'start_idx' items and take 'num_images'
-        # Since it's a streaming dataset, we iterate through it
-        iterator = iter(dataset)
+        logger.info("ImageNet-1k dataset loaded successfully.")
+        return iter(dataset)
         
-        # Skip start_idx
-        for _ in range(start_idx):
-            try:
-                next(iterator)
-            except StopIteration:
-                raise RuntimeError(f"Requested start_idx {start_idx} is beyond the dataset size.")
-        
-        # Collect num_images
-        for item in iterator:
-            if count >= num_images:
-                break
-            
-            # The dataset item usually has 'image' (PIL) and 'label' (int)
-            # Ensure the image is loaded
-            img = item.get('image')
-            label = item.get('label')
-            
-            if img is None:
-                logger.warning(f"Skipping item at index {start_idx + count}: missing 'image' key.")
-                continue
-            
-            images_data.append({
-                'image': img,
-                'label': label,
-                'index': start_idx + count
-            })
-            count += 1
-        
-        if count < num_images:
-            logger.warning(f"Requested {num_images} images but only found {count} available in the dataset.")
-        
-        logger.info(f"Successfully loaded {len(images_data)} images from ImageNet-1k.")
-        return images_data
-
     except Exception as e:
-        # CRITICAL: Do NOT fallback to synthetic data.
-        # Raise the error to indicate the real source is unreachable.
-        logger.error(f"CRITICAL: Failed to fetch real ImageNet data from HuggingFace Hub: {e}")
-        raise RuntimeError(f"Failed to load real ImageNet data. The dataset source is unreachable. Error: {e}") from e
+        logger.error(f"Failed to load ImageNet-1k dataset: {e}")
+        # Re-raise to ensure the execution fails loudly
+        raise RuntimeError(f"Data source unavailable: {e}") from e
+
+def preprocess_image(image: Image.Image, size: int = 256) -> torch.Tensor:
+    """
+    Preprocesses a PIL Image to a tensor.
+    
+    Args:
+        image: PIL Image.
+        size: Target size for resizing.
+    
+    Returns:
+        Tensor of shape (3, H, W) with values in [0, 1].
+    """
+    if image.mode != 'RGB':
+        image = image.convert('RGB')
+    
+    image = image.resize((size, size))
+    img_array = np.array(image).astype(np.float32) / 255.0
+    tensor = torch.from_numpy(img_array).permute(2, 0, 1)
+    return tensor

@@ -1,22 +1,18 @@
 # PROJ-551: Asymptotic Behavior of Random Matrix Eigenvalues with Sparse Perturbations
 
 ## Overview
-This project investigates the asymptotic behavior of eigenvalues of large random matrices (Wigner matrices) under sparse deterministic perturbations. We focus on the emergence of outliers beyond the semicircle law edge and the detection of critical perturbation thresholds (BBP phase transition).
+This project investigates the asymptotic behavior of eigenvalues in large random matrices (Wigner matrices) subjected to sparse, deterministic perturbations. The primary goal is to empirically verify the BBP (Baik-Ben Arous-Péché) phase transition threshold and analyze how sparsity patterns affect the emergence of outlier eigenvalues.
+
+## Quickstart
+1. Install dependencies: `pip install -r code/requirements.txt`
+2. Run the main simulation: `python code/main.py`
+3. View results in `data/processed/` and `figures/`
 
 ## Project Structure
-- `src/`: Source code for generators, analysis, and simulation
-- `data/`: Raw and processed data artifacts
-- `specs/`: Feature specifications and design documents
+- `code/`: Source code
+- `data/`: Raw and processed data
+- `specs/`: Design documents
 - `tests/`: Unit and integration tests
-- `scripts/`: Utility scripts for data generation and analysis
 
-## Quick Start
-1. Install dependencies: `pip install -r requirements.txt`
-2. Run a single simulation: `python src/main.py --n 1000 --theta 2.5 --seed 42`
-3. Run the full parameter sweep: `python scripts/run_sweep.py`
-
-## Data Hygiene
-All raw data artifacts are checksummed before aggregation. See `src/utils/checksum.py` for details.
-
-## Observational Constraints
-This study is purely observational. All findings are framed as associational correlations. No physical observer modeling is included.
+## License
+MIT

@@ -3,60 +3,40 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "asymptotic-behavior-random-matrix"
+name = "asymptotic-behavior-random-matrix-eig"
 version = "0.1.0"
-description = "Asymptotic Behavior of Random Matrix Eigenvalues with Sparse Perturbations"
+description = "Asymptotic behavior of random matrix eigenvalues with sparse perturbations"
 requires-python = ">=3.11"
 dependencies = [
     "numpy>=1.26.0",
     "scipy>=1.12.0",
-    "pydantic>=2.5.0",
-    "pyyaml>=6.0.1",
+    "pydantic>=2.0.0",
+    "pyyaml>=6.0.0",
     "matplotlib>=3.8.0",
-    "seaborn>=0.13.0",
 ]
 
 [project.optional-dependencies]
 dev = [
     "ruff>=0.4.0",
-    "black>=24.3.0",
+    "black>=24.0.0",
     "pytest>=8.0.0",
-    "pytest-cov>=4.1.0",
+    "pytest-cov>=5.0.0",
 ]
 
-[tool.ruff]
-line-length = 100
-target-version = "py311"
-src = ["code"]
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["*"]
 
-[tool.ruff.lint]
-select = [
-    "E",   # pycodestyle errors
-    "W",   # pycodestyle warnings
-    "F",   # pyflakes
-    "I",   # isort
-    "C",   # flake8-comprehensions
-    "B",   # flake8-bugbear
-    "UP",  # pyupgrade
-]
-ignore = [
-    "E501", # line too long (handled by black)
-    "B008", # do not perform function calls in argument defaults
-    "C901", # too complex
-]
-
-[tool.ruff.lint.per-file-ignores]
-"code/__init__.py" = ["F401"]
-"code/tests/*" = ["S101"] # assert allowed in tests
+[tool.setuptools.package-dir]
+"" = "code"
 
 [tool.black]
-line-length = 100
+line-length = 88
 target-version = ['py311']
 include = '\.pyi?$'
 exclude = '''
 /(
-    \.eggs
-    | \.git
+    \.git
     | \.hg
     | \.mypy_cache
     | \.tox
@@ -68,7 +48,32 @@ exclude = '''
 )/
 '''
 
+[tool.ruff]
+target-version = "py311"
+line-length = 88
+src = ["code"]
+
+[tool.ruff.lint]
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "I",  # isort
+    "C",  # flake8-comprehensions
+    "B",  # flake8-bugbear
+]
+ignore = [
+    "E501",  # line too long (black handles this)
+    "C901",  # too complex
+    "B008",  # do not perform function calls in argument defaults
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["generators", "analysis", "utils", "data_models"]
+force-single-line = true
+lines-after-imports = 2
+
 [tool.pytest.ini_options]
 testpaths = ["code/tests"]
 pythonpath = ["code"]
-addopts = "-v --strict-markers"
+addopts = "-v --tb=short"

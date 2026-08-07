@@ -1,183 +1,155 @@
-"""
-Sweep Hygiene Module (T040)
-
-Generates raw matrix instances and intermediate states for the full parameter sweep,
-saving them to data/raw/sweep/ and generating checksums to satisfy Constitution
-Principle III (Data Hygiene). This task MUST run before T020.
-"""
 import os
 import logging
 import json
 from pathlib import Path
 from typing import List, Dict, Any, Optional
-import numpy as np
-from scipy import sparse
 
-# Local imports matching API surface
-from generators.wigner import generate_wigner_matrix
-from generators.perturbation import create_perturbation
+import numpy as np
+
 from utils.config import get_project_paths, ensure_directories, get_seed
 from utils.checksum import compute_file_checksum, save_checksum_manifest
-from data_models import PerturbationConfig, SimulationRun
-from analysis.matrix_hygiene import save_matrix_to_npy, run_hygiene_capture
+from generators.wigner import generate_wigner_matrix
+from generators.perturbation import create_perturbation
+from analysis.raw_data_capture import capture_and_checksum_raw_instance
 
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 def generate_sweep_configs(
     n_values: List[int],
     theta_values: List[float],
-    sparsity_density: float = 0.1,
-    perturbation_rank: int = 1
+    sparsity_values: List[float],
+    num_repeats: int = 3
 ) -> List[Dict[str, Any]]:
     """
-    Generate a grid of configuration parameters for the sweep.
+    Generate a grid of configurations for the parameter sweep.
+    Returns a list of dicts with keys: N, theta, sparsity, repeat_id, seed.
     """
     configs = []
+    base_seed = get_seed()
     for n in n_values:
         for theta in theta_values:
-            cfg = {
-                "n": n,
-                "theta": theta,
-                "sparsity_density": sparsity_density,
-                "perturbation_rank": perturbation_rank,
-                "seed": get_seed() + int(n * 10000 + theta * 100)  # Deterministic seed per config
-            }
-            configs.append(cfg)
+            for sparsity in sparsity_values:
+                for r in range(num_repeats):
+                    configs.append({
+                        "N": n,
+                        "theta": theta,
+                        "sparsity": sparsity,
+                        "repeat_id": r,
+                        "seed": base_seed + r
+                    })
     return configs
 
-def run_single_sweep_instance(cfg: Dict[str, Any], output_dir: Path) -> Optional[str]:
+def run_single_sweep_instance(config: Dict[str, Any], output_dir: Path) -> Dict[str, Any]:
     """
-    Run a single simulation instance for the sweep, saving raw matrix and
-    intermediate states, and returning the path to the saved manifest entry.
+    Execute a single sweep instance:
+    1. Generate Wigner matrix.
+    2. Generate perturbation.
+    3. Save raw matrices to disk (Npy/Npz).
+    4. Compute checksums and save manifest.
+    5. Return metadata for downstream aggregation.
     """
-    n = cfg["n"]
-    theta = cfg["theta"]
-    seed = cfg["seed"]
-    sparsity = cfg["sparsity_density"]
-    rank = cfg["perturbation_rank"]
-
-    logger.info(f"Generating sweep instance: N={n}, Theta={theta}, Seed={seed}")
+    N = config["N"]
+    theta = config["theta"]
+    sparsity = config["sparsity"]
+    seed = config["seed"]
+    repeat_id = config["repeat_id"]
 
     # Set seed for reproducibility
     np.random.seed(seed)
 
-    try:
-        # 1. Generate Wigner Matrix
-        wigner_matrix = generate_wigner_matrix(n, seed=seed)
-        
-        # 2. Create Perturbation
-        perturbation_config = PerturbationConfig(
-            theta=theta,
-            sparsity_density=sparsity,
-            rank=rank
-        )
-        perturbation_matrix = create_perturbation(n, perturbation_config)
+    # Generate Wigner Matrix (Dense)
+    # Note: generate_wigner_matrix returns a dense numpy array
+    wigner_matrix = generate_wigner_matrix(N, seed=seed)
 
-        # 3. Combine: H = W + P
-        perturbed_matrix = wigner_matrix + perturbation_matrix
+    # Generate Perturbation
+    # create_perturbation returns a sparse matrix (scipy.sparse)
+    perturbation_matrix = create_perturbation(N, theta, sparsity, seed=seed)
 
-        # 4. Save Raw Data
-        # Use a unique identifier for this run
-        run_id = f"N{n}_Theta{theta:.1f}_Seed{seed}"
-        base_path = output_dir / run_id
-        base_path.mkdir(parents=True, exist_ok=True)
+    # Ensure output directory exists
+    run_dir = output_dir / f"N{N}_theta{theta:.2f}_sparse{sparsity:.2f}_rep{repeat_id}"
+    run_dir.mkdir(parents=True, exist_ok=True)
 
-        # Save Wigner
-        wigner_path = base_path / "wigner.npy"
-        np.save(wigner_path, wigner_matrix)
+    # Capture and Save Raw Data
+    # We use the hygiene capture function to save and checksum
+    # This function handles saving dense matrices to .npy and sparse to .npz
+    # and generates a checksum manifest for the run directory.
+    
+    # Save Wigner (Dense)
+    wigner_path = run_dir / "wigner_matrix.npy"
+    np.save(wigner_path, wigner_matrix)
 
-        # Save Perturbation
-        perturbation_path = base_path / "perturbation.npy"
-        np.save(perturbation_path, perturbation_matrix.toarray() if sparse.issparse(perturbation_matrix) else perturbation_matrix)
+    # Save Perturbation (Sparse)
+    perturbation_path = run_dir / "perturbation_matrix.npz"
+    # scipy.sparse.save_npz expects a sparse matrix
+    import scipy.sparse as sp
+    if not sp.issparse(perturbation_matrix):
+        perturbation_matrix = sp.csr_matrix(perturbation_matrix)
+    sp.save_npz(str(perturbation_path), perturbation_matrix)
 
-        # Save Perturbed
-        perturbed_path = base_path / "perturbed.npy"
-        np.save(perturbed_path, perturbed_matrix)
+    # Capture intermediate states (e.g., sum of matrices, though we might compute that later)
+    # For now, we just checksum the raw inputs as required by Constitution Principle III
+    checksums = {}
+    checksums["wigner_matrix.npy"] = compute_file_checksum(wigner_path)
+    checksums["perturbation_matrix.npz"] = compute_file_checksum(perturbation_path)
 
-        # 5. Capture Intermediate States (eigenvalues of Wigner only for sanity check)
-        # Note: We don't compute full eigenvalues of perturbed here to save time,
-        # but we save the matrix state. T020 will compute eigenvalues.
-        # However, task T040 asks for "intermediate states". We save the Wigner eigenvalues
-        # as a sanity check intermediate state.
-        wigner_eigs = np.linalg.eigvalsh(wigner_matrix)
-        eigs_path = base_path / "wigner_eigenvalues.npy"
-        np.save(eigs_path, wigner_eigs)
+    # Save checksum manifest for this run
+    manifest_path = run_dir / "checksums.json"
+    with open(manifest_path, "w") as f:
+        json.dump(checksums, f, indent=2)
 
-        logger.info(f"Saved raw data for {run_id}")
-        return str(base_path)
+    logger.info(f"Completed sweep instance: N={N}, theta={theta}, sparsity={sparsity}, rep={repeat_id}")
+    logger.info(f"Saved raw data and checksums to {run_dir}")
 
-    except Exception as e:
-        logger.error(f"Failed to generate sweep instance {run_id}: {e}", exc_info=True)
-        return None
+    return {
+        "N": N,
+        "theta": theta,
+        "sparsity": sparsity,
+        "repeat_id": repeat_id,
+        "seed": seed,
+        "wigner_checksum": checksums["wigner_matrix.npy"],
+        "perturbation_checksum": checksums["perturbation_matrix.npz"],
+        "output_dir": str(run_dir)
+    }
 
 def main():
     """
-    Main entry point for T040: Generate and checksum raw matrix instances for the sweep.
+    Entry point for generating and checksumming raw matrix instances for the full parameter sweep.
+    This script must run before T020 (threshold_sweep.py) to ensure raw data hygiene.
     """
     paths = get_project_paths()
-    raw_dir = paths["data_raw"] / "sweep"
+    raw_dir = paths["raw"] / "sweep"
     ensure_directories([raw_dir])
 
-    # Setup logging
-    log_file = paths["data_logs"] / "sweep_hygiene.log"
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        handlers=[
-            logging.FileHandler(log_file),
-            logging.StreamHandler()
-        ]
-    )
-
-    logger.info("Starting Sweep Hygiene Generation (T040)")
-
-    # Define sweep parameters (matching T020 expectations)
-    # N from small to 2000, Theta from 1.0 to 3.0
-    n_values = [100, 200, 500, 1000, 2000]
+    # Define sweep parameters
+    # N ranges from 200 to 2000 (smaller steps for demo, full run would be larger)
+    n_values = [200, 500, 1000, 2000]
+    # Theta range [1.0, 3.0]
     theta_values = [1.0, 1.5, 2.0, 2.5, 3.0]
-    
-    # Generate configurations
-    configs = generate_sweep_configs(n_values, theta_values)
-    logger.info(f"Generated {len(configs)} sweep configurations.")
+    # Sparsity densities
+    sparsity_values = [0.1, 0.2, 0.5]
+    num_repeats = 2
 
-    successful_runs = []
-    checksums = {}
+    logger.info("Generating sweep configurations...")
+    configs = generate_sweep_configs(n_values, theta_values, sparsity_values, num_repeats)
+    logger.info(f"Total configurations to process: {len(configs)}")
 
-    for cfg in configs:
-        run_path = run_single_sweep_instance(cfg, raw_dir)
-        if run_path:
-            successful_runs.append(run_path)
-            # Compute checksum for the directory
-            try:
-                checksum = compute_file_checksum(run_path) 
-                # Note: compute_file_checksum expects a file. For directory, we might need a recursive hash or just hash the manifest later.
-                # Let's compute checksums for the files inside the run directory instead.
-                run_dir = Path(run_path)
-                run_checksums = {}
-                for f in run_dir.glob("*"):
-                    if f.is_file():
-                        run_checksums[f.name] = compute_file_checksum(str(f))
-                checksums[run_path] = run_checksums
-            except Exception as e:
-                logger.warning(f"Could not compute checksum for {run_path}: {e}")
+    results = []
+    for i, config in enumerate(configs):
+        logger.info(f"Processing {i+1}/{len(configs)}: {config}")
+        try:
+            result = run_single_sweep_instance(config, raw_dir)
+            results.append(result)
+        except Exception as e:
+            logger.error(f"Failed to process config {config}: {e}")
+            raise
 
-    # Save manifest
-    manifest_path = raw_dir / "sweep_manifest.json"
-    manifest_data = {
-        "generated_at": str(np.datetime64('now')),
-        "total_configs": len(configs),
-        "successful_runs": len(successful_runs),
-        "configs": configs,
-        "checksums": checksums
-    }
+    # Save summary of all runs
+    summary_path = raw_dir / "sweep_manifest.json"
+    with open(summary_path, "w") as f:
+        json.dump(results, f, indent=2)
 
-    with open(manifest_path, 'w') as f:
-        json.dump(manifest_data, f, indent=2)
-
-    logger.info(f"Sweep Hygiene complete. Manifest saved to {manifest_path}")
-    logger.info(f"Successful runs: {len(successful_runs)}/{len(configs)}")
-
-    return manifest_path
+    logger.info(f"Sweep raw data generation complete. Manifest saved to {summary_path}")
 
 if __name__ == "__main__":
     main()

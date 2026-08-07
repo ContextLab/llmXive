@@ -1,0 +1,43 @@
+T012:
+  c: false
+  h: 190f2091aedadfdba084c203023161764ca6565ce47e79cd015bdd1469c92156
+  r: "The provided `clustering.py` is truncated and does not contain code that saves\
+    \ the computed cluster centers to `data/routing_cache/cluster_centers.json` nor\
+    \ logic that handles the null\u2011hypothesis case (k\u202F<\u202F2 or silhouette\u202F\
+    <\u202F0.25) by falling back to a global average vector. Moreover, the required\
+    \ `cluster_centers.json` file is absent. The task\u2019s verification steps are\
+    \ therefore not satisfied."
+T013:
+  c: false
+  h: 003ffd7fea0b0d34d58099de37107b3120e7a2d50febd78ab1b61cae5fd2a02c
+  r: "The required output file `data/routing_cache/canonical_map.json` is absent,\
+    \ and the provided `canonical_map.py` is truncated (e.g., ends with an incomplete\
+    \ `logger.warnin` line), indicating the implementation is unfinished. The task\u2019\
+    s verification condition is not satisfied."
+T014:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration, log files, or documentation showing that progress\u2011\
+    \ and memory\u2011usage logging was added is present. The claim lacks any concrete\
+    \ artifact (e.g., modified source files, logging output, or test results) to demonstrate\
+    \ that OOM\u2011prevention logging now exists."
+T017:
+  c: false
+  h: 5439a9acc7939eae102461b42ac18f65594af7ccd4a9e3017cfd8489084cd7cc
+  r: The required integration test file `code/tests/integration/test_fid_comparison.py`
+    does not exist in the repository, so no test code or FID verification is present.
+    The task cannot be considered done until the specified test file is created with
+    functional code that computes and asserts FID on dummy samples.
+T018:
+  c: false
+  h: 8ceb8aa0ffa3ccccdef6c8f2013a6fdb58e6b188b650b6452efd86cd6dafb740
+  r: The required `code/src/static_model.py` file does not exist, and the dependent
+    artifact `data/routing_cache/canonical_map.json` is also missing, so the model
+    cannot be instantiated or verified as described.
+T037:
+  c: false
+  h: 0b6740802decca809d87e0a94d6a7134acdef36c0aa661753a4e5daf61cda49c
+  r: "The required artifact `src/tracing.py` does not exist in the repository, so\
+    \ no refactored code, batch\u2011size handling, or memory\u2011peak logging can\
+    \ be verified. The task cannot be considered completed until the file is present\
+    \ and contains the specified functionality."
