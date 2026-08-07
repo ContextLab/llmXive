@@ -4,300 +4,191 @@ import logging
 import csv
 import pickle
 import random
-import math
-import numpy as np
-import pandas as pd
+import yaml
+import hashlib
 from pathlib import Path
-from typing import Dict, Any, List, Optional
-from statsmodels.stats.outliers_influence import variance_inflation_factor
-from sklearn.linear_model import LinearRegression
-from sklearn.model_selection import cross_val_score, KFold
-from scipy.stats import pearsonr, spearmanr
+from typing import Dict, Any, List, Optional, Tuple
 
-# Ensure statsmodels is available
-try:
-    from statsmodels.stats.outliers_influence import variance_inflation_factor
-except ImportError:
-    # Fallback if not installed, though requirements.txt should have it
-    variance_inflation_factor = None
+import pandas as pd
+import numpy as np
+from scipy import stats
+from sklearn.preprocessing import StandardScaler
+from statsmodels.stats.outliers_influence import variance_inflation_factor
+
+from config import Config, get_config
+from utils import setup_logging, pin_seed
 
 logger = logging.getLogger("analyze")
-if not logger.handlers:
-    handler = logging.StreamHandler()
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    handler.setFormatter(formatter)
-    logger.addHandler(handler)
-    logger.setLevel(logging.INFO)
 
-def setup_analysis_logger():
-    """Configure logging for analysis tasks."""
-    return logger
+def load_metrics_csv(csv_path: str) -> pd.DataFrame:
+    """Load metrics from CSV into a DataFrame."""
+    if not os.path.exists(csv_path):
+        raise FileNotFoundError(f"Metrics CSV not found at {csv_path}")
+    df = pd.read_csv(csv_path)
+    logger.info(f"Loaded {len(df)} rows from {csv_path}")
+    return df
 
-def update_state_artifact_hash(file_path: str) -> None:
+def calculate_vif(df: pd.DataFrame, feature_cols: List[str]) -> Dict[str, float]:
     """
-    Computes SHA-256 checksum of the output file and updates the project state YAML.
+    Calculate Variance Inflation Factor for specified features.
     """
-    import hashlib
-    import yaml
-    
-    state_file_path = Path("state/projects/PROJ-360-quantifying-the-impact-of-network-struct.yaml")
-    
-    if not file_path or not os.path.exists(file_path):
-        logger.error(f"Cannot compute hash for non-existent file: {file_path}")
-        return
+    X = df[feature_cols].dropna()
+    if len(X) < len(feature_cols) + 1:
+        logger.warning("Insufficient data points for VIF calculation.")
+        return {col: float('inf') for col in feature_cols}
 
-    sha256_hash = hashlib.sha256()
-    with open(file_path, "rb") as f:
-        for byte_block in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(byte_block)
-    checksum = sha256_hash.hexdigest()
-    
-    logger.info(f"Computed checksum for {file_path}: {checksum}")
-
-    state_data = {}
-    if state_file_path.exists():
-        with open(state_file_path, 'r') as f:
-            try:
-                state_data = yaml.safe_load(f) or {}
-            except yaml.YAMLError as e:
-                logger.error(f"Error reading state file: {e}")
-                return
-    
-    if "artifact_hashes" not in state_data:
-        state_data["artifact_hashes"] = {}
-    
-    state_data["artifact_hashes"][str(file_path)] = checksum
-    
-    temp_path = state_file_path.with_suffix('.tmp')
-    try:
-        with open(temp_path, 'w') as f:
-            yaml.dump(state_data, f, default_flow_style=False)
-        os.replace(temp_path, state_file_path)
-        logger.info(f"State file updated at {state_file_path}")
-    except Exception as e:
-        logger.error(f"Failed to update state file: {e}")
-        if temp_path.exists():
-            temp_path.unlink()
-
-def load_metrics_csv(path: str = "data/processed/metrics.csv") -> pd.DataFrame:
-    if not os.path.exists(path):
-        raise FileNotFoundError(f"Metrics file not found: {path}")
-    return pd.read_csv(path)
-
-def calculate_vif(features_df: pd.DataFrame) -> Dict[str, float]:
-    """
-    Calculates Variance Inflation Factor (VIF) for network metrics ONLY.
-    Excludes physical descriptors (volume, atom count, mass).
-    """
-    if variance_inflation_factor is None:
-        raise ImportError("statsmodels is required for VIF calculation.")
-    
-    # Filter columns to only network metrics as per spec
-    network_metrics = ['avg_degree', 'path_length', 'clustering']
-    available_metrics = [col for col in network_metrics if col in features_df.columns]
-    
-    if not available_metrics:
-        logger.warning("No network metrics found for VIF calculation.")
-        return {}
-    
-    X = features_df[available_metrics].dropna()
-    
-    if X.empty:
-        logger.warning("No valid rows for VIF calculation after dropping NaNs.")
-        return {col: float('inf') for col in available_metrics}
-    
-    # Add constant for intercept
-    X_const = sm.add_constant(X)
-    
-    vif_dict = {}
-    for i, col in enumerate(available_metrics):
+    vif_data = {}
+    for i, col in enumerate(feature_cols):
         try:
-            # VIF for a feature is 1 / (1 - R^2) where R^2 is from regressing that feature on others
-            # statsmodels VIF function handles this
-            vif_val = variance_inflation_factor(X_const.values, i+1) # +1 because of constant
-            vif_dict[col] = float(vif_val)
+            vif = variance_inflation_factor(X.values, i)
+            vif_data[col] = float(vif)
         except Exception as e:
-            logger.error(f"Error calculating VIF for {col}: {e}")
-            vif_dict[col] = float('inf')
-    
-    return vif_dict
+            logger.error(f"VIF calculation failed for {col}: {e}")
+            vif_data[col] = float('inf')
+    return vif_data
 
-def log_vif_results(vif_dict: Dict[str, float], log_path: str = "results/power_analysis.log") -> None:
-    """Logs VIF values to the power analysis log."""
-    os.makedirs(os.path.dirname(log_path), exist_ok=True)
-    with open(log_path, 'a') as f:
-        f.write(f"\n--- VIF Calculation Results ---\n")
-        for feature, value in vif_dict.items():
-            f.write(f"VIF: {feature} = {value:.4f}\n")
+def log_vif_results(vif_dict: Dict[str, float], log_path: str = "results/power_analysis.log"):
+    """Log VIF results to a file."""
+    Path(log_path).parent.mkdir(parents=True, exist_ok=True)
+    with open(log_path, 'w') as f:
+        f.write("Variance Inflation Factor (VIF) Analysis\n")
+        f.write("-" * 40 + "\n")
+        for col, val in vif_dict.items():
+            f.write(f"{col}: {val:.4f}\n")
+        f.write("-" * 40 + "\n")
     logger.info(f"VIF results logged to {log_path}")
 
-def verify_vif_scope(vif_dict: Dict[str, float]) -> bool:
-    """Verifies that VIF calculation was performed only on network metrics."""
-    allowed = {'avg_degree', 'path_length', 'clustering'}
-    actual = set(vif_dict.keys())
-    if not actual.issubset(allowed):
-        logger.error(f"VIF calculation included non-network metrics: {actual - allowed}")
-        return False
-    return True
+def verify_vif_scope(vif_dict: Dict[str, float], threshold: float = 5.0) -> List[str]:
+    """Return list of features with VIF below threshold."""
+    return [col for col, val in vif_dict.items() if val < threshold]
 
-def filter_features(features_df: pd.DataFrame, vif_threshold: float = 5.0) -> pd.DataFrame:
-    """
-    Filters features based on VIF threshold.
-    Writes filtered features to data/processed/filtered_features.csv.
-    Updates state file.
-    """
-    vif_dict = calculate_vif(features_df)
-    log_vif_results(vif_dict)
-    
-    if not verify_vif_scope(vif_dict):
-        logger.error("VIF scope verification failed. Aborting filter.")
-        return pd.DataFrame()
-    
-    included_features = []
-    excluded_features = []
-    
-    for feature, vif_val in vif_dict.items():
-        if vif_val < vif_threshold:
-            included_features.append(feature)
-            logger.info(f"INCLUDED: {feature} (VIF={vif_val:.4f})")
-        else:
-            excluded_features.append(feature)
-            logger.info(f"EXCLUDED: {feature} (VIF={vif_val:.4f})")
-    
-    if not included_features:
-        logger.critical("No valid features for regression. All excluded.")
-        # Generate report as per spec
-        report_path = "results/no_features_report.txt"
-        with open(report_path, 'w') as f:
-            f.write("No valid features for regression\n")
-        return pd.DataFrame()
-    
-    # Filter the dataframe
-    # We need to include the target variable if it's in the dataframe, but VIF is only on features
-    # The function signature implies we are filtering the feature columns.
-    # Assuming features_df contains both features and target, we select only the included features.
-    # However, for regression, we usually separate X and y.
-    # Here, we return a dataframe with only the included feature columns.
-    # The target 'thermal_conductivity_scalar' should be preserved if we want to train later,
-    # but the spec says "filter_features" returns the filtered features.
-    # Let's assume the caller will handle target separation.
-    # But to be safe and useful for T022, let's include the target if it exists.
-    
-    target_col = 'thermal_conductivity_scalar'
-    final_cols = included_features
-    if target_col in features_df.columns:
-        final_cols.append(target_col)
-    
-    filtered_df = features_df[final_cols].copy()
-    
-    output_path = "data/processed/filtered_features.csv"
-    filtered_df.to_csv(output_path, index=False)
-    logger.info(f"Filtered features saved to {output_path}")
-    
-    # Update state
-    update_state_artifact_hash(output_path)
-    
-    return filtered_df
+def filter_features(df: pd.DataFrame, keep_cols: List[str], target_col: str) -> pd.DataFrame:
+    """Filter dataframe to keep only specified features and target."""
+    cols_to_keep = [c for c in keep_cols if c in df.columns]
+    if target_col in df.columns:
+        cols_to_keep.append(target_col)
+    return df[cols_to_keep].dropna()
 
-def compute_correlations(metrics_df: pd.DataFrame) -> List[Dict[str, Any]]:
-    """
-    Computes Pearson and Spearman correlations between network metrics and thermal conductivity.
-    """
+def compute_correlations(df: pd.DataFrame, metric_cols: List[str], target_col: str) -> Dict[str, Any]:
+    """Compute Pearson and Spearman correlations with Bonferroni correction."""
     results = []
-    target = 'thermal_conductivity_scalar'
-    metrics = ['avg_degree', 'path_length', 'clustering']
-    
-    if target not in metrics_df.columns:
-        logger.error(f"Target column '{target}' not found in metrics dataframe.")
-        return results
-    
-    for metric in metrics:
-        if metric not in metrics_df.columns:
-            logger.warning(f"Metric '{metric}' not found, skipping.")
+    n_tests = len(metric_cols)
+    alpha = 0.05
+    corrected_alpha = alpha / n_tests
+
+    for col in metric_cols:
+        if col not in df.columns or target_col not in df.columns:
             continue
         
-        x = metrics_df[metric].dropna()
-        y = metrics_df[target].dropna()
+        x = df[col].dropna()
+        y = df[target_col].dropna()
         
-        # Align indices
+        # Align indices for correlation
         common_idx = x.index.intersection(y.index)
         x = x.loc[common_idx]
         y = y.loc[common_idx]
-        
-        if len(x) < 2:
-            logger.warning(f"Not enough data points for correlation on {metric}.")
+
+        if len(x) < 3:
             continue
-        
-        pearson_r, pearson_p = pearsonr(x, y)
-        spearman_r, spearman_p = spearmanr(x, y)
-        
+
+        pearson_r, pearson_p = stats.pearsonr(x, y)
+        spearman_r, spearman_p = stats.spearmanr(x, y)
+
         results.append({
-            "metric_name": metric,
-            "pearson_coeff": float(pearson_r),
-            "pearson_p_value": float(pearson_p),
-            "spearman_coeff": float(spearman_r),
-            "spearman_p_value": float(spearman_p)
+            "feature": col,
+            "pearson_r": float(pearson_r),
+            "pearson_p": float(pearson_p),
+            "spearman_r": float(spearman_r),
+            "spearman_p": float(spearman_p),
+            "bonferroni_corrected": float(pearson_p * n_tests) if pearson_p is not None else None,
+            "significant_at_0.05": (pearson_p * n_tests) < 0.05 if pearson_p is not None else False
         })
-    
-    return results
 
-def calculate_bonferroni_pvalues(results: List[Dict[str, Any]], alpha: float = 0.05) -> List[Dict[str, Any]]:
-    """
-    Applies Bonferroni correction for multiple comparisons.
-    Fixed alpha = 0.05 / 3 (number of tests).
-    """
-    n_tests = 3
-    corrected_alpha = alpha / n_tests
-    logger.info(f"Bonferroni correction: alpha = {alpha} / {n_tests} = {corrected_alpha}")
-    
-    for res in results:
-        res['bonferroni_adjusted_p'] = min(res['pearson_p_value'] * n_tests, 1.0)
-        res['is_significant'] = res['bonferroni_adjusted_p'] < corrected_alpha
-    
-    return results
+    return {
+        "correlations": results,
+        "bonferroni_alpha": corrected_alpha,
+        "sample_size": len(df)
+    }
 
-def save_correlations(results: List[Dict[str, Any]], output_path: str = "results/correlations.json") -> None:
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+def calculate_bonferroni_pvalues(correlation_results: List[Dict], alpha: float = 0.05) -> List[Dict]:
+    """Apply Bonferroni correction to p-values."""
+    n = len(correlation_results)
+    corrected_alpha = alpha / n
+    for res in correlation_results:
+        res['bonferroni_corrected_p'] = res['pearson_p'] * n
+        res['significant'] = res['bonferroni_corrected_p'] < alpha
+    return correlation_results
+
+def save_correlations(correlation_data: Dict[str, Any], output_path: str):
+    """Save correlation results to JSON."""
+    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
     with open(output_path, 'w') as f:
-        json.dump(results, f, indent=2)
-    update_state_artifact_hash(output_path)
-    logger.info(f"Correlations saved to {output_path}")
+        json.dump(correlation_data, f, indent=2)
+    logger.info(f"Saved correlations to {output_path}")
+
+def update_state_artifact_hash(state_path: str, artifact_path: str):
+    """Update state YAML with artifact checksum."""
+    if not os.path.exists(state_path):
+        return
+    try:
+        with open(state_path, 'r') as f:
+            state = yaml.safe_load(f) or {}
+        
+        checksum = hashlib.sha256(open(artifact_path, 'rb').read()).hexdigest()
+        if 'artifacts' not in state:
+            state['artifacts'] = {}
+        state['artifacts'][os.path.basename(artifact_path)] = {
+            "path": artifact_path,
+            "checksum": checksum
+        }
+        with open(state_path, 'w') as f:
+            yaml.dump(state, f)
+    except Exception as e:
+        logger.error(f"Failed to update state: {e}")
 
 def main():
-    """
-    Main entry point for correlation analysis and VIF filtering (T016-T021 logic).
-    This function orchestrates the flow if run directly.
-    """
-    # 1. Load metrics
-    try:
-        metrics_df = load_metrics_csv()
-    except FileNotFoundError as e:
-        logger.error(str(e))
-        return 1
+    """Main entry point for correlation analysis."""
+    config = get_config()
+    pin_seed(config.get('RANDOM_SEED', 42))
+
+    metrics_path = "data/processed/metrics.csv"
+    correlations_path = "results/correlations.json"
+    filtered_features_path = "data/processed/filtered_features.csv"
+    state_path = "state/projects/PROJ-360-quantifying-the-impact-of-network-struct.yaml"
+
+    # Load Data
+    df = load_metrics_csv(metrics_path)
     
-    # 2. Compute correlations (T016)
-    corr_results = compute_correlations(metrics_df)
-    
-    # 3. Bonferroni (T017)
-    corr_results = calculate_bonferroni_pvalues(corr_results)
-    
-    # 4. Save correlations (T016)
-    save_correlations(corr_results)
-    
-    # 5. VIF and Filter (T020-T021)
-    # We need to pass the feature columns
-    features_df = metrics_df[['avg_degree', 'path_length', 'clustering', 'thermal_conductivity_scalar']]
-    filtered_df = filter_features(features_df)
-    
-    if filtered_df.empty:
-        logger.warning("No features passed VIF filter. Model training skipped.")
-        return 0
-    
-    # 6. Train Model (T022) - simplified inline for main execution if needed
-    # (T022 is usually a separate step in the pipeline, but we can call it here if integrated)
-    # For now, we stop at T021 as per task boundaries, assuming T022 is called separately.
-    
-    return 0
+    # Define Feature Columns
+    network_metrics = ["average_degree", "average_path_length", "clustering_coefficient"]
+    physical_descriptors = ["unit_cell_volume", "total_atom_count", "mean_atomic_mass"]
+    all_features = network_metrics + physical_descriptors
+    target_col = "thermal_conductivity_scalar"
+
+    # VIF Analysis
+    vif_dict = calculate_vif(df, all_features)
+    log_vif_results(vif_dict)
+    logger.info(f"VIF Results: {vif_dict}")
+
+    # Filter Features (VIF < 5)
+    safe_features = verify_vif_scope(vif_dict, threshold=5.0)
+    logger.info(f"Safe features after VIF filtering: {safe_features}")
+
+    # Create Filtered Dataset
+    filtered_df = filter_features(df, safe_features, target_col)
+    filtered_df.to_csv(filtered_features_path, index=False)
+    logger.info(f"Saved filtered features to {filtered_features_path}")
+
+    # Compute Correlations
+    corr_data = compute_correlations(filtered_df, safe_features, target_col)
+    calculate_bonferroni_pvalues(corr_data['correlations'])
+    save_correlations(corr_data, correlations_path)
+
+    # Update State
+    update_state_artifact_hash(state_path, correlations_path)
+    update_state_artifact_hash(state_path, filtered_features_path)
+
+    logger.info("Analysis complete.")
 
 if __name__ == "__main__":
-    exit(main())
+    main()

@@ -6,151 +6,230 @@ import csv
 import math
 import hashlib
 from pathlib import Path
-from typing import Dict, List, Any, Optional
+from typing import List, Dict, Any, Optional, Tuple
+from collections import defaultdict
+
+try:
+    from pymatgen.core import Structure
+    from pymatgen.analysis.bond_valence import BVAnalyzer
+except ImportError:
+    raise ImportError("pymatgen is required for this module. Install with: pip install pymatgen")
+
 import networkx as nx
-from networkx.algorithms.components import connected_components, number_connected_components
+import pandas as pd
 
-# Import shared utilities
-from config import Config, get_config
-from utils import setup_logging, pin_seed
+from config import Config
+from utils import pin_seed
 
-# Constants
-PROJECT_ROOT = Path(__file__).parent.parent
-DATA_PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
-NETWORKS_DIR = DATA_PROCESSED_DIR / "networks"
-METRICS_CSV_PATH = DATA_PROCESSED_DIR / "metrics.csv"
-STATE_FILE_PATH = PROJECT_ROOT / "state" / "projects" / "PROJ-360-quantifying-the-impact-of-network-struct.yaml"
-MANIFEST_PATH = DATA_PROCESSED_DIR / "networks" / "manifest.json"
-METADATA_PATH = DATA_PROCESSED_DIR / "metadata.yaml"
+# Configure logger
+logger = logging.getLogger("metrics_logger")
 
-# Logger setup
-logger = setup_logging("metrics_logger", "results/metrics.log")
+def setup_metrics_logger(log_file: Optional[str] = None) -> logging.Logger:
+    """Set up the metrics logger."""
+    if not logger.handlers:
+        handler = logging.StreamHandler()
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)
+        logger.setLevel(logging.INFO)
+        
+        if log_file:
+            file_handler = logging.FileHandler(log_file)
+            file_handler.setFormatter(formatter)
+            logger.addHandler(file_handler)
+    return logger
 
-def load_graphs_from_directory(directory: Path) -> List[Dict[str, Any]]:
-    """Load all pickle graphs from the directory."""
+def load_graphs_from_directory(directory: str) -> List[Tuple[str, nx.Graph]]:
+    """Load all graph pickles from a directory."""
     graphs = []
-    if not directory.exists():
-        logger.error(f"Directory {directory} does not exist.")
+    dir_path = Path(directory)
+    if not dir_path.exists():
+        logger.warning(f"Directory {directory} does not exist.")
         return graphs
-
-    for file_path in directory.glob("*.pkl"):
+    
+    for pkl_file in dir_path.glob("*.pkl"):
         try:
-            with open(file_path, 'rb') as f:
-                graph_data = pickle.load(f)
-                # Ensure it's a networkx graph
-                if isinstance(graph_data, nx.Graph):
-                    material_id = file_path.stem
-                    graphs.append({
-                        "material_id": material_id,
-                        "graph": graph_data,
-                        "file_path": file_path
-                    })
-                else:
-                    logger.warning(f"Skipping {file_path}: not a networkx.Graph")
+            with open(pkl_file, 'rb') as f:
+                graph = pickle.load(f)
+                material_id = pkl_file.stem
+                graphs.append((material_id, graph))
         except Exception as e:
-            logger.error(f"Failed to load {file_path}: {e}")
+            logger.error(f"Failed to load {pkl_file}: {e}")
     return graphs
 
-def load_manifest() -> Dict[str, Any]:
-    """Load the network manifest if it exists."""
-    if not MANIFEST_PATH.exists():
-        logger.warning(f"Manifest not found at {MANIFEST_PATH}. Returning empty manifest.")
+def load_manifest(manifest_path: str) -> Dict[str, Any]:
+    """Load the materials manifest JSON."""
+    if not os.path.exists(manifest_path):
+        logger.warning(f"Manifest file not found: {manifest_path}")
         return {"materials": {}}
     
-    try:
-        with open(MANIFEST_PATH, 'r') as f:
-            return json.load(f)
-    except Exception as e:
-        logger.error(f"Failed to load manifest: {e}")
-        return {"materials": {}}
+    with open(manifest_path, 'r') as f:
+        return json.load(f)
 
 def compute_lcc_metrics(graph: nx.Graph) -> Dict[str, float]:
-    """
-    Compute average shortest path length on the Largest Connected Component (LCC).
-    If the graph is disconnected, we MUST operate on the LCC to avoid infinite distances.
-    Returns path_length, clustering_coefficient.
-    """
+    """Compute metrics on the Largest Connected Component."""
     if graph.number_of_nodes() == 0:
-        return {"path_length": float('nan'), "clustering": float('nan')}
+        return {"average_degree": 0.0, "average_path_length": float('nan'), "clustering_coefficient": 0.0}
     
-    # Identify Connected Components
-    components = list(connected_components(graph))
-    if not components:
-        return {"path_length": float('nan'), "clustering": float('nan')}
+    if not nx.is_connected(graph):
+        try:
+            lcc = max(nx.connected_components(graph), key=len)
+            subgraph = graph.subgraph(lcc)
+        except Exception:
+            subgraph = graph
+    else:
+        subgraph = graph
+
+    num_nodes = subgraph.number_of_nodes()
+    num_edges = subgraph.number_of_edges()
     
-    # Find Largest Connected Component
-    lcc = max(components, key=len)
-    lcc_graph = graph.subgraph(lcc).copy()
+    if num_nodes == 0:
+        return {"average_degree": 0.0, "average_path_length": float('nan'), "clustering_coefficient": 0.0}
+        
+    avg_degree = 2.0 * num_edges / num_nodes if num_nodes > 0 else 0.0
     
-    # Calculate Average Shortest Path Length on LCC
-    # Note: nx.average_shortest_path_length requires a connected graph
     try:
-        path_length = nx.average_shortest_path_length(lcc_graph)
-    except Exception as e:
-        logger.warning(f"Could not compute path length for LCC: {e}")
-        path_length = float('nan')
-    
-    # Calculate Clustering Coefficient (average)
-    clustering = nx.average_clustering(lcc_graph)
+        lengths = dict(nx.shortest_path_length(subgraph))
+        total_length = 0
+        count = 0
+        for source in lengths:
+            for target, dist in lengths[source].items():
+                if source != target:
+                    total_length += dist
+                    count += 1
+        avg_path = total_length / count if count > 0 else float('nan')
+    except nx.NetworkXError:
+        avg_path = float('nan')
+        
+    clustering = nx.average_clustering(subgraph)
     
     return {
-        "path_length": path_length,
-        "clustering": clustering
+        "average_degree": avg_degree,
+        "average_path_length": avg_path,
+        "clustering_coefficient": clustering
     }
 
-def compute_metrics_for_graph(graph_data: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+def compute_physical_descriptors(cif_path: str) -> Dict[str, float]:
     """
-    Compute metrics for a single graph: avg_degree, path_length (on LCC), clustering.
+    Calculate Unit Cell Volume, Total Atom Count, and Mean Atomic Mass from a CIF file.
+    Uses pymatgen to parse the structure.
     """
-    graph = graph_data["graph"]
-    material_id = graph_data["material_id"]
+    try:
+        structure = Structure.from_file(cif_path)
+    except Exception as e:
+        logger.error(f"Failed to parse CIF {cif_path}: {e}")
+        return {"unit_cell_volume": 0.0, "total_atom_count": 0, "mean_atomic_mass": 0.0}
+    
+    volume = structure.lattice.volume
+    num_atoms = len(structure)
+    
+    total_mass = 0.0
+    for species in structure.species:
+        total_mass += species.atomic_weight
+        
+    mean_mass = total_mass / num_atoms if num_atoms > 0 else 0.0
+    
+    return {
+        "unit_cell_volume": float(volume),
+        "total_atom_count": int(num_atoms),
+        "mean_atomic_mass": float(mean_mass)
+    }
 
-    if graph.number_of_nodes() < 2:
-        logger.warning(f"Graph for {material_id} has < 2 nodes. Skipping metrics.")
-        return None
+def extract_thermal_conductivity_scalar(cif_path: str, manifest: Dict[str, Any]) -> Optional[float]:
+    """
+    Extract thermal conductivity scalar from CIF metadata or manifest.
+    
+    Strategy:
+    1. Check the manifest for pre-calculated thermal conductivity data (k_xx, k_yy, k_zz).
+    2. If present, compute the scalar as the arithmetic mean of the diagonal components.
+    3. If not in manifest, attempt to parse the CIF file for specific tags (though rare in standard CIFs).
+    4. Return None if not found.
+    """
+    # Try to find material_id in the CIF filename or structure
+    # We assume the manifest maps material_id -> data
+    # We need to map the cif_path to a material_id. 
+    # Usually, the cif file is named <material_id>.cif or similar.
+    cif_name = Path(cif_path).stem
+    
+    # Check manifest for this material_id
+    material_data = manifest.get("materials", {}).get(cif_name)
+    
+    if material_data:
+        k_x = material_data.get("k_x")
+        k_y = material_data.get("k_y")
+        k_z = material_data.get("k_z")
+        
+        if k_x is not None and k_y is not None and k_z is not None:
+            scalar = (float(k_x) + float(k_y) + float(k_z)) / 3.0
+            logger.info(f"Extracted thermal conductivity scalar {scalar:.4f} for {cif_name} from manifest.")
+            return scalar
+        
+        # Fallback: check for a single scalar key
+        if "thermal_conductivity" in material_data:
+            val = material_data["thermal_conductivity"]
+            if isinstance(val, (int, float)):
+                logger.info(f"Extracted thermal conductivity scalar {val} for {cif_name} from manifest (single value).")
+                return float(val)
 
-    # 1. Average Degree
-    avg_degree = sum(dict(graph.degree()).values()) / graph.number_of_nodes()
+    # Fallback 2: Try to read from CIF headers if pymatgen exposes them
+    try:
+        structure = Structure.from_file(cif_path)
+        # Check for custom tags in the CIF (pymatgen stores them in structure.properties)
+        # This is highly dependent on the CIF content, but we check common keys
+        props = structure.properties
+        
+        if "k_xx" in props and "k_yy" in props and "k_zz" in props:
+            scalar = (float(props["k_xx"]) + float(props["k_yy"]) + float(props["k_zz"])) / 3.0
+            logger.info(f"Extracted thermal conductivity scalar {scalar:.4f} for {cif_name} from CIF properties.")
+            return scalar
+    except Exception as e:
+        logger.debug(f"Could not extract thermal conductivity from CIF properties for {cif_path}: {e}")
+    
+    logger.warning(f"Thermal conductivity not found for {cif_name} in manifest or CIF properties.")
+    return None
 
-    # 2. & 3. Path Length and Clustering (on LCC)
+def compute_metrics_for_graph(material_id: str, graph: nx.Graph, cif_path: str, manifest: Dict[str, Any]) -> Dict[str, Any]:
+    """Compute all metrics for a single graph and its associated CIF."""
     lcc_metrics = compute_lcc_metrics(graph)
-
+    physical_metrics = compute_physical_descriptors(cif_path)
+    
+    thermal_scalar = extract_thermal_conductivity_scalar(cif_path, manifest)
+    
     return {
         "material_id": material_id,
-        "avg_degree": avg_degree,
-        "path_length": lcc_metrics["path_length"],
-        "clustering": lcc_metrics["clustering"]
+        "average_degree": lcc_metrics["average_degree"],
+        "average_path_length": lcc_metrics["average_path_length"],
+        "clustering_coefficient": lcc_metrics["clustering_coefficient"],
+        "unit_cell_volume": physical_metrics["unit_cell_volume"],
+        "total_atom_count": physical_metrics["total_atom_count"],
+        "mean_atomic_mass": physical_metrics["mean_atomic_mass"],
+        "thermal_conductivity_scalar": thermal_scalar
     }
 
-def save_metrics_to_csv(metrics_list: List[Dict[str, Any]], output_path: Path):
-    """Save metrics to a CSV file."""
+def save_metrics_to_csv(metrics_list: List[Dict[str, Any]], output_path: str):
+    """Save the computed metrics to a CSV file."""
     if not metrics_list:
         logger.warning("No metrics to save.")
-        # Still write header to ensure file exists if expected, though T013 requires data rows.
-        # However, if we have no data, we can't produce a valid CSV with data rows.
-        # We will write the header to be safe, but log the issue.
+        # Ensure the file is created even if empty, but with headers
         with open(output_path, 'w', newline='') as f:
-            writer = csv.DictWriter(f, fieldnames=["material_id", "avg_degree", "path_length", "clustering"])
-            writer.writeheader()
+            writer = csv.writer(f)
+            headers = ["material_id", "average_degree", "average_path_length", "clustering_coefficient", 
+                       "unit_cell_volume", "total_atom_count", "mean_atomic_mass", "thermal_conductivity_scalar"]
+            writer.writerow(headers)
         return
 
-    fieldnames = ["material_id", "avg_degree", "path_length", "clustering"]
+    headers = ["material_id", "average_degree", "average_path_length", "clustering_coefficient", 
+               "unit_cell_volume", "total_atom_count", "mean_atomic_mass", "thermal_conductivity_scalar"]
+    
     with open(output_path, 'w', newline='') as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer = csv.DictWriter(f, fieldnames=headers)
         writer.writeheader()
         for row in metrics_list:
-            # Handle NaN values for CSV
-            clean_row = {}
-            for k, v in row.items():
-                if isinstance(v, float) and math.isnan(v):
-                    clean_row[k] = "NaN"
-                else:
-                    clean_row[k] = v
-            writer.writerow(clean_row)
+            writer.writerow(row)
     
     logger.info(f"Saved {len(metrics_list)} metrics to {output_path}")
 
-def compute_sha256(file_path: Path) -> str:
+def compute_sha256(file_path: str) -> str:
     """Compute SHA-256 checksum of a file."""
     sha256_hash = hashlib.sha256()
     with open(file_path, "rb") as f:
@@ -158,78 +237,79 @@ def compute_sha256(file_path: Path) -> str:
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-def update_state_artifact_hash(file_path: Path, state_file: Path):
-    """
-    Update the state YAML file with the checksum of the generated artifact.
-    This satisfies Constitution Principle V (Versioning Discipline).
-    """
-    import yaml
-    
-    if not state_file.exists():
-        logger.warning(f"State file {state_file} does not exist. Creating it.")
-        state_data = {"artifact_hashes": {}}
-    else:
+def update_state_artifact_hash(state_path: str, artifact_path: str, hash_value: str):
+    """Update the state YAML file with the new artifact hash."""
+    # Simple implementation to append or update state
+    state = {"artifacts": {}}
+    if os.path.exists(state_path):
         try:
-            with open(state_file, 'r') as f:
-                state_data = yaml.safe_load(f) or {}
-        except Exception as e:
-            logger.error(f"Failed to load state file: {e}")
-            state_data = {"artifact_hashes": {}}
+            with open(state_path, 'r') as f:
+                import yaml
+                state = yaml.safe_load(f) or {"artifacts": {}}
+        except Exception:
+            pass
     
-    if "artifact_hashes" not in state_data:
-        state_data["artifact_hashes"] = {}
+    state["artifacts"][artifact_path] = {"sha256": hash_value}
     
-    checksum = compute_sha256(file_path)
-    relative_path = str(file_path.relative_to(PROJECT_ROOT))
-    state_data["artifact_hashes"][relative_path] = checksum
-    
-    # Atomic write
-    temp_path = state_file.with_suffix('.tmp')
-    with open(temp_path, 'w') as f:
-        yaml.dump(state_data, f, default_flow_style=False)
-    os.replace(temp_path, state_file)
-    logger.info(f"Updated state file with checksum for {relative_path}: {checksum}")
+    os.makedirs(os.path.dirname(state_path), exist_ok=True)
+    with open(state_path, 'w') as f:
+        import yaml
+        yaml.dump(state, f)
 
 def main():
-    """Main entry point for T013."""
-    logger.info("Starting T013: Compute Network Metrics")
+    """Main entry point for computing metrics."""
+    pin_seed(42)
+    setup_metrics_logger()
+    
+    # Paths
+    graphs_dir = "data/processed/networks"
+    cif_dir = "data/raw/cif"
+    manifest_path = "data/processed/manifest.json"
+    output_csv = "data/processed/metrics.csv"
+    state_path = "state/projects/PROJ-360-quantifying-the-impact-of-network-struct.yaml"
+    
+    # Load manifest
+    manifest = load_manifest(manifest_path)
     
     # Load graphs
-    graphs = load_graphs_from_directory(NETWORKS_DIR)
-    if not graphs:
-        logger.error("No graphs found in data/processed/networks/. Cannot compute metrics.")
-        # Create empty CSV with header to satisfy file existence check, though data is missing
-        METRICS_CSV_PATH.parent.mkdir(parents=True, exist_ok=True)
-        with open(METRICS_CSV_PATH, 'w', newline='') as f:
-            writer = csv.DictWriter(f, fieldnames=["material_id", "avg_degree", "path_length", "clustering"])
-            writer.writeheader()
-        return
-
+    graphs = load_graphs_from_directory(graphs_dir)
     logger.info(f"Loaded {len(graphs)} graphs.")
-
-    # Compute metrics
-    metrics_list = []
-    for graph_data in graphs:
-        result = compute_metrics_for_graph(graph_data)
-        if result:
-            metrics_list.append(result)
     
-    if not metrics_list:
-        logger.error("No valid metrics computed.")
-        METRICS_CSV_PATH.parent.mkdir(parents=True, exist_ok=True)
-        with open(METRICS_CSV_PATH, 'w', newline='') as f:
-            writer = csv.DictWriter(f, fieldnames=["material_id", "avg_degree", "path_length", "clustering"])
-            writer.writeheader()
+    if len(graphs) == 0:
+        logger.error("No graphs found. Cannot compute metrics.")
+        # Create empty CSV with headers
+        save_metrics_to_csv([], output_csv)
         return
-
-    # Save to CSV
-    METRICS_CSV_PATH.parent.mkdir(parents=True, exist_ok=True)
-    save_metrics_to_csv(metrics_list, METRICS_CSV_PATH)
-
-    # Update State
-    update_state_artifact_hash(METRICS_CSV_PATH, STATE_FILE_PATH)
     
-    logger.info("T013 completed successfully.")
+    metrics_list = []
+    for material_id, graph in graphs:
+        # Construct CIF path based on material_id
+        cif_path = os.path.join(cif_dir, f"{material_id}.cif")
+        if not os.path.exists(cif_path):
+            # Try to find it if naming convention differs, but usually it's exact
+            # Fallback: search directory
+            found = False
+            for f in Path(cif_dir).glob("*.cif"):
+                if f.stem == material_id:
+                    cif_path = str(f)
+                    found = True
+                    break
+            if not found:
+                logger.warning(f"CIF file not found for {material_id}, skipping.")
+                continue
+        
+        try:
+            metrics = compute_metrics_for_graph(material_id, graph, cif_path, manifest)
+            metrics_list.append(metrics)
+        except Exception as e:
+            logger.error(f"Error processing {material_id}: {e}")
+    
+    save_metrics_to_csv(metrics_list, output_csv)
+    
+    # Update state
+    if os.path.exists(output_csv):
+        checksum = compute_sha256(output_csv)
+        update_state_artifact_hash(state_path, output_csv, checksum)
 
 if __name__ == "__main__":
     main()

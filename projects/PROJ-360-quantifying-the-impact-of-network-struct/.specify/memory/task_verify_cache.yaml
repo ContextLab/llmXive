@@ -5,6 +5,12 @@ T004b:
     manager setup) or scripts for handling API keys and random seeds are present,
     and the implementer provided no evidence of such artifacts. Consequently the requirement
     to set up environment configuration management is not satisfied.
+T008:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a `data/raw/cif/` directory containing downloaded CIF files is\
+    \ provided, nor any file or log showing computed SHA\u2011256 checksums. The required\
+    \ artifacts are missing, so the task is not satisfied."
 T013:
   c: false
   h: 3a83027cea1e5920be7acfff7372203f851bcb3775d84f9953d2ab5c46dc66ef
@@ -43,10 +49,3 @@ T022:
     \ excerpt does not contain an implementation of the `train_model(features_df,\
     \ target_series)` function (or it is incomplete/truncated). Hence the task\u2019\
     s core requirement is not met."
-T028:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `metrics.csv`, `correlations.json`, `model_performance.json`, or `final_report.md`
-    files were provided or described, so the required output artifacts cannot be verified
-    against the specification. The task remains unfinished until these concrete files
-    are supplied and meet the spec criteria.
