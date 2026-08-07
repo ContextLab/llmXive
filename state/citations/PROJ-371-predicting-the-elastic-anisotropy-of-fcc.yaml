@@ -1,12 +1,1 @@
-- artifact_hash: dce445ab6eb331f3429c424c7cc02d0bcf7800a99eceaabe4b0a81ab587f6cab
-  artifact_path: projects/PROJ-371-predicting-the-elastic-anisotropy-of-fcc/specs/001-predicting-the-elastic-anisotropy-of-fcc/tasks.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: '[2409.02789] The entries of the Sinkhorn limit of an $m \times n$
-    matrix'
-  kind: url
-  value: https://arxiv.org/abs/2409.02789
-  verification_status: pending
-  verified_against_url: https://arxiv.org/abs/2409.02789
-  verified_at: '2026-08-05T01:24:31.223889Z'
+[]

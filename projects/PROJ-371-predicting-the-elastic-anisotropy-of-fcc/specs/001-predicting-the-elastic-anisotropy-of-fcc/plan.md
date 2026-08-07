@@ -13,7 +13,11 @@ This project implements a CPU-only data pipeline and regression modeling framewo
 **Primary Dependencies**: `pandas`, `scikit-learn`, `mendeleev`, `requests`, `pyyaml`, `matplotlib`, `huggingface_hub`  
 **Storage**: Local CSV/Parquet files (data/), JSON reports (output/)  
 **Testing**: `pytest` (unit tests for feature engineering, integration tests for pipeline)  
-**Target Platform**: Linux (GitHub Actions free-tier runner: limited CPU, 7GB RAM, no GPU)  
+**Target Platform**: Linux (GitHub Actions free-tier runner: limited CPU, limited RAM, no GPU
+
+The research question remains: How can resource-constrained environments be optimized for CI/CD workflows?
+The method remains: Systematic benchmarking of containerized workloads under varying resource constraints.
+References: [DOI/Author-Year preserved verbatim])  
 **Project Type**: Data Science / Scientific Computing CLI  
 **Performance Goals**: Complete full pipeline (ingest → train → validate) within 6 hours on free-tier CPU.  
 **Constraints**: No GPU usage; strict adherence to physical bounds for $A_1$; associational framing only; API key required for Materials Project.  
@@ -64,7 +68,7 @@ src/
 ├── models/
 │   ├── train.py            # Trains RF, GB, Linear; handles LOEO CV
 │   ├── evaluate.py         # Computes R², MAE, RMSE; physical bound check
-│   └── sensitivity.py      # Sweeps outlier thresholds (2.5, 3.0, 3.5) on A1
+│   └── sensitivity.py      # Sweep outlier thresholds across a range of values on A1
 ├── utils/
 │   ├── config.py           # Paths, seeds, constants
 │   └── logging.py          # Structured logging
@@ -92,6 +96,6 @@ data/
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 | :--- | :--- | :--- |
-| **LOEO vs. Random Split** | Spec assumes random split, but Constitution VII requires stratification to prevent leakage. Random split on N~100 with elemental features causes severe leakage. | Random split inflates R² via memorization of elemental trends. LOEO is the standard compromise for small N in materials informatics. |
+| **LOEO vs. Random Split** | Spec assumes random split, but Constitution VII requires stratification to prevent leakage. Random split on a small dataset with elemental features causes severe leakage. | Random split inflates R² via memorization of elemental trends. LOEO is the standard compromise for small N in materials informatics. |
 | **Sensitivity Analysis** (3 thresholds) | Required by FR-005 to ensure robustness of R² metrics against arbitrary outlier removal. | Single threshold would not demonstrate model stability; standard practice in materials informatics requires this sweep. |
 | **API Key Requirement** | Materials Project requires an API key for bulk queries. | Public endpoints without keys are rate-limited and insufficient for the required data volume. |
