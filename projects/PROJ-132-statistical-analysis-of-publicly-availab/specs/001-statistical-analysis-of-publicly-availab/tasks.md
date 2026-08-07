@@ -25,35 +25,35 @@ description: "Task list template for feature implementation"
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 0: Pre-Implementation & Plan Reconciliation
 
 **Purpose**: Verify plan/spec alignment and document scope limitations without editing the plan until verification is complete.
 
-- [ ] T050a [S] [Plan] **Verify Plan Alignment**: Scan `plan.md` and `spec.md` for contradictions.
+- [ ] T050b [S] [Plan] **Verify Plan Alignment**: Scan `plan.md` and `spec.md` for contradictions.
  - **Action**: Write a script `src/plan/verify_alignment.py` that scans `plan.md` and `spec.md`.
  - **Logic**:
-  1. Check if `plan.md` contains "mandatory a priori GP" (matches spec US-2).
-  2. Check if `plan.md` contains "Critical Data Scope Note" regarding the sample dataset.
-  3. Check for any terms in `plan.md` that do not exist in `spec.md` (e.g., "FR-002-S").
+ 1. Check if `plan.md` contains "mandatory a priori GP" (matches spec US-2).
+ 2. Check if `plan.md` contains "Critical Data Scope Note" regarding the sample dataset.
+ 3. Check for any terms in `plan.md` that do not exist in `spec.md` (e.g., "FR-002-S").
  - **Output**: Write findings to `data/provenance/plan_conflicts.json` with keys: `{"contradictions": [{"location": "string", "spec_req": "string", "plan_text": "string"}]}`.
  - **Requirement**: If no contradictions, log "No contradictions found". Do NOT edit `plan.md`.
  - **Dependency**: None.
@@ -64,10 +64,19 @@ description: "Task list template for feature implementation"
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T002 Create project structure per implementation plan by executing: `mkdir -p src/data src/models src/analysis data/raw data/processed data/interim tests/contract tests/unit tests/integration docs`
+- [ ] T002a [P] **Create Project Structure**: Execute `mkdir -p src/data src/models src/analysis data/raw data/processed data/interim tests/contract tests/unit tests/integration docs`.
+ - **Action**: Execute the `mkdir` command to create the project structure.
+ - **Requirement**: Ensure all directories are created as specified.
+ - **Dependency**: None.
+- [ ] T002b [P] **Verify Project Structure**: Verify the project structure by listing the created directories.
+ - **Action**: Execute `ls -R` to list the created directories.
+ - **Requirement**: Ensure all directories are present as specified.
+ - **Dependency**: Depends on T002a.
 - [X] T003a Create `pyproject.toml` at repository root with `[tool.black]` (line-length=88, target-version=['py311']) and `[tool.ruff]` (lint.select=['E','F','W','I'], lint.ignore=[]) configuration sections
-- [ ] T003b Create `.pre-commit-config.yaml` with hooks for `black` and `ruff` and configure pre-commit installation instructions in `README.md`
-- [X] T004 Create empty `src/data/download.py` file at repository root
+- [ ] T003b [P] **Create Pre-commit Config**: Create `.pre-commit-config.yaml` with hooks for `black` and `ruff` and configure pre-commit installation instructions in `README.md`.
+ - **Action**: Create `.pre-commit-config.yaml` with hooks for `black` and `ruff`.
+ - **Requirement**: Ensure the hooks are configured correctly.
+ - **Dependency**: None.
 
 ---
 
@@ -77,58 +86,76 @@ description: "Task list template for feature implementation"
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T005a [S] [Foundation] **Verify Full EBD Availability**: Attempt to verify the availability of the full eBird Basic Dataset (EBD) for North America (2020–2024) as per spec FR-001.
+- [ ] T005a [P] [Foundation] **Verify Full EBD Availability**: Attempt to verify the availability of the full eBird Basic Dataset (EBD) for North America (2020–2024) as per spec FR-001.
  - **Action**: Check for a verified public URL or package (e.g., from eBird or a verified mirror). If not found, log "Full EBD not available via verified public URL; falling back to sample scope".
  - **Requirement**: Do NOT fall back to synthetic data. If full EBD is unavailable, proceed to T005b with a scope limitation flag.
  - **Dependency**: None.
-- [ ] T005b [S] [Foundation] **Download and Verify Canonical Data**: Download the verified sample data from HuggingFace (`vvud/eb-data`) if full EBD is unavailable, or the full EBD if available. Verify checksums.
- - **Action**: Use `datasets.load_dataset` to fetch the data. If download fails, raise an error (do not fallback to local cache).
+- [ ] T005b1 [P] [Foundation] **Download eBird Sample Data**: Download the verified sample data from HuggingFace (`vvud/eb-data`).
+ - **Action**: Use `datasets.load_dataset` to fetch the data.
  - **Requirement**: Ensure data is downloaded from the canonical source.
  - **Dependency**: Depends on T005a.
-- [ ] T005c [S] [Foundation] **Scope Documentation**: If T005a determined full EBD was unavailable, document this in `data/provenance/scope_limitation.json`.
+- [ ] T005b2 [P] [Foundation] **Verify eBird Sample Checksums**: Verify checksums of the downloaded eBird sample data.
+ - **Action**: Compute cryptographic checksums of the downloaded files.
+ - **Requirement**: Ensure data integrity.
+ - **Dependency**: Depends on T005b1.
+- [ ] T005b3 [P] [Foundation] **Handle eBird Sample Fallback**: Handle fallback logic if full EBD is unavailable.
+ - **Action**: Log "Full EBD not available via verified public URL; falling back to sample scope".
+ - **Requirement**: Ensure the fallback logic is correctly implemented.
+ - **Dependency**: Depends on T005a.
+- [ ] T005c1 [P] [Foundation] **Download NOAA/PRISM Climate Data**: Download the NOAA/PRISM climate data for North America for a recent multi-year period.
+ - **Action**: Use `datasets.load_dataset` to fetch the data from a verified public URL.
+ - **Requirement**: Ensure data is downloaded from the canonical source.
+ - **Dependency**: Depends on T005a.
+- [ ] T005c2 [P] [Foundation] **Verify NOAA/PRISM Checksums**: Verify checksums of the downloaded NOAA/PRISM climate data.
+ - **Action**: Compute SHA-256 checksums of the downloaded files.
+ - **Requirement**: Ensure data integrity.
+ - **Dependency**: Depends on T005c1.
+- [X] T005c [S] [Foundation] **Scope Documentation**: If T005a determined full EBD was unavailable, document this in `data/provenance/scope_limitation.json`.
  - **Action**: Write a JSON file `data/provenance/scope_limitation.json` with keys: `{"source": "vvud/eb-data", "reason": "Full EBD unavailable", "timestamp": "ISO8601"}`.
  - **Requirement**: Ensure `plan.md` is NOT edited; scope is recorded in provenance.
  - **Dependency**: Depends on T005a.
-- [ ] T005d [S] [Foundation] **Archive and Checksum**: Archive the downloaded files unchanged (copy to `data/raw/archive/`) and compute SHA-256 checksums.
+- [ ] T005d [P] [Foundation] **Archive and Checksum**: Archive the downloaded files unchanged (copy to `data/raw/archive/`) and compute SHA-256 checksums.
  - **Action**: Copy files to `data/raw/archive/`. Compute checksums.
  - **Requirement**: Ensure data integrity.
- - **Dependency**: Depends on T005b.
-- [ ] T005e [S] [Foundation] **Update State File**: Write checksums to `state/projects/PROJ-132-statistical-analysis-of-publicly-availab.yaml` under keys `artifact_hashes` and `updated_at`.
+ - **Dependency**: Depends on T005b2, T005c2.
+- [X] T005e [S] [Foundation] **Update State File**: Write checksums to `state/projects/PROJ-132-statistical-analysis-of-publicly-availab.yaml` under keys `artifact_hashes` and `updated_at`.
  - **Action**: Update the state file with checksums.
  - **Requirement**: Ensure state file is up to date.
  - **Dependency**: Depends on T005d.
 - [X] T006 [P] Add `tests/contract/test_schemas.py::test_ebird_schema_columns` asserting `df.columns` equals [species, lat, lon, date, count, checklist_id] and `df.dtypes` match expected types (TDD: Write before implementation)
-- [X] T007 Implement `src/data/impute.py` for spatial interpolation of missing climate data.
+- [X] T007 [S] [Foundation] **Implement `src/data/impute.py` for spatial interpolation of missing climate data.**
  - **Input**: Read from `data/raw/climate.parquet` (DataFrame with columns: lat, lon, temp, week, precip).
  - **Logic**: Use `scipy.interpolate.griddata` with a neighbor search in **degrees** (lat/lon) at an appropriate spatial scale.
- - **Output**: Write imputed data to `data/interim/climate_imputed.parquet` and update metadata with flagged cells.
+ - **Output**: Write imputed data to `data/interim/climate_imputed.parquet` and update metadata with flagged cells (`is_imputed` flag).
+ - **Requirement**: Ensure the `is_imputed` flag is explicitly set for all imputed cells in the output metadata.
+ - **Dependency**: Depends on T005c2.
 - [X] T009 Create base data entities: `MigrationRecord`, `PhenologyMetric`, `ClimateVariable` classes in `src/models/entities.py`
-- [ ] T010a [S] [Foundation] **Define Constants**: Create `src/config.py` file and define constants.
+- [X] T010a [S] [Foundation] **Define Constants**: Create `src/config.py` file and define constants.
  - **Constants**: Define and export `SEED: int = 42`, `GRID_RES: float = 0.5`, `PERMUTATIONS: int = 10000`.
  - **Targets**: Define `DEFAULT_POWER_TARGET: float = 0.80`, `DEFAULT_CI_WIDTH_TARGET: float = 5.0`, `DEFAULT_CONVERGENCE_TARGET: float = 0.90`, `DEFAULT_INSUFFICIENT_DATA_TARGET: float = 0.20`.
  - **Note**: These are provisional defaults. They are used for estimation and reporting. Validation of their suitability happens in T011a (Phase 6).
  - **Dependency**: None.
-- [ ] T010b [S] [Foundation] **Implement Logging**: Implement logging configuration in `src/config.py`.
+- [X] T010b [S] [Foundation] **Implement Logging**: Implement logging configuration in `src/config.py`.
  - **Logging**: Implement logging configuration with format `%(asctime)s - %(name)s - %(levelname)s - %(message)s`.
  - **Rotation Policy**: Max files, each limited to `maxBytes=10485760` (10MB).
  - **Dependency**: Depends on T010a.
-- [ ] T010c [S] [Foundation] **Test Logging**: Write a test log entry and parse it to ensure format compliance.
- - **Verification**: Write a test log entry and parse it to ensure format compliance.
+- [ ] T010c [S] [Foundation] **Test Logging**: Write a unit test `tests/unit/test_config.py::test_logging_format` to ensure format compliance.
+ - **Verification**: Write a test log entry and parse it to ensure format compliance. Assert log line contains ISO8601 timestamp.
  - **Dependency**: Depends on T010b.
-- [ ] T051a [S] [Foundation] **Verify Verified Sample Dataset**: Verify the existence of the `vvud/eb-data` dataset on HuggingFace as specified in the plan's "Critical Data Scope Note".
+- [ ] T051a [P] [Foundation] **Verify Verified Sample Dataset**: Verify the existence of the `vvud/eb-data` dataset on HuggingFace as specified in the plan's "Critical Data Scope Note".
  - **Action**: Write a script `src/data/verify_dataset.py` that attempts to list the `vvud/eb-data` dataset using `datasets.load_dataset`.
  - **Requirement**: If the dataset is not found, raise a `RuntimeError` with a clear message referencing the plan's scope note.
  - **Dependency**: Depends on T005a.
-- [ ] T051 [S] [Foundation] **Stream Verified Sample Data**: Implement `src/data/stream_utils.py` to stream the verified sample eBird dataset in chunks.
+- [ ] T051 [P] [Foundation] **Stream Verified Sample Data**: Implement `src/data/stream_utils.py` to stream the verified sample eBird dataset in chunks.
  - **Action**: Use `datasets.load_dataset("vvud/eb-data", streaming=True)` to fetch data in chunks.
  - **Requirement**: Ensure the pipeline processes the available sample dataset without loading it all into memory.
  - **Dependency**: Depends on T051a.
-- [ ] T057a [S] [Foundation] **Implement Chunked Permutation Utility**: Implement `src/models/utils.py` to provide chunked permutation test logic.
+- [X] T057a [S] [Foundation] **Implement Chunked Permutation Utility**: Implement `src/models/utils.py` to provide chunked permutation test logic.
  - **Action**: Create a function `run_permutation_chunked(data, n_shuffles, chunk_size=1000)` that splits the permutation shuffles into smaller batches to avoid memory overflow.
  - **Error Handling**: Raise `MemoryError` if chunk size is too large for available RAM.
  - **Requirement**: Ensure the full permutation shuffles are completed within the CI budget.
  - **Dependency**: Depends on T051.
-- [ ] T058a [S] [Foundation] **Implement Streaming Trajectory Utility**: Implement `src/models/trajectory_utils.py` to provide streaming logic for trajectory data.
+- [X] T058a [S] [Foundation] **Implement Streaming Trajectory Utility**: Implement `src/models/trajectory_utils.py` to provide streaming logic for trajectory data.
  - **Action**: Create a function `stream_trajectory_data(dataset_name, streaming=True)` that uses `datasets.load_dataset` with `streaming=True` to fetch trajectory data in chunks.
  - **Error Handling**: Raise `MemoryError` if chunk size is too large for available RAM.
  - **Requirement**: Ensure the manifold analysis processes the full dataset without loading it all into memory.
@@ -140,43 +167,56 @@ description: "Task list template for feature implementation"
 
 ## Phase 3: User Story 1 - Data Acquisition and Preprocessing Pipeline (Priority: P1) 🎯 MVP
 
-**Goal**: Ingest raw eBird/NOAA (or synthetic) data, filter to migratory species (recent years), aggregate to coarse grid cells, and compute phenology metrics.
+**Goal**: Ingest raw eBird/NOAA (or synthetic) data, filter to migratory species (2020-2024), aggregate to coarse grid cells, and compute phenology metrics.
 
 **Independent Test**: The pipeline can be fully tested by running `src/data/preprocess.py` on a subset (one species, one region) and verifying the output CSV contains expected columns (`species`, `grid_cell`, `week`, `phenology_metric`, `climate_temp`, `climate_precip`) with no missing values in critical fields.
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T013 [P] [US1] Add `tests/integration/test_data_pipeline.py` with function `test_data_ingestion_flow` verifying end-to-end flow (TDD: write before T014)
+- [X] T013 [P] [US1] Add `tests/integration/test_data_pipeline.py` with function `test_data_ingestion_flow` verifying end-to-end flow (TDD: write before T014)
 
 ### Implementation for User Story 1
 
-- [ ] T014 [P] [US1] Call the download functions from T005b in `src/data/preprocess.py` to ensure data is available before processing; verify file presence and checksums. **Depends on T005e**.
-- [ ] T015a [S] [US1] **Retrieve CLO Migratory List**: Implement `src/data/download.py::get_clo_migratory_list` to fetch and cache the Cornell Lab of Ornithology list of migratory species.
+- [ ] T015b1 [S] [US1] **Filter eBird Records**: Filter eBird records to migratory species using the CLO list from Ta and the 2020-2024 period.
+ - **Action**: Filter eBird records to migratory species using the CLO list and the 2020-2024 period.
+ - **Requirement**: Ensure the 2020-2024 period filter is explicitly applied.
+ - **Dependency**: Depends on T015a, T051, T005e.
+- [ ] T015b2 [S] [US1] **Aggregate to Grid Cells**: Aggregate filtered eBird records to weekly counts per spatial grid cell (Use `GRID_RES=0.5` from T010 config).
+ - **Action**: Aggregate filtered eBird records to weekly counts per spatial grid cell.
+ - **Requirement**: Ensure the aggregation is performed correctly.
+ - **Dependency**: Depends on T015b1.
+- [ ] T015b3 [S] [US1] **Call Mark Insufficient Cells**: Call `mark_insufficient_cells` (T018) *after* aggregation to ensure invalid cells are excluded.
+ - **Action**: Call `mark_insufficient_cells` (T018) *after* aggregation to ensure invalid cells are excluded.
+ - **Requirement**: Ensure the `mark_insufficient_cells` function is called correctly.
+ - **Dependency**: Depends on T015b2.
+- [X] T015a [S] [US1] **Retrieve CLO Migratory List**: Implement `src/data/download.py::get_clo_migratory_list` to fetch and cache the Cornell Lab of Ornithology list of migratory species.
  - **Action**: Download the official CLO list (or a verified mirror) and cache it in `data/raw/clo_migratory_list.csv`.
- - **Requirement**: Ensure the list is used for filtering in T015.
+ - **Requirement**: Ensure the list is used for filtering in T015b.
  - **Dependency**: Depends on T005e.
-- [ ] T015 [P] [US1] Implement `src/data/preprocess.py` to filter eBird records to migratory species using the CLO list from T015a and aggregate to weekly counts per spatial grid cell (Use `GRID_RES=0.5` from T010 config). **Depends on T015a, T051, T005e**.
+- [ ] T015b [S] [US1] **Implement `src/data/preprocess.py` to filter eBird records to migratory species using the CLO list from T015a and the 2020-2024 period, and aggregate to weekly counts per spatial grid cell (Use `GRID_RES=0.5` from T010 config).**
  - **Logic**: Call `mark_insufficient_cells` (T018) *after* aggregation to ensure invalid cells are excluded.
-- [ ] T017a [US1] Implement phenology metric computation (`first_arrival`, `median_arrival`, `stopover_duration`) in `src/data/preprocess.py`.
- - **Logic**: `stopover_duration` = High percentile DOY - Low percentile DOY.
-- [ ] T017b [US1] Implement **seasonal climate average calculation** (March–May temperature, precipitation) in `src/data/preprocess.py` to satisfy **FR-003** and **Imputation Flagging**.
- - **Logic**: Compute mean temperature and total precipitation for the March–May period per grid cell and year.
- - **Imputation**: If missing, use `src/data/impute.py` (T007) to interpolate.
- - **Output**: Append `climate_temp_avg`, `climate_precip_total`, and `is_imputed` (bool) to the output dataset.
- - **Metadata**: Write a separate `data/processed/imputation_metadata.json` listing all imputed cells and their sources. **Explicitly flag imputed cells in this metadata**.
- - **Dependency**: Depends on T007, T015.
+ - **Dependency**: Depends on T015a, T051, T005e.
 - [ ] T016 [S] [US1] **Generate Provenance Mapping**: Implement `src/data/preprocess.py::generate_provenance` to create `data/provenance/row_mapping.json`.
  - **Logic**: Map processed rows back to original `checklist_id`s from the raw eBird data.
  - **Output**: Write `data/provenance/row_mapping.json`.
- - **Dependency**: Depends on T015.
-- [ ] T018 [S] [US1] **Mark Insufficient Data Cells**: Implement `src/data/preprocess.py::mark_insufficient_cells`.
- - **Logic**: Scan aggregated grid cells. If count < 5, set `data_quality="insufficient"` and exclude from downstream modeling.
- - **Artifact**: Log species, grid cell, and reason to `logs/pipeline.log`. Write metadata to `data/processed/metadata_insufficient_cells.json`.
- - **Dependency**: Depends on T015.
-- [ ] T017d [S] [US1] **Verify Imputation Metadata**: Verify that `data/processed/imputation_metadata.json` exists and is readable.
- - **Action**: Check file existence and JSON validity.
+ - **Requirement**: Ensure the mapping integrity is verified (e.g., assert all `checklist_id`s in processed data exist in raw data).
+ - **Dependency**: Depends on T015b.
+- [X] T017a [US1] Implement phenology metric computation (`first_arrival`, `median_arrival`, `stopover_duration`) in `src/data/preprocess.py`.
+ - **Logic**: `stopover_duration` = High percentile DOY - Low percentile DOY.
+- [X] T017b [US1] Implement **seasonal climate average calculation** (March–May temperature, precipitation, extreme weather indices) in `src/data/preprocess.py` to satisfy **FR-003** and **Imputation Flagging**.
+ - **Logic**: Compute mean temperature and total precipitation for the March–May period per grid cell and year. Calculate extreme weather indices (e.g., heatwaves, heavy precipitation events) from NOAA/PRISM data.
+ - **Imputation**: If missing, use `src/data/impute.py` (T007) to interpolate.
+ - **Output**: Append `climate_temp_avg`, `climate_precip_total`, `extreme_weather_index`, and `is_imputed` (bool) to the output dataset.
+ - **Metadata**: Write a separate `data/processed/imputation_metadata.json` listing all imputed cells and their sources. **Explicitly flag imputed cells in this metadata**.
+ - **Dependency**: Depends on T007, T015b.
+- [ ] T017d [S] [US1] **Verify Imputation Metadata**: Write a test `tests/unit/test_preprocess.py::test_imputation_metadata_exists` to verify that `data/processed/imputation_metadata.json` exists and is readable.
+ - **Action**: Check file existence and JSON validity. Assert schema validation.
  - **Requirement**: Ensure downstream models can consume this metadata.
  - **Dependency**: Depends on T017b.
+- [X] T018 [S] [US1] **Mark Insufficient Data Cells**: Implement `src/data/preprocess.py::mark_insufficient_cells`.
+ - **Logic**: Scan aggregated grid cells. If count < 5, set `data_quality="insufficient"` and exclude from downstream modeling.
+ - **Artifact**: Log species, grid cell, and reason to `logs/pipeline.log`. Write metadata to `data/processed/metadata_insufficient_cells.json`.
+ - **Dependency**: Depends on T015b.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -190,40 +230,50 @@ description: "Task list template for feature implementation"
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T021 [P] [US2] Add `tests/contract/test_output_schemas.py` with function `test_gamm_output_schema` verifying coefficient and p-value columns
-- [ ] T022 [P] [US2] Add `tests/integration/test_modeling.py` with function `test_gamm_convergence` verifying fit on synthetic data
+- [ ] T021 [P] [US2] Add `tests/contract/test_output_schemas.py::test_gamm_output_schema` with function `test_gamm_output_schema` verifying coefficient and p-value columns.
+ - **Action**: Add `tests/contract/test_output_schemas.py::test_gamm_output_schema` with function `test_gamm_output_schema` verifying coefficient and p-value columns.
+ - **Requirement**: Ensure the output schema is correctly verified.
+ - **Dependency**: None.
+- [ ] T022 [P] [US2] Add `tests/integration/test_modeling.py::test_gamm_convergence` with function `test_gamm_convergence` verifying fit on synthetic data.
+ - **Action**: Add `tests/integration/test_modeling.py::test_gamm_convergence` with function `test_gamm_convergence` verifying fit on synthetic data.
+ - **Requirement**: Ensure the fit on synthetic data is correctly verified.
+ - **Dependency**: None.
 
 ### Implementation for User Story 2
 
-- [ ] T045a [S] **Implement Lock Wrapper**: Implement a file-based lock mechanism using `filelock.FileLock`.
+- [ ] T045a [P] **Implement Lock Wrapper**: Implement a file-based lock mechanism using `filelock.FileLock`.
  - **Logic**: Lock file path: `data/interim/pipeline.lock`. Timeout: A predefined duration.
  - **Output**: Log execution order.
  - **Dependency**: Depends on T010a.
-- [ ] T045b [S] **Integrate Lock**: Integrate the lock into T025b and T032b.
+- [ ] T045b [P] **Integrate Lock**: Integrate the lock into T025b and T032b.
  - **Logic**: Ensure T025b and T032b acquire the lock before running.
  - **Dependency**: Depends on T045a.
-- [ ] T045c [S] **Test Lock Contention**: Write a test for lock contention.
+- [ ] T045c [P] **Test Lock Contention**: Write a test for lock contention.
  - **Dependency**: Depends on T045b.
 - [ ] T023a [S] [US2] **Fit GAMM with Mandatory GP**: Implement `src/models/gamm_fit.py` to fit a GAMM per Spec FR-004 with a **mandatory a priori** GP random effect. **Depends on T016, T018, T017d**.
  - **Model**: `phenology_metric ~ s(temp) + s(precip) + s(effort) + (1 + temp | species) + gp(lat, lon, kernel="matern")`.
  - **Output**: Write base model results to `data/processed/model_results_base.parquet`.
- - **Dependency**: Depends on T015, T016, T018, T017d.
+ - **Dependency**: Depends on T015b, T016, T018, T017d.
+- [ ] T023d [S] [US2] **Implement Species-Year Random Intercepts and Slopes Logic**: Implement `src/models/gamm_fit.py::implement_species_year_random_intercepts_and_slopes` to implement the logic for species-year random intercepts and slopes.
+ - **Action**: Implement the logic for species-year random intercepts and slopes.
+ - **Requirement**: Ensure the logic is correctly implemented.
+ - **Dependency**: Depends on T023a.
+- [ ] T023e [S] [US2] **Log and Output Results**: Implement `src/models/gamm_fit.py::log_and_output` to log and output results.
+ - **Action**: Log results and output to `data/processed/model_results.parquet`.
+ - **Dependency**: Depends on T023b, T023d.
 - [ ] T023b [S] [US2] **Compute Moran's I Diagnostic**: Implement `src/models/gamm_fit.py::compute_morans_i` to compute Moran's I on residuals.
  - **Action**: Compute Moran's I on residuals of the final model.
  - **Requirement**: Log the value. **Do NOT trigger re-fitting** (Post-hoc diagnostic only).
  - **Dependency**: Depends on T023a.
-- [ ] T023d [S] [US2] **Log and Output Results**: Implement `src/models/gamm_fit.py::log_and_output` to log and output results.
- - **Action**: Log results and output to `data/processed/model_results.parquet`.
- - **Dependency**: Depends on T023b.
-- [ ] T024 [US2] Implement species-year random intercepts and slopes logic in `src/models/gamm_fit.py`
 - [ ] T025a [S] [US2] **Benchmark Permutation Test**: Implement `src/models/utils.py::benchmark_permutation` to estimate runtime.
  - **Action**: Run multiple shuffles and measure time.
  - **Requirement**: Use this to estimate the time for full shuffles.
  - **Dependency**: Depends on T057a.
-- [ ] T025b [S] [US2] **Permutation Test Loop**: Implement `src/models/utils.py::run_permutation_test` with `n_shuffles=config.PERMUTATIONS`.
+- [ ] T025b [S] [US2] **Permutation Test Loop**: Implement `src/models/utils.py::run_permutation_test` with `n_shuffles=10000` (hard constraint) and `config.PERMUTATIONS`.
  - **Logic**: Run full shuffles in chunks (batch size 1000) using the utility from T057a.
  - **Output**: Write to `data/processed/permutation_results.json` with schema: `{ "species": str, "coefficient": str, "p_value": float, "n_shuffles": int, "final_p_value": float }`.
- - **Dependency**: Depends on T023d, T025a, T057a, T045b.
+ - **Requirement**: Ensure the [deferred] shuffles requirement is explicitly stated in the task logic.
+ - **Dependency**: Depends on T023e, T025a, T057a, T045b.
 - [ ] T025c [S] [US2] **Apply FDR Correction**: Implement `src/models/utils.py::apply_fdr_correction` to adjust p-values.
  - **Action**: Apply Benjamini-Hochberg FDR correction to the p-values from T025b.
  - **Output**: Write to `data/processed/model_results_fdr.parquet` with `q_value` column.
@@ -245,19 +295,38 @@ description: "Task list template for feature implementation"
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T028 [P] [US3] Add `tests/contract/test_trajectory_schemas.py` with function `test_trajectory_output_schema`
-- [ ] T029 [P] [US3] Add `tests/integration/test_trajectory_analysis.py` with function `test_route_shift_detection`
+- [ ] T028 [P] [US3] Add `tests/contract/test_trajectory_schemas.py::test_trajectory_output_schema` with function `test_trajectory_output_schema` verifying trajectory output schema.
+ - **Action**: Add `tests/contract/test_trajectory_schemas.py::test_trajectory_output_schema` with function `test_trajectory_output_schema` verifying trajectory output schema.
+ - **Requirement**: Ensure the output schema is correctly verified.
+ - **Dependency**: None.
+- [ ] T029 [P] [US3] Add `tests/integration/test_trajectory_analysis.py::test_route_shift_detection` with function `test_route_shift_detection` verifying route shift detection.
+ - **Action**: Add `tests/integration/test_trajectory_analysis.py::test_route_shift_detection` with function `test_route_shift_detection` verifying route shift detection.
+ - **Requirement**: Ensure the route shift detection is correctly verified.
+ - **Dependency**: None.
 
 ### Implementation for User Story 3
 
 - [ ] T030 [P] [US3] Implement `src/models/trajectory.py` to compute weekly migration centroids per species-year
-- [ ] T031 [US3] Implement trajectory analysis using **Riemannian Manifold Statistics** on the 2-sphere (S^2) via `geomstats`. **Depends on T058a**.
+- [ ] T031c1 [S] [US3] **Compute Weekly Centroids**: Compute weekly centroids for each species-year.
+ - **Action**: Compute weekly centroids for each species-year.
+ - **Requirement**: Ensure the centroids are correctly computed.
+ - **Dependency**: Depends on T058a.
+- [ ] T031c2 [S] [US3] **Calculate Geodesic Distances**: Calculate geodesic distances on S² using `geomstats.geometry.sphere.Sphere` (or equivalent Riemannian metric).
+ - **Action**: Calculate geodesic distances on S² using `geomstats.geometry.sphere.Sphere` (or equivalent Riemannian metric).
+ - **Requirement**: Ensure the geodesic distances are correctly calculated.
+ - **Dependency**: Depends on T031c1.
+- [ ] T031c3 [S] [US3] **Detect Route Shifts**: Detect route shifts by comparing trajectory distances between years using **Discrete Centroid Trajectory Analysis** as the primary method.
+ - **Action**: Detect route shifts by comparing trajectory distances between years using **Discrete Centroid Trajectory Analysis** as the primary method.
+ - **Requirement**: Ensure the **Discrete Centroid Trajectory Analysis** method is explicitly mandated as the primary algorithm.
+ - **Dependency**: Depends on T031c2.
+- [ ] T031c [S] [US3] Implement trajectory analysis using **Riemannian Manifold Statistics** on the 2-sphere (S^2) via `geomstats`. **Depends on T058a**.
  - **Algorithm**:
  1. Compute weekly centroids for each species-year.
  2. Calculate geodesic distances on S² using `geomstats.geometry.sphere.Sphere` (or equivalent Riemannian metric).
- 3. Detect route shifts by comparing trajectory distances between years using Fréchet means or similar manifold statistics.
+ 3. Detect route shifts by comparing trajectory distances between years using **Discrete Centroid Trajectory Analysis** as the primary method (Fréchet means as secondary).
  - **Constraint**: Use `geomstats` for correct Riemannian math. If `geomstats` is unavailable, use `scipy` with explicit geodesic formula `acos(lat1*lat2 + lon1*lon2...)` as a fallback with a warning.
  - **Output**: Write `shift_magnitude` and `shift_direction` to `data/processed/trajectory_results.json`.
+ - **Dependency**: Depends on T058a.
 - [ ] T032a [S] [US3] **Benchmark Trajectory Permutation Test**: Implement `src/models/trajectory_utils.py::benchmark_trajectory_permutation` to estimate runtime.
  - **Action**: Run a series of shuffles and measure time.
  - **Requirement**: Use this to estimate the time for full shuffles.
@@ -265,11 +334,12 @@ description: "Task list template for feature implementation"
 - [ ] T032b [S] [US3] **Trajectory Permutation Test Loop**: Implement `src/models/trajectory_utils.py::run_trajectory_permutation_test` with `n_shuffles=config.PERMUTATIONS`.
  - **Logic**: Run full shuffles in chunks (batch size 1000) using the utility from T058a.
  - **Output**: Write to `data/processed/trajectory_permutation_results.json` with schema: `{ "species": str, "shift_magnitude": float, "p_value": float, "n_shuffles": int, "final_p_value": float }`.
- - **Dependency**: Depends on T030, T031, T032a, T058a, T045b.
-- [ ] T033 [US3] Implement bootstrapped confidence interval generation for **phenology shift predictions and trajectory shift magnitudes** in `src/models/utils.py`.
+ - **Dependency**: Depends on T030, T031c, T032a, T058a, T045b.
+- [ ] T033 [S] [US3] Implement bootstrapped **confidence intervals** generation for **phenology shift predictions and trajectory shift magnitudes** in `src/models/utils.py`.
  - **Logic**: Resample the centroid estimation process and trajectory shift magnitudes using **Block Bootstrap** to preserve temporal autocorrelation.
  - **Output**: Append `ci_lower`, `ci_upper` to the trajectory results file.
  - **Note**: This task consolidates FR-007 requirements for both phenology and trajectory shifts.
+ - **Requirement**: Ensure the A confidence interval will be constructed to assess the statistical reliability of the findings. level is explicitly stated in the task description.
  - **Dependency**: Depends on T032b.
 - [ ] T033a [P] [US3] **Calculate CI Width**: Implement `src/analysis/ci_width.py` to calculate the width of 95% CIs from T033.
  - **Action**: Compute `ci_upper - ci_lower` for each species and compare against `config.DEFAULT_CI_WIDTH_TARGET`.
@@ -281,27 +351,22 @@ description: "Task list template for feature implementation"
 
 ---
 
-## Phase 6: Orchestration & Validation (SC-002, SC-003, SC-005)
+## Phase 6: Orchestration & Validation (SC-001 to SC-005)
 
 **Purpose**: Ensure sequential execution of heavy tasks and validate success criteria.
 
-- [ ] T046 [S] **Post-Run Validation**: Verify the lock mechanism worked and total runtime is within budget.
- - **Logic**: Run a benchmark of T025b and T032b sequentially (post-execution) to verify total time < 6h.
- - **Output**: Log total time and assertion result.
- - **Dependency**: Depends on T025b, T032b, T045.
-- [ ] T011a [S] [US2] **Calculate Statistical Power**: Implement `src/analysis/power_analysis.py` to calculate post-hoc statistical power and effect size stability.
- - **Action**: Use `statsmodels.stats.power` to compute power based on sample size, effect size estimates from T023d, and alpha=0.05.
- - **Output**: Write power metrics to `data/processed/power_analysis.json`.
- - **Requirement**: Satisfy SC-001 measurement. Report if `DEFAULT_POWER_TARGET` was met or not.
- - **Dependency**: Depends on T023d, T018.
-- [ ] T043 [US1] Calculate SC-002, SC-001, SC-004: Proportion of "insufficient data" cells, Power, CI Width.
- - **Logic**: Count cells marked "insufficient" / Total cells. Calculate power from T011a. Calculate CI width from T033a.
- - **Output**: Write to `data/processed/success_criteria_report.json`.
- - **Dependency**: Depends on T011a, T033a.
-- [ ] T044 [US2] Calculate SC-003: GAMM Convergence Rate.
- - **Logic**: Count successful fits / Total attempts.
- - **Output**: Write to `data/processed/success_criteria_report.json`.
- - **Dependency**: Depends on T027.
+- [ ] T043 [S] **Calculate and Report All Success Criteria**: Consolidate all SC calculations into a single orchestration task.
+ - **Logic**:
+ 1. **SC-001 (Power)**: Call `src/analysis/power_analysis.py` (T011a) to compute statistical power and effect size stability.
+ 2. **SC-002 (Insufficient Data)**: Call `src/analysis/insufficient_data.py` (T043 logic) to calculate the proportion of grid cells marked "insufficient data".
+ 3. **SC-003 (Convergence)**: Call `src/analysis/convergence_rate.py` (T044 logic) to calculate the GAMM convergence rate.
+ 4. **SC-004 (CI Width)**: Call `src/analysis/ci_width.py` (T033a) to calculate the width of 95% CIs.
+ 5. **SC-005 (Runtime)**: Call `src/analysis/runtime_validation.py` (T046 logic) to verify total runtime < 6h.
+ - **Output**: Aggregate results from all sub-calculations into `data/processed/final_success_report.json`.
+ - **Requirement**: Ensure all deferred targets are reported with actual values. If any target is not met, flag the result and include the specific MDES or limitation in the report.
+ - **Dependency**: Depends on T011a, T018, T027, T033, T025b, T032b, T045c.
+
+**Checkpoint**: All success criteria calculated and reported
 
 ---
 
@@ -416,7 +481,7 @@ With multiple developers:
 
 **⚠️ IMPORTANT**: Tasks T025b (US2 permutation test) and T032b (US3 permutation test) both require significant CPU resources. They MUST be serialized via **T045** (Orchestration) to ensure they do not run concurrently and exceed the CI limit. T046 (Post-Run Validation) will verify the runtime budget after execution.
 
-**⚠️ NEW CONSTRAINT**: Tasks T051a (Verify Dataset Existence) and T051 (Real Data Streaming) MUST be completed before T015 (Preprocessing) to ensure no synthetic data is ever processed.
+**⚠️ NEW CONSTRAINT**: Tasks T051a (Verify Dataset Existence) and T051 (Real Data Streaming) MUST be completed before T015b (Preprocessing) to ensure no synthetic data is ever processed.
 
 **⚠️ CPU CONSTRAINT**: Tasks T057a and T058a MUST be implemented to ensure heavy computations (Manifold, Permutation) are processed in chunks on CPU, preventing scientific fabrication or timeout failures.
 
@@ -432,3 +497,32 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
+
+- [ ] T059 [S] [US2] **Implement GPU Offload Fallback for GAMM**: Implement `src/models/gamm_fit.py` to detect `CUDA_ERROR` or `RuntimeError` during GP fitting and automatically retry on Kaggle GPU environment if available, ensuring `device="cuda"` and `load_in_8bit` are used for the retry.
+ - **Action**: Wrap GAMM fitting in a try/except block that catches CUDA/Memory errors. If caught, check for Kaggle GPU environment variables. If present, re-run with `device="cuda"` and `load_in_8bit=True`.
+ - **Requirement**: This ensures the "Real GPU" requirement is met when CPU fails, without fabricating a CPU-only approximation of the GP kernel.
+ - **Dependency**: Depends on T023a.
+- [ ] T060 [S] [US3] **Implement GPU Offload Fallback for Manifold**: Implement `src/models/trajectory.py` to detect memory errors during Riemannian trajectory analysis and automatically retry on Kaggle GPU environment if available.
+ - **Action**: Wrap trajectory analysis in a try/except block. If memory error occurs, check for Kaggle GPU. If present, re-run with GPU-accelerated `geomstats` backend.
+ - **Requirement**: Ensures the Riemannian manifold analysis uses real GPU acceleration when needed, avoiding synthetic simplifications.
+ - **Dependency**: Depends on T031.
+- [ ] T061 [S] [Plan] **Update Plan.md with GPU Strategy**: Append a section to `plan.md` explicitly documenting the GPU offload strategy for T059 and T060.
+ - **Action**: Add a "GPU Offload Strategy" section to `plan.md` detailing the auto-detection and retry logic for GAMM and Manifold tasks.
+ - **Requirement**: Ensures the plan reflects the actual execution path for heavy computations.
+ - **Dependency**: Depends on T059, T060.
+- [ ] T062 [S] [US1] **Verify Data Streaming Limits**: Implement a check in `src/data/stream_utils.py` to verify that the streaming chunk size does not exceed 7 GB RAM limit.
+ - **Action**: Add a runtime check that calculates estimated memory usage per chunk. If > 6 GB, raise a `MemoryError` with a suggestion to reduce chunk size.
+ - **Requirement**: Prevents OOM crashes on the CI runner while ensuring real data is processed.
+ - **Dependency**: Depends on T051.
+- [ ] T063 [S] [US2] **Validate FDR Correction on Sparse Data**: Implement a test in `src/models/utils.py` to verify that FDR correction handles sparse data (many zeros) correctly without crashing.
+ - **Action**: Run `apply_fdr_correction` on a synthetic sparse dataset with a high proportion of zeros. Assert that the output is valid and no `ZeroDivisionError` occurs.
+ - **Requirement**: Ensures robustness of the statistical pipeline for species with limited data.
+ - **Dependency**: Depends on T025c.
+- [ ] T064 [S] [US3] **Validate Block Bootstrap Block Size**: Implement a check in `src/models/utils.py` to ensure the block size for block bootstrap is appropriate for the time series length.
+ - **Action**: Add a validation step that warns if `block_size > 0.5 * time_series_length`.
+ - **Requirement**: Prevents invalid bootstrapping results due to inappropriate block sizes.
+ - **Dependency**: Depends on T033.
+- [ ] T065 [S] [Plan] **Document Power Analysis Limitations**: Add a section to `plan.md` explicitly stating the power limitations of the `vvud/eb-data` sample size for detecting small effect sizes.
+ - **Action**: Append a "Power Analysis Limitations" section to `plan.md` referencing the sample size and expected MDES.
+ - **Requirement**: Ensures transparency about the study's statistical power as required by SC-001.
+ - **Dependency**: Depends on T011a.

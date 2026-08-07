@@ -1,23 +1,48 @@
-T001:
-  c: false
-  h: acee366a56b1bd3d6676fbfaf0e8088397368cd155bb7dc880794116fc9b7511
-  r: The required `src/config.py` file is missing entirely, and there is no evidence
-    that `plan.md` was updated with numeric assumption targets for SC-001 to SC-004.
-    Without these files containing the concrete values, the task is not satisfied.
-T002:
+T005a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory listings or screenshots were provided to demonstrate that the specified
-    folders (`src/data`, `src/models`, `src/analysis`, `data/raw`, `data/processed`,
-    `data/interim`, `tests/contract`, `tests/unit`, `tests/integration`, `docs`) were
-    actually created. Without concrete evidence of these paths existing, the task
-    cannot be confirmed as completed.
+  r: "No artifact (script, log, report, or data file) was provided to demonstrate\
+    \ that the full eBird Basic Dataset for North America (2020\u20132024) was actually\
+    \ checked for availability. The claim lacks any concrete evidence of verification,\
+    \ so the requirement is not satisfied."
+T005b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No downloaded dataset files, checksum logs, or verification scripts were presented.\
+    \ The required artifact\u2014a downloaded eBird Basic Dataset (or the sample `vvud/eb-data`)\
+    \ and evidence that its checksums were verified\u2014is missing, so the task is\
+    \ not satisfied."
+T005c:
+  c: false
+  h: b29cccd4d89439d0719bcfa9914e35a50527e32699cf261e018f6b3068b4a9ee
+  r: The required file `data/provenance/scope_limitation.json` does not exist, so
+    the scope limitation documentation was not provided as the task demanded.
+T005d:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of an `data/raw/archive/` directory containing copied raw files\
+    \ was provided, nor any SHA\u2011256 checksum file or listing. The required archive\
+    \ and checksum artifacts are missing, so the task is not satisfied."
+T010c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No test log entry file or parsing script was provided; the only artifacts present\
+    \ relate to the bird\u2011migration data pipeline, not to the \u201CTest Logging\u201D\
+    \ task. Consequently the required log entry and its format\u2011compliance verification\
+    \ are missing."
 T014:
   c: false
   h: e54b4837935106f97bcc5c25898dc65a522cf61cfa2919768ebbeaa547451908
   r: "The required file `src/data/preprocess.py` does not exist, so no code can call\
     \ the T005 download functions or perform file\u2011presence and checksum verification.\
     \ The artifact is missing, making the task unfulfilled."
+T016:
+  c: false
+  h: f0c5d93f7fed47d460ea156c9bce99400b0f08d8643d6237337e926224064bb5
+  r: The `src/data/preprocess.py` file does not contain a `generate_provenance` function
+    (the shown excerpt ends before such a definition and the file is truncated), and
+    the required output file `data/provenance/row_mapping.json` is absent from the
+    repository. Both the implementation and the generated artifact are missing.
 T018:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -33,14 +58,6 @@ T031:
     \ any concrete artifact (e.g., a Python module using `scipy` and `geopy` to compute\
     \ geodesics on S\xB2, example data, and resulting analysis plots or metrics).\
     \ Without these deliverables, the requirement is not satisfied."
-T042:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No profiling reports, benchmark results, or updated pipeline code implementing\
-    \ chunked I/O and vectorization were provided; thus there is no artifact demonstrating\
-    \ that the runtime has been reduced to under 4\u202Fhours. The required evidence\
-    \ (e.g., before/after runtime measurements, code changes, or performance logs)\
-    \ is missing."
 T043:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -59,15 +76,6 @@ T044:
     is not satisfied. The missing deliverable is the computed convergence rate (e.g.,
     number of iterations, time to converge, diagnostic plots) and associated code
     or results.
-T045:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The claim provides no code, script, or documentation implementing a file\u2011\
-    based lock, nor any reference to a lock file or module that would serialize tasks\
-    \ T025 and T032. Without a tangible artifact (e.g., a Python/ Bash file implementing\
-    \ lock acquisition/release, usage examples, or test showing serialization), the\
-    \ requirement is unmet. The next implementer must add the lock implementation\
-    \ and evidence of its operation."
 T046:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -76,19 +84,10 @@ T046:
     \ post\u2011run validation requirement cannot be confirmed. The implementer must\
     \ provide concrete validation output (e.g., a summary file or console log showing\
     \ lock status and runtime vs. budget)."
-T047:
+T050a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The provided excerpt still contains \u201C[deferred]\u201D placeholders (e.g.,\
-    \ \u201Cminimum of 208 weeks ([deferred] coverage)\u201D and \u201Cat least [deferred]%\
-    \ of species\u2011year combinations\u201D), and no updated `spec.md` or `plan.md`\
-    \ files with concrete numeric values were supplied. The required artifacts are\
-    \ missing or unchanged, so the success\u2011criteria thresholds have not been\
-    \ defined."
-T051a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No artifact (e.g., a URL, screenshot, API query result, or script output) was\
-    \ provided to demonstrate that the `vvud/eb-data` dataset actually exists on HuggingFace.\
-    \ Without concrete evidence of the dataset\u2019s presence, the requirement is\
-    \ not satisfied."
+  r: No artifact (e.g., a report, diff, or summary file) showing the results of scanning
+    `plan.md` and `spec.md` for contradictions was provided. The implementer did not
+    supply any evidence that the files were examined or that any inconsistencies were
+    identified, which is required to satisfy the task.

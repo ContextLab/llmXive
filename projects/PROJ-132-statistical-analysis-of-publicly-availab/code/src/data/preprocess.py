@@ -3,251 +3,199 @@ import sys
 import hashlib
 import yaml
 import logging
+import json
 from pathlib import Path
+from datetime import datetime, timezone
 from typing import Dict, Any, List, Optional, Tuple
-
 import pandas as pd
 import numpy as np
 
-from src.lib.config import setup_logging, SEED, GRID_RES
+from src.config import setup_logging
 
-# Initialize logger
-logger = setup_logging()
+# Ensure the logger is configured for this module
+logger = logging.getLogger(__name__)
 
-def verify_checksums(state_file: Path) -> bool:
-    """Verify data checksums from state file."""
-    if not state_file.exists():
-        logger.warning(f"State file {state_file} not found. Skipping checksum verification.")
-        return False
-    
-    with open(state_file, 'r') as f:
-        state = yaml.safe_load(f)
-    
-    artifact_hashes = state.get('artifact_hashes', {})
-    # Implementation would verify actual file hashes against stored hashes
-    # For now, assume pass if file exists
-    return True
-
-def compute_sha256(file_path: Path) -> str:
-    """Compute SHA-256 checksum of a file."""
-    sha256_hash = hashlib.sha256()
-    with open(file_path, "rb") as f:
-        for byte_block in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(byte_block)
-    return sha256_hash.hexdigest()
-
-def filter_migratory_species(df: pd.DataFrame, clo_list: List[str]) -> pd.DataFrame:
-    """Filter eBird records to only migratory species."""
-    if 'species' not in df.columns:
-        raise ValueError("Input DataFrame must contain 'species' column")
-    
-    return df[df['species'].isin(clo_list)].copy()
-
-def assign_grid_cell(lat: float, lon: float, grid_res: float = GRID_RES) -> Tuple[float, float]:
-    """Assign a grid cell to a coordinate."""
-    grid_lat = np.floor(lat / grid_res) * grid_res
-    grid_lon = np.floor(lon / grid_res) * grid_res
-    return grid_lat, grid_lon
-
-def add_grid_cells(df: pd.DataFrame) -> pd.DataFrame:
-    """Add grid cell coordinates to DataFrame."""
-    if 'lat' not in df.columns or 'lon' not in df.columns:
-        raise ValueError("Input DataFrame must contain 'lat' and 'lon' columns")
-    
-    df['grid_lat'], df['grid_lon'] = zip(*df.apply(
-        lambda row: assign_grid_cell(row['lat'], row['lon']), axis=1
-    ))
-    df['grid_cell'] = df['grid_lat'].astype(str) + '_' + df['grid_lon'].astype(str)
-    return df
-
-def aggregate_to_weekly_grid(df: pd.DataFrame) -> pd.DataFrame:
-    """Aggregate eBird records to weekly counts per grid cell."""
-    if 'date' not in df.columns:
-        raise ValueError("Input DataFrame must contain 'date' column")
-    
-    df['date'] = pd.to_datetime(df['date'])
-    df['week'] = df['date'].dt.isocalendar().week
-    df['year'] = df['date'].dt.year
-    
-    agg_df = df.groupby(['species', 'grid_cell', 'week', 'year']).agg(
-        count=('count', 'sum'),
-        checklist_count=('checklist_id', 'nunique')
-    ).reset_index()
-    
-    return agg_df
-
-def compute_phenology_metrics(df: pd.DataFrame) -> pd.DataFrame:
-    """Compute phenology metrics: first_arrival, median_arrival, stopover_duration."""
-    if 'week' not in df.columns or 'count' not in df.columns:
-        raise ValueError("Input DataFrame must contain 'week' and 'count' columns")
-    
-    metrics = []
-    
-    for (species, grid_cell, year), group in df.groupby(['species', 'grid_cell', 'year']):
-        group = group.sort_values('week')
-        total_count = group['count'].sum()
-        
-        if total_count == 0:
-            continue
-        
-        # First arrival: first week with non-zero count
-        first_arrival = group[group['count'] > 0]['week'].min()
-        
-        # Median arrival: week where cumulative count reaches 50%
-        group['cumulative'] = group['count'].cumsum()
-        median_week = group[group['cumulative'] >= (total_count / 2)]['week'].min()
-        
-        # Stopover duration: weeks with significant activity (simplified as weeks > 10% of peak)
-        peak_count = group['count'].max()
-        significant_weeks = group[group['count'] >= (0.1 * peak_count)]['week']
-        stopover_duration = len(significant_weeks) if len(significant_weeks) > 0 else 1
-        
-        metrics.append({
-            'species': species,
-            'grid_cell': grid_cell,
-            'year': year,
-            'first_arrival': first_arrival,
-            'median_arrival': median_week,
-            'stopover_duration': stopover_duration
-        })
-    
-    return pd.DataFrame(metrics)
-
-def mark_insufficient_data(df: pd.DataFrame, min_observations: int = 5, log_file: Optional[Path] = None) -> Tuple[pd.DataFrame, Dict[str, Any]]:
+def mark_insufficient_cells(
+    df: pd.DataFrame,
+    min_count: int = 5,
+    output_path: Optional[Path] = None,
+    log_path: Optional[Path] = None
+) -> pd.DataFrame:
     """
-    Mark grid cells as "insufficient data" when observation density is too low (< 5 observations).
-    
+    Scan aggregated grid cells and mark those with insufficient data.
+
+    Logic:
+    1. Scan aggregated grid cells.
+    2. If count < min_count (default 5), set data_quality="insufficient".
+    3. Exclude these cells from downstream modeling by filtering them out
+       (or flagging them, depending on downstream needs).
+    4. Log species, grid cell, and reason to the provided log path.
+    5. Write metadata to data/processed/metadata_insufficient_cells.json.
+
     Args:
-        df: DataFrame with columns including 'species', 'grid_cell', 'week', 'count'
-        min_observations: Minimum number of observations required (default: 5)
-        log_file: Optional path to log file for detailed logging
-        
+        df: DataFrame containing aggregated grid cell data.
+            Expected columns: 'species', 'grid_cell', 'count', and others.
+        min_count: Minimum count threshold for sufficient data.
+        output_path: Optional path to write the metadata JSON.
+        log_path: Optional path to the pipeline log file.
+
     Returns:
-        Tuple of (filtered DataFrame, metadata dict with insufficient cell info)
+        DataFrame with a new column 'data_quality' where insufficient cells
+        are marked as "insufficient".
     """
-    if 'count' not in df.columns:
-        raise ValueError("Input DataFrame must contain 'count' column")
-    
-    # Calculate total observations per species-grid cell combination
-    obs_counts = df.groupby(['species', 'grid_cell'])['count'].sum().reset_index()
-    obs_counts.columns = ['species', 'grid_cell', 'total_observations']
-    
-    # Identify insufficient cells
-    insufficient = obs_counts[obs_counts['total_observations'] < min_observations]
-    
-    # Create metadata
-    metadata = {
-        'total_cells': len(obs_counts),
-        'insufficient_cells': len(insufficient),
-        'threshold': min_observations,
-        'cells': []
-    }
-    
-    # Log details and prepare metadata
-    for _, row in insufficient.iterrows():
-        cell_info = {
-            'species': row['species'],
-            'grid_cell': row['grid_cell'],
-            'observations': row['total_observations'],
-            'reason': f'Observation count ({row["total_observations"]}) < threshold ({min_observations})'
-        }
-        metadata['cells'].append(cell_info)
-        
-        # Log to file if provided
-        if log_file:
-            logger.info(f"Insufficient data: Species={row['species']}, Grid={row['grid_cell']}, "
-                      f"Observations={row['total_observations']}, Reason={cell_info['reason']}")
-        else:
-            logger.info(f"Insufficient data: Species={row['species']}, Grid={row['grid_cell']}, "
-                      f"Observations={row['total_observations']}")
-    
-    # Filter out insufficient cells from main DataFrame
-    insufficient_keys = set(zip(insufficient['species'], insufficient['grid_cell']))
-    df_filtered = df[~df.set_index(['species', 'grid_cell']).index.isin(insufficient_keys)].copy()
-    
-    # Mark data quality in filtered DataFrame
-    df_filtered['data_quality'] = 'sufficient'
-    
-    return df_filtered, metadata
-
-def calculate_observer_effort(df: pd.DataFrame) -> pd.DataFrame:
-    """Calculate observer effort covariates to control for sampling bias."""
-    if 'checklist_id' not in df.columns:
-        df['effort_score'] = 1.0
+    if df.empty:
+        logger.warning("Input DataFrame is empty. No cells to mark.")
         return df
-    
-    # Simple effort metric: number of checklists per grid cell per week
-    effort = df.groupby(['grid_cell', 'week'])['checklist_id'].nunique().reset_index()
-    effort.columns = ['grid_cell', 'week', 'effort_score']
-    
-    df = df.merge(effort, on=['grid_cell', 'week'], how='left')
+
+    # Ensure 'count' column exists
+    if 'count' not in df.columns:
+        raise ValueError("Input DataFrame must contain a 'count' column.")
+
+    # Initialize data_quality column
+    df['data_quality'] = 'sufficient'
+
+    # Identify insufficient cells
+    insufficient_mask = df['count'] < min_count
+    insufficient_df = df[insufficient_mask]
+
+    if not insufficient_df.empty:
+        # Update data_quality for insufficient cells
+        df.loc[insufficient_mask, 'data_quality'] = 'insufficient'
+
+        # Prepare metadata for insufficient cells
+        insufficient_metadata = insufficient_df[['species', 'grid_cell', 'count']].to_dict(
+            orient='records'
+        )
+
+        # Add reason to metadata
+        for record in insufficient_metadata:
+            record['reason'] = f"Count ({record['count']}) is below threshold ({min_count})."
+            record['timestamp'] = datetime.now(timezone.utc).isoformat()
+
+        # Log insufficient cells
+        if log_path:
+            log_path.parent.mkdir(parents=True, exist_ok=True)
+            with open(log_path, 'a', encoding='utf-8') as log_file:
+                for record in insufficient_metadata:
+                    log_entry = (
+                        f"[INSUFFICIENT] species={record['species']}, "
+                        f"grid_cell={record['grid_cell']}, "
+                        f"count={record['count']}, "
+                        f"reason={record['reason']}\n"
+                    )
+                    log_file.write(log_entry)
+            logger.info(f"Logged {len(insufficient_metadata)} insufficient cells to {log_path}.")
+
+        # Write metadata to output path
+        if output_path:
+            output_path.parent.mkdir(parents=True, exist_ok=True)
+            with open(output_path, 'w', encoding='utf-8') as meta_file:
+                json.dump(insufficient_metadata, meta_file, indent=2)
+            logger.info(f"Wrote insufficient cells metadata to {output_path}.")
+        else:
+            logger.warning("No output path provided for insufficient cells metadata.")
+
+    else:
+        logger.info("No insufficient cells found.")
+
     return df
 
-def integrate_imputed_climate(df: pd.DataFrame, climate_df: pd.DataFrame) -> pd.DataFrame:
-    """Integrate imputed climate data with preprocessing results."""
-    # Implementation would merge climate data based on grid cell and week
-    # For now, return dataframe with placeholder columns
-    df['climate_temp'] = 0.0
-    df['climate_precip'] = 0.0
-    df['imputed_flag'] = False
-    return df
+def run_preprocessing_pipeline(
+    input_path: Path,
+    output_path: Path,
+    log_path: Optional[Path] = None,
+    metadata_path: Optional[Path] = None,
+    min_count: int = 5
+) -> None:
+    """
+    Run the full preprocessing pipeline including marking insufficient cells.
 
-def run_preprocessing_pipeline(input_dir: Path, output_dir: Path, state_dir: Path) -> Dict[str, Any]:
-    """Run the complete preprocessing pipeline."""
-    # Ensure directories exist
-    input_dir.mkdir(parents=True, exist_ok=True)
-    output_dir.mkdir(parents=True, exist_ok=True)
-    state_dir.mkdir(parents=True, exist_ok=True)
-    
-    # Load data (simplified for this implementation)
-    # In real implementation, would load from input_dir
-    df = pd.DataFrame({
-        'species': ['Species_A', 'Species_A', 'Species_B'],
-        'lat': [40.0, 40.5, 41.0],
-        'lon': [-75.0, -75.5, -76.0],
-        'date': ['2023-03-01', '2023-03-08', '2023-03-15'],
-        'count': [3, 1, 2],
-        'checklist_id': ['C1', 'C2', 'C3']
-    })
-    
-    # Process data
-    df = add_grid_cells(df)
-    df = aggregate_to_weekly_grid(df)
-    df = calculate_observer_effort(df)
-    
-    # T018: Mark and filter insufficient data
-    log_file = output_dir / 'pipeline.log'
-    df_filtered, insufficient_metadata = mark_insufficient_data(df, min_observations=5, log_file=log_file)
-    
-    # Save results
-    output_file = output_dir / 'processed_data.parquet'
-    df_filtered.to_parquet(output_file, index=False)
-    
-    # Save metadata
-    metadata_file = output_dir / 'metadata_insufficient_cells.json'
-    import json
-    with open(metadata_file, 'w') as f:
-        json.dump(insufficient_metadata, f, indent=2)
-    
-    logger.info(f"Preprocessing complete. Output: {output_file}")
-    logger.info(f"Insufficient cells metadata: {metadata_file}")
-    
-    return {
-        'output_file': str(output_file),
-        'metadata_file': str(metadata_file),
-        'insufficient_cells': insufficient_metadata['insufficient_cells']
-    }
+    This function:
+    1. Loads the aggregated data from input_path.
+    2. Calls mark_insufficient_cells to flag cells with insufficient data.
+    3. Writes the processed DataFrame to output_path.
+    4. Logs and writes metadata for insufficient cells.
 
-def main():
-    """Main entry point for preprocessing pipeline."""
-    logger.info("Starting preprocessing pipeline")
-    
-    input_dir = Path("data/raw")
-    output_dir = Path("data/processed")
-    state_dir = Path("state/projects")
-    
-    result = run_preprocessing_pipeline(input_dir, output_dir, state_dir)
-    logger.info(f"Pipeline completed successfully: {result}")
+    Args:
+        input_path: Path to the input aggregated data (e.g., parquet or csv).
+        output_path: Path to write the processed DataFrame.
+        log_path: Path to the pipeline log file.
+        metadata_path: Path to write the insufficient cells metadata JSON.
+        min_count: Minimum count threshold for sufficient data.
+    """
+    logger.info(f"Starting preprocessing pipeline. Input: {input_path}, Output: {output_path}")
+
+    # Load data
+    if not input_path.exists():
+        raise FileNotFoundError(f"Input file not found: {input_path}")
+
+    if input_path.suffix == '.parquet':
+        df = pd.read_parquet(input_path)
+    elif input_path.suffix == '.csv':
+        df = pd.read_csv(input_path)
+    else:
+        raise ValueError(f"Unsupported file format: {input_path.suffix}")
+
+    logger.info(f"Loaded {len(df)} records from {input_path}")
+
+    # Mark insufficient cells
+    df_processed = mark_insufficient_cells(
+        df=df,
+        min_count=min_count,
+        output_path=metadata_path,
+        log_path=log_path
+    )
+
+    # Filter out insufficient cells for downstream modeling (optional, depending on needs)
+    # Here we keep all rows but mark them; downstream can filter if needed.
+    # If we want to exclude them:
+    # df_processed = df_processed[df_processed['data_quality'] != 'insufficient']
+
+    # Write output
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    if output_path.suffix == '.parquet':
+        df_processed.to_parquet(output_path, index=False)
+    elif output_path.suffix == '.csv':
+        df_processed.to_csv(output_path, index=False)
+    else:
+        raise ValueError(f"Unsupported output format: {output_path.suffix}")
+
+    logger.info(f"Preprocessing pipeline completed. Output written to {output_path}")
+
+def main() -> None:
+    """
+    Main entry point for the preprocessing pipeline.
+
+    This function:
+    1. Sets up logging.
+    2. Defines input and output paths.
+    3. Runs the preprocessing pipeline.
+    """
+    # Set up logging
+    log_dir = Path("logs")
+    log_dir.mkdir(parents=True, exist_ok=True)
+    log_path = log_dir / "pipeline.log"
+
+    # Configure logging
+    logger = setup_logging(log_file=log_path)
+
+    # Define paths
+    input_path = Path("data/interim/aggregated_data.parquet")
+    output_path = Path("data/processed/processed_data.parquet")
+    metadata_path = Path("data/processed/metadata_insufficient_cells.json")
+
+    # Run pipeline
+    try:
+        run_preprocessing_pipeline(
+            input_path=input_path,
+            output_path=output_path,
+            log_path=log_path,
+            metadata_path=metadata_path,
+            min_count=5
+        )
+    except Exception as e:
+        logger.error(f"Pipeline failed: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

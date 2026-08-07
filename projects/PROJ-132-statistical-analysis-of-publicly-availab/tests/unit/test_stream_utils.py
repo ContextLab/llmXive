@@ -1,166 +1,86 @@
 """
-Unit tests for stream_utils module.
+Unit tests for stream_utils.py
 """
 
 import pytest
 import pandas as pd
-from unittest.mock import patch, MagicMock
 from pathlib import Path
 import tempfile
-import os
+import json
 
 from src.data.stream_utils import (
-    stream_ebird_dataset,
-    stream_and_process,
-    count_total_rows
+    stream_ebird_data,
+    get_dataset_info,
+    run_streaming_pipeline
 )
 
 
-class TestStreamEbirdDataset:
-    """Tests for stream_ebird_dataset function."""
+class TestStreamUtils:
+    """Tests for streaming utilities."""
 
-    @patch('src.data.stream_utils.load_dataset')
-    def test_stream_success(self, mock_load_dataset):
-        """Test successful streaming of dataset."""
-        # Mock dataset iterator
-        mock_rows = [
-            {"species": "sparrow", "lat": 40.0, "lon": -75.0, "date": "2023-03-01", "count": 5},
-            {"species": "robin", "lat": 41.0, "lon": -74.0, "date": "2023-03-02", "count": 3},
-            {"species": "sparrow", "lat": 40.5, "lon": -74.5, "date": "2023-03-03", "count": 7}
-        ]
+    def test_get_dataset_info_exists(self):
+        """Test that we can get info for the verified dataset."""
+        info = get_dataset_info("vvud/eb-data")
+        assert info is not None
+        assert "dataset_name" in info
+        assert info["dataset_name"] == "vvud/eb-data"
 
-        mock_dataset = iter(mock_rows)
-        mock_load_dataset.return_value = mock_dataset
+    def test_stream_ebird_data_returns_generator(self):
+        """Test that stream_ebird_data returns a generator."""
+        gen = stream_ebird_data("vvud/eb-data", chunk_size=1000)
+        # Just check it's an iterator, don't exhaust it in unit test
+        assert hasattr(gen, '__iter__')
 
-        batches = list(stream_ebird_dataset("test/dataset", batch_size=2, split="train"))
-
-        assert len(batches) == 2
-        assert len(batches[0]) == 2
-        assert len(batches[1]) == 1
-        assert batches[0].columns.tolist() == ["species", "lat", "lon", "date", "count"]
-
-    @patch('src.data.stream_utils.load_dataset')
-    def test_stream_empty_dataset(self, mock_load_dataset):
-        """Test streaming an empty dataset."""
-        mock_load_dataset.return_value = iter([])
-
-        batches = list(stream_ebird_dataset("test/dataset", batch_size=10, split="train"))
-
-        assert len(batches) == 0
-
-    @patch('src.data.stream_utils.load_dataset')
-    def test_stream_load_failure(self, mock_load_dataset):
-        """Test handling of dataset load failure."""
-        mock_load_dataset.side_effect = Exception("Dataset not found")
-
-        with pytest.raises(RuntimeError, match="Failed to load dataset"):
-            list(stream_ebird_dataset("test/dataset", batch_size=10, split="train"))
-
-
-class TestStreamAndProcess:
-    """Tests for stream_and_process function."""
-
-    @patch('src.data.stream_utils.stream_ebird_dataset')
-    def test_stream_and_process_with_processor(self, mock_stream):
-        """Test streaming with a processor function."""
-        # Mock streaming to return sample data
-        mock_df = pd.DataFrame({
-            "species": ["sparrow", "robin"],
-            "lat": [40.0, 41.0],
-            "lon": [-75.0, -74.0],
-            "date": ["2023-03-01", "2023-03-02"],
-            "count": [5, 3]
-        })
-        mock_stream.return_value = iter([mock_df])
-
-        def processor(df):
-            return df[df["count"] > 0]
-
-        stats = stream_and_process(
-            "test/dataset",
-            processor_func=processor,
-            batch_size=10,
-            output_dir=None,
-            split="train"
+    def test_stream_ebird_data_columns_filter(self):
+        """Test that column filtering works."""
+        columns = ["species", "lat", "lon"]
+        gen = stream_ebird_data(
+            "vvud/eb-data",
+            columns=columns,
+            chunk_size=100
         )
 
-        assert stats["total_batches"] == 1
-        assert stats["total_rows_processed"] == 2
-        assert len(stats["errors"]) == 0
+        # Get first chunk
+        first_chunk = next(gen)
+        assert isinstance(first_chunk, pd.DataFrame)
+        assert all(col in first_chunk.columns for col in columns)
+        assert len(first_chunk.columns) == len(columns)
 
-    @patch('src.data.stream_utils.stream_ebird_dataset')
-    def test_stream_and_process_save_to_disk(self, mock_stream):
-        """Test streaming with output to disk."""
-        mock_df = pd.DataFrame({
-            "species": ["sparrow"],
-            "lat": [40.0],
-            "lon": [-75.0],
-            "date": ["2023-03-01"],
-            "count": [5]
-        })
-        mock_stream.return_value = iter([mock_df])
-
+    def test_run_streaming_pipeline_creates_files(self):
+        """Test that the streaming pipeline creates output files."""
         with tempfile.TemporaryDirectory() as tmpdir:
-            stats = stream_and_process(
-                "test/dataset",
-                batch_size=10,
+            output_dir = run_streaming_pipeline(
                 output_dir=tmpdir,
-                split="train"
+                dataset_name="vvud/eb-data",
+                columns=["species", "lat", "lon", "date", "count", "checklist_id"]
             )
 
-            assert stats["total_batches"] == 1
-            output_file = Path(tmpdir) / "chunk_00000.parquet"
-            assert output_file.exists()
+            # Check summary file exists
+            summary_file = Path(output_dir) / "streaming_summary.json"
+            assert summary_file.exists()
 
-    @patch('src.data.stream_utils.stream_ebird_dataset')
-    def test_stream_and_process_processor_error(self, mock_stream):
-        """Test handling of processor errors."""
-        mock_df = pd.DataFrame({
-            "species": ["sparrow"],
-            "lat": [40.0],
-            "lon": [-75.0],
-            "date": ["2023-03-01"],
-            "count": [5]
-        })
-        mock_stream.return_value = iter([mock_df])
+            # Check summary content
+            with open(summary_file, 'r') as f:
+                summary = json.load(f)
 
-        def bad_processor(df):
-            raise ValueError("Processor error")
+            assert summary["dataset_name"] == "vvud/eb-data"
+            assert summary["total_chunks"] > 0
+            assert summary["total_rows"] > 0
 
-        stats = stream_and_process(
-            "test/dataset",
-            processor_func=bad_processor,
-            batch_size=10,
-            output_dir=None,
-            split="train"
-        )
+            # Check that at least one chunk file exists
+            chunk_files = list(Path(output_dir).glob("stream_chunk_*.parquet"))
+            assert len(chunk_files) > 0
 
-        assert stats["total_batches"] == 1
-        assert len(stats["errors"]) == 1
-        assert "Error processing batch" in stats["errors"][0]
+    def test_stream_ebird_data_empty_columns(self):
+        """Test streaming with no columns specified (should load all)."""
+        gen = stream_ebird_data("vvud/eb-data", columns=None, chunk_size=100)
+        first_chunk = next(gen)
+        assert isinstance(first_chunk, pd.DataFrame)
+        assert len(first_chunk.columns) > 0
 
-
-class TestCountTotalRows:
-    """Tests for count_total_rows function."""
-
-    @patch('src.data.stream_utils.stream_ebird_dataset')
-    def test_count_rows(self, mock_stream):
-        """Test counting total rows."""
-        mock_dfs = [
-            pd.DataFrame({"species": ["a", "b"]}),
-            pd.DataFrame({"species": ["c", "d", "e"]})
-        ]
-        mock_stream.return_value = iter(mock_dfs)
-
-        total = count_total_rows("test/dataset", split="train")
-
-        assert total == 5
-
-    @patch('src.data.stream_utils.stream_ebird_dataset')
-    def test_count_empty_dataset(self, mock_stream):
-        """Test counting rows in empty dataset."""
-        mock_stream.return_value = iter([])
-
-        total = count_total_rows("test/dataset", split="train")
-
-        assert total == 0
+    def test_stream_ebird_data_large_chunk_size(self):
+        """Test streaming with a larger chunk size."""
+        gen = stream_ebird_data("vvud/eb-data", chunk_size=50000)
+        first_chunk = next(gen)
+        assert isinstance(first_chunk, pd.DataFrame)
+        assert len(first_chunk) <= 50000

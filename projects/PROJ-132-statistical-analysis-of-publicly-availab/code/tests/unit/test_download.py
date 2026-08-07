@@ -5,175 +5,151 @@ import shutil
 from pathlib import Path
 import pytest
 import pandas as pd
-import numpy as np
-
-# Add project root to path for imports
-project_root = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(project_root))
+from unittest.mock import patch, MagicMock
+import requests
 
 from src.data.download import (
+    get_clo_migratory_list,
+    download_and_verify_data,
     compute_sha256,
-    archive_real_data,
-    generate_synthetic_ebird_data,
-    generate_synthetic_climate_data,
-    write_synthetic_data,
-    write_state_file,
-    check_real_data_available,
-    ensure_data_available,
-    run_download_pipeline
+    ensure_data_available
 )
+
 
 class TestDownloadModule:
     """Unit tests for the download module."""
 
-    @pytest.fixture(autouse=True)
-    def setup_and_teardown(self):
-        """Set up and tear down test fixtures."""
-        # Create temporary directories for testing
-        self.temp_dir = tempfile.mkdtemp()
-        self.original_cwd = os.getcwd()
-        os.chdir(self.temp_dir)
-        
-        # Create necessary subdirectories
-        os.makedirs("data/raw/ebird", exist_ok=True)
-        os.makedirs("data/raw/climate", exist_ok=True)
-        os.makedirs("data/raw/archive", exist_ok=True)
-        os.makedirs("state/projects", exist_ok=True)
-        
-        yield
-        
-        # Clean up
-        os.chdir(self.original_cwd)
-        shutil.rmtree(self.temp_dir)
-
-    def test_compute_sha256(self):
-        """Test SHA-256 computation."""
-        test_file = Path("data/raw/ebird/test.txt")
-        test_file.write_text("test content")
+    def test_compute_sha256_basic(self, tmp_path):
+        """Test SHA-256 computation on a simple file."""
+        test_file = tmp_path / "test.txt"
+        test_content = b"Hello, World!"
+        test_file.write_bytes(test_content)
         
         checksum = compute_sha256(test_file)
-        assert len(checksum) == 64  # SHA-256 produces 64 hex characters
+        assert len(checksum) == 64  # SHA-256 hex string length
         assert isinstance(checksum, str)
 
-    def test_generate_synthetic_ebird_data(self):
-        """Test synthetic eBird data generation."""
-        df = generate_synthetic_ebird_data(seed=42)
+    @patch('src.data.download.requests.get')
+    def test_download_and_verify_data_success(self, mock_get, tmp_path):
+        """Test successful data download."""
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.iter_content = lambda chunk_size: [b"test data"]
+        mock_get.return_value = mock_response
         
-        # Check columns
-        expected_columns = ["species", "lat", "lon", "date", "count", "checklist_id"]
-        assert list(df.columns) == expected_columns
+        dest = tmp_path / "downloaded.csv"
+        result = download_and_verify_data("http://example.com/data.csv", dest)
         
-        # Check row count
-        assert len(df) == 1000
-        
-        # Check data types
-        assert df["lat"].dtype in ["float64", "float32"]
-        assert df["lon"].dtype in ["float64", "float32"]
-        assert df["count"].dtype in ["int64", "int32"]
+        assert result is True
+        assert dest.exists()
+        assert dest.read_bytes() == b"test data"
 
-    def test_generate_synthetic_climate_data(self):
-        """Test synthetic climate data generation."""
-        df = generate_synthetic_climate_data(seed=42)
+    @patch('src.data.download.requests.get')
+    def test_download_and_verify_data_failure(self, mock_get, tmp_path):
+        """Test failed data download."""
+        mock_get.side_effect = requests.RequestException("Network error")
         
-        # Check columns
-        expected_columns = ["lat", "lon", "temp", "week", "precip"]
-        assert list(df.columns) == expected_columns
+        dest = tmp_path / "downloaded.csv"
+        result = download_and_verify_data("http://example.com/data.csv", dest)
         
-        # Check row count
-        assert len(df) == 500
+        assert result is False
+        assert not dest.exists()
 
-    def test_write_synthetic_data_csv(self):
-        """Test writing synthetic data to CSV."""
-        df = generate_synthetic_ebird_data(seed=42)
-        output_path = Path("data/raw/synthetic_ebird.csv")
+    @patch('src.data.download.requests.head')
+    @patch('src.data.download.requests.get')
+    def test_get_clo_migratory_list_cached(self, mock_get, mock_head, tmp_path):
+        """Test that cached file is used when available."""
+        # Create a fake cached file
+        cache_file = Path("data/raw/clo_migratory_list.csv")
+        cache_file.parent.mkdir(parents=True, exist_ok=True)
         
-        write_synthetic_data(df, output_path, "csv")
+        # Create a minimal valid CSV
+        mock_df = pd.DataFrame({
+            'scientificName': ['Test Species'],
+            'commonName': ['Test'],
+            'order': ['TestOrder'],
+            'family': ['TestFamily']
+        })
+        mock_df.to_csv(cache_file, index=False)
         
-        assert output_path.exists()
-        
-        # Verify content can be read back
-        loaded_df = pd.read_csv(output_path)
-        assert len(loaded_df) == len(df)
+        try:
+            # Should use cache, not download
+            result = get_clo_migratory_list()
+            
+            assert isinstance(result, pd.DataFrame)
+            assert len(result) == 1
+            assert 'scientificName' in result.columns
+        finally:
+            if cache_file.exists():
+                cache_file.unlink()
 
-    def test_write_synthetic_data_parquet(self):
-        """Test writing synthetic data to Parquet."""
-        df = generate_synthetic_climate_data(seed=42)
-        output_path = Path("data/raw/synthetic_climate.parquet")
+    @patch('src.data.download.requests.get')
+    @patch('src.data.download.requests.head')
+    def test_get_clo_migratory_list_download_success(self, mock_head, mock_get, tmp_path):
+        """Test successful download when no cache exists."""
+        # Mock HEAD requests to succeed
+        mock_head_response = MagicMock()
+        mock_head_response.status_code = 200
+        mock_head.return_value = mock_head_response
         
-        write_synthetic_data(df, output_path, "parquet")
+        # Mock GET request to return valid CSV data
+        mock_get_response = MagicMock()
+        mock_get_response.status_code = 200
+        mock_get_response.iter_content = lambda chunk_size: [b"scientificName,commonName,order,family\nTest,Test,Test,Test"]
+        mock_get.return_value = mock_get_response
         
-        assert output_path.exists()
+        # Temporarily change cache path for testing
+        original_cache = Path("data/raw/clo_migratory_list.csv")
+        test_cache = tmp_path / "test_cache.csv"
         
-        # Verify content can be read back
-        loaded_df = pd.read_parquet(output_path)
-        assert len(loaded_df) == len(df)
+        # Patch the CACHE_PATH in the module
+        import src.data.download as download_module
+        original_cache_path = download_module.CACHE_PATH
+        download_module.CACHE_PATH = test_cache
+        
+        try:
+            result = get_clo_migratory_list()
+            
+            assert isinstance(result, pd.DataFrame)
+            assert len(result) == 1
+            assert test_cache.exists()
+        finally:
+            download_module.CACHE_PATH = original_cache_path
+            if test_cache.exists():
+                test_cache.unlink()
 
-    def test_write_state_file(self):
-        """Test writing state file."""
-        checksums = {
-            "file1.csv": "abc123",
-            "file2.parquet": "def456"
-        }
+    @patch('src.data.download.requests.get')
+    @patch('src.data.download.requests.head')
+    def test_get_clo_migratory_list_all_sources_fail(self, mock_head, mock_get):
+        """Test that RuntimeError is raised when all sources fail."""
+        mock_head.side_effect = requests.RequestException("Network error")
+        mock_get.side_effect = requests.RequestException("Network error")
         
-        write_state_file(checksums)
-        
-        state_file = Path("state/projects/PROJ-132-statistical-analysis-of-publicly-availab.yaml")
-        assert state_file.exists()
+        with pytest.raises(RuntimeError, match="Failed to retrieve CLO migratory list"):
+            get_clo_migratory_list()
 
-    def test_check_real_data_available_empty(self):
-        """Test checking for real data when none exists."""
-        assert check_real_data_available() is False
+    def test_ensure_data_available_success(self, tmp_path):
+        """Test ensure_data_available when data exists."""
+        # Create a fake cache file
+        cache_file = Path("data/raw/clo_migratory_list.csv")
+        cache_file.parent.mkdir(parents=True, exist_ok=True)
+        cache_file.write_text("scientificName,commonName\nTest,Test")
+        
+        try:
+            result = ensure_data_available()
+            assert result is True
+        finally:
+            if cache_file.exists():
+                cache_file.unlink()
 
-    def test_check_real_data_available_with_files(self):
-        """Test checking for real data when files exist."""
-        # Create dummy files
-        (Path("data/raw/ebird") / "test.txt").write_text("test")
-        (Path("data/raw/climate") / "test.txt").write_text("test")
+    def test_ensure_data_available_missing(self, tmp_path):
+        """Test ensure_data_available when data is missing and download fails."""
+        # Ensure no cache file exists
+        cache_file = Path("data/raw/clo_migratory_list.csv")
+        if cache_file.exists():
+            cache_file.unlink()
         
-        assert check_real_data_available() is True
-
-    def test_ensure_data_available_production_no_data(self):
-        """Test production mode with no data should exit."""
-        # Clear any existing data
-        for f in Path("data/raw/ebird").glob("*"):
-            f.unlink()
-        for f in Path("data/raw/climate").glob("*"):
-            f.unlink()
-        
-        with pytest.raises(SystemExit) as exc_info:
-            ensure_data_available(mode="production")
-        
-        assert exc_info.value.code == 1
-
-    def test_ensure_data_available_development_no_data(self):
-        """Test development mode with no data generates synthetic."""
-        # Clear any existing data
-        for f in Path("data/raw/ebird").glob("*"):
-            f.unlink()
-        for f in Path("data/raw/climate").glob("*"):
-            f.unlink()
-        
-        result = ensure_data_available(mode="development")
-        
-        assert result["mode"] == "development"
-        assert result["ebird_path"] is not None
-        assert result["climate_path"] is not None
-        assert len(result["checksums"]) > 0
-        
-        # Verify files were created
-        assert Path(result["ebird_path"]).exists()
-        assert Path(result["climate_path"]).exists()
-
-    def test_run_download_pipeline_development(self):
-        """Test running the full download pipeline in development mode."""
-        # Clear any existing data
-        for f in Path("data/raw/ebird").glob("*"):
-            f.unlink()
-        for f in Path("data/raw/climate").glob("*"):
-            f.unlink()
-        
-        result = run_download_pipeline(mode="development")
-        
-        assert result["mode"] == "development"
-        assert Path(result["ebird_path"]).exists()
-        assert Path(result["climate_path"]).exists()
+        with patch('src.data.download.get_clo_migratory_list') as mock_get:
+            mock_get.side_effect = RuntimeError("Download failed")
+            result = ensure_data_available()
+            assert result is False

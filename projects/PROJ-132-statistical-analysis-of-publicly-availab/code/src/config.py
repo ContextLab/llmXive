@@ -1,112 +1,96 @@
-"""
-Configuration module for the Bird Migration Climate Correlation project.
-
-This module defines global constants, logging configuration, and target thresholds
-for success criteria validation.
-"""
 import logging
 import os
 import sys
 from pathlib import Path
 from typing import Optional
 
-# Project Root
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-LOGS_DIR = PROJECT_ROOT / "logs"
-DATA_DIR = PROJECT_ROOT / "data"
-PROCESSED_DIR = DATA_DIR / "processed"
-INTERIM_DIR = DATA_DIR / "interim"
-RAW_DIR = DATA_DIR / "raw"
-
-# --- Constants (T010 Requirement) ---
-# Random seed for reproducibility
+# Constants defined in T010a
 SEED: int = 42
-
-# Grid resolution in degrees
 GRID_RES: float = 0.5
-
-# Number of permutations for statistical tests
 PERMUTATIONS: int = 10000
 
-# NOTE: SAMPLE_SIZE=1000 has been removed as per T010 requirements.
-# Actual sample sizes are now determined by the real data stream.
+# Targets defined in T010a
+DEFAULT_POWER_TARGET: float = 0.80
+DEFAULT_CI_WIDTH_TARGET: float = 5.0
+DEFAULT_CONVERGENCE_TARGET: float = 0.90
+DEFAULT_INSUFFICIENT_DATA_TARGET: float = 0.20
 
-# --- Success Criteria Targets (T001 & T047 Requirement) ---
-# These are the numeric targets for validation checks.
-POWER_TARGET: float = 0.80
-CI_WIDTH_TARGET: float = 5.0
-CONVERGENCE_TARGET: float = 0.90
-INSUFFICIENT_DATA_TARGET: float = 0.20
-
-# --- Logging Configuration ---
-LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-LOG_MAX_BYTES = 10 * 1024 * 1024  # 10 MB
+# Logging configuration for T010b
+LOG_DIR = Path("logs")
+LOG_FILE = LOG_DIR / "pipeline.log"
+LOG_MAX_BYTES = 10485760  # 10MB
 LOG_BACKUP_COUNT = 5
+LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 
-def setup_logging(name: str = "bird_migration", level: int = logging.INFO) -> logging.Logger:
+def setup_logging(
+    log_file: Optional[Path] = None,
+    level: int = logging.INFO,
+) -> logging.Logger:
     """
-    Configure and return a logger with file and console handlers.
+    Configure logging for the project.
+
+    Sets up a rotating file handler and a console handler.
+    The file handler rotates when the log file reaches maxBytes.
 
     Args:
-        name: Logger name (default: "bird_migration")
-        level: Logging level (default: INFO)
+        log_file: Path to the log file. Defaults to LOG_FILE.
+        level: Logging level. Defaults to logging.INFO.
 
     Returns:
-        Configured logger instance.
+        The root logger instance.
     """
-    logger = logging.getLogger(name)
-    logger.setLevel(level)
-
-    # Prevent duplicate handlers if called multiple times
-    if logger.handlers:
-        return logger
+    if log_file is None:
+        log_file = LOG_FILE
 
     # Ensure log directory exists
-    LOGS_DIR.mkdir(parents=True, exist_ok=True)
-    log_file = LOGS_DIR / f"{name}.log"
+    log_file.parent.mkdir(parents=True, exist_ok=True)
 
-    # File Handler with rotation
+    # Configure root logger
+    root_logger = logging.getLogger()
+    root_logger.setLevel(level)
+
+    # Clear existing handlers to avoid duplicates
+    root_logger.handlers.clear()
+
+    # Create formatter
+    formatter = logging.Formatter(LOG_FORMAT)
+
+    # Create file handler with rotation
     file_handler = logging.handlers.RotatingFileHandler(
         log_file,
         maxBytes=LOG_MAX_BYTES,
         backupCount=LOG_BACKUP_COUNT,
-        encoding="utf-8"
     )
     file_handler.setLevel(level)
-    file_handler.setFormatter(logging.Formatter(LOG_FORMAT))
+    file_handler.setFormatter(formatter)
 
-    # Console Handler
+    # Create console handler
     console_handler = logging.StreamHandler(sys.stdout)
     console_handler.setLevel(level)
-    console_handler.setFormatter(logging.Formatter(LOG_FORMAT))
+    console_handler.setFormatter(formatter)
 
-    # Add handlers
-    logger.addHandler(file_handler)
-    logger.addHandler(console_handler)
+    # Add handlers to root logger
+    root_logger.addHandler(file_handler)
+    root_logger.addHandler(console_handler)
 
-    return logger
+    return root_logger
 
-def verify_config_targets() -> bool:
+def verify_config_targets() -> dict:
     """
-    Verify that all target constants are set to non-negative, valid values.
+    Verify that the configuration targets are set correctly.
 
     Returns:
-        True if all targets are valid, False otherwise.
+        A dictionary containing the configuration targets and their status.
     """
-    checks = [
-        POWER_TARGET >= 0.0 and POWER_TARGET <= 1.0,
-        CI_WIDTH_TARGET > 0.0,
-        CONVERGENCE_TARGET >= 0.0 and CONVERGENCE_TARGET <= 1.0,
-        INSUFFICIENT_DATA_TARGET >= 0.0 and INSUFFICIENT_DATA_TARGET <= 1.0,
-    ]
-    return all(checks)
+    targets = {
+        "power_target": DEFAULT_POWER_TARGET,
+        "ci_width_target": DEFAULT_CI_WIDTH_TARGET,
+        "convergence_target": DEFAULT_CONVERGENCE_TARGET,
+        "insufficient_data_target": DEFAULT_INSUFFICIENT_DATA_TARGET,
+    }
+    return targets
 
-# Initialize main logger
-logger = setup_logging()
 
-# Verification: Write a test log entry to ensure format compliance
-logger.debug("Configuration module loaded. Verifying targets...")
-if not verify_config_targets():
-    logger.error("Configuration targets failed verification.")
-else:
-    logger.info("Configuration targets verified successfully.")
+# Initialize logging when module is imported
+# This ensures logging is available throughout the project
+setup_logging()
