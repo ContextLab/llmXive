@@ -9,7 +9,7 @@
 
 ### User Story 1 - Generate and Validate Prime Sieve Data (Priority: P1)
 
-The researcher needs a computationally efficient, memory-safe method to generate all prime numbers up to $10^9$ to serve as the basis for factorization, ensuring the pipeline runs within the 7 GB RAM and 6-hour CPU constraints of the CI environment. This stage is allocated a maximum of 120 minutes; the output is treated as a pre-computed artifact for subsequent stages.
+The researcher needs a computationally efficient, memory-safe method to generate all prime numbers up to $10^9$ to serve as the basis for factorization, ensuring the pipeline runs within the available RAM and CPU time constraints of the CI environment. This stage is allocated a maximum of 120 minutes; the output is treated as a pre-computed artifact for subsequent stages.
 
 **Why this priority**: Without a reliable prime list, the core factorization logic cannot execute. This is the foundational data layer; if the sieve fails or exceeds memory, the entire project halts.
 
@@ -17,7 +17,7 @@ The researcher needs a computationally efficient, memory-safe method to generate
 
 **Acceptance Scenarios**:
 
-1. **Given** a standard GitHub Actions runner with 2 CPU cores and 7 GB RAM, **When** the segmented sieve script executes to generate primes up to $10^9$, **Then** the script completes within 120 minutes and outputs a file containing a large number of primes.
+1. **Given** a standard GitHub Actions runner with CPU cores and 7 GB RAM, **When** the segmented sieve script executes to generate primes up to $10^9$, **Then** the script completes within 120 minutes and outputs a file containing a large number of primes.
 2. **Given** the generated prime list, **When** a random subset of primes is sampled, **Then** every sampled number is confirmed to be prime (no composites) and no duplicates exist in the list.
 
 ---
@@ -52,7 +52,7 @@ The researcher needs to fit a power-law model to the observed density data, perf
 
 ### Edge Cases
 
-- **What happens when** an interval $[x, x+h]$ contains no $y$-smooth numbers? The system must record a density of 0.0 and not crash during division or statistical aggregation.
+- **What happens when** an interval $[x, x+h]$ contains no $y$-smooth numbers? The system must record a non-zero density. and not crash during division or statistical aggregation.
 - **How does the system handle** the boundary condition where $x+h$ exceeds $10^9$ (if the grid definition allows)? The system must clamp $x+h$ to the maximum supported limit ($10^9$) or skip the configuration if the prime sieve does not extend that far, logging a warning.
 - **What happens when** the factorization of a number requires a prime larger than $y$ but smaller than the number itself? The system must correctly identify the number as *not* $y$-smooth and increment the non-smooth count.
 
@@ -60,9 +60,9 @@ The researcher needs to fit a power-law model to the observed density data, perf
 
 ### Functional Requirements
 
-- **FR-001**: The system MUST implement a segmented sieve of Eratosthenes to generate all primes up to $10^9$ using a memory footprint not exceeding 4 GB (See US-1).
+- **FR-001**: The system MUST implement a segmented sieve of Eratosthenes to generate all primes up to $10^9$ using a memory footprint within reasonable system constraints (See US-1).
 - **FR-002**: The system MUST factorize every integer in a defined interval $[x, x+h]$ using trial division against the subset of the prime list ≤ y to determine $y$-smoothness (See US-2).
-- **FR-003**: The system MUST compute the density $\rho = \text{count} / h$ for each interval and aggregate results across 50 random starting positions per parameter configuration (See US-2).
+- **FR-003**: The system MUST compute the density $\rho = \text{count} / h$ for each interval and aggregate results across multiple random starting positions per parameter configuration (See US-2).
 - **FR-004**: The system MUST fit a power-law model $\rho(h) = c \cdot h^\beta$ to the aggregated density data using ordinary least squares regression (See US-3).
 - **FR-005**: The system MUST perform a Chi-Square Goodness-of-Fit test comparing the observed counts of smooth numbers against the expected counts derived from the Dickman function for each $y$-group (See US-3).
 - **FR-006**: The system MUST generate a visualization containing density vs. interval length curves with 95% confidence intervals for each $y$-value, saving the output as a PNG file (See US-3).

@@ -1,43 +1,41 @@
-# Python
+# Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
-*.so
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
+
+# Virtual environments
+.venv/
 venv/
+ENV/
+env/
+
+# Distribution / packaging
+build/
+dist/
 *.egg-info/
-.installed.cfg
 *.egg
-MANIFEST
+
+# Data files (generated)
+data/*.csv
+data/*.json
+data/*.png
+data/*.h5
+figures/
+
+# Logs
+*.log
 
 # IDE
 .idea/
 .vscode/
 *.swp
 *.swo
-*~
-
-# Data and State (large files)
-data/*.csv
-data/*.json
-data/*.png
-state/*.pkl
-state/*.json
-
-# Logs
-*.log
-.logs/
 
 # OS
 .DS_Store
 Thumbs.db
+
+# CI/CD artifacts
+.coverage
+htmlcov/
+.pytest_cache/

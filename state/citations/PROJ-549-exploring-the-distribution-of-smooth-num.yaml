@@ -1,1 +1,11 @@
-[]
+- artifact_hash: 95db21236d8d63f7a5cd50749a7b17e960fe2b8e0ac4d5b04c154b82a66f294a
+  artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://oeis.org/A006880
+  verification_status: pending
+  verified_against_url: https://oeis.org/A006880
+  verified_at: '2026-08-07T09:09:50.986798Z'

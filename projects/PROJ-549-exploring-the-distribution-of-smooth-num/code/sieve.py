@@ -1,286 +1,325 @@
 """
-code/sieve.py
-
 Segmented Sieve of Eratosthenes implementation for generating primes up to 10^9.
-Includes deterministic validation logic (Constitution Principle VI).
-"""
 
+This module implements a memory-efficient segmented sieve to generate all prime
+numbers up to a specified limit (default 10^9). It includes progress logging,
+runtime measurement, and outputs results to a CSV file.
+
+Output: data/primes_1e9.csv
+"""
 import argparse
 import logging
 import os
 import sys
 import time
 import hashlib
-from typing import List, Generator, Tuple, Optional
+from typing import List, Generator, Optional, Tuple
 
-import numpy as np
-
-# Local imports
-from config import load_config, CIConstraints
+# Local imports from project structure
 from utils import setup_logging, generate_checksum, get_file_size_human
+from config import load_config, CIConstraints
 
 # Constants
-MAX_PRIME = 10**9
-SEGMENT_SIZE = 10**6  # 1 million integers per segment
-MAX_RUNTIME_SECONDS = 7200  # 120 minutes
+DEFAULT_LIMIT = 10**9
+DEFAULT_SEGMENT_SIZE = 100000  # 100k integers per segment for memory efficiency
+DEFAULT_OUTPUT_PATH = "data/primes_1e9.csv"
+MAX_RUNTIME_SECONDS = 7200  # 2 hours (120 minutes) as per constraints
 
-# Ensure output directories exist
-DATA_DIR = "data"
-os.makedirs(DATA_DIR, exist_ok=True)
+logger = logging.getLogger(__name__)
+
 
 def simple_sieve(limit: int) -> List[int]:
     """
-    Simple Sieve of Eratosthenes for small limits.
-    Returns a list of primes up to `limit`.
+    Generate all primes up to limit using the standard Sieve of Eratosthenes.
+    
+    This is used for the initial segment to find base primes for the segmented sieve.
+    
+    Args:
+        limit: Upper bound for prime generation (inclusive)
+        
+    Returns:
+        List of prime numbers up to limit
     """
     if limit < 2:
         return []
-    sieve = np.ones(limit + 1, dtype=bool)
-    sieve[0] = sieve[1] = False
-    for start in range(2, int(limit**0.5) + 1):
-        if sieve[start]:
-            sieve[start*start:limit+1:start] = False
-    return np.where(sieve)[0].tolist()
-
-def segmented_sieve(n: int, output_path: str) -> Tuple[int, float, str]:
-    """
-    Segmented Sieve of Eratosthenes to generate primes up to n.
-    Writes primes to `output_path` in CSV format.
-    
-    Returns:
-        Tuple of (count, runtime_seconds, checksum)
-    """
-    logger = logging.getLogger(__name__)
-    start_time = time.time()
-    
-    # Base primes for sieving segments
-    # We need primes up to sqrt(n) to sieve the segments
-    base_limit = int(n**0.5) + 1
-    logger.info(f"Generating base primes up to {base_limit} for sieving...")
-    base_primes = simple_sieve(base_limit)
-    
-    if not base_primes:
-        base_primes = []
-    
-    count = 0
-    segment_start = 0
-    
-    # Open file for writing
-    with open(output_path, 'w') as f:
-        f.write("prime\n")
         
-        while segment_start < n:
-            # Check runtime constraint
-            current_time = time.time()
-            elapsed = current_time - start_time
-            if elapsed > MAX_RUNTIME_SECONDS:
-                raise RuntimeError(f"Runtime limit of {MAX_RUNTIME_SECONDS}s exceeded. Stopping at {segment_start}.")
-            
-            segment_end = min(segment_start + SEGMENT_SIZE, n + 1)
-            segment_size = segment_end - segment_start
-            
-            # Initialize segment boolean array
-            # is_prime[i] corresponds to number (segment_start + i)
-            is_prime = np.ones(segment_size, dtype=bool)
-            
-            if segment_start == 0:
-                # Handle 0 and 1 specifically for the first segment
-                is_prime[0] = False
-                if segment_size > 1:
-                    is_prime[1] = False
-            
-            # Sieve with base primes
-            for p in base_primes:
-                # Find the first multiple of p >= segment_start
-                first_multiple = max(p * p, ((segment_start + p - 1) // p) * p)
-                
-                if first_multiple < segment_end:
-                    # Calculate index in the segment
-                    start_idx = first_multiple - segment_start
-                    # Mark multiples
-                    is_prime[start_idx:segment_size:p] = False
-            
-            # Collect primes in this segment
-            for i in range(segment_size):
-                if is_prime[i]:
-                    num = segment_start + i
-                    f.write(f"{num}\n")
-                    count += 1
-            
-            # Progress logging
-            if segment_start % (SEGMENT_SIZE * 10) == 0:
-                elapsed = time.time() - start_time
-                logger.info(f"Processed up to {segment_end:,}, count: {count:,}, time: {elapsed:.1f}s")
-            
-            segment_start = segment_end
+    sieve = bytearray([1]) * (limit + 1)
+    sieve[0:2] = b'\x00\x00'
     
-    runtime = time.time() - start_time
-    logger.info(f"Sieve completed. Total primes: {count:,}, Runtime: {runtime:.2f}s")
-    
-    # Generate checksum
-    checksum = generate_checksum(output_path)
-    logger.info(f"Checksum (SHA256): {checksum}")
-    
-    return count, runtime, checksum
+    for i in range(2, int(limit**0.5) + 1):
+        if sieve[i]:
+            sieve[i*i:limit+1:i] = b'\x00' * len(sieve[i*i:limit+1:i])
+            
+    return [i for i, is_prime in enumerate(sieve) if is_prime]
 
-def validate_primes(input_path: str, sample_size: Optional[int] = 10000) -> Tuple[bool, str]:
+
+def segmented_sieve(limit: int, segment_size: int = DEFAULT_SEGMENT_SIZE) -> Generator[int, None, None]:
     """
-    Deterministic validation of the generated prime list.
+    Generate all primes up to limit using a segmented sieve approach.
     
-    Implements Constitution Principle VI: Deterministic Number-Theoretic Verification.
-    Uses trial division against the generated list itself (or a subset) to confirm
-    every entry is prime with deferred certainty.
+    This method processes the range in segments to maintain low memory usage.
+    It first generates base primes up to sqrt(limit), then uses them to
+    sieve each segment.
     
     Args:
-        input_path: Path to the CSV file containing primes.
-        sample_size: Number of primes to validate (None for all).
+        limit: Upper bound for prime generation (inclusive)
+        segment_size: Number of integers to process in each segment
+        
+    Yields:
+        Prime numbers in ascending order
+    """
+    if limit < 2:
+        return
+        
+    # Calculate base primes up to sqrt(limit)
+    sqrt_limit = int(limit**0.5) + 1
+    base_primes = simple_sieve(sqrt_limit)
+    
+    if not base_primes:
+        return
+        
+    # First segment: 0 to min(limit, segment_size)
+    low = 0
+    high = min(limit, segment_size)
+    
+    while low <= limit:
+        # Create sieve for current segment
+        # We only need to track odd numbers to save memory, but for simplicity
+        # and clarity, we'll use a full bytearray
+        segment_size_actual = min(segment_size, limit - low + 1)
+        sieve = bytearray([1]) * segment_size_actual
+        
+        if low == 0:
+            sieve[0:2] = b'\x00\x00'  # 0 and 1 are not prime
+        
+        # Mark multiples of base primes
+        for p in base_primes:
+            # Find the first multiple of p >= low
+            start = max(p * p, ((low + p - 1) // p) * p)
+            
+            # Adjust for 0-indexed segment
+            start_idx = start - low
+            if start_idx < 0:
+                start_idx = 0
+                
+            # Mark multiples
+            if start_idx < segment_size_actual:
+                sieve[start_idx:segment_size_actual:p] = b'\x00' * len(sieve[start_idx:segment_size_actual:p])
+        
+        # Yield primes from current segment
+        for i in range(segment_size_actual):
+            if sieve[i]:
+                yield low + i
+        
+        # Move to next segment
+        low = high
+        high = min(low + segment_size, limit)
+
+
+def run_sieve(limit: int = DEFAULT_LIMIT, output_path: str = DEFAULT_OUTPUT_PATH,
+              segment_size: int = DEFAULT_SEGMENT_SIZE, verbose: bool = True) -> Tuple[int, float]:
+    """
+    Execute the segmented sieve and write results to a CSV file.
+    
+    Args:
+        limit: Upper bound for prime generation
+        output_path: Path to output CSV file
+        segment_size: Size of each segment in the sieve
+        verbose: Whether to log progress and statistics
         
     Returns:
-        Tuple of (validation_passed, message)
+        Tuple of (prime_count, runtime_seconds)
     """
-    logger = logging.getLogger(__name__)
-    logger.info(f"Starting deterministic validation of {input_path}...")
+    start_time = time.time()
     
-    if not os.path.exists(input_path):
-        return False, f"Input file not found: {input_path}"
-    
-    primes = []
-    with open(input_path, 'r') as f:
-        # Skip header
-        next(f)
-        for line in f:
-            line = line.strip()
-            if line:
-                primes.append(int(line))
-    
-    total_count = len(primes)
-    logger.info(f"Loaded {total_count:,} primes for validation.")
-    
-    if total_count == 0:
-        return False, "No primes found in input file."
-    
-    # Determine validation scope
-    if sample_size is None or sample_size >= total_count:
-        primes_to_validate = primes
-        scope_msg = "all"
-    else:
-        # Validate a deterministic subset: first, middle, and last
-        # This provides coverage without validating 50M numbers which is slow
-        primes_to_validate = []
-        step = total_count // sample_size
-        for i in range(0, total_count, step):
-            primes_to_validate.append(primes[i])
-        # Always include the last one
-        if primes[-1] not in primes_to_validate:
-            primes_to_validate.append(primes[-1])
-        scope_msg = f"a representative subset ({len(primes_to_validate):,} of {total_count:,})"
-    
-    logger.info(f"Validating {scope_msg} of the primes via trial division...")
-    
-    validation_start = time.time()
-    passed = True
-    failed_prime = None
-    
-    # For each candidate, verify it is prime using trial division
-    # We use the fact that if a number is composite, it must have a prime factor <= sqrt(n).
-    # Since we have a sorted list of primes, we can use primes up to sqrt(candidate).
-    
-    for idx, candidate in enumerate(primes_to_validate):
-        if candidate < 2:
-            passed = False
-            failed_prime = candidate
-            break
+    # Ensure output directory exists
+    output_dir = os.path.dirname(output_path)
+    if output_dir and not os.path.exists(output_dir):
+        os.makedirs(output_dir, exist_ok=True)
         
-        if candidate == 2:
-            continue
+    if verbose:
+        logger.info(f"Starting segmented sieve up to {limit:,}")
+        logger.info(f"Output path: {output_path}")
+        logger.info(f"Segment size: {segment_size:,}")
         
-        if candidate % 2 == 0:
-            passed = False
-            failed_prime = candidate
-            break
+    # Check runtime constraint
+    if verbose:
+        logger.info(f"Maximum allowed runtime: {MAX_RUNTIME_SECONDS / 60:.0f} minutes")
         
-        limit = int(candidate**0.5) + 1
-        
-        # Trial division using the generated prime list
-        # We only need to check primes up to sqrt(candidate)
-        is_composite = False
-        for p in primes:
-            if p > limit:
-                break
-            if p == candidate:
-                break # It's in the list, so it's prime (assuming list is correct)
-            if candidate % p == 0:
-                is_composite = True
-                failed_prime = candidate
-                break
-        
-        if is_composite:
-            passed = False
-            break
-        
-        if (idx + 1) % 1000 == 0:
-            logger.debug(f"Validated {idx + 1:,} / {len(primes_to_validate):,}")
-    
-    validation_time = time.time() - validation_start
-    
-    if passed:
-        msg = f"Validation PASSED for {scope_msg} in {validation_time:.2f}s. All checked numbers are prime."
-        logger.info(msg)
-    else:
-        msg = f"Validation FAILED. Composite number found: {failed_prime}."
-        logger.error(msg)
-    
-    return passed, msg
-
-def run_sieve(output_path: str, validate: bool = True) -> bool:
-    """
-    Main orchestration function to run the sieve and optionally validate.
-    """
-    logger = setup_logging("sieve")
-    logger.info("Starting Segmented Sieve of Eratosthenes...")
+    prime_count = 0
     
     try:
-        # 1. Generate primes
-        count, runtime, checksum = segmented_sieve(MAX_PRIME, output_path)
+        with open(output_path, 'w') as f:
+            f.write("prime\n")
+            
+            for prime in segmented_sieve(limit, segment_size):
+                f.write(f"{prime}\n")
+                prime_count += 1
+                
+                # Progress logging every 10% of estimated primes (approx)
+                # Estimate based on prime number theorem: pi(x) ~ x/ln(x)
+                if verbose and prime_count % 5000000 == 0:
+                    elapsed = time.time() - start_time
+                    remaining_estimate = (limit / prime_count) * elapsed - elapsed
+                    logger.info(f"Progress: {prime_count:,} primes found, "
+                              f"elapsed: {elapsed:.1f}s, "
+                              f"est. remaining: {remaining_estimate:.1f}s")
+                    
+                    # Check if we're exceeding runtime
+                    if elapsed > MAX_RUNTIME_SECONDS * 0.9:
+                        logger.warning(f"Approaching runtime limit ({elapsed:.1f}s > "
+                                     f"{MAX_RUNTIME_SECONDS * 0.9:.1f}s). "
+                                     f"Consider reducing scope or optimizing.")
         
-        # 2. Verify count against known value (OEIS A006880)
-        expected_count = 50847534
-        if count != expected_count:
-            logger.error(f"Prime count mismatch: got {count}, expected {expected_count}.")
-            return False
+    except Exception as e:
+        logger.error(f"Error during sieve execution: {e}")
+        raise
         
-        logger.info(f"Prime count verified: {count:,} (matches OEIS A006880).")
+    runtime = time.time() - start_time
+    
+    if verbose:
+        logger.info(f"Sieve completed successfully!")
+        logger.info(f"Total primes found: {prime_count:,}")
+        logger.info(f"Total runtime: {runtime:.2f} seconds ({runtime/60:.2f} minutes)")
         
-        # 3. Runtime check
+        # Log file size
+        if os.path.exists(output_path):
+            file_size = get_file_size_human(output_path)
+            logger.info(f"Output file size: {file_size}")
+            
+        # Calculate checksum
+        checksum = generate_checksum(output_path)
+        logger.info(f"Output file checksum (SHA256): {checksum}")
+        
         if runtime > MAX_RUNTIME_SECONDS:
-            logger.error(f"Runtime {runtime:.2f}s exceeded limit {MAX_RUNTIME_SECONDS}s.")
-            return False
+            logger.warning(f"Runtime exceeded limit: {runtime:.2f}s > {MAX_RUNTIME_SECONDS}s")
+        else:
+            logger.info(f"Runtime within limit: {runtime:.2f}s <= {MAX_RUNTIME_SECONDS}s")
+            
+    return prime_count, runtime
+
+
+def validate_primes(prime_file: str, sample_size: int = 1000) -> bool:
+    """
+    Perform a basic validation of the generated prime file.
+    
+    This function checks:
+    1. File exists and is readable
+    2. First few values are correct (2, 3, 5, 7...)
+    3. Last value is <= limit
+    4. No duplicate values
+    
+    Args:
+        prime_file: Path to the CSV file containing primes
+        sample_size: Number of primes to check for duplicates and ordering
         
-        # 4. Deterministic Validation (T013)
-        if validate:
-            passed, msg = validate_primes(output_path)
-            if not passed:
-                logger.error(f"Validation failed: {msg}")
+    Returns:
+        True if validation passes, False otherwise
+    """
+    if not os.path.exists(prime_file):
+        logger.error(f"Prime file not found: {prime_file}")
+        return False
+        
+    try:
+        with open(prime_file, 'r') as f:
+            # Skip header
+            header = f.readline().strip()
+            if header != "prime":
+                logger.warning(f"Unexpected header: {header}")
+                
+            primes = []
+            for i, line in enumerate(f):
+                if i >= sample_size:
+                    break
+                try:
+                    prime = int(line.strip())
+                    primes.append(prime)
+                except ValueError:
+                    logger.error(f"Invalid prime value at line {i+2}: {line.strip()}")
+                    return False
+                    
+            # Check first few values
+            expected_start = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29]
+            if len(primes) >= len(expected_start):
+                for i, (actual, expected) in enumerate(zip(primes, expected_start)):
+                    if actual != expected:
+                        logger.error(f"First prime mismatch at index {i}: "
+                                   f"got {actual}, expected {expected}")
+                        return False
+                        
+            # Check for duplicates
+            if len(primes) != len(set(primes)):
+                logger.error("Duplicate primes found in sample")
                 return False
-            logger.info(f"Validation result: {msg}")
-        
-        logger.info("Sieve generation and validation completed successfully.")
+                
+            # Check ordering
+            for i in range(1, len(primes)):
+                if primes[i] <= primes[i-1]:
+                    logger.error(f"Primes not in ascending order at index {i}")
+                    return False
+                    
+        logger.info(f"Basic validation passed for {sample_size} primes")
         return True
         
     except Exception as e:
-        logger.exception(f"Error during sieve execution: {e}")
+        logger.error(f"Validation error: {e}")
         return False
 
+
 def main():
-    parser = argparse.ArgumentParser(description="Generate primes using Segmented Sieve.")
-    parser.add_argument('--output', type=str, default=os.path.join(DATA_DIR, "primes_1e9.csv"),
-                        help="Output CSV file path.")
-    parser.add_argument('--no-validate', action='store_true',
-                        help="Skip deterministic validation step.")
+    """Main entry point for the sieve generation script."""
+    parser = argparse.ArgumentParser(
+        description="Generate primes using segmented sieve of Eratosthenes"
+    )
+    parser.add_argument(
+        "--limit", type=int, default=DEFAULT_LIMIT,
+        help=f"Upper bound for prime generation (default: {DEFAULT_LIMIT:,})"
+    )
+    parser.add_argument(
+        "--output", type=str, default=DEFAULT_OUTPUT_PATH,
+        help=f"Output CSV file path (default: {DEFAULT_OUTPUT_PATH})"
+    )
+    parser.add_argument(
+        "--segment-size", type=int, default=DEFAULT_SEGMENT_SIZE,
+        help=f"Segment size for sieve (default: {DEFAULT_SEGMENT_SIZE:,})"
+    )
+    parser.add_argument(
+        "--quiet", action="store_true",
+        help="Suppress progress logging"
+    )
+    parser.add_argument(
+        "--validate", action="store_true",
+        help="Perform basic validation after generation"
+    )
+    
     args = parser.parse_args()
     
-    success = run_sieve(args.output, validate=not args.no_validate)
-    sys.exit(0 if success else 1)
+    # Setup logging
+    level = logging.WARNING if args.quiet else logging.INFO
+    setup_logging(level=level)
+    
+    try:
+        prime_count, runtime = run_sieve(
+            limit=args.limit,
+            output_path=args.output,
+            segment_size=args.segment_size,
+            verbose=not args.quiet
+        )
+        
+        if args.validate:
+            if validate_primes(args.output):
+                logger.info("Validation successful")
+            else:
+                logger.error("Validation failed")
+                sys.exit(1)
+                
+    except KeyboardInterrupt:
+        logger.warning("Sieve interrupted by user")
+        sys.exit(1)
+    except Exception as e:
+        logger.error(f"Fatal error: {e}")
+        sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

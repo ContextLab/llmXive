@@ -4,10 +4,6 @@ Main entry point for the Smooth Numbers Distribution Project.
 This module provides a CLI interface to trigger:
 1. Segmented sieve generation (US1)
 2. Smoothness density analysis across parameter grids (US2)
-
-Usage:
-    python code/main.py sieve [--output <path>] [--limit <int>]
-    python code/main.py analyze [--config <path>]
 """
 
 import argparse
@@ -17,7 +13,7 @@ from typing import Optional
 
 from config import load_config
 from sieve import run_sieve
-from smoothness import run_smoothness_analysis
+from smoothness import run_smoothness_analysis, parse_args as smoothness_parse_args
 from utils import setup_logging
 
 
@@ -69,11 +65,18 @@ def parse_args() -> argparse.Namespace:
         help="Path to the validated primes CSV (default: from config).",
     )
     analyze_parser.add_argument(
-        "--output",
+        "--output-spec",
         type=str,
         default=None,
-        help="Output CSV path for density measurements (default: from config).",
+        help="Output CSV path for Spec grid density measurements (default: from config).",
     )
+    analyze_parser.add_argument(
+        "--output-plan",
+        type=str,
+        default=None,
+        help="Output CSV path for Plan grid density measurements (default: from config).",
+    )
+
     analyze_parser.add_argument(
         "--log-level",
         type=str,
@@ -143,20 +146,23 @@ def main() -> int:
 
         # Override config with CLI args if provided
         primes_path = args.primes_path if args.primes_path is not None else config.paths.get("primes_input", "data/primes_1e9.csv")
-        output_path = args.output if args.output is not None else config.paths.get("density_output", "data/density_measurements.csv")
+        output_spec_path = args.output_spec if args.output_spec is not None else config.paths.get("density_output_spec", "data/density_measurements_spec.csv")
+        output_plan_path = args.output_plan if args.output_plan is not None else config.paths.get("density_output_plan", "data/density_measurements_plan.csv")
 
         logger.info(f"Using primes from: {primes_path}")
-        logger.info(f"Output path: {output_path}")
+        logger.info(f"Output path (Spec): {output_spec_path}")
+        logger.info(f"Output path (Plan): {output_plan_path}")
 
         try:
             success = run_smoothness_analysis(
                 primes_path=primes_path,
-                output_path=output_path,
+                output_spec_path=output_spec_path,
+                output_plan_path=output_plan_path,
                 logger=logger
             )
 
             if success:
-                logger.info(f"Analysis completed successfully. Results saved to {output_path}")
+                logger.info("Analysis completed successfully.")
                 return 0
             else:
                 logger.error("Analysis failed.")

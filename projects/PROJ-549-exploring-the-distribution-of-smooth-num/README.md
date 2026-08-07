@@ -1,26 +1,19 @@
-# PROJ-549: Exploring the Distribution of Smooth Numbers in Short Intervals
+# PROJ-549: Exploring the Distribution of Smooth Numbers
 
-## Project Structure
+This project implements the automated science pipeline for analyzing the distribution of smooth numbers in short intervals.
 
-This project follows the standard llmXive research pipeline structure:
+## Directory Structure
 
-- `code/`: Python source modules for sieve generation, smoothness checking, and statistical analysis.
-- `data/`: Output artifacts including prime lists, density measurements, and model fit results.
-- `tests/`: Unit and integration tests for the research pipeline.
-- `state/`: Checkpoint files for resuming long-running computations.
+- `code/`: Source code for algorithms, analysis, and visualization.
+- `data/`: Generated datasets, intermediate results, and final outputs.
+- `tests/`: Unit and integration tests for the codebase.
+- `state/`: Checkpoints and state files for long-running processes.
 
-## Setup
+## Prerequisites
 
-1. Ensure Python 3.11+ is installed.
-2. Install dependencies:
- ```bash
- pip install -r requirements.txt
- ```
-3. Run the pipeline via `python code/main.py`.
+- Python 3.11+
+- `numpy`, `scipy`, `matplotlib`, `pytest` (see `requirements.txt` in root)
 
-## Execution Order
+## Usage
 
-1. **T012**: Generate primes up to $10^9$ (`data/primes_1e9.csv`).
-2. **T013**: Validate the prime list.
-3. **T023**: Compute density measurements across the parameter grid.
-4. **T029**: Perform statistical analysis and visualization.
+See the root `quickstart.md` for execution instructions.

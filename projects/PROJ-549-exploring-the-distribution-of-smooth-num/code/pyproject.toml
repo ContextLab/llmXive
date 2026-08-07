@@ -1,21 +1,25 @@
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
+requires = ["setuptools>=45", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "smooth-numbers-analysis"
+name = "llmxive-smooth-numbers"
 version = "0.1.0"
-description = "Analysis of smooth number distribution in short intervals"
+description = "Exploring the distribution of smooth numbers in short intervals"
 requires-python = ">=3.11"
 dependencies = [
-    "numpy",
-    "scipy",
-    "matplotlib",
-    "pytest",
-    "flake8",
-    "black",
-    "pylint"
+    "numpy>=1.24.0",
+    "scipy>=1.10.0",
+    "matplotlib>=3.7.0",
+    "pytest>=7.3.0",
+    "flake8>=6.0.0",
+    "pylint>=2.17.0",
+    "black>=23.3.0",
 ]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["code*"]
 
 [tool.black]
 line-length = 88
@@ -24,28 +28,44 @@ include = '\.pyi?$'
 exclude = '''
 /(
     \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | _build
-  | buck-out
-  | build
-  | dist
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+    | \.eggs
 )/
 '''
-
-[tool.pylint.'MESSAGES CONTROL']
-max-line-length = 88
-disable = [
-    "C0114", # Missing module docstring
-    "C0115", # Missing class docstring
-    "C0116", # Missing function or method docstring
-    "R0903", # Too few public methods
-    "W0511"  # TODO
-]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
+python_functions = ["test_*"]
 addopts = "-v --tb=short"
+filterwarnings = [
+    "ignore::DeprecationWarning",
+    "ignore::PendingDeprecationWarning"
+]
+
+[tool.coverage.run]
+source = ["code"]
+branch = true
+omit = [
+    "*/tests/*",
+    "*/__pycache__/*",
+    "*/.venv/*"
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:"
+]
+show_missing = true
+precision = 2

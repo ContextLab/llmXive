@@ -1,1 +1,1 @@
-# Test package for PROJ-549.
+# Test package initialization

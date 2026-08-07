@@ -1,1 +1,1 @@
-# State directory for intermediate checkpoints and runtime state.
+# This file ensures the state directory exists in version control.

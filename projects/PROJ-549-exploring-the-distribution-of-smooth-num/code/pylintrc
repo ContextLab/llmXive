@@ -1,0 +1,50 @@
+[MAIN]
+jobs=0
+persistent=yes
+score=yes
+load-plugins=
+
+[MESSAGES CONTROL]
+disable=
+    C0111,
+    C0114,
+    C0115,
+    C0116,
+    R0903,
+    R0912,
+    R0914,
+    W0511,
+    W0613,
+    R0801
+
+[DESIGN]
+max-args=10
+max-locals=20
+max-returns=6
+max-branches=15
+max-statements=60
+max-attributes=15
+max-public-methods=20
+
+[FORMAT]
+max-line-length=88
+good-names=i,j,k,x,y,z,h,n,m,df,fp,rc,os,sys,io,ct,dt,dtf,dti,dtm,dtz,dtc,dtf,dti,dtm,dtz,dtc
+ignore-paths=
+    .*/build/.*
+    .*/dist/.*
+    .*/.eggs/.*
+    .*/.*\.egg-info/.*
+
+[TYPECHECK]
+ignored-modules=numpy,scipy,matplotlib
+ignored-classes=ndarray
+
+[BASIC]
+function-rgx=[a-z_][a-z0-9_]{2,}$
+variable-rgx=[a-z_][a-z0-9_]{1,}$
+attr-rgx=[a-z_][a-z0-9_]{2,}$
+argument-rgx=[a-z_][a-z0-9_]{2,}$
+const-rgx=([A-Z_][A-Z0-9_]*)|([a-z][a-z0-9_]*)$
+module-rgx=([a-z_][a-z0-9_]*)$
+method-rgx=[a-z_][a-z0-9_]{2,}$
+no-docstring-rgx=__.*__
