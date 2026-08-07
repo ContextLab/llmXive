@@ -238,3 +238,225 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-07T03:46:47Z'
+- artifact_path: projects/PROJ-962-llmxive-follow-up-extending-qwen-vla-uni/research.md
+  attempts: 1
+  canonical: Qwen-VLA/Hy-Embodied dataset ingested from HuggingFace
+  claim_id: c_a38b284e
+  context: 'The pipeline ingests the Qwen-VLA/Hy-Embodied dataset from HuggingFace.
+    Source: Qwen-VLA/Hy-Embodied'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Qwen-VLA/Hy-Embodied_dataset_ingested_from_HuggingFace
+  kind: entity_fact
+  raw_text: The pipeline ingests the Qwen-VLA/Hy-Embodied dataset from HuggingFace.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T04:11:45Z'
+- artifact_path: projects/PROJ-962-llmxive-follow-up-extending-qwen-vla-uni/research.md
+  attempts: 1
+  canonical: Streaming download used for datasets greater than 7GB
+  claim_id: c_a2790e2b
+  context: 'Method: Streaming download to handle datasets >7GB.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Streaming_download_used_for_datasets_greater_than_7GB
+  kind: magnitude
+  raw_text: The pipeline uses streaming download to handle datasets greater than 7GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T04:12:55Z'
+- artifact_path: projects/PROJ-962-llmxive-follow-up-extending-qwen-vla-uni/research.md
+  attempts: 1
+  canonical: K-means clustering with k=50
+  claim_id: c_2512226f
+  context: 'Initial Attempt: K-means with $k=50$.'
+  evidence:
+    asserted: '50.0'
+    authority: scipy.constants.k (CODATA 2018, exact by SI definition)
+    constant: boltzmann
+    corrected: true
+    mode: approximate
+    true_value: 1.380649e-23
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?k
+  kind: numeric
+  raw_text: The clustering strategy initially attempts K-means with k=50.
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2bfb0d3513311088eea23af05f5f28fc2ef73a6a80811bbb243001626363f07f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-07T04:12:55Z'
+- artifact_path: projects/PROJ-962-llmxive-follow-up-extending-qwen-vla-uni/research.md
+  attempts: 1
+  canonical: Fallback to HAC with Ward linkage
+  claim_id: c_ec1cc1fa
+  context: If no valid K-means configuration is found, switch to HAC with Ward linkage.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fallback_to_HAC_with_Ward_linkage
+  kind: entity_fact
+  raw_text: The pipeline defaults to Hierarchical Agglomerative Clustering with Ward
+    linkage if no valid K-means configuration is found.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T04:13:31Z'
+- artifact_path: projects/PROJ-962-llmxive-follow-up-extending-qwen-vla-uni/research.md
+  attempts: 1
+  canonical: Cluster coverage threshold of 98%
+  claim_id: c_d7b634d2
+  context: Ensure >= 98% of samples are assigned.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Cluster_coverage_threshold_of_98%25
+  kind: magnitude
+  raw_text: The pipeline ensures at least 98% of samples are assigned to clusters.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T04:14:10Z'
+- artifact_path: projects/PROJ-962-llmxive-follow-up-extending-qwen-vla-uni/research.md
+  attempts: 1
+  canonical: Decision Tree and CGMM trained per cluster
+  claim_id: c_0eb5d9e0
+  context: For each cluster, we train two distinct non-neural models... Decision Tree
+    (DT) Regressor... Conditional Gaussian Mixture Model (CGMM).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Decision_Tree_and_CGMM_trained_per_cluster
+  kind: entity_fact
+  raw_text: 'Two non-neural models are trained per cluster: a Decision Tree Regressor
+    and a Conditional Gaussian Mixture Model.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T04:15:04Z'
+- artifact_path: projects/PROJ-962-llmxive-follow-up-extending-qwen-vla-uni/research.md
+  attempts: 1
+  canonical: Model selection by highest R^2
+  claim_id: c_e6164e02
+  context: 'Criterion: Highest R^2 (Coefficient of Determination) on a held-out validation
+    set.'
+  evidence:
+    candidates:
+    - - ''
+      - 500.0
+    - - ''
+      - 2.0
+    ordering_correct: true
+    source_url: https://en.wikipedia.org/wiki/Model_selection_by_highest_R%5E2
+  kind: magnitude
+  raw_text: Model selection is based on the highest R^2 on a held-out validation set.
+  resolved_value: Model selection by highest R^2
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-07T04:15:06Z'
+- artifact_path: projects/PROJ-962-llmxive-follow-up-extending-qwen-vla-uni/research.md
+  attempts: 1
+  canonical: Trajectories executed in PyBullet
+  claim_id: c_6c67beea
+  context: Generated trajectories are executed in a PyBullet simulation environment.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Trajectories_executed_in_PyBullet
+  kind: entity_fact
+  raw_text: Generated trajectories are executed in a PyBullet simulation environment.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T04:16:11Z'
+- artifact_path: projects/PROJ-962-llmxive-follow-up-extending-qwen-vla-uni/research.md
+  attempts: 1
+  canonical: Paired T-Tests using scipy.stats.ttest_rel
+  claim_id: c_744009ad
+  context: 'Test: scipy.stats.ttest_rel on paired success arrays.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Paired_T-Tests_using_scipy.stats.ttest_rel
+  kind: entity_fact
+  raw_text: Statistical comparison uses Paired T-Tests via scipy.stats.ttest_rel.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T04:17:00Z'
+- artifact_path: projects/PROJ-962-llmxive-follow-up-extending-qwen-vla-uni/data/results/success_criteria_checklist.md
+  attempts: 1
+  canonical: Peak RSS memory less than 7GB
+  claim_id: c_927eb671
+  context: 'Evidence: Logs confirm no CUDA devices were detected or utilized. Peak
+    RSS memory < 7GB.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Peak_RSS_memory_less_than_7GB
+  kind: magnitude
+  raw_text: Peak RSS memory < 7GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T04:47:49Z'
+- artifact_path: projects/PROJ-962-llmxive-follow-up-extending-qwen-vla-uni/data/results/success_criteria_checklist.md
+  attempts: 1
+  canonical: peak RSS memory recorded as 4500 MB
+  claim_id: c_e963d848
+  context: 'Evidence: peak_rss_mb recorded as 4500 MB (example value), well within
+    7GB limit.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: peak_rss_mb recorded as 4500 MB
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T04:48:48Z'
+- artifact_path: projects/PROJ-962-llmxive-follow-up-extending-qwen-vla-uni/data/results/success_criteria_checklist.md
+  attempts: 1
+  canonical: 85.4 percent of kinematic features within 5 percent error margin
+  claim_id: c_4150221d
+  context: 'Evidence: Fidelity metric calculated and saved (e.g., 85.4% within 5%
+    error margin).'
+  evidence:
+    asserted: '85.4'
+    authority: scipy.constants.G (CODATA 2018)
+    constant: gravitational
+    corrected: true
+    mode: approximate
+    true_value: 6.6743e-11
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?bg
+  kind: numeric
+  raw_text: Fidelity metric calculated and saved (e.g., 85.4% within 5% error margin)
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 16b9e93ae6af4b3aeb9369d1fe412957a076db9d43662f67d44f3a07c85ec513
+  source_type: external
+  status: verified
+  updated_at: '2026-08-07T04:48:48Z'
