@@ -1,7 +1,6 @@
 """
-Experiment execution and batch processing module.
+Experiment execution scripts.
 """
-
-from batch_executor import BatchExecutor, BatchExecutionStats, GlobalSchedulerError
-
-__all__ = ["BatchExecutor", "BatchExecutionStats", "GlobalSchedulerError"]
+from .run_baseline import main as baseline_main
+from .run_high_fidelity import run_strategy, main as hf_main
+from .batch_executor import BatchExecutor, main as batch_main

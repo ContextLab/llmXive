@@ -5,7 +5,7 @@
 
 ## Summary
 
-This feature implements a rigorous experimental benchmark to quantify the trade-off between context compression fidelity and model scaling (1B vs. 7B parameters) on CPU-only hardware. The system ingests the Claw-SWE-Bench dataset, filters for high-complexity instances (>500 lines of relevant history via import graph traversal), and executes a matrix of experiments: multiple model sizes × 4 context strategies (Naive Baseline, TF-IDF/BM25, Diff-Aware Sliding, Rule-Based Semantic Summarization). Results are analyzed via a Generalized Linear Mixed Model (GLMM) or Firth's GLM to test for interaction effects on Pass@k scores, determining if context optimization can substitute for parameter scaling.
+This feature implements a rigorous experimental benchmark to quantify the trade-off between context compression fidelity and model scaling (1B vs. 7B parameters) on CPU-only hardware. The system ingests the Claw-SWE-Bench dataset, filters for high-complexity instances (>500 lines of relevant history via import graph traversal), and executes a matrix of experiments: multiple model sizes × 4 context strategies (Naive Baseline, TF-IDF/BM25, Diff-Aware Sliding, Rule-Based Semantic Summarization). Results are analyzed via a Generalized Linear Mixed Model (GLMM) or Firth's GLM to test for interaction effects on pass rates, determining if context optimization can substitute for parameter scaling.
 
 ## Technical Context
 

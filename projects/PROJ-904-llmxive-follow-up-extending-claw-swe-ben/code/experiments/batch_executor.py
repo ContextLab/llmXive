@@ -1,247 +1,201 @@
-import time
-import threading
-import concurrent.futures
-import os
-import logging
-from typing import Callable, List, Any, Optional, TypeVar, Tuple
-from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+"""
+Batch Executor for enforcing runtime budgets and timeouts.
 
-from config import set_global_seed
+Implements T016b requirements:
+1. Hard timeout per instance.
+2. Hard total wall-clock duration limit (optional, configurable).
+"""
+import os
+import sys
+import logging
+import time
+import signal
+from typing import Callable, Any, Tuple, Optional
+from dataclasses import dataclass
+from enum import Enum
+from pathlib import Path
+
+# Project root
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(PROJECT_ROOT / "code"))
+
+from config import ExecutionResult
 
 logger = logging.getLogger(__name__)
 
-T = TypeVar('T')
-
-class GlobalSchedulerError(Exception):
-    """Raised when the global scheduler constraints are violated."""
-    pass
+class ExecutionStatus(Enum):
+    SUCCESS = "success"
+    TIMEOUT = "timeout"
+    ERROR = "error"
+    CANCELLED = "cancelled"
 
 @dataclass
-class BatchExecutionStats:
-    """Aggregated statistics for a batch execution run."""
-    total_instances: int = 0
-    successful: int = 0
-    failed: int = 0
-    timed_out: int = 0
-    resource_constrained: int = 0
-    total_wall_time_seconds: float = 0.0
-    avg_instance_time_seconds: float = 0.0
-    start_time: Optional[datetime] = None
-    end_time: Optional[datetime] = None
-    active_workers: int = 0
-    max_workers_used: int = 0
+class BatchExecutionResult:
+    instance_id: str
+    status: ExecutionStatus
+    result: Optional[Any] = None
+    error_message: Optional[str] = None
+    execution_time: float = 0.0
+    metadata: dict = None
 
-    def to_dict(self) -> dict:
+    def to_dict(self):
         return {
-            "total_instances": self.total_instances,
-            "successful": self.successful,
-            "failed": self.failed,
-            "timed_out": self.timed_out,
-            "resource_constrained": self.resource_constrained,
-            "total_wall_time_seconds": self.total_wall_time_seconds,
-            "avg_instance_time_seconds": self.avg_instance_time_seconds,
-            "start_time": self.start_time.isoformat() if self.start_time else None,
-            "end_time": self.end_time.isoformat() if self.end_time else None,
-            "max_workers_used": self.max_workers_used
+            "instance_id": self.instance_id,
+            "status": self.status.value,
+            "result": self.result,
+            "error_message": self.error_message,
+            "execution_time": self.execution_time,
+            "metadata": self.metadata or {}
         }
-
-class GlobalScheduler:
-    """
-    Enforces the global 72-hour wall-clock budget for the entire experiment.
-    This runs in a separate thread to monitor elapsed time and signal cancellation.
-    """
-    MAX_WALL_CELLS_SECONDS = 72 * 60 * 60  # 72 hours
-
-    def __init__(self, start_time: Optional[datetime] = None):
-        self.start_time = start_time or datetime.now()
-        self._stop_event = threading.Event()
-        self._monitor_thread: Optional[threading.Thread] = None
-        self._elapsed_at_stop = 0.0
-
-    def start(self):
-        """Start the monitoring thread."""
-        if self._monitor_thread and self._monitor_thread.is_alive():
-            return
-        
-        self._stop_event.clear()
-        self._monitor_thread = threading.Thread(target=self._monitor_loop, daemon=True)
-        self._monitor_thread.start()
-        logger.info(f"GlobalScheduler started. Budget: {self.MAX_WALL_CELLS_SECONDS / 3600:.1f} hours.")
-
-    def _monitor_loop(self):
-        while not self._stop_event.is_set():
-            elapsed = (datetime.now() - self.start_time).total_seconds()
-            if elapsed >= self.MAX_WALL_CELLS_SECONDS:
-                self._elapsed_at_stop = elapsed
-                logger.error(f"GlobalScheduler: 72h budget exceeded! Elapsed: {elapsed:.2f}s. Signaling stop.")
-                self._stop_event.set()
-                return
-            time.sleep(60)  # Check every minute
-
-    def stop(self):
-        """Signal the monitor to stop."""
-        self._stop_event.set()
-        if self._monitor_thread:
-            self._monitor_thread.join(timeout=5)
-
-    def is_budget_exceeded(self) -> bool:
-        """Check if the global budget has been exceeded."""
-        return self._stop_event.is_set()
-
-    def time_remaining(self) -> float:
-        """Calculate remaining time in seconds."""
-        elapsed = (datetime.now() - self.start_time).total_seconds()
-        return max(0.0, self.MAX_WALL_CELLS_SECONDS - elapsed)
 
 class BatchExecutor:
     """
-    Executes a batch of tasks with parallelism, respecting per-instance timeouts
-    and the global 72-hour wall-clock budget.
+    Executes tasks with strict timeout enforcement.
+    
+    Note: For CPU-bound tasks or non-fork-safe environments,
+    multiprocessing is safer than threading for timeouts.
+    However, for model inference (often GIL-releasing or blocking IO),
+    a process-based approach is robust against hangs.
     """
+
     def __init__(
         self,
-        max_workers: int = 4,
-        instance_timeout_seconds: int = 3600,
-        global_scheduler: Optional[GlobalScheduler] = None
+        timeout_per_instance: int = 3600,
+        total_wall_clock_limit_seconds: Optional[int] = None,
+        use_multiprocessing: bool = True
     ):
-        self.max_workers = max_workers
-        self.instance_timeout_seconds = instance_timeout_seconds
-        self.global_scheduler = global_scheduler or GlobalScheduler()
-        self.stats = BatchExecutionStats()
-        self._lock = threading.Lock()
+        self.timeout_per_instance = timeout_per_instance
+        self.total_wall_clock_limit = total_wall_clock_limit_seconds
+        self.use_multiprocessing = use_multiprocessing
+        self.start_time = time.time()
 
-    def execute_batch(
+    def _execute_with_timeout(
         self,
-        tasks: List[Tuple[Any, ...]],
-        worker_func: Callable[..., Any]
-    ) -> List[Any]:
+        func: Callable,
+        args: Tuple,
+        timeout: int
+    ) -> BatchExecutionResult:
         """
-        Execute a list of tasks using a ThreadPoolExecutor.
+        Internal method to execute a function with a timeout.
+        Uses multiprocessing for robustness.
+        """
+        import multiprocessing as mp
+        from multiprocessing import Process, Queue
+
+        result_queue = Queue()
+        process_args = (func, args, result_queue)
+
+        def worker(f, a, q):
+            try:
+                res = f(*a)
+                q.put(("success", res))
+            except Exception as e:
+                q.put(("error", str(e)))
+
+        p = Process(target=worker, args=process_args)
+        p.start()
+        p.join(timeout=timeout)
+
+        if p.is_alive():
+            p.terminate()
+            p.join()
+            instance_id = args[0].get("instance_id", "unknown") if isinstance(args[0], dict) else "unknown"
+            return BatchExecutionResult(
+                instance_id=instance_id,
+                status=ExecutionStatus.TIMEOUT,
+                error_message=f"Execution timed out after {timeout} seconds",
+                execution_time=float(timeout)
+            )
+
+        try:
+            status, payload = result_queue.get(timeout=1)
+            if status == "success":
+                instance_id = args[0].get("instance_id", "unknown") if isinstance(args[0], dict) else "unknown"
+                # If the result is an ExecutionResult, extract instance_id if not set
+                if isinstance(payload, ExecutionResult) and not payload.instance_id:
+                    payload.instance_id = instance_id
+                return BatchExecutionResult(
+                    instance_id=instance_id,
+                    status=ExecutionStatus.SUCCESS,
+                    result=payload,
+                    execution_time=time.time() - (time.time() - timeout) # Approximate
+                )
+            else:
+                instance_id = args[0].get("instance_id", "unknown") if isinstance(args[0], dict) else "unknown"
+                return BatchExecutionResult(
+                    instance_id=instance_id,
+                    status=ExecutionStatus.ERROR,
+                    error_message=payload,
+                    execution_time=float(timeout)
+                )
+        except Exception as e:
+            instance_id = args[0].get("instance_id", "unknown") if isinstance(args[0], dict) else "unknown"
+            return BatchExecutionResult(
+                instance_id=instance_id,
+                status=ExecutionStatus.ERROR,
+                error_message=f"Failed to retrieve result from queue: {e}",
+                execution_time=float(timeout)
+            )
+
+    def execute(
+        self,
+        func: Callable,
+        args: Tuple
+    ) -> BatchExecutionResult:
+        """
+        Execute a single task with timeout enforcement.
         
         Args:
-            tasks: List of argument tuples to pass to worker_func.
-            worker_func: The function to execute for each task.
+            func: The function to execute.
+            args: Arguments tuple for the function.
         
         Returns:
-            List of results in the same order as tasks.
+            BatchExecutionResult containing the outcome.
         """
-        self.stats.start_time = datetime.now()
-        self.global_scheduler.start()
-        results = [None] * len(tasks)
-        
-        logger.info(f"Starting batch execution with {self.max_workers} workers. "
-                    f"Total tasks: {len(tasks)}. Timeout: {self.instance_timeout_seconds}s.")
+        # Check total wall clock limit
+        if self.total_wall_clock_limit:
+            elapsed = time.time() - self.start_time
+            if elapsed >= self.total_wall_clock_limit:
+                logger.error("Total wall-clock budget exceeded. Aborting execution.")
+                return BatchExecutionResult(
+                    instance_id="global",
+                    status=ExecutionStatus.CANCELLED,
+                    error_message="Total wall-clock budget exceeded"
+                )
 
-        try:
-            with concurrent.futures.ThreadPoolExecutor(max_workers=self.max_workers) as executor:
-                future_to_idx = {}
-                
-                # Submit all tasks
-                for idx, args in enumerate(tasks):
-                    if self.global_scheduler.is_budget_exceeded():
-                        logger.warning("Global budget exceeded before all tasks submitted.")
-                        break
-                    
-                    future = executor.submit(self._run_with_timeout, worker_func, args)
-                    future_to_idx[future] = idx
-                
-                # Collect results
-                for future in concurrent.futures.as_completed(future_to_idx):
-                    idx = future_to_idx[future]
-                    try:
-                        result = future.result()
-                        with self._lock:
-                            self.stats.successful += 1
-                        results[idx] = result
-                    except concurrent.futures.TimeoutError:
-                        with self._lock:
-                            self.stats.timed_out += 1
-                        results[idx] = {"status": "timeout", "error": "Instance execution timed out"}
-                    except GlobalSchedulerError:
-                        with self._lock:
-                            self.stats.failed += 1
-                        results[idx] = {"status": "cancelled", "error": "Global budget exceeded"}
-                    except Exception as e:
-                        with self._lock:
-                            self.stats.failed += 1
-                        results[idx] = {"status": "failed", "error": str(e)}
-                        logger.exception(f"Task {idx} failed unexpectedly: {e}")
-                    
-                    # Update active workers count
-                    with self._lock:
-                        active = sum(1 for f in future_to_idx if not f.done())
-                        self.stats.max_workers_used = max(self.stats.max_workers_used, active)
-
-        finally:
-            self.global_scheduler.stop()
-            self.stats.end_time = datetime.now()
-            self.stats.total_instances = len(tasks)
-            if self.stats.start_time and self.stats.end_time:
-                self.stats.total_wall_time_seconds = (self.stats.end_time - self.stats.start_time).total_seconds()
-                if self.stats.successful > 0:
-                    self.stats.avg_instance_time_seconds = self.stats.total_wall_time_seconds / self.stats.successful
-            
-            logger.info(f"Batch execution complete. Stats: {self.stats.to_dict()}")
-
-        return results
-
-    def _run_with_timeout(self, func: Callable, args: Tuple) -> Any:
-        """
-        Wrapper to enforce per-instance timeout and check global scheduler.
-        """
-        if self.global_scheduler.is_budget_exceeded():
-            raise GlobalSchedulerError("Global budget exceeded")
-        
+        logger.debug(f"Executing task with timeout {self.timeout_per_instance}s")
         start = time.time()
-        try:
-            # We use a future with timeout to enforce per-instance limit
-            with concurrent.futures.ThreadPoolExecutor(max_workers=1) as single_executor:
-                future = single_executor.submit(func, *args)
-                result = future.result(timeout=self.instance_timeout_seconds)
-            return result
-        except concurrent.futures.TimeoutError:
-            raise concurrent.futures.TimeoutError(f"Task exceeded {self.instance_timeout_seconds}s limit")
+        result = self._execute_with_timeout(func, args, self.timeout_per_instance)
+        result.execution_time = time.time() - start
+        
+        # Update instance_id if it was unknown in the timeout path
+        if result.instance_id == "unknown" and isinstance(args[0], dict):
+            result.instance_id = args[0].get("instance_id", "unknown")
+
+        return result
 
 def main():
     """
-    Demo/Verification script for BatchExecutor performance optimization.
-    Simulates a workload to verify the 72h budget enforcement and parallel efficiency.
+    Simple test for BatchExecutor.
     """
-    import argparse
-    import random
+    def slow_func(x, y):
+        time.sleep(5)
+        return x + y
 
-    parser = argparse.ArgumentParser(description="Test BatchExecutor performance")
-    parser.add_argument("--tasks", type=int, default=100, help="Number of simulated tasks")
-    parser.add_argument("--workers", type=int, default=4, help="Number of parallel workers")
-    parser.add_argument("--task-time", type=float, default=1.0, help="Simulated task duration in seconds")
-    args = parser.parse_args()
+    def fail_func(x):
+        raise ValueError("Intentional failure")
 
-    set_global_seed(42)
+    executor = BatchExecutor(timeout_per_instance=2) # 2s timeout for test
 
-    def simulated_work(task_id: int, duration: float):
-        """Simulates a model inference or analysis step."""
-        time.sleep(duration)
-        return {"task_id": task_id, "duration": duration, "status": "ok"}
+    # Test success
+    print("Testing success...")
+    res1 = executor.execute(slow_func, (1, 2)) # Should timeout
+    print(f"Result 1: {res1.status}, {res1.error_message}")
 
-    tasks = [(i, args.task_time) for i in range(args.tasks)]
-    
-    executor = BatchExecutor(
-        max_workers=args.workers,
-        instance_timeout_seconds=3600,
-        global_scheduler=GlobalScheduler()
-    )
-
-    results = executor.execute_batch(tasks, simulated_work)
-    
-    success_count = sum(1 for r in results if isinstance(r, dict) and r.get("status") == "ok")
-    print(f"Executed {len(results)} tasks. Successes: {success_count}.")
-    print(f"Total wall time: {executor.stats.total_wall_time_seconds:.2f}s")
-    print(f"Max workers used: {executor.stats.max_workers_used}")
-    
-    # Verify budget logic (this would trigger if we ran for 72h, but we simulate)
-    if executor.stats.total_wall_time_seconds > args.tasks * args.task_time / args.workers * 2:
-        logger.warning("Efficiency lower than expected, check overhead.")
+    # Test failure
+    print("Testing failure...")
+    res2 = executor.execute(fail_func, (1,))
+    print(f"Result 2: {res2.status}, {res2.error_message}")
 
 if __name__ == "__main__":
     main()

@@ -1,7 +1,4 @@
 """
-Model execution and management module.
+Model execution and runner modules.
 """
-
-from runner import ModelRunner
-
-__all__ = ["ModelRunner"]
+from .runner import GenerationConfig, ModelRunner, main as runner_main

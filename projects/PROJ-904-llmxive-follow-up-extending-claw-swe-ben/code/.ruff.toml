@@ -1,26 +1,4 @@
-[lint]
-# Enable a subset of rules for scientific code quality
-select = [
-    "E",    # pycodestyle errors
-    "W",    # pycodestyle warnings
-    "F",    # Pyflakes
-    "I",    # isort (import sorting)
-    "C90",  # mccabe (complexity)
-    "UP",   # pyupgrade
-    "N",    # pep8-naming
-]
-ignore = [
-    "E501", # Line too long (handled by black)
-    "C901", # Too complex (allow higher complexity for scientific logic)
-]
-
-[lint.isort]
-known-first-party = ["config", "data", "models", "experiments", "analysis"]
-force-to-top = ["config"]
-
-[format]
-# Ruff formatter settings (compatible with Black)
-quote-style = "double"
-indent-style = "space"
-skip-magic-trailing-comma = false
-line-ending = "auto"
+# Ruff configuration file (explicit override for clarity)
+extend = "pyproject.toml"
+# Ensure we use the project root as the base for relative imports
+src = ["."]

@@ -1,1 +1,1 @@
-# Contracts and schema definitions
+"""Contract schemas for data entities."""

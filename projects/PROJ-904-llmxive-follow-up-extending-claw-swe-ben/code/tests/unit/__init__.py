@@ -1,5 +1,4 @@
 """
-Unit test suite initialization.
+Unit tests package.
 """
-
-# No specific exports needed
+pass

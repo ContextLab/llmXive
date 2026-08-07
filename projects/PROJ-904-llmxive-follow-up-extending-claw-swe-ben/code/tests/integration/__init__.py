@@ -1,5 +1,4 @@
 """
-Integration test suite initialization.
+Integration tests package.
 """
-
-# No specific exports needed
+pass

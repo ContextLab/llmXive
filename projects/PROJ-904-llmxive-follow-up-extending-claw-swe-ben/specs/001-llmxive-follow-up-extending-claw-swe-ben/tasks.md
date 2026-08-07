@@ -54,14 +54,14 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T005 Setup configuration management with hardcoded random seeds in `projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/code/config.py`.
-- [X] T006 [P] Implement deterministic logging and error handling infrastructure in `projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/code/__init__.py`.
-- [X] T007 Create Python classes `TaskInstance` (fields: `issue_id`, `repo_state`, `tests`), `ContextConfiguration` (fields: `model_size`, `strategy`), and `ExecutionResult` (fields: `pass_status`, `token_count`, `failure_mode`) in `projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/code/config.py`.
-- [ ] T008 Create entity schemas (YAML files) `task_instance.schema.yaml`, `context_configuration.schema.yaml`, and `execution_result.schema.yaml` in `projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/specs/001-context-fidelity-scaling-tradeoff/contracts/`.
-- [X] T009 Setup environment variable management for model paths and HF token in `projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/code/config.py`.
-- [X] T010 [P] Implement `BatchExecutor` class in `projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/code/experiments/batch_executor.py` with `max_workers` parameter to enforce the total wall-clock duration of ≤72 hours for the full experiment (400 instances) via parallel batching and timeout guards (FR-007).
-- [ ] T011 Implement the global scheduler logic in `BatchExecutor` to enforce the 72-hour total wall-clock constraint across the entire experiment matrix, separate from per-instance timeouts.
-- [X] T012 [US3] Update `ModelRunner` in `projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/code/models/runner.py` to support loading a 7B-parameter model (e.g., Llama-3-8B) with **strictly Q4_K_M quantization**. **Constraint**: If memory pressure exceeds 7GB with Q4_K_M, raise a `MemoryConstraintError` and terminate the specific run with a "Resource Constraint" flag. Do NOT attempt lower quantization levels (e.g., Q3) to avoid confounding "Model Size" with "Quantization Noise" (Plan Complexity Tracking).
+- [X] T004 [P] Configure random seeds to be hardcoded in `projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/code/config.py` (Constitution Principle I).
+- [X] T004b [P] [US1, US2, US3] Implement explicit random seed pinning in `projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/code/experiments/run_baseline.py` and `projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/code/experiments/run_high_fidelity.py` (Constitution Principle I) to ensure reproducibility even if config is decoupled.
+- [X] T005 [P] Implement deterministic logging and error handling infrastructure in `projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/code/__init__.py`
+- [X] T006a Create base data models (Python classes for Task Instance, Context Configuration, Execution Result) in `projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/code/config.py`
+- [ ] T006b Create entity schemas (YAML files) for Task Instance, Context Configuration, Execution Result in `projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/specs/001-context-fidelity-scaling-tradeoff/contracts/`
+- [X] T007 Setup environment variable management for model paths and HF token in `projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/code/config.py`
+- [X] T008a [P] [US1, US2, US3] **Define** the schema validation logic and aggregation schema in `projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/code/analysis/merge_results.py`. **Constraint**: This task must ONLY define the logic and schema; it must NOT execute the merge until Phase 5 (T008b). This ensures format compatibility (FR-005) before data generation tasks (T016, T023, T027) run.
+- [ ] T008b [US3] **Execute** `merge_results.py` to aggregate all JSONL files (`baseline_run.jsonl`, `hf_run_1b.jsonl`, `hf_run_7b.jsonl`) into a single `data/results.csv` (Single Source of Truth) (FR-005). **Constraint**: This task must run AFTER all data generation tasks (T016, T023, T027) are complete. <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -69,27 +69,28 @@
 
 ## Phase 3: User Story 1 - Context-Bound Task Filtering and Baseline Execution (Priority: P1) 🎯 MVP
 
-**Goal**: Filter Claw-SWE-Bench for high-complexity instances (>500 lines) and execute a naive baseline with a 1B model.
+**Goal**: Filter Claw-SWE-Bench for high-complexity instances (>500 lines) and execute a naive baseline with a large-scale model.
 
 **Independent Test**: Run the filtering script on the raw dataset and verify the output contains only instances with >500 lines of relevant file history, then execute a single instance with the baseline model.
 
-### Implementation for User Story 1
-
-- [X] T013 [P] [US1] Implement `ClawSweBenchLoader` in `projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/code/data/loader.py` using `datasets.load_dataset(..., streaming=True)` to fetch from Hugging Face. **Rule**: Fail loudly if fetch fails; do NOT generate synthetic data.
-- [X] T014 [US1] Implement issue description parsing logic in `projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/code/data/loader.py` to extract starting file nodes for the dependency graph. **Method**: Use regex and AST-based extraction to identify file paths mentioned in the issue text (FR-001).
-- [ ] T015 [US1] Implement validation logic in `projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/code/data/loader.py` to verify that issue text alone is sufficient to reconstruct the dependency graph. **Deliverable**: Write `data/validation_report.json` containing a boolean `is_sufficient` flag and a metric threshold (e.g., "extracted_n_files > 0").
-- [X] T016 [US1] Implement static analysis logic in `projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/code/data/loader.py` to calculate "relevant file history" lines: 1) Use the file nodes extracted by T014 as starting points, 2) Build a dependency graph using `networkx` from Python imports, 3) Perform BFS/DFS traversal, 4) Filter for instances where the total lines in the traversed graph exceed a significant threshold. (FR-001).
-- [X] T017 [US1] Implement "first-N-lines" naive truncation strategy in `projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/code/data/context_processors.py` (FR-002).
-- [X] T018 [US1] Implement `ModelRunner` in `projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/code/models/runner.py` to load a 1B-parameter model (e.g., Llama-3-1B) with Q4_K_M quantization on CPU (FR-002).
-- [ ] T019 [US1] Implement `run_baseline.py` in `projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/code/experiments/` to execute the filtered dataset with the 1B model and naive strategy. **Constraint**: Enforce -minute runtime budget per instance. Use `BatchExecutor` class in `batch_executor.py` with `max_workers` parameter for parallel batching. Output `data/intermediate/baseline_run.jsonl` (US-1). <!-- ATOMIZE: requested -->
-- [ ] T020 [US1] Implement `failure_classifier.py` in `projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/code/analysis/` to detect "missing context" vs "reasoning error" via **sandbox log parsing**. **Rules**: Flag "missing context" if logs contain regex patterns "file not found" or "cannot locate"; flag "reasoning error" if file exists in context but logic fails (FR-008).
-
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
-> **NOTE**: Write these test scaffolding FIRST. Note: T010 depends on logic in T013.
+> **NOTE: Write these tests FIRST, ensure they FAIL before implementation. Note: T010 depends on logic in T013.**
 
-- [X] T021 [P] [US1] Write test scaffolding for import graph traversal logic in `projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/code/tests/unit/test_loader.py`.
-- [X] T022 [P] [US1] Write test scaffolding for baseline execution timeout in `projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/code/tests/integration/test_baseline_execution.py`.
+- [X] T010 [P] [US1] Unit test for import graph traversal logic in `projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/code/tests/unit/test_loader.py`
+- [X] T011 [P] [US1] Integration test for baseline execution timeout in `projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/code/tests/integration/test_baseline_execution.py`
+
+### Implementation for User Story 1
+
+- [X] T012 [P] [US1] Implement `ClawSweBenchLoader` in `projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/code/data/loader.py` using `datasets.load_dataset(..., streaming=True)` to fetch from Hugging Face. **Rule**: Fail loudly if fetch fails; do NOT generate synthetic data.
+- [ ] T012b [US1] Implement logic in `projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/code/data/loader.py` to write the *filtered* dataset (instances >500 lines) to a versioned file (e.g., `data/filtered_swe_bench_v1.parquet`) and record its checksum in `state/` (Constitution Principle III).
+- [X] T013 [US1] Implement static analysis logic in `projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/code/data/loader.py` to calculate "relevant file history" lines: 1) Parse Python imports to build a dependency graph using `networkx`, 2) Perform BFS/DFS traversal from the issue target files, 3) Filter for instances where the The total lines in the traversed graph exceed a significant threshold. (FR-001).
+- [X] T014 [US1] Implement "first-N-lines" naive truncation strategy in `projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/code/data/context_processors.py` (FR-002).
+- [X] T015 [US1] Implement `ModelRunner` in `projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/code/models/runner.py` to load a parameter-scaled model (e.g., Llama-3) with Q4_K_M quantization on CPU (FR-002).
+- [ ] T016 [US1] Implement `run_baseline.py` in `projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/code/experiments/` to execute the filtered dataset with the 1B model and naive strategy. **Constraint**: Enforce -minute runtime budget per instance via `batch_executor.py`. Output `data/intermediate/baseline_run.jsonl` (US-1).
+- [ ] T016b [P] [US1] Implement `batch_executor.py` in `projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/code/experiments/` with logic to enforce: 1) A hard timeout per instance, and 2) A hard total wall-clock duration limit of ≤72 hours for the full experiment (FR-007).
+- [ ] T017 [US1] Implement `failure_classifier.py` in `projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/code/analysis/` to detect "missing context" vs "reasoning error" via sandbox log parsing (FR-008).
+- [ ] T017b [US1] Apply `failure_classifier.py` to the baseline results (`data/intermediate/baseline_run.jsonl`) to annotate failure modes for US1 results.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -101,18 +102,23 @@
 
 **Independent Test**: Run a single high-fidelity strategy (e.g., TF-IDF) on a subset and verify the context differs from baseline and produces a different output.
 
+### Shared Model Update
+
+- [X] T026 [US3] Update `ModelRunner` in `projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/code/models/runner.py` to support loading a large-scale model (e.g., Llama-3-8B) with Q4_K_M quantization, handling memory pressure via aggressive quantization or termination flags (FR-004, Edge Case). *Note: This must complete before T023/T027 execution tasks.*
+
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T023 [P] [US2] Write test scaffolding for TF-IDF/BM25 retrieval logic in `projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/code/tests/unit/test_context_processors.py`.
-- [X] T024 [P] [US2] Write test scaffolding for diff-aware sliding window logic in `projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/code/tests/unit/test_context_processors.py`.
+- [X] T018 [P] [US2] Unit test for TF-IDF/BM25 retrieval logic in `projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/code/tests/unit/test_context_processors.py`
+- [X] T019 [P] [US2] Unit test for diff-aware sliding window logic in `projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/code/tests/unit/test_context_processors.py`
 
 ### Implementation for User Story 2
 
-- [X] T025 [P] [US2] Implement TF-IDF/BM25 relevance retrieval module in `projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/code/data/context_processors.py` using `scikit-learn` (FR-003).
-- [X] T026 [P] [US2] Implement diff-aware sliding window module in `projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/code/data/context_processors.py` using standard diff libraries (FR-003).
-- [X] T027 [P] [US2] Implement rule-based semantic summarization module in `projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/code/data/context_processors.py`. **Algorithm**: Extract variables and control flow logic from relevant files (as defined in Plan Complexity Tracking); concatenate snippets with '...' separator; limit output to a constrained token budget. **Note**: Do NOT use the rejected "first/last sentence" heuristic (Plan Complexity Tracking).
-- [ ] T028 [US2] Implement `run_high_fidelity.py` in `projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/code/experiments/` to execute the 1B model against all three high-fidelity strategies. **Constraint**: Enforce 60-minute runtime budget per instance. Use `BatchExecutor` class in `batch_executor.py` with `max_workers` parameter. Output `data/intermediate/hf_run_1b.jsonl` (US-2).
-- [ ] T029 [US2] Implement fallback logic in `context_processors.py` to revert to naive truncation if a high-fidelity strategy returns zero snippets, logging the event (Edge Case Handling).
+- [X] T020 [P] [US2] Implement TF-IDF/BM25 relevance retrieval module in `projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/code/data/context_processors.py` using `scikit-learn` (FR-003).
+- [X] T021 [P] [US2] Implement diff-aware sliding window module in `projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/code/data/context_processors.py` using standard diff libraries (FR-003).
+- [ ] T022 [P] [US2] Implement rule-based semantic summarization module in `projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/code/data/context_processors.py` as defined in FR-003 (rule-based extraction of relevant code blocks/paragraphs).
+- [ ] T023 [US2] Implement `run_high_fidelity.py` in `projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/code/experiments/` to execute the 1B model against all three high-fidelity strategies. **Constraint**: Enforce 60-minute runtime budget per instance and use parallel batching. Output `data/intermediate/hf_run_1b.jsonl` (US-2).
+- [ ] T024 [US2] Implement fallback logic in `context_processors.py` to revert to naive truncation if a high-fidelity strategy returns zero snippets, logging the event to `data/audit_logs/fallbacks.jsonl` (Edge Case Handling).
+- [ ] T017c [US2] Apply `failure_classifier.py` to the high-fidelity results (`data/intermediate/hf_run_1b.jsonl`) to annotate failure modes for US2 results.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -130,10 +136,11 @@
 
 ### Implementation for User Story 3
 
-- [ ] T031 [US3] Implement `run_high_fidelity.py` logic (or new script) to execute the 7B model against all strategies (Baseline, TF-IDF, Diff-Aware, Summarization). **Constraint**: Enforce 60-minute runtime budget per instance. Use `BatchExecutor` class in `batch_executor.py` with `max_workers` parameter. Output `data/intermediate/hf_run_7b.jsonl` (US-3). <!-- FAILED: unspecified -->
-- [ ] T032 [US3] Implement `merge_results.py` in `projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/code/analysis/` to aggregate all JSONL files (`baseline_run.jsonl`, `hf_run_1b.jsonl`, `hf_run_7b.jsonl`) into a single `data/results.csv` (Single Source of Truth) (FR-005). **Dependency**: Must run after T028 and T031 complete.
-- [ ] T033 [US3] Implement `glm_analyzer.py` in `projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/code/analysis/` to perform a **Generalized Linear Mixed Model (GLMM) or Firth's Penalized Likelihood GLM** with binomial link to test for interaction effects between "context strategy" and "model size" (FR-006, US-3). **Rationale**: Standard GLM fails to converge with sparse binary data (Plan Complexity Tracking).
-- [ ] T034 [US3] Implement post-hoc pairwise comparison logic in `glm_analyzer.py`. **Requirement**: Explicitly calculate the difference in Pass@1 rates **only** between the **1B-model (high-fidelity)** and **7B-model (baseline)** configurations. Identify if any strategy shows a margin ≥5% with p < 0.05 (SC-004). **Deliverable**: Write `data/analysis/post_hoc_results.json` containing the specific strategy pair, delta, and p-value. Verify the report contains at least one entry if the condition is met.
+- [ ] T027 [US3] Implement `run_high_fidelity.py` logic (or new script) to execute the 7B model against all strategies (Baseline, TF-IDF, Diff-Aware, Summarization). **Constraint**: Enforce 60-minute runtime budget per instance and use parallel batching. Output `data/intermediate/hf_run_7b.jsonl` (US-3). *Dependency: Must complete T026 first.*
+- [ ] T028 [US3] Execute `merge_results.py` (T008b) to aggregate all JSONL files (`baseline_run.jsonl`, `hf_run_1b.jsonl`, `hf_run_7b.jsonl`) into a single `data/results.csv` (Single Source of Truth) (FR-005). *Note: Logic was implemented in Phase 2 (T008a); this task executes the merge.*
+- [ ] T029 [US3] Implement `glm_analyzer.py` in `projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/code/analysis/` to perform a Generalized Linear Model (GLM) with binomial link to test for interaction effects between "context strategy" and "model size" (FR-006, US-3).
+- [ ] T030 [US3] Implement post-hoc pairwise comparison logic in `glm_analyzer.py`. **Requirement**: Explicitly calculate the difference in Pass@1 rates between the 1B-model (high-fidelity) and 7B-model (baseline) for each strategy; identify if any strategy shows a margin ≥5% with p < 0.05 (SC-004).
+- [ ] T017d [US3] Apply `failure_classifier.py` to the 7B results (`data/intermediate/hf_run_7b.jsonl`) to annotate failure modes for US3 results.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -166,7 +173,7 @@
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
 - **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Relies on `context_processors.py` structure but independently testable
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Relies on `ModelRunner` updates (T012) and `merge_results.py` (T032) but independently testable
+- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Relies on `ModelRunner` updates (T026) and `merge_results.py` (T008a/T008b) but independently testable
 
 ### Within Each User Story
 
