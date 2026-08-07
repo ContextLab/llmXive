@@ -1,0 +1,745 @@
+- artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/results/analysis/final_statistical_report.md
+  attempts: 1
+  canonical: 3 task types analyzed
+  claim_id: c_264df05f
+  context: Executive Summary section listing total task types and significant differences.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Total Task Types Analyzed: 3'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T00:47:34Z'
+- artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/results/analysis/final_statistical_report.md
+  attempts: 1
+  canonical: 2 significant latency differences found
+  claim_id: c_13bd4232
+  context: Executive Summary section listing total task types and significant differences.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Significant Latency Differences: 2'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T00:48:29Z'
+- artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/results/analysis/final_statistical_report.md
+  attempts: 1
+  canonical: 2D restricted agent success rate statistically indistinguishable from
+    3D baseline
+  claim_id: c_ee13fa2c
+  context: Executive Summary discussing the Loss Ceiling Hypothesis.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/2D_restricted_agent_success_rate_statistically_indistinguish
+  kind: entity_fact
+  raw_text: The 2D restricted agent's success rate is statistically indistinguishable
+    from the 3D baseline
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T00:49:17Z'
+- artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/results/analysis/final_statistical_report.md
+  attempts: 1
+  canonical: OCCLUSION task type sample size of 150
+  claim_id: c_19412766
+  context: OCCLUSION Task Type section header and sample size.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'OCCLUSION Task Type Sample Size: 150'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T00:50:23Z'
+- artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/results/analysis/final_statistical_report.md
+  attempts: 1
+  canonical: OCCLUSION task type McNemar's test discordant pairs of 27
+  claim_id: c_530067f9
+  context: OCCLUSION Task Type McNemar's Test results table and statistics.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'OCCLUSION Task Type McNemar''s Test Discordant Pairs: 27'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T00:50:44Z'
+- artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/results/analysis/final_statistical_report.md
+  attempts: 1
+  canonical: OCCLUSION task type McNemar's test statistic of 12
+  claim_id: c_6c6eb447
+  context: OCCLUSION Task Type McNemar's Test results table and statistics.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'OCCLUSION Task Type McNemar''s Test Statistic: 12'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T00:52:14Z'
+- artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/results/analysis/final_statistical_report.md
+  attempts: 1
+  canonical: OCCLUSION task type McNemar's test raw p-value of 0.347
+  claim_id: c_1bb94744
+  context: OCCLUSION Task Type McNemar's Test results table and statistics.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'OCCLUSION Task Type McNemar''s Test Raw p-value: 0.347'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T00:52:47Z'
+- artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/results/analysis/final_statistical_report.md
+  attempts: 1
+  canonical: OCCLUSION task type McNemar's test Bonferroni-corrected p-value of 1.041
+  claim_id: c_e831ea46
+  context: OCCLUSION Task Type McNemar's Test results table and statistics.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'OCCLUSION Task Type McNemar''s Test Bonferroni-corrected p-value: 1.041'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T00:53:19Z'
+- artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/results/analysis/final_statistical_report.md
+  attempts: 1
+  canonical: OCCLUSION task type Wilcoxon signed-rank test statistic of 4523.5
+  claim_id: c_18643ee6
+  context: OCCLUSION Task Type Wilcoxon Signed-Rank Test results.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'OCCLUSION Task Type Wilcoxon Signed-Rank Test Statistic: 4523.5'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T00:53:36Z'
+- artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/results/analysis/final_statistical_report.md
+  attempts: 1
+  canonical: OCCLUSION task type Wilcoxon signed-rank test raw p-value of 0.008
+  claim_id: c_8208031a
+  context: OCCLUSION Task Type Wilcoxon Signed-Rank Test results.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'OCCLUSION Task Type Wilcoxon Signed-Rank Test Raw p-value: 0.008'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T00:54:05Z'
+- artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/results/analysis/final_statistical_report.md
+  attempts: 1
+  canonical: OCCLUSION task type Wilcoxon signed-rank test Bonferroni-corrected p-value
+    of 0.024
+  claim_id: c_898eae0a
+  context: OCCLUSION Task Type Wilcoxon Signed-Rank Test results.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'OCCLUSION Task Type Wilcoxon Signed-Rank Test Bonferroni-corrected p-value:
+    0.024'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T00:54:34Z'
+- artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/results/analysis/final_statistical_report.md
+  attempts: 1
+  canonical: OCCLUSION task type mean difference of 12.4 ms
+  claim_id: c_7b7e1998
+  context: OCCLUSION Task Type Wilcoxon Signed-Rank Test results.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'OCCLUSION Task Type Mean Difference (2D - 3D): 12.4 ms'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T00:55:10Z'
+- artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/results/analysis/final_statistical_report.md
+  attempts: 1
+  canonical: OCCLUSION task type 2D slower than 3D
+  claim_id: c_7917929e
+  context: OCCLUSION Task Type Wilcoxon Signed-Rank Test results direction.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/OCCLUSION_task_type_2D_slower_than_3D
+  kind: entity_fact
+  raw_text: OCCLUSION Task Type 2D is slower than 3D
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T00:55:56Z'
+- artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/results/analysis/final_statistical_report.md
+  attempts: 1
+  canonical: OCCLUSION task type Wilcoxon signed-rank test shows significant difference
+  claim_id: c_9510f534
+  context: OCCLUSION Task Type Wilcoxon Signed-Rank Test results interpretation.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/OCCLUSION_task_type_Wilcoxon_signed-rank_test_shows_signific
+  kind: entity_fact
+  raw_text: 'OCCLUSION Task Type Wilcoxon Signed-Rank Test Interpretation: Significant
+    difference'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T00:56:34Z'
+- artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/results/analysis/final_statistical_report.md
+  attempts: 1
+  canonical: DEPTH task type sample size of 150
+  claim_id: c_57ea97be
+  context: DEPTH Task Type section header and sample size.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'DEPTH Task Type Sample Size: 150'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T00:57:25Z'
+- artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/results/analysis/final_statistical_report.md
+  attempts: 1
+  canonical: DEPTH task type McNemar's test discordant pairs of 32
+  claim_id: c_6ece3b5b
+  context: DEPTH Task Type McNemar's Test results table and statistics.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'DEPTH Task Type McNemar''s Test Discordant Pairs: 32'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T00:57:50Z'
+- artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/results/analysis/final_statistical_report.md
+  attempts: 1
+  canonical: DEPTH task type McNemar's test statistic of 14
+  claim_id: c_0b32ea9a
+  context: DEPTH Task Type McNemar's Test results table and statistics.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'DEPTH Task Type McNemar''s Test Statistic: 14'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T00:59:38Z'
+- artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/results/analysis/final_statistical_report.md
+  attempts: 1
+  canonical: DEPTH task type McNemar's test raw p-value of 0.412
+  claim_id: c_901508ae
+  context: DEPTH Task Type McNemar's Test results table and statistics.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'DEPTH Task Type McNemar''s Test Raw p-value: 0.412'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T01:00:06Z'
+- artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/results/analysis/final_statistical_report.md
+  attempts: 1
+  canonical: DEPTH task type McNemar's test Bonferroni-corrected p-value of 1.236
+  claim_id: c_2f96a68f
+  context: DEPTH Task Type McNemar's Test results table and statistics.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'DEPTH Task Type McNemar''s Test Bonferroni-corrected p-value: 1.236'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T01:01:08Z'
+- artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/results/analysis/final_statistical_report.md
+  attempts: 1
+  canonical: DEPTH task type Wilcoxon signed-rank test statistic of 5102.0
+  claim_id: c_51a55260
+  context: DEPTH Task Type Wilcoxon Signed-Rank Test results.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'DEPTH Task Type Wilcoxon Signed-Rank Test Statistic: 5102.0'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T01:05:05Z'
+- artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/results/analysis/final_statistical_report.md
+  attempts: 1
+  canonical: DEPTH task type Wilcoxon signed-rank test raw p-value of 0.003
+  claim_id: c_f7f6c4e5
+  context: DEPTH Task Type Wilcoxon Signed-Rank Test results.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'DEPTH Task Type Wilcoxon Signed-Rank Test Raw p-value: 0.003'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T01:05:08Z'
+- artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/results/analysis/final_statistical_report.md
+  attempts: 1
+  canonical: DEPTH task type Wilcoxon signed-rank test Bonferroni-corrected p-value
+    of 0.009
+  claim_id: c_a79e2acd
+  context: DEPTH Task Type Wilcoxon Signed-Rank Test results.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'DEPTH Task Type Wilcoxon Signed-Rank Test Bonferroni-corrected p-value:
+    0.009'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T01:05:12Z'
+- artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/results/analysis/final_statistical_report.md
+  attempts: 1
+  canonical: DEPTH task type mean difference of 8.7 ms
+  claim_id: c_f275eb41
+  context: DEPTH Task Type Wilcoxon Signed-Rank Test results.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'DEPTH Task Type Mean Difference (2D - 3D): 8.7 ms'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T01:05:27Z'
+- artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/results/analysis/final_statistical_report.md
+  attempts: 1
+  canonical: DEPTH task type 2D slower than 3D
+  claim_id: c_a9b6d184
+  context: DEPTH Task Type Wilcoxon Signed-Rank Test results direction.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/DEPTH_task_type_2D_slower_than_3D
+  kind: entity_fact
+  raw_text: DEPTH Task Type 2D is slower than 3D
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T01:05:40Z'
+- artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/results/analysis/final_statistical_report.md
+  attempts: 1
+  canonical: DEPTH task type Wilcoxon signed-rank test shows significant difference
+  claim_id: c_b1b60427
+  context: DEPTH Task Type Wilcoxon Signed-Rank Test results interpretation.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/DEPTH_task_type_Wilcoxon_signed-rank_test_shows_significant
+  kind: entity_fact
+  raw_text: 'DEPTH Task Type Wilcoxon Signed-Rank Test Interpretation: Significant
+    difference'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T01:05:51Z'
+- artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/results/analysis/final_statistical_report.md
+  attempts: 1
+  canonical: RELATIVE task type sample size of 150
+  claim_id: c_3c52a467
+  context: RELATIVE Task Type section header and sample size.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'RELATIVE Task Type Sample Size: 150'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T01:06:02Z'
+- artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/results/analysis/final_statistical_report.md
+  attempts: 1
+  canonical: RELATIVE task type McNemar's test discordant pairs of 28
+  claim_id: c_624a4392
+  context: RELATIVE Task Type McNemar's Test results table and statistics.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'RELATIVE Task Type McNemar''s Test Discordant Pairs: 28'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T01:07:09Z'
+- artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/results/analysis/final_statistical_report.md
+  attempts: 1
+  canonical: RELATIVE task type McNemar's test statistic of 13
+  claim_id: c_049b5c4b
+  context: RELATIVE Task Type McNemar's Test results table and statistics.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'RELATIVE Task Type McNemar''s Test Statistic: 13'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T01:07:21Z'
+- artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/results/analysis/final_statistical_report.md
+  attempts: 1
+  canonical: RELATIVE task type McNemar's test raw p-value of 0.389
+  claim_id: c_304e03c1
+  context: RELATIVE Task Type McNemar's Test results table and statistics.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'RELATIVE Task Type McNemar''s Test Raw p-value: 0.389'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T01:07:32Z'
+- artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/results/analysis/final_statistical_report.md
+  attempts: 1
+  canonical: RELATIVE task type McNemar's test Bonferroni-corrected p-value of 1.167
+  claim_id: c_c6476725
+  context: RELATIVE Task Type McNemar's Test results table and statistics.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'RELATIVE Task Type McNemar''s Test Bonferroni-corrected p-value: 1.167'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T01:07:40Z'
+- artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/results/analysis/final_statistical_report.md
+  attempts: 1
+  canonical: RELATIVE task type Wilcoxon signed-rank test statistic of 4890.0
+  claim_id: c_cb2a3d1f
+  context: RELATIVE Task Type Wilcoxon Signed-Rank Test results.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'RELATIVE Task Type Wilcoxon Signed-Rank Test Statistic: 4890.0'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T01:07:46Z'
+- artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/results/analysis/final_statistical_report.md
+  attempts: 1
+  canonical: RELATIVE task type Wilcoxon signed-rank test raw p-value of 0.015
+  claim_id: c_869b2418
+  context: RELATIVE Task Type Wilcoxon Signed-Rank Test results.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'RELATIVE Task Type Wilcoxon Signed-Rank Test Raw p-value: 0.015'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T01:07:52Z'
+- artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/results/analysis/final_statistical_report.md
+  attempts: 1
+  canonical: RELATIVE task type Wilcoxon signed-rank test Bonferroni-corrected p-value
+    of 0.045
+  claim_id: c_f62649fe
+  context: RELATIVE Task Type Wilcoxon Signed-Rank Test results.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'RELATIVE Task Type Wilcoxon Signed-Rank Test Bonferroni-corrected p-value:
+    0.045'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T01:07:54Z'
+- artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/results/analysis/final_statistical_report.md
+  attempts: 1
+  canonical: RELATIVE task type mean difference of 10.2 ms
+  claim_id: c_abba4d5d
+  context: RELATIVE Task Type Wilcoxon Signed-Rank Test results.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'RELATIVE Task Type Mean Difference (2D - 3D): 10.2 ms'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T01:08:01Z'
+- artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/results/analysis/final_statistical_report.md
+  attempts: 1
+  canonical: RELATIVE task type 2D slower than 3D
+  claim_id: c_6aa06577
+  context: RELATIVE Task Type Wilcoxon Signed-Rank Test results direction.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/RELATIVE_task_type_2D_slower_than_3D
+  kind: entity_fact
+  raw_text: RELATIVE Task Type 2D is slower than 3D
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T01:11:29Z'
+- artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/results/analysis/final_statistical_report.md
+  attempts: 1
+  canonical: RELATIVE task type Wilcoxon signed-rank test shows significant difference
+  claim_id: c_de5e329e
+  context: RELATIVE Task Type Wilcoxon Signed-Rank Test results interpretation.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/RELATIVE_task_type_Wilcoxon_signed-rank_test_shows_significa
+  kind: entity_fact
+  raw_text: 'RELATIVE Task Type Wilcoxon Signed-Rank Test Interpretation: Significant
+    difference'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T01:11:56Z'
+- artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/results/analysis/final_statistical_report.md
+  attempts: 1
+  canonical: 5.0 ms threshold false positive rate of 0.023
+  claim_id: c_db3dfff2
+  context: 'Sensitivity Analysis: Depth Estimation Threshold table.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: At 5.0 ms threshold, False Positive Rate is 0.023
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T01:12:08Z'
+- artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/results/analysis/final_statistical_report.md
+  attempts: 1
+  canonical: 5.0 ms threshold false negative rate of 0.145
+  claim_id: c_07be68df
+  context: 'Sensitivity Analysis: Depth Estimation Threshold table.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: At 5.0 ms threshold, False Negative Rate is 0.145
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T01:12:18Z'
+- artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/results/analysis/final_statistical_report.md
+  attempts: 1
+  canonical: 10.0 ms threshold false positive rate of 0.045
+  claim_id: c_58c5eb27
+  context: 'Sensitivity Analysis: Depth Estimation Threshold table.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: At 10.0 ms threshold, False Positive Rate is 0.045
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T01:12:25Z'
+- artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/results/analysis/final_statistical_report.md
+  attempts: 1
+  canonical: 10.0 ms threshold false negative rate of 0.098
+  claim_id: c_5e0ee8b5
+  context: 'Sensitivity Analysis: Depth Estimation Threshold table.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: At 10.0 ms threshold, False Negative Rate is 0.098
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T01:15:28Z'
+- artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/results/analysis/final_statistical_report.md
+  attempts: 1
+  canonical: 15.0 ms threshold false positive rate of 0.067
+  claim_id: c_eb0646e5
+  context: 'Sensitivity Analysis: Depth Estimation Threshold table.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: At 15.0 ms threshold, False Positive Rate is 0.067
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T01:16:11Z'
+- artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/results/analysis/final_statistical_report.md
+  attempts: 1
+  canonical: 15.0 ms threshold false negative rate of 0.067
+  claim_id: c_eb290760
+  context: 'Sensitivity Analysis: Depth Estimation Threshold table.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: At 15.0 ms threshold, False Negative Rate is 0.067
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T01:16:39Z'
+- artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/results/analysis/final_statistical_report.md
+  attempts: 1
+  canonical: 20.0 ms threshold false positive rate of 0.089
+  claim_id: c_3d99d8e2
+  context: 'Sensitivity Analysis: Depth Estimation Threshold table.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: At 20.0 ms threshold, False Positive Rate is 0.089
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T01:17:08Z'
+- artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/results/analysis/final_statistical_report.md
+  attempts: 1
+  canonical: 20.0 ms threshold false negative rate of 0.045
+  claim_id: c_7d60ebb1
+  context: 'Sensitivity Analysis: Depth Estimation Threshold table.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: At 20.0 ms threshold, False Negative Rate is 0.045
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T01:17:35Z'
+- artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/results/analysis/final_statistical_report.md
+  attempts: 1
+  canonical: 25.0 ms threshold false positive rate of 0.112
+  claim_id: c_b4bc6083
+  context: 'Sensitivity Analysis: Depth Estimation Threshold table.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: At 25.0 ms threshold, False Positive Rate is 0.112
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T01:18:15Z'
+- artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/results/analysis/final_statistical_report.md
+  attempts: 1
+  canonical: 25.0 ms threshold false negative rate of 0.032
+  claim_id: c_d44649e4
+  context: 'Sensitivity Analysis: Depth Estimation Threshold table.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: At 25.0 ms threshold, False Negative Rate is 0.032
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T01:18:41Z'
+- artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/results/analysis/final_statistical_report.md
+  attempts: 1
+  canonical: 30.0 ms threshold false positive rate of 0.134
+  claim_id: c_95ac41af
+  context: 'Sensitivity Analysis: Depth Estimation Threshold table.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: At 30.0 ms threshold, False Positive Rate is 0.134
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T01:19:19Z'
+- artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/results/analysis/final_statistical_report.md
+  attempts: 1
+  canonical: 30.0 ms threshold false negative rate of 0.021
+  claim_id: c_420dc188
+  context: 'Sensitivity Analysis: Depth Estimation Threshold table.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: At 30.0 ms threshold, False Negative Rate is 0.021
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T01:19:47Z'

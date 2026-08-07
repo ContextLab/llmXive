@@ -1,10 +1,17 @@
-T023b:
+T006a:
   c: false
-  h: acae44af16b7865913ccb84a11f94de0d56f436f87b90cce172bce4a274ae438
-  r: The required output file `data/baseline_spatialclaw.csv` does not exist, indicating
-    the baseline agent was not executed and the paired dataset was not generated as
-    specified. The implementer must run `baseline_3d.py` on the exact task instances
-    and produce the CSV file in the `data/` directory.
+  h: 380fa64df417d30c0ca4fa7f88dfc48d24afea9cc86d2d2108909202168035c9
+  r: "The required output file `data/raw/synthetic_spatialclaw_pilot.json` does not\
+    \ exist, and the provided `code/data/generator.py` appears to generate a full\
+    \ dataset (`synthetic_spatialclaw_v1.json`) rather than a pilot set of exactly\
+    \ 10 primitives with the specified invariants. Consequently the task\u2019s core\
+    \ deliverable is missing."
+T006b:
+  c: false
+  h: d6cc53c0ae9d51ff4a9bba4b1615820e12c9bbea6797705ce13de511461c4220
+  r: "The required output file `data/raw/synthetic_spatialclaw_v1.json` does not exist,\
+    \ so the generator has not produced the full dataset as specified. Without this\
+    \ file the task\u2019s primary deliverable is missing."
 T026:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -26,3 +33,64 @@ T036:
     \ are blocked, that stochasticity control is enforced, or that performance metrics\
     \ and a paired 2D/3D comparison report were generated. The required deliverables\
     \ are missing."
+T037a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `README.md` file containing the required setup instructions
+    was provided; the submission includes only the task description and specifications,
+    with no actual documentation artifact to verify. The implementer must supply the
+    updated `README.md` showing the new setup steps.
+T037b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No updated `README.md` file with usage examples was provided; the evidence list
+    contains no documentation artifact, so the required documentation change is missing.
+T037c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No API documentation files, HTML, Markdown, or other generated docs for the `code/kernel/`
+    module are present in the provided evidence. The claim lacks any artifact demonstrating
+    that documentation was created, so the requirement is not satisfied.
+T037d:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No generated API documentation files (e.g., HTML, Markdown, or Sphinx output)
+    for the `code/agents/` module are present or referenced; the evidence provided
+    contains no artifact confirming that documentation was created. The task therefore
+    remains unfulfilled.
+T037e:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `research.md` file or excerpt showing a new \u201CMethodology\u201D section\
+    \ is provided, and there is no evidence that power analysis, statistical tests,\
+    \ or sensitivity analysis results were documented. The required artifact is missing,\
+    \ so the task is not satisfied."
+T046:
+  c: false
+  h: 1554cbec1b10f3e5f3b5e3dd463ae60d3c02ee1161f03d1cf939a1877919973f
+  r: "The required output file `results/analysis/run_integrity_report.json` is missing,\
+    \ and the provided `code/utils/verify_run.py` is truncated and contains a syntax\
+    \ error (`task_ids = s`). Additionally, no `results/runs/run_*.json` files are\
+    \ present, so the integrity check cannot be performed. The task\u2019s requirements\
+    \ are therefore not satisfied."
+T047:
+  c: false
+  h: dfd84048db8b5b9bcded56a66ef459bd77dc613b667946e8632813df38169197
+  r: "The required output file `results/analysis/final_paired_dataset.csv` is missing\
+    \ from the repository, so the merging, sorting, and null\u2011value checks cannot\
+    \ be verified. The task\u2019s core artifact does not exist."
+T048:
+  c: false
+  h: cdf1e432064a7501d730a73a571175ba862665492073e0edd2baa2af4324a099
+  r: "The required `code/stats/tests.py` file is missing, and the expected output\
+    \ `results/analysis/final_statistical_report.md` does not exist. Moreover, the\
+    \ existing `code/stats/sensitivity.py` operates on different input paths and produces\
+    \ a CSV, not the mandated markdown report with McNemar/Wilcoxon tables, Bonferroni\u2011\
+    corrected p\u2011values, and a stated conclusion about the \u201Closs ceiling\u201D\
+    \ hypothesis. The task is therefore not fulfilled."
+T052:
+  c: false
+  h: 2c4cea4def263f0ca3b61d2531b614afc2ef5ecaa8e90ff75f76ab0659a45582
+  r: The required artifact `results/logs/pipeline_run.log` does not exist, so the
+    full pipeline execution cannot be verified. No log file is present to confirm
+    that the data generation, baseline, 2D agent, and stats steps were run successfully.

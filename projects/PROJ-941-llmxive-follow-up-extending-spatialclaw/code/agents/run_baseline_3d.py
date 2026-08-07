@@ -1,154 +1,98 @@
 """
-Script to execute the 3D Baseline Agent on the generated task instances.
-This script dynamically generates the paired dataset by running the baseline
-on the exact same task instances as the 2D agent and saving results to:
-data/baseline_spatialclaw.csv
+Helper script to run the 3D Baseline Agent.
 
-It depends on:
-- code/data/loader.py (to load the synthetic dataset)
-- code/agents/baseline_3d.py (to run the baseline agent)
-- code/utils/reproducibility.py (to set seeds)
+This script provides a CLI interface to execute the baseline agent on a dataset
+and save the results. It is a wrapper around `baseline_3d.py`.
 """
+
 import os
 import sys
-import csv
 import time
 import logging
 import argparse
-from typing import List, Dict, Any
+from typing import Optional
 
-# Add project root to path for imports
+# Add the parent directory to the path to allow imports
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from data.loader import load_dataset
-from agents.baseline_3d import Baseline3DAgent, run_baseline_on_dataset
-from utils.reproducibility import set_seed
-from utils.logging_config import setup_logging, get_logger
-from utils.memory_monitor import check_memory_budget, log_memory_snapshot
+from agents.baseline_3d import run_baseline_on_dataset, Baseline3DAgent
 
-# Constants
-OUTPUT_PATH = "data/baseline_spatialclaw.csv"
-DEFAULT_SEED = 42
-DEFAULT_TASKS = 10  # Number of tasks to process for the baseline run
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
 
 def parse_args():
-    parser = argparse.ArgumentParser(description="Run 3D Baseline Agent on Synthetic Dataset")
-    parser.add_argument("--seed", type=int, default=DEFAULT_SEED, help="Random seed for reproducibility")
-    parser.add_argument("--num-tasks", type=int, default=DEFAULT_TASKS, help="Number of tasks to process")
-    parser.add_argument("--data-path", type=str, default="data/raw/synthetic_spatialclaw_v1.json", help="Path to the generated dataset")
-    parser.add_argument("--output", type=str, default=OUTPUT_PATH, help="Output CSV path")
+    """Parse command line arguments."""
+    parser = argparse.ArgumentParser(description="Run 3D Baseline Agent and save results.")
+    parser.add_argument(
+        '--input',
+        type=str,
+        required=True,
+        help='Path to the input dataset JSON file (e.g., data/raw/synthetic_spatialclaw_v1.json)'
+    )
+    parser.add_argument(
+        '--output',
+        type=str,
+        required=True,
+        help='Path to the output results JSON file (e.g., results/logs/baseline_run.json)'
+    )
+    parser.add_argument(
+        '--log-level',
+        type=str,
+        default='INFO',
+        choices=['DEBUG', 'INFO', 'WARNING', 'ERROR'],
+        help='Set the logging level'
+    )
     return parser.parse_args()
 
-def run_baseline_and_save(args):
-    logger = get_logger(__name__)
-    
-    # Set up reproducibility
-    set_seed(args.seed)
-    logger.info(f"Starting baseline 3D run with seed: {args.seed}")
-    
-    # Check memory budget before loading
-    if not check_memory_budget(reserve_mb=500):
-        logger.warning("Memory budget check failed. Proceeding with caution.")
-    
-    # Load the dataset
-    logger.info(f"Loading dataset from: {args.data_path}")
+
+def run_baseline_and_save(input_path: str, output_path: str, log_level: str = 'INFO'):
+    """
+    Execute the 3D baseline agent and save results.
+
+    Args:
+        input_path: Path to input dataset.
+        output_path: Path to output results.
+        log_level: Logging level.
+    """
+    logging.getLogger().setLevel(getattr(logging, log_level))
+
+    if not os.path.exists(input_path):
+        logger.error(f"Input file not found: {input_path}")
+        raise FileNotFoundError(f"Input file not found: {input_path}")
+
+    logger.info(f"Starting 3D Baseline execution on {input_path}")
+    start_time = time.perf_counter()
+
     try:
-        tasks = load_dataset(args.data_path)
+        results = run_baseline_on_dataset(input_path, output_path)
+        end_time = time.perf_counter()
+        total_time = end_time - start_time
+
+        logger.info(f"Execution completed in {total_time:.2f} seconds.")
+        logger.info(f"Processed {len(results)} tasks.")
+        logger.info(f"Results saved to {output_path}")
+
+        # Verify output exists
+        if os.path.exists(output_path):
+            logger.info("Output file verified.")
+        else:
+            logger.error("Output file was not created.")
+            raise RuntimeError("Output file creation failed.")
+
     except Exception as e:
-        logger.error(f"Failed to load dataset: {e}")
+        logger.error(f"Execution failed: {str(e)}", exc_info=True)
         raise
 
-    if not tasks:
-        logger.error("Dataset is empty.")
-        raise ValueError("Dataset is empty.")
-
-    # Limit tasks if requested
-    if args.num_tasks and len(tasks) > args.num_tasks:
-        logger.info(f"Limiting to first {args.num_tasks} tasks.")
-        tasks = tasks[:args.num_tasks]
-
-    logger.info(f"Loaded {len(tasks)} tasks.")
-
-    # Initialize the baseline agent
-    agent = Baseline3DAgent()
-    
-    # Prepare results list
-    results = []
-    
-    logger.info("Starting baseline execution...")
-    start_total = time.time()
-    
-    for i, task in enumerate(tasks):
-        task_id = task.get("task_id", f"task_{i}")
-        task_type = task.get("task_type", "unknown")
-        
-        logger.info(f"Processing task {i+1}/{len(tasks)}: {task_id} ({task_type})")
-        
-        # Log memory before each task
-        log_memory_snapshot(logger)
-        
-        try:
-            # Run the baseline on the single task
-            # The run_baseline_on_dataset function expects a list, so we pass a single-item list
-            # and extract the result, or we can call the agent's internal method if available.
-            # Based on API surface: run_baseline_on_dataset(dataset: List[Dict]) -> List[Dict]
-            
-            single_task_list = [task]
-            run_start = time.time()
-            task_results = run_baseline_on_dataset(single_task_list, agent=agent)
-            run_end = time.time()
-            
-            if not task_results:
-                logger.warning(f"No result returned for task {task_id}")
-                continue
-                
-            res = task_results[0]
-            
-            # Record metrics
-            results.append({
-                "task_id": res.get("task_id", task_id),
-                "task_type": task_type,
-                "agent_type": "baseline_3d",
-                "success_flag": 1 if res.get("success", False) else 0,
-                "wall_clock_time_ms": (res.get("execution_time_ms", run_end - run_start) * 1000),
-                "details": res.get("details", "")
-            })
-            
-        except Exception as e:
-            logger.error(f"Error processing task {task_id}: {e}", exc_info=True)
-            # Record failure
-            results.append({
-                "task_id": task_id,
-                "task_type": task_type,
-                "agent_type": "baseline_3d",
-                "success_flag": 0,
-                "wall_clock_time_ms": 0.0,
-                "details": f"Error: {str(e)}"
-            })
-
-    total_time = time.time() - start_total
-    logger.info(f"Baseline execution completed in {total_time:.2f} seconds.")
-
-    # Write results to CSV
-    logger.info(f"Writing results to: {args.output}")
-    
-    # Ensure output directory exists
-    os.makedirs(os.path.dirname(args.output), exist_ok=True)
-    
-    fieldnames = ["task_id", "task_type", "agent_type", "success_flag", "wall_clock_time_ms", "details"]
-    
-    with open(args.output, "w", newline="", encoding="utf-8") as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
-        writer.writeheader()
-        writer.writerows(results)
-
-    logger.info(f"Successfully wrote {len(results)} results to {args.output}")
-    return results
 
 def main():
+    """Main entry point."""
     args = parse_args()
-    setup_logging(level=logging.INFO)
-    run_baseline_and_save(args)
+    run_baseline_and_save(args.input, args.output, args.log_level)
 
-if __name__ == "__main__":
+
+if __name__ == '__main__':
     main()

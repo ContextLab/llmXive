@@ -1,172 +1,107 @@
 """
 tests/unit/test_generator.py
 
-Unit tests for code/data/generator.py
-Verifies schema compliance and file generation.
+Unit tests for the data generator module.
+Verifies that tasks are generated correctly and constraints are met.
 """
-import json
+
 import os
+import json
 import pytest
-import tempfile
-import shutil
+import sys
+import math
+
+# Add code to path
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
+
 from code.data.generator import (
-    generate_dataset,
-    generate_scene_id,
-    generate_object_id,
-    generate_point3d,
-    generate_object,
-    calculate_depth_diff,
-    calculate_occlusion_ratio,
     generate_occlusion_task,
     generate_depth_task,
     generate_relative_task,
-    TaskInstance,
-    Point3D,
-    Object3D,
-    GroundTruth3DParams
+    calculate_2d_overlap_ratio,
+    calculate_occlusion_in_3d,
+    MIN_OVERLAP_RATIO,
+    MIN_DEPTH_VARIANCE
 )
-from dataclasses import asdict
 
-@pytest.fixture
-def temp_output_dir():
-    """Create a temporary directory for test outputs."""
-    temp_dir = tempfile.mkdtemp()
-    yield temp_dir
-    shutil.rmtree(temp_dir)
-
-def test_generate_scene_id():
-    """Test that scene_id generation returns a unique string."""
-    id1 = generate_scene_id()
-    id2 = generate_scene_id()
-    assert isinstance(id1, str)
-    assert len(id1) == 8
-    assert len(id2) == 8
-    # While collision is possible, it's extremely unlikely for UUID-based IDs
-
-def test_generate_object_id():
-    """Test that object_id generation returns a unique string."""
-    id1 = generate_object_id()
-    id2 = generate_object_id()
-    assert isinstance(id1, str)
-    assert len(id1) == 8
-
-def test_generate_point3d():
-    """Test Point3D generation within default ranges."""
-    point = generate_point3d()
-    assert isinstance(point, Point3D)
-    assert -10 <= point.x <= 10
-    assert -10 <= point.y <= 10
-    assert 0 <= point.z <= 10
-
-def test_generate_object():
-    """Test Object3D generation."""
-    obj = generate_object()
-    assert isinstance(obj, Object3D)
-    assert isinstance(obj.center, Point3D)
-    assert "width" in obj.dimensions
-    assert "height" in obj.dimensions
-    assert "depth" in obj.dimensions
-    assert "roll" in obj.rotation
-    assert "pitch" in obj.rotation
-    assert "yaw" in obj.rotation
-
-def test_calculate_depth_diff():
-    """Test depth difference calculation."""
-    obj_a = generate_object()
-    obj_b = generate_object()
-    # Manually set Z to ensure a known difference
-    obj_a.center.z = 1.0
-    obj_b.center.z = 3.0
-    diff = calculate_depth_diff(obj_a, obj_b)
-    assert diff == 2.0
-
-def test_calculate_occlusion_ratio():
-    """Test occlusion ratio calculation (returns float 0-1)."""
-    obj_a = generate_object()
-    obj_b = generate_object()
-    ratio = calculate_occlusion_ratio(obj_a, obj_b)
-    assert 0.0 <= ratio <= 1.0
-
-def test_generate_occlusion_task_schema():
-    """Test occlusion task schema compliance."""
-    scene_id = generate_scene_id()
-    task = generate_occlusion_task(scene_id)
-    assert isinstance(task, TaskInstance)
-    assert task.task_type == "occlusion"
-    assert task.scene_id == scene_id
-    assert "task_id" in task.task_id
-    assert "ground_truth_3d_params" in task.__dict__
-    gt = task.ground_truth_3d_params
-    assert "occlusion_ratio" in gt
-    assert "depth_variance" in gt
-    assert "relative_position" in gt
-    assert "scene_complexity" in gt
-
-def test_generate_depth_task_schema():
-    """Test depth task schema compliance."""
-    scene_id = generate_scene_id()
-    task = generate_depth_task(scene_id)
-    assert task.task_type == "depth"
-    gt = task.ground_truth_3d_params
-    assert "depth_variance" in gt
-    assert gt["depth_variance"] > 0.5 # Should be forced by generator logic
-
-def test_generate_relative_task_schema():
-    """Test relative task schema compliance."""
-    scene_id = generate_scene_id()
-    task = generate_relative_task(scene_id)
-    assert task.task_type == "relative"
-    gt = task.ground_truth_3d_params
-    assert "relative_position" in gt
-    assert "dx" in gt["relative_position"]
-    assert "dy" in gt["relative_position"]
-    assert "dz" in gt["relative_position"]
-
-def test_generate_dataset_creates_file(temp_output_dir):
-    """Test that generate_dataset creates the output JSON file."""
-    output_path = os.path.join(temp_output_dir, "test_spatialclaw.json")
-    tasks = generate_dataset(n_tasks=10, seed=42, output_path=output_path)
-    
-    assert os.path.exists(output_path)
-    assert len(tasks) == 10
-    
-    with open(output_path, 'r') as f:
-        data = json.load(f)
-    
-    assert isinstance(data, list)
-    assert len(data) == 10
-    
-    # Verify schema of first item
-    item = data[0]
-    assert "task_id" in item
-    assert "scene_id" in item
-    assert "task_type" in item
-    assert "ground_truth_3d_params" in item
-    assert item["task_type"] in ["occlusion", "depth", "relative"]
-
-def test_generate_dataset_schema_compliance(temp_output_dir):
-    """Test full schema compliance of generated dataset."""
-    output_path = os.path.join(temp_output_dir, "test_spatialclaw.json")
-    generate_dataset(n_tasks=20, seed=42, output_path=output_path)
-    
-    with open(output_path, 'r') as f:
-        data = json.load(f)
-    
-    for item in data:
-        # Check required top-level fields
-        assert "task_id" in item
-        assert "scene_id" in item
-        assert "task_type" in item
-        assert "ground_truth_3d_params" in item
+class TestOcclusionTaskGeneration:
+    def test_2d_overlap_constraint(self):
+        """Ensure occlusion tasks have overlapping 2D bounding boxes."""
+        task = generate_occlusion_task(seed=12345)
+        obj_a, obj_b = task.ground_truth_3d_params.objects
         
-        gt = item["ground_truth_3d_params"]
-        assert "occlusion_ratio" in gt
-        assert "depth_variance" in gt
-        assert "relative_position" in gt
-        assert "scene_complexity" in gt
+        overlap = calculate_2d_overlap_ratio(obj_a, obj_b)
+        assert overlap >= MIN_OVERLAP_RATIO, f"2D overlap {overlap} is below minimum {MIN_OVERLAP_RATIO}"
+
+    def test_depth_variance_constraint(self):
+        """Ensure occlusion tasks have sufficient depth difference."""
+        task = generate_occlusion_task(seed=54321)
+        depth_var = task.ground_truth_3d_params.depth_variance
+        assert depth_var >= 0.5, f"Depth variance {depth_var} is below minimum 0.5"
+
+    def test_schema_structure(self):
+        """Verify the schema of the generated task."""
+        task = generate_occlusion_task(seed=999)
+        assert task.task_type == "occlusion"
+        assert hasattr(task, 'task_id')
+        assert hasattr(task, 'seed')
+        assert len(task.ground_truth_3d_params.objects) == 2
+        assert hasattr(task.ground_truth_3d_params, 'gt_3d_is_occluded')
+
+class TestDepthTaskGeneration:
+    def test_depth_variance_constraint(self):
+        """Ensure depth tasks have sufficient depth difference."""
+        task = generate_depth_task(seed=111)
+        depth_var = task.ground_truth_3d_params.depth_variance
+        assert depth_var >= MIN_DEPTH_VARIANCE, f"Depth variance {depth_var} is below minimum {MIN_DEPTH_VARIANCE}"
+
+    def test_schema_structure(self):
+        """Verify the schema of the generated task."""
+        task = generate_depth_task(seed=222)
+        assert task.task_type == "depth"
+        assert len(task.ground_truth_3d_params.objects) == 2
+
+class TestRelativeTaskGeneration:
+    def test_schema_structure(self):
+        """Verify the schema of the generated task."""
+        task = generate_relative_task(seed=333)
+        assert task.task_type == "relative"
+        assert len(task.ground_truth_3d_params.objects) == 2
+
+class TestGeometryCalculations:
+    def test_2d_overlap_calculation(self):
+        """Test 2D overlap ratio calculation."""
+        # Create two identical objects at same position
+        from code.data.generator import Object3D, Point3D
         
-        # Check relative_position structure
-        rel_pos = gt["relative_position"]
-        assert "dx" in rel_pos
-        assert "dy" in rel_pos
-        assert "dz" in rel_pos
+        obj1 = Object3D(id="1", type="cube", center=Point3D(0, 0, 0), size=2.0)
+        obj2 = Object3D(id="2", type="cube", center=Point3D(0, 0, 1), size=2.0)
+        
+        overlap = calculate_2d_overlap_ratio(obj1, obj2)
+        assert overlap == 1.0 # Fully overlapping
+
+        # Create two non-overlapping objects
+        obj3 = Object3D(id="3", type="cube", center=Point3D(10, 0, 0), size=2.0)
+        overlap_no = calculate_2d_overlap_ratio(obj1, obj3)
+        assert overlap_no == 0.0
+
+    def test_3d_occlusion_logic(self):
+        """Test 3D occlusion logic."""
+        from code.data.generator import Object3D, Point3D
+        
+        # B is in front of A, and they overlap in 2D
+        obj_a = Object3D(id="A", type="cube", center=Point3D(0, 0, 5), size=2.0)
+        obj_b = Object3D(id="B", type="cube", center=Point3D(0, 0, 2), size=2.0)
+        
+        assert calculate_occlusion_in_3d(obj_a, obj_b) is True
+
+        # B is behind A
+        obj_c = Object3D(id="C", type="cube", center=Point3D(0, 0, 8), size=2.0)
+        assert calculate_occlusion_in_3d(obj_a, obj_c) is False
+
+        # No 2D overlap
+        obj_d = Object3D(id="D", type="cube", center=Point3D(10, 10, 2), size=2.0)
+        assert calculate_occlusion_in_3d(obj_a, obj_d) is False
+
+if __name__ == "__main__":
+    pytest.main([__file__, "-v"])
