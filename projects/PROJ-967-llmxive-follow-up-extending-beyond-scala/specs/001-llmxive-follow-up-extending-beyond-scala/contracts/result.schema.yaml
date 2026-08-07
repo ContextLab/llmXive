@@ -6,9 +6,23 @@ properties:
   r_squared:
     type: number
     description: R² score of the model.
+  r_squared_ci:
+    type: array
+    description: 95% Confidence Interval for R² [lower, upper].
+    items:
+      type: number
+    minItems: 2
+    maxItems: 2
   mae:
     type: number
     description: Mean Absolute Error.
+  mae_ci:
+    type: array
+    description: 95% Confidence Interval for MAE [lower, upper].
+    items:
+      type: number
+    minItems: 2
+    maxItems: 2
   p_value:
     type: number
     description: P-value from permutation test.
@@ -22,6 +36,24 @@ properties:
     type: string
     format: date-time
     description: Timestamp of the run.
+  data_source:
+    type: string
+    description: "real" (if real data was used).
+  power_status:
+    type: string
+    description: "ok" or "low" (if N < 100).
+  covariance_matrix_path:
+    type: string
+    description: Path to the saved global covariance matrix file.
+  exclusion_log_path:
+    type: string
+    description: Path to the exclusion log file.
+  lineage_report_path:
+    type: string
+    description: Path to the per-sample lineage verification report.
+  target_variable_source:
+    type: string
+    description: The metadata field used for target selection (aggregated).
 required:
   - r_squared
   - mae
@@ -29,4 +61,10 @@ required:
   - n_samples
   - n_features
   - timestamp
+  - data_source
+  - power_status
+  - covariance_matrix_path
+  - exclusion_log_path
+  - lineage_report_path
+  - target_variable_source
 additionalProperties: false

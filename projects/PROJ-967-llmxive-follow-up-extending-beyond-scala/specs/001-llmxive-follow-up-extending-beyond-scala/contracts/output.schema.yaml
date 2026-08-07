@@ -10,10 +10,9 @@ required:
   - entropy
   - skewness
   - kurtosis
-  - mahalanobis_distance
   - difficulty_proxy
   - fidelity_loss
-  - dominant_eigenvalue
+  - target_variable_source
 properties:
   sample_id:
     type: string
@@ -27,7 +26,7 @@ properties:
 
   entropy:
     type: number
-    description: "Normalized Shannon entropy of the teacher score distribution for this sample."
+    description: "Normalized Shannon entropy (L1, shifted) of the teacher score distribution for this sample."
     minimum: 0.0
     maximum: 1.0
 
@@ -39,11 +38,6 @@ properties:
     type: number
     description: "Kurtosis of the teacher score distribution for this sample."
 
-  mahalanobis_distance:
-    type: number
-    description: "Mahalanobis distance of this sample's score vector from the global mean, using the global covariance matrix."
-    minimum: 0.0
-
   difficulty_proxy:
     type: number
     description: "Mean of the 4-dimensional teacher score vector (control for prompt difficulty)."
@@ -52,6 +46,10 @@ properties:
     type: number
     description: "Mean Absolute Error (MAE) between student scalar and human annotation for the primary dimension."
     minimum: 0.0
+
+  target_variable_source:
+    type: string
+    description: "The metadata field used to select the primary dimension for fidelity loss."
 
   dominant_eigenvalue:
     type: number
@@ -67,5 +65,4 @@ training_feature_set:
   - entropy
   - skewness
   - kurtosis
-  - mahalanobis_distance
   - difficulty_proxy

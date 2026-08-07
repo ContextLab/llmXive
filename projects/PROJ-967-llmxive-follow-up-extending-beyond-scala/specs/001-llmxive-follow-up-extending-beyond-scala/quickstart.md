@@ -4,72 +4,49 @@
 
 - Python 3.11+
 - Git
-- Access to the Z-Reward dataset (or open substitute)
+- Access to the Z-Reward dataset (MUST be present in `data/raw/z_reward.parquet`)
 
 ## Setup
 
-1. **Clone the repository**:
+1. **Clone and Install**
    ```bash
-   git clone <repo-url>
+   git checkout 001-llmxive-entanglement-analysis
    cd projects/PROJ-967-llmxive-follow-up-extending-beyond-scala
-   ```
-
-2. **Create virtual environment**:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
-
-3. **Install dependencies**:
-   ```bash
    pip install -r requirements.txt
    ```
 
-4. **Download data**:
-   - If using Z-Reward, place the dataset files in `data/raw/`.
-   - If using a public dataset, follow the download instructions in `research.md`.
-
-## Running the Pipeline
-
-1. **Ingest Data**:
+2. **Prepare Data (MANDATORY)**
+   The Z-Reward dataset MUST be placed in `data/raw/z_reward.parquet`.
+   If the file is missing, the pipeline will fail with a clear error message.
    ```bash
-   python code/ingestion.py
+   cp /path/to/z_reward.parquet data/raw/
    ```
 
-2. **Compute Features**:
+3. **Run the Pipeline**
+   Execute the full pipeline from ingestion to model training:
    ```bash
+   python code/ingest.py
    python code/features.py
-   ```
-
-3. **Train Model**:
-   ```bash
    python code/train.py
    ```
 
-4. **Validate Results**:
+4. **View Results**
+   Check `results/results.json` for R², MAE, p-values.
+   Check `results/covariance_matrix.json` for the global covariance matrix.
+   Check `results/exclusion_log.csv` for excluded samples.
+   Check `results/lineage_report.csv` for per-sample target source verification.
    ```bash
-   python code/stats.py
+   cat results/results.json
    ```
 
-5. **View Results**:
-   - Check `results/results.json` for metrics.
-   - Check `results/model.pkl` for the trained model.
-   - Check `data/processed/data_quality_report.json` for exclusion logs.
+## Running Tests
 
-## Testing
-
-Run unit tests:
 ```bash
-pytest tests/unit/
-```
-
-Run integration tests:
-```bash
-pytest tests/integration/
+pytest tests/
 ```
 
 ## Troubleshooting
 
-- **Missing Data**: Check `data/raw/` for required files.
-- **Memory Error**: Reduce dataset size or use streaming.
-- **Import Error**: Ensure virtual environment is activated and dependencies are installed.
+- **Missing Data**: If `data/raw/z_reward.parquet` is missing, the script will fail with "Required dataset Z-Reward not found".
+- **Memory Error**: If the dataset is too large, the script will automatically sample the first [deferred] rows (configurable in `code/utils.py`).
+- **Missing Annotations**: Samples with missing human annotations are excluded and logged in `results/exclusion_log.csv`.

@@ -11,34 +11,29 @@ properties:
     description: Variance of teacher scores.
   entropy:
     type: number
-    description: Shannon entropy of normalized teacher scores.
+    description: Shannon entropy of L1-normalized (shifted) teacher scores.
   skewness:
     type: number
     description: Skewness of teacher scores.
   kurtosis:
     type: number
     description: Kurtosis of teacher scores.
-  mahalanobis_distance:
-    type: number
-    description: Mahalanobis distance from the mean of teacher scores.
   difficulty_proxy:
     type: number
     description: Mean of teacher scores (control for difficulty).
-  dominant_eigenvalue:
-    type: number
-    description: Global dominant eigenvalue (context_only, not for training).
-    x-training-feature: false
   fidelity_loss:
     type: number
     description: MAE between student score and human annotation.
+  target_variable_source:
+    type: string
+    description: Source of the target dimension (metadata field).
 required:
   - sample_id
   - variance
   - entropy
   - skewness
   - kurtosis
-  - mahalanobis_distance
   - difficulty_proxy
-  - dominant_eigenvalue
   - fidelity_loss
+  - target_variable_source
 additionalProperties: false

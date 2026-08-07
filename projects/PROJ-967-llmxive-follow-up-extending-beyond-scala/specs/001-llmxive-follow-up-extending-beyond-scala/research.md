@@ -1,78 +1,89 @@
 # Research: llmXive Follow-up: Teacher Entanglement vs. Scalar Distillation Loss
 
-## Executive Summary
-
-This research investigates the hypothesis that the "structural entanglement" of a teacher model's multi-dimensional score distribution (specifically, the variance, entropy, and eigenvalues across four rubric dimensions) predicts the "dimensional fidelity loss" of a scalar-distilled student model. The study uses the Z-Reward evaluation dataset, which contains prompts, generated images, teacher outputs, student outputs, and human annotations.
-
-**FR-002 Interpretation Note**: The spec requires "dominant eigenvalue for each sample". Mathematically, a covariance matrix (and thus eigenvalues) cannot be computed for a single 4-dimensional vector (0 degrees of freedom). This plan explicitly **re-interprets** FR-002: the "dominant eigenvalue" is computed as a **global** statistic (eigenvalue of the covariance matrix of the 4 dimensions across the entire dataset) and treated as a **context-only** feature. The **per-sample** structural complexity is instead captured by the **Mahalanobis distance** of the sample's score vector from the global mean. This adaptation is necessary to satisfy the mathematical constraints while preserving the intent of measuring structural deviation.
-
 ## Dataset Strategy
 
-### Verified Datasets
+The analysis relies on the **Z-Reward evaluation dataset** (prompts, generated images, teacher score distributions, student scalar outputs, and human annotations).
 
-| Dataset Name | Source URL (Verified) | Load Method | Variables Required | Variable Fit Check |
-|--------------|----------------------|-------------|-------------------|-------------------|
-| Z-Reward Evaluation Dataset | `https://huggingface.co/datasets/z-reward` (or fallback `https://huggingface.co/datasets/Dahoas/full-hh-rlhf`) | `datasets.load_dataset("z-reward")` | Prompt, Teacher Scores (4 dims), Student Scalar, Human Annotations (4 dims), Primary Quality Attribute | **Pending Verification**: Must confirm all 4 dims exist in both teacher and human annotations. |
+**Verified Sources**:
+The "Verified datasets" block provided for this project does **not** list the Z-Reward dataset. The listed datasets are unrelated.
 
-*Note: If the Z-Reward dataset is not found on HuggingFace, the pipeline will attempt to load `Dahoas/full-hh-rlhf` and map its dimensions to the required rubric. If neither is available, the pipeline halts with an error.*
+**Critical Gap & Mitigation (Strict Failure)**:
+- **Gap**: The Z-Reward dataset is not available via a verified URL.
+- **Mitigation**: The ingestion script (`code/ingest.py`) will check for `data/raw/z_reward.parquet`.
+  - If **found**: Load and process real data.
+  - If **missing**: The pipeline will **FAIL** with a clear error message: "Required dataset Z-Reward not found in data/raw/. Simulation mode is disabled to prevent data fabrication."
+  - **Output**: The `results/results.json` will include a field `data_source: "real"` if data is found. If the pipeline fails, no results file is generated.
+- **Data Access Pattern**:
+  - **Streaming**: If the dataset exceeds a substantial size, `datasets.load_dataset(..., streaming=True)` will be used.
+  - **Sampling**: If the full dataset is too large for the 7GB RAM limit, a fixed-seed random sample (e.g., [deferred] rows) will be selected.
+
+**Data Hygiene**:
+- All files in `data/raw` will be checksummed using **SHA-256**.
+- The checksum manifest will be stored at `data/raw/checksums.txt`.
+- Raw data is preserved unchanged; derivations are written to new files.
 
 ## Methodology
 
-### 1. Data Ingestion & Leakage Check (FR-001)
-- **Goal**: Load Z-Reward dataset, align teacher outputs, student outputs, and human annotations.
-- **Method**: Use `datasets` library to load. Merge on sample ID.
-- **Data Leakage Check**: Explicitly verify that the `student_scalar` is an independent model output and not a deterministic function of the `teacher_scores` used for feature engineering. If the student scalar is derived from the teacher scores, the fidelity loss calculation is invalid, and the dataset is discarded.
-- **Validation**: Check for missing values in human annotations. Exclude samples with missing target dimension (FR-006). Log excluded samples in `data_quality_report.json`.
+### 1. Data Ingestion & Alignment (FR-001, US-1)
+- **Input**: Parquet files containing `prompt`, `teacher_scores` (dict/array of 4 dims), `student_score` (scalar), `human_annotations` (dict/array of 4 dims), `metadata`.
+- **Process**:
+  - Load data (or fail if missing).
+  - Verify presence of all 4 dimensions: `Alignment`, `Realism`, `Aesthetics`, `Plausibility`.
+  - **Exclusion Logic**: Filter out rows with missing `human_annotations` for the target dimension (as defined by `metadata.primary_quality_dimension`).
+  - **Traceability**: For every excluded sample, log `sample_id`, `reason` (missing_annotation, missing_target), and `target_dimension` to `results/exclusion_log.csv`.
+  - **Lineage Verification**: For every included sample, record the `primary_quality_dimension` source to `results/lineage_report.csv` to satisfy SC-004.
+  - Align `student_score` with the `human_annotations` for the *specific* primary dimension.
+- **Output**: Cleaned DataFrame `df_clean`, `results/exclusion_log.csv`, and `results/lineage_report.csv`.
 
-### 2. Feature Engineering (FR-002)
-- **Goal**: Compute "entanglement scores" from teacher distributions.
-- **Metrics**:
-  - **Variance**: Variance of the 4 scores for the sample.
-  - **Entropy**: Shannon entropy of the 4 scores (normalized to sum to 1).
-  - **Skewness**: Skewness of the 4 scores.
-  - **Kurtosis**: Kurtosis of the 4 scores.
-  - **Difficulty Proxy**: Mean of the 4 scores (to control for prompt difficulty).
-  - **Mahalanobis Distance**: Distance of the sample's score vector from the global mean, using the global covariance matrix. This is the **per-sample** proxy for structural entanglement.
-  - **Dominant Eigenvalue**: The largest eigenvalue of the **global** covariance matrix (computed across all samples). This is a **context-only** feature (constant for all samples) and is **excluded from training**.
-- **Handling Zero Variance**: Entropy and variance are set to 0 for constant distributions.
+### 2. Feature Engineering (FR-002, US-2, FR-008)
+- **Per-Sample Features**:
+  - **Variance**: Variance of the 4 teacher scores.
+  - **Entropy**: Shannon entropy of the teacher scores. **Normalization Method**: Scores are shifted by subtracting the minimum score and adding a small epsilon (1e-9) to ensure non-negative values, then normalized via L1 normalization (sum to 1). This converts arbitrary scores into a probability-like distribution for entropy calculation. This method is chosen because it preserves the relative spread (dispersion) of scores regardless of the absolute scale or sign, which is the intended measure of "entanglement" (structural complexity).
+  - **Skewness** and **Kurtosis**: Standard statistical moments.
+  - **Difficulty Proxy**: Mean of the 4 teacher scores (control for sample difficulty). *Justification*: Required to prevent confounding, as sample difficulty may influence both variance and error magnitude (addressing scientific soundness concern).
+- **Batch-Level Features**:
+  - Compute the 4x4 **covariance matrix** of teacher scores across the **ENTIRE dataset** (or full available batch).
+  - Derive the **dominant_eigenvalue** (largest absolute eigenvalue) of this global covariance matrix.
+  - **Storage**: Save the raw 4x4 matrix and eigenvalue to `results/covariance_matrix.json` (FR-007).
+  - **Usage**: The `dominant_eigenvalue` is **NOT** used as a per-sample predictor (it is constant). It is stored as a dataset descriptor only. The Random Forest model uses only per-sample features (variance, entropy, skewness, kurtosis, difficulty_proxy).
+- **Output**: Feature DataFrame `df_features` with columns: `variance`, `entropy`, `skewness`, `kurtosis`, `difficulty_proxy`, `fidelity_loss`, `target_variable_source`.
 
-### 3. Fidelity Loss Calculation (FR-003)
-- **Goal**: Compute MAE between student scalar and human annotation for the "primary quality dimension".
-- **Method**: Identify primary dimension from metadata. Compute `abs(student_score - human_score)`.
-- **Control for Difficulty**: The fidelity loss may be residualized against the `difficulty_proxy` (mean teacher score) to isolate the entanglement effect, or the `difficulty_proxy` will be included as a control variable in the model.
+### 3. Predictive Modeling (FR-003, FR-004, FR-005, US-3)
+- **Target Variable**: `fidelity_loss` = `abs(student_score - human_annotation[primary_dim])`.
+- **Model**: Random Forest Regressor (`sklearn.ensemble.RandomForestRegressor`).
+- **Training**:
+  - 5-fold Cross-Validation.
+  - Fixed random seed for reproducibility.
+  - CPU-only execution.
+- **Validation Metrics**:
+  - **R² Score**: Coefficient of determination.
+  - **MAE**: Mean Absolute Error.
+  - **Confidence Intervals**: 95% CI for R² and MAE via **Bootstrapping** (1000 iterations).
+  - **Permutation Test**: 1000 permutations to assess significance of the R² score (p-value).
+  - **Null Baseline**: Compare against a model that predicts the mean target. Report the difference in MAE.
+- **Decision Rules**:
+  - If R² < 0.05: Hypothesis **Rejected** (unsupported).
+  - If 0.05 <= R² < 0.2: Hypothesis **Weakly Supported**.
+  - If R² >= 0.2: Hypothesis **Supported**.
+- **Power Analysis**:
+  - If N < 100 after filtering, the pipeline halts and reports `power_status: "low"`.
+  - If N >= 100, proceed with bootstrapping.
 
-### 4. Predictive Modeling (FR-004)
-- **Goal**: Train Random Forest to predict fidelity loss from entanglement features.
-- **Method**: `RandomForestRegressor` with 5-fold cross-validation.
-- **Feature Set**: `variance`, `entropy`, `skewness`, `kurtosis`, `mahalanobis_distance`, `difficulty_proxy`.
-- **Exclusion**: `dominant_eigenvalue` is **excluded** from the training feature set as it is a constant.
-- **Validation**: Stratified split (if possible) or random split.
+## Statistical Rigor & Feasibility
 
-### 5. Statistical Validation (FR-005)
-- **Goal**: Report R², MAE, and p-value.
-- **Method**: Permutation test (1000 permutations) to test significance of R².
+- **Multiple Comparison Correction**: Not applicable as only one primary hypothesis (variance vs. loss) is tested.
+- **Sample Size/Power**: Minimum N = 100 required. If N < 100, report "Low Power" and halt.
+- **Causal Inference**: This is an observational study. Claims are framed as "associational".
+- **Collinearity**: `variance` and `entropy` may be related. The Random Forest handles non-linearities, but we report the correlation matrix of features.
+- **Compute Feasibility**:
+  - **CPU-First**: Random Forest on <100k samples with 5 features is trivial for 2 CPUs.
+  - **Memory**: Streaming or sampling ensures fit within 7GB RAM.
 
-## Statistical Rigor
+## Risks & Mitigations
 
-- **Multiple Comparisons**: Not applicable (single primary hypothesis: correlation between entanglement and loss).
-- **Power Analysis**: Sample size is fixed by the dataset. We will report the effective N.
-- **Causal Inference**: Observational. Claims are correlational.
-- **Measurement Validity**: Human annotations are the ground truth. Teacher scores are model outputs.
-- **Collinearity**: Entanglement features (variance, entropy, etc.) may be correlated. We will check VIF and use PCA if necessary. PCA is applied only to per-sample features; the global eigenvalue is not included.
-
-## Compute Feasibility
-
-- **CPU**: All methods are CPU-tractable.
-- **Memory**: The Z-Reward dataset (text-only) is estimated to be < 200MB, well within 7GB RAM. If larger, streaming or sampling is used.
-- **Time**: Random Forest on ~10k samples is < 1 hour.
-
-## Data Availability
-
-- **Z-Reward**: Must be publicly available on HuggingFace. If not, the project is blocked.
-- **Alternative**: If Z-Reward is gated, we will use `Dahoas/full-hh-rlhf` with a mapping note. If no substitute exists, the study will be reframed or paused.
-
-## References
-
-- [Z-Reward Dataset Paper/Repo] (URL to be verified)
-- [Random Forest Documentation]
-- [Permutation Test Methodology]
+- **Risk**: Z-Reward dataset not available.
+  - **Mitigation**: Pipeline fails with clear error. No simulation mode to prevent data fabrication.
+- **Risk**: Human annotations missing for >50% of samples.
+  - **Mitigation**: Log warning; proceed with remaining data; report N in results.
+- **Risk**: Dataset too large for RAM.
+  - **Mitigation**: Implement chunked processing or fixed-seed sampling.

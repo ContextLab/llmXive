@@ -1,0 +1,38 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Entanglement Feature Schema"
+description: "Schema for the derived features used in the Random Forest model. Note: mahalanobis_distance is removed. dominant_eigenvalue is context-only."
+type: "object"
+properties:
+  sample_id:
+    type: "string"
+    description: "Unique identifier for the sample."
+  variance:
+    type: "number"
+    description: "Variance of the teacher score distribution."
+  entropy:
+    type: "number"
+    description: "Shannon entropy of L1-normalized (shifted) teacher score distribution."
+  skewness:
+    type: "number"
+    description: "Skewness of the teacher score distribution."
+  kurtosis:
+    type: "number"
+    description: "Kurtosis of the teacher score distribution."
+  difficulty_proxy:
+    type: "number"
+    description: "Mean of teacher scores (control for difficulty)."
+  fidelity_loss:
+    type: "number"
+    description: "MAE between student scalar and human annotation for the primary dimension."
+  target_variable_source:
+    type: "string"
+    description: "The metadata field used to select the primary dimension."
+required:
+  - sample_id
+  - variance
+  - entropy
+  - skewness
+  - kurtosis
+  - difficulty_proxy
+  - fidelity_loss
+  - target_variable_source

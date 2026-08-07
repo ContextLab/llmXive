@@ -1,19 +1,18 @@
 status: none
-intent: download Z-Reward evaluation dataset from HuggingFace including teacher and
-  student logits python package dataset
+intent: Z-Reward evaluation dataset download HuggingFace datasets library python package
 required_fields:
 - sample_id
-- prompt_text
-- image_path_or_url
-- human_alignment_score
-- human_realism_score
-- human_aesthetics_score
-- human_plausibility_score
-- teacher_score_distribution
-- teacher_logits
+- prompt
+- teacher_score_alignment
+- teacher_score_realism
+- teacher_score_aesthetics
+- teacher_score_plausibility
 - student_scalar_output
-- teacher_model_id
-- student_model_id
-cache_key: 43aa1047e32ecc724ca32e49199253aa8625fdf19e379b4b78ff44a57a769ec2
-searched_at: '2026-07-30T03:42:29.843967+00:00'
+- human_annotation_alignment
+- human_annotation_realism
+- human_annotation_aesthetics
+- human_annotation_plausibility
+- primary_quality_attribute
+cache_key: 6d2f6a6379ac1a6ded38c834f8603b4e84ba68c0e269e0c15d80a13cd1add9f7
+searched_at: '2026-08-07T09:27:28.767055+00:00'
 retry_count: 1
