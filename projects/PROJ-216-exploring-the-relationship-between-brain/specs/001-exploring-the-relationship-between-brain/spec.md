@@ -98,6 +98,6 @@ The system must perform statistical correlation analysis between the computed gr
 - The OpenNeuro datasets (ds000224, ds000230) contain resting-state fMRI data.
 - The system MUST validate the presence of behavioral data (musical improvisation, TTCT, or AUT) and age/gender metadata within these specific datasets. If these datasets lack a direct musical improvisation task or standard proxies (TTCT/AUT), the system MUST halt execution with a critical error stating 'No valid creativity proxy found in specified datasets' rather than inferring a measure or assuming external benchmarks exist within the dataset.
 - The 200-ROI Schaefer atlas is appropriate for the resolution of the downloaded fMRI data and provides sufficient granularity for graph metric computation.
-- The available CPU-only GitHub Actions runner environment (multiple cores, sufficient RAM) is sufficient to run FSL/AFNI preprocessing and NetworkX graph analysis on the sampled dataset within the 6-hour limit.
+- The available CPU-only GitHub Actions runner environment (multiple cores, sufficient RAM) is sufficient to run FSL/AFNI preprocessing and NetworkX graph analysis on the sampled dataset within the scheduled time limit.
 - The False Discovery Rate (FDR) correction method is appropriate for the number of graph metrics tested, accounting for potential multicollinearity between metrics.
 - If specific sub-scales (e.g., 'originality') are unavailable in the behavioral data, the system uses the aggregate score and reports this limitation in the analysis output.

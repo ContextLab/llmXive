@@ -1,20 +1,12 @@
 """
-Optimized Pipeline Runner for llmXive Follow-up: Extending MulTaBench
+Optimized Pipeline Execution for T041.
 
-This script orchestrates the full pipeline (US1, US2, US3) with adaptive batching
-and dynamic parallelism to ensure total runtime < 6 hours on CPU.
+This script orchestrates the full pipeline (US1 -> US2 -> US3) using fixed batch sizes
+determined in T040c and dynamic parallelism logic in T025 trainer.py.
+It records the total runtime in data/artifacts/runtime_report.json.
 
-It processes ALL available datasets by:
-1. Dynamically adjusting batch sizes based on memory availability.
-2. Using multiprocessing for dataset-level parallelism (where safe).
-3. Fallback to sequential processing if parallelism causes OOM.
-4. Monitoring execution time and adjusting concurrency to meet the 6-hour target.
-
-Dependencies:
-- Uses existing modules: run_baseline, run_conditioned, run_analysis, etc.
-- Requires: psutil (for memory monitoring), multiprocessing
+Constraint: Uses fixed batch sizes from profiling; does NOT use adaptive runtime memory logic.
 """
-
 import os
 import sys
 import time
@@ -23,328 +15,210 @@ import argparse
 import traceback
 from pathlib import Path
 from datetime import datetime
-from typing import List, Dict, Any, Optional, Callable
-from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor, as_completed
-import multiprocessing
 
-# Add project root to path
+# Add project root to path for imports
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
 from config import ensure_directories
-from utils.logging import setup_logging, get_logger, log_info, log_warning, log_error, log_debug
-from utils.memory_monitor import get_process_memory_mb, track_memory, memory_limit_context
-from pipelines.run_baseline import main as run_baseline_main
-from pipelines.run_baseline_sensitivity import main as run_sensitivity_main
-from pipelines.merge_sensitivity_outputs import main as merge_sensitivity_main
-from pipelines.aggregate_sensitivity import main as aggregate_sensitivity_main
-from analysis.metadata_stats import main as metadata_stats_main
-from pipelines.run_conditioned import main as run_conditioned_main
-from pipelines.validate_baselines import main as validate_baselines_main
-from pipelines.run_correlation_analysis import main as run_correlation_main
-from pipelines.run_t_test import main as run_t_test_main
-from pipelines.run_fdr_correction import main as run_fdr_correction_main
-from pipelines.generate_correlation_report import main as generate_report_main
-from pipelines.generate_data_gap_report import main as generate_gap_report_main
-from pipelines.update_state import main as update_state_main
-
-# Configuration
-TARGET_RUNTIME_SECONDS = 6 * 3600  # 6 hours
-MAX_MEMORY_MB = 7000  # Conservative limit for CPU CI (7GB)
-INITIAL_BATCH_SIZE = 4  # Number of datasets to process in parallel
-MIN_BATCH_SIZE = 1
-MAX_BATCH_SIZE = 8
-MEMORY_CHECK_INTERVAL = 5  # seconds
+from utils.logging import get_logger, log_info, log_error, log_warning
 
 logger = get_logger(__name__)
 
-def get_available_datasets() -> List[Dict[str, Any]]:
-    """
-    Load the list of available datasets from the project configuration.
-    This mimics the logic in run_baseline.py but returns the raw list.
-    """
-    # Assuming datasets are defined in a standard location or config
-    # In a real scenario, this might read from a specific JSON or YAML file
-    # For now, we assume the pipeline scripts handle their own dataset loading
-    # This function is a placeholder to represent the "ALL available datasets" requirement.
-    # The actual list is passed to the worker functions via arguments.
-    # We will rely on the worker functions to load their own dataset lists.
-    return []
+# Configuration paths
+BATCH_SIZE_CONFIG_PATH = PROJECT_ROOT / "data" / "artifacts" / "batch_size_config.json"
+PROFILING_REPORT_PATH = PROJECT_ROOT / "data" / "artifacts" / "profiling_report.json"
+RUNTIME_REPORT_PATH = PROJECT_ROOT / "data" / "artifacts" / "runtime_report.json"
+DATA_RAW_DIR = PROJECT_ROOT / "data" / "raw"
 
-def run_baseline_worker(args: Dict[str, Any]) -> Dict[str, Any]:
-    """Worker function to run baseline embedding generation for a single dataset."""
-    dataset_id = args.get('dataset_id')
-    run_id = args.get('run_id')
-    seed = args.get('seed', 42)
+def get_available_datasets():
+    """
+    Retrieves a list of available datasets from data/raw/.
+    Returns a list of dataset identifiers (strings).
+    """
+    if not DATA_RAW_DIR.exists():
+        log_error(f"Data raw directory not found: {DATA_RAW_DIR}")
+        return []
 
-    log_info(logger, f"Starting baseline generation for dataset: {dataset_id}")
-    start_time = time.time()
+    datasets = []
+    for item in DATA_RAW_DIR.iterdir():
+        if item.is_dir() or (item.is_file() and item.suffix in ['.csv', '.parquet', '.json']):
+            # Assume directory names or file stems are dataset IDs
+            dataset_id = item.name
+            datasets.append(dataset_id)
+    
+    if not datasets:
+        log_warning("No datasets found in data/raw/. Pipeline will exit.")
+        return []
+    
+    log_info(f"Found {len(datasets)} available datasets: {datasets}")
+    return datasets
+
+def run_baseline_worker(seed, batch_size):
+    """
+    Executes the baseline generation (US1) for a specific seed and batch size.
+    Uses fixed batch_size from profiling results.
+    """
+    log_info(f"Starting Baseline Generation (Seed: {seed}, Batch Size: {batch_size})")
+    try:
+        from pipelines.run_baseline import main as baseline_main
+        # Simulate command line args for the baseline script
+        sys.argv = ['run_baseline.py', '--seed', str(seed), '--batch-size', str(batch_size)]
+        baseline_main()
+        log_info(f"Baseline Generation completed for seed {seed}")
+        return True
+    except Exception as e:
+        log_error(f"Baseline Generation failed for seed {seed}: {e}")
+        traceback.print_exc()
+        return False
+
+def run_conditioned_worker(seed, batch_size):
+    """
+    Executes the conditioned model training (US2) for a specific seed and batch size.
+    Uses fixed batch_size from profiling results.
+    """
+    log_info(f"Starting Conditioned Model Training (Seed: {seed}, Batch Size: {batch_size})")
+    try:
+        from pipelines.run_conditioned import main as conditioned_main
+        # Simulate command line args
+        sys.argv = ['run_conditioned.py', '--seed', str(seed), '--batch-size', str(batch_size)]
+        conditioned_main()
+        log_info(f"Conditioned Model Training completed for seed {seed}")
+        return True
+    except Exception as e:
+        log_error(f"Conditioned Model Training failed for seed {seed}: {e}")
+        traceback.print_exc()
+        return False
+
+def run_analysis_worker():
+    """
+    Executes the correlation analysis (US3).
+    """
+    log_info("Starting Correlation Analysis (US3)")
+    try:
+        from pipelines.run_analysis import main as analysis_main
+        sys.argv = ['run_analysis.py']
+        analysis_main()
+        log_info("Correlation Analysis completed")
+        return True
+    except Exception as e:
+        log_error(f"Correlation Analysis failed: {e}")
+        traceback.print_exc()
+        return False
+
+def load_batch_size_config():
+    """
+    Loads the fixed batch size from the profiling report or batch size config.
+    """
+    config_path = PROFILING_REPORT_PATH
+    if not config_path.exists():
+        config_path = BATCH_SIZE_CONFIG_PATH
+    
+    if not config_path.exists():
+        log_error(f"Batch size configuration not found at {config_path}. Using default.")
+        return 8 # Default fallback
 
     try:
-        # Simulate calling the actual pipeline logic
-        # In reality, we would call the specific function for the dataset
-        # Since the pipeline scripts are designed to run on ALL datasets,
-        # we might need to pass a filter or dataset_id argument.
-        # For this optimized runner, we assume the underlying scripts can handle
-        # a specific dataset_id if passed, or we run them sequentially if parallelism
-        # is too risky for the specific script.
-
-        # For T041, we are optimizing the *orchestration*.
-        # We will call the main functions with modified arguments if possible,
-        # or run them in parallel if they are independent.
-
-        # NOTE: The existing scripts (run_baseline.py) are designed to run on ALL datasets.
-        # To parallelize, we would ideally pass a dataset_id filter.
-        # Since we cannot modify the existing scripts extensively (T041 is about optimization),
-        # we will run the full baseline generation once (sequential) and then parallelize
-        # the sensitivity analysis or other independent steps if possible.
-
-        # However, the task requires processing ALL datasets within time limits.
-        # If the baseline generation is the bottleneck, we need to parallelize it.
-        # Let's assume we can pass a --dataset-id argument to the scripts.
-        # If not, we might have to run them sequentially but with adaptive batching for memory.
-
-        # For now, we will simulate the execution time based on a mock dataset size.
-        # In a real implementation, this would call the actual pipeline logic.
-        # We will use the actual main function but with a specific dataset filter if supported.
-        # If the script doesn't support filtering, we might have to run it once for all.
-
-        # Let's assume the script supports --dataset-id.
-        # If not, we might need to adjust the strategy.
-
-        # For this implementation, we will call the main function with a specific dataset_id.
-        # This is a simplification. In reality, we would need to ensure the script supports it.
-        # If not, we would run the full script once and then move to the next step.
-
-        # We will use a mock call for now to demonstrate the structure.
-        # In a real scenario, we would call:
-        # run_baseline_main(['--dataset-id', dataset_id, '--run-id', run_id])
-
-        # Simulate work
-        time.sleep(1)  # Placeholder for actual work
-
-        elapsed = time.time() - start_time
-        log_info(logger, f"Completed baseline for {dataset_id} in {elapsed:.2f}s")
-        return {
-            'dataset_id': dataset_id,
-            'status': 'success',
-            'elapsed_time': elapsed,
-            'phase': 'baseline'
-        }
+        with open(config_path, 'r') as f:
+            data = json.load(f)
+            # Prefer 'optimal_batch_size' if present, else 'fixed_batch_size'
+            batch_size = data.get('optimal_batch_size', data.get('fixed_batch_size', 8))
+            log_info(f"Loaded fixed batch size: {batch_size} from {config_path}")
+            return batch_size
     except Exception as e:
-        log_error(logger, f"Failed baseline for {dataset_id}: {str(e)}")
-        return {
-            'dataset_id': dataset_id,
-            'status': 'failed',
-            'error': str(e),
-            'phase': 'baseline'
-        }
+        log_error(f"Failed to load batch size config: {e}")
+        return 8
 
-def run_conditioned_worker(args: Dict[str, Any]) -> Dict[str, Any]:
-    """Worker function to run conditioned projection training for a single dataset."""
-    dataset_id = args.get('dataset_id')
-    run_id = args.get('run_id')
-
-    log_info(logger, f"Starting conditioned training for dataset: {dataset_id}")
+def run_optimized_pipeline(args):
+    """
+    Main orchestration function for the optimized pipeline.
+    1. Loads fixed batch sizes from T040c profiling results.
+    2. Executes US1 (Baseline) for all datasets/seeds.
+    3. Executes US2 (Conditioned) for all datasets/seeds.
+    4. Executes US3 (Analysis).
+    5. Records total runtime.
+    """
     start_time = time.time()
-
-    try:
-        # Simulate work
-        time.sleep(1)  # Placeholder
-
-        elapsed = time.time() - start_time
-        log_info(logger, f"Completed conditioned training for {dataset_id} in {elapsed:.2f}s")
-        return {
-            'dataset_id': dataset_id,
-            'status': 'success',
-            'elapsed_time': elapsed,
-            'phase': 'conditioned'
-        }
-    except Exception as e:
-        log_error(logger, f"Failed conditioned training for {dataset_id}: {str(e)}")
-        return {
-            'dataset_id': dataset_id,
-            'status': 'failed',
-            'error': str(e),
-            'phase': 'conditioned'
-        }
-
-def adaptive_batch_processor(
-    datasets: List[Dict[str, Any]],
-    worker_func: Callable,
-    phase_name: str,
-    run_id: str
-) -> List[Dict[str, Any]]:
-    """
-    Process datasets with adaptive batching and memory monitoring.
-    Adjusts batch size dynamically based on memory usage and execution time.
-    """
-    batch_size = INITIAL_BATCH_SIZE
-    results = []
-    total_start = time.time()
-    processed_count = 0
-
-    while processed_count < len(datasets):
-        current_batch = datasets[processed_count : processed_count + batch_size]
-
-        # Check memory before starting batch
-        current_mem = get_process_memory_mb()
-        if current_mem > MAX_MEMORY_MB * 0.9:
-            log_warning(logger, f"Memory usage high ({current_mem:.1f}MB). Reducing batch size.")
-            batch_size = max(MIN_BATCH_SIZE, batch_size // 2)
-            continue
-
-        log_info(logger, f"Processing batch of {len(current_batch)} datasets for {phase_name}. "
-                         f"Batch size: {batch_size}, Memory: {current_mem:.1f}MB")
-
-        batch_results = []
-        batch_start = time.time()
-
-        # Use ThreadPoolExecutor for I/O bound tasks or ProcessPoolExecutor for CPU bound
-        # For CPU-bound tasks (model training), ProcessPoolExecutor is better.
-        # However, to avoid overhead, we might use ThreadPoolExecutor if the GIL is released.
-        # Given the nature of PyTorch, ProcessPoolExecutor is safer for CPU parallelism.
-        try:
-            with ProcessPoolExecutor(max_workers=batch_size) as executor:
-                futures = []
-                for ds in current_batch:
-                    args = {'dataset_id': ds['dataset_id'], 'run_id': run_id}
-                    futures.append(executor.submit(worker_func, args))
-
-                for future in as_completed(futures):
-                    try:
-                        result = future.result(timeout=300)  # 5 min timeout per dataset
-                        batch_results.append(result)
-                    except Exception as e:
-                        log_error(logger, f"Task failed: {str(e)}")
-                        batch_results.append({
-                            'dataset_id': 'unknown',
-                            'status': 'failed',
-                            'error': str(e),
-                            'phase': phase_name
-                        })
-        except Exception as e:
-            log_error(logger, f"Executor error: {str(e)}")
-            # Fallback to sequential if parallel fails
-            log_info(logger, "Falling back to sequential processing.")
-            for ds in current_batch:
-                args = {'dataset_id': ds['dataset_id'], 'run_id': run_id}
-                result = worker_func(args)
-                batch_results.append(result)
-
-        batch_elapsed = time.time() - batch_start
-        log_info(logger, f"Batch completed in {batch_elapsed:.2f}s. "
-                         f"Total processed: {processed_count + len(batch_results)}/{len(datasets)}")
-
-        results.extend(batch_results)
-        processed_count += len(batch_results)
-
-        # Adaptive adjustment: if batch was fast, increase size; if slow, decrease
-        avg_time_per_dataset = batch_elapsed / max(1, len(batch_results))
-        if avg_time_per_dataset < 10 and batch_size < MAX_BATCH_SIZE:
-            batch_size = min(MAX_BATCH_SIZE, batch_size + 1)
-        elif avg_time_per_dataset > 60 and batch_size > MIN_BATCH_SIZE:
-            batch_size = max(MIN_BATCH_SIZE, batch_size - 1)
-
-        # Check total time
-        total_elapsed = time.time() - total_start
-        if total_elapsed > TARGET_RUNTIME_SECONDS * 0.9:
-            log_warning(logger, "Approaching time limit. Reducing batch size to ensure completion.")
-            batch_size = max(MIN_BATCH_SIZE, batch_size // 2)
-
-    return results
-
-def run_optimized_pipeline(args: argparse.Namespace):
-    """Main entry point for the optimized pipeline."""
-    run_id = args.run_id or datetime.now().strftime("%Y%m%d_%H%M%S")
     ensure_directories()
 
-    log_info(logger, f"Starting optimized pipeline with run_id: {run_id}")
-    log_info(logger, f"Target runtime: {TARGET_RUNTIME_SECONDS / 3600:.1f} hours")
+    # Load fixed batch size
+    batch_size = load_batch_size_config()
+    seed = args.seed if hasattr(args, 'seed') else 42
+    additional_seeds = args.additional_seeds if hasattr(args, 'additional_seeds') else []
+    
+    # Parse additional seeds if provided as string
+    if isinstance(additional_seeds, str):
+        additional_seeds = [int(s) for s in additional_seeds.split(',')]
+    
+    all_seeds = [seed] + additional_seeds
 
-    start_time = time.time()
+    log_info(f"Starting Optimized Pipeline with Batch Size: {batch_size}, Seeds: {all_seeds}")
 
-    # Step 1: Get list of datasets
-    # Since we don't have a direct function to list datasets, we assume
-    # the existing scripts can handle this. We will simulate a list for now.
-    # In a real implementation, this would load from a config or data directory.
-    datasets = [
-        {'dataset_id': 'dataset_1'},
-        {'dataset_id': 'dataset_2'},
-        # ... all available datasets
-    ]
+    # Step 1: US1 - Baseline Generation
+    log_info("=== Phase 1: User Story 1 (Baseline) ===")
+    baseline_success = True
+    for s in all_seeds:
+        if not run_baseline_worker(s, batch_size):
+            baseline_success = False
+            log_error("Baseline generation failed for seed {}. Stopping pipeline.".format(s))
+            break
+    
+    if not baseline_success:
+        log_error("Pipeline halted due to Baseline Generation failure.")
+        return False
 
-    if not datasets:
-        log_warning(logger, "No datasets found. Exiting.")
-        return
+    # Step 2: US2 - Conditioned Model Training
+    log_info("=== Phase 2: User Story 2 (Conditioned) ===")
+    conditioned_success = True
+    for s in all_seeds:
+        if not run_conditioned_worker(s, batch_size):
+            conditioned_success = False
+            log_error("Conditioned training failed for seed {}. Stopping pipeline.".format(s))
+            break
 
-    log_info(logger, f"Found {len(datasets)} datasets to process.")
+    if not conditioned_success:
+        log_error("Pipeline halted due to Conditioned Training failure.")
+        return False
 
-    # Step 2: Run Baseline Generation (US1)
-    log_info(logger, "Phase 1: Running Baseline Generation (US1)")
-    baseline_results = adaptive_batch_processor(
-        datasets,
-        run_baseline_worker,
-        'baseline',
-        run_id
-    )
+    # Step 3: US3 - Correlation Analysis
+    log_info("=== Phase 3: User Story 3 (Analysis) ===")
+    analysis_success = run_analysis_worker()
 
-    # Step 3: Run Sensitivity Analysis (US1) - Parallel with baseline if possible
-    # For simplicity, we run it after baseline.
-    log_info(logger, "Phase 2: Running Sensitivity Analysis (US1)")
-    # This would involve running run_baseline_sensitivity, merge, aggregate
-    # We simulate the call here.
-    # In reality, we would call the main functions with appropriate arguments.
+    if not analysis_success:
+        log_error("Pipeline halted due to Analysis failure.")
+        return False
 
-    # Step 4: Run Metadata Stats (US2)
-    log_info(logger, "Phase 3: Running Metadata Stats (US2)")
-    # Call metadata_stats_main
-    # This is a single script that processes all datasets, so we run it once.
-    # We can parallelize the internal processing if needed, but the script itself
-    # is designed to handle all datasets.
+    end_time = time.time()
+    total_runtime = end_time - start_time
 
-    # Step 5: Run Conditioned Projection (US2)
-    log_info(logger, "Phase 4: Running Conditioned Projection (US2)")
-    conditioned_results = adaptive_batch_processor(
-        datasets,
-        run_conditioned_worker,
-        'conditioned',
-        run_id
-    )
+    # Write Runtime Report
+    report = {
+        "timestamp": datetime.now().isoformat(),
+        "total_runtime_seconds": total_runtime,
+        "total_runtime_minutes": total_runtime / 60,
+        "batch_size_used": batch_size,
+        "seeds_processed": all_seeds,
+        "status": "success",
+        "constraint_check": {
+            "max_runtime_hours": 6,
+            "passed": total_runtime < (6 * 3600)
+        }
+    }
 
-    # Step 6: Run Analysis (US3)
-    log_info(logger, "Phase 5: Running Statistical Analysis (US3)")
-    # This involves validate_baselines, correlation, t_test, fdr, report generation
-    # These are mostly sequential steps that depend on previous outputs.
-    # We run them sequentially but with logging.
-
-    # Simulate running the analysis pipeline
-    # In reality, we would call the main functions for each step.
-    # For example:
-    # validate_baselines_main()
-    # run_correlation_main()
-    # ...
-
-    total_elapsed = time.time() - start_time
-    log_info(logger, f"Optimized pipeline completed in {total_elapsed:.2f}s ({total_elapsed/3600:.2f} hours)")
-
-    if total_elapsed > TARGET_RUNTIME_SECONDS:
-        log_warning(logger, f"Pipeline exceeded target runtime ({TARGET_RUNTIME_SECONDS}s). "
-                            f"Actual: {total_elapsed}s")
-    else:
-        log_info(logger, "Pipeline completed within target runtime.")
-
-    # Update state
-    update_state_main()
+    with open(RUNTIME_REPORT_PATH, 'w') as f:
+        json.dump(report, f, indent=2)
+    
+    log_info(f"Pipeline completed successfully. Total runtime: {total_runtime:.2f}s. Report saved to {RUNTIME_REPORT_PATH}")
+    return True
 
 def main():
-    parser = argparse.ArgumentParser(description="Optimized Pipeline Runner")
-    parser.add_argument("--run-id", type=str, help="Run ID for the pipeline")
-    parser.add_argument("--log-level", type=str, default="INFO", help="Logging level")
+    parser = argparse.ArgumentParser(description="Run Optimized Pipeline for T041")
+    parser.add_argument('--seed', type=int, default=42, help="Primary random seed")
+    parser.add_argument('--additional-seeds', type=str, default="", help="Comma-separated list of additional seeds")
     args = parser.parse_args()
 
-    setup_logging(level=args.log_level)
-    run_optimized_pipeline(args)
+    success = run_optimized_pipeline(args)
+    sys.exit(0 if success else 1)
 
 if __name__ == "__main__":
     main()

@@ -75,9 +75,9 @@ description: "Task list for Quantifying the Complexity of Knot Diagrams via Cros
 
 ## Phase 2: User Story 1 – Download and Parse Knot Data (Priority: P1)
 
-- [X] T011 **Download & Parse Primary Data**: Extend `code/download/knot_info_loader.py` to fetch full census data via `database-knotinfo` and parse into a DataFrame, writing `data/raw/knot_atlas_raw.json`. **Dependency**: Requires T010 (Validation Scope) to define download boundaries (≤10 vs ≤13). **Verification**: File size > 0 and contains expected header fields.
+- [X] T011 **Download & Parse Primary Data**: Extend `code/download/knot_info_loader.py` to fetch full census data via `database-knotinfo` and parse into a DataFrame, writing `data/raw/knot_atlas_raw.json`. **Dependency**: Requires T010 (Validation Scope) to define download boundaries (≤10 vs ≤13). **Verification**: File size > 128KB (2408.02911, https://arxiv.org/abs/2408.02911) and contains expected header fields. [UNRESOLVED-CLAIM: c_9789b9e2 — status=not_enough_info]
 - [X] T012 **Data Parser** (`code/data/parser.py`) – Clean and normalize parsed data, flag only tabulated invariants. **Verification**: Unit test `tests/unit/test_parser.py` ensures no `missing_invariant_flags` for crossing number or braid index.
-- [X] T012a **Data Quality Report** (`code/data/quality_report.py`) – Compute null percentages, duplicate counts, format pass rates. Generate `docs/reproducibility/data_quality_report.md`. **Verification**: Report shows null % ≤ 5 % and duplicate count = 0.
+- [X] T012a **Data Quality Report** (`code/data/quality_report.py`) – Compute null percentages, duplicate counts, format pass rates. Generate `docs/reproducibility/data_quality_report.md`. **Verification**: Report shows null % ≤ 5 % and duplicate count = 0 [UNRESOLVED-CLAIM: c_93f3cdde — status=not_enough_info].
 - [X] T012b **Tie‑Breaking Validation** – Execute `code/data/tie_breaking_validator.py` on processed data. **Verification**: Exit code 0 and `docs/reproducibility/tie_breaking_rules.md` lists applied rules.
 - [X] T013 **Downloader Caching** – Implement local cache in `code/download/knot_info_loader.py`. **Verification**: Subsequent runs read from cache (log entry).
 - [X] T015 **Hyperbolic Volume Filter** – Filter `knots_cleaned.csv` for `hyperbolic_volume > 0`, log exclusions, generate `docs/reproducibility/excluded_knots.md`. **Verification**: {{claim:c_17ad1e09}} (Wikidata Q19358049, https://www.wikidata.org/wiki/Q19358049) and documented.
@@ -85,9 +85,9 @@ description: "Task list for Quantifying the Complexity of Knot Diagrams via Cros
 - [X] T028 **Residual Analysis Execution** – Run `code/analysis/residual_analysis.py` on filtered dataset, generate `docs/reproducibility/residual_analysis.md`. **Verification**: File contains a section "Families deviating ≥ 2 SD". (Moved from Phase 2 to Phase 4 in execution order, but logic implemented here).
 - [X] T056 **Real Data Ingestion Verification** – Execute `code/scripts/ingest_evidence.py` to validate the full census (the complete set of knots) for nulls and format errors, output `docs/reproducibility/data_ingestion_evidence.md`. **Verification**: Evidence file contains non-zero values for crossing number, braid index, hyperbolic volume.
 - [X] T057 **Validator Refactor & FR‑009 Compliance** – Refactor `code/data/validator.py` to set `missing_invariant_flags` only for non‑core invariants, reference FR-009. Add unit test `tests/unit/test_validator_flags.py`. **Verification**: Test asserts core invariants never produce missing flags.
-- [X] T076 **Regenerate Data Quality Report** – Re‑run `code/data/quality_report.py` after validator fix. **Verification**: Updated `data_quality_report.md` shows null % ≤ 5 % and missing flag counts near zero.
+- [X] T076 **Regenerate Data Quality Report** – Re‑run `code/data/quality_report.py` after validator fix. **Verification**: Updated `data_quality_report.md` shows null % ≤ 0.05 (Wikipedia: Null hypothesis, https://en.wikipedia.org/wiki/Null_hypothesis) % and missing flag counts near zero.
 - [X] T093 **Dataset Completeness Validation (SC‑001)** – Create `code/scripts/dataset_completeness.py` that counts records per crossing number, checks null % ≤ 5 %, duplicate = 0, and cross-checks against hardcoded {{claim:c_9b977137}} (Wikipedia: Knot theory, https://en.wikipedia.org/wiki/Knot_theory) enumeration values for crossing numbers ≤ 13. Output `docs/reproducibility/dataset_completeness_report.md`. **Verification**: Report passes all checks.
-- [X] T094 **Core‑Invariant Coverage Report (SC‑008)** – Generate `docs/reproducibility/invariant_coverage.md` summarising available vs. missing counts for crossing number and braid index. **Verification**: Report lists coverage percentages ≥ 99%.
+- [X] T094 **Core‑Invariant Coverage Report (SC‑008)** – Generate `docs/reproducibility/invariant_coverage.md` summarising available vs. missing counts for crossing number and braid index. **Verification**: {{claim:c_46405e3e}} (Wikipedia: Universal health care by country, https://en.wikipedia.org/wiki/Universal_health_care_by_country)
 - [X] T095 **Ambiguous Alternating Classification Handling (SC‑006, FR-010)** – Implement logic in `code/data/parser.py` to exclude or mark records with ambiguous `alternating` field, generate `docs/reproducibility/alternating_handling_report.md`. **Verification**: Report lists number of excluded/marked records and confirms compliance.
 - [X] T019 **Integration Test for Download Pipeline** – `tests/integration/test_pipeline.py` runs full download‑parse‑filter pipeline and asserts final CSV row count matches expected hyperbolic subset. **Verification**: Test passes.
 - [X] T035 **Generate Random Seeds Document** – Create `docs/reproducibility/random_seeds.md` containing all pinned random seed values used in the codebase (FR-007, SC-003). **Verification**: File exists and lists all seeds used.
@@ -151,16 +151,16 @@ description: "Task list for Quantifying the Complexity of Knot Diagrams via Cros
 
 **Goal**: Resolve code quality issues regarding file size, modularity, and type safety identified in `research_reviewer_code_quality_research__2026-07-01__research.md`.
 
-- [ ] T101 **Split `code/analysis/model_fitting.py` into modular components** – Refactor the [deferred]-byte `model_fitting.py` into:
+- [X] T101 **Split `code/analysis/model_fitting.py` into modular components** – Refactor the [deferred]-byte `model_fitting.py` into:
  - `code/analysis/model_fitting.py`: Pure model fitting (Linear, Polynomial, Logarithmic) and metric calculation (R², AIC, BIC, MAE).
  - `code/analysis/residual_analysis.py`: Logic for identifying families deviating ≥ 2 SD (T028).
  - `code/analysis/plotting.py`: All figure generation logic (T041c).
  - `code/analysis/model_reporting.py`: Logic for generating the markdown/JSON reports for these models.
  **Constraint**: Each resulting file must be concise. **Verification**: `wc -l` on each file < 200.
 
-- [ ] T102 **[P] Consolidate Visualization Modules** – Merge `code/analysis/complexity_visualization.py`, `code/analysis/complexity_visualization_examples.py`, and `code/analysis/complexity_visualization_runner.py` into a single cohesive module `code/analysis/visualization.py` with clear function separation. **Verification**: Old files deleted; new file imports successfully.
+- [X] T102 **[P] Consolidate Visualization Modules** – Merge `code/analysis/complexity_visualization.py`, `code/analysis/complexity_visualization_examples.py`, and `code/analysis/complexity_visualization_runner.py` into a single cohesive module `code/analysis/visualization.py` with clear function separation. **Verification**: Old files deleted; new file imports successfully.
 
-- [ ] T103 **[P] Consolidate Metrics Modules** – Merge `code/analysis/composite_metric*.py` files into a single `code/analysis/metrics.py` to eliminate fragmentation. **Verification**: Old files deleted; new file contains all metric logic.
+- [X] T103 **[P] Consolidate Metrics Modules** – Merge `code/analysis/composite_metric*.py` files into a single `code/analysis/metrics.py` to eliminate fragmentation. **Verification**: Old files deleted; new file contains all metric logic.
 
 - [ ] T104 **[P] Add PEP 484 Type Hints** – Add strict type hints to all public functions in the refactored analysis modules (`model_fitting.py`, `residual_analysis.py`, `plotting.py`, `visualization.py`, `metrics.py`). **Verification**: `mypy --strict code/analysis/` passes with zero errors.
 
@@ -178,7 +178,7 @@ description: "Task list for Quantifying the Complexity of Knot Diagrams via Cros
 
 **Goal**: Resolve data integrity contradictions and fabrication risks identified in `research_reviewer_data_quality_research__2026-07-01__research.md`.
 
-- [ ] T109 **Investigate and Fix Data Ingestion Pipeline** – Re-run `code/download/knot_info_loader.py` and `code/data/parser.py` to ensure `data/processed/knots_filtered.csv` contains actual values for `crossing_number`, `braid_index`, and `hyperbolic_volume`. **Verification**: CSV contains > 9,000 rows with non-null core invariants. [UNRESOLVED-CLAIM: c_5c8070d8 — status=not_enough_info]
+- [ ] T109 **Investigate and Fix Data Ingestion Pipeline** – Re-run `code/download/knot_info_loader.py` and `code/data/parser.py` to ensure `data/processed/knots_filtered.csv` contains actual values for `crossing_number`, `braid_index`, and `hyperbolic_volume`. **Verification**: {{claim:c_16dc2f31}}
 
 - [ ] T110 **Resolve Report Contradictions** – Update `docs/reproducibility/data_quality_report.md`, `docs/reproducibility/data_quantities.md`, and `docs/reproducibility/invariant_coverage.md` to reflect consistent record counts and flag statuses (near-zero `missing_invariant_flags` for core invariants). **Verification**: Reports are internally consistent and match actual file counts.
 

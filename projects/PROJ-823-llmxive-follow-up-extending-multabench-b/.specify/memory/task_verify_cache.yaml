@@ -9,13 +9,11 @@ T015:
     being considered fulfilled.
 T024:
   c: false
-  h: 0415da64d7898ce607c441c0266aac6d1b69cf53f542768449d599d27b40bf3a
-  r: "The repository contains a partially\u2011implemented `metadata_stats.py` that\
-    \ stops mid\u2011function (the `save_summary_csv` definition is truncated) and\
-    \ never aggregates per\u2011feature stats into the required single values per\
-    \ dataset. No `data/processed/metadata_stats_summary.csv` file is present, so\
-    \ the script does not produce the required output nor verify row counts. The task\
-    \ therefore remains unfinished."
+  h: bcf4352954f34ef6dcdac872470f2e27f39516d751d329ba0525f82a62cf58bd
+  r: "The repository contains a partially shown `metadata_stats.py` that is truncated\
+    \ and does not include logic to aggregate per\u2011dataset stats or write `data/processed/metadata_stats_summary.csv`.\
+    \ Moreover, the required summary CSV file is absent. Consequently the task\u2019\
+    s output artifact and full implementation are missing."
 T027:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -32,19 +30,20 @@ T028:
     \ not satisfied."
 T031:
   c: false
-  h: 813d6d508d27c619d8f80cb346543f20eceb1f4c394f4cbf49ea2411869b4dae
-  r: "The `code/analysis/correlation.py` script exists, but the required input file\
-    \ `data/artifacts/gpu_tuned_baselines.csv` is absent, so the script cannot perform\
-    \ the Recovery Ratio calculation as specified. The missing CSV prevents the implementation\
-    \ from being functional and meeting the task\u2019s requirement."
-T032a:
+  h: 75d0139ddb029912c017290f2fe4f47b53beb597a964e9f4de3532da956548a6
+  r: The provided `code/analysis/correlation.py` exists, but the required input file
+    `data/artifacts/gpu_tuned_baselines.csv` is missing, so the script cannot compute
+    the Recovery Ratio as specified. Additionally, the script is truncated and does
+    not demonstrate that it produces the required output files. The task therefore
+    remains unfinished.
+T032b:
   c: false
-  h: d8d34f86399afc4e6ee28eec9cf7e266b2dbab8fae919ac42ec9ac0b6a45af12
-  r: "The repository contains `code/pipelines/validate_baselines.py`, but the file\
-    \ is truncated (e.g., an unfinished fallback list) and does not include complete\
-    \ logic to write the required CSV. Moreover, the expected output file `data/artifacts/gpu_tuned_baselines.csv`\
-    \ is absent. The task\u2019s deliverables (a populated CSV with the specified\
-    \ schema and a gap report) are therefore not present."
+  h: 580736fe99af661696acad4f3226a28b16f08d47defb057bd4436ace77b21b66
+  r: The repository contains the `extract_baseline_scalars.py` script, but the required
+    input CSV (`data/artifacts/gpu_tuned_baselines.csv`) and the resulting JSON output
+    (`data/artifacts/gpu_tuned_scalars.json`) are missing, so the pipeline cannot
+    be executed nor produce the validated dictionary of floats. The task is therefore
+    not fulfilled.
 T033:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -86,12 +85,11 @@ T038:
     \ source files) showing the new \u201CData Availability Gap\u201D content."
 T045:
   c: false
-  h: 19ccae9d53a194bb93a3291ef4d6d6e25779b5779a0d9d0b2f394bb9bdc46555
-  r: "The required `data/processed/metadata_stats_summary.csv` and the output `data/artifacts/data_integrity_report.json`\
-    \ are absent, and the provided `verify_data_integrity.py` is truncated and only\
-    \ checks a single \u201Cvariance\u201D column \u2013 it does not implement per\u2011\
-    feature zero\u2011variance skipping, imputation, or the detailed logging stipulated\
-    \ by the task."
+  h: c4cfed36fa8366d800cb52d38e75dc0c40437b59d19e200b67fde5d187f24e6e
+  r: The required input `data/processed/metadata_stats_summary.csv` is absent, and
+    the expected output `data/artifacts/data_integrity_report.json` was not generated.
+    Without these files the pipeline cannot perform the integrity checks or produce
+    the required report.
 T049:
   c: false
   h: 626a3721fe18ba8c50a8144a61551a4ae4bbe37c01e06740d946580ac398ba31

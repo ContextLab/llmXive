@@ -10,17 +10,24 @@ import csv
 import json
 from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import List
+from typing import List, Optional
 
 @dataclass
 class ParsedKnotData:
-    """A cleaned representation of a knot record."""
+    """A cleaned representation of a knot record.
+
+    Includes core invariants as well as optional computed invariants.
+    """
 
     name: str
     crossing_number: int
     braid_index: int
-    volume: float | None
-    alternating: bool | None
+    volume: Optional[float] = None
+    alternating: Optional[bool] = None
+    # Computed invariants – may be absent if not yet calculated
+    arc_index: Optional[int] = None
+    seifert_circle_count: Optional[int] = None
+    bridge_number: Optional[int] = None
 
     @classmethod
     def from_raw(cls, raw: dict) -> "ParsedKnotData":
@@ -32,17 +39,31 @@ class ParsedKnotData:
           caller (so that data‑quality checks can flag them).
         * ``volume`` is converted to ``float`` when present.
         * ``alternating`` is interpreted as a boolean if possible.
+        * Computed invariant fields (``arc_index``, ``seifert_circle_count``,
+          ``bridge_number``) are optional and will be read if present.
         """
         return cls(
             name=str(raw.get("name", "")),
             crossing_number=int(raw["crossing_number"]),
             braid_index=int(raw["braid_index"]),
-            volume=float(raw["volume"]) if raw.get("volume") not in (None, "") else None,
+            volume=float(raw["volume"])
+            if raw.get("volume") not in (None, "")
+            else None,
             alternating=bool(raw["alternating"])
             if raw.get("alternating") is not None
             else None,
+            arc_index=int(raw["arc_index"])
+            if raw.get("arc_index") not in (None, "")
+            else None,
+            seifert_circle_count=int(
+                raw["seifert_circle_count"]
+            )
+            if raw.get("seifert_circle_count") not in (None, "")
+            else None,
+            bridge_number=int(raw["bridge_number"])
+            if raw.get("bridge_number") not in (None, "")
+            else None,
         )
-
 
 def parse_knot_atlas_data(raw_json_path: Path) -> List[ParsedKnotData]:
     """Parse the raw JSON file into a list of :class:`ParsedKnotData`.
@@ -66,19 +87,32 @@ def parse_knot_atlas_data(raw_json_path: Path) -> List[ParsedKnotData]:
             continue
     return parsed
 
-
 def write_parsed_to_csv(
     records: List[ParsedKnotData], output_csv_path: Path
 ) -> None:
-    """Write ``records`` to ``output_csv_path`` as a CSV file."""
+    """Write ``records`` to ``output_csv_path`` as a CSV file.
+
+    The CSV includes both core invariants and any computed invariants that
+    are present on the ``ParsedKnotData`` objects. Missing values are written
+    as empty fields, which downstream validation treats as ``null``.
+    """
     output_csv_path.parent.mkdir(parents=True, exist_ok=True)
-    fieldnames = ["name", "crossing_number", "braid_index", "volume", "alternating"]
+    # Define the column order – core fields first, then computed invariants.
+    fieldnames = [
+        "name",
+        "crossing_number",
+        "braid_index",
+        "volume",
+        "alternating",
+        "arc_index",
+        "seifert_circle_count",
+        "bridge_number",
+    ]
     with output_csv_path.open("w", newline="", encoding="utf-8") as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         writer.writeheader()
         for rec in records:
             writer.writerow(asdict(rec))
-
 
 def main() -> None:  # pragma: no cover
     """CLI entry point.

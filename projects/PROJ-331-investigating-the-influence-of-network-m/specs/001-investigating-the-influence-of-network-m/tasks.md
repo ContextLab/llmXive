@@ -43,9 +43,9 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 [P] Create project directory structure: `code/`, `tests/`, `data/raw/`, `data/processed/`, `data/logs/`, `results/`, `state/`
+- [X] T001 [P] Create project directory structure: `code/`, `tests/`, `data/raw/`, `data/processed/`, `data/logs/`, `results/`, `state/`
 - [X] T002 [P] Initialize Python 3.11 project with `requirements.txt` (numpy, scipy, pandas, networkx, matplotlib, seaborn, nibabel, requests, reportlab, tqdm, joblib, dipy)
-- [ ] T003 [P] Configure linting (flake8/black) and formatting tools
+- [X] T003 [P] Configure linting (flake8/black) and formatting tools
 
 ---
 
@@ -76,13 +76,16 @@
 
 - [X] T010 [P] [US1] Unit test for data download logic in `tests/unit/test_download.py`: **Contract**: Verify `download_subject_data(subject_id)` returns a dict with keys `{'dwi_path', 'rsfmri_path'}` or raises `FileNotFoundError` if missing; assert SHA256 checksums match `data/raw/.checksums.json` for valid files.
 - [X] T011 [P] [US1] Unit test for parcellation logic in `tests/unit/test_preprocess.py`: **Contract**: Verify `parcellate_connectome(streamlines_path, atlas_path)` returns a numpy array of shape (N, N) with a floating-point data type, where N corresponds to the number of regions in the specified atlas.; assert values are non-negative and density is within the expected valid range.
-- [ ] T012 [P] [US1] Integration test for full pipeline on 2 subjects in `tests/integration/test_pipeline.py`: **Contract**: Run end-to-end on 2 mock subjects; assert `data/processed/` contains `structural.npy` and `rsfc.npy` for both; assert `data/logs/pipeline.log` contains "Processed 2/2 subjects" without errors. <!-- ATOMIZE: requested -->
+- [X] T012 [P] [US1] Integration test for full pipeline on 2 subjects in `tests/integration/test_pipeline.py`: **Contract**: Run end-to-end on 2 mock subjects; assert `data/processed/` contains `structural.npy` and `rsfc.npy` for both; assert `data/logs/pipeline.log` contains "Processed 2/2 subjects" without errors.
 
 ### Implementation for User Story 1
 
 - [ ] T013 [US1] Implement `code/download.py` to fetch HCP DWI (.trk/.tck) and rs-fMRI data (or verify pre-seeded data in `data/raw/`); include graceful handling for missing subjects (log warning, skip, continue); **FAIL LOUDLY** on real fetch errors (no synthetic fallback)
-- [ ] T014 [US1] Implement `code/preprocess.py` to apply Schaefer‑100 parcellation to DWI streamlines -> Binary Adjacency (density thresholded) AND Weighted Adjacency (streamline count); input:.trk/.tck streamlines,.nii.gz atlas; output: `data/processed/binary_adjacency.npy`, `data/processed/weighted_adjacency.npy`
-- [ ] T015 [US1] Implement `code/preprocess.py` to compute rsFC (Pearson correlation of BOLD time‑series) and Global Efficiency (on the **weighted adjacency matrix** `data/processed/weighted_adjacency.npy` from T014); input: `data/processed/weighted_adjacency.npy`; output: `data/processed/rsfc.npy`, `data/processed/global_efficiency.json`
+- [ ] T014 [US1] Implement `code/preprocess.py` to apply Schaefer‑100 parcellation to DWI streamlines -> **Weighted Adjacency** (streamline count, **unthresholded**); input: .trk/.tck streamlines, .nii.gz atlas; output: `data/processed/weighted_adjacency.npy`
+- [ ] T014a [US1] Implement `code/preprocess.py` to apply Schaefer‑100 parcellation to DWI streamlines -> **Binary Adjacency (10% density threshold)**; input: `data/processed/weighted_adjacency.npy`; output: `data/processed/binary_adj_10p.npy`
+- [ ] T014b [US1] Implement `code/preprocess.py` to apply Schaefer‑100 parcellation to DWI streamlines -> **Binary Adjacency (20% density threshold)**; input: `data/processed/weighted_adjacency.npy`; output: `data/processed/binary_adj_20p.npy`
+- [ ] T014c [US1] Implement `code/preprocess.py` to apply Schaefer‑100 parcellation to DWI streamlines -> **Binary Adjacency (30% density threshold)**; input: `data/processed/weighted_adjacency.npy`; output: `data/processed/binary_adj_30p.npy`
+- [ ] T015 [US1] Implement `code/preprocess.py` to compute rsFC (Pearson correlation of BOLD time‑series) and **Global Efficiency** (on the **unthresholded weighted adjacency matrix** `data/processed/weighted_adjacency.npy` from T014); input: `data/processed/weighted_adjacency.npy`; output: `data/processed/rsfc.npy`, `data/processed/global_efficiency.json`
 - [ ] T016 [US1] Implement logging of all processing steps, warnings, and errors to `data/logs/pipeline.log`
 - [ ] T017 [US1] Save processed matrices (`structural.npy`, `rsfc.npy`) to `data/processed/` with provenance metadata
 
@@ -98,20 +101,18 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T019 [P] [US2] Unit test for motif enumeration correctness in `tests/unit/test_motifs.py`: **Contract**: Verify `count_motifs(adj_matrix)` returns a dict with counts for all directed k-node motifs; assert sum of counts equals `n * (n-1) * (n-2)` for a complete graph.
+- [X] T019 [P] [US2] Unit test for motif enumeration correctness in `tests/unit/test_motifs.py`: **Contract**: Verify `count_motifs(adj_matrix)` returns a dict with counts for all directed k-node motifs; assert sum of counts equals the theoretical total number of directed k-node subgraphs for a complete graph.
 - [X] T020 [P] [US2] Unit test for null model generation (Maslov-Sneppen) in `tests/unit/test_motifs.py`: **Contract**: Verify `generate_null_model(adj_matrix, iterations=100)` preserves degree distribution; assert mean degree difference is < 1e-6.
-- [X] T021 [P] [US2] Integration test for timeout handling on large graphs in `tests/integration/test_motifs.py`: **Contract**: Run on a large-scale graph with a 5s timeout; assert function raises `TimeoutError` and logs "Timeout warning" to `pipeline.log`.
+- [X] T021 [P] [US2] Integration test for timeout handling on large graphs in `tests/integration/test_motifs.py`: **Contract**: Run on a large-scale graph with a predefined timeout threshold; assert function raises `TimeoutError` and logs "Timeout warning" to `pipeline.log`.
 
 ### Implementation for User Story 2
 
-- [~] T022 [US2] Implement `code/motifs.py` to enumerate all 3‑node subgraphs using `networkx` on the **binary adjacency matrix** `data/processed/binary_adjacency.npy` from T014; generate degree‑preserving null networks (**multiple iterations**, seed 42) using Maslov-Sneppen algorithm to satisfy SC-002 timeout while maintaining statistical validity <!-- FAILED: unspecified -->
-- [X] T023 [US2] Implement `code/motifs.py` to compute z‑score prevalence for every 3‑node motif type: `z = (observed - mean_null) / std_null`
-- [~] T024 [US2] Implement timeout wrapper (time limit) for motif enumeration; abort gracefully and log warning if exceeded
-- [ ] T025a [US2] Compute z-scores at **10% density threshold** on the **binary adjacency matrix** from T014; enforce 100s timeout per subject; output `data/processed/motif_z_10p.json`
-- [ ] T025b [US2] Compute z-scores at **20% density threshold** on the **binary adjacency matrix** from T014; enforce 100s timeout per subject; output `data/processed/motif_z_20p.json`
-- [ ] T025c [US2] Compute z-scores at **30% density threshold** on the **binary adjacency matrix** from T014; enforce 100s timeout per subject; output `data/processed/motif_z_30p.json`
-- [ ] T025d [US2] Aggregate z-scores from T025a/b/c using **median** value across thresholds; output `data/processed/motif_profiles.json` with raw per-threshold scores; verify SC-002 compliance (total time <= 300s)
-- [ ] T026 [US2] Save motif profiles to `data/processed/motif_profiles.json` with raw per-threshold scores
+- [ ] T022 [US2] Implement `code/motifs.py` to enumerate all 3‑node subgraphs using `networkx`; generate degree‑preserving null networks using Maslov-Sneppen algorithm; enforce strict 300s timeout per subject to satisfy SC-002
+- [ ] T023 [US2] Implement `code/motifs.py` to compute z‑score prevalence for every 3‑node motif type: `z = (observed - mean_null) / std_null`
+- [ ] T024 [US2] Implement timeout wrapper (time limit) for motif enumeration; abort gracefully and log warning if exceeded
+- [ ] T025 [US2] Compute z-scores for **all three density thresholds** (10%, 20%, 30%) in a **single optimized loop** to ensure SC-002 compliance (total time <= 300s); input: `data/processed/binary_adj_10p.npy`, `binary_adj_20p.npy`, `binary_adj_30p.npy`; output: `data/processed/motif_z_10p.json`, `motif_z_20p.json`, `motif_z_30p.json`
+- [ ] T026 [US2] Aggregate z-scores from T025 using **median** value across thresholds; output `data/processed/motif_profiles.json` with raw per-threshold scores
+- [ ] T027 [US2] Save motif profiles to `data/processed/motif_profiles.json` with raw per-threshold scores
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -127,19 +128,20 @@
 
 - [ ] T028 [P] [US3] Unit test for partial correlation and Bonferroni correction in `tests/unit/test_stats.py`: **Contract**: Verify `partial_corr(x, y, z)` returns correct r and p-value; verify `bonferroni_correct(p_values)` returns adjusted p-values summing to <= 1.0.
 - [ ] T029 [P] [US3] Unit test for permutation test implementation in `tests/unit/test_stats.py`: **Contract**: Verify `permutation_test(x, y, n_perm=1000)` returns empirical p-value; assert p-value is within 2*SE of analytical p-value for known distributions.
-- [ ] T030 [P] [US3] Unit test for PDF generation layout and content in `tests/unit/test_report.py`: **Contract**: Verify `generate_pdf(results)` creates a file <= 5MB; assert presence of mandatory disclaimer string.
+- [ ] T037b [P] [US3] Unit test for PDF generation layout and content in `tests/unit/test_report.py`: **Contract**: Verify `generate_pdf(results)` creates a file <= 5MB; assert presence of mandatory disclaimer string.
+- [X] T037b [US3] Integration test in `tests/integration/test_report.py` to verify PDF generation completes in ≤2 minutes and file size ≤5MB (SC-004)
 
 ### Implementation for User Story 3
 
-- [ ] T030 [US3] Implement `code/stats.py` to compute partial Pearson/Spearman correlations (controlling for **global node degree** as per Spec FR-005) between motif z-scores and rsFC metrics; **Method**: Use `scipy.stats.spearmanr`/`pearsonr` on residuals of `y ~ x` and `z ~ x`; input: `data/processed/motif_profiles.json`, `data/processed/subject_metrics.csv`; reference [FR-005]
-- [ ] T031 [US3] Implement `code/stats.py` to apply **Bonferroni correction** across all directed 3‑node motifs (Strictly implements FR-005); output corrected p-values in `results/correlation_results.json`
+- [ ] T029 [US3] Implement `code/stats.py` to aggregate `data/processed/global_efficiency.json`, `data/processed/rsfc.npy`, and `data/processed/motif_profiles.json` into a single `data/processed/subject_metrics.csv` for downstream analysis; input: outputs from US1 and US2; output: `data/processed/subject_metrics.csv`
+- [ ] T030 [US3] Implement `code/stats.py` to compute partial Pearson/Spearman correlations between each motif's z-score and each rsFC metric (strength and global efficiency) across subjects, **controlling for network density** (as per Plan Phase 3 strategy to avoid redundancy); input: `data/processed/motif_profiles.json`, `data/processed/subject_metrics.csv`; reference [FR-005], [Plan Phase 3]
+- [ ] T031 [US3] Implement `code/stats.py` to apply **Bonferroni correction** across all directed 3‑node motifs (Strictly implements Spec FR-005; overrides Plan's FDR suggestion); output corrected p-values in `results/correlation_results.json`
 - [ ] T032 [US3] Implement `code/stats.py` to run permutation test (≥1000 permutations) for significant motifs (corrected p < 0.05)
 - [ ] T033 [US3] Implement zero-variance detection (skip test, flag in report) and VIF check for collinearity (if VIF > 5, report and switch to Spearman)
 - [ ] T034 [US3] Implement `code/stats.py` power analysis module (N=50, α=0.05 **Bonferroni-adjusted**) using G*Power approximation; output schema: `{"min_detectable_r": float, "power_level": 0.8, "adjusted_alpha": float, "n_subjects": 50}` to `results/power_analysis.json`
 - [ ] T035 [US3] Implement `code/report.py` to generate PDF with scatter plots, CIs, p-values, and permutation results per motif; input: `results/correlation_results.json`
 - [ ] T036 [US3] Add mandatory disclaimer string: "These findings are associational only and do not imply causation." to PDF
 - [ ] T037a [US3] Implement PDF generation logic in `code/report.py` ensuring layout, plots, and text are correctly rendered
-- [ ] T037b [US3] Implement integration test in `tests/integration/test_report.py` to verify PDF generation completes in ≤2 minutes and file size ≤5MB (SC-004)
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -247,3 +249,4 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
+- **Spec vs Plan Conflict**: Where Spec FR-005 mandates Bonferroni and Plan suggests FDR, tasks follow the **Spec** (Bonferroni). Where Plan Phase 3 mandates controlling for 'network density' and Spec FR-005 says 'global node degree', tasks follow the **Plan** (network density) for scientific rigor, while still applying the Spec's correction method.

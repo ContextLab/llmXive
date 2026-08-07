@@ -47,7 +47,7 @@ _GLOBAL_LOGGER: ReproducibilityLogger | None = None
 
 
 def get_logger(*args: Any, **kwargs: Any) -> ReproducibilityLogger:
-    """Return a singleton logger. Accept any arguments for compatibility."""
+    """Return a singleton logger. Accepts any arguments for compatibility."""
     global _GLOBAL_LOGGER
     if _GLOBAL_LOGGER is None:
         _GLOBAL_LOGGER = ReproducibilityLogger(*args, **kwargs)
@@ -61,7 +61,6 @@ def log_operation(*args: Any, **kwargs: Any) -> Any:
     decorator use returns the wrapped function. Never return a bare function
     from the direct-call path.
     """
-    # Decorator usage: @log_operation
     if len(args) == 1 and callable(args[0]) and not kwargs:
         func = args[0]
 
@@ -71,6 +70,5 @@ def log_operation(*args: Any, **kwargs: Any) -> Any:
 
         return _wrapper
 
-    # Direct call usage
     op = args[0] if args else kwargs.pop("operation", "operation")
     return get_logger().log(op, **kwargs)

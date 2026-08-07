@@ -5,37 +5,81 @@ submitter: llmxive-preprint-followup
 
 # llmXive follow-up: extending "OrbitQuant: Data-Agnostic Quantization for Image and Video Diffusion T"
 
-## Summary of the prior work
-OrbitQuant introduces a data-agnostic post-training quantization framework for Diffusion Transformers (DiTs) that eliminates the need for per-checkpoint calibration by rotating activations into a normalized basis using Randomized Permuted Block-Hadamard (RPBH) transforms. This technique concentrates activation distributions around fixed marginals, allowing a single pre-computed Lloyd-Max codebook to handle dynamic shifts across timesteps, prompts, and modalities (image/video) without re-fitting. The method achieves state-of-the-art performance at aggressive bit-widths (e.g., W2A4) by absorbing the rotation into weights offline and applying it only to activations during inference.
+**Field**: computer science
 
-## Proposed extension
-**Research Question:** Can the fixed RPBH rotation basis used in OrbitQuant be dynamically adapted at runtime based on the semantic entropy of the input prompt to further reduce quantization error in high-variance generation steps, and does this "semantic-aware" rotation improve generation fidelity on low-bit (W2A4) regimes without requiring gradient updates or calibration data?
+## Research question
 
-**Why it matters:** While OrbitQuant successfully removes the need for calibration data by using a static rotation, it assumes a universal distribution shape across all inputs; however, complex prompts or specific timesteps may induce activation distributions that deviate significantly from the global marginal, suggesting that a single fixed basis might not be optimal for every inference instance. By investigating a lightweight, prompt-conditioned rotation selection, we can potentially bridge the gap between data-agnostic efficiency and the precision of data-dependent methods, all while maintaining the CPU-tractable constraint of avoiding heavy calibration loops.
+Can a lightweight, prompt-conditioned selection of rotation matrices reduce quantization error in W2A4 Diffusion Transformers for high-variance generation steps, and does this semantic-aware adaptation improve generation fidelity compared to a static data-agnostic basis without requiring calibration data or gradient updates?
+
+## Motivation
+
+OrbitQuant successfully removes the need for calibration data by using a single static rotation basis, but this assumes a universal activation distribution shape across all inputs and timesteps. Complex prompts or specific diffusion steps may induce activation distributions that deviate significantly from the global marginal, suggesting that a fixed basis is suboptimal for every inference instance. Investigating a dynamic, entropy-conditioned rotation selection could bridge the gap between data-agnostic efficiency and data-dependent precision while maintaining CPU-tractable constraints.
+
+## Related work
+
+- [OrbitQuant: Data-Agnostic Quantization for Image and Video Diffusion Transformers](https://arxiv.org/abs/2607.02461) — Establishes the baseline data-agnostic framework using static RPBH transforms and Lloyd-Max codebooks, which this project aims to extend with dynamic adaptation.
+- [Towards Accurate Post-training Quantization for Diffusion Models](https://arxiv.org/abs/2305.18723) — Proposes ADP-DM, a data-free quantization framework that shares the goal of avoiding calibration data but relies on different statistical assumptions, providing a contrast to the rotation-based approach.
+- [Q-Diffusion: Quantizing Diffusion Models](https://arxiv.org/abs/2302.04304) — Addresses general quantization challenges in diffusion models, offering context on the trade-offs between bit-width reduction and generation quality that this study seeks to optimize further.
+- [Fixed Point Diffusion Models](https://arxiv.org/abs/2401.08741) — Introduces fixed-point solving concepts in diffusion, which, while methodologically distinct, highlights the broader interest in stabilizing diffusion dynamics that quantization adaptation also targets.
+
+## Expected results
+
+We expect that dynamically selecting rotation matrices based on prompt entropy will reduce quantization error by 15–20% for high-complexity prompts in W2A4 regimes compared to the static OrbitQuant baseline. This improvement should manifest as sharper details in generated images, measurable via a reduction in FID and an increase in CLIP scores, while incurring negligible runtime overhead (<2%).
 
 ## Methodology sketch
-**Data:** We will utilize a subset of the MS-COCO 2017 validation set (500 images) and a curated set of 200 diverse text prompts (ranging from simple objects to complex scenes) to drive the DiT models (FLUX.1-dev and Wan 2.1) in a CPU-only simulation environment using float32 emulation for the rotation logic.
 
-**Procedure:**
-1.  **Baseline Replication:** Reproduce OrbitQuant's static RPBH rotation and W2A4 quantization on the target models to establish a fidelity baseline (using FID and CLIP score proxies computed on a CPU).
-2.  **Entropy-Conditioned Rotation:** Implement a lightweight "router" module that computes the semantic entropy of the input prompt embedding (a cheap CPU operation) and selects one of $K=16$ pre-generated RPBH rotation matrices optimized for different variance regimes (generated via a one-time offline clustering of activation histograms from a small, generic dataset).
-3.  **Dynamic Application:** Apply the selected rotation matrix to the activations at each layer during the forward pass, keeping the weight rotation static as in the original paper.
-4.  **Evaluation:** Compare the generated outputs against the static baseline using perceptual metrics and a human preference study (simulated via a lightweight VLM judge running on CPU) to measure quality gains.
+- **Data Acquisition**: Download the MS-COCO 2017 validation set (500 images) and curate 200 diverse text prompts from public repositories (e.g., HuggingFace datasets) to drive the DiT models.
+- **Baseline Implementation**: Reproduce the static OrbitQuant RPBH rotation and W2A4 quantization on FLUX.1-dev and Wan 2.1 models using float32 emulation for the rotation logic on a CPU-only environment.
+- **Rotation Matrix Generation**: Perform a one-time offline clustering of activation histograms from a small generic dataset to generate $K=16$ pre-optimized RPBH rotation matrices representing different variance regimes.
+- **Router Implementation**: Develop a lightweight router module that computes the semantic entropy of input prompt embeddings (a CPU-efficient operation) to select the appropriate rotation matrix from the pre-generated set.
+- **Dynamic Forward Pass**: Integrate the router into the model inference pipeline to apply the selected rotation matrix to activations at each layer while keeping weight rotation static.
+- **Metric Computation**: Compute perceptual metrics (FID, CLIP score) on the generated outputs using CPU-compatible implementations to quantify fidelity gains.
+- **Statistical Validation**: Apply a paired t-test to compare the metric distributions of the dynamic method against the static baseline across the 200 prompts to determine statistical significance (p < 0.05).
+- **Overhead Analysis**: Measure wall-clock inference time for both methods to verify that the dynamic selection adds less than 2% runtime overhead.
 
-**Expected Result:** We hypothesize that the entropy-conditioned dynamic rotation will reduce the quantization error for high-complexity prompts by 15-20% compared to the static OrbitQuant baseline, resulting in visibly sharper details in W2A4 generation, while incurring negligible runtime overhead (<2%) since the rotation selection is a simple lookup based on prompt embedding statistics.
+## Duplicate-check
 
-## Motivated by (source preprint — reviewed, not authored, by llmXive)
+- Reviewed existing ideas: (none in current context).
+- Closest match: None (this is a specific extension of the OrbitQuant framework with a novel dynamic adaptation mechanism not covered by the static baseline or general quantization papers).
+- Verdict: NOT a duplicate
 
-- **OrbitQuant: Data-Agnostic Quantization for Image and Video Diffusion Transformers** — Donghyun Lee, Jitesh Chavan, Duy Nguyen, Sam Huang, Liming Jiang, Priyadarshini Panda, Timo Mertens, Saurabh Shukla. https://arxiv.org/abs/2607.02461.
 
-```bibtex
-@article{orig_arxiv_2607_02461,
-  title = {OrbitQuant: Data-Agnostic Quantization for Image and Video Diffusion Transformers},
-  author = {Donghyun Lee and Jitesh Chavan and Duy Nguyen and Sam Huang and Liming Jiang and Priyadarshini Panda and Timo Mertens and Saurabh Shukla},
-  year = {2026},
-  eprint = {2607.02461},
-  archivePrefix = {arXiv},
-  journal = {arXiv preprint arXiv:2607.02461},
-  url = {https://arxiv.org/abs/2607.02461}
-}
-```
+## Search trail
+
+**Generated by**: librarian (prompt v1.6.0) on 2026-08-07T09:42:31Z
+**Outcome**: exhausted
+**Original term**: llmXive follow-up: extending "OrbitQuant: Data-Agnostic Quantization for Image and Video Diffusion T" computer science
+**Verified citation count**: 4
+
+### Search terms used
+
+| Rank | Term | Hit count |
+|-|-|-|
+| 0 (initial) | llmXive follow-up: extending "OrbitQuant: Data-Agnostic Quantization for Image and Video Diffusion T" computer science | 0 |
+| 1 | data-agnostic quantization for diffusion models | 5 |
+| 2 | low-bit quantization of image diffusion transformers | 0 |
+| 3 | quantization-aware training for video diffusion | 0 |
+| 4 | post-training quantization for latent diffusion models | 0 |
+| 5 | efficient inference of diffusion models via quantization | 0 |
+| 6 | weight-only quantization for generative diffusion networks | 0 |
+| 7 | quantization strategies for text-to-image diffusion | 0 |
+| 8 | reducing memory footprint in video generation models | 0 |
+| 9 | mixed-precision quantization for stable diffusion | 0 |
+| 10 | quantization robustness in data-agnostic settings | 0 |
+| 11 | acceleration of diffusion models through integer arithmetic | 0 |
+| 12 | quantization noise analysis in generative AI | 0 |
+| 13 | bit-width optimization for diffusion model deployment | 0 |
+| 14 | quantization of UNet architectures in diffusion systems | 0 |
+| 15 | hardware-efficient diffusion model inference | 0 |
+| 16 | data-independent quantization techniques for generative tasks | 0 |
+| 17 | quantization error mitigation in diffusion sampling | 0 |
+| 18 | compressed diffusion models for edge devices | 0 |
+| 19 | quantization of attention mechanisms in diffusion transformers | 0 |
+| 20 | scalable quantization methods for large-scale diffusion training | 0 |
+
+### Verified citations
+
+1. **Towards Accurate Post-training Quantization for Diffusion Models** (2023). Changyuan Wang, Ziwei Wang, Xiuwei Xu, Yansong Tang, Jie Zhou, et al.. arXiv. [2305.18723](https://arxiv.org/abs/2305.18723). PDF-sampled: No.
+2. **OrbitQuant: Data-Agnostic Quantization for Image and Video Diffusion Transformers** (2026). Donghyun Lee, Jitesh Chavan, Duy Nguyen, Sam Huang, Liming Jiang, et al.. arXiv. [2607.02461](https://arxiv.org/abs/2607.02461). PDF-sampled: No.
+3. **Q-Diffusion: Quantizing Diffusion Models** (2023). Xiuyu Li, Yijiang Liu, Long Lian, Huanrui Yang, Zhen Dong, et al.. arXiv. [2302.04304](https://arxiv.org/abs/2302.04304). PDF-sampled: No.
+4. **Fixed Point Diffusion Models** (2024). Xingjian Bai, Luke Melas-Kyriazi. arXiv. [2401.08741](https://arxiv.org/abs/2401.08741). PDF-sampled: No.

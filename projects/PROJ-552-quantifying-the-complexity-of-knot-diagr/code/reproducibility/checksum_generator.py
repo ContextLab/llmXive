@@ -1,167 +1,52 @@
-"""Generate SHA-256 checksums for all data files and update state manifest.
+"""Generate SHA-256 checksums for all files under the data directory.
 
-This script fulfills T033 (part of US4) by:
-1. Scanning data/ for all non-log files (json, csv, png, md).
-2. Computing SHA-256 hashes.
-3. Writing a unified manifest to `data/checksums.json`.
-4. Updating `docs/reproducibility/checksums.md` with human-readable output.
-5. Updating the `state` artifact map with new hashes (per Constitution Principle V).
+The script walks ``data/`` recursively, computes a SHA-256 hash for each
+regular file, and writes a markdown table to
+``docs/reproducibility/checksums.md``. The format is:
+
+| Relative Path | SHA-256 |
+|---|---|
+| data/raw/knot_atlas_raw.json | <hash> |
+
+This file is part of the reproducibility run‑book and must exist.
 """
-from __future__ import annotations
-
 import hashlib
-import json
-import os
-import sys
 from pathlib import Path
-from typing import Any, Dict, List
 
-# Add project root to path for imports if running as script
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(PROJECT_ROOT))
-
-from code.reproducibility.logs import get_logger, log_operation
-
-DATA_DIR = PROJECT_ROOT / "data"
-CHECKSUMS_JSON = DATA_DIR / "checksums.json"
-CHECKSUMS_MD = PROJECT_ROOT / "docs" / "reproducibility" / "checksums.md"
-STATE_FILE = PROJECT_ROOT / "state" / "manifest.yaml"
-
-logger = get_logger("checksum_generator")
+def _sha256_of_file(path: Path) -> str:
+    """Return the hex SHA‑256 digest of *path*."""
+    h = hashlib.sha256()
+    with path.open("rb") as f:
+        for chunk in iter(lambda: f.read(8192), b""):
+            h.update(chunk)
+    return h.hexdigest()
 
 
-def compute_sha256(file_path: Path) -> str:
-    """Compute SHA-256 hash of a file."""
-    sha256_hash = hashlib.sha256()
-    try:
-        with open(file_path, "rb") as f:
-            for byte_block in iter(lambda: f.read(4096), b""):
-                sha256_hash.update(byte_block)
-        return sha256_hash.hexdigest()
-    except Exception as e:
-        logger.log("checksum_error", file=str(file_path), error=str(e))
-        raise
+def main() -> None:
+    data_root = Path("data")
+    output_md = Path("docs/reproducibility/checksums.md")
 
+    if not data_root.is_dir():
+        raise FileNotFoundError(f"Data directory {data_root!s} does not exist")
 
-def scan_data_files() -> List[Path]:
-    """Scan data directory for relevant files, excluding logs and temporary files."""
-    files = []
-    if not DATA_DIR.exists():
-        logger.log("data_dir_missing", path=str(DATA_DIR))
-        return []
+    rows = []
+    for file_path in data_root.rglob("*"):
+        if file_path.is_file():
+            rel = file_path.relative_to(Path.cwd())
+            checksum = _sha256_of_file(file_path)
+            rows.append((str(rel), checksum))
 
-    for ext in ["*.json", "*.csv", "*.png", "*.md", "*.txt"]:
-        for f in DATA_DIR.rglob(ext):
-            # Exclude log files and temporary caches
-            if "log" in f.name.lower() or f.name.startswith("."):
-                continue
-            files.append(f)
-    return sorted(files)
+    # Sort rows for reproducibility
+    rows.sort(key=lambda x: x[0])
 
+    with output_md.open("w", encoding="utf-8") as out:
+        out.write("| Relative Path | SHA-256 |\n")
+        out.write("|---|---|\n")
+        for rel, cs in rows:
+            out.write(f"| {rel} | {cs} |\n")
 
-def update_state_manifest(checksums: Dict[str, str]) -> None:
-    """Update the state manifest YAML with new checksums.
-
-    This satisfies Constitution Principle V (Artifact Map Consistency).
-    """
-    if not STATE_FILE.parent.exists():
-        STATE_FILE.parent.mkdir(parents=True, exist_ok=True)
-
-    state_data = {}
-    if STATE_FILE.exists():
-        try:
-            # Simple YAML-like parsing without external dependency to avoid import errors
-            # We expect a simple key: value format or just a dict representation
-            content = STATE_FILE.read_text()
-            # Very basic parsing for the expected structure
-            # If it's a valid JSON/YAML, we'd ideally use yaml/json, but we stick to stdlib
-            # Assuming the state file is a JSON dict for safety in this script
-            # If it's YAML, we might need a simple parser or just overwrite if empty
-            if content.strip().startswith("{"):
-                state_data = json.loads(content)
-            else:
-                # Fallback: treat as empty if not JSON
-                state_data = {}
-        except json.JSONDecodeError:
-            state_data = {}
-
-    # Update with new checksums
-    for rel_path, hash_val in checksums.items():
-        state_data[rel_path] = hash_val
-
-    # Write back as JSON for simplicity and robustness
-    with open(STATE_FILE, "w") as f:
-        json.dump(state_data, f, indent=2, sort_keys=True)
-
-
-def write_checksums_md(checksums: Dict[str, str]) -> None:
-    """Write human-readable checksums documentation."""
-    CHECKSUMS_MD.parent.mkdir(parents=True, exist_ok=True)
-
-    lines = [
-        "# Checksums for Data Artifacts",
-        "",
-        "This file contains SHA-256 checksums for all data artifacts generated by the pipeline.",
-        "These checksums ensure data integrity and reproducibility (FR-007, SC-003).",
-        "",
-        "## Checksums",
-        "",
-    ]
-
-    for rel_path, hash_val in sorted(checksums.items()):
-        lines.append(f"- `{rel_path}`: `{hash_val}`")
-
-    lines.append("")
-    lines.append(f"*Generated at: {get_logger().log('checksum_generation_complete').timestamp}*")
-
-    CHECKSUMS_MD.write_text("\n".join(lines))
-
-
-@log_operation
-def main() -> int:
-    """Main entry point for checksum generation."""
-    logger.log("checksum_generator_start", message="Starting checksum generation")
-
-    if not DATA_DIR.exists():
-        logger.log("checksum_generator_failed", reason="data directory missing")
-        print("Error: data/ directory not found.")
-        return 1
-
-    files = scan_data_files()
-    if not files:
-        logger.log("checksum_generator_warning", message="No data files found to checksum")
-        print("Warning: No data files found.")
-        # Still create empty manifests
-        checksums: Dict[str, str] = {}
-    else:
-        checksums = {}
-        for f in files:
-            try:
-                hash_val = compute_sha256(f)
-                rel_path = str(f.relative_to(PROJECT_ROOT))
-                checksums[rel_path] = hash_val
-                logger.log("checksum_computed", file=rel_path, hash=hash_val)
-            except Exception as e:
-                print(f"Error computing checksum for {f}: {e}")
-                return 1
-
-    # Write JSON manifest
-    with open(CHECKSUMS_JSON, "w") as f:
-        json.dump(checksums, f, indent=2, sort_keys=True)
-    logger.log("checksums_json_written", path=str(CHECKSUMS_JSON))
-
-    # Write Markdown documentation
-    write_checksums_md(checksums)
-    logger.log("checksums_md_written", path=str(CHECKSUMS_MD))
-
-    # Update state manifest
-    update_state_manifest(checksums)
-    logger.log("state_manifest_updated", path=str(STATE_FILE))
-
-    logger.log("checksum_generator_complete", total_files=len(checksums))
-    print(f"Successfully generated checksums for {len(checksums)} files.")
-    return 0
+    print(f"Wrote checksums for {len(rows)} files to {output_md}")
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

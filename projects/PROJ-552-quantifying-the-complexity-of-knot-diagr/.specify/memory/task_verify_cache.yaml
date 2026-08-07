@@ -6,11 +6,15 @@ T010:
     and analysis, not to any API setup, so the required deliverable is missing.
 T081:
   c: false
-  h: 5cfe62ae0344bb1d46b87ef734133ffcf88a1995ca20ee8b581b2f0cb1eaf6a2
-  r: "The required markdown report `docs/reproducibility/computed_invariant_verification.md`\
-    \ does not exist, so the task\u2019s deliverable of generating a verification\
-    \ document is missing. Additionally, the provided script is truncated and appears\
-    \ focused on arc index, Seifert circle count, and bridge number, without clear\
-    \ evidence that it writes the markdown file or fully implements the comparison\
-    \ logic. The missing report must be created (and the script ensured to generate\
-    \ it) to satisfy the task."
+  h: a0164da9c706f21fec45df133767b723a51ca6b87fb69d80c201f967193fca56
+  r: "The repository contains `code/data/verify_invariants.py`, but the provided excerpt\
+    \ is truncated and does not show any logic that actually writes the required `docs/reproducibility/computed_invariant_verification.md`.\
+    \ Moreover, the markdown report file is missing entirely. The task\u2019s core\
+    \ deliverable \u2013 a generated verification report \u2013 is therefore not present."
+T082:
+  c: false
+  h: ae2b0abdf87012dc11c1ec4508d6a684b752c0039c57fd230de0ed0ac4e1e48f
+  r: "The parser now includes the computed invariant fields, but the required schema\
+    \ file `contracts/knot_record.schema.yaml` is missing, so the data schema was\
+    \ not extended and no validation test could have been run. The task\u2019s core\
+    \ requirement remains unmet."

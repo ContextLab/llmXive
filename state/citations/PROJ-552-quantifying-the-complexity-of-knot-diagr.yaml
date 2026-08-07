@@ -908,9 +908,21 @@
   verification_status: mismatch
   verified_against_url: https://github.com/your-org/quantifying-knot-complexity
   verified_at: '2026-07-26T07:38:37.452748Z'
-- artifact_hash: f10b093ad544c4485559b4b962f5262b9732fb029174bac4081ba64a910f6c1c
+- artifact_hash: 1bb3dfa10c153630b22f7c32a3a18539e2747193b38b90bb83d08ea26aca8823
   artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
   cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: '[2408.02911] Boosting File Systems Elegantly: A Transparent NVM
+    Write-ahead Log for Disk File Systems'
+  kind: url
+  value: https://arxiv.org/abs/2408.02911
+  verification_status: pending
+  verified_against_url: https://arxiv.org/abs/2408.02911
+  verified_at: '2026-08-07T09:53:39.824164Z'
+- artifact_hash: 1bb3dfa10c153630b22f7c32a3a18539e2747193b38b90bb83d08ea26aca8823
+  artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  cite_id: c-002
   cited_authors: []
   cited_title: null
   fetched_title: refusal - Wikidata
@@ -918,10 +930,21 @@
   value: https://www.wikidata.org/wiki/Q19358049
   verification_status: pending
   verified_against_url: https://www.wikidata.org/wiki/Q19358049
-  verified_at: '2026-07-28T20:17:55.966272Z'
-- artifact_hash: f10b093ad544c4485559b4b962f5262b9732fb029174bac4081ba64a910f6c1c
+  verified_at: '2026-08-07T09:53:39.824164Z'
+- artifact_hash: 1bb3dfa10c153630b22f7c32a3a18539e2747193b38b90bb83d08ea26aca8823
   artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
-  cite_id: c-002
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: Null hypothesis - Wikipedia
+  kind: url
+  value: https://en.wikipedia.org/wiki/Null_hypothesis
+  verification_status: pending
+  verified_against_url: https://en.wikipedia.org/wiki/Null_hypothesis
+  verified_at: '2026-08-07T09:53:39.824164Z'
+- artifact_hash: 1bb3dfa10c153630b22f7c32a3a18539e2747193b38b90bb83d08ea26aca8823
+  artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  cite_id: c-004
   cited_authors: []
   cited_title: null
   fetched_title: Knot theory - Wikipedia
@@ -929,4 +952,15 @@
   value: https://en.wikipedia.org/wiki/Knot_theory
   verification_status: pending
   verified_against_url: https://en.wikipedia.org/wiki/Knot_theory
-  verified_at: '2026-07-28T20:17:55.966272Z'
+  verified_at: '2026-08-07T09:53:39.824164Z'
+- artifact_hash: 1bb3dfa10c153630b22f7c32a3a18539e2747193b38b90bb83d08ea26aca8823
+  artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  cite_id: c-005
+  cited_authors: []
+  cited_title: null
+  fetched_title: Universal health care by country - Wikipedia
+  kind: url
+  value: https://en.wikipedia.org/wiki/Universal_health_care_by_country
+  verification_status: pending
+  verified_against_url: https://en.wikipedia.org/wiki/Universal_health_care_by_country
+  verified_at: '2026-08-07T09:53:39.824164Z'

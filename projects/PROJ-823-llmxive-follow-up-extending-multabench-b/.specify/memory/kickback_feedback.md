@@ -4,8 +4,7 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T001` (rejected 1x): The implementer only supplied high‑level user stories and testing criteria; no file‑system evidence of the required directories (`code/`, `tests/`, `data/raw/`, `data/processed/`, `data/logs/`, `results/`, `state/`) was provided. Consequently the core deliverable—creating the project directory structure—is missing.
-- `T003` (rejected 1x): No linting or formatting configuration files (e.g., `.flake8`, `pyproject.toml` with Black settings, or a pre‑commit hook) are present, nor any documentation showing that flake8/black have been set up and integrated into the project. Consequently the required artifact for task T003 is missing.
+- `T032a` (rejected 1x): The required input files (`data/raw/multabench_baselines.csv`, `data/artifacts/data_integrity_report.json`) are absent, and the expected output files (`gpu_tuned_baselines.csv`, `data_availability_gap_report.json`) were not generated. Moreover, the provided `validate_baselines.py` script is truncated and lacks full logic to read the integrity report, filter datasets, and write the required outputs.
 
 ## Required change
 

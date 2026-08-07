@@ -1,0 +1,35 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: KnotRecord
+type: object
+properties:
+  name:
+    type: string
+  crossing_number:
+    type: integer
+  braid_index:
+    type: integer
+  volume:
+    type:
+      - number
+      - "null"
+  alternating:
+    type:
+      - boolean
+      - "null"
+  arc_index:
+    type:
+      - integer
+      - "null"
+  seifert_circle_count:
+    type:
+      - integer
+      - "null"
+  bridge_number:
+    type:
+      - integer
+      - "null"
+required:
+  - name
+  - crossing_number
+  - braid_index
+additionalProperties: false

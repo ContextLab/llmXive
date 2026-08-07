@@ -27,7 +27,7 @@ This project implements a reproducible, CPU-constrained pipeline to investigate 
 | Principle | Compliance Check | Implementation Strategy |
 | :--- | :--- | :--- |
 | **I. Reproducibility** | **PASS** | `random.seed(42)` pinned in all stochastic steps (null model generation, permutation). `requirements.txt` pins all versions. Pipeline runs end-to-end on fresh CI. |
-| **II. Verified Accuracy** | **PASS** | Citations (Schaefer et al., 2018; HCP) will be validated against primary sources before final report generation. |
+| **II. Verified Accuracy** | **PASS** | Citations (Schaefer et al.; HCP) will be validated against primary sources before final report generation. |
 | **III. Data Hygiene** | **PASS** | Raw HCP data stored in `data/raw/` with checksums (SHA256) recorded in `data/raw/.checksums.json`. Derived matrices stored in `data/processed/` with provenance metadata. No in-place modification. |
 | **IV. Single Source of Truth** | **PASS** | All statistics in the PDF are generated directly from `results/` CSVs/JSONs produced by the code. No manual typing. Power analysis results written to `results/power_analysis.json`. |
 | **V. Versioning Discipline** | **PASS** | Phase 0 includes execution of `scripts/hash_artifacts.sh` to generate content hashes for all data/code artifacts and update `state/...yaml` with `updated_at` timestamp. |
@@ -93,7 +93,7 @@ results/
     *   **SC-001**: ≥95% success rate (skip missing, log warning).
     *   **Data Hygiene**: Run `sha256sum` on all raw files and record manifest in `data/raw/.checksums.json`.
 *   **Edge Case Handling**: If subject missing, log warning and skip (US-1, Edge Case).
-*   **Data Conversion**: Use `dipy` to count streamlines between Schaefer-100 nodes. Save weighted matrix (float32) and binary matrices (uint8) at three density thresholds.
+*   **Data Conversion**: Use `dipy` to count streamlines between Schaefer-100 nodes. Save weighted matrix (floating-point) and binary matrices (integer) at three density thresholds.
 
 ### Phase 2: Motif Quantification
 *   **Goal**: Enumerate 3-node motifs and compute z-scores.

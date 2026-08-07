@@ -5,10 +5,10 @@ import argparse
 from pathlib import Path
 from typing import Dict, List, Any, Optional, Tuple
 
-# Add project root to path for imports if running as script
-project_root = Path(__file__).parent.parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
+# Add project root to path to resolve imports
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
 
 from utils.logging import get_logger, log_info, log_error, log_warning
 
@@ -16,191 +16,252 @@ logger = get_logger(__name__)
 
 def benjamini_hochberg(p_values: List[float], alpha: float = 0.05) -> Tuple[List[float], List[bool]]:
     """
-    Perform Benjamini-Hochberg FDR correction on a list of p-values.
-
+    Implement the Benjamini-Hochberg procedure for False Discovery Rate (FDR) correction.
+    
     Args:
-        p_values: List of raw p-values.
+        p_values: List of p-values to correct.
         alpha: Significance level (default 0.05).
-
+        
     Returns:
-        Tuple of (adjusted_p_values, significance_flags)
-        adjusted_p_values: List of FDR-adjusted p-values.
-        significance_flags: List of booleans indicating if the result is significant after correction.
+        A tuple containing:
+        - adjusted_p_values: List of adjusted p-values.
+        - is_significant: List of booleans indicating significance after correction.
     """
     if not p_values:
         return [], []
-
+    
     n = len(p_values)
     # Sort p-values while keeping track of original indices
     sorted_indices = sorted(range(n), key=lambda i: p_values[i])
     sorted_p_values = [p_values[i] for i in sorted_indices]
-
+    
+    # Calculate adjusted p-values
+    # BH procedure: p_adj(i) = min( (n/i) * p(i), p_adj(i+1) )
+    # We compute from largest to smallest to ensure monotonicity
     adjusted_p_values = [0.0] * n
-    rank = 1
-
-    # Calculate adjusted p-values from smallest to largest
-    # BH procedure: p_adj(i) = p(i) * n / i
-    # Ensure monotonicity by taking min with previous adjusted value
-    prev_adj = 1.0
-    for i in range(n - 1, -1, -1):
-        current_p = sorted_p_values[i]
-        # BH formula
-        adjusted = current_p * n / (i + 1)
-        # Enforce monotonicity (adjusted p-values should not decrease as rank increases)
-        adjusted = min(adjusted, prev_adj)
-        # Cap at 1.0
-        adjusted = min(adjusted, 1.0)
-        adjusted_p_values[sorted_indices[i]] = adjusted
-        prev_adj = adjusted
-
+    adjusted_p_values[sorted_indices[-1]] = min(sorted_p_values[-1] * n / (n), 1.0)
+    
+    for i in range(n - 2, -1, -1):
+        original_idx = sorted_indices[i]
+        rank = i + 1  # 1-based rank
+        # Calculate raw adjusted value
+        raw_adj = sorted_p_values[i] * n / rank
+        # Ensure monotonicity: cannot be larger than the next one
+        adjusted_p_values[original_idx] = min(raw_adj, adjusted_p_values[sorted_indices[i+1]], 1.0)
+    
     # Determine significance
-    significance_flags = [p <= alpha for p in adjusted_p_values]
+    is_significant = [adj_p <= alpha for adj_p in adjusted_p_values]
+    
+    return adjusted_p_values, is_significant
 
-    return adjusted_p_values, significance_flags
-
-def load_p_values_from_file(file_path: Path) -> Dict[str, List[float]]:
+def load_p_values_from_file(file_path: str) -> Dict[str, Any]:
     """
-    Load p-values from a JSON file. Expected structure:
-    {
-        "correlation": {"feature_name": p_value, ...},
-        "t_test": {"dataset_id": p_value, ...}
-    }
-    """
-    if not file_path.exists():
-        raise FileNotFoundError(f"P-values file not found: {file_path}")
-
-    with open(file_path, 'r') as f:
-        data = json.load(f)
-
-    return data
-
-def save_adjusted_p_values(output_path: Path, results: Dict[str, Dict[str, Any]]) -> None:
-    """
-    Save adjusted p-values to a JSON file.
-    """
-    with open(output_path, 'w') as f:
-        json.dump(results, f, indent=2)
-    log_info(f"Adjusted p-values saved to {output_path}")
-
-def process_correlation_p_values(p_values: Dict[str, float], alpha: float = 0.05) -> Dict[str, Any]:
-    """
-    Process correlation p-values: apply BH correction and return results.
-    """
-    features = list(p_values.keys())
-    raw_p_values = list(p_values.values())
-
-    adjusted_p_values, significance_flags = benjamini_hochberg(raw_p_values, alpha)
-
-    results = {
-        "raw_p_values": p_values,
-        "adjusted_p_values": dict(zip(features, adjusted_p_values)),
-        "significant": dict(zip(features, significance_flags)),
-        "method": "Benjamini-Hochberg",
-        "alpha": alpha,
-        "num_tests": len(p_values)
-    }
-
-    return results
-
-def process_t_test_p_values(p_values: Dict[str, float], alpha: float = 0.05) -> Dict[str, Any]:
-    """
-    Process t-test p-values: apply BH correction and return results.
-    """
-    dataset_ids = list(p_values.keys())
-    raw_p_values = list(p_values.values())
-
-    adjusted_p_values, significance_flags = benjamini_hochberg(raw_p_values, alpha)
-
-    results = {
-        "raw_p_values": p_values,
-        "adjusted_p_values": dict(zip(dataset_ids, adjusted_p_values)),
-        "significant": dict(zip(dataset_ids, significance_flags)),
-        "method": "Benjamini-Hochberg",
-        "alpha": alpha,
-        "num_tests": len(p_values)
-    }
-
-    return results
-
-def main(args: Optional[argparse.Namespace] = None) -> int:
-    """
-    Main function to run FDR correction on p-values from correlation and t-test analyses.
-
+    Load p-values from a JSON file generated by correlation analysis.
+    
     Args:
-        args: Command line arguments (optional, for testing)
-
+        file_path: Path to the JSON file containing correlation results.
+        
     Returns:
-        0 on success, 1 on failure
+        Dictionary containing the loaded data.
     """
-    parser = argparse.ArgumentParser(description="Apply Benjamini-Hochberg FDR correction to p-values")
-    parser.add_argument(
-        "--input",
-        type=str,
-        required=True,
-        help="Path to JSON file containing p-values from T033 (correlation) and T035 (t-test)"
-    )
-    parser.add_argument(
-        "--output",
-        type=str,
-        required=True,
-        help="Path to output JSON file with adjusted p-values"
-    )
-    parser.add_argument(
-        "--alpha",
-        type=float,
-        default=0.05,
-        help="Significance level for FDR correction (default: 0.05)"
-    )
+    path = Path(file_path)
+    if not path.exists():
+        raise FileNotFoundError(f"P-value file not found: {file_path}")
+    
+    with open(path, 'r') as f:
+        return json.load(f)
 
-    if args is None:
-        args = parser.parse_args()
+def save_adjusted_p_values(adjusted_data: Dict[str, Any], output_path: str) -> None:
+    """
+    Save the adjusted p-values and significance flags to a JSON file.
+    
+    Args:
+        adjusted_data: Dictionary containing adjusted p-values and metadata.
+        output_path: Path for the output JSON file.
+    """
+    path = Path(output_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    
+    with open(path, 'w') as f:
+        json.dump(adjusted_data, f, indent=2)
+    
+    log_info(f"Adjusted p-values saved to: {output_path}")
 
-    input_path = Path(args.input)
-    output_path = Path(args.output)
-
+def process_correlation_p_values(correlation_results_path: str, 
+                                 exclusion_gap_report_path: str,
+                                 exclusion_integrity_report_path: str,
+                                 output_path: str,
+                                 alpha: float = 0.05) -> Dict[str, Any]:
+    """
+    Main logic for T034: Apply FDR correction to correlation p-values.
+    
+    Step 1: Load exclusion lists from T032a and T045 reports.
+    Step 2: Filter the input dataset list to exclude flagged datasets.
+    Step 3: Extract p-values for the family of tabular metadata features.
+    Step 4: Apply Benjamini-Hochberg correction.
+    Step 5: Save results.
+    
+    Args:
+        correlation_results_path: Path to the correlation report (T033/T036 output).
+        exclusion_gap_report_path: Path to data_availability_gap_report.json (T032a).
+        exclusion_integrity_report_path: Path to data_integrity_report.json (T045).
+        output_path: Path for the output JSON file.
+        alpha: Significance level.
+        
+    Returns:
+        Dictionary containing the processed results.
+    """
+    log_info("Starting FDR correction process for correlation p-values (T034)...")
+    
+    # Step 1: Load exclusion lists
+    excluded_datasets = set()
+    
+    # Load gap report (T032a)
+    if Path(exclusion_gap_report_path).exists():
+        try:
+            with open(exclusion_gap_report_path, 'r') as f:
+                gap_data = json.load(f)
+            # Extract datasets missing GPU-Tuned baselines
+            if 'missing_datasets' in gap_data:
+                excluded_datasets.update(gap_data['missing_datasets'])
+            if 'excluded_datasets' in gap_data:
+                excluded_datasets.update(gap_data['excluded_datasets'])
+            log_info(f"Loaded {len(gap_data.get('missing_datasets', []))} exclusions from gap report.")
+        except Exception as e:
+            log_warning(f"Could not parse gap report: {e}")
+    else:
+        log_warning(f"Gap report not found at {exclusion_gap_report_path}, skipping gap-based exclusions.")
+    
+    # Load integrity report (T045)
+    if Path(exclusion_integrity_report_path).exists():
+        try:
+            with open(exclusion_integrity_report_path, 'r') as f:
+                integrity_data = json.load(f)
+            # Extract datasets excluded due to zero variance in ALL features
+            if 'excluded_datasets' in integrity_data:
+                excluded_datasets.update(integrity_data['excluded_datasets'])
+            log_info(f"Loaded {len(integrity_data.get('excluded_datasets', []))} exclusions from integrity report.")
+        except Exception as e:
+            log_warning(f"Could not parse integrity report: {e}")
+    else:
+        log_warning(f"Integrity report not found at {exclusion_integrity_report_path}, skipping integrity-based exclusions.")
+    
+    log_info(f"Total excluded datasets: {len(excluded_datasets)}")
+    
+    # Step 2: Load correlation results
     try:
-        log_info(f"Loading p-values from {input_path}")
-        raw_data = load_p_values_from_file(input_path)
-
-        results = {
-            "correlation_analysis": {},
-            "t_test_analysis": {},
-            "summary": {}
-        }
-
-        # Process correlation p-values
-        if "correlation" in raw_data:
-            log_info("Processing correlation p-values")
-            results["correlation_analysis"] = process_correlation_p_values(raw_data["correlation"], args.alpha)
-            significant_count = sum(results["correlation_analysis"]["significant"].values())
-            results["summary"]["correlation_significant_count"] = significant_count
-            results["summary"]["correlation_total_tests"] = len(raw_data["correlation"])
-
-        # Process t-test p-values
-        if "t_test" in raw_data:
-            log_info("Processing t-test p-values")
-            results["t_test_analysis"] = process_t_test_p_values(raw_data["t_test"], args.alpha)
-            significant_count = sum(results["t_test_analysis"]["significant"].values())
-            results["summary"]["t_test_significant_count"] = significant_count
-            results["summary"]["t_test_total_tests"] = len(raw_data["t_test"])
-
-        # Ensure output directory exists
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-
-        save_adjusted_p_values(output_path, results)
-
-        log_info(f"FDR correction completed successfully. Results saved to {output_path}")
-        return 0
-
+        correlation_data = load_p_values_from_file(correlation_results_path)
     except FileNotFoundError as e:
-        log_error(f"File not found: {e}")
-        return 1
-    except json.JSONDecodeError as e:
-        log_error(f"Invalid JSON in input file: {e}")
-        return 1
+        log_error(f"Correlation results file not found: {e}")
+        raise
+    
+    # Step 3: Filter datasets and extract p-values
+    # Expected structure: correlation_data might be a list of results or a dict with 'results'
+    # We look for a list of entries containing 'dataset_id', 'feature', 'p_value'
+    raw_results = correlation_data.get('results', correlation_data) if isinstance(correlation_data, dict) else correlation_data
+    
+    if not isinstance(raw_results, list):
+        raise ValueError("Correlation results must be a list of entries.")
+    
+    filtered_p_values = []
+    filtered_features = []
+    filtered_datasets = []
+    
+    for entry in raw_results:
+        dataset_id = entry.get('dataset_id')
+        feature = entry.get('feature')
+        p_value = entry.get('p_value')
+        
+        # Skip if dataset is in exclusion list
+        if dataset_id in excluded_datasets:
+            continue
+        
+        # Skip if p_value is missing or invalid
+        if p_value is None or not isinstance(p_value, (int, float)):
+            log_warning(f"Skipping invalid p-value for {dataset_id}/{feature}")
+            continue
+        
+        # We are applying FDR to the family of tabular metadata features (Cardinality, Missingness, etc.)
+        # We collect all p-values from the filtered set
+        filtered_p_values.append(float(p_value))
+        filtered_features.append(feature)
+        filtered_datasets.append(dataset_id)
+    
+    if not filtered_p_values:
+        log_warning("No valid p-values found after filtering. Outputting empty result.")
+        result = {
+            "adjustment_method": "Benjamini-Hochberg",
+            "alpha": alpha,
+            "input_count": 0,
+            "excluded_count": len(excluded_datasets),
+            "results": []
+        }
+        save_adjusted_p_values(result, output_path)
+        return result
+    
+    log_info(f"Applying FDR correction to {len(filtered_p_values)} p-values.")
+    
+    # Step 4: Apply Benjamini-Hochberg
+    adjusted_p_values, is_significant = benjamini_hochberg(filtered_p_values, alpha)
+    
+    # Step 5: Construct output
+    output_results = []
+    for i, (dataset_id, feature, p_val, adj_p, sig) in enumerate(zip(
+        filtered_datasets, filtered_features, filtered_p_values, adjusted_p_values, is_significant
+    )):
+        output_results.append({
+            "dataset_id": dataset_id,
+            "feature": feature,
+            "raw_p_value": p_val,
+            "adjusted_p_value": adj_p,
+            "is_significant": sig,
+            "alpha_threshold": alpha
+        })
+    
+    final_result = {
+        "adjustment_method": "Benjamini-Hochberg (FDR)",
+        "alpha": alpha,
+        "total_tests": len(filtered_p_values),
+        "significant_count": sum(is_significant),
+        "excluded_datasets": list(excluded_datasets),
+        "results": output_results
+    }
+    
+    save_adjusted_p_values(final_result, output_path)
+    return final_result
+
+def process_t_test_p_values(t_test_results_path: str, output_path: str, alpha: float = 0.05) -> Dict[str, Any]:
+    """
+    Placeholder for T-test FDR if needed in the future. 
+    T034 explicitly states: Do NOT include t-test results in this correction.
+    """
+    log_warning("T034 explicitly excludes t-test results from FDR correction. Skipping.")
+    return {"status": "skipped", "reason": "T034 scope excludes t-tests"}
+
+def main():
+    """CLI entry point for T034."""
+    parser = argparse.ArgumentParser(description="Apply Benjamini-Hochberg FDR correction to correlation p-values (T034).")
+    parser.add_argument("--correlation-input", required=True, help="Path to correlation report (e.g., data/artifacts/correlation_report_run_id.json)")
+    parser.add_argument("--gap-report", required=True, help="Path to data_availability_gap_report.json (T032a)")
+    parser.add_argument("--integrity-report", required=True, help="Path to data_integrity_report.json (T045)")
+    parser.add_argument("--output", required=True, help="Path for output JSON file")
+    parser.add_argument("--alpha", type=float, default=0.05, help="Significance level (default: 0.05)")
+    
+    args = parser.parse_args()
+    
+    try:
+        result = process_correlation_p_values(
+            correlation_results_path=args.correlation_input,
+            exclusion_gap_report_path=args.gap_report,
+            exclusion_integrity_report_path=args.integrity_report,
+            output_path=args.output,
+            alpha=args.alpha
+        )
+        log_info("FDR correction completed successfully.")
+        return 0
     except Exception as e:
-        log_error(f"Unexpected error during FDR correction: {e}")
-        return 1
+        log_error(f"FDR correction failed: {e}")
+        raise
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

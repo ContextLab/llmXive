@@ -127,6 +127,10 @@
     "classified_at": "2026-06-26T14:38:00Z",
     "verdict": false
   },
+  "PROJ-1000-llmxive-follow-up-extending-orbitquant-d::1.6.0": {
+    "classified_at": "2026-08-07T09:42:03Z",
+    "verdict": false
+  },
   "PROJ-1009-llmxive-follow-up-extending-ui-mopd-mult::1.6.0": {
     "classified_at": "2026-07-10T08:04:58Z",
     "verdict": false

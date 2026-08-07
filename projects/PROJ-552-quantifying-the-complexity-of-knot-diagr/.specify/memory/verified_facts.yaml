@@ -1,20 +1,7 @@
-'|a002863 oei':
-  quote: Traditionally, knots have been catalogued in terms of crossing number.  Knot
-    tables generally include only prime knots, and only one entry for a knot and its
-    mirror image (even if they are different) (Hoste, Thistlethwaite & Weeks 1998).
-    The number of nontrivial knots of a given crossing number increases rapidly, making
-    tabulation computationally difficult (Hoste 2005, p. 20). Tabulation efforts have
-    succeeded in enumerating over 6 billion knots and links (Hoste 2005, p. 28). The
-    sequence of the number of prime knots of a given crossing number, up to crossing
-    number 16, is 0, 0, 1, 1, 2, 3, 7, 21, 49, 165, 552, 2176, 9988, 46972, 253293,
-    1388705... (sequence A002863 in the OEIS). While exponential upper and lower bounds
-    for this sequence are known, it has not been proven that this sequence is strictly
-    increasing (Adams 2004).
-  source_id: Knot theory
-  url: https://en.wikipedia.org/wiki/Knot_theory
-  value: 0, 0, 1, 1, 2, 3, 7, 21, 49, 165, 552, 2176, 9988, 46972, 253293, 1388705
-'|exclusion':
-  quote: 'P508: 5493'
-  source_id: Q19358049
-  url: https://www.wikidata.org/wiki/Q19358049
-  value: '49'
+'|null report show':
+  quote: A possible result of the experiment that we consider here is 5 heads. Let
+    outcomes be considered unlikely with respect to an assumed distribution if their
+    probability is lower than a significance threshold of 0.05.
+  source_id: Null hypothesis
+  url: https://en.wikipedia.org/wiki/Null_hypothesis
+  value: '0.05'

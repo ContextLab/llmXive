@@ -85,7 +85,7 @@
 
 - The HCP large-scale Subjects Release provides both diffusion tractography and minimally pre‑processed resting‑state fMRI for the same subjects; therefore no cross‑subject matching step is required.  
 - Pre‑processed diffusion data are already tractographically reconstructed; the pipeline only needs to apply the Schaefer‑100 parcellation to generate binary adjacency matrices.  
-- The Schaefer cortical atlas is an accepted, validated cortical parcellation for both structural and functional analyses (see Schaefer et al., 2018).  
+- The Schaefer cortical atlas is an accepted, validated cortical parcellation for both structural and functional analyses (see Schaefer et al.,).  
 - All statistical computations are performed with SciPy/NumPy on the CPU; no GPU or external compute resources are required.  
 - The CI environment provides ≥ 7 GB RAM and a 14 GB disk quota, sufficient for storing the 50 subjects’ matrices and intermediate null‑network samples.  
 - Random seeds are fixed (seed = 42) for reproducibility of null‑network generation and permutation tests.  
