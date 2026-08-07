@@ -31,7 +31,7 @@
   verification_status: verified
   verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/644573a053ecc52f50f2bd0f/524a7e5d5f65d3c105c046a5e8da86bcee0d64a844d59402fb617e230beacee1?user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27data.csv%3B+filename%3D%22data.csv%22%3B&response-content-type=text%2Fcsv&X-Xet-Cas-Uid=public&Expires=1783470165&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjQ0NTczYTA1M2VjYzUyZjUwZjJiZDBmLzUyNGE3ZTVkNWY2NWQzYzEwNWMwNDZhNWU4ZGE4NmJjZWUwZDY0YTg0NGQ1OTQwMmZiNjE3ZTIzMGJlYWNlZTFcXD91c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3ZGF0YS5jc3YlM0IrZmlsZW5hbWUlM0QlMjJkYXRhLmNzdiUyMiUzQiZyZXNwb25zZS1jb250ZW50LXR5cGU9dGV4dCUyRmNzdiZYLVhldC1DYXMtVWlkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgzNDcwMTY1fX19XX0_&Signature=MEQCIDDS6HaBLmSVc7BMr5xpmhy0a3ZGG1lR2Q4TDOPZmIRYAiB--vSWGwDtDYb2K8k0HSBJTVk9cwp9%7E8mgjkwr4qRE8Q__&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
   verified_at: '2026-07-07T23:13:13.203901Z'
-- artifact_hash: ad135150d66d14170559de48bb8e3190257c8b31ed1ee0865759c3854866e099
+- artifact_hash: 7295bbaf9bc36d338ed8914ed6cc5f42defdcf05e159a2173261afdf0d177353
   artifact_path: projects/PROJ-078-predicting-polymer-degradation-pathways-/specs/001-predicting-polymer-degradation-pathways/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -41,8 +41,8 @@
   value: https://webbook.nist.gov/cgi/cbook.cgi?ID=...`
   verification_status: pending
   verified_against_url: https://webbook.nist.gov/cgi/cbook.cgi?ID=
-  verified_at: '2026-08-05T09:53:06.372410Z'
-- artifact_hash: ad135150d66d14170559de48bb8e3190257c8b31ed1ee0865759c3854866e099
+  verified_at: '2026-08-07T04:44:29.763248Z'
+- artifact_hash: 7295bbaf9bc36d338ed8914ed6cc5f42defdcf05e159a2173261afdf0d177353
   artifact_path: projects/PROJ-078-predicting-polymer-degradation-pathways-/specs/001-predicting-polymer-degradation-pathways/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -52,4 +52,16 @@
   value: https://materialsproject.org/rest/v2/materials/...`
   verification_status: pending
   verified_against_url: https://next-gen.materialsproject.org/rest/v2/materials/
-  verified_at: '2026-08-05T09:53:06.372410Z'
+  verified_at: '2026-08-07T04:44:29.763248Z'
+- artifact_hash: 7295bbaf9bc36d338ed8914ed6cc5f42defdcf05e159a2173261afdf0d177353
+  artifact_path: projects/PROJ-078-predicting-polymer-degradation-pathways-/specs/001-predicting-polymer-degradation-pathways/tasks.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: '[2511.14546] PLS-SEM-power: A Shiny App and R package for Computing
+    Required Sample Size and Minimum Detectable Effect Size in PLS-SEMs'
+  kind: url
+  value: https://arxiv.org/abs/2511.14546
+  verification_status: pending
+  verified_against_url: https://arxiv.org/abs/2511.14546
+  verified_at: '2026-08-07T04:44:29.763248Z'

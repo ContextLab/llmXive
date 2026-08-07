@@ -27,21 +27,6 @@ T014:
     of the required functionality without the actual script, so the required artifact
     is missing. The task cannot be considered completed until a concrete implementation
     that converts SMILES to RDKit molecular graphs and handles valid records is present.
-T017b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, data files, model artifacts, logs, or test results were provided; the
-    claim contains only a textual description of the required user stories without
-    any concrete implementation or output. Consequently, the required artifacts (ingestion
-    script, generated CSV, training script, model checkpoints, Integrated Gradients
-    outputs, etc.) are missing.
-T017c:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The implementer did not provide any actual artifacts (e.g., ingestion script,\
-    \ dataset CSV, GNN training code, or attribution outputs) to demonstrate that\
-    \ the data pipeline, model training, and augmentation requirements are met. Without\
-    \ concrete files or results, the task\u2019s mandatory deliverables are missing."
 T023:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

@@ -1,9 +1,0 @@
-# Tasks an independent verifier REJECTED (redo these)
-
-A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
-
-- **T008** — No pytest configuration files (e.g., `pytest.ini` or `conftest.py`) or the required `tests/unit` and `tests/integration` directories with test modules are present in the provided evidence. The task’s core deliverable – a functional pytest framework and the specified directory structure – is missing.
-- **T013** — declared artifact(s) missing/empty/invalid: data/raw/raw_nist_mp_records.csv
-- **T015** — The required output file `data/processed/graphs.parquet` does not exist, so the core artifact of the task is missing. Without this file (and any accompanying `preprocess.py` implementation), the conversion, filtering, and feature‑encoding steps cannot be verified. The implementer must provide a functioning script that creates the specified Parquet file containing the processed molecular graphs.
-- **T017b** — No code, data files, model artifacts, logs, or test results were provided; the claim contains only a textual description of the required user stories without any concrete implementation or output. Consequently, the required artifacts (ingestion script, generated CSV, training script, model checkpoints, Integrated Gradients outputs, etc.) are missing.
-- **T017c** — The implementer did not provide any actual artifacts (e.g., ingestion script, dataset CSV, GNN training code, or attribution outputs) to demonstrate that the data pipeline, model training, and augmentation requirements are met. Without concrete files or results, the task’s mandatory deliverables are missing.

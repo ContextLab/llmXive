@@ -1592,3 +1592,873 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-05T09:34:04Z'
+- artifact_path: projects/PROJ-078-predicting-polymer-degradation-pathways-/specs/001-predicting-polymer-degradation-pathways/tasks.md
+  attempts: 1
+  canonical: power analysis report generated with n < 150 warning
+  claim_id: c_ac16ed57
+  context: 'If n > 150, subsample to 150 using stratified sampling (seed 42) and save
+    to data/processed/final_dataset.csv. If n <= 150, set action to ''augment'' (50<=n<150)
+    or ''augment_aggressive'' (n<50) and write state/augmentation_trigger.json. Power
+    Analysis Params: Use statsmodels with effect_size=0.5, alpha=0.05, power=0.8 to
+    calculate minimum required sample size. Output: Write state/augmentation_trigger.json
+    with {"n": int, "action": "none" | "augment" | "augment_aggressive"}. Generate
+    data/reports/power_analysis_report.json with {"n": int, "warning": "true" if n<150
+    else "false"}.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate data/processed/power_analysis_report.json with n < 150 warning.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T04:27:33Z'
+- artifact_path: projects/PROJ-078-predicting-polymer-degradation-pathways-/specs/001-predicting-polymer-degradation-pathways/tasks.md
+  attempts: 1
+  canonical: statsmodels parameters effect_size=0.5 alpha=0.05 power=0.8 for sample
+    size
+  claim_id: c_0bfdd519
+  context: 'Power Analysis Params: Use statsmodels with effect_size=0.5, alpha=0.05,
+    power=0.8 to calculate minimum required sample size.'
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: "The issue of power in PLS-SEM In the design of quantitative studies,\
+        \ researchers must always consider the sample size needed to achieve sufficient\
+        \ statistical power for the hypothesised effect size. In this respect, one\
+        \ of the most convenient features of PLS-SEM is that the model structural\
+        \ complexity does not have a critical impact on the determination of the minimum\
+        \ sample size required (Hair et al., 2021, Chapter 1). Moreover, compared\
+        \ with CB-SEM, PLS-SEM has higher statistical power in scenarios with complex\
+        \ model structures and small sample sizes. As described by Hair and colleagues\
+        \ (2021), these convenient features led to the misconception that sample size\
+        \ computation has no relevance in PLS-SEM. This misconception has been fueled\
+        \ by the very common \u201810-times rule\u2019 (Barclay et al., 1995), i.e.,\
+        \ a heuristic often used to determine the minimum sample size required for\
+        \ a study (Hair et al., 2011). According to this rule, the sample size \u201C\
+        should be equal to 10 times the number of independent variables in the most\
+        \ complex regression in the PLS path model (i.e., considering both measurement\
+        \ and structural models). This rule of thumb is equivalent to saying the minimum\
+        \ sample size should be 10 times the maximum number of arrowheads pointing\
+        \ at a latent variable anywhere in the PLS path mode.\u201D (Hair et al.,\
+        \ 2021, p. 16). This approach has the undeniable merit of being simple and\
+        \ easy to apply, which has contributed to its widespread use. There are nevertheless\
+        \ numerous problems (Goodhue et al., 2012). First, the rule is overly simplistic;\
+        \ it does not account for other critical factors that influence statistical\
+        \ power, such as the effect size, significance level (\U0001D6FC), and the\
+        \ desired statistical power (1\u2212\u03B2). The fact that this strategy is\
+        \ not sensitive to the effect size, in particular, is problematic. The basic\
+        \ underlying principle behind every power analysis, regardless of the specific\
+        \ technique at hand, is precisely that the sample size must vary based on\
+        \ the magnitude of the hypothesised effect. As a result, the 10-times rule\
+        \ may underestimate the required sample size, thus resulting in underpowered\
+        \ studies. As a second point, the 10-times rule lacks a solid statistical\
+        \ foundation. It relies on informal and universal guidelines rather than rigorous\
+        \ mathematical derivations, thus limiting its reliability and applicability\
+        \ across a broad range of research scenarios. The Minimum R-squared method\
+        \ (Hair et al., 2014) represents an alternative approach to sample size calculation.\
+        \ Using the smallest R-squared value anticipated in the model, this method\
+        \ computes the required sample size in PLS-SEM. By calculating the minimum\
+        \ R-squared, the corresponding sample size needed to achieve statistical power\
+        \ at a given significance level (\u03B1) is determined using either a lookup\
+        \ table or a formula. Despite being simpler, accounting for the strength of\
+        \ relationships in the model, and having stronger statistical foundations,\
+        \ this approach has a number of theoretical and practical limitations. On\
+        \ the theoretical side, the R2 is a measure of the model\u2019s explanatory\
+        \ power (Shmueli & Koppius, 2011), more correctly referred to as in-sample\
+        \ predictive power (Rigdon, 2012, but see also Hair et al., 2021, chapter\
+        \ 6). However, the predictive endeavour is hardly the main aim in the social\
+        \ sciences (Ozili, 2023), wherein the ultimate goal is unbiased causal inference.\
+        \ Moreover, despite the existence of some commonly used thresholds for acceptable\
+        \ R2 values (Hair et al., 2011), they are not entirely agreed upon in the\
+        \ literature, and it has been shown convincingly that models with R2 values\
+        \ as low as 0.10 can be entirely satisfactory in certain scientific contexts\
+        \ (Raithel et al., 2012). Furthermore, the idea that high predictive power\
+        \ directly translates into explanatory power and more legitimate causality\
+        \ claims is a false belief (McElreath, 2020, p. 225; Hill et al., 2018). On\
+        \ the practical side, the Minimum R-squared method assumes that researchers\
+        \ have a rough idea of, or can even quite"
+      source_id: '2511.14546'
+      url: https://arxiv.org/abs/2511.14546
+      value: '25'
+    filled: true
+  kind: numeric
+  raw_text: Use statsmodels with effect_size=0.5, alpha=0.05, power=0.8 to calculate
+    minimum required sample size.
+  resolved_value: '25'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-07T04:28:16Z'
+- artifact_path: projects/PROJ-078-predicting-polymer-degradation-pathways-/specs/001-predicting-polymer-degradation-pathways/tasks.md
+  attempts: 1
+  canonical: dropout rate 0.2 for functional-group-preserving edge dropout
+  claim_id: c_6ec07e94
+  context: 'Algorithm: Use RDKit''s GetSubstructMatches with pattern C(=O)O to identify
+    ester bonds. Mask only non-ester bonds with a dropout rate of 0.2.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use a dropout rate of 0.2 for functional-group-preserving edge dropout.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T04:29:05Z'
+- artifact_path: projects/PROJ-078-predicting-polymer-degradation-pathways-/specs/001-predicting-polymer-degradation-pathways/tasks.md
+  attempts: 1
+  canonical: SEED 42 for reproducibility in data augmentation
+  claim_id: c_e8795074
+  context: 'Seed: Use SEED=42 for reproducibility. Rationale: Bond rotation is chemically
+    invalid for degradation pathways as it alters the 3D conformation required for
+    specific hydrolysis/oxidation events.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use SEED=42 for reproducibility in data augmentation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T04:29:42Z'
+- artifact_path: projects/PROJ-078-predicting-polymer-degradation-pathways-/specs/001-predicting-polymer-degradation-pathways/tasks.md
+  attempts: 1
+  canonical: stratified sampling seed 42
+  claim_id: c_012a2be3
+  context: If n > 150, subsample to 150 using stratified sampling (seed 42) and save
+    to data/processed/final_dataset.csv.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Stratified sampling uses seed 42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T04:30:30Z'
+- artifact_path: projects/PROJ-078-predicting-polymer-degradation-pathways-/specs/001-predicting-polymer-degradation-pathways/tasks.md
+  attempts: 1
+  canonical: null distribution 1000 permutations seed 42
+  claim_id: c_138f491e
+  context: 'Null Distribution: Generate 1000 permutations (SEED=42) to ensure statistical
+    robustness.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate null distribution with 1000 permutations using SEED=42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T04:31:20Z'
+- artifact_path: projects/PROJ-078-predicting-polymer-degradation-pathways-/specs/001-predicting-polymer-degradation-pathways/tasks.md
+  attempts: 1
+  canonical: PERCENTAGE_THRESHOLD 0.90 for ester attribution validation
+  claim_id: c_c863838e
+  context: 'Validation: Compare this percentage against the null distribution generated
+    by T029b. Threshold: PERCENTAGE_THRESHOLD = 0.90.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The PERCENTAGE_THRESHOLD for ester attribution validation is 0.90.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T04:32:00Z'
+- artifact_path: projects/PROJ-078-predicting-polymer-degradation-pathways-/specs/001-predicting-polymer-degradation-pathways/tasks.md
+  attempts: 1
+  canonical: model convergence within 6 hours on CPU-only runner
+  claim_id: c_cb65fa15
+  context: 'Independent Test: Can be fully tested by running the training script on
+    a fixed random seed, verifying the model converges within 6 hours on a CPU-only
+    runner, and confirming that the Integrated Gradients output highlights specific
+    atoms/bonds in the polymer chain.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The model must converge within 6 hours on a CPU-only runner.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T04:32:25Z'
+- artifact_path: projects/PROJ-078-predicting-polymer-degradation-pathways-/specs/001-predicting-polymer-degradation-pathways/tasks.md
+  attempts: 1
+  canonical: GNN architecture 3 layers hidden dim 128
+  claim_id: c_1df95c36
+  context: "Goal: Train a lightweight Graph Neural Network (\u22643 layers, hidden\
+    \ dim \u2264128) on the prepared dataset and generate feature importance scores\
+    \ via Integrated Gradients."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The GNN architecture must have \u22643 layers and hidden dim \u2264128."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T04:32:26Z'
+- artifact_path: projects/PROJ-078-predicting-polymer-degradation-pathways-/specs/001-predicting-polymer-degradation-pathways/tasks.md
+  attempts: 1
+  canonical: confidence threshold 0.6 for low-confidence predictions
+  claim_id: c_f2e290d7
+  context: 'Content: p_value, motif_list (top 3-5), confidence_flags (predictions
+    < 0.6). Implement evaluate.py: Add logic to flag predictions with confidence <
+    0.6 as ''low confidence'' in the report.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The confidence threshold for flagging low-confidence predictions is 0.6.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T04:32:58Z'
+- artifact_path: projects/PROJ-078-predicting-polymer-degradation-pathways-/specs/001-predicting-polymer-degradation-pathways/tasks.md
+  attempts: 1
+  canonical: augmentation timing constraint 30 minutes
+  claim_id: c_d86b78b0
+  context: 'Measure runtime and log to data/reports/augmentation_timing.json. Constraint:
+    If duration > 30 minutes, log a FAIL status; otherwise PASS.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The augmentation timing constraint is 30 minutes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T04:33:37Z'
+- artifact_path: projects/PROJ-078-predicting-polymer-degradation-pathways-/specs/001-predicting-polymer-degradation-pathways/tasks.md
+  attempts: 1
+  canonical: power analysis warning threshold n less than 150
+  claim_id: c_d4359442
+  context: For SC-004, trigger a warning if n < 150.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Power_analysis_warning_threshold_n_less_than_150
+  kind: magnitude
+  raw_text: The power analysis warning threshold is n < 150.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T04:34:35Z'
+- artifact_path: projects/PROJ-078-predicting-polymer-degradation-pathways-/specs/001-predicting-polymer-degradation-pathways/tasks.md
+  attempts: 1
+  canonical: top attribution scores threshold 10
+  claim_id: c_77d01325
+  context: For SC-005, use THRESHOLD_TOP_PERCENT (default 10 per T030a) and PERCENTAGE_THRESHOLD
+    (default 0.90) for verification.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The top attribution scores threshold is 10.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T04:35:18Z'
+- artifact_path: projects/PROJ-078-predicting-polymer-degradation-pathways-/specs/001-predicting-polymer-degradation-pathways/tasks.md
+  attempts: 1
+  canonical: PERCENTAGE_THRESHOLD 0.90 for verification
+  claim_id: c_ef9f67b5
+  context: For SC-005, use THRESHOLD_TOP_PERCENT (default 10 per T030a) and PERCENTAGE_THRESHOLD
+    (default 0.90) for verification.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The PERCENTAGE_THRESHOLD for verification is 0.90.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T04:35:44Z'
+- artifact_path: projects/PROJ-078-predicting-polymer-degradation-pathways-/specs/001-predicting-polymer-degradation-pathways/tasks.md
+  attempts: 1
+  canonical: CONFIDENCE_THRESHOLD 0.6
+  claim_id: c_7ba092d3
+  context: For US-3, use CONFIDENCE_THRESHOLD (default 0.6).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The CONFIDENCE_THRESHOLD is 0.6.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T04:36:10Z'
+- artifact_path: projects/PROJ-078-predicting-polymer-degradation-pathways-/specs/001-predicting-polymer-degradation-pathways/tasks.md
+  attempts: 1
+  canonical: pipeline fail after 3 API retries
+  claim_id: c_76ce9926
+  context: Implements a hard fail (raises RuntimeError) if the API returns no data
+    or rate-limits after 3 retries, preventing silent fallback to synthetic data,
+    UNLESS CI_MODE=true.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline must fail if the API returns no data or rate-limits after
+    3 retries.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T04:36:40Z'
+- artifact_path: projects/PROJ-078-predicting-polymer-degradation-pathways-/specs/001-predicting-polymer-degradation-pathways/tasks.md
+  attempts: 1
+  canonical: effect size 0.5 for power analysis
+  claim_id: c_998b0546
+  context: Perform a formal power analysis (e.g., using statsmodels.stats.power) to
+    determine the minimum sample size required for the desired effect size (e.g.,
+    Cohen's d = 0.5) at alpha = 0.05 and power = 0.8.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: 0.0 0.5 1.0 1.5 2.0
+      source_id: '1809.02623'
+      url: https://arxiv.org/abs/1809.02623
+      value: '0.5'
+    filled: true
+  kind: numeric
+  raw_text: The effect size for power analysis is 0.5.
+  resolved_value: '0.5'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-07T04:37:33Z'
+- artifact_path: projects/PROJ-078-predicting-polymer-degradation-pathways-/specs/001-predicting-polymer-degradation-pathways/tasks.md
+  attempts: 1
+  canonical: alpha 0.05 for power analysis
+  claim_id: c_85de0fe7
+  context: Perform a formal power analysis (e.g., using statsmodels.stats.power) to
+    determine the minimum sample size required for the desired effect size (e.g.,
+    Cohen's d = 0.5) at alpha = 0.05 and power = 0.8.
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: '0.05'
+      source_id: Power (statistics)
+      url: https://en.wikipedia.org/wiki/Power_(statistics)
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: The alpha for power analysis is 0.05.
+  resolved_value: '0.05'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-07T04:37:43Z'
+- artifact_path: projects/PROJ-078-predicting-polymer-degradation-pathways-/specs/001-predicting-polymer-degradation-pathways/tasks.md
+  attempts: 1
+  canonical: power 0.8 for power analysis
+  claim_id: c_0829123f
+  context: Perform a formal power analysis (e.g., using statsmodels.stats.power) to
+    determine the minimum sample size required for the desired effect size (e.g.,
+    Cohen's d = 0.5) at alpha = 0.05 and power = 0.8.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The power for power analysis is 0.8.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T04:38:18Z'
+- artifact_path: projects/PROJ-078-predicting-polymer-degradation-pathways-/specs/001-predicting-polymer-degradation-pathways/tasks.md
+  attempts: 1
+  canonical: label-shuffling permutation test p-value greater than 0.05
+  claim_id: c_2a51f6c0
+  context: 'Verification: Verify that label-shuffling produces a p-value > 0.05 (indicating
+    the model is not learning random noise).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Label-shuffling_permutation_test_p-value_greater_than_0.05
+  kind: magnitude
+  raw_text: The label-shuffling permutation test must produce a p-value > 0.05.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T04:39:31Z'
+- artifact_path: projects/PROJ-078-predicting-polymer-degradation-pathways-/specs/001-predicting-polymer-degradation-pathways/tasks.md
+  attempts: 1
+  canonical: 5-fold cross-validation or leave-one-out if n less than 50
+  claim_id: c_e484e471
+  context: Execute python code/train.py --cv_strategy 5f (or --cv_strategy loo if
+    n < 50). Implement training loop with -fold cross-validation (or leave-one-out
+    if n < 50) and random seed pinning.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/5-fold_cross-validation_or_leave-one-out_if_n_less_than_50
+  kind: magnitude
+  raw_text: The model is trained using 5-fold cross-validation or leave-one-out if
+    n < 50.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T04:40:22Z'
+- artifact_path: projects/PROJ-078-predicting-polymer-degradation-pathways-/specs/001-predicting-polymer-degradation-pathways/tasks.md
+  attempts: 1
+  canonical: model convergence loss delta less than 5 percent over last 5 epochs
+  claim_id: c_063e6c19
+  context: Report mean macro-F1 and convergence check (loss delta < 5% over last 5
+    epochs).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Model_convergence_loss_delta_less_than_5_percent_over_last_5
+  kind: magnitude
+  raw_text: The model convergence check requires loss delta < 5% over the last 5 epochs.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T04:41:02Z'
+- artifact_path: projects/PROJ-078-predicting-polymer-degradation-pathways-/specs/001-predicting-polymer-degradation-pathways/tasks.md
+  attempts: 1
+  canonical: final report motif list top 3 to 5
+  claim_id: c_1fea65c9
+  context: 'Content: p_value, motif_list (top 3-5), confidence_flags (predictions
+    < 0.6).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The top motif list in the final report contains 3-5 motifs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T04:42:17Z'
+- artifact_path: projects/PROJ-078-predicting-polymer-degradation-pathways-/specs/001-predicting-polymer-degradation-pathways/tasks.md
+  attempts: 1
+  canonical: memory subsampling trigger 7GB
+  claim_id: c_b3788bca
+  context: Integrate subsampling trigger in code/preprocess.py if memory > 7GB.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Memory_subsampling_trigger_7GB
+  kind: entity_fact
+  raw_text: The memory subsampling trigger is 7GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T04:42:51Z'
+- artifact_path: projects/PROJ-078-predicting-polymer-degradation-pathways-/specs/001-predicting-polymer-degradation-pathways/tasks.md
+  attempts: 1
+  canonical: pipeline execution within 6 hours
+  claim_id: c_e73e84b1
+  context: Run quickstart.md validation to ensure end-to-end pipeline executes within
+    6 hours.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline must execute within 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T04:43:21Z'
+- artifact_path: projects/PROJ-078-predicting-polymer-degradation-pathways-/specs/001-predicting-polymer-degradation-pathways/tasks.md
+  attempts: 1
+  canonical: power analysis uses effect size 0.5, alpha 0.05, power 25 via arXiv 2511.14546
+  claim_id: c_f8725e04
+  context: 'Power Analysis Params: Use statsmodels with effect_size=0.5, alpha=0.05,
+    power=25 (2511.14546, https://arxiv.org/abs/2511.14546) to calculate minimum required
+    sample size.'
+  evidence:
+    ok: false
+    reason: cited source contradicts the claim (The passage specifies 80% power, contradicting
+      the claim of 25% power.)
+  kind: numeric
+  raw_text: The power analysis params use statsmodels with effect_size=0.5, alpha=0.05,
+    power=25 (2511.14546, https://arxiv.org/abs/2511.14546) to calculate minimum required
+    sample size.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-08-07T04:46:01Z'
+- artifact_path: projects/PROJ-078-predicting-polymer-degradation-pathways-/specs/001-predicting-polymer-degradation-pathways/tasks.md
+  attempts: 1
+  canonical: 1000 permutations generated with seed 42 for statistical robustness
+  claim_id: c_5ffc7b2f
+  context: 'Null Distribution: Generate 1000 permutations (SEED=42) to ensure statistical
+    robustness.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate 1000 permutations (SEED=42) to ensure statistical robustness.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T04:46:41Z'
+- artifact_path: projects/PROJ-078-predicting-polymer-degradation-pathways-/specs/001-predicting-polymer-degradation-pathways/tasks.md
+  attempts: 1
+  canonical: non-ester bond dropout rate is 0.2
+  claim_id: c_2bb64034
+  context: Mask only non-ester bonds with a dropout rate of 0.2.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The dropout rate for non-ester bonds is 0.2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T04:47:04Z'
+- artifact_path: projects/PROJ-078-predicting-polymer-degradation-pathways-/specs/001-predicting-polymer-degradation-pathways/tasks.md
+  attempts: 1
+  canonical: subsampling to 150 records if n exceeds 150
+  claim_id: c_d239255d
+  context: If n > 150, subsample to 150 using stratified sampling (seed 42) and save
+    to data/processed/final_dataset.csv.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If n > 150, subsample to 150 using stratified sampling (seed 42).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T04:47:36Z'
+- artifact_path: projects/PROJ-078-predicting-polymer-degradation-pathways-/specs/001-predicting-polymer-degradation-pathways/tasks.md
+  attempts: 1
+  canonical: augment action triggered for 50 to 150 records, aggressive for under
+    50
+  claim_id: c_c77eb565
+  context: If n <= 150, set action to 'augment' (50<=n<150) or 'augment_aggressive'
+    (n<50) and write state/augmentation_trigger.json.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If n <= 150, set action to 'augment' (50<=n<150) or 'augment_aggressive'
+    (n<50).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T04:48:46Z'
+- artifact_path: projects/PROJ-078-predicting-polymer-degradation-pathways-/specs/001-predicting-polymer-degradation-pathways/tasks.md
+  attempts: 1
+  canonical: GNN architecture limited to 3 layers and hidden dimension 128
+  claim_id: c_222ac720
+  context: "Goal: Train a lightweight Graph Neural Network (\u22643 layers, hidden\
+    \ dim \u2264128) on the prepared dataset."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The GNN architecture is constrained to <=3 layers and hidden dim <=128.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T04:49:22Z'
+- artifact_path: projects/PROJ-078-predicting-polymer-degradation-pathways-/specs/001-predicting-polymer-degradation-pathways/tasks.md
+  attempts: 1
+  canonical: convergence check requires loss delta under 5% over last 5 epochs
+  claim_id: c_1954dc2b
+  context: Report mean macro-F1 and convergence check (loss delta < 5% over last 5
+    epochs).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The training loop convergence check requires loss delta < 5% over last
+    5 epochs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T04:49:50Z'
+- artifact_path: projects/PROJ-078-predicting-polymer-degradation-pathways-/specs/001-predicting-polymer-degradation-pathways/tasks.md
+  attempts: 1
+  canonical: API rate-limit backoff retry count is 3
+  claim_id: c_e2bd01a5
+  context: Implements a hard fail (raises RuntimeError) if the API returns no data
+    or rate-limits after 3 retries.
+  evidence:
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The API rate-limit backoff retry count is 3.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-08-07T04:49:50Z'
+- artifact_path: projects/PROJ-078-predicting-polymer-degradation-pathways-/specs/001-predicting-polymer-degradation-pathways/tasks.md
+  attempts: 1
+  canonical: pipeline execution time target is 6 hours on CPU
+  claim_id: c_1c542248
+  context: 'Independent Test: Can be fully tested by running the training script on
+    a fixed random seed, verifying the model converges within 6 hours on a CPU-only
+    runner.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline is expected to execute within 6 hours on a CPU-only runner.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T04:50:23Z'
+- artifact_path: projects/PROJ-078-predicting-polymer-degradation-pathways-/specs/001-predicting-polymer-degradation-pathways/tasks.md
+  attempts: 1
+  canonical: augmentation validation duration limit is 30 minutes
+  claim_id: c_3895f0c4
+  context: 'Constraint: If duration > 30 minutes, log a FAIL status; otherwise PASS.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Augmentation_validation_duration_limit_is_30_minutes
+  kind: entity_fact
+  raw_text: The augmentation validation constraint is a duration limit of 30 minutes.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T04:50:54Z'
+- artifact_path: projects/PROJ-078-predicting-polymer-degradation-pathways-/specs/001-predicting-polymer-degradation-pathways/tasks.md
+  attempts: 1
+  canonical: label-shuffling validation requires p-value greater than 0.05
+  claim_id: c_65460050
+  context: 'Verification: Verify that label-shuffling produces a p-value > 0.05 (indicating
+    the model is not learning random noise).'
+  evidence:
+    entailment_evidence: Label-shuffling validation requires p-value greater than
+      0.
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Label-shuffling_validation_requires_p-value_greater_than_0.0
+  kind: magnitude
+  raw_text: The label-shuffling validation requires a p-value > 0.05.
+  resolved_value: label-shuffling validation requires p-value greater than 0.05
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-07T04:50:58Z'
+- artifact_path: projects/PROJ-078-predicting-polymer-degradation-pathways-/specs/001-predicting-polymer-degradation-pathways/tasks.md
+  attempts: 1
+  canonical: Python version 3.11 used
+  claim_id: c_2d78d757
+  context: Initialize Python 3.11 project by generating code/requirements.txt with
+    pinned versions.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Python version used is 3.11.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T04:51:37Z'
+- artifact_path: projects/PROJ-078-predicting-polymer-degradation-pathways-/specs/001-predicting-polymer-degradation-pathways/tasks.md
+  attempts: 1
+  canonical: rdkit version 2023.9.5
+  claim_id: c_7f99a90b
+  context: 'Initialize Python 3.11 project by generating code/requirements.txt with
+    pinned versions: rdkit==2023.9.5.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The rdkit version is 2023.9.5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T04:52:09Z'
+- artifact_path: projects/PROJ-078-predicting-polymer-degradation-pathways-/specs/001-predicting-polymer-degradation-pathways/tasks.md
+  attempts: 1
+  canonical: torch version 2.1.0+cpu
+  claim_id: c_cbb29f86
+  context: 'Initialize Python 3.11 project by generating code/requirements.txt with
+    pinned versions: torch==2.1.0+cpu.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The torch version is 2.1.0+cpu.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T04:52:33Z'
+- artifact_path: projects/PROJ-078-predicting-polymer-degradation-pathways-/specs/001-predicting-polymer-degradation-pathways/tasks.md
+  attempts: 1
+  canonical: torch-geometric version 2.4.0
+  claim_id: c_217f6b1d
+  context: 'Initialize Python 3.11 project by generating code/requirements.txt with
+    pinned versions: torch-geometric==2.4.0.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The torch-geometric version is 2.4.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T04:53:08Z'
+- artifact_path: projects/PROJ-078-predicting-polymer-degradation-pathways-/specs/001-predicting-polymer-degradation-pathways/tasks.md
+  attempts: 1
+  canonical: scikit-learn version 1.3.2
+  claim_id: c_6f6cdc82
+  context: 'Initialize Python 3.11 project by generating code/requirements.txt with
+    pinned versions: scikit-learn==1.3.2.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The scikit-learn version is 1.3.2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T04:53:32Z'
+- artifact_path: projects/PROJ-078-predicting-polymer-degradation-pathways-/specs/001-predicting-polymer-degradation-pathways/tasks.md
+  attempts: 1
+  canonical: pandas version 2.1.4
+  claim_id: c_c53be813
+  context: 'Initialize Python 3.11 project by generating code/requirements.txt with
+    pinned versions: pandas==2.1.4.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pandas version is 2.1.4.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T04:53:59Z'
+- artifact_path: projects/PROJ-078-predicting-polymer-degradation-pathways-/specs/001-predicting-polymer-degradation-pathways/tasks.md
+  attempts: 1
+  canonical: numpy version 1.26.2
+  claim_id: c_0967060e
+  context: 'Initialize Python 3.11 project by generating code/requirements.txt with
+    pinned versions: numpy==1.26.2.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The numpy version is 1.26.2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T04:54:29Z'
+- artifact_path: projects/PROJ-078-predicting-polymer-degradation-pathways-/specs/001-predicting-polymer-degradation-pathways/tasks.md
+  attempts: 1
+  canonical: pyyaml version 6.0.1
+  claim_id: c_29221e3e
+  context: 'Initialize Python 3.11 project by generating code/requirements.txt with
+    pinned versions: pyyaml==6.0.1.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pyyaml version is 6.0.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T04:55:00Z'
+- artifact_path: projects/PROJ-078-predicting-polymer-degradation-pathways-/specs/001-predicting-polymer-degradation-pathways/tasks.md
+  attempts: 1
+  canonical: requests version 2.31.0
+  claim_id: c_33f62680
+  context: 'Initialize Python 3.11 project by generating code/requirements.txt with
+    pinned versions: requests==2.31.0.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The requests version is 2.31.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T04:55:23Z'
+- artifact_path: projects/PROJ-078-predicting-polymer-degradation-pathways-/specs/001-predicting-polymer-degradation-pathways/tasks.md
+  attempts: 1
+  canonical: statsmodels version 0.14.0
+  claim_id: c_b5cf99a9
+  context: 'Initialize Python 3.11 project by generating code/requirements.txt with
+    pinned versions: statsmodels==0.14.0.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The statsmodels version is 0.14.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T04:56:00Z'
+- artifact_path: projects/PROJ-078-predicting-polymer-degradation-pathways-/specs/001-predicting-polymer-degradation-pathways/tasks.md
+  attempts: 1
+  canonical: pytest version 7.4.3
+  claim_id: c_911e4b12
+  context: 'Initialize Python 3.11 project by generating code/requirements.txt with
+    pinned versions: pytest==7.4.3'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pytest version is 7.4.3.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T04:56:28Z'
