@@ -1,0 +1,82 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Statistical Result Schema"
+description: "Schema for the ANOVA and correlation analysis results."
+type: "object"
+properties:
+  anova_table:
+    type: "object"
+    properties:
+      source:
+        type: "string"
+      df:
+        type: "integer"
+      sum_sq:
+        type: "number"
+      mean_sq:
+        type: "number"
+      f:
+        type: "number"
+      p:
+        type: "number"
+  interaction_p_value:
+    type: "number"
+    description: "P-value for the Model × Epoch interaction."
+  interaction_effect_size:
+    type: "number"
+    description: "Partial eta-squared."
+  gap_slope_ar:
+    type: "number"
+  gap_slope_diffusion:
+    type: "number"
+  correlation_r_ar:
+    type: "number"
+    description: "Pearson correlation between gap slope and HumanEval score for AR."
+  correlation_r_diffusion:
+    type: "number"
+    description: "Pearson correlation between gap slope and HumanEval score for Diffusion."
+  correlation_p_ar:
+    type: "number"
+  correlation_p_diffusion:
+    type: "number"
+  epochs_completed:
+    type: "integer"
+    description: "Number of epochs actually completed (may be < 100 due to timeout)."
+  power_analysis:
+    type: "object"
+    properties:
+      effect_size:
+        type: "number"
+      power:
+        type: "number"
+      n_epochs:
+        type: "integer"
+  a_priori_power_analysis:
+    type: "object"
+    properties:
+      target_power:
+        type: "number"
+      assumed_effect_size:
+        type: "number"
+      calculated_power:
+        type: "number"
+  cross_domain_metrics:
+    type: "object"
+    properties:
+      wikitext_perplexity_ar:
+        type: "number"
+      wikitext_perplexity_diffusion:
+        type: "number"
+required:
+  - anova_table
+  - interaction_p_value
+  - interaction_effect_size
+  - gap_slope_ar
+  - gap_slope_diffusion
+  - correlation_r_ar
+  - correlation_r_diffusion
+  - correlation_p_ar
+  - correlation_p_diffusion
+  - epochs_completed
+  - power_analysis
+  - a_priori_power_analysis
+  - cross_domain_metrics

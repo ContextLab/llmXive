@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2211.15029",
+  "judged_at": "2026-08-07T11:23:58Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"improved large language diffusion models\" linguistics",
+  "rationale": "This paper satisfies criteria (a) and (d) as it investigates the same core mechanism (discrete diffusion models applied to language generation) and serves as a foundational reference for the specific technique of combining diffusion processes with masked language models (like BERT), which is central to the user's query about extending \"Improved Large Language Diffusion Models\" in linguistics.",
+  "relevant": true
+}

@@ -1,0 +1,49 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Training Log Schema"
+description: "Schema for the per-epoch training metrics."
+type: "object"
+properties:
+  run_id:
+    type: "string"
+    format: "uuid"
+  model_type:
+    type: "string"
+    enum:
+      - "autoregressive"
+      - "diffusion"
+  seed_id:
+    type: "integer"
+    description: "Identifier for the random seed (0-4)."
+  epoch:
+    type: "integer"
+    minimum: 1
+  train_loss:
+    type: "number"
+  val_loss:
+    type: "number"
+  generalization_gap:
+    type: "number"
+    description: "Calculated as train_loss - val_loss."
+  perplexity:
+    type: "number"
+  wall_clock_time_sec:
+    type: "number"
+    description: "Cumulative time in seconds."
+  ram_usage_gb:
+    type: "number"
+    description: "Peak RAM usage in GB."
+  timestamp:
+    type: "string"
+    format: "date-time"
+required:
+  - run_id
+  - model_type
+  - seed_id
+  - epoch
+  - train_loss
+  - val_loss
+  - generalization_gap
+  - perplexity
+  - wall_clock_time_sec
+  - ram_usage_gb
+  - timestamp

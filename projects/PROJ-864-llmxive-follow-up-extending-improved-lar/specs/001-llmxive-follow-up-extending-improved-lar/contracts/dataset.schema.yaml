@@ -1,0 +1,54 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Micro-Corpus Schema"
+description: "Schema for the tokenized Micro-Corpus used in the llmXive study."
+type: "object"
+properties:
+  id:
+    type: "string"
+    description: "Unique identifier for the data file."
+  source_datasets:
+    type: "array"
+    items:
+      type: "string"
+    description: "List of source dataset names (e.g., 'gutenberg', 'the-stack')."
+  tokenizer:
+    type: "string"
+    description: "Name and version of the tokenizer used."
+    const: "gpt2"
+  token_count:
+    type: "integer"
+    description: "Total number of tokens in the dataset."
+    minimum: 1000000
+    maximum: 1010000
+  split_ratio:
+    type: "object"
+    properties:
+      train:
+        type: "number"
+        minimum: 0.8
+        maximum: 0.95
+      test:
+        type: "number"
+        minimum: 0.05
+        maximum: 0.2
+    required:
+      - train
+      - test
+  checksum_sha256:
+    type: "string"
+    description: "SHA-256 checksum of the file content."
+  file_path:
+    type: "string"
+    description: "Relative path to the file."
+  validation_report_path:
+    type: "string"
+    description: "Path to the corpus_validation.json file."
+required:
+  - id
+  - source_datasets
+  - tokenizer
+  - token_count
+  - split_ratio
+  - checksum_sha256
+  - file_path
+  - validation_report_path

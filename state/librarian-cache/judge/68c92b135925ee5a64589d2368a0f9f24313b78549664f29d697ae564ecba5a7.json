@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2210.15629",
+  "judged_at": "2026-08-07T11:23:56Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"improved large language diffusion models\" linguistics",
+  "rationale": "The paper focuses on using language to control diffusion models for robotic planning and long-horizon tasks, which is a distinct application domain from the user's question about extending \"Improved Large Language Diffusion Models\" specifically within the field of linguistics. While both involve diffusion models and language, the candidate paper does not address the linguistic mechanisms, properties, or theoretical frameworks implied by the user's query, failing the \"same-mechanism\" and \"same-do",
+  "relevant": false
+}

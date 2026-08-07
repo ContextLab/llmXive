@@ -1,0 +1,33 @@
+- artifact_hash: da482bc8f37e112e0de03e425d021e4c387fd99408c8a1b8ef8c90ee3d0f4f37
+  artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Pg19 (Piyush Gupta)
+  kind: url
+  value: https://huggingface.co/datasets/pg19`
+  verification_status: pending
+  verified_against_url: https://huggingface.co/Pg19/datasets
+  verified_at: '2026-08-07T11:42:08.278432Z'
+- artifact_hash: da482bc8f37e112e0de03e425d021e4c387fd99408c8a1b8ef8c90ee3d0f4f37
+  artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: "bigcode/the-stack \xB7 Datasets at Hugging Face"
+  kind: url
+  value: https://huggingface.co/datasets/bigcode/the-stack`
+  verification_status: pending
+  verified_against_url: https://huggingface.co/datasets/bigcode/the-stack
+  verified_at: '2026-08-07T11:42:08.278432Z'
+- artifact_hash: da482bc8f37e112e0de03e425d021e4c387fd99408c8a1b8ef8c90ee3d0f4f37
+  artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/research.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://huggingface.co/datasets/wikitext`
+  verification_status: mismatch
+  verified_against_url: https://huggingface.co/wikitext/datasets
+  verified_at: '2026-08-07T11:42:08.278432Z'

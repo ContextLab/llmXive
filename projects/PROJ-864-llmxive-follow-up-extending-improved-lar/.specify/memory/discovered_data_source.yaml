@@ -1,0 +1,12 @@
+status: none
+intent: Project Gutenberg StackExchange huggingface datasets python package dataset
+required_fields:
+- text
+- source
+- title
+- author
+- url
+- id
+cache_key: 1dba2efd30532ddc867aa844550bd0150cd67aa6a5cf4bc5a563bd98bcf3ea9d
+searched_at: '2026-08-07T11:31:30.211132+00:00'
+retry_count: 1
