@@ -1,361 +1,338 @@
-"""
-Data Ingestion Module for PROJ-369.
-
-Downloads and caches 5+ real-world time series datasets from verified public sources.
-Supports NOAA, Yahoo Finance, UK National Grid, FRED (via pandas-datareader), and World Bank.
-
-CRITICAL: This module must FAIL LOUDLY if a real fetch fails. No synthetic fallbacks are permitted.
-"""
-
 import os
-import time
 import hashlib
 import logging
+import tempfile
+import shutil
 from pathlib import Path
-from typing import Dict, Any, Optional, List, Tuple
+from typing import Dict, Any, List, Optional
+from dataclasses import dataclass, field, asdict
+import json
+import time
 
 import pandas as pd
-import numpy as np
 import requests
-from requests.exceptions import RequestException
+import yfinance as yf
+from requests.exceptions import RequestException, Timeout, HTTPError
 
-# Optional imports for specific data sources
-try:
-    import yfinance as yf
-except ImportError:
-    yf = None
+from src.utils.logging import get_logger
 
-try:
-    from pandas_datareader import data as pdr
-    import pandas_datareader.data as web
-except ImportError:
-    pdr = None
-    web = None
+logger = get_logger(__name__)
 
-from src.utils.config import get_path, ensure_dirs
-from src.utils.checksums import compute_file_checksum
+class IngestionError(Exception):
+    """Custom exception for data ingestion failures."""
+    pass
 
-# Configure logging
-logger = logging.getLogger(__name__)
+@dataclass
+class DatasetManifest:
+    """Schema for dataset metadata in the manifest file."""
+    name: str
+    source: str
+    url: str
+    local_path: str
+    checksum: str
+    timestamp: str
+    status: str = "pending"
+    metadata: Dict[str, Any] = field(default_factory=dict)
 
-# Cache directory for downloaded data
-CACHE_DIR = get_path("data", "raw")
+    def to_dict(self) -> Dict[str, Any]:
+        return asdict(self)
 
-
-def _ensure_cache_dir():
-    """Ensure the cache directory exists."""
-    ensure_dirs()
-    Path(CACHE_DIR).mkdir(parents=True, exist_ok=True)
-
-
-def _download_file(url: str, filename: str, timeout: int = 30) -> Path:
-    """
-    Download a file from a URL and save it to the cache directory.
-
-    Args:
-        url: The URL to download from.
-        filename: The name to save the file as.
-        timeout: Request timeout in seconds.
-
-    Returns:
-        Path to the downloaded file.
-
-    Raises:
-        RequestException: If the download fails.
-        FileNotFoundError: If the URL returns a 404 or similar.
-    """
-    _ensure_cache_dir()
-    file_path = Path(CACHE_DIR) / filename
-
-    if file_path.exists():
-        logger.info(f"File {filename} already exists in cache. Skipping download.")
-        return file_path
-
-    logger.info(f"Downloading {url} to {file_path}...")
+def validate_url(url: str) -> bool:
+    """Validate that a URL is well-formed and accessible."""
+    if not url.startswith(('http://', 'https://')):
+        return False
     try:
-        response = requests.get(url, timeout=timeout, stream=True)
-        response.raise_for_status()  # Raise exception for HTTP errors
+        # HEAD request to check accessibility without downloading body
+        response = requests.head(url, timeout=10, allow_redirects=True)
+        # Some servers block HEAD, fallback to GET with stream
+        if response.status_code == 405:
+            response = requests.get(url, stream=True, timeout=10)
+        return response.status_code == 200
+    except RequestException:
+        return False
 
-        with open(file_path, 'wb') as f:
-            for chunk in response.iter_content(chunk_size=8192):
-                f.write(chunk)
+def compute_sha256(filepath: Path) -> str:
+    """Compute SHA256 checksum of a file."""
+    sha256_hash = hashlib.sha256()
+    with open(filepath, "rb") as f:
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
+    return sha256_hash.hexdigest()
 
-        logger.info(f"Successfully downloaded {filename}")
-        return file_path
-
-    except RequestException as e:
-        logger.error(f"Failed to download {url}: {e}")
-        raise
-
-
-def _load_noaa_climate_data() -> pd.DataFrame:
+def download_file(url: str, dest_path: Path, timeout: int = 60) -> str:
     """
-    Load NOAA Global Surface Temperature Anomalies data.
-    Source: https://www.ncei.noaa.gov/access/monitoring/global-time-series/land-ocean-tmi-1880-present.csv
-
-    Returns:
-        DataFrame with date and temperature anomaly columns.
+    Download a file from a URL with progress and error handling.
+    Raises IngestionError on failure.
     """
-    url = "https://www.ncei.noaa.gov/access/monitoring/global-time-series/land-ocean-tmi-1880-present.csv"
-    filename = "noaa_global_temp.csv"
-
+    dest_path.parent.mkdir(parents=True, exist_ok=True)
     try:
-        file_path = _download_file(url, filename)
-        # NOAA data often has a header row to skip
-        df = pd.read_csv(file_path, skiprows=1, parse_dates=['Date'], index_col='Date')
-        # Clean column names
-        df.columns = [c.strip() for c in df.columns]
-        logger.info("Successfully loaded NOAA Global Temperature Anomalies.")
-        return df
-    except Exception as e:
-        logger.error(f"Failed to load NOAA data: {e}")
-        raise
-
-
-def _load_yahoo_finance_data(ticker: str = "SPY", start: str = "2010-01-01", end: str = "2023-01-01") -> pd.DataFrame:
-    """
-    Load historical stock data from Yahoo Finance.
-    Source: Yahoo Finance API via yfinance library.
-
-    Args:
-        ticker: Stock ticker symbol.
-        start: Start date string.
-        end: End date string.
-
-    Returns:
-        DataFrame with OHLCV data.
-    """
-    if yf is None:
-        raise ImportError("yfinance library is required for Yahoo Finance data. Install with: pip install yfinance")
-
-    filename = f"yahoo_{ticker}.csv"
-    file_path = Path(CACHE_DIR) / filename
-
-    if file_path.exists():
-        logger.info(f"File {filename} already exists in cache. Loading from disk.")
-        df = pd.read_csv(file_path, parse_dates=['Date'], index_col='Date')
-        return df
-
-    logger.info(f"Fetching {ticker} data from Yahoo Finance...")
-    try:
-        data = yf.download(ticker, start=start, end=end)
-        if data.empty:
-            raise ValueError(f"No data returned for {ticker} from Yahoo Finance.")
-
-        # Flatten multi-level columns if they exist
-        if isinstance(data.columns, pd.MultiIndex):
-            data.columns = data.columns.droplevel(1)
-
-        data.to_csv(file_path)
-        logger.info(f"Successfully fetched and cached {ticker} data.")
-        return data
-    except Exception as e:
-        logger.error(f"Failed to fetch Yahoo Finance data: {e}")
-        raise
-
-
-def _load_uk_national_grid_data() -> pd.DataFrame:
-    """
-    Load UK National Grid Electricity Load data.
-    Source: UK National Grid ESO (via open data portal or direct CSV if available).
-    Note: Using a stable proxy URL for demonstration. In production, this might need an API key or direct scraping.
-    For robustness, we use the 'Electricity Demand Data' from a reliable open source like the UK Gov data portal.
-    URL: https://data.gov.uk/dataset/... (Simulated stable CSV for this task)
-    Alternative: Use a specific known public CSV if the API is flaky.
-    Let's use a specific dataset from the UK Gov data portal if possible, or a reliable mirror.
-    Since direct scraping of dynamic sites is brittle, we will use a direct CSV link if available.
-    If not, we will raise an error rather than fake data.
-    
-    Actually, for this task, let's use a very stable public dataset: 
-    "UK Electricity Demand" from the National Grid ESO open data.
-    A common stable endpoint is via their data API or a direct CSV export.
-    Let's try a direct CSV link from a known reliable source or the gov.uk data store.
-    Fallback: Use a specific, stable CSV URL from a research repository hosting the data if the official one is down.
-    
-    For this implementation, we will attempt to fetch from a known stable source.
-    URL: https://data.nationalgrideso.com/system/electricity/system-demand-data-2020-2021 (Example)
-    Let's use a generic "Load" dataset from a research mirror if the official one is complex.
-    
-    Decision: Use the 'UK Electricity Demand' dataset from the 'UK Data Service' or a direct CSV if available.
-    Since direct URLs change, we will use a specific, stable CSV from a research repository (e.g., Zenodo or similar) 
-    that hosts this data, OR we will construct the request to the National Grid ESO API.
-    
-    Let's use the National Grid ESO 'Half Hourly Data' API if possible, or a direct CSV.
-    To ensure "Fail Loudly", we will try a direct URL. If it fails, we raise.
-    
-    Source: https://www.nationalgrideso.com/document/173651/download (Example link, might change)
-    Better Source: https://data.gov.uk/dataset/8f1b0d0d-8d0d-4d0d-8d0d-8d0d8d0d8d0d/resource/...
-    
-    Let's use a known stable CSV from a public repository for the task to ensure it runs if the internet is up.
-    URL: https://raw.githubusercontent.com/... (This is risky if the repo is deleted).
-    
-    Alternative: Use the 'Electricity Market Reform' data from the UK Gov.
-    
-    Let's try to fetch from a specific, stable endpoint:
-    https://data.nationalgrideso.com/system/electricity/half-hourly-demand-data-2023-04-01-to-2023-04-30.csv
-    
-    If that fails, we raise.
-    """
-    # Using a stable public dataset for UK Load (simulated stable URL for the task)
-    # In a real production environment, this URL should be monitored or use an API.
-    # For this task, we use a specific CSV from a reliable source or a direct download.
-    # Let's use a dataset from the 'UK National Grid' open data page if available, 
-    # otherwise a specific CSV from a research repository.
-    
-    # URL: https://data.nationalgrideso.com/system/electricity/half-hourly-demand-data-2023-04-01-to-2023-04-30.csv
-    # This is a specific file. If it's not available, we raise.
-    
-    url = "https://data.nationalgrideso.com/system/electricity/half-hourly-demand-data-2023-04-01-to-2023-04-30.csv"
-    filename = "uk_national_grid_load.csv"
-    
-    try:
-        file_path = _download_file(url, filename)
-        df = pd.read_csv(file_path, parse_dates=['PeriodEnd'])
-        df.set_index('PeriodEnd', inplace=True)
-        logger.info("Successfully loaded UK National Grid Load data.")
-        return df
-    except Exception as e:
-        logger.error(f"Failed to load UK National Grid data: {e}")
-        raise
-
-
-def _load_fred_gdp_data() -> pd.DataFrame:
-    """
-    Load US GDP data from FRED (Federal Reserve Economic Data).
-    Source: Federal Reserve Bank of St. Louis via pandas-datareader.
-    Series ID: GDPC1 (Real GDP)
-
-    Returns:
-        DataFrame with GDP data.
-    """
-    if web is None:
-        raise ImportError("pandas-datareader is required for FRED data. Install with: pip install pandas-datareader")
-
-    filename = "fred_gdp.csv"
-    file_path = Path(CACHE_DIR) / filename
-
-    if file_path.exists():
-        logger.info(f"File {filename} already exists in cache. Loading from disk.")
-        df = pd.read_csv(file_path, parse_dates=True, index_col=0)
-        return df
-
-    logger.info("Fetching GDP data from FRED...")
-    try:
-        # FRED requires an API key for some data, but GDPC1 is public.
-        # We might need to set an API key if the default one is rate-limited.
-        # For this task, we assume the public access works or raise if it fails.
-        df = web.DataReader('GDPC1', 'fred', start='1947-01-01')
-        df.to_csv(file_path)
-        logger.info("Successfully fetched and cached FRED GDP data.")
-        return df
-    except Exception as e:
-        logger.error(f"Failed to fetch FRED GDP data: {e}")
-        raise
-
-
-def _load_world_bank_data() -> pd.DataFrame:
-    """
-    Load World Bank GDP per Capita data.
-    Source: World Bank Open Data API.
-    Indicator: NY.GDP.PCAP.CD (GDP per capita, current US$)
-
-    Returns:
-        DataFrame with World Bank data.
-    """
-    filename = "world_bank_gdp_per_capita.csv"
-    file_path = Path(CACHE_DIR) / filename
-
-    if file_path.exists():
-        logger.info(f"File {filename} already exists in cache. Loading from disk.")
-        df = pd.read_csv(file_path, parse_dates=True, index_col=0)
-        return df
-
-    logger.info("Fetching World Bank GDP per Capita data...")
-    url = "https://api.worldbank.org/v2/country/all/indicator/NY.GDP.PCAP.CD?format=csv"
-    
-    try:
-        response = requests.get(url, timeout=30)
+        logger.info(f"Downloading {url} to {dest_path}")
+        response = requests.get(url, stream=True, timeout=timeout)
         response.raise_for_status()
         
-        # World Bank CSV has metadata rows at the top
-        df = pd.read_csv(pd.io.common.StringIO(response.text), skiprows=4)
+        total_size = int(response.headers.get('content-length', 0))
+        downloaded = 0
         
-        # Clean up
-        df['Date'] = pd.to_datetime(df['Date'], format='%Y')
-        df.set_index('Date', inplace=True)
-        df.drop(columns=['Country Name', 'Country Code', 'Indicator Name', 'Indicator Code'], inplace=True, errors='ignore')
+        with open(dest_path, 'wb') as f:
+            for chunk in response.iter_content(chunk_size=8192):
+                if chunk:
+                    f.write(chunk)
+                    downloaded += len(chunk)
+                    if total_size > 0:
+                        percent = (downloaded / total_size) * 100
+                        logger.debug(f"Download progress: {percent:.1f}%")
         
-        # Pivot to wide format if needed, or keep as is.
-        # For this task, we'll keep it as a long format or pivot to a single series for a specific country if needed.
-        # Let's pivot to get a single series for the US for simplicity in analysis.
-        # Or keep the whole dataset.
+        logger.info(f"Download complete: {dest_path}")
+        return compute_sha256(dest_path)
         
-        df.to_csv(file_path)
-        logger.info("Successfully fetched and cached World Bank data.")
-        return df
-    except Exception as e:
-        logger.error(f"Failed to fetch World Bank data: {e}")
-        raise
+    except (Timeout, RequestException, HTTPError) as e:
+        logger.error(f"Download failed for {url}: {e}")
+        raise IngestionError(f"Failed to download {url}: {e}")
 
-
-def load_all_datasets() -> Dict[str, pd.DataFrame]:
+def load_csv_robust(filepath: Path, **kwargs) -> pd.DataFrame:
     """
-    Load all configured datasets.
-
-    Returns:
-        Dictionary mapping dataset names to DataFrames.
-
-    Raises:
-        Exception: If any dataset fails to load.
+    Load a CSV file with robust error handling and encoding detection.
     """
-    datasets = {}
-    loaders = [
-        ("noaa_climate", _load_noaa_climate_data),
-        ("yahoo_spy", _load_yahoo_finance_data),
-        ("uk_national_grid", _load_uk_national_grid_data),
-        ("fred_gdp", _load_fred_gdp_data),
-        ("world_bank_gdp", _load_world_bank_data),
-    ]
-
-    for name, loader in loaders:
+    encodings = ['utf-8', 'latin-1', 'cp1252', 'iso-8859-1']
+    last_error = None
+    
+    for encoding in encodings:
         try:
-            logger.info(f"Loading dataset: {name}")
-            data = loader()
-            datasets[name] = data
-            logger.info(f"Dataset {name} loaded successfully. Shape: {data.shape}")
+            df = pd.read_csv(filepath, encoding=encoding, **kwargs)
+            logger.info(f"Loaded {filepath} with encoding {encoding}")
+            return df
+        except UnicodeDecodeError as e:
+            last_error = e
+            continue
         except Exception as e:
-            logger.error(f"CRITICAL: Failed to load dataset {name}. Stopping. {e}")
-            # Fail loudly: do not return partial data
-            raise
+            last_error = e
+            break
+    
+    raise IngestionError(f"Failed to load {filepath} with any common encoding: {last_error}")
 
-    return datasets
-
-
-def main():
+def ingest_noaa_dataset(url: str, dest_dir: Path, name: str) -> DatasetManifest:
     """
-    Main entry point for data ingestion.
-    Downloads all datasets and prints summary statistics.
+    Ingest a NOAA dataset from a direct CSV/TSV URL.
     """
-    logging.basicConfig(level=logging.INFO)
-    logger.info("Starting data ingestion pipeline...")
+    logger.info(f"Ingesting NOAA dataset: {name}")
+    local_filename = f"{name}.csv"
+    dest_path = dest_dir / local_filename
+    
+    checksum = download_file(url, dest_path)
+    df = load_csv_robust(dest_path)
+    
+    # Basic validation
+    if df.empty:
+        raise IngestionError(f"Loaded dataset {name} is empty.")
+    
+    manifest = DatasetManifest(
+        name=name,
+        source="NOAA",
+        url=url,
+        local_path=str(dest_path),
+        checksum=checksum,
+        timestamp=time.strftime("%Y-%m-%dT%H:%M:%SZ"),
+        metadata={"rows": len(df), "columns": list(df.columns)}
+    )
+    return manifest
+
+def ingest_yahoo_finance(ticker: str, start: str, end: str, dest_dir: Path) -> DatasetManifest:
+    """
+    Ingest Yahoo Finance data using yfinance.
+    """
+    logger.info(f"Ingesting Yahoo Finance data: {ticker} ({start} to {end})")
+    local_filename = f"yahoo_{ticker}_{start}_{end}.csv"
+    dest_path = dest_dir / local_filename
     
     try:
-        datasets = load_all_datasets()
-        logger.info("All datasets loaded successfully.")
+        df = yf.download(ticker, start=start, end=end)
+        if df.empty:
+            raise IngestionError(f"No data retrieved for {ticker} in range {start}-{end}")
         
-        # Print summary
-        for name, df in datasets.items():
-            logger.info(f"Dataset: {name}, Shape: {df.shape}, Columns: {list(df.columns)}")
+        # Flatten multi-index columns if present
+        if isinstance(df.columns, pd.MultiIndex):
+            df.columns = [f"{col[0]}_{col[1]}" for col in df.columns]
         
-        # Save checksums for validation
-        from src.utils.checksums import update_checksums_for_project
-        update_checksums_for_project("PROJ-369-evaluating-the-robustness-of-statistical")
+        df.to_csv(dest_path, index=True)
+        checksum = compute_sha256(dest_path)
         
-        return datasets
+        manifest = DatasetManifest(
+            name=f"yahoo_{ticker}",
+            source="Yahoo Finance",
+            url=f"https://finance.yahoo.com/quote/{ticker}",
+            local_path=str(dest_path),
+            checksum=checksum,
+            timestamp=time.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            metadata={"rows": len(df), "columns": list(df.columns)}
+        )
+        return manifest
+        
     except Exception as e:
-        logger.error(f"Data ingestion failed: {e}")
-        raise
+        raise IngestionError(f"Failed to ingest Yahoo Finance data for {ticker}: {e}")
 
+def ingest_uk_grid(dest_dir: Path) -> DatasetManifest:
+    """
+    Ingest UK National Grid Load data.
+    The data is typically available via a specific CSV endpoint or API.
+    We use the ESO (Energy System Operator) public data API endpoint for half-hourly demand.
+    """
+    logger.info("Ingesting UK National Grid Load data")
+    # Using the ESO API for half-hourly demand (real source)
+    url = "https://api.nationalgrideso.com/1/demand/balancing-forecast-demand/latest"
+    # Since the API returns JSON, we adapt the download logic
+    
+    local_filename = "uk_grid_demand.json"
+    dest_path = dest_dir / local_filename
+    
+    try:
+        response = requests.get(url, timeout=60)
+        response.raise_for_status()
+        data = response.json()
+        
+        # Convert to CSV for consistency in downstream processing
+        # The API structure varies, we flatten the 'data' list if present
+        if 'data' in data and isinstance(data['data'], list):
+            df = pd.DataFrame(data['data'])
+        else:
+            df = pd.DataFrame([data])
+        
+        if df.empty:
+            raise IngestionError("UK Grid API returned empty data")
+        
+        df.to_csv(dest_path, index=False)
+        checksum = compute_sha256(dest_path)
+        
+        manifest = DatasetManifest(
+            name="uk_grid_demand",
+            source="UK National Grid ESO",
+            url=url,
+            local_path=str(dest_path),
+            checksum=checksum,
+            timestamp=time.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            metadata={"rows": len(df), "columns": list(df.columns)}
+        )
+        return manifest
+        
+    except RequestException as e:
+        raise IngestionError(f"Failed to download UK Grid data: {e}")
+
+def ingest_uci_electricity(dest_dir: Path) -> DatasetManifest:
+    """
+    Ingest UCI Electricity Load Diagrams 2011-2014 dataset.
+    The dataset is large (~1 GB). We will download the main CSV file from the UCI repository.
+    URL: https://archive.ics.uci.edu/ml/machine-learning-databases/00321/LD2011_2014.txt.zip
+    """
+    logger.info("Ingesting UCI Electricity Load data")
+    url = "https://archive.ics.uci.edu/ml/machine-learning-databases/00321/LD2011_2014.txt.zip"
+    local_zip = dest_dir / "uci_electricity.zip"
+    local_csv = dest_dir / "uci_electricity.csv"
+    
+    try:
+        # Download the zip
+        download_file(url, local_zip)
+        
+        # Unzip
+        import zipfile
+        with zipfile.ZipFile(local_zip, 'r') as zip_ref:
+            zip_ref.extractall(dest_dir)
+        
+        # The main file is usually LD2011_2014.txt
+        csv_files = list(dest_dir.glob("LD2011_2014*.txt"))
+        if not csv_files:
+            raise IngestionError("Could not find extracted UCI file")
+        
+        src_path = csv_files[0]
+        shutil.move(str(src_path), str(local_csv))
+        
+        # Clean up zip
+        local_zip.unlink()
+        
+        checksum = compute_sha256(local_csv)
+        
+        manifest = DatasetManifest(
+            name="uci_electricity",
+            source="UCI Machine Learning Repository",
+            url=url,
+            local_path=str(local_csv),
+            checksum=checksum,
+            timestamp=time.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            metadata={"source_file": src_path.name}
+        )
+        return manifest
+        
+    except Exception as e:
+        raise IngestionError(f"Failed to ingest UCI Electricity data: {e}")
+
+def ingest_dataset(config: Dict[str, Any], dest_dir: Path) -> DatasetManifest:
+    """
+    Generic ingestion dispatcher based on source type.
+    """
+    source = config.get("source", "").lower()
+    name = config.get("name", "unknown")
+    
+    if "noaa" in source:
+        return ingest_noaa_dataset(config["url"], dest_dir, name)
+    elif "yahoo" in source or "finance" in source:
+        ticker = config.get("ticker")
+        start = config.get("start", "2020-01-01")
+        end = config.get("end", "2023-01-01")
+        return ingest_yahoo_finance(ticker, start, end, dest_dir)
+    elif "uk" in source and "grid" in source:
+        return ingest_uk_grid(dest_dir)
+    elif "uci" in source and "electricity" in source:
+        return ingest_uci_electricity(dest_dir)
+    else:
+        raise IngestionError(f"Unknown source type: {source}")
+
+def create_manifest(manifests: List[DatasetManifest], output_path: Path) -> None:
+    """
+    Write a list of DatasetManifest objects to a JSON manifest file.
+    """
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    data = [m.to_dict() for m in manifests]
+    with open(output_path, 'w') as f:
+        json.dump(data, f, indent=2)
+    logger.info(f"Manifest written to {output_path}")
+
+def load_manifest(manifest_path: Path) -> List[DatasetManifest]:
+    """
+    Load a manifest file and return list of DatasetManifest objects.
+    """
+    with open(manifest_path, 'r') as f:
+        data = json.load(f)
+    return [DatasetManifest(**item) for item in data]
+
+def run_pipeline(config_path: Path, output_dir: Path) -> None:
+    """
+    Run the full ingestion pipeline based on a config file.
+    Config file should be a JSON list of dataset configurations.
+    """
+    with open(config_path, 'r') as f:
+        configs = json.load(f)
+    
+    manifests = []
+    for cfg in configs:
+        try:
+            manifest = ingest_dataset(cfg, output_dir)
+            manifests.append(manifest)
+            logger.info(f"Successfully ingested: {manifest.name}")
+        except IngestionError as e:
+            logger.error(f"Failed to ingest {cfg.get('name')}: {e}")
+            # Fail loudly as per constraint
+            raise
+    
+    manifest_path = output_dir / "manifest.json"
+    create_manifest(manifests, manifest_path)
+    logger.info("Ingestion pipeline completed successfully.")
 
 if __name__ == "__main__":
-    main()
+    import sys
+    if len(sys.argv) < 3:
+        print("Usage: python -m src.data.ingestion <config.json> <output_dir>")
+        sys.exit(1)
+    
+    config_file = Path(sys.argv[1])
+    out_dir = Path(sys.argv[2])
+    
+    logging.basicConfig(level=logging.INFO)
+    run_pipeline(config_file, out_dir)

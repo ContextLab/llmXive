@@ -42,3 +42,25 @@
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/maurice/traffic/resolve/main/traffic.csv
   verified_at: '2026-08-04T17:06:00.756414Z'
+- artifact_hash: 60f2895b64db76025d38f2cb7d21282d9807b61304a2c89a8dc4065591a5985c
+  artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://www.nationalgrideso.com
+  verification_status: pending
+  verified_against_url: https://www.nationalgrideso.com
+  verified_at: '2026-08-07T11:18:42.938692Z'
+- artifact_hash: 60f2895b64db76025d38f2cb7d21282d9807b61304a2c89a8dc4065591a5985c
+  artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: UCI Machine Learning Repository
+  kind: url
+  value: https://archive.ics.uci.edu/ml/datasets/ElectricityLoadDiagrams20112014
+  verification_status: pending
+  verified_against_url: https://archive.ics.uci.edu/dataset/321/electricityloaddiagrams20112014
+  verified_at: '2026-08-07T11:18:42.938692Z'

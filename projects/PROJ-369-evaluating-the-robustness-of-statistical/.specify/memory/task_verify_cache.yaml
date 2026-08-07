@@ -1,0 +1,6 @@
+T012:
+  c: false
+  h: a2dc078e9ea68a1ced5309d7a3c1b6df60c498c0a1165e3506521664a937f16a
+  r: Both required artifacts (`src/data/preprocessing.py` and `tests/unit/test_preprocessing.py`)
+    are missing from the repository, so no unit test exists to verify the ADF logic
+    or differencing loops. The task is therefore not satisfied.

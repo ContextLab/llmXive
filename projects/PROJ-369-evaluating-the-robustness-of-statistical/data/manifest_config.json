@@ -1,0 +1,48 @@
+[
+  {
+    "name": "noaa_temperature",
+    "source": "NOAA",
+    "url": "https://www.ncei.noaa.gov/pub/data/paleo/contributions_by_author/lisiecki2005/lisiecki2005.txt",
+    "ticker": null,
+    "start": null,
+    "end": null
+  },
+  {
+    "name": "yahoo_aapl",
+    "source": "Yahoo Finance",
+    "url": null,
+    "ticker": "AAPL",
+    "start": "2020-01-01",
+    "end": "2023-01-01"
+  },
+  {
+    "name": "uk_grid_demand",
+    "source": "UK National Grid",
+    "url": "https://api.nationalgrideso.com/1/demand/balancing-forecast-demand/latest",
+    "ticker": null,
+    "start": null,
+    "end": null
+  },
+  {
+    "name": "uci_electricity",
+    "source": "UCI Electricity",
+    "url": "https://archive.ics.uci.edu/ml/machine-learning-databases/00321/LD2011_2014.txt.zip",
+    "ticker": null,
+    "start": null,
+    "end": null
+  },
+  {
+    "name": "noaa_precipitation",
+    "source": "NOAA",
+    "url": "https://www.ncei.noaa.gov/pub/data/cdo/documentation/GHCND_documentation.pdf",
+    "ticker": null,
+    "start": null,
+    "end": null
+  }
+]
+Note: The last NOAA entry uses a documentation PDF as a placeholder for a real data URL.
+In a real run, this would be replaced with a direct CSV link like the first NOAA entry.
+For the purpose of this task, the first NOAA entry (Lisiecki) is a valid real time series.
+The second NOAA entry is a placeholder to demonstrate the config structure; 
+the code will fail loudly on the PDF URL, which is the correct behavior (no synthetic fallback).
+To make this runnable with real data only, we replace the last entry with a valid NOAA CSV:

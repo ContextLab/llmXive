@@ -1,322 +1,362 @@
-"""
-Metrics computation module for statistical robustness evaluation.
-
-This module provides functions to compute:
-- Autocorrelation Function (ACF) at lag 20
-- Hurst exponent via Detrended Fluctuation Analysis (DFA)
-- Spectral density peak ratio
-"""
 import numpy as np
 import pandas as pd
 from scipy import signal
 from scipy.stats import linregress
-from typing import Dict, Any, List, Optional, Tuple
+from typing import Dict, Any, Union, List, Optional
 import logging
-from pathlib import Path
-import json
 
-from src.utils.config import get_path
+from src.utils.logging import get_logger
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
-def compute_acf_lag20(series: np.ndarray) -> float:
+
+class MetricsError(Exception):
+    """Custom exception for metrics computation errors."""
+    pass
+
+
+def compute_acf_lag(series: Union[pd.Series, np.ndarray], max_lag: int = 20) -> Dict[int, float]:
     """
-    Compute the Autocorrelation Function (ACF) at lag 20.
+    Compute the Autocorrelation Function (ACF) up to a specified lag.
 
     Args:
-        series: 1D numpy array of time series data.
+        series: Input time series data.
+        max_lag: Maximum lag to compute (default 20).
 
     Returns:
-        ACF value at lag 20.
+        Dictionary mapping lag index to correlation coefficient.
+
+    Raises:
+        MetricsError: If input is invalid or computation fails.
     """
-    if len(series) < 21:
-        logger.warning(f"Series length ({len(series)}) is less than lag 20 + 1. "
-                       f"Returning NaN for ACF lag 20.")
-        return np.nan
-
-    # Use scipy's correlate to compute ACF
-    # Normalize by variance and mean
-    series_centered = series - np.mean(series)
-    variance = np.var(series)
-
-    if variance == 0:
-        return 0.0
-
-    # Compute correlation at lag 20
-    n = len(series)
-    cov_lag20 = np.mean(series_centered[:n-20] * series_centered[20:])
-    acf_lag20 = cov_lag20 / variance
-
-    return float(acf_lag20)
-
-def compute_dfa_hurst(series: np.ndarray, min_length: int = 100) -> float:
-    """
-    Compute Hurst exponent using Detrended Fluctuation Analysis (DFA).
-
-    Args:
-        series: 1D numpy array of time series data.
-        min_length: Minimum length required for DFA computation.
-
-    Returns:
-        Estimated Hurst exponent.
-    """
-    if len(series) < min_length:
-        logger.warning(f"Series length ({len(series)}) is less than minimum required ({min_length}). "
-                       f"Returning NaN for Hurst exponent.")
-        return np.nan
-
-    # Remove mean
-    y = series - np.mean(series)
-    n = len(y)
-
-    # Create profile (cumulative sum)
-    profile = np.cumsum(y)
-
-    # Define scales (window sizes)
-    # Use a range of scales from 4 to n/4
-    scales = []
-    for i in range(4, n // 4):
-        scales.append(i)
-
-    if not scales:
-        logger.warning("No valid scales available for DFA.")
-        return np.nan
-
-    # Compute fluctuation for each scale
-    fluctuation = []
-    for scale in scales:
-        # Split profile into segments
-        num_segments = n // scale
-        if num_segments < 2:
-            continue
-
-        rms_values = []
-        for seg_idx in range(num_segments):
-            start = seg_idx * scale
-            end = start + scale
-            segment = profile[start:end]
-
-            # Fit a linear trend
-            x = np.arange(scale)
-            coeffs = np.polyfit(x, segment, 1)
-            trend = np.polyval(coeffs, x)
-
-            # Detrended segment
-            detrended = segment - trend
-            rms = np.sqrt(np.mean(detrended ** 2))
-            rms_values.append(rms)
-
-        if rms_values:
-            fluctuation.append(np.mean(rms_values))
-
-    if len(fluctuation) < 2:
-        logger.warning("Not enough valid scales for DFA regression.")
-        return np.nan
-
-    # Log-log regression to estimate Hurst exponent
-    log_scales = np.log(scales[:len(fluctuation)])
-    log_fluctuation = np.log(fluctuation)
-
-    slope, _, _, _, _ = linregress(log_scales, log_fluctuation)
-
-    return float(slope)
-
-def compute_spectral_density_peak_ratio(series: np.ndarray) -> float:
-    """
-    Compute the spectral density peak ratio.
-
-    This measures the ratio of the maximum spectral density to the median
-    spectral density, indicating the presence of dominant frequencies.
-
-    Args:
-        series: 1D numpy array of time series data.
-
-    Returns:
-        Spectral density peak ratio.
-    """
-    if len(series) < 50:
-        logger.warning(f"Series length ({len(series)}) is too short for spectral analysis. "
-                       f"Returning NaN for spectral density peak ratio.")
-        return np.nan
-
-    # Compute FFT
-    fft_result = np.fft.fft(series - np.mean(series))
-    freqs = np.fft.fftfreq(len(series))
-
-    # Take only positive frequencies
-    positive_freq_mask = freqs > 0
-    positive_freqs = freqs[positive_freq_mask]
-    positive_spectra = np.abs(fft_result[positive_freq_mask]) ** 2
-
-    if len(positive_spectra) == 0:
-        return 0.0
-
-    # Compute peak ratio
-    max_power = np.max(positive_spectra)
-    median_power = np.median(positive_spectra)
-
-    if median_power == 0:
-        return float('inf') if max_power > 0 else 0.0
-
-    return float(max_power / median_power)
-
-def compute_all_metrics(series: np.ndarray, series_name: str = "unknown") -> Dict[str, Any]:
-    """
-    Compute all metrics (ACF lag 20, Hurst exponent, spectral density peak ratio) for a series.
-
-    Args:
-        series: 1D numpy array of time series data.
-        series_name: Name/identifier of the series for logging.
-
-    Returns:
-        Dictionary containing all computed metrics.
-    """
-    metrics = {
-        "series_name": series_name,
-        "length": len(series),
-        "acf_lag20": compute_acf_lag20(series),
-        "hurst_exponent": compute_dfa_hurst(series),
-        "spectral_density_peak_ratio": compute_spectral_density_peak_ratio(series)
-    }
-
-    logger.info(f"Computed metrics for {series_name}: "
-                f"ACF(20)={metrics['acf_lag20']:.4f}, "
-                f"H={metrics['hurst_exponent']:.4f}, "
-                f"PeakRatio={metrics['spectral_density_peak_ratio']:.4f}")
-
-    return metrics
-
-def compute_metrics_for_all_synthetic_series(
-    synthetic_data_path: Optional[str] = None
-) -> List[Dict[str, Any]]:
-    """
-    Compute metrics for all synthetic series generated in T019.
-
-    This function loads synthetic data from the generated files and computes
-    ACF lag 20, Hurst exponent, and spectral density peak ratio for each series.
-
-    Args:
-        synthetic_data_path: Path to the directory containing synthetic data files.
-                            Defaults to the project's data/processed/synthetic/ directory.
-
-    Returns:
-        List of dictionaries, each containing metrics for one synthetic series.
-    """
-    if synthetic_data_path is None:
-        synthetic_data_path = str(get_path("data_processed") / "synthetic")
-
-    data_path = Path(synthetic_data_path)
-
-    if not data_path.exists():
-        logger.error(f"Synthetic data directory does not exist: {data_path}")
-        raise FileNotFoundError(f"Synthetic data directory not found: {data_path}")
-
-    all_metrics = []
-
-    # Find all CSV files in the synthetic data directory
-    csv_files = list(data_path.glob("*.csv"))
-
-    if not csv_files:
-        logger.warning(f"No synthetic data files found in {data_path}")
-        return all_metrics
-
-    logger.info(f"Found {len(csv_files)} synthetic data files to process.")
-
-    for csv_file in csv_files:
-        try:
-            # Load the data
-            df = pd.read_csv(csv_file)
-
-            # Identify the time series column (usually the second column after index)
-            # Assuming the first column is the index or time, and the rest are data
-            if len(df.columns) > 1:
-                # Try to find the numeric column
-                numeric_cols = df.select_dtypes(include=[np.number]).columns
-                if len(numeric_cols) > 0:
-                    series_col = numeric_cols[0]
-                    series_data = df[series_col].values
-                    series_name = f"{csv_file.stem}_{series_col}"
-                else:
-                    logger.warning(f"No numeric columns found in {csv_file}. Skipping.")
-                    continue
-            else:
-                # Single column data
-                series_data = df.iloc[:, 0].values
-                series_name = csv_file.stem
-
-            # Compute metrics
-            metrics = compute_all_metrics(series_data, series_name)
-            metrics["source_file"] = str(csv_file)
-            all_metrics.append(metrics)
-
-        except Exception as e:
-            logger.error(f"Error processing {csv_file}: {e}")
-            continue
-
-    return all_metrics
-
-def save_metrics_to_json(
-    metrics_list: List[Dict[str, Any]],
-    output_path: Optional[str] = None
-) -> str:
-    """
-    Save computed metrics to a JSON file.
-
-    Args:
-        metrics_list: List of metric dictionaries.
-        output_path: Path for the output JSON file. Defaults to results/metrics/synthetic_metrics.json.
-
-    Returns:
-        Path to the saved JSON file.
-    """
-    if output_path is None:
-        output_path = str(get_path("results") / "metrics" / "synthetic_metrics.json")
-
-    output_file = Path(output_path)
-    output_file.parent.mkdir(parents=True, exist_ok=True)
-
-    with open(output_file, 'w') as f:
-        json.dump(metrics_list, f, indent=2)
-
-    logger.info(f"Saved metrics for {len(metrics_list)} series to {output_file}")
-    return str(output_file)
-
-def main():
-    """
-    Main entry point to compute metrics for all synthetic series.
-    """
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
-
-    logger.info("Starting metric computation for synthetic series...")
+    if series is None or len(series) == 0:
+        raise MetricsError("Input series cannot be None or empty.")
 
     try:
-        # Compute metrics for all synthetic series
-        metrics = compute_metrics_for_all_synthetic_series()
+        # Ensure numpy array for calculation
+        if isinstance(series, pd.Series):
+            data = series.values
+        else:
+            data = np.asarray(series)
 
-        if not metrics:
-            logger.warning("No metrics computed. Check synthetic data files.")
-            return
+        # Handle NaNs by dropping them
+        data = data[~np.isnan(data)]
 
-        # Save results
-        output_path = save_metrics_to_json(metrics)
+        if len(data) < max_lag + 1:
+            logger.warning(f"Series length ({len(data)}) is less than max_lag ({max_lag}). "
+                           f"Reducing max_lag to {len(data) - 1}.")
+            max_lag = len(data) - 1
 
-        # Print summary
-        logger.info(f"Computed metrics for {len(metrics)} synthetic series.")
-        logger.info(f"Results saved to: {output_path}")
+        if max_lag < 1:
+            raise MetricsError("Series too short to compute any lag correlations.")
 
-        # Print sample metrics
-        for i, m in enumerate(metrics[:3]):
-            logger.info(f"Sample {i+1}: {m['series_name']} - "
-                        f"ACF(20)={m['acf_lag20']:.4f}, "
-                        f"H={m['hurst_exponent']:.4f}, "
-                        f"PeakRatio={m['spectral_density_peak_ratio']:.4f}")
+        # Compute ACF using scipy's correlate
+        # Normalize by variance (ddof=0 for population variance consistent with standard ACF)
+        mean_val = np.mean(data)
+        var_val = np.var(data)
+        
+        if var_val == 0:
+            # Constant series, all correlations are 0 (or undefined, but 0 is safe for stats)
+            return {lag: 0.0 for lag in range(1, max_lag + 1)}
+
+        # Calculate ACF manually for precision control
+        # ACF(k) = Cov(X_t, X_{t+k}) / Var(X_t)
+        acf_values = {}
+        for lag in range(1, max_lag + 1):
+            # Overlap
+            x1 = data[:-lag]
+            x2 = data[lag:]
+            
+            cov = np.mean((x1 - mean_val) * (x2 - mean_val))
+            acf_values[lag] = cov / var_val
+
+        return acf_values
 
     except Exception as e:
-        logger.error(f"Error in main: {e}")
-        raise
+        logger.error(f"Error computing ACF: {e}")
+        raise MetricsError(f"ACF computation failed: {e}")
 
-if __name__ == "__main__":
-    main()
+
+def compute_dfa_hurst(series: Union[pd.Series, np.ndarray], min_scale: int = 4, max_scale: Optional[int] = None) -> float:
+    """
+    Compute the Hurst exponent using Detrended Fluctuation Analysis (DFA).
+
+    Args:
+        series: Input time series data.
+        min_scale: Minimum window size for DFA (default 4).
+        max_scale: Maximum window size (default: 1/4 of series length).
+
+    Returns:
+        Estimated Hurst exponent (H).
+
+    Raises:
+        MetricsError: If input is invalid or computation fails.
+    """
+    if series is None or len(series) == 0:
+        raise MetricsError("Input series cannot be None or empty.")
+
+    try:
+        if isinstance(series, pd.Series):
+            data = series.values
+        else:
+            data = np.asarray(series)
+
+        # Remove NaNs
+        data = data[~np.isnan(data)]
+        n = len(data)
+
+        if n < min_scale * 2:
+            raise MetricsError(f"Series length ({n}) is too short for DFA with min_scale={min_scale}.")
+
+        if max_scale is None:
+            max_scale = max(min_scale, n // 4)
+
+        # 1. Profile: Cumulative sum of deviations from mean
+        mean_val = np.mean(data)
+        profile = np.cumsum(data - mean_val)
+
+        # 2. Define scales (window sizes)
+        # Use a logarithmic spacing of scales
+        scales = np.unique(np.logspace(np.log10(min_scale), np.log10(max_scale), num=20).astype(int))
+        scales = scales[scales > min_scale] # Ensure strictly greater than min if possible, but keep min if needed
+        if len(scales) == 0:
+            scales = np.array([min_scale])
+        
+        fluctuation_sizes = []
+
+        for scale in scales:
+            # 3. Divide profile into non-overlapping boxes of size 'scale'
+            n_boxes = int(n // scale)
+            if n_boxes == 0:
+                continue
+
+            # Calculate fluctuation for each box
+            rms_fluctuation = 0.0
+            count = 0
+
+            for i in range(n_boxes):
+                # Extract segment
+                start_idx = i * scale
+                end_idx = start_idx + scale
+                segment = profile[start_idx:end_idx]
+
+                # Fit linear trend (detrending)
+                x = np.arange(scale)
+                # Linear regression: y = mx + c
+                # Using least squares
+                A = np.vstack([x, np.ones(scale)]).T
+                m, c = np.linalg.lstsq(A, segment, rcond=None)[0]
+                
+                # Subtract trend
+                trend = m * x + c
+                detrended_segment = segment - trend
+
+                # RMS fluctuation for this box
+                rms_fluctuation += np.sqrt(np.mean(detrended_segment**2))
+                count += 1
+
+            if count > 0:
+                rms_fluctuation = np.sqrt(rms_fluctuation / count)
+                fluctuation_sizes.append(rms_fluctuation)
+            else:
+                # If no boxes fit, skip this scale
+                continue
+
+        if len(fluctuation_sizes) < 2:
+            raise MetricsError("Not enough valid scales computed for linear regression in DFA.")
+
+        # 4. Fit power law: F(s) ~ s^H  =>  log(F) = H * log(s) + C
+        log_scales = np.log(scales[:len(fluctuation_sizes)])
+        log_fluctuation = np.log(fluctuation_sizes)
+
+        # Linear regression to find slope (Hurst exponent)
+        slope, _, _, _, _ = linregress(log_scales, log_fluctuation)
+        
+        hurst = float(slope)
+        return hurst
+
+    except Exception as e:
+        logger.error(f"Error computing DFA Hurst exponent: {e}")
+        raise MetricsError(f"DFA Hurst computation failed: {e}")
+
+
+def compute_spectral_peak_ratio(series: Union[pd.Series, np.ndarray], min_freq_ratio: float = 0.01) -> float:
+    """
+    Compute the Spectral Density Peak Ratio.
+    
+    This metric identifies the ratio of the dominant peak power to the average 
+    power in the non-peak frequencies (or the noise floor), indicating 
+    periodicity strength.
+    
+    Steps:
+    1. Compute PSD using Welch's method.
+    2. Identify the dominant peak (excluding DC if necessary).
+    3. Calculate the ratio of peak power to the median/mean of the rest.
+
+    Args:
+        series: Input time series data.
+        min_freq_ratio: Minimum frequency to consider as a peak (fraction of Nyquist).
+
+    Returns:
+        Ratio of dominant peak power to the background noise floor.
+        Returns 0.0 if no significant peak is found or computation fails.
+
+    Raises:
+        MetricsError: If input is invalid.
+    """
+    if series is None or len(series) == 0:
+        raise MetricsError("Input series cannot be None or empty.")
+
+    try:
+        if isinstance(series, pd.Series):
+            data = series.values
+        else:
+            data = np.asarray(series)
+
+        # Remove NaNs
+        data = data[~np.isnan(data)]
+        n = len(data)
+
+        if n < 10:
+            logger.warning("Series too short for spectral analysis. Returning 0.0.")
+            return 0.0
+
+        # Compute Power Spectral Density using Welch's method
+        # fs is assumed to be 1.0 for relative frequency analysis
+        f, Pxx = signal.welch(data, fs=1.0, nperseg=min(256, n), scaling='density')
+
+        if len(f) == 0:
+            return 0.0
+
+        # Filter out DC component (f=0) and very low frequencies if desired
+        # Usually, we look for peaks above a certain frequency fraction
+        valid_mask = f > (f[-1] * min_freq_ratio) # Ignore near-DC
+        if not np.any(valid_mask):
+            valid_mask = np.ones_like(f, dtype=bool) # Fallback to all if none valid
+
+        f_valid = f[valid_mask]
+        Pxx_valid = Pxx[valid_mask]
+
+        if len(Pxx_valid) == 0:
+            return 0.0
+
+        # Find the maximum power (peak)
+        peak_power = np.max(Pxx_valid)
+        peak_idx = np.argmax(Pxx_valid)
+
+        # Define "background" as the median power of the rest of the spectrum
+        # Exclude the peak and its immediate neighbors to avoid leakage affecting the floor
+        neighbor_count = 2
+        start_idx = max(0, peak_idx - neighbor_count)
+        end_idx = min(len(Pxx_valid), peak_idx + neighbor_count + 1)
+        
+        background_indices = np.concatenate([
+            np.arange(0, start_idx),
+            np.arange(end_idx, len(Pxx_valid))
+        ])
+
+        if len(background_indices) == 0:
+            # Fallback: use median of all valid if we can't exclude neighbors
+            background_power = np.median(Pxx_valid)
+        else:
+            background_power = np.median(Pxx_valid[background_indices])
+
+        if background_power <= 0:
+            # Avoid division by zero or negative noise floor
+            return 0.0
+
+        ratio = peak_power / background_power
+        return float(ratio)
+
+    except Exception as e:
+        logger.error(f"Error computing spectral peak ratio: {e}")
+        raise MetricsError(f"Spectral peak ratio computation failed: {e}")
+
+
+def compute_all_metrics(series: Union[pd.Series, np.ndarray]) -> Dict[str, Any]:
+    """
+    Compute all defined metrics for a given time series.
+
+    Args:
+        series: Input time series data.
+
+    Returns:
+        Dictionary containing:
+          - 'acf_lag': Dict of lag -> correlation
+          - 'hurst': Float (DFA)
+          - 'spectral_peak_ratio': Float
+
+    Raises:
+        MetricsError: If any metric computation fails.
+    """
+    try:
+        # Compute ACF (lag 20)
+        acf_result = compute_acf_lag(series, max_lag=20)
+        
+        # Compute Hurst (DFA)
+        hurst_result = compute_dfa_hurst(series)
+        
+        # Compute Spectral Peak Ratio
+        spectral_result = compute_spectral_peak_ratio(series)
+
+        return {
+            "acf_lag": acf_result,
+            "hurst": hurst_result,
+            "spectral_peak_ratio": spectral_result
+        }
+    except MetricsError:
+        raise
+    except Exception as e:
+        logger.error(f"Unexpected error in compute_all_metrics: {e}")
+        raise MetricsError(f"General metrics computation failed: {e}")
+
+
+def compute_metrics_for_dataset(
+    dataset_path: str,
+    time_column: str = 'date',
+    value_column: str = 'value'
+) -> Dict[str, Any]:
+    """
+    Load a dataset from a file and compute metrics for the specified value column.
+
+    Args:
+        dataset_path: Path to the CSV file.
+        time_column: Name of the time column (for parsing if needed).
+        value_column: Name of the column containing the time series values.
+
+    Returns:
+        Dictionary with metrics and metadata.
+
+    Raises:
+        MetricsError: If file loading or metric computation fails.
+    """
+    try:
+        logger.info(f"Loading dataset from {dataset_path}")
+        df = pd.read_csv(dataset_path)
+
+        if value_column not in df.columns:
+            raise MetricsError(f"Column '{value_column}' not found in {dataset_path}. "
+                               f"Available columns: {list(df.columns)}")
+
+        series = df[value_column]
+
+        # Check for minimum length
+        if len(series.dropna()) < 20:
+            logger.warning(f"Series in {dataset_path} too short for robust metrics.")
+            # We still attempt computation, but it might be unreliable
+
+        metrics = compute_all_metrics(series)
+        
+        metrics['dataset_path'] = dataset_path
+        metrics['value_column'] = value_column
+        metrics['n_points'] = len(series)
+        metrics['n_valid'] = series.dropna().count()
+
+        return metrics
+
+    except FileNotFoundError:
+        logger.error(f"Dataset file not found: {dataset_path}")
+        raise MetricsError(f"Dataset file not found: {dataset_path}")
+    except Exception as e:
+        logger.error(f"Error processing dataset {dataset_path}: {e}")
+        raise MetricsError(f"Dataset processing failed: {e}")

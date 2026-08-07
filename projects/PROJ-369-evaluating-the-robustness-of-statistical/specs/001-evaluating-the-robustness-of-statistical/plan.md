@@ -9,15 +9,15 @@ This project evaluates the robustness of standard statistical tests (one-sample 
 
 ## Technical Context
 
-**Language/Version**: Python 3.10+  
+**Language/Version**: Python +  
 **Primary Dependencies**: `numpy`, `pandas`, `scipy`, `statsmodels`, `arch` (for Hurst/ARFIMA), `yfinance`, `requests`, `pyyaml`, `matplotlib`, `seaborn`, `statsmodels` (for GLM), `xarray` (for NOAA)  
 **Storage**: Local file system (`data/raw/`, `data/processed/`, `results/`) with checksums; no external DB.  
 **Testing**: `pytest` (unit tests for preprocessing, synthetic generation, and hypothesis test logic).  
-**Target Platform**: GitHub Actions Free Tier (2 CPU, ~7 GB RAM, ~14 GB disk, no GPU).  
+**Target Platform**: GitHub Actions Free Tier (Multiple CPU cores, ~7 GB RAM, ~14 GB disk, no GPU).  
 **Project Type**: Statistical Research Pipeline / CLI Tool  
-**Performance Goals**: Complete full pipeline (ingestion, N-variation grid, 10k synthetic trials per cell, regression) in ≤ 6 hours.  
+**Performance Goals**: Complete full pipeline (ingestion, N-variation grid, Multiple synthetic trials per cell, regression) in ≤ 6 hours.  
 **Constraints**: Must run on CPU; memory usage < 7 GB; no external API keys required; datasets must be directly downloadable (no gated access).  
-**Scale/Scope**: 5+ real datasets, 4 Hurst levels (0.5, 0.7, 0.8, 0.9) × 5 sample sizes (100, 500, 1k, 5k, 10k), 10,000 Monte Carlo trials per configuration. A sufficient number of shuffled null distributions per series.
+**Scale/Scope**: + real datasets, Several Hurst levels spanning the range of 0.5 to 0.9 will be examined. × sample sizes (100, 500, 1k, 5k, 10k), a substantial number of Monte Carlo trials per configuration. A sufficient number of shuffled null distributions per series.
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
@@ -30,7 +30,9 @@ This project evaluates the robustness of standard statistical tests (one-sample 
 - **Principle III (Data Hygiene)**: Plan mandates checksumming of raw downloads, immutable raw data, and derivation of processed files with documented transformations.
 - **Principle IV (Single Source of Truth)**: All figures and statistics in the output paper will trace to specific rows in `data/processed/` and code blocks in `code/`.
 - **Principle V (Versioning Discipline)**: Artifact hashes will be recorded in `state/projects/PROJ-369-evaluating-the-robustness-of-statistical.yaml`.
-- **Principle VI (Temporal Dependence Quantification)**: Every dataset processing step includes ACF (lag 20), Hurst exponent (via DFA), and spectral density peak ratio calculation before hypothesis testing.
+- **Principle VI (Temporal Dependence Quantification)**: Every dataset processing step includes ACF (lag)
+
+The research question remains: How does the autocorrelation structure evolve over time? The method involves computing the autocorrelation function at multiple lags to identify significant dependencies. References: [Citation preserved verbatim]., Hurst exponent (via DFA), and spectral density peak ratio calculation before hypothesis testing.
 - **Principle VII (Null Distribution Validation via Shuffling)**: Plan explicitly includes generating **[deferred] shuffled versions per series** (for *every* real and synthetic series) to create a null distribution for comparison. This count is hardcoded and validated in tests to ensure the specific comparison mechanism is applied to every series as required.
 
 ## Project Structure
