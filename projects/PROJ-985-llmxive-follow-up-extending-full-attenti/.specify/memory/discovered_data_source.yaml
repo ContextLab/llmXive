@@ -1,0 +1,16 @@
+status: none
+intent: download RULER and Needle-in-Haystack benchmarks from HuggingFace datasets
+  python package dataset
+required_fields:
+- document_id
+- document_source
+- token_index
+- token_text
+- token_entropy
+- pos_tag
+- token_position
+- local_perplexity
+- rtp turbo_selected
+cache_key: 7ff34ae8923b65c02661f800502ae3c22d422c7e0b3ac9406119a9743d361b12
+searched_at: '2026-08-07T13:39:50.885828+00:00'
+retry_count: 1

@@ -1,0 +1,68 @@
+# Ruff configuration for llmXive project
+# Extends black compatibility and enforces strict quality standards
+
+[lint]
+# Enable pycodestyle (`E`), Pyflakes (`F`), and flake8-bugbear (`B`)
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # Pyflakes
+    "I",   # isort
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "UP",  # pyupgrade
+    "N",   # pep8-naming
+    "ARG", # flake8-unused-arguments
+    "SIM", # flake8-simplify
+    "RUF", # Ruff-specific rules
+]
+ignore = [
+    "E501", # Line too long (handled by black)
+    "B008", # Do not perform function call in argument defaults (common in data pipelines)
+    "RUF012", # Mutable class attributes should be annotated with `typing.ClassVar`
+]
+
+# Allow autofix for all enabled rules
+fixable = ["ALL"]
+unfixable = []
+
+# Exclude a few files/directories
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".git-rewrite",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "venv",
+    "data/",
+    "figures/",
+]
+
+# Same as Black
+line-length = 88
+
+# Allow unused variables when underscore-prefixed
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[lint.per-file-ignores]
+# Ignore specific rules for test files
+"tests/*" = ["ARG", "N802"] # Allow unused arguments in tests, ignore function naming
+
+[lint.isort]
+known-first-party = ["lib", "data", "models", "evaluation"]
+force-sort-within-sections = true

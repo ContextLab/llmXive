@@ -1,0 +1,2 @@
+# This directory holds execution logs and memory profiles.
+# Output files: memory_profile.csv, anomalies.csv, timing_report.json.

@@ -1,0 +1,39 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Evaluation Metrics Schema"
+description: "Schema for the evaluation metrics output."
+type: object
+properties:
+  method:
+    type: string
+    description: "Method name: 'Full', 'Learned', 'Static', or 'Static_CrossModel'."
+    enum:
+      - "Full"
+      - "Learned"
+      - "Static"
+      - "Static_CrossModel"
+  perplexity:
+    type: number
+    description: "Perplexity score."
+    minimum: 0.0
+  exact_match:
+    type: number
+    description: "Exact match accuracy."
+    minimum: 0.0
+    maximum: 1.0
+  seed:
+    type: integer
+    description: "Random seed used (for Static method)."
+  p_value:
+    type: number
+    description: "Statistical significance p-value."
+    minimum: 0.0
+    maximum: 1.0
+  model:
+    type: string
+    description: "Target model for evaluation (e.g., 'Llama-3-8B', 'Gemma-2-9B')."
+required:
+  - method
+  - perplexity
+  - exact_match
+  - model
+additionalProperties: false

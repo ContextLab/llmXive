@@ -1,0 +1,2 @@
+# This directory holds intermediate data artifacts generated during the pipeline.
+# Output files: attention_maps.h5, merged_dataset.csv, models/, baseline_seeds/.

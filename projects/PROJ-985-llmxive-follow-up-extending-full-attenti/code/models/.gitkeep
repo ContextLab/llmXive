@@ -1,0 +1,2 @@
+# This directory holds model training and inference scripts for the llmXive project.
+# Contains training loops, rule derivation, and heuristic application.

@@ -1,0 +1,36 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Static Heuristic Rules Schema"
+description: "Schema for the derived static heuristic rules."
+type: object
+properties:
+  rule_id:
+    type: string
+    description: "Unique identifier for the rule set."
+  entropy_threshold:
+    type: number
+    description: "Minimum entropy required."
+    minimum: 0.0
+  pos_list:
+    type: array
+    description: "List of allowed POS tags."
+    items:
+      type: string
+  position_min:
+    type: number
+    description: "Minimum position (optional)."
+    minimum: 0.0
+    maximum: 1.0
+  position_max:
+    type: number
+    description: "Maximum position (optional)."
+    minimum: 0.0
+    maximum: 1.0
+  derived_from_model:
+    type: string
+    description: "Model used to derive the rules (e.g., 'Llama-3-8B')."
+required:
+  - rule_id
+  - entropy_threshold
+  - pos_list
+  - derived_from_model
+additionalProperties: false

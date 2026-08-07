@@ -1,0 +1,48 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No directory listings or file system snapshots were provided, so we cannot confirm\
+    \ that the required ten directories (`code/`, `tests/`, `data/`, `code/lib/`,\
+    \ `code/data/`, `code/models/`, `code/evaluation/`, `data/results/`, `data/logs/`,\
+    \ `data/intermediate/`) actually exist and are non\u2011empty. The implementer\
+    \ must supply concrete evidence (e.g., a tree view, manifest file, or screenshots)\
+    \ showing these exact directories in the project."
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No configuration files (e.g., `pyproject.toml`, `.ruff.toml`, `black.toml`, or
+    a `pre-commit` hook) or any other evidence of ruff/black being set up are present.
+    The required artifacts that demonstrate linting and formatting tools are configured
+    are missing.
+T004:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No pytest configuration file (e.g., `pytest.ini` or `pyproject.toml` with pytest\
+    \ settings) or empty test suite directory (`tests/` with placeholder test files)\
+    \ is present in the provided evidence. The claim that the task \u201CInitialize\
+    \ pytest configuration and create empty test suite structure\u201D is therefore\
+    \ not substantiated. The missing artifacts must be added for the task to be considered\
+    \ complete."
+T005:
+  c: false
+  h: 0c64c8b7ae504992abb5005ff74de4f7f91c39530107a530bb9fe289b447f1b0
+  r: "The provided `code/lib/data_loader.py` is truncated and does not show a complete\
+    \ implementation (e.g., the memory\u2011limit check and yielding logic are cut\
+    \ off). No unit test file asserting peak memory\u202F<\u202F7\u202FGB is present,\
+    \ and the required `data/logs/memory_profile.csv` does not exist. The task\u2019\
+    s core deliverables are therefore missing."
+T012:
+  c: false
+  h: 887fc86b693a787d74643de73db1b81619c1899f3f8d89f6c06a0e726ae7178e
+  r: "The provided `extract_ground_truth.py` is incomplete (truncated) and contains\
+    \ no code that generates and writes attention maps to `data/intermediate/attention_maps.h5`\
+    \ (the file is missing). Additionally, the model loading does not wrap the operation\
+    \ in a `torch.no_grad()` context as required. The task\u2019s core output is therefore\
+    \ not produced."
+T016:
+  c: false
+  h: 9a4e06af63d52da30a85768d0e21f9fcbd0a98c027510b69f1938bd2cb88c38a
+  r: "The repository lacks the required `data/logs/anomalies.csv` file, and the provided\
+    \ `extract_ground_truth.py` snippet is truncated before any logic that detects\
+    \ zero\u2011token cases, flags them, excludes them from the final merge, or writes\
+    \ to the CSV. Consequently the task\u2019s core requirement is not satisfied."

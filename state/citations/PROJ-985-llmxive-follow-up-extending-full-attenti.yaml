@@ -1,0 +1,11 @@
+- artifact_hash: 8acfb247ad1a3001a781035967cf0870a50338bc46e8ad45b3404f65561f8f55
+  artifact_path: projects/PROJ-985-llmxive-follow-up-extending-full-attenti/specs/001-llmxive-follow-up-extending-full-attenti/plan.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: GitHub Actions Runner Limits
+  fetched_title: GitHub-hosted runners - GitHub Docs
+  kind: url
+  value: https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners#supported-runners-and-hardware-resources
+  verification_status: mismatch
+  verified_against_url: https://docs.github.com/en/actions/concepts/runners/github-hosted-runners#supported-runners-and-hardware-resources
+  verified_at: '2026-08-07T13:47:18.249057Z'
