@@ -1,3 +1,7 @@
+---
+description: "Task list template for feature implementation"
+---
+
 # Tasks: llmXive follow-up: extending "Active Learners as Efficient PRP Rerankers"
 
 **Input**: Design documents from `/specs/001-llmxive-prp-redundancy/`
@@ -44,7 +48,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [X] T001 Create project structure per implementation plan (`code/`, `data/`, `tests/`)
-- [X] T002 Initialize Python 3.11 project with `requirements.txt` (beir, sentence-transformers, datasketch, scikit-learn, scipy, pandas, numpy, pytest, nltk); **Removed heavy ollama/transformers dependencies; replaced with lighter alternatives.**
+- [X] T002 Initialize Python 3.11 project with `requirements.txt` (beir, sentence-transformers, datasketch, scikit-learn, scipy, pandas, numpy, pytest, nltk, onnx, onnxruntime, transformers, accelerate); **Removed heavy ollama/transformers dependencies; replaced with lighter alternatives (ONNX for CPU-tractable LLM tasks).**
 - [X] T003 [P] Configure linting (ruff/flake) and formatting (black) tools
 
 ---
@@ -56,10 +60,10 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T004 [P] Setup configuration management in `code/config.py` with a schema for `MAX_RUNTIME_HOURS` and `MAX_MEMORY_GB` allowing parameterization, setting default values explicitly to **6 hours** and **7GB** respectively, serving FR-006 and Constitution Principle VII.
-- [X] T004a [P] Implement watchdog/signal handler in `code/config.py` or `code/utils.py` to terminate the pipeline if runtime exceeds **6 hours** or memory exceeds **7GB**, serving FR-006 enforcement. The handler MUST read the explicit constants defined in T004.
-- [X] T004b-1 [P] [Foundational] Implement a "Check cgroups Availability" step in `code/validate_env.sh` to detect if `cgroups` v2 are available on the host. If unavailable (common on ephemeral GitHub Actions runners), immediately trigger the fallback path described in T004b-3, serving the "fallback mechanism" requirement for unreliable cgroups on ephemeral runners.
-- [X] T004b-2 [P] [Foundational] Implement a "Configure cgroups" step in `code/validate_env.sh` that uses `systemd-run` or `cgconfigparser` to set memory limits ONLY if T004b-1 confirms cgroups availability, serving the primary resource enforcement path.
-- [X] T004b-3 [P] [Foundational] Implement a "Fallback to ulimit/psutil" step in `code/validate_env.sh` that activates when cgroups are unavailable (e.g., on ephemeral GitHub Actions runners). This step uses `ulimit` for shell limits and `psutil` for process-level monitoring to ensure consistent resource constraint validation, serving Constitution Principle VII. **Removed: Replaced complex cgroup logic with streamlined watchdog.**
+- [X] T004a [P] [Dep: T004] Implement watchdog/signal handler in `code/utils.py` to terminate the pipeline if runtime exceeds **6 hours** or memory exceeds **7GB**, serving FR-006 enforcement. The handler MUST read the explicit constants defined in T004. **Integration**: The handler MUST be registered and active in `code/run_pipeline.py` to enforce limits during the main execution loop, not just in configuration. **Enhancement**: The handler MUST also verify the active enforcement mechanism (cgroups or psutil) at startup.
+- [X] T004b-1 [P] [Foundational] [Dep: T004] Implement a "Check cgroups Availability" step in `code/validate_env.sh` to detect if `cgroups` v2 are available on the host. If unavailable (common on ephemeral GitHub Actions runners), immediately trigger the fallback path described in T004b-3, serving the "fallback mechanism" requirement for unreliable cgroups on ephemeral runners.
+- [X] T004b-2 [P] [Foundational] [Dep: T004] Implement a "Configure cgroups" step in `code/validate_env.sh` that uses `systemd-run` or `cgconfigparser` to set memory limits ONLY if T004b-1 confirms cgroups availability, serving the primary resource enforcement path.
+- [X] T004b-3 [P] [Foundational] [Dep: T004] Implement a "Fallback to ulimit/psutil" step in `code/validate_env.sh` that activates when cgroups are unavailable (e.g., on ephemeral GitHub Actions runners). This step uses `ulimit` for shell limits and `psutil` for process-level monitoring to ensure consistent resource constraint validation, serving Constitution Principle VII. **Removed: Replaced complex cgroup logic with streamlined watchdog.** Ensure the fallback logic is tested for usability.
 - [X] T005 [P] Implement BEIR data loader in `code/data_loader.py` to fetch `nfcorpus` and `scifact` via `beir` library.
 - [X] T005a [P] Calculate SHA-256 checksums of raw BEIR files fetched by T005 and record them in `state/projects/PROJ-873-llmxive-follow-up-extending-active-learn.yaml` under `artifact_hashes`, serving Constitution Principle III (Data Hygiene).
 - [X] T005b [P] Implement BEIR data loader extension in `code/data_loader.py` to fetch `trec-covid` dataset via `beir` library specifically for FR-009 validation.
@@ -88,15 +92,24 @@
 ### Implementation for User Story 1
 
 - [X] T012 [US1] Implement and execute synthetic redundancy injection logic in `code/data_loader.py` (synonym replacement via NLTK WordNet, sentence shuffling) to create multiple clusters of near-duplicate passages, serving FR-002. **Execute**: Generate `data/processed/injected_datasets.json` for `nfcorpus` and `scifact`, and `data/processed/injected_trec_covid.json` for `trec-covid`.
-- [X] T043 [US1] Implement and execute a "Semantic Similarity Threshold Validator" in `code/data_loader.py` that verifies the injected redundancy actually achieves the target similarity > 0.95 before proceeding; if the average injected similarity is < 0.95, raise a `DataInjectionError` with details, serving Edge Case 2 and FR-002. **Execute**: Validate the injected datasets from T012.
-- [X] T013 [US1] Implement and execute cosine similarity proxy calculation logic in `code/metrics.py` using `all-MiniLM-L6-v2` to flag pairs with similarity > 0.95 as "wasted", serving FR-003. **Execute**: Aggregate the count of pairs with `cosine_sim > 0.95` from `data/processed/comparison_log.json` and write the result to `data/results/flagged_pairs_count.json` with the schema: `{"wasted_count": int, "total_pairs": int, "wasted_ratio": float}`.
-- [X] T013b [US1] Implement and execute sample size calculation for LLM consensus validation in `code/metrics.py`. The sample size MUST be calculated as the maximum of 10 or 5% of the total flagged count (read from `data/results/flagged_pairs_count.json`). Write the result to `data/results/sample_config.json` (schema: `{"sample_size": int, "minimum_threshold": 10, "percentage": 0.05}`), serving FR-003.
-- [X] T013c [US1] Implement and execute filtering of logged comparisons from `data/processed/comparison_log.json` for similarity > 0.95, read sample size from `data/results/sample_config.json`, and select a **simple random sample**, writing the sample indices to `data/results/consensus_sample.json` (schema: list of indices), serving FR-003.
-- [X] T014 [US1] Implement and execute baseline active ranker execution loop in `code/ranker.py` that processes the full candidate list without clustering, serving FR-003. **Execute**: Generate the "unique subset" of the candidate list by removing near-duplicates identified in T012, writing the result to `data/processed/unique_subset.json`. Run the baseline active ranker against the unique subset to establish the reference NDCG@10, calculate and log the NDCG@10 drop percentage to `data/results/us1_baseline_metrics.json`, serving US-1. **Using a CPU-light model (bert-base-uncased) and sentence-transformers for embedding calculations.**
+- [X] T043 [US1] Implement and execute a "Semantic Similarity Threshold Validator" in `code/data_loader.py` that verifies the injected redundancy actually achieves the target similarity > 0.95 before proceeding; if the average injected similarity is < 0.95, raise a `DataInjectionError` with details, serving Edge Case 2 and FR-002. **Execute**: Validate the injected datasets from T012. Write `data/processed/validation_status.json` with status and details.
+- [X] T013 [US1] Implement and execute cosine similarity proxy calculation logic in `code/metrics.py` using `all-MiniLM-L6-v2` to flag pairs with similarity > 0.95 as "wasted", serving FR-003. **Execute**: Aggregate the count of pairs with `cosine_sim > 0.95` from `data/processed/comparison_log.json` and write the result to `data/results/flagged_pairs_count.json` with the schema: `{"wasted_count": int, "total_pairs": int, "wasted_ratio": float}`. **Calculate** `wasted_ratio` as `wasted_count / total_pairs` within this task.
+- [X] T013a [US1] **Budget Definition**: Implement and execute a task to define, log, and enforce the `total_budget` (e.g., 100 calls as per US-1) in `code/config.py` and write it to `data/results/budget_config.json` (schema: `{"total_budget": int, "budget_type": "LLM_calls"}`). This task MUST run before T013d to ensure the denominator for the ratio calculation is defined. **Execute**: Write the budget artifact. Serve FR-003 and SC-001.
+- [X] T013b [US1] Implement and execute sample size calculation for LLM consensus validation in `code/metrics.py`. The sample size MUST be calculated as the maximum of 10 or 5% of the total flagged count (read from `data/results/flagged_pairs_count.json`). **Handle edge case**: If flagged_count is 0, set sample_size to 0, skip validation, and write `data/results/sample_config.json` with `skip_validation: true`. Write the result to `data/results/sample_config.json` (schema: `{"sample_size": int, "minimum_threshold": 10, "percentage": 0.05, "skip_validation": bool}`), serving FR-003.
+- [X] T013c [US1] Implement and execute filtering of logged comparisons from `data/processed/comparison_log.json` for similarity > 0.95 (flagged pairs), read sample size from `data/results/sample_config.json`, and select a **simple random sample** using `RANDOM_SEED` from `code/config.py`, writing the sample indices to `data/results/consensus_sample.json` (schema: list of indices), serving FR-003. **Note**: The sample MUST be drawn ONLY from pairs with cosine similarity > 0.95 to validate the proxy's accuracy on "wasted" calls.
+- [X] T013e [US1] **LLM Consensus Execution**: Implement and execute the LLM consensus validation step in `code/ranker.py` on the sample defined in `data/results/consensus_sample.json`. Use a **CPU-tractable generative LLM** (e.g., 'TinyLlama-1.1B-Chat-v1.0' via `transformers` with `device='cpu'` or a smaller model like 'Phi-2' if memory allows) to determine the "true" relevance of the compared pairs. **Execute**: Write the ground truth labels to `data/results/consensus_ground_truth.json` (schema: `{"pair_id": str, "true_label": str, "consensus_status": str}`). **Handle timeout**: If the total validation step (setup + calls) exceeds the remaining runtime budget, trigger a fallback to a deterministic rule-based proxy (e.g., exact match on pre-defined similarity thresholds) with a logged warning, and proceed to T013d using the proxy only, serving Edge Case 4. **Note**: If a generative model is strictly infeasible, use the rule-based proxy and log a "Methodology Shift" warning.
+- [X] T013f [US1] **Correction Factor Calculation**: Implement and execute the calculation of the "Correction Factor" in `code/metrics.py` using the results from T013e. **Logic**: Compare the `cosine_sim` proxy labels (from T013, where `cosine_sim > 0.95` implies "wasted") against the `true_label` from `consensus_ground_truth.json` (T013e). Explicitly derive:
+  - **True Positives (TP)**: Proxy=Wasted AND Ground Truth=Wasted.
+  - **True Negatives (TN)**: Proxy=Informative AND Ground Truth=Informative.
+  - **False Positives (FP)**: Proxy=Wasted AND Ground Truth=Informative.
+  - **False Negatives (FN)**: Proxy=Informative AND Ground Truth=Wasted.
+  **Formula**: `Correction Factor = (TP + TN) / Total Sampled`. **Execute**: Write the result to `data/results/correction_factor.json` (schema: `{"correction_factor": float, "proxy_accuracy": float, "sample_size": int, "confusion_matrix": {"tp": int, "tn": int, "fp": int, "fn": int}}`). This task must run before T013d to ensure the final metric is scientifically valid, serving FR-003.
+- [X] T014 [US1] Implement and execute baseline active ranker execution loop in `code/ranker.py` that processes the full candidate list without clustering, serving FR-003. **Execute**: Generate the "unique subset" of the candidate list by removing near-duplicates identified in T012 **and validated by T043** (read `data/processed/validation_status.json`), writing the result to `data/processed/unique_subset.json`. **Dependency**: Verify `data/processed/validation_status.json` from T043 indicates success before proceeding. Run the baseline active ranker against the unique subset to establish the reference NDCG@10, calculate and log the NDCG@10 drop percentage to `data/results/us1_baseline_metrics.json`, serving US-1. **Using a CPU-light model (bert-base-uncased) and sentence-transformers for embedding calculations.**
 - [X] T015 [US1] Implement and execute NDCG@10 calculation for the clustering-aided variant in `code/metrics.py`, comparing against the unique-only baseline, serving FR-004. The unique subset is generated before ranking to establish a valid baseline comparison.
 - [X] T016 [US1] Implement and execute NDCG@10 calculation against BEIR ground truth in `code/metrics.py` for both the full redundant run and the unique subset run, serving FR-004.
-- [X] T013d [US1] Implement and execute aggregation of the `flagged_pairs_count` from T013 and the total LLM call budget to compute the "wasted call" ratio (wasted_count / total_budget), and log the final metric to `data/results/us1_efficiency_ratio.json` (schema: `{"wasted_ratio": float, "wasted_count": int, "total_budget": int}`), serving FR-003 and SC-001.
-- [X] T017 [US1] Implement and execute **real-world** redundancy validation logic in `code/data_loader.py` against the `trec-covid` dataset fetched in T005b. **Scan** the dataset for existing near-duplicate clusters (similarity > 0.95) using cosine similarity. If no real clusters are found, **log 'validation skipped' and proceed**, serving Edge Case 2 and FR-009.
+- [X] T013d [US1] Implement and execute aggregation of the `flagged_pairs_count` from T013 and the `total_budget` from T013a to compute the "wasted call" ratio (wasted_count / total_budget). **Correction**: Apply the Correction Factor from T013f to compute the scientifically validated ratio. Log the final metric to `data/results/us1_efficiency_ratio.json` (schema: `{"wasted_ratio": float, "wasted_ratio_corrected": float, "wasted_count": int, "total_budget": int}`), serving FR-003 and SC-001.
+- [X] T017a [US1] **Real-world Validation (nfcorpus)**: Implement and execute **real-world** redundancy validation logic in `code/data_loader.py` against the `nfcorpus` dataset. **Scan** the dataset for existing near-duplicate clusters (similarity > 0.95) using cosine similarity. If no real clusters are found, **log 'validation skipped' and proceed**, serving Edge Case 2 and FR-009.
+- [X] T017b [US1] **Real-world Validation (scifact)**: Implement and execute **real-world** redundancy validation logic in `code/data_loader.py` against the `scifact` dataset. **Scan** the dataset for existing near-duplicate clusters (similarity > 0.95) using cosine similarity. If no real clusters are found, **log 'validation skipped' and proceed**, serving Edge Case 2 and FR-009.
 - [X] T037 [US1] Implement explicit failure mode handling in `code/data_loader.py` for the "paraphrasing fails to generate sufficient semantic similarity" edge case: if injected similarity < 0.95, raise a `DataInjectionFailureError` with a detailed log of the attempted synonyms and final similarity scores, halting the pipeline. This prevents silent degradation of the "wasted call" metric validity.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently (Baseline behavior on redundant data)
@@ -113,27 +126,27 @@
 
 - [X] T018 [P] [US2] Unit test for MinHash-LSH clustering logic with Jaccard threshold > 0.95 in `tests/unit/test_clustering.py`.
 - [X] T019 [P] [US2] Integration test for full pipeline execution with resource limits in `tests/integration/test_full_pipeline.py`.
- - [X] T019a [P] [US2] Unit test for timeout enforcement in `tests/integration/test_full_pipeline.py`.
- - [X] T019b [P] [US2] Unit test for memory limit enforcement in `tests/integration/test_full_pipeline.py`.
+ - [X] T019a [P] [US2] **Integration test** for timeout enforcement in `tests/integration/test_full_pipeline.py` (testing the active enforcement mechanism in the pipeline loop).
+ - [X] T019b [P] [US2] **Integration test** for memory limit enforcement in `tests/integration/test_full_pipeline.py` (testing the active enforcement mechanism in the pipeline loop).
 
 ### Implementation for User Story 2
 
 - [X] T020 [P] [US2] Implement and execute MinHash-LSH algorithm in `code/clustering.py` to group near-duplicate passages with Jaccard similarity > 0.95, serving FR-001. **Execute**: Write the result to `data/processed/clusters.json`, serving the prerequisite for T044.
 - [X] T044 [US2] Implement and execute a "Cluster Integrity Check" in `code/clustering.py` that verifies the Jaccard similarity of items within each cluster against the ground truth; if > 5% of cluster members have Jaccard < 0.95, log a warning and trigger a re-run with adjusted parameters, serving Edge Case 1 and FR-001.
-- [X] T024a [US2] Implement and execute a "Labeled Subset" calculation using cosine similarity to create embeddings for correlation analysis; **removed LLM consensus validation**. The task now uses the existing embedding calculations from previous steps, establishing a proxy for correlation without introducing new LLM calls.
-- [X] T024 [US2] Implement and execute correlation validation logic in `code/metrics.py`, comparing Jaccard similarity (MinHash) with cosine similarity (embeddings) on the labeled subset generated by T024a, serving FR-008.
+- [X] T024a [US2] Implement and execute a "Labeled Subset" calculation using the **LLM consensus ground truth** from T013e (not cosine proxy) to create embeddings for correlation analysis. This establishes a valid ground truth for correlation validation, serving FR-008.
+- [X] T024 [US2] Implement and execute correlation validation logic in `code/metrics.py`, comparing Jaccard similarity (MinHash) with cosine similarity (embeddings) on the labeled subset generated by T024a (which uses LLM ground truth), serving FR-008.
 - [X] T021 [US2] Implement and execute pre-clustering filter logic in `code/ranker.py` to reduce the candidate pool before ranking (using output from T012 and T020); measure and log pool reduction; if reduction < 30%, log a warning but **proceed** to allow sensitivity analysis, serving US-2.
 - [X] T045 [US1/US2] Implement a "Budget Exhaustion Early Exit" in `code/ranker.py` that checks the remaining LLM call budget after every periodic batch of comparisons; if the budget is insufficient to complete the current candidate list (remaining < 5% of total), halt execution and log `BudgetExhaustedError`, serving Edge Case 3 and US-1/US-2.
 - [X] T022 [US2] Implement and execute NDCG@10 calculation for the clustering-aided variant in `code/metrics.py`, comparing against the unique-only baseline, serving FR-004.
-- [X] T023 [US2] Implement and execute resource monitoring (time/memory) in `code/run_pipeline.py` to enforce runtime and RAM limits, serving FR-006. **Ensure T023 reads the limits defined in T004 (`MAX_RUNTIME_HOURS` and `MAX_MEMORY_GB`)** to ensure consistency between enforcement and monitoring.
+- [X] T023 [US2] Implement and execute resource monitoring (time/memory) in `code/run_pipeline.py` to enforce runtime and RAM limits, serving FR-006. **Ensure T023 reads the limits defined in T004 (`MAX_RUNTIME_HOURS` and `MAX_MEMORY_GB`)** to ensure consistency between enforcement and monitoring. **Verify**: Check that the enforcement mechanism (cgroups/ulimit) selected in T004b is active and functional before starting the pipeline.
 - [X] T025 [US2] Define the MinHash-LSH threshold sweep range (to a near-perfect similarity upper bound in fine-grained steps) in `code/config.py`, serving SC-005.
 - [X] T025a [US2] Implement and execute the MinHash-LSH algorithm with the specific threshold of 0.95 (as per FR-001) to establish the primary baseline control for the clustering-aided variant, serving FR-001 and SC-005. Output metrics to `data/results/us2_baseline_095.json`.
-- [X] T025b [US2] Implement and execute the parameter sweep loop for T025, running the pipeline for each threshold in a set of representative values (default range high values with step size 0.01), serving SC-005.
+- [X] T025b [US2] Implement and execute the parameter sweep loop for T025, running the pipeline for each threshold in a set of representative values (default range high values with a fine-grained step size), serving SC-005.
 - [X] T025c [US2] Implement and execute data aggregation logic for the sweep results in `code/metrics.py`, computing average metrics and standard deviations for each threshold, serving SC-005.
 - [X] T025d [US2] Implement and execute comparison of resulting NDCG curves from T025c against the baseline and output the optimal threshold and sensitivity data to `data/results/threshold_sweep.json` as a machine-readable artifact, serving SC-005.
 - [X] T038 [US2] Implement strict threshold validation in `code/clustering.py` to detect and log "false positive merges" (unique docs merged) by comparing cluster centroids against original documents; if merge rate > 5%, trigger a warning and fallback to unique-only processing, serving Edge Case 1.
 - [X] T039 [US1/US2] Implement a "Low Budget Guardrail" in `code/ranker.py` that halts execution and reports a `BudgetExhaustedError` if the active ranker cannot explore the candidate pool sufficiently (e.g., remaining budget < 5% of pool size) before distinguishing redundant vs. unique items, serving Edge Case 3.
-- [X] T040 [US2] Implement a "Consensus Budget Exhaustion Fallback" in `code/ranker.py` for the LLM consensus validation step: if the **number of consensus calls** exceeds the remaining LLM call budget, gracefully degrade to using only the cosine proxy for the main loop and log the degradation event, serving Edge Case 4.
+- [X] T040 [US2] Implement a "Consensus Budget Exhaustion Fallback" in `code/ranker.py` for the LLM consensus validation step: if the **total validation step time** (including setup) exceeds the remaining LLM call budget, gracefully degrade to using only the cosine proxy for the main loop and log the degradation event, serving Edge Case 4.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently (Baseline vs. Clustering-Aided comparison)
 
@@ -151,12 +164,13 @@
 
 ### Implementation for User Story 3
 
-- [X] T027 [P] [US3] Implement multi-seed execution loop in `code/run_pipeline.py` for both baseline and clustering-aided variants, enforcing exactly **5 independent runs** as per US-3.
-- [X] T048 [US1/US2] Implement and execute a "Cross-Dataset Generalization Check" in `code/run_pipeline.py` that compares the "wasted call" ratios between `nfcorpus`, `scifact`, and `trec-covid` to ensure the redundancy effect is not dataset-specific, serving FR-009 and US-1. **Execute** after T017.
+- [X] T027 [P] [US3] Implement multi-seed execution loop in `code/run_pipeline.py` for both baseline and clustering-aided variants, enforcing exactly **5 independent runs** as per US-3. **Execute**: Generate a set of seeds (e.g., 42, 43, 44, 45, 46) and log them to `data/results/seeds.json` before execution.
+- [X] T048 [US1/US2] Implement and execute a "Cross-Dataset Generalization Check" in `code/run_pipeline.py` that compares the "wasted call" ratios between `nfcorpus`, `scifact`, and `trec-covid` to ensure the redundancy effect is not dataset-specific, serving FR-009 and US-1. **Execute** after T017a and T017b.
 - [X] T047 [US2] Implement a "MinHash Parameter Sensitivity Report" in `data/results/minhash_sensitivity.md` that documents the impact of varying the Jaccard threshold across a high-similarity range on NDCG recovery and wasted call reduction, serving SC-005. **Execute** using data from T025d.
-- [X] T028 [US3] Implement and execute Wilcoxon signed-rank test on NDCG@10 scores in `code/metrics.py`, serving FR-005.
-- [X] T029 [US3] Implement and execute Wilcoxon signed-rank test on "wasted call" ratios in `code/metrics.py`, serving FR-005.
-- [X] T030 [US3] Implement and execute Bonferroni correction for multiple hypothesis testing (NDCG and efficiency) in `code/metrics.py`, serving FR-007.
+- [X] T028 [US3] Implement and execute Wilcoxon signed-rank test on NDCG@10 scores in `code/metrics.py`, serving FR-005. **Execute**: Write p-value to `data/results/wilcoxon_ndcg.json`.
+- [X] T029 [US3] Implement and execute Wilcoxon signed-rank test on "wasted call" ratios in `code/metrics.py`, serving FR-005. **Execute**: Write p-value to `data/results/wilcoxon_wasted.json`.
+- [X] T029a [US3] **P-Value Aggregation**: Implement and execute a task to aggregate the p-values from T028 (`wilcoxon_ndcg.json`) and T029 (`wilcoxon_wasted.json`) into a single list/artifact `data/results/p_values_family.json` (schema: `{"p_values": [float, float], "hypotheses": ["ndcg", "wasted_ratio"]}`). This task MUST run before T030 to ensure the Bonferroni correction is applied to the family of tests. **Execute**: Write the aggregated list. Serve FR-007.
+- [X] T030 [US3] Implement and execute Bonferroni correction for multiple hypothesis testing (NDCG and efficiency) in `code/metrics.py`, serving FR-007. **Execute**: Read the aggregated p-values from `data/results/p_values_family.json`, apply Bonferroni correction, and write the corrected p-values to `data/results/bonferroni_corrected.json`.
 - [X] T031 [US3] Implement and execute generation of final statistical report in `data/results/statistical_report.md` explicitly including Bonferroni-corrected p-values and "wasted call" ratio metrics as required by FR-005, serving US-3.
 
 **Checkpoint**: All user stories should now be independently functional and statistically validated with the fixed 5-run design.
@@ -209,11 +223,35 @@
 
 ### Implementation for Analysis-Driven Corrections
 
-- [ ] T057 [US1/US2] **Data Flow Correction**: Refactor `code/run_pipeline.py` to enforce strict execution ordering: ensure `data/processed/injected_datasets.json` (T012) and `data/processed/clusters.json` (T020) are fully written and validated before the active ranker loop (T015/T021) begins. Add a `PipelineDependencyError` if any prerequisite artifact is missing or incomplete at runtime, serving the 'Producer before consumer' rule and preventing the common failure mode of verify-scripts running before data generation.
-- [ ] T058 [US1] **Edge Case Resolution**: Implement a "Strict Paraphrasing Fallback" in `code/data_loader.py` for Edge Case 2. If the synthetic injection (T012) fails to produce pairs with similarity > 0.95 after 3 retries with varying NLTK WordNet synonyms, the task MUST raise a `DataInjectionFailureError` with a detailed log of the attempted synonyms and final similarity scores, halting the pipeline. This prevents silent degradation of the "wasted call" metric validity.
-- [ ] T059 [US2] **Edge Case Resolution**: Implement a "Threshold Sensitivity Fallback" in `code/clustering.py` for Edge Case 1. If the MinHash-LSH threshold (0.95) results in > 10% of unique documents being incorrectly merged (false positives), the system MUST automatically trigger a re-run with a relaxed threshold and log the adjustment. If the relaxed threshold also fails, raise a `ClusteringFailureError`. This ensures the "wasted call" reduction is not achieved by destroying the candidate pool.
-- [ ] T060 [US3] **Statistical Rigor Correction**: Update `code/metrics.py` (T028/T029) to explicitly handle the case where variance is zero (perfect scores) in the Wilcoxon test. If variance is zero, the task MUST log a `StatisticalDegeneracyWarning` and report the p-value as (no significant difference) rather than attempting a division-by-zero or returning NaN, ensuring the statistical report (T031) remains valid and interpretable.
-- [ ] T061 [US1/US2] **Resource Constraint Hardening**: Enhance `code/utils.py` (T004a) to include a "Graceful Degradation" mode. If the runtime limit is approached (e.g., near the threshold) and the pipeline is mid-batch, the system MUST complete the current batch, save the partial results, and then terminate with a `PartialRunError` instead of a hard kill, ensuring that partial data is preserved for debugging and the `state/` file is updated with the `partial_run` flag.
+- [X] T057 [US1/US2] **Data Flow Correction**: Refactor `code/run_pipeline.py` to enforce strict execution ordering: ensure `data/processed/injected_datasets.json` (T012) and `data/processed/clusters.json` (T020) are fully written and validated before the active ranker loop (T015/T021) begins. Add a `PipelineDependencyError` if any prerequisite artifact is missing or incomplete at runtime, serving the 'Producer before consumer' rule and preventing the common failure mode of verify-scripts running before data generation.
+- [X] T058 [US1] **Edge Case Resolution**: Implement a "Strict Paraphrasing Fallback" in `code/data_loader.py` for Edge Case 2. If the synthetic injection (T012) fails to produce pairs with similarity > 0.95 after multiple retries with varying NLTK WordNet synonyms, the task MUST raise a `DataInjectionFailureError` with a detailed log of the attempted synonyms and final similarity scores, halting the pipeline. This prevents silent degradation of the "wasted call" metric validity.
+- [X] T059 [US2] **Edge Case Resolution**: Implement a "Threshold Sensitivity Fallback" in `code/clustering.py` for Edge Case 1. If the MinHash-LSH threshold (0.95) results in > 10% of unique documents being incorrectly merged (false positives), the system MUST automatically trigger a re-run with a relaxed threshold and log the adjustment. If the relaxed threshold also fails, raise a `ClusteringFailureError`. This ensures the "wasted call" reduction is not achieved by destroying the candidate pool.
+- [X] T060 [US3] **Statistical Rigor Correction**: Update `code/metrics.py` (T028/T029) to explicitly handle the case where variance is zero (perfect scores) in the Wilcoxon test. If variance is zero, the task MUST log a `StatisticalDegeneracyWarning` and report the p-value as (no significant difference) rather than attempting a division-by-zero or returning NaN, ensuring the statistical report (T031) remains valid and interpretable.
+- [X] T061 [US1/US2] **Resource Constraint Hardening**: Enhance `code/utils.py` (T004a) to include a "Graceful Degradation" mode. If the runtime limit is approached (e.g., near the threshold) and the pipeline is mid-batch, the system MUST complete the current batch, save the partial results, and then terminate with a `PartialRunError` instead of a hard kill, ensuring that partial data is preserved for debugging and the `state/` file is updated with the `partial_run` flag.
+
+---
+
+## Phase N+4: Constitution & Spec Alignment Corrections
+
+**Purpose**: Address the contradiction between Plan.md (Constitution Check VI) and Spec FR-003 regarding the "definitive operational classification" of wasted calls, ensuring scientific rigor is maintained.
+
+### Implementation for Constitution & Spec Alignment
+
+- [X] T062 [US1/US2] **Scientific Classification Correction (Deprecated/Integrated)**: Logic for distinguishing "Operational Proxy" vs "Scientific Ground Truth" and calculating a "Correction Factor" is now implemented in **Phase 3 (T013f)**. This task is marked [X] to indicate the requirement is satisfied via T013f. Serve FR-003 and resolve the contradiction in Plan.md Constitution Check VI.
+- [X] T063 [US1/US2] **Data Flow Enforcement for Proxy Validation (Deprecated/Integrated)**: Logic for executing LLM consensus validation (T013e) *after* the main ranking loop but *before* the final statistical report generation (T031) is now enforced in Phase 3. This task is marked [X] to indicate the requirement is satisfied via T013e/T013f. Serve FR-003 and SC-001.
+- [X] T064 [US1/US2] **Documentation Update (Deprecated/Integrated)**: Logic for clarifying the distinction between operational proxy (Cosine) and scientific ground truth (LLM) is now implemented in T013d/T013f. This task is marked [X] to indicate the requirement is satisfied. Serve the resolution of the Plan.md contradiction.
+
+---
+
+## Phase N+5: Final Data Flow & Execution Order Verification
+
+**Purpose**: Ensure all data producers execute strictly before their consumers to prevent race conditions and verify-script failures identified in the analysis phase.
+
+### Implementation for Final Data Flow Verification
+
+- [ ] T065 [US1/US2] **Final Data Flow Audit**: Implement a "Dependency Graph Validator" in `code/run_pipeline.py` that explicitly checks the **existence** and **schema compliance** of `data/processed/injected_datasets.json` (T012) and `data/processed/clusters.json` (T020) immediately before initiating the active ranker loop (T015/T021). **Validation Mechanism**: Use a dedicated validator script (`code/utils.py::validate_artifact_chain`) to check file presence and JSON schema. If either file is missing or schema-mismatched, the validator MUST raise a `DataFlowViolationError` and halt execution, ensuring the 'Producer before Consumer' rule is enforced at runtime, serving the analysis finding regarding verify-scripts running before data generation. **Note**: Removed arbitrary 1-hour staleness check; validation is purely existence/schema-based.
+- [ ] T066 [US1/US2] **Artifact Chain Verification**: Add a "Chain Integrity Check" task in `code/run_pipeline.py` that verifies the full artifact chain: `injected_datasets.json` -> `clusters.json` -> `unique_subset.json` -> `comparison_log.json` -> `flagged_pairs_count.json` -> `consensus_sample.json` -> `consensus_ground_truth.json` -> `correction_factor.json` -> `us1_efficiency_ratio.json`. Each link MUST be validated for non-empty status and correct schema before the next task begins, serving the "Data Integrity Check" requirement and preventing silent pipeline failures.
+- [ ] T067 [US3] **Statistical Report Dependency Enforcement**: Ensure `data/results/statistical_report.md` (T031) is generated ONLY after `data/results/correction_factor.json` (T013f) and `data/results/us1_efficiency_ratio.json` (T013d) are confirmed present and valid. Update `code/run_pipeline.py` to enforce this strict ordering via a conditional check that verifies the presence of these artifacts before invoking the statistical report generator, preventing the statistical report from using stale or missing correction factors, serving FR-005 and the analysis finding on statistical rigor.
 
 ---
 
@@ -230,6 +268,8 @@
 - **Review-Driven Robustness (Phase N+1)**: Depends on completion of all User Stories
 - **Final Validation (Phase N+2)**: Depends on completion of all previous phases
 - **Analysis-Driven Corrections (Phase N+3)**: Depends on the output of `/speckit.analyze` and must be executed before the final validation phase to ensure all identified issues are resolved.
+- **Constitution & Spec Alignment (Phase N+4)**: **Deprecated**. Logic integrated into Phase 3. Tasks marked [X].
+- **Final Data Flow & Execution Order Verification (Phase N+5)**: Depends on completion of Phase N+3 and must be executed before the final validation phase to ensure strict data flow ordering.
 
 ### User Story Dependencies
 
@@ -306,6 +346,18 @@ After initial runs:
 3. Re-run the full pipeline to verify that the corrections have resolved the identified issues
 4. Proceed to Final Validation only after Phase N+3 is complete and all artifacts are consistent.
 
+### Constitution & Spec Alignment Resolution
+
+1. **Deprecated**: Phase N+4 logic is now integrated into Phase 3 (T013f, T013e, T013d). No separate execution required.
+2. Re-run the Constitution Compliance Audit (T054) to ensure alignment with Constitution Principle II.
+3. Finalize the research conclusions with the corrected methodology.
+
+### Final Data Flow Verification Resolution
+
+1. Execute Phase N+5 tasks (T065-T067) to enforce strict data flow ordering and artifact chain integrity.
+2. Re-run the full pipeline to verify that the data flow corrections have resolved the identified issues.
+3. Proceed to Final Validation only after Phase N+5 is complete and all artifacts are consistent.
+
 ---
 
 ## Notes
@@ -318,5 +370,11 @@ After initial runs:
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Critical**: Tasks T037-T050 are mandatory for scientific rigor and must not be skipped; they address specific failure modes that could invalidate the research conclusions.
-- **Plan Note**: The plan.md Constitution Check table (VI) currently states "Cosine > 0.95 is the definitive operational classification". This contradicts spec FR-003 which requires fixing this to ensure it's not a scientific mischaracterization..
+- **Plan Note**: The plan.md Constitution Check table (VI) currently states "Cosine > 0.95 is the definitive operational classification". This contradicts spec FR-003 which requires fixing this to ensure it's not a scientific mischaracterization. **Phase N+4 (T062-T064) is now deprecated as this logic is integrated into Phase 3 (T013f).**
 - **Revision Note**: Phase N+3 (T057-T061) was added to explicitly address data flow ordering, edge cases, and statistical rigor issues identified in the analysis phase, ensuring the project adheres to the "fix the code, not the test" principle.
+- **Revision Note**: T013e and T013f were added to implement the missing LLM consensus validation and Correction Factor calculation required by FR-003. **T013e now uses a generative LLM (or rule-based proxy if infeasible) to ensure CPU tractability and methodological alignment.**
+- **Revision Note**: Phase N+4 tasks are now marked [X] and deprecated as their logic is fully integrated into Phase 3.
+- **Revision Note**: Phase N+5 (T065-T067) was added to explicitly address the critical data flow ordering issues identified in the analysis phase, ensuring that all data producers execute strictly before their consumers and that artifact chains are validated at runtime. **Removed arbitrary 1-hour staleness check from T065.**
+- **Revision Note**: T013a was added to define and log `total_budget` to ensure the ratio calculation in T013d is mathematically defined.
+- **Revision Note**: T017 was split into T017a and T017b to ensure validation covers `nfcorpus` and `scifact` specifically.
+- **Revision Note**: T029a was added to aggregate p-values before applying Bonferroni correction in T030.

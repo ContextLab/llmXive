@@ -4,7 +4,7 @@
 
 ## Summary
 
-This feature validates the hypothesis that semantic redundancy in retrieval lists degrades the efficiency of Active Pairwise Ranking Prompting (PRP) rankers by wasting LLM call budgets on near-duplicate comparisons. The plan implements a CPU-tractable pipeline that: (1) synthetically injects redundancy into BEIR datasets (`scifact`, `nfcorpus`), (2) measures "wasted" calls via a cosine-similarity proxy (definitive for operational loop, validated via stratified sampling from all calls), (3) applies MinHash-LSH pre-clustering to filter redundant pairs, and (4) statistically validates the recovery of NDCG@10 and call efficiency. The entire pipeline is constrained to run within 6 hours and 7GB RAM on a GitHub Actions free-tier runner.
+This feature validates the hypothesis that semantic redundancy in retrieval lists degrades the efficiency of Active Pairwise Ranking Prompting (PRP) rankers by wasting LLM call budgets on near-duplicate comparisons. The plan implements a CPU-tractable pipeline that: () synthetically injects redundancy into BEIR datasets (`scifact`, `nfcorpus`), (2) measures "wasted" calls via a cosine-similarity proxy (definitive for operational loop, validated via stratified sampling from all calls), (3) applies MinHash-LSH pre-clustering to filter redundant pairs, and (4) statistically validates the recovery of NDCG@10 and call efficiency. The entire pipeline is constrained to run within 6 hours and 7GB RAM on a GitHub Actions free-tier runner.
 
 **Note on Spec Typo**: Spec FR-006 contains a typo ("limit of hours"). This plan enforces the corrected value of **6 hours** as per the project's resource constraints and US-2.
 

@@ -1,13 +1,3 @@
-"""
-Metrics and validation utilities for the llmXive pipeline.
-
-Includes:
-- Cosine similarity proxy calculation
-- NDCG@10 calculation
-- Statistical tests (Wilcoxon, Bonferroni)
-- Dynamic sample size calculation
-- LLM consensus validation
-"""
 import numpy as np
 from typing import List, Dict, Tuple, Any, Optional
 from sentence_transformers import SentenceTransformer
@@ -16,360 +6,265 @@ from scipy.stats import wilcoxon
 import os
 import json
 import logging
+import warnings
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+# Custom warning class for statistical degeneracy
+class StatisticalDegeneracyWarning(UserWarning):
+    pass
+
+# Ensure the warning is shown
+warnings.simplefilter("always", StatisticalDegeneracyWarning)
+
 logger = logging.getLogger(__name__)
 
-# Global model cache
-_embedding_model = None
+_model = None
 
-def get_embedding_model(model_name: str = "all-MiniLM-L6-v2") -> SentenceTransformer:
-    """
-    Get or initialize the sentence transformer model.
-    
-    Args:
-        model_name: Name of the model to load (default: all-MiniLM-L6-v2)
-        
-    Returns:
-        SentenceTransformer model instance
-    """
-    global _embedding_model
-    if _embedding_model is None:
-        logger.info(f"Loading embedding model: {model_name}")
-        _embedding_model = SentenceTransformer(model_name)
-        logger.info("Embedding model loaded successfully")
-    return _embedding_model
+def get_embedding_model():
+    global _model
+    if _model is None:
+        logger.info("Loading sentence-transformer model: all-MiniLM-L6-v2")
+        _model = SentenceTransformer('all-MiniLM-L6-v2')
+    return _model
 
-def calculate_cosine_similarity_proxy(text1: str, text2: str, model: Optional[SentenceTransformer] = None) -> float:
-    """
-    Calculate cosine similarity between two texts using sentence embeddings.
-    
-    Args:
-        text1: First text passage
-        text2: Second text passage
-        model: Optional pre-loaded model (loads default if None)
-        
-    Returns:
-        Cosine similarity score (0.0 to 1.0)
-    """
-    if model is None:
-        model = get_embedding_model()
-    
-    embeddings = model.encode([text1, text2], convert_to_numpy=True)
-    similarity = cosine_similarity([embeddings[0]], [embeddings[1]])[0][0]
-    # Normalize to [0, 1] range (cosine similarity is [-1, 1])
-    similarity = (similarity + 1) / 2
-    return float(similarity)
+def calculate_cosine_similarity_proxy(doc1_text: str, doc2_text: str) -> float:
+    model = get_embedding_model()
+    embeddings = model.encode([doc1_text, doc2_text], convert_to_numpy=True)
+    sim = cosine_similarity([embeddings[0]], [embeddings[1]])[0][0]
+    return float(sim)
 
-def is_wasted_call(similarity: float, threshold: float = 0.95) -> bool:
-    """
-    Determine if a comparison is a 'wasted call' based on similarity threshold.
-    
-    Args:
-        similarity: Cosine similarity score
-        threshold: Threshold above which a call is considered wasted (default: 0.95)
-        
-    Returns:
-        True if similarity > threshold, False otherwise
-    """
-    return similarity > threshold
+def is_wasted_call(cosine_sim: float, threshold: float = 0.95) -> bool:
+    return cosine_sim > threshold
 
 def calculate_ndcg_at_k(relevances: List[int], k: int) -> float:
-    """
-    Calculate Normalized Discounted Cumulative Gain at K.
-    
-    Args:
-        relevances: List of relevance scores (integers)
-        k: Number of positions to consider
-        
-    Returns:
-        NDCG@k score (0.0 to 1.0)
-    """
     if not relevances or k <= 0:
         return 0.0
-    
     relevances = relevances[:k]
-    
-    # DCG calculation
     dcg = 0.0
-    for i, rel in enumerate(relevances):
-        dcg += (2 ** rel - 1) / np.log2(i + 2)  # i+2 because log2(1) = 0
-    
-    # Ideal DCG
-    ideal_relevances = sorted(relevances, reverse=True)
     idcg = 0.0
-    for i, rel in enumerate(ideal_relevances):
-        idcg += (2 ** rel - 1) / np.log2(i + 2)
-    
+    for i, rel in enumerate(relevances):
+        dcg += (2**rel - 1) / np.log2(i + 2)
+        idcg += (2**rel - 1) / np.log2(i + 2)
     if idcg == 0:
         return 0.0
-    
     return dcg / idcg
 
 def calculate_ndcg_at_10(relevances: List[int]) -> float:
-    """
-    Calculate NDCG@10 specifically.
-    
-    Args:
-        relevances: List of relevance scores
-        
-    Returns:
-        NDCG@10 score
-    """
     return calculate_ndcg_at_k(relevances, 10)
 
 def load_beir_ground_truth(dataset_name: str, split: str = "test") -> Dict[str, Dict[str, int]]:
-    """
-    Load BEIR ground truth (qrels) for a dataset.
-    
-    Args:
-        dataset_name: Name of the BEIR dataset
-        split: Split to load (default: test)
-        
-    Returns:
-        Dictionary mapping query_id -> {doc_id: relevance_score}
-    """
     from beir import util
     from beir.datasets.data_loader import GenericDataLoader
     
     url = f"https://public.ukp.informatik.tu-darmstadt.de/thakur/BEIR/datasets/{dataset_name}.zip"
-    out_dir = os.path.join("beir_data", dataset_name)
+    cache_dir = "beir_data"
+    data_path = util.download_and_unzip(url, cache_dir)
     
-    if not os.path.exists(out_dir):
-        logger.info(f"Downloading {dataset_name} dataset...")
-        data_path = util.download_and_unzip(url, "beir_data")
-        # The download_and_unzip returns the path, but we need to find the specific dataset
-        out_dir = os.path.join("beir_data", dataset_name)
-    
-    logger.info(f"Loading ground truth for {dataset_name} ({split})")
-    _, _, qrels = GenericDataLoader(out_dir).load(split=split)
+    corpus, queries, qrels = GenericDataLoader(data_path).load(split=split)
     return qrels
 
 def load_results_from_json(filepath: str) -> List[Dict[str, Any]]:
-    """
-    Load ranking results from a JSON file.
-    
-    Args:
-        filepath: Path to the JSON file
-        
-    Returns:
-        List of result dictionaries
-    """
     with open(filepath, 'r') as f:
         return json.load(f)
 
-def aggregate_ndcg_scores(results: List[Dict[str, Any]], ground_truth: Dict[str, Dict[str, int]]) -> List[float]:
-    """
-    Aggregate NDCG@10 scores from ranking results.
-    
-    Args:
-        results: List of ranking results (each with query_id and ranked doc_ids)
-        ground_truth: Ground truth qrels
-        
-    Returns:
-        List of NDCG@10 scores per query
-    """
-    ndcg_scores = []
-    
-    for result in results:
-        query_id = result.get('query_id')
-        if query_id not in ground_truth:
-            continue
-        
-        ranked_docs = result.get('ranked_docs', [])
-        relevances = []
-        
-        for doc_id in ranked_docs:
-            rel = ground_truth[query_id].get(doc_id, 0)
-            relevances.append(rel)
-        
-        ndcg = calculate_ndcg_at_10(relevances)
-        ndcg_scores.append(ndcg)
-    
-    return ndcg_scores
+def aggregate_ndcg_scores(results: List[Dict[str, Any]]) -> List[float]:
+    scores = []
+    for r in results:
+        if 'ndcg_at_10' in r:
+            scores.append(r['ndcg_at_10'])
+    return scores
 
-def calculate_wasted_call_ratios(flagged_count: int, total_budget: int) -> float:
-    """
-    Calculate the ratio of wasted calls to total budget.
+def calculate_wasted_call_ratios(comparison_log_path: str, threshold: float = 0.95) -> Dict[str, Any]:
+    if not os.path.exists(comparison_log_path):
+        logger.warning(f"Comparison log not found at {comparison_log_path}")
+        return {"wasted_count": 0, "total_pairs": 0, "wasted_ratio": 0.0}
     
-    Args:
-        flagged_count: Number of flagged (wasted) calls
-        total_budget: Total LLM call budget
-        
-    Returns:
-        Wasted call ratio (0.0 to 1.0)
-    """
-    if total_budget == 0:
-        return 0.0
-    return flagged_count / total_budget
+    wasted_count = 0
+    total_pairs = 0
+    
+    with open(comparison_log_path, 'r') as f:
+        for line in f:
+            if not line.strip():
+                continue
+            entry = json.loads(line)
+            total_pairs += 1
+            if entry.get('cosine_sim', 0.0) > threshold:
+                wasted_count += 1
+    
+    ratio = wasted_count / total_pairs if total_pairs > 0 else 0.0
+    return {
+        "wasted_count": wasted_count,
+        "total_pairs": total_pairs,
+        "wasted_ratio": ratio
+    }
 
-def wilcoxon_signed_rank_test(sample1: List[float], sample2: List[float]) -> Tuple[float, float]:
+def wilcoxon_signed_rank_test(sample1: List[float], sample2: List[float]) -> Dict[str, Any]:
     """
-    Perform Wilcoxon signed-rank test between two paired samples.
+    Perform Wilcoxon signed-rank test with robust handling of zero variance.
     
-    Args:
-        sample1: First sample (list of values)
-        sample2: Second sample (list of values)
-        
-    Returns:
-        Tuple of (statistic, p-value)
+    If variance is zero (perfect scores or identical samples), logs a 
+    StatisticalDegeneracyWarning and returns a p-value indicating no significant difference.
     """
     if len(sample1) != len(sample2):
-        raise ValueError("Samples must be of equal length for paired test")
+        raise ValueError("Sample sizes must be equal for paired test")
     
-    if len(sample1) < 2:
-        raise ValueError("Need at least 2 samples for Wilcoxon test")
-    
-    statistic, p_value = wilcoxon(sample1, sample2)
-    return float(statistic), float(p_value)
+    if len(sample1) == 0:
+        logger.warning("Empty sample provided for Wilcoxon test")
+        return {"statistic": 0.0, "pvalue": 1.0, "degenerate": True, "reason": "empty_sample"}
 
-def bonferroni_correction(p_values: List[float], alpha: float = 0.05) -> List[Tuple[float, float, bool]]:
+    sample1 = np.array(sample1)
+    sample2 = np.array(sample2)
+    
+    # Check for zero variance in differences
+    diffs = sample1 - sample2
+    unique_diffs = np.unique(diffs)
+    
+    if len(unique_diffs) == 1 and unique_diffs[0] == 0:
+        # Perfect tie / zero variance case
+        logger.warning(
+            "StatisticalDegeneracyWarning: Zero variance detected in Wilcoxon test (all differences are zero). "
+            "Reporting p-value as 1.0 (no significant difference)."
+        )
+        warnings.warn(
+            "StatisticalDegeneracyWarning: Zero variance detected in Wilcoxon test. "
+            "Result is degenerate; p-value set to 1.0.",
+            StatisticalDegeneracyWarning
+        )
+        return {
+            "statistic": 0.0,
+            "pvalue": 1.0,
+            "degenerate": True,
+            "reason": "zero_variance"
+        }
+    
+    # Standard Wilcoxon test
+    try:
+        stat, pval = wilcoxon(sample1, sample2)
+        return {
+            "statistic": float(stat),
+            "pvalue": float(pval),
+            "degenerate": False,
+            "reason": "normal"
+        }
+    except Exception as e:
+        logger.error(f"Wilcoxon test failed: {e}")
+        return {
+            "statistic": 0.0,
+            "pvalue": 1.0,
+            "degenerate": True,
+            "reason": f"exception: {str(e)}"
+        }
+
+def bonferroni_correction(p_values: List[float], alpha: float = 0.05) -> Dict[str, Any]:
     """
     Apply Bonferroni correction for multiple hypothesis testing.
     
     Args:
-        p_values: List of raw p-values
-        alpha: Significance level (default: 0.05)
-        
+        p_values: List of raw p-values from statistical tests.
+        alpha: Significance level (default 0.05).
+    
     Returns:
-        List of tuples: (raw_p, corrected_p, is_significant)
+        Dict with corrected p-values, adjusted alpha, and significance flags.
     """
-    n_tests = len(p_values)
-    if n_tests == 0:
-        return []
+    n = len(p_values)
+    if n == 0:
+        return {"corrected_pvalues": [], "adjusted_alpha": alpha, "significant": []}
     
-    corrected_alpha = alpha / n_tests
-    results = []
+    adjusted_alpha = alpha / n
+    corrected_pvalues = [min(p * n, 1.0) for p in p_values]
+    significant = [p < adjusted_alpha for p in corrected_pvalues]
     
-    for p in p_values:
-        corrected_p = p * n_tests
-        # Cap at 1.0
-        corrected_p = min(corrected_p, 1.0)
-        is_significant = corrected_p < alpha
-        results.append((p, corrected_p, is_significant))
-    
-    return results
+    return {
+        "corrected_pvalues": corrected_pvalues,
+        "adjusted_alpha": adjusted_alpha,
+        "significant": significant
+    }
 
-def calculate_dynamic_sample_size(
-    total_flagged_count: int,
-    minimum_threshold: int = 10,
-    percentage: float = 0.05,
-    max_limit: int = 1000
-) -> int:
+def calculate_dynamic_sample_size(total_count: int, min_threshold: int = 10, percentage: float = 0.05) -> int:
     """
-    Calculate dynamic sample size for LLM consensus validation.
-    
-    Formula: sample_size = max(minimum_threshold, int(percentage * total_flagged_count))
-    Then cap at max_limit.
+    Calculate sample size as max(min_threshold, percentage * total_count).
     
     Args:
-        total_flagged_count: Total number of flagged items
-        minimum_threshold: Minimum sample size (default: 10)
-        percentage: Percentage of flagged count to sample (default: 0.05 = 5%)
-        max_limit: Maximum sample size cap (default: 1000)
-        
+        total_count: Total population size.
+        min_threshold: Minimum sample size required.
+        percentage: Percentage of population to sample.
+    
     Returns:
-        Calculated sample size
+        Calculated sample size.
     """
-    if total_flagged_count <= 0:
-        return minimum_threshold
-    
-    calculated_size = int(percentage * total_flagged_count)
-    sample_size = max(minimum_threshold, calculated_size)
-    sample_size = min(sample_size, max_limit)
-    
-    return sample_size
+    calculated = int(total_count * percentage)
+    return max(min_threshold, calculated)
 
-def validate_proxy_accuracy(
-    proxy_labels: List[bool],
-    ground_truth_labels: List[bool]
-) -> Dict[str, float]:
+def validate_proxy_accuracy(proxy_scores: List[float], consensus_labels: List[bool]) -> Dict[str, float]:
     """
-    Validate proxy accuracy against ground truth labels.
+    Validate the accuracy of the cosine similarity proxy against LLM consensus.
     
     Args:
-        proxy_labels: Labels from cosine similarity proxy
-        ground_truth_labels: Ground truth labels from LLM consensus
-        
+        proxy_scores: List of cosine similarity scores.
+        consensus_labels: List of boolean consensus labels (True = wasted).
+    
     Returns:
-        Dictionary with accuracy metrics
+        Dict with accuracy metrics.
     """
-    if len(proxy_labels) != len(ground_truth_labels):
-        raise ValueError("Label lists must be of equal length")
+    if len(proxy_scores) != len(consensus_labels):
+        raise ValueError("Proxy scores and consensus labels must have same length")
     
-    if len(proxy_labels) == 0:
-        return {"accuracy": 0.0, "total_samples": 0}
+    threshold = 0.95
+    predictions = [s > threshold for s in proxy_scores]
     
-    correct = sum(1 for p, g in zip(proxy_labels, ground_truth_labels) if p == g)
-    accuracy = correct / len(proxy_labels)
+    correct = sum(1 for p, l in zip(predictions, consensus_labels) if p == l)
+    accuracy = correct / len(consensus_labels) if consensus_labels else 0.0
     
     return {
         "accuracy": accuracy,
-        "total_samples": len(proxy_labels),
-        "correct": correct,
-        "incorrect": len(proxy_labels) - correct
+        "total_samples": len(consensus_labels),
+        "correct_predictions": correct
     }
 
-def validate_jaccard_cosine_correlation(
-    jaccard_scores: List[float],
-    cosine_scores: List[float]
-) -> float:
+def validate_jaccard_cosine_correlation(jaccard_scores: List[float], cosine_scores: List[float]) -> float:
     """
-    Calculate correlation between Jaccard and Cosine similarity scores.
+    Calculate Pearson correlation between Jaccard and Cosine similarity scores.
     
     Args:
-        jaccard_scores: List of Jaccard similarity scores
-        cosine_scores: List of Cosine similarity scores
-        
+        jaccard_scores: List of Jaccard similarity scores.
+        cosine_scores: List of Cosine similarity scores.
+    
     Returns:
-        Pearson correlation coefficient
+        Correlation coefficient.
     """
     if len(jaccard_scores) != len(cosine_scores):
-        raise ValueError("Score lists must be of equal length")
+        raise ValueError("Jaccard and cosine scores must have same length")
     
     if len(jaccard_scores) < 2:
         return 0.0
     
-    correlation = np.corrcoef(jaccard_scores, cosine_scores)[0, 1]
-    return float(correlation) if not np.isnan(correlation) else 0.0
-
-class StatisticalTestResult:
-    """Container for statistical test results."""
+    jaccard_arr = np.array(jaccard_scores)
+    cosine_arr = np.array(cosine_scores)
     
-    def __init__(self, test_name: str, statistic: float, p_value: float, significant: bool):
-        self.test_name = test_name
-        self.statistic = statistic
-        self.p_value = p_value
-        self.significant = significant
-
-class BonferroniResult:
-    """Container for Bonferroni-corrected test results."""
+    # Handle constant arrays
+    if np.std(jaccard_arr) == 0 or np.std(cosine_arr) == 0:
+        logger.warning("Zero variance in Jaccard or Cosine scores; correlation undefined.")
+        return 0.0
     
-    def __init__(self, test_name: str, raw_p: float, corrected_p: float, significant: bool):
-        self.test_name = test_name
-        self.raw_p = raw_p
-        self.corrected_p = corrected_p
-        self.significant = significant
+    corr = np.corrcoef(jaccard_arr, cosine_arr)[0, 1]
+    return float(corr) if not np.isnan(corr) else 0.0
 
 def main():
-    """Main entry point for standalone execution."""
-    import argparse
+    """Main entry point for metrics module testing."""
+    logging.basicConfig(level=logging.INFO)
     
-    parser = argparse.ArgumentParser(description='Metrics utilities')
-    parser.add_argument('--test', choices=['similarity', 'ndcg', 'sample_size'], required=True)
-    args = parser.parse_args()
+    # Example usage of Wilcoxon with zero variance handling
+    sample_a = [0.98, 0.99, 1.0, 0.97]
+    sample_b = [0.98, 0.99, 1.0, 0.97]  # Identical -> zero variance
     
-    if args.test == 'similarity':
-        model = get_embedding_model()
-        sim = calculate_cosine_similarity_proxy("Hello world", "Hello world")
-        print(f"Cosine similarity: {sim}")
-    elif args.test == 'ndcg':
-        relevances = [1, 0, 1, 0, 0, 0, 0, 0, 0, 0]
-        ndcg = calculate_ndcg_at_10(relevances)
-        print(f"NDCG@10: {ndcg}")
-    elif args.test == 'sample_size':
-        size = calculate_dynamic_sample_size(100, minimum_threshold=10, percentage=0.05)
-        print(f"Sample size for 100 flagged: {size}")
+    result = wilcoxon_signed_rank_test(sample_a, sample_b)
+    logger.info(f"Wilcoxon Result: {result}")
+    
+    # Example with normal data
+    sample_c = [0.98, 0.99, 1.0, 0.97]
+    sample_d = [0.85, 0.88, 0.90, 0.82]
+    
+    result2 = wilcoxon_signed_rank_test(sample_c, sample_d)
+    logger.info(f"Wilcoxon Result (normal): {result2}")
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
