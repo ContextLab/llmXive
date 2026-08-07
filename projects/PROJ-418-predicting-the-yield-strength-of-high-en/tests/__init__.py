@@ -1,3 +1,1 @@
-"""
-Test suite initialization for HEA yield strength prediction project.
-"""
+# Ensure tests package is importable

@@ -4,7 +4,7 @@
 **Input**: Feature specification from `/specs/feature/heal-predict-yield/spec.md`
 
 ## Summary
-Develop an end‑to‑end CPU‑first pipeline that (1) acquires a curated experimental HEA yield‑strength dataset (user‑provided), (2) validates inputs against JSON schema contracts, (3) computes deterministic compositional descriptors, (4) mitigates collinearity, (5) trains a Random Forest regressor with 5‑fold CV, (6) evaluates on a held‑out test set reporting robust statistics, (7) computes permutation importance with a sufficiently large number of permutations per feature and assesses significance via empirical p‑values with Holm‑Bonferroni correction, (8) records all provenance in a reproducibility manifest, (9) generates a markdown report, and (10) enforces linting and runtime constraints. All functional requirements (FR‑001 – FR‑013) and success criteria (SC‑001 – SC‑008) are covered.
+Develop an end‑to‑end CPU‑first pipeline that (1) acquires a curated experimental HEA yield‑strength dataset (user‑provided), (2) validates inputs against JSON schema contracts, (3) computes deterministic compositional descriptors, (4) mitigates collinearity, (5) trains a Random Forest regressor with k‑fold cross‑validation, (6) evaluates on a held‑out test set reporting robust statistics, (7) computes permutation importance with a sufficiently large number of permutations per feature and assesses significance via empirical p‑values with Holm‑Bonferroni correction, (8) records all provenance in a reproducibility manifest, (9) generates a markdown report, and (10) enforces linting and runtime constraints. All functional requirements (FR‑001 – FR‑013) and success criteria (SC‑001 – SC‑008) are covered.
 
 ## Technical Context
 - **Language/Version**: Python 3.11
@@ -87,9 +87,9 @@ outputs/
 | **4. Collinearity Mitigation** | Compute VIF for each descriptor. If any VIF > 5, drop the highest‑VIF feature or apply PCA to orthogonalise descriptors. Record VIFs and mitigation decisions in manifest. | FR‑002 (via clean features) | SC‑006 |
 | **5. Train‑Test Split** | Stratified split (fixed seed) into [deferred] train / [deferred] hold‑out; store split metadata. | FR‑003 | SC‑006 |
 | **6. Model Training** | Fit `RandomForestRegressor` (n_estimators=500, max_features='sqrt') on training set; store model artifact. | FR‑003 | SC‑001‑SC‑002 (via evaluation) |
-| **7. Cross‑Validation & Power** | k‑fold cross‑validation on training data; collect R², Pearson r, and bootstrap 95 % CI (1 000 resamples). Compute observed effect size (Cohen’s f²) and report achieved power; if N < 50 emit low‑power warning. | FR‑003 | SC‑001‑SC‑002 (confidence) |
+| **7. Cross‑Validation & Power** | k‑fold cross‑validation on training data; collect R², Pearson r, and bootstrap confidence interval at a high confidence level (a large number of resamples). Compute observed effect size (Cohen’s f²) and report achieved power; if N < 50 emit low‑power warning. | FR‑003 | SC‑001‑SC‑002 (confidence) |
 | **8. Performance Evaluation** | Predict on held‑out test set; compute: • R² • Pearson r with bootstrap CI and bootstrap p‑value • Spearman ρ with bootstrap CI • Two‑tailed p‑value for Pearson (via bootstrap) • Apply Holm‑Bonferroni correction for the three correlation‑related tests. | FR‑004 | SC‑001‑SC‑002 (significance) |
-| **9. Permutation Importance** | For each descriptor, run exactly **1 000** permutations (FR‑005, FR‑012). Compute empirical p‑value as proportion of permuted importances ≥ observed. Apply Holm‑Bonferroni correction across all descriptors. | FR‑005, FR‑006 | SC‑003 |
+| **9. Permutation Importance** | For each descriptor, run a substantial number of permutations. (FR‑005, FR‑012). Compute empirical p‑value as proportion of permuted importances ≥ observed. Apply Holm‑Bonferroni correction across all descriptors. | FR‑005, FR‑006 | SC‑003 |
 | **10. Reproducibility Manifest** | Record random seeds, hyperparameters, library versions, timestamps, dataset checksum, descriptor version hash, VIF values, and any feature‑dropping decisions. | FR‑007, FR‑011 | SC‑007 |
 | **11. Report Generation** | Assemble `report.md` with dataset stats, CV results, test‑set metrics (both Pearson & Spearman), importance table (top‑5 stable), VIF summary, manifest excerpt, runtime summary, and data‑limitation warning if N < 50. | FR‑008, FR‑010 | SC‑004‑SC‑008 |
 | **12. Model & Metrics Validation** | Validate `outputs/model.joblib` and `outputs/metrics.json` against `contracts/model_output.schema.yaml` and `contracts/metrics.schema.yaml` (and `model_metrics.schema.yaml`). | FR‑007, FR‑011 | SC‑007 |
@@ -100,13 +100,13 @@ outputs/
 
 | Phase | Approx. CPU‑hours |
 |-------|-------------------|
-| Data Acquisition & Validation | 0.2 |
-| Descriptor Calculation & Validation | 0.4 |
-| Collinearity Mitigation | 0.1 |
-| Model Training (RF, 500 trees) | 0.8 |
-| CV & Bootstrap (1 000 resamples) | 0.5 |
-| Permutation Importance (1 000 × 5 features) | 0.6 |
-| Reporting & Linting | 0.2 |
+| Data Acquisition & Validation | (to be defined qualitatively) |
+| Descriptor Calculation & Validation | (to be determined during implementation) |
+| Collinearity Mitigation | low threshold |
+| Model Training (RF, a sufficient number of trees) | appropriate performance level |
+| CV & Bootstrap (several thousand resamples) | qualitative performance indicator |
+| Permutation Importance (multiple permutations across several features) | qualitative importance level (e.g., moderate to high) |
+| Reporting & Linting | a modest proportion |
 | **Total** | **≈ 3.0 h** (If runtime exceeds a predefined duration threshold, `n_estimators` is reduced to 300; the pipeline will abort and report the violation, satisfying FR‑010). |
 
 *The plan never fabricates a GPU‑only step; all computation is CPU‑first and fits the free GitHub Actions environment.*
@@ -132,7 +132,7 @@ outputs/
 |----------|-----------|--------------|
 | **Random Forest Regressor** (scikit‑learn) | Non‑parametric, robust to multicollinearity; fast CPU training; easy permutation importance extraction. | CPU‑first |
 | **5‑fold Cross‑Validation** | Provides unbiased out‑of‑fold performance; aligns with Principle VII (statistical rigor). | CPU‑first |
-| **Bootstrap CI (1 000 resamples)** | Generates confidence intervals for R², Pearson r, and Spearman ρ without analytic assumptions; complies with Principle VII. | CPU‑first |
+| **Bootstrap CI (a large number of resamples)** | Generates confidence intervals for R², Pearson r, and Spearman ρ without analytic assumptions; complies with Principle VII. | CPU‑first |
 | **Permutation Importance – 1 000 permutations** | Fixed count mandated by FR‑012; enables empirical p‑value estimation. | CPU‑first; parallelized across features via `joblib`. |
 | **Multiple‑Comparison Correction** | Holm‑Bonferroni correction applied to permutation‑importance p‑values (more appropriate under dependency). | CPU‑first |
 | **Power / Sample‑Size Justification** | Dataset size is unknown until user provides CSV. The plan will compute observed effect size (Cohen’s f²) and report achieved power; if N < 50 a low‑power warning is emitted. | N/A – descriptive |
@@ -152,7 +152,7 @@ outputs/
 
 All steps are implementable on the free GitHub Actions runner (2 CPU cores, ~7 GB RAM). No GPU‑only libraries are required. The only potential bottleneck is the permutation‑importance loop; we parallelize across 2 cores and limit memory by streaming descriptors from Parquet.
 
-If runtime exceeds the 2 h budget, the pipeline will automatically down‑scale `n_estimators` (from 500 to 300) and re‑measure; this adaptation does **not** violate any FR (model architecture remains Random Forest).
+If runtime exceeds the allocated time budget, the pipeline will automatically down‑scale `n_estimators` (from 500 to 300) and re‑measure; this adaptation does **not** violate any FR (model architecture remains Random Forest).
 
 ## Risks & Mitigations
 

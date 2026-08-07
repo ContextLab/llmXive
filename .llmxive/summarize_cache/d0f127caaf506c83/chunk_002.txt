@@ -1,0 +1,155 @@
+ description: "Filter applied for single‑phase alloys."
+ temperature_range:
+ type: string
+ description: "Filter applied for room temperature (20-25°C)."
+ counts:
+ type: object
+ properties:
+ total_raw:
+ type: integer
+ total_processed:
+ type: integer
+ excluded_missing_elements:
+ type: integer
+ excluded_phase:
+ type: integer
+ excluded_temp:
+ type: integer
+ data_limitation_flag:
+ type: boolean
+ description: "True if total_processed < 500 (or <50 for LOOCV)."
+ records:
+ type: array
+ items:
+ type: object
+ properties:
+ composition:
+ type: object
+ description: "Elemental atomic fractions."
+ yield_strength_mpa:
+ type: number
+ description: "Yield strength in MPa."
+ descriptors:
+ type: object
+ properties:
+ delta:
+ type: number
+ delta_chi:
+ type: number
+ vec:
+ type: number
+ mixing_entropy:
+ type: number
+ melting_variance:
+ type: number
+ source_id:
+ type: string
+ required:
+ - composition
+ - yield_strength_mpa
+ - descriptors
+ - source_id
+required:
+ - meta
+ - records
+```
+
+## File Layout
+
+| Path | Description | Schema |
+|------|-------------|--------|
+| `data/raw/heas_raw.csv` | Original curated dataset (user‑provided) | `dataset.schema.yaml` |
+| `data/elemental_properties.csv` | Reference table for descriptor calculation | `elemental_properties.schema.yaml` |
+| `data/derived/descriptors.parquet` | Computed deterministic descriptors per alloy | `descriptor.schema.yaml` (validated) |
+| `data/derived/processed_heas.parquet` | Processed dataset after VIF filtering / PCA | `processed_data.schema.yaml` |
+| `outputs/manifest.json` | Reproducibility manifest (seed, versions, checksums) | – (custom JSON) |
+| `outputs/report.md` | Final markdown report | – (human‑readable) |
+| `outputs/model.joblib` | Serialized RandomForestRegressor | – (binary) |
+| `outputs/metrics.json` | Model performance and statistical validation | `model_output.schema.yaml`, `metrics.schema.yaml`, `model_metrics.schema.yaml` |
+
+All CSV/Parquet files are UTF‑8 encoded; numeric columns use dot decimal separator. Validation against the listed schemas occurs immediately after each generation step to ensure data hygiene and contract compliance.===END_ARTIFACT===
+
+===BEGIN_ARTIFACT projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/quickstart.md===
+# Quickstart: Predicting HEA Yield Strength
+
+These instructions assume you are running on a fresh GitHub Actions runner or a local Linux environment with **Python 3.11** and **git** installed.
+
+## 1. Clone the repository
+```bash
+git clone
+cd heas-yield-predictor
+```
+
+## 2. Set up the Python environment
+```bash
+python -m venv.venv
+source.venv/bin/activate
+pip install -r requirements.txt
+```
+
+## 3. Provide the curated dataset
+Place the curated CSV (matching `contracts/dataset.schema.yaml`) at:
+
+```
+data/raw/heas_raw.csv
+```
+
+If you do not have the file, the pipeline will abort with a clear error (FR‑009).
+
+## 4. Run the full pipeline
+```bash
+python -m src.cli run \
+ --data data/raw/heas_raw.csv \
+ --elemental data/elemental_properties.csv \
+ --output-dir outputs/
+```
+
+The command performs:
+1. Validation of inputs (FR‑013, FR‑009).
+2. Descriptor computation (FR‑002) and validation against `contracts/descriptor.schema.yaml`.
+3. Collinearity check and VIF‑based mitigation (FR‑002).
+4. Train‑test split, Random Forest training (FR‑003).
+5. 5‑fold CV and bootstrap CI (SC‑001, SC‑002).
+6. Permutation importance with **1 000** permutations (FR‑005, FR‑012) and empirical p‑values with Holm‑Bonferroni correction.
+7. Manifest generation (FR‑007) and markdown report creation (FR‑008).
+
+## 5. Inspect results
+- `outputs/report.md` – full analysis, performance metrics (Pearson & Spearman), descriptor importance, VIF summary, runtime, and data‑limitation warning if applicable.
+- `outputs/manifest.json` – reproducibility record.
+- `outputs/model.joblib` – trained model (can be loaded with `joblib.load`).
+
+## 6. Run the test suite (optional)
+```bash
+pytest -vv
+```
+All contract‑validation tests must pass; lint warnings must be ≤ 5 (SC‑008).
+
+## 7. Re‑run for stability check
+Execute the pipeline three times (e.g., via a loop) and compare the top‑5 feature rankings. The maximum rank difference must be ≤ 1 (SC‑006). The quickstart script `scripts/stability_check.sh` automates this.===END_ARTIFACT===
+
+===BEGIN_ARTIFACT projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/contracts/dataset.schema.yaml===
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "HEA Yield‑Strength Dataset"
+type: object
+required:
+ - alloy_id
+ - composition
+ - yield_strength
+properties:
+ alloy_id:
+ type: string
+ description: "Unique identifier for the alloy sample."
+ composition:
+ type: object
+ description: "Elemental fractions; keys are element symbols (e.g., \"Fe\", \"Co\")."
+ patternProperties:
+ "^[A-Z][a-z]?$":
+ type: number
+ minimum: 0
+ maximum: 1
+ additionalProperties: false
+ minProperties: 1
+ yield_strength:
+ type: number
+ description: "Experimental yield strength in MPa."
+ minimum: 0

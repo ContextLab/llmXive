@@ -477,3 +477,253 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-31T01:58:51Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/tasks.md
+  attempts: 1
+  canonical: plot disclaimer injector appends 'Associational analysis only; no causal
+    inference' to all generated figures
+  claim_id: c_f89a6b10
+  context: Task T029a defines the plot disclaimer injector that appends the mandatory
+    disclaimer to all generated matplotlib/seaborn figures.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Plot_disclaimer_injector_appends_%27Associational_analysis_onl
+  kind: entity_fact
+  raw_text: Implement plot disclaimer injector in `code/utils/plot_utils.py` to append
+    'Associational analysis only; no causal inference' to all generated matplotlib/seaborn
+    figures.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T16:22:32Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/tasks.md
+  attempts: 1
+  canonical: normalize_to_mpa converts GPa to MPa by multiplying by 1000
+  claim_id: c_718b1b20
+  context: Task T006 implements a unit normalization utility that handles conversion
+    from GPa to MPa.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The unit normalization utility `normalize_to_mpa(value, unit)` converts
+    GPa to MPa by multiplying by 1000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T16:23:04Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/tasks.md
+  attempts: 1
+  canonical: stability_check.sh runs pipeline three times with fixed seeds and shuffled
+    splits
+  claim_id: c_5e1b890d
+  context: Task T109 specifies a stability verification script that runs the pipeline
+    three times.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Stability_check.sh_runs_pipeline_three_times_with_fixed_seed
+  kind: entity_fact
+  raw_text: The script `scripts/stability_check.sh` executes the full pipeline three
+    times with fixed seeds and shuffled splits.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T16:23:28Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/tasks.md
+  attempts: 1
+  canonical: plot disclaimer injector appends 'Associational analysis only; no causal
+    inference' to all generated figures
+  claim_id: c_e8bdbef6
+  context: Implemented in code/utils/plot_utils.py (task T029a) to automatically add
+    a disclaimer to every figure.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Plot_disclaimer_injector_appends_%27Associational_analysis_onl
+  kind: entity_fact
+  raw_text: The plot disclaimer injector appends 'Associational analysis only; no
+    causal inference' to all generated matplotlib/seaborn figures.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T16:24:17Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/tasks.md
+  attempts: 1
+  canonical: unit normalization utility converts GPa to MPa, assumes MPa if missing,
+    raises ValueError on invalid unit
+  claim_id: c_e6e5ea78
+  context: "Implemented in code/utils/unit_utils.py (task T006) as a reusable function\
+    \ for yield\u2011strength conversion."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The unit normalization utility normalize_to_mpa(value, unit) converts
+    GPa to MPa by multiplying by 1000, assumes MPa if the unit column is missing,
+    and raises ValueError for an invalid unit string.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T16:24:44Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/tasks.md
+  attempts: 1
+  canonical: VIF computation flags descriptors with VIF > 5
+  claim_id: c_f083b217
+  context: "Task T023 computes variance inflation factors for all descriptors and\
+    \ records any VIF\u202F>\u202F5 in output/vif_results.json."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/VIF_computation_flags_descriptors_with_VIF_%3E_5
+  kind: magnitude
+  raw_text: The VIF computation flags any descriptor with VIF greater than 5.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T16:25:18Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/tasks.md
+  attempts: 1
+  canonical: SHA256 checksum computed for raw dataset and recorded in state file
+  claim_id: c_e59868c5
+  context: Task T060 generates the checksum for the raw HEA composition CSV and stores
+    it under the artifact_hashes map.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/SHA256_checksum_computed_for_raw_dataset_and_recorded_in_sta
+  kind: entity_fact
+  raw_text: SHA256 checksums are computed for the raw dataset file data/raw/heas_raw.csv
+    and recorded in the project state file.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T16:25:38Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/README.md
+  attempts: 1
+  canonical: script raises FileNotFoundError with message 'data/raw/heas_raw.csv not
+    found. Please provide the dataset file at the specified location before running
+    the pipeline.'
+  claim_id: c_a062b44f
+  context: The data downloader (code/data/download.py) validates the presence of this
+    file before any processing begins. If the file cannot be found, the script raises
+    a FileNotFoundError with the following exact message.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Script_raises_FileNotFoundError_with_message_%27data/raw/heas
+  kind: entity_fact
+  raw_text: 'If the file cannot be found, the script raises a FileNotFoundError with
+    the following exact message: FileNotFoundError: data/raw/heas_raw.csv not found.
+    Please provide the dataset file at the specified location before running the pipeline.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T16:26:45Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/tasks.md
+  attempts: 1
+  canonical: plot disclaimer adds 'Associational analysis only; no causal inference'
+  claim_id: c_47dd87c1
+  context: Implemented in code/utils/plot_utils.py as task T029a, which injects a
+    mandatory disclaimer into figure metadata.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Plot_disclaimer_adds_%27Associational_analysis_only;_no_causal
+  kind: entity_fact
+  raw_text: The plot disclaimer injector appends the string 'Associational analysis
+    only; no causal inference' to all generated matplotlib/seaborn figures.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T16:59:34Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/tasks.md
+  attempts: 1
+  canonical: report disclaimer adds mandatory disclaimer
+  claim_id: c_706f11c7
+  context: Implemented in code/utils/report_utils.py as task T029b, ensuring every
+    generated report includes the required disclaimer.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Report_disclaimer_adds_mandatory_disclaimer
+  kind: entity_fact
+  raw_text: The report disclaimer injector appends the mandatory disclaimer to report
+    markdown text.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T16:59:53Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/tasks.md
+  attempts: 1
+  canonical: 1000 permutations per descriptor in permutation importance
+  claim_id: c_f4b4e760
+  context: "Task T044 specifies a fixed count of 1\u202F000 permutations for each\
+    \ descriptor when computing permutation importance for the Random Forest model."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Permutation importance computation enforces exactly 1\u202F000 permutations\
+    \ per descriptor."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T17:00:17Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/tasks.md
+  attempts: 1
+  canonical: "bootstrap resampling uses \u22651000 resamples"
+  claim_id: c_5c5b0f01
+  context: "Task T026 states that bootstrap resampling (\u2265 1\u202F000 resamples)\
+    \ is performed for the best tree\u2011based model and the remediated linear model\
+    \ to compute 95\u202F% confidence intervals."
+  evidence:
+    entailment_evidence: "Bootstrap resampling uses \u22651000 resamples"
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Bootstrap_resampling_uses_%E2%89%A51000_resamples
+  kind: magnitude
+  raw_text: "Bootstrap resampling uses at least 1\u202F000 resamples for confidence\
+    \ intervals of model metrics."
+  resolved_value: "bootstrap resampling uses \u22651000 resamples"
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-07T17:00:19Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/tasks.md
+  attempts: 1
+  canonical: VIF flag threshold >5
+  claim_id: c_cd5eca53
+  context: Task T023 computes VIF for all descriptors and flags any VIF > 5 before
+    model training.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/VIF_flag_threshold_%3E5
+  kind: magnitude
+  raw_text: VIF analysis flags any variance inflation factor greater than 5.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T17:00:52Z'

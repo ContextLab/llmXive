@@ -32,10 +32,22 @@ T032b:
     formatted is present; the provided information contains only the task description
     and feature specification, with no formatted files, logs, or diff showing that
     `black` was applied. The required artifact (formatted Python code) is missing.
-T112:
+T123:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No updated\u202FREADME.md was provided; there is no evidence that the file now\
-    \ contains an explicit \u201CUser\u2011Provided Dataset\u201D requirement description\
-    \ nor the exact error message shown when the file is missing. The required documentation\
-    \ is therefore missing."
+  r: "No ruff check output, log, or summary report is present to demonstrate that\
+    \ the codebase was linted and that the number of warnings is \u2264\u202F5. The\
+    \ required artifact proving the linting result is missing."
+T124:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `black --check` run (e.g., command output, log file, or report)
+    is present, nor any indication that the codebase was verified to be correctly
+    formatted. The required artifact confirming the formatting check is missing.
+T126:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `output/final_validation_report.json` file or any other artifact was presented.\
+    \ Without the required JSON summary aggregating T117\u2011T125 results, the task\u2019\
+    s deliverable is missing. The implementer must create and provide the specified\
+    \ report file."
