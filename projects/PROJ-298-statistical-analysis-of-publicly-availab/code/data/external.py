@@ -1,316 +1,288 @@
 """
 code/data/external.py
-Fetches actual GitHub star counts and NPM download numbers for mapped tags.
 
-Implements FR-007: External validation data retrieval.
+Fetches external metrics (GitHub stars, NPM downloads) for tags mapped in trend results.
+Implements FR-007: External Validation.
 """
+
 import os
 import json
 import time
 import requests
 from pathlib import Path
 from typing import Dict, List, Any, Optional, Tuple
-import sys
 
-# Add parent directory to path for imports if running as script
-if __name__ == "__main__":
-    sys.path.insert(0, str(Path(__file__).parent.parent))
+# Project root relative to this file
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+DATA_PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
+DATA_TAXONOMY_DIR = PROJECT_ROOT / "data" / "taxonomy"
 
-from utils.contract_validation import load_contract, validate_schema
+# Ensure output directories exist
+DATA_PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
+DATA_TAXONOMY_DIR.mkdir(parents=True, exist_ok=True)
 
-# Constants
+# API Configuration
 GITHUB_API_URL = "https://api.github.com/search/repositories"
-NPM_API_URL = "https://api.npmjs.org/downloads/point/last-month"
-NPM_SEARCH_URL = "https://registry.npmjs.org/-/v1/search"
+NPM_API_URL = "https://registry.npmjs.org/-/v1/search"
+REQUEST_TIMEOUT = 10
+RATE_LIMIT_SLEEP = 1.0  # Seconds to sleep between requests to respect rate limits
 
-# Rate limiting constants (GitHub API: 60 req/hour unauthenticated, 5000 with token)
-GITHUB_DELAY = 1.0  # seconds between requests
-MAX_RETRIES = 3
-TIMEOUT = 30
+def load_trend_results() -> List[Dict[str, Any]]:
+    """
+    Loads the processed trend results from data/processed/trend_results.json.
+    Returns a list of tag data dictionaries.
+    """
+    trend_file = DATA_PROCESSED_DIR / "trend_results.json"
+    if not trend_file.exists():
+        raise FileNotFoundError(
+            f"Upstream artifact not found: {trend_file}. "
+            "Ensure T014/T018 (trend analysis) has completed successfully."
+        )
+    
+    with open(trend_file, 'r', encoding='utf-8') as f:
+        data = json.load(f)
+    
+    # Handle structure if it's a dict with a 'tags' key or a list directly
+    if isinstance(data, dict) and 'tags' in data:
+        return data['tags']
+    elif isinstance(data, list):
+        return data
+    else:
+        raise ValueError(f"Unexpected format in {trend_file}")
 
-def fetch_github_stars(tag: str) -> Optional[Dict[str, Any]]:
+def fetch_github_stars(tag_name: str, max_retries: int = 3) -> Optional[Dict[str, Any]]:
     """
-    Fetch GitHub star count for a repository related to the tag.
+    Fetches GitHub repository stars for a given tag using the Search API.
+    Maps tag to a likely repository (e.g., 'react' -> 'facebook/react').
+    Returns None if no match found or API fails.
     
-    Uses GitHub Search API to find the most popular repo with the tag as topic.
-    
-    Args:
-        tag: The technology tag (e.g., 'react', 'python')
-        
-    Returns:
-        Dictionary with 'stars', 'repo_name', 'url' or None if not found/failed
+    Strategy:
+    1. Search for repos with topic:tag_name.
+    2. If multiple, pick the one with the most stars.
+    3. Return star count and repo details.
     """
-    # Search for repositories with the tag as a topic
-    query = f"topic:{tag}"
+    query = f"topic:{tag_name} in:readme"
     params = {
         "q": query,
         "sort": "stars",
         "order": "desc",
-        "per_page": 1
+        "per_page": 10
     }
-    
+
     headers = {
         "Accept": "application/vnd.github.v3+json",
         "User-Agent": "llmXive-Research-Agent"
     }
-    
-    for attempt in range(MAX_RETRIES):
+
+    for attempt in range(max_retries):
         try:
-            time.sleep(GITHUB_DELAY)
-            response = requests.get(GITHUB_API_URL, params=params, headers=headers, timeout=TIMEOUT)
+            response = requests.get(GITHUB_API_URL, params=params, headers=headers, timeout=REQUEST_TIMEOUT)
             
             if response.status_code == 200:
                 data = response.json()
-                if data.get("total_count", 0) > 0 and "items" in data and len(data["items"]) > 0:
-                    repo = data["items"][0]
-                    return {
-                        "stars": repo.get("stargazers_count", 0),
-                        "repo_name": repo.get("full_name", ""),
-                        "url": repo.get("html_url", ""),
-                        "description": repo.get("description", "")
-                    }
-                return None
+                items = data.get('items', [])
+                
+                if not items:
+                    return None
+                
+                # Take the top result (most stars)
+                top_repo = items[0]
+                return {
+                    "source": "github",
+                    "tag": tag_name,
+                    "matched_repo": top_repo.get("full_name"),
+                    "stars": top_repo.get("stargazers_count"),
+                    "url": top_repo.get("html_url"),
+                    "fetched_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+                }
             elif response.status_code == 403:
                 # Rate limited
-                if "X-RateLimit-Remaining" in response.headers:
-                    reset_time = int(response.headers.get("X-RateLimit-Reset", 0))
-                    wait_time = max(reset_time - int(time.time()), 0)
-                    time.sleep(wait_time + 1)
-                    continue
-                return None
-            else:
-                return None
-        except requests.exceptions.RequestException:
-            if attempt < MAX_RETRIES - 1:
-                time.sleep(2 ** attempt)  # Exponential backoff
+                if 'Retry-After' in response.headers:
+                    sleep_time = int(response.headers['Retry-After'])
+                else:
+                    sleep_time = 60
+                print(f"GitHub Rate limited. Sleeping for {sleep_time}s.")
+                time.sleep(sleep_time)
                 continue
-            return None
-    
-    return None
-
-def fetch_npm_downloads(tag: str) -> Optional[Dict[str, Any]]:
-    """
-    Fetch NPM download count for a package related to the tag.
-    
-    First searches for the package, then fetches download stats.
-    
-    Args:
-        tag: The technology tag (e.g., 'react', 'lodash')
-        
-    Returns:
-        Dictionary with 'downloads', 'package_name' or None if not found/failed
-    """
-    # Search for the package
-    search_params = {
-        "text": f"name:{tag}",
-        "size": 1,
-        "quality": 0,
-        "popularity": 0,
-        "maintenance": 0
-    }
-    
-    try:
-        search_response = requests.get(NPM_SEARCH_URL, params=search_params, timeout=TIMEOUT)
-        
-        if search_response.status_code == 200:
-            search_data = search_response.json()
-            objects = search_data.get("objects", [])
-            
-            if objects:
-                package_name = objects[0].get("package", {}).get("name")
-                if package_name:
-                    # Fetch download stats for the found package
-                    downloads_url = f"{NPM_API_URL}/{package_name}"
-                    downloads_response = requests.get(downloads_url, timeout=TIMEOUT)
-                    
-                    if downloads_response.status_code == 200:
-                        downloads_data = downloads_response.json()
-                        return {
-                            "downloads": downloads_data.get("downloads", 0),
-                            "package_name": package_name,
-                            "start": downloads_data.get("start"),
-                            "end": downloads_data.get("end")
-                        }
-                
-                # If search found nothing by exact name, try searching by keyword
-                search_params["text"] = tag
-                search_response = requests.get(NPM_SEARCH_URL, params=search_params, timeout=TIMEOUT)
-                
-                if search_response.status_code == 200:
-                    search_data = search_response.json()
-                    objects = search_data.get("objects", [])
-                    
-                    if objects:
-                        package_name = objects[0].get("package", {}).get("name")
-                        if package_name:
-                            downloads_url = f"{NPM_API_URL}/{package_name}"
-                            downloads_response = requests.get(downloads_url, timeout=TIMEOUT)
-                            
-                            if downloads_response.status_code == 200:
-                                downloads_data = downloads_response.json()
-                                return {
-                                    "downloads": downloads_data.get("downloads", 0),
-                                    "package_name": package_name,
-                                    "start": downloads_data.get("start"),
-                                    "end": downloads_data.get("end")
-                                }
-    except requests.exceptions.RequestException:
-        pass
-    
-    return None
-
-def fetch_external_metrics(mappings: List[Dict[str, str]]) -> List[Dict[str, Any]]:
-    """
-    Fetch external metrics for a list of tag mappings.
-    
-    Args:
-        mappings: List of dictionaries with 'tag', 'github_repo', 'npm_package'
-                 (github_repo and npm_package are optional, if None we search)
-                 
-    Returns:
-        List of results with tag and external metrics
-    """
-    results = []
-    
-    for mapping in mappings:
-        tag = mapping.get("tag", "")
-        github_repo = mapping.get("github_repo")
-        npm_package = mapping.get("npm_package")
-        
-        result = {
-            "tag": tag,
-            "github": None,
-            "npm": None,
-            "status": "success"
-        }
-        
-        # Fetch GitHub stars
-        if github_repo:
-            # Direct repo lookup (would need a different endpoint, using search as fallback)
-            # For now, use the search function which works with topics
-            github_data = fetch_github_stars(tag)
-            result["github"] = github_data
-            if not github_data:
-                result["status"] = "partial"
-        else:
-            github_data = fetch_github_stars(tag)
-            result["github"] = github_data
-            if not github_data:
-                result["status"] = "partial"
-        
-        # Fetch NPM downloads
-        if npm_package:
-            # Direct package lookup would need a different approach
-            # Using search as fallback
-            npm_data = fetch_npm_downloads(tag)
-            result["npm"] = npm_data
-            if not npm_data:
-                result["status"] = "partial"
-        else:
-            npm_data = fetch_npm_downloads(tag)
-            result["npm"] = npm_data
-            if not npm_data:
-                result["status"] = "partial"
-        
-        if not github_data and not npm_data:
-            result["status"] = "failed"
-        
-        results.append(result)
-        
-        # Rate limiting for safety
-        time.sleep(0.5)
-    
-    return results
-
-def load_trend_results() -> List[Dict[str, Any]]:
-    """
-    Load trend results from the previous step (T014/T015).
-    
-    Returns:
-        List of trend results with tag information
-    """
-    # Expected path based on project structure
-    results_path = Path("data/processed/trend_results.json")
-    
-    if not results_path.exists():
-        # Try alternative path
-        results_path = Path("../data/processed/trend_results.json")
-    
-    if results_path.exists():
-        with open(results_path, 'r') as f:
-            data = json.load(f)
-            # Handle both list and dict with 'results' key
-            if isinstance(data, list):
-                return data
-            elif isinstance(data, dict) and 'results' in data:
-                return data['results']
             else:
-                return [data] if data else []
-    else:
-        # Fallback: create a minimal mapping list for testing
-        # In real execution, this should be populated from T015
-        return [
-            {"tag": "react", "trend": "Growth", "slope": 0.5},
-            {"tag": "python", "trend": "Growth", "slope": 0.3},
-            {"tag": "javascript", "trend": "Stable", "slope": 0.05},
-            {"tag": "typescript", "trend": "Growth", "slope": 0.8},
-            {"tag": "docker", "trend": "Growth", "slope": 0.4}
-        ]
+                print(f"GitHub API Error for {tag_name}: {response.status_code}")
+                return None
 
-def save_external_metrics(results: List[Dict[str, Any]], output_path: str):
+        except requests.exceptions.RequestException as e:
+            print(f"Network error fetching GitHub for {tag_name}: {e}")
+            if attempt < max_retries - 1:
+                time.sleep(1)
+            else:
+                return None
+
+    return None
+
+def fetch_npm_downloads(tag_name: str, max_retries: int = 3) -> Optional[Dict[str, Any]]:
     """
-    Save external metrics to a JSON file.
+    Fetches NPM download counts for a given tag.
+    Maps tag to a likely package name (e.g., 'react' -> 'react').
+    Returns None if no match found or API fails.
     
-    Args:
-        results: List of external metric results
-        output_path: Path to save the results
+    Strategy:
+    1. Search NPM registry for keyword:tag_name.
+    2. If found, get the top package.
+    3. Fetch weekly downloads for that package.
     """
-    output_file = Path(output_path)
-    output_file.parent.mkdir(parents=True, exist_ok=True)
+    # Step 1: Search for the package
+    search_params = {
+        "text": f"keywords:{tag_name}",
+        "size": 10
+    }
+
+    try:
+        search_response = requests.get(NPM_API_URL, params=search_params, timeout=REQUEST_TIMEOUT)
+        if search_response.status_code != 200:
+            return None
+        
+        search_data = search_response.json()
+        objects = search_data.get('objects', [])
+        
+        if not objects:
+            return None
+
+        # Take the top result
+        top_obj = objects[0]
+        package_name = top_obj.get('package', {}).get('name')
+        
+        if not package_name:
+            return None
+
+        # Step 2: Fetch weekly downloads
+        downloads_url = f"https://api.npmjs.org/downloads/point/last-week/{package_name}"
+        downloads_response = requests.get(downloads_url, timeout=REQUEST_TIMEOUT)
+        
+        if downloads_response.status_code == 200:
+            downloads_data = downloads_response.json()
+            count = downloads_data.get('downloads')
+            return {
+                "source": "npm",
+                "tag": tag_name,
+                "matched_package": package_name,
+                "weekly_downloads": count,
+                "fetched_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+            }
+        elif downloads_response.status_code == 404:
+            # Package exists but no download stats or not found
+            return None
+        else:
+            print(f"NPM API Error for {package_name}: {downloads_response.status_code}")
+            return None
+
+    except requests.exceptions.RequestException as e:
+        print(f"Network error fetching NPM for {tag_name}: {e}")
+        return None
+
+def fetch_external_metrics() -> Dict[str, Any]:
+    """
+    Orchestrates the fetching of external metrics for all tags in trend_results.
+    Writes raw metrics to data/processed/external_metrics.json.
+    Logs unmapped tags to data/processed/unmapped_tags.log.
+    """
+    print("Loading trend results...")
+    tags_data = load_trend_results()
     
-    with open(output_file, 'w') as f:
-        json.dump(results, f, indent=2)
+    if not tags_data:
+        print("No tags found in trend results. Exiting.")
+        return {"tags": [], "unmapped": []}
+
+    results = []
+    unmapped_tags = []
+
+    print(f"Processing {len(tags_data)} tags for external metrics...")
     
-    print(f"External metrics saved to {output_path}")
+    for item in tags_data:
+        tag_name = item.get('tag') or item.get('name')
+        if not tag_name:
+            continue
+
+        tag_name_lower = str(tag_name).strip().lower()
+        
+        print(f"  Fetching metrics for: {tag_name_lower}")
+        
+        github_data = None
+        npm_data = None
+
+        # Fetch GitHub
+        github_data = fetch_github_stars(tag_name_lower)
+        
+        # Small delay to be polite to APIs
+        time.sleep(RATE_LIMIT_SLEEP)
+
+        # Fetch NPM
+        npm_data = fetch_npm_downloads(tag_name_lower)
+        
+        time.sleep(RATE_LIMIT_SLEEP)
+
+        combined_entry = {
+            "tag": tag_name_lower,
+            "github": github_data,
+            "npm": npm_data
+        }
+
+        if github_data is None and npm_data is None:
+            unmapped_tags.append(tag_name_lower)
+        
+        results.append(combined_entry)
+
+    # Prepare output structure
+    output_data = {
+        "tags": results,
+        "summary": {
+            "total_processed": len(results),
+            "total_unmapped": len(unmapped_tags)
+        }
+    }
+
+    # Write main output file
+    output_file = DATA_PROCESSED_DIR / "external_metrics.json"
+    with open(output_file, 'w', encoding='utf-8') as f:
+        json.dump(output_data, f, indent=2)
+    
+    print(f"External metrics written to: {output_file}")
+
+    # Write unmapped log
+    unmapped_file = DATA_PROCESSED_DIR / "unmapped_tags.log"
+    with open(unmapped_file, 'w', encoding='utf-8') as f:
+        for tag in unmapped_tags:
+            f.write(f"{tag}\n")
+    
+    if unmapped_tags:
+        print(f"Unmapped tags written to: {unmapped_file} ({len(unmapped_tags)} tags)")
+    else:
+        print("All tags successfully mapped.")
+
+    return output_data
+
+def save_external_metrics(data: Dict[str, Any]) -> Path:
+    """
+    Saves the external metrics data to disk.
+    (Helper function, primarily used if data is pre-fetched).
+    """
+    output_file = DATA_PROCESSED_DIR / "external_metrics.json"
+    with open(output_file, 'w', encoding='utf-8') as f:
+        json.dump(data, f, indent=2)
+    return output_file
 
 def main():
     """
     Main entry point for fetching external metrics.
-    
-    This script:
-    1. Loads trend results (or mappings) from previous step
-    2. Fetches GitHub stars and NPM downloads for each tag
-    3. Saves results to data/processed/external_metrics.json
     """
-    print("Starting external metrics fetch...")
-    
-    # Load mappings from trend results
-    # In a real pipeline, this would come from T015's correlation mapping
-    mappings = load_trend_results()
-    
-    if not mappings:
-        print("No mappings found. Exiting.")
-        return
-    
-    print(f"Processing {len(mappings)} tags...")
-    
-    # Fetch external metrics
-    results = fetch_external_metrics(mappings)
-    
-    # Save results
-    output_path = "data/processed/external_metrics.json"
-    save_external_metrics(results, output_path)
-    
-    # Print summary
-    success_count = sum(1 for r in results if r["status"] == "success")
-    partial_count = sum(1 for r in results if r["status"] == "partial")
-    failed_count = sum(1 for r in results if r["status"] == "failed")
-    
-    print(f"\nSummary:")
-    print(f"  Success: {success_count}")
-    print(f"  Partial: {partial_count}")
-    print(f"  Failed: {failed_count}")
-    print(f"Total: {len(results)}")
+    print("Starting External Metrics Fetcher (T039)...")
+    try:
+        fetch_external_metrics()
+        print("External Metrics Fetcher completed successfully.")
+    except FileNotFoundError as e:
+        print(f"Critical Error: {e}")
+        print("Please ensure T018 (trend_results.json generation) is completed first.")
+        raise
+    except Exception as e:
+        print(f"Unexpected error during execution: {e}")
+        raise
 
 if __name__ == "__main__":
     main()

@@ -1,18 +1,6 @@
 # Statistical Analysis of Publicly Available Stack Overflow Question Tags
 
-**Project ID**: PROJ-298
-**Status**: Production Ready
-
-## Overview
-
-This project performs statistical analysis on publicly available Stack Overflow question tag data to identify technology growth/decline trajectories, seasonality patterns, and technology clusters.
-
-## Features
-
-- **Trend Analysis (US1)**: Modified Mann-Kendall tests with Theil-Sen slope estimation, Benjamini-Hochberg correction, and power analysis.
-- **Decomposition (US2)**: STL/Hodrick-Prescott decomposition with ADF stationarity pre-testing and event alignment validation.
-- **Clustering (US3)**: Co-occurrence analysis using Jaccard similarity, hierarchical clustering, and taxonomy alignment scoring.
-- **External Validation**: Correlation with GitHub stars and NPM download metrics.
+This project performs a comprehensive statistical analysis of technology trends using Stack Overflow tag data. It quantifies growth/decline trajectories, visualizes time series decomposition, and clusters technologies via co-occurrence analysis.
 
 ## Project Structure
 
@@ -20,28 +8,25 @@ This project performs statistical analysis on publicly available Stack Overflow 
 projects/PROJ-298-statistical-analysis-of-publicly-availab/
 ├── code/
 │ ├── analysis/ # Statistical analysis modules
-│ ├── data/ # Data ingestion and preprocessing
-│ ├── utils/ # Utility functions (hygiene, state management)
-│ ├── viz/ # Visualization and template generation
+│ ├── data/ # Data download and preprocessing
+│ ├── utils/ # Utility functions
+│ ├── viz/ # Visualization modules
 │ └── requirements.txt # Python dependencies
 ├── data/
 │ ├── raw/ # Raw downloaded data
-│ ├── processed/ # Processed time-series data
-│ ├── events/ # Reference calendar for event alignment
-│ └── taxonomy/ # Survey-based taxonomy mappings
-├── notebooks/ # Reproducible Jupyter notebooks
-├── tests/ # Unit, contract, and integration tests
-├── state/ # Artifact state and checksums
-├── README.md
-└── quickstart.md
+│ ├── processed/ # Processed analysis data
+│ ├── taxonomy/ # Taxonomy and reference data
+│ └── events/ # Reference calendar of events
+├── notebooks/ # Jupyter notebooks for analysis
+├── tests/ # Unit and integration tests
+└── state/ # Project state and checksums
 ```
 
 ## Prerequisites
 
 - Python 3.11+
-- CPU-only execution environment (compatible with GitHub Actions runners)
-- ~14 GB disk space for data artifacts
-- ~7 GB RAM for streaming processing
+- pip package manager
+- Access to Stack Overflow data dump or HuggingFace datasets
 
 ## Installation
 
@@ -59,96 +44,61 @@ projects/PROJ-298-statistical-analysis-of-publicly-availab/
 
 ## Quick Start
 
-See [quickstart.md](./quickstart.md) for the full execution pipeline.
+See `quickstart.md` for step-by-step instructions to reproduce the entire analysis pipeline.
 
-### Running Individual Modules
+## Analysis Pipeline
 
-**Data Download & Preprocessing**:
-```bash
-python code/data/download.py
-python code/data/preprocess.py
-```
+The project implements three main user stories:
 
-**Trend Analysis**:
-```bash
-python code/analysis/trends.py
-python code/analysis/bootstrapping.py
-python code/analysis/generate_trend_results.py
-```
+### User Story 1: Quantify Technology Growth and Decline
+- Downloads and preprocesses Stack Overflow tag data
+- Applies Modified Mann-Kendall test with pre-whitening
+- Calculates Theil-Sen slopes and confidence intervals
+- Validates against GitHub stars and NPM downloads
+- Outputs: `data/processed/trend_results.json`
 
-**Decomposition**:
-```bash
-python code/analysis/decomposition.py
-python code/analysis/generate_decomposition_results.py
-```
+### User Story 2: Time Series Decomposition
+- Performs ADF stationarity tests
+- Applies STL or Hodrick-Prescott decomposition
+- Tests residual independence (Ljung-Box)
+- Aligns with industry events (Rayleigh test)
+- Outputs: `data/processed/decomposition_results.json`
 
-**Clustering**:
-```bash
-python code/analysis/clustering.py
-python code/analysis/generate_cluster_results.py
-```
-
-**External Correlation**:
-```bash
-python code/data/external.py
-python code/analysis/correlation.py
-```
-
-### Running Notebooks
-
-All analysis is reproducible via Jupyter notebooks:
-```bash
-jupyter notebook notebooks/02_trend_analysis.ipynb
-jupyter notebook notebooks/03_decomposition.ipynb
-jupyter notebook notebooks/04_clustering.ipynb
-```
-
-## Data Sources
-
-- **Primary**: Stack Overflow Data Dump (PostsTags table) via HuggingFace datasets
-- **External Validation**: GitHub Search API (stars) and NPM Search API (downloads)
-- **Taxonomy**: Stack Overflow Developer Survey 2023
-
-## Statistical Methods
-
-- **Trend Detection**: Modified Mann-Kendall test with pre-whitening, Theil-Sen slope estimator
-- **Multiple Testing**: Benjamini-Hochberg false discovery rate correction
-- **Power Analysis**: Minimum Detectable Effect Size (MDES) calculation
-- **Decomposition**: STL (Seasonal-Trend decomposition using Loess) or Hodrick-Prescott filter
-- **Seasonality**: Augmented Dickey-Fuller (ADF) stationarity test, spectral analysis
-- **Clustering**: Jaccard similarity, hierarchical clustering with permutation validation
-
-## Output Artifacts
-
-All outputs are stored in `data/processed/`:
-
-- `trend_results.json`: Trend classifications, slopes, p-values, and external correlations
-- `confidence_interval.json`: 95% bootstrap confidence intervals for slopes
-- `decomposition_results.json`: Decomposition components, Ljung-Box and Rayleigh test results
-- `cluster_results.json`: Jaccard matrix, cluster assignments, alignment scores
-
-## Validation & Testing
-
-Run the full test suite:
-```bash
-pytest tests/ -v
-```
-
-Verify artifact contracts:
-```bash
-python code/verification/verify_limitations.py
-```
+### User Story 3: Technology Clustering
+- Computes Jaccard similarity matrix for tag co-occurrence
+- Performs hierarchical clustering
+- Validates clusters via permutation tests
+- Aligns with Stack Overflow Survey taxonomy
+- Outputs: `data/processed/cluster_results.json`
 
 ## Reproducibility
 
-- All scripts write SHA-256 checksums to `state/projects/PROJ-298-statistical-analysis-of-publicly-availab.yaml`
-- Notebooks include mandatory limitation disclosures (FR-011)
-- Streaming processing ensures compatibility with limited RAM environments
+All notebooks in the `notebooks/` directory are fully reproducible:
+- `02_trend_analysis.ipynb` - Trend analysis and visualization
+- `03_decomposition.ipynb` - Time series decomposition
+- `04_clustering.ipynb` - Clustering and co-occurrence analysis
 
-## Limitations
+To reproduce:
+1. Ensure all data files exist in `data/processed/`
+2. Run each notebook sequentially or execute via:
+ ```bash
+ jupyter nbconvert --execute notebooks/*.ipynb
+ ```
 
-**Important**: All findings are associational and do not imply causality. External correlations are based on topic/keyword mapping and may not capture all relevant technologies.
+## Data Sources
+
+- **Stack Overflow PostsTags**: Downloaded from official data dump or HuggingFace
+- **GitHub Stars**: Fetched via GitHub Search API
+- **NPM Downloads**: Fetched via NPM Search API
+- **Stack Overflow Developer Survey**: Used for taxonomy validation
+
+## Validation
+
+- Contract tests verify output schemas
+- Integration tests validate pipeline end-to-end
+- SHA-256 checksums track data integrity
+- Limitation disclosures included in all visualizations
 
 ## License
 
-MIT License
+This project is for research purposes only.

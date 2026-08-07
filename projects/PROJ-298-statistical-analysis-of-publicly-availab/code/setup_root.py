@@ -1,60 +1,38 @@
 """
-T001a: Create the root directory for project PROJ-298.
-
-This script ensures the existence of the project root directory
-and creates the initial subdirectory structure required for the
-llmXive pipeline (code, data, tests, notebooks, specs).
-
-It is idempotent: running it multiple times will not fail if
-the directories already exist.
+Script to initialize the project root directory for PROJ-298.
+This script creates the root directory if it does not exist.
 """
 import os
 from pathlib import Path
-
-# Define the project root relative to the script location or current working dir
-# The task requires the directory to be at projects/PROJ-298-statistical-analysis-of-publicly-availab/
-# We will resolve this relative to the current working directory (CWD) where the script is run.
-
-PROJECT_ROOT_NAME = "PROJ-298-statistical-analysis-of-publicly-availab"
-PROJECTS_PARENT = "projects"
-
-# Subdirectories to ensure exist under the project root
-REQUIRED_DIRS = [
-    "code",
-    "data",
-    "tests",
-    "notebooks",
-    "specs",
-    "figures",
-    "state"
-]
+import sys
 
 def main():
-    # Construct the full path
-    # We assume the script is run from the repository root
-    root_path = Path(PROJECTS_PARENT) / PROJECT_ROOT_NAME
+    # Define the project root path relative to the repository root
+    # The project is located at projects/PROJ-298-statistical-analysis-of-publicly-availab
+    project_root = Path("projects/PROJ-298-statistical-analysis-of-publicly-availab")
     
-    print(f"Ensuring existence of project root: {root_path}")
+    print(f"Ensuring project root directory exists: {project_root}")
     
-    if not root_path.exists():
-        root_path.mkdir(parents=True, exist_ok=True)
-        print(f"Created project root directory: {root_path}")
-    else:
-        print(f"Project root directory already exists: {root_path}")
-    
-    # Create subdirectories
-    created_count = 0
-    for dir_name in REQUIRED_DIRS:
-        dir_path = root_path / dir_name
-        if not dir_path.exists():
-            dir_path.mkdir(parents=True, exist_ok=True)
-            print(f"  Created: {dir_path}")
-            created_count += 1
+    try:
+        project_root.mkdir(parents=True, exist_ok=True)
+        print(f"Success: Directory '{project_root}' is ready.")
+        
+        # Verify it's not empty by listing immediate children (if any)
+        # Since T001b-e create subdirs, we expect them to exist if the pipeline runs sequentially
+        # But for T001a specifically, we just ensure the root exists.
+        if project_root.exists() and project_root.is_dir():
+            print(f"Verified: {project_root} is a valid directory.")
+            return 0
         else:
-            print(f"  Exists: {dir_path}")
-    
-    print(f"Directory setup complete. {created_count} new directories created.")
-    return 0
+            print(f"Error: Failed to create or verify {project_root}", file=sys.stderr)
+            return 1
+            
+    except PermissionError:
+        print(f"Error: Permission denied when creating {project_root}", file=sys.stderr)
+        return 1
+    except Exception as e:
+        print(f"Error: {e}", file=sys.stderr)
+        return 1
 
 if __name__ == "__main__":
-    exit(main())
+    sys.exit(main())

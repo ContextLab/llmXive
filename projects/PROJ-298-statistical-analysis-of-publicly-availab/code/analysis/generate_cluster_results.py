@@ -1,163 +1,183 @@
+"""
+Task T032: Generate final cluster results JSON.
+
+This module aggregates the Cluster Label Alignment Score and intra-cluster
+similarity coefficient from the clustering analysis (T030) and writes the
+final `data/processed/cluster_results.json` artifact. It also calculates
+the SHA-256 hash of the output and updates the project state file per FR-012.
+"""
 import json
 import hashlib
 import sys
 from pathlib import Path
 from typing import Dict, Any, Optional
 
-# Add project root to path to resolve imports
+# Import hygiene utilities from the project's utility module
+from utils.hygiene import calculate_sha256, load_state, save_state, update_artifact_checksums
+
+# Define project paths relative to the project root
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-if str(PROJECT_ROOT) not in sys.path:
-    sys.path.insert(0, str(PROJECT_ROOT))
+DATA_PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
+TAXONOMY_DIR = PROJECT_ROOT / "data" / "taxonomy"
+STATE_FILE = PROJECT_ROOT / "state" / "projects" / "PROJ-298-statistical-analysis-of-publicly-availab.yaml"
 
-from utils.state_manager import calculate_sha256, load_state, save_state, update_artifact_checksums
-from analysis.clustering import load_processed_data, load_taxonomy, calculate_cluster_label_alignment_score, perform_hierarchical_clustering
+# Output paths
+CLUSTER_INTERMEDIATE_PATH = DATA_PROCESSED_DIR / "cluster_intermediate.json"
+CLUSTER_RESULTS_PATH = DATA_PROCESSED_DIR / "cluster_results.json"
+CLUSTER_MAPPINGS_PATH = DATA_PROCESSED_DIR / "cluster_mappings.json" # Assuming T030 might output mappings if needed, but primarily we read intermediate
 
-def load_json_safe(file_path: Path) -> Optional[Dict]:
-    """Load a JSON file safely, returning None if it doesn't exist or is invalid."""
+
+def load_json_safe(file_path: Path) -> Optional[Dict[str, Any]]:
+    """
+    Safely load a JSON file. Returns None if the file does not exist or is invalid.
+    """
+    if not file_path.exists():
+        print(f"Error: Required file not found: {file_path}")
+        return None
     try:
         with open(file_path, 'r', encoding='utf-8') as f:
             return json.load(f)
-    except (FileNotFoundError, json.JSONDecodeError) as e:
-        print(f"Warning: Could not load {file_path}: {e}")
+    except json.JSONDecodeError as e:
+        print(f"Error: Invalid JSON in {file_path}: {e}")
+        return None
+    except Exception as e:
+        print(f"Error reading {file_path}: {e}")
         return None
 
-def calculate_intra_cluster_similarity(clusters: Dict[str, list], similarity_matrix: Dict[str, Dict[str, float]]) -> float:
+
+def aggregate_cluster_results() -> Optional[Dict[str, Any]]:
     """
-    Calculate the average intra-cluster similarity coefficient.
-    Returns the mean similarity of all pairs within the same cluster.
+    Reads the intermediate clustering results from T030, aggregates the
+    required metrics (Cluster Label Alignment Score, intra-cluster similarity),
+    and prepares the final output structure.
+
+    Returns:
+        A dictionary containing the aggregated results, or None if inputs are missing.
     """
-    if not clusters or not similarity_matrix:
-        return 0.0
-
-    total_similarity = 0.0
-    pair_count = 0
-
-    for cluster_name, tags in clusters.items():
-        if len(tags) < 2:
-            continue
-        
-        # Compare every pair in the cluster
-        for i in range(len(tags)):
-            for j in range(i + 1, len(tags)):
-                tag_a = tags[i]
-                tag_b = tags[j]
-                
-                # Retrieve similarity (handle potential missing keys gracefully)
-                sim = 0.0
-                if tag_a in similarity_matrix and tag_b in similarity_matrix[tag_a]:
-                    sim = similarity_matrix[tag_a][tag_b]
-                elif tag_b in similarity_matrix and tag_a in similarity_matrix[tag_b]:
-                    sim = similarity_matrix[tag_b][tag_a]
-                
-                total_similarity += sim
-                pair_count += 1
-
-    if pair_count == 0:
-        return 0.0
+    # Load intermediate results from T030
+    intermediate_data = load_json_safe(CLUSTER_INTERMEDIATE_PATH)
     
-    return total_similarity / pair_count
+    if intermediate_data is None:
+        print("FATAL: Could not load cluster intermediate data from T030. Cannot proceed.")
+        return None
 
-def aggregate_cluster_results(clustering_results: Dict, taxonomy: Dict, similarity_matrix: Dict) -> Dict:
-    """
-    Aggregate clustering results, calculate alignment scores, and intra-cluster similarity.
-    """
-    if not clustering_results:
-        return {}
+    # Extract required metrics
+    # The structure of intermediate_data is assumed to be:
+    # {
+    #   "cluster_label_alignment_score": <float>,
+    #   "intra_cluster_similarity_coefficient": <float>,
+    #   "clusters": [...],
+    #   "methodology": {...},
+    #   ...
+    # }
+    
+    alignment_score = intermediate_data.get("cluster_label_alignment_score")
+    similarity_coeff = intermediate_data.get("intra_cluster_similarity_coefficient")
 
-    # Extract clusters from the hierarchical clustering result
-    # Assuming structure: {'clusters': {cluster_name: [tag1, tag2, ...]}}
-    clusters = clustering_results.get('clusters', {})
-    
-    # Calculate Cluster Label Alignment Score
-    alignment_score = calculate_cluster_label_alignment_score(clusters, taxonomy)
-    
-    # Calculate Intra-cluster Similarity Coefficient
-    intra_cluster_sim = calculate_intra_cluster_similarity(clusters, similarity_matrix)
+    if alignment_score is None or similarity_coeff is None:
+        print(f"Error: Missing required metrics in intermediate data. "
+              f"Found keys: {list(intermediate_data.keys())}")
+        return None
 
     # Construct the final result object
-    result = {
-        "clusters": clusters,
-        "cluster_label_alignment_score": alignment_score,
-        "intra_cluster_similarity_coefficient": intra_cluster_sim,
+    final_results = {
+        "task_id": "T032",
+        "description": "Aggregated Cluster Results",
+        "metrics": {
+            "cluster_label_alignment_score": alignment_score,
+            "intra_cluster_similarity_coefficient": similarity_coeff
+        },
+        "source_artifact": str(CLUSTER_INTERMEDIATE_PATH.name),
+        "generated_at": intermediate_data.get("generated_at", "unknown"),
+        "clusters_summary": {
+            "total_clusters": len(intermediate_data.get("clusters", [])),
+            "cluster_sizes": [len(c.get("tags", [])) for c in intermediate_data.get("clusters", [])]
+        },
         "metadata": {
-            "num_clusters": len(clusters),
-            "total_tags_clustered": sum(len(tags) for tags in clusters.values()),
-            "taxonomy_source": "survey_2023.json"
+            "methodology": intermediate_data.get("methodology", {}),
+            "taxonomy_source": intermediate_data.get("taxonomy_source", "unknown")
         }
     }
 
-    return result
+    return final_results
+
+
+def update_state_file(results: Dict[str, Any], output_path: Path) -> bool:
+    """
+    Calculates the SHA-256 hash of the results and updates the project state file.
+    
+    Args:
+        results: The final results dictionary.
+        output_path: The path where the results will be saved.
+        
+    Returns:
+        True if successful, False otherwise.
+    """
+    # Calculate hash of the results object (serialized to JSON)
+    # We serialize with sort_keys to ensure deterministic hashing
+    json_str = json.dumps(results, sort_keys=True, indent=2)
+    file_hash = hashlib.sha256(json_str.encode('utf-8')).hexdigest()
+
+    # Load current state
+    state = load_state(STATE_FILE)
+    if state is None:
+        print(f"Warning: Could not load state file at {STATE_FILE}. Creating new state.")
+        state = {
+            "artifacts": {},
+            "checksums": {},
+            "last_updated": "unknown"
+        }
+
+    # Update artifact checksums
+    # The state file structure is assumed to track artifacts by path and hash
+    artifact_entry = {
+        "path": str(output_path.relative_to(PROJECT_ROOT)),
+        "hash": file_hash,
+        "size_bytes": len(json_str.encode('utf-8')),
+        "task_id": "T032"
+    }
+    
+    updated_state = update_artifact_checksums(state, artifact_entry)
+    
+    # Save the updated state
+    if not save_state(updated_state, STATE_FILE):
+        print("Error: Failed to save state file.")
+        return False
+
+    return True
+
 
 def main():
     """
-    Main entry point for T032: Generate cluster_results.json, calculate SHA-256, and update state.
+    Main entry point for T032.
     """
-    # Define paths relative to project root
-    data_dir = PROJECT_ROOT / "data"
-    processed_dir = data_dir / "processed"
-    taxonomy_dir = data_dir / "taxonomy"
+    print("Starting T032: Generate Cluster Results...")
     
-    # Input files
-    clustering_results_path = processed_dir / "clustering_results.json"
-    taxonomy_path = taxonomy_dir / "survey_2023.json"
-    
-    # Output file
-    output_path = processed_dir / "cluster_results.json"
-    state_path = PROJECT_ROOT / "state" / "projects" / "PROJ-298-statistical-analysis-of-publicly-availab.yaml"
+    # Ensure output directory exists
+    DATA_PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
 
-    print(f"Loading clustering results from {clustering_results_path}...")
-    clustering_data = load_json_safe(clustering_results_path)
-    
-    if not clustering_data:
-        print("Error: Clustering results not found. Please run T029 first.")
+    # 1. Aggregate results
+    results = aggregate_cluster_results()
+    if results is None:
+        print("T032 FAILED: Could not aggregate results.")
         sys.exit(1)
 
-    print(f"Loading taxonomy from {taxonomy_path}...")
-    taxonomy_data = load_json_safe(taxonomy_path)
-    
-    if not taxonomy_data:
-        print("Error: Taxonomy file not found. Please run T007 first.")
-        sys.exit(1)
-
-    # Extract similarity matrix from clustering results if available, otherwise re-calculate or load
-    # Assuming clustering_results.json contains the matrix or we load it from a separate file
-    # For this task, we assume clustering_results.json has the matrix under 'similarity_matrix'
-    similarity_matrix = clustering_data.get('similarity_matrix', {})
-    
-    if not similarity_matrix:
-        # Fallback: try to load from a separate file if the main result didn't have it
-        sim_matrix_path = processed_dir / "jaccard_similarity_matrix.json"
-        sim_matrix_data = load_json_safe(sim_matrix_path)
-        if sim_matrix_data:
-            similarity_matrix = sim_matrix_data
-        else:
-            print("Warning: Similarity matrix not found in clustering results or separate file. Alignment score may be inaccurate.")
-
-    print("Aggregating cluster results...")
-    final_results = aggregate_cluster_results(clustering_data, taxonomy_data, similarity_matrix)
-
-    # Write the output file
-    print(f"Writing results to {output_path}...")
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, 'w', encoding='utf-8') as f:
-        json.dump(final_results, f, indent=2, ensure_ascii=False)
-
-    # Calculate SHA-256 hash
-    print("Calculating SHA-256 hash...")
-    file_hash = calculate_sha256(output_path)
-    print(f"Hash for cluster_results.json: {file_hash}")
-
-    # Update state file
-    print(f"Updating state file at {state_path}...")
+    # 2. Write results to disk
     try:
-        state = load_state(state_path)
-        update_artifact_checksums(state, "cluster_results.json", file_hash)
-        save_state(state_path, state)
-        print("State file updated successfully.")
+        with open(CLUSTER_RESULTS_PATH, 'w', encoding='utf-8') as f:
+            json.dump(results, f, indent=2, ensure_ascii=False)
+        print(f"Successfully wrote results to {CLUSTER_RESULTS_PATH}")
     except Exception as e:
-        print(f"Warning: Could not update state file: {e}")
+        print(f"Error writing results to {CLUSTER_RESULTS_PATH}: {e}")
+        sys.exit(1)
 
-    print("T032 completed successfully.")
+    # 3. Update state file
+    if not update_state_file(results, CLUSTER_RESULTS_PATH):
+        print("T032 FAILED: Could not update state file.")
+        sys.exit(1)
+
+    print("T032 COMPLETED: cluster_results.json generated and state updated.")
+
 
 if __name__ == "__main__":
     main()

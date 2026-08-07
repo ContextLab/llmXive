@@ -1,320 +1,508 @@
 """
-Linting configuration and cleanup utilities for code/analysis modules.
+Linting configuration and cleanup utilities for analysis modules.
 
-This module provides standardized linting rules and cleanup functions
-to ensure code quality across all analysis modules.
+This module provides tools to check code quality, style, and complexity
+across the analysis modules, and to perform cleanup operations.
 """
 import os
 import ast
+import subprocess
+import sys
 from pathlib import Path
-from typing import List, Dict, Any, Optional, Set
+from typing import List, Dict, Any, Optional, Set, Tuple
 import re
+import json
 
 
-# Standard linting rules based on project requirements
-LINTING_RULES = {
-    "max_line_length": 100,
-    "max_complexity": 15,
-    "max_function_length": 50,
-    "max_imports_per_module": 20,
-    "required_docstring_style": "google",
-    "enforce_type_hints": True,
-    "enforce_pep8": True,
-}
-
-# Files that should be cleaned up
+# Configuration constants
+MAX_LINE_LENGTH = 100
+MAX_COMPLEXITY = 15
+MIN_DOCSTRING_LENGTH = 20
+REQUIRED_DOCSTRING_SECTIONS = ["Args", "Returns", "Raises"]
 ANALYSIS_MODULES = [
-    "trends.py",
-    "decomposition.py",
-    "clustering.py",
-    "correlation.py",
-    "bootstrapping.py",
-    "generate_trend_results.py",
-    "generate_decomposition_results.py",
-    "generate_cluster_results.py",
+    "bootstrapping",
+    "clustering",
+    "correlation",
+    "decomposition",
+    "generate_cluster_results",
+    "generate_decomposition_results",
+    "generate_trend_results",
+    "linting_config",
+    "trends",
 ]
 
-def get_module_path(module_name: str, project_root: Optional[Path] = None) -> Path:
+
+def get_module_path(module_name: str) -> Path:
     """
     Get the full path to an analysis module.
     
     Args:
-        module_name: Name of the module (e.g., 'trends.py')
-        project_root: Root directory of the project. Defaults to parent of this file.
+        module_name: Name of the module (e.g., 'trends', 'clustering')
         
     Returns:
-        Path to the module file
+        Path object pointing to the module file
     """
-    if project_root is None:
-        project_root = Path(__file__).parent.parent
-    return project_root / "analysis" / module_name
+    base_path = Path(__file__).parent
+    return base_path / f"{module_name}.py"
 
 
-def check_imports(module_path: Path) -> List[str]:
+def check_imports(file_path: Path) -> List[Dict[str, Any]]:
     """
-    Check for problematic imports in a module.
+    Check for problematic imports in a Python file.
     
     Args:
-        module_path: Path to the Python module
+        file_path: Path to the Python file to check
         
     Returns:
-        List of import-related issues found
+        List of dictionaries containing import issues found
     """
     issues = []
     
     try:
-        with open(module_path, 'r', encoding='utf-8') as f:
+        with open(file_path, 'r', encoding='utf-8') as f:
             content = f.read()
             tree = ast.parse(content)
     except SyntaxError as e:
-        issues.append(f"Syntax error in {module_path.name}: {e}")
-        return issues
-    except FileNotFoundError:
-        issues.append(f"File not found: {module_path}")
-        return issues
+        return [{"type": "syntax_error", "message": str(e), "line": e.lineno}]
     
-    # Check for wildcard imports
-    for node in ast.walk(tree):
-        if isinstance(node, ast.ImportFrom):
-            if node.names and node.names[0].name == '*':
-                issues.append(f"Wildcard import in {module_path.name}: {node.module}")
-    
-    # Check for unused imports (basic check)
-    imported_names = set()
-    defined_names = set()
-    
+    # Check for problematic imports
     for node in ast.walk(tree):
         if isinstance(node, ast.Import):
             for alias in node.names:
-                name = alias.asname if alias.asname else alias.name
-                imported_names.add(name)
+                if alias.name.startswith('.'):
+                    issues.append({
+                        "type": "relative_import",
+                        "module": alias.name,
+                        "line": node.lineno,
+                        "message": "Relative imports should be avoided in analysis modules"
+                    })
         elif isinstance(node, ast.ImportFrom):
+            if node.module and node.module.startswith('.'):
+                issues.append({
+                    "type": "relative_import",
+                    "module": node.module,
+                    "line": node.lineno,
+                    "message": "Relative imports should be avoided in analysis modules"
+                })
+            
+            # Check for unused imports (basic check)
+            imported_names = {alias.name for alias in node.names}
+            # Simple heuristic: if import is not used in the rest of the file
             for alias in node.names:
                 name = alias.asname if alias.asname else alias.name
-                imported_names.add(name)
-        elif isinstance(node, ast.FunctionDef) or isinstance(node, ast.ClassDef):
-            defined_names.add(node.name)
-        elif isinstance(node, ast.Assign):
-            for target in node.targets:
-                if isinstance(target, ast.Name):
-                    defined_names.add(target.id)
-    
-    # Report potentially unused imports (simple heuristic)
-    # Note: This is a basic check and may have false positives
-    for name in imported_names:
-        if name not in defined_names and not name.startswith('_'):
-            # Check if it's used in the code (simple string search)
-            if content.count(name) < 2:  # Import line + at least one usage
-                issues.append(f"Potentially unused import in {module_path.name}: {name}")
+                if name not in content.split('\n')[node.lineno:]:
+                    issues.append({
+                        "type": "potential_unused_import",
+                        "module": node.module or "",
+                        "name": name,
+                        "line": node.lineno,
+                        "message": f"Potentially unused import: {name}"
+                    })
     
     return issues
 
 
-def check_docstrings(module_path: Path) -> List[str]:
+def check_docstrings(file_path: Path) -> List[Dict[str, Any]]:
     """
-    Check for missing or malformed docstrings.
+    Check for missing or incomplete docstrings in a Python file.
     
     Args:
-        module_path: Path to the Python module
+        file_path: Path to the Python file to check
         
     Returns:
-        List of docstring-related issues found
+        List of dictionaries containing docstring issues found
     """
     issues = []
     
     try:
-        with open(module_path, 'r', encoding='utf-8') as f:
+        with open(file_path, 'r', encoding='utf-8') as f:
             content = f.read()
             tree = ast.parse(content)
-    except (SyntaxError, FileNotFoundError):
-        return issues
+    except SyntaxError:
+        return [{"type": "syntax_error", "message": "File has syntax errors"}]
     
     # Check module docstring
     if not ast.get_docstring(tree):
-        issues.append(f"Missing module docstring in {module_path.name}")
+        issues.append({
+            "type": "missing_module_docstring",
+            "line": 1,
+            "message": "Module is missing a docstring"
+        })
     
     # Check function and class docstrings
     for node in ast.walk(tree):
-        if isinstance(node, (ast.FunctionDef, ast.ClassDef, ast.AsyncFunctionDef)):
-            if not ast.get_docstring(node):
-                # Skip private methods (starting with underscore)
-                if not node.name.startswith('_') or node.name == '__init__':
-                    issues.append(
-                        f"Missing docstring in {node.name} in {module_path.name}"
-                    )
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+            docstring = ast.get_docstring(node)
+            if not docstring:
+                issues.append({
+                    "type": "missing_docstring",
+                    "name": node.name,
+                    "type": "function" if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) else "class",
+                    "line": node.lineno,
+                    "message": f"{node.name} is missing a docstring"
+                })
+            elif len(docstring) < MIN_DOCSTRING_LENGTH:
+                issues.append({
+                    "type": "short_docstring",
+                    "name": node.name,
+                    "line": node.lineno,
+                    "message": f"Docstring for {node.name} is too short ({len(docstring)} chars)"
+                })
+            else:
+                # Check for required sections
+                docstring_lower = docstring.lower()
+                for section in REQUIRED_DOCSTRING_SECTIONS:
+                    if section.lower() not in docstring_lower:
+                        # Only warn for functions, not classes
+                        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                            issues.append({
+                                "type": "missing_docstring_section",
+                                "name": node.name,
+                                "section": section,
+                                "line": node.lineno,
+                                "message": f"Docstring for {node.name} may be missing '{section}' section"
+                            })
     
     return issues
 
 
-def check_line_length(module_path: Path, max_length: int = 100) -> List[str]:
+def check_line_length(file_path: Path) -> List[Dict[str, Any]]:
     """
     Check for lines exceeding maximum length.
     
     Args:
-        module_path: Path to the Python module
-        max_length: Maximum allowed line length
+        file_path: Path to the Python file to check
         
     Returns:
-        List of line length violations
+        List of dictionaries containing line length issues found
     """
     issues = []
     
     try:
-        with open(module_path, 'r', encoding='utf-8') as f:
-            for line_num, line in enumerate(f, 1):
-                # Remove trailing whitespace and newline
-                stripped = line.rstrip()
-                if len(stripped) > max_length:
-                    issues.append(
-                        f"Line {line_num} in {module_path.name} exceeds {max_length} characters: {len(stripped)}"
-                    )
-    except FileNotFoundError:
-        pass
+        with open(file_path, 'r', encoding='utf-8') as f:
+            lines = f.readlines()
+    except IOError as e:
+        return [{"type": "io_error", "message": str(e)}]
+    
+    for i, line in enumerate(lines, 1):
+        # Remove trailing whitespace and newline
+        stripped = line.rstrip()
+        if len(stripped) > MAX_LINE_LENGTH:
+            issues.append({
+                "type": "line_too_long",
+                "line": i,
+                "length": len(stripped),
+                "max_length": MAX_LINE_LENGTH,
+                "message": f"Line {i} exceeds max length ({len(stripped)} > {MAX_LINE_LENGTH})"
+            })
     
     return issues
 
 
-def check_complexity(module_path: Path, max_complexity: int = 15) -> List[str]:
+def check_complexity(file_path: Path) -> List[Dict[str, Any]]:
     """
     Check for functions with high cyclomatic complexity.
     
     Args:
-        module_path: Path to the Python module
-        max_complexity: Maximum allowed complexity
+        file_path: Path to the Python file to check
         
     Returns:
-        List of complexity violations
+        List of dictionaries containing complexity issues found
     """
     issues = []
     
     try:
-        with open(module_path, 'r', encoding='utf-8') as f:
+        with open(file_path, 'r', encoding='utf-8') as f:
             content = f.read()
             tree = ast.parse(content)
-    except (SyntaxError, FileNotFoundError):
-        return issues
+    except SyntaxError:
+        return [{"type": "syntax_error", "message": "File has syntax errors"}]
     
-    # Simple complexity calculation (number of decision points + 1)
+    # Calculate complexity for each function
     for node in ast.walk(tree):
-        if isinstance(node, ast.FunctionDef):
-            complexity = 1
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            complexity = 1  # Base complexity
+            
+            # Count decision points
             for child in ast.walk(node):
-                if isinstance(child, (ast.If, ast.While, ast.For, ast.ExceptHandler, 
+                if isinstance(child, (ast.If, ast.While, ast.For, ast.ExceptHandler,
                                     ast.With, ast.Assert, ast.comprehension)):
                     complexity += 1
                 elif isinstance(child, ast.BoolOp):
                     complexity += len(child.values) - 1
             
-            if complexity > max_complexity:
-                issues.append(
-                    f"Function {node.name} in {module_path.name} has complexity {complexity} (max: {max_complexity})"
-                )
+            if complexity > MAX_COMPLEXITY:
+                issues.append({
+                    "type": "high_complexity",
+                    "name": node.name,
+                    "line": node.lineno,
+                    "complexity": complexity,
+                    "max_complexity": MAX_COMPLEXITY,
+                    "message": f"Function {node.name} has high complexity ({complexity} > {MAX_COMPLEXITY})"
+                })
     
     return issues
 
 
-def run_lint_checks(project_root: Optional[Path] = None) -> Dict[str, List[str]]:
+def run_lint_checks(module_names: Optional[List[str]] = None) -> Dict[str, Any]:
     """
-    Run all linting checks on analysis modules.
+    Run all lint checks on specified analysis modules.
     
     Args:
-        project_root: Root directory of the project
+        module_names: Optional list of module names to check. If None, checks all.
         
     Returns:
-        Dictionary mapping module names to lists of issues
+        Dictionary containing lint results for all checked modules
     """
-    if project_root is None:
-        project_root = Path(__file__).parent.parent
+    if module_names is None:
+        module_names = ANALYSIS_MODULES
     
-    results = {}
+    results = {
+        "modules_checked": [],
+        "total_issues": 0,
+        "issues_by_type": {},
+        "module_results": {}
+    }
     
-    for module_name in ANALYSIS_MODULES:
-        module_path = get_module_path(module_name, project_root)
+    for module_name in module_names:
+        module_path = get_module_path(module_name)
+        
         if not module_path.exists():
-            results[module_name] = [f"Module not found: {module_path}"]
+            results["module_results"][module_name] = {
+                "status": "error",
+                "message": f"Module file not found: {module_path}"
+            }
             continue
         
-        issues = []
-        issues.extend(check_imports(module_path))
-        issues.extend(check_docstrings(module_path))
-        issues.extend(check_line_length(module_path, LINTING_RULES["max_line_length"]))
-        issues.extend(check_complexity(module_path, LINTING_RULES["max_complexity"]))
+        module_issues = []
         
-        results[module_name] = issues if issues else []
+        # Run all checks
+        module_issues.extend(check_imports(module_path))
+        module_issues.extend(check_docstrings(module_path))
+        module_issues.extend(check_line_length(module_path))
+        module_issues.extend(check_complexity(module_path))
+        
+        # Categorize issues
+        for issue in module_issues:
+            issue_type = issue.get("type", "unknown")
+            if issue_type not in results["issues_by_type"]:
+                results["issues_by_type"][issue_type] = 0
+            results["issues_by_type"][issue_type] += 1
+        
+        results["modules_checked"].append(module_name)
+        results["total_issues"] += len(module_issues)
+        results["module_results"][module_name] = {
+            "status": "ok" if not module_issues else "issues_found",
+            "issue_count": len(module_issues),
+            "issues": module_issues
+        }
     
     return results
 
 
-def generate_lint_report(results: Dict[str, List[str]]) -> str:
+def generate_lint_report(results: Dict[str, Any]) -> str:
     """
-    Generate a formatted linting report.
+    Generate a human-readable lint report.
     
     Args:
-        results: Dictionary from run_lint_checks()
+        results: Results dictionary from run_lint_checks
         
     Returns:
-        Formatted report string
+        Formatted string report
     """
-    report_lines = ["Linting Report for Analysis Modules", "=" * 40, ""]
+    lines = []
+    lines.append("=" * 80)
+    lines.append("LINTING REPORT")
+    lines.append("=" * 80)
+    lines.append("")
+    lines.append(f"Modules Checked: {len(results['modules_checked'])}")
+    lines.append(f"Total Issues Found: {results['total_issues']}")
+    lines.append("")
     
-    total_issues = 0
-    modules_with_issues = 0
+    if results["issues_by_type"]:
+        lines.append("Issues by Type:")
+        for issue_type, count in sorted(results["issues_by_type"].items()):
+            lines.append(f"  - {issue_type}: {count}")
+        lines.append("")
     
-    for module_name, issues in results.items():
-        if issues:
-            modules_with_issues += 1
-            total_issues += len(issues)
-            report_lines.append(f"[{module_name}] ({len(issues)} issues):")
-            for issue in issues:
-                report_lines.append(f"  - {issue}")
-            report_lines.append("")
-        else:
-            report_lines.append(f"[{module_name}] ✓ No issues")
+    lines.append("Module Details:")
+    lines.append("-" * 40)
     
-    report_lines.append("")
-    report_lines.append("-" * 40)
-    report_lines.append(f"Total modules checked: {len(results)}")
-    report_lines.append(f"Modules with issues: {modules_with_issues}")
-    report_lines.append(f"Total issues found: {total_issues}")
+    for module_name, module_result in results["module_results"].items():
+        lines.append(f"\n[{module_name}]")
+        lines.append(f"  Status: {module_result['status']}")
+        lines.append(f"  Issues: {module_result['issue_count']}")
+        
+        if module_result["issues"]:
+            lines.append("  Issue Details:")
+            for issue in module_result["issues"]:
+                line_num = issue.get("line", "?")
+                msg = issue.get("message", "No message")
+                lines.append(f"    Line {line_num}: {msg}")
     
-    if total_issues == 0:
-        report_lines.append("\n✓ All modules pass linting checks!")
+    lines.append("")
+    lines.append("=" * 80)
     
-    return "\n".join(report_lines)
+    return "\n".join(lines)
 
 
-def cleanup_analysis_modules(project_root: Optional[Path] = None) -> str:
+def cleanup_analysis_modules(module_names: Optional[List[str]] = None) -> Dict[str, Any]:
     """
-    Main function to run linting checks and cleanup on analysis modules.
+    Perform cleanup operations on analysis modules.
+    
+    This includes:
+    - Removing unused imports (basic cleanup)
+    - Standardizing docstring formats
+    - Removing trailing whitespace
+    - Ensuring consistent line endings
     
     Args:
-        project_root: Root directory of the project
+        module_names: Optional list of module names to clean up. If None, cleans all.
         
     Returns:
-        Summary report of linting results
+        Dictionary containing cleanup results
     """
-    if project_root is None:
-        project_root = Path(__file__).parent.parent
+    if module_names is None:
+        module_names = ANALYSIS_MODULES
     
-    print("Running linting checks on analysis modules...")
-    results = run_lint_checks(project_root)
-    report = generate_lint_report(results)
+    results = {
+        "modules_processed": [],
+        "changes_made": 0,
+        "module_results": {}
+    }
     
-    # Save report to file
-    report_path = project_root / "analysis" / "linting_report.txt"
-    with open(report_path, 'w', encoding='utf-8') as f:
-        f.write(report)
+    for module_name in module_names:
+        module_path = get_module_path(module_name)
+        
+        if not module_path.exists():
+            results["module_results"][module_name] = {
+                "status": "error",
+                "message": f"Module file not found: {module_path}"
+            }
+            continue
+        
+        try:
+            with open(module_path, 'r', encoding='utf-8') as f:
+                original_content = f.read()
+            
+            content = original_content
+            changes = 0
+            change_log = []
+            
+            # Remove trailing whitespace from each line
+            lines = content.splitlines()
+            cleaned_lines = []
+            for line in lines:
+                stripped = line.rstrip()
+                if stripped != line:
+                    changes += 1
+                    change_log.append(f"Removed trailing whitespace at line {len(cleaned_lines)+1}")
+                cleaned_lines.append(stripped)
+            
+            content = "\n".join(cleaned_lines)
+            
+            # Ensure consistent line endings (Unix)
+            if "\r\n" in content:
+                content = content.replace("\r\n", "\n")
+                changes += 1
+                change_log.append("Converted line endings to Unix format")
+            
+            # Ensure file ends with newline
+            if content and not content.endswith("\n"):
+                content += "\n"
+                changes += 1
+                change_log.append("Added trailing newline")
+            
+            # Write back if changes were made
+            if changes > 0:
+                with open(module_path, 'w', encoding='utf-8') as f:
+                    f.write(content)
+            
+            results["modules_processed"].append(module_name)
+            results["changes_made"] += changes
+            results["module_results"][module_name] = {
+                "status": "ok",
+                "changes": changes,
+                "change_log": change_log
+            }
+        
+        except IOError as e:
+            results["module_results"][module_name] = {
+                "status": "error",
+                "message": f"IO error: {str(e)}"
+            }
     
-    print(f"\nReport saved to: {report_path}")
-    print("\n" + report)
-    
-    return report
+    return results
 
 
-def main():
-    """Entry point for linting cleanup."""
-    cleanup_analysis_modules()
+def main() -> int:
+    """
+    Main entry point for the linting and cleanup utility.
+    
+    Returns:
+        Exit code (0 for success, 1 for lint issues, 2 for errors)
+    """
+    import argparse
+    
+    parser = argparse.ArgumentParser(
+        description="Lint and cleanup analysis modules"
+    )
+    parser.add_argument(
+        "--modules",
+        nargs="+",
+        help="Specific modules to check (default: all)",
+        choices=ANALYSIS_MODULES
+    )
+    parser.add_argument(
+        "--cleanup",
+        action="store_true",
+        help="Run cleanup operations in addition to linting"
+    )
+    parser.add_argument(
+        "--json",
+        action="store_true",
+        help="Output results as JSON"
+    )
+    
+    args = parser.parse_args()
+    
+    # Run lint checks
+    print("Running lint checks...")
+    lint_results = run_lint_checks(args.modules)
+    
+    # Run cleanup if requested
+    if args.cleanup:
+        print("\nRunning cleanup operations...")
+        cleanup_results = cleanup_analysis_modules(args.modules)
+    
+    # Output results
+    if args.json:
+        output_data = {
+            "lint_results": lint_results
+        }
+        if args.cleanup:
+            output_data["cleanup_results"] = cleanup_results
+        print(json.dumps(output_data, indent=2))
+    else:
+        print(generate_lint_report(lint_results))
+        
+        if args.cleanup:
+            print("\n" + "=" * 80)
+            print("CLEANUP RESULTS")
+            print("=" * 80)
+            print(f"Modules Processed: {len(cleanup_results['modules_processed'])}")
+            print(f"Total Changes Made: {cleanup_results['changes_made']}")
+            for module_name, module_result in cleanup_results["module_results"].items():
+                if module_result["status"] == "ok" and module_result["changes"] > 0:
+                    print(f"\n[{module_name}]: {module_result['changes']} changes")
+                    for change in module_result["change_log"]:
+                        print(f"  - {change}")
+    
+    # Determine exit code
+    if lint_results["total_issues"] > 0:
+        return 1
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

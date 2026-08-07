@@ -1,336 +1,211 @@
-"""
-Streaming Processor for Large Data Dumps
-
-This module provides memory-efficient streaming capabilities for processing
-large Stack Overflow data dumps. It implements chunked processing, online
-aggregation, and incremental state updates to stay within RAM constraints
-while maintaining reproducibility.
-
-Key Features:
-- Chunked reading of large JSON/CSV files
-- Online aggregation algorithms (Welford's for variance, incremental counts)
-- Memory-bounded data structures
-- Progress tracking and checkpointing
-- Integration with existing download and preprocess modules
-"""
-
 import os
 import json
 import gzip
 import hashlib
 from pathlib import Path
 from typing import Dict, List, Any, Optional, Generator, Tuple
-from collections import defaultdict
-import math
+import sys
 
-# Constants for memory management
-CHUNK_SIZE = 10000  # Number of posts to process per chunk
-MAX_MEMORY_TARGET = 500 * 1024 * 1024  # 500MB target memory usage
-CHECKPOINT_INTERVAL = 50  # Process 50 chunks before checkpointing
+# Add project root to path for imports if running as script
+if 'code' not in sys.path:
+    code_root = Path(__file__).resolve().parent.parent
+    if code_root.name == 'code':
+        sys.path.insert(0, str(code_root.parent))
 
+from data.download import ensure_output_dir
 
 class StreamingAggregator:
     """
-    Memory-efficient aggregator for streaming data processing.
-    Uses online algorithms to maintain statistics without storing full datasets.
+    Memory-efficient aggregator for streaming large JSON/JSONL datasets.
+    Processes data in chunks to stay within RAM constraints.
     """
 
-    def __init__(self, max_tags: int = 50000):
-        self.max_tags = max_tags
-        self.tag_counts = defaultdict(int)
-        self.tag_month_counts = defaultdict(lambda: defaultdict(int))
-        self.post_count = 0
-        self.checkpoint_count = 0
-        self._memory_usage = 0
+    def __init__(self, chunk_size: int = 10000):
+        self.chunk_size = chunk_size
+        self.counters: Dict[str, int] = {}
+        self.total_posts = 0
+        self.processed_bytes = 0
 
-    def update(self, post: Dict[str, Any]) -> None:
-        """
-        Update aggregators with a single post.
-
-        Args:
-            post: Dictionary containing post data with 'tags' and 'creationdate'
-        """
-        self.post_count += 1
-
-        if 'tags' not in post or not post['tags']:
-            return
-
-        # Parse tags (handle both list and string formats)
-        if isinstance(post['tags'], str):
-            tags = [t.strip() for t in post['tags'].split('><') if t.strip()]
-            # Remove leading/trailing > and <
-            tags = [t.replace('>', '').replace('<', '').strip() for t in tags if t]
-        elif isinstance(post['tags'], list):
-            tags = post['tags']
-        else:
-            return
-
-        if not tags:
-            return
-
-        # Extract month from creation date
-        creation_date = post.get('creationdate', '')
-        if not creation_date:
-            return
-
-        # Parse YYYY-MM-DD format and extract YYYY-MM
-        month_key = creation_date[:7] if len(creation_date) >= 7 else None
-        if not month_key or len(month_key) != 7:
-            return
-
-        # Update counts
+    def update(self, record: Dict[str, Any]) -> None:
+        """Update internal state with a single record."""
+        tags = record.get('tags', [])
+        if isinstance(tags, str):
+            tags = [t.strip() for t in tags.split('|') if t.strip()]
+        
         for tag in tags:
-            tag_lower = tag.lower().strip()
-            if not tag_lower:
-                continue
+            tag = tag.lower().strip()
+            if tag:
+                self.counters[tag] = self.counters.get(tag, 0) + 1
+                self.total_posts += 1
 
-            # Enforce max tags limit (keep most frequent)
-            if len(self.tag_counts) < self.max_tags or tag_lower in self.tag_counts:
-                self.tag_counts[tag_lower] += 1
-                self.tag_month_counts[tag_lower][month_key] += 1
-
-            # Update memory estimate
-            self._memory_usage += sys.getsizeof(tag_lower)
-
-    def get_results(self) -> Dict[str, Any]:
-        """
-        Get aggregated results.
-
-        Returns:
-            Dictionary with tag counts and monthly distributions
-        """
-        return {
-            'total_posts': self.post_count,
-            'tag_counts': dict(self.tag_counts),
-            'monthly_distribution': {
-                tag: dict(months) 
-                for tag, months in self.tag_month_counts.items()
-            }
-        }
-
-    def checkpoint(self, checkpoint_path: Path) -> None:
-        """
-        Save current state to checkpoint file.
-
-        Args:
-            checkpoint_path: Path to save checkpoint
-        """
-        checkpoint_data = {
-            'post_count': self.post_count,
-            'tag_counts': dict(self.tag_counts),
-            'monthly_distribution': {
-                tag: dict(months) 
-                for tag, months in self.tag_month_counts.items()
-            },
-            'checkpoint_count': self.checkpoint_count
-        }
-
-        with open(checkpoint_path, 'w', encoding='utf-8') as f:
-            json.dump(checkpoint_data, f, indent=2)
-
-        self.checkpoint_count += 1
-
+    def get_results(self) -> Dict[str, int]:
+        """Return aggregated results."""
+        return self.counters
 
 def stream_jsonl_file(
-    file_path: Path,
-    chunk_size: int = CHUNK_SIZE
+    file_path: Path, 
+    decompress: bool = False,
+    chunk_size: int = 10000
 ) -> Generator[Dict[str, Any], None, None]:
     """
-    Stream a JSONL file in chunks.
-
-    Args:
-        file_path: Path to JSONL file
-        chunk_size: Number of records per chunk
-
-    Yields:
-        Dictionary containing a single post record
+    Stream a JSONL file (optionally gzipped) line by line.
+    Yields parsed dictionaries one at a time.
     """
     if not file_path.exists():
         raise FileNotFoundError(f"File not found: {file_path}")
 
-    # Handle gzipped files
-    open_func = gzip.open if str(file_path).endswith('.gz') else open
-
-    with open_func(file_path, 'rt', encoding='utf-8') as f:
-        for line in f:
-            line = line.strip()
-            if not line:
+    opener = gzip.open if decompress else open
+    mode = 'rt' if decompress else 'r'
+    
+    with opener(file_path, mode, encoding='utf-8') as f:
+        for line_num, line in enumerate(f, 1):
+            if not line.strip():
                 continue
             try:
-                yield json.loads(line)
-            except json.JSONDecodeError:
-                # Skip malformed lines
+                record = json.loads(line)
+                yield record
+            except json.JSONDecodeError as e:
+                # Log error but continue processing
+                sys.stderr.write(f"Warning: Skipping malformed JSON at line {line_num}: {e}\n")
                 continue
-
 
 def process_posts_streaming(
     input_path: Path,
     output_path: Path,
-    checkpoint_path: Optional[Path] = None,
-    max_tags: int = 50000
+    decompress: bool = False,
+    chunk_size: int = 10000
 ) -> Dict[str, Any]:
     """
-    Process posts data in streaming fashion to minimize memory usage.
-
-    Args:
-        input_path: Path to input PostsTags file
-        output_path: Path to save processed results
-        checkpoint_path: Optional path for checkpoint files
-        max_tags: Maximum number of tags to track
-
-    Returns:
-        Dictionary with processing statistics
-    """
-    aggregator = StreamingAggregator(max_tags=max_tags)
+    Process PostsTags dump in streaming fashion to aggregate tag frequencies.
+    Outputs a JSON file with aggregated counts, avoiding loading entire dataset into memory.
     
-    if checkpoint_path and checkpoint_path.exists():
-        # Load existing checkpoint
-        try:
-            with open(checkpoint_path, 'r', encoding='utf-8') as f:
-                checkpoint_data = json.load(f)
-            aggregator.post_count = checkpoint_data.get('post_count', 0)
-            aggregator.tag_counts = defaultdict(int, checkpoint_data.get('tag_counts', {}))
-            aggregator.tag_month_counts = defaultdict(
-                lambda: defaultdict(int),
-                {tag: defaultdict(int, months) 
-                 for tag, months in checkpoint_data.get('monthly_distribution', {}).items()}
-            )
-            aggregator.checkpoint_count = checkpoint_data.get('checkpoint_count', 0)
-            print(f"Resumed from checkpoint: {aggregator.post_count} posts processed")
-        except Exception as e:
-            print(f"Failed to load checkpoint: {e}. Starting fresh.")
-
+    Args:
+        input_path: Path to the raw JSONL (or gzipped JSONL) file
+        output_path: Path to write the aggregated results
+        decompress: Whether the input file is gzipped
+        chunk_size: Number of records to process before yielding (for streaming)
+    
+    Returns:
+        Dict with processing statistics
+    """
+    ensure_output_dir(output_path)
+    
+    aggregator = StreamingAggregator(chunk_size=chunk_size)
     processed_count = 0
-    checkpoint_interval = CHECKPOINT_INTERVAL
-
-    for post in stream_jsonl_file(input_path):
-        aggregator.update(post)
+    start_time = __import__('time').time()
+    
+    sys.stderr.write(f"Starting streaming processing of {input_path}...\n")
+    
+    for record in stream_jsonl_file(input_path, decompress=decompress):
+        aggregator.update(record)
         processed_count += 1
-
-        # Checkpoint periodically
-        if checkpoint_path and processed_count % checkpoint_interval == 0:
-            aggregator.checkpoint(checkpoint_path)
-            print(f"Checkpoint at {processed_count} posts")
-
-    # Save final results
+        
+        if processed_count % 100000 == 0:
+            elapsed = __import__('time').time() - start_time
+            sys.stderr.write(f"Processed {processed_count:,} records in {elapsed:.2f}s...\n")
+    
+    elapsed = __import__('time').time() - start_time
     results = aggregator.get_results()
     
-    # Ensure output directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    # Sort results by count descending for easier inspection
+    sorted_results = dict(sorted(results.items(), key=lambda x: x[1], reverse=True))
+    
+    output_data = {
+        "metadata": {
+            "source_file": str(input_path),
+            "total_posts_processed": aggregator.total_posts,
+            "unique_tags": len(sorted_results),
+            "processing_time_seconds": round(elapsed, 2),
+            "timestamp": __import__('datetime').datetime.now().isoformat()
+        },
+        "tag_counts": sorted_results
+    }
     
     with open(output_path, 'w', encoding='utf-8') as f:
-        json.dump(results, f, indent=2)
+        json.dump(output_data, f, indent=2)
+    
+    sys.stderr.write(f"Completed processing {processed_count:,} records in {elapsed:.2f}s\n")
+    sys.stderr.write(f"Output written to {output_path}\n")
+    
+    return output_data
 
-    return {
-        'total_posts_processed': results['total_posts'],
-        'unique_tags_tracked': len(results['tag_counts']),
-        'output_file': str(output_path),
-        'memory_efficient': True
-    }
-
-
-def validate_streaming_output(output_path: Path) -> bool:
+def validate_streaming_output(
+    output_path: Path,
+    min_tags: int = 100,
+    min_posts: int = 1000
+) -> bool:
     """
-    Validate that streaming output meets quality requirements.
-
-    Args:
-        output_path: Path to output file
-
-    Returns:
-        True if validation passes
+    Validate that the streaming output file meets minimum quality thresholds.
     """
     if not output_path.exists():
+        sys.stderr.write(f"Validation failed: Output file does not exist: {output_path}\n")
         return False
-
+    
     try:
         with open(output_path, 'r', encoding='utf-8') as f:
             data = json.load(f)
-
-        # Check required fields
-        required_fields = ['total_posts', 'tag_counts', 'monthly_distribution']
-        if not all(field in data for field in required_fields):
+        
+        if "tag_counts" not in data:
+            sys.stderr.write("Validation failed: Missing 'tag_counts' key\n")
             return False
-
-        # Validate data types
-        if not isinstance(data['total_posts'], int) or data['total_posts'] <= 0:
+        
+        tag_count = len(data["tag_counts"])
+        post_count = data.get("metadata", {}).get("total_posts_processed", 0)
+        
+        if tag_count < min_tags:
+            sys.stderr.write(f"Validation failed: Only {tag_count} unique tags (min: {min_tags})\n")
             return False
-
-        if not isinstance(data['tag_counts'], dict) or len(data['tag_counts']) == 0:
+        
+        if post_count < min_posts:
+            sys.stderr.write(f"Validation failed: Only {post_count} posts processed (min: {min_posts})\n")
             return False
-
+        
+        sys.stderr.write(f"Validation passed: {tag_count} tags, {post_count} posts\n")
         return True
-
-    except Exception:
+        
+    except (json.JSONDecodeError, KeyError) as e:
+        sys.stderr.write(f"Validation failed: Invalid output format - {e}\n")
         return False
-
 
 def main():
     """
-    Main entry point for streaming processor.
+    Main entry point for streaming data processing.
+    Expects environment variables or command line arguments for paths.
     """
-    import argparse
-    import sys
-
-    parser = argparse.ArgumentParser(
-        description='Process large Stack Overflow dumps in streaming fashion'
-    )
-    parser.add_argument(
-        '--input', '-i',
-        required=True,
-        help='Path to input PostsTags file (JSONL or JSONL.gz)'
-    )
-    parser.add_argument(
-        '--output', '-o',
-        required=True,
-        help='Path to output processed data file'
-    )
-    parser.add_argument(
-        '--checkpoint', '-c',
-        help='Optional path for checkpoint file'
-    )
-    parser.add_argument(
-        '--max-tags', '-m',
-        type=int,
-        default=50000,
-        help='Maximum number of tags to track (default: 50000)'
-    )
-
-    args = parser.parse_args()
-
-    input_path = Path(args.input)
-    output_path = Path(args.output)
-    checkpoint_path = Path(args.checkpoint) if args.checkpoint else None
-
+    # Default paths - can be overridden by environment or args
+    input_file = os.environ.get('SO_DUMP_PATH', 'data/raw/posts_tags.jsonl.gz')
+    output_file = os.environ.get('SO_AGGREGATED_PATH', 'data/processed/tag_counts_streaming.json')
+    
+    input_path = Path(input_file)
+    output_path = Path(output_file)
+    
+    # Check if input exists (for demo purposes, we might not have the real file yet)
     if not input_path.exists():
-        print(f"Error: Input file not found: {input_path}", file=sys.stderr)
+        sys.stderr.write(f"Error: Input file not found: {input_path}\n")
+        sys.stderr.write("This script requires the actual Stack Overflow dump to run.\n")
+        sys.stderr.write("Set SO_DUMP_PATH environment variable to the correct path.\n")
         sys.exit(1)
-
+    
+    # Run streaming processing
     try:
-        print(f"Starting streaming processing of {input_path}")
-        results = process_posts_streaming(
+        result = process_posts_streaming(
             input_path=input_path,
             output_path=output_path,
-            checkpoint_path=checkpoint_path,
-            max_tags=args.max_tags
+            decompress=input_file.endswith('.gz')
         )
         
-        print(f"\nProcessing complete:")
-        print(f"  Total posts processed: {results['total_posts_processed']}")
-        print(f"  Unique tags tracked: {results['unique_tags_tracked']}")
-        print(f"  Output file: {results['output_file']}")
-        print(f"  Memory efficient: {results['memory_efficient']}")
-
         # Validate output
         if validate_streaming_output(output_path):
-            print("  Validation: PASSED")
+            sys.stderr.write("Streaming processing completed successfully.\n")
         else:
-            print("  Validation: FAILED", file=sys.stderr)
+            sys.stderr.write("Streaming processing completed but validation failed.\n")
             sys.exit(1)
-
+            
     except Exception as e:
-        print(f"Error during processing: {e}", file=sys.stderr)
+        sys.stderr.write(f"Error during streaming processing: {e}\n")
+        import traceback
+        traceback.print_exc()
         sys.exit(1)
-
 
 if __name__ == '__main__':
     main()

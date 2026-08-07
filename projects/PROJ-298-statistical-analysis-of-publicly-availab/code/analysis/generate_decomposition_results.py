@@ -5,16 +5,16 @@ import sys
 from pathlib import Path
 from typing import Dict, Any, Optional
 
-# Ensure we can import from the project root
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(PROJECT_ROOT))
+# Add project root to path to allow imports
+project_root = Path(__file__).resolve().parent.parent.parent
+sys.path.insert(0, str(project_root))
 
-from code.utils.hygiene import calculate_sha256, load_state, save_state, update_artifact_checksums
-from code.analysis.decomposition import run_decomposition_analysis
+from utils.state_manager import calculate_sha256, load_state, save_state, update_artifact_checksums
 
 def load_json_safe(file_path: Path) -> Optional[Dict[str, Any]]:
     """Load a JSON file safely, returning None if it doesn't exist or is invalid."""
     if not file_path.exists():
+        print(f"Warning: File not found: {file_path}")
         return None
     try:
         with open(file_path, 'r', encoding='utf-8') as f:
@@ -23,108 +23,104 @@ def load_json_safe(file_path: Path) -> Optional[Dict[str, Any]]:
         print(f"Error loading {file_path}: {e}")
         return None
 
-def aggregate_decomposition_results(processed_data_path: Path, output_path: Path) -> Dict[str, Any]:
+def aggregate_decomposition_results(intermediate_path: Path, output_path: Path) -> Dict[str, Any]:
     """
-    Run the decomposition analysis pipeline and aggregate results into a single JSON file.
+    Aggregate decomposition results from intermediate file.
     
-    This function:
-    1. Runs the full decomposition analysis (ADF, seasonality check, STL/HP, Ljung-Box, Rayleigh)
-    2. Aggregates results into a structured format
-    3. Calculates SHA-256 hash of the output
-    4. Updates the project state file
+    Reads Ljung-Box and Rayleigh test results from decomposition_intermediate.json
+    and writes the final aggregated JSON to decomposition_results.json.
     
     Args:
-        processed_data_path: Path to the preprocessed monthly frequency data
-        output_path: Path where the final decomposition_results.json will be saved
+        intermediate_path: Path to data/processed/decomposition_intermediate.json
+        output_path: Path to data/processed/decomposition_results.json
         
     Returns:
-        Dictionary containing the aggregated results
+        The aggregated results dictionary
     """
-    print(f"Starting decomposition analysis pipeline...")
-    print(f"Input data: {processed_data_path}")
-    print(f"Output file: {output_path}")
+    intermediate_data = load_json_safe(intermediate_path)
     
-    # Ensure output directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    if intermediate_data is None:
+        raise FileNotFoundError(
+            f"Intermediate file not found: {intermediate_path}. "
+            "Ensure T022 (decomposition analysis) has completed successfully."
+        )
     
-    # Run the full decomposition analysis
-    # This function internally handles:
-    # - Loading processed data
-    # - ADF tests for stationarity
-    # - Seasonality pre-tests
-    # - STL or Hodrick-Prescott decomposition
-    # - Ljung-Box tests for residual independence
-    # - Rayleigh tests for event alignment
-    results = run_decomposition_analysis(processed_data_path)
+    # Structure the final results
+    # The intermediate data should contain:
+    # - tag results with Ljung-Box stats
+    # - tag results with Rayleigh test stats
+    # - overall metadata
     
-    # Add metadata
-    results["metadata"] = {
-        "generated_at": None,  # Will be set by the analysis function or left for downstream
-        "input_file": str(processed_data_path),
-        "output_file": str(output_path),
-        "analysis_type": "decomposition"
+    final_results = {
+        "metadata": {
+            "generated_from": str(intermediate_path),
+            "description": "Aggregated decomposition results including Ljung-Box and Rayleigh tests",
+            "fr_references": ["FR-009", "SC-003", "FR-012"]
+        },
+        "results": intermediate_data.get("results", {}),
+        "ljung_box_tests": intermediate_data.get("ljung_box_tests", []),
+        "rayleigh_tests": intermediate_data.get("rayleigh_tests", []),
+        "summary": intermediate_data.get("summary", {
+            "total_tags_analyzed": 0,
+            "seasonal_tags": 0,
+            "non_seasonal_tags": 0,
+            "significant_ljung_box": 0,
+            "significant_rayleigh_alignment": 0
+        })
     }
     
-    # Save the aggregated results
+    # Write to output file
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     with open(output_path, 'w', encoding='utf-8') as f:
-        json.dump(results, f, indent=2, default=str)
+        json.dump(final_results, f, indent=2, default=str)
     
-    print(f"Saved decomposition results to {output_path}")
-    
-    # Calculate SHA-256 hash of the output file
-    file_hash = calculate_sha256(output_path)
-    print(f"SHA-256 hash of {output_path.name}: {file_hash}")
-    
-    # Update the project state file
-    state_path = PROJECT_ROOT / "state" / "projects" / "PROJ-298-statistical-analysis-of-publicly-availab.yaml"
-    if state_path.exists():
-        update_artifact_checksums(
-            state_path=state_path,
-            artifact_path=output_path,
-            checksum=file_hash,
-            artifact_type="decomposition_results"
-        )
-        print(f"Updated state file at {state_path}")
-    else:
-        print(f"Warning: State file not found at {state_path}. Skipping state update.")
-    
-    return results
+    print(f"Successfully wrote decomposition results to: {output_path}")
+    return final_results
 
 def main():
-    """Main entry point for the decomposition results generation script."""
-    # Define paths
-    processed_data_path = PROJECT_ROOT / "data" / "processed" / "monthly_frequencies.json"
-    output_path = PROJECT_ROOT / "data" / "processed" / "decomposition_results.json"
+    """Main entry point for generating decomposition results."""
+    # Define paths relative to project root
+    project_root = Path(__file__).resolve().parent.parent.parent
+    data_dir = project_root / "data" / "processed"
     
-    # Check if input data exists
-    if not processed_data_path.exists():
-        print(f"Error: Input data not found at {processed_data_path}")
-        print("Please run the preprocessing pipeline (T013) first.")
-        sys.exit(1)
+    intermediate_path = data_dir / "decomposition_intermediate.json"
+    output_path = data_dir / "decomposition_results.json"
+    state_path = project_root / "state" / "projects" / "PROJ-298-statistical-analysis-of-publicly-availab.yaml"
     
-    # Run the aggregation
-    results = aggregate_decomposition_results(processed_data_path, output_path)
+    print("Starting decomposition results aggregation...")
+    print(f"Input: {intermediate_path}")
+    print(f"Output: {output_path}")
     
-    # Print summary
-    print("\n=== Decomposition Analysis Summary ===")
-    if "results" in results:
-        num_tags = len(results["results"])
-        print(f"Analyzed {num_tags} tags")
+    try:
+        # Aggregate results
+        results = aggregate_decomposition_results(intermediate_path, output_path)
         
-        # Count classifications
-        ljung_box_pass = 0
-        rayleigh_pass = 0
-        for tag_result in results["results"]:
-            if tag_result.get("ljung_box", {}).get("passed", False):
-                ljung_box_pass += 1
-            if tag_result.get("rayleigh", {}).get("passed", False):
-                rayleigh_pass += 1
+        # Calculate SHA-256 hash for the output file
+        file_hash = calculate_sha256(output_path)
+        print(f"SHA-256 hash of {output_path.name}: {file_hash}")
         
-        print(f"Ljung-Box test passed: {ljung_box_pass}/{num_tags}")
-        print(f"Rayleigh test passed: {rayleigh_pass}/{num_tags}")
-    
-    print(f"\nResults saved to: {output_path}")
-    print("State file updated with new checksums.")
+        # Update state file with new checksum
+        if state_path.exists():
+            state = load_state(state_path)
+            updated_state = update_artifact_checksums(
+                state, 
+                str(output_path.relative_to(project_root)), 
+                file_hash
+            )
+            save_state(updated_state, state_path)
+            print(f"State file updated: {state_path}")
+        else:
+            print(f"Warning: State file not found at {state_path}, skipping state update")
+        
+        print("Decomposition results generation completed successfully.")
+        return 0
+        
+    except FileNotFoundError as e:
+        print(f"Error: {e}")
+        return 1
+    except Exception as e:
+        print(f"Unexpected error during aggregation: {e}")
+        raise
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

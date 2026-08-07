@@ -1,23 +1,17 @@
-T030:
-  c: false
-  h: d3f48f50ad898cd528dbe3b38e1b434bb88ae283c1e150c313e65f9ee10937b3
-  r: The `code/analysis/clustering.py` file is truncated and does not contain a complete
-    implementation of the Cluster Label Alignment Score logic, and the required `data/taxonomy/survey_2023.json`
-    file is missing entirely. Both the core function and its reference data are absent,
-    so the task is not satisfied.
-T033:
+T001a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `README.md` or `quickstart.md` files were found in the specified `projects/PROJ-298-statistical-analysis-of-publicly-availab/`
-    directory, nor any content showing documentation updates or reproducibility instructions.
-    Without these artifacts, the task requirement is unmet.
-T034:
+  r: "No evidence of the required `projects/PROJ-298-statistical-analysis-of-publicly-availab/`\
+    \ directory being created is provided; the implementer only supplied textual description\
+    \ without any file system artifact. The task\u2019s core requirement\u2014a non\u2011\
+    empty root directory\u2014remains unmet."
+T015:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code files, diff logs, or linting reports from the `code/analysis/` directory
-    are present; the implementer provided no tangible evidence that any cleanup, refactoring,
-    or lint checks were performed. Consequently, the required artifacts to verify
-    completion are missing.
+  h: 8d3db6e63351942b04feda6435b387bdc9d2c229e3672eaf3123779b91666d6c
+  r: The `code/analysis/correlation.py` file is truncated and contains an undefined
+    reference (`build_tag_map`) instead of a complete implementation, and the required
+    `data/processed/external_metrics.json` file is missing entirely. Both the mapping
+    logic and the input data needed for it are absent.
 T035:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
