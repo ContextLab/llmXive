@@ -43,13 +43,13 @@
 
 **Purpose**: Generate `research.md` with fixed simulation parameters to satisfy Phase 1 dependencies.
 
-- [X] T000d-VerifyScript-Write [P] **Must run before T000e-VerifyScript-Run**: Implement `code/verify_citations.py`: Script that accepts `--sources-file` argument, loads citations, validates them against primary sources using the `crossref` Python library to resolve DOIs and fetch metadata (Title overlap >= 0.7), and writes `state/verification_report.json`. **Constraint**: Must raise an error if any citation failed validation. **Input**: `sources_list.md` (or `.json`). **Output**: `state/verification_report.json` containing a `meta_analysis` section with `effect_size` (Cohen's d) and `source_id` for each verified citation. The `meta_analysis` section MUST contain a list of objects with keys: `source_id` (string), `doi` (string), `title` (string), `effect_size` (float), and `is_verified` (boolean).
-- [X] T000e-VerifyScript-Run [P] **Must run after T000d-VerifyScript-Write**: Verify effect size citations listed in `sources_list.md` (input artifact) using the Reference-Validator Agent. **Execution**: Run `python code/verify_citations.py --sources-file sources_list.md`. **Constraint**: If validation fails (unreachable/mismatch), the process MUST halt with an error. No fallback to defaults is permitted. Output: `state/verification_report.json`.
-- [X] T000f-DefineHypothesizedEffects [P] **Must run after T000e-VerifyScript-Run**: Extract numerical effect sizes (Cohen's d) from the verified citations in `state/verification_report.json` (specifically from the `meta_analysis` section defined in T000d) and write them to `state/effect_sizes.json`. **Input**: `state/verification_report.json` (must contain extracted values in the `meta_analysis` section). **Constraint**: If *no* citations yield a numerical effect size, the script MUST raise a `ValueError` and halt. **Output Schema**: `state/effect_sizes.json` must contain a dict with key `extracted_values` which is a list of objects: `{"source_id": string, "effect_size": float}`.
 - [X] T000i-DefineSourcesSchema [P] **Must run before T000d**: Create `contracts/sources.schema.yaml` defining the expected schema for `sources_list.md` (or `sources_list.json`). **Constraint**: Must define 'citations' as a list of objects with 'doi' and 'title'.
-- [ ] T000c-PowerAnalysis [P] **Must run after T000f-DefineHypothesizedEffects**: Implement `code/power_analysis.py`: Script that calculates minimum N for power=0.80 given effect sizes from `state/effect_sizes.json`. **Input**: `state/effect_sizes.json`. **Constraint**: Must calculate N using `statsmodels.stats.power.tt_ind_solve_power` for a two-sample t-test interaction effect with alpha=0.05, power=0.80. **Output**: N value written to `state/power_analysis_result.json`.
-- [ ] T000g-GenerateResearch [P] **Must run after T000c-PowerAnalysis**: Generate `research.md` in `specs/001-simulated-status-risk/` containing verified effect sizes (Cohen's d) and calculated sample size N. **Specifics**: Calculate N using `code/power_analysis.py` based on verified effect sizes (alpha=0.05, power=0.80). Write N and citations to `research.md`. **Output Schema**: Markdown file with YAML frontmatter containing keys: `effect_sizes` (dict), `sample_size` (int), `citations` (list of objects with 'doi', 'title', 'effect_size'), and `methodology` (string).
-- [X] T000h-SimulateParams [P] **Must run after T000g-GenerateResearch**: Generate `code/simulation_parameters.json` containing the verified effect sizes (for the Simulation Path), calculated N, and random seed. **Constraint**: This file serves as the Single Source of Truth for SC-004 (validity of risk-taking measure). Values MUST be populated ONLY from the verified sources in `research.md` and `state/effect_sizes.json`. **Explicitly include keys**: `injected_interaction_effect` (float, the hypothesized effect size), `ci_width_warning_threshold` (float, e.g., 0.5), `design_type` (string), `data_source` (string: "simulation" or "meta_analysis"), and `random_seed` (int).
+- [X] T000d-VerifyScript-Write [P] **Must run after T000i-DefineSourcesSchema**: Implement `code/verify_citations.py`: Script that accepts `--sources-file` argument, loads citations, validates them against primary sources using the `crossref` Python library to resolve DOIs and fetch metadata (Title overlap >= 0.7), and writes `state/verification_report.json`. **Constraint**: Must raise an error if any citation failed validation. **Input**: `sources_list.md` (or `.json`). **Output**: `state/verification_report.json` containing a `meta_analysis` section with `effect_size` (Cohen's d) and `source_id` for each verified citation. The `meta_analysis` section MUST contain a list of objects with keys: `source_id` (string), `doi` (string), `title` (string), `effect_size` (float), and `is_verified` (boolean).
+- [X] T000e-VerifyScript-Run [P] **Must run after T000d-VerifyScript-Write**: Verify effect size citations listed in `sources_list.md` (input artifact) using the Reference-Validator Agent. **Execution**: Run `python code/verify_citations.py --sources-file sources_list.md`. **Constraint**: If validation fails (unreachable/mismatch), the process MUST halt with an error. No fallback to defaults is permitted. Output: `state/verification_report.json`.
+- [X] T000f-DefineHypothesizedEffects [P] **Must run after T000e-VerifyScript-Run**: Extract numerical effect sizes (Cohen's d) from the verified citations in `state/verification_report.json` (specifically from the `meta_analysis` section defined in T000d) and write them to `state/effect_sizes.json`. **Input**: `state/verification_report.json`. **Constraint**: If *no* citations yield a numerical effect size, the script MUST raise a `ValueError` and halt. **Output Schema**: `state/effect_sizes.json` must contain a dict with key `extracted_values` which is a list of objects: `{"source_id": string, "effect_size": float}`.
+- [X] T000c-PowerAnalysis [P] **Must run after T000f-DefineHypothesizedEffects**: Implement `code/power_analysis.py`: Script that calculates minimum N for power=0.80 given effect sizes from `state/effect_sizes.json`. **Input**: `state/effect_sizes.json`. **Constraint**: Must calculate N using `statsmodels.stats.power.tt_ind_solve_power` for a two-sample t-test interaction effect with alpha=0.05, power=0.80. **Traceability**: The calculated N MUST be explicitly linked to SC-004 (validity of risk-taking measure) and US-1 Acceptance Scenario 1 (at least [deferred] rows) in the output. **Output**: N value written to `state/power_analysis_result.json`.
+- [X] T000g-GenerateResearch [P] **Must run after T000c-PowerAnalysis**: Generate `research.md` in `specs/001-the-influence-of-simulated-status-risk/` containing verified effect sizes (Cohen's d) and calculated sample size N. **Specifics**: Calculate N using `code/power_analysis.py` based on verified effect sizes (alpha=0.05, power=0.80). Write N and citations to `research.md`. **Output Schema**: Markdown file with YAML frontmatter containing keys: `effect_sizes` (dict), `sample_size` (int), `citations` (list of objects with 'doi', 'title', 'effect_size'), and `methodology` (string).
+- [X] T000h-SimulateParams [P] **Must run after T000g-GenerateResearch**: Generate `code/simulation_parameters.json` containing the verified effect sizes (for the Simulation Path), calculated N, and random seed. **Constraint**: This file serves as the Single Source of Truth for SC-004 (validity of risk-taking measure). Values MUST be populated ONLY from the verified sources in `research.md` and `state/effect_sizes.json`. Explicitly include keys: `injected_interaction_effect` (float, the hypothesized effect size), `ci_width_warning_threshold` (float, e.g., 0.5), `design_type` (string), `data_source` (string: "simulation" or "meta_analysis"), and `random_seed` (int).
 
 ---
 
@@ -64,7 +64,7 @@
 4.  **Step 4**: Setup pre-commit and gitignore (T003a, T003b).
 5.  **Step 5**: Initialize checksums and logging (T004, T005).
 6.  **Step 6**: Define models and test frameworks (T006, T007, T008).
-7.  **Step 7**: Define schemas and implement data logic (T020b, T024b-SchemaDef, T013b, T010i, T010a, T014a, T010b, T010d).
+7.  **Step 7**: Define schemas and implement data logic (T020b, T024b-SchemaDef, T013b, T010i, T010a, T014a-MapAliases, T010b, T010d).
 
 - [X] T001a [P] Create `data/` directory structure (`data/raw/`, `data/processed/`) with `.gitkeep` files to ensure tracking.
 - [X] T001b [P] Create `code/` directory structure (`code/__init__.py`, `code/config.py`) with `.gitkeep` files.
@@ -73,14 +73,14 @@
 - [X] T002b-CreateVenv [P] Create a clean virtual environment using `python3 -m venv.venv` to prepare for version pinning.
 - [X] T002c-PinVersions [P] **Must run after T002b-CreateVenv**: Pin versions in `code/requirements.txt` for all dependencies listed in T002a using `pip freeze`. **Constraint**: Run this command in the clean virtual environment created in T002b-CreateVenv to ensure deterministic version pinning.
 - [X] T003a [P] Create `.pre-commit-config.yaml` configuring ruff and black hooks.
-- [X] T003b [P] Create `.gitignore` excluding `__pycache__`, `*.pyc`, `.env`, and **`data/processed/*.tmp`**, **`data/processed/__pycache__`**. **Constraint**: Do NOT exclude `data/processed/*.csv`. Processed CSVs MUST be tracked in Git to ensure the checksums recorded in `data/checksums.json` (T004) correspond to versioned artifacts. Note: `data/checksums.json` MUST be tracked to record integrity of processed data.
+- [X] T003b [P] Create `.gitignore` excluding `__pycache__`, `*.pyc`, `.env`, and **`data/processed/*.tmp`**, **`data/processed/__pycache__`**. **Constraint**: Do NOT exclude `data/processed/*.csv`. Processed CSVs MUST be tracked in Git to ensure the checksums recorded in `data/checksums.json` correspond to versioned artifacts. Note: `data/checksums.json` MUST be tracked to record integrity of processed data.
 - [X] T004 [P] **Must run after T001a**: Create `data/checksums.json` with initial structure `{"files": {}}` to satisfy Constitution Principle III. **Constraint**: This file will be updated by the simulation, preprocessing, and checksum recording scripts to record checksums of raw and processed data.
 - [X] T013b [P] **Must run after T013**: Implement `code/utils.py`: Function to calculate SHA256 checksum of a file and append the result to `data/checksums.json`. **Constraint**: This function must be called by T013 after `cleaned_data.csv` is written to ensure the processed artifact is checksummed even though it is gitignored.
 - [X] T005 [P] Implement `code/logger.py` with a standard logging configuration (JSON format, file output) and **update** `code/config.py` to include a `LOGGING_CONFIG` dictionary.
 - [X] T006 [P] Create `code/models.py` explicitly defining `Participant`, `Condition`, and `ModelResult` entities as Pydantic or dataclass models.
 - [X] T007 [P] Setup pytest framework in `tests/` with `conftest.py` and `tests/contract/` directory.
 - [X] T008 [P] Implement `code/utils.py` for common helpers (seeding, file I/O, checksum calculation).
-- [X] T020b [P] **Must run before T025b**: Create `contracts/model_output.schema.yaml` with explicit content defining the schema for `data/processed/model_output.json` (keys: `coefficients`, `p_values`, `vif`, `ci_bounds`, `parameter_recovery`, `model_type`, `ci_width`; types: dict, dict, dict, dict, dict, string, float). **Constraint**: This file must be created as a YAML file in the `contracts/` directory.
+- [X] T020b [P] **Must run before T025b**: Create `contracts/model_output.schema.yaml` with explicit content defining the schema for `data/processed/model_results.json` (keys: `coefficients`, `p_values`, `vif`, `ci_bounds`, `parameter_recovery`, `model_type`, `ci_width`); types: dict, dict, dict, dict, dict, string, float). **Constraint**: This file must be created as a YAML file in the `contracts/` directory.
 - [X] T024b-SchemaDef [P] **Must run before T025a**: Create `contracts/model_config.schema.yaml` with the following explicit content:
  ```yaml
 type: object
@@ -99,13 +99,9 @@ properties:
     type: integer
     description: Number of unique participants
  ```
-- [X] T014a [US1] **Must run after T013**: Implement `code/preprocess.py`: Detect outcome variable type (binary vs. continuous) based on data distribution in `data/processed/cleaned_data.csv`. **Logic**: If unique values in `risk_taking_score` < 10, assume binary; else continuous. **Output**: Write the detected type (e.g., "binary" or "continuous") to `data/processed/outcome_type.json`. **Constraint**: Ensure `data/processed/outcome_type.json` is valid JSON with a single key `type`.
-
-**⚠️ CRITICAL**: No user story work can begin until this phase (and T000f) is complete.
-
 - [X] T010a [P] **Must run after T000h-SimulateParams**: Read verified effect sizes and N from `code/simulation_parameters.json` and define them as constants in `code/config.py` for simulation parameters.
 - [X] T010i-CreateRegistrySchema [P] **Must run after T010a**: Create `contracts/registry.schema.yaml` defining the schema for `data/registry/meta_analysis_registry.json`. **Constraint**: Must define 'studies' as a list of objects with 'study_id' and 'data_url'.
-- [X] T010b-ExecuteDataSource [US1] **Must run after T010a, T010i-CreateRegistrySchema, and T000h-SimulateParams**: Implement `code/simulate.py` and `code/meta_analysis.py` logic in a single script `code/execute_data_source.py`. **Logic**: Read `data_source` from `code/simulation_parameters.json`. If "simulation", run `simulate.py` to generate `data/raw/simulation_output.csv`. If "meta_analysis", run `meta_analysis.py` to generate `data/raw/meta_analysis_output.csv`. **Constraint**: If `data_source` is "meta_analysis" but the registry file `data/registry/meta_analysis_registry.json` is missing or invalid, the script MUST raise a hard error and halt. Do NOT fallback to simulation. If `data_source` is "simulation", run simulation. Output: `data/raw/active_data_source.csv` (symlink or copy of the active source).
+- [X] T010b-ExecuteDataSource [US1] **Must run after T010a, T010i-CreateRegistrySchema, and T000h-SimulateParams**: Implement `code/execute_data_source.py`. **Logic**: Read `data_source` from `code/simulation_parameters.json`. If "simulation", run code to generate `data/raw/simulation_output.csv`. If "meta_analysis", run code to generate `data/raw/meta_analysis_output.csv`. **Constraint**: If `data_source` is "meta_analysis" and the registry file `data/registry/meta_analysis_registry.json` is missing or invalid, the script MUST raise a hard error and halt. Do NOT fallback to simulation. If `data_source` is "simulation", run simulation. Output: `data/raw/active_data_source.csv` (symlink or copy of the active source).
 - [X] T010d-Merge [US1] **Must run after T010b-ExecuteDataSource**: Implement `code/preprocess.py`: Logic to select the active data source (simulation or meta-analysis) based on `code/simulation_parameters.json` and produce the unified `data/processed/cleaned_data.csv`. **Constraint**: If `data_source` is "meta_analysis" and the source file does not exist, raise a hard error. If `data_source` is "simulation" and the source file does not exist, raise a hard error. No silent fallbacks.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -126,16 +122,14 @@ properties:
 - [X] T012a [US1] Implement `code/preprocess.py`: Load raw synthetic data (or meta-analysis data), map `status_level` and `observed_behavior` to categorical factors (High/Low, Risky/Conservative).
 - [X] T012b [US1] **Must run after T012a**: Implement `code/preprocess.py`: Implement the specific binning strategy (e.g., High vs Low/Medium) for input data with >2 levels. **Output**: Write a `binning_state.json` file to `data/processed/` with `binning_applied: true` if binning is used. **Constraint**: Do NOT modify `code/config.py`.
 - [X] T012c-FlagAmbiguity [US1] **Must run after T012b**: Implement `code/preprocess.py`: Logic to flag ambiguity for manual review if the binning strategy is insufficient or ambiguous. **Constraint**: 'Insufficient' is defined as: if any bin has < 5% of total N (where total N is the count of rows in the raw input data *before* any missing value handling) or if the mapping creates a bin with < 10 observations. **Output**: Write `ambiguity_flag.json` to `data/processed/` with `flag: true` if ambiguity detected. **Constraint**: If flag is true, downstream tasks MUST halt or prompt for manual review.
-- [X] T013 [US1] **Must run after T014a and T012c-FlagAmbiguity**: Implement `code/preprocess.py`: Handle missing values (imputation or exclusion) and report the final N used for analysis. **Constraint**: Output MUST be written to `data/processed/cleaned_data.csv`. The logic MUST preserve the `participant_id` granularity (do not aggregate rows) to ensure downstream design detection is possible.
+- [X] T014a-MapAliases [US1] **Must run after T012c-FlagAmbiguity**: Implement `code/preprocess.py`: Logic to map `risk_taking_score` column based on common aliases (e.g., `risk_score`, `pct_risk`, `risk_taking`) if the exact column name is missing. **Constraint**: If no alias matches, the script MUST raise a `ValueError` and halt. **Output**: A copy of the input data with the standardized column name `risk_taking_score`.
+- [X] T013 [US1] **Must run after T014a-MapAliases and T012c-FlagAmbiguity**: Implement `code/preprocess.py`: Handle missing values (imputation or exclusion) and report the final N used for analysis. **Constraint**: Output MUST be written to `data/processed/cleaned_data.csv`. The logic MUST preserve the `participant_id` granularity (do not aggregate rows) to ensure downstream design detection is possible.
+- [X] T014a-TypeDetection [US1] **Must run after T013**: Implement `code/preprocess.py`: Detect outcome variable type (binary vs. continuous) based on data distribution in `data/processed/cleaned_data.csv`. **Logic**: If unique values in `risk_taking_score` < 10, assume binary; else continuous. **Output**: Write the detected type (e.g., "binary" or "continuous") to `data/processed/outcome_type.json`.
 - [X] T014b [P] [US1] **Parallel Task**: Review `code/preprocess.py` to ensure no legacy logic for regression family selection exists, as this logic is now explicitly implemented in T021a. **Constraint**: Verify that `code/preprocess.py` only handles data cleaning and does not modify regression family based on `outcome_type.json`.
 - [X] T015 [P] [US1] Write `tests/contract/test_data_schema.py` to validate output CSV columns and data types against `data-model.md`.
 - [X] T016 [P] [US1] Write `tests/unit/test_data_generation.py` to verify deterministic output given a fixed seed.
 
-**Checkpoint Completion Criteria**:
-To verify this checkpoint is complete, the following tasks must be marked `[X]`:
-- T011, T012a, T012b, T012c-FlagAmbiguity, T013, T014a, T014b, T015, T016.
-- `data/processed/cleaned_data.csv` must exist and pass `tests/contract/test_data_schema.py`.
-- `data/processed/outcome_type.json` must exist.
+**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
 ---
 
@@ -154,27 +148,27 @@ To verify this checkpoint is complete, the following tasks must be marked `[X]`:
  3. Assert that the detected structure is consistent (e.g., no single participant has > `MAX_ROWS_PER_PARTICIPANT` rows as defined in `config.py`).
  4. Write the validated `design_type` to `data/processed/design_type.json` (intermediate file).
  **Constraint**: This task must raise an error if the detection is ambiguous or fails, preventing silent model mismatch. **Output Schema**: `data/processed/design_type.json` must contain `{"design_type": "between-subjects" | "within-subjects"}`.
-- [X] T014c-FlagAmbiguousType [US2] **Must run after T014a**: Implement `code/analysis.py`: Logic to check `data/processed/outcome_type.json`. If the detected type is ambiguous (e.g., data is neither clearly binary nor continuous), write `ambiguity_type_flag.json` to `data/processed/` and halt. **Constraint**: This task ensures the spec's automatic detection logic is validated and does not fail silently.
-- [X] T021c-GenerateConfig [US2] **Must run after T021b-ValidateDesign, T014a, and T014c-FlagAmbiguousType**: Generate `data/processed/model_config.json` containing `design_type` (from T021b-ValidateDesign), `family_type` (from T014a), and `n_subjects`. **Constraint**: Do NOT hardcode values. The logic must inspect the actual `cleaned_data.csv` and `outcome_type.json` to determine the structure and family truthfully. Read `design_type` from `data/processed/design_type.json` and `family_type` from `data/processed/outcome_type.json`.
+- [X] T014c-FlagAmbiguousType [US2] **Must run after T014a-TypeDetection**: Implement `code/analysis.py`: Logic to check `data/processed/outcome_type.json`. If the detected type is ambiguous (e.g., data is neither clearly binary nor continuous), write `ambiguity_type_flag.json` to `data/processed/` and halt. **Constraint**: This task ensures the spec's automatic detection logic is validated and does not fail silently.
+- [X] T021c-GenerateConfig [US2] **Must run after T021b-ValidateDesign, T014a-TypeDetection, and T014c-FlagAmbiguousType**: Generate `data/processed/model_config.json` containing `design_type` (from T021b), `family_type` (from T014a), and `n_subjects`. **Constraint**: Do NOT hardcode values. The logic must inspect the actual `cleaned_data.csv` and `outcome_type.json` to determine the structure and family truthfully. Read `design_type` from `data/processed/design_type.json` and `family_type` from `data/processed/outcome_type.json`.
 - [X] T021a [US2] **Must run after T021c-GenerateConfig**: Implement `code/analysis.py`: Function `fit_adaptive_model` that reads `data/processed/model_config.json`.
  **Logic**:
- 1. Read `design_type`. If "within-subjects", fit a Mixed-Effects model with formula `risk_taking ~ status_level * observed_behavior + (1|participant_id)`. If "between-subjects", fit a Fixed-Effects model with formula `risk_taking ~ status_level * observed_behavior`.
+ 1. Read `design_type`. If "within-subjects", fit a Mixed-Effects model with formula `risk_taking ~ status_level * observed_behavior + (1|participant_id)`. If "between-subjects", fit a Fixed-Effects model with formula `risk_taking ~ status_level * observed_behavior` (explicitly omitting the random effect term to avoid singular fit).
  2. Read `family_type`. Use `gaussian` family for continuous outcomes, `binomial` for binary outcomes.
- **Constraint**: Do NOT hardcode model type or family. The selection MUST be driven dynamically by the unified `model_config.json` generated in T021c-GenerateConfig. **Additional Constraint**: Assert that the formula string matches the `design_type` before fitting.
+ **Constraint**: Do NOT hardcode model type or family. The selection MUST be driven dynamically by the unified `model_config.json` generated in T021c-GenerateConfig. **Additional Constraint**: Assert that the formula string matches the `design_type` before fitting. Verify that statsmodels handles the between-subjects case correctly without singular fit errors.
 - [X] T022 [US2] **Must run after T021a**: Implement `code/analysis.py`: Calculate Variance Inflation Factors (VIF) for all predictors on the design matrix generated by the model fit in T021a and flag if > 5.0.
-- [X] T023 [US2] **Must run after T022**: Implement `code/analysis.py`: Extract fixed effects coefficients, standard errors, and p-values for the interaction term. **Explicitly calculate and write**: 1) The % Confidence Interval bounds (lower, upper) for the interaction coefficient to `data/processed/model_output.json`. 2) The "Parameter Recovery" metric (difference between estimated and injected effect size) to `data/processed/model_output.json`. 3) The **width of the 95% Confidence Interval** (Upper - Lower) as a top-level field `ci_width` in `data/processed/model_output.json`. **Constraint**: Read `injected_interaction_effect` from `code/simulation_parameters.json`. **Fallback**: If `injected_interaction_effect` is missing, check for `effect_size_interaction` and log a warning, then use that value.
-- [X] T023b-SimulationValidation [US2] **Must run after T023 and T000h-SimulateParams**: Implement `code/analysis.py`: Logic to calculate "Parameter Recovery" by comparing the estimated interaction coefficient to the `injected_interaction_effect` loaded from `code/simulation_parameters.json` (set in T000h-SimulateParams) and checking if it falls within the confidence interval. **Dependency**: This task requires the injected parameter from `simulation_parameters.json` (T000h-SimulateParams) and the model output from T023. It is NOT parallelizable with T023. **Constraint**: Read `injected_interaction_effect` from `code/simulation_parameters.json`. If `injected_interaction_effect` is missing, the script MUST halt. **Note**: This is a simulation validation metric, distinct from the primary scientific success criteria.
-- [X] T023c-ValidateCIWidth [US2] **Must run after T023**: Implement `code/analysis.py`: Calculate and report the **width of the 95% Confidence Interval** for the interaction coefficient (Upper Bound - Lower Bound) as a standalone success metric for SC-003. Read `ci_width_warning_threshold` from `code/simulation_parameters.json` and flag if CI width exceeds this value. **Constraint**: Write `ci_width` to `data/processed/model_output.json` and log a warning if threshold exceeded.
+- [X] T023 [US2] **Must run after T022**: Implement `code/analysis.py`: Extract fixed effects coefficients, standard errors, and p-values for the interaction term. **Explicitly calculate and write**: 1) The % Confidence Interval bounds (lower, upper) for the interaction coefficient to `data/processed/model_results.json`. 2) The "Parameter Recovery" metric (difference between estimated and injected effect size) to `data/processed/model_results.json`. 3) The **width of the 95% Confidence Interval** (Upper - Lower) as a top-level field `ci_width` in `data/processed/model_results.json`. 4) The **VIF scores** calculated in T022 to `data/processed/model_results.json`. **Constraint**: Read `injected_interaction_effect` from `code/simulation_parameters.json`. **Fallback**: If `injected_interaction_effect` is missing, check for `effect_size_interaction` and log a warning, then use that value.
+- [X] T023b-SimulationValidation [US2] **Must run after T023 and T000h-SimulateParams**: Implement `code/analysis.py`: Logic to calculate "Parameter Recovery" by comparing the estimated interaction coefficient to the `injected_interaction_effect` loaded from `code/simulation_parameters.json` (set in T000h-SimulateParams) and checking if it falls within the calculated confidence interval. **Dependency**: This task requires the injected parameter from `simulation_parameters.json` (T000h-SimulateParams) and the model output from T023. It is NOT parallelizable with T023. **Constraint**: Read `injected_interaction_effect` from `code/simulation_parameters.json`. If `injected_interaction_effect` is missing, the script MUST halt. **Note**: This is a simulation validation metric, distinct from the primary scientific success criteria.
+- [X] T023c-ValidateCIWidth [US2] **Must run after T023**: Implement `code/analysis.py`: Calculate and report the **width of the 95% Confidence Interval** for the interaction coefficient (Upper Bound - Lower Bound) as a standalone success metric for SC-003. Read `ci_width_warning_threshold` from `code/simulation_parameters.json` and flag if CI width exceeds this value.
 - [X] T024 [US2] Implement `code/analysis.py`: Add fallback logic to use asymptotic standard errors if bootstrap resampling fails (memory constraints).
 - [X] T025a [P] [US2] **Must run after T024b-SchemaDef and T021c-GenerateConfig**: Write `tests/contract/test_model_config.py` to validate `data/processed/model_config.json` against `contracts/model_config.schema.yaml`. **Constraint**: The test must explicitly check for the presence and type of all keys defined in T024b-SchemaDef.
-- [X] T025b [P] [US2] **Must run after T020b**: Write `tests/contract/test_model_output.py` to validate model output schema (coefficients, p-values, VIF, ci_bounds, parameter_recovery, model_type, ci_width) against `contracts/model_output.schema.yaml`. **Constraint**: The test must explicitly check for the presence and type of all keys defined in T020b. **Execution**: Run `pytest tests/contract/test_model_output.py` to validate T023's output.
+- [X] T025b [P] [US2] **Must run after T020b**: Write `tests/contract/test_model_output.py` to validate model output schema (coefficients, p-values, VIF, ci_bounds, parameter_recovery, model_type, ci_width) against `contracts/model_output.schema.yaml`. **Constraint**: The test must explicitly check for the presence and type of all keys defined in T020b.
 - [X] T026 [P] [US2] Write `tests/unit/test_analysis.py` to verify parameter recovery (estimated vs. injected effect size), correct family selection, CI width calculation, and **assert that `ci_width` is present in the output**.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
 ---
 
-## Phase 4: User Story 3 - Sensitivity Analysis and Reporting (Priority: P2)
+## Phase 3: User Story 3 - Sensitivity Analysis and Reporting (Priority: P2)
 
 **Goal**: Conduct sensitivity analyses on outlier thresholds, perform post-hoc comparisons with Bonferroni correction, and generate reproducible reports with forest plots.
 
@@ -182,7 +176,7 @@ To verify this checkpoint is complete, the following tasks must be marked `[X]`:
 
 ### Implementation for User Story 3
 
-- [X] T030 [US3] **Must run after T013 and T000h-SimulateParams**: Implement `code/analysis.py`: Sensitivity analysis module to sweep outlier exclusion threshold over a range of standard deviations. **Strict Constraint**: Calculate absolute deviation from the *cell mean* (arithmetic mean) within each of the 4 experimental conditions (High/Risky, High/Conservative, Low/Risky, Low/Conservative) using the **per-cell standard deviation** (arithmetic SD) before exclusion. Do NOT use a global mean. **Explicitly list sweep values**: {2.5, 3.0, 3.5} as per FR-005 (overriding any plan typos). **Output**: Generate a table of means and confidence intervals for each condition at each threshold.
+- [X] T030 [US3] **Must run after T013 and T000h-SimulateParams**: Implement `code/analysis.py`: Sensitivity analysis module to sweep outlier exclusion threshold over a range of standard deviations. **Strict Constraint**: Calculate absolute deviation from the *cell mean* (arithmetic mean) within each of the 4 experimental conditions (High/Risky, High/Conservative, Low/Risky, Low/Conservative) using the **per-cell standard deviation** (arithmetic SD) before exclusion. Do NOT use a global mean. **Explicitly list sweep values**: {2.5, 3.0, 3.5} as per FR-005 (overriding any plan typos). **Output**: Generate a table of means and confidence intervals for each condition at each threshold, AND explicitly calculate and report the **interaction coefficient** and **p-value** variation across thresholds to `data/processed/sensitivity_results.json`.
 - [X] T031 [US3] **Must run after T030**: Implement `code/analysis.py`: Perform post-hoc pairwise comparisons with Bonferroni correction for all condition combinations, executing this logic UNCONDITIONALLY regardless of the primary interaction significance (per FR-006).
 - [X] T031b-ValidateStability [US3] **Must run after T030**: Implement `code/analysis.py`: Logic to check if the interaction p-value remains < 0.05 across all outlier thresholds {2.5, 3.0, 3.5} as required by SC-002. **Output**: Write `stability_metric.json` to `data/processed/` with `stable: true/false` and a list of p-values. **Constraint**: This task explicitly performs the measurement required by SC-002.
 - [X] T035-ReportSchema [P] [US3] **Must run before T033**: Create `contracts/report_schema.yaml` explicitly defining the structure of the final report data, including keys: `model_table`, `vif_table`, `sensitivity_table`, `forest_plot_img`, `ci_width_metric`, `stability_metric`. **Constraint**: This schema ensures the report generation has a verifiable contract.
@@ -190,9 +184,9 @@ To verify this checkpoint is complete, the following tasks must be marked `[X]`:
 - [X] T032b [P] [US3] Create the directory `reports/templates/` and implement the file `reports/templates/analysis_report.html`. **Specifics**: This template must define the HTML structure for the final report, including placeholders `{{ model_table }}` (dict of coefficients), `{{ vif_table }}` (dict of VIFs), `{{ sensitivity_table }}` (dict of sensitivity results), `{{ forest_plot_img }}` (base64 string or path), `{{ ci_width_metric }}`, and `{{ stability_metric }}`. **Constraint**: The variable names passed to the Jinja2 template in `code/report.py` must match these placeholders exactly.
 - [X] T033 [US3] **Must run after T035-ReportSchema, T032, T030, T023, and T022**: Implement `code/report.py`: Generate PDF/HTML summary containing model coefficients, VIF table, sensitivity sweep results, and forest plot, saving to `reports/analysis_report.html`. Use `jinja2` to render `reports/templates/analysis_report.html` with the analysis data, and use `weasyprint` to convert the rendered HTML to a PDF. **Constraint**: Ensure `ci_width_metric` and `stability_metric` are explicitly included in the report.
 - [X] T036-ReportValidation [P] [US3] Write `tests/contract/test_report_schema.py` to validate the generated report structure (HTML content or parsed data) against `contracts/report_schema.yaml`.
-- [X] T043a [P] [US3] Write `tests/unit/test_outlier_logic.py` to verify that changing the threshold in config updates the sensitivity table. **Specifics**: Create a test that modifies the outlier threshold in a mock config, runs the sensitivity sweep, and asserts that the resulting table shows different exclusion counts and coefficient values.
+- [X] T043a [P] [US3] Write `tests/unit/test_outlier_logic.py` to verify that changing the threshold in config updates the sensitivity table. **Specifics**: Create a test that manually alters the outlier threshold in a mock config, runs the sensitivity sweep, and asserts that the resulting table shows different exclusion counts and coefficient values.
 - [X] T043b [P] [US2] Write `tests/unit/test_vif_logic.py` to verify VIF calculation and threshold flagging. **Specifics**: Create a test that feeds a dataset with known multicollinearity into the VIF calculator and asserts that the VIF values are correctly computed and flagged if > 5.0.
-- [X] T043c [P] [US2] Write `tests/unit/test_parameter_recovery.py` to verify the logic in T023b-SimulationValidation (estimated vs. injected effect size). **Specifics**: Create a test that simulates data with a known interaction effect, runs the analysis, and asserts that the estimated effect falls within the calculated confidence interval of the injected effect.
+- [X] T043c [P] [US2] Write `tests/unit/test_parameter_recovery.py` to verify the logic in T023b-SimulationValidation (estimated vs. injected effect size). **Specifics**: Create a test that simulates data with a known interaction effect, runs the analysis, and asserts that the estimated effect falls within the calculated confidence interval.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -208,7 +202,7 @@ To verify this checkpoint is complete, the following tasks must be marked `[X]`:
 - [ ] T041b-Simulate [P] Refactor `code/simulate.py` using `radon` tool to reduce cyclomatic complexity to an acceptable threshold for all functions. **Command**: `radon cc -m 10 code/simulate.py`. Target: All functions with complexity >= 10.
 - [ ] T042a-Baseline [P] Profile `code/analysis.py` using `cProfile` and save output to `reports/baseline_profile.txt`.
 - [X] T042b-PerformanceCheck [P] Verify that the full pipeline (simulation -> analysis -> report) completes within the time limit specified in Assumption. **Constraint**: If runtime exceeds the configured threshold or memory exceeds the configured threshold, log a warning but do not fail the build. The threshold values are explicitly set in `code/config.py`.
-- [X] T044 Run `quickstart.md` validation to ensure full pipeline reproducibility
+- [X] T043a [P] Run `quickstart.md` validation to ensure full pipeline reproducibility
 
 ---
 
@@ -217,7 +211,6 @@ To verify this checkpoint is complete, the following tasks must be marked `[X]`:
 **Purpose**: Address workflow inversion where the plan was finalized after task generation. These tasks are now MANDATORY to align the plan with the implementation before final acceptance.
 
 **Note**: Tasks T050, T051, T052 have been removed from this list as they are non-implementation documentation maintenance tasks that do not produce code artifacts and should not block the implementation flow. Plan corrections will be handled via a separate documentation workflow.
-**Note**: `structure_config.json` is deprecated. `model_config.json` is the single source of truth for design structure and family type.
 
 ---
 
@@ -227,114 +220,7 @@ To verify this checkpoint is complete, the following tasks must be marked `[X]`:
 
 - [X] T053a-DefineExceptions [P] **Must run before T053**: Create `code/exceptions.py` defining the `DataIntegrityError` class used in T053. **Constraint**: This class must inherit from `Exception` and accept a message string.
 - [X] T053 [P] [US1] **Revision Concern (Data Integrity)**: Implement a strict validation step in `code/preprocess.py` (T013) that verifies the `participant_id` column contains NO null values and NO duplicate entries for the same experimental condition before writing `cleaned_data.csv`. If duplicates or nulls are found, the script MUST raise a `DataIntegrityError` and halt. **Rationale**: Prevents silent data corruption that could invalidate the design detection logic in T021b-ValidateDesign.
-- [X] T054 [P] [US2] **Revision Concern (Parameter Drift)**: Add a runtime assertion in `code/analysis.py` (T023) that compares the `injected_interaction_effect` from `simulation_parameters.json` against the `injected_interaction_effect` stored in `data/processed/model_config.json` (if available) or re-calculates it from the simulation seed to detect potential parameter drift between the simulation and analysis phases. **Rationale**: Ensures the "Parameter Recovery" metric in T023b-SimulationValidation is comparing apples to apples, even if config files are manually edited.
+- [X] T054 [P] [US2] **Revision Concern (Parameter Drift)**: Add a runtime assertion in `code/analysis.py` to compare the `injected_interaction_effect` from `simulation_parameters.json` against the `injected_interaction_effect` stored in `data/processed/model_config.json` (if available) or re-calculates it from the simulation seed to detect potential parameter drift between the simulation and analysis phases. **Rationale**: Ensures the "Parameter Recovery" metric in T023b-SimulationValidation is comparing apples to apples, even if config files are manually edited.
 - [X] T055 [P] [US3] **Revision Concern (Edge Case: Zero Variance in Cells)**: Implement a check in `code/analysis.py` (T030) before calculating cell means for the sensitivity sweep. If any of the 4 experimental conditions has zero variance (all values identical), the script must log a `CriticalWarning` and exclude that specific condition from the sensitivity sweep calculation rather than crashing or producing NaN values. **Rationale**: Handles edge cases where the simulation or data generation produces degenerate conditions, ensuring the sensitivity analysis remains robust.
-- [X] T056 [P] [US2] **Revision Concern (VIF Calculation Stability)**: Refactor the VIF calculation in `code/analysis.py` (T022) to use a numerically stable method (e.g., QR decomposition or SVD) if the design matrix is near-singular, rather than relying on standard matrix inversion which might fail on collinear predictors. **Rationale**: Ensures VIF calculation does not crash the pipeline on borderline collinear data, fulfilling FR-004 robustly.
-- [X] T057 [P] [US3] **Revision Concern (Report Reproducibility)**: Implement a checksum verification step in `code/report.py` (T033) that validates the input data files (`cleaned_data.csv`, `model_output.json`) against `data/checksums.json` before generating the report. If a mismatch is detected, the report generation MUST fail with a clear error message indicating which file has been tampered with. **Rationale**: Enforces Constitution Principle III (Data Hygiene) by ensuring the final report is generated from verified, untampered artifacts.
-
----
-
-## Dependencies & Execution Order
-
-### Phase Dependencies
-
-- **Phase 0 (Research)**: No dependencies - can start immediately
-- **Phase 1 (Setup)**: No dependencies - can start immediately
-- **Phase 2 (Foundational)**: Depends on Phase 0 completion (T000d-VerifyScript-Write, T000e-VerifyScript-Run, T000f-DefineHypothesizedEffects, T000c-PowerAnalysis, T000g-GenerateResearch, T000h-SimulateParams must run before T010a/T010b) - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
-- **Phase 6 (Documentation)**: Post-implementation; can be done anytime after code is stable
-- **Revision Concerns**: Can be executed in parallel with User Story implementation or immediately prior to final integration testing.
-
-### User Story Dependencies
-
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 data output (T014 flag, T021b structure)
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US2 model output
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation
-- Models before services
-- Services before endpoints
-- Core implementation before integration
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if staffed)
-- All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
-
----
-
-## Parallel Example: User Story 1
-
-```bash
-# Launch all tests for User Story 1 together (if tests requested):
-Task: "Contract test for data schema in tests/contract/test_data_schema.py"
-Task: "Unit test for data generation in tests/unit/test_data_generation.py"
-
-# Launch all models for User Story 1 together:
-Task: "Create data generator in code/simulate.py"
-Task: "Create preprocessor in code/preprocess.py"
-```
-
----
-
-## Implementation Strategy
-
-### MVP First (User Story 1 Only)
-
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently
-5. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
- - Developer A: User Story 1 (Data Generation/Preprocessing)
- - Developer B: User Story 2 (Analysis/Modeling)
- - Developer C: User Story 3 (Sensitivity/Reporting)
-3. Stories complete and integrate independently
-
----
-
-## Notes
-
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Critical Constraint**: This project uses an Adaptive Model Selection (Mixed-Effects if within-subjects, Fixed-Effects if between-subjects) as per FR-003.
-- **Critical Constraint**: The loader must FAIL LOUDLY if real data fetch fails; no synthetic fallbacks are permitted.
-- **Critical Constraint**: All simulation parameters must be derived from verified meta-analytic sources in `research.md` or `sources_list.md`.
-- **Critical Constraint**: The 'OR' path of FR-001 (simulation OR meta-analysis) is now fully implemented via T010b-ExecuteDataSource, with T010b failing loudly if a registry is provided but invalid.
-- **Critical Constraint**: The `model_config.json` (T021c-GenerateConfig) is the single source of truth for both design structure and family type, ensuring T021a has all required parameters.
-- **Critical Constraint**: `data/checksums.json` is the source of truth for artifact integrity, including processed data files that are gitignored.
-- **Critical Constraint**: The CI width (`ci_width`) is a required measurable outcome for SC-003 and must be reported in the final output.
-- **Note on Plan.md**: The plan.md 'Complexity Tracking' table contains a typo in the sensitivity sweep thresholds (missing a specific threshold value). The tasks.md has been corrected to {2.5, 3.0, 3.5}. The plan.md requires a separate kickback to fix this typo (T050 removed, handled via separate workflow).
-- **Note on Plan.md**: The plan.md 'Contract Mapping' section references `structure_config.json` while T021c-GenerateConfig generates `model_config.json`. The tasks.md now generates `model_config.json` as the single source of truth. The redundant `structure_config.json` task (T021c-StructureAlias) has been removed to prevent state drift.
-- **Note on Workflow**: Tasks T050, T051, T052 have been removed from the task list as they are non-implementation documentation maintenance tasks. Plan corrections will be handled via a separate documentation workflow.
-- **Note on Revision Concerns**: Tasks T053 through T057 address specific reviewer concerns regarding data integrity, parameter drift, edge cases, and numerical stability. These must be implemented to ensure robustness of the final pipeline.
+- [X] T056 [P] [US3] **Revision Concern (VIF Calculation Stability)**: Refactor the VIF calculation in `code/analysis.py` (T022) to use a numerically stable method (e.g., QR decomposition or SVD) if the design matrix is near-singular, rather than relying on standard matrix inversion which might fail on collinear predictors. **Rationale**: Ensures VIF calculation does not crash the pipeline on borderline collinear data, fulfilling FR-004 robustly.
+- [X] T057 [P] [US3] **Revision Concern (Report Reproducibility)**: Implement a checksum verification step in `code/report.py` (T033) that validates the input data files (`cleaned_data.csv`, `model_results.json`) against `data/checksums.json` before generating the report. If a mismatch is detected, the report generation MUST fail with a clear error message indicating which file has been tampered with. **Rationale**: Enforces Constitution Principle III (Data Hygiene) by ensuring the final report is generated from verified, untampered artifacts.

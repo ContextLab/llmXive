@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-08T03:15:32.126979Z'
-current_stage: planned
+current_stage: clarified
 failed_stage: null
 field: psychology
 human_escalation_reason: null
 id: PROJ-423-the-influence-of-simulated-social-status
-last_run_id: 67b86c56-1c3e-4dbf-bf9a-a634cbc9fee3
+last_run_id: c573a458-58fb-407f-b650-0b8450bb5f74
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-423-the-influence-of-simulated-social-status/specs/001-the-influence-of-simulated-social-status
 title: The Influence of Simulated Social Status on Risk-Taking Behavior
-updated_at: '2026-08-04T13:51:58.834207Z'
+updated_at: '2026-08-07T09:13:45.009302Z'
