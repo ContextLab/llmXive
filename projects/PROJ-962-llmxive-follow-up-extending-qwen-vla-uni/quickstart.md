@@ -1,93 +1,74 @@
-# Quickstart Guide: Non-Neural Approximation of VLA Priors
+# Quickstart Guide: Non-Neural VLA Approximation Pipeline
 
-This guide provides step-by-step instructions to set up, run, and evaluate the non-neural approximation pipeline for Qwen-VLA priors.
+This guide describes the end-to-end execution of the llmXive pipeline for approximating VLA priors using non-neural models.
 
 ## Prerequisites
 
 - Python 3.9+
-- pip (package manager)
-- At least 14GB of free disk space for data artifacts
-- CPU-only execution (no GPU required)
+- Install dependencies: `pip install -r requirements.txt`
 
-## 1. Environment Setup
+## Directory Structure
 
-### Clone and Navigate
+The project assumes the following structure:
+- `code/`: Source scripts
+- `data/`: Input and output data
+- `artifacts/`: Trained models
+- `data/results/`: Execution logs and reports
+
+## Execution Steps
+
+Run the pipeline in the following order:
+
+1. **Ingestion**: Download and parse the Qwen-VLA dataset.
+ ```bash
+ python code/01_ingest.py
+ ```
+
+2. **Clustering**: Extract kinematic features and cluster trajectories.
+ ```bash
+ python code/02_cluster.py
+ ```
+
+3. **Training**: Train Decision Trees and CGMMs per cluster.
+ ```bash
+ python code/03_train.py
+ ```
+
+4. **Inference**: Generate trajectories for new prompts.
+ ```bash
+ python code/04_inference.py
+ ```
+
+5. **Simulation**: Evaluate trajectories in PyBullet.
+ ```bash
+ python code/05_simulate.py
+ ```
+
+6. **Evaluation**: Compare against baselines and calculate metrics.
+ ```bash
+ python code/06_evaluate.py
+ ```
+
+7. **Fidelity**: Calculate trajectory fidelity.
+ ```bash
+ python code/07_calculate_fidelity.py
+ ```
+
+8. **Reporting**: Generate the final evaluation report.
+ ```bash
+ python code/08_generate_report.py
+ ```
+
+## Validation
+
+To validate the entire pipeline execution, run:
 ```bash
-git clone <repository-url>
-cd PROJ-962-llmxive-follow-up-extending-qwen-vla-uni
+python code/validate_quickstart.py
 ```
+This will execute all steps and save the log to `data/results/e2e_run_log.txt`.
 
-### Install Dependencies
-Install all required packages from `requirements.txt`:
-```bash
-pip install -r requirements.txt
-```
-*Note: This installs `datasets`, `scikit-learn`, `transformers`, `pybullet`, `pandas`, `numpy`, `scipy`, `pyyaml`, and `sklearn-mixture`.*
+## Expected Output
 
-## 2. Pipeline Execution
-
-The pipeline is executed sequentially through the following scripts located in `code/`.
-
-### Step 1: Ingestion
-Download and parse the Qwen-VLA/Hy-Embodied dataset.
-```bash
-python code/01_ingest.py
-```
-*Output:* `data/raw/` (raw dataset files)
-
-### Step 2: Clustering
-Extract kinematic features and cluster trajectories using K-means with validation.
-```bash
-python code/02_cluster.py
-```
-*Output:* `data/processed/clusters.json`, `data/processed/assignments.parquet`, `data/results/coverage_report.json`
-
-### Step 3: Training (Embeddings & Models)
-Generate BERT embeddings and train CGMM/Decision Tree models per cluster.
-```bash
-python code/03_train.py
-```
-*Output:* `data/processed/train_embeddings.parquet`, `artifacts/models/cgmm_*.pkl`, `artifacts/models/dt_*.pkl`, `artifacts/models/bert_encoder.pt`
-
-### Step 4: Inference
-Generate trajectories for new prompts using the trained models.
-```bash
-python code/04_inference.py
-```
-*Output:* `data/results/inference_benchmark.csv` (if benchmarking enabled)
-
-### Step 5: Simulation
-Execute generated trajectories in PyBullet and compare against baselines.
-```bash
-python code/05_simulate.py
-```
-*Output:* `data/results/simulation_logs.csv`
-
-### Step 6: Evaluation
-Perform statistical analysis (McNemar's Test, Paired T-Tests) and calculate fidelity.
-```bash
-python code/06_evaluate.py
-```
-*Output:* `data/results/fidelity_metrics.json`, `data/results/evaluation_report.md`
-
-## 3. Verification
-
-To verify the entire pipeline end-to-end:
-```bash
-python code/07_verify_coverage.py
-```
-
-## 4. Expected Artifacts
-
-Ensure the following files exist after successful execution:
-- `data/processed/clusters.json`
-- `data/processed/train_embeddings.parquet`
-- `artifacts/models/cgmm_*.pkl`
-- `data/results/simulation_logs.csv`
-- `data/results/evaluation_report.md`
-
-## Troubleshooting
-
-- **Dataset Download Fails**: Ensure internet connectivity. The script will fail loudly if the HuggingFace dataset cannot be accessed; do not attempt to use synthetic fallbacks.
-- **Memory Errors**: The pipeline uses streaming for large datasets. If issues persist, reduce `k` in `code/utils/config.py`.
-- **Simulation Crashes**: Check `data/results/simulation_logs.csv` for `KinematicConstraintViolation` entries.
+Upon successful completion, the log will contain:
+- "Pipeline Complete"
+- "Exit Code: 0"

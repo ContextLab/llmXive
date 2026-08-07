@@ -33,6 +33,14 @@ T036:
     \ of the \u201Ctrajectory fidelity metric\u201D was provided. Consequently there\
     \ is no evidence that the percentage of kinematic features within the VLA proxy\
     \ error margin was computed or documented. The required output is missing."
+T038:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `research.md` (or `quickstart.md`) file content was provided; therefore the\
+    \ required documentation updates\u2014including the explicit selection rationale\
+    \ comparing DT vs CGMM performance and the exact pipeline command\u2011line flags\u2014\
+    are missing. The implementer must supply the updated markdown files with the specified\
+    \ information."
 T039b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -57,3 +65,9 @@ T041:
     \ any evidence that the end\u2011to\u2011end pipeline was actually executed and\
     \ validated. The required artifact (a successful run of the quickstart validation)\
     \ is missing."
+T044:
+  c: false
+  h: 04d41698cdb2e42ef72febecd74ec6559b9e792deb53ec58f9239d771e85bad6
+  r: "The required files `code/utils/data_loader.py` and `code/tests/test_data_loader.py`\
+    \ are missing entirely, so no refactoring or unit test exists to verify the new\
+    \ error handling behavior. The task\u2019s output artifacts are absent."

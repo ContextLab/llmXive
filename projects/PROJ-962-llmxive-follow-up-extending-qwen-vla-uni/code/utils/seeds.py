@@ -1,3 +1,6 @@
+"""
+seeds.py - Global seed management for reproducibility.
+"""
 import random
 import os
 from typing import Optional, List, Union, Any
@@ -5,43 +8,28 @@ import numpy as np
 
 _global_seed: Optional[int] = None
 
-def set_global_seed(seed: Optional[int] = 42) -> None:
+def set_global_seed(seed: Optional[int] = None) -> int:
     """
-    Set the global random seed for reproducibility across all libraries.
-    
-    Args:
-        seed: The seed value to set. If None, uses a default (42).
+    Set the global random seed for reproducibility.
+    If seed is None, uses an environment variable or a default value.
     """
     global _global_seed
-    _global_seed = seed if seed is not None else 42
+    if seed is None:
+        seed_str = os.environ.get("LLMXIVE_SEED", "42")
+        seed = int(seed_str)
     
-    random.seed(_global_seed)
-    os.environ["PYTHONHASHSEED"] = str(_global_seed)
-    np.random.seed(_global_seed)
-    
-    try:
-        import torch
-        torch.manual_seed(_global_seed)
-        if torch.cuda.is_available():
-            torch.cuda.manual_seed(_global_seed)
-            torch.cuda.manual_seed_all(_global_seed)
-            torch.backends.cudnn.deterministic = True
-            torch.backends.cudnn.benchmark = False
-    except ImportError:
-        pass
+    _global_seed = seed
+    random.seed(seed)
+    np.random.seed(seed)
+    # Note: torch is not imported here to avoid dependency on torch if not needed
+    # If torch is needed, it should be imported inside the function or by the caller
+    return seed
 
 def get_seed() -> Optional[int]:
-    """
-    Get the current global seed value.
-    
-    Returns:
-        The current seed value, or None if not set.
-    """
+    """Get the currently set global seed."""
     return _global_seed
 
 def reset_seed() -> None:
-    """
-    Reset the global seed to None (uninitialized state).
-    """
+    """Reset the global seed to None (uninitialized)."""
     global _global_seed
     _global_seed = None

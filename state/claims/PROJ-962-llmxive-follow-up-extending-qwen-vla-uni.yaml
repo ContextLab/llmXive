@@ -1,0 +1,240 @@
+- artifact_path: projects/PROJ-962-llmxive-follow-up-extending-qwen-vla-uni/research.md
+  attempts: 1
+  canonical: Dataset source is Qwen-VLA/Hy-Embodied from HuggingFace
+  claim_id: c_4678e937
+  context: '1. Dataset Ingestion and Clustering - Source: Qwen-VLA/Hy-Embodied dataset
+    from HuggingFace.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset_source_is_Qwen-VLA/Hy-Embodied_from_HuggingFace
+  kind: entity_fact
+  raw_text: 'Source: Qwen-VLA/Hy-Embodied dataset from HuggingFace.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T03:37:19Z'
+- artifact_path: projects/PROJ-962-llmxive-follow-up-extending-qwen-vla-uni/research.md
+  attempts: 1
+  canonical: BERT bert-base-uncased generates 768-dimensional embeddings
+  claim_id: c_e9fa9dd2
+  context: '2. Model Training - Embedding Generation: Text instructions are encoded
+    using a frozen BERT (bert-base-uncased) model to generate 768-dimensional embeddings.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Text instructions are encoded using a frozen BERT (bert-base-uncased)
+    model to generate 768-dimensional embeddings.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T03:37:43Z'
+- artifact_path: projects/PROJ-962-llmxive-follow-up-extending-qwen-vla-uni/specs/001-llmxive-follow-up-extending-qwen-vla-uni/tasks.md
+  attempts: 1
+  canonical: pipeline handles datasets >7GB
+  claim_id: c_d31de619
+  context: Implement streaming data loader in code/01_ingest.py to handle datasets
+    >7GB using datasets.load_dataset(..., streaming=True) and chunked processing.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/pipeline_handles_datasets_%3E7GB
+  kind: magnitude
+  raw_text: The pipeline must handle datasets greater than 7GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T03:39:25Z'
+- artifact_path: projects/PROJ-962-llmxive-follow-up-extending-qwen-vla-uni/specs/001-llmxive-follow-up-extending-qwen-vla-uni/tasks.md
+  attempts: 1
+  canonical: cluster into up to 50 groups
+  claim_id: c_b01f6c70
+  context: 'Implement K-means clustering in code/02_cluster.py: Cluster normalized
+    features into up to 50 groups (k=50), assign samples to clusters.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline should cluster normalized features into up to 50 groups.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T03:40:15Z'
+- artifact_path: projects/PROJ-962-llmxive-follow-up-extending-qwen-vla-uni/specs/001-llmxive-follow-up-extending-qwen-vla-uni/tasks.md
+  attempts: 1
+  canonical: silhouette score threshold 0.25
+  claim_id: c_8c123ed9
+  context: 'Implement clustering validation in code/02_cluster.py: Calculate silhouette
+    score; if < 0.25, reduce k using parameters...'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Silhouette_score_threshold_0.25
+  kind: magnitude
+  raw_text: The clustering validation requires a silhouette score of at least 0.25.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T03:41:18Z'
+- artifact_path: projects/PROJ-962-llmxive-follow-up-extending-qwen-vla-uni/specs/001-llmxive-follow-up-extending-qwen-vla-uni/tasks.md
+  attempts: 1
+  canonical: clustering coverage ratio 98%
+  claim_id: c_17b3ae8c
+  context: "Verify clustering coverage: Calculate the ratio of assigned samples to\
+    \ total ingested samples; save the metric and report to data/results/coverage_report.json.\
+    \ Ensure \u2265 98% coverage."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Clustering_coverage_ratio_98%25
+  kind: magnitude
+  raw_text: The clustering coverage ratio must be at least 98%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T03:41:55Z'
+- artifact_path: projects/PROJ-962-llmxive-follow-up-extending-qwen-vla-uni/specs/001-llmxive-follow-up-extending-qwen-vla-uni/tasks.md
+  attempts: 1
+  canonical: BERT-base-uncased embedding dimensions 768
+  claim_id: c_950de43b
+  context: Verify that embedding dimensions match 768 (as defined for bert-base-uncased
+    in the Plan's 'Technical Context').
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: BERT-base-uncased embedding dimensions are 768.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T03:42:24Z'
+- artifact_path: projects/PROJ-962-llmxive-follow-up-extending-qwen-vla-uni/specs/001-llmxive-follow-up-extending-qwen-vla-uni/tasks.md
+  attempts: 1
+  canonical: held-out R2 threshold 0.6
+  claim_id: c_76950d13
+  context: "Independent Test: Verify held-out R\xB2 \u2265 0.6 for the best-performing\
+    \ model, valid trajectory generation within 2s/prompt, and no GPU usage on CPU\
+    \ runner."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Held-out_R2_threshold_0.6
+  kind: magnitude
+  raw_text: Model selection requires a held-out R-squared value of at least 0.6 for
+    the best-performing model.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T03:43:24Z'
+- artifact_path: projects/PROJ-962-llmxive-follow-up-extending-qwen-vla-uni/specs/001-llmxive-follow-up-extending-qwen-vla-uni/tasks.md
+  attempts: 1
+  canonical: construct validity R2 threshold 0.1
+  claim_id: c_669c80a7
+  context: "Calculate Mutual Information or R\xB2 between BERT embeddings and kinematic\
+    \ features before fitting any models. If the threshold (R\xB2 < 0.1) is not met,\
+    \ the script must HALT model training..."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Construct_validity_R2_threshold_0.1
+  kind: magnitude
+  raw_text: Construct validity check requires an R-squared value of at least 0.1 between
+    BERT embeddings and kinematic features.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T03:44:01Z'
+- artifact_path: projects/PROJ-962-llmxive-follow-up-extending-qwen-vla-uni/specs/001-llmxive-follow-up-extending-qwen-vla-uni/tasks.md
+  attempts: 1
+  canonical: inference memory usage <7GB
+  claim_id: c_be55c680
+  context: "Implement OOD handling in code/04_inference.py... Validate inference performance:\
+    \ Create and run code/bench_inference.py to measure memory usage and execution\
+    \ time... Ensure memory < 7GB and time \u2264 10 minutes."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/inference_memory_usage_%3C7GB
+  kind: magnitude
+  raw_text: The inference benchmark memory usage must be less than 7GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T03:44:31Z'
+- artifact_path: projects/PROJ-962-llmxive-follow-up-extending-qwen-vla-uni/specs/001-llmxive-follow-up-extending-qwen-vla-uni/tasks.md
+  attempts: 1
+  canonical: inference time <=10 minutes
+  claim_id: c_e88e3069
+  context: "Validate inference performance: Create and run code/bench_inference.py\
+    \ to measure memory usage and execution time for a set of prompts; save results\
+    \ to data/results/inference_benchmark.csv. Ensure memory < 7GB and time \u2264\
+    \ 10 minutes."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/inference_time_%3C=10_minutes
+  kind: magnitude
+  raw_text: The inference benchmark execution time must be less than or equal to 10
+    minutes.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T03:45:21Z'
+- artifact_path: projects/PROJ-962-llmxive-follow-up-extending-qwen-vla-uni/specs/001-llmxive-follow-up-extending-qwen-vla-uni/tasks.md
+  attempts: 1
+  canonical: peak aggregate memory usage <=7GB
+  claim_id: c_aafbed9d
+  context: "Output Requirement: Save a summary report to data/results/memory_profile.json\
+    \ confirming the peak aggregate memory usage is \u2264 7GB (satisfying SC-003)."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/peak_aggregate_memory_usage_%3C=7GB
+  kind: magnitude
+  raw_text: The peak aggregate memory usage of the pipeline must be less than or equal
+    to 7GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T03:46:12Z'
+- artifact_path: projects/PROJ-962-llmxive-follow-up-extending-qwen-vla-uni/specs/001-llmxive-follow-up-extending-qwen-vla-uni/tasks.md
+  attempts: 1
+  canonical: edge case unit tests >=3 functions
+  claim_id: c_fdf8c731
+  context: 'Output Requirement: Create code/tests/test_edge_cases.py containing at
+    least 3 test functions; run pytest code/tests/test_edge_cases.py and ensure exit
+    code 0.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/edge_case_unit_tests_%3E=3_functions
+  kind: magnitude
+  raw_text: The unit tests for edge cases must include at least 3 test functions.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T03:46:47Z'

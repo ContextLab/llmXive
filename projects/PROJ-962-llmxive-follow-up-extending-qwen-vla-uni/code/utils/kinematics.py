@@ -1,104 +1,56 @@
+"""
+kinematics.py - Kinematic feature extraction utilities.
+"""
 import numpy as np
 from typing import List, Tuple, Optional, Union, Dict, Any
 
-def compute_velocity(
-    positions: Union[np.ndarray, List[float]], 
-    dt: float = 0.02
-) -> np.ndarray:
+def compute_velocity(positions: np.ndarray, dt: float = 1.0) -> np.ndarray:
     """
     Compute velocity from a sequence of positions.
-    
-    Args:
-        positions: Array of shape (N, D) where N is time steps and D is dimensions.
-        dt: Time step between frames.
-        
-    Returns:
-        Velocity array of shape (N-1, D).
+    positions: (N, D) array of positions.
+    dt: Time step between frames.
+    Returns: (N-1, D) array of velocities.
     """
-    positions = np.asarray(positions)
-    if positions.ndim == 1:
-        positions = positions.reshape(-1, 1)
-        
-    diffs = np.diff(positions, axis=0)
-    velocities = diffs / dt
-    return velocities
+    if len(positions) < 2:
+        return np.zeros((0, positions.shape[1]))
+    return np.diff(positions, axis=0) / dt
 
-def compute_acceleration(
-    velocities: Union[np.ndarray, List[float]], 
-    dt: float = 0.02
-) -> np.ndarray:
+def compute_acceleration(velocities: np.ndarray, dt: float = 1.0) -> np.ndarray:
     """
     Compute acceleration from a sequence of velocities.
-    
-    Args:
-        velocities: Array of shape (N, D) where N is time steps and D is dimensions.
-        dt: Time step between frames.
-        
-    Returns:
-        Acceleration array of shape (N-1, D).
+    velocities: (N, D) array of velocities.
+    dt: Time step between frames.
+    Returns: (N-1, D) array of accelerations.
     """
-    velocities = np.asarray(velocities)
-    if velocities.ndim == 1:
-        velocities = velocities.reshape(-1, 1)
-        
-    diffs = np.diff(velocities, axis=0)
-    accelerations = diffs / dt
-    return accelerations
+    if len(velocities) < 2:
+        return np.zeros((0, velocities.shape[1]))
+    return np.diff(velocities, axis=0) / dt
 
-def normalize_joint_angles(
-    angles: Union[np.ndarray, List[float]], 
-    lower_bounds: Optional[Union[np.ndarray, List[float]]] = None,
-    upper_bounds: Optional[Union[np.ndarray, List[float]]] = None
-) -> np.ndarray:
+def normalize_joint_angles(angles: np.ndarray, min_angle: float, max_angle: float) -> np.ndarray:
     """
-    Normalize joint angles to [0, 1] range based on bounds.
-    
-    Args:
-        angles: Array of joint angles.
-        lower_bounds: Lower bounds for each joint. If None, uses -pi.
-        upper_bounds: Upper bounds for each joint. If None, uses pi.
-        
-    Returns:
-        Normalized angles in [0, 1].
+    Normalize joint angles to [0, 1] range.
+    angles: (N, D) array of joint angles.
+    min_angle: Minimum possible angle (scalar or (D,) array).
+    max_angle: Maximum possible angle (scalar or (D,) array).
+    Returns: (N, D) normalized angles.
     """
-    angles = np.asarray(angles, dtype=float)
-    
-    if lower_bounds is None:
-        lower_bounds = -np.pi * np.ones_like(angles)
-    else:
-        lower_bounds = np.asarray(lower_bounds, dtype=float)
-        
-    if upper_bounds is None:
-        upper_bounds = np.pi * np.ones_like(angles)
-    else:
-        upper_bounds = np.asarray(upper_bounds, dtype=float)
-        
-    range_vals = upper_bounds - lower_bounds
-    range_vals[range_vals == 0] = 1.0  # Avoid division by zero
-    
-    normalized = (angles - lower_bounds) / range_vals
-    return np.clip(normalized, 0.0, 1.0)
+    range_val = max_angle - min_angle
+    if np.any(range_val == 0):
+        raise ValueError("Range cannot be zero.")
+    return (angles - min_angle) / range_val
 
-def extract_kinematic_features(
-    trajectory: np.ndarray,
-    dt: float = 0.02
-) -> Dict[str, np.ndarray]:
+def extract_kinematic_features(trajectory: np.ndarray, dt: float = 1.0) -> Dict[str, np.ndarray]:
     """
-    Extract kinematic features (position, velocity, acceleration) from a trajectory.
-    
-    Args:
-        trajectory: Array of shape (T, D) representing T time steps of D-dimensional positions.
-        dt: Time step between frames.
-        
-    Returns:
-        Dictionary with keys 'position', 'velocity', 'acceleration'.
+    Extract velocity, acceleration, and joint angles from a trajectory.
+    trajectory: (N, D) array of joint positions.
+    Returns: Dictionary with keys 'positions', 'velocities', 'accelerations'.
     """
-    trajectory = np.asarray(trajectory, dtype=float)
+    positions = trajectory
+    velocities = compute_velocity(positions, dt)
+    accelerations = compute_acceleration(velocities, dt)
     
-    features = {
-        'position': trajectory,
-        'velocity': compute_velocity(trajectory, dt),
-        'acceleration': compute_acceleration(compute_velocity(trajectory, dt), dt)
+    return {
+        "positions": positions,
+        "velocities": velocities,
+        "accelerations": accelerations
     }
-    
-    return features

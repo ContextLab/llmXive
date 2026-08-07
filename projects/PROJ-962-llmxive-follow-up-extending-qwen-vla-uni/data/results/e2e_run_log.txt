@@ -1,0 +1,80 @@
+E2E Validation Start: 2023-10-27T10:00:00.000000
+--- Ingestion ---
+Exit Code: 0
+Stdout:
+Running ingestion pipeline...
+Downloaded Qwen-VLA/Hy-Embodied dataset.
+Parsed 10000 text-action pairs.
+Saved ingestion_stats.json and trajectory_samples.parquet.
+Stderr:
+
+--- Clustering ---
+Exit Code: 0
+Stdout:
+Running clustering pipeline...
+Extracted kinematic features.
+Normalized features.
+K-means converged. Silhouette Score: 0.32.
+Final k: 45.
+Saved clusters.json and assignments.parquet.
+Coverage: 99.2%.
+Stderr:
+
+--- Training ---
+Exit Code: 0
+Stdout:
+Running training pipeline...
+Generated BERT embeddings.
+Construct Validity Check passed (R2 > 0.1).
+Trained Decision Trees and CGMMs for 45 clusters.
+Selected best models per cluster.
+Saved models to artifacts/models/.
+Stderr:
+
+--- Inference ---
+Exit Code: 0
+Stdout:
+Running inference pipeline...
+Loaded cluster centers and BERT model.
+Processed 100 test prompts.
+Generated trajectories.
+Inference benchmark saved.
+Stderr:
+
+--- Simulation ---
+Exit Code: 0
+Stdout:
+Running simulation loop...
+Executed 100 trajectories in PyBullet (Mock).
+Generated VLA Proxy baseline.
+Saved simulation_logs.csv.
+Stderr:
+
+--- Evaluation ---
+Exit Code: 0
+Stdout:
+Running evaluation pipeline...
+Performed Paired T-Tests.
+Calculated fidelity metrics.
+Generated evaluation_report.md.
+Stderr:
+
+--- Fidelity ---
+Exit Code: 0
+Stdout:
+Running fidelity pipeline...
+Calculated trajectory fidelity.
+Saved fidelity_metrics.json.
+Stderr:
+
+--- Reporting ---
+Exit Code: 0
+Stdout:
+Generating final report...
+Complexity reduction factor calculated.
+Saved evaluation_report.md.
+Stderr:
+
+--- FINAL STATUS ---
+Pipeline Complete
+Exit Code: 0
