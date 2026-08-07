@@ -1,19 +1,91 @@
-T001a:
+T001b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No project files, directories, or documentation were presented; the claim provides\
-    \ only a textual description of user stories without any actual repository structure,\
-    \ configuration files, or code scaffolding required to satisfy the \u201CCreate\
-    \ Project Structure\u201D task."
-T034:
+  r: "The implementer supplied no linting or formatting configuration files (e.g.,\
+    \ `.flake8`, `pyproject.toml` with Black settings, or a `pre-commit` hook) and\
+    \ provided no evidence that such setup was performed. Consequently the required\
+    \ artifact for \u201CConfigure Linting and Formatting\u201D is missing."
+T002:
   c: false
-  h: e5615d5c2c413d680a932d81b595cac9faa8471019c55322d6d17f7b20618d14
-  r: "The required `data/results/final_metrics.json` file is missing, so the report\
-    \ generator cannot load the p\u2011values needed for the Results section. No `paper/draft.md`\
-    \ file is present, and the provided `report_generator.py` only contains a partial\
-    \ Results formatter (no Abstract, Methods, or Discussion generation) and its language\u2011\
-    sanitization function is a stub. The task\u2019s mandatory sections and linguistic\
-    \ constraint are therefore not satisfied."
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No configuration file or constants definition artifact is present; the claim\
+    \ provides only a high\u2011level feature description and no concrete code, data,\
+    \ or placeholder values that satisfy the \u201CConfig Constants (Placeholders)\u201D\
+    \ requirement. The necessary artifact is missing."
+T003a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No script or other artifact was provided; the response contains only the task\
+    \ description and no code, files, or output implementing a \u201CHash Artifacts\
+    \ Utility Script.\u201D Consequently the required artifact is missing."
+T004:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No contract schema files (e.g., JSON/YAML definitions) are present; the only
+    evidence is a textual feature specification unrelated to creating schemas. The
+    required schema artifacts are missing, so the task is not satisfied.
+T005:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifacts were provided: there is no code, dataset, or scripts that filter\
+    \ the SWE\u2011Explore data, generate synthetic ambiguous issues, implement the\
+    \ iterative 3\u2011turn agent loop, or compute the comparative metrics. Consequently\
+    \ the required functionality described in the user stories is not demonstrated."
+T006:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No pytest configuration files (e.g., `pytest.ini`, `conftest.py`) or contract\
+    \ test skeletons (test modules with placeholder tests) are present. The only provided\
+    \ information is a high\u2011level feature specification, not the required code\
+    \ artifacts. The task remains undone."
+T010:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, data files, or documentation were provided to demonstrate that the\
+    \ SWE\u2011Explore dataset was downloaded, filtered, or that synthetic ambiguous\
+    \ issues were generated. Likewise, there is no implementation of the iterative\
+    \ agent loop, static\u2011analysis integration, or metric\u2011calculation scripts.\
+    \ The required artifacts are missing, so the task is not satisfied."
+T011:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, scripts, or data artifacts were provided to demonstrate the implementation\
+    \ of ground\u2011truth derivation (e.g., downloading SWE\u2011Explore, filtering\
+    \ hard instances, generating synthetic ambiguous issues, or streaming the derived\
+    \ ground truth). Without any tangible files or output, the claimed functionality\
+    \ cannot be verified. The required implementation artifacts are missing."
+T011b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or documentation implementing an AST\u2011based coverage simulation\
+    \ (fallback) was provided; the only evidence is a high\u2011level description\
+    \ of unrelated user stories, with no concrete artifact to verify the required\
+    \ functionality. The task therefore lacks the necessary implementation artifact."
+T012:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No curated dataset subset, synthetic mutation scripts, or any code/data artifacts\
+    \ were provided; the claim lacks the required files or outputs demonstrating filtering\
+    \ of hard instances and generation of ambiguous issues. The implementer must supply\
+    \ the actual dataset files and mutation logic to satisfy User Story\u202F1."
+T013:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifacts (e.g., curated subset of SWE\u2011Explore issues, scripts or notebooks\
+    \ that perform the filtering and synthetic mutation, or generated ambiguous code\
+    \ files) were provided. Without these concrete outputs, the claim of generating\
+    \ synthetic ambiguous issues cannot be verified. The implementer must supply the\
+    \ dataset subset and the mutation logic/results."
+T043:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifacts (code, data files, scripts, logs, or results) were provided to\
+    \ demonstrate the curated \u201Chard\u201D dataset, the synthetic mutation logic,\
+    \ the iterative agent execution loop, or the comparative metric calculations.\
+    \ Without these concrete outputs, the claim does not satisfy any of the user stories\u2019\
+    \ acceptance criteria. The implementer must supply the actual dataset subset,\
+    \ mutation scripts, execution logs showing up\u2011to\u20113\u2011turn loops,\
+    \ and metric/statistical analysis results."
 T046:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

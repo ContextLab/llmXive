@@ -1,43 +1,118 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "StatisticalResultSchema"
-description: "Schema for the aggregated statistical results."
-type: "object"
-properties:
-  metric_name:
-    type: "string"
-    description: "Name of the metric tested (e.g., 'coverage_score')."
-  test_type:
-    type: "string"
-    enum:
-      - "wilcoxon"
-      - "cox_regression"
-      - "permutation"
-    description: "Type of statistical test used."
-  statistic:
-    type: "number"
-    description: "The test statistic value."
-  p_value:
-    type: "number"
-    minimum: 0
-    maximum: 1
-    description: "Raw p-value from the test."
-  adjusted_p_value:
-    type: "number"
-    minimum: 0
-    maximum: 1
-    description: "Bonferroni corrected p-value."
-  significant:
-    type: "boolean"
-    description: "True if adjusted p-value < 0.05."
-  effect_size:
-    type: "number"
-    description: "Magnitude of the effect (e.g., r or hazard ratio)."
+title: Result Metrics Schema
+description: Schema for the final aggregated metrics and statistical test results.
+type: object
 required:
-  - metric_name
-  - test_type
-  - statistic
-  - p_value
-  - adjusted_p_value
-  - significant
-  - effect_size
-additionalProperties: false
+  - baseline_metrics
+  - iterative_metrics
+  - statistical_test
+  - tie_analysis
+properties:
+  baseline_metrics:
+    type: object
+    description: Aggregated metrics for the baseline agent.
+    properties:
+      mean_coverage:
+        type: number
+        format: float
+      median_coverage:
+        type: number
+        format: float
+      mean_ranking:
+        type: number
+        format: float
+      median_ranking:
+        type: number
+        format: float
+      success_rate:
+        type: number
+        format: float
+  iterative_metrics:
+    type: object
+    description: Aggregated metrics for the iterative agent.
+    properties:
+      mean_coverage:
+        type: number
+        format: float
+      median_coverage:
+        type: number
+        format: float
+      mean_ranking:
+        type: number
+        format: float
+      median_ranking:
+        type: number
+        format: float
+      success_rate:
+        type: number
+        format: float
+  statistical_test:
+    type: object
+    description: Results of the statistical test (Wilcoxon or Permutation).
+    properties:
+      test_type:
+        type: string
+        enum:
+          - wilcoxon
+          - permutation
+        description: Type of statistical test performed.
+      coverage_p_value:
+        type: number
+        format: float
+      coverage_statistic:
+        type: number
+        format: float
+      ranking_p_value:
+        type: number
+        format: float
+      ranking_statistic:
+        type: number
+        format: float
+      bonferroni_adjusted_coverage_p:
+        type: number
+        format: float
+      bonferroni_adjusted_ranking_p:
+        type: number
+        format: float
+      conclusion:
+        type: string
+        description: Interpretation of the results using associational language.
+  tie_analysis:
+    type: object
+    description: Analysis of ties in the paired differences.
+    properties:
+      tie_proportion:
+        type: number
+        format: float
+      censored_count:
+        type: integer
+      justification:
+        type: string
+        description: Justification for the chosen statistical test based on tie analysis.
+  sweep_results:
+    type: object
+    description: Results from the turn-limit sensitivity sweep (optional).
+    properties:
+      turn_limits:
+        type: array
+        items:
+          type: integer
+      coverage_by_turn:
+        type: object
+        additionalProperties:
+          type: number
+          format: float
+      ranking_by_turn:
+        type: object
+        additionalProperties:
+          type: number
+          format: float
+  generated_at:
+    type: string
+    format: date-time
+    description: Timestamp of report generation.
+  config_summary:
+    type: object
+    description: Summary of configuration parameters used.
+    additionalProperties: true
+additionalProperties: true

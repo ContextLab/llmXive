@@ -1,86 +1,67 @@
-# Quickstart Guide
+# Quickstart Guide: llmXive Follow-up
 
 ## Prerequisites
+- Python 3.9+
+- Install dependencies: `pip install -r requirements.txt`
 
-- Python 3.10+
-- pip
-- Git
+## Project Structure
+- `code/`: Source code
+- `data/`: Raw, curated, and results data
+- `specs/`: Design documents and contracts
+- `tests/`: Test suites
 
-## Setup
+## Execution
 
-1. **Install Dependencies**
- ```bash
- pip install -r code/requirements.txt
- ```
-
-2. **Create Project Structure**
- ```bash
- python code/setup_project_structure.py
- ```
-
-3. **Configure Linting**
- ```bash
- python code/setup_linting.py
- ```
-
-## Execution Pipeline
-
-The full pipeline runs the following steps in order:
-
-### Phase 1: Data Download & Processing
+### 1. Create Project Structure
 ```bash
-# Download raw dataset
+python code/setup_project_structure.py
+```
+
+### 2. Download Data
+```bash
 python code/data/download.py
+```
 
-# Derive ground truth
+### 3. Derive Ground Truth
+```bash
 python code/data/derive_gt.py
+```
 
-# Filter hard instances
+### 4. Filter Hard Subset
+```bash
 python code/data/filter_hard.py
+```
 
-# Filter non-hard instances
-python code/data/filter_non_hard.py
+### 5. Generate Synthetic Issues
+```bash
+python code/data/curate.py
+```
 
-# Generate synthetic issues
-python code/data/mutate.py
-
-# Validate hard subset
+### 6. Validate Hard Subset
+```bash
 python code/data/validate_hard.py
 ```
 
-### Phase 2: Agent Execution
+### 7. Run Full Pipeline
 ```bash
-# Run static baseline
-python code/agent/static_baseline.py
-
-# Run iterative agent
-python code/agent/iterative.py
+python code/main.py
 ```
 
-### Phase 3: Analysis
+### 8. Generate Metrics
 ```bash
-# Generate metrics
 python code/analysis/generate_final_metrics.py
+```
 
-# Run statistical tests
-python code/analysis/stats.py
+### 9. Generate Plots
+```bash
+python code/analysis/plots.py --input data/results/final_metrics.json --output docs/figures/
+```
 
-# Generate plots
-python code/analysis/plots.py
-
-# Generate report
+### 10. Generate Report
+```bash
 python code/analysis/report_generator.py
 ```
 
-## Verification
-
-To verify the pipeline completed successfully:
-```bash
-python code/validate_quickstart.py
-```
-
-## Troubleshooting
-
-- **ModuleNotFoundError**: Ensure `code/requirements.txt` was installed.
-- **File not found**: Ensure `python code/setup_project_structure.py` was run first.
-- **Memory errors**: The pipeline uses streaming for large datasets; ensure at least 7GB RAM available [UNRESOLVED-CLAIM: c_45194770 — status=not_enough_info].
+## Note
+- Ensure `data/raw/bench.final.public.jsonl` exists before running `derive_gt.py`.
+- The `--mode full` argument has been removed from `main.py` to align with the current implementation. Run `python code/main.py` directly.

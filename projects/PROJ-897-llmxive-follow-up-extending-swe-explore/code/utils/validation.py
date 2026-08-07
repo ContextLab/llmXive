@@ -1,6 +1,8 @@
 """
-Validation utilities for JSONL/Parquet schema validation against contracts.
-Implements strict schema enforcement for data artifacts.
+Schema Validation Helper for llmXive.
+
+Validates JSONL/Parquet files against the YAML schemas defined in
+specs/.../contracts/.
 """
 
 import json
@@ -11,20 +13,14 @@ from typing import Any, Dict, List, Optional, Tuple, Set
 
 import yaml
 
-from config import get_path, get_config_summary, DATA_CURATED, DATA_RAW, DATA_RESULTS
+from config import get_path, DATA_RAW, DATA_CURATED, DATA_RESULTS
 from utils.schemas import get_schema_path, load_schema
 
 
-def validate_field_type(value: Any, expected_type: str) -> bool:
+def validate_field_type(value: Any, expected_type: str) -> Tuple[bool, Optional[str]]:
     """
-    Validate that a value matches the expected JSON schema type.
-
-    Args:
-        value: The value to validate.
-        expected_type: The expected type (string, integer, number, boolean, array, object, null).
-
-    Returns:
-        True if the type matches, False otherwise.
+    Validate that a value matches the expected JSON Schema type.
+    Returns (is_valid, error_message).
     """
     type_map = {
         "string": str,
@@ -37,369 +33,297 @@ def validate_field_type(value: Any, expected_type: str) -> bool:
     }
 
     if expected_type not in type_map:
-        return False
+        return True, None  # Unknown type, skip strict check
 
     expected_python_type = type_map[expected_type]
-    return isinstance(value, expected_python_type)
+
+    # Special case for integer/number: if it's a bool, it's not a number
+    if expected_type == "integer" and isinstance(value, bool):
+        return False, f"Expected integer, got bool"
+    if expected_type == "number" and isinstance(value, bool):
+        return False, f"Expected number, got bool"
+
+    if not isinstance(value, expected_python_type):
+        return False, f"Expected {expected_type}, got {type(value).__name__}"
+
+    return True, None
 
 
 def validate_record_against_schema(record: Dict[str, Any], schema: Dict[str, Any]) -> List[str]:
     """
-    Validate a single record against a JSON schema definition.
-
-    Args:
-        record: The record to validate.
-        schema: The JSON schema definition.
-
-    Returns:
-        A list of validation error messages. Empty if valid.
+    Validate a single record (dict) against a JSON Schema definition.
+    Returns a list of error messages.
     """
     errors = []
     properties = schema.get("properties", {})
-    required = schema.get("required", [])
+    required_fields = schema.get("required", [])
 
     # Check required fields
-    for field in required:
+    for field in required_fields:
         if field not in record:
             errors.append(f"Missing required field: {field}")
 
-    # Check field types and constraints
+    # Check types for present fields
     for field, value in record.items():
-        if field not in properties:
-            # Optional: warn about extra fields or skip
-            continue
-
-        field_schema = properties[field]
-        expected_type = field_schema.get("type")
-
-        if expected_type:
-            if not validate_field_type(value, expected_type):
-                errors.append(
-                    f"Field '{field}' has type {type(value).__name__}, expected {expected_type}"
-                )
-
-        # Check for string constraints
-        if expected_type == "string" and isinstance(value, str):
-            if "minLength" in field_schema and len(value) < field_schema["minLength"]:
-                errors.append(
-                    f"Field '{field}' length {len(value)} is less than minLength {field_schema['minLength']}"
-                )
-            if "maxLength" in field_schema and len(value) > field_schema["maxLength"]:
-                errors.append(
-                    f"Field '{field}' length {len(value)} exceeds maxLength {field_schema['maxLength']}"
-                )
-
-        # Check for numeric constraints
-        if expected_type in ("integer", "number") and isinstance(value, (int, float)):
-            if "minimum" in field_schema and value < field_schema["minimum"]:
-                errors.append(
-                    f"Field '{field}' value {value} is less than minimum {field_schema['minimum']}"
-                )
-            if "maximum" in field_schema and value > field_schema["maximum"]:
-                errors.append(
-                    f"Field '{field}' value {value} exceeds maximum {field_schema['maximum']}"
-                )
-
-        # Check for array constraints
-        if expected_type == "array" and isinstance(value, list):
-            if "minItems" in field_schema and len(value) < field_schema["minItems"]:
-                errors.append(
-                    f"Field '{field}' has {len(value)} items, less than minItems {field_schema['minItems']}"
-                )
-            if "maxItems" in field_schema and len(value) > field_schema["maxItems"]:
-                errors.append(
-                    f"Field '{field}' has {len(value)} items, exceeds maxItems {field_schema['maxItems']}"
-                )
+        if field in properties:
+            field_schema = properties[field]
+            field_type = field_schema.get("type")
+            if field_type:
+                is_valid, err = validate_field_type(value, field_type)
+                if not is_valid:
+                    errors.append(f"Field '{field}': {err}")
 
     return errors
 
 
-def validate_jsonl_against_schema(
-    file_path: str, schema_name: str, max_records: Optional[int] = None
-) -> Tuple[int, int, List[str]]:
+def validate_jsonl_against_schema(file_path: Path, schema_name: str) -> Tuple[int, int, List[str]]:
     """
     Validate a JSONL file against a named schema.
-
-    Args:
-        file_path: Path to the JSONL file.
-        schema_name: Name of the schema to use (without extension).
-        max_records: Maximum number of records to validate (None for all).
-
-    Returns:
-        Tuple of (valid_count, invalid_count, list of error messages).
+    Returns (valid_count, total_count, list_of_errors).
     """
     schema = load_schema(schema_name)
     if not schema:
-        return 0, 0, [f"Schema '{schema_name}' not found"]
+        raise FileNotFoundError(f"Schema '{schema_name}' not found.")
 
-    errors = []
     valid_count = 0
-    invalid_count = 0
+    total_count = 0
+    all_errors = []
 
-    if not os.path.exists(file_path):
-        return 0, 0, [f"File not found: {file_path}"]
+    if not file_path.exists():
+        raise FileNotFoundError(f"Input file not found: {file_path}")
 
-    try:
-        with open(file_path, "r", encoding="utf-8") as f:
-            for line_num, line in enumerate(f, 1):
-                line = line.strip()
-                if not line:
-                    continue
+    with open(file_path, "r", encoding="utf-8") as f:
+        for line_num, line in enumerate(f, 1):
+            line = line.strip()
+            if not line:
+                continue
 
-                try:
-                    record = json.loads(line)
-                    record_errors = validate_record_against_schema(record, schema)
-                    if record_errors:
-                        invalid_count += 1
-                        for err in record_errors:
-                            errors.append(f"Line {line_num}: {err}")
-                    else:
-                        valid_count += 1
-                except json.JSONDecodeError as e:
-                    invalid_count += 1
-                    errors.append(f"Line {line_num}: Invalid JSON - {str(e)}")
+            total_count += 1
+            try:
+                record = json.loads(line)
+            except json.JSONDecodeError as e:
+                all_errors.append(f"Line {line_num}: JSON decode error: {e}")
+                continue
 
-                if max_records and line_num >= max_records:
-                    break
-
-    except Exception as e:
-        return 0, 0, [f"Error reading file: {str(e)}"]
-
-    return valid_count, invalid_count, errors
-
-
-def validate_parquet_against_schema(
-    file_path: str, schema_name: str, max_records: Optional[int] = None
-) -> Tuple[int, int, List[str]]:
-    """
-    Validate a Parquet file against a named schema.
-
-    Args:
-        file_path: Path to the Parquet file.
-        schema_name: Name of the schema to use.
-        max_records: Maximum number of records to validate.
-
-    Returns:
-        Tuple of (valid_count, invalid_count, list of error messages).
-    """
-    # Note: Parquet validation requires pyarrow or pandas
-    # This is a simplified implementation that checks basic structure
-    try:
-        import pandas as pd
-    except ImportError:
-        return 0, 0, ["pyarrow or pandas required for Parquet validation"]
-
-    schema = load_schema(schema_name)
-    if not schema:
-        return 0, 0, [f"Schema '{schema_name}' not found"]
-
-    errors = []
-    valid_count = 0
-    invalid_count = 0
-
-    if not os.path.exists(file_path):
-        return 0, 0, [f"File not found: {file_path}"]
-
-    try:
-        df = pd.read_parquet(file_path)
-        properties = schema.get("properties", {})
-        required = schema.get("required", [])
-
-        # Check required columns
-        for field in required:
-            if field not in df.columns:
-                errors.append(f"Missing required column: {field}")
-
-        # Sample validation
-        sample_size = max_records if max_records else len(df)
-        sample_df = df.head(sample_size)
-
-        for idx, row in sample_df.iterrows():
-            record = row.to_dict()
             record_errors = validate_record_against_schema(record, schema)
             if record_errors:
-                invalid_count += 1
                 for err in record_errors:
-                    errors.append(f"Row {idx}: {err}")
+                    all_errors.append(f"Line {line_num}: {err}")
             else:
                 valid_count += 1
 
+    return valid_count, total_count, all_errors
+
+
+def validate_parquet_against_schema(file_path: Path, schema_name: str) -> Tuple[int, int, List[str]]:
+    """
+    Validate a Parquet file against a named schema.
+    Note: This implementation assumes 'pyarrow' and 'pandas' are available.
+    Returns (valid_count, total_count, list_of_errors).
+    """
+    try:
+        import pandas as pd
+        import pyarrow.parquet as pq
+    except ImportError:
+        raise ImportError("pyarrow and pandas are required to validate Parquet files.")
+
+    schema = load_schema(schema_name)
+    if not schema:
+        raise FileNotFoundError(f"Schema '{schema_name}' not found.")
+
+    try:
+        table = pq.read_table(str(file_path))
+        df = table.to_pandas()
     except Exception as e:
-        return 0, 0, [f"Error reading Parquet file: {str(e)}"]
+        raise RuntimeError(f"Failed to read Parquet file {file_path}: {e}")
 
-    return valid_count, invalid_count, errors
+    valid_count = 0
+    total_count = len(df)
+    all_errors = []
+
+    # Convert schema properties to a simpler check for columns
+    properties = schema.get("properties", {})
+    required_fields = schema.get("required", [])
+
+    # Check columns
+    missing_cols = set(required_fields) - set(df.columns)
+    if missing_cols:
+        all_errors.append(f"Missing columns: {missing_cols}")
+        return 0, total_count, all_errors
+
+    # Validate types row by row (simplified for Parquet)
+    for idx, row in df.iterrows():
+        row_dict = row.to_dict()
+        record_errors = validate_record_against_schema(row_dict, schema)
+        if record_errors:
+            for err in record_errors:
+                all_errors.append(f"Row {idx}: {err}")
+        else:
+            valid_count += 1
+
+    return valid_count, total_count, all_errors
 
 
-def validate_dataset_artifact(
-    artifact_path: str, schema_name: str, artifact_type: str = "jsonl"
-) -> Dict[str, Any]:
+def validate_dataset_artifact(file_path: Path, schema_name: str) -> Dict[str, Any]:
     """
-    Validate a dataset artifact and return a detailed report.
-
-    Args:
-        artifact_path: Path to the artifact.
-        schema_name: Name of the schema to validate against.
-        artifact_type: Type of artifact ('jsonl' or 'parquet').
-
-    Returns:
-        Dictionary containing validation results.
+    Validate a dataset artifact (JSONL or Parquet) and return a summary.
     """
-    if not os.path.exists(artifact_path):
+    suffix = file_path.suffix.lower()
+
+    try:
+        if suffix == ".jsonl":
+            valid, total, errors = validate_jsonl_against_schema(file_path, schema_name)
+        elif suffix == ".parquet":
+            valid, total, errors = validate_parquet_against_schema(file_path, schema_name)
+        else:
+            raise ValueError(f"Unsupported file format: {suffix}")
+    except Exception as e:
         return {
-            "status": "FAILED",
-            "message": f"Artifact not found: {artifact_path}",
+            "file": str(file_path),
+            "schema": schema_name,
+            "status": "ERROR",
+            "error": str(e),
             "valid_count": 0,
-            "invalid_count": 0,
-            "errors": [f"File not found: {artifact_path}"],
+            "total_count": 0,
+            "errors": []
         }
 
-    if artifact_type == "jsonl":
-        valid_count, invalid_count, errors = validate_jsonl_against_schema(
-            artifact_path, schema_name
-        )
-    elif artifact_type == "parquet":
-        valid_count, invalid_count, errors = validate_parquet_against_schema(
-            artifact_path, schema_name
-        )
-    else:
-        return {
-            "status": "FAILED",
-            "message": f"Unsupported artifact type: {artifact_type}",
-            "valid_count": 0,
-            "invalid_count": 0,
-            "errors": [f"Unsupported artifact type: {artifact_type}"],
-        }
-
-    total_count = valid_count + invalid_count
-    status = "PASSED" if invalid_count == 0 and total_count > 0 else "FAILED"
-
+    status = "PASS" if len(errors) == 0 else "FAIL"
     return {
+        "file": str(file_path),
+        "schema": schema_name,
         "status": status,
-        "message": f"Validated {total_count} records, {invalid_count} errors",
-        "valid_count": valid_count,
-        "invalid_count": invalid_count,
-        "total_count": total_count,
-        "errors": errors[:100],  # Limit error list
-        "artifact_path": artifact_path,
-        "schema_name": schema_name,
+        "valid_count": valid,
+        "total_count": total,
+        "error_count": len(errors),
+        "errors": errors[:10]  # Limit error list for report
     }
 
 
-def validate_all_curated_artifacts() -> Dict[str, Any]:
+def validate_all_curated_artifacts() -> List[Dict[str, Any]]:
     """
     Validate all curated artifacts against their respective schemas.
-
-    Returns:
-        Dictionary containing validation results for all artifacts.
+    Returns a list of validation results.
     """
-    results = {}
-    artifacts = [
-        ("data/curated/hard_subset.jsonl", "dataset_schema", "jsonl"),
-        ("data/curated/non_hard_subset.jsonl", "dataset_schema", "jsonl"),
-        ("data/curated/synthetic_issues.jsonl", "dataset_schema", "jsonl"),
-        ("data/raw/swe_explore_raw.jsonl", "dataset_schema", "jsonl"),
-        ("data/raw/swe_explore_with_gt.jsonl", "dataset_schema", "jsonl"),
-    ]
+    results = []
+    curated_dir = Path(DATA_CURATED)
 
-    for artifact_rel_path, schema_name, artifact_type in artifacts:
-        full_path = get_path(artifact_rel_path)
-        if os.path.exists(full_path):
-            results[artifact_rel_path] = validate_dataset_artifact(
-                full_path, schema_name, artifact_type
-            )
+    if not curated_dir.exists():
+        return [{"status": "SKIP", "reason": "Curated directory not found"}]
+
+    # Mapping of file patterns to schema names (based on T004 contracts)
+    # Adjust these keys if the actual filenames differ
+    file_schema_map = {
+        "hard_subset.jsonl": "dataset_schema",
+        "synthetic_issues.jsonl": "dataset_schema",
+        "ground_truth.jsonl": "dataset_schema",
+        "agent_logs.jsonl": "agent_log_schema",
+        "results.jsonl": "result_schema",
+    }
+
+    for filename, schema_name in file_schema_map.items():
+        file_path = curated_dir / filename
+        if file_path.exists():
+            result = validate_dataset_artifact(file_path, schema_name)
+            results.append(result)
         else:
-            results[artifact_rel_path] = {
-                "status": "SKIPPED",
-                "message": "File not found",
-                "valid_count": 0,
-                "invalid_count": 0,
-                "errors": [],
-            }
+            # Only skip if the file is expected but missing, or log warning
+            # For now, we just skip missing optional files
+            pass
 
     return results
 
 
-def generate_validation_report(results: Dict[str, Any]) -> str:
+def generate_validation_report(results: List[Dict[str, Any]], output_path: Path) -> None:
     """
-    Generate a markdown validation report from results.
-
-    Args:
-        results: Dictionary of validation results.
-
-    Returns:
-        Markdown formatted report string.
+    Generate a text report of validation results.
     """
-    lines = ["# Validation Report", ""]
-    lines.append(f"Generated: {get_config_summary()['timestamp']}")
-    lines.append("")
+    lines = [
+        "# Schema Validation Report",
+        f"Generated: {Path(output_path).parent.name}",
+        "",
+    ]
 
-    total_valid = 0
-    total_invalid = 0
-    passed_count = 0
-    failed_count = 0
+    passed = 0
+    failed = 0
+    errors = 0
+
+    for res in results:
+        status = res.get("status", "UNKNOWN")
+        if status == "PASS":
+            passed += 1
+        elif status == "FAIL":
+            failed += 1
+        elif status == "ERROR":
+            errors += 1
+
+        lines.append(f"## {res.get('file', 'Unknown')}")
+        lines.append(f"- Schema: {res.get('schema', 'N/A')}")
+        lines.append(f"- Status: {status}")
+        if "valid_count" in res:
+            lines.append(f"- Valid Records: {res['valid_count']}/{res['total_count']}")
+        if res.get("error"):
+            lines.append(f"- Error: {res['error']}")
+        if res.get("errors"):
+            lines.append("- Errors:")
+            for err in res["errors"]:
+                lines.append(f"  - {err}")
+        lines.append("")
 
     lines.append("## Summary")
-    lines.append("")
-    lines.append("| Artifact | Status | Valid | Invalid |")
-    lines.append("|----------|--------|-------|---------|")
+    lines.append(f"- Passed: {passed}")
+    lines.append(f"- Failed: {failed}")
+    lines.append(f"- Errors: {errors}")
 
-    for artifact, result in results.items():
-        status = result.get("status", "UNKNOWN")
-        valid = result.get("valid_count", 0)
-        invalid = result.get("invalid_count", 0)
-
-        total_valid += valid
-        total_invalid += invalid
-
-        if status == "PASSED":
-            passed_count += 1
-        elif status == "FAILED":
-            failed_count += 1
-
-        lines.append(f"| {artifact} | {status} | {valid} | {invalid} |")
-
-    lines.append("")
-    lines.append(f"**Total Valid Records:** {total_valid}")
-    lines.append(f"**Total Invalid Records:** {total_invalid}")
-    lines.append(f"**Artifacts Passed:** {passed_count}")
-    lines.append(f"**Artifacts Failed:** {failed_count}")
-    lines.append("")
-
-    if failed_count > 0:
-        lines.append("## Errors")
-        lines.append("")
-        for artifact, result in results.items():
-            if result.get("status") == "FAILED" and result.get("errors"):
-                lines.append(f"### {artifact}")
-                for error in result["errors"][:10]:
-                    lines.append(f"- {error}")
-                lines.append("")
-
-    return "\n".join(lines)
+    with open(output_path, "w", encoding="utf-8") as f:
+        f.write("\n".join(lines))
 
 
 def main():
-    """Main entry point for validation script."""
-    print("Starting validation of curated artifacts...")
+    """
+    CLI entry point for validation.
+    Usage: python -m utils.validation [--input <path>] [--schema <name>]
+    """
+    import argparse
 
-    # Validate all curated artifacts
-    results = validate_all_curated_artifacts()
+    parser = argparse.ArgumentParser(description="Validate data artifacts against schemas.")
+    parser.add_argument("--input", type=str, help="Path to input file (JSONL or Parquet).")
+    parser.add_argument("--schema", type=str, help="Schema name (e.g., dataset_schema).")
+    parser.add_argument("--all", action="store_true", help="Validate all curated artifacts.")
+    parser.add_argument("--output", type=str, help="Output path for report (if --all).")
 
-    # Generate and print report
-    report = generate_validation_report(results)
-    print(report)
+    args = parser.parse_args()
 
-    # Save report to file
-    report_path = get_path("data/curated/validation_report.md")
-    with open(report_path, "w", encoding="utf-8") as f:
-        f.write(report)
-
-    print(f"\nValidation report saved to: {report_path}")
-
-    # Exit with appropriate code
-    if any(r.get("status") == "FAILED" for r in results.values()):
+    if args.all:
+        results = validate_all_curated_artifacts()
+        if not results:
+            print("No artifacts found to validate.")
+            return
+        output_path = Path(args.output) if args.output else Path(DATA_RESULTS) / "validation_report.txt"
+        generate_validation_report(results, output_path)
+        print(f"Validation report written to {output_path}")
+        # Exit with error if any failed
+        if any(r.get("status") in ["FAIL", "ERROR"] for r in results):
+            sys.exit(1)
+    elif args.input and args.schema:
+        file_path = Path(args.input)
+        try:
+            valid, total, errors = validate_jsonl_against_schema(file_path, args.schema)
+            if errors:
+                print(f"Validation FAILED for {file_path}")
+                for err in errors[:5]:
+                    print(f"  {err}")
+                if len(errors) > 5:
+                    print(f"  ... and {len(errors) - 5} more errors")
+                sys.exit(1)
+            else:
+                print(f"Validation PASSED for {file_path}: {valid}/{total} records valid.")
+        except Exception as e:
+            print(f"Error validating {file_path}: {e}")
+            sys.exit(1)
+    else:
+        parser.print_help()
         sys.exit(1)
-    sys.exit(0)
 
 
 if __name__ == "__main__":

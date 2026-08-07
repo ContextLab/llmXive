@@ -1,107 +1,82 @@
 """
-Configuration module for llmXive.
-Defines paths, random seeds, model config, and critical thresholds.
-Updated to align with Spec FR-001 (Coverage-based Hard Selection) and SC-003 (Wilcoxon/Permutation).
+Configuration constants and path helpers for the llmXive pipeline.
 """
 import os
 from pathlib import Path
-from typing import Final, Dict, Any, List
+from typing import Final, Dict, Any, List, Optional
 from datetime import datetime
 
-# Project Root
-_PROJECT_ROOT: Final = Path(__file__).resolve().parent.parent
+# --- Project Root & Directory Paths ---
+# Assume code/ is the root for imports, but paths are relative to project root
+PROJECT_ROOT: Final[Path] = Path(__file__).resolve().parent.parent
+DATA_ROOT: Final[Path] = PROJECT_ROOT / "data"
+DATA_RAW: Final[Path] = DATA_ROOT / "raw"
+DATA_CURATED: Final[Path] = DATA_ROOT / "curated"
+DATA_RESULTS: Final[Path] = DATA_ROOT / "results"
+STATE_ROOT: Final[Path] = PROJECT_ROOT / "state"
+SPECS_ROOT: Final[Path] = PROJECT_ROOT / "specs" / "001-llmxive-follow-up-extending-swe-explore"
+CONTRACTS_ROOT: Final[Path] = SPECS_ROOT / "contracts"
+FIGURES_ROOT: Final[Path] = PROJECT_ROOT / "docs" / "figures"
+PAPER_ROOT: Final[Path] = PROJECT_ROOT / "paper"
 
-# Paths
-DATA_RAW: Final = _PROJECT_ROOT / "data" / "raw"
-DATA_CURATED: Final = _PROJECT_ROOT / "data" / "curated"
-DATA_RESULTS: Final = _PROJECT_ROOT / "data" / "results"
-DATA_FIGURES: Final = _PROJECT_ROOT / "figures"
-CODE_DIR: Final = _PROJECT_ROOT / "code"
-SPECS_DIR: Final = _PROJECT_ROOT / "specs"
-STATE_DIR: Final = _PROJECT_ROOT / "state"
+# --- Deferred / Placeholder Parameters ---
+# These are set at runtime or via validation steps (e.g., T012, T024a)
+HARD_INSTANCE_PERCENTILE: Optional[float] = None  # [deferred] - set at runtime or via validation
+SWEEP_SAMPLE_SIZE: Optional[int] = None  # [deferred] - validated by power analysis
+TIE_THRESHOLD: Optional[float] = None  # [deferred] - validated by tie analysis
 
-# Random Seeds
-RANDOM_SEED: Final = 42
-SWEEP_SEED: Final = 42
+# --- Fixed Configuration Parameters ---
+COVERAGE_COLUMN_NAME: Final[str] = 'initial_coverage'
+SWEEP_SEED: Final[int] = 42
+TURN_LIMITS: Final[List[int]] = [5, 10, 15]  # low, medium, high (revised per spec)
 
-# Model Config (CPU-only, 8-bit quantization default)
-MODEL_USE_GPU: Final = False
-MODEL_QUANTIZATION_BITS: Final = 8
-MODEL_N_GPU_LAYERS: Final = 0
-MODEL_MAX_CONTEXT: Final = 4096
+MIN_SYNTHETIC_ISSUES: Final[int] = 10
+VALIDATION_SAMPLE_SIZE: Final[int] = 5
+MAX_RUNTIME_HOURS: Final[float] = 6.0
+MODEL_PRECISION: Final[str] = '8bit'  # Corresponds to load_in_8bit=True
 
-# Critical Thresholds
-# Spec FR-001: Hard instance selection based on initial coverage scores
-COMPLEXITY_THRESHOLD: Final = 50  # Diagnostic only, not used for selection
-HARD_INSTANCE_PERCENTILE: Final = 0.20
-MIN_SYNTHETIC_ISSUES: Final = 10
-VALIDATION_SAMPLE_SIZE: Final = 5
-COVERAGE_COLUMN_NAME: Final = 'initial_coverage'
+# --- HuggingFace Dataset Constants ---
+HF_DATASET_NAME: Final[str] = "princeton-nlp/SWE-bench"
+HF_DATASET_SPLIT: Final[str] = "test"
+HF_FILE_NAME: Final[str] = "bench.final.public.jsonl"
 
-# Spec SC-003: Statistical routing is now deterministic based on tie presence
-# TIE_THRESHOLD removed; routing logic checks for any ties (count > 0)
+# --- Runtime Tracking ---
+RUN_TIMESTAMP: Final[str] = datetime.now().isoformat()
 
-# Turn limits for sweep analysis
-TURN_LIMITS: Final = [1, 2, 3, 4]
-
-# Sweep configuration
-SWEEP_SAMPLE_SIZE: Final = 100  # Representative sample size for turn-limit sweeps
-
-# Execution Constraints
-MAX_EXECUTION_HOURS: Final = 6.0
-RAM_LIMIT_GB: Final = 7.0
-
-# Dataset Source
-# Using SWE-bench Lite as the verified source for SWE-Explore benchmark data
-HF_DATASET_NAME: Final = "princeton-nlp/SWE-bench_Lite"
-HF_DATASET_SPLIT: Final = "test"
-
-def get_path(key: str) -> Path:
-    """Get a path by key name."""
-    mapping = {
-        "raw": DATA_RAW,
-        "curated": DATA_CURATED,
-        "results": DATA_RESULTS,
-        "figures": DATA_FIGURES,
-        "code": CODE_DIR,
-        "specs": SPECS_DIR,
-        "state": STATE_DIR,
-    }
-    if key not in mapping:
-        raise ValueError(f"Unknown path key: {key}")
-    return mapping[key]
+def get_path(relative_path: Path) -> Path:
+    """
+    Resolve a relative path against the project root.
+    """
+    return PROJECT_ROOT / relative_path
 
 def ensure_directories() -> None:
-    """Ensure all required directories exist."""
-    for p in [DATA_RAW, DATA_CURATED, DATA_RESULTS, DATA_FIGURES, STATE_DIR]:
-        p.mkdir(parents=True, exist_ok=True)
+    """
+    Create all required directories if they do not exist.
+    """
+    dirs = [
+        DATA_RAW, DATA_CURATED, DATA_RESULTS, STATE_ROOT,
+        CONTRACTS_ROOT, FIGURES_ROOT, PAPER_ROOT
+    ]
+    for d in dirs:
+        d.mkdir(parents=True, exist_ok=True)
 
 def get_config_summary() -> Dict[str, Any]:
-    """Return a summary of the current configuration."""
+    """
+    Returns a summary of the current configuration state.
+    """
     return {
-        "project_root": str(_PROJECT_ROOT),
-        "random_seed": RANDOM_SEED,
-        "model_config": {
-            "gpu": MODEL_USE_GPU,
-            "quantization_bits": MODEL_QUANTIZATION_BITS,
-            "n_gpu_layers": MODEL_N_GPU_LAYERS,
-        },
-        "thresholds": {
-            "complexity": COMPLEXITY_THRESHOLD,
-            "hard_percentile": HARD_INSTANCE_PERCENTILE,
-            "min_synthetic": MIN_SYNTHETIC_ISSUES,
-            "validation_sample": VALIDATION_SAMPLE_SIZE,
-            "coverage_column": COVERAGE_COLUMN_NAME,
-            "sweep_sample": SWEEP_SAMPLE_SIZE,
-            "turn_limits": TURN_LIMITS,
-        },
-        "dataset": {
-            "name": HF_DATASET_NAME,
-            "split": HF_DATASET_SPLIT,
-        },
-        "execution": {
-            "max_hours": MAX_EXECUTION_HOURS,
-            "ram_limit_gb": RAM_LIMIT_GB,
-        },
-        "generated_at": datetime.now().isoformat(),
+        "project_root": str(PROJECT_ROOT),
+        "data_root": str(DATA_ROOT),
+        "hard_instance_percentile": HARD_INSTANCE_PERCENTILE,
+        "sweep_sample_size": SWEEP_SAMPLE_SIZE,
+        "tie_threshold": TIE_THRESHOLD,
+        "coverage_column": COVERAGE_COLUMN_NAME,
+        "sweep_seed": SWEEP_SEED,
+        "turn_limits": TURN_LIMITS,
+        "min_synthetic_issues": MIN_SYNTHETIC_ISSUES,
+        "validation_sample_size": VALIDATION_SAMPLE_SIZE,
+        "max_runtime_hours": MAX_RUNTIME_HOURS,
+        "model_precision": MODEL_PRECISION,
+        "hf_dataset": HF_DATASET_NAME,
+        "run_timestamp": RUN_TIMESTAMP
     }

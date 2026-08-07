@@ -1,46 +1,59 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "CuratedDatasetSchema"
-description: "Schema for the curated 'hard', 'easy', and 'synthetic' issues derived from SWE-Explore."
-type: "object"
-properties:
-  issue_id:
-    type: "string"
-    description: "Unique identifier for the issue."
-  type:
-    type: "string"
-    enum:
-      - "hard"
-      - "synthetic"
-      - "easy"
-    description: "Classification of the issue."
-  original_issue_id:
-    type: "string"
-    description: "Reference to the original issue (only for synthetic)."
-    nullable: true
-  problem_statement:
-    type: "string"
-    description: "The text description of the coding task."
-  code_context:
-    type: "string"
-    description: "The code snippet or full file content relevant to the issue."
-  ground_truth_lines:
-    type: "array"
-    items:
-      type: "integer"
-    description: "List of line numbers in the ground truth solution."
-  mutation_applied:
-    type: "array"
-    items:
-      type: "string"
-    description: "List of obfuscation techniques applied (e.g., 'var_rename')."
-  complexity_score:
-    type: "number"
-    description: "Cyclomatic complexity or lines of code metric used for selection."
+title: SWE-Explore Dataset Schema
+description: Schema for the raw and curated SWE-Explore benchmark datasets.
+type: object
 required:
   - issue_id
-  - type
-  - problem_statement
-  - code_context
+  - repo_name
+  - repo_path
+  - base_commit
+  - instance_id
+  - question
+  - solution
+  - patches
   - ground_truth_lines
-  - complexity_score
-additionalProperties: false
+properties:
+  issue_id:
+    type: string
+    description: Unique identifier for the issue.
+  repo_name:
+    type: string
+    description: Name of the repository.
+  repo_path:
+    type: string
+    description: Path to the repository.
+  base_commit:
+    type: string
+    description: The base commit hash.
+  instance_id:
+    type: string
+    description: Instance identifier.
+  question:
+    type: string
+    description: The problem statement or question.
+  solution:
+    type: string
+    description: The solution code or patch.
+  patches:
+    type: array
+    description: List of patches applied.
+    items:
+      type: string
+  ground_truth_lines:
+    type: array
+    description: List of line numbers that are part of the ground truth solution.
+    items:
+      type: integer
+  coverage_score:
+    type: number
+    format: float
+    description: The coverage score for the instance (optional, added in curated phase).
+  complexity_score:
+    type: number
+    format: float
+    description: Cyclomatic complexity score (optional, added in curated phase).
+  metadata:
+    type: object
+    description: Additional metadata for the instance.
+    additionalProperties: true
+additionalProperties: true

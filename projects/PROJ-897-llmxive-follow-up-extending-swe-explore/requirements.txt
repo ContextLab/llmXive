@@ -1,32 +1,14 @@
-# llmXive Project Dependencies
-# Core dependencies
-numpy>=1.24.0
-pandas>=2.0.0
-pyarrow>=12.0.0
-pyyaml>=6.0
-
-# HuggingFace datasets for real data loading
 datasets>=2.14.0
-
-# LLM inference (CPU-optimized)
-llama-cpp-python>=0.2.0
-
-# Static analysis
-pylint>=2.17.0
-
-# Statistical analysis
-scipy>=1.11.0
-statsmodels>=0.14.0
-
-# Visualization
+pandas>=2.0.0
+numpy>=1.24.0
 matplotlib>=3.7.0
-
-# Template rendering
 jinja2>=3.1.0
-
-# Testing
-pytest>=7.4.0
-
-# Linting and formatting
-ruff>=0.0.290
+pyyaml>=6.0
+libcst>=1.0.0
+pytest>=7.0.0
+ruff>=0.1.0
 black>=23.0.0
+psutil>=5.9.0
+transformers>=4.35.0
+bitsandbytes>=0.41.0
+scipy>=1.11.0

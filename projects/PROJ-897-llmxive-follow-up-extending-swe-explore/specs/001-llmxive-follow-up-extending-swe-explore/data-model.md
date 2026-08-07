@@ -1,91 +1,78 @@
-# Data Model: llmXive follow-up: extending "SWE-Explore: Benchmarking How Coding Agents Explore Repositories"
+# Data Model: llmXive follow-up: extending "SWE-Explore"
 
 ## Overview
 
-This document defines the data structures used for the SWE-Explore benchmark extension. It covers the raw dataset schema, the curated "hard" and synthetic subset schema, the agent execution logs, and the final results schema.
+This document defines the data structures for the SWE-Explore extension study. All data is stored in JSONL (logs) and CSV (metrics) formats for portability and easy inspection. **The structure of `data/results/` is derived from this File Manifest.**
 
-## Entity Relationship Diagram
+## Entity Relationships
 
 ```mermaid
 erDiagram
-    RAW_ISSUE ||--o{ CURATED_ISSUE : "filtered/mutated"
-    CURATED_ISSUE ||--o{ AGENT_RUN : "executed_by"
-    AGENT_RUN ||--o{ TURN_LOG : "contains"
-    AGENT_RUN ||--|| RESULT_METRIC : "produces"
-    RESULT_METRIC ||--|| STAT_RESULT : "aggregated_in"
+    ISSUE ||--|{ RETRIEVAL_TURN : "generates"
+    ISSUE ||--|| CURATED_SUBSET : "belongs to"
+    RETRIEVAL_TURN ||--|{ STATIC_ANALYSIS_LOG : "produces"
+    CURATED_SUBSET ||--|{ METRIC_RECORD : "yields"
+    METRIC_RECORD ||--|| STATISTICAL_RESULT : "feeds into"
 ```
 
 ## Data Definitions
 
-### 1. Raw Issue (SWE-Explore)
-Source: `bench.final.public.jsonl`
-- `issue_id`: string (unique identifier)
-- `repo`: string (repository path)
-- `problem_statement`: string (text description of the issue)
-- `solution`: string (patch or full file)
-- `code_context`: string (full code or relevant snippet)
+### 1. Issue (Input)
+Represents a single task from the SWE-Explore dataset or a synthetic variant.
+- `issue_id`: Unique identifier (string).
+- `type`: "real_hard" or "synthetic_ambiguous".
+- `original_repo`: Repository path.
+- `original_issue_desc`: Text description of the issue.
+- `ground_truth_lines`: List of line numbers (integers) representing the relevant code. **For synthetic issues, these are re-mapped to the mutated file via token matching.**
+- `is_mutated`: Boolean (true for synthetic).
+- `mutation_log`: String describing mutations applied (for synthetic).
 
-### 2. Curated Issue
-Derived: `data/curated/hard_subset.jsonl` and `data/curated/synthetic_subset.jsonl`
-- `issue_id`: string
-- `type`: enum ["hard", "synthetic", "easy"]
-- `original_issue_id`: string (for synthetic, reference to original)
-- `problem_statement`: string (mutated if synthetic)
-- `code_context`: string (full code or relevant snippet)
-- `ground_truth_lines`: list of integers (from original, before mutation for synthetic)
-- `mutation_applied`: list of strings (e.g., ["var_rename", "comment_removal"])
-- `complexity_score`: float (Cyclomatic complexity or lines of code)
+### 2. Retrieval Turn (Agent Output)
+Represents a single step in the iterative agent loop.
+- `issue_id`: Reference to Issue.
+- `turn_number`: Integer (1, 2, or 3).
+- `query`: The prompt sent to the LLM.
+- `retrieved_snippets`: List of code snippets (strings).
+- `static_analysis_output`: JSON object containing `pylint`, `ast`, or sandbox execution errors.
+- `error_detected`: Boolean.
+- `reformulation_reason`: String (e.g., "undefined variable 'x'").
+- `is_loop_detected`: Boolean (true if the query repeats a previous turn).
 
-### 3. Agent Run
-Recorded: `data/results/runs/{issue_id}_{strategy}.json`
-- `run_id`: string (UUID)
-- `issue_id`: string
-- `strategy`: enum ["static_multi", "iterative"]
-- `start_time`: ISO8601 timestamp
-- `end_time`: ISO8601 timestamp
-- `total_turns`: integer
-- `success`: boolean (did it find the solution? - optional, derived from coverage)
-- `turn_logs`: list of `TurnLog` objects
+### 3. Metric Record (Aggregated)
+One row per issue, comparing Static vs. Iterative performance.
+- `issue_id`: Reference to Issue.
+- `type`: "real_hard" or "synthetic_ambiguous".
+- `static_coverage`: Float (0.0-1.0).
+- `static_ranking`: Integer (position).
+- `static_precision`: Float (0.0-1.0).
+- `iterative_coverage`: Float (0.0-1.0).
+- `iterative_ranking`: Integer (position).
+- `iterative_precision`: Float (0.0-1.0).
+- `effective_coverage_static`: Float (Coverage * Precision).
+- `effective_coverage_iterative`: Float (Coverage * Precision).
+- `improvement_coverage`: Float (Iterative - Static).
+- `improvement_ranking`: Float (Iterative - Static).
+- `total_runtime_seconds`: Float (Total pipeline runtime for this issue).
+- `feasibility_pass`: Boolean (True if runtime < 6h).
 
-### 4. Turn Log
-Nested within `Agent Run`
-- `turn_number`: integer
-- `query`: string
-- `retrieved_context`: string
-- `static_analysis_output`: string (pylint/ast output or "none")
-- `reformulation_reason`: string (e.g., "undefined variable", "timeout", "max_turns_reached")
+### 4. Statistical Result
+Final output of the hypothesis test.
+- `metric_type`: "coverage" or "ranking" or "effective_coverage".
+- `test_method`: "wilcoxon" or "permutation".
+- `p_value`: Float.
+- `corrected_p_value`: Float (Bonferroni).
+- `significant`: Boolean.
+- `n_samples`: Integer.
+- `n_ties`: Integer (Number of zero-differences).
 
-### 5. Result Metric
-Recorded: `data/results/metrics.csv`
-- `run_id`: string
-- `issue_id`: string
-- `strategy`: enum ["static_multi", "iterative"]
-- `coverage_score`: float (0.0 to 1.0)
-- `ranking_efficiency`: float (position of first relevant line, or `N+1` if none found)
-- `turns_used`: integer
-- `censored`: boolean (true if no relevant lines found)
+## File Manifest
 
-### 6. Statistical Result
-Recorded: `data/results/stats_summary.json`
-- `metric_name`: string (e.g., "coverage_score")
-- `test_type`: string (e.g., "wilcoxon", "cox_regression")
-- `statistic`: float
-- `p_value`: float
-- `adjusted_p_value`: float (Bonferroni corrected)
-- `significant`: boolean
-- `effect_size`: float (e.g., r or hazard ratio)
-
-## Data Flow
-
-1.  **Ingestion**: Raw JSONL -> Derive GT -> Filter (Hard/Easy) + Mutated (Synthetic) -> `curated/`.
-2.  **Execution**: `curated/` -> Agent Loop -> `runs/` (JSON).
-3.  **Aggregation**: `runs/` -> Metrics Extraction -> `metrics.csv`.
-4.  **Analysis**: `metrics.csv` -> Statistical Tests -> `stats_summary.json`.
-5.  **Reporting**: `stats_summary.json` -> Paper/Report generation.
-
-## Constraints & Validation
-
-- **Immutability**: Raw data in `data/raw/` is never modified.
-- **Checksums**: All files in `data/` must have corresponding SHA256 hashes in `state/`.
-- **Schema Compliance**: All JSON/CSV outputs must match the schemas defined in `contracts/`.
-- **No PII**: No user-specific data is included; only repository code and issue metadata.
+| File Path | Format | Description |
+| :--- | :--- | :--- |
+| `data/curated/hard_subset.jsonl` | JSONL | Filtered "hard" issues. |
+| `data/curated/synthetic_ambiguous.jsonl` | JSONL | Generated synthetic issues. |
+| `data/results/baseline_logs.jsonl` | JSONL | Static agent execution logs. |
+| `data/results/iterative_logs.jsonl` | JSONL | Iterative agent execution logs (per turn). |
+| `data/results/metrics.csv` | CSV | Aggregated metrics per issue. |
+| `data/results/statistics.json` | JSON | Final statistical test results. |
+| `data/results/validation_report.md` | Markdown | Manual inspection report for "hard" instances. |

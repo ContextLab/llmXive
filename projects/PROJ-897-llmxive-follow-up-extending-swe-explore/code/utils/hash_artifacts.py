@@ -1,6 +1,11 @@
 """
-Utility functions for hashing artifacts to ensure data integrity.
-Implements Constitution Principle V.
+Hash Artifacts Utility Script.
+
+Computes SHA-256 hashes for all files under a specified directory (default: data/)
+and writes a JSON manifest to a specified output location (default: state/manifest.json).
+
+This script is designed to be run as part of the pipeline to ensure data integrity
+and versioning of artifacts.
 """
 import hashlib
 import json
@@ -9,267 +14,274 @@ import sys
 from pathlib import Path
 from typing import Dict, List, Optional, Any
 
+# Import project configuration for path resolution
+try:
+    from config import get_path, ensure_directories, get_config_summary
+except ImportError:
+    # Fallback for standalone execution if config is not in path
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+    from config import get_path, ensure_directories, get_config_summary
+
 
 def compute_sha256(file_path: Path) -> str:
     """
-    Compute SHA256 hash of a file.
-    
+    Compute the SHA-256 hash of a file.
+
     Args:
-        file_path: Path to the file.
-    
+        file_path: Path to the file to hash.
+
     Returns:
-        Hex digest of the SHA256 hash.
+        Hexadecimal string of the SHA-256 hash.
+
+    Raises:
+        FileNotFoundError: If the file does not exist.
+        PermissionError: If the file cannot be read.
     """
     sha256_hash = hashlib.sha256()
     with open(file_path, "rb") as f:
-        for byte_block in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(byte_block)
+        # Read in chunks to handle large files
+        for chunk in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(chunk)
     return sha256_hash.hexdigest()
 
 
 def hash_directory(
-    directory_path: Path,
-    extensions: Optional[List[str]] = None
-) -> Dict[str, str]:
+    directory: Path,
+    extensions: Optional[List[str]] = None,
+    ignore_dirs: Optional[List[str]] = None
+) -> List[Dict[str, Any]]:
     """
-    Hash all files in a directory.
-    
+    Recursively hash all files in a directory.
+
     Args:
-        directory_path: Path to the directory.
-        extensions: Optional list of file extensions to include.
-    
+        directory: Root directory to scan.
+        extensions: Optional list of file extensions to include (e.g., ['.json', '.jsonl']).
+                    If None, all files are included.
+        ignore_dirs: Optional list of directory names to ignore (e.g., ['.git', '__pycache__']).
+
     Returns:
-        Dictionary mapping relative file paths to their hashes.
+        List of dictionaries containing file path and hash.
     """
-    hashes = {}
-    
-    if not directory_path.exists():
-        return hashes
-    
-    for file_path in directory_path.rglob("*"):
-        if file_path.is_file():
-            if extensions is None or any(file_path.suffix == ext for ext in extensions):
-                rel_path = file_path.relative_to(directory_path)
-                hashes[str(rel_path)] = compute_sha256(file_path)
-    
-    return hashes
+    if not directory.exists():
+        raise FileNotFoundError(f"Directory not found: {directory}")
+
+    if ignore_dirs is None:
+        ignore_dirs = ['.git', '__pycache__', '.pytest_cache', 'node_modules']
+
+    artifacts = []
+    for root, dirs, files in os.walk(directory):
+        # Filter out ignored directories in-place to prevent os.walk from descending into them
+        dirs[:] = [d for d in dirs if d not in ignore_dirs]
+
+        for file in files:
+            file_path = Path(root) / file
+
+            # Check extension filter if provided
+            if extensions:
+                if file_path.suffix not in extensions:
+                    continue
+
+            # Calculate relative path from the root directory
+            relative_path = file_path.relative_to(directory)
+
+            try:
+                file_hash = compute_sha256(file_path)
+                artifacts.append({
+                    "path": str(relative_path),
+                    "hash": file_hash,
+                    "size_bytes": file_path.stat().st_size
+                })
+            except (PermissionError, OSError) as e:
+                print(f"Warning: Could not hash {file_path}: {e}", file=sys.stderr)
+
+    return artifacts
 
 
 def generate_manifest(
-    hashes: Dict[str, str],
-    directory_path: Path,
-    output_path: Optional[Path] = None
-) -> Path:
-    """
-    Generate a manifest file containing hashes.
-    
-    Args:
-        hashes: Dictionary of file paths to hashes.
-        directory_path: Base directory path.
-        output_path: Optional output path for manifest.
-    
-    Returns:
-        Path to the generated manifest.
-    """
-    if output_path is None:
-        output_path = directory_path / "manifest.json"
-    
-    manifest = {
-        "directory": str(directory_path),
-        "file_hashes": hashes,
-        "total_files": len(hashes)
-    }
-    
-    with open(output_path, 'w', encoding='utf-8') as f:
-        json.dump(manifest, f, indent=2)
-    
-    return output_path
-
-
-def verify_manifest(
-    manifest_path: Path,
-    directory_path: Path
-) -> Dict[str, bool]:
-    """
-    Verify file hashes against a manifest.
-    
-    Args:
-        manifest_path: Path to the manifest file.
-        directory_path: Base directory path.
-    
-    Returns:
-        Dictionary mapping file paths to verification status (True/False).
-    """
-    with open(manifest_path, 'r', encoding='utf-8') as f:
-        manifest = json.load(f)
-    
-    results = {}
-    expected_hashes = manifest.get("file_hashes", {})
-    
-    for rel_path, expected_hash in expected_hashes.items():
-        file_path = directory_path / rel_path
-        if file_path.exists():
-            actual_hash = compute_sha256(file_path)
-            results[rel_path] = (actual_hash == expected_hash)
-        else:
-            results[rel_path] = False
-    
-    return results
-
-
-def hash_artifact(
-    file_path: Path,
-    state_dir: Optional[Path] = None
+    artifacts: List[Dict[str, Any]],
+    source_directory: str,
+    metadata: Optional[Dict[str, Any]] = None
 ) -> Dict[str, Any]:
     """
-    Hash a single artifact and record it in the state directory.
-    
+    Generate a manifest dictionary from the list of artifacts.
+
     Args:
-        file_path: Path to the file to hash.
-        state_dir: Directory to store the state manifest. Defaults to 'state/'.
-    
+        artifacts: List of artifact dictionaries (path, hash, size).
+        source_directory: The directory that was hashed.
+        metadata: Optional additional metadata to include (e.g., timestamp, config).
+
     Returns:
-        Dictionary containing the hash and metadata.
+        Complete manifest dictionary.
     """
-    if not file_path.exists():
-        raise FileNotFoundError(f"Artifact not found: {file_path}")
-    
-    if state_dir is None:
-        state_dir = Path("state")
-    
-    state_dir.mkdir(parents=True, exist_ok=True)
-    
-    file_hash = compute_sha256(file_path)
-    rel_path = str(file_path)
-    timestamp = str(Path(file_path).stat().st_mtime)
-    
-    result = {
-        "path": rel_path,
-        "hash": file_hash,
-        "timestamp": timestamp
+    manifest = {
+        "version": "1.0",
+        "source_directory": str(source_directory),
+        "artifact_count": len(artifacts),
+        "artifacts": artifacts
     }
-    
-    state_file = state_dir / "artifact_hashes.json"
-    
-    if state_file.exists():
-        with open(state_file, 'r', encoding='utf-8') as f:
-            try:
-                state = json.load(f)
-            except json.JSONDecodeError:
-                state = {}
-    else:
-        state = {}
-    
-    state[rel_path] = result
-    
-    with open(state_file, 'w', encoding='utf-8') as f:
-        json.dump(state, f, indent=2)
-    
-    return result
+
+    if metadata:
+        manifest["metadata"] = metadata
+
+    return manifest
+
+
+def verify_manifest(manifest_path: Path, data_dir: Path) -> bool:
+    """
+    Verify the hashes in a manifest against the current state of files in data_dir.
+
+    Args:
+        manifest_path: Path to the manifest JSON file.
+        data_dir: Path to the directory containing the data files.
+
+    Returns:
+        True if all hashes match, False otherwise.
+    """
+    if not manifest_path.exists():
+        print(f"Manifest not found: {manifest_path}", file=sys.stderr)
+        return False
+
+    with open(manifest_path, 'r') as f:
+        manifest = json.load(f)
+
+    source_dir = Path(manifest["source_directory"])
+    # Resolve relative to manifest location if needed, but assume absolute or relative to project root
+    if not source_dir.is_absolute():
+        source_dir = (manifest_path.parent / source_dir).resolve()
+
+    if not source_dir.exists():
+        print(f"Source directory in manifest not found: {source_dir}", file=sys.stderr)
+        return False
+
+    all_match = True
+    for artifact in manifest["artifacts"]:
+        file_path = source_dir / artifact["path"]
+        if not file_path.exists():
+            print(f"Missing file: {file_path}", file=sys.stderr)
+            all_match = False
+            continue
+
+        current_hash = compute_sha256(file_path)
+        if current_hash != artifact["hash"]:
+            print(f"Hash mismatch for {file_path}: expected {artifact['hash']}, got {current_hash}", file=sys.stderr)
+            all_match = False
+
+    return all_match
+
+
+def hash_artifact(file_path: Path) -> str:
+    """
+    Convenience wrapper to hash a single file.
+
+    Args:
+        file_path: Path to the file.
+
+    Returns:
+        Hexadecimal hash string.
+    """
+    return compute_sha256(file_path)
 
 
 def main():
-    """Main entry point for testing hashing utilities."""
+    """
+    CLI entry point for the hash artifacts utility.
+
+    Usage:
+        python code/utils/hash_artifacts.py --dir data/curated --output state/manifest_curated.json
+    """
     import argparse
-    
-    parser = argparse.ArgumentParser(description="Hash artifacts for data integrity.")
-    parser.add_argument(
-        "--file",
-        type=str,
-        help="Path to a single file to hash and record in state/"
+
+    parser = argparse.ArgumentParser(
+        description="Compute SHA-256 hashes for files in a directory and generate a manifest."
     )
     parser.add_argument(
-        "--directory",
+        "--dir",
         type=str,
-        help="Path to a directory to hash all files in"
+        default="data",
+        help="Directory to scan for files (relative to project root). Default: data"
     )
     parser.add_argument(
         "--output",
         type=str,
-        help="Path to write the manifest (only for --directory)"
+        default="state/manifest.json",
+        help="Output path for the manifest JSON file (relative to project root). Default: state/manifest.json"
     )
     parser.add_argument(
         "--verify",
-        type=str,
-        help="Path to a manifest file to verify against a directory"
+        action="store_true",
+        help="Verify existing manifest against current files instead of generating a new one."
     )
     parser.add_argument(
-        "--directory-for-verify",
+        "--extensions",
         type=str,
-        help="Directory to verify against the manifest (required with --verify)"
+        nargs="+",
+        default=None,
+        help="File extensions to include (e.g., .json .jsonl .csv). If omitted, all files are included."
     )
-    
+
     args = parser.parse_args()
-    
-    if args.verify and args.directory_for_verify:
-        manifest_path = Path(args.verify)
-        dir_path = Path(args.directory_for_verify)
-        results = verify_manifest(manifest_path, dir_path)
-        all_valid = all(results.values())
-        print(f"Verification results: {results}")
-        print(f"Overall status: {'PASS' if all_valid else 'FAIL'}")
-        return 0 if all_valid else 1
-    
-    if args.file:
-        file_path = Path(args.file)
-        result = hash_artifact(file_path)
-        print(f"Hashed {file_path}: {result['hash']}")
-        print(f"Recorded in state/artifact_hashes.json")
-        return 0
-    
-    if args.directory:
-        dir_path = Path(args.directory)
-        hashes = hash_directory(dir_path)
-        print(f"Hashed {len(hashes)} files in {dir_path}")
-        
-        output_path = Path(args.output) if args.output else None
-        manifest_path = generate_manifest(hashes, dir_path, output_path)
-        print(f"Manifest written to: {manifest_path}")
-        return 0
-    
-    # Default: test mode
-    print("Testing Hash Artifacts...")
-    
-    # Test compute_sha256
-    test_file = Path(__file__)
-    hash_val = compute_sha256(test_file)
-    print(f"Hash of {test_file.name}: {hash_val}")
-    
-    # Test hash_artifact with a dummy file
-    dummy_content = b"test content for hashing"
-    dummy_path = Path("data/raw/dummy_test.txt")
-    dummy_path.parent.mkdir(parents=True, exist_ok=True)
-    dummy_path.write_bytes(dummy_content)
-    
+
+    # Resolve paths relative to project root (assuming script is in code/utils/)
+    project_root = Path(__file__).resolve().parent.parent.parent
+    target_dir = project_root / args.dir
+    output_path = project_root / args.output
+
+    # Ensure extensions are prefixed with dot if not already
+    if args.extensions:
+        args.extensions = [ext if ext.startswith('.') else f'.{ext}' for ext in args.extensions]
+
     try:
-        result = hash_artifact(dummy_path)
-        print(f"Dummy file hashed: {result['hash']}")
-        print(f"State recorded at: state/artifact_hashes.json")
-        
-        # Verify the state file exists and contains the entry
-        state_file = Path("state/artifact_hashes.json")
-        if state_file.exists():
-            with open(state_file, 'r') as f:
-                state = json.load(f)
-            if str(dummy_path) in state:
-                print("Verification: State file contains the dummy entry.")
+        if args.verify:
+            if not output_path.exists():
+                print(f"Error: Manifest file not found at {output_path}", file=sys.stderr)
+                sys.exit(1)
+            print(f"Verifying files in {target_dir} against {output_path}...")
+            is_valid = verify_manifest(output_path, target_dir)
+            if is_valid:
+                print("Verification PASSED: All hashes match.")
+                sys.exit(0)
             else:
-                print("Error: State file missing the dummy entry.")
-                return 1
+                print("Verification FAILED: Hash mismatches or missing files detected.", file=sys.stderr)
+                sys.exit(1)
         else:
-            print("Error: State file not created.")
-            return 1
-    finally:
-        # Cleanup dummy file
-        if dummy_path.exists():
-            dummy_path.unlink()
-        if Path("state").exists() and list(Path("state").glob("*")):
-            # Only remove state if it was created by this test
-            # In a real run, we wouldn't clean up
-            pass
-    
-    return 0
+            if not target_dir.exists():
+                print(f"Error: Target directory not found: {target_dir}", file=sys.stderr)
+                sys.exit(1)
+
+            print(f"Scanning directory: {target_dir}")
+            artifacts = hash_directory(target_dir, extensions=args.extensions)
+
+            if not artifacts:
+                print("Warning: No files found to hash.", file=sys.stderr)
+            else:
+                print(f"Found {len(artifacts)} files.")
+
+            # Generate metadata
+            config_summary = get_config_summary()
+            metadata = {
+                "generated_by": "hash_artifacts.py",
+                "config_summary": config_summary
+            }
+
+            manifest = generate_manifest(
+                artifacts,
+                str(target_dir.relative_to(project_root)),
+                metadata
+            )
+
+            # Ensure output directory exists
+            ensure_directories([output_path.parent])
+
+            with open(output_path, 'w') as f:
+                json.dump(manifest, f, indent=2)
+
+            print(f"Manifest written to: {output_path}")
+            print(f"Total artifacts: {len(artifacts)}")
+
+    except Exception as e:
+        print(f"Error during execution: {e}", file=sys.stderr)
+        sys.exit(1)
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()
