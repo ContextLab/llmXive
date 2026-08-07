@@ -20,74 +20,28 @@ wheels/
 .installed.cfg
 *.egg
 
-# Virtual environments
+# Virtual Environments
 venv/
 ENV/
 env/
-.venv/
 
 # IDE
 .idea/
 .vscode/
 *.swp
 *.swo
-*~
 
-# Environment variables (CRITICAL: Never commit .env)
+# Environment variables
 .env
-.env.local
-.env.production
+*.env
 
-# Data directories with sensitive information
+# Data (Sensitive)
 data/consent/
-data/interaction_logs/raw_logs.csv
-
-# Generated data and results
-data/analysis_results/
-data/summaries/
-data/defects4j/
-
-# Reproducibility package (generated)
-data/reproducibility_package_v*.tar.gz
 
 # Logs
-*.log
 logs/
+*.log
 
-# OS generated files
+# OS
 .DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
 Thumbs.db
-
-# Jupyter Notebook
-.ipynb_checkpoints
-
-# Coverage reports
-htmlcov/
-.coverage
-coverage.xml
-coverage.json
-
-# MyPy
-.mypy_cache/
-.dmypy.json
-dmypy.json
-
-# Pytest
-.pytest_cache/
-
-# CI/CD
-.github/workflows/*.yml
-!.github/workflows/
-
-# State
-state/
-
-# Temporary files
-tmp/
-temp/
-*.tmp

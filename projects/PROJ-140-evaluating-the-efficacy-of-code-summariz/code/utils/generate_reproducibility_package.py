@@ -1,13 +1,9 @@
 """
-Reproducibility Package Generator
+Reproducibility Package Generator (Task T031)
 
-Generates a self-contained tarball for OSF publication containing:
-- Analysis scripts
-- Anonymized interaction logs
-- Analysis results
-- README documentation
-
-Explicitly excludes sensitive data (consent forms) per Constitution Principle VI.
+Generates the final reproducibility package bundle for OSF publication.
+Includes analysis results, anonymized logs, and documentation.
+Explicitly excludes consent data to satisfy Constitution Principle VI.
 """
 import os
 import sys
@@ -15,218 +11,211 @@ import tarfile
 import json
 import shutil
 import tempfile
+import logging
 from pathlib import Path
-from datetime import datetime
+from typing import List, Set
 
-# Add project root to path for imports if running as script
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-if str(PROJECT_ROOT) not in sys.path:
-    sys.path.insert(0, str(PROJECT_ROOT))
+# Project root relative to this file
+PROJECT_ROOT = Path(__file__).parent.parent.parent
 
-from utils.logging_utils import get_logger
+# Define paths
+DATA_DIR = PROJECT_ROOT / "data"
+CODE_DIR = PROJECT_ROOT / "code"
+README_PATH = PROJECT_ROOT / "README.md"
+OUTPUT_DIR = DATA_DIR
+OUTPUT_FILENAME = "reproducibility_package_v1.0.tar.gz"
 
-logger = get_logger(__name__)
-
-# Configuration
-PACKAGE_NAME = "reproducibility_package_v1.0"
-OUTPUT_DIR = PROJECT_ROOT / "data"
-OUTPUT_FILE = OUTPUT_DIR / f"{PACKAGE_NAME}.tar.gz"
-
-# Inclusion patterns (relative to project root)
-INCLUDE_PATTERNS = [
-    "code/analysis/run_statistics.py",
-    "code/analysis/bootstrap_utils.py",
-    "code/analysis/correction_utils.py",
-    "code/analysis/config.py",
-    "code/utils/config_manager.py",
-    "code/utils/logging_utils.py",
-    "code/utils/hash_artifacts.py",
-    "code/utils/models.py",
-    "data/analysis_results/results.csv",
-    "data/analysis_results/sensitivity_analysis.csv",
-    "data/analysis_results/outlier_flags.json",
-    "data/interaction_logs/anonymized_logs.csv",
-    "README.md",
-    "requirements.txt",
-    "LICENSE",
+# Required input files that MUST exist
+REQUIRED_FILES = [
+    DATA_DIR / "analysis_results" / "results.csv",
+    DATA_DIR / "interaction_logs" / "anonymized_logs.csv",
+    README_PATH,
 ]
 
-# Exclusion patterns (explicitly excluded for security/compliance)
-EXCLUDE_PATTERNS = [
-    "data/consent/",
-    "data/interaction_logs/raw_logs.csv",
-    "data/interaction_logs/anonymization_mapping.json",
+# Directories to include
+INCLUDE_DIRS = [
+    DATA_DIR / "analysis_results",
+    DATA_DIR / "interaction_logs",
+    CODE_DIR / "analysis",
+    CODE_DIR / "data_prep",
+    CODE_DIR / "utils",
+]
+
+# Directories to EXCLUDE (Constitution Principle VI)
+EXCLUDE_DIRS = [
+    DATA_DIR / "consent",
+    DATA_DIR / "interaction_logs" / "raw_logs.csv", # Just in case, though anonymized is preferred
+    DATA_DIR / "defects4j", # Too large, only need the script to regenerate if needed, or specific small subset
+]
+
+# Specific files to exclude even if in included dirs
+EXCLUDE_FILES = {
+    "raw_logs.csv",
+    "consent_forms",
     ".env",
+    ".git",
     "__pycache__",
     "*.pyc",
-    ".git",
-    ".github",
-    "state/",
-]
+    "*.pyo",
+    ".DS_Store",
+    "baseline_results.json", # Internal ground truth, not for public release usually, but task says include results.csv
+}
 
-def should_exclude(file_path: str) -> bool:
+logger = logging.getLogger(__name__)
+
+def should_exclude(path: Path, base_dir: Path) -> bool:
     """
-    Determine if a file should be excluded from the package.
+    Determine if a path should be excluded from the package.
     
     Args:
-        file_path: Relative path from project root
+        path: The full path of the file/directory being considered.
+        base_dir: The root directory of the inclusion scope.
         
     Returns:
-        True if file should be excluded, False otherwise
+        True if the path should be excluded, False otherwise.
     """
-    # Check against explicit exclusions
-    for exclude_pattern in EXCLUDE_PATTERNS:
-        if file_path.startswith(exclude_pattern) or file_path == exclude_pattern.rstrip('/'):
-            return True
+    rel_path = path.relative_to(base_dir)
+    parts = rel_path.parts
     
-    # Check for sensitive file extensions/names
-    if file_path.endswith('.env'):
-        return True
-    if 'consent' in file_path.lower():
-        return True
-    if 'raw_logs' in file_path:
+    # Check if any part is in EXCLUDE_DIRS (relative to base)
+    for exclude_dir in EXCLUDE_DIRS:
+        try:
+            exclude_rel = exclude_dir.relative_to(base_dir)
+            if parts[:len(exclude_rel)] == exclude_rel.parts:
+                return True
+        except ValueError:
+            # exclude_dir is not under base_dir, ignore
+            continue
+    
+    # Check if filename matches EXCLUDE_FILES patterns
+    if path.name in EXCLUDE_FILES:
         return True
     
+    # Check for hidden files/dirs (except .gitkeep if we had one, but we don't)
+    if path.name.startswith('.') and path.name != '.gitkeep':
+        return True
+        
     return False
 
-def create_reproducibility_package() -> str:
+def create_reproducibility_package(output_path: Path, files: List[Path], dirs: List[Path]) -> str:
     """
-    Create the reproducibility package tarball.
+    Creates the tar.gz reproducibility package.
     
+    Args:
+        output_path: Full path where the .tar.gz will be saved.
+        files: List of specific files to include.
+        dirs: List of directories to include (recursively).
+        
     Returns:
-        Path to the created tarball
+        Path to the created archive.
+        
+    Raises:
+        FileNotFoundError: If any required file is missing.
+        ValueError: If output path is invalid.
     """
-    logger.info(f"Starting reproducibility package generation: {OUTPUT_FILE}")
+    # Verify required files exist
+    for f in REQUIRED_FILES:
+        if not f.exists():
+            raise FileNotFoundError(f"Required file missing: {f}")
     
-    # Verify required input files exist
-    required_files = [
-        "data/analysis_results/results.csv",
-        "data/interaction_logs/anonymized_logs.csv",
-        "README.md",
-        "requirements.txt"
-    ]
-    
-    missing_files = []
-    for req_file in required_files:
-        if not (PROJECT_ROOT / req_file).exists():
-            missing_files.append(req_file)
-    
-    if missing_files:
-        raise FileNotFoundError(
-            f"Required files missing for reproducibility package: {missing_files}. "
-            "Please ensure analysis has been run and README/requirements.txt exist."
-        )
-    
-    # Create a temporary directory to stage files
+    # Create temporary directory to stage files
     with tempfile.TemporaryDirectory() as temp_dir:
-        temp_path = Path(temp_dir)
-        staging_dir = temp_path / PACKAGE_NAME
-        staging_dir.mkdir()
+        temp_root = Path(temp_dir)
         
-        logger.info(f"Staging files in: {staging_dir}")
+        # 1. Copy specific files
+        for file_path in files:
+            if file_path.exists():
+                dest = temp_root / file_path.name
+                shutil.copy2(file_path, dest)
+                logger.info(f"Copied file: {file_path} -> {dest}")
+            else:
+                logger.warning(f"File not found (skipping): {file_path}")
         
-        # Copy included files to staging directory
-        files_copied = 0
-        for include_pattern in INCLUDE_PATTERNS:
-            src_path = PROJECT_ROOT / include_pattern
-            
-            if not src_path.exists():
-                logger.warning(f"Skipping missing file: {include_pattern}")
+        # 2. Copy directories recursively, filtering exclusions
+        for dir_path in dirs:
+            if not dir_path.exists():
+                logger.warning(f"Directory not found (skipping): {dir_path}")
                 continue
+                
+            # Get relative name for the archive
+            dest_dir = temp_root / dir_path.name
+            dest_dir.mkdir(parents=True, exist_ok=True)
             
-            if should_exclude(include_pattern):
-                logger.warning(f"Excluding file despite inclusion pattern: {include_pattern}")
-                continue
-            
-            # Calculate relative path within the package
-            rel_path = src_path.relative_to(PROJECT_ROOT)
-            dest_path = staging_dir / rel_path
-            
-            # Create parent directories
-            dest_path.parent.mkdir(parents=True, exist_ok=True)
-            
-            # Copy file
-            if src_path.is_file():
-                shutil.copy2(src_path, dest_path)
-                files_copied += 1
-                logger.debug(f"Copied: {include_pattern}")
-            elif src_path.is_dir():
-                # Copy directory recursively
-                shutil.copytree(src_path, dest_path, dirs_exist_ok=True)
-                # Count files in directory
-                for _ in dest_path.rglob("*"):
-                    files_copied += 1
-                logger.debug(f"Copied directory: {include_pattern}")
+            for root, dirs, files in os.walk(dir_path):
+                current_root = Path(root)
+                
+                # Filter out excluded directories from os.walk traversal
+                # We modify dirs in-place to prevent descending into them
+                dirs[:] = [d for d in dirs if not should_exclude(current_root / d, dir_path)]
+                
+                # Create corresponding directory in temp
+                dest_sub = dest_dir / current_root.relative_to(dir_path)
+                dest_sub.mkdir(parents=True, exist_ok=True)
+                
+                # Copy files
+                for file in files:
+                    src_file = current_root / file
+                    if should_exclude(src_file, dir_path):
+                        continue
+                    dst_file = dest_sub / file
+                    shutil.copy2(src_file, dst_file)
+                    logger.debug(f"Copied: {src_file} -> {dst_file}")
         
-        if files_copied == 0:
-            raise RuntimeError("No files were copied to the staging directory. Check patterns.")
-        
-        logger.info(f"Staged {files_copied} files in {staging_dir}")
-        
-        # Create manifest
-        manifest = {
-            "package_name": PACKAGE_NAME,
-            "created_at": datetime.utcnow().isoformat() + "Z",
-            "project_id": "PROJ-140-evaluating-the-efficacy-of-code-summariz",
-            "included_files": [
-                str(p.relative_to(staging_dir)) 
-                for p in staging_dir.rglob("*") if p.is_file()
-            ],
-            "excluded_patterns": EXCLUDE_PATTERNS,
-            "version": "1.0"
-        }
-        
-        manifest_path = staging_dir / "MANIFEST.json"
-        with open(manifest_path, 'w') as f:
-            json.dump(manifest, f, indent=2)
-        
-        logger.info(f"Created manifest: {manifest_path}")
-        
-        # Create tarball
-        logger.info(f"Creating tarball: {OUTPUT_FILE}")
-        
-        # Ensure output directory exists
-        OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-        
-        with tarfile.open(OUTPUT_FILE, "w:gz") as tar:
-            tar.add(staging_dir, arcname=PACKAGE_NAME)
-        
-        logger.info(f"Successfully created reproducibility package: {OUTPUT_FILE}")
-        
-        # Verify tarball
-        with tarfile.open(OUTPUT_FILE, "r:gz") as tar:
-            members = tar.getnames()
-            logger.info(f"Package contains {len(members)} entries")
-            
-            # Verify sensitive data is excluded
-            sensitive_found = []
-            for member in members:
-                if should_exclude(member):
-                    sensitive_found.append(member)
-            
-            if sensitive_found:
-                raise RuntimeError(
-                    f"SECURITY ERROR: Sensitive files found in package: {sensitive_found}"
-                )
-            
-            logger.info("Verification passed: No sensitive data in package")
-        
-        return str(OUTPUT_FILE)
+        # 3. Create the tar.gz archive
+        logger.info(f"Creating archive: {output_path}")
+        with tarfile.open(output_path, "w:gz") as tar:
+            # Add all files from temp_root
+            for item in temp_root.iterdir():
+                tar.add(item, arcname=item.name)
+                
+        logger.info(f"Successfully created reproducibility package: {output_path}")
+        return str(output_path)
 
 def main():
-    """Main entry point for the reproducibility package generator."""
+    """Main entry point for the reproducibility package generation."""
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+    
+    output_path = OUTPUT_DIR / OUTPUT_FILENAME
+    
+    # Ensure output directory exists
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    
     try:
-        package_path = create_reproducibility_package()
-        logger.info(f"Reproducibility package created successfully: {package_path}")
+        # Remove existing file if present
+        if output_path.exists():
+            logger.warning(f"Removing existing archive: {output_path}")
+            output_path.unlink()
+        
+        # Collect files to include
+        files_to_include = [f for f in REQUIRED_FILES if f.exists()]
+        
+        # Add README specifically if not in REQUIRED_FILES (it is, but double check)
+        if README_PATH.exists() and README_PATH not in files_to_include:
+            files_to_include.append(README_PATH)
+        
+        package_path = create_reproducibility_package(
+            output_path=output_path,
+            files=files_to_include,
+            dirs=INCLUDE_DIRS
+        )
+        
+        # Verify size
+        size_mb = output_path.stat().st_size / (1024 * 1024)
+        logger.info(f"Package size: {size_mb:.2f} MB")
+        
+        print(f"SUCCESS: Reproducibility package created at {package_path}")
         return 0
+        
     except FileNotFoundError as e:
-        logger.error(f"Missing required files: {e}")
-        return 1
-    except RuntimeError as e:
-        logger.error(f"Runtime error: {e}")
+        logger.error(f"Missing required file: {e}")
+        print(f"ERROR: Missing required file. {e}", file=sys.stderr)
         return 1
     except Exception as e:
-        logger.exception(f"Unexpected error during package generation: {e}")
+        logger.error(f"Failed to create package: {e}", exc_info=True)
+        print(f"ERROR: {e}", file=sys.stderr)
         return 1
 
 if __name__ == "__main__":

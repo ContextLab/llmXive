@@ -1,62 +1,48 @@
-# PROJ-051: Fractal Dimension and Energy Dissipation in Turbulent Flows
+# PROJ-051: Investigating the Relationship between Fractal Dimension and Energy Dissipation in Turbulent Flows
 
 ## Overview
+This project implements a pipeline to compute fractal dimensions of vorticity iso-surfaces and analyze their correlation with local energy dissipation rates in turbulent flows.
 
-This project investigates the relationship between fractal dimensions of vorticity iso-surfaces and energy dissipation rates in turbulent flows using Direct Numerical Simulation (DNS) data.
-
-## Requirements
-
-- Python 3.10+
-- Dependencies listed in `code/requirements.txt`
+## Prerequisites
+- Python 3.10 or higher
+- pip
 
 ## Installation
-
-```bash
-cd code
-pip install -r requirements.txt
-```
-
-## Usage
-
-```bash
-# Run the full pipeline
-python main.py
-
-# Run with specific Reynolds numbers
-python main.py --re-lambda 200 400 600
-
-# Verbose mode
-python main.py --verbose
-```
+1. Create a virtual environment:
+ ```bash
+ python -m venv venv
+ source venv/bin/activate # On Windows: venv\Scripts\activate
+ ```
+2. Install dependencies:
+ ```bash
+ pip install -r code/requirements.txt
+ ```
 
 ## Project Structure
+- `code/`: Source code
+ - `analysis/`: Core algorithms (fractal dimension, dissipation, stats)
+ - `data/`: Data loading and preprocessing
+ - `utils/`: Logging and utility functions
+ - `validation/`: Synthetic data and null models
+- `data/`: Input and output data files
+- `tests/`: Unit and integration tests
+- `contracts/`: Schema definitions for output validation
+- `config.py`: Project configuration
 
-```
-.
-├── code/
-│ ├── __init__.py
-│ ├── config.py # Configuration management
-│ ├── main.py # CLI entry point
-│ ├── requirements.txt # Dependencies
-│ ├── analysis/ # Analysis algorithms
-│ ├── data/ # Data loading and preprocessing
-│ ├── validation/ # Validation and synthetic data
-│ └── utils/ # Utility functions
-├── data/
-│ └── results/ # Output results
-├── tests/ # Test suite
-├── specs/ # Design documents
-└── README.md
+## Usage
+Run the main pipeline:
+```bash
+python code/main.py --config config.py
 ```
 
-## Key Features
+Run tests:
+```bash
+pytest tests/
+```
 
-- Box-counting algorithm for fractal dimension computation
-- Energy dissipation rate calculation from DNS data
-- Statistical correlation analysis with block-bootstrapping
-- Reynolds number scaling analysis
-- Memory-constrained processing for large grids (512³)
+## Data Sources
+This project primarily uses data from the Johns Hopkins Turbulence Database (JHTDB).
+Fallback to Phase-Shifted DNS data is available for validation only.
 
 ## License
-
-Research project - see LICENSE file for details.
+[Add License Information]

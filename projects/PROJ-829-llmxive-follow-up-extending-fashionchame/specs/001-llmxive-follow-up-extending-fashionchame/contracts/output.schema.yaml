@@ -1,0 +1,92 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "BenchmarkOutputSchema"
+description: "Schema for the final aggregated fidelity and latency reports."
+type: "object"
+properties:
+  fidelity_scores:
+    type: "object"
+    description: "Mean scores per feature class."
+    properties:
+      COLOR:
+        type: "object"
+        properties:
+          mean_lpips:
+            type: "number"
+          mean_ssim:
+            type: "number"
+          sample_count:
+            type: "integer"
+          baseline_mean_lpips:
+            type: "number"
+            description: "Mean LPIPS from the image-based baseline run."
+          baseline_mean_ssim:
+            type: "number"
+            description: "Mean SSIM from the image-based baseline run."
+      PATTERN:
+        type: "object"
+        properties:
+          mean_lpips:
+            type: "number"
+          mean_ssim:
+            type: "number"
+          sample_count:
+            type: "integer"
+          baseline_mean_lpips:
+            type: "number"
+            description: "Mean LPIPS from the image-based baseline run."
+          baseline_mean_ssim:
+            type: "number"
+            description: "Mean SSIM from the image-based baseline run."
+      TEXTURE:
+        type: "object"
+        properties:
+          mean_lpips:
+            type: "number"
+          mean_ssim:
+            type: "number"
+          sample_count:
+            type: "integer"
+          baseline_mean_lpips:
+            type: "number"
+            description: "Mean LPIPS from the image-based baseline run."
+          baseline_mean_ssim:
+            type: "number"
+            description: "Mean SSIM from the image-based baseline run."
+  statistical_analysis:
+    type: "object"
+    description: "ANOVA results."
+    properties:
+      anova_p_value:
+        type: "number"
+        description: "P-value from one-way ANOVA."
+      bonferroni_corrected:
+        type: "boolean"
+        description: "Whether Bonferroni correction was applied."
+      motion_analysis:
+        type: "object"
+        description: "Motion analysis results (deferred for static dataset)."
+        properties:
+          status:
+            type: "string"
+            enum:
+              - "deferred"
+              - "completed"
+            description: "Status of motion analysis."
+  latency_results:
+    type: "object"
+    description: "Latency performance."
+    properties:
+      mean_latency_ms:
+        type: "number"
+      max_latency_ms:
+        type: "number"
+      pass_threshold_50ms:
+        type: "boolean"
+      bottleneck_source:
+        type: "string"
+        description: "Identified bottleneck (e.g., 'text_encoder', 'adapter', 'backbone')."
+required:
+  - "fidelity_scores"
+  - "statistical_analysis"
+  - "latency_results"
+additionalProperties: false

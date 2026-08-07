@@ -24,7 +24,7 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure with specific files: `projects/PROJ-051-investigating-the-relationship-between-f/code/__init__.py`, `config.py`, `main.py`, `requirements.txt`, `README.md`, and directories `data/`, `analysis/`, `validation/`, `tests/`
+- [X] T001 Create project structure with specific files: `projects/PROJ-051-investigating-the-relationship-between-f/code/__init__.py`, `config.py`, `main.py`, `requirements.txt`, `README.md`, and directories `data/`, `analysis/`, `validation/`, `tests/`
 - [ ] T002 Initialize Python 3.10 project with dependencies: `numpy`, `scipy`, `scikit-learn`, `pandas`, `requests`, `tqdm`, `h5py`, `matplotlib`, `pytest`
 - [ ] T003 [P] Configure linting (flake8/black) and formatting tools in `.pre-commit-config.yaml`
 
@@ -41,7 +41,7 @@
 - [ ] T006 [P] Setup `contracts/` directory with `analysis_output.schema.yaml` defining output fields for D_f, ε, and correlation results
 - [ ] T007 Create `data/download.py` with JHTDB fetcher logic and Phase-Shifted DNS fallback mechanism; explicitly ensure fallback logic calls `validation/null_model.py` (fallback applies ONLY when JHTDB is unavailable and for algorithm validation only, never for primary hypothesis testing)
 - [ ] T008 Create `data/preprocess.py` implementing streaming/chunked processing for 512³ grids to enforce memory constraints
-- [~] T009 Implement `main.py` CLI entry point with pipeline orchestration and contract validation step
+- [ ] T009 Implement `main.py` CLI entry point with pipeline orchestration and contract validation step
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -60,7 +60,7 @@
 
 ### Implementation for User Story 1
 
-- [~] T012 [P] [US1] Implement `analysis/fractal.py` with box-counting algorithm supporting configurable vorticity thresholds
+- [ ] T012 [P] [US1] Implement `analysis/fractal.py` with box-counting algorithm supporting configurable vorticity thresholds
 - [ ] T013 [US1] Implement logic in `analysis/fractal.py` to handle edge cases: reject thresholds yielding no surfaces or space-filling results
 - [ ] T014 [US1] Implement `validation/synthetic_menger.py` to generate Menger sponge data for ground-truth testing
 - [ ] T015 [US1] Implement sensitivity analysis logic in `analysis/fractal.py` to sweep thresholds **{2×, 3×, 4× RMS}** (explicitly excluding ambiguous placeholders) and report correlation coefficient variation across these specific values as required by FR-008 and SC-005
@@ -86,8 +86,8 @@
 - [ ] T020 [P] [US2] Implement `analysis/gradients.py` to compute velocity gradient tensors ∇u using central finite-difference schemes of appropriate order and precision as mandated by FR-002
 - [ ] T021 [US2] Implement `analysis/dissipation.py` to calculate ε = 2νS_ijS_ij using kinematic viscosity ν from metadata (FR-004)
 - [ ] T022 [US2] Implement `validation/synthetic_taylor_green.py` to generate analytical Taylor-Green vortex data
-- [ ] T023 [US2] Add validation in `analysis/dissipation.py`: **If Re_λ < 300, skip intermittency ratio check and log warning; otherwise, verify max(ε)/mean(ε) ≥ 1000** (SC-002). Do not hard-fail on low-Re data.
-- [ ] T024 [US2] Integrate `data/preprocess.py` (completed module T008) streaming logic into `analysis/dissipation.py` to handle 512³ grids within 6GB RAM
+- [ ] T023 [US2] Add validation in `analysis/dissipation.py`: **If Re_λ < 300, skip intermittency ratio check and log warning [UNRESOLVED-CLAIM: c_303e5f19 — status=not_enough_info]; otherwise, verify max(ε)/mean(ε) ≥ 1000 [UNRESOLVED-CLAIM: c_a508b048 — status=not_enough_info] ** (SC-002). Do not hard-fail on low-Re data.
+- [ ] T024 [US2] Integrate `data/preprocess.py` (completed module T008) streaming logic into `analysis/dissipation.py` to handle 512³ grids within 6GB RAM [UNRESOLVED-CLAIM: c_6775dcc1 — status=not_enough_info]
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -97,7 +97,7 @@
 
 **Goal**: Perform linear regression between D_f and log(ε) with block-bootstrapping and FWE correction.
 
-**Independent Test**: Verify Pearson r and p-value are computed correctly with n≥100 independent samples. [UNRESOLVED-CLAIM: c_a1b79c2a — status=not_enough_info]
+**Independent Test**: Verify Pearson r and p-value are computed correctly with n≥100 independent samples.
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
@@ -107,11 +107,11 @@
 ### Implementation for User Story 3
 
 - [ ] T028 [P] [US3] Implement `analysis/stats.py` with Pearson correlation and linear regression functions
-- [ ] T029 [US3] Implement block-bootstrapping logic in `analysis/stats.py` to handle spatially correlated data (n=1000 resamples)
+- [ ] T029 [US3] Implement block-bootstrapping logic in `analysis/stats.py` to handle spatially correlated data (n=1000 (2402.03491, https://arxiv.org/abs/2402.03491) resamples [UNRESOLVED-CLAIM: c_bc3a0c11 — status=not_enough_info])
 - [ ] T030 [US3] Implement family-wise error correction (Bonferroni or Benjamini-Hochberg) in `analysis/stats.py`
 - [ ] T030B [P] [US3] Implement logic in `analysis/stats.py` to compute/estimate integral length scale (λ) from velocity field (PREREQUISITE for T031)
-- [ ] T031 [US3] **DEPENDS ON: T030B**. Implement logic to select spatial subdomains separated by ≥10 integral length scales (λ) using the computed λ from T030B
-- [ ] T031B [US3] **DEPENDS ON: T031**. Implement logic to count selected subdomains; if count < 100, log critical error and halt pipeline (enforcing FR-005/SC-004)
+- [ ] T031 [US3] **DEPENDS ON: T030B**. Implement logic to Implement logic to select spatial subdomains separated by ≥10 integral length scales (λ) [UNRESOLVED-CLAIM: c_f2dd3031 — status=not_enough_info] using the computed λ from T030B
+- [ ] T031B [US3] **DEPENDS ON: T031**. Implement logic to count selected subdomains; if count < 100, log critical error and halt pipeline [UNRESOLVED-CLAIM: c_abdb28e9 — status=not_enough_info] (enforcing FR-005/SC-004)
 - [ ] T032 [US3] Implement `validation/null_model.py` (Phase-Shifted DNS) to decouple geometric thresholding from energetic magnitude
 - [ ] T033 [US3] **DEPENDS ON: T015, T021**. Implement robustness check by computing D_f-ε correlation across **two distinct methods: (1) normalized RMS thresholding, (2) absolute vorticity thresholding**. Output a CSV row comparing the two correlation coefficients to verify the relationship is not an artifact.
 
@@ -121,9 +121,9 @@
 
 ## Phase 6: User Story 4 - Reynolds Number Scaling Analysis (Priority: P3)
 
-**Goal**: Repeat analysis across Re_λ = 200, 400, 600 and test for scaling laws. [UNRESOLVED-CLAIM: c_a892279e — status=not_enough_info]
+**Goal**: Repeat analysis across Re_λ = 200, 400, 600 and test for scaling laws. [UNRESOLVED-CLAIM: c_a892279e — status=not_enough_info] and test for scaling laws.
 
-**Independent Test**: Verify scaling exponent α is estimated with uncertainty bounds.
+**Independent Test**: Verify scaling exponent α is estimated with uncertainty bounds. [UNRESOLVED-CLAIM: c_b8e56403 — status=not_enough_info]
 
 ### Implementation for User Story 4
 
@@ -141,11 +141,11 @@
 
 **Purpose**: Improvements that affect multiple user stories and ensure resource compliance.
 
-- [ ] T038 [P] Implement memory profiling in `main.py` to assert peak RSS ≤ 6 GB at each step
-- [ ] T039 [P] Implement runtime profiling in `main.py` to assert total runtime ≤ 6 hours and step runtime ≤ 30 minutes
+- [ ] T038 [P] Implement memory profiling in `main.py` to assert peak RSS ≤ 6 GB at each step [UNRESOLVED-CLAIM: c_6339bba9 — status=not_enough_info]
+- [ ] T039 [P] Implement runtime profiling in `main.py` to total runtime ≤ 6 hours and step runtime ≤ 30 minutes [UNRESOLVED-CLAIM: c_4bc4ff08 — status=not_enough_info]
 - [ ] T040 [P] Write comprehensive `docs/README.md` with instructions for running the pipeline on CI
 - [ ] T041 [P] Add `requirements.txt` with pinned versions
-- [ ] T042 [P] Run `pytest` with coverage report to ensure >80% coverage on core modules
+- [ ] T042 [P] Run `pytest` with coverage report to ensure >80% coverage on core modules [UNRESOLVED-CLAIM: c_045269ff — status=not_enough_info]
 - [ ] T043 [P] Validate `data/results/correlation_results.csv` against `contracts/analysis_output.schema.yaml` in `main.py`
 - [ ] T044 [P] Run quickstart.md validation (if created in Phase 1)
 

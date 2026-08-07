@@ -1,0 +1,36 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "BenchmarkDatasetSchema"
+description: "Schema for the stratified benchmark subset input (metadata-derived tags + image metadata + visual verification)."
+type: "object"
+properties:
+  image_id:
+    type: "string"
+    description: "Unique identifier for the image from DeepFashion2."
+  frame_index:
+    type: "integer"
+    description: "Index of the frame within the clip (0 for static)."
+  feature_class:
+    type: "string"
+    enum:
+      - "COLOR"
+      - "PATTERN"
+      - "TEXTURE"
+    description: "The semantic attribute derived from DeepFashion2 metadata."
+  text_prompt:
+    type: "string"
+    description: "The natural language prompt derived from metadata (e.g., 'A person wearing a plaid shirt')."
+  confidence_score:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Confidence score for prompt-image alignment (1.0 = high confidence, derived from metadata presence)."
+  visual_confirmed:
+    type: "boolean"
+    description: "True if MobileCLIP verified the prompt matches the visual content."
+required:
+  - "image_id"
+  - "frame_index"
+  - "feature_class"
+  - "text_prompt"
+  - "visual_confirmed"
+additionalProperties: false

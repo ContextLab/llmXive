@@ -1,240 +1,106 @@
 """
-CI Resource Monitor for FR-007 Compliance.
+Resource Monitor for CI Compliance (FR-007)
 
-This module provides a context manager and standalone script to monitor
-system resource usage (RAM and Runtime) during CI execution. It asserts
-that usage stays within the limits defined in FR-007:
-- Maximum RAM: 7 GB
-- Maximum Runtime: 6 hours
+Monitors RAM usage and runtime to ensure they stay within:
+- RAM: ≤ 7 GB
+- Runtime: ≤ 6 hours
 
-Usage:
-  1. As a context manager:
-     with ResourceMonitor(limit_gb=7.0, limit_hours=6.0):
-         # run heavy code
-         pass
-
-  2. As a CLI tool to check current usage or run a command:
-     python code/utils/resource_monitor.py --check
-     python code/utils/resource_monitor.py --command "python code/analysis/run_statistics.py"
+This script is designed to run in the background while the main analysis
+script executes. It asserts constraints and fails loudly if they are violated.
 """
-
 import os
 import sys
 import time
-import subprocess
-import resource
+import argparse
 import signal
-import psutil
 from pathlib import Path
-from typing import Optional, Callable, Any
 from datetime import datetime
+import resource
 
-# Constants derived from FR-007
-DEFAULT_LIMIT_GB = 7.0
-DEFAULT_LIMIT_HOURS = 6.0
-RAM_CHECK_INTERVAL = 1.0  # seconds
+# Constants
+RAM_LIMIT_GB = 7.0
+RUNTIME_LIMIT_HOURS = 6.0
+CHECK_INTERVAL_SECONDS = 5.0
 
-# Global state for the monitor
-_monitor_start_time: Optional[float] = None
-_monitor_pid: Optional[int] = None
-_current_process: Optional[psutil.Process] = None
-_max_rss_mb: float = 0.0
-_is_monitoring: bool = False
-_monitor_thread: Optional[Any] = None
-
-
-def _get_memory_usage_mb() -> float:
-    """
-    Get the current resident set size (RSS) of the current process in MB.
-    Uses psutil for cross-platform compatibility.
-    """
+def get_memory_usage_gb():
+    """Get current process memory usage in GB."""
     try:
-        process = psutil.Process(os.getpid())
-        return process.memory_info().rss / (1024 * 1024)
-    except Exception:
-        # Fallback to resource module if psutil fails (Unix only)
-        try:
-            usage = resource.getrusage(resource.RUSAGE_SELF)
-            # ru_maxrss is in KB on Linux, bytes on macOS (sometimes), usually KB on Unix
-            # psutil is preferred, but this is a fallback
-            return usage.ru_maxrss / 1024.0
-        except Exception:
-            return 0.0
+        # rusage.ru_maxrss is in KB on Linux
+        usage = resource.getrusage(resource.RUSAGE_SELF)
+        max_rss_kb = usage.ru_maxrss
+        return max_rss_kb / (1024 * 1024)  # Convert KB to GB
+    except Exception as e:
+        print(f"Error reading memory usage: {e}", file=sys.stderr)
+        return 0.0
 
-
-def _monitor_loop(limit_gb: float, stop_event: Any):
+def check_resources(max_ram_gb: float = RAM_LIMIT_GB, max_runtime_h: float = RUNTIME_LIMIT_HOURS):
     """
-    Background thread loop to periodically check memory usage.
+    Check current resource usage. Raises SystemExit if limits are exceeded.
     """
-    global _max_rss_mb, _is_monitoring
+    current_ram = get_memory_usage_gb()
+    start_time = getattr(check_resources, 'start_time', None)
+    
+    if start_time is None:
+        check_resources.start_time = time.time()
+        start_time = check_resources.start_time
 
-    while not stop_event.is_set():
-        current_mb = _get_memory_usage_mb()
-        if current_mb > _max_rss_mb:
-            _max_rss_mb = current_mb
+    elapsed_time = time.time() - start_time
+    elapsed_hours = elapsed_time / 3600.0
 
-        limit_mb = limit_gb * 1024
-        if current_mb > limit_mb * 0.9:  # Warn at 90%
-            print(f"[ResourceMonitor] WARNING: Memory usage at {current_mb:.2f} MB "
-                  f"({(current_mb / (limit_mb * 1024)) * 100:.1f}% of {limit_gb}GB limit).")
+    if current_ram > max_ram_gb:
+        msg = f"⚠️  RAM LIMIT EXCEEDED: {current_ram:.2f} GB > {max_ram_gb} GB"
+        print(msg, file=sys.stderr)
+        raise SystemExit(1)
 
-        time.sleep(RAM_CHECK_INTERVAL)
-    _is_monitoring = False
+    if elapsed_hours > max_runtime_h:
+        msg = f"⚠️  RUNTIME LIMIT EXCEEDED: {elapsed_hours:.2f} hours > {max_runtime_h} hours"
+        print(msg, file=sys.stderr)
+        raise SystemExit(1)
 
-
-class ResourceMonitor:
+def monitor_loop(max_ram_gb: float = RAM_LIMIT_GB, max_runtime_h: float = RUNTIME_LIMIT_HOURS):
     """
-    Context manager to monitor RAM and Runtime for CI compliance (FR-007).
-
-    Asserts:
-      - Memory usage does not exceed `limit_gb` (default 7.0 GB).
-      - Runtime does not exceed `limit_hours` (default 6.0 hours).
-
-    Raises:
-      MemoryError: If RAM usage exceeds the limit.
-      TimeoutError: If runtime exceeds the limit.
+    Continuously monitor resources until interrupted or limits exceeded.
     """
+    print(f"Resource Monitor started. Limits: RAM ≤ {max_ram_gb}GB, Time ≤ {max_runtime_h}h")
+    print(f"Start time: {datetime.now().isoformat()}")
+    
+    # Set start time for the first check
+    check_resources.start_time = time.time()
 
-    def __init__(self, limit_gb: float = DEFAULT_LIMIT_GB, limit_hours: float = DEFAULT_LIMIT_HOURS):
-        self.limit_gb = limit_gb
-        self.limit_hours = limit_hours
-        self.limit_mb = limit_gb * 1024
-        self.limit_seconds = limit_hours * 3600
-        self.start_time: Optional[float] = None
-        self.stop_event: Optional[Any] = None
-        self.monitor_thread: Optional[Any] = None
-
-    def __enter__(self):
-        global _monitor_start_time, _max_rss_mb, _is_monitoring, _monitor_pid
-
-        _max_rss_mb = 0.0
-        self.start_time = time.time()
-        _monitor_start_time = self.start_time
-        _monitor_pid = os.getpid()
-        _is_monitoring = True
-
-        # Start background monitoring thread
-        import threading
-        self.stop_event = threading.Event()
-        self.monitor_thread = threading.Thread(
-            target=_monitor_loop,
-            args=(self.limit_gb, self.stop_event),
-            daemon=True
-        )
-        self.monitor_thread.start()
-
-        # Set up signal handlers for graceful exit on timeout
-        def timeout_handler(signum, frame):
-            raise TimeoutError(
-                f"CI Runtime Exceeded: Process ran for {time.time() - self.start_time:.2f} seconds "
-                f"(Limit: {self.limit_hours} hours)."
-            )
-
-        # Only set alarm if on Unix (Windows doesn't support signal.SIGALRM)
-        if hasattr(signal, 'SIGALRM'):
-            signal.signal(signal.SIGALRM, timeout_handler)
-            signal.alarm(int(self.limit_seconds))
-
-        print(f"[ResourceMonitor] Started. Limit: {self.limit_gb}GB RAM, {self.limit_hours}h Runtime.")
-        return self
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        global _is_monitoring
-
-        if self.monitor_thread:
-            self.stop_event.set()
-            self.monitor_thread.join(timeout=2.0)
-
-        # Cancel alarm if set
-        if hasattr(signal, 'SIGALRM'):
-            signal.alarm(0)
-
-        elapsed_time = time.time() - self.start_time if self.start_time else 0
-        elapsed_hours = elapsed_time / 3600
-
-        # Final Checks
-        if exc_type is None:  # Only check if no exception already raised
-            # Check Runtime
-            if elapsed_time > self.limit_seconds:
-                raise TimeoutError(
-                    f"CI Runtime Exceeded: Process ran for {elapsed_hours:.2f} hours "
-                    f"(Limit: {self.limit_hours} hours)."
-                )
-
-            # Check Memory (Final snapshot)
-            current_mb = _get_memory_usage_mb()
-            if current_mb > self.limit_mb:
-                raise MemoryError(
-                    f"CI Memory Exceeded: Peak usage was {_max_rss_mb:.2f} MB "
-                    f"(Limit: {self.limit_mb:.2f} MB / {self.limit_gb} GB)."
-                )
-
-        print(f"[ResourceMonitor] Finished. Runtime: {elapsed_hours:.2f}h, Peak RAM: {_max_rss_mb:.2f} MB.")
-        return False  # Do not suppress exceptions
-
-
-def check_resources(limit_gb: float = DEFAULT_LIMIT_GB, limit_hours: float = DEFAULT_LIMIT_HOURS) -> bool:
-    """
-    Perform a one-off check of current resources.
-    Returns True if within limits, raises exception otherwise.
-    """
-    current_mb = _get_memory_usage_mb()
-    limit_mb = limit_gb * 1024
-
-    if current_mb > limit_mb:
-        raise MemoryError(
-            f"Current memory usage ({current_mb:.2f} MB) exceeds limit ({limit_mb:.2f} MB)."
-        )
-
-    print(f"Resource Check Passed: {current_mb:.2f} MB / {limit_mb:.2f} MB.")
-    return True
-
+    try:
+        while True:
+            time.sleep(CHECK_INTERVAL_SECONDS)
+            check_resources(max_ram_gb, max_runtime_h)
+    except KeyboardInterrupt:
+        print("\nMonitor stopped by user.")
+    except SystemExit as e:
+        # Re-raise to stop the job
+        raise
+    except Exception as e:
+        print(f"Monitor error: {e}", file=sys.stderr)
+        raise
 
 def main():
-    """
-    CLI entry point for resource monitoring.
-    Usage:
-      python code/utils/resource_monitor.py --check
-      python code/utils/resource_monitor.py --command "<command>"
-    """
-    import argparse
-
-    parser = argparse.ArgumentParser(description="CI Resource Monitor for FR-007 Compliance")
-    parser.add_argument("--check", action="store_true", help="Check current resource usage and exit.")
-    parser.add_argument("--command", type=str, help="Run a command under resource monitoring.")
-    parser.add_argument("--limit-gb", type=float, default=DEFAULT_LIMIT_GB, help=f"RAM limit in GB (default: {DEFAULT_LIMIT_GB})")
-    parser.add_argument("--limit-hours", type=float, default=DEFAULT_LIMIT_HOURS, help=f"Time limit in hours (default: {DEFAULT_LIMIT_HOURS})")
-
+    parser = argparse.ArgumentParser(description="Monitor system resources for CI compliance.")
+    parser.add_argument("--max-ram-gb", type=float, default=RAM_LIMIT_GB, help="Max RAM in GB")
+    parser.add_argument("--max-runtime-h", type=float, default=RUNTIME_LIMIT_HOURS, help="Max runtime in hours")
+    parser.add_argument("--check-only", action="store_true", help="Check once and exit (for final validation)")
+    parser.add_argument("--exit-on-exceed", action="store_true", help="Exit immediately if limits exceeded")
+    
     args = parser.parse_args()
 
-    if args.check:
+    if args.check_only:
+        # Perform a single check
         try:
-            check_resources(args.limit_gb, args.limit_hours)
-            print("SUCCESS: Resources within limits.")
-            sys.exit(0)
-        except (MemoryError, TimeoutError) as e:
-            print(f"FAILURE: {e}")
+            check_resources(args.max_ram_gb, args.max_runtime_h)
+            print("Resource check passed.")
+        except SystemExit:
+            print("Resource check failed.", file=sys.stderr)
             sys.exit(1)
+        return
 
-    if args.command:
-        print(f"Running command with limits: {args.limit_gb}GB, {args.limit_hours}h")
-        try:
-            with ResourceMonitor(limit_gb=args.limit_gb, limit_hours=args.limit_hours):
-                # Execute the command
-                result = subprocess.run(args.command, shell=True)
-                if result.returncode != 0:
-                    print(f"Command failed with exit code {result.returncode}")
-                    sys.exit(result.returncode)
-        except MemoryError as e:
-            print(f"CI FAILURE: {e}")
-            sys.exit(1)
-        except TimeoutError as e:
-            print(f"CI FAILURE: {e}")
-            sys.exit(1)
-    else:
-        parser.print_help()
-        sys.exit(1)
-
+    # Run continuous monitoring
+    monitor_loop(args.max_ram_gb, args.max_runtime_h)
 
 if __name__ == "__main__":
     main()

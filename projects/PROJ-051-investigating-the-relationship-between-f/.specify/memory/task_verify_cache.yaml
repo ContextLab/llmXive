@@ -1,0 +1,34 @@
+T002:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a Python 3.10 project structure (e.g., `pyproject.toml`, `requirements.txt`,
+    `setup.cfg`, or a virtual environment) or any file listing the required dependencies
+    is provided. The implementer has not supplied the initialization artifacts the
+    task explicitly demands.
+T004:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `config.py` file or its contents were provided; therefore there is no evidence\
+    \ that Re_\u03BB values, vorticity thresholds, and memory\u2011limit settings\
+    \ are actually defined or managed as required. The implementer must supply a non\u2011\
+    empty `config.py` implementing these configuration parameters."
+T005:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `utils/logging.py` file or its contents were presented; without the actual
+    module code we cannot verify that it provides reproducible logging, seed handling,
+    and step timing as required. The implementer must supply the concrete implementation
+    file.
+T009:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `main.py` (or any equivalent CLI entry point) is present in the provided\
+    \ artifacts, and therefore there is no code that orchestrates the pipeline or\
+    \ performs contract validation as required. The implementer\u2019s claim cannot\
+    \ be verified without the actual file."
+T012:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `analysis/fractal.py` file or any code implementing a box\u2011counting algorithm\
+    \ with configurable vorticity thresholds is present in the provided evidence;\
+    \ thus the required artifact is missing. The task remains undone."

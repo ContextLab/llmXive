@@ -169,7 +169,7 @@
 **Purpose**: Improvements that affect multiple user stories
 
 - [ ] T033 [P] Update `README.md` with installation steps and dependencies
-- [~] T034 [P] Update `README.md` with analysis execution steps and expected outputs
+- [ ] T034 [P] Update `README.md` with analysis execution steps and expected outputs
 - [X] T035 [P] Add API documentation to `docs/api.md`
 - [X] T036 Code cleanup: Refactor `code/utils/logging_utils.py` to remove unused imports
 - [X] T037 Code cleanup: Refactor `code/utils/models.py` to simplify data structures
@@ -177,8 +177,8 @@
 - [X] T039 Performance optimization: Reduce runtime to <5h in `code/analysis/run_statistics.py`
 - [X] T040 [P] Add unit tests for edge cases in `code/tests/test_statistics.py`
 - [X] T041 [P] Add unit tests for data integrity in `code/tests/test_data_integrity.py`
-- [~] T042 Security hardening (ensure no sensitive data leaks in logs)
-- [~] T043 Run `quickstart.md` validation
+- [ ] T042 Security hardening (ensure no sensitive data leaks in logs)
+- [ ] T043 Run `quickstart.md` validation
 
 ---
 

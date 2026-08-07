@@ -1,10 +1,3 @@
-T012a:
-  c: false
-  h: 50a80cce8f49d3343a5cdace47bb4f7c63107fb39d78eba405a939d76d81f8dd
-  r: The latency calibrator script exists, but the required startup files (`backend/src/main.py`
-    or `frontend/src/App.jsx`) are missing, and there is no evidence that the calibrator
-    is imported or executed at application launch. Integration into the startup flow
-    has not been demonstrated.
 T015:
   c: false
   h: 72505f3ec27d2fc5d4c563d24417d251ad7984060a01e477c93ef725c93380f1
@@ -14,33 +7,6 @@ T015:
     \ file does not exist. Both the incomplete module and missing CSV output mean\
     \ the task\u2019s requirement\u2014to record the specified columns to that CSV\u2014\
     is not satisfied."
-T016:
-  c: false
-  h: 26431c4aaa72999c61b52018b1b9f6acfb074ddcae83e4b2a5c337fc331e394f
-  r: "The required output file `data/interaction_logs/anonymized_logs.csv` does not\
-    \ exist, and the provided `code/utils/anonymize_logs.py` is incomplete (truncated)\
-    \ with no evident entry\u2011point that reads raw logs and writes the anonymized\
-    \ CSV, so the task\u2019s core requirement is unmet."
-T018a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `contracts/api_participant.md` file or its contents were provided; therefore
-    the required API contract (endpoints, request/response schemas, session management
-    details) is missing. The implementer must create the markdown file with the full
-    specification.
-T018c:
-  c: false
-  h: 91ebfcf9610bddd9d17acfe5d311d57be4bfc60d6803347ef43fb86eaa24a35b
-  r: "The required file `backend/src/api/participant.py` (or an equivalent implementation)\
-    \ is missing from the repository, so no code handling submissions, session state,\
-    \ or Latin\u2011square assignment is present. The task\u2019s core artifact is\
-    \ absent, making the implementation incomplete."
-T019:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of a `data/consent/` directory, a `.gitignore` entry excluding it,\
-    \ or any script/command that sets file permissions to `chmod 600` is provided.\
-    \ The implementer\u2019s claim cannot be verified without these artifacts."
 T027:
   c: false
   h: 8be0308eb8c6a05539b0e1935eaaf50759c7dc974d5ab387c246bb29ee47de5e
@@ -56,12 +22,12 @@ T029:
     \ is missing."
 T030a:
   c: false
-  h: 3ae5c1e6643f14d94834612afb8f7c5f393de6f853e5bc4f6ae7a0f1421a30ca
-  r: The `baseline_results.json` file, which the task explicitly requires to be generated
-    and committed, is missing. Moreover, the provided `generate_baseline_results.py`
-    is truncated and only attempts to load existing CSV/JSON files rather than executing
-    the analysis script and writing the required JSON output. The core functionality
-    and output artifact are therefore absent.
+  h: 65ba1bc71f42a2483aa5ad03283c3cfc8bb2eca81dedcc6a6752fa3c36dd9795
+  r: "The `generate_baseline_results.py` file is present but truncated (ends mid\u2011\
+    function) and does not contain the full logic to execute the analysis script,\
+    \ capture its results, and write them to `data/analysis_results/baseline_results.json`.\
+    \ Moreover, the required `baseline_results.json` file is missing entirely. The\
+    \ task\u2019s core output is therefore not provided."
 T032:
   c: false
   h: ca7098ef5e76f2a94ada4ac09fe0eef79afae26da646c2e897330bf0c5127181
@@ -72,3 +38,24 @@ T033:
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
   r: No README.md file or its contents were presented, so we cannot verify that installation
     steps and dependencies were added. The required artifact is missing from the evidence.
+T034:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a README.md file (or its contents) was provided; thus we cannot
+    confirm that it has been updated with the required analysis execution steps and
+    expected outputs. The implementer must supply the actual README.md showing the
+    new documentation.
+T042:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifacts were provided that demonstrate security hardening or the removal\
+    \ of sensitive data from logs, and the only material described pertains to data\
+    \ collection, statistical analysis, and reproducibility for a code\u2011summarization\
+    \ study\u2014unrelated to the T042 requirement. Consequently, the claim does not\
+    \ satisfy the task\u2019s mandate to ensure no sensitive data leaks in logs."
+T043:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No artifact showing that `quickstart.md` was actually validated (e.g., validation
+    logs, pass/fail report, or updated documentation) is present. The required evidence
+    of running and confirming the quickstart validation is missing.

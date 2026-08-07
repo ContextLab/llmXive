@@ -17,40 +17,6 @@
   status: not_enough_info
   updated_at: '2026-07-05T13:52:30Z'
 - artifact_path: projects/PROJ-051-investigating-the-relationship-between-f/specs/001-investigating-the-relationship-between-f/tasks.md
-  attempts: 6
-  canonical: Menger sponge fractal dimension is 2.73
-  claim_id: c_4931a208
-  context: "Independent Test: Verify D_f matches ground truth (Menger sponge, D=2.73)\
-    \ within \xB10.05."
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: "Verify D_f matches ground truth (Menger sponge, D=2.73) within \xB10.05."
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-05T13:58:54Z'
-- artifact_path: projects/PROJ-051-investigating-the-relationship-between-f/specs/001-investigating-the-relationship-between-f/tasks.md
-  attempts: 1
-  canonical: Taylor-Green vortex analytical solution energy dissipation error tolerance
-    is 1%
-  claim_id: c_a2c8d7ba
-  context: "Independent Test: Verify \u03B5 matches Taylor-Green vortex analytical\
-    \ solution within \u22641% relative error."
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: "Verify \u03B5 matches Taylor-Green vortex analytical solution within\
-    \ \u22641% relative error."
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-05T13:58:54Z'
-- artifact_path: projects/PROJ-051-investigating-the-relationship-between-f/specs/001-investigating-the-relationship-between-f/tasks.md
   attempts: 1
   canonical: Block-bootstrapping uses 1000 resamples for spatially correlated data
   claim_id: c_fb15d356
@@ -78,24 +44,6 @@
   kind: numeric
   raw_text: "Implement logic to select spatial subdomains separated by \u226510 integral\
     \ length scales (\u03BB)."
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-05T13:59:26Z'
-- artifact_path: projects/PROJ-051-investigating-the-relationship-between-f/specs/001-investigating-the-relationship-between-f/tasks.md
-  attempts: 2
-  canonical: Reynolds number scaling analysis performed at Re_lambda values of 200,
-    400, and 600
-  claim_id: c_a892279e
-  context: "Goal: Repeat analysis across Re_\u03BB = 200, 400, 600 and test for scaling\
-    \ laws."
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: "Repeat analysis across Re_\u03BB = 200, 400, 600 and test for scaling\
-    \ laws."
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
@@ -222,7 +170,383 @@
   status: not_enough_info
   updated_at: '2026-07-05T14:00:29Z'
 - artifact_path: projects/PROJ-051-investigating-the-relationship-between-f/specs/001-investigating-the-relationship-between-f/tasks.md
-  attempts: 2
+  attempts: 1
+  canonical: Menger sponge fractal dimension 2.73
+  claim_id: c_c94dece0
+  context: "Independent Test for User Story 1: Verify D_f matches ground truth (Menger\
+    \ sponge, D=2.73) within \xB10.05."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify D_f matches ground truth (Menger sponge, D=2.73) within \xB10.05."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T21:38:38Z'
+- artifact_path: projects/PROJ-051-investigating-the-relationship-between-f/specs/001-investigating-the-relationship-between-f/tasks.md
+  attempts: 1
+  canonical: Taylor-Green vortex energy dissipation error threshold 1 percent
+  claim_id: c_633b4951
+  context: "Independent Test for User Story 2: Verify \u03B5 matches Taylor-Green\
+    \ vortex analytical solution within \u22641% relative error."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify \u03B5 matches Taylor-Green vortex analytical solution within\
+    \ \u22641% relative error."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T21:38:38Z'
+- artifact_path: projects/PROJ-051-investigating-the-relationship-between-f/specs/001-investigating-the-relationship-between-f/tasks.md
+  attempts: 1
+  canonical: Pearson correlation sample size requirement 100
+  claim_id: c_1cec72ff
+  context: "Independent Test for User Story 3: Verify Pearson r and p-value are computed\
+    \ correctly with n\u2265100 independent samples."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify Pearson r and p-value are computed correctly with n\u2265100 independent\
+    \ samples."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T21:38:38Z'
+- artifact_path: projects/PROJ-051-investigating-the-relationship-between-f/specs/001-investigating-the-relationship-between-f/tasks.md
+  attempts: 1
+  canonical: Spatial subdomain separation 10 integral length scales
+  claim_id: c_0710d123
+  context: "Task T031: Implement logic to select spatial subdomains separated by \u2265\
+    10 integral length scales (\u03BB) using the computed \u03BB from T030B"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement logic to select spatial subdomains separated by \u226510 integral\
+    \ length scales (\u03BB)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T21:38:38Z'
+- artifact_path: projects/PROJ-051-investigating-the-relationship-between-f/specs/001-investigating-the-relationship-between-f/tasks.md
+  attempts: 1
+  canonical: Subdomain count threshold 100
+  claim_id: c_49eb55cd
+  context: 'Task T031B: Implement logic to count selected subdomains; if count < 100,
+    log critical error and halt pipeline (enforcing FR-005/SC-004)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If count < 100, log critical error and halt pipeline.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T21:38:38Z'
+- artifact_path: projects/PROJ-051-investigating-the-relationship-between-f/specs/001-investigating-the-relationship-between-f/tasks.md
+  attempts: 1
+  canonical: Reynolds number scaling values 200 400 600
+  claim_id: c_d5eb0471
+  context: "Goal for User Story 4: Repeat analysis across Re_\u03BB = 200, 400, 600\
+    \ and test for scaling laws."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Repeat analysis across Re_\u03BB = 200, 400, 600 and test for scaling\
+    \ laws."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T21:39:00Z'
+- artifact_path: projects/PROJ-051-investigating-the-relationship-between-f/specs/001-investigating-the-relationship-between-f/tasks.md
+  attempts: 1
+  canonical: Reynolds number threshold 300 for intermittency check
+  claim_id: c_60db859f
+  context: "Task T023: Add validation in analysis/dissipation.py: If Re_\u03BB < 300,\
+    \ skip intermittency ratio check and log warning."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "If Re_\u03BB < 300, skip intermittency ratio check and log warning."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T21:39:00Z'
+- artifact_path: projects/PROJ-051-investigating-the-relationship-between-f/specs/001-investigating-the-relationship-between-f/tasks.md
+  attempts: 1
+  canonical: Intermittency ratio threshold 1000
+  claim_id: c_0b9d4355
+  context: "Task T023: Add validation in analysis/dissipation.py: otherwise, verify\
+    \ max(\u03B5)/mean(\u03B5) \u2265 1000 (SC-002)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify max(\u03B5)/mean(\u03B5) \u2265 1000 for Re_\u03BB \u2265 300."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T21:39:00Z'
+- artifact_path: projects/PROJ-051-investigating-the-relationship-between-f/specs/001-investigating-the-relationship-between-f/tasks.md
+  attempts: 1
+  canonical: Block bootstrap resample count 1000
+  claim_id: c_8d5450ec
+  context: 'Task T029: Implement block-bootstrapping logic in analysis/stats.py to
+    handle spatially correlated data (n=1000 resamples)'
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: levels of noise. All time series are constructed with 1000-time units.
+        First, a sine
+      source_id: '2402.03491'
+      url: https://arxiv.org/abs/2402.03491
+      value: '1000'
+    filled: true
+  kind: numeric
+  raw_text: Implement block-bootstrapping logic with n=1000 resamples.
+  resolved_value: '1000'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-07T21:39:22Z'
+- artifact_path: projects/PROJ-051-investigating-the-relationship-between-f/specs/001-investigating-the-relationship-between-f/tasks.md
+  attempts: 1
+  canonical: Peak RSS limit 6 GB
+  claim_id: c_cfd711e3
+  context: "Task T038: Implement memory profiling in main.py to assert peak RSS \u2264\
+    \ 6 GB at each step"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Assert peak RSS \u2264 6 GB at each step."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T21:39:22Z'
+- artifact_path: projects/PROJ-051-investigating-the-relationship-between-f/specs/001-investigating-the-relationship-between-f/tasks.md
+  attempts: 1
+  canonical: Total runtime limit 6 hours
+  claim_id: c_eab3b503
+  context: "Task T039: Implement runtime profiling in main.py to assert total runtime\
+    \ \u2264 6 hours and step runtime \u2264 30 minutes"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Assert total runtime \u2264 6 hours and step runtime \u2264 30 minutes."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T21:39:22Z'
+- artifact_path: projects/PROJ-051-investigating-the-relationship-between-f/specs/001-investigating-the-relationship-between-f/tasks.md
+  attempts: 1
+  canonical: Grid size 512 cubed
+  claim_id: c_c8be8151
+  context: "Task T008: Create data/preprocess.py implementing streaming/chunked processing\
+    \ for 512\xB3 grids to enforce memory constraints"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Process 512\xB3 grids to enforce memory constraints."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T21:39:39Z'
+- artifact_path: projects/PROJ-051-investigating-the-relationship-between-f/specs/001-investigating-the-relationship-between-f/tasks.md
+  attempts: 1
+  canonical: Grid processing memory limit 6 GB
+  claim_id: c_8500780b
+  context: "Task T024: Integrate data/preprocess.py (completed module T008) streaming\
+    \ logic into analysis/dissipation.py to handle 512\xB3 grids within 6GB RAM"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Integrate streaming logic to handle 512\xB3 grids within 6GB RAM."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T21:40:04Z'
+- artifact_path: projects/PROJ-051-investigating-the-relationship-between-f/specs/001-investigating-the-relationship-between-f/tasks.md
+  attempts: 1
+  canonical: Taylor-Green vortex analytical solution error tolerance is 1 percent
+  claim_id: c_9b2cd427
+  context: "Independent Test: Verify \u03B5 matches Taylor-Green vortex analytical\
+    \ solution within \u22641% relative error."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify \u03B5 matches Taylor-Green vortex analytical solution within\
+    \ \u22641% relative error."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T21:40:31Z'
+- artifact_path: projects/PROJ-051-investigating-the-relationship-between-f/specs/001-investigating-the-relationship-between-f/tasks.md
+  attempts: 1
+  canonical: Block-bootstrapping uses 1000 resamples per arXiv 2402.03491
+  claim_id: c_76223cbd
+  context: Implement block-bootstrapping logic in analysis/stats.py to handle spatially
+    correlated data (n=1000 (2402.03491, https://arxiv.org/abs/2402.03491) resamples)
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: n=1000 (2402.03491, https://arxiv.org/abs/2402.03491) resamples
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T21:41:02Z'
+- artifact_path: projects/PROJ-051-investigating-the-relationship-between-f/specs/001-investigating-the-relationship-between-f/tasks.md
+  attempts: 1
+  canonical: Spatial subdomains separated by 10 integral length scales
+  claim_id: c_85884b82
+  context: "Implement logic to select spatial subdomains separated by \u226510 integral\
+    \ length scales (\u03BB) using the computed \u03BB from T030B"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "subdomains separated by \u226510 integral length scales"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T21:41:02Z'
+- artifact_path: projects/PROJ-051-investigating-the-relationship-between-f/specs/001-investigating-the-relationship-between-f/tasks.md
+  attempts: 1
+  canonical: Critical error triggered if selected subdomain count is less than 100
+  claim_id: c_632f0e2a
+  context: Implement logic to count selected subdomains; if count < 100, log critical
+    error and halt pipeline (enforcing FR-005/SC-004)
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Critical_error_triggered_if_selected_subdomain_count_is_less
+  kind: magnitude
+  raw_text: if count < 100, log critical error and halt pipeline
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T21:41:10Z'
+- artifact_path: projects/PROJ-051-investigating-the-relationship-between-f/specs/001-investigating-the-relationship-between-f/tasks.md
+  attempts: 1
+  canonical: Reynolds number scaling analysis performed at Re_lambda 200, 400, and
+    600
+  claim_id: c_a34763ac
+  context: "Goal: Repeat analysis across Re_\u03BB = 200, 400, 600 and test for scaling\
+    \ laws."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Repeat analysis across Re_\u03BB = 200, 400, 600"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T21:41:13Z'
+- artifact_path: projects/PROJ-051-investigating-the-relationship-between-f/specs/001-investigating-the-relationship-between-f/tasks.md
+  attempts: 1
+  canonical: Peak RSS limit is 6 GB
+  claim_id: c_a39534ad
+  context: "Implement memory profiling in main.py to assert peak RSS \u2264 6 GB at\
+    \ each step"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "peak RSS \u2264 6 GB"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T21:41:13Z'
+- artifact_path: projects/PROJ-051-investigating-the-relationship-between-f/specs/001-investigating-the-relationship-between-f/tasks.md
+  attempts: 1
+  canonical: Test coverage target is greater than 80 percent on core modules
+  claim_id: c_04ba3797
+  context: Run pytest with coverage report to ensure >80% coverage on core modules
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Test_coverage_target_is_greater_than_80_percent_on_core_modu
+  kind: magnitude
+  raw_text: ensure >80% coverage on core modules
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T21:41:21Z'
+- artifact_path: projects/PROJ-051-investigating-the-relationship-between-f/specs/001-investigating-the-relationship-between-f/tasks.md
+  attempts: 1
+  canonical: Intermittency ratio max over mean must be at least 1000 for Re_lambda
+    300 or higher
+  claim_id: c_1ca280e1
+  context: "Add validation in analysis/dissipation.py: If Re_\u03BB < 300, skip intermittency\
+    \ ratio check and log warning; otherwise, verify max(\u03B5)/mean(\u03B5) \u2265\
+    \ 1000 (SC-002)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Intermittency_ratio_max_over_mean_must_be_at_least_1000_for
+  kind: magnitude
+  raw_text: "If Re_\u03BB < 300, skip intermittency ratio check and log warning; otherwise,\
+    \ verify max(\u03B5)/mean(\u03B5) \u2265 1000"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T21:41:26Z'
+- artifact_path: projects/PROJ-051-investigating-the-relationship-between-f/specs/001-investigating-the-relationship-between-f/tasks.md
+  attempts: 1
+  canonical: Taylor-Green vortex analytical solution relative error threshold is 1%
+  claim_id: c_21b1ff44
+  context: "Independent Test: Verify \u03B5 matches Taylor-Green vortex analytical\
+    \ solution within \u22641% relative error."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify \u03B5 matches Taylor-Green vortex analytical solution within\
+    \ \u22641% relative error."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T21:42:28Z'
+- artifact_path: projects/PROJ-051-investigating-the-relationship-between-f/specs/001-investigating-the-relationship-between-f/tasks.md
+  attempts: 3
   canonical: Pearson correlation requires at least 100 independent samples
   claim_id: c_a1b79c2a
   context: "Independent Test: Verify Pearson r and p-value are computed correctly\
@@ -239,4 +563,442 @@
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-05T14:00:31Z'
+  updated_at: '2026-08-07T21:43:02Z'
+- artifact_path: projects/PROJ-051-investigating-the-relationship-between-f/specs/001-investigating-the-relationship-between-f/tasks.md
+  attempts: 1
+  canonical: Block-bootstrapping uses 1000 resamples for spatially correlated data
+  claim_id: c_59ef61b7
+  context: Implement block-bootstrapping logic in analysis/stats.py to handle spatially
+    correlated data (n=1000 (2402.03491, https://arxiv.org/abs/2402.03491) resamples)
+  evidence:
+    asserted: '1000.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Implement block-bootstrapping logic in analysis/stats.py to handle spatially
+    correlated data (n=1000 (2402.03491, https://arxiv.org/abs/2402.03491) resamples)
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-08-07T21:43:02Z'
+- artifact_path: projects/PROJ-051-investigating-the-relationship-between-f/specs/001-investigating-the-relationship-between-f/tasks.md
+  attempts: 1
+  canonical: Scaling law analysis performed at Reynolds numbers 200, 400, and 600
+  claim_id: c_05248bb8
+  context: "Goal: Repeat analysis across Re_\u03BB = 200, 400, 600 and test for scaling\
+    \ laws."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Repeat analysis across Re_\u03BB = 200, 400, 600 and test for scaling\
+    \ laws."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T21:43:02Z'
+- artifact_path: projects/PROJ-051-investigating-the-relationship-between-f/specs/001-investigating-the-relationship-between-f/tasks.md
+  attempts: 1
+  canonical: Pipeline halts if selected subdomain count is less than 100
+  claim_id: c_9f9d80fb
+  context: Implement logic to count selected subdomains; if count < 100, log critical
+    error and halt pipeline (enforcing FR-005/SC-004)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_halts_if_selected_subdomain_count_is_less_than_100
+  kind: magnitude
+  raw_text: if count < 100, log critical error and halt pipeline
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T21:43:10Z'
+- artifact_path: projects/PROJ-051-investigating-the-relationship-between-f/specs/001-investigating-the-relationship-between-f/tasks.md
+  attempts: 1
+  canonical: Peak resident set size must be less than or equal to 6 GB
+  claim_id: c_fb57ce16
+  context: "Implement memory profiling in main.py to assert peak RSS \u2264 6 GB at\
+    \ each step"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Peak_resident_set_size_must_be_less_than_or_equal_to_6_GB
+  kind: magnitude
+  raw_text: "assert peak RSS \u2264 6 GB at each step"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T21:43:19Z'
+- artifact_path: projects/PROJ-051-investigating-the-relationship-between-f/specs/001-investigating-the-relationship-between-f/tasks.md
+  attempts: 2
+  canonical: Total runtime limit is 6 hours and step runtime limit is 30 minutes
+  claim_id: c_59a171b1
+  context: "Implement runtime profiling in main.py to assert total runtime \u2264\
+    \ 6 hours and step runtime \u2264 30 minutes"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "total runtime \u2264 6 hours and step runtime \u2264 30 minutes"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T21:43:19Z'
+- artifact_path: projects/PROJ-051-investigating-the-relationship-between-f/specs/001-investigating-the-relationship-between-f/tasks.md
+  attempts: 1
+  canonical: Code coverage on core modules must exceed 80%
+  claim_id: c_5b9339ee
+  context: Run pytest with coverage report to ensure >80% coverage on core modules
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: ensure >80% coverage on core modules
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T21:43:19Z'
+- artifact_path: projects/PROJ-051-investigating-the-relationship-between-f/specs/001-investigating-the-relationship-between-f/tasks.md
+  attempts: 0
+  canonical: Block-bootstrapping uses 1000 resamples for spatially correlated data
+  claim_id: c_b0c16a2a
+  context: Implementation task T029 for User Story 3.
+  evidence:
+    asserted: '1000.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Implement block-bootstrapping logic in analysis/stats.py to handle spatially
+    correlated data (n=1000 (2402.03491, https://arxiv.org/abs/2402.03491) resamples)
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-08-07T21:43:50Z'
+- artifact_path: projects/PROJ-051-investigating-the-relationship-between-f/specs/001-investigating-the-relationship-between-f/tasks.md
+  attempts: 1
+  canonical: Menger sponge fractal dimension is 2.73
+  claim_id: c_880a35b5
+  context: User Story 1 - Fractal Dimension Computation Independent Test description.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Independent Test: Verify D_f matches ground truth (Menger sponge, D=2.73)\
+    \ within \xB10.05."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T21:43:55Z'
+- artifact_path: projects/PROJ-051-investigating-the-relationship-between-f/specs/001-investigating-the-relationship-between-f/tasks.md
+  attempts: 1
+  canonical: Taylor-Green vortex analytical solution used for energy dissipation verification
+  claim_id: c_df22e34b
+  context: User Story 2 - Energy Dissipation Rate Computation Independent Test description.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Independent Test: Verify \u03B5 matches Taylor-Green vortex analytical\
+    \ solution within \u22641% relative error."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T21:43:55Z'
+- artifact_path: projects/PROJ-051-investigating-the-relationship-between-f/specs/001-investigating-the-relationship-between-f/tasks.md
+  attempts: 1
+  canonical: Statistical verification requires at least 100 independent samples
+  claim_id: c_45b701d4
+  context: User Story 3 - Correlation Analysis and Statistical Testing Independent
+    Test description.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Statistical_verification_requires_at_least_100_independent_s
+  kind: magnitude
+  raw_text: "Independent Test: Verify Pearson r and p-value are computed correctly\
+    \ with n\u2265100 independent samples."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T21:44:31Z'
+- artifact_path: projects/PROJ-051-investigating-the-relationship-between-f/specs/001-investigating-the-relationship-between-f/tasks.md
+  attempts: 1
+  canonical: Reynolds number scaling analysis performed at Re_lambda 200, 400, and
+    600
+  claim_id: c_7b26620f
+  context: User Story 4 - Reynolds Number Scaling Analysis Goal description.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Goal: Repeat analysis across Re_\u03BB = 200, 400, 600 and test for scaling\
+    \ laws."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T21:44:39Z'
+- artifact_path: projects/PROJ-051-investigating-the-relationship-between-f/specs/001-investigating-the-relationship-between-f/tasks.md
+  attempts: 9
+  canonical: Menger sponge fractal dimension is 2.73
+  claim_id: c_4931a208
+  context: "Independent Test: Verify D_f matches ground truth (Menger sponge, D=2.73)\
+    \ within \xB10.05."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify D_f matches ground truth (Menger sponge, D=2.73) within \xB10.05."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T21:45:16Z'
+- artifact_path: projects/PROJ-051-investigating-the-relationship-between-f/specs/001-investigating-the-relationship-between-f/tasks.md
+  attempts: 2
+  canonical: Taylor-Green vortex analytical solution energy dissipation error tolerance
+    is 1%
+  claim_id: c_a2c8d7ba
+  context: "Independent Test: Verify \u03B5 matches Taylor-Green vortex analytical\
+    \ solution within \u22641% relative error."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify \u03B5 matches Taylor-Green vortex analytical solution within\
+    \ \u22641% relative error."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T21:45:16Z'
+- artifact_path: projects/PROJ-051-investigating-the-relationship-between-f/specs/001-investigating-the-relationship-between-f/tasks.md
+  attempts: 1
+  canonical: 1000 resamples used for block-bootstrapping
+  claim_id: c_bc3a0c11
+  context: Implement block-bootstrapping logic in analysis/stats.py to handle spatially
+    correlated data (n=1000 (2402.03491, https://arxiv.org/abs/2402.03491) resamples)
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: n=1000 (2402.03491, https://arxiv.org/abs/2402.03491) resamples
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T21:45:18Z'
+- artifact_path: projects/PROJ-051-investigating-the-relationship-between-f/specs/001-investigating-the-relationship-between-f/tasks.md
+  attempts: 1
+  canonical: Minimum 100 selected subdomains required for pipeline continuity
+  claim_id: c_abdb28e9
+  context: Implement logic to count selected subdomains; if count < 100, log critical
+    error and halt pipeline (enforcing FR-005/SC-004)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: if count < 100, log critical error and halt pipeline
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T21:45:18Z'
+- artifact_path: projects/PROJ-051-investigating-the-relationship-between-f/specs/001-investigating-the-relationship-between-f/tasks.md
+  attempts: 3
+  canonical: Reynolds number scaling analysis performed at Re_lambda values of 200,
+    400, and 600
+  claim_id: c_a892279e
+  context: "Goal: Repeat analysis across Re_\u03BB = 200, 400, 600 and test for scaling\
+    \ laws."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Repeat analysis across Re_\u03BB = 200, 400, 600 and test for scaling\
+    \ laws."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T21:45:18Z'
+- artifact_path: projects/PROJ-051-investigating-the-relationship-between-f/specs/001-investigating-the-relationship-between-f/tasks.md
+  attempts: 1
+  canonical: Scaling exponent alpha estimation includes uncertainty bounds
+  claim_id: c_b8e56403
+  context: "Independent Test: Verify scaling exponent \u03B1 is estimated with uncertainty\
+    \ bounds."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Scaling_exponent_alpha_estimation_includes_uncertainty_bound
+  kind: entity_fact
+  raw_text: "Verify scaling exponent \u03B1 is estimated with uncertainty bounds."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T21:45:26Z'
+- artifact_path: projects/PROJ-051-investigating-the-relationship-between-f/specs/001-investigating-the-relationship-between-f/tasks.md
+  attempts: 1
+  canonical: Peak RSS memory limit is 6 GB
+  claim_id: c_6339bba9
+  context: "Implement memory profiling in main.py to assert peak RSS \u2264 6 GB at\
+    \ each step"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "assert peak RSS \u2264 6 GB at each step"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T21:45:27Z'
+- artifact_path: projects/PROJ-051-investigating-the-relationship-between-f/specs/001-investigating-the-relationship-between-f/tasks.md
+  attempts: 1
+  canonical: Total runtime limit is 6 hours and step runtime limit is 30 minutes
+  claim_id: c_4bc4ff08
+  context: "Implement runtime profiling in main.py to total runtime \u2264 6 hours\
+    \ and step runtime \u2264 30 minutes"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "total runtime \u2264 6 hours and step runtime \u2264 30 minutes"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T21:45:27Z'
+- artifact_path: projects/PROJ-051-investigating-the-relationship-between-f/specs/001-investigating-the-relationship-between-f/tasks.md
+  attempts: 1
+  canonical: Test coverage on core modules must exceed 80 percent
+  claim_id: c_045269ff
+  context: Run pytest with coverage report to ensure >80% coverage on core modules
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: ensure >80% coverage on core modules
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T21:45:27Z'
+- artifact_path: projects/PROJ-051-investigating-the-relationship-between-f/specs/001-investigating-the-relationship-between-f/tasks.md
+  attempts: 1
+  canonical: Intermittency ratio check skipped if Re_lambda is less than 300
+  claim_id: c_303e5f19
+  context: "Add validation in analysis/dissipation.py: If Re_\u03BB < 300, skip intermittency\
+    \ ratio check and log warning; otherwise, verify max(\u03B5)/mean(\u03B5) \u2265\
+    \ 1000"
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Intermittency_ratio_check_skipped_if_Re_lambda_is_less_than
+  kind: magnitude
+  raw_text: "If Re_\u03BB < 300, skip intermittency ratio check and log warning"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T21:45:48Z'
+- artifact_path: projects/PROJ-051-investigating-the-relationship-between-f/specs/001-investigating-the-relationship-between-f/tasks.md
+  attempts: 1
+  canonical: Maximum energy dissipation to mean energy dissipation ratio must be at
+    least 1000
+  claim_id: c_a508b048
+  context: "Add validation in analysis/dissipation.py: If Re_\u03BB < 300, skip intermittency\
+    \ ratio check and log warning; otherwise, verify max(\u03B5)/mean(\u03B5) \u2265\
+    \ 1000"
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Maximum_energy_dissipation_to_mean_energy_dissipation_ratio
+  kind: magnitude
+  raw_text: "verify max(\u03B5)/mean(\u03B5) \u2265 1000"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T21:46:09Z'
+- artifact_path: projects/PROJ-051-investigating-the-relationship-between-f/specs/001-investigating-the-relationship-between-f/tasks.md
+  attempts: 2
+  canonical: Streaming processing supports 512 cubed grids
+  claim_id: c_9bbbb28c
+  context: "Create data/preprocess.py implementing streaming/chunked processing for\
+    \ 512\xB3 grids to enforce memory constraints"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement streaming/chunked processing for 512\xB3 grids to enforce memory\
+    \ constraints"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T21:46:09Z'
+- artifact_path: projects/PROJ-051-investigating-the-relationship-between-f/specs/001-investigating-the-relationship-between-f/tasks.md
+  attempts: 1
+  canonical: Dissipation analysis handles 512 cubed grids within 6 GB RAM
+  claim_id: c_6775dcc1
+  context: "Integrate data/preprocess.py (completed module T008) streaming logic into\
+    \ analysis/dissipation.py to handle 512\xB3 grids within 6GB RAM"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "handle 512\xB3 grids within 6GB RAM"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T21:46:25Z'
+- artifact_path: projects/PROJ-051-investigating-the-relationship-between-f/specs/001-investigating-the-relationship-between-f/tasks.md
+  attempts: 2
+  canonical: Spatial subdomains must be separated by at least 10 integral length scales
+  claim_id: c_f2dd3031
+  context: "Implement logic to select spatial subdomains separated by \u226510 integral\
+    \ length scales (\u03BB) using the computed \u03BB from T030B"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Spatial_subdomains_must_be_separated_by_at_least_10_integral
+  kind: magnitude
+  raw_text: "Implement logic to select spatial subdomains separated by \u226510 integral\
+    \ length scales (\u03BB)"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T21:46:27Z'

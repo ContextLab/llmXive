@@ -31,3 +31,15 @@
   verification_status: verified
   verified_against_url: https://turbulence.idies.jhu.edu/home
   verified_at: '2026-07-05T13:33:07.646617Z'
+- artifact_hash: 8647c2926e21deee0d7077c07d9834d91d2e9abfb60dc264bdc14466cc2feb6d
+  artifact_path: projects/PROJ-051-investigating-the-relationship-between-f/specs/001-investigating-the-relationship-between-f/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: '[2402.03491] Periodically Correlated Time Series and the Variable
+    Bandpass Periodic Block Bootstrap'
+  kind: url
+  value: https://arxiv.org/abs/2402.03491
+  verification_status: pending
+  verified_against_url: https://arxiv.org/abs/2402.03491
+  verified_at: '2026-08-07T21:46:27.157390Z'

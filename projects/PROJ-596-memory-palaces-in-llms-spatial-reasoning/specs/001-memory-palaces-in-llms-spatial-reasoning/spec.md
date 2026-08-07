@@ -3,7 +3,7 @@
 **Feature Branch**: `PROJ-596-memory-palaces-in-llms-spatial-reasoning`  
 **Created**: 2026-06-16  
 **Status**: Draft  
-**Input**: User description: "How does explicit spatial organization of episodic memories in transformer architectures affect recall accuracy on sequential memory benchmarks compared to non‑spatial embedding strategies?"
+**Input**: User description: "Is explicit spatial organization of episodic memories in transformer architectures associated with improved recall accuracy on sequential memory benchmarks compared to non‑spatial embedding strategies?"
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -20,6 +20,12 @@ The system implements a spatial-memory transformer variant and compares its reca
 1. **Given** gpt2-medium base model (4-bit quantized) and bAbI task 3 training data, **When** fine-tuning both spatial and non-spatial variants for 3 epochs with batch size 8 and learning rate 5e-5, **Then** both models produce valid checkpoints that run inference without errors.
 2. **Given** trained spatial and non-spatial models, **When** evaluating on bAbI task 3 test set across 5 random seeds (0-4), **Then** exact-match recall accuracy is recorded for each seed and both variants.
 3. **Given** recall accuracy measurements, **When** comparing spatial vs non-spatial performance, **Then** the difference in mean accuracy is computed and reported with standard deviation.
+4. **Given** the core implementation, **When** measuring the interference distance metric (FR-011), **Then** the metric is recorded to validate the structural hypothesis of spatial organization.
+
+**Limitations & Notes**:
+- **Construct Validity**: The datasets (bAbI, LAMBADA, Story Cloze) measure different linguistic phenomena. Results will be reported separately for each dataset to avoid conflating distinct constructs.
+- **Convergence**: Fine-tuning a 355M parameter model on CPU for 3 epochs may be insufficient for full convergence. Results will be interpreted with this limitation in mind.
+- **Confounding Variable**: The 'external memory benefit' (presence of a memory buffer) is a confound. A control variant with a non-spatial external memory buffer will be included to isolate the spatial effect.
 
 ---
 
@@ -37,6 +43,9 @@ The system performs paired statistical testing across random seeds with appropri
 2. **Given** multiple dataset comparisons (bAbI, LAMBADA, Story Cloze), **When** applying family-wise error correction, **Then** Bonferroni or Holm-Bonferroni correction is applied to control α at 0.05 across all tests.
 3. **Given** paired accuracy measurements, **When** computing effect sizes, **Then** Cohen's d is calculated and reported alongside p-values.
 
+**Limitations & Notes**:
+- **Statistical Power**: With N=5 seeds, the power to detect a medium effect size (Cohen's d=0.5) is approximately 0.18. This study is explicitly framed as exploratory; results will be interpreted as effect size estimates rather than definitive hypothesis tests.
+
 ---
 
 ### User Story 3 - Structural Metric Quantification for Spatial Organization (Priority: P2)
@@ -49,7 +58,7 @@ The system measures and reports structural correlates of spatial organization to
 
 **Acceptance Scenarios**:
 
-1. **Given** spatial memory slot assignments, **When** injecting semantically unrelated items into adjacent grid coordinates, **Then** the system measures the drop in recall accuracy (interference distance) and reports it.
+1. **Given** spatial memory slot assignments, **When** injecting semantically unrelated items (defined as items with semantic similarity < 0.2) into adjacent grid coordinates (Manhattan distance = 1), **Then** the system measures the drop in recall accuracy (interference distance) and reports it.
 2. **Given** recall accuracy under interference, **When** comparing spatial vs non-spatial variants, **Then** the spatial variant must show a statistically significant reduction in interference (higher robustness) or the result is documented as a null finding.
 3. **Given** slot occupancy data, **When** computing the distribution of memory slots used per sample, **Then** the system logs the distribution to ensure no slot is overloaded beyond capacity.
 
@@ -57,25 +66,26 @@ The system measures and reports structural correlates of spatial organization to
 
 ### Edge Cases
 
-- What happens when a dataset sample exceeds the memory slot capacity (e.g., more episodic chunks than grid locations)? → System implements FIFO eviction with oldest slot overwritten; eviction rate is logged and must be ≤ 5% of total samples.
-- How does system handle out-of-memory errors on GitHub Actions free tier? → System implements automatic dataset subsampling; If total model + data exceeds available RAM capacity, batch size is reduced to a lower value.. If memory usage still exceeds 6 GB at batch size 4, total samples are capped at [deferred] of the original.
+- What happens when a dataset sample exceeds the memory slot capacity (e.g., more episodic chunks than grid locations)? → System implements FIFO eviction with oldest slot overwritten; eviction rate is logged and must be ≤ 5% of total samples. If eviction occurs for a sample, the interference distance metric is computed only on samples that did not require eviction, or reported as 'N/A' for that sample.
+- How does system handle out-of-memory errors on GitHub Actions free tier? → System implements automatic dataset subsampling; If total model + data exceeds available RAM capacity, batch size is reduced to 4. If memory usage still exceeds 6 GB at batch size 4, total samples are capped at [deferred] of the original.
 - What happens when paired t-test assumptions are violated (non-normal distribution of accuracy differences)? → System runs Shapiro-Wilk normality test; if p < 0.05, Wilcoxon signed-rank test is used instead and both results are reported.
 
 ## Requirements *(mandatory)*
 
 ### Functional Requirements
 
-- **FR-001**: System MUST implement a 2-D grid of memory slots with coordinate assignment for each episodic chunk (See US-1)
+- **FR-001**: System MUST implement a 2-D grid of 8x8 memory slots with coordinate assignment for each episodic chunk using a learned embedding lookup based on content, not a purely deterministic hash (See US-1)
 - **FR-002**: System MUST compute cosine similarity between current hidden state and slot embeddings for soft-addressed retrieval (See US-1)
-- **FR-003**: System MUST attempt training with 3 epochs, batch size 8, and learning rate 5e-5, but MUST reduce batch size to 4 if peak memory usage exceeds 6 GB RAM; the system MUST record the final effective hyperparameters used for each run and document any deviations (See US-1)
-- **FR-004**: System MUST record exact-match recall accuracy for each random seed (0-4) on each dataset (See US-1)
-- **FR-005**: System MUST perform paired two-tailed t-tests comparing baseline vs spatial-memory scores across 5 seeds (See US-2)
-- **FR-006**: System MUST apply family-wise error correction (Bonferroni or Holm-Bonferroni) when >1 hypothesis test is run (See US-2)
-- **FR-007**: System MUST compute Cohen's d effect size with confidence intervals for all comparisons (See US-2)
-- **FR-008**: System MUST compute and log slot occupancy distribution for every epoch (See US-3)
-- **FR-009**: System MUST compute and log coordinate variance for every epoch (See US-3)
+- **FR-003**: System MUST attempt training with 3 epochs, batch size 8, and learning rate 5e-5, but MUST reduce batch size to 4 if peak memory usage (process RSS measured after each batch) exceeds 6.0 GB RAM; the system MUST record the final effective hyperparameters used for each run and document any deviations (See US-1)
+- **FR-004**: System MUST record exact-match recall accuracy for each random seed across multiple runs on each dataset (See US-1)
+- **FR-005**: System MUST perform paired two-tailed t-tests comparing baseline vs spatial-memory scores across multiple seeds, testing the null hypothesis that the mean difference in recall accuracy between variants is zero (See US-2)
+- **FR-006**: System MUST apply family-wise error correction (Bonferroni or Holm-Bonferroni) when >1 hypothesis test is run across the 3 datasets (See US-2)
+- **FR-007**: System MUST compute Cohen's d effect size with confidence intervals for all comparisons, using pooled standard deviation and non-central t-distribution for confidence intervals (See US-2)
+- **FR-008**: System MUST compute and log slot occupancy distribution for every epoch as a list of integers representing the count of items per slot. (See US-3)
+- **FR-009**: System MUST compute and log coordinate variance for every epoch as the trace of the 2D covariance matrix (sum of x and y variances) (See US-3)
 - **FR-010**: System MUST implement automatic batch size reduction to 4 if peak RSS of the Python process exceeds 6 GB RAM; if memory usage still exceeds 6 GB at batch size 4, the system MUST cap the dataset to [deferred] of the original size (See Assumption A-003)
-- **FR-011**: System MUST compute interference distance by measuring recall drop when semantically unrelated items are assigned to adjacent grid coordinates, and report this metric for both spatial and non-spatial variants (See US-3)
+- **FR-011**: System MUST compute interference distance by measuring recall drop when semantically unrelated items (semantic similarity < 0.2) are assigned to adjacent grid coordinates (Manhattan distance = 1), and report this metric for both spatial and non-spatial variants. If FIFO eviction occurs for a sample, this metric is computed only on samples that did not require eviction or reported as 'N/A' (See US-3)
+- **FR-012**: System MUST create a `requirements.txt` file at `projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/code/` listing all dependencies with pinned versions to ensure reproducibility (See Constitution Principle I)
 
 ### Key Entities
 
@@ -96,7 +106,7 @@ The system measures and reports structural correlates of spatial organization to
 - **SC-003**: Recall accuracy is measured against baseline non-spatial variant on Story Cloze Test (See US-1)
 - **SC-004**: Statistical significance is measured against α = 0.05 threshold with multiple comparison correction (See US-2)
 - **SC-005**: Effect size is measured against Cohen's d conventions (small ≥ 0.2, medium ≥ 0.5, large ≥ 0.8) (See US-2)
-- **SC-006**: Interference distance is measured against the baseline non-spatial variant; the spatial variant is considered successful if it demonstrates a statistically significant reduction in interference (See US-3)
+- **SC-006**: Interference distance is measured against the baseline non-spatial variant; the spatial variant is considered successful if it demonstrates a statistically significant reduction in interference (p < 0.05 after correction) (See US-3)
 - **SC-007**: Total runtime is measured against the GitHub Actions free-tier limit. (See Assumption A-003)
 - **SC-008**: Memory usage is measured against a constrained RAM environment on a free-tier runner. (See Assumption A-003)
 
@@ -104,15 +114,15 @@ The system measures and reports structural correlates of spatial organization to
 
 - gpt2-medium (355M parameters) fits within 6 GB RAM when loaded with 4-bit quantization (bitsandbytes) and CPU-only execution; without quantization, the model requires >10 GB RAM and is infeasible.
 - Dataset sizes (bAbI task 3, LAMBADA, Story Cloze) total ≤ 200 MB and fit within 14 GB disk constraint
-- Total fine-tuning and evaluation runtime for 5 seeds across 3 datasets is ≤ 5 hours on GitHub Actions free-tier (Limited CPU cores, no GPU) with 4-bit quantization
+- Total fine-tuning and evaluation runtime for 5 seeds across 3 datasets is ≤ 5 hours on GitHub Actions free-tier (Single CPU core, no GPU) with 4-bit quantization
 - No CUDA, bitsandbytes, or GPU-specific operations are required beyond 4-bit quantization libraries; all computations use default PyTorch precision on CPU
-- A range of random seeds provides sufficient statistical power for paired t-tests.; if power is insufficient, this limitation is documented in results
+- A range of random seeds provides sufficient statistical power for paired t-tests; if power is insufficient, this limitation is documented in results
 - Multiple comparison correction uses Bonferroni method as default; Holm-Bonferroni is used if Bonferroni is overly conservative (α < 0.001)
 - The spatial memory grid uses 8×8 = 64 slots; if slot capacity is exceeded, FIFO eviction is applied (see Edge Cases). This eviction policy is essential to test the spatial capacity hypothesis and is not merely an implementation detail.
-- All datasets are publicly available and accessible without authentication; if access fails, the pipeline logs the error and skips that dataset
+- All datasets are publicly available and accessible without authentication; if access fails, the pipeline logs the error and skips that dataset. Canonical IDs: 'facebook/babi', 'cse-lambada', 'allenai/c4' (as a proxy for Story Cloze if the original is unavailable).
 - The spatial embedding module uses cosine similarity for retrieval; alternative metrics (Euclidean, dot product) are not tested in this iteration
 - Statistical analysis uses scipy.stats for t-tests; if normality assumptions are violated, non-parametric alternatives are documented
-- The binding problem (spatial tags integrating with distributed representations) is addressed via soft-addressed read mechanisms; explicit binding architectures are deferred to future work (see Eric Kandel and David Krakauer reviewer comments)
+- The binding problem (spatial tags integrating with distributed representations) is addressed via soft-addressed read mechanisms; explicit binding architectures are deferred to future work
 - Dataset-variable fit is confirmed: bAbI task 3 provides temporal reasoning targets, LAMBADA provides long-context prediction targets, Story Cloze provides narrative coherence targets—each maps to the episodic recall outcome variable
 - Inference framing is associational: findings are reported as correlations between spatial organization and recall accuracy, not causal claims (no randomization of architecture)
-- Threshold justification: interference distance metric is based on standard cognitive science measures of proactive interference; sensitivity analysis sweeps absolute diff across a range of small magnitudes. and reports how false-positive/false-negative rates vary across thresholds. A reduced batch size is triggered when RAM usage approaches the hard constraint to ensure a safety margin, following the methodology described in [Citation]. The research question remains: [Research Question], and the method is: [Method]..
+- Threshold justification: interference distance metric is based on standard cognitive science measures of proactive interference; sensitivity analysis sweeps absolute diff across a range of small magnitudes and reports how false-positive/false-negative rates vary across thresholds. A reduced batch size is triggered when RAM usage approaches the hard constraint to ensure a safety margin.

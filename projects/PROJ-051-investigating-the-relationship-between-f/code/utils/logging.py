@@ -1,69 +1,56 @@
-"""
-Reproducible logging utilities for the turbulence analysis pipeline.
-
-Features:
-- Configurable random seeds for reproducibility.
-- Step timing tracking (start/stop/elapsed).
-- Structured logging with correlation IDs for pipeline steps.
-"""
-
 import logging
 import os
 import random
 import sys
 import time
+import hashlib
 from contextlib import contextmanager
+from typing import Optional, Generator
 from datetime import datetime
-from typing import Any, Dict, Generator, Optional
 
-from config import get_config
+# Ensure the package structure allows imports from utils
+# This file is located at code/utils/logging.py
 
-
-# Default log format
-_LOG_FORMAT = "%(asctime)s | %(levelname)-8s | %(name)s | %(message)s"
-_DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
-
+def _get_run_id() -> str:
+    """Generate a unique run ID based on timestamp and a random salt."""
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    salt = str(random.randint(10000, 99999))
+    raw = f"{timestamp}_{salt}"
+    return hashlib.md5(raw.encode()).hexdigest()[:8]
 
 class PipelineLogger:
     """
-    A logger wrapper that adds reproducibility features:
-    - Random seed management
-    - Step timing
-    - Context-aware logging
+    A wrapper around Python's standard logging.Logger that adds:
+    - Reproducible logging context (run_id)
+    - Step timing utilities
+    - Seed management
     """
-
-    def __init__(
-        self,
-        name: str = "turbulence_pipeline",
-        level: int = logging.INFO,
-        log_file: Optional[str] = None,
-    ):
+    def __init__(self, name: str = "turbulence_pipeline", level: int = logging.INFO):
+        self.run_id = _get_run_id()
         self.logger = logging.getLogger(name)
         self.logger.setLevel(level)
-
-        # Prevent duplicate handlers if re-initialized
+        
         if not self.logger.handlers:
-            # Console handler
+            # Create console handler
             ch = logging.StreamHandler(sys.stdout)
             ch.setLevel(level)
-            formatter = logging.Formatter(_LOG_FORMAT, _DATE_FORMAT)
+            
+            # Formatter with run_id and timestamp
+            formatter = logging.Formatter(
+                f"%(asctime)s [%(levelname)s] [RunID:{self.run_id}] "
+                f"%(name)s - %(message)s",
+                datefmt="%Y-%m-%d %H:%M:%S"
+            )
             ch.setFormatter(formatter)
             self.logger.addHandler(ch)
 
-            # File handler (optional)
-            if log_file:
-                os.makedirs(os.path.dirname(log_file) if os.path.dirname(log_file) else ".", exist_ok=True)
-                fh = logging.FileHandler(log_file)
-                fh.setLevel(level)
-                fh.setFormatter(formatter)
-                self.logger.addHandler(fh)
-
-        self._step_timings: Dict[str, float] = {}
-        self._current_step: Optional[str] = None
+        # Add run_id to the logging context
+        self.logger.info(f"Pipeline initialized with RunID: {self.run_id}")
 
     def set_seed(self, seed: int) -> None:
         """
-        Set random seeds for reproducibility across numpy, random, and torch (if available).
+        Set random seeds for reproducibility.
+        Sets seed for: random, numpy (if available), and torch (if available).
         """
         random.seed(seed)
         try:
@@ -71,6 +58,7 @@ class PipelineLogger:
             np.random.seed(seed)
         except ImportError:
             pass
+        
         try:
             import torch
             torch.manual_seed(seed)
@@ -79,86 +67,94 @@ class PipelineLogger:
         except ImportError:
             pass
 
-        self.logger.info(f"Random seed set to: {seed}")
+        self.logger.info(f"Reproducibility: Random seed set to {seed}")
 
-    def log_step_start(self, step_name: str, metadata: Optional[Dict[str, Any]] = None) -> None:
-        """Log the start of a pipeline step and start timing."""
-        self._current_step = step_name
-        self._step_timings[step_name] = time.time()
+    def log_step_start(self, step_name: str) -> float:
+        """
+        Log the start of a pipeline step and return the start time.
+        """
+        self.logger.info(f"Step START: {step_name}")
+        return time.perf_counter()
 
-        msg = f"Starting step: {step_name}"
-        if metadata:
-            msg += f" | Metadata: {metadata}"
+    def log_step_end(self, step_name: str, start_time: float) -> float:
+        """
+        Log the end of a pipeline step and return the duration.
+        """
+        duration = time.perf_counter() - start_time
+        self.logger.info(f"Step END: {step_name} (Duration: {duration:.4f}s)")
+        return duration
+
+    @property
+    def logger_instance(self) -> logging.Logger:
+        """Expose the underlying logger instance for direct use if needed."""
+        return self.logger
+
+    def critical(self, msg: str) -> None:
+        self.logger.critical(msg)
+
+    def error(self, msg: str) -> None:
+        self.logger.error(msg)
+
+    def warning(self, msg: str) -> None:
+        self.logger.warning(msg)
+
+    def info(self, msg: str) -> None:
         self.logger.info(msg)
 
-    def log_step_end(self, step_name: Optional[str] = None, success: bool = True) -> None:
-        """Log the end of a pipeline step and record elapsed time."""
-        target_step = step_name or self._current_step
-        if not target_step:
-            self.logger.warning("No active step to end.")
-            return
+    def debug(self, msg: str) -> None:
+        self.logger.debug(msg)
 
-        if target_step not in self._step_timings:
-            self.logger.warning(f"Step {target_step} was not started.")
-            return
-
-        start_time = self._step_timings.pop(target_step)
-        elapsed = time.time() - start_time
-
-        status = "SUCCESS" if success else "FAILED"
-        self.logger.info(f"Step {target_step} {status} | Elapsed: {elapsed:.2f}s")
-
-        self._current_step = None
-
-    @contextmanager
-    def timed_step(self, step_name: str, metadata: Optional[Dict[str, Any]] = None) -> Generator[None, None, None]:
-        """
-        Context manager to automatically log start/end and timing for a step.
-        """
-        self.log_step_start(step_name, metadata)
-        try:
-            yield
-            self.log_step_end(step_name, success=True)
-        except Exception as e:
-            self.logger.error(f"Step {step_name} raised exception: {e}")
-            self.log_end(step_name, success=False)
-            raise
-
-def get_logger(
-    name: str = "turbulence_pipeline",
-    log_file: Optional[str] = None,
-) -> PipelineLogger:
+def get_logger(name: Optional[str] = None) -> PipelineLogger:
     """
-    Factory function to get a configured PipelineLogger.
+    Factory function to get or create a PipelineLogger.
+    If name is provided, uses that name; otherwise defaults to 'turbulence_pipeline'.
     """
-    # Try to get config for default log level/file if not provided
-    try:
-        config = get_config()
-        log_level = getattr(logging, config.log_level.upper(), logging.INFO)
-        default_log_file = config.log_file if hasattr(config, 'log_file') else None
-    except Exception:
-        log_level = logging.INFO
-        default_log_file = None
+    if name is None:
+        name = "turbulence_pipeline"
+    
+    # Check if we already have a custom attribute attached to the standard logger
+    # to avoid re-initializing handlers if this is called multiple times in the same process
+    # However, for simplicity in this specific task, we return a fresh wrapper 
+    # that shares the underlying logger state.
+    base_logger = logging.getLogger(name)
+    
+    # We need to attach a custom attribute to the standard logger to hold our state
+    # or just wrap it. Let's wrap it in a PipelineLogger instance.
+    # To ensure we don't duplicate handlers, we check if the handler exists.
+    
+    # Since the API surface expects `from utils.logging import get_logger`, 
+    # we return a configured instance.
+    return PipelineLogger(name)
 
-    if log_file is None:
-        log_file = default_log_file
-
-    return PipelineLogger(name=name, level=log_level, log_file=log_file)
-
-
-# Convenience function for quick setup
-def setup_logging(
-    seed: Optional[int] = None,
-    log_file: Optional[str] = None,
-    level: str = "INFO",
-) -> PipelineLogger:
+def setup_logging(log_level: str = "INFO", run_id: Optional[str] = None) -> PipelineLogger:
     """
-    Initialize logging with optional seed and file output.
+    Setup the global logging configuration.
+    Returns a configured PipelineLogger.
     """
-    logger = get_logger(log_file=log_file)
-    logger.logger.setLevel(getattr(logging, level.upper(), logging.INFO))
-
-    if seed is not None:
-        logger.set_seed(seed)
-
+    level = getattr(logging, log_level.upper(), logging.INFO)
+    
+    # If a specific run_id is needed, we could override the generator, 
+    # but typically the logger creates one on init.
+    logger = PipelineLogger(level=level)
+    
+    # Configure root logger if needed for third-party libraries
+    logging.basicConfig(level=level, force=True)
+    
     return logger
+
+@contextmanager
+def timed_step(logger: PipelineLogger, step_name: str) -> Generator[float, None, None]:
+    """
+    Context manager to time a specific step and log start/end automatically.
+    
+    Usage:
+        logger = get_logger()
+        with timed_step(logger, "compute_fractal"):
+            # do work
+            pass
+    """
+    start_time = logger.log_step_start(step_name)
+    try:
+        yield start_time
+    finally:
+        logger.log_step_end(step_name, start_time)
