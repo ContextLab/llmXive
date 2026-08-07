@@ -2,6 +2,5 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T001** — No directory listing or file tree was provided showing the required folders (`code/`, `data/`, `data/raw_cif/`, `models/`, `results/`, `contracts/`, `specs/`). Without concrete evidence that these directories exist and are non‑empty, the task requirement is not satisfied. The implementer must create and expose the project’s folder hierarchy.
-- **T003** — No `.gitignore` file was presented in the evidence, and there is no content showing the required exclusions (`data/raw_cif/`, `*.pt`, `*.csv`, `__pycache__`, `.env`). The implementer must add a non‑empty `.gitignore` containing those patterns.
-- **T019** — The repository contains a partially‑implemented `code/validate_dataset.py`, but the required input files `data/dataset.csv` and `contracts/dataset.schema.yaml` are absent, so the script cannot actually perform validation. Moreover, the provided code (truncated) shows no implementation of the COD‑ID cross‑reference check required by FR‑017. The task therefore remains unfinished.
+- **T004** — declared artifact(s) missing/empty/invalid: schema.yaml
+- **T005** — declared artifact(s) missing/empty/invalid: schema.yaml

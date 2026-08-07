@@ -24,7 +24,7 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project directory structure: `code/`, `data/`, `data/raw_cif/`, `models/`, `results/`, `contracts/`, `specs/`
+- [ ] T001 Create project directory structure: Execute `python code/setup.py` which creates `code/`, `data/`, `data/raw_cif/`, `models/`, `results/`, `contracts/`, `specs/`. Verify existence of all directories.
 - [X] T002 Initialize `requirements.txt` with pinned versions (rdkit, torch-cpu, scikit-learn, pandas, numpy, requests, tqdm, jinja2, statsmodels, scipy, matplotlib, seaborn, pyyaml, jsonschema, pymatgen)
 - [ ] T003 Create `.gitignore` excluding `data/raw_cif/`, `*.pt`, `*.csv`, `__pycache__`, `.env`
 
@@ -39,7 +39,7 @@
 - [ ] T004 [P] Create `contracts/dataset.schema.yaml` defining SMILES, PC, CAPE, 3D descriptors, and confounder fields
 - [ ] T005 [P] Create `contracts/model.schema.yaml` and `contracts/validation_report.schema.yaml`
 - [X] T006 Create `code/utils.py` with seed fixing, logging setup, and Bondi radii constants (FR-018)
-- [ ] T007 [P] Create `code/cif_parsing.py` with robust CIF parsing utilities. **Logic**: Parse CIF files using `pymatgen` (RDKit does not natively parse CIFs). Implement explicit error handling for corrupt files (log specific error, raise exception, **never** fall back to synthetic data). Use `pymatgen` to extract unit cell and atomic coordinates, then pass coordinates to RDKit for SMILES generation if needed. (FR-001, FR-002)
+- [X] T007 [P] Create `code/cif_parsing.py` with robust CIF parsing utilities. **Logic**: Use `pymatgen` to parse CIF files (as RDKit does not natively parse CIFs) to extract unit cell and atomic coordinates. This is an allowed exception to the `rdkit`-first rule for the specific step of file parsing. Pass extracted coordinates to RDKit for SMILES generation if needed. Implement explicit error handling for corrupt files (log specific error, raise exception, **never** fall back to synthetic data). (FR-001, FR-002)
 - [X] T008 [P] Create `code/config.py` for environment configuration (COD URL, HuggingFace model path, random seeds). **Logic**: Load from `.env` or default to verified constants. (FR-017)
 - [X] T009 [P] Create `code/bondi_constants.py` containing the exact Bondi radii values from Bondi (1964) (FR-018) and utility functions for volume calculation. (FR-003, FR-011)
 
@@ -68,11 +68,11 @@
  - Extract SMILES from `_chemical_structure_SMILES` if present; else generate from 3D geometry.
  - **Confounders**: Extract `lattice_system` from `_symmetry_space_group_name_H-M`, `temperature_K` from `_exptl_temperature` or `_cell_measurement_reflns_temperature` (or default K), and `has_solvent` by checking `_chemical_formula_sum` for solvent patterns.
  - **Output**: `data/dataset_intermediate.csv` with columns: `cod_id`, `smiles`, `smiles_source`, `unit_cell_volume`, `n_atoms`, `lattice_system`, `temperature_K`, `has_solvent`. (FR-002, FR-013)
-- [ ] T015 [US1] Implement `code/compute_RAW_metrics.py` to calculate **Raw Packing Coefficient (PC)** (diagnostic only) and **CAPE** (target) using Bondi radii (FR-003, FR-011, FR-018). **Logic**: Calculate PC_raw = Unit-cell volume / Sum(V_vdW). Calculate CAPE = PC_raw / (Sum(V_vdW) / N_atoms) as defined in FR-011. **Reads `data/dataset_intermediate.csv` and produces `data/dataset_with_metrics.csv`.** (FR-003, FR-011)
+- [ ] T015 [US1] Implement `code/compute_RAW_metrics.py` to calculate **Raw Packing Coefficient (PC)** (diagnostic only) and **CAPE** (target) using Bondi radii (FR-003, FR-011, FR-018). **Logic**: Calculate PC_raw = Unit-cell volume / Sum(V_vdW). Calculate CAPE using the formula from FR-011: `CAPE = (Unit-cell volume / Sum(V_vdW)) / (Sum(V_vdW) / N_atoms)`. **Reads `data/dataset_intermediate.csv` and produces `data/dataset_with_metrics.csv`.** (FR-003, FR-011)
 - [ ] T016 [US1] Implement `code/filter_dataset.py` to filter records with missing SMILES, invalid CAPE, or invalid Raw PC from `data/dataset_with_metrics.csv`, producing `data/dataset_filtered.csv` (FR-003, SC-001). Explicitly ensure CAPE is valid before filtering.
 - [ ] T017 [US1] Add logging for download statistics, parsing failures, and filtering counts (FR-001, FR-017). **Specific Logic**: Log the results of T016 filtering (counts of removed records and reasons) to ensure traceability.
-- [ ] T018 [US1] Implement `code/add_3d_descriptors.py` to calculate 3D descriptors (radius of gyration, asphericity, principal moments) directly from the **parsed CIF coordinates** (crystal structure) using RDKit geometry analysis, seed=42. **Reads `data/dataset_filtered.csv` and merges 3D descriptors to produce final `data/dataset.csv`.** **Output columns must include**: `cod_id`, `smiles`, `smiles_source`, `unit_cell_volume`, `n_atoms`, `lattice_system`, `temperature_K`, `has_solvent`, `radius_of_gyration`, `asphericity`, `principal_moments`, `cape`, `raw_pc`. (FR-004, FR-012, FR-017)
-- [ ] T019 [US1] Implement `code/validate_dataset.py` to check `data/dataset.csv` against `contracts/dataset.schema.yaml` (SC-001). **Includes**: 1) Cross-referencing COD IDs in the CSV against the `original_cif_filename` column to ensure data integrity per FR-017. 2) Explicitly recording and verifying the COD source URL and version identifier used for the download (FR-017). (FR-017)
+- [ ] T018 [US1] Implement `code/add_3d_descriptors.py` to calculate 3D descriptors (radius of gyration, asphericity, principal moments) using **gas-phase minimized conformations**. **Logic**: Read `cod_id` from `data/dataset_filtered.csv`. Re-load the original CIF file from `data/raw_cif/` using `pymatgen`. Generate a gas-phase minimized conformation using RDKit ETKDG (do NOT use CIF coordinates directly). Compute descriptors from the minimized conformation. **Reads `data/dataset_filtered.csv` to get `cod_id` and merges 3D descriptors to produce final `data/dataset.csv`.** **Output columns must include**: `cod_id`, `smiles`, `smiles_source`, `unit_cell_volume`, `n_atoms`, `lattice_system`, `temperature_K`, `has_solvent`, `radius_of_gyration`, `asphericity`, `principal_moments`, `cape`, `raw_pc`. (FR-004, FR-012, FR-017)
+- [ ] T019 [US1] Implement `code/validate_dataset.py` to check `data/dataset.csv` against `contracts/dataset.schema.yaml` (SC-001). **Includes**: 1) Cross-referencing COD IDs in the CSV against the list of downloaded CIF files to ensure data integrity per FR-017. 2) Explicitly recording and verifying the COD source URL and version identifier used for the download (FR-017). (FR-017)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -80,7 +80,7 @@
 
 ## Phase 4: User Story 2 - Train and evaluate a lightweight predictor (Priority: P2)
 
-**Goal**: Train a multi-layer perceptron on SMILES-transformer features + D descriptors + confounders to predict CAPE, with rigorous statistical validation.
+**Goal**: Train a multi-layer perceptron on SMILES-transformer features + 3D descriptors + confounders to predict CAPE, with rigorous statistical validation.
 
 **Independent Test**: Running the training script on `dataset.csv` must produce `model.pt` and `results/validation_report.json` with MAE, Pearson r, Spearman ρ, Shapiro-Wilk, and a permutation p-value.
 
@@ -92,7 +92,7 @@
 ### Implementation for User Story 2
 
 - [ ] T024 [US2] Implement `code/feature_assembly.py` to encode SMILES using frozen `seyonec/PubChem10M_SMILES_BPE_60k` (CPU) and **assemble the final feature matrix**. **Inputs**: `data/dataset.csv`. **Features**: `smiles_transformer_embedding` + `radius_of_gyration`, `asphericity`, `principal_moments` + confounders (`lattice_system`, `temperature_K`, `has_solvent`). **Output**: `data/features_matrix.npy` and `data/targets.npy`. (FR-004, FR-013)
-- [ ] T025 [US2] Implement `code/train.py` to train a **2-layer MLP** (Input -> Hidden(64) -> Output) to predict CAPE. **Architecture**: Single hidden layer with 64 units, ReLU activation, Dropout 0.1. **Optimizer**: Adam (lr=1e-3), Batch Size 32. **Inputs**: `data/features_matrix.npy`, `data/targets.npy`. **Outputs**: `models/mlp.pt`. **Constraint**: Total trainable parameters must be ≤ 100k. (FR-005)
+- [ ] T025 [US2] Implement `code/train.py` to train a **2-layer MLP** (Input -> Hidden(64) -> Hidden(32) -> Output) to predict CAPE. **Architecture**: Two hidden layers with varying numbers of units, ReLU activation, Dropout 0.1. **Optimizer**: Adam (lr=1e-3), Batch Size 32. **Inputs**: `data/features_matrix.npy`, `data/targets.npy`. **Outputs**: `models/mlp.pt`. **Constraint**: Total trainable parameters must be ≤ 100k. (FR-005)
 - [ ] T026 [US2] Implement `code/evaluate.py` to compute MAE, Pearson r, Spearman ρ on validation set. (FR-006, FR-015)
 - [ ] T027 [US2] Implement `code/evaluate.py` to run a **fixed two-sided permutation test** with **10,000 shuffles** (FR-006, FR-016). **Logic**: Shuffle labels [deferred] times, compute correlation for each, calculate the two-sided p-value as the fraction of shuffled correlations with absolute value ≥ observed absolute correlation. **Output**: Final p-value and total shuffle count in `results/validation_report.json`. (FR-016, SC-005)
 - [ ] T028 [US2] Implement `code/evaluate.py` to perform VIF diagnostics on **ALL predictor variables** (fingerprint dimensions, 3D descriptors, confounders) as mandated by FR-009. **Use `statsmodels.stats.outliers_influence.variance_inflation_factor` on the full feature matrix. Do NOT omit any raw dimensions.** (FR-009)
@@ -131,3 +131,96 @@
 - [ ] T053 [P] Performance optimization: parallelize permutation test shuffles if needed (within CPU limits)
 - [ ] T054 [P] Additional unit tests for feature extraction logic in `tests/unit/`
 - [ ] T057 [US1, US2, US3] Validate SC-004 for the single model by checking the variation in r across thresholds.
+
+---
+
+## Dependencies & Execution Order
+
+### Phase Dependencies
+
+- **Setup (Phase 1)**: No dependencies - can start immediately
+- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
+- **User Stories (Phase 3+)**: All depend on Foundational phase completion
+  - User stories can then proceed in parallel (if staffed)
+  - Or sequentially in priority order (P1 → P2 → P3)
+- **Polish (Final Phase)**: Depends on all desired user stories being complete
+
+### User Story Dependencies
+
+- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
+- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - May integrate with US1 but should be independently testable
+- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - May integrate with US1/US2 but should be independently testable
+
+### Within Each User Story
+
+- Tests (if included) MUST be written and FAIL before implementation
+- Models before services
+- Services before endpoints
+- Core implementation before integration
+- Story complete before moving to next priority
+
+### Parallel Opportunities
+
+- All Setup tasks marked [P] can run in parallel
+- All Foundational tasks marked [P] can run in parallel (within Phase 2)
+- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
+- All tests for a user story marked [P] can run in parallel
+- Models within a story marked [P] can run in parallel
+- Different user stories can be worked on in parallel by different team members
+
+---
+
+## Parallel Example: User Story 1
+
+```bash
+# Launch all tests for User Story 1 together (if tests requested):
+Task: "Contract test for [endpoint] in tests/contract/test_[name].py"
+Task: "Integration test for [user journey] in tests/integration/test_[name].py"
+
+# Launch all models for User Story 1 together:
+Task: "Create [Entity1] model in src/models/[entity1].py"
+Task: "Create [Entity2] model in src/models/[entity2].py"
+```
+
+---
+
+## Implementation Strategy
+
+### MVP First (User Story 1 Only)
+
+1. Complete Phase 1: Setup
+2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
+3. Complete Phase 3: User Story 1
+4. **STOP and VALIDATE**: Test User Story 1 independently
+5. Deploy/demo if ready
+
+### Incremental Delivery
+
+1. Complete Setup + Foundational → Foundation ready
+2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
+3. Add User Story 2 → Test independently → Deploy/Demo
+4. Add User Story 3 → Test independently → Deploy/Demo
+5. Each story adds value without breaking previous stories
+
+### Parallel Team Strategy
+
+With multiple developers:
+
+1. Team completes Setup + Foundational together
+2. Once Foundational is done:
+   - Developer A: User Story 1
+   - Developer B: User Story 2
+   - Developer C: User Story 3
+3. Stories complete and integrate independently
+
+---
+
+## Notes
+
+- [P] tasks = different files, no dependencies
+- [Story] label maps task to specific user story for traceability
+- Each user story should be independently completable and testable
+- Verify tests fail before implementing
+- Commit after each task or logical group
+- Stop at any checkpoint to validate story independently
+- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence

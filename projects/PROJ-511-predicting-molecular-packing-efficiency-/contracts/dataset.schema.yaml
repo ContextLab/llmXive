@@ -1,111 +1,96 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: Molecular Packing Efficiency Dataset Schema
 description: |
-  Schema for the final dataset used in predicting molecular packing efficiency.
-  Contains SMILES representations, packing metrics (PC, CAPE), 3D descriptors,
-  and experimental confounders.
+  Schema for the final dataset (data/dataset.csv) containing SMILES representations,
+  packing coefficients (CAPE and Raw PC), 3D molecular descriptors, and experimental confounders
+  derived from organic crystal structures.
 type: object
 required:
   - cod_id
   - smiles
   - smiles_source
-  - raw_packing_coefficient
-  - cape
-  - radius_of_gyration
-  - asphericity
-  - principal_moments
+  - unit_cell_volume
+  - n_atoms
   - lattice_system
   - temperature_K
   - has_solvent
-  - n_atoms
-  - unit_cell_volume
+  - radius_of_gyration
+  - asphericity
+  - principal_moments
+  - cape
+  - raw_pc
 properties:
   cod_id:
     type: string
-    description: Unique identifier from the Crystallography Open Database.
-    pattern: "^[0-9]+$"
-  
+    pattern: '^[0-9]+$'
+    description: Unique identifier from the Crystallography Open Database (COD).
   smiles:
     type: string
     description: Canonical SMILES string representing the molecular connectivity.
-    minLength: 1
-  
   smiles_source:
     type: string
-    description: Source of the SMILES string.
     enum:
-      - extracted_cif
-      - generated_rdkit
-  
-  raw_packing_coefficient:
-    type: number
-    description: Raw Packing Coefficient calculated using Bondi radii.
-    minimum: 0.0
-    maximum: 1.0
-  
-  cape:
-    type: number
-    description: Corrected Accessible Packing Efficiency (target variable).
-    minimum: 0.0
-    maximum: 1.0
-  
-  radius_of_gyration:
-    type: number
-    description: Radius of gyration of the 3D conformer (Angstroms).
-    minimum: 0.0
-  
-  asphericity:
-    type: number
-    description: Asphericity parameter describing the shape of the molecule (0 for sphere, 1 for rod).
-    minimum: 0.0
-    maximum: 1.0
-  
-  principal_moments:
-    type: object
-    description: Principal moments of inertia (I1, I2, I3).
-    required:
-      - i1
-      - i2
-      - i3
-    properties:
-      i1:
-        type: number
-        description: First principal moment of inertia.
-      i2:
-        type: number
-        description: Second principal moment of inertia.
-      i3:
-        type: number
-        description: Third principal moment of inertia.
-  
-  lattice_system:
-    type: string
-    description: Crystal lattice system extracted from space group.
-    enum:
-      - triclinic
-      - monoclinic
-      - orthorhombic
-      - tetragonal
-      - trigonal
-      - hexagonal
-      - cubic
-  
-  temperature_K:
-    type: number
-    description: Temperature at which the crystal structure was determined (Kelvin).
-    minimum: 0.0
-  
-  has_solvent:
-    type: boolean
-    description: Whether the structure contains solvent molecules.
-  
-  n_atoms:
-    type: integer
-    description: Total number of non-hydrogen atoms in the molecule.
-    minimum: 1
-  
+      - metadata
+      - generated_3d
+    description: |
+      Indicates how the SMILES was obtained:
+      - 'metadata': Extracted directly from CIF _chemical_structure_SMILES tag.
+      - 'generated_3d': Generated from 3D atomic coordinates using RDKit.
   unit_cell_volume:
     type: number
-    description: Volume of the unit cell in cubic Angstroms.
-    minimum: 0.0
+    minimum: 0
+    description: Unit cell volume in cubic Angstroms (Å³).
+  n_atoms:
+    type: integer
+    minimum: 1
+    description: Total number of non-hydrogen atoms in the asymmetric unit or formula unit.
+  lattice_system:
+    type: string
+    description: Crystal lattice system (e.g., 'monoclinic', 'orthorhombic', 'triclinic').
+  temperature_K:
+    type: number
+    minimum: 0
+    description: Temperature at which the crystal structure was determined (Kelvin).
+  has_solvent:
+    type: boolean
+    description: Flag indicating the presence of solvent molecules in the structure.
+  radius_of_gyration:
+    type: number
+    minimum: 0
+    description: Radius of gyration of the molecule in Angstroms, calculated from 3D coordinates.
+  asphericity:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: Asphericity parameter (0=spherical, 1=rod-like) derived from principal moments.
+  principal_moments:
+    type: string
+    description: |
+      Comma-separated string of the three principal moments of inertia (I1, I2, I3) in amu·Å².
+      Example: "12.5,45.2,102.8"
+  cape:
+    type: number
+    description: |
+      Corrected Atomic Packing Efficiency (CAPE).
+      Defined as PC_raw / (Sum(V_vdW) / N_atoms).
+      Target variable for prediction.
+  raw_pc:
+    type: number
+    description: |
+      Raw Packing Coefficient (diagnostic).
+      Defined as Unit-cell volume / Sum(V_vdW).
 additionalProperties: false
+examples:
+  - cod_id: "1543210"
+    smiles: "CC(=O)Oc1ccccc1C(=O)O"
+    smiles_source: "generated_3d"
+    unit_cell_volume: 1205.4
+    n_atoms: 13
+    lattice_system: "monoclinic"
+    temperature_K: 150.0
+    has_solvent: false
+    radius_of_gyration: 4.23
+    asphericity: 0.65
+    principal_moments: "45.1, 120.5, 180.2"
+    cape: 0.72
+    raw_pc: 0.68

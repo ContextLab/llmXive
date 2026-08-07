@@ -1,213 +1,136 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: Validation Report Schema
-description: Schema for the comprehensive validation report generated after model evaluation.
+description: >
+  Schema for the model validation report containing performance metrics,
+  statistical diagnostics, and robustness checks.
 type: object
 required:
-  - model_type
-  - metrics
-  - statistical_tests
-  - feature_analysis
-  - sensitivity_analysis
+  - primary_metrics
+  - diagnostics
+  - model_info
   - timestamp
 properties:
-  model_type:
-    type: string
-    description: The type of model being validated.
-  metrics:
+  primary_metrics:
     type: object
-    description: Primary performance metrics.
+    description: Core performance metrics on the validation set.
     required:
-      - mae
       - pearson_r
       - spearman_rho
+      - mae
     properties:
-      mae:
-        type: number
-        minimum: 0
-        description: Mean Absolute Error on the validation set.
-      mse:
-        type: number
-        minimum: 0
-        description: Mean Squared Error on the validation set.
-      rmse:
-        type: number
-        minimum: 0
-        description: Root Mean Squared Error on the validation set.
       pearson_r:
         type: number
-        minimum: -1
-        maximum: 1
-        description: Pearson correlation coefficient between predicted and observed.
-      pearson_p:
-        type: number
-        minimum: 0
-        maximum: 1
-        description: P-value for Pearson correlation.
+        description: Pearson correlation coefficient.
+        minimum: -1.0
+        maximum: 1.0
       spearman_rho:
         type: number
-        minimum: -1
-        maximum: 1
         description: Spearman rank correlation coefficient.
-      spearman_p:
+        minimum: -1.0
+        maximum: 1.0
+      mae:
         type: number
-        minimum: 0
-        maximum: 1
-        description: P-value for Spearman correlation.
-      r2:
+        description: Mean Absolute Error.
+        minimum: 0.0
+      rmse:
         type: number
-        description: R-squared coefficient of determination.
-  statistical_tests:
+        description: Root Mean Squared Error (optional).
+        minimum: 0.0
+      r_squared:
+        type: number
+        description: Coefficient of determination (optional).
+  diagnostics:
     type: object
-    description: Results of statistical significance and assumption tests.
+    description: Statistical diagnostics and robustness checks.
     required:
-      - shapiro_wilk
-      - permutation_test
+      - shapiro_wilk_p
+      - permutation_p_value
+      - vif_flags
+      - partial_corr_r
+      - partial_corr_p
     properties:
-      shapiro_wilk:
+      shapiro_wilk_p:
+        type: number
+        description: P-value from Shapiro-Wilk test on residuals.
+        minimum: 0.0
+        maximum: 1.0
+      permutation_p_value:
+        type: number
+        description: P-value from the fixed two-sided permutation test (10,000 shuffles).
+        minimum: 0.0
+        maximum: 1.0
+      permutation_n_shuffles:
+        type: integer
+        description: Number of shuffles performed.
+        const: 10000
+      vif_flags:
         type: object
-        description: Shapiro-Wilk test for normality of residuals.
-        required:
-          - statistic
-          - p_value
-        properties:
-          statistic:
-            type: number
-            minimum: 0
-            maximum: 1
-          p_value:
-            type: number
-            minimum: 0
-            maximum: 1
-      permutation_test:
-        type: object
-        description: Permutation test results for significance.
-        required:
-          - observed_statistic
-          - p_value
-          - n_permutations
-        properties:
-          observed_statistic:
-            type: number
-            description: The observed metric (e.g., r or MAE) before shuffling.
-          p_value:
-            type: number
-            minimum: 0
-            maximum: 1
-          n_permutations:
-            type: integer
-            minimum: 1
-            description: Number of permutations performed.
-      partial_correlation:
-        type: object
-        description: Partial correlation controlling for confounders.
-        properties:
-          coefficient:
-            type: number
-          p_value:
-            type: number
-  feature_analysis:
-    type: object
-    description: Analysis of feature importance and multicollinearity.
-    properties:
-      vif_scores:
-        type: array
-        description: Variance Inflation Factor scores for each feature.
-        items:
+        description: Variance Inflation Factor flags for predictors.
+        additionalProperties:
           type: object
           required:
-            - feature
             - vif
+            - flag
           properties:
-            feature:
-              type: string
             vif:
               type: number
-              minimum: 1
-      feature_importance:
-        type: array
-        description: Relative importance of features (if available).
-        items:
-          type: object
-          properties:
-            feature:
+              minimum: 0.0
+            flag:
               type: string
-            importance:
-              type: number
+              enum: ["ok", "moderate", "severe"]
+      partial_corr_r:
+        type: number
+        description: Partial correlation coefficient controlling for atom-type composition.
+        minimum: -1.0
+        maximum: 1.0
+      partial_corr_p:
+        type: number
+        description: P-value for the partial correlation.
+        minimum: 0.0
+        maximum: 1.0
+  model_info:
+    type: object
+    description: Reference to the model artifact.
+    required:
+      - model_path
+      - model_version
+    properties:
+      model_path:
+        type: string
+        description: Relative path to the model file (e.g., "models/mlp.pt").
+      model_version:
+        type: string
+        description: Version tag of the model.
   sensitivity_analysis:
-    type: object
-    description: Results of sensitivity analysis (threshold sweeps).
-    properties:
-      threshold_sweep:
-        type: array
-        description: Metrics across different packing efficiency thresholds.
-        items:
-          type: object
-          required:
-            - threshold
-            - r
-            - mae
-            - p_value
-          properties:
-            threshold:
-              type: number
-            r:
-              type: number
-            mae:
-              type: number
-            p_value:
-              type: number
-      bonferroni_corrected:
-        type: boolean
-        description: Whether Bonferroni correction was applied.
-      max_variation_r:
-        type: number
-        description: Maximum variation in r across thresholds.
-  comparative_analysis:
-    type: object
-    description: Comparison between different model variants (Baseline vs Control vs Upper Bound).
-    properties:
-      baseline_vs_control:
-        type: object
-        properties:
-          delta_mae:
-            type: number
-          delta_r:
-            type: number
-          significance:
-            type: boolean
-      baseline_vs_upper_bound:
-        type: object
-        properties:
-          delta_mae:
-            type: number
-          delta_r:
-            type: number
-          significance:
-            type: boolean
-  thermodynamic_consistency:
-    type: object
-    description: Checks for physical grounding (e.g., correlation with H-bond energy).
-    properties:
-      h_bond_correlation:
-        type: number
-      planarity_correlation:
-        type: number
+    type: array
+    description: Optional sensitivity analysis results (threshold sweep).
+    items:
+      type: object
+      required:
+        - threshold
+        - r
+        - rho
+        - mae
+        - p_value
+        - bonferroni_corrected_p
+      properties:
+        threshold:
+          type: number
+        r:
+          type: number
+        rho:
+          type: number
+        mae:
+          type: number
+        p_value:
+          type: number
+        bonferroni_corrected_p:
+          type: number
   timestamp:
     type: string
     format: date-time
     description: ISO 8601 timestamp of report generation.
-  dataset_info:
-    type: object
-    description: Information about the dataset used for validation.
-    properties:
-      n_samples:
-        type: integer
-      n_features:
-        type: integer
-      target_mean:
-        type: number
-      target_std:
-        type: number
-  notes:
+  version:
     type: string
-    description: Additional notes or warnings.
+    description: Schema version.
+    const: "1.0.0"

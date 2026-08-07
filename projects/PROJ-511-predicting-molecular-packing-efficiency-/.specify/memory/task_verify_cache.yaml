@@ -1,26 +1,3 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No directory listing or file tree was provided showing the required folders\
-    \ (`code/`, `data/`, `data/raw_cif/`, `models/`, `results/`, `contracts/`, `specs/`).\
-    \ Without concrete evidence that these directories exist and are non\u2011empty,\
-    \ the task requirement is not satisfied. The implementer must create and expose\
-    \ the project\u2019s folder hierarchy."
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `.gitignore` file was presented in the evidence, and there is no content\
-    \ showing the required exclusions (`data/raw_cif/`, `*.pt`, `*.csv`, `__pycache__`,\
-    \ `.env`). The implementer must add a non\u2011empty `.gitignore` containing those\
-    \ patterns."
-T015:
-  c: false
-  h: a442581bc2226aaab35aca4ab57f00c67ebdef74f8700a85e201d29c42430662
-  r: "The script `code/compute_RAW_metrics.py` exists but contains only extensive\
-    \ comments and no concrete implementation (it is truncated and never performs\
-    \ the described calculations). Moreover, the required input file `data/dataset_intermediate.csv`\
-    \ and the expected output `data/dataset_with_metrics.csv` are absent. The task\u2019\
-    s core requirements are therefore not met."
 T016:
   c: false
   h: 76681da9d6dc1a46c35c23f694cbb2c3a7881699cef71e04b607ad3614b57b36

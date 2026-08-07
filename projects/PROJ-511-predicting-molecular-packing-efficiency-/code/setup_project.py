@@ -1,11 +1,20 @@
 import os
 import sys
 from pathlib import Path
+import logging
 
 def create_directories():
     """
     Creates the required project directory structure for PROJ-511.
-    Ensures all directories exist and are ready for data/code storage.
+    
+    Directories created:
+    - code/
+    - data/
+    - data/raw_cif/
+    - models/
+    - results/
+    - contracts/
+    - specs/
     """
     base_path = Path(__file__).resolve().parent.parent
     
@@ -24,14 +33,27 @@ def create_directories():
         dir_path = base_path / dir_name
         if not dir_path.exists():
             dir_path.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {dir_path}")
+            logging.info(f"Created directory: {dir_path}")
             created_count += 1
         else:
-            print(f"Directory already exists: {dir_path}")
+            logging.debug(f"Directory already exists: {dir_path}")
     
-    print(f"Directory setup complete. {created_count} new directories created.")
-    return True
+    logging.info(f"Project setup complete. Created {created_count} new directories.")
+    return created_count
+
+def main():
+    """Entry point for the project setup script."""
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(levelname)s - %(message)s'
+    )
+    
+    try:
+        create_directories()
+        logging.info("Directory structure successfully created.")
+    except Exception as e:
+        logging.error(f"Failed to create directory structure: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    success = create_directories()
-    sys.exit(0 if success else 1)
+    main()

@@ -1,61 +1,41 @@
-# Data artifacts and large files
+# Data artifacts and raw downloads
 data/raw_cif/
-data/dataset_intermediate.csv
-data/dataset_with_metrics.csv
-data/dataset_filtered.csv
-data/dataset.csv
-data/dataset_enhanced.csv
-data/features_matrix.npy
-data/features_matrix_enhanced.npy
-data/targets.npy
-data/raw/
-data/processed/
-data/interim/
+data/*.csv
+data/*.npy
+data/*.json
+data/*.parquet
 
-# Model checkpoints and weights
+# Model checkpoints
 models/*.pt
 models/*.pth
-models/checkpoints/
-models/baseline_checkpoint.pt
-models/control_3d_checkpoint.pt
-models/upper_bound_checkpoint.pt
+models/*.bin
 
-# Python cache and build artifacts
+# Python internals
 __pycache__/
 *.py[cod]
 *$py.class
-.pytest_cache/
-.mypy_cache/
-.ruff_cache/
-build/
-dist/
-*.egg-info/
 .eggs/
+*.egg-info/
+dist/
+build/
 
 # Environment and secrets
 .env
-.env.local
-.env.production
+.venv/
+venv/
+ENV/
 *.pem
 *.key
-.secret
 
-# IDE and editor files
-.vscode/
+# IDE and OS
 .idea/
+.vscode/
 *.swp
 *.swo
-*~
+.DS_Store
+Thumbs.db
 
 # Logs and temporary files
 *.log
-logs/
+results/*.log
 tmp/
-.cache/
-
-# Jupyter notebooks outputs (optional, keep notebooks but clear outputs)
-# *.ipynb_checkpoints/
-
-# OS specific
-.DS_Store
-Thumbs.db

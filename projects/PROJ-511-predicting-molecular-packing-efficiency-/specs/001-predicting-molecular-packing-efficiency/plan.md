@@ -5,7 +5,7 @@
 
 ## Summary
 
-This project implements a CPU-only pipeline to predict the Composition-Adjusted Packing Efficiency (CAPE) of organic crystals from their SMILES representations. The pipeline downloads CIF files from the Crystallography Open Database (COD), filters for organic molecules (≤50 non-hydrogen atoms), generates canonical SMILES via RDKit where missing, and computes 3D geometry descriptors from *gas-phase minimized conformations* to avoid data leakage. A frozen pre-trained SMILES Transformer provides topology features, which are combined with 3D descriptors and environmental covariates (lattice system, temperature, solvent) to train a -layer MLP (≤100k parameters). The model is evaluated using Pearson/Spearman correlation, MAE, and a fixed permutation test with a sufficient number of shuffles to ensure statistical significance while respecting the 6-hour GitHub Actions runtime limit.
+This project implements a CPU-only pipeline to predict the Composition-Adjusted Packing Efficiency (CAPE) of organic crystals from their SMILES representations. The pipeline downloads CIF files from the Crystallography Open Database (COD), filters for organic molecules (≤50 non-hydrogen atoms), generates canonical SMILES via RDKit where missing, and computes 3D geometry descriptors from *gas-phase minimized conformations* to avoid data leakage. A frozen pre-trained SMILES Transformer provides topology features, which are combined with 3D descriptors and environmental covariates (lattice system, temperature, solvent) to train a -layer MLP (≤100k parameters). The model is evaluated using Pearson/Spearman correlation, MAE, and a fixed permutation test with a sufficient number of shuffles to ensure statistical significance while respecting the available GitHub Actions runtime limit.
 
 ## Technical Context
 
@@ -16,7 +16,7 @@ This project implements a CPU-only pipeline to predict the Composition-Adjusted 
 **Target Platform**: Linux (GitHub Actions free-tier runner: CPU, ample RAM for standard workloads.)  
 **Project Type**: Data Science Pipeline / CLI  
 **Performance Goals**: End-to-end pipeline ≤ 6 hours.  
-**Constraints**: No GPU usage in default path; All data must be streamed or sampled to fit available RAM.; strict adherence to FR-005 (2-layer MLP) and FR-016 (k shuffles).  
+**Constraints**: No GPU usage in default path; All data must be streamed or sampled to fit available RAM.; strict adherence to FR-005 (A multi-layer perceptron (MLP) with a hidden layer.) and FR-016 (k shuffles).  
 **Scale/Scope**: Dataset target ≥ 500 records; Model parameters ≤ 100k.
 
 > **Note on Dataset Strategy**: The project relies on the **Crystallography Open Database (COD)** as the primary source, accessed via its public FTP bulk download mechanism (e.g., `ftp://ftp.crystallography.net/pub/cod/`) to ensure programmatic retrieval of ≥500 records. The "Verified datasets" block in the input message does not contain COD data; this plan implements the direct download from the official COD source.
