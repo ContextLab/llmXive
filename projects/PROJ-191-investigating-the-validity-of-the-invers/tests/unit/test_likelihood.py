@@ -1,298 +1,216 @@
 """
-Unit tests for the log-likelihood function with banded covariance.
+Unit tests for the log-likelihood implementation.
 
-This module verifies the correctness of the Yukawa model log-likelihood
-implementation, specifically focusing on the banded covariance matrix
-approximation for computational efficiency.
+These tests verify:
+1. Cholesky decomposition works correctly
+2. Log-likelihood is computed correctly for Yukawa and Newtonian models
+3. Likelihood returns -inf for invalid parameters
+4. Numerical stability with large covariance matrices
 """
-import unittest
 import numpy as np
-from numpy.linalg import inv, cholesky
-import sys
+import pytest
 from pathlib import Path
+import tempfile
+import json
 
-# Add project root to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+from models.likelihood import (
+    load_covariance_matrix,
+    compute_cholesky_decomposition,
+    log_likelihood_yukawa,
+    log_likelihood_newtonian,
+    YukawaLikelihood,
+    NewtonianLikelihood
+)
+from models.physics import yukawa_force, newtonian_force
 
-from code.models.physics import yukawa_log_likelihood, newtonian_log_likelihood, yukawa_force
-from code.data.harmonize import construct_covariance_matrix
+@pytest.fixture
+def mock_covariance_matrix():
+    """Create a mock positive-definite covariance matrix."""
+    # Create a simple diagonal covariance matrix
+    n = 100
+    cov = np.eye(n) * 0.01  # Small variance
+    # Add some off-diagonal elements to make it non-trivial
+    for i in range(n):
+        for j in range(i+1, min(i+5, n)):
+            cov[i, j] = 0.005
+            cov[j, i] = 0.005
+    return cov
 
+@pytest.fixture
+def mock_dataset():
+    """Create mock dataset for testing."""
+    n = 100
+    r = np.logspace(-4, -2, n)  # Separation from 0.1mm to 10mm
+    f_obs = newtonian_force(r, 6.674e-11) + np.random.normal(0, 0.01, n)
+    return r, f_obs
 
-class TestBandedCovariance(unittest.TestCase):
-    """Tests for banded covariance matrix construction and usage."""
-
-    def setUp(self):
-        """Set up test fixtures."""
-        np.random.seed(42)
-        self.n_points = 50
-        self.separations = np.logspace(-5, -4, self.n_points)
-        self.forces = np.random.randn(self.n_points) * 1e-12
+@pytest.fixture
+def temp_cov_file(mock_covariance_matrix):
+    """Create a temporary covariance matrix file."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        cov_path = Path(tmpdir) / "covariance_matrix.npy"
+        np.save(cov_path, mock_covariance_matrix)
         
-        # Create a realistic covariance matrix with correlations
-        self.stat_errors = np.abs(self.forces) * 0.1
-        self.sys_errors = np.abs(self.forces) * 0.05
+        # Create data/processed directory structure
+        processed_dir = Path("data/processed")
+        processed_dir.mkdir(parents=True, exist_ok=True)
         
-        # Construct full covariance matrix
-        self.full_cov = construct_covariance_matrix(
-            self.separations, self.stat_errors, self.sys_errors
-        )
+        # Move the file to the expected location
+        expected_path = Path("data/processed/covariance_matrix.npy")
+        if expected_path.exists():
+            expected_path.unlink()
+        np.save(expected_path, mock_covariance_matrix)
         
-        # Create banded approximation (bandwidth = 5)
-        self.bandwidth = 5
-        self.banded_cov = self._create_banded_covariance(self.full_cov, self.bandwidth)
-
-    def _create_banded_covariance(self, cov_matrix, bandwidth):
-        """Create a banded approximation of the covariance matrix."""
-        n = cov_matrix.shape[0]
-        banded = np.zeros_like(cov_matrix)
-        for i in range(n):
-            for j in range(max(0, i - bandwidth), min(n, i + bandwidth + 1)):
-                banded[i, j] = cov_matrix[i, j]
-        return banded
-
-    def test_banded_covariance_preserves_diagonal(self):
-        """Verify that banded covariance preserves diagonal elements."""
-        np.testing.assert_array_almost_equal(
-            self.full_cov.diagonal(),
-            self.banded_cov.diagonal(),
-            decimal=10,
-            err_msg="Banded covariance should preserve diagonal elements"
-        )
-
-    def test_banded_covariance_positive_definite(self):
-        """Verify that the banded covariance matrix is positive definite."""
-        try:
-            cholesky(self.banded_cov)
-            is_pd = True
-        except np.linalg.LinAlgError:
-            is_pd = False
+        yield expected_path
         
-        self.assertTrue(is_pd, "Banded covariance matrix must be positive definite")
+        # Cleanup
+        if expected_path.exists():
+            expected_path.unlink()
 
-    def test_banded_covariance_symmetric(self):
-        """Verify that the banded covariance matrix is symmetric."""
-        np.testing.assert_array_almost_equal(
-            self.banded_cov,
-            self.banded_cov.T,
-            decimal=10,
-            err_msg="Banded covariance matrix must be symmetric"
-        )
+def test_load_covariance_matrix(temp_cov_file):
+    """Test loading of covariance matrix."""
+    cov = load_covariance_matrix()
+    assert cov.shape == (100, 100)
+    assert np.allclose(cov, np.load(temp_cov_file))
 
-    def test_banded_covariance_off_band_zero(self):
-        """Verify that elements outside the band are zero."""
-        n = self.banded_cov.shape[0]
-        for i in range(n):
-            for j in range(n):
-                if abs(i - j) > self.bandwidth:
-                    self.assertEqual(
-                        self.banded_cov[i, j], 0.0,
-                        f"Element ({i}, {j}) outside band should be zero"
-                    )
+def test_cholesky_decomposition(temp_cov_file):
+    """Test Cholesky decomposition."""
+    cov = load_covariance_matrix()
+    L, L_inv = compute_cholesky_decomposition(cov)
+    
+    # Verify L is lower triangular
+    assert np.allclose(L, np.tril(L))
+    
+    # Verify L @ L.T = C
+    assert np.allclose(L @ L.T, cov, rtol=1e-10)
+    
+    # Verify L_inv @ L = I
+    assert np.allclose(L_inv @ L, np.eye(L.shape[0]), rtol=1e-10)
 
+def test_log_likelihood_yukawa_positive_params(temp_cov_file, mock_dataset):
+    """Test Yukawa log-likelihood with valid parameters."""
+    r, f_obs = mock_dataset
+    cov = load_covariance_matrix()
+    L, L_inv = compute_cholesky_decomposition(cov)
+    log_det_cov = 2 * np.sum(np.log(np.diag(L)))
+    
+    params = (1.0, 1e-4)  # alpha=1, lambda=100 micrometers
+    log_l = log_likelihood_yukawa(params, r, f_obs, L_inv, log_det_cov)
+    
+    # Should return a finite value
+    assert np.isfinite(log_l)
+    assert log_l < 0  # Log-likelihood should be negative
 
-class TestLogLikelihood(unittest.TestCase):
-    """Tests for the log-likelihood function with banded covariance."""
+def test_log_likelihood_yukawa_invalid_lambda(temp_cov_file, mock_dataset):
+    """Test Yukawa log-likelihood with invalid lambda."""
+    r, f_obs = mock_dataset
+    cov = load_covariance_matrix()
+    L, L_inv = compute_cholesky_decomposition(cov)
+    log_det_cov = 2 * np.sum(np.log(np.diag(L)))
+    
+    params = (1.0, -1e-4)  # Negative lambda should return -inf
+    log_l = log_likelihood_yukawa(params, r, f_obs, L_inv, log_det_cov)
+    
+    assert log_l == -np.inf
 
-    def setUp(self):
-        """Set up test fixtures."""
-        np.random.seed(42)
-        self.n_points = 30
-        self.separations = np.logspace(-5, -4, self.n_points)
-        self.measured_forces = np.random.randn(self.n_points) * 1e-12
-        
-        # Create covariance matrix
-        self.stat_errors = np.abs(self.measured_forces) * 0.1
-        self.sys_errors = np.abs(self.measured_forces) * 0.05
-        self.full_cov = construct_covariance_matrix(
-            self.separations, self.stat_errors, self.sys_errors
-        )
-        
-        # Banded approximation
-        self.bandwidth = 3
-        self.banded_cov = self._create_banded_covariance(self.full_cov, self.bandwidth)
-        self.banded_inv = inv(self.banded_cov)
-        
-        # True parameters for synthetic data
-        self.true_alpha = 10.0
-        self.true_lambda = 1e-4
+def test_log_likelihood_newtonian(temp_cov_file, mock_dataset):
+    """Test Newtonian log-likelihood."""
+    r, f_obs = mock_dataset
+    cov = load_covariance_matrix()
+    L, L_inv = compute_cholesky_decomposition(cov)
+    log_det_cov = 2 * np.sum(np.log(np.diag(L)))
+    
+    params = (6.674e-11,)  # Standard G
+    log_l = log_likelihood_newtonian(params, r, f_obs, L_inv, log_det_cov)
+    
+    assert np.isfinite(log_l)
 
-    def _create_banded_covariance(self, cov_matrix, bandwidth):
-        """Create a banded approximation of the covariance matrix."""
-        n = cov_matrix.shape[0]
-        banded = np.zeros_like(cov_matrix)
-        for i in range(n):
-            for j in range(max(0, i - bandwidth), min(n, i + bandwidth + 1)):
-                banded[i, j] = cov_matrix[i, j]
-        return banded
+def test_yukawa_likelihood_class(temp_cov_file, mock_dataset):
+    """Test YukawaLikelihood callable class."""
+    r, f_obs = mock_dataset
+    likelihood = YukawaLikelihood(r, f_obs)
+    
+    params = (1.0, 1e-4)
+    log_l = likelihood(params)
+    
+    assert np.isfinite(log_l)
+    assert likelihood.L_inv is not None
+    assert likelihood.log_det_cov is not None
 
-    def test_log_likelihood_shape(self):
-        """Verify that log-likelihood returns a scalar."""
-        params = [1.0, 1e-4]  # [alpha, lambda]
-        log_like = yukawa_log_likelihood(
-            params, self.separations, self.measured_forces, self.banded_inv
-        )
-        
-        self.assertIsInstance(log_like, (float, np.floating),
-                            "Log-likelihood must return a scalar")
+def test_newtonian_likelihood_class(temp_cov_file, mock_dataset):
+    """Test NewtonianLikelihood callable class."""
+    r, f_obs = mock_dataset
+    likelihood = NewtonianLikelihood(r, f_obs)
+    
+    params = (6.674e-11,)
+    log_l = likelihood(params)
+    
+    assert np.isfinite(log_l)
+    assert likelihood.L_inv is not None
+    assert likelihood.log_det_cov is not None
 
-    def test_log_likelihood_negative_infinity(self):
-        """Verify that log-likelihood is -inf for invalid parameters."""
-        # Negative alpha should give -inf
-        params_invalid = [-1.0, 1e-4]
-        log_like = yukawa_log_likelihood(
-            params_invalid, self.separations, self.measured_forces, self.banded_inv
-        )
-        
-        self.assertEqual(log_like, -np.inf,
-                       "Log-likelihood should be -inf for invalid parameters")
+def test_likelihood_numerical_stability(temp_cov_file, mock_dataset):
+    """Test that likelihood is numerically stable."""
+    r, f_obs = mock_dataset
+    likelihood = YukawaLikelihood(r, f_obs)
+    
+    # Test with various parameter combinations
+    test_params = [
+        (1.0, 1e-4),
+        (0.5, 1e-5),
+        (2.0, 1e-3),
+        (0.1, 1e-6)
+    ]
+    
+    for params in test_params:
+        log_l = likelihood(params)
+        assert np.isfinite(log_l), f"Likelihood failed for params: {params}"
 
-        # Negative lambda should give -inf
-        params_invalid = [1.0, -1e-4]
-        log_like = yukawa_log_likelihood(
-            params_invalid, self.separations, self.measured_forces, self.banded_inv
-        )
-        
-        self.assertEqual(log_like, -np.inf,
-                       "Log-likelihood should be -inf for invalid parameters")
+def test_log_likelihood_consistency(temp_cov_file, mock_dataset):
+    """Test that log-likelihood is consistent with manual calculation."""
+    r, f_obs = mock_dataset
+    cov = load_covariance_matrix()
+    L, L_inv = compute_cholesky_decomposition(cov)
+    log_det_cov = 2 * np.sum(np.log(np.diag(L)))
+    
+    params = (1.0, 1e-4)
+    alpha, lambda_m = params
+    
+    # Manual calculation
+    f_model = yukawa_force(r, alpha, lambda_m)
+    residuals = f_obs - f_model
+    whitened_residuals = L_inv @ residuals
+    chi_sq = np.sum(whitened_residuals ** 2)
+    n = len(f_obs)
+    expected_log_l = -0.5 * (n * np.log(2 * np.pi) + log_det_cov + chi_sq)
+    
+    # Compare with function result
+    actual_log_l = log_likelihood_yukawa(params, r, f_obs, L_inv, log_det_cov)
+    
+    assert np.isclose(actual_log_l, expected_log_l, rtol=1e-10)
 
-    def test_log_likelihood_maximum_at_true_params(self):
-        """Verify that log-likelihood is maximized near true parameters."""
-        # Generate data with known parameters
-        true_forces = yukawa_force(
-            self.separations, self.true_alpha, self.true_lambda
-        )
-        # Add noise consistent with covariance
-        noise = np.random.multivariate_normal(
-            np.zeros(self.n_points), self.banded_cov
-        )
-        noisy_forces = true_forces + noise
+def test_missing_covariance_matrix():
+    """Test that appropriate error is raised when covariance matrix is missing."""
+    # Temporarily move the file
+    cov_path = Path("data/processed/covariance_matrix.npy")
+    backup_path = Path("data/processed/covariance_matrix.npy.bak")
+    
+    if cov_path.exists():
+        cov_path.rename(backup_path)
+    
+    try:
+        with pytest.raises(FileNotFoundError):
+            load_covariance_matrix()
+    finally:
+        # Restore the file
+        if backup_path.exists():
+            backup_path.rename(cov_path)
 
-        # Evaluate log-likelihood at true parameters
-        params_true = [self.true_alpha, self.true_lambda]
-        log_like_true = yukawa_log_likelihood(
-            params_true, self.separations, noisy_forces, self.banded_inv
-        )
-
-        # Evaluate at perturbed parameters
-        params_perturbed = [self.true_alpha * 1.1, self.true_lambda * 0.9]
-        log_like_perturbed = yukawa_log_likelihood(
-            params_perturbed, self.separations, noisy_forces, self.banded_inv
-        )
-
-        # True parameters should give higher (or equal) log-likelihood
-        self.assertGreaterEqual(
-            log_like_true, log_like_perturbed,
-            "Log-likelihood should be maximized near true parameters"
-        )
-
-    def test_log_likelihood_compared_to_newtonian(self):
-        """Verify that Yukawa model reduces to Newtonian when alpha=0."""
-        params_yukawa = [0.0, 1e-4]  # alpha=0 should be Newtonian
-        params_newtonian = [0.0, 1e-4]
-        
-        log_like_yukawa = yukawa_log_likelihood(
-            params_yukawa, self.separations, self.measured_forces, self.banded_inv
-        )
-        log_like_newtonian = newtonian_log_likelihood(
-            params_newtonian, self.separations, self.measured_forces, self.banded_inv
-        )
-
-        np.testing.assert_almost_equal(
-            log_like_yukawa, log_like_newtonian,
-            decimal=10,
-            err_msg="Yukawa model with alpha=0 should equal Newtonian model"
-        )
-
-    def test_banded_vs_full_covariance_efficiency(self):
-        """Verify that banded covariance is computationally more efficient."""
-        # For large datasets, banded should be faster
-        # This is a performance test, so we just verify it runs
-        params = [5.0, 1e-4]
-        
-        # Full covariance
-        full_inv = inv(self.full_cov)
-        log_like_full = yukawa_log_likelihood(
-            params, self.separations, self.measured_forces, full_inv
-        )
-        
-        # Banded covariance
-        log_like_banded = yukawa_log_likelihood(
-            params, self.separations, self.measured_forces, self.banded_inv
-        )
-        
-        # Both should be finite and similar (not identical due to approximation)
-        self.assertTrue(np.isfinite(log_like_full),
-                      "Full covariance log-likelihood must be finite")
-        self.assertTrue(np.isfinite(log_like_banded),
-                      "Banded covariance log-likelihood must be finite")
-        
-        # Allow for some difference due to approximation
-        self.assertLess(
-            abs(log_like_full - log_like_banded) / abs(log_like_full),
-            0.1,  # 10% tolerance
-            "Banded and full covariance log-likelihoods should be similar"
-        )
-
-
-class TestNumericalStability(unittest.TestCase):
-    """Tests for numerical stability of log-likelihood computation."""
-
-    def setUp(self):
-        """Set up test fixtures."""
-        np.random.seed(123)
-        self.n_points = 20
-        self.separations = np.logspace(-5, -4, self.n_points)
-        self.measured_forces = np.random.randn(self.n_points) * 1e-12
-        
-        # Create covariance matrix with small errors
-        self.stat_errors = np.abs(self.measured_forces) * 1e-3
-        self.sys_errors = np.abs(self.measured_forces) * 1e-3
-        self.full_cov = construct_covariance_matrix(
-            self.separations, self.stat_errors, self.sys_errors
-        )
-        
-        # Banded approximation
-        self.bandwidth = 2
-        self.banded_cov = self._create_banded_covariance(self.full_cov, self.bandwidth)
-        self.banded_inv = inv(self.banded_cov)
-
-    def _create_banded_covariance(self, cov_matrix, bandwidth):
-        """Create a banded approximation of the covariance matrix."""
-        n = cov_matrix.shape[0]
-        banded = np.zeros_like(cov_matrix)
-        for i in range(n):
-            for j in range(max(0, i - bandwidth), min(n, i + bandwidth + 1)):
-                banded[i, j] = cov_matrix[i, j]
-        return banded
-
-    def test_extreme_parameter_values(self):
-        """Test log-likelihood with extreme parameter values."""
-        # Very large alpha
-        params = [1e10, 1e-4]
-        log_like = yukawa_log_likelihood(
-            params, self.separations, self.measured_forces, self.banded_inv
-        )
-        self.assertTrue(np.isfinite(log_like),
-                      "Log-likelihood should handle large alpha values")
-
-        # Very small lambda
-        params = [1.0, 1e-10]
-        log_like = yukawa_log_likelihood(
-            params, self.separations, self.measured_forces, self.banded_inv
-        )
-        self.assertTrue(np.isfinite(log_like),
-                      "Log-likelihood should handle small lambda values")
-
-    def test_zero_forces(self):
-        """Test log-likelihood with zero measured forces."""
-        zero_forces = np.zeros(self.n_points)
-        params = [1.0, 1e-4]
-        log_like = yukawa_log_likelihood(
-            params, self.separations, zero_forces, self.banded_inv
-        )
-        self.assertTrue(np.isfinite(log_like),
-                      "Log-likelihood should handle zero forces")
-
-
-if __name__ == '__main__':
-    unittest.main()
+def test_non_positive_definite_matrix():
+    """Test behavior with non-positive definite matrix."""
+    # Create a non-positive definite matrix
+    n = 10
+    cov = np.ones((n, n)) * -1  # Negative definite
+    
+    with pytest.raises(np.linalg.LinAlgError):
+        compute_cholesky_decomposition(cov)

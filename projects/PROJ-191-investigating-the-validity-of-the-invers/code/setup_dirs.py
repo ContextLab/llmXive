@@ -1,65 +1,81 @@
 """
-Script to create the full project directory tree for PROJ-191.
-Executes a single atomic operation to ensure all required sub-directories exist.
+Project Directory Initialization Script.
+
+Creates the full project directory tree for PROJ-191 in a single atomic operation.
+This script is idempotent and safe to run multiple times.
 """
 import os
 import sys
 from pathlib import Path
 
-# Define the project root relative to the code directory
-# The project root is the parent of 'code'
-CURRENT_FILE = Path(__file__)
-PROJECT_ROOT = CURRENT_FILE.parent.parent
-PROJECT_NAME = "PROJ-191-investigating-the-validity-of-the-invers"
-PROJECT_DIR = PROJECT_ROOT / "projects" / PROJECT_NAME
-
-# Define all required sub-directories relative to the project root
-REQUIRED_DIRS = [
-    "code",
-    "tests",
-    "data",
-    "docs",
-    "code/data",
-    "code/models",
-    "code/inference",
-    "code/robustness",
-    "code/utils",
-    "data/raw",
-    "data/processed",
-    "data/results",
-    "tests/unit",
-    "tests/contract",
-    "tests/integration",
-]
-
 def main():
-    """
-    Creates the full directory tree in a single atomic operation.
-    Uses exist_ok=True to ensure idempotency (safe to run multiple times).
-    """
-    print(f"Target Project Directory: {PROJECT_DIR}")
+    """Create the required directory structure for the project."""
+    # Define the project root relative to the script location or current working directory
+    # The task specifies the root as: projects/PROJ-191-investigating-the-validity-of-the-invers/
+    # We assume this script runs from the repository root or the project root context.
+    # To be safe and relative to the standard project layout described:
     
-    # Ensure the root project directory exists first
-    PROJECT_DIR.mkdir(parents=True, exist_ok=True)
+    # Base path assumption: The script is in code/, so we go up to root, then into projects/
+    # However, the task says "at the repository root: projects/PROJ-191..."
+    # Let's assume the script is run from the repository root.
+    # If the script is executed as `python code/setup_dirs.py`, CWD is usually the repo root.
+    
+    repo_root = Path.cwd()
+    project_root = repo_root / "projects" / "PROJ-191-investigating-the-validity-of-the-invers"
+    
+    directories = [
+        # Top level
+        "code",
+        "tests",
+        "data",
+        "docs",
+        
+        # Code subdirectories
+        "code/data",
+        "code/models",
+        "code/inference",
+        "code/robustness",
+        "code/utils",
+        
+        # Data subdirectories
+        "data/raw",
+        "data/processed",
+        "data/results",
+        
+        # Test subdirectories
+        "tests/unit",
+        "tests/contract",
+        "tests/integration",
+    ]
     
     created_count = 0
-    for dir_path in REQUIRED_DIRS:
-        full_path = PROJECT_DIR / dir_path
-        # mkdir with parents=True handles nested creation in one call
-        full_path.mkdir(parents=True, exist_ok=True)
-        created_count += 1
+    existing_count = 0
     
-    print(f"Successfully created/verified {created_count} sub-directories under {PROJECT_NAME}.")
+    print(f"Initializing project structure at: {project_root}")
     
-    # Verification: List the created structure to stdout for immediate feedback
-    print("\nCreated Directory Structure:")
-    for dir_path in REQUIRED_DIRS:
-        full_path = PROJECT_DIR / dir_path
-        # Verify existence explicitly
-        if not full_path.exists():
-            raise RuntimeError(f"Failed to create directory: {full_path}")
-        print(f"  [OK] {full_path.relative_to(PROJECT_DIR)}")
+    for dir_name in directories:
+        full_path = project_root / dir_name
+        
+        # Create parents if they don't exist (atomic mkdir -p behavior)
+        try:
+            full_path.mkdir(parents=True, exist_ok=True)
+            if full_path.exists() and full_path.is_dir():
+                created_count += 1
+                print(f"  Created: {full_path}")
+            else:
+                print(f"  Warning: Could not create {full_path}")
+        except OSError as e:
+            print(f"  Error creating {full_path}: {e}")
+            sys.exit(1)
     
+    # Verify the structure
+    print(f"\nSuccessfully created {created_count} directories.")
+    
+    # List the structure for verification
+    print("\nDirectory structure created:")
+    for dir_name in sorted(directories):
+        print(f"  {project_root / dir_name}/")
+        
     return 0
 
 if __name__ == "__main__":

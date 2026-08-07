@@ -1,0 +1,13 @@
+{
+  "project_id": "PROJ-191-investigating-the-validity-of-the-invers",
+  "tasks": [
+    {
+      "task_key": "T016",
+      "reject_count": 1,
+      "last_reason": "declared artifact(s) missing/empty/invalid: data/processed/state.json",
+      "first_seen": "2026-08-07T08:24:22.223802+00:00",
+      "last_seen": "2026-08-07T08:24:22.223802+00:00"
+    }
+  ],
+  "updated_at": "2026-08-07T08:24:22.223802+00:00"
+}

@@ -1,0 +1,4 @@
+# This file is redundant if using pyproject.toml, but provided for tools
+# that specifically look for .ruff.toml. It mirrors the [tool.ruff] section
+# above for compatibility.
+extend = "pyproject.toml"

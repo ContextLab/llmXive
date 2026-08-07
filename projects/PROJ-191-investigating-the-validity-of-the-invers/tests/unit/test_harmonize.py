@@ -1,87 +1,136 @@
-"""
-Unit tests for SI unit conversion and grid alignment logic.
-"""
+import pytest
 import numpy as np
 import pandas as pd
-import pytest
 from pathlib import Path
 import sys
+import os
 
-# Add project root to path
-project_root = Path(__file__).resolve().parent.parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
+# Add code to path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'code'))
 
 from data.harmonize import (
-    dynes_to_newtons, 
-    micrometers_to_meters, 
-    convert_to_si, 
-    align_to_grid
+    dynes_to_newtons,
+    micrometers_to_meters,
+    convert_to_si,
+    align_to_grid,
+    construct_covariance_matrix
 )
 
-class TestUnitConversion:
-    def test_dynes_to_newtons_scalar(self):
-        assert dynes_to_newtons(1.0) == 1e-5
-        assert dynes_to_newtons(1000.0) == 1e-2
-
-    def test_dynes_to_newtons_array(self):
-        input_arr = np.array([1.0, 10.0, 100.0])
-        result = dynes_to_newtons(input_arr)
-        expected = np.array([1e-5, 1e-4, 1e-3])
+class TestUnitConversions:
+    def test_dynes_to_newtons(self):
+        # 1 dyne = 1e-5 N
+        input_val = np.array([1.0, 100.0, 1e6])
+        expected = np.array([1e-5, 1e-3, 10.0])
+        result = dynes_to_newtons(input_val)
         np.testing.assert_array_almost_equal(result, expected)
 
-    def test_micrometers_to_meters_scalar(self):
-        assert micrometers_to_meters(1.0) == 1e-6
-        assert micrometers_to_meters(1000000.0) == 1.0
-
-    def test_micrometers_to_meters_array(self):
-        input_arr = np.array([1.0, 100.0, 1000.0])
-        result = micrometers_to_meters(input_arr)
-        expected = np.array([1e-6, 1e-4, 1e-3])
+    def test_micrometers_to_meters(self):
+        # 1 micron = 1e-6 m
+        input_val = np.array([1.0, 1000.0, 1e6])
+        expected = np.array([1e-6, 1e-3, 1.0])
+        result = micrometers_to_meters(input_val)
         np.testing.assert_array_almost_equal(result, expected)
 
-class TestConvertToSi:
+class TestConvertToSI:
     def test_convert_to_si_basic(self):
-        df = pd.DataFrame({
-            'force_dyne': [1.0, 2.0],
-            'separation_um': [10.0, 20.0]
-        })
+        data = {
+            'force': [100.0, 200.0],
+            'separation': [1.0, 2.0],
+            'other': ['a', 'b']
+        }
+        df = pd.DataFrame(data)
         result = convert_to_si(df)
         
         assert 'force_N' in result.columns
         assert 'separation_m' in result.columns
-        assert result['force_N'].iloc[0] == 1e-5
-        assert result['separation_m'].iloc[0] == 1e-5
+        
+        # Check values
+        assert result['force_N'].iloc[0] == 100.0 * 1e-5
+        assert result['separation_m'].iloc[0] == 1.0 * 1e-6
 
     def test_convert_to_si_missing_columns(self):
-        df = pd.DataFrame({'force_dyne': [1.0]})
+        data = {'x': [1, 2], 'y': [3, 4]}
+        df = pd.DataFrame(data)
         with pytest.raises(ValueError):
             convert_to_si(df)
 
 class TestAlignToGrid:
-    def test_align_linear(self):
-        sep_m = np.array([1e-5, 2e-5, 3e-5])
-        force_n = np.array([1.0, 2.0, 3.0])
-        target = np.array([1e-5, 1.5e-5, 2e-5, 2.5e-5, 3e-5])
+    def test_align_to_grid_basic(self):
+        # Dataset 1
+        df1 = pd.DataFrame({
+            'separation_m': [1e-6, 2e-6, 3e-6],
+            'force_N': [1.0, 2.0, 3.0]
+        })
+        # Dataset 2
+        df2 = pd.DataFrame({
+            'separation_m': [1.5e-6, 2.5e-6, 3.5e-6],
+            'force_N': [1.5, 2.5, 3.5]
+        })
         
-        out_sep, out_force = align_to_grid(sep_m, force_n, target)
+        # Overlap: [1.5e-6, 3e-6]
+        result_df, grid = align_to_grid([df1, df2])
         
-        np.testing.assert_array_equal(out_sep, target)
-        # Linear interpolation: 1.5e-5 should be 1.5
-        assert np.isclose(out_force[1], 1.5)
-        assert np.isclose(out_force[3], 2.5)
+        assert len(grid) > 0
+        assert result_df['separation_m'].min() >= 1.5e-6
+        assert result_df['separation_m'].max() <= 3e-6
+        assert 'force_N' in result_df.columns
 
-    def test_align_out_of_bounds(self):
-        sep_m = np.array([1e-5, 2e-5, 3e-5])
-        force_n = np.array([1.0, 2.0, 3.0])
-        # Target includes points outside range
-        target = np.array([0.5e-5, 1e-5, 2e-5, 4e-5])
+    def test_align_to_grid_no_overlap(self):
+        df1 = pd.DataFrame({
+            'separation_m': [1e-6, 2e-6],
+            'force_N': [1.0, 2.0]
+        })
+        df2 = pd.DataFrame({
+            'separation_m': [5e-6, 6e-6],
+            'force_N': [5.0, 6.0]
+        })
         
-        out_sep, out_force = align_to_grid(sep_m, force_n, target)
+        with pytest.raises(ValueError, match="No overlapping separation range"):
+            align_to_grid([df1, df2])
+
+    def test_align_to_grid_interpolation(self):
+        df1 = pd.DataFrame({
+            'separation_m': [1e-6, 3e-6],
+            'force_N': [1.0, 3.0]
+        })
         
-        # Points outside should be NaN
-        assert np.isnan(out_force[0])
-        assert np.isnan(out_force[3])
-        # Points inside should be valid
-        assert not np.isnan(out_force[1])
-        assert not np.isnan(out_force[2])
+        # Custom grid
+        target = np.array([2e-6])
+        result_df, grid = align_to_grid([df1], target_grid=target)
+        
+        assert result_df['force_N'].iloc[0] == pytest.approx(2.0)
+
+class TestConstructCovarianceMatrix:
+    def test_covariance_stat_only(self):
+        df = pd.DataFrame({
+            'force_N': [1.0, 2.0, 3.0],
+            'stat_err': [0.1, 0.2, 0.3]
+        })
+        cov = construct_covariance_matrix(df, stat_col='stat_err')
+        
+        # Diagonal should be stat^2
+        expected_diag = [0.01, 0.04, 0.09]
+        np.testing.assert_array_almost_equal(np.diag(cov), expected_diag)
+        
+        # Off-diagonal should be 0
+        assert np.allclose(cov - np.diag(np.diag(cov)), 0)
+
+    def test_covariance_stat_and_sys(self):
+        df = pd.DataFrame({
+            'force_N': [1.0, 2.0, 3.0],
+            'stat_err': [0.1, 0.1, 0.1],
+            'sys_err': [0.2, 0.2, 0.2]
+        })
+        cov = construct_covariance_matrix(df, stat_col='stat_err', sys_col='sys_err')
+        
+        # Diagonal: stat^2 + sys^2 = 0.01 + 0.04 = 0.05
+        # Off-diagonal: sys^2 = 0.04
+        expected_diag = [0.05, 0.05, 0.05]
+        expected_off = 0.04
+        
+        np.testing.assert_array_almost_equal(np.diag(cov), expected_diag)
+        
+        for i in range(3):
+            for j in range(3):
+                if i != j:
+                    assert cov[i, j] == pytest.approx(expected_off)

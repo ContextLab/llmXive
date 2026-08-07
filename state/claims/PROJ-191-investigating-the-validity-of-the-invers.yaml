@@ -643,3 +643,156 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-04T13:27:37Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: harmonized dataset must contain aligned force data, separation distances,
+    and a valid positive-definite covariance matrix with no missing values in microscopic
+    separation range
+  claim_id: c_47b9903f
+  context: "Independent Test: Execute code/data/download.py and code/data/harmonize.py\
+    \ against the provided arXiv URLs; verify output is a single CSV/JSON file containing\
+    \ aligned force data, separation distances, and a valid positive\u2011definite\
+    \ covariance matrix (full or banded) with no missing values in the microscopic\
+    \ separation distance range."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Harmonized_dataset_must_contain_aligned_force_data,_separati
+  kind: entity_fact
+  raw_text: "Execute code/data/download.py and code/data/harmonize.py against the\
+    \ provided arXiv URLs; verify output is a single CSV/JSON file containing aligned\
+    \ force data, separation distances, and a valid positive\u2011definite covariance\
+    \ matrix (full or banded) with no missing values in the microscopic separation\
+    \ distance range."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T08:22:06Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: fetch arXiv:2106.08611 supplementary data
+  claim_id: c_2869c0d2
+  context: Implement code/data/download.py to fetch arXiv:2106.08611 supplementary
+    data from , unpack the tarball, and store the raw CSV file under data/raw/2106.08611/.
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: citation
+  raw_text: fetch arXiv:2106.08611 supplementary data
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T08:22:29Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: fetch arXiv:2305.06325 calibration curves
+  claim_id: c_d816f8a1
+  context: Implement code/data/download.py to fetch arXiv:2305.06325 calibration curves
+    from , unpack the tarball, and store the raw CSV file under data/raw/2305.06325/.
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: citation
+  raw_text: fetch arXiv:2305.06325 calibration curves
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T08:22:32Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: emcee runner must run a minimum of 5000 steps
+  claim_id: c_75abd8c9
+  context: 'Implement emcee runner: Run a minimum of 5000 steps. Crucial: Continue
+    running in batches of steps until the Gelman-Rubin statistic < 1.01 OR a configurable
+    maximum step limit (defined in config) is reached.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run a minimum of 5000 steps.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T08:22:52Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: Gelman-Rubin statistic must be less than 1.01 within 6 hours
+  claim_id: c_6632730f
+  context: "Independent Test: Run code/inference/mcmc.py and code/inference/nested.py\
+    \ on the harmonized dataset; verify output includes posterior samples, Bayes factor,\
+    \ and Gelman\u2011Rubin < 1.01 within the 6\u2011hour limit."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Gelman-Rubin_statistic_must_be_less_than_1.01_within_6_hours
+  kind: magnitude
+  raw_text: "Gelman\u2011Rubin < 1.01 within the 6\u2011hour limit."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T08:23:43Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: Bayes factors and credible-upper-limit shifts must stay less than 15%
+    across robustness iterations
+  claim_id: c_8d947bd8
+  context: "Independent Test: Run code/robustness/cross_val.py and code/robustness/uncertainty.py;\
+    \ verify Bayes factors and credible\u2011upper\u2011limit shifts stay < 15% across\
+    \ all iterations."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Bayes_factors_and_credible-upper-limit_shifts_must_stay_less
+  kind: magnitude
+  raw_text: "verify Bayes factors and credible\u2011upper\u2011limit shifts stay <\
+    \ 15% across all iterations."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T08:23:58Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: raise RuntimeError if coefficient of variation of credible-upper-limits
+    exceeds 15%
+  claim_id: c_fd5dfddf
+  context: "Calculate the coefficient of variation (CV) of the credible\u2011upper\u2011\
+    limits (95th percentile) across all robustness iterations, where CV = (standard\
+    \ deviation \xF7 mean) \xD7 100. Log the CV percentage; if CV > 15%, raise a RuntimeError\
+    \ to enforce the pass/fail condition of SC\u2011003."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: if CV > 15%, raise a RuntimeError
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T08:23:58Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: optimize likelihood evaluation speed if total runtime exceeds 2.5 hours
+  claim_id: c_17b12f75
+  context: Optimize likelihood evaluation speed (tune Cholesky implementation) if
+    total runtime exceeds 2.5 hours.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: if total runtime exceeds 2.5 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T08:24:16Z'

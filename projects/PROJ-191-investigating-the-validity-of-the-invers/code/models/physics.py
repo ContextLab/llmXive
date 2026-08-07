@@ -1,157 +1,158 @@
 """
-Physics models for testing the inverse-square law at sub-millimeter scales.
+Physics models for gravitational force calculations.
 
-This module implements:
-1. Newtonian gravitational force (baseline).
-2. Yukawa-modified gravitational force (test for new physics).
-
-The Yukawa potential modifies the Newtonian potential as:
-    V(r) = -G * M1 * M2 / r * (1 + alpha * exp(-r / lambda))
-
-Consequently, the force is:
-    F(r) = -dV/dr = -G * M1 * M2 / r^2 * (1 + alpha * (1 + r/lambda) * exp(-r / lambda))
-
-We model the force magnitude F(r) (positive for attraction) as:
-    F(r) = F_newton(r) * (1 + alpha * (1 + r/lambda) * exp(-r / lambda))
+Implements Newtonian and Yukawa-modified gravity force models.
 """
-
 import numpy as np
 from typing import Union
 
-# Physical constant (Standard Gravitational Constant)
-# Value: 6.67430e-11 m^3 kg^-1 s^-2
+# Gravitational constant (m^3 kg^-1 s^-2)
 G = 6.67430e-11
+# Mass of source and test masses (kg) - these would be read from data/config
+# For now, we use placeholder values that would be calibrated
+M_SOURCE = 1.0  # kg
+M_TEST = 1.0e-3  # kg (1 gram)
 
-def newtonian_force(
-    r: Union[np.ndarray, float],
-    m1: float,
-    m2: float
-) -> Union[np.ndarray, float]:
+
+def newtonian_force(separation: Union[np.ndarray, float]) -> Union[np.ndarray, float]:
     """
-    Calculate the Newtonian gravitational force between two masses.
-
-    F = G * m1 * m2 / r^2
-
+    Calculate Newtonian gravitational force.
+    
+    F = G * M1 * M2 / r^2
+    
     Args:
-        r: Separation distance in meters (scalar or array).
-        m1: Mass of object 1 in kg.
-        m2: Mass of object 2 in kg.
-
+        separation: Separation distance(s) in meters.
+    
     Returns:
-        Force magnitude in Newtons.
-
-    Raises:
-        ValueError: If r contains non-positive values.
+        Force(s) in Newtons.
     """
-    r_arr = np.asarray(r, dtype=float)
-    if np.any(r_arr <= 0):
-        raise ValueError("Separation distance r must be positive.")
-
-    return (G * m1 * m2) / (r_arr ** 2)
+    separation = np.asarray(separation)
+    # Avoid division by zero
+    separation = np.maximum(separation, 1e-12)
+    return G * M_SOURCE * M_TEST / (separation ** 2)
 
 
 def yukawa_force(
-    r: Union[np.ndarray, float],
-    m1: float,
-    m2: float,
-    alpha: float,
-    lambda_param: float
+    separation: Union[np.ndarray, float], 
+    alpha: float, 
+    lambda_val: float
 ) -> Union[np.ndarray, float]:
     """
-    Calculate the Yukawa-modified gravitational force.
-
-    The modification factor is: 1 + alpha * (1 + r/lambda) * exp(-r/lambda)
-
+    Calculate Yukawa-modified gravitational force.
+    
+    F = F_newton * (1 + alpha * exp(-r/lambda))
+    
     Args:
-        r: Separation distance in meters (scalar or array).
-        m1: Mass of object 1 in kg.
-        m2: Mass of object 2 in kg.
-        alpha: Strength of the Yukawa interaction (dimensionless).
-        lambda_param: Range of the Yukawa interaction in meters.
-
+        separation: Separation distance(s) in meters.
+        alpha: Strength parameter (dimensionless, relative to gravity).
+        lambda_val: Range parameter in meters.
+    
     Returns:
-        Force magnitude in Newtons.
-
-    Raises:
-        ValueError: If r contains non-positive values or lambda_param <= 0.
+        Force(s) in Newtons.
     """
-    r_arr = np.asarray(r, dtype=float)
-    if np.any(r_arr <= 0):
-        raise ValueError("Separation distance r must be positive.")
-    if lambda_param <= 0:
-        raise ValueError("Yukawa range lambda must be positive.")
-
-    # Newtonian component
-    f_newton = (G * m1 * m2) / (r_arr ** 2)
-
-    # Yukawa correction factor
-    # factor = 1 + alpha * (1 + r/lambda) * exp(-r/lambda)
-    ratio = r_arr / lambda_param
-    correction = 1.0 + alpha * (1.0 + ratio) * np.exp(-ratio)
-
+    separation = np.asarray(separation)
+    # Avoid division by zero
+    separation = np.maximum(separation, 1e-12)
+    
+    f_newton = newtonian_force(separation)
+    correction = 1 + alpha * np.exp(-separation / lambda_val)
+    
     return f_newton * correction
 
 
 def log_likelihood_yukawa(
-    r: np.ndarray,
-    forces_obs: np.ndarray,
-    sigma: np.ndarray,
-    m1: float,
-    m2: float,
-    alpha: float,
-    lambda_param: float
+    params: np.ndarray,
+    separation: np.ndarray,
+    force: np.ndarray,
+    sigma: Union[np.ndarray, float] = 1e-15
 ) -> float:
     """
-    Compute the log-likelihood for the Yukawa model assuming Gaussian errors.
-
-    log L = -0.5 * sum( ((F_obs - F_model) / sigma)^2 + log(2 * pi * sigma^2) )
-
+    Compute log-likelihood for Yukawa model with Gaussian errors.
+    
     Args:
-        r: Separation distances (m).
-        forces_obs: Observed force values (N).
-        sigma: Uncertainties (N) for each observation.
-        m1: Mass 1 (kg).
-        m2: Mass 2 (kg).
-        alpha: Yukawa strength parameter.
-        lambda_param: Yukawa range parameter (m).
-
+        params: [alpha, lambda]
+        separation: Separation distances
+        force: Measured forces
+        sigma: Uncertainty (scalar or array)
+    
     Returns:
         Log-likelihood value.
     """
-    forces_model = yukawa_force(r, m1, m2, alpha, lambda_param)
-    residuals = forces_obs - forces_model
-    chi_sq = np.sum((residuals / sigma) ** 2)
-    log_det = np.sum(np.log(2 * np.pi * sigma ** 2))
-
-    return -0.5 * (chi_sq + log_det)
+    alpha, lambda_val = params
+    
+    model = yukawa_force(separation, alpha, lambda_val)
+    residuals = force - model
+    
+    # Simple Gaussian log-likelihood
+    # log L = -0.5 * sum((r/sigma)^2 + log(2*pi*sigma^2))
+    if np.isscalar(sigma):
+        log_likelihood = -0.5 * np.sum(
+            (residuals / sigma) ** 2 + 
+            np.log(2 * np.pi * sigma ** 2)
+        )
+    else:
+        log_likelihood = -0.5 * np.sum(
+            (residuals / sigma) ** 2 + 
+            np.log(2 * np.pi * sigma ** 2)
+        )
+    
+    return log_likelihood
 
 
 def log_likelihood_newtonian(
-    r: np.ndarray,
-    forces_obs: np.ndarray,
-    sigma: np.ndarray,
-    m1: float,
-    m2: float
+    separation: np.ndarray,
+    force: np.ndarray,
+    sigma: Union[np.ndarray, float] = 1e-15
 ) -> float:
     """
-    Compute the log-likelihood for the standard Newtonian model.
-
-    This is equivalent to the Yukawa model with alpha = 0.
-
+    Compute log-likelihood for Newtonian model with Gaussian errors.
+    
     Args:
-        r: Separation distances (m).
-        forces_obs: Observed force values (N).
-        sigma: Uncertainties (N) for each observation.
-        m1: Mass 1 (kg).
-        m2: Mass 2 (kg).
-
+        separation: Separation distances
+        force: Measured forces
+        sigma: Uncertainty (scalar or array)
+    
     Returns:
         Log-likelihood value.
     """
-    # alpha=0 implies correction factor is 1.0
-    forces_model = newtonian_force(r, m1, m2)
-    residuals = forces_obs - forces_model
-    chi_sq = np.sum((residuals / sigma) ** 2)
-    log_det = np.sum(np.log(2 * np.pi * sigma ** 2))
+    model = newtonian_force(separation)
+    residuals = force - model
+    
+    if np.isscalar(sigma):
+        log_likelihood = -0.5 * np.sum(
+            (residuals / sigma) ** 2 + 
+            np.log(2 * np.pi * sigma ** 2)
+        )
+    else:
+        log_likelihood = -0.5 * np.sum(
+            (residuals / sigma) ** 2 + 
+            np.log(2 * np.pi * sigma ** 2)
+        )
+    
+    return log_likelihood
 
-    return -0.5 * (chi_sq + log_det)
+
+def main():
+    """Test physics functions."""
+    import logging
+    logging.basicConfig(level=logging.INFO)
+    
+    # Test data
+    r = np.array([1e-4, 2e-4, 5e-4])  # 100um, 200um, 500um
+    
+    f_newton = newtonian_force(r)
+    print(f"Newtonian forces: {f_newton}")
+    
+    f_yukawa = yukawa_force(r, alpha=1.0, lambda_val=1e-4)
+    print(f"Yukawa forces (alpha=1, lambda=100um): {f_yukawa}")
+    
+    # Test likelihood
+    ll_newt = log_likelihood_newtonian(r, f_newton, sigma=1e-20)
+    print(f"Newtonian log-likelihood: {ll_newt}")
+    
+    ll_yuk = log_likelihood_yukawa(np.array([1.0, 1e-4]), r, f_yukawa, sigma=1e-20)
+    print(f"Yukawa log-likelihood: {ll_yuk}")
+
+
+if __name__ == "__main__":
+    main()

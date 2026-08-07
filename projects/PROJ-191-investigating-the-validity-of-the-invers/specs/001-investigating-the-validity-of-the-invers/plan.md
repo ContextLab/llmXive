@@ -110,7 +110,7 @@ projects/PROJ-191-investigating-the-validity-of-the-invers/
 -   **Runtime**:
     -   Data Download & Validation: < 1 min.
     -   Harmonization: < 5 min.
- - **MCMC (Primary)**: [deferred] evaluations (100 walkers × 5000 steps). With N=200 points and a **banded covariance approximation (bandwidth=20)**, each likelihood evaluation is O(N * bandwidth) ≈ 4000 ops. Total operations [deferred] * 4000 = 2e9 ops. On a multi-core CPU architecture (approx 1e9 ops/sec each), this is estimated to take **[deferred]**.
+ - **MCMC (Primary)**: [deferred] evaluations (100 walkers × 5000 steps). With N=200 points and a **banded covariance approximation (bandwidth=20)**, each likelihood evaluation is O(N * bandwidth), representing a computationally intensive operation. Total operations [deferred] * 4000 = 2e9 ops. On a multi-core CPU architecture (approx 1e9 ops/sec each), this is estimated to take **[deferred]**.
     -   Nested Sampling: Approximately a moderate duration.
     -   Robustness (Parallelized, reduced steps): A sufficient number of steps per iteration, multiple iterations, parallelized. [deferred].
     -   **Total Revised Estimate**: **< 2.5 hours**. (Guarantees compliance with FR-006).

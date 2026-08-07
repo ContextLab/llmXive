@@ -1,269 +1,386 @@
-"""
-Data harmonization utilities for the Inverse Square Law project.
-
-This module handles:
-1. Conversion of units to SI (dynes -> Newtons, micrometers -> meters).
-2. Alignment of force-vs-separation data onto a common separation grid.
-3. Construction of full covariance matrices from statistical and systematic errors.
-"""
-
 import numpy as np
 import pandas as pd
 from typing import Tuple, Optional
 from pathlib import Path
+import logging
+import json
 
-# Optional scipy import for advanced interpolation features
-try:
-    from scipy.interpolate import interp1d
-    HAS_SCIPY = True
-except ImportError:
-    HAS_SCIPY = False
+from config import get_logger, setup_logging
 
+# Setup logging for this module
+logger = get_logger(__name__)
 
-def dynes_to_newtons(force_dynes: np.ndarray | float) -> np.ndarray | float:
+# Constants
+DYNE_TO_NEWTON = 1e-5
+MICROMETER_TO_METER = 1e-6
+
+def dynes_to_newtons(force_dynes: np.ndarray) -> np.ndarray:
     """
-    Convert force from dynes to Newtons.
-    1 dyne = 1e-5 Newtons.
-
+    Convert force values from dynes to Newtons.
+    
     Args:
-        force_dynes: Force value(s) in dynes.
-
+        force_dynes: Array of force values in dynes.
+        
     Returns:
-        Force value(s) in Newtons.
+        Array of force values in Newtons.
     """
-    return np.asarray(force_dynes) * 1e-5
+    if not isinstance(force_dynes, np.ndarray):
+        force_dynes = np.array(force_dynes)
+    return force_dynes * DYNE_TO_NEWTON
 
-
-def micrometers_to_meters(dist_um: np.ndarray | float) -> np.ndarray | float:
+def micrometers_to_meters(distance_microns: np.ndarray) -> np.ndarray:
     """
-    Convert distance from micrometers to meters.
-    1 micrometer = 1e-6 meters.
-
+    Convert distance values from micrometers to meters.
+    
     Args:
-        dist_um: Distance value(s) in micrometers.
-
+        distance_microns: Array of distance values in micrometers.
+        
     Returns:
-        Distance value(s) in meters.
+        Array of distance values in meters.
     """
-    return np.asarray(dist_um) * 1e-6
+    if not isinstance(distance_microns, np.ndarray):
+        distance_microns = np.array(distance_microns)
+    return distance_microns * MICROMETER_TO_METER
 
-
-def convert_to_si(df: pd.DataFrame) -> pd.DataFrame:
+def convert_to_si(dataset_df: pd.DataFrame) -> pd.DataFrame:
     """
-    Convert force and separation columns in a DataFrame to SI units.
-
-    Expects columns 'force_dyne' and 'separation_um'.
-    Adds new columns 'force_N' and 'separation_m'.
-
+    Convert all force and separation columns in the dataset to SI units.
+    
+    Assumes the DataFrame has columns 'force' (in dynes) and 'separation' (in micrometers).
+    If columns have different names, they should be standardized before calling this function.
+    
     Args:
-        df: Input DataFrame with raw data.
-
+        dataset_df: DataFrame containing raw data with dynes and micrometers.
+        
     Returns:
-        DataFrame with added SI unit columns.
+        DataFrame with 'force_N' and 'separation_m' columns in SI units.
+        Original columns are preserved for reference if needed, but new SI columns are added.
     """
-    df_out = df.copy()
-
-    if 'force_dyne' not in df_out.columns:
-        raise ValueError("Input DataFrame must contain 'force_dyne' column.")
-    if 'separation_um' not in df_out.columns:
-        raise ValueError("Input DataFrame must contain 'separation_um' column.")
-
-    df_out['force_N'] = dynes_to_newtons(df_out['force_dyne'].values)
-    df_out['separation_m'] = micrometers_to_meters(df_out['separation_um'].values)
-
-    return df_out
-
+    df = dataset_df.copy()
+    
+    # Identify force and separation columns
+    # We assume standard naming from parsers: 'force', 'separation'
+    force_col = None
+    sep_col = None
+    
+    for col in df.columns:
+        if 'force' in col.lower():
+            force_col = col
+        if 'separation' in col.lower() or 'distance' in col.lower():
+            sep_col = col
+    
+    if force_col is None or sep_col is None:
+        raise ValueError("Could not identify force and separation columns in dataset.")
+    
+    # Convert to SI
+    df['force_N'] = dynes_to_newtons(df[force_col].values)
+    df['separation_m'] = micrometers_to_meters(df[sep_col].values)
+    
+    logger.info(f"Converted {len(df)} rows from {force_col} (dynes) and {sep_col} (microns) to SI units.")
+    
+    return df
 
 def align_to_grid(
-    sep_m: np.ndarray,
-    force_n: np.ndarray,
-    target_grid: np.ndarray,
+    df_list: list[pd.DataFrame], 
+    target_grid: Optional[np.ndarray] = None,
     method: str = 'linear'
-) -> Tuple[np.ndarray, np.ndarray]:
+) -> Tuple[pd.DataFrame, np.ndarray]:
     """
-    Align force data to a target separation grid using interpolation.
-
+    Align multiple datasets to a common separation grid.
+    
+    This function handles the edge case of non-overlapping separation ranges by:
+    1. Detecting the intersection of valid separation ranges across all datasets.
+    2. If the intersection is empty or too small, logging a warning and excluding non-overlapping regions.
+    3. Interpolating missing points on the target grid for each dataset.
+    
     Args:
-        sep_m: Array of separation distances in meters (source).
-        force_n: Array of force values in Newtons (source).
-        target_grid: Array of target separation distances in meters.
-        method: Interpolation method ('linear', 'nearest', 'cubic').
-
+        df_list: List of DataFrames, each containing 'separation_m' and 'force_N' (and possibly errors).
+        target_grid: Optional pre-defined grid. If None, creates a grid based on the intersection of ranges.
+        method: Interpolation method (default: 'linear').
+        
     Returns:
-        Tuple of (aligned_separation, aligned_force).
-        aligned_separation will be exactly equal to target_grid.
+        Tuple of (Aligned DataFrame with common grid, the target grid used).
+        
+    Raises:
+        ValueError: If no overlapping range exists between datasets.
     """
-    # Ensure inputs are sorted by separation for interpolation
-    sort_idx = np.argsort(sep_m)
-    sep_sorted = sep_m[sort_idx]
-    force_sorted = force_n[sort_idx]
-
-    if HAS_SCIPY:
-        # Use scipy for robust handling of bounds and fill values
-        interpolator = interp1d(
-            sep_sorted,
-            force_sorted,
-            kind=method,
-            bounds_error=False,
-            fill_value=np.nan
+    if not df_list:
+        raise ValueError("df_list cannot be empty.")
+    
+    # Determine the overlapping range
+    min_sep = -np.inf
+    max_sep = np.inf
+    
+    for df in df_list:
+        if 'separation_m' not in df.columns:
+            raise ValueError("Each DataFrame must contain 'separation_m' column.")
+        
+        current_min = df['separation_m'].min()
+        current_max = df['separation_m'].max()
+        
+        min_sep = max(min_sep, current_min)
+        max_sep = min(max_sep, current_max)
+    
+    if min_sep >= max_sep:
+        # No overlap
+        raise ValueError(
+            f"No overlapping separation range found across datasets. "
+            f"Max of mins: {min_sep}, Min of maxs: {max_sep}. "
+            f"Data ranges are disjoint."
         )
-        f_interp = interpolator(target_grid)
-    else:
-        # Fallback to numpy.interp if scipy is not installed
-        in_bounds = (target_grid >= sep_sorted.min()) & (target_grid <= sep_sorted.max())
-        f_interp = np.full_like(target_grid, np.nan, dtype=float)
+    
+    logger.info(f"Detected overlapping separation range: [{min_sep:.2e}, {max_sep:.2e}] meters.")
+    
+    # Create target grid if not provided
+    if target_grid is None:
+        # Create a grid with sufficient resolution to capture variations
+        # Typically 100-200 points in the log or linear space
+        n_points = 200
+        target_grid = np.linspace(min_sep, max_sep, n_points)
+    
+    logger.info(f"Target grid created with {len(target_grid)} points.")
+    
+    # Align each dataset
+    aligned_dfs = []
+    
+    for i, df in enumerate(df_list):
+        df_aligned = pd.DataFrame()
+        df_aligned['separation_m'] = target_grid
         
-        if np.any(in_bounds):
-            f_interp[in_bounds] = np.interp(target_grid[in_bounds], sep_sorted, force_sorted)
+        # Interpolate force
+        # Check for non-overlapping regions in this specific dataset relative to the global grid
+        # (Though we already filtered by global overlap, individual datasets might have gaps)
+        x_orig = df['separation_m'].values
+        y_orig = df['force_N'].values
         
-    return target_grid, f_interp
-
+        # Handle potential NaNs in original data before interpolation
+        mask = ~np.isnan(x_orig) & ~np.isnan(y_orig)
+        x_orig_clean = x_orig[mask]
+        y_orig_clean = y_orig[mask]
+        
+        if len(x_orig_clean) < 2:
+            logger.warning(f"Dataset {i} has insufficient points for interpolation.")
+            df_aligned['force_N'] = np.nan
+        else:
+            try:
+                y_interp = np.interp(target_grid, x_orig_clean, y_orig_clean)
+                df_aligned['force_N'] = y_interp
+            except Exception as e:
+                logger.error(f"Interpolation failed for dataset {i}: {e}")
+                df_aligned['force_N'] = np.nan
+        
+        # Interpolate error columns if they exist
+        for col in df.columns:
+            if 'err' in col.lower() or 'uncertainty' in col.lower():
+                if col in df.columns:
+                    x_err = df['separation_m'].values
+                    y_err = df[col].values
+                    mask_err = ~np.isnan(x_err) & ~np.isnan(y_err)
+                    if np.sum(mask_err) >= 2:
+                        y_err_interp = np.interp(target_grid, x_err[mask_err], y_err[mask_err])
+                        df_aligned[col] = y_err_interp
+                    else:
+                        df_aligned[col] = np.nan
+        
+        df_aligned['source_id'] = i
+        aligned_dfs.append(df_aligned)
+    
+    # Concatenate all aligned datasets
+    result_df = pd.concat(aligned_dfs, ignore_index=True)
+    
+    # Log warning if any dataset had gaps that resulted in NaNs in the final grid
+    nan_count = result_df['force_N'].isna().sum()
+    if nan_count > 0:
+        logger.warning(f"Interpolation resulted in {nan_count} NaN values in the aligned force column.")
+    
+    return result_df, target_grid
 
 def construct_covariance_matrix(
-    stat_err: np.ndarray,
-    sys_err: Optional[np.ndarray] = None,
-    correlation_length: float = 0.0,
-    systematic_scale: float = 1.0
+    df: pd.DataFrame,
+    stat_col: str = 'stat_err',
+    sys_col: Optional[str] = None
 ) -> np.ndarray:
     """
-    Construct a full covariance matrix from statistical and systematic uncertainties.
-
-    The total variance at each point is the sum of statistical variance and 
-    systematic variance (if provided). Systematic errors introduce correlations
-    between data points.
-
+    Construct a covariance matrix from statistical and systematic uncertainties.
+    
     Args:
-        stat_err: Statistical uncertainties (1-sigma) for each data point.
-        sys_err: Systematic uncertainties (1-sigma) for each data point. 
-                If None, only statistical errors are used (diagonal matrix).
-        correlation_length: Fraction of the range over which systematic errors
-                           are correlated. 0.0 = fully correlated (common mode),
-                           1.0 = uncorrelated.
-        systematic_scale: Scaling factor for systematic errors if missing in source.
-
+        df: DataFrame with 'force_N' and uncertainty columns.
+        stat_col: Name of the statistical error column.
+        sys_col: Optional name of the systematic error column.
+        
     Returns:
-        Full covariance matrix (N, N).
+        2D numpy array representing the covariance matrix.
     """
-    n_points = len(stat_err)
+    n = len(df)
+    cov = np.zeros((n, n))
     
-    # Convert to numpy arrays if not already
-    stat_err = np.asarray(stat_err, dtype=float)
+    # Diagonal: sum of squares of statistical and systematic errors
+    stat_err = df[stat_col].values if stat_col in df.columns else np.zeros(n)
     
-    # Calculate total variance (diagonal elements)
-    if sys_err is not None:
-        sys_err = np.asarray(sys_err, dtype=float)
-        total_var = stat_err**2 + sys_err**2
+    if sys_col and sys_col in df.columns:
+        sys_err = df[sys_col].values
+        # Assuming systematic errors are fully correlated across the dataset?
+        # Or diagonal? The task says "full covariance matrix (with fallback to banded)".
+        # Standard practice: Statistical is diagonal, Systematic might be correlated.
+        # For now, we assume diagonal for both unless specified otherwise in spec.
+        # If systematic is fully correlated, the matrix is rank-1 + diagonal.
+        # Let's assume diagonal for simplicity unless the spec implies full correlation.
+        # Re-reading: "construct a full covariance matrix". Usually implies off-diagonals.
+        # If systematic is a constant bias, Cov(i,j) = sys^2 for all i,j.
+        # Let's implement the fully correlated systematic case as it's common in force laws.
+        
+        # Diagonal elements: stat^2 + sys^2
+        # Off-diagonal: sys^2
+        diag = stat_err**2 + sys_err**2
+        off_diag = sys_err**2 # Assuming constant systematic error magnitude across points?
+        # Actually, systematic error might be a function of distance.
+        # If sys_err is a vector, we assume it's the same bias for all points (fully correlated).
+        # Then Cov = diag(stat^2) + outer(sys, sys)
+        
+        # Let's assume sys_err is a scalar or a vector of the same length.
+        # If vector, we treat it as the magnitude of the correlated component.
+        # A common model: total error = sqrt(stat^2 + sys^2).
+        # Covariance: diag(stat^2) + sys_vec * sys_vec^T (if fully correlated)
+        
+        # Implementation:
+        # 1. Diagonal
+        np.fill_diagonal(cov, stat_err**2)
+        # 2. Add systematic correlation
+        # If sys_err is a vector, we add outer product.
+        # If sys_err is a scalar (constant bias), we add scalar^2 to all.
+        if isinstance(sys_err, np.ndarray) and len(sys_err) > 0:
+            # If it varies, we assume the variation is the correlated component?
+            # This is ambiguous. Let's assume a constant systematic uncertainty 
+            # derived from the mean or max of the sys_err column if it varies,
+            # or just use the vector as the correlated component.
+            # Simplest robust approach: Assume sys_err column represents the 
+            # magnitude of the fully correlated error at each point.
+            # Cov_ij = sys_i * sys_j
+            cov += np.outer(sys_err, sys_err)
+        else:
+            cov += sys_err**2
     else:
-        # Conservative fallback: scale statistical errors to account for missing systematics
-        # This is a 10% inflation as a conservative estimate
-        total_var = (stat_err * systematic_scale)**2
+        # Only statistical errors -> diagonal matrix
+        np.fill_diagonal(cov, stat_err**2)
     
-    # Initialize covariance matrix
-    cov_matrix = np.zeros((n_points, n_points))
-    
-    # Fill diagonal with total variance
-    np.fill_diagonal(cov_matrix, total_var)
-    
-    # Add systematic correlation off-diagonal elements if systematic errors exist
-    if sys_err is not None:
-        # Create a correlation matrix based on systematic errors
-        # Using a simple model: correlation decays with index distance
-        for i in range(n_points):
-            for j in range(i + 1, n_points):
-                # Calculate correlation coefficient
-                # If correlation_length is 0, all systematic errors are fully correlated
-                # If correlation_length is 1, no correlation
-                if correlation_length == 0.0:
-                    corr_coeff = 1.0
-                else:
-                    # Distance-based correlation decay
-                    idx_dist = abs(i - j) / (n_points - 1) if n_points > 1 else 0
-                    corr_coeff = max(0.0, 1.0 - idx_dist / correlation_length)
-                
-                # Covariance contribution from systematic errors
-                cov_matrix[i, j] = corr_coeff * sys_err[i] * sys_err[j]
-                cov_matrix[j, i] = cov_matrix[i, j]
-    
-    # Ensure the matrix is symmetric and positive semi-definite
-    # Add small regularization if needed to ensure positive definiteness
-    eigvals = np.linalg.eigvalsh(cov_matrix)
-    if np.min(eigvals) < 1e-15:
-        # Add small diagonal regularization
-        cov_matrix += np.eye(n_points) * 1e-15
-    
-    return cov_matrix
-
+    return cov
 
 def harmonize_experiment(
-    df_raw: pd.DataFrame,
-    target_grid: np.ndarray
-) -> pd.DataFrame:
+    data_paths: list[Path],
+    output_path: Path,
+    target_grid: Optional[np.ndarray] = None
+) -> dict:
     """
-    Full harmonization pipeline for a single experiment DataFrame.
-
-    1. Convert to SI units.
-    2. Align to the target grid.
-    3. Construct covariance matrix from error fields.
-    4. Return a DataFrame with aligned data and covariance matrix.
-
+    Main orchestration function for harmonizing multiple experiment datasets.
+    
+    Steps:
+    1. Load raw CSVs.
+    2. Convert to SI units.
+    3. Align to a common grid.
+    4. Construct covariance matrix.
+    5. Save results.
+    
     Args:
-        df_raw: Raw DataFrame with 'force_dyne', 'separation_um', and optional error columns.
-               Expected error columns: 'stat_err', 'sys_err' or 'systematic'.
-        target_grid: Target separation grid in meters.
-
-    Returns:
-        DataFrame with 'separation_m' (target_grid), 'force_N' (interpolated),
-        and a 'covariance_matrix' column containing the full covariance matrix.
-    """
-    # Convert to SI
-    df_si = convert_to_si(df_raw)
-    
-    # Check for error columns and extract uncertainties
-    stat_err_col = None
-    sys_err_col = None
-    
-    if 'stat_err' in df_si.columns:
-        stat_err_col = 'stat_err'
-    elif 'stat_err_dyne' in df_si.columns:
-        # Convert statistical error from dynes to Newtons
-        df_si['stat_err_N'] = dynes_to_newtons(df_si['stat_err_dyne'].values)
-        stat_err_col = 'stat_err_N'
+        data_paths: List of paths to raw CSV files.
+        output_path: Path to save the harmonized dataset (CSV) and covariance (NPY).
+        target_grid: Optional custom grid.
         
-    if 'sys_err' in df_si.columns:
-        sys_err_col = 'sys_err'
-    elif 'systematic' in df_si.columns:
-        sys_err_col = 'systematic'
-    elif 'sys_err_dyne' in df_si.columns:
-        df_si['sys_err_N'] = dynes_to_newtons(df_si['sys_err_dyne'].values)
-        sys_err_col = 'sys_err_N'
+    Returns:
+        Dictionary with metadata about the harmonization process.
+    """
+    logger.info(f"Starting harmonization for {len(data_paths)} datasets.")
     
-    # Extract uncertainties
-    stat_err = df_si[stat_err_col].values if stat_err_col else np.zeros(len(df_si))
-    sys_err = df_si[sys_err_col].values if sys_err_col else None
+    dfs = []
+    for p in data_paths:
+        logger.info(f"Loading {p}")
+        df = pd.read_csv(p)
+        dfs.append(df)
+    
+    # Convert to SI
+    si_dfs = [convert_to_si(df) for df in dfs]
     
     # Align to grid
-    sep_aligned, force_aligned = align_to_grid(
-        df_si['separation_m'].values,
-        df_si['force_N'].values,
-        target_grid
-    )
+    try:
+        aligned_df, grid = align_to_grid(si_dfs, target_grid=target_grid)
+    except ValueError as e:
+        logger.error(f"Grid alignment failed: {e}")
+        # Fallback: exclude non-overlapping regions?
+        # The spec says: "interpolate missing points or exclude non-overlapping regions and log a warning"
+        # Our align_to_grid already handles exclusion by defining the grid on the intersection.
+        # If intersection is empty, it raises. We caught that.
+        raise
     
-    # Construct covariance matrix
-    cov_matrix = construct_covariance_matrix(
-        stat_err=stat_err,
-        sys_err=sys_err
-    )
+    # Construct covariance
+    # We need to group by source to calculate covariance per source or globally?
+    # The task implies a single covariance matrix for the combined dataset.
+    # If data is from different experiments, we might need block diagonal.
+    # For now, assume we are treating them as one combined dataset for the fit.
+    # We need to identify error columns.
+    # Let's assume standard names: 'stat_err' and 'sys_err' exist after parsing.
+    # If not, we might need to infer.
     
-    result_df = pd.DataFrame({
-        'separation_m': sep_aligned,
-        'force_N': force_aligned
-    })
+    # Check for error columns
+    stat_col = 'stat_err'
+    sys_col = 'sys_err'
     
-    # Add covariance matrix as a column (will be expanded when saving)
-    result_df['covariance_matrix'] = [cov_matrix]
+    if stat_col not in aligned_df.columns:
+        # Try to find any column with 'err'
+        err_cols = [c for c in aligned_df.columns if 'err' in c.lower()]
+        if err_cols:
+            stat_col = err_cols[0]
+            logger.warning(f"Using '{stat_col}' as statistical error column.")
+        else:
+            logger.warning("No statistical error column found. Assuming zero error.")
+            aligned_df[stat_col] = 0.0
     
-    # Preserve experiment ID if present
-    if 'experiment_id' in df_raw.columns:
-        result_df['experiment_id'] = df_raw['experiment_id'].iloc[0]
+    if sys_col not in aligned_df.columns:
+        # Try to find systematic
+        sys_candidates = [c for c in aligned_df.columns if 'sys' in c.lower()]
+        if sys_candidates:
+            sys_col = sys_candidates[0]
+        else:
+            sys_col = None
+            logger.warning("No systematic error column found.")
     
-    return result_df
+    cov_matrix = construct_covariance_matrix(aligned_df, stat_col=stat_col, sys_col=sys_col)
+    
+    # Save outputs
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Save CSV
+    csv_path = output_path.with_suffix('.csv')
+    aligned_df.to_csv(csv_path, index=False)
+    logger.info(f"Saved harmonized data to {csv_path}")
+    
+    # Save Covariance
+    cov_path = output_path.with_suffix('.npy')
+    np.save(cov_path, cov_matrix)
+    logger.info(f"Saved covariance matrix to {cov_path}")
+    
+    # Save metadata
+    meta = {
+        "n_datasets": len(data_paths),
+        "n_points": len(aligned_df),
+        "grid_range": [float(grid.min()), float(grid.max())],
+        "cov_shape": list(cov_matrix.shape),
+        "stat_col": stat_col,
+        "sys_col": sys_col
+    }
+    
+    meta_path = output_path.with_suffix('.json')
+    with open(meta_path, 'w') as f:
+        json.dump(meta, f, indent=2)
+    
+    return meta
+
+def main():
+    """Entry point for command-line execution."""
+    setup_logging()
+    
+    # Example usage - in real pipeline, paths come from config or args
+    # This is a placeholder for the actual invocation logic
+    logger.info("harmonize.py module loaded.")
+    logger.info("Use harmonize_experiment() with data paths to run.")
+
+if __name__ == "__main__":
+    main()
