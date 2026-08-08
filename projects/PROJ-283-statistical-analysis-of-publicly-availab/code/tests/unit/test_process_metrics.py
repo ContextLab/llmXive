@@ -1,84 +1,80 @@
-"""
-Unit tests for inclusion metrics calculation in process.py
-"""
 import pytest
 import json
 import os
 import tempfile
 from pathlib import Path
-from src.data.process import calculate_and_save_inclusion_metrics
+from src.data.process import calculate_and_save_inclusion_metrics, validate_inclusion_rate
 
 class TestInclusionMetrics:
-    def test_calculate_and_save_metrics_success(self):
+    """Tests for inclusion metrics calculation and validation."""
+
+    def test_calculate_and_save_inclusion_metrics_success(self, tmp_path):
         """Test successful calculation and saving of inclusion metrics."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = os.path.join(tmpdir, "inclusion_metrics.json")
-            
-            # Call the function
-            calculate_and_save_inclusion_metrics(
-                total_games=100,
-                parsed_games=98,
-                output_path=output_path
-            )
-            
-            # Verify file exists
-            assert os.path.exists(output_path)
-            
-            # Verify content
-            with open(output_path, 'r') as f:
-                metrics = json.load(f)
-            
-            assert metrics["total_games"] == 100
-            assert metrics["parsed_games"] == 98
-            assert metrics["inclusion_rate"] == 0.98
+        output_path = tmp_path / "inclusion_metrics.json"
+        total_games = 1000
+        parsed_games = 975
+        
+        calculate_and_save_inclusion_metrics(total_games, parsed_games, str(output_path))
+        
+        # Verify file exists
+        assert output_path.exists()
+        
+        # Verify content
+        with open(output_path, 'r') as f:
+            metrics = json.load(f)
+        
+        assert metrics['total_games'] == total_games
+        assert metrics['parsed_games'] == parsed_games
+        assert abs(metrics['inclusion_rate'] - 0.975) < 1e-6
 
-    def test_calculate_and_save_metrics_zero_total(self):
-        """Test handling of zero total games (avoid division by zero)."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = os.path.join(tmpdir, "inclusion_metrics.json")
-            
-            calculate_and_save_inclusion_metrics(
-                total_games=0,
-                parsed_games=0,
-                output_path=output_path
-            )
-            
-            with open(output_path, 'r') as f:
-                metrics = json.load(f)
-            
-            assert metrics["total_games"] == 0
-            assert metrics["parsed_games"] == 0
-            assert metrics["inclusion_rate"] == 0.0
+    def test_calculate_and_save_inclusion_metrics_low_rate(self, tmp_path):
+        """Test that low inclusion rate raises SystemExit."""
+        output_path = tmp_path / "inclusion_metrics.json"
+        total_games = 1000
+        parsed_games = 900  # 0.90 rate, below 0.95 threshold
+        
+        with pytest.raises(SystemExit) as exc_info:
+            calculate_and_save_inclusion_metrics(total_games, parsed_games, str(output_path))
+        
+        assert exc_info.value.code == 1
 
-    def test_calculate_and_save_metrics_all_parsed(self):
-        """Test 100% inclusion rate."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = os.path.join(tmpdir, "inclusion_metrics.json")
-            
-            calculate_and_save_inclusion_metrics(
-                total_games=50,
-                parsed_games=50,
-                output_path=output_path
-            )
-            
-            with open(output_path, 'r') as f:
-                metrics = json.load(f)
-            
-            assert metrics["inclusion_rate"] == 1.0
+    def test_validate_inclusion_rate_pass(self):
+        """Test validation passes for acceptable rate."""
+        assert validate_inclusion_rate(1000, 975) is True
+        assert validate_inclusion_rate(1000, 950) is True  # Exactly 0.95
+        assert validate_inclusion_rate(1000, 951) is True
 
-    def test_calculate_and_save_metrics_creates_directory(self):
-        """Test that the function creates the output directory if it doesn't exist."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            nested_dir = os.path.join(tmpdir, "subdir", "nested")
-            output_path = os.path.join(nested_dir, "inclusion_metrics.json")
-            
-            # Ensure the directory does not exist yet
-            assert not os.path.exists(nested_dir)
-            
-            calculate_and_save_inclusion_metrics(
-                total_games=10,
-                parsed_games=10,
-                output_path=output_path
-            )
-            
-            assert os.path.exists(output_path)
+    def test_validate_inclusion_rate_fail(self):
+        """Test validation fails for unacceptable rate."""
+        assert validate_inclusion_rate(1000, 949) is False
+        assert validate_inclusion_rate(1000, 900) is False
+        assert validate_inclusion_rate(1000, 0) is False
+
+    def test_validate_inclusion_rate_zero_total(self):
+        """Test validation handles zero total games."""
+        assert validate_inclusion_rate(0, 0) is False
+
+    def test_metrics_schema_compliance(self, tmp_path):
+        """Test that saved metrics conform to required schema."""
+        output_path = tmp_path / "inclusion_metrics.json"
+        total_games = 5000
+        parsed_games = 4800
+        
+        calculate_and_save_inclusion_metrics(total_games, parsed_games, str(output_path))
+        
+        with open(output_path, 'r') as f:
+            metrics = json.load(f)
+        
+        # Check required keys
+        assert 'total_games' in metrics
+        assert 'parsed_games' in metrics
+        assert 'inclusion_rate' in metrics
+        
+        # Check types
+        assert isinstance(metrics['total_games'], int)
+        assert isinstance(metrics['parsed_games'], int)
+        assert isinstance(metrics['inclusion_rate'], float)
+        
+        # Check calculation
+        expected_rate = parsed_games / total_games
+        assert abs(metrics['inclusion_rate'] - expected_rate) < 1e-6

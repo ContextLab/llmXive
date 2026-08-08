@@ -9,4 +9,3 @@ requests
 datasets
 pytest
 pyyaml
-pyarrow

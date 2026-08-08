@@ -152,3 +152,168 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-04T01:55:28Z'
+- artifact_path: projects/PROJ-283-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: default ECO mapping A=King's Pawn, B=Sicilian Defense, C=French Defense,
+    D=Queen's Gambit, E=King's Indian
+  claim_id: c_686017e3
+  context: 'If the file is missing, create it with the complete default mapping: {
+    "A": "King''s Pawn", "B": "Sicilian Defense", "C": "French Defense", "D": "Queen''s
+    Gambit", "E": "King''s Indian" }.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Default_ECO_mapping_A%3DKing%27s_Pawn,_B%3DSicilian_Defense,_C%3DFre
+  kind: entity_fact
+  raw_text: The default ECO mapping dictionary maps 'A' to 'King's Pawn', 'B' to 'Sicilian
+    Defense', 'C' to 'French Defense', 'D' to 'Queen's Gambit', and 'E' to 'King's
+    Indian'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T23:00:13Z'
+- artifact_path: projects/PROJ-283-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis sweep range set {0.005, 0.01, 0.05}
+  claim_id: c_a3e9699d
+  context: 'Logic: Sweep Range: Explicitly sweep thresholds over the set {0.005, 0.01,
+    0.05}.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis sweep range explicitly uses the set {0.005, 0.01,
+    0.05}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T23:01:40Z'
+- artifact_path: projects/PROJ-283-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: k-fold cross-validation k=5
+  claim_id: c_3685c2d7
+  context: Implement function validate_models(...) to perform k-fold cross-validation
+    (k=5) on Beta and Ridge models only.
+  evidence:
+    asserted: '5.0'
+    authority: scipy.constants.k (CODATA 2018, exact by SI definition)
+    constant: boltzmann
+    corrected: true
+    mode: approximate
+    true_value: 1.380649e-23
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?k
+  kind: numeric
+  raw_text: The k-fold cross-validation uses k=5.
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2bfb0d3513311088eea23af05f5f28fc2ef73a6a80811bbb243001626363f07f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-08T23:01:40Z'
+- artifact_path: projects/PROJ-283-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: model instability threshold std_dev_r2 >= 0.05
+  claim_id: c_1b4d568f
+  context: 'Validation Logic: Check if std_dev_r2 < 0.05 (SC-003 target). Requirement:
+    If std_dev_r2 >= 0.05, log a definitive failure status...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The model instability threshold for standard deviation of R\xB2 is 0.05."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T23:04:54Z'
+- artifact_path: projects/PROJ-283-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: subset size estimate 2000 bytes per game
+  claim_id: c_6507d880
+  context: 'Requirement: Add constant SAMPLE_SIZE_ESTIMATE_BYTES_PER_GAME = 2000 to
+    src/config.py representing the average PGN header size plus a small amount per
+    game.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The heuristic for estimating subset size assumes 2000 bytes per game.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T23:15:44Z'
+- artifact_path: projects/PROJ-283-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: maximum estimated subset size 6GB
+  claim_id: c_963fbf8e
+  context: 'Requirement: Read data/raw/selected_ids.txt, calculate the estimated total
+    size... If estimated size > 6GB, trigger reduction.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Maximum_estimated_subset_size_6GB
+  kind: entity_fact
+  raw_text: The maximum allowed estimated total size for the dataset subset is 6GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T23:16:12Z'
+- artifact_path: projects/PROJ-283-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: inclusion rate threshold 95%
+  claim_id: c_36abadb8
+  context: 'Requirement: Immediately after saving, read the file and validate the
+    inclusion rate. If inclusion_rate < 0.95, raise an exception...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The inclusion rate threshold for pipeline success is 95%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T23:16:12Z'
+- artifact_path: projects/PROJ-283-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: material imbalance calculated at move 10
+  claim_id: c_d7adda1d
+  context: Implement function calculate_material_imbalance(board, move_count=10) to
+    calculate material_imbalance_move10 (board state at move 10, per Spec FR-002).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The material imbalance metric is calculated at move 10.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T23:16:28Z'
+- artifact_path: projects/PROJ-283-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Elo probability clamping range [0.01, 0.99]
+  claim_id: c_0ec36e5b
+  context: 'Requirement: Cap the result to [0.01, 0.99] to prevent numerical instability.'
+  evidence:
+    asserted: '0.01'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The Elo probability calculation clamps results to the range [0.01, 0.99].
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-08T23:16:28Z'
