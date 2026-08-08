@@ -1,1 +1,1 @@
-"""Data processing modules."""
+"""Data processing module."""

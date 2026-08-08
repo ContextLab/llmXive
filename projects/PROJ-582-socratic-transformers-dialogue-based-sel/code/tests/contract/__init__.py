@@ -1,1 +1,1 @@
-"""Contract testing suite."""
+"""Contract tests."""

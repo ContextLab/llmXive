@@ -1,2 +1,2 @@
-# This directory stores raw, unmodified source datasets (e.g., GSM8K, MATH).
-# Do not commit large binary files here.
+# This file ensures the raw data directory is tracked by git.
+# Raw data files will be downloaded here by the dataset download scripts.

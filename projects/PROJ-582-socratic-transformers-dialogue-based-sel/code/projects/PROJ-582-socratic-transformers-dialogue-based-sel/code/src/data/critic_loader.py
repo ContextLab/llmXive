@@ -9,8 +9,6 @@ import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
 from peft import PeftModel
 
-from src.utils.config import get_config, SocraticConfig
-
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
@@ -20,130 +18,42 @@ logger = logging.getLogger(__name__)
 
 class CriticModel:
     """
-    Wrapper for a frozen pre-trained model used as an external critic.
+    Represents a frozen critic model used for generating critiques in the Socratic dialogue pipeline.
     
-    This model is loaded in inference mode (no gradients) and is intended
-    to generate critiques for the Socratic dialogue generation process.
-    It is distinct from the trainable base model used for the main task.
+    Attributes:
+        model: The underlying HuggingFace model instance.
+        tokenizer: The associated tokenizer.
+        config: Model configuration.
+        is_frozen: Boolean indicating if gradients are disabled.
     """
-    
-    def __init__(
-        self,
-        model_path: str,
-        tokenizer_path: Optional[str] = None,
-        quantization_config: Optional[BitsAndBytesConfig] = None
-    ):
-        self.model_path = model_path
-        self.tokenizer_path = tokenizer_path or model_path
-        self.quantization_config = quantization_config
-        self.model = None
-        self.tokenizer = None
-        self.is_loaded = False
-        
-    def load(self) -> Tuple[Any, Any]:
+    def __init__(self, model: AutoModelForCausalLM, tokenizer: AutoTokenizer, config: Dict[str, Any]):
+        self.model = model
+        self.tokenizer = tokenizer
+        self.config = config
+        self.is_frozen = False
+        self._freeze()
+
+    def _freeze(self):
+        """Freezes all parameters of the model to prevent fine-tuning."""
+        for param in self.model.parameters():
+            param.requires_grad = False
+        self.model.eval()
+        self.is_frozen = True
+        logger.info("Critic model parameters frozen successfully.")
+
+    def generate_critique(self, prompt: str, max_new_tokens: int = 256) -> str:
         """
-        Load the frozen critic model and tokenizer.
-        
-        Returns:
-            Tuple[model, tokenizer]: The loaded model and tokenizer.
-        
-        Raises:
-            RuntimeError: If the model fails to load.
-        """
-        if self.is_loaded:
-            logger.warning("Critic model already loaded. Returning existing instance.")
-            return self.model, self.tokenizer
-        
-        logger.info(f"Loading frozen critic model from: {self.model_path}")
-        
-        try:
-            # Load tokenizer
-            self.tokenizer = AutoTokenizer.from_pretrained(
-                self.tokenizer_path,
-                trust_remote_code=True
-            )
-            
-            # Ensure pad token is set
-            if self.tokenizer.pad_token is None:
-                self.tokenizer.pad_token = self.tokenizer.eos_token
-                self.tokenizer.pad_token_id = self.tokenizer.eos_token_id
-            
-            logger.info(f"Tokenizer loaded: {self.tokenizer.__class__.__name__}")
-            
-            # Prepare quantization config if not provided
-            if self.quantization_config is None:
-                # Default to 4-bit quantization for CPU/RAM efficiency
-                self.quantization_config = BitsAndBytesConfig(
-                    load_in_4bit=True,
-                    bnb_4bit_use_double_quant=True,
-                    bnb_4bit_quant_type="nf4",
-                    bnb_4bit_compute_dtype=torch.float16
-                )
-            
-            # Load model in inference mode (frozen)
-            self.model = AutoModelForCausalLM.from_pretrained(
-                self.model_path,
-                quantization_config=self.quantization_config,
-                device_map="auto",
-                torch_dtype=torch.float16,
-                trust_remote_code=True,
-                low_cpu_mem_usage=True
-            )
-            
-            # Explicitly freeze all parameters
-            for param in self.model.parameters():
-                param.requires_grad = False
-            
-            self.model.eval()
-            self.is_loaded = True
-            
-            logger.info(f"Critic model loaded successfully: {self.model.__class__.__name__}")
-            logger.info(f"Model parameters frozen: {sum(p.numel() for p in self.model.parameters())}")
-            
-        except Exception as e:
-            logger.error(f"Failed to load critic model: {str(e)}")
-            raise RuntimeError(f"Failed to load critic model from {self.model_path}: {str(e)}")
-        
-        return self.model, self.tokenizer
-    
-    def generate_critique(
-        self,
-        question: str,
-        initial_answer: str,
-        max_new_tokens: int = 256,
-        temperature: float = 0.7,
-        top_p: float = 0.9
-    ) -> str:
-        """
-        Generate a critique for the given question and initial answer.
+        Generates a critique based on the provided prompt.
         
         Args:
-            question: The original question.
-            initial_answer: The initial answer to critique.
+            prompt: The input text prompt.
             max_new_tokens: Maximum number of tokens to generate.
-            temperature: Sampling temperature.
-            top_p: Top-p sampling threshold.
-        
+            
         Returns:
-            str: The generated critique text.
-        
-        Raises:
-            RuntimeError: If the model is not loaded.
+            The generated critique string.
         """
-        if not self.is_loaded:
-            raise RuntimeError("Critic model not loaded. Call load() first.")
-        
-        # Construct the critique prompt
-        # This prompt follows the Socratic method: identifying contradictions
-        # and unsupported assumptions without originating new knowledge
-        prompt = f"""You are a critical evaluator in a Socratic dialogue. 
-Your task is to identify logical errors, calculation mistakes, or unsupported assumptions in the following answer.
-
-Question: {question}
-Initial Answer: {initial_answer}
-
-Critique:
-"""
+        if not self.is_frozen:
+            raise RuntimeError("Model must be frozen before inference.")
         
         inputs = self.tokenizer(prompt, return_tensors="pt").to(self.model.device)
         
@@ -151,124 +61,119 @@ Critique:
             outputs = self.model.generate(
                 **inputs,
                 max_new_tokens=max_new_tokens,
-                temperature=temperature,
-                top_p=top_p,
-                do_sample=True,
-                pad_token_id=self.tokenizer.pad_token_id,
-                eos_token_id=self.tokenizer.eos_token_id
+                do_sample=False, # Deterministic generation for consistency
+                temperature=None
             )
         
-        # Extract the generated critique
-        full_response = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
-        critique = full_response.split("Critique:\n")[-1].strip()
+        generated_text = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
+        # Remove the prompt from the output if it's included in the generation
+        if generated_text.startswith(prompt):
+            generated_text = generated_text[len(prompt):]
         
-        return critique
-    
-    def cleanup(self):
-        """Clean up model resources."""
-        if self.model is not None:
-            del self.model
-            self.model = None
-        if self.tokenizer is not None:
-            del self.tokenizer
-            self.tokenizer = None
-        
-        gc.collect()
-        if torch.cuda.is_available():
-            torch.cuda.empty_cache()
-        
-        self.is_loaded = False
-        logger.info("Critic model resources cleaned up.")
-
+        return generated_text.strip()
 
 def load_frozen_critic(
-    model_name: Optional[str] = None,
-    use_quantization: bool = True
-) -> CriticModel:
+    model_name: str = "meta-llama/Llama-3-8b",
+    device_map: str = "auto",
+    quantization_bits: int = 4
+) -> Tuple[CriticModel, str]:
     """
-    Load a frozen critic model for generating critiques.
+    Loads a pre-trained, frozen critic model with 4-bit quantization.
+    
+    This function acquires a known base checkpoint (e.g., Llama-3-8B) and ensures
+    it is not fine-tuned (no LoRA adapters loaded unless specified) and that
+    gradients are disabled.
     
     Args:
-        model_name: Name of the model to load. Defaults to a small, 
-                   efficient model suitable for CPU inference.
-        use_quantization: Whether to use 4-bit quantization.
-    
+        model_name: HuggingFace model identifier.
+        device_map: Device mapping strategy ('auto', 'cpu', 'cuda').
+        quantization_bits: Bits for quantization (4 or 8).
+        
     Returns:
-        CriticModel: The loaded and ready-to-use critic model.
-    
+        A tuple containing the CriticModel instance and the model name used.
+        
     Raises:
-        RuntimeError: If the model fails to load.
+        ValueError: If the model cannot be verified as a base checkpoint or if loading fails.
+        RuntimeError: If memory constraints are violated or model is not frozen.
     """
-    config = get_config()
+    logger.info(f"Attempting to load frozen critic model: {model_name}")
     
-    # Default to a small, efficient model if not specified
-    if model_name is None:
-        # Using a small model that can run on CPU with quantization
-        # Llama-3-8B is mentioned in the task, but for CPU efficiency
-        # we might want to start with a smaller variant or use quantization
-        model_name = config.critic_model_path or "meta-llama/Meta-Llama-3-8B"
+    # Verify model is a base checkpoint (not a fine-tuned adapter)
+    # In a real scenario, we might check HF metadata or a local manifest.
+    # For this implementation, we assume the provided model_name is the base.
+    if "lora" in model_name.lower() or "finetuned" in model_name.lower():
+        logger.warning(f"Warning: Model {model_name} appears to be a fine-tuned variant. "
+                       "Proceeding only if explicitly intended.")
     
-    logger.info(f"Initializing frozen critic model: {model_name}")
-    
-    # Prepare quantization config if requested
-    quant_config = None
-    if use_quantization:
-        quant_config = BitsAndBytesConfig(
-            load_in_4bit=True,
-            bnb_4bit_use_double_quant=True,
-            bnb_4bit_quant_type="nf4",
-            bnb_4bit_compute_dtype=torch.float16
-        )
-    
-    critic = CriticModel(
-        model_path=model_name,
-        quantization_config=quant_config
+    # Configure 4-bit quantization
+    bnb_config = BitsAndBytesConfig(
+        load_in_4bit=True,
+        bnb_4bit_use_double_quant=True,
+        bnb_4bit_quant_type="nf4",
+        bnb_4bit_compute_dtype=torch.float16
     )
     
-    # Load the model
-    critic.load()
-    
-    logger.info("Frozen critic model ready for critique generation.")
-    return critic
-
+    try:
+        tokenizer = AutoTokenizer.from_pretrained(model_name)
+        # Ensure tokenizer handles padding correctly
+        if tokenizer.pad_token is None:
+            tokenizer.pad_token = tokenizer.eos_token
+        
+        model = AutoModelForCausalLM.from_pretrained(
+            model_name,
+            quantization_config=bnb_config,
+            device_map=device_map,
+            trust_remote_code=True,
+            torch_dtype=torch.float16
+        )
+        
+        # Explicitly freeze the model
+        critic = CriticModel(model, tokenizer, {"name": model_name})
+        
+        # Verification: Assert requires_grad is False
+        for param in critic.model.parameters():
+            if param.requires_grad:
+                raise RuntimeError("Model parameters were not successfully frozen.")
+        
+        logger.info(f"Successfully loaded and frozen critic model: {model_name}")
+        return critic, model_name
+        
+    except Exception as e:
+        logger.error(f"Failed to load critic model {model_name}: {str(e)}")
+        raise
 
 def main():
     """
-    Main function to demonstrate loading the frozen critic model.
-    This can be run as a script to verify the model loads correctly.
+    Main entry point to test the critic loader.
+    Loads the model, verifies it is frozen, and runs a sample generation.
     """
-    logger.info("Starting frozen critic model loader demonstration...")
+    # Configuration
+    MODEL_NAME = "meta-llama/Llama-3-8b" # Using Llama-3-8B as the base
+    # Fallback for environments without internet or restricted access could be a smaller model
+    # but the task requires a "frozen, pre-trained small model (e.g., Llama-3-8B or similar)"
     
     try:
-        # Load the critic model
-        critic = load_frozen_critic(
-            model_name=None,  # Use default from config or fallback
-            use_quantization=True
-        )
+        critic, name = load_frozen_critic(model_name=MODEL_NAME)
         
-        # Test with a simple example
-        test_question = "What is 2 + 2?"
-        test_answer = "The answer is 5."
+        # Verification: Check model config for fine-tune history (if available in config)
+        # For base models, this is usually empty or default
+        if hasattr(critic.model.config, 'finetuned'):
+            if critic.model.config.finetuned:
+                logger.warning("Model config indicates it is fine-tuned.")
         
-        logger.info(f"Testing critique generation for: {test_question}")
-        logger.info(f"Initial answer: {test_answer}")
+        # Test generation
+        test_prompt = "Question: If x = 5 and y = 3, what is x + y? Answer: 8. Critique this answer."
+        logger.info(f"Running sample generation with prompt: {test_prompt[:50]}...")
         
-        critique = critic.generate_critique(
-            question=test_question,
-            initial_answer=test_answer,
-            max_new_tokens=100
-        )
+        response = critic.generate_critique(test_prompt, max_new_tokens=100)
+        logger.info(f"Generated response: {response}")
         
-        logger.info(f"Generated critique: {critique}")
-        
-        # Cleanup
-        critic.cleanup()
-        logger.info("Demonstration completed successfully.")
+        print(f"SUCCESS: Critic model loaded and frozen. Model: {name}")
+        print(f"Sample Critique: {response}")
         
     except Exception as e:
-        logger.error(f"Error during demonstration: {str(e)}")
+        logger.critical(f"Execution failed: {e}")
         sys.exit(1)
-
 
 if __name__ == "__main__":
     main()

@@ -1,1 +1,1 @@
-"""Analysis modules."""
+"""Analysis module."""

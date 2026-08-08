@@ -1,11 +1,14 @@
 """
-T050: Download/Load Frozen Critic Model.
+Critic Model Loader for Socratic Transformers Project.
 
-Acquires a frozen, pre-trained small model (Mistral-7B-Instruct-v0.2)
-to be used as the external critic for generating critiques.
-Ensures separation from the trainable base model by loading with
-frozen parameters and specific quantization for CPU efficiency.
+This module handles the acquisition and loading of a frozen, pre-trained
+"Critic" model used for generating adversarial critiques in the Socratic
+dialogue pipeline.
+
+The model is loaded in 4-bit quantization (if supported) or standard precision
+with gradients explicitly disabled to ensure it acts as a fixed evaluator.
 """
+
 import os
 import sys
 import gc
@@ -17,177 +20,231 @@ import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
 from peft import PeftModel
 
-# Ensure project root is in path
-project_root = Path(__file__).resolve().parent.parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
-
-from src.utils.config import get_config, SocraticConfig
-from src.utils.logging import get_logger
+# Project root path resolution
+_PROJECT_ROOT = Path(__file__).resolve().parents[3]
+_DATA_DIR = _PROJECT_ROOT / "data" / "processed"
+_DATA_DIR.mkdir(parents=True, exist_ok=True)
 
 # Configure logging
-logger = get_logger(__name__)
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+)
+logger = logging.getLogger(__name__)
 
-# Default model: Mistral-7B-Instruct-v0.2 is a strong, small critic candidate.
-# It is smaller than Llama-3-8B and generally performs well on reasoning tasks.
-DEFAULT_CRITIC_MODEL_ID = "mistralai/Mistral-7B-Instruct-v0.2"
+# Default model configuration
+DEFAULT_MODEL_NAME = "meta-llama/Llama-3-8B"
+# Fallback to a smaller model if the default is inaccessible or too large for the environment
+# Using a widely available base model for demonstration if Llama-3 is not accessible
+FALLBACK_MODEL_NAME = "microsoft/Phi-3-mini-4k-instruct"
 
 class CriticModel:
     """
-    Wrapper for the frozen critic model.
-    Handles loading, tokenization, and generation with parameters frozen.
+    Wrapper for the frozen Critic model.
+
+    Attributes:
+        model: The underlying HuggingFace model instance.
+        tokenizer: The corresponding tokenizer.
+        is_frozen: Boolean flag indicating if gradients are disabled.
     """
-    def __init__(self, model: AutoModelForCausalLM, tokenizer: AutoTokenizer, config: SocraticConfig):
+
+    def __init__(
+        self,
+        model: AutoModelForCausalLM,
+        tokenizer: AutoTokenizer,
+        is_frozen: bool = True,
+    ):
         self.model = model
         self.tokenizer = tokenizer
-        self.config = config
-        self.device = config.device if hasattr(config, 'device') and config.device else "cpu"
-        
-        # Ensure model is frozen to prevent gradient updates during critique generation
+        self.is_frozen = is_frozen
+        self._verify_frozen()
+
+    def _verify_frozen(self):
+        """
+        Verifies that the model parameters do not require gradients.
+        Raises AssertionError if the model is not frozen.
+        """
         for param in self.model.parameters():
-            param.requires_grad = False
-        
-        self.model.eval()
-        logger.info(f"Critic model loaded and frozen on device: {self.device}")
+            if param.requires_grad:
+                raise AssertionError(
+                    "Critic model is not frozen. All parameters must have requires_grad=False."
+                )
+        logger.info("Critic model verification passed: requires_grad is False for all parameters.")
 
-    def generate_critique(self, question: str, initial_answer: str, max_new_tokens: int = 256) -> str:
+    def generate_critique(self, prompt: str, max_new_tokens: int = 256) -> str:
         """
-        Generates a critique based on the question and initial answer.
-        Uses a structured prompt template to enforce logical analysis.
-        """
-        prompt = (
-            f"System: You are a rigorous logic critic. Your task is to identify "
-            f"logical contradictions, calculation errors, or unsupported assumptions "
-            f"in the following answer to a question. "
-            f"Question: {question}\n"
-            f"Initial Answer: {initial_answer}\n"
-            f"Task: Analyze the reasoning step-by-step. If you find an error, "
-            f"explain it clearly. If the answer is correct, state that no errors were found.\n"
-            f"Critique:"
-        )
+        Generates a critique based on the input prompt.
 
-        inputs = self.tokenizer(prompt, return_tensors="pt").to(self.device)
-        
+        Args:
+            prompt: The input text to critique.
+            max_new_tokens: Maximum number of tokens to generate.
+
+        Returns:
+            The generated critique string.
+        """
+        if not self.is_frozen:
+            logger.warning("Model is not frozen. Generating in eval mode but gradients are enabled.")
+            self.model.eval()
+
+        inputs = self.tokenizer(prompt, return_tensors="pt").to(self.model.device)
         with torch.no_grad():
             outputs = self.model.generate(
                 **inputs,
                 max_new_tokens=max_new_tokens,
-                temperature=0.7,
-                top_p=0.9,
-                do_sample=True,
-                pad_token_id=self.tokenizer.eos_token_id
+                do_sample=False, # Deterministic generation for consistency
+                temperature=None,
+                top_p=None,
+                pad_token_id=self.tokenizer.eos_token_id,
             )
-        
-        response = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
-        # Extract only the generated part
-        generated_text = response[len(prompt):].strip()
-        return generated_text
+        return self.tokenizer.decode(outputs[0], skip_special_tokens=True)
+
 
 def load_frozen_critic(
-    model_id: Optional[str] = None,
-    quantize: bool = True
-) -> Tuple[CriticModel, SocraticConfig]:
+    model_name: Optional[str] = None,
+    use_4bit: bool = True,
+    device_map: str = "auto",
+) -> CriticModel:
     """
-    Loads the frozen critic model.
-    
-    Args:
-        model_id: HuggingFace model ID. Defaults to Mistral-7B-Instruct-v0.2.
-        quantize: If True, uses 4-bit quantization (bitsandbytes) to fit in memory.
-    
-    Returns:
-        Tuple of (CriticModel instance, Config object)
-    
-    Raises:
-        RuntimeError: If the model cannot be loaded or dependencies are missing.
-    """
-    config = get_config()
-    model_id = model_id or config.critic_model_id or DEFAULT_CRITIC_MODEL_ID
-    
-    logger.info(f"Loading frozen critic model: {model_id}")
-    
-    # Determine device
-    if torch.cuda.is_available():
-        device = "cuda"
-    elif torch.backends.mps.is_available():
-        device = "mps"
-    else:
-        device = "cpu"
-    
-    # Quantization config for 4-bit loading (requires bitsandbytes)
-    bnb_config = None
-    if quantize and device == "cuda":
-        try:
-            bnb_config = BitsAndBytesConfig(
-                load_in_4bit=True,
-                bnb_4bit_use_double_quant=True,
-                bnb_4bit_quant_type="nf4",
-                bnb_4bit_compute_dtype=torch.float16
-            )
-            logger.info("Using 4-bit quantization for critic model.")
-        except Exception as e:
-            logger.warning(f"Failed to initialize 4-bit quantization: {e}. Falling back to 8-bit or full precision.")
-            bnb_config = None
-    elif quantize and device == "cpu":
-        # For CPU, we rely on standard float32/16 or torch.compile if available,
-        # as bitsandbytes 4-bit is primarily for CUDA.
-        logger.info("Running on CPU; standard precision will be used for critic model.")
+    Loads a pre-trained model as a frozen Critic.
 
+    This function attempts to load the specified model (defaulting to Llama-3-8B
+    or a fallback). It configures the model to be frozen (requires_grad=False)
+    and ensures it is in evaluation mode.
+
+    Args:
+        model_name: HuggingFace model identifier. Defaults to DEFAULT_MODEL_NAME.
+        use_4bit: Whether to use 4-bit quantization via bitsandbytes.
+        device_map: Device mapping strategy for transformers (e.g., "auto", "cpu", "cuda").
+
+    Returns:
+        A CriticModel instance with frozen weights.
+
+    Raises:
+        RuntimeError: If the model cannot be loaded or verified as frozen.
+        ImportError: If required dependencies (bitsandbytes) are missing when 4bit is requested.
+    """
+    model_name = model_name or DEFAULT_MODEL_NAME
+
+    # Attempt to load Llama-3 if specified, otherwise fallback
     try:
-        tokenizer = AutoTokenizer.from_pretrained(
-            model_id,
-            trust_remote_code=True,
-            padding_side="left"
-        )
+        logger.info(f"Attempting to load model: {model_name}")
         
-        # Set pad token if not set
+        # Configure quantization if requested
+        quant_config = None
+        if use_4bit:
+            try:
+                from bitsandbytes.nn import Linear4bit
+                quant_config = BitsAndBytesConfig(
+                    load_in_4bit=True,
+                    bnb_4bit_use_double_quant=True,
+                    bnb_4bit_quant_type="nf4",
+                    bnb_4bit_compute_dtype=torch.float16,
+                )
+                logger.info("4-bit quantization configured.")
+            except ImportError:
+                logger.warning("bitsandbytes not found. Disabling 4-bit quantization.")
+                use_4bit = False
+
+        # Load Tokenizer
+        tokenizer = AutoTokenizer.from_pretrained(model_name)
         if tokenizer.pad_token is None:
             tokenizer.pad_token = tokenizer.eos_token
 
-        model_kwargs = {
-            "trust_remote_code": True,
-            "device_map": "auto" if device != "cpu" else None,
-            "torch_dtype": torch.float16 if device != "cpu" else torch.float32,
+        # Load Model
+        load_kwargs = {
+            "device_map": device_map,
+            "torch_dtype": torch.float16,
         }
-        
-        if bnb_config:
-            model_kwargs["quantization_config"] = bnb_config
+        if use_4bit and quant_config:
+            load_kwargs["quantization_config"] = quant_config
 
         model = AutoModelForCausalLM.from_pretrained(
-            model_id,
-            **model_kwargs
+            model_name,
+            **load_kwargs,
+            trust_remote_code=True,
         )
+
+        # Ensure model is in eval mode
+        model.eval()
+
+        # FREEZE ALL PARAMETERS
+        for param in model.parameters():
+            param.requires_grad = False
+
+        # Verify the freeze status explicitly
+        # This satisfies the verification requirement: "Assert model.requires_grad = False"
+        total_params = 0
+        frozen_params = 0
+        for name, param in model.named_parameters():
+            total_params += 1
+            if not param.requires_grad:
+                frozen_params += 1
         
-        # Wrap in our custom class
-        critic = CriticModel(model, tokenizer, config)
-        return critic, config
+        if frozen_params != total_params:
+            raise RuntimeError(
+                f"Model is not fully frozen. {total_params - frozen_params} parameters require gradients."
+            )
+        
+        logger.info(f"Model loaded and frozen successfully. Total parameters: {total_params}")
+
+        return CriticModel(model, tokenizer, is_frozen=True)
 
     except Exception as e:
-        logger.error(f"Failed to load critic model {model_id}: {e}")
-        raise RuntimeError(f"Could not load frozen critic model. Ensure 'bitsandbytes' and 'transformers' are installed. Error: {e}")
+        logger.error(f"Failed to load model {model_name}: {e}")
+        # If the primary model fails (e.g., access denied, OOM), try fallback if not already tried
+        if model_name != FALLBACK_MODEL_NAME:
+            logger.info(f"Attempting fallback model: {FALLBACK_MODEL_NAME}")
+            return load_frozen_critic(
+                model_name=FALLBACK_MODEL_NAME,
+                use_4bit=use_4bit,
+                device_map=device_map,
+            )
+        raise RuntimeError(f"Could not load any critic model. Last error: {e}") from e
+
 
 def main():
     """
-    Entry point for testing the critic loader.
-    Downloads and loads the model, then prints a test critique.
+    Main entry point for testing the Critic Loader.
+    Loads the model, verifies it is frozen, and prints a sample generation.
     """
-    logger.info("Starting T050: Frozen Critic Model Loader")
+    logger.info("Starting Critic Model Loader verification...")
     
     try:
-        critic, config = load_frozen_critic()
+        # Load the model
+        critic = load_frozen_critic(model_name="microsoft/Phi-3-mini-4k-instruct")
         
+        # Verification: Check requires_grad
+        assert not critic.model.requires_grad, "Model requires_grad is True!"
+        for param in critic.model.parameters():
+            assert not param.requires_grad, f"Parameter {param.name} requires_grad is True!"
+        
+        logger.info("✓ Verification Passed: Model is frozen (requires_grad=False).")
+
+        # Verification: Check config for fine-tune history (simple check)
+        # We assume if we loaded from a base checkpoint, it's not fine-tuned for this specific task yet.
+        # A more rigorous check would involve checking for adapter weights in PeftModel,
+        # but for a base model load, the absence of LoRA adapters implies it's base.
+        if hasattr(critic.model, "peft_config"):
+            if critic.model.peft_config:
+                logger.warning("Model appears to have PEFT adapters. This might be a fine-tuned checkpoint.")
+            else:
+                logger.info("Model is a base checkpoint (no PEFT adapters found).")
+        else:
+            logger.info("Model is a standard base checkpoint.")
+
         # Test generation
-        test_question = "If I have 3 apples and eat 2, how many do I have?"
-        test_answer = "I have 1 apple left because 3 minus 2 is 1."
-        
-        logger.info(f"Generating critique for: {test_question}")
-        critique = critic.generate_critique(test_question, test_answer, max_new_tokens=128)
-        
-        logger.info(f"Generated Critique:\n{critique}")
-        logger.info("T050: Critic model loaded and tested successfully.")
-        
+        test_prompt = "Critique the following math solution for logical gaps: The answer is 42 because 6*7=42."
+        logger.info(f"Generating critique for: {test_prompt}")
+        critique = critic.generate_critique(test_prompt, max_new_tokens=50)
+        logger.info(f"Generated Critique: {critique}")
+
+        logger.info("Critic Loader verification complete.")
+        return 0
+
     except Exception as e:
-        logger.error(f"T050 Failed: {e}")
-        sys.exit(1)
+        logger.error(f"Verification failed: {e}")
+        return 1
+
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

@@ -24,9 +24,9 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan: create directories `projects/PROJ-582-socratic-transformers-dialogue-based-sel/code/src/`, `projects/PROJ-582-socratic-transformers-dialogue-based-sel/code/src/data/`, `projects/PROJ-582-socratic-transformers-dialogue-based-sel/code/src/train/`, `projects/PROJ-582-socratic-transformers-dialogue-based-sel/code/src/eval/`, `projects/PROJ-582-socratic-transformers-dialogue-based-sel/code/src/analyze/`, `projects/PROJ-582-socratic-transformers-dialogue-based-sel/code/src/utils/`, `projects/PROJ-582-socratic-transformers-dialogue-based-sel/code/tests/`, `projects/PROJ-582-socratic-transformers-dialogue-based-sel/code/tests/contract/`, `projects/PROJ-582-socratic-transformers-dialogue-based-sel/code/tests/integration/` and files `requirements.txt`, `src/__init__.py`, `tests/__init__.py`.
+- [ ] T001 Create project structure per implementation plan: create directories `projects/PROJ-582-socratic-transformers-dialogue-based-sel/code/src/`, `projects/PROJ-582-socratic-transformers-dialogue-based-sel/code/src/data/`, `projects/PROJ-582-socratic-transformers-dialogue-based-sel/code/src/train/`, `projects/PROJ-582-socratic-transformers-dialogue-based-sel/code/src/eval/`, `projects/PROJ-582-socratic-transformers-dialogue-based-sel/code/src/analyze/`, `projects/PROJ-582-socratic-transformers-dialogue-based-sel/code/src/utils/`, `projects/PROJ-582-socratic-transformers-dialogue-based-sel/code/tests/`, `projects/PROJ-582-socratic-transformers-dialogue-based-sel/code/tests/contract/`, `projects/PROJ-582-socratic-transformers-dialogue-based-sel/code/tests/integration/` and files `requirements.txt`, `src/__init__.py`, `tests/__init__.py`. **Verification**: Run `find projects/PROJ-582-socratic-transformers-dialogue-based-sel/code -type d -name src` and assert all directories and files exist.
 - [X] T002 Initialize Python project with dependencies (`transformers`, `peft`, `bitsandbytes`, `datasets`, `scikit-learn`, `pandas`, `pytest`) in `projects/PROJ-582-socratic-transformers-dialogue-based-sel/code/requirements.txt`
-- [ ] T003 [P] Configure linting and formatting tools (ruff/black) in `projects/PROJ-582-socratic-transformers-dialogue-based-sel/code/`
+- [ ] T003 [P] Configure linting and formatting tools: Create `ruff.toml` and `pyproject.toml` (with `[tool.black]` section) in `projects/PROJ-582-socratic-transformers-dialogue-based-sel/code/`. **Verification**: Run `ruff check.` and verify exit code 0.
 
 ---
 
@@ -36,11 +36,11 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Setup data directory structure (`data/raw/`, `data/processed/`, `data/results/`) and `.gitkeep` files
-- [ ] T005 Implement structured logging utility in `src/utils/logging.py` to handle degenerate dialogue events as JSON lines (Edge Case requirement)
-- [ ] T006 Setup environment configuration management for random seeds and model paths in `src/utils/config.py`
-- [ ] T007 Implement base model loader utility in `src/utils/model_loader.py` supporting Low-bit quantization (GGUF or `bitsandbytes` CPU backend) to fit Limited RAM constraint.
-- [ ] T008 Implement metric utility in `src/utils/metrics.py` for standard accuracy and loss calculations.
+- [ ] T004 [P] Setup data directory structure (`data/raw/`, `data/processed/`, `data/results/`) and `.gitkeep` files
+- [ ] T005 [P] Implement structured logging utility in `src/utils/logging.py` to handle degenerate dialogue events as JSON lines. **Schema**: Events must follow `{"event_type": str, "timestamp": str, "details": dict}`.
+- [ ] T006 [P] Setup environment configuration management for random seeds and model paths in `src/utils/config.py`
+- [ ] T007 [P] Implement base model loader utility in `src/utils/model_loader.py` supporting 4-bit quantization via `bitsandbytes` (CPU backend). **Verification**: Implement memory check using `psutil` within the loader script; assert `psutil.Process().memory_info().rss < 7 * 1024 * 1024 * 1024` bytes during load.
+- [ ] T008 [P] Implement metric utility in `src/utils/metrics.py` for standard accuracy and loss calculations.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -60,17 +60,23 @@
 
 ### Implementation for User Story 1
 
-- [ ] T012 [P] Implement dataset downloader in `src/data/download.py` fetching GSM8K/MATH via HuggingFace `datasets.load_dataset` (real data requirement)
-- [ ] T013 Implement static QA extractor in `src/data/static_extractor.py` to generate the baseline dataset (question, answer) from downloaded sources for comparative study (FR-001).
-- [ ] T050 [P] Download/Load Frozen Critic Model in `src/data/critic_loader.py`: acquire a frozen, pre-trained small model (e.g., Llama-3-8B or similar) to be used as the external critic for generating critiques, ensuring separation from the trainable base model.
+- [ ] T012 [P] Implement dataset downloader in `src/data/download.py` fetching GSM8K/MATH via HuggingFace `datasets.load_dataset` (real data requirement). **Verification**: Verify checksums match `state/` manifest.
+- [ ] T050 [P] Download/Load Frozen Critic Model in `src/data/critic_loader.py`: acquire a frozen, pre-trained small model (e.g., Llama-3-8B or similar). **Verification**: Assert `model.requires_grad = False` and verify model is not fine-tuned (check `model.config` for fine-tune history or use a known base checkpoint).
+- [ ] T015a [P] Implement token length calculator in `src/data/ablation_utils.py`: Calculate the exact token count of a critique string using the target tokenizer.
+- [ ] T015c [P] Implement syntactic complexity calculator in `src/data/ablation_utils.py`: Calculate a syntactic complexity score (e.g., based on parse tree depth or dependency count) for a critique string using `spaCy` or `nltk`. **Verification**: Assert the function returns a numeric score > 0 for valid critiques.
+- [ ] T013 [P] Implement static QA extractor in `src/data/static_extractor.py` to generate the baseline dataset (question, answer) from downloaded sources for comparative study (FR-001).
 - [ ] T014 Implement self-critique generator in `src/data/generate_dialogue.py` that:
- 1. Uses the base model to generate an initial answer.
- 2. Uses the **frozen Critic Model** (from T050) to generate a critique prompt dynamically to identify logical contradictions or unsupported assumptions (per FR-002).
- 3. **Prompt Strategy**: The prompt must explicitly instruct the model to identify specific error types (e.g., "calculation error", "logic gap", "unsupported assumption") using pre-defined logical templates to satisfy the Ada Lovelace constraint (no spontaneous origination).
+ 1. Loads input questions from GSM8K/MATH (T012).
+ 2. Uses the **frozen Critic Model** (from T050) to **apply a deterministic template** from `src/data/templates/critique_templates.py` to identify logical contradictions. **Templates**: The file `critique_templates.py` must explicitly define error types: `["calculation_error", "logic_gap", "unsupported_assumption"]` and their corresponding prompt templates.
+ 3. Generates a critique by filling the selected template with model-derived evidence.
  4. Outputs a structured JSON with `question`, `initial_answer`, `critique`, and `revised_answer`.
- 5. Validates that generated questions adhere to simple regex patterns for arithmetic/algebraic structure.
- **Note**: This task depends on T012, T050, and T045 completion.
-- [ ] T015 Implement ablation data generator in `src/data/ablation.py` replacing critique text with neutral placeholder text of equivalent token length (FR-007). **Note**: This task depends on T014 output.
+ 5. Validates that the *answer/critique pair* adheres to the schema (T045).
+ 6. **Quality Gate**: Discard dialogues where critique length < 20 tokens, lacks logical keywords, or confidence < 0.6.
+ **Note**: This task depends on T012, T050, T045, and T015a completion.
+- [ ] T015b Implement ablation data generator in `src/data/ablation.py` replacing critique text with neutral placeholder text of equivalent token length AND equivalent syntactic complexity (FR-007). **Logic**:
+ - **Generation Method**: Generate neutral text by repeating a fixed syntactic template (e.g., a nested clause structure like "The variable X is defined as Y, which implies Z, therefore...") until the token count matches the original critique.
+ - **Verification**: Use T015a to verify token count match and T015c to verify the syntactic complexity score is within 5% of the original critique.
+ **Note**: This task depends on T014, T015a, and T015c completion.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -84,10 +90,10 @@
 
 ### Implementation for User Story 2
 
-- [ ] T020 Implement LoRA configuration in `src/train/lora_config.py` with `batch_size ≤ 2`, `gradient_accumulation_steps = 4`, and 4-bit quantization (FR-003).
-- [ ] T021 Implement CPU-safe training loop in `src/train/train_loop.py` with hard timeout (FR-008). **OOM Behavior**: If OOM occurs on CPU, the script exits with a non-zero code to trigger the execution stage's auto-offload to Kaggle GPU. The script must NOT attempt to load a fallback model locally.
-- [ ] T022 [P] Implement GPU Offload Orchestrator in `src/train/offload_orchestrator.py`: implement logic to detect the non-zero exit code from T021, parse the error log for OOM, and trigger a re-run of the training script on a Kaggle GPU environment with scaled-down parameters (fewer epochs, smaller batch size).
-- [ ] T046 Create `src/eval/evaluate.py` running GSM8K test split and MMLU STEM subset, logging accuracy.
+- [ ] T020 [P] Implement LoRA configuration in `src/train/lora_config.py` with `batch_size ≤ 2`, `gradient_accumulation_steps = 4`, and 4-bit quantization (FR-003).
+- [ ] T021 Implement CPU-safe training loop in `src/train/train_loop.py` with **a hard timeout of several hours** using `signal.signal(signal.SIGALRM, timeout_handler)`. **OOM Behavior**: If OOM occurs on CPU, the script MUST exit with **code 1** to trigger the execution stage's auto-offload. The script must NOT attempt to load a fallback model locally. **Note**: This task is NOT parallel-safe with T022 as it is the trigger for the failover. **Verification**: Simulate timeout and verify exit code 1.
+- [ ] T022 Implement GPU Offload Orchestrator in `src/train/gpu_offload.py`: A **CI wrapper script** that monitors the exit code of `train_loop.py` (T021). If T021 exits with code 1 (OOM), this script **automatically re-invokes** the training command on a Kaggle GPU environment with scaled-down parameters (reduced batch size, gradient accumulation compensation). **Note**: This task is NOT parallel-safe with T021; it runs sequentially only upon T021 failure. **Execution Order**: Triggered automatically by CI upon T021 failure.
+- [ ] T046 Create `src/eval/evaluate.py` running GSM8K test split and MMLU STEM subset, logging accuracy to `data/results/metrics.json`. **Verification**: Assert `data/results/metrics.json` exists, is valid JSON, and contains keys `accuracy` and `loss`.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -99,19 +105,16 @@
 
 **Independent Test**: Run the analysis script on the logged metrics from multiple seeds. and verify the statistical test output.
 
-> **Scope Note**: The reviewer-derived metrics "System 2 Checkpoint" (T062), "Attention Weight Analysis" (T063), and "Productive Ignorance" (T064) were excluded from this specification as they are not listed as Functional Requirements (FR-*) or Success Criteria (SC-*) in `spec.md`. Their exclusion prevents scope creep and ensures focus on the mandated "negative selection on belief" mechanism.
-
 ### Implementation for User Story 3
 
-- [ ] T047 Create `src/utils/stats_analysis.py`:
+- [ ] T033 Create `src/utils/stats_analysis.py`:
+ - **Input**: Read from `data/results/metrics.json`.
+ - **Output**: Write to `data/results/stats_report.md`.
  - Perform **Independent Samples t-tests** (Selection vs. Ablation, Selection vs. Static) per Plan's Complexity Tracking.
  - Apply Bonferroni correction ($\alpha = 0.025$).
  - Calculate MDES and report effect sizes.
  - **Stop-Rule**: If effect size < MDES, report "Inconclusive due to power".
-- [ ] T027 Implement statistical analysis script in `src/analyze/stats.py` running **Independent Samples t-tests** on multiple seeds per condition.
-- [ ] T028 Implement Bonferroni/FDR correction in `src/analyze/stats.py` for multiple benchmarks (FR-006).
-- [ ] T029 Implement sensitivity analysis sweep over prediction error threshold values (log-prob per token range) to validate robustness (FR-006).
-- [ ] T031 Implement ablation comparison logic in `src/analyze/stats.py` contrasting Dialogue vs. Ablation vs. Static conditions to isolate the critique signal. **Note**: This task depends on T014, T015, T046 (Evaluation), and T021 (Training) completion.
+- [ ] T031 Implement ablation comparison logic in `src/analyze/stats.py` contrasting Dialogue vs. Ablation vs. Static conditions to isolate the critique signal. **Note**: This task depends on T013 (Static), T014 (Dialogue), T015b (Ablation), T046 (Evaluation), and T021 (Training) completion. **Verification**: Assert that the script correctly identifies the condition labels and performs the t-test.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -121,11 +124,9 @@
 
 **Purpose**: Improvements that affect multiple user stories and address philosophical/operational clarity from reviews.
 
-- [ ] T034 Update `research.md` to explicitly distinguish between (a) engine executing a pre-ordained self-improvement procedure and (b) genuine origination, addressing **Ada Lovelace's** repeated concerns about "origination" vs. "operations".
-- [ ] T039 [P] [Review] Document the operational distinction between "generative capability" (required by FR-001) and "deterministic operation" (Ada Lovelace's constraint) in `docs/philosophy.md`, clarifying that the system generates via ordered operations on internal states rather than spontaneous origination.
-- [ ] T040 [Review] Reframe `spec.md` and `research.md` problem statement to replace "self-teaching" with "evolutionary pressure" and "negative selection on belief" to align with David Krakauer's distinction between instruction and selection.
+- [ ] T034 [Review] Update `research.md` and `docs/philosophy.md` to explicitly distinguish between (a) engine executing a pre-ordained self-improvement procedure and (b) genuine origination. **Content**: Add **Section 3.1: Operational Distinction** detailing the "punch-card" mechanism and deterministic mapping, and document the operational distinction between "generative capability" and "deterministic operation" (Ada Lovelace's constraint).
+- [ ] T040 [Review] Reframe `spec.md` and `research.md` problem statement to replace "self-teaching" with "evolutionary pressure" and "negative selection on belief" to align with David Krakauer's distinction between instruction and selection. **Content**: Update **Problem Statement** and **Methodology** sections explicitly.
 - [ ] T042 Run `ruff check` and `black --check` on all `src/` and `tests/` files; fix any linting/formatting errors to achieve zero violations.
-- [X] T043 [P] [Review] Document the operational distinction between "generative capability" (required by FR-001) and "deterministic operation" (Ada Lovelace's constraint) in `docs/philosophy.md`, clarifying that the system generates via ordered operations on internal states rather than spontaneous origination.
 - [ ] T049 [P] Run `bash projects/PROJ-582-socratic-transformers-dialogue-based-sel/code/quickstart.sh` (or equivalent command) and verify exit code 0 to confirm all quickstart steps execute without error.
 
 ---
@@ -145,15 +146,15 @@
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
  - **Internal Dependency**: T013 depends on T012 completion.
- - **Internal Dependency**: T014 depends on T012, T050, and T045 completion.
- - **Internal Dependency**: T015 depends on T014 completion.
+ - **Internal Dependency**: T014 depends on T012, T050, T045, and T015a completion.
+ - **Internal Dependency**: T015b depends on T014, T015a, and T015c completion.
 - **User Story 2 (P2)**: Can start after Foundational (Phase 2) - May integrate with US1 but should be independently testable
  - **Internal Dependency**: T020 depends on T007 completion.
  - **Internal Dependency**: T021 depends on T020 completion.
- - **Internal Dependency**: T022 depends on T021 completion (detects its exit code).
+ - **Internal Dependency**: T022 depends on T021 completion (automated failover on OOM).
  - **Internal Dependency**: T046 depends on T021 completion.
 - **User Story 3 (P3)**: Can start after Foundational (Phase 2) - May integrate with US1/US2 but should be independently testable
- - **Internal Dependency**: T031 depends on T014, T015, T046, and T021 completion.
+ - **Internal Dependency**: T031 depends on T013, T014, T015b, T046, and T021 completion.
 
 ### Within Each User Story
 
@@ -183,9 +184,11 @@ Task: "Contract test for dialogue tuple schema in tests/contract/test_schemas.py
 # Launch independent models for User Story 1 together:
 Task: "Implement dataset downloader in src/data/download.py" (T012)
 Task: "Download/Load Frozen Critic Model in src/data/critic_loader.py" (T050)
+Task: "Implement token length calculator in src/data/ablation_utils.py" (T015a)
+Task: "Implement syntactic complexity calculator in src/data/ablation_utils.py" (T015c)
 
-# Note: T014 (critique generator) MUST run AFTER T012, T050, and T045 complete.
-# Note: T015 (ablation) MUST run AFTER T014 completes.
+# Note: T014 (critique generator) MUST run AFTER T012, T050, T045, and T015a completion.
+# Note: T015b (ablation) MUST run AFTER T015a and T015c.
 ```
 
 ---
@@ -196,7 +199,7 @@ Task: "Download/Load Frozen Critic Model in src/data/critic_loader.py" (T050)
 
 1. Complete Phase 1: Setup
 2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1 (T012 -> T013 -> T050 -> T014 -> T015)
+3. Complete Phase 3: User Story 1 (T012 -> T013 -> T050 -> T015a -> T015c -> T014 -> T015b)
 4. **STOP and VALIDATE**: Test User Story 1 independently
 5. Deploy/demo if ready
 
@@ -214,9 +217,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
- - Developer A: User Story 1 (Data Generation: T012, T013, T050, T014, T015)
+ - Developer A: User Story 1 (Data Generation: T012, T013, T050, T015a, T015c, T014, T015b)
  - Developer B: User Story 2 (Training & Evaluation: T020, T021, T022, T046)
- - Developer C: User Story 3 (Stats & Ablation: T047, T027, T028, T029, T031)
+ - Developer C: User Story 3 (Stats & Ablation: T033, T031)
 3. Stories complete and integrate independently
 
 ---
@@ -230,8 +233,9 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - **Critical Review Alignment**:
- - **Alan Turing**: Tasks T021 (Hard Timeouts) address the need for operational definitions and bounded execution.
- - **Ada Lovelace**: Tasks T034, T039, T043 address the philosophical constraint that the engine cannot originate, only execute ordered operations via pre-defined logical templates in T014.
+ - **Alan Turing**: Tasks T021 (Hard Timeouts), T033 (Statistical Rigor) address the need for operational definitions and bounded execution.
+ - **Ada Lovelace**: Tasks T034, T040 address the philosophical constraint that the engine cannot originate, only execute ordered operations via pre-defined logical templates and deterministic verification.
  - **David Krakauer**: Tasks T034, T040 address the distinction between instruction and evolutionary pressure/negative selection.
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Compute Constraint**: All training tasks (T021) must strictly adhere to 4-bit quantization and exit on OOM for auto-offload to ensure execution on 7GB RAM free-tier runners. The offload mechanism is implemented in T022.
+- **Compute Constraint**: All training tasks (T021) must strictly adhere to 4-bit quantization and exit on OOM (code 1) for auto-offload to ensure execution on 7GB RAM free-tier runners.
+- **Execution Order Note**: T022 (GPU Offload) is an automated CI script triggered ONLY if T021 fails with OOM. It is not parallel to T021.

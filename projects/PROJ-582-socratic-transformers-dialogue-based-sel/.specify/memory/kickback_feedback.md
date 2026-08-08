@@ -4,13 +4,12 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T001` (rejected 1x): declared artifact(s) missing/empty/invalid: src/__init__.py, tests/__init__.py, requirements.txt
-- `T003` (rejected 1x): No configuration files (e.g., `pyproject.toml`, `.ruff.toml`, or Black settings) or any other evidence of ruff/black being set up in `projects/PROJ-582-socratic-transformers-dialogue-based-sel/code/` were provided. The required linting/formatting setup is missing.
-- `T004` (rejected 1x): No evidence of the required `data/raw/`, `data/processed/`, `data/results/` directories or accompanying `.gitkeep` files is present in the provided artifacts; the claim cannot be verified without those concrete files.
-- `T005` (rejected 1x): declared artifact(s) missing/empty/invalid: src/utils/logging.py
-- `T006` (rejected 1x): declared artifact(s) missing/empty/invalid: src/utils/config.py
-- `T007` (rejected 1x): declared artifact(s) missing/empty/invalid: src/utils/model_loader.py
-- `T008` (rejected 1x): declared artifact(s) missing/empty/invalid: src/utils/metrics.py
+- `T012` (rejected 1x): declared artifact(s) missing/empty/invalid: src/data/download.py
+- `T050` (rejected 1x): declared artifact(s) missing/empty/invalid: src/data/critic_loader.py
+- `T013` (rejected 1x): declared artifact(s) missing/empty/invalid: src/data/static_extractor.py
+- `T014` (rejected 1x): declared artifact(s) missing/empty/invalid: src/data/generate_dialogue.py
+- `T020` (rejected 1x): declared artifact(s) missing/empty/invalid: src/train/lora_config.py
+- `T021` (rejected 1x): declared artifact(s) missing/empty/invalid: src/train/train_loop.py
 
 ## Required change
 

@@ -1,295 +1,243 @@
 """
-Model Loader Utility for Socratic Transformers Project.
+Base model loader utility supporting 4-bit quantization via bitsandbytes.
 
-Supports Low-bit quantization (GGUF or bitsandbytes CPU backend) to fit
-Limited RAM constraints (approx. 7GB RAM / 14GB Disk).
-
-This module provides functions to load base models and tokenizers with
-hardware-aware quantization settings, ensuring compatibility with CPU-only
-or memory-constrained environments.
+This module implements memory-constrained model loading for CPU environments,
+ensuring RSS stays below 7GB as per project constraints.
 """
-
-import os
 import gc
 import logging
+import os
+import sys
 from pathlib import Path
-from typing import Optional, Union, Dict, Any, Tuple
+from typing import Any, Dict, Optional, Tuple, Union
 
+import psutil
 import torch
-from transformers import (
-    AutoModelForCausalLM,
-    AutoTokenizer,
-    BitsAndBytesConfig,
-    PreTrainedModel,
-    PreTrainedTokenizer,
+from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
-
-# Import local config to ensure consistency with project settings
-from src.utils.config import get_config, SocraticConfig
-
-# Setup logger
 logger = logging.getLogger(__name__)
 
-
-def _get_quantization_config(
-    quant_type: str = "4bit",
-    use_cpu: bool = True,
-    compute_dtype: Optional[torch.dtype] = None,
-) -> Optional[Union[BitsAndBytesConfig, Dict[str, Any]]]:
-    """
-    Constructs the quantization configuration for the model.
-
-    Args:
-        quant_type: '4bit' (default), '8bit', or 'none'.
-        use_cpu: If True, optimizes for CPU inference (bitsandbytes CPU backend).
-        compute_dtype: The dtype to use for computation (defaults to float16 or bfloat16).
-
-    Returns:
-        A BitsAndBytesConfig object or None if no quantization is requested.
-
-    Raises:
-        ValueError: If an unsupported quantization type is requested.
-    """
-    if quant_type == "none" or quant_type is None:
-        return None
-
-    if compute_dtype is None:
-        # Default to float16 if not specified, unless bfloat16 is forced by env
-        compute_dtype = torch.float16
-        if os.getenv("FORCE_BFLOAT16", "false").lower() == "true":
-            compute_dtype = torch.bfloat16
-
-    if quant_type == "4bit":
-        # Configure for 4-bit quantization
-        # double_quant: Apply nested quantization for better memory savings
-        # quant_type: 'nf4' (Normal Float 4) is generally more stable than 'fp4'
-        quant_config = BitsAndBytesConfig(
-            load_in_4bit=True,
-            bnb_4bit_use_double_quant=True,
-            bnb_4bit_quant_type="nf4",
-            bnb_4bit_compute_dtype=compute_dtype,
-            bnb_4bit_quant_storage=torch.uint8, # Storage format
-            llm_int8_enable_fp32_cpu_offload=use_cpu, # Critical for CPU offload
-        )
-        logger.info(
-            f"Configured 4-bit quantization with NF4, double quant, "
-            f"compute_dtype={compute_dtype}, CPU offload={use_cpu}"
-        )
-        return quant_config
-
-    elif quant_type == "8bit":
-        # Configure for 8-bit quantization
-        quant_config = BitsAndBytesConfig(
-            load_in_8bit=True,
-            llm_int8_threshold=6.0,
-            llm_int8_has_fp16_weight=True,
-        )
-        logger.info("Configured 8-bit quantization")
-        return quant_config
-
-    else:
-        raise ValueError(f"Unsupported quantization type: {quant_type}")
-
+# Memory constraint: 7GB in bytes
+MAX_MEMORY_RSS_BYTES = 7 * 1024 * 1024 * 1024
 
 def load_model(
-    model_name_or_path: str,
-    quant_type: str = "4bit",
-    use_cpu: bool = True,
+    model_name: str,
+    device_map: str = "cpu",
+    max_memory: Optional[Dict[str, Union[int, str]]] = None,
     trust_remote_code: bool = False,
-    device_map: Optional[Union[str, Dict[str, Any]]] = None,
-) -> Tuple[PreTrainedModel, PreTrainedTokenizer]:
+    use_4bit: bool = True
+) -> Tuple[Any, Any]:
     """
-    Loads a model and tokenizer with low-bit quantization support.
-
-    This function attempts to load the model using `bitsandbytes` for 4-bit or 8-bit
-    quantization. If `use_cpu` is True, it attempts to offload layers to CPU memory
-    to fit within tight RAM constraints.
-
+    Load a transformer model with 4-bit quantization for CPU execution.
+    
     Args:
-        model_name_or_path: HuggingFace model identifier or local path.
-        quant_type: '4bit' (default), '8bit', or 'none'.
-        use_cpu: If True, enables CPU offload strategies.
-        trust_remote_code: Whether to trust remote code from the model repo.
-        device_map: Optional explicit device map. If None, 'auto' is used.
-
+        model_name: HuggingFace model identifier or local path
+        device_map: Device mapping strategy (default: "cpu")
+        max_memory: Optional memory constraints per device
+        trust_remote_code: Whether to trust remote code execution
+        use_4bit: Enable 4-bit quantization via bitsandbytes
+    
     Returns:
-        Tuple of (model, tokenizer).
-
+        Tuple of (model, tokenizer)
+    
     Raises:
-        RuntimeError: If the model fails to load due to memory constraints or missing dependencies.
-        FileNotFoundError: If the model path is invalid.
+        MemoryError: If memory usage exceeds 7GB threshold during load
+        ImportError: If required dependencies (bitsandbytes, psutil) are missing
     """
-    logger.info(f"Attempting to load model: {model_name_or_path}")
-    logger.info(f"Quantization: {quant_type}, CPU Mode: {use_cpu}")
-
-    # Validate quantization type
-    if quant_type not in ["4bit", "8bit", "none"]:
-        raise ValueError(f"Invalid quant_type '{quant_type}'. Must be '4bit', '8bit', or 'none'.")
-
-    # Prepare quantization config
-    bnb_config = _get_quantization_config(
-        quant_type=quant_type,
-        use_cpu=use_cpu,
-        compute_dtype=torch.float16,
+    logger.info(f"Loading model: {model_name} with 4-bit quantization on {device_map}")
+    
+    # Check memory before loading
+    process = psutil.Process(os.getpid())
+    initial_memory = process.memory_info().rss
+    logger.info(f"Initial memory usage: {initial_memory / (1024**2):.2f} MB")
+    
+    if initial_memory > MAX_MEMORY_RSS_BYTES * 0.8:
+        logger.warning(f"Initial memory usage ({initial_memory / (1024**2):.2f} MB) is already high")
+    
+    # Configure 4-bit quantization
+    if use_4bit:
+        try:
+            from bitsandbytes.nn import Linear4bit
+            logger.info("bitsandbytes 4-bit quantization enabled")
+            
+            bnb_config = BitsAndBytesConfig(
+                load_in_4bit=True,
+                bnb_4bit_use_double_quant=True,
+                bnb_4bit_quant_type="nf4",
+                bnb_4bit_compute_dtype=torch.float16,
+                llm_int8_skip_modules=["lm_head"]
+            )
+        except ImportError:
+            logger.error("bitsandbytes not installed. Install with: pip install bitsandbytes")
+            raise ImportError("bitsandbytes is required for 4-bit quantization")
+    else:
+        bnb_config = None
+        logger.info("4-bit quantization disabled, loading in full precision")
+    
+    # Load tokenizer
+    logger.info("Loading tokenizer...")
+    tokenizer = AutoTokenizer.from_pretrained(
+        model_name,
+        trust_remote_code=trust_remote_code,
+        padding_side="left"
     )
-
-    # Determine device map
-    if device_map is None:
-        if use_cpu:
-            # 'auto' with bitsandbytes often handles offloading, but explicit 'cpu' or
-            # 'balanced_low_0' might be safer for strict RAM limits.
-            # We use 'auto' and let bitsandbytes handle the offloading if llm_int8_enable_fp32_cpu_offload is set.
-            device_map = "auto"
-        else:
-            device_map = "auto"
-
-    try:
-        # Load Tokenizer first
-        tokenizer = AutoTokenizer.from_pretrained(
-            model_name_or_path,
-            trust_remote_code=trust_remote_code,
-            padding_side="right", # Standard for generation
-            token=os.getenv("HF_TOKEN"),
-        )
-
-        # Ensure tokenizer has a pad token if it doesn't
-        if tokenizer.pad_token is None:
-            tokenizer.pad_token = tokenizer.eos_token
-            logger.warning("Pad token not found, set to eos_token.")
-
-        # Load Model
-        model = AutoModelForCausalLM.from_pretrained(
-            model_name_or_path,
-            quantization_config=bnb_config,
-            device_map=device_map,
-            trust_remote_code=trust_remote_code,
-            torch_dtype=torch.float16, # Base dtype, quantization config overrides
-            token=os.getenv("HF_TOKEN"),
-            low_cpu_mem_usage=True, # Essential for large models on limited RAM
-        )
-
-        logger.info(f"Successfully loaded model: {model_name_or_path}")
-        logger.info(f"Model device map: {model.hf_device_map if hasattr(model, 'hf_device_map') else 'N/A'}")
-
-        # Force garbage collection to free up memory after loading
-        gc.collect()
-        if torch.cuda.is_available():
-            torch.cuda.empty_cache()
-
-        return model, tokenizer
-
-    except Exception as e:
-        logger.error(f"Failed to load model {model_name_or_path}: {e}")
-        raise RuntimeError(f"Model loading failed: {e}") from e
-
-
-def get_model_card(model: PreTrainedModel) -> Dict[str, Any]:
-    """
-    Extracts metadata from the loaded model.
-
-    Args:
-        model: The loaded PreTrainedModel instance.
-
-    Returns:
-        Dictionary containing model name, config info, and quantization status.
-    """
-    card = {
-        "model_name": model.name_or_path,
-        "config": {
-            "model_type": model.config.model_type,
-            "hidden_size": getattr(model.config, "hidden_size", None),
-            "num_attention_heads": getattr(model.config, "num_attention_heads", None),
-            "num_hidden_layers": getattr(model.config, "num_hidden_layers", None),
-            "vocab_size": getattr(model.config, "vocab_size", None),
-        },
-        "quantization": "4bit" if hasattr(model, "hf_quantizer") else "none",
-        "device_map": getattr(model, "hf_device_map", None),
+    if tokenizer.pad_token is None:
+        tokenizer.pad_token = tokenizer.eos_token
+    
+    # Load model
+    logger.info("Loading model...")
+    model_kwargs = {
+        "trust_remote_code": trust_remote_code,
+        "torch_dtype": torch.float16,
+        "device_map": device_map,
     }
-    return card
+    
+    if bnb_config:
+        model_kwargs["quantization_config"] = bnb_config
+    
+    if max_memory:
+        model_kwargs["max_memory"] = max_memory
+    
+    try:
+        model = AutoModelForCausalLM.from_pretrained(
+            model_name,
+            **model_kwargs
+        )
+    except Exception as e:
+        logger.error(f"Failed to load model: {e}")
+        raise
+    
+    # Memory check after loading
+    gc.collect()
+    torch.cuda.empty_cache() if torch.cuda.is_available() else None
+    
+    current_memory = process.memory_info().rss
+    logger.info(f"Memory usage after load: {current_memory / (1024**2):.2f} MB")
+    
+    if current_memory > MAX_MEMORY_RSS_BYTES:
+        error_msg = f"Memory usage ({current_memory / (1024**2):.2f} MB) exceeds 7GB limit"
+        logger.error(error_msg)
+        raise MemoryError(error_msg)
+    
+    # Verify model is frozen (no gradients)
+    model.eval()
+    for param in model.parameters():
+        param.requires_grad = False
+    
+    logger.info(f"Model loaded successfully. Parameters: {model.num_parameters()}")
+    return model, tokenizer
 
+def get_model_card(model_name: str) -> Dict[str, Any]:
+    """
+    Retrieve model metadata from HuggingFace.
+    
+    Args:
+        model_name: HuggingFace model identifier
+    
+    Returns:
+        Dictionary containing model metadata
+    """
+    from transformers import AutoConfig
+    
+    try:
+        config = AutoConfig.from_pretrained(model_name)
+        return {
+            "model_name": model_name,
+            "model_type": config.model_type,
+            "num_parameters": getattr(config, "hidden_size", None),
+            "vocab_size": getattr(config, "vocab_size", None),
+            "max_position_embeddings": getattr(config, "max_position_embeddings", None),
+        }
+    except Exception as e:
+        logger.warning(f"Could not retrieve model card: {e}")
+        return {"model_name": model_name, "error": str(e)}
 
 def validate_model_compatibility(
     model_name: str,
-    required_quant: str = "4bit",
-    max_ram_gb: float = 7.0,
-) -> bool:
+    required_memory_gb: float = 7.0
+) -> Tuple[bool, str]:
     """
-    Validates if a model is compatible with the current hardware constraints.
-
-    This is a heuristic check based on model size estimates.
-
+    Validate if a model can be loaded within memory constraints.
+    
     Args:
-        model_name: HuggingFace model identifier.
-        required_quant: Required quantization type.
-        max_ram_gb: Maximum available RAM in GB.
-
+        model_name: HuggingFace model identifier
+        required_memory_gb: Required memory in GB (default: 7.0)
+    
     Returns:
-        True if compatible, False otherwise.
+        Tuple of (is_compatible, message)
     """
-    # Heuristic: Estimate RAM usage based on parameter count
-    # 4-bit quantization roughly requires ~0.7 bytes per parameter + overhead
-    # 7B model @ 4-bit ~ 5GB + overhead ~ 6-7GB.
-    # We assume a 7B model is the upper limit for 7GB RAM with 4-bit.
-
-    # Simple check: if model name contains "7b" or "8b", it might be tight but possible.
-    # If it contains "13b" or larger, it's likely impossible without heavy offloading.
-    model_lower = model_name.lower()
-    if "13b" in model_lower or "70b" in model_lower:
-        logger.warning(f"Model {model_name} is likely too large for {max_ram_gb}GB RAM even with 4-bit quantization.")
-        return False
-
-    if "3b" in model_lower or "1b" in model_lower or "2b" in model_lower:
-        return True
-
-    # Default assumption for "8b" or "7b" models is that they fit with 4-bit + CPU offload
-    # but it is risky. We return True but log a warning.
-    logger.info(f"Model {model_name} is estimated to fit with 4-bit quantization and CPU offload.")
-    return True
-
-
-def main() -> None:
-    """
-    Main entry point for testing the model loader.
-    Runs a small load test on a tiny model to verify functionality.
-    """
-    config = get_config()
-    # Use a small model for testing to ensure it runs in the CI/CD environment
-    test_model = "HuggingFaceTB/SmolLM2-360M" # Very small, safe for testing
-    if os.getenv("TEST_MODEL"):
-        test_model = os.getenv("TEST_MODEL")
-
-    print(f"Testing model loader with: {test_model}")
-
+    from transformers import AutoConfig
+    
     try:
-        model, tokenizer = load_model(
-            model_name_or_path=test_model,
-            quant_type="4bit",
-            use_cpu=True,
-        )
+        config = AutoConfig.from_pretrained(model_name)
+        
+        # Estimate memory: parameters * 4 bytes (float32) / 2 (4-bit) / 1e9
+        # This is a rough estimate; actual usage depends on architecture
+        num_params = getattr(config, "num_parameters", lambda: 0)()
+        estimated_memory_gb = (num_params * 4) / (2 * 1e9)  # 4-bit quantization
+        
+        if estimated_memory_gb > required_memory_gb:
+            return False, f"Estimated memory ({estimated_memory_gb:.2f} GB) exceeds limit ({required_memory_gb} GB)"
+        
+        return True, f"Model estimated at {estimated_memory_gb:.2f} GB, within {required_memory_gb} GB limit"
+    
+    except Exception as e:
+        return False, f"Could not validate model: {e}"
 
-        card = get_model_card(model)
-        print(f"Model Card: {card}")
-
-        # Simple inference test
-        input_text = "Hello, this is a test of the model loader."
-        inputs = tokenizer(input_text, return_tensors="pt").to(model.device)
-
+def main():
+    """Main entry point for model loader CLI."""
+    import argparse
+    
+    parser = argparse.ArgumentParser(description="Load a transformer model with 4-bit quantization")
+    parser.add_argument("--model", type=str, default="microsoft/Phi-3-mini-4k-instruct",
+                      help="HuggingFace model identifier")
+    parser.add_argument("--check-only", action="store_true",
+                      help="Only check compatibility, don't load")
+    
+    args = parser.parse_args()
+    
+    # Validate compatibility
+    is_compatible, message = validate_model_compatibility(args.model)
+    logger.info(message)
+    
+    if not is_compatible:
+        logger.error("Model not compatible with memory constraints")
+        sys.exit(1)
+    
+    if args.check_only:
+        logger.info("Compatibility check passed. Exiting.")
+        sys.exit(0)
+    
+    # Load model
+    try:
+        model, tokenizer = load_model(args.model)
+        logger.info("Model loaded successfully")
+        
+        # Test inference with a simple prompt
+        test_prompt = "What is 2+2?"
+        inputs = tokenizer(test_prompt, return_tensors="pt")
+        
         with torch.no_grad():
             outputs = model.generate(
                 **inputs,
                 max_new_tokens=10,
-                do_sample=False,
-                pad_token_id=tokenizer.pad_token_id,
+                pad_token_id=tokenizer.pad_token_id
             )
-
-        result = tokenizer.decode(outputs[0], skip_special_tokens=True)
-        print(f"Generation Test: {result}")
-        print("Model loader test PASSED.")
-
+        
+        response = tokenizer.decode(outputs[0], skip_special_tokens=True)
+        logger.info(f"Test response: {response}")
+        
+    except MemoryError as e:
+        logger.error(f"Memory error: {e}")
+        sys.exit(1)
     except Exception as e:
-        print(f"Model loader test FAILED: {e}")
-        raise
-
+        logger.error(f"Error loading model: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

@@ -1,1 +1,1 @@
-"""Evaluation modules."""
+"""Evaluation module."""

@@ -1,11 +1,11 @@
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
+requires = ["setuptools>=45", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "socratic-transformers"
+name = "socratic-transformers-dialogue-based-sel"
 version = "0.1.0"
-description = "Dialogue-Based Selection on Belief"
+description = "Socratic Transformers: Dialogue-Based Selection on Belief"
 readme = "README.md"
 requires-python = ">=3.9"
 dependencies = [
@@ -18,41 +18,10 @@ dependencies = [
     "pytest",
     "ruff",
     "black",
+    "spacy",
+    "torch",
+    "numpy",
 ]
-
-[tool.setuptools.packages.find]
-where = ["."]
-include = ["src*", "tests*"]
-
-[tool.ruff]
-# Same as Black.
-line-length = 88
-indent-width = 4
-target-version = "py39"
-
-[tool.ruff.lint]
-select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # Pyflakes
-    "I",  # isort
-    "C",  # flake8-comprehensions
-    "B",  # flake8-bugbear
-]
-ignore = [
-    "E501", # line too long (handled by black/ruff format)
-    "B008", # do not perform function calls in argument defaults (common in dataclasses)
-    "C901", # too complex (temporary relaxation for research code)
-]
-
-[tool.ruff.lint.per-file-ignores]
-"tests/*" = ["S101"] # assert allowed in tests
-
-[tool.ruff.format]
-quote-style = "double"
-indent-style = "space"
-skip-magic-trailing-comma = false
-line-ending = "auto"
 
 [tool.black]
 line-length = 88
@@ -75,10 +44,7 @@ exclude = '''
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
-addopts = "-v --strict-markers"
-markers = [
-    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
-    "unit: unit tests",
-    "integration: integration tests",
-    "contract: contract tests",
-]
+addopts = "-v"
+
+[tool.setuptools]
+packages = ["src", "tests"]

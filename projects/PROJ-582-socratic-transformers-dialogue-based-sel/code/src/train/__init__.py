@@ -1,1 +1,1 @@
-"""Training modules."""
+"""Training module."""

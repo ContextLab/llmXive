@@ -1,2 +1,2 @@
-# This directory stores processed, cleaned, and tokenized datasets ready for training.
-# Intermediate artifacts like static QA tuples and dialogue tuples live here.
+# This file ensures the processed data directory is tracked by git.
+# Processed data files (e.g., dialogue tuples, static QA pairs) will be stored here.

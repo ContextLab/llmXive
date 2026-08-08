@@ -1,2 +1,2 @@
-# This directory stores final evaluation metrics, ablation study results, and figures.
-# Output files from stats_analysis.py and benchmarking scripts go here.
+# This file ensures the results data directory is tracked by git.
+# Evaluation metrics, statistical reports, and analysis outputs will be stored here.

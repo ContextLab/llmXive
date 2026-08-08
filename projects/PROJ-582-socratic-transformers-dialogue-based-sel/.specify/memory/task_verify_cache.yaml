@@ -1,10 +1,9 @@
-T029:
+T004:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, data, or results showing a sensitivity\u2011analysis sweep over the\
-    \ specified error\u2011threshold values (0.01,\u202F0.05,\u202F0.1) are present.\
-    \ The implementer supplied no artifact (e.g., script, log, or figure) that demonstrates\
-    \ the sweep or its robustness validation, so the requirement is unmet."
+  r: No evidence of the `data/raw/`, `data/processed/`, `data/results/` directories
+    or accompanying `.gitkeep` files was provided; without these artifacts the task
+    requirement cannot be confirmed as met.
 T034:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

@@ -1,193 +1,215 @@
 """
-Dataset downloader for GSM8K and MATH datasets.
-Fetches real data from HuggingFace datasets.
+Dataset Downloader for Socratic Transformers Project.
+
+Fetches GSM8K and MATH datasets from HuggingFace Datasets.
+Implements checksum verification against a manifest in the state/ directory.
 """
 import os
 import sys
+import hashlib
+import json
 from pathlib import Path
-from typing import Optional, Dict, Any, List
+from typing import Optional, Dict, Any, List, Tuple
 
 from datasets import load_dataset
 from src.utils.config import get_config, SocraticConfig
 
-
-def ensure_data_dirs(base_path: Optional[Path] = None) -> Dict[str, Path]:
-    """
-    Ensure required data directories exist.
-    Returns a dictionary of directory paths.
-    """
-    if base_path is None:
-        # Default to project root's data directory
-        base_path = Path(__file__).parent.parent.parent.parent / "data"
-
-    dirs = {
-        "raw": base_path / "raw",
-        "processed": base_path / "processed",
-        "results": base_path / "results",
+# Constants for dataset identification
+DATASET_CONFIGS = {
+    "gsm8k": {
+        "name": "gsm8k",
+        "config": "main",
+        "splits": ["train", "test"],
+        "output_file": "gsm8k_full.jsonl"
+    },
+    "math": {
+        "name": "hendrycks/math",
+        "config": "all",
+        "splits": ["train", "test"],
+        "output_file": "math_full.jsonl"
     }
+}
 
-    for dir_path in dirs.values():
-        dir_path.mkdir(parents=True, exist_ok=True)
+def ensure_data_dirs(config: SocraticConfig) -> None:
+    """Ensure the required data directories exist."""
+    dirs = [
+        config.data_raw_dir,
+        config.data_processed_dir,
+        config.data_results_dir,
+        config.state_dir
+    ]
+    for d in dirs:
+        d.mkdir(parents=True, exist_ok=True)
 
-    return dirs
+def _compute_file_hash(file_path: Path) -> str:
+    """Compute SHA-256 hash of a file."""
+    sha256_hash = hashlib.sha256()
+    with open(file_path, "rb") as f:
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
+    return sha256_hash.hexdigest()
 
+def _load_manifest(state_dir: Path) -> Dict[str, str]:
+    """Load the checksum manifest if it exists."""
+    manifest_path = state_dir / "dataset_checksums.json"
+    if not manifest_path.exists():
+        return {}
+    with open(manifest_path, "r") as f:
+        return json.load(f)
+
+def _save_manifest(state_dir: Path, checksums: Dict[str, str]) -> None:
+    """Save the checksum manifest."""
+    manifest_path = state_dir / "dataset_checksums.json"
+    with open(manifest_path, "w") as f:
+        json.dump(checksums, f, indent=2)
+
+def _verify_checksum(file_path: Path, expected_hash: str) -> bool:
+    """Verify the file checksum matches the expected hash."""
+    if not expected_hash:
+        return False
+    actual_hash = _compute_file_hash(file_path)
+    return actual_hash == expected_hash
 
 def download_dataset(
-    dataset_name: str,
-    split: str = "train",
-    subset: Optional[str] = None,
-    streaming: bool = False,
-    output_dir: Optional[Path] = None,
-) -> Any:
+    dataset_key: str,
+    config_obj: SocraticConfig,
+    force_redownload: bool = False
+) -> Path:
     """
-    Download a dataset from HuggingFace.
+    Download a specific dataset from HuggingFace and save it as JSONL.
 
     Args:
-        dataset_name: Name of the dataset (e.g., 'gsm8k', 'competition_math')
-        split: Dataset split to load (e.g., 'train', 'test')
-        subset: Subset name if applicable (e.g., 'main' for gsm8k)
-        streaming: If True, stream the dataset instead of loading entirely
-        output_dir: Directory to cache/save the dataset
+        dataset_key: Key in DATASET_CONFIGS (e.g., 'gsm8k', 'math')
+        config_obj: Project configuration object
+        force_redownload: If True, skip existing files and re-download
 
     Returns:
-        The loaded dataset object
+        Path to the downloaded file
 
     Raises:
-        ValueError: If dataset cannot be found or loaded
-        RuntimeError: If download fails
+        ValueError: If dataset_key is invalid
+        RuntimeError: If checksum verification fails after download
     """
-    config = get_config()
+    if dataset_key not in DATASET_CONFIGS:
+        raise ValueError(f"Unknown dataset key: {dataset_key}. Valid keys: {list(DATASET_CONFIGS.keys())}")
 
-    # Map dataset names to HuggingFace identifiers
-    dataset_map = {
-        "gsm8k": {"name": "gsm8k", "subset": subset or "main"},
-        "math": {"name": "competition_math", "subset": subset or "train"},
-    }
+    dataset_info = DATASET_CONFIGS[dataset_key]
+    dataset_name = dataset_info["name"]
+    dataset_config = dataset_info["config"]
+    splits = dataset_info["splits"]
+    output_filename = dataset_info["output_file"]
 
-    if dataset_name not in dataset_map:
-        raise ValueError(f"Unsupported dataset: {dataset_name}. Supported: {list(dataset_map.keys())}")
+    output_path = config_obj.data_raw_dir / output_filename
+    manifest = _load_manifest(config_obj.state_dir)
+    expected_hash = manifest.get(output_filename, "")
 
-    hf_config = dataset_map[dataset_name]
-
-    try:
-        if streaming:
-            # Stream the dataset to avoid memory issues
-            dataset = load_dataset(
-                hf_config["name"],
-                hf_config["subset"],
-                split=split,
-                streaming=True,
-                trust_remote_code=True,
-            )
+    # Check if file exists and is valid
+    if not force_redownload and output_path.exists():
+        if expected_hash:
+            if _verify_checksum(output_path, expected_hash):
+                print(f"Dataset {dataset_name} already downloaded and verified: {output_path}")
+                return output_path
+            else:
+                print(f"Checksum mismatch for {output_filename}. Redownloading...")
         else:
-            # Load entire dataset into memory
-            dataset = load_dataset(
-                hf_config["name"],
-                hf_config["subset"],
-                split=split,
-                trust_remote_code=True,
-            )
+            print(f"Dataset {dataset_name} exists but no checksum in manifest. Redownloading to ensure integrity.")
 
-        # Save to disk if output_dir is specified
-        if output_dir:
-            output_path = output_dir / f"{dataset_name}_{split}"
-            output_path.mkdir(parents=True, exist_ok=True)
-            # For streaming datasets, we iterate and save manually
-            # For regular datasets, use save_to_disk
-            if streaming:
-                # Convert streaming dataset to regular for saving
-                dataset = dataset.map(lambda x: x)  # Force materialization
-            dataset.save_to_disk(str(output_path))
-
-        return dataset
-
+    print(f"Downloading dataset: {dataset_name} (config: {dataset_config})...")
+    try:
+        # Load dataset from HuggingFace
+        ds = load_dataset(dataset_name, dataset_config)
     except Exception as e:
-        raise RuntimeError(f"Failed to download dataset {dataset_name}: {str(e)}") from e
+        raise RuntimeError(f"Failed to load dataset {dataset_name}: {e}")
 
+    # Combine splits into a single JSONL file
+    all_records = []
+    for split in splits:
+        if split not in ds:
+            print(f"Warning: Split '{split}' not found in {dataset_name}. Skipping.")
+            continue
+        split_data = ds[split]
+        # Convert to list of dicts
+        for i, item in enumerate(split_data):
+            # Add metadata about origin
+            item["_source_dataset"] = dataset_name
+            item["_source_split"] = split
+            item["_source_index"] = i
+            all_records.append(item)
 
-def download_all_datasets(
-    output_dir: Optional[Path] = None,
-    splits: Optional[List[str]] = None,
-    streaming: bool = False,
-) -> Dict[str, Any]:
+    print(f"Writing {len(all_records)} records to {output_path}...")
+    with open(output_path, "w", encoding="utf-8") as f:
+        for record in all_records:
+            f.write(json.dumps(record, ensure_ascii=False) + "\n")
+
+    # Compute and save checksum
+    actual_hash = _compute_file_hash(output_path)
+    manifest[output_filename] = actual_hash
+    _save_manifest(config_obj.state_dir, manifest)
+
+    print(f"Download complete. Saved to {output_path} (SHA256: {actual_hash})")
+    return output_path
+
+def download_all_datasets(config: Optional[SocraticConfig] = None, force_redownload: bool = False) -> List[Path]:
     """
-    Download all required datasets (GSM8K and MATH).
+    Download all configured datasets.
 
     Args:
-        output_dir: Base directory to save datasets
-        splits: List of splits to download (default: ['train', 'test'])
-        streaming: Whether to stream datasets
+        config: Project configuration. If None, loads default.
+        force_redownload: If True, re-download all datasets.
 
     Returns:
-        Dictionary mapping dataset names to loaded dataset objects
+        List of paths to downloaded files.
     """
-    if splits is None:
-        splits = ["train", "test"]
+    if config is None:
+        config = get_config()
 
-    if output_dir is None:
-        dirs = ensure_data_dirs()
-        output_dir = dirs["raw"]
+    ensure_data_dirs(config)
 
-    datasets = {}
-
-    # Download GSM8K
-    print("Downloading GSM8K dataset...")
-    for split in splits:
+    downloaded_paths = []
+    for key in DATASET_CONFIGS:
         try:
-            dataset = download_dataset(
-                "gsm8k",
-                split=split,
-                subset="main",
-                streaming=streaming,
-                output_dir=output_dir,
-            )
-            datasets[f"gsm8k_{split}"] = dataset
-            print(f"  GSM8K {split} split downloaded successfully.")
+            path = download_dataset(key, config, force_redownload)
+            downloaded_paths.append(path)
         except Exception as e:
-            print(f"  Warning: Failed to download GSM8K {split}: {e}")
+            print(f"Error downloading {key}: {e}", file=sys.stderr)
+            # Continue with other datasets rather than failing completely
+            continue
 
-    # Download MATH
-    print("Downloading MATH dataset...")
-    for split in splits:
-        try:
-            dataset = download_dataset(
-                "math",
-                split=split,
-                subset="train" if split == "train" else "test",
-                streaming=streaming,
-                output_dir=output_dir,
-            )
-            datasets[f"math_{split}"] = dataset
-            print(f"  MATH {split} split downloaded successfully.")
-        except Exception as e:
-            print(f"  Warning: Failed to download MATH {split}: {e}")
+    return downloaded_paths
 
-    return datasets
+def main():
+    """CLI entry point for dataset download."""
+    import argparse
 
+    parser = argparse.ArgumentParser(description="Download datasets for Socratic Transformers project")
+    parser.add_argument(
+        "--dataset",
+        choices=["gsm8k", "math", "all"],
+        default="all",
+        help="Which dataset to download"
+    )
+    parser.add_argument(
+        "--force",
+        action="store_true",
+        help="Force re-download even if files exist"
+    )
 
-def main() -> None:
-    """
-    Main entry point for downloading datasets.
-    """
-    print("Starting dataset download for Socratic Transformers project...")
+    args = parser.parse_args()
+    config = get_config()
 
-    # Ensure data directories exist
-    dirs = ensure_data_dirs()
-    print(f"Data directories created at: {dirs['raw']}")
+    if args.dataset == "all":
+        paths = download_all_datasets(config, force_redownload=args.force)
+    else:
+        path = download_dataset(args.dataset, config, force_redownload=args.force)
+        paths = [path]
 
-    # Download datasets
-    datasets = download_all_datasets(output_dir=dirs["raw"], streaming=False)
-
-    # Report results
-    print("\nDownload Summary:")
-    for name, dataset in datasets.items():
-        if hasattr(dataset, "__len__"):
-            print(f"  {name}: {len(dataset)} samples")
-        else:
-            print(f"  {name}: streaming dataset")
-
-    print("\nDataset download complete.")
-
+    if paths:
+        print(f"\nSuccessfully downloaded {len(paths)} dataset(s):")
+        for p in paths:
+            print(f"  - {p}")
+    else:
+        print("\nNo datasets were downloaded.")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

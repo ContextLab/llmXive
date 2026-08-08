@@ -1,1 +1,1 @@
-"""Integration testing suite."""
+"""Integration tests."""
