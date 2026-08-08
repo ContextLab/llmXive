@@ -5,13 +5,6 @@ T017:
     \ file `data/raw/github-code-sample.csv` does not exist, so the scanner cannot\
     \ actually scan the specified dataset. Without this file the task\u2019s core\
     \ requirement (scanning that CSV for PII) cannot be fulfilled."
-T021b#1:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `main.py` file or diff showing the fix is present, and there is no evidence
-    (e.g., generated CSV files, logs, or tests) that the script now reliably creates
-    both required CSV outputs. The required artifact is missing, so the task is not
-    satisfied.
 T023:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

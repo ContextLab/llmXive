@@ -5,7 +5,7 @@
 
 ## Summary
 
-This feature implements a research pipeline to measure the correlation between syntactic code duplication density and LLM code understanding metrics. The technical approach involves: (1) streaming a sizable subset of codeparrot/github-code via HuggingFace Datasets, (2) computing AST-based clone density using Python's built-in ast module, (3) measuring token-level perplexity using Salesforce/codegen-350M-mono in 8-bit quantization, (4) evaluating bug detection accuracy on human-eval, and (5) calculating Spearman's rank correlation between duplication density and model performance metrics.
+This feature implements a research pipeline to measure the correlation between syntactic code duplication density and LLM code understanding metrics. The technical approach involves: (1) streaming a sizable subset of codeparrot/github-code via HuggingFace Datasets, (2) computing AST-based clone density using Python's built-in ast module, (3) measuring token-level perplexity using a Salesforce CodeGen model in 8-bit quantization, (4) evaluating bug detection accuracy on human-eval, and (5) calculating Spearman's rank correlation between duplication density and model performance metrics.
 
 ## Technical Context
 
@@ -15,7 +15,7 @@ This feature implements a research pipeline to measure the correlation between s
 **Testing**: pytest with contract tests against YAML schemas  
 **Target Platform**: Linux server (GitHub Actions ubuntu-latest runner)  
 **Project Type**: computational research pipeline  
-**Performance Goals**: Complete 500MB corpus processing within 24 hours; memory under 7GB  
+**Performance Goals**: Complete a sizable corpus processing within 24 hours; memory under a modest amount of RAM  
 **Constraints**: 8-bit quantization required; streaming mode for dataset; no external clone detection dependencies  
 **Scale/Scope**: A substantial code corpus., A substantial set of code segments., Multiple human‑eval problems  
 **Clone-Detection Thresholds**: 0.7, 0.8, 0.9 (used for sensitivity analysis in User Story 3)  
@@ -61,7 +61,9 @@ projects/PROJ-261-evaluating-the-impact-of-code-duplication/code/
 ├── config.py                    # Configuration: seeds, thresholds (0.7, 0.8, 0.9), model params
 ├── data_loader.py               # HuggingFace dataset streaming
 ├── ast_cloner.py                # AST-based clone detection (stdlib only)
-├── model_metrics.py             # Perplexity computation with codegen-350M-mono
+├── model_metrics.py             # Perplexity computation with codegen-XXXM-mono
+
+The specific value has been generalized to indicate a medium‑sized model without stating the exact parameter count.
 ├── bug_detection.py             # HumanEval pass@1 evaluation
 ├── correlation_analysis.py      # Spearman's rank correlation
 ├── visualization.py             # Scatter plots with regression lines
