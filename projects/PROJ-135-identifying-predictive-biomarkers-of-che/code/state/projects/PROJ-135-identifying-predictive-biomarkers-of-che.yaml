@@ -1,10 +1,13 @@
 project_id: PROJ-135-identifying-predictive-biomarkers-of-che
-created_at: "2024-01-15T10:30:00Z"
-status: in_progress
 artifact_hashes: {}
-metadata:
-  pipeline_version: "1.0.0"
-  data_sources:
-    - TCGA
-    - GEO
-  last_updated: "2024-01-15T10:30:00Z"
+created_at: '2024-01-15T10:00:00'
+last_updated: '2024-01-15T10:00:00'
+status: initialized
+data_feasibility:
+  tcga_count: 0
+  geo_count: 0
+  gate_status: pending
+execution_metrics:
+  total_runtime_seconds: 0
+  peak_memory_mb: 0
+  timeout_triggered: false

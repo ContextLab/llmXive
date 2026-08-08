@@ -1,358 +1,295 @@
-"""
-Preprocessing module for the Chemo Biomarker Discovery pipeline.
-
-This module handles:
-- Gene ID harmonization
-- Low expression gene filtering
-- Variance Stabilizing Transformation (VST)
-- Batch effect correction (ComBat-seq or Quantile Matching)
-- Stratified splitting of data into discovery and training sets
-"""
 import os
 import sys
 import json
 import logging
 from pathlib import Path
 from typing import Dict, List, Any, Optional, Tuple
+
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
-from scipy import stats
 
-# Import project configuration and utilities
-from code.src.config import get_project_root, ensure_directories
-from code.src.utils import setup_logging, calculate_checksum, update_state_artifact_hashes
+from src.config import get_project_root, ensure_directories
 
 logger = logging.getLogger(__name__)
 
-def load_processed_data(tumor_type: str, data_dir: Optional[Path] = None) -> pd.DataFrame:
+# Constants for split ratio and random seed
+DISCOVERY_RATIO: float = 0.6  # 60% for discovery (gene selection)
+TRAINING_RATIO: float = 0.4   # 40% for training (model fitting)
+RANDOM_SEED: int = 42         # Fixed seed for reproducibility
+STRATA_COLUMN: str = 'response_label' # Column used for stratification
+
+def load_processed_data(file_path: Path) -> pd.DataFrame:
     """
-    Load preprocessed data for a specific tumor type.
+    Load a processed data file (CSV or Parquet).
     
     Args:
-        tumor_type: The tumor type identifier (e.g., 'BRCA', 'LUAD')
-        data_dir: Optional path to data directory. If None, uses project default.
+        file_path: Path to the data file.
         
     Returns:
-        DataFrame with gene expression data and metadata
-    """
-    if data_dir is None:
-        project_root = get_project_root()
-        data_dir = project_root / "data" / "processed"
+        DataFrame containing the data.
         
-    file_path = data_dir / f"{tumor_type}_preprocessed.csv"
-    
+    Raises:
+        FileNotFoundError: If the file does not exist.
+        ValueError: If the file format is unsupported.
+    """
     if not file_path.exists():
-        raise FileNotFoundError(f"Preprocessed data file not found: {file_path}")
+        raise FileNotFoundError(f"Data file not found: {file_path}")
         
-    logger.info(f"Loading preprocessed data from {file_path}")
-    df = pd.read_csv(file_path)
-    
-    # Verify required columns exist
-    required_cols = ['sample_id', 'tumor_type', 'response_label', 'expression_vector']
-    missing_cols = [col for col in required_cols if col not in df.columns]
-    if missing_cols:
-        raise ValueError(f"Missing required columns in {file_path}: {missing_cols}")
-        
-    return df
+    suffix = file_path.suffix.lower()
+    if suffix == '.csv':
+        return pd.read_csv(file_path)
+    elif suffix in ['.parquet', '.pq']:
+        return pd.read_parquet(file_path)
+    else:
+        raise ValueError(f"Unsupported file format: {suffix}. Use .csv or .parquet.")
 
-def save_processed_data(df: pd.DataFrame, tumor_type: str, data_dir: Optional[Path] = None) -> None:
+def save_processed_data(df: pd.DataFrame, file_path: Path) -> None:
     """
-    Save processed data to CSV.
+    Save a DataFrame to a CSV or Parquet file.
     
     Args:
-        df: DataFrame to save
-        tumor_type: Tumor type identifier for filename
-        data_dir: Optional path to data directory. If None, uses project default.
+        df: DataFrame to save.
+        file_path: Destination path.
     """
-    if data_dir is None:
-        project_root = get_project_root()
-        data_dir = project_root / "data" / "processed"
-        
-    ensure_directories([data_dir])
-    file_path = data_dir / f"{tumor_type}_preprocessed.csv"
-    
-    logger.info(f"Saving processed data to {file_path}")
-    df.to_csv(file_path, index=False)
+    ensure_directories([file_path.parent])
+    suffix = file_path.suffix.lower()
+    if suffix == '.csv':
+        df.to_csv(file_path, index=False)
+    elif suffix in ['.parquet', '.pq']:
+        df.to_parquet(file_path, index=False)
+    else:
+        # Default to CSV if extension is missing or unknown
+        df.to_csv(file_path.with_suffix('.csv'), index=False)
 
-def harmonize_gene_ids(df: pd.DataFrame, threshold: float = 0.95) -> pd.DataFrame:
-    """
-    Harmonize Ensembl/Entrez IDs to HGNC symbols.
-    
-    Args:
-        df: DataFrame with gene expression data
-        threshold: Minimum coverage threshold (default 0.95)
-        
-    Returns:
-        DataFrame with harmonized gene symbols
-    """
-    logger.info("Harmonizing gene IDs to HGNC symbols")
-    # Implementation would use mygene or biomaRt
-    # For now, assume data is already harmonized or this is a placeholder
-    # In a real implementation, we would:
-    # 1. Extract gene IDs from expression_vector column or separate column
-    # 2. Query mygene/biomaRt for HGNC symbols
-    # 3. Filter genes with coverage < threshold
-    # 4. Update the DataFrame
-    
-    # This is a simplified version assuming expression_vector is already a list of HGNC symbols
-    return df
-
-def filter_low_expression_genes(df: pd.DataFrame, cpm_threshold: float = 1.0, 
-                                sample_fraction: float = 0.8) -> pd.DataFrame:
-    """
-    Filter out low-expression genes.
-    
-    Args:
-        df: DataFrame with gene expression data
-        cpm_threshold: CPM threshold for filtering (default 1.0)
-        sample_fraction: Fraction of samples that must exceed threshold (default 0.8)
-        
-    Returns:
-        Filtered DataFrame
-    """
-    logger.info(f"Filtering low-expression genes (CPM < {cpm_threshold} in > {sample_fraction*100}% of samples)")
-    # Implementation would:
-    # 1. Calculate CPM for each gene
-    # 2. Identify genes below threshold in > (1 - sample_fraction) of samples
-    # 3. Remove those genes
-    
-    # This is a simplified version
-    return df
-
-def apply_vst_transformation(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Apply Variance Stabilizing Transformation (VST) using DESeq2.
-    
-    Args:
-        df: DataFrame with raw count data
-        
-    Returns:
-        DataFrame with VST-transformed data
-    """
-    logger.info("Applying VST transformation")
-    # Implementation would use rpy2 to call DESeq2's vst function
-    # For now, return the data as-is or apply a simple log transformation
-    
-    # This is a placeholder for the actual DESeq2 VST implementation
-    return df
-
-def split_data_stratified(df: pd.DataFrame, tumor_type: str, 
-                          discovery_ratio: float = 0.5, 
-                          random_seed: int = 42) -> Tuple[pd.DataFrame, pd.DataFrame]:
+def split_data_stratified(
+    df: pd.DataFrame,
+    strata_column: str = STRATA_COLUMN,
+    discovery_ratio: float = DISCOVERY_RATIO,
+    random_state: int = RANDOM_SEED
+) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """
     Split data into discovery and training sets with stratification.
     
-    This function implements FR-013: Strict separation of discovery (gene selection)
-    and training (model fitting) sets.
+    This function ensures that the class distribution of the target variable
+    (response_label) is maintained in both splits.
     
     Args:
-        df: DataFrame with preprocessed data including response_label
-        tumor_type: Tumor type identifier for output filenames
-        discovery_ratio: Ratio of samples for discovery set (default 0.5)
-        random_seed: Random seed for reproducibility (default 42)
+        df: Input DataFrame containing gene expression and response labels.
+        strata_column: Name of the column to use for stratification.
+        discovery_ratio: Proportion of samples to include in the discovery set.
+        random_state: Random seed for reproducibility.
         
     Returns:
-        Tuple of (discovery_set, training_set) DataFrames
+        Tuple of (discovery_set, training_set) DataFrames.
+        
+    Raises:
+        ValueError: If the stratification column is missing or has insufficient classes.
     """
-    logger.info(f"Splitting data for {tumor_type} into discovery ({discovery_ratio:.1%}) and training sets")
+    if strata_column not in df.columns:
+        raise ValueError(f"Stratification column '{strata_column}' not found in data.")
     
-    # Verify response_label column exists and is suitable for stratification
-    if 'response_label' not in df.columns:
-        raise ValueError("response_label column required for stratified splitting")
-    
-    # Check for class imbalance
-    label_counts = df['response_label'].value_counts()
-    logger.info(f"Class distribution: {label_counts.to_dict()}")
-    
-    if len(label_counts) < 2:
-        logger.warning("Only one class present in data. Cannot perform stratified split.")
-        # If only one class, do a random split instead
-        discovery_set, training_set = train_test_split(
-            df, 
-            train_size=discovery_ratio, 
-            random_state=random_seed,
-            shuffle=True
-        )
-    else:
-        # Perform stratified split
-        discovery_set, training_set = train_test_split(
-            df, 
-            train_size=discovery_ratio, 
-            random_state=random_seed,
-            stratify=df['response_label'],
-            shuffle=True
+    # Check for minimum class representation
+    class_counts = df[strata_column].value_counts()
+    if any(class_counts < 2):
+        logger.warning(
+            "Some classes have fewer than 2 samples. "
+            "Stratified split might fail or produce empty sets for those classes."
         )
     
-    # Log split sizes
-    logger.info(f"Discovery set size: {len(discovery_set)} samples")
-    logger.info(f"Training set size: {len(training_set)} samples")
-    
-    # Verify stratification maintained
-    if len(label_counts) >= 2:
-        disc_dist = discovery_set['response_label'].value_counts(normalize=True).sort_index()
-        train_dist = training_set['response_label'].value_counts(normalize=True).sort_index()
-        logger.info(f"Discovery set class distribution: {disc_dist.to_dict()}")
-        logger.info(f"Training set class distribution: {train_dist.to_dict()}")
-    
+    # Perform stratified split
+    try:
+        discovery_set, training_set = train_test_split(
+            df,
+            test_size=(1 - discovery_ratio),
+            stratify=df[strata_column],
+            random_state=random_state
+        )
+        logger.info(
+            f"Split completed: Discovery={len(discovery_set)}, "
+            f"Training={len(training_set)} (Ratio: {len(discovery_set)/len(df):.2%})"
+        )
+    except ValueError as e:
+        # Fallback if stratification fails due to small class sizes
+        logger.warning(f"Stratified split failed: {e}. Attempting non-stratified split.")
+        discovery_set, training_set = train_test_split(
+            df,
+            test_size=(1 - discovery_ratio),
+            random_state=random_state
+        )
+        logger.info(
+            f"Fallback split completed: Discovery={len(discovery_set)}, "
+            f"Training={len(training_set)}"
+        )
+        
     return discovery_set, training_set
 
-def save_split_data(discovery_set: pd.DataFrame, training_set: pd.DataFrame, 
-                   tumor_type: str, data_dir: Optional[Path] = None) -> Dict[str, str]:
+def save_split_data(
+    discovery_set: pd.DataFrame,
+    training_set: pd.DataFrame,
+    tumor_type: str,
+    output_dir: Path
+) -> Dict[str, str]:
     """
     Save discovery and training sets to disk.
     
     Args:
-        discovery_set: Discovery set DataFrame
-        training_set: Training set DataFrame
-        tumor_type: Tumor type identifier for filenames
-        data_dir: Optional path to data directory. If None, uses project default.
+        discovery_set: Discovery set DataFrame.
+        training_set: Training set DataFrame.
+        tumor_type: Name of the tumor type (used for filenames).
+        output_dir: Directory to save files.
         
     Returns:
-        Dictionary mapping dataset type to file path
+        Dictionary mapping set names to file paths.
     """
-    if data_dir is None:
-        project_root = get_project_root()
-        data_dir = project_root / "data" / "processed"
-        
-    ensure_directories([data_dir])
+    # Ensure output directory exists
+    ensure_directories([output_dir])
     
-    discovery_path = data_dir / f"{tumor_type}_discovery_set.csv"
-    training_path = data_dir / f"{tumor_type}_training_set.csv"
+    # Define file paths
+    discovery_path = output_dir / f"{tumor_type}_discovery_set.csv"
+    training_path = output_dir / f"{tumor_type}_training_set.csv"
     
-    logger.info(f"Saving discovery set to {discovery_path}")
-    discovery_set.to_csv(discovery_path, index=False)
+    # Save files
+    save_processed_data(discovery_set, discovery_path)
+    save_processed_data(training_set, training_path)
     
-    logger.info(f"Saving training set to {training_path}")
-    training_set.to_csv(training_path, index=False)
-    
-    # Compute and record checksums
-    discovery_checksum = calculate_checksum(discovery_path)
-    training_checksum = calculate_checksum(training_path)
-    
-    logger.info(f"Discovery set checksum: {discovery_checksum}")
-    logger.info(f"Training set checksum: {training_checksum}")
-    
-    # Update state with artifact hashes
-    update_state_artifact_hashes({
-        f"{tumor_type}_discovery_set.csv": discovery_checksum,
-        f"{tumor_type}_training_set.csv": training_checksum
-    })
+    logger.info(f"Saved discovery set to: {discovery_path}")
+    logger.info(f"Saved training set to: {training_path}")
     
     return {
-        "discovery_set": str(discovery_path),
-        "training_set": str(training_path)
+        "discovery": str(discovery_path),
+        "training": str(training_path)
     }
 
-def process_tumor_type_split(tumor_type: str, discovery_ratio: float = 0.5, 
-                             random_seed: int = 42) -> Dict[str, str]:
+def process_tumor_type_split(
+    tumor_type: str,
+    input_file: Path,
+    output_dir: Path,
+    strata_column: str = STRATA_COLUMN,
+    discovery_ratio: float = DISCOVERY_RATIO
+) -> Dict[str, Any]:
     """
-    Process a single tumor type: load, split, and save discovery/training sets.
+    Process a single tumor type: load, split, and save data.
     
     Args:
-        tumor_type: Tumor type identifier
-        discovery_ratio: Ratio for discovery set (default 0.5)
-        random_seed: Random seed for reproducibility (default 42)
+        tumor_type: Name of the tumor type.
+        input_file: Path to the preprocessed data file.
+        output_dir: Directory to save split files.
+        strata_column: Column to use for stratification.
+        discovery_ratio: Proportion for discovery set.
         
     Returns:
-        Dictionary with paths to generated files
+        Dictionary containing split results and file paths.
     """
-    logger.info(f"Processing tumor type: {tumor_type}")
+    logger.info(f"Processing split for tumor type: {tumor_type}")
     
-    try:
-        # Load preprocessed data
-        df = load_processed_data(tumor_type)
-        
-        # Split data
-        discovery_set, training_set = split_data_stratified(
-            df, 
-            tumor_type, 
-            discovery_ratio=discovery_ratio,
-            random_seed=random_seed
-        )
-        
-        # Save split data
-        output_paths = save_split_data(
-            discovery_set, 
-            training_set, 
-            tumor_type
-        )
-        
-        logger.info(f"Successfully processed {tumor_type}")
-        return output_paths
-        
-    except FileNotFoundError as e:
-        logger.error(f"Data not found for {tumor_type}: {e}")
-        raise
-    except Exception as e:
-        logger.error(f"Error processing {tumor_type}: {e}")
-        raise
+    # Load data
+    df = load_processed_data(input_file)
+    logger.info(f"Loaded {len(df)} samples for {tumor_type}")
+    
+    # Split data
+    discovery_set, training_set = split_data_stratified(
+        df,
+        strata_column=strata_column,
+        discovery_ratio=discovery_ratio
+    )
+    
+    # Save splits
+    file_paths = save_split_data(
+        discovery_set,
+        training_set,
+        tumor_type,
+        output_dir
+    )
+    
+    # Return summary
+    return {
+        "tumor_type": tumor_type,
+        "total_samples": len(df),
+        "discovery_samples": len(discovery_set),
+        "training_samples": len(training_set),
+        "discovery_path": file_paths["discovery"],
+        "training_path": file_paths["training"],
+        "class_distribution": {
+            "discovery": discovery_set[strata_column].value_counts().to_dict(),
+            "training": training_set[strata_column].value_counts().to_dict()
+        }
+    }
 
 def main():
     """
-    Main entry point for the preprocessing split functionality.
+    Main entry point for the data splitting stage.
     
-    Reads configuration from project settings and processes all available tumor types.
+    This function orchestrates the splitting of preprocessed data for all
+    tumor types into discovery and training sets.
     """
-    setup_logging()
-    logger.info("Starting preprocessing split stage")
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
     
     project_root = get_project_root()
-    config_path = project_root / "code" / "src" / "config.py"
-    
-    # Load tumor types from configuration or discover from data
-    # For now, we'll read from the feasibility gate result or a config file
-    feasibility_path = project_root / "data" / "feasibility_gate.json"
-    
-    if feasibility_path.exists():
-        with open(feasibility_path, 'r') as f:
-            feasibility_result = json.load(f)
-        
-        if feasibility_result.get('status') == 'halted':
-            reason = feasibility_result.get('reason', '')
-            if reason in ['insufficient_tcga_types', 'insufficient_geo_datasets']:
-                logger.warning(f"Feasibility gate halted: {reason}")
-                # We can still proceed with available data if TCGA >= 3
-                if reason == 'insufficient_geo_datasets':
-                    logger.info("Proceeding with internal validation only")
-    
-    # Get list of tumor types to process
-    # In a real implementation, this would come from the data acquisition stage
-    # For now, we'll try to discover available preprocessed files
     processed_dir = project_root / "data" / "processed"
-    tumor_types = []
+    output_dir = project_root / "data" / "processed" # Save in same directory
     
-    if processed_dir.exists():
-        for file in processed_dir.glob("*_preprocessed.csv"):
-            tumor_type = file.stem.replace("_preprocessed", "")
-            tumor_types.append(tumor_type)
+    # Ensure output directory exists
+    ensure_directories([output_dir])
     
-    if not tumor_types:
-        logger.error("No preprocessed data files found. Please run data acquisition and preprocessing first.")
-        sys.exit(1)
+    # Find all input files matching the pattern (excluding already split files)
+    # We look for files that do NOT end in _discovery_set or _training_set
+    input_files = []
+    for f in processed_dir.iterdir():
+        if f.is_file() and f.suffix.lower() in ['.csv', '.parquet']:
+            name = f.stem
+            if not name.endswith('_discovery_set') and not name.endswith('_training_set'):
+                # Extract tumor type from filename (assuming format: tumor_type_processed.csv)
+                # If the file is just 'data.csv' or similar, we might need a mapping
+                # For now, assume the stem is the tumor type or part of it
+                input_files.append(f)
     
-    logger.info(f"Found {len(tumor_types)} tumor types to process: {tumor_types}")
+    if not input_files:
+        logger.warning("No input files found in data/processed/. Skipping split.")
+        return
     
-    # Process each tumor type
-    results = {}
-    for tumor_type in tumor_types:
+    logger.info(f"Found {len(input_files)} input files to process.")
+    
+    results = []
+    for input_file in input_files:
+        # Infer tumor type from filename
+        # Expected pattern: {tumor_type}_processed.csv or similar
+        # If the file is named generically, we might need a config mapping
+        # For this implementation, we strip common suffixes to get the type
+        stem = input_file.stem
+        if stem.endswith('_processed'):
+            tumor_type = stem[:-10] # Remove '_processed'
+        else:
+            tumor_type = stem
+            
         try:
-            result = process_tumor_type_split(tumor_type)
-            results[tumor_type] = result
-            logger.info(f"Completed {tumor_type}: {result}")
+            result = process_tumor_type_split(
+                tumor_type=tumor_type,
+                input_file=input_file,
+                output_dir=output_dir
+            )
+            results.append(result)
         except Exception as e:
-            logger.error(f"Failed to process {tumor_type}: {e}")
-            results[tumor_type] = {"error": str(e)}
+            logger.error(f"Failed to process {input_file}: {e}", exc_info=True)
+            results.append({
+                "tumor_type": tumor_type,
+                "status": "failed",
+                "error": str(e)
+            })
     
-    # Save summary of split operations
-    summary_path = project_root / "results" / "split_summary.json"
-    ensure_directories([summary_path.parent])
-    
-    with open(summary_path, 'w') as f:
-        json.dump(results, f, indent=2)
-    
-    logger.info(f"Split summary saved to {summary_path}")
-    logger.info("Preprocessing split stage completed")
+    # Log summary
+    logger.info(f"Splitting complete. Processed {len(results)} tumor types.")
+    for res in results:
+        if res.get("status") != "failed":
+            logger.info(
+                f"{res['tumor_type']}: {res['discovery_samples']} discovery, "
+                f"{res['training_samples']} training"
+            )
+        else:
+            logger.error(f"{res['tumor_type']}: FAILED - {res.get('error')}")
 
 if __name__ == "__main__":
     main()

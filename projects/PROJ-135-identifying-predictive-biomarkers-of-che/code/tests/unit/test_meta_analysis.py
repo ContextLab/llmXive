@@ -1,298 +1,310 @@
 """
-Unit tests for meta-analysis functions.
-Tests the intersection and union logic for biomarker panel selection.
+Unit tests for meta_analysis module.
+
+Tests:
+- compute_intersection: intersection logic across tumor types
+- compute_union_top_ranked: fallback union logic
+- save_gene_panel: JSON output structure
+- load_discovery_results: file loading and validation
 """
+
 import os
 import sys
 import json
 import tempfile
 from pathlib import Path
 import pytest
-import logging
 
-# Add project root to path
-project_root = Path(__file__).parent.parent.parent
-sys.path.insert(0, str(project_root))
+import pandas as pd
+import numpy as np
 
+# Import module under test
 from src.meta_analysis import (
+    load_discovery_results,
     compute_intersection,
     compute_union_top_ranked,
-    load_discovery_results,
-    save_gene_panel
+    save_gene_panel,
+    FDR_THRESHOLD,
+    LOG2FC_THRESHOLD
 )
 
-# Configure logging for tests
-logging.basicConfig(level=logging.WARNING)
+@pytest.fixture
+def temp_project_structure(tmp_path):
+    """Create a temporary project structure with mock DE results."""
+    processed_dir = tmp_path / "data" / "processed"
+    processed_dir.mkdir(parents=True)
+    
+    # Create mock DE results for 3 tumor types
+    tumor_types = ["BRCA", "LUAD", "COAD"]
+    
+    # BRCA: genes A, B, C significant
+    brca_df = pd.DataFrame({
+        'gene': ['GENE_A', 'GENE_B', 'GENE_C', 'GENE_D', 'GENE_E'],
+        'pvalue': [0.001, 0.002, 0.003, 0.5, 0.6],
+        'padj': [0.01, 0.02, 0.03, 0.8, 0.9],
+        'log2FoldChange': [2.0, 1.5, 1.2, 0.5, 0.3]
+    })
+    (processed_dir / "BRCA_de_results.csv").to_csv(brca_df, index=False)
+    
+    # LUAD: genes A, B significant (C not sig)
+    luad_df = pd.DataFrame({
+        'gene': ['GENE_A', 'GENE_B', 'GENE_C', 'GENE_F', 'GENE_G'],
+        'pvalue': [0.001, 0.002, 0.1, 0.4, 0.5],
+        'padj': [0.01, 0.02, 0.5, 0.7, 0.8],
+        'log2FoldChange': [2.0, 1.5, 0.5, 0.4, 0.3]
+    })
+    (processed_dir / "LUAD_de_results.csv").to_csv(luad_df, index=False)
+    
+    # COAD: genes A, B significant
+    coad_df = pd.DataFrame({
+        'gene': ['GENE_A', 'GENE_B', 'GENE_H', 'GENE_I', 'GENE_J'],
+        'pvalue': [0.001, 0.002, 0.3, 0.4, 0.5],
+        'padj': [0.01, 0.02, 0.6, 0.7, 0.8],
+        'log2FoldChange': [2.0, 1.5, 0.4, 0.3, 0.2]
+    })
+    (processed_dir / "COAD_de_results.csv").to_csv(coad_df, index=False)
+    
+    return {
+        "processed_dir": processed_dir,
+        "tumor_types": tumor_types
+    }
 
 @pytest.fixture
-def temp_project_structure():
-    """Create a temporary project structure with mock discovery results."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        tmpdir_path = Path(tmpdir)
-        
-        # Create necessary directories
-        data_processed = tmpdir_path / "data" / "processed"
-        results_meta = tmpdir_path / "results" / "meta_analysis"
-        data_processed.mkdir(parents=True, exist_ok=True)
-        results_meta.mkdir(parents=True, exist_ok=True)
-        
-        # Create mock discovery results for 3 tumor types
-        tumor_types = ["BRCA", "LUAD", "COAD"]
-        
-        # Mock data: Some genes overlap, some don't
-        gene_data = {
-            "BRCA": {
-                "significant_genes": ["GENE_A", "GENE_B", "GENE_C", "GENE_D"]
-            },
-            "LUAD": {
-                "significant_genes": ["GENE_A", "GENE_B", "GENE_E", "GENE_F"]
-            },
-            "COAD": {
-                "significant_genes": ["GENE_A", "GENE_B", "GENE_G"]
-            }
-        }
-        
-        for tt, data in gene_data.items():
-            results_file = data_processed / f"{tt}_discovery_de_results.json"
-            with open(results_file, 'w') as f:
-                json.dump(data, f)
-        
-        yield tmpdir_path, data_processed, results_meta
+def temp_project_empty_intersection(tmp_path):
+    """Create a structure where no gene is significant in all types."""
+    processed_dir = tmp_path / "data" / "processed"
+    processed_dir.mkdir(parents=True)
+    
+    # Type 1: Gene X significant
+    df1 = pd.DataFrame({
+        'gene': ['GENE_X', 'GENE_Y', 'GENE_Z'],
+        'pvalue': [0.001, 0.5, 0.6],
+        'padj': [0.01, 0.8, 0.9],
+        'log2FoldChange': [2.0, 0.3, 0.4]
+    })
+    (processed_dir / "TYPE1_de_results.csv").to_csv(df1, index=False)
+    
+    # Type 2: Gene Y significant (X not)
+    df2 = pd.DataFrame({
+        'gene': ['GENE_X', 'GENE_Y', 'GENE_W'],
+        'pvalue': [0.5, 0.001, 0.6],
+        'padj': [0.8, 0.01, 0.9],
+        'log2FoldChange': [0.3, 2.0, 0.4]
+    })
+    (processed_dir / "TYPE2_de_results.csv").to_csv(df2, index=False)
+    
+    return {
+        "processed_dir": processed_dir,
+        "tumor_types": ["TYPE1", "TYPE2"]
+    }
 
 @pytest.fixture
-def temp_project_empty_intersection():
-    """Create a temporary project structure where intersection is empty."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        tmpdir_path = Path(tmpdir)
-        
-        data_processed = tmpdir_path / "data" / "processed"
-        results_meta = tmpdir_path / "results" / "meta_analysis"
-        data_processed.mkdir(parents=True, exist_ok=True)
-        results_meta.mkdir(parents=True, exist_ok=True)
-        
-        # No overlapping genes
-        gene_data = {
-            "BRCA": {
-                "significant_genes": ["GENE_A", "GENE_B", "GENE_C"]
-            },
-            "LUAD": {
-                "significant_genes": ["GENE_D", "GENE_E", "GENE_F"]
-            },
-            "COAD": {
-                "significant_genes": ["GENE_G", "GENE_H", "GENE_I"]
-            }
-        }
-        
-        for tt, data in gene_data.items():
-            results_file = data_processed / f"{tt}_discovery_de_results.json"
-            with open(results_file, 'w') as f:
-                json.dump(data, f)
-        
-        yield tmpdir_path, data_processed, results_meta
-
-@pytest.fixture
-def temp_project_top_ranked():
-    """Create a temporary project structure for union top-ranked test."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        tmpdir_path = Path(tmpdir)
-        
-        data_processed = tmpdir_path / "data" / "processed"
-        results_meta = tmpdir_path / "results" / "meta_analysis"
-        data_processed.mkdir(parents=True, exist_ok=True)
-        results_meta.mkdir(parents=True, exist_ok=True)
-        
-        # Mock data with ranking information
-        gene_data = {
-            "BRCA": {
-                "significant_genes": [
-                    {"gene": "GENE_A", "pvalue": 1e-10, "log2fc": 2.5},
-                    {"gene": "GENE_B", "pvalue": 1e-8, "log2fc": 2.0},
-                    {"gene": "GENE_C", "pvalue": 1e-6, "log2fc": 1.5}
-                ]
-            },
-            "LUAD": {
-                "significant_genes": [
-                    {"gene": "GENE_D", "pvalue": 1e-9, "log2fc": 2.2},
-                    {"gene": "GENE_E", "pvalue": 1e-7, "log2fc": 1.8},
-                    {"gene": "GENE_F", "pvalue": 1e-5, "log2fc": 1.2}
-                ]
-            }
-        }
-        
-        for tt, data in gene_data.items():
-            results_file = data_processed / f"{tt}_discovery_de_results.json"
-            with open(results_file, 'w') as f:
-                json.dump(data, f)
-        
-        yield tmpdir_path, data_processed, results_meta
-
-class TestComputeIntersection:
-    """Tests for compute_intersection function."""
-
-    def test_intersection_basic(self, temp_project_structure):
-        """Test basic intersection computation with overlapping genes."""
-        tmpdir_path, _, _ = temp_project_structure
-        
-        result = compute_intersection(["BRCA", "LUAD", "COAD"], tmpdir_path)
-        
-        # Expected: GENE_A and GENE_B are in all three
-        assert len(result) == 2
-        assert "GENE_A" in result
-        assert "GENE_B" in result
-        assert "GENE_C" not in result
-
-    def test_intersection_two_types(self, temp_project_structure):
-        """Test intersection with exactly two tumor types."""
-        tmpdir_path, _, _ = temp_project_structure
-        
-        result = compute_intersection(["BRCA", "LUAD"], tmpdir_path)
-        
-        # Expected: GENE_A and GENE_B are in both
-        assert len(result) == 2
-        assert "GENE_A" in result
-        assert "GENE_B" in result
-
-    def test_intersection_empty(self, temp_project_empty_intersection):
-        """Test intersection when no genes overlap."""
-        tmpdir_path, _, _ = temp_project_empty_intersection
-        
-        result = compute_intersection(["BRCA", "LUAD", "COAD"], tmpdir_path)
-        
-        assert len(result) == 0
-        assert result == []
-
-    def test_intersection_insufficient_types(self, temp_project_structure):
-        """Test that intersection requires at least 2 tumor types."""
-        tmpdir_path, _, _ = temp_project_structure
-        
-        with pytest.raises(ValueError) as excinfo:
-            compute_intersection(["BRCA"], tmpdir_path)
-        
-        assert "at least 2 tumor types" in str(excinfo.value)
-
-    def test_intersection_missing_file(self, temp_project_structure):
-        """Test that intersection raises error for missing tumor type."""
-        tmpdir_path, _, _ = temp_project_structure
-        
-        with pytest.raises(FileNotFoundError):
-            compute_intersection(["BRCA", "LUAD", "MISSING"], tmpdir_path)
-
-class TestComputeUnionTopRanked:
-    """Tests for compute_union_top_ranked function."""
-
-    def test_union_basic(self, temp_project_top_ranked):
-        """Test union of top-ranked genes."""
-        tmpdir_path, _, _ = temp_project_top_ranked
-        
-        result = compute_union_top_ranked(["BRCA", "LUAD"], tmpdir_path, max_genes=2)
-        
-        # Should have top 2 from each: GENE_A, GENE_B from BRCA; GENE_D, GENE_E from LUAD
-        assert len(result) == 4
-        assert "GENE_A" in result
-        assert "GENE_B" in result
-        assert "GENE_D" in result
-        assert "GENE_E" in result
-
-    def test_union_max_genes_limit(self, temp_project_top_ranked):
-        """Test that max_genes parameter limits the number of genes per type."""
-        tmpdir_path, _, _ = temp_project_top_ranked
-        
-        result = compute_union_top_ranked(["BRCA", "LUAD"], tmpdir_path, max_genes=1)
-        
-        # Should have top 1 from each: GENE_A from BRCA; GENE_D from LUAD
-        assert len(result) == 2
-        assert "GENE_A" in result
-        assert "GENE_D" in result
-
-    def test_union_handles_missing_file(self, temp_project_top_ranked):
-        """Test that union gracefully handles missing tumor types."""
-        tmpdir_path, _, _ = temp_project_top_ranked
-        
-        # Should not raise, just skip missing type
-        result = compute_union_top_ranked(["BRCA", "MISSING"], tmpdir_path, max_genes=2)
-        
-        # Should still get genes from BRCA
-        assert len(result) == 2
-
-class TestSaveGenePanel:
-    """Tests for save_gene_panel function."""
-
-    def test_save_panel_intersection(self, temp_project_structure):
-        """Test saving a gene panel with intersection method."""
-        _, _, results_meta = temp_project_structure
-        output_path = results_meta / "test_panel.json"
-        
-        genes = ["GENE_A", "GENE_B"]
-        save_gene_panel(genes, output_path, intersection_used=True)
-        
-        assert output_path.exists()
-        
-        with open(output_path, 'r') as f:
-            data = json.load(f)
-        
-        assert data["genes"] == genes
-        assert data["panel_size"] == len(genes)
-        assert data["method"] == "intersection"
-        assert data["fallback_reason"] is None
-
-    def test_save_panel_fallback(self, temp_project_empty_intersection):
-        """Test saving a gene panel with fallback method."""
-        _, _, results_meta = temp_project_empty_intersection
-        output_path = results_meta / "test_panel.json"
-        
-        genes = ["GENE_A", "GENE_B"]
-        save_gene_panel(genes, output_path, intersection_used=False, 
-                       fallback_reason="intersection_empty")
-        
-        assert output_path.exists()
-        
-        with open(output_path, 'r') as f:
-            data = json.load(f)
-        
-        assert data["genes"] == genes
-        assert data["panel_size"] == len(genes)
-        assert data["method"] == "union_fallback"
-        assert data["fallback_reason"] == "intersection_empty"
+def temp_project_top_ranked(tmp_path):
+    """Create a structure for testing top-ranked union."""
+    processed_dir = tmp_path / "data" / "processed"
+    processed_dir.mkdir(parents=True)
+    
+    # Type 1: A, B, C significant
+    df1 = pd.DataFrame({
+        'gene': ['GENE_A', 'GENE_B', 'GENE_C', 'GENE_D'],
+        'pvalue': [0.001, 0.002, 0.003, 0.5],
+        'padj': [0.01, 0.02, 0.03, 0.8],
+        'log2FoldChange': [2.0, 1.5, 1.2, 0.3]
+    })
+    (processed_dir / "TYPE1_de_results.csv").to_csv(df1, index=False)
+    
+    # Type 2: B, C, D significant
+    df2 = pd.DataFrame({
+        'gene': ['GENE_A', 'GENE_B', 'GENE_C', 'GENE_D'],
+        'pvalue': [0.5, 0.001, 0.002, 0.003],
+        'padj': [0.8, 0.01, 0.02, 0.03],
+        'log2FoldChange': [0.3, 2.0, 1.5, 1.2]
+    })
+    (processed_dir / "TYPE2_de_results.csv").to_csv(df2, index=False)
+    
+    return {
+        "processed_dir": processed_dir,
+        "tumor_types": ["TYPE1", "TYPE2"]
+    }
 
 class TestLoadDiscoveryResults:
-    """Tests for load_discovery_results function."""
+    def test_load_discovery_results_success(self, temp_project_structure):
+        """Test successful loading of DE results."""
+        results = load_discovery_results(
+            temp_project_structure["processed_dir"],
+            temp_project_structure["tumor_types"]
+        )
+        
+        assert len(results) == 3
+        assert "BRCA" in results
+        assert "LUAD" in results
+        assert "COAD" in results
+        
+        # Check structure
+        assert "gene" in results["BRCA"].columns
+        assert "padj" in results["BRCA"].columns
+        assert "log2FoldChange" in results["BRCA"].columns
 
-    def test_load_valid_results(self, temp_project_structure):
-        """Test loading valid discovery results."""
-        tmpdir_path, _, _ = temp_project_structure
-        
-        result = load_discovery_results("BRCA", tmpdir_path)
-        
-        assert "significant_genes" in result
-        assert len(result["significant_genes"]) == 4
-
-    def test_load_missing_file(self, temp_project_structure):
-        """Test that loading missing file raises error."""
-        tmpdir_path, _, _ = temp_project_structure
-        
+    def test_load_discovery_results_missing_file(self, temp_project_structure):
+        """Test error when a required file is missing."""
         with pytest.raises(FileNotFoundError):
-            load_discovery_results("MISSING", tmpdir_path)
+            load_discovery_results(
+                temp_project_structure["processed_dir"],
+                ["BRCA", "LUAD", "NONEXISTENT"]
+            )
 
-    def test_load_invalid_json(self, temp_project_structure):
-        """Test that loading invalid JSON raises error."""
-        tmpdir_path, data_processed, _ = temp_project_structure
+    def test_load_discovery_results_missing_columns(self, tmp_path):
+        """Test error when file has invalid columns."""
+        processed_dir = tmp_path / "data" / "processed"
+        processed_dir.mkdir(parents=True)
         
-        # Create invalid JSON file
-        invalid_file = data_processed / "INVALID_discovery_de_results.json"
-        with open(invalid_file, 'w') as f:
-            f.write("{ invalid json }")
+        # Create file with missing columns
+        df = pd.DataFrame({
+            'gene': ['A', 'B'],
+            'pvalue': [0.1, 0.2]
+            # Missing 'padj' and 'log2FoldChange'
+        })
+        (processed_dir / "BRCA_de_results.csv").to_csv(df, index=False)
         
-        with pytest.raises(ValueError):
-            load_discovery_results("INVALID", tmpdir_path)
+        with pytest.raises(ValueError, match="missing columns"):
+            load_discovery_results(processed_dir, ["BRCA"])
 
-    def test_load_missing_key(self, temp_project_structure):
-        """Test that loading file without required key raises error."""
-        tmpdir_path, data_processed, _ = temp_project_structure
+class TestComputeIntersection:
+    def test_compute_intersection_non_empty(self, temp_project_structure):
+        """Test intersection when genes are significant in all types."""
+        results = load_discovery_results(
+            temp_project_structure["processed_dir"],
+            temp_project_structure["tumor_types"]
+        )
         
-        # Create file without significant_genes key
-        invalid_file = data_processed / "MISSINGKEY_discovery_de_results.json"
-        with open(invalid_file, 'w') as f:
-            json.dump({"other_key": "value"}, f)
+        intersection = compute_intersection(results)
         
-        with pytest.raises(ValueError):
-            load_discovery_results("MISSINGKEY", tmpdir_path)
+        # GENE_A and GENE_B are significant in all three types
+        assert "GENE_A" in intersection
+        assert "GENE_B" in intersection
+        assert "GENE_C" not in intersection  # Not sig in LUAD
+        
+        assert len(intersection) == 2
+
+    def test_compute_intersection_empty(self, temp_project_empty_intersection):
+        """Test intersection when no gene is significant in all types."""
+        results = load_discovery_results(
+            temp_project_empty_intersection["processed_dir"],
+            temp_project_empty_intersection["tumor_types"]
+        )
+        
+        intersection = compute_intersection(results)
+        
+        assert len(intersection) == 0
+
+    def test_compute_intersection_single_type(self, temp_project_structure):
+        """Test that intersection requires ≥2 types."""
+        results = load_discovery_results(
+            temp_project_structure["processed_dir"],
+            ["BRCA"]  # Only one type
+        )
+        
+        intersection = compute_intersection(results)
+        assert len(intersection) == 0
+
+class TestComputeUnionTopRanked:
+    def test_compute_union_top_ranked(self, temp_project_top_ranked):
+        """Test union of top-ranked genes as fallback."""
+        results = load_discovery_results(
+            temp_project_top_ranked["processed_dir"],
+            temp_project_top_ranked["tumor_types"]
+        )
+        
+        # Empty intersection expected
+        assert len(compute_intersection(results)) == 0
+        
+        # Union should include B and C (significant in both)
+        union = compute_union_top_ranked(results, max_genes=50)
+        
+        assert "GENE_B" in union
+        assert "GENE_C" in union
+        # A and D appear in only one type, but may be included if max_genes allows
+        assert len(union) > 0
+
+    def test_compute_union_top_ranked_limit(self, temp_project_top_ranked):
+        """Test union respects max_genes limit."""
+        results = load_discovery_results(
+            temp_project_top_ranked["processed_dir"],
+            temp_project_top_ranked["tumor_types"]
+        )
+        
+        union = compute_union_top_ranked(results, max_genes=2)
+        assert len(union) <= 2
+
+    def test_compute_union_top_ranked_single_type(self, temp_project_structure):
+        """Test union requires ≥2 types."""
+        results = load_discovery_results(
+            temp_project_structure["processed_dir"],
+            ["BRCA"]
+        )
+        
+        union = compute_union_top_ranked(results)
+        assert len(union) == 0
+
+class TestSaveGenePanel:
+    def test_save_gene_panel_structure(self, tmp_path):
+        """Test that saved gene panel conforms to expected structure."""
+        output_path = tmp_path / "gene_panel.json"
+        
+        selected_genes = ["GENE_A", "GENE_B", "GENE_C"]
+        tumor_types = ["BRCA", "LUAD"]
+        
+        save_gene_panel(
+            selected_genes=selected_genes,
+            tumor_types=tumor_types,
+            output_path=output_path,
+            fallback_reason=None,
+            method="intersection"
+        )
+        
+        assert output_path.exists()
+        
+        with open(output_path) as f:
+            data = json.load(f)
+        
+        assert "selected" in data
+        assert data["selected"] == selected_genes
+        assert data["panel_size"] == len(selected_genes)
+        assert data["tumor_types_analyzed"] == tumor_types
+        assert data["method"] == "intersection"
+        assert data["fallback_reason"] is None
+        assert "thresholds" in data
+        assert data["thresholds"]["fdr"] == FDR_THRESHOLD
+        assert data["thresholds"]["log2fc"] == LOG2FC_THRESHOLD
+
+    def test_save_gene_panel_with_fallback(self, tmp_path):
+        """Test saved panel includes fallback reason."""
+        output_path = tmp_path / "gene_panel.json"
+        
+        save_gene_panel(
+            selected_genes=["GENE_A"],
+            tumor_types=["BRCA"],
+            output_path=output_path,
+            fallback_reason="intersection_empty",
+            method="union_top_ranked"
+        )
+        
+        with open(output_path) as f:
+            data = json.load(f)
+        
+        assert data["fallback_reason"] == "intersection_empty"
+        assert data["method"] == "union_top_ranked"
+
+    def test_save_gene_panel_creates_directory(self, tmp_path):
+        """Test that save_gene_panel creates parent directories."""
+        output_path = tmp_path / "nested" / "dir" / "gene_panel.json"
+        
+        save_gene_panel(
+            selected_genes=["GENE_A"],
+            tumor_types=["BRCA"],
+            output_path=output_path,
+            fallback_reason=None,
+            method="intersection"
+        )
+        
+        assert output_path.exists()

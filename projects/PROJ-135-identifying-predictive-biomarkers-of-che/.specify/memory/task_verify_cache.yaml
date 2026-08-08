@@ -5,3 +5,13 @@ T008:
     and no contract test harness for validating a YAML schema are present in the provided
     evidence. The claim only contains a feature specification unrelated to setting
     up pytest or YAML schema tests, so the required artifacts are missing.
+T011:
+  c: false
+  h: 0c2e2ca5745ddb9ea75c1f742c8fd3e4e1bffa9fd46888ea5d99bbccc64ad034
+  r: "The provided `tests/integration/test_feasibility_gate.py` file is truncated,\
+    \ so we cannot verify that it contains assertions for both the \u201CTCGA\u202F\
+    <\u202F3\u201D and \u201CGEO\u202F<\u202F2\u201D scenarios and that it checks\
+    \ the exact JSON content and halting behavior. Without seeing those assertions,\
+    \ we cannot confirm the test meets the stated requirement. The missing `data/feasibility_gate.json`\
+    \ is expected to be generated at runtime, but the test itself must explicitly\
+    \ validate its contents, which is not demonstrable from the evidence."
