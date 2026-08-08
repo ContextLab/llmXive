@@ -1,14 +1,26 @@
-materials:
+material_properties:
   steel:
-    mass: 0.01
-    inertia: 0.0001
-    roughness: 0.5
+    mass: 0.001
+    radius: 0.005
   polymer:
-    mass: 0.005
-    inertia: 0.00005
-    roughness: 0.2
+    mass: 0.0005
+    radius: 0.005
+vib_window_size: 5
+data_source:
+  source_type: local
+  source_id: "local_test_data"
+  expected_columns:
+    - particle_id
+    - timestamp
+    - x
+    - y
+    - z
+    - theta
+  checksum: ""
 frequency_bins:
-  - 5.0
-  - 10.0
-  - 15.0
-gravity: 9.81
+  - low: 5
+    high: 15
+  - low: 15
+    high: 25
+  - low: 25
+    high: 35

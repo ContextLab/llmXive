@@ -1,169 +1,128 @@
 """
-Tests for sensitivity analysis module (T029, T030).
+Tests for the sensitivity analysis module, specifically T065 (LOO-CV).
 """
-
 import json
-import os
-import tempfile
-from pathlib import Path
-
 import pytest
+from pathlib import Path
+import numpy as np
 
-from sensitivity import (
-    SensitivityError,
-    load_statistical_results,
-    sweep_alpha_thresholds,
-    sweep_quasi_thermal_boundaries,
-    verify_robustness,
-    run_sensitivity_analysis,
-    ALPHA_THRESHOLDS,
-    QUASI_THERMAL_BOUNDARIES
-)
+# Import the function to test
+from sensitivity import perform_leave_one_out_cv, SensitivityError
 
 @pytest.fixture
-def mock_statistical_results():
-    """Create a mock statistical results dictionary."""
-    return {
-        'bins': {
-            'bin_1': {
-                'tests': {
-                    'ks_test': {'p_value': 0.03, 'rejection': True},
-                    'chisq_test': {'p_value': 0.07, 'rejection': False}
-                },
-                'summary': {'energy_ratio': 1.02}
-            },
-            'bin_2': {
-                'tests': {
-                    'ks_test': {'p_value': 0.005, 'rejection': True},
-                    'chisq_test': {'p_value': 0.04, 'rejection': True}
-                },
-                'summary': {'energy_ratio': 0.98}
-            },
-            'bin_3': {
-                'tests': {
-                    'ks_test': {'p_value': 0.15, 'rejection': False},
-                    'chisq_test': {'p_value': 0.20, 'rejection': False}
-                },
-                'summary': {'energy_ratio': 1.05}
-            }
-        }
-    }
+def sample_results():
+    """Generate a mock set of statistical results for testing."""
+    # Create 10 bins with different frequencies
+    results = []
+    np.random.seed(42)
+    for i in range(10):
+        freq = 10.0 + i * 5.0
+        # Simulate p-values
+        ks_p = np.random.uniform(0.01, 0.2)
+        chi2_p = np.random.uniform(0.01, 0.2)
+        results.append({
+            'frequency': freq,
+            'ks_p_value': ks_p,
+            'chi2_p_value': chi2_p,
+            'material': 'steel',
+            'n_samples': 1000
+        })
+    return results
 
 @pytest.fixture
-def temp_json_file(mock_statistical_results):
-    """Create a temporary JSON file with mock statistical results."""
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
-        json.dump(mock_statistical_results, f)
-        temp_path = f.name
-    yield temp_path
-    os.unlink(temp_path)
+def outlier_results():
+    """Generate results where one bin is a clear outlier driver."""
+    results = []
+    # 9 normal bins (high p-values, no rejection)
+    for i in range(9):
+        results.append({
+            'frequency': 10.0 + i,
+            'ks_p_value': 0.5,
+            'chi2_p_value': 0.6,
+            'material': 'steel',
+            'n_samples': 1000
+        })
+    # 1 outlier bin (very low p-values, causes rejection)
+    results.append({
+        'frequency': 99.0,
+        'ks_p_value': 0.001,
+        'chi2_p_value': 0.001,
+        'material': 'steel',
+        'n_samples': 1000
+    })
+    return results
 
-def test_load_statistical_results_success(temp_json_file):
-    """Test successful loading of statistical results."""
-    results = load_statistical_results(temp_json_file)
-    assert 'bins' in results
-    assert len(results['bins']) == 3
+def test_loo_cv_empty_input():
+    """Test that LOO-CV handles empty input gracefully."""
+    result = perform_leave_one_out_cv([])
+    assert 'error' in result
+    assert result['error'] == 'No results provided for LOO-CV'
 
-def test_load_statistical_results_file_not_found():
-    """Test loading non-existent file raises SensitivityError."""
-    with pytest.raises(SensitivityError):
-        load_statistical_results('non_existent_file.json')
+def test_loo_cv_single_bin(sample_results):
+    """Test LOO-CV with a single bin type (or effectively single group)."""
+    # Modify sample to have only one frequency
+    for r in sample_results:
+        r['frequency'] = 10.0
+    
+    result = perform_leave_one_out_cv(sample_results)
+    
+    assert result['total_bins_analyzed'] == 1
+    assert 'bin_10.0' in result['details']
+    # Removing the only bin should leave no data
+    assert result['details']['bin_10.0']['status'] == 'skipped'
 
-def test_load_statistical_results_invalid_json():
-    """Test loading invalid JSON raises SensitivityError."""
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
-        f.write('invalid json {')
-        temp_path = f.name
-    try:
-        with pytest.raises(SensitivityError):
-            load_statistical_results(temp_path)
-    finally:
-        os.unlink(temp_path)
+def test_loo_cv_outlier_detection(outlier_results):
+    """Test that LOO-CV correctly identifies the outlier driver."""
+    result = perform_leave_one_out_cv(outlier_results)
+    
+    assert result['total_bins_analyzed'] == 10
+    assert result['robustness_summary'] == 'unstable_due_to_outliers'
+    
+    # The outlier bin (99.0) should be flagged
+    outlier_details = result['details'].get('bin_99.0')
+    assert outlier_details is not None
+    assert outlier_details['is_outlier_driver'] is True
+    
+    # Other bins should not be flagged
+    for i in range(10):
+        freq = 10.0 + i
+        if freq == 99.0:
+            continue
+        details = result['details'].get(f'bin_{freq}')
+        if details:
+            assert details['is_outlier_driver'] is False
 
-def test_sweep_alpha_thresholds(mock_statistical_results):
-    """Test alpha threshold sweep logic (T029)."""
-    results = sweep_alpha_thresholds(mock_statistical_results)
+def test_loo_cv_stable_case(sample_results):
+    """Test a case where no single bin drives the result."""
+    # Make all p-values very similar so no single removal changes the rate significantly
+    base_p = 0.04
+    for r in sample_results:
+        r['ks_p_value'] = base_p
+        r['chi2_p_value'] = base_p
+    
+    result = perform_leave_one_out_cv(sample_results)
+    
+    # Should be stable as all bins contribute equally
+    assert result['robustness_summary'] == 'stable'
+    assert len(result['outlier_drivers']) == 0
 
-    # Check that all expected thresholds are present
-    for alpha in ALPHA_THRESHOLDS:
-        assert alpha in results
-        assert 'rejection_count' in results[alpha]
-        assert 'total_tests' in results[alpha]
-        assert 'rejection_rate' in results[alpha]
-
-    # Verify specific counts:
-    # alpha=0.01: Only bin_2 ks_test (0.005) is < 0.01 -> 1 rejection
-    # alpha=0.05: bin_1 ks_test (0.03), bin_2 ks_test (0.005), bin_2 chisq_test (0.04) -> 3 rejections
-    # alpha=0.10: Same as 0.05 plus bin_1 chisq_test (0.07) -> 4 rejections
-
-    assert results[0.01]['rejection_count'] == 1
-    assert results[0.05]['rejection_count'] == 3
-    assert results[0.10]['rejection_count'] == 4
-    assert results[0.01]['total_tests'] == 6
-    assert results[0.05]['total_tests'] == 6
-    assert results[0.10]['total_tests'] == 6
-
-def test_sweep_quasi_thermal_boundaries(mock_statistical_results):
-    """Test quasi-thermal boundary sweep logic (T030)."""
-    # Pass results as energy_data proxy
-    results = sweep_quasi_thermal_boundaries(mock_statistical_results, mock_statistical_results)
-
-    # Check that all expected boundaries are present
-    for boundary in QUASI_THERMAL_BOUNDARIES:
-        assert boundary in results
-        assert 'threshold_low' in results[boundary]
-        assert 'threshold_high' in results[boundary]
-        assert 'classification_rate' in results[boundary]
-
-    # Verify thresholds
-    assert results[0.01]['threshold_low'] == 0.99
-    assert results[0.01]['threshold_high'] == 1.01
-    assert results[0.05]['threshold_low'] == 0.95
-    assert results[0.05]['threshold_high'] == 1.05
-
-def test_verify_robustness(mock_statistical_results):
-    """Test robustness verification logic."""
-    alpha_results = sweep_alpha_thresholds(mock_statistical_results)
-    robustness = verify_robustness(alpha_results)
-
-    assert 'robust' in robustness
-    assert 'decisions' in robustness
-    assert 'consistent_across_thresholds' in robustness
-
-def test_run_sensitivity_analysis(mock_statistical_results):
-    """Test full sensitivity analysis pipeline (T031)."""
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
-        json.dump(mock_statistical_results, f)
-        input_path = f.name
-
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
-        output_path = f.name
-
-    try:
-        report = run_sensitivity_analysis(input_path, output_path)
-
-        # Verify report structure
-        assert 'alpha_sweep' in report
-        assert 'quasi_thermal_boundary_sweep' in report
-        assert 'robustness_verification' in report
-        assert 'thresholds_tested' in report
-
-        # Verify output file was created
-        assert os.path.exists(output_path)
-
-        # Verify output file content
-        with open(output_path, 'r') as f:
-            saved_report = json.load(f)
-        assert saved_report == report
-
-    finally:
-        os.unlink(input_path)
-        os.unlink(output_path)
-
-def test_alpha_thresholds_constant():
-    """Test that ALPHA_THRESHOLDS matches the spec requirement."""
-    assert set(ALPHA_THRESHOLDS) == {0.01, 0.05, 0.10}
-
-def test_quasi_thermal_boundaries_constant():
-    """Test that QUASI_THERMAL_BOUNDARIES matches the spec requirement."""
-    assert set(QUASI_THERMAL_BOUNDARIES) == {0.01, 0.05, 0.10}
+def test_loo_cv_output_structure(sample_results):
+    """Test that the output structure matches the expected schema."""
+    result = perform_leave_one_out_cv(sample_results)
+    
+    assert 'method' in result
+    assert result['method'] == 'leave_one_out_cross_validation'
+    assert 'total_bins_analyzed' in result
+    assert 'outlier_drivers' in result
+    assert 'robustness_summary' in result
+    assert 'details' in result
+    
+    # Check detail structure
+    for key, val in result['details'].items():
+        assert 'bin_value' in val
+        assert 'samples_excluded' in val
+        assert 'samples_remaining' in val
+        assert 'rejection_rate_with_bin' in val
+        assert 'rejection_rate_without_bin' in val
+        assert 'deviation' in val
+        assert 'is_outlier_driver' in val

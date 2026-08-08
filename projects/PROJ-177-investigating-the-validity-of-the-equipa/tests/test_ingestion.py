@@ -1,88 +1,109 @@
-"""
-Tests for ingestion functions in code/ingestion.py.
-"""
 import pytest
 import pandas as pd
 import numpy as np
-import os
 from pathlib import Path
-from ingestion import handle_missing_frames, check_z_axis_completeness, calculate_energy_components
+import json
+import os
+
+from ingestion import (
+    load_tracking_data, load_driving_data, sync_timestamps,
+    handle_missing_frames, check_z_axis_completeness, compute_derivatives,
+    calculate_energy_components, detect_non_stationary_segments
+)
 from config import load_config
 
 @pytest.fixture
-def sample_tracking_data(tmp_path):
-    """Create sample tracking CSV."""
+def sample_tracking_data():
     data = {
-        'particle_id': [1, 1, 1, 2, 2, 2],
-        'timestamp': [0.0, 0.1, 0.2, 0.0, 0.1, 0.2],
-        'x': [0.1, 0.15, 0.2, 0.2, 0.25, 0.3],
-        'y': [0.2, 0.25, 0.3, 0.3, 0.35, 0.4],
-        'z': [0.5, 0.55, 0.6, 0.6, 0.65, 0.7],
-        'theta': [0.0, 0.1, 0.2, 0.0, 0.1, 0.2],
-        'material_type': ['steel', 'steel', 'steel', 'polymer', 'polymer', 'polymer']
+        'particle_id': [1, 1, 1, 1, 2, 2, 2],
+        'timestamp': [0.0, 0.1, 0.2, 0.3, 0.0, 0.1, 0.2],
+        'x': [0.0, 0.1, 0.2, 0.3, 0.0, 0.1, 0.2],
+        'y': [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+        'z': [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+        'theta': [0.0, 0.1, 0.2, 0.3, 0.0, 0.1, 0.2],
+        'material_type': ['steel', 'steel', 'steel', 'steel', 'polymer', 'polymer', 'polymer']
     }
-    df = pd.DataFrame(data)
-    file_path = tmp_path / "tracking.csv"
-    df.to_csv(file_path, index=False)
-    return str(file_path)
+    return pd.DataFrame(data)
 
 @pytest.fixture
-def sample_config(tmp_path):
-    """Create sample config.yaml."""
-    config_data = """
-    materials:
-      steel:
-        mass: 0.01
-        inertia: 0.0001
-        roughness: 0.5
-      polymer:
-        mass: 0.005
-        inertia: 0.00005
-        roughness: 0.2
-    frequency_bins:
-      - 5.0
-      - 10.0
-    gravity: 9.81
-    """
-    file_path = tmp_path / "config.yaml"
-    file_path.write_text(config_data)
-    return str(file_path)
-
-def test_handle_missing_frames():
-    """Test linear interpolation for missing frames."""
+def sample_driving_data():
     data = {
-        'timestamp': [0.0, 0.1, 0.2, 0.3, 0.4],
-        'x': [0.0, 0.1, np.nan, 0.3, 0.4],
-        'y': [0.0, 0.1, 0.2, 0.3, 0.4]
+        'timestamp': [0.0, 0.1, 0.2, 0.3],
+        'frequency': [10.0, 10.0, 10.0, 10.0],
+        'amplitude': [1.0, 1.0, 1.0, 1.0]
+    }
+    return pd.DataFrame(data)
+
+@pytest.fixture
+def config():
+    return {
+        'material_properties': {
+            'steel': {'mass': 0.001, 'radius': 0.005},
+            'polymer': {'mass': 0.0005, 'radius': 0.005}
+        },
+        'vib_window_size': 5
+    }
+
+def test_load_tracking_data(tmp_path, sample_tracking_data):
+    file_path = tmp_path / "tracking.csv"
+    sample_tracking_data.to_csv(file_path, index=False)
+    df = load_tracking_data([file_path])
+    assert len(df) == 7
+    assert 'x' in df.columns
+
+def test_sync_timestamps(sample_tracking_data, sample_driving_data):
+    merged = sync_timestamps(sample_tracking_data, sample_driving_data)
+    assert 'frequency' in merged.columns
+    assert len(merged) == len(sample_tracking_data)
+
+def test_handle_missing_frames(sample_tracking_data):
+    # Introduce a gap
+    sample_tracking_data.loc[2, 'timestamp'] = 0.5
+    df = handle_missing_frames(sample_tracking_data, max_gap=0.15)
+    assert 'gap_flag' in df.columns
+    assert df.loc[2, 'gap_flag'] == True
+
+def test_check_z_axis_completeness(sample_tracking_data):
+    df = check_z_axis_completeness(sample_tracking_data)
+    assert 'pot_incomplete' in df.columns
+    assert all(~df['pot_incomplete'])
+
+def test_check_z_axis_incomplete(tmp_path):
+    data = {
+        'particle_id': [1, 1],
+        'timestamp': [0.0, 0.1],
+        'x': [0.0, 0.1],
+        'y': [0.0, 0.0],
     }
     df = pd.DataFrame(data)
-    result = handle_missing_frames(df)
-    assert not result['x'].isna().any()
-    assert result.loc[2, 'x'] == 0.2  # Interpolated value
+    df = check_z_axis_completeness(df)
+    assert all(df['pot_incomplete'])
 
-def test_check_z_axis_completeness():
-    """Test z-axis completeness flagging."""
-    data = {
-        'particle_id': [1, 1, 2, 2],
-        'z': [0.5, np.nan, 0.6, 0.7]
-    }
-    df = pd.DataFrame(data)
-    result = check_z_axis_completeness(df)
-    assert 'pot_incomplete' in result.columns
-    assert result.loc[1, 'pot_incomplete'] == True
-    assert result.loc[0, 'pot_incomplete'] == False
+def test_compute_derivatives(sample_tracking_data):
+    df = compute_derivatives(sample_tracking_data)
+    assert 'v' in df.columns
+    assert 'omega' in df.columns
+    # Check velocity calculation for first particle
+    v1 = np.sqrt(0.1**2 + 0.0**2 + 0.0**2) # dx=0.1, dt=0.1 -> vx=1.0? No, diff/dt
+    # Actually: dx = 0.1, dt = 0.1 -> vx = 1.0
+    # v = 1.0
+    assert abs(df.loc[1, 'v'] - 1.0) < 0.01
 
-def test_calculate_energy_components(sample_tracking_data, sample_config):
-    """Test energy component calculation."""
-    df = pd.read_csv(sample_tracking_data)
-    # Add frequency column for sync (mock)
-    df['frequency'] = 10.0
-    
-    result = calculate_energy_components(df, sample_config)
-    assert 'E_trans' in result.columns
-    assert 'E_rot' in result.columns
-    assert 'E_pot' in result.columns
-    assert 'E_vib' in result.columns
-    # Check that energies are positive
-    assert (result['E_trans'] >= 0).all()
-    assert (result['E_rot'] >= 0).all()
+def test_calculate_energy_components(sample_tracking_data, config):
+    # Add frequency for sync
+    sample_tracking_data['frequency'] = 10.0
+    df = compute_derivatives(sample_tracking_data)
+    df = calculate_energy_components(df, config)
+    assert 'E_trans' in df.columns
+    assert 'E_rot' in df.columns
+    assert 'E_pot' in df.columns
+    assert 'E_vib' in df.columns
+    # Check E_trans = 0.5 * m * v^2
+    # m_steel = 0.001, v = 1.0 -> E = 0.0005
+    assert abs(df.loc[1, 'E_trans'] - 0.0005) < 1e-6
+
+def test_detect_non_stationary_segments(sample_tracking_data):
+    sample_tracking_data['frequency'] = [10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0]
+    df = detect_non_stationary_segments(sample_tracking_data)
+    assert 'chirp_flag' in df.columns
+    assert all(~df['chirp_flag']) # Constant frequency should not be flagged

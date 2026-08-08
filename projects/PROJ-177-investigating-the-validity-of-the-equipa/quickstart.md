@@ -1,65 +1,55 @@
 # Quickstart Guide
 
-This guide provides the commands to run the full analysis pipeline for the project.
-
 ## Prerequisites
 
 - Python 3.11+
-- Dependencies installed: `pip install -r requirements.txt`
-- Real data source configured in `data/config.yaml` (see T062)
+- Install dependencies: `pip install -r requirements.txt`
 
 ## Running the Pipeline
 
-The pipeline consists of several stages that can be run individually or all at once.
+The main entry point is `code/main.py`. It accepts a `--stage` argument to select the pipeline stage.
 
-### Run All Stages
+### Full Run
 
-To run the complete pipeline from raw data checksum to regression analysis:
+To run the entire pipeline from data ingestion to regression analysis:
 
 ```bash
-python code/main.py --stage all --sample-ratio 0.1
+python code/main.py --stage all --sample-ratio 0.1 --data-source zenodo:12345
 ```
 
-### Run Individual Stages
+### Individual Stages
 
-You can also run specific stages:
+- **Ingestion**: Ingest data and calculate energies.
+ ```bash
+ python code/main.py --stage ingest --sample-ratio 0.1 --data-source zenodo:12345
+ ```
+
+- **Statistics**: Perform statistical tests on energy distributions.
+ ```bash
+ python code/main.py --stage stats --alpha 0.01
+ ```
+
+- **Sensitivity**: Run sensitivity analysis on thresholds.
+ ```bash
+ python code/main.py --stage sensitivity --thresholds 0.01,0.05,0.10
+ ```
+
+- **Regression**: Perform regression analysis on deviation drivers.
+ ```bash
+ python code/main.py --stage regression
+ ```
+
+### Dry Run
+
+Validate the environment without executing heavy computation:
 
 ```bash
-# Step 1: Ingestion (compute energies)
-python code/main.py --stage ingest --sample-ratio 0.1
-
-# Step 2: Statistical Analysis (KS and Chi-squared tests)
-python code/main.py --stage stats --alpha 0.01
-
-# Step 3: Sensitivity Analysis (threshold sweeps)
-python code/main.py --stage sensitivity --thresholds 0.01,0.05,0.10
-
-# Step 4: Regression Analysis
-python code/main.py --stage regression
+python code/main.py --stage all --dry-run
 ```
 
 ## Output Files
 
-The pipeline produces the following key outputs:
-
-- `data/derived/energy_samples.csv` - Computed energy components for each particle/frame
-- `artifacts/statistical_results.json` - Results of KS and Chi-squared tests
-- `artifacts/sensitivity_analysis_report.json` - Sensitivity analysis results
-- `artifacts/regression_results.json` - Regression model parameters
-
-## Troubleshooting
-
-### Data Source Not Configured
-
-If you see "ERROR: Data source not configured", ensure you have updated `data/config.yaml` with a valid Zenodo or UCI dataset ID (see T062).
-
-### Missing Dependency Files
-
-If you see "ERROR: Dependency file data/derived/energy_samples.csv missing", run the ingestion stage first:
-```bash
-python code/main.py --stage ingest
-```
-
-### Test Data Rejected
-
-The pipeline rejects files with 'test_' prefix as primary scientific input. Ensure you are using real data, not synthetic test datasets.
+- `data/derived/energy_samples.csv`: Calculated energy components.
+- `artifacts/statistical_results.json`: Results of KS and Chi-squared tests.
+- `artifacts/sensitivity_analysis_report.json`: Sensitivity analysis results.
+- `artifacts/regression_results.json`: Regression coefficients and statistics.

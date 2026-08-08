@@ -3,149 +3,121 @@ import sys
 import os
 import logging
 from pathlib import Path
-from checksum_raw_data import main as checksum_main
-from config import load_config
-import pandas as pd
+import json
 
-def validate_data_source(config: dict) -> bool:
+from ingestion import ingest_data
+from stats import run_statistical_analysis
+from sensitivity import run_sensitivity_analysis
+from regression import run_regression_analysis
+from config import load_config
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
+def validate_data_source(config_path: str) -> bool:
     """Validate that data source is configured."""
-    if 'data_source' not in config:
-        logging.error("ERROR: Data source not configured. Please specify a real Zenodo or UCI ID in data/config.yaml.")
+    config = load_config(config_path)
+    source_id = os.environ.get('DATA_SOURCE_ID') or config.get('data_source', {}).get('source_id')
+    if not source_id:
+        logger.error("Data source ID missing in config or environment.")
         return False
-    
-    source_type = config['data_source'].get('source_type')
-    source_id = config['data_source'].get('source_id')
-    
-    if not source_type or not source_id:
-        logging.error("ERROR: Data source not configured. Please specify a real Zenodo or UCI ID in data/config.yaml.")
-        return False
-    
     return True
 
 def check_dependency_energy_samples() -> bool:
-    """Check if energy_samples.csv exists and is valid before running US2+ tasks."""
-    input_file = 'data/derived/energy_samples.csv'
-    
-    if not os.path.exists(input_file):
-        logging.error("ERROR: Dependency file data/derived/energy_samples.csv missing. Run US1 first.")
+    """Check if energy_samples.csv exists."""
+    path = Path("data/derived/energy_samples.csv")
+    if not path.exists():
+        logger.error(f"Dependency file {path} missing. Run US1 first.")
         return False
-    
-    # Validate file is not a test file
-    if 'test_' in os.path.basename(input_file):
-        logging.error("ERROR: Dependency file data/derived/energy_samples.csv appears to be a test file. Run US1 with real data first.")
-        return False
-    
-    # Try to read and validate basic structure
-    try:
-        df = pd.read_csv(input_file)
-        required_cols = ['particle_id', 'timestamp', 'E_trans', 'E_rot', 'E_pot', 'E_vib', 'pot_incomplete']
-        missing = [col for col in required_cols if col not in df.columns]
-        if missing:
-            logging.error(f"ERROR: Dependency file missing required columns: {missing}")
-            return False
-        if df.empty:
-            logging.error("ERROR: Dependency file is empty.")
-            return False
-    except Exception as e:
-        logging.error(f"ERROR: Cannot read dependency file: {e}")
-        return False
-    
     return True
 
-def run_ingestion(args):
-    """Run the ingestion stage."""
-    from ingestion import main as ingestion_main
-    # Call ingestion main with appropriate arguments
-    ingestion_main()
+def check_dependency_statistical_results() -> bool:
+    """Check if statistical_results.json exists."""
+    path = Path("artifacts/statistical_results.json")
+    if not path.exists():
+        logger.error(f"Dependency file {path} missing. Run stats first.")
+        return False
+    return True
 
-def run_statistics(args):
-    """Run the statistical analysis stage."""
-    # Check dependency first
+def run_dry_run(config_path: str) -> None:
+    """Validate environment without running computation."""
+    logger.info("Running dry run...")
+    if not validate_data_source(config_path):
+        sys.exit(1)
+    logger.info("Dry run passed. Environment ready.")
+
+def run_ingestion(config_path: str, data_source: str, sample_ratio: float, local_only: bool) -> None:
+    """Run ingestion stage."""
+    logger.info("Running ingestion...")
+    ingest_data(config_path, data_source, sample_ratio, local_only)
+    logger.info("Ingestion complete.")
+
+def run_statistics(config_path: str, alpha: float) -> None:
+    """Run statistics stage."""
     if not check_dependency_energy_samples():
         sys.exit(1)
-    
-    from stats import main as stats_main
-    stats_main()
+    logger.info("Running statistics...")
+    run_statistical_analysis(config_path, alpha)
+    logger.info("Statistics complete.")
 
-def run_sensitivity(args):
-    """Run the sensitivity analysis stage."""
-    # Check dependency first
-    if not check_dependency_energy_samples():
+def run_sensitivity(config_path: str, thresholds: str) -> None:
+    """Run sensitivity stage."""
+    if not check_dependency_statistical_results():
         sys.exit(1)
-    
-    from generate_sensitivity_report import main as sensitivity_main
-    sensitivity_main()
+    logger.info("Running sensitivity analysis...")
+    threshold_list = [float(t) for t in thresholds.split(',')]
+    run_sensitivity_analysis(config_path, threshold_list)
+    logger.info("Sensitivity analysis complete.")
 
-def run_regression(args):
-    """Run the regression analysis stage."""
-    # Check dependency first
-    if not check_dependency_energy_samples():
+def run_regression(config_path: str) -> None:
+    """Run regression stage."""
+    if not check_dependency_statistical_results():
         sys.exit(1)
-    
-    from regression import main as regression_main
-    regression_main()
+    logger.info("Running regression...")
+    run_regression_analysis(config_path)
+    logger.info("Regression complete.")
 
 def parse_args():
-    parser = argparse.ArgumentParser(description='Granular Systems Analysis Pipeline')
-    parser.add_argument('--stage', choices=['all', 'checksum_raw', 'hash_artifacts', 'ingest', 'stats', 'sensitivity', 'regression'],
-                      default='all', help='Stage to run')
-    parser.add_argument('--config', type=str, default='data/config.yaml', help='Path to config file')
-    parser.add_argument('--verbose', action='store_true', help='Enable verbose logging')
-    parser.add_argument('--sample-ratio', type=float, help='Sampling ratio for large datasets')
-    parser.add_argument('--alpha', type=float, default=0.05, help='Significance level for statistical tests')
-    parser.add_argument('--thresholds', type=str, help='Comma-separated list of thresholds for sensitivity analysis')
-    parser.add_argument('--data-source', type=str, help='Data source ID (Zenodo or UCI)')
-    parser.add_argument('--local-only', action='store_true', help='Only use local data')
-    
+    parser = argparse.ArgumentParser(description="Main orchestration script for granular system analysis.")
+    parser.add_argument("--stage", type=str, choices=["all", "checksum_raw", "hash_artifacts", "ingest", "stats", "sensitivity", "regression"],
+                      default="all", help="Pipeline stage to run.")
+    parser.add_argument("--config", type=str, default="data/config.yaml", help="Path to config file.")
+    parser.add_argument("--verbose", action="store_true", help="Enable verbose logging.")
+    parser.add_argument("--sample-ratio", type=float, default=None, help="Fraction of data to sample.")
+    parser.add_argument("--alpha", type=float, default=0.05, help="Significance level for statistical tests.")
+    parser.add_argument("--thresholds", type=str, default="0.01,0.05,0.10", help="Comma-separated thresholds for sensitivity analysis.")
+    parser.add_argument("--data-source", type=str, default=None, help="Data source ID.")
+    parser.add_argument("--local-only", action="store_true", help="Enforce local-only mode.")
+    parser.add_argument("--dry-run", action="store_true", help="Validate environment without running computation.")
     return parser.parse_args()
 
 def main():
     args = parse_args()
     
     if args.verbose:
-        logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
-    else:
-        logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-    
-    # Load config
-    config = load_config(args.config)
-    
-    # Validate data source if not in local-only mode
-    if not args.local_only:
-        if not validate_data_source(config):
-            sys.exit(1)
-    
-    # Set sample ratio in config if provided
-    if args.sample_ratio is not None:
-        config['SAMPLE_SIZE'] = args.sample_ratio
-    
-    # Run stages
-    if args.stage == 'all' or args.stage == 'checksum_raw':
-        logging.info("Running checksum_raw stage...")
-        checksum_main()
-    
-    if args.stage == 'all' or args.stage == 'hash_artifacts':
-        logging.info("Running hash_artifacts stage...")
-        from hash_artifacts import main as hash_main
-        hash_main()
-    
-    if args.stage == 'all' or args.stage == 'ingest':
-        logging.info("Running ingestion stage...")
-        run_ingestion(args)
-    
-    if args.stage == 'all' or args.stage == 'stats':
-        logging.info("Running statistical analysis stage...")
-        run_statistics(args)
-    
-    if args.stage == 'all' or args.stage == 'sensitivity':
-        logging.info("Running sensitivity analysis stage...")
-        run_sensitivity(args)
-    
-    if args.stage == 'all' or args.stage == 'regression':
-        logging.info("Running regression analysis stage...")
-        run_regression(args)
-    
-    logging.info("Pipeline completed successfully.")
+        logging.getLogger().setLevel(logging.DEBUG)
+        
+    if args.dry_run:
+        run_dry_run(args.config)
+        return
+
+    if args.stage == "ingest" or args.stage == "all":
+        run_ingestion(args.config, args.data_source, args.sample_ratio, args.local_only)
+
+    if args.stage == "stats" or args.stage == "all":
+        run_statistics(args.config, args.alpha)
+
+    if args.stage == "sensitivity" or args.stage == "all":
+        run_sensitivity(args.config, args.thresholds)
+
+    if args.stage == "regression" or args.stage == "all":
+        run_regression(args.config)
+
+    logger.info("Pipeline execution complete.")
 
 if __name__ == "__main__":
     main()

@@ -4,10 +4,16 @@ import json
 import logging
 import hashlib
 import argparse
+from pathlib import Path
+from typing import Dict, List, Tuple, Any, Optional
 import pandas as pd
 import numpy as np
-from pathlib import Path
-from typing import Dict, List, Optional, Tuple, Any
+from scipy.signal import hilbert
+from datetime import datetime
+import itertools
+
+from config import load_config, get_material_properties, get_mass
+from checksum_raw_data import calculate_sha256
 
 # Configure logging
 logging.basicConfig(
@@ -20,231 +26,403 @@ class IngestionError(Exception):
     """Custom exception for ingestion errors."""
     pass
 
-# --- Helper Functions (Assumed to exist from T009-T018 implementation) ---
-# These are stubs for the purpose of this task's context, but in the real
-# project they would be fully implemented in previous tasks.
-def find_csv_files(directory: str) -> List[Path]:
-    return []
+class DataExclusionWarning(UserWarning):
+    """Warning for data exclusion events."""
+    pass
 
-def load_tracking_data(files: List[Path]) -> pd.DataFrame:
-    return pd.DataFrame()
+def find_csv_files(directory: Path) -> List[Path]:
+    """Find all CSV files in a directory recursively."""
+    return list(directory.rglob("*.csv"))
 
-def load_driving_data(file: Path) -> pd.DataFrame:
-    return pd.DataFrame()
+def load_tracking_data(file_paths: List[Path]) -> pd.DataFrame:
+    """
+    Load particle tracking data from CSV files.
+    Expected columns: particle_id, timestamp, x, y, z (optional), theta (optional).
+    """
+    dfs = []
+    for fp in file_paths:
+        try:
+            df = pd.read_csv(fp)
+            # Ensure required columns exist
+            required = ['particle_id', 'timestamp', 'x', 'y']
+            missing = [c for c in required if c not in df.columns]
+            if missing:
+                logger.warning(f"File {fp} missing columns {missing}, skipping.")
+                continue
+            dfs.append(df)
+        except Exception as e:
+            logger.error(f"Failed to load {fp}: {e}")
+            continue
 
-def sync_timestamps(tracking_df: pd.DataFrame, driving_df: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame]:
-    return tracking_df, driving_df
+    if not dfs:
+        raise IngestionError("No valid tracking data files found.")
 
-def handle_missing_frames(df: pd.DataFrame) -> pd.DataFrame:
+    combined = pd.concat(dfs, ignore_index=True)
+    combined = combined.sort_values(['particle_id', 'timestamp']).reset_index(drop=True)
+    return combined
+
+def load_driving_data(file_path: Path) -> pd.DataFrame:
+    """
+    Load driving signal logs.
+    Expected columns: timestamp, frequency, amplitude.
+    """
+    if not file_path.exists():
+        raise IngestionError(f"Driving signal file not found: {file_path}")
+    
+    try:
+        df = pd.read_csv(file_path)
+        required = ['timestamp', 'frequency']
+        missing = [c for c in required if c not in df.columns]
+        if missing:
+            raise IngestionError(f"Driving signal file missing columns: {missing}")
+        return df
+    except Exception as e:
+        raise IngestionError(f"Failed to load driving data: {e}")
+
+def sync_timestamps(tracking_df: pd.DataFrame, driving_df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Sync particle tracking data with driving signal logs by timestamp.
+    Merges on closest timestamp within a tolerance.
+    """
+    # Ensure timestamps are numeric/float for interpolation if needed
+    if tracking_df['timestamp'].dtype != float:
+        tracking_df['timestamp'] = pd.to_numeric(tracking_df['timestamp'], errors='coerce')
+    
+    # Merge: for each tracking row, find the closest driving timestamp
+    # We'll use a simple asof merge or nearest join logic
+    # For simplicity, we assume driving data is dense enough or we interpolate
+    driving_df = driving_df.sort_values('timestamp')
+    tracking_df = tracking_df.sort_values('timestamp')
+    
+    # Perform an asof merge to attach driving frequency to each particle frame
+    merged = pd.merge_asof(
+        tracking_df,
+        driving_df,
+        on='timestamp',
+        direction='nearest',
+        tolerance=pd.Timedelta('1ms') # Adjust tolerance as needed
+    )
+    
+    # Drop rows where driving data couldn't be matched
+    if merged['frequency'].isnull().any():
+        logger.warning("Some tracking rows have no matching driving signal. Dropping them.")
+        merged = merged.dropna(subset=['frequency'])
+        
+    return merged
+
+def handle_missing_frames(df: pd.DataFrame, max_gap: float = 0.01) -> pd.DataFrame:
+    """
+    Handle missing frames via linear interpolation or flagging.
+    If gap > max_gap, log warning and set gap_flag.
+    """
+    df = df.sort_values(['particle_id', 'timestamp'])
+    df['gap_flag'] = False
+    
+    for pid, group in df.groupby('particle_id'):
+        timestamps = group['timestamp'].values
+        gaps = np.diff(timestamps)
+        large_gaps = gaps > max_gap
+        
+        if np.any(large_gaps):
+            logger.warning(f"Particle {pid} has {np.sum(large_gaps)} large gaps (> {max_gap}s). Flagging.")
+            # Flag the row AFTER the large gap
+            indices = group.index[1:][large_gaps]
+            df.loc[indices, 'gap_flag'] = True
+        
+        # Interpolate missing numeric columns
+        numeric_cols = ['x', 'y', 'z', 'theta', 'frequency', 'amplitude']
+        cols_to_interp = [c for c in numeric_cols if c in df.columns]
+        if cols_to_interp:
+            df.loc[group.index, cols_to_interp] = group[cols_to_interp].interpolate(method='linear')
+            
     return df
 
-def check_z_axis_completeness(df: pd.DataFrame) -> Dict[int, bool]:
-    return {}
+def check_z_axis_completeness(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Handle missing z-axis data by adding a 'pot_incomplete' boolean column.
+    """
+    if 'z' not in df.columns:
+        logger.warning("Z-axis data missing. Marking all rows as pot_incomplete=True.")
+        df['pot_incomplete'] = True
+        return df
+    
+    df['pot_incomplete'] = df['z'].isnull()
+    if df['pot_incomplete'].any():
+        logger.warning(f"{df['pot_incomplete'].sum()} rows have missing z-axis data.")
+    return df
 
 def compute_derivatives(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Compute velocity (v) and angular velocity (omega) via finite differences.
+    v = sqrt(vx^2 + vy^2 + vz^2)
+    omega = d(theta)/dt
+    """
+    df = df.sort_values(['particle_id', 'timestamp'])
+    
+    # Velocity components
+    for col in ['x', 'y', 'z']:
+        if col in df.columns:
+            df[f'd{col}'] = df.groupby('particle_id')[col].diff() / df.groupby('particle_id')['timestamp'].diff()
+        else:
+            df[f'd{col}'] = 0.0
+            
+    # Handle division by zero (first row of each group)
+    df['vx'] = df['dx'].fillna(0)
+    df['vy'] = df['dy'].fillna(0)
+    df['vz'] = df['dz'].fillna(0)
+    
+    df['v'] = np.sqrt(df['vx']**2 + df['vy']**2 + df['vz']**2)
+    
+    # Angular velocity
+    if 'theta' in df.columns:
+        df['dtheta'] = df.groupby('particle_id')['theta'].diff() / df.groupby('particle_id')['timestamp'].diff()
+        df['omega'] = df['dtheta'].fillna(0)
+    else:
+        df['omega'] = 0.0
+        
     return df
-
-def load_config(config_path: str = "data/config.yaml") -> Dict[str, Any]:
-    import yaml
-    with open(config_path, 'r') as f:
-        return yaml.safe_load(f)
-
-def get_material_properties(config: Dict[str, Any], material_type: str) -> Dict[str, float]:
-    # Mock implementation for context
-    return {'mass': 1.0, 'radius': 0.01, 'inertia': 0.0002}
-
-# --- Core Logic for T019 ---
 
 def calculate_energy_components(df: pd.DataFrame, config: Dict[str, Any]) -> pd.DataFrame:
     """
-    Calculate E_trans, E_rot, E_pot, E_vib based on physics formulas.
-    Reads N (window size) from config for E_vib.
+    Calculate E_trans, E_rot, E_pot, E_vib.
+    E_vib = m * var(a) over a sliding window (N=5).
+    All energies in Joules.
     """
-    logger.info("Calculating energy components...")
+    # Get mass from config
+    material = df.get('material_type', 'steel').iloc[0] if 'material_type' in df.columns else 'steel'
+    mass = get_mass(material, config)
+    inertia = 0.4 * mass * (0.005**2) # Simplified sphere inertia proxy: 0.4 * m * r^2, r=5mm
     
-    # Get N for vibration window from config, default 5
-    vib_window = config.get('vibration', {}).get('window_size', 5)
+    # Acceleration for E_vib
+    df = df.sort_values(['particle_id', 'timestamp'])
+    df['ax'] = df.groupby('particle_id')['vx'].diff() / df.groupby('particle_id')['timestamp'].diff()
+    df['ay'] = df.groupby('particle_id')['vy'].diff() / df.groupby('particle_id')['timestamp'].diff()
+    df['az'] = df.groupby('particle_id')['vz'].diff() / df.groupby('particle_id')['timestamp'].diff()
+    df['a'] = np.sqrt(df['ax']**2 + df['ay']**2 + df['az']**2)
     
-    # Initialize energy columns
-    df['E_trans'] = 0.0
-    df['E_rot'] = 0.0
-    df['E_pot'] = 0.0
-    df['E_vib'] = 0.0
-
-    # Group by particle to calculate per-particle properties
-    for particle_id, group in df.groupby('particle_id'):
-        props = get_material_properties(config, group['material_type'].iloc[0])
-        mass = props['mass']
-        inertia = props['inertia']
-        radius = props['radius']
-
-        # E_trans = 0.5 * m * v^2
-        # Assume v is magnitude of velocity vector (vx, vy, vz)
-        if 'vx' in group and 'vy' in group:
-            v_sq = group['vx']**2 + group['vy']**2
-            if 'vz' in group:
-                v_sq += group['vz']**2
-            df.loc[group.index, 'E_trans'] = 0.5 * mass * v_sq
-
-        # E_rot = 0.5 * I * omega^2
-        # Assume omega is magnitude of angular velocity (omega_x, omega_y, omega_z)
-        if 'omega_x' in group and 'omega_y' in group:
-            omega_sq = group['omega_x']**2 + group['omega_y']**2
-            if 'omega_z' in group:
-                omega_sq += group['omega_z']**2
-            df.loc[group.index, 'E_rot'] = 0.5 * inertia * omega_sq
-
-        # E_pot = m * g * h
-        # Assume h is z coordinate
-        if 'z' in group:
-            g = 9.81
-            df.loc[group.index, 'E_pot'] = mass * g * group['z']
-        else:
-            # If z is missing, we handle it in the output function
-            df.loc[group.index, 'E_pot'] = np.nan
-
-        # E_vib = variance of acceleration over sliding window
-        # Acceleration = derivative of velocity
-        if 'vx' in group and 'vy' in group:
-            ax = group['vx'].diff().fillna(0)
-            ay = group['vy'].diff().fillna(0)
-            if 'vz' in group:
-                az = group['vz'].diff().fillna(0)
-            else:
-                az = pd.Series(0, index=group.index)
-            
-            a_sq = ax**2 + ay**2 + az**2
-            
-            # Rolling variance
-            df.loc[group.index, 'E_vib'] = a_sq.rolling(window=vib_window, min_periods=1).var()
-
+    # Fill NaNs in acceleration
+    df['ax'] = df['ax'].fillna(0)
+    df['ay'] = df['ay'].fillna(0)
+    df['az'] = df['az'].fillna(0)
+    df['a'] = df['a'].fillna(0)
+    
+    # E_trans = 0.5 * m * v^2
+    df['E_trans'] = 0.5 * mass * df['v']**2
+    
+    # E_rot = 0.5 * I * omega^2
+    df['E_rot'] = 0.5 * inertia * df['omega']**2
+    
+    # E_pot = m * g * z
+    g = 9.81
+    if 'z' in df.columns:
+        df['E_pot'] = mass * g * df['z']
+    else:
+        df['E_pot'] = 0.0
+        
+    # E_vib = m * var(a) over sliding window N=5
+    N = config.get('vib_window_size', 5)
+    df['E_vib'] = 0.0 # Initialize
+    
+    for pid, group in df.groupby('particle_id'):
+        group = group.sort_values('timestamp')
+        a_series = group['a'].values
+        if len(a_series) < N:
+            continue
+        
+        # Rolling variance
+        var_a = pd.Series(a_series).rolling(window=N, min_periods=1).var().values
+        df.loc[group.index, 'E_vib'] = mass * var_a
+        
     return df
 
-def write_energy_output(df: pd.DataFrame, output_path: str, config: Dict[str, Any]):
+def detect_non_stationary_segments(df: pd.DataFrame, threshold: float = 0.05) -> pd.DataFrame:
     """
-    Write the energy samples to CSV, handle missing z-axis, and generate hash.
+    Detect non-stationary (chirped) segments using Hilbert transform on frequency.
+    Flag segments where frequency variance > 5% of mean.
     """
-    logger.info(f"Writing energy output to {output_path}")
+    if 'frequency' not in df.columns:
+        return df
+        
+    df = df.sort_values('timestamp')
+    freq = df['frequency'].values
     
-    # Ensure output directory exists
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-
-    # Check for missing z-axis per particle and flag
-    # Re-use logic from T011 (check_z_axis_completeness)
-    # Assuming df has 'particle_id' and 'z' columns (or missing 'z')
-    z_missing_map = {}
-    if 'z' not in df.columns:
-        # If column completely missing, all particles are incomplete
-        z_missing_map = {pid: True for pid in df['particle_id'].unique()}
+    if len(freq) < 10:
+        return df
+        
+    # Analytic signal
+    analytic_signal = hilbert(freq)
+    instantaneous_phase = np.unwrap(np.angle(analytic_signal))
+    # This is a simplified check; real instantaneous frequency derivative might be needed
+    # But for variance check on the signal itself:
+    window_size = 50
+    if len(freq) > window_size:
+        rolling_mean = pd.Series(freq).rolling(window=window_size, center=True).mean()
+        rolling_std = pd.Series(freq).rolling(window=window_size, center=True).std()
+        df['freq_var_ratio'] = rolling_std / rolling_mean
+        df['chirp_flag'] = (df['freq_var_ratio'] > threshold).fillna(False)
     else:
-        for pid in df['particle_id'].unique():
-            pid_data = df[df['particle_id'] == pid]
-            if pid_data['z'].isna().all():
-                z_missing_map[pid] = True
-                logger.warning(f"WARNING: Missing z-axis data for particle {pid}")
-            else:
-                z_missing_map[pid] = False
+        df['chirp_flag'] = False
+        
+    return df
 
-    # Add pot_incomplete column
-    df['pot_incomplete'] = df['particle_id'].map(z_missing_map)
-
-    # Select and order columns
-    columns = ['particle_id', 'timestamp', 'E_trans', 'E_rot', 'E_pot', 'E_vib', 'pot_incomplete']
-    # Ensure all exist, fill NaN with 0 for numeric if needed, or keep NaN
-    # For pot_incomplete, ensure it's bool
-    df['pot_incomplete'] = df['pot_incomplete'].astype(bool)
-    
-    # Handle NaNs in energy columns (e.g., if z was missing, E_pot is NaN)
-    # We keep NaNs as they are, or fill with 0? Spec says "computed", so if missing z, E_pot is undefined.
-    # Let's fill E_pot with 0 if pot_incomplete is True to ensure float consistency, 
-    # but keep the flag. Or leave as NaN. The spec says "pot_incomplete" column is set to True.
-    # Let's fill E_pot with 0.0 for completeness if missing, but the flag tells the truth.
-    df.loc[df['pot_incomplete'], 'E_pot'] = 0.0
-
-    output_df = df[columns].copy()
-    
-    # Write to CSV
-    output_df.to_csv(output_path, index=False)
-    logger.info(f"Successfully wrote {len(output_df)} rows to {output_path}")
-
-    # Generate SHA-256 hash
-    hash_path = output_path.replace('.csv', '.hash')
-    with open(output_path, 'rb') as f:
-        file_hash = hashlib.sha256(f.read()).hexdigest()
-    
-    with open(hash_path, 'w') as f:
-        f.write(f"SHA256: {file_hash}\n")
-        f.write(f"File: {output_path}\n")
-        f.write(f"Rows: {len(output_df)}\n")
-    
-    logger.info(f"Hash written to {hash_path}: {file_hash}")
-
-    # Verify schema
-    expected_cols = ['particle_id', 'timestamp', 'E_trans', 'E_rot', 'E_pot', 'E_vib', 'pot_incomplete']
-    actual_cols = list(output_df.columns)
-    if actual_cols != expected_cols:
-        raise IngestionError(f"Schema mismatch. Expected {expected_cols}, got {actual_cols}")
-    
-    # Verify types
-    if not pd.api.types.is_integer_dtype(output_df['particle_id']):
-        logger.warning("particle_id is not integer type")
-    if not pd.api.types.is_float_dtype(output_df['timestamp']):
-        logger.warning("timestamp is not float type")
-    if not pd.api.types.is_float_dtype(output_df['E_trans']):
-        logger.warning("E_trans is not float type")
-    if not pd.api.types.is_bool_dtype(output_df['pot_incomplete']):
-        logger.warning("pot_incomplete is not bool type")
-
-    logger.info("Schema validation passed.")
-
-def ingest_data(data_dir: str, config_path: str, output_dir: str):
+def verify_chirp_segments(df: pd.DataFrame, output_path: Path) -> None:
     """
-    Main ingestion pipeline for T019.
+    Count excluded frames and log percentage.
+    """
+    if 'chirp_flag' not in df.columns:
+        return
+        
+    total = len(df)
+    excluded = df['chirp_flag'].sum()
+    pct = (excluded / total * 100) if total > 0 else 0
+    
+    logger.info(f"Chirp exclusion: {excluded} frames ({pct:.2f}%)")
+    
+    if pct > 20.0:
+        logger.warning(f"More than 20% of data excluded due to chirping in some window.")
+        
+    # Save exclusion report
+    report = {
+        "total_frames": int(total),
+        "excluded_frames": int(excluded),
+        "exclusion_percentage": float(pct),
+        "timestamp": datetime.now().isoformat()
+    }
+    with open(output_path, 'w') as f:
+        json.dump(report, f, indent=2)
+
+def write_energy_output(df: pd.DataFrame, output_path: Path, sampling_metadata: Dict) -> None:
+    """
+    Write final energy_samples.csv and related artifacts.
+    """
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Select and order columns
+    cols = ['particle_id', 'timestamp', 'E_trans', 'E_rot', 'E_pot', 'E_vib', 'pot_incomplete']
+    # Add optional columns if present
+    optional = ['gap_flag', 'chirp_flag', 'material_type', 'frequency']
+    for c in optional:
+        if c in df.columns:
+            cols.append(c)
+            
+    final_df = df[cols]
+    final_df.to_csv(output_path, index=False)
+    
+    # Calculate hash
+    hash_val = calculate_sha256(output_path)
+    hash_path = output_path.parent / f"{output_path.name}.hash"
+    with open(hash_path, 'w') as f:
+        f.write(hash_val)
+        
+    # Update sampling metadata
+    metadata_path = Path("artifacts/sampling_metadata.json")
+    if metadata_path.exists():
+        with open(metadata_path, 'r') as f:
+            meta = json.load(f)
+        meta['energy_samples_hash'] = hash_val
+        meta['energy_samples_rows'] = len(final_df)
+        with open(metadata_path, 'w') as f:
+            json.dump(meta, f, indent=2)
+    else:
+        logger.warning("Sampling metadata not found, skipping update.")
+
+def ingest_data(config_path: str, data_source: Optional[str] = None, sample_ratio: Optional[float] = None, local_only: bool = False) -> None:
+    """
+    Main ingestion pipeline: load, sync, compute, save.
     """
     config = load_config(config_path)
     
-    # 1. Find and load tracking data
-    csv_files = find_csv_files(data_dir)
-    if not csv_files:
-        raise IngestionError(f"No CSV files found in {data_dir}")
+    # Validate data source
+    source_id = os.environ.get('DATA_SOURCE_ID')
+    if not source_id and data_source:
+        source_id = data_source
+    if not source_id:
+        source_id = config.get('data_source', {}).get('source_id')
     
-    tracking_df = load_tracking_data(csv_files)
+    if not source_id:
+        raise IngestionError("No data source ID provided or found in config.")
+        
+    # Determine data path (simplified for local or assumed download)
+    # In a real scenario, this would fetch from Zenodo/UCI based on source_id
+    # For this implementation, we assume data is in data/raw/ or data/derived/
+    data_dir = Path("data/raw")
+    if not data_dir.exists():
+        # Fallback to data/derived if raw doesn't exist (for test scenarios)
+        data_dir = Path("data/derived")
+        
+    if not data_dir.exists():
+        data_dir.mkdir(parents=True, exist_ok=True)
+        
+    # Find files
+    tracking_files = find_csv_files(data_dir)
+    driving_file = data_dir / "driving_signals.csv"
     
-    # 2. Load driving data
-    driving_files = [f for f in csv_files if 'driving' in str(f).lower()]
-    if driving_files:
-        driving_df = load_driving_data(driving_files[0])
-        tracking_df, driving_df = sync_timestamps(tracking_df, driving_df)
+    if not tracking_files:
+        raise IngestionError("No particle tracking CSV files found.")
+    if not driving_file.exists():
+        raise IngestionError("Driving signal file not found.")
+        
+    # Load data
+    tracking_df = load_tracking_data(tracking_files)
+    driving_df = load_driving_data(driving_file)
     
-    # 3. Handle missing frames
-    tracking_df = handle_missing_frames(tracking_df)
+    # Sample if needed
+    if sample_ratio and sample_ratio < 1.0:
+        tracking_df = tracking_df.sample(frac=sample_ratio, random_state=42)
+        logger.info(f"Sampled data to {sample_ratio*100}%")
+        
+    # Sync
+    merged_df = sync_timestamps(tracking_df, driving_df)
     
-    # 4. Compute derivatives (v, omega, a)
-    tracking_df = compute_derivatives(tracking_df)
+    # Handle missing frames
+    merged_df = handle_missing_frames(merged_df)
     
-    # 5. Calculate energy components
-    tracking_df = calculate_energy_components(tracking_df, config)
+    # Check z-axis
+    merged_df = check_z_axis_completeness(merged_df)
     
-    # 6. Write output
-    output_path = os.path.join(output_dir, 'energy_samples.csv')
-    write_energy_output(tracking_df, output_path, config)
+    # Compute derivatives
+    merged_df = compute_derivatives(merged_df)
     
-    return output_path
+    # Calculate energies
+    merged_df = calculate_energy_components(merged_df, config)
+    
+    # Detect chirps
+    merged_df = detect_non_stationary_segments(merged_df)
+    
+    # Verify chirp segments
+    chirp_report_path = Path("artifacts/exclusion_report.json")
+    verify_chirp_segments(merged_df, chirp_report_path)
+    
+    # Write output
+    output_path = Path("data/derived/energy_samples.csv")
+    sampling_metadata = {
+        "sample_ratio": sample_ratio,
+        "seed": 42,
+        "timestamp": datetime.now().isoformat()
+    }
+    write_energy_output(merged_df, output_path, sampling_metadata)
+    
+    logger.info(f"Energy calculation complete. Output: {output_path}")
 
 def main():
-    parser = argparse.ArgumentParser(description='Ingest granular data and compute energies.')
-    parser.add_argument('--data-dir', type=str, default='data/raw', help='Directory containing raw CSV files')
-    parser.add_argument('--config', type=str, default='data/config.yaml', help='Path to config file')
-    parser.add_argument('--output-dir', type=str, default='data/derived', help='Directory for output files')
+    parser = argparse.ArgumentParser(description="Ingest granular data and calculate energies.")
+    parser.add_argument("--config", type=str, default="data/config.yaml", help="Path to config file.")
+    parser.add_argument("--data-source", type=str, default=None, help="Data source ID.")
+    parser.add_argument("--sample-ratio", type=float, default=None, help="Fraction of data to sample.")
+    parser.add_argument("--local-only", action="store_true", help="Enforce local-only mode.")
     
     args = parser.parse_args()
     
     try:
-        ingest_data(args.data_dir, args.config, args.output_dir)
-        logger.info("Ingestion completed successfully.")
+        ingest_data(
+            config_path=args.config,
+            data_source=args.data_source,
+            sample_ratio=args.sample_ratio,
+            local_only=args.local_only
+        )
     except Exception as e:
         logger.error(f"Ingestion failed: {e}")
         sys.exit(1)
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

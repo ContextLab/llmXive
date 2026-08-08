@@ -1,125 +1,188 @@
 """
-Unit tests for energy calculation formulas.
+Unit tests for energy calculation logic in T019b.
 """
-
 import pytest
-import numpy as np
 import pandas as pd
+import numpy as np
+import os
+import sys
+from pathlib import Path
 
+# Add code to path
+sys.path.insert(0, str(Path(__file__).parent.parent / 'code'))
+
+from ingestion import calculate_energy_components, compute_derivatives
 from config import load_config
-from ingestion import calculate_energy_components
 
+# Create a minimal mock config for testing
+MOCK_CONFIG = {
+    'mass': 1.0,
+    'inertia': 0.5,
+    'vib_window': 5,
+    'data_dir': 'data/raw'
+}
 
-def test_translational_energy_formula():
-    """Verify E_trans = 0.5 * m * v^2."""
-    config = load_config()
-    mass = config['materials']['steel']['mass_density'] * (4/3 * 3.14159 * (0.0025**3))
-    
-    # Create a single particle with known velocity
-    data = {
-        'timestamp': [0.0],
-        'x': [0.0],
-        'y': [0.0],
-        'z': [0.0],
-        'theta': [0.0],
-        'v_x': [2.0],
-        'v_y': [0.0],
-        'v_z': [0.0]
-    }
-    df = pd.DataFrame(data)
-    
-    result = calculate_energy_components(df, config)
-    
-    expected_E_trans = 0.5 * mass * (2.0 ** 2)
-    assert abs(result['E_trans'].iloc[0] - expected_E_trans) < 1e-9
-
-
-def test_rotational_energy_formula():
-    """Verify E_rot = 0.5 * I * omega^2."""
-    config = load_config()
-    inertia = config['constants']['moment_of_inertia_factor'] * \
-              (config['materials']['steel']['mass_density'] * (4/3 * 3.14159 * (0.0025**3))) * \
-              (0.0025 ** 2)
-    
-    # Create data with known angular velocity
-    data = {
-        'timestamp': [0.0, 0.1],
+def test_translational_energy():
+    """Verify E_trans = 0.5 * m * v^2"""
+    df = pd.DataFrame({
+        'vx': [3.0, 4.0],
+        'vy': [0.0, 0.0],
+        'vz': [0.0, 0.0],
+        'omega_x': [0.0, 0.0],
+        'omega_y': [0.0, 0.0],
+        'omega_z': [0.0, 0.0],
+        'ax': [0.0, 0.0],
+        'ay': [0.0, 0.0],
+        'az': [0.0, 0.0],
         'x': [0.0, 0.0],
         'y': [0.0, 0.0],
         'z': [0.0, 0.0],
-        'theta': [0.0, 0.2], # omega = 0.2 / 0.1 = 2.0
-        'v_x': [0.0, 0.0],
-        'v_y': [0.0, 0.0],
-        'v_z': [0.0, 0.0]
-    }
-    df = pd.DataFrame(data)
+        'timestamp': [0.0, 1.0],
+        'particle_id': [1, 1]
+    })
     
-    result = calculate_energy_components(df, config)
+    # Mock config function to return our mock
+    import ingestion
+    original_load = ingestion.load_config
+    ingestion.load_config = lambda x: MOCK_CONFIG
     
-    # omega = 2.0
-    omega = 2.0
-    expected_E_rot = 0.5 * inertia * (omega ** 2)
-    
-    # Check second row
-    assert abs(result['E_rot'].iloc[1] - expected_E_rot) < 1e-9
+    try:
+        result = calculate_energy_components(df, 'dummy.yaml')
+        
+        # E_trans = 0.5 * 1.0 * (3^2) = 4.5
+        # E_trans = 0.5 * 1.0 * (4^2) = 8.0
+        assert np.isclose(result['E_trans'].iloc[0], 4.5)
+        assert np.isclose(result['E_trans'].iloc[1], 8.0)
+    finally:
+        ingestion.load_config = original_load
 
-
-def test_potential_energy_formula():
-    """Verify E_pot = m * g * z."""
-    config = load_config()
-    mass = config['materials']['steel']['mass_density'] * (4/3 * 3.14159 * (0.0025**3))
-    g = config['constants']['g']
-    
-    data = {
-        'timestamp': [0.0],
-        'x': [0.0],
-        'y': [0.0],
-        'z': [10.0],
-        'theta': [0.0],
-        'v_x': [0.0],
-        'v_y': [0.0],
-        'v_z': [0.0]
-    }
-    df = pd.DataFrame(data)
-    
-    result = calculate_energy_components(df, config)
-    
-    expected_E_pot = mass * g * 10.0
-    assert abs(result['E_pot'].iloc[0] - expected_E_pot) < 1e-9
-
-
-def test_energy_with_known_inputs():
-    """Test all energy components with a fully defined input."""
-    config = load_config()
-    mass = config['materials']['steel']['mass_density'] * (4/3 * 3.14159 * (0.0025**3))
-    inertia = config['constants']['moment_of_inertia_factor'] * mass * (0.0025 ** 2)
-    g = config['constants']['g']
-    
-    v = 3.0
-    omega = 4.0
-    z = 5.0
-    
-    # Construct data with pre-calculated velocity and theta steps
-    data = {
-        'timestamp': [0.0, 0.1],
-        'x': [0.0, 0.3],
+def test_rotational_energy():
+    """Verify E_rot = 0.5 * I * omega^2"""
+    df = pd.DataFrame({
+        'vx': [0.0, 0.0],
+        'vy': [0.0, 0.0],
+        'vz': [0.0, 0.0],
+        'omega_x': [2.0, 0.0],
+        'omega_y': [0.0, 3.0],
+        'omega_z': [0.0, 0.0],
+        'ax': [0.0, 0.0],
+        'ay': [0.0, 0.0],
+        'az': [0.0, 0.0],
+        'x': [0.0, 0.0],
         'y': [0.0, 0.0],
-        'z': [0.0, z],
-        'theta': [0.0, omega * 0.1],
-        'v_x': [0.0, v],
-        'v_y': [0.0, 0.0],
-        'v_z': [0.0, 0.0]
-    }
-    df = pd.DataFrame(data)
+        'z': [0.0, 0.0],
+        'timestamp': [0.0, 1.0],
+        'particle_id': [1, 1]
+    })
     
-    result = calculate_energy_components(df, config)
+    import ingestion
+    original_load = ingestion.load_config
+    ingestion.load_config = lambda x: MOCK_CONFIG
     
-    # Expected values
-    exp_E_trans = 0.5 * mass * (v ** 2)
-    exp_E_rot = 0.5 * inertia * (omega ** 2)
-    exp_E_pot = mass * g * z
+    try:
+        result = calculate_energy_components(df, 'dummy.yaml')
+        
+        # I = 0.5
+        # Row 0: 0.5 * 0.5 * (2^2) = 1.0
+        # Row 1: 0.5 * 0.5 * (3^2) = 2.25
+        assert np.isclose(result['E_rot'].iloc[0], 1.0)
+        assert np.isclose(result['E_rot'].iloc[1], 2.25)
+    finally:
+        ingestion.load_config = original_load
+
+def test_potential_energy():
+    """Verify E_pot = m * g * z"""
+    df = pd.DataFrame({
+        'vx': [0.0, 0.0],
+        'vy': [0.0, 0.0],
+        'vz': [0.0, 0.0],
+        'omega_x': [0.0, 0.0],
+        'omega_y': [0.0, 0.0],
+        'omega_z': [0.0, 0.0],
+        'ax': [0.0, 0.0],
+        'ay': [0.0, 0.0],
+        'az': [0.0, 0.0],
+        'x': [0.0, 0.0],
+        'y': [0.0, 0.0],
+        'z': [10.0, 20.0],
+        'timestamp': [0.0, 1.0],
+        'particle_id': [1, 1]
+    })
     
-    # Check second row
-    assert abs(result['E_trans'].iloc[1] - exp_E_trans) < 1e-9
-    assert abs(result['E_rot'].iloc[1] - exp_E_rot) < 1e-9
-    assert abs(result['E_pot'].iloc[1] - exp_E_pot) < 1e-9
+    import ingestion
+    original_load = ingestion.load_config
+    # Override g in config? Or assume 9.81 hardcoded.
+    # Our implementation uses hardcoded 9.81.
+    ingestion.load_config = lambda x: MOCK_CONFIG
+    
+    try:
+        result = calculate_energy_components(df, 'dummy.yaml')
+        
+        # m=1, g=9.81
+        # Row 0: 1 * 9.81 * 10 = 98.1
+        # Row 1: 1 * 9.81 * 20 = 196.2
+        assert np.isclose(result['E_pot'].iloc[0], 98.1)
+        assert np.isclose(result['E_pot'].iloc[1], 196.2)
+    finally:
+        ingestion.load_config = original_load
+
+def test_vibrational_energy():
+    """Verify E_vib = m * var(a) over window"""
+    # Create a sequence where we can calculate variance manually
+    # a = [0, 0, 0, 0, 10] -> var = 16
+    # a = [0, 0, 0, 0, 0] -> var = 0
+    a_vals = [0.0, 0.0, 0.0, 0.0, 10.0]
+    df = pd.DataFrame({
+        'vx': [0.0]*5,
+        'vy': [0.0]*5,
+        'vz': [0.0]*5,
+        'omega_x': [0.0]*5,
+        'omega_y': [0.0]*5,
+        'omega_z': [0.0]*5,
+        'ax': a_vals,
+        'ay': [0.0]*5,
+        'az': [0.0]*5,
+        'x': [0.0]*5,
+        'y': [0.0]*5,
+        'z': [0.0]*5,
+        'timestamp': [0.0, 1.0, 2.0, 3.0, 4.0],
+        'particle_id': [1]*5
+    })
+    
+    import ingestion
+    original_load = ingestion.load_config
+    ingestion.load_config = lambda x: MOCK_CONFIG
+    
+    try:
+        result = calculate_energy_components(df, 'dummy.yaml')
+        
+        # Window size 5.
+        # Row 4 (last): window is [0,0,0,0,10]. Variance of this sample.
+        # Variance of [0,0,0,0,10] = sum((x-mean)^2)/(N-1) ? Pandas default ddof=1.
+        # Mean = 2.
+        # (0-2)^2 * 4 + (10-2)^2 = 4*4 + 64 = 16 + 64 = 80.
+        # Var = 80 / 4 = 20.
+        # E_vib = m * var = 1.0 * 20 = 20.0
+        
+        # Check the last row
+        last_row = result['E_vib'].iloc[-1]
+        assert np.isclose(last_row, 20.0)
+    finally:
+        ingestion.load_config = original_load
+
+def test_derivatives():
+    """Verify acceleration calculation"""
+    df = pd.DataFrame({
+        'vx': [0.0, 10.0, 20.0],
+        'vy': [0.0, 0.0, 0.0],
+        'vz': [0.0, 0.0, 0.0],
+        'timestamp': [0.0, 1.0, 2.0]
+    })
+    
+    result = compute_derivatives(df)
+    
+    # dt = 1.0
+    # ax = (10-0)/1 = 10
+    # ax = (20-10)/1 = 10
+    assert np.isclose(result['ax'].iloc[1], 10.0)
+    assert np.isclose(result['ax'].iloc[2], 10.0)
