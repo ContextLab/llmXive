@@ -1,74 +1,26 @@
-T001a:
+T001:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of the required directory `projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/`\
-    \ being created is provided; the only artifacts shown are feature specifications,\
-    \ not a filesystem listing or confirmation of the folder\u2019s existence. The\
-    \ implementer must supply proof (e.g., a directory listing, screenshot, or command\
-    \ output) that the directory now exists and is non\u2011empty."
-T001b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required `projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/data/`
-    directory being created (or its contents) is provided; the claim cannot be verified.
-    The implementer must supply proof that the directory exists and contains the expected
-    data files.
-T001c:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No artifact showing the `projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/code/`
-    directory (or its contents) was provided; without evidence the claim cannot be
-    verified. The required directory must exist and contain at least some files to
-    satisfy the task.
-T001d:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence was presented showing that the directory `projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/tests/`
-    actually exists or contains any files; the claim is unsubstantiated. The required
-    artifact (the created tests directory) is missing.
-T001e:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of the required directory `projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/artifacts/`\
-    \ is present; the implementer provided no files, listings, or screenshots confirming\
-    \ its creation. The task\u2019s sole requirement is unmet."
-T001f:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No directory listing, screenshot, command output, or any other artifact showing\
-    \ that `projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/results/` actually\
-    \ exists was provided. Without concrete evidence of the directory\u2019s creation,\
-    \ the requirement is not satisfied."
-T001g:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence was provided showing that the directory `projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/state/`
-    actually exists or contains any files; the claim is unsubstantiated. The implementer
-    must supply proof (e.g., a directory listing or screenshot) that the required
-    folder was created and is not empty.
-T006a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence was provided that the directory `projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/data/raw/`
-    actually exists or contains any files; the response only restates the task description
-    without showing the required artifact. The implementer must create the specified
-    directory (and optionally populate it) and provide proof (e.g., a directory listing).
-T006b:
-  c: false
-  h: c6dc4a58715eb9b927598930bf4990ed052cf6345ccfc3a2e9e61af4710ea9f2
-  r: "The repository contains a partially\u2011implemented `code/downloaders.py` (the\
-    \ file ends mid\u2011function and never calls the download logic or converts to\
-    \ Parquet), and the required output files `data/raw/oqmd.parquet` and `data/raw/aflow.parquet`\
-    \ are absent. Consequently the task of actually downloading and storing the datasets\
-    \ is not fulfilled."
+  r: "No evidence of the required directory tree (`projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/`\
+    \ with subfolders `data/`, `code/`, `tests/`, `artifacts/`, `results/`, `state/`,\
+    \ `logs/`, `logs/archive/`) is provided; the response contains only a textual\
+    \ description and no actual file\u2011system artifact. The implementer must create\
+    \ and show the populated directory structure to satisfy the task."
 T006c:
   c: false
-  h: ebc02376a214c975e1a217261b4539f4e45a69fb41da60445d73d399d99187ac
+  h: cf589f2dc6e3d27eb14fb4f33b1ad3adc88b089613a2de570829c21aa3ff9495
   r: "The repository lacks the required checksum files (`data/raw/oqmd.parquet.sha256`\
-    \ and `data/raw/aflow.parquet.sha256`), and the `downloaders.py` implementation\
-    \ is incomplete (the `verify_checksum` function is truncated and no code creates\
-    \ or writes the checksum files). Consequently the task\u2019s requirement is not\
-    \ satisfied."
+    \ and `data/raw/aflow.parquet.sha256`) and the state YAML (`state/projects/PROJ-756-assessing-dataset-imbalance-effects-on-m.yaml`)\
+    \ that should contain the `artifact_hashes` entries. Consequently the task\u2019\
+    s core deliverables are not present."
+T008:
+  c: false
+  h: 5a8346fbc8f6099eafa69555ef1f37561b1a425ad0d01d1a31137fd2624f8288
+  r: "The `results/target_imbalance_scores.csv` and `results/compositional_imbalance_score.csv`\
+    \ files are absent, and the provided `code/imbalance.py` is truncated before any\
+    \ logic that iterates over properties, applies the \u2265\u202F100\u2011sample\
+    \ filter, or writes the required CSV outputs. Consequently the task\u2019s output\
+    \ requirements are not met."
 T012:
   c: false
   h: a5322a39bab5d625eb6c11f185fc43858f1fcf0976b2e937caa6ae24050a0ff2
