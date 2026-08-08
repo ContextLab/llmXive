@@ -1,3 +1,19 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The implementer did not provide any evidence that `spec.md` was edited \u2013\
+    \ no file diff, excerpt, or commit showing the required corrected sections is\
+    \ present. Without a visible, non\u2011empty `spec.md` containing the specified\
+    \ text, the task requirement is not satisfied. The next implementer must supply\
+    \ the updated `spec.md` (or a clear proof such as a diff or file content) showing\
+    \ the exact corrected excerpt."
+T002:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The claim provides no concrete evidence (e.g., a directory tree listing, screenshots,
+    or file listings) that the required folders `code/`, `tests/`, `data/raw/`, `data/processed/`,
+    `data/results/`, and `state/` actually exist in the repository. Without such artifacts,
+    we cannot verify that the project structure was created.
 T018:
   c: true
   h: 0552adef467193ea4cfec868ed725577d7c778f28c5eb0449a14b6cfa606906b

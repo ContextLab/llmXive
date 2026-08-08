@@ -44,13 +44,14 @@
 **Purpose**: Resolve critical contradictions between Spec and Plan before implementation begins.
 **⚠️ CRITICAL GATE**: This phase MUST complete successfully before Phase 1 (Setup) begins. **Verification Step**: After T001, verify `spec.md` content matches `plan.md` requirements (FR-005: LMM, FR-012: prompt token count). If verification fails, halt execution.
 
-- [X] T001 **Apply Spec Amendments**: Create and apply a unified diff patch `spec_amendments.patch` to update `spec.md` with the following changes. The patch MUST be generated and applied via `git apply`. If the patch fails, the task MUST fail.
-  1. **Update FR-001**: Remove the corrupted text: "The research question is: How does the inclusion of counterfactual statements..." and the subsequent unrelated snippets. Restore the original requirement text regarding complexity levels. Explicitly define the numeric ranges for all complexity levels: simple ≤ 50 tokens, moderate 51-150 tokens, complex 151-300 tokens, very complex 301-500 tokens, degenerate > 500 tokens.
-  2. **Update FR-005**: Replace "ANOVA or Kruskal-Wallis" with "Linear Mixed Models (LMM)" to handle nested structure.
-  3. **Update FR-012**: Replace "code length (lines of code)" with "prompt token count" as the covariate for readability metrics.
-  4. **Update US-1 Acceptance Scenario 3**: Explicitly authorize the output artifact `data/results/manual_review_queue.csv` with columns `problem_id`, `variant_label`, `token_delta`, `reason` for flagging samples where the 'degenerate' prompt token delta is < 100 tokens vs 'very complex'.
-  5. **Update US-3 Acceptance Scenario 4**: Link structural element count failures to 'manual review' flagging.
-  Execute `git apply spec_amendments.patch` to update `spec.md`. This task is atomic and MUST complete before any other task.
+- [ ] T001 **Apply Spec Amendments**: Directly edit `spec.md` to correct corrupted text and align requirements with the plan. The implementer MUST overwrite the specific sections of `spec.md` with the following corrected text:
+ 1. **FR-001**: Replace the entire FR-001 text (which contains garbage citations and unrelated research questions) with: "System MUST generate multiple prompt variants per HumanEval problem with controlled complexity levels defined by structural composition: simple (problem statement only), moderate (+1 example), complex (+constraints), very complex (+multi-step instructions), degenerate (+redundant constraints/examples). Token counts (using tiktoken cl100k_base, counting only prompt text) MUST serve as secondary indicators: simple ≤ 50 tokens, moderate 51-150 tokens, complex 151-300 tokens, very complex 301-500 tokens, degenerate > 500 tokens. (See US-1)"
+ 2. **FR-005**: Replace "ANOVA or Kruskal-Wallis" with "Linear Mixed Models (LMM)".
+ 3. **FR-012**: Replace "code length (lines of code)" with "prompt token count" as the covariate for readability metrics.
+ 4. **US-1 Acceptance Scenario 3**: Explicitly authorize the output artifact `data/results/manual_review_queue.csv` with columns `problem_id`, `variant_label`, `token_delta`, `reason` for flagging samples where the 'degenerate' prompt token delta is < 100 tokens vs 'very complex'.
+ 5. **US-3 Acceptance Scenario 4**: Link structural element count failures to 'manual review' flagging.
+ 6. **Assumptions Section**: Remove all unrelated text fragments (e.g., "The research question is: How does the framing of microtasks...") and ensure only assumptions relevant to this project (HumanEval availability, CPU constraints, etc.) remain.
+ Execute the edit by replacing the text in `spec.md` as described. This task is atomic and MUST complete before any other task.
 
 ---
 
@@ -58,7 +59,7 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [X] T002 Create project structure per implementation plan: Create directories `code/`, `tests/`, `data/raw/`, `data/processed/`, `data/results/`, `state/` at repository root.
+- [ ] T002 Create project structure per implementation plan: Create directories `code/`, `tests/`, `data/raw/`, `data/processed/`, `data/results/`, `state/` at repository root.
 
 ---
 
@@ -69,13 +70,13 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T003 Initialize Python 3.11 project with dependencies: `datasets`, `tiktoken`, `scikit-learn`, `statsmodels`, `pandas`, `ruff`, `requests`, `pyyaml` in `requirements.txt`
-- [X] T004 [P] Configure linting and formatting tools (ruff) and pytest in `pyproject.toml`
-- [X] T005 Setup data directory structure `data/raw/`, `data/processed/`, `data/results/` and implement `code/utils/hash_artifacts.py` for SHA-256 checksumming
-- [X] T009 [P] Implement artifact versioning utility in `code/utils/versioning.py` to update `state/projects/PROJ-527-evaluating-the-impact-of-prompt-complexi.yaml` after data generation. The utility MUST compute SHA-256 hashes of all files in `data/` and write them to the `artifact_hashes` map in the state YAML.
-- [X] T006 [P] Implement configuration management in `code/config.py` with fixed random seeds, paths, and API keys
-- [X] T007 [P] Setup error handling and logging infrastructure in `code/utils/logger.py`
-- [X] T008 Create base data models (Pydantic) for `HumanEvalProblem`, `PromptVariant`, `GeneratedCode`, `AnalysisResult` in `code/models/data_models.py`
-- [X] T010 [P] Setup CPU-tractable LLM client wrapper in `code/llm/client.py` supporting HuggingFace Inference API or local GGUF (CPU only, no CUDA).
+- [ ] T004 [P] Configure linting and formatting tools (ruff) and pytest in `pyproject.toml`
+- [ ] T005 Setup data directory structure `data/raw/`, `data/processed/`, `data/results/` and implement `code/utils/hash_artifacts.py` for SHA-256 checksumming
+- [ ] T009 [P] Implement artifact versioning utility in `code/utils/versioning.py` to update `state/projects/PROJ-527-evaluating-the-impact-of-prompt-complexi.yaml` after data generation. The utility MUST compute cryptographic hashes of all files in `data/` and write them to the `artifact_hashes` map in the state YAML.
+- [ ] T006 [P] Implement configuration management in `code/config.py` with fixed random seeds, paths, and API keys
+- [ ] T007 [P] Setup error handling and logging infrastructure in `code/utils/logger.py`
+- [ ] T008 Create base data models (Pydantic) for `HumanEvalProblem`, `PromptVariant`, `GeneratedCode`, `AnalysisResult` in `code/models/data_models.py`
+- [ ] T010 [P] Setup CPU-tractable LLM client wrapper in `code/llm/client.py` supporting HuggingFace Inference API or local GGUF (CPU only, no CUDA).
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -91,19 +92,19 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [X] T011 [P] [US1] Contract test for prompt generation logic in `tests/unit/test_prompt_gen.py`: Implement `test_generates_5_variants` using a single HumanEval problem JSON as input, asserting `len(variants) == 5` and `all(label in ['simple', 'moderate', 'complex', 'very_complex', 'degenerate'] for label in labels)`.
-- [X] T012 [P] [US1] Integration test for LLM query and capture in `tests/integration/test_llm_capture.py`: Implement `test_query_and_capture` using a mocked LLM response, asserting that multiple distinct code samples are captured with correct metadata tags (complexity_label, token_count, structural_element_count).
+- [ ] T011 [P] [US1] Contract test for prompt generation logic in `tests/unit/test_prompt_gen.py`: Implement `test_generates_5_variants` using a single HumanEval problem JSON as input, asserting `len(variants) == 5` and `all(label in ['simple', 'moderate', 'complex', 'very_complex', 'degenerate'] for label in labels)`.
+- [ ] T012 [P] [US1] Integration test for LLM query and capture in `tests/integration/test_llm_capture.py`: Implement `test_query_and_capture` using a mocked LLM response, asserting that multiple distinct code samples are captured with correct metadata tags (complexity_label, token_count, structural_element_count).
 
 ### Implementation for User Story 1
 
-- [X] T016 [US1] **Fetch HumanEval Dataset**: Implement `code/data/fetcher.py` to download HumanEval dataset from `https://huggingface.co/datasets/openai/human-eval` with checksum verification. **(MUST PRECEDE T013-T015)**
-- [X] T013 [P] [US1] Implement `code/prompts/generator.py` to create multiple complexity variants based on structural composition (problem only, with examples, +constraints, +multi-step, +redundant)
-- [X] T014 [P] [US1] Implement `code/prompts/parser.py` to dynamically count structural elements (examples, constraints, instructions) and calculate structural complexity scores
-- [X] T015 [P] [US1] Implement `code/prompts/tokenizer.py` using `tiktoken cl100k_base` to count prompt tokens and validate thresholds: simple ≤ 50, moderate 51-150, complex 151-300, very_complex 301-500, degenerate > 500.
-- [X] T017 [US1] Implement `code/llm/orchestrator.py` to query LLM with multiple variants per problem, utilizing the T010 wrapper in `code/llm/client.py`, capturing code, token counts, and structural metadata.
-- [X] T018 [US1] Implement `code/data/storage.py` to write generated code and metadata to `data/processed/prompt_variants.parquet`
-- [X] T019 [US1] Implement flagging logic for 'degenerate' prompts where the token delta is < 100 tokens vs 'very complex'. Read the generated data from T018, calculate the token delta for each problem, and if the delta is < 100, append the sample ID to `data/results/manual_review_queue.csv`. The CSV MUST have columns: `problem_id`, `variant_label`, `token_delta`, `reason`. This task relies on T015 for token counts.
-- [X] T020 [US1] Implement correlation check between token count and structural element count to diagnose potential collinearity (FR-013) and **write the correlation coefficient to `data/results/analysis_summary.csv`**.
+- [ ] T016 [US1] **Fetch HumanEval Dataset**: Implement `code/data/fetcher.py` to download HumanEval dataset from `https://huggingface.co/datasets/openai/human-eval` with checksum verification. **(MUST PRECEDE T013-T015)**
+- [ ] T013 [P] [US1] Implement `code/prompts/generator.py` to create multiple complexity variants based on structural composition (problem only, with examples, +constraints, +multi-step, +redundant)
+- [ ] T014 [P] [US1] Implement `code/prompts/parser.py` to dynamically count structural elements (examples, constraints, instructions) and calculate structural complexity scores
+- [ ] T015 [P] [US1] Implement `code/prompts/tokenizer.py` using `tiktoken cl100k_base` to count prompt tokens and validate thresholds: simple ≤ 50, moderate 51-150, complex 151-300, very_complex 301-500, degenerate > 500.
+- [ ] T017 [US1] Implement `code/llm/orchestrator.py` to query LLM with multiple variants per problem, utilizing the T010 wrapper in `code/llm/client.py`, capturing code, token counts, and structural metadata.
+- [ ] T018 [US1] Implement `code/data/storage.py` to write generated code and metadata to `data/processed/prompt_variants.parquet`
+- [ ] T019 [US1] **Write to `data/results/manual_review_queue.csv` (Post-Processing)**: Read the generated data from T018, calculate the token delta for each problem (degenerate vs very complex), and if the delta is < 100, append the sample ID to `data/results/manual_review_queue.csv`. The CSV MUST have columns: `problem_id`, `variant_label`, `token_delta`, `reason`. This task relies on T015 for token counts and must run after T018.
+- [ ] T020 [US1] Implement correlation check between token count and structural element count to diagnose potential collinearity (FR-013) and **write the correlation coefficient to `data/results/analysis_summary.csv`**.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -117,21 +118,21 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T021 [P] [US2] Contract test for test runner timeout handling in `tests/unit/test_execution_runner.py`
-- [X] T022 [P] [US2] Integration test for full execution pipeline in `tests/integration/test_execution_pipeline.py`
+- [ ] T021 [P] [US2] Contract test for test runner timeout handling in `tests/unit/test_execution_runner.py`
+- [ ] T022 [P] [US2] Integration test for full execution pipeline in `tests/integration/test_execution_pipeline.py`
 
 ### Implementation for User Story 2
 
-- [X] T023 [US2] **Implement Execution Runner with Error Handling**: Implement `code/execution/runner.py` to execute generated code with a configurable timeout per test case. The runner MUST:
+- [ ] T023 [US2] **Implement Execution Runner with Error Handling**: Implement `code/execution/runner.py` to execute generated code with a configurable timeout per test case. The runner MUST:
  1. Catch syntax errors and runtime exceptions, marking samples as failed and logging error types.
  2. Enforce a bounded timeout per test, marking problems as failed if exceeded.
  3. Log exception types and timeout events.
-- [X] T026 [US2] Implement `code/execution/static_analysis.py` to run `ruff` on generated code and extract cyclomatic complexity, lines of code, and indentation consistency.
-- [X] T027a [P] [US2] Implement metric extraction in `static_analysis.py` ensuring the code explicitly calculates cyclomatic complexity (McCabe) and lines of code as defined in standard literature.
-- [X] T027b [P] [US2] **Document Validation Sources**: Add comments in `static_analysis.py` and entries in `research.md` citing "McCabe 1976" and "Ruff Documentation v0.1.0" as the validation sources for the extracted metrics (FR-008).
-- [X] T029 [P] [US2] Implement security vulnerability flagging in `static_analysis.py` (e.g., hardcoded credentials, `eval` usage) to mark samples for manual review without failing the test. Output flagged IDs to `data/results/security_review_queue.csv`.
-- [X] T030 [US2] **Write Execution Results**: Implement logic to read execution outcomes from T023 runner and static analysis from T026, aggregate into a list of dicts with columns `problem_id`, `complexity_label`, `pass_count`, `fail_count`, `exception_type`, `timeout_flag`, `static_analysis_scores`, and write to `data/results/execution_outcomes.csv` using pandas.
-- [X] T028 [US2] Implement aggregation logic in `code/analysis/aggregator.py` to calculate pass rates per complexity level (pass count / total count) by reading `data/results/execution_outcomes.csv` (produced by T030).
+- [ ] T026 [US2] Implement `code/execution/static_analysis.py` to run `ruff` on generated code and extract cyclomatic complexity, lines of code, and indentation consistency.
+- [ ] T027a [P] [US2] Implement metric extraction in `static_analysis.py` ensuring the code explicitly calculates cyclomatic complexity (McCabe) and lines of code as defined in standard literature.
+- [ ] T027b [P] [US2] **Document Validation Sources**: Add comments in `static_analysis.py` and entries in `research.md` citing "McCabe 1976" and "Ruff Documentation v0.1.0" as the validation sources for the extracted metrics (FR-008).
+- [ ] T029 [P] [US2] Implement security vulnerability flagging in `static_analysis.py` (e.g., hardcoded credentials, `eval` usage) to mark samples for manual review without failing the test. Output flagged IDs to `data/results/security_review_queue.csv`.
+- [ ] T030 [US2] **Write the aggregated list to `data/results/execution_outcomes.csv`**: Read execution outcomes from T023 runner and static analysis from T026, aggregate into a list of dicts with columns `problem_id`, `complexity_label`, `pass_count`, `fail_count`, `exception_type`, `timeout_flag`, `static_analysis_scores`, and write to `data/results/execution_outcomes.csv` using pandas.
+- [ ] T028 [US2] Implement aggregation logic in `code/analysis/aggregator.py` to calculate pass rates per complexity level (pass count / total count) by reading `data/results/execution_outcomes.csv` (produced by T030).
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -145,20 +146,21 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T031 [P] [US3] Contract test for LMM model fitting in `tests/unit/test_stats_models.py`
-- [X] T032 [P] [US3] Integration test for sensitivity analysis in `tests/integration/test_sensitivity_analysis.py`
+- [ ] T031 [P] [US3] Contract test for LMM model fitting in `tests/unit/test_stats_models.py`
+- [ ] T032 [P] [US3] Integration test for sensitivity analysis in `tests/integration/test_sensitivity_analysis.py`
 
 ### Implementation for User Story 3
 
-- [X] T033 [US3] **Implement Linear Mixed Model (LMM)**: Implement `code/analysis/stats.py` with **Linear Mixed Model (LMM)** using `statsmodels` to handle nested structure (5 variants per problem) with random intercepts for **problem difficulty as defined by the HumanEval dataset label**, as mandated by the amended spec.md (post-T001).
-- [X] T034 [US3] Implement multiple-comparison correction in `code/analysis/stats.py` using Bonferroni or Holm-Bonferroni with adjusted significance threshold (α ≤ 0.05 / number of tests). Output corrected p-values to `data/results/analysis_summary.csv`.
-- [X] T035 [US3] Implement covariate adjustment in `code/analysis/stats.py` to control for **prompt token count** (as updated in spec.md FR-012 via Task T001) when evaluating readability metrics, replacing the original 'code length' requirement.
-- [X] T036 [US3] Implement sensitivity analysis in `code/analysis/stats.py` to re-bin data using shifted thresholds (±10 tokens) and report variance in pass rates (FR-010). Output to `data/results/sensitivity_analysis.csv`.
-- [X] T037 [US3] Implement `code/analysis/viz.py` to generate complexity vs. performance curves with inflection points identified (peak performance and diminishing returns).
-- [X] T038 [US3] Implement effect size calculation (Cohen's d, eta-squared) with standard interpretation thresholds for small, medium, and large effects.
-- [X] T039 [US3] Implement structural redundancy verification in `code/analysis/stats.py` to confirm 'degenerate' prompts have higher structural element counts than 'very complex' prompts, and explicitly flag failures for manual review per updated spec.md US-1/US-3 criteria.
-- [X] T040 [US3] Write final statistical results to `data/results/analysis_summary.csv` including test statistics, p-values, effect sizes, corrected thresholds, AND the correlation coefficient from FR-013 (T020). Columns: `test_type`, `test_statistic`, `p_value`, `effect_size`, `corrected_p_value`, `covariate_adjusted_p_value`, `correlation_coefficient`.
-- [X] T041 [US3] **Report Power Limitations**: Implement reporting of sample-size limitations and power analysis caveats in `data/results/analysis_summary.csv` and `research.md` as required by Spec Assumptions.
+- [ ] T033 [US3] **Implement Linear Mixed Model (LMM)**: Implement `code/analysis/stats.py` with **Linear Mixed Model (LMM)** using `statsmodels` to handle nested structure (5 variants per problem) with random intercepts for **problem difficulty as defined by the HumanEval dataset label**, as mandated by the amended spec.md (post-T001).
+ **Prerequisite**: Verify T001 has successfully updated spec.md FR-005 to "Linear Mixed Models" before proceeding.
+- [ ] T034 [US3] Implement multiple-comparison correction in `code/analysis/stats.py` using Bonferroni or Holm-Bonferroni with adjusted significance threshold (α ≤ 0.05 / number of tests). Output corrected p-values to `data/results/analysis_summary.csv`.
+- [ ] T035 [US3] Implement covariate adjustment in `code/analysis/stats.py` to control for **prompt token count** (as updated in spec.md FR-012 via Task T001) when evaluating readability metrics, replacing the original 'code length' requirement.
+- [ ] T036 [US3] Implement sensitivity analysis in `code/analysis/stats.py` to re-bin data using shifted thresholds (±10 tokens) and report variance in pass rates (FR-010). Output to `data/results/sensitivity_analysis.csv`.
+- [ ] T037 [US3] Implement `code/analysis/viz.py` to generate complexity vs. performance curves with inflection points identified (peak performance and diminishing returns).
+- [ ] T038 [US3] Implement effect size calculation (Cohen's d, eta-squared) with standard interpretation thresholds for small, medium, and large effects.
+- [ ] T039 [US3] Implement structural redundancy verification in `code/analysis/stats.py` to confirm 'degenerate' prompts have higher structural element counts than 'very complex' prompts, and explicitly flag failures for manual review per updated spec.md US-1/US-3 criteria.
+- [ ] T040 [US3] Write final statistical results to `data/results/analysis_summary.csv` including test statistics, p-values, effect sizes, corrected thresholds, AND the correlation coefficient from FR-013 (T020). Columns: `test_type`, `test_statistic`, `p_value`, `effect_size`, `corrected_p_value`, `covariate_adjusted_p_value`, `correlation_coefficient`.
+- [ ] T041 [US3] **Report Power Limitations**: Implement reporting of sample-size limitations and power analysis caveats in `data/results/analysis_summary.csv` and `research.md` as required by Spec Assumptions.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -168,12 +170,12 @@
 
 **Purpose**: Improvements that affect multiple user stories and address specific reviewer concerns.
 
-- [X] T043 [P] [Research Review] Documentation updates in `docs/research.md` explicitly framing findings as associational and noting the "state transition" limitation.
-- [X] T044 Code cleanup and refactoring to ensure modularity: Reduce cyclomatic complexity of `runner.py` to < 10 and refactor `code/execution/runner.py` and `code/analysis/stats.py` to separate concerns.
-- [X] T045 Performance optimization to ensure full pipeline runs within **≤6 hours** on CPU (subset if necessary): Profile `main.py` and implement caching for LLM queries in `code/llm/client.py` to reduce runtime to **≤6 hours**.
-- [X] T046 [P] Additional unit tests for edge cases (syntax errors, timeouts, empty prompts) in `tests/unit/`.
-- [X] T047 Run `quickstart.md` validation and verify checksums in `state/projects/...yaml`, generating `validation_report.md` with pass/fail status for each checksum.
-- [X] T055 [P] **Reconcile run-book vs implementation for `code/main.py`**: the quickstart run-book invokes this script but it does not exist. Either create `code/main.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
+- [ ] T043 [P] [Research Review] Documentation updates in `docs/research.md` explicitly framing findings as associational and noting the "state transition" limitation.
+- [ ] T044 Code cleanup and refactoring to ensure modularity: Reduce cyclomatic complexity of `runner.py` to < 10 and refactor `code/execution/runner.py` and `code/analysis/stats.py` to separate concerns.
+- [ ] T045 Performance optimization to ensure full pipeline runs within **≤6 hours** on CPU (subset if necessary): Profile `main.py` and implement caching for LLM queries in `code/llm/client.py` to reduce runtime to **≤6 hours**.
+- [ ] T046 [P] Additional unit tests for edge cases (syntax errors, timeouts, empty prompts) in `tests/unit/`.
+- [ ] T047 Run `quickstart.md` validation and verify checksums in `state/projects/...yaml`, generating `validation_report.md` with pass/fail status for each checksum.
+- [ ] T055 [P] **Reconcile run-book vs implementation for `code/main.py`**: the quickstart run-book invokes this script but it does not exist. Either create `code/main.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
 
 ---
 
@@ -208,7 +210,7 @@
 
 - All Setup tasks marked [P] can run in parallel
 - All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
+- Once Foundational phase completes, all user stories can start in parallel (if staffed)
 - All tests for a user story marked [P] can run in parallel
 - Models within a story marked [P] can run in parallel
 - Different user stories can be worked on in parallel by different team members
@@ -260,4 +262,5 @@ With multiple developers:
 - **Spec Amendment Note**: Task T001 is a critical pre-requisite that amends the spec to align with the plan's methodological improvements (LMM and token covariate) before implementation begins.
 - **Dependency Note**: T016 (Fetch HumanEval) MUST precede T013-T015 (Prompt Generation) to provide input data.
 - **Constraint Note**: T045 targets ≤6 hours runtime to match spec/plan constraints.
-- **Removed Scope Note**: Tasks T048-T054 (dependency chain depth, constraint position) have been removed as they were unauthorized scope creep not present in spec.md or plan.md.
+- **Removed Scope Note**: Tasks T056-T060 (dependency chain depth, constraint position) have been removed as they were unauthorized scope creep not present in spec.md or plan.md.
+- **Review Integration Note**: Tasks T056, T057, T058, T059, and T060 have been removed to align with the spec's definition of complexity (token length/structural composition only).

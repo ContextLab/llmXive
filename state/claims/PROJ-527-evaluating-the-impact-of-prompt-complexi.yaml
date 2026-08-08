@@ -541,3 +541,220 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-06T12:07:07Z'
+- artifact_path: projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/specs/001-evaluating-the-impact-of-prompt-complexi/tasks.md
+  attempts: 1
+  canonical: HumanEval prompt variants generated with 5 structural complexity levels
+  claim_id: c_4fae1668
+  context: Task T001 instructs to replace FR-001 text to define complexity levels
+    based on structural composition.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'System MUST generate multiple prompt variants per HumanEval problem with
+    controlled complexity levels defined by structural composition: simple (problem
+    statement only), moderate (+1 example), complex (+constraints), very complex (+multi-step
+    instructions), degenerate (+redundant constraints/examples).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T00:36:59Z'
+- artifact_path: projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/specs/001-evaluating-the-impact-of-prompt-complexi/tasks.md
+  attempts: 1
+  canonical: Prompt token count thresholds for 5 complexity levels using tiktoken
+    cl100k_base
+  claim_id: c_77ebeea3
+  context: Task T001 specifies token count ranges for each complexity level using
+    the cl100k_base tokenizer.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Token counts (using tiktoken cl100k_base, counting only prompt text)\
+    \ MUST serve as secondary indicators: simple \u2264 50 tokens, moderate 51-150\
+    \ tokens, complex 151-300 tokens, very complex 301-500 tokens, degenerate > 500\
+    \ tokens."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T00:37:33Z'
+- artifact_path: projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/specs/001-evaluating-the-impact-of-prompt-complexi/tasks.md
+  attempts: 1
+  canonical: Linear Mixed Models used for statistical analysis in place of ANOVA
+  claim_id: c_7416e340
+  context: Task T001 instructs to replace 'ANOVA or Kruskal-Wallis' with 'Linear Mixed
+    Models (LMM)' in FR-005.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Linear_Mixed_Models_used_for_statistical_analysis_in_place_o
+  kind: entity_fact
+  raw_text: Linear Mixed Models (LMM) must be used for statistical analysis instead
+    of ANOVA or Kruskal-Wallis.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T00:38:17Z'
+- artifact_path: projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/specs/001-evaluating-the-impact-of-prompt-complexi/tasks.md
+  attempts: 1
+  canonical: Prompt token count used as covariate for readability metrics
+  claim_id: c_8483c094
+  context: Task T001 instructs to replace 'code length (lines of code)' with 'prompt
+    token count' in FR-012.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Prompt_token_count_used_as_covariate_for_readability_metrics
+  kind: entity_fact
+  raw_text: Prompt token count must be used as the covariate for readability metrics
+    instead of code length (lines of code).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T00:44:56Z'
+- artifact_path: projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/specs/001-evaluating-the-impact-of-prompt-complexi/tasks.md
+  attempts: 1
+  canonical: HumanEval dataset available at HuggingFace URL
+  claim_id: c_f69c268e
+  context: Task T016 requires fetching the HumanEval dataset from the specified HuggingFace
+    URL.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/HumanEval_dataset_available_at_HuggingFace_URL
+  kind: entity_fact
+  raw_text: The HumanEval dataset is available from 'https://huggingface.co/datasets/openai/human-eval'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T00:45:39Z'
+- artifact_path: projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/specs/001-evaluating-the-impact-of-prompt-complexi/tasks.md
+  attempts: 1
+  canonical: Cyclomatic complexity and lines of code validation source is McCabe 1976
+  claim_id: c_7428d9a5
+  context: Task T027b requires citing 'McCabe 1976' as the validation source for extracted
+    metrics.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Cyclomatic complexity and lines of code are defined in standard literature
+    as 'McCabe 1976'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T00:46:25Z'
+- artifact_path: projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/specs/001-evaluating-the-impact-of-prompt-complexi/tasks.md
+  attempts: 1
+  canonical: Full pipeline runtime target of 6 hours on CPU
+  claim_id: c_ef5fafdc
+  context: Task T045 sets a performance optimization target to ensure the pipeline
+    runs within 6 hours.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The full pipeline must run within \u22646 hours on CPU."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T00:46:25Z'
+- artifact_path: projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/specs/001-evaluating-the-impact-of-prompt-complexi/tasks.md
+  attempts: 1
+  canonical: Project initialized with Python 3.11
+  claim_id: c_6fa9f7ab
+  context: Task T003 specifies initializing the project with Python 3.11 and specific
+    dependencies.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses Python 3.11.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T00:46:59Z'
+- artifact_path: projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/specs/001-evaluating-the-impact-of-prompt-complexi/spec.md
+  attempts: 1
+  canonical: HumanEval sample size is 164 problems
+  claim_id: c_24b1e7b2
+  context: The sample size of HumanEval (164 problems) is sufficient to detect medium-to-large
+    effect sizes in pass rates across complexity levels, though power may be limited
+    for small effects.
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: 'Math23K: 23,164 elementary school Chinese mathematical word problems,
+        collected from various online educational websites.'
+      source_id: Language model benchmark
+      url: https://en.wikipedia.org/wiki/Language_model_benchmark
+      value: '164'
+    filled: true
+  kind: numeric
+  raw_text: The sample size of HumanEval is 164 problems.
+  resolved_value: '164'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-08T00:48:50Z'
+- artifact_path: projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/specs/001-evaluating-the-impact-of-prompt-complexi/spec.md
+  attempts: 1
+  canonical: HumanEval dataset available at openai/openai_humaneval on Hugging Face
+    Hub
+  claim_id: c_a1f185ec
+  context: The HumanEval dataset is available and accessible via the Hugging Face
+    Hub (`openai/openai_humaneval`).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/HumanEval_dataset_available_at_openai/openai_humaneval_on_Hu
+  kind: entity_fact
+  raw_text: The HumanEval dataset is available via the Hugging Face Hub (openai/openai_humaneval).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T00:57:56Z'
+- artifact_path: projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/specs/001-evaluating-the-impact-of-prompt-complexi/spec.md
+  attempts: 1
+  canonical: Cyclomatic complexity defined by McCabe 1976
+  claim_id: c_6e46f54a
+  context: System MUST calculate cyclomatic complexity and lines of code using standard
+    definitions (McCabe 1976, Ruff Documentation v0.1.0).
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: Essential complexity is a numerical measure defined by Thomas J. McCabe,
+        Sr., in his highly cited, 1976 paper better known for introducing cyclomatic
+        complexity. McCabe defined essential complexity as the cyclomatic complexity
+        of the reduced CFG (control-flow graph) after iteratively replacing (reducing)
+        all structured programming control structures, i.e. those having a single
+        entry point and a single exit point (for example if-then-else and while loops)
+        with placeholder single statements.
+      source_id: Essential complexity
+      url: https://en.wikipedia.org/wiki/Essential_complexity
+      value: Thomas J. McCabe, Sr.
+    filled: true
+  kind: numeric
+  raw_text: Cyclomatic complexity is defined by McCabe 1976.
+  resolved_value: Thomas J. McCabe, Sr.
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-08T00:58:20Z'

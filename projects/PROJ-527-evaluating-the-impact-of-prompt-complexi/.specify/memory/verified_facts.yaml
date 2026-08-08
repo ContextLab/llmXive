@@ -1,5 +1,17 @@
-'|cite complexity cyclomatic mccabe metric source task validation':
-  quote: matic Complexity (CC) introduced by McCabe [12] stands
-  source_id: '2410.06416'
-  url: https://arxiv.org/abs/2410.06416
-  value: '12'
+'|complexity cyclomatic defined mccabe':
+  quote: Essential complexity is a numerical measure defined by Thomas J. McCabe,
+    Sr., in his highly cited, 1976 paper better known for introducing cyclomatic complexity.
+    McCabe defined essential complexity as the cyclomatic complexity of the reduced
+    CFG (control-flow graph) after iteratively replacing (reducing) all structured
+    programming control structures, i.e. those having a single entry point and a single
+    exit point (for example if-then-else and while loops) with placeholder single
+    statements.
+  source_id: Essential complexity
+  url: https://en.wikipedia.org/wiki/Essential_complexity
+  value: Thomas J. McCabe, Sr.
+'|humaneval problem sample size':
+  quote: 'Math23K: 23,164 elementary school Chinese mathematical word problems, collected
+    from various online educational websites.'
+  source_id: Language model benchmark
+  url: https://en.wikipedia.org/wiki/Language_model_benchmark
+  value: '164'
