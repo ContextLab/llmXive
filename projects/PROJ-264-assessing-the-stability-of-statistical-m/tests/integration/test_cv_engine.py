@@ -1,184 +1,164 @@
-"""Integration tests for the Repeated CV evaluation engine.
-
-This module tests the end-to-end execution of the repeated cross-validation
-pipeline on a real dataset (OpenML Breast Cancer Wisconsin) to verify:
-1. The correct volume of records is generated (n_repeats * n_splits * n_models).
-2. Non-zero variance exists in accuracy scores across repeats for at least one model.
 """
-
+Integration tests for the repeated cross-validation engine.
+"""
 import os
 import tempfile
+from pathlib import Path
+
+import numpy as np
 import pandas as pd
 import pytest
 from sklearn.datasets import fetch_openml
 
-# Import project utilities and engine components
-# Note: evaluator.py is not yet implemented per task list, so we mock the logic
-# or assume it will be implemented in T011. However, per T010 description,
-# we are writing the test *before* implementation (TDD).
-# Since we cannot run the real engine yet without T011, we will implement a
-# minimal stub of the evaluation logic within this test file to satisfy the
-# "real data" and "runnable" constraint for the test itself,
-# while ensuring the test structure is ready for the real implementation.
-#
-# CRITICAL: Per task T010, we must write the test. The test must pass once T011 is done.
-# To make this test runnable *now* (as per "Implement the task for real"),
-# we will implement the minimal evaluation logic required to generate the data
-# inside this test file, effectively acting as a temporary stand-in for T011
-# until T011 is merged. This ensures the test validates the *process*.
+from code.config import RESULTS_DIR
+from code.data_loader import load_datasets
+from code.evaluator import run_repeated_stratified_cv
+from code.preprocessor import preprocess_data
+from code.results_writer import write_raw_evaluations
 
-from sklearn.model_selection import RepeatedStratifiedKFold, cross_validate
-from sklearn.linear_model import LogisticRegression
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.svm import SVC
-from sklearn.preprocessing import StandardScaler
-from sklearn.impute import SimpleImputer
-from sklearn.pipeline import Pipeline
-import numpy as np
-import logging
 
-# Setup logging for the test
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
-
-# --- Temporary Implementation of Evaluator Logic for Test Execution ---
-# This block simulates what T011 will implement. 
-# Once T011 is complete, this block should be removed and imports from code/evaluator.py used.
-
-def _run_single_evaluation(X, y, model_name, model, n_splits=10, n_repeats=10, random_state=42):
-    """Run repeated stratified k-fold and return metrics."""
-    rskf = RepeatedStratifiedKFold(n_splits=n_splits, n_repeats=n_repeats, random_state=random_state)
+@pytest.fixture
+def test_fixture_iris_binary():
+    """
+    Creates a binary subset of Iris from OpenML for testing.
+    Returns:
+        dict: Dictionary containing X, y, dataset_id, and dataset_name.
+    """
+    # Fetch Iris dataset from OpenML
+    # OpenML ID for Iris is 61
+    iris = fetch_openml(name="iris", version=1, as_frame=True)
     
-    # Define scoring
-    scoring = ['accuracy', 'f1']
+    # Convert to binary classification: Setosa vs Non-Setosa
+    # Iris target has 3 classes: 'setosa', 'versicolor', 'virginica'
+    y_binary = (iris.target != "setosa").astype(int)
+    X_binary = iris.data
     
-    # Perform cross-validation
-    scores = cross_validate(
-        model, X, y, cv=rskf, scoring=scoring, return_train_score=False
-    )
+    dataset_id = 61
+    dataset_name = "iris_binary"
     
-    # Flatten results to a list of records
-    records = []
-    n_folds = n_splits * n_repeats
-    
-    # cross_validate returns arrays of length n_splits * n_repeats
-    # We need to track fold_id and repeat_id. 
-    # Since cross_validate flattens the results, we reconstruct indices.
-    # The order is typically: repeat 0 (split 0..9), repeat 1 (split 0..9)...
-    
-    for i in range(len(scores['test_accuracy'])):
-        repeat_id = i // n_splits
-        fold_id = i % n_splits
-        
-        records.append({
-            'dataset_id': 2, # Breast Cancer Wisconsin ID
-            'model_name': model_name,
-            'fold_id': fold_id,
-            'repeat_id': repeat_id,
-            'accuracy': scores['test_accuracy'][i],
-            'f1_score': scores['test_f1'][i]
-        })
-    
-    return records
-
-def _execute_evaluation_pipeline(dataset_id=2):
-    """Execute the full pipeline for a specific dataset."""
-    logger.info(f"Fetching dataset {dataset_id} from OpenML...")
-    
-    # Fetch Breast Cancer Wisconsin (binary classification)
-    # OpenML ID 2 is the standard Breast Cancer dataset
-    try:
-        data = fetch_openml(data_id=dataset_id, as_frame=True)
-    except Exception as e:
-        logger.error(f"Failed to fetch dataset {dataset_id}: {e}")
-        raise
-    
-    X = data.data
-    y = data.target
-    
-    # Ensure binary classification (0 and 1)
-    # The Breast Cancer dataset is already binary (Malignant/Benign), 
-    # but we map to 0/1 to be safe and consistent.
-    if not pd.api.types.is_numeric_dtype(y):
-        y = y.map({'M': 1, 'B': 0}).astype(int)
-    
-    # Filter to ensure we have binary classes 0 and 1
-    if not set(y.unique()).issubset({0, 1}):
-        logger.warning(f"Dataset {dataset_id} does not have strictly 0/1 classes. Mapping...")
-        # Fallback mapping if labels are not 0/1
-        unique_vals = sorted(y.unique())
-        if len(unique_vals) != 2:
-            raise ValueError(f"Dataset {dataset_id} is not binary: {unique_vals}")
-        y = y.map({unique_vals[0]: 0, unique_vals[1]: 1}).astype(int)
-
-    # Define models
-    models = {
-        'LogisticRegression': Pipeline([
-            ('imputer', SimpleImputer(strategy='median')),
-            ('scaler', StandardScaler()),
-            ('clf', LogisticRegression(max_iter=1000, random_state=42))
-        ]),
-        'RandomForest': Pipeline([
-            ('imputer', SimpleImputer(strategy='median')),
-            ('clf', RandomForestClassifier(n_estimators=100, random_state=42))
-        ]),
-        'LinearSVM': Pipeline([
-            ('imputer', SimpleImputer(strategy='median')),
-            ('scaler', StandardScaler()),
-            ('clf', SVC(kernel='linear', random_state=42))
-        ])
+    return {
+        "X": X_binary,
+        "y": y_binary,
+        "dataset_id": dataset_id,
+        "dataset_name": dataset_name,
+        "n_samples": len(y_binary),
+        "n_features": X_binary.shape[1]
     }
 
-    all_records = []
-    for name, model in models.items():
-        logger.info(f"Running evaluation for {name}...")
-        records = _run_single_evaluation(X, y, name, model)
-        all_records.extend(records)
-    
-    return pd.DataFrame(all_records)
 
-# --- End Temporary Implementation ---
+def test_repeated_cv_iris_row_count(test_fixture_iris_binary):
+    """
+    Test that the expected number of rows are generated.
+    With 10 repeats and 3 models (LR, RF, SVM), and 10 folds:
+    Total rows = 10 repeats * 10 folds * 3 models = 300 rows.
+    """
+    data = test_fixture_iris_binary
+    X = data["X"]
+    y = data["y"]
+    dataset_id = data["dataset_id"]
+    dataset_name = data["dataset_name"]
+    
+    # Preprocess data
+    X_processed, _ = preprocess_data(X, y, is_training=True)
+    
+    # Run repeated stratified CV
+    results = run_repeated_stratified_cv(
+        X_processed,
+        y,
+        dataset_id=dataset_id,
+        dataset_name=dataset_name,
+        n_splits=10,
+        n_repeats=10,
+        models=None  # Use default models
+    )
+    
+    # Expected: 10 repeats * 10 folds * 3 models = 300 rows
+    expected_rows = 10 * 10 * 3
+    assert len(results) == expected_rows, (
+        f"Expected {expected_rows} rows, got {len(results)}. "
+        f"Results shape: {results.shape}"
+    )
+    
+    # Verify columns exist
+    expected_columns = ['dataset_id', 'model_name', 'fold_id', 'repeat_id', 'accuracy', 'f1_score']
+    assert list(results.columns) == expected_columns, (
+        f"Expected columns {expected_columns}, got {list(results.columns)}"
+    )
 
-@pytest.mark.integration
-def test_repeated_cv_iris():
+
+def test_repeated_cv_iris_variance(test_fixture_iris_binary):
     """
-    Integration test for repeated CV on a real binary dataset (OpenML ID 2: Breast Cancer).
-    Note: Task description mentions 'Iris', but Iris is 3-class. 
-    The spec requires binary classification. We use Breast Cancer (ID 2) which is the standard binary benchmark.
+    Test that there is non-zero variance in accuracy scores across multiple repeats
+    for at least one model.
     
-    Assertions:
-    1. Expected number of rows: 3 models * 10 repeats * 10 splits = 300 rows.
-    2. Non-zero variance in accuracy scores across repeats for at least one model.
+    This test verifies that the repeated cross-validation produces varied results
+    due to different train/test splits, which is expected behavior.
     """
+    data = test_fixture_iris_binary
+    X = data["X"]
+    y = data["y"]
+    dataset_id = data["dataset_id"]
+    dataset_name = data["dataset_name"]
     
-    # 1. Execute the pipeline
-    df = _execute_evaluation_pipeline(dataset_id=2)
+    # Preprocess data
+    X_processed, _ = preprocess_data(X, y, is_training=True)
     
-    # 2. Verify row count
-    # 3 models (LR, RF, SVM) * 10 repeats * 10 splits = 300
-    expected_rows = 3 * 10 * 10
-    assert len(df) == expected_rows, f"Expected {expected_rows} rows, got {len(df)}"
+    # Run repeated stratified CV
+    results = run_repeated_stratified_cv(
+        X_processed,
+        y,
+        dataset_id=dataset_id,
+        dataset_name=dataset_name,
+        n_splits=10,
+        n_repeats=10,
+        models=None  # Use default models
+    )
     
-    # 3. Verify non-zero variance for at least one model
-    # We check each model individually. At least one must have variance > 0.
-    models = df['model_name'].unique()
+    # Check that at least one model has non-zero variance in accuracy
+    models = results['model_name'].unique()
     variance_found = False
     
     for model in models:
-        model_data = df[df['model_name'] == model]
-        # Check variance across repeats (group by repeat_id)
-        # Actually, we just need to ensure the accuracy scores are not all identical.
-        # In a real CV run on real data, variance is expected.
-        acc_variance = model_data['accuracy'].var()
-        logger.info(f"Variance for {model}: {acc_variance}")
-        if acc_variance > 1e-6:
+        model_results = results[results['model_name'] == model]
+        accuracy_std = model_results['accuracy'].std()
+        
+        if accuracy_std > 0:
             variance_found = True
             break
     
-    assert variance_found, "Expected non-zero variance in accuracy scores for at least one model, but all were constant."
+    assert variance_found, (
+        "No model showed non-zero variance in accuracy scores. "
+        "This suggests the CV splits may be identical or there's an issue with the evaluation."
+    )
     
-    # 4. Verify columns exist
-    expected_cols = ['dataset_id', 'model_name', 'fold_id', 'repeat_id', 'accuracy', 'f1_score']
-    assert all(col in df.columns for col in expected_cols), f"Missing columns. Got: {df.columns.tolist()}"
-
-    logger.info("Integration test passed: Correct row count and variance observed.")
+    # Additional check: verify that variance is within expected bounds
+    # (not too high, not zero)
+    for model in models:
+        model_results = results[results['model_name'] == model]
+        accuracy_std = model_results['accuracy'].std()
+        accuracy_mean = model_results['accuracy'].mean()
+        
+        # CV should be reasonable (not 0, not extremely high)
+        cv = accuracy_std / accuracy_mean if accuracy_mean > 0 else 0
+        assert 0 < cv < 1.0, (
+            f"Model {model} has unexpected CV: {cv}. "
+            f"Mean: {accuracy_mean}, Std: {accuracy_std}"
+        )
+    
+    # Verify that different repeats produce different results
+    repeat_ids = results['repeat_id'].unique()
+    assert len(repeat_ids) == 10, f"Expected 10 repeats, got {len(repeat_ids)}"
+    
+    # Check that accuracy varies across repeats for at least one model
+    sample_model = results['model_name'].iloc[0]
+    model_data = results[results['model_name'] == sample_model]
+    
+    # Group by repeat and calculate mean accuracy per repeat
+    repeat_means = model_data.groupby('repeat_id')['accuracy'].mean()
+    
+    # There should be variation in repeat means
+    repeat_std = repeat_means.std()
+    assert repeat_std > 0, (
+        f"All repeats produced identical mean accuracy for {sample_model}. "
+        f"Repeat means: {repeat_means.values}"
+    )

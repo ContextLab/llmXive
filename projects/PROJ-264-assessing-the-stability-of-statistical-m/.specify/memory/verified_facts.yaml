@@ -1,0 +1,11 @@
+15|approval credit dataset feature sample:
+  quote: Australian 690 14 307 383
+  source_id: '2102.04721'
+  url: https://arxiv.org/abs/2102.04721
+  value: '690'
+8|dataset diabete feature indian pima sample:
+  quote: 'mented with 2,000 synthetic samples to mitigate class imbalance (total:
+    2,768 samples, 1,949'
+  source_id: '2509.12259'
+  url: https://arxiv.org/abs/2509.12259
+  value: '768'

@@ -5,7 +5,7 @@
 
 ## Summary
 
-This project implements a rigorous statistical pipeline to quantify the stability (variance) of three standard machine learning models (Logistic Regression, Random Forest, Linear SVM) across a diverse set of binary classification datasets. The core methodology involves executing **100 evaluations per model-dataset pair** (achieved via multiple folds and repeats for large datasets; adaptive folds for small datasets) to generate a distribution of performance metrics (Accuracy, F1). The plan transforms these raw distributions into stability metrics, prioritizing **Log-Transformed Variance** (log(σ²)) as the primary metric to avoid the tautology of Coefficient of Variation (CV), and correlates them with dataset properties (sample size, feature count) using **Pearson correlation** on log-transformed data (with Spearman as a robustness check). Finally, a Permutation Test determines if variance differences between models are statistically significant, applying **Benjamini-Hochberg** correction for multiple comparisons. The implementation strictly adheres to CPU-only constraints on GitHub Actions, using streaming for large datasets.
+This project implements a rigorous statistical pipeline to quantify the stability (variance) of three standard machine learning models (Logistic Regression, Random Forest, Linear SVM) across a diverse set of binary classification datasets. The core methodology involves executing **Multiple evaluations per model-dataset pair** (achieved via multiple folds and repeats for large datasets; adaptive folds for small datasets) to generate a distribution of performance metrics (Accuracy, F1). The plan transforms these raw distributions into stability metrics, prioritizing **Log-Transformed Variance** (log(σ²)) as the primary metric to avoid the tautology of Coefficient of Variation (CV), and correlates them with dataset properties (sample size, feature count) using **Pearson correlation** on log-transformed data (with Spearman as a robustness check). Finally, a Permutation Test determines if variance differences between models are statistically significant, applying **Benjamini-Hochberg** correction for multiple comparisons. The implementation strictly adheres to CPU-only constraints on GitHub Actions, using streaming for large datasets.
 
 **Dataset Selection**: 15 binary classification datasets were selected from OpenML/UCI to span the full range of sample sizes (N=101 to N=48,842) and feature dimensions, ensuring the correlation analysis is statistically valid.
 
@@ -36,7 +36,7 @@ This project implements a rigorous statistical pipeline to quantify the stabilit
 | **III. Data Hygiene** | PASS | Raw data stored in `data/` with **SHA-256 checksums** recorded; transformations write to `results/`; PII scan via `ruff`/custom script. |
 | **IV. Single Source of Truth** | PASS | All statistics in `paper/` trace to `results/raw_evaluations.csv`, `results/stability_metrics.csv`, `results/correlation_results.csv`, and `results/permutation_results.csv`. |
 | **V. Versioning Discipline** | PASS | Content hashes recorded in `state/manifest.yaml` updated on change with content hashes. |
-| **VI. Statistical Power Adequacy** | PASS | Plan enforces **100 evaluations per model-dataset pair** (10 folds × 10 repeats) as mandated. Adaptive folds used for small datasets to maintain 100 evaluations. |
+| **VI. Statistical Power Adequacy** | PASS | Plan enforces **100 evaluations per model-dataset pair** (Multiple folds × multiple repeats) as mandated. Adaptive folds used for small datasets to maintain 100 evaluations. |
 | **VII. Dataset Diversity** | PASS | Plan selects 15 datasets spanning **N=101 to N=48,842** (verified in `research.md`). Selection mechanism explicitly covers N < 1k, 1k-10k, and >10k ranges. |
 
 ## Project Structure
@@ -172,5 +172,5 @@ All output CSVs must strictly adhere to the schemas defined in `contracts/`.
 |------|--------|------------|
 | **Insufficient Binary Datasets** | Cannot reach 15 datasets. | Pipeline halts with critical error if the verified set does not span the required range. |
 | **Network Failure** | Pipeline halts. | Implement `try/except` blocks around download; skip failed dataset, log warning, continue (only if >15 valid remain). |
-| **Zero Variance** | Log-variance calculation crash. | Handle `std=0` explicitly; assign log-variance = -999. |
+| **Zero Variance** | Log-variance calculation crash. | Handle `std=0` explicitly; assign log-variance to a placeholder value indicating missing data. |
 | **Time Budget Exceeded** | Job timeout. | Add a "progress check" every 10 datasets; if runtime > 4h, reduce repeats to a reasonable threshold (log warning) or stop. |

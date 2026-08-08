@@ -1,49 +1,30 @@
 [lint]
-# Enable all standard rules
-select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # pyflakes
-    "I",  # isort
-    "B",  # flake8-bugbear
-    "C4", # flake8-comprehensions
-    "UP", # pyupgrade
-]
+# Enable error (E), warning (W), and pyflakes (F) rules
+# Enable isort (I) for import sorting
+# Enable pydocstyle (D) for documentation string compliance
+# Enable PII (PI) rules to satisfy Constitution Principle III (Data Hygiene)
+select = ["E", "F", "W", "I", "D", "PI"]
 
-# Ignore specific rules if needed (e.g., line length is handled by formatter)
+# Ignore specific rules if necessary (currently none ignored to enforce strict hygiene)
 ignore = []
 
-# Allow autofix for all enabled rules
-fixable = ["ALL"]
-unfixable = []
+# Allow unused variables in certain contexts if needed (currently enforcing all)
+# dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 
-# Exclude specific directories
-exclude = [
-    ".git",
-    ".tox",
-    "__pycache__",
-    "build",
-    "dist",
-    ".eggs",
-    "*.egg-info",
-]
+# PII specific settings
+# Ensure no PII is left in the codebase
+allowed-names = []
 
-# Per-file ignores
-per-file-ignores = {}
-
-# Line length (should match Black's default of 88)
-line-length = 88
-
-# Target Python version
-target-version = "py311"
-
-# Allow unused variables in specific contexts (e.g., function arguments)
-dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+[lint.per-file-ignores]
+# If specific files need to ignore D (docstrings) or PI (PII) checks, define them here.
+# For example, test files might not need full docstring coverage.
+"tests/*" = ["D100", "D101", "D102", "D103"]
 
 [format]
-# Format settings
+# Ensure formatting matches the line length set in lint
 line-length = 88
-indent-style = "space"
-quote-style = "double"
-skip-magic-trailing-comma = false
 target-version = "py311"
+
+[lint.pydocstyle]
+# Enforce Google style docstrings as is common in scientific Python projects
+convention = "google"

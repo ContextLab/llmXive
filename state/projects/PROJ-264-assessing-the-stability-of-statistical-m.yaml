@@ -6,7 +6,7 @@ failed_stage: null
 field: statistics
 human_escalation_reason: null
 id: PROJ-264-assessing-the-stability-of-statistical-m
-last_run_id: b9761030-200d-4c88-9276-3054c5a3052c
+last_run_id: ab6013f1-1c72-4500-8314-64b68ddaec29
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-264-assessing-the-stability-of-statistical-m/specs/001-assessing-the-stability-of-statistical-m
 title: Assessing the Stability of Statistical Model Performance Across Data Subsets
-updated_at: '2026-08-06T05:10:26.025356Z'
+updated_at: '2026-08-08T18:17:33.232161Z'

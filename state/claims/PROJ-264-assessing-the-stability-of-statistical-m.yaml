@@ -920,3 +920,856 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-28T10:59:42Z'
+- artifact_path: projects/PROJ-264-assessing-the-stability-of-statistical-m/specs/001-assessing-the-stability-of-statistical-m/tasks.md
+  attempts: 1
+  canonical: Select 15 binary classification datasets from OpenML/UCI
+  claim_id: c_59a52fe4
+  context: T005 requires the data loader to explicitly select 15 binary classification
+    datasets defined in config.py.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Explicitly select 15 binary classification datasets (OpenML IDs) defined
+    in code/config.py.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T17:36:33Z'
+- artifact_path: projects/PROJ-264-assessing-the-stability-of-statistical-m/specs/001-assessing-the-stability-of-statistical-m/tasks.md
+  attempts: 1
+  canonical: Skip datasets with sample count < 100 or > 100000
+  claim_id: c_b27c8313
+  context: T005 specifies validation logic to skip datasets falling outside the 100
+    to 100,000 sample range.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If n_samples < 100 OR n_samples > 100000, log a warning and skip that
+    specific dataset.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T17:36:34Z'
+- artifact_path: projects/PROJ-264-assessing-the-stability-of-statistical-m/specs/001-assessing-the-stability-of-statistical-m/tasks.md
+  attempts: 1
+  canonical: Exit with code 1 if valid dataset count is less than 15
+  claim_id: c_feb86d18
+  context: T005 defines the failure condition if fewer than 15 valid datasets are
+    found after filtering.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exit_with_code_1_if_valid_dataset_count_is_less_than_15
+  kind: magnitude
+  raw_text: 'If the count of valid datasets is insufficient (< 15), log the exact
+    message: ''CRITICAL: Insufficient valid datasets (< 15). Exiting.'' and exit with
+    code 1.'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T17:37:10Z'
+- artifact_path: projects/PROJ-264-assessing-the-stability-of-statistical-m/specs/001-assessing-the-stability-of-statistical-m/tasks.md
+  attempts: 1
+  canonical: Skip datasets with sample count < 100 in evaluator
+  claim_id: c_65003052
+  context: T011 specifies the evaluator logic to skip datasets with fewer than 100
+    samples.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'If n_samples < 100: log warning and skip dataset.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T17:37:10Z'
+- artifact_path: projects/PROJ-264-assessing-the-stability-of-statistical-m/specs/001-assessing-the-stability-of-statistical-m/tasks.md
+  attempts: 1
+  canonical: Skip datasets with sample count between 100 and 200 in evaluator
+  claim_id: c_6c375184
+  context: T011 specifies the evaluator logic to skip datasets with sample counts
+    between 100 and 200 to ensure fold stability.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'If 100 <= n_samples < 200: log warning and skip dataset.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T17:37:25Z'
+- artifact_path: projects/PROJ-264-assessing-the-stability-of-statistical-m/specs/001-assessing-the-stability-of-statistical-m/tasks.md
+  attempts: 1
+  canonical: Use 10 splits and 10 repeats for datasets with 200 or more samples
+  claim_id: c_1b8108b9
+  context: T011 defines the cross-validation parameters for valid datasets with 200
+    or more samples.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'If n_samples >= 200: use RepeatedStratifiedKFold(n_splits=10, n_repeats=10).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T17:37:39Z'
+- artifact_path: projects/PROJ-264-assessing-the-stability-of-statistical-m/specs/001-assessing-the-stability-of-statistical-m/tasks.md
+  attempts: 1
+  canonical: Train Logistic Regression, Random Forest with 100 estimators, and Linear
+    SVM
+  claim_id: c_b1b41837
+  context: T012 specifies the models to be trained in the evaluation loop.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement training loop for Logistic Regression, Random Forest (n_estimators=100),
+    and Linear SVM.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T17:38:11Z'
+- artifact_path: projects/PROJ-264-assessing-the-stability-of-statistical-m/specs/001-assessing-the-stability-of-statistical-m/tasks.md
+  attempts: 1
+  canonical: Save raw evaluation results to CSV with specified schema
+  claim_id: c_24452d10
+  context: T014 defines the output schema for the raw evaluation metrics.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Save_raw_evaluation_results_to_CSV_with_specified_schema
+  kind: entity_fact
+  raw_text: Write raw evaluation results to results/raw_evaluations.csv with columns
+    dataset_id, model_name, fold_id, repeat_id, accuracy, f1_score.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T17:38:31Z'
+- artifact_path: projects/PROJ-264-assessing-the-stability-of-statistical-m/specs/001-assessing-the-stability-of-statistical-m/tasks.md
+  attempts: 1
+  canonical: Compute Pearson correlation between Coefficient of Variation and dataset
+    properties
+  claim_id: c_8577d0b3
+  context: T019a requires calculating Pearson correlations for the CV metric against
+    log-transformed dataset properties.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Compute_Pearson_correlation_between_Coefficient_of_Variation
+  kind: entity_fact
+  raw_text: Compute Pearson correlation coefficients between CV and dataset properties
+    (log(n_samples), log(n_features)).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T17:38:57Z'
+- artifact_path: projects/PROJ-264-assessing-the-stability-of-statistical-m/specs/001-assessing-the-stability-of-statistical-m/tasks.md
+  attempts: 1
+  canonical: Compute Spearman rho for correlation robustness check
+  claim_id: c_ff00284c
+  context: T019a and T019b require computing Spearman rho as a secondary robustness
+    metric for correlations.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Compute_Spearman_rho_for_correlation_robustness_check
+  kind: entity_fact
+  raw_text: Compute Spearman rho for robustness check in correlation analysis.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T17:39:25Z'
+- artifact_path: projects/PROJ-264-assessing-the-stability-of-statistical-m/specs/001-assessing-the-stability-of-statistical-m/tasks.md
+  attempts: 1
+  canonical: Apply Benjamini-Hochberg correction to control False Discovery Rate across
+    all tests
+  claim_id: c_9a6782a3
+  context: T026 specifies the use of Benjamini-Hochberg for multiple comparison correction
+    instead of Bonferroni.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Apply_Benjamini-Hochberg_correction_to_control_False_Discove
+  kind: entity_fact
+  raw_text: Implement Benjamini-Hochberg correction globally across the set of ALL
+    hypothesis tests to control the False Discovery Rate (FDR).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T17:39:52Z'
+- artifact_path: projects/PROJ-264-assessing-the-stability-of-statistical-m/specs/001-assessing-the-stability-of-statistical-m/tasks.md
+  attempts: 1
+  canonical: Perform permutation tests on all three pairwise model combinations
+  claim_id: c_a32b5a9d
+  context: T025 requires the permutation test to cover all three pairwise model comparisons
+    for every dataset.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Perform_permutation_tests_on_all_three_pairwise_model_combin
+  kind: entity_fact
+  raw_text: Generate results for all three pairwise combinations (LR vs RF, RF vs
+    SVM, LR vs SVM) for each dataset in the permutation test.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T17:40:09Z'
+- artifact_path: projects/PROJ-264-assessing-the-stability-of-statistical-m/specs/001-assessing-the-stability-of-statistical-m/tasks.md
+  attempts: 1
+  canonical: Keep memory usage under 7GB during processing
+  claim_id: c_4c3aa9c6
+  context: T031 specifies a performance constraint to maintain memory usage below
+    7GB.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Keep_memory_usage_under_7GB_during_processing
+  kind: entity_fact
+  raw_text: Ensure memory usage stays <7GB by processing datasets sequentially.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T17:40:38Z'
+- artifact_path: projects/PROJ-264-assessing-the-stability-of-statistical-m/specs/001-assessing-the-stability-of-statistical-m/tasks.md
+  attempts: 1
+  canonical: Verify total runtime is less than 6 hours
+  claim_id: c_80b208d6
+  context: T032 sets a performance target for the total runtime of the end-to-end
+    validation.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_total_runtime_is_less_than_6_hours
+  kind: magnitude
+  raw_text: Verify total runtime < 6h on a small subset of datasets.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T17:41:32Z'
+- artifact_path: projects/PROJ-264-assessing-the-stability-of-statistical-m/specs/001-assessing-the-stability-of-statistical-m/tasks.md
+  attempts: 1
+  canonical: Set CI timeout to 360 minutes for evaluation job
+  claim_id: c_facc6895
+  context: T036a proposes a specific timeout configuration of 360 minutes for the
+    CI evaluation job.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Update ci.yml to include a specific timeout-minutes directive (e.g., 360)
+    for the evaluation job.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T17:41:42Z'
+- artifact_path: projects/PROJ-264-assessing-the-stability-of-statistical-m/specs/001-assessing-the-stability-of-statistical-m/tasks.md
+  attempts: 1
+  canonical: Report datasets with adjusted p-value less than 0.05 as significant
+  claim_id: c_4ccd235d
+  context: T028c defines the content of the final report, including a section for
+    significant variance differences based on a 0.05 threshold.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Report_datasets_with_adjusted_p-value_less_than_0.05_as_sign
+  kind: magnitude
+  raw_text: List datasets where adj_p < 0.05 in the 'Significant Variance Differences'
+    section of the report.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T17:43:08Z'
+- artifact_path: projects/PROJ-264-assessing-the-stability-of-statistical-m/specs/001-assessing-the-stability-of-statistical-m/quickstart.md
+  attempts: 1
+  canonical: 15 binary classification datasets from OpenML/UCI used in pipeline
+  claim_id: c_1973f8be
+  context: The pipeline uses the following 15 binary classification datasets from
+    OpenML/UCI. These datasets were selected to span a wide range of sample sizes.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline uses the following 15 binary classification datasets from
+    OpenML/UCI.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T17:52:18Z'
+- artifact_path: projects/PROJ-264-assessing-the-stability-of-statistical-m/specs/001-assessing-the-stability-of-statistical-m/quickstart.md
+  attempts: 1
+  canonical: 10 folds and 10 repeats of stratified cross-validation for Logistic Regression,
+    Random Forest, and Linear SVM
+  claim_id: c_fbf0ca13
+  context: 'Run the main pipeline script to execute the full evaluation: ... This
+    will: ... Run repeated stratified cross-validation (10 folds, 10 repeats) for
+    Logistic Regression, Random Forest, and Linear SVM.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline runs repeated stratified cross-validation (10 folds, 10 repeats)
+    for Logistic Regression, Random Forest, and Linear SVM.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T17:52:39Z'
+- artifact_path: projects/PROJ-264-assessing-the-stability-of-statistical-m/specs/001-assessing-the-stability-of-statistical-m/quickstart.md
+  attempts: 1
+  canonical: Pima Indians Diabetes dataset has 768 samples and 8 features
+  claim_id: c_dd8ed25c
+  context: '| Pima Indians Diabetes | 1510 | 768 | 8 | Classic binary classification
+    on health metrics. |'
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: 'mented with 2,000 synthetic samples to mitigate class imbalance (total:
+        2,768 samples, 1,949'
+      source_id: '2509.12259'
+      url: https://arxiv.org/abs/2509.12259
+      value: '768'
+    filled: true
+  kind: numeric
+  raw_text: The Pima Indians Diabetes dataset has 768 samples and 8 features.
+  resolved_value: '768'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-08T17:53:01Z'
+- artifact_path: projects/PROJ-264-assessing-the-stability-of-statistical-m/specs/001-assessing-the-stability-of-statistical-m/quickstart.md
+  attempts: 1
+  canonical: Breast Cancer Wisconsin dataset has 569 samples and 30 features
+  claim_id: c_c2136861
+  context: '| Breast Cancer Wisconsin | 1461 | 569 | 30 | Malignant vs. benign tumor
+    classification. |'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Breast Cancer Wisconsin dataset has 569 samples and 30 features.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T17:53:22Z'
+- artifact_path: projects/PROJ-264-assessing-the-stability-of-statistical-m/specs/001-assessing-the-stability-of-statistical-m/quickstart.md
+  attempts: 1
+  canonical: Ionosphere dataset has 351 samples and 34 features
+  claim_id: c_01d36d6d
+  context: '| Ionosphere | 1464 | 351 | 34 | Radar signal classification (good/bad).
+    |'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Ionosphere dataset has 351 samples and 34 features.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T17:53:39Z'
+- artifact_path: projects/PROJ-264-assessing-the-stability-of-statistical-m/specs/001-assessing-the-stability-of-statistical-m/quickstart.md
+  attempts: 1
+  canonical: Haberman's Survival dataset has 306 samples and 3 features
+  claim_id: c_3c9ece2c
+  context: '| Haberman''s Survival | 1228 | 306 | 3 | Patient survival status after
+    surgery. |'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Haberman's Survival dataset has 306 samples and 3 features.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T17:54:01Z'
+- artifact_path: projects/PROJ-264-assessing-the-stability-of-statistical-m/specs/001-assessing-the-stability-of-statistical-m/quickstart.md
+  attempts: 1
+  canonical: Spect Heart dataset has 267 samples and 44 features
+  claim_id: c_4cab5d7f
+  context: '| Spect Heart | 1478 | 267 | 44 | Heart disease diagnosis (presence/absence).
+    |'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Spect Heart dataset has 267 samples and 44 features.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T17:54:16Z'
+- artifact_path: projects/PROJ-264-assessing-the-stability-of-statistical-m/specs/001-assessing-the-stability-of-statistical-m/quickstart.md
+  attempts: 1
+  canonical: Breast Cancer dataset has 286 samples and 9 features
+  claim_id: c_f9abc26a
+  context: '| Breast Cancer | 1286 | 286 | 9 | UCI Breast Cancer dataset. |'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Breast Cancer dataset has 286 samples and 9 features.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T17:54:37Z'
+- artifact_path: projects/PROJ-264-assessing-the-stability-of-statistical-m/specs/001-assessing-the-stability-of-statistical-m/quickstart.md
+  attempts: 1
+  canonical: Monks-1 dataset has 432 samples and 6 features
+  claim_id: c_3b8118bf
+  context: '| Monks-1 | 1472 | 432 | 6 | Synthetic robot classification task. |'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Monks-1 dataset has 432 samples and 6 features.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T17:54:59Z'
+- artifact_path: projects/PROJ-264-assessing-the-stability-of-statistical-m/specs/001-assessing-the-stability-of-statistical-m/quickstart.md
+  attempts: 1
+  canonical: Monks-2 dataset has 432 samples and 6 features
+  claim_id: c_7f57efdf
+  context: '| Monks-2 | 1473 | 432 | 6 | Synthetic robot classification task. |'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Monks-2 dataset has 432 samples and 6 features.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T17:54:59Z'
+- artifact_path: projects/PROJ-264-assessing-the-stability-of-statistical-m/specs/001-assessing-the-stability-of-statistical-m/quickstart.md
+  attempts: 1
+  canonical: Monks-3 dataset has 432 samples and 6 features
+  claim_id: c_e0d27a16
+  context: '| Monks-3 | 1474 | 432 | 6 | Synthetic robot classification task. |'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Monks-3 dataset has 432 samples and 6 features.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T17:55:00Z'
+- artifact_path: projects/PROJ-264-assessing-the-stability-of-statistical-m/specs/001-assessing-the-stability-of-statistical-m/quickstart.md
+  attempts: 1
+  canonical: Credit Approval dataset has 690 samples and 15 features
+  claim_id: c_baec2829
+  context: '| Credit Approval | 1466 | 690 | 15 | Credit card approval prediction.
+    |'
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: Australian 690 14 307 383
+      source_id: '2102.04721'
+      url: https://arxiv.org/abs/2102.04721
+      value: '690'
+    filled: true
+  kind: numeric
+  raw_text: The Credit Approval dataset has 690 samples and 15 features.
+  resolved_value: '690'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-08T17:55:27Z'
+- artifact_path: projects/PROJ-264-assessing-the-stability-of-statistical-m/specs/001-assessing-the-stability-of-statistical-m/quickstart.md
+  attempts: 1
+  canonical: German Credit dataset has 1000 samples and 20 features
+  claim_id: c_1f6cec68
+  context: '| German Credit | 1467 | 1000 | 20 | German credit risk assessment. |'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The German Credit dataset has 1000 samples and 20 features.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T17:55:47Z'
+- artifact_path: projects/PROJ-264-assessing-the-stability-of-statistical-m/specs/001-assessing-the-stability-of-statistical-m/quickstart.md
+  attempts: 1
+  canonical: Heart Disease dataset has 270 samples and 13 features
+  claim_id: c_e6610135
+  context: '| Heart Disease | 1470 | 270 | 13 | UCI Heart Disease dataset. |'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Heart Disease dataset has 270 samples and 13 features.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T17:56:11Z'
+- artifact_path: projects/PROJ-264-assessing-the-stability-of-statistical-m/specs/001-assessing-the-stability-of-statistical-m/quickstart.md
+  attempts: 1
+  canonical: Hepatitis dataset has 155 samples and 19 features
+  claim_id: c_487b2321
+  context: '| Hepatitis | 1471 | 155 | 19 | Hepatitis diagnosis (alive/died). |'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Hepatitis dataset has 155 samples and 19 features.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T17:56:33Z'
+- artifact_path: projects/PROJ-264-assessing-the-stability-of-statistical-m/specs/001-assessing-the-stability-of-statistical-m/quickstart.md
+  attempts: 1
+  canonical: Liver Disorders dataset has 345 samples and 6 features
+  claim_id: c_d7698c22
+  context: '| Liver Disorders | 1287 | 345 | 6 | Liver disorder detection. |'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Liver Disorders dataset has 345 samples and 6 features.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T17:57:06Z'
+- artifact_path: projects/PROJ-264-assessing-the-stability-of-statistical-m/specs/001-assessing-the-stability-of-statistical-m/quickstart.md
+  attempts: 1
+  canonical: Thyroid dataset has 215 samples and 5 features
+  claim_id: c_952799f5
+  context: '| Thyroid | 1463 | 215 | 5 | Thyroid disease classification. |'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Thyroid dataset has 215 samples and 5 features.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T17:57:31Z'
+- artifact_path: projects/PROJ-264-assessing-the-stability-of-statistical-m/specs/001-assessing-the-stability-of-statistical-m/quickstart.md
+  attempts: 1
+  canonical: Datasets with fewer than 200 samples are skipped
+  claim_id: c_87c1d873
+  context: '**Note**: Datasets with fewer than 200 samples are automatically skipped
+    during execution to ensure stable 10-fold cross-validation results.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Datasets_with_fewer_than_200_samples_are_skipped
+  kind: magnitude
+  raw_text: Datasets with fewer than 200 samples are automatically skipped during
+    execution.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T17:58:04Z'
+- artifact_path: projects/PROJ-264-assessing-the-stability-of-statistical-m/specs/001-assessing-the-stability-of-statistical-m/quickstart.md
+  attempts: 1
+  canonical: Pipeline processes sequentially within 7GB memory constraints
+  claim_id: c_a3553e3f
+  context: '**Memory Limits**: The pipeline processes datasets sequentially to stay
+    within memory constraints (~7GB).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_processes_sequentially_within_7GB_memory_constraint
+  kind: entity_fact
+  raw_text: The pipeline processes datasets sequentially to stay within memory constraints
+    of approximately 7GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T17:58:22Z'
+- artifact_path: projects/PROJ-264-assessing-the-stability-of-statistical-m/specs/001-assessing-the-stability-of-statistical-m/tasks.md
+  attempts: 0
+  canonical: Skip datasets with sample size less than 100 or greater than 100000
+  claim_id: c_d82b9756
+  context: T005 logic for data validation specifies skipping datasets outside the
+    100 to 100,000 sample range.
+  evidence:
+    entailment_evidence: Skip datasets with fewer than 100 or more than 100000 sample
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Skip_datasets_with_fewer_than_100_or_more_than_100000_sample
+  kind: magnitude
+  raw_text: 'Validate each dataset: if n_samples < 100 OR n_samples > 100000, log
+    a warning and skip only that specific dataset.'
+  resolved_value: Skip datasets with fewer than 100 or more than 100000 samples
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-08T17:58:40Z'
+- artifact_path: projects/PROJ-264-assessing-the-stability-of-statistical-m/specs/001-assessing-the-stability-of-statistical-m/tasks.md
+  attempts: 1
+  canonical: 15 binary classification datasets selected from OpenML/UCI
+  claim_id: c_c2ca374c
+  context: T005 requires the data loader to support direct URL fetch for UCI datasets
+    if not available on OpenML and explicitly select 15 binary classification datasets.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Explicitly select 15 binary classification datasets (OpenML IDs) defined
+    in code/config.py.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T17:58:44Z'
+- artifact_path: projects/PROJ-264-assessing-the-stability-of-statistical-m/specs/001-assessing-the-stability-of-statistical-m/tasks.md
+  attempts: 1
+  canonical: Exit with code 1 if valid dataset count is less than 15
+  claim_id: c_2e85575f
+  context: T005 logic specifies a critical failure condition if the number of valid
+    datasets drops below 15.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exit_with_code_1_if_valid_dataset_count_is_less_than_15
+  kind: magnitude
+  raw_text: 'If the count of valid datasets is insufficient (< 15), log the exact
+    message: ''CRITICAL: Insufficient valid datasets (< 15). Exiting.'' and exit with
+    code 1.'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T17:58:46Z'
+- artifact_path: projects/PROJ-264-assessing-the-stability-of-statistical-m/specs/001-assessing-the-stability-of-statistical-m/tasks.md
+  attempts: 1
+  canonical: Use 10 splits and 10 repeats for datasets with 200 or more samples
+  claim_id: c_49007ea1
+  context: T011 specifies the cross-validation logic for datasets with sufficient
+    sample size.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use RepeatedStratifiedKFold(n_splits=10, n_repeats=10) for datasets with
+    n_samples >= 200.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T17:59:11Z'
+- artifact_path: projects/PROJ-264-assessing-the-stability-of-statistical-m/specs/001-assessing-the-stability-of-statistical-m/tasks.md
+  attempts: 1
+  canonical: Skip datasets with sample size between 100 and 199
+  claim_id: c_327f1005
+  context: T011 specifies skipping datasets in the 100-199 range because 10-fold is
+    unstable for N<200.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Skip datasets with 100 <= n_samples < 200 to ensure 10-fold stability.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T17:59:35Z'
+- artifact_path: projects/PROJ-264-assessing-the-stability-of-statistical-m/specs/001-assessing-the-stability-of-statistical-m/tasks.md
+  attempts: 1
+  canonical: Random Forest configured with 100 estimators
+  claim_id: c_c0c821d4
+  context: T012 specifies the training loop implementation for Logistic Regression,
+    Random Forest, and Linear SVM.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement Random Forest with n_estimators=100.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T17:59:58Z'
+- artifact_path: projects/PROJ-264-assessing-the-stability-of-statistical-m/specs/001-assessing-the-stability-of-statistical-m/tasks.md
+  attempts: 1
+  canonical: Compute Pearson correlation between CV and log-transformed sample size
+    and feature count
+  claim_id: c_aba89a42
+  context: T019a details the calculation of Pearson correlations for the Coefficient
+    of Variation metric.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Compute_Pearson_correlation_between_CV_and_log-transformed_s
+  kind: entity_fact
+  raw_text: Compute Pearson correlation coefficients between CV and dataset properties
+    (log(n_samples), log(n_features)).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T18:00:00Z'
+- artifact_path: projects/PROJ-264-assessing-the-stability-of-statistical-m/specs/001-assessing-the-stability-of-statistical-m/tasks.md
+  attempts: 1
+  canonical: Compute Spearman rho as a robustness check for correlations
+  claim_id: c_3ad51113
+  context: T019a and T019b specify computing Spearman rho in addition to Pearson correlation.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Compute_Spearman_rho_as_a_robustness_check_for_correlations
+  kind: entity_fact
+  raw_text: Compute Spearman rho for robustness check alongside Pearson correlation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T18:00:41Z'
+- artifact_path: projects/PROJ-264-assessing-the-stability-of-statistical-m/specs/001-assessing-the-stability-of-statistical-m/tasks.md
+  attempts: 1
+  canonical: Apply Benjamini-Hochberg correction for False Discovery Rate control
+  claim_id: c_0a6bca80
+  context: T026 specifies the multiple comparison correction method to be used across
+    correlations and permutation tests.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Apply_Benjamini-Hochberg_correction_for_False_Discovery_Rate
+  kind: entity_fact
+  raw_text: Apply Benjamini-Hochberg correction globally across all hypothesis tests
+    to control the False Discovery Rate.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T18:11:44Z'
+- artifact_path: projects/PROJ-264-assessing-the-stability-of-statistical-m/specs/001-assessing-the-stability-of-statistical-m/tasks.md
+  attempts: 1
+  canonical: Generate permutation test results for 3 pairwise model combinations per
+    dataset
+  claim_id: c_d71ec8d0
+  context: T025 and T027 specify that permutation tests must cover all three pairwise
+    model comparisons.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate results for all three pairwise combinations (LR vs RF, RF vs
+    SVM, LR vs SVM) for each dataset.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T18:11:44Z'
+- artifact_path: projects/PROJ-264-assessing-the-stability-of-statistical-m/specs/001-assessing-the-stability-of-statistical-m/tasks.md
+  attempts: 1
+  canonical: Report datasets with adjusted p-value less than 0.05 as significant
+  claim_id: c_68b16821
+  context: T028c defines the content requirements for the final summary report.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Report_datasets_with_adjusted_p-value_less_than_0.05_as_sign
+  kind: magnitude
+  raw_text: List datasets where adj_p < 0.05 in the 'Significant Variance Differences'
+    section of the final report.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T18:15:24Z'
+- artifact_path: projects/PROJ-264-assessing-the-stability-of-statistical-m/specs/001-assessing-the-stability-of-statistical-m/tasks.md
+  attempts: 1
+  canonical: Memory usage constraint of less than 7 GB
+  claim_id: c_16cc8bde
+  context: T031 specifies a performance optimization constraint regarding memory usage.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Memory_usage_constraint_of_less_than_7_GB
+  kind: magnitude
+  raw_text: Ensure memory usage stays <7GB by processing datasets sequentially.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T18:15:26Z'
+- artifact_path: projects/PROJ-264-assessing-the-stability-of-statistical-m/specs/001-assessing-the-stability-of-statistical-m/tasks.md
+  attempts: 1
+  canonical: Total runtime constraint of less than 6 hours
+  claim_id: c_0162b52c
+  context: T032 specifies an end-to-end validation task to verify runtime limits.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Total_runtime_constraint_of_less_than_6_hours
+  kind: magnitude
+  raw_text: Verify total runtime < 6h on a small subset of datasets.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T18:15:28Z'
+- artifact_path: projects/PROJ-264-assessing-the-stability-of-statistical-m/specs/001-assessing-the-stability-of-statistical-m/tasks.md
+  attempts: 1
+  canonical: CI job timeout set to 360 minutes
+  claim_id: c_adb8d80d
+  context: T036a addresses CI timeout configuration to handle network or timeout failures.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Update ci.yml to include a timeout-minutes directive of 360 for the evaluation
+    job.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T18:17:25Z'
